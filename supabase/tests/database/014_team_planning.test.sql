@@ -35,7 +35,8 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 do $$ begin
   perform public.decide_matching_request(
-    (select m.id from public.matching_requests m join public.cases c on c.id = m.case_id where c.last_name = 'J3neu'),
+    -- F0: nurses read offers through team_offers(), not the matching_requests table
+    (select o.matching_request_id from public.team_offers() o where o.request_title = 'Teamsuche: J3 Anfrage'),
     '00000000-0000-4000-a000-000000000101', 'accept', null, 'a3000000-0000-4000-8000-000000000103');
 end $$;
 
