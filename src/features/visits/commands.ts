@@ -10,6 +10,7 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/session";
 import { toCommandResult } from "@/lib/commands/result";
 import { visitCommandSchema, type CommandResult } from "./command-schemas";
+import { errorFields, logEvent } from "@/lib/log";
 
 const INVALID: CommandResult = { ok: false, error: "Ungültige Eingabe." };
 const REJECTED =
@@ -28,7 +29,7 @@ async function runVisitCommand(
     p_visit_id: parsed.data.visitId,
     p_idempotency_key: parsed.data.idempotencyKey,
   });
-  if (error) console.error(`${fn} failed:`, error.code);
+  if (error) logEvent("error", "command.failed", { op: fn, ...errorFields(error) });
 
   const result = toCommandResult(data, error, { rejected: REJECTED, failed });
   if (result.ok) {

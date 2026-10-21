@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { HOME_PATH, LOGIN_PATH } from "@/lib/auth/paths";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { SIGN_IN_FAILED, signInSchema, type SignInState } from "./schema";
+import { errorFields, logEvent } from "@/lib/log";
 
 export async function signIn(
   _previous: SignInState,
@@ -23,7 +24,7 @@ export async function signIn(
 
   if (error) {
     // Log the category only — never the e-mail address or password.
-    console.warn("Sign-in failed:", error.status ?? "unknown status", error.code ?? "");
+    logEvent("warn", "auth.sign_in_failed", errorFields(error));
     return { error: SIGN_IN_FAILED };
   }
 

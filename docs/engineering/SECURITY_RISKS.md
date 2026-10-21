@@ -1,11 +1,11 @@
 # NAVORA — Security Risk Register
 
-**Last updated:** 2026-10-21 (after T11) · **Evidence:** VERIFIED (seen in code/repo/CI) · INFERRED (from code, not executed) · REPORTED (handover docs only) · UNKNOWN.
+**Last updated:** 2026-10-21 (after C-1 containment and TD-17) · **Evidence:** VERIFIED (seen in code/repo/CI) · INFERRED (from code, not executed) · REPORTED (handover docs only) · UNKNOWN.
 Severity reflects impact if real patient data were involved.
 
 | ID | Risk | Severity | Evidence | Mitigation / task | Status |
 |---|---|---|---|---|---|
-| SR-01 | Care tables readable/writable via `{public}` policies | Critical | Live: REPORTED. Local: was reproduced by `0002` | **Local/CI: CLOSED by T9** (policies dropped, anon privileges revoked; pgTAP + REST check). **Live project: still OPEN** — engineering cannot touch it; O-E containment | CLOSED in code · OPEN on live |
+| SR-01 | Care tables readable/writable via `{public}` policies | Critical | Live: VERIFIED 2026-10-21 (8 `true` policies, full `anon` grants on 9 tables). Local: was reproduced by `0002` | **Local/CI: CLOSED by T9.** **Live: CONTAINED by C-1** (owner-executed 2026-10-21; anon read/insert denied on 10/10 tables, verified — `docs/ops/live/CONTAINMENT_REPORT_C1_2026-10-21.md`). Open: was the data real (legal), anon key rotation (SR-12) | CLOSED in code · CONTAINED on live |
 | SR-02 | Server pages query as `anon` (module-level client, no session) | Critical | VERIFIED in code | T8: all queries run through `requireUser()` with the session client; anon client deleted | CLOSED on `feat/auth-ssr` (PR #7) |
 | SR-03 | Real code not in version control | Critical → Medium | VERIFIED | Transcribed import on `import/project-src-2026-10-21` + `recovery/main`; byte verification O-C, Codespace O-D | MITIGATED (pending O-C) |
 | SR-04 | Next.js below fixes for critical RCEs / Server Action DoS | Critical | VERIFIED | Next 16.4.1, sharp 0.35.5 resolved (CI `npm ls`); `npm audit` 0 | CLOSED on `recovery/main` (still open on `main` until M2) |
@@ -28,6 +28,7 @@ Severity reflects impact if real patient data were involved.
 | SR-22 | Every org member, including nurses, reads all cases of the organisation with health fields | High | VERIFIED (T9 policy design, ADR-018) | Q4 permission matrix + T10 minimal selects / column scoping | OPEN |
 | SR-23 | `SECURITY DEFINER` helpers bypass RLS on membership tables | Medium | VERIFIED (design) | empty `search_path`, schema not exposed, execute only for `authenticated`, read-only `exists` queries; covered by pgTAP | CONTROLLED |
 | SR-24 | Command context in transaction-local settings could leak to later statements in the same transaction (wrong audit attribution, false "duplicate") | Medium | VERIFIED by pgTAP test 28 before merge | `private.end_command()` clears it; test kept as regression | CLOSED |
+| SR-25 | Server logs could contain personal/health data: two query paths logged the full PostgREST error (`message`/`details`/`hint` carry row values) | Medium | VERIFIED in code (`teams/queries.ts`, `visits/queries.ts`) | TD-17: `src/lib/log.ts` allowlist logger (code/status/op/count only, free text redacted), unit tests with a realistic leaking error, ESLint `no-console` outside the logger | CLOSED on `feat/td17-structured-logging` |
 | SR-20 | Lockfile and types bots can push to feature branches | Low | VERIFIED (workflows) | each bot touches one file, no install scripts; excluded from `main` and `recovery/main` (PR #12); protected branches need review (O-A) | CONTROLLED |
 
 ## Rules derived from this register

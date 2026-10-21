@@ -6,6 +6,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/session";
+import { errorFields, logEvent } from "@/lib/log";
 import { toCommandResult } from "@/lib/commands/result";
 import {
   assignTeamCoachSchema,
@@ -38,7 +39,7 @@ export async function setTeamPriority(input: unknown): Promise<CommandResult> {
     p_priority: parsed.data.priority,
     p_idempotency_key: parsed.data.idempotencyKey,
   });
-  if (error) console.error("set_team_priority failed:", error.code);
+  if (error) logEvent("error", "command.failed", { op: "set_team_priority", ...errorFields(error) });
 
   return done(toCommandResult(data, error, MESSAGES));
 }
@@ -53,7 +54,7 @@ export async function assignTeamCoach(input: unknown): Promise<CommandResult> {
     p_coach_name: parsed.data.coachName,
     p_idempotency_key: parsed.data.idempotencyKey,
   });
-  if (error) console.error("assign_team_coach failed:", error.code);
+  if (error) logEvent("error", "command.failed", { op: "assign_team_coach", ...errorFields(error) });
 
   return done(toCommandResult(data, error, MESSAGES));
 }
