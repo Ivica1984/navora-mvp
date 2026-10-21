@@ -1,6 +1,7 @@
 import "server-only";
 
 import { requireUser } from "@/lib/auth/session";
+import { errorFields, logEvent } from "@/lib/log";
 import type { TeamRow } from "./types";
 
 export async function getTeams(): Promise<TeamRow[]> {
@@ -28,7 +29,7 @@ export async function getTeams(): Promise<TeamRow[]> {
     .order("created_at", { ascending: true });
 
   if (error) {
-    console.error("Error loading teams:", error);
+    logEvent("error", "teams.load_failed", errorFields(error));
     throw new Error("Teams konnten nicht geladen werden.");
   }
 

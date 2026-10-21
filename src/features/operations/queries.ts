@@ -15,6 +15,7 @@ import {
   type PartnerRequestSummary,
   type QualityEventSummary,
 } from "./types";
+import { errorFields, logEvent } from "@/lib/log";
 
 const TEAM_COLUMNS =
   "id, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, created_at, priority, coach_name";
@@ -57,7 +58,7 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
   ].find((result) => result.error)?.error;
 
   if (firstError) {
-    console.error("Error loading operations dashboard:", firstError.code);
+    logEvent("error", "operations.load_failed", errorFields(firstError));
     throw new Error("Operations Dashboard konnte nicht geladen werden.");
   }
 

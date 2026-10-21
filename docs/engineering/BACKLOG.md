@@ -47,6 +47,7 @@ Decision brief with options and recommendations: [`DECISIONS_NEEDED.md`](DECISIO
 | T13 | DB-level seed coverage test: one pgTAP/SQL check per attention category | DONE | PR #15 merged; `006_seed_attention_coverage.test.sql`, 22 assertions, CI db green. Gap: `submitted` note branch unit-tested only |
 | T14 | Generated `database.types.ts`, typed client, drift check in CI, compile-time proof | DONE | PR #11 merged |
 | T15 | Inline command errors; all regions on Teams; memoised auth check; bots off `recovery/main` | DONE | PR #12 merged |
+| TD-17 | Structured logging without personal/health data (closes SR-25) | IN REVIEW | branch `feat/td17-structured-logging` |
 
 ## Product (M4 — Roadmap Gate 2)
 

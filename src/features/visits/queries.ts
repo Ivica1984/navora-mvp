@@ -2,6 +2,7 @@ import "server-only";
 
 import { requireUser } from "@/lib/auth/session";
 import type { CareVisitRow } from "./types";
+import { errorFields, logEvent } from "@/lib/log";
 
 export async function getCareVisits(): Promise<CareVisitRow[]> {
   // Runs as the signed-in user (RLS sees auth.uid()); redirects to /login otherwise.
@@ -27,7 +28,7 @@ export async function getCareVisits(): Promise<CareVisitRow[]> {
     .order("visit_date", { ascending: true });
 
   if (error) {
-    console.error("Error loading care visits:", error);
+    logEvent("error", "visits.load_failed", errorFields(error));
     throw new Error("Einsätze konnten nicht geladen werden.");
   }
 
