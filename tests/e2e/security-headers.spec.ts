@@ -53,8 +53,9 @@ test("the app works under the CSP: no violations while signing in and navigating
   await page.getByLabel("E-Mail").fill("pflege.test@navora.test");
   await page.getByLabel("Passwort").fill("navora-local-only");
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await expect(page).toHaveURL(/\/operations$/);
-  await expect(page.getByRole("heading", { name: "Navora Operations Control Tower" })).toBeVisible();
+  // F1: a nurse lands in the field tool (Tailwind classes, client buttons) — also checked under the CSP.
+  await expect(page).toHaveURL(/\/field$/);
+  await expect(page.getByRole("navigation", { name: "Tag wechseln" })).toBeVisible();
 
   for (const path of ["/teams", "/visits", "/operations"]) {
     await page.goto(path);
