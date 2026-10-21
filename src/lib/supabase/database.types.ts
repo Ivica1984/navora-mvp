@@ -159,14 +159,14 @@ isOneToOne: false
                   ]
                 },"match_candidates": {
                   Row: {
-                    "created_at": string,"distance_km": number | null,"fit_score": number | null,"id": string,"matching_request_id": string | null,"open_slots": number | null,"organization_id": string,"reasons": (string)[] | null,"status": string | null,"team_id": string | null,"utilization": number | null
+                    "created_at": string,"distance_km": number | null,"fit_score": number,"id": string,"matching_request_id": string | null,"open_slots": number | null,"organization_id": string,"reasons": (string)[] | null,"status": string,"team_id": string | null,"utilization": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"distance_km"?: number | null,"fit_score"?: number | null,"id"?: string,"matching_request_id"?: string | null,"open_slots"?: number | null,"organization_id": string,"reasons"?: (string)[] | null,"status"?: string | null,"team_id"?: string | null,"utilization"?: number | null
+                    "created_at"?: string,"distance_km"?: number | null,"fit_score"?: number,"id"?: string,"matching_request_id"?: string | null,"open_slots"?: number | null,"organization_id": string,"reasons"?: (string)[] | null,"status"?: string,"team_id"?: string | null,"utilization"?: number | null
                   }
                   Update: {
-                    "created_at"?: string,"distance_km"?: number | null,"fit_score"?: number | null,"id"?: string,"matching_request_id"?: string | null,"open_slots"?: number | null,"organization_id"?: string,"reasons"?: (string)[] | null,"status"?: string | null,"team_id"?: string | null,"utilization"?: number | null
+                    "created_at"?: string,"distance_km"?: number | null,"fit_score"?: number,"id"?: string,"matching_request_id"?: string | null,"open_slots"?: number | null,"organization_id"?: string,"reasons"?: (string)[] | null,"status"?: string,"team_id"?: string | null,"utilization"?: number | null
                   }
                   Relationships: [
                     {
