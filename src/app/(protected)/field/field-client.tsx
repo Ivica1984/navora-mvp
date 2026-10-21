@@ -24,8 +24,8 @@ import {
   zurichTime,
   type VisitEvent,
 } from "@/features/field/time";
-import { correctVisitTime } from "@/features/field/commands";
-import type { FieldVisit } from "@/features/field/types";
+import { correctVisitTime, recordObservation } from "@/features/field/commands";
+import type { FieldNote, FieldVisit } from "@/features/field/types";
 
 type Props = {
   day: string;
@@ -33,6 +33,7 @@ type Props = {
   previousDay: string;
   nextDay: string;
   visits: FieldVisit[];
+  notes: FieldNote[];
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -42,6 +43,9 @@ const COMMANDS: Record<FieldAction, typeof startVisit> = {
   resume: resumeVisit,
   complete: completeVisit,
 };
+
+// Observations are possible from departure on (migration 0009 enforces the same).
+const OBSERVABLE = new Set(["on_the_way", "started", "paused", "completed"]);
 
 const STATUS_CLASS: Record<string, string> = {
   planned: "bg-amber-100 text-amber-900",
@@ -53,7 +57,7 @@ const STATUS_CLASS: Record<string, string> = {
   no_show: "bg-rose-100 text-rose-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes }: Props) {
   const summary = summarizeDay(visits);
 
   return (
@@ -99,14 +103,14 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
           <ol className="grid gap-3" aria-label="Einsätze">
             {visits.map((visit) => (
               <li key={visit.visit_id}>
-                <VisitCard visit={visit} />
+                <VisitCard visit={visit} notes={notes.filter((n) => n.visit_id === visit.visit_id)} />
               </li>
             ))}
           </ol>
         )}
 
         <p className="mt-6 text-xs leading-relaxed text-emerald-900/60">
-          Du siehst die Einsätze deiner Teams. Zeiten entstehen aus deinen Statuswechseln und lassen sich mit Begründung korrigieren. Beobachtungen und Bericht folgen in den nächsten Ausbaustufen.
+          Du siehst die Einsätze deiner Teams. Zeiten entstehen aus deinen Statuswechseln und lassen sich mit Begründung korrigieren. Beobachtungen sieht nur dein Team; Übergaben erscheinen bei den nächsten Einsätzen derselben Person. Der Bericht folgt in der nächsten Ausbaustufe.
         </p>
       </main>
     </div>
@@ -122,7 +126,7 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function VisitCard({ visit }: { visit: FieldVisit }) {
+function VisitCard({ visit, notes }: { visit: FieldVisit; notes: FieldNote[] }) {
   const router = useRouter();
   const [pending, setPending] = useState<FieldAction | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -169,6 +173,8 @@ function VisitCard({ visit }: { visit: FieldVisit }) {
         <Row label="Team" value={visit.team_name} />
       </dl>
 
+      <Handover notes={notes.filter((n) => n.kind === "handover")} />
+
       {times && (
         <section aria-label="Erfasste Zeit" className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-stone-50 p-2 text-center text-sm">
           <TimeCell label="Anfahrt" value={formatMinutes(times.travelMinutes)} />
@@ -183,6 +189,12 @@ function VisitCard({ visit }: { visit: FieldVisit }) {
       )}
 
       {events.length > 0 && <Timeline events={events} />}
+
+      <Observations
+        visitId={visit.visit_id}
+        canRecord={OBSERVABLE.has(visit.status ?? "")}
+        notes={notes.filter((n) => n.kind === "observation")}
+      />
 
       {error && (
         <p role="alert" data-testid="command-error" className="mt-3 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800">
@@ -212,6 +224,161 @@ function VisitCard({ visit }: { visit: FieldVisit }) {
         </div>
       )}
     </article>
+  );
+}
+
+function formatDateTime(iso: string) {
+  return new Intl.DateTimeFormat("de-CH", {
+    timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23",
+  }).format(new Date(iso));
+}
+
+function Handover({ notes }: { notes: FieldNote[] }) {
+  if (notes.length === 0) return null;
+  return (
+    <section aria-label="Übergabe" className="mt-3 rounded-xl border-l-4 border-amber-500 bg-amber-50 p-3 text-sm">
+      <h3 className="font-bold text-amber-900">Übergabe aus dem Team</h3>
+      <ul className="mt-1 grid gap-2">
+        {notes.map((note) => (
+          <li key={note.id}>
+            <p className="whitespace-pre-wrap">{note.content}</p>
+            <p className="text-xs text-amber-900/70">
+              {formatDateTime(note.recorded_at)} · {note.own ? "von dir" : "aus dem Team"}
+              {note.edited ? " · geändert" : ""}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function Observations({ visitId, canRecord, notes }: { visitId: string; canRecord: boolean; notes: FieldNote[] }) {
+  if (!canRecord && notes.length === 0) return null;
+  return (
+    <section aria-label="Beobachtungen" className="mt-3 grid gap-2 text-sm">
+      <h3 className="font-bold">Beobachtungen</h3>
+      {notes.length > 0 && (
+        <ul className="grid gap-2">
+          {notes.map((note) => (
+            <li key={note.id}>
+              <ObservationEntry visitId={visitId} note={note} />
+            </li>
+          ))}
+        </ul>
+      )}
+      {canRecord && <ObservationForm visitId={visitId} supersedesId={null} />}
+    </section>
+  );
+}
+
+function ObservationEntry({ visitId, note }: { visitId: string; note: FieldNote }) {
+  const [editing, setEditing] = useState(false);
+  if (editing) {
+    return (
+      <ObservationForm
+        visitId={visitId}
+        supersedesId={note.id}
+        initialContent={note.content}
+        initialHandover={note.for_handover}
+        onDone={() => setEditing(false)}
+      />
+    );
+  }
+  return (
+    <div className="rounded-lg bg-stone-50 p-2">
+      <p className="whitespace-pre-wrap">{note.content}</p>
+      <div className="mt-1 flex items-center justify-between gap-2">
+        <p className="text-xs text-emerald-900/60">
+          {formatDateTime(note.recorded_at)} · {note.own ? "von dir" : "aus dem Team"}
+          {note.edited ? " · geändert" : ""}
+          {note.for_handover ? " · Übergabe" : ""}
+        </p>
+        {note.own && (
+          <button type="button" onClick={() => setEditing(true)} className="min-h-11 shrink-0 px-2 font-semibold underline underline-offset-4">
+            Ändern
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ObservationForm({
+  visitId,
+  supersedesId,
+  initialContent = "",
+  initialHandover = false,
+  onDone,
+}: {
+  visitId: string;
+  supersedesId: string | null;
+  initialContent?: string;
+  initialHandover?: boolean;
+  onDone?: () => void;
+}) {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [formKey, setFormKey] = useState(0);
+
+  async function save(form: FormData) {
+    setPending(true);
+    setError(null);
+    const result = await recordObservation({
+      visitId,
+      content: String(form.get("content") ?? ""),
+      forHandover: form.get("handover") === "on",
+      supersedesId,
+      idempotencyKey: crypto.randomUUID(),
+    });
+    setPending(false);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setFormKey((k) => k + 1); // clears the form for the next observation
+    onDone?.();
+    router.refresh();
+  }
+
+  const label = supersedesId ? "Beobachtung ändern" : "Neue Beobachtung";
+  return (
+    <form key={formKey} action={save} className="grid gap-2 rounded-lg border border-stone-200 p-2">
+      <label className="grid gap-1">
+        <span className="text-xs font-semibold">{label}</span>
+        <textarea
+          name="content"
+          required
+          maxLength={2000}
+          rows={3}
+          defaultValue={initialContent}
+          className="rounded-lg border border-stone-300 bg-white p-2"
+        />
+      </label>
+      <label className="flex min-h-11 items-center gap-2">
+        <input name="handover" type="checkbox" defaultChecked={initialHandover} className="size-5" />
+        <span>Für die Übergabe markieren</span>
+      </label>
+      {error && (
+        <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">
+          {error}
+        </p>
+      )}
+      <div className={`grid gap-2 ${onDone ? "grid-cols-2" : ""}`}>
+        <button type="submit" disabled={pending} className="min-h-11 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60">
+          {pending ? "Wird gespeichert …" : supersedesId ? "Änderung speichern" : "Beobachtung speichern"}
+        </button>
+        {onDone && (
+          <button type="button" onClick={onDone} className="min-h-11 rounded-lg border border-stone-300 font-semibold">
+            Abbrechen
+          </button>
+        )}
+      </div>
+      <p className="text-xs text-emerald-900/60">
+        Gespeichert wird mit deinem Zugang und der Uhrzeit. Änderungen werden als neue Fassung abgelegt; nur dein Team sieht Beobachtungen.
+      </p>
+    </form>
   );
 }
 

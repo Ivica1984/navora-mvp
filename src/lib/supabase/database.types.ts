@@ -433,6 +433,44 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"visit_observations": {
+                  Row: {
+                    "author_id": string,"case_id": string | null,"content": string,"for_handover": boolean,"id": string,"idempotency_key": string,"organization_id": string,"recorded_at": string,"source": string,"supersedes_id": string | null,"team_id": string,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id": string,"case_id"?: string | null,"content": string,"for_handover"?: boolean,"id"?: string,"idempotency_key": string,"organization_id": string,"recorded_at"?: string,"source"?: string,"supersedes_id"?: string | null,"team_id": string,"visit_id": string
+                  }
+                  Update: {
+                    "author_id"?: string,"case_id"?: string | null,"content"?: string,"for_handover"?: boolean,"id"?: string,"idempotency_key"?: string,"organization_id"?: string,"recorded_at"?: string,"source"?: string,"supersedes_id"?: string | null,"team_id"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "visit_observations_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_observations_supersedes_id_fkey"
+      columns: ["supersedes_id"]
+isOneToOne: false
+      referencedRelation: "visit_observations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_observations_team_id_organization_id_fkey"
+      columns: ["team_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "visit_observations_visit_id_organization_id_fkey"
+      columns: ["visit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"visit_time_corrections": {
                   Row: {
                     "actor_id": string,"corrected_at": string,"created_at": string,"event_id": number,"id": number,"idempotency_key": string,"organization_id": string,"reason": string,"team_id": string | null,"visit_id": string
@@ -483,6 +521,11 @@ isOneToOne: false
 "depart_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"field_notes":
+{ Args: { "p_date": string }; Returns: {
+              "content": string,"edited": boolean,"for_handover": boolean,"id": string,"kind": string,"own": boolean,"recorded_at": string,"source_date": string,"visit_id": string
+            }[]
+                           },
 "field_visits":
 { Args: { "p_date": string }; Returns: {
               "address": string,"care_needs": (string)[],"case_id": string,"client_name": string,"events": Json,"ort": string,"plz": string,"services_provided": (string)[],"status": string,"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
@@ -490,6 +533,9 @@ isOneToOne: false
                            },
 "pause_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"record_observation":
+{ Args: { "p_content": string,"p_for_handover": boolean,"p_idempotency_key": string,"p_supersedes_id": string,"p_visit_id": string }; Returns: string
                            },
 "resume_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string

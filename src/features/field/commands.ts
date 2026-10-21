@@ -1,6 +1,6 @@
 "use server";
 
-// F3: time corrections (migration 0008). The database checks team membership,
+// F3: time corrections (migration 0008). F4: observations (migration 0009). The database checks team membership,
 // reason, "not in the future" and timeline order; corrections are append-only.
 
 import { revalidatePath } from "next/cache";
@@ -46,6 +46,46 @@ export async function correctVisitTime(input: unknown): Promise<CommandResult> {
   }
   if (data === "rejected") return { ok: false, error: MESSAGES.rejected };
   if (data !== "ok" && data !== "duplicate") return { ok: false, error: MESSAGES.failed };
+
+  revalidatePath("/field");
+  return { ok: true };
+}
+
+const observationSchema = z.object({
+  visitId: z.uuid(),
+  content: z.string().trim().min(1).max(2000),
+  forHandover: z.boolean(),
+  supersedesId: z.uuid().nullable(),
+  idempotencyKey: z.uuid(),
+});
+
+const OBSERVATION_MESSAGES = {
+  invalid: "Bitte eine Beobachtung eingeben (höchstens 2000 Zeichen).",
+  rejected:
+    "Nicht gespeichert: Beobachtungen sind erst ab Abfahrt möglich, nur im zuständigen Team, und nur die neueste Fassung kann geändert werden.",
+  failed: "Beobachtung konnte nicht gespeichert werden.",
+};
+
+export async function recordObservation(input: unknown): Promise<CommandResult> {
+  const parsed = observationSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: OBSERVATION_MESSAGES.invalid };
+
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("record_observation", {
+    p_visit_id: parsed.data.visitId,
+    p_content: parsed.data.content,
+    p_for_handover: parsed.data.forHandover,
+    // The generated RPC type marks every argument as required; null means "new observation".
+    p_supersedes_id: parsed.data.supersedesId as string,
+    p_idempotency_key: parsed.data.idempotencyKey,
+  });
+
+  if (error) {
+    logEvent("warn", "command.failed", { op: "record_observation", ...errorFields(error) });
+    return { ok: false, error: error.code === "22023" ? OBSERVATION_MESSAGES.invalid : OBSERVATION_MESSAGES.failed };
+  }
+  if (data === "rejected") return { ok: false, error: OBSERVATION_MESSAGES.rejected };
+  if (data !== "ok" && data !== "duplicate") return { ok: false, error: OBSERVATION_MESSAGES.failed };
 
   revalidatePath("/field");
   return { ok: true };

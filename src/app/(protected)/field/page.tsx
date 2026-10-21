@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { getFieldVisits } from "@/features/field/queries";
+import { getFieldNotes, getFieldVisits } from "@/features/field/queries";
 import { parseDayParam, shiftDay, todayInZurich } from "@/features/field/rules";
 import FieldClient from "./field-client";
 
@@ -11,7 +11,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
   const today = todayInZurich();
   const { datum } = await searchParams;
   const day = parseDayParam(datum, today);
-  const visits = await getFieldVisits(day);
+  const [visits, notes] = await Promise.all([getFieldVisits(day), getFieldNotes(day)]);
 
   return (
     <FieldClient
@@ -20,6 +20,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
       previousDay={shiftDay(day, -1)}
       nextDay={shiftDay(day, 1)}
       visits={visits}
+      notes={notes}
     />
   );
 }

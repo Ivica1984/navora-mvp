@@ -11,6 +11,8 @@ const PASSWORD = "navora-local-only";
 const SEED_DAY = new Date().toISOString().slice(0, 10);
 // Visit 508 (Testteam Nord, 09:00) is planned for the day after and untouched by other tests.
 const NEXT_DAY = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+// Status buttons only (F4 adds "Beobachtung speichern" to completed visits).
+const TRANSITION = /^(Losfahren|Einsatz starten|Pause|Fortsetzen|Einsatz abschliessen)$/;
 
 async function signIn(page: Page, email: string, landing: RegExp) {
   await page.goto("/login");
@@ -57,7 +59,7 @@ test.describe("field tool (F1)", () => {
     await card.getByRole("button", { name: "Einsatz abschliessen" }).click();
 
     await expect(card).toContainText("Abgeschlossen");
-    await expect(card.getByRole("button")).toHaveCount(0);
+    await expect(card.getByRole("button", { name: TRANSITION })).toHaveCount(0);
 
     await page.reload();
     await expect(page.getByRole("article", { name: /10:00 – 10:30/ })).toContainText("Abgeschlossen");
@@ -99,7 +101,7 @@ test.describe("field tool (F1)", () => {
       await expect(card).toContainText(status);
     }
 
-    await expect(card.getByRole("button")).toHaveCount(0);
+    await expect(card.getByRole("button", { name: TRANSITION })).toHaveCount(0);
     const times = card.getByRole("region", { name: "Erfasste Zeit" });
     await expect(times).toContainText("Anfahrt");
     await expect(times).toContainText("Pflege");
@@ -148,6 +150,36 @@ test.describe("field tool (F1)", () => {
     const again = page.getByRole("article", { name: /09:00 – 09:45/ });
     await again.getByText("Zeiten ansehen und korrigieren").click();
     await expect(again.getByRole("listitem").filter({ hasText: "Losgefahren" })).toContainText("korrigiert");
+  });
+
+  test("observations: recorded with provenance, edited as a new version, handed over to the next visit (F4)", async ({ page }) => {
+    await signIn(page, NURSE, /\/field$/);
+    await page.goto(`/field?datum=${SEED_DAY}`);
+
+    // Visit 502 (10:00, completed earlier in this file) — client Testfall 08.
+    const card = page.getByRole("article", { name: /10:00 – 10:30/ });
+    const observations = card.getByRole("region", { name: "Beobachtungen" });
+    await observations.getByLabel("Neue Beobachtung").fill("Klientin müde, trinkt wenig. Bitte morgen Trinkmenge beobachten.");
+    await observations.getByLabel("Für die Übergabe markieren").check();
+    await observations.getByRole("button", { name: "Beobachtung speichern" }).click();
+
+    const entry = observations.getByRole("listitem").filter({ hasText: "trinkt wenig" });
+    await expect(entry).toContainText("von dir");
+    await expect(entry).toContainText("Übergabe");
+    await expect(observations.getByLabel("Neue Beobachtung")).toHaveValue("");
+
+    // Change = new version; the edited text replaces the old one in the view.
+    await entry.getByRole("button", { name: "Ändern" }).click();
+    await observations.getByLabel("Beobachtung ändern").fill("Klientin müde, trinkt wenig (ca. 0.5 l bis Mittag). Bitte morgen Trinkmenge beobachten.");
+    await observations.getByRole("button", { name: "Änderung speichern" }).click();
+    await expect(observations.getByRole("listitem").filter({ hasText: "ca. 0.5 l" })).toContainText("geändert");
+    await expect(observations.getByText("trinkt wenig. Bitte", { exact: false })).toHaveCount(0);
+
+    // Handover: shown on the same client's visit of the team on the next day (visit 508).
+    await page.goto(`/field?datum=${NEXT_DAY}`);
+    const handover = page.getByRole("article", { name: /09:00 – 09:45/ }).getByRole("region", { name: "Übergabe" });
+    await expect(handover).toContainText("ca. 0.5 l bis Mittag");
+    await expect(handover).toContainText("von dir");
   });
 
   test("works on a phone-sized screen without horizontal scrolling", async ({ page }) => {
