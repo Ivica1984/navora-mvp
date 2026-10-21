@@ -5,7 +5,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(36);
+select plan(46);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -23,6 +23,19 @@ select ok(not has_function_privilege('anon', 'public.matching_escalations()', 'e
 select is(private.required_qualification('00000000-0000-4000-a000-000000000208'), null,
   'a case with a completed needs assessment and no present order needs no particular qualification');
 
+-- Working time (provisional calendar Q10: Mon–Fri 08:00–18:00 Europe/Zurich). 2026-10-23 is a Friday;
+-- 2026-10-25 is the switch to winter time, so Monday 10:00 local is 09:00 UTC.
+select is(private.add_working_time('2026-10-23 16:00 Europe/Zurich', 4, 'working_hours'), '2026-10-26 10:00 Europe/Zurich'::timestamptz,
+  '4 working hours from Friday 16:00 end on Monday 10:00 (weekend and DST skipped)');
+select is(private.add_working_time('2026-10-21 07:00 Europe/Zurich', 4, 'working_hours'), '2026-10-21 12:00 Europe/Zurich'::timestamptz,
+  'a start before opening counts from 08:00');
+select is(private.add_working_time('2026-10-24 10:00 Europe/Zurich', 1, 'working_days'), '2026-10-27 08:00 Europe/Zurich'::timestamptz,
+  'one working day from Saturday: Monday opening plus one working day');
+select is(private.add_working_time('2026-10-23 16:00 Europe/Zurich', 2, 'working_days'), '2026-10-27 16:00 Europe/Zurich'::timestamptz,
+  'two working days from Friday 16:00 end on Tuesday 16:00');
+select is((select count(*)::int from public.response_deadlines where organization_id is null), 3,
+  'the PO pilot defaults ship (Q8): hospital discharge, nursing home, private');
+
 -- Intake: two referrals (hospital, nursing home) in Bern West ---------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
@@ -36,6 +49,13 @@ begin
     'Klient', 'J2S', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
       'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', current_date + 2, 'expected_hours_per_week', 6),
     'a7000000-0000-4000-8000-000000000003');
+  -- A GP referral (referral type "other": no default deadline)
+  perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Praxis J2v2', 'Hausarzt', 'Bern West', null,
+    'mittel', null, 'J2v2 Praxis', 'Bedarf Praxis', array['Begleitung'], 'a7000000-0000-4000-8000-000000000008');
+  perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2v2 Praxis'),
+    'Klient', 'J2O', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
+      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', current_date + 3),
+    'a7000000-0000-4000-8000-000000000009');
   -- A region without any team (no eligible team at all)
   perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Privat J2v2', 'Privat / Angehörige', 'Testregion ohne Team', null,
     'niedrig', null, 'J2v2 Leer', 'Bedarf Leer', array['Begleitung'], 'a7000000-0000-4000-8000-000000000006');
@@ -59,15 +79,22 @@ reset role;
 
 create temp table r as
   select m.id, c.last_name from public.matching_requests m join public.cases c on c.id = m.case_id
-  where c.last_name in ('J2S', 'J2H', 'J2L');
+  where c.last_name in ('J2S', 'J2H', 'J2L', 'J2O');
 grant select on r to authenticated;
 
 select is((select referral_type from public.matching_requests where id = (select id from r where last_name = 'J2S')),
   'hospital_discharge', 'referral type is derived from the partner type (Spital)');
 select is((select referral_type from public.matching_requests where id = (select id from r where last_name = 'J2H')),
   'nursing_home', 'referral type is derived from the partner type (Pflegeheim)');
-select is((select response_due_at from public.matching_requests where id = (select id from r where last_name = 'J2S')), null,
-  'no deadline is invented when none is configured');
+select ok((select response_due_at = private.add_working_time(created_at, 4, 'working_hours')
+           from public.matching_requests where id = (select id from r where last_name = 'J2S')),
+  'a hospital discharge gets the default deadline of 4 working hours');
+select ok((select response_due_at = private.add_working_time(created_at, 1, 'working_days')
+           from public.matching_requests where id = (select id from r where last_name = 'J2H')),
+  'a nursing-home referral gets 1 working day');
+select is((select referral_type || '/' || coalesce(response_due_at::text, 'none') from public.matching_requests
+           where id = (select id from r where last_name = 'J2O')), 'other/none',
+  'a GP referral is type other, and no deadline is invented for it');
 
 -- Offer fields before acceptance (F0 criterion 4) --------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
@@ -92,29 +119,35 @@ select is(public.decide_matching_request((select id from r where last_name = 'J2
   'a team without a registered nurse cannot accept it');
 reset role;
 
--- Deadlines: configuration by admins only ----------------------------------------------------------------------
+-- Deadlines: overrides by admins only ----------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000901');
 set local role authenticated;
-select is(public.set_response_deadline('00000000-0000-4000-b000-000000000011', 'hospital_discharge', 4,
-          'a7000000-0000-4000-8000-000000000020'), 'rejected', 'a coach cannot configure deadlines');
+select is(public.set_response_deadline('00000000-0000-4000-b000-000000000011', 'hospital_discharge', 2, 'working_hours',
+          'a7000000-0000-4000-8000-000000000020'), 'rejected', 'a coach cannot change deadlines');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
-select is((select reason from public.matching_escalations() where matching_request_id = (select id from r where last_name = 'J2S')),
-  'deadline_not_configured', 'without a configured deadline the request is visible to Operations, not silent');
-select throws_ok($$ select public.set_response_deadline('00000000-0000-4000-b000-000000000011', 'hospital_discharge', 0,
-          'a7000000-0000-4000-8000-000000000021') $$, '22023', null, 'deadline hours are checked');
-select is(public.set_response_deadline('00000000-0000-4000-b000-000000000011', 'hospital_discharge', 4,
-          'a7000000-0000-4000-8000-000000000022'), 'ok', 'an admin configures the hospital-discharge deadline');
-select is(public.set_response_deadline('00000000-0000-4000-b000-000000000011', 'hospital_discharge', 4,
+select is((select reason from public.matching_escalations() where matching_request_id = (select id from r where last_name = 'J2O')),
+  'deadline_not_configured', 'without any deadline the request is visible to Operations, not silent');
+select throws_ok($$ select public.set_response_deadline('00000000-0000-4000-b000-000000000011', 'hospital_discharge', 2, 'hours',
+          'a7000000-0000-4000-8000-000000000021') $$, '22023', null, 'only working hours or working days');
+select is(public.set_response_deadline('00000000-0000-4000-b000-000000000011', 'hospital_discharge', 2, 'working_hours',
+          'a7000000-0000-4000-8000-000000000022'), 'ok', 'an admin overrides the hospital-discharge deadline for the organisation');
+select is(public.set_response_deadline('00000000-0000-4000-b000-000000000011', 'hospital_discharge', 2, 'working_hours',
           'a7000000-0000-4000-8000-000000000022'), 'duplicate', 'resend is a duplicate');
-select ok((select response_due_at = created_at + interval '4 hours' from public.matching_requests
-           where id = (select id from r where last_name = 'J2S')), 'open requests of that type get the deadline');
-select is((select response_due_at from public.matching_requests where id = (select id from r where last_name = 'J2H')), null,
-  'other referral types keep no deadline');
+select ok((select response_due_at = private.add_working_time(created_at, 2, 'working_hours') from public.matching_requests
+           where id = (select id from r where last_name = 'J2S')), 'open requests of that type get the new deadline');
+select ok((select response_due_at = private.add_working_time(created_at, 1, 'working_days') from public.matching_requests
+           where id = (select id from r where last_name = 'J2H')), 'other referral types keep theirs');
 select is((select count(*)::int from public.matching_escalations() where matching_request_id = (select id from r where last_name = 'J2S')), 0,
   'within the deadline with an undecided eligible team: no escalation');
+select is(public.set_response_deadline('00000000-0000-4000-b000-000000000011', 'other', 3, 'working_days',
+          'a7000000-0000-4000-8000-000000000023'), 'ok', 'an admin sets a deadline for type other');
+select is((select count(*)::int from public.matching_escalations() where matching_request_id = (select id from r where last_name = 'J2O')), 0,
+  'with a deadline set, the GP referral no longer escalates as unconfigured');
 reset role;
+select ok((select count(*) from public.audit_events where table_name = 'response_deadlines' and command = 'set_response_deadline') = 2,
+  'deadline changes are audited');
 
 -- Deadline passes → escalation (time moved as owner)
 update public.matching_requests set response_due_at = now() - interval '1 minute' where id = (select id from r where last_name = 'J2S');

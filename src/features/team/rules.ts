@@ -68,5 +68,5 @@ export const ESCALATION_REASON_LABEL: Record<string, string> = {
   no_eligible_team: "Kein geeignetes Team (Region, aktiv, Qualifikation)",
   all_declined: "Alle geeigneten Teams haben abgelehnt",
   deadline_passed: "Antwortfrist abgelaufen",
-  deadline_not_configured: "Antwortfrist nicht konfiguriert (Q8)",
+  deadline_not_configured: "Keine Antwortfrist für diese Zuweisungsart",
 };

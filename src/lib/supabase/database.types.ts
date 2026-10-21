@@ -773,7 +773,7 @@ isOneToOne: false
 { Args: { "p_idempotency_key": string,"p_item_id": string,"p_reason": string }; Returns: string
                            },
 "set_response_deadline":
-{ Args: { "p_hours": number,"p_idempotency_key": string,"p_organization_id": string,"p_referral_type": string }; Returns: string
+{ Args: { "p_amount": number,"p_idempotency_key": string,"p_organization_id": string,"p_referral_type": string,"p_unit": string }; Returns: string
                            },
 "set_team_priority":
 { Args: { "p_idempotency_key": string,"p_priority": boolean,"p_team_id": string }; Returns: string

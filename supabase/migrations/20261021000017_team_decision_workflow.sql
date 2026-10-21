@@ -15,10 +15,11 @@
 --   member when required. Teams that are not eligible neither see nor can accept.
 -- * Decline needs a reason code from the v1 list in the brief (capacity, qualification,
 --   distance, other); "other" needs a text.
--- * Response deadline per referral type is CONFIGURATION (response_deadlines), set per
---   organisation by an admin. No values ship with this migration (Q8: values come with
---   the first pilot partner). Without a configured value the request has no deadline
---   and Operations sees "deadline not configured" instead of a silent wait.
+-- * Response deadline per referral type is CONFIGURATION (response_deadlines): the PO's
+--   pilot defaults (Q8: hospital discharge 4 working hours, nursing home 1 working day,
+--   private 2 working days) as platform rows; organisation overrides by admins. Working
+--   time uses a provisional calendar (Q10). A type without any value (other) has no
+--   deadline, and Operations sees "deadline not configured" instead of a silent wait.
 -- * Referral type is derived from the partner type recorded at intake (J1).
 -- * Escalation is a read model for coordination roles: no eligible team, every eligible
 --   team declined, deadline passed, or deadline not configured — with all decline
@@ -119,30 +120,139 @@ $$;
 revoke all on function public.intake_cases() from public, anon;
 grant execute on function public.intake_cases() to authenticated;
 
--- 2. Response deadlines (configuration, no values shipped) -----------------------------------
+-- 2. Response deadlines: PO pilot defaults (Q8) + organisation overrides by admins -------------------
+-- Working time: PROVISIONAL calendar (Q10, PO): Monday–Friday 08:00–18:00 Europe/Zurich, no
+-- public holidays. One row, changed by migration until the PO confirms the definition.
+create table public.working_time (
+  id          boolean primary key default true check (id),   -- single row
+  weekdays    integer[] not null check (weekdays <@ array[1,2,3,4,5,6,7] and cardinality(weekdays) between 1 and 7),
+  day_start   time not null,
+  day_end     time not null check (day_end > day_start),
+  time_zone   text not null
+);
+comment on table public.working_time is
+  'J2: working-time calendar for response deadlines (ISO weekdays). Provisional until Q10 is answered.';
+insert into public.working_time (weekdays, day_start, day_end, time_zone)
+values (array[1,2,3,4,5], '08:00', '18:00', 'Europe/Zurich');
+alter table public.working_time enable row level security;
+revoke all on public.working_time from anon, authenticated;
+grant select on public.working_time to authenticated;
+create policy members_read on public.working_time for select to authenticated using (true);
+
+-- Adds working hours or working days to a point in time. A start outside working time
+-- begins at the next opening. Working days keep the local clock time of that start.
+create function private.add_working_time(p_from timestamptz, p_amount integer, p_unit text)
+returns timestamptz
+language plpgsql stable set search_path = ''
+as $$
+declare
+  wt        public.working_time%rowtype;
+  cur       timestamp;            -- local wall-clock time
+  remaining interval;
+  day_open  timestamp;
+  day_close timestamp;
+  days_left integer;
+  guard     integer := 0;
+begin
+  select * into wt from public.working_time limit 1;
+  if p_from is null or p_amount is null or p_amount < 1 or p_unit not in ('working_hours', 'working_days') then
+    return null;
+  end if;
+  cur := p_from at time zone wt.time_zone;
+
+  -- move into working time
+  loop
+    guard := guard + 1;
+    if guard > 400 then raise exception 'working-time calendar has no working time'; end if;
+    day_open  := cur::date + wt.day_start;
+    day_close := cur::date + wt.day_end;
+    if extract(isodow from cur)::int = any (wt.weekdays) and cur < day_close then
+      if cur < day_open then cur := day_open; end if;
+      exit;
+    end if;
+    cur := (cur::date + 1) + wt.day_start;
+  end loop;
+
+  if p_unit = 'working_hours' then
+    remaining := make_interval(hours => p_amount);
+    loop
+      guard := guard + 1;
+      if guard > 4000 then raise exception 'working-time calculation did not finish'; end if;
+      day_close := cur::date + wt.day_end;
+      if extract(isodow from cur)::int = any (wt.weekdays) and cur >= cur::date + wt.day_start and cur < day_close then
+        if cur + remaining <= day_close then
+          cur := cur + remaining;
+          exit;
+        end if;
+        remaining := remaining - (day_close - cur);
+      end if;
+      cur := (cur::date + 1) + wt.day_start;
+    end loop;
+  else
+    days_left := p_amount;
+    while days_left > 0 loop
+      guard := guard + 1;
+      if guard > 4000 then raise exception 'working-time calculation did not finish'; end if;
+      cur := cur + interval '1 day';
+      if extract(isodow from cur)::int = any (wt.weekdays) then
+        days_left := days_left - 1;
+      end if;
+    end loop;
+  end if;
+
+  return cur at time zone wt.time_zone;
+end;
+$$;
+revoke all on function private.add_working_time(timestamptz, integer, text) from public, anon;
+-- A pure calculation over the (readable) calendar; app code and tests may compute deadlines with it.
+grant execute on function private.add_working_time(timestamptz, integer, text) to authenticated;
+
+-- organization_id null = NAVORA platform default (PO, Q8); a row per organisation overrides it.
 create table public.response_deadlines (
-  id              uuid not null default gen_random_uuid() unique,   -- for the audit writer
-  organization_id uuid not null references public.organizations (id),
+  id              uuid primary key default gen_random_uuid(),
+  organization_id uuid references public.organizations (id),
   referral_type   text not null check (referral_type in ('hospital_discharge', 'nursing_home', 'private', 'other')),
-  response_hours  integer not null check (response_hours between 1 and 720),
-  updated_by      uuid not null,
+  amount          integer not null check (amount between 1 and 240),
+  unit            text not null check (unit in ('working_hours', 'working_days')),
+  updated_by      uuid,
   updated_at      timestamptz not null default now(),
-  primary key (organization_id, referral_type)
+  unique nulls not distinct (organization_id, referral_type)
 );
 comment on table public.response_deadlines is
-  'J2: team response time per referral type, configured per organisation (Q8). No defaults are shipped.';
+  'J2: team response time per referral type. Platform defaults (organization_id null) from the PO (Q8); organisation overrides by admins.';
+
+-- Pilot defaults, PO answer to Q8 (2026-10-21 22:20). "other" has no default.
+insert into public.response_deadlines (organization_id, referral_type, amount, unit) values
+  (null, 'hospital_discharge', 4, 'working_hours'),
+  (null, 'nursing_home',       1, 'working_days'),
+  (null, 'private',            2, 'working_days');
 
 alter table public.response_deadlines enable row level security;
 revoke all on public.response_deadlines from anon, authenticated;
 grant select on public.response_deadlines to authenticated;
 create policy coordinators_read on public.response_deadlines
-  for select to authenticated using (private.is_coordinator(organization_id));
+  for select to authenticated
+  using (organization_id is null or private.is_coordinator(organization_id));
 
 create trigger audit_response_deadlines
   after insert or update on public.response_deadlines
-  for each row execute function private.write_audit_event('referral_type', 'response_hours');
+  for each row when (new.organization_id is not null)
+  execute function private.write_audit_event('referral_type', 'amount', 'unit');
 
-create function public.set_response_deadline(p_organization_id uuid, p_referral_type text, p_hours integer, p_idempotency_key uuid)
+-- Effective rule: organisation override, else platform default.
+create function private.response_due(p_org uuid, p_referral_type text, p_from timestamptz)
+returns timestamptz
+language sql stable security definer set search_path = ''
+as $$
+  select private.add_working_time(p_from, d.amount, d.unit)
+  from public.response_deadlines d
+  where d.referral_type = p_referral_type and (d.organization_id = p_org or d.organization_id is null)
+  order by d.organization_id nulls last
+  limit 1
+$$;
+revoke all on function private.response_due(uuid, text, timestamptz) from public, anon, authenticated;
+
+create function public.set_response_deadline(p_organization_id uuid, p_referral_type text, p_amount integer, p_unit text, p_idempotency_key uuid)
 returns text
 language plpgsql security definer set search_path = ''
 as $$
@@ -151,8 +261,9 @@ declare
 begin
   if uid is null then return 'rejected'; end if;
   if p_referral_type is null or p_referral_type not in ('hospital_discharge', 'nursing_home', 'private', 'other')
-     or p_hours is null or p_hours not between 1 and 720 then
-    raise exception 'referral type and 1–720 hours are required' using errcode = '22023';
+     or p_unit is null or p_unit not in ('working_hours', 'working_days')
+     or p_amount is null or p_amount not between 1 and 240 then
+    raise exception 'referral type, 1–240 and a unit (working_hours, working_days) are required' using errcode = '22023';
   end if;
   if private.begin_command('set_response_deadline', p_idempotency_key) then
     return private.end_command('duplicate');
@@ -160,19 +271,19 @@ begin
   if not private.has_org_role(p_organization_id, array['admin']) then
     return private.end_command('rejected');
   end if;
-  insert into public.response_deadlines (organization_id, referral_type, response_hours, updated_by)
-  values (p_organization_id, p_referral_type, p_hours, uid)
+  insert into public.response_deadlines (organization_id, referral_type, amount, unit, updated_by)
+  values (p_organization_id, p_referral_type, p_amount, p_unit, uid)
   on conflict (organization_id, referral_type)
-    do update set response_hours = excluded.response_hours, updated_by = uid, updated_at = now();
+    do update set amount = excluded.amount, unit = excluded.unit, updated_by = uid, updated_at = now();
   -- Open requests of this type get the new deadline from their creation time.
   update public.matching_requests m
-    set response_due_at = m.created_at + make_interval(hours => p_hours)
+    set response_due_at = private.response_due(m.organization_id, m.referral_type, m.created_at)
     where m.organization_id = p_organization_id and m.referral_type = p_referral_type and m.status = 'open';
   return private.end_command('ok');
 end;
 $$;
-revoke all on function public.set_response_deadline(uuid, text, integer, uuid) from public, anon;
-grant execute on function public.set_response_deadline(uuid, text, integer, uuid) to authenticated;
+revoke all on function public.set_response_deadline(uuid, text, integer, text, uuid) from public, anon;
+grant execute on function public.set_response_deadline(uuid, text, integer, text, uuid) to authenticated;
 
 -- 3. Matching request facts ---------------------------------------------------------------------------
 alter table public.matching_requests
@@ -207,6 +318,9 @@ update public.matching_requests m set
     (select p.partner_type from public.cases c join public.partner_requests p on p.id = c.source_partner_request_id where c.id = m.case_id))),
   required_qualification = private.required_qualification(m.case_id)
 where m.status = 'open';
+update public.matching_requests m
+  set response_due_at = private.response_due(m.organization_id, m.referral_type, m.created_at)
+where m.status = 'open' and m.response_due_at is null;
 
 create or replace function private.open_matching_if_ready(p_case_id uuid)
 returns jsonb
@@ -216,7 +330,6 @@ declare
   c public.cases%rowtype;
   missing jsonb := private.case_readiness(p_case_id);
   rtype text;
-  hours integer;
 begin
   if jsonb_array_length(missing) > 0 then
     return missing;
@@ -227,15 +340,13 @@ begin
   end if;
   if not exists (select 1 from public.matching_requests m where m.case_id = c.id) then
     rtype := private.referral_type_of((select p.partner_type from public.partner_requests p where p.id = c.source_partner_request_id));
-    select d.response_hours into hours from public.response_deadlines d
-      where d.organization_id = c.organization_id and d.referral_type = rtype;
     insert into public.matching_requests
       (organization_id, case_id, request_title, region, urgency, required_services, status,
        referral_type, response_due_at, required_qualification)
     values
       (c.organization_id, c.id, 'Teamsuche: ' || coalesce(c.bedarf, 'Klientenfall'), c.region, c.urgency,
        coalesce(c.care_needs, '{}'), 'open',
-       rtype, case when hours is not null then now() + make_interval(hours => hours) end,
+       rtype, private.response_due(c.organization_id, rtype, now()),
        private.required_qualification(c.id));
   end if;
   return '[]'::jsonb;

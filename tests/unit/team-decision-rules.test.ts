@@ -70,7 +70,7 @@ describe("J2 escalations in Operations", () => {
       ...base,
       matchingEscalations: [{ matching_request_id: "m2", request_title: "T", region: "R", reason: "deadline_not_configured", declines: [] }],
     });
-    expect(items[0]).toMatchObject({ priority: "P2", title: "Teamsuche: Antwortfrist nicht konfiguriert (Q8)" });
+    expect(items[0]).toMatchObject({ priority: "P2", title: "Teamsuche: Keine Antwortfrist für diese Zuweisungsart" });
   });
 
   it("malformed declines do not break the dashboard", () => {
