@@ -24,35 +24,37 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: npm
       - name: Install (lockfile only)
         run: npm ci --no-fund
       - name: Lint
-        run: npm run lint
+        run: scripts/ci-step.sh lint npm run lint
       - name: Typecheck
-        run: npm run typecheck
+        if: success() || failure()
+        run: scripts/ci-step.sh typecheck npm run typecheck
       - name: Unit tests
-        run: npm test
+        if: success() || failure()
+        run: scripts/ci-step.sh unit npm test
       - name: Supply-chain audit (runtime deps, fail on high/critical)
-        run: npm audit --omit=dev --audit-level=high
+        if: success() || failure()
+        run: scripts/ci-step.sh audit npm audit --omit=dev --audit-level=high
       - name: Build
-        run: npm run build
+        if: success() || failure()
+        run: scripts/ci-step.sh build npm run build
       - name: Record versions
         if: always()
-        run: |
-          node --version
-          npm ls next react react-dom @supabase/supabase-js --depth=0 || true
+        run: scripts/ci-step.sh versions npm ls next react react-dom @supabase/supabase-js zod --depth=0
 
   db:
     name: db (migrations · seed · pgTAP)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Detect Supabase project
         id: detect
         run: |
@@ -66,13 +68,13 @@ jobs:
         run: supabase start
       - name: Apply migrations and seed from scratch
         if: steps.detect.outputs.present == 'true'
-        run: supabase db reset
+        run: scripts/ci-step.sh db-reset supabase db reset
       - name: Database tests
         if: steps.detect.outputs.present == 'true'
-        run: supabase test db
+        run: scripts/ci-step.sh pgtap supabase test db
       - name: Lint database
         if: steps.detect.outputs.present == 'true'
-        run: supabase db lint --level error
+        run: scripts/ci-step.sh db-lint supabase db lint --level error
       - name: Stop
         if: always() && steps.detect.outputs.present == 'true'
         run: supabase stop --no-backup
