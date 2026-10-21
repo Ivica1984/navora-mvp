@@ -47,34 +47,6 @@ function getResponsibleTeam(careCase: CaseWithRelations) {
   return "Noch kein Pflegeteam";
 }
 
-function getVisitStatusLabel(status: string | null) {
-  if (status === "planned") return "Geplant";
-  if (status === "started") return "Gestartet";
-  if (status === "completed") return "Abgeschlossen";
-  if (status === "on_the_way") return "Unterwegs";
-  return status || "Unbekannt";
-}
-
-function getDateLabel(date: string | null | undefined) {
-  if (!date) return "Datum offen";
-
-  return new Intl.DateTimeFormat("de-CH", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(new Date(date));
-}
-
-function getVisitTimeRange(visit: LocalVisit) {
-  if (visit.time_start && visit.time_end) {
-    return `${visit.time_start}–${visit.time_end}`;
-  }
-
-  if (visit.time_start) return `ab ${visit.time_start}`;
-
-  return "Zeit offen";
-}
-
 function getAverageUtilization(teams: TeamRow[]) {
   if (teams.length === 0) return 0;
 
@@ -154,8 +126,6 @@ export default function OperationsClient({ dashboard }: OperationsClientProps) {
     teams,
     visits,
     qualityEvents,
-    partnerRequests,
-    kpis,
     attentionItems,
   } = dashboard;
 
@@ -283,7 +253,6 @@ export default function OperationsClient({ dashboard }: OperationsClientProps) {
             attentionItems={attentionItems}
             cases={enrichedCases}
             teams={teams}
-            visits={typedVisits}
           />
         </section>
       </main>
@@ -809,13 +778,11 @@ function ContextPanel({
   attentionItems,
   cases,
   teams,
-  visits,
 }: {
   selectedEntity: SelectedEntity | null;
   attentionItems: AttentionItem[];
   cases: CaseWithRelations[];
   teams: TeamRow[];
-  visits: LocalVisit[];
 }) {
   if (!selectedEntity) {
     return (
