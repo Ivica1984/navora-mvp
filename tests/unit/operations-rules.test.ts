@@ -82,6 +82,8 @@ function careCase(overrides: Partial<CaseRow>): CaseRow {
     language_notes: null,
     access_notes: null,
     ready_for_matching_at: null,
+    // J3 (PO changes)
+    needs_assessment_done_at: null,
     ...overrides,
   };
 }
