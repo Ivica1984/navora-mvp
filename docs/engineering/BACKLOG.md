@@ -1,6 +1,6 @@
 # NAVORA — Engineering Backlog
 
-**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21 (after T15)
+**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21 (after C-1 containment and T13)
 **Plan:** `claude/NAVORA_RECOVERY_EXECUTION_PLAN.md` (Project) · **Roadmap:** `docs/engineering/ROADMAP.md`
 **Status values:** BLOCKED · READY · IN PROGRESS · IN REVIEW · DONE · PROPOSED
 Ordered by priority. Work continues on the top item that is not blocked.
@@ -18,7 +18,7 @@ Decision brief with options and recommendations: [`DECISIONS_NEEDED.md`](DECISIO
 | O-B | **Secret scanning + push protection + Dependabot alerts** (Settings → Code security) | T2 | same |
 | O-C | **Verify the transcribed import:** `git switch import/project-src-2026-10-21 && bash scripts/verify-against-zip.sh /path/to/src.zip` → must print `IDENTICAL` | M2 merge | zip only on the owner's machine |
 | O-D | **Codespace check:** `gh codespace list`; if one exists, preserve it (runbook T1) | ADR-001 timebox | agent token cannot list Codespaces (HTTP 403) |
-| O-E | **Live DB containment check:** real patient data in the live Supabase project? anon access? anything deployed with its anon key? | SR-01, SR-12 | no access to the live project — correctly so |
+| O-E | **Live DB:** containment C-1 DONE 2026-10-21 (anon access revoked, verified — `docs/ops/live/CONTAINMENT_REPORT_C1_2026-10-21.md`). **Still open:** are the 6 cases / 3 care notes real people (legal: possible FADP incident)? rotate the anon/JWT key (SR-12); enable leaked-password protection | SR-01 (contained), SR-12 | key rotation and the legal question are owner-only |
 | O-F | **Schema-only pull of live** (`supabase db pull --schema public`) | replaces reconstructed baseline | same |
 | O-G | Approve or reject ADR-001…ADR-017 | — | owner decision |
 
@@ -44,7 +44,7 @@ Decision brief with options and recommendations: [`DECISIONS_NEEDED.md`](DECISIO
 | T10 | Audit trigger + append-only log; idempotent DB commands; visit state machine; `billable` locked; minimal Operations payload | DONE | PR #9 merged into `recovery/main` |
 | T11 | Nonce-based CSP + security headers, no `X-Powered-By` | DONE | PR #10 merged into `recovery/main` |
 | T12 | Staging: Supabase project (EU/CH region) + protected Next host, migrations from CI, synthetic seed + staging-only users | **BLOCKED — owner decision** | O-G / ADR-011: hosting provider and region (cost + data residency = financial/legal decision); then a deploy token as a GitHub secret |
-| T13 | DB-level seed coverage test: one pgTAP/SQL check per attention category | PROPOSED | — |
+| T13 | DB-level seed coverage test: one pgTAP/SQL check per attention category | DONE | PR #15 merged; `006_seed_attention_coverage.test.sql`, 22 assertions, CI db green. Gap: `submitted` note branch unit-tested only |
 | T14 | Generated `database.types.ts`, typed client, drift check in CI, compile-time proof | DONE | PR #11 merged |
 | T15 | Inline command errors; all regions on Teams; memoised auth check; bots off `recovery/main` | DONE | PR #12 merged |
 
