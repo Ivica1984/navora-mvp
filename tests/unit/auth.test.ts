@@ -2,9 +2,10 @@ import { describe, expect, it } from "vitest";
 import { signInSchema } from "@/features/auth/schema";
 import { isPublicPath } from "@/lib/auth/paths";
 import { assignTeamCoachSchema, setTeamPrioritySchema } from "@/features/teams/command-schemas";
-import { visitIdSchema } from "@/features/visits/command-schemas";
+import { visitCommandSchema } from "@/features/visits/command-schemas";
 
 const TEAM_ID = "00000000-0000-4000-a000-000000000101";
+const KEY = "aaaaaaaa-0000-4000-8000-000000000001";
 
 describe("isPublicPath", () => {
   it.each([
@@ -42,25 +43,31 @@ describe("signInSchema", () => {
 
 describe("team command schemas", () => {
   it("accept valid input", () => {
-    expect(setTeamPrioritySchema.safeParse({ teamId: TEAM_ID, priority: true }).success).toBe(true);
-    expect(assignTeamCoachSchema.parse({ teamId: TEAM_ID, coachName: "  Coach Test 1 " }).coachName).toBe("Coach Test 1");
+    expect(setTeamPrioritySchema.safeParse({ teamId: TEAM_ID, priority: true, idempotencyKey: KEY }).success).toBe(true);
+    expect(
+      assignTeamCoachSchema.parse({ teamId: TEAM_ID, coachName: "  Coach Test 1 ", idempotencyKey: KEY }).coachName
+    ).toBe("Coach Test 1");
   });
 
   it.each([
-    [setTeamPrioritySchema, { teamId: "not-a-uuid", priority: true }],
-    [setTeamPrioritySchema, { teamId: TEAM_ID, priority: "true" }],
-    [assignTeamCoachSchema, { teamId: TEAM_ID, coachName: "   " }],
-    [assignTeamCoachSchema, { teamId: TEAM_ID, coachName: "x".repeat(121) }],
-    [assignTeamCoachSchema, { teamId: "'; drop table teams; --", coachName: "x" }],
+    [setTeamPrioritySchema, { teamId: "not-a-uuid", priority: true, idempotencyKey: KEY }],
+    [setTeamPrioritySchema, { teamId: TEAM_ID, priority: "true", idempotencyKey: KEY }],
+    [setTeamPrioritySchema, { teamId: TEAM_ID, priority: true }],
+    [assignTeamCoachSchema, { teamId: TEAM_ID, coachName: "   ", idempotencyKey: KEY }],
+    [assignTeamCoachSchema, { teamId: TEAM_ID, coachName: "x".repeat(121), idempotencyKey: KEY }],
+    [assignTeamCoachSchema, { teamId: "'; drop table teams; --", coachName: "x", idempotencyKey: KEY }],
+    [assignTeamCoachSchema, { teamId: TEAM_ID, coachName: "x", idempotencyKey: "1" }],
   ])("reject invalid input %#", (schema, input) => {
     expect(schema.safeParse(input).success).toBe(false);
   });
 });
 
 describe("visit command schema", () => {
-  it("accepts a uuid and rejects anything else", () => {
-    expect(visitIdSchema.safeParse({ visitId: "00000000-0000-4000-a000-000000000501" }).success).toBe(true);
-    expect(visitIdSchema.safeParse({ visitId: "501" }).success).toBe(false);
-    expect(visitIdSchema.safeParse({}).success).toBe(false);
+  const VISIT = "00000000-0000-4000-a000-000000000501";
+  it("requires a visit uuid and an idempotency key", () => {
+    expect(visitCommandSchema.safeParse({ visitId: VISIT, idempotencyKey: KEY }).success).toBe(true);
+    expect(visitCommandSchema.safeParse({ visitId: VISIT }).success).toBe(false);
+    expect(visitCommandSchema.safeParse({ visitId: "501", idempotencyKey: KEY }).success).toBe(false);
+    expect(visitCommandSchema.safeParse({}).success).toBe(false);
   });
 });

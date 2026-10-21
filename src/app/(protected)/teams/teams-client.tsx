@@ -51,6 +51,7 @@ const [teamsState, setTeamsState] = useState(teams);
   const result = await setTeamPriority({
     teamId: selectedTeam.id,
     priority: newPriority,
+    idempotencyKey: crypto.randomUUID(),
   });
 
   if (!result.ok) {
@@ -73,6 +74,7 @@ async function handleAssignCoach() {
   const result = await assignTeamCoach({
     teamId: selectedTeam.id,
     coachName: coachInput,
+    idempotencyKey: crypto.randomUUID(),
   });
 
   if (!result.ok) {

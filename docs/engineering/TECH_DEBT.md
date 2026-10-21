@@ -9,14 +9,14 @@
 | TD-02 | Fixed desktop grids, not responsive | all UI | L | F1 sets the mobile pattern | OPEN |
 | TD-03 | Three competing fonts (Geist loaded, Arial in CSS, "Inter" requested but not loaded) | layout, globals, pages | S | with TD-01 | OPEN |
 | TD-04 | Template metadata, `lang="en"` | `layout.tsx` | S | — | DONE (PR #1) |
-| TD-05 | Hand-written row types drift from DB | `features/*/types.ts` | M | `getCases` fixed, mistyped query removed (PR #1); generated `database.types.ts` moved to T10 | PARTLY DONE |
+| TD-05 | Hand-written row types drift from DB | `features/*/types.ts` | M | Operations now uses `Pick<>` subsets; generated `database.types.ts` = T14 | PARTLY DONE |
 | TD-06 | `as any` casts | operations, teams | S | — | DONE (PR #1) |
 | TD-07 | Duplicate helpers across files (`getVisitTimeRange`, `getAverageUtilization`, …) | features + clients | S | Operations copies removed (PR #1); rest in T10 | PARTLY DONE |
-| TD-08 | Server computes 13 KPIs the client ignores and recomputes | operations | S | T10 | OPEN |
+| TD-08 | Server computed 13 KPIs the client ignored | operations | S | removed in T10 | DONE (PR #9) |
 | TD-09 | Duplicate attention items for one case | `operations/rules.ts` | S | behaviour pinned by test; fix after Q2 | OPEN |
 | TD-10 | Backup UI files in route folder | `app/operations/` | S | not imported; arrive via owner zip → `docs/legacy-ui/` | DONE (by exclusion) |
-| TD-11 | Unused modules | features | S | `getCasesWithVisits` removed; `getCases`, `startVisit` in T10 | PARTLY DONE |
-| TD-12 | `alert()` for command errors in Teams/Visits; no shared error/toast model | teams, visits | S | T8 replaced `window.location.*` with server redirects and `router.refresh()`; error UI in T10 | PARTLY DONE |
+| TD-11 | Unused modules | features | S | `getCasesWithVisits` (PR #1), `visits/actions.ts` (T8), `getCases` (T10) removed | DONE |
+| TD-12 | `alert()` for command errors in Teams/Visits; no shared error/toast model | teams, visits | S | shared `CommandResult` model (T10); UI = T15 | PARTLY DONE |
 | TD-13 | Regions "Bern West" / "Zürich Pilot" hard-coded in Teams grouping — teams in other regions do not render | teams client | S | after T9 | OPEN |
 | TD-14 | Static Operations mock on `main` | `main` | — | replaced by M2 | IN REVIEW |
 | TD-15 | README was create-next-app text | root | S | — | DONE (M2 PR) |
@@ -31,3 +31,5 @@
 | TD-24 | Test users without roles/memberships | `supabase/seed.sql` | S | — | DONE (T9) |
 | TD-25 | Memberships can only be created by SQL; no admin flow, no audit of membership changes | DB | M | after Q5 | OPEN |
 | TD-26 | Role names (`admin`, `coach`, `operations`, `nurse`) are a CHECK constraint, not data | `organization_memberships` | S | revisit with Q4 | OPEN |
+| TD-27 | `audit_events` grows without retention or archival | DB | M | after Q6 (legal) | OPEN |
+| TD-28 | Visit state machine only knows planned→started→completed; seed and UI contain other statuses (on_the_way, cancelled…) | DB, visits | M | F2 after product/clinical confirmation | OPEN |
