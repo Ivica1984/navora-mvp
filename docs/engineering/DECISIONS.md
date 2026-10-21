@@ -1,6 +1,6 @@
 # NAVORA — Architecture Decision Log
 
-**Last updated:** 2026-10-21 (T9) · Complements `TECHNICAL_DECISIONS.md` (product decisions from the handover).
+**Last updated:** 2026-10-21 (T10) · Complements `TECHNICAL_DECISIONS.md` (product decisions from the handover).
 **Status:** PROPOSED (awaiting owner) · ACCEPTED · SUPERSEDED · REJECTED.
 Format: context → decision → trade-offs → risks. An entry graduates to `docs/adr/NNN-*.md` if it grows.
 
@@ -18,7 +18,7 @@ Format: context → decision → trade-offs → risks. An entry graduates to `do
 **Risks:** cross-feature coupling → ESLint boundary rule (planned with T10).
 
 ### ADR-003 — Writes: Server Action → Postgres function (transaction + state check + audit)
-**Status:** PROPOSED · Closes ARCHITECTURE "OPEN: Server Action vs Route Handler/Edge/RPC".
+**Status:** ACCEPTED in practice (T10), **amended by ADR-019** · Closes ARCHITECTURE "OPEN: Server Action vs Route Handler/Edge/RPC".
 **Decision:** each state change is a `SECURITY INVOKER` function that checks membership, source state and idempotency key, mutates and writes `audit_events` in one transaction; Server Actions validate with zod and call it via `rpc`. RLS stays the authority.
 **Trade-offs:** some transition logic in SQL (pgTAP-tested); calculations stay in `rules.ts`.
 
@@ -99,3 +99,15 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 5. Legacy policies are dropped **in the same migration** that adds the replacements; the pgTAP assertions that documented the exposure were inverted in the same PR.
 **Trade-offs:** every org member, including `nurse`, can read every case in the organisation, including health fields. Purpose-limited read access (team/case/care-context) is part of the open permission matrix and of SR-06/T10 minimisation.
 **Risks:** a wrong helper would affect all tables at once → covered by 38 pgTAP assertions across roles, foreign org, member-of-nothing and anon, plus a CI check against the real REST API.
+
+### ADR-019 — Audit by trigger, state machine by trigger, idempotency through the audit log
+**Status:** PROPOSED · **Task:** T10 · Amends ADR-003.
+**Context:** ADR-003 put "mutate + audit" into each command function. Those functions run as the caller (RLS stays the authority), so a user who calls the REST API directly can update the same rows with the same rights and would bypass any audit written in the function body.
+**Decision:**
+1. **Audit is a `SECURITY DEFINER` AFTER UPDATE trigger** on every app-updatable table (`teams`, `care_visits`). Every update is audited, whatever the path. `audit_events` is append-only, also for the owner (UPDATE, DELETE and TRUNCATE are blocked). App users have no INSERT privilege. Only allowlisted columns are recorded, never free text or health data. Only org `admin` reads the log (placeholder, Q4).
+2. **Command functions** (`set_team_priority`, `assign_team_coach`, `start_visit`, `complete_visit`) are `SECURITY INVOKER` and require an idempotency key. The key and command name are passed to the trigger through transaction-local settings and **cleared before the function returns**, a defect pgTAP found. A unique index on `(actor_id, idempotency_key)` in the audit log makes a replay return `duplicate` without changing anything.
+3. **The visit state machine is a BEFORE UPDATE trigger:** app users may only go `planned→started→completed`, including through direct REST. The wider draft state machine waits for product/clinical confirmation (F2).
+4. **`billable` is not writable by app users**, and completion no longer sets it (closes SR-09).
+5. **Invariant test:** pgTAP fails if any table app users can UPDATE lacks the audit trigger.
+**Trade-offs:** the logic is spread over functions and triggers, which pgTAP has to cover (31 assertions). Direct REST updates skip idempotency, but not RLS, the state machine or the audit.
+**Open:** audit retention and access rules are legal/data-protection decisions (Q6).

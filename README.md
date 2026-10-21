@@ -4,7 +4,7 @@ Plattform für selbstorganisierte Pflegeteams in der Schweiz (Next.js · TypeScr
 
 > **Entwicklungsstand — nicht für echte Patientendaten.**
 > Dieser Code läuft nur gegen eine lokale Supabase-Instanz mit synthetischen Daten.
-> Audit und minimierte Datenzugriffe fehlen noch (Roadmap Gate 1, Meilenstein M3).
+> Security-Header, Staging und die fachliche Berechtigungsmatrix fehlen noch (Roadmap Gate 1, Meilenstein M3).
 > Bekannte Risiken: [`docs/engineering/SECURITY_RISKS.md`](docs/engineering/SECURITY_RISKS.md).
 
 ## Status (Stand 2026-10-21)
@@ -15,7 +15,7 @@ Plattform für selbstorganisierte Pflegeteams in der Schweiz (Next.js · TypeScr
 | `/matching`, `/partners` | IMPLEMENTED als Mock; standardmässig ausgeblendet (`NEXT_PUBLIC_FEATURE_DEMO_PAGES`) |
 | Login / Routenschutz | IMPLEMENTED (T8): serverseitige Sitzung, alle Seiten ausser `/login` geschützt |
 | Mandanten-RLS (Organisation, Team) | IMPLEMENTED (T9), Rollen sind Platzhalter |
-| Audit, DB-Commands, Datenminimierung | PLANNED — T10 |
+| Audit-Log, idempotente DB-Commands, Einsatz-Statusmaschine, Datenminimierung `/operations` | IMPLEMENTED (T10) |
 | `/field` (mobiles Einsatz-Tool) | PLANNED — M4 |
 
 Herkunft des Codes und Verifikationsstand: [`docs/recovery/RECOVERY_LOG.md`](docs/recovery/RECOVERY_LOG.md).

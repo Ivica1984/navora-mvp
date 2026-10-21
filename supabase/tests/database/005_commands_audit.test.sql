@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(30);
+select plan(31);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -99,6 +99,19 @@ select is(
   'a direct update outside the commands is audited as well');
 
 select throws_ok($$ delete from public.audit_events $$, '42501', null, 'audit log is append-only, even for the owner');
+
+-- Invariant: every public table that app users can UPDATE has the audit trigger.
+-- Fails as soon as a future migration grants UPDATE on an unaudited table.
+select is(
+  (select coalesce(string_agg(c.relname, ', ' order by c.relname), '')
+   from pg_class c join pg_namespace n on n.oid = c.relnamespace
+   where n.nspname = 'public' and c.relkind = 'r'
+     and has_any_column_privilege('authenticated', c.oid, 'UPDATE')
+     and not exists (
+       select 1 from pg_trigger t join pg_proc p on p.oid = t.tgfoid
+       where t.tgrelid = c.oid and p.proname = 'write_audit_event')),
+  '',
+  'every table updatable by app users is audited');
 
 -- Positive check for the admin read policy (membership added inside this rolled-back test).
 insert into public.organization_memberships (organization_id, user_id, role)
