@@ -47,10 +47,10 @@ Repository-only objects (tenancy, memberships, audit log, command functions; mig
 2. Live is a **prototype schema** with features the code never used (PostGIS, geocoding, team capacity limits) and two defaults that violate its own value sets. The repository schema is stricter and safer in every shared column except the two `not null`s on `match_candidates`.
 3. Replacing the repository baseline with the live schema (the original O-F plan) would **import weaker rules** (cascading deletes, invalid defaults, a column with a space) and unused PostGIS dependencies.
 
-## 5. Proposal (ADR-021, PROPOSED)
+## 5. Decision (ADR-022, PROPOSED)
 
 - **The repository schema is the target. Live is legacy.** The baseline stays; its header changes from "reconstructed, verify against live" to "verified against live 2026-10-21, deliberate deviations listed in this report".
-- Adopt from live now (no product decision needed): `not null` on `match_candidates.fit_score` and `.status`.
+- Adopted from live now (no product decision needed): `not null` on `match_candidates.fit_score` and `.status` — migration `20261021000005`, pgTAP `007`.
 - **Do not adopt:** cascading FKs, `'geplant'` and `'normal'` defaults, `"assigned team"`, `bigint` counters.
 - **Product decision before adopting** (location features belong to matching and DOMAIN_RULES): `team_locations`, PostGIS columns, `geocoding_jobs`, team capacity limits. Tracked as Q7.
 - **`orders`:** does not belong in NAVORA. The owner decides whether to move it to Lumena-Health's own project or delete it. It is out of scope for NAVORA migrations either way.
