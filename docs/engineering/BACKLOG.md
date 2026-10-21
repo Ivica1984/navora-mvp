@@ -1,6 +1,6 @@
 # NAVORA — Engineering Backlog
 
-**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21 (after T14)
+**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21 (after T15)
 **Plan:** `claude/NAVORA_RECOVERY_EXECUTION_PLAN.md` (Project) · **Roadmap:** `docs/engineering/ROADMAP.md`
 **Status values:** BLOCKED · READY · IN PROGRESS · IN REVIEW · DONE · PROPOSED
 Ordered by priority. Work continues on the top item that is not blocked.
@@ -42,8 +42,8 @@ Ordered by priority. Work continues on the top item that is not blocked.
 | T11 | Nonce-based CSP + security headers, no `X-Powered-By` | DONE | PR #10 merged into `recovery/main` |
 | T12 | Staging: Supabase project (EU/CH region) + protected Next host, migrations from CI, synthetic seed + staging-only users | **BLOCKED — owner decision** | O-G / ADR-011: hosting provider and region (cost + data residency = financial/legal decision); then a deploy token as a GitHub secret |
 | T13 | DB-level seed coverage test: one pgTAP/SQL check per attention category | PROPOSED | — |
-| T14 | Generated `database.types.ts`, typed client, drift check in CI, compile-time proof | IN REVIEW | PR #11 — CI on `1a41e83` green; drift check "in sync" |
-| T15 | Replace `alert()` with an inline error/status model in Teams/Visits (TD-12) | PROPOSED | — |
+| T14 | Generated `database.types.ts`, typed client, drift check in CI, compile-time proof | DONE | PR #11 merged |
+| T15 | Inline command errors; all regions on Teams; memoised auth check; bots off `recovery/main` | IN REVIEW | PR #12 — CI on `c1d2d9e` green (60 unit, 87 pgTAP, 20 e2e) |
 
 ## Product (M4 — Roadmap Gate 2)
 

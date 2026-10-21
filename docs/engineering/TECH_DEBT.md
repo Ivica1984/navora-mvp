@@ -16,8 +16,8 @@
 | TD-09 | Duplicate attention items for one case | `operations/rules.ts` | S | behaviour pinned by test; fix after Q2 | OPEN |
 | TD-10 | Backup UI files in route folder | `app/operations/` | S | not imported; arrive via owner zip → `docs/legacy-ui/` | DONE (by exclusion) |
 | TD-11 | Unused modules | features | S | `getCasesWithVisits` (PR #1), `visits/actions.ts` (T8), `getCases` (T10) removed | DONE |
-| TD-12 | `alert()` for command errors in Teams/Visits; no shared error/toast model | teams, visits | S | shared `CommandResult` model (T10); UI = T15 | PARTLY DONE |
-| TD-13 | Regions "Bern West" / "Zürich Pilot" hard-coded in Teams grouping — teams in other regions do not render | teams client | S | after T9 | OPEN |
+| TD-12 | `alert()` for command errors | teams, visits | S | inline `CommandError` (role=alert), cleared on new selection | DONE (PR #12) |
+| TD-13 | Teams page rendered only two hard-coded regions; teams elsewhere were invisible | teams client | S | grouped by regions present in the data; e2e with a third region | DONE (PR #12) |
 | TD-14 | Static Operations mock on `main` | `main` | — | replaced by M2 | IN REVIEW |
 | TD-15 | README was create-next-app text | root | S | — | DONE (M2 PR) |
 | TD-16 | No typecheck/test scripts | `package.json` | S | — | DONE (PR #1) |
@@ -27,7 +27,7 @@
 | TD-20 | Reconstructed tables have no CHECK constraints on status/urgency/severity text columns | DB | M | with T9/T10 once value sets are confirmed | OPEN |
 | TD-21 | `supabase/setup-cli@v1` runs on deprecated Node 20 runtime | CI | S | bump when a newer major is published | OPEN |
 | TD-22 | CI uses `ubuntu-latest`, which migrates to Ubuntu 26 from 2026-10-19 | CI | S | watch first failures; pin `ubuntu-24.04` if needed | OPEN |
-| TD-23 | `requireUser()` runs once per query/command, so `/operations` makes several Auth round-trips per request | `lib/auth/session.ts` | S | memoise per request with React `cache()` once measured | OPEN |
+| TD-23 | `requireUser()` ran once per query/command | `lib/auth/session.ts` | S | memoised per request with React `cache()` | DONE (PR #12) |
 | TD-24 | Test users without roles/memberships | `supabase/seed.sql` | S | — | DONE (T9) |
 | TD-25 | Memberships can only be created by SQL; no admin flow, no audit of membership changes | DB | M | after Q5 | OPEN |
 | TD-26 | Role names (`admin`, `coach`, `operations`, `nurse`) are a CHECK constraint, not data | `organization_memberships` | S | revisit with Q4 | OPEN |

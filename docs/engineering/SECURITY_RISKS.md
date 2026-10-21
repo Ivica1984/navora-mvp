@@ -28,7 +28,7 @@ Severity reflects impact if real patient data were involved.
 | SR-22 | Every org member, including nurses, reads all cases of the organisation with health fields | High | VERIFIED (T9 policy design, ADR-018) | Q4 permission matrix + T10 minimal selects / column scoping | OPEN |
 | SR-23 | `SECURITY DEFINER` helpers bypass RLS on membership tables | Medium | VERIFIED (design) | empty `search_path`, schema not exposed, execute only for `authenticated`, read-only `exists` queries; covered by pgTAP | CONTROLLED |
 | SR-24 | Command context in transaction-local settings could leak to later statements in the same transaction (wrong audit attribution, false "duplicate") | Medium | VERIFIED by pgTAP test 28 before merge | `private.end_command()` clears it; test kept as regression | CLOSED |
-| SR-20 | Lockfile bot can push to any non-`main` branch | Low | VERIFIED (workflow) | scoped to `package-lock.json`, no install scripts; required review on protected branches (O-A) | CONTROLLED |
+| SR-20 | Lockfile and types bots can push to feature branches | Low | VERIFIED (workflows) | each bot touches one file, no install scripts; excluded from `main` and `recovery/main` (PR #12); protected branches need review (O-A) | CONTROLLED |
 
 ## Rules derived from this register
 - No real patient data in any environment until SR-01 (live) and SR-22 are closed, Q4 and Q6 are decided, and PRODUCT_REQUIREMENTS gate 1 is signed off.
