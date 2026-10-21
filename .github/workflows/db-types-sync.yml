@@ -1,0 +1,50 @@
+# Regenerates src/lib/supabase/database.types.ts from the migrations and commits
+# it on feature branches (same pattern as lockfile-sync, ADR-014). The `db` job
+# in ci.yml fails if the committed file drifts from the migrations (T14).
+name: db-types-sync
+
+on:
+  push:
+    branches-ignore: [main]
+    paths:
+      - supabase/migrations/**
+      - .github/workflows/db-types-sync.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: db-types-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Report CLI version
+        run: echo "::notice title=supabase-cli::$(supabase --version)"
+      - name: Start database only (migrations, no seed needed for types)
+        run: supabase start -x gotrue,realtime,storage-api,imgproxy,kong,mailpit,postgrest,postgres-meta,studio,edge-runtime,logflare,vector,supavisor || supabase start
+      - name: Generate types
+        run: |
+          supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts
+          echo "::notice title=db-types::$(wc -l < src/lib/supabase/database.types.ts) lines"
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- src/lib/supabase/database.types.ts && git ls-files --error-unmatch src/lib/supabase/database.types.ts >/dev/null 2>&1; then
+            echo "Types already in sync."
+            exit 0
+          fi
+          git config user.name "navora-types-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/lib/supabase/database.types.ts
+          git commit -m "chore(db): regenerate database.types.ts [types-bot]"
+          git push
+      - name: Stop
+        if: always()
+        run: supabase stop --no-backup
