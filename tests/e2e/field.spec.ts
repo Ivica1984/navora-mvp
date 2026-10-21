@@ -150,6 +150,36 @@ test.describe("field tool (F1)", () => {
     await expect(again.getByRole("listitem").filter({ hasText: "Losgefahren" })).toContainText("korrigiert");
   });
 
+  test("observations: recorded with provenance, edited as a new version, handed over to the next visit (F4)", async ({ page }) => {
+    await signIn(page, NURSE, /\/field$/);
+    await page.goto(`/field?datum=${SEED_DAY}`);
+
+    // Visit 502 (10:00, completed earlier in this file) — client Testfall 08.
+    const card = page.getByRole("article", { name: /10:00 – 10:30/ });
+    const observations = card.getByRole("region", { name: "Beobachtungen" });
+    await observations.getByLabel("Neue Beobachtung").fill("Klientin müde, trinkt wenig. Bitte morgen Trinkmenge beobachten.");
+    await observations.getByLabel("Für die Übergabe markieren").check();
+    await observations.getByRole("button", { name: "Beobachtung speichern" }).click();
+
+    const entry = observations.getByRole("listitem").filter({ hasText: "trinkt wenig" });
+    await expect(entry).toContainText("von dir");
+    await expect(entry).toContainText("Übergabe");
+    await expect(observations.getByLabel("Neue Beobachtung")).toHaveValue("");
+
+    // Change = new version; the edited text replaces the old one in the view.
+    await entry.getByRole("button", { name: "Ändern" }).click();
+    await observations.getByLabel("Beobachtung ändern").fill("Klientin müde, trinkt wenig (ca. 0.5 l bis Mittag). Bitte morgen Trinkmenge beobachten.");
+    await observations.getByRole("button", { name: "Änderung speichern" }).click();
+    await expect(observations.getByRole("listitem").filter({ hasText: "ca. 0.5 l" })).toContainText("geändert");
+    await expect(observations.getByText("trinkt wenig. Bitte", { exact: false })).toHaveCount(0);
+
+    // Handover: shown on the same client's visit of the team on the next day (visit 508).
+    await page.goto(`/field?datum=${NEXT_DAY}`);
+    const handover = page.getByRole("article", { name: /09:00 – 09:45/ }).getByRole("region", { name: "Übergabe" });
+    await expect(handover).toContainText("ca. 0.5 l bis Mittag");
+    await expect(handover).toContainText("von dir");
+  });
+
   test("works on a phone-sized screen without horizontal scrolling", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 740 });
     await signIn(page, NURSE, /\/field$/);
