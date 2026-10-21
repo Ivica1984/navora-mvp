@@ -20,6 +20,7 @@ export type AttentionEntityType =
   | "team"
   | "visit"
   | "partner_request"
+  | "matching_request"
   | "quality_event";
 
 export type AttentionItem = {

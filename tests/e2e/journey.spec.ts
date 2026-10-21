@@ -42,6 +42,7 @@ test("referral → case → team takes it over → team plans a visit → it is 
   await card.getByLabel("Ärztliche Verordnung").selectOption("present");
   await card.getByLabel("Verordnung gültig bis").fill(new Date(Date.now() + 90 * 86_400_000).toISOString().slice(0, 10));
   await card.getByLabel("Gewünschter Beginn").fill(new Date(Date.now() + 86_400_000).toISOString().slice(0, 10));
+  await card.getByLabel("Erwartete Stunden pro Woche").fill("6");
   await card.getByRole("checkbox").check();
   await card.getByRole("button", { name: "Fall eröffnen" }).click();
   await expect(card).toHaveCount(0);
@@ -55,6 +56,12 @@ test("referral → case → team takes it over → team plans a visit → it is 
   const offer = page.getByRole("article", { name: "Anfrage Teamsuche: Journey Übergangspflege" });
   await expect(offer).toContainText("für Testteam Nord");
   await expect(offer).toContainText("nicht automatisch geprüft");
+  // J2 / F0 criterion 4: start, expected hours and required qualification before acceptance.
+  const facts = offer.getByRole("definition");
+  await expect(offer.getByLabel("Eckdaten")).toContainText("6 h/Woche");
+  await expect(offer.getByLabel("Eckdaten")).toContainText("Pflegefachperson nötig");
+  await expect(offer.getByTestId("response-due")).toBeVisible();
+  await expect(facts.first()).not.toHaveText("nicht erfasst");
   await expect(page.getByText("Journeytest")).toHaveCount(0);
 
   await offer.getByRole("button", { name: "Fall übernehmen" }).click();

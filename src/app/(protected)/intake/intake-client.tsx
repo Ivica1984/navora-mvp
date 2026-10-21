@@ -305,6 +305,19 @@ function FactsFields({ initial }: { initial?: Partial<IntakeCase> }) {
           <input name="requested_start" type="date" defaultValue={initial?.requested_start ?? ""} className={sel} />
         </label>
         <label className="grid gap-1 text-sm">
+          <span className="font-semibold">Erwartete Stunden pro Woche</span>
+          <input
+            name="expected_hours_per_week"
+            type="number"
+            inputMode="decimal"
+            min={0.5}
+            max={168}
+            step={0.5}
+            defaultValue={initial?.expected_hours_per_week ?? ""}
+            className={sel}
+          />
+        </label>
+        <label className="grid gap-1 text-sm">
           <span className="font-semibold">Hausärztin/-arzt bekannt</span>
           <select name="gp_named" defaultValue={yn(initial?.gp_named)} className={sel}>
             <option value="">offen</option>

@@ -39,6 +39,7 @@ const factsSchema = z
     requested_start: z.iso.date(),
     language_notes: z.string().trim().max(500),
     access_notes: z.string().trim().max(500),
+    expected_hours_per_week: z.number().positive().max(168),
   })
   .partial()
   .strict();

@@ -4,7 +4,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { addCarePlanItem, decideMatchingRequest, planVisit, removePlannedVisit, rescheduleVisit, retireCarePlanItem } from "@/features/team/commands";
-import { PLAN_FLAG_LABEL, QUALIFICATION_LABEL, formatMinutesByCategory, minutesFromForm } from "@/features/team/rules";
+import {
+  DECLINE_REASONS,
+  DECLINE_REASON_LABEL,
+  PLAN_FLAG_LABEL,
+  QUALIFICATION_LABEL,
+  declineError,
+  formatMinutesByCategory,
+  formatResponseDue,
+  formatWeeklyHours,
+  minutesFromForm,
+} from "@/features/team/rules";
 import { MEDICAL_ORDER_LABEL, TASK_LABEL } from "@/features/intake/rules";
 import type { TeamCase, TeamOffer } from "@/features/team/queries";
 import { formatDayLabel, shiftDay, todayInZurich } from "@/features/field/rules";
@@ -97,8 +107,16 @@ function OfferCard({ offer }: { offer: TeamOffer }) {
   const [declining, setDeclining] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reason, setReason] = useState("");
+  const [reasonCode, setReasonCode] = useState("");
 
   async function decide(decision: "accept" | "decline") {
+    if (decision === "decline") {
+      const problem = declineError(reasonCode, reason);
+      if (problem) {
+        setError(problem);
+        return;
+      }
+    }
     setPending(decision);
     setError(null);
     const result = await decideMatchingRequest({
@@ -106,6 +124,7 @@ function OfferCard({ offer }: { offer: TeamOffer }) {
       teamId: offer.team_id,
       decision,
       reason: decision === "decline" ? reason : "",
+      reasonCode: decision === "decline" ? reasonCode : null,
       idempotencyKey: crypto.randomUUID(),
     });
     setPending(null);
@@ -129,9 +148,23 @@ function OfferCard({ offer }: { offer: TeamOffer }) {
       <p className="mt-2 text-sm">
         Leistungen: {offer.required_services?.length ? offer.required_services.join(", ") : "nicht angegeben"}
       </p>
+      <dl className="mt-2 grid grid-cols-[9rem_1fr] gap-x-2 gap-y-0.5 text-sm" aria-label="Eckdaten">
+        <dt className="text-emerald-900/60">Beginn</dt>
+        <dd>{offer.requested_start ? formatDayLabel(offer.requested_start) : "nicht erfasst"}</dd>
+        <dt className="text-emerald-900/60">Umfang</dt>
+        <dd>{formatWeeklyHours(offer.expected_hours_per_week)}</dd>
+        <dt className="text-emerald-900/60">Qualifikation</dt>
+        <dd>
+          {offer.required_qualification
+            ? `${QUALIFICATION_LABEL[offer.required_qualification] ?? offer.required_qualification} nötig`
+            : "keine besondere"}
+        </dd>
+        <dt className="text-emerald-900/60">Antwortfrist</dt>
+        <dd data-testid="response-due">{formatResponseDue(offer.response_due_at)}</dd>
+      </dl>
       <ul className="mt-2 grid gap-0.5 text-xs" aria-label="Prüfkriterien">
-        <li>✓ Aktives Team · ✓ Region</li>
-        <li className="text-amber-800">○ Kompetenz, Qualifikation, Kapazität, Sicherheitsvorbehalte: nicht automatisch geprüft</li>
+        <li>✓ Aktives Team · ✓ Region · ✓ Qualifikation</li>
+        <li className="text-amber-800">○ Kompetenz, Kapazität, Sicherheitsvorbehalte: nicht automatisch geprüft</li>
       </ul>
 
       {error && (
@@ -162,7 +195,20 @@ function OfferCard({ offer }: { offer: TeamOffer }) {
       ) : (
         <div className="mt-3 grid gap-2">
           <label className="grid gap-1 text-sm">
-            <span className="font-semibold">Grund (optional, für das Team und den Coach)</span>
+            <span className="font-semibold">Grund der Ablehnung</span>
+            <select
+              value={reasonCode}
+              onChange={(e) => setReasonCode(e.target.value)}
+              className="min-h-11 rounded-lg border border-stone-300 bg-white px-3"
+            >
+              <option value="">– bitte wählen –</option>
+              {DECLINE_REASONS.map((code) => (
+                <option key={code} value={code}>{DECLINE_REASON_LABEL[code]}</option>
+              ))}
+            </select>
+          </label>
+          <label className="grid gap-1 text-sm">
+            <span className="font-semibold">Bemerkung {reasonCode === "other" ? "(nötig)" : "(optional)"}</span>
             <input
               value={reason}
               onChange={(e) => setReason(e.target.value)}

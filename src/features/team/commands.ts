@@ -8,19 +8,23 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
+import { DECLINE_REASONS } from "./rules";
 
 const decisionSchema = z.object({
   requestId: z.uuid(),
   teamId: z.uuid(),
   decision: z.enum(["accept", "decline"]),
   reason: z.string().trim().max(500),
+  reasonCode: z.enum(DECLINE_REASONS).nullable(),
   idempotencyKey: z.uuid(),
-});
+}).refine((d) => (d.decision === "decline") === (d.reasonCode !== null), { message: "reason code" })
+  .refine((d) => d.reasonCode !== "other" || d.reason.length >= 3, { message: "other needs text" });
 
 const MESSAGES: Record<string, string> = {
-  invalid: "Ungültige Eingabe.",
+  invalid: "Ungültige Eingabe. Eine Ablehnung braucht einen Grund; bei «Anderer Grund» eine kurze Beschreibung.",
   rejected: "Nicht gespeichert: Dein Team hat bereits entschieden, oder die Anfrage ist nicht für dein Team.",
   taken: "Ein anderes Team hat diesen Fall bereits übernommen.",
+  not_qualified: "Dieser Fall braucht eine Pflegefachperson im Team (Bedarfsabklärung oder Kategorie B).",
   failed: "Entscheid konnte nicht gespeichert werden.",
 };
 
@@ -36,6 +40,8 @@ export async function decideMatchingRequest(input: unknown): Promise<CommandResu
     p_decision: d.decision,
     p_reason: d.reason,
     p_idempotency_key: d.idempotencyKey,
+    // The generated RPC type marks every argument as required; null = acceptance.
+    p_reason_code: d.reasonCode as string,
   });
 
   if (error) {

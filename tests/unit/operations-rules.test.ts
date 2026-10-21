@@ -84,6 +84,7 @@ function careCase(overrides: Partial<CaseRow>): CaseRow {
     ready_for_matching_at: null,
     // J3 (PO changes)
     needs_assessment_done_at: null,
+    expected_hours_per_week: null,
     ...overrides,
   };
 }

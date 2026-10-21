@@ -68,7 +68,11 @@ describe("agent collaboration layer (docs/agents)", () => {
   });
 
   it("ranks follow the row order", () => {
-    const r = withEdit("NEXT_CAPABILITY.md", "| 2 | J1 |", "| 7 | J1 |");
-    expect(r.out).toContain("rank 7 should be 2");
+    // COORD-3: take the queue's second row, whatever item the PO ranked there, and give it a wrong rank.
+    const queue = readFileSync(join(REAL, "NEXT_CAPABILITY.md"), "utf8");
+    const second = queue.match(/^\| 2 \| [A-Za-z0-9-]+ \|/m)?.[0];
+    expect(second, "the priority queue needs at least two rows").toBeTruthy();
+    const r = withEdit("NEXT_CAPABILITY.md", second as string, (second as string).replace("| 2 |", "| 97 |"));
+    expect(r.out).toContain("rank 97 should be 2");
   });
 });

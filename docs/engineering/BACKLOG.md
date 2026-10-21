@@ -57,7 +57,7 @@ Decision brief with options and recommendations: [`DECISIONS_NEEDED.md`](DECISIO
 | ID | Task | Status |
 |---|---|---|
 | J1 | Referral intake (admin/operations) → review → case + open matching request; provisional consent gate; audited | **DONE** — PR #23 (ADR-026) |
-| J2 | Team decision: active teams of the case's region see open requests (hard filters available today: active team, service area = region; others shown as "not checked"); no client identity before acceptance; first acceptance assigns the case atomically; decline recorded in append-only `team_decisions` | **DONE** — PR #24 (ADR-027) |
+| J2 | Team decision: active teams of the case's region see open requests (hard filters available today: active team, service area = region; others shown as "not checked"); no client identity before acceptance; first acceptance assigns the case atomically; decline recorded in append-only `team_decisions` | DONE #24 (ADR-027); **PO changes IN REVIEW #36** (ADR-033): qualification eligibility, decline reasons, deadlines as configuration (Q8 values open), escalation |
 | J3 | Team planning: team members plan, move and remove planned visits of their team's cases (no coach/operations override); visible in `/field`; audited incl. insert/delete | **DONE** — PR #25 (ADR-028) |
 | J4 | Team availability and capacity windows → derived capacity replaces hand-entered `utilization`/`open_slots` (Operations, matching hard filter) | PROPOSED — PLATFORM_MAP D5 slice 3 |
 
@@ -70,7 +70,7 @@ Decision brief with options and recommendations: [`DECISIONS_NEEDED.md`](DECISIO
 | F3 | Time corrections as reasoned, append-only records (no silent edits); effective time + original + reason shown; future times and out-of-order timelines refused | **DONE** — PR #21, CI green (ADR-024). Who reviews corrections: open (Q4/D-6) |
 | F4 | Observations (free text, author/time/source), immutable with versions; **team-only** visibility; handover to the client's next visits of the team (14-day display default) | **DONE** — PR #22, CI green (ADR-025) |
 | F5 | E2E + RLS-negative suite for the field workflow | PROPOSED |
-| F6 | Signed visit report: server-built draft, the performer signs, countersignature (provisional, D-10), immutable versions; Operations attention closes on final | IN REVIEW #35 (ADR-032). Countersignature scope = D-10 |
+| F6 | Signed visit report: server-built draft, the performer signs, countersignature (provisional, D-10), immutable versions; Operations attention closes on final | DONE #35 (ADR-032), awaiting PO acceptance. Countersignature scope = D-10 |
 | F7 | Offline-sync concept (idempotent queued commands, device data limits) | PROPOSED (Gate 2 item 3, concept only) |
 
 ## Open questions (product)
