@@ -171,7 +171,14 @@ jobs:
           echo "::notice title=anon-rest::checked 14 tables, audit_events, 1 write, 28 RPCs + 3 field reads; failures=$fail"
           exit $fail
       - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
+        # Retried: the apt/CDN download is occasionally flaky (PO note 2026-10-21 23:05).
+        run: |
+          for attempt in 1 2 3; do
+            npx playwright install --with-deps chromium && exit 0
+            echo "::warning title=playwright-install::attempt $attempt failed, retrying"
+            sleep 15
+          done
+          exit 1
       - name: Build
         run: scripts/ci-step.sh e2e-build npm run build
       - name: Playwright
