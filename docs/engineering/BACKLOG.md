@@ -56,7 +56,7 @@ Decision brief with options and recommendations: [`DECISIONS_NEEDED.md`](DECISIO
 |---|---|---|
 | J1 | Referral intake (admin/operations) → review → case + open matching request; provisional consent gate; audited | IN REVIEW — ADR-026 |
 | J2 | Team decision: active teams of the case's region see open requests (hard filters available today: active team, service area = region; others shown as "not checked"); no client identity before acceptance; first acceptance assigns the case atomically; decline recorded in append-only `team_decisions` | IN REVIEW — ADR-027 |
-| J3 | Team planning: team members schedule visits for their team's cases → visible in `/field` | NEXT |
+| J3 | Team planning: team members plan, move and remove planned visits of their team's cases (no coach/operations override); visible in `/field`; audited incl. insert/delete | IN REVIEW — ADR-028 |
 | J4 | Team availability and capacity windows → derived capacity replaces hand-entered `utilization`/`open_slots` (Operations, matching hard filter) | PROPOSED — PLATFORM_MAP D5 slice 3 |
 
 ## Product (M4 — Roadmap Gate 2)

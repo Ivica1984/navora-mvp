@@ -29,7 +29,7 @@ Source of truth for the target: `ARCHITECTURE.md` data flow and workflow (*Partn
 | 2 | Case (`cases`) | **J1 in review**: conversion after review, provisional consent gate | J1 |
 | 3 | Matching (`matching_requests`, candidates) | J1 opens a request; engine = Gate 4 (needs competence/capacity data, validated weights) | J2 (team-pull, no ranking) |
 | 4 | Team decision | **J2 in review**: team pull, atomic accept | J2 |
-| 5 | Team planning → `care_visits` | missing (seed only) | **J3 next**, then J4 capacity |
+| 5 | Team planning → `care_visits` | **J3 in review**: team plans/moves/removes planned visits | J3, then **J4 capacity next** |
 | 6 | Care delivery (`/field`) | **done**: F1–F3 | — |
 | 7 | Documentation: observations, handover | **done**: F4 | — |
 | 8 | Report → human approval | missing; approver role = Q4 | F6 |

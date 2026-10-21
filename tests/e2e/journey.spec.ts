@@ -19,7 +19,7 @@ async function signOut(page: Page) {
   await page.waitForURL(/\/login$/);
 }
 
-test("referral → case → the team of the region takes it over (J1 + J2)", async ({ page }) => {
+test("referral → case → team takes it over → team plans a visit → it is in the nurse's day (J1–J3)", async ({ page }) => {
   // Operations records and converts a referral in Bern West.
   await signIn(page, OPS, /\/operations$/);
   await page.goto("/intake");
@@ -51,6 +51,21 @@ test("referral → case → the team of the region takes it over (J1 + J2)", asy
 
   await offer.getByRole("button", { name: "Fall übernehmen" }).click();
   await expect(offer).toHaveCount(0);
-  await page.reload();
-  await expect(page.getByRole("article", { name: "Anfrage Teamsuche: Journey Übergangspflege" })).toHaveCount(0);
+
+  // J3: after acceptance the team sees the client and plans a visit for tomorrow (Swiss date).
+  const teamCase = page.getByRole("article", { name: "Fall Jonas Journeytest" });
+  await expect(teamCase).toContainText("Testteam Nord");
+  await expect(teamCase).toContainText("Noch keine Einsätze geplant");
+  await teamCase.getByRole("button", { name: "Einsatz planen" }).click();
+  const planForm = teamCase.getByRole("form", { name: "Einsatz planen" });
+  const tomorrow = await planForm.getByLabel("Datum").inputValue();
+  await planForm.getByLabel("Von").fill("14:00");
+  await planForm.getByLabel("Bis").fill("14:45");
+  await planForm.getByRole("button", { name: "Einsatz speichern" }).click();
+  await expect(teamCase.getByRole("list", { name: "Geplante Einsätze" })).toContainText("14:00–14:45");
+
+  await page.goto(`/field?datum=${tomorrow}`);
+  const visit = page.getByRole("article", { name: /14:00 – 14:45, Jonas Journeytest/ });
+  await expect(visit).toContainText("Geplant");
+  await expect(visit).toContainText("Grundpflege");
 });
