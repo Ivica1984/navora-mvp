@@ -24,6 +24,7 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | D-2 | owner | financial | Staging hosting provider and region | Supabase EU/CH plus Render Frankfurt or Vercel, synthetic data only | T12 | 2026-10-21 (eng) |
 | D-3 | owner | product | Permission matrix: read scope of health data per role | option B now (team-scoped clinical read), C before production | – | 2026-10-21 (eng) |
 | D-5 | owner | product | Who manages organisations and memberships | NAVORA staff first, then organisation admins | – | 2026-10-21 (eng) |
+| D-17 | clinical | clinical | Which safety alerts must a nurse see before the first visit (e.g. allergies, fall risk, infection precautions, emergency contact, access or key arrangement)? | a short fixed list, captured at intake, shown on the `/field` card; nothing diagnostic | J1 | 2026-10-21 (po) |
 | D-7 | owner | production | Branch protection, secret scanning, repository visibility (public → private) | protect `main` and `recovery/main` with required CI checks; make the repository private | M2 | 2026-10-21 (eng) |
 | D-8 | owner | production | Merge `recovery/main` into `main` | merge commit after D-7 | M2 | 2026-10-21 (eng) |
 | SR-26 | owner | production | Move or delete the foreign `orders` table (Stripe test checkouts with e-mail addresses) in the live NAVORA database | move it to the other app's project, then delete | – | 2026-10-21 (eng) |
