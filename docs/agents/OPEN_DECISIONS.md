@@ -8,6 +8,7 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | ID | Owner | Kind | Question | Recommendation | Blocks | Opened |
 |---|---|---|---|---|---|---|
 | Q7 | po | product | Do location features (team bases, service radius, geocoding) belong in NAVORA's matching? | **PO view 2026-10-21:** yes, in Gate 5 together with J4; not before. Region match is enough for the pilot; geocoding needs a data-protection review first | – | 2026-10-21 (eng) |
+| COORD-3 | eng | technical | `tests/unit/agents-layer.test.ts` "ranks follow the row order" edits the literal `\| 2 \| J1 \|`, so it breaks whenever the PO re-ranks (same class as #29). Make the fixture pick any row | as in #29: derive the row from the table instead of a fixed rank. Until then the PO keeps J1 at rank 2 | – | 2026-10-21 (po) |
 | Q8 | po | product | Team response time per referral type and decline-reason list for J2 | **PO answer 2026-10-21 22:20:** pilot defaults, changeable by NAVORA administrators: hospital discharge 4 working hours; nursing home 1 working day; private 2 working days. Decline reasons: capacity, qualification, distance, other. Now in `briefs/J2.md`. Eng: drop Q8 from the J2 row; PO then moves it to Decided | J2 | 2026-10-21 (po) |
 | Q9 | po | product | Thresholds and urgency for Operations exceptions (OPS1) | **PO answer 2026-10-21 22:20:** P1 safety / P2 continuity / P3 administration defaults as listed in `briefs/OPS1.md`; configuration, not code. Eng: drop Q9 from the OPS1 row; PO then moves it to Decided | OPS1 | 2026-10-21 (po) |
 | D-10 | clinical | clinical | Must a registered nurse countersign visit reports when a care assistant performed the visit? (Care assistants cannot start category B or needs-assessment visits since #32, so this concerns their A/C work.) | until answered, F6 requires the countersignature (safe default, configurable); `clinical` may relax it for category C | F6 | 2026-10-21 (po) |
@@ -33,7 +34,7 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | ID | Owner | Answer | Date |
 |---|---|---|---|
 | Q4 | po | The nurse who performed the visit signs her report and requests her own time corrections; countersignature rule is D-10 (`clinical`), safe default in F6 until answered. Role matrix stays D-3 | 2026-10-21 |
-| COORD-2 | po | F6 adopted (queue rank 2); J4 deferred to Gate 5 | 2026-10-21 |
+| COORD-2 | po | F6 adopted, next build item after F0; J4 deferred to Gate 5 | 2026-10-21 |
 | COORD-1 | po | Briefs for F0, J1, J2, J3, F1-F4, F6 published (PR #28), later QG1, OPS1, J5, J6, J7 | 2026-10-21 |
 | D-5 | owner | NAVORA administrators manage organisations, memberships and member qualifications. Pilot qualification model: `registered_nurse`, `care_assistant` (two values, nothing else until `clinical` asks for more) | 2026-10-21 |
 | D-1a | owner | Live containment C-1 approved and executed by the owner (anon access revoked) | 2026-10-21 |
