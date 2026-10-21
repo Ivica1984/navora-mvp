@@ -63,3 +63,26 @@ insert into public.quality_events (id, created_at, case_id, visit_id, team_id, e
   ('00000000-0000-4000-a000-000000000701', now() - interval '6 hours', '00000000-0000-4000-a000-000000000210', '00000000-0000-4000-a000-000000000505', '00000000-0000-4000-a000-000000000102', 'documentation', 'high', 'Testereignis hoch',    'Synthetisches Ereignis.', 'open'),   -- P1
   ('00000000-0000-4000-a000-000000000702', now() - interval '1 day',   '00000000-0000-4000-a000-000000000208', null,                                   '00000000-0000-4000-a000-000000000101', 'process',       'low',  'Testereignis niedrig', null,                       'open'),   -- P2
   ('00000000-0000-4000-a000-000000000703', now() - interval '5 days',  '00000000-0000-4000-a000-000000000209', null,                                   '00000000-0000-4000-a000-000000000104', 'process',       'medium', 'Testereignis erledigt', null,                    'closed'); -- no attention
+
+-- Auth test users (T8) — LOCAL / CI ONLY ------------------------------------
+-- Synthetic accounts for sign-in tests. The password is public in this repo
+-- and must never exist in staging or production: `supabase db push` does not
+-- run seed.sql, and staging users are created separately (T12).
+-- Password for both: navora-local-only
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000901', 'authenticated', 'authenticated',
+   'coach.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), now(),
+   '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000902', 'authenticated', 'authenticated',
+   'pflege.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), now(),
+   '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', '');
+
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
+  ('00000000-0000-4000-a000-000000000911', '00000000-0000-4000-a000-000000000901', '00000000-0000-4000-a000-000000000901',
+   '{"sub":"00000000-0000-4000-a000-000000000901","email":"coach.test@navora.test","email_verified":true}', 'email', now(), now(), now()),
+  ('00000000-0000-4000-a000-000000000912', '00000000-0000-4000-a000-000000000902', '00000000-0000-4000-a000-000000000902',
+   '{"sub":"00000000-0000-4000-a000-000000000902","email":"pflege.test@navora.test","email_verified":true}', 'email', now(), now(), now());

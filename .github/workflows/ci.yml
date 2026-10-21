@@ -13,9 +13,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Placeholders only. The build must never reach a real database (SR-05).
-  NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-not-a-key
   NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
@@ -23,6 +20,10 @@ jobs:
     name: app (lint · typecheck · unit · audit · build)
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      # Placeholders only. The build must never reach a real database (SR-05).
+      SUPABASE_URL: http://127.0.0.1:54321
+      SUPABASE_ANON_KEY: ci-placeholder-not-a-key
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -77,4 +78,52 @@ jobs:
         run: scripts/ci-step.sh db-lint supabase db lint --level error
       - name: Stop
         if: always() && steps.detect.outputs.present == 'true'
+        run: supabase stop --no-backup
+
+  e2e:
+    name: e2e (auth · protected routes · Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install (lockfile only)
+        run: npm ci --no-fund
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start local Supabase (applies migrations + synthetic seed)
+        run: supabase start
+      - name: Export local Supabase URL and key (names only are logged)
+        run: |
+          supabase status -o env | grep -E '^[A-Z_]+=' > /tmp/sb.env
+          set -a; . /tmp/sb.env; set +a
+          key="${ANON_KEY:-${PUBLISHABLE_KEY:-}}"
+          if [ -z "${API_URL:-}" ] || [ -z "$key" ]; then
+            echo "::error title=supabase env::API_URL/ANON_KEY missing. Variables present: $(cut -d= -f1 /tmp/sb.env | tr '\n' ' ')"
+            exit 1
+          fi
+          echo "::add-mask::$key"
+          echo "SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "SUPABASE_ANON_KEY=$key" >> "$GITHUB_ENV"
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Build
+        run: scripts/ci-step.sh e2e-build npm run build
+      - name: Playwright
+        run: scripts/ci-step.sh e2e npx playwright test
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+      - name: Stop
+        if: always()
         run: supabase stop --no-backup
