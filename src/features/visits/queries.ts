@@ -1,7 +1,12 @@
-import { supabase } from "@/lib/supabase";
+import "server-only";
+
+import { requireUser } from "@/lib/auth/session";
 import type { CareVisitRow } from "./types";
 
 export async function getCareVisits(): Promise<CareVisitRow[]> {
+  // Runs as the signed-in user (RLS sees auth.uid()); redirects to /login otherwise.
+  const { supabase } = await requireUser();
+
   const { data, error } = await supabase
     .from("care_visits")
     .select(

@@ -1,7 +1,12 @@
-import { supabase } from "@/lib/supabase";
+import "server-only";
+
+import { requireUser } from "@/lib/auth/session";
 import type { TeamRow } from "./types";
 
 export async function getTeams(): Promise<TeamRow[]> {
+  // Runs as the signed-in user (RLS sees auth.uid()); redirects to /login otherwise.
+  const { supabase } = await requireUser();
+
   const { data, error } = await supabase
     .from("teams")
     .select(

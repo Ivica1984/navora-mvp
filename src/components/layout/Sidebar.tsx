@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { signOut } from "@/features/auth/actions";
 import { demoPagesEnabled } from "@/lib/flags";
 
 type SidebarProps = {
@@ -149,6 +150,24 @@ export default function Sidebar({ active }: SidebarProps) {
           Navora MVP
         </h3>
       </div>
+
+      <form action={signOut}>
+        <button
+          type="submit"
+          style={{
+            width: "100%",
+            background: "transparent",
+            color: "white",
+            border: "1px solid rgba(255,255,255,0.3)",
+            borderRadius: "999px",
+            padding: "10px 14px",
+            cursor: "pointer",
+            font: "inherit",
+          }}
+        >
+          Abmelden
+        </button>
+      </form>
     </aside>
   );
 }

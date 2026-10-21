@@ -1,6 +1,6 @@
 # NAVORA — Engineering Backlog
 
-**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21
+**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21 (after T8)
 **Plan:** `claude/NAVORA_RECOVERY_EXECUTION_PLAN.md` (Project) · **Roadmap:** `docs/engineering/ROADMAP.md`
 **Status values:** BLOCKED · READY · IN PROGRESS · IN REVIEW · DONE · PROPOSED
 Ordered by priority. Work continues on the top item that is not blocked.
@@ -17,7 +17,7 @@ Ordered by priority. Work continues on the top item that is not blocked.
 | O-D | **Codespace check:** `gh codespace list`; if one exists, preserve it (runbook T1) | ADR-001 timebox | agent token cannot list Codespaces (HTTP 403) |
 | O-E | **Live DB containment check:** real patient data in the live Supabase project? anon access? anything deployed with its anon key? | SR-01, SR-12 | no access to the live project — correctly so |
 | O-F | **Schema-only pull of live** (`supabase db pull --schema public`) | replaces reconstructed baseline | same |
-| O-G | Approve or reject ADR-001…ADR-016 | — | owner decision |
+| O-G | Approve or reject ADR-001…ADR-017 | — | owner decision |
 
 ## Recovery (M0–M2)
 
@@ -36,9 +36,9 @@ Ordered by priority. Work continues on the top item that is not blocked.
 
 | ID | Task | Status | Depends on |
 |---|---|---|---|
-| T8 | SSR auth (`@supabase/ssr`), `proxy.ts`, `(protected)` group, server login/logout, remove anon module client + bypass link; Playwright redirect test | READY | — (built on `recovery/main`; lands on `main` after M2) |
-| T9 | Tenancy (`organizations`, memberships, `organization_id`), scoped RLS, drop `legacy_public_all`, invert the two LEGACY pgTAP assertions | READY after T8 | T8 |
-| T10 | `audit_events`; DB command functions with state + idempotency checks; zod Server Actions; remove browser writes and client `billable`; minimal case selects | BLOCKED | T9 |
+| T8 | SSR auth, proxy guard, `(protected)` group, server sign-in/out, bypass link removed, browser writes → Server Actions, Playwright | IN REVIEW | PR #7 — CI on `b2f6217`: app/db/e2e green (48 unit, 18 pgTAP, 11 e2e) |
+| T9 | Tenancy (`organizations`, memberships, `organization_id`), scoped RLS, drop `legacy_public_all`, invert the two LEGACY pgTAP assertions; give the two seeded test users memberships | READY | T8 merged |
+| T10 | `audit_events`; DB command functions with membership, state and idempotency checks; existing Server Actions call them; remove `billable` write; minimal case selects | BLOCKED | T9 |
 | T11 | Security headers + CSP, `poweredByHeader: false` | READY | — |
 | T12 | Staging (Supabase EU/CH + protected host, CI migrations) | BLOCKED | T9–T11, O-G (ADR-011) |
 | T13 | DB-level seed coverage test: one pgTAP/SQL check per attention category | PROPOSED | — |

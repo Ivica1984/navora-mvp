@@ -4,7 +4,7 @@ Plattform für selbstorganisierte Pflegeteams in der Schweiz (Next.js · TypeScr
 
 > **Entwicklungsstand — nicht für echte Patientendaten.**
 > Dieser Code läuft nur gegen eine lokale Supabase-Instanz mit synthetischen Daten.
-> Authentifizierung, mandantenfähige RLS und Audit fehlen noch (Roadmap Gate 1, Meilenstein M3).
+> Mandantenfähige RLS und Audit fehlen noch (Roadmap Gate 1, Meilenstein M3).
 > Bekannte Risiken: [`docs/engineering/SECURITY_RISKS.md`](docs/engineering/SECURITY_RISKS.md).
 
 ## Status (Stand 2026-10-21)
@@ -13,7 +13,7 @@ Plattform für selbstorganisierte Pflegeteams in der Schweiz (Next.js · TypeScr
 |---|---|
 | Routen `/operations`, `/teams`, `/visits` mit Supabase-Lesezugriff | IMPLEMENTED (legacy, aus Recovery) |
 | `/matching`, `/partners` | IMPLEMENTED als Mock; standardmässig ausgeblendet (`NEXT_PUBLIC_FEATURE_DEMO_PAGES`) |
-| Login | IMPLEMENTED im Browser, **ohne** serverseitigen Routenschutz — T8 |
+| Login / Routenschutz | IMPLEMENTED (T8): serverseitige Sitzung, alle Seiten ausser `/login` geschützt |
 | Mandanten-RLS, Audit, serverseitige Commands | PLANNED — T9, T10 |
 | `/field` (mobiles Einsatz-Tool) | PLANNED — M4 |
 
@@ -27,8 +27,8 @@ Voraussetzungen: Node 24 (`.nvmrc`), Docker, [Supabase CLI](https://supabase.com
 npm ci
 supabase start                 # lokale DB, Auth, API — gibt URL und anon key aus
 supabase db reset              # Migrationen + synthetischer Seed
-cp .env.example .env.local     # NEXT_PUBLIC_SUPABASE_ANON_KEY aus `supabase start` eintragen
-npm run dev
+cp .env.example .env.local     # SUPABASE_ANON_KEY aus `supabase status` eintragen
+npm run dev                    # Login lokal: coach.test@navora.test / navora-local-only
 ```
 
 Niemals `.env.local` auf das bestehende Live-Projekt zeigen lassen, und niemals gegen das Live-Projekt bauen (SR-05).
@@ -42,6 +42,7 @@ Niemals `.env.local` auf das bestehende Live-Projekt zeigen lassen, und niemals 
 | `npm test` | Vitest (reine Regeln, z.B. `features/operations/rules.ts`) |
 | `npm run test:db` | pgTAP gegen lokale Supabase (`supabase test db`) |
 | `npm run build` | Produktionsbuild ohne Datenbankzugriff |
+| `npm run e2e` | Playwright gegen `next start` + lokale Supabase (vorher `supabase db reset` und `npm run build`) |
 
 CI (`.github/workflows/ci.yml`) führt alle Schritte auf jedem PR aus.
 
