@@ -34,13 +34,13 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 ## Gate 2: Care Journey MVP
 
-Reihenfolge: F0-Rest → F6 → J2 → QG1 → OPS1 (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
+Reihenfolge: F0-Rest → J2 → OPS1 → QG1 (nach D-16) (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
 
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
 | J1 | Zuweisung → Fall → Matching-Anfrage mit Readiness-Prüfung und Kostenträgerkette | Critical | IMPLEMENTED (#23, #30), **abgenommen** 21.10.; Warnhinweise warten auf D-17 |
 | J3 | Einsatzplanung mit Kategorie A/B/C, geplanten Minuten, Anordnungsprüfung | High | IMPLEMENTED (#25, #32), **abgenommen** 21.10.; Kategorie-Mapping wartet auf D-15 |
-| F6 | Signierter Einsatzbericht | High | PLANNED, **als Nächstes aktiv** (nach F0-Rest) |
+| F6 | Signierter Einsatzbericht | High | IMPLEMENTED (#35), **abgenommen** 21.10. |
 | J2 | Teamentscheid mit Antwortfrist, Eskalation, Qualifikationsprüfung | High | IMPLEMENTED (#24), Änderungen verlangt |
 | F1-F4 | Verified Visit: Tagesansicht, Zustandsmaschine, Zeitkorrekturen, Beobachtung, Übergabe | High | IMPLEMENTED (#19–#22), abgenommen 21.10. (Pflegeziele via J3, Warnhinweise via J1/D-17) |
 | QG1 | Qualitätsereignisse, Prüfung, Quality Hold | High | PLANNED (Brief approved), Ereignisliste wartet auf D-16 |
