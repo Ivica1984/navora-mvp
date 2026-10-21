@@ -11,8 +11,21 @@ import { getSupabaseEnv } from "./env";
  * This is the coarse outer guard. It is not the only one: the (protected) layout
  * and every query/command call requireUser() again (ADR-017).
  */
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+export async function updateSession(
+  request: NextRequest,
+  extraRequestHeaders: Record<string, string> = {}
+) {
+  // Forwards the (possibly refreshed) cookies AND extra headers such as the
+  // per-request CSP nonce (T11) to the page render.
+  const next = () => {
+    const headers = new Headers(request.headers);
+    for (const [name, value] of Object.entries(extraRequestHeaders)) {
+      headers.set(name, value);
+    }
+    return NextResponse.next({ request: { headers } });
+  };
+
+  let response = next();
   const { url, key } = getSupabaseEnv();
 
   const supabase = createServerClient(url, key, {
@@ -24,7 +37,7 @@ export async function updateSession(request: NextRequest) {
         for (const { name, value } of cookiesToSet) {
           request.cookies.set(name, value);
         }
-        response = NextResponse.next({ request });
+        response = next();
         for (const { name, value, options } of cookiesToSet) {
           response.cookies.set(name, value, options);
         }

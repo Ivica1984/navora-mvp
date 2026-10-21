@@ -1,9 +1,24 @@
 import type { NextRequest } from "next/server";
+import { buildContentSecurityPolicy, createNonce } from "@/lib/security/csp";
 import { updateSession } from "@/lib/supabase/proxy";
 
-// Next.js 16 "proxy" (formerly middleware). Session refresh + coarse route guard.
+// Next.js 16 "proxy" (formerly middleware):
+// 1. per-request CSP nonce (T11) — passed to the render via the request's CSP
+//    header, and sent to the browser on the response;
+// 2. session refresh + coarse route guard (T8).
 export async function proxy(request: NextRequest) {
-  return updateSession(request);
+  const nonce = createNonce();
+  const csp = buildContentSecurityPolicy(nonce, {
+    dev: process.env.NODE_ENV === "development",
+  });
+
+  const response = await updateSession(request, {
+    "x-nonce": nonce,
+    "content-security-policy": csp,
+  });
+
+  response.headers.set("Content-Security-Policy", csp);
+  return response;
 }
 
 export const config = {

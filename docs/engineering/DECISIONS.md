@@ -1,6 +1,6 @@
 # NAVORA — Architecture Decision Log
 
-**Last updated:** 2026-10-21 (T10) · Complements `TECHNICAL_DECISIONS.md` (product decisions from the handover).
+**Last updated:** 2026-10-21 (T11) · Complements `TECHNICAL_DECISIONS.md` (product decisions from the handover).
 **Status:** PROPOSED (awaiting owner) · ACCEPTED · SUPERSEDED · REJECTED.
 Format: context → decision → trade-offs → risks. An entry graduates to `docs/adr/NNN-*.md` if it grows.
 
@@ -111,3 +111,11 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 5. **Invariant test:** pgTAP fails if any table app users can UPDATE lacks the audit trigger.
 **Trade-offs:** the logic is spread over functions and triggers, which pgTAP has to cover (31 assertions). Direct REST updates skip idempotency, but not RLS, the state machine or the audit.
 **Open:** audit retention and access rules are legal/data-protection decisions (Q6).
+
+### ADR-020 — Nonce-based CSP issued by the proxy; every page renders per request
+**Status:** PROPOSED · **Task:** T11 · Closes SR-13 in code.
+**Context:** Next.js App Router ships page data in inline scripts. A static CSP would need `script-src 'unsafe-inline'`, which removes most XSS protection.
+**Decision:** `src/proxy.ts` creates a fresh nonce for each request. It sets the CSP on the request (Next.js applies the nonce to its own scripts) and on the response. Production `script-src` is `'self' 'nonce-…' 'strict-dynamic'`, with no `unsafe-inline` and no `unsafe-eval`. The other directives are `connect-src 'self'` (the browser never talks to Supabase, ADR-017), `frame-ancestors 'none'`, `object-src 'none'`, and `'self'` for `form-action`/`base-uri`. Static headers live in `next.config.ts`: HSTS, nosniff, `X-Frame-Options: DENY`, `Referrer-Policy: same-origin`, a restrictive `Permissions-Policy`, and COOP; `poweredByHeader` is off. The root layout calls `connection()`, so every page carries a nonce (consistent with ADR-010).
+**Trade-offs:** `style-src 'unsafe-inline'` stays while the legacy UI uses inline style attributes (TD-01, removed with the design system). No static page optimisation, which the app does not need.
+**Verification:** e2e asserts the headers, a new nonce per request, the CSP on redirects, a nonce on every script, and zero CSP violations during sign-in and navigation.
+**Revisit:** `Permissions-Policy` must allow `geolocation=(self)` when the field tool needs it (M4), with a documented purpose.
