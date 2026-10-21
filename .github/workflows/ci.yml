@@ -119,6 +119,15 @@ jobs:
           summary=$(jq -c '{error: (.error // .error_code // null), code: (.code // null), msg: (.msg // .error_description // .message // null), has_access_token: (.access_token != null)}' /tmp/auth.json 2>/dev/null || echo '"unparseable"')
           echo "::notice title=auth-diagnostic::HTTP $body $summary"
           [ "$body" = "200" ]
+      - name: Self-registration must be disabled
+        run: |
+          code=$(curl -sS -o /tmp/signup.json -w '%{http_code}' \
+            -H "apikey: $SUPABASE_ANON_KEY" -H 'Content-Type: application/json' \
+            -d '{"email":"intruder@navora.test","password":"intruder-password-123"}' \
+            "$SUPABASE_URL/auth/v1/signup")
+          err=$(jq -r '.error_code // .code // .error // "?"' /tmp/signup.json 2>/dev/null)
+          echo "::notice title=signup-check::HTTP $code $err"
+          [ "$code" != "200" ]
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
       - name: Build
