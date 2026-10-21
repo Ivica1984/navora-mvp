@@ -9,7 +9,7 @@
 | TD-02 | Fixed desktop grids, not responsive | all UI | L | F1 sets the mobile pattern | OPEN |
 | TD-03 | Three competing fonts (Geist loaded, Arial in CSS, "Inter" requested but not loaded) | layout, globals, pages | S | with TD-01 | OPEN |
 | TD-04 | Template metadata, `lang="en"` | `layout.tsx` | S | — | DONE (PR #1) |
-| TD-05 | Hand-written row types drift from DB | `features/*/types.ts` | M | `getCases` fixed, mistyped query removed (PR #1); generated `database.types.ts` with T9 | PARTLY DONE |
+| TD-05 | Hand-written row types drift from DB | `features/*/types.ts` | M | `getCases` fixed, mistyped query removed (PR #1); generated `database.types.ts` moved to T10 | PARTLY DONE |
 | TD-06 | `as any` casts | operations, teams | S | — | DONE (PR #1) |
 | TD-07 | Duplicate helpers across files (`getVisitTimeRange`, `getAverageUtilization`, …) | features + clients | S | Operations copies removed (PR #1); rest in T10 | PARTLY DONE |
 | TD-08 | Server computes 13 KPIs the client ignores and recomputes | operations | S | T10 | OPEN |
@@ -28,4 +28,6 @@
 | TD-21 | `supabase/setup-cli@v1` runs on deprecated Node 20 runtime | CI | S | bump when a newer major is published | OPEN |
 | TD-22 | CI uses `ubuntu-latest`, which migrates to Ubuntu 26 from 2026-10-19 | CI | S | watch first failures; pin `ubuntu-24.04` if needed | OPEN |
 | TD-23 | `requireUser()` runs once per query/command, so `/operations` makes several Auth round-trips per request | `lib/auth/session.ts` | S | memoise per request with React `cache()` once measured | OPEN |
-| TD-24 | Two placeholder test users have no roles or memberships yet | `supabase/seed.sql` | S | T9 | OPEN |
+| TD-24 | Test users without roles/memberships | `supabase/seed.sql` | S | — | DONE (T9) |
+| TD-25 | Memberships can only be created by SQL; no admin flow, no audit of membership changes | DB | M | after Q5 | OPEN |
+| TD-26 | Role names (`admin`, `coach`, `operations`, `nurse`) are a CHECK constraint, not data | `organization_memberships` | S | revisit with Q4 | OPEN |

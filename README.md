@@ -4,7 +4,7 @@ Plattform für selbstorganisierte Pflegeteams in der Schweiz (Next.js · TypeScr
 
 > **Entwicklungsstand — nicht für echte Patientendaten.**
 > Dieser Code läuft nur gegen eine lokale Supabase-Instanz mit synthetischen Daten.
-> Mandantenfähige RLS und Audit fehlen noch (Roadmap Gate 1, Meilenstein M3).
+> Audit und minimierte Datenzugriffe fehlen noch (Roadmap Gate 1, Meilenstein M3).
 > Bekannte Risiken: [`docs/engineering/SECURITY_RISKS.md`](docs/engineering/SECURITY_RISKS.md).
 
 ## Status (Stand 2026-10-21)
@@ -14,7 +14,8 @@ Plattform für selbstorganisierte Pflegeteams in der Schweiz (Next.js · TypeScr
 | Routen `/operations`, `/teams`, `/visits` mit Supabase-Lesezugriff | IMPLEMENTED (legacy, aus Recovery) |
 | `/matching`, `/partners` | IMPLEMENTED als Mock; standardmässig ausgeblendet (`NEXT_PUBLIC_FEATURE_DEMO_PAGES`) |
 | Login / Routenschutz | IMPLEMENTED (T8): serverseitige Sitzung, alle Seiten ausser `/login` geschützt |
-| Mandanten-RLS, Audit, serverseitige Commands | PLANNED — T9, T10 |
+| Mandanten-RLS (Organisation, Team) | IMPLEMENTED (T9), Rollen sind Platzhalter |
+| Audit, DB-Commands, Datenminimierung | PLANNED — T10 |
 | `/field` (mobiles Einsatz-Tool) | PLANNED — M4 |
 
 Herkunft des Codes und Verifikationsstand: [`docs/recovery/RECOVERY_LOG.md`](docs/recovery/RECOVERY_LOG.md).
@@ -28,7 +29,7 @@ npm ci
 supabase start                 # lokale DB, Auth, API — gibt URL und anon key aus
 supabase db reset              # Migrationen + synthetischer Seed
 cp .env.example .env.local     # SUPABASE_ANON_KEY aus `supabase status` eintragen
-npm run dev                    # Login lokal: coach.test@navora.test / navora-local-only
+npm run dev                    # Login lokal (Passwort navora-local-only): coach.test@ / pflege.test@ / fremd.test@navora.test
 ```
 
 Niemals `.env.local` auf das bestehende Live-Projekt zeigen lassen, und niemals gegen das Live-Projekt bauen (SR-05).

@@ -8,7 +8,7 @@ Durations assume one engineer; dates are targets, not commitments.
 | **M0 Secure** | sources in Git with checksums; `main` protected | protected refs + verified import | Day 2 | PARTLY DONE — code in Git with checksums; protection + zip verification are owner steps (O-A…O-D) |
 | **M1 Buildable** | T3–T7 | lint, typecheck, unit, audit, build, migrations, pgTAP green in CI on synthetic data | Day 6 | **DONE 2026-10-21** (PR #1, merged into `recovery/main`) |
 | **M2 Recovered main** | `recovery/main → main` by merge commit, tag `v0.1.0-recovered` | real code on `main`, honest README, risks listed | Day 7 | IN REVIEW — gated on O-A, O-C, owner approval |
-| **M3 Secure staging** | T8 auth · T9 tenancy/RLS · T10 commands/audit · T11 headers · T12 staging | anon and foreign-org access fail in pgTAP; all writes audited; protected staging URL | Day 20 | IN PROGRESS — T8 in review (PR #7), T9 next |
+| **M3 Secure staging** | T8 auth · T9 tenancy/RLS · T10 commands/audit · T11 headers · T12 staging | anon and foreign-org access fail in pgTAP; all writes audited; protected staging URL | Day 20 | IN PROGRESS — T8 done, T9 in review (PR #8), T10 next |
 | **M4 Field MVP** | `/field` F1–F5 | Gate 2 criteria on staging | Day 40 | PROPOSED |
 | **M5 Pilot readiness** | restore test, incident runbook, DPIA sign-off, live-DB migration or retirement | go/no-go for real data | owner-driven | NOT STARTED |
 

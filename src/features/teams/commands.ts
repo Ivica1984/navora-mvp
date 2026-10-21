@@ -2,7 +2,10 @@
 
 // Team commands (T8). Replaces direct browser UPDATEs: input is validated and
 // the write runs server-side as the signed-in user.
-// NOT YET (T10): membership check, audit_events, idempotency key, DB function.
+// Authorisation is enforced by RLS since T9: only organisation roles admin and
+// coach may update teams (policy coaches_update_teams); columns are limited to
+// priority and coach_name by column privileges.
+// NOT YET (T10): audit_events, idempotency key, DB function.
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/session";
@@ -13,7 +16,8 @@ import {
 } from "./command-schemas";
 
 const INVALID = "Ungültige Eingabe.";
-const FAILED = "Änderung konnte nicht gespeichert werden.";
+const FAILED =
+  "Änderung nicht gespeichert: fehlende Berechtigung (nur Admin/Coach) oder Team nicht gefunden.";
 
 export async function setTeamPriority(input: unknown): Promise<CommandResult> {
   const parsed = setTeamPrioritySchema.safeParse(input);

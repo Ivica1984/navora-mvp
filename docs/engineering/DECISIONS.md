@@ -1,6 +1,6 @@
 # NAVORA — Architecture Decision Log
 
-**Last updated:** 2026-10-21 (T8) · Complements `TECHNICAL_DECISIONS.md` (product decisions from the handover).
+**Last updated:** 2026-10-21 (T9) · Complements `TECHNICAL_DECISIONS.md` (product decisions from the handover).
 **Status:** PROPOSED (awaiting owner) · ACCEPTED · SUPERSEDED · REJECTED.
 Format: context → decision → trade-offs → risks. An entry graduates to `docs/adr/NNN-*.md` if it grows.
 
@@ -27,7 +27,7 @@ Format: context → decision → trade-offs → risks. An entry graduates to `do
 **Decision:** next/eslint-config-next pinned exactly; sharp ≥ 0.35.5 via Next's dependency. Dependabot security updates once O-B is done.
 
 ### ADR-005 — Minimal tenancy model first
-**Status:** PROPOSED · **Decision:** `organizations`, `organization_memberships(role)`, `team_memberships`; `organization_id NOT NULL` on care tables. Other identity tables when a use case arrives. Roles are placeholders (Q4).
+**Status:** ACCEPTED in practice (T9, PR #8) — owner confirmation pending · **Decision:** `organizations`, `organization_memberships(role)`, `team_memberships`; `organization_id NOT NULL` on care tables. Other identity tables when a use case arrives. Roles are placeholders (Q4).
 
 ### ADR-006 — Hide `/matching` and `/partners`; do not repair them
 **Status:** ACCEPTED in practice (PR #1) — owner confirmation pending.
@@ -88,3 +88,14 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 **Deviation from plan:** the plan kept a browser client for "auth UI only" and moved writes in T10. Moving the writes now was cheaper than wiring a browser client that T10 would remove again. T10 still adds DB functions, membership checks, audit and idempotency.
 **Trade-offs:** each request makes one Auth round-trip in `requireUser()` (plus the proxy's claim check). Accepted for correctness; revisit with request-level memoisation if latency matters.
 **Risks:** the anon key still lets anyone call the Supabase REST API directly while `legacy_public_all` exists — T9 closes this at the database (SR-01).
+
+### ADR-018 — How tenancy is enforced in Postgres
+**Status:** PROPOSED · **Task:** T9 · Builds on ADR-005.
+**Decision:**
+1. **Policies** call three `SECURITY DEFINER` helpers in schema `private` (`is_org_member`, `has_org_role`, `is_team_member`) with an empty `search_path`. `private` is not exposed by the Data API; execute is granted to `authenticated` only. This avoids recursive RLS on the membership tables.
+2. **Privileges first, policies second:** `anon` has no privileges on any table; `authenticated` has `SELECT` plus column-limited `UPDATE` (`teams.priority, coach_name`; `care_visits.status, billable`). There is no `INSERT`/`DELETE` through the API. A policy mistake therefore cannot expose a column or operation the grants do not allow.
+3. **Composite foreign keys** `(x_id, organization_id)` make cross-tenant references impossible at the database level, independent of application code.
+4. **Placeholder role rules** (Q4): read = any org member; team settings = `admin`/`coach`; visit transitions = members of the visit's team (Teamautonomie, DOMAIN_RULES DECIDED).
+5. Legacy policies are dropped **in the same migration** that adds the replacements; the pgTAP assertions that documented the exposure were inverted in the same PR.
+**Trade-offs:** every org member, including `nurse`, can read every case in the organisation, including health fields. Purpose-limited read access (team/case/care-context) is part of the open permission matrix and of SR-06/T10 minimisation.
+**Risks:** a wrong helper would affect all tables at once → covered by 38 pgTAP assertions across roles, foreign org, member-of-nothing and anon, plus a CI check against the real REST API.
