@@ -61,12 +61,14 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
     throw new Error("Operations Dashboard konnte nicht geladen werden.");
   }
 
-  const partnerRequests = (partnerRequestsResult.data ?? []) as PartnerRequestSummary[];
-  const cases = (casesResult.data ?? []) as CaseSummaryRow[];
-  const teams = (teamsResult.data ?? []) as TeamRow[];
-  const visits = (visitsResult.data ?? []) as OperationsVisit[];
-  const careNotes = (careNotesResult.data ?? []) as CareNoteStatus[];
-  const qualityEvents = (qualityEventsResult.data ?? []) as QualityEventSummary[];
+  // No casts (T14): the typed client checks that each select returns exactly
+  // the shape the rules and the view expect.
+  const partnerRequests: PartnerRequestSummary[] = partnerRequestsResult.data ?? [];
+  const cases: CaseSummaryRow[] = casesResult.data ?? [];
+  const teams: TeamRow[] = teamsResult.data ?? [];
+  const visits: OperationsVisit[] = visitsResult.data ?? [];
+  const careNotes: CareNoteStatus[] = careNotesResult.data ?? [];
+  const qualityEvents: QualityEventSummary[] = qualityEventsResult.data ?? [];
 
   const attentionItems = buildAttentionItems({
     partnerRequests,

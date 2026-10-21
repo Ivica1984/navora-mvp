@@ -1,19 +1,22 @@
+import type { TableRow } from "@/lib/supabase/tables";
+
 export type TeamStatus = "active" | "building" | "paused" | "closed";
 
-export type TeamRow = {
-  id: string;
-  name: string;
-  region: string | null;
-  care_focus: string | null;
-  status: TeamStatus | string | null;
-  open_slots: number | null;
-  utilization: number | null;
-  lead_name: string | null;
-  next_step: string | null;
-  created_at: string;
-  priority: boolean | null;
-  coach_name: string | null;
-};
+export type TeamRow = Pick<
+  TableRow<"teams">,
+  | "id"
+  | "name"
+  | "region"
+  | "care_focus"
+  | "status"
+  | "open_slots"
+  | "utilization"
+  | "lead_name"
+  | "next_step"
+  | "created_at"
+  | "priority"
+  | "coach_name"
+>;
 
 export function getTeamStatusLabel(status: string | null) {
   if (status === "active") return "Aktiv";
