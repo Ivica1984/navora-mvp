@@ -28,5 +28,8 @@ jwt_expiry = 3600
 enable_signup = false
 
 [auth.email]
-enable_signup = false
+# Keeps the email/password PROVIDER on (false here disables sign-in entirely:
+# "email_provider_disabled"). Public self-registration stays off via
+# [auth] enable_signup = false above — accounts are created by an admin.
+enable_signup = true
 enable_confirmations = false
