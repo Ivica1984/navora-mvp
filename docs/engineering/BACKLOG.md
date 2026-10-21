@@ -1,6 +1,6 @@
 # NAVORA — Engineering Backlog
 
-**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21 (after T8)
+**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21 (after T9)
 **Plan:** `claude/NAVORA_RECOVERY_EXECUTION_PLAN.md` (Project) · **Roadmap:** `docs/engineering/ROADMAP.md`
 **Status values:** BLOCKED · READY · IN PROGRESS · IN REVIEW · DONE · PROPOSED
 Ordered by priority. Work continues on the top item that is not blocked.
@@ -36,9 +36,9 @@ Ordered by priority. Work continues on the top item that is not blocked.
 
 | ID | Task | Status | Depends on |
 |---|---|---|---|
-| T8 | SSR auth, proxy guard, `(protected)` group, server sign-in/out, bypass link removed, browser writes → Server Actions, Playwright | IN REVIEW | PR #7 — CI on `b2f6217`: app/db/e2e green (48 unit, 18 pgTAP, 11 e2e) |
-| T9 | Tenancy (`organizations`, memberships, `organization_id`), scoped RLS, drop `legacy_public_all`, invert the two LEGACY pgTAP assertions; give the two seeded test users memberships | READY | T8 merged |
-| T10 | `audit_events`; DB command functions with membership, state and idempotency checks; existing Server Actions call them; remove `billable` write; minimal case selects | BLOCKED | T9 |
+| T8 | SSR auth, proxy guard, `(protected)` group, server sign-in/out, browser writes → Server Actions | DONE | PR #7 merged into `recovery/main` |
+| T9 | Tenancy, scoped RLS, legacy policies dropped, anon privileges revoked, cross-tenant FKs | IN REVIEW | PR #8 — CI on `37d5580`: 56 pgTAP, 14 e2e, REST anon check 0 failures |
+| T10 | `audit_events`; DB command functions (state + idempotency + audit in one transaction) called by the existing Server Actions; remove `billable` write; minimal case selects; generated `database.types.ts` | READY | T9 merged |
 | T11 | Security headers + CSP, `poweredByHeader: false` | READY | — |
 | T12 | Staging (Supabase EU/CH + protected host, CI migrations) | BLOCKED | T9–T11, O-G (ADR-011) |
 | T13 | DB-level seed coverage test: one pgTAP/SQL check per attention category | PROPOSED | — |
@@ -60,4 +60,5 @@ Ordered by priority. Work continues on the top item that is not blocked.
 | Q1 | Purpose of the live `orders` table (not reconstructed) |
 | Q2 | TD-09: should a case without team in `teampruefung` raise one or two attention items? |
 | Q3 | Operations recommends "Matching starten" though Operations must not trigger matching (DOMAIN_RULES) — reword? |
-| Q4 | Real role set and permission matrix (ADR-005 uses placeholders) |
+| Q4 | Real role set and permission matrix. T9 uses placeholders: read = any org member (incl. health fields), team settings = admin/coach, visits = own team. Needs product + data-protection decision before real users |
+| Q5 | Who creates organisations and memberships, and how (no UI/API yet — SQL only) |
