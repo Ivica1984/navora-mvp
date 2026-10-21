@@ -60,6 +60,7 @@ test.describe("with a session", () => {
 
   test("starting a visit runs as a server action and moves it to started", async ({ page }) => {
     await signIn(page);
+    await expect(page).toHaveURL(/\/operations$/);
     await page.goto("/visits");
 
     await page.getByRole("button").filter({ hasText: "Geplant" }).first().click();
@@ -83,7 +84,9 @@ test.describe("with a session", () => {
     });
 
     await signIn(page);
+    await expect(page).toHaveURL(/\/operations$/);
     await page.goto("/visits");
+    await expect(page).toHaveURL(/\/visits$/);
     await page.waitForLoadState("networkidle");
 
     const html = await page.content();
