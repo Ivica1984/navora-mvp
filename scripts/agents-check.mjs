@@ -119,7 +119,10 @@ for (const s of status) {
   const id = bare(s.ID);
   enumCheck("IMPLEMENTATION_STATUS.md", id, "Origin", s.Origin, ORIGIN);
   enumCheck("IMPLEMENTATION_STATUS.md", id, "State", s.State, STATE);
-  if (bare(s.Origin) === "po" && !queueIds.has(id)) errors.push(`IMPLEMENTATION_STATUS.md: ${id}: origin po but not in NEXT_CAPABILITY.md`);
+  // origin po: in the PO queue, or a published PO brief (draft items waiting to enter the queue)
+  if (bare(s.Origin) === "po" && !queueIds.has(id) && !existsSync(join(DIR, "briefs", `${id}.md`))) {
+    errors.push(`IMPLEMENTATION_STATUS.md: ${id}: origin po but neither in NEXT_CAPABILITY.md nor in briefs/`);
+  }
   const blockers = list(s["Blocked by"]).map(bare);
   for (const b of blockers) if (!openIds.has(b)) errors.push(`IMPLEMENTATION_STATUS.md: ${id}: blocked by ${b}, which is not an open decision`);
   if (bare(s.State) === "blocked" && blockers.length === 0) errors.push(`IMPLEMENTATION_STATUS.md: ${id}: state blocked requires "Blocked by"`);

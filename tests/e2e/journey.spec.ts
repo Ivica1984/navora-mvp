@@ -34,6 +34,14 @@ test("referral → case → team takes it over → team plans a visit → it is 
   await card.getByRole("button", { name: "Prüfen und in Fall überführen" }).click();
   await card.getByLabel("Vorname").fill("Jonas");
   await card.getByLabel("Nachname").fill("Journeytest");
+  // J1 (PO brief): complete funding facts → ready → the server opens the team search.
+  await card.getByLabel("Wohngemeinde").fill("Teststadt");
+  await card.getByLabel("Kanton").selectOption("BE");
+  await card.getByLabel("Krankenversicherer").fill("Testkasse");
+  await card.getByLabel("Versicherungsart").selectOption("KVG");
+  await card.getByLabel("Ärztliche Verordnung").selectOption("present");
+  await card.getByLabel("Verordnung gültig bis").fill(new Date(Date.now() + 90 * 86_400_000).toISOString().slice(0, 10));
+  await card.getByLabel("Gewünschter Beginn").fill(new Date(Date.now() + 86_400_000).toISOString().slice(0, 10));
   await card.getByRole("checkbox").check();
   await card.getByRole("button", { name: "Fall eröffnen" }).click();
   await expect(card).toHaveCount(0);

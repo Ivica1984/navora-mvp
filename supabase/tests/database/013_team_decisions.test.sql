@@ -28,10 +28,15 @@ begin
     'hoch', null, 'J2 Anfrage A', 'Bedarf A', array['Grundpflege'], 'a2000000-0000-4000-8000-000000000001');
   perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital J2', 'Spital', 'Bern West', null,
     'mittel', null, 'J2 Anfrage B', 'Bedarf B', array['Begleitung'], 'a2000000-0000-4000-8000-000000000002');
+  -- J1 (PO brief): complete facts so the cases are ready and the matching requests exist.
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2 Anfrage A'),
-    'Klient', 'J2A', true, 'a2000000-0000-4000-8000-000000000003');
+    'Klient', 'J2A', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
+      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', current_date + 1),
+    'a2000000-0000-4000-8000-000000000003');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2 Anfrage B'),
-    'Klient', 'J2B', true, 'a2000000-0000-4000-8000-000000000004');
+    'Klient', 'J2B', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
+      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', current_date + 1),
+    'a2000000-0000-4000-8000-000000000004');
 end
 $$;
 reset role;

@@ -2,7 +2,10 @@ import "server-only";
 
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
+import type { Database } from "@/lib/supabase/database.types";
 import { intakeOrganization, type Membership } from "./rules";
+
+export type IntakeCase = Database["public"]["Functions"]["intake_cases"]["Returns"][number];
 
 export type OpenPartnerRequest = {
   id: string;
@@ -20,7 +23,7 @@ export type OpenPartnerRequest = {
 };
 
 /** Caller's intake organisation (null = no intake role) and the open referrals of that organisation. */
-export async function getIntakeData(): Promise<{ organizationId: string | null; requests: OpenPartnerRequest[] }> {
+export async function getIntakeData(): Promise<{ organizationId: string | null; requests: OpenPartnerRequest[]; cases: IntakeCase[] }> {
   const { supabase } = await requireUser();
 
   const { data: memberships, error: mError } = await supabase
@@ -32,7 +35,7 @@ export async function getIntakeData(): Promise<{ organizationId: string | null; 
   }
 
   const organizationId = intakeOrganization((memberships ?? []) as Membership[]);
-  if (!organizationId) return { organizationId: null, requests: [] };
+  if (!organizationId) return { organizationId: null, requests: [], cases: [] };
 
   const { data, error } = await supabase
     .from("partner_requests")
@@ -45,5 +48,12 @@ export async function getIntakeData(): Promise<{ organizationId: string | null; 
     throw new Error("Anfragen konnten nicht geladen werden.");
   }
 
-  return { organizationId, requests: data ?? [] };
+  // J1 (PO brief): cases still in intake, with the readiness list and open tasks.
+  const { data: cases, error: cError } = await supabase.rpc("intake_cases");
+  if (cError) {
+    logEvent("error", "intake.cases_failed", errorFields(cError));
+    throw new Error("Fälle in Aufnahme konnten nicht geladen werden.");
+  }
+
+  return { organizationId, requests: data ?? [], cases: cases ?? [] };
 }

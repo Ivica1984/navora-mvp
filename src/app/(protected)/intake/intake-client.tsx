@@ -2,9 +2,21 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { convertPartnerRequest, recordPartnerRequest } from "@/features/intake/commands";
-import type { OpenPartnerRequest } from "@/features/intake/queries";
-import { PARTNER_TYPES, URGENCIES, parseServices } from "@/features/intake/rules";
+import { convertPartnerRequest, recordPartnerRequest, updateCaseIntake } from "@/features/intake/commands";
+import type { IntakeCase, OpenPartnerRequest } from "@/features/intake/queries";
+import {
+  CANTONS,
+  INSURANCE_TYPES,
+  MEDICAL_ORDER_LABEL,
+  MEDICAL_ORDER_STATUSES,
+  PARTNER_TYPES,
+  TASK_LABEL,
+  URGENCIES,
+  factsFromForm,
+  parseMissing,
+  parseServices,
+  type ReadinessItem,
+} from "@/features/intake/rules";
 
 const URGENCY_CLASS: Record<string, string> = {
   hoch: "bg-rose-100 text-rose-900",
@@ -14,10 +26,24 @@ const URGENCY_CLASS: Record<string, string> = {
 
 const field = "min-h-11 rounded-lg border border-stone-300 bg-white px-3";
 
-export default function IntakeClient({ organizationId, requests }: { organizationId: string; requests: OpenPartnerRequest[] }) {
+export default function IntakeClient({ organizationId, requests, cases }: { organizationId: string; requests: OpenPartnerRequest[]; cases: IntakeCase[] }) {
   return (
     <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
       <NewRequestForm organizationId={organizationId} />
+      <div className="grid content-start gap-6">
+      <section aria-label="Fälle in Aufnahme" className="grid content-start gap-3">
+        <h2 className="text-lg font-bold">Fälle in Aufnahme ({cases.length})</h2>
+        {cases.length === 0 && (
+          <p className="rounded-xl border border-dashed border-emerald-900/20 bg-white/70 p-4 text-sm">Keine unvollständigen Fälle.</p>
+        )}
+        <ul className="grid gap-3">
+          {cases.map((c) => (
+            <li key={c.case_id}>
+              <IntakeCaseCard intakeCase={c} />
+            </li>
+          ))}
+        </ul>
+      </section>
       <section aria-label="Offene Anfragen" className="grid content-start gap-3">
         <h2 className="text-lg font-bold">Offene Anfragen ({requests.length})</h2>
         {requests.length === 0 && (
@@ -31,6 +57,7 @@ export default function IntakeClient({ organizationId, requests }: { organizatio
           ))}
         </ul>
       </section>
+      </div>
     </div>
   );
 }
@@ -151,6 +178,7 @@ function RequestCard({ request }: { request: OpenPartnerRequest }) {
       firstName: String(form.get("firstName") ?? ""),
       lastName: String(form.get("lastName") ?? ""),
       consentConfirmed: form.get("consent") === "on",
+      facts: factsFromForm((k) => String(form.get(k) ?? "")),
       idempotencyKey: crypto.randomUUID(),
     });
     setPending(false);
@@ -158,6 +186,7 @@ function RequestCard({ request }: { request: OpenPartnerRequest }) {
       setError(result.error);
       return;
     }
+    // Not ready → the case appears under "Fälle in Aufnahme" with the missing items.
     router.refresh();
   }
 
@@ -198,6 +227,7 @@ function RequestCard({ request }: { request: OpenPartnerRequest }) {
               <input name="lastName" required maxLength={100} className={field} />
             </label>
           </div>
+          <FactsFields />
           <label className="flex items-start gap-2 text-sm">
             <input name="consent" type="checkbox" required className="mt-1 size-5 shrink-0" />
             <span>
@@ -215,8 +245,165 @@ function RequestCard({ request }: { request: OpenPartnerRequest }) {
             </button>
           </div>
           <p className="text-xs text-emerald-900/60">
-            Der Fall erhält kein Team: Die Teams der Region entscheiden selbst über die Übernahme.
+            Die Teamsuche startet erst, wenn Einwilligung, Wohnort, Versicherer und Versicherungsart sowie Bedarf mit
+            Beginn vorliegen. Danach entscheiden die Teams der Region selbst über die Übernahme.
           </p>
+        </form>
+      )}
+    </article>
+  );
+}
+
+function FactsFields({ initial }: { initial?: Partial<IntakeCase> }) {
+  const sel = "min-h-11 rounded-lg border border-stone-300 bg-white px-2";
+  const yn = (v: boolean | null | undefined) => (v === true ? "yes" : v === false ? "no" : "");
+  return (
+    <fieldset className="grid gap-2 rounded-xl border border-stone-200 bg-white p-3">
+      <legend className="px-1 text-sm font-bold">Angaben für Versorgung und Finanzierung</legend>
+      <div className="grid grid-cols-[2fr_1fr] gap-2">
+        <label className="grid gap-1 text-sm">
+          <span className="font-semibold">Wohngemeinde</span>
+          <input name="residence_municipality" maxLength={80} defaultValue={initial?.residence_municipality ?? ""} className={sel} />
+        </label>
+        <label className="grid gap-1 text-sm">
+          <span className="font-semibold">Kanton</span>
+          <select name="residence_canton" defaultValue={initial?.residence_canton ?? ""} className={sel}>
+            <option value="">–</option>
+            {CANTONS.map((c) => (
+              <option key={c}>{c}</option>
+            ))}
+          </select>
+        </label>
+        <label className="grid gap-1 text-sm">
+          <span className="font-semibold">Krankenversicherer</span>
+          <input name="insurer_name" maxLength={120} defaultValue={initial?.insurer_name ?? ""} className={sel} />
+        </label>
+        <label className="grid gap-1 text-sm">
+          <span className="font-semibold">Versicherungsart</span>
+          <select name="insurance_type" defaultValue={initial?.insurance_type ?? ""} className={sel}>
+            <option value="">–</option>
+            {INSURANCE_TYPES.map((t) => (
+              <option key={t} value={t}>{t === "unknown" ? "unbekannt" : t === "private" ? "privat" : t}</option>
+            ))}
+          </select>
+        </label>
+        <label className="grid gap-1 text-sm">
+          <span className="font-semibold">Ärztliche Verordnung</span>
+          <select name="medical_order_status" defaultValue={initial?.medical_order_status ?? ""} className={sel}>
+            <option value="">–</option>
+            {MEDICAL_ORDER_STATUSES.map((s) => (
+              <option key={s} value={s}>{MEDICAL_ORDER_LABEL[s]}</option>
+            ))}
+          </select>
+        </label>
+        <label className="grid gap-1 text-sm">
+          <span className="font-semibold">Verordnung gültig bis</span>
+          <input name="medical_order_valid_until" type="date" defaultValue={initial?.medical_order_valid_until ?? ""} className={sel} />
+        </label>
+        <label className="grid gap-1 text-sm">
+          <span className="font-semibold">Gewünschter Beginn</span>
+          <input name="requested_start" type="date" defaultValue={initial?.requested_start ?? ""} className={sel} />
+        </label>
+        <label className="grid gap-1 text-sm">
+          <span className="font-semibold">Hausärztin/-arzt bekannt</span>
+          <select name="gp_named" defaultValue={yn(initial?.gp_named)} className={sel}>
+            <option value="">offen</option>
+            <option value="yes">ja</option>
+            <option value="no">nein</option>
+          </select>
+        </label>
+        <label className="grid gap-1 text-sm">
+          <span className="font-semibold">Andere Dienste aktiv</span>
+          <select name="other_providers_active" defaultValue={yn(initial?.other_providers_active)} className={sel}>
+            <option value="">offen</option>
+            <option value="yes">ja</option>
+            <option value="no">nein</option>
+          </select>
+        </label>
+      </div>
+      <label className="grid gap-1 text-sm">
+        <span className="font-semibold">Sprache / Verständigung</span>
+        <input name="language_notes" maxLength={500} defaultValue={initial?.language_notes ?? ""} className={sel} />
+      </label>
+      <label className="grid gap-1 text-sm">
+        <span className="font-semibold">Zugang zur Wohnung</span>
+        <input name="access_notes" maxLength={500} defaultValue={initial?.access_notes ?? ""} className={sel} />
+      </label>
+    </fieldset>
+  );
+}
+
+function MissingList({ missing }: { missing: ReadinessItem[] }) {
+  if (missing.length === 0) return null;
+  return (
+    <div role="status" aria-label="Warum nicht bereit" className="rounded-lg border-l-4 border-amber-500 bg-amber-50 p-2 text-sm">
+      <p className="font-bold text-amber-900">Noch nicht bereit für die Teamsuche:</p>
+      <ul className="list-disc pl-5">
+        {missing.map((m) => (
+          <li key={m.item}>{m.reason}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function IntakeCaseCard({ intakeCase }: { intakeCase: IntakeCase }) {
+  const router = useRouter();
+  const [editing, setEditing] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const missing = parseMissing(intakeCase.missing);
+
+  async function save(form: FormData) {
+    setPending(true);
+    setError(null);
+    const result = await updateCaseIntake({
+      caseId: intakeCase.case_id,
+      facts: factsFromForm((k) => String(form.get(k) ?? "")),
+      idempotencyKey: crypto.randomUUID(),
+    });
+    setPending(false);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setEditing(false);
+    router.refresh();
+  }
+
+  return (
+    <article aria-label={`Fall in Aufnahme ${intakeCase.client_name ?? ""}`} className="rounded-2xl bg-white p-4 shadow-sm">
+      <h3 className="font-bold">{intakeCase.client_name ?? "Klient:in"}</h3>
+      <p className="text-sm text-emerald-900/70">
+        {intakeCase.region} · {intakeCase.urgency}
+        {intakeCase.care_needs?.length ? ` · ${intakeCase.care_needs.join(", ")}` : ""}
+      </p>
+      <div className="mt-2">
+        <MissingList missing={missing} />
+      </div>
+      {intakeCase.open_tasks.length > 0 && (
+        <ul aria-label="Offene Aufgaben" className="mt-2 grid gap-1 text-sm">
+          {intakeCase.open_tasks.map((t) => (
+            <li key={t}>☐ {TASK_LABEL[t] ?? t}</li>
+          ))}
+        </ul>
+      )}
+      <ErrorBox message={error} />
+      {!editing ? (
+        <button type="button" onClick={() => setEditing(true)} className="mt-3 min-h-11 w-full rounded-xl border-2 border-emerald-800 font-bold text-emerald-900">
+          Angaben ergänzen
+        </button>
+      ) : (
+        <form action={save} aria-label="Angaben ergänzen" className="mt-3 grid gap-2">
+          <FactsFields initial={intakeCase} />
+          <div className="grid grid-cols-[2fr_1fr] gap-2">
+            <button type="submit" disabled={pending} className="min-h-11 rounded-xl bg-emerald-800 font-bold text-white disabled:opacity-60">
+              {pending ? "Wird gespeichert …" : "Speichern und prüfen"}
+            </button>
+            <button type="button" onClick={() => setEditing(false)} className="min-h-11 rounded-xl border border-stone-300 font-semibold">
+              Abbrechen
+            </button>
+          </div>
         </form>
       )}
     </article>
