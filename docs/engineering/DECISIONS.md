@@ -1,6 +1,6 @@
 # NAVORA — Architecture Decision Log
 
-**Last updated:** 2026-10-21 · Complements `TECHNICAL_DECISIONS.md` (product decisions from the handover).
+**Last updated:** 2026-10-21 (T8) · Complements `TECHNICAL_DECISIONS.md` (product decisions from the handover).
 **Status:** PROPOSED (awaiting owner) · ACCEPTED · SUPERSEDED · REJECTED.
 Format: context → decision → trade-offs → risks. An entry graduates to `docs/adr/NNN-*.md` if it grows.
 
@@ -42,7 +42,7 @@ Format: context → decision → trade-offs → risks. An entry graduates to `do
 **Current state:** baseline is reconstructed (TD-19) until the live pull (O-F).
 
 ### ADR-009 — Test stack: Vitest, pgTAP, Playwright
-**Status:** ACCEPTED in practice for Vitest and pgTAP (both run in CI); Playwright arrives with T8.
+**Status:** ACCEPTED in practice: all three run in CI (Playwright since T8, job `e2e`).
 
 ### ADR-010 — No caching of care data
 **Status:** ACCEPTED in practice (PR #1): data pages call `connection()`; no `use cache`, ISR or prerender.
@@ -76,3 +76,15 @@ Format: context → decision → trade-offs → risks. An entry graduates to `do
 **Status:** PROPOSED · **Context:** backlog, debt, security register and decisions existed only as Project documents, outside review and versioning.
 **Decision:** `docs/engineering/*.md` in the repo is the source of truth and changes by PR; the Project holds a mirror for reading in claude.ai. Includes a security register that lists open gaps — so the repository's visibility matters (SR-18).
 **Owner question:** the repository is **public**. Recommendation: make it private while SR-01/SR-02/SR-07 are open, because the register and code describe exploitable gaps in a system whose live database may still be exposed. If it must stay public, move `SECURITY_RISKS.md` to the Project only.
+
+### ADR-017 — Auth enforced in three layers; no Supabase client or key in the browser
+**Status:** PROPOSED · **Task:** T8 · Implements TECHNICAL_DECISIONS "Auth: SSR-Cookie-Sessions und serverseitige Prüfung" (DECIDED).
+**Context:** a check in a layout alone does not protect a page's data (layouts and pages render independently). The recovered UI also wrote to the database from the browser with the anon client.
+**Decision:**
+1. `src/proxy.ts` refreshes the session and redirects requests without one to `/login` (coarse guard, `getClaims`).
+2. `(protected)/layout.tsx` calls `requireUser()`.
+3. Every query and every Server Action calls `requireUser()` itself (`getUser`, checked against the Auth server) and uses the session-bound client.
+The four existing browser writes became Server Actions in T8, ahead of T10, so **no Supabase client exists in the browser** and the env vars are server-only (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, no `NEXT_PUBLIC_`). An e2e test asserts the key and URL appear in no HTML or JS sent to the browser.
+**Deviation from plan:** the plan kept a browser client for "auth UI only" and moved writes in T10. Moving the writes now was cheaper than wiring a browser client that T10 would remove again. T10 still adds DB functions, membership checks, audit and idempotency.
+**Trade-offs:** each request makes one Auth round-trip in `requireUser()` (plus the proxy's claim check). Accepted for correctness; revisit with request-level memoisation if latency matters.
+**Risks:** the anon key still lets anyone call the Supabase REST API directly while `legacy_public_all` exists — T9 closes this at the database (SR-01).

@@ -16,7 +16,7 @@
 | TD-09 | Duplicate attention items for one case | `operations/rules.ts` | S | behaviour pinned by test; fix after Q2 | OPEN |
 | TD-10 | Backup UI files in route folder | `app/operations/` | S | not imported; arrive via owner zip → `docs/legacy-ui/` | DONE (by exclusion) |
 | TD-11 | Unused modules | features | S | `getCasesWithVisits` removed; `getCases`, `startVisit` in T10 | PARTLY DONE |
-| TD-12 | `window.location.reload()` / `alert()` after writes; `window.location.href` after login | visits, login | S | T8 (login), T10 (visits) | OPEN |
+| TD-12 | `alert()` for command errors in Teams/Visits; no shared error/toast model | teams, visits | S | T8 replaced `window.location.*` with server redirects and `router.refresh()`; error UI in T10 | PARTLY DONE |
 | TD-13 | Regions "Bern West" / "Zürich Pilot" hard-coded in Teams grouping — teams in other regions do not render | teams client | S | after T9 | OPEN |
 | TD-14 | Static Operations mock on `main` | `main` | — | replaced by M2 | IN REVIEW |
 | TD-15 | README was create-next-app text | root | S | — | DONE (M2 PR) |
@@ -27,3 +27,5 @@
 | TD-20 | Reconstructed tables have no CHECK constraints on status/urgency/severity text columns | DB | M | with T9/T10 once value sets are confirmed | OPEN |
 | TD-21 | `supabase/setup-cli@v1` runs on deprecated Node 20 runtime | CI | S | bump when a newer major is published | OPEN |
 | TD-22 | CI uses `ubuntu-latest`, which migrates to Ubuntu 26 from 2026-10-19 | CI | S | watch first failures; pin `ubuntu-24.04` if needed | OPEN |
+| TD-23 | `requireUser()` runs once per query/command, so `/operations` makes several Auth round-trips per request | `lib/auth/session.ts` | S | memoise per request with React `cache()` once measured | OPEN |
+| TD-24 | Two placeholder test users have no roles or memberships yet | `supabase/seed.sql` | S | T9 | OPEN |
