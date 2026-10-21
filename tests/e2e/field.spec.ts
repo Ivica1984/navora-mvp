@@ -11,6 +11,8 @@ const PASSWORD = "navora-local-only";
 const SEED_DAY = new Date().toISOString().slice(0, 10);
 // Visit 508 (Testteam Nord, 09:00) is planned for the day after and untouched by other tests.
 const NEXT_DAY = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+// Status buttons only (F4 adds "Beobachtung speichern" to completed visits).
+const TRANSITION = /^(Losfahren|Einsatz starten|Pause|Fortsetzen|Einsatz abschliessen)$/;
 
 async function signIn(page: Page, email: string, landing: RegExp) {
   await page.goto("/login");
@@ -57,7 +59,7 @@ test.describe("field tool (F1)", () => {
     await card.getByRole("button", { name: "Einsatz abschliessen" }).click();
 
     await expect(card).toContainText("Abgeschlossen");
-    await expect(card.getByRole("button")).toHaveCount(0);
+    await expect(card.getByRole("button", { name: TRANSITION })).toHaveCount(0);
 
     await page.reload();
     await expect(page.getByRole("article", { name: /10:00 – 10:30/ })).toContainText("Abgeschlossen");
@@ -99,7 +101,7 @@ test.describe("field tool (F1)", () => {
       await expect(card).toContainText(status);
     }
 
-    await expect(card.getByRole("button")).toHaveCount(0);
+    await expect(card.getByRole("button", { name: TRANSITION })).toHaveCount(0);
     const times = card.getByRole("region", { name: "Erfasste Zeit" });
     await expect(times).toContainText("Anfahrt");
     await expect(times).toContainText("Pflege");
