@@ -26,7 +26,7 @@ async function signInOk(page: Page, email = COACH) {
 }
 
 test.describe("without a session", () => {
-  for (const path of ["/", "/operations", "/teams", "/visits", "/field", "/matching", "/partners"]) {
+  for (const path of ["/", "/operations", "/teams", "/visits", "/field", "/intake", "/matching", "/partners"]) {
     test(`${path} redirects to /login`, async ({ page }) => {
       await page.goto(path);
       await expect(page).toHaveURL(/\/login$/);

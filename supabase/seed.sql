@@ -90,6 +90,9 @@ insert into auth.users (
    '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000903', 'authenticated', 'authenticated',
    'fremd.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), now(),
+   '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000904', 'authenticated', 'authenticated',
+   'ops.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', '');
 
 insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
@@ -98,7 +101,9 @@ insert into auth.identities (id, user_id, provider_id, identity_data, provider, 
   ('00000000-0000-4000-a000-000000000912', '00000000-0000-4000-a000-000000000902', '00000000-0000-4000-a000-000000000902',
    '{"sub":"00000000-0000-4000-a000-000000000902","email":"pflege.test@navora.test","email_verified":true}', 'email', now(), now(), now()),
   ('00000000-0000-4000-a000-000000000913', '00000000-0000-4000-a000-000000000903', '00000000-0000-4000-a000-000000000903',
-   '{"sub":"00000000-0000-4000-a000-000000000903","email":"fremd.test@navora.test","email_verified":true}', 'email', now(), now(), now());
+   '{"sub":"00000000-0000-4000-a000-000000000903","email":"fremd.test@navora.test","email_verified":true}', 'email', now(), now(), now()),
+  ('00000000-0000-4000-a000-000000000914', '00000000-0000-4000-a000-000000000904', '00000000-0000-4000-a000-000000000904',
+   '{"sub":"00000000-0000-4000-a000-000000000904","email":"ops.test@navora.test","email_verified":true}', 'email', now(), now(), now());
 
 -- Testorganisation B (T9) — isolation fixture --------------------------------
 -- Same region name as org A on purpose: isolation must come from the
@@ -116,10 +121,12 @@ insert into public.care_visits (organization_id, id, created_at, case_id, team_i
 --   coach.test  : org A, role coach — may change team settings, is in no team
 --   pflege.test : org A, role nurse — member of Testteam Nord (101), may move its visits
 --   fremd.test  : org B, role admin — must see nothing of org A
+--   ops.test    : org A, role operations — referral intake (J1)
 insert into public.organization_memberships (organization_id, user_id, role) values
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000901', 'coach'),
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000902', 'nurse'),
-  ('00000000-0000-4000-b000-000000000012', '00000000-0000-4000-a000-000000000903', 'admin');
+  ('00000000-0000-4000-b000-000000000012', '00000000-0000-4000-a000-000000000903', 'admin'),
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000904', 'operations');
 
 insert into public.team_memberships (team_id, user_id) values
   ('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000902');

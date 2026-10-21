@@ -18,10 +18,20 @@ Mapping to product gates: M0–M2 = Gate 0 (engineering part) · M3 = Gate 1 · 
 - M1 reached before M0 completes: ADR-013 (transcribed import, verified later) and ADR-012/014 (CI as runner and lockfile resolver) removed the dependency on owner availability.
 - T4/T5 landed together with T3/T6/T7 in one PR instead of separate branches; recorded in PR #1.
 
-## Execution order (from 2026-10-21, owner instruction)
-Business capabilities first, following `ROADMAP.md` (handover) gate order; platform work only when it blocks a capability.
-The owner referenced an *Architecture Handbook section 16 "Nächste Coding-Reihenfolge"*. That document is **not in the repository or the Project** (searched 2026-10-21). Until it is provided, Gate 2 of `ROADMAP.md` is the execution order:
-1. `/field` own visits, minimal context, mobile → F1 ✅
-2. state machine + idempotent commands; depart/start/pause/resume/complete; time segments with correction events → F2 ✅, F3 ✅
-3. observations, team visibility, handover, offline-sync concept → F4 (review), F7; report F6
-4. Gate 2 exit: full workflow E2E, RLS-negative and positively tested → F5
+## Care-journey view (owner direction 2026-10-21: complete the journey, biggest gap first)
+Source of truth for the target: `ARCHITECTURE.md` data flow and workflow (*Partneranfrage → Fall → Matching → Teamentscheid → Teamplanung → Einsatz → Dokumentationsfreigabe → Qualität → Billing-Fakten*), `MASTER_CONTEXT.md`, `PRODUCT_REQUIREMENTS.md`, `DOMAIN_RULES.md`. The owner refers to an *Architecture Handbook* (incl. section 16 "Nächste Coding-Reihenfolge"). It is **not in the repository or the Project**; when it is provided, this view is re-derived from it.
+
+| # | Journey step (ARCHITECTURE.md) | State 2026-10-21 | Work item |
+|---|---|---|---|
+| 1 | Referral (`partner_requests`) | **J1 in review**: intake by admin/operations | J1 |
+| 2 | Case (`cases`) | **J1 in review**: conversion after review, provisional consent gate | J1 |
+| 3 | Matching (`matching_requests`, candidates) | J1 opens a request; engine = Gate 4 (needs competence/capacity data, validated weights) | J2 (team-pull, no ranking) |
+| 4 | Team decision | missing | **J2 next** |
+| 5 | Team planning → `care_visits` | missing (seed only) | **J3** |
+| 6 | Care delivery (`/field`) | **done**: F1–F3 | — |
+| 7 | Documentation: observations, handover | **done**: F4 | — |
+| 8 | Report → human approval | missing; approver role = Q4 | F6 |
+| 9 | Quality gate (`quality_events`) | read-only attention list | Q1 (raise from field), review flow |
+| 10 | Billing facts | blocked: legal/tariff decisions (Gate 6) | owner |
+
+**Priority rule:** close the earliest broken link first, so real (synthetic-staging) data can flow through every implemented step. Steps 1–5 come before 8–10, because without them no visit exists except seed data.
