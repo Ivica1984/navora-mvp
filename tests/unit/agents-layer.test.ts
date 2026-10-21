@@ -35,7 +35,18 @@ describe("agent collaboration layer (docs/agents)", () => {
   });
 
   it("every PO priority must be acknowledged by engineering", () => {
-    const r = withEdit("NEXT_CAPABILITY.md", /(\| 4 \| J3 .*\n)/, "$1| 5 | X9 | New thing | approved | – | test |\n");
+    // Append a row after the last row of the priority queue, whatever its length (the PO re-ranks freely).
+    const dir = mkdtempSync(join(tmpdir(), "agents-"));
+    cpSync(REAL, dir, { recursive: true });
+    const path = join(dir, "NEXT_CAPABILITY.md");
+    const lines = readFileSync(path, "utf8").split("\n");
+    const head = lines.findIndex((l) => l.trim() === "## Priority queue");
+    let last = head;
+    for (let i = head + 1; i < lines.length && !lines[i].startsWith("## "); i++) if (lines[i].startsWith("|")) last = i;
+    const rank = lines.slice(head, last + 1).filter((l) => /^\| \d+ \|/.test(l)).length + 1;
+    lines.splice(last + 1, 0, `| ${rank} | X9 | New thing | approved | – | test |`);
+    writeFileSync(path, lines.join("\n"));
+    const r = run(dir);
     expect(r.code).toBe(1);
     expect(r.out).toContain("X9 has no row in IMPLEMENTATION_STATUS.md");
   });
