@@ -14,6 +14,7 @@ type DbError = { code?: string } | null;
  * - rejected       → not permitted (RLS) or no longer in the expected state
  * - 23514          → state machine refused the transition
  * - 22023          → invalid input caught by the database
+ * - NV001          → registered nurse required to start (J3, migration 0014)
  */
 export function toCommandResult(
   data: unknown,
@@ -23,6 +24,9 @@ export function toCommandResult(
   if (error) {
     if (error.code === "23514") {
       return { ok: false, error: "Dieser Statuswechsel ist nicht erlaubt." };
+    }
+    if (error.code === "NV001") {
+      return { ok: false, error: "Diesen Einsatz beginnt eine Pflegefachperson (Kategorie B oder Bedarfsabklärung)." };
     }
     if (error.code === "22023") {
       return { ok: false, error: "Ungültige Eingabe." };

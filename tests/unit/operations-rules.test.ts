@@ -274,3 +274,21 @@ describe("ordering", () => {
     expect(items.map((i) => i.priority)).toEqual(["P1", "P2"]);
   });
 });
+
+describe("uncovered visits (J3, PO brief)", () => {
+  it("a planned visit without a responsible member in the next 24 h is an Operations exception (P2)", () => {
+    const items = buildAttentionItems({
+      partnerRequests: [],
+      cases: [],
+      teams: [],
+      visits: [],
+      careNotes: [],
+      qualityEvents: [],
+      uncoveredVisits: [{ visit_id: "v9", team_name: "Testteam Nord", visit_date: "2026-10-22", time_start: "08:00:00" }],
+      now: NOW,
+    });
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({ id: "visit-uncovered-v9", priority: "P2", category: "visit", entityType: "visit" });
+    expect(items[0].description).toContain("08:00");
+  });
+});
