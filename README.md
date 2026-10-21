@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NAVORA
 
-## Getting Started
+Plattform für selbstorganisierte Pflegeteams in der Schweiz (Next.js · TypeScript · Supabase).
 
-First, run the development server:
+> **Entwicklungsstand — nicht für echte Patientendaten.**
+> Dieser Code läuft nur gegen eine lokale Supabase-Instanz mit synthetischen Daten.
+> Authentifizierung, mandantenfähige RLS und Audit fehlen noch (Roadmap Gate 1, Meilenstein M3).
+> Bekannte Risiken: [`docs/engineering/SECURITY_RISKS.md`](docs/engineering/SECURITY_RISKS.md).
+
+## Status (Stand 2026-10-21)
+
+| Bereich | Status |
+|---|---|
+| Routen `/operations`, `/teams`, `/visits` mit Supabase-Lesezugriff | IMPLEMENTED (legacy, aus Recovery) |
+| `/matching`, `/partners` | IMPLEMENTED als Mock; standardmässig ausgeblendet (`NEXT_PUBLIC_FEATURE_DEMO_PAGES`) |
+| Login | IMPLEMENTED im Browser, **ohne** serverseitigen Routenschutz — T8 |
+| Mandanten-RLS, Audit, serverseitige Commands | PLANNED — T9, T10 |
+| `/field` (mobiles Einsatz-Tool) | PLANNED — M4 |
+
+Herkunft des Codes und Verifikationsstand: [`docs/recovery/RECOVERY_LOG.md`](docs/recovery/RECOVERY_LOG.md).
+
+## Lokale Entwicklung
+
+Voraussetzungen: Node 24 (`.nvmrc`), Docker, [Supabase CLI](https://supabase.com/docs/guides/local-development).
 
 ```bash
+npm ci
+supabase start                 # lokale DB, Auth, API — gibt URL und anon key aus
+supabase db reset              # Migrationen + synthetischer Seed
+cp .env.example .env.local     # NEXT_PUBLIC_SUPABASE_ANON_KEY aus `supabase start` eintragen
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Niemals `.env.local` auf das bestehende Live-Projekt zeigen lassen, und niemals gegen das Live-Projekt bauen (SR-05).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Qualitätschecks
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Befehl | Zweck |
+|---|---|
+| `npm run lint` | ESLint |
+| `npm run typecheck` | Next-Routentypen + `tsc` |
+| `npm test` | Vitest (reine Regeln, z.B. `features/operations/rules.ts`) |
+| `npm run test:db` | pgTAP gegen lokale Supabase (`supabase test db`) |
+| `npm run build` | Produktionsbuild ohne Datenbankzugriff |
 
-## Learn More
+CI (`.github/workflows/ci.yml`) führt alle Schritte auf jedem PR aus.
 
-To learn more about Next.js, take a look at the following resources:
+## Struktur
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```text
+src/app/                 Routen (Server-Pages + Client-Views)
+src/features/<feature>/  queries.ts · rules.ts (rein, testbar) · types.ts
+src/lib/                 Supabase-Client, Feature-Flags
+supabase/                Migrationen, Seed (synthetisch), pgTAP-Tests
+tests/unit/              Vitest
+docs/engineering/        Backlog, Roadmap, Tech-Debt, Security, Entscheidungen
+docs/recovery/           Herkunft und Prüfsummen des wiederhergestellten Codes
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Dokumentation
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Fachlicher Kontext (Übergabe): `MASTER_CONTEXT.md`, `ARCHITECTURE.md`, `DOMAIN_RULES.md`, `TECHNICAL_DECISIONS.md`, `CURRENT_IMPLEMENTATION_STATUS.md`.
+Laufende Engineering-Steuerung: `docs/engineering/`. Bei Widerspruch gilt der Code; Abweichungen werden dokumentiert (`CLAUDE.md`).
