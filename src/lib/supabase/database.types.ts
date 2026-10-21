@@ -127,14 +127,14 @@ isOneToOne: false
                   ]
                 },"cases": {
                   Row: {
-                    "address": string | null,"assigned_team": string | null,"assigned_team_id": string | null,"bedarf": string | null,"care_level": string | null,"care_needs": (string)[] | null,"cognitive_status": string | null,"created_at": string,"date_of_birth": string | null,"diagnosis_tags": (string)[] | null,"emergency_contact_name": string | null,"emergency_contact_phone": string | null,"first_name": string | null,"gender": string | null,"id": string,"insurance_provider": string | null,"last_name": string | null,"mobility_status": string | null,"name": string | null,"next_step": string | null,"notes": string | null,"organization_id": string,"ort": string | null,"phone": string | null,"plz": string | null,"referral_source": string | null,"region": string | null,"start_date": string | null,"status": string | null,"time_info": string | null,"urgency": string | null
+                    "address": string | null,"assigned_team": string | null,"assigned_team_id": string | null,"bedarf": string | null,"care_level": string | null,"care_needs": (string)[] | null,"cognitive_status": string | null,"created_at": string,"date_of_birth": string | null,"diagnosis_tags": (string)[] | null,"emergency_contact_name": string | null,"emergency_contact_phone": string | null,"first_name": string | null,"gender": string | null,"id": string,"insurance_provider": string | null,"intake_consent_confirmed_at": string | null,"intake_consent_confirmed_by": string | null,"last_name": string | null,"mobility_status": string | null,"name": string | null,"next_step": string | null,"notes": string | null,"organization_id": string,"ort": string | null,"phone": string | null,"plz": string | null,"referral_source": string | null,"region": string | null,"start_date": string | null,"status": string | null,"time_info": string | null,"urgency": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "address"?: string | null,"assigned_team"?: string | null,"assigned_team_id"?: string | null,"bedarf"?: string | null,"care_level"?: string | null,"care_needs"?: (string)[] | null,"cognitive_status"?: string | null,"created_at"?: string,"date_of_birth"?: string | null,"diagnosis_tags"?: (string)[] | null,"emergency_contact_name"?: string | null,"emergency_contact_phone"?: string | null,"first_name"?: string | null,"gender"?: string | null,"id"?: string,"insurance_provider"?: string | null,"last_name"?: string | null,"mobility_status"?: string | null,"name"?: string | null,"next_step"?: string | null,"notes"?: string | null,"organization_id": string,"ort"?: string | null,"phone"?: string | null,"plz"?: string | null,"referral_source"?: string | null,"region"?: string | null,"start_date"?: string | null,"status"?: string | null,"time_info"?: string | null,"urgency"?: string | null
+                    "address"?: string | null,"assigned_team"?: string | null,"assigned_team_id"?: string | null,"bedarf"?: string | null,"care_level"?: string | null,"care_needs"?: (string)[] | null,"cognitive_status"?: string | null,"created_at"?: string,"date_of_birth"?: string | null,"diagnosis_tags"?: (string)[] | null,"emergency_contact_name"?: string | null,"emergency_contact_phone"?: string | null,"first_name"?: string | null,"gender"?: string | null,"id"?: string,"insurance_provider"?: string | null,"intake_consent_confirmed_at"?: string | null,"intake_consent_confirmed_by"?: string | null,"last_name"?: string | null,"mobility_status"?: string | null,"name"?: string | null,"next_step"?: string | null,"notes"?: string | null,"organization_id": string,"ort"?: string | null,"phone"?: string | null,"plz"?: string | null,"referral_source"?: string | null,"region"?: string | null,"start_date"?: string | null,"status"?: string | null,"time_info"?: string | null,"urgency"?: string | null
                   }
                   Update: {
-                    "address"?: string | null,"assigned_team"?: string | null,"assigned_team_id"?: string | null,"bedarf"?: string | null,"care_level"?: string | null,"care_needs"?: (string)[] | null,"cognitive_status"?: string | null,"created_at"?: string,"date_of_birth"?: string | null,"diagnosis_tags"?: (string)[] | null,"emergency_contact_name"?: string | null,"emergency_contact_phone"?: string | null,"first_name"?: string | null,"gender"?: string | null,"id"?: string,"insurance_provider"?: string | null,"last_name"?: string | null,"mobility_status"?: string | null,"name"?: string | null,"next_step"?: string | null,"notes"?: string | null,"organization_id"?: string,"ort"?: string | null,"phone"?: string | null,"plz"?: string | null,"referral_source"?: string | null,"region"?: string | null,"start_date"?: string | null,"status"?: string | null,"time_info"?: string | null,"urgency"?: string | null
+                    "address"?: string | null,"assigned_team"?: string | null,"assigned_team_id"?: string | null,"bedarf"?: string | null,"care_level"?: string | null,"care_needs"?: (string)[] | null,"cognitive_status"?: string | null,"created_at"?: string,"date_of_birth"?: string | null,"diagnosis_tags"?: (string)[] | null,"emergency_contact_name"?: string | null,"emergency_contact_phone"?: string | null,"first_name"?: string | null,"gender"?: string | null,"id"?: string,"insurance_provider"?: string | null,"intake_consent_confirmed_at"?: string | null,"intake_consent_confirmed_by"?: string | null,"last_name"?: string | null,"mobility_status"?: string | null,"name"?: string | null,"next_step"?: string | null,"notes"?: string | null,"organization_id"?: string,"ort"?: string | null,"phone"?: string | null,"plz"?: string | null,"referral_source"?: string | null,"region"?: string | null,"start_date"?: string | null,"status"?: string | null,"time_info"?: string | null,"urgency"?: string | null
                   }
                   Relationships: [
                     {
@@ -515,6 +515,9 @@ isOneToOne: false
 "complete_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"convert_partner_request":
+{ Args: { "p_consent_confirmed": boolean,"p_first_name": string,"p_idempotency_key": string,"p_last_name": string,"p_request_id": string }; Returns: string
+                           },
 "correct_visit_time":
 { Args: { "p_corrected_at": string,"p_event_id": number,"p_idempotency_key": string,"p_reason": string }; Returns: string
                            },
@@ -536,6 +539,9 @@ isOneToOne: false
                            },
 "record_observation":
 { Args: { "p_content": string,"p_for_handover": boolean,"p_idempotency_key": string,"p_supersedes_id": string,"p_visit_id": string }; Returns: string
+                           },
+"record_partner_request":
+{ Args: { "p_city": string,"p_idempotency_key": string,"p_need_summary": string,"p_organization_id": string,"p_partner_name": string,"p_partner_type": string,"p_region": string,"p_request_title": string,"p_requested_services": (string)[],"p_time_info": string,"p_urgency": string }; Returns: string
                            },
 "resume_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
