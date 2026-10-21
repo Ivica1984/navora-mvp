@@ -29,7 +29,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 ## Gate 1: F0 Shared Access Foundation — Critical
 
-- Brief `docs/agents/briefs/F0.md`. T8–T10 geliefert (#7–#9). PO-Prüfung 21.10.2026: **Änderungen verlangt**. Es fehlen Qualifikation je Mitglied als Daten und teambezogenes Lesen klinischer Daten innerhalb einer Organisation (wartet auf Owner-Entscheid D-3). Partner-Selbsterfassung bis Gate 7 ausser Scope.
+- Brief `docs/agents/briefs/F0.md`. T8–T10 geliefert (#7–#9). PO-Prüfung 21.10.2026: **Änderungen verlangt**. Es fehlen Qualifikation je Mitglied als Daten (D-5 entschieden: Verwaltung durch NAVORA-Administratoren; Pilotmodell `registered_nurse`, `care_assistant`; Lieferung mit J3) und teambezogenes Lesen klinischer Daten innerhalb einer Organisation (wartet auf Owner-Entscheid D-3). Partner-Selbsterfassung bis Gate 7 ausser Scope.
 - Fertig, wenn alle Negativtests aus F0 bestehen und die Qualifikationen als Daten vorliegen.
 
 ## Gate 2: Care Journey MVP

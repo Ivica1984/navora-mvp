@@ -1,6 +1,6 @@
 # Open decisions
 
-**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-21 21:55 (po)
+**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-21 21:59 (po, recording owner decision D-5)
 Background, options and consequences for the `D-*` items: `docs/engineering/DECISIONS_NEEDED.md`.
 
 ## Open
@@ -23,7 +23,6 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | D-1 | owner | legal | Live database: are the 6 cases / 3 care notes real people? Rotate the anon key; enable leaked-password protection | confirm synthetic or start the legal assessment; rotate the key now | – | 2026-10-21 (eng) |
 | D-2 | owner | financial | Staging hosting provider and region | Supabase EU/CH plus Render Frankfurt or Vercel, synthetic data only | T12 | 2026-10-21 (eng) |
 | D-3 | owner | product | Permission matrix: read scope of health data per role | option B now (team-scoped clinical read), C before production. **PO 2026-10-21:** supports B; it is the last access gap in F0 and a precondition for any real client data | F0 | 2026-10-21 (eng) |
-| D-5 | owner | product | Who manages organisations and memberships | NAVORA staff first, then organisation admins | – | 2026-10-21 (eng) |
 | D-17 | clinical | clinical | Which safety alerts must a nurse see before the first visit (e.g. allergies, fall risk, infection precautions, emergency contact, access or key arrangement)? | a short fixed list, captured at intake, shown on the `/field` card; nothing diagnostic | J1 | 2026-10-21 (po) |
 | D-7 | owner | production | Branch protection, secret scanning, repository visibility (public → private) | protect `main` and `recovery/main` with required CI checks; make the repository private | M2 | 2026-10-21 (eng) |
 | D-8 | owner | production | Merge `recovery/main` into `main` | merge commit after D-7 | M2 | 2026-10-21 (eng) |
@@ -36,6 +35,7 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 
 | ID | Owner | Answer | Date |
 |---|---|---|---|
+| D-5 | owner | NAVORA administrators manage organisations, memberships and member qualifications. Pilot qualification model: `registered_nurse`, `care_assistant` (two values, nothing else until `clinical` asks for more) | 2026-10-21 |
 | D-1a | owner | Live containment C-1 approved and executed by the owner (anon access revoked) | 2026-10-21 |
 | COORD-0 | owner | Multi-agent coordination model approved; official layer = `docs/agents/NEXT_CAPABILITY.md`, `IMPLEMENTATION_STATUS.md`, `OPEN_DECISIONS.md` | 2026-10-21 |
 | PRIO-1 | owner | PO recommendations approved; engineering priority order F0, J1, J2, J3 | 2026-10-21 |
