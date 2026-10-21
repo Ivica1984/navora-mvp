@@ -1,66 +1,85 @@
-# NAVORA — Roadmap and Engineering Takeover
+# NAVORA — Product Roadmap
 
-**Roadmap = PLANNED**, priorisiert nach Sicherheit und realem Pflege-Nutzen. Termine, Budget und Personen **OPEN**. Keine Phase als erledigt aus dem Vorliegen eines Dokumenten-ZIPs ableiten.
+**Stand:** 21. Oktober 2026 (ersetzt die Übergabe-Roadmap vom 9. Oktober 2026). **Owner:** Product Owner (`po`). **Roadmap = PLANNED**, priorisiert nach Umsetzung des Geschäftsmodells: jede Phase schliesst eine Lücke zwischen Zuweisung und abrechenbarer, fachlich sicherer Pflege. Termine, Budget und Personen **OPEN**. Statuslegende: `MASTER_CONTEXT.md`.
 
-## Gate 0: Wahrheit, Governance und Rechte
+**Verbindliche Reihenfolge und Briefs:** `docs/agents/NEXT_CAPABILITY.md` und `docs/agents/briefs/`. **Umsetzungsstand:** `docs/agents/IMPLEMENTATION_STATUS.md` (Engineering). **Offene Entscheide:** `docs/agents/OPEN_DECISIONS.md`. Technische Roadmap: `docs/engineering/ROADMAP.md`. Bei Widerspruch gilt `docs/agents/`.
 
-- Aktuelles Repo/Supabase-Inventar, Git-Status, Migration-History; alle früheren SQL-Editor-Änderungen gegen versionierte Migrationen abgleichen. **VERIFY AGAINST REPOSITORY**.
-- Lizenz-/Urheberrechte für LTCF CH/PAG/MQI; Geltung nach ambulant/stationär, Kanton, Rechtsträger und Vertrag; Fachowner benennen.
-- Datenschutz-Folgenabschätzung, Datenscope, Auftragsbearbeiter/AI-/Geocoding-Verträge, verantwortliche klinische Rollen.
-- Definition of Done: reproduzierbarer Build/Test + dokumentierte Live-Schema-/Policy-Diff + Freigabe für Staging. Keine echten Patientendaten vor Safety Gates.
+## Leitlinie
 
-## Gate 1: Auth und Datenzugriff (höchste technische Priorität)
+Versorgungskette (`ARCHITECTURE.md`): Zuweisung → Fall → Matching → Teamentscheid → Einsatzplanung → Einsatz → freigegebener Bericht → Quality Gate → Abrechnungsfakten.
 
-- SSR-Client/Cookies und geschützte Routen; Auth serverseitig prüfen.
-- Organisationen, Mitgliedschaften, Team-/Fallbezug, Rollenmatrix; Backfill vorhandener Daten.
-- RLS-Pilotpolicies und negative Tests; frühere `{public}`-Policies kontrolliert ersetzen.
-- Audit/Backup/Restore/Incident-Basis.
-- Fertig, wenn anonyme/fremde Konten keine sensiblen Daten lesen/schreiben und berechtigte Personen den korrekten Scope sehen.
+Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV Art. 7a (Kategorien A/B/C) + Patientenbeteiligung + Restfinanzierung (Kanton/Gemeinde). Jede Phase wird daran gemessen, ob sie abrechenbare Minuten pro bezahlter Stunde erhöht oder Erlösverlust durch fehlende Grundlagen verhindert: Bedarfsabklärung, ärztliche Anordnung (für B), Kostenträger, Zulassung.
 
-## Gate 2: Field Operations MVP
+## Änderungen gegenüber 9. Oktober 2026
 
-- `/field`: eigene Einsätze, minimaler Kontext, mobile Ausführung.
-- Statusmaschine und idempotente Commands; Start/Anfahrt/Pause/Fortsetzung/Abschluss; Zeitsegmente mit Korrekturevents.
-- Beobachtungen, Team-Sichtbarkeit, Übergabe, Offline-Sync-Konzept.
-- Fertig, wenn der vollständige Einsatzworkflow E2E, RLS-negativ und fachlich positiv getestet ist.
+- **DECIDED (Owner, PRIO-1):** Reihenfolge F0, J1, J2, J3.
+- **IMPLEMENTED (Engineering, #7–#25):** SSR-Auth, Tenancy/RLS, auditierte idempotente Commands, Field-Slice F1–F4, J1, J2, J3. PO-Abnahme: J1, J2, J3 **changes-requested** (es fehlen Wohnort, Versicherer, Anordnungsstatus, KLV-Kategorie, geplante Minuten); F0 und F1-F4 in Abnahmeprüfung.
+- **NEU:** F6 signierter Einsatzbericht vor allem Nachgelagerten (Architektur: freigegebener Bericht → Quality Gate → billable_facts).
+- **NEU:** QG1 Quality Hold und OPS1 Exception Center vor dem Erlösnachweis.
+- **NEU:** Geschäftsvoraussetzungen (Pilotkanton D-11, Rechtsträger und OKP-Zulassung D-12) als Gate 0 vor jeder Abrechnung.
+- **Vorschlag an Owner (D-13):** Assessment-Track von interRAI LTCF (stationär) auf interRAI HC (ambulant) umstellen; LTCF nur bei beschlossenem stationärem Angebot.
+- **Verschoben:** Engineering-Vorschlag J4 (Teamkapazität) nach Gate 5.
 
-## Gate 3: Dokumentation und Clinical Safety
+## Gate 0: Wahrheit, Geschäftsgrundlage und Rechte
 
-- Serverbasierter KI-Adapter (Provider/Verträge separat freigeben), Beobachtungs-/Zeitprovenienz, strukturierte Drafts, Warnungen.
-- Menschliche Prüfung/Freigabe, unveränderliche Version und Qualitätsereignis-Eskalation.
-- Fertig, wenn kein ungeprüfter Entwurf als final/abrechenbar erscheint und Halluzinations-/Safety-Tests bestanden sind.
+- Live-Schema gegen Migrationen (TD-19, ADR-022); Containment C-1; D-1, SR-26.
+- **Owner-Entscheide, blockierend für Abrechnung:** D-11 Pilotkanton und -gemeinden; D-12 Rechtsträger für Betriebsbewilligung und OKP-Zulassung; Leistungsauftrag der Gemeinde ja/nein (beeinflusst Restfinanzierung).
+- Klinische Fachverantwortung benennen (D-10, D-15, D-16); Lizenzklärung interRAI HC (D-13); Rechtsgrundlage Intake (D-9).
+- Fertig, wenn Pilotkanton, Rechtsträger und Zulassungsweg entschieden sind.
 
-## Gate 4: Teamautonomie und Matching
+## Gate 1: F0 Shared Access Foundation — Critical
 
-- Verfügbarkeit, Teamkalender, Teamentscheid, Vertretung; kein versteckter Linienmanager.
-- Mehrfach-Teamstandorte/Geocoding, Kompetenz-/Qualifikationsdaten, Kapazität je Zeitfenster.
-- Matching Engine zunächst Dry Run, fachliche Evaluation und Versionierung; keine früheren Seed-Scores übernehmen.
-- Kandidaten-Upsert nach Dublettencheck/Unique-Constraint; atomarer Teamentscheid.
+- Brief `docs/agents/briefs/F0.md`. Engineering meldet T8–T10 geliefert (#7–#9); Abnahme je Kriterium.
+- Fertig, wenn alle Negativtests aus F0 bestehen und die Qualifikationen als Daten vorliegen.
 
-## Gate 5: Assessment/Rule-Platform/LTCF
+## Gate 2: Care Journey MVP
 
-- Vollständige hochauflösende OCR der vier bildbasierten PDF-Teile und fachliche Prüfung jeder Regel/Tabellenstelle; Rechteklärung.
-- Handbuchmatrix, versionierte Rule Engine, Smart Input, Explainability, Architect Mode und Impact Analysis.
-- Lizenzierter LTCF-CH-Adapter, PAG-Läufe, MQI-Definitionen/Datenqualität/Snapshots/Export mit autorisierten Referenzfällen.
-- Fertig erst mit Quellen-Traceability und klinisch freigegebener Testabdeckung für jede erforderliche Regel.
+| ID | Fähigkeit | Priorität | Stand |
+| --- | --- | --- | --- |
+| J1 | Zuweisung → Fall → Matching-Anfrage mit Readiness-Prüfung und Kostenträgerkette | Critical | IMPLEMENTED (#23), Änderungen verlangt |
+| J3 | Einsatzplanung mit Kategorie A/B/C, geplanten Minuten, Anordnungsprüfung | High | IMPLEMENTED (#25), Änderungen verlangt |
+| F6 | Signierter Einsatzbericht | High | PLANNED |
+| J2 | Teamentscheid mit Antwortfrist, Eskalation, Qualifikationsprüfung | High | IMPLEMENTED (#24), Änderungen verlangt |
+| F1-F4 | Verified Visit: Tagesansicht, Zustandsmaschine, Zeitkorrekturen, Beobachtung, Übergabe | High | IMPLEMENTED (#19–#22), Abnahme offen |
+| QG1 | Qualitätsereignisse, Prüfung, Quality Hold | High | PLANNED (Brief draft) |
+| OPS1 | Operations Exception Center über J1–J3, QG1, F6 | High | PLANNED (Brief draft) |
 
-## Gate 6: Partner, Finance Intelligence und Abrechnung
+- Fertig, wenn ein synthetischer Fall von Zuweisung bis signiertem Bericht E2E und RLS-negativ getestet ist, ein Qualitätsereignis einen Hold setzt und jede Ausnahme in OPS1 erscheint.
 
-- Spital/Heim/Privat-Zuführung mit Zweckbindung; Payer-/Tarif-/Vertragsmodell und Kanton.
-- Billing-Fakten nur aus validierter Pflege, Zeit, freigegebener Doku und ohne Quality Hold; Payroll separat.
-- Budget-/Forecast-Szenarien mit Annahmen und Unsicherheiten; Teamökonomie transparent, rechtlich geprüft.
-- Stripe nur bei geklärtem Anwendungsfall; Render nur nach Hostingentscheidung.
+## Gate 3: Erlösnachweis
 
-## Gate 7: Pilot und Skalierung
+| ID | Fähigkeit | Priorität | Stand |
+| --- | --- | --- | --- |
+| J5 | Abrechenbare Leistungsfakten und Monatsvorschau | High | PLANNED (Brief draft) |
+| J6 | Kontinuität: Bezugspflegeperson und Kontinuitätsmass | High | PLANNED (Brief draft) |
+| J7 | Team-Ökonomie-Transparenz | Medium | PLANNED (Brief draft), wartet auf D-14 |
 
-- Staging-Durchstich, Security Review, Restore, Accessibility und mobile Offline-Tests.
-- Pilot mit wenigen selbstorganisierten Teams, Partnern nach geklärter Zulassung und Versorgungspflicht.
-- KPIs: administrative Minuten/Einsatz, Pflegezeit, Berichtfreigabe, Qualität/SLA, Teamzufriedenheit/Absenzen, Kosten und Entlöhnung pro Arbeitsstunde. Ausweitung nur nach evidenzbasierter Prüfung.
+- J5 nur aus signierten Berichten ohne offenen Quality Hold; **keine** Rechnung vor OKP-Zulassung (D-12).
+- Fertig, wenn der Pilot pro Team abrechenbare Minuten, geschätzten Erlös nach Kostenträger und Kontinuität pro Klient zeigen kann.
 
-## Erste Aufgaben des neuen Coding Agent
+## Gate 4: Dokumentation und Clinical Safety
 
-1. **VERIFY AGAINST REPOSITORY** — aktuellen Code exportieren/inventarisieren; niemals alte ZIP-Module ungeprüft überschreiben.
-2. Read-only Audit: Live-Supabase RLS, Tabellen, FKs, Grants, PostGIS, Jobs, Migration-History und Matching-Daten; Ergebnisse ohne Patientendaten dokumentieren.
-3. Sicheren Auth/RLS-Vertikalschnitt auf einem Branch umsetzen und negative Tests hinzufügen.
-4. Nach Fachreview Field-Tool-Vertikalschnitt implementieren.
-5. Architekturpakete nur als Entwurfsvorlagen nutzen; produktive DB-/klinische Regeln separat genehmigen.
+- Serverbasierter KI-Entwurf aus F1–F4-Beobachtungen; menschliche Freigabe über F6; unveränderliche Version.
+- Dokumentationsumfang und Einsichtsrecht der Klientinnen definieren.
+
+## Gate 5: Matching-Qualität und Teamautonomie
+
+- J4 Teamverfügbarkeit und Kapazitätsfenster (Engineering-Vorschlag); Standorte, Radius, Geocoding nach Datenschutzprüfung (Q7); Kontinuität als Matchingkriterium; Ablehnungsgründe aus J2 als Lernsignal.
+
+## Gate 6: Assessment und Rule-Plattform
+
+- interRAI-HC-Adapter nach Lizenz (D-13), angebunden an den J3-Pflegeplan.
+- Handbuchmatrix, versionierte Regeln, Explainability, Impact Analysis.
+- LTCF-CH/PAG/MQI nur bei beschlossenem stationärem Angebot; vorher OCR und fachliche Prüfung der vier PDF-Teile.
+
+## Gate 7: Abrechnung, Payroll, Partner
+
+- Elektronische Rechnung an Versicherer (mit/ohne ärztliche Anordnung ausweisen); Restfinanzierung an Gemeinden.
+- Payroll aus geprüfter Arbeitszeit, strikt getrennt von Abrechnungsfakten.
+- Partnerverträge Spital/Heim mit Antwortzeit- und Volumenzusagen.
+
+## Gate 8: Pilot und Skalierung
+
+- Geschützte Staging-Umgebung (T12, D-2), Security Review, Restore, Accessibility, mobile Tests.
+- Pilot mit wenigen Teams im Pilotkanton nach Zulassung.
+- KPIs: administrative Minuten pro Einsatz; abrechenbare Minuten pro bezahlter Stunde; Zuweisung bis erster Einsatz; Erstangebot-Annahmequote; Kontinuität pro Klient; Berichtfreigabe; Teamzufriedenheit; Entlöhnung pro Arbeitsstunde.
