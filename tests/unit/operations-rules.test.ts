@@ -68,6 +68,20 @@ function careCase(overrides: Partial<CaseRow>): CaseRow {
     assigned_team_id: "t",
     intake_consent_confirmed_at: null,
     intake_consent_confirmed_by: null,
+    // J1 (PO changes): funding facts and readiness
+    source_partner_request_id: null,
+    residence_municipality: null,
+    residence_canton: null,
+    insurer_name: null,
+    insurance_type: null,
+    medical_order_status: null,
+    medical_order_valid_until: null,
+    gp_named: null,
+    other_providers_active: null,
+    requested_start: null,
+    language_notes: null,
+    access_notes: null,
+    ready_for_matching_at: null,
     ...overrides,
   };
 }

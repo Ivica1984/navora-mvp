@@ -21,6 +21,15 @@
 --   insurer data: D-9 (open) — flagged, not decided by engineering.
 -- =============================================================================
 
+-- 0. Audit log: no uniqueness on (actor, key, table, entity) ------------------------
+-- One command may change the same row several times (conversion inserts the case,
+-- applies the facts and marks readiness). An audit log must never reject a row.
+-- Replay detection (private.begin_command: "has this actor used this key?") only
+-- needs a lookup index.
+drop index public.audit_events_actor_key_entity;
+create index audit_events_actor_key on public.audit_events (actor_id, idempotency_key)
+  where idempotency_key is not null;
+
 -- 1. Case facts --------------------------------------------------------------------
 alter table public.cases
   add column source_partner_request_id uuid,
