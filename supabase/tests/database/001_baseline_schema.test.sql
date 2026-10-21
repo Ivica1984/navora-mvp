@@ -1,7 +1,5 @@
--- Baseline schema and the documented LEGACY exposure.
--- The "LEGACY SR-01" assertions describe the current insecure state on purpose.
--- T9 must flip them (anon sees 0 rows and cannot write) in the same PR that
--- replaces the policies — a passing legacy assertion after T9 is a failure.
+-- Baseline schema. The two SR-01 assertions were inverted by T9 in the same
+-- change that replaced the legacy policies.
 begin;
 create extension if not exists pgtap with schema extensions;
 
@@ -33,15 +31,16 @@ select is(
   'every seeded case is an obvious test case'
 );
 
--- LEGACY SR-01 — documents today's exposure; must become the opposite in T9.
+-- SR-01 (inverted in T9): anon has no access. Was "LEGACY: anon can read/update".
 set local role anon;
-select ok(
-  (select count(*) from public.cases) > 0,
-  'LEGACY SR-01: anon can read cases (T9 must make this 0)'
+select throws_ok(
+  $$ select count(*) from public.cases $$, '42501', null,
+  'SR-01 closed: anon cannot read cases'
 );
-select lives_ok(
+select throws_ok(
   $$ update public.teams set coach_name = coach_name where id = '00000000-0000-4000-a000-000000000104' $$,
-  'LEGACY SR-01: anon can update teams (T9 must deny this)'
+  '42501', null,
+  'SR-01 closed: anon cannot update teams'
 );
 reset role;
 
