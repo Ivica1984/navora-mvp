@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
-import { HOME_PATH } from "@/lib/auth/paths";
+import { getHomePath } from "@/lib/auth/home";
 
 // The proxy sends visitors without a session to /login first.
-export default function HomePage() {
-  return redirect(HOME_PATH);
+// Nurses land in the field tool, everybody else in Operations (F1).
+export default async function HomePage() {
+  redirect(await getHomePath());
 }

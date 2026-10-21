@@ -157,6 +157,11 @@ jobs:
             echo "anon RPC $fn -> HTTP $code"
             case "$code" in 2*) echo "::error title=anon-rest::anon RPC $fn accepted (HTTP $code)"; fail=1;; esac
           done
+          # F1: the field read function with valid arguments (a {} body would only test "function not found").
+          code=$(curl -sS -o /tmp/r.json -w '%{http_code}' -X POST -H "apikey: $SUPABASE_ANON_KEY" -H 'Content-Type: application/json' \
+            -d "{\"p_date\":\"$(date -u +%F)\"}" "$SUPABASE_URL/rest/v1/rpc/field_visits")
+          echo "anon RPC field_visits -> HTTP $code"
+          if [ "$code" = "200" ] && [ "$(head -c 2 /tmp/r.json)" != "[]" ]; then echo "::error title=anon-rest::anon RPC field_visits returned rows"; fail=1; fi
           code=$(curl -sS -o /tmp/r.json -w '%{http_code}' -H "apikey: $SUPABASE_ANON_KEY" "$SUPABASE_URL/rest/v1/audit_events?select=*&limit=1")
           if [ "$code" = "200" ] && [ "$(head -c 2 /tmp/r.json)" != "[]" ]; then echo "::error title=anon-rest::audit_events readable by anon"; fail=1; fi
           echo "::notice title=anon-rest::checked 11 tables, audit_events, 1 write, 4 RPCs; failures=$fail"

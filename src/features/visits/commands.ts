@@ -34,6 +34,7 @@ async function runVisitCommand(
   const result = toCommandResult(data, error, { rejected: REJECTED, failed });
   if (result.ok) {
     revalidatePath("/visits");
+    revalidatePath("/field");
     revalidatePath("/operations");
   }
   return result;

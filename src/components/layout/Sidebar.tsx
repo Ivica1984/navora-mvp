@@ -9,6 +9,7 @@ type SidebarProps = {
     | "teams"
     | "matching"
     | "visits"
+    | "field"
     | "quality"
     | "analytics";
 };
@@ -38,6 +39,11 @@ const allNavItems = [
     key: "visits",
     label: "Einsätze",
     href: "/visits",
+  },
+  {
+    key: "field",
+    label: "Mein Tag (mobil)",
+    href: "/field",
   },
 ] as const;
 

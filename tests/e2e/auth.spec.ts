@@ -17,14 +17,16 @@ async function signIn(page: Page, password = PASSWORD, email = COACH) {
 async function signInOk(page: Page, email = COACH) {
   await signIn(page, PASSWORD, email);
   const error = page.getByRole("alert").filter({ hasText: "Anmeldung fehlgeschlagen" });
-  await page.waitForURL(/\/(operations|login)$/);
+  await page.waitForURL(/\/(operations|field|login)$/);
   await page.waitForLoadState("networkidle");
   await expect(error, "sign-in action returned an error (credentials rejected)").toHaveCount(0);
-  await expect(page, "sign-in succeeded but the session was not kept (redirected back)").toHaveURL(/\/operations$/);
+  // F1: nurses land in the field tool, everybody else in Operations.
+  const home = email === NURSE ? /\/field$/ : /\/operations$/;
+  await expect(page, "sign-in succeeded but the session was not kept (redirected back)").toHaveURL(home);
 }
 
 test.describe("without a session", () => {
-  for (const path of ["/", "/operations", "/teams", "/visits", "/matching", "/partners"]) {
+  for (const path of ["/", "/operations", "/teams", "/visits", "/field", "/matching", "/partners"]) {
     test(`${path} redirects to /login`, async ({ page }) => {
       await page.goto(path);
       await expect(page).toHaveURL(/\/login$/);
