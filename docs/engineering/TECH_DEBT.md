@@ -23,7 +23,8 @@
 | TD-16 | No typecheck/test scripts | `package.json` | S | — | DONE (PR #1) |
 | TD-17 | Errors only logged to console; generic thrown errors | queries/clients | M | structured JSON logging via `src/lib/log.ts`, allowlisted fields, `no-console` lint rule (SR-25). User-facing errors stay generic German messages on purpose. Log shipping/retention: with T12 hosting | DONE (logging) |
 | TD-18 | Handover docs describe pre-recovery state | docs | S | proposed update `docs/proposals/CURRENT_IMPLEMENTATION_STATUS.update.md` (owner applies, per `CLAUDE.md`) | IN REVIEW |
-| TD-19 | Baseline schema is reconstructed, column types partly guessed; `orders`, PostGIS objects missing | `supabase/migrations/…0001` | M | replace with live pull (O-F) | OPEN |
+| TD-19 | Baseline schema is reconstructed, column types partly guessed; `orders`, PostGIS objects missing | `supabase/migrations/…0001` | M | verified against live 2026-10-21 (drift report); repo schema stays the target (ADR-022); stricter live rules adopted (migration 0005); location features wait for Q7 | DONE |
+| TD-30 | Live defaults outside their value sets: `care_visits.status` `'geplant'`, `partner_requests`/`matching_requests.urgency` `'normal'` | live DB | S | not in repo (stricter); mapping needed only if live data is migrated (ADR-022) | OPEN (live only) |
 | TD-20 | Reconstructed tables have no CHECK constraints on status/urgency/severity text columns | DB | M | with T9/T10 once value sets are confirmed | OPEN |
 | TD-21 | `supabase/setup-cli@v1` runs on deprecated Node 20 runtime | CI | S | bump when a newer major is published | OPEN |
 | TD-22 | CI uses `ubuntu-latest`, which migrates to Ubuntu 26 from 2026-10-19 | CI | S | watch first failures; pin `ubuntu-24.04` if needed | OPEN |
