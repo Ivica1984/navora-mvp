@@ -22,7 +22,7 @@ async function handleLogin() {
     return;
   }
 
-  window.location.href = "/matching";
+  window.location.href = "/operations";
 }
   return (
     <main
@@ -258,7 +258,7 @@ onChange={(e) => setPassword(e.target.value)}
   </div>
 )}
             <Link
-              href="/matching"
+              href="/operations"
               style={{
                 textAlign: "center",
                 color: "#37554a",
