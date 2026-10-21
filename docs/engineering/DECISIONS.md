@@ -255,3 +255,18 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 **Benefits:** partners get a dependable answer path; Operations sees every stuck search with reasons; teams keep their autonomy.
 **Migration plan:** migration 0017 adds columns, configuration tables (with the PO defaults) and functions, and backfills derived facts and deadlines on open requests. The decline-code constraint is `NOT VALID`, so older declines without a code stay readable. Rollback: restore the 0011 command and `team_offers`, drop the new objects.
 **Open:** Q10 (working-time definition, holidays), D-15 (clinical confirmation of the qualification derivation), an admin screen for deadlines (today command only).
+
+### ADR-034 — Mandatory reasons and qualification administration (F0 remainder, D-5)
+**Status:** PROPOSED · **Task:** F0 (`docs/agents/briefs/F0.md`, PO update 22:20 item 2 and the D-5 criteria).
+**Why:** the PO rule says a reason is mandatory when a command changes or undoes something already recorded, or overrides a safety or billing rule. D-5 (owner): only NAVORA administrators manage member qualifications, and each member has exactly one.
+**Decision:**
+- **Reasons already enforced:** time corrections, plan move and remove, care-plan retirement, team decline, report correction.
+- **Added:**
+  - `update_case_intake` requires a reason when insurer, insurance type or medical-order status changes on a case that is already ready for matching. Adding other facts needs none.
+  - New `set_member_qualification` requires a reason.
+- **`change_log`:** a new append-only table storing old → new values with the reason. It complements `audit_events` (who, when, what). Coordination roles read it.
+- **Not built yet, so nothing to enforce today:** case pause, close and reopen; visit cancellation and no-show; lifting a quality hold (QG1). A structural pgTAP guard fails if a future public function with such a name lacks a `p_reason` argument. A second guard lists every command on the PO list.
+- **Qualification:** `team_memberships.qualification` is NOT NULL, `registered_nurse` or `care_assistant`. It is changed only by `set_member_qualification` (admin of the team's organisation, reason required, audited, idempotent; returns `unchanged` for the same value). It is read by the member's own team and the organisation's coordination roles; nobody outside the organisation reads it. A nurse has no update privilege on memberships.
+- **One shared rule:** `private.is_registered_nurse(team, user)` is the only reader of the qualification. J2's `team_has_registered_nurse` now calls it.
+**Migration plan:** migration 0018; rows without a qualification would be set to `care_assistant`, the less privileged value. There are none in the seed. Rollback: drop the new function, table and policies; restore the 3-argument `update_case_intake`.
+**Open:** an admin screen for qualifications (D-5 says NAVORA administrators; today command only); reasons on case and visit lifecycle commands when those commands are built.

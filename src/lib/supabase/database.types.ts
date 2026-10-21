@@ -772,6 +772,9 @@ isOneToOne: false
 "retire_care_plan_item":
 { Args: { "p_idempotency_key": string,"p_item_id": string,"p_reason": string }; Returns: string
                            },
+"set_member_qualification":
+{ Args: { "p_idempotency_key": string,"p_qualification": string,"p_reason": string,"p_team_id": string,"p_user_id": string }; Returns: string
+                           },
 "set_response_deadline":
 { Args: { "p_amount": number,"p_idempotency_key": string,"p_organization_id": string,"p_referral_type": string,"p_unit": string }; Returns: string
                            },
@@ -800,7 +803,7 @@ isOneToOne: false
             }[]
                            },
 "update_case_intake":
-{ Args: { "p_case_id": string,"p_facts": Json,"p_idempotency_key": string }; Returns: Json
+{ Args: { "p_case_id": string,"p_facts": Json,"p_idempotency_key": string,"p_reason"?: string }; Returns: Json
                            },
 "update_report_draft":
 { Args: { "p_idempotency_key": string,"p_report_id": string,"p_summary": string }; Returns: Json
