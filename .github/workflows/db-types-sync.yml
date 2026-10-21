@@ -5,7 +5,7 @@ name: db-types-sync
 
 on:
   push:
-    branches-ignore: [main]
+    branches-ignore: [main, recovery/main]
     paths:
       - supabase/migrations/**
       - .github/workflows/db-types-sync.yml
