@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { demoPagesEnabled } from "@/lib/flags";
 
 type SidebarProps = {
   active:
@@ -11,7 +12,7 @@ type SidebarProps = {
     | "analytics";
 };
 
-const navItems = [
+const allNavItems = [
   {
     key: "operations",
     label: "Operations Board",
@@ -38,6 +39,12 @@ const navItems = [
     href: "/visits",
   },
 ] as const;
+
+const DEMO_PAGE_KEYS: ReadonlyArray<string> = ["partners", "matching"];
+
+const navItems = allNavItems.filter(
+  (item) => demoPagesEnabled || !DEMO_PAGE_KEYS.includes(item.key)
+);
 
 export default function Sidebar({ active }: SidebarProps) {
   return (

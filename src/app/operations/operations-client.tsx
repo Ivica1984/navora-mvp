@@ -47,34 +47,6 @@ function getResponsibleTeam(careCase: CaseWithRelations) {
   return "Noch kein Pflegeteam";
 }
 
-function getVisitStatusLabel(status: string | null) {
-  if (status === "planned") return "Geplant";
-  if (status === "started") return "Gestartet";
-  if (status === "completed") return "Abgeschlossen";
-  if (status === "on_the_way") return "Unterwegs";
-  return status || "Unbekannt";
-}
-
-function getDateLabel(date: string | null | undefined) {
-  if (!date) return "Datum offen";
-
-  return new Intl.DateTimeFormat("de-CH", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(new Date(date));
-}
-
-function getVisitTimeRange(visit: LocalVisit) {
-  if (visit.time_start && visit.time_end) {
-    return `${visit.time_start}–${visit.time_end}`;
-  }
-
-  if (visit.time_start) return `ab ${visit.time_start}`;
-
-  return "Zeit offen";
-}
-
 function getAverageUtilization(teams: TeamRow[]) {
   if (teams.length === 0) return 0;
 
@@ -141,7 +113,7 @@ function getCaseAgeHours(careCase: CaseRow) {
 
 function getSlaStatus(careCase: CaseRow) {
   const age = getCaseAgeHours(careCase);
-  const assignedTeamId = (careCase as any).assigned_team_id;
+  const assignedTeamId = careCase.assigned_team_id;
 
   if (!assignedTeamId && age > 48) return "violated";
   if (!assignedTeamId && age > 24) return "risk";
@@ -154,8 +126,6 @@ export default function OperationsClient({ dashboard }: OperationsClientProps) {
     teams,
     visits,
     qualityEvents,
-    partnerRequests,
-    kpis,
     attentionItems,
   } = dashboard;
 
@@ -163,10 +133,7 @@ export default function OperationsClient({ dashboard }: OperationsClientProps) {
 
   const enrichedCases = useMemo<CaseWithRelations[]>(() => {
     return cases.map((careCase) => {
-      const assignedTeamId = (careCase as any).assigned_team_id as
-        | string
-        | null
-        | undefined;
+      const assignedTeamId = careCase.assigned_team_id;
 
       return {
         ...careCase,
@@ -182,7 +149,7 @@ export default function OperationsClient({ dashboard }: OperationsClientProps) {
 
   const activeCases = enrichedCases.filter((item) => item.status === "laufend");
   const unassignedCases = enrichedCases.filter(
-    (item) => !(item as any).assigned_team_id && item.status !== "laufend"
+    (item) => !item.assigned_team_id && item.status !== "laufend"
   );
 
   const openSlots = teams.reduce((sum, team) => sum + (team.open_slots ?? 0), 0);
@@ -205,7 +172,7 @@ export default function OperationsClient({ dashboard }: OperationsClientProps) {
   const riskCases = enrichedCases
     .filter((careCase) => {
       const sla = getSlaStatus(careCase);
-      const assignedTeamId = (careCase as any).assigned_team_id;
+      const assignedTeamId = careCase.assigned_team_id;
 
       return (
         sla !== "ok" ||
@@ -286,7 +253,6 @@ export default function OperationsClient({ dashboard }: OperationsClientProps) {
             attentionItems={attentionItems}
             cases={enrichedCases}
             teams={teams}
-            visits={typedVisits}
           />
         </section>
       </main>
@@ -812,13 +778,11 @@ function ContextPanel({
   attentionItems,
   cases,
   teams,
-  visits,
 }: {
   selectedEntity: SelectedEntity | null;
   attentionItems: AttentionItem[];
   cases: CaseWithRelations[];
   teams: TeamRow[];
-  visits: LocalVisit[];
 }) {
   if (!selectedEntity) {
     return (

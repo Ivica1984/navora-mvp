@@ -1,5 +1,11 @@
+import { notFound } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
+import { demoPagesEnabled } from "@/lib/flags";
+
+// Static mock with invented data (ADR-006). Hidden until Partner Intake is built.
 export default function PartnersPage() {
+  if (!demoPagesEnabled) notFound();
+
   return (
     <div
       style={{

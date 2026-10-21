@@ -1,0 +1,80 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main, recovery/main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Placeholders only. The build must never reach a real database (SR-05).
+  NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-not-a-key
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  app:
+    name: app (lint · typecheck · unit · audit · build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install (lockfile only)
+        run: npm ci --no-fund
+      - name: Lint
+        run: scripts/ci-step.sh lint npm run lint
+      - name: Typecheck
+        if: success() || failure()
+        run: scripts/ci-step.sh typecheck npm run typecheck
+      - name: Unit tests
+        if: success() || failure()
+        run: scripts/ci-step.sh unit npm test
+      - name: Supply-chain audit (runtime deps, fail on high/critical)
+        if: success() || failure()
+        run: scripts/ci-step.sh audit npm audit --omit=dev --audit-level=high
+      - name: Build
+        if: success() || failure()
+        run: scripts/ci-step.sh build npm run build
+      - name: Record versions
+        if: always()
+        run: scripts/ci-step.sh versions npm ls next react react-dom @supabase/supabase-js zod --depth=0
+
+  db:
+    name: db (migrations · seed · pgTAP)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: Detect Supabase project
+        id: detect
+        run: |
+          if [ -f supabase/config.toml ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; echo "No supabase/ project yet (T4) — skipping DB checks."; fi
+      - uses: supabase/setup-cli@v1
+        if: steps.detect.outputs.present == 'true'
+        with:
+          version: latest
+      - name: Start local Supabase
+        if: steps.detect.outputs.present == 'true'
+        run: supabase start
+      - name: Apply migrations and seed from scratch
+        if: steps.detect.outputs.present == 'true'
+        run: scripts/ci-step.sh db-reset supabase db reset
+      - name: Database tests
+        if: steps.detect.outputs.present == 'true'
+        run: scripts/ci-step.sh pgtap supabase test db
+      - name: Lint database
+        if: steps.detect.outputs.present == 'true'
+        run: scripts/ci-step.sh db-lint supabase db lint --level error
+      - name: Stop
+        if: always() && steps.detect.outputs.present == 'true'
+        run: supabase stop --no-backup
