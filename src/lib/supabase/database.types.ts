@@ -693,7 +693,7 @@ isOneToOne: false
 { Args: { "p_idempotency_key": string,"p_summary": string,"p_visit_id": string }; Returns: Json
                            },
 "decide_matching_request":
-{ Args: { "p_decision": string,"p_idempotency_key": string,"p_reason": string,"p_request_id": string,"p_team_id": string }; Returns: string
+{ Args: { "p_decision": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code"?: string,"p_request_id": string,"p_team_id": string }; Returns: string
                            },
 "depart_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
@@ -720,7 +720,12 @@ isOneToOne: false
                            },
 "intake_cases":
 { Args: Record<PropertyKey, never>; Returns: {
-              "access_notes": string,"care_needs": (string)[],"case_id": string,"client_name": string,"created_at": string,"gp_named": boolean,"insurance_type": string,"insurer_name": string,"language_notes": string,"medical_order_status": string,"medical_order_valid_until": string,"missing": Json,"open_tasks": (string)[],"other_providers_active": boolean,"region": string,"requested_start": string,"residence_canton": string,"residence_municipality": string,"urgency": string
+              "access_notes": string,"care_needs": (string)[],"case_id": string,"client_name": string,"created_at": string,"expected_hours_per_week": number,"gp_named": boolean,"insurance_type": string,"insurer_name": string,"language_notes": string,"medical_order_status": string,"medical_order_valid_until": string,"missing": Json,"open_tasks": (string)[],"other_providers_active": boolean,"region": string,"requested_start": string,"residence_canton": string,"residence_municipality": string,"urgency": string
+            }[]
+                           },
+"matching_escalations":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "created_at": string,"declines": Json,"eligible_teams": number,"matching_request_id": string,"referral_type": string,"reason": string,"region": string,"request_title": string,"response_due_at": string,"urgency": string
             }[]
                            },
 "pause_visit":
@@ -747,6 +752,9 @@ isOneToOne: false
 "retire_care_plan_item":
 { Args: { "p_idempotency_key": string,"p_item_id": string,"p_reason": string }; Returns: string
                            },
+"set_response_deadline":
+{ Args: { "p_hours": number,"p_idempotency_key": string,"p_organization_id": string,"p_referral_type": string }; Returns: string
+                           },
 "set_team_priority":
 { Args: { "p_idempotency_key": string,"p_priority": boolean,"p_team_id": string }; Returns: string
                            },
@@ -763,7 +771,7 @@ isOneToOne: false
                            },
 "team_offers":
 { Args: Record<PropertyKey, never>; Returns: {
-              "created_at": string,"matching_request_id": string,"my_team_declined": boolean,"region": string,"request_title": string,"required_services": (string)[],"team_id": string,"team_name": string,"urgency": string
+              "created_at": string,"expected_hours_per_week": number,"matching_request_id": string,"my_team_declined": boolean,"region": string,"request_title": string,"requested_start": string,"required_qualification": string,"required_services": (string)[],"response_due_at": string,"team_id": string,"team_name": string,"urgency": string
             }[]
                            },
 "uncovered_visits":

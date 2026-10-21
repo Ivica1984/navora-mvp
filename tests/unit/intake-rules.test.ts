@@ -38,6 +38,12 @@ describe("intake facts (J1, PO brief)", () => {
     expect(factsFromForm((k) => (k === "other_providers_active" ? "no" : ""))).toEqual({ other_providers_active: false });
   });
 
+  it("J2: expected hours per week as a number (comma accepted), empty or invalid left out", () => {
+    expect(factsFromForm((k) => (k === "expected_hours_per_week" ? "6,5" : ""))).toEqual({ expected_hours_per_week: 6.5 });
+    expect(factsFromForm((k) => (k === "expected_hours_per_week" ? "abc" : ""))).toEqual({});
+    expect(factsFromForm((k) => (k === "expected_hours_per_week" ? "0" : ""))).toEqual({});
+  });
+
   it("parses the readiness list defensively", () => {
     expect(parseMissing([{ item: "insurer", reason: "Krankenversicherer fehlt" }, { item: 1 }, null])).toEqual([
       { item: "insurer", reason: "Krankenversicherer fehlt" },

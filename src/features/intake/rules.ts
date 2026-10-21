@@ -61,6 +61,8 @@ export type IntakeFacts = {
   requested_start?: string;
   language_notes?: string;
   access_notes?: string;
+  /** J2 (offer fields): optional; shown to offered teams before acceptance. */
+  expected_hours_per_week?: number;
 };
 
 const yesNo = (v: string): boolean | undefined => (v === "yes" ? true : v === "no" ? false : undefined);
@@ -81,6 +83,8 @@ export function factsFromForm(get: (name: string) => string): IntakeFacts {
   if (gp !== undefined) facts.gp_named = gp;
   const other = yesNo(get("other_providers_active"));
   if (other !== undefined) facts.other_providers_active = other;
+  const hours = Number.parseFloat(get("expected_hours_per_week").replace(",", "."));
+  if (Number.isFinite(hours) && hours > 0) facts.expected_hours_per_week = Math.round(hours * 10) / 10;
   return facts;
 }
 

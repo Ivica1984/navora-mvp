@@ -11,7 +11,7 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claim.sub', uid, true);
 $$;
 
-select function_privs_are('public', 'decide_matching_request', array['uuid','uuid','text','text','uuid'],
+select function_privs_are('public', 'decide_matching_request', array['uuid','uuid','text','text','uuid','text'],
   'anon', array[]::text[], 'anon cannot decide');
 select function_privs_are('public', 'team_offers', array[]::text[], 'anon', array[]::text[], 'anon cannot read offers');
 select is(
@@ -65,7 +65,7 @@ select is(public.decide_matching_request((select id from req where last_name = '
           '00000000-0000-4000-a000-000000000102', 'accept', null, 'a2000000-0000-4000-8000-000000000010'),
   'rejected', 'a nurse cannot decide for a team she is not in');
 select is(public.decide_matching_request((select id from req where last_name = 'J2B'),
-          '00000000-0000-4000-a000-000000000101', 'decline', 'Keine Kapazität diese Woche', 'a2000000-0000-4000-8000-000000000011'),
+          '00000000-0000-4000-a000-000000000101', 'decline', 'Keine Kapazität diese Woche', 'a2000000-0000-4000-8000-000000000011', 'capacity'),
   'ok', 'the team declines request B with a reason');
 select is(
   (select my_team_declined from public.team_offers() where matching_request_id = (select id from req where last_name = 'J2B')),
@@ -93,8 +93,9 @@ select ok(
   'the assignment is audited with the command');
 
 -- Another team tries the taken request
-insert into public.team_memberships (team_id, user_id)
-values ('00000000-0000-4000-a000-000000000102', '00000000-0000-4000-a000-000000000901');
+-- J2 changes: a new case requires a registered nurse (needs assessment), so the coach joins as one.
+insert into public.team_memberships (team_id, user_id, qualification)
+values ('00000000-0000-4000-a000-000000000102', '00000000-0000-4000-a000-000000000901', 'registered_nurse');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000901');
 set local role authenticated;
 select is(

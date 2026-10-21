@@ -239,3 +239,18 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 **Benefits:** billing and the quality gate can later rely on "final report exists", with signer, time and version history, without trusting free text.
 **Migration plan:** migration 0016 adds objects only (no data change). Rollback: drop the commands, read models, trigger and `visit_reports`. Legacy `care_notes` stay read-only for history, and an approved legacy note still closes the Operations item.
 **Open:** D-10 (countersignature scope, `clinical`); whether a registered nurse other than the performer may sign when the performer has left the team (owner/clinical; today: not possible); report export/PDF (not in the brief).
+
+### ADR-033 — Team decision workflow: eligibility, reasons, deadlines as configuration, escalation (J2 changes)
+**Status:** PROPOSED · **Task:** J2 PO changes (`docs/agents/briefs/J2.md`, queue rank 5) plus F0 criterion 4. Extends ADR-027.
+**Why:** #24 had team pull and atomic acceptance but no qualification check, no decline reasons, no response time and no escalation. The brief requires that no case wait silently and that nothing be auto-assigned.
+**Decision:**
+- **Offer fields** before acceptance: care need, region, requested start (J1), expected hours per week (new optional intake fact), required qualification, and response deadline. Still no identity or funding data.
+- **Required qualification is derived, not invented:** a registered nurse is required while the needs assessment is not done (J3: only a registered nurse starts it, NV001) or when a medical order is present (J3: category B needs an order and a registered nurse). Otherwise no particular qualification. The clinical sign-off belongs to D-15.
+- **Eligibility** = active team, same region, and a registered-nurse member when required. A team that is not eligible neither sees the offer nor can accept (`not_qualified`).
+- **Decline** needs a reason code from the brief's v1 list (`capacity`, `qualification`, `distance`, `other`); `other` needs a short text. The old 5-argument command is replaced by one with an optional sixth argument, so an acceptance call is unchanged.
+- **Response deadline** = configuration `response_deadlines(organization, referral type, hours)`, set by an admin through `set_response_deadline` (audited, idempotent). **No values ship** (Q8: set with the first pilot partner). Referral type is derived from the J1 partner type (Spital → hospital discharge, Pflegeheim → nursing home, Privat / Angehörige → private, otherwise other).
+- **Escalation** is a read model `matching_escalations()` for coordination roles: no eligible team, all eligible teams declined, deadline passed, or deadline not configured, each with all decline reasons. Operations shows these as P1 (P2 for "not configured"). Nothing is assigned automatically; the request stays open.
+- **Scope:** `team_decisions` is readable by the deciding team and by coordination roles only (it was organisation-wide).
+**Benefits:** partners get a dependable answer path; Operations sees every stuck search with reasons; teams keep their autonomy.
+**Migration plan:** migration 0017 adds columns, a configuration table and functions, and backfills derived facts on open requests (no deadlines). The decline-code constraint is `NOT VALID`, so older declines without a code stay readable. Rollback: restore the 0011 command and `team_offers`, drop the new objects.
+**Open:** Q8 values (PO with the pilot partner), D-15 (clinical confirmation of the qualification derivation), an admin screen for deadlines (today command only).

@@ -31,7 +31,7 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
   // Runs as the signed-in user (RLS sees auth.uid()); redirects to /login otherwise.
   const { supabase } = await requireUser();
 
-  const [partnerRequestsResult, casesResult, teamsResult, visitsResult, careNotesResult, qualityEventsResult, uncoveredResult, finalReportsResult] =
+  const [partnerRequestsResult, casesResult, teamsResult, visitsResult, careNotesResult, qualityEventsResult, uncoveredResult, finalReportsResult, escalationsResult] =
     await Promise.all([
       supabase
         .from("partner_requests")
@@ -50,6 +50,8 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
       supabase.rpc("uncovered_visits"),
       // F6: which completed visits have a final signed report (ids only, no content).
       supabase.rpc("final_report_visits"),
+      // J2: team searches needing Operations (coordination roles only; empty for others).
+      supabase.rpc("matching_escalations"),
     ]);
 
   const firstError = [
@@ -61,6 +63,7 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
     qualityEventsResult,
     uncoveredResult,
     finalReportsResult,
+    escalationsResult,
   ].find((result) => result.error)?.error;
 
   if (firstError) {
@@ -86,6 +89,7 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
     qualityEvents,
     uncoveredVisits: uncoveredResult.data ?? [],
     finalReportVisitIds: (finalReportsResult.data ?? []).map((row) => row.visit_id),
+    matchingEscalations: escalationsResult.data ?? [],
   });
 
   return { cases, teams, visits, qualityEvents, attentionItems };
