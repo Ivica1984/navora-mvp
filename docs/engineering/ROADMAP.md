@@ -32,7 +32,7 @@ Source of truth for the target: `ARCHITECTURE.md` data flow and workflow (*Partn
 | 5 | Team planning → `care_visits` | **done** (J3, PR #25) | J4 capacity proposed to the PO (COORD-2) |
 | 6 | Care delivery (`/field`) | **done**: F1–F3 | — |
 | 7 | Documentation: observations, handover | **done**: F4 | — |
-| 8 | Report → human approval | missing; approver role = Q4 | F6 |
+| 8 | Report → human approval | signed report in review (#35): performer signs, countersignature provisional until D-10 | F6 |
 | 9 | Quality gate (`quality_events`) | read-only attention list | Q1 (raise from field), review flow |
 | 10 | Billing facts | blocked: legal/tariff decisions (Gate 6) | owner |
 

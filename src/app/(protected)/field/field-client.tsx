@@ -27,6 +27,8 @@ import {
 import { correctVisitTime, recordObservation } from "@/features/field/commands";
 import { formatMinutesByCategory } from "@/features/team/rules";
 import type { FieldNote, FieldVisit } from "@/features/field/types";
+import type { FieldReport } from "@/features/field/report";
+import ReportSection from "./report-section";
 
 type Props = {
   day: string;
@@ -35,6 +37,7 @@ type Props = {
   nextDay: string;
   visits: FieldVisit[];
   notes: FieldNote[];
+  reports: FieldReport[];
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -58,7 +61,7 @@ const STATUS_CLASS: Record<string, string> = {
   no_show: "bg-rose-100 text-rose-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports }: Props) {
   const summary = summarizeDay(visits);
 
   return (
@@ -107,14 +110,18 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
           <ol className="grid gap-3" aria-label="Einsätze">
             {visits.map((visit) => (
               <li key={visit.visit_id}>
-                <VisitCard visit={visit} notes={notes.filter((n) => n.visit_id === visit.visit_id)} />
+                <VisitCard
+                  visit={visit}
+                  notes={notes.filter((n) => n.visit_id === visit.visit_id)}
+                  report={reports.find((r) => r.visit_id === visit.visit_id) ?? null}
+                />
               </li>
             ))}
           </ol>
         )}
 
         <p className="mt-6 text-xs leading-relaxed text-emerald-900/60">
-          Du siehst die Einsätze deiner Teams. Zeiten entstehen aus deinen Statuswechseln und lassen sich mit Begründung korrigieren. Beobachtungen sieht nur dein Team; Übergaben erscheinen bei den nächsten Einsätzen derselben Person. Der Bericht folgt in der nächsten Ausbaustufe.
+          Du siehst die Einsätze deiner Teams. Zeiten entstehen aus deinen Statuswechseln und lassen sich mit Begründung korrigieren. Beobachtungen sieht nur dein Team; Übergaben erscheinen bei den nächsten Einsätzen derselben Person. Nach dem Einsatz entsteht der Bericht aus diesen Angaben; die ausführende Person unterschreibt ihn.
         </p>
       </main>
     </div>
@@ -130,7 +137,7 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function VisitCard({ visit, notes }: { visit: FieldVisit; notes: FieldNote[] }) {
+function VisitCard({ visit, notes, report }: { visit: FieldVisit; notes: FieldNote[]; report: FieldReport | null }) {
   const router = useRouter();
   const [pending, setPending] = useState<FieldAction | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -217,6 +224,8 @@ function VisitCard({ visit, notes }: { visit: FieldVisit; notes: FieldNote[] }) 
         canRecord={OBSERVABLE.has(visit.status ?? "")}
         notes={notes.filter((n) => n.kind === "observation")}
       />
+
+      <ReportSection visitId={visit.visit_id} visitStatus={visit.status} report={report} />
 
       {error && (
         <p role="alert" data-testid="command-error" className="mt-3 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800">

@@ -587,6 +587,44 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"visit_reports": {
+                  Row: {
+                    "case_id": string | null,"correction_reason": string | null,"countersign_required": boolean,"countersigned_at": string | null,"countersigned_by": string | null,"created_at": string,"created_by": string,"id": string,"organization_id": string,"performer_id": string,"signed_at": string | null,"signed_by": string | null,"snapshot": NonNullable<Json>,"status": string,"summary": string | null,"supersedes_id": string | null,"team_id": string,"version": number,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "case_id"?: string | null,"correction_reason"?: string | null,"countersign_required": boolean,"countersigned_at"?: string | null,"countersigned_by"?: string | null,"created_at"?: string,"created_by": string,"id"?: string,"organization_id": string,"performer_id": string,"signed_at"?: string | null,"signed_by"?: string | null,"snapshot": NonNullable<Json>,"status"?: string,"summary"?: string | null,"supersedes_id"?: string | null,"team_id": string,"version": number,"visit_id": string
+                  }
+                  Update: {
+                    "case_id"?: string | null,"correction_reason"?: string | null,"countersign_required"?: boolean,"countersigned_at"?: string | null,"countersigned_by"?: string | null,"created_at"?: string,"created_by"?: string,"id"?: string,"organization_id"?: string,"performer_id"?: string,"signed_at"?: string | null,"signed_by"?: string | null,"snapshot"?: NonNullable<Json>,"status"?: string,"summary"?: string | null,"supersedes_id"?: string | null,"team_id"?: string,"version"?: number,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "visit_reports_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_reports_supersedes_id_fkey"
+      columns: ["supersedes_id"]
+isOneToOne: false
+      referencedRelation: "visit_reports"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_reports_team_id_organization_id_fkey"
+      columns: ["team_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "visit_reports_visit_id_organization_id_fkey"
+      columns: ["visit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"visit_time_corrections": {
                   Row: {
                     "actor_id": string,"corrected_at": string,"created_at": string,"event_id": number,"id": number,"idempotency_key": string,"organization_id": string,"reason": string,"team_id": string | null,"visit_id": string
@@ -642,8 +680,17 @@ isOneToOne: false
 "convert_partner_request":
 { Args: { "p_consent_confirmed": boolean,"p_facts": Json,"p_first_name": string,"p_idempotency_key": string,"p_last_name": string,"p_request_id": string }; Returns: Json
                            },
+"correct_report":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_report_id": string,"p_summary": string }; Returns: Json
+                           },
 "correct_visit_time":
 { Args: { "p_corrected_at": string,"p_event_id": number,"p_idempotency_key": string,"p_reason": string }; Returns: string
+                           },
+"countersign_report":
+{ Args: { "p_idempotency_key": string,"p_report_id": string }; Returns: Json
+                           },
+"create_report_draft":
+{ Args: { "p_idempotency_key": string,"p_summary": string,"p_visit_id": string }; Returns: Json
                            },
 "decide_matching_request":
 { Args: { "p_decision": string,"p_idempotency_key": string,"p_reason": string,"p_request_id": string,"p_team_id": string }; Returns: string
@@ -656,9 +703,19 @@ isOneToOne: false
               "content": string,"edited": boolean,"for_handover": boolean,"id": string,"kind": string,"own": boolean,"recorded_at": string,"source_date": string,"visit_id": string
             }[]
                            },
+"field_reports":
+{ Args: { "p_date": string }; Returns: {
+              "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"i_am_performer": boolean,"i_can_countersign": boolean,"i_signed": boolean,"report_id": string,"signed_at": string,"snapshot": Json,"status": string,"summary": string,"version": number,"visit_id": string
+            }[]
+                           },
 "field_visits":
 { Args: { "p_date": string }; Returns: {
               "address": string,"care_goals": (string)[],"care_needs": (string)[],"case_id": string,"client_name": string,"events": Json,"is_needs_assessment": boolean,"ort": string,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"plz": string,"responsible_me": boolean,"responsible_set": boolean,"services_provided": (string)[],"status": string,"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
+            }[]
+                           },
+"final_report_visits":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "visit_id": string
             }[]
                            },
 "intake_cases":
@@ -693,6 +750,9 @@ isOneToOne: false
 "set_team_priority":
 { Args: { "p_idempotency_key": string,"p_priority": boolean,"p_team_id": string }; Returns: string
                            },
+"sign_report":
+{ Args: { "p_idempotency_key": string,"p_report_id": string }; Returns: Json
+                           },
 "start_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
@@ -713,6 +773,9 @@ isOneToOne: false
                            },
 "update_case_intake":
 { Args: { "p_case_id": string,"p_facts": Json,"p_idempotency_key": string }; Returns: Json
+                           },
+"update_report_draft":
+{ Args: { "p_idempotency_key": string,"p_report_id": string,"p_summary": string }; Returns: Json
                            }
           }
           Enums: {

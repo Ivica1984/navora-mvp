@@ -2,6 +2,7 @@ import "server-only";
 
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
+import type { FieldReport } from "./report";
 import type { FieldNote, FieldVisit } from "./types";
 
 /**
@@ -34,6 +35,23 @@ export async function getFieldNotes(day: string): Promise<FieldNote[]> {
   if (error) {
     logEvent("error", "field.notes_load_failed", errorFields(error));
     throw new Error("Beobachtungen konnten nicht geladen werden.");
+  }
+
+  return data ?? [];
+}
+
+/**
+ * Latest report version per visit of the day (F6). Team-scoped in the database:
+ * public.field_reports() (migration 0016, pgTAP 016).
+ */
+export async function getFieldReports(day: string): Promise<FieldReport[]> {
+  const { supabase } = await requireUser();
+
+  const { data, error } = await supabase.rpc("field_reports", { p_date: day });
+
+  if (error) {
+    logEvent("error", "field.reports_load_failed", errorFields(error));
+    throw new Error("Berichte konnten nicht geladen werden.");
   }
 
   return data ?? [];
