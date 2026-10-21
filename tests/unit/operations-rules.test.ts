@@ -66,6 +66,8 @@ function careCase(overrides: Partial<CaseRow>): CaseRow {
     notes: null,
     assigned_team: null,
     assigned_team_id: "t",
+    intake_consent_confirmed_at: null,
+    intake_consent_confirmed_by: null,
     ...overrides,
   };
 }
