@@ -367,6 +367,38 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"team_decisions": {
+                  Row: {
+                    "actor_id": string,"case_id": string | null,"decided_at": string,"decision": string,"id": string,"idempotency_key": string,"matching_request_id": string,"organization_id": string,"reason": string | null,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id": string,"case_id"?: string | null,"decided_at"?: string,"decision": string,"id"?: string,"idempotency_key": string,"matching_request_id": string,"organization_id": string,"reason"?: string | null,"team_id": string
+                  }
+                  Update: {
+                    "actor_id"?: string,"case_id"?: string | null,"decided_at"?: string,"decision"?: string,"id"?: string,"idempotency_key"?: string,"matching_request_id"?: string,"organization_id"?: string,"reason"?: string | null,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "team_decisions_matching_request_id_organization_id_fkey"
+      columns: ["matching_request_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "matching_requests"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "team_decisions_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "team_decisions_team_id_organization_id_fkey"
+      columns: ["team_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"team_memberships": {
                   Row: {
                     "created_at": string,"team_id": string,"user_id": string
@@ -521,6 +553,9 @@ isOneToOne: false
 "correct_visit_time":
 { Args: { "p_corrected_at": string,"p_event_id": number,"p_idempotency_key": string,"p_reason": string }; Returns: string
                            },
+"decide_matching_request":
+{ Args: { "p_decision": string,"p_idempotency_key": string,"p_reason": string,"p_request_id": string,"p_team_id": string }; Returns: string
+                           },
 "depart_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
@@ -551,6 +586,11 @@ isOneToOne: false
                            },
 "start_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"team_offers":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "created_at": string,"matching_request_id": string,"my_team_declined": boolean,"region": string,"request_title": string,"required_services": (string)[],"team_id": string,"team_name": string,"urgency": string
+            }[]
                            }
           }
           Enums: {

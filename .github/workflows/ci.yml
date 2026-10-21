@@ -151,7 +151,7 @@ jobs:
             -d '{"priority":true}' "$SUPABASE_URL/rest/v1/teams?id=eq.00000000-0000-4000-a000-000000000101")
           echo "anon PATCH teams -> HTTP $code"
           case "$code" in 2*) echo "::error title=anon-rest::anon PATCH teams accepted (HTTP $code)"; fail=1;; esac
-          for fn in start_visit complete_visit depart_visit pause_visit resume_visit correct_visit_time record_observation record_partner_request convert_partner_request set_team_priority assign_team_coach; do
+          for fn in start_visit complete_visit depart_visit pause_visit resume_visit correct_visit_time record_observation record_partner_request convert_partner_request decide_matching_request team_offers set_team_priority assign_team_coach; do
             code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST -H "apikey: $SUPABASE_ANON_KEY" -H 'Content-Type: application/json' \
               -d '{}' "$SUPABASE_URL/rest/v1/rpc/$fn")
             echo "anon RPC $fn -> HTTP $code"
@@ -166,7 +166,7 @@ jobs:
           done
           code=$(curl -sS -o /tmp/r.json -w '%{http_code}' -H "apikey: $SUPABASE_ANON_KEY" "$SUPABASE_URL/rest/v1/audit_events?select=*&limit=1")
           if [ "$code" = "200" ] && [ "$(head -c 2 /tmp/r.json)" != "[]" ]; then echo "::error title=anon-rest::audit_events readable by anon"; fail=1; fi
-          echo "::notice title=anon-rest::checked 11 tables, audit_events, 1 write, 11 RPCs + 2 field reads; failures=$fail"
+          echo "::notice title=anon-rest::checked 11 tables, audit_events, 1 write, 13 RPCs + 2 field reads; failures=$fail"
           exit $fail
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium

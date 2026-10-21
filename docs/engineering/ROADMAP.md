@@ -18,6 +18,8 @@ Mapping to product gates: M0–M2 = Gate 0 (engineering part) · M3 = Gate 1 · 
 - M1 reached before M0 completes: ADR-013 (transcribed import, verified later) and ADR-012/014 (CI as runner and lockfile resolver) removed the dependency on owner availability.
 - T4/T5 landed together with T3/T6/T7 in one PR instead of separate branches; recorded in PR #1.
 
+See also `PLATFORM_MAP.md`: domain view. The **largest platform value is D5 Team Self-Organisation & Planning** (J2–J4).
+
 ## Care-journey view (owner direction 2026-10-21: complete the journey, biggest gap first)
 Source of truth for the target: `ARCHITECTURE.md` data flow and workflow (*Partneranfrage → Fall → Matching → Teamentscheid → Teamplanung → Einsatz → Dokumentationsfreigabe → Qualität → Billing-Fakten*), `MASTER_CONTEXT.md`, `PRODUCT_REQUIREMENTS.md`, `DOMAIN_RULES.md`. The owner refers to an *Architecture Handbook* (incl. section 16 "Nächste Coding-Reihenfolge"). It is **not in the repository or the Project**; when it is provided, this view is re-derived from it.
 
@@ -26,8 +28,8 @@ Source of truth for the target: `ARCHITECTURE.md` data flow and workflow (*Partn
 | 1 | Referral (`partner_requests`) | **J1 in review**: intake by admin/operations | J1 |
 | 2 | Case (`cases`) | **J1 in review**: conversion after review, provisional consent gate | J1 |
 | 3 | Matching (`matching_requests`, candidates) | J1 opens a request; engine = Gate 4 (needs competence/capacity data, validated weights) | J2 (team-pull, no ranking) |
-| 4 | Team decision | missing | **J2 next** |
-| 5 | Team planning → `care_visits` | missing (seed only) | **J3** |
+| 4 | Team decision | **J2 in review**: team pull, atomic accept | J2 |
+| 5 | Team planning → `care_visits` | missing (seed only) | **J3 next**, then J4 capacity |
 | 6 | Care delivery (`/field`) | **done**: F1–F3 | — |
 | 7 | Documentation: observations, handover | **done**: F4 | — |
 | 8 | Report → human approval | missing; approver role = Q4 | F6 |
