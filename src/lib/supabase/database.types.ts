@@ -221,6 +221,26 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"change_log": {
+                  Row: {
+                    "actor_id": string,"changes": NonNullable<Json>,"command": string,"created_at": string,"entity_id": string,"entity_table": string,"id": number,"idempotency_key": string,"organization_id": string,"reason": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id": string,"changes": NonNullable<Json>,"command": string,"created_at"?: string,"entity_id": string,"entity_table": string,"id"?: never,"idempotency_key": string,"organization_id": string,"reason": string
+                  }
+                  Update: {
+                    "actor_id"?: string,"changes"?: NonNullable<Json>,"command"?: string,"created_at"?: string,"entity_id"?: string,"entity_table"?: string,"id"?: never,"idempotency_key"?: string,"organization_id"?: string,"reason"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "change_log_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"match_candidates": {
                   Row: {
                     "created_at": string,"distance_km": number | null,"fit_score": number,"id": string,"matching_request_id": string | null,"open_slots": number | null,"organization_id": string,"reasons": (string)[] | null,"status": string,"team_id": string | null,"utilization": number | null
@@ -485,14 +505,14 @@ isOneToOne: false
                   ]
                 },"team_memberships": {
                   Row: {
-                    "created_at": string,"qualification": string | null,"team_id": string,"user_id": string
+                    "created_at": string,"qualification": string,"team_id": string,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"qualification"?: string | null,"team_id": string,"user_id": string
+                    "created_at"?: string,"qualification": string,"team_id": string,"user_id": string
                   }
                   Update: {
-                    "created_at"?: string,"qualification"?: string | null,"team_id"?: string,"user_id"?: string
+                    "created_at"?: string,"qualification"?: string,"team_id"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {
