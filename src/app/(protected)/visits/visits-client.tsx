@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { completeVisit, startVisit } from "@/features/visits/commands";
 import Sidebar from "@/components/layout/Sidebar";
+import CommandError from "@/components/feedback/CommandError";
 import {
   getVisitServices,
   getVisitStatusLabel,
@@ -63,6 +64,7 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
   );
 
   const [isUpdating, setIsUpdating] = useState(false);
+  const [commandError, setCommandError] = useState<string | null>(null);
   const router = useRouter();
 
   const selectedVisit = useMemo(() => {
@@ -86,9 +88,7 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
     });
     setIsUpdating(false);
 
-    if (!result.ok) {
-      alert(result.error);
-    }
+    setCommandError(result.ok ? null : result.error);
 
     router.refresh();
   }
@@ -172,7 +172,10 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
                   <button
                     key={visit.id}
                     type="button"
-                    onClick={() => setSelectedVisitId(visit.id)}
+                    onClick={() => {
+                      setSelectedVisitId(visit.id);
+                      setCommandError(null);
+                    }}
                     style={{
                       textAlign: "left",
                       background: "white",
@@ -264,6 +267,8 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
             >
               Einsatz Detail
             </p>
+
+            <CommandError message={commandError} />
 
             {selectedVisit ? (
               <>

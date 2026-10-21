@@ -1,5 +1,6 @@
 "use client";
 import Sidebar from "@/components/layout/Sidebar";
+import CommandError from "@/components/feedback/CommandError";
 
 import { useMemo, useState } from "react";
 import type { TeamRow } from "@/features/teams/types";
@@ -16,6 +17,7 @@ export default function TeamsClient({ teams }: TeamsClientProps) {
 const [selectedTeamId, setSelectedTeamId] = useState<string | null>(teams[0]?.id ?? null);
 const [coachInput, setCoachInput] = useState("");
 const [teamsState, setTeamsState] = useState(teams);
+const [commandError, setCommandError] = useState<string | null>(null);
 
   const regions = useMemo(() => {
     const uniqueRegions = Array.from(new Set(teamsState.map((team) => team.region)));
@@ -27,8 +29,16 @@ const [teamsState, setTeamsState] = useState(teams);
     return teamsState.filter((team) => team.region === selectedRegion);
   }, [teamsState, selectedRegion]);
 
-  const bernTeams = filteredTeams.filter((team) => team.region === "Bern West");
-  const zurichTeams = filteredTeams.filter((team) => team.region === "Zürich Pilot");
+  // Group by the regions present in the data (TD-13: was hard-coded to two
+  // region names, so teams in any other region were not shown at all).
+  const teamsByRegion = useMemo(() => {
+    const groups = new Map<string, Team[]>();
+    for (const team of filteredTeams) {
+      const region = team.region ?? "Region offen";
+      groups.set(region, [...(groups.get(region) ?? []), team]);
+    }
+    return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b, "de-CH"));
+  }, [filteredTeams]);
 
   const selectedTeam =
     filteredTeams.find((team) => team.id === selectedTeamId) ??
@@ -55,9 +65,10 @@ const [teamsState, setTeamsState] = useState(teams);
   });
 
   if (!result.ok) {
-    alert(result.error);
+    setCommandError(result.error);
     return;
   }
+  setCommandError(null);
 
   setTeamsState((prev) =>
   prev.map((team) =>
@@ -78,9 +89,10 @@ async function handleAssignCoach() {
   });
 
   if (!result.ok) {
-    alert(result.error);
+    setCommandError(result.error);
     return;
   }
+  setCommandError(null);
 
 setTeamsState((prev) =>
   prev.map((team) =>
@@ -97,7 +109,10 @@ setCoachInput("");
     return (
       <button
         key={team.id}
-        onClick={() => setSelectedTeamId(team.id)}
+        onClick={() => {
+          setSelectedTeamId(team.id);
+          setCommandError(null);
+        }}
         style={{
           background: "white",
           borderRadius: "16px",
@@ -220,19 +235,12 @@ setCoachInput("");
               padding: "18px",
             }}
           >
-            {bernTeams.length > 0 && (
-              <>
-                <h3 style={{ marginTop: 0 }}>Bern West</h3>
-                {bernTeams.map(renderTeamCard)}
-              </>
-            )}
-
-            {zurichTeams.length > 0 && (
-              <>
-                <h3 style={{ marginTop: bernTeams.length > 0 ? "20px" : 0 }}>Zürich Pilot</h3>
-                {zurichTeams.map(renderTeamCard)}
-              </>
-            )}
+            {teamsByRegion.map(([region, regionTeams], index) => (
+              <section key={region}>
+                <h3 style={{ marginTop: index === 0 ? 0 : "20px" }}>{region}</h3>
+                {regionTeams.map(renderTeamCard)}
+              </section>
+            ))}
 
             {filteredTeams.length === 0 && (
               <div style={{ color: "#5f766d" }}>Keine Teams in dieser Region gefunden.</div>
@@ -260,6 +268,8 @@ setCoachInput("");
             </div>
 
             <h3 style={{ marginTop: 0, marginBottom: "10px" }}>{selectedTeam?.name}</h3>
+
+            <CommandError message={commandError} />
 
             <div
               style={{
