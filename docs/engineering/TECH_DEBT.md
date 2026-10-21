@@ -9,7 +9,7 @@
 | TD-02 | Fixed desktop grids, not responsive | all UI | L | F1 sets the mobile pattern | OPEN |
 | TD-03 | Three competing fonts (Geist loaded, Arial in CSS, "Inter" requested but not loaded) | layout, globals, pages | S | with TD-01 | OPEN |
 | TD-04 | Template metadata, `lang="en"` | `layout.tsx` | S | — | DONE (PR #1) |
-| TD-05 | Hand-written row types drift from DB | `features/*/types.ts` | M | Operations now uses `Pick<>` subsets; generated `database.types.ts` = T14 | PARTLY DONE |
+| TD-05 | Hand-written row types drift from DB | `features/*/types.ts` | M | T14: row types derived from generated schema; typed client; CI drift check | DONE (PR #11) |
 | TD-06 | `as any` casts | operations, teams | S | — | DONE (PR #1) |
 | TD-07 | Duplicate helpers across files (`getVisitTimeRange`, `getAverageUtilization`, …) | features + clients | S | Operations copies removed (PR #1); rest in T10 | PARTLY DONE |
 | TD-08 | Server computed 13 KPIs the client ignored | operations | S | removed in T10 | DONE (PR #9) |
@@ -33,3 +33,4 @@
 | TD-26 | Role names (`admin`, `coach`, `operations`, `nurse`) are a CHECK constraint, not data | `organization_memberships` | S | revisit with Q4 | OPEN |
 | TD-27 | `audit_events` grows without retention or archival | DB | M | after Q6 (legal) | OPEN |
 | TD-28 | Visit state machine only knows planned→started→completed; seed and UI contain other statuses (on_the_way, cancelled…) | DB, visits | M | F2 after product/clinical confirmation | OPEN |
+| TD-29 | Supabase CLI pinned to 2.121.0 in CI; upgrades are manual and regenerate `database.types.ts` | CI | S | review quarterly or on security advisories | OPEN |

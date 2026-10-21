@@ -1,60 +1,12 @@
+import type { TenantRow } from "@/lib/supabase/tables";
+
 export type CaseStatus = "neu" | "teampruefung" | "laufend";
 
 export type CaseUrgency = "niedrig" | "mittel" | "hoch";
 
 
-export type CaseAssignedTeam = {
-  id: string;
-  name: string;
-  region: string | null;
-  status: string | null;
-  open_slots: number | null;
-  utilization: number | null;
-};
-
-export type CaseRow = {
-  id: string;
-  created_at: string;
-
-  name: string | null;
-  region: string | null;
-  status: CaseStatus | string | null;
-
-  bedarf: string | null;
-  urgency: CaseUrgency | string | null;
-  time_info: string | null;
-
-  first_name: string | null;
-  last_name: string | null;
-  date_of_birth: string | null;
-  gender: string | null;
-
-  address: string | null;
-  plz: string | null;
-  ort: string | null;
-  phone: string | null;
-
-  emergency_contact_name: string | null;
-  emergency_contact_phone: string | null;
-
-  mobility_status: string | null;
-  cognitive_status: string | null;
-
-  diagnosis_tags: string[] | null;
-  care_needs: string[] | null;
-
-  care_level: string | null;
-  referral_source: string | null;
-  insurance_provider: string | null;
-
-  start_date: string | null;
-  next_step: string | null;
-  notes: string | null;
-
-  assigned_team: string | null;
-  assigned_team_id: string | null;
-  teams?: CaseAssignedTeam | null;
-};
+/** Full case row (all columns except the tenant key). Not sent to the browser. */
+export type CaseRow = TenantRow<"cases">;
 
 /**
  * The case fields the Operations view needs (T10, SR-06). Deliberately excludes

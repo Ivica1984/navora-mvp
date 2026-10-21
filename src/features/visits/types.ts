@@ -1,3 +1,5 @@
+import type { TableRow } from "@/lib/supabase/tables";
+
 export type VisitStatus =
   | "planned"
   | "assigned"
@@ -10,19 +12,21 @@ export type VisitStatus =
   | "no_show"
   | string;
 
-export type CareVisitRow = {
-  id: string;
-  case_id: string | null;
-  visit_date: string | null;
-  time_start: string | null;
-  time_end: string | null;
-  team_member_name: string | null;
-  services_provided: string[] | null;
-  notes: string | null;
-  billable: boolean | null;
-  status: VisitStatus | null;
-  created_at: string;
-};
+/** Columns selected by getCareVisits() for /visits. */
+export type CareVisitRow = Pick<
+  TableRow<"care_visits">,
+  | "id"
+  | "case_id"
+  | "visit_date"
+  | "time_start"
+  | "time_end"
+  | "team_member_name"
+  | "services_provided"
+  | "notes"
+  | "billable"
+  | "status"
+  | "created_at"
+>;
 
 export function getVisitTimeRange(visit: CareVisitRow) {
   if (visit.time_start && visit.time_end) {

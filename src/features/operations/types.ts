@@ -1,49 +1,14 @@
+import type { TenantRow } from "@/lib/supabase/tables";
 import type { CaseSummaryRow } from "@/features/cases/types";
 import type { TeamRow } from "@/features/teams/types";
 import type { CareVisitRow } from "@/features/visits/types";
 
 
-export type PartnerRequestRow = {
-  id: string;
-  created_at: string;
-  partner_name: string;
-  partner_type: string | null;
-  region: string;
-  city: string | null;
-  urgency: string;
-  time_info: string | null;
-  request_title: string;
-  need_summary: string;
-  requested_services: string[] | null;
-  status: string;
-  converted_case_id: string | null;
-  notes: string | null;
-};
+export type PartnerRequestRow = TenantRow<"partner_requests">;
 
-export type CareNoteRow = {
-  id: string;
-  created_at: string;
-  visit_id: string | null;
-  case_id: string | null;
-  team_id: string | null;
-  author_name: string | null;
-  note_type: string;
-  content: string;
-  status: string;
-};
+export type CareNoteRow = TenantRow<"care_notes">;
 
-export type QualityEventRow = {
-  id: string;
-  created_at: string;
-  case_id: string | null;
-  visit_id: string | null;
-  team_id: string | null;
-  event_type: string;
-  severity: string;
-  title: string;
-  description: string | null;
-  status: string;
-};
+export type QualityEventRow = TenantRow<"quality_events">;
 
 
 export type AttentionPriority = "P1" | "P2" | "P3";

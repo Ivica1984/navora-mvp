@@ -1,6 +1,6 @@
 # NAVORA — Engineering Backlog
 
-**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21 (after T11)
+**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21 (after T14)
 **Plan:** `claude/NAVORA_RECOVERY_EXECUTION_PLAN.md` (Project) · **Roadmap:** `docs/engineering/ROADMAP.md`
 **Status values:** BLOCKED · READY · IN PROGRESS · IN REVIEW · DONE · PROPOSED
 Ordered by priority. Work continues on the top item that is not blocked.
@@ -39,10 +39,10 @@ Ordered by priority. Work continues on the top item that is not blocked.
 | T8 | SSR auth, proxy guard, `(protected)` group, server sign-in/out, browser writes → Server Actions | DONE | PR #7 merged into `recovery/main` |
 | T9 | Tenancy, scoped RLS, legacy policies dropped, anon privileges revoked, cross-tenant FKs | DONE | PR #8 merged into `recovery/main` |
 | T10 | Audit trigger + append-only log; idempotent DB commands; visit state machine; `billable` locked; minimal Operations payload | DONE | PR #9 merged into `recovery/main` |
-| T11 | Nonce-based CSP + security headers, no `X-Powered-By` | IN REVIEW | PR #10 — CI on `661e209`: 60 unit, 20 e2e (0 CSP violations) |
+| T11 | Nonce-based CSP + security headers, no `X-Powered-By` | DONE | PR #10 merged into `recovery/main` |
 | T12 | Staging: Supabase project (EU/CH region) + protected Next host, migrations from CI, synthetic seed + staging-only users | **BLOCKED — owner decision** | O-G / ADR-011: hosting provider and region (cost + data residency = financial/legal decision); then a deploy token as a GitHub secret |
 | T13 | DB-level seed coverage test: one pgTAP/SQL check per attention category | PROPOSED | — |
-| T14 | Generated `database.types.ts` (`supabase gen types` in CI, drift check) replacing hand-written row types (TD-05) | PROPOSED | — |
+| T14 | Generated `database.types.ts`, typed client, drift check in CI, compile-time proof | IN REVIEW | PR #11 — CI on `1a41e83` green; drift check "in sync" |
 | T15 | Replace `alert()` with an inline error/status model in Teams/Visits (TD-12) | PROPOSED | — |
 
 ## Product (M4 — Roadmap Gate 2)
