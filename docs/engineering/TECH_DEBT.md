@@ -33,5 +33,5 @@
 | TD-25 | Memberships can only be created by SQL; no admin flow, no audit of membership changes | DB | M | after Q5 | OPEN |
 | TD-26 | Role names (`admin`, `coach`, `operations`, `nurse`) are a CHECK constraint, not data | `organization_memberships` | S | revisit with Q4 | OPEN |
 | TD-27 | `audit_events` grows without retention or archival | DB | M | after Q6 (legal) | OPEN |
-| TD-28 | Visit state machine only knows planned→started→completed; seed and UI contain other statuses (on_the_way, cancelled…) | DB, visits | M | F2 after product/clinical confirmation | OPEN |
+| TD-28 | Visit state machine only knew planned→started→completed | DB, visits | M | F2 (migration 0007): linear field path incl. on_the_way and paused. Still open: `assigned/accepted/cancelled/no_show` (D-6) | PARTLY DONE |
 | TD-29 | Supabase CLI pinned to 2.121.0 in CI; upgrades are manual and regenerate `database.types.ts` | CI | S | review quarterly or on security advisories | OPEN |

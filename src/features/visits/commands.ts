@@ -2,7 +2,7 @@
 
 // Visit commands. Since T10 each one calls a Postgres command function
 // (migration …0004): RLS limits changes to the visit's team (T9), a trigger
-// enforces planned → started → completed, the idempotency key makes retries
+// enforces the field state machine (migration 0007), the idempotency key makes retries
 // safe, and an audit trigger records the change. Completing a visit no longer
 // sets `billable` (SR-09): billing facts come later from validated data.
 
@@ -17,7 +17,7 @@ const REJECTED =
   "Einsatz nicht geändert: Der Status hat sich inzwischen geändert, oder du gehörst nicht zum zuständigen Team.";
 
 async function runVisitCommand(
-  fn: "start_visit" | "complete_visit",
+  fn: "depart_visit" | "start_visit" | "pause_visit" | "resume_visit" | "complete_visit",
   input: unknown,
   failed: string
 ): Promise<CommandResult> {
@@ -46,4 +46,17 @@ export async function startVisit(input: unknown): Promise<CommandResult> {
 
 export async function completeVisit(input: unknown): Promise<CommandResult> {
   return runVisitCommand("complete_visit", input, "Einsatz konnte nicht abgeschlossen werden.");
+}
+
+// F2 (migration 0007): the field workflow's remaining transitions.
+export async function departVisit(input: unknown): Promise<CommandResult> {
+  return runVisitCommand("depart_visit", input, "Abfahrt konnte nicht gespeichert werden.");
+}
+
+export async function pauseVisit(input: unknown): Promise<CommandResult> {
+  return runVisitCommand("pause_visit", input, "Pause konnte nicht gespeichert werden.");
+}
+
+export async function resumeVisit(input: unknown): Promise<CommandResult> {
+  return runVisitCommand("resume_visit", input, "Einsatz konnte nicht fortgesetzt werden.");
 }

@@ -9,6 +9,8 @@ const PASSWORD = "navora-local-only";
 
 // The seed uses the database's current_date; CI's database runs in UTC.
 const SEED_DAY = new Date().toISOString().slice(0, 10);
+// Visit 508 (Testteam Nord, 09:00) is planned for the day after and untouched by other tests.
+const NEXT_DAY = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
 
 async function signIn(page: Page, email: string, landing: RegExp) {
   await page.goto("/login");
@@ -75,6 +77,38 @@ test.describe("field tool (F1)", () => {
     await page.getByRole("link", { name: "Folgetag →" }).click();
     await expect(page).toHaveURL(/\/field\?datum=\d{4}-\d{2}-\d{2}$/);
     await expect(page.getByRole("heading", { level: 1 })).not.toHaveText("Heute");
+  });
+
+  test("full field path: depart, start, pause, resume, complete — with separate times (F2)", async ({ page }) => {
+    await signIn(page, NURSE, /\/field$/);
+    await page.goto(`/field?datum=${NEXT_DAY}`);
+
+    const card = page.getByRole("article", { name: /09:00 – 09:45/ });
+    await expect(card).toContainText("Geplant");
+    await expect(card.getByRole("region", { name: "Erfasste Zeit" })).toHaveCount(0);
+
+    const steps: Array<[string, string]> = [
+      ["Losfahren", "Unterwegs"],
+      ["Einsatz starten", "Gestartet"],
+      ["Pause", "Pausiert"],
+      ["Fortsetzen", "Gestartet"],
+      ["Einsatz abschliessen", "Abgeschlossen"],
+    ];
+    for (const [button, status] of steps) {
+      await card.getByRole("button", { name: button }).click();
+      await expect(card).toContainText(status);
+    }
+
+    await expect(card.getByRole("button")).toHaveCount(0);
+    const times = card.getByRole("region", { name: "Erfasste Zeit" });
+    await expect(times).toContainText("Anfahrt");
+    await expect(times).toContainText("Pflege");
+    await expect(times).toContainText("Pause");
+    await expect(times).not.toContainText("unstimmig");
+
+    await page.reload();
+    await expect(page.getByRole("article", { name: /09:00 – 09:45/ })).toContainText("Abgeschlossen");
+    await expect(page.getByRole("article", { name: /09:00 – 09:45/ }).getByRole("region", { name: "Erfasste Zeit" })).toBeVisible();
   });
 
   test("works on a phone-sized screen without horizontal scrolling", async ({ page }) => {

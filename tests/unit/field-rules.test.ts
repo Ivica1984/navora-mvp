@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatDayLabel,
   formatTime,
-  nextFieldAction,
+  fieldActions,
   parseDayParam,
   shiftDay,
   summarizeDay,
@@ -41,11 +41,13 @@ describe("field rules (F1)", () => {
     expect(formatTime(null)).toBeNull();
   });
 
-  it("offers only the transitions the database allows", () => {
-    expect(nextFieldAction("planned")).toBe("start");
-    expect(nextFieldAction("started")).toBe("complete");
-    for (const s of ["completed", "cancelled", "no_show", "on_the_way", "paused", "assigned", null]) {
-      expect(nextFieldAction(s)).toBeNull();
+  it("offers only the transitions the database allows (primary action first)", () => {
+    expect(fieldActions("planned")).toEqual(["depart", "start"]);
+    expect(fieldActions("on_the_way")).toEqual(["start"]);
+    expect(fieldActions("started")).toEqual(["complete", "pause"]);
+    expect(fieldActions("paused")).toEqual(["resume"]);
+    for (const s of ["completed", "cancelled", "no_show", "assigned", "accepted", null]) {
+      expect(fieldActions(s)).toEqual([]);
     }
   });
 
