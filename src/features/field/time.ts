@@ -4,7 +4,16 @@
 // billability are separate, later decisions (Lohnrelevanz ≠ Tarifabrechenbarkeit).
 
 export type VisitEventType = "departed" | "started" | "paused" | "resumed" | "completed";
-export type VisitEvent = { type: VisitEventType | string; at: string };
+export type VisitEvent = {
+  type: VisitEventType | string;
+  /** Effective time: the latest correction, else the recorded time (F3). */
+  at: string;
+  id?: number;
+  /** Time recorded by the transition itself (F3: stays visible after a correction). */
+  recorded_at?: string;
+  corrected?: boolean;
+  reason?: string | null;
+};
 
 export type VisitTimes = {
   /** Minutes from departure to arrival (first start). null if no departure was recorded. */
@@ -98,4 +107,52 @@ export function formatMinutes(value: number | null): string {
   const h = Math.floor(value / 60);
   const m = value % 60;
   return m === 0 ? `${h} h` : `${h} h ${m} min`;
+}
+
+export const EVENT_LABEL: Record<string, string> = {
+  departed: "Losgefahren",
+  started: "Gestartet",
+  paused: "Pause begonnen",
+  resumed: "Fortgesetzt",
+  completed: "Abgeschlossen",
+};
+
+const ZONE = "Europe/Zurich";
+
+/** "HH:MM" of an instant in Swiss local time. */
+export function zurichTime(iso: string): string {
+  return new Intl.DateTimeFormat("de-CH", { timeZone: ZONE, hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+    .format(new Date(iso));
+}
+
+/** "YYYY-MM-DD" of an instant in Swiss local time. */
+export function zurichDate(iso: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: ZONE, year: "numeric", month: "2-digit", day: "2-digit" })
+    .format(new Date(iso));
+}
+
+function zurichOffsetMinutes(utcMs: number): number {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: ZONE, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit",
+  }).formatToParts(new Date(utcMs));
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+  const asUtc = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour"), get("minute"));
+  return Math.round((asUtc - Math.floor(utcMs / 60_000) * 60_000) / 60_000);
+}
+
+/**
+ * Swiss wall-clock time ("YYYY-MM-DD", "HH:MM") → ISO instant. Returns null for
+ * malformed input. In the autumn DST overlap the earlier instant is chosen; a
+ * time skipped in spring resolves to the instant one hour later — both are
+ * shown back to the user before saving.
+ */
+export function zurichLocalToIso(day: string, hhmm: string): string | null {
+  const d = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
+  const t = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(hhmm);
+  if (!d || !t) return null;
+  const wall = Date.UTC(+d[1], +d[2] - 1, +d[3], +t[1], +t[2]);
+  let utc = wall - zurichOffsetMinutes(wall) * 60_000;
+  utc = wall - zurichOffsetMinutes(utc) * 60_000;
+  return new Date(utc).toISOString();
 }

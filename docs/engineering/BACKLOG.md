@@ -1,6 +1,6 @@
 # NAVORA — Engineering Backlog
 
-**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21 (Gate 2: F1 done, F2 in review)
+**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21 (Gate 2: F1, F2 done; F3 in review)
 **Plan:** `claude/NAVORA_RECOVERY_EXECUTION_PLAN.md` (Project) · **Roadmap:** `docs/engineering/ROADMAP.md`
 **Status values:** BLOCKED · READY · IN PROGRESS · IN REVIEW · DONE · PROPOSED
 Ordered by priority. Work continues on the top item that is not blocked.
@@ -55,8 +55,8 @@ Decision brief with options and recommendations: [`DECISIONS_NEEDED.md`](DECISIO
 | ID | Task | Status |
 |---|---|---|
 | F1 | `/field` own-visits day view (mobile-first); scope = caller's teams via `field_visits()`; nurses land on `/field` | **DONE** — PR #19, CI green. Assignment = team until D-6 |
-| F2 | Field state machine `planned → on_the_way → started ↔ paused → completed` as audited idempotent commands; append-only `visit_events` by trigger; travel/care/pause derived | IN REVIEW — linear part of the DOMAIN_RULES draft (ADR-023); `assigned/accepted/cancelled/no_show` wait for D-6 |
-| F3 | Time corrections as reasoned, append-only correction events (no silent edits); corrected times shown with provenance | NEXT (Gate 2 item 2, rest) |
+| F2 | Field state machine `planned → on_the_way → started ↔ paused → completed` as audited idempotent commands; append-only `visit_events` by trigger; travel/care/pause derived | **DONE** — PR #20, CI green (ADR-023). `assigned/accepted/cancelled/no_show` wait for D-6 |
+| F3 | Time corrections as reasoned, append-only records (no silent edits); effective time + original + reason shown; future times and out-of-order timelines refused | IN REVIEW — ADR-024. Who reviews corrections: open (Q4/D-6) |
 | F4 | Structured observation note (author/time/source), no AI | PROPOSED |
 | F5 | E2E + RLS-negative suite for the field workflow | PROPOSED |
 

@@ -111,6 +111,45 @@ test.describe("field tool (F1)", () => {
     await expect(page.getByRole("article", { name: /09:00 – 09:45/ }).getByRole("region", { name: "Erfasste Zeit" })).toBeVisible();
   });
 
+  test("time corrections need a reason, keep the original and refuse impossible orders (F3)", async ({ page }) => {
+    // Corrections use Swiss wall-clock time on the day the event was recorded.
+    const zurich = (offsetMin: number) =>
+      new Intl.DateTimeFormat("de-CH", { timeZone: "Europe/Zurich", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+        .format(new Date(Date.now() + offsetMin * 60_000));
+    test.skip(zurich(0) < "00:30", "too close to midnight in Zurich for a same-day correction");
+
+    await signIn(page, NURSE, /\/field$/);
+    await page.goto(`/field?datum=${NEXT_DAY}`);
+    const card = page.getByRole("article", { name: /09:00 – 09:45/ });
+    await card.getByText("Zeiten ansehen und korrigieren").click();
+    const timeline = card.getByRole("list", { name: "Zeitverlauf" });
+
+    // Impossible order: completion at 00:00 would lie before the start → refused with a clear message.
+    const completed = timeline.getByRole("listitem").filter({ hasText: "Abgeschlossen" });
+    await completed.getByRole("button", { name: "Korrigieren" }).click();
+    await completed.getByLabel("Richtige Uhrzeit").fill("00:00");
+    await completed.getByLabel("Begründung").fill("Test einer unmöglichen Reihenfolge");
+    await completed.getByRole("button", { name: "Korrektur speichern" }).click();
+    await expect(completed.getByTestId("command-error")).toContainText("Reihenfolge");
+    await completed.getByRole("button", { name: "Abbrechen" }).click();
+
+    // Valid correction: departure 20 minutes earlier, with a reason.
+    const departed = timeline.getByRole("listitem").filter({ hasText: "Losgefahren" });
+    await departed.getByRole("button", { name: "Korrigieren" }).click();
+    await departed.getByLabel("Richtige Uhrzeit").fill(zurich(-20));
+    await departed.getByLabel("Begründung").fill("Abfahrt zu spät getippt");
+    await departed.getByRole("button", { name: "Korrektur speichern" }).click();
+
+    await expect(departed).toContainText("korrigiert");
+    await expect(departed).toContainText("Abfahrt zu spät getippt");
+    await expect(card.getByRole("region", { name: "Erfasste Zeit" })).toContainText(/(19|20|21) min/);
+
+    await page.reload();
+    const again = page.getByRole("article", { name: /09:00 – 09:45/ });
+    await again.getByText("Zeiten ansehen und korrigieren").click();
+    await expect(again.getByRole("listitem").filter({ hasText: "Losgefahren" })).toContainText("korrigiert");
+  });
+
   test("works on a phone-sized screen without horizontal scrolling", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 740 });
     await signIn(page, NURSE, /\/field$/);

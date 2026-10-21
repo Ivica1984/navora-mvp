@@ -14,7 +14,17 @@ import {
   summarizeDay,
   type FieldAction,
 } from "@/features/field/rules";
-import { computeVisitTimes, formatMinutes, parseEvents } from "@/features/field/time";
+import {
+  EVENT_LABEL,
+  computeVisitTimes,
+  formatMinutes,
+  parseEvents,
+  zurichDate,
+  zurichLocalToIso,
+  zurichTime,
+  type VisitEvent,
+} from "@/features/field/time";
+import { correctVisitTime } from "@/features/field/commands";
 import type { FieldVisit } from "@/features/field/types";
 
 type Props = {
@@ -96,7 +106,7 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
         )}
 
         <p className="mt-6 text-xs leading-relaxed text-emerald-900/60">
-          Du siehst die Einsätze deiner Teams. Zeiten entstehen aus deinen Statuswechseln. Zeitkorrekturen, Beobachtungen und Bericht folgen in den nächsten Ausbaustufen.
+          Du siehst die Einsätze deiner Teams. Zeiten entstehen aus deinen Statuswechseln und lassen sich mit Begründung korrigieren. Beobachtungen und Bericht folgen in den nächsten Ausbaustufen.
         </p>
       </main>
     </div>
@@ -172,6 +182,8 @@ function VisitCard({ visit }: { visit: FieldVisit }) {
         </section>
       )}
 
+      {events.length > 0 && <Timeline events={events} />}
+
       {error && (
         <p role="alert" data-testid="command-error" className="mt-3 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800">
           {error}
@@ -200,6 +212,124 @@ function VisitCard({ visit }: { visit: FieldVisit }) {
         </div>
       )}
     </article>
+  );
+}
+
+function Timeline({ events }: { events: VisitEvent[] }) {
+  return (
+    <details className="mt-2 rounded-xl border border-stone-200 p-2 text-sm">
+      <summary className="min-h-11 cursor-pointer content-center px-1 font-semibold text-emerald-900">
+        Zeiten ansehen und korrigieren
+      </summary>
+      <ol className="mt-1 grid gap-2" aria-label="Zeitverlauf">
+        {events.map((event, index) => (
+          <li key={event.id ?? index}>
+            <TimelineEntry event={event} />
+          </li>
+        ))}
+      </ol>
+      <p className="mt-2 text-xs text-emerald-900/60">
+        Korrekturen werden mit Begründung gespeichert; die ursprünglich erfasste Zeit bleibt sichtbar.
+      </p>
+    </details>
+  );
+}
+
+function TimelineEntry({ event }: { event: VisitEvent }) {
+  const router = useRouter();
+  const [editing, setEditing] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const label = EVENT_LABEL[event.type] ?? event.type;
+
+  async function save(form: FormData) {
+    if (!event.id) return;
+    const time = String(form.get("time") ?? "");
+    const reason = String(form.get("reason") ?? "");
+    const correctedAt = zurichLocalToIso(zurichDate(event.recorded_at ?? event.at), time);
+    if (!correctedAt) {
+      setError("Bitte eine gültige Uhrzeit angeben.");
+      return;
+    }
+    setPending(true);
+    setError(null);
+    const result = await correctVisitTime({
+      eventId: event.id,
+      correctedAt,
+      reason,
+      idempotencyKey: crypto.randomUUID(),
+    });
+    setPending(false);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setEditing(false);
+    router.refresh();
+  }
+
+  return (
+    <div className="rounded-lg bg-stone-50 p-2" aria-label={`${label} ${zurichTime(event.at)}`}>
+      <div className="flex items-center justify-between gap-2">
+        <p>
+          <span className="font-semibold">{label}</span>{" "}
+          <span className="tabular-nums">{zurichTime(event.at)}</span>
+          {event.corrected && event.recorded_at && (
+            <span className="block text-xs text-amber-800">
+              korrigiert · erfasst {zurichTime(event.recorded_at)}
+              {event.reason ? ` · ${event.reason}` : ""}
+            </span>
+          )}
+        </p>
+        {!editing && event.id && (
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="min-h-11 shrink-0 rounded-lg px-3 font-semibold text-emerald-900 underline underline-offset-4"
+          >
+            Korrigieren
+          </button>
+        )}
+      </div>
+      {editing && (
+        <form action={save} className="mt-2 grid gap-2">
+          <label className="grid gap-1">
+            <span className="text-xs font-semibold">Richtige Uhrzeit</span>
+            <input
+              name="time"
+              type="time"
+              required
+              defaultValue={zurichTime(event.at)}
+              className="min-h-11 rounded-lg border border-stone-300 bg-white px-3"
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="text-xs font-semibold">Begründung</span>
+            <textarea
+              name="reason"
+              required
+              minLength={5}
+              maxLength={500}
+              rows={2}
+              className="rounded-lg border border-stone-300 bg-white p-2"
+            />
+          </label>
+          {error && (
+            <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">
+              {error}
+            </p>
+          )}
+          <div className="grid grid-cols-2 gap-2">
+            <button type="submit" disabled={pending} className="min-h-11 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60">
+              {pending ? "Wird gespeichert …" : "Korrektur speichern"}
+            </button>
+            <button type="button" onClick={() => { setEditing(false); setError(null); }} className="min-h-11 rounded-lg border border-stone-300 font-semibold">
+              Abbrechen
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
   );
 }
 
