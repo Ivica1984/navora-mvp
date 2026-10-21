@@ -91,6 +91,45 @@ test.describe("with a session", () => {
     await page.getByRole("button", { name: "Einsatz starten" }).click();
 
     await expect(page.getByRole("button", { name: "Einsatz abschließen" })).toBeVisible();
+
+    // T10: completing goes through complete_visit() and does NOT make the visit billable (SR-09).
+    await page.getByRole("button", { name: "Einsatz abschließen" }).click();
+    await expect(page.getByRole("button", { name: "Einsatz abschließen" })).toHaveCount(0);
+    const billable = page.getByText("Abrechenbar", { exact: true }).locator("..");
+    await expect(billable).toContainText("Nein");
+  });
+
+  test("a coach's team change is saved by the audited command and survives a reload (T10)", async ({ page }) => {
+    await signInOk(page, COACH);
+    await page.goto("/teams");
+
+    const focus = page.getByText("Coach-Fokus", { exact: true }).locator("..");
+    const before = (await focus.textContent())?.includes("Aktiv") ? "Aktiv" : "Normal";
+    const after = before === "Aktiv" ? "Normal" : "Aktiv";
+
+    await page.getByRole("button", { name: "Coach-Fokus setzen" }).click();
+    await expect(focus).toContainText(after);
+
+    await page.reload();
+    await expect(page.getByText("Coach-Fokus", { exact: true }).locator("..")).toContainText(after);
+  });
+
+  test("/operations sends no health fields to the browser (T10, SR-06)", async ({ page }) => {
+    await signInOk(page, COACH);
+    await expect(page.getByRole("heading", { name: "Navora Operations Control Tower" })).toBeVisible();
+
+    const html = await page.content();
+    for (const field of [
+      "date_of_birth",
+      "insurance_provider",
+      "diagnosis_tags",
+      "emergency_contact_phone",
+      "cognitive_status",
+      "mobility_status",
+      "billable",
+    ]) {
+      expect(html, `field ${field} must not be in the page payload`).not.toContain(`"${field}"`);
+    }
   });
 
   test("a nurse cannot change team settings (T9)", async ({ page }) => {

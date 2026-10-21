@@ -56,6 +56,31 @@ export type CaseRow = {
   teams?: CaseAssignedTeam | null;
 };
 
+/**
+ * The case fields the Operations view needs (T10, SR-06). Deliberately excludes
+ * date of birth, gender, address, phone, emergency contacts, mobility and
+ * cognitive status, diagnoses, insurance and free-text notes.
+ */
+export const CASE_SUMMARY_COLUMNS =
+  "id, created_at, name, first_name, last_name, region, ort, status, urgency, bedarf, care_needs, assigned_team, assigned_team_id";
+
+export type CaseSummaryRow = Pick<
+  CaseRow,
+  | "id"
+  | "created_at"
+  | "name"
+  | "first_name"
+  | "last_name"
+  | "region"
+  | "ort"
+  | "status"
+  | "urgency"
+  | "bedarf"
+  | "care_needs"
+  | "assigned_team"
+  | "assigned_team_id"
+>;
+
 export const CASE_COLUMNS = [
   {
     id: "neu",
@@ -71,7 +96,7 @@ export const CASE_COLUMNS = [
   },
 ] as const;
 
-export function getCaseDisplayName(careCase: CaseRow) {
+export function getCaseDisplayName(careCase: CaseSummaryRow) {
   const firstName = careCase.first_name ?? "";
   const lastName = careCase.last_name ?? "";
   const fullName = `${firstName} ${lastName}`.trim();
@@ -79,7 +104,7 @@ export function getCaseDisplayName(careCase: CaseRow) {
   return fullName || careCase.name || "Unbenannter Fall";
 }
 
-export function getCaseNeedSummary(careCase: CaseRow) {
+export function getCaseNeedSummary(careCase: CaseSummaryRow) {
   if (Array.isArray(careCase.care_needs) && careCase.care_needs.length > 0) {
     return careCase.care_needs.join(", ");
   }
@@ -91,6 +116,6 @@ export function getCaseNeedSummary(careCase: CaseRow) {
   return "Bedarf noch nicht erfasst";
 }
 
-export function getCaseRegion(careCase: CaseRow) {
+export function getCaseRegion(careCase: CaseSummaryRow) {
   return careCase.region || careCase.ort || "Region offen";
 }

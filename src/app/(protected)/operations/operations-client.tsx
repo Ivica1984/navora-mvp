@@ -5,21 +5,19 @@ import Sidebar from "@/components/layout/Sidebar";
 import type {
   AttentionItem,
   OperationsDashboard,
+  OperationsVisit,
 } from "@/features/operations/types";
 import {
   getCaseDisplayName,
   getCaseNeedSummary,
   getCaseRegion,
-  type CaseRow,
+  type CaseSummaryRow,
 } from "@/features/cases/types";
-import type { CareVisitRow } from "@/features/visits/types";
 import type { TeamRow } from "@/features/teams/types";
 
-type LocalVisit = CareVisitRow & {
-  team_id?: string | null;
-};
+type LocalVisit = OperationsVisit;
 
-type CaseWithRelations = CaseRow & {
+type CaseWithRelations = CaseSummaryRow & {
   care_visits?: LocalVisit[];
   pflegeteam?: TeamRow | null;
 };
@@ -104,14 +102,14 @@ function getTeamRiskScore(team: TeamRow) {
   return Math.min(score, 100);
 }
 
-function getCaseAgeHours(careCase: CaseRow) {
+function getCaseAgeHours(careCase: CaseSummaryRow) {
   const created = new Date(careCase.created_at).getTime();
   const now = Date.now();
 
   return Math.max(0, Math.floor((now - created) / (1000 * 60 * 60)));
 }
 
-function getSlaStatus(careCase: CaseRow) {
+function getSlaStatus(careCase: CaseSummaryRow) {
   const age = getCaseAgeHours(careCase);
   const assignedTeamId = careCase.assigned_team_id;
 
@@ -129,7 +127,7 @@ export default function OperationsClient({ dashboard }: OperationsClientProps) {
     attentionItems,
   } = dashboard;
 
-  const typedVisits = visits as LocalVisit[];
+  const typedVisits: LocalVisit[] = visits;
 
   const enrichedCases = useMemo<CaseWithRelations[]>(() => {
     return cases.map((careCase) => {

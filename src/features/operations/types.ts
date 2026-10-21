@@ -1,6 +1,7 @@
-import type { CaseRow } from "@/features/cases/types";
+import type { CaseSummaryRow } from "@/features/cases/types";
 import type { TeamRow } from "@/features/teams/types";
 import type { CareVisitRow } from "@/features/visits/types";
+
 
 export type PartnerRequestRow = {
   id: string;
@@ -16,19 +17,6 @@ export type PartnerRequestRow = {
   requested_services: string[] | null;
   status: string;
   converted_case_id: string | null;
-  notes: string | null;
-};
-
-export type MatchingRequestRow = {
-  id: string;
-  created_at: string;
-  case_id: string | null;
-  request_title: string;
-  region: string;
-  urgency: string;
-  required_services: string[] | null;
-  status: string;
-  selected_team_id: string | null;
   notes: string | null;
 };
 
@@ -87,30 +75,37 @@ export type AttentionItem = {
   entityId: string;
 };
 
-export type OperationsKpis = {
-  openPartnerRequests: number;
-  urgentPartnerRequests: number;
-  newCases: number;
-  teamDecisionCases: number;
-  activeCases: number;
-  activeTeams: number;
-  overloadedTeams: number;
-  openSlots: number;
-  plannedVisits: number;
-  activeVisits: number;
-  completedVisits: number;
-  openCareNotes: number;
-  openQualityEvents: number;
-};
+// --- Minimal row shapes selected for Operations (T10, SR-06) ------------------
 
+export type PartnerRequestSummary = Pick<
+  PartnerRequestRow,
+  "id" | "created_at" | "partner_name" | "region" | "urgency" | "need_summary" | "status"
+>;
+export const PARTNER_REQUEST_SUMMARY_COLUMNS =
+  "id, created_at, partner_name, region, urgency, need_summary, status";
+
+/** Only the review status of notes — never their clinical content. */
+export type CareNoteStatus = Pick<CareNoteRow, "id" | "visit_id" | "status">;
+export const CARE_NOTE_STATUS_COLUMNS = "id, visit_id, status";
+
+export type QualityEventSummary = Pick<
+  QualityEventRow,
+  "id" | "created_at" | "severity" | "title" | "description" | "status"
+>;
+export const QUALITY_EVENT_SUMMARY_COLUMNS = "id, created_at, severity, title, description, status";
+
+export type OperationsVisit = Pick<
+  CareVisitRow,
+  "id" | "case_id" | "visit_date" | "time_start" | "time_end" | "team_member_name" | "status" | "created_at"
+> & { team_id: string | null };
+export const OPERATIONS_VISIT_COLUMNS =
+  "id, case_id, team_id, visit_date, time_start, time_end, team_member_name, status, created_at";
+
+/** Exactly what is sent to the browser for /operations. */
 export type OperationsDashboard = {
-  partnerRequests: PartnerRequestRow[];
-  cases: CaseRow[];
+  cases: CaseSummaryRow[];
   teams: TeamRow[];
-  matchingRequests: MatchingRequestRow[];
-  visits: CareVisitRow[];
-  careNotes: CareNoteRow[];
-  qualityEvents: QualityEventRow[];
-  kpis: OperationsKpis;
+  visits: OperationsVisit[];
+  qualityEvents: QualityEventSummary[];
   attentionItems: AttentionItem[];
 };

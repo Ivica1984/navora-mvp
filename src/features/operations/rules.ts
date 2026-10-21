@@ -8,13 +8,13 @@
 
 import type {
   AttentionItem,
-  CareNoteRow,
-  PartnerRequestRow,
-  QualityEventRow,
+  CareNoteStatus,
+  OperationsVisit,
+  PartnerRequestSummary,
+  QualityEventSummary,
 } from "./types";
-import type { CaseRow } from "@/features/cases/types";
+import type { CaseSummaryRow } from "@/features/cases/types";
 import type { TeamRow } from "@/features/teams/types";
-import type { CareVisitRow } from "@/features/visits/types";
 
 export function getHoursSince(
   dateString: string | null | undefined,
@@ -37,12 +37,12 @@ export function buildAttentionItems({
   now = Date.now(),
 }: {
   now?: number;
-  partnerRequests: PartnerRequestRow[];
-  cases: CaseRow[];
+  partnerRequests: PartnerRequestSummary[];
+  cases: CaseSummaryRow[];
   teams: TeamRow[];
-  visits: CareVisitRow[];
-  careNotes: CareNoteRow[];
-  qualityEvents: QualityEventRow[];
+  visits: Pick<OperationsVisit, "id" | "status" | "visit_date" | "team_member_name">[];
+  careNotes: CareNoteStatus[];
+  qualityEvents: QualityEventSummary[];
 }): AttentionItem[] {
   const items: AttentionItem[] = [];
 
