@@ -65,6 +65,9 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
       <header className="sticky top-0 z-10 bg-emerald-950 px-4 pb-4 pt-3 text-white shadow-md">
         <div className="mx-auto flex max-w-xl items-center justify-between gap-3">
           <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200">NAVORA · Mein Tag</p>
+          <Link href="/team" className="ml-auto flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-emerald-100 underline underline-offset-4">
+            Teamanfragen
+          </Link>
           <form action={signOut}>
             <button type="submit" className="min-h-11 rounded-lg px-3 text-sm font-semibold text-emerald-100 underline-offset-4 hover:underline">
               Abmelden
