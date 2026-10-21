@@ -433,6 +433,38 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"visit_time_corrections": {
+                  Row: {
+                    "actor_id": string,"corrected_at": string,"created_at": string,"event_id": number,"id": number,"idempotency_key": string,"organization_id": string,"reason": string,"team_id": string | null,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id": string,"corrected_at": string,"created_at"?: string,"event_id": number,"id"?: never,"idempotency_key": string,"organization_id": string,"reason": string,"team_id"?: string | null,"visit_id": string
+                  }
+                  Update: {
+                    "actor_id"?: string,"corrected_at"?: string,"created_at"?: string,"event_id"?: number,"id"?: never,"idempotency_key"?: string,"organization_id"?: string,"reason"?: string,"team_id"?: string | null,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "visit_time_corrections_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "visit_events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_time_corrections_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_time_corrections_visit_id_organization_id_fkey"
+      columns: ["visit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 }
           }
           Views: {
@@ -444,6 +476,9 @@ isOneToOne: false
                            },
 "complete_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"correct_visit_time":
+{ Args: { "p_corrected_at": string,"p_event_id": number,"p_idempotency_key": string,"p_reason": string }; Returns: string
                            },
 "depart_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
