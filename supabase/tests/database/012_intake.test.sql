@@ -110,10 +110,13 @@ select ok(
   'no names or insurer names enter the audit log');
 
 -- Other roles ----------------------------------------------------------------------------
+-- The case id is captured as the database owner: since F0 a nurse cannot even see the row.
+create temp table j1case as select id from public.cases where last_name = 'Person J1';
+grant select on j1case to authenticated;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select is(
-  (select count(*)::int from public.case_funding_facts((select id from public.cases where last_name = 'Person J1'))),
+  (select count(*)::int from public.case_funding_facts((select id from j1case))),
   0, 'a nurse of a team not assigned to the case cannot read its insurer or order data');
 select is(public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital N', null, 'Bern West',
           null, 'mittel', null, 'Titel N', 'Bedarf N', null, 'a1000000-0000-4000-8000-000000000021'),

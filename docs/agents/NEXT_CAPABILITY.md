@@ -1,16 +1,16 @@
 # Next capability: Product Owner priority queue
 
-**Owned by:** Product Owner (`po`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-21 22:20, J1 and J3 accepted; F6 activated next; QG1, OPS1, J5, J6, J7 queued
+**Owned by:** Product Owner (`po`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-21 22:35, J1 and J3 accepted; F0 team-scoped read accepted (#34); F6 next; QG1, OPS1, J5, J6, J7 queued
 
 The order of the table is the order engineering builds in. Every row needs a brief in [`briefs/`](briefs/) before engineering starts it. Strategic reference: `ARCHITECTURE.md` (data flow and bounded contexts), then `PRODUCT_REQUIREMENTS.md` and `DOMAIN_RULES.md`. Accepted items stay at the end for traceability.
 
-**Active now:** F0 remaining scope (team-scoped clinical read, mandatory reasons), then **F6**.
+**Active now:** F0 last item (mandatory reasons, rule in the brief), then **F6**.
 
 ## Priority queue
 
 | Rank | ID | Capability | PO status | Brief | Why |
 |---|---|---|---|---|---|
-| 1 | F0 | Shared access foundation for the care journey | changes-requested | [F0](briefs/F0.md) | last access gap before any real client data: clinical fields of `cases`, `care_visits`, `care_notes`, `quality_events` are readable organisation-wide; plus mandatory reasons on commands that undo or override (rule in the brief). Build the restrictive D-3 option B now |
+| 1 | F0 | Shared access foundation for the care journey | changes-requested | [F0](briefs/F0.md) | team-scoped clinical read accepted (#34); one item left: a mandatory reason on commands that undo, change recorded facts or override a rule (list in the brief). Small; then F0 is accepted |
 | 2 | F6 | Signed visit report | approved | [F6](briefs/F6.md) | `ARCHITECTURE.md`: freigegebener Bericht → Quality Gate → billable_facts. With J1 and J3 accepted, the unsigned visit is the biggest gap in the journey: no documentation the client can inspect, nothing to bill. Not blocked: countersignature defaults to safe until D-10 |
 | 3 | J2 | Team decision workflow | changes-requested | [J2](briefs/J2.md) | partner promise of a dependable answer: response time, escalation, qualification check, and the offer fields from F0 criterion 4 (start, expected hours, required qualification). Q8 answered |
 | 4 | QG1 | Quality signals and quality hold | approved | [QG1](briefs/QG1.md) | clinical safety for warning signs from visits and the Quality Gate before billing facts; event list waits for D-16 (`clinical`) |
@@ -33,6 +33,7 @@ The order of the table is the order engineering builds in. Every row needs a bri
 
 ## Notes from the PO
 
+- 2026-10-21 22:35: **F0 team-scoped clinical read accepted** (#34, ADR-031, pgTAP 015, e2e `access.spec.ts`, CI green). F0 criteria 2, 3a, 3c, 3d and 6 are met. Criterion 5 is the only remaining item, and the engineering question "which commands need a mandatory reason" is answered in `briefs/F0.md`. Criterion 1 for live is an owner decision; criterion 4 is in J2.
 - 2026-10-21 22:20: **J1 accepted** (#30, CI green): every criterion met except safety alerts, which correctly wait for D-17; deviation "`unknown` insurance type counts as missing" accepted as product rule. **J3 accepted** (#32, CI green): every criterion met, including member qualification as data (F0 criterion 2). Deviations accepted: the team chooses the KLV category per service until `clinical` signs off a mapping (D-15); assignment is team plus responsible member with the registered-nurse check at start (D-6). Clinical sign-offs D-15 and D-17 are gates before real client data; if they change fields, they come back as follow-up items, not reopens. **F0** stays changes-requested with a narrower scope (see brief): criterion 1 for live is an owner production decision (T12, M5), not F0; criterion 4 moves into J2. **Queue re-ranked:** F0 → F6 → J2 → QG1 → OPS1 → J5 → J6 → J7. Q8 and Q9 answered; COORD-1, COORD-2, Q4 decided.
 - 2026-10-21 21:59: owner decided **D-5**: NAVORA administrators manage qualifications; pilot model `registered_nurse`, `care_assistant`. F0 gap 1 proceeds; engineering builds it inside J3 (rank 3, in progress), which the PO accepts as the delivery vehicle. J1 changes (#30) reviewed: meet the brief; `accepted` once merged with green CI.
 - 2026-10-21 21:55: **F0 changes-requested.** Met on merged evidence: reproducible schema with drift report (#18), organisations/roles/team memberships (#8), anonymous and other-organisation negative tests (pgTAP 004, 011–013), audit and idempotency (#9), no client identity in offers (#24), synthetic seeds. Missing: member qualification as data; team-scoped read of cases, visits, care notes and quality events inside an organisation (today any organisation member reads them; scope is owner decision D-3). Partner self-submission moved out of scope for the pilot (operations records referrals). Order unchanged; engineering builds F0 gap 1, then J1, then F0 gap 2 once D-3 is decided.

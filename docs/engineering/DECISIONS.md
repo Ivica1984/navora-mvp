@@ -213,3 +213,14 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 - A planned visit in the next 24 h without a responsible member is **uncovered**. The team sees the flag, and Operations gets a P2 exception without client identity (`uncovered_visits()`, thresholds Q9).
 - `/field` shows minutes per category, the needs-assessment marker, responsibility and the case's care goals.
 **Open:** D-15 (clinical sign-off of fields and category mapping), D-6 (assignment model), D-10 (countersignature), Q9 (exception thresholds).
+
+### ADR-031 — Team-scoped clinical read; health fields off the table API (F0 step 1)
+**Status:** PROPOSED · **Task:** F0 criteria 3c/3d (`docs/agents/briefs/F0.md`, report `docs/agents/reports/F0.md`). Supersedes the T9 placeholder "any org member reads all" (ADR-018) for the legacy care tables, and closes SR-22.
+**Why:** the approved F0 brief requires that "a team member not on the case's team cannot read its clinical data". That is D-3 option B, now a product requirement.
+**Decision:**
+- **Rows:** members without a coordination role (nurses) read `cases`, `care_visits`, `care_notes` and `quality_events` only for their own teams. Coordination roles (`admin`, `coach`, `operations`; placeholders) keep organisation-wide read for Operations and intake. `partner_requests`, `matching_requests` and `match_candidates` are readable by coordination roles only; teams see offers through `team_offers()`.
+- **Columns:** health fields of `cases` (date of birth, gender, phone, emergency contacts, mobility and cognitive status, diagnosis tags, care level, legacy insurance field, notes) and `care_notes.content` are not readable through the table API by anyone. No screen used them. A team-only read model follows when a screen needs them.
+- Read models used by teams keep working: they read granted columns (`field_visits`) or are SECURITY DEFINER with membership checks.
+**Benefits:** a nurse who joins a second team does not gain the organisation's clinical history. Operations dashboards cannot leak health fields even through a mistaken select.
+**Migration plan:** migration 0015 only (no data change). Rollback: recreate `org_members_read` policies and the column grants.
+**Open:** final role names and matrix (D-3/Q4); break-glass (out of F0 scope).

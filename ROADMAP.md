@@ -29,7 +29,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 ## Gate 1: F0 Shared Access Foundation — Critical
 
-- Brief `docs/agents/briefs/F0.md`, Engineering-Bericht `docs/agents/reports/F0.md`. T8–T10 (#7–#9) und Qualifikationen (#32) geliefert. PO 21.10. 22:20: **Änderungen verlangt**, Restumfang: teambezogenes Lesen klinischer Daten (D-3 Option B als restriktiver Standard) und Pflichtbegründungen für ändernde oder übersteuernde Befehle. Live-Reproduzierbarkeit ist Owner-Entscheid (T12, M5).
+- Brief `docs/agents/briefs/F0.md`, Engineering-Bericht `docs/agents/reports/F0.md`. T8–T10 (#7–#9) und Qualifikationen (#32) geliefert. PO 21.10. 22:20: **Änderungen verlangt**, Teambezogenes Lesen klinischer Daten geliefert (#34) und abgenommen; Restumfang: Pflichtbegründungen für ändernde oder übersteuernde Befehle. Live-Reproduzierbarkeit ist Owner-Entscheid (T12, M5).
 - Fertig, wenn alle Negativtests aus F0 bestehen und die Qualifikationen als Daten vorliegen.
 
 ## Gate 2: Care Journey MVP
