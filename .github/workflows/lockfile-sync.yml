@@ -1,0 +1,42 @@
+# Keeps package-lock.json in sync with package.json on feature branches.
+#
+# Why this exists (ADR-012/ADR-014): the agent workspace has no npm registry
+# access, so dependency changes are resolved here. The bot commit does not
+# trigger CI by itself (GitHub rule for GITHUB_TOKEN pushes); the next push to
+# the branch does.
+name: lockfile-sync
+
+on:
+  push:
+    branches-ignore: [main]
+    paths: [package.json]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lockfile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Resolve lockfile (no install scripts)
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Commit lockfile if it changed
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo "Lockfile already in sync."
+            exit 0
+          fi
+          git config user.name "navora-lockfile-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "chore(deps): sync package-lock.json [lockfile-bot]"
+          git push
