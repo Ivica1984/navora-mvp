@@ -1,19 +1,21 @@
 import { expect, test, type Page } from "@playwright/test";
 
-// Synthetic local-only account from supabase/seed.sql.
-const EMAIL = "coach.test@navora.test";
+// Synthetic local-only accounts from supabase/seed.sql (T9 roles are placeholders).
+const COACH = "coach.test@navora.test"; //  org A, role coach, no team
+const NURSE = "pflege.test@navora.test"; // org A, role nurse, Testteam Nord
+const FOREIGN = "fremd.test@navora.test"; // org B, role admin
 const PASSWORD = "navora-local-only";
 
-async function signIn(page: Page, password = PASSWORD) {
+async function signIn(page: Page, password = PASSWORD, email = COACH) {
   await page.goto("/login");
-  await page.getByLabel("E-Mail").fill(EMAIL);
+  await page.getByLabel("E-Mail").fill(email);
   await page.getByLabel("Passwort").fill(password);
   await page.getByRole("button", { name: "Anmelden" }).click();
 }
 
 /** Signs in and fails with a precise reason: credentials rejected vs. session not kept. */
-async function signInOk(page: Page) {
-  await signIn(page);
+async function signInOk(page: Page, email = COACH) {
+  await signIn(page, PASSWORD, email);
   const error = page.getByRole("alert").filter({ hasText: "Anmeldung fehlgeschlagen" });
   await page.waitForURL(/\/(operations|login)$/);
   await page.waitForLoadState("networkidle");
@@ -67,14 +69,55 @@ test.describe("with a session", () => {
     await expect(page).toHaveURL(/\/login$/);
   });
 
-  test("starting a visit runs as a server action and moves it to started", async ({ page }) => {
-    await signInOk(page);
+  test("a coach outside the team cannot start the team's visit (T9)", async ({ page }) => {
+    await signInOk(page, COACH);
+    await page.goto("/visits");
+
+    // Runs before the nurse test, so visit 501 (Testteam Nord) is still planned.
+    await page.getByRole("button").filter({ hasText: "Geplant" }).first().click();
+
+    const dialog = page.waitForEvent("dialog");
+    await page.getByRole("button", { name: "Einsatz starten" }).click();
+    const message = await dialog;
+    expect(message.message()).toContain("gehörst nicht zum zuständigen Team");
+    await message.dismiss();
+  });
+
+  test("a team member starts a visit of her own team (server action + RLS)", async ({ page }) => {
+    await signInOk(page, NURSE);
     await page.goto("/visits");
 
     await page.getByRole("button").filter({ hasText: "Geplant" }).first().click();
     await page.getByRole("button", { name: "Einsatz starten" }).click();
 
     await expect(page.getByRole("button", { name: "Einsatz abschließen" })).toBeVisible();
+  });
+
+  test("a nurse cannot change team settings (T9)", async ({ page }) => {
+    await signInOk(page, NURSE);
+    await page.goto("/teams");
+
+    const dialog = page.waitForEvent("dialog");
+    await page.getByRole("button", { name: "Coach-Fokus setzen" }).click();
+    const message = await dialog;
+    expect(message.message()).toContain("fehlende Berechtigung");
+    await message.dismiss();
+  });
+
+  test("organisations are isolated in the UI (T9)", async ({ page }) => {
+    await signInOk(page, COACH);
+    await page.goto("/teams");
+    await expect(page.getByText("Testteam Nord").first()).toBeVisible();
+    await expect(page.getByText("Fremdteam B")).toHaveCount(0);
+    await page.goto("/operations");
+    await expect(page.getByText("Testfall B1")).toHaveCount(0);
+    await page.getByRole("button", { name: "Abmelden" }).click();
+    await expect(page).toHaveURL(/\/login$/);
+
+    await signInOk(page, FOREIGN);
+    await page.goto("/teams");
+    await expect(page.getByText("Fremdteam B").first()).toBeVisible();
+    await expect(page.getByText("Testteam Nord")).toHaveCount(0);
   });
 
   test("no Supabase key or URL is shipped to the browser (ADR-017)", async ({ page }) => {

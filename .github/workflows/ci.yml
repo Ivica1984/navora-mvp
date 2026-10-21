@@ -128,6 +128,21 @@ jobs:
           err=$(jq -r '.error_code // .code // .error // "?"' /tmp/signup.json 2>/dev/null)
           echo "::notice title=signup-check::HTTP $code $err"
           [ "$code" != "200" ]
+      - name: Anon key must not read or write care data via the REST API (SR-01)
+        run: |
+          fail=0
+          for t in cases teams care_visits care_notes quality_events partner_requests matching_requests match_candidates organizations organization_memberships team_memberships; do
+            code=$(curl -sS -o /tmp/r.json -w '%{http_code}' -H "apikey: $SUPABASE_ANON_KEY" "$SUPABASE_URL/rest/v1/$t?select=*&limit=1")
+            body=$(head -c 200 /tmp/r.json)
+            if [ "$code" = "200" ] && [ "$body" != "[]" ]; then echo "::error title=anon-rest::$t readable by anon (HTTP $code)"; fail=1; fi
+            echo "anon GET $t -> HTTP $code"
+          done
+          code=$(curl -sS -o /dev/null -w '%{http_code}' -X PATCH -H "apikey: $SUPABASE_ANON_KEY" -H 'Content-Type: application/json' \
+            -d '{"priority":true}' "$SUPABASE_URL/rest/v1/teams?id=eq.00000000-0000-4000-a000-000000000101")
+          echo "anon PATCH teams -> HTTP $code"
+          case "$code" in 2*) echo "::error title=anon-rest::anon PATCH teams accepted (HTTP $code)"; fail=1;; esac
+          echo "::notice title=anon-rest::checked 11 tables + 1 write; failures=$fail"
+          exit $fail
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
       - name: Build

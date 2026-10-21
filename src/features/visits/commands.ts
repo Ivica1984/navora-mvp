@@ -3,8 +3,9 @@
 // Visit commands (T8). Replaces direct browser UPDATEs. Each transition only
 // applies if the visit is still in the expected source state, so a double click
 // or a stale page cannot move a visit twice.
-// NOT YET (T10): assignment/membership check, visit_events + audit_events,
-// idempotency key, DB function in one transaction.
+// Authorisation is enforced by RLS since T9: only members of the visit's team
+// can update it (policy team_members_update_visits).
+// NOT YET (T10): visit_events + audit_events, idempotency key, DB function.
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/session";
@@ -34,7 +35,13 @@ async function transitionVisit(
     return { ok: false, error: failure };
   }
   if (!data?.length) {
-    return { ok: false, error: "Der Einsatz hat sich inzwischen geändert. Bitte Seite neu laden." };
+    // RLS hides rows the user may not change, so "0 rows" means either the
+    // status changed meanwhile or the user is not in the visit's team.
+    return {
+      ok: false,
+      error:
+        "Einsatz nicht geändert: Der Status hat sich inzwischen geändert, oder du gehörst nicht zum zuständigen Team.",
+    };
   }
 
   revalidatePath("/visits");
