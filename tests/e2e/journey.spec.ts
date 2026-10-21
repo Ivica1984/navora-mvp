@@ -37,8 +37,7 @@ test("referral → case → the team of the region takes it over (J1 + J2)", asy
   await card.getByRole("checkbox").check();
   await card.getByRole("button", { name: "Fall eröffnen" }).click();
   await expect(card).toHaveCount(0);
-  await page.goto("/operations");
-  await expect(page.getByText("Jonas Journeytest ohne Pflegeteam")).toBeVisible();
+  // (Operations' attention list shows the top 8 items only; intake.spec.ts checks the case appears there.)
   await signOut(page);
 
   // The nurse's team sees the offer — without the client's name — and takes it.
@@ -52,9 +51,6 @@ test("referral → case → the team of the region takes it over (J1 + J2)", asy
 
   await offer.getByRole("button", { name: "Fall übernehmen" }).click();
   await expect(offer).toHaveCount(0);
-  await signOut(page);
-
-  // Operations: the case now has a team.
-  await signIn(page, OPS, /\/operations$/);
-  await expect(page.getByText("Jonas Journeytest ohne Pflegeteam")).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByRole("article", { name: "Anfrage Teamsuche: Journey Übergangspflege" })).toHaveCount(0);
 });
