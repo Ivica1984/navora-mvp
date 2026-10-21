@@ -9,6 +9,9 @@ Ordered by priority. Work continues on the top item that is not blocked.
 
 ## Owner actions (blocking or gating)
 
+Decision brief with options and recommendations: [`DECISIONS_NEEDED.md`](DECISIONS_NEEDED.md) (D-1 … D-8).
+
+
 | ID | Action | Gates | Why the agent cannot do it |
 |---|---|---|---|
 | O-A | **Branch rulesets:** `main` and `recovery/main` PR-only, required check `ci / app` + `ci / db`, no force-push/deletion; `preserve/**` and tags `preserve-*`, `v*` immutable | T2, T7 acceptance, M2 | GitHub settings writes are blocked for the agent (HTTP 403) |
@@ -43,7 +46,7 @@ Ordered by priority. Work continues on the top item that is not blocked.
 | T12 | Staging: Supabase project (EU/CH region) + protected Next host, migrations from CI, synthetic seed + staging-only users | **BLOCKED — owner decision** | O-G / ADR-011: hosting provider and region (cost + data residency = financial/legal decision); then a deploy token as a GitHub secret |
 | T13 | DB-level seed coverage test: one pgTAP/SQL check per attention category | PROPOSED | — |
 | T14 | Generated `database.types.ts`, typed client, drift check in CI, compile-time proof | DONE | PR #11 merged |
-| T15 | Inline command errors; all regions on Teams; memoised auth check; bots off `recovery/main` | IN REVIEW | PR #12 — CI on `c1d2d9e` green (60 unit, 87 pgTAP, 20 e2e) |
+| T15 | Inline command errors; all regions on Teams; memoised auth check; bots off `recovery/main` | DONE | PR #12 merged |
 
 ## Product (M4 — Roadmap Gate 2)
 
