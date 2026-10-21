@@ -1,6 +1,6 @@
 # NAVORA — Security Risk Register
 
-**Last updated:** 2026-10-21 (after T10) · **Evidence:** VERIFIED (seen in code/repo/CI) · INFERRED (from code, not executed) · REPORTED (handover docs only) · UNKNOWN.
+**Last updated:** 2026-10-21 (after T11) · **Evidence:** VERIFIED (seen in code/repo/CI) · INFERRED (from code, not executed) · REPORTED (handover docs only) · UNKNOWN.
 Severity reflects impact if real patient data were involved.
 
 | ID | Risk | Severity | Evidence | Mitigation / task | Status |
@@ -17,7 +17,7 @@ Severity reflects impact if real patient data were involved.
 | SR-10 | No audit trail for any mutation | High | VERIFIED | T10: append-only `audit_events` via trigger on all app-updatable tables; invariant test for future tables. Retention/access rules = Q6 (legal) | CLOSED in code (PR #9) · retention OPEN |
 | SR-11 | No migrations; schema only in live DB | High → Medium | VERIFIED | Reconstructed baseline in `supabase/migrations` (CI-applied); live pull O-F | MITIGATED |
 | SR-12 | Anon key usable against an open DB (SR-01) | High | INFERRED; deployment UNKNOWN | T8: key not shipped to browsers. T9: anon key reads/writes nothing locally (CI REST check). Live: unchanged until O-E; rotate the live key | CLOSED in code · OPEN on live |
-| SR-13 | No security headers / CSP | Medium | VERIFIED | T11 | OPEN |
+| SR-13 | No security headers / CSP | Medium | VERIFIED | T11: nonce CSP (no unsafe-inline scripts), HSTS, nosniff, DENY framing, Referrer/Permissions-Policy, COOP, no X-Powered-By; e2e: 0 CSP violations. Residual: `style-src 'unsafe-inline'` (TD-01) | CLOSED (PR #10) |
 | SR-14 | No branch protection, no required CI, no secret scanning | Medium | VERIFIED (API: "Branch not protected", scanning disabled) | CI exists (T7); protection O-A/O-B | OPEN — owner |
 | SR-15 | Invented names/institutions in mock pages | Low–Medium | VERIFIED | hidden by flag (ADR-006) | CLOSED by default config |
 | SR-16 | Client-side matching score with demo distances | Medium | VERIFIED | hidden by flag; real engine Gate 4 | CLOSED by default config |
@@ -32,5 +32,5 @@ Severity reflects impact if real patient data were involved.
 
 ## Rules derived from this register
 - No real patient data in any environment until SR-01 (live) and SR-22 are closed, Q4 and Q6 are decided, and PRODUCT_REQUIREMENTS gate 1 is signed off.
-- No server deployment of any branch until SR-13 is closed and T8 is merged.
+- No server deployment of any branch until T11 is merged and the staging host is decided (T12). Staging holds synthetic data only.
 - No build or dev server against the live database (SR-05, SR-12).

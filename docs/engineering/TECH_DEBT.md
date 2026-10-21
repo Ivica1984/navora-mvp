@@ -5,7 +5,7 @@
 
 | ID | Debt | Where | Cost | Plan | Status |
 |---|---|---|---|---|---|
-| TD-01 | Inline style objects everywhere; Tailwind configured but unused; no tokens | all UI | L | design system introduced with `/field` (M4) | OPEN |
+| TD-01 | Inline style objects everywhere; Tailwind configured but unused; no tokens. Also forces CSP `style-src 'unsafe-inline'` (ADR-020) | all UI | L | design system with `/field` (M4); then drop `unsafe-inline` from `style-src` | OPEN |
 | TD-02 | Fixed desktop grids, not responsive | all UI | L | F1 sets the mobile pattern | OPEN |
 | TD-03 | Three competing fonts (Geist loaded, Arial in CSS, "Inter" requested but not loaded) | layout, globals, pages | S | with TD-01 | OPEN |
 | TD-04 | Template metadata, `lang="en"` | `layout.tsx` | S | — | DONE (PR #1) |
