@@ -79,7 +79,11 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
     if (!selectedVisit) return;
 
     setIsUpdating(true);
-    const result = await command({ visitId: selectedVisit.id });
+    // One key per user action: a retried request is applied at most once (T10).
+    const result = await command({
+      visitId: selectedVisit.id,
+      idempotencyKey: crypto.randomUUID(),
+    });
     setIsUpdating(false);
 
     if (!result.ok) {
