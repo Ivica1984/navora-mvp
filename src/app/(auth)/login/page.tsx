@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getOptionalUser } from "@/lib/auth/session";
-import { HOME_PATH } from "@/lib/auth/paths";
+import { getHomePath } from "@/lib/auth/home";
 import LoginForm from "./login-form";
 
 const infoCard = {
@@ -14,7 +14,7 @@ const infoText = { marginTop: "6px", color: "rgba(255,255,255,0.75)" };
 export default async function LoginPage() {
   // Already signed in: go straight to the app.
   if (await getOptionalUser()) {
-    redirect(HOME_PATH);
+    redirect(await getHomePath());
   }
 
   return (

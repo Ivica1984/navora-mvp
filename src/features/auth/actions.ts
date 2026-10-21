@@ -1,7 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { HOME_PATH, LOGIN_PATH } from "@/lib/auth/paths";
+import { LOGIN_PATH } from "@/lib/auth/paths";
+import { resolveHomePath } from "@/lib/auth/home";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { SIGN_IN_FAILED, signInSchema, type SignInState } from "./schema";
 import { errorFields, logEvent } from "@/lib/log";
@@ -28,8 +29,9 @@ export async function signIn(
     return { error: SIGN_IN_FAILED };
   }
 
-  // Fixed destination: no user-controlled redirect target (no open redirect).
-  redirect(HOME_PATH);
+  // Destination comes from the user's roles in the database, never from the
+  // request: no user-controlled redirect target (no open redirect).
+  redirect(await resolveHomePath(supabase));
 }
 
 export async function signOut(): Promise<void> {
