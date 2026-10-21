@@ -1,6 +1,6 @@
 # Open decisions
 
-**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-21 19:10 (po)
+**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-21 21:55 (po)
 Background, options and consequences for the `D-*` items: `docs/engineering/DECISIONS_NEEDED.md`.
 
 ## Open
@@ -22,7 +22,7 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | D-16 | clinical | clinical | Quality event types, severities, which ones set a quality hold, and who may lift it (QG1) | short list: fall, wound, medication, acute decline, social situation; serious → coach and quality specialist | – | 2026-10-21 (po) |
 | D-1 | owner | legal | Live database: are the 6 cases / 3 care notes real people? Rotate the anon key; enable leaked-password protection | confirm synthetic or start the legal assessment; rotate the key now | – | 2026-10-21 (eng) |
 | D-2 | owner | financial | Staging hosting provider and region | Supabase EU/CH plus Render Frankfurt or Vercel, synthetic data only | T12 | 2026-10-21 (eng) |
-| D-3 | owner | product | Permission matrix: read scope of health data per role | option B now (team-scoped clinical read), C before production | – | 2026-10-21 (eng) |
+| D-3 | owner | product | Permission matrix: read scope of health data per role | option B now (team-scoped clinical read), C before production. **PO 2026-10-21:** supports B; it is the last access gap in F0 and a precondition for any real client data | F0 | 2026-10-21 (eng) |
 | D-5 | owner | product | Who manages organisations and memberships | NAVORA staff first, then organisation admins | – | 2026-10-21 (eng) |
 | D-17 | clinical | clinical | Which safety alerts must a nurse see before the first visit (e.g. allergies, fall risk, infection precautions, emergency contact, access or key arrangement)? | a short fixed list, captured at intake, shown on the `/field` card; nothing diagnostic | J1 | 2026-10-21 (po) |
 | D-7 | owner | production | Branch protection, secret scanning, repository visibility (public → private) | protect `main` and `recovery/main` with required CI checks; make the repository private | M2 | 2026-10-21 (eng) |

@@ -1,6 +1,6 @@
 # Next capability: Product Owner priority queue
 
-**Owned by:** Product Owner (`po`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-21 19:20, F1-F4 accepted; briefs published (COORD-1); queue re-ranked against `ARCHITECTURE.md`
+**Owned by:** Product Owner (`po`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-21 21:55, F0 reviewed: changes-requested (qualification data; team-scoped read waits for D-3)
 
 The order of the table is the order engineering builds in. Every row needs a brief in [`briefs/`](briefs/) before engineering starts it. Strategic reference: `ARCHITECTURE.md` (data flow and bounded contexts), then `PRODUCT_REQUIREMENTS.md`.
 
@@ -8,7 +8,7 @@ The order of the table is the order engineering builds in. Every row needs a bri
 
 | Rank | ID | Capability | PO status | Brief | Why |
 |---|---|---|---|---|---|
-| 1 | F0 | Shared access foundation for the care journey | approved | [F0](briefs/F0.md) | every journey depends on scoped access; T8–T10 reported delivered, now accept them against one frame |
+| 1 | F0 | Shared access foundation for the care journey | changes-requested | [F0](briefs/F0.md) | reviewed on #7–#9 evidence: build member qualification now (J2/J3 depend on it); team-scoped clinical read follows owner decision D-3. While D-3 is open, continue with J1 |
 | 2 | J1 | Referral intake → case → matching request | changes-requested | [J1](briefs/J1.md) | #23 works but stores no residence, insurer or medical-order status, so cases reach matching that can never be billed |
 | 3 | J3 | Visit planning with billable basis | changes-requested | [J3](briefs/J3.md) | #25 has no KLV category, planned minutes or order check; planning is where billing is won or lost |
 | 4 | F6 | Signed visit report | approved | [F6](briefs/F6.md) | `ARCHITECTURE.md`: freigegebener Bericht → Quality Gate → billable_facts; nothing after the visit works without it |
@@ -38,6 +38,7 @@ These enter the queue as soon as engineering acknowledges them with a `not-start
 
 ## Notes from the PO
 
+- 2026-10-21 21:55: **F0 changes-requested.** Met on merged evidence: reproducible schema with drift report (#18), organisations/roles/team memberships (#8), anonymous and other-organisation negative tests (pgTAP 004, 011–013), audit and idempotency (#9), no client identity in offers (#24), synthetic seeds. Missing: member qualification as data; team-scoped read of cases, visits, care notes and quality events inside an organisation (today any organisation member reads them; scope is owner decision D-3). Partner self-submission moved out of scope for the pilot (operations records referrals). Order unchanged; engineering builds F0 gap 1, then J1, then F0 gap 2 once D-3 is decided.
 - 2026-10-21 19:20: **F1-F4 accepted.** Evidence: e2e `field.spec.ts` (own team only, full depart → complete path, corrections with reason, observations with provenance and handover, phone width); pgTAP 009–011 (duplicate key is not a second event, disallowed transitions rejected, append-only events and corrections, versioned observations, other team / other organisation / anonymous get nothing). Not met: care goals and safety alerts on the visit card; the data does not exist yet. Routed to J3 (care-plan goals) and J1 (alerts captured at intake, list from `clinical` in D-17). No separate item.
 - 2026-10-21 19:10: briefs for F0, J1, J2, J3, F1-F4, F6 published (COORD-1); draft briefs QG1, OPS1, J5, J6, J7. J1, J2 and J3 reviewed against their briefs from the migrations: **changes-requested**, gaps listed in each brief and marked *(delivered … to confirm)* where #23–#25 already meet a criterion. Q4 answered (performing nurse signs; countersignature rule goes to `clinical` as D-10). COORD-2 answered: F6 before J4.
 - 2026-10-21: owner approved the PO recommendations; engineering priority order F0, J1, J2, J3.
