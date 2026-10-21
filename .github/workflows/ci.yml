@@ -32,6 +32,8 @@ jobs:
           cache: npm
       - name: Install (lockfile only)
         run: npm ci --no-fund
+      - name: Agent collaboration layer (docs/agents)
+        run: scripts/ci-step.sh agents node scripts/agents-check.mjs
       - name: Lint
         run: scripts/ci-step.sh lint npm run lint
       - name: Typecheck

@@ -1,6 +1,6 @@
 # NAVORA — Engineering Backlog
 
-**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21 (care journey: J1 in review; Gate 2 F1–F4 done)
+**Maintained by:** Lead Engineer (Claude) · **Last updated:** 2026-10-21 (J1–J3 done; priorities via docs/agents)
 **Plan:** `claude/NAVORA_RECOVERY_EXECUTION_PLAN.md` (Project) · **Roadmap:** `docs/engineering/ROADMAP.md`
 **Status values:** BLOCKED · READY · IN PROGRESS · IN REVIEW · DONE · PROPOSED
 Ordered by priority. Work continues on the top item that is not blocked.
@@ -50,13 +50,15 @@ Decision brief with options and recommendations: [`DECISIONS_NEEDED.md`](DECISIO
 | TD-17 | Structured logging without personal/health data (closes SR-25) | DONE | PR #17 merged, CI green |
 | TD-19 | Live schema verified, drift documented, ADR-022, stricter live rules adopted | IN REVIEW | branch `docs/td19-schema-drift` |
 
-## Care journey — front half (highest priority, see engineering ROADMAP "Care-journey view")
+## Care journey — front half
+
+> **Priorities now come from the Product Owner** via the official collaboration layer `docs/agents/` (owner approval 2026-10-21): queue in `NEXT_CAPABILITY.md`, status in `IMPLEMENTATION_STATUS.md`, decisions in `OPEN_DECISIONS.md`. This backlog holds engineering detail only.
 
 | ID | Task | Status |
 |---|---|---|
-| J1 | Referral intake (admin/operations) → review → case + open matching request; provisional consent gate; audited | IN REVIEW — ADR-026 |
-| J2 | Team decision: active teams of the case's region see open requests (hard filters available today: active team, service area = region; others shown as "not checked"); no client identity before acceptance; first acceptance assigns the case atomically; decline recorded in append-only `team_decisions` | IN REVIEW — ADR-027 |
-| J3 | Team planning: team members plan, move and remove planned visits of their team's cases (no coach/operations override); visible in `/field`; audited incl. insert/delete | IN REVIEW — ADR-028 |
+| J1 | Referral intake (admin/operations) → review → case + open matching request; provisional consent gate; audited | **DONE** — PR #23 (ADR-026) |
+| J2 | Team decision: active teams of the case's region see open requests (hard filters available today: active team, service area = region; others shown as "not checked"); no client identity before acceptance; first acceptance assigns the case atomically; decline recorded in append-only `team_decisions` | **DONE** — PR #24 (ADR-027) |
+| J3 | Team planning: team members plan, move and remove planned visits of their team's cases (no coach/operations override); visible in `/field`; audited incl. insert/delete | **DONE** — PR #25 (ADR-028) |
 | J4 | Team availability and capacity windows → derived capacity replaces hand-entered `utilization`/`open_slots` (Operations, matching hard filter) | PROPOSED — PLATFORM_MAP D5 slice 3 |
 
 ## Product (M4 — Roadmap Gate 2)

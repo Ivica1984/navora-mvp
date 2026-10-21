@@ -25,15 +25,17 @@ Source of truth for the target: `ARCHITECTURE.md` data flow and workflow (*Partn
 
 | # | Journey step (ARCHITECTURE.md) | State 2026-10-21 | Work item |
 |---|---|---|---|
-| 1 | Referral (`partner_requests`) | **J1 in review**: intake by admin/operations | J1 |
-| 2 | Case (`cases`) | **J1 in review**: conversion after review, provisional consent gate | J1 |
+| 1 | Referral (`partner_requests`) | **done** (J1, PR #23) | J1 |
+| 2 | Case (`cases`) | **done** (J1): conversion after review, provisional consent gate | J1 |
 | 3 | Matching (`matching_requests`, candidates) | J1 opens a request; engine = Gate 4 (needs competence/capacity data, validated weights) | J2 (team-pull, no ranking) |
-| 4 | Team decision | **J2 in review**: team pull, atomic accept | J2 |
-| 5 | Team planning → `care_visits` | **J3 in review**: team plans/moves/removes planned visits | J3, then **J4 capacity next** |
+| 4 | Team decision | **done** (J2, PR #24): team pull, atomic accept | J2 |
+| 5 | Team planning → `care_visits` | **done** (J3, PR #25) | J4 capacity proposed to the PO (COORD-2) |
 | 6 | Care delivery (`/field`) | **done**: F1–F3 | — |
 | 7 | Documentation: observations, handover | **done**: F4 | — |
 | 8 | Report → human approval | missing; approver role = Q4 | F6 |
 | 9 | Quality gate (`quality_events`) | read-only attention list | Q1 (raise from field), review flow |
 | 10 | Billing facts | blocked: legal/tariff decisions (Gate 6) | owner |
 
-**Priority rule:** close the earliest broken link first, so real (synthetic-staging) data can flow through every implemented step. Steps 1–5 come before 8–10, because without them no visit exists except seed data.
+**Source of priorities (from 2026-10-21 18:31):** the Product Owner queue in `docs/agents/NEXT_CAPABILITY.md`. Engineering proposals go through `docs/agents/OPEN_DECISIONS.md`.
+
+**Priority rule (engineering view, input to the PO):** close the earliest broken link first, so real (synthetic-staging) data can flow through every implemented step. Steps 1–5 come before 8–10, because without them no visit exists except seed data.
