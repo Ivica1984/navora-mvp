@@ -572,11 +572,20 @@ isOneToOne: false
 "pause_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"plan_visit":
+{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_services": (string)[],"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: string
+                           },
 "record_observation":
 { Args: { "p_content": string,"p_for_handover": boolean,"p_idempotency_key": string,"p_supersedes_id": string,"p_visit_id": string }; Returns: string
                            },
 "record_partner_request":
 { Args: { "p_city": string,"p_idempotency_key": string,"p_need_summary": string,"p_organization_id": string,"p_partner_name": string,"p_partner_type": string,"p_region": string,"p_request_title": string,"p_requested_services": (string)[],"p_time_info": string,"p_urgency": string }; Returns: string
+                           },
+"remove_planned_visit":
+{ Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"reschedule_visit":
+{ Args: { "p_idempotency_key": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: string
                            },
 "resume_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
@@ -586,6 +595,11 @@ isOneToOne: false
                            },
 "start_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"team_cases":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "care_needs": (string)[],"case_id": string,"client_name": string,"region": string,"team_id": string,"team_name": string,"upcoming": Json,"urgency": string
+            }[]
                            },
 "team_offers":
 { Args: Record<PropertyKey, never>; Returns: {
