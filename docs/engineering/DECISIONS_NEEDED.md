@@ -65,3 +65,8 @@ Gated on: zip verification (O-C), the Codespace check (O-D), D-7, and your appro
 
 ## What engineering continues with meanwhile
 Work that doesn't depend on these decisions: further hardening and tests, structured logging without health data (TD-17), and preparation work for D-2 and D-3 that is easy to change once you decide.
+
+## D-9 Legal basis for processing client data at intake (J1) — **legal**
+**Why:** converting a referral into a case starts processing health-related personal data. J1 requires a provisional confirmation that the client's consent is present and records who confirmed it and when (ADR-026).
+**Question:** is consent the correct legal basis under the revised FADP (DSG) and the applicable cantonal rules, or does processing rest on the care mandate or contract? What must be documented (form, representative, revocation)?
+**Engineering default until decided:** keep the confirmation gate; do not collect more client data at intake than name, region and needs.

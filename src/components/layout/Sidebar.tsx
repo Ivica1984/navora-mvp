@@ -10,6 +10,7 @@ type SidebarProps = {
     | "matching"
     | "visits"
     | "field"
+    | "intake"
     | "quality"
     | "analytics";
 };
@@ -19,6 +20,11 @@ const allNavItems = [
     key: "operations",
     label: "Operations Board",
     href: "/operations",
+  },
+  {
+    key: "intake",
+    label: "Aufnahme",
+    href: "/intake",
   },
   {
     key: "partners",
