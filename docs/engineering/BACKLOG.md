@@ -19,7 +19,7 @@ Decision brief with options and recommendations: [`DECISIONS_NEEDED.md`](DECISIO
 | O-C | **Verify the transcribed import:** `git switch import/project-src-2026-10-21 && bash scripts/verify-against-zip.sh /path/to/src.zip` → must print `IDENTICAL` | M2 merge | zip only on the owner's machine |
 | O-D | **Codespace check:** `gh codespace list`; if one exists, preserve it (runbook T1) | ADR-001 timebox | agent token cannot list Codespaces (HTTP 403) |
 | O-E | **Live DB:** containment C-1 DONE 2026-10-21 (anon access revoked, verified — `docs/ops/live/CONTAINMENT_REPORT_C1_2026-10-21.md`). **Still open:** are the 6 cases / 3 care notes real people (legal: possible FADP incident)? rotate the anon/JWT key (SR-12); enable leaked-password protection | SR-01 (contained), SR-12 | key rotation and the legal question are owner-only |
-| O-F | **Schema-only pull of live** (`supabase db pull --schema public`) | replaces reconstructed baseline | same |
+| O-F | ~~Schema-only pull of live~~ — **DONE by agent** 2026-10-21 via read-only catalog queries (`docs/ops/live/SCHEMA_DRIFT_2026-10-21.md`); ADR-022: repo schema stays the target | — | — |
 | O-G | Approve or reject ADR-001…ADR-017 | — | owner decision |
 
 ## Recovery (M0–M2)
@@ -47,7 +47,8 @@ Decision brief with options and recommendations: [`DECISIONS_NEEDED.md`](DECISIO
 | T13 | DB-level seed coverage test: one pgTAP/SQL check per attention category | DONE | PR #15 merged; `006_seed_attention_coverage.test.sql`, 22 assertions, CI db green. Gap: `submitted` note branch unit-tested only |
 | T14 | Generated `database.types.ts`, typed client, drift check in CI, compile-time proof | DONE | PR #11 merged |
 | T15 | Inline command errors; all regions on Teams; memoised auth check; bots off `recovery/main` | DONE | PR #12 merged |
-| TD-17 | Structured logging without personal/health data (closes SR-25) | IN REVIEW | branch `feat/td17-structured-logging` |
+| TD-17 | Structured logging without personal/health data (closes SR-25) | DONE | PR #17 merged, CI green |
+| TD-19 | Live schema verified, drift documented, ADR-022, stricter live rules adopted | IN REVIEW | branch `docs/td19-schema-drift` |
 
 ## Product (M4 — Roadmap Gate 2)
 
@@ -63,9 +64,10 @@ Decision brief with options and recommendations: [`DECISIONS_NEEDED.md`](DECISIO
 
 | ID | Question |
 |---|---|
-| Q1 | Purpose of the live `orders` table (not reconstructed) |
+| Q1 | ~~Purpose of the live `orders` table~~ — **answered (inferred):** Stripe test-mode checkouts from another app (likely Lumena-Health). Owner: move or delete (SR-26) |
 | Q2 | TD-09: should a case without team in `teampruefung` raise one or two attention items? |
 | Q3 | Operations recommends "Matching starten" though Operations must not trigger matching (DOMAIN_RULES) — reword? |
 | Q4 | Real role set and permission matrix. T9 uses placeholders: read = any org member (incl. health fields), team settings = admin/coach, visits = own team. Needs product + data-protection decision before real users |
 | Q5 | Who creates organisations and memberships, and how (no UI/API yet — SQL only) |
 | Q6 | **Legal:** retention period and access rules for `audit_events` (who may read, how long kept, export for audits) — needed before real data |
+| Q7 | Do location features belong in NAVORA's matching (team bases, service radius, geocoded case addresses with PostGIS, team capacity limits)? Live has an unused prototype; geocoding sends addresses to a provider → also a data-protection question |
