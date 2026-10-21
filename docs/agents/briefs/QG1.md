@@ -2,7 +2,7 @@
 id: QG1
 title: Quality signals and quality hold
 author: po
-status: draft
+status: approved
 updated: 2026-10-21
 ---
 

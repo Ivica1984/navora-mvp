@@ -29,20 +29,22 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 ## Gate 1: F0 Shared Access Foundation — Critical
 
-- Brief `docs/agents/briefs/F0.md`. Engineering meldet T8–T10 geliefert (#7–#9); Abnahme je Kriterium.
+- Brief `docs/agents/briefs/F0.md`, Engineering-Bericht `docs/agents/reports/F0.md`. T8–T10 (#7–#9) und Qualifikationen (#32) geliefert. PO 21.10. 22:20: **Änderungen verlangt**, Teambezogenes Lesen klinischer Daten geliefert (#34) und abgenommen; Restumfang: Pflichtbegründungen für ändernde oder übersteuernde Befehle. Live-Reproduzierbarkeit ist Owner-Entscheid (T12, M5).
 - Fertig, wenn alle Negativtests aus F0 bestehen und die Qualifikationen als Daten vorliegen.
 
 ## Gate 2: Care Journey MVP
 
+Reihenfolge: F0-Rest → F6 → J2 → QG1 → OPS1 (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
+
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
-| J1 | Zuweisung → Fall → Matching-Anfrage mit Readiness-Prüfung und Kostenträgerkette | Critical | IMPLEMENTED (#23), Änderungen verlangt |
-| J3 | Einsatzplanung mit Kategorie A/B/C, geplanten Minuten, Anordnungsprüfung | High | IMPLEMENTED (#25), Änderungen verlangt |
-| F6 | Signierter Einsatzbericht | High | PLANNED |
+| J1 | Zuweisung → Fall → Matching-Anfrage mit Readiness-Prüfung und Kostenträgerkette | Critical | IMPLEMENTED (#23, #30), **abgenommen** 21.10.; Warnhinweise warten auf D-17 |
+| J3 | Einsatzplanung mit Kategorie A/B/C, geplanten Minuten, Anordnungsprüfung | High | IMPLEMENTED (#25, #32), **abgenommen** 21.10.; Kategorie-Mapping wartet auf D-15 |
+| F6 | Signierter Einsatzbericht | High | PLANNED, **als Nächstes aktiv** (nach F0-Rest) |
 | J2 | Teamentscheid mit Antwortfrist, Eskalation, Qualifikationsprüfung | High | IMPLEMENTED (#24), Änderungen verlangt |
 | F1-F4 | Verified Visit: Tagesansicht, Zustandsmaschine, Zeitkorrekturen, Beobachtung, Übergabe | High | IMPLEMENTED (#19–#22), abgenommen 21.10. (Pflegeziele via J3, Warnhinweise via J1/D-17) |
-| QG1 | Qualitätsereignisse, Prüfung, Quality Hold | High | PLANNED (Brief draft) |
-| OPS1 | Operations Exception Center über J1–J3, QG1, F6 | High | PLANNED (Brief draft) |
+| QG1 | Qualitätsereignisse, Prüfung, Quality Hold | High | PLANNED (Brief approved), Ereignisliste wartet auf D-16 |
+| OPS1 | Operations Exception Center über J1–J3, QG1, F6 | High | PLANNED (Brief approved); unbesetzte Einsätze bereits mit J3 |
 
 - Fertig, wenn ein synthetischer Fall von Zuweisung bis signiertem Bericht E2E und RLS-negativ getestet ist, ein Qualitätsereignis einen Hold setzt und jede Ausnahme in OPS1 erscheint.
 
@@ -50,8 +52,8 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
-| J5 | Abrechenbare Leistungsfakten und Monatsvorschau | High | PLANNED (Brief draft) |
-| J6 | Kontinuität: Bezugspflegeperson und Kontinuitätsmass | High | PLANNED (Brief draft) |
+| J5 | Abrechenbare Leistungsfakten und Monatsvorschau | High | PLANNED (Brief approved); Restfinanzierung braucht D-11 |
+| J6 | Kontinuität: Bezugspflegeperson und Kontinuitätsmass | High | PLANNED (Brief approved) |
 | J7 | Team-Ökonomie-Transparenz | Medium | PLANNED (Brief draft), wartet auf D-14 |
 
 - J5 nur aus signierten Berichten ohne offenen Quality Hold; **keine** Rechnung vor OKP-Zulassung (D-12).

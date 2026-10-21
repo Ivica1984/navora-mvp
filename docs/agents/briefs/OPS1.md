@@ -2,7 +2,7 @@
 id: OPS1
 title: Operations exception center
 author: po
-status: draft
+status: approved
 updated: 2026-10-21
 ---
 
@@ -22,7 +22,10 @@ Operations opens one list of open exceptions sorted by urgency, each with reason
 - [ ] Each exception shows reason, creation time, case, team and a link to its origin; data limited to what Operations may see.
 - [ ] Take over, comment and close are audited commands; closing needs a reason; a fixed cause closes the exception automatically with a note.
 - [ ] At most six KPI cards; no matching start and no case editing from OPS1.
-- [ ] Thresholds and urgency are configuration, not code.
+- [ ] Thresholds and urgency are configuration, not code. Pilot defaults (Q9):
+    - **P1 safety:** serious quality event open longer than 4 hours; uncovered visit within 24 hours for a hospital-discharge case.
+    - **P2 continuity:** any other uncovered visit within 24 hours (delivered in #32); all candidates exhausted; offer past its Q8 deadline.
+    - **P3 administration:** case not ready for matching 1 working day after the referral; medical order expiring within 7 days or expired; care-plan review overdue; report not final 24 hours after the visit ended.
 
 ## Out of scope
 Team performance ranking, workforce planning, reporting exports.
