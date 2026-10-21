@@ -182,6 +182,46 @@ test.describe("field tool (F1)", () => {
     await expect(handover).toContainText("von dir");
   });
 
+  test("signed visit report: draft from the visit data, signed by the performing nurse, corrected as a new version (F6)", async ({ page }) => {
+    await signIn(page, NURSE, /\/field$/);
+    await page.goto(`/field?datum=${NEXT_DAY}`);
+
+    // Visit 508 was run end to end by this nurse (F2 test above), a registered nurse → no countersignature.
+    const card = page.getByRole("article", { name: /09:00 – 09:45/ });
+    const report = card.getByTestId("visit-report");
+    await expect(report.getByTestId("report-status")).toHaveText("Bericht fehlt");
+    await report.getByLabel("Zusammenfassung (optional)").fill("Synthetischer Bericht: Grundpflege wie geplant.");
+    await report.getByRole("button", { name: "Berichtsentwurf erstellen" }).click();
+    await expect(report.getByTestId("report-status")).toHaveText("Entwurf");
+    await expect(report).toContainText("Grundpflege wie geplant");
+
+    await report.getByRole("button", { name: "Bericht unterschreiben" }).click();
+    await expect(report.getByTestId("report-status")).toHaveText("Bericht abgeschlossen");
+    await expect(report).toContainText("von dir");
+    await expect(report.getByRole("button", { name: "Bericht unterschreiben" })).toHaveCount(0);
+    await expect(report.getByRole("button", { name: "Zusammenfassung bearbeiten" })).toHaveCount(0);
+
+    // Correction = new version with a reason; the signed version stays unchanged.
+    await report.getByRole("button", { name: "Bericht korrigieren" }).click();
+    await report.getByLabel("Begründung der Korrektur").fill("Leistung ergänzt");
+    await report.getByRole("button", { name: "Neue Fassung anlegen" }).click();
+    await expect(report.getByTestId("report-status")).toHaveText("Entwurf (Fassung 2)");
+    await expect(report).toContainText("Korrektur: Leistung ergänzt");
+
+    await page.reload();
+    await expect(page.getByRole("article", { name: /09:00 – 09:45/ }).getByTestId("report-status")).toHaveText("Entwurf (Fassung 2)");
+  });
+
+  test("a visit without a recorded start cannot get a report (no performer to sign) (F6)", async ({ page }) => {
+    await signIn(page, NURSE, /\/field$/);
+    await page.goto(`/field?datum=${SEED_DAY}`);
+    // Visit 502 was seeded as "started" without a start event, then completed in this file.
+    const report = page.getByRole("article", { name: /10:00 – 10:30/ }).getByTestId("visit-report");
+    await report.getByRole("button", { name: "Berichtsentwurf erstellen" }).click();
+    await expect(report.getByTestId("command-error")).toContainText("kein Start erfasst");
+    await expect(report.getByTestId("report-status")).toHaveText("Bericht fehlt");
+  });
+
   test("works on a phone-sized screen without horizontal scrolling", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 740 });
     await signIn(page, NURSE, /\/field$/);

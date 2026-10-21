@@ -163,6 +163,7 @@ const empty = {
   visits: [] as CareVisitRow[],
   careNotes: [] as CareNoteRow[],
   qualityEvents: [] as QualityEventRow[],
+  finalReportVisitIds: [] as string[],
   now: NOW,
 };
 
@@ -250,6 +251,16 @@ describe("visit report rules (legacy)", () => {
 
   it("non-completed visit does not fire", () => {
     expect(run({ visits: [visit({ status: "started" })] })).toHaveLength(0);
+  });
+
+  it("F6: a final signed report closes 'report missing' even without an approved legacy note", () => {
+    const v = visit({});
+    expect(run({ visits: [v], finalReportVisitIds: [v.id] })).toHaveLength(0);
+    expect(run({ visits: [v], careNotes: [note({ status: "draft" })], finalReportVisitIds: [v.id] })).toHaveLength(0);
+  });
+
+  it("F6: a final report for another visit does not close this one", () => {
+    expect(run({ visits: [visit({})], finalReportVisitIds: ["other-visit"] })).toHaveLength(1);
   });
 });
 

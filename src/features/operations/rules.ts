@@ -35,6 +35,7 @@ export function buildAttentionItems({
   careNotes,
   qualityEvents,
   uncoveredVisits = [],
+  finalReportVisitIds = [],
   now = Date.now(),
 }: {
   now?: number;
@@ -46,7 +47,10 @@ export function buildAttentionItems({
   qualityEvents: QualityEventSummary[];
   /** J3 (PO brief): planned visits in the next 24 h without a responsible member. */
   uncoveredVisits?: { visit_id: string; team_name: string; visit_date: string; time_start: string | null }[];
+  /** F6: completed visits whose signed report is final (closes "report missing"). */
+  finalReportVisitIds?: string[];
 }): AttentionItem[] {
+  const finalReports = new Set(finalReportVisitIds);
   const items: AttentionItem[] = [];
 
   for (const team of teams) {
@@ -149,7 +153,7 @@ export function buildAttentionItems({
   }
 
   for (const visit of visits) {
-    if (visit.status === "completed") {
+    if (visit.status === "completed" && !finalReports.has(visit.id)) {
       const relatedNote = careNotes.find((note) => note.visit_id === visit.id);
 
       if (!relatedNote || ["draft", "submitted"].includes(relatedNote.status)) {
