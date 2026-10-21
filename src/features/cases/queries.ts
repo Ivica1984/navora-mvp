@@ -34,7 +34,8 @@ export async function getCases(): Promise<CaseRow[]> {
       start_date,
       next_step,
       notes,
-      assigned_team
+      assigned_team,
+      assigned_team_id
       `
     )
     .order("created_at", { ascending: false });
