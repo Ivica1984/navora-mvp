@@ -433,14 +433,14 @@ isOneToOne: false
                   ]
                 },"response_deadlines": {
                   Row: {
-                    "id": string,"organization_id": string,"referral_type": string,"response_hours": number,"updated_at": string,"updated_by": string
+                    "amount": number,"id": string,"organization_id": string | null,"referral_type": string,"unit": string,"updated_at": string,"updated_by": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "id"?: string,"organization_id": string,"referral_type": string,"response_hours": number,"updated_at"?: string,"updated_by": string
+                    "amount": number,"id"?: string,"organization_id"?: string | null,"referral_type": string,"unit": string,"updated_at"?: string,"updated_by"?: string | null
                   }
                   Update: {
-                    "id"?: string,"organization_id"?: string,"referral_type"?: string,"response_hours"?: number,"updated_at"?: string,"updated_by"?: string
+                    "amount"?: number,"id"?: string,"organization_id"?: string | null,"referral_type"?: string,"unit"?: string,"updated_at"?: string,"updated_by"?: string | null
                   }
                   Relationships: [
                     {
@@ -676,6 +676,20 @@ isOneToOne: false
       referencedRelation: "care_visits"
       referencedColumns: ["id","organization_id"]
     }
+                  ]
+                },"working_time": {
+                  Row: {
+                    "day_end": string,"day_start": string,"id": boolean,"time_zone": string,"weekdays": (number)[]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "day_end": string,"day_start": string,"id"?: boolean,"time_zone": string,"weekdays": (number)[]
+                  }
+                  Update: {
+                    "day_end"?: string,"day_start"?: string,"id"?: boolean,"time_zone"?: string,"weekdays"?: (number)[]
+                  }
+                  Relationships: [
+                    
                   ]
                 }
           }
