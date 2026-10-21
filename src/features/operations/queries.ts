@@ -1,4 +1,6 @@
-import { supabase } from "@/lib/supabase";
+import "server-only";
+
+import { requireUser } from "@/lib/auth/session";
 import { buildAttentionItems } from "./rules";
 import type {
   CareNoteRow,
@@ -13,6 +15,9 @@ import type { CareVisitRow } from "@/features/visits/types";
 
 
 export async function getOperationsDashboard(): Promise<OperationsDashboard> {
+  // Runs as the signed-in user (RLS sees auth.uid()); redirects to /login otherwise.
+  const { supabase } = await requireUser();
+
   const [
     partnerRequestsResult,
     casesResult,
