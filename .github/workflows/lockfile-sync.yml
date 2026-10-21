@@ -8,7 +8,7 @@ name: lockfile-sync
 
 on:
   push:
-    branches-ignore: [main]
+    branches-ignore: [main, recovery/main]
     paths: [package.json]
 
 permissions:

@@ -76,11 +76,9 @@ test.describe("with a session", () => {
     // Runs before the nurse test, so visit 501 (Testteam Nord) is still planned.
     await page.getByRole("button").filter({ hasText: "Geplant" }).first().click();
 
-    const dialog = page.waitForEvent("dialog");
     await page.getByRole("button", { name: "Einsatz starten" }).click();
-    const message = await dialog;
-    expect(message.message()).toContain("gehörst nicht zum zuständigen Team");
-    await message.dismiss();
+    // T15: inline error instead of a blocking alert()
+    await expect(page.getByTestId("command-error")).toContainText("gehörst nicht zum zuständigen Team");
   });
 
   test("a team member starts a visit of her own team (server action + RLS)", async ({ page }) => {
@@ -136,11 +134,8 @@ test.describe("with a session", () => {
     await signInOk(page, NURSE);
     await page.goto("/teams");
 
-    const dialog = page.waitForEvent("dialog");
     await page.getByRole("button", { name: "Coach-Fokus setzen" }).click();
-    const message = await dialog;
-    expect(message.message()).toContain("fehlende Berechtigung");
-    await message.dismiss();
+    await expect(page.getByTestId("command-error")).toContainText("fehlende Berechtigung");
   });
 
   test("organisations are isolated in the UI (T9)", async ({ page }) => {
@@ -148,6 +143,9 @@ test.describe("with a session", () => {
     await page.goto("/teams");
     await expect(page.getByText("Testteam Nord").first()).toBeVisible();
     await expect(page.getByText("Fremdteam B")).toHaveCount(0);
+    // TD-13: every region in the data is shown, not only two hard-coded ones.
+    await expect(page.getByRole("heading", { name: "Basel Pilot" })).toBeVisible();
+    await expect(page.getByText("Testteam Ost").first()).toBeVisible();
     await page.goto("/operations");
     await expect(page.getByText("Testfall B1")).toHaveCount(0);
     await page.getByRole("button", { name: "Abmelden" }).click();

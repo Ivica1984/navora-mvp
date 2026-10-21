@@ -1,6 +1,7 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { LOGIN_PATH } from "./paths";
 
@@ -10,9 +11,10 @@ import { LOGIN_PATH } from "./paths";
  * not protect a page's data (ADR-017).
  *
  * Uses getUser(), which asks the Auth server, so a revoked session is rejected
- * even while its JWT has not expired yet.
+ * even while its JWT has not expired yet. Memoised per request with React
+ * cache() (TD-23): layout, page queries and commands share one Auth round-trip.
  */
-export async function requireUser() {
+export const requireUser = cache(async function requireUser() {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.getUser();
 
@@ -21,7 +23,7 @@ export async function requireUser() {
   }
 
   return { user: data.user, supabase };
-}
+});
 
 /** For pages that behave differently when a session exists (e.g. /login). */
 export async function getOptionalUser() {
