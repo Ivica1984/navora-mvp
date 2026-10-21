@@ -128,5 +128,9 @@ insert into public.organization_memberships (organization_id, user_id, role) val
   ('00000000-0000-4000-b000-000000000012', '00000000-0000-4000-a000-000000000903', 'admin'),
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000904', 'operations');
 
-insert into public.team_memberships (team_id, user_id) values
-  ('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000902');
+insert into public.team_memberships (team_id, user_id, qualification) values
+  ('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000902', 'registered_nurse');
+
+-- J3 (PO brief): running seed cases already had their needs assessment.
+update public.cases set needs_assessment_done_at = created_at + interval '1 day'
+where status = 'laufend';
