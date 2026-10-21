@@ -70,7 +70,7 @@ Decision brief with options and recommendations: [`DECISIONS_NEEDED.md`](DECISIO
 | F3 | Time corrections as reasoned, append-only records (no silent edits); effective time + original + reason shown; future times and out-of-order timelines refused | **DONE** — PR #21, CI green (ADR-024). Who reviews corrections: open (Q4/D-6) |
 | F4 | Observations (free text, author/time/source), immutable with versions; **team-only** visibility; handover to the client's next visits of the team (14-day display default) | **DONE** — PR #22, CI green (ADR-025) |
 | F5 | E2E + RLS-negative suite for the field workflow | PROPOSED |
-| F6 | Visit report: draft → submitted from the observations; Operations attention closes when the report is approved | NEXT (Gate 2/3 boundary). Who approves = Q4 |
+| F6 | Signed visit report: server-built draft, the performer signs, countersignature (provisional, D-10), immutable versions; Operations attention closes on final | IN REVIEW #35 (ADR-032). Countersignature scope = D-10 |
 | F7 | Offline-sync concept (idempotent queued commands, device data limits) | PROPOSED (Gate 2 item 3, concept only) |
 
 ## Open questions (product)
