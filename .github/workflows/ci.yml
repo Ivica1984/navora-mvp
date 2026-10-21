@@ -109,6 +109,16 @@ jobs:
           echo "::add-mask::$key"
           echo "SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
           echo "SUPABASE_ANON_KEY=$key" >> "$GITHUB_ENV"
+      - name: Diagnose seeded test login against local Auth (status and error code only)
+        if: success() || failure()
+        run: |
+          body=$(curl -sS -o /tmp/auth.json -w '%{http_code}' \
+            -H "apikey: $SUPABASE_ANON_KEY" -H 'Content-Type: application/json' \
+            -d '{"email":"coach.test@navora.test","password":"navora-local-only"}' \
+            "$SUPABASE_URL/auth/v1/token?grant_type=password")
+          summary=$(jq -c '{error: (.error // .error_code // null), code: (.code // null), msg: (.msg // .error_description // .message // null), has_access_token: (.access_token != null)}' /tmp/auth.json 2>/dev/null || echo '"unparseable"')
+          echo "::notice title=auth-diagnostic::HTTP $body $summary"
+          [ "$body" = "200" ]
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
       - name: Build

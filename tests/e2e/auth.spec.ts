@@ -11,6 +11,16 @@ async function signIn(page: Page, password = PASSWORD) {
   await page.getByRole("button", { name: "Anmelden" }).click();
 }
 
+/** Signs in and fails with a precise reason: credentials rejected vs. session not kept. */
+async function signInOk(page: Page) {
+  await signIn(page);
+  const error = page.getByRole("alert").filter({ hasText: "Anmeldung fehlgeschlagen" });
+  await page.waitForURL(/\/(operations|login)$/);
+  await page.waitForLoadState("networkidle");
+  await expect(error, "sign-in action returned an error (credentials rejected)").toHaveCount(0);
+  await expect(page, "sign-in succeeded but the session was not kept (redirected back)").toHaveURL(/\/operations$/);
+}
+
 test.describe("without a session", () => {
   for (const path of ["/", "/operations", "/teams", "/visits", "/matching", "/partners"]) {
     test(`${path} redirects to /login`, async ({ page }) => {
@@ -35,8 +45,7 @@ test.describe("without a session", () => {
 
 test.describe("with a session", () => {
   test("sign in, use the app, sign out", async ({ page }) => {
-    await signIn(page);
-    await expect(page).toHaveURL(/\/operations$/);
+    await signInOk(page);
     await expect(page.getByRole("heading", { name: "Navora Operations Control Tower" })).toBeVisible();
 
     // Signed-in users skip the login page.
@@ -59,8 +68,7 @@ test.describe("with a session", () => {
   });
 
   test("starting a visit runs as a server action and moves it to started", async ({ page }) => {
-    await signIn(page);
-    await expect(page).toHaveURL(/\/operations$/);
+    await signInOk(page);
     await page.goto("/visits");
 
     await page.getByRole("button").filter({ hasText: "Geplant" }).first().click();
@@ -83,8 +91,7 @@ test.describe("with a session", () => {
       }
     });
 
-    await signIn(page);
-    await expect(page).toHaveURL(/\/operations$/);
+    await signInOk(page);
     await page.goto("/visits");
     await expect(page).toHaveURL(/\/visits$/);
     await page.waitForLoadState("networkidle");
