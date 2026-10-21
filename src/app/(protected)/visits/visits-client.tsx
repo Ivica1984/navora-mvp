@@ -1,7 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { completeVisit, startVisit } from "@/features/visits/commands";
 import Sidebar from "@/components/layout/Sidebar";
 import {
   getVisitServices,
@@ -62,6 +63,7 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
   );
 
   const [isUpdating, setIsUpdating] = useState(false);
+  const router = useRouter();
 
   const selectedVisit = useMemo(() => {
     return visits.find((visit) => visit.id === selectedVisitId) ?? null;
@@ -73,50 +75,22 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
     getVisitsByStatus(visits, "on_the_way").length;
   const completedCount = getVisitsByStatus(visits, "completed").length;
 
-  async function handleStartVisit() {
+  async function runTransition(command: typeof startVisit) {
     if (!selectedVisit) return;
 
     setIsUpdating(true);
+    const result = await command({ visitId: selectedVisit.id });
+    setIsUpdating(false);
 
-    const { error } = await supabase
-      .from("care_visits")
-      .update({
-        status: "started",
-      })
-      .eq("id", selectedVisit.id);
-
-    if (error) {
-      console.error("Error starting visit:", error);
-      alert("Einsatz konnte nicht gestartet werden.");
-      setIsUpdating(false);
-      return;
+    if (!result.ok) {
+      alert(result.error);
     }
 
-    window.location.reload();
+    router.refresh();
   }
 
-  async function handleCompleteVisit() {
-    if (!selectedVisit) return;
-
-    setIsUpdating(true);
-
-    const { error } = await supabase
-      .from("care_visits")
-      .update({
-        status: "completed",
-        billable: true,
-      })
-      .eq("id", selectedVisit.id);
-
-    if (error) {
-      console.error("Error completing visit:", error);
-      alert("Einsatz konnte nicht abgeschlossen werden.");
-      setIsUpdating(false);
-      return;
-    }
-
-    window.location.reload();
-  }
+  const handleStartVisit = () => runTransition(startVisit);
+  const handleCompleteVisit = () => runTransition(completeVisit);
 
   return (
     <div

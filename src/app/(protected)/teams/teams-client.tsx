@@ -3,7 +3,7 @@ import Sidebar from "@/components/layout/Sidebar";
 
 import { useMemo, useState } from "react";
 import type { TeamRow } from "@/features/teams/types";
-import { supabase } from "../../lib/supabase";
+import { assignTeamCoach, setTeamPriority } from "@/features/teams/commands";
 
 type Team = TeamRow;
 
@@ -48,13 +48,13 @@ const [teamsState, setTeamsState] = useState(teams);
 
   const newPriority = !selectedTeam.priority;
 
-  const { error } = await supabase
-    .from("teams")
-    .update({ priority: newPriority })
-    .eq("id", selectedTeam.id);
+  const result = await setTeamPriority({
+    teamId: selectedTeam.id,
+    priority: newPriority,
+  });
 
-  if (error) {
-    console.error("Priority update failed:", error);
+  if (!result.ok) {
+    alert(result.error);
     return;
   }
 
@@ -70,13 +70,13 @@ async function handleAssignCoach() {
   if (!selectedTeam) return;
   if (!coachInput.trim()) return;
 
-  const { error } = await supabase
-    .from("teams")
-    .update({ coach_name: coachInput.trim() })
-    .eq("id", selectedTeam.id);
+  const result = await assignTeamCoach({
+    teamId: selectedTeam.id,
+    coachName: coachInput,
+  });
 
-  if (error) {
-    console.error("Coach update failed:", error);
+  if (!result.ok) {
+    alert(result.error);
     return;
   }
 
