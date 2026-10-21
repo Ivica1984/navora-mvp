@@ -160,6 +160,23 @@ $$;
 revoke all on function private.begin_command(text, uuid) from public, anon;
 grant execute on function private.begin_command(text, uuid) to authenticated;
 
+-- Clears the command context so a later statement in the same transaction is
+-- never attributed to this command (found by pgTAP: the settings are
+-- transaction-local and would otherwise outlive the function call).
+create function private.end_command(p_result text)
+returns text
+language plpgsql set search_path = ''
+as $$
+begin
+  perform set_config('navora.command', '', true);
+  perform set_config('navora.idempotency_key', '', true);
+  return p_result;
+end;
+$$;
+
+revoke all on function private.end_command(text) from public, anon;
+grant execute on function private.end_command(text) to authenticated;
+
 create function public.set_team_priority(p_team_id uuid, p_priority boolean, p_idempotency_key uuid)
 returns text
 language plpgsql security invoker set search_path = ''
@@ -169,10 +186,10 @@ begin
     raise exception 'priority is required' using errcode = '22023';
   end if;
   if private.begin_command('set_team_priority', p_idempotency_key) then
-    return 'duplicate';
+    return private.end_command('duplicate');
   end if;
   update public.teams set priority = p_priority where id = p_team_id;
-  return case when found then 'ok' else 'rejected' end;
+  return private.end_command(case when found then 'ok' else 'rejected' end);
 end;
 $$;
 
@@ -187,10 +204,10 @@ begin
     raise exception 'coach name must have 1–120 characters' using errcode = '22023';
   end if;
   if private.begin_command('assign_team_coach', p_idempotency_key) then
-    return 'duplicate';
+    return private.end_command('duplicate');
   end if;
   update public.teams set coach_name = name_clean where id = p_team_id;
-  return case when found then 'ok' else 'rejected' end;
+  return private.end_command(case when found then 'ok' else 'rejected' end);
 end;
 $$;
 
@@ -200,11 +217,11 @@ language plpgsql security invoker set search_path = ''
 as $$
 begin
   if private.begin_command('start_visit', p_idempotency_key) then
-    return 'duplicate';
+    return private.end_command('duplicate');
   end if;
   update public.care_visits set status = 'started'
   where id = p_visit_id and status = 'planned';
-  return case when found then 'ok' else 'rejected' end;
+  return private.end_command(case when found then 'ok' else 'rejected' end);
 end;
 $$;
 
@@ -214,12 +231,12 @@ language plpgsql security invoker set search_path = ''
 as $$
 begin
   if private.begin_command('complete_visit', p_idempotency_key) then
-    return 'duplicate';
+    return private.end_command('duplicate');
   end if;
   -- No billable flag here (SR-09): completion is not a billing fact.
   update public.care_visits set status = 'completed'
   where id = p_visit_id and status = 'started';
-  return case when found then 'ok' else 'rejected' end;
+  return private.end_command(case when found then 'ok' else 'rejected' end);
 end;
 $$;
 
