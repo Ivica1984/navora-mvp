@@ -52,7 +52,8 @@ describe("agent collaboration layer (docs/agents)", () => {
   });
 
   it("blocked work must name an open decision", () => {
-    const r = withEdit("IMPLEMENTATION_STATUS.md", "| COORD-1 | – |", "| D-404 | – |");
+    // Blocked-by is the 8th column; set it on the first item row, whatever it holds today.
+    const r = withEdit("IMPLEMENTATION_STATUS.md", /^(\| (?!ID )[A-Z][A-Za-z0-9-]* \|(?:[^|\n]*\|){6})[^|\n]*\|/m, "$1 D-404 |");
     expect(r.out).toContain("blocked by D-404, which is not an open decision");
   });
 
@@ -62,7 +63,7 @@ describe("agent collaboration layer (docs/agents)", () => {
   });
 
   it("states are validated", () => {
-    const r = withEdit("IMPLEMENTATION_STATUS.md", "| J1 | po | delivered |", "| J1 | po | done |");
+    const r = withEdit("IMPLEMENTATION_STATUS.md", /^(\| J1 \| po \| )[a-z-]+ \|/m, "$1done |");
     expect(r.out).toContain('State "done" must be one of');
   });
 

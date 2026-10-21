@@ -188,3 +188,28 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 - Visit inserts and deletes are now audited too (updates since T10).
 - `team_cases()` shows the team its running cases with name, region, needs and upcoming visits, and no health fields.
 **Open:** team-internal planning rules (who in the team plans, conflicts, substitution) are team agreements (Gate 4). Capacity per time window is J4.
+
+### ADR-029 — Intake funding facts, readiness gate and protected insurer data (J1, PO changes)
+**Status:** PROPOSED · **Task:** J1 (brief `docs/agents/briefs/J1.md`, PO changes-requested 2026-10-21).
+**Decision:**
+- The case stores the funding facts the brief lists: residence municipality and canton (validated against the 26 cantons), insurer and insurance type (`KVG, IV, UV, MV, private, unknown`), medical order status (`present, requested, not-required-A/C-only`) with validity end, GP named, other providers active, requested start, and language and access notes. Each case links to exactly one source referral (unique).
+- **Readiness** is computed by the database (`private.case_readiness`). It returns the missing blocking items with German reasons: consent, residence, insurer, insurance type, care need, requested start. The **matching request is opened only by the server when the case is ready** (conversion or later completion), never from Operations. Insurance type `unknown` counts as missing because such a case cannot be billed; the PO may overrule.
+- Missing **non-blocking** items (GP, other providers, language, access) become `case_tasks` that close automatically once the fact is recorded.
+- **Insurer and medical-order columns are not readable through the table API.** `authenticated` gets column-level SELECT on all other case columns. Funding facts are read only through `case_funding_facts()`, for intake roles and the case's assigned team. New `cases` columns are default-deny until a migration grants them (TD-31).
+- Audited: readiness, canton, insurance type and order status (no names or free text).
+**Open:** clinical sign-off of the checklist (D-15); the safety-alert list (D-17); the legal basis for collecting insurer data at intake (D-9). Partners have no accounts; referrals are recorded by admin/operations.
+
+### ADR-030 — Visit planning with billable basis (J3, PO changes)
+**Status:** PROPOSED · **Task:** J3 (brief `docs/agents/briefs/J3.md`, PO changes-requested 2026-10-21).
+**Decision:**
+- **Member qualification is data** (`team_memberships.qualification`: `registered_nurse` | `care_assistant`). This also covers an F0 criterion.
+- **Care-plan summary** (`care_plan_items`), maintained by the assigned team: service, KLV category A/B/C, planned minutes per visit, frequency, review date and an optional care goal. Items are retired with a reason, never deleted. Readable by the team only. The team chooses the category; there is **no automatic service→category mapping** until `clinical` approves one (D-15).
+- **Each visit stores planned minutes per category** (A, B, C), never only a total. The total cannot exceed the time window.
+- **Needs assessment first** (KLV Art. 8a). The first visit of a case is the needs assessment, category A only. Until it is completed it is the only visit that can be planned, and completing it marks the case.
+- **Category B** is planned only when the case's medical order status is `present`. A B visit after the order's validity end is allowed but flagged `order_expired`.
+- **Registered nurse:** a responsible member for a B or needs-assessment visit must be a registered nurse. *Whoever starts* such a visit must be a registered nurse of the team; the database refuses otherwise (SQLSTATE `NV001`), on every write path.
+- A/C visits without an order open an **"inform GP"** case task. Visits after the earliest active review date are flagged `reassessment_due`.
+- **Plan, move and remove keep the original:** `visit_plan_changes` is append-only (before, after, reason, actor). Moves and removals require a reason.
+- A planned visit in the next 24 h without a responsible member is **uncovered**. The team sees the flag, and Operations gets a P2 exception without client identity (`uncovered_visits()`, thresholds Q9).
+- `/field` shows minutes per category, the needs-assessment marker, responsibility and the case's care goals.
+**Open:** D-15 (clinical sign-off of fields and category mapping), D-6 (assignment model), D-10 (countersignature), Q9 (exception thresholds).

@@ -29,7 +29,7 @@ Supporting files:
 ## Rules
 
 1. **The PO owns the queue.** Engineering may *propose* an item: it adds a row to `IMPLEMENTATION_STATUS.md` with origin `eng-proposal` and opens a decision for `po`. The item becomes a priority only when the PO adds it to `NEXT_CAPABILITY.md`.
-2. **Every priority is acknowledged.** Each ID in the PO queue has a row in `IMPLEMENTATION_STATUS.md` (CI enforces this).
+2. **Every priority is acknowledged.** Each ID in the PO queue has a row in `IMPLEMENTATION_STATUS.md` (CI enforces this). A row with origin `po` must be in the queue or have a published brief in `briefs/` (draft items waiting for the queue).
 3. **Disagreement is explicit.** If engineering disagrees with a brief, it opens a decision (`owner: po`) with the reason, the risks and an alternative, and lists it under *Blocked by*. If it builds something different from the brief, the *Deviations* column says what and why.
 4. **Blocked names its blocker.** State `blocked` requires decision IDs in *Blocked by*, and those decisions must exist in `OPEN_DECISIONS.md`.
 5. **Decisions go to the right owner.** Legal, financial, regulatory, clinical and production questions are owned by `owner`, `legal` or `clinical`, never by `eng` (CI enforces this).

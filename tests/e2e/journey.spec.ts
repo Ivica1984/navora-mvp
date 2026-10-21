@@ -34,6 +34,14 @@ test("referral → case → team takes it over → team plans a visit → it is 
   await card.getByRole("button", { name: "Prüfen und in Fall überführen" }).click();
   await card.getByLabel("Vorname").fill("Jonas");
   await card.getByLabel("Nachname").fill("Journeytest");
+  // J1 (PO brief): complete funding facts → ready → the server opens the team search.
+  await card.getByLabel("Wohngemeinde").fill("Teststadt");
+  await card.getByLabel("Kanton").selectOption("BE");
+  await card.getByLabel("Krankenversicherer").fill("Testkasse");
+  await card.getByLabel("Versicherungsart").selectOption("KVG");
+  await card.getByLabel("Ärztliche Verordnung").selectOption("present");
+  await card.getByLabel("Verordnung gültig bis").fill(new Date(Date.now() + 90 * 86_400_000).toISOString().slice(0, 10));
+  await card.getByLabel("Gewünschter Beginn").fill(new Date(Date.now() + 86_400_000).toISOString().slice(0, 10));
   await card.getByRole("checkbox").check();
   await card.getByRole("button", { name: "Fall eröffnen" }).click();
   await expect(card).toHaveCount(0);
@@ -52,20 +60,38 @@ test("referral → case → team takes it over → team plans a visit → it is 
   await offer.getByRole("button", { name: "Fall übernehmen" }).click();
   await expect(offer).toHaveCount(0);
 
-  // J3: after acceptance the team sees the client and plans a visit for tomorrow (Swiss date).
+  // J3 (PO brief): the first visit is the needs assessment (category A, registered nurse).
   const teamCase = page.getByRole("article", { name: "Fall Jonas Journeytest" });
   await expect(teamCase).toContainText("Testteam Nord");
   await expect(teamCase).toContainText("Noch keine Einsätze geplant");
-  await teamCase.getByRole("button", { name: "Einsatz planen" }).click();
+  await teamCase.getByRole("button", { name: "Abklärungsbesuch planen" }).click();
   const planForm = teamCase.getByRole("form", { name: "Einsatz planen" });
+  await expect(planForm.getByLabel("B", { exact: true })).toBeDisabled();
   const tomorrow = await planForm.getByLabel("Datum").inputValue();
   await planForm.getByLabel("Von").fill("14:00");
   await planForm.getByLabel("Bis").fill("14:45");
+  await planForm.getByLabel("A", { exact: true }).fill("45");
   await planForm.getByRole("button", { name: "Einsatz speichern" }).click();
   await expect(teamCase.getByRole("list", { name: "Geplante Einsätze" })).toContainText("14:00–14:45");
 
+  // Care plan with a KLV category, planned minutes, frequency, review date and a care goal.
+  const plan = teamCase.getByRole("region", { name: "Pflegeplan" });
+  await plan.getByRole("button", { name: "Leistung hinzufügen" }).click();
+  const item = plan.getByRole("form", { name: "Leistung hinzufügen" });
+  await item.getByLabel("Leistung", { exact: true }).fill("Grundpflege");
+  await item.getByLabel("Kategorie").selectOption("C");
+  await item.getByLabel("Minuten pro Einsatz").fill("30");
+  await item.getByLabel("Häufigkeit").fill("1x täglich");
+  await item.getByLabel("Überprüfung am").fill(new Date(Date.now() + 60 * 86_400_000).toISOString().slice(0, 10));
+  await item.getByLabel(/Pflegeziel/).fill("Selbständig waschen am Lavabo");
+  await item.getByRole("button", { name: "Leistung speichern" }).click();
+  await expect(plan).toContainText("Ziel: Selbständig waschen am Lavabo");
+
+  // The nurse's day shows the assessment with minutes per category and the care goal.
   await page.goto(`/field?datum=${tomorrow}`);
   const visit = page.getByRole("article", { name: /14:00 – 14:45, Jonas Journeytest/ });
   await expect(visit).toContainText("Geplant");
-  await expect(visit).toContainText("Grundpflege");
+  await expect(visit).toContainText("Bedarfsabklärung");
+  await expect(visit).toContainText("A 45 min");
+  await expect(visit).toContainText("Selbständig waschen am Lavabo");
 });

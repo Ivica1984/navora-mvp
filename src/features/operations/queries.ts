@@ -31,7 +31,7 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
   // Runs as the signed-in user (RLS sees auth.uid()); redirects to /login otherwise.
   const { supabase } = await requireUser();
 
-  const [partnerRequestsResult, casesResult, teamsResult, visitsResult, careNotesResult, qualityEventsResult] =
+  const [partnerRequestsResult, casesResult, teamsResult, visitsResult, careNotesResult, qualityEventsResult, uncoveredResult] =
     await Promise.all([
       supabase
         .from("partner_requests")
@@ -46,6 +46,8 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
         .from("quality_events")
         .select(QUALITY_EVENT_SUMMARY_COLUMNS)
         .order("created_at", { ascending: false }),
+      // J3 (PO brief): planned visits in the next 24 h without a responsible member, no client identity.
+      supabase.rpc("uncovered_visits"),
     ]);
 
   const firstError = [
@@ -55,6 +57,7 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
     visitsResult,
     careNotesResult,
     qualityEventsResult,
+    uncoveredResult,
   ].find((result) => result.error)?.error;
 
   if (firstError) {
@@ -78,6 +81,7 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
     visits,
     careNotes,
     qualityEvents,
+    uncoveredVisits: uncoveredResult.data ?? [],
   });
 
   return { cases, teams, visits, qualityEvents, attentionItems };

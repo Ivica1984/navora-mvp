@@ -68,6 +68,22 @@ function careCase(overrides: Partial<CaseRow>): CaseRow {
     assigned_team_id: "t",
     intake_consent_confirmed_at: null,
     intake_consent_confirmed_by: null,
+    // J1 (PO changes): funding facts and readiness
+    source_partner_request_id: null,
+    residence_municipality: null,
+    residence_canton: null,
+    insurer_name: null,
+    insurance_type: null,
+    medical_order_status: null,
+    medical_order_valid_until: null,
+    gp_named: null,
+    other_providers_active: null,
+    requested_start: null,
+    language_notes: null,
+    access_notes: null,
+    ready_for_matching_at: null,
+    // J3 (PO changes)
+    needs_assessment_done_at: null,
     ...overrides,
   };
 }
@@ -258,5 +274,23 @@ describe("ordering", () => {
       qualityEvents: [quality({ id: "q1", severity: "low" }), quality({ id: "q2", severity: "high" })],
     });
     expect(items.map((i) => i.priority)).toEqual(["P1", "P2"]);
+  });
+});
+
+describe("uncovered visits (J3, PO brief)", () => {
+  it("a planned visit without a responsible member in the next 24 h is an Operations exception (P2)", () => {
+    const items = buildAttentionItems({
+      partnerRequests: [],
+      cases: [],
+      teams: [],
+      visits: [],
+      careNotes: [],
+      qualityEvents: [],
+      uncoveredVisits: [{ visit_id: "v9", team_name: "Testteam Nord", visit_date: "2026-10-22", time_start: "08:00:00" }],
+      now: NOW,
+    });
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({ id: "visit-uncovered-v9", priority: "P2", category: "visit", entityType: "visit" });
+    expect(items[0].description).toContain("08:00");
   });
 });

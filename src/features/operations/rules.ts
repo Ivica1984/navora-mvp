@@ -34,6 +34,7 @@ export function buildAttentionItems({
   visits,
   careNotes,
   qualityEvents,
+  uncoveredVisits = [],
   now = Date.now(),
 }: {
   now?: number;
@@ -43,6 +44,8 @@ export function buildAttentionItems({
   visits: Pick<OperationsVisit, "id" | "status" | "visit_date" | "team_member_name">[];
   careNotes: CareNoteStatus[];
   qualityEvents: QualityEventSummary[];
+  /** J3 (PO brief): planned visits in the next 24 h without a responsible member. */
+  uncoveredVisits?: { visit_id: string; team_name: string; visit_date: string; time_start: string | null }[];
 }): AttentionItem[] {
   const items: AttentionItem[] = [];
 
@@ -189,6 +192,22 @@ export function buildAttentionItems({
         entityId: event.id,
       });
     }
+  }
+
+  // J3 (PO brief): the team is alerted first (/team); Operations sees the exception.
+  // Priority P2 until thresholds are configured (Q9) — not a validated clinical rule.
+  for (const visit of uncoveredVisits) {
+    items.push({
+      id: `visit-uncovered-${visit.visit_id}`,
+      priority: "P2",
+      severity: "warning",
+      category: "visit",
+      title: `Einsatz ohne Verantwortliche: ${visit.team_name}`,
+      description: `${visit.visit_date} ${visit.time_start ? visit.time_start.slice(0, 5) : ""} · in den nächsten 24 h`,
+      recommendedAction: "Team informieren; das Team bestimmt selbst, wer den Einsatz übernimmt.",
+      entityType: "visit",
+      entityId: visit.visit_id,
+    });
   }
 
   return items.sort((a, b) => {

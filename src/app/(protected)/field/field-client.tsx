@@ -25,6 +25,7 @@ import {
   type VisitEvent,
 } from "@/features/field/time";
 import { correctVisitTime, recordObservation } from "@/features/field/commands";
+import { formatMinutesByCategory } from "@/features/team/rules";
 import type { FieldNote, FieldVisit } from "@/features/field/types";
 
 type Props = {
@@ -174,6 +175,24 @@ function VisitCard({ visit, notes }: { visit: FieldVisit; notes: FieldNote[] }) 
         <Row label="Leistungen" value={services ?? "Noch nicht erfasst"} muted={!services} />
         {needs && <Row label="Pflegebedarf" value={needs} />}
         <Row label="Team" value={visit.team_name} />
+        {(visit.planned_minutes_a !== null || visit.planned_minutes_b !== null || visit.planned_minutes_c !== null) && (
+          <Row
+            label="Geplant"
+            value={`${visit.is_needs_assessment ? "Bedarfsabklärung · " : ""}${formatMinutesByCategory({
+              a: visit.planned_minutes_a,
+              b: visit.planned_minutes_b,
+              c: visit.planned_minutes_c,
+            })}`}
+          />
+        )}
+        {visit.care_goals && visit.care_goals.length > 0 && (
+          <Row label="Pflegeziele" value={visit.care_goals.join(" · ")} />
+        )}
+        <Row
+          label="Verantwortlich"
+          value={visit.responsible_me ? "du" : visit.responsible_set ? "Teammitglied" : "noch niemand – im Team klären"}
+          muted={!visit.responsible_set}
+        />
       </dl>
 
       <Handover notes={notes.filter((n) => n.kind === "handover")} />

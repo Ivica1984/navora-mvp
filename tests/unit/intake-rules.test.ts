@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { intakeOrganization, parseServices } from "@/features/intake/rules";
+import { CANTONS, factsFromForm, intakeOrganization, parseMissing, parseServices } from "@/features/intake/rules";
 
 describe("intake rules (J1)", () => {
   it("only admin/operations memberships may do intake", () => {
@@ -17,5 +17,31 @@ describe("intake rules (J1)", () => {
     ]);
     expect(parseServices("")).toEqual([]);
     expect(parseServices("x".repeat(81))).toEqual([]);
+  });
+});
+
+
+describe("intake facts (J1, PO brief)", () => {
+  it("has all 26 cantons", () => {
+    expect(CANTONS).toHaveLength(26);
+    expect(new Set(CANTONS).size).toBe(26);
+  });
+
+  it("leaves empty inputs out so an update never blanks a recorded fact", () => {
+    const form: Record<string, string> = {
+      residence_municipality: " Bern ", residence_canton: "BE", insurer_name: "", insurance_type: "KVG",
+      gp_named: "yes", other_providers_active: "", requested_start: "2026-10-23",
+    };
+    expect(factsFromForm((k) => form[k] ?? "")).toEqual({
+      residence_municipality: "Bern", residence_canton: "BE", insurance_type: "KVG", gp_named: true, requested_start: "2026-10-23",
+    });
+    expect(factsFromForm((k) => (k === "other_providers_active" ? "no" : ""))).toEqual({ other_providers_active: false });
+  });
+
+  it("parses the readiness list defensively", () => {
+    expect(parseMissing([{ item: "insurer", reason: "Krankenversicherer fehlt" }, { item: 1 }, null])).toEqual([
+      { item: "insurer", reason: "Krankenversicherer fehlt" },
+    ]);
+    expect(parseMissing(undefined)).toEqual([]);
   });
 });

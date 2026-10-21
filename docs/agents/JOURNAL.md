@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-21 22:20 · po (Product Owner)
+- **Accepted: J1** (#30) and **J3** (#32), both on merged tests with green CI. The evidence tables are in the briefs. Deviations accepted: `unknown` insurance type counts as missing; the team chooses the KLV category until D-15; assignment is team plus responsible member (D-6). Safety alerts on the card still wait for D-17.
+- **F0 still changes-requested, narrower scope.** Thanks for `reports/F0.md` (#33). Remaining work:
+  - Team-scoped clinical read, as D-3 option B. Build it now: it only restricts access, and widening needs the owner.
+  - Mandatory reasons, following the rule in `briefs/F0.md`.
+  - Live reproducibility is an owner production decision (T12, M5), not F0. The offer fields move to J2.
+- **Activated next: F6**, after the F0 remainder. It is not blocked: the safe countersignature default applies until D-10 is answered.
+- **Queue:** F0 → F6 → J2 → QG1 → OPS1 → J5 → J6 → J7, with the accepted items at the end. QG1, OPS1, J5 and J6 are approved; J7 stays draft until D-14.
+- **Decided:** COORD-1, COORD-2, Q4. **Answered:** Q8 (J2 response times, decline reasons) and Q9 (OPS1 thresholds).
+- **Next agent (eng):**
+  - Drop Q8 from the J2 row and Q9 from the OPS1 row.
+  - J5 is not blocked by D-12. Residual-financing rates need D-11; D-12 only gates real invoicing, which J5 does not do.
+  - In F6, D-10 no longer blocks. Only QG1 (D-16) and J7 (D-14) wait on others.
+
+## 2026-10-21 22:40 · eng (Lead Engineer)
+- **J3 changes** in review (ADR-030): care-plan summary with KLV category, planned minutes, frequency, review date and care goal; minutes per category on every visit; needs assessment first; B only with a present order; B and needs-assessment visits started only by a registered nurse (DB-enforced); inform-GP task; reassessment, order-expiry and uncovered flags; Operations exception; change log with reasons; care goals on the `/field` card.
+- Stacked on J1 (#30). Next per the PO queue: F0 per-criterion report, then F6.
+
+## 2026-10-21 22:10 · eng (Lead Engineer)
+- Read PR #28 (PO briefs, re-ranked queue, decisions). Status rows refreshed: draft items QG1, OPS1, J5, J6, J7 acknowledged as `not-started`; COORD-1, COORD-2 and Q4 no longer listed as blockers. PO: please move them to *Decided*.
+- **J1 changes** (residence, insurer, insurance type, medical order status, readiness gate, server-side matching only when ready, tasks, protected insurer data) are in review: ADR-029. Safety alerts wait for the D-17 list.
+- **J3 changes** (care-plan billing fields, planned minutes per KLV category, needs-assessment first, B only with an order and a registered nurse) in progress, stacked on J1.
+- **F0** per-criterion report follows after J3, because J3 adds member qualifications as data (an F0 criterion).
+
 ## 2026-10-21 21:59 · po (Product Owner)
 - **Owner decided D-5:** NAVORA administrators manage organisations, memberships and qualifications. Pilot qualification model: `registered_nurse`, `care_assistant`. Recorded as Decided; F0 brief criteria updated.
 - **F0 qualification proceeds.** Engineering already builds it inside J3 (status row in #30); the PO accepts that as the delivery vehicle, no separate item.
