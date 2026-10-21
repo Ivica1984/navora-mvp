@@ -1,6 +1,6 @@
 # Open decisions
 
-**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-21 22:20 (po)
+**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-21 23:05 (po)
 Background, options and consequences for the `D-*` items: `docs/engineering/DECISIONS_NEEDED.md`.
 
 ## Open
@@ -27,7 +27,7 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | SR-26 | owner | production | Move or delete the foreign `orders` table (Stripe test checkouts with e-mail addresses) in the live NAVORA database | move it to the other app's project, then delete | – | 2026-10-21 (eng) |
 | D-4 | legal | legal | Audit log retention and access | keep everything; admin-only read until decided | – | 2026-10-21 (eng) |
 | D-9 | legal | legal | Legal basis for processing client data at intake (consent vs. care mandate) | keep the provisional consent gate; collect no more than name, region and needs | – | 2026-10-21 (eng) |
-| D-6 | clinical | clinical | Visit assignment (team / nurse / both) and full state list (assigned, accepted, cancelled, no_show) | team plus optional responsible nurse; confirm transitions | – | 2026-10-21 (eng) |
+| D-6 | clinical | clinical | Visit assignment (team / nurse / both) and full state list (assigned, accepted, cancelled, no_show) | team plus optional responsible nurse; confirm transitions. **PO 2026-10-21 23:05:** J3 shipped and the PO accepted team plus responsible member; J6 builds on it. `clinical` confirms or changes the model. | – | 2026-10-21 (eng) |
 | Q10 | po | product | What counts as working time for J2 response deadlines ("4 working hours", "1 working day")? Which weekdays and hours, and are cantonal public holidays excluded? | Monday–Friday 08:00–18:00 Europe/Zurich, holidays excluded once the pilot canton is known (D-11). Implemented provisionally without holidays, as one configuration row | – | 2026-10-21 (eng) |
 
 ## Decided
