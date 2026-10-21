@@ -436,7 +436,7 @@ setCoachInput("");
             >
                <strong>Coach</strong>
   <div style={{ marginTop: "6px" }}>
-    {(selectedTeam as any)?.coach_name ?? "Noch nicht zugewiesen"}
+    {selectedTeam?.coach_name ?? "Noch nicht zugewiesen"}
   </div>
 </div>
 

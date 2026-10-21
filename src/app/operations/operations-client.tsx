@@ -141,7 +141,7 @@ function getCaseAgeHours(careCase: CaseRow) {
 
 function getSlaStatus(careCase: CaseRow) {
   const age = getCaseAgeHours(careCase);
-  const assignedTeamId = (careCase as any).assigned_team_id;
+  const assignedTeamId = careCase.assigned_team_id;
 
   if (!assignedTeamId && age > 48) return "violated";
   if (!assignedTeamId && age > 24) return "risk";
@@ -163,10 +163,7 @@ export default function OperationsClient({ dashboard }: OperationsClientProps) {
 
   const enrichedCases = useMemo<CaseWithRelations[]>(() => {
     return cases.map((careCase) => {
-      const assignedTeamId = (careCase as any).assigned_team_id as
-        | string
-        | null
-        | undefined;
+      const assignedTeamId = careCase.assigned_team_id;
 
       return {
         ...careCase,
@@ -182,7 +179,7 @@ export default function OperationsClient({ dashboard }: OperationsClientProps) {
 
   const activeCases = enrichedCases.filter((item) => item.status === "laufend");
   const unassignedCases = enrichedCases.filter(
-    (item) => !(item as any).assigned_team_id && item.status !== "laufend"
+    (item) => !item.assigned_team_id && item.status !== "laufend"
   );
 
   const openSlots = teams.reduce((sum, team) => sum + (team.open_slots ?? 0), 0);
@@ -205,7 +202,7 @@ export default function OperationsClient({ dashboard }: OperationsClientProps) {
   const riskCases = enrichedCases
     .filter((careCase) => {
       const sla = getSlaStatus(careCase);
-      const assignedTeamId = (careCase as any).assigned_team_id;
+      const assignedTeamId = careCase.assigned_team_id;
 
       return (
         sla !== "ok" ||
