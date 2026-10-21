@@ -20,6 +20,16 @@
 --   no names, needs or other free text enter the audit log.
 -- =============================================================================
 
+-- 0. One command may change several rows (referral, case, matching request).
+--    T10's unique index allowed one audit row per (actor, key), which only fits
+--    single-row commands. Uniqueness now holds per changed entity; replay
+--    detection (private.begin_command: "has this actor used this key?") is
+--    unchanged and still served by the index prefix.
+drop index public.audit_events_actor_idempotency_key;
+create unique index audit_events_actor_key_entity
+  on public.audit_events (actor_id, idempotency_key, table_name, entity_id)
+  where idempotency_key is not null;
+
 -- 1. Consent provenance on the case ------------------------------------------------
 alter table public.cases
   add column intake_consent_confirmed_at timestamptz,
