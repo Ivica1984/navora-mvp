@@ -48,19 +48,37 @@ export function formatTime(value: string | null): string | null {
   return value ? value.slice(0, 5) : null;
 }
 
-export type FieldAction = "start" | "complete" | null;
+export type FieldAction = "depart" | "start" | "pause" | "resume" | "complete";
 
 /**
- * The one action the field tool offers for a status. Mirrors the transitions the
- * database allows today (planned → started → completed, migration 0004). The
- * full DOMAIN_RULES state machine (on_the_way, paused, no_show …) waits for D-6.
- * The database is the authority; this only decides which button to show.
+ * Actions the field tool offers for a status, primary action first. Mirrors the
+ * transitions the database allows (migration 0007, ADR-023):
+ *   planned → on_the_way → started ↔ paused → completed, plus planned → started.
+ * assigned/accepted/cancelled/no_show wait for owner decision D-6.
+ * The database is the authority; this only decides which buttons to show.
  */
-export function nextFieldAction(status: string | null): FieldAction {
-  if (status === "planned") return "start";
-  if (status === "started") return "complete";
-  return null;
+export function fieldActions(status: string | null): FieldAction[] {
+  switch (status) {
+    case "planned":
+      return ["depart", "start"];
+    case "on_the_way":
+      return ["start"];
+    case "started":
+      return ["complete", "pause"];
+    case "paused":
+      return ["resume"];
+    default:
+      return [];
+  }
 }
+
+export const FIELD_ACTION_LABEL: Record<FieldAction, string> = {
+  depart: "Losfahren",
+  start: "Einsatz starten",
+  pause: "Pause",
+  resume: "Fortsetzen",
+  complete: "Einsatz abschliessen",
+};
 
 export type FieldVisitLike = { status: string | null };
 

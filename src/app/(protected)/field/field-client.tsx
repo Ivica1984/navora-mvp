@@ -4,14 +4,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { signOut } from "@/features/auth/actions";
-import { completeVisit, startVisit } from "@/features/visits/commands";
+import { completeVisit, departVisit, pauseVisit, resumeVisit, startVisit } from "@/features/visits/commands";
 import { getVisitStatusLabel } from "@/features/visits/types";
 import {
+  FIELD_ACTION_LABEL,
+  fieldActions,
   formatDayLabel,
   formatTime,
-  nextFieldAction,
   summarizeDay,
+  type FieldAction,
 } from "@/features/field/rules";
+import { computeVisitTimes, formatMinutes, parseEvents } from "@/features/field/time";
 import type { FieldVisit } from "@/features/field/types";
 
 type Props = {
@@ -20,6 +23,14 @@ type Props = {
   previousDay: string;
   nextDay: string;
   visits: FieldVisit[];
+};
+
+const COMMANDS: Record<FieldAction, typeof startVisit> = {
+  depart: departVisit,
+  start: startVisit,
+  pause: pauseVisit,
+  resume: resumeVisit,
+  complete: completeVisit,
 };
 
 const STATUS_CLASS: Record<string, string> = {
@@ -85,7 +96,7 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
         )}
 
         <p className="mt-6 text-xs leading-relaxed text-emerald-900/60">
-          Du siehst die Einsätze deiner Teams. Zeiterfassung, Beobachtungen und Bericht folgen in den nächsten Ausbaustufen.
+          Du siehst die Einsätze deiner Teams. Zeiten entstehen aus deinen Statuswechseln. Zeitkorrekturen, Beobachtungen und Bericht folgen in den nächsten Ausbaustufen.
         </p>
       </main>
     </div>
@@ -103,25 +114,25 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 function VisitCard({ visit }: { visit: FieldVisit }) {
   const router = useRouter();
-  const [pending, setPending] = useState(false);
+  const [pending, setPending] = useState<FieldAction | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const action = nextFieldAction(visit.status);
+  const actions = fieldActions(visit.status);
   const start = formatTime(visit.time_start);
   const end = formatTime(visit.time_end);
   const time = start ? (end ? `${start} – ${end}` : `ab ${start}`) : "Zeit offen";
   const place = [visit.address, [visit.plz, visit.ort].filter(Boolean).join(" ")].filter(Boolean).join(", ");
   const services = visit.services_provided?.length ? visit.services_provided.join(", ") : null;
   const needs = visit.care_needs?.length ? visit.care_needs.join(", ") : null;
+  const events = parseEvents(visit.events);
+  const times = events.length > 0 ? computeVisitTimes(events) : null;
 
-  async function run() {
-    if (!action) return;
-    setPending(true);
+  async function run(action: FieldAction) {
+    setPending(action);
     setError(null);
     // One idempotency key per tap: a retried request is applied at most once (T10).
-    const command = action === "start" ? startVisit : completeVisit;
-    const result = await command({ visitId: visit.visit_id, idempotencyKey: crypto.randomUUID() });
-    setPending(false);
+    const result = await COMMANDS[action]({ visitId: visit.visit_id, idempotencyKey: crypto.randomUUID() });
+    setPending(null);
     if (!result.ok) setError(result.error);
     router.refresh();
   }
@@ -148,25 +159,56 @@ function VisitCard({ visit }: { visit: FieldVisit }) {
         <Row label="Team" value={visit.team_name} />
       </dl>
 
+      {times && (
+        <section aria-label="Erfasste Zeit" className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-stone-50 p-2 text-center text-sm">
+          <TimeCell label="Anfahrt" value={formatMinutes(times.travelMinutes)} />
+          <TimeCell label="Pflege" value={formatMinutes(times.careMinutes)} />
+          <TimeCell label="Pause" value={formatMinutes(times.pauseMinutes)} />
+          {times.inconsistent && (
+            <p className="col-span-3 text-xs font-semibold text-amber-800">
+              Zeitfolge unstimmig – bitte im Team prüfen.
+            </p>
+          )}
+        </section>
+      )}
+
       {error && (
         <p role="alert" data-testid="command-error" className="mt-3 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800">
           {error}
         </p>
       )}
 
-      {action && (
-        <button
-          type="button"
-          onClick={run}
-          disabled={pending}
-          className={`mt-4 min-h-12 w-full rounded-xl text-base font-bold text-white disabled:opacity-60 ${
-            action === "start" ? "bg-emerald-800 active:bg-emerald-900" : "bg-blue-800 active:bg-blue-900"
-          }`}
-        >
-          {pending ? "Wird gespeichert …" : action === "start" ? "Einsatz starten" : "Einsatz abschliessen"}
-        </button>
+      {actions.length > 0 && (
+        <div className={`mt-4 grid gap-2 ${actions.length > 1 ? "grid-cols-[2fr_1fr]" : ""}`}>
+          {actions.map((action, index) => (
+            <button
+              key={action}
+              type="button"
+              onClick={() => run(action)}
+              disabled={pending !== null}
+              className={`min-h-12 rounded-xl text-base font-bold disabled:opacity-60 ${
+                index === 0
+                  ? action === "complete"
+                    ? "bg-blue-800 text-white active:bg-blue-900"
+                    : "bg-emerald-800 text-white active:bg-emerald-900"
+                  : "border-2 border-emerald-800 bg-white text-emerald-900 active:bg-emerald-50"
+              }`}
+            >
+              {pending === action ? "Wird gespeichert …" : FIELD_ACTION_LABEL[action]}
+            </button>
+          ))}
+        </div>
       )}
     </article>
+  );
+}
+
+function TimeCell({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="font-bold tabular-nums">{value}</p>
+      <p className="text-xs text-emerald-900/60">{label}</p>
+    </div>
   );
 }
 

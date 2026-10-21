@@ -407,6 +407,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"visit_events": {
+                  Row: {
+                    "actor_id": string | null,"command": string | null,"event_type": string,"from_status": string,"id": number,"idempotency_key": string | null,"occurred_at": string,"organization_id": string,"team_id": string | null,"to_status": string,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id"?: string | null,"command"?: string | null,"event_type": string,"from_status": string,"id"?: never,"idempotency_key"?: string | null,"occurred_at"?: string,"organization_id": string,"team_id"?: string | null,"to_status": string,"visit_id": string
+                  }
+                  Update: {
+                    "actor_id"?: string | null,"command"?: string | null,"event_type"?: string,"from_status"?: string,"id"?: never,"idempotency_key"?: string | null,"occurred_at"?: string,"organization_id"?: string,"team_id"?: string | null,"to_status"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "visit_events_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_events_visit_id_organization_id_fkey"
+      columns: ["visit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 }
           }
           Views: {
@@ -419,10 +445,19 @@ isOneToOne: false
 "complete_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"depart_visit":
+{ Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
 "field_visits":
 { Args: { "p_date": string }; Returns: {
-              "address": string,"care_needs": (string)[],"case_id": string,"client_name": string,"ort": string,"plz": string,"services_provided": (string)[],"status": string,"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
+              "address": string,"care_needs": (string)[],"case_id": string,"client_name": string,"events": Json,"ort": string,"plz": string,"services_provided": (string)[],"status": string,"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
+                           },
+"pause_visit":
+{ Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"resume_visit":
+{ Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
 "set_team_priority":
 { Args: { "p_idempotency_key": string,"p_priority": boolean,"p_team_id": string }; Returns: string
