@@ -74,14 +74,16 @@ export const ESCALATION_REASON_LABEL: Record<string, string> = {
 
 // J6 (PO brief): continuity. Members have no names yet (no profiles, D-5): "Ich" or "Teammitglied n".
 export function memberLabel(
-  members: { user_id: string; me: boolean; qualification?: string | null }[],
+  members: { user_id: string; me: boolean; qualification?: string | null; name?: string | null }[],
   userId: string | null | undefined,
 ): string {
   if (!userId) return "nicht bestimmt";
   const index = members.findIndex((m) => m.user_id === userId);
   if (index < 0) return "nicht mehr im Team";
   const m = members[index];
-  const name = m.me ? "Ich" : `Teammitglied ${index + 1}`;
+  // ADM1: the member's display name when the administrator (or the member) has set one; never guessed.
+  const named = m.name?.trim();
+  const name = m.me ? (named ? `Ich (${named})` : "Ich") : named || `Teammitglied ${index + 1}`;
   return m.qualification ? `${name} – ${QUALIFICATION_LABEL[m.qualification] ?? m.qualification}` : name;
 }
 

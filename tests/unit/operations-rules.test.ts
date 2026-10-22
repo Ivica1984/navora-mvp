@@ -28,6 +28,7 @@ function team(overrides: Partial<TeamRow>): TeamRow {
     created_at: hoursAgo(1000),
     priority: false,
     coach_name: null,
+    deactivated_at: null,
     ...overrides,
   };
 }

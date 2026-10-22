@@ -287,6 +287,7 @@ type Upcoming = {
   responsible_me: boolean;
   responsible_set: boolean;
   covered_by_team?: string | null;   // COVER1
+  responsible_id?: string | null;    // ADM1
   flags: string[] | null;
   last_change: { change: string; reason: string | null; own: boolean } | null;
 };
@@ -300,7 +301,7 @@ const toScheduled = (i: PlanItem): ScheduledItem => ({
   freq_times: i.freq_times ?? null, freq_period: i.freq_period ?? null, freq_weekdays: i.freq_weekdays ?? null,
   window_start: i.window_start ?? null, window_end: i.window_end ?? null,
 });
-type Member = { user_id: string; qualification: string | null; me: boolean };
+type Member = { user_id: string; qualification: string | null; me: boolean; name?: string | null };
 
 function arr<T>(raw: unknown, key: string): T[] {
   return Array.isArray(raw) ? raw.filter((v): v is T => typeof v === "object" && v !== null && key in v) : [];
@@ -393,7 +394,7 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus }: {
         <ul className="mt-1 grid gap-2" aria-label="Geplante Einsätze">
           {upcoming.map((v) => (
             <li key={v.visit_id}>
-              <PlannedVisit visit={v} />
+              <PlannedVisit visit={v} members={members} />
             </li>
           ))}
         </ul>
@@ -714,7 +715,7 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
   );
 }
 
-function PlannedVisit({ visit }: { visit: Upcoming }) {
+function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }) {
   const router = useRouter();
   const [mode, setMode] = useState<"view" | "move" | "remove">("view");
   const [pending, setPending] = useState(false);
@@ -759,7 +760,13 @@ function PlannedVisit({ visit }: { visit: Upcoming }) {
           <p className="text-xs text-emerald-900/70">
             {visit.generated ? <span data-testid="generated-visit">aus Pflegeplan · </span> : null}
             {visit.needs_assessment ? "Bedarfsabklärung · " : ""}
-            {formatMinutesByCategory(visit)} · {visit.responsible_me ? "verantwortlich: ich" : visit.covered_by_team ? `übernommen von Team ${visit.covered_by_team}` : visit.responsible_set ? "verantwortlich: Teammitglied" : "noch niemand verantwortlich"}
+            {formatMinutesByCategory(visit)} · {visit.responsible_me
+              ? "verantwortlich: ich"
+              : visit.covered_by_team
+                ? `übernommen von Team ${visit.covered_by_team}`
+                : visit.responsible_set
+                  ? `verantwortlich: ${members.find((m) => m.user_id === visit.responsible_id)?.name?.trim() || "Teammitglied"}`
+                  : "noch niemand verantwortlich"}
           </p>
           {visit.last_change?.reason && (
             <p className="text-xs text-emerald-900/60">

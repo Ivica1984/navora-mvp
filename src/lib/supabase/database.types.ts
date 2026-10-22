@@ -397,6 +397,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"exception_rule_overrides": {
+                  Row: {
+                    "amount": number | null,"escalate_to_p1_after_hours": number | null,"exception_type": string,"id": string,"organization_id": string,"priority": string,"updated_at": string,"updated_by": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount"?: number | null,"escalate_to_p1_after_hours"?: number | null,"exception_type": string,"id"?: string,"organization_id": string,"priority": string,"updated_at"?: string,"updated_by": string
+                  }
+                  Update: {
+                    "amount"?: number | null,"escalate_to_p1_after_hours"?: number | null,"exception_type"?: string,"id"?: string,"organization_id"?: string,"priority"?: string,"updated_at"?: string,"updated_by"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"exception_rules": {
                   Row: {
                     "amount": number | null,"escalate_to_p1_after_hours": number | null,"exception_type": string,"label": string,"next_step": string,"priority": string,"unit": string | null,"updated_at": string
@@ -498,6 +512,34 @@ isOneToOne: false
       referencedRelation: "teams"
       referencedColumns: ["id","organization_id"]
     }
+                  ]
+                },"member_invitations": {
+                  Row: {
+                    "accepted_at": string | null,"accepted_user": string | null,"created_at": string,"display_name": string,"email": string,"expires_at": string,"id": string,"invited_by": string,"organization_id": string,"qualification": string | null,"revoked_at": string | null,"role": string,"team_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "accepted_at"?: string | null,"accepted_user"?: string | null,"created_at"?: string,"display_name": string,"email": string,"expires_at"?: string,"id"?: string,"invited_by": string,"organization_id": string,"qualification"?: string | null,"revoked_at"?: string | null,"role": string,"team_id"?: string | null
+                  }
+                  Update: {
+                    "accepted_at"?: string | null,"accepted_user"?: string | null,"created_at"?: string,"display_name"?: string,"email"?: string,"expires_at"?: string,"id"?: string,"invited_by"?: string,"organization_id"?: string,"qualification"?: string | null,"revoked_at"?: string | null,"role"?: string,"team_id"?: string | null
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"member_profiles": {
+                  Row: {
+                    "display_name": string,"id": string,"organization_id": string,"updated_at": string,"updated_by": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "display_name": string,"id"?: string,"organization_id": string,"updated_at"?: string,"updated_by"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "display_name"?: string,"id"?: string,"organization_id"?: string,"updated_at"?: string,"updated_by"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    
                   ]
                 },"organization_memberships": {
                   Row: {
@@ -807,14 +849,14 @@ isOneToOne: false
                   ]
                 },"teams": {
                   Row: {
-                    "care_focus": string | null,"coach_name": string | null,"created_at": string,"id": string,"lead_name": string | null,"name": string,"next_step": string | null,"open_slots": number | null,"organization_id": string,"priority": boolean | null,"region": string | null,"status": string | null,"utilization": number | null
+                    "care_focus": string | null,"coach_name": string | null,"created_at": string,"deactivated_at": string | null,"id": string,"lead_name": string | null,"name": string,"next_step": string | null,"open_slots": number | null,"organization_id": string,"priority": boolean | null,"region": string | null,"status": string | null,"utilization": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "care_focus"?: string | null,"coach_name"?: string | null,"created_at"?: string,"id"?: string,"lead_name"?: string | null,"name": string,"next_step"?: string | null,"open_slots"?: number | null,"organization_id": string,"priority"?: boolean | null,"region"?: string | null,"status"?: string | null,"utilization"?: number | null
+                    "care_focus"?: string | null,"coach_name"?: string | null,"created_at"?: string,"deactivated_at"?: string | null,"id"?: string,"lead_name"?: string | null,"name": string,"next_step"?: string | null,"open_slots"?: number | null,"organization_id": string,"priority"?: boolean | null,"region"?: string | null,"status"?: string | null,"utilization"?: number | null
                   }
                   Update: {
-                    "care_focus"?: string | null,"coach_name"?: string | null,"created_at"?: string,"id"?: string,"lead_name"?: string | null,"name"?: string,"next_step"?: string | null,"open_slots"?: number | null,"organization_id"?: string,"priority"?: boolean | null,"region"?: string | null,"status"?: string | null,"utilization"?: number | null
+                    "care_focus"?: string | null,"coach_name"?: string | null,"created_at"?: string,"deactivated_at"?: string | null,"id"?: string,"lead_name"?: string | null,"name"?: string,"next_step"?: string | null,"open_slots"?: number | null,"organization_id"?: string,"priority"?: boolean | null,"region"?: string | null,"status"?: string | null,"utilization"?: number | null
                   }
                   Relationships: [
                     {
@@ -1054,8 +1096,29 @@ isOneToOne: false
             "accept_cover":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"accept_my_invitations":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
 "add_care_plan_item":
 { Args: { "p_case_id": string,"p_category": string,"p_frequency": string,"p_goal": string,"p_idempotency_key": string,"p_planned_minutes": number,"p_review_date": string,"p_service": string }; Returns: string
+                           },
+"add_team_member":
+{ Args: { "p_idempotency_key": string,"p_qualification": string,"p_team_id": string,"p_user_id": string }; Returns: string
+                           },
+"admin_exception_rules":
+{ Args: { "p_organization_id": string }; Returns: {
+              "amount": number,"default_amount": number,"default_escalate": number,"default_priority": string,"escalate_to_p1_after_hours": number,"exception_type": string,"is_default": boolean,"label": string,"max_amount": number,"max_escalate": number,"priority": string,"unit": string,"updated_at": string,"updated_by_name": string
+            }[]
+                           },
+"admin_members":
+{ Args: { "p_organization_id": string }; Returns: {
+              "display_name": string,"email": string,"joined_at": string,"role": string,"teams": Json,"user_id": string
+            }[]
+                           },
+"admin_response_deadlines":
+{ Args: { "p_organization_id": string }; Returns: {
+              "amount": number,"default_amount": number,"default_unit": string,"is_default": boolean,"referral_type": string,"unit": string,"updated_at": string,"updated_by_name": string
+            }[]
                            },
 "assign_team_coach":
 { Args: { "p_coach_name": string,"p_idempotency_key": string,"p_team_id": string }; Returns: string
@@ -1104,6 +1167,12 @@ isOneToOne: false
 "create_report_draft":
 { Args: { "p_idempotency_key": string,"p_summary": string,"p_visit_id": string }; Returns: Json
                            },
+"create_team":
+{ Args: { "p_idempotency_key": string,"p_name": string,"p_organization_id": string,"p_region": string }; Returns: string
+                           },
+"deactivate_team":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_team_id": string }; Returns: string
+                           },
 "decide_matching_request":
 { Args: { "p_decision": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code"?: string,"p_request_id": string,"p_team_id": string }; Returns: string
                            },
@@ -1122,12 +1191,12 @@ isOneToOne: false
                            },
 "field_quality":
 { Args: { "p_date": string }; Returns: {
-              "at": string,"id": string,"kind": string,"label": string,"own": boolean,"severity": string,"status": string,"visit_id": string
+              "at": string,"id": string,"kind": string,"label": string,"own": boolean,"person_name": string,"severity": string,"status": string,"visit_id": string
             }[]
                            },
 "field_reports":
 { Args: { "p_date": string }; Returns: {
-              "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"i_am_performer": boolean,"i_can_countersign": boolean,"i_signed": boolean,"report_id": string,"signed_at": string,"snapshot": Json,"status": string,"summary": string,"version": number,"visit_id": string
+              "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"i_am_performer": boolean,"i_can_countersign": boolean,"countersigned_by_name": string,"i_signed": boolean,"report_id": string,"signed_at": string,"signed_by_name": string,"snapshot": Json,"status": string,"summary": string,"version": number,"visit_id": string
             }[]
                            },
 "field_visit_status_notes":
@@ -1156,6 +1225,9 @@ isOneToOne: false
               "access_notes": string,"care_needs": (string)[],"case_id": string,"client_name": string,"created_at": string,"expected_hours_per_week": number,"gp_named": boolean,"insurance_type": string,"insurer_name": string,"language_notes": string,"medical_order_status": string,"medical_order_valid_until": string,"missing": Json,"open_tasks": (string)[],"other_providers_active": boolean,"region": string,"requested_start": string,"residence_canton": string,"residence_municipality": string,"urgency": string
             }[]
                            },
+"invite_member":
+{ Args: { "p_display_name": string,"p_email": string,"p_idempotency_key": string,"p_organization_id": string,"p_qualification": string,"p_role": string,"p_team_id": string }; Returns: string
+                           },
 "lift_quality_hold":
 { Args: { "p_hold_id": string,"p_idempotency_key": string,"p_reason": string }; Returns: string
                            },
@@ -1171,7 +1243,7 @@ isOneToOne: false
                            },
 "operations_exceptions":
 { Args: Record<PropertyKey, never>; Returns: {
-              "case_id": string,"case_label": string,"comments": Json,"detail": string,"entity_id": string,"entity_type": string,"exception_key": string,"exception_type": string,"label": string,"next_step": string,"priority": string,"region": string,"since": string,"taken": boolean,"taken_at": string,"taken_by_me": boolean,"team_name": string
+              "case_id": string,"case_label": string,"comments": Json,"detail": string,"entity_id": string,"entity_type": string,"exception_key": string,"exception_type": string,"label": string,"next_step": string,"owner_name": string,"priority": string,"region": string,"since": string,"taken": boolean,"taken_at": string,"taken_by_me": boolean,"team_name": string
             }[]
                            },
 "pause_case":
@@ -1212,11 +1284,17 @@ isOneToOne: false
 "remove_planned_visit":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: Json
                            },
+"remove_team_member":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_team_id": string,"p_user_id": string }; Returns: string
+                           },
 "reopen_case":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_reason": string }; Returns: string
                            },
 "reschedule_visit":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
+                           },
+"reset_exception_rule":
+{ Args: { "p_exception_type": string,"p_idempotency_key": string,"p_organization_id": string }; Returns: string
                            },
 "resume_case":
 { Args: { "p_case_id": string,"p_idempotency_key": string }; Returns: string
@@ -1227,14 +1305,26 @@ isOneToOne: false
 "retire_care_plan_item":
 { Args: { "p_idempotency_key": string,"p_item_id": string,"p_reason": string }; Returns: string
                            },
+"revoke_invitation":
+{ Args: { "p_idempotency_key": string,"p_invitation_id": string }; Returns: string
+                           },
 "set_auto_planning":
 { Args: { "p_case_id": string,"p_enabled": boolean,"p_idempotency_key": string,"p_reason": string }; Returns: string
                            },
 "set_care_plan_schedule":
 { Args: { "p_idempotency_key": string,"p_item_id": string,"p_period": string,"p_times": number,"p_weekdays": (number)[],"p_window_end": string,"p_window_start": string }; Returns: Json
                            },
+"set_display_name":
+{ Args: { "p_display_name": string,"p_idempotency_key": string,"p_organization_id": string,"p_user_id": string }; Returns: string
+                           },
+"set_exception_rule":
+{ Args: { "p_amount": number,"p_escalate_to_p1_after_hours": number,"p_exception_type": string,"p_idempotency_key": string,"p_organization_id": string,"p_priority": string }; Returns: string
+                           },
 "set_member_qualification":
 { Args: { "p_idempotency_key": string,"p_qualification": string,"p_reason": string,"p_team_id": string,"p_user_id": string }; Returns: string
+                           },
+"set_member_role":
+{ Args: { "p_idempotency_key": string,"p_organization_id": string,"p_reason": string,"p_role": string,"p_user_id": string }; Returns: string
                            },
 "set_primary_nurse":
 { Args: { "p_case_id": string,"p_deputy": string,"p_idempotency_key": string,"p_primary": string,"p_reason": string }; Returns: string
@@ -1293,6 +1383,9 @@ isOneToOne: false
                            },
 "update_report_draft":
 { Args: { "p_idempotency_key": string,"p_report_id": string,"p_summary": string }; Returns: Json
+                           },
+"update_team":
+{ Args: { "p_idempotency_key": string,"p_name": string,"p_region": string,"p_team_id": string }; Returns: string
                            }
           }
           Enums: {
