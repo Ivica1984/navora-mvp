@@ -26,7 +26,19 @@ Supporting files:
 | `po` | Product Owner (a person, or an agent acting for them) | **what** is built and its order; accepts or rejects delivered items | edit the engineering state |
 | `eng` | Engineering (Lead Engineer agent, future engineering agents) | **how** it is built (ADRs) | reorder or invent priorities; accept its own work |
 | `owner` | Company owner | business, financial, regulatory questions; production risk | — |
-| `legal`, `clinical` | Advisers named by the owner | legal or clinical questions | — |
+| `clinical` | **Clinical & Regulatory Architect** (permanent role, owner 2026-10-22), together with clinical advisers named by the owner | authoritative **review** of patient safety, clinical workflows, care quality, billing integrity, regulatory compliance, LTCF, PAG and MQI; owns the `clinical` decisions in `OPEN_DECISIONS.md` | invent medical, clinical, tariff or regulatory rules (sources or a named qualified person; who signs off is D-27); write code; set PO status; edit `IMPLEMENTATION_STATUS.md` |
+| `legal` | Advisers named by the owner | legal questions | — |
+
+### Clinical review gate (owner instruction, 2026-10-22)
+
+- **Scope:** every capability that affects patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI.
+- **Report:** the Clinical & Regulatory Architect publishes the **Clinical Governance Report** at `reports/CLINICAL_GOVERNANCE.md`. The newest dated section is the latest report; git keeps the history. Each finding names the item ID, a severity (`blocking` or `advisory`), the evidence and a testable remedy.
+- **Before final acceptance** of an item in scope, the PO reads the latest report and records in the brief's evidence table, per finding for that item: considered, and how it was decided.
+  - A `blocking` finding leads to `changes-requested` (or a decision for its owner), never to `accepted`.
+  - An `advisory` finding may be accepted as a condition, with the reason.
+- **No report yet, or none that covers the delivery:** the PO completes its own review but does not set `accepted`; the evidence table says "awaiting clinical review", and the item stays in review.
+- **Already accepted items:** acceptances before 2026-10-22 22:10 stand. A later `blocking` finding on one of them leads the PO to set `changes-requested`.
+- **The PO still owns** what is built and its order. The Clinical Architect reviews; it does not reorder the queue.
 
 ## Rules
 
@@ -35,7 +47,7 @@ Supporting files:
 3. **Disagreement is explicit.** If engineering disagrees with a brief, it opens a decision (`owner: po`) with the reason, the risks and an alternative, and lists it under *Blocked by*. If it builds something different from the brief, the *Deviations* column says what and why.
 4. **Blocked names its blocker.** State `blocked` requires decision IDs in *Blocked by*, and those decisions must exist in `OPEN_DECISIONS.md`.
 5. **Decisions go to the right owner.** Legal, financial, regulatory, clinical and production questions are owned by `owner`, `legal` or `clinical`, never by `eng` (CI enforces this).
-6. **Done means accepted.** Engineering sets `delivered` with PR numbers. The PO checks the brief's acceptance criteria and sets *PO status* to `accepted` or `changes-requested`.
+6. **Done means accepted.** Engineering sets `delivered` with PR numbers. The PO checks the brief's acceptance criteria and sets *PO status* to `accepted` or `changes-requested`. For items in clinical scope, acceptance also needs the clinical review gate (*Roles* above).
 7. **Leave a trail.** Every session that changes one of these files adds a `JOURNAL.md` entry.
 8. **No personal or health data** in this folder.
 
@@ -66,6 +78,7 @@ Multiple values are comma-separated. Use `–` for none. PRs are written as `#23
 | Owner (Ivica1984) | `owner` | 2026-10-21 |
 | NAVORA PO agent (scheduled, hourly) | `po` | 2026-10-22 |
 | NAVORA Engineering agent (scheduled, hourly) | `eng` | 2026-10-22 |
+| NAVORA Clinical & Regulatory Architect | `clinical` | 2026-10-22 |
 | agents-coordination watcher (GitHub Action) | – (writes issues only) | 2026-10-22 |
 
 Future agents add themselves here in their first PR.

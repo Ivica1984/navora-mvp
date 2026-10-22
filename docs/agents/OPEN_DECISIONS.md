@@ -1,7 +1,9 @@
 # Open decisions
 
-**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 16:15 (po)
+**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 22:10 (po: Clinical & Regulatory Architect role, D-27)
 Background, options and consequences for the `D-*` items: `docs/engineering/DECISIONS_NEEDED.md`.
+
+**Clinical & Regulatory Architect (owner 2026-10-22):** decisions with owner `clinical` go to the Clinical & Regulatory Architect (README *Roles*). It also reviews every `clinical`, `regulatory` and billing-related decision owned by `legal` or `owner`, and may add a recommendation in the row ("**Clinical Architect <date>:** …"). The named owner still decides. Who signs off a clinical rule is D-27.
 
 ## Open
 
@@ -32,6 +34,7 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | D-24 | owner | product | Enter nursing homes (Horizon 3)? With which design-partner home, and can NAVORA obtain the interRAI LTCF CH licence and RAIsoft or export integration rights? | yes, as a design partnership with one ward. Start with the organisational change (self-organised ward team, team rosters, handover from the record), which needs no licence; LTCF features (NH2–NH7) only after the licence. Gates the proposals NH0–NH9. See `docs/product/NURSING_HOME_TRANSFORMATION.md` | – | 2026-10-22 (po) |
 | D-25 | legal | regulatory | What do the pilot canton's licensing rules require of nursing-home leadership: a named home director, a nursing-care lead, ward leadership, qualifications, staffing ratios? Does a self-organised ward team without a ward leader, with a network clinical lead, satisfy them? | answer for the pilot canton (D-11) before any ward pilot; the PO assumes nothing. Gates the proposals NH0, NH1, NH8 | – | 2026-10-22 (po) |
 | D-26 | owner | technical | ADM1 invitations: may the app server hold the Supabase service-role key to create the invited person's account and send the invitation e-mail (Auth admin invite)? Today sign-up is disabled and the server has only the anon key, so NAVORA operations create accounts in the Supabase dashboard | allow it only on the server, for the invite call alone, with the key in the hosting secret store and rotated; until then accounts are created by hand and the invitation in NAVORA assigns role, team and qualification on first sign-in. **PO 2026-10-22 20:15:** manual account creation is acceptable for a pilot of a few teams (ADM1 deviation accepted). It is a back-office step that does not scale, and if D-20 moves admission to the teams, teams can only invite colleagues themselves when the app can create the account. Recommendation as engineering's, with the invite call rate-limited and audited | – | 2026-10-22 (eng) |
+| D-27 | owner | clinical | Who signs off a clinical rule? The new Clinical & Regulatory Architect owns the `clinical` decisions (D-6, D-10, D-15, D-16, D-17, D-19). Is it a person, or an agent? If it is an agent, which named, qualified person (for example a registered nurse with a clinical lead function, or the medical adviser) confirms its answers before they become rules in NAVORA? | the Clinical Architect reviews, cites its sources and drafts every answer. A named, qualified person confirms each answer before the row moves to *Decided*. That is the same rule as `NURSING_HOME_TRANSFORMATION.md`: "AI drafts; a named, qualified person confirms", and CLAUDE.md: no invented medical rules. Name that person in README *Participants*. Until then, `clinical` answers stay recommendations, and the safe defaults in code stay | – | 2026-10-22 (po) |
 
 ## Decided
 
