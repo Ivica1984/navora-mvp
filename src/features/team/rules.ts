@@ -5,6 +5,7 @@ export const PLAN_FLAG_LABEL: Record<string, string> = {
   order_expired: "nach Ablauf der Verordnung",
   reassessment_due: "nach Überprüfungsdatum des Pflegeplans – Neubeurteilung",
   uncovered: "niemand verantwortlich (nächste 24 h)",
+  not_primary: "weder Bezugspflegende noch Stellvertretung (Kontinuität)",
 };
 
 
@@ -70,3 +71,23 @@ export const ESCALATION_REASON_LABEL: Record<string, string> = {
   deadline_passed: "Antwortfrist abgelaufen",
   deadline_not_configured: "Keine Antwortfrist für diese Zuweisungsart",
 };
+
+// J6 (PO brief): continuity. Members have no names yet (no profiles, D-5): "Ich" or "Teammitglied n".
+export function memberLabel(
+  members: { user_id: string; me: boolean; qualification?: string | null }[],
+  userId: string | null | undefined,
+): string {
+  if (!userId) return "nicht bestimmt";
+  const index = members.findIndex((m) => m.user_id === userId);
+  if (index < 0) return "nicht mehr im Team";
+  const m = members[index];
+  const name = m.me ? "Ich" : `Teammitglied ${index + 1}`;
+  return m.qualification ? `${name} – ${QUALIFICATION_LABEL[m.qualification] ?? m.qualification}` : name;
+}
+
+/** "3 Pflegende · 67 % durch Bezugspflege" — per client, never per person. */
+export function formatContinuity(row: { visits: number; distinct_nurses: number; primary_share_pct: number | null }): string {
+  if (row.visits === 0) return "diesen Monat noch keine abgeschlossenen Einsätze";
+  const share = row.primary_share_pct === null ? "Bezugspflege nicht bestimmt" : `${row.primary_share_pct} % durch Bezugspflege`;
+  return `${row.visits} Einsätze · ${row.distinct_nurses} verschiedene Pflegende · ${share}`;
+}

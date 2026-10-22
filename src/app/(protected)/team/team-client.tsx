@@ -3,20 +3,22 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { addCarePlanItem, decideMatchingRequest, planVisit, removePlannedVisit, rescheduleVisit, retireCarePlanItem } from "@/features/team/commands";
+import { addCarePlanItem, decideMatchingRequest, planVisit, removePlannedVisit, rescheduleVisit, retireCarePlanItem, setPrimaryNurse } from "@/features/team/commands";
 import {
   DECLINE_REASONS,
   DECLINE_REASON_LABEL,
   PLAN_FLAG_LABEL,
   QUALIFICATION_LABEL,
   declineError,
+  formatContinuity,
   formatMinutesByCategory,
   formatResponseDue,
   formatWeeklyHours,
+  memberLabel,
   minutesFromForm,
 } from "@/features/team/rules";
 import { MEDICAL_ORDER_LABEL, TASK_LABEL } from "@/features/intake/rules";
-import type { TeamCase, TeamOffer } from "@/features/team/queries";
+import type { ContinuityRow, TeamCase, TeamOffer } from "@/features/team/queries";
 import { formatDayLabel, shiftDay, todayInZurich } from "@/features/field/rules";
 import { getVisitStatusLabel } from "@/features/visits/types";
 
@@ -30,7 +32,7 @@ function hoursSince(iso: string) {
   return Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / 3_600_000));
 }
 
-export default function TeamClient({ offers, cases }: { offers: TeamOffer[]; cases: TeamCase[] }) {
+export default function TeamClient({ offers, cases, continuity }: { offers: TeamOffer[]; cases: TeamCase[]; continuity: ContinuityRow[] }) {
   const open = offers.filter((o) => !o.my_team_declined);
   const declined = offers.filter((o) => o.my_team_declined);
 
@@ -85,7 +87,7 @@ export default function TeamClient({ offers, cases }: { offers: TeamOffer[]; cas
           <ul className="grid gap-3">
             {cases.map((c) => (
               <li key={`${c.case_id}-${c.team_id}`}>
-                <CaseCard teamCase={c} />
+                <CaseCard teamCase={c} continuity={continuity.find((r) => r.case_id === c.case_id) ?? null} />
               </li>
             ))}
           </ul>
@@ -299,7 +301,7 @@ function ErrorText({ message }: { message: string | null }) {
   );
 }
 
-function CaseCard({ teamCase }: { teamCase: TeamCase }) {
+function CaseCard({ teamCase, continuity }: { teamCase: TeamCase; continuity: ContinuityRow | null }) {
   const upcoming = arr<Upcoming>(teamCase.upcoming, "visit_id");
   const plan = arr<PlanItem>(teamCase.care_plan, "category");
   const members = arr<Member>(teamCase.members, "user_id");
@@ -327,6 +329,8 @@ function CaseCard({ teamCase }: { teamCase: TeamCase }) {
         </ul>
       )}
 
+      <Continuity teamCase={teamCase} members={members} continuity={continuity} />
+
       <CarePlan caseId={teamCase.case_id} items={plan} />
 
       <h4 className="mt-3 text-xs font-bold uppercase tracking-wide text-emerald-900/60">Geplante Einsätze</h4>
@@ -344,6 +348,90 @@ function CaseCard({ teamCase }: { teamCase: TeamCase }) {
 
       <PlanForm caseId={teamCase.case_id} assessmentDone={teamCase.needs_assessment_done} members={members} />
     </article>
+  );
+}
+
+// J6 (PO brief): primary nurse and deputy per case; changing needs a reason; the measure is per client only.
+function Continuity({ teamCase, members, continuity }: { teamCase: TeamCase; members: Member[]; continuity: ContinuityRow | null }) {
+  const router = useRouter();
+  const [editing, setEditing] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const hasPrimary = !!teamCase.primary_nurse_id;
+  const field = "min-h-11 rounded-lg border border-stone-300 bg-white px-2";
+
+  async function save(form: FormData) {
+    setPending(true);
+    setError(null);
+    const deputy = String(form.get("deputy") ?? "");
+    const result = await setPrimaryNurse({
+      caseId: teamCase.case_id,
+      primaryId: String(form.get("primary") ?? ""),
+      deputyId: deputy || null,
+      reason: String(form.get("reason") ?? ""),
+      idempotencyKey: crypto.randomUUID(),
+    });
+    setPending(false);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setEditing(false);
+    router.refresh();
+  }
+
+  return (
+    <section aria-label="Kontinuität" className="mt-3 grid gap-1 rounded-xl bg-stone-50 p-3 text-sm">
+      <h4 className="text-xs font-bold uppercase tracking-wide text-emerald-900/60">Kontinuität</h4>
+      {!hasPrimary && <p className="font-semibold text-amber-800" data-testid="primary-missing">Bezugspflege noch nicht bestimmt.</p>}
+      {hasPrimary && (
+        <p>
+          Bezugspflege: <span data-testid="primary-nurse">{memberLabel(members, teamCase.primary_nurse_id)}</span>
+          {" · "}Stellvertretung: {memberLabel(members, teamCase.deputy_nurse_id)}
+        </p>
+      )}
+      {continuity && <p className="text-xs text-emerald-900/70" data-testid="continuity">Diesen Monat: {formatContinuity(continuity)}</p>}
+      {error && <ErrorText message={error} />}
+      {!editing ? (
+        <button type="button" onClick={() => setEditing(true)} className="justify-self-start min-h-11 px-1 font-semibold underline underline-offset-4">
+          {hasPrimary ? "Bezugspflege ändern" : "Bezugspflege bestimmen"}
+        </button>
+      ) : (
+        <form action={save} aria-label="Bezugspflege" className="grid gap-2">
+          <label className="grid gap-1 text-xs font-semibold">
+            Bezugspflegende
+            <select name="primary" required defaultValue={teamCase.primary_nurse_id ?? members.find((m) => m.me)?.user_id ?? ""} className={field}>
+              {members.map((m) => (
+                <option key={m.user_id} value={m.user_id}>{memberLabel(members, m.user_id)}</option>
+              ))}
+            </select>
+          </label>
+          <label className="grid gap-1 text-xs font-semibold">
+            Stellvertretung (optional)
+            <select name="deputy" defaultValue={teamCase.deputy_nurse_id ?? ""} className={field}>
+              <option value="">keine</option>
+              {members.map((m) => (
+                <option key={m.user_id} value={m.user_id}>{memberLabel(members, m.user_id)}</option>
+              ))}
+            </select>
+          </label>
+          {hasPrimary && (
+            <label className="grid gap-1 text-xs font-semibold">
+              Begründung des Wechsels
+              <input name="reason" maxLength={300} className={field} />
+            </label>
+          )}
+          <div className="grid grid-cols-2 gap-2">
+            <button type="submit" disabled={pending} className="min-h-11 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60">
+              {pending ? "Wird gespeichert …" : "Speichern"}
+            </button>
+            <button type="button" onClick={() => setEditing(false)} className="min-h-11 rounded-lg border border-stone-300 font-semibold">
+              Abbrechen
+            </button>
+          </div>
+        </form>
+      )}
+    </section>
   );
 }
 

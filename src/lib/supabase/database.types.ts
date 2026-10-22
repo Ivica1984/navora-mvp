@@ -765,6 +765,11 @@ isOneToOne: false
 "complete_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"continuity_by_case":
+{ Args: { "p_month": string }; Returns: {
+              "case_id": string,"client_label": string,"distinct_nurses": number,"primary_set": boolean,"primary_share_pct": number,"team_name": string,"visits": number
+            }[]
+                           },
 "convert_partner_request":
 { Args: { "p_consent_confirmed": boolean,"p_facts": Json,"p_first_name": string,"p_idempotency_key": string,"p_last_name": string,"p_request_id": string }; Returns: Json
                            },
@@ -862,6 +867,9 @@ isOneToOne: false
 "set_member_qualification":
 { Args: { "p_idempotency_key": string,"p_qualification": string,"p_reason": string,"p_team_id": string,"p_user_id": string }; Returns: string
                            },
+"set_primary_nurse":
+{ Args: { "p_case_id": string,"p_deputy": string,"p_idempotency_key": string,"p_primary": string,"p_reason": string }; Returns: string
+                           },
 "set_quality_event_status":
 { Args: { "p_event_id": string,"p_idempotency_key": string,"p_note": string,"p_status": string }; Returns: string
                            },
@@ -885,7 +893,7 @@ isOneToOne: false
                            },
 "team_cases":
 { Args: Record<PropertyKey, never>; Returns: {
-              "care_needs": (string)[],"care_plan": Json,"case_id": string,"client_name": string,"medical_order_status": string,"medical_order_valid_until": string,"members": Json,"needs_assessment_done": boolean,"open_tasks": (string)[],"region": string,"team_id": string,"team_name": string,"upcoming": Json,"urgency": string
+              "care_needs": (string)[],"care_plan": Json,"case_id": string,"client_name": string,"deputy_nurse_id": string,"medical_order_status": string,"medical_order_valid_until": string,"members": Json,"needs_assessment_done": boolean,"open_tasks": (string)[],"primary_nurse_id": string,"region": string,"team_id": string,"team_name": string,"upcoming": Json,"urgency": string
             }[]
                            },
 "team_offers":

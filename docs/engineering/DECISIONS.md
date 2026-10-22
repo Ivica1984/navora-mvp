@@ -298,3 +298,13 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 **Side effect:** coordination roles other than coach and admin no longer read minor quality events through the table. The Operations quality KPI now counts serious-event exceptions.
 **Migration plan:** migration 0020; new tables and functions, `NOT VALID` checks on the legacy status and severity values, and a tightened read policy. Rollback: drop the new objects and restore the 0015 policy.
 **Open:** D-16 (types, hold rules, who lifts); D-3 (quality specialist role).
+
+### ADR-037 — Primary nurse per case and a per-client continuity measure (J6)
+**Status:** PROPOSED · **Task:** J6 (`docs/agents/briefs/J6.md`). Builds on J3's accepted model (team plus responsible member, D-6).
+**Answer to the brief's question:** the responsible member (D-6) is per **visit**, and J6's primary nurse is per **case**. They complement each other: the visit's responsible member is compared against the case's primary nurse and deputy.
+**Decision:**
+- **Primary nurse and deputy:** `cases.primary_nurse_id` and the optional `deputy_nurse_id`, both members of the assigned team and different from each other. They are set by a member of that team through `set_primary_nurse`. The first assignment needs no reason; a change needs one (F0 rule), stored in `change_log` and audited. An active case without a primary nurse is shown on the team card.
+- **Planning flag:** `visit_flags` adds `not_primary` when the visit's responsible member is neither the primary nurse nor the deputy. It never blocks planning.
+- **Measure:** `continuity_by_case(month)` returns, per client, the completed visits, the distinct performing nurses (from the F2 start events) and the primary nurse's share. Teams see their cases and coordination roles see the organisation. **No per-nurse figures are returned**, so the measure cannot become a ranking.
+**Migration plan:** migration 0021 (new columns and functions, `visit_flags` and `team_cases` redefined). Rollback: restore both functions from 0014 and drop the rest.
+**Open:** whether a hard continuity limit is ever wanted (out of scope until pilot data); names for members once profiles exist (D-5).
