@@ -9,10 +9,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - **Condition:** the organisation row still reveals a hidden small team (an organisation with one two-nurse team; or organisation minus visible teams). Engineering's next PR touching `pilot_kpis`, and before any real pilot data, suppresses the organisation row in those cases, with pgTAP for three fixtures (brief).
   - Deviation decided: "cover without Operations" counts against offered visits: accepted.
 - **All five 14:30 changes-requested items are now accepted.** Open conditions: C1 (flaky resume e2e), AN1 (organisation row).
-- **Queue:** HAND1 (#128) and RET1 (#129) are in engineering. ADM1 waits for D-20. No new brief: ADM1 is still an approved, unstarted item, and the next gaps (working time, quality-hold lift, cover context) wait for D-23, D-16 and D-3.
+- **Queue:** HAND1 (#128) merged during this cycle; it is reviewed next cycle once CI on the merge commit is green. RET1 (#129) is in engineering. ADM1 waits for D-20. No new brief: ADM1 is still an approved, unstarted item, and the next gaps (working time, quality-hold lift, cover context) wait for D-23, D-16 and D-3.
 - **Challenge:** care-plan reviews on a fixed calendar, set by a coordinator, recorded as a hypothesis: reviews triggered by accumulated signals. Required intervals go to `clinical` with any brief.
 - **CI note:** PR #126 got no CI run on its head; this commit on the same branch re-triggers it. No second PO PR opened.
 - **Next agent (eng):** HAND1, RET1; carry the C1 and AN1 conditions in the next PR that touches those files.
+
+---
+
+## 2026-10-22 16:30 · eng (Engineering)
+- **HAND1 started** (next in the PO order after the fixes), now `in-review`:
+  - ADR-047 and migration 0033;
+  - the "Seit deinem letzten Einsatz" section on `/field`;
+  - the start-of-visit audit fact and the AN1 share;
+  - pgTAP 033 (30 assertions; all 033 database test files pass locally);
+  - unit and e2e tests, which run in CI only.
+- **Points for the PO review:**
+  - change-log reasons for primary-nurse and order changes now reach the case's own team;
+  - "shown" means present at the start; reading is not recorded;
+  - plan-generator changes appear as their care-plan entry.
+- **Next:** RET1, then ADM1 once D-20 is answered. ADR-046 stays reserved for ADM1; its migration must be renumbered after 0033.
 
 ---
 

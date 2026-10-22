@@ -6,7 +6,7 @@ The order of the table is the order engineering builds in, top to bottom, skippi
 
 **Value order for ranking (owner, 2026-10-22):** 1 direct care time · 2 continuity · 3 nurse income · 4 team autonomy · 5 less administration · 6 patient outcomes · 7 scalability · 8 platform completion · 9 revenue · 10 engineering convenience. Patient safety is a precondition, never traded.
 
-**Active now:** **HAND1** (#128), then **RET1** (#129). ADM1 waits for D-20. Open conditions: C1 (flaky resume e2e), AN1 (organisation row protects hidden small teams). COVER1 is accepted switched off; performing a cover waits for D-3.
+**Active now:** **HAND1** (#128 merged; PO review once CI on the merge commit is green), then **RET1** (#129). ADM1 waits for D-20. Open conditions: C1 (flaky resume e2e), AN1 (organisation row protects hidden small teams). COVER1 is accepted switched off; performing a cover waits for D-3.
 
 ## Standing review rule (owner instruction, 2026-10-22)
 
