@@ -1115,6 +1115,11 @@ isOneToOne: false
 "pause_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"pilot_kpis":
+{ Args: { "p_month": string }; Returns: {
+              "base": number,"kpi": string,"note": string,"organization_id": string,"team_id": string,"team_name": string,"too_few": boolean,"value": number
+            }[]
+                           },
 "plan_from_care_plan":
 { Args: { "p_case_id": string,"p_idempotency_key": string }; Returns: Json
                            },

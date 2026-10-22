@@ -126,7 +126,8 @@ export default function Sidebar({ active }: SidebarProps) {
           Qualitätsmanagement
         </div>
 
-        <div
+        <Link
+          href="/analytics"
           style={{
             background:
               active === "analytics"
@@ -135,10 +136,13 @@ export default function Sidebar({ active }: SidebarProps) {
             padding: "14px 16px",
             borderRadius: "16px",
             fontWeight: active === "analytics" ? 700 : 400,
+            color: "white",
+            textDecoration: "none",
+            display: "block",
           }}
         >
           KPI / Analytics
-        </div>
+        </Link>
       </nav>
 
       <div

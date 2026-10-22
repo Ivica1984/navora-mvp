@@ -63,6 +63,9 @@ export default function TeamClient({
       <header className="bg-emerald-950 px-4 pb-4 pt-3 text-white">
         <div className="mx-auto flex max-w-xl items-center justify-between">
           <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200">NAVORA · Team</p>
+          <Link href="/analytics" className="ml-auto flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold underline underline-offset-4">
+            Teamzahlen
+          </Link>
           <Link href="/field" className="flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold underline underline-offset-4">
             Mein Tag
           </Link>
