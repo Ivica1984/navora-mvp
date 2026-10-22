@@ -1,6 +1,6 @@
 # Open decisions
 
-**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 13:15 (po)
+**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 13:30 (po)
 Background, options and consequences for the `D-*` items: `docs/engineering/DECISIONS_NEEDED.md`.
 
 ## Open
@@ -28,6 +28,7 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | D-19 | clinical | clinical | What must a nurse do on site when a client does not open the door (C1 no-show): whom to call, in what order, how long to wait, when to call emergency services? | a short written protocol from the clinical owner; until then C1 only records the no-show and raises a P1 exception, with no instructions of its own | – | 2026-10-22 (po) |
 | D-20 | owner | product | Who admits members to a team? D-5 gives NAVORA administrators all member administration, which keeps a central hierarchy step in a self-organised model | teams invite and admit colleagues themselves (team decision rule as in J2); NAVORA only verifies qualifications and identity before the qualification is active, because that is a regulatory duty. Shapes ADM1 | – | 2026-10-22 (po) |
 | D-21 | po | product | Confirm the engineering defaults: PLAN2 spreads a weekly rhythm evenly when no weekdays are named (2× → Mo, Do; 3× → Mo, Mi, Fr) and plans four weeks ahead; COVER1 offers from 24 h and falls back to OPS1 at 4 h; AN1 counts direct care share as care ÷ (travel + care + pause) of visits and first-offer acceptance as acceptance within the response deadline; ADM1 keeps exception overrides in safe ranges (never a lower priority, P1 never later, others at most 2× the default) | keep them for the pilot and revisit with AN1 data after the first month | – | 2026-10-22 (eng) |
+| D-22 | legal | legal | What form of medical order and order renewal is valid for OKP billing of home-care services (written signature, which electronic signature level, or confirmation through a secure link), and how is the ordering doctor identified? | answer from the applicable federal rules and the tariff contract; the PO does not assume any form. Until then, orders stay as recorded in J1 and J3, and ORD1 stays a draft. Blocks the draft ORD1 | – | 2026-10-22 (po) |
 
 ## Decided
 

@@ -13,6 +13,49 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 13:30 · po (Product Owner)
+- **Challenge mode (owner instruction).** I asked of every inherited practice: why does it exist, does it create value, can it disappear, can software or the team do it?
+  - **Approved: HAND1**, handover without the team meeting. The `/field` card shows everything recorded since this nurse last saw the client, from the record and unedited.
+  - **Approved: RET1**, a returning client returns to her team. A paused case resumes on the discharge referral; after a closed case, the known team is offered the client first.
+  - **Draft: ORD1**, medical order renewal without chasing the GP. It waits for the new decision **D-21** (`legal`: valid form of a medical order) and D-9.
+- **Hypotheses**, to test with pilot data before any brief: the order of the nurse's day (needs the Q7 review), visit windows for relatives (D-9), statutory reports (D-11), invoice release (D-12, D-18), ward leadership in nursing homes (D-13).
+- **`CARE_OPERATING_MODEL.md`:**
+  - a lever table showing where NAVORA exceeds Buurtzorg;
+  - an impact ledger for every proposed capability: layer replaced, activity removed, role less necessary, continuity, direct care time, income;
+  - four Handbook proposals: close the loop back to the care plan; name the client, relatives, GP and discharge planner as actors; add a Workforce-network context; team planning is generated, not typed.
+- **Next up:** C1 → PLAN2 → F7 → AN1 → HAND1 → COVER1 → RET1 → ADM1.
+- **Next agent (eng):** add `not-started` rows for HAND1 and RET1. HAND1 adds no new data; it only reads what F1–F4, J3, J6, QG1 and C1 already record. RET1 needs C1 merged.
+
+ENGINEERING BRIEF
+- **Capability:** HAND1, handover without the team meeting ("since you were last here").
+- **Why:** the daily handover meeting and colleague phone calls exist because the nurse does not know what changed. The record already knows.
+- **Business outcome:** coordination time does not grow with team size; cover across teams becomes safe.
+- **Care outcome:** every visit starts with full knowledge of recent changes.
+- **Expected nurse outcome:** she reads the changes on her phone before the visit, with no meeting and no phone call.
+- **Expected team outcome:** the team meets for decisions, not for passing on information.
+- **Expected patient outcome:** a deputy or covering nurse knows what the primary nurse knows.
+- **Replaces:** the coordination layer (handover meeting, shift lead as knowledge carrier). **Removes:** handover meetings, colleague phone calls. **Role less necessary:** shift lead or coordinator. **Continuity:** informed cover. **Direct care time:** meeting time goes back to care. **Income:** more billable minutes per paid hour. **Operating model:** knowledge belongs to the record, which lets teams scale and COVER1 work.
+- **Acceptance criteria:** as in `briefs/HAND1.md`. Entries since the nurse's last visit (else the last 3 visits); source, author and time on each; no summarising and no AI; "shown before start" recorded without a tap; team-scoped access unchanged; measured in AN1; negative tests.
+- **Dependencies:** F1–F4, J3, J6, QG1; C1 for lifecycle entries; D-3 only for covering nurses.
+- **Priority:** High, after AN1 and before COVER1.
+- **Implementation recommendation:** one read-only query or view over the existing append-only tables. No copy of clinical data; record the shown entries with the start event.
+
+ENGINEERING BRIEF
+- **Capability:** RET1, a returning client returns to her team.
+- **Why:** re-intake and re-matching after a hospital stay is manual work that breaks continuity at the riskiest moment.
+- **Business outcome:** no intake or matching work for known clients; teams keep their client base.
+- **Care outcome:** the same team, ideally the same primary nurse, across the hospital stay.
+- **Expected nurse outcome:** she gets her client back rather than a stranger's referral.
+- **Expected team outcome:** a paused case simply resumes; the team has first refusal for a returning client.
+- **Expected patient outcome:** known nurses after discharge.
+- **Replaces:** intake and matching for known clients. **Removes:** re-intake, re-matching, phone calls to the old team. **Role less necessary:** intake coordinator, dispatcher. **Continuity:** kept across the transition. **Direct care time:** no re-learning of the client. **Income:** stable billable volume. **Operating model:** continuity across transitions of care, owned by the team.
+- **Acceptance criteria:** as in `briefs/RET1.md`. Explicit link by intake (paused, or closed within 180 days), no automatic identity matching; a paused case resumes; for a closed case, a first-refusal window for the previous team inside the J2 deadline; the previous primary nurse is proposed; measured in AN1; negative tests.
+- **Dependencies:** C1 (pause and close), J1, J2, J6.
+- **Priority:** High, after COVER1.
+- **Implementation recommendation:** reuse J2 offers with a restricted eligible set for the window; the resume path reuses the C1 resume command.
+
+---
+
 ## 2026-10-22 13:20 · eng (Engineering)
 - **C1 delivered** (#83 merged, CI green): migration 0024, pgTAP 023, e2e lifecycle. Last fixes: cancelled/no-show become timeline events only inside a C1 command, so maintenance updates stay off the timeline (pgTAP 009); twelve exception rules (019); the private flag check runs as owner (023). PO review is due.
 - **Adapted to the PO re-ranking of 13:15:** next is **PLAN2**, then F7, AN1, COVER1, ADM1. Rows added.
