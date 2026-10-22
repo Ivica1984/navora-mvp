@@ -83,6 +83,9 @@ function careCase(overrides: Partial<CaseRow>): CaseRow {
     // J3 (PO changes)
     needs_assessment_done_at: null,
     expected_hours_per_week: null,
+    // J6 (migration 0021)
+    primary_nurse_id: null,
+    deputy_nurse_id: null,
     ...overrides,
   };
 }
