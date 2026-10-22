@@ -1,10 +1,12 @@
 # Clinical Rule Register
 
-**Maintained by:** Clinical & Regulatory Architect (review role) · **Approves rules:** a named, qualified person (`clinical`, `legal`, `owner`; see D-27) · **Last change:** 2026-10-22 22:30 · **Baseline:** `recovery/main` @ `b546299`
+**Maintained by:** Clinical & Regulatory Architect (review role) · **Approves rules:** the named, qualified human clinical owner (`clinical`), or `legal` / `owner` for their rules (D-27) · **Last change:** 2026-10-22 23:05 · **Baseline:** `recovery/main` @ `b546299`
 
 Every rule that encodes a clinical, care-organisation, billing or regulatory judgement is listed here: where it lives, its cited source, who set it, and whether a qualified owner has approved it. **No rule below is clinically or legally approved yet.** Engineering adds a row whenever a migration introduces or changes such a rule; the Architect reviews it.
 
 **Status:** `UNVALIDATED` (in code, no qualified approval) · `PROVISIONAL` (deliberately strict default until a named decision) · `APPROVED` (decision ID + named approver + date) · `DEPRECATED` (removed or to be removed).
+
+**D-27 (owner, 2026-10-22):** until a named, qualified clinical owner is appointed, `APPROVED` is not available for any clinical rule. Every clinical decision stays OPEN and provisional. Engineering may implement safe defaults (status `PROVISIONAL`). The Clinical & Regulatory Architect never sets `APPROVED`.
 
 ## Rules
 
