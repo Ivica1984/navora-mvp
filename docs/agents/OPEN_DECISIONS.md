@@ -1,6 +1,6 @@
 # Open decisions
 
-**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 14:30 (po)
+**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 14:50 (po)
 Background, options and consequences for the `D-*` items: `docs/engineering/DECISIONS_NEEDED.md`.
 
 ## Open
@@ -29,6 +29,8 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | D-20 | owner | product | Who admits members to a team? D-5 gives NAVORA administrators all member administration, which keeps a central hierarchy step in a self-organised model | teams invite and admit colleagues themselves (team decision rule as in J2); NAVORA only verifies qualifications and identity before the qualification is active, because that is a regulatory duty. Shapes ADM1 | – | 2026-10-22 (po) |
 | D-22 | legal | legal | What form of medical order and order renewal is valid for OKP billing of home-care services (written signature, which electronic signature level, or confirmation through a secure link), and how is the ordering doctor identified? | answer from the applicable federal rules and the tariff contract; the PO does not assume any form. Until then, orders stay as recorded in J1 and J3, and ORD1 stays a draft. Blocks the draft ORD1 | – | 2026-10-22 (po) |
 | D-23 | legal | legal | Can the working-time record that Swiss labour law requires for employed nurses be kept as a working day derived from field events (first departure to last completion, plus return trip and report time) that the nurse confirms once a day, instead of a separate timesheet? What must the record contain and how long is it kept? | answer from the applicable labour-law rules; the PO assumes nothing. If allowed, it removes the timesheet and makes the North Star (care ÷ paid working time) measurable. Until then AN1 shows only the within-visit care share | – | 2026-10-22 (po) |
+| D-24 | owner | product | Enter nursing homes (Horizon 3)? With which design-partner home, and can NAVORA obtain the interRAI LTCF CH licence and RAIsoft or export integration rights? | yes, as a design partnership with one ward. Start with the organisational change (self-organised ward team, team rosters, handover from the record), which needs no licence; LTCF features (NH2–NH7) only after the licence. Gates the proposals NH0–NH9. See `docs/product/NURSING_HOME_TRANSFORMATION.md` | – | 2026-10-22 (po) |
+| D-25 | legal | regulatory | What do the pilot canton's licensing rules require of nursing-home leadership: a named home director, a nursing-care lead, ward leadership, qualifications, staffing ratios? Does a self-organised ward team without a ward leader, with a network clinical lead, satisfy them? | answer for the pilot canton (D-11) before any ward pilot; the PO assumes nothing. Gates the proposals NH0, NH1, NH8 | – | 2026-10-22 (po) |
 
 ## Decided
 
