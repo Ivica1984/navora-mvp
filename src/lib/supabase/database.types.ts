@@ -167,14 +167,14 @@ isOneToOne: false
                   ]
                 },"care_visits": {
                   Row: {
-                    "cover_team_id": string | null,"covered_at": string | null,"covered_by": string | null,"billable": boolean | null,"case_id": string | null,"created_at": string,"id": string,"is_needs_assessment": boolean,"notes": string | null,"organization_id": string,"plan_generated": boolean,"plan_slot_date": string | null,"plan_slot_start": string | null,"planned_minutes_a": number | null,"planned_minutes_b": number | null,"planned_minutes_c": number | null,"responsible_user_id": string | null,"services_provided": (string)[] | null,"status": string | null,"suspended_at": string | null,"suspended_by": string | null,"team_id": string | null,"team_member_name": string | null,"time_end": string | null,"time_start": string | null,"visit_date": string | null
+                    "billable": boolean | null,"case_id": string | null,"cover_team_id": string | null,"covered_at": string | null,"covered_by": string | null,"created_at": string,"id": string,"is_needs_assessment": boolean,"notes": string | null,"organization_id": string,"plan_generated": boolean,"plan_slot_date": string | null,"plan_slot_start": string | null,"planned_minutes_a": number | null,"planned_minutes_b": number | null,"planned_minutes_c": number | null,"responsible_user_id": string | null,"services_provided": (string)[] | null,"status": string | null,"suspended_at": string | null,"suspended_by": string | null,"team_id": string | null,"team_member_name": string | null,"time_end": string | null,"time_start": string | null,"visit_date": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "cover_team_id"?: string | null,"covered_at"?: string | null,"covered_by"?: string | null,"billable"?: boolean | null,"case_id"?: string | null,"created_at"?: string,"id"?: string,"is_needs_assessment"?: boolean,"notes"?: string | null,"organization_id": string,"plan_generated"?: boolean,"plan_slot_date"?: string | null,"plan_slot_start"?: string | null,"planned_minutes_a"?: number | null,"planned_minutes_b"?: number | null,"planned_minutes_c"?: number | null,"responsible_user_id"?: string | null,"services_provided"?: (string)[] | null,"status"?: string | null,"suspended_at"?: string | null,"suspended_by"?: string | null,"team_id"?: string | null,"team_member_name"?: string | null,"time_end"?: string | null,"time_start"?: string | null,"visit_date"?: string | null
+                    "billable"?: boolean | null,"case_id"?: string | null,"cover_team_id"?: string | null,"covered_at"?: string | null,"covered_by"?: string | null,"created_at"?: string,"id"?: string,"is_needs_assessment"?: boolean,"notes"?: string | null,"organization_id": string,"plan_generated"?: boolean,"plan_slot_date"?: string | null,"plan_slot_start"?: string | null,"planned_minutes_a"?: number | null,"planned_minutes_b"?: number | null,"planned_minutes_c"?: number | null,"responsible_user_id"?: string | null,"services_provided"?: (string)[] | null,"status"?: string | null,"suspended_at"?: string | null,"suspended_by"?: string | null,"team_id"?: string | null,"team_member_name"?: string | null,"time_end"?: string | null,"time_start"?: string | null,"visit_date"?: string | null
                   }
                   Update: {
-                    "cover_team_id"?: string | null,"covered_at"?: string | null,"covered_by"?: string | null,"billable"?: boolean | null,"case_id"?: string | null,"created_at"?: string,"id"?: string,"is_needs_assessment"?: boolean,"notes"?: string | null,"organization_id"?: string,"plan_generated"?: boolean,"plan_slot_date"?: string | null,"plan_slot_start"?: string | null,"planned_minutes_a"?: number | null,"planned_minutes_b"?: number | null,"planned_minutes_c"?: number | null,"responsible_user_id"?: string | null,"services_provided"?: (string)[] | null,"status"?: string | null,"suspended_at"?: string | null,"suspended_by"?: string | null,"team_id"?: string | null,"team_member_name"?: string | null,"time_end"?: string | null,"time_start"?: string | null,"visit_date"?: string | null
+                    "billable"?: boolean | null,"case_id"?: string | null,"cover_team_id"?: string | null,"covered_at"?: string | null,"covered_by"?: string | null,"created_at"?: string,"id"?: string,"is_needs_assessment"?: boolean,"notes"?: string | null,"organization_id"?: string,"plan_generated"?: boolean,"plan_slot_date"?: string | null,"plan_slot_start"?: string | null,"planned_minutes_a"?: number | null,"planned_minutes_b"?: number | null,"planned_minutes_c"?: number | null,"responsible_user_id"?: string | null,"services_provided"?: (string)[] | null,"status"?: string | null,"suspended_at"?: string | null,"suspended_by"?: string | null,"team_id"?: string | null,"team_member_name"?: string | null,"time_end"?: string | null,"time_start"?: string | null,"visit_date"?: string | null
                   }
                   Relationships: [
                     {
@@ -189,6 +189,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "cases"
       referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "care_visits_cover_team_id_fkey"
+      columns: ["cover_team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
     },{
       foreignKeyName: "care_visits_organization_id_fkey"
       columns: ["organization_id"]
@@ -321,6 +327,52 @@ isOneToOne: false
       foreignKeyName: "change_log_organization_id_fkey"
       columns: ["organization_id"]
 isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"cover_events": {
+                  Row: {
+                    "created_at": string,"id": string,"kind": string,"nurse_id": string | null,"organization_id": string,"team_id": string | null,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"kind": string,"nurse_id"?: string | null,"organization_id": string,"team_id"?: string | null,"visit_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"kind"?: string,"nurse_id"?: string | null,"organization_id"?: string,"team_id"?: string | null,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "cover_events_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cover_events_visit_id_organization_id_fkey"
+      columns: ["visit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"cover_settings": {
+                  Row: {
+                    "fallback_lead_hours": number,"id": string,"offer_lead_hours": number,"organization_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "fallback_lead_hours": number,"id"?: string,"offer_lead_hours": number,"organization_id"?: string | null
+                  }
+                  Update: {
+                    "fallback_lead_hours"?: number,"id"?: string,"offer_lead_hours"?: number,"organization_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "cover_settings_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: true
       referencedRelation: "organizations"
       referencedColumns: ["id"]
     }
@@ -999,11 +1051,11 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "add_care_plan_item":
-{ Args: { "p_case_id": string,"p_category": string,"p_frequency": string,"p_goal": string,"p_idempotency_key": string,"p_planned_minutes": number,"p_review_date": string,"p_service": string }; Returns: string
-                           },
-"accept_cover":
+            "accept_cover":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"add_care_plan_item":
+{ Args: { "p_case_id": string,"p_category": string,"p_frequency": string,"p_goal": string,"p_idempotency_key": string,"p_planned_minutes": number,"p_review_date": string,"p_service": string }; Returns: string
                            },
 "assign_team_coach":
 { Args: { "p_coach_name": string,"p_idempotency_key": string,"p_team_id": string }; Returns: string
