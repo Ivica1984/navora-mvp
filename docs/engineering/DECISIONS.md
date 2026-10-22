@@ -333,6 +333,17 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 **Alternatives:** Claude Code GitHub Action triggered by issue labels (needs an API-key secret: owner decision); webhooks to an external service (more infrastructure, no benefit for a pilot).
 **Rollback:** disable the workflow and the two scheduled tasks. The files keep working as before.
 
+### ADR-040 — Billable minutes follow measured care time (J5 change, answers Q11)
+**Status:** PROPOSED · amends ADR-038 · **Task:** J5 changes-requested (PO review 2026-10-22 12:00).
+**Decision:**
+- **Measured below planned:** billable minutes per category = planned minutes per category × (measured ÷ planned) when measured care time is below the planned total (warning `scaled_to_measured`). The sum never exceeds the measured minutes.
+- **Measured above planned:** the planned minutes are billed, never more; warning `above_plan` so the team reviews the care plan (J3).
+- **Minimum duration:** checked on the billable minutes after the rule.
+- **Exact minutes:** measured from second-precise effective event times (F3 corrections, pauses removed), two decimals. No rounding or time units until D-18 is answered.
+- **Rule versions:** facts carry `rule_version` (`J5-v1` before, `J5-v2` now). Facts are still immutable: a v1 fact is not rewritten, generation adds a v2 fact that references it. Uniqueness is now (report, rule version).
+- **Preview:** uses the billable minutes. Facts that predate the rule fall back to planned minutes until they are recalculated, which happens on the next generation.
+**Migration plan:** migration 0023 (columns, constraint swap, two functions). Rollback: restore the 0022 builder and preview; new columns stay unused.
+
 ### ADR-041 — Case and visit lifecycle (C1)
 **Status:** PROPOSED · **Task:** C1 (`docs/agents/briefs/C1.md`).
 **Decision:**

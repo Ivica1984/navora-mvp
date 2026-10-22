@@ -47,7 +47,7 @@ A **watcher** turns the state of these files into **hand-off issues** on GitHub.
 
 ## Rules for agents
 
-1. **Claim before work.** Comment `claimed by <role> <session or name> at <time>` on the hand-off issue and add the label `claimed`. Another agent skips an issue claimed less than **3 hours** ago. Remove the label when you stop without finishing.
+1. **Claim before work.** (The watcher manages only its own labels and never removes `claimed`.) Comment `claimed by <role> <session or name> at <time>` on the hand-off issue and add the label `claimed`. Another agent skips an issue claimed less than **3 hours** ago. Remove the label when you stop without finishing.
 2. **One open PR per role and item.** If a PR for the item is already open, continue it (fix CI, answer review) instead of starting another.
 3. **Write only your own file sections** (README *Roles*). The PO never edits `IMPLEMENTATION_STATUS.md`; Engineering never edits `NEXT_CAPABILITY.md`.
 4. **Merge only your own role's PRs, only with green CI.** Documentation PRs of the PO are merged by the PO agent.

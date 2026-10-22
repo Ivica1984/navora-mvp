@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readLayerTexts } from "../../scripts/agents-coordination/parse.mjs";
-import { closeReason, diffIssues, planCoordination } from "../../scripts/agents-coordination/plan.mjs";
+import { closeReason, diffIssues, mergedLabels, planCoordination } from "../../scripts/agents-coordination/plan.mjs";
 
 type Issue = { key: string; kind: string; id: string; title: string; labels: string[]; body: string; assignOwner: boolean };
 
@@ -142,6 +142,13 @@ describe("coordination planner", () => {
     expect(diffIssues(issues, existing)).toEqual({ create: [], update: [], close: [] });
     const stale = [...existing, { key: "po:F0", title: "t", body: "b", labels: ["agents"], number: 2 }];
     expect(diffIssues(issues, stale).close.map((e: { key: string }) => e.key)).toEqual(["po:F0"]);
+  });
+
+  it("a claim survives every sync: unmanaged labels are kept and never cause an update", () => {
+    const { issues } = plan(next("| 1 | C1 | L | approved | b | w |"), status("| C1 | po | not-started | s | n | – | – | – | – |"));
+    const claimed = issues.map((i) => ({ ...i, labels: [...i.labels, "claimed"], number: 1 }));
+    expect(diffIssues(issues, claimed)).toEqual({ create: [], update: [], close: [] });
+    expect(mergedLabels(["agents", "agent:eng"], ["agents", "agent:eng", "active", "claimed"])).toEqual(["agents", "agent:eng", "claimed"]);
   });
 
   it("reads the real collaboration layer without errors", async () => {
