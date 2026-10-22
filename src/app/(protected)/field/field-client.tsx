@@ -29,6 +29,7 @@ import { formatMinutesByCategory } from "@/features/team/rules";
 import type { FieldNote, FieldVisit } from "@/features/field/types";
 import type { FieldReport } from "@/features/field/report";
 import ReportSection from "./report-section";
+import { REASON_LABEL as LIFECYCLE_REASON_LABEL } from "@/features/lifecycle/rules";
 import { createReportDraft } from "@/features/field/report-commands";
 import type { CountersignItem } from "@/features/field/queries";
 import type { CoverOffer, MyCover } from "@/features/cover/queries";
@@ -190,7 +191,8 @@ function VisitCard({
   const [pending, setPending] = useState<FieldAction | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const actions = fieldActions(visit.status);
+  // C1: a visit suspended by a case pause cannot be started; no buttons, a clear marker instead.
+  const actions = visit.suspended ? [] : fieldActions(visit.status);
   const start = formatTime(visit.time_start);
   const end = formatTime(visit.time_end);
   const time = start ? (end ? `${start} – ${end}` : `ab ${start}`) : "Zeit offen";
@@ -225,8 +227,8 @@ function VisitCard({
           <p className="text-lg font-bold tabular-nums">{time}</p>
           <h2 className="text-base font-semibold">{visit.client_name ?? "Klient:in ohne Namen"}</h2>
         </div>
-        <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${STATUS_CLASS[visit.status ?? ""] ?? "bg-stone-200 text-stone-800"}`}>
-          {getVisitStatusLabel(visit.status)}
+        <span data-testid="visit-status" className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${visit.suspended ? "bg-amber-100 text-amber-900" : STATUS_CLASS[visit.status ?? ""] ?? "bg-stone-200 text-stone-800"}`}>
+          {visit.suspended ? `pausiert${visit.pause_reason ? ` · ${LIFECYCLE_REASON_LABEL[visit.pause_reason] ?? ""}` : ""}` : getVisitStatusLabel(visit.status)}
         </span>
       </div>
 
