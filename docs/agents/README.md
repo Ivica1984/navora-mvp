@@ -25,6 +25,7 @@ Supporting files:
 |---|---|---|---|
 | `po` | Product Owner (a person, or an agent acting for them) | **what** is built and its order; accepts or rejects delivered items | edit the engineering state |
 | `eng` | Engineering (Lead Engineer agent, future engineering agents) | **how** it is built (ADRs) | reorder or invent priorities; accept its own work |
+| `cra` | NAVORA Clinical & Regulatory Architect (permanent role, added by the owner 2026-10-22) | clinical and regulatory **risk**: publishes the Clinical Governance Report with findings on patient care, documentation, billing, quality, assessment, LTCF, PAG and MQI; reviews remediation plans | invent medical, clinical, PAG, MQI, LTCF, tariff or legal rules (those stay decisions for `clinical`, `legal` or `owner`); reorder the PO queue; write `IMPLEMENTATION_STATUS.md` |
 | `owner` | Company owner | business, financial, regulatory questions; production risk | — |
 | `legal`, `clinical` | Advisers named by the owner | legal or clinical questions | — |
 
@@ -38,6 +39,7 @@ Supporting files:
 6. **Done means accepted.** Engineering sets `delivered` with PR numbers. The PO checks the brief's acceptance criteria and sets *PO status* to `accepted` or `changes-requested`.
 7. **Leave a trail.** Every session that changes one of these files adds a `JOURNAL.md` entry.
 8. **No personal or health data** in this folder.
+9. **Clinical governance gate.** Before Engineering implements any capability that affects patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI, it reads the latest Clinical Governance Report (see [`clinical/README.md`](clinical/README.md)) and names it, with the findings that apply, in the PR and the `JOURNAL.md` entry. **Clinical Governance findings take precedence over engineering convenience.** If a finding creates a safety, billing or regulatory risk for the item, Engineering writes a remediation plan (`clinical/remediation/<finding ID>.md`) and merges it **before** proceeding with the item; the remediation plan never invents a clinical or regulatory rule, it opens a decision for `clinical`, `legal` or `owner` instead. If no report exists yet, Engineering records "no Clinical Governance Report available" (OPEN) and keeps building only what does not depend on unverified clinical rules. Details: [`COORDINATION.md`](COORDINATION.md#clinical-governance-gate).
 
 ## Vocabulary (validated)
 
@@ -66,6 +68,7 @@ Multiple values are comma-separated. Use `–` for none. PRs are written as `#23
 | Owner (Ivica1984) | `owner` | 2026-10-21 |
 | NAVORA PO agent (scheduled, hourly) | `po` | 2026-10-22 |
 | NAVORA Engineering agent (scheduled, hourly) | `eng` | 2026-10-22 |
+| NAVORA Clinical & Regulatory Architect | `cra` | 2026-10-22 |
 | agents-coordination watcher (GitHub Action) | – (writes issues only) | 2026-10-22 |
 
 Future agents add themselves here in their first PR.

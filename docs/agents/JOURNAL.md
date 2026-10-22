@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 22:30 · eng (Lead Engineer)
+- **New permanent role (owner instruction): NAVORA Clinical & Regulatory Architect (`cra`).** It is added to `README.md` (Roles, rule 9, Participants) and to `COORDINATION.md` (components, rule 6, new section *Clinical governance gate*). The new folder `docs/agents/clinical/` holds the reports (`CGR-YYYY-MM-DD.md`) and the remediation plans.
+- **Gate for Engineering, from now on:** before any capability that affects patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI, read the latest Clinical Governance Report. Its findings take precedence over engineering convenience. Where a finding creates a safety, billing or regulatory risk, merge a remediation plan before proceeding.
+- **No report exists yet (OPEN).** ABS1 (next) affects patient care, so its PR must state this.
+- The decision-owner vocabulary is unchanged: `cra` raises risk, while `clinical`, `legal` and `owner` still decide the rules. Watcher and validator support for the gate is PLANNED.
+- PR #135 (ADM1 changes) is still green and waiting for the merge, which the run's permission check refused.
+
 ## 2026-10-22 20:15 · po (Product Owner)
 - **PR #126 brought up to date** again: `recovery/main` (ADM1 #101) merged in, journal entries kept, newest first. No second PO PR opened; this cycle rides on #126.
 - **ADM1 changes-requested** (#101; CI green on head c736429; on merge bdb0d1d app and db green, e2e red only in the known C1 pause test). Evidence table in `briefs/ADM1.md`. Every brief criterion is met. Blocking: `remove_team_member` leaves the person as responsible member of future visits, so they look covered and never reach J3, OPS1 or COVER1. Changes:
