@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allowedPriorities, changedLabel, checkRuleInput, isValidEmail, readRemovalResult, releasedNotice } from "@/features/admin/rules";
+import { ADMIN_MESSAGES, allowedPriorities, changedLabel, checkRuleInput, isValidEmail, readRemovalResult, releasedNotice } from "@/features/admin/rules";
 
 // ADM1: client-side mirror of the safe ranges in private.exception_rule_range (migration 0025).
 describe("admin rules (ADM1)", () => {
@@ -48,9 +48,14 @@ describe("member removal releases visits (ADM1 changes)", () => {
     expect(readRemovalResult({ result: "ok", released: 3 })).toEqual({ code: "ok", released: 3 });
     expect(readRemovalResult({ result: "duplicate" })).toEqual({ code: "duplicate", released: 0 });
     expect(readRemovalResult({ result: "has_cases" })).toEqual({ code: "has_cases", released: 0 });
+    expect(readRemovalResult({ result: "has_visit_in_progress" })).toEqual({ code: "has_visit_in_progress", released: 0 });
     expect(readRemovalResult({ result: "ok", released: -1 })).toEqual({ code: "ok", released: 0 });
     expect(readRemovalResult(null)).toEqual({ code: "failed", released: 0 });
     expect(readRemovalResult("ok")).toEqual({ code: "failed", released: 0 });
+  });
+
+  it("explains a refusal while a visit is in progress (CGR-10)", () => {
+    expect(ADMIN_MESSAGES.has_visit_in_progress).toMatch(/Einsatz/);
   });
 
   it("says how many visits are now open in the team", () => {

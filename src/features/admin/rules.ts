@@ -40,6 +40,8 @@ export const ADMIN_MESSAGES: Record<string, string> = {
   already_invited: "Für diese E-Mail gibt es schon eine offene Einladung.",
   last_admin: "Die letzte Administratorin bzw. der letzte Administrator kann die Rolle nicht abgeben.",
   has_cases: "Es gibt noch offene Fälle (oder Bezugspflege). Zuerst übergeben.",
+  // CGR-10 (migration 0036): never removed while on the way to, in, or pausing a visit of this team.
+  has_visit_in_progress: "Sie ist gerade unterwegs zu einem Einsatz oder mitten in einem Einsatz dieses Teams. Erst abschliessen lassen, dann entfernen.",
   name_taken: "Ein Team mit diesem Namen gibt es bereits.",
   wrong_state: "Nicht mehr im passenden Zustand.",
   out_of_range: "Ausserhalb des sicheren Bereichs.",

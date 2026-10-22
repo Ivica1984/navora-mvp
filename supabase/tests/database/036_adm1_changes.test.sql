@@ -2,12 +2,15 @@
 -- Users: admin …905 · nurse …902 (registered nurse, Testteam Nord …101) · nurse …906 (care assistant, Nord)
 --        · foreign admin …903 (org B).
 -- 1. Removal releases her future planned visits (one release rule, reused by ABS1).
+--    Privacy: the team-readable plan change log has a fixed text, never the administrator's reason.
+--    CGR-09: pause → removal → resume: her suspended visits come back uncovered, not covered by a non-member.
+--    CGR-10: removal is refused while a visit of hers is on the way, started or paused.
 -- 2. Role change keeps her team membership, qualification and visits; she can still start them.
 -- 3. Display names in report signatures and quality authors; never another organisation's; null without a profile.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(28);
+select plan(39);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -24,10 +27,11 @@ grant select on fx to authenticated;
 insert into fx values
   ('near',      '00000000-0000-4000-a036-000000000001'),   -- planned, in ~2 h: released, becomes uncovered
   ('later',     '00000000-0000-4000-a036-000000000002'),   -- planned, in 3 days: released
-  ('started',   '00000000-0000-4000-a036-000000000003'),   -- started today: unchanged
+  ('started',   '00000000-0000-4000-a036-000000000003'),   -- started today: refuses removal (CGR-10)
+  ('otw',       '00000000-0000-4000-a036-000000000009'),   -- on the way today: refuses removal (CGR-10)
+  ('paused',    '00000000-0000-4000-a036-000000000010'),   -- paused today: refuses removal (CGR-10)
   ('past',      '00000000-0000-4000-a036-000000000004'),   -- planned yesterday: unchanged
   ('completed', '00000000-0000-4000-a036-000000000005'),   -- completed today: unchanged
-  ('suspended', '00000000-0000-4000-a036-000000000006'),   -- planned, suspended by a pause: unchanged
   ('other',     '00000000-0000-4000-a036-000000000007'),   -- planned, Testteam Mitte: unchanged
   ('rn',        '00000000-0000-4000-a036-000000000008');   -- planned tomorrow, …902 responsible (role change)
 
@@ -46,8 +50,10 @@ from fx f join (values
                 (now() at time zone 'Europe/Zurich')::date - 1, time '09:00', 'planned', '00000000-0000-4000-a000-000000000906', null),
   ('completed', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
                 (now() at time zone 'Europe/Zurich')::date, time '06:00', 'completed', '00000000-0000-4000-a000-000000000906', null),
-  ('suspended', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-                (now() at time zone 'Europe/Zurich')::date + 4, time '09:00', 'planned', '00000000-0000-4000-a000-000000000906', now()),
+  ('otw',       '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
+                (now() at time zone 'Europe/Zurich')::date, time '07:30', 'on_the_way', '00000000-0000-4000-a000-000000000906', null),
+  ('paused',    '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
+                (now() at time zone 'Europe/Zurich')::date, time '07:45', 'paused', '00000000-0000-4000-a000-000000000906', null),
   ('other',     '00000000-0000-4000-a000-000000000210', '00000000-0000-4000-a000-000000000102',
                 (now() at time zone 'Europe/Zurich')::date + 2, time '09:00', 'planned', '00000000-0000-4000-a000-000000000906', null),
   ('rn',        '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
@@ -56,6 +62,11 @@ from fx f join (values
 
 create function pg_temp.resp(n text) returns uuid language sql as $$
   select v.responsible_user_id from public.care_visits v join fx on fx.id = v.id where fx.name = n $$;
+create function pg_temp.suspended(n text) returns boolean language sql as $$
+  select v.suspended_at is not null from public.care_visits v join fx on fx.id = v.id where fx.name = n $$;
+-- Test setup only (as the test owner, not a command): hands a fixture visit to …906 or to …902.
+create function pg_temp.hand(n text, who text) returns void language sql as $$
+  update public.care_visits set responsible_user_id = who::uuid where id = (select id from fx where name = n) $$;
 
 -- Structure ---------------------------------------------------------------------------------------------------
 select ok(not has_function_privilege('authenticated', 'private.release_member_visits(uuid, uuid, date, date, text, uuid)', 'execute'),
@@ -75,17 +86,65 @@ select is(public.remove_team_member('00000000-0000-4000-a000-000000000101', '000
 reset role;
 select is(pg_temp.resp('near'), '00000000-0000-4000-a000-000000000906'::uuid, 'a refused removal releases nothing');
 
+-- CGR-10: a visit in progress refuses the removal, each status on its own ---------------------------------------
+select pg_temp.act_as('00000000-0000-4000-a000-000000000905');
+set local role authenticated;
+select is(public.remove_team_member('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000906', 'Wechsel nach Mitte',
+          'a3600000-0000-4000-8000-000000000020') ->> 'result', 'has_visit_in_progress',
+  'CGR-10: removal is refused while she has visits in progress');
+reset role;
+select is(pg_temp.resp('near'), '00000000-0000-4000-a000-000000000906'::uuid, 'CGR-10: the refused removal releases nothing');
+select ok(exists (select 1 from public.team_memberships where team_id = '00000000-0000-4000-a000-000000000101'
+                  and user_id = '00000000-0000-4000-a000-000000000906'), 'CGR-10: and she stays a member');
+
+select pg_temp.hand('started', '00000000-0000-4000-a000-000000000902'), pg_temp.hand('otw', '00000000-0000-4000-a000-000000000902');
+select pg_temp.act_as('00000000-0000-4000-a000-000000000905');
+set local role authenticated;
+select is(public.remove_team_member('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000906', 'Wechsel nach Mitte',
+          'a3600000-0000-4000-8000-000000000021') ->> 'result', 'has_visit_in_progress', 'CGR-10: a paused visit alone refuses it');
+reset role;
+select pg_temp.hand('paused', '00000000-0000-4000-a000-000000000902'), pg_temp.hand('otw', '00000000-0000-4000-a000-000000000906');
+select pg_temp.act_as('00000000-0000-4000-a000-000000000905');
+set local role authenticated;
+select is(public.remove_team_member('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000906', 'Wechsel nach Mitte',
+          'a3600000-0000-4000-8000-000000000022') ->> 'result', 'has_visit_in_progress', 'CGR-10: a visit on the way alone refuses it');
+reset role;
+select pg_temp.hand('otw', '00000000-0000-4000-a000-000000000902'), pg_temp.hand('started', '00000000-0000-4000-a000-000000000906');
+select pg_temp.act_as('00000000-0000-4000-a000-000000000905');
+set local role authenticated;
+select is(public.remove_team_member('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000906', 'Wechsel nach Mitte',
+          'a3600000-0000-4000-8000-000000000023') ->> 'result', 'has_visit_in_progress', 'CGR-10: a started visit alone refuses it');
+reset role;
+-- She finished her visits (here: handed over for the test); nothing in progress any more.
+select pg_temp.hand('started', '00000000-0000-4000-a000-000000000902');
+
+-- CGR-09: the case is paused before the removal; her future visits are suspended ---------------------------------
+select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
+set local role authenticated;
+select is(public.pause_case('00000000-0000-4000-a000-000000000208', 'client_absence', null, null,
+          'a3600000-0000-4000-8000-000000000030'), 'ok', 'CGR-09: the team pauses the case');
+reset role;
+select ok(pg_temp.suspended('near') and pg_temp.suspended('later'), 'CGR-09: her two future visits are suspended');
+
 select pg_temp.act_as('00000000-0000-4000-a000-000000000905');
 set local role authenticated;
 select is(public.remove_team_member('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000906', 'Wechsel nach Mitte',
           'a3600000-0000-4000-8000-000000000002'),
-  jsonb_build_object('result', 'ok', 'released', 2), 'the removal releases her two future planned visits and says how many');
+  jsonb_build_object('result', 'ok', 'released', 2), 'the removal releases her two future planned visits (suspended included) and says how many');
 select is(public.remove_team_member('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000906', 'Wechsel nach Mitte',
           'a3600000-0000-4000-8000-000000000002') ->> 'result', 'duplicate', 'resend is a duplicate and releases nothing more');
 reset role;
 
 select ok(not exists (select 1 from public.team_memberships where team_id = '00000000-0000-4000-a000-000000000101'
                       and user_id = '00000000-0000-4000-a000-000000000906'), 'she is no longer a member of the team');
+select is(pg_temp.resp('near'), null, 'CGR-09: the suspended near visit no longer names her');
+
+select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
+set local role authenticated;
+select is(public.resume_case('00000000-0000-4000-a000-000000000208', 'a3600000-0000-4000-8000-000000000031'), 'ok',
+  'CGR-09: the team resumes the case');
+reset role;
+select ok(not pg_temp.suspended('near') and not pg_temp.suspended('later'), 'CGR-09: after resume her visits are active again');
 select is(pg_temp.resp('near'), null, 'the near visit has no responsible member');
 select is(pg_temp.resp('later'), null, 'the later visit has no responsible member');
 select ok('uncovered' = any (private.visit_flags(v.case_id, v.visit_date, v.planned_minutes_b, v.responsible_user_id, v.status, v.time_start)),
@@ -94,16 +153,19 @@ from public.care_visits v join fx on fx.id = v.id where fx.name = 'near';
 select ok(exists (select 1 from private.derived_exceptions('00000000-0000-4000-b000-000000000011') e
                   where e.entity_id = (select id from fx where name = 'near') and e.exception_type like 'visit_uncovered%'),
   'and appears in OPS1 as an uncovered visit');
-select is(pg_temp.resp('started'), '00000000-0000-4000-a000-000000000906'::uuid, 'her started visit is unchanged');
 select is(pg_temp.resp('completed'), '00000000-0000-4000-a000-000000000906'::uuid, 'her completed visit is unchanged');
 select is(pg_temp.resp('past'), '00000000-0000-4000-a000-000000000906'::uuid, 'her past visit is unchanged');
-select is(pg_temp.resp('suspended'), '00000000-0000-4000-a000-000000000906'::uuid, 'a visit suspended by a pause is unchanged');
 select is(pg_temp.resp('other'), '00000000-0000-4000-a000-000000000906'::uuid, 'another team''s visit is untouched');
 select is((select count(*)::int from public.visit_plan_changes pc join fx on fx.id = pc.visit_id
-           where pc.change = 'released' and pc.reason = 'Mitglied aus dem Team entfernt: Wechsel nach Mitte'
+           where pc.change = 'released' and pc.reason = 'Mitglied aus dem Team entfernt'
              and pc.actor_id = '00000000-0000-4000-a000-000000000905'
              and pc.before ->> 'responsible_id' = '00000000-0000-4000-a000-000000000906' and pc.after ->> 'responsible_id' is null), 2,
-  'each release is in the plan change log with the reason');
+  'each release is in the plan change log with the neutral fixed text');
+select ok(not exists (select 1 from public.visit_plan_changes where reason like '%Wechsel nach Mitte%'),
+  'privacy: the administrator''s reason is in no team-readable plan change row');
+select ok(exists (select 1 from public.change_log where command = 'remove_team_member' and reason = 'Wechsel nach Mitte'
+                  and entity_id like '%/00000000-0000-4000-a000-000000000906'),
+  'privacy: the reason stays in the administration change log');
 select ok(exists (select 1 from public.audit_events a join fx on fx.id = a.entity_id
                   where fx.name = 'near' and a.table_name = 'care_visits' and a.command = 'remove_team_member'
                     and a.changed ? 'responsible_user_id'),
