@@ -835,6 +835,11 @@ isOneToOne: false
 "assign_team_coach":
 { Args: { "p_coach_name": string,"p_idempotency_key": string,"p_team_id": string }; Returns: string
                            },
+"billing_preview":
+{ Args: { "p_month": string }; Returns: {
+              "billable_visits": number,"insurer_chf": number,"insurer_complete": boolean,"minutes_a": number,"minutes_b": number,"minutes_c": number,"not_billable": Json,"patient_on_file": boolean,"residual_on_file": boolean,"team_id": string,"team_name": string
+            }[]
+                           },
 "case_funding_facts":
 { Args: { "p_case_id": string }; Returns: {
               "case_id": string,"gp_named": boolean,"insurance_type": string,"insurer_name": string,"medical_order_status": string,"medical_order_valid_until": string,"open_tasks": (string)[],"ready_for_matching_at": string,"residence_canton": string,"residence_municipality": string
@@ -893,6 +898,9 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "visit_id": string
             }[]
+                           },
+"generate_billable_facts":
+{ Args: { "p_month": string }; Returns: number
                            },
 "handle_exception":
 { Args: { "p_idempotency_key": string,"p_key": string,"p_kind": string,"p_text": string }; Returns: string

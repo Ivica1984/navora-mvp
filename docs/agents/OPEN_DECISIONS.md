@@ -28,6 +28,7 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | D-9 | legal | legal | Legal basis for processing client data at intake (consent vs. care mandate) | keep the provisional consent gate; collect no more than name, region and needs | – | 2026-10-21 (eng) |
 | D-6 | clinical | clinical | Visit assignment (team / nurse / both) and full state list (assigned, accepted, cancelled, no_show) | team plus optional responsible nurse; confirm transitions. **PO 2026-10-21 23:05:** J3 shipped and the PO accepted team plus responsible member; J6 builds on it. `clinical` confirms or changes the model. | – | 2026-10-21 (eng) |
 | Q10 | po | product | What counts as working time for J2 response deadlines ("4 working hours", "1 working day")? Which weekdays and hours, and are cantonal public holidays excluded? | Monday–Friday 08:00–18:00 Europe/Zurich, holidays excluded once the pilot canton is known (D-11). Implemented provisionally without holidays, as one configuration row | – | 2026-10-21 (eng) |
+| Q11 | po | product | J5: which minutes are billed per KLV category? Actual time is measured per visit, not per category | provisional: the planned minutes per category of the signed report; measured care minutes below the planned total raise a warning. Alternative: scale categories down to the measured total | J5 | 2026-10-22 (eng) |
 
 ## Decided
 

@@ -17,6 +17,8 @@ import type { TeamRow } from "@/features/teams/types";
 import ExceptionCenter from "./exception-center";
 import HoldsPanel from "./holds-panel";
 import ContinuityPanel from "./continuity-panel";
+import BillingPreview from "@/components/billing/billing-preview";
+import type { BillingPreviewRow } from "@/features/billing/queries";
 import type { ContinuityRow } from "@/features/team/queries";
 import type { OpenHold } from "@/features/quality/queries";
 
@@ -37,6 +39,8 @@ type OperationsClientProps = {
   dashboard: OperationsDashboard;
   holds: OpenHold[];
   continuity: ContinuityRow[];
+  billing: BillingPreviewRow[];
+  month: string;
 };
 
 function getStatusLabel(status: string | null) {
@@ -125,7 +129,7 @@ function getSlaStatus(careCase: CaseSummaryRow) {
   return "ok";
 }
 
-export default function OperationsClient({ dashboard, holds, continuity }: OperationsClientProps) {
+export default function OperationsClient({ dashboard, holds, continuity, billing, month }: OperationsClientProps) {
   const {
     cases,
     teams,
@@ -222,6 +226,8 @@ export default function OperationsClient({ dashboard, holds, continuity }: Opera
         <HoldsPanel holds={holds} />
 
         <ContinuityPanel rows={continuity} />
+
+        <BillingPreview rows={billing} month={month} />
 
         <AttentionCenter
           items={attentionItems}
