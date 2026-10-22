@@ -27,14 +27,14 @@ isOneToOne: false
                   ]
                 },"billable_facts": {
                   Row: {
-                    "actual_care_minutes": number | null,"billable": boolean,"case_id": string,"created_at": string,"created_by": string,"id": string,"order_basis": string,"organization_id": string,"payer_chain": NonNullable<Json>,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"reasons": (string)[],"report_id": string,"supersedes_id": string | null,"tariff_versions": NonNullable<Json>,"team_id": string,"visit_date": string,"visit_id": string,"warnings": (string)[]
+                    "actual_care_minutes": number | null,"billable": boolean,"billable_minutes_a": number | null,"billable_minutes_b": number | null,"billable_minutes_c": number | null,"case_id": string,"created_at": string,"created_by": string,"id": string,"measured_care_minutes": number | null,"order_basis": string,"organization_id": string,"payer_chain": NonNullable<Json>,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"reasons": (string)[],"report_id": string,"rule_version": string,"supersedes_id": string | null,"tariff_versions": NonNullable<Json>,"team_id": string,"visit_date": string,"visit_id": string,"warnings": (string)[]
                   }
                   ComputedFields: never
                   Insert: {
-                    "actual_care_minutes"?: number | null,"billable": boolean,"case_id": string,"created_at"?: string,"created_by": string,"id"?: string,"order_basis": string,"organization_id": string,"payer_chain": NonNullable<Json>,"planned_minutes_a"?: number,"planned_minutes_b"?: number,"planned_minutes_c"?: number,"reasons"?: (string)[],"report_id": string,"supersedes_id"?: string | null,"tariff_versions": NonNullable<Json>,"team_id": string,"visit_date": string,"visit_id": string,"warnings"?: (string)[]
+                    "actual_care_minutes"?: number | null,"billable": boolean,"billable_minutes_a"?: number | null,"billable_minutes_b"?: number | null,"billable_minutes_c"?: number | null,"case_id": string,"created_at"?: string,"created_by": string,"id"?: string,"measured_care_minutes"?: number | null,"order_basis": string,"organization_id": string,"payer_chain": NonNullable<Json>,"planned_minutes_a"?: number,"planned_minutes_b"?: number,"planned_minutes_c"?: number,"reasons"?: (string)[],"report_id": string,"rule_version"?: string,"supersedes_id"?: string | null,"tariff_versions": NonNullable<Json>,"team_id": string,"visit_date": string,"visit_id": string,"warnings"?: (string)[]
                   }
                   Update: {
-                    "actual_care_minutes"?: number | null,"billable"?: boolean,"case_id"?: string,"created_at"?: string,"created_by"?: string,"id"?: string,"order_basis"?: string,"organization_id"?: string,"payer_chain"?: NonNullable<Json>,"planned_minutes_a"?: number,"planned_minutes_b"?: number,"planned_minutes_c"?: number,"reasons"?: (string)[],"report_id"?: string,"supersedes_id"?: string | null,"tariff_versions"?: NonNullable<Json>,"team_id"?: string,"visit_date"?: string,"visit_id"?: string,"warnings"?: (string)[]
+                    "actual_care_minutes"?: number | null,"billable"?: boolean,"billable_minutes_a"?: number | null,"billable_minutes_b"?: number | null,"billable_minutes_c"?: number | null,"case_id"?: string,"created_at"?: string,"created_by"?: string,"id"?: string,"measured_care_minutes"?: number | null,"order_basis"?: string,"organization_id"?: string,"payer_chain"?: NonNullable<Json>,"planned_minutes_a"?: number,"planned_minutes_b"?: number,"planned_minutes_c"?: number,"reasons"?: (string)[],"report_id"?: string,"rule_version"?: string,"supersedes_id"?: string | null,"tariff_versions"?: NonNullable<Json>,"team_id"?: string,"visit_date"?: string,"visit_id"?: string,"warnings"?: (string)[]
                   }
                   Relationships: [
                     {
@@ -46,7 +46,7 @@ isOneToOne: false
     },{
       foreignKeyName: "billable_facts_report_id_fkey"
       columns: ["report_id"]
-isOneToOne: true
+isOneToOne: false
       referencedRelation: "visit_reports"
       referencedColumns: ["id"]
     },{
