@@ -4,6 +4,49 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 13:15 · po (Product Owner)
+- **Challenge mode, organisational level.** Published `docs/product/CARE_OPERATING_MODEL.md`:
+  - **North Star:** direct care share. Buurtzorg's reference is 60 % billable time; the NAVORA hypothesis is 75 %.
+  - Buurtzorg's limits, with sources: nurses still do the administration; coaches carry absences and finances; teams are islands; host organisations block teams; career and pay are unclear; there is no referral source; data is not used to learn.
+  - A table of the roles and tasks that disappear, four horizons up to integrated networks, and proposed Handbook changes.
+- **Approved COVER1**, cross-team cover without a dispatcher (context access waits for D-3). **Draft REF2**, hospital referral without an intake coordinator (D-9, D-3). **AN1** now leads with the North Star.
+- **Next up, re-ranked by the owner's value order:** C1 → PLAN2 → F7 → AN1 → COVER1 → ADM1.
+- **Owner:** D-20 (teams admit colleagues; NAVORA verifies qualifications); D-14 sharpened toward income for direct care.
+- **Next agent (eng):** add `not-started` rows for COVER1 (and PLAN2, F7 if not yet done). REF2 stays draft.
+
+ENGINEERING BRIEF
+- **Capability:** COVER1, cross-team cover without a dispatcher.
+- **Why:** an uncovered visit is solved today by a person on the phone. The network of qualified nurses can solve it itself.
+- **Business outcome:** fewer lost visits, and Operations that does not grow with the number of teams.
+- **Care outcome:** visits happen as planned; fewer cancellations for staffing reasons.
+- **Expected nurse outcome:** a nurse can pick up a visit in a neighbouring team with one tap, seeing only what she needs to decide.
+- **Expected team outcome:** a team short of staff gets cover without phoning around, and keeps the case and its primary nurse.
+- **Expected patient outcome:** the visit takes place; a known team keeps responsibility for the care.
+- **Acceptance criteria:** as in `briefs/COVER1.md`. In short: offer at the lead time to qualified members of neighbouring teams; no identity before acceptance; atomic acceptance of one visit; context only for that visit until its report is final (D-3); fallback to OPS1; audited; measured in AN1.
+- **Dependencies:** J2 offer pattern, J3 rules, J6, F6, OPS1; D-3 for context access.
+- **Priority:** High, after PLAN2, F7 and AN1.
+- **Implementation recommendation:** reuse the J2 offer machinery at visit level. Keep the offer and acceptance independent of the D-3 access part, so it can ship first.
+
+## 2026-10-22 13:00 · po (Product Owner)
+- **J5 accepted** (#75, ADR-040, pgTAP 022, CI green): billable minutes never exceed measured care minutes. Q11 decided.
+- **Challenge review** ("would we design it this way today?"). Two inherited practices are removed:
+  - **PLAN2**, self-planning: visits follow the care plan with the primary nurse. Today the team re-enters the care plan visit by visit, and the frequency is free text that nothing reads.
+  - **F7**, sign at completion: documentation becomes part of finishing the visit instead of a later step.
+- Three more practices are recorded as hypotheses in `NEXT_CAPABILITY.md`, to be tested with AN1 data: six status taps per visit, re-typed intake, countersigning every care-assistant report (sharpened in D-10 for `clinical`).
+- **Order (Next up):** C1 (in review, #83) → ADM1 → PLAN2 → F7 → AN1. C1 comes first for patient safety (no-show), ADM1 because the pilot cannot run without it.
+- **Next agent (eng):** add `not-started` rows for PLAN2 and F7 when you add C1, ADM1 and AN1. The C1 review follows its merge.
+
+ENGINEERING BRIEF
+- **Capability:** PLAN2, self-planning (visits follow the care plan).
+- **Why:** removes recurring manual planning, NAVORA's biggest inherited administrative task, and turns the primary nurse (J6) into the default.
+- **Business outcome:** more billable care per paid hour; planning stops scaling with the number of clients.
+- **Expected nurse outcome:** her own clients' visits appear in her day view, with minutes and category, without anyone planning them.
+- **Expected team outcome:** the team agrees the care plan once and handles only exceptions (absence, cover, uncovered visits).
+- **Acceptance criteria:** as in `briefs/PLAN2.md`. In short: structured frequency; a rolling four-week series; primary nurse or deputy, else uncovered; J3 safety and billing rules unchanged; manual changes never overwritten; C1 pauses and closures respected; measured in AN1.
+- **Dependencies:** C1 (pause and close), J6 (primary nurse), J3 rules.
+- **Priority:** High, after C1 and ADM1.
+- **Implementation recommendation:** generate concrete visit rows through the existing J3 commands, so every rule and the change log apply. Keep one daily job idempotent.
+
 ## 2026-10-22 12:15 · eng (Lead Engineer)
 - **Autonomous coordination** (owner request; ADR-039, `COORDINATION.md`): a GitHub Action turns the three files into hand-off issues.
   - `agent:eng` for implementing or addressing changes; the highest unblocked one is labelled `active`.
