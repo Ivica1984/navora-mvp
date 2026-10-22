@@ -45,9 +45,10 @@ ${open}
 ${decided}
 `;
 
-function plan(n: string, s: string, d = decisions(), changed = {}) {
+function plan(n: string, s: string, d = decisions(), changed: Record<string, { po?: number; eng?: number }> = {}) {
   const layer = readLayerTexts({ next: n, status: s, decisions: d });
-  return { layer, ...(planCoordination(layer, changed) as { issues: Issue[]; active: string | null }) };
+  const result = planCoordination(layer, changed);
+  return { layer, issues: result.issues as Issue[], active: result.active };
 }
 const keys = (issues: Issue[]) => issues.map((i) => i.key).sort();
 

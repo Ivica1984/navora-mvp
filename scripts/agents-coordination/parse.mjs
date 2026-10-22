@@ -35,7 +35,10 @@ export function parseTable(text, heading) {
   return rows;
 }
 
-/** The three official files → typed rows. */
+/**
+ * The three official files → typed rows.
+ * @param {{ next: string, status: string, decisions: string }} texts
+ */
 export function readLayerTexts({ next, status, decisions }) {
   return {
     queue: [

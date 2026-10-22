@@ -21,10 +21,10 @@ export const LABELS = {
 const HUMAN_OWNERS = new Set(["owner", "legal", "clinical"]);
 
 /**
- * @param layer   readLayerTexts(...) result
- * @param changed { [id]: { po?: number, eng?: number } }  unix seconds of the last change (0 = unknown)
- * @returns { issues: Issue[], active: string | null }
- *   Issue = { key, kind, id, title, labels, body, assignOwner }
+ * Issue = { key, kind, id, title, labels, body, assignOwner }.
+ * @param {any} layer  readLayerTexts(...) result
+ * @param {Record<string, { po?: number, eng?: number }>} [changed]  unix seconds of the last change per item (0 = unknown)
+ * @returns {{ issues: any[], active: string | null }}
  */
 export function planCoordination(layer, changed = {}) {
   const statusById = new Map(layer.status.map((s) => [s.id, s]));
@@ -126,7 +126,11 @@ export function planCoordination(layer, changed = {}) {
   return { issues, active: activeCandidate ? activeCandidate.q.id : null };
 }
 
-/** Diff the plan against existing hand-off issues (by key). */
+/**
+ * Diff the plan against existing hand-off issues (by key).
+ * @param {any[]} planned
+ * @param {any[]} existing
+ */
 export function diffIssues(planned, existing) {
   const byKey = new Map(existing.map((e) => [e.key, e]));
   const plannedKeys = new Set(planned.map((p) => p.key));
@@ -139,7 +143,11 @@ export function diffIssues(planned, existing) {
   return { create, update, close };
 }
 
-/** Why a hand-off closed, from the current layer. */
+/**
+ * Why a hand-off closed, from the current layer.
+ * @param {string} key
+ * @param {any} layer
+ */
 export function closeReason(key, layer) {
   const [kind, id] = key.split(":");
   const q = layer.queue.find((x) => x.id === id);
