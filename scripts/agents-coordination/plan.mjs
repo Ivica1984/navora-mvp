@@ -43,7 +43,9 @@ export function planCoordination(layer, changed = {}) {
     const state = s?.state ?? "not-started";
     const t = changed[q.id] ?? {};
     const poNewer = (t.po ?? 0) > (t.eng ?? 0);
-    const engDone = state === "in-review" || state === "delivered";
+    // READY_FOR_REVIEW: `ready-for-review` or `delivered` (merged with green CI). `in-review` = PR open.
+    const readyForReview = state === "ready-for-review" || state === "delivered";
+    const engDone = state === "in-review" || readyForReview;
 
     // Engineering hand-off
     let engReason = null;
@@ -53,7 +55,7 @@ export function planCoordination(layer, changed = {}) {
 
     // PO hand-off: delivered and not yet accepted; after changes-requested only when Engineering delivered again
     const awaitingReview =
-      state === "delivered" && q.poStatus !== "accepted" && q.poStatus !== "withdrawn" &&
+      readyForReview && q.poStatus !== "accepted" && q.poStatus !== "withdrawn" &&
       (q.poStatus !== "changes-requested" || !poNewer);
     if (awaitingReview) {
       issues.push({
@@ -62,7 +64,7 @@ export function planCoordination(layer, changed = {}) {
         labels: [LABELS.base, LABELS.po],
         assignOwner: false,
         body: [
-          `Engineering marked **${q.id}** as \`delivered\` (READY_FOR_REVIEW): merged with green CI.`,
+          `Engineering marked **${q.id}** as \`${state}\` (READY_FOR_REVIEW): merged with green CI.`,
           "",
           `- Brief: \`docs/agents/briefs/${q.id}.md\` (acceptance criteria)`,
           `- Pull requests: ${(s?.prs ?? []).join(", ") || "–"}`,

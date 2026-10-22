@@ -1,4 +1,4 @@
-# Coordination workflow (autonomous PO ↔ Engineering)
+# Coordination workflow (autonomous PO ↔ Engineering) — COORD-4
 
 Approved by the owner on 2026-10-22: *"The user should no longer be required as a messenger between Product Owner and Engineering."* Architecture decision: ADR-039 in `docs/engineering/DECISIONS.md`.
 
@@ -9,7 +9,7 @@ The three official files stay the **single source of truth**. Nothing new is dec
 | File | Owner | Signal it carries |
 |---|---|---|
 | `NEXT_CAPABILITY.md` | PO | what is approved, in which order; `accepted` / `changes-requested` |
-| `IMPLEMENTATION_STATUS.md` | Engineering | `in-review` (PR open), `delivered` (= **READY_FOR_REVIEW**: merged, CI green) |
+| `IMPLEMENTATION_STATUS.md` | Engineering | `in-review` (PR open), `ready-for-review` or `delivered` (= **READY_FOR_REVIEW**: merged, CI green) |
 | `OPEN_DECISIONS.md` | named owner | open questions, who must answer, what they block |
 
 A **watcher** turns the state of these files into **hand-off issues** on GitHub. **Scheduled agents** (PO, Engineering) wake up, pick up the issues addressed to them, act through pull requests, and thereby change the files again. People are only pulled in for decisions they own.
@@ -27,7 +27,7 @@ A **watcher** turns the state of these files into **hand-off issues** on GitHub.
 | Key | Opens when | Closes when | Label |
 |---|---|---|---|
 | `eng:<ID>` | PO status `approved` (queue or *Next up*) and state not `in-review`/`delivered`; or `changes-requested` and the PO spoke after Engineering's last state change | Engineering sets `in-review`/`delivered`, or the PO accepts/withdraws | `agent:eng` (+ `active`, `blocked`) |
-| `po:<ID>` | state `delivered` and PO status not `accepted`/`withdrawn` (after `changes-requested`: only when Engineering delivered again later) | PO sets `accepted` or `changes-requested` | `agent:po` |
+| `po:<ID>` | state `ready-for-review` or `delivered` and PO status not `accepted`/`withdrawn` (after `changes-requested`: only when Engineering delivered again later) | PO sets `accepted` or `changes-requested` | `agent:po` |
 | `decision:<ID>` | the decision is in *Open* | it moves to *Decided* | `human-decision` (assigned to the owner) or `agent:po` / `agent:eng` |
 
 - **Active capability:** the highest-ranked `eng:` hand-off without open blockers carries the label `active`. When the PO accepts an item, its hand-offs close with a comment, and the next approved item becomes `active` with a comment: **acceptance activates the next capability automatically.**
@@ -59,3 +59,20 @@ A **watcher** turns the state of these files into **hand-off issues** on GitHub.
 - Pause an agent: disable its scheduled task. The watcher keeps the issues current; nothing is lost.
 - Run the watcher now: *Actions → agents-coordination → Run workflow*.
 - Alternative wake-up (not enabled): the Claude Code GitHub Action can react to `agent:*` issues directly. It needs an `ANTHROPIC_API_KEY` repository secret, an owner decision about credentials and cost.
+
+## Scheduled agents (cloud)
+
+| Task | ID | Schedule | Approvals |
+|---|---|---|---|
+| NAVORA Engineering agent | `trig_01CGegWNTJx5JxuJNgzAALLv` | hourly at :09 (UTC cron, `9 * * * *`) | automatic |
+| NAVORA Product Owner agent | `trig_01U1UUGgFvyWnuuK9a5JpUvr` | hourly at :09 (UTC cron, `9 * * * *`) | automatic |
+
+Their full instructions mirror the rules above. Changing an instruction means updating this file and the task.
+
+## How it is tested
+
+| Level | What | Where |
+|---|---|---|
+| Unit | approve → active implement hand-off; READY_FOR_REVIEW (`ready-for-review` or `delivered`) → PO review; `in-review` → none; accept → hand-offs close and the next item becomes active; changes-requested with who-spoke-last; *Next up* ranking; blockers; decision routing; draft and withdrawn; idempotent diff; the real files parse | `tests/unit/agents-coordination.test.ts` (CI) |
+| Dry run | `node scripts/agents-coordination/run.mjs --dry-run` prints the plan for the current files without touching GitHub | local or CI |
+| Live | the workflow runs on every push to the three files and hourly; each run logs the active capability and every hand-off | *Actions → agents-coordination* |

@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 const DIR = process.env.AGENTS_DIR ?? join(dirname(fileURLToPath(import.meta.url)), "..", "docs", "agents");
 
 const PO_STATUS = ["draft", "approved", "accepted", "changes-requested", "withdrawn"];
-const STATE = ["not-started", "analysing", "in-progress", "in-review", "delivered", "blocked"];
+const STATE = ["not-started", "analysing", "in-progress", "in-review", "ready-for-review", "delivered", "blocked"];
 const ORIGIN = ["po", "eng-proposal"];
 const OWNER = ["po", "eng", "owner", "legal", "clinical"];
 const KIND = ["product", "technical", "legal", "financial", "regulatory", "clinical", "production"];

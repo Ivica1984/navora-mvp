@@ -67,6 +67,12 @@ describe("coordination planner", () => {
     expect(active).toBeNull();
   });
 
+  it("READY_FOR_REVIEW as the literal state `ready-for-review` triggers the PO review", () => {
+    const { issues } = plan(next("| 1 | C1 | L | approved | b | w |"), status("| C1 | po | ready-for-review | s | n | #50 | – | – | – |"));
+    expect(keys(issues)).toEqual(["po:C1"]);
+    expect(issues[0].body).toContain("`ready-for-review` (READY_FOR_REVIEW)");
+  });
+
   it("in-review (PR open, CI running) needs no PO review yet", () => {
     const { issues } = plan(next("| 1 | C1 | L | approved | b | w |"), status("| C1 | po | in-review | s | n | #50 | – | – | – |"));
     expect(issues).toEqual([]);

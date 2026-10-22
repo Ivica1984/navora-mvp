@@ -42,7 +42,7 @@ Supporting files:
 ## Vocabulary (validated)
 
 - **PO status:** `draft` · `approved` · `accepted` · `changes-requested` · `withdrawn`
-- **State:** `not-started` · `analysing` · `in-progress` · `in-review` · `delivered` · `blocked`
+- **State:** `not-started` · `analysing` · `in-progress` · `in-review` (PR open) · `ready-for-review` / `delivered` (merged with green CI = **READY_FOR_REVIEW**: the PO review starts automatically) · `blocked`
 - **Origin:** `po` · `eng-proposal`
 - **Decision owner:** `po` · `eng` · `owner` · `legal` · `clinical`
 - **Decision kind:** `product` · `technical` · `legal` · `financial` · `regulatory` · `clinical` · `production`
