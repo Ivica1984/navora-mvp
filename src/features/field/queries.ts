@@ -2,6 +2,7 @@ import "server-only";
 
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
+import type { Database } from "@/lib/supabase/database.types";
 import type { FieldReport } from "./report";
 import type { FieldNote, FieldVisit } from "./types";
 
@@ -54,5 +55,18 @@ export async function getFieldReports(day: string): Promise<FieldReport[]> {
     throw new Error("Berichte konnten nicht geladen werden.");
   }
 
+  return data ?? [];
+}
+
+export type CountersignItem = Database["public"]["Functions"]["field_countersign_queue"]["Returns"][number];
+
+/** F7: reports of the caller's teams waiting for her countersignature, any date (registered nurses only). */
+export async function getCountersignQueue(): Promise<CountersignItem[]> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("field_countersign_queue");
+  if (error) {
+    logEvent("error", "field.countersign_queue_failed", errorFields(error));
+    throw new Error("Gegenzeichnungen konnten nicht geladen werden.");
+  }
   return data ?? [];
 }

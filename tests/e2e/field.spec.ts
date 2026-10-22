@@ -182,20 +182,22 @@ test.describe("field tool (F1)", () => {
     await expect(handover).toContainText("von dir");
   });
 
-  test("signed visit report: draft from the visit data, signed by the performing nurse, corrected as a new version (F6)", async ({ page }) => {
+  test("sign at completion: the draft from the visit data waits at completion and is signed with one confirmation; corrections are new versions (F6, F7)", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
     await signIn(page, NURSE, /\/field$/);
     await page.goto(`/field?datum=${NEXT_DAY}`);
 
     // Visit 508 was run end to end by this nurse (F2 test above), a registered nurse → no countersignature.
+    // F7: completing it already opened the draft; the nurse checks the facts and signs once.
     const card = page.getByRole("article", { name: /09:00 – 09:45/ });
     const report = card.getByTestId("visit-report");
-    await expect(report.getByTestId("report-status")).toHaveText("Bericht fehlt");
-    await report.getByLabel("Zusammenfassung (optional)").fill("Synthetischer Bericht: Grundpflege wie geplant.");
-    await report.getByRole("button", { name: "Berichtsentwurf erstellen" }).click();
     await expect(report.getByTestId("report-status")).toHaveText("Entwurf");
-    await expect(report).toContainText("Grundpflege wie geplant");
+    const review = report.getByRole("form", { name: "Bericht prüfen und unterschreiben" });
+    await expect(review.getByTestId("report-facts")).toContainText("Leistungen");
+    await review.getByLabel("Zusammenfassung (optional)").fill("Synthetischer Bericht: Grundpflege wie geplant.");
 
-    await report.getByRole("button", { name: "Bericht unterschreiben" }).click();
+    await review.getByRole("button", { name: "Bericht unterschreiben" }).click();
+    await expect(report).toContainText("Grundpflege wie geplant");
     await expect(report.getByTestId("report-status")).toHaveText("Bericht abgeschlossen");
     await expect(report).toContainText("von dir");
     await expect(report.getByRole("button", { name: "Bericht unterschreiben" })).toHaveCount(0);

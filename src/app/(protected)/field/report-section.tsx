@@ -6,7 +6,7 @@ import {
   correctReport,
   countersignReport,
   createReportDraft,
-  signReport,
+  signAtCompletion,
   updateReportDraft,
 } from "@/features/field/report-commands";
 import { reportView, type FieldReport } from "@/features/field/report";
@@ -74,7 +74,9 @@ export default function ReportSection({
         <p data-testid="report-status" className="text-xs font-bold">{view.label}</p>
       </div>
 
-      {report?.summary && mode === "idle" && <p className="whitespace-pre-wrap">{report.summary}</p>}
+      {report?.summary && mode === "idle" && !(report.status === "draft" && view.actions.includes("sign")) && (
+        <p className="whitespace-pre-wrap">{report.summary}</p>
+      )}
       {report?.correction_reason && (
         <p className="text-xs text-emerald-900/70">Korrektur: {report.correction_reason}</p>
       )}
@@ -160,48 +162,76 @@ export default function ReportSection({
         </form>
       )}
 
-      {mode === "idle" && report && view.actions.some((a) => a !== "create") && (
-        <div className="grid gap-2">
-          {view.actions.includes("sign") && (
-            <p className="text-xs text-emerald-900/70">
-              Mit der Unterschrift bestätigst du die Angaben. Danach ist der Bericht nicht mehr änderbar.
-            </p>
+      {mode === "idle" && report && view.actions.includes("sign") && (
+        // F7: review and sign at completion, one confirmation; the summary is optional.
+        <form
+          aria-label="Bericht prüfen und unterschreiben"
+          action={(form) =>
+            run(() =>
+              signAtCompletion({
+                reportId: report.report_id,
+                summary: summaryOf(form),
+                previousSummary: report.summary ?? null,
+                idempotencyKey: crypto.randomUUID(),
+              }),
+            )
+          }
+          className="grid gap-2"
+        >
+          <ReportFacts snapshot={report.snapshot} />
+          <SummaryField initial={report.summary ?? ""} />
+          <p className="text-xs text-emerald-900/70">
+            Mit der Unterschrift bestätigst du die Angaben. Danach ist der Bericht nicht mehr änderbar. Du kannst auch später unterschreiben.
+          </p>
+          <button type="submit" disabled={pending} className="min-h-12 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60">
+            {pending ? "Wird gespeichert …" : "Bericht unterschreiben"}
+          </button>
+        </form>
+      )}
+
+      {mode === "idle" && report && view.actions.some((a) => a === "countersign" || a === "correct") && (
+        <div className="grid grid-cols-2 gap-2">
+          {view.actions.includes("countersign") && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => run(() => countersignReport({ reportId: report.report_id, idempotencyKey: crypto.randomUUID() }))}
+              className="col-span-2 min-h-11 rounded-lg bg-blue-800 font-bold text-white disabled:opacity-60"
+            >
+              {pending ? "Wird gespeichert …" : "Gegenzeichnen"}
+            </button>
           )}
-          <div className="grid grid-cols-2 gap-2">
-            {view.actions.includes("edit") && (
-              <button type="button" onClick={() => setMode("edit")} className="min-h-11 rounded-lg border-2 border-emerald-800 bg-white font-semibold">
-                Zusammenfassung bearbeiten
-              </button>
-            )}
-            {view.actions.includes("sign") && (
-              <button
-                type="button"
-                disabled={pending}
-                onClick={() => run(() => signReport({ reportId: report.report_id, idempotencyKey: crypto.randomUUID() }))}
-                className="min-h-11 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60"
-              >
-                {pending ? "Wird gespeichert …" : "Bericht unterschreiben"}
-              </button>
-            )}
-            {view.actions.includes("countersign") && (
-              <button
-                type="button"
-                disabled={pending}
-                onClick={() => run(() => countersignReport({ reportId: report.report_id, idempotencyKey: crypto.randomUUID() }))}
-                className="col-span-2 min-h-11 rounded-lg bg-blue-800 font-bold text-white disabled:opacity-60"
-              >
-                {pending ? "Wird gespeichert …" : "Gegenzeichnen"}
-              </button>
-            )}
-            {view.actions.includes("correct") && (
-              <button type="button" onClick={() => setMode("correct")} className="col-span-2 min-h-11 rounded-lg border border-stone-300 bg-white font-semibold">
-                Bericht korrigieren
-              </button>
-            )}
-          </div>
+          {view.actions.includes("correct") && (
+            <button type="button" onClick={() => setMode("correct")} className="col-span-2 min-h-11 rounded-lg border border-stone-300 bg-white font-semibold">
+              Bericht korrigieren
+            </button>
+          )}
         </div>
       )}
     </section>
+  );
+}
+
+/** F7: what the draft took over from the visit, so the nurse can check it before signing (no re-entry). */
+function ReportFacts({ snapshot }: { snapshot: unknown }) {
+  const snap = (snapshot ?? {}) as {
+    planned?: { start?: string | null; end?: string | null; a?: number | null; b?: number | null; c?: number | null };
+    services?: string[];
+    events?: { type: string; at: string }[];
+    observations?: unknown[];
+  };
+  const at = (type: string) => snap.events?.find((e) => e.type === type)?.at ?? null;
+  const time = (iso: string | null) =>
+    iso ? new Intl.DateTimeFormat("de-CH", { timeZone: "Europe/Zurich", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(iso)) : "–";
+  const minutes = [["A", snap.planned?.a], ["B", snap.planned?.b], ["C", snap.planned?.c]]
+    .filter(([, m]) => typeof m === "number" && m > 0).map(([k, m]) => `${k} ${m} min`).join(" · ");
+  return (
+    <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs" data-testid="report-facts">
+      <dt className="font-semibold">Zeit</dt><dd>{time(at("started"))}–{time(at("completed"))}</dd>
+      <dt className="font-semibold">Geplant</dt><dd>{minutes || "–"}</dd>
+      <dt className="font-semibold">Leistungen</dt><dd>{snap.services?.length ? snap.services.join(", ") : "–"}</dd>
+      <dt className="font-semibold">Beobachtungen</dt><dd>{snap.observations?.length ?? 0}</dd>
+    </dl>
   );
 }
 

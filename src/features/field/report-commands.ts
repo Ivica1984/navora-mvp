@@ -106,3 +106,21 @@ export async function correctReport(input: unknown): Promise<CommandResult> {
     }),
   );
 }
+
+/**
+ * F7: sign at completion with one confirmation. A changed summary is saved to the draft first; then the
+ * report is signed. Both steps are the unchanged F6 commands (idempotent, audited, performer only).
+ */
+export async function signAtCompletion(input: unknown): Promise<CommandResult> {
+  const parsed = z.object({ reportId: z.uuid(), summary, previousSummary: summary, idempotencyKey: key }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: INVALID };
+  const { reportId, summary: text, previousSummary, idempotencyKey } = parsed.data;
+  const { supabase } = await requireUser();
+  if ((text ?? "") !== (previousSummary ?? "")) {
+    const saved = interpret("update_report_draft", await supabase.rpc("update_report_draft", {
+      p_report_id: reportId, p_summary: text as string, p_idempotency_key: crypto.randomUUID(),
+    }));
+    if (!saved.ok) return saved;
+  }
+  return interpret("sign_report", await supabase.rpc("sign_report", { p_report_id: reportId, p_idempotency_key: idempotencyKey }));
+}
