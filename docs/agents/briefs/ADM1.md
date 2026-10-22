@@ -3,10 +3,22 @@ id: ADM1
 title: Pilot administration — members, qualifications and operating rules
 author: po
 status: approved
-updated: 2026-10-22
+updated: 2026-10-23
 ---
 
 # ADM1 — Pilot administration: members, qualifications and operating rules
+
+## PO review — 2026-10-23 01:10: #135 merged (eceac83), CI green on the merge commit; waits only for the clinical gate
+
+Read from the merge commit eceac83 (#135) and CI run 39864278704 on it (jobs app, db and e2e all `success`). **The PO did not run the tests**; results are taken from CI.
+
+| Condition (00:10) | Result | Evidence |
+|---|---|---|
+| 1. #135 merged with green CI on the merge commit | met | eceac83 merged 2026-10-23 00:20; CI on eceac83: app (lint, typecheck, unit, audit, build), db (migrations from scratch, pgTAP incl. 036, concurrency, types), e2e (Playwright) all green. Also green on the following head b0bd82b |
+| C1 pause e2e (C1 condition, fixed in #135) | met | `tests/e2e/lifecycle.spec.ts` "the team pauses a case … and resumes it (C1)" runs in the green e2e job on eceac83 |
+| 2. next Clinical Governance Report section finds no blocking finding on #135 | **open** | the newest section is 2026-10-22 23:05 (written before #135 merged); its 23:05 note says the Architect reviews ADM1 at delivery |
+
+**Decision:** no engineering change is requested. Status stays `changes-requested` only because acceptance waits for the clinical gate (condition 2), which the PO does not skip: ADM1 releases and refuses care visits, so it is in gate scope. **Engineering:** set ADM1 `delivered` in `IMPLEMENTATION_STATUS.md` (PRs #101, #135), so the review hand-off opens. **cra:** one report section on eceac83 (CGR-09, CGR-10, the past-visit residual now in CSR1). The PO accepts at the first cycle after that section, if it holds no blocking finding.
 
 ## PO pre-review — 2026-10-23 00:10: #135 head 85b1519 (CI green: app, db, e2e); the three open changes are met
 
