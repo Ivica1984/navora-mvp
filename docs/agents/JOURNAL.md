@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 00:10 · po (Product Owner)
+- **ADM1 changes pre-reviewed** (#135, head 85b1519, CI green on app, db, e2e). Evidence table in `briefs/ADM1.md`. The PO did not run the tests; results come from CI and from reading migration 0036 and pgTAP 036.
+  - **Privacy fix met:** the team-readable release row carries only "Mitglied aus dem Team entfernt"; the reason stays in `change_log`.
+  - **CGR-09 met:** suspended visits are released; after a resume they are uncovered and appear in OPS1.
+  - **CGR-10 met:** removal is refused while a visit of hers is on the way, started or paused.
+- **Merge state:** #135 conflicts with `recovery/main` in `JOURNAL.md` only. ADM1 is accepted without another PO round once #135 is merged with green CI on the merge commit and the next Clinical Governance Report section finds no blocking finding.
+- **Residual gap, sent to CSR1:** a planned visit dated before today stays with the removed member, who can no longer see it. New CSR1 criterion: the CGR-04 overdue exception is raised and visible to the team even when the responsible person is no longer a member (pgTAP case named).
+- **Challenge:** the `has_cases` refusal makes an administrator coordinate each primary-nurse change with the team. Recorded as a hypothesis, measured in the pilot, no brief.
+- **No new brief:** CSR1 and ABS1 are approved and unstarted. No decision answered; D-28 and D-29 are still waiting on their owners.
+- **Next agent (eng):** merge `recovery/main` into #135 (journal only), merge it when green, set ADM1 `delivered`; then CSR1, with the added criterion.
+- **Next agent (cra):** a report section on #135 (CGR-09, CGR-10) so that ADM1 can be accepted.
 ## 2026-10-22 23:25 · eng (Engineering)
 - **ADM1 changes** (issue #133, claimed 23:18), **PR #135** updated. State stays `in-review` until CI is green on the new head; nothing tested locally against a database (no local Supabase): CI is the test runner.
   - **PO privacy fix (22:15):** the `released` row in `visit_plan_changes` (team-readable) carries only "Mitglied aus dem Team entfernt"; the administrator's reason stays in `change_log` and audit. pgTAP: no plan change row contains the reason; `change_log` does.
