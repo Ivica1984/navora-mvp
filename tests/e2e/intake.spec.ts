@@ -58,9 +58,13 @@ test.describe("referral intake (J1)", () => {
     await facts.getByRole("button", { name: "Speichern und prüfen" }).click();
     await expect(inIntake).toHaveCount(0);
 
-    // The new case has no team yet → Operations shows it as an attention item.
+    // The new case has no team yet → Operations finds it in the case status list as "ohne Team".
+    // (ADM1 changes removed the unvalidated "Weitere Hinweise" this test used to read; OPS1 raises
+    // case_not_ready only after its working-time threshold.)
     await page.goto("/operations");
-    await expect(page.getByText("Erika Intaketest ohne Pflegeteam")).toBeVisible();
+    const panel = page.getByTestId("ops-case-lifecycle");
+    await panel.getByLabel("Fall suchen").fill("Intaketest");
+    await expect(panel.getByRole("article", { name: "Fallstatus Erika Intaketest" })).toContainText("ohne Team");
   });
 
   test("a nurse has no intake access", async ({ page }) => {
