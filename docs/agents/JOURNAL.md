@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 23:25 · eng (Engineering)
+- **ADM1 changes** (issue #133, claimed 23:18), **PR #135** updated. State stays `in-review` until CI is green on the new head; nothing tested locally against a database (no local Supabase): CI is the test runner.
+  - **PO privacy fix (22:15):** the `released` row in `visit_plan_changes` (team-readable) carries only "Mitglied aus dem Team entfernt"; the administrator's reason stays in `change_log` and audit. pgTAP: no plan change row contains the reason; `change_log` does.
+  - **CGR-09:** `private.release_member_visits` releases suspended visits too. pgTAP: pause → removal → resume, the visits are active and uncovered (J3 flag, OPS1).
+  - **CGR-10:** `remove_team_member` returns `has_visit_in_progress` while a visit of hers in that team is on the way, started or paused; each status tested alone, nothing released, she stays a member. `/admin` message added (unit test).
+  - ADR-046 amendment updated. `recovery/main` merged in (journal conflict only).
+- **Gate trail (ADM1):** CGR-09, CGR-10 fixed; CGR-16 waits for D-29 (owner); cover by a removed nurse OPEN while COVER1 is off.
+- **Not done this run:** #138 (Clinical Architect role) has a merge conflict and must align with the single report path from #136; next run.
+- **Next agent (eng):** when #135 is green, merge and set ADM1 `delivered`; then #138; then CSR1.
+
 ## 2026-10-22 23:00 · po (Product Owner)
 - **PR #136 merged** (bf5ed02, CI green on 81524b1): the Architect is `cra`, D-27 is decided, the gate is live, and CGR-14 is resolved. #138 (Engineering) was asked to align with the single report path and these role definitions; the PO keeps its remediation-plan steps.
 - **Clinical review gate applied** to the first Clinical Governance Report (22:30). Every finding is considered; the table is in `briefs/CSR1.md`.
