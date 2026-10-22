@@ -135,14 +135,14 @@ isOneToOne: false
                   ]
                 },"care_plan_items": {
                   Row: {
-                    "active": boolean,"case_id": string,"category": string,"created_at": string,"created_by": string,"frequency": string,"goal": string | null,"id": string,"organization_id": string,"planned_minutes": number,"retire_reason": string | null,"retired_at": string | null,"retired_by": string | null,"review_date": string,"service": string,"team_id": string
+                    "active": boolean,"case_id": string,"category": string,"created_at": string,"created_by": string,"freq_period": string | null,"freq_times": number | null,"freq_weekdays": (number)[] | null,"frequency": string,"goal": string | null,"id": string,"organization_id": string,"planned_minutes": number,"retire_reason": string | null,"retired_at": string | null,"retired_by": string | null,"review_date": string,"service": string,"team_id": string,"window_end": string | null,"window_start": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "active"?: boolean,"case_id": string,"category": string,"created_at"?: string,"created_by": string,"frequency": string,"goal"?: string | null,"id"?: string,"organization_id": string,"planned_minutes": number,"retire_reason"?: string | null,"retired_at"?: string | null,"retired_by"?: string | null,"review_date": string,"service": string,"team_id": string
+                    "active"?: boolean,"case_id": string,"category": string,"created_at"?: string,"created_by": string,"freq_period"?: string | null,"freq_times"?: number | null,"freq_weekdays"?: (number)[] | null,"frequency": string,"goal"?: string | null,"id"?: string,"organization_id": string,"planned_minutes": number,"retire_reason"?: string | null,"retired_at"?: string | null,"retired_by"?: string | null,"review_date": string,"service": string,"team_id": string,"window_end"?: string | null,"window_start"?: string | null
                   }
                   Update: {
-                    "active"?: boolean,"case_id"?: string,"category"?: string,"created_at"?: string,"created_by"?: string,"frequency"?: string,"goal"?: string | null,"id"?: string,"organization_id"?: string,"planned_minutes"?: number,"retire_reason"?: string | null,"retired_at"?: string | null,"retired_by"?: string | null,"review_date"?: string,"service"?: string,"team_id"?: string
+                    "active"?: boolean,"case_id"?: string,"category"?: string,"created_at"?: string,"created_by"?: string,"freq_period"?: string | null,"freq_times"?: number | null,"freq_weekdays"?: (number)[] | null,"frequency"?: string,"goal"?: string | null,"id"?: string,"organization_id"?: string,"planned_minutes"?: number,"retire_reason"?: string | null,"retired_at"?: string | null,"retired_by"?: string | null,"review_date"?: string,"service"?: string,"team_id"?: string,"window_end"?: string | null,"window_start"?: string | null
                   }
                   Relationships: [
                     {
@@ -167,14 +167,14 @@ isOneToOne: false
                   ]
                 },"care_visits": {
                   Row: {
-                    "billable": boolean | null,"case_id": string | null,"created_at": string,"id": string,"is_needs_assessment": boolean,"notes": string | null,"organization_id": string,"planned_minutes_a": number | null,"planned_minutes_b": number | null,"planned_minutes_c": number | null,"responsible_user_id": string | null,"services_provided": (string)[] | null,"status": string | null,"team_id": string | null,"team_member_name": string | null,"time_end": string | null,"time_start": string | null,"visit_date": string | null
+                    "billable": boolean | null,"case_id": string | null,"cover_team_id": string | null,"covered_at": string | null,"covered_by": string | null,"created_at": string,"id": string,"is_needs_assessment": boolean,"notes": string | null,"organization_id": string,"plan_generated": boolean,"plan_slot_date": string | null,"plan_slot_start": string | null,"planned_minutes_a": number | null,"planned_minutes_b": number | null,"planned_minutes_c": number | null,"responsible_user_id": string | null,"services_provided": (string)[] | null,"status": string | null,"suspended_at": string | null,"suspended_by": string | null,"team_id": string | null,"team_member_name": string | null,"time_end": string | null,"time_start": string | null,"visit_date": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "billable"?: boolean | null,"case_id"?: string | null,"created_at"?: string,"id"?: string,"is_needs_assessment"?: boolean,"notes"?: string | null,"organization_id": string,"planned_minutes_a"?: number | null,"planned_minutes_b"?: number | null,"planned_minutes_c"?: number | null,"responsible_user_id"?: string | null,"services_provided"?: (string)[] | null,"status"?: string | null,"team_id"?: string | null,"team_member_name"?: string | null,"time_end"?: string | null,"time_start"?: string | null,"visit_date"?: string | null
+                    "billable"?: boolean | null,"case_id"?: string | null,"cover_team_id"?: string | null,"covered_at"?: string | null,"covered_by"?: string | null,"created_at"?: string,"id"?: string,"is_needs_assessment"?: boolean,"notes"?: string | null,"organization_id": string,"plan_generated"?: boolean,"plan_slot_date"?: string | null,"plan_slot_start"?: string | null,"planned_minutes_a"?: number | null,"planned_minutes_b"?: number | null,"planned_minutes_c"?: number | null,"responsible_user_id"?: string | null,"services_provided"?: (string)[] | null,"status"?: string | null,"suspended_at"?: string | null,"suspended_by"?: string | null,"team_id"?: string | null,"team_member_name"?: string | null,"time_end"?: string | null,"time_start"?: string | null,"visit_date"?: string | null
                   }
                   Update: {
-                    "billable"?: boolean | null,"case_id"?: string | null,"created_at"?: string,"id"?: string,"is_needs_assessment"?: boolean,"notes"?: string | null,"organization_id"?: string,"planned_minutes_a"?: number | null,"planned_minutes_b"?: number | null,"planned_minutes_c"?: number | null,"responsible_user_id"?: string | null,"services_provided"?: (string)[] | null,"status"?: string | null,"team_id"?: string | null,"team_member_name"?: string | null,"time_end"?: string | null,"time_start"?: string | null,"visit_date"?: string | null
+                    "billable"?: boolean | null,"case_id"?: string | null,"cover_team_id"?: string | null,"covered_at"?: string | null,"covered_by"?: string | null,"created_at"?: string,"id"?: string,"is_needs_assessment"?: boolean,"notes"?: string | null,"organization_id"?: string,"plan_generated"?: boolean,"plan_slot_date"?: string | null,"plan_slot_start"?: string | null,"planned_minutes_a"?: number | null,"planned_minutes_b"?: number | null,"planned_minutes_c"?: number | null,"responsible_user_id"?: string | null,"services_provided"?: (string)[] | null,"status"?: string | null,"suspended_at"?: string | null,"suspended_by"?: string | null,"team_id"?: string | null,"team_member_name"?: string | null,"time_end"?: string | null,"time_start"?: string | null,"visit_date"?: string | null
                   }
                   Relationships: [
                     {
@@ -190,10 +190,22 @@ isOneToOne: false
       referencedRelation: "cases"
       referencedColumns: ["id","organization_id"]
     },{
+      foreignKeyName: "care_visits_cover_team_id_fkey"
+      columns: ["cover_team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "care_visits_organization_id_fkey"
       columns: ["organization_id"]
 isOneToOne: false
       referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "care_visits_suspended_by_fkey"
+      columns: ["suspended_by"]
+isOneToOne: false
+      referencedRelation: "case_lifecycle_events"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "care_visits_team_id_fkey"
@@ -207,6 +219,32 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "teams"
       referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"case_lifecycle_events": {
+                  Row: {
+                    "actor_id": string,"case_id": string,"created_at": string,"expected_end": string | null,"id": string,"idempotency_key": string,"kind": string,"note": string | null,"organization_id": string,"reason_code": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id": string,"case_id": string,"created_at"?: string,"expected_end"?: string | null,"id"?: string,"idempotency_key": string,"kind": string,"note"?: string | null,"organization_id": string,"reason_code"?: string | null
+                  }
+                  Update: {
+                    "actor_id"?: string,"case_id"?: string,"created_at"?: string,"expected_end"?: string | null,"id"?: string,"idempotency_key"?: string,"kind"?: string,"note"?: string | null,"organization_id"?: string,"reason_code"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "case_lifecycle_events_case_id_organization_id_fkey"
+      columns: ["case_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "cases"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "case_lifecycle_events_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
     }
                   ]
                 },"case_tasks": {
@@ -237,14 +275,14 @@ isOneToOne: false
                   ]
                 },"cases": {
                   Row: {
-                    "access_notes": string | null,"address": string | null,"assigned_team": string | null,"assigned_team_id": string | null,"bedarf": string | null,"care_level": string | null,"care_needs": (string)[] | null,"cognitive_status": string | null,"created_at": string,"date_of_birth": string | null,"deputy_nurse_id": string | null,"diagnosis_tags": (string)[] | null,"emergency_contact_name": string | null,"emergency_contact_phone": string | null,"expected_hours_per_week": number | null,"first_name": string | null,"gender": string | null,"gp_named": boolean | null,"id": string,"insurance_provider": string | null,"insurance_type": string | null,"insurer_name": string | null,"intake_consent_confirmed_at": string | null,"intake_consent_confirmed_by": string | null,"language_notes": string | null,"last_name": string | null,"medical_order_status": string | null,"medical_order_valid_until": string | null,"mobility_status": string | null,"name": string | null,"needs_assessment_done_at": string | null,"next_step": string | null,"notes": string | null,"organization_id": string,"ort": string | null,"other_providers_active": boolean | null,"phone": string | null,"plz": string | null,"primary_nurse_id": string | null,"ready_for_matching_at": string | null,"referral_source": string | null,"region": string | null,"requested_start": string | null,"residence_canton": string | null,"residence_municipality": string | null,"source_partner_request_id": string | null,"start_date": string | null,"status": string | null,"time_info": string | null,"urgency": string | null
+                    "access_notes": string | null,"address": string | null,"assigned_team": string | null,"assigned_team_id": string | null,"auto_planning": boolean,"bedarf": string | null,"care_level": string | null,"care_needs": (string)[] | null,"cognitive_status": string | null,"created_at": string,"date_of_birth": string | null,"deputy_nurse_id": string | null,"diagnosis_tags": (string)[] | null,"emergency_contact_name": string | null,"emergency_contact_phone": string | null,"expected_hours_per_week": number | null,"first_name": string | null,"gender": string | null,"gp_named": boolean | null,"id": string,"insurance_provider": string | null,"insurance_type": string | null,"insurer_name": string | null,"intake_consent_confirmed_at": string | null,"intake_consent_confirmed_by": string | null,"language_notes": string | null,"last_name": string | null,"lifecycle": string,"medical_order_status": string | null,"medical_order_valid_until": string | null,"mobility_status": string | null,"name": string | null,"needs_assessment_done_at": string | null,"next_step": string | null,"notes": string | null,"organization_id": string,"ort": string | null,"other_providers_active": boolean | null,"phone": string | null,"plan_generated_on": string | null,"plz": string | null,"primary_nurse_id": string | null,"ready_for_matching_at": string | null,"referral_source": string | null,"region": string | null,"reopened_at": string | null,"requested_start": string | null,"residence_canton": string | null,"residence_municipality": string | null,"source_partner_request_id": string | null,"start_date": string | null,"status": string | null,"time_info": string | null,"urgency": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "access_notes"?: string | null,"address"?: string | null,"assigned_team"?: string | null,"assigned_team_id"?: string | null,"bedarf"?: string | null,"care_level"?: string | null,"care_needs"?: (string)[] | null,"cognitive_status"?: string | null,"created_at"?: string,"date_of_birth"?: string | null,"deputy_nurse_id"?: string | null,"diagnosis_tags"?: (string)[] | null,"emergency_contact_name"?: string | null,"emergency_contact_phone"?: string | null,"expected_hours_per_week"?: number | null,"first_name"?: string | null,"gender"?: string | null,"gp_named"?: boolean | null,"id"?: string,"insurance_provider"?: string | null,"insurance_type"?: string | null,"insurer_name"?: string | null,"intake_consent_confirmed_at"?: string | null,"intake_consent_confirmed_by"?: string | null,"language_notes"?: string | null,"last_name"?: string | null,"medical_order_status"?: string | null,"medical_order_valid_until"?: string | null,"mobility_status"?: string | null,"name"?: string | null,"needs_assessment_done_at"?: string | null,"next_step"?: string | null,"notes"?: string | null,"organization_id": string,"ort"?: string | null,"other_providers_active"?: boolean | null,"phone"?: string | null,"plz"?: string | null,"primary_nurse_id"?: string | null,"ready_for_matching_at"?: string | null,"referral_source"?: string | null,"region"?: string | null,"requested_start"?: string | null,"residence_canton"?: string | null,"residence_municipality"?: string | null,"source_partner_request_id"?: string | null,"start_date"?: string | null,"status"?: string | null,"time_info"?: string | null,"urgency"?: string | null
+                    "access_notes"?: string | null,"address"?: string | null,"assigned_team"?: string | null,"assigned_team_id"?: string | null,"auto_planning"?: boolean,"bedarf"?: string | null,"care_level"?: string | null,"care_needs"?: (string)[] | null,"cognitive_status"?: string | null,"created_at"?: string,"date_of_birth"?: string | null,"deputy_nurse_id"?: string | null,"diagnosis_tags"?: (string)[] | null,"emergency_contact_name"?: string | null,"emergency_contact_phone"?: string | null,"expected_hours_per_week"?: number | null,"first_name"?: string | null,"gender"?: string | null,"gp_named"?: boolean | null,"id"?: string,"insurance_provider"?: string | null,"insurance_type"?: string | null,"insurer_name"?: string | null,"intake_consent_confirmed_at"?: string | null,"intake_consent_confirmed_by"?: string | null,"language_notes"?: string | null,"last_name"?: string | null,"lifecycle"?: string,"medical_order_status"?: string | null,"medical_order_valid_until"?: string | null,"mobility_status"?: string | null,"name"?: string | null,"needs_assessment_done_at"?: string | null,"next_step"?: string | null,"notes"?: string | null,"organization_id": string,"ort"?: string | null,"other_providers_active"?: boolean | null,"phone"?: string | null,"plan_generated_on"?: string | null,"plz"?: string | null,"primary_nurse_id"?: string | null,"ready_for_matching_at"?: string | null,"referral_source"?: string | null,"region"?: string | null,"reopened_at"?: string | null,"requested_start"?: string | null,"residence_canton"?: string | null,"residence_municipality"?: string | null,"source_partner_request_id"?: string | null,"start_date"?: string | null,"status"?: string | null,"time_info"?: string | null,"urgency"?: string | null
                   }
                   Update: {
-                    "access_notes"?: string | null,"address"?: string | null,"assigned_team"?: string | null,"assigned_team_id"?: string | null,"bedarf"?: string | null,"care_level"?: string | null,"care_needs"?: (string)[] | null,"cognitive_status"?: string | null,"created_at"?: string,"date_of_birth"?: string | null,"deputy_nurse_id"?: string | null,"diagnosis_tags"?: (string)[] | null,"emergency_contact_name"?: string | null,"emergency_contact_phone"?: string | null,"expected_hours_per_week"?: number | null,"first_name"?: string | null,"gender"?: string | null,"gp_named"?: boolean | null,"id"?: string,"insurance_provider"?: string | null,"insurance_type"?: string | null,"insurer_name"?: string | null,"intake_consent_confirmed_at"?: string | null,"intake_consent_confirmed_by"?: string | null,"language_notes"?: string | null,"last_name"?: string | null,"medical_order_status"?: string | null,"medical_order_valid_until"?: string | null,"mobility_status"?: string | null,"name"?: string | null,"needs_assessment_done_at"?: string | null,"next_step"?: string | null,"notes"?: string | null,"organization_id"?: string,"ort"?: string | null,"other_providers_active"?: boolean | null,"phone"?: string | null,"plz"?: string | null,"primary_nurse_id"?: string | null,"ready_for_matching_at"?: string | null,"referral_source"?: string | null,"region"?: string | null,"requested_start"?: string | null,"residence_canton"?: string | null,"residence_municipality"?: string | null,"source_partner_request_id"?: string | null,"start_date"?: string | null,"status"?: string | null,"time_info"?: string | null,"urgency"?: string | null
+                    "access_notes"?: string | null,"address"?: string | null,"assigned_team"?: string | null,"assigned_team_id"?: string | null,"auto_planning"?: boolean,"bedarf"?: string | null,"care_level"?: string | null,"care_needs"?: (string)[] | null,"cognitive_status"?: string | null,"created_at"?: string,"date_of_birth"?: string | null,"deputy_nurse_id"?: string | null,"diagnosis_tags"?: (string)[] | null,"emergency_contact_name"?: string | null,"emergency_contact_phone"?: string | null,"expected_hours_per_week"?: number | null,"first_name"?: string | null,"gender"?: string | null,"gp_named"?: boolean | null,"id"?: string,"insurance_provider"?: string | null,"insurance_type"?: string | null,"insurer_name"?: string | null,"intake_consent_confirmed_at"?: string | null,"intake_consent_confirmed_by"?: string | null,"language_notes"?: string | null,"last_name"?: string | null,"lifecycle"?: string,"medical_order_status"?: string | null,"medical_order_valid_until"?: string | null,"mobility_status"?: string | null,"name"?: string | null,"needs_assessment_done_at"?: string | null,"next_step"?: string | null,"notes"?: string | null,"organization_id"?: string,"ort"?: string | null,"other_providers_active"?: boolean | null,"phone"?: string | null,"plan_generated_on"?: string | null,"plz"?: string | null,"primary_nurse_id"?: string | null,"ready_for_matching_at"?: string | null,"referral_source"?: string | null,"region"?: string | null,"reopened_at"?: string | null,"requested_start"?: string | null,"residence_canton"?: string | null,"residence_municipality"?: string | null,"source_partner_request_id"?: string | null,"start_date"?: string | null,"status"?: string | null,"time_info"?: string | null,"urgency"?: string | null
                   }
                   Relationships: [
                     {
@@ -289,6 +327,52 @@ isOneToOne: false
       foreignKeyName: "change_log_organization_id_fkey"
       columns: ["organization_id"]
 isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"cover_events": {
+                  Row: {
+                    "created_at": string,"id": string,"kind": string,"nurse_id": string | null,"organization_id": string,"team_id": string | null,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"kind": string,"nurse_id"?: string | null,"organization_id": string,"team_id"?: string | null,"visit_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"kind"?: string,"nurse_id"?: string | null,"organization_id"?: string,"team_id"?: string | null,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "cover_events_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cover_events_visit_id_organization_id_fkey"
+      columns: ["visit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"cover_settings": {
+                  Row: {
+                    "fallback_lead_hours": number,"id": string,"offer_lead_hours": number,"organization_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "fallback_lead_hours": number,"id"?: string,"offer_lead_hours": number,"organization_id"?: string | null
+                  }
+                  Update: {
+                    "fallback_lead_hours"?: number,"id"?: string,"offer_lead_hours"?: number,"organization_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "cover_settings_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: true
       referencedRelation: "organizations"
       referencedColumns: ["id"]
     }
@@ -475,6 +559,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     },{
       foreignKeyName: "partner_requests_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"plan_slot_skips": {
+                  Row: {
+                    "actor_id": string | null,"case_id": string,"created_at": string,"id": string,"organization_id": string,"slot_date": string,"slot_start": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id"?: string | null,"case_id": string,"created_at"?: string,"id"?: string,"organization_id": string,"slot_date": string,"slot_start": string
+                  }
+                  Update: {
+                    "actor_id"?: string | null,"case_id"?: string,"created_at"?: string,"id"?: string,"organization_id"?: string,"slot_date"?: string,"slot_start"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "plan_slot_skips_organization_id_fkey"
       columns: ["organization_id"]
 isOneToOne: false
       referencedRelation: "organizations"
@@ -843,6 +947,32 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"visit_status_notes": {
+                  Row: {
+                    "actor_id": string,"created_at": string,"id": string,"idempotency_key": string,"kind": string,"note": string | null,"organization_id": string,"reason_code": string | null,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id": string,"created_at"?: string,"id"?: string,"idempotency_key": string,"kind": string,"note"?: string | null,"organization_id": string,"reason_code"?: string | null,"visit_id": string
+                  }
+                  Update: {
+                    "actor_id"?: string,"created_at"?: string,"id"?: string,"idempotency_key"?: string,"kind"?: string,"note"?: string | null,"organization_id"?: string,"reason_code"?: string | null,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "visit_status_notes_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_status_notes_visit_id_organization_id_fkey"
+      columns: ["visit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"visit_time_corrections": {
                   Row: {
                     "actor_id": string,"corrected_at": string,"created_at": string,"event_id": number,"id": number,"idempotency_key": string,"organization_id": string,"reason": string,"team_id": string | null,"visit_id": string
@@ -921,7 +1051,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "add_care_plan_item":
+            "accept_cover":
+{ Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"add_care_plan_item":
 { Args: { "p_case_id": string,"p_category": string,"p_frequency": string,"p_goal": string,"p_idempotency_key": string,"p_planned_minutes": number,"p_review_date": string,"p_service": string }; Returns: string
                            },
 "assign_team_coach":
@@ -932,10 +1065,16 @@ isOneToOne: false
               "billable_visits": number,"insurer_chf": number,"insurer_complete": boolean,"minutes_a": number,"minutes_b": number,"minutes_c": number,"not_billable": Json,"patient_on_file": boolean,"residual_on_file": boolean,"team_id": string,"team_name": string
             }[]
                            },
+"cancel_visit":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_reason_code": string,"p_visit_id": string }; Returns: string
+                           },
 "case_funding_facts":
 { Args: { "p_case_id": string }; Returns: {
               "case_id": string,"gp_named": boolean,"insurance_type": string,"insurer_name": string,"medical_order_status": string,"medical_order_valid_until": string,"open_tasks": (string)[],"ready_for_matching_at": string,"residence_canton": string,"residence_municipality": string
             }[]
+                           },
+"close_case":
+{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code": string }; Returns: string
                            },
 "complete_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
@@ -957,6 +1096,11 @@ isOneToOne: false
 "countersign_report":
 { Args: { "p_idempotency_key": string,"p_report_id": string }; Returns: Json
                            },
+"cover_offers":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "area": string,"closes_at": string,"minutes_a": number,"minutes_b": number,"minutes_c": number,"required_qualification": string,"services": (string)[],"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
+            }[]
+                           },
 "create_report_draft":
 { Args: { "p_idempotency_key": string,"p_summary": string,"p_visit_id": string }; Returns: Json
                            },
@@ -965,6 +1109,11 @@ isOneToOne: false
                            },
 "depart_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"field_countersign_queue":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "client_name": string,"report_id": string,"signed_at": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
+            }[]
                            },
 "field_notes":
 { Args: { "p_date": string }; Returns: {
@@ -979,6 +1128,11 @@ isOneToOne: false
 "field_reports":
 { Args: { "p_date": string }; Returns: {
               "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"i_am_performer": boolean,"i_can_countersign": boolean,"i_signed": boolean,"report_id": string,"signed_at": string,"snapshot": Json,"status": string,"summary": string,"version": number,"visit_id": string
+            }[]
+                           },
+"field_visit_status_notes":
+{ Args: { "p_date": string }; Returns: {
+              "created_at": string,"kind": string,"note": string,"reason_code": string,"visit_id": string
             }[]
                            },
 "field_visits":
@@ -1010,16 +1164,38 @@ isOneToOne: false
               "created_at": string,"declines": Json,"eligible_teams": number,"matching_request_id": string,"reason": string,"referral_type": string,"region": string,"request_title": string,"response_due_at": string,"urgency": string
             }[]
                            },
+"my_covers":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "area": string,"covered_at": string,"minutes_a": number,"minutes_b": number,"minutes_c": number,"services": (string)[],"status": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
+            }[]
+                           },
 "operations_exceptions":
 { Args: Record<PropertyKey, never>; Returns: {
               "case_id": string,"case_label": string,"comments": Json,"detail": string,"entity_id": string,"entity_type": string,"exception_key": string,"exception_type": string,"label": string,"next_step": string,"priority": string,"region": string,"since": string,"taken": boolean,"taken_at": string,"taken_by_me": boolean,"team_name": string
             }[]
                            },
+"pause_case":
+{ Args: { "p_case_id": string,"p_expected_end": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code": string }; Returns: string
+                           },
 "pause_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"pilot_kpis":
+{ Args: { "p_month": string }; Returns: {
+              "base": number,"kpi": string,"note": string,"organization_id": string,"team_id": string,"team_name": string,"too_few": boolean,"value": number
+            }[]
+                           },
+"plan_from_care_plan":
+{ Args: { "p_case_id": string,"p_idempotency_key": string }; Returns: Json
+                           },
 "plan_visit":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
+                           },
+"record_no_show":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: string
+                           },
+"record_no_show_outcome":
+{ Args: { "p_idempotency_key": string,"p_outcome": string,"p_reason": string,"p_visit_id": string }; Returns: string
                            },
 "record_observation":
 { Args: { "p_content": string,"p_for_handover": boolean,"p_idempotency_key": string,"p_supersedes_id": string,"p_visit_id": string }; Returns: string
@@ -1030,17 +1206,32 @@ isOneToOne: false
 "record_quality_event":
 { Args: { "p_idempotency_key": string,"p_note": string,"p_occurred_at": string,"p_severity": string,"p_type_code": string,"p_visit_id": string }; Returns: Json
                            },
+"refresh_team_plans":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
 "remove_planned_visit":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: Json
                            },
+"reopen_case":
+{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_reason": string }; Returns: string
+                           },
 "reschedule_visit":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
+                           },
+"resume_case":
+{ Args: { "p_case_id": string,"p_idempotency_key": string }; Returns: string
                            },
 "resume_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
 "retire_care_plan_item":
 { Args: { "p_idempotency_key": string,"p_item_id": string,"p_reason": string }; Returns: string
+                           },
+"set_auto_planning":
+{ Args: { "p_case_id": string,"p_enabled": boolean,"p_idempotency_key": string,"p_reason": string }; Returns: string
+                           },
+"set_care_plan_schedule":
+{ Args: { "p_idempotency_key": string,"p_item_id": string,"p_period": string,"p_times": number,"p_weekdays": (number)[],"p_window_end": string,"p_window_start": string }; Returns: Json
                            },
 "set_member_qualification":
 { Args: { "p_idempotency_key": string,"p_qualification": string,"p_reason": string,"p_team_id": string,"p_user_id": string }; Returns: string
@@ -1066,8 +1257,16 @@ isOneToOne: false
 "start_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"sync_cover_offers":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
 "sync_exceptions":
 { Args: Record<PropertyKey, never>; Returns: number
+                           },
+"team_case_lifecycle":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "case_id": string,"changed_at": string,"client_name": string,"expected_end": string,"last_kind": string,"last_reason": string,"lifecycle": string,"suspended_visits": number,"team_name": string
+            }[]
                            },
 "team_cases":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -1077,6 +1276,11 @@ isOneToOne: false
 "team_offers":
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"expected_hours_per_week": number,"matching_request_id": string,"my_team_declined": boolean,"region": string,"request_title": string,"requested_start": string,"required_qualification": string,"required_services": (string)[],"response_due_at": string,"team_id": string,"team_name": string,"urgency": string
+            }[]
+                           },
+"team_plan_status":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "auto_planning": boolean,"b_until": string,"blocked_reason": string,"case_id": string,"generated_ahead": number,"generated_on": string,"unscheduled": Json
             }[]
                            },
 "uncovered_visits":

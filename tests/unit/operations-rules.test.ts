@@ -86,6 +86,12 @@ function careCase(overrides: Partial<CaseRow>): CaseRow {
     // J6 (migration 0021)
     primary_nurse_id: null,
     deputy_nurse_id: null,
+    // C1 (migration 0024)
+    lifecycle: "active",
+    reopened_at: null,
+    // PLAN2 (migration 0025)
+    auto_planning: true,
+    plan_generated_on: null,
     ...overrides,
   };
 }

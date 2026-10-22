@@ -13,7 +13,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 ## Änderungen gegenüber 9. Oktober 2026
 
 - **DECIDED (Owner, PRIO-1):** Reihenfolge F0, J1, J2, J3.
-- **Stand 22.10. 13:30:** Challenge-Modus: HAND1 und RET1 freigegeben, ORD1 Entwurf (D-21).
+- **Stand 22.10. 13:30:** Challenge-Modus: HAND1 und RET1 freigegeben, ORD1 Entwurf (D-22).
 - **Stand 22.10. 12:00:** abgenommen F0, J1, J2, J3, F1-F4, F6, QG1, OPS1, J6; J5 mit einer Änderung. Neu: C1, ADM1, AN1.
 - **IMPLEMENTED (Engineering, #7–#25):** SSR-Auth, Tenancy/RLS, auditierte idempotente Commands, Field-Slice F1–F4, J1, J2, J3. PO-Abnahme: J1, J2, J3 **changes-requested** (es fehlen Wohnort, Versicherer, Anordnungsstatus, KLV-Kategorie, geplante Minuten); F1-F4 abgenommen; F0 in Abnahmeprüfung.
 - **NEU:** F6 signierter Einsatzbericht vor allem Nachgelagerten (Architektur: freigegebener Bericht → Quality Gate → billable_facts).
@@ -55,7 +55,7 @@ Reihenfolge der offenen Punkte: C1 → PLAN2 → F7 → AN1 → HAND1 → COVER1
 | REF2 | Spitalzuweisung ohne Intake-Koordination | High | DRAFT; wartet auf D-9, D-3 |
 | HAND1 | Übergabe ohne Rapport: „seit Ihrem letzten Besuch“ auf jeder Einsatzkarte | High | PLANNED (Brief approved), Challenge-Befund; Voraussetzung für sichere Vertretung (COVER1) |
 | RET1 | Wiederkehrende Klientin kehrt zu ihrem Team zurück (pausierter Fall wird fortgesetzt) | High | PLANNED (Brief approved), Challenge-Befund; braucht C1 |
-| ORD1 | Verordnungserneuerung ohne Nachtelefonieren beim Hausarzt | Medium | DRAFT; wartet auf D-21 (legal), D-9 |
+| ORD1 | Verordnungserneuerung ohne Nachtelefonieren beim Hausarzt | Medium | DRAFT; wartet auf D-22 (legal), D-9 |
 
 - Fertig, wenn ein synthetischer Fall von Zuweisung bis signiertem Bericht E2E und RLS-negativ getestet ist, ein Qualitätsereignis einen Hold setzt und jede Ausnahme in OPS1 erscheint.
 

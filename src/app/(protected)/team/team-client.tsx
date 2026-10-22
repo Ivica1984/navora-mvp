@@ -21,6 +21,10 @@ import { MEDICAL_ORDER_LABEL, TASK_LABEL } from "@/features/intake/rules";
 import type { ContinuityRow, TeamCase, TeamOffer } from "@/features/team/queries";
 import type { BillingPreviewRow } from "@/features/billing/queries";
 import BillingPreview from "@/components/billing/billing-preview";
+import CaseLifecycleControls, { ClosedCases } from "./case-lifecycle";
+import AutoPlan, { type ScheduledItem } from "./auto-plan";
+import type { PlanStatus } from "@/features/planning/queries";
+import type { CaseLifecycle } from "@/features/lifecycle/queries";
 import { formatDayLabel, shiftDay, todayInZurich } from "@/features/field/rules";
 import { getVisitStatusLabel } from "@/features/visits/types";
 
@@ -40,12 +44,16 @@ export default function TeamClient({
   continuity,
   billing,
   month,
+  lifecycle,
+  planStatus,
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
   continuity: ContinuityRow[];
   billing: BillingPreviewRow[];
   month: string;
+  lifecycle: CaseLifecycle[];
+  planStatus: PlanStatus[];
 }) {
   const open = offers.filter((o) => !o.my_team_declined);
   const declined = offers.filter((o) => o.my_team_declined);
@@ -55,6 +63,9 @@ export default function TeamClient({
       <header className="bg-emerald-950 px-4 pb-4 pt-3 text-white">
         <div className="mx-auto flex max-w-xl items-center justify-between">
           <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200">NAVORA · Team</p>
+          <Link href="/analytics" className="ml-auto flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold underline underline-offset-4">
+            Teamzahlen
+          </Link>
           <Link href="/field" className="flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold underline underline-offset-4">
             Mein Tag
           </Link>
@@ -101,11 +112,18 @@ export default function TeamClient({
           <ul className="grid gap-3">
             {cases.map((c) => (
               <li key={`${c.case_id}-${c.team_id}`}>
-                <CaseCard teamCase={c} continuity={continuity.find((r) => r.case_id === c.case_id) ?? null} />
+                <CaseCard
+                  teamCase={c}
+                  continuity={continuity.find((r) => r.case_id === c.case_id) ?? null}
+                  lifecycle={lifecycle.find((l) => l.case_id === c.case_id) ?? null}
+                  planStatus={planStatus.find((p) => p.case_id === c.case_id) ?? null}
+                />
               </li>
             ))}
           </ul>
         </section>
+
+        <ClosedCases items={lifecycle.filter((l) => l.lifecycle === "closed")} />
 
         <div className="mt-6">
           <BillingPreview rows={billing} month={month} />
@@ -265,12 +283,23 @@ type Upcoming = {
   b: number | null;
   c: number | null;
   needs_assessment: boolean;
+  generated?: boolean;   // PLAN2: created from the care plan
   responsible_me: boolean;
   responsible_set: boolean;
+  covered_by_team?: string | null;   // COVER1
   flags: string[] | null;
   last_change: { change: string; reason: string | null; own: boolean } | null;
 };
-type PlanItem = { id: string; service: string; category: string; minutes: number; frequency: string; review_date: string; goal?: string | null };
+type PlanItem = {
+  id: string; service: string; category: string; minutes: number; frequency: string; review_date: string; goal?: string | null;
+  // PLAN2 (migration 0025)
+  freq_times?: number | null; freq_period?: string | null; freq_weekdays?: number[] | null; window_start?: string | null; window_end?: string | null;
+};
+const toScheduled = (i: PlanItem): ScheduledItem => ({
+  id: i.id, service: i.service, category: i.category, minutes: i.minutes,
+  freq_times: i.freq_times ?? null, freq_period: i.freq_period ?? null, freq_weekdays: i.freq_weekdays ?? null,
+  window_start: i.window_start ?? null, window_end: i.window_end ?? null,
+});
 type Member = { user_id: string; qualification: string | null; me: boolean };
 
 function arr<T>(raw: unknown, key: string): T[] {
@@ -319,7 +348,9 @@ function ErrorText({ message }: { message: string | null }) {
   );
 }
 
-function CaseCard({ teamCase, continuity }: { teamCase: TeamCase; continuity: ContinuityRow | null }) {
+function CaseCard({ teamCase, continuity, lifecycle, planStatus }: {
+  teamCase: TeamCase; continuity: ContinuityRow | null; lifecycle: CaseLifecycle | null; planStatus: PlanStatus | null;
+}) {
   const upcoming = arr<Upcoming>(teamCase.upcoming, "visit_id");
   const plan = arr<PlanItem>(teamCase.care_plan, "category");
   const members = arr<Member>(teamCase.members, "user_id");
@@ -347,9 +378,13 @@ function CaseCard({ teamCase, continuity }: { teamCase: TeamCase; continuity: Co
         </ul>
       )}
 
+      {lifecycle && <CaseLifecycleControls item={lifecycle} />}
+
       <Continuity teamCase={teamCase} members={members} continuity={continuity} />
 
       <CarePlan caseId={teamCase.case_id} items={plan} />
+
+      <AutoPlan caseId={teamCase.case_id} status={planStatus} items={plan.map(toScheduled)} />
 
       <h4 className="mt-3 text-xs font-bold uppercase tracking-wide text-emerald-900/60">Geplante Einsätze</h4>
       {upcoming.length === 0 ? (
@@ -722,8 +757,9 @@ function PlannedVisit({ visit }: { visit: Upcoming }) {
             <span className="text-emerald-900/60">· {getVisitStatusLabel(visit.status)}</span>
           </p>
           <p className="text-xs text-emerald-900/70">
+            {visit.generated ? <span data-testid="generated-visit">aus Pflegeplan · </span> : null}
             {visit.needs_assessment ? "Bedarfsabklärung · " : ""}
-            {formatMinutesByCategory(visit)} · {visit.responsible_me ? "verantwortlich: ich" : visit.responsible_set ? "verantwortlich: Teammitglied" : "noch niemand verantwortlich"}
+            {formatMinutesByCategory(visit)} · {visit.responsible_me ? "verantwortlich: ich" : visit.covered_by_team ? `übernommen von Team ${visit.covered_by_team}` : visit.responsible_set ? "verantwortlich: Teammitglied" : "noch niemand verantwortlich"}
           </p>
           {visit.last_change?.reason && (
             <p className="text-xs text-emerald-900/60">

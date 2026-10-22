@@ -343,3 +343,91 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 - **Rule versions:** facts carry `rule_version` (`J5-v1` before, `J5-v2` now). Facts are still immutable: a v1 fact is not rewritten, generation adds a v2 fact that references it. Uniqueness is now (report, rule version).
 - **Preview:** uses the billable minutes. Facts that predate the rule fall back to planned minutes until they are recalculated, which happens on the next generation.
 **Migration plan:** migration 0023 (columns, constraint swap, two functions). Rollback: restore the 0022 builder and preview; new columns stay unused.
+
+### ADR-041 — Case and visit lifecycle (C1)
+**Status:** PROPOSED · **Task:** C1 (`docs/agents/briefs/C1.md`).
+**Decision:**
+- **Case lifecycle:** `cases.lifecycle` (active, paused, closed) plus the append-only `case_lifecycle_events` (reason code, note, expected end, actor). Legacy `cases.status` follows (closed = `abgeschlossen`), so existing read models keep working.
+- **Pause (answer to the brief's question):** a reversible marker `care_visits.suspended_at`, not a visit state, because resume must restore the visits. Planned visits inside the pause are suspended. Suspended visits cannot start (transition trigger) and are not "uncovered" (OPS1 and `visit_flags`). They never complete, so they produce no report or billing fact. Resume reactivates the suspended visits that still lie ahead.
+- **Close:** cancels all future planned visits with the close reason, closes open case tasks, ends the primary-nurse assignment and withdraws open matching requests. Reports, quality events and facts are untouched.
+- **Reopen** (team or Operations, with a reason): sets `reopened_at`. A planning guard on `care_visits` insert refuses new visits for paused or closed cases (NV002) and, after a reopen, until the J1 readiness check passes (NV003).
+- **Visit end states:** `cancelled` (before start: planned or on the way) and `no_show` (after arrival: on the way) are visit events. Reasons and outcomes go to the append-only `visit_status_notes`.
+- **OPS1:** a no-show is a P1 exception immediately, open until the team records the outcome. A team cancellation within 24 h of the visit is a P2 exception (configurable rule). The app gives no on-site instructions until D-19 is answered.
+- **Rules applied throughout:** every command takes a reason where the F0 rule requires one (the ADR-034 guard checks the signatures), and is audited and idempotent. Pause, resume, cancel and no-show are for the assigned team; close and reopen for the team or Operations (admin or operations role).
+**Migration plan:** migration 0024. Rollback: drop the new objects and restore the 0014 transition trigger, the 0021 `visit_flags` and the 0019 exception derivation.
+**Open:** D-6 (clinical confirmation of the visit states), D-19 (on-site no-show protocol). The suspended state is not yet shown on `/field`: starting a suspended visit is refused with a message.
+
+### ADR-042 — Self-planning: visits follow the care plan (PLAN2)
+**Status:** PROPOSED · **Task:** PLAN2 (`docs/agents/briefs/PLAN2.md`).
+**Decision:**
+- **Structured frequency** on `care_plan_items` (a planning field, not a clinical one): once a day, or 1–7 times a week with optional ISO weekdays (exactly one per visit), plus a time window. The free text stays as a note. Without a rhythm and a window an item is not planned automatically, and the team sees it listed. A second daily visit is a second item with its own window, which keeps the rule simple and visible. Without named weekdays a weekly rhythm is spread evenly (2× → Mo, Do; 3× → Mo, Mi, Fr). This is a planning default, not a clinical rule.
+- **Rolling window:** tomorrow plus 27 days, so four weeks. Items due on the same day in the same window form one visit, with minutes summed per KLV category. A day whose minutes do not fit the window is not planned, and the team gets a reason.
+- **Responsibility:** the primary nurse; if she may not do the work (category B needs a registered nurse), the deputy under the same rule; otherwise nobody, which raises the existing `uncovered` flag.
+- **J3 rules unchanged:**
+  - nothing is generated before the needs assessment;
+  - B minutes only with a present order and never after its validity end (they are left out, with a reason);
+  - an A/C visit without an order opens the inform-GP task.
+- **The team stays in charge:**
+  - a generated visit that was moved, started, cancelled or suspended is "touched" and never overwritten;
+  - a slot the team removed is remembered (`plan_slot_skips`) and not recreated;
+  - only future untouched generated visits are regenerated or dropped;
+  - every generated, regenerated or dropped visit is in `visit_plan_changes` with the reason "care plan" (new change type `regenerated`).
+- **C1:** nothing is generated for a paused or closed case, or for a reopened case that is not ready. Switching the series off (`set_auto_planning`, with a reason) drops the future untouched visits.
+- **Reliability (answer to the brief's question):** generation runs
+  - in triggers on care-plan and relevant case changes (primary nurse, deputy, lifecycle, order, needs assessment, series switch);
+  - on the team action "Jetzt planen";
+  - on every `/team` load for cases not yet generated today (`refresh_team_plans`, the OPS1 sync-on-load pattern);
+  - daily through `pg_cron` where the extension can be enabled (job `navora-plan2-daily`, 01:15 UTC). Without pg_cron, the migration logs a notice and the other three paths keep the window current.
+
+  The system actor for unattended runs is the nil UUID.
+- **AN1 can measure:** `care_visits.plan_generated` (share of visits created automatically) and `visit_plan_changes` by team members (planning actions per client and week).
+**Migration plan:** migration 0025. New columns, one table, functions and triggers; the `visit_plan_changes.change` check is widened; `team_cases` care-plan and visit JSON gain the rhythm and a `generated` flag.
+**Rollback:**
+1. Run `cron.unschedule('navora-plan2-daily')` if the job exists.
+2. Drop the triggers `care_plan_items_regenerate`, `cases_regenerate_plan` and `care_visits_remember_removed_slot`.
+3. Drop the new functions.
+
+Generated visits stay ordinary planned visits.
+**Open:** the evenly spread default weekdays and the four-week horizon are engineering defaults for the PO to confirm. Absences are not modelled, so "cannot do the work" means qualification only.
+
+### ADR-043 — Sign at completion (F7)
+**Status:** PROPOSED · **Task:** F7 (`docs/agents/briefs/F7.md`).
+**Decision (answer to the brief's question):** no new report state.
+- **Completion opens the draft.** Completing a visit on `/field` creates the F6 draft from the visit data immediately (`create_report_draft` right after `complete_visit`). The card then shows "Bericht prüfen und unterschreiben" with:
+  - the facts the draft took over (time, planned minutes per category, services, number of observations);
+  - the optional summary;
+  - one "Bericht unterschreiben" button.
+- **One confirmation.** If the nurse changed the summary, it is saved to the draft first (`update_report_draft`), then the report is signed (`sign_report`). Both are the unchanged F6 commands: idempotent, audited, performer only.
+- **Signing later is unchanged:** the draft stays open, and the OPS1 "report not final" exception applies.
+- **Countersignature:** `field_countersign_queue()` lists, for a registered nurse, every signed report of her teams that waits for her countersignature, on any date. `/field` shows it at the top. The D-10 rule is unchanged.
+- **AN1 can measure:** time from visit end to final report (`visit_events` completed → `visit_reports.signed_at` / `countersigned_at`), and the share signed within 10 minutes.
+**Migration plan:** migration 0026 (one read function). Rollback: drop it; the app falls back to the F6 buttons.
+**Open:** if the draft cannot be created (no recorded start), the F6 "create" step stays on the card with its message.
+
+### ADR-044 — Pilot impact dashboard, computed live (AN1)
+**Status:** PROPOSED · **Task:** AN1 (`docs/agents/briefs/AN1.md`).
+**Decision:**
+- **One read model:** `pilot_kpis(month)` returns aggregates per team and for the organisation. Each row has its base count and a "too few data" mark below 5. It is never per nurse and has no client identity or health data; a guard test checks that it has no person columns.
+- **Scope:** coordination roles see the organisation and every team. A team member sees only her own teams. The exception KPIs are coordination figures.
+- **Live, not nightly (answer to the brief's question):** every KPI is computed from the source tables for one month on request. Pilot volumes are small. A nightly aggregate becomes worthwhile only when one month takes too long to compute; measuring that is the trigger.
+- **Definitions** are shown on the page with their source; engineering defaults go to the PO as D-21:
+  - **direct care share** = care minutes ÷ (travel + care + pause minutes) of completed visits. Working time outside visits is not recorded, so the figure is an upper bound and is marked as an approximation.
+  - **first-offer acceptance** = requests of the month accepted by a team within the response deadline (organisation only).
+  - **report final** = from visit end to the signature, or the countersignature where required, of the first version.
+- **Not measurable yet** (shown with a note, no value):
+  - time to close a P1 exception: the time an exception first appears is not stored. A follow-up would record a `seen` event in `sync_exceptions`.
+  - COVER1: not built yet.
+**Migration plan:** migration 0027 (one function). Rollback: drop it.
+
+### ADR-045 — Cross-team cover without a dispatcher (COVER1)
+**Status:** PROPOSED · **Task:** COVER1 (`docs/agents/briefs/COVER1.md`).
+**Decision:**
+- **J2 pattern, own tables (answer to the brief's question).** Offers are derived from state, carry no client identity, and the first decision wins atomically. A visit offer has no matching request, so offers are derived per visit and decisions go to the append-only `cover_events` (`offered` when first seen, `accepted`, `expired`).
+- **Window:** a planned visit of an active case, with no responsible member and not suspended, whose start is between the fallback lead and the offer lead. Defaults are 4 h and 24 h, in `cover_settings`; an organisation override is possible later through ADM1.
+- **Eligible:** members of another active team in the same organisation and region. Category B work and needs assessments go to registered nurses only.
+- **Acceptance:** `accept_cover` assigns that one visit atomically (responsible member, `covered_by`, `cover_team_id`). It logs a plan change, so PLAN2 never overwrites the cover. The case, its team and its primary nurse stay unchanged. J6 counts the visit as `not_primary`; J5 and F6 apply as usual.
+- **Context access waits for D-3.** RLS keeps the visit with its team. The covering nurse sees her covers with the offer's minimal facts, but she cannot run the visit in the app until the owner decides D-3. The case's team sees which team covered.
+- **After the fallback lead** nobody can accept. `sync_cover_offers` (called on `/field` load, the OPS1 sync pattern) records the expiry. The OPS1 uncovered-visit exception is unchanged.
+- **AN1:** `cover_without_operations` (offered visits that a neighbouring team accepted) and `cover_median_hours`.
+**Migration plan:** migration 0028. Rollback: drop the new objects and the columns, restore `team_cases` and `pilot_kpis` from 0025/0027.
+**Open:** D-3 (cross-team context access); notifying nurses outside the app (push, SMS) is not built; the lead times are engineering defaults (D-21).

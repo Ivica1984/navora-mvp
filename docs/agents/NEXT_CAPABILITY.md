@@ -46,7 +46,7 @@ The order of the table is the order engineering builds in, top to bottom, skippi
 
 Drafts, waiting for decisions:
 - **REF2**, hospital referral without an intake coordinator ([brief](briefs/REF2.md)). It is the transitions-of-care wedge and needs D-9 (`legal`) and D-3 (`owner`).
-- **ORD1**, medical order renewal without chasing the GP ([brief](briefs/ORD1.md)). It needs D-21 (`legal`, valid form of a medical order) and D-9.
+- **ORD1**, medical order renewal without chasing the GP ([brief](briefs/ORD1.md)). It needs D-22 (`legal`, valid form of a medical order) and D-9.
 
 ## Challenge review (PO, 2026-10-22)
 
@@ -67,7 +67,7 @@ The test: "If NAVORA were designed from scratch today, would it work this way?" 
 | Coach as routine first line for absences, disputes and finances (Buurtzorg: about 1 coach per 47 teams) | no | coach called by OPS1 and AN1 signals; absences go to COVER1, finances to J7 |
 | Daily team handover meeting (*Rapport*) and phone calls between colleagues to learn what changed | no: the record already holds it | HAND1 |
 | A returning client is re-taken by intake and re-matched from scratch after a hospital stay | no | RET1 |
-| Phoning and faxing GP practices to renew medical orders | no | ORD1 (draft, D-21, D-9) |
+| Phoning and faxing GP practices to renew medical orders | no | ORD1 (draft, D-22, D-9) |
 | The nurse orders her day and route by hand | doubtful | Hypothesis: NAVORA proposes the order of the day from visit windows and travel time. Test with AN1 travel minutes (F1–F4 depart/arrive), after the Q7 data-protection review of location data |
 | Relatives phone the team to ask when the nurse comes | doubtful | Hypothesis: share the visit window with the client or a named relative, with consent (D-9). Pilot teams tally these calls for two weeks before any brief |
 | Statutory statistics and cantonal reports compiled by hand | no, once the obligations are known | Hypothesis: generated from J5, J6 and QG1 facts. Needs D-11 (which canton, which obligations); brief after D-11 |
@@ -85,7 +85,7 @@ The test: "If NAVORA were designed from scratch today, would it work this way?" 
 
 ## Notes from the PO
 
-- 2026-10-22 13:30: **Challenge mode (owner instruction).** Eight inherited practices reviewed (see the challenge table). **Approved: HAND1** (handover without the team meeting) and **RET1** (returning client returns to her team). **Draft: ORD1** (medical order renewal without chasing the GP), waiting for the new legal decision D-21 and D-9. Every new brief now states which administrative layer it replaces, which manual activity and which role it makes less necessary, and its effect on continuity, direct care time and income. `CARE_OPERATING_MODEL.md` gains an impact ledger and four more proposed Handbook changes. Next up: C1, PLAN2, F7, AN1, HAND1, COVER1, RET1, ADM1.
+- 2026-10-22 13:30: **Challenge mode (owner instruction).** Eight inherited practices reviewed (see the challenge table). **Approved: HAND1** (handover without the team meeting) and **RET1** (returning client returns to her team). **Draft: ORD1** (medical order renewal without chasing the GP), waiting for the new legal decision D-22 and D-9. Every new brief now states which administrative layer it replaces, which manual activity and which role it makes less necessary, and its effect on continuity, direct care time and income. `CARE_OPERATING_MODEL.md` gains an impact ledger and four more proposed Handbook changes. Next up: C1, PLAN2, F7, AN1, HAND1, COVER1, RET1, ADM1.
 - 2026-10-22 13:15: **Care operating model** published (`docs/product/CARE_OPERATING_MODEL.md`). It benchmarks Buurtzorg with sources, sets the direct-care-share North Star, lists what disappears and proposes changes to the Handbook. **COVER1** (cross-team cover) is approved; **REF2** (hospital referral without an intake coordinator) is a draft until D-9 and D-3 are answered. Next up re-ranked by the owner's value order: C1, PLAN2, F7, AN1, COVER1, ADM1. New owner question D-20 (team self-administration); D-14 sharpened.
 - 2026-10-22 13:00: **J5 accepted** (#75, ADR-040, pgTAP 022, CI green): billable minutes never exceed measured care minutes. **Challenge review:** two inherited practices are removed by design. **PLAN2:** visits follow the care plan, with the primary nurse. **F7:** sign at completion. Both rank after C1 (patient safety) and ADM1 (needed to run the pilot). Three more practices are recorded as hypotheses in the challenge table, to be tested with AN1 data. D-10 is sharpened with a risk-based alternative for `clinical`. Q11 decided.
 - 2026-10-22 12:00: **Accepted: F0** (#38), **J2** (#36), **OPS1** (#39), **QG1** (#41), **J6** (#42), all merged with green CI; evidence tables are in the briefs. QG1 becomes operational when `clinical` answers D-16. **J5 changes-requested** for one rule: billable minutes never exceed the measured care minutes (Q11). **Next capability: C1** (case and visit lifecycle), the largest remaining journey gap. After it come **ADM1** (pilot administration, which also gives members names) and **AN1** (pilot impact dashboard). **Decided:** Q7, Q8, Q9, Q10. **New:** D-18 (`legal`: billing time rules in the tariff contract) and D-19 (`clinical`: what the nurse does when a client does not open the door).

@@ -46,7 +46,7 @@ Every capability is judged by whether it raises this share without lowering safe
 | Blanket countersignature of care-assistant visits | Risk-based review | PROPOSED (D-10, clinical) |
 | Daily team handover meeting; shift lead as knowledge carrier | "Since you were last here" on every visit card, from the record | PLANNED (HAND1) |
 | Re-intake and re-matching of a client after a hospital stay | Paused case resumes; returning client offered to the known team first | PLANNED (RET1) |
-| Chasing GP practices for order renewals by phone and fax | Prepared renewal request, sent by the primary nurse, confirmed digitally by the GP | DRAFT (ORD1; D-21, D-9) |
+| Chasing GP practices for order renewals by phone and fax | Prepared renewal request, sent by the primary nurse, confirmed digitally by the GP | DRAFT (ORD1; D-22, D-9) |
 | Nurse ordering her day and route by hand | Proposed order of the day from visit windows and travel time | HYPOTHESIS (Q7 data protection; AN1 travel minutes) |
 | Statutory statistics and cantonal reports compiled by hand | Generated from billing, continuity and quality facts | HYPOTHESIS (D-11) |
 | Back-office invoice preparation | Invoices generated from J5 facts with a human release | after D-12, D-18 |
