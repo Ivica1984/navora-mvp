@@ -16,6 +16,8 @@ import {
 import type { TeamRow } from "@/features/teams/types";
 import ExceptionCenter from "./exception-center";
 import HoldsPanel from "./holds-panel";
+import ContinuityPanel from "./continuity-panel";
+import type { ContinuityRow } from "@/features/team/queries";
 import type { OpenHold } from "@/features/quality/queries";
 
 type LocalVisit = OperationsVisit;
@@ -34,6 +36,7 @@ type SelectedEntity =
 type OperationsClientProps = {
   dashboard: OperationsDashboard;
   holds: OpenHold[];
+  continuity: ContinuityRow[];
 };
 
 function getStatusLabel(status: string | null) {
@@ -122,7 +125,7 @@ function getSlaStatus(careCase: CaseSummaryRow) {
   return "ok";
 }
 
-export default function OperationsClient({ dashboard, holds }: OperationsClientProps) {
+export default function OperationsClient({ dashboard, holds, continuity }: OperationsClientProps) {
   const {
     cases,
     teams,
@@ -217,6 +220,8 @@ export default function OperationsClient({ dashboard, holds }: OperationsClientP
         <ExceptionCenter exceptions={dashboard.exceptions} />
 
         <HoldsPanel holds={holds} />
+
+        <ContinuityPanel rows={continuity} />
 
         <AttentionCenter
           items={attentionItems}

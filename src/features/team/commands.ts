@@ -212,3 +212,44 @@ export async function retireCarePlanItem(input: unknown): Promise<CommandResult>
   });
   return textResult("retire_care_plan_item", data, error);
 }
+
+// J6: primary nurse and deputy per case (migration 0021). Changing needs a reason (F0 rule).
+const primarySchema = z.object({
+  caseId: z.uuid(),
+  primaryId: z.uuid(),
+  deputyId: z.uuid().nullable(),
+  reason: z.string().trim().max(300),
+  idempotencyKey: z.uuid(),
+});
+
+const PRIMARY_MESSAGES: Record<string, string> = {
+  invalid: "Bitte Bezugspflegende wählen; die Stellvertretung muss eine andere Person sein. Ein Wechsel braucht eine Begründung (mind. 3 Zeichen).",
+  not_in_team: "Bezugspflege und Stellvertretung müssen zum zuständigen Team gehören.",
+  rejected: "Nicht gespeichert: Du gehörst nicht zum zuständigen Team.",
+  failed: "Konnte nicht gespeichert werden.",
+};
+
+export async function setPrimaryNurse(input: unknown): Promise<CommandResult> {
+  const parsed = primarySchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: PRIMARY_MESSAGES.invalid };
+  const d = parsed.data;
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("set_primary_nurse", {
+    p_case_id: d.caseId,
+    p_primary: d.primaryId,
+    // The generated RPC type marks every argument as required; null = no deputy / no reason.
+    p_deputy: d.deputyId as string,
+    p_reason: d.reason,
+    p_idempotency_key: d.idempotencyKey,
+  });
+  if (error) {
+    logEvent("warn", "command.failed", { op: "set_primary_nurse", ...errorFields(error) });
+    return { ok: false, error: error.code === "22023" ? PRIMARY_MESSAGES.invalid : PRIMARY_MESSAGES.failed };
+  }
+  if (data === "ok" || data === "duplicate" || data === "unchanged") {
+    revalidatePath("/team");
+    revalidatePath("/operations");
+    return { ok: true };
+  }
+  return { ok: false, error: PRIMARY_MESSAGES[String(data)] ?? PRIMARY_MESSAGES.failed };
+}
