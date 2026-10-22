@@ -409,7 +409,19 @@ isOneToOne: false
                     "amount"?: number | null,"escalate_to_p1_after_hours"?: number | null,"exception_type"?: string,"id"?: string,"organization_id"?: string,"priority"?: string,"updated_at"?: string,"updated_by"?: string
                   }
                   Relationships: [
-                    
+                    {
+      foreignKeyName: "exception_rule_overrides_exception_type_fkey"
+      columns: ["exception_type"]
+isOneToOne: false
+      referencedRelation: "exception_rules"
+      referencedColumns: ["exception_type"]
+    },{
+      foreignKeyName: "exception_rule_overrides_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"exception_rules": {
                   Row: {
@@ -525,7 +537,19 @@ isOneToOne: false
                     "accepted_at"?: string | null,"accepted_user"?: string | null,"created_at"?: string,"display_name"?: string,"email"?: string,"expires_at"?: string,"id"?: string,"invited_by"?: string,"organization_id"?: string,"qualification"?: string | null,"revoked_at"?: string | null,"role"?: string,"team_id"?: string | null
                   }
                   Relationships: [
-                    
+                    {
+      foreignKeyName: "member_invitations_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "member_invitations_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"member_profiles": {
                   Row: {
@@ -539,7 +563,13 @@ isOneToOne: false
                     "display_name"?: string,"id"?: string,"organization_id"?: string,"updated_at"?: string,"updated_by"?: string | null,"user_id"?: string
                   }
                   Relationships: [
-                    
+                    {
+      foreignKeyName: "member_profiles_organization_id_user_id_fkey"
+      columns: ["organization_id","user_id"]
+isOneToOne: true
+      referencedRelation: "organization_memberships"
+      referencedColumns: ["organization_id","user_id"]
+    }
                   ]
                 },"organization_memberships": {
                   Row: {
@@ -1196,7 +1226,7 @@ isOneToOne: false
                            },
 "field_reports":
 { Args: { "p_date": string }; Returns: {
-              "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"i_am_performer": boolean,"i_can_countersign": boolean,"countersigned_by_name": string,"i_signed": boolean,"report_id": string,"signed_at": string,"signed_by_name": string,"snapshot": Json,"status": string,"summary": string,"version": number,"visit_id": string
+              "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"countersigned_by_name": string,"i_am_performer": boolean,"i_can_countersign": boolean,"i_signed": boolean,"report_id": string,"signed_at": string,"signed_by_name": string,"snapshot": Json,"status": string,"summary": string,"version": number,"visit_id": string
             }[]
                            },
 "field_visit_status_notes":
