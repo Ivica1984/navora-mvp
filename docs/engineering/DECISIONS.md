@@ -356,3 +356,36 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 - **Rules applied throughout:** every command takes a reason where the F0 rule requires one (the ADR-034 guard checks the signatures), and is audited and idempotent. Pause, resume, cancel and no-show are for the assigned team; close and reopen for the team or Operations (admin or operations role).
 **Migration plan:** migration 0024. Rollback: drop the new objects and restore the 0014 transition trigger, the 0021 `visit_flags` and the 0019 exception derivation.
 **Open:** D-6 (clinical confirmation of the visit states), D-19 (on-site no-show protocol). The suspended state is not yet shown on `/field`: starting a suspended visit is refused with a message.
+
+### ADR-042 — Self-planning: visits follow the care plan (PLAN2)
+**Status:** PROPOSED · **Task:** PLAN2 (`docs/agents/briefs/PLAN2.md`).
+**Decision:**
+- **Structured frequency** on `care_plan_items` (a planning field, not a clinical one): once a day, or 1–7 times a week with optional ISO weekdays (exactly one per visit), plus a time window. The free text stays as a note. Without a rhythm and a window an item is not planned automatically, and the team sees it listed. A second daily visit is a second item with its own window, which keeps the rule simple and visible. Without named weekdays a weekly rhythm is spread evenly (2× → Mo, Do; 3× → Mo, Mi, Fr). This is a planning default, not a clinical rule.
+- **Rolling window:** tomorrow plus 27 days, so four weeks. Items due on the same day in the same window form one visit, with minutes summed per KLV category. A day whose minutes do not fit the window is not planned, and the team gets a reason.
+- **Responsibility:** the primary nurse; if she may not do the work (category B needs a registered nurse), the deputy under the same rule; otherwise nobody, which raises the existing `uncovered` flag.
+- **J3 rules unchanged:**
+  - nothing is generated before the needs assessment;
+  - B minutes only with a present order and never after its validity end (they are left out, with a reason);
+  - an A/C visit without an order opens the inform-GP task.
+- **The team stays in charge:**
+  - a generated visit that was moved, started, cancelled or suspended is "touched" and never overwritten;
+  - a slot the team removed is remembered (`plan_slot_skips`) and not recreated;
+  - only future untouched generated visits are regenerated or dropped;
+  - every generated, regenerated or dropped visit is in `visit_plan_changes` with the reason "care plan" (new change type `regenerated`).
+- **C1:** nothing is generated for a paused or closed case, or for a reopened case that is not ready. Switching the series off (`set_auto_planning`, with a reason) drops the future untouched visits.
+- **Reliability (answer to the brief's question):** generation runs
+  - in triggers on care-plan and relevant case changes (primary nurse, deputy, lifecycle, order, needs assessment, series switch);
+  - on the team action "Jetzt planen";
+  - on every `/team` load for cases not yet generated today (`refresh_team_plans`, the OPS1 sync-on-load pattern);
+  - daily through `pg_cron` where the extension can be enabled (job `navora-plan2-daily`, 01:15 UTC). Without pg_cron, the migration logs a notice and the other three paths keep the window current.
+
+  The system actor for unattended runs is the nil UUID.
+- **AN1 can measure:** `care_visits.plan_generated` (share of visits created automatically) and `visit_plan_changes` by team members (planning actions per client and week).
+**Migration plan:** migration 0025. New columns, one table, functions and triggers; the `visit_plan_changes.change` check is widened; `team_cases` care-plan and visit JSON gain the rhythm and a `generated` flag.
+**Rollback:**
+1. Run `cron.unschedule('navora-plan2-daily')` if the job exists.
+2. Drop the triggers `care_plan_items_regenerate`, `cases_regenerate_plan` and `care_visits_remember_removed_slot`.
+3. Drop the new functions.
+
+Generated visits stay ordinary planned visits.
+**Open:** the evenly spread default weekdays and the four-week horizon are engineering defaults for the PO to confirm. Absences are not modelled, so "cannot do the work" means qualification only.
