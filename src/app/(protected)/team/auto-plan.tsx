@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { planFromCarePlan, setAutoPlanning, setCarePlanSchedule } from "@/features/planning/commands";
 import type { PlanStatus } from "@/features/planning/queries";
-import { BLOCKED_LABEL, WEEKDAYS, describeSchedule, scheduleError, type Schedule } from "@/features/planning/rules";
+import { BLOCKED_LABEL, WEEKDAYS, describeSchedule, orderNotice, scheduleError, type Schedule } from "@/features/planning/rules";
 
 export type ScheduledItem = Schedule & { id: string; service: string; category: string; minutes: number };
 
@@ -22,6 +22,8 @@ export default function AutoPlan({ caseId, status, items }: { caseId: string; st
   const [toggling, setToggling] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const on = status?.auto_planning ?? true;
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Zurich" });
+  const notice = orderNotice(status?.b_until ?? null, items, today);
 
   async function run(call: () => Promise<{ ok: boolean; error?: string; notes?: string[] }>, after?: () => void) {
     setPending(true);
@@ -41,6 +43,7 @@ export default function AutoPlan({ caseId, status, items }: { caseId: string; st
         {status && on && <> · <span data-testid="generated-ahead">{status.generated_ahead}</span> Einsätze in den nächsten 4 Wochen</>}
       </p>
       {status?.blocked_reason && <p className="rounded-lg bg-amber-50 p-2 text-amber-900" data-testid="plan-blocked">{BLOCKED_LABEL[status.blocked_reason] ?? status.blocked_reason}</p>}
+      {notice && <p className="rounded-lg bg-amber-50 p-2 font-semibold text-amber-900" data-testid="plan-order-notice">{notice}</p>}
       {status && status.order_flagged > 0 && (
         <p className="rounded-lg bg-rose-50 p-2 font-semibold text-rose-900" data-testid="plan-order-flagged">
           {status.order_flagged} geplante{status.order_flagged === 1 ? "r Einsatz enthält" : " Einsätze enthalten"} B-Leistungen nach dem Ende der ärztlichen Verordnung.

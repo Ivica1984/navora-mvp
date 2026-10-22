@@ -61,3 +61,15 @@ export const PLANNING_MESSAGES: Record<string, string> = {
   rejected: "Nur das zuständige Team plant diesen Fall.",
   unchanged: "Keine Änderung.",
 };
+
+/**
+ * PLAN2 (PO addendum): when B items have a rhythm and the medical order ends inside the four-week window,
+ * the case says why B work stops. Returns null otherwise.
+ */
+export function orderNotice(bUntil: string | null, items: { category: string; freq_period: string | null }[], today: string): string | null {
+  if (!bUntil || !items.some((i) => i.category === "B" && i.freq_period)) return null;
+  const days = (Date.parse(`${bUntil}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86_400_000;
+  if (days > 28) return null;
+  const [y, m, d] = bUntil.split("-");
+  return `B-Leistungen geplant bis ${d}.${m}.${y}: Verordnung erneuern`;
+}
