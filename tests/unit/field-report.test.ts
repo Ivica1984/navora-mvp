@@ -16,6 +16,9 @@ function report(overrides: Partial<FieldReport>): FieldReport {
     i_am_performer: true,
     i_signed: false,
     i_can_countersign: false,
+    // ADM1 (migration 0035): names of signer and countersigner; null without a profile
+    signed_by_name: null as unknown as string,
+    countersigned_by_name: null as unknown as string,
     ...overrides,
   };
 }

@@ -29,6 +29,11 @@ export async function signIn(
     return { error: SIGN_IN_FAILED };
   }
 
+  // ADM1: open invitations for this (confirmed) e-mail become memberships on sign-in.
+  // Never blocks the sign-in; the database matches the e-mail itself.
+  const accepted = await supabase.rpc("accept_my_invitations");
+  if (accepted.error) logEvent("warn", "auth.accept_invitations_failed", errorFields(accepted.error));
+
   // Destination comes from the user's roles in the database, never from the
   // request: no user-controlled redirect target (no open redirect).
   redirect(await resolveHomePath(supabase));

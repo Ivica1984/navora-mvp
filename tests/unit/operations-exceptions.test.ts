@@ -21,6 +21,7 @@ describe("OPS1 exception helpers", () => {
     expect(handlerLabel({ priority: "P1", since: "", taken: false, taken_by_me: false })).toBe("offen – niemand übernommen");
     expect(handlerLabel({ priority: "P1", since: "", taken: true, taken_by_me: true })).toBe("von dir übernommen");
     expect(handlerLabel({ priority: "P1", since: "", taken: true, taken_by_me: false })).toBe("von Operations übernommen");
+    expect(handlerLabel({ priority: "P1", since: "", taken: true, taken_by_me: false, owner_name: "Olga Ops" })).toBe("von Olga Ops übernommen");
   });
 
   it("parses comments defensively", () => {

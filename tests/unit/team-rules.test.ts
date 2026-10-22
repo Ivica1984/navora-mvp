@@ -27,6 +27,18 @@ describe("continuity (J6)", () => {
     expect(memberLabel(members, "x")).toBe("nicht mehr im Team");
   });
 
+  it("uses the display name once one is set (ADM1)", async () => {
+    const { memberLabel } = await import("@/features/team/rules");
+    const members = [
+      { user_id: "a", me: true, qualification: "registered_nurse", name: "Anna Muster" },
+      { user_id: "b", me: false, qualification: "care_assistant", name: "Ben Beispiel" },
+      { user_id: "c", me: false, qualification: null, name: "  " },
+    ];
+    expect(memberLabel(members, "a")).toBe("Ich (Anna Muster) – Pflegefachperson");
+    expect(memberLabel(members, "b")).toBe("Ben Beispiel – Pflegeassistenz");
+    expect(memberLabel(members, "c")).toBe("Teammitglied 3");
+  });
+
   it("formats the monthly measure per client, never per person", async () => {
     const { formatContinuity, PLAN_FLAG_LABEL } = await import("@/features/team/rules");
     expect(formatContinuity({ visits: 0, distinct_nurses: 0, primary_share_pct: null })).toContain("noch keine");

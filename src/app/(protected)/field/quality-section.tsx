@@ -161,6 +161,7 @@ function EventRow({
       <p>
         <span className="font-semibold">{event.label}</span> · {SEVERITY_LABEL[event.severity as keyof typeof SEVERITY_LABEL] ?? event.severity} ·{" "}
         <span data-testid="event-status">{EVENT_STATUS_LABEL[event.status] ?? event.status}</span>
+        {event.own ? " · von dir" : event.person_name ? ` · von ${event.person_name}` : ""}
       </p>
       {event.status !== "closed" && !closing && (
         <div className="mt-1 flex gap-2">
