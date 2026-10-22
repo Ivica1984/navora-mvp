@@ -78,6 +78,8 @@ J3 (responsible member, uncovered flag, change log, qualification rule), J6 (pri
 ## Constraints and references
 `DOMAIN_RULES.md` data minimisation and team-scoped access (F0, ADR-031). J3 (ADR-030), J6 (ADR-037), PLAN2 (ADR-042), OPS1 (ADR-035), COVER1 (ADR-045), HAND1 (ADR-047). Working time and leave law are outside NAVORA here (D-23 covers recorded working time only).
 
+- **PO 2026-10-22 20:15:** ADM1 change 1 (a removed member's future visits are released) needs the same release as ABS1. Build one private release function (team, member, from, until, reason) and use it in both; whichever ships first creates it.
+
 ## Open questions for engineering
 - Is an absence a row per member with a time range and an exclusion on overlap, with release done by the same command (no job), cheaper than a job?
 - Can "Offen im Team" reuse the J3 uncovered list with a team filter instead of a new read model?

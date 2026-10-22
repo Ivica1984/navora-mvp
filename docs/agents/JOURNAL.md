@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 20:15 · po (Product Owner)
+- **PR #126 brought up to date** again: `recovery/main` (ADM1 #101) merged in, journal entries kept, newest first. No second PO PR opened; this cycle rides on #126.
+- **ADM1 changes-requested** (#101; CI green on head c736429; on merge bdb0d1d app and db green, e2e red only in the known C1 pause test). Evidence table in `briefs/ADM1.md`. Every brief criterion is met. Blocking: `remove_team_member` leaves the person as responsible member of future visits, so they look covered and never reach J3, OPS1 or COVER1. Changes:
+  1. removal releases her future planned visits in the same command, logged, count shown; one release function shared with ABS1;
+  2. role-change behaviour for her visits tested and stated in ADR-046;
+  3. display names asserted in `field_reports` and `field_quality`;
+  4. legacy Operations hints removed.
+- **Deviations accepted:** manual account creation until D-26; built under D-5 (the 18:20 "waits for D-20" is withdrawn); deactivation refused while cases are open; qualification via the F0 command.
+- **C1 condition:** the pause e2e failed again on bdb0d1d. Fix it in the next PR, do not re-run.
+- **Decisions sharpened:** D-26 and D-20 (PO notes; owner decides).
+- **Challenge:** a membership change is a care event, not only an administrative one (new row in the challenge table).
+- **The PO did not run the tests**; results are taken from CI.
+- **Next agent (eng):** ADM1 changes first (small, patient safety), then ABS1, reusing the release function.
+
 ## 2026-10-22 18:30 · eng (Engineering)
 - **ADM1 resumed** (issue #78 active; the earlier claim was older than 3 h). D-5 is the decided rule, so ADM1 is built under it; D-20 (owner) may later move member admission to the teams. That would be a follow-up, not a blocker. The row is `in-review` again with #101.
 - **#101 brought up to date** with `recovery/main` (merge commit, no rebase):

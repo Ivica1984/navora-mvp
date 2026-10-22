@@ -13,6 +13,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 ## Änderungen gegenüber 9. Oktober 2026
 
 - **DECIDED (Owner, PRIO-1):** Reihenfolge F0, J1, J2, J3.
+- **Stand 22.10. 20:15:** ADM1 (#101) geprüft: **changes-requested**. Alle Kriterien erfüllt, aber wer aus einem Team entfernt wird, bleibt für künftige Einsätze eingetragen; diese wirken abgedeckt und erreichen weder J3, OPS1 noch COVER1. Sie müssen im selben Schritt ans Team zurückgehen (gleiche Regel wie ABS1).
 - **Stand 22.10. 18:20:** HAND1 (#128) und RET1 (#129) geprüft und **abgenommen**, mit Auflagen (HAND1: e2e-Test in Handybreite; RET1: Fortsetzung erst ab dem gewünschten Starttermin, Test für fehlende Qualifikation). Neu freigegeben: **ABS1** Abwesenheit ohne Telefonkette.
 - **Stand 22.10. 17:15:** AN1-Nachbesserung geprüft und **abgenommen** (#124), mit Auflage: keine Rückschlüsse auf ausgeblendete Kleinteams über die Organisationszahl. In Arbeit: HAND1 (#128), RET1 (#129).
 - **Stand 22.10. 16:15:** Nachbesserungen geprüft und **abgenommen**: COVER1 (bleibt bis D-3 abgeschaltet), PLAN2, C1 (Auflage: instabilen e2e-Test beheben), F7. AN1 in Prüfung (#124). Nächste Punkte: HAND1, RET1.
@@ -41,7 +42,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 ## Gate 2: Care Journey MVP
 
-Reihenfolge der offenen Punkte: ABS1 → ADM1 (nach D-20). Leitbild und North Star (direkter Pflegeanteil): `docs/product/CARE_OPERATING_MODEL.md` (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
+Reihenfolge der offenen Punkte: ADM1-Nachbesserung → ABS1. Leitbild und North Star (direkter Pflegeanteil): `docs/product/CARE_OPERATING_MODEL.md` (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
 
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
@@ -53,7 +54,7 @@ Reihenfolge der offenen Punkte: ABS1 → ADM1 (nach D-20). Leitbild und North St
 | QG1 | Qualitätsereignisse, Prüfung, Quality Hold | High | IMPLEMENTED (#41), **abgenommen** 22.10.; in Betrieb, sobald `clinical` die Ereignisliste (D-16) liefert |
 | OPS1 | Operations Exception Center über J1–J3, QG1, F6 | High | IMPLEMENTED (#39), **abgenommen** 22.10. |
 | C1 | Fall- und Einsatz-Lebenszyklus: pausieren, abschliessen, wiedereröffnen, absagen, Klient nicht angetroffen | High | IMPLEMENTED (#83, #120), PO: **abgenommen** 22.10. 16:15 (Auflage: instabilen e2e-Test beheben); Vor-Ort-Protokoll D-19 |
-| ADM1 | Pilot-Administration: Mitglieder mit Namen, Qualifikationen, Teams, Fristen, Schwellen | High | PLANNED (Brief approved) |
+| ADM1 | Pilot-Administration: Mitglieder mit Namen, Qualifikationen, Teams, Fristen, Schwellen | High | IMPLEMENTED (#101), PO: **changes-requested** 22.10. 20:15 (entfernte Mitglieder geben ihre künftigen Einsätze ans Team zurück) |
 | PLAN2 | Selbstplanung: Einsätze folgen dem Pflegeplan (rollierende 4 Wochen, Bezugspflegeperson) | High | IMPLEMENTED (#92, #118), PO: **abgenommen** 22.10. 16:15; täglicher Job auf Staging prüfen (D-2) |
 | F7 | Unterschrift beim Abschluss: Einsatz endet mit finalem Bericht | High | IMPLEMENTED (#94, #122), PO: **abgenommen** 22.10. 16:15 |
 | COVER1 | Teamübergreifende Vertretung ohne Disposition | High | IMPLEMENTED (#99, #114), PO: **abgenommen** 22.10. 16:15, bis D-3 abgeschaltet; Durchführung der Übernahme nach D-3 |
