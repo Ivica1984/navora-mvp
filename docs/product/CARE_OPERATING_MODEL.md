@@ -10,6 +10,8 @@ Every capability is judged by whether it raises this share without lowering safe
 
 *Hypothesis:* NAVORA can reach **75 %**, because software, not the nurse, does planning, billing preparation and most documentation.
 
+*Measurement (PO, 2026-10-22 14:30):* the denominator is **paid** working time. NAVORA does not record it yet, so the North Star is not measurable today. AN1 shows a within-visit care share instead, labelled as such and never compared with 60 % or 75 %. The proposed way to close the gap without adding a timesheet: derive the working day from field events and let the nurse confirm it once a day (challenge table; working-time recording duties are `legal` question D-23).
+
 ## The benchmark: what Buurtzorg proved, and where it stops
 
 | Buurtzorg proved | Source |
