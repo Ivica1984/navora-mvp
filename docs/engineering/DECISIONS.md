@@ -458,3 +458,10 @@ Generated visits stay ordinary planned visits.
   - no report draft and no billing fact after a no-show;
   - audit with the reason for pause, close and no-show;
   - close leaves final reports, quality events and billing facts unchanged and closes open tasks.
+
+#### ADR-043 amendment — F7 changes (PO review 2026-10-22 14:30)
+- **She sees what she signs:** the sign form lists every observation and handover note of the snapshot in full, with its time and kind, before the confirm button.
+- **A failed draft is visible:**
+  - right after completion, the card says the report could not be created and why;
+  - afterwards, a completed visit without a report reads "Bericht nicht automatisch erstellt", with a hint and the create step.
+- **Seed:** `assist.test@navora.test`, a care assistant of Testteam Nord, and visit 509, so that the countersignature path runs end to end in e2e: the care assistant runs and signs the visit, and the registered nurse countersigns from her queue.

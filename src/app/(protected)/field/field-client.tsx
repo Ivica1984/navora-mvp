@@ -209,11 +209,14 @@ function VisitCard({
     const result = await COMMANDS[action]({ visitId: visit.visit_id, idempotencyKey: crypto.randomUUID() });
     // F7: completing opens the report draft at once (built from the visit data). If the database refuses
     // the draft (e.g. no recorded start), the F6 "create" step stays available on the card.
+    let draftError: string | null = null;
     if (result.ok && action === "complete") {
-      await createReportDraft({ visitId: visit.visit_id, summary: null, idempotencyKey: crypto.randomUUID() });
+      const draft = await createReportDraft({ visitId: visit.visit_id, summary: null, idempotencyKey: crypto.randomUUID() });
+      if (!draft.ok) draftError = `Einsatz abgeschlossen, aber der Bericht konnte nicht automatisch entstehen: ${draft.error}`;
     }
     setPending(null);
     if (!result.ok) setError(result.error);
+    else if (draftError) setError(draftError);
     router.refresh();
   }
 

@@ -22,7 +22,13 @@ export function reportView(visitStatus: string | null, report: FieldReport | nul
   if (visitStatus !== "completed") return null;
 
   if (!report) {
-    return { label: "Bericht fehlt", tone: "open", actions: ["create"], hint: null };
+    // F7: completion creates the draft; a completed visit without one means the automatic draft failed.
+    return {
+      label: "Bericht nicht automatisch erstellt",
+      tone: "open",
+      actions: ["create"],
+      hint: "Beim Abschluss konnte kein Entwurf entstehen. Bitte jetzt erstellen; die Meldung zeigt den Grund.",
+    };
   }
 
   const version = report.version > 1 ? ` (Fassung ${report.version})` : "";
