@@ -937,6 +937,12 @@ isOneToOne: false
               "case_id": string,"gp_named": boolean,"insurance_type": string,"insurer_name": string,"medical_order_status": string,"medical_order_valid_until": string,"open_tasks": (string)[],"ready_for_matching_at": string,"residence_canton": string,"residence_municipality": string
             }[]
                            },
+"cancel_visit":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_reason_code": string,"p_visit_id": string }; Returns: string
+                           },
+"close_case":
+{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code": string }; Returns: string
+                           },
 "complete_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
@@ -981,6 +987,11 @@ isOneToOne: false
               "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"i_am_performer": boolean,"i_can_countersign": boolean,"i_signed": boolean,"report_id": string,"signed_at": string,"snapshot": Json,"status": string,"summary": string,"version": number,"visit_id": string
             }[]
                            },
+"field_visit_status_notes":
+{ Args: { "p_date": string }; Returns: {
+              "created_at": string,"kind": string,"note": string,"reason_code": string,"visit_id": string
+            }[]
+                           },
 "field_visits":
 { Args: { "p_date": string }; Returns: {
               "address": string,"care_goals": (string)[],"care_needs": (string)[],"case_id": string,"client_name": string,"events": Json,"is_needs_assessment": boolean,"ort": string,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"plz": string,"responsible_me": boolean,"responsible_set": boolean,"services_provided": (string)[],"status": string,"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
@@ -1018,8 +1029,17 @@ isOneToOne: false
 "pause_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"pause_case":
+{ Args: { "p_case_id": string,"p_expected_end": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code": string }; Returns: string
+                           },
 "plan_visit":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
+                           },
+"record_no_show":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: string
+                           },
+"record_no_show_outcome":
+{ Args: { "p_idempotency_key": string,"p_outcome": string,"p_reason": string,"p_visit_id": string }; Returns: string
                            },
 "record_observation":
 { Args: { "p_content": string,"p_for_handover": boolean,"p_idempotency_key": string,"p_supersedes_id": string,"p_visit_id": string }; Returns: string
@@ -1033,11 +1053,17 @@ isOneToOne: false
 "remove_planned_visit":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: Json
                            },
+"reopen_case":
+{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_reason": string }; Returns: string
+                           },
 "reschedule_visit":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
                            },
 "resume_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"resume_case":
+{ Args: { "p_case_id": string,"p_idempotency_key": string }; Returns: string
                            },
 "retire_care_plan_item":
 { Args: { "p_idempotency_key": string,"p_item_id": string,"p_reason": string }; Returns: string
@@ -1068,6 +1094,11 @@ isOneToOne: false
                            },
 "sync_exceptions":
 { Args: Record<PropertyKey, never>; Returns: number
+                           },
+"team_case_lifecycle":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "case_id": string,"changed_at": string,"client_name": string,"expected_end": string,"last_kind": string,"last_reason": string,"lifecycle": string,"suspended_visits": number,"team_name": string
+            }[]
                            },
 "team_cases":
 { Args: Record<PropertyKey, never>; Returns: {
