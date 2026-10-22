@@ -8,6 +8,26 @@ updated: 2026-10-22
 
 # AN1 — Pilot impact dashboard
 
+## PO review — 2026-10-22 17:15: accepted, with one condition
+
+Reviewed on merged evidence: #124 (merge b2b80b1; its CI run was cancelled by the next push, and CI is green on `recovery/main` head 740f44e, which contains it: app, db, e2e), migration 0032 (full redefinition of `pilot_kpis`), pgTAP `032_an1_changes` and `027`, e2e `tests/e2e/analytics.spec.ts`, `analytics-client.tsx`. **The PO did not run the tests**; results come from reading the migration, the page and the tests.
+
+| Requested change (14:30) | Result | Evidence |
+|---|---|---|
+| Name the measured figure honestly, no 60 % / 75 % reference | met | `care_share_in_visits` "Pflegeanteil im Einsatz"; note "Nicht enthalten: Dokumentation, Rückweg …" (pgTAP 032); e2e checks the label and that "Buurtzorg 60" is absent |
+| Incomplete visits do not inflate the share | met | 0032 excludes visits without departure or completion; pgTAP 032: share stays 75 %, base 5, `incomplete_visits` = 1 |
+| North Star placeholder | met | `direct_care_share` value null, note "Noch nicht messbar: bezahlte Arbeitszeit wird noch nicht erfasst (D-23)" (pgTAP 032) |
+| No per-nurse inference in small teams | met for team rows; **gap at organisation level** | 0032 lines 189–193 null team values below 3 persons; pgTAP 032 two-person team. The organisation figure is never suppressed: an organisation whose only team has two nurses shows their figures as the organisation row, and in an organisation with one hidden team the hidden team is the organisation minus the visible teams (base counts are shown) |
+| COVER1 figures tested and correct | met | "without Operations" excludes covers where a coordination role took over or closed the exception first; time to cover from entering the offer window; pgTAP 032 (50 % of 2, median 10 h) |
+| Period on every figure; open P1 "Stand jetzt" with a base | met | `period-<kpi>` cell on every row; e2e checks "Stand jetzt"; pgTAP 032 base not null |
+
+**Why accepted.** The dashboard now tells the truth: it no longer claims the 75 % hypothesis is met, it shows what is measured and what is not, and the COVER1 figure measures what it says. That makes it usable evidence for D-14 and for the challenge hypotheses. The organisation-level gap is real but narrow, involves no client or health data, and no real pilot data exists yet; it is a condition, not a reason to hold HAND1 and RET1.
+
+**Condition (testable, in engineering's next PR that touches `pilot_kpis`, and before any real pilot data is loaded):**
+- [ ] The organisation row is suppressed ("zu wenig Personen") when the persons in all suppressed teams of that organisation together number 1 or 2, and when the organisation itself has fewer than 3 persons with visits in the period. pgTAP: an organisation whose only team has two nurses shows no organisation value; an organisation with one visible three-person team and one hidden one-person team shows no organisation value; with two hidden teams of two persons each it shows the value.
+
+**Deviations, decided:** "cover without Operations" uses offered visits as its base (2 in the fixture), not accepted covers: **accepted**, the question is how many uncovered visits the teams resolve alone. Live computation: accepted (unchanged).
+
 ## PO review — 2026-10-22 14:30: changes-requested
 
 Reviewed on merged evidence: #97 (merge 7d00ce5, CI green on the merge commit) and the COVER1 extension in #99 (0028), migration 0027, ADR-044, pgTAP 027, e2e `tests/e2e/analytics.spec.ts`. **The PO did not run the tests**; results come from reading the migrations, the page and the tests.

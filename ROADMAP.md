@@ -13,6 +13,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 ## Änderungen gegenüber 9. Oktober 2026
 
 - **DECIDED (Owner, PRIO-1):** Reihenfolge F0, J1, J2, J3.
+- **Stand 22.10. 17:15:** AN1-Nachbesserung geprüft und **abgenommen** (#124), mit Auflage: keine Rückschlüsse auf ausgeblendete Kleinteams über die Organisationszahl. In Arbeit: HAND1 (#128), RET1 (#129).
 - **Stand 22.10. 16:15:** Nachbesserungen geprüft und **abgenommen**: COVER1 (bleibt bis D-3 abgeschaltet), PLAN2, C1 (Auflage: instabilen e2e-Test beheben), F7. AN1 in Prüfung (#124). Nächste Punkte: HAND1, RET1.
 - **Stand 22.10. 14:50:** Analyse Pflegeheim-Transformation (`docs/product/NURSING_HOME_TRANSFORMATION.md`): selbstorganisierte Abteilungsteams statt Stationsleitung und LTCF-Hierarchie; Vorschläge NH0–NH9, nicht freigegeben; Entscheide D-24 (Owner), D-25 (legal).
 - **Stand 22.10. 14:30:** C1, PLAN2, F7, AN1, COVER1 umgesetzt und geprüft: alle **changes-requested** (Begründungen in den Briefs). COVER1 bleibt bis D-3 abgeschaltet; D-21 entschieden.
@@ -39,7 +40,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 ## Gate 2: Care Journey MVP
 
-Reihenfolge der offenen Punkte: AN1 (Nachbesserung in Prüfung), dann HAND1 → RET1 → ADM1 (nach D-20). Leitbild und North Star (direkter Pflegeanteil): `docs/product/CARE_OPERATING_MODEL.md` (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
+Reihenfolge der offenen Punkte: HAND1 (#128) → RET1 (#129) → ADM1 (nach D-20). Leitbild und North Star (direkter Pflegeanteil): `docs/product/CARE_OPERATING_MODEL.md` (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
 
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
@@ -56,8 +57,8 @@ Reihenfolge der offenen Punkte: AN1 (Nachbesserung in Prüfung), dann HAND1 → 
 | F7 | Unterschrift beim Abschluss: Einsatz endet mit finalem Bericht | High | IMPLEMENTED (#94, #122), PO: **abgenommen** 22.10. 16:15 |
 | COVER1 | Teamübergreifende Vertretung ohne Disposition | High | IMPLEMENTED (#99, #114), PO: **abgenommen** 22.10. 16:15, bis D-3 abgeschaltet; Durchführung der Übernahme nach D-3 |
 | REF2 | Spitalzuweisung ohne Intake-Koordination | High | DRAFT; wartet auf D-9, D-3 |
-| HAND1 | Übergabe ohne Rapport: „seit Ihrem letzten Besuch“ auf jeder Einsatzkarte | High | PLANNED (Brief approved, in der Rangliste nach AN1), Challenge-Befund; Voraussetzung für sichere Vertretung (COVER1) |
-| RET1 | Wiederkehrende Klientin kehrt zu ihrem Team zurück (pausierter Fall wird fortgesetzt) | High | PLANNED (Brief approved, nach HAND1), Challenge-Befund; C1 abgenommen |
+| HAND1 | Übergabe ohne Rapport: „seit Ihrem letzten Besuch“ auf jeder Einsatzkarte | High | PLANNED (Brief approved; Umsetzung in PR #128), Challenge-Befund; Voraussetzung für sichere Vertretung (COVER1) |
+| RET1 | Wiederkehrende Klientin kehrt zu ihrem Team zurück (pausierter Fall wird fortgesetzt) | High | PLANNED (Brief approved; Umsetzung in PR #129), Challenge-Befund; C1 abgenommen |
 | ORD1 | Verordnungserneuerung ohne Nachtelefonieren beim Hausarzt | Medium | DRAFT; wartet auf D-22 (legal), D-9 |
 
 - Fertig, wenn ein synthetischer Fall von Zuweisung bis signiertem Bericht E2E und RLS-negativ getestet ist, ein Qualitätsereignis einen Hold setzt und jede Ausnahme in OPS1 erscheint.
@@ -68,7 +69,7 @@ Reihenfolge der offenen Punkte: AN1 (Nachbesserung in Prüfung), dann HAND1 → 
 | --- | --- | --- | --- |
 | J5 | Abrechenbare Leistungsfakten und Monatsvorschau | High | IMPLEMENTED (#43, #75), **abgenommen** 22.10.; nie mehr als gemessene Pflegeminuten; Restfinanzierung braucht D-11 |
 | J6 | Kontinuität: Bezugspflegeperson und Kontinuitätsmass | High | IMPLEMENTED (#42), **abgenommen** 22.10.; Namen der Mitglieder via ADM1 |
-| AN1 | Pilot-Wirkungsdashboard: Start der Versorgung, Administrationszeit, Kontinuität, abrechenbarer Anteil | High | IMPLEMENTED (#97), PO: changes-requested; Nachbesserung in Prüfung (#124); Evidenz für D-14 |
+| AN1 | Pilot-Wirkungsdashboard: Start der Versorgung, Administrationszeit, Kontinuität, abrechenbarer Anteil | High | IMPLEMENTED (#97, #124), PO: **abgenommen** 22.10. 17:15 als „Pflegeanteil im Einsatz“ (Auflage: Organisationszahl schützt ausgeblendete Kleinteams); North Star erst mit erfasster Arbeitszeit (D-23); Evidenz für D-14 |
 | J7 | Team-Ökonomie-Transparenz | Medium | PLANNED (Brief draft), wartet auf D-14 |
 
 - J5 nur aus signierten Berichten ohne offenen Quality Hold; **keine** Rechnung vor OKP-Zulassung (D-12).
