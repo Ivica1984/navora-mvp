@@ -10,6 +10,8 @@ export type KpiDefinition = {
 };
 
 export const KPI_ORDER = [
+  "care_share_in_visits",
+  "incomplete_visits",
   "direct_care_share",
   "referral_to_first_visit_days",
   "first_offer_acceptance",
@@ -28,10 +30,20 @@ export const KPI_ORDER = [
 ] as const;
 
 export const KPI: Record<string, KpiDefinition> = {
+  care_share_in_visits: {
+    label: "Pflegeanteil im Einsatz", unit: "%",
+    definition: "Pflegeminuten ÷ (Weg + Pflege + Pause) der Einsätze mit erfasster Abfahrt und Abschluss, mit Zeitkorrekturen. Nicht enthalten: Dokumentation, Rückweg und Zeit ausserhalb der Einsätze.",
+    source: "Einsatzereignisse F1–F4",
+  },
+  incomplete_visits: {
+    label: "Unvollständige Einsätze (nicht gezählt)", unit: "",
+    definition: "Abgeschlossene Einsätze ohne erfasste Abfahrt oder ohne Abschlusszeit; sie zählen nicht zum Pflegeanteil.",
+    source: "Einsatzereignisse F1–F4",
+  },
   direct_care_share: {
-    label: "Direkte Pflegezeit (North Star)", unit: "%",
-    definition: "Pflegeminuten ÷ (Weg + Pflege + Pause) der abgeschlossenen Einsätze, mit Zeitkorrekturen.",
-    source: "Einsatzereignisse F1–F4", reference: "Buurtzorg 60 % · NAVORA-Hypothese 75 %",
+    label: "Direkter Pflegeanteil (North Star)", unit: "%",
+    definition: "Pflegeminuten ÷ bezahlte Arbeitsminuten. Wird messbar, sobald die Arbeitszeit erfasst ist (D-23).",
+    source: "Einsatzereignisse und Arbeitszeit",
   },
   referral_to_first_visit_days: {
     label: "Zuweisung bis erster Einsatz", unit: "Tage",
