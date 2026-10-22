@@ -162,20 +162,20 @@ select is((select count(*)::int from public.change_log where command in ('set_me
 -- Teams ------------------------------------------------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000905');
 set local role authenticated;
-select is(public.create_team('00000000-0000-4000-b000-000000000011', 'Testteam Süd', 'Zürich Süd', 'a2500000-0000-4000-8000-000000000040'),
+select is(public.create_team('00000000-0000-4000-b000-000000000011', 'Testteam Neu', 'Zürich Süd', 'a2500000-0000-4000-8000-000000000040'),
   'ok', 'the administrator creates a team');
-select is(public.create_team('00000000-0000-4000-b000-000000000011', 'testteam süd', 'Zürich', 'a2500000-0000-4000-8000-000000000041'),
+select is(public.create_team('00000000-0000-4000-b000-000000000011', 'testteam neu', 'Zürich', 'a2500000-0000-4000-8000-000000000041'),
   'name_taken', 'team names are unique in the organisation');
-select is(public.update_team((select id from public.teams where name = 'Testteam Süd'), 'Testteam Süd-West', 'Zürich West',
+select is(public.update_team((select id from public.teams where name = 'Testteam Neu'), 'Testteam Neu-West', 'Zürich West',
           'a2500000-0000-4000-8000-000000000042'), 'ok', 'renames it and sets the region');
 select is(public.deactivate_team('00000000-0000-4000-a000-000000000101', 'Auflösung', 'a2500000-0000-4000-8000-000000000043'),
   'has_cases', 'a team with open cases is not deactivated');
-select is(public.deactivate_team((select id from public.teams where name = 'Testteam Süd-West'), 'Pilot beendet',
+select is(public.deactivate_team((select id from public.teams where name = 'Testteam Neu-West'), 'Pilot beendet',
           'a2500000-0000-4000-8000-000000000044'), 'ok', 'a team without open cases is deactivated');
-select is(public.add_team_member((select id from public.teams where name = 'Testteam Süd-West'), '00000000-0000-4000-a000-000000000901',
+select is(public.add_team_member((select id from public.teams where name = 'Testteam Neu-West'), '00000000-0000-4000-a000-000000000901',
           'care_assistant', 'a2500000-0000-4000-8000-000000000045'), 'rejected', 'a deactivated team takes no new members');
 reset role;
-select ok((select status = 'closed' and deactivated_at is not null from public.teams where name = 'Testteam Süd-West'),
+select ok((select status = 'closed' and deactivated_at is not null from public.teams where name = 'Testteam Neu-West'),
   'the deactivated team is closed (J2 offers only active teams)');
 select ok(exists (select 1 from public.audit_events where command = 'create_team'), 'team creation is audited');
 

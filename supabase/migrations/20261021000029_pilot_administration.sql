@@ -1,5 +1,5 @@
 -- ADM1: pilot administration — member profiles, invitations, teams and operating rules
--- (PO brief docs/agents/briefs/ADM1.md, ADR-042).
+-- (PO brief docs/agents/briefs/ADM1.md, ADR-046).
 --
 -- * Profiles (answer to the brief's question): a separate table `member_profiles`, keyed by
 --   (organization, user) and bound to the organisation membership. It holds a display name only,

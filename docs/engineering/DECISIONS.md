@@ -431,3 +431,21 @@ Generated visits stay ordinary planned visits.
 - **AN1:** `cover_without_operations` (offered visits that a neighbouring team accepted) and `cover_median_hours`.
 **Migration plan:** migration 0028. Rollback: drop the new objects and the columns, restore `team_cases` and `pilot_kpis` from 0025/0027.
 **Open:** D-3 (cross-team context access); notifying nurses outside the app (push, SMS) is not built; the lead times are engineering defaults (D-21).
+
+### ADR-046 — Pilot administration: profiles, invitations, teams and operating rules (ADM1)
+**Status:** PROPOSED · **Task:** ADM1 (`docs/agents/briefs/ADM1.md`). Built under D-5 (administrators manage members); D-20 may move admission to the teams.
+**Decision:**
+- **Profiles (answer to the brief's question):** a separate `member_profiles` table, keyed by organisation and user and bound to the membership. It holds the display name only, never health data. Members of the same organisation can read it; it is written only by commands (an administrator, or the member for her own name). No name is invented: without a profile the neutral labels stay.
+- **Names where people appear:** team view (members, primary nurse, deputy, responsible member), report signature and countersignature, quality-event author, the person who took over an exception. A private `member_name()` is called only by readers that already scope the caller.
+- **Invitations:** an administrator records email, role, display name, and optionally team and qualification. The invitation expires after 14 days and can be revoked. On sign-in with the confirmed email, `accept_my_invitations()` creates the memberships. Creating the Auth account and sending the e-mail stays outside the app until D-22: sign-up is disabled, and the app holds no service-role key.
+- **Members and teams:**
+  - Role change, with a reason; the last administrator is kept.
+  - Team membership: add, or remove with a reason. Removal is refused while the person is primary nurse or deputy of an open case.
+  - Qualification: the existing F0 command.
+  - Teams: create, rename, set the region, and deactivate with a reason. Deactivation is refused while the team has open cases, and sets `status = 'closed'`, which J2 already excludes.
+- **Operating rules:**
+  - Response deadlines use the existing J2 command; the page shows who changed what and when.
+  - Exception thresholds and priorities are organisation overrides within safe ranges (D-21): never a lower priority; a P1 alert never later; other thresholds at most twice the default; escalation never later.
+  - The OPS1 readers use the effective rules.
+- **Tariffs and reference data stay migration-only.** A test proves that no command writes them.
+**Migration plan:** migration 0029. The readers are regenerated from their current definitions by checked text patches, so the migration fails loudly if a reader changed. Rollback: drop the new objects and restore the readers from 0019–0028.
