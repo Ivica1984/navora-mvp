@@ -12,7 +12,8 @@ type SidebarProps = {
     | "field"
     | "intake"
     | "quality"
-    | "analytics";
+    | "analytics"
+    | "admin";
 };
 
 const allNavItems = [
@@ -50,6 +51,12 @@ const allNavItems = [
     key: "field",
     label: "Mein Tag (mobil)",
     href: "/field",
+  },
+  {
+    // ADM1: shown to everybody; the page and the database admit administrators only.
+    key: "admin",
+    label: "Administration",
+    href: "/admin",
   },
 ] as const;
 

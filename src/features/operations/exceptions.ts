@@ -6,6 +6,8 @@ export type ExceptionLike = {
   since: string;
   taken: boolean;
   taken_by_me: boolean;
+  /** ADM1: display name of whoever took it over (null without a profile). */
+  owner_name?: string | null;
 };
 
 export const PRIORITY_LABEL: Record<string, string> = {
@@ -34,7 +36,8 @@ export function countByPriority(items: ExceptionLike[]): Record<"P1" | "P2" | "P
 /** Who handles it: nobody, me, or a colleague. */
 export function handlerLabel(item: ExceptionLike): string {
   if (!item.taken) return "offen – niemand übernommen";
-  return item.taken_by_me ? "von dir übernommen" : "von Operations übernommen";
+  if (item.taken_by_me) return "von dir übernommen";
+  return item.owner_name ? `von ${item.owner_name} übernommen` : "von Operations übernommen";
 }
 
 export type Comment = { text: string; at: string; mine: boolean };

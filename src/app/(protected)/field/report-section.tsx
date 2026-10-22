@@ -83,8 +83,10 @@ export default function ReportSection({
       {report?.signed_at && (
         <p className="text-xs text-emerald-900/70">
           Unterschrieben {formatStamp(report.signed_at)}
-          {report.i_signed ? " von dir" : ""}
-          {report.countersigned_at ? ` · gegengezeichnet ${formatStamp(report.countersigned_at)}` : ""}
+          {report.i_signed ? " von dir" : report.signed_by_name ? ` von ${report.signed_by_name}` : ""}
+          {report.countersigned_at
+            ? ` · gegengezeichnet ${formatStamp(report.countersigned_at)}${report.countersigned_by_name ? ` von ${report.countersigned_by_name}` : ""}`
+            : ""}
         </p>
       )}
       {view.hint && <p className="text-xs text-emerald-900/70">{view.hint}</p>}
