@@ -9,7 +9,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { readLayerTexts, parseTable, bare } from "./parse.mjs";
-import { LABELS, closeReason, diffIssues, planCoordination } from "./plan.mjs";
+import { LABELS, closeReason, diffIssues, mergedLabels, planCoordination } from "./plan.mjs";
 
 const DRY = process.argv.includes("--dry-run");
 const DIR = process.env.AGENTS_DIR ?? join(process.cwd(), "docs", "agents");
@@ -107,7 +107,7 @@ for (const p of create) {
 }
 for (const { planned: p, existing: e } of update) {
   const becameActive = p.labels.includes(LABELS.active) && !e.labels.includes(LABELS.active);
-  await gh("PATCH", `/issues/${e.number}`, { title: p.title, body: `${MARKER(p.key)}\n${p.body}`, labels: p.labels });
+  await gh("PATCH", `/issues/${e.number}`, { title: p.title, body: `${MARKER(p.key)}\n${p.body}`, labels: mergedLabels(p.labels, e.labels) });
   if (becameActive) await gh("POST", `/issues/${e.number}/comments`, { body: `**${p.id} is now the active capability.** Engineering starts on it.` });
   console.log(`updated #${e.number} ${p.key}`);
 }
