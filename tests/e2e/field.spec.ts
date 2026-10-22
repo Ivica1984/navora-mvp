@@ -5,6 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 // is completed and visit 502 (10:00, Testteam Nord) is still "started".
 const COACH = "coach.test@navora.test"; //  org A, coach, in no team
 const NURSE = "pflege.test@navora.test"; // org A, nurse, Testteam Nord
+const ASSISTANT = "assist.test@navora.test"; // org A, care assistant, Testteam Nord (F7)
 const PASSWORD = "navora-local-only";
 
 // The seed uses the database's current_date; CI's database runs in UTC.
@@ -221,7 +222,41 @@ test.describe("field tool (F1)", () => {
     const report = page.getByRole("article", { name: /10:00 – 10:30/ }).getByTestId("visit-report");
     await report.getByRole("button", { name: "Berichtsentwurf erstellen" }).click();
     await expect(report.getByTestId("command-error")).toContainText("kein Start erfasst");
-    await expect(report.getByTestId("report-status")).toHaveText("Bericht fehlt");
+    await expect(report.getByTestId("report-status")).toHaveText("Bericht nicht automatisch erstellt");
+  });
+
+  test("a care assistant signs what she sees; the countersignature request reaches a registered nurse of the team (F7)", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const DAY_AFTER = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10);
+
+    // Visit 509 (18:00, Testfall 08) is run by the seeded care assistant of Testteam Nord.
+    await signIn(page, ASSISTANT, /\/field$/);
+    await page.goto(`/field?datum=${DAY_AFTER}`);
+    const card = page.getByRole("article", { name: /18:00 – 18:30/ });
+    await card.getByRole("button", { name: "Losfahren" }).click();
+    await card.getByRole("button", { name: "Einsatz starten" }).click();
+    const observations = card.getByRole("region", { name: "Beobachtungen" });
+    await observations.getByLabel("Neue Beobachtung").fill("Haut am Rücken gerötet, Lagerung angepasst.");
+    await observations.getByRole("button", { name: "Beobachtung speichern" }).click();
+    await expect(observations).toContainText("Haut am Rücken gerötet");
+    await card.getByRole("button", { name: "Einsatz abschliessen" }).click();
+
+    // She sees the observation text she signs, then signs once.
+    const review = card.getByTestId("visit-report").getByRole("form", { name: "Bericht prüfen und unterschreiben" });
+    await expect(review.getByRole("list", { name: "Beobachtungen im Bericht" })).toContainText("Haut am Rücken gerötet, Lagerung angepasst.");
+    await review.getByRole("button", { name: "Bericht unterschreiben" }).click();
+    await expect(card.getByTestId("report-status")).toHaveText("Unterschrieben – Gegenzeichnung offen");
+
+    // A registered nurse of the team sees the request at the top of her day and countersigns.
+    await page.context().clearCookies();
+    await signIn(page, NURSE, /\/field$/);
+    const queue = page.getByTestId("countersign-queue");
+    await expect(queue).toContainText("Testfall 08");
+    await queue.getByRole("link", { name: /Testfall 08/ }).click();
+    await page.waitForURL(new RegExp(`datum=${DAY_AFTER}`));
+    const report = page.getByRole("article", { name: /18:00 – 18:30/ }).getByTestId("visit-report");
+    await report.getByRole("button", { name: "Gegenzeichnen" }).click();
+    await expect(report.getByTestId("report-status")).toHaveText("Bericht abgeschlossen");
   });
 
   test("works on a phone-sized screen without horizontal scrolling", async ({ page }) => {

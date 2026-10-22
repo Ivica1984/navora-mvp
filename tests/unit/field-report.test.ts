@@ -28,7 +28,8 @@ describe("reportView (F6)", () => {
   });
 
   it("a completed visit without a report offers to create the draft", () => {
-    expect(reportView("completed", null)).toMatchObject({ label: "Bericht fehlt", actions: ["create"] });
+    expect(reportView("completed", null)).toMatchObject({ label: "Bericht nicht automatisch erstellt", actions: ["create"] });
+    expect(reportView("completed", null)?.hint).toContain("kein Entwurf");
   });
 
   it("only the performer edits and signs a draft", () => {

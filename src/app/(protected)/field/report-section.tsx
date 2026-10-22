@@ -218,7 +218,7 @@ function ReportFacts({ snapshot }: { snapshot: unknown }) {
     planned?: { start?: string | null; end?: string | null; a?: number | null; b?: number | null; c?: number | null };
     services?: string[];
     events?: { type: string; at: string }[];
-    observations?: unknown[];
+    observations?: { content: string; recorded_at: string; handover?: boolean; edited?: boolean }[];
   };
   const at = (type: string) => snap.events?.find((e) => e.type === type)?.at ?? null;
   const time = (iso: string | null) =>
@@ -230,7 +230,18 @@ function ReportFacts({ snapshot }: { snapshot: unknown }) {
       <dt className="font-semibold">Zeit</dt><dd>{time(at("started"))}–{time(at("completed"))}</dd>
       <dt className="font-semibold">Geplant</dt><dd>{minutes || "–"}</dd>
       <dt className="font-semibold">Leistungen</dt><dd>{snap.services?.length ? snap.services.join(", ") : "–"}</dd>
-      <dt className="font-semibold">Beobachtungen</dt><dd>{snap.observations?.length ?? 0}</dd>
+      <dt className="font-semibold">Beobachtungen</dt>
+      <dd>
+        {snap.observations?.length ? (
+          <ul className="grid gap-1" aria-label="Beobachtungen im Bericht">
+            {snap.observations.map((o, i) => (
+              <li key={i} className="whitespace-pre-wrap">
+                <span className="font-semibold">{time(o.recorded_at)}{o.handover ? " · Übergabe" : " · Beobachtung"}{o.edited ? " · geändert" : ""}:</span> {o.content}
+              </li>
+            ))}
+          </ul>
+        ) : "keine"}
+      </dd>
     </dl>
   );
 }
