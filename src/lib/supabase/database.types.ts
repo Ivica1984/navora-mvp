@@ -333,14 +333,14 @@ isOneToOne: false
                   ]
                 },"cover_events": {
                   Row: {
-                    "created_at": string,"id": string,"kind": string,"nurse_id": string | null,"organization_id": string,"team_id": string | null,"visit_id": string
+                    "created_at": string,"id": string,"kind": string,"nurse_id": string | null,"organization_id": string,"reason": string | null,"seq": number,"team_id": string | null,"visit_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"kind": string,"nurse_id"?: string | null,"organization_id": string,"team_id"?: string | null,"visit_id": string
+                    "created_at"?: string,"id"?: string,"kind": string,"nurse_id"?: string | null,"organization_id": string,"reason"?: string | null,"seq"?: never,"team_id"?: string | null,"visit_id": string
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"kind"?: string,"nurse_id"?: string | null,"organization_id"?: string,"team_id"?: string | null,"visit_id"?: string
+                    "created_at"?: string,"id"?: string,"kind"?: string,"nurse_id"?: string | null,"organization_id"?: string,"reason"?: string | null,"seq"?: never,"team_id"?: string | null,"visit_id"?: string
                   }
                   Relationships: [
                     {
@@ -359,14 +359,14 @@ isOneToOne: false
                   ]
                 },"cover_settings": {
                   Row: {
-                    "fallback_lead_hours": number,"id": string,"offer_lead_hours": number,"organization_id": string | null
+                    "cover_enabled": boolean,"fallback_lead_hours": number,"id": string,"offer_lead_hours": number,"organization_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "fallback_lead_hours": number,"id"?: string,"offer_lead_hours": number,"organization_id"?: string | null
+                    "cover_enabled"?: boolean,"fallback_lead_hours": number,"id"?: string,"offer_lead_hours": number,"organization_id"?: string | null
                   }
                   Update: {
-                    "fallback_lead_hours"?: number,"id"?: string,"offer_lead_hours"?: number,"organization_id"?: string | null
+                    "cover_enabled"?: boolean,"fallback_lead_hours"?: number,"id"?: string,"offer_lead_hours"?: number,"organization_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -1293,6 +1293,9 @@ isOneToOne: false
                            },
 "update_report_draft":
 { Args: { "p_idempotency_key": string,"p_report_id": string,"p_summary": string }; Returns: Json
+                           },
+"withdraw_cover":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: string
                            }
           }
           Enums: {
