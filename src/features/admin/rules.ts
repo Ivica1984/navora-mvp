@@ -85,3 +85,23 @@ export function changedLabel(isDefault: boolean, by: string | null, at: string |
 export function isValidEmail(value: string): boolean {
   return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value.trim()) && value.trim().length <= 254;
 }
+
+/**
+ * ADM1 changes: result of `remove_team_member` (migration 0036), jsonb {result, released}.
+ * Returns the command code and the number of visits released to the team (0 when unknown).
+ */
+export function readRemovalResult(data: unknown): { code: string; released: number } {
+  if (data && typeof data === "object" && "result" in data) {
+    const d = data as { result?: unknown; released?: unknown };
+    const released = typeof d.released === "number" && Number.isInteger(d.released) && d.released > 0 ? d.released : 0;
+    return { code: String(d.result), released };
+  }
+  return { code: "failed", released: 0 };
+}
+
+/** "3 Einsätze sind jetzt offen im Team." — shown after a removal released her future visits. */
+export function releasedNotice(released: number): string {
+  if (released <= 0) return "Entfernt. Keine geplanten Einsätze betroffen.";
+  if (released === 1) return "Entfernt. 1 Einsatz ist jetzt offen im Team.";
+  return `Entfernt. ${released} Einsätze sind jetzt offen im Team.`;
+}

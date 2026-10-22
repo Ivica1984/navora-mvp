@@ -8,7 +8,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
-import { ADMIN_MESSAGES, DEADLINE_UNITS, PRIORITIES, QUALIFICATIONS, REFERRAL_TYPES, ROLES } from "./rules";
+import { ADMIN_MESSAGES, DEADLINE_UNITS, PRIORITIES, QUALIFICATIONS, REFERRAL_TYPES, ROLES, readRemovalResult } from "./rules";
 
 const key = z.uuid();
 const reason = z.string().trim().min(3).max(300);
@@ -76,12 +76,18 @@ export async function addTeamMember(input: unknown): Promise<CommandResult> {
     p_team_id: p.data.teamId, p_user_id: p.data.userId, p_qualification: p.data.qualification, p_idempotency_key: p.data.idempotencyKey }));
 }
 
-export async function removeTeamMember(input: unknown): Promise<CommandResult> {
+/** Removal releases her future planned visits to the team (migration 0036); the count is shown in /admin. */
+export type RemovalResult = { ok: true; released: number } | { ok: false; error: string };
+
+export async function removeTeamMember(input: unknown): Promise<RemovalResult> {
   const p = z.object({ teamId: z.uuid(), userId: z.uuid(), reason, idempotencyKey: key }).safeParse(input);
-  if (!p.success) return invalid;
+  if (!p.success) return { ok: false, error: ADMIN_MESSAGES.invalid };
   const { supabase } = await requireUser();
-  return interpret("remove_team_member", await supabase.rpc("remove_team_member", {
-    p_team_id: p.data.teamId, p_user_id: p.data.userId, p_reason: p.data.reason, p_idempotency_key: p.data.idempotencyKey }));
+  const { data, error } = await supabase.rpc("remove_team_member", {
+    p_team_id: p.data.teamId, p_user_id: p.data.userId, p_reason: p.data.reason, p_idempotency_key: p.data.idempotencyKey });
+  const { code, released } = readRemovalResult(data);
+  const result = interpret("remove_team_member", { data: error ? null : code, error });
+  return result.ok ? { ok: true, released } : result;
 }
 
 export async function setMemberQualification(input: unknown): Promise<CommandResult> {

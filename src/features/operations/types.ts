@@ -12,52 +12,9 @@ export type CareNoteRow = TenantRow<"care_notes">;
 export type QualityEventRow = TenantRow<"quality_events">;
 
 
-export type AttentionPriority = "P1" | "P2" | "P3";
-
-export type AttentionSeverity = "critical" | "warning" | "info";
-
-export type AttentionEntityType =
-  | "case"
-  | "team"
-  | "visit"
-  | "partner_request"
-  | "matching_request"
-  | "quality_event";
-
-export type AttentionItem = {
-  id: string;
-  priority: AttentionPriority;
-  severity: AttentionSeverity;
-  category:
-    | "capacity"
-    | "case"
-    | "matching"
-    | "visit"
-    | "quality"
-    | "partner";
-  title: string;
-  description: string;
-  recommendedAction: string;
-  entityType: AttentionEntityType;
-  entityId: string;
-};
-
 // --- Minimal row shapes selected for Operations (T10, SR-06) ------------------
 
-export type PartnerRequestSummary = Pick<
-  PartnerRequestRow,
-  "id" | "created_at" | "partner_name" | "region" | "urgency" | "need_summary" | "status"
->;
-export const PARTNER_REQUEST_SUMMARY_COLUMNS =
-  "id, created_at, partner_name, region, urgency, need_summary, status";
-
 /** Only the review status of notes — never their clinical content. */
-
-export type QualityEventSummary = Pick<
-  QualityEventRow,
-  "id" | "created_at" | "severity" | "title" | "description" | "status"
->;
-export const QUALITY_EVENT_SUMMARY_COLUMNS = "id, created_at, severity, title, description, status";
 
 export type OperationsVisit = Pick<
   CareVisitRow,
@@ -71,8 +28,6 @@ export type OperationsDashboard = {
   cases: CaseSummaryRow[];
   teams: TeamRow[];
   visits: OperationsVisit[];
-  qualityEvents: QualityEventSummary[];
-  attentionItems: AttentionItem[];
   /** OPS1: exceptions derived in the database with handling state (migration 0019). */
   exceptions: OperationsException[];
 };

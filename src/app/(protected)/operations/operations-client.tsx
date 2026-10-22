@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import type {
-  AttentionItem,
   OperationsDashboard,
   OperationsVisit,
 } from "@/features/operations/types";
@@ -32,7 +31,6 @@ type CaseWithRelations = CaseSummaryRow & {
 };
 
 type SelectedEntity =
-  | { type: "attention"; id: string }
   | { type: "case"; id: string }
   | { type: "team"; id: string }
   | { type: "visit"; id: string };
@@ -137,7 +135,6 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
     cases,
     teams,
     visits,
-    attentionItems,
   } = dashboard;
 
   const typedVisits: LocalVisit[] = visits;
@@ -154,9 +151,7 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
     });
   }, [cases, typedVisits, teams]);
 
-  const [selectedEntity, setSelectedEntity] = useState<SelectedEntity | null>(
-    attentionItems[0] ? { type: "attention", id: attentionItems[0].id } : null
-  );
+  const [selectedEntity, setSelectedEntity] = useState<SelectedEntity | null>(null);
 
   const activeCases = enrichedCases.filter((item) => item.status === "laufend");
   const unassignedCases = enrichedCases.filter(
@@ -176,9 +171,6 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
       risk: getTeamRiskScore(team),
     }))
     .sort((a, b) => b.risk - a.risk);
-
-  const criticalAttention = attentionItems.filter((item) => item.priority === "P1");
-  const warningAttention = attentionItems.filter((item) => item.priority === "P2");
 
   const riskCases = enrichedCases
     .filter((careCase) => {
@@ -233,12 +225,7 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
 
         <BillingPreview rows={billing} month={month} />
 
-        <AttentionCenter
-          items={attentionItems}
-          criticalCount={criticalAttention.length}
-          warningCount={warningAttention.length}
-          onSelect={(item) => setSelectedEntity({ type: "attention", id: item.id })}
-        />
+        {/* ADM1: the unvalidated prototype hints ("Weitere Hinweise") were removed; the OPS1 exception list above is the validated source. */}
 
         <section
           style={{
@@ -271,7 +258,6 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
 
           <ContextPanel
             selectedEntity={selectedEntity}
-            attentionItems={attentionItems}
             cases={enrichedCases}
             teams={teams}
           />
@@ -409,161 +395,6 @@ function KpiCard({
         </p>
       </div>
     </div>
-  );
-}
-
-function AttentionCenter({
-  items,
-  criticalCount,
-  warningCount,
-  onSelect,
-}: {
-  items: AttentionItem[];
-  criticalCount: number;
-  warningCount: number;
-  onSelect: (item: AttentionItem) => void;
-}) {
-  const highestPriority = items.find((item) => item.priority === "P1") ?? items[0] ?? null;
-  const visibleItems = items
-    .filter((item) => item.id !== highestPriority?.id)
-    .slice(0, 5);
-
-  return (
-    <section
-      style={{
-        background: "white",
-        border: "1px solid #E5E7EB",
-        borderRadius: "12px",
-        padding: "16px",
-        minHeight: "280px",
-        boxShadow: "0 1px 2px rgba(0,0,0,.05)",
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", gap: "16px" }}>
-        <div>
-          <h2 style={{ margin: 0, fontSize: "20px" }}>Weitere Hinweise</h2>
-          <p style={{ margin: "6px 0 0", color: "#6B7280" }}>
-            Heuristiken aus dem Prototyp (Teamauslastung, Fälle ohne Team, offene Anfragen); Schwellen nicht validiert.
-          </p>
-        </div>
-
-        <div style={{ display: "flex", gap: "8px" }}>
-          <StatusPill label={`🔴 ${criticalCount} kritisch`} tone="critical" />
-          <StatusPill label={`🟠 ${warningCount} Aufmerksamkeit`} tone="warning" />
-        </div>
-      </div>
-
-      {highestPriority && (
-        <button
-          type="button"
-          onClick={() => onSelect(highestPriority)}
-          style={{
-            width: "100%",
-            textAlign: "left",
-            background: highestPriority.priority === "P1" ? "#FEF2F2" : "#FFFBEB",
-            border:
-              highestPriority.priority === "P1"
-                ? "2px solid #DC2626"
-                : "2px solid #F59E0B",
-            borderLeft:
-              highestPriority.priority === "P1"
-                ? "10px solid #DC2626"
-                : "10px solid #F59E0B",
-            borderRadius: "14px",
-            padding: "18px",
-            cursor: "pointer",
-            font: "inherit",
-            marginTop: "16px",
-            marginBottom: "12px",
-          }}
-        >
-          <p
-            style={{
-              margin: 0,
-              fontSize: "12px",
-              fontWeight: 900,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color:
-                highestPriority.priority === "P1" ? "#991B1B" : "#92400E",
-            }}
-          >
-            🚨 Höchste Priorität
-          </p>
-
-          <h3
-            style={{
-              margin: "8px 0 0",
-              fontSize: "22px",
-              color:
-                highestPriority.priority === "P1" ? "#991B1B" : "#92400E",
-            }}
-          >
-            {highestPriority.title}
-          </h3>
-
-          <p style={{ margin: "8px 0 0", color: "#374151" }}>
-            {highestPriority.description}
-          </p>
-
-          <p
-            style={{
-              margin: "10px 0 0",
-              color: "#111827",
-              fontWeight: 800,
-            }}
-          >
-            Empfohlene Aktion: {highestPriority.recommendedAction}
-          </p>
-        </button>
-      )}
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-          gap: "10px",
-          marginTop: "8px",
-        }}
-      >
-        {visibleItems.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onSelect(item)}
-            style={{
-              textAlign: "left",
-              background: item.priority === "P1" ? "#FEF2F2" : "#FFFBEB",
-              border:
-                item.priority === "P1"
-                  ? "1px solid #FCA5A5"
-                  : "1px solid #FCD34D",
-              borderLeft:
-                item.priority === "P1"
-                  ? "6px solid #DC2626"
-                  : "6px solid #F59E0B",
-              borderRadius: "12px",
-              padding: "12px",
-              cursor: "pointer",
-              font: "inherit",
-            }}
-          >
-            <strong style={{ color: item.priority === "P1" ? "#991B1B" : "#92400E" }}>
-              {item.priority === "P1" ? "🔴 " : "🟠 "}
-              {item.title}
-            </strong>
-            <p style={{ margin: "6px 0 0", color: "#374151" }}>{item.description}</p>
-            <p style={{ margin: "6px 0 0", color: "#111827", fontWeight: 700 }}>
-              Aktion: {item.recommendedAction}
-            </p>
-          </button>
-        ))}
-
-        {visibleItems.length === 0 && (
-          <div style={{ color: "#166534" }}>🟢 Keine akuten Eingriffe erforderlich.</div>
-        )}
-      </div>
-    </section>
   );
 }
 
@@ -796,12 +627,10 @@ function RiskCases({
 
 function ContextPanel({
   selectedEntity,
-  attentionItems,
   cases,
   teams,
 }: {
   selectedEntity: SelectedEntity | null;
-  attentionItems: AttentionItem[];
   cases: CaseWithRelations[];
   teams: TeamRow[];
 }) {
@@ -810,26 +639,6 @@ function ContextPanel({
       <section style={panelStyle}>
         <h2 style={sectionTitle}>Drilldown</h2>
         <p style={sectionSubtitle}>Wähle ein Element aus.</p>
-      </section>
-    );
-  }
-
-  if (selectedEntity.type === "attention") {
-    const item = attentionItems.find((entry) => entry.id === selectedEntity.id);
-
-    if (!item) return null;
-
-    return (
-      <section style={panelStyle}>
-        <h2 style={sectionTitle}>Attention Detail</h2>
-        <StatusPill
-          label={item.priority === "P1" ? "🔴 Kritisch" : "🟠 Aufmerksamkeit"}
-          tone={item.priority === "P1" ? "critical" : "warning"}
-        />
-        <h3>{item.title}</h3>
-        <p>{item.description}</p>
-        <strong>Empfohlene Aktion</strong>
-        <p>{item.recommendedAction}</p>
       </section>
     );
   }

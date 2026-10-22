@@ -152,9 +152,9 @@ select is(public.add_team_member('00000000-0000-4000-a000-000000000101', '000000
 select is(public.add_team_member('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000901', 'care_assistant',
           'a2500000-0000-4000-8000-000000000034'), 'already_member', 'a member is added once');
 select is(public.remove_team_member('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000902', 'Teamwechsel',
-          'a2500000-0000-4000-8000-000000000035'), 'has_cases', 'a primary nurse of an open case is not removed before the hand-over');
+          'a2500000-0000-4000-8000-000000000035') ->> 'result', 'has_cases', 'a primary nurse of an open case is not removed before the hand-over');
 select is(public.remove_team_member('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000901', 'Nur Aushilfe',
-          'a2500000-0000-4000-8000-000000000036'), 'ok', 'the administrator removes a member with a reason');
+          'a2500000-0000-4000-8000-000000000036') ->> 'result', 'ok', 'the administrator removes a member with a reason');
 reset role;
 select is((select count(*)::int from public.change_log where command in ('set_member_role', 'remove_team_member')), 2,
   'role change and removal are logged with their reasons');
