@@ -13,6 +13,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 ## Änderungen gegenüber 9. Oktober 2026
 
 - **DECIDED (Owner, PRIO-1):** Reihenfolge F0, J1, J2, J3.
+- **Stand 22.10. 12:00:** abgenommen F0, J1, J2, J3, F1-F4, F6, QG1, OPS1, J6; J5 mit einer Änderung. Neu: C1, ADM1, AN1.
 - **IMPLEMENTED (Engineering, #7–#25):** SSR-Auth, Tenancy/RLS, auditierte idempotente Commands, Field-Slice F1–F4, J1, J2, J3. PO-Abnahme: J1, J2, J3 **changes-requested** (es fehlen Wohnort, Versicherer, Anordnungsstatus, KLV-Kategorie, geplante Minuten); F1-F4 abgenommen; F0 in Abnahmeprüfung.
 - **NEU:** F6 signierter Einsatzbericht vor allem Nachgelagerten (Architektur: freigegebener Bericht → Quality Gate → billable_facts).
 - **NEU:** QG1 Quality Hold und OPS1 Exception Center vor dem Erlösnachweis.
@@ -29,22 +30,24 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 ## Gate 1: F0 Shared Access Foundation — Critical
 
-- Brief `docs/agents/briefs/F0.md`, Engineering-Bericht `docs/agents/reports/F0.md`. T8–T10 (#7–#9) und Qualifikationen (#32) geliefert. PO 21.10. 22:20: **Änderungen verlangt**, Teambezogenes Lesen klinischer Daten geliefert (#34) und abgenommen; Restumfang: Pflichtbegründungen für ändernde oder übersteuernde Befehle. Live-Reproduzierbarkeit ist Owner-Entscheid (T12, M5).
+- Brief `docs/agents/briefs/F0.md`, Engineering-Bericht `docs/agents/reports/F0.md`. Geliefert in #7–#9, #32, #34, #38. **Abgenommen 22.10.** Live-Reproduzierbarkeit bleibt Owner-Entscheid (T12, M5).
 - Fertig, wenn alle Negativtests aus F0 bestehen und die Qualifikationen als Daten vorliegen.
 
 ## Gate 2: Care Journey MVP
 
-Reihenfolge: F0-Rest → J2 → OPS1 → QG1 (nach D-16) (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
+Reihenfolge der offenen Punkte: J5-Minutenregel → C1 → ADM1 → AN1 (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
 
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
 | J1 | Zuweisung → Fall → Matching-Anfrage mit Readiness-Prüfung und Kostenträgerkette | Critical | IMPLEMENTED (#23, #30), **abgenommen** 21.10.; Warnhinweise warten auf D-17 |
 | J3 | Einsatzplanung mit Kategorie A/B/C, geplanten Minuten, Anordnungsprüfung | High | IMPLEMENTED (#25, #32), **abgenommen** 21.10.; Kategorie-Mapping wartet auf D-15 |
 | F6 | Signierter Einsatzbericht | High | IMPLEMENTED (#35), **abgenommen** 21.10. |
-| J2 | Teamentscheid mit Antwortfrist, Eskalation, Qualifikationsprüfung | High | IMPLEMENTED (#24), Änderungen verlangt |
+| J2 | Teamentscheid mit Antwortfrist, Eskalation, Qualifikationsprüfung | High | IMPLEMENTED (#24, #36), **abgenommen** 22.10. |
 | F1-F4 | Verified Visit: Tagesansicht, Zustandsmaschine, Zeitkorrekturen, Beobachtung, Übergabe | High | IMPLEMENTED (#19–#22), abgenommen 21.10. (Pflegeziele via J3, Warnhinweise via J1/D-17) |
-| QG1 | Qualitätsereignisse, Prüfung, Quality Hold | High | PLANNED (Brief approved), Ereignisliste wartet auf D-16 |
-| OPS1 | Operations Exception Center über J1–J3, QG1, F6 | High | PLANNED (Brief approved); unbesetzte Einsätze bereits mit J3 |
+| QG1 | Qualitätsereignisse, Prüfung, Quality Hold | High | IMPLEMENTED (#41), **abgenommen** 22.10.; in Betrieb, sobald `clinical` die Ereignisliste (D-16) liefert |
+| OPS1 | Operations Exception Center über J1–J3, QG1, F6 | High | IMPLEMENTED (#39), **abgenommen** 22.10. |
+| C1 | Fall- und Einsatz-Lebenszyklus: pausieren, abschliessen, wiedereröffnen, absagen, Klient nicht angetroffen | High | PLANNED (Brief approved), **nächste Fähigkeit**; Vor-Ort-Protokoll D-19 |
+| ADM1 | Pilot-Administration: Mitglieder mit Namen, Qualifikationen, Teams, Fristen, Schwellen | High | PLANNED (Brief approved) |
 
 - Fertig, wenn ein synthetischer Fall von Zuweisung bis signiertem Bericht E2E und RLS-negativ getestet ist, ein Qualitätsereignis einen Hold setzt und jede Ausnahme in OPS1 erscheint.
 
@@ -52,8 +55,9 @@ Reihenfolge: F0-Rest → J2 → OPS1 → QG1 (nach D-16) (Rangliste in `docs/age
 
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
-| J5 | Abrechenbare Leistungsfakten und Monatsvorschau | High | PLANNED (Brief approved); Restfinanzierung braucht D-11 |
-| J6 | Kontinuität: Bezugspflegeperson und Kontinuitätsmass | High | PLANNED (Brief approved) |
+| J5 | Abrechenbare Leistungsfakten und Monatsvorschau | High | IMPLEMENTED (#43), **Änderung verlangt:** nie mehr als die gemessenen Pflegeminuten (Q11); Restfinanzierung braucht D-11 |
+| J6 | Kontinuität: Bezugspflegeperson und Kontinuitätsmass | High | IMPLEMENTED (#42), **abgenommen** 22.10.; Namen der Mitglieder via ADM1 |
+| AN1 | Pilot-Wirkungsdashboard: Start der Versorgung, Administrationszeit, Kontinuität, abrechenbarer Anteil | High | PLANNED (Brief approved); Evidenz für D-14 |
 | J7 | Team-Ökonomie-Transparenz | Medium | PLANNED (Brief draft), wartet auf D-14 |
 
 - J5 nur aus signierten Berichten ohne offenen Quality Hold; **keine** Rechnung vor OKP-Zulassung (D-12).

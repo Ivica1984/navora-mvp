@@ -1,15 +1,12 @@
 # Open decisions
 
-**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-21 23:05 (po)
+**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 12:00 (po)
 Background, options and consequences for the `D-*` items: `docs/engineering/DECISIONS_NEEDED.md`.
 
 ## Open
 
 | ID | Owner | Kind | Question | Recommendation | Blocks | Opened |
 |---|---|---|---|---|---|---|
-| Q7 | po | product | Do location features (team bases, service radius, geocoding) belong in NAVORA's matching? | **PO view 2026-10-21:** yes, in Gate 5 together with J4; not before. Region match is enough for the pilot; geocoding needs a data-protection review first | – | 2026-10-21 (eng) |
-| Q8 | po | product | Team response time per referral type and decline-reason list for J2 | **PO answer 2026-10-21 22:20:** pilot defaults, changeable by NAVORA administrators: hospital discharge 4 working hours; nursing home 1 working day; private 2 working days. Decline reasons: capacity, qualification, distance, other. Now in `briefs/J2.md`. Eng: drop Q8 from the J2 row; PO then moves it to Decided | J2 | 2026-10-21 (po) |
-| Q9 | po | product | Thresholds and urgency for Operations exceptions (OPS1) | **PO answer 2026-10-21 22:20:** P1 safety / P2 continuity / P3 administration defaults as listed in `briefs/OPS1.md`; configuration, not code. Eng: drop Q9 from the OPS1 row; PO then moves it to Decided | OPS1 | 2026-10-21 (po) |
 | D-10 | clinical | clinical | Must a registered nurse countersign visit reports when a care assistant performed the visit? (Care assistants cannot start category B or needs-assessment visits since #32, so this concerns their A/C work.) | until answered, F6 requires the countersignature (safe default, configurable); `clinical` may relax it for category C | F6 | 2026-10-21 (po) |
 | D-11 | owner | regulatory | Pilot canton and municipalities | one canton, a few municipalities; it decides residual-financing rules, operating licence and quality obligations | – | 2026-10-21 (po) |
 | D-12 | owner | regulatory | Legal entity that holds the cantonal operating licence and the OKP admission (insurer billing) | decide before the pilot; without admission no visit is billable | – | 2026-10-21 (po) |
@@ -27,13 +24,18 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | D-4 | legal | legal | Audit log retention and access | keep everything; admin-only read until decided | – | 2026-10-21 (eng) |
 | D-9 | legal | legal | Legal basis for processing client data at intake (consent vs. care mandate) | keep the provisional consent gate; collect no more than name, region and needs | – | 2026-10-21 (eng) |
 | D-6 | clinical | clinical | Visit assignment (team / nurse / both) and full state list (assigned, accepted, cancelled, no_show) | team plus optional responsible nurse; confirm transitions. **PO 2026-10-21 23:05:** J3 shipped and the PO accepted team plus responsible member; J6 builds on it. `clinical` confirms or changes the model. | – | 2026-10-21 (eng) |
-| Q10 | po | product | What counts as working time for J2 response deadlines ("4 working hours", "1 working day")? Which weekdays and hours, and are cantonal public holidays excluded? | Monday–Friday 08:00–18:00 Europe/Zurich, holidays excluded once the pilot canton is known (D-11). Implemented provisionally without holidays, as one configuration row | – | 2026-10-21 (eng) |
-| Q11 | po | product | J5: which minutes are billed per KLV category? Actual time is measured per visit, not per category | provisional: the planned minutes per category of the signed report; measured care minutes below the planned total raise a warning. Alternative: scale categories down to the measured total | J5 | 2026-10-22 (eng) |
+| Q11 | po | product | J5: which minutes are billed per KLV category? Actual time is measured per visit, not per category | **PO answer 2026-10-22 12:00:** never more than the measured care minutes. Below plan, scale the planned split down proportionally; above plan, bill nothing extra and flag "above plan". Exact minutes until D-18. Full rule in `briefs/J5.md`. Eng: drop Q11 from the J5 row once built; PO then moves it to Decided | J5 | 2026-10-22 (eng) |
+| D-18 | legal | regulatory | Billing time rules in the applicable tariff contract (time units and rounding, minimum per visit, what counts as care time vs travel and documentation) before real invoicing | confirm against the tariff contract the pilot organisation signs; until then J5 uses exact measured minutes and stays an estimate | – | 2026-10-22 (po) |
+| D-19 | clinical | clinical | What must a nurse do on site when a client does not open the door (C1 no-show): whom to call, in what order, how long to wait, when to call emergency services? | a short written protocol from the clinical owner; until then C1 only records the no-show and raises a P1 exception, with no instructions of its own | – | 2026-10-22 (po) |
 
 ## Decided
 
 | ID | Owner | Answer | Date |
 |---|---|---|---|
+| Q10 | po | Working time for J2 deadlines: Monday–Friday 08:00–18:00 Europe/Zurich. Cantonal public holidays are excluded once the pilot canton is known (D-11). Weekend hospital discharges are not a deadline matter; they surface in OPS1 | 2026-10-22 |
+| Q9 | po | OPS1 thresholds: P1 safety, P2 continuity, P3 administration defaults as in `briefs/OPS1.md`, delivered as configuration (#39) | 2026-10-22 |
+| Q8 | po | J2 pilot deadlines: hospital discharge 4 working hours, nursing home 1 working day, private 2 working days. Decline reasons: capacity, qualification, distance, other. Delivered (#36) | 2026-10-22 |
+| Q7 | po | Location features (team bases, radius, geocoding) belong in Gate 5 with J4, after a data-protection review; region match is enough for the pilot | 2026-10-22 |
 | COORD-3 | eng | The rank test in `tests/unit/agents-layer.test.ts` takes the queue's second row, whatever it is, so the PO can re-rank freely (#36, merged) | 2026-10-21 |
 | Q4 | po | The nurse who performed the visit signs her report and requests her own time corrections; countersignature rule is D-10 (`clinical`), safe default in F6 until answered. Role matrix stays D-3 | 2026-10-21 |
 | COORD-2 | po | F6 adopted, next build item after F0; J4 deferred to Gate 5 | 2026-10-21 |
