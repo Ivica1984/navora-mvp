@@ -1,6 +1,6 @@
 # Next capability: Product Owner priority queue
 
-**Owned by:** Product Owner (`po`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 22:15, PO cycle: ADM1 changes pre-reviewed (#135): one privacy fix before merge; HAND1 shows releases
+**Owned by:** Product Owner (`po`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 22:40, owner decided D-27 (Clinical Architect is a mandatory reviewer; a human clinical owner approves)
 
 The order of the table is the order engineering builds in, top to bottom, skipping accepted rows. Every row needs a brief in [`briefs/`](briefs/). Strategic reference: `ARCHITECTURE.md` (data flow and bounded contexts), then `PRODUCT_REQUIREMENTS.md` and `DOMAIN_RULES.md`. **Direction:** [`docs/product/CARE_OPERATING_MODEL.md`](../product/CARE_OPERATING_MODEL.md). North Star = direct care share; benchmark Buurtzorg (60 %), hypothesis 75 %.
 
@@ -14,6 +14,12 @@ The order of the table is the order engineering builds in, top to bottom, skippi
 - The PO then sets `accepted` or `changes-requested`, and activates the next item, without waiting for the owner.
 - The PO runs a review cycle every hour.
 - **Engineering may start an approved item under "Next up" in its listed order** as soon as it has added a `not-started` row. The PO moves it into the queue at the next cycle.
+- **Clinical review gate (owner, 2026-10-22; D-27):** for an item that affects patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI:
+  - Engineering reads the latest Clinical Governance Report (`reports/CLINICAL_GOVERNANCE.md`) before delivering;
+  - the PO considers it before final acceptance;
+  - the report only recommends, and the named human clinical owner approves clinical rules.
+
+  Rule: README, *Clinical review gate*. ADM1 (member removal releases visits) and ABS1 (absence releases visits) are in scope, so ADM1's 22:15 "accepted once merged with green CI" also needs the gate.
 
 ## Priority queue
 
@@ -97,7 +103,13 @@ The test: "If NAVORA were designed from scratch today, would it work this way?" 
 
 ## Notes from the PO
 
+- 2026-10-22 22:40: **Owner decided D-27.**
+  - The Clinical & Regulatory Architect is a permanent, mandatory reviewer. It may identify risks, controls, findings and recommendations, but its guidance is never automatically authoritative.
+  - A named, qualified human clinical owner approves clinical, care quality and patient safety rules and LTCF, PAG and MQI interpretations.
+  - PO and Engineering review the latest Clinical Governance Report before accepting or delivering an item in scope. The ADM1 acceptance promised at 22:15 now also waits for the gate.
+  - Still OPEN: the clinical owner is not yet named. The first Clinical Governance Report is published (22:30, #139); its gate findings are applied in the next PO cycle.
 - 2026-10-22 22:15: **ADM1 changes pre-reviewed** (#135, open, CI green on becb9c4); evidence table in `briefs/ADM1.md`. Changes 1–4 met, C1 pause e2e fixed in code. One blocking privacy fix: the release row in `visit_plan_changes` (readable by the whole team) carries the administrator's free-text removal reason; it must carry only the fixed text, the reason stays in `change_log`. Answered engineering's questions: HAND1 shows a `released` entry as a fact without a reason (ships with ABS1); a cover by a removed nurse stays open until the COVER1 delta review after D-3. Status stays `changes-requested` until merged. No new brief: ABS1 is the next approved, unstarted item.
+- 2026-10-22 22:10: **Clinical & Regulatory Architect** added as a permanent role (owner instruction). It is the authoritative reviewer for patient safety, clinical workflows, care quality, billing integrity, regulatory compliance, LTCF, PAG and MQI, and owns the `clinical` decisions. The PO does not give final acceptance to an item in that scope before it has considered the latest Clinical Governance Report. No report exists yet, so the next deliveries in scope (ADM1 changes, ABS1) wait for it. **D-27** (`owner`) asks who signs off a clinical rule when the Architect is an agent.
 - 2026-10-22 20:15: **ADM1 changes-requested** (#101, CI green on c736429). Every brief criterion is met, and the safe ranges for operating rules are right. But removing a member from a team leaves her future visits assigned to her: they look covered, raise no uncovered flag, no OPS1 exception and no COVER1 offer. Fix: release them in the same command, logged, through one release rule that ABS1 reuses. Also: role-change behaviour tested, display names asserted in reports and quality events, legacy Operations hints removed. Deviations accepted (D-26 manual accounts for the pilot; built under D-5; stricter deactivation rule). The 18:20 line "ADM1 waits for D-20" is withdrawn. PR #126 brought up to date with `recovery/main`.
 - 2026-10-22 18:20: **HAND1 accepted** (#128) with one condition (phone-width e2e) and **RET1 accepted** (#129) with two (a resumed case releases visits from the requested start, not from the link; test the qualification skip). Evidence tables are in the briefs; the PO did not run the tests. **ABS1 approved** (Next up 1): an absent nurse's visits are released at once to her team, deputy or primary nurse first, one tap to take; this closes a patient-safety gap (visits that look assigned to a nurse who is not working) and removes the last phone chain. No reason is stored for an absence. PR #126 was conflicted with `recovery/main` (journal); merged in, both entries kept, and this cycle rides on the same PR.
 - 2026-10-22 17:15: **AN1 accepted** (#124) with one condition (organisation row protects hidden small teams). All five 14:30 changes-requested items are now accepted. Queue: HAND1 (#128), RET1 (#129) in engineering; ADM1 waits for D-20. Challenge: calendar-driven care-plan reviews recorded as a hypothesis.
