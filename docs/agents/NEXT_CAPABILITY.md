@@ -1,12 +1,12 @@
 # Next capability: Product Owner priority queue
 
-**Owned by:** Product Owner (`po`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 14:50, Nursing Home Transformation Report (owner work package); D-24, D-25 opened
+**Owned by:** Product Owner (`po`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 16:15, PO cycle: COVER1, PLAN2, C1, F7 accepted; HAND1 and RET1 moved into the queue
 
 The order of the table is the order engineering builds in, top to bottom, skipping accepted rows. Every row needs a brief in [`briefs/`](briefs/). Strategic reference: `ARCHITECTURE.md` (data flow and bounded contexts), then `PRODUCT_REQUIREMENTS.md` and `DOMAIN_RULES.md`. **Direction:** [`docs/product/CARE_OPERATING_MODEL.md`](../product/CARE_OPERATING_MODEL.md). North Star = direct care share; benchmark Buurtzorg (60 %), hypothesis 75 %.
 
 **Value order for ranking (owner, 2026-10-22):** 1 direct care time · 2 continuity · 3 nurse income · 4 team autonomy · 5 less administration · 6 patient outcomes · 7 scalability · 8 platform completion · 9 revenue · 10 engineering convenience. Patient safety is a precondition, never traded.
 
-**Active now:** the requested changes, in this order: **COVER1** (patient safety: switch cover off until D-3), **PLAN2** (no double planning), **C1**, **F7**, **AN1**. Then HAND1, RET1, ADM1.
+**Active now:** **AN1** (changes in review, #124), then **HAND1**, **RET1**. ADM1 waits for D-20. COVER1 is accepted switched off; performing a cover waits for D-3.
 
 ## Standing review rule (owner instruction, 2026-10-22)
 
@@ -19,30 +19,30 @@ The order of the table is the order engineering builds in, top to bottom, skippi
 
 | Rank | ID | Capability | PO status | Brief | Why |
 |---|---|---|---|---|---|
-| 1 | COVER1 | Cross-team cover without a dispatcher | changes-requested | [COVER1](briefs/COVER1.md) | reviewed 2026-10-22 14:30 (#99): an accepted cover hides the uncovered visit although the covering nurse cannot perform it. Cover off until D-3; the visit stays flagged until it can be performed |
-| 2 | PLAN2 | Self-planning: visits follow the care plan | changes-requested | [PLAN2](briefs/PLAN2.md) | reviewed 14:30 (#92): generation can double-plan a slot the team planned by hand; closed and not-ready cases untested; planning-actions KPI missing |
-| 3 | C1 | Case and visit lifecycle | changes-requested | [C1](briefs/C1.md) | reviewed 14:30 (#83): no-show safety core met; close must withdraw matching, late-cancel P2 must not vanish, suspended visits marked on `/field`, missing negative tests |
-| 4 | F7 | Sign at completion | changes-requested | [F7](briefs/F7.md) | reviewed 14:30 (#94): the nurse must see the observation and handover text she signs |
-| 5 | AN1 | Pilot impact dashboard | changes-requested | [AN1](briefs/AN1.md) | reviewed 14:30 (#97): the North Star is measured inside visits only and overstates the share; label it honestly, no per-nurse inference in small teams, tested COVER1 figures |
-| 6 | J7 | Team economics transparency | draft | [J7](briefs/J7.md) | fair pay made checkable; stays draft until the owner decides D-14. AN1 provides the evidence for that decision |
-| 7 | J5 | Billable visit facts and monthly revenue preview | accepted | [J5](briefs/J5.md) | accepted 2026-10-22 13:00 (#43, #75, CI green); cantonal shares follow D-11 |
-| 8 | F0 | Shared access foundation for the care journey | accepted | [F0](briefs/F0.md) | accepted 2026-10-22 (#34, #38, CI green) |
-| 9 | J1 | Referral intake → case → matching request | accepted | [J1](briefs/J1.md) | accepted 2026-10-21 (#23, #30); safety alerts follow D-17 |
-| 10 | J2 | Team decision workflow | accepted | [J2](briefs/J2.md) | accepted 2026-10-22 (#24, #36, CI green) |
-| 11 | J3 | Visit planning with billable basis | accepted | [J3](briefs/J3.md) | accepted 2026-10-21 (#25, #32); category mapping D-15 |
-| 12 | F1-F4 | Verified visit (field tool slice) | accepted | [F1-F4](briefs/F1-F4.md) | accepted 2026-10-21 (#19–#22) |
-| 13 | F6 | Signed visit report | accepted | [F6](briefs/F6.md) | accepted 2026-10-21 (#35); countersignature rule until D-10 |
-| 14 | QG1 | Quality signals and quality hold | accepted | [QG1](briefs/QG1.md) | accepted 2026-10-22 (#41, CI green); operational once `clinical` answers D-16 |
-| 15 | OPS1 | Operations exception center | accepted | [OPS1](briefs/OPS1.md) | accepted 2026-10-22 (#39, CI green) |
-| 16 | J6 | Continuity of care: primary nurse | accepted | [J6](briefs/J6.md) | accepted 2026-10-22 (#42, CI green); member names via ADM1 |
+| 1 | AN1 | Pilot impact dashboard | changes-requested | [AN1](briefs/AN1.md) | reviewed 14:30 (#97): the North Star is measured inside visits only and overstates the share; label it honestly, no per-nurse inference in small teams, tested COVER1 figures |
+| 2 | HAND1 | Handover without the team meeting: "since you were last here" | approved | [HAND1](briefs/HAND1.md) | moved from Next up 16:15. **Continuity** and **direct care time**: removes the daily handover meeting and phone calls; precondition for performing a cover safely (COVER1 after D-3) |
+| 3 | RET1 | Returning client returns to her team | approved | [RET1](briefs/RET1.md) | moved from Next up 16:15. **Continuity** across hospital stays; builds on C1 (accepted) |
+| 4 | J7 | Team economics transparency | draft | [J7](briefs/J7.md) | fair pay made checkable; stays draft until the owner decides D-14. AN1 provides the evidence for that decision |
+| 5 | COVER1 | Cross-team cover without a dispatcher | accepted | [COVER1](briefs/COVER1.md) | accepted 2026-10-22 16:15 (#99, #114, CI green): safe while switched off; a covered visit stays flagged with the P1 exception until it can be performed. Performing a cover (context access) is a delta review after D-3 |
+| 6 | PLAN2 | Self-planning: visits follow the care plan | accepted | [PLAN2](briefs/PLAN2.md) | accepted 2026-10-22 16:15 (#92, #118, CI green): no double planning, withdrawn preconditions drop generated visits, planning-actions KPI. Hosted daily job: owner task when staging exists (D-2) |
+| 7 | C1 | Case and visit lifecycle | accepted | [C1](briefs/C1.md) | accepted 2026-10-22 16:15 (#83, #120; CI green from 57962ee): one condition, the flaky resume e2e (red on merge d91070a) is fixed in engineering's next PR. On-site protocol D-19 |
+| 8 | F7 | Sign at completion | accepted | [F7](briefs/F7.md) | accepted 2026-10-22 16:15 (#94, #122, CI green): the nurse sees the text she signs; countersignature path end to end |
+| 9 | J5 | Billable visit facts and monthly revenue preview | accepted | [J5](briefs/J5.md) | accepted 2026-10-22 13:00 (#43, #75, CI green); cantonal shares follow D-11 |
+| 10 | F0 | Shared access foundation for the care journey | accepted | [F0](briefs/F0.md) | accepted 2026-10-22 (#34, #38, CI green) |
+| 11 | J1 | Referral intake → case → matching request | accepted | [J1](briefs/J1.md) | accepted 2026-10-21 (#23, #30); safety alerts follow D-17 |
+| 12 | J2 | Team decision workflow | accepted | [J2](briefs/J2.md) | accepted 2026-10-22 (#24, #36, CI green) |
+| 13 | J3 | Visit planning with billable basis | accepted | [J3](briefs/J3.md) | accepted 2026-10-21 (#25, #32); category mapping D-15 |
+| 14 | F1-F4 | Verified visit (field tool slice) | accepted | [F1-F4](briefs/F1-F4.md) | accepted 2026-10-21 (#19–#22) |
+| 15 | F6 | Signed visit report | accepted | [F6](briefs/F6.md) | accepted 2026-10-21 (#35); countersignature rule until D-10 |
+| 16 | QG1 | Quality signals and quality hold | accepted | [QG1](briefs/QG1.md) | accepted 2026-10-22 (#41, CI green); operational once `clinical` answers D-16 |
+| 17 | OPS1 | Operations exception center | accepted | [OPS1](briefs/OPS1.md) | accepted 2026-10-22 (#39, CI green) |
+| 18 | J6 | Continuity of care: primary nurse | accepted | [J6](briefs/J6.md) | accepted 2026-10-22 (#42, CI green); member names via ADM1 |
 
 ## Next up (approved briefs; engineering may start in this order after adding a `not-started` row)
 
 | Order | ID | Capability | Brief | Why |
 |---|---|---|---|---|
-| 1 | HAND1 | Handover without the team meeting: "since you were last here" | [HAND1](briefs/HAND1.md) | **continuity** and **direct care time**: removes the daily handover meeting and colleague phone calls as the carrier of client knowledge. It ranks before COVER1 because a covering nurse can only be safe with it |
-| 2 | RET1 | Returning client returns to her team | [RET1](briefs/RET1.md) | **continuity** across hospital stays: a paused case resumes, a returning client is offered to the known team first; removes re-intake and re-matching. Needs C1 |
-| 3 | ADM1 | Pilot administration: members, qualifications, operating rules | [ADM1](briefs/ADM1.md) | platform completion for running the pilot; may be reshaped to team self-administration if the owner accepts D-20 |
+| 1 | ADM1 | Pilot administration: members, qualifications, operating rules | [ADM1](briefs/ADM1.md) | platform completion for running the pilot; may be reshaped to team self-administration if the owner accepts D-20 |
 
 Drafts, waiting for decisions:
 - **REF2**, hospital referral without an intake coordinator ([brief](briefs/REF2.md)). It is the transitions-of-care wedge and needs D-9 (`legal`) and D-3 (`owner`).
@@ -78,6 +78,8 @@ The test: "If NAVORA were designed from scratch today, would it work this way?" 
 | Periodic 7-day observation period as a project, stable items re-documented to prove them | no, once evidence is continuous | NH2, NH3 (licence) |
 | Status change: full observation period upward, a direct edit downward (QSys p. 3) | doubtful: payment control, not care | Symmetric status-change signal for the care view (NH5); billing follows the contract |
 | Quality steering group preparing QI and MQI for management | doubtful | Ward teams review their own indicators each month (NH7, AN1 pattern) |
+| A quality hold is lifted only by a coach or an administrator (QG1 provisional rule) | doubtful: a management step between a team and its own client; a held visit is not billable, so every hold waits on someone outside the team | Proposal in D-16 (`clinical` decides): a second registered nurse of the team, not the author, lifts a hold with a reason; serious events are also reviewed at network level afterwards. Pilot data: count holds and hours from hold to lift (QG1 events) before changing anything |
+| A covered visit needs a separate phone call between the case team and the covering nurse | no, once D-3 is answered | COVER1 is accepted switched off; the remaining step is the visit-bounded read in D-3. With HAND1 the covering nurse gets the "since you were last here" context without a call |
 
 ## Engineering proposals
 

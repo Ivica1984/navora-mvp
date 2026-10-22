@@ -8,6 +8,26 @@ updated: 2026-10-22
 
 # PLAN2 — Self-planning: visits follow the care plan
 
+## PO acceptance — 2026-10-22 16:15: accepted
+
+Reviewed on merged evidence: #118 (merge efa5c7f, CI green on the merge commit), migration 0030, pgTAP 030 (18 assertions), `auto-plan.tsx`, unit `planning-rules.test.ts`. **The PO did not run the tests**; results come from reading the migration and the tests.
+
+| Criterion (14:30 list and 14:45 addendum) | Result | Evidence |
+|---|---|---|
+| No double planning, skipped slot logged | met | `generate_case_plan` skips a slot with any non-cancelled visit of the case overlapping the window and drops an untouched generated double; pgTAP 030 "a hand-planned visit in the window means no generated visit next to it", "the other 27 days are planned", "logged as already planned" |
+| Withdrawn preconditions drop future visits with a reason | met | `drop_generated_visits`; pgTAP 030: needs assessment withdrawn (dropped, the moved visit stays, reason logged), close (no planned generated visits left), reopen not ready (none generated, reason `reopened_not_ready`) |
+| A touched B visit after the order end is flagged and shows in the plan status | met | `team_plan_status.order_flagged`; pgTAP 030 "the moved B visit after the order end is flagged"; rendered in `auto-plan.tsx` |
+| Uncovered path | met | pgTAP 030: without an eligible primary nurse or deputy, generated visits have no responsible member; the uncovered flag derives from that in `visit_flags` (tested in J3 and pgTAP 029) |
+| Daily run tested | met | pgTAP 030 `generate_all_plans` twice, no duplicates, skip logged once |
+| Negative test: another team of the same organisation | met | pgTAP 030 rhythm and planning both `rejected` |
+| AN1 KPI planning actions per client per week | met | `planning_actions_per_client_week` excludes care-plan and cover changes; pgTAP 030; definition on `/analytics`. Redefined unchanged in AN1 #124 |
+| Addendum: the case says why B work stops | met | `orderNotice` renders "B-Leistungen geplant bis <Datum>: Verordnung erneuern"; unit test |
+| Addendum: hosted daily job confirmed | met as asked | status row: checked 2026-10-22, no hosted project runs these migrations (staging waits for D-2); owner task recorded |
+
+**Why accepted.** The safety and billing risk (two visits in one slot) is closed, lifecycle changes now withdraw generated visits, and the KPI lets the pilot show whether hand planning really falls. This removes the scheduling administrator's weekly re-entry work: value 1 (direct care time) and 5 (less administration), with continuity kept because generated visits go to the primary nurse.
+
+**Deviations, decided:** a hand-planned visit without a start time would not block a generated slot: **accepted**, because every planning command requires start and end (`check_visit_slot`). The hosted daily job is an owner task tied to D-2: **accepted**; until then the window is kept by triggers and page load.
+
 ## PO addendum — 2026-10-22 14:45 (adds to the 14:30 review, same verdict)
 
 - [ ] **The case says why B work stops.** When B items have a rhythm and the order ends inside the four weeks, the case card shows "B-Leistungen geplant bis <Datum>: Verordnung erneuern" (`team_plan_status.b_until` is computed but not rendered in `auto-plan.tsx`). Unit or e2e test asserts the text.
