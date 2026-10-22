@@ -25,6 +25,58 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"billable_facts": {
+                  Row: {
+                    "actual_care_minutes": number | null,"billable": boolean,"case_id": string,"created_at": string,"created_by": string,"id": string,"order_basis": string,"organization_id": string,"payer_chain": NonNullable<Json>,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"reasons": (string)[],"report_id": string,"supersedes_id": string | null,"tariff_versions": NonNullable<Json>,"team_id": string,"visit_date": string,"visit_id": string,"warnings": (string)[]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actual_care_minutes"?: number | null,"billable": boolean,"case_id": string,"created_at"?: string,"created_by": string,"id"?: string,"order_basis": string,"organization_id": string,"payer_chain": NonNullable<Json>,"planned_minutes_a"?: number,"planned_minutes_b"?: number,"planned_minutes_c"?: number,"reasons"?: (string)[],"report_id": string,"supersedes_id"?: string | null,"tariff_versions": NonNullable<Json>,"team_id": string,"visit_date": string,"visit_id": string,"warnings"?: (string)[]
+                  }
+                  Update: {
+                    "actual_care_minutes"?: number | null,"billable"?: boolean,"case_id"?: string,"created_at"?: string,"created_by"?: string,"id"?: string,"order_basis"?: string,"organization_id"?: string,"payer_chain"?: NonNullable<Json>,"planned_minutes_a"?: number,"planned_minutes_b"?: number,"planned_minutes_c"?: number,"reasons"?: (string)[],"report_id"?: string,"supersedes_id"?: string | null,"tariff_versions"?: NonNullable<Json>,"team_id"?: string,"visit_date"?: string,"visit_id"?: string,"warnings"?: (string)[]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "billable_facts_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "billable_facts_report_id_fkey"
+      columns: ["report_id"]
+isOneToOne: true
+      referencedRelation: "visit_reports"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "billable_facts_supersedes_id_fkey"
+      columns: ["supersedes_id"]
+isOneToOne: false
+      referencedRelation: "billable_facts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "billable_facts_visit_id_organization_id_fkey"
+      columns: ["visit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"billing_rules": {
+                  Row: {
+                    "id": string,"min_billable_minutes": number,"region": string,"source": string,"valid_from": string,"valid_to": string | null,"version": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: string,"min_billable_minutes": number,"region": string,"source": string,"valid_from": string,"valid_to"?: string | null,"version": string
+                  }
+                  Update: {
+                    "id"?: string,"min_billable_minutes"?: number,"region"?: string,"source"?: string,"valid_from"?: string,"valid_to"?: string | null,"version"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"care_notes": {
                   Row: {
                     "author_name": string | null,"case_id": string | null,"content": string,"created_at": string,"id": string,"note_type": string,"organization_id": string,"status": string,"team_id": string | null,"visit_id": string | null
@@ -583,6 +635,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"tariff_rates": {
+                  Row: {
+                    "amount": number,"category": string | null,"id": string,"payer": string,"region": string,"source": string,"unit": string,"valid_from": string,"valid_to": string | null,"version": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"category"?: string | null,"id"?: string,"payer": string,"region": string,"source": string,"unit": string,"valid_from": string,"valid_to"?: string | null,"version": string
+                  }
+                  Update: {
+                    "amount"?: number,"category"?: string | null,"id"?: string,"payer"?: string,"region"?: string,"source"?: string,"unit"?: string,"valid_from"?: string,"valid_to"?: string | null,"version"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"team_decisions": {
                   Row: {
                     "actor_id": string,"case_id": string | null,"decided_at": string,"decision": string,"id": string,"idempotency_key": string,"matching_request_id": string,"organization_id": string,"reason": string | null,"reason_code": string | null,"team_id": string
@@ -822,6 +888,32 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"working_time_facts": {
+                  Row: {
+                    "care_minutes": number | null,"created_at": string,"id": string,"organization_id": string,"pause_minutes": number | null,"performer_id": string | null,"team_id": string,"travel_minutes": number | null,"visit_date": string,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "care_minutes"?: number | null,"created_at"?: string,"id"?: string,"organization_id": string,"pause_minutes"?: number | null,"performer_id"?: string | null,"team_id": string,"travel_minutes"?: number | null,"visit_date": string,"visit_id": string
+                  }
+                  Update: {
+                    "care_minutes"?: number | null,"created_at"?: string,"id"?: string,"organization_id"?: string,"pause_minutes"?: number | null,"performer_id"?: string | null,"team_id"?: string,"travel_minutes"?: number | null,"visit_date"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "working_time_facts_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "working_time_facts_visit_id_organization_id_fkey"
+      columns: ["visit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id","organization_id"]
+    }
                   ]
                 }
           }
