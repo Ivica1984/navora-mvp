@@ -29,6 +29,8 @@ import { formatMinutesByCategory } from "@/features/team/rules";
 import type { FieldNote, FieldVisit } from "@/features/field/types";
 import type { FieldReport } from "@/features/field/report";
 import ReportSection from "./report-section";
+import { createReportDraft } from "@/features/field/report-commands";
+import type { CountersignItem } from "@/features/field/queries";
 import QualitySection from "./quality-section";
 import VisitLifecycle from "./visit-lifecycle";
 import type { VisitStatusNote } from "@/features/lifecycle/queries";
@@ -45,6 +47,7 @@ type Props = {
   quality: FieldQuality[];
   qualityTypes: QualityEventType[];
   statusNotes: VisitStatusNote[];
+  countersign: CountersignItem[];
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -68,7 +71,7 @@ const STATUS_CLASS: Record<string, string> = {
   no_show: "bg-rose-100 text-rose-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign }: Props) {
   const summary = summarizeDay(visits);
 
   return (
@@ -108,6 +111,22 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
           <Stat label="Laufend" value={summary.running} />
           <Stat label="Erledigt" value={summary.done} />
         </section>
+
+        {countersign.length > 0 && (
+          // F7: the countersignature request reaches the team at the moment of signing.
+          <section aria-label="Zur Gegenzeichnung" data-testid="countersign-queue" className="mb-4 rounded-2xl border-l-4 border-blue-600 bg-blue-50 p-3 text-sm">
+            <h2 className="font-bold text-blue-900">Zur Gegenzeichnung ({countersign.length})</h2>
+            <ul className="mt-1 grid gap-1">
+              {countersign.map((c) => (
+                <li key={c.report_id}>
+                  <Link href={`/field?datum=${c.visit_date}`} className="underline underline-offset-2">
+                    {formatDayLabel(c.visit_date)} · {formatTime(c.time_start) ?? "Zeit offen"} · {c.client_name ?? "Klient:in"} · {c.team_name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {visits.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-emerald-900/20 bg-white/70 p-6 text-center text-emerald-900/70">
@@ -181,6 +200,11 @@ function VisitCard({
     setError(null);
     // One idempotency key per tap: a retried request is applied at most once (T10).
     const result = await COMMANDS[action]({ visitId: visit.visit_id, idempotencyKey: crypto.randomUUID() });
+    // F7: completing opens the report draft at once (built from the visit data). If the database refuses
+    // the draft (e.g. no recorded start), the F6 "create" step stays available on the card.
+    if (result.ok && action === "complete") {
+      await createReportDraft({ visitId: visit.visit_id, summary: null, idempotencyKey: crypto.randomUUID() });
+    }
     setPending(null);
     if (!result.ok) setError(result.error);
     router.refresh();

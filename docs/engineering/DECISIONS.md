@@ -389,3 +389,17 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 
 Generated visits stay ordinary planned visits.
 **Open:** the evenly spread default weekdays and the four-week horizon are engineering defaults for the PO to confirm. Absences are not modelled, so "cannot do the work" means qualification only.
+
+### ADR-043 — Sign at completion (F7)
+**Status:** PROPOSED · **Task:** F7 (`docs/agents/briefs/F7.md`).
+**Decision (answer to the brief's question):** no new report state.
+- **Completion opens the draft.** Completing a visit on `/field` creates the F6 draft from the visit data immediately (`create_report_draft` right after `complete_visit`). The card then shows "Bericht prüfen und unterschreiben" with:
+  - the facts the draft took over (time, planned minutes per category, services, number of observations);
+  - the optional summary;
+  - one "Bericht unterschreiben" button.
+- **One confirmation.** If the nurse changed the summary, it is saved to the draft first (`update_report_draft`), then the report is signed (`sign_report`). Both are the unchanged F6 commands: idempotent, audited, performer only.
+- **Signing later is unchanged:** the draft stays open, and the OPS1 "report not final" exception applies.
+- **Countersignature:** `field_countersign_queue()` lists, for a registered nurse, every signed report of her teams that waits for her countersignature, on any date. `/field` shows it at the top. The D-10 rule is unchanged.
+- **AN1 can measure:** time from visit end to final report (`visit_events` completed → `visit_reports.signed_at` / `countersigned_at`), and the share signed within 10 minutes.
+**Migration plan:** migration 0026 (one read function). Rollback: drop it; the app falls back to the F6 buttons.
+**Open:** if the draft cannot be created (no recorded start), the F6 "create" step stays on the card with its message.
