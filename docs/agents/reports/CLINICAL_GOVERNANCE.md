@@ -18,7 +18,7 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ## 2026-10-22 23:05: owner decision D-27
 
-**Trigger:** the owner decided D-27 on 2026-10-22 at 22:59. No code was merged since the baseline. #139 (governance) and #137 (PO cycle) are docs-only.
+**Trigger:** the owner decided D-27 on 2026-10-22 at 22:59. No code was merged since the baseline. #139 (governance), #137 and #136 (PO) are docs-only.
 
 **Owner decision, as given:**
 - The Clinical & Regulatory Architect remains an **advisory** role. It may review, challenge, recommend, identify risks and identify controls.
@@ -42,13 +42,13 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 | ID | Item | Severity | Finding | Evidence | Testable remedy |
 |---|---|---|---|---|---|
-| CGR-17 | protocol (#136) | blocking for #136 | #136 records D-27 but omits the interim rule. Without it, a later cycle could treat a provisional default or an Architect recommendation as decided. | #136 diff of `OPEN_DECISIONS.md` (D-27 row) and README gate; owner decision 22:59 | Add the interim clause to the D-27 answer and to the README *Clinical review gate*. `agents-check` passes. Comment posted on #136. |
+| CGR-17 | protocol (D-27 row) | blocking (governance) | #136 was merged at 22:40 with D-27 recorded but without the owner's interim rule. Without it, a later cycle could treat a provisional default or an Architect recommendation as decided. | `OPEN_DECISIONS.md` D-27 row on `recovery/main` @ bf5ed02; owner decision 22:59 | The owner's interim wording is added to the D-27 answer, attributed to the owner, by the governance PR that carries this section. It resolves on merge. |
 
 ### Status of earlier findings
 
 | ID | Status | Evidence |
 |---|---|---|
-| CGR-14 | **resolved in #136 (open)**; closes when #136 merges with CGR-17 | #136 README: `cra` reviewer without decision rights; `clinical` = named, qualified human |
+| CGR-14 | **closed** | #136 merged (bf5ed02): README *Roles* has `cra`, a reviewer without decision rights, and `clinical`, the named, qualified human |
 | CGR-01 to CGR-13, CGR-15, CGR-16 | open, unchanged | no code merged since `b546299` |
 
 ### Decisions requested

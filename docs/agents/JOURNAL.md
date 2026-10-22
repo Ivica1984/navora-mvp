@@ -15,8 +15,36 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - **CGR-17 (blocking for #136):** add the interim clause to D-27 and to the README gate (comment on #136).
 - Registers updated: G-1 (role decided, person not named, blocks Gate C), G-2, and the `APPROVED` status unavailable until `clinical` is named.
 - No code was merged since `b546299`, so findings CGR-01 to CGR-13, CGR-15 and CGR-16 are unchanged.
-- **Next agent (po):** add the interim clause to #136 (CGR-17), then merge. Keep D-6, D-10, D-15, D-16, D-17 and D-19 open.
+- **#136 merged (22:40) without the interim clause.** This PR adds the owner's 22:59 wording to the D-27 answer in `OPEN_DECISIONS.md`, attributed to the owner, and nothing else in that file. That closes CGR-17 once merged.
+- **Next agent (po):** keep D-6, D-10, D-15, D-16, D-17 and D-19 open. No clinical rule is marked approved anywhere.
 - **Next agent (eng):** where a remedy needs a clinical threshold (CGR-04, CGR-13), use a strict provisional default and say so in the deviations.
+
+## 2026-10-22 22:40 · po (Product Owner)
+- **Owner decided D-27** (moved to *Decided*):
+  - The Clinical & Regulatory Architect is a permanent, **mandatory reviewer**. It identifies risks, controls, findings and recommendations.
+  - AI-generated clinical, quality, LTCF, PAG, MQI, billing or regulatory guidance is never automatically authoritative.
+  - A **named, qualified human clinical owner** approves clinical, care quality and patient safety rules and LTCF, PAG and MQI interpretations.
+- **Roles split** (README *Roles*):
+  - `cra` reviews and recommends;
+  - `clinical` stays the decision owner and is now the named human clinical owner.
+
+  The validator and watcher need no change.
+- **Gate widened:**
+  - **Engineering**, before delivering an item in scope, reads the latest Clinical Governance Report and states how each finding is handled.
+  - **The PO**, before final acceptance, considers it.
+
+  The rule is in README *Clinical review gate*, COORDINATION rule 6 and the NEXT_CAPABILITY standing review rule.
+- **Effect on ADM1:** the 22:15 entry said "accepted once #135 is merged with green CI". That acceptance now also needs the gate. ADM1 is in scope because removal releases visits.
+- **OPEN:** the human clinical owner is not yet named; README *Participants* holds a placeholder.
+- **First Clinical Governance Report** (22:30, #139) is now on `recovery/main` at the path the gate names, so the gate can run.
+- **CGR-14 resolved here:**
+  - the Architect is `cra`, #138's name, a reviewer without decision rights;
+  - `clinical` stays the named, qualified person;
+  - there is one report path, `reports/CLINICAL_GOVERNANCE.md`.
+
+  #138 (Engineering) should be reconciled to this path and these role definitions.
+- **Merge:** PR #136 brought up to date with `recovery/main` twice (PO 22:15 #137, governance baseline #139). All journal entries and both PO notes kept, newest first.
+- **Next (po):** apply the report's gate findings in the next PO cycle, after this merge.
 
 ## 2026-10-22 22:30 · Clinical & Regulatory Architect (review)
 - **First Clinical Governance Report published:** `reports/CLINICAL_GOVERNANCE.md`, baseline on `recovery/main` @ b546299. The gate in #136 can now run.
@@ -37,6 +65,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Challenge:** an administrator's reason for a staffing change does not belong in the care record (new row).
 - **Status:** ADM1 stays `changes-requested` until #135 is merged with green CI; then accepted without another round on changes 2–4. No new brief: ABS1 is still the next approved, unstarted item.
 - **The PO did not run the tests**; results are taken from CI and from reading the code.
+## 2026-10-22 22:10 · po (Product Owner)
+- **New permanent role (owner instruction): Clinical & Regulatory Architect**, role `clinical`. It is the authoritative reviewer for patient safety, clinical workflows, care quality, billing integrity, regulatory compliance, LTCF, PAG and MQI. It reuses the existing `clinical` decision owner, so the validator and the coordination watcher need no change. Updated:
+  - `README.md`: *Roles*, a new *Clinical review gate*, rule 6 and *Participants*;
+  - `OPEN_DECISIONS.md`: how the role works with decisions, plus D-27;
+  - `NEXT_CAPABILITY.md`: the standing review rule and a PO note.
+- **Gate:** items that affect patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI get final acceptance only after the PO has considered the latest Clinical Governance Report (`docs/agents/reports/CLINICAL_GOVERNANCE.md`):
+  - a `blocking` finding never leads to acceptance;
+  - with no report that covers a delivery, the item stays in review, marked "awaiting clinical review";
+  - earlier acceptances stand unless a later finding is `blocking`.
+- **The report does not exist yet.** The next deliveries in scope (ADM1 changes, ABS1) will wait for its first edition.
+- **D-27 (`owner`):** who signs off a clinical rule if the Architect is an agent. Recommendation: the Architect drafts, and a named, qualified person confirms. Until then, `clinical` answers stay recommendations and the safe defaults in code stay. This follows the existing rule "AI drafts; a named, qualified person confirms" and the CLAUDE.md ban on invented medical rules.
+- **No delivery** to review this cycle. Queue unchanged: ADM1 changes, then ABS1.
+- **Next agent (clinical):** publish the first Clinical Governance Report. Cover first the items that are in review or due next (ADM1, ABS1), then the accepted items with clinical impact (F6, F7, J3, J5, QG1, C1, COVER1, PLAN2, HAND1, RET1).
+- **Next agent (eng):** unchanged.
 
 ## 2026-10-22 20:15 · po (Product Owner)
 - **PR #126 brought up to date** again: `recovery/main` (ADM1 #101) merged in, journal entries kept, newest first. No second PO PR opened; this cycle rides on #126.

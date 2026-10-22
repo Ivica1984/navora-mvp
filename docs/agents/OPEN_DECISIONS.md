@@ -1,7 +1,9 @@
 # Open decisions
 
-**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 16:15 (po)
+**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 22:40 (po: owner decided D-27)
 Background, options and consequences for the `D-*` items: `docs/engineering/DECISIONS_NEEDED.md`.
+
+**Clinical & Regulatory Architect (owner 2026-10-22, D-27):** a mandatory reviewer, not a decision owner. It may add a recommendation to any `clinical`, `regulatory` or billing-related row ("**Clinical Architect <date>:** …"). Decisions with owner `clinical` are approved only by the named, qualified human clinical owner. The other rows are decided by their named owner.
 
 ## Open
 
@@ -37,6 +39,7 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 
 | ID | Owner | Answer | Date |
 |---|---|---|---|
+| D-27 | owner | The Clinical & Regulatory Architect is a permanent, mandatory reviewer. It may identify risks, controls, findings and recommendations. AI-generated clinical, quality, LTCF, PAG, MQI, billing or regulatory guidance is never automatically authoritative; the Architect only recommends. A named, qualified human clinical owner approves clinical rules, care quality rules, LTCF, PAG and MQI interpretations and patient safety rules. PO and Engineering review the latest Clinical Governance Report before accepting or delivering any capability affecting patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI. **Owner 22:59, interim rule:** the Architect may review, challenge, recommend, identify risks and identify controls; it may not approve clinical rules. Until a named, qualified clinical owner is appointed, all clinical decisions remain OPEN and are treated as provisional. Engineering may implement safe defaults, but no clinical rule may be marked clinically approved. | 2026-10-22 |
 | D-21 | po | **Kept for the pilot:** PLAN2 spreads a weekly rhythm evenly when no weekdays are named and plans four weeks ahead; COVER1 offers from 24 h to 4 h before start; first-offer acceptance means acceptance within the response deadline; ADM1 overrides stay in the safe ranges. **Not kept:** care ÷ (travel + care + pause) of visits is **not** the North Star. It is shown as "Pflegeanteil im Einsatz" without the 60 %/75 % reference; the North Star stays "not measurable yet" until paid working time exists (AN1 review). Revisit all defaults with AN1 data after the first pilot month | 2026-10-22 |
 | Q11 | po | J5 bills never more than the measured care minutes; below plan the planned split is scaled down proportionally; above plan nothing extra is billed and the visit is flagged; exact minutes until D-18. Delivered in #75 | 2026-10-22 |
 | Q10 | po | Working time for J2 deadlines: Monday–Friday 08:00–18:00 Europe/Zurich. Cantonal public holidays are excluded once the pilot canton is known (D-11). Weekend hospital discharges are not a deadline matter; they surface in OPS1 | 2026-10-22 |
