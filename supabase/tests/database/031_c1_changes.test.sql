@@ -5,7 +5,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(25);
+select plan(28);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -121,6 +121,22 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000901');
 set local role authenticated;
 select is((select count(*)::int from public.team_offers() where matching_request_id = '00000000-0000-4000-a000-000000000401'), 0,
   'no team is offered it any more');
+reset role;
+
+-- PO addendum: Operations sees the organisation's cases for close and reopen; nobody else does.
+select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
+set local role authenticated;
+select ok(exists (select 1 from public.ops_case_lifecycle() where case_id = '00000000-0000-4000-a000-000000000209'),
+  'Operations lists the organisation''s cases');
+reset role;
+select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
+set local role authenticated;
+select is((select count(*)::int from public.ops_case_lifecycle()), 0, 'a nurse gets nothing from the Operations list');
+reset role;
+select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
+set local role authenticated;
+select is((select count(*)::int from public.ops_case_lifecycle() where case_id = '00000000-0000-4000-a000-000000000209'), 0,
+  'another organisation sees none of these cases');
 reset role;
 
 select * from finish();

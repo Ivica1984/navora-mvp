@@ -65,3 +65,24 @@ test("a visit suspended by a pause is marked on /field and has no depart button,
   await page.goto(`/field?datum=${day}`);
   await expect(page.getByRole("article", { name: /16:00 – 16:30, Testfall 08/ }).getByRole("button", { name: "Losfahren" })).toBeVisible();
 });
+
+test("Operations closes a case with a reason and reopens it in the app (C1, PO addendum)", async ({ page }) => {
+  await signIn(page, "ops.test@navora.test", /\/operations$/);
+  const panel = page.getByTestId("ops-case-lifecycle");
+  await panel.getByLabel("Fall suchen").fill("Testfall 09");
+  const card = panel.getByRole("article", { name: /Fallstatus Testfall 09/ });
+  await expect(card.getByRole("button", { name: "Pausieren" })).toHaveCount(0);   // pausing stays with the team
+  await card.getByRole("button", { name: "Fall abschliessen" }).click();
+  const form = card.getByRole("form", { name: "Fall abschliessen" });
+  await form.locator("select[name=code]").selectOption("goal_reached");
+  await form.getByRole("button", { name: "Abschliessen" }).click();
+
+  const closed = panel.getByRole("article", { name: /Abgeschlossen Testfall 09/ });
+  await expect(closed).toBeVisible();
+  await closed.getByRole("button", { name: "Wiedereröffnen" }).click();
+  await closed.getByLabel("Begründung").fill("Rückkehr nach Hause");
+  await closed.getByRole("button", { name: "Wiedereröffnen" }).click();
+  await expect(panel.getByRole("article", { name: /Abgeschlossen Testfall 09/ })).toHaveCount(0);
+  await panel.getByLabel("Fall suchen").fill("Testfall 09");
+  await expect(panel.getByRole("article", { name: /Fallstatus Testfall 09/ })).toBeVisible();
+});

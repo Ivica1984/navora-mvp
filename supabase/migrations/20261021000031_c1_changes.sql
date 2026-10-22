@@ -84,3 +84,33 @@ end;
 $$;
 revoke all on function public.field_visits(date) from public, anon;
 grant execute on function public.field_visits(date) to authenticated;
+
+-- PO addendum 14:45: Operations closes and reopens in the app. Same read model as the team's, for the
+-- coordination roles of the organisation (no health fields: name, team, lifecycle, last reason category).
+create function public.ops_case_lifecycle()
+returns table (
+  case_id       uuid,
+  client_name   text,
+  team_name     text,
+  lifecycle     text,
+  last_kind     text,
+  last_reason   text,
+  expected_end  date,
+  changed_at    timestamptz,
+  suspended_visits integer
+)
+language sql stable security definer set search_path = ''
+as $$
+  select c.id, nullif(btrim(concat_ws(' ', c.first_name, c.last_name)), ''), t.name, c.lifecycle,
+         e.kind, e.reason_code, e.expected_end, e.created_at,
+         (select count(*)::int from public.care_visits v where v.case_id = c.id and v.suspended_at is not null)
+  from public.cases c
+  left join public.teams t on t.id = c.assigned_team_id
+  left join lateral (select x.kind, x.reason_code, x.expected_end, x.created_at from public.case_lifecycle_events x
+                     where x.case_id = c.id order by x.created_at desc limit 1) e on true
+  where private.is_coordinator(c.organization_id)
+    and (c.status = 'laufend' or c.lifecycle in ('paused', 'closed') or c.assigned_team_id is null)
+  order by c.lifecycle, c.last_name nulls last, c.id;
+$$;
+revoke all on function public.ops_case_lifecycle() from public, anon;
+grant execute on function public.ops_case_lifecycle() to authenticated;

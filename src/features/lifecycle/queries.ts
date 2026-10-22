@@ -28,3 +28,14 @@ export async function getVisitStatusNotes(day: string): Promise<VisitStatusNote[
   }
   return data ?? [];
 }
+
+/** C1 (PO addendum): cases of the organisation for Operations — close and reopen with a reason. */
+export async function getOpsCaseLifecycle(): Promise<CaseLifecycle[]> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("ops_case_lifecycle");
+  if (error) {
+    logEvent("error", "lifecycle.ops_load_failed", errorFields(error));
+    throw new Error("Fallstatus konnte nicht geladen werden.");
+  }
+  return data ?? [];
+}

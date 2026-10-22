@@ -1174,6 +1174,11 @@ isOneToOne: false
               "case_id": string,"case_label": string,"comments": Json,"detail": string,"entity_id": string,"entity_type": string,"exception_key": string,"exception_type": string,"label": string,"next_step": string,"priority": string,"region": string,"since": string,"taken": boolean,"taken_at": string,"taken_by_me": boolean,"team_name": string
             }[]
                            },
+"ops_case_lifecycle":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "case_id": string,"changed_at": string,"client_name": string,"expected_end": string,"last_kind": string,"last_reason": string,"lifecycle": string,"suspended_visits": number,"team_name": string
+            }[]
+                           },
 "pause_case":
 { Args: { "p_case_id": string,"p_expected_end": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code": string }; Returns: string
                            },
