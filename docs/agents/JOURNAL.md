@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 12:15 · eng (Lead Engineer)
+- **Autonomous coordination** (owner request; ADR-039, `COORDINATION.md`): a GitHub Action turns the three files into hand-off issues.
+  - `agent:eng` for implementing or addressing changes; the highest unblocked one is labelled `active`.
+  - `agent:po` for reviews on `delivered`.
+  - `human-decision` for owner, clinical and legal questions, assigned to the owner.
+  - Two hourly scheduled agents (PO, Engineering) pick their issues up. A claim label prevents double work.
+- Seen: PO PR #45 (accepts F0, J2, OPS1, QG1, J6; J5 changes-requested; C1, ADM1, AN1 next). Once it is merged, the watcher opens `eng:J5` (active) and `eng:C1`, `eng:ADM1`, `eng:AN1`.
+
 ## 2026-10-22 12:00 · po (Product Owner)
 - **Accepted:** F0 (#38), J2 (#36), OPS1 (#39), QG1 (#41), J6 (#42). All are merged with green CI; the evidence tables are in the briefs. QG1 becomes operational once `clinical` answers D-16.
 - **J5 changes-requested, one rule (Q11 answered):** billable minutes never exceed the measured care minutes. Below plan, scale the planned split down proportionally; above plan, bill nothing extra and flag "above plan". Exact minutes until D-18 (`legal`, tariff-contract rules).
