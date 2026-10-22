@@ -24,6 +24,7 @@ NAVORA founders and Operations; each team for its own figures. Journey: Analytic
 One page shows the pilot KPIs per month, for the organisation and per team, each with its definition and its data source.
 
 ## Acceptance criteria
+- [ ] **North Star first:** direct care share = measured care minutes ÷ paid working minutes (from F1–F4 events and confirmed working time), per team and month. Buurtzorg's reference point is 60 %; NAVORA's hypothesis is 75 % (`docs/product/CARE_OPERATING_MODEL.md`).
 - [ ] KPIs, each with a definition shown on the page:
     - referral to first visit (median days);
     - first-offer acceptance rate;
@@ -31,7 +32,8 @@ One page shows the pilot KPIs per month, for the organisation and per team, each
     - share of visits with a time correction;
     - distinct nurses per client and primary-nurse share (from J6);
     - billable minutes per measured care minute (from J5);
-    - open P1 exceptions and median time to close (from OPS1).
+    - open P1 exceptions and median time to close (from OPS1);
+    - share of visits created from the care plan (PLAN2), reports final within 10 minutes (F7), uncovered visits resolved without Operations (COVER1).
 - [ ] Per team and for the whole organisation; never per individual nurse.
 - [ ] Only aggregates; no client identity or health data on the page.
 - [ ] Teams see only their own team's figures; founders and Operations see all teams.

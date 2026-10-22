@@ -1,6 +1,6 @@
 # Open decisions
 
-**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 13:00 (po)
+**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 13:15 (po)
 Background, options and consequences for the `D-*` items: `docs/engineering/DECISIONS_NEEDED.md`.
 
 ## Open
@@ -11,7 +11,7 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | D-11 | owner | regulatory | Pilot canton and municipalities | one canton, a few municipalities; it decides residual-financing rules, operating licence and quality obligations | – | 2026-10-21 (po) |
 | D-12 | owner | regulatory | Legal entity that holds the cantonal operating licence and the OKP admission (insurer billing) | decide before the pilot; without admission no visit is billable | – | 2026-10-21 (po) |
 | D-13 | owner | product | Assessment instrument: interRAI HC (home care) instead of interRAI LTCF (nursing homes)? | interRAI HC for the home-care product; LTCF only if a nursing-home offer is decided; then clarify the licence | – | 2026-10-21 (po) |
-| D-14 | owner | financial | Platform fee and team surplus model | decide with pilot data from J5; until then J7 stays draft | – | 2026-10-21 (po) |
+| D-14 | owner | financial | Platform fee and team surplus model | **PO 2026-10-22:** nurse income is value 3 of 10, so the model should pay nurses more for more direct care, not more hours. Proposal to evaluate with AN1 pilot data: a fixed, transparent platform fee per billable hour; the team keeps the rest; part of the surplus is distributed as income, not only reinvested (as Buurtzorg does). Decide before J7 | J7 | 2026-10-21 (po) |
 | D-15 | clinical | clinical | Approve the J1 readiness checklist, the J3 care-plan fields and the mapping of services to KLV categories A/B/C | as in `briefs/J1.md` and `briefs/J3.md` | J1, J3 | 2026-10-21 (po) |
 | D-16 | clinical | clinical | Quality event types, severities, which ones set a quality hold, and who may lift it (QG1) | short list: fall, wound, medication, acute decline, social situation; serious → coach and quality specialist | – | 2026-10-21 (po) |
 | D-1 | owner | legal | Live database: are the 6 cases / 3 care notes real people? Rotate the anon key; enable leaked-password protection | confirm synthetic or start the legal assessment; rotate the key now | – | 2026-10-21 (eng) |
@@ -26,6 +26,7 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | D-6 | clinical | clinical | Visit assignment (team / nurse / both) and full state list (assigned, accepted, cancelled, no_show) | team plus optional responsible nurse; confirm transitions. **PO 2026-10-21 23:05:** J3 shipped and the PO accepted team plus responsible member; J6 builds on it. `clinical` confirms or changes the model. | – | 2026-10-21 (eng) |
 | D-18 | legal | regulatory | Billing time rules in the applicable tariff contract (time units and rounding, minimum per visit, what counts as care time vs travel and documentation) before real invoicing | confirm against the tariff contract the pilot organisation signs; until then J5 uses exact measured minutes and stays an estimate | – | 2026-10-22 (po) |
 | D-19 | clinical | clinical | What must a nurse do on site when a client does not open the door (C1 no-show): whom to call, in what order, how long to wait, when to call emergency services? | a short written protocol from the clinical owner; until then C1 only records the no-show and raises a P1 exception, with no instructions of its own | – | 2026-10-22 (po) |
+| D-20 | owner | product | Who admits members to a team? D-5 gives NAVORA administrators all member administration, which keeps a central hierarchy step in a self-organised model | teams invite and admit colleagues themselves (team decision rule as in J2); NAVORA only verifies qualifications and identity before the qualification is active, because that is a regulatory duty. Shapes ADM1 | – | 2026-10-22 (po) |
 
 ## Decided
 
