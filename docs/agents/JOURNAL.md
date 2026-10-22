@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 23:05 · Clinical & Regulatory Architect (review)
+- **Owner decided D-27 (22:59):**
+  - the Architect stays advisory: review, challenge, recommend, identify risks and controls;
+  - it never approves clinical rules;
+  - until a named, qualified clinical owner is appointed, **all clinical decisions remain OPEN and provisional**;
+  - Engineering may implement safe defaults; no rule may be marked clinically approved.
+- **Report section 23:05** in `reports/CLINICAL_GOVERNANCE.md`:
+  - CGR-14 is resolved by #136, and closes when #136 merges;
+  - **CGR-17 (blocking for #136):** add the interim clause to D-27 and to the README gate (comment on #136).
+- Registers updated: G-1 (role decided, person not named, blocks Gate C), G-2, and the `APPROVED` status unavailable until `clinical` is named.
+- No code was merged since `b546299`, so findings CGR-01 to CGR-13, CGR-15 and CGR-16 are unchanged.
+- **Next agent (po):** add the interim clause to #136 (CGR-17), then merge. Keep D-6, D-10, D-15, D-16, D-17 and D-19 open.
+- **Next agent (eng):** where a remedy needs a clinical threshold (CGR-04, CGR-13), use a strict provisional default and say so in the deviations.
+
 ## 2026-10-22 22:30 · Clinical & Regulatory Architect (review)
 - **First Clinical Governance Report published:** `reports/CLINICAL_GOVERNANCE.md`, baseline on `recovery/main` @ b546299. The gate in #136 can now run.
 - **Registers created** in `clinical/`: `HAZARD_LOG.md`, `CLINICAL_RULE_REGISTER.md` (0 of 34 rules approved), `SAFETY_RISK_REGISTER.md`.
