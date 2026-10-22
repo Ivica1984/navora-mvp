@@ -8,6 +8,19 @@ updated: 2026-10-21
 
 # QG1 — Quality signals and quality hold
 
+## PO acceptance — 2026-10-22 12:00: accepted (operational once D-16 is answered)
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Record from the visit: type, severity, time, case, visit, author | met structurally | #41 (ADR-036); **type list ships empty until `clinical` answers D-16**, recording is refused and `/field` says so |
+| Team sees; serious events also coach and admin; other teams never | met | #41 |
+| Status open → in review → closed, owner, note, audited | met | #41 |
+| Hold by type or manual decision; lifted only by authorised role with reason | met | coach or admin (stricter than brief) |
+| J5 never counts a held visit | met | `visit_has_open_hold`, used by J5 (#43) |
+| No automatic scoring, no AI | met | — |
+
+Deviations accepted: no quality-specialist role until D-3; minor events not readable by Operations through the table. Nothing clinical was invented, as required. PO did not run the tests; evidence is the merged test suite and green CI on the merge commit.
+
 ## Problem
 Quality is the promise to clients, partners and the canton, and `ARCHITECTURE.md` places a Quality Gate before any billing fact. Today warning signs from a visit (fall, wound deterioration, medication problem, acute decline, social situation) sit in free-text observations, and `quality_events` has no workflow. Nothing stops a disputed visit from being billed.
 

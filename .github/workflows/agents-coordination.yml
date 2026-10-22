@@ -1,0 +1,46 @@
+name: agents-coordination
+
+# Coordination watcher (docs/agents/COORDINATION.md, ADR-039).
+# Turns the official collaboration files into hand-off issues for the PO agent, the Engineering agent
+# and human decision owners. State-based and idempotent: every run converges GitHub to the files.
+
+on:
+  push:
+    branches: [recovery/main, main]
+    paths:
+      - docs/agents/NEXT_CAPABILITY.md
+      - docs/agents/IMPLEMENTATION_STATUS.md
+      - docs/agents/OPEN_DECISIONS.md
+      - scripts/agents-coordination/**
+      - .github/workflows/agents-coordination.yml
+  schedule:
+    - cron: "17 * * * *"   # hourly reconciliation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: agents-coordination
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: recovery/main
+          fetch-depth: 100   # history of docs/agents tells who changed an item last
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+      - name: Validate the collaboration layer
+        run: node scripts/agents-check.mjs
+      - name: Sync hand-off issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER_LOGIN: ${{ github.repository_owner }}
+        run: node scripts/agents-coordination/run.mjs

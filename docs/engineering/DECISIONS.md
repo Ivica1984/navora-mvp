@@ -322,6 +322,17 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 **Migration plan:** migration 0022 (new tables and functions plus reference rows). Rollback: drop them.
 **Open:** Q11 (which minutes count), D-11 (cantonal rates and the minimum per canton), D-15 (KLV category mapping).
 
+### ADR-039 — Autonomous PO ↔ Engineering coordination through GitHub
+**Status:** ACCEPTED (owner request 2026-10-22: "the user should no longer be required as a messenger"). Details: `docs/agents/COORDINATION.md`.
+**Decision:**
+- **Source of truth:** the three official files remain it; GitHub issues are derived from them and never edited by hand.
+- **Watcher:** a pure planner (`scripts/agents-coordination/plan.mjs`, unit-tested) computes hand-offs: implement or address changes (`agent:eng`, highest-ranked unblocked = `active`), review (`agent:po`, on `delivered`), and decisions (`human-decision` assigned to the owner, or the owning agent).
+- **Sync:** a GitHub Action (`agents-coordination.yml`) runs it on every push to the files, hourly and on demand. It syncs issues idempotently with the repository `GITHUB_TOKEN` (issues: write only).
+- **Agents:** two scheduled cloud tasks, a PO agent and an Engineering agent (hourly), pick up their issues and act through pull requests. A claim label prevents two sessions from working on one item.
+**Why this design:** state-based reconciliation is robust against missed events and reruns. Agents need no new credentials. The only humans contacted are decision owners.
+**Alternatives:** Claude Code GitHub Action triggered by issue labels (needs an API-key secret: owner decision); webhooks to an external service (more infrastructure, no benefit for a pilot).
+**Rollback:** disable the workflow and the two scheduled tasks. The files keep working as before.
+
 ### ADR-040 — Billable minutes follow measured care time (J5 change, answers Q11)
 **Status:** PROPOSED · amends ADR-038 · **Task:** J5 changes-requested (PO review 2026-10-22 12:00).
 **Decision:**

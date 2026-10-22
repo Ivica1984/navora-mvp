@@ -8,6 +8,18 @@ updated: 2026-10-21
 
 # OPS1 — Operations exception center
 
+## PO acceptance — 2026-10-22 12:00: accepted
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Exceptions derived from state, all brief sources | met | #39 (ADR-035), 10 types incl. report not final (F6) and serious quality event (QG1) |
+| Reason, age, case, team, link; Operations-scoped data | met | #39 |
+| Take over, note, close with reason; auto-close with note | met | #39 |
+| ≤ 6 KPIs, no matching start, no case editing | met | #39 |
+| Thresholds as configuration with Q9 defaults | met | `exception_rules` |
+
+Deviations accepted: a serious quality event shows at once as P2 and becomes P1 after 4 h (safer than the brief); rules change by migration until ADM1. Follow-up: the legacy heuristics below the list are labelled "unvalidated" — remove them when ADM1 ships unless a pilot user relies on one. PO did not run the tests; evidence is the merged test suite and green CI on the merge commit.
+
 ## Problem
 Self-organisation works only with a safety net: no case waits silently, no visit stays uncovered. `ARCHITECTURE.md` defines Operations as an exception-based control tower, not dispatch. J1–J3 and QG1 create exceptions (blocked cases, overdue offers, uncovered visits, expired orders, serious quality events), but there is no single place that derives them from state. This is the scaling lever of the model: a small Operations group can support many teams.
 
