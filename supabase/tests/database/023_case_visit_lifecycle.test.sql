@@ -39,8 +39,11 @@ select ok((select suspended_at is not null and status = 'planned' from public.ca
   'planned visits inside the pause are suspended, not deleted');
 select throws_ok($$ select public.depart_visit('00000000-0000-4000-a000-000000000508', 'ad000000-0000-4000-8000-000000000005') $$,
   '23514', null, 'a suspended visit cannot start');
+reset role;
 select ok(not ('uncovered' = any (private.visit_flags('00000000-0000-4000-a000-000000000208', current_date + 1, 0, null, 'planned', '09:00'))),
   'a paused case raises no uncovered flag');
+select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
+set local role authenticated;
 select throws_ok($$ select public.plan_visit('00000000-0000-4000-a000-000000000208', current_date + 2, '10:00', '10:30', 30, 0, 0, false, null,
           'ad000000-0000-4000-8000-000000000006') $$, 'NV002', null, 'no new visits while the case is paused');
 select is(public.pause_case('00000000-0000-4000-a000-000000000208', 'rehabilitation', null, null, 'ad000000-0000-4000-8000-000000000007'),

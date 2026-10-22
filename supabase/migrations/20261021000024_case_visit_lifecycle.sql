@@ -86,6 +86,11 @@ begin
   if kind is null then
     return new;
   end if;
+  -- Cancellation and no-show are timeline events only when a C1 command records them;
+  -- a maintenance status change outside a command stays audited but off the timeline (009).
+  if kind in ('cancelled', 'no_show') and coalesce(current_setting('navora.command', true), '') = '' then
+    return new;
+  end if;
   insert into public.visit_events
     (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, command, idempotency_key)
   values

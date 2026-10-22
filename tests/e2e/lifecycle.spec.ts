@@ -20,8 +20,8 @@ test("the team pauses a case with a reason and resumes it (C1)", async ({ page }
 
   await lifecycle.getByRole("button", { name: "Pausieren" }).click();
   const form = lifecycle.getByRole("form", { name: "Fall pausieren" });
-  await expect(form.getByLabel("Grund")).toHaveAttribute("required", "");   // a reason is required
-  await form.getByLabel("Grund").selectOption("hospital_stay");
+  await expect(form.getByLabel("Grund", { exact: true })).toHaveAttribute("required", "");   // a reason is required
+  await form.getByLabel("Grund", { exact: true }).selectOption("hospital_stay");
   await form.getByRole("button", { name: "Pausieren" }).click();
   await expect(lifecycle.getByTestId("case-paused")).toContainText("Spitalaufenthalt");
 
