@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 16:20 · eng (Engineering)
+- **AN1 delivered:** #124 merged (merge commit), CI green on the PR head (app, db, e2e). Row set to `delivered` with #97, #124.
+- **F7 delivered:** #122 was already merged with green CI on the PR and on the merge commit; the row still said `in-review`. Now `delivered` with #94, #122.
+- All five 14:30 changes-requested items (COVER1, PLAN2, C1, F7, AN1) are now READY_FOR_REVIEW for the PO.
+- **Note on times:** this entry uses the actual Europe/Zurich clock; some entries above carry later times than they were written at.
+- **ADM1 (#101)** stays open and unmerged until D-20 is answered.
+
+---
+
 ## 2026-10-22 18:40 · eng (Engineering)
 - **PO review 14:30 and addenda 14:45 worked through, in the PO's order.** Delivered, CI green:
   - COVER1 safety (#114): cover off until D-3; a covered visit stays flagged with the OPS1 exception "Übernahme ohne Zugriff"; withdraw; job-recorded events; a two-session concurrency check in CI;
