@@ -1,6 +1,6 @@
 # NAVORA Care Operating Model — beyond Buurtzorg
 
-**Owner:** Product Owner (`po`) · **Stand:** 2026-10-22 13:30 · **Status:** strategic direction. Approved items appear in `docs/agents/NEXT_CAPABILITY.md`. Targets marked *hypothesis* are validated with pilot data (AN1), not assumed.
+**Owner:** Product Owner (`po`) · **Stand:** 2026-10-22 18:20 · **Status:** strategic direction. Approved items appear in `docs/agents/NEXT_CAPABILITY.md`. Targets marked *hypothesis* are validated with pilot data (AN1), not assumed.
 
 ## North Star
 
@@ -38,16 +38,17 @@ Every capability is judged by whether it raises this share without lowering safe
 |---|---|---|
 | Station or unit leadership, line managers | Self-organised teams; rules as transparent configuration | IMPLEMENTED (no line roles in the model, DOMAIN_RULES) |
 | Dispatcher who assigns cases to teams | Team pull with response deadlines and escalation | IMPLEMENTED (J2) |
-| Scheduling administrator | Visits generated from the care plan with the primary nurse | PLANNED (PLAN2) |
-| Phone chain to find a substitute | Automatic cross-team cover offer | PLANNED (COVER1) |
+| Scheduling administrator | Visits generated from the care plan with the primary nurse | IMPLEMENTED (PLAN2, accepted 2026-10-22) |
+| Phone chain to find a substitute | Automatic cross-team cover offer | IMPLEMENTED, switched off until D-3 (COVER1) |
 | Intake coordinator re-typing referrals | Direct digital referral by the hospital; NAVORA only checks | DRAFT (REF2; legal basis D-9) |
-| Documenting after the shift | Report confirmed at visit completion | PLANNED (F7) |
+| Documenting after the shift | Report confirmed at visit completion | IMPLEMENTED (F7) |
 | Billing preparation at month end | Billable facts derived continuously from signed visits | IMPLEMENTED (J5) |
-| Manual quality report | Quality events and holds from the visit; KPIs from data | IMPLEMENTED (QG1); PLANNED (AN1) |
+| Manual quality report | Quality events and holds from the visit; KPIs from data | IMPLEMENTED (QG1, AN1) |
 | Central member administration | Teams admit colleagues; NAVORA verifies qualifications only | PROPOSED (D-20, owner) |
 | Blanket countersignature of care-assistant visits | Risk-based review | PROPOSED (D-10, clinical) |
-| Daily team handover meeting; shift lead as knowledge carrier | "Since you were last here" on every visit card, from the record | PLANNED (HAND1) |
-| Re-intake and re-matching of a client after a hospital stay | Paused case resumes; returning client offered to the known team first | PLANNED (RET1) |
+| Daily team handover meeting; shift lead as knowledge carrier | "Since you were last here" on every visit card, from the record | IMPLEMENTED (HAND1, accepted 2026-10-22) |
+| Re-intake and re-matching of a client after a hospital stay | Paused case resumes; returning client offered to the known team first | IMPLEMENTED (RET1, accepted 2026-10-22) |
+| Shift lead or dispatcher re-assigning an absent nurse's visits by phone | The absent nurse says so once; her visits go to her team, the colleague who knows the client first | PLANNED (ABS1) |
 | Chasing GP practices for order renewals by phone and fax | Prepared renewal request, sent by the primary nurse, confirmed digitally by the GP | DRAFT (ORD1; D-22, D-9) |
 | Nurse ordering her day and route by hand | Proposed order of the day from visit windows and travel time | HYPOTHESIS (Q7 data protection; AN1 travel minutes) |
 | Statutory statistics and cantonal reports compiled by hand | Generated from billing, continuity and quality facts | HYPOTHESIS (D-11) |
@@ -77,6 +78,7 @@ Every proposed capability answers the same questions. The detail is in each brie
 | COVER1 | Dispatch for absences | Phone chain for substitutes | Dispatcher; coach as absence handler | Visits happen, case stays with its team | Less coordination time | Cover is extra billable work (pay supplement D-14) |
 | HAND1 | Coordination layer | Handover meetings, colleague phone calls | Shift lead as knowledge carrier | Every nurse arrives informed | Meeting time back to care | More billable minutes per paid hour |
 | RET1 | Intake and matching for known clients | Re-intake and re-matching | Intake coordinator, dispatcher | Same team across a hospital stay | No re-learning of a known client | Team keeps its client base |
+| ABS1 | Dispatch and shift lead for absences | Morning phone chain, re-assigning visits one by one | Dispatcher, shift lead, coach as absence handler | Deputy or primary nurse takes the visit first | Phone time back to care | Team keeps its billable volume |
 | REF2 | Intake on both sides | Re-typing referrals; phoning providers | Intake coordinator | Faster start after discharge | Less intake work | Faster start of billable care |
 | ORD1 | Order administration | Chasing GP orders | Administrative staff for orders | No gap in category B care | Phone time back to care | B visits stay billable |
 | AN1 | Management reporting | Manual KPI reports | Controlling and reporting roles | Continuity becomes visible to the team | Proves the North Star | Evidence for D-14 |

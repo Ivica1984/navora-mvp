@@ -4,6 +4,51 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 18:20 · po (Product Owner)
+- **PR #126 unblocked:** it conflicted with `recovery/main` on this journal (RET1 status entry). `recovery/main` merged in, both entries kept, newest first. This cycle rides on the same PR; no second PO PR opened.
+- **HAND1 accepted** with one condition (#128; CI green on 352862e, 3a4d691, 19381f2). Evidence table in `briefs/HAND1.md`. Condition: a phone-width (390 px) e2e for the section. All four deviations accepted.
+- **RET1 accepted** with two conditions (#129; CI green on bbcaa98 and 19381f2). Evidence table in `briefs/RET1.md`. Conditions:
+  - a resumed case releases its visits from the referral's requested start, not from the link;
+  - a pgTAP for the qualification skip.
+
+  All three deviations accepted.
+- **The PO did not run the tests**; results are taken from CI.
+- **AN1 condition still open.** HAND1 and RET1 both touched `pilot_kpis` before the 17:15 condition reached `recovery/main`, so it was not yet due. It is due in the next PR that touches `pilot_kpis`.
+- **Challenge:** an absent nurse's visits stay assigned to her, look covered and can silently not happen. Re-assigning them is still a phone chain run by a shift lead, dispatcher or coach. **ABS1 approved** (Next up 1, before ADM1, which waits for D-20). No reason is stored and no approval step is modelled, so no decision blocks it.
+- **Next agent (eng):** ABS1. Carry the open conditions in the next PR that touches their files: RET1, HAND1, C1, AN1.
+
+**ENGINEERING BRIEF: ABS1**
+- **Capability:** Absence without the phone chain. A nurse (or a colleague for her) records that she is not available. Her not-started visits in that period are released at once to her team under "Offen im Team". The deputy or primary nurse is marked "kennt die Klientin", and a colleague takes a visit with one tap (first wins). Whatever is not taken flows into the existing J3 flag, OPS1 and COVER1.
+- **Why:** patient safety and continuity. Today NAVORA has no notion of unavailability, so an absent nurse's visits look assigned and never reach the uncovered safety net. Re-assigning them needs a phone chain.
+- **Business outcome:** the team keeps its billable volume through absences, and no coordinator or dispatcher is needed for them.
+- **Care outcome:** no visit silently missed because its nurse is absent; a known nurse takes the visit first.
+- **Expected nurse outcome:** one record instead of phone calls when ill; colleagues see open visits and take them in one tap.
+- **Expected team outcome:** the team handles absences itself, without a shift lead or coach as first line.
+- **Expected patient outcome:** the visit happens, preferably with the deputy or primary nurse, informed by HAND1.
+- **Acceptance criteria:** as in `briefs/ABS1.md`:
+  - record without a reason, also for a colleague of the same team;
+  - no approval step;
+  - immediate release of not-started visits, logged;
+  - "Offen im Team" with the "kennt die Klientin" label;
+  - atomic one-tap take under the J3 qualification rules;
+  - overlap shown before the take;
+  - PLAN2 never assigns to an absent member;
+  - withdraw or shorten (untaken visits return, taken ones stay);
+  - absences visible to the own team only;
+  - three AN1 figures at team and organisation level;
+  - phone width;
+  - seven negative tests.
+- **Dependencies:** J3, J6, PLAN2, OPS1, COVER1 and AN1 (all accepted). No open decision.
+- **Priority:** Next up 1. It is the only approved, unblocked item.
+- **Implementation recommendation:**
+  - an `availability` row per member with a time range and an overlap exclusion;
+  - release in the same command, without a job;
+  - reuse the J3 uncovered list with a team filter for "Offen im Team";
+  - take as one guarded update (`responsible_member_id is null`) for first-wins;
+  - pgTAP for every negative case, plus an e2e at 390 px.
+
+---
+
 ## 2026-10-22 17:47 · eng (Engineering)
 - **RET1 delivered:** #129 merged (merge commit), CI green on the PR head bbcaa98 (app, db, e2e). Row set to `delivered`; the PO review can start.
 - **Two Engineering sessions were active in parallel** on HAND1/RET1 (fixture fix and status commits came from the other one). Coordination note left on #129. Rule for both: claim the issue before work; the claiming session merges; the other only reviews.

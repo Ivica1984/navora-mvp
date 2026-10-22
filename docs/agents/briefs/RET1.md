@@ -8,6 +8,35 @@ updated: 2026-10-22
 
 # RET1 — Returning client returns to her team
 
+## PO review — 2026-10-22 18:20: accepted, with two conditions
+
+Reviewed on merged evidence: #129 (merge 73eedba, whose own run was cancelled by the next push; CI green on the PR head bbcaa98 and on `recovery/main` 19381f2, which contains it: app, db, e2e), ADR-048, migration 0034, pgTAP 034 (32 assertions), unit `returning-rules.test.ts`. **The PO did not run the tests**; results are taken from CI.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Explicit link by an intake role, same organisation, paused or closed ≤ 180 days (configuration), reason, audited; no automatic identity matching | met | `link_returning_referral`, `linkable_cases` (intake role only), `return_settings` (180), `referral_links` append-only with audit trigger; no search by identity anywhere; pgTAP 034 blank reason refused, audit event present |
+| Paused: resumes with team and primary nurse; no new case, no new matching | met | resume branch; pgTAP 034 lifecycle `active`, same `assigned_team_id`, case count unchanged |
+| Paused: readiness re-run on changed funding and order facts | met | `apply_case_facts`, change-log diff with the link reason, `case_readiness` returned to intake; pgTAP 034 medical-order change logged |
+| Paused: non-blocking task "situation changed after <pause reason>" | met | task `review_after_pause` with the pause reason; `team_cases().review_after_pause_reason`; `complete_case_task` by the team; pgTAP 034 |
+| Closed: new case with reference; J2 first to the previous team, labelled, 1 h discharge / 2 h otherwise, inside the deadline | met | `previous_case_id`; `set_first_refusal` (working hours, capped at `response_due_at`); `team_offers.returning_client`; pgTAP 034 preferred team and window, only the previous team sees the offer during the window |
+| Decline or window end → all eligible teams | met | `first_refusal_open` ends on any decision of the previous team or at `first_refusal_until`; pgTAP 034 window passed → other team gets the usual offer |
+| Previous primary nurse proposed on acceptance; the team confirms | met | trigger `propose_previous_primary` (only if still a member); proposal cleared when the team sets a primary nurse; pgTAP 034 `proposed_primary_nurse_id` |
+| Window skipped if the previous team is inactive or lacks a required qualification | met for inactive; **qualification path untested** | `set_first_refusal` checks status, region and `team_has_registered_nurse`; pgTAP 034 covers the inactive team only |
+| Other teams see no identity and no previous team | met | `returning_client` false and no window for other teams; pgTAP 034 |
+| AN1: share served by the previous team; time to first visit for returning clients vs new | met | `returning_previous_team_share`, `returning_referral_to_first_visit_days` (organisation level, coordination roles), definition names the comparison figure; pgTAP 034 value 100, base 2 |
+| Negative: only intake roles link; no cross-organisation link; not past the period; a team never sees another team's earlier case | met | pgTAP 034: non-intake role rejected and sees no linkable cases; other organisation and too-old case `not_linkable`; "a team never sees another team's earlier case" |
+
+**Why accepted.** The returning client goes back to the team that knows her, and a paused case simply resumes: no re-intake, no re-matching, no phone call to the old team. The first-refusal window is a restricted J2 offer, not a second mechanism, and it never lengthens the time a hospital waits for an answer. The link is a human decision at intake, so no identity matching enters through the back door (D-9).
+
+**Conditions (testable, in engineering's next PR that touches migration logic for RET1 or C1 resume, before any real pilot data):**
+- [ ] **Resume at the return date, not at the link.** When a referral linked to a paused case carries a requested start, planned visits before that date stay suspended and visits from that date are released; without a requested start the current behaviour (release from today) stays. pgTAP: a link today with a requested start in 3 days leaves the visits of the next 2 days suspended. *Why:* a discharge referral often arrives days before the discharge; releasing the visits at once sends nurses to an empty home, which costs direct care time and raises false no-show P1 exceptions in OPS1.
+- [ ] pgTAP: a previous team without a registered nurse, for a case that requires one, gets no window and normal J2 matching starts at once.
+
+**Deviations, decided:**
+- The window is also skipped when the previous team is in another region: **accepted**. Region is part of J2 eligibility; a client who moved region is served by a local team, and the change of team is then a real one.
+- A resumed case keeps its existing matching history: **accepted**. Nothing is re-matched, so there is nothing to replace.
+- No e2e for linking yet: **accepted for now**. The brief asked for no e2e; the database rules carry the safety and are tested. An e2e for the intake link is expected with REF2.
+
 ## Problem
 **Challenge finding (PO, 2026-10-22).** Home-care clients go back and forth to hospital. In the traditional model, every discharge is a new intake. A coordinator takes the referral again, a dispatcher looks for capacity, and the client may get a different team and new nurses. The first visits after a hospital stay carry the highest risk, and they are exactly when the client meets strangers.
 
