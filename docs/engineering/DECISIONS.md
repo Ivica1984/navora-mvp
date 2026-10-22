@@ -403,3 +403,18 @@ Generated visits stay ordinary planned visits.
 - **AN1 can measure:** time from visit end to final report (`visit_events` completed → `visit_reports.signed_at` / `countersigned_at`), and the share signed within 10 minutes.
 **Migration plan:** migration 0026 (one read function). Rollback: drop it; the app falls back to the F6 buttons.
 **Open:** if the draft cannot be created (no recorded start), the F6 "create" step stays on the card with its message.
+
+### ADR-044 — Pilot impact dashboard, computed live (AN1)
+**Status:** PROPOSED · **Task:** AN1 (`docs/agents/briefs/AN1.md`).
+**Decision:**
+- **One read model:** `pilot_kpis(month)` returns aggregates per team and for the organisation. Each row has its base count and a "too few data" mark below 5. It is never per nurse and has no client identity or health data; a guard test checks that it has no person columns.
+- **Scope:** coordination roles see the organisation and every team. A team member sees only her own teams. The exception KPIs are coordination figures.
+- **Live, not nightly (answer to the brief's question):** every KPI is computed from the source tables for one month on request. Pilot volumes are small. A nightly aggregate becomes worthwhile only when one month takes too long to compute; measuring that is the trigger.
+- **Definitions** are shown on the page with their source; engineering defaults go to the PO as D-21:
+  - **direct care share** = care minutes ÷ (travel + care + pause minutes) of completed visits. Working time outside visits is not recorded, so the figure is an upper bound and is marked as an approximation.
+  - **first-offer acceptance** = requests of the month accepted by a team within the response deadline (organisation only).
+  - **report final** = from visit end to the signature, or the countersignature where required, of the first version.
+- **Not measurable yet** (shown with a note, no value):
+  - time to close a P1 exception: the time an exception first appears is not stored. A follow-up would record a `seen` event in `sync_exceptions`.
+  - COVER1: not built yet.
+**Migration plan:** migration 0027 (one function). Rollback: drop it.
