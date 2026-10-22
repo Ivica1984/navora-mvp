@@ -29,6 +29,8 @@ import { formatMinutesByCategory } from "@/features/team/rules";
 import type { FieldNote, FieldVisit } from "@/features/field/types";
 import type { FieldReport } from "@/features/field/report";
 import ReportSection from "./report-section";
+import QualitySection from "./quality-section";
+import type { FieldQuality, QualityEventType } from "@/features/quality/queries";
 
 type Props = {
   day: string;
@@ -38,6 +40,8 @@ type Props = {
   visits: FieldVisit[];
   notes: FieldNote[];
   reports: FieldReport[];
+  quality: FieldQuality[];
+  qualityTypes: QualityEventType[];
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -61,7 +65,7 @@ const STATUS_CLASS: Record<string, string> = {
   no_show: "bg-rose-100 text-rose-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes }: Props) {
   const summary = summarizeDay(visits);
 
   return (
@@ -114,6 +118,8 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
                   visit={visit}
                   notes={notes.filter((n) => n.visit_id === visit.visit_id)}
                   report={reports.find((r) => r.visit_id === visit.visit_id) ?? null}
+                  quality={quality.filter((q) => q.visit_id === visit.visit_id)}
+                  qualityTypes={qualityTypes}
                 />
               </li>
             ))}
@@ -137,7 +143,19 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function VisitCard({ visit, notes, report }: { visit: FieldVisit; notes: FieldNote[]; report: FieldReport | null }) {
+function VisitCard({
+  visit,
+  notes,
+  report,
+  quality,
+  qualityTypes,
+}: {
+  visit: FieldVisit;
+  notes: FieldNote[];
+  report: FieldReport | null;
+  quality: FieldQuality[];
+  qualityTypes: QualityEventType[];
+}) {
   const router = useRouter();
   const [pending, setPending] = useState<FieldAction | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -226,6 +244,8 @@ function VisitCard({ visit, notes, report }: { visit: FieldVisit; notes: FieldNo
       />
 
       <ReportSection visitId={visit.visit_id} visitStatus={visit.status} report={report} />
+
+      <QualitySection visitId={visit.visit_id} items={quality} types={qualityTypes} />
 
       {error && (
         <p role="alert" data-testid="command-error" className="mt-3 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800">

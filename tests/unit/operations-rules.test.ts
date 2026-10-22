@@ -119,6 +119,12 @@ function quality(overrides: Partial<QualityEventRow>): QualityEventRow {
     title: "Testereignis",
     description: null,
     status: "open",
+    // QG1 workflow columns (migration 0020)
+    occurred_at: null,
+    author_id: null,
+    owner_id: null,
+    closing_note: null,
+    closed_at: null,
     ...overrides,
   };
 }
