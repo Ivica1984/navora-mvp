@@ -431,3 +431,12 @@ Generated visits stay ordinary planned visits.
 - **AN1:** `cover_without_operations` (offered visits that a neighbouring team accepted) and `cover_median_hours`.
 **Migration plan:** migration 0028. Rollback: drop the new objects and the columns, restore `team_cases` and `pilot_kpis` from 0025/0027.
 **Open:** D-3 (cross-team context access); notifying nurses outside the app (push, SMS) is not built; the lead times are engineering defaults (D-21).
+
+#### ADR-045 amendment — COVER1 safety changes (PO review 2026-10-22 14:30)
+- **Cover is off until D-3:** `cover_settings.cover_enabled`, platform default false. While it is off, no visit is open for cover and `accept_cover` returns `disabled`.
+- **Acceptance no longer sets the responsible member.** The covering nurse cannot see or start the visit before D-3, so the case team keeps the `uncovered` flag. OPS1 replaces the plain uncovered-visit exception for that visit with `cover_without_access` ("Übernahme ohne Zugriff"): P2, escalating to P1 from 4 h before the start.
+- **Withdraw:** `withdraw_cover` (covering nurse, with a reason, up to the fallback lead) offers the visit again and writes the reason into the case team's plan change log.
+- **Events at the right time:** `private.sync_all_cover_events()` runs every 10 minutes through pg_cron, where available. The page-load sync stays as a backup. Events are ordered by a sequence, not by the transaction time.
+- **Regions:** two empty regions never match.
+- **Concurrency:** pgTAP `029_cover_concurrency` runs two real sessions through dblink. Exactly one acceptance wins.
+- **Not built yet:** performing the visit as covering nurse (context access, F1–F4, F6/F7). It waits for D-3. Until then cover stays off.

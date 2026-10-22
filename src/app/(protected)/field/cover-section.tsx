@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { acceptCover } from "@/features/cover/commands";
+import { acceptCover, withdrawCover } from "@/features/cover/commands";
 import type { CoverOffer, MyCover } from "@/features/cover/queries";
 import { offerMinutes } from "@/features/cover/rules";
 import { formatDayLabel, formatTime } from "@/features/field/rules";
@@ -48,7 +48,10 @@ export default function CoverSection({ offers, mine }: { offers: CoverOffer[]; m
               </li>
             ))}
           </ul>
-          <p className="text-xs text-violet-900/80">Name und Adresse siehst du erst nach der Übernahme. Wer zuerst übernimmt, hat den Einsatz.</p>
+          <p className="text-xs text-violet-900/80">
+            Wer zuerst übernimmt, hat den Einsatz. Name, Adresse und Pflegeplan zeigt NAVORA erst, wenn der Zugriff für Übernahmen geklärt ist (D-3);
+            bis dahin klärt das Team des Falls die Details mit dir.
+          </p>
         </>
       )}
       {error && <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">{error}</p>}
@@ -57,13 +60,30 @@ export default function CoverSection({ offers, mine }: { offers: CoverOffer[]; m
           <h2 className="font-bold text-violet-900">Von dir übernommen</h2>
           <ul className="grid gap-1" aria-label="Meine Übernahmen">
             {mine.map((m) => (
-              <li key={m.visit_id}>
-                {slot(m.visit_date, m.time_start, m.time_end)} · {m.area ?? "Ort offen"} · Team {m.team_name} · {offerMinutes(m.minutes_a, m.minutes_b, m.minutes_c)}
+              <li key={m.visit_id} className="grid gap-1">
+                <span>{slot(m.visit_date, m.time_start, m.time_end)} · {m.area ?? "Ort offen"} · Team {m.team_name} · {offerMinutes(m.minutes_a, m.minutes_b, m.minutes_c)}</span>
+                <form aria-label="Übernahme zurückgeben" className="flex flex-wrap gap-2" onSubmit={(e) => {
+                  e.preventDefault();
+                  const reason = String(new FormData(e.currentTarget).get("reason") ?? "").trim();
+                  if (reason.length < 3) return setError("Bitte einen Grund angeben.");
+                  void (async () => {
+                    setPending(m.visit_id);
+                    setError(null);
+                    const result = await withdrawCover({ visitId: m.visit_id, reason, idempotencyKey: crypto.randomUUID() });
+                    setPending(null);
+                    if (!result.ok) setError(result.error);
+                    router.refresh();
+                  })();
+                }}>
+                  <input name="reason" required minLength={3} maxLength={300} placeholder="Grund" aria-label="Grund für die Rückgabe"
+                    className="min-h-11 flex-1 rounded-lg border border-stone-300 bg-white px-2" />
+                  <button type="submit" disabled={pending !== null} className="min-h-11 rounded-lg border border-violet-800 px-3 font-semibold">Zurückgeben</button>
+                </form>
               </li>
             ))}
           </ul>
           <p className="text-xs text-violet-900/80">
-            Die Einsatzdetails für Teamfremde schaltet NAVORA frei, sobald der Entscheid zum Datenzugriff (D-3) gefallen ist. Bis dahin stimmt sich das Team des Falls mit dir ab.
+            Der Einsatz bleibt beim Team des Falls als «ohne Verantwortliche» markiert, bis du ihn in NAVORA durchführen kannst (D-3). Das Team stimmt sich mit dir ab.
           </p>
         </>
       )}

@@ -5,6 +5,8 @@ export const COVER_MESSAGES: Record<string, string> = {
   failed: "Die Übernahme konnte nicht gespeichert werden.",
   taken: "Schon vergeben: jemand anderes hat den Einsatz übernommen, oder das Angebot ist abgelaufen.",
   rejected: "Dieses Angebot ist nicht für dich (Team, Region oder Qualifikation).",
+  disabled: "Übernahmen im Netzwerk sind noch ausgeschaltet, bis der Zugriff auf den Einsatz geklärt ist (D-3).",
+  too_late: "Weniger als 4 Stunden vor dem Einsatz kannst du nicht mehr zurückgeben. Bitte das Team des Falls direkt kontaktieren.",
 };
 
 /** "A 30 · B 20 min" from the offer minutes; categories with 0 minutes are left out. */

@@ -1293,6 +1293,9 @@ isOneToOne: false
                            },
 "update_report_draft":
 { Args: { "p_idempotency_key": string,"p_report_id": string,"p_summary": string }; Returns: Json
+                           },
+"withdraw_cover":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: string
                            }
           }
           Enums: {

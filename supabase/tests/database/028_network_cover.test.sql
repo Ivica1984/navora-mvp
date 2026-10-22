@@ -18,6 +18,9 @@ insert into public.team_memberships (team_id, user_id, qualification) values
   ('00000000-0000-4000-a000-000000000102', '00000000-0000-4000-a000-000000000904', 'registered_nurse');
 update public.cases set primary_nurse_id = '00000000-0000-4000-a000-000000000902', medical_order_status = 'present'
   where id = '00000000-0000-4000-a000-000000000208';
+-- Cover is off by default until D-3 (migration 0029); this file tests the mechanism with it switched on for org A.
+insert into public.cover_settings (organization_id, offer_lead_hours, fallback_lead_hours, cover_enabled)
+values ('00000000-0000-4000-b000-000000000011', 24, 4, true);
 
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided, billable, status,
                                 planned_minutes_a, planned_minutes_b, planned_minutes_c)
@@ -61,11 +64,11 @@ select is(public.accept_cover('ac000000-0000-4000-8000-00000000000a', 'ac000000-
   'the first acceptance wins');
 reset role;
 
-select ok((select responsible_user_id = '00000000-0000-4000-a000-000000000901' and covered_by = responsible_user_id
+select ok((select responsible_user_id is null and covered_by = '00000000-0000-4000-a000-000000000901'
                   and cover_team_id = '00000000-0000-4000-a000-000000000102' and team_id = '00000000-0000-4000-a000-000000000101'
            from public.care_visits where id = 'ac000000-0000-4000-8000-00000000000a')
           and (select primary_nurse_id = '00000000-0000-4000-a000-000000000902' from public.cases where id = '00000000-0000-4000-a000-000000000208'),
-  'one visit is assigned; the case, its team and its primary nurse stay');
+  'one visit is covered (no responsible member until it can be performed); case, team and primary nurse stay');
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
@@ -73,8 +76,8 @@ select ok(not exists (select 1 from public.cover_offers() where visit_id::text l
   'the own team is not offered its own visits');
 select ok(exists (select 1 from public.team_cases() tc, jsonb_array_elements(tc.upcoming) u
                   where u ->> 'visit_id' = 'ac000000-0000-4000-8000-00000000000a' and u ->> 'covered_by_team' = 'Testteam Mitte'
-                    and u -> 'flags' ? 'not_primary'),
-  'the own team sees who covered; J6 counts it as not primary');
+                    and u -> 'flags' ? 'uncovered'),
+  'the own team sees who covered, and the visit stays flagged uncovered until it can be performed');
 reset role;
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
