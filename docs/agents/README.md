@@ -2,6 +2,8 @@
 
 **Official** coordination layer between the **Product Owner**, **Engineering** and any future agent, human or AI (approved by the owner on 2026-10-21). The repository is the one place both sides read and write, so nobody depends on a conversation the other side cannot see.
 
+> **Autonomous coordination:** the files below drive hand-off issues and scheduled PO and Engineering agents. See [`COORDINATION.md`](COORDINATION.md).
+>
 > **Every agent starts here.** Read the three official files, then the newest entries in `JOURNAL.md`. Write only the sections your role owns. Change these files through a pull request like any other change. CI validates them (`npm run agents:check`).
 
 ## The official files
@@ -62,5 +64,8 @@ Multiple values are comma-separated. Use `–` for none. PRs are written as `#23
 | Lead Engineer (Claude) | `eng` | 2026-10-21 |
 | Product Owner | `po` | 2026-10-21 |
 | Owner (Ivica1984) | `owner` | 2026-10-21 |
+| NAVORA PO agent (scheduled, hourly) | `po` | 2026-10-22 |
+| NAVORA Engineering agent (scheduled, hourly) | `eng` | 2026-10-22 |
+| agents-coordination watcher (GitHub Action) | – (writes issues only) | 2026-10-22 |
 
 Future agents add themselves here in their first PR.
