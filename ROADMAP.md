@@ -13,6 +13,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 ## Änderungen gegenüber 9. Oktober 2026
 
 - **DECIDED (Owner, PRIO-1):** Reihenfolge F0, J1, J2, J3.
+- **Stand 22.10. 14:50:** Analyse Pflegeheim-Transformation (`docs/product/NURSING_HOME_TRANSFORMATION.md`): selbstorganisierte Abteilungsteams statt Stationsleitung und LTCF-Hierarchie; Vorschläge NH0–NH9, nicht freigegeben; Entscheide D-24 (Owner), D-25 (legal).
 - **Stand 22.10. 14:30:** C1, PLAN2, F7, AN1, COVER1 umgesetzt und geprüft: alle **changes-requested** (Begründungen in den Briefs). COVER1 bleibt bis D-3 abgeschaltet; D-21 entschieden.
 - **Stand 22.10. 13:30:** Challenge-Modus: HAND1 und RET1 freigegeben, ORD1 Entwurf (D-22).
 - **Stand 22.10. 12:00:** abgenommen F0, J1, J2, J3, F1-F4, F6, QG1, OPS1, J6; J5 mit einer Änderung. Neu: C1, ADM1, AN1.
