@@ -791,6 +791,11 @@ isOneToOne: false
               "content": string,"edited": boolean,"for_handover": boolean,"id": string,"kind": string,"own": boolean,"recorded_at": string,"source_date": string,"visit_id": string
             }[]
                            },
+"field_quality":
+{ Args: { "p_date": string }; Returns: {
+              "at": string,"id": string,"kind": string,"label": string,"own": boolean,"severity": string,"status": string,"visit_id": string
+            }[]
+                           },
 "field_reports":
 { Args: { "p_date": string }; Returns: {
               "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"i_am_performer": boolean,"i_can_countersign": boolean,"i_signed": boolean,"report_id": string,"signed_at": string,"snapshot": Json,"status": string,"summary": string,"version": number,"visit_id": string
@@ -814,6 +819,9 @@ isOneToOne: false
               "access_notes": string,"care_needs": (string)[],"case_id": string,"client_name": string,"created_at": string,"expected_hours_per_week": number,"gp_named": boolean,"insurance_type": string,"insurer_name": string,"language_notes": string,"medical_order_status": string,"medical_order_valid_until": string,"missing": Json,"open_tasks": (string)[],"other_providers_active": boolean,"region": string,"requested_start": string,"residence_canton": string,"residence_municipality": string,"urgency": string
             }[]
                            },
+"lift_quality_hold":
+{ Args: { "p_hold_id": string,"p_idempotency_key": string,"p_reason": string }; Returns: string
+                           },
 "matching_escalations":
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"declines": Json,"eligible_teams": number,"matching_request_id": string,"reason": string,"referral_type": string,"region": string,"request_title": string,"response_due_at": string,"urgency": string
@@ -829,6 +837,9 @@ isOneToOne: false
                            },
 "plan_visit":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
+                           },
+"record_quality_event":
+{ Args: { "p_idempotency_key": string,"p_note": string,"p_occurred_at": string,"p_severity": string,"p_type_code": string,"p_visit_id": string }; Returns: Json
                            },
 "record_observation":
 { Args: { "p_content": string,"p_for_handover": boolean,"p_idempotency_key": string,"p_supersedes_id": string,"p_visit_id": string }; Returns: string
@@ -850,6 +861,12 @@ isOneToOne: false
                            },
 "set_member_qualification":
 { Args: { "p_idempotency_key": string,"p_qualification": string,"p_reason": string,"p_team_id": string,"p_user_id": string }; Returns: string
+                           },
+"set_quality_event_status":
+{ Args: { "p_event_id": string,"p_idempotency_key": string,"p_note": string,"p_status": string }; Returns: string
+                           },
+"set_quality_hold":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: string
                            },
 "set_response_deadline":
 { Args: { "p_amount": number,"p_idempotency_key": string,"p_organization_id": string,"p_referral_type": string,"p_unit": string }; Returns: string

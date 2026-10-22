@@ -15,6 +15,8 @@ import {
 } from "@/features/cases/types";
 import type { TeamRow } from "@/features/teams/types";
 import ExceptionCenter from "./exception-center";
+import HoldsPanel from "./holds-panel";
+import type { OpenHold } from "@/features/quality/queries";
 
 type LocalVisit = OperationsVisit;
 
@@ -31,6 +33,7 @@ type SelectedEntity =
 
 type OperationsClientProps = {
   dashboard: OperationsDashboard;
+  holds: OpenHold[];
 };
 
 function getStatusLabel(status: string | null) {
@@ -119,12 +122,11 @@ function getSlaStatus(careCase: CaseSummaryRow) {
   return "ok";
 }
 
-export default function OperationsClient({ dashboard }: OperationsClientProps) {
+export default function OperationsClient({ dashboard, holds }: OperationsClientProps) {
   const {
     cases,
     teams,
     visits,
-    qualityEvents,
     attentionItems,
   } = dashboard;
 
@@ -208,10 +210,13 @@ export default function OperationsClient({ dashboard }: OperationsClientProps) {
           openSlots={openSlots}
           unassignedCases={unassignedCases.length}
           slaViolations={slaViolatedCases.length}
-          qualityRisks={qualityEvents.filter((event) => event.status === "open").length}
+          /* QG1: Operations sees serious events through the OPS1 exceptions, not the event table. */
+          qualityRisks={dashboard.exceptions.filter((e) => e.exception_type === "quality_serious_open").length}
         />
 
         <ExceptionCenter exceptions={dashboard.exceptions} />
+
+        <HoldsPanel holds={holds} />
 
         <AttentionCenter
           items={attentionItems}

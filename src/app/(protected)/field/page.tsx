@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import { getFieldNotes, getFieldReports, getFieldVisits } from "@/features/field/queries";
 import { parseDayParam, shiftDay, todayInZurich } from "@/features/field/rules";
+import { getFieldQuality, getQualityEventTypes } from "@/features/quality/queries";
 import FieldClient from "./field-client";
 
 // F1: the nurse's day. Mobile-first; visits of her own teams only (public.field_visits).
@@ -11,7 +12,13 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
   const today = todayInZurich();
   const { datum } = await searchParams;
   const day = parseDayParam(datum, today);
-  const [visits, notes, reports] = await Promise.all([getFieldVisits(day), getFieldNotes(day), getFieldReports(day)]);
+  const [visits, notes, reports, quality, qualityTypes] = await Promise.all([
+    getFieldVisits(day),
+    getFieldNotes(day),
+    getFieldReports(day),
+    getFieldQuality(day),
+    getQualityEventTypes(),
+  ]);
 
   return (
     <FieldClient
@@ -22,6 +29,8 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
       visits={visits}
       notes={notes}
       reports={reports}
+      quality={quality}
+      qualityTypes={qualityTypes}
     />
   );
 }

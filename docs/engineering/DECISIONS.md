@@ -283,3 +283,18 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 **Deviation for the PO:** a serious quality event shows immediately, as P2, and becomes P1 after 4 h (Q9). Hiding it for 4 hours would be less safe.
 **Migration plan:** migration 0019 (new tables and functions only). Rollback: drop them and restore the TypeScript rules from #36.
 **Open:** an admin screen for rule configuration (today by migration); QG1 replaces the legacy quality source.
+
+### ADR-036 — Quality events and quality holds: mechanism now, clinical list after D-16 (QG1)
+**Status:** PROPOSED · **Task:** QG1 (`docs/agents/briefs/QG1.md`).
+**Why:** ARCHITECTURE puts a Quality Gate before any billing fact. The brief needs a clinically approved event list (D-16), but everything around it is mechanism and must not wait.
+**Decision:**
+- **Event types:** `quality_event_types` holds code, label, `sets_hold`, `serious_default` and the approval reference. It **ships empty**, so no clinical content is invented. Until D-16 fills it by migration, recording is refused (`type_not_approved`) and `/field` explains why.
+- **Severity:** the existing four values (low, medium, high, critical). Serious = high or critical, the same rule as OPS1.
+- **Recording:** `record_quality_event` stores type, severity, time, case, visit and author. It is idempotent and audited, and it sets a hold when the type has `sets_hold`.
+- **Visibility:** the assigned team; serious events also coach and admin; other teams never. Operations reads no event content and sees serious events as OPS1 exceptions. The brief's "quality specialist" role does not exist yet (D-3).
+- **Status:** open → in_review (the caller becomes owner) → closed (closing note required). Transitions go to the append-only `quality_event_log`.
+- **Holds:** `quality_holds` allows one open hold per visit. A hold is set by a flagged type or manually by the team, coach or admin, with a reason. It is lifted only by coach or admin with a reason; this is provisional and stricter until D-16 names the role. Holds are immutable apart from the single lift, never deleted, and audited.
+- **Billing rule:** `private.visit_has_open_hold(visit)` is the single check J5 must use: a held visit never counts.
+**Side effect:** coordination roles other than coach and admin no longer read minor quality events through the table. The Operations quality KPI now counts serious-event exceptions.
+**Migration plan:** migration 0020; new tables and functions, `NOT VALID` checks on the legacy status and severity values, and a tightened read policy. Rollback: drop the new objects and restore the 0015 policy.
+**Open:** D-16 (types, hold rules, who lifts); D-3 (quality specialist role).
