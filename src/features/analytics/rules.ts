@@ -23,6 +23,7 @@ export const KPI_ORDER = [
   "open_p1_exceptions",
   "p1_median_close_hours",
   "cover_without_operations",
+  "cover_median_hours",
 ] as const;
 
 export const KPI: Record<string, KpiDefinition> = {
@@ -88,8 +89,13 @@ export const KPI: Record<string, KpiDefinition> = {
   },
   cover_without_operations: {
     label: "Unbesetzte Einsätze ohne Operations gelöst", unit: "%",
-    definition: "Anteil der unbesetzten Einsätze, die Pflegende aus Nachbarteams übernommen haben.",
-    source: "COVER1",
+    definition: "Anteil der im Netzwerk angebotenen Einsätze, die Pflegende aus Nachbarteams übernommen haben.",
+    source: "Übernahmen COVER1",
+  },
+  cover_median_hours: {
+    label: "Zeit bis zur Übernahme", unit: "Std.",
+    definition: "Median der Stunden vom ersten Angebot bis zur Übernahme durch ein Nachbarteam.",
+    source: "Übernahmen COVER1",
   },
 };
 
