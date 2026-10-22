@@ -59,9 +59,13 @@ test("a visit suspended by a pause is marked on /field and has no depart button,
   await expect(visit.getByTestId("visit-status")).toHaveText(/^pausiert · Spital/);
   await expect(visit.getByRole("button", { name: "Losfahren" })).toHaveCount(0);
 
-  // Resume restores the plan.
+  // Resume restores the plan. C1 flake (failed on bdb0d1d): navigating away right after the click could abort
+  // the resume command in flight; wait until the team view shows the case as running again.
   await page.goto("/team");
-  await page.getByRole("article", { name: /Fall Testfall 08/ }).getByTestId("case-lifecycle").getByRole("button", { name: "Fortsetzen" }).click();
+  const resumed = page.getByRole("article", { name: /Fall Testfall 08/ }).getByTestId("case-lifecycle");
+  await resumed.getByRole("button", { name: "Fortsetzen" }).click();
+  await expect(resumed.getByTestId("case-paused")).toHaveCount(0);
+  await expect(resumed.getByRole("button", { name: "Pausieren" })).toBeVisible();
   await page.goto(`/field?datum=${day}`);
   await expect(page.getByRole("article", { name: /16:00 – 16:30, Testfall 08/ }).getByRole("button", { name: "Losfahren" })).toBeVisible();
 });

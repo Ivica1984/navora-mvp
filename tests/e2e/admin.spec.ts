@@ -66,6 +66,30 @@ test("exception thresholds change only within the safe range and show who change
   await expect(rule.getByTestId("rule-changed")).toHaveText("Standard");
 });
 
+test("removing a member from a team says how many visits are now open in the team (ADM1 changes)", async ({ page }) => {
+  // The coach joins Testteam Mitte and leaves it again, so the seed stays as other specs expect it.
+  // That the released visits are unassigned, flagged and in OPS1 is asserted in pgTAP 036.
+  await signIn(page, ADMIN, /\/operations$/);
+  await page.goto("/admin");
+  const members = page.getByRole("region", { name: "Mitglieder" });
+  const coach = members.getByRole("listitem", { name: /^Mitglied (Carla Coach|coach\.test@navora\.test)$/ });
+
+  await coach.getByRole("button", { name: "Zu Team hinzufügen" }).click();
+  const add = coach.getByRole("form", { name: "Zu Team hinzufügen" });
+  await add.locator("select[name=team]").selectOption({ label: "Testteam Mitte" });
+  await add.locator("select[name=qualification]").selectOption("care_assistant");
+  await add.getByRole("button", { name: "Hinzufügen" }).click();
+  const mitte = coach.getByRole("list", { name: "Teams" }).getByRole("listitem").filter({ hasText: "Testteam Mitte" });
+  await expect(mitte).toBeVisible();
+
+  await mitte.getByRole("button", { name: "Aus Team entfernen" }).click();
+  const remove = mitte.getByRole("form", { name: "Aus Team entfernen" });
+  await remove.getByLabel("Begründung").fill("E2E Teamwechsel");
+  await remove.getByRole("button", { name: "Entfernen" }).click();
+  await expect(coach.getByTestId("released-visits")).toHaveText(/^Entfernt\. (Keine geplanten Einsätze betroffen|\d+ Einsätze? (ist|sind) jetzt offen im Team)\.$/);
+  await expect(coach.getByRole("list", { name: "Teams" }).getByRole("listitem").filter({ hasText: "Testteam Mitte" })).toHaveCount(0);
+});
+
 test("a nurse cannot use the administration (ADM1)", async ({ page }) => {
   await signIn(page, NURSE, /\/field$/);
   await page.goto("/admin");

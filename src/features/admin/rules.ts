@@ -40,6 +40,8 @@ export const ADMIN_MESSAGES: Record<string, string> = {
   already_invited: "Für diese E-Mail gibt es schon eine offene Einladung.",
   last_admin: "Die letzte Administratorin bzw. der letzte Administrator kann die Rolle nicht abgeben.",
   has_cases: "Es gibt noch offene Fälle (oder Bezugspflege). Zuerst übergeben.",
+  // CGR-10 (migration 0036): never removed while on the way to, in, or pausing a visit of this team.
+  has_visit_in_progress: "Sie ist gerade unterwegs zu einem Einsatz oder mitten in einem Einsatz dieses Teams. Erst abschliessen lassen, dann entfernen.",
   name_taken: "Ein Team mit diesem Namen gibt es bereits.",
   wrong_state: "Nicht mehr im passenden Zustand.",
   out_of_range: "Ausserhalb des sicheren Bereichs.",
@@ -84,4 +86,24 @@ export function changedLabel(isDefault: boolean, by: string | null, at: string |
 
 export function isValidEmail(value: string): boolean {
   return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value.trim()) && value.trim().length <= 254;
+}
+
+/**
+ * ADM1 changes: result of `remove_team_member` (migration 0036), jsonb {result, released}.
+ * Returns the command code and the number of visits released to the team (0 when unknown).
+ */
+export function readRemovalResult(data: unknown): { code: string; released: number } {
+  if (data && typeof data === "object" && "result" in data) {
+    const d = data as { result?: unknown; released?: unknown };
+    const released = typeof d.released === "number" && Number.isInteger(d.released) && d.released > 0 ? d.released : 0;
+    return { code: String(d.result), released };
+  }
+  return { code: "failed", released: 0 };
+}
+
+/** "3 Einsätze sind jetzt offen im Team." — shown after a removal released her future visits. */
+export function releasedNotice(released: number): string {
+  if (released <= 0) return "Entfernt. Keine geplanten Einsätze betroffen.";
+  if (released === 1) return "Entfernt. 1 Einsatz ist jetzt offen im Team.";
+  return `Entfernt. ${released} Einsätze sind jetzt offen im Team.`;
 }
