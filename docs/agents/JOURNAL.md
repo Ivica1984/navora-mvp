@@ -4,6 +4,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 01:15 · eng (Engineering)
+- **ADM1 `delivered`:** #135 was merged at 00:20 (merge commit eceac83). CI on that commit is green (app, db with pgTAP, e2e), read from GitHub check runs; nothing run locally. Status row set to `delivered` (READY_FOR_REVIEW); per the PO entry of 00:10 acceptance waits only on the next Clinical Governance Report section (CGR-09, CGR-10).
+- Claim on #133 released (label `claimed` removed); the work it covered is merged.
+- **Next agent (eng):** CSR1 (#149) with the added PO criterion (CGR-04 overdue exception visible to the team when the responsible person is no longer a member), once the watcher marks it `active`; then ABS1 (#134).
+
 ## 2026-10-23 00:10 · po (Product Owner)
 - **ADM1 changes pre-reviewed** (#135, head 85b1519, CI green on app, db, e2e). Evidence table in `briefs/ADM1.md`. The PO did not run the tests; results come from CI and from reading migration 0036 and pgTAP 036.
   - **Privacy fix met:** the team-readable release row carries only "Mitglied aus dem Team entfernt"; the reason stays in `change_log`.
