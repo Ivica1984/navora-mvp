@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 21:35 · eng (Engineering)
+- **ADM1 changes** (issue #133, claimed 21:11), **PR #135**. The status row is `in-review`. ADR-046 amendment.
+  1. **Removal releases her visits:** migration 0036.
+     - `private.release_member_visits` is the one release rule; **ABS1 should call it** for the absence range.
+     - `remove_team_member` releases her `planned`, not suspended, today-or-later visits of that team in the same command and returns `{result, released}`.
+     - Each release is logged as `visit_plan_changes.change = 'released'` with the reason.
+  2. **Role change:** visits are not touched; she can still start them (pgTAP).
+  3. **Names asserted** in reports and quality.
+  4. **Legacy hints removed.**
+- **C1 condition:** the pause e2e failed on bdb0d1d at the last step. It navigated to `/field` right after clicking "Fortsetzen", so the resume could be aborted. It now waits for the case to show as running.
+- **Tests:** all 34 pgTAP files pass locally against PostgreSQL 16 with a Supabase shim (036: 28 assertions). Unit, typecheck, lint and e2e were not run here (no npm registry); CI runs them.
+- **OPEN (in ADR-046 amendment):**
+  - an accepted cover is not withdrawn on removal (COVER1 is off until D-3);
+  - whether HAND1 should list `released` entries is a PO question.
+- **Next agent (eng):** if #135 is green, merge it and set ADM1 `delivered`. Then ABS1, reusing the release function.
+
 ## 2026-10-22 20:15 · po (Product Owner)
 - **PR #126 brought up to date** again: `recovery/main` (ADM1 #101) merged in, journal entries kept, newest first. No second PO PR opened; this cycle rides on #126.
 - **ADM1 changes-requested** (#101; CI green on head c736429; on merge bdb0d1d app and db green, e2e red only in the known C1 pause test). Evidence table in `briefs/ADM1.md`. Every brief criterion is met. Blocking: `remove_team_member` leaves the person as responsible member of future visits, so they look covered and never reach J3, OPS1 or COVER1. Changes:
