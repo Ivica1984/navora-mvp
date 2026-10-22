@@ -1,6 +1,6 @@
 # Open decisions
 
-**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 14:50 (po)
+**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 15:05 (po)
 Background, options and consequences for the `D-*` items: `docs/engineering/DECISIONS_NEEDED.md`.
 
 ## Open
@@ -11,7 +11,7 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | D-11 | owner | regulatory | Pilot canton and municipalities | one canton, a few municipalities; it decides residual-financing rules, operating licence and quality obligations | – | 2026-10-21 (po) |
 | D-12 | owner | regulatory | Legal entity that holds the cantonal operating licence and the OKP admission (insurer billing) | decide before the pilot; without admission no visit is billable | – | 2026-10-21 (po) |
 | D-13 | owner | product | Assessment instrument: interRAI HC (home care) instead of interRAI LTCF (nursing homes)? | interRAI HC for the home-care product; LTCF only if a nursing-home offer is decided; then clarify the licence | – | 2026-10-21 (po) |
-| D-14 | owner | financial | Platform fee and team surplus model | **PO 2026-10-22:** nurse income is value 3 of 10, so the model should pay nurses more for more direct care, not more hours. Proposal to evaluate with AN1 pilot data: a fixed, transparent platform fee per billable hour; the team keeps the rest; part of the surplus is distributed as income, not only reinvested (as Buurtzorg does). Decide before J7 | J7 | 2026-10-21 (po) |
+| D-14 | owner | financial | Platform fee and team surplus model | **PO 2026-10-22:** nurse income is value 3 of 10, so the model should pay nurses more for more direct care, not more hours. Proposal to evaluate with AN1 pilot data: a fixed, transparent platform fee per billable hour; the team keeps the rest; part of the surplus is distributed as income, not only reinvested (as Buurtzorg does). Decide before J7. **PO 2026-10-22 15:05 (nursing homes):** in nursing homes the care-effort group (PAG) sets the tariff level, so team income must follow direct care, continuity and quality, never the classification level. Otherwise teams gain from classifying residents upward | J7 | 2026-10-21 (po) |
 | D-15 | clinical | clinical | Approve the J1 readiness checklist, the J3 care-plan fields and the mapping of services to KLV categories A/B/C | as in `briefs/J1.md` and `briefs/J3.md` | J1, J3 | 2026-10-21 (po) |
 | D-16 | clinical | clinical | Quality event types, severities, which ones set a quality hold, and who may lift it (QG1) | short list: fall, wound, medication, acute decline, social situation; serious → coach and quality specialist | – | 2026-10-21 (po) |
 | D-1 | owner | legal | Live database: are the 6 cases / 3 care notes real people? Rotate the anon key; enable leaked-password protection | confirm synthetic or start the legal assessment; rotate the key now | – | 2026-10-21 (eng) |

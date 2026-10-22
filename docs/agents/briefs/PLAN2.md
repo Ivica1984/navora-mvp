@@ -8,6 +8,11 @@ updated: 2026-10-22
 
 # PLAN2 — Self-planning: visits follow the care plan
 
+## PO addendum — 2026-10-22 14:45 (adds to the 14:30 review, same verdict)
+
+- [ ] **The case says why B work stops.** When B items have a rhythm and the order ends inside the four weeks, the case card shows "B-Leistungen geplant bis <Datum>: Verordnung erneuern" (`team_plan_status.b_until` is computed but not rendered in `auto-plan.tsx`). Unit or e2e test asserts the text.
+- [ ] **Hosted daily job confirmed.** The status row states whether `cron.job` contains `navora-plan2-daily` on the hosted project, with the date checked. If it does not, there is an owner task to enable pg_cron. Page-load refresh alone does not keep the four-week window for teams that do not open `/team`.
+
 ## PO review — 2026-10-22 14:30: changes-requested
 
 Reviewed on merged evidence: #92 (merge e43a8b5, CI green on the merge commit), migration 0025, ADR-042, pgTAP 025 (34 assertions), e2e `tests/e2e/planning.spec.ts`. **The PO did not run the tests**; results come from reading the migration and the tests.
