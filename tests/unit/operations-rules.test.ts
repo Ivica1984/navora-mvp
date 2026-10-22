@@ -92,6 +92,9 @@ function careCase(overrides: Partial<CaseRow>): CaseRow {
     // PLAN2 (migration 0025)
     auto_planning: true,
     plan_generated_on: null,
+    // RET1 (migration 0034)
+    previous_case_id: null,
+    proposed_primary_nurse_id: null,
     ...overrides,
   };
 }

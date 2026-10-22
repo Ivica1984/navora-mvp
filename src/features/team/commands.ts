@@ -253,3 +253,26 @@ export async function setPrimaryNurse(input: unknown): Promise<CommandResult> {
   }
   return { ok: false, error: PRIMARY_MESSAGES[String(data)] ?? PRIMARY_MESSAGES.failed };
 }
+
+// RET1: the team closes the non-blocking review task after a resumed pause (public.complete_case_task, migration 0034).
+const taskSchema = z.object({ caseId: z.uuid(), kind: z.literal("review_after_pause"), idempotencyKey: z.uuid() });
+
+export async function completeCaseTask(input: unknown): Promise<CommandResult> {
+  const parsed = taskSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Ungültige Aufgabe." };
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("complete_case_task", {
+    p_case_id: parsed.data.caseId,
+    p_kind: parsed.data.kind,
+    p_idempotency_key: parsed.data.idempotencyKey,
+  });
+  if (error) {
+    logEvent("warn", "command.failed", { op: "complete_case_task", ...errorFields(error) });
+    return { ok: false, error: "Konnte nicht gespeichert werden." };
+  }
+  if (data === "ok" || data === "duplicate" || data === "unchanged") {
+    revalidatePath("/team");
+    return { ok: true };
+  }
+  return { ok: false, error: "Nicht gespeichert: Du gehörst nicht zum zuständigen Team." };
+}

@@ -514,3 +514,34 @@ Generated visits stay ordinary planned visits.
 - **UI:** `/field` shows the section collapsible, open before the start and closed afterwards. It replaces the former 14-day "Übergabe aus dem Team" box. `field_notes` is unchanged.
 **Rollback:** drop the trigger `visit_events_handover_shown`, the functions and the two tables, then restore the previous `audit_care_plan_items` trigger and the 0032 `pilot_kpis`. No existing data is changed.
 **Open:** D-3 (cover context); the PO may change N or the plan-generator exclusion; member names come with ADM1.
+
+### ADR-048 — Returning client returns to her team (RET1)
+**Status:** PROPOSED · **Task:** RET1 (brief `docs/agents/briefs/RET1.md`, PO approved 2026-10-22). Migration 0034, pgTAP 034.
+**Decision:**
+- **Explicit link at intake** (`link_returning_referral`). An intake role links a referral to a case of the same organisation that is paused, or closed within the period in `return_settings` (pilot default 180 days).
+  - The link needs a reason. It is recorded in `referral_links` (append-only, audited).
+  - Nobody searches or matches identities: `linkable_cases` lists only the organisation's paused and recently closed cases, for intake roles (D-9).
+- **Linked to a paused case:**
+  - the case resumes (lifecycle event `resume` with the link reason) with its team and primary nurse;
+  - future suspended visits are reactivated, and no new case or matching is created;
+  - funding and order facts from the referral are applied. Changes to insurer, insurance type or order are logged with the link reason, and the readiness check runs again;
+  - the referral is converted into that case;
+  - the team gets the non-blocking task `review_after_pause` with the pause reason. The team closes it with `complete_case_task`.
+- **Linked to a recently closed case:**
+  - a new case (one case per referral) with `previous_case_id`;
+  - when its J2 request opens, `set_first_refusal` reserves it for the previous team for 1 working hour (hospital discharge) or 2 working hours (otherwise), on the Q10 calendar;
+  - the window is capped at the response deadline, which is never extended.
+- **One eligibility predicate:** the window is a restriction inside the existing J2 rule (`request_offered_to_team`, mirrored in `team_offers`). Other teams neither see nor can accept the request while the window is open and the previous team has not decided. After a decline or the end of the window, J2 applies unchanged.
+  - The previous team sees `returning_client` and its window end.
+  - Other teams see neither, and no reference to an earlier case.
+- **Window skipped:** when the previous team is not eligible under the J2/J3 rules (inactive, other region, or no registered nurse when one is required), normal matching starts at once. Region is included because it is part of J2 eligibility.
+- **Primary nurse:** when the previous team accepts, the last primary nurse of the previous case is proposed as `proposed_primary_nurse_id`, but only if she is still in the team. She is taken from the audit trail, because closing a case clears the primary nurse. The proposal is never assigned: the team confirms it with `set_primary_nurse`, which clears the proposal.
+- **Visibility:** cases keep the team-scoped read (ADR-031), so a team never sees another team's earlier case. `previous_case_id` is not exposed to teams.
+- **AN1** (coordination roles, organisation level):
+  - `returning_previous_team_share`: resumed cases plus new cases already assigned, with the share kept by the previous team;
+  - `returning_referral_to_first_visit_days`: median from the link to the first started visit, shown next to the existing all-cases figure.
+**Rollback:** drop the triggers and functions added here, `referral_links` and `return_settings`, and the added columns. Then restore the 0017 `open_matching_if_ready`, `request_offered_to_team` and `team_offers`, the earlier `team_cases` and the 0033 `pilot_kpis`, and the previous `case_tasks` check.
+**Open:**
+- D-9 / REF2 (automatic recognition stays out of scope);
+- D-15 (if `clinical` makes a care-plan review after a hospital stay mandatory, it replaces the non-blocking task);
+- the PO may change the period or the windows in `return_settings`.

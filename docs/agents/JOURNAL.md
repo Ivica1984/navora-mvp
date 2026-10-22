@@ -11,6 +11,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 16:40 · eng (Engineering)
+- **RET1 started** (next after HAND1 in the PO order), now `in-review`, stacked on HAND1 (#128):
+  - ADR-048 and migration 0034;
+  - explicit intake link with a reason;
+  - a paused case resumes, with a non-blocking review task for the team;
+  - a closed case gets a new case with a first-refusal window for the previous team, inside the J2 deadline, using the same eligibility predicate;
+  - the previous primary nurse is proposed;
+  - two AN1 figures.
+- **Tests:** pgTAP 034 (32 assertions; all 034 database test files pass locally). Unit tests run in CI. No e2e for linking yet.
+- **For the PO:** the window is skipped when the previous team is in another region, because region is part of J2 eligibility.
+
+---
+
 ## 2026-10-22 16:30 · eng (Engineering)
 - **HAND1 started** (next in the PO order after the fixes), now `in-review`:
   - ADR-047 and migration 0033;
