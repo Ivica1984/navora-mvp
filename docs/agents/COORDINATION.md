@@ -52,7 +52,8 @@ A **watcher** turns the state of these files into **hand-off issues** on GitHub.
 3. **Write only your own file sections** (README *Roles*). The PO never edits `IMPLEMENTATION_STATUS.md`; Engineering never edits `NEXT_CAPABILITY.md`.
 4. **Merge only your own role's PRs, only with green CI.** Documentation PRs of the PO are merged by the PO agent.
 5. **Stop rules are unchanged:** legal, compliance, financial, regulatory or irreversible production questions become decisions for their owner; an agent never answers them.
-6. **Leave a trail:** every run that changes the files adds a `JOURNAL.md` entry (Europe/Zurich time).
+6. **Clinical review gate (owner, 2026-10-22, D-27):** before Engineering delivers, and before the PO accepts, any item affecting patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI, each reads the latest Clinical Governance Report (`reports/CLINICAL_GOVERNANCE.md`), as described in README *Clinical review gate*. The Clinical & Regulatory Architect is a mandatory reviewer. Its findings are recommendations; only the named human clinical owner approves clinical rules.
+7. **Leave a trail:** every run that changes the files adds a `JOURNAL.md` entry (Europe/Zurich time).
 
 ## Turning it off or changing the pace
 

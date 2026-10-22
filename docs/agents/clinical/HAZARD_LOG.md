@@ -1,0 +1,33 @@
+# Hazard Log
+
+**Maintained by:** Clinical & Regulatory Architect (review role) · **Last change:** 2026-10-22 22:30 · **Baseline:** `recovery/main` @ `b546299`
+
+A hazard is a way the platform could contribute to harm to a client (or to a nurse, or to a client's data). Each hazard lists its causes in the code, the controls that exist today, the controls still required, and who must supply them. Findings (`CGR-*`) are in [`../reports/CLINICAL_GOVERNANCE.md`](../reports/CLINICAL_GOVERNANCE.md); risk IDs (`PS-*`, `C-*`, `BL-*`, `R-*`) in [`SAFETY_RISK_REGISTER.md`](SAFETY_RISK_REGISTER.md).
+
+**Severity:**
+- **S1:** could harm a client or invalidate billing; blocks a pilot with real clients.
+- **S2:** must be controlled before go-live.
+- **S3:** improve during the pilot.
+
+**Likelihood:** not assessed. There is no pilot data, and this log does not guess it.
+
+**Status:** `open` · `mitigated-in-code` (control merged, not clinically approved) · `controlled` (control merged and approved) · `closed`.
+
+## Hazards
+
+| ID | Hazard | Causes in the platform | Possible harm | Controls today | Required controls | Sev. | Owner | Status |
+|---|---|---|---|---|---|---|---|---|
+| H-01 | Client does not receive a planned visit and nobody notices | no missed or overdue visit alert (CGR-04); the uncovered alert looks only ahead of `now()` (PS-2); visits stay assigned to an ineligible person after removal, downgrade, role change or absence (CGR-09, CGR-11, PS-3); no-show depends on the nurse setting off (PS-4) | missed medication, hygiene, nutrition or wound care; an unnoticed fall or deterioration | OPS1 "uncovered" 24 h ahead; no-show P1 once recorded | alert for a planned visit not started by start + X (X set by `clinical`), persisting until resolved; one eligibility release rule on every change; on-site no-show protocol (D-19) | S1 | eng + clinical | open |
+| H-02 | Urgent clinical finding is not escalated | quality event types ship empty (CR-016); observations are free text without a flag; no escalation route | delayed treatment of deterioration, a fall, a medication problem | none | event catalogue and severities (D-16); escalation flag on an observation with recipients and time limits | S1 | clinical | open |
+| H-03 | Nurse is unaware of an allergy, fall risk, infection precaution, access arrangement or emergency contact | safety alerts not built (D-17); emergency-contact read revoked (0015:68) | allergic reaction, fall, infection transmission, delayed help | none | mandatory safety-alert set at intake, shown on the `/field` card before the first visit | S1 | clinical (D-17) + eng | open |
+| H-04 | Care is given by a person without the required qualification | category chosen freely (CR-001); registered-nurse check only at first start (CGR-12); qualification is a self-declared label (CGR-16); care-assistant scope for category A undefined (CR-010); a downgrade leaves visits assigned (CGR-11) | unsafe care, invalid billing | registered nurse required to start B and needs-assessment visits; countersignature of care-assistant reports | category and task matrix (D-15); check at every transition; registration evidence; release on downgrade | S1 | clinical + owner + eng | open |
+| H-05 | The clinical record is inaccurate or altered after the fact | any team member can supersede a colleague's observation (CGR-01); the signature covers a snapshot rebuilt at signing (CGR-02); times and observations change after a final report (CGR-03) | wrong handover, wrong clinical decisions, a record that is not legally defensible | append-only events; immutable signed reports; corrections need a reason | authorship check; sign exactly what was shown; lock or amend after final | S1 | eng | open |
+| H-06 | Care continues as normal despite an unresolved safety concern | a hold blocks billing only, never the visit, case, planning or cover (CGR-13) | repetition of the harmful situation | hold visible to the team; billing blocked | hold semantics defined by `clinical` (D-16), then enforced | S1 | clinical + eng | open |
+| H-07 | A serious event loses its escalation | the exception disappears on `in_review` and its clock starts at `created_at` (CGR-05); a closed P1 exception never returns while its cause persists (CGR-06) | serious event left unresolved | P2 → P1 after 4 h while `open` | exception until closed; P1 re-opens while the cause persists | S1 | eng | open |
+| H-08 | Care resumes after a hospital stay, a pause or a reopen without a reassessment | resume and reopen keep the old needs assessment (C-8); RET1 review task is non-blocking | care plan no longer matches the client's needs | non-blocking review task (RET1 only) | reassessment triggers and intervals (`clinical`), instrument (D-13) | S1 | clinical | open |
+| H-09 | A covering nurse arrives without the client's context | cover offer carries no identity, goals, alerts or handover (PS-12) | wrong or unsafe care by an unfamiliar nurse | cover switched off by default | visit-bounded context read (D-3) **and** safety alerts (D-17) before cover is enabled | S1 if enabled | owner + clinical | mitigated-in-code (off) |
+| H-10 | A nurse is overloaded or double-booked | no capacity or overlap check (PS-10); legacy overload hint removed by #135 | rushed or skipped care, fatigue errors | none | overlap check on assignment; capacity signal (J4) | S2 | eng + PO | open |
+| H-11 | Medication error | no medication list, administration record or reconciliation (UNKNOWN whether teams administer medication) | wrong drug, dose or time | none | decide whether medication administration is in scope; if so, a clinically specified medication module | S1 if in scope | clinical + owner | open |
+| H-12 | A report stays unsigned when the performer is unavailable | only the performer may draft or sign (PS-11) | gaps in documentation and handover | P3 exception after 24 h | delegated takeover with a reason | S2 | clinical + eng | open |
+| H-13 | Health data is exposed | earlier anonymous access on live (R-3); public repository; no DPIA or processor contracts (R-4) | breach of client confidentiality | containment C-1 (anonymous access revoked) | D-1 answer and legal assessment; key rotation; DPIA; contracts; private repository | S1 | owner + legal | open |
+| H-14 | Billing does not match the care that was documented and signed | billing reads live, correctable times (BL-3); orders without an end date valid forever (BL-4); payer type ignored (BL-5) | invalid claims, repayment, loss of admission | immutable facts; estimate label; no invoicing | bill from the signed snapshot; validity and payer checks; legal answers D-18, D-22 | S1 before invoicing | eng + legal | open |

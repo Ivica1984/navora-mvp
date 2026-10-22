@@ -13,6 +13,8 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 ## Änderungen gegenüber 9. Oktober 2026
 
 - **DECIDED (Owner, PRIO-1):** Reihenfolge F0, J1, J2, J3.
+- **Stand 22.10. 23:00:** Clinical Governance Report (22:30) gemäss Klinik-Gate (D-27) berücksichtigt. **Wieder geöffnet (changes-requested):** J3, C1, OPS1, F1-F4, F6, F7, J5. Beispiele: Pflegehilfen können B-Einsätze fortsetzen und abschliessen; verpasste oder hängende Einsätze lösen keinen bleibenden Alarm aus; Signatur und Abrechnung lesen nach Abschluss geänderte Daten. Neu freigegeben: **CSR1** Klinische Sicherheitsnachbesserung (vor ABS1). ADM1 braucht zusätzlich CGR-09/CGR-10, ABS1 ist ergänzt. Neue Entscheide: D-28 (clinical), D-29 (Owner).
+- **Stand 22.10. 22:15:** ADM1-Nachbesserung (#135) vorgeprüft: die vier Änderungen sind erfüllt. Vor dem Merge noch eine Datenschutz-Korrektur: Das Team sieht bei freigegebenen Einsätzen nur „Mitglied aus dem Team entfernt", nicht die Begründung der Administration. HAND1 zeigt freigegebene Einsätze künftig als Tatsache ohne Grund (mit ABS1).
 - **Stand 22.10. 20:15:** ADM1 (#101) geprüft: **changes-requested**. Alle Kriterien erfüllt, aber wer aus einem Team entfernt wird, bleibt für künftige Einsätze eingetragen; diese wirken abgedeckt und erreichen weder J3, OPS1 noch COVER1. Sie müssen im selben Schritt ans Team zurückgehen (gleiche Regel wie ABS1).
 - **Stand 22.10. 18:20:** HAND1 (#128) und RET1 (#129) geprüft und **abgenommen**, mit Auflagen (HAND1: e2e-Test in Handybreite; RET1: Fortsetzung erst ab dem gewünschten Starttermin, Test für fehlende Qualifikation). Neu freigegeben: **ABS1** Abwesenheit ohne Telefonkette.
 - **Stand 22.10. 17:15:** AN1-Nachbesserung geprüft und **abgenommen** (#124), mit Auflage: keine Rückschlüsse auf ausgeblendete Kleinteams über die Organisationszahl. In Arbeit: HAND1 (#128), RET1 (#129).
@@ -42,25 +44,26 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 ## Gate 2: Care Journey MVP
 
-Reihenfolge der offenen Punkte: ADM1-Nachbesserung → ABS1. Leitbild und North Star (direkter Pflegeanteil): `docs/product/CARE_OPERATING_MODEL.md` (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
+Reihenfolge der offenen Punkte: ADM1-Nachbesserung → CSR1 (klinische Sicherheitsnachbesserung) → ABS1. Leitbild und North Star (direkter Pflegeanteil): `docs/product/CARE_OPERATING_MODEL.md` (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
 
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
 | J1 | Zuweisung → Fall → Matching-Anfrage mit Readiness-Prüfung und Kostenträgerkette | Critical | IMPLEMENTED (#23, #30), **abgenommen** 21.10.; Warnhinweise warten auf D-17 |
-| J3 | Einsatzplanung mit Kategorie A/B/C, geplanten Minuten, Anordnungsprüfung | High | IMPLEMENTED (#25, #32), **abgenommen** 21.10.; Kategorie-Mapping wartet auf D-15 |
-| F6 | Signierter Einsatzbericht | High | IMPLEMENTED (#35), **abgenommen** 21.10. |
+| J3 | Einsatzplanung mit Kategorie A/B/C, geplanten Minuten, Anordnungsprüfung | High | IMPLEMENTED (#25, #32), **abgenommen** 21.10.; Kategorie-Mapping wartet auf D-15; **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-12), Nachbesserung in CSR1 |
+| F6 | Signierter Einsatzbericht | High | IMPLEMENTED (#35), **abgenommen** 21.10.; **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-02, CGR-03), Nachbesserung in CSR1 |
 | J2 | Teamentscheid mit Antwortfrist, Eskalation, Qualifikationsprüfung | High | IMPLEMENTED (#24, #36), **abgenommen** 22.10. |
-| F1-F4 | Verified Visit: Tagesansicht, Zustandsmaschine, Zeitkorrekturen, Beobachtung, Übergabe | High | IMPLEMENTED (#19–#22), abgenommen 21.10. (Pflegeziele via J3, Warnhinweise via J1/D-17) |
+| F1-F4 | Verified Visit: Tagesansicht, Zustandsmaschine, Zeitkorrekturen, Beobachtung, Übergabe | High | IMPLEMENTED (#19–#22), abgenommen 21.10. (Pflegeziele via J3, Warnhinweise via J1/D-17); **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-01, CGR-03), Nachbesserung in CSR1 |
 | QG1 | Qualitätsereignisse, Prüfung, Quality Hold | High | IMPLEMENTED (#41), **abgenommen** 22.10.; in Betrieb, sobald `clinical` die Ereignisliste (D-16) liefert |
-| OPS1 | Operations Exception Center über J1–J3, QG1, F6 | High | IMPLEMENTED (#39), **abgenommen** 22.10. |
-| C1 | Fall- und Einsatz-Lebenszyklus: pausieren, abschliessen, wiedereröffnen, absagen, Klient nicht angetroffen | High | IMPLEMENTED (#83, #120), PO: **abgenommen** 22.10. 16:15 (Auflage: instabilen e2e-Test beheben); Vor-Ort-Protokoll D-19 |
-| ADM1 | Pilot-Administration: Mitglieder mit Namen, Qualifikationen, Teams, Fristen, Schwellen | High | IMPLEMENTED (#101), PO: **changes-requested** 22.10. 20:15 (entfernte Mitglieder geben ihre künftigen Einsätze ans Team zurück) |
+| OPS1 | Operations Exception Center über J1–J3, QG1, F6 | High | IMPLEMENTED (#39), **abgenommen** 22.10.; **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-04, CGR-05, CGR-06), Nachbesserung in CSR1 |
+| C1 | Fall- und Einsatz-Lebenszyklus: pausieren, abschliessen, wiedereröffnen, absagen, Klient nicht angetroffen | High | IMPLEMENTED (#83, #120), PO: **abgenommen** 22.10. 16:15 (Auflage: instabilen e2e-Test beheben); Vor-Ort-Protokoll D-19; **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-04, CGR-12), Nachbesserung in CSR1 |
+| ADM1 | Pilot-Administration: Mitglieder mit Namen, Qualifikationen, Teams, Fristen, Schwellen | High | IMPLEMENTED (#101), PO: **changes-requested** 22.10. 20:15 (entfernte Mitglieder geben ihre künftigen Einsätze ans Team zurück); Nachbesserung #135 am 22.10. 22:15 vorgeprüft, eine Datenschutz-Korrektur offen |
 | PLAN2 | Selbstplanung: Einsätze folgen dem Pflegeplan (rollierende 4 Wochen, Bezugspflegeperson) | High | IMPLEMENTED (#92, #118), PO: **abgenommen** 22.10. 16:15; täglicher Job auf Staging prüfen (D-2) |
-| F7 | Unterschrift beim Abschluss: Einsatz endet mit finalem Bericht | High | IMPLEMENTED (#94, #122), PO: **abgenommen** 22.10. 16:15 |
+| F7 | Unterschrift beim Abschluss: Einsatz endet mit finalem Bericht | High | IMPLEMENTED (#94, #122), PO: **abgenommen** 22.10. 16:15; **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-02), Nachbesserung in CSR1 |
 | COVER1 | Teamübergreifende Vertretung ohne Disposition | High | IMPLEMENTED (#99, #114), PO: **abgenommen** 22.10. 16:15, bis D-3 abgeschaltet; Durchführung der Übernahme nach D-3 |
 | REF2 | Spitalzuweisung ohne Intake-Koordination | High | DRAFT; wartet auf D-9, D-3 |
 | HAND1 | Übergabe ohne Rapport: „seit Ihrem letzten Besuch“ auf jeder Einsatzkarte | High | IMPLEMENTED (#128), PO: **abgenommen** 22.10. 18:20 (Auflage: e2e-Test in Handybreite); Voraussetzung für sichere Vertretung (COVER1) |
 | RET1 | Wiederkehrende Klientin kehrt zu ihrem Team zurück (pausierter Fall wird fortgesetzt) | High | IMPLEMENTED (#129), PO: **abgenommen** 22.10. 18:20 (Auflagen: Fortsetzung ab gewünschtem Start, Test Qualifikation) |
+| CSR1 | Klinische Sicherheitsnachbesserung: kein Einsatz wirkt sicher, wenn er es nicht ist; signiert heisst unveränderlich | Critical | PLANNED (Brief approved 22.10. 23:00), aus dem Clinical Governance Report |
 | ABS1 | Abwesenheit ohne Telefonkette: Einsätze gehen sofort ans eigene Team, Stellvertretung bzw. Bezugspflegeperson zuerst | High | PLANNED (Brief approved), Challenge-Befund; schliesst eine Sicherheitslücke (Einsätze bleiben sonst einer abwesenden Pflegeperson zugewiesen) |
 | ORD1 | Verordnungserneuerung ohne Nachtelefonieren beim Hausarzt | Medium | DRAFT; wartet auf D-22 (legal), D-9 |
 
@@ -70,7 +73,7 @@ Reihenfolge der offenen Punkte: ADM1-Nachbesserung → ABS1. Leitbild und North 
 
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
-| J5 | Abrechenbare Leistungsfakten und Monatsvorschau | High | IMPLEMENTED (#43, #75), **abgenommen** 22.10.; nie mehr als gemessene Pflegeminuten; Restfinanzierung braucht D-11 |
+| J5 | Abrechenbare Leistungsfakten und Monatsvorschau | High | IMPLEMENTED (#43, #75), **abgenommen** 22.10.; nie mehr als gemessene Pflegeminuten; Restfinanzierung braucht D-11; **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-03, CGR-07), Nachbesserung in CSR1 |
 | J6 | Kontinuität: Bezugspflegeperson und Kontinuitätsmass | High | IMPLEMENTED (#42), **abgenommen** 22.10.; Namen der Mitglieder via ADM1 |
 | AN1 | Pilot-Wirkungsdashboard: Start der Versorgung, Administrationszeit, Kontinuität, abrechenbarer Anteil | High | IMPLEMENTED (#97, #124), PO: **abgenommen** 22.10. 17:15 als „Pflegeanteil im Einsatz“ (Auflage: Organisationszahl schützt ausgeblendete Kleinteams); North Star erst mit erfasster Arbeitszeit (D-23); Evidenz für D-14 |
 | J7 | Team-Ökonomie-Transparenz | Medium | PLANNED (Brief draft), wartet auf D-14 |
