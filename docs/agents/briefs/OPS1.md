@@ -3,10 +3,20 @@ id: OPS1
 title: Operations exception center
 author: po
 status: approved
-updated: 2026-10-21
+updated: 2026-10-22
 ---
 
 # OPS1 — Operations exception center
+
+## Clinical review gate — 2026-10-22 23:00: reopened, changes-requested
+
+The PO considered the Clinical Governance Report (`reports/CLINICAL_GOVERNANCE.md`, 2026-10-22 22:30) under the gate (README; D-27). The acceptance below is withdrawn for these findings; the remedy is [CSR1](CSR1.md). The PO did not run tests; evidence is the report's code references.
+
+| Finding | Severity | PO decision |
+|---|---|---|
+| CGR-04 | blocking | considered; remedy CSR1, thresholds D-28 |
+| CGR-05 | blocking | considered; escalation continues until `closed`; remedy CSR1 |
+| CGR-06 | blocking | considered; a P1 cannot be silenced while its cause persists; remedy CSR1 |
 
 ## PO acceptance — 2026-10-22 12:00: accepted
 
