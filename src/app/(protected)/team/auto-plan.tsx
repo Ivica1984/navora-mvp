@@ -41,6 +41,11 @@ export default function AutoPlan({ caseId, status, items }: { caseId: string; st
         {status && on && <> · <span data-testid="generated-ahead">{status.generated_ahead}</span> Einsätze in den nächsten 4 Wochen</>}
       </p>
       {status?.blocked_reason && <p className="rounded-lg bg-amber-50 p-2 text-amber-900" data-testid="plan-blocked">{BLOCKED_LABEL[status.blocked_reason] ?? status.blocked_reason}</p>}
+      {status && status.order_flagged > 0 && (
+        <p className="rounded-lg bg-rose-50 p-2 font-semibold text-rose-900" data-testid="plan-order-flagged">
+          {status.order_flagged} geplante{status.order_flagged === 1 ? "r Einsatz enthält" : " Einsätze enthalten"} B-Leistungen nach dem Ende der ärztlichen Verordnung.
+        </p>
+      )}
 
       <ul className="grid gap-1" aria-label="Rhythmus je Leistung">
         {items.map((item) => (

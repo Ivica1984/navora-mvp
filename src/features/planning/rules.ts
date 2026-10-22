@@ -51,6 +51,7 @@ export const REASON_LABEL: Record<string, string> = {
   items_without_schedule: "Einige Leistungen haben keinen Rhythmus und werden nicht automatisch geplant.",
   order_missing_or_expired: "B-Leistungen ohne gültige Verordnung wurden weggelassen.",
   minutes_exceed_window: "An einigen Tagen passen die Minuten nicht ins Zeitfenster.",
+  already_planned: "Wo das Team schon von Hand geplant hat, entsteht kein zweiter Einsatz.",
   no_team: "Kein Team zugewiesen.",
 };
 

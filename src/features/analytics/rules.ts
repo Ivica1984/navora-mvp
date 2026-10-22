@@ -20,6 +20,7 @@ export const KPI_ORDER = [
   "primary_nurse_share",
   "billable_per_care_minute",
   "plan_generated_share",
+  "planning_actions_per_client_week",
   "open_p1_exceptions",
   "p1_median_close_hours",
   "cover_without_operations",
@@ -76,6 +77,11 @@ export const KPI: Record<string, KpiDefinition> = {
     label: "Einsätze aus dem Pflegeplan", unit: "%",
     definition: "Anteil der Einsätze des Monats (ohne abgesagte), die aus dem Pflegeplan entstanden sind.",
     source: "Selbstplanung PLAN2",
+  },
+  planning_actions_per_client_week: {
+    label: "Planungsarbeit des Teams pro Klient:in und Woche", unit: "",
+    definition: "Von Hand geplante, verschobene oder entfernte Einsätze ÷ Klient:innen ÷ Wochen des Monats (ohne Änderungen aus dem Pflegeplan).",
+    source: "Planungsprotokoll J3/PLAN2",
   },
   open_p1_exceptions: {
     label: "Offene P1-Ausnahmen (jetzt)", unit: "",

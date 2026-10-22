@@ -1280,7 +1280,7 @@ isOneToOne: false
                            },
 "team_plan_status":
 { Args: Record<PropertyKey, never>; Returns: {
-              "auto_planning": boolean,"b_until": string,"blocked_reason": string,"case_id": string,"generated_ahead": number,"generated_on": string,"unscheduled": Json
+              "auto_planning": boolean,"b_until": string,"blocked_reason": string,"case_id": string,"generated_ahead": number,"generated_on": string,"order_flagged": number,"unscheduled": Json
             }[]
                            },
 "uncovered_visits":

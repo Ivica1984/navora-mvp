@@ -440,3 +440,10 @@ Generated visits stay ordinary planned visits.
 - **Regions:** two empty regions never match.
 - **Concurrency:** `scripts/db-concurrency/cover-accept.sh` runs in the CI db job. It has two psql processes accept the same visit at the same time, and exactly one wins. pgTAP runs inside one transaction and cannot open a second session on Supabase, because dblink needs credentials there.
 - **Not built yet:** performing the visit as covering nurse (context access, F1–F4, F6/F7). It waits for D-3. Until then cover stays off.
+
+#### ADR-042 amendment — PLAN2 changes (PO review 2026-10-22 14:30)
+- **No double planning:** generation never adds a visit next to a non-cancelled visit of the case in the same day and time window (planned by hand, moved there, or covered). The slot is logged once as `skipped` with the reason "care plan: already planned", and an untouched generated double is dropped. The plan log gains the change type `skipped`.
+- **Withdrawn preconditions** drop future untouched generated visits, each logged with its reason: case closed, reopened and not ready, needs assessment no longer done (`private.drop_generated_visits`). A paused case keeps them, because C1 suspends and restores them.
+- **Plan status** counts upcoming visits with B minutes after the order end (the J3 `order_expired` flag), and the team card shows the count.
+- **AN1:** `planning_actions_per_client_week` = the team's own plan changes (planned, moved, removed; not "care plan", not cover) ÷ clients ÷ weeks of the month.
+- **Tests:** pgTAP 030 covers no double, the daily job run twice, another team of the same organisation, the order flag, the uncovered path, the needs assessment, close, reopen-not-ready and the KPI.
