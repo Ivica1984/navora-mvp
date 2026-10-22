@@ -17,6 +17,8 @@ import type { TeamRow } from "@/features/teams/types";
 import ExceptionCenter from "./exception-center";
 import HoldsPanel from "./holds-panel";
 import ContinuityPanel from "./continuity-panel";
+import CaseLifecyclePanel from "./case-lifecycle-panel";
+import type { CaseLifecycle } from "@/features/lifecycle/queries";
 import BillingPreview from "@/components/billing/billing-preview";
 import type { BillingPreviewRow } from "@/features/billing/queries";
 import type { ContinuityRow } from "@/features/team/queries";
@@ -41,6 +43,7 @@ type OperationsClientProps = {
   continuity: ContinuityRow[];
   billing: BillingPreviewRow[];
   month: string;
+  lifecycle: CaseLifecycle[];
 };
 
 function getStatusLabel(status: string | null) {
@@ -129,7 +132,7 @@ function getSlaStatus(careCase: CaseSummaryRow) {
   return "ok";
 }
 
-export default function OperationsClient({ dashboard, holds, continuity, billing, month }: OperationsClientProps) {
+export default function OperationsClient({ dashboard, holds, continuity, billing, month, lifecycle }: OperationsClientProps) {
   const {
     cases,
     teams,
@@ -226,6 +229,7 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
         <HoldsPanel holds={holds} />
 
         <ContinuityPanel rows={continuity} />
+        <CaseLifecyclePanel items={lifecycle} />
 
         <BillingPreview rows={billing} month={month} />
 

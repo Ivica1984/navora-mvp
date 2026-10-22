@@ -1137,7 +1137,7 @@ isOneToOne: false
                            },
 "field_visits":
 { Args: { "p_date": string }; Returns: {
-              "address": string,"care_goals": (string)[],"care_needs": (string)[],"case_id": string,"client_name": string,"events": Json,"is_needs_assessment": boolean,"ort": string,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"plz": string,"responsible_me": boolean,"responsible_set": boolean,"services_provided": (string)[],"status": string,"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
+              "address": string,"care_goals": (string)[],"care_needs": (string)[],"case_id": string,"client_name": string,"events": Json,"is_needs_assessment": boolean,"ort": string,"pause_reason": string,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"plz": string,"responsible_me": boolean,"responsible_set": boolean,"services_provided": (string)[],"status": string,"suspended": boolean,"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
 "final_report_visits":
@@ -1172,6 +1172,11 @@ isOneToOne: false
 "operations_exceptions":
 { Args: Record<PropertyKey, never>; Returns: {
               "case_id": string,"case_label": string,"comments": Json,"detail": string,"entity_id": string,"entity_type": string,"exception_key": string,"exception_type": string,"label": string,"next_step": string,"priority": string,"region": string,"since": string,"taken": boolean,"taken_at": string,"taken_by_me": boolean,"team_name": string
+            }[]
+                           },
+"ops_case_lifecycle":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "case_id": string,"changed_at": string,"client_name": string,"expected_end": string,"last_kind": string,"last_reason": string,"lifecycle": string,"suspended_visits": number,"team_name": string
             }[]
                            },
 "pause_case":

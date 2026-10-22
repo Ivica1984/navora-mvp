@@ -447,3 +447,14 @@ Generated visits stay ordinary planned visits.
 - **Plan status** counts upcoming visits with B minutes after the order end (the J3 `order_expired` flag), and the team card shows the count.
 - **AN1:** `planning_actions_per_client_week` = the team's own plan changes (planned, moved, removed; not "care plan", not cover) ÷ clients ÷ weeks of the month.
 - **Tests:** pgTAP 030 covers no double, the daily job run twice, another team of the same organisation, the order flag, the uncovered path, the needs assessment, close, reopen-not-ready and the KPI.
+
+#### ADR-041 amendment — C1 changes (PO review 2026-10-22 14:30)
+- **Close withdraws matching:** it also marks the candidate rows `withdrawn`. pgTAP proves that no team is offered the request any more.
+- **Late team cancellation:** the P2 exception stays open until Operations closes it with a reason, or the team plans a replacement for the case on that day. It no longer disappears after a day.
+- **`/field` marks suspended visits:** `field_visits` returns `suspended` and the pause reason category. The card shows "pausiert · …" and has no buttons. e2e at phone width.
+- **Tests added (pgTAP 031):**
+  - another team of the same organisation for pause, resume, cancel, no-show and reopen;
+  - another organisation for cancel, close and reopen;
+  - no report draft and no billing fact after a no-show;
+  - audit with the reason for pause, close and no-show;
+  - close leaves final reports, quality events and billing facts unchanged and closes open tasks.
