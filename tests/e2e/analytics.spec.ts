@@ -19,7 +19,7 @@ test("Operations sees the organisation and every team, with definitions and sour
   const org = page.getByRole("region", { name: "Ganze Organisation" });
   await expect(org).toBeVisible();
   await expect(org).toContainText("Quelle:");
-  await expect(org.locator('[data-kpi="cover_without_operations"]')).toContainText("COVER1 ist noch nicht gebaut");
+  await expect(org.locator('[data-kpi="p1_median_close_hours"]')).toContainText("Noch nicht messbar");
   await expect(page.getByRole("region", { name: "Team Testteam Nord" })).toBeVisible();
 });
 

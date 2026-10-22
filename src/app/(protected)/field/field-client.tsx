@@ -31,6 +31,8 @@ import type { FieldReport } from "@/features/field/report";
 import ReportSection from "./report-section";
 import { createReportDraft } from "@/features/field/report-commands";
 import type { CountersignItem } from "@/features/field/queries";
+import type { CoverOffer, MyCover } from "@/features/cover/queries";
+import CoverSection from "./cover-section";
 import QualitySection from "./quality-section";
 import VisitLifecycle from "./visit-lifecycle";
 import type { VisitStatusNote } from "@/features/lifecycle/queries";
@@ -48,6 +50,7 @@ type Props = {
   qualityTypes: QualityEventType[];
   statusNotes: VisitStatusNote[];
   countersign: CountersignItem[];
+  cover: { offers: CoverOffer[]; mine: MyCover[] };
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -71,7 +74,7 @@ const STATUS_CLASS: Record<string, string> = {
   no_show: "bg-rose-100 text-rose-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover }: Props) {
   const summary = summarizeDay(visits);
 
   return (
@@ -111,6 +114,8 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
           <Stat label="Laufend" value={summary.running} />
           <Stat label="Erledigt" value={summary.done} />
         </section>
+
+        <CoverSection offers={cover.offers} mine={cover.mine} />
 
         {countersign.length > 0 && (
           // F7: the countersignature request reaches the team at the moment of signing.

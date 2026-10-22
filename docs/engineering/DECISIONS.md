@@ -418,3 +418,16 @@ Generated visits stay ordinary planned visits.
   - time to close a P1 exception: the time an exception first appears is not stored. A follow-up would record a `seen` event in `sync_exceptions`.
   - COVER1: not built yet.
 **Migration plan:** migration 0027 (one function). Rollback: drop it.
+
+### ADR-045 — Cross-team cover without a dispatcher (COVER1)
+**Status:** PROPOSED · **Task:** COVER1 (`docs/agents/briefs/COVER1.md`).
+**Decision:**
+- **J2 pattern, own tables (answer to the brief's question).** Offers are derived from state, carry no client identity, and the first decision wins atomically. A visit offer has no matching request, so offers are derived per visit and decisions go to the append-only `cover_events` (`offered` when first seen, `accepted`, `expired`).
+- **Window:** a planned visit of an active case, with no responsible member and not suspended, whose start is between the fallback lead and the offer lead. Defaults are 4 h and 24 h, in `cover_settings`; an organisation override is possible later through ADM1.
+- **Eligible:** members of another active team in the same organisation and region. Category B work and needs assessments go to registered nurses only.
+- **Acceptance:** `accept_cover` assigns that one visit atomically (responsible member, `covered_by`, `cover_team_id`). It logs a plan change, so PLAN2 never overwrites the cover. The case, its team and its primary nurse stay unchanged. J6 counts the visit as `not_primary`; J5 and F6 apply as usual.
+- **Context access waits for D-3.** RLS keeps the visit with its team. The covering nurse sees her covers with the offer's minimal facts, but she cannot run the visit in the app until the owner decides D-3. The case's team sees which team covered.
+- **After the fallback lead** nobody can accept. `sync_cover_offers` (called on `/field` load, the OPS1 sync pattern) records the expiry. The OPS1 uncovered-visit exception is unchanged.
+- **AN1:** `cover_without_operations` (offered visits that a neighbouring team accepted) and `cover_median_hours`.
+**Migration plan:** migration 0028. Rollback: drop the new objects and the columns, restore `team_cases` and `pilot_kpis` from 0025/0027.
+**Open:** D-3 (cross-team context access); notifying nurses outside the app (push, SMS) is not built; the lead times are engineering defaults (D-21).

@@ -286,6 +286,7 @@ type Upcoming = {
   generated?: boolean;   // PLAN2: created from the care plan
   responsible_me: boolean;
   responsible_set: boolean;
+  covered_by_team?: string | null;   // COVER1
   flags: string[] | null;
   last_change: { change: string; reason: string | null; own: boolean } | null;
 };
@@ -758,7 +759,7 @@ function PlannedVisit({ visit }: { visit: Upcoming }) {
           <p className="text-xs text-emerald-900/70">
             {visit.generated ? <span data-testid="generated-visit">aus Pflegeplan · </span> : null}
             {visit.needs_assessment ? "Bedarfsabklärung · " : ""}
-            {formatMinutesByCategory(visit)} · {visit.responsible_me ? "verantwortlich: ich" : visit.responsible_set ? "verantwortlich: Teammitglied" : "noch niemand verantwortlich"}
+            {formatMinutesByCategory(visit)} · {visit.responsible_me ? "verantwortlich: ich" : visit.covered_by_team ? `übernommen von Team ${visit.covered_by_team}` : visit.responsible_set ? "verantwortlich: Teammitglied" : "noch niemand verantwortlich"}
           </p>
           {visit.last_change?.reason && (
             <p className="text-xs text-emerald-900/60">
