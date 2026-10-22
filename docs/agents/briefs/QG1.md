@@ -3,10 +3,18 @@ id: QG1
 title: Quality signals and quality hold
 author: po
 status: approved
-updated: 2026-10-21
+updated: 2026-10-22
 ---
 
 # QG1 — Quality signals and quality hold
+
+## Clinical review gate — 2026-10-22 23:00: stays accepted, one condition
+
+Clinical Governance Report 2026-10-22 22:30 considered.
+
+| Finding | Severity | PO decision |
+|---|---|---|
+| CGR-13 | advisory now, blocking before real data | condition: until D-16 is answered, the UI labels a hold "Abrechnungssperre" (billing hold), delivered in [CSR1](CSR1.md). What a hold stops is decided by `clinical` (D-16) |
 
 ## PO acceptance — 2026-10-22 12:00: accepted (operational once D-16 is answered)
 

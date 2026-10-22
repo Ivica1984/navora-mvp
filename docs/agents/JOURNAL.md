@@ -14,6 +14,56 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - a trail in the PR and the journal.
 - ABS1 is next and is in scope. Engineering reads the 22:30 report section before implementing.
 
+## 2026-10-22 23:00 · po (Product Owner)
+- **PR #136 merged** (bf5ed02, CI green on 81524b1): the Architect is `cra`, D-27 is decided, the gate is live, and CGR-14 is resolved. #138 (Engineering) was asked to align with the single report path and these role definitions; the PO keeps its remediation-plan steps.
+- **Clinical review gate applied** to the first Clinical Governance Report (22:30). Every finding is considered; the table is in `briefs/CSR1.md`.
+  - The PO confirmed CGR-01 (0009) and CGR-12 (0024) in the code.
+  - The PO did not run tests.
+- **Reopened to `changes-requested`:** J3, C1, OPS1, F1-F4, F6, F7 and J5, re-ranked 2–8 in patient-safety order. Each brief has a gate section.
+- **CSR1 approved** (Next up 1): the one remediation item.
+- **ADM1:** #135 needs CGR-09 and CGR-10 as well as the 22:15 privacy fix.
+- **ABS1:** amended (CGR-11, CGR-15); now Next up 2, after CSR1.
+- **Conditions:**
+  - QG1 stays accepted with CGR-13 (UI label "Abrechnungssperre" until D-16);
+  - the CGR-08 condition on J5 is accepted.
+- **New decisions:**
+  - D-28 (`clinical`): thresholds for overdue and stuck visits; strict provisional default until answered;
+  - D-29 (`owner`): qualification verification, CGR-16.
+- **Unchanged:** HAND1, RET1, AN1, PLAN2, J6, J1, J2 and COVER1 have no blocking finding, and their acceptances stand.
+- **Waiting on people:**
+  - the owner names the human clinical owner (README *Participants*), then D-29 and D-1;
+  - the clinical owner answers D-28, D-16 and D-17 first.
+- **Next agent (eng):** finish #135 (privacy fix, CGR-09, CGR-10), then CSR1 in the brief's order, then ABS1.
+
+**ENGINEERING BRIEF: CSR1**
+- **Capability:** clinical safety remediation. No visit looks covered, started or documented when it is not; a signed report is exactly what the nurse saw; billing reads only what was signed.
+- **Why:** the Clinical Governance Report found blocking gaps in seven accepted items. Patient safety is a precondition, never traded.
+- **Business outcome:** billing facts that survive an insurer audit (signed snapshot, valid order, modelled payer only); no invoice risk from silently changed times.
+- **Care outcome:** a missed or stuck visit stays visible until someone acts; care assistants stay within their qualification for the whole visit; serious quality events stay escalated.
+- **Expected nurse outcome:** her observations and her signature cannot be changed by anyone else; she is protected from signing facts she did not see.
+- **Expected team outcome:** the team sees missed visits itself, without a dispatcher checking lists; one release and eligibility rule for every way a visit loses its nurse.
+- **Expected patient outcome:** no silently missed visit; a B or needs-assessment visit is completed by a registered nurse; her record is trustworthy.
+- **Acceptance criteria:** as in `briefs/CSR1.md`:
+  - CGR-12: qualification on every start and complete;
+  - CGR-04: persistent overdue and stuck-visit exceptions, provisional thresholds until D-28;
+  - CGR-05: escalation until `closed`;
+  - CGR-06: a P1 cannot be silenced while its cause persists;
+  - CGR-01: only the author supersedes;
+  - CGR-02: sign carries the snapshot version;
+  - CGR-03: frozen after `final`, billing from the snapshot;
+  - CGR-07: three not-billable reasons;
+  - conditions CGR-08 and CGR-13;
+  - no regression;
+  - a gate trail in each PR.
+- **Dependencies:** none blocking. D-28 shapes thresholds only (provisional default meanwhile); D-16 for what a hold stops.
+- **Priority:** Next up 1, after ADM1 #135, before ABS1.
+- **Implementation recommendation:**
+  - one PR per finding group (qualification; exceptions; documentation integrity; billing) to keep reviews small;
+  - derived views over `visits` and `now()` for overdue exceptions, no job;
+  - reuse the F6 snapshot builder for the sign hash;
+  - pgTAP for every negative case;
+  - list each provisional default in `clinical/CLINICAL_RULE_REGISTER.md`.
+
 ## 2026-10-22 22:40 · po (Product Owner)
 - **Owner decided D-27** (moved to *Decided*):
   - The Clinical & Regulatory Architect is a permanent, **mandatory reviewer**. It identifies risks, controls, findings and recommendations.
