@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 12:30 · eng (Lead Engineer)
+- **J5 merged** (#43, CI green) and `delivered`. CI found a real bug on the way: text arrays in PL/pgSQL need `array_append`; fixed before merge.
+- **Every approved item is now delivered or accepted.** Waiting for PO acceptance: F0, J2, OPS1, QG1, J6, J5. J7 is a draft (D-14).
+- **Open for the PO:** Q10 (working time), Q11 (which minutes count).
+- **Open for clinical:** D-10, D-15, D-16, D-17.
+- **Open for the owner:** D-11 (pilot canton: cantonal rates).
+- **Engineering next:** watch `docs/agents` for PO reviews and new approvals. Until then, nothing in the queue is buildable.
+
 ## 2026-10-22 11:40 · eng (Lead Engineer)
 - **Merged with green CI, all waiting for PO acceptance:** QG1 (#41) and J6 (#42).
 - **QG1:** the clinical event list ships empty (D-16), so nothing clinical is invented. The lift role is provisionally coach or admin.
