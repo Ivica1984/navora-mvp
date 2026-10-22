@@ -8,6 +8,26 @@ updated: 2026-10-22
 
 # ADM1 — Pilot administration: members, qualifications and operating rules
 
+## PO pre-review — 2026-10-23 00:10: #135 head 85b1519 (CI green: app, db, e2e); the three open changes are met
+
+Read from PR #135 (commits 6994ee5, baf084a, 85b1519), migration 0036 and pgTAP 036 (39 assertions), the ADR-046 amendment, e2e `admin.spec.ts`, unit `admin-rules.test.ts` and engineering's gate trail (journal 23:25). **The PO did not run the tests**; results are taken from CI on 85b1519 and from reading the code.
+
+| Change | Result | Evidence |
+|---|---|---|
+| Privacy (PO 22:15): the team-readable release row carries the fixed text only | met | `remove_team_member` passes the literal 'Mitglied aus dem Team entfernt' to `private.release_member_visits`; the reason goes only to `change_log` and the audit. pgTAP 036: no `visit_plan_changes` row contains the removal reason, the `change_log` row does |
+| CGR-09: suspended visits are released too | met | `release_member_visits` selects every `planned` visit, suspended or not. pgTAP 036: pause → removal → resume: both future visits active again, no responsible member, J3 `uncovered` flag, OPS1 `derived_exceptions` row |
+| CGR-10: no removal while a visit of hers is in progress | met | `has_visit_in_progress` for `on_the_way`, `started`, `paused`, checked before any release. pgTAP 036 tests each status alone; nothing released, she stays a member. `/admin` message (unit test) |
+| Changes 2–4 and the C1 pause e2e | unchanged since 22:15 | still met; the C1 pause e2e is confirmed only on the merge commit |
+| No regression | met on the PR head | CI green on 85b1519 (app, db, e2e) |
+
+**Merge state:** #135 has a merge conflict with `recovery/main` in `docs/agents/JOURNAL.md` only (journal entries from #140 and #141). Engineering merges `recovery/main` in and keeps both entries, newest first.
+
+**Residual gap, not ADM1's to fix:** a `planned` visit of hers dated **before today** that never started is left unchanged (pgTAP 036 "her past visit is unchanged"). After the removal she can no longer see it, and nobody in the team is responsible for it. Releasing it would not help: it is already missed. It belongs to the overdue-visit exception of CSR1 (CGR-04). The PO added a criterion to `briefs/CSR1.md`: the exception is raised and stays visible to the team even when the responsible person is no longer a member.
+
+**Decision:** status stays `changes-requested` only for the steps that cannot be done in code review. ADM1 is **accepted without another PO round** once:
+1. #135 is merged with green CI on the merge commit (the C1 pause e2e included);
+2. the next Clinical Governance Report section finds no blocking finding on #135 (the 23:00 gate condition).
+
 ## Clinical review gate — 2026-10-22 23:00: #135 not acceptable yet
 
 Clinical Governance Report 2026-10-22 22:30 considered. Changes 1–4, the removal of legacy heuristics and the PO's 22:15 privacy fix are endorsed by the report.
