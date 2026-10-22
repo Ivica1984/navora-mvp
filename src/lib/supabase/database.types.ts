@@ -429,16 +429,56 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"quality_events": {
+                },"quality_event_log": {
                   Row: {
-                    "case_id": string | null,"created_at": string,"description": string | null,"event_type": string,"id": string,"organization_id": string,"severity": string,"status": string,"team_id": string | null,"title": string,"visit_id": string | null
+                    "actor_id": string,"created_at": string,"event_id": string,"from_status": string | null,"id": number,"idempotency_key": string,"note": string | null,"organization_id": string,"to_status": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "case_id"?: string | null,"created_at"?: string,"description"?: string | null,"event_type": string,"id"?: string,"organization_id": string,"severity": string,"status"?: string,"team_id"?: string | null,"title": string,"visit_id"?: string | null
+                    "actor_id": string,"created_at"?: string,"event_id": string,"from_status"?: string | null,"id"?: never,"idempotency_key": string,"note"?: string | null,"organization_id": string,"to_status": string
                   }
                   Update: {
-                    "case_id"?: string | null,"created_at"?: string,"description"?: string | null,"event_type"?: string,"id"?: string,"organization_id"?: string,"severity"?: string,"status"?: string,"team_id"?: string | null,"title"?: string,"visit_id"?: string | null
+                    "actor_id"?: string,"created_at"?: string,"event_id"?: string,"from_status"?: string | null,"id"?: never,"idempotency_key"?: string,"note"?: string | null,"organization_id"?: string,"to_status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "quality_event_log_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "quality_events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "quality_event_log_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"quality_event_types": {
+                  Row: {
+                    "active": boolean,"approved_by": string,"code": string,"label": string,"serious_default": boolean,"sets_hold": boolean
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "active"?: boolean,"approved_by": string,"code": string,"label": string,"serious_default": boolean,"sets_hold": boolean
+                  }
+                  Update: {
+                    "active"?: boolean,"approved_by"?: string,"code"?: string,"label"?: string,"serious_default"?: boolean,"sets_hold"?: boolean
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"quality_events": {
+                  Row: {
+                    "author_id": string | null,"case_id": string | null,"closed_at": string | null,"closing_note": string | null,"created_at": string,"description": string | null,"event_type": string,"id": string,"occurred_at": string | null,"organization_id": string,"owner_id": string | null,"severity": string,"status": string,"team_id": string | null,"title": string,"visit_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id"?: string | null,"case_id"?: string | null,"closed_at"?: string | null,"closing_note"?: string | null,"created_at"?: string,"description"?: string | null,"event_type": string,"id"?: string,"occurred_at"?: string | null,"organization_id": string,"owner_id"?: string | null,"severity": string,"status"?: string,"team_id"?: string | null,"title": string,"visit_id"?: string | null
+                  }
+                  Update: {
+                    "author_id"?: string | null,"case_id"?: string | null,"closed_at"?: string | null,"closing_note"?: string | null,"created_at"?: string,"description"?: string | null,"event_type"?: string,"id"?: string,"occurred_at"?: string | null,"organization_id"?: string,"owner_id"?: string | null,"severity"?: string,"status"?: string,"team_id"?: string | null,"title"?: string,"visit_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -479,6 +519,44 @@ isOneToOne: false
       referencedColumns: ["id"]
     },{
       foreignKeyName: "quality_events_visit_same_org"
+      columns: ["visit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"quality_holds": {
+                  Row: {
+                    "event_id": string | null,"id": string,"idempotency_key": string,"lift_reason": string | null,"lifted_at": string | null,"lifted_by": string | null,"organization_id": string,"reason": string,"set_at": string,"set_by": string,"team_id": string,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "event_id"?: string | null,"id"?: string,"idempotency_key": string,"lift_reason"?: string | null,"lifted_at"?: string | null,"lifted_by"?: string | null,"organization_id": string,"reason": string,"set_at"?: string,"set_by": string,"team_id": string,"visit_id": string
+                  }
+                  Update: {
+                    "event_id"?: string | null,"id"?: string,"idempotency_key"?: string,"lift_reason"?: string | null,"lifted_at"?: string | null,"lifted_by"?: string | null,"organization_id"?: string,"reason"?: string,"set_at"?: string,"set_by"?: string,"team_id"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "quality_holds_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "quality_events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "quality_holds_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "quality_holds_team_id_organization_id_fkey"
+      columns: ["team_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "quality_holds_visit_id_organization_id_fkey"
       columns: ["visit_id","organization_id"]
 isOneToOne: false
       referencedRelation: "care_visits"
@@ -838,14 +916,14 @@ isOneToOne: false
 "plan_visit":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
                            },
-"record_quality_event":
-{ Args: { "p_idempotency_key": string,"p_note": string,"p_occurred_at": string,"p_severity": string,"p_type_code": string,"p_visit_id": string }; Returns: Json
-                           },
 "record_observation":
 { Args: { "p_content": string,"p_for_handover": boolean,"p_idempotency_key": string,"p_supersedes_id": string,"p_visit_id": string }; Returns: string
                            },
 "record_partner_request":
 { Args: { "p_city": string,"p_idempotency_key": string,"p_need_summary": string,"p_organization_id": string,"p_partner_name": string,"p_partner_type": string,"p_region": string,"p_request_title": string,"p_requested_services": (string)[],"p_time_info": string,"p_urgency": string }; Returns: string
+                           },
+"record_quality_event":
+{ Args: { "p_idempotency_key": string,"p_note": string,"p_occurred_at": string,"p_severity": string,"p_type_code": string,"p_visit_id": string }; Returns: Json
                            },
 "remove_planned_visit":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: Json
