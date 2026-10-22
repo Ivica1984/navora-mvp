@@ -241,6 +241,40 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"exception_events": {
+                  Row: {
+                    "actor_id": string | null,"created_at": string,"exception_key": string,"id": number,"idempotency_key": string | null,"kind": string,"organization_id": string,"text": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id"?: string | null,"created_at"?: string,"exception_key": string,"id"?: never,"idempotency_key"?: string | null,"kind": string,"organization_id": string,"text"?: string | null
+                  }
+                  Update: {
+                    "actor_id"?: string | null,"created_at"?: string,"exception_key"?: string,"id"?: never,"idempotency_key"?: string | null,"kind"?: string,"organization_id"?: string,"text"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "exception_events_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"exception_rules": {
+                  Row: {
+                    "amount": number | null,"escalate_to_p1_after_hours": number | null,"exception_type": string,"label": string,"next_step": string,"priority": string,"unit": string | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount"?: number | null,"escalate_to_p1_after_hours"?: number | null,"exception_type": string,"label": string,"next_step": string,"priority": string,"unit"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "amount"?: number | null,"escalate_to_p1_after_hours"?: number | null,"exception_type"?: string,"label"?: string,"next_step"?: string,"priority"?: string,"unit"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"match_candidates": {
                   Row: {
                     "created_at": string,"distance_km": number | null,"fit_score": number,"id": string,"matching_request_id": string | null,"open_slots": number | null,"organization_id": string,"reasons": (string)[] | null,"status": string,"team_id": string | null,"utilization": number | null
