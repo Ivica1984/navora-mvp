@@ -220,13 +220,13 @@ begin
     basis := case when c.medical_order_status = 'present' then 'with_order' else 'without_order_ac' end;
   end if;
 
-  if basis = 'b_without_valid_order' then reasons := reasons || 'b_without_valid_order'; end if;
-  if c.insurer_name is null then reasons := reasons || 'no_insurer'; end if;
-  if planned = 0 then reasons := reasons || 'no_planned_minutes'; end if;
-  if t.care_minutes is null then reasons := reasons || 'no_measured_time';
-  elsif t.care_minutes < minimum then reasons := reasons || 'below_minimum';
+  if basis = 'b_without_valid_order' then reasons := array_append(reasons, 'b_without_valid_order'); end if;
+  if c.insurer_name is null then reasons := array_append(reasons, 'no_insurer'); end if;
+  if planned = 0 then reasons := array_append(reasons, 'no_planned_minutes'); end if;
+  if t.care_minutes is null then reasons := array_append(reasons, 'no_measured_time');
+  elsif t.care_minutes < minimum then reasons := array_append(reasons, 'below_minimum');
   end if;
-  if t.care_minutes is not null and t.care_minutes < planned then warns := warns || 'actual_below_planned'; end if;
+  if t.care_minutes is not null and t.care_minutes < planned then warns := array_append(warns, 'actual_below_planned'); end if;
 
   foreach cat in array array['A', 'B', 'C'] loop
     rate := private.tariff_rate(c.residence_canton, 'insurer', cat, v.visit_date);
