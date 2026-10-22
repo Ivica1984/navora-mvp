@@ -1,6 +1,6 @@
 # Next capability: Product Owner priority queue
 
-**Owned by:** Product Owner (`po`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 14:30, reviews of C1, PLAN2, F7, AN1, COVER1 (all changes-requested); D-21 decided
+**Owned by:** Product Owner (`po`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 14:45, nursing-home transformation report; NH1–NH3 drafts; addenda to the C1, PLAN2, COVER1 reviews
 
 The order of the table is the order engineering builds in, top to bottom, skipping accepted rows. Every row needs a brief in [`briefs/`](briefs/). Strategic reference: `ARCHITECTURE.md` (data flow and bounded contexts), then `PRODUCT_REQUIREMENTS.md` and `DOMAIN_RULES.md`. **Direction:** [`docs/product/CARE_OPERATING_MODEL.md`](../product/CARE_OPERATING_MODEL.md). North Star = direct care share; benchmark Buurtzorg (60 %), hypothesis 75 %.
 
@@ -47,6 +47,10 @@ The order of the table is the order engineering builds in, top to bottom, skippi
 Drafts, waiting for decisions:
 - **REF2**, hospital referral without an intake coordinator ([brief](briefs/REF2.md)). It is the transitions-of-care wedge and needs D-9 (`legal`) and D-3 (`owner`).
 - **ORD1**, medical order renewal without chasing the GP ([brief](briefs/ORD1.md)). It needs D-22 (`legal`, valid form of a medical order) and D-9.
+- **Nursing homes (horizon 3)**, from the [Nursing Home Transformation Report](../product/NURSING_HOME_TRANSFORMATION.md). Each waits for the owner's market-entry decision D-25 and the instrument decisions D-13 and D-24:
+  - **NH1**, the ward team organises itself ([brief](briefs/NH1.md));
+  - **NH2**, assessment as a by-product of care ([brief](briefs/NH2.md)); also D-27 (`legal`);
+  - **NH3**, signals go to the team ([brief](briefs/NH3.md)); also D-26 (`clinical`).
 
 ## Challenge review (PO, 2026-10-22)
 
@@ -86,6 +90,10 @@ The test: "If NAVORA were designed from scratch today, would it work this way?" 
 
 ## Notes from the PO
 
+- 2026-10-22 14:45: **Nursing Home Transformation Report** (owner work package). It reads the interRAI LTCF CH handbook as an operating model.
+  - The assessment determines the tariff level, so homes run a parallel control hierarchy: an expert, supervisors (1:16), coordinators (1:8), three meetings and a duplicate evidence phase per observation period.
+  - Drafts: NH1, NH2, NH3. Decisions: D-24 (`legal`), D-25 (`owner`), D-26 (`clinical`), D-27 (`legal`). No PAG, CAP or MQI logic is re-implemented.
+  - Addenda with additional testable findings for C1, PLAN2 and COVER1; the 14:30 verdicts stand.
 - 2026-10-22 14:30: **Five deliveries reviewed, all changes-requested**; evidence tables and testable changes are in the briefs. **COVER1** first, for patient safety: an accepted cover makes the visit look covered while the covering nurse cannot perform it, so cover stays off until D-3. **PLAN2**: generation must never double-plan a slot the team planned by hand. **C1**: close must withdraw matching, the late-cancellation exception must not vanish, suspended visits shown on `/field`, negative tests. **F7**: the nurse sees the text she signs. **AN1**: the North Star as built is a within-visit share that overstates the result; label it honestly until paid working time exists. **D-21 decided.** PR #91 (13:30 cycle) merged; its legal medical-order question is renumbered D-22.
 - 2026-10-22 13:30: **Challenge mode (owner instruction).** Eight inherited practices reviewed (see the challenge table). **Approved: HAND1** (handover without the team meeting) and **RET1** (returning client returns to her team). **Draft: ORD1** (medical order renewal without chasing the GP), waiting for the new legal decision D-22 and D-9. Every new brief now states which administrative layer it replaces, which manual activity and which role it makes less necessary, and its effect on continuity, direct care time and income. `CARE_OPERATING_MODEL.md` gains an impact ledger and four more proposed Handbook changes. Next up: C1, PLAN2, F7, AN1, HAND1, COVER1, RET1, ADM1.
 - 2026-10-22 13:15: **Care operating model** published (`docs/product/CARE_OPERATING_MODEL.md`). It benchmarks Buurtzorg with sources, sets the direct-care-share North Star, lists what disappears and proposes changes to the Handbook. **COVER1** (cross-team cover) is approved; **REF2** (hospital referral without an intake coordinator) is a draft until D-9 and D-3 are answered. Next up re-ranked by the owner's value order: C1, PLAN2, F7, AN1, COVER1, ADM1. New owner question D-20 (team self-administration); D-14 sharpened.

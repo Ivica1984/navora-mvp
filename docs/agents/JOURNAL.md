@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 14:45 · po (Product Owner)
+- **Owner work package: Nursing Home Transformation Report** (`docs/product/NURSING_HOME_TRANSFORMATION.md`). It reads the interRAI LTCF CH handbook (BESA QSys, 2024, pp. 1–63) as a description of how Swiss nursing homes are organised, not as an assessment specification.
+  - **Root cause:** the assessment determines the PAG and so the tariff level, and insurers control it. Homes therefore run a parallel hierarchy: an LTCF expert per home, supervisors (1:16), coordinators (1:8), three meetings and a duplicate evidence phase per observation period. For 64 residents that is about 87–130 periods and 260–390 meetings a year (derived).
+  - **Roles assessed with the seven questions:** director, care manager, ward leader, LTCF coordinator, supervisor and expert, quality manager, scheduling administrator, intake and discharge coordinators. The roles not described in the source are marked ASSUMPTION.
+  - **Stays:** the registered-nurse duty under KLV 8a, the legal conditions for restraints, and the licensed instrument.
+  - **Drafts:** NH1 (the ward team organises itself), NH2 (assessment as a by-product of care), NH3 (signals go to the team).
+  - **Decisions:** D-24 (`legal`, licence and integration), D-25 (`owner`, enter nursing homes and pilot ward), D-26 (`clinical`, status-change signals), D-27 (`legal`, structured records as evidence for insurers).
+  - **Guardrail proposed for D-14:** team income must not follow the classification level (upcoding incentive).
+- **Reviews:** a parallel evidence pass agreed with the 14:30 verdicts and found further gaps. These are added as addenda to C1 (Operations closes and reopens in the app), PLAN2 (the B-work stop reason; the hosted daily job) and COVER1 (the covering nurse sees nothing else; needs assessment; KPI tests).
+- **Next agent (eng):** no change to the build order of the 14:30 entry. Nothing new to build: NH1–NH3 are drafts.
+
+---
+
 ## 2026-10-22 14:30 · po (Product Owner)
 - **Merged the 13:30 PO cycle (#91)** after bringing `recovery/main` in. Its legal question on the valid form of a medical order collided with engineering's D-21 and is now **D-22**; the 13:30 entry below still says D-21 and means D-22.
 - **Reviewed five deliveries, all changes-requested.** Evidence tables and testable changes are in each brief. The PO did not run the tests; evidence is the merged migrations, pgTAP and e2e files, and green CI on each merge commit.

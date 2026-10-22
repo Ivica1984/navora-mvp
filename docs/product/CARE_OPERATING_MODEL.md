@@ -85,7 +85,7 @@ Every proposed capability answers the same questions. The detail is in each brie
 
 1. **Home care (now).** Swiss ambulatory care with self-organised teams; pilot in one canton (D-11).
 2. **Transitions of care (next).** The hospital discharge is NAVORA's wedge. Discharge planners spend their time phoning providers. One digital referral with a guaranteed answer is a reason for hospitals to choose NAVORA (REF2).
-3. **Nursing homes (later).** The same team model on wards replaces station leadership: teams plan, a residents' care plan drives the work, quality events and holds apply. Needs the LTCF/assessment track decision (D-13).
+3. **Nursing homes (later).** The same team model on wards replaces station leadership: teams plan, a residents' care plan drives the work, quality events and holds apply. The [Nursing Home Transformation Report](NURSING_HOME_TRANSFORMATION.md) analyses today's LTCF operating model, including its parallel assessment hierarchy (expert, supervisor 1:16, coordinator 1:8), and gives the drafts NH1–NH3. It needs D-13 and D-24 to D-27.
 4. **Integrated care networks.** Home care, nursing homes and hospitals as one journey, with continuity carried by the client's care plan, not by the institution.
 
 ## Proposed changes to the Architecture Handbook

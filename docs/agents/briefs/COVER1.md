@@ -8,6 +8,12 @@ updated: 2026-10-22
 
 # COVER1 — Cross-team cover without a dispatcher
 
+## PO addendum — 2026-10-22 14:45 (adds to the 14:30 review, same verdict)
+
+- [ ] **The covering nurse sees nothing else of the case.** pgTAP: after acceptance she gets 0 rows for the case's other visits from `care_visits`, `field_visits(date)` and `team_cases()`, and `my_covers()` returns only her visit. This is the brief's own negative test.
+- [ ] **Needs assessment:** a needs-assessment visit is never offered to, or accepted by, a care assistant. pgTAP.
+- [ ] **KPIs tested:** `cover_without_operations` and `cover_median_hours` return the expected values for seeded offers. pgTAP.
+
 ## PO review — 2026-10-22 14:30: changes-requested
 
 Reviewed on merged evidence: #99 (merge d5f9dd8, CI green on the merge commit), migration 0028, ADR-045, pgTAP 028. No e2e test exists for cover. **The PO did not run the tests**; results come from reading the migration and the tests.

@@ -13,6 +13,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 ## Änderungen gegenüber 9. Oktober 2026
 
 - **DECIDED (Owner, PRIO-1):** Reihenfolge F0, J1, J2, J3.
+- **Stand 22.10. 14:45:** Pflegeheim-Transformationsbericht (`docs/product/NURSING_HOME_TRANSFORMATION.md`) mit Entwürfen NH1–NH3 (Horizont 3); Entscheide D-24 bis D-27.
 - **Stand 22.10. 14:30:** C1, PLAN2, F7, AN1, COVER1 umgesetzt und geprüft: alle **changes-requested** (Begründungen in den Briefs). COVER1 bleibt bis D-3 abgeschaltet; D-21 entschieden.
 - **Stand 22.10. 13:30:** Challenge-Modus: HAND1 und RET1 freigegeben, ORD1 Entwurf (D-22).
 - **Stand 22.10. 12:00:** abgenommen F0, J1, J2, J3, F1-F4, F6, QG1, OPS1, J6; J5 mit einer Änderung. Neu: C1, ADM1, AN1.
@@ -85,7 +86,17 @@ Reihenfolge der offenen Punkte: Nachbesserungen COVER1 → PLAN2 → C1 → F7 �
 
 - interRAI-HC-Adapter nach Lizenz (D-13), angebunden an den J3-Pflegeplan.
 - Handbuchmatrix, versionierte Regeln, Explainability, Impact Analysis.
-- LTCF-CH/PAG/MQI nur bei beschlossenem stationärem Angebot; vorher OCR und fachliche Prüfung der vier PDF-Teile.
+- LTCF-CH/PAG/MQI nur bei beschlossenem stationärem Angebot (D-25) und geklärter Lizenz (D-24); NAVORA rechnet keine PAG-, CAP- oder MQI-Logik selbst.
+
+## Horizont 3: Pflegeheime (Transformationsbericht `docs/product/NURSING_HOME_TRANSFORMATION.md`)
+
+| ID | Fähigkeit | Priorität | Stand |
+| --- | --- | --- | --- |
+| NH1 | Das Abteilungsteam organisiert sich selbst: Dienstplan, Zuteilung, Aufnahme, Vertretung, Übergabe aus der Dokumentation | High | DRAFT; wartet auf D-25 |
+| NH2 | Assessment als Nebenprodukt der Pflege: Kalender, Beobachtungsplan, Nachvollziehbarkeitsprüfung, Datenaustausch mit lizenzierter Software | High | DRAFT; wartet auf D-13, D-24, D-25, D-27 |
+| NH3 | Signale an das Team: Statusveränderung und Qualitätsindikatoren | Medium | DRAFT; wartet auf D-24, D-25, D-26 |
+
+- Phase 0: Entscheide D-24 bis D-27 und Baseline-Messung im Partnerheim (Minuten pro Beobachtungsperiode, Sitzungen, Stellen in Assessment-Rollen). Danach eine Abteilung (NH1), dann NH2, dann NH3.
 
 ## Gate 7: Abrechnung, Payroll, Partner
 

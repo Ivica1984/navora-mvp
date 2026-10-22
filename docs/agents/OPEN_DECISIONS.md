@@ -1,6 +1,6 @@
 # Open decisions
 
-**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 14:30 (po)
+**Opened by:** anyone · **Decided by:** the role in *Owner* only · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 14:45 (po)
 Background, options and consequences for the `D-*` items: `docs/engineering/DECISIONS_NEEDED.md`.
 
 ## Open
@@ -29,6 +29,10 @@ Background, options and consequences for the `D-*` items: `docs/engineering/DECI
 | D-20 | owner | product | Who admits members to a team? D-5 gives NAVORA administrators all member administration, which keeps a central hierarchy step in a self-organised model | teams invite and admit colleagues themselves (team decision rule as in J2); NAVORA only verifies qualifications and identity before the qualification is active, because that is a regulatory duty. Shapes ADM1 | – | 2026-10-22 (po) |
 | D-22 | legal | legal | What form of medical order and order renewal is valid for OKP billing of home-care services (written signature, which electronic signature level, or confirmation through a secure link), and how is the ordering doctor identified? | answer from the applicable federal rules and the tariff contract; the PO does not assume any form. Until then, orders stay as recorded in J1 and J3, and ORD1 stays a draft. Blocks the draft ORD1 | – | 2026-10-22 (po) |
 | D-23 | legal | legal | Can the working-time record that Swiss labour law requires for employed nurses be kept as a working day derived from field events (first departure to last completion, plus return trip and report time) that the nurse confirms once a day, instead of a separate timesheet? What must the record contain and how long is it kept? | answer from the applicable labour-law rules; the PO assumes nothing. If allowed, it removes the timesheet and makes the North Star (care ÷ paid working time) measurable. Until then AN1 shows only the within-visit care share | – | 2026-10-22 (po) |
+| D-24 | legal | legal | interRAI LTCF CH and BESA QSys in NAVORA: may NAVORA exchange data with the licensed assessment software (RAIsoft), or host the instrument itself, and under which licence? The handbook is licensed material; PAG, CAP, scale and quality-indicator logic must not be re-implemented without a licence and validation | integrate with the licensed software rather than re-implement it: NAVORA supplies documented observations and receives the coded result. Blocks the drafts NH2, NH3 | – | 2026-10-22 (po) |
+| D-25 | owner | product | Enter nursing homes (horizon 3), and with which pilot partner and ward? | after the home-care pilot has one month of AN1 data; one ward of a partner home that agrees to let the team plan, assess and coordinate itself. Blocks the drafts NH1–NH3 | – | 2026-10-22 (po) |
+| D-26 | clinical | clinical | Which documented changes in daily care should make NAVORA *suggest* to the primary nurse that a significant status change (reassessment) may be due? NAVORA never decides it | a short list from the clinical owner, e.g. a sustained change in the support needed for an ADL, a new pressure injury, a new restraint; NAVORA shows the evidence and the nurse decides. Blocks the draft NH3 | – | 2026-10-22 (po) |
+| D-27 | legal | legal | Do the administrative contracts between the nursing-home associations and the insurers accept structured, time-stamped care records (who, what, when, support level) as the documentation of the observation period, instead of extra narrative entries? | review the applicable contract; if yes, the documentation phase needs no extra writing. Blocks the draft NH2 | – | 2026-10-22 (po) |
 
 ## Decided
 
