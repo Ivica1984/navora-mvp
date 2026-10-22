@@ -43,7 +43,6 @@ A **watcher** turns the state of these files into **hand-off issues** on GitHub.
 | Workflow | `.github/workflows/agents-coordination.yml` | runs the watcher on every push that touches the three files, **hourly**, and on demand |
 | PO agent | scheduled cloud task "NAVORA PO agent" (hourly) | reviews `agent:po` issues, answers `po` decisions, publishes the queue — through `po/…` PRs |
 | Engineering agent | scheduled cloud task "NAVORA Engineering agent" (hourly) | implements the `active` `agent:eng` issue, fixes CI, merges when green, updates status — through `feat/…` PRs |
-| Clinical & Regulatory Architect | role `cra` (how it runs, as a person or a scheduled agent, is UNKNOWN) | publishes the Clinical Governance Report in `docs/agents/clinical/`; reviews remediation plans. It has no watcher hand-off yet (PLANNED) |
 | Validator | `scripts/agents-check.mjs` (CI) | keeps the files machine-readable; the watcher refuses to run on an invalid layer |
 
 ## Rules for agents
@@ -53,25 +52,8 @@ A **watcher** turns the state of these files into **hand-off issues** on GitHub.
 3. **Write only your own file sections** (README *Roles*). The PO never edits `IMPLEMENTATION_STATUS.md`; Engineering never edits `NEXT_CAPABILITY.md`.
 4. **Merge only your own role's PRs, only with green CI.** Documentation PRs of the PO are merged by the PO agent.
 5. **Stop rules are unchanged:** legal, compliance, financial, regulatory or irreversible production questions become decisions for their owner; an agent never answers them.
-6. **Clinical governance gate** (below) before any capability that affects patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI.
+6. **Clinical review gate (owner, 2026-10-22, D-27):** before Engineering delivers, and before the PO accepts, any item affecting patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI, each reads the latest Clinical Governance Report (`reports/CLINICAL_GOVERNANCE.md`), as described in README *Clinical review gate*. The Clinical & Regulatory Architect is a mandatory reviewer. Its findings are recommendations; only the named human clinical owner approves clinical rules. Engineering also checks scope when it claims an item, writes a remediation plan (`clinical/remediation/<finding ID>.md`) before proceeding when a finding creates a safety, billing or regulatory risk, and names the findings in the PR and journal (README *Clinical review gate*).
 7. **Leave a trail:** every run that changes the files adds a `JOURNAL.md` entry (Europe/Zurich time).
-
-## Clinical governance gate
-
-Added by the owner on 2026-10-22 with the permanent role **NAVORA Clinical & Regulatory Architect** (`cra`). **Clinical Governance findings take precedence over engineering convenience.**
-
-| Step | Who | What |
-|---|---|---|
-| 1. Scope check | Engineering, when it claims an item | Does the item affect patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI? If unsure: yes. |
-| 2. Review | Engineering | Read the **latest** Clinical Governance Report: the newest `docs/agents/clinical/CGR-YYYY-MM-DD.md`. List the findings that touch the item. |
-| 3. Risk | Engineering | Does any applicable finding create a **safety, billing or regulatory risk** for this item? |
-| 4. Remediation plan | Engineering | If yes: write `docs/agents/clinical/remediation/<finding ID>.md` (finding, risk, affected code and data, steps, tests, what needs a decision) and merge it **before** implementing the item. Steps that need a clinical, legal, tariff or regulatory rule become decisions in `OPEN_DECISIONS.md` for `clinical`, `legal` or `owner`. The item lists them under *Blocked by* where they block it. |
-| 5. Trail | Engineering | The PR description and the `JOURNAL.md` entry name the report reviewed, the findings applied and the remediation plan, or "no applicable findings". |
-
-- **No report yet:** state "no Clinical Governance Report available" (OPEN) in the PR and journal. Proceed only with what does not depend on unverified clinical rules. This is the existing stop rule.
-- **Precedence:** where a finding conflicts with a brief, Engineering follows the finding and records the conflict in *Deviations*. It also opens a decision for `po`, so the PO can adjust the brief.
-- **Limits of the role:** `cra` identifies risk. It does not invent medical, clinical, PAG, MQI, LTCF, tariff or legal rules. Those are still decided by `clinical`, `legal` or `owner`.
-- **Not automated yet (PLANNED):** the validator and watcher do not check the gate. It is enforced by the agents' instructions and PO review.
 
 ## Turning it off or changing the pace
 

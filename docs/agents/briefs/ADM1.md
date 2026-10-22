@@ -8,6 +8,30 @@ updated: 2026-10-22
 
 # ADM1 — Pilot administration: members, qualifications and operating rules
 
+## PO pre-review — 2026-10-22 22:15: #135 (open, CI green on becb9c4); one privacy change before merge
+
+Read from PR #135 (head becb9c4: app, db, e2e green), migration 0036, pgTAP 036 (28 assertions), ADR-046 amendment, e2e `admin.spec.ts` and `lifecycle.spec.ts`. **The PO did not run the tests**; results are taken from CI and from reading the code. Status stays `changes-requested` until #135 is merged with green CI on the merge commit.
+
+| Change (20:15) | Result | Evidence |
+|---|---|---|
+| 1. Removal releases her future planned visits in the same command, logged, count shown; one release rule shared with ABS1 | met, **one privacy defect** (below) | `private.release_member_visits` (not executable by app roles); `remove_team_member` returns `{result, released}`; pgTAP 036: near and later visit released, `uncovered` flag, OPS1 `derived_exceptions`, started/completed/past/suspended/other team unchanged, change log, audit under the command, duplicate, foreign admin releases nothing; e2e notice "… jetzt offen im Team" |
+| 2. Role change explicit and tested | met | ADR-046 amendment: role change keeps membership, qualification and visits; pgTAP 036 nurse → coach, qualification kept, visit still hers, `start_visit` = ok |
+| 3. Names asserted in reports and quality | met | pgTAP 036 `signed_by_name`, `countersigned_by_name`, `field_quality.person_name`; profile of organisation B never shown; null without a profile |
+| 4. Legacy hints removed | met | `features/operations/rules.ts` and its unit test deleted; "Weitere Hinweise" gone from `operations-client.tsx` |
+| C1 condition (pause e2e) | fixed in code; **confirm on the merge commit** | `lifecycle.spec.ts` waits for the resume before leaving `/team` |
+
+**Privacy defect (blocking, small).** The release row in `visit_plan_changes` carries the administrator's free-text reason ("Mitglied aus dem Team entfernt: <reason>"). That table is readable by every member of the team (`team_members_read`), so former colleagues read why a person was removed, which is an employment matter, not a care fact. The care record needs the fact, not the reason. Change:
+- the team-readable release row stores the fixed text "Mitglied aus dem Team entfernt", nothing else;
+- the administrator's reason stays in `change_log` and the audit (administrators only), as today;
+- pgTAP: after a removal with reason "Testgrund", no `visit_plan_changes` row contains "Testgrund", and the `change_log` row does.
+ABS1 already follows this rule (fixed reason "Abwesenheit", no free text); the release function should take only fixed texts from callers that write into team-readable rows.
+
+**Engineering's open questions, answered:**
+- *Should HAND1 show `released` entries?* **Yes, as a fact without a reason**: "Einsatz <Datum Zeit> wieder offen im Team", with the date of the release. The next nurse on the case needs to know the planned person changed (continuity); she does not need the cause. It ships with ABS1 (which releases the same way and adds "take"), not in #135, and AN1 planning actions keep excluding `released` (it is not a planning action by the team).
+- *An accepted cover by a nurse removed from her own team is not withdrawn:* **accepted as open** while COVER1 is off (D-3). It becomes a condition of the COVER1 delta review after D-3: removal or absence of the covering nurse releases the cover the same way.
+
+**Acceptance path:** fix the defect in #135 (or a follow-up PR before ABS1 merges), merge with green CI on the merge commit; the PO then accepts without a further round on changes 2–4.
+
 ## PO review — 2026-10-22 20:15: changes-requested (patient safety)
 
 Reviewed on merged evidence: #101 (head c736429, CI green: app, db, e2e; merge commit bdb0d1d on `recovery/main`: app and db green, e2e red on one run only in `lifecycle.spec.ts` "a visit suspended by a pause …", the known C1 flake, see below; `admin.spec.ts` passed), ADR-046, migration 0035, pgTAP 035 (67 assertions), unit `admin-rules.test.ts`, e2e `admin.spec.ts`. **The PO did not run the tests**; results are taken from CI and from reading the code.

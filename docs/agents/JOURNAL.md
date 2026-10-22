@@ -4,12 +4,76 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-22 22:30 · eng (Lead Engineer)
-- **New permanent role (owner instruction): NAVORA Clinical & Regulatory Architect (`cra`).** It is added to `README.md` (Roles, rule 9, Participants) and to `COORDINATION.md` (components, rule 6, new section *Clinical governance gate*). The new folder `docs/agents/clinical/` holds the reports (`CGR-YYYY-MM-DD.md`) and the remediation plans.
-- **Gate for Engineering, from now on:** before any capability that affects patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI, read the latest Clinical Governance Report. Its findings take precedence over engineering convenience. Where a finding creates a safety, billing or regulatory risk, merge a remediation plan before proceeding.
-- **No report exists yet (OPEN).** ABS1 (next) affects patient care, so its PR must state this.
-- The decision-owner vocabulary is unchanged: `cra` raises risk, while `clinical`, `legal` and `owner` still decide the rules. Watcher and validator support for the gate is PLANNED.
-- PR #135 (ADM1 changes) is still green and waiting for the merge, which the run's permission check refused.
+## 2026-10-22 23:10 · eng (Lead Engineer)
+- **#138 reconciled with #136 and #139** (PO comments on #138). README and COORDINATION keep #136's role and acceptance-gate wording (D-27, CGR-14). There is one report path, `reports/CLINICAL_GOVERNANCE.md`. The duplicate `cra` role and participant rows and the "no report yet" line are dropped.
+- **Added for Engineering** to the *Clinical review gate*:
+  - a scope check when it claims an item (in scope if unsure);
+  - read the latest report, the Hazard Log and the Safety Risk Register;
+  - findings take precedence over engineering convenience; a conflict with the brief goes into *Deviations* plus a `po` decision;
+  - a remediation plan in `clinical/remediation/<finding ID>.md` before proceeding, when a finding creates a safety, billing or regulatory risk;
+  - a trail in the PR and the journal.
+- ABS1 is next and is in scope. Engineering reads the 22:30 report section before implementing.
+
+## 2026-10-22 22:40 · po (Product Owner)
+- **Owner decided D-27** (moved to *Decided*):
+  - The Clinical & Regulatory Architect is a permanent, **mandatory reviewer**. It identifies risks, controls, findings and recommendations.
+  - AI-generated clinical, quality, LTCF, PAG, MQI, billing or regulatory guidance is never automatically authoritative.
+  - A **named, qualified human clinical owner** approves clinical, care quality and patient safety rules and LTCF, PAG and MQI interpretations.
+- **Roles split** (README *Roles*):
+  - `cra` reviews and recommends;
+  - `clinical` stays the decision owner and is now the named human clinical owner.
+
+  The validator and watcher need no change.
+- **Gate widened:**
+  - **Engineering**, before delivering an item in scope, reads the latest Clinical Governance Report and states how each finding is handled.
+  - **The PO**, before final acceptance, considers it.
+
+  The rule is in README *Clinical review gate*, COORDINATION rule 6 and the NEXT_CAPABILITY standing review rule.
+- **Effect on ADM1:** the 22:15 entry said "accepted once #135 is merged with green CI". That acceptance now also needs the gate. ADM1 is in scope because removal releases visits.
+- **OPEN:** the human clinical owner is not yet named; README *Participants* holds a placeholder.
+- **First Clinical Governance Report** (22:30, #139) is now on `recovery/main` at the path the gate names, so the gate can run.
+- **CGR-14 resolved here:**
+  - the Architect is `cra`, #138's name, a reviewer without decision rights;
+  - `clinical` stays the named, qualified person;
+  - there is one report path, `reports/CLINICAL_GOVERNANCE.md`.
+
+  #138 (Engineering) should be reconciled to this path and these role definitions.
+- **Merge:** PR #136 brought up to date with `recovery/main` twice (PO 22:15 #137, governance baseline #139). All journal entries and both PO notes kept, newest first.
+- **Next (po):** apply the report's gate findings in the next PO cycle, after this merge.
+
+## 2026-10-22 22:30 · Clinical & Regulatory Architect (review)
+- **First Clinical Governance Report published:** `reports/CLINICAL_GOVERNANCE.md`, baseline on `recovery/main` @ b546299. The gate in #136 can now run.
+- **Registers created** in `clinical/`: `HAZARD_LOG.md`, `CLINICAL_RULE_REGISTER.md` (0 of 34 rules approved), `SAFETY_RISK_REGISTER.md`.
+- **Blocking findings:**
+  - ADM1 changes (#135): CGR-09 (suspended visits are not released) and CGR-10 (removal during a visit in progress).
+  - Earlier acceptances: CGR-01 to CGR-07 and CGR-12. Recommended to the PO: bundle them as one item, "Clinical safety remediation (CSR1)", above ABS1.
+- **Role (#136 / #138):** CGR-14. Adopt #136's gate; the deciding `clinical` owner stays a named, qualified person (D-27). The Architect reviews and recommends; it decides no clinical rule. Use one report path: this file.
+- **ABS1:** amend the brief first (CGR-15, CGR-11).
+- I did not run the tests or access the live database.
+- **Next agent (po):** apply the gate to #135; rank CSR1; reconcile #136 and #138.
+- **Next agent (eng):** fix CGR-09 and CGR-10 in #135; do not start ABS1 before its brief is amended.
+
+## 2026-10-22 22:15 · po (Product Owner)
+- **ADM1 changes pre-reviewed** (#135, open, CI green on becb9c4). Evidence table in `briefs/ADM1.md`. Changes 1–4 are met; the C1 pause e2e is fixed in code and must pass on the merge commit.
+- **One blocking privacy fix before merge:** the release row in `visit_plan_changes` is readable by the whole team and carries the administrator's free-text removal reason. Store the fixed text "Mitglied aus dem Team entfernt" there; the reason stays in `change_log` and the audit. pgTAP: the reason never appears in `visit_plan_changes`. Comment posted on #135.
+- **Answered (engineering's OPEN items):** HAND1 shows `released` as a fact without a reason, delivered with ABS1 (added to `briefs/ABS1.md`); a cover by a removed nurse stays open until the COVER1 delta review after D-3.
+- **Challenge:** an administrator's reason for a staffing change does not belong in the care record (new row).
+- **Status:** ADM1 stays `changes-requested` until #135 is merged with green CI; then accepted without another round on changes 2–4. No new brief: ABS1 is still the next approved, unstarted item.
+- **The PO did not run the tests**; results are taken from CI and from reading the code.
+## 2026-10-22 22:10 · po (Product Owner)
+- **New permanent role (owner instruction): Clinical & Regulatory Architect**, role `clinical`. It is the authoritative reviewer for patient safety, clinical workflows, care quality, billing integrity, regulatory compliance, LTCF, PAG and MQI. It reuses the existing `clinical` decision owner, so the validator and the coordination watcher need no change. Updated:
+  - `README.md`: *Roles*, a new *Clinical review gate*, rule 6 and *Participants*;
+  - `OPEN_DECISIONS.md`: how the role works with decisions, plus D-27;
+  - `NEXT_CAPABILITY.md`: the standing review rule and a PO note.
+- **Gate:** items that affect patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI get final acceptance only after the PO has considered the latest Clinical Governance Report (`docs/agents/reports/CLINICAL_GOVERNANCE.md`):
+  - a `blocking` finding never leads to acceptance;
+  - with no report that covers a delivery, the item stays in review, marked "awaiting clinical review";
+  - earlier acceptances stand unless a later finding is `blocking`.
+- **The report does not exist yet.** The next deliveries in scope (ADM1 changes, ABS1) will wait for its first edition.
+- **D-27 (`owner`):** who signs off a clinical rule if the Architect is an agent. Recommendation: the Architect drafts, and a named, qualified person confirms. Until then, `clinical` answers stay recommendations and the safe defaults in code stay. This follows the existing rule "AI drafts; a named, qualified person confirms" and the CLAUDE.md ban on invented medical rules.
+- **No delivery** to review this cycle. Queue unchanged: ADM1 changes, then ABS1.
+- **Next agent (clinical):** publish the first Clinical Governance Report. Cover first the items that are in review or due next (ADM1, ABS1), then the accepted items with clinical impact (F6, F7, J3, J5, QG1, C1, COVER1, PLAN2, HAND1, RET1).
+- **Next agent (eng):** unchanged.
 
 ## 2026-10-22 20:15 · po (Product Owner)
 - **PR #126 brought up to date** again: `recovery/main` (ADM1 #101) merged in, journal entries kept, newest first. No second PO PR opened; this cycle rides on #126.

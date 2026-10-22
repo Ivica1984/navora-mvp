@@ -25,9 +25,30 @@ Supporting files:
 |---|---|---|---|
 | `po` | Product Owner (a person, or an agent acting for them) | **what** is built and its order; accepts or rejects delivered items | edit the engineering state |
 | `eng` | Engineering (Lead Engineer agent, future engineering agents) | **how** it is built (ADRs) | reorder or invent priorities; accept its own work |
-| `cra` | NAVORA Clinical & Regulatory Architect (permanent role, added by the owner 2026-10-22) | clinical and regulatory **risk**: publishes the Clinical Governance Report with findings on patient care, documentation, billing, quality, assessment, LTCF, PAG and MQI; reviews remediation plans | invent medical, clinical, PAG, MQI, LTCF, tariff or legal rules (those stay decisions for `clinical`, `legal` or `owner`); reorder the PO queue; write `IMPLEMENTATION_STATUS.md` |
 | `owner` | Company owner | business, financial, regulatory questions; production risk | — |
-| `legal`, `clinical` | Advisers named by the owner | legal or clinical questions | — |
+| `cra` | **Clinical & Regulatory Architect** (permanent, mandatory role, owner 2026-10-22) | nothing on its own authority: it identifies risks, controls, findings and recommendations for patient safety, clinical workflows, care quality, billing integrity, regulatory compliance, LTCF, PAG and MQI. It is a **mandatory reviewer** (gate below) and writes recommendations into `clinical` decision rows | present its guidance as authoritative (D-27); answer a decision; invent medical, clinical, tariff or regulatory rules; write code; set PO status; edit `IMPLEMENTATION_STATUS.md` |
+| `clinical` | **Named, qualified human clinical owner**, named by the owner (D-27) | approves clinical rules, care quality rules, patient safety rules and LTCF, PAG and MQI interpretations; decides the `clinical` decisions in `OPEN_DECISIONS.md` | — |
+| `legal` | Advisers named by the owner | legal questions | — |
+
+### Clinical review gate (owner instruction, 2026-10-22; D-27)
+
+- **Scope:** every capability that affects patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI.
+- **Report:** the Clinical & Regulatory Architect publishes the **Clinical Governance Report** at `reports/CLINICAL_GOVERNANCE.md`. The newest dated section is the latest report; git keeps the history. Each finding names:
+  - the item ID;
+  - a severity, `blocking` or `advisory`;
+  - the evidence;
+  - a testable remedy.
+- **The report is not authoritative.** AI-generated clinical, quality, LTCF, PAG, MQI, billing or regulatory guidance never becomes a rule by itself. A finding that would need a new rule, or an interpretation of one, becomes a decision for `clinical` (or `legal` or `owner`). Until it is answered, the safe default stays in place.
+- **Engineering, before delivering** an item in scope (setting `ready-for-review` or `delivered`), reads the latest report and states in the *Deviations* column or the journal how each finding for that item is handled. If no report covers the item, it says so.
+- **Engineering, when it claims an item** (before implementing), checks scope: if unsure, the item is in scope. For an item in scope it reads the latest report, the [Hazard Log](clinical/HAZARD_LOG.md) and the [Safety Risk Register](clinical/SAFETY_RISK_REGISTER.md), and lists the findings that touch the item. **Clinical Governance findings take precedence over engineering convenience.** Where a finding conflicts with the brief, Engineering follows the finding, records the conflict in *Deviations* and opens a decision for `po`.
+- **Remediation plan before proceeding:** if a finding creates a safety, billing or regulatory risk for the item, Engineering writes `clinical/remediation/<finding ID>.md` before implementing the item. The plan names the finding, the risk, the affected code and data, the steps, the tests, and what needs a decision. Steps that need a clinical, legal, tariff or regulatory rule become decisions for `clinical`, `legal` or `owner`. The plan never invents such a rule.
+- **Trail:** the PR description and the `JOURNAL.md` entry name the report section reviewed, the findings applied and the remediation plan, or "no applicable findings".
+- **The PO, before final acceptance** of an item in scope, reads the latest report and records in the brief's evidence table, for each finding on that item, that it was considered and how it was decided.
+  - A `blocking` finding leads to `changes-requested` (or a decision for its owner), never to `accepted`.
+  - An `advisory` finding may be accepted as a condition, with the reason.
+- **No report yet, or none that covers the delivery:** the PO completes its own review but does not set `accepted`. The evidence table says "awaiting clinical review", and the item stays in review.
+- **Already accepted items:** acceptances before 2026-10-22 22:10 stand. A later `blocking` finding on one of them leads the PO to set `changes-requested`.
+- **The PO still owns** what is built and its order. The Clinical Architect reviews; it does not reorder the queue.
 
 ## Rules
 
@@ -36,10 +57,9 @@ Supporting files:
 3. **Disagreement is explicit.** If engineering disagrees with a brief, it opens a decision (`owner: po`) with the reason, the risks and an alternative, and lists it under *Blocked by*. If it builds something different from the brief, the *Deviations* column says what and why.
 4. **Blocked names its blocker.** State `blocked` requires decision IDs in *Blocked by*, and those decisions must exist in `OPEN_DECISIONS.md`.
 5. **Decisions go to the right owner.** Legal, financial, regulatory, clinical and production questions are owned by `owner`, `legal` or `clinical`, never by `eng` (CI enforces this).
-6. **Done means accepted.** Engineering sets `delivered` with PR numbers. The PO checks the brief's acceptance criteria and sets *PO status* to `accepted` or `changes-requested`.
+6. **Done means accepted.** Engineering sets `delivered` with PR numbers. The PO checks the brief's acceptance criteria and sets *PO status* to `accepted` or `changes-requested`. For items in clinical scope, delivery and acceptance also follow the clinical review gate (*Roles* above).
 7. **Leave a trail.** Every session that changes one of these files adds a `JOURNAL.md` entry.
 8. **No personal or health data** in this folder.
-9. **Clinical governance gate.** Before Engineering implements any capability that affects patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI, it reads the latest Clinical Governance Report (see [`clinical/README.md`](clinical/README.md)) and names it, with the findings that apply, in the PR and the `JOURNAL.md` entry. **Clinical Governance findings take precedence over engineering convenience.** If a finding creates a safety, billing or regulatory risk for the item, Engineering writes a remediation plan (`clinical/remediation/<finding ID>.md`) and merges it **before** proceeding with the item; the remediation plan never invents a clinical or regulatory rule, it opens a decision for `clinical`, `legal` or `owner` instead. If no report exists yet, Engineering records "no Clinical Governance Report available" (OPEN) and keeps building only what does not depend on unverified clinical rules. Details: [`COORDINATION.md`](COORDINATION.md#clinical-governance-gate).
 
 ## Vocabulary (validated)
 
@@ -68,7 +88,8 @@ Multiple values are comma-separated. Use `–` for none. PRs are written as `#23
 | Owner (Ivica1984) | `owner` | 2026-10-21 |
 | NAVORA PO agent (scheduled, hourly) | `po` | 2026-10-22 |
 | NAVORA Engineering agent (scheduled, hourly) | `eng` | 2026-10-22 |
-| NAVORA Clinical & Regulatory Architect | `cra` | 2026-10-22 |
+| NAVORA Clinical & Regulatory Architect | `cra` (mandatory reviewer) | 2026-10-22 |
+| Human clinical owner (named, qualified) | `clinical` | OPEN: to be named by the owner (D-27) |
 | agents-coordination watcher (GitHub Action) | – (writes issues only) | 2026-10-22 |
 
 Future agents add themselves here in their first PR.

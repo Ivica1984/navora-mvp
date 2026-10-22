@@ -1,10 +1,9 @@
-# Clinical governance
+# Clinical governance registers
 
-Owned by the **NAVORA Clinical & Regulatory Architect** (`cra`). Gate and workflow: [`../COORDINATION.md`](../COORDINATION.md#clinical-governance-gate).
+The **Clinical Governance Report** has a single path: [`../reports/CLINICAL_GOVERNANCE.md`](../reports/CLINICAL_GOVERNANCE.md). Its newest dated section is the latest report. The gate is described in [`../README.md`](../README.md) under *Clinical review gate*.
 
-- `CGR-YYYY-MM-DD.md`: Clinical Governance Report. The newest date is the **latest** report, and Engineering reviews it before any capability that affects patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI. Every finding has a stable ID (for example `CGR-2026-10-22-F1`), a severity and an affected area. Each finding is marked IMPLEMENTED, PLANNED, OPEN or UNKNOWN, with the source for every rule it cites.
-- `remediation/<finding ID>.md`: remediation plan, written by Engineering **before** proceeding when a finding creates a safety, billing or regulatory risk.
+This folder holds:
+- [`HAZARD_LOG.md`](HAZARD_LOG.md), [`SAFETY_RISK_REGISTER.md`](SAFETY_RISK_REGISTER.md), [`CLINICAL_RULE_REGISTER.md`](CLINICAL_RULE_REGISTER.md): maintained by the Clinical & Regulatory Architect (`cra`).
+- `remediation/<finding ID>.md`: remediation plans. Engineering writes one **before** proceeding with an item, whenever a finding creates a safety, billing or regulatory risk for that item.
 
-Status (2026-10-22): **no Clinical Governance Report has been published yet** (OPEN).
-
-No personal or health data in this folder; synthetic examples only. Findings never invent clinical or regulatory rules: open questions go to `clinical`, `legal` or `owner` in `OPEN_DECISIONS.md`.
+No personal or health data here; synthetic examples only.
