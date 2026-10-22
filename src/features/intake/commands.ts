@@ -53,6 +53,17 @@ const convertSchema = z.object({
   idempotencyKey: z.uuid(),
 });
 
+const linkSchema = z.object({
+  requestId: z.uuid(),
+  caseId: z.uuid(),
+  reason: z.string().trim().min(3).max(300),
+  firstName: z.string().trim().max(100),
+  lastName: z.string().trim().max(100),
+  consentConfirmed: z.literal(true),
+  facts: factsSchema,
+  idempotencyKey: z.uuid(),
+});
+
 const updateSchema = z.object({ caseId: z.uuid(), facts: factsSchema, idempotencyKey: z.uuid() });
 
 export type IntakeResult = { ok: true; ready: boolean; missing: ReadinessItem[] } | { ok: false; error: string };
@@ -124,6 +135,32 @@ export async function convertPartnerRequest(input: unknown): Promise<IntakeResul
     p_idempotency_key: d.idempotencyKey,
   });
   return intakeResult(data, error, "convert_partner_request", invalid);
+}
+
+/**
+ * RET1: link a referral to an earlier case of a returning client (paused → resumed; closed within the period →
+ * new case, first offered to the previous team). public.link_returning_referral (migration 0034, pgTAP 034).
+ */
+export async function linkReturningReferral(input: unknown): Promise<IntakeResult> {
+  const invalid = "Bitte einen Grund für die Verknüpfung (mind. 3 Zeichen), bei abgeschlossenem Fall Vor- und Nachname angeben und die Einwilligung bestätigen.";
+  const parsed = linkSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: invalid };
+  const d = parsed.data;
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("link_returning_referral", {
+    p_request_id: d.requestId,
+    p_case_id: d.caseId,
+    p_reason: d.reason,
+    p_first_name: d.firstName,
+    p_last_name: d.lastName,
+    p_consent_confirmed: d.consentConfirmed,
+    p_facts: d.facts,
+    p_idempotency_key: d.idempotencyKey,
+  });
+  if (!error && (data as { result?: string } | null)?.result === "not_linkable") {
+    return { ok: false, error: "Dieser Fall kann nicht verknüpft werden (aktiv, zu lange abgeschlossen oder andere Organisation)." };
+  }
+  return intakeResult(data, error, "link_returning_referral", invalid);
 }
 
 export async function updateCaseIntake(input: unknown): Promise<IntakeResult> {

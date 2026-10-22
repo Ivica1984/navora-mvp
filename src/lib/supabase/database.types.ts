@@ -1128,6 +1128,9 @@ isOneToOne: false
 "close_case":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code": string }; Returns: string
                            },
+"complete_case_task":
+{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_kind": string }; Returns: string
+                           },
 "complete_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
@@ -1215,6 +1218,14 @@ isOneToOne: false
                            },
 "lift_quality_hold":
 { Args: { "p_hold_id": string,"p_idempotency_key": string,"p_reason": string }; Returns: string
+                           },
+"link_returning_referral":
+{ Args: { "p_case_id": string,"p_consent_confirmed": boolean,"p_facts": Json,"p_first_name": string,"p_idempotency_key": string,"p_last_name": string,"p_reason": string,"p_request_id": string }; Returns: Json
+                           },
+"linkable_cases":
+{ Args: { "p_request_id": string }; Returns: {
+              "case_id": string,"client_name": string,"lifecycle": string,"reason_code": string,"since": string,"team_name": string
+            }[]
                            },
 "matching_escalations":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -1332,12 +1343,12 @@ isOneToOne: false
                            },
 "team_cases":
 { Args: Record<PropertyKey, never>; Returns: {
-              "care_needs": (string)[],"care_plan": Json,"case_id": string,"client_name": string,"deputy_nurse_id": string,"medical_order_status": string,"medical_order_valid_until": string,"members": Json,"needs_assessment_done": boolean,"open_tasks": (string)[],"primary_nurse_id": string,"region": string,"team_id": string,"team_name": string,"upcoming": Json,"urgency": string
+              "care_needs": (string)[],"care_plan": Json,"case_id": string,"client_name": string,"deputy_nurse_id": string,"medical_order_status": string,"medical_order_valid_until": string,"members": Json,"needs_assessment_done": boolean,"open_tasks": (string)[],"primary_nurse_id": string,"proposed_primary_nurse_id": string,"region": string,"review_after_pause_reason": string,"team_id": string,"team_name": string,"upcoming": Json,"urgency": string
             }[]
                            },
 "team_offers":
 { Args: Record<PropertyKey, never>; Returns: {
-              "created_at": string,"expected_hours_per_week": number,"matching_request_id": string,"my_team_declined": boolean,"region": string,"request_title": string,"requested_start": string,"required_qualification": string,"required_services": (string)[],"response_due_at": string,"team_id": string,"team_name": string,"urgency": string
+              "created_at": string,"expected_hours_per_week": number,"first_refusal_until": string,"matching_request_id": string,"my_team_declined": boolean,"region": string,"request_title": string,"requested_start": string,"required_qualification": string,"required_services": (string)[],"response_due_at": string,"returning_client": boolean,"team_id": string,"team_name": string,"urgency": string
             }[]
                            },
 "team_plan_status":

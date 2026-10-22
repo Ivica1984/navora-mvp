@@ -7,6 +7,9 @@ import { intakeOrganization, type Membership } from "./rules";
 
 export type IntakeCase = Database["public"]["Functions"]["intake_cases"]["Returns"][number];
 
+/** RET1: a paused case, or one closed within the configured period, that a referral may be linked to. */
+export type LinkableCase = Database["public"]["Functions"]["linkable_cases"]["Returns"][number];
+
 export type OpenPartnerRequest = {
   id: string;
   created_at: string;
@@ -23,7 +26,12 @@ export type OpenPartnerRequest = {
 };
 
 /** Caller's intake organisation (null = no intake role) and the open referrals of that organisation. */
-export async function getIntakeData(): Promise<{ organizationId: string | null; requests: OpenPartnerRequest[]; cases: IntakeCase[] }> {
+export async function getIntakeData(): Promise<{
+  organizationId: string | null;
+  requests: OpenPartnerRequest[];
+  cases: IntakeCase[];
+  linkable: Record<string, LinkableCase[]>;
+}> {
   const { supabase } = await requireUser();
 
   const { data: memberships, error: mError } = await supabase
@@ -35,7 +43,7 @@ export async function getIntakeData(): Promise<{ organizationId: string | null; 
   }
 
   const organizationId = intakeOrganization((memberships ?? []) as Membership[]);
-  if (!organizationId) return { organizationId: null, requests: [], cases: [] };
+  if (!organizationId) return { organizationId: null, requests: [], cases: [], linkable: {} };
 
   const { data, error } = await supabase
     .from("partner_requests")
@@ -55,5 +63,19 @@ export async function getIntakeData(): Promise<{ organizationId: string | null; 
     throw new Error("Fälle in Aufnahme konnten nicht geladen werden.");
   }
 
-  return { organizationId, requests: data ?? [], cases: cases ?? [] };
+  // RET1: cases each referral may be linked to (explicit choice at intake; no automatic identity matching).
+  const requests = data ?? [];
+  const linkable: Record<string, LinkableCase[]> = {};
+  await Promise.all(
+    requests.map(async (r) => {
+      const { data: rows, error: lError } = await supabase.rpc("linkable_cases", { p_request_id: r.id });
+      if (lError) {
+        logEvent("error", "intake.linkable_failed", errorFields(lError));
+        throw new Error("Frühere Fälle konnten nicht geladen werden.");
+      }
+      linkable[r.id] = rows ?? [];
+    }),
+  );
+
+  return { organizationId, requests, cases: cases ?? [], linkable };
 }
