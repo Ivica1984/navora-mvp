@@ -16,7 +16,7 @@ function report(overrides: Partial<FieldReport>): FieldReport {
     i_am_performer: true,
     i_signed: false,
     i_can_countersign: false,
-    // ADM1 (migration 0029): names of signer and countersigner; null without a profile
+    // ADM1 (migration 0035): names of signer and countersigner; null without a profile
     signed_by_name: null as unknown as string,
     countersigned_by_name: null as unknown as string,
     ...overrides,
@@ -31,7 +31,8 @@ describe("reportView (F6)", () => {
   });
 
   it("a completed visit without a report offers to create the draft", () => {
-    expect(reportView("completed", null)).toMatchObject({ label: "Bericht fehlt", actions: ["create"] });
+    expect(reportView("completed", null)).toMatchObject({ label: "Bericht nicht automatisch erstellt", actions: ["create"] });
+    expect(reportView("completed", null)?.hint).toContain("kein Entwurf");
   });
 
   it("only the performer edits and signs a draft", () => {

@@ -59,7 +59,8 @@ insert into public.care_visits (organization_id, id, created_at, case_id, team_i
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000505', now() - interval '2 days', '00000000-0000-4000-a000-000000000210', '00000000-0000-4000-a000-000000000102', current_date - 1, '14:00', '14:45', 'Pflegekraft Test 3', array['Wundversorgung'],   null,                false, 'completed'), -- no note → P2
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000506', now() - interval '2 days', '00000000-0000-4000-a000-000000000210', '00000000-0000-4000-a000-000000000102', current_date - 1, '16:00', '16:30', 'Pflegekraft Test 3', array['Wundversorgung'],   null,                false, 'completed'), -- draft note → P2
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000507', now() - interval '3 days', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101', current_date - 2, '08:00', '08:30', 'Pflegekraft Test 1', array['Grundpflege'],      null,                false, 'cancelled'),
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000508', now() - interval '1 day', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101', current_date + 1, '09:00', '09:45', 'Pflegekraft Test 1', array['Grundpflege'],      null,                false, 'planned'); -- F2 e2e: full field path tomorrow
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000508', now() - interval '1 day', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101', current_date + 1, '09:00', '09:45', 'Pflegekraft Test 1', array['Grundpflege'],      null,                false, 'planned'), -- F2 e2e: full field path tomorrow
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000509', now() - interval '1 day', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101', current_date + 2, '18:00', '18:30', 'Pflegekraft Test 1', array['Grundpflege'],      null,                false, 'planned'); -- F7 e2e: run by the care assistant, countersigned by the nurse
 
 -- Care notes -----------------------------------------------------------------
 insert into public.care_notes (organization_id, id, created_at, visit_id, case_id, team_id, author_name, note_type, content, status) values
@@ -96,6 +97,9 @@ insert into auth.users (
    '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000905', 'authenticated', 'authenticated',
    'admin.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), now(),
+   '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000906', 'authenticated', 'authenticated',
+   'assist.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', '');
 
 insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
@@ -108,7 +112,9 @@ insert into auth.identities (id, user_id, provider_id, identity_data, provider, 
   ('00000000-0000-4000-a000-000000000914', '00000000-0000-4000-a000-000000000904', '00000000-0000-4000-a000-000000000904',
    '{"sub":"00000000-0000-4000-a000-000000000904","email":"ops.test@navora.test","email_verified":true}', 'email', now(), now(), now()),
   ('00000000-0000-4000-a000-000000000915', '00000000-0000-4000-a000-000000000905', '00000000-0000-4000-a000-000000000905',
-   '{"sub":"00000000-0000-4000-a000-000000000905","email":"admin.test@navora.test","email_verified":true}', 'email', now(), now(), now());
+   '{"sub":"00000000-0000-4000-a000-000000000905","email":"admin.test@navora.test","email_verified":true}', 'email', now(), now(), now()),
+  ('00000000-0000-4000-a000-000000000916', '00000000-0000-4000-a000-000000000906', '00000000-0000-4000-a000-000000000906',
+   '{"sub":"00000000-0000-4000-a000-000000000906","email":"assist.test@navora.test","email_verified":true}', 'email', now(), now(), now());
 
 -- Testorganisation B (T9) — isolation fixture --------------------------------
 -- Same region name as org A on purpose: isolation must come from the
@@ -128,15 +134,19 @@ insert into public.care_visits (organization_id, id, created_at, case_id, team_i
 --   fremd.test  : org B, role admin — must see nothing of org A
 --   ops.test    : org A, role operations — referral intake (J1)
 --   admin.test  : org A, role admin — pilot administration (ADM1)
+--   assist.test : org A, role nurse — care assistant in Testteam Nord (F7 countersignature path)
 insert into public.organization_memberships (organization_id, user_id, role) values
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000901', 'coach'),
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000902', 'nurse'),
   ('00000000-0000-4000-b000-000000000012', '00000000-0000-4000-a000-000000000903', 'admin'),
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000904', 'operations'),
-  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000905', 'admin');
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000905', 'admin'),
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000906', 'nurse');
 
 insert into public.team_memberships (team_id, user_id, qualification) values
-  ('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000902', 'registered_nurse');
+  ('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000902', 'registered_nurse'),
+  -- F7: a care assistant of Testteam Nord, so the countersignature path runs end to end
+  ('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000906', 'care_assistant');
 
 -- J3 (PO brief): running seed cases already had their needs assessment.
 update public.cases set needs_assessment_done_at = created_at + interval '1 day'

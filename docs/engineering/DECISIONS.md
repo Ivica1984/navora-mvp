@@ -437,7 +437,7 @@ Generated visits stay ordinary planned visits.
 **Decision:**
 - **Profiles (answer to the brief's question):** a separate `member_profiles` table, keyed by organisation and user and bound to the membership. It holds the display name only, never health data. Members of the same organisation can read it; it is written only by commands (an administrator, or the member for her own name). No name is invented: without a profile the neutral labels stay.
 - **Names where people appear:** team view (members, primary nurse, deputy, responsible member), report signature and countersignature, quality-event author, the person who took over an exception. A private `member_name()` is called only by readers that already scope the caller.
-- **Invitations:** an administrator records email, role, display name, and optionally team and qualification. The invitation expires after 14 days and can be revoked. On sign-in with the confirmed email, `accept_my_invitations()` creates the memberships. Creating the Auth account and sending the e-mail stays outside the app until D-22: sign-up is disabled, and the app holds no service-role key.
+- **Invitations:** an administrator records email, role, display name, and optionally team and qualification. The invitation expires after 14 days and can be revoked. On sign-in with the confirmed email, `accept_my_invitations()` creates the memberships. Creating the Auth account and sending the e-mail stays outside the app until D-26: sign-up is disabled, and the app holds no service-role key.
 - **Members and teams:**
   - Role change, with a reason; the last administrator is kept.
   - Team membership: add, or remove with a reason. Removal is refused while the person is primary nurse or deputy of an open case.
@@ -448,4 +448,118 @@ Generated visits stay ordinary planned visits.
   - Exception thresholds and priorities are organisation overrides within safe ranges (D-21): never a lower priority; a P1 alert never later; other thresholds at most twice the default; escalation never later.
   - The OPS1 readers use the effective rules.
 - **Tariffs and reference data stay migration-only.** A test proves that no command writes them.
-**Migration plan:** migration 0029. The readers are regenerated from their current definitions by checked text patches, so the migration fails loudly if a reader changed. Rollback: drop the new objects and restore the readers from 0019–0028.
+**Migration plan:** migration 0035. The readers are regenerated from their current definitions by checked text patches, so the migration fails loudly if a reader changed. Rollback: drop the new objects and restore the readers from 0019–0028.
+
+#### ADR-045 amendment — COVER1 safety changes (PO review 2026-10-22 14:30)
+- **Cover is off until D-3:** `cover_settings.cover_enabled`, platform default false. While it is off, no visit is open for cover and `accept_cover` returns `disabled`.
+- **Acceptance no longer sets the responsible member.** The covering nurse cannot see or start the visit before D-3, so the case team keeps the `uncovered` flag. OPS1 replaces the plain uncovered-visit exception for that visit with `cover_without_access` ("Übernahme ohne Zugriff"): P2, escalating to P1 from 4 h before the start.
+- **Withdraw:** `withdraw_cover` (covering nurse, with a reason, up to the fallback lead) offers the visit again and writes the reason into the case team's plan change log.
+- **Events at the right time:** `private.sync_all_cover_events()` runs every 10 minutes through pg_cron, where available. The page-load sync stays as a backup. Events are ordered by a sequence, not by the transaction time.
+- **Regions:** two empty regions never match.
+- **Concurrency:** `scripts/db-concurrency/cover-accept.sh` runs in the CI db job. It has two psql processes accept the same visit at the same time, and exactly one wins. pgTAP runs inside one transaction and cannot open a second session on Supabase, because dblink needs credentials there.
+- **Not built yet:** performing the visit as covering nurse (context access, F1–F4, F6/F7). It waits for D-3. Until then cover stays off.
+
+#### ADR-042 amendment — PLAN2 changes (PO review 2026-10-22 14:30)
+- **No double planning:** generation never adds a visit next to a non-cancelled visit of the case in the same day and time window (planned by hand, moved there, or covered). The slot is logged once as `skipped` with the reason "care plan: already planned", and an untouched generated double is dropped. The plan log gains the change type `skipped`.
+- **Withdrawn preconditions** drop future untouched generated visits, each logged with its reason: case closed, reopened and not ready, needs assessment no longer done (`private.drop_generated_visits`). A paused case keeps them, because C1 suspends and restores them.
+- **Plan status** counts upcoming visits with B minutes after the order end (the J3 `order_expired` flag), and the team card shows the count.
+- **AN1:** `planning_actions_per_client_week` = the team's own plan changes (planned, moved, removed; not "care plan", not cover) ÷ clients ÷ weeks of the month.
+- **Tests:** pgTAP 030 covers no double, the daily job run twice, another team of the same organisation, the order flag, the uncovered path, the needs assessment, close, reopen-not-ready and the KPI.
+
+#### ADR-041 amendment — C1 changes (PO review 2026-10-22 14:30)
+- **Close withdraws matching:** it also marks the candidate rows `withdrawn`. pgTAP proves that no team is offered the request any more.
+- **Late team cancellation:** the P2 exception stays open until Operations closes it with a reason, or the team plans a replacement for the case on that day. It no longer disappears after a day.
+- **`/field` marks suspended visits:** `field_visits` returns `suspended` and the pause reason category. The card shows "pausiert · …" and has no buttons. e2e at phone width.
+- **Tests added (pgTAP 031):**
+  - another team of the same organisation for pause, resume, cancel, no-show and reopen;
+  - another organisation for cancel, close and reopen;
+  - no report draft and no billing fact after a no-show;
+  - audit with the reason for pause, close and no-show;
+  - close leaves final reports, quality events and billing facts unchanged and closes open tasks.
+
+#### ADR-043 amendment — F7 changes (PO review 2026-10-22 14:30)
+- **She sees what she signs:** the sign form lists every observation and handover note of the snapshot in full, with its time and kind, before the confirm button.
+- **A failed draft is visible:**
+  - right after completion, the card says the report could not be created and why;
+  - afterwards, a completed visit without a report reads "Bericht nicht automatisch erstellt", with a hint and the create step.
+- **Seed:** `assist.test@navora.test`, a care assistant of Testteam Nord, and visit 509, so that the countersignature path runs end to end in e2e: the care assistant runs and signs the visit, and the registered nurse countersigns from her queue.
+
+#### ADR-044 amendment — AN1 changes (PO review 2026-10-22 14:30)
+- **Named honestly:** the measured figure is `care_share_in_visits` ("Pflegeanteil im Einsatz"), shown without a reference line. Its definition says what is not included: documentation, the return trip and time outside visits.
+- **Incomplete visits:** visits without a departure or a completion time are excluded and counted separately (`incomplete_visits`).
+- **North Star placeholder:** `direct_care_share` stays "noch nicht messbar" until paid working time is recorded (D-23).
+- **No per-nurse inference:** team figures appear only when at least 3 persons in the team had visits in the period. Otherwise the team row shows no value and "zu wenig Personen", and only the organisation figure is shown.
+- **COVER1 figures:**
+  - `cover_without_operations` counts only covers accepted before anyone in a coordination role took over or closed the visit's exception;
+  - `cover_median_hours` runs from the moment the visit entered the offer window: the later of the start minus the offer lead, and the visit's creation.
+- **Every row shows its period;** open P1 exceptions say "Stand jetzt" and use all open exceptions as their base.
+- `pilot_kpis` is now defined in full in migration 0032; the patches in 0028 and 0030 are superseded.
+
+### ADR-047 — Handover without the team meeting: "since you were last here" (HAND1)
+**Status:** PROPOSED · **Task:** HAND1 (brief `docs/agents/briefs/HAND1.md`, PO approved 2026-10-22). Migration 0033, pgTAP 033. (ADR-046 stays reserved for ADM1.)
+**Decision:**
+- **One read model over the existing append-only records** (`public.field_since_last(date)`), no copy of clinical data and no new view per case. Sources:
+  - observations and handovers of other visits (current versions);
+  - care plan: items added, items retired with the reason, schedule changes;
+  - visit plan changes (moved, removed) with the reason;
+  - C1 case pause, resume, close and reopen; cancellations and no-shows of other visits;
+  - J6 primary-nurse and deputy changes with the reason;
+  - J1/J3 medical order status and validity changes with the reason;
+  - QG1 quality events with their current status.
+- **Window:**
+  - entries recorded after the nurse's own last completed visit of the case (its completion time);
+  - if she never completed one: the case's last N completed visits on her teams (N = 3, `handover_settings`, per organisation) and everything since;
+  - with no completed visit at all: everything recorded so far.
+
+  The card states which rule applied. The empty state reads "Nichts Neues seit deinem letzten Einsatz am …".
+- **Nothing is summarised, ranked or interpreted.** Entries are ordered oldest first and free text is shown as recorded. Codes become labels. Authors and persons are member labels: "Ich", "Teammitglied n" (numbered as on `/team`), "Automatisch", or "Person ausserhalb des Teams". No user ids leave the database.
+- **Access stays team-scoped (F0, ADR-031):**
+  - the card's visit must belong to one of the caller's teams;
+  - visit-bound entries come only from her teams' visits;
+  - case-bound entries require membership of the case's assigned team;
+  - quality events must be of her teams;
+  - the same case only, so no cross-case linking (RET1).
+
+  A covering nurse is not a member of the visit's team, so she sees nothing until D-3.
+- **Reasons from the change log reach the case's team.** The reasons for a primary-nurse change and for an order-status change become visible to the assigned team. Until now only coordination roles read `change_log`. The brief asks for them; it is limited to the team's own case. This is flagged for the PO review.
+- **No extra tap:**
+  - A trigger on the `started` visit event records in `handover_shown` the entries the section held at that moment: kind and id only, the rule, and the window start. It is append-only.
+  - Opening a card writes nothing.
+  - "Shown" means "present at the start". Reading is not recorded, and there is no read receipt.
+- **Schedule changes are now audited old → new:** the audit trigger of `care_plan_items` includes the frequency fields. Changes made before 0033 show as "values not recorded".
+- **Plan generator entries:** changes the plan generator derives from a care-plan change are represented by that care-plan entry, so they do not flood the section.
+- **AN1:** `handover_shown_before_start` (patched into `pilot_kpis`) is the share of completed visits, among those whose previous completed visit of the case was done by another nurse, where the section was present at the start. It follows the 3-person team rule.
+- **UI:** `/field` shows the section collapsible, open before the start and closed afterwards. It replaces the former 14-day "Übergabe aus dem Team" box. `field_notes` is unchanged.
+**Rollback:** drop the trigger `visit_events_handover_shown`, the functions and the two tables, then restore the previous `audit_care_plan_items` trigger and the 0032 `pilot_kpis`. No existing data is changed.
+**Open:** D-3 (cover context); the PO may change N or the plan-generator exclusion; member names come with ADM1.
+
+### ADR-048 — Returning client returns to her team (RET1)
+**Status:** PROPOSED · **Task:** RET1 (brief `docs/agents/briefs/RET1.md`, PO approved 2026-10-22). Migration 0034, pgTAP 034.
+**Decision:**
+- **Explicit link at intake** (`link_returning_referral`). An intake role links a referral to a case of the same organisation that is paused, or closed within the period in `return_settings` (pilot default 180 days).
+  - The link needs a reason. It is recorded in `referral_links` (append-only, audited).
+  - Nobody searches or matches identities: `linkable_cases` lists only the organisation's paused and recently closed cases, for intake roles (D-9).
+- **Linked to a paused case:**
+  - the case resumes (lifecycle event `resume` with the link reason) with its team and primary nurse;
+  - future suspended visits are reactivated, and no new case or matching is created;
+  - funding and order facts from the referral are applied. Changes to insurer, insurance type or order are logged with the link reason, and the readiness check runs again;
+  - the referral is converted into that case;
+  - the team gets the non-blocking task `review_after_pause` with the pause reason. The team closes it with `complete_case_task`.
+- **Linked to a recently closed case:**
+  - a new case (one case per referral) with `previous_case_id`;
+  - when its J2 request opens, `set_first_refusal` reserves it for the previous team for 1 working hour (hospital discharge) or 2 working hours (otherwise), on the Q10 calendar;
+  - the window is capped at the response deadline, which is never extended.
+- **One eligibility predicate:** the window is a restriction inside the existing J2 rule (`request_offered_to_team`, mirrored in `team_offers`). Other teams neither see nor can accept the request while the window is open and the previous team has not decided. After a decline or the end of the window, J2 applies unchanged.
+  - The previous team sees `returning_client` and its window end.
+  - Other teams see neither, and no reference to an earlier case.
+- **Window skipped:** when the previous team is not eligible under the J2/J3 rules (inactive, other region, or no registered nurse when one is required), normal matching starts at once. Region is included because it is part of J2 eligibility.
+- **Primary nurse:** when the previous team accepts, the last primary nurse of the previous case is proposed as `proposed_primary_nurse_id`, but only if she is still in the team. She is taken from the audit trail, because closing a case clears the primary nurse. The proposal is never assigned: the team confirms it with `set_primary_nurse`, which clears the proposal.
+- **Visibility:** cases keep the team-scoped read (ADR-031), so a team never sees another team's earlier case. `previous_case_id` is not exposed to teams.
+- **AN1** (coordination roles, organisation level):
+  - `returning_previous_team_share`: resumed cases plus new cases already assigned, with the share kept by the previous team;
+  - `returning_referral_to_first_visit_days`: median from the link to the first started visit, shown next to the existing all-cases figure.
+**Rollback:** drop the triggers and functions added here, `referral_links` and `return_settings`, and the added columns. Then restore the 0017 `open_matching_if_ready`, `request_offered_to_team` and `team_offers`, the earlier `team_cases` and the 0033 `pilot_kpis`, and the previous `case_tasks` check.
+**Open:**
+- D-9 / REF2 (automatic recognition stays out of scope);
+- D-15 (if `clinical` makes a care-plan review after a hospital stay mandatory, it replaces the non-blocking task);
+- the PO may change the period or the windows in `return_settings`.

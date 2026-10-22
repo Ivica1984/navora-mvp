@@ -6,8 +6,8 @@ select plan(4);
 
 select is(
   (select count(*)::int from auth.users where email like '%@navora.test' and email_confirmed_at is not null),
-  5,
-  'five confirmed synthetic test users are seeded (admin.test added for ADM1)'
+  6,
+  'six confirmed synthetic test users are seeded (admin.test for ADM1, assist.test for F7)'
 );
 
 select is(
@@ -18,7 +18,7 @@ select is(
 
 select is(
   (select count(*)::int from auth.identities where provider = 'email'),
-  5,
+  6,
   'each test user has an email identity'
 );
 

@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { getCountersignQueue, getFieldNotes, getFieldReports, getFieldVisits } from "@/features/field/queries";
+import { getCountersignQueue, getFieldNotes, getFieldReports, getFieldVisits, getSinceLast } from "@/features/field/queries";
 import { parseDayParam, shiftDay, todayInZurich } from "@/features/field/rules";
 import { getFieldQuality, getQualityEventTypes } from "@/features/quality/queries";
 import { getVisitStatusNotes } from "@/features/lifecycle/queries";
@@ -14,7 +14,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
   const today = todayInZurich();
   const { datum } = await searchParams;
   const day = parseDayParam(datum, today);
-  const [visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover] = await Promise.all([
+  const [visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover, sinceLast] = await Promise.all([
     getFieldVisits(day),
     getFieldNotes(day),
     getFieldReports(day),
@@ -23,6 +23,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
     getVisitStatusNotes(day),
     getCountersignQueue(),
     getCover(),
+    getSinceLast(day),
   ]);
 
   return (
@@ -39,6 +40,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
       statusNotes={statusNotes}
       countersign={countersign}
       cover={cover}
+      sinceLast={sinceLast}
     />
   );
 }

@@ -29,10 +29,14 @@ import { formatMinutesByCategory } from "@/features/team/rules";
 import type { FieldNote, FieldVisit } from "@/features/field/types";
 import type { FieldReport } from "@/features/field/report";
 import ReportSection from "./report-section";
+import { REASON_LABEL as LIFECYCLE_REASON_LABEL } from "@/features/lifecycle/rules";
 import { createReportDraft } from "@/features/field/report-commands";
 import type { CountersignItem } from "@/features/field/queries";
 import type { CoverOffer, MyCover } from "@/features/cover/queries";
 import CoverSection from "./cover-section";
+import SinceLastSection from "./since-last-section";
+import { groupSinceLast, type SinceLast } from "@/features/handover/rules";
+import type { SinceLastRowDb } from "@/features/field/queries";
 import QualitySection from "./quality-section";
 import VisitLifecycle from "./visit-lifecycle";
 import type { VisitStatusNote } from "@/features/lifecycle/queries";
@@ -51,6 +55,7 @@ type Props = {
   statusNotes: VisitStatusNote[];
   countersign: CountersignItem[];
   cover: { offers: CoverOffer[]; mine: MyCover[] };
+  sinceLast: SinceLastRowDb[];
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -74,8 +79,9 @@ const STATUS_CLASS: Record<string, string> = {
   no_show: "bg-rose-100 text-rose-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover, sinceLast }: Props) {
   const summary = summarizeDay(visits);
+  const sinceLastByVisit = groupSinceLast(sinceLast);
 
   return (
     <div className="min-h-screen bg-stone-100 text-emerald-950">
@@ -148,6 +154,7 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
                   quality={quality.filter((q) => q.visit_id === visit.visit_id)}
                   qualityTypes={qualityTypes}
                   statusNotes={statusNotes.filter((n) => n.visit_id === visit.visit_id)}
+                  sinceLast={sinceLastByVisit.get(visit.visit_id)}
                 />
               </li>
             ))}
@@ -155,7 +162,7 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
         )}
 
         <p className="mt-6 text-xs leading-relaxed text-emerald-900/60">
-          Du siehst die Einsätze deiner Teams. Zeiten entstehen aus deinen Statuswechseln und lassen sich mit Begründung korrigieren. Beobachtungen sieht nur dein Team; Übergaben erscheinen bei den nächsten Einsätzen derselben Person. Nach dem Einsatz entsteht der Bericht aus diesen Angaben; die ausführende Person unterschreibt ihn.
+          Du siehst die Einsätze deiner Teams. Zeiten entstehen aus deinen Statuswechseln und lassen sich mit Begründung korrigieren. Beobachtungen sieht nur dein Team; Vor jedem Einsatz siehst du, was seit deinem letzten Einsatz bei dieser Person erfasst wurde. Nach dem Einsatz entsteht der Bericht aus diesen Angaben; die ausführende Person unterschreibt ihn.
         </p>
       </main>
     </div>
@@ -178,6 +185,7 @@ function VisitCard({
   quality,
   qualityTypes,
   statusNotes,
+  sinceLast,
 }: {
   visit: FieldVisit;
   notes: FieldNote[];
@@ -185,12 +193,14 @@ function VisitCard({
   quality: FieldQuality[];
   qualityTypes: QualityEventType[];
   statusNotes: VisitStatusNote[];
+  sinceLast: SinceLast | undefined;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState<FieldAction | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const actions = fieldActions(visit.status);
+  // C1: a visit suspended by a case pause cannot be started; no buttons, a clear marker instead.
+  const actions = visit.suspended ? [] : fieldActions(visit.status);
   const start = formatTime(visit.time_start);
   const end = formatTime(visit.time_end);
   const time = start ? (end ? `${start} – ${end}` : `ab ${start}`) : "Zeit offen";
@@ -207,11 +217,14 @@ function VisitCard({
     const result = await COMMANDS[action]({ visitId: visit.visit_id, idempotencyKey: crypto.randomUUID() });
     // F7: completing opens the report draft at once (built from the visit data). If the database refuses
     // the draft (e.g. no recorded start), the F6 "create" step stays available on the card.
+    let draftError: string | null = null;
     if (result.ok && action === "complete") {
-      await createReportDraft({ visitId: visit.visit_id, summary: null, idempotencyKey: crypto.randomUUID() });
+      const draft = await createReportDraft({ visitId: visit.visit_id, summary: null, idempotencyKey: crypto.randomUUID() });
+      if (!draft.ok) draftError = `Einsatz abgeschlossen, aber der Bericht konnte nicht automatisch entstehen: ${draft.error}`;
     }
     setPending(null);
     if (!result.ok) setError(result.error);
+    else if (draftError) setError(draftError);
     router.refresh();
   }
 
@@ -225,8 +238,8 @@ function VisitCard({
           <p className="text-lg font-bold tabular-nums">{time}</p>
           <h2 className="text-base font-semibold">{visit.client_name ?? "Klient:in ohne Namen"}</h2>
         </div>
-        <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${STATUS_CLASS[visit.status ?? ""] ?? "bg-stone-200 text-stone-800"}`}>
-          {getVisitStatusLabel(visit.status)}
+        <span data-testid="visit-status" className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${visit.suspended ? "bg-amber-100 text-amber-900" : STATUS_CLASS[visit.status ?? ""] ?? "bg-stone-200 text-stone-800"}`}>
+          {visit.suspended ? `pausiert${visit.pause_reason ? ` · ${LIFECYCLE_REASON_LABEL[visit.pause_reason] ?? ""}` : ""}` : getVisitStatusLabel(visit.status)}
         </span>
       </div>
 
@@ -255,7 +268,7 @@ function VisitCard({
         />
       </dl>
 
-      <Handover notes={notes.filter((n) => n.kind === "handover")} />
+      <SinceLastSection block={sinceLast} visitStatus={visit.status} />
 
       {times && (
         <section aria-label="Erfasste Zeit" className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-stone-50 p-2 text-center text-sm">
@@ -319,26 +332,6 @@ function formatDateTime(iso: string) {
   return new Intl.DateTimeFormat("de-CH", {
     timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23",
   }).format(new Date(iso));
-}
-
-function Handover({ notes }: { notes: FieldNote[] }) {
-  if (notes.length === 0) return null;
-  return (
-    <section aria-label="Übergabe" className="mt-3 rounded-xl border-l-4 border-amber-500 bg-amber-50 p-3 text-sm">
-      <h3 className="font-bold text-amber-900">Übergabe aus dem Team</h3>
-      <ul className="mt-1 grid gap-2">
-        {notes.map((note) => (
-          <li key={note.id}>
-            <p className="whitespace-pre-wrap">{note.content}</p>
-            <p className="text-xs text-amber-900/70">
-              {formatDateTime(note.recorded_at)} · {note.own ? "von dir" : "aus dem Team"}
-              {note.edited ? " · geändert" : ""}
-            </p>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
 }
 
 function Observations({ visitId, canRecord, notes }: { visitId: string; canRecord: boolean; notes: FieldNote[] }) {

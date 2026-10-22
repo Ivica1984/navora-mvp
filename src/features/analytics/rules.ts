@@ -10,16 +10,22 @@ export type KpiDefinition = {
 };
 
 export const KPI_ORDER = [
+  "care_share_in_visits",
+  "incomplete_visits",
   "direct_care_share",
   "referral_to_first_visit_days",
+  "returning_referral_to_first_visit_days",
+  "returning_previous_team_share",
   "first_offer_acceptance",
   "report_final_minutes",
   "reports_final_within_10_min",
   "time_correction_share",
   "distinct_nurses_per_client",
   "primary_nurse_share",
+  "handover_shown_before_start",
   "billable_per_care_minute",
   "plan_generated_share",
+  "planning_actions_per_client_week",
   "open_p1_exceptions",
   "p1_median_close_hours",
   "cover_without_operations",
@@ -27,10 +33,20 @@ export const KPI_ORDER = [
 ] as const;
 
 export const KPI: Record<string, KpiDefinition> = {
+  care_share_in_visits: {
+    label: "Pflegeanteil im Einsatz", unit: "%",
+    definition: "Pflegeminuten ÷ (Weg + Pflege + Pause) der Einsätze mit erfasster Abfahrt und Abschluss, mit Zeitkorrekturen. Nicht enthalten: Dokumentation, Rückweg und Zeit ausserhalb der Einsätze.",
+    source: "Einsatzereignisse F1–F4",
+  },
+  incomplete_visits: {
+    label: "Unvollständige Einsätze (nicht gezählt)", unit: "",
+    definition: "Abgeschlossene Einsätze ohne erfasste Abfahrt oder ohne Abschlusszeit; sie zählen nicht zum Pflegeanteil.",
+    source: "Einsatzereignisse F1–F4",
+  },
   direct_care_share: {
-    label: "Direkte Pflegezeit (North Star)", unit: "%",
-    definition: "Pflegeminuten ÷ (Weg + Pflege + Pause) der abgeschlossenen Einsätze, mit Zeitkorrekturen.",
-    source: "Einsatzereignisse F1–F4", reference: "Buurtzorg 60 % · NAVORA-Hypothese 75 %",
+    label: "Direkter Pflegeanteil (North Star)", unit: "%",
+    definition: "Pflegeminuten ÷ bezahlte Arbeitsminuten. Wird messbar, sobald die Arbeitszeit erfasst ist (D-23).",
+    source: "Einsatzereignisse und Arbeitszeit",
   },
   referral_to_first_visit_days: {
     label: "Zuweisung bis erster Einsatz", unit: "Tage",
@@ -76,6 +92,26 @@ export const KPI: Record<string, KpiDefinition> = {
     label: "Einsätze aus dem Pflegeplan", unit: "%",
     definition: "Anteil der Einsätze des Monats (ohne abgesagte), die aus dem Pflegeplan entstanden sind.",
     source: "Selbstplanung PLAN2",
+  },
+  planning_actions_per_client_week: {
+    label: "Planungsarbeit des Teams pro Klient:in und Woche", unit: "",
+    definition: "Von Hand geplante, verschobene oder entfernte Einsätze ÷ Klient:innen ÷ Wochen des Monats (ohne Änderungen aus dem Pflegeplan).",
+    source: "Planungsprotokoll J3/PLAN2",
+  },
+  handover_shown_before_start: {
+    label: "Übergabe ohne Rapport: beim Start vorhanden", unit: "%",
+    definition: "Abgeschlossene Einsätze, deren vorheriger Einsatz beim selben Fall von einer anderen Person gemacht wurde: Anteil, bei dem «Seit deinem letzten Einsatz» beim Start vorhanden war. Ob gelesen wurde, wird nicht erfasst (keine Lesebestätigung).",
+    source: "Übergabe HAND1",
+  },
+  returning_previous_team_share: {
+    label: "Rückkehrende Klient:innen beim früheren Team", unit: "%",
+    definition: "Mit einem früheren Fall verknüpfte Zuweisungen des Monats: Anteil, der beim früheren Team bleibt (fortgesetzter Fall oder Übernahme durch das frühere Team). Basis: fortgesetzte Fälle und neue Fälle, die schon ein Team haben.",
+    source: "Rückkehr RET1",
+  },
+  returning_referral_to_first_visit_days: {
+    label: "Rückkehr: Zuweisung bis erster Einsatz", unit: "Tage",
+    definition: "Median der Tage von der Verknüpfung bis zum ersten begonnenen Einsatz, nur rückkehrende Klient:innen. Zum Vergleich: «Zuweisung bis erster Einsatz» über alle Fälle.",
+    source: "Rückkehr RET1, Einsatzereignisse",
   },
   open_p1_exceptions: {
     label: "Offene P1-Ausnahmen (jetzt)", unit: "",

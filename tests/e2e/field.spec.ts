@@ -5,12 +5,15 @@ import { expect, test, type Page } from "@playwright/test";
 // is completed and visit 502 (10:00, Testteam Nord) is still "started".
 const COACH = "coach.test@navora.test"; //  org A, coach, in no team
 const NURSE = "pflege.test@navora.test"; // org A, nurse, Testteam Nord
+const ASSISTANT = "assist.test@navora.test"; // org A, care assistant, Testteam Nord (F7)
 const PASSWORD = "navora-local-only";
 
 // The seed uses the database's current_date; CI's database runs in UTC.
 const SEED_DAY = new Date().toISOString().slice(0, 10);
 // Visit 508 (Testteam Nord, 09:00) is planned for the day after and untouched by other tests.
 const NEXT_DAY = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+// Visit 509 (Testteam Nord, 18:00) two days ahead: the care assistant runs it in the F7 test below.
+const DAY_AFTER_NEXT = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10);
 // Status buttons only (F4 adds "Beobachtung speichern" to completed visits).
 const TRANSITION = /^(Losfahren|Einsatz starten|Pause|Fortsetzen|Einsatz abschliessen)$/;
 
@@ -175,11 +178,23 @@ test.describe("field tool (F1)", () => {
     await expect(observations.getByRole("listitem").filter({ hasText: "ca. 0.5 l" })).toContainText("geändert");
     await expect(observations.getByText("trinkt wenig. Bitte", { exact: false })).toHaveCount(0);
 
-    // Handover: shown on the same client's visit of the team on the next day (visit 508).
+    // HAND1: "since you were last here" on the same client's next visits. Visit 508 (tomorrow) is already
+    // completed, so the section is collapsed there; it opens with one tap.
     await page.goto(`/field?datum=${NEXT_DAY}`);
-    const handover = page.getByRole("article", { name: /09:00 – 09:45/ }).getByRole("region", { name: "Übergabe" });
-    await expect(handover).toContainText("ca. 0.5 l bis Mittag");
-    await expect(handover).toContainText("von dir");
+    const done = page.getByRole("article", { name: /09:00 – 09:45/ }).getByTestId("since-last");
+    await done.locator("summary").click();
+    await expect(done.getByRole("listitem").filter({ hasText: "ca. 0.5 l bis Mittag" })).toContainText("Ich");
+
+    // Visit 509 (day after tomorrow, planned): open before the start, with the rule that applied, in full text.
+    // This nurse's last completed visit of the client is 508 (F2 test above); the observation came after it.
+    await page.goto(`/field?datum=${DAY_AFTER_NEXT}`);
+    const before = page.getByRole("article", { name: /18:00 – 18:30/ }).getByTestId("since-last");
+    await expect(before).toHaveAttribute("open", "");
+    await expect(before.getByTestId("since-last-rule")).toContainText("Seit deinem letzten Einsatz am");
+    const sinceEntry = before.getByRole("listitem").filter({ hasText: "ca. 0.5 l bis Mittag" });
+    await expect(sinceEntry).toContainText("Klientin müde, trinkt wenig (ca. 0.5 l bis Mittag). Bitte morgen Trinkmenge beobachten.");
+    await expect(sinceEntry).toContainText("für die Übergabe markiert");
+    await expect(sinceEntry).toContainText("Einsatz vom");
   });
 
   test("sign at completion: the draft from the visit data waits at completion and is signed with one confirmation; corrections are new versions (F6, F7)", async ({ page }) => {
@@ -221,7 +236,41 @@ test.describe("field tool (F1)", () => {
     const report = page.getByRole("article", { name: /10:00 – 10:30/ }).getByTestId("visit-report");
     await report.getByRole("button", { name: "Berichtsentwurf erstellen" }).click();
     await expect(report.getByTestId("command-error")).toContainText("kein Start erfasst");
-    await expect(report.getByTestId("report-status")).toHaveText("Bericht fehlt");
+    await expect(report.getByTestId("report-status")).toHaveText("Bericht nicht automatisch erstellt");
+  });
+
+  test("a care assistant signs what she sees; the countersignature request reaches a registered nurse of the team (F7)", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const DAY_AFTER = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10);
+
+    // Visit 509 (18:00, Testfall 08) is run by the seeded care assistant of Testteam Nord.
+    await signIn(page, ASSISTANT, /\/field$/);
+    await page.goto(`/field?datum=${DAY_AFTER}`);
+    const card = page.getByRole("article", { name: /18:00 – 18:30/ });
+    await card.getByRole("button", { name: "Losfahren" }).click();
+    await card.getByRole("button", { name: "Einsatz starten" }).click();
+    const observations = card.getByRole("region", { name: "Beobachtungen" });
+    await observations.getByLabel("Neue Beobachtung").fill("Haut am Rücken gerötet, Lagerung angepasst.");
+    await observations.getByRole("button", { name: "Beobachtung speichern" }).click();
+    await expect(observations).toContainText("Haut am Rücken gerötet");
+    await card.getByRole("button", { name: "Einsatz abschliessen" }).click();
+
+    // She sees the observation text she signs, then signs once.
+    const review = card.getByTestId("visit-report").getByRole("form", { name: "Bericht prüfen und unterschreiben" });
+    await expect(review.getByRole("list", { name: "Beobachtungen im Bericht" })).toContainText("Haut am Rücken gerötet, Lagerung angepasst.");
+    await review.getByRole("button", { name: "Bericht unterschreiben" }).click();
+    await expect(card.getByTestId("report-status")).toHaveText("Unterschrieben – Gegenzeichnung offen");
+
+    // A registered nurse of the team sees the request at the top of her day and countersigns.
+    await page.context().clearCookies();
+    await signIn(page, NURSE, /\/field$/);
+    const queue = page.getByTestId("countersign-queue");
+    await expect(queue).toContainText("Testfall 08");
+    await queue.getByRole("link", { name: /Testfall 08/ }).click();
+    await page.waitForURL(new RegExp(`datum=${DAY_AFTER}`));
+    const report = page.getByRole("article", { name: /18:00 – 18:30/ }).getByTestId("visit-report");
+    await report.getByRole("button", { name: "Gegenzeichnen" }).click();
+    await expect(report.getByTestId("report-status")).toHaveText("Bericht abgeschlossen");
   });
 
   test("works on a phone-sized screen without horizontal scrolling", async ({ page }) => {

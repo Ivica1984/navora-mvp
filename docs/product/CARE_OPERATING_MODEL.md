@@ -1,6 +1,6 @@
 # NAVORA Care Operating Model — beyond Buurtzorg
 
-**Owner:** Product Owner (`po`) · **Stand:** 2026-10-22 · **Status:** strategic direction. Approved items appear in `docs/agents/NEXT_CAPABILITY.md`. Targets marked *hypothesis* are validated with pilot data (AN1), not assumed.
+**Owner:** Product Owner (`po`) · **Stand:** 2026-10-22 13:30 · **Status:** strategic direction. Approved items appear in `docs/agents/NEXT_CAPABILITY.md`. Targets marked *hypothesis* are validated with pilot data (AN1), not assumed.
 
 ## North Star
 
@@ -9,6 +9,8 @@
 Every capability is judged by whether it raises this share without lowering safety or continuity. It is the measure where NAVORA must beat the benchmark: Buurtzorg notifies nurses who spend less than **60 %** of their annual time on billable services ([Commonwealth Fund 2015](https://www.commonwealthfund.org/publications/case-study/2015/may/home-care-self-governing-nursing-teams-netherlands-buurtzorg-model)). The remaining 40 % is planning, documentation, billing, coordination and travel.
 
 *Hypothesis:* NAVORA can reach **75 %**, because software, not the nurse, does planning, billing preparation and most documentation.
+
+*Measurement (PO, 2026-10-22 14:30):* the denominator is **paid** working time. NAVORA does not record it yet, so the North Star is not measurable today. AN1 shows a within-visit care share instead, labelled as such and never compared with 60 % or 75 %. The proposed way to close the gap without adding a timesheet: derive the working day from field events and let the nurse confirm it once a day (challenge table; working-time recording duties are `legal` question D-23).
 
 ## The benchmark: what Buurtzorg proved, and where it stops
 
@@ -44,14 +46,46 @@ Every capability is judged by whether it raises this share without lowering safe
 | Manual quality report | Quality events and holds from the visit; KPIs from data | IMPLEMENTED (QG1); PLANNED (AN1) |
 | Central member administration | Teams admit colleagues; NAVORA verifies qualifications only | PROPOSED (D-20, owner) |
 | Blanket countersignature of care-assistant visits | Risk-based review | PROPOSED (D-10, clinical) |
+| Daily team handover meeting; shift lead as knowledge carrier | "Since you were last here" on every visit card, from the record | PLANNED (HAND1) |
+| Re-intake and re-matching of a client after a hospital stay | Paused case resumes; returning client offered to the known team first | PLANNED (RET1) |
+| Chasing GP practices for order renewals by phone and fax | Prepared renewal request, sent by the primary nurse, confirmed digitally by the GP | DRAFT (ORD1; D-22, D-9) |
+| Nurse ordering her day and route by hand | Proposed order of the day from visit windows and travel time | HYPOTHESIS (Q7 data protection; AN1 travel minutes) |
+| Statutory statistics and cantonal reports compiled by hand | Generated from billing, continuity and quality facts | HYPOTHESIS (D-11) |
+| Back-office invoice preparation | Invoices generated from J5 facts with a human release | after D-12, D-18 |
 
 What does **not** disappear: verified qualifications, clinical responsibility, legal accountability, data protection. These are decisions for their owners, not things to automate away.
+
+## Where NAVORA exceeds Buurtzorg
+
+| Lever | Buurtzorg | NAVORA | Capability |
+|---|---|---|---|
+| Intelligent matching | Referrals by phone to one team | All eligible teams at once with a deadline; continuity first for returning clients | J2, RET1, REF2 |
+| Intelligent scheduling | Team plans by hand | Visits generated from the care plan with the primary nurse; day order proposed (hypothesis) | PLAN2 |
+| Intelligent documentation | Omaha documentation written by the nurse | Report built from visit facts and signed at completion; handover read from the record; AI drafts with human review later | F6, F7, HAND1, Gate 4 |
+| Intelligent quality monitoring | Team reflection and coach | Quality events, holds and continuity measures from data, with signals to the team | QG1, J6, AN1 |
+| Intelligent workforce coordination | Teams are islands | Network cover offered automatically; knowledge carried by the record | COVER1, HAND1 |
+| Organisational simplification | Coaches and a small back office | No dispatch, intake or scheduling roles; Operations handles exceptions only; teams admit colleagues | J2, OPS1, D-20 |
+
+## Impact ledger of proposed capabilities
+
+Every proposed capability answers the same questions. The detail is in each brief.
+
+| ID | Administration layer replaced | Manual activity removed | Role less necessary | Continuity | Direct care time | Income potential |
+|---|---|---|---|---|---|---|
+| PLAN2 | Scheduling and dispatch | Planning every recurring visit by hand | Scheduling administrator | Primary nurse is the default | Planning time back to care | More billable minutes per paid hour |
+| F7 | Documentation back office | Documenting and signing after the shift | – | – | Evening documentation disappears | Same |
+| COVER1 | Dispatch for absences | Phone chain for substitutes | Dispatcher; coach as absence handler | Visits happen, case stays with its team | Less coordination time | Cover is extra billable work (pay supplement D-14) |
+| HAND1 | Coordination layer | Handover meetings, colleague phone calls | Shift lead as knowledge carrier | Every nurse arrives informed | Meeting time back to care | More billable minutes per paid hour |
+| RET1 | Intake and matching for known clients | Re-intake and re-matching | Intake coordinator, dispatcher | Same team across a hospital stay | No re-learning of a known client | Team keeps its client base |
+| REF2 | Intake on both sides | Re-typing referrals; phoning providers | Intake coordinator | Faster start after discharge | Less intake work | Faster start of billable care |
+| ORD1 | Order administration | Chasing GP orders | Administrative staff for orders | No gap in category B care | Phone time back to care | B visits stay billable |
+| AN1 | Management reporting | Manual KPI reports | Controlling and reporting roles | Continuity becomes visible to the team | Proves the North Star | Evidence for D-14 |
 
 ## Horizons
 
 1. **Home care (now).** Swiss ambulatory care with self-organised teams; pilot in one canton (D-11).
 2. **Transitions of care (next).** The hospital discharge is NAVORA's wedge. Discharge planners spend their time phoning providers. One digital referral with a guaranteed answer is a reason for hospitals to choose NAVORA (REF2).
-3. **Nursing homes (later).** The same team model on wards replaces station leadership: teams plan, a residents' care plan drives the work, quality events and holds apply. Needs the LTCF/assessment track decision (D-13).
+3. **Nursing homes (later).** The same team model on wards replaces station leadership: teams plan, a residents' care plan drives the work, quality events and holds apply. Needs the LTCF/assessment track decision (D-13). Analysis and proposals: [`NURSING_HOME_TRANSFORMATION.md`](NURSING_HOME_TRANSFORMATION.md) (D-24, D-25).
 4. **Integrated care networks.** Home care, nursing homes and hospitals as one journey, with continuity carried by the client's care plan, not by the institution.
 
 ## Proposed changes to the Architecture Handbook
@@ -59,3 +93,7 @@ What does **not** disappear: verified qualifications, clinical responsibility, l
 - **Operations should shrink by design.** Target ratio of teams per Operations person; every recurring exception type gets an automation proposal. Today intake (J1) is an Operations task. With REF2 it becomes an exception.
 - **The coach is signal-driven.** The coach is called by OPS1 and AN1 signals (team health, continuity, quality), not by a calendar.
 - **Team membership is a team decision** (D-20), with central verification of qualifications.
+- **Close the loop in the data flow (PO 2026-10-22 13:30).** The Handbook data flow is linear and ends with billing facts. Measured minutes (J5 "above plan"), observations and quality events should flow back as a **care-plan change proposal** to the team, which decides. Then the care plan follows reality instead of a review calendar.
+- **Name the missing actors.** The Handbook lists nurse, team, Operations, partner and architect. The **client and relatives**, the **GP** and the **hospital discharge planner** do much of today's coordination by phone. They should be first-class actors with minimal, consented access (ORD1, REF2, visit-window hypothesis).
+- **Add a "Workforce network" context.** Cross-team cover (COVER1), returning clients (RET1), nurse-chosen capacity (J4) and verified qualifications are network concerns. Today they are spread over Team Self-Organization and Operations, which invites a central dispatcher to come back.
+- **"Teamplanung" is not a manual step.** In the orchestrator chain, team planning should read "plan generated from the care plan; the team handles exceptions" (PLAN2). The team decides; it does not type.

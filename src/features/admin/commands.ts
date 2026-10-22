@@ -47,7 +47,7 @@ export async function inviteMember(input: unknown): Promise<CommandResult> {
   }).refine((v) => (v.teamId === null) === (v.qualification === null)).safeParse(input);
   if (!p.success) return invalid;
   const { supabase } = await requireUser();
-  // Account creation and the e-mail stay outside the app until D-22 (no service-role key on the server).
+  // Account creation and the e-mail stay outside the app until D-26 (no service-role key on the server).
   return interpret("invite_member", await supabase.rpc("invite_member", {
     p_organization_id: p.data.organizationId, p_email: p.data.email, p_role: p.data.role, p_display_name: p.data.displayName,
     p_team_id: p.data.teamId as string, p_qualification: p.data.qualification as string, p_idempotency_key: p.data.idempotencyKey }));

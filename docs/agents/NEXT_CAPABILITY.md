@@ -1,12 +1,12 @@
 # Next capability: Product Owner priority queue
 
-**Owned by:** Product Owner (`po`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 13:15, care operating model; COVER1 approved, REF2 draft; Next up re-ranked by direct care time
+**Owned by:** Product Owner (`po`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 14:50, Nursing Home Transformation Report (owner work package); D-24, D-25 opened
 
 The order of the table is the order engineering builds in, top to bottom, skipping accepted rows. Every row needs a brief in [`briefs/`](briefs/). Strategic reference: `ARCHITECTURE.md` (data flow and bounded contexts), then `PRODUCT_REQUIREMENTS.md` and `DOMAIN_RULES.md`. **Direction:** [`docs/product/CARE_OPERATING_MODEL.md`](../product/CARE_OPERATING_MODEL.md). North Star = direct care share; benchmark Buurtzorg (60 %), hypothesis 75 %.
 
 **Value order for ranking (owner, 2026-10-22):** 1 direct care time · 2 continuity · 3 nurse income · 4 team autonomy · 5 less administration · 6 patient outcomes · 7 scalability · 8 platform completion · 9 revenue · 10 engineering convenience. Patient safety is a precondition, never traded.
 
-**Active now:** **C1** case and visit lifecycle (in review, #83). Then PLAN2, F7, AN1, COVER1, ADM1.
+**Active now:** the requested changes, in this order: **COVER1** (patient safety: switch cover off until D-3), **PLAN2** (no double planning), **C1**, **F7**, **AN1**. Then HAND1, RET1, ADM1.
 
 ## Standing review rule (owner instruction, 2026-10-22)
 
@@ -19,30 +19,34 @@ The order of the table is the order engineering builds in, top to bottom, skippi
 
 | Rank | ID | Capability | PO status | Brief | Why |
 |---|---|---|---|---|---|
-| 1 | J7 | Team economics transparency | draft | [J7](briefs/J7.md) | fair pay made checkable; stays draft until the owner decides D-14. AN1 provides the evidence for that decision |
-| 2 | J5 | Billable visit facts and monthly revenue preview | accepted | [J5](briefs/J5.md) | accepted 2026-10-22 13:00 (#43, #75, CI green); cantonal shares follow D-11 |
-| 3 | F0 | Shared access foundation for the care journey | accepted | [F0](briefs/F0.md) | accepted 2026-10-22 (#34, #38, CI green) |
-| 4 | J1 | Referral intake → case → matching request | accepted | [J1](briefs/J1.md) | accepted 2026-10-21 (#23, #30); safety alerts follow D-17 |
-| 5 | J2 | Team decision workflow | accepted | [J2](briefs/J2.md) | accepted 2026-10-22 (#24, #36, CI green) |
-| 6 | J3 | Visit planning with billable basis | accepted | [J3](briefs/J3.md) | accepted 2026-10-21 (#25, #32); category mapping D-15 |
-| 7 | F1-F4 | Verified visit (field tool slice) | accepted | [F1-F4](briefs/F1-F4.md) | accepted 2026-10-21 (#19–#22) |
-| 8 | F6 | Signed visit report | accepted | [F6](briefs/F6.md) | accepted 2026-10-21 (#35); countersignature rule until D-10 |
-| 9 | QG1 | Quality signals and quality hold | accepted | [QG1](briefs/QG1.md) | accepted 2026-10-22 (#41, CI green); operational once `clinical` answers D-16 |
-| 10 | OPS1 | Operations exception center | accepted | [OPS1](briefs/OPS1.md) | accepted 2026-10-22 (#39, CI green) |
-| 11 | J6 | Continuity of care: primary nurse | accepted | [J6](briefs/J6.md) | accepted 2026-10-22 (#42, CI green); member names via ADM1 |
+| 1 | COVER1 | Cross-team cover without a dispatcher | changes-requested | [COVER1](briefs/COVER1.md) | reviewed 2026-10-22 14:30 (#99): an accepted cover hides the uncovered visit although the covering nurse cannot perform it. Cover off until D-3; the visit stays flagged until it can be performed |
+| 2 | PLAN2 | Self-planning: visits follow the care plan | changes-requested | [PLAN2](briefs/PLAN2.md) | reviewed 14:30 (#92): generation can double-plan a slot the team planned by hand; closed and not-ready cases untested; planning-actions KPI missing |
+| 3 | C1 | Case and visit lifecycle | changes-requested | [C1](briefs/C1.md) | reviewed 14:30 (#83): no-show safety core met; close must withdraw matching, late-cancel P2 must not vanish, suspended visits marked on `/field`, missing negative tests |
+| 4 | F7 | Sign at completion | changes-requested | [F7](briefs/F7.md) | reviewed 14:30 (#94): the nurse must see the observation and handover text she signs |
+| 5 | AN1 | Pilot impact dashboard | changes-requested | [AN1](briefs/AN1.md) | reviewed 14:30 (#97): the North Star is measured inside visits only and overstates the share; label it honestly, no per-nurse inference in small teams, tested COVER1 figures |
+| 6 | J7 | Team economics transparency | draft | [J7](briefs/J7.md) | fair pay made checkable; stays draft until the owner decides D-14. AN1 provides the evidence for that decision |
+| 7 | J5 | Billable visit facts and monthly revenue preview | accepted | [J5](briefs/J5.md) | accepted 2026-10-22 13:00 (#43, #75, CI green); cantonal shares follow D-11 |
+| 8 | F0 | Shared access foundation for the care journey | accepted | [F0](briefs/F0.md) | accepted 2026-10-22 (#34, #38, CI green) |
+| 9 | J1 | Referral intake → case → matching request | accepted | [J1](briefs/J1.md) | accepted 2026-10-21 (#23, #30); safety alerts follow D-17 |
+| 10 | J2 | Team decision workflow | accepted | [J2](briefs/J2.md) | accepted 2026-10-22 (#24, #36, CI green) |
+| 11 | J3 | Visit planning with billable basis | accepted | [J3](briefs/J3.md) | accepted 2026-10-21 (#25, #32); category mapping D-15 |
+| 12 | F1-F4 | Verified visit (field tool slice) | accepted | [F1-F4](briefs/F1-F4.md) | accepted 2026-10-21 (#19–#22) |
+| 13 | F6 | Signed visit report | accepted | [F6](briefs/F6.md) | accepted 2026-10-21 (#35); countersignature rule until D-10 |
+| 14 | QG1 | Quality signals and quality hold | accepted | [QG1](briefs/QG1.md) | accepted 2026-10-22 (#41, CI green); operational once `clinical` answers D-16 |
+| 15 | OPS1 | Operations exception center | accepted | [OPS1](briefs/OPS1.md) | accepted 2026-10-22 (#39, CI green) |
+| 16 | J6 | Continuity of care: primary nurse | accepted | [J6](briefs/J6.md) | accepted 2026-10-22 (#42, CI green); member names via ADM1 |
 
 ## Next up (approved briefs; engineering may start in this order after adding a `not-started` row)
 
 | Order | ID | Capability | Brief | Why |
 |---|---|---|---|---|
-| 1 | C1 | Case and visit lifecycle: pause, close, reopen, cancel, no-show | [C1](briefs/C1.md) | safety precondition: a client who does not open the door has no workflow. In review as #83 |
-| 2 | PLAN2 | Self-planning: visits follow the care plan | [PLAN2](briefs/PLAN2.md) | **direct care time** and **continuity**: removes the scheduling administrator's work and makes the primary nurse the default |
-| 3 | F7 | Sign at completion | [F7](briefs/F7.md) | **direct care time**: documentation stops being a separate later task |
-| 4 | AN1 | Pilot impact dashboard with the direct-care-share North Star | [AN1](briefs/AN1.md) | without measurement the operating model is a claim; it proves PLAN2, F7 and COVER1 and is the evidence for D-14 (nurse income) |
-| 5 | COVER1 | Cross-team cover without a dispatcher | [COVER1](briefs/COVER1.md) | **continuity** and **team autonomy** at network scale: removes the phone chain for substitutes, the main coordination load Buurtzorg leaves to teams and coaches. Context access waits for D-3 |
-| 6 | ADM1 | Pilot administration: members, qualifications, operating rules | [ADM1](briefs/ADM1.md) | platform completion for running the pilot; may be reshaped to team self-administration if the owner accepts D-20 |
+| 1 | HAND1 | Handover without the team meeting: "since you were last here" | [HAND1](briefs/HAND1.md) | **continuity** and **direct care time**: removes the daily handover meeting and colleague phone calls as the carrier of client knowledge. It ranks before COVER1 because a covering nurse can only be safe with it |
+| 2 | RET1 | Returning client returns to her team | [RET1](briefs/RET1.md) | **continuity** across hospital stays: a paused case resumes, a returning client is offered to the known team first; removes re-intake and re-matching. Needs C1 |
+| 3 | ADM1 | Pilot administration: members, qualifications, operating rules | [ADM1](briefs/ADM1.md) | platform completion for running the pilot; may be reshaped to team self-administration if the owner accepts D-20 |
 
-Draft, waiting for decisions: **REF2** hospital referral without an intake coordinator ([brief](briefs/REF2.md)). It is the transitions-of-care wedge and needs D-9 (`legal`) and D-3 (`owner`).
+Drafts, waiting for decisions:
+- **REF2**, hospital referral without an intake coordinator ([brief](briefs/REF2.md)). It is the transitions-of-care wedge and needs D-9 (`legal`) and D-3 (`owner`).
+- **ORD1**, medical order renewal without chasing the GP ([brief](briefs/ORD1.md)). It needs D-22 (`legal`, valid form of a medical order) and D-9.
 
 ## Challenge review (PO, 2026-10-22)
 
@@ -61,6 +65,19 @@ The test: "If NAVORA were designed from scratch today, would it work this way?" 
 | Intake coordinator re-typing referrals; discharge planners phoning providers | no | REF2 (draft, D-9, D-3) |
 | Central administration admits members to teams | doubtful: a hierarchy step in a self-organised model | D-20 (owner): teams admit colleagues, NAVORA verifies qualifications |
 | Coach as routine first line for absences, disputes and finances (Buurtzorg: about 1 coach per 47 teams) | no | coach called by OPS1 and AN1 signals; absences go to COVER1, finances to J7 |
+| Daily team handover meeting (*Rapport*) and phone calls between colleagues to learn what changed | no: the record already holds it | HAND1 |
+| A returning client is re-taken by intake and re-matched from scratch after a hospital stay | no | RET1 |
+| Phoning and faxing GP practices to renew medical orders | no | ORD1 (draft, D-22, D-9) |
+| The nurse orders her day and route by hand | doubtful | Hypothesis: NAVORA proposes the order of the day from visit windows and travel time. Test with AN1 travel minutes (F1–F4 depart/arrive), after the Q7 data-protection review of location data |
+| Relatives phone the team to ask when the nurse comes | doubtful | Hypothesis: share the visit window with the client or a named relative, with consent (D-9). Pilot teams tally these calls for two weeks before any brief |
+| Statutory statistics and cantonal reports compiled by hand | no, once the obligations are known | Hypothesis: generated from J5, J6 and QG1 facts. Needs D-11 (which canton, which obligations); brief after D-11 |
+| Insurer invoices prepared and sent by a back office | no, once billing is allowed | Next after D-12 and D-18: invoices generated from J5 facts, with a human release. No brief before those decisions |
+| Separate timesheets for paid working time | no, if the field events already carry it | Hypothesis: the working day is derived from field events (first departure to last completion plus the return trip and report time) and the nurse confirms it once a day, instead of a timesheet. It is also what makes the North Star measurable (AN1 review). Working-time recording duties are a `legal` question (D-23) before any brief |
+| Ward or unit leadership in nursing homes | no | Self-organised ward team (NH0, NH1); see `docs/product/NURSING_HOME_TRANSFORMATION.md`. Needs D-24, D-25 |
+| Nursing-home assessment hierarchy: LTCF coordinator 1 : 8, supervisor 1 : 16, expert per home (QSys pp. 49–52), mainly to classify and defend the tariff level | no | Primary nurse confirms an AI draft built from continuous evidence; checks become software; experts move to network level (NH2–NH6). Needs D-24 and the licence |
+| Periodic 7-day observation period as a project, stable items re-documented to prove them | no, once evidence is continuous | NH2, NH3 (licence) |
+| Status change: full observation period upward, a direct edit downward (QSys p. 3) | doubtful: payment control, not care | Symmetric status-change signal for the care view (NH5); billing follows the contract |
+| Quality steering group preparing QI and MQI for management | doubtful | Ward teams review their own indicators each month (NH7, AN1 pattern) |
 
 ## Engineering proposals
 
@@ -73,6 +90,9 @@ The test: "If NAVORA were designed from scratch today, would it work this way?" 
 
 ## Notes from the PO
 
+- 2026-10-22 14:50: **Nursing Home Transformation Report** (owner work package) published as `docs/product/NURSING_HOME_TRANSFORMATION.md`. It reads the interRAI LTCF CH handbook (QSys, 2024) as an organisation chart, and finds that a three-level hierarchy (coordinator 1 : 8, supervisor 1 : 16, expert) exists mainly to classify residents for payment and defend that classification. The target is self-organised ward teams, with the primary nurse confirming AI drafts built from continuous evidence and network-level experts. Ten capability proposals (NH0–NH9), eight agents and a five-phase roadmap; none approved. New: D-24 (`owner`, enter nursing homes, design partner, licence) and D-25 (`legal`, cantonal leadership requirements). The home-care queue is unchanged.
+- 2026-10-22 14:30: **Five deliveries reviewed, all changes-requested**; evidence tables and testable changes are in the briefs. **COVER1** first, for patient safety: an accepted cover makes the visit look covered while the covering nurse cannot perform it, so cover stays off until D-3. **PLAN2**: generation must never double-plan a slot the team planned by hand. **C1**: close must withdraw matching, the late-cancellation exception must not vanish, suspended visits shown on `/field`, negative tests. **F7**: the nurse sees the text she signs. **AN1**: the North Star as built is a within-visit share that overstates the result; label it honestly until paid working time exists. **D-21 decided.** PR #91 (13:30 cycle) merged; its legal medical-order question is renumbered D-22.
+- 2026-10-22 13:30: **Challenge mode (owner instruction).** Eight inherited practices reviewed (see the challenge table). **Approved: HAND1** (handover without the team meeting) and **RET1** (returning client returns to her team). **Draft: ORD1** (medical order renewal without chasing the GP), waiting for the new legal decision D-22 and D-9. Every new brief now states which administrative layer it replaces, which manual activity and which role it makes less necessary, and its effect on continuity, direct care time and income. `CARE_OPERATING_MODEL.md` gains an impact ledger and four more proposed Handbook changes. Next up: C1, PLAN2, F7, AN1, HAND1, COVER1, RET1, ADM1.
 - 2026-10-22 13:15: **Care operating model** published (`docs/product/CARE_OPERATING_MODEL.md`). It benchmarks Buurtzorg with sources, sets the direct-care-share North Star, lists what disappears and proposes changes to the Handbook. **COVER1** (cross-team cover) is approved; **REF2** (hospital referral without an intake coordinator) is a draft until D-9 and D-3 are answered. Next up re-ranked by the owner's value order: C1, PLAN2, F7, AN1, COVER1, ADM1. New owner question D-20 (team self-administration); D-14 sharpened.
 - 2026-10-22 13:00: **J5 accepted** (#75, ADR-040, pgTAP 022, CI green): billable minutes never exceed measured care minutes. **Challenge review:** two inherited practices are removed by design. **PLAN2:** visits follow the care plan, with the primary nurse. **F7:** sign at completion. Both rank after C1 (patient safety) and ADM1 (needed to run the pilot). Three more practices are recorded as hypotheses in the challenge table, to be tested with AN1 data. D-10 is sharpened with a risk-based alternative for `clinical`. Q11 decided.
 - 2026-10-22 12:00: **Accepted: F0** (#38), **J2** (#36), **OPS1** (#39), **QG1** (#41), **J6** (#42), all merged with green CI; evidence tables are in the briefs. QG1 becomes operational when `clinical` answers D-16. **J5 changes-requested** for one rule: billable minutes never exceed the measured care minutes (Q11). **Next capability: C1** (case and visit lifecycle), the largest remaining journey gap. After it come **ADM1** (pilot administration, which also gives members names) and **AN1** (pilot impact dashboard). **Decided:** Q7, Q8, Q9, Q10. **New:** D-18 (`legal`: billing time rules in the tariff contract) and D-19 (`clinical`: what the nurse does when a client does not open the door).

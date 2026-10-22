@@ -1,6 +1,6 @@
 -- ADM1: pilot administration (PO brief docs/agents/briefs/ADM1.md).
 -- Users: admin …905 (org A) · nurse …902 (Testteam Nord …101) · coach …901 · operations …904 · foreign admin …903 (org B)
--- Created here: invitee …906 (confirmed email) · invitee …907 (email not confirmed).
+-- Created here: invitee …908 (confirmed email) · invitee …909 (email not confirmed).
 begin;
 create extension if not exists pgtap with schema extensions;
 
@@ -14,9 +14,9 @@ $$;
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
                         raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
                         confirmation_token, recovery_token, email_change_token_new, email_change) values
-  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000906', 'authenticated', 'authenticated',
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000908', 'authenticated', 'authenticated',
    'neu.test@navora.test', '', now(), '{}', '{}', now(), now(), '', '', '', ''),
-  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000907', 'authenticated', 'authenticated',
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000909', 'authenticated', 'authenticated',
    'spaet.test@navora.test', '', null, '{}', '{}', now(), now(), '', '', '', '');
 
 -- The nurse is primary nurse of an open case of her team (J6), used for the removal guard.
@@ -75,7 +75,7 @@ select is(public.set_display_name('00000000-0000-4000-b000-000000000011', '00000
           'a2500000-0000-4000-8000-000000000010'), 'ok', 'the administrator names a member');
 select is(public.set_display_name('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000902', 'Anna Muster',
           'a2500000-0000-4000-8000-000000000010'), 'duplicate', 'resend is a duplicate');
-select is((select count(*)::int from public.admin_members('00000000-0000-4000-b000-000000000011')), 4,
+select is((select count(*)::int from public.admin_members('00000000-0000-4000-b000-000000000011')), 5,
   'the administrator lists the organisation''s members');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
@@ -122,18 +122,18 @@ select is(public.revoke_invitation((select id from public.member_invitations whe
           'a2500000-0000-4000-8000-000000000028'), 'wrong_state', 'a revoked invitation cannot be revoked again');
 reset role;
 
-select pg_temp.act_as('00000000-0000-4000-a000-000000000906');
+select pg_temp.act_as('00000000-0000-4000-a000-000000000908');
 set local role authenticated;
 select is(public.accept_my_invitations(), 1, 'on first sign-in the invitation is accepted');
 select is(public.accept_my_invitations(), 0, 'accepting again changes nothing');
 reset role;
 select ok((select m.role = 'nurse' from public.organization_memberships m
-           where m.organization_id = '00000000-0000-4000-b000-000000000011' and m.user_id = '00000000-0000-4000-a000-000000000906')
+           where m.organization_id = '00000000-0000-4000-b000-000000000011' and m.user_id = '00000000-0000-4000-a000-000000000908')
           and (select tm.qualification = 'registered_nurse' from public.team_memberships tm
-               where tm.team_id = '00000000-0000-4000-a000-000000000101' and tm.user_id = '00000000-0000-4000-a000-000000000906')
-          and (select p.display_name = 'Nina Neu' from public.member_profiles p where p.user_id = '00000000-0000-4000-a000-000000000906'),
+               where tm.team_id = '00000000-0000-4000-a000-000000000101' and tm.user_id = '00000000-0000-4000-a000-000000000908')
+          and (select p.display_name = 'Nina Neu' from public.member_profiles p where p.user_id = '00000000-0000-4000-a000-000000000908'),
   'the invitee becomes a member with role, team, qualification and name');
-select pg_temp.act_as('00000000-0000-4000-a000-000000000907');
+select pg_temp.act_as('00000000-0000-4000-a000-000000000909');
 set local role authenticated;
 select is(public.accept_my_invitations(), 0, 'an unconfirmed email accepts nothing');
 reset role;

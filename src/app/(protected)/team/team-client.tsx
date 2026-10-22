@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { addCarePlanItem, decideMatchingRequest, planVisit, removePlannedVisit, rescheduleVisit, retireCarePlanItem, setPrimaryNurse } from "@/features/team/commands";
+import { addCarePlanItem, completeCaseTask, decideMatchingRequest, planVisit, removePlannedVisit, rescheduleVisit, retireCarePlanItem, setPrimaryNurse } from "@/features/team/commands";
+import { returningOfferText, reviewTaskLabel } from "@/features/returning/rules";
 import {
   DECLINE_REASONS,
   DECLINE_REASON_LABEL,
@@ -183,6 +184,12 @@ function OfferCard({ offer }: { offer: TeamOffer }) {
           {offer.urgency}
         </span>
       </div>
+      {offer.returning_client && (
+        // RET1: only the previous team sees this; other teams get the plain J2 offer after the window.
+        <p data-testid="returning-client" className="mt-2 rounded-lg bg-emerald-50 p-2 text-sm font-semibold text-emerald-900">
+          {returningOfferText(offer.first_refusal_until)}
+        </p>
+      )}
       <p className="mt-2 text-sm">
         Leistungen: {offer.required_services?.length ? offer.required_services.join(", ") : "nicht angegeben"}
       </p>
@@ -373,9 +380,13 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus }: {
       </p>
       {teamCase.open_tasks.length > 0 && (
         <ul aria-label="Offene Aufgaben" className="mt-2 grid gap-0.5 text-sm">
-          {teamCase.open_tasks.map((t) => (
-            <li key={t}>☐ {TASK_LABEL[t] ?? t}</li>
-          ))}
+          {teamCase.open_tasks.map((t) =>
+            t === "review_after_pause" ? (
+              <ReviewTask key={t} caseId={teamCase.case_id} reason={teamCase.review_after_pause_reason} />
+            ) : (
+              <li key={t}>☐ {TASK_LABEL[t] ?? t}</li>
+            ),
+          )}
         </ul>
       )}
 
@@ -402,6 +413,30 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus }: {
 
       <PlanForm caseId={teamCase.case_id} assessmentDone={teamCase.needs_assessment_done} members={members} />
     </article>
+  );
+}
+
+// RET1: non-blocking task after a resumed pause; the team decides and closes it.
+function ReviewTask({ caseId, reason }: { caseId: string; reason: string | null }) {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  async function done() {
+    setPending(true);
+    setError(null);
+    const result = await completeCaseTask({ caseId, kind: "review_after_pause", idempotencyKey: crypto.randomUUID() });
+    setPending(false);
+    if (!result.ok) setError(result.error);
+    else router.refresh();
+  }
+  return (
+    <li data-testid="review-after-pause" className="grid gap-1">
+      <span>☐ {reviewTaskLabel(reason)}</span>
+      <button type="button" onClick={done} disabled={pending} className="justify-self-start min-h-11 px-1 font-semibold underline underline-offset-4 disabled:opacity-60">
+        {pending ? "Wird gespeichert …" : "Entschieden – erledigt"}
+      </button>
+      {error && <ErrorText message={error} />}
+    </li>
   );
 }
 
@@ -438,6 +473,12 @@ function Continuity({ teamCase, members, continuity }: { teamCase: TeamCase; mem
     <section aria-label="Kontinuität" className="mt-3 grid gap-1 rounded-xl bg-stone-50 p-3 text-sm">
       <h4 className="text-xs font-bold uppercase tracking-wide text-emerald-900/60">Kontinuität</h4>
       {!hasPrimary && <p className="font-semibold text-amber-800" data-testid="primary-missing">Bezugspflege noch nicht bestimmt.</p>}
+      {!hasPrimary && teamCase.proposed_primary_nurse_id && (
+        // RET1: the previous primary nurse of a returning client is proposed; the team confirms or changes it.
+        <p data-testid="primary-proposal">
+          Vorschlag: frühere Bezugspflege {memberLabel(members, teamCase.proposed_primary_nurse_id)} (bitte bestätigen oder ändern)
+        </p>
+      )}
       {hasPrimary && (
         <p>
           Bezugspflege: <span data-testid="primary-nurse">{memberLabel(members, teamCase.primary_nurse_id)}</span>
@@ -454,7 +495,7 @@ function Continuity({ teamCase, members, continuity }: { teamCase: TeamCase; mem
         <form action={save} aria-label="Bezugspflege" className="grid gap-2">
           <label className="grid gap-1 text-xs font-semibold">
             Bezugspflegende
-            <select name="primary" required defaultValue={teamCase.primary_nurse_id ?? members.find((m) => m.me)?.user_id ?? ""} className={field}>
+            <select name="primary" required defaultValue={teamCase.primary_nurse_id ?? teamCase.proposed_primary_nurse_id ?? members.find((m) => m.me)?.user_id ?? ""} className={field}>
               {members.map((m) => (
                 <option key={m.user_id} value={m.user_id}>{memberLabel(members, m.user_id)}</option>
               ))}

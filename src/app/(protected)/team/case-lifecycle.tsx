@@ -7,7 +7,8 @@ import { CLOSE_REASONS, PAUSE_REASONS, REASON_LABEL, reasonError } from "@/featu
 import type { CaseLifecycle } from "@/features/lifecycle/queries";
 
 /** C1 on the /team case card: pause, resume, close (with reasons). Closed cases are listed separately for reopening. */
-export default function CaseLifecycleControls({ item }: { item: CaseLifecycle }) {
+/** `operations`: Operations closes (and, in the closed list, reopens); pausing stays with the team. */
+export default function CaseLifecycleControls({ item, operations = false }: { item: CaseLifecycle; operations?: boolean }) {
   const router = useRouter();
   const [mode, setMode] = useState<"idle" | "pause" | "close">("idle");
   const [pending, setPending] = useState(false);
@@ -35,10 +36,10 @@ export default function CaseLifecycleControls({ item }: { item: CaseLifecycle })
       {error && <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">{error}</p>}
       {mode === "idle" && (
         <div className="flex flex-wrap gap-2">
-          {item.lifecycle === "active" && (
+          {item.lifecycle === "active" && !operations && (
             <button type="button" onClick={() => setMode("pause")} className="min-h-11 rounded-lg border border-stone-400 bg-white px-3 font-semibold">Pausieren</button>
           )}
-          {item.lifecycle === "paused" && (
+          {item.lifecycle === "paused" && !operations && (
             <button type="button" disabled={pending} onClick={() => run(() => resumeCase({ caseId: item.case_id, idempotencyKey: crypto.randomUUID() }))}
               className="min-h-11 rounded-lg bg-emerald-800 px-3 font-bold text-white disabled:opacity-60">Fortsetzen</button>
           )}

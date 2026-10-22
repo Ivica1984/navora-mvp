@@ -51,6 +51,7 @@ export const REASON_LABEL: Record<string, string> = {
   items_without_schedule: "Einige Leistungen haben keinen Rhythmus und werden nicht automatisch geplant.",
   order_missing_or_expired: "B-Leistungen ohne gültige Verordnung wurden weggelassen.",
   minutes_exceed_window: "An einigen Tagen passen die Minuten nicht ins Zeitfenster.",
+  already_planned: "Wo das Team schon von Hand geplant hat, entsteht kein zweiter Einsatz.",
   no_team: "Kein Team zugewiesen.",
 };
 
@@ -60,3 +61,15 @@ export const PLANNING_MESSAGES: Record<string, string> = {
   rejected: "Nur das zuständige Team plant diesen Fall.",
   unchanged: "Keine Änderung.",
 };
+
+/**
+ * PLAN2 (PO addendum): when B items have a rhythm and the medical order ends inside the four-week window,
+ * the case says why B work stops. Returns null otherwise.
+ */
+export function orderNotice(bUntil: string | null, items: { category: string; freq_period: string | null }[], today: string): string | null {
+  if (!bUntil || !items.some((i) => i.category === "B" && i.freq_period)) return null;
+  const days = (Date.parse(`${bUntil}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86_400_000;
+  if (days > 28) return null;
+  const [y, m, d] = bUntil.split("-");
+  return `B-Leistungen geplant bis ${d}.${m}.${y}: Verordnung erneuern`;
+}

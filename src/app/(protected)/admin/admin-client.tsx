@@ -255,7 +255,7 @@ function Invitations({ data }: { data: AdminData }) {
       </form>
       <p className="text-xs text-stone-600">
         Die Einladung gilt 14 Tage. Meldet sich die Person mit dieser E-Mail an, wird sie Mitglied mit Rolle, Team und Qualifikation.
-        Das Benutzerkonto und die Einladungs-E-Mail richtet vorerst die NAVORA-Betriebsverantwortung ein (Entscheid D-22 offen).
+        Das Benutzerkonto und die Einladungs-E-Mail richtet vorerst die NAVORA-Betriebsverantwortung ein (Entscheid D-26 offen).
       </p>
       <Feedback error={localError ?? error} notice={notice} />
       <ul className="grid gap-1 text-sm" aria-label="Offene Einladungen">

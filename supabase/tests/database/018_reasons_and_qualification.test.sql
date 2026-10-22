@@ -76,8 +76,8 @@ select is(public.set_member_qualification('00000000-0000-4000-a000-000000000101'
 select is((select changes -> 'qualification' ->> 'old' || '→' || (changes -> 'qualification' ->> 'new') || ' / ' || reason
            from public.change_log where command = 'set_member_qualification'),
   'care_assistant→registered_nurse / Diplom HF nachgereicht', 'the change log keeps old, new and why');
-select is((select count(*)::int from public.team_memberships where team_id = '00000000-0000-4000-a000-000000000101'), 2,
-  'coordination roles read the team''s qualifications');
+select is((select count(*)::int from public.team_memberships where team_id = '00000000-0000-4000-a000-000000000101'), 3,
+  'coordination roles read the team''s qualifications (nurse, seeded care assistant, coach)');
 reset role;
 select ok(exists (select 1 from public.audit_events where command = 'set_member_qualification'
                   and actor_id = '00000000-0000-4000-a000-000000000904'), 'the change is in the audit trail');
