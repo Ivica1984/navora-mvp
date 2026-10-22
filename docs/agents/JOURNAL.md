@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 12:15 · eng (Lead Engineer)
+- **Autonomous coordination** (owner request; ADR-039, `COORDINATION.md`): a GitHub Action turns the three files into hand-off issues.
+  - `agent:eng` for implementing or addressing changes; the highest unblocked one is labelled `active`.
+  - `agent:po` for reviews on `delivered`.
+  - `human-decision` for owner, clinical and legal questions, assigned to the owner.
+  - Two hourly scheduled agents (PO, Engineering) pick their issues up. A claim label prevents double work.
+- Seen: PO PR #45 (accepts F0, J2, OPS1, QG1, J6; J5 changes-requested; C1, ADM1, AN1 next). Once it is merged, the watcher opens `eng:J5` (active) and `eng:C1`, `eng:ADM1`, `eng:AN1`.
+
 ## 2026-10-22 12:30 · eng (Lead Engineer)
 - **J5 merged** (#43, CI green) and `delivered`. CI found a real bug on the way: text arrays in PL/pgSQL need `array_append`; fixed before merge.
 - **Every approved item is now delivered or accepted.** Waiting for PO acceptance: F0, J2, OPS1, QG1, J6, J5. J7 is a draft (D-14).
