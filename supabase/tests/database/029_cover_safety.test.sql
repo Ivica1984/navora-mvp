@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(20);
+select plan(27);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -100,6 +100,43 @@ update public.teams set region = '' where id in ('00000000-0000-4000-a000-000000
 select pg_temp.act_as('00000000-0000-4000-a000-000000000901');
 set local role authenticated;
 select is((select count(*)::int from public.cover_offers()), 0, 'teams without a region are not neighbours');
+reset role;
+
+-- PO addendum 14:45 ------------------------------------------------------------------------------------------------
+-- The covering nurse sees nothing else of the case; my_covers returns only her visit.
+-- A plain nurse of Testteam Mitte (no coordination role), created here.
+insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+                        created_at, updated_at, confirmation_token, recovery_token, email_change_token_new, email_change)
+values ('00000000-0000-0000-0000-000000000000', 'ad900000-0000-4000-8000-0000000000f9', 'authenticated', 'authenticated',
+        'mitte.test@navora.test', '', now(), '{}', '{}', now(), now(), '', '', '', '');
+insert into public.organization_memberships (organization_id, user_id, role)
+values ('00000000-0000-4000-b000-000000000011', 'ad900000-0000-4000-8000-0000000000f9', 'nurse');
+insert into public.team_memberships (team_id, user_id, qualification)
+values ('00000000-0000-4000-a000-000000000102', 'ad900000-0000-4000-8000-0000000000f9', 'care_assistant');
+update public.teams set region = 'Bern West' where id in ('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000102');
+select pg_temp.act_as('ad900000-0000-4000-8000-0000000000f9');
+set local role authenticated;
+select is(public.accept_cover('ad900000-0000-4000-8000-00000000000a', 'ad900000-0000-4000-8000-000000000020'), 'ok', 'a nurse of Mitte covers X');
+select is((select count(*)::int from public.care_visits where case_id = '00000000-0000-4000-a000-000000000208'), 0,
+  'she reads none of the case''s visits from care_visits (not even the covered one before D-3)');
+select is((select count(*)::int from public.field_visits((select visit_date from public.my_covers() limit 1))
+           where case_id = '00000000-0000-4000-a000-000000000208'), 0, 'nor from field_visits');
+select is((select count(*)::int from public.team_cases() where case_id = '00000000-0000-4000-a000-000000000208'), 0, 'nor from team_cases');
+select is((select array_agg(visit_id) from public.my_covers()), array['ad900000-0000-4000-8000-00000000000a'::uuid],
+  'my_covers returns only her visit');
+reset role;
+
+-- A needs-assessment visit is never offered to, or accepted by, a care assistant.
+insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, billable, status, planned_minutes_a, is_needs_assessment)
+values ('00000000-0000-4000-b000-000000000011', 'ad900000-0000-4000-8000-0000000000ee', '00000000-0000-4000-a000-000000000208',
+        '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich' + interval '12 hours')::date,
+        date_trunc('minute', (now() at time zone 'Europe/Zurich' + interval '12 hours'))::time, false, 'planned', 60, true);
+select pg_temp.act_as('00000000-0000-4000-a000-000000000901');
+set local role authenticated;
+select ok(not exists (select 1 from public.cover_offers() where visit_id = 'ad900000-0000-4000-8000-0000000000ee'),
+  'a needs assessment is not offered to a care assistant');
+select is(public.accept_cover('ad900000-0000-4000-8000-0000000000ee', 'ad900000-0000-4000-8000-000000000021'), 'rejected',
+  'nor can she accept it');
 reset role;
 
 select * from finish();
