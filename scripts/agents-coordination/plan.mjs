@@ -126,6 +126,14 @@ export function planCoordination(layer, changed = {}) {
   return { issues, active: activeCandidate ? activeCandidate.q.id : null };
 }
 
+/** Labels the watcher owns. Any other label on an issue (e.g. `claimed`) is left alone. */
+export const MANAGED = new Set(Object.values(LABELS));
+
+/** Planned managed labels plus the issue's own unmanaged labels (claims survive every sync). */
+export function mergedLabels(plannedLabels, existingLabels) {
+  return [...plannedLabels, ...(existingLabels ?? []).filter((l) => !MANAGED.has(l) && !plannedLabels.includes(l))];
+}
+
 /**
  * Diff the plan against existing hand-off issues (by key).
  * @param {any[]} planned
@@ -138,7 +146,8 @@ export function diffIssues(planned, existing) {
   const update = planned
     .filter((p) => byKey.has(p.key))
     .map((p) => ({ planned: p, existing: byKey.get(p.key) }))
-    .filter(({ planned: p, existing: e }) => p.title !== e.title || p.body !== e.body || !sameSet(p.labels, e.labels));
+    .filter(({ planned: p, existing: e }) =>
+      p.title !== e.title || p.body !== e.body || !sameSet(p.labels, (e.labels ?? []).filter((l) => MANAGED.has(l))));
   const close = existing.filter((e) => !plannedKeys.has(e.key));
   return { create, update, close };
 }
