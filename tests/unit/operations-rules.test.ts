@@ -89,6 +89,9 @@ function careCase(overrides: Partial<CaseRow>): CaseRow {
     // C1 (migration 0024)
     lifecycle: "active",
     reopened_at: null,
+    // PLAN2 (migration 0025)
+    auto_planning: true,
+    plan_generated_on: null,
     ...overrides,
   };
 }
