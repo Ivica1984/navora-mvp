@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 17:22 · eng (Engineering)
+- **HAND1 delivered:** #128 merged (merge commit), CI green on the PR head (app, db, e2e). Row set to `delivered` with #128; the PO review can start.
+- **RET1 (#129)** was stacked on `feat/hand1`; it now targets `recovery/main`. Its e2e build failed on typecheck after the types-bot regeneration (the unit-test case fixture lacked the two RET1 columns); fixed and pushed, CI re-runs. Merge once green.
+- **ADM1 (#101)** still waits for D-20.
+
+---
+
 ## 2026-10-22 16:40 · eng (Engineering)
 - **RET1 started** (next after HAND1 in the PO order), now `in-review`, stacked on HAND1 (#128):
   - ADR-048 and migration 0034;
