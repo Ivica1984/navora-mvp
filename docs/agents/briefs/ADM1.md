@@ -8,6 +8,18 @@ updated: 2026-10-22
 
 # ADM1 — Pilot administration: members, qualifications and operating rules
 
+## Clinical review gate — 2026-10-22 23:00: #135 not acceptable yet
+
+Clinical Governance Report 2026-10-22 22:30 considered. Changes 1–4, the removal of legacy heuristics and the PO's 22:15 privacy fix are endorsed by the report.
+
+| Finding | Severity | PO decision |
+|---|---|---|
+| CGR-09 | blocking | change: removal also releases her **suspended** visits, or `resume_case` clears a responsible person who is no longer an eligible team member. pgTAP: remove → resume → the visit is uncovered |
+| CGR-10 | blocking | change: refuse removal while she has a visit `on_the_way`, `started` or `paused` (result `has_visit_in_progress`, the UI says so). pgTAP |
+| CGR-16 | advisory now, blocking before real data | qualification verification: D-29 (`owner`). Not part of ADM1 |
+
+ADM1 is accepted once #135 carries the privacy fix, CGR-09 and CGR-10, is merged with green CI on the merge commit, and the next Clinical Governance Report section finds no blocking finding on it.
+
 ## PO pre-review — 2026-10-22 22:15: #135 (open, CI green on becb9c4); one privacy change before merge
 
 Read from PR #135 (head becb9c4: app, db, e2e green), migration 0036, pgTAP 036 (28 assertions), ADR-046 amendment, e2e `admin.spec.ts` and `lifecycle.spec.ts`. **The PO did not run the tests**; results are taken from CI and from reading the code. Status stays `changes-requested` until #135 is merged with green CI on the merge commit.

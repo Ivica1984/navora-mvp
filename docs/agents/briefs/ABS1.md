@@ -51,6 +51,11 @@ A nurse records in a few seconds that she is not available. Her visits in that p
     - a started visit is not released;
     - no reason text can be stored with an absence (the command has no such parameter).
 
+- [ ] **Clinical gate (2026-10-22 23:00, CGR-15, CGR-11):** one eligibility and release rule for every path that takes a person off a visit (absence, removal, qualification change). It covers suspended visits (CGR-09), refuses or excludes in-progress visits (CGR-10), and respects qualification for B and needs-assessment visits at take, resume and complete (CGR-12, from CSR1).
+- [ ] **CGR-11:** `set_member_qualification` from `registered_nurse` to `care_assistant` releases the B and needs-assessment visits she may no longer perform, through the same release rule, logged with a fixed reason text. pgTAP.
+- [ ] **CGR-15:** a released visit that nobody takes stays alerted after its planned start, through CSR1's overdue-visit exception; it does not vanish at start time. pgTAP.
+- [ ] The PR names the latest Clinical Governance Report section and the CGR IDs it addresses.
+
 ## Out of scope
 - Reasons, sick notes, medical certificates, leave balances, payroll and HR records: not stored, not computed.
 - Holiday planning with approval (no approval step is modelled; see the third criterion).
@@ -73,7 +78,7 @@ A nurse records in a few seconds that she is not available. Her visits in that p
 Today an absent nurse's visit can look assigned and silently not happen. After ABS1 it becomes uncovered at once and enters the existing safety net (J3 flag, OPS1 P1/P2 thresholds, COVER1 after D-3). ABS1 adds no clinical rule: who may perform which visit stays the J3 qualification rule.
 
 ## Dependencies
-J3 (responsible member, uncovered flag, change log, qualification rule), J6 (primary and deputy), PLAN2 (generation), OPS1 (exceptions), COVER1 (lead time; switched off until D-3), AN1. All accepted. No open decision blocks it: no reason is stored, so no health data is processed; no approval rule is modelled, so no labour-law rule is assumed.
+J3 (responsible member, uncovered flag, change log, qualification rule), J6 (primary and deputy), PLAN2 (generation), OPS1 (exceptions), COVER1 (lead time; switched off until D-3), AN1. All accepted, but J3, C1 and OPS1 were reopened on 2026-10-22 23:00: ABS1 starts after CSR1 delivers the qualification and overdue-visit rules (CGR-12, CGR-04). No open decision blocks it: no reason is stored, so no health data is processed; no approval rule is modelled, so no labour-law rule is assumed.
 
 ## Constraints and references
 `DOMAIN_RULES.md` data minimisation and team-scoped access (F0, ADR-031). J3 (ADR-030), J6 (ADR-037), PLAN2 (ADR-042), OPS1 (ADR-035), COVER1 (ADR-045), HAND1 (ADR-047). Working time and leave law are outside NAVORA here (D-23 covers recorded working time only).
