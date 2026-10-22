@@ -6,9 +6,7 @@ import { describe, expect, it } from "vitest";
 import { buildAttentionItems, getHoursSince } from "@/features/operations/rules";
 import type { CaseRow } from "@/features/cases/types";
 import type { TeamRow } from "@/features/teams/types";
-import type { CareVisitRow } from "@/features/visits/types";
 import type {
-  CareNoteRow,
   PartnerRequestRow,
   QualityEventRow,
 } from "@/features/operations/types";
@@ -109,38 +107,6 @@ function partner(overrides: Partial<PartnerRequestRow>): PartnerRequestRow {
   };
 }
 
-function visit(overrides: Partial<CareVisitRow>): CareVisitRow {
-  return {
-    id: "v",
-    case_id: "c",
-    visit_date: "2026-10-20",
-    time_start: "08:00",
-    time_end: "08:30",
-    team_member_name: "Pflegekraft Test",
-    services_provided: null,
-    notes: null,
-    billable: false,
-    status: "completed",
-    created_at: hoursAgo(30),
-    ...overrides,
-  };
-}
-
-function note(overrides: Partial<CareNoteRow>): CareNoteRow {
-  return {
-    id: "n",
-    created_at: hoursAgo(20),
-    visit_id: "v",
-    case_id: "c",
-    team_id: "t",
-    author_name: null,
-    note_type: "visit_report",
-    content: "Synthetisch",
-    status: "approved",
-    ...overrides,
-  };
-}
-
 function quality(overrides: Partial<QualityEventRow>): QualityEventRow {
   return {
     id: "q",
@@ -161,10 +127,7 @@ const empty = {
   partnerRequests: [] as PartnerRequestRow[],
   cases: [] as CaseRow[],
   teams: [] as TeamRow[],
-  visits: [] as CareVisitRow[],
-  careNotes: [] as CareNoteRow[],
   qualityEvents: [] as QualityEventRow[],
-  finalReportVisitIds: [] as string[],
   now: NOW,
 };
 
@@ -237,42 +200,13 @@ describe("partner request rules (legacy)", () => {
   });
 });
 
-describe("visit report rules (legacy)", () => {
-  it("completed visit without note → P2", () => {
-    expect(run({ visits: [visit({})] })[0]).toMatchObject({ priority: "P2", category: "visit" });
-  });
-
-  it.each(["draft", "submitted"])("completed visit with %s note → P2", (status) => {
-    expect(run({ visits: [visit({})], careNotes: [note({ status })] })).toHaveLength(1);
-  });
-
-  it("completed visit with approved note does not fire", () => {
-    expect(run({ visits: [visit({})], careNotes: [note({ status: "approved" })] })).toHaveLength(0);
-  });
-
-  it("non-completed visit does not fire", () => {
-    expect(run({ visits: [visit({ status: "started" })] })).toHaveLength(0);
-  });
-
-  it("F6: a final signed report closes 'report missing' even without an approved legacy note", () => {
-    const v = visit({});
-    expect(run({ visits: [v], finalReportVisitIds: [v.id] })).toHaveLength(0);
-    expect(run({ visits: [v], careNotes: [note({ status: "draft" })], finalReportVisitIds: [v.id] })).toHaveLength(0);
-  });
-
-  it("F6: a final report for another visit does not close this one", () => {
-    expect(run({ visits: [visit({})], finalReportVisitIds: ["other-visit"] })).toHaveLength(1);
-  });
-});
-
 describe("quality rules (legacy)", () => {
-  it.each([
-    ["critical", "P1"],
-    ["high", "P1"],
-    ["medium", "P2"],
-    ["low", "P2"],
-  ])("open %s event → %s", (severity, expected) => {
-    expect(run({ qualityEvents: [quality({ severity })] })[0].priority).toBe(expected);
+  it.each(["medium", "low"])("open %s event → P2", (severity) => {
+    expect(run({ qualityEvents: [quality({ severity })] })[0].priority).toBe("P2");
+  });
+
+  it.each(["critical", "high"])("OPS1: an open %s event is a database exception, not a legacy item", (severity) => {
+    expect(run({ qualityEvents: [quality({ severity })] })).toHaveLength(0);
   });
 
   it("closed event does not fire", () => {
@@ -283,26 +217,9 @@ describe("quality rules (legacy)", () => {
 describe("ordering", () => {
   it("sorts P1 before P2", () => {
     const items = run({
-      qualityEvents: [quality({ id: "q1", severity: "low" }), quality({ id: "q2", severity: "high" })],
+      qualityEvents: [quality({ id: "q1", severity: "low" })],
+      teams: [team({ id: "t1", utilization: 95 })],
     });
     expect(items.map((i) => i.priority)).toEqual(["P1", "P2"]);
-  });
-});
-
-describe("uncovered visits (J3, PO brief)", () => {
-  it("a planned visit without a responsible member in the next 24 h is an Operations exception (P2)", () => {
-    const items = buildAttentionItems({
-      partnerRequests: [],
-      cases: [],
-      teams: [],
-      visits: [],
-      careNotes: [],
-      qualityEvents: [],
-      uncoveredVisits: [{ visit_id: "v9", team_name: "Testteam Nord", visit_date: "2026-10-22", time_start: "08:00:00" }],
-      now: NOW,
-    });
-    expect(items).toHaveLength(1);
-    expect(items[0]).toMatchObject({ id: "visit-uncovered-v9", priority: "P2", category: "visit", entityType: "visit" });
-    expect(items[0].description).toContain("08:00");
   });
 });

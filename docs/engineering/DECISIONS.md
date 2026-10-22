@@ -270,3 +270,16 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 - **One shared rule:** `private.is_registered_nurse(team, user)` is the only reader of the qualification. J2's `team_has_registered_nurse` now calls it.
 **Migration plan:** migration 0018; rows without a qualification would be set to `care_assistant`, the less privileged value. There are none in the seed. Rollback: drop the new function, table and policies; restore the 3-argument `update_case_intake`.
 **Open:** an admin screen for qualifications (D-5 says NAVORA administrators; today command only); reasons on case and visit lifecycle commands when those commands are built.
+
+### ADR-035 — Operations exception center: exceptions derived in the database, handling as events (OPS1)
+**Status:** PROPOSED · **Task:** OPS1 (`docs/agents/briefs/OPS1.md`; thresholds Q9).
+**Why:** J1–J3 and F6 create exceptions, but the attention list derived some of them in TypeScript, without configuration, handling or a trace. The brief asks for one list derived from state, with take-over, comments and closing with a reason, and auto-close when the cause is fixed.
+**Decision:**
+- **`exception_rules`** (configuration) holds type, priority, threshold (hours, days or working days) and an optional P1 escalation, with the Q9 pilot defaults. Its ten types: case not ready for matching after 1 working day; offer past its deadline; candidates exhausted; no deadline for the referral type; uncovered visit within 24 h (P1 for a hospital-discharge case, else P2); order expiring within 7 days or expired; care-plan review overdue; serious quality event open (high or critical; shown at once as P2, P1 after 4 h); report not final 24 h after the visit ended.
+- **`private.derived_exceptions(org)`** derives every open cause from state. Each has a stable key `<type>:<entity>[:<cause>]`, so a new cause, such as a new order date, is a new exception.
+- **`public.operations_exceptions()`** (coordination roles only) adds priority, label, next step, case label, region, team, handling state and comments. It shows no health fields, and there are no assignment or case-editing actions.
+- **`exception_events`** (append-only): `take`, `comment`, `close` (reason required) through `handle_exception`; `auto_close` with a note through `sync_exceptions()`, which the Operations page calls on load. A closed exception stays closed for that cause.
+- **Moved out of the TypeScript attention list:** missing report (now "not final 24 h after the end", using the F6 final report), uncovered visits, J2 escalations and serious quality events. The remaining legacy heuristics (team load, cases without a team, open referrals, minor quality events) stay below as "Weitere Hinweise", marked unvalidated.
+**Deviation for the PO:** a serious quality event shows immediately, as P2, and becomes P1 after 4 h (Q9). Hiding it for 4 hours would be less safe.
+**Migration plan:** migration 0019 (new tables and functions only). Rollback: drop them and restore the TypeScript rules from #36.
+**Open:** an admin screen for rule configuration (today by migration); QG1 replaces the legacy quality source.

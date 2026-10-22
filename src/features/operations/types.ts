@@ -1,3 +1,4 @@
+import type { Database } from "@/lib/supabase/database.types";
 import type { TenantRow } from "@/lib/supabase/tables";
 import type { CaseSummaryRow } from "@/features/cases/types";
 import type { TeamRow } from "@/features/teams/types";
@@ -51,8 +52,6 @@ export const PARTNER_REQUEST_SUMMARY_COLUMNS =
   "id, created_at, partner_name, region, urgency, need_summary, status";
 
 /** Only the review status of notes — never their clinical content. */
-export type CareNoteStatus = Pick<CareNoteRow, "id" | "visit_id" | "status">;
-export const CARE_NOTE_STATUS_COLUMNS = "id, visit_id, status";
 
 export type QualityEventSummary = Pick<
   QualityEventRow,
@@ -74,4 +73,9 @@ export type OperationsDashboard = {
   visits: OperationsVisit[];
   qualityEvents: QualityEventSummary[];
   attentionItems: AttentionItem[];
+  /** OPS1: exceptions derived in the database with handling state (migration 0019). */
+  exceptions: OperationsException[];
 };
+
+/** One row of public.operations_exceptions() — generated from the migration (T14). */
+export type OperationsException = Database["public"]["Functions"]["operations_exceptions"]["Returns"][number];

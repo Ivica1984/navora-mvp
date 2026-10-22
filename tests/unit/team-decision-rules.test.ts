@@ -7,7 +7,6 @@ import {
   formatResponseDue,
   formatWeeklyHours,
 } from "@/features/team/rules";
-import { buildAttentionItems } from "@/features/operations/rules";
 
 const NOW = Date.parse("2026-10-22T08:00:00Z");
 
@@ -41,43 +40,10 @@ describe("J2 offer facts", () => {
   });
 });
 
-describe("J2 escalations in Operations", () => {
-  const base = { partnerRequests: [], cases: [], teams: [], visits: [], careNotes: [], qualityEvents: [], now: NOW };
-
-  it("every escalation reason has a label", () => {
+describe("J2 escalation labels", () => {
+  it("every escalation reason has a label (OPS1 derives the exceptions in the database)", () => {
     for (const r of ["no_eligible_team", "all_declined", "deadline_passed", "deadline_not_configured"]) {
       expect(ESCALATION_REASON_LABEL[r]).toBeTruthy();
     }
-  });
-
-  it("all declined → P1 with every decline reason, no assignment suggested", () => {
-    const items = buildAttentionItems({
-      ...base,
-      matchingEscalations: [{
-        matching_request_id: "m1", request_title: "Teamsuche: X", region: "Bern West", reason: "all_declined",
-        declines: [{ team: "Testteam Nord", code: "capacity", reason: "voll" }, { team: "Testteam Mitte", code: "distance", reason: null }],
-      }],
-    });
-    expect(items).toHaveLength(1);
-    expect(items[0]).toMatchObject({ id: "matching-escalation-m1", priority: "P1", category: "matching", entityType: "matching_request" });
-    expect(items[0].description).toContain("Testteam Nord: Keine Kapazität (voll)");
-    expect(items[0].description).toContain("Testteam Mitte: Zu weit weg");
-    expect(items[0].recommendedAction).toContain("nie automatisch");
-  });
-
-  it("missing deadline configuration is visible (P2), not silent", () => {
-    const items = buildAttentionItems({
-      ...base,
-      matchingEscalations: [{ matching_request_id: "m2", request_title: "T", region: "R", reason: "deadline_not_configured", declines: [] }],
-    });
-    expect(items[0]).toMatchObject({ priority: "P2", title: "Teamsuche: Keine Antwortfrist für diese Zuweisungsart" });
-  });
-
-  it("malformed declines do not break the dashboard", () => {
-    const items = buildAttentionItems({
-      ...base,
-      matchingEscalations: [{ matching_request_id: "m3", request_title: "T", region: "R", reason: "deadline_passed", declines: null }],
-    });
-    expect(items[0].priority).toBe("P1");
   });
 });
