@@ -2,8 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { convertPartnerRequest, recordPartnerRequest, updateCaseIntake } from "@/features/intake/commands";
-import type { IntakeCase, OpenPartnerRequest } from "@/features/intake/queries";
+import { convertPartnerRequest, linkReturningReferral, recordPartnerRequest, updateCaseIntake } from "@/features/intake/commands";
+import { linkEffect, linkableLabel } from "@/features/returning/rules";
+import type { IntakeCase, LinkableCase, OpenPartnerRequest } from "@/features/intake/queries";
 import {
   CANTONS,
   INSURANCE_TYPES,
@@ -26,7 +27,17 @@ const URGENCY_CLASS: Record<string, string> = {
 
 const field = "min-h-11 rounded-lg border border-stone-300 bg-white px-3";
 
-export default function IntakeClient({ organizationId, requests, cases }: { organizationId: string; requests: OpenPartnerRequest[]; cases: IntakeCase[] }) {
+export default function IntakeClient({
+  organizationId,
+  requests,
+  cases,
+  linkable,
+}: {
+  organizationId: string;
+  requests: OpenPartnerRequest[];
+  cases: IntakeCase[];
+  linkable: Record<string, LinkableCase[]>;
+}) {
   return (
     <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
       <NewRequestForm organizationId={organizationId} />
@@ -52,7 +63,7 @@ export default function IntakeClient({ organizationId, requests, cases }: { orga
         <ul className="grid gap-3">
           {requests.map((r) => (
             <li key={r.id}>
-              <RequestCard request={r} />
+              <RequestCard request={r} linkable={linkable[r.id] ?? []} />
             </li>
           ))}
         </ul>
@@ -164,23 +175,30 @@ function NewRequestForm({ organizationId }: { organizationId: string }) {
   );
 }
 
-function RequestCard({ request }: { request: OpenPartnerRequest }) {
+function RequestCard({ request, linkable }: { request: OpenPartnerRequest; linkable: LinkableCase[] }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // RET1: an explicit link to an earlier case, chosen by the intake role (no automatic identity matching).
+  const [linkCaseId, setLinkCaseId] = useState("");
+  const linked = linkable.find((c) => c.case_id === linkCaseId) ?? null;
+  const resumes = linked?.lifecycle === "paused";
 
   async function convert(form: FormData) {
     setPending(true);
     setError(null);
-    const result = await convertPartnerRequest({
+    const common = {
       requestId: request.id,
       firstName: String(form.get("firstName") ?? ""),
       lastName: String(form.get("lastName") ?? ""),
       consentConfirmed: form.get("consent") === "on",
       facts: factsFromForm((k) => String(form.get(k) ?? "")),
       idempotencyKey: crypto.randomUUID(),
-    });
+    };
+    const result = linked
+      ? await linkReturningReferral({ ...common, caseId: linked.case_id, reason: String(form.get("linkReason") ?? "") })
+      : await convertPartnerRequest(common);
     setPending(false);
     if (!result.ok) {
       setError(result.error);
@@ -217,16 +235,42 @@ function RequestCard({ request }: { request: OpenPartnerRequest }) {
         </button>
       ) : (
         <form action={convert} className="mt-3 grid gap-2 rounded-xl bg-stone-50 p-3">
-          <div className="grid grid-cols-2 gap-2">
-            <label className="grid gap-1 text-sm">
-              <span className="font-semibold">Vorname</span>
-              <input name="firstName" required maxLength={100} className={field} />
-            </label>
-            <label className="grid gap-1 text-sm">
-              <span className="font-semibold">Nachname</span>
-              <input name="lastName" required maxLength={100} className={field} />
-            </label>
-          </div>
+          {linkable.length > 0 && (
+            <fieldset className="grid gap-2 rounded-xl border border-stone-200 bg-white p-3">
+              <legend className="px-1 text-sm font-bold">Rückkehrende Klient:in?</legend>
+              <label className="grid gap-1 text-sm">
+                <span className="font-semibold">Mit früherem Fall verknüpfen (optional)</span>
+                <select name="linkCaseId" value={linkCaseId} onChange={(e) => setLinkCaseId(e.target.value)} className={field}>
+                  <option value="">Nein, neue Klient:in</option>
+                  {linkable.map((c) => (
+                    <option key={c.case_id} value={c.case_id}>{linkableLabel(c)}</option>
+                  ))}
+                </select>
+              </label>
+              {linked && (
+                <>
+                  <p data-testid="link-effect" className="text-sm text-emerald-900/80">{linkEffect(linked.lifecycle)}</p>
+                  <label className="grid gap-1 text-sm">
+                    <span className="font-semibold">Grund der Verknüpfung</span>
+                    <input name="linkReason" required minLength={3} maxLength={300} className={field} placeholder="z. B. Austritt nach Spitalaufenthalt, gleiche Person" />
+                  </label>
+                </>
+              )}
+              <p className="text-xs text-emerald-900/60">NAVORA sucht keine Personen automatisch; nur ihr entscheidet über eine Verknüpfung.</p>
+            </fieldset>
+          )}
+          {!resumes && (
+            <div className="grid grid-cols-2 gap-2">
+              <label className="grid gap-1 text-sm">
+                <span className="font-semibold">Vorname</span>
+                <input name="firstName" required maxLength={100} className={field} />
+              </label>
+              <label className="grid gap-1 text-sm">
+                <span className="font-semibold">Nachname</span>
+                <input name="lastName" required maxLength={100} className={field} />
+              </label>
+            </div>
+          )}
           <FactsFields />
           <label className="flex items-start gap-2 text-sm">
             <input name="consent" type="checkbox" required className="mt-1 size-5 shrink-0" />
@@ -238,7 +282,7 @@ function RequestCard({ request }: { request: OpenPartnerRequest }) {
           <ErrorBox message={error} />
           <div className="grid grid-cols-[2fr_1fr] gap-2">
             <button type="submit" disabled={pending} className="min-h-11 rounded-xl bg-emerald-800 font-bold text-white disabled:opacity-60">
-              {pending ? "Wird überführt …" : "Fall eröffnen"}
+              {pending ? "Wird überführt …" : resumes ? "Fall fortsetzen" : "Fall eröffnen"}
             </button>
             <button type="button" onClick={() => { setOpen(false); setError(null); }} className="min-h-11 rounded-xl border border-stone-300 font-semibold">
               Abbrechen

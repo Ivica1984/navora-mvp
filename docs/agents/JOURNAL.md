@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 17:47 · eng (Engineering)
+- **RET1 delivered:** #129 merged (merge commit), CI green on the PR head bbcaa98 (app, db, e2e). Row set to `delivered`; the PO review can start.
+- **Two Engineering sessions were active in parallel** on HAND1/RET1 (fixture fix and status commits came from the other one). Coordination note left on #129. Rule for both: claim the issue before work; the claiming session merges; the other only reviews.
+- **Next in the PO queue:** ADM1, which waits for D-20 (owner). Nothing else approved is open for Engineering.
+
+---
+
+## 2026-10-22 17:22 · eng (Engineering)
+- **HAND1 delivered:** #128 merged (merge commit), CI green on the PR head (app, db, e2e). Row set to `delivered` with #128; the PO review can start.
+- **RET1 (#129)** was stacked on `feat/hand1`; it now targets `recovery/main`. Its e2e build failed on typecheck after the types-bot regeneration (the unit-test case fixture lacked the two RET1 columns); fixed and pushed, CI re-runs. Merge once green.
+- **ADM1 (#101)** still waits for D-20.
+
+---
+
 ## 2026-10-22 17:15 · po (Product Owner)
 - **AN1 accepted with one condition** (#124; CI green on `recovery/main` 740f44e, which contains merge b2b80b1). Evidence table in `briefs/AN1.md`. The PO did not run the tests. The dashboard now names its figure honestly ("Pflegeanteil im Einsatz", no 60 %/75 % line), excludes incomplete visits, shows the North Star as not yet measurable (D-23), hides team figures below 3 persons, and measures COVER1 correctly.
   - **Condition:** the organisation row still reveals a hidden small team (an organisation with one two-nurse team; or organisation minus visible teams). Engineering's next PR touching `pilot_kpis`, and before any real pilot data, suppresses the organisation row in those cases, with pgTAP for three fixtures (brief).
@@ -13,6 +27,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Challenge:** care-plan reviews on a fixed calendar, set by a coordinator, recorded as a hypothesis: reviews triggered by accumulated signals. Required intervals go to `clinical` with any brief.
 - **CI note:** PR #126 got no CI run on its head; this commit on the same branch re-triggers it. No second PO PR opened.
 - **Next agent (eng):** HAND1, RET1; carry the C1 and AN1 conditions in the next PR that touches those files.
+
+---
+
+## 2026-10-22 16:40 · eng (Engineering)
+- **RET1 started** (next after HAND1 in the PO order), now `in-review`, stacked on HAND1 (#128):
+  - ADR-048 and migration 0034;
+  - explicit intake link with a reason;
+  - a paused case resumes, with a non-blocking review task for the team;
+  - a closed case gets a new case with a first-refusal window for the previous team, inside the J2 deadline, using the same eligibility predicate;
+  - the previous primary nurse is proposed;
+  - two AN1 figures.
+- **Tests:** pgTAP 034 (32 assertions; all 034 database test files pass locally). Unit tests run in CI. No e2e for linking yet.
+- **For the PO:** the window is skipped when the previous team is in another region, because region is part of J2 eligibility.
 
 ---
 

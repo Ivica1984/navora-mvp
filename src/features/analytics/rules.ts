@@ -14,6 +14,8 @@ export const KPI_ORDER = [
   "incomplete_visits",
   "direct_care_share",
   "referral_to_first_visit_days",
+  "returning_referral_to_first_visit_days",
+  "returning_previous_team_share",
   "first_offer_acceptance",
   "report_final_minutes",
   "reports_final_within_10_min",
@@ -100,6 +102,16 @@ export const KPI: Record<string, KpiDefinition> = {
     label: "Übergabe ohne Rapport: beim Start vorhanden", unit: "%",
     definition: "Abgeschlossene Einsätze, deren vorheriger Einsatz beim selben Fall von einer anderen Person gemacht wurde: Anteil, bei dem «Seit deinem letzten Einsatz» beim Start vorhanden war. Ob gelesen wurde, wird nicht erfasst (keine Lesebestätigung).",
     source: "Übergabe HAND1",
+  },
+  returning_previous_team_share: {
+    label: "Rückkehrende Klient:innen beim früheren Team", unit: "%",
+    definition: "Mit einem früheren Fall verknüpfte Zuweisungen des Monats: Anteil, der beim früheren Team bleibt (fortgesetzter Fall oder Übernahme durch das frühere Team). Basis: fortgesetzte Fälle und neue Fälle, die schon ein Team haben.",
+    source: "Rückkehr RET1",
+  },
+  returning_referral_to_first_visit_days: {
+    label: "Rückkehr: Zuweisung bis erster Einsatz", unit: "Tage",
+    definition: "Median der Tage von der Verknüpfung bis zum ersten begonnenen Einsatz, nur rückkehrende Klient:innen. Zum Vergleich: «Zuweisung bis erster Einsatz» über alle Fälle.",
+    source: "Rückkehr RET1, Einsatzereignisse",
   },
   open_p1_exceptions: {
     label: "Offene P1-Ausnahmen (jetzt)", unit: "",

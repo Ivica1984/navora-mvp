@@ -6,7 +6,7 @@ import IntakeClient from "./intake-client";
 // J1: referral intake (ARCHITECTURE data flow: partner_requests → cases → matching_requests).
 export default async function IntakePage() {
   await connection();
-  const { organizationId, requests, cases } = await getIntakeData();
+  const { organizationId, requests, cases, linkable } = await getIntakeData();
 
   return (
     <div className="grid min-h-screen bg-stone-100 text-emerald-950 md:grid-cols-[280px_1fr]">
@@ -21,7 +21,7 @@ export default async function IntakePage() {
           Danach entscheiden die Teams der Region selbst, wer den Fall übernimmt.
         </p>
         {organizationId ? (
-          <IntakeClient organizationId={organizationId} requests={requests} cases={cases} />
+          <IntakeClient organizationId={organizationId} requests={requests} cases={cases} linkable={linkable} />
         ) : (
           <p role="status" className="mt-6 rounded-xl border border-dashed border-emerald-900/20 bg-white p-6">
             Die Aufnahme ist Admin- und Operations-Rollen vorbehalten.
