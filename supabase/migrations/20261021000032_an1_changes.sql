@@ -208,6 +208,13 @@ AS $function$
     ('p1_median_close_hours', 'Noch nicht messbar: der Entstehungszeitpunkt einer Ausnahme wird nicht gespeichert.')) k(kpi, note)
   where o.coordinator
   union all
+  -- The care share row is always shown to coordination roles, also before any measured visit exists.
+  select o.organization_id, null, null, 'care_share_in_visits', null, 0, true,
+         'Pflege ÷ (Weg + Pflege + Pause) im Einsatz. Nicht enthalten: Dokumentation, Rückweg, Zeit ausserhalb der Einsätze. Noch keine vollständigen Einsätze im Zeitraum.'
+  from my_orgs o
+  where o.coordinator and not exists (select 1 from all_rows r where r.organization_id = o.organization_id and r.team_id is null
+                                        and r.kpi = 'care_share_in_visits')
+  union all
   select t.organization_id, t.id, t.name, 'direct_care_share', null, null, false,
          'Noch nicht messbar: bezahlte Arbeitszeit wird noch nicht erfasst (D-23).'
   from my_teams t
