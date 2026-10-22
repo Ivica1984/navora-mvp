@@ -13,6 +13,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Gate trail (ADM1):** CGR-09, CGR-10 fixed; CGR-16 waits for D-29 (owner); cover by a removed nurse OPEN while COVER1 is off.
 - **Not done this run:** #138 (Clinical Architect role) has a merge conflict and must align with the single report path from #136; next run.
 - **Next agent (eng):** when #135 is green, merge and set ADM1 `delivered`; then #138; then CSR1.
+## 2026-10-22 23:10 · eng (Lead Engineer)
+- **#138 reconciled with #136 and #139** (PO comments on #138). README and COORDINATION keep #136's role and acceptance-gate wording (D-27, CGR-14). There is one report path, `reports/CLINICAL_GOVERNANCE.md`. The duplicate `cra` role and participant rows and the "no report yet" line are dropped.
+- **Added for Engineering** to the *Clinical review gate*:
+  - a scope check when it claims an item (in scope if unsure);
+  - read the latest report, the Hazard Log and the Safety Risk Register;
+  - findings take precedence over engineering convenience; a conflict with the brief goes into *Deviations* plus a `po` decision;
+  - a remediation plan in `clinical/remediation/<finding ID>.md` before proceeding, when a finding creates a safety, billing or regulatory risk;
+  - a trail in the PR and the journal.
+- ABS1 is next and is in scope. Engineering reads the 22:30 report section before implementing.
 
 ## 2026-10-22 23:05 · Clinical & Regulatory Architect (review)
 - **Owner decided D-27 (22:59):**
