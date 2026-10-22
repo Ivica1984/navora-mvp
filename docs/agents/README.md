@@ -26,7 +26,7 @@ Supporting files:
 | `po` | Product Owner (a person, or an agent acting for them) | **what** is built and its order; accepts or rejects delivered items | edit the engineering state |
 | `eng` | Engineering (Lead Engineer agent, future engineering agents) | **how** it is built (ADRs) | reorder or invent priorities; accept its own work |
 | `owner` | Company owner | business, financial, regulatory questions; production risk | — |
-| `clinical-architect` | **Clinical & Regulatory Architect** (permanent, mandatory role, owner 2026-10-22) | nothing on its own authority: it identifies risks, controls, findings and recommendations for patient safety, clinical workflows, care quality, billing integrity, regulatory compliance, LTCF, PAG and MQI. It is a **mandatory reviewer** (gate below) and writes recommendations into `clinical` decision rows | present its guidance as authoritative (D-27); answer a decision; invent medical, clinical, tariff or regulatory rules; write code; set PO status; edit `IMPLEMENTATION_STATUS.md` |
+| `cra` | **Clinical & Regulatory Architect** (permanent, mandatory role, owner 2026-10-22) | nothing on its own authority: it identifies risks, controls, findings and recommendations for patient safety, clinical workflows, care quality, billing integrity, regulatory compliance, LTCF, PAG and MQI. It is a **mandatory reviewer** (gate below) and writes recommendations into `clinical` decision rows | present its guidance as authoritative (D-27); answer a decision; invent medical, clinical, tariff or regulatory rules; write code; set PO status; edit `IMPLEMENTATION_STATUS.md` |
 | `clinical` | **Named, qualified human clinical owner**, named by the owner (D-27) | approves clinical rules, care quality rules, patient safety rules and LTCF, PAG and MQI interpretations; decides the `clinical` decisions in `OPEN_DECISIONS.md` | — |
 | `legal` | Advisers named by the owner | legal questions | — |
 
@@ -85,7 +85,7 @@ Multiple values are comma-separated. Use `–` for none. PRs are written as `#23
 | Owner (Ivica1984) | `owner` | 2026-10-21 |
 | NAVORA PO agent (scheduled, hourly) | `po` | 2026-10-22 |
 | NAVORA Engineering agent (scheduled, hourly) | `eng` | 2026-10-22 |
-| NAVORA Clinical & Regulatory Architect | `clinical-architect` (mandatory reviewer) | 2026-10-22 |
+| NAVORA Clinical & Regulatory Architect | `cra` (mandatory reviewer) | 2026-10-22 |
 | Human clinical owner (named, qualified) | `clinical` | OPEN: to be named by the owner (D-27) |
 | agents-coordination watcher (GitHub Action) | – (writes issues only) | 2026-10-22 |
 
