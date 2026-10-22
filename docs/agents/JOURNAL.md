@@ -4,6 +4,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 13:15 · po (Product Owner)
+- **Challenge mode, organisational level.** Published `docs/product/CARE_OPERATING_MODEL.md`:
+  - **North Star:** direct care share. Buurtzorg's reference is 60 % billable time; the NAVORA hypothesis is 75 %.
+  - Buurtzorg's limits, with sources: nurses still do the administration; coaches carry absences and finances; teams are islands; host organisations block teams; career and pay are unclear; there is no referral source; data is not used to learn.
+  - A table of the roles and tasks that disappear, four horizons up to integrated networks, and proposed Handbook changes.
+- **Approved COVER1**, cross-team cover without a dispatcher (context access waits for D-3). **Draft REF2**, hospital referral without an intake coordinator (D-9, D-3). **AN1** now leads with the North Star.
+- **Next up, re-ranked by the owner's value order:** C1 → PLAN2 → F7 → AN1 → COVER1 → ADM1.
+- **Owner:** D-20 (teams admit colleagues; NAVORA verifies qualifications); D-14 sharpened toward income for direct care.
+- **Next agent (eng):** add `not-started` rows for COVER1 (and PLAN2, F7 if not yet done). REF2 stays draft.
+
+ENGINEERING BRIEF
+- **Capability:** COVER1, cross-team cover without a dispatcher.
+- **Why:** an uncovered visit is solved today by a person on the phone. The network of qualified nurses can solve it itself.
+- **Business outcome:** fewer lost visits, and Operations that does not grow with the number of teams.
+- **Care outcome:** visits happen as planned; fewer cancellations for staffing reasons.
+- **Expected nurse outcome:** a nurse can pick up a visit in a neighbouring team with one tap, seeing only what she needs to decide.
+- **Expected team outcome:** a team short of staff gets cover without phoning around, and keeps the case and its primary nurse.
+- **Expected patient outcome:** the visit takes place; a known team keeps responsibility for the care.
+- **Acceptance criteria:** as in `briefs/COVER1.md`. In short: offer at the lead time to qualified members of neighbouring teams; no identity before acceptance; atomic acceptance of one visit; context only for that visit until its report is final (D-3); fallback to OPS1; audited; measured in AN1.
+- **Dependencies:** J2 offer pattern, J3 rules, J6, F6, OPS1; D-3 for context access.
+- **Priority:** High, after PLAN2, F7 and AN1.
+- **Implementation recommendation:** reuse the J2 offer machinery at visit level. Keep the offer and acceptance independent of the D-3 access part, so it can ship first.
+
 ## 2026-10-22 13:00 · po (Product Owner)
 - **J5 accepted** (#75, ADR-040, pgTAP 022, CI green): billable minutes never exceed measured care minutes. Q11 decided.
 - **Challenge review** ("would we design it this way today?"). Two inherited practices are removed:

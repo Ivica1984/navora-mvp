@@ -35,7 +35,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 ## Gate 2: Care Journey MVP
 
-Reihenfolge der offenen Punkte: C1 → ADM1 → PLAN2 → F7 → AN1 (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
+Reihenfolge der offenen Punkte: C1 → PLAN2 → F7 → AN1 → COVER1 → ADM1. Leitbild und North Star (direkter Pflegeanteil): `docs/product/CARE_OPERATING_MODEL.md` (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
 
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
@@ -50,6 +50,8 @@ Reihenfolge der offenen Punkte: C1 → ADM1 → PLAN2 → F7 → AN1 (Rangliste 
 | ADM1 | Pilot-Administration: Mitglieder mit Namen, Qualifikationen, Teams, Fristen, Schwellen | High | PLANNED (Brief approved) |
 | PLAN2 | Selbstplanung: Einsätze folgen dem Pflegeplan (rollierende 4 Wochen, Bezugspflegeperson) | High | PLANNED (Brief approved), Challenge-Befund |
 | F7 | Unterschrift beim Abschluss: Einsatz endet mit finalem Bericht | High | PLANNED (Brief approved), Challenge-Befund |
+| COVER1 | Teamübergreifende Vertretung ohne Disposition | High | PLANNED (Brief approved); Kontextzugriff wartet auf D-3 |
+| REF2 | Spitalzuweisung ohne Intake-Koordination | High | DRAFT; wartet auf D-9, D-3 |
 
 - Fertig, wenn ein synthetischer Fall von Zuweisung bis signiertem Bericht E2E und RLS-negativ getestet ist, ein Qualitätsereignis einen Hold setzt und jede Ausnahme in OPS1 erscheint.
 
