@@ -343,3 +343,16 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 - **Rule versions:** facts carry `rule_version` (`J5-v1` before, `J5-v2` now). Facts are still immutable: a v1 fact is not rewritten, generation adds a v2 fact that references it. Uniqueness is now (report, rule version).
 - **Preview:** uses the billable minutes. Facts that predate the rule fall back to planned minutes until they are recalculated, which happens on the next generation.
 **Migration plan:** migration 0023 (columns, constraint swap, two functions). Rollback: restore the 0022 builder and preview; new columns stay unused.
+
+### ADR-041 — Case and visit lifecycle (C1)
+**Status:** PROPOSED · **Task:** C1 (`docs/agents/briefs/C1.md`).
+**Decision:**
+- **Case lifecycle:** `cases.lifecycle` (active, paused, closed) plus the append-only `case_lifecycle_events` (reason code, note, expected end, actor). Legacy `cases.status` follows (closed = `abgeschlossen`), so existing read models keep working.
+- **Pause (answer to the brief's question):** a reversible marker `care_visits.suspended_at`, not a visit state, because resume must restore the visits. Planned visits inside the pause are suspended. Suspended visits cannot start (transition trigger) and are not "uncovered" (OPS1 and `visit_flags`). They never complete, so they produce no report or billing fact. Resume reactivates the suspended visits that still lie ahead.
+- **Close:** cancels all future planned visits with the close reason, closes open case tasks, ends the primary-nurse assignment and withdraws open matching requests. Reports, quality events and facts are untouched.
+- **Reopen** (team or Operations, with a reason): sets `reopened_at`. A planning guard on `care_visits` insert refuses new visits for paused or closed cases (NV002) and, after a reopen, until the J1 readiness check passes (NV003).
+- **Visit end states:** `cancelled` (before start: planned or on the way) and `no_show` (after arrival: on the way) are visit events. Reasons and outcomes go to the append-only `visit_status_notes`.
+- **OPS1:** a no-show is a P1 exception immediately, open until the team records the outcome. A team cancellation within 24 h of the visit is a P2 exception (configurable rule). The app gives no on-site instructions until D-19 is answered.
+- **Rules applied throughout:** every command takes a reason where the F0 rule requires one (the ADR-034 guard checks the signatures), and is audited and idempotent. Pause, resume, cancel and no-show are for the assigned team; close and reopen for the team or Operations (admin or operations role).
+**Migration plan:** migration 0024. Rollback: drop the new objects and restore the 0014 transition trigger, the 0021 `visit_flags` and the 0019 exception derivation.
+**Open:** D-6 (clinical confirmation of the visit states), D-19 (on-site no-show protocol). The suspended state is not yet shown on `/field`: starting a suspended visit is refused with a message.

@@ -21,6 +21,8 @@ import { MEDICAL_ORDER_LABEL, TASK_LABEL } from "@/features/intake/rules";
 import type { ContinuityRow, TeamCase, TeamOffer } from "@/features/team/queries";
 import type { BillingPreviewRow } from "@/features/billing/queries";
 import BillingPreview from "@/components/billing/billing-preview";
+import CaseLifecycleControls, { ClosedCases } from "./case-lifecycle";
+import type { CaseLifecycle } from "@/features/lifecycle/queries";
 import { formatDayLabel, shiftDay, todayInZurich } from "@/features/field/rules";
 import { getVisitStatusLabel } from "@/features/visits/types";
 
@@ -40,12 +42,14 @@ export default function TeamClient({
   continuity,
   billing,
   month,
+  lifecycle,
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
   continuity: ContinuityRow[];
   billing: BillingPreviewRow[];
   month: string;
+  lifecycle: CaseLifecycle[];
 }) {
   const open = offers.filter((o) => !o.my_team_declined);
   const declined = offers.filter((o) => o.my_team_declined);
@@ -101,11 +105,17 @@ export default function TeamClient({
           <ul className="grid gap-3">
             {cases.map((c) => (
               <li key={`${c.case_id}-${c.team_id}`}>
-                <CaseCard teamCase={c} continuity={continuity.find((r) => r.case_id === c.case_id) ?? null} />
+                <CaseCard
+                  teamCase={c}
+                  continuity={continuity.find((r) => r.case_id === c.case_id) ?? null}
+                  lifecycle={lifecycle.find((l) => l.case_id === c.case_id) ?? null}
+                />
               </li>
             ))}
           </ul>
         </section>
+
+        <ClosedCases items={lifecycle.filter((l) => l.lifecycle === "closed")} />
 
         <div className="mt-6">
           <BillingPreview rows={billing} month={month} />
@@ -319,7 +329,7 @@ function ErrorText({ message }: { message: string | null }) {
   );
 }
 
-function CaseCard({ teamCase, continuity }: { teamCase: TeamCase; continuity: ContinuityRow | null }) {
+function CaseCard({ teamCase, continuity, lifecycle }: { teamCase: TeamCase; continuity: ContinuityRow | null; lifecycle: CaseLifecycle | null }) {
   const upcoming = arr<Upcoming>(teamCase.upcoming, "visit_id");
   const plan = arr<PlanItem>(teamCase.care_plan, "category");
   const members = arr<Member>(teamCase.members, "user_id");
@@ -346,6 +356,8 @@ function CaseCard({ teamCase, continuity }: { teamCase: TeamCase; continuity: Co
           ))}
         </ul>
       )}
+
+      {lifecycle && <CaseLifecycleControls item={lifecycle} />}
 
       <Continuity teamCase={teamCase} members={members} continuity={continuity} />
 

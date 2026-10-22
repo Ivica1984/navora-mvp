@@ -3,6 +3,7 @@ import { getContinuity, getTeamCases, getTeamOffers } from "@/features/team/quer
 import { todayInZurich } from "@/features/field/rules";
 import { getBillingPreview } from "@/features/billing/queries";
 import { monthStart } from "@/features/billing/rules";
+import { getCaseLifecycle } from "@/features/lifecycle/queries";
 import TeamClient from "./team-client";
 
 // J2: requests offered to the caller's teams — the team decides (Teamautonomie).
@@ -12,11 +13,12 @@ export default async function TeamPage() {
   // J6: continuity per client for the current month.
   // J5: monthly billing estimate for the team.
   const month = monthStart(todayInZurich());
-  const [offers, cases, continuity, billing] = await Promise.all([
+  const [offers, cases, continuity, billing, lifecycle] = await Promise.all([
     getTeamOffers(),
     getTeamCases(),
     getContinuity(month),
     getBillingPreview(month),
+    getCaseLifecycle(),
   ]);
-  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} />;
+  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} />;
 }

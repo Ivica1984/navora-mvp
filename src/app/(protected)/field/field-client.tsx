@@ -30,6 +30,8 @@ import type { FieldNote, FieldVisit } from "@/features/field/types";
 import type { FieldReport } from "@/features/field/report";
 import ReportSection from "./report-section";
 import QualitySection from "./quality-section";
+import VisitLifecycle from "./visit-lifecycle";
+import type { VisitStatusNote } from "@/features/lifecycle/queries";
 import type { FieldQuality, QualityEventType } from "@/features/quality/queries";
 
 type Props = {
@@ -42,6 +44,7 @@ type Props = {
   reports: FieldReport[];
   quality: FieldQuality[];
   qualityTypes: QualityEventType[];
+  statusNotes: VisitStatusNote[];
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -65,7 +68,7 @@ const STATUS_CLASS: Record<string, string> = {
   no_show: "bg-rose-100 text-rose-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes }: Props) {
   const summary = summarizeDay(visits);
 
   return (
@@ -120,6 +123,7 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
                   report={reports.find((r) => r.visit_id === visit.visit_id) ?? null}
                   quality={quality.filter((q) => q.visit_id === visit.visit_id)}
                   qualityTypes={qualityTypes}
+                  statusNotes={statusNotes.filter((n) => n.visit_id === visit.visit_id)}
                 />
               </li>
             ))}
@@ -149,12 +153,14 @@ function VisitCard({
   report,
   quality,
   qualityTypes,
+  statusNotes,
 }: {
   visit: FieldVisit;
   notes: FieldNote[];
   report: FieldReport | null;
   quality: FieldQuality[];
   qualityTypes: QualityEventType[];
+  statusNotes: VisitStatusNote[];
 }) {
   const router = useRouter();
   const [pending, setPending] = useState<FieldAction | null>(null);
@@ -246,6 +252,8 @@ function VisitCard({
       <ReportSection visitId={visit.visit_id} visitStatus={visit.status} report={report} />
 
       <QualitySection visitId={visit.visit_id} items={quality} types={qualityTypes} />
+
+      <VisitLifecycle visitId={visit.visit_id} status={visit.status} notes={statusNotes} />
 
       {error && (
         <p role="alert" data-testid="command-error" className="mt-3 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800">
