@@ -31,14 +31,15 @@ from public.visit_events e where e.visit_id = 'ab000000-0000-4000-8000-000000000
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
 set local role authenticated;
-select is((select value from public.pilot_kpis(current_date) where team_id is null and kpi = 'direct_care_share'), 75.0::numeric,
-  'North Star: care minutes ÷ travel, care and pause minutes');
-select is((select base from public.pilot_kpis(current_date) where team_id is null and kpi = 'direct_care_share'), 5, 'with its base count');
-select is((select too_few from public.pilot_kpis(current_date) where team_id is null and kpi = 'direct_care_share'), false, 'five visits are enough');
+select is((select value from public.pilot_kpis(current_date) where team_id is null and kpi = 'care_share_in_visits'), 75.0::numeric,
+  'care share within visits: care ÷ travel, care and pause minutes (AN1 change: named honestly)');
+select is((select base from public.pilot_kpis(current_date) where team_id is null and kpi = 'care_share_in_visits'), 5, 'with its base count');
+select is((select too_few from public.pilot_kpis(current_date) where team_id is null and kpi = 'care_share_in_visits'), false, 'five visits are enough');
 select is((select value from public.pilot_kpis(current_date) where team_id is null and kpi = 'time_correction_share'), 20.0::numeric,
   'share of visits with a time correction');
-select is((select value from public.pilot_kpis(current_date) where team_id = '00000000-0000-4000-a000-000000000151' and kpi = 'direct_care_share'),
-  75.0::numeric, 'the same figure per team');
+select ok((select value is null and too_few and note like 'Zu wenig Personen%' from public.pilot_kpis(current_date)
+           where team_id = '00000000-0000-4000-a000-000000000151' and kpi = 'care_share_in_visits'),
+  'a team with fewer than 3 persons shows no figure (no per-nurse inference)');
 select is((select count(*)::int from public.pilot_kpis(current_date) where organization_id = '00000000-0000-4000-b000-000000000011'), 0,
   'nothing of another organisation');
 select ok(exists (select 1 from public.pilot_kpis(current_date) where kpi = 'p1_median_close_hours' and value is null and note is not null),
