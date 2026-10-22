@@ -71,7 +71,7 @@ select is((select tariff_versions ->> 'A' from public.billable_facts where visit
   'KLV-7-2026', 'the tariff version used is recorded');
 select is((select payer_chain ->> 'insurer' || '/' || (payer_chain ->> 'residence_canton') from public.billable_facts
            where visit_id = '00000000-0000-4000-a000-000000000501'), 'Testkasse/BE', 'the payer chain is recorded');
-select ok((select not billable and reasons = array['b_without_valid_order'] and order_basis = 'b_without_valid_order'
+select ok((select not billable and 'b_without_valid_order' = any (reasons) and order_basis = 'b_without_valid_order'
            from public.billable_facts where visit_id = 'ac000000-0000-4000-8000-0000000000bb'),
   'category B without a valid order is not billable, with the reason');
 select ok((select care_minutes between 29 and 31 and performer_id = '00000000-0000-4000-a000-000000000902'
