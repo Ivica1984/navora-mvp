@@ -8,25 +8,11 @@
 
 import type {
   AttentionItem,
-  CareNoteStatus,
-  OperationsVisit,
   PartnerRequestSummary,
   QualityEventSummary,
 } from "./types";
 import type { CaseSummaryRow } from "@/features/cases/types";
 import type { TeamRow } from "@/features/teams/types";
-import { DECLINE_REASON_LABEL, ESCALATION_REASON_LABEL, type DeclineReason } from "@/features/team/rules";
-
-/** One row of public.matching_escalations() (migration 0017); structural, no Supabase import. */
-export type MatchingEscalation = {
-  matching_request_id: string;
-  request_title: string;
-  region: string;
-  reason: string;
-  declines: unknown;
-};
-type DeclineEntry = { team?: string; code?: string | null; reason?: string | null };
-
 export function getHoursSince(
   dateString: string | null | undefined,
   now: number = Date.now()
@@ -42,29 +28,15 @@ export function buildAttentionItems({
   partnerRequests,
   cases,
   teams,
-  visits,
-  careNotes,
   qualityEvents,
-  uncoveredVisits = [],
-  finalReportVisitIds = [],
-  matchingEscalations = [],
   now = Date.now(),
 }: {
   now?: number;
   partnerRequests: PartnerRequestSummary[];
   cases: CaseSummaryRow[];
   teams: TeamRow[];
-  visits: Pick<OperationsVisit, "id" | "status" | "visit_date" | "team_member_name">[];
-  careNotes: CareNoteStatus[];
   qualityEvents: QualityEventSummary[];
-  /** J3 (PO brief): planned visits in the next 24 h without a responsible member. */
-  uncoveredVisits?: { visit_id: string; team_name: string; visit_date: string; time_start: string | null }[];
-  /** F6: completed visits whose signed report is final (closes "report missing"). */
-  finalReportVisitIds?: string[];
-  /** J2 (PO brief): open team searches that need Operations — never auto-assigned. */
-  matchingEscalations?: MatchingEscalation[];
 }): AttentionItem[] {
-  const finalReports = new Set(finalReportVisitIds);
   const items: AttentionItem[] = [];
 
   for (const team of teams) {
@@ -166,41 +138,13 @@ export function buildAttentionItems({
     }
   }
 
-  for (const visit of visits) {
-    if (visit.status === "completed" && !finalReports.has(visit.id)) {
-      const relatedNote = careNotes.find((note) => note.visit_id === visit.id);
-
-      if (!relatedNote || ["draft", "submitted"].includes(relatedNote.status)) {
-        items.push({
-          id: `visit-report-${visit.id}`,
-          priority: "P2",
-          severity: "warning",
-          category: "visit",
-          title: "Abgeschlossener Pflegeeinsatz braucht Berichtprüfung",
-          description: `${visit.visit_date ?? "Datum offen"} · ${
-            visit.team_member_name ?? "Pflegekraft offen"
-          }`,
-          recommendedAction:
-            "Bericht prüfen, freigeben oder Korrektur anfordern.",
-          entityType: "visit",
-          entityId: visit.id,
-        });
-      }
-    }
-  }
-
+  // Serious events (high, critical) are OPS1 exceptions derived in the database (migration 0019).
   for (const event of qualityEvents) {
-    if (event.status === "open") {
+    if (event.status === "open" && event.severity !== "critical" && event.severity !== "high") {
       items.push({
         id: `quality-${event.id}`,
-        priority:
-          event.severity === "critical" || event.severity === "high"
-            ? "P1"
-            : "P2",
-        severity:
-          event.severity === "critical" || event.severity === "high"
-            ? "critical"
-            : "warning",
+        priority: "P2",
+        severity: "warning",
         category: "quality",
         title: event.title,
         description: event.description ?? "Offenes Qualitätsereignis.",
@@ -210,45 +154,6 @@ export function buildAttentionItems({
         entityId: event.id,
       });
     }
-  }
-
-  // J3 (PO brief): the team is alerted first (/team); Operations sees the exception.
-  // Priority P2 until thresholds are configured (Q9) — not a validated clinical rule.
-  for (const visit of uncoveredVisits) {
-    items.push({
-      id: `visit-uncovered-${visit.visit_id}`,
-      priority: "P2",
-      severity: "warning",
-      category: "visit",
-      title: `Einsatz ohne Verantwortliche: ${visit.team_name}`,
-      description: `${visit.visit_date} ${visit.time_start ? visit.time_start.slice(0, 5) : ""} · in den nächsten 24 h`,
-      recommendedAction: "Team informieren; das Team bestimmt selbst, wer den Einsatz übernimmt.",
-      entityType: "visit",
-      entityId: visit.visit_id,
-    });
-  }
-
-  for (const escalation of matchingEscalations) {
-    const configMissing = escalation.reason === "deadline_not_configured";
-    const declines = Array.isArray(escalation.declines) ? (escalation.declines as DeclineEntry[]) : [];
-    const declineText = declines
-      .map((d) => `${d.team ?? "Team"}: ${DECLINE_REASON_LABEL[d.code as DeclineReason] ?? d.code ?? "ohne Grund"}${d.reason ? ` (${d.reason})` : ""}`)
-      .join("; ");
-    items.push({
-      id: `matching-escalation-${escalation.matching_request_id}`,
-      priority: configMissing ? "P2" : "P1",
-      severity: configMissing ? "warning" : "critical",
-      category: "matching",
-      title: `Teamsuche: ${ESCALATION_REASON_LABEL[escalation.reason] ?? escalation.reason}`,
-      description: [`${escalation.request_title} · ${escalation.region}`, declineText ? `Absagen – ${declineText}` : null]
-        .filter(Boolean)
-        .join(" · "),
-      recommendedAction: configMissing
-        ? "Antwortfrist für diese Zuweisungsart festlegen (Admin); bis dahin Teamsuche aktiv verfolgen."
-        : "Mit Teams und zuweisender Stelle klären; NAVORA weist nie automatisch zu.",
-      entityType: "matching_request",
-      entityId: escalation.matching_request_id,
-    });
   }
 
   return items.sort((a, b) => {

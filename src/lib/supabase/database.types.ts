@@ -241,6 +241,40 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"exception_events": {
+                  Row: {
+                    "actor_id": string | null,"created_at": string,"exception_key": string,"id": number,"idempotency_key": string | null,"kind": string,"organization_id": string,"text": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id"?: string | null,"created_at"?: string,"exception_key": string,"id"?: never,"idempotency_key"?: string | null,"kind": string,"organization_id": string,"text"?: string | null
+                  }
+                  Update: {
+                    "actor_id"?: string | null,"created_at"?: string,"exception_key"?: string,"id"?: never,"idempotency_key"?: string | null,"kind"?: string,"organization_id"?: string,"text"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "exception_events_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"exception_rules": {
+                  Row: {
+                    "amount": number | null,"escalate_to_p1_after_hours": number | null,"exception_type": string,"label": string,"next_step": string,"priority": string,"unit": string | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount"?: number | null,"escalate_to_p1_after_hours"?: number | null,"exception_type": string,"label": string,"next_step": string,"priority": string,"unit"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "amount"?: number | null,"escalate_to_p1_after_hours"?: number | null,"exception_type"?: string,"label"?: string,"next_step"?: string,"priority"?: string,"unit"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"match_candidates": {
                   Row: {
                     "created_at": string,"distance_km": number | null,"fit_score": number,"id": string,"matching_request_id": string | null,"open_slots": number | null,"organization_id": string,"reasons": (string)[] | null,"status": string,"team_id": string | null,"utilization": number | null
@@ -772,6 +806,9 @@ isOneToOne: false
               "visit_id": string
             }[]
                            },
+"handle_exception":
+{ Args: { "p_idempotency_key": string,"p_key": string,"p_kind": string,"p_text": string }; Returns: string
+                           },
 "intake_cases":
 { Args: Record<PropertyKey, never>; Returns: {
               "access_notes": string,"care_needs": (string)[],"case_id": string,"client_name": string,"created_at": string,"expected_hours_per_week": number,"gp_named": boolean,"insurance_type": string,"insurer_name": string,"language_notes": string,"medical_order_status": string,"medical_order_valid_until": string,"missing": Json,"open_tasks": (string)[],"other_providers_active": boolean,"region": string,"requested_start": string,"residence_canton": string,"residence_municipality": string,"urgency": string
@@ -780,6 +817,11 @@ isOneToOne: false
 "matching_escalations":
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"declines": Json,"eligible_teams": number,"matching_request_id": string,"reason": string,"referral_type": string,"region": string,"request_title": string,"response_due_at": string,"urgency": string
+            }[]
+                           },
+"operations_exceptions":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "case_id": string,"case_label": string,"comments": Json,"detail": string,"entity_id": string,"entity_type": string,"exception_key": string,"exception_type": string,"label": string,"next_step": string,"priority": string,"region": string,"since": string,"taken": boolean,"taken_at": string,"taken_by_me": boolean,"team_name": string
             }[]
                            },
 "pause_visit":
@@ -820,6 +862,9 @@ isOneToOne: false
                            },
 "start_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"sync_exceptions":
+{ Args: Record<PropertyKey, never>; Returns: number
                            },
 "team_cases":
 { Args: Record<PropertyKey, never>; Returns: {

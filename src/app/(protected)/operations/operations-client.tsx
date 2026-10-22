@@ -14,6 +14,7 @@ import {
   type CaseSummaryRow,
 } from "@/features/cases/types";
 import type { TeamRow } from "@/features/teams/types";
+import ExceptionCenter from "./exception-center";
 
 type LocalVisit = OperationsVisit;
 
@@ -209,6 +210,8 @@ export default function OperationsClient({ dashboard }: OperationsClientProps) {
           slaViolations={slaViolatedCases.length}
           qualityRisks={qualityEvents.filter((event) => event.status === "open").length}
         />
+
+        <ExceptionCenter exceptions={dashboard.exceptions} />
 
         <AttentionCenter
           items={attentionItems}
@@ -418,9 +421,9 @@ function AttentionCenter({
     >
       <div style={{ display: "flex", justifyContent: "space-between", gap: "16px" }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: "20px" }}>Attention Center</h2>
+          <h2 style={{ margin: 0, fontSize: "20px" }}>Weitere Hinweise</h2>
           <p style={{ margin: "6px 0 0", color: "#6B7280" }}>
-            Wo muss Operations in den nächsten 15 Minuten eingreifen?
+            Heuristiken aus dem Prototyp (Teamauslastung, Fälle ohne Team, offene Anfragen); Schwellen nicht validiert.
           </p>
         </div>
 

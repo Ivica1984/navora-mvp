@@ -143,7 +143,7 @@ jobs:
       - name: Anon key must not read or write care data via the REST API (SR-01)
         run: |
           fail=0
-          for t in cases teams care_visits care_notes quality_events partner_requests matching_requests match_candidates organizations organization_memberships team_memberships visit_reports team_decisions response_deadlines change_log; do
+          for t in cases teams care_visits care_notes quality_events partner_requests matching_requests match_candidates organizations organization_memberships team_memberships visit_reports team_decisions response_deadlines change_log exception_events; do
             code=$(curl -sS -o /tmp/r.json -w '%{http_code}' -H "apikey: $SUPABASE_ANON_KEY" "$SUPABASE_URL/rest/v1/$t?select=*&limit=1")
             body=$(head -c 200 /tmp/r.json)
             if [ "$code" = "200" ] && [ "$body" != "[]" ]; then echo "::error title=anon-rest::$t readable by anon (HTTP $code)"; fail=1; fi
@@ -153,7 +153,7 @@ jobs:
             -d '{"priority":true}' "$SUPABASE_URL/rest/v1/teams?id=eq.00000000-0000-4000-a000-000000000101")
           echo "anon PATCH teams -> HTTP $code"
           case "$code" in 2*) echo "::error title=anon-rest::anon PATCH teams accepted (HTTP $code)"; fail=1;; esac
-          for fn in start_visit complete_visit depart_visit pause_visit resume_visit correct_visit_time record_observation record_partner_request convert_partner_request decide_matching_request team_offers team_cases plan_visit reschedule_visit remove_planned_visit add_care_plan_item retire_care_plan_item uncovered_visits set_team_priority assign_team_coach create_report_draft update_report_draft sign_report countersign_report correct_report final_report_visits matching_escalations set_response_deadline set_member_qualification; do
+          for fn in start_visit complete_visit depart_visit pause_visit resume_visit correct_visit_time record_observation record_partner_request convert_partner_request decide_matching_request team_offers team_cases plan_visit reschedule_visit remove_planned_visit add_care_plan_item retire_care_plan_item uncovered_visits set_team_priority assign_team_coach create_report_draft update_report_draft sign_report countersign_report correct_report final_report_visits matching_escalations set_response_deadline set_member_qualification handle_exception sync_exceptions operations_exceptions; do
             code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST -H "apikey: $SUPABASE_ANON_KEY" -H 'Content-Type: application/json' \
               -d '{}' "$SUPABASE_URL/rest/v1/rpc/$fn")
             echo "anon RPC $fn -> HTTP $code"
@@ -168,7 +168,7 @@ jobs:
           done
           code=$(curl -sS -o /tmp/r.json -w '%{http_code}' -H "apikey: $SUPABASE_ANON_KEY" "$SUPABASE_URL/rest/v1/audit_events?select=*&limit=1")
           if [ "$code" = "200" ] && [ "$(head -c 2 /tmp/r.json)" != "[]" ]; then echo "::error title=anon-rest::audit_events readable by anon"; fail=1; fi
-          echo "::notice title=anon-rest::checked 15 tables, audit_events, 1 write, 29 RPCs + 3 field reads; failures=$fail"
+          echo "::notice title=anon-rest::checked 16 tables, audit_events, 1 write, 32 RPCs + 3 field reads; failures=$fail"
           exit $fail
       - name: Install Playwright browser
         # Retried: the apt/CDN download is occasionally flaky (PO note 2026-10-21 23:05).

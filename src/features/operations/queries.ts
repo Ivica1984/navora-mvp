@@ -5,12 +5,11 @@ import { CASE_SUMMARY_COLUMNS, type CaseSummaryRow } from "@/features/cases/type
 import type { TeamRow } from "@/features/teams/types";
 import { buildAttentionItems } from "./rules";
 import {
-  CARE_NOTE_STATUS_COLUMNS,
   OPERATIONS_VISIT_COLUMNS,
   PARTNER_REQUEST_SUMMARY_COLUMNS,
   QUALITY_EVENT_SUMMARY_COLUMNS,
-  type CareNoteStatus,
   type OperationsDashboard,
+  type OperationsException,
   type OperationsVisit,
   type PartnerRequestSummary,
   type QualityEventSummary,
@@ -23,7 +22,8 @@ const TEAM_COLUMNS =
 /**
  * Data for /operations (T10, SR-06):
  * - every select lists only the columns the attention rules or the UI need;
- * - partner requests and note statuses are used on the server only;
+ * - partner requests are used on the server only;
+ * - OPS1 exceptions are derived in the database (operations_exceptions, migration 0019);
  * - the returned object is exactly what is serialised to the browser.
  * RLS (T9) limits all rows to the user's organisation.
  */
@@ -31,7 +31,11 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
   // Runs as the signed-in user (RLS sees auth.uid()); redirects to /login otherwise.
   const { supabase } = await requireUser();
 
-  const [partnerRequestsResult, casesResult, teamsResult, visitsResult, careNotesResult, qualityEventsResult, uncoveredResult, finalReportsResult, escalationsResult] =
+  // OPS1: close handled exceptions whose cause is gone (writes an auto-close note; idempotent).
+  const sync = await supabase.rpc("sync_exceptions");
+  if (sync.error) logEvent("warn", "operations.sync_failed", errorFields(sync.error));
+
+  const [partnerRequestsResult, casesResult, teamsResult, visitsResult, qualityEventsResult, exceptionsResult] =
     await Promise.all([
       supabase
         .from("partner_requests")
@@ -41,17 +45,12 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
       supabase.from("cases").select(CASE_SUMMARY_COLUMNS).order("created_at", { ascending: false }),
       supabase.from("teams").select(TEAM_COLUMNS).order("created_at", { ascending: true }),
       supabase.from("care_visits").select(OPERATIONS_VISIT_COLUMNS).order("visit_date", { ascending: true }),
-      supabase.from("care_notes").select(CARE_NOTE_STATUS_COLUMNS),
       supabase
         .from("quality_events")
         .select(QUALITY_EVENT_SUMMARY_COLUMNS)
         .order("created_at", { ascending: false }),
-      // J3 (PO brief): planned visits in the next 24 h without a responsible member, no client identity.
-      supabase.rpc("uncovered_visits"),
-      // F6: which completed visits have a final signed report (ids only, no content).
-      supabase.rpc("final_report_visits"),
-      // J2: team searches needing Operations (coordination roles only; empty for others).
-      supabase.rpc("matching_escalations"),
+      // OPS1: derived exceptions with handling state (coordination roles only; empty for others).
+      supabase.rpc("operations_exceptions"),
     ]);
 
   const firstError = [
@@ -59,11 +58,8 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
     casesResult,
     teamsResult,
     visitsResult,
-    careNotesResult,
     qualityEventsResult,
-    uncoveredResult,
-    finalReportsResult,
-    escalationsResult,
+    exceptionsResult,
   ].find((result) => result.error)?.error;
 
   if (firstError) {
@@ -77,20 +73,10 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
   const cases: CaseSummaryRow[] = casesResult.data ?? [];
   const teams: TeamRow[] = teamsResult.data ?? [];
   const visits: OperationsVisit[] = visitsResult.data ?? [];
-  const careNotes: CareNoteStatus[] = careNotesResult.data ?? [];
   const qualityEvents: QualityEventSummary[] = qualityEventsResult.data ?? [];
+  const exceptions: OperationsException[] = exceptionsResult.data ?? [];
 
-  const attentionItems = buildAttentionItems({
-    partnerRequests,
-    cases,
-    teams,
-    visits,
-    careNotes,
-    qualityEvents,
-    uncoveredVisits: uncoveredResult.data ?? [],
-    finalReportVisitIds: (finalReportsResult.data ?? []).map((row) => row.visit_id),
-    matchingEscalations: escalationsResult.data ?? [],
-  });
+  const attentionItems = buildAttentionItems({ partnerRequests, cases, teams, qualityEvents });
 
-  return { cases, teams, visits, qualityEvents, attentionItems };
+  return { cases, teams, visits, qualityEvents, attentionItems, exceptions };
 }
