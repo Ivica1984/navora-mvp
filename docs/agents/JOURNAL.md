@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 20:15 · po (Product Owner)
+- **PR #126 brought up to date** again: `recovery/main` (ADM1 #101) merged in, journal entries kept, newest first. No second PO PR opened; this cycle rides on #126.
+- **ADM1 changes-requested** (#101; CI green on head c736429; on merge bdb0d1d app and db green, e2e red only in the known C1 pause test). Evidence table in `briefs/ADM1.md`. Every brief criterion is met. Blocking: `remove_team_member` leaves the person as responsible member of future visits, so they look covered and never reach J3, OPS1 or COVER1. Changes:
+  1. removal releases her future planned visits in the same command, logged, count shown; one release function shared with ABS1;
+  2. role-change behaviour for her visits tested and stated in ADR-046;
+  3. display names asserted in `field_reports` and `field_quality`;
+  4. legacy Operations hints removed.
+- **Deviations accepted:** manual account creation until D-26; built under D-5 (the 18:20 "waits for D-20" is withdrawn); deactivation refused while cases are open; qualification via the F0 command.
+- **C1 condition:** the pause e2e failed again on bdb0d1d. Fix it in the next PR, do not re-run.
+- **Decisions sharpened:** D-26 and D-20 (PO notes; owner decides).
+- **Challenge:** a membership change is a care event, not only an administrative one (new row in the challenge table).
+- **The PO did not run the tests**; results are taken from CI.
+- **Next agent (eng):** ADM1 changes first (small, patient safety), then ABS1, reusing the release function.
+
 ## 2026-10-22 18:30 · eng (Engineering)
 - **ADM1 resumed** (issue #78 active; the earlier claim was older than 3 h). D-5 is the decided rule, so ADM1 is built under it; D-20 (owner) may later move member admission to the teams. That would be a follow-up, not a blocker. The row is `in-review` again with #101.
 - **#101 brought up to date** with `recovery/main` (merge commit, no rebase):
@@ -13,6 +27,49 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - ADM1's own invitation question was D-22, which collided with the legal D-22 on main, so it is now **D-26** (`owner`).
 - **Tests:** all 35 pgTAP files pass locally against plain PostgreSQL 16 with a Supabase shim (035: 67 assertions). Unit, typecheck and e2e were not run here (no npm registry access); CI runs them.
 - **Follow-up (PLANNED, not in this PR):** HAND1's "since your last visit" still shows "Teammitglied n". It can show the ADM1 display names once this is merged.
+
+## 2026-10-22 18:20 · po (Product Owner)
+- **PR #126 unblocked:** it conflicted with `recovery/main` on this journal (RET1 status entry). `recovery/main` merged in, both entries kept, newest first. This cycle rides on the same PR; no second PO PR opened.
+- **HAND1 accepted** with one condition (#128; CI green on 352862e, 3a4d691, 19381f2). Evidence table in `briefs/HAND1.md`. Condition: a phone-width (390 px) e2e for the section. All four deviations accepted.
+- **RET1 accepted** with two conditions (#129; CI green on bbcaa98 and 19381f2). Evidence table in `briefs/RET1.md`. Conditions:
+  - a resumed case releases its visits from the referral's requested start, not from the link;
+  - a pgTAP for the qualification skip.
+
+  All three deviations accepted.
+- **The PO did not run the tests**; results are taken from CI.
+- **AN1 condition still open.** HAND1 and RET1 both touched `pilot_kpis` before the 17:15 condition reached `recovery/main`, so it was not yet due. It is due in the next PR that touches `pilot_kpis`.
+- **Challenge:** an absent nurse's visits stay assigned to her, look covered and can silently not happen. Re-assigning them is still a phone chain run by a shift lead, dispatcher or coach. **ABS1 approved** (Next up 1, before ADM1, which waits for D-20). No reason is stored and no approval step is modelled, so no decision blocks it.
+- **Next agent (eng):** ABS1. Carry the open conditions in the next PR that touches their files: RET1, HAND1, C1, AN1.
+
+**ENGINEERING BRIEF: ABS1**
+- **Capability:** Absence without the phone chain. A nurse (or a colleague for her) records that she is not available. Her not-started visits in that period are released at once to her team under "Offen im Team". The deputy or primary nurse is marked "kennt die Klientin", and a colleague takes a visit with one tap (first wins). Whatever is not taken flows into the existing J3 flag, OPS1 and COVER1.
+- **Why:** patient safety and continuity. Today NAVORA has no notion of unavailability, so an absent nurse's visits look assigned and never reach the uncovered safety net. Re-assigning them needs a phone chain.
+- **Business outcome:** the team keeps its billable volume through absences, and no coordinator or dispatcher is needed for them.
+- **Care outcome:** no visit silently missed because its nurse is absent; a known nurse takes the visit first.
+- **Expected nurse outcome:** one record instead of phone calls when ill; colleagues see open visits and take them in one tap.
+- **Expected team outcome:** the team handles absences itself, without a shift lead or coach as first line.
+- **Expected patient outcome:** the visit happens, preferably with the deputy or primary nurse, informed by HAND1.
+- **Acceptance criteria:** as in `briefs/ABS1.md`:
+  - record without a reason, also for a colleague of the same team;
+  - no approval step;
+  - immediate release of not-started visits, logged;
+  - "Offen im Team" with the "kennt die Klientin" label;
+  - atomic one-tap take under the J3 qualification rules;
+  - overlap shown before the take;
+  - PLAN2 never assigns to an absent member;
+  - withdraw or shorten (untaken visits return, taken ones stay);
+  - absences visible to the own team only;
+  - three AN1 figures at team and organisation level;
+  - phone width;
+  - seven negative tests.
+- **Dependencies:** J3, J6, PLAN2, OPS1, COVER1 and AN1 (all accepted). No open decision.
+- **Priority:** Next up 1. It is the only approved, unblocked item.
+- **Implementation recommendation:**
+  - an `availability` row per member with a time range and an overlap exclusion;
+  - release in the same command, without a job;
+  - reuse the J3 uncovered list with a team filter for "Offen im Team";
+  - take as one guarded update (`responsible_member_id is null`) for first-wins;
+  - pgTAP for every negative case, plus an e2e at 390 px.
 
 ---
 
@@ -27,6 +84,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **HAND1 delivered:** #128 merged (merge commit), CI green on the PR head (app, db, e2e). Row set to `delivered` with #128; the PO review can start.
 - **RET1 (#129)** was stacked on `feat/hand1`; it now targets `recovery/main`. Its e2e build failed on typecheck after the types-bot regeneration (the unit-test case fixture lacked the two RET1 columns); fixed and pushed, CI re-runs. Merge once green.
 - **ADM1 (#101)** still waits for D-20.
+
+---
+
+## 2026-10-22 17:15 · po (Product Owner)
+- **AN1 accepted with one condition** (#124; CI green on `recovery/main` 740f44e, which contains merge b2b80b1). Evidence table in `briefs/AN1.md`. The PO did not run the tests. The dashboard now names its figure honestly ("Pflegeanteil im Einsatz", no 60 %/75 % line), excludes incomplete visits, shows the North Star as not yet measurable (D-23), hides team figures below 3 persons, and measures COVER1 correctly.
+  - **Condition:** the organisation row still reveals a hidden small team (an organisation with one two-nurse team; or organisation minus visible teams). Engineering's next PR touching `pilot_kpis`, and before any real pilot data, suppresses the organisation row in those cases, with pgTAP for three fixtures (brief).
+  - Deviation decided: "cover without Operations" counts against offered visits: accepted.
+- **All five 14:30 changes-requested items are now accepted.** Open conditions: C1 (flaky resume e2e), AN1 (organisation row).
+- **Queue:** HAND1 (#128) merged during this cycle; it is reviewed next cycle once CI on the merge commit is green. RET1 (#129) is in engineering. ADM1 waits for D-20. No new brief: ADM1 is still an approved, unstarted item, and the next gaps (working time, quality-hold lift, cover context) wait for D-23, D-16 and D-3.
+- **Challenge:** care-plan reviews on a fixed calendar, set by a coordinator, recorded as a hypothesis: reviews triggered by accumulated signals. Required intervals go to `clinical` with any brief.
+- **CI note:** PR #126 got no CI run on its head; this commit on the same branch re-triggers it. No second PO PR opened.
+- **Next agent (eng):** HAND1, RET1; carry the C1 and AN1 conditions in the next PR that touches those files.
 
 ---
 
@@ -55,6 +124,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - "shown" means present at the start; reading is not recorded;
   - plan-generator changes appear as their care-plan entry.
 - **Next:** RET1, then ADM1 once D-20 is answered. ADR-046 stays reserved for ADM1; its migration must be renumbered after 0033.
+
+---
+
+## 2026-10-22 16:15 · po (Product Owner)
+- **Reviewed the four reworked items: all accepted.** Evidence tables are in each brief. The PO did not run the tests; evidence is the merged migrations, pgTAP and e2e files, and CI on the merge commits.
+  - **COVER1** (#114), accepted switched off. Nobody can accept a cover until D-3. If an organisation switches cover on, a covered visit stays flagged for its team and becomes a P1 exception until it can be performed. Performing a cover gets a delta review once D-3 is answered.
+  - **PLAN2** (#118): no double planning; withdrawn preconditions drop generated visits; the planning-actions KPI. The hosted daily job is an owner task tied to D-2.
+  - **C1** (#120), **with one condition.** The merge commit d91070a was red: e2e `lifecycle.spec.ts:66` navigates to `/field` before the resume has finished. The test was green on the PR and on 57962ee without any change, so it is flaky. Engineering's next PR waits for the resume before navigating.
+  - **F7** (#122): the nurse sees the observation and handover text she signs; the countersignature path runs end to end.
+- **Queue:** AN1 (#124 open, reviewed once merged), then HAND1 and RET1, which move from *Next up* into the queue. ADM1 stays parked until D-20.
+- **Challenge:** a quality hold can be lifted only by a coach or an administrator, a management step outside the team. Proposal sharpened in D-16 (`clinical`): a second registered nurse of the team lifts the hold with a reason. D-3 noted as the only step left before cover works without a dispatcher.
+- **Next agent (eng):** fix the C1 e2e race; finish AN1 (#124); then HAND1.
 
 ---
 

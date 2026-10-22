@@ -13,6 +13,10 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 ## Änderungen gegenüber 9. Oktober 2026
 
 - **DECIDED (Owner, PRIO-1):** Reihenfolge F0, J1, J2, J3.
+- **Stand 22.10. 20:15:** ADM1 (#101) geprüft: **changes-requested**. Alle Kriterien erfüllt, aber wer aus einem Team entfernt wird, bleibt für künftige Einsätze eingetragen; diese wirken abgedeckt und erreichen weder J3, OPS1 noch COVER1. Sie müssen im selben Schritt ans Team zurückgehen (gleiche Regel wie ABS1).
+- **Stand 22.10. 18:20:** HAND1 (#128) und RET1 (#129) geprüft und **abgenommen**, mit Auflagen (HAND1: e2e-Test in Handybreite; RET1: Fortsetzung erst ab dem gewünschten Starttermin, Test für fehlende Qualifikation). Neu freigegeben: **ABS1** Abwesenheit ohne Telefonkette.
+- **Stand 22.10. 17:15:** AN1-Nachbesserung geprüft und **abgenommen** (#124), mit Auflage: keine Rückschlüsse auf ausgeblendete Kleinteams über die Organisationszahl. In Arbeit: HAND1 (#128), RET1 (#129).
+- **Stand 22.10. 16:15:** Nachbesserungen geprüft und **abgenommen**: COVER1 (bleibt bis D-3 abgeschaltet), PLAN2, C1 (Auflage: instabilen e2e-Test beheben), F7. AN1 in Prüfung (#124). Nächste Punkte: HAND1, RET1.
 - **Stand 22.10. 14:50:** Analyse Pflegeheim-Transformation (`docs/product/NURSING_HOME_TRANSFORMATION.md`): selbstorganisierte Abteilungsteams statt Stationsleitung und LTCF-Hierarchie; Vorschläge NH0–NH9, nicht freigegeben; Entscheide D-24 (Owner), D-25 (legal).
 - **Stand 22.10. 14:30:** C1, PLAN2, F7, AN1, COVER1 umgesetzt und geprüft: alle **changes-requested** (Begründungen in den Briefs). COVER1 bleibt bis D-3 abgeschaltet; D-21 entschieden.
 - **Stand 22.10. 13:30:** Challenge-Modus: HAND1 und RET1 freigegeben, ORD1 Entwurf (D-22).
@@ -38,7 +42,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 ## Gate 2: Care Journey MVP
 
-Reihenfolge der offenen Punkte: Nachbesserungen COVER1 → PLAN2 → C1 → F7 → AN1, dann HAND1 → RET1 → ADM1. Leitbild und North Star (direkter Pflegeanteil): `docs/product/CARE_OPERATING_MODEL.md` (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
+Reihenfolge der offenen Punkte: ADM1-Nachbesserung → ABS1. Leitbild und North Star (direkter Pflegeanteil): `docs/product/CARE_OPERATING_MODEL.md` (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
 
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
@@ -49,14 +53,15 @@ Reihenfolge der offenen Punkte: Nachbesserungen COVER1 → PLAN2 → C1 → F7 �
 | F1-F4 | Verified Visit: Tagesansicht, Zustandsmaschine, Zeitkorrekturen, Beobachtung, Übergabe | High | IMPLEMENTED (#19–#22), abgenommen 21.10. (Pflegeziele via J3, Warnhinweise via J1/D-17) |
 | QG1 | Qualitätsereignisse, Prüfung, Quality Hold | High | IMPLEMENTED (#41), **abgenommen** 22.10.; in Betrieb, sobald `clinical` die Ereignisliste (D-16) liefert |
 | OPS1 | Operations Exception Center über J1–J3, QG1, F6 | High | IMPLEMENTED (#39), **abgenommen** 22.10. |
-| C1 | Fall- und Einsatz-Lebenszyklus: pausieren, abschliessen, wiedereröffnen, absagen, Klient nicht angetroffen | High | IMPLEMENTED (#83), PO: changes-requested (Abschluss zieht Matching zurück, Spätabsage bleibt sichtbar, Negativtests); Vor-Ort-Protokoll D-19 |
-| ADM1 | Pilot-Administration: Mitglieder mit Namen, Qualifikationen, Teams, Fristen, Schwellen | High | PLANNED (Brief approved) |
-| PLAN2 | Selbstplanung: Einsätze folgen dem Pflegeplan (rollierende 4 Wochen, Bezugspflegeperson) | High | IMPLEMENTED (#92), PO: changes-requested (keine Doppelplanung neben manuell geplanten Einsätzen) |
-| F7 | Unterschrift beim Abschluss: Einsatz endet mit finalem Bericht | High | IMPLEMENTED (#94), PO: changes-requested (Pflegende sieht den vollständigen Text, den sie unterschreibt) |
-| COVER1 | Teamübergreifende Vertretung ohne Disposition | High | IMPLEMENTED (#99), PO: changes-requested (Patientensicherheit: bis D-3 abgeschaltet; übernommener Einsatz bleibt markiert, bis er durchführbar ist) |
+| C1 | Fall- und Einsatz-Lebenszyklus: pausieren, abschliessen, wiedereröffnen, absagen, Klient nicht angetroffen | High | IMPLEMENTED (#83, #120), PO: **abgenommen** 22.10. 16:15 (Auflage: instabilen e2e-Test beheben); Vor-Ort-Protokoll D-19 |
+| ADM1 | Pilot-Administration: Mitglieder mit Namen, Qualifikationen, Teams, Fristen, Schwellen | High | IMPLEMENTED (#101), PO: **changes-requested** 22.10. 20:15 (entfernte Mitglieder geben ihre künftigen Einsätze ans Team zurück) |
+| PLAN2 | Selbstplanung: Einsätze folgen dem Pflegeplan (rollierende 4 Wochen, Bezugspflegeperson) | High | IMPLEMENTED (#92, #118), PO: **abgenommen** 22.10. 16:15; täglicher Job auf Staging prüfen (D-2) |
+| F7 | Unterschrift beim Abschluss: Einsatz endet mit finalem Bericht | High | IMPLEMENTED (#94, #122), PO: **abgenommen** 22.10. 16:15 |
+| COVER1 | Teamübergreifende Vertretung ohne Disposition | High | IMPLEMENTED (#99, #114), PO: **abgenommen** 22.10. 16:15, bis D-3 abgeschaltet; Durchführung der Übernahme nach D-3 |
 | REF2 | Spitalzuweisung ohne Intake-Koordination | High | DRAFT; wartet auf D-9, D-3 |
-| HAND1 | Übergabe ohne Rapport: „seit Ihrem letzten Besuch“ auf jeder Einsatzkarte | High | PLANNED (Brief approved), Challenge-Befund; Voraussetzung für sichere Vertretung (COVER1) |
-| RET1 | Wiederkehrende Klientin kehrt zu ihrem Team zurück (pausierter Fall wird fortgesetzt) | High | PLANNED (Brief approved), Challenge-Befund; braucht C1 |
+| HAND1 | Übergabe ohne Rapport: „seit Ihrem letzten Besuch“ auf jeder Einsatzkarte | High | IMPLEMENTED (#128), PO: **abgenommen** 22.10. 18:20 (Auflage: e2e-Test in Handybreite); Voraussetzung für sichere Vertretung (COVER1) |
+| RET1 | Wiederkehrende Klientin kehrt zu ihrem Team zurück (pausierter Fall wird fortgesetzt) | High | IMPLEMENTED (#129), PO: **abgenommen** 22.10. 18:20 (Auflagen: Fortsetzung ab gewünschtem Start, Test Qualifikation) |
+| ABS1 | Abwesenheit ohne Telefonkette: Einsätze gehen sofort ans eigene Team, Stellvertretung bzw. Bezugspflegeperson zuerst | High | PLANNED (Brief approved), Challenge-Befund; schliesst eine Sicherheitslücke (Einsätze bleiben sonst einer abwesenden Pflegeperson zugewiesen) |
 | ORD1 | Verordnungserneuerung ohne Nachtelefonieren beim Hausarzt | Medium | DRAFT; wartet auf D-22 (legal), D-9 |
 
 - Fertig, wenn ein synthetischer Fall von Zuweisung bis signiertem Bericht E2E und RLS-negativ getestet ist, ein Qualitätsereignis einen Hold setzt und jede Ausnahme in OPS1 erscheint.
@@ -67,7 +72,7 @@ Reihenfolge der offenen Punkte: Nachbesserungen COVER1 → PLAN2 → C1 → F7 �
 | --- | --- | --- | --- |
 | J5 | Abrechenbare Leistungsfakten und Monatsvorschau | High | IMPLEMENTED (#43, #75), **abgenommen** 22.10.; nie mehr als gemessene Pflegeminuten; Restfinanzierung braucht D-11 |
 | J6 | Kontinuität: Bezugspflegeperson und Kontinuitätsmass | High | IMPLEMENTED (#42), **abgenommen** 22.10.; Namen der Mitglieder via ADM1 |
-| AN1 | Pilot-Wirkungsdashboard: Start der Versorgung, Administrationszeit, Kontinuität, abrechenbarer Anteil | High | IMPLEMENTED (#97), PO: changes-requested (North Star misst nur Zeit im Einsatz: ehrlich beschriften; keine Rückschlüsse auf Einzelpersonen); Evidenz für D-14 |
+| AN1 | Pilot-Wirkungsdashboard: Start der Versorgung, Administrationszeit, Kontinuität, abrechenbarer Anteil | High | IMPLEMENTED (#97, #124), PO: **abgenommen** 22.10. 17:15 als „Pflegeanteil im Einsatz“ (Auflage: Organisationszahl schützt ausgeblendete Kleinteams); North Star erst mit erfasster Arbeitszeit (D-23); Evidenz für D-14 |
 | J7 | Team-Ökonomie-Transparenz | Medium | PLANNED (Brief draft), wartet auf D-14 |
 
 - J5 nur aus signierten Berichten ohne offenen Quality Hold; **keine** Rechnung vor OKP-Zulassung (D-12).

@@ -8,6 +8,30 @@ updated: 2026-10-22
 
 # COVER1 — Cross-team cover without a dispatcher
 
+## PO acceptance — 2026-10-22 16:15: accepted (switched off; performing a cover waits for D-3)
+
+Reviewed on merged evidence: #114 (merge f717074; its own CI run was cancelled by the next push, the same code is green on every later merge commit, latest 57962ee), migration 0029, pgTAP 029 (27 assertions) and the amended pgTAP 028, the two-session check `scripts/db-concurrency/cover-accept.sh` (CI step "Concurrency checks", green), `cover-section.tsx`. The cover KPIs are tested in AN1's PR #124 (pgTAP 032), which is reviewed with AN1. **The PO did not run the tests**; results come from reading the migrations, the tests and the CI runs.
+
+| Criterion (14:30 list and 14:45 addendum) | Result | Evidence |
+|---|---|---|
+| Cover off until D-3, per organisation, default off; `accept_cover` returns `disabled` | met | `cover_settings.cover_enabled` default false; `cover_open_visits` requires it; pgTAP 029 "cover is off by default", "nobody is offered", "acceptance is refused", "no offer is recorded" |
+| A covered visit stays safe until it can be performed | met | acceptance sets `covered_by`, not the responsible member; pgTAP 029 "the case team keeps its uncovered flag", OPS1 "Übernahme ohne Zugriff" P2, and P1 inside 4 h; the plain uncovered exception is replaced, not duplicated |
+| She can perform the visit once access exists | deferred to D-3 | not built; the brief allows it. Delta review when D-3 is answered |
+| Withdraw with a reason up to 4 h; offered again; case team sees it | met | `withdraw_cover`; pgTAP 029 "only the covering nurse", "needs a reason", "not inside the last 4 h", "offered again", "the case team sees it in its plan log"; UI form on `/field` |
+| Honest UI text | met | `cover-section.tsx`: no promise of name or address; says the team coordinates until D-3 |
+| Negative tests: other organisation, outside the window, two parallel sessions | met | pgTAP 029 "another organisation cannot accept", "outside the window nobody can accept" (before the window; after the window the same predicate in `cover_open_visits` applies); two-session script: exactly one `ok`, one `taken`, one accepted event |
+| Offer events at the right time | met, hosted job unverified | pg_cron job `navora-cover1-events` every 10 min where available, page-load sync as backup. Hosted check waits for staging (D-2); owner task recorded in the PLAN2 status row |
+| Two empty regions never match | met | pgTAP 029 "teams without a region are not neighbours" |
+| Addendum: the covering nurse sees nothing else of the case | met | pgTAP 029: 0 rows from `care_visits`, `field_visits`, `team_cases`; `my_covers` returns only her visit |
+| Addendum: needs assessment never to a care assistant | met | pgTAP 029 "not offered", "nor can she accept it" |
+| Addendum: KPIs tested | in AN1 | pgTAP 032 in #124 (cover without Operations 50 %, median 10 h); judged in the AN1 review |
+
+**Why accepted.** The patient-safety finding is resolved: in the shipped state nobody can accept a cover, and if an organisation switches it on, a covered visit stays flagged for its team and becomes P1 for Operations until it can actually be performed. The mechanism (offer without identity, atomic acceptance, withdraw, events, regional and qualification rules) is complete and tested. What is missing is the one step that needs an owner answer (D-3), so holding the item open would block nothing engineering can do.
+
+**Care-model impact:** none yet in the field, because cover is off. Its value (no dispatcher, no phone chain) starts the day D-3 allows the visit-bounded read; HAND1 then gives the covering nurse the context a colleague would otherwise phone through.
+
+**Deviations, decided:** acceptance after the window closed is covered by the same predicate as before the window: **accepted** without a separate test. Hosted pg_cron unverified: **accepted** until staging exists (D-2). The delta after D-3 must include the e2e from the 14:30 list (perform and sign one covered visit, read nothing else and nothing after the final report).
+
 ## PO addendum — 2026-10-22 14:45 (adds to the 14:30 review, same verdict)
 
 - [ ] **The covering nurse sees nothing else of the case.** pgTAP: after acceptance she gets 0 rows for the case's other visits from `care_visits`, `field_visits(date)` and `team_cases()`, and `my_covers()` returns only her visit. This is the brief's own negative test.
