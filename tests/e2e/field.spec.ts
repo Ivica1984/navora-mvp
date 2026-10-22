@@ -191,10 +191,10 @@ test.describe("field tool (F1)", () => {
     const before = page.getByRole("article", { name: /18:00 – 18:30/ }).getByTestId("since-last");
     await expect(before).toHaveAttribute("open", "");
     await expect(before.getByTestId("since-last-rule")).toContainText("Seit deinem letzten Einsatz am");
-    const entry = before.getByRole("listitem").filter({ hasText: "ca. 0.5 l bis Mittag" });
-    await expect(entry).toContainText("Klientin müde, trinkt wenig (ca. 0.5 l bis Mittag). Bitte morgen Trinkmenge beobachten.");
-    await expect(entry).toContainText("für die Übergabe markiert");
-    await expect(entry).toContainText("Einsatz vom");
+    const sinceEntry = before.getByRole("listitem").filter({ hasText: "ca. 0.5 l bis Mittag" });
+    await expect(sinceEntry).toContainText("Klientin müde, trinkt wenig (ca. 0.5 l bis Mittag). Bitte morgen Trinkmenge beobachten.");
+    await expect(sinceEntry).toContainText("für die Übergabe markiert");
+    await expect(sinceEntry).toContainText("Einsatz vom");
   });
 
   test("sign at completion: the draft from the visit data waits at completion and is signed with one confirmation; corrections are new versions (F6, F7)", async ({ page }) => {
