@@ -1,6 +1,6 @@
 # Implementation status: Engineering
 
-**Owned by:** Engineering (`eng`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-21 23:50
+**Owned by:** Engineering (`eng`) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-22 13:20
 Detailed engineering tasks: `docs/engineering/BACKLOG.md` · Technical decisions: `docs/engineering/DECISIONS.md` · Domain view: `docs/engineering/PLATFORM_MAP.md`
 
 ## Items
@@ -21,4 +21,9 @@ Detailed engineering tasks: `docs/engineering/BACKLOG.md` · Technical decisions
 | J4 | eng-proposal | not-started | Team availability and capacity windows | deferred by the PO to Gate 5 | – | – | – | – |
 | T12 | eng-proposal | blocked | Protected staging (Supabase EU/CH + app host), migrations from CI, synthetic data only | deploy workflow once hosting and secrets exist | – | – | D-2 | – |
 | M2 | eng-proposal | blocked | Merge `recovery/main` into `main`; the claude.ai Project syncs `main` | merge commit after branch protection | #3 | – | D-7, D-8 | – |
-| C1 | po | in-review | Case and visit lifecycle (ADR-041): pause (reasons, expected end; visits suspended, not uncovered, not billable) and resume; close (future visits cancelled, tasks and primary nurse end, matching withdrawn; records untouched) and reopen (J1 readiness check before planning); cancel before start (reasons; team cancellation within 24 h = P2 OPS1); no-show after arrival (note; P1 OPS1 until the outcome is recorded); every command with reason, audited, idempotent; team or Operations only | CI, then PO acceptance against the brief | #83 | ADR-041 | – | on-site no-show protocol waits for D-19 (the app records and escalates only); visit states await clinical confirmation (D-6); a suspended visit is not yet marked on `/field` (starting it is refused) |
+| C1 | po | delivered | Case and visit lifecycle (ADR-041): pause (reasons, expected end; visits suspended, not uncovered, not billable) and resume; close (future visits cancelled, tasks and primary nurse end, matching withdrawn; records untouched) and reopen (J1 readiness check before planning); cancel before start (reasons; team cancellation within 24 h = P2 OPS1); no-show after arrival (note; P1 OPS1 until the outcome is recorded); every command with reason, audited, idempotent; team or Operations only | PO acceptance against the brief (#83 merged, CI green) | #83 | ADR-041 | – | on-site no-show protocol waits for D-19 (the app records and escalates only); visit states await clinical confirmation (D-6); a suspended visit is not yet marked on `/field` (starting it is refused) |
+| PLAN2 | po | in-progress | Self-planning (ADR-042): structured frequency per care-plan item; a rolling four-week series per active case with category minutes and the primary nurse (deputy, else uncovered); J3 safety and billing rules unchanged; team changes never overwritten; C1 interruptions respected | implement, PR | – | ADR-042 | – | – |
+| F7 | po | not-started | Sign at completion: the visit ends with a final report | after PLAN2 | – | – | – | – |
+| AN1 | po | not-started | Pilot impact dashboard with the direct-care-share North Star | after F7 | – | – | – | – |
+| COVER1 | po | not-started | Cross-team cover without a dispatcher | after AN1; context access waits for D-3 | – | – | – | – |
+| ADM1 | po | not-started | Pilot administration. A first implementation is parked on branch `feat/adm1-administration` (no PR); it resumes after the owner decides D-20, which may move member admission to the teams | after COVER1 and D-20 | – | – | – | – |
