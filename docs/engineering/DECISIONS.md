@@ -438,5 +438,5 @@ Generated visits stay ordinary planned visits.
 - **Withdraw:** `withdraw_cover` (covering nurse, with a reason, up to the fallback lead) offers the visit again and writes the reason into the case team's plan change log.
 - **Events at the right time:** `private.sync_all_cover_events()` runs every 10 minutes through pg_cron, where available. The page-load sync stays as a backup. Events are ordered by a sequence, not by the transaction time.
 - **Regions:** two empty regions never match.
-- **Concurrency:** pgTAP `029_cover_concurrency` runs two real sessions through dblink. Exactly one acceptance wins.
+- **Concurrency:** `scripts/db-concurrency/cover-accept.sh` runs in the CI db job. It has two psql processes accept the same visit at the same time, and exactly one wins. pgTAP runs inside one transaction and cannot open a second session on Supabase, because dblink needs credentials there.
 - **Not built yet:** performing the visit as covering nurse (context access, F1–F4, F6/F7). It waits for D-3. Until then cover stays off.
