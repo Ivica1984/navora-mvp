@@ -20,6 +20,7 @@ export const KPI_ORDER = [
   "time_correction_share",
   "distinct_nurses_per_client",
   "primary_nurse_share",
+  "handover_shown_before_start",
   "billable_per_care_minute",
   "plan_generated_share",
   "planning_actions_per_client_week",
@@ -94,6 +95,11 @@ export const KPI: Record<string, KpiDefinition> = {
     label: "Planungsarbeit des Teams pro Klient:in und Woche", unit: "",
     definition: "Von Hand geplante, verschobene oder entfernte Einsätze ÷ Klient:innen ÷ Wochen des Monats (ohne Änderungen aus dem Pflegeplan).",
     source: "Planungsprotokoll J3/PLAN2",
+  },
+  handover_shown_before_start: {
+    label: "Übergabe ohne Rapport: beim Start vorhanden", unit: "%",
+    definition: "Abgeschlossene Einsätze, deren vorheriger Einsatz beim selben Fall von einer anderen Person gemacht wurde: Anteil, bei dem «Seit deinem letzten Einsatz» beim Start vorhanden war. Ob gelesen wurde, wird nicht erfasst (keine Lesebestätigung).",
+    source: "Übergabe HAND1",
   },
   open_p1_exceptions: {
     label: "Offene P1-Ausnahmen (jetzt)", unit: "",

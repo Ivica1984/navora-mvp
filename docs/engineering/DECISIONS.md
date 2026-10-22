@@ -476,3 +476,41 @@ Generated visits stay ordinary planned visits.
   - `cover_median_hours` runs from the moment the visit entered the offer window: the later of the start minus the offer lead, and the visit's creation.
 - **Every row shows its period;** open P1 exceptions say "Stand jetzt" and use all open exceptions as their base.
 - `pilot_kpis` is now defined in full in migration 0032; the patches in 0028 and 0030 are superseded.
+
+### ADR-047 — Handover without the team meeting: "since you were last here" (HAND1)
+**Status:** PROPOSED · **Task:** HAND1 (brief `docs/agents/briefs/HAND1.md`, PO approved 2026-10-22). Migration 0033, pgTAP 033. (ADR-046 stays reserved for ADM1.)
+**Decision:**
+- **One read model over the existing append-only records** (`public.field_since_last(date)`), no copy of clinical data and no new view per case. Sources:
+  - observations and handovers of other visits (current versions);
+  - care plan: items added, items retired with the reason, schedule changes;
+  - visit plan changes (moved, removed) with the reason;
+  - C1 case pause, resume, close and reopen; cancellations and no-shows of other visits;
+  - J6 primary-nurse and deputy changes with the reason;
+  - J1/J3 medical order status and validity changes with the reason;
+  - QG1 quality events with their current status.
+- **Window:**
+  - entries recorded after the nurse's own last completed visit of the case (its completion time);
+  - if she never completed one: the case's last N completed visits on her teams (N = 3, `handover_settings`, per organisation) and everything since;
+  - with no completed visit at all: everything recorded so far.
+
+  The card states which rule applied. The empty state reads "Nichts Neues seit deinem letzten Einsatz am …".
+- **Nothing is summarised, ranked or interpreted.** Entries are ordered oldest first and free text is shown as recorded. Codes become labels. Authors and persons are member labels: "Ich", "Teammitglied n" (numbered as on `/team`), "Automatisch", or "Person ausserhalb des Teams". No user ids leave the database.
+- **Access stays team-scoped (F0, ADR-031):**
+  - the card's visit must belong to one of the caller's teams;
+  - visit-bound entries come only from her teams' visits;
+  - case-bound entries require membership of the case's assigned team;
+  - quality events must be of her teams;
+  - the same case only, so no cross-case linking (RET1).
+
+  A covering nurse is not a member of the visit's team, so she sees nothing until D-3.
+- **Reasons from the change log reach the case's team.** The reasons for a primary-nurse change and for an order-status change become visible to the assigned team. Until now only coordination roles read `change_log`. The brief asks for them; it is limited to the team's own case. This is flagged for the PO review.
+- **No extra tap:**
+  - A trigger on the `started` visit event records in `handover_shown` the entries the section held at that moment: kind and id only, the rule, and the window start. It is append-only.
+  - Opening a card writes nothing.
+  - "Shown" means "present at the start". Reading is not recorded, and there is no read receipt.
+- **Schedule changes are now audited old → new:** the audit trigger of `care_plan_items` includes the frequency fields. Changes made before 0033 show as "values not recorded".
+- **Plan generator entries:** changes the plan generator derives from a care-plan change are represented by that care-plan entry, so they do not flood the section.
+- **AN1:** `handover_shown_before_start` (patched into `pilot_kpis`) is the share of completed visits, among those whose previous completed visit of the case was done by another nurse, where the section was present at the start. It follows the 3-person team rule.
+- **UI:** `/field` shows the section collapsible, open before the start and closed afterwards. It replaces the former 14-day "Übergabe aus dem Team" box. `field_notes` is unchanged.
+**Rollback:** drop the trigger `visit_events_handover_shown`, the functions and the two tables, then restore the previous `audit_care_plan_items` trigger and the 0032 `pilot_kpis`. No existing data is changed.
+**Open:** D-3 (cover context); the PO may change N or the plan-generator exclusion; member names come with ADM1.

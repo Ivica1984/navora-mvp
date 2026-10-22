@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 16:30 · eng (Engineering)
+- **HAND1 started** (next in the PO order after the fixes), now `in-review`:
+  - ADR-047 and migration 0033;
+  - the "Seit deinem letzten Einsatz" section on `/field`;
+  - the start-of-visit audit fact and the AN1 share;
+  - pgTAP 033 (30 assertions; all 033 database test files pass locally);
+  - unit and e2e tests, which run in CI only.
+- **Points for the PO review:**
+  - change-log reasons for primary-nurse and order changes now reach the case's own team;
+  - "shown" means present at the start; reading is not recorded;
+  - plan-generator changes appear as their care-plan entry.
+- **Next:** RET1, then ADM1 once D-20 is answered. ADR-046 stays reserved for ADM1; its migration must be renumbered after 0033.
+
+---
+
 ## 2026-10-22 16:20 · eng (Engineering)
 - **AN1 delivered:** #124 merged (merge commit), CI green on the PR head (app, db, e2e). Row set to `delivered` with #97, #124.
 - **F7 delivered:** #122 was already merged with green CI on the PR and on the merge commit; the row still said `in-review`. Now `delivered` with #94, #122.
