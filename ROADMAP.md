@@ -35,7 +35,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 ## Gate 2: Care Journey MVP
 
-Reihenfolge der offenen Punkte: J5-Minutenregel → C1 → ADM1 → AN1 (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
+Reihenfolge der offenen Punkte: C1 → ADM1 → PLAN2 → F7 → AN1 (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
 
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
@@ -48,6 +48,8 @@ Reihenfolge der offenen Punkte: J5-Minutenregel → C1 → ADM1 → AN1 (Ranglis
 | OPS1 | Operations Exception Center über J1–J3, QG1, F6 | High | IMPLEMENTED (#39), **abgenommen** 22.10. |
 | C1 | Fall- und Einsatz-Lebenszyklus: pausieren, abschliessen, wiedereröffnen, absagen, Klient nicht angetroffen | High | PLANNED (Brief approved), **nächste Fähigkeit**; Vor-Ort-Protokoll D-19 |
 | ADM1 | Pilot-Administration: Mitglieder mit Namen, Qualifikationen, Teams, Fristen, Schwellen | High | PLANNED (Brief approved) |
+| PLAN2 | Selbstplanung: Einsätze folgen dem Pflegeplan (rollierende 4 Wochen, Bezugspflegeperson) | High | PLANNED (Brief approved), Challenge-Befund |
+| F7 | Unterschrift beim Abschluss: Einsatz endet mit finalem Bericht | High | PLANNED (Brief approved), Challenge-Befund |
 
 - Fertig, wenn ein synthetischer Fall von Zuweisung bis signiertem Bericht E2E und RLS-negativ getestet ist, ein Qualitätsereignis einen Hold setzt und jede Ausnahme in OPS1 erscheint.
 
@@ -55,7 +57,7 @@ Reihenfolge der offenen Punkte: J5-Minutenregel → C1 → ADM1 → AN1 (Ranglis
 
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
-| J5 | Abrechenbare Leistungsfakten und Monatsvorschau | High | IMPLEMENTED (#43), **Änderung verlangt:** nie mehr als die gemessenen Pflegeminuten (Q11); Restfinanzierung braucht D-11 |
+| J5 | Abrechenbare Leistungsfakten und Monatsvorschau | High | IMPLEMENTED (#43, #75), **abgenommen** 22.10.; nie mehr als gemessene Pflegeminuten; Restfinanzierung braucht D-11 |
 | J6 | Kontinuität: Bezugspflegeperson und Kontinuitätsmass | High | IMPLEMENTED (#42), **abgenommen** 22.10.; Namen der Mitglieder via ADM1 |
 | AN1 | Pilot-Wirkungsdashboard: Start der Versorgung, Administrationszeit, Kontinuität, abrechenbarer Anteil | High | PLANNED (Brief approved); Evidenz für D-14 |
 | J7 | Team-Ökonomie-Transparenz | Medium | PLANNED (Brief draft), wartet auf D-14 |
