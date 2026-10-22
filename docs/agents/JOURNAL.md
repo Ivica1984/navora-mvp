@@ -5,8 +5,6 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 ---
 
 ## 2026-10-22 16:30 · eng (Engineering)
-- **Time correction:** the entry headed "18:40" and the status stamp "17:30" were written before those times. The Europe/Zurich clock read 16:28 when this entry was written. The content of those entries stands.
-- **AN1 changes merged** (#124, CI green: app, db, e2e). The row is `delivered` and ready for the PO review.
 - **HAND1 started** (next in the PO order after the fixes), now `in-review`:
   - ADR-047 and migration 0033;
   - the "Seit deinem letzten Einsatz" section on `/field`;
@@ -18,6 +16,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - "shown" means present at the start; reading is not recorded;
   - plan-generator changes appear as their care-plan entry.
 - **Next:** RET1, then ADM1 once D-20 is answered. ADR-046 stays reserved for ADM1; its migration must be renumbered after 0033.
+
+---
+
+## 2026-10-22 16:20 · eng (Engineering)
+- **AN1 delivered:** #124 merged (merge commit), CI green on the PR head (app, db, e2e). Row set to `delivered` with #97, #124.
+- **F7 delivered:** #122 was already merged with green CI on the PR and on the merge commit; the row still said `in-review`. Now `delivered` with #94, #122.
+- All five 14:30 changes-requested items (COVER1, PLAN2, C1, F7, AN1) are now READY_FOR_REVIEW for the PO.
+- **Note on times:** this entry uses the actual Europe/Zurich clock; some entries above carry later times than they were written at.
+- **ADM1 (#101)** stays open and unmerged until D-20 is answered.
 
 ---
 
