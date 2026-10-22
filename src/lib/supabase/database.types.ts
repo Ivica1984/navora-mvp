@@ -433,14 +433,14 @@ isOneToOne: true
                   ]
                 },"handover_shown": {
                   Row: {
-                    "created_at": string,"entries": Json,"entry_count": number,"id": number,"nurse_id": string,"organization_id": string,"rule": string,"since_at": string,"visit_event_id": number,"visit_id": string
+                    "created_at": string,"entries": NonNullable<Json>,"entry_count": number,"id": number,"nurse_id": string,"organization_id": string,"rule": string,"since_at": string,"visit_event_id": number,"visit_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"entries": Json,"entry_count": number,"id"?: never,"nurse_id": string,"organization_id": string,"rule": string,"since_at": string,"visit_event_id": number,"visit_id": string
+                    "created_at"?: string,"entries": NonNullable<Json>,"entry_count": number,"id"?: never,"nurse_id": string,"organization_id": string,"rule": string,"since_at": string,"visit_event_id": number,"visit_id": string
                   }
                   Update: {
-                    "created_at"?: string,"entries"?: Json,"entry_count"?: number,"id"?: never,"nurse_id"?: string,"organization_id"?: string,"rule"?: string,"since_at"?: string,"visit_event_id"?: number,"visit_id"?: string
+                    "created_at"?: string,"entries"?: NonNullable<Json>,"entry_count"?: number,"id"?: never,"nurse_id"?: string,"organization_id"?: string,"rule"?: string,"since_at"?: string,"visit_event_id"?: number,"visit_id"?: string
                   }
                   Relationships: [
                     {
