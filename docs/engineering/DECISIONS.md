@@ -465,3 +465,14 @@ Generated visits stay ordinary planned visits.
   - right after completion, the card says the report could not be created and why;
   - afterwards, a completed visit without a report reads "Bericht nicht automatisch erstellt", with a hint and the create step.
 - **Seed:** `assist.test@navora.test`, a care assistant of Testteam Nord, and visit 509, so that the countersignature path runs end to end in e2e: the care assistant runs and signs the visit, and the registered nurse countersigns from her queue.
+
+#### ADR-044 amendment — AN1 changes (PO review 2026-10-22 14:30)
+- **Named honestly:** the measured figure is `care_share_in_visits` ("Pflegeanteil im Einsatz"), shown without a reference line. Its definition says what is not included: documentation, the return trip and time outside visits.
+- **Incomplete visits:** visits without a departure or a completion time are excluded and counted separately (`incomplete_visits`).
+- **North Star placeholder:** `direct_care_share` stays "noch nicht messbar" until paid working time is recorded (D-23).
+- **No per-nurse inference:** team figures appear only when at least 3 persons in the team had visits in the period. Otherwise the team row shows no value and "zu wenig Personen", and only the organisation figure is shown.
+- **COVER1 figures:**
+  - `cover_without_operations` counts only covers accepted before anyone in a coordination role took over or closed the visit's exception;
+  - `cover_median_hours` runs from the moment the visit entered the offer window: the later of the start minus the offer lead, and the visit's creation.
+- **Every row shows its period;** open P1 exceptions say "Stand jetzt" and use all open exceptions as their base.
+- `pilot_kpis` is now defined in full in migration 0032; the patches in 0028 and 0030 are superseded.

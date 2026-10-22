@@ -48,7 +48,7 @@ export default function AnalyticsClient({ rows, month }: { rows: KpiRow[]; month
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase text-stone-500">
-                  <th className="py-1">Kennzahl</th><th>Wert</th><th>Basis</th><th>Definition · Quelle</th>
+                  <th className="py-1">Kennzahl</th><th>Wert</th><th>Basis</th><th>Zeitraum</th><th>Definition · Quelle</th>
                 </tr>
               </thead>
               <tbody>
@@ -64,6 +64,7 @@ export default function AnalyticsClient({ rows, month }: { rows: KpiRow[]; month
                         {def.reference && <span className="block text-xs text-stone-500">{def.reference}</span>}
                       </td>
                       <td className="py-2 pr-3 tabular-nums text-stone-600">{r.base ?? "–"}</td>
+                      <td className="py-2 pr-3 text-xs text-stone-600" data-testid={`period-${k}`}>{k === "open_p1_exceptions" ? "Stand jetzt" : monthLabel(month)}</td>
                       <td className="py-2 text-xs text-stone-600">
                         {def.definition} <span className="italic">Quelle: {def.source}.</span>
                         {r.note && <span className="block text-amber-900">{r.note}</span>}
