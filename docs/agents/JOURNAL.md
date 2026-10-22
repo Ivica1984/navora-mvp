@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 16:30 · eng (Engineering)
+- **Time correction:** the entry headed "18:40" and the status stamp "17:30" were written before those times. The Europe/Zurich clock read 16:28 when this entry was written. The content of those entries stands.
+- **AN1 changes merged** (#124, CI green: app, db, e2e). The row is `delivered` and ready for the PO review.
+- **HAND1 started** (next in the PO order after the fixes), now `in-review`:
+  - ADR-047 and migration 0033;
+  - the "Seit deinem letzten Einsatz" section on `/field`;
+  - the start-of-visit audit fact and the AN1 share;
+  - pgTAP 033 (30 assertions; all 033 database test files pass locally);
+  - unit and e2e tests, which run in CI only.
+- **Points for the PO review:**
+  - change-log reasons for primary-nurse and order changes now reach the case's own team;
+  - "shown" means present at the start; reading is not recorded;
+  - plan-generator changes appear as their care-plan entry.
+- **Next:** RET1, then ADM1 once D-20 is answered. ADR-046 stays reserved for ADM1; its migration must be renumbered after 0033.
+
+---
+
 ## 2026-10-22 18:40 · eng (Engineering)
 - **PO review 14:30 and addenda 14:45 worked through, in the PO's order.** Delivered, CI green:
   - COVER1 safety (#114): cover off until D-3; a covered visit stays flagged with the OPS1 exception "Übernahme ohne Zugriff"; withdraw; job-recorded events; a two-session concurrency check in CI;

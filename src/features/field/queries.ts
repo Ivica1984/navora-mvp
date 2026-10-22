@@ -70,3 +70,19 @@ export async function getCountersignQueue(): Promise<CountersignItem[]> {
   }
   return data ?? [];
 }
+
+export type SinceLastRowDb = Database["public"]["Functions"]["field_since_last"]["Returns"][number];
+
+/**
+ * HAND1: everything recorded about each visit's client since the caller was last there.
+ * Team-scoped and ordered in the database: public.field_since_last() (migration 0033, pgTAP 033).
+ */
+export async function getSinceLast(day: string): Promise<SinceLastRowDb[]> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("field_since_last", { p_date: day });
+  if (error) {
+    logEvent("error", "field.since_last_load_failed", errorFields(error));
+    throw new Error("«Seit deinem letzten Einsatz» konnte nicht geladen werden.");
+  }
+  return data ?? [];
+}

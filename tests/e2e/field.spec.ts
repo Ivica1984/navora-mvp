@@ -12,6 +12,8 @@ const PASSWORD = "navora-local-only";
 const SEED_DAY = new Date().toISOString().slice(0, 10);
 // Visit 508 (Testteam Nord, 09:00) is planned for the day after and untouched by other tests.
 const NEXT_DAY = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+// Visit 509 (Testteam Nord, 18:00) two days ahead: the care assistant runs it in the F7 test below.
+const DAY_AFTER_NEXT = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10);
 // Status buttons only (F4 adds "Beobachtung speichern" to completed visits).
 const TRANSITION = /^(Losfahren|Einsatz starten|Pause|Fortsetzen|Einsatz abschliessen)$/;
 
@@ -176,11 +178,23 @@ test.describe("field tool (F1)", () => {
     await expect(observations.getByRole("listitem").filter({ hasText: "ca. 0.5 l" })).toContainText("geändert");
     await expect(observations.getByText("trinkt wenig. Bitte", { exact: false })).toHaveCount(0);
 
-    // Handover: shown on the same client's visit of the team on the next day (visit 508).
+    // HAND1: "since you were last here" on the same client's next visits. Visit 508 (tomorrow) is already
+    // completed, so the section is collapsed there; it opens with one tap.
     await page.goto(`/field?datum=${NEXT_DAY}`);
-    const handover = page.getByRole("article", { name: /09:00 – 09:45/ }).getByRole("region", { name: "Übergabe" });
-    await expect(handover).toContainText("ca. 0.5 l bis Mittag");
-    await expect(handover).toContainText("von dir");
+    const done = page.getByRole("article", { name: /09:00 – 09:45/ }).getByTestId("since-last");
+    await done.locator("summary").click();
+    await expect(done.getByRole("listitem").filter({ hasText: "ca. 0.5 l bis Mittag" })).toContainText("Ich");
+
+    // Visit 509 (day after tomorrow, planned): open before the start, with the rule that applied, in full text.
+    // This nurse's last completed visit of the client is 508 (F2 test above); the observation came after it.
+    await page.goto(`/field?datum=${DAY_AFTER_NEXT}`);
+    const before = page.getByRole("article", { name: /18:00 – 18:30/ }).getByTestId("since-last");
+    await expect(before).toHaveAttribute("open", "");
+    await expect(before.getByTestId("since-last-rule")).toContainText("Seit deinem letzten Einsatz am");
+    const entry = before.getByRole("listitem").filter({ hasText: "ca. 0.5 l bis Mittag" });
+    await expect(entry).toContainText("Klientin müde, trinkt wenig (ca. 0.5 l bis Mittag). Bitte morgen Trinkmenge beobachten.");
+    await expect(entry).toContainText("für die Übergabe markiert");
+    await expect(entry).toContainText("Einsatz vom");
   });
 
   test("sign at completion: the draft from the visit data waits at completion and is signed with one confirmation; corrections are new versions (F6, F7)", async ({ page }) => {

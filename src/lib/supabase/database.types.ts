@@ -411,6 +411,58 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"handover_settings": {
+                  Row: {
+                    "id": string,"lookback_visits": number,"organization_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: string,"lookback_visits": number,"organization_id"?: string | null
+                  }
+                  Update: {
+                    "id"?: string,"lookback_visits"?: number,"organization_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "handover_settings_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: true
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"handover_shown": {
+                  Row: {
+                    "created_at": string,"entries": Json,"entry_count": number,"id": number,"nurse_id": string,"organization_id": string,"rule": string,"since_at": string,"visit_event_id": number,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"entries": Json,"entry_count": number,"id"?: never,"nurse_id": string,"organization_id": string,"rule": string,"since_at": string,"visit_event_id": number,"visit_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"entries"?: Json,"entry_count"?: number,"id"?: never,"nurse_id"?: string,"organization_id"?: string,"rule"?: string,"since_at"?: string,"visit_event_id"?: number,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "handover_shown_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "handover_shown_visit_event_id_fkey"
+      columns: ["visit_event_id"]
+isOneToOne: true
+      referencedRelation: "visit_events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "handover_shown_visit_id_organization_id_fkey"
+      columns: ["visit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"match_candidates": {
                   Row: {
                     "created_at": string,"distance_km": number | null,"fit_score": number,"id": string,"matching_request_id": string | null,"open_slots": number | null,"organization_id": string,"reasons": (string)[] | null,"status": string,"team_id": string | null,"utilization": number | null
@@ -1128,6 +1180,11 @@ isOneToOne: false
 "field_reports":
 { Args: { "p_date": string }; Returns: {
               "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"i_am_performer": boolean,"i_can_countersign": boolean,"i_signed": boolean,"report_id": string,"signed_at": string,"snapshot": Json,"status": string,"summary": string,"version": number,"visit_id": string
+            }[]
+                           },
+"field_since_last":
+{ Args: { "p_date": string }; Returns: {
+              "at": string,"author": string,"detail": Json,"entry_id": string,"kind": string,"lookback": number,"rule": string,"since_date": string,"source_visit_date": string,"source_visit_start": string,"visit_id": string
             }[]
                            },
 "field_visit_status_notes":
