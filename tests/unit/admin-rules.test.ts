@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allowedPriorities, changedLabel, checkRuleInput, isValidEmail } from "@/features/admin/rules";
+import { ADMIN_MESSAGES, allowedPriorities, changedLabel, checkRuleInput, isValidEmail, readRemovalResult, releasedNotice } from "@/features/admin/rules";
 
 // ADM1: client-side mirror of the safe ranges in private.exception_rule_range (migration 0025).
 describe("admin rules (ADM1)", () => {
@@ -39,5 +39,28 @@ describe("admin rules (ADM1)", () => {
   it("checks e-mail shape", () => {
     expect(isValidEmail("a@b.ch")).toBe(true);
     expect(isValidEmail("kein-email")).toBe(false);
+  });
+});
+
+// ADM1 changes: removing a member releases her future planned visits (migration 0036).
+describe("member removal releases visits (ADM1 changes)", () => {
+  it("reads the command result and the number released", () => {
+    expect(readRemovalResult({ result: "ok", released: 3 })).toEqual({ code: "ok", released: 3 });
+    expect(readRemovalResult({ result: "duplicate" })).toEqual({ code: "duplicate", released: 0 });
+    expect(readRemovalResult({ result: "has_cases" })).toEqual({ code: "has_cases", released: 0 });
+    expect(readRemovalResult({ result: "has_visit_in_progress" })).toEqual({ code: "has_visit_in_progress", released: 0 });
+    expect(readRemovalResult({ result: "ok", released: -1 })).toEqual({ code: "ok", released: 0 });
+    expect(readRemovalResult(null)).toEqual({ code: "failed", released: 0 });
+    expect(readRemovalResult("ok")).toEqual({ code: "failed", released: 0 });
+  });
+
+  it("explains a refusal while a visit is in progress (CGR-10)", () => {
+    expect(ADMIN_MESSAGES.has_visit_in_progress).toMatch(/Einsatz/);
+  });
+
+  it("says how many visits are now open in the team", () => {
+    expect(releasedNotice(3)).toBe("Entfernt. 3 Einsätze sind jetzt offen im Team.");
+    expect(releasedNotice(1)).toBe("Entfernt. 1 Einsatz ist jetzt offen im Team.");
+    expect(releasedNotice(0)).toBe("Entfernt. Keine geplanten Einsätze betroffen.");
   });
 });

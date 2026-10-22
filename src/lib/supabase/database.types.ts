@@ -1458,7 +1458,7 @@ isOneToOne: false
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: Json
                            },
 "remove_team_member":
-{ Args: { "p_idempotency_key": string,"p_reason": string,"p_team_id": string,"p_user_id": string }; Returns: string
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_team_id": string,"p_user_id": string }; Returns: Json
                            },
 "reopen_case":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_reason": string }; Returns: string

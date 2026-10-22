@@ -9,7 +9,7 @@ import {
 } from "@/features/admin/commands";
 import {
   ROLES, ROLE_LABEL, QUALIFICATIONS, REFERRAL_TYPE_LABEL, UNIT_LABEL, DEADLINE_UNITS,
-  allowedPriorities, changedLabel, checkRuleInput, isValidEmail,
+  allowedPriorities, changedLabel, checkRuleInput, isValidEmail, releasedNotice,
 } from "@/features/admin/rules";
 import { QUALIFICATION_LABEL } from "@/features/team/rules";
 import type { CommandResult } from "@/lib/commands/result";
@@ -101,6 +101,9 @@ function Members({ data }: { data: AdminData }) {
 function MemberRow({ member, data }: { member: AdminMember; data: AdminData }) {
   const { run, pending, error, notice } = useCommand();
   const [mode, setMode] = useState<"idle" | "name" | "role" | "team">("idle");
+  // ADM1 changes: a removal releases her future planned visits to the team; the count stays visible here
+  // (the membership row itself disappears after the removal).
+  const [released, setReleased] = useState<string | null>(null);
   const activeTeams = data.teams.filter((t) => t.status !== "closed");
   const label = member.display_name || member.email;
   return (
@@ -111,10 +114,11 @@ function MemberRow({ member, data }: { member: AdminMember; data: AdminData }) {
       </p>
       <ul className="grid gap-1 text-sm" aria-label="Teams">
         {teamsOf(member).map((t) => (
-          <TeamMembership key={t.team_id} entry={t} userId={member.user_id} />
+          <TeamMembership key={t.team_id} entry={t} userId={member.user_id} onReleased={setReleased} />
         ))}
         {teamsOf(member).length === 0 && <li className="text-stone-500">in keinem Team</li>}
       </ul>
+      {released && <p role="status" data-testid="released-visits" className="text-sm font-semibold text-amber-900">{released}</p>}
       {mode === "idle" && (
         <div className="flex flex-wrap gap-2">
           <button type="button" className={secondary} onClick={() => setMode("name")}>Name</button>
@@ -174,7 +178,7 @@ function MemberRow({ member, data }: { member: AdminMember; data: AdminData }) {
   );
 }
 
-function TeamMembership({ entry, userId }: { entry: TeamEntry; userId: string }) {
+function TeamMembership({ entry, userId, onReleased }: { entry: TeamEntry; userId: string; onReleased: (notice: string | null) => void }) {
   const { run, pending, error } = useCommand();
   const [mode, setMode] = useState<"idle" | "qualification" | "remove">("idle");
   return (
@@ -192,8 +196,10 @@ function TeamMembership({ entry, userId }: { entry: TeamEntry; userId: string })
         <form aria-label={mode === "remove" ? "Aus Team entfernen" : "Qualifikation ändern"} className="flex flex-wrap items-end gap-2" onSubmit={(e) => {
           e.preventDefault();
           const f = new FormData(e.currentTarget);
+          onReleased(null);
           run(() => mode === "remove"
             ? removeTeamMember({ teamId: entry.team_id, userId, reason: text(f, "reason"), idempotencyKey: newKey() })
+                .then((r) => { if (r.ok) onReleased(releasedNotice(r.released)); return r; })
             : setMemberQualification({ teamId: entry.team_id, userId, qualification: text(f, "qualification"), reason: text(f, "reason"), idempotencyKey: newKey() }),
           () => setMode("idle"));
         }}>

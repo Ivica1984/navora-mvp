@@ -13,7 +13,7 @@
 | TD-06 | `as any` casts | operations, teams | S | — | DONE (PR #1) |
 | TD-07 | Duplicate helpers across files (`getVisitTimeRange`, `getAverageUtilization`, …) | features + clients | S | Operations copies removed (PR #1); rest in T10 | PARTLY DONE |
 | TD-08 | Server computed 13 KPIs the client ignored | operations | S | removed in T10 | DONE (PR #9) |
-| TD-09 | Duplicate attention items for one case | `operations/rules.ts` | S | behaviour pinned by test; fix after Q2 | OPEN |
+| TD-09 | Duplicate attention items for one case | `operations/rules.ts` | S | removed with the legacy hints (ADM1 changes, ADR-046 amendment) | CLOSED |
 | TD-10 | Backup UI files in route folder | `app/operations/` | S | not imported; arrive via owner zip → `docs/legacy-ui/` | DONE (by exclusion) |
 | TD-11 | Unused modules | features | S | `getCasesWithVisits` (PR #1), `visits/actions.ts` (T8), `getCases` (T10) removed | DONE |
 | TD-12 | `alert()` for command errors | teams, visits | S | inline `CommandError` (role=alert), cleared on new selection | DONE (PR #12) |

@@ -41,7 +41,7 @@ Niemals `.env.local` auf das bestehende Live-Projekt zeigen lassen, und niemals 
 |---|---|
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Next-Routentypen + `tsc` |
-| `npm test` | Vitest (reine Regeln, z.B. `features/operations/rules.ts`) |
+| `npm test` | Vitest (reine Regeln, z.B. `features/admin/rules.ts`) |
 | `npm run test:db` | pgTAP gegen lokale Supabase (`supabase test db`) |
 | `npm run build` | Produktionsbuild ohne Datenbankzugriff |
 | `npm run e2e` | Playwright gegen `next start` + lokale Supabase (vorher `supabase db reset` und `npm run build`) |

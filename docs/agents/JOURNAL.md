@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 23:25 · eng (Engineering)
+- **ADM1 changes** (issue #133, claimed 23:18), **PR #135** updated. State stays `in-review` until CI is green on the new head; nothing tested locally against a database (no local Supabase): CI is the test runner.
+  - **PO privacy fix (22:15):** the `released` row in `visit_plan_changes` (team-readable) carries only "Mitglied aus dem Team entfernt"; the administrator's reason stays in `change_log` and audit. pgTAP: no plan change row contains the reason; `change_log` does.
+  - **CGR-09:** `private.release_member_visits` releases suspended visits too. pgTAP: pause → removal → resume, the visits are active and uncovered (J3 flag, OPS1).
+  - **CGR-10:** `remove_team_member` returns `has_visit_in_progress` while a visit of hers in that team is on the way, started or paused; each status tested alone, nothing released, she stays a member. `/admin` message added (unit test).
+  - ADR-046 amendment updated. `recovery/main` merged in (journal conflict only).
+- **Gate trail (ADM1):** CGR-09, CGR-10 fixed; CGR-16 waits for D-29 (owner); cover by a removed nurse OPEN while COVER1 is off.
+- **Not done this run:** #138 (Clinical Architect role) has a merge conflict and must align with the single report path from #136; next run.
+- **Next agent (eng):** when #135 is green, merge and set ADM1 `delivered`; then #138; then CSR1.
 ## 2026-10-22 23:10 · eng (Lead Engineer)
 - **#138 reconciled with #136 and #139** (PO comments on #138). README and COORDINATION keep #136's role and acceptance-gate wording (D-27, CGR-14). There is one report path, `reports/CLINICAL_GOVERNANCE.md`. The duplicate `cra` role and participant rows and the "no report yet" line are dropped.
 - **Added for Engineering** to the *Clinical review gate*:
@@ -139,6 +148,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **No delivery** to review this cycle. Queue unchanged: ADM1 changes, then ABS1.
 - **Next agent (clinical):** publish the first Clinical Governance Report. Cover first the items that are in review or due next (ADM1, ABS1), then the accepted items with clinical impact (F6, F7, J3, J5, QG1, C1, COVER1, PLAN2, HAND1, RET1).
 - **Next agent (eng):** unchanged.
+
+## 2026-10-22 21:35 · eng (Engineering)
+- **ADM1 changes** (issue #133, claimed 21:11), **PR #135**. The status row is `in-review`. ADR-046 amendment.
+  1. **Removal releases her visits:** migration 0036.
+     - `private.release_member_visits` is the one release rule; **ABS1 should call it** for the absence range.
+     - `remove_team_member` releases her `planned`, not suspended, today-or-later visits of that team in the same command and returns `{result, released}`.
+     - Each release is logged as `visit_plan_changes.change = 'released'` with the reason.
+  2. **Role change:** visits are not touched; she can still start them (pgTAP).
+  3. **Names asserted** in reports and quality.
+  4. **Legacy hints removed.**
+- **C1 condition:** the pause e2e failed on bdb0d1d at the last step. It navigated to `/field` right after clicking "Fortsetzen", so the resume could be aborted. It now waits for the case to show as running.
+- **Tests:** all 34 pgTAP files pass locally against PostgreSQL 16 with a Supabase shim (036: 28 assertions). Unit, typecheck, lint and e2e were not run here (no npm registry); CI runs them.
+- **OPEN (in ADR-046 amendment):**
+  - an accepted cover is not withdrawn on removal (COVER1 is off until D-3);
+  - whether HAND1 should list `released` entries is a PO question.
+- **Next agent (eng):** if #135 is green, merge it and set ADM1 `delivered`. Then ABS1, reusing the release function.
 
 ## 2026-10-22 20:15 · po (Product Owner)
 - **PR #126 brought up to date** again: `recovery/main` (ADM1 #101) merged in, journal entries kept, newest first. No second PO PR opened; this cycle rides on #126.
