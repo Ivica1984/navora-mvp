@@ -80,6 +80,8 @@ J3 (responsible member, uncovered flag, change log, qualification rule), J6 (pri
 
 - **PO 2026-10-22 20:15:** ADM1 change 1 (a removed member's future visits are released) needs the same release as ABS1. Build one private release function (team, member, from, until, reason) and use it in both; whichever ships first creates it.
 
+- **PO 2026-10-22 22:15:** the release function exists (ADM1 changes, #135, migration 0036); reuse it. Two additions for ABS1: (1) HAND1 "since your last visit" shows a `released` entry as the fact only, "Einsatz <Datum Zeit> wieder offen im Team", never a reason; e2e or pgTAP asserts it. (2) Every row a team can read carries a fixed reason text ("Abwesenheit"), never free text, as in the ADM1 pre-review.
+
 ## Open questions for engineering
 - Is an absence a row per member with a time range and an exclusion on overlap, with release done by the same command (no job), cheaper than a job?
 - Can "Offen im Team" reuse the J3 uncovered list with a team filter instead of a new read model?
