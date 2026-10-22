@@ -19,6 +19,8 @@ import {
 } from "@/features/team/rules";
 import { MEDICAL_ORDER_LABEL, TASK_LABEL } from "@/features/intake/rules";
 import type { ContinuityRow, TeamCase, TeamOffer } from "@/features/team/queries";
+import type { BillingPreviewRow } from "@/features/billing/queries";
+import BillingPreview from "@/components/billing/billing-preview";
 import { formatDayLabel, shiftDay, todayInZurich } from "@/features/field/rules";
 import { getVisitStatusLabel } from "@/features/visits/types";
 
@@ -32,7 +34,19 @@ function hoursSince(iso: string) {
   return Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / 3_600_000));
 }
 
-export default function TeamClient({ offers, cases, continuity }: { offers: TeamOffer[]; cases: TeamCase[]; continuity: ContinuityRow[] }) {
+export default function TeamClient({
+  offers,
+  cases,
+  continuity,
+  billing,
+  month,
+}: {
+  offers: TeamOffer[];
+  cases: TeamCase[];
+  continuity: ContinuityRow[];
+  billing: BillingPreviewRow[];
+  month: string;
+}) {
   const open = offers.filter((o) => !o.my_team_declined);
   const declined = offers.filter((o) => o.my_team_declined);
 
@@ -93,9 +107,13 @@ export default function TeamClient({ offers, cases, continuity }: { offers: Team
           </ul>
         </section>
 
+        <div className="mt-6">
+          <BillingPreview rows={billing} month={month} />
+        </div>
+
         <p className="mt-4 text-xs leading-relaxed text-emerald-900/60">
-          Angeboten werden Anfragen aus der Region deines aktiven Teams. Kompetenzen, Qualifikationen, Kapazität und
-          Sicherheitsvorbehalte werden noch nicht automatisch geprüft – bitte im Team beurteilen. Namen und Kontaktdaten
+          Angeboten werden Anfragen aus der Region deines aktiven Teams. Kompetenzen, Kapazität und
+          Sicherheitsvorbehalte werden noch nicht automatisch geprüft (Qualifikation schon) – bitte im Team beurteilen. Namen und Kontaktdaten
           sind erst nach der Zusage sichtbar.
         </p>
       </main>

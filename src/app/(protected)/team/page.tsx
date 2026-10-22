@@ -1,6 +1,8 @@
 import { connection } from "next/server";
 import { getContinuity, getTeamCases, getTeamOffers } from "@/features/team/queries";
 import { todayInZurich } from "@/features/field/rules";
+import { getBillingPreview } from "@/features/billing/queries";
+import { monthStart } from "@/features/billing/rules";
 import TeamClient from "./team-client";
 
 // J2: requests offered to the caller's teams — the team decides (Teamautonomie).
@@ -8,6 +10,13 @@ import TeamClient from "./team-client";
 export default async function TeamPage() {
   await connection();
   // J6: continuity per client for the current month.
-  const [offers, cases, continuity] = await Promise.all([getTeamOffers(), getTeamCases(), getContinuity(todayInZurich())]);
-  return <TeamClient offers={offers} cases={cases} continuity={continuity} />;
+  // J5: monthly billing estimate for the team.
+  const month = monthStart(todayInZurich());
+  const [offers, cases, continuity, billing] = await Promise.all([
+    getTeamOffers(),
+    getTeamCases(),
+    getContinuity(month),
+    getBillingPreview(month),
+  ]);
+  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} />;
 }

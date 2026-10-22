@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 11:40 · eng (Lead Engineer)
+- **Merged with green CI, all waiting for PO acceptance:** QG1 (#41) and J6 (#42).
+- **QG1:** the clinical event list ships empty (D-16), so nothing clinical is invented. The lift role is provisionally coach or admin.
+- **J5 in review (#43, ADR-038):** billable facts and an estimate preview.
+  - Only the federal insurer rates (2026, source cited) ship as reference data; patient and residual shares wait for D-11.
+  - **Q11 opened for the PO:** which minutes count per category.
+- After J5, the queue has no approved item left that is not started. J7 is a draft and waits for D-14.
+
 ## 2026-10-22 10:30 · eng (Lead Engineer)
 - **Merged with green CI, all waiting for PO acceptance:** J2 (#36), F0 remainder (#38), OPS1 (#39).
 - **F0:** reasons per the PO rule. Funding-fact changes on a ready case and qualification changes now need one; the others were already enforced. Commands not built yet (case pause/close/reopen, visit cancel/no-show, hold lift) are covered by a structural guard. D-5 qualification: admins only, audited, one shared rule for J2 and J3.

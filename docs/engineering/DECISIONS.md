@@ -308,3 +308,16 @@ The four existing browser writes became Server Actions in T8, ahead of T10, so *
 - **Measure:** `continuity_by_case(month)` returns, per client, the completed visits, the distinct performing nurses (from the F2 start events) and the primary nurse's share. Teams see their cases and coordination roles see the organisation. **No per-nurse figures are returned**, so the measure cannot become a ranking.
 **Migration plan:** migration 0021 (new columns and functions, `visit_flags` and `team_cases` redefined). Rollback: restore both functions from 0014 and drop the rest.
 **Open:** whether a hard continuity limit is ever wanted (out of scope until pilot data); names for members once profiles exist (D-5).
+
+### ADR-038 — Billable facts and an estimate preview, driven by versioned reference data (J5)
+**Status:** PROPOSED · **Task:** J5 (`docs/agents/briefs/J5.md`). No invoice: D-12 gates real invoicing, which is out of scope.
+**Decision:**
+- **Reference data:** `tariff_rates` (region CH or canton, payer, KLV category, amount, unit, validity, version, source) and `billing_rules` (minimum billable minutes, dated, per region). A canton row overrides the federal one. **Shipped:** the federal insurer contributions per hour, A 76.90 / B 63.00 / C 52.60 CHF valid from 2026-01-01, with the source cited, and the 10-minute minimum from the brief. **Not shipped:** patient contribution and residual financing, which are cantonal and wait for D-11. The preview says "not on file".
+- **Facts:** `billable_facts` holds one immutable fact per final report version, created only when the report is final (F6) and the visit has no open quality hold (QG1). Each fact records planned minutes per category, measured care minutes (from the F2 events, with F3 corrections), the payer chain, the order basis (with order / without order A/C / B without a valid order), the tariff version per category, the billable flag with reasons (B without a valid order, no insurer, below minimum, no planned minutes, no measured time) and warnings. A corrected report creates a new fact that references the old one.
+- **Working time:** `working_time_facts` is a separate type (travel, care and pause per visit and performer).
+- **Generation:** `generate_billable_facts(month)` is idempotent and can be run by the team or coordination roles.
+- **Preview:** `billing_preview(month)` gives, per team, billable minutes per category, the insurer estimate (only from rates on file; incomplete coverage is marked) and every completed visit that is not billable, with its reason. A hold set after the fact stops the visit from counting.
+- **Read scope:** facts carry insurer data, so they are readable by the team and intake roles only (J1). The preview carries no insurer data.
+**Provisional (Q11, PO):** the billable minutes are the **planned minutes per category** of the signed report, because actual time is measured per visit, not per category. Measured care minutes below the planned total raise the warning `actual_below_planned`.
+**Migration plan:** migration 0022 (new tables and functions plus reference rows). Rollback: drop them.
+**Open:** Q11 (which minutes count), D-11 (cantonal rates and the minimum per canton), D-15 (KLV category mapping).
