@@ -3,7 +3,7 @@ id: CSR1
 title: Clinical safety remediation
 author: po
 status: approved
-updated: 2026-10-22
+updated: 2026-10-23
 ---
 
 # CSR1: Clinical safety remediation (Clinical Governance Report, 2026-10-22 22:30)
@@ -50,8 +50,12 @@ Order of work: patient safety first.
   pgTAP. This adds no tariff rule: it refuses to estimate where the rule is not modelled.
 - [ ] **CGR-08 (J5, advisory, accepted as a condition):** canton-sourced rates and minimums are marked as unvalidated in the data, and the J5 preview shows "nicht validiert". Re-seeding waits for D-11 and D-18.
 - [ ] **CGR-13 (QG1, advisory, accepted as a condition):** until `clinical` answers D-16, the UI labels a hold "Abrechnungssperre" (billing hold), so nobody reads it as a care stop.
+- [ ] **BL-8 (J5, advisory, accepted as a condition 2026-10-23 01:10):** a billing fact never stays billable under a later hold. When a quality hold opens on a visit that already has a billable fact, the fact is superseded by a not-billable fact with reason `quality_hold` (or an equivalent derived flag; engineering chooses, ADR); lifting the hold produces a new billable fact. The J5 preview and AN1 "billable minutes per care minute" read the same rule. pgTAP: fact → hold → not billable; lift → billable again; history kept.
+- [ ] **BL-9 (J5, AN1, advisory, accepted as a condition 2026-10-23 01:10):** working-time facts follow the signed truth. When a report correction version (F6 path, CGR-03) supersedes a billing fact, the working-time fact of that visit is replaced from the same corrected snapshot, with a link to the old values; never updated silently. pgTAP: correction version with changed times → working-time fact shows the corrected minutes and references the earlier ones.
 - [ ] **No regression:** all existing pgTAP, unit and e2e tests stay green. The Clinical Rule Register lists every provisional default CSR1 introduces.
 - [ ] **Clinical gate trail:** each PR names the report section it addresses and the CGR IDs it closes (README *Clinical review gate*).
+
+Build order: the two BL conditions come after every blocking criterion above; they may ship in a later CSR1 PR. J5 is re-accepted only with them; the other reopened items do not wait for them.
 
 ## Out of scope
 - Defining clinical thresholds, escalation chains or what a quality hold stops. Those are `clinical` decisions (D-28, D-16).
@@ -90,5 +94,7 @@ The PO did not run tests. "Confirmed" means the PO read the cited code and found
 | CGR-13 | QG1 | advisory now | condition on QG1; UI label in CSR1; D-16 |
 | CGR-14 | protocol | blocking for #136 | resolved in #136 (merged): `cra` is a reviewer without decision rights; `clinical` is the named human; one report path |
 | CGR-16 | F0, ADM1 | advisory now, blocking before real data | D-29 (`owner`) |
+| BL-8 | J5 | advisory (S2), recommended as a condition in the 23:05 section | **added 2026-10-23 01:10** as a CSR1 condition; confirmed by PO reading 0023: the preview filters `visit_has_open_hold`, but the fact itself stays `billable`, so any later reader of `billable_facts` (insurer invoices after D-12/D-18) would bill a held visit |
+| BL-9 | J5, AN1 | advisory (S2), recommended as a condition in the 23:05 section | **added 2026-10-23 01:10** as a CSR1 condition; confirmed by PO reading 0023: `working_time_facts` insert `on conflict (visit_id) do nothing`, so a corrected visit keeps its first times. Working-time facts are the base for the North Star and fair pay (D-23, J7) |
 
 The report found no blocking finding for HAND1, RET1, AN1, PLAN2, J6, J1, J2 or COVER1 (switched off). Their acceptances stand; its advisory risks are tracked in `clinical/SAFETY_RISK_REGISTER.md`.
