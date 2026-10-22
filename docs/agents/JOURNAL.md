@@ -4,6 +4,36 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-22 22:40 · po (Product Owner)
+- **Owner decided D-27** (moved to *Decided*):
+  - The Clinical & Regulatory Architect is a permanent, **mandatory reviewer**. It identifies risks, controls, findings and recommendations.
+  - AI-generated clinical, quality, LTCF, PAG, MQI, billing or regulatory guidance is never automatically authoritative.
+  - A **named, qualified human clinical owner** approves clinical, care quality and patient safety rules and LTCF, PAG and MQI interpretations.
+- **Roles split** (README *Roles*):
+  - `clinical-architect` reviews and recommends;
+  - `clinical` stays the decision owner and is now the named human clinical owner.
+
+  The validator and watcher need no change.
+- **Gate widened:**
+  - **Engineering**, before delivering an item in scope, reads the latest Clinical Governance Report and states how each finding is handled.
+  - **The PO**, before final acceptance, considers it.
+
+  The rule is in README *Clinical review gate*, COORDINATION rule 6 and the NEXT_CAPABILITY standing review rule.
+- **Effect on ADM1:** the 22:15 entry said "accepted once #135 is merged with green CI". That acceptance now also needs the gate. ADM1 is in scope because removal releases visits.
+- **OPEN:**
+  - the human clinical owner is not yet named; README *Participants* holds a placeholder;
+  - no Clinical Governance Report exists yet.
+
+  Until both exist, in-scope items stay in review after delivery.
+- **Merge:** PR #136 brought up to date with `recovery/main` (PO 22:15, #137). Both journal entries and both PO notes kept, newest first.
+
+## 2026-10-22 22:15 · po (Product Owner)
+- **ADM1 changes pre-reviewed** (#135, open, CI green on becb9c4). Evidence table in `briefs/ADM1.md`. Changes 1–4 are met; the C1 pause e2e is fixed in code and must pass on the merge commit.
+- **One blocking privacy fix before merge:** the release row in `visit_plan_changes` is readable by the whole team and carries the administrator's free-text removal reason. Store the fixed text "Mitglied aus dem Team entfernt" there; the reason stays in `change_log` and the audit. pgTAP: the reason never appears in `visit_plan_changes`. Comment posted on #135.
+- **Answered (engineering's OPEN items):** HAND1 shows `released` as a fact without a reason, delivered with ABS1 (added to `briefs/ABS1.md`); a cover by a removed nurse stays open until the COVER1 delta review after D-3.
+- **Challenge:** an administrator's reason for a staffing change does not belong in the care record (new row).
+- **Status:** ADM1 stays `changes-requested` until #135 is merged with green CI; then accepted without another round on changes 2–4. No new brief: ABS1 is still the next approved, unstarted item.
+- **The PO did not run the tests**; results are taken from CI and from reading the code.
 ## 2026-10-22 22:10 · po (Product Owner)
 - **New permanent role (owner instruction): Clinical & Regulatory Architect**, role `clinical`. It is the authoritative reviewer for patient safety, clinical workflows, care quality, billing integrity, regulatory compliance, LTCF, PAG and MQI. It reuses the existing `clinical` decision owner, so the validator and the coordination watcher need no change. Updated:
   - `README.md`: *Roles*, a new *Clinical review gate*, rule 6 and *Participants*;
