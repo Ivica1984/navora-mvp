@@ -78,9 +78,8 @@ as $$
     when p_period = 'day' then array[1,2,3,4,5,6,7]::smallint[]
     when p_weekdays is not null then p_weekdays
     -- Even spread when the team named no days (planning default, not a clinical rule).
-    else (array[array[1,0,0,0,0,0,0], array[1,4,0,0,0,0,0], array[1,3,5,0,0,0,0], array[1,2,4,5,0,0,0],
-                array[1,2,3,4,5,0,0], array[1,2,3,4,5,6,0], array[1,2,3,4,5,6,7]])::smallint[][]
-         [p_times:p_times][1:p_times] end
+    else (('{{1,0,0,0,0,0,0},{1,4,0,0,0,0,0},{1,3,5,0,0,0,0},{1,2,4,5,0,0,0},'
+           '{1,2,3,4,5,0,0},{1,2,3,4,5,6,0},{1,2,3,4,5,6,7}}')::smallint[])[p_times:p_times][1:p_times] end
 $$;
 
 -- A team removing a generated visit leaves a skip, so the slot is not recreated.
