@@ -1,6 +1,6 @@
 # Safety Risk Register
 
-**Maintained by:** Clinical & Regulatory Architect (review role) · **Last change:** 2026-10-22 22:30 · **Baseline:** `recovery/main` @ `b546299`
+**Maintained by:** Clinical & Regulatory Architect (review role) · **Last change:** 2026-10-22 23:05 (D-27) · **Baseline:** `recovery/main` @ `b546299`
 
 This register holds every open risk from the clinical governance reviews: clinical (`C`), patient safety (`PS`), regulatory (`R`), billing (`BL`) and governance (`G`). Hazards to clients are in [`HAZARD_LOG.md`](HAZARD_LOG.md). Gate findings with remedies are in [`../reports/CLINICAL_GOVERNANCE.md`](../reports/CLINICAL_GOVERNANCE.md). Engineering items are in `docs/engineering/SECURITY_RISKS.md`; this register does not duplicate them.
 
@@ -17,8 +17,8 @@ Gate details are in the report.
 
 | ID | Cat. | Risk | Evidence | Sev. | Owner | Required action | Gate | Status |
 |---|---|---|---|---|---|---|---|---|
-| G-1 | gov | No named clinical owner or legal adviser; clinical decisions open while features ship | `README.md` *Participants*; D-27 | S1 | owner | name a qualified person (D-27) | A | open |
-| G-2 | gov | Acceptance on green CI without clinical sign-off | `NEXT_CAPABILITY.md` standing review rule | S1 | owner, po | clinical review gate (#136, #138) with a qualified approver | A | in-review (#136, #138) |
+| G-1 | gov | No named clinical owner or legal adviser. Per D-27 (decided 2026-10-22) all clinical decisions stay OPEN and provisional until one is named, so real-client use cannot start | `README.md` *Participants*; D-27 | S1 | owner | appoint the qualified clinical owner and a deputy; name a legal adviser | C | open (role decided; person not named) |
+| G-2 | gov | Acceptance on green CI without clinical review | `NEXT_CAPABILITY.md` standing review rule | S1 | owner, po | clinical review gate (#136) including the D-27 interim rule (CGR-17) | A | in-review (#136) |
 | G-3 | gov | AI agents write clinical and billing logic without a human merge | `README.md` *Participants* | S1 | owner | human approval for migrations touching clinical or billing logic | A | open |
 | G-4 | gov | Operational rules with clinical effect decided by the PO alone (Q8, Q9, Q11, D-21) | `OPEN_DECISIONS.md` *Decided* | S2 | owner | clinical co-approval; entries in the Clinical Rule Register | A | open |
 | G-5 | gov | No outcome indicators; patient outcomes ranked 6th of 10 | `NEXT_CAPABILITY.md` value order; AN1 | S2 | owner, clinical | define pilot outcome indicators | C | open |

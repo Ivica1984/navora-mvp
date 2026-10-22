@@ -1,6 +1,6 @@
 # Hazard Log
 
-**Maintained by:** Clinical & Regulatory Architect (review role) · **Last change:** 2026-10-22 22:30 · **Baseline:** `recovery/main` @ `b546299`
+**Maintained by:** Clinical & Regulatory Architect (review role) · **Last change:** 2026-10-22 23:05 · **Baseline:** `recovery/main` @ `b546299`
 
 A hazard is a way the platform could contribute to harm to a client (or to a nurse, or to a client's data). Each hazard lists its causes in the code, the controls that exist today, the controls still required, and who must supply them. Findings (`CGR-*`) are in [`../reports/CLINICAL_GOVERNANCE.md`](../reports/CLINICAL_GOVERNANCE.md); risk IDs (`PS-*`, `C-*`, `BL-*`, `R-*`) in [`SAFETY_RISK_REGISTER.md`](SAFETY_RISK_REGISTER.md).
 
@@ -11,7 +11,7 @@ A hazard is a way the platform could contribute to harm to a client (or to a nur
 
 **Likelihood:** not assessed. There is no pilot data, and this log does not guess it.
 
-**Status:** `open` · `mitigated-in-code` (control merged, not clinically approved) · `controlled` (control merged and approved) · `closed`.
+**Status:** `open` · `mitigated-in-code` (control merged, not clinically approved) · `controlled` (control merged and approved by the named clinical owner; unavailable until one is appointed, D-27) · `closed`.
 
 ## Hazards
 

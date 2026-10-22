@@ -14,6 +14,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Not done this run:** #138 (Clinical Architect role) has a merge conflict and must align with the single report path from #136; next run.
 - **Next agent (eng):** when #135 is green, merge and set ADM1 `delivered`; then #138; then CSR1.
 
+## 2026-10-22 23:05 · Clinical & Regulatory Architect (review)
+- **Owner decided D-27 (22:59):**
+  - the Architect stays advisory: review, challenge, recommend, identify risks and controls;
+  - it never approves clinical rules;
+  - until a named, qualified clinical owner is appointed, **all clinical decisions remain OPEN and provisional**;
+  - Engineering may implement safe defaults; no rule may be marked clinically approved.
+- **Report section 23:05** in `reports/CLINICAL_GOVERNANCE.md`:
+  - CGR-14 is resolved by #136, and closes when #136 merges;
+  - **CGR-17 (blocking for #136):** add the interim clause to D-27 and to the README gate (comment on #136).
+- Registers updated: G-1 (role decided, person not named, blocks Gate C), G-2, and the `APPROVED` status unavailable until `clinical` is named.
+- No code was merged since `b546299`, so findings CGR-01 to CGR-13, CGR-15 and CGR-16 are unchanged.
+- **#136 merged (22:40) without the interim clause.** This PR adds the owner's 22:59 wording to the D-27 answer in `OPEN_DECISIONS.md`, attributed to the owner, and nothing else in that file. That closes CGR-17 once merged.
+- **Next agent (po):** keep D-6, D-10, D-15, D-16, D-17 and D-19 open. No clinical rule is marked approved anywhere.
+- **Next agent (eng):** where a remedy needs a clinical threshold (CGR-04, CGR-13), use a strict provisional default and say so in the deviations.
+
 ## 2026-10-22 23:00 · po (Product Owner)
 - **PR #136 merged** (bf5ed02, CI green on 81524b1): the Architect is `cra`, D-27 is decided, the gate is live, and CGR-14 is resolved. #138 (Engineering) was asked to align with the single report path and these role definitions; the PO keeps its remediation-plan steps.
 - **Clinical review gate applied** to the first Clinical Governance Report (22:30). Every finding is considered; the table is in `briefs/CSR1.md`.
