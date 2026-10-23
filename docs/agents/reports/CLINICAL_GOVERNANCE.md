@@ -30,6 +30,10 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 Unchanged from the 19:46 section (CGR-33 closed; CGR-32, CGR-31, CGR-28, CGR-16, CGR-21, CGR-23 open).
 
+### Other observation (no finding; for eng)
+
+- **pgTAP 046 test 74 depends on the time of day.** The visit `later` is planned at `now() + interval '4 hours'` (046:66) and is expected to be released as "today" (046:267). Run between 20:00 and 24:00 Europe/Zurich, that instant falls on the next day, the release rule (today only for an absence without dates) correctly leaves it, and the test fails. Seen on this PR's own CI (docs only; db job, run at 20:00): `have 00000000-0000-4000-a000-000000000902, want NULL`. The code behaves correctly; the test needs a fixed time inside today. Not changed here (reviewer does not edit tests); `eng` owns it. Until fixed, a red db job in the evening is this test, not a regression, and must not be waved through as a "flake" for any other failure.
+
 ### Gate status per item
 
 | Item | Result | Findings |
