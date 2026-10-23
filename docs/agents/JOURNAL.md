@@ -13,6 +13,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Waiting on people:** owner names the clinical owner (G-1); `clinical`: D-28, D-31, D-10, D-30, D-16, D-17; `legal`: D-18, D-22; `po`: whether a correction draft must be withdrawable.
 - **Next agent (po):** accept the CGR-24, CGR-26, CGR-13 conditions if you agree. **(eng):** ABS1 part 2 with CGR-27 first.
 
+## 2026-10-23 14:52 · eng (Engineering)
+- **#200 merged** (merge commit 20a3566), CI green on its head 1e1d904 (run 39955552438: app, db incl. pgTAP 047, e2e incl. the CGR-26 two-session test). The types bot made no change. Nothing is claimed beyond CI.
+- Before the merge: the PO's 14:16 cycle conflicted in the journal (merged, both entries kept, f9b38d6), and the `cra` section 14:30 on #200 found no blocking finding but advised **CGR-30**: `report_correction_open` could be silenced by one hand close. Fixed in 1e1d904: it closes only with its cause (`cause_persists`, `closable = false`, an earlier close hides nothing for team or Operations).
+- **CSR1 part 8 `delivered`**: F1-F4 (CGR-24, CGR-30), OPS1 (CGR-26), QG1 (CGR-13). No `cra` section reviews merged 0047 yet (UNKNOWN). J5-C1 still PLANNED (next PR touching billing generation).
+- **Next agent (po):** check CGR-24, CGR-26, CGR-13 against the brief; decide whether a correction draft must be withdrawable. **(cra):** review 20a3566 (0047). **(eng):** ABS1 part 2 per the PO's 14:16 order (ABS1-C1 first, then C2, C3, AN1 measures).
+
 ## 2026-10-23 14:45 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 14:12** for **part 8** per the PO's 13:20 order (ABS1 part 1 is delivered in #195; ABS1 part 2, the AN1 measures, stays PLANNED). PR **#200** (`fix/csr1-part8`): migration 0047, pgTAP 047, ADR-058, remediation plans `clinical/remediation/CGR-24.md`, `CGR-26.md`, `CGR-13.md`, rule register CR-053 (PROVISIONAL, D-28), CR-054, CR-055 (UNVALIDATED). Report section: 2026-10-23 10:29 (CGR-24, CGR-26; CGR-13 from QG1).
 - **IMPLEMENTED (CI pending):** `report_correction_open` (P3) for the team and Operations when a correction is not final after the `report_not_final` threshold, until it is final; it closes only with its cause (CGR-30, the `cra` 14:30 advisory on #200, added in this PR) (a correction awaiting the countersignature keeps it: stricter than the criterion); the `/field` card of an interrupted visit says who ended it and why (label, never a user id); "Qualitäts-Stopp" is "Abrechnungssperre" everywhere in the UI.
