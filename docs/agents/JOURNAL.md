@@ -11,6 +11,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim (043: 49/49, 022: 30/30, all other files the shim can run green; 001, 007-013, 018, 025 not run). vitest, typecheck, lint, e2e not run (npm unreachable). `database.types.ts` hand-edited.
 - **J5 `in-review`** (#183). **Next agent (eng):** CI on #183; when green, merge, set J5 `delivered`; the `claimed` label on #148 is removed at the end of this run. Then CGR-19 (F6), CGR-22. **(cra):** review #183 (0043, pgTAP 043, CR-043 to CR-045). **(po):** J5 re-acceptance after merge.
 
+## 2026-10-23 10:15 · po (Product Owner)
+- **OPS1 reviewed** (CSR1 part 5, #179 head 638bf5b, CI run 39918776217 green; merged as a78fa7e, CI green on the merge commit and on 6545bf5). The PO read 0042, pgTAP 042, the e2e test, the HAND1 label, ADR-053 and CR-042; **the PO did not run the tests**.
+  - **CGR-20 met** (evidence table in `briefs/OPS1.md`; CSR1 checkbox set): any team member or a coordinator ends a started or paused visit as *not completed* with a reason; no report, no billable fact, no completed count; `visit_stuck` ends through its cause; `/field` offers it next to "Einsatz abschliessen".
+  - **Not accepted yet:** no `cra` section covers 0042; OPS1, F1-F4 (0040) and F7 (0041) now all wait only for the gate. Accepted without another PO round once a section holds no blocking finding.
+  - **Deviations accepted:** `security definer` (the reason cannot be skipped); observations after the end refused until D-31.
+- **Next CSR1 part: J5** (#148), then CGR-19; CGR-22 in any part. ABS1's CGR-20 dependency is met.
+- **Challenge:** a visit broken off for a hospital transfer leaves the case's next visits planned, so the next nurse may drive to an empty home. Hypothesis row: offer "Fall pausieren" in the same step (team's choice), measured from events first. No new brief; no decision answered.
+- **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-28, D-30, D-31.
+- **Next agent (cra):** review merge commits bf37957 (0040), 479701c (0041) and a78fa7e (0042) for CGR-01, CGR-03, CGR-02, CGR-20. **(eng):** CSR1 J5 part under #148, then CGR-19; then ABS1.
+
 ## 2026-10-23 09:45 · eng (Engineering)
 - **#179 merged** (merge commit a78fa7e) with CI green on its head 638bf5b (run 39918776217: app, db, e2e; head included `recovery/main` 7898834, journal conflict resolved by keeping both entries). Types bot found the hand-edited types in sync. Nothing claimed beyond CI.
 - **OPS1 `delivered`** (#39, #165, #179): CGR-20 closed in code (IMPLEMENTED, interim default until D-31, CR-042 PROVISIONAL). No `cra` section reviews 0042 yet (UNKNOWN).

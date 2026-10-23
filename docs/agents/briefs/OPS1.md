@@ -8,6 +8,31 @@ updated: 2026-10-23
 
 # OPS1 — Operations exception center
 
+## PO review — 2026-10-23 10:15: CGR-20 met; acceptance awaits clinical review
+
+Reviewed CSR1 part 5: #179 (head 638bf5b, CI run 39918776217 green: app, db, e2e; merged as a78fa7e, CI green on the merge commit and on 6545bf5). The PO read migration 0042, pgTAP 042, the e2e test added to `tests/e2e/lifecycle.spec.ts`, the HAND1 label change in `src/features/handover/rules.ts`, ADR-053 and CR-042. **The PO did not run the tests.**
+
+| Criterion (CSR1, CGR-20) | Result | Evidence |
+|---|---|---|
+| Audited, idempotent command ends a `started` or `paused` visit as *not completed*, mandatory reason from the list, actor recorded | met | 0042:99-136 `end_visit_not_completed` (reason list, `other` needs a note, `begin_command` idempotency, row lock `for update`, `wrong_state` outside started/paused); table check `visit_status_notes_interrupted_reason`; pgTAP 042:104-113 (no reason, unknown reason, `other` without note refused), 122-143 (ok, duplicate, second end refused, reason, note, actor, two audit rows) |
+| Allowed for the performer, any team member and a coordination role, whatever the qualification; nobody outside the team or organisation | met | 0042:125-127; pgTAP 042:122 (a care assistant ends a registered nurse's started B visit), 128 (performer, `other` with note), 157 (coordinator outside the team ends a paused visit), 93 and 98 (another team, another organisation: `rejected`); anon has no execute |
+| Ends `visit_stuck` through its cause, no hand close | met | pgTAP 042:148-165 (stuck before; gone in OPS1 and for the team after; no hand close written) |
+| No billable fact, no F6 report obligation, no `report_not_final`, not counted as completed (AN1, J6) | met | pgTAP 042:180-188, 208 (report draft refused, no billable fact, no working-time fact, needs assessment not counted as done, nothing else written); readers filter on `status = 'completed'` (PO read 0032:44 AN1, 0021:131 J6) |
+| Visible as "nicht abgeschlossen · <Grund>" on `/field` and in HAND1; recorded observations unchanged | met | pgTAP 042:200-202 (`field_visit_status_notes` returns the reason); `visit-lifecycle.tsx` `interrupt-reason`; HAND1 lists `visit_status_notes` rows (0033), label `visit_interrupted` and unit test `handover-rules.test.ts` |
+| `/field` offers it next to "Einsatz abschliessen" on a started or paused visit; nothing after the end | met | e2e at 390 px: button absent before start, present next to "Einsatz abschliessen" after start, reason required, status and reason shown after save and after reload, no complete/resume/start/report afterwards, no sideways scroll |
+| Not completed cannot be completed, resumed, restarted or cancelled; a direct status update cannot skip the reason | met | pgTAP 042:113 (direct update to `interrupted` refused), 170-176 (no complete, resume, restart, cancel, direct complete) |
+| Rule register: one `PROVISIONAL` row referring to D-31 | met | CR-042 in `clinical/CLINICAL_RULE_REGISTER.md` |
+| No regression | met | CI green on head, merge commit and 6545bf5 (pgTAP all files, unit, e2e) |
+| Clinical gate | **awaiting** | no `cra` section covers 0042 yet (newest section 2026-10-23 06:30) |
+
+**Deviations, decided:**
+- `security definer` instead of the brief's invoker recommendation: **accepted**. The transition list stays closed to app users, so the reason can never be skipped (pgTAP 042:113); membership and organisation checks are inside the command.
+- Observations after a not-completed end are refused (as for every other end state): **accepted** as the interim safe default; whether care already given needs a report stays in D-31.
+
+**Why this matters for the care model:** the team now records what really happened instead of choosing between a permanent alarm and a false completion. That keeps the record truthful (no report or billable minutes for care not given) and lets any colleague, not a coordinator, close a broken-off visit, which ABS1 needs.
+
+**Decision:** CGR-20 met. OPS1 stays `changes-requested` only for the clinical gate: accepted without another PO round once a `cra` section on a78fa7e holds no blocking finding.
+
 ## PO review — 2026-10-23 07:10: CGR-05 and CGR-06 met; changes-requested for CGR-20 (clinical gate)
 
 Reviewed CSR1 part 2: #165 (head 74f3acf, CI run 39900134825 green: app, db, e2e; merged as c987e83) with the Clinical Governance Report section 2026-10-23 06:30 (`reports/CLINICAL_GOVERNANCE.md`, merged with #167 as 6fc517a). The PO read migration 0039 (`private.exception_is_safety`, `handle_exception`) and the report's citations of pgTAP 039. **The PO did not run the tests.**
