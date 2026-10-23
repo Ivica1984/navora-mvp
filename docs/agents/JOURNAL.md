@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 11:25 · po (Product Owner)
+- **Clinical gate passed for F1-F4, F7 and OPS1** (`cra` section 10:29, merged with #184 as 8551ccb: "the PO may accept"). **All three accepted**; evidence tables in `briefs/F1-F4.md`, `briefs/F7.md`, `briefs/OPS1.md`. **The PO did not run the tests**; evidence is merged code and tests, CI green on bf37957, 479701c and a78fa7e (rechecked through the API) and the report.
+  - **OPS1 conditions:** CGR-22, **CGR-25** (an interrupted visit keeps a signal until a person decides about the care still due) and **CGR-26** (the performer sees who ended her visit). **F1-F4 condition:** **CGR-24** (an open correction draft becomes a P3 signal after a provisional threshold). All three are new CSR1 criteria with strict provisional defaults.
+- **J5 reviewed** (CSR1 part 6, #183 head e315bc7, CI run 39926867483 green; merged as 896e943, CI green on the merge commit and on e9d0844). The PO read 0043 in full, pgTAP 043, the pgTAP 022, UI and e2e changes, `visit_report_snapshot` (0016) and `generate_billable_facts` (0022). **CGR-03 (J5 part), CGR-07, CGR-08, BL-8 and BL-9 met** (CSR1 checkboxes set). **Not accepted yet:** no `cra` section covers 0043; accepted without another PO round once one holds no blocking finding. Five deviations accepted (in the brief).
+  - **New condition J5-C1** (found in this review, confirmed in 0043:166-169 and 0022): a fact is built once per final report version with the case's billing basis at that moment, so an intake correction (insurance type, insurer, order end date) leaves the visit not billable unless a nurse re-signs a report correction. Re-derive from the same signed snapshot when the payer is corrected; order changes only after D-22.
+- **CSR1 order decided:** part 7 = CGR-25 and CGR-22; then **ABS1**; then part 8 = CGR-19, CGR-24, CGR-26, CGR-13. Why: CGR-25 and CGR-22 are the remaining places where care that is due can vanish from every list; ABS1 removes a daily safety gap and the phone chain; part 8 closes gaps that are visible and attributable today.
+- **Decisions sharpened, none answered:** D-31 (`clinical`: CGR-25 follow-up after an interrupted visit, CGR-26 correction of an erroneous end), D-28 (`clinical`: CGR-24 threshold), D-22 (`legal`: may a later-recorded order cover earlier visits).
+- **Challenge:** a data-entry fix in intake costs a nurse a re-signature (row added; J5-C1; measured in AN2). No new brief: CSR1 in progress, ABS1 approved and unstarted.
+- **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-28, D-30, D-31; `legal`: D-18, D-22.
+- **Next agent (cra):** review merge commit 896e943 (0043, pgTAP 043, CR-045 to CR-047) for CGR-03 (J5 part), CGR-07, CGR-08, BL-8, BL-9. **(eng):** CSR1 part 7 (CGR-25, CGR-22), then ABS1 (#134), then CSR1 part 8; J5-C1 in the next PR touching billing generation.
+
+ENGINEERING BRIEF (CSR1 additions, not a new capability)
+- **Capability:** CSR1 part 7, CGR-25 (an interrupted visit keeps a signal) with CGR-22 (no hand close of an uncovered visit with nobody responsible).
+- **Why:** since 0042 a visit ended as *not completed* drops every alert, so care that was due (medication, wound care) is seen only at the next visit; an uncovered visit can still be closed by hand while nobody is responsible.
+- **Business outcome:** OPS1 conditions closed; the pilot can start without a known silent-gap in the exception list.
+- **Care outcome:** no due care disappears from every list without a person deciding about it.
+- **Expected nurse outcome:** the team sees the interrupted visit on `/field` with its reason and closes it with one decision ("Folgeeinsatz geplant", "nicht mehr nötig"); no phone call to learn that a colleague broke off a visit.
+- **Expected team outcome:** the team, not a dispatcher, decides the follow-up; Operations sees it only as a safety net.
+- **Expected patient outcome:** a client taken to hospital or left mid-visit gets a deliberate follow-up decision, not silence.
+- **Acceptance criteria:** CSR1 criteria CGR-25 and CGR-22 (`briefs/CSR1.md`), each with pgTAP; rule register rows `PROVISIONAL` (D-31, D-28); no regression.
+- **Dependencies:** none blocking; D-31 and D-28 replace the provisional defaults later.
+- **Priority:** CSR1 part 7, before ABS1.
+- **Implementation recommendation:** derive the exception like `visit_stuck` (0038) from `status = 'interrupted'` plus the absence of a closing decision, closed through an audited command with a reason list; reuse the OPS1 close path with `cause_persists` semantics for CGR-22.
+
 ## 2026-10-23 11:15 · eng (Engineering)
 - **#183 merged** (merge commit 896e943) with CI green on its head e315bc7 (run 39926867483: app, db, e2e; head included `recovery/main` 845ae96 with the Architect's 10:29 section; register conflicts resolved, J5 rules renumbered CR-045 to CR-047 because 10:29 took CR-043 and CR-044). The types drift check passed with the hand-edited types. Nothing claimed beyond CI.
 - **J5 `delivered`** (#43, #75, #183): CGR-03 J5 part and CGR-07 closed in code; CGR-08, BL-8, BL-9 conditions met in code (IMPLEMENTED). No `cra` section reviews 0043 yet (UNKNOWN).
