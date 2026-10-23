@@ -98,11 +98,13 @@ const PLAN_REASONS: Record<string, string> = {
   order_required: "Kategorie B braucht eine vorliegende ärztliche Verordnung im Fall.",
   rn_required: "Kategorie B und Bedarfsabklärung nur durch eine Pflegefachperson (HF/FH).",
   responsible_not_in_team: "Die verantwortliche Person gehört nicht zum Team.",
+  responsible_absent: "Die verantwortliche Person ist zu dieser Zeit abwesend. Ohne verantwortliche Person planen (offen im Team) oder eine andere Person wählen.",
   minutes_exceed_window: "Die geplanten Minuten sind länger als das Zeitfenster.",
   not_removable: "Nur geplante Einsätze ohne Dokumentation können entfernt werden.",
 };
 
-export type PlanResult = { ok: true; flags: string[] } | { ok: false; error: string };
+/** `released`: a move put the visit into its responsible member's absence, so it is open in the team (ABS1-C4, 0050). */
+export type PlanResult = { ok: true; flags: string[]; released: boolean } | { ok: false; error: string };
 
 function planResult(op: string, data: unknown, error: { code?: string } | null): PlanResult {
   if (error) {
@@ -112,14 +114,18 @@ function planResult(op: string, data: unknown, error: { code?: string } | null):
       error: error.code === "22023" ? "Bitte Datum (ab gestern), Zeiten, Minuten pro Kategorie und – bei Änderungen – einen Grund angeben." : "Planung konnte nicht gespeichert werden.",
     };
   }
-  const res = (data ?? {}) as { result?: string; reason?: string; flags?: unknown };
+  const res = (data ?? {}) as { result?: string; reason?: string; flags?: unknown; released?: unknown };
   if (res.result === "rejected") return { ok: false, error: PLAN_REASONS[res.reason ?? ""] ?? "Nicht gespeichert." };
   if (res.result !== "ok" && res.result !== "duplicate") return { ok: false, error: "Planung konnte nicht gespeichert werden." };
   revalidatePath("/team");
   revalidatePath("/field");
   revalidatePath("/visits");
   revalidatePath("/operations");
-  return { ok: true, flags: Array.isArray(res.flags) ? res.flags.filter((f): f is string => typeof f === "string") : [] };
+  return {
+    ok: true,
+    flags: Array.isArray(res.flags) ? res.flags.filter((f): f is string => typeof f === "string") : [],
+    released: res.released === true,
+  };
 }
 
 export async function planVisit(input: unknown): Promise<PlanResult> {

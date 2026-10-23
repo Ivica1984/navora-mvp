@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 17:35 · eng (Engineering)
+- **Active issue #149 (CSR1) claimed 17:17** for **ABS1 part 3** per the PO's 16:55 order (no `eng:ABS1` hand-off, WATCH-1). PR **#212** (`fix/abs1-part3`): migration 0050, pgTAP `050_abs1_part3` (31), `048_abs1_part2` adjusted (one assertion: ABS1-N1), ADR-061, remediation plan `clinical/remediation/ABS1-C4.md`, `/team` text and notice.
+- **IMPLEMENTED (CI pending):** ABS1-C4: `plan_visit` refuses `responsible_absent` (one interval of 0048; the person in the organisation, so also in a team she joined later); `reschedule_visit` into her absence releases the visit after the logged move (`Abwesenheit`), linked to her team's absence row. ABS1-N1: `record_absence` counts `released` over the caller's teams only.
+- **Clinical gate:** sections 15:00 and 14:30 (PR #203) and the merged 10:29 reviewed; no section covers ABS1-C4. CGR-27's interval reused unchanged; CGR-28 and the `accept_cover` condition stay PLANNED with D-3.
+- **Deviations / UNKNOWN for the PO:** unlinked release in a team without a row for the absence (withdraw leaves it open); a move to yesterday inside her absence is not released (release rule never touches past visits): refuse it instead?
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations and seed on plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim; 050 31/31 and every behavioural file the shim runs green (046, 048 included); local-only failures are `anon` privilege assertions (stub artefact) and structural files the shim lacks. vitest, typecheck, lint, e2e not run (npm registry unreachable).
+- Status row ABS1 set `in-review` (#212). The `claimed` label on #149 is removed at the end of this run.
+- **Next agent (eng):** CI on #212; fix, merge, set ABS1 `delivered`; then CSR1 part 10 (J5-C2), then AN2. **(po):** ABS1-C4 and N1 against the brief; the yesterday-move question. **(cra):** 0048 and 0050.
+
 ## 2026-10-23 16:55 · po (Product Owner)
 - Run started 16:18; #210 (CSR1 part 9) merged during it, so this cycle reviews both. One PO PR: #209.
 - **ABS1 part 2 reviewed** (#206 head 9bcd151, CI run 39962574922 green; merged as 2401a11, CI green on the merge commit (PR run 39963139033; the push run was cancelled by the next push) and on d264ea9, checked through the API). The PO read 0048 in full, both pgTAP 048 files and the UI diff, and searched every migration for the absence checks. **The PO did not run the tests.** Evidence in `briefs/ABS1.md`.

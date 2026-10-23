@@ -799,11 +799,13 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
   const [mode, setMode] = useState<"view" | "move" | "remove">("view");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [released, setReleased] = useState(false);
   const isPlanned = visit.status === "planned";
 
   async function submit(form: FormData) {
     setPending(true);
     setError(null);
+    setReleased(false);
     const reason = String(form.get("reason") ?? "");
     const result =
       mode === "move"
@@ -821,6 +823,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
       setError(result.error);
       return;
     }
+    setReleased(result.released);
     setMode("view");
     router.refresh();
   }
@@ -881,6 +884,11 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
             </button>
           </div>
         </form>
+      )}
+      {released && (
+        <p role="status" data-testid="moved-into-absence" className="mt-1 text-xs font-semibold text-amber-900">
+          Die verantwortliche Person ist zur neuen Zeit abwesend. Der Einsatz ist jetzt offen im Team.
+        </p>
       )}
       <ErrorText message={error} />
     </div>
