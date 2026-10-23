@@ -151,3 +151,18 @@ insert into public.team_memberships (team_id, user_id, qualification) values
 -- J3 (PO brief): running seed cases already had their needs assessment.
 update public.cases set needs_assessment_done_at = created_at + interval '1 day'
 where status = 'laufend';
+
+-- CSR1 part 11 / CGR-32 (e2e): assist.test was absent all of yesterday (recorded by herself, synthetic) and her
+-- planned visit yesterday 07:00 was never started. It keeps her as responsible, and its overdue alert on /team carries
+-- "Zuständige Person abwesend gemeldet". The absence has ended, so it is not listed and touches no visit from today.
+insert into public.member_absences (organization_id, team_id, user_id, starts_at, ends_at, recorded_by) values
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000906',
+   (((now() at time zone 'Europe/Zurich')::date - 1) + time '00:00') at time zone 'Europe/Zurich',
+   ((now() at time zone 'Europe/Zurich')::date + time '00:00') at time zone 'Europe/Zurich',
+   '00000000-0000-4000-a000-000000000906');
+insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end,
+                                services_provided, billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id) values
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000532', now() - interval '3 days',
+   '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
+   (now() at time zone 'Europe/Zurich')::date - 1, '07:00', '07:30', array['Grundpflege'], false, 'planned', 30, 0,
+   '00000000-0000-4000-a000-000000000906');

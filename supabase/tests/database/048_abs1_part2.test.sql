@@ -145,7 +145,7 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000906');
 set local role authenticated;
 select is(public.record_absence('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000902',
           pg_temp.today() + 6, null, null, null, 'a4800000-0000-4000-8000-000000000020')
-          - 'absence_id', '{"result": "ok", "released": 1, "teams": 2}'::jsonb,
+          - 'absence_id', '{"result": "ok", "released": 1, "teams": 2, "past_planned": 0}'::jsonb,
   'ABS1-C3: a colleague of team Nord records it once; it applies to both of her teams (ABS1-N1, 0050: released counts Nord only)');
 reset role;
 select is(pg_temp.resp('mitte_v'), null, 'her visit in team Mitte is released');
