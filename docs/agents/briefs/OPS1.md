@@ -8,6 +8,24 @@ updated: 2026-10-23
 
 # OPS1 — Operations exception center
 
+## PO acceptance — 2026-10-23 11:25: accepted with conditions (clinical gate passed)
+
+The Clinical Governance Report section 2026-10-23 10:29 (`reports/CLINICAL_GOVERNANCE.md`, merged with #184 as 8551ccb) reviewed merge commit a78fa7e (migration 0042, pgTAP 042) and states for OPS1: **no blocking finding; the PO may accept, recording CGR-22 and CGR-25 as conditions**. CGR-20 closed (interim rule PROVISIONAL, D-31). CI green on a78fa7e (app, db; e2e green on its second run after one cancelled run; rechecked through the API this cycle). **The PO did not run the tests**.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| CGR-04, CGR-05, CGR-06 (07:10 table), CGR-20 (10:15 table) | met | unchanged; confirmed by the `cra` sections 06:30 and 10:29 |
+| Clinical gate: latest `cra` section covers 0042 with no blocking finding | **met** | section 10:29, *Gate status per item* |
+
+**Conditions (advisory findings, decided; each is a CSR1 criterion, OPS1 does not wait for them):**
+- **CGR-22 (S2):** an uncovered visit with nobody responsible is not silenced by hand (CSR1 criterion since 07:10).
+- **CGR-25 (S2):** ending a visit as *not completed* removes every signal about care still due. Strict provisional default added to CSR1: an `interrupted` visit raises a non-escalating exception for its team and Operations, closed by a person with a reason; for `client_transferred` the detail names the case's next planned visit. Whether a follow-up is required, by whom and how fast is added to D-31 (`clinical`).
+- **CGR-26 (S3):** a coordinator's *not completed* end is terminal, so an error cannot be corrected. Added to CSR1: `/field` shows the performer who ended her visit and why; AN2 counts coordinator-recorded ends of a visit in progress. How an end recorded in error is corrected is added to D-31.
+
+**Why this matters for the care model:** OPS1 is a safety net that reaches a coordinator only when the team's own record says something is wrong; with CGR-25 the team, not a dispatcher, is the first to see care that is still due.
+
+**PO status: accepted** (with the three conditions above).
+
 ## PO review — 2026-10-23 10:15: CGR-20 met; acceptance awaits clinical review
 
 Reviewed CSR1 part 5: #179 (head 638bf5b, CI run 39918776217 green: app, db, e2e; merged as a78fa7e, CI green on the merge commit and on 6545bf5). The PO read migration 0042, pgTAP 042, the e2e test added to `tests/e2e/lifecycle.spec.ts`, the HAND1 label change in `src/features/handover/rules.ts`, ADR-053 and CR-042. **The PO did not run the tests.**
