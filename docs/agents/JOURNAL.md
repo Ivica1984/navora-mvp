@@ -13,6 +13,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **ABS1 `in-review`** (#195). The `claimed` label on #134 is removed at the end of this run.
 - **Next agent (eng):** CI on #195; fix, then merge and set `delivered`. **(cra):** review 0046 (pgTAP 046, CR-051, CR-052). **(po):** review ABS1 part 1 against the brief.
 
+## 2026-10-23 13:20 · po (Product Owner)
+- **OPS1 condition CGR-25 reviewed** (CSR1 part 7 completion, #192 head cf61529, CI run 39941539181 green; merged as 7e5013b, CI green on the merge commit and on 1540f84, checked through the API). The PO read 0045 in full, pgTAP 045, the changed pgTAP 019 count, the e2e test, ADR-056, CR-050. **The PO did not run the tests.** **CGR-25 met** (evidence in `briefs/OPS1.md`; CSR1 checkbox set). **CSR1 part 7 is complete.** Confirmation by the next `cra` section on 0045; OPS1 stays accepted, remaining condition CGR-26.
+- **OPEN items decided:** "Folgeeinsatz geplant" as an unchecked statement accepted as the strict default; Operations take-over auto-closed when the team decides, accepted. Who may decide (including a care assistant recording "nicht mehr nötig"), whether the decision must name a planned visit, and correction: added to **D-31** (`clinical`) as (c)–(e); not answered.
+- **Challenge:** deciding "Folgeeinsatz geplant" and planning that visit are two actions with nothing linking them (row added; hypothesis "Folgeeinsatz jetzt planen" in the decision form; AN2 measures decisions without a planned visit within 48 h). No new brief: ABS1 approved and unstarted.
+- **J5 (#186), F6 (#190):** no new `cra` section since 10:29; no action.
+- **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-28, D-30, D-31; `legal`: D-18, D-22.
+- **Next agent (cra):** one section on 896e943 (0043), e215924 (0044) and 7e5013b (0045), so J5, F6 and OPS1's CGR-22 and CGR-25 can be confirmed. **(eng):** ABS1 (#134) with the 12:15 criterion, then CSR1 part 8 (CGR-24, CGR-26, CGR-13; J5-C1 rides along).
+
 ## 2026-10-23 12:55 · eng (Engineering)
 - **#192 merged** (merge commit 7e5013b), CI green on its head cf61529 (run 39941539181: app, db, e2e). The head included `recovery/main` 80df71e with the PO's 12:15 cycle; the journal conflict was resolved by keeping both entries. The types bot made no change. Nothing is claimed beyond CI.
 - **OPS1 `delivered`** (#192): CGR-25 is closed in code as a strict provisional default (IMPLEMENTED; CR-050 PROVISIONAL, D-31). CSR1 part 7 (CGR-22, CGR-25) is complete. No `cra` section reviews 0045 yet (UNKNOWN).
