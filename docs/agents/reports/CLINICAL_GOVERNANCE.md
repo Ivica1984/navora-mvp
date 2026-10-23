@@ -16,6 +16,60 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-23 22:30: CSR1 part 11 merged (0053 CGR-32, 0054 CGR-34); PO cycles 20:15, 21:17, 22:15
+
+**Scope:** `recovery/main` @ `dee3891`. Changes since the 19:57 addendum (PR #226, not merged until now: its db job ran into the pgTAP 046 evening failure; this PR carries it):
+- **Code merged:** #228 (CSR1 part 11, CGR-32: migration `0053_csr1_cgr32_past_visit_absence_flag`, ADR-065 PROPOSED, pgTAP `054` (34), seed fixture (ended absence, visit 532, synthetic), pgTAP 046 fixtures pinned to today, 004/048/050 adjusted, unit and e2e) as `33112e3`; #230 (CGR-34: migration `0054_csr1_cgr34_cancel_keeps_absence`, ADR-066 PROPOSED, pgTAP `055` (26), 047 column list, unit and e2e) as `673ba50`.
+- **Docs:** #227 (PO 20:15: CGR-34 decided), #229, #232 (eng: delivered), #231 (PO 21:17: CGR-32 met; new condition ABS1-C6; challenge row on guessed absence end dates), #233 (PO 22:15: CGR-34 met; CSR1 part 12 = ABS1-C6; challenge row on the reason picker for a flagged past visit; AN2 measure 8 extended). **No decision answered** (no `clinical`, `legal` or `owner` row changed). **No open PR in scope** except my own #226 (only #3, M2 to `main`, otherwise).
+
+I read 0053 and 0054 in full, pgTAP 054 and 055 (fixtures and assertions), the pgTAP 046 diff, the seed diff, the label helpers (`lifecycle/rules.ts`, `operations/exceptions.ts`, `handover/rules.ts`), ADR-065, ADR-066, the PO reviews in `briefs/ABS1.md` (20:15, 21:17, 22:15) and `reschedule_visit` as patched by 0050 and 0052. **I did not run the tests.** CI (checked through the API) is green for app, db (migrations, seed, pgTAP) and e2e on `87612aa` (head of #230) and `673ba50` (merge commit; its db job ran at about 21:30 Zurich, so the 046 evening failure is fixed); on `dee3891` app and db are green, e2e was still running at the time of this review.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-35 | ABS1 / CGR-32, CGR-34 (accepted) | advisory (S3) | A flagged past visit (CGR-32: planned, dated yesterday, its responsible member absent at its interval) has a second way out besides `cancel_visit`: `reschedule_visit` to today or later (allowed: `check_visit_slot` accepts yesterday onwards, 0012:59; 0052 refuses only a move that would still leave her absent at the new interval). The move writes a `visit_plan_changes` row `moved` with the old and new slot and a free-text reason (0014:315-316) and ends the overdue alert; the CGR-32 flag is computed and disappears, and unlike CGR-34 nothing stores that the care due on the original date was not given because the responsible member was absent. The record reads as an ordinary planning move. This is the same documentation-integrity gap CGR-34 closed for the cancellation, on the path a team is most likely to choose ("Folgeeinsatz", ADR-065 Consequences). The original date is still reconstructable from the `before` slot plus the absence row, but an absence can later be shortened or withdrawn, which is exactly why CGR-34 stores the fact. Whether missed care must be made up, and whether moving it counts as making it up, is `clinical` (D-28, D-31): UNKNOWN. | 0053:48-56 (flag computed); 0054:61-66 (stored only in `cancel_visit`); `reschedule_visit` 0014:300-316 + 0052:36-55 (no CGR-32 check before the move); ADR-065 Consequences ("follow-up visit, or closed with a reason") | PO decides (product authority), e.g. in CSR1 part 12 with ABS1-C6. Strict default: when `reschedule_visit` moves a visit for which the CGR-32 condition (as in 0054:61-63) holds **before** the move, the `moved` row stores `responsible_absent = true` server-side (immutable; caller cannot set it), shown with the same fixed text on the visit history and HAND1. pgTAP: absence from yesterday recorded today → yesterday's flagged visit moved to tomorrow → its `moved` row has `responsible_absent = true`, the absence then withdrawn → still true; the same move without an absence → `false`. No new reason code, no extra tap. |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| CGR-32 | **closed** (IMPLEMENTED, PROVISIONAL product rule) | 0053:63-79: `record_absence` returns `past_planned` (planned, dated before today, interval overlapping the absence, naming her; caller's teams only); nothing written for those visits; 0053:48-56, 88-116: `flags = {responsible_absent}` on `visit_overdue` rows of `/team` and OPS1, computed. pgTAP 054:78-89 (recorded, `past_planned` = 2, past visits keep her, today and tomorrow released, no plan change), 054:93-111 (flag on `/team` and OPS1, detail keeps "zuständig", only overdue alerts carry it), 054:116-141 (shorten and withdraw clear it); **my 19:46 case met**: fixture `closed` (overdue alert closed by hand before the absence) is counted in `past_planned` (054:79-80) and listed flagged (054:96-97); helper not executable by app roles (054:145). CI green on `c1b562a`, `33112e3`. Residual: the flag shows the fixed label only, no reason (privacy acceptable) |
+| CGR-34 | **closed** (IMPLEMENTED) | 0054:25-31: `responsible_absent` column, check `not responsible_absent or kind = 'cancelled'`, append-only table (0024 trigger); 0054:61-66: set server-side before the status change from planned + dated before today + `visit_responsible_absent`; 0054:36: audited. pgTAP 055:55-66 (true, idempotent replay, reason `team_cancelled` kept, one note, audit row), 055:93-96 (released future visit: false), 055:101-104 (withdrawal keeps it), 055:109-112 (no absence: false), 055:115-128 (no app write privilege, no parameter, update refused, non-cancel insert refused), 055:75-85 (`/field` reader and OPS1 flag `not_done_responsible_absent`). CI green on `87612aa`, `673ba50`. Residuals: (1) HAND1 is asserted only by the function text (055:131), not by reading an entry; the unit test `handover-rules.test.ts` covers the label; acceptable, a behaviour assertion should ride with the next HAND1 change (eng). (2) The stored fact reflects the absence **as recorded** at the time of the cancellation; an absence recorded for the wrong member and withdrawn later leaves the mark (immutable by design, audited). Acceptable: it documents what the team knew when it cancelled. (3) The reschedule path is not covered: CGR-35 |
+| CGR-31 | open, advisory (S3; S1 before invoicing), unchanged | no change |
+| CGR-28 | open, advisory (S2 if cover is enabled), unchanged | no change |
+| CGR-16, CGR-21, CGR-23 | open, unchanged | no change in their code |
+
+### Other changes reviewed (no finding)
+
+- **pgTAP 046 time-of-day fix** (my 19:57 note): `hand`, `later` now `least(now() + 3/4 h, today 23:00)`, `overdue` `greatest(now() - 20 min, today 00:00)` (046:63-67). Green in an evening run (`673ba50`). Between 23:00 and 24:00 `hand` and `later` lie in the past; the assertions on them (release and "Offen im Team" for today) do not depend on the time inside the day, and `visit_overdue` has a 0 h threshold (0038:66), so I expect no new window. Not verified by a run in that window; if the db job turns red only there, it is this fixture (eng).
+- **Seed fixture** (ended absence of `assist.test` for yesterday, visit 532): synthetic, local seed only; no personal or health data.
+- **ABS1-C6** (PO 21:17, PLANNED): `/field` offers a start of today or yesterday; the confirmation names the number of open past visits with a link to `/team`. Consistent with CGR-32; fixed text, no reason, no health data. I support limiting the app to yesterday (a late report rewrites who was absent). Review when its PR is open.
+- **Challenge rows** (PO): (a) *reason codes for facts NAVORA already holds* and (b) *one action "Nicht durchgeführt (abwesend)" on the overdue alert*: I support (b) as a measured hypothesis, with one guard: such an action must close the visit with the stored CGR-34 fact and must **not** imply that the missed care needs no follow-up; the follow-up decision stays visible and separate until `clinical` answers D-28/D-31. (c) *guessed absence end dates*: operational, no finding.
+- **AN2 measure 8** extension (flagged past visits per 100 absences and how they ended): useful evidence for D-28/D-31; it should also count flagged visits that were **moved** (CGR-35), otherwise the measure undercounts missed care.
+- **Rule register:** two new hard-coded rules added: CR-062 (0053) and CR-063 (0054), both product rules within PO authority, not clinical rules.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| ABS1 (accepted) | **no blocking finding**; CGR-32 and CGR-34 closed | CGR-35 advisory (reschedule path); ABS1-C6 PLANNED; CGR-28 before cover |
+| CSR1 part 11 (0053, 0054; merged) | **no blocking finding** | – |
+| CSR1 part 12 (ABS1-C6; not started) | reviewed when its PR is open; could carry CGR-35 if the PO decides so | CGR-35 |
+| J5 (accepted) | unchanged | CGR-31 (before invoicing) |
+| COVER1 | unchanged: cover stays off until CGR-28, the `accept_cover` absence check, PS-12 and D-3 | CGR-21, CGR-28 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:** decide CGR-35 (whether a move of a flagged past visit keeps the absence fact, as CGR-34 does for a cancellation); extend AN2 measure 8 to moved flagged visits.
+- **owner (critical path):** name the qualified clinical owner and a deputy (G-1). Gate C cannot open without one.
+- **eng:** state in the runbook whether any operator procedure writes with `session_replication_role = replica` (BL-15 residual); a HAND1 behaviour assertion for `responsible_absent` with the next HAND1 change.
+- **legal:** D-22 (order before the visit; whether A/C need an order; the cut-off); D-18 (incl. CGR-31).
+- **clinical** (once named): D-28, D-31 (incl. whether care missed during an absence must be made up, and whether a move counts as making it up), D-10, D-30, D-16, D-17.
+
+---
+
 ## 2026-10-23 19:57: addendum to the 19:46 section (CGR-34)
 
 **Scope:** `recovery/main` @ `790ae40`. No code, brief or decision changed since the 19:46 section (`50ee5f5` plus #224, the 19:46 section itself). A second review run read the same changes (pgTAP 053, the PO's CGR-32 decision) and agrees with the 19:46 section on CGR-33 (closed) and CGR-32 (decision endorsed, open until CSR1 part 11). It adds one finding on how a flagged past visit is closed. I read `cancel_visit` (0024), `end_visit_not_completed` (0042, header) and the `visit_overdue` definition (0038). **I did not run the tests.**

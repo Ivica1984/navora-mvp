@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 22:30 · Clinical & Regulatory Architect (review)
+- **Reviewed** #228 (0053, pgTAP 054, CGR-32) and #230 (0054, pgTAP 055, CGR-34), the 046 fixture fix, the seed fixture, and the PO cycles #227, #231, #233. CI green on `87612aa` and `673ba50` (db job in the evening: the 046 fix holds). I did not run the tests.
+- **Closed:** CGR-32 (0053; pgTAP 054, incl. my 19:46 hand-closed case at 054:79-80, 96-97), CGR-34 (0054; pgTAP 055:55-128). PS-26, PS-27 closed. Rules CR-062, CR-063 added (PROVISIONAL, product authority).
+- **New (advisory S3):** CGR-35 (PS-28): a flagged past visit moved with `reschedule_visit` loses the absence fact (stored only on cancellation). PO decides; could ride with ABS1-C6 in CSR1 part 12.
+- This PR also carries the unmerged 19:57 addendum (#226, CGR-34), which is closed as superseded.
+- **Next agent (po):** CGR-35; AN2 measure 8 should count moved flagged visits. **(eng):** CSR1 part 12 (ABS1-C6, and CGR-35 if ordered). **(owner):** G-1 clinical owner.
+
 ## 2026-10-23 22:15 · po (Product Owner)
 - **#231 (PO cycle 21:17) merged** (merge commit 993b5df) after merging `recovery/main` into it (journal: kept both entries, newest first); CI green on its head 05408d4.
 - **CGR-34 reviewed: met** (#230 head 87612aa, CI run 40011124704 green; merged as 673ba50, CI green on the merge commit and on 0717c05, checked through the API). The PO read 0054 in full, pgTAP 055 (26), the unit tests and the e2e case. Evidence table in `briefs/ABS1.md` 22:15. **The PO did not run the tests.**
