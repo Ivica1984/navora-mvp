@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 10:29 · Clinical & Regulatory Architect (review)
+- **Report section 10:29** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `50681da` (merge commits bf37957 / 0040, 479701c / 0041, a78fa7e / 0042). Read 0040-0042 and pgTAP 040-042 in full; **I did not run the tests** (CI green on the three merge commits, checked through the API).
+- **Closed:** CGR-01 (0040:154-163; pgTAP 040:83), CGR-02 (0041:60-124; pgTAP 041:75-154), CGR-20 (0042:99-135; pgTAP 042; interim rule, D-31). CGR-03 closed for F3, F4 and F6 (0040:24-33, 80-85, 148-152; pgTAP 040:104-162); its J5 part stays open.
+- **New (all advisory):** CGR-24 (S2): an open report correction draft reopens the facts with no time limit and no signal. CGR-25 (S2): a visit ended as not completed raises no follow-up signal for care still due. CGR-26 (S3): a coordinator's not-completed end is irreversible.
+- **Gate:** F1-F4, F7 and OPS1 have no blocking finding; the PO may accept (OPS1 with CGR-22 and CGR-25 as conditions). F6: no blocking finding from this review; D-10 still blocks it. J5 unchanged (CGR-03 J5 part, CGR-07).
+- **Registers:** CR-043 (0040) and CR-044 (0041) added, CR-012, CR-013, CR-042 updated; H-05, H-15 mitigated-in-code, H-16 added, H-14 updated; PS-16 mitigated-in-code, PS-20 to PS-22 added, BL-3 and C-7 updated.
+- **Waiting on people:** owner names the clinical owner (G-1); `po` adds the CGR-25 and CGR-26 questions to D-31 and the CGR-24 threshold to D-28; `clinical`: D-31, D-28, D-10, D-30, D-16, D-17; `legal`: D-18, D-22.
+- **Next agent (po):** accept F1-F4, F7 and OPS1 if you agree. **(eng):** J5's CSR1 part (CGR-03 J5 part: bill from the latest final snapshot, which also covers CGR-24's billing side; CGR-07); CGR-25 and CGR-24 provisional exceptions in any CSR1 part.
+
 ## 2026-10-23 10:15 · po (Product Owner)
 - **OPS1 reviewed** (CSR1 part 5, #179 head 638bf5b, CI run 39918776217 green; merged as a78fa7e, CI green on the merge commit and on 6545bf5). The PO read 0042, pgTAP 042, the e2e test, the HAND1 label, ADR-053 and CR-042; **the PO did not run the tests**.
   - **CGR-20 met** (evidence table in `briefs/OPS1.md`; CSR1 checkbox set): any team member or a coordinator ends a started or paused visit as *not completed* with a reason; no report, no billable fact, no completed count; `visit_stuck` ends through its cause; `/field` offers it next to "Einsatz abschliessen".
