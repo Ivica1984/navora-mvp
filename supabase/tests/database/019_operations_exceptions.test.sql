@@ -6,6 +6,12 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(34);
 
+-- CSR1 / CGR-02 (0041): sign_report carries the hash of the snapshot /field shows (field_reports.snapshot_hash).
+create function pg_temp.shown_hash(rid uuid) returns text language sql as $f$
+  select f.snapshot_hash from public.visit_reports r join public.care_visits v on v.id = r.visit_id
+  cross join lateral public.field_reports(v.visit_date) f where r.id = rid and f.report_id = rid
+$f$;
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
@@ -132,7 +138,7 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 do $$ declare r jsonb; begin
   r := public.create_report_draft('00000000-0000-4000-a000-000000000501', null, 'a9000000-0000-4000-8000-000000000031');
-  perform public.sign_report((r ->> 'report_id')::uuid, 'a9000000-0000-4000-8000-000000000032');
+  perform public.sign_report((r ->> 'report_id')::uuid, pg_temp.shown_hash((r ->> 'report_id')::uuid), 'a9000000-0000-4000-8000-000000000032');
 end $$;
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');

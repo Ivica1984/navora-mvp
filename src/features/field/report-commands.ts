@@ -16,7 +16,8 @@ const key = z.uuid();
 const schemas = {
   create: z.object({ visitId: z.uuid(), summary, idempotencyKey: key }),
   edit: z.object({ reportId: z.uuid(), summary, idempotencyKey: key }),
-  sign: z.object({ reportId: z.uuid(), idempotencyKey: key }),
+  // CSR1 / CGR-02 (0041): the hash of the snapshot shown (field_reports.snapshot_hash) — she signs what she saw.
+  sign: z.object({ reportId: z.uuid(), snapshotHash: z.string().regex(/^[0-9a-f]{64}$/), idempotencyKey: key }),
   countersign: z.object({ reportId: z.uuid(), idempotencyKey: key }),
   correct: z.object({ reportId: z.uuid(), reason: z.string().trim().min(3).max(300), summary, idempotencyKey: key }),
 };
@@ -75,7 +76,11 @@ export async function signReport(input: unknown): Promise<CommandResult> {
   const { supabase } = await requireUser();
   return interpret(
     "sign_report",
-    await supabase.rpc("sign_report", { p_report_id: parsed.data.reportId, p_idempotency_key: parsed.data.idempotencyKey }),
+    await supabase.rpc("sign_report", {
+      p_report_id: parsed.data.reportId,
+      p_snapshot_hash: parsed.data.snapshotHash,
+      p_idempotency_key: parsed.data.idempotencyKey,
+    }),
   );
 }
 
@@ -109,12 +114,14 @@ export async function correctReport(input: unknown): Promise<CommandResult> {
 
 /**
  * F7: sign at completion with one confirmation. A changed summary is saved to the draft first; then the
- * report is signed. Both steps are the unchanged F6 commands (idempotent, audited, performer only).
+ * report is signed. Both steps are the F6 commands (idempotent, audited, performer only). CSR1 / CGR-02: the sign
+ * carries the hash of the facts she saw; if they changed since, the database refuses (`facts_changed`) and the card
+ * reloads with the current facts. The summary is not part of the hashed facts, so saving it first does not refuse.
  */
 export async function signAtCompletion(input: unknown): Promise<CommandResult> {
-  const parsed = z.object({ reportId: z.uuid(), summary, previousSummary: summary, idempotencyKey: key }).safeParse(input);
+  const parsed = schemas.sign.extend({ summary, previousSummary: summary }).safeParse(input);
   if (!parsed.success) return { ok: false, error: INVALID };
-  const { reportId, summary: text, previousSummary, idempotencyKey } = parsed.data;
+  const { reportId, snapshotHash, summary: text, previousSummary, idempotencyKey } = parsed.data;
   const { supabase } = await requireUser();
   if ((text ?? "") !== (previousSummary ?? "")) {
     const saved = interpret("update_report_draft", await supabase.rpc("update_report_draft", {
@@ -122,5 +129,7 @@ export async function signAtCompletion(input: unknown): Promise<CommandResult> {
     }));
     if (!saved.ok) return saved;
   }
-  return interpret("sign_report", await supabase.rpc("sign_report", { p_report_id: reportId, p_idempotency_key: idempotencyKey }));
+  return interpret("sign_report", await supabase.rpc("sign_report", {
+    p_report_id: reportId, p_snapshot_hash: snapshotHash, p_idempotency_key: idempotencyKey,
+  }));
 }

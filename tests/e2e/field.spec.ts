@@ -237,6 +237,30 @@ test.describe("field tool (F1)", () => {
 
     await page.reload();
     await expect(page.getByRole("article", { name: /09:00 – 09:45/ }).getByTestId("report-status")).toHaveText("Entwurf (Fassung 2)");
+
+    // CSR1 / CGR-02: she signs what she saw. An observation recorded in a second window after she opened the report
+    // is not signed unseen: the signature is refused, the card reloads with it, and she signs the version she now sees.
+    const shownCard = page.getByRole("article", { name: /09:00 – 09:45/ });
+    const shownReport = shownCard.getByTestId("visit-report");
+    const shownReview = shownReport.getByRole("form", { name: "Bericht prüfen und unterschreiben" });
+    await expect(shownReview.getByTestId("report-facts")).not.toContainText("zweiten Fenster");
+
+    const other = await page.context().newPage();
+    await other.setViewportSize({ width: 390, height: 844 });
+    await other.goto(`/field?datum=${NEXT_DAY}`);
+    const otherObservations = other.getByRole("article", { name: /09:00 – 09:45/ }).getByRole("region", { name: "Beobachtungen" });
+    await otherObservations.getByLabel("Neue Beobachtung").fill("Synthetisch: nachgetragen im zweiten Fenster.");
+    await otherObservations.getByRole("button", { name: "Beobachtung speichern" }).click();
+    await expect(otherObservations).toContainText("nachgetragen im zweiten Fenster");
+    await other.close();
+
+    await shownReview.getByRole("button", { name: "Bericht unterschreiben" }).click();
+    await expect(shownReport.getByTestId("command-error")).toContainText("haben sich geändert");
+    await expect(shownReport.getByTestId("report-status")).toHaveText("Entwurf (Fassung 2)");
+    await expect(shownReview.getByRole("list", { name: "Beobachtungen im Bericht" })).toContainText("nachgetragen im zweiten Fenster");
+    await shownReview.getByRole("button", { name: "Bericht unterschreiben" }).click();
+    await expect(shownReport.getByTestId("report-status")).toHaveText("Bericht abgeschlossen (Fassung 2)");
+    await expect(shownReport.getByTestId("command-error")).toHaveCount(0);
   });
 
   test("a visit without a recorded start cannot get a report (no performer to sign) (F6)", async ({ page }) => {

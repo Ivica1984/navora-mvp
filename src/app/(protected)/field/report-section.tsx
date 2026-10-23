@@ -52,6 +52,8 @@ export default function ReportSection({
     setPending(false);
     if (!result.ok) {
       setError(result.error ?? "Bericht konnte nicht gespeichert werden.");
+      // CSR1 / CGR-02: a refusal means the report or its facts are not what the card shows; reload them.
+      router.refresh();
       return;
     }
     setMode("idle");
@@ -174,6 +176,8 @@ export default function ReportSection({
                 reportId: report.report_id,
                 summary: summaryOf(form),
                 previousSummary: report.summary ?? null,
+                // CSR1 / CGR-02: the hash of exactly the facts shown below; the database signs only those.
+                snapshotHash: report.snapshot_hash,
                 idempotencyKey: crypto.randomUUID(),
               }),
             )

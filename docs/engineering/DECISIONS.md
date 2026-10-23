@@ -629,3 +629,16 @@ Generated visits stay ordinary planned visits.
 **Consequences:** after signing, a nurse can no longer fix a typo in a time directly; she opens a correction version with a reason, which a registered nurse countersigns again where required. That is the F6 rule applied to the facts behind the report. Observations by a colleague who left the team cannot be superseded by anyone; the team adds a new one.
 **Rollback:** restore `correct_visit_time` (0008) and `record_observation` (0009) as they were; drop `private.visit_facts_locked`.
 **Open:** none of engineering's. Whether `clinical` wants other facts (quality events, handover marks) locked the same way is not decided; they are not report facts today.
+
+### ADR-052 — CSR1 part 4: she signs what she saw (F6, F7)
+**Status:** PROPOSED · **Task:** CSR1 (brief `docs/agents/briefs/CSR1.md`, PO approved), fourth PR, closing CGR-02 for F7 (issue #147) and F6 (Clinical Governance Report 2026-10-22 22:30). Migration 0041, pgTAP 041. Remediation plan `docs/agents/clinical/remediation/CGR-02.md`.
+**Decision:**
+- **Hash, not version number.** The brief allowed "the version or hash of the snapshot shown". A draft's facts change without a new report version (observations, time corrections), so a version number cannot tell what was shown. The sign command carries the sha256 of the snapshot shown: `sign_report(p_report_id, p_snapshot_hash, p_idempotency_key)`.
+- **One builder for display and signature** (answers the brief's question): `field_reports` returns, for a `draft`, the snapshot built from the live facts by `private.visit_report_snapshot`, the same function `sign_report` uses, plus `snapshot_hash` of exactly that JSON. Signed and final versions show their stored, frozen snapshot and its hash.
+- **Refuse, write nothing.** `sign_report` rebuilds the snapshot after the performer and draft checks. When the hash differs (or is missing) it returns `rejected` / `facts_changed`. The stored snapshot of a signed version is the one whose hash she sent. `/field` reloads the card after any refusal and explains the reason; she checks and signs again.
+- **The old `sign_report(uuid, uuid)` is dropped**, so there is no path that signs without naming what was shown.
+- **Deterministic text:** `private.visit_report_snapshot` runs with `timezone = UTC`, because `jsonb` renders `timestamptz` with the session's offset. Values are unchanged; new snapshots carry `+00:00`, which the UI already parses.
+- **Unchanged:** countersignature (the signed snapshot is immutable, so the countersigner signs the frozen version), correction versions (0040 lock), the summary (the nurse's own text, not part of the hashed facts; F7 saves it first and then signs), idempotency and audit.
+**Consequences:** a nurse whose screen is out of date sees one refusal and the current facts instead of signing them unseen. Callers must read `field_reports` before signing; tests use the same read model.
+**Rollback:** restore `sign_report(uuid, uuid)` and `field_reports` from 0016/0035; reset the snapshot builder's `timezone`; drop `private.report_snapshot_hash`.
+**Open:** UNKNOWN whether any command changes services or planned minutes of a completed visit after signature (not a CGR-02 question; see the remediation plan). CGR-19 (F6, advisory) is not in this PR.

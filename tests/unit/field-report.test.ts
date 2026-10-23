@@ -26,6 +26,8 @@ function report(overrides: Partial<FieldReport>): FieldReport {
     // ADM1 (migration 0035): names of signer and countersigner; null without a profile
     signed_by_name: null as unknown as string,
     countersigned_by_name: null as unknown as string,
+    // CSR1 / CGR-02 (migration 0041): hash of the snapshot shown; sign_report carries it back
+    snapshot_hash: "h1",
     ...overrides,
   };
 }
@@ -76,10 +78,15 @@ describe("report rejection messages", () => {
   it("covers every reason code the migration returns", () => {
     for (const reason of [
       "not_team_member", "visit_not_completed", "no_performer", "draft_exists", "not_draft", "not_performer",
-      "not_awaiting_countersignature", "rn_required", "own_report", "not_final", "not_latest",
+      "not_awaiting_countersignature", "rn_required", "own_report", "not_final", "not_latest", "facts_changed",
     ]) {
       expect(REPORT_REJECTION_MESSAGE[reason]).toBeTruthy();
     }
+  });
+
+  it("asks her to check the reloaded facts when they changed before signing (CGR-02)", () => {
+    expect(reportRejectionMessage("facts_changed")).toContain("geändert");
+    expect(reportRejectionMessage("facts_changed")).toContain("erneut unterschreiben");
   });
 
   it("falls back to a generic message", () => {

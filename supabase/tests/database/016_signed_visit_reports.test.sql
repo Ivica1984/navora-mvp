@@ -8,6 +8,12 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(42);
 
+-- CSR1 / CGR-02 (0041): sign_report carries the hash of the snapshot /field shows (field_reports.snapshot_hash).
+create function pg_temp.shown_hash(rid uuid) returns text language sql as $f$
+  select f.snapshot_hash from public.visit_reports r join public.care_visits v on v.id = r.visit_id
+  cross join lateral public.field_reports(v.visit_date) f where r.id = rid and f.report_id = rid
+$f$;
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
@@ -67,7 +73,7 @@ reset role;
 -- Another team member cannot draft-edit or sign -------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000901');
 set local role authenticated;
-select is(public.sign_report((select id from r1), 'a6000000-0000-4000-8000-000000000010') ->> 'reason',
+select is(public.sign_report((select id from r1), pg_temp.shown_hash((select id from r1)), 'a6000000-0000-4000-8000-000000000010') ->> 'reason',
   'not_performer', 'only the performing nurse signs');
 select is(public.update_report_draft((select id from r1), 'Fremd', 'a6000000-0000-4000-8000-000000000011') ->> 'reason',
   'not_performer', 'only the performing nurse edits the summary');
@@ -75,7 +81,7 @@ reset role;
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is(public.sign_report((select id from r1), 'a6000000-0000-4000-8000-000000000012') ->> 'result', 'ok', 'the nurse signs');
+select is(public.sign_report((select id from r1), pg_temp.shown_hash((select id from r1)), 'a6000000-0000-4000-8000-000000000012') ->> 'result', 'ok', 'the nurse signs');
 select is((select status from public.visit_reports where id = (select id from r1)), 'final', 'signed by a registered nurse → final');
 select ok((select signed_by = '00000000-0000-4000-a000-000000000902' and signed_at is not null
            from public.visit_reports where id = (select id from r1)), 'the signature records who and when');
@@ -119,7 +125,7 @@ end $$;
 create temp table r2 as select id from public.visit_reports where visit_id = 'a6000000-0000-4000-8000-000000000601';
 select is((select countersign_required from public.visit_reports where id = (select id from r2)), true,
   'performed by a care assistant → countersignature required (provisional rule, D-10)');
-select is(public.sign_report((select id from r2), 'a6000000-0000-4000-8000-000000000033') ->> 'result', 'ok', 'the care assistant signs');
+select is(public.sign_report((select id from r2), pg_temp.shown_hash((select id from r2)), 'a6000000-0000-4000-8000-000000000033') ->> 'result', 'ok', 'the care assistant signs');
 select is((select status from public.visit_reports where id = (select id from r2)), 'signed', 'signed, not yet final');
 select is(public.countersign_report((select id from r2), 'a6000000-0000-4000-8000-000000000034') ->> 'reason',
   'own_report', 'nobody countersigns their own report');
