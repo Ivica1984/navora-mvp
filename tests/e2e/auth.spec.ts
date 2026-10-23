@@ -75,8 +75,9 @@ test.describe("with a session", () => {
     await signInOk(page, COACH);
     await page.goto("/visits");
 
-    // Runs before the nurse test, so visit 501 (Testteam Nord) is still planned.
-    await page.getByRole("button").filter({ hasText: "Geplant" }).first().click();
+    // Runs before the nurse test, so visit 501 (Testteam Nord, today 08:00) is still planned. Selected by its time:
+    // the seed's CGR-32 visit 532 (Nord, yesterday 07:00, planned) sorts before it.
+    await page.getByRole("button").filter({ hasText: "Geplant" }).filter({ hasText: /08:00(:00)? – 08:45/ }).first().click();
 
     await page.getByRole("button", { name: "Einsatz starten" }).click();
     // T15: inline error instead of a blocking alert()
@@ -87,7 +88,8 @@ test.describe("with a session", () => {
     await signInOk(page, NURSE);
     await page.goto("/visits");
 
-    await page.getByRole("button").filter({ hasText: "Geplant" }).first().click();
+    // Visit 501 (today 08:00), not the seed's CGR-32 visit 532 (yesterday, must stay planned for field.spec).
+    await page.getByRole("button").filter({ hasText: "Geplant" }).filter({ hasText: /08:00(:00)? – 08:45/ }).first().click();
     await page.getByRole("button", { name: "Einsatz starten" }).click();
 
     await expect(page.getByRole("button", { name: "Einsatz abschließen" })).toBeVisible();

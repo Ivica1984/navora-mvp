@@ -125,7 +125,7 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000906');
 set local role authenticated;
 select is(public.record_absence('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000902',
           pg_temp.today() + 6, null, null, null, 'a5000000-0000-4000-8000-000000000040') - 'absence_id',
-  '{"result": "ok", "released": 1, "teams": 2}'::jsonb,
+  '{"result": "ok", "released": 1, "teams": 2, "past_planned": 0}'::jsonb,
   'ABS1-N1: a colleague of Nord only learns how many Nord visits were released');
 reset role;
 select is(pg_temp.resp(pg_temp.vid('nord_v6')), null, 'ABS1-N1: the Nord visit is released');

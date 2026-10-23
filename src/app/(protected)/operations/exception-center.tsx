@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { handleException } from "@/features/operations/commands";
-import { CLOSES_WITH_CAUSE, CLOSES_WITH_FOLLOWUP, PRIORITY_LABEL, canClose, countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
+import { CLOSES_WITH_CAUSE, CLOSES_WITH_FOLLOWUP, PRIORITY_LABEL, alertFlagLabels, canClose, countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
 import type { OperationsException } from "@/features/operations/types";
 import InterruptionFollowupForm from "@/components/lifecycle/InterruptionFollowupForm";
 
@@ -83,6 +83,10 @@ function ExceptionCard({ exception: e }: { exception: OperationsException }) {
         {[e.case_label, e.region, e.team_name].filter(Boolean).join(" · ") || "ohne Fallbezug"}
         {e.detail ? ` — ${e.detail}` : ""}
       </p>
+      {alertFlagLabels(e.flags).map((label) => (
+        // CSR1 / CGR-32: computed from the absence (fixed label, no reason).
+        <p key={label} data-testid="exception-flag" className="font-semibold">{label}</p>
+      ))}
       <p className="text-xs text-stone-600">Nächster Schritt: {e.next_step}</p>
       <p className="text-xs font-semibold" data-testid="exception-handler">{handlerLabel(e)}</p>
       {!canClose(e) && (

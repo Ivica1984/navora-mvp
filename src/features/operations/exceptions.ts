@@ -67,3 +67,19 @@ export function parseComments(raw: unknown): Comment[] {
     (c): c is Comment => !!c && typeof c === "object" && typeof (c as Comment).text === "string" && typeof (c as Comment).at === "string",
   );
 }
+
+// CSR1 / CGR-32 (migration 0053): flags on an overdue visit, computed in the database from the absence (never
+// stored). Fixed labels only; NAVORA stores no reason for an absence, so none can be shown.
+export const ALERT_FLAG_LABEL: Record<string, string> = {
+  responsible_absent: "Zuständige Person abwesend gemeldet",
+};
+
+/** Labels for the known flags of one alert, each once, in the order given; unknown flags are not shown. */
+export function alertFlagLabels(flags: readonly string[] | null | undefined): string[] {
+  const out: string[] = [];
+  for (const f of flags ?? []) {
+    const label = ALERT_FLAG_LABEL[f];
+    if (label && !out.includes(label)) out.push(label);
+  }
+  return out;
+}

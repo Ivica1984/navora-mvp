@@ -368,4 +368,24 @@ test.describe("field tool (F1)", () => {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
   });
+
+  // CSR1 part 11 / CGR-32 (migration 0053): the seed holds an ended absence of assist.test for all of yesterday and her
+  // planned visit yesterday 07:00 (visit 532, never started). The visit keeps her as responsible; its overdue alert on
+  // /team carries the fixed label once, with no reason. The flag itself is computed in the database (pgTAP 054).
+  test("CGR-32: an overdue visit of a member reported absent shows \"Zuständige Person abwesend gemeldet\" once on /team, at phone width", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signIn(page, NURSE, /\/field$/);
+    await page.goto("/team");
+    const alerts = page.getByRole("region", { name: "Einsätze mit Handlungsbedarf" });
+    await expect(alerts).toBeVisible();
+    const flags = page.getByTestId("visit-alert-flag");
+    await expect(flags).toHaveCount(1);
+    await expect(flags).toHaveText("Zuständige Person abwesend gemeldet");
+    const alert = alerts.getByTestId("visit-alert").filter({ has: flags });
+    await expect(alert).toContainText("Einsatz nicht begonnen");
+    await expect(alert).toContainText("07:00");
+    await expect(alert).toContainText("zuständig:");
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
 });
