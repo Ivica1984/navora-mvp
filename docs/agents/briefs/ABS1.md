@@ -8,6 +8,31 @@ updated: 2026-10-23
 
 # ABS1 — Absence without the phone chain: "I can't work" hands the day to the team
 
+## PO review — 2026-10-23 22:15: CGR-34 met; ABS1 stays accepted; open: ABS1-C6
+
+Reviewed #230 (CSR1 part 11 remainder = CGR-34; branch `fix/csr1-part11-cgr34`, head 87612aa, CI run 40011124704 green: app, db incl. pgTAP `055_csr1_cgr34_cancel_keeps_absence` (26), e2e; merged as 673ba50, CI green on the merge commit (runs 40011804520, 40011810722) and on 0717c05 (runs 40013812705, 40013820173), checked through the API). The PO read migration 0054 in full, the pgTAP 055 fixtures and assertions, `cancellationText` / `RESPONSIBLE_ABSENT_NOTE` and their unit tests (lifecycle, handover, operations), the `/field` card change and the e2e case, and ADR-066. **The PO did not run the tests.**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| CGR-34 (1): `cancel_visit` on a visit meeting the CGR-32 condition stores `responsible_absent = true`; otherwise `false`; the caller cannot set it | met | 0054 §3: `absent` computed before the status change from `planned`, date before today (Europe/Zurich) and `private.visit_responsible_absent` (0053); no parameter for it; pgTAP 055:60 (true), 96 (future, false), 112 (past without absence, false), 115-128 (no write privilege, no parameter, update and non-cancel insert refused) |
+| CGR-34 (2): withdrawing the absence later keeps the stored fact | met | append-only table (0024 trigger) + check `not responsible_absent or kind = 'cancelled'`; pgTAP 055:101-104 |
+| CGR-34 (2): no new reason code, no extra tap | met | 0054 §3 keeps the 0024 reason list and signature; pgTAP 055:61 (`team_cancelled`) |
+| CGR-34: shown as "nicht durchgeführt: zuständige Person abwesend gemeldet" on the cancellation, in HAND1 and in OPS1 | met | `/field` card via `cancellationText` + `cancel-responsible-absent`; HAND1 detail (0054 §4b, pgTAP 055:131); OPS1 flag `not_done_responsible_absent` on `team_cancellation_late` (0054 §4c, pgTAP 055:81-85) |
+| CGR-34 (3): label unit-tested; e2e at phone width shows it once | met | `tests/unit/lifecycle-rules.test.ts`, `handover-rules.test.ts`, `operations-exceptions.test.ts`; `tests/e2e/field.spec.ts` CGR-34 (390 px, `toHaveCount(1)`, no horizontal overflow) |
+| Audit | met | audit trigger records `responsible_absent` (pgTAP 055:66) |
+| No regression | met | CI green on head, merge commit and 0717c05; pgTAP 047 column list updated for the new column (87612aa), not a behaviour change |
+| Clinical gate | not required for acceptance | CGR-34 is advisory (S3, `cra` 19:57); ABS1 stays accepted. `cra` look at 0054 requested |
+
+**Deviations, decided:**
+- *HAND1 shows the fact as its own line under "Einsatz abgesagt" instead of one line "Abgesagt (<reason>) · …"* (ADR-066 Open): **accepted**. The entry heading already says it was cancelled; the meaning and the fixed text are identical. Same fixed text in OPS1: **accepted**.
+- *Every `/field` cancellation now reads "Abgesagt (<reason>)" instead of "Abgesagt: <reason>"*: **accepted** (the PO's wording, one format everywhere).
+- *The e2e case depends on the CGR-32 case running before it in the same file*: **accepted** for now (one worker, declared order, documented in ADR-066). If the e2e suite is ever parallelised, the case must create its own flagged visit.
+- *Built from PR #227 before it merged*: **accepted**; the merged decision is unchanged.
+
+**Product value:** a visit that was due and not given because nobody was there is no longer indistinguishable from a client's cancellation, without anyone typing anything. That keeps continuity gaps visible for the team, HAND1 and AN2 measure 8, and leaves the clinical question (D-28, D-31) answerable from data.
+
+**ABS1 stays `accepted`.** Open condition: ABS1-C6 (CSR1 part 12). `cra` review of 0053 and 0054.
+
 ## PO review — 2026-10-23 21:17: CGR-32 met in code; ABS1 stays accepted; CGR-34 open; new condition ABS1-C6
 
 Reviewed #228 (CSR1 part 11 = CGR-32 only; branch `fix/csr1-part11-cgr32`, head c1b562a, CI run 40005346459 green: app, db incl. pgTAP 054 (34), e2e; merged as 33112e3, CI green on the merge commit (runs 40006342929, 40006346758) and on e6f35ad (runs 40008279703, 40008285654), checked through the API). The PO read migration 0053 in full, the pgTAP 054 fixtures and assertions, the label map and its unit test, and the e2e case; and checked `/field` (`absence-section.tsx`). **The PO did not run the tests.** #228 was built before the 20:15 decision (CGR-34) was merged, so it does not carry CGR-34; that is not a defect of #228.
@@ -229,7 +254,7 @@ A nurse records in a few seconds that she is not available. Her visits in that p
 - [x] The PR names the latest Clinical Governance Report section and the CGR IDs it addresses.
 - [x] **ABS1-C4 (PO 2026-10-23 16:18, patient safety; met in code 18:15, #212, except ABS1-C5):** no command gives a planned visit to a member absent at its interval: `plan_visit` refuses with `responsible_absent`; `reschedule_visit` into her absence releases the visit ("Abwesenheit"). pgTAP (a)-(e) in the 16:18 review. **ABS1-N1:** `released` counts only the caller's teams.
 - [x] **ABS1-C5 (PO 2026-10-23 18:15, patient safety; met 19:12, #216, 0052):** `reschedule_visit` refuses with `responsible_absent` a move that would leave the visit with a member absent at its interval (a date before today); pgTAP (a)-(c) in the 18:15 review.
-- [ ] **CGR-34 (PO 2026-10-23 20:15, with CGR-32; CSR1 part 11):** a cancellation of a flagged past visit stores, server-side and immutably, that the responsible member was absent (`responsible_absent` on its status note) and shows "nicht durchgeführt: zuständige Person abwesend gemeldet"; no new reason code, no extra tap. pgTAP, unit and e2e in the 20:15 decision.
+- [x] **CGR-34 (PO 2026-10-23 20:15, with CGR-32; CSR1 part 11):** a cancellation of a flagged past visit stores, server-side and immutably, that the responsible member was absent (`responsible_absent` on its status note) and shows "nicht durchgeführt: zuständige Person abwesend gemeldet"; no new reason code, no extra tap. pgTAP, unit and e2e in the 20:15 decision.
 - [ ] **ABS1-C6 (PO 2026-10-23 21:17; CSR1 part 12):** the `/field` absence form offers a start of yesterday; the confirmation shows "<n> vergangene Einsätze sind noch offen: bitte im Team entscheiden" when `past_planned` > 0. e2e and unit test in the 21:17 review.
 - [x] **CGR-32 (PO 2026-10-23 19:12, acceptance condition; CSR1 part 11):** a planned, not started visit dated before today inside a newly recorded absence keeps its responsible member and its overdue alert is flagged "Zuständige Person abwesend gemeldet"; `record_absence` returns `past_planned`; never refused. pgTAP and e2e in the 19:12 review.
 - [x] **ABS1-C1 (PO 2026-10-23 14:16; met in code 16:18, #206):** an untimed visit is released when the absence covers any part of its date; the same whole-day interval for the absent checks at take, in "Offen im Team" and in PLAN2. pgTAP.

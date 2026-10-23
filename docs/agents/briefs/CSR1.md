@@ -8,6 +8,10 @@ updated: 2026-10-23
 
 # CSR1: Clinical safety remediation (Clinical Governance Report, 2026-10-22 22:30)
 
+## PO review — 2026-10-23 22:15: CGR-34 met (#230); part 12 = ABS1-C6 only, then AN2
+
+Engineering delivered CGR-34 as the part 11 remainder (#230, migration 0054, ADR-066; merged as 673ba50, CI green). Evidence table in `briefs/ABS1.md` 22:15. **The PO did not run the tests.** **Part 12 is now ABS1-C6 only** (`briefs/ABS1.md` 21:17: a start of yesterday on `/field`, and the `past_planned` confirmation with a link to `/team`). Then AN2 (#205).
+
 ## PO review — 2026-10-23 21:17: part 11 met (CGR-32, the `cra` 19:46 case, the 046 fix); part 12 ordered (CGR-34, ABS1-C6), then AN2
 
 #228 (merged as 33112e3, CI green on its head and the merge commit) carried CGR-32 and the `cra` 19:46 case; it was built before the 20:15 decision merged, so **CGR-34 is not in it**. Evidence table in `briefs/ABS1.md` 21:17. The pgTAP 046 time-of-day fault is fixed (fixtures pinned to today's date; the PO's own #227 turned green after merging `recovery/main`). **The PO did not run the tests.** Awaiting a `cra` section on 0053.
