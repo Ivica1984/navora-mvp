@@ -6,6 +6,12 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(30);
 
+-- CSR1 / CGR-02 (0041): sign_report carries the hash of the snapshot /field shows (field_reports.snapshot_hash).
+create function pg_temp.shown_hash(rid uuid) returns text language sql as $f$
+  select f.snapshot_hash from public.visit_reports r join public.care_visits v on v.id = r.visit_id
+  cross join lateral public.field_reports(v.visit_date) f where r.id = rid and f.report_id = rid
+$f$;
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
@@ -47,12 +53,12 @@ select is(public.generate_billable_facts(current_date), 0, 'no fact without a fi
 
 do $$ declare r jsonb; begin
   r := public.create_report_draft('00000000-0000-4000-a000-000000000501', null, 'ac000000-0000-4000-8000-000000000010');
-  perform public.sign_report((r ->> 'report_id')::uuid, 'ac000000-0000-4000-8000-000000000011');
+  perform public.sign_report((r ->> 'report_id')::uuid, pg_temp.shown_hash((r ->> 'report_id')::uuid), 'ac000000-0000-4000-8000-000000000011');
   perform public.set_quality_hold('ac000000-0000-4000-8000-0000000000aa', 'Leistung strittig', 'ac000000-0000-4000-8000-000000000012');
   r := public.create_report_draft('ac000000-0000-4000-8000-0000000000aa', null, 'ac000000-0000-4000-8000-000000000013');
-  perform public.sign_report((r ->> 'report_id')::uuid, 'ac000000-0000-4000-8000-000000000014');
+  perform public.sign_report((r ->> 'report_id')::uuid, pg_temp.shown_hash((r ->> 'report_id')::uuid), 'ac000000-0000-4000-8000-000000000014');
   r := public.create_report_draft('ac000000-0000-4000-8000-0000000000bb', null, 'ac000000-0000-4000-8000-000000000015');
-  perform public.sign_report((r ->> 'report_id')::uuid, 'ac000000-0000-4000-8000-000000000016');
+  perform public.sign_report((r ->> 'report_id')::uuid, pg_temp.shown_hash((r ->> 'report_id')::uuid), 'ac000000-0000-4000-8000-000000000016');
 end $$;
 
 select is(public.generate_billable_facts(current_date), 2, 'facts for final reports without a hold (the held visit gets none)');
@@ -100,7 +106,7 @@ set local role authenticated;
 do $$ declare r jsonb; begin
   r := public.correct_report((select id from public.visit_reports where visit_id = '00000000-0000-4000-a000-000000000501'),
                              'Leistung ergänzt', null, 'ac000000-0000-4000-8000-000000000020');
-  perform public.sign_report((r ->> 'report_id')::uuid, 'ac000000-0000-4000-8000-000000000021');
+  perform public.sign_report((r ->> 'report_id')::uuid, pg_temp.shown_hash((r ->> 'report_id')::uuid), 'ac000000-0000-4000-8000-000000000021');
 end $$;
 select is(public.generate_billable_facts(current_date), 1, 'the corrected report yields a new fact');
 select is((select count(*)::int from public.billable_facts f where f.visit_id = '00000000-0000-4000-a000-000000000501'
@@ -145,7 +151,7 @@ do $$ declare r jsonb; begin
   perform public.correct_visit_time((select id from public.visit_events where visit_id = 'ac000000-0000-4000-8000-0000000000cc' and event_type = 'started'),
     now() - interval '30 minutes', 'Start zu spät getippt', 'ac000000-0000-4000-8000-000000000042');
   r := public.create_report_draft('ac000000-0000-4000-8000-0000000000cc', null, 'ac000000-0000-4000-8000-000000000043');
-  perform public.sign_report((r ->> 'report_id')::uuid, 'ac000000-0000-4000-8000-000000000044');
+  perform public.sign_report((r ->> 'report_id')::uuid, pg_temp.shown_hash((r ->> 'report_id')::uuid), 'ac000000-0000-4000-8000-000000000044');
 end $$;
 reset role;
 -- a fact as it was computed under the old rule (planned minutes billed)

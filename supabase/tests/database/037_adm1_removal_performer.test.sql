@@ -12,6 +12,12 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(24);
 
+-- CSR1 / CGR-02 (0041): sign_report carries the hash of the snapshot /field shows (field_reports.snapshot_hash).
+create function pg_temp.shown_hash(rid uuid) returns text language sql as $f$
+  select f.snapshot_hash from public.visit_reports r join public.care_visits v on v.id = r.visit_id
+  cross join lateral public.field_reports(v.visit_date) f where r.id = rid and f.report_id = rid
+$f$;
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
@@ -106,7 +112,7 @@ select is(pg_temp.resp('mine'), '00000000-0000-4000-a000-000000000906'::uuid, 'C
 -- (4a) signed, awaiting countersignature: allowed ---------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000906');
 set local role authenticated;
-select is(public.sign_report((select id from public.visit_reports where visit_id = pg_temp.vid('colleague')),
+select is(public.sign_report((select id from public.visit_reports where visit_id = pg_temp.vid('colleague')), pg_temp.shown_hash((select id from public.visit_reports where visit_id = pg_temp.vid('colleague'))),
           'a3700000-0000-4000-8000-000000000006') ->> 'result', 'ok', 'she signs her report');
 reset role;
 select is((select status from public.visit_reports where visit_id = pg_temp.vid('colleague')), 'signed',
@@ -130,7 +136,7 @@ do $$ begin
   perform public.complete_visit(pg_temp.vid('rn'), 'a3700000-0000-4000-8000-000000000021');
   perform public.create_report_draft(pg_temp.vid('rn'), null, 'a3700000-0000-4000-8000-000000000022');
 end $$;
-select is(public.sign_report((select id from public.visit_reports where visit_id = pg_temp.vid('rn')),
+select is(public.sign_report((select id from public.visit_reports where visit_id = pg_temp.vid('rn')), pg_temp.shown_hash((select id from public.visit_reports where visit_id = pg_temp.vid('rn'))),
           'a3700000-0000-4000-8000-000000000023') ->> 'result', 'ok', 'a registered nurse signs her report');
 reset role;
 select is((select status from public.visit_reports where visit_id = pg_temp.vid('rn')), 'final',

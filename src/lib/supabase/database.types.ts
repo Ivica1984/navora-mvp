@@ -1351,7 +1351,7 @@ isOneToOne: false
                            },
 "field_reports":
 { Args: { "p_date": string }; Returns: {
-              "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"countersigned_by_name": string,"i_am_performer": boolean,"i_can_countersign": boolean,"i_signed": boolean,"report_id": string,"signed_at": string,"signed_by_name": string,"snapshot": Json,"status": string,"summary": string,"version": number,"visit_id": string
+              "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"countersigned_by_name": string,"i_am_performer": boolean,"i_can_countersign": boolean,"i_signed": boolean,"report_id": string,"signed_at": string,"signed_by_name": string,"snapshot": Json,"snapshot_hash": string,"status": string,"summary": string,"version": number,"visit_id": string
             }[]
                            },
 "field_since_last":
@@ -1515,7 +1515,7 @@ isOneToOne: false
 { Args: { "p_idempotency_key": string,"p_priority": boolean,"p_team_id": string }; Returns: string
                            },
 "sign_report":
-{ Args: { "p_idempotency_key": string,"p_report_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_report_id": string,"p_snapshot_hash": string }; Returns: Json
                            },
 "start_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string

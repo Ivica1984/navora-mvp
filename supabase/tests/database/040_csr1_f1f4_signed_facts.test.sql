@@ -10,6 +10,12 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(32);
 
+-- CSR1 / CGR-02 (0041): sign_report carries the hash of the snapshot /field shows (field_reports.snapshot_hash).
+create function pg_temp.shown_hash(rid uuid) returns text language sql as $f$
+  select f.snapshot_hash from public.visit_reports r join public.care_visits v on v.id = r.visit_id
+  cross join lateral public.field_reports(v.visit_date) f where r.id = rid and f.report_id = rid
+$f$;
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
@@ -88,7 +94,7 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select is(public.correct_visit_time(pg_temp.started_event('rn'), now() - interval '20 minutes', 'Start zu spät getippt',
           'a4000000-0000-4000-8000-000000000012'), 'ok', 'a time correction before signing is accepted');
-select is(public.sign_report(pg_temp.latest_report('rn'), 'a4000000-0000-4000-8000-000000000013') ->> 'result', 'ok',
+select is(public.sign_report(pg_temp.latest_report('rn'), pg_temp.shown_hash(pg_temp.latest_report('rn')), 'a4000000-0000-4000-8000-000000000013') ->> 'result', 'ok',
   'she signs');
 reset role;
 select is((select status from public.visit_reports where id = pg_temp.latest_report('rn')), 'final',
@@ -131,7 +137,7 @@ select is(public.correct_visit_time(pg_temp.started_event('rn'), now() - interva
           'a4000000-0000-4000-8000-000000000031'), 'ok', 'a time correction goes through the correction version');
 select is(public.record_observation(pg_temp.vid('rn'), 'Synthetisch: Korrekturfassung ergänzt', false, null,
           'a4000000-0000-4000-8000-000000000032'), 'ok', 'an observation goes through the correction version');
-select is(public.sign_report(pg_temp.latest_report('rn'), 'a4000000-0000-4000-8000-000000000033') ->> 'result', 'ok',
+select is(public.sign_report(pg_temp.latest_report('rn'), pg_temp.shown_hash(pg_temp.latest_report('rn')), 'a4000000-0000-4000-8000-000000000033') ->> 'result', 'ok',
   'she signs the correction version');
 reset role;
 select ok((select snapshot::text like '%Korrekturfassung ergänzt%' from public.visit_reports where id = pg_temp.latest_report('rn')),
@@ -147,7 +153,7 @@ do $$ begin
   perform public.start_visit(pg_temp.vid('ca'), 'a4000000-0000-4000-8000-000000000040');
   perform public.complete_visit(pg_temp.vid('ca'), 'a4000000-0000-4000-8000-000000000041');
   perform public.create_report_draft(pg_temp.vid('ca'), null, 'a4000000-0000-4000-8000-000000000042');
-  perform public.sign_report(pg_temp.latest_report('ca'), 'a4000000-0000-4000-8000-000000000043');
+  perform public.sign_report(pg_temp.latest_report('ca'), pg_temp.shown_hash(pg_temp.latest_report('ca')), 'a4000000-0000-4000-8000-000000000043');
 end $$;
 select is(public.correct_visit_time(pg_temp.started_event('ca'), now() - interval '10 minutes', 'Start zu spät getippt',
           'a4000000-0000-4000-8000-000000000044'), 'rejected',

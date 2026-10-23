@@ -7,6 +7,12 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(10);
 
+-- CSR1 / CGR-02 (0041): sign_report carries the hash of the snapshot /field shows (field_reports.snapshot_hash).
+create function pg_temp.shown_hash(rid uuid) returns text language sql as $f$
+  select f.snapshot_hash from public.visit_reports r join public.care_visits v on v.id = r.visit_id
+  cross join lateral public.field_reports(v.visit_date) f where r.id = rid and f.report_id = rid
+$f$;
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
@@ -32,7 +38,7 @@ select is(public.create_report_draft('a7000000-0000-4000-8000-000000000701', nul
 select ok((select snapshot -> 'planned' ->> 'a' = '30' and jsonb_array_length(snapshot -> 'events') >= 2
            from public.visit_reports where visit_id = 'a7000000-0000-4000-8000-000000000701'),
   'the draft carries the visit data, no re-entry');
-select is(public.sign_report((select id from public.visit_reports where visit_id = 'a7000000-0000-4000-8000-000000000701'),
+select is(public.sign_report((select id from public.visit_reports where visit_id = 'a7000000-0000-4000-8000-000000000701'), pg_temp.shown_hash((select id from public.visit_reports where visit_id = 'a7000000-0000-4000-8000-000000000701')),
           'a7000000-0000-4000-8000-000000000004') ->> 'result', 'ok', 'she signs at completion');
 select is((select count(*)::int from public.field_countersign_queue()), 0, 'nobody countersigns their own report: not in her queue');
 reset role;
