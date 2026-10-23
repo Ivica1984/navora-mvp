@@ -8,6 +8,23 @@ updated: 2026-10-23
 
 # OPS1 — Operations exception center
 
+## PO review — 2026-10-23 12:15: condition CGR-22 met (awaits clinical review of 0044)
+
+Delivered by CSR1 part 7 (#188, merged as e215924, CI green on head 678b12e, the merge commit and 39b9994). The PO read 0044 §2–§4, pgTAP 044 (CGR-22 block), the changed pgTAP 039 assertion and the e2e change; **the PO did not run the tests**.
+
+| Criterion (CSR1 CGR-22) | Result | Evidence |
+|---|---|---|
+| Hand close of `visit_uncovered` refused while nobody is responsible | met | `handle_exception(…,'close',…)` returns `cause_persists` via `private.exception_closes_with_cause`; pgTAP 044 refused close writes no event row; take over and note still work |
+| An earlier hand close no longer hides it | met | `operations_exceptions()` lists it whatever the last event; pgTAP 044 "a close written before 0044 no longer hides it" |
+| It ends with its cause: assigning someone, starting, cancelling | met | pgTAP 044: started, cancelled and a responsible member set → gone |
+| Priority unchanged (D-28) | met | still P2, not escalating; `exception_is_safety` false for it (pgTAP 044) |
+| UI | met, weak test | e2e `operations.spec.ts` checks no "Schliessen" on any listed uncovered card; the loop passes vacuously when none is listed (time-of-day seed). Acceptable because the refusal is enforced and tested in the database |
+
+**Finding from this review (product gap, not a defect of #188):** the "someone responsible" ending is simulated in pgTAP by a direct table update, because **no command lets a team member take responsibility for an existing uncovered visit** (engineering OPEN item, 11:45). So after CGR-22 an uncovered visit that is not yet due can end only by being cancelled or by a cover; Operations sees it and can do nothing. **Decision (PO, within product authority, J3 model accepted 2026-10-21: team plus optional responsible member):** ABS1's one-tap take ("Offen im Team") applies to **every** uncovered visit of the team, whatever made it uncovered; criterion added to `ABS1.md`. This does not answer D-6 (`clinical`), which may still change the assignment model.
+
+OPS1 stays **accepted**; the CGR-22 condition is met in code and is confirmed by the next `cra` section on 0044. Remaining conditions: CGR-25 (CSR1 part 7), CGR-26 (part 8).
+
+
 ## PO acceptance — 2026-10-23 11:25: accepted with conditions (clinical gate passed)
 
 The Clinical Governance Report section 2026-10-23 10:29 (`reports/CLINICAL_GOVERNANCE.md`, merged with #184 as 8551ccb) reviewed merge commit a78fa7e (migration 0042, pgTAP 042) and states for OPS1: **no blocking finding; the PO may accept, recording CGR-22 and CGR-25 as conditions**. CGR-20 closed (interim rule PROVISIONAL, D-31). CI green on a78fa7e (app, db; e2e green on its second run after one cancelled run; rechecked through the API this cycle). **The PO did not run the tests**.
