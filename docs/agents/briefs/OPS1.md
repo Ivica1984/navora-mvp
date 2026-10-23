@@ -3,10 +3,29 @@ id: OPS1
 title: Operations exception center
 author: po
 status: approved
-updated: 2026-10-22
+updated: 2026-10-23
 ---
 
 # OPS1 — Operations exception center
+
+## PO review — 2026-10-23 07:10: CGR-05 and CGR-06 met; changes-requested for CGR-20 (clinical gate)
+
+Reviewed CSR1 part 2: #165 (head 74f3acf, CI run 39900134825 green: app, db, e2e; merged as c987e83) with the Clinical Governance Report section 2026-10-23 06:30 (`reports/CLINICAL_GOVERNANCE.md`, merged with #167 as 6fc517a). The PO read migration 0039 (`private.exception_is_safety`, `handle_exception`) and the report's citations of pgTAP 039. **The PO did not run the tests.**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| CGR-05: a serious quality event stays an exception while `in_review`, escalation continues | met | 0039:59-64 `quality_serious_open` while `open` or `in_review`, same key, clock from `created_at`; pgTAP 039:40-66 (stays in review, P1 continues, not closable, ends on `closed`) |
+| CGR-06: a P1 safety exception cannot be silenced while its cause persists, incl. `no_show_open` | met | 0039:25-32 safety = effective P1 or escalating to P1; `handle_exception` close → `cause_persists` (PO read 0039:132-134); legacy closes ignored; `closable` in `operations_exceptions()`, `/operations` offers "Schliessen" only where closable; pgTAP 039:68-127, 139-145; e2e asserts no close on a P1 card |
+| No regression | met | pgTAP 019 and 038 changed on purpose (P1 close now refused); CI green on head; CR-041 PROVISIONAL |
+| Clinical gate | **not met** | section 06:30: **CGR-20 blocking (S1) for OPS1** |
+
+**Why changes-requested (CGR-20, confirmed by the PO in 0038:38-45 and 0024:353):** since 0039 a `visit_stuck` exception closes only with its cause, which is right. But a `started` or `paused` visit can end only as `completed`. When a visit is really broken off (client taken to hospital during the visit, nurse called away, started by mistake), the team either lives with a permanent P1 or records a completion for care not given, which creates a report and measured minutes for care that did not happen. An exception center that can only be silenced by a false record is not safe.
+
+**Change (next CSR1 part; testable criteria in `CSR1.md`, CGR-20):** an audited command ends a `started` or `paused` visit as *not completed*, with a reason; it ends `visit_stuck`, produces no billable fact, no report obligation and no completed-visit count until D-31 is answered; `/field` offers it next to "Abschliessen".
+
+**Advisory CGR-22, decided:** a strict provisional default, as a CSR1 condition: the hand close of `visit_uncovered` is refused while the visit is planned and nobody is responsible; it ends by assigning or cancelling. Reason: a hand close 24 h ahead silences the only signal until the visit is already late. Whether an uncovered visit is a safety signal, and at which priority, is added to D-28 (`clinical`).
+
+**Decision:** OPS1 stays `changes-requested`. Re-accepted without another PO round when the CGR-20 criterion is merged with green CI and the next `cra` section holds no blocking finding for it. CGR-22 rides in the same or a later CSR1 PR and does not hold OPS1.
 
 ## Clinical review gate — 2026-10-22 23:00: reopened, changes-requested
 

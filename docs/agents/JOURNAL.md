@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 07:10 · po (Product Owner)
+- **Clinical gate passed for ADM1, C1 and J3** (`cra` section 06:30, merged with #167 as 6fc517a: CGR-18, CGR-12, CGR-04 closed, "the PO may accept"). **All three accepted**, no new condition; evidence tables in `briefs/ADM1.md`, `briefs/C1.md`, `briefs/J3.md`. **The PO did not run the tests**; evidence is merged code and tests, CI green (95ed737, 74940fb, c987e83) and the report.
+- **OPS1 reviewed** (CSR1 part 2, #165 head 74f3acf, CI run 39900134825 green; merged as c987e83). **CGR-05 and CGR-06 met** (PO read 0039 `exception_is_safety`, `handle_exception` → `cause_persists`). **Changes-requested for CGR-20** (blocking S1 for OPS1; PO confirmed 0038:38-45, 0024:353): a started or paused visit can only end as `completed`, so a broken-off visit ends as a permanent P1 or a false completion.
+  - **CSR1 criterion CGR-20 added:** an audited *not completed* end with a reason, by the performer, any team member or a coordination role; no billable fact, no report obligation, not counted as completed; visible on `/field` and in HAND1; `/field` offers it next to "Abschliessen".
+  - **D-31 opened** (`clinical`, with `legal`): how a broken-off visit is documented and billed, and who may record its end. The PO invents no rule; the CSR1 criterion is the interim safe default.
+  - **CGR-22:** strict provisional default in CSR1 (no hand close of an uncovered visit while nobody is responsible); question added to D-28. **CGR-21:** condition of the COVER1 delta review after D-3. **CGR-23:** pilot measure.
+- **Challenge:** pilot hypotheses would be measured by hand tallies of counts NAVORA already records. Proposal AN2 ("Pilot-Hypothesen" in AN1), brief once CSR1 and ABS1 are delivered.
+- No new capability approved (CSR1 in progress, ABS1 approved and unstarted); no decision answered.
+- **Waiting on people:** the owner names the clinical owner (G-1), then D-29; `clinical` answers D-28 (now incl. CGR-22), D-30, D-31.
+- **Next agent (eng):** CSR1 part CGR-20 after the part already in progress (F1-F4, CGR-01, if started); then F6/F7, J5; CGR-22 in any CSR1 PR; then ABS1 (#134), which relies on CGR-20 for an absent performer's started visit. **(cra):** review the CGR-20 PR while open.
+
+ENGINEERING BRIEF (CSR1 addition, not a new capability)
+- **Capability:** CSR1 / CGR-20, an honest *not completed* end for a started or paused visit.
+- **Why:** since 0039 a stuck visit's P1 closes only with its cause, and the only cause-ending action is "complete". Teams would record care that was not given, or live with a permanent P1.
+- **Business outcome:** OPS1 can be re-accepted; no billing fact or measured minute from care that did not happen.
+- **Care outcome:** the record says what happened: the visit stopped, with why.
+- **Expected nurse outcome:** one tap with a reason on `/field` instead of a phone call or a false completion.
+- **Expected team outcome:** the team sees the broken-off visit in HAND1 and decides the follow-up itself; no coordinator needed to silence an alert.
+- **Expected patient outcome:** a visit that did not finish is never shown as care given; the team can see that care is still missing.
+- **Acceptance criteria:** `briefs/CSR1.md`, criterion CGR-20 (pgTAP cases and phone-width e2e listed there).
+- **Dependencies:** none to build; D-31 (`clinical`, `legal`) replaces the interim rule later.
+- **Priority:** patient safety; next CSR1 part, blocks OPS1 and supports ABS1.
+- **Implementation recommendation:** a new terminal visit status reached only by a dedicated security-invoker command with a reason code, ending `visit_stuck` through the derived-exception cause; exclude it in J5 facts, F6 drafts, `report_not_final`, AN1 and J6 counts; one `PROVISIONAL` rule-register row.
+
 ## 2026-10-23 06:40 · Clinical & Regulatory Architect (review)
 - **Report section 06:30** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `8ec3351` and #165 @ `74f3acf` (merged during this run as `c987e83`, same code). Read 0037, 0038, 0039 and pgTAP 037-039; **I did not run the tests** (CI green as reported, and checked on #165). This PR also carries the unmerged 02:28 section (#155).
 - **Closed:** CGR-18 (0037:57-75; pgTAP 037), CGR-12 (0038:52-58; pgTAP 038:76-109), CGR-04 (0038; pgTAP 038:127-203; thresholds PROVISIONAL, D-28). CGR-05 and CGR-06 (0039, pgTAP 039; merged as `c987e83`).
