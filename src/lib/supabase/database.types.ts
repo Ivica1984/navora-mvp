@@ -1201,14 +1201,14 @@ isOneToOne: false
                   ]
                 },"visit_status_notes": {
                   Row: {
-                    "actor_id": string,"created_at": string,"id": string,"idempotency_key": string,"kind": string,"note": string | null,"organization_id": string,"reason_code": string | null,"visit_id": string
+                    "actor_id": string,"created_at": string,"id": string,"idempotency_key": string,"kind": string,"note": string | null,"organization_id": string,"reason_code": string | null,"responsible_absent": boolean,"visit_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "actor_id": string,"created_at"?: string,"id"?: string,"idempotency_key": string,"kind": string,"note"?: string | null,"organization_id": string,"reason_code"?: string | null,"visit_id": string
+                    "actor_id": string,"created_at"?: string,"id"?: string,"idempotency_key": string,"kind": string,"note"?: string | null,"organization_id": string,"reason_code"?: string | null,"responsible_absent"?: boolean,"visit_id": string
                   }
                   Update: {
-                    "actor_id"?: string,"created_at"?: string,"id"?: string,"idempotency_key"?: string,"kind"?: string,"note"?: string | null,"organization_id"?: string,"reason_code"?: string | null,"visit_id"?: string
+                    "actor_id"?: string,"created_at"?: string,"id"?: string,"idempotency_key"?: string,"kind"?: string,"note"?: string | null,"organization_id"?: string,"reason_code"?: string | null,"responsible_absent"?: boolean,"visit_id"?: string
                   }
                   Relationships: [
                     {
@@ -1437,7 +1437,7 @@ isOneToOne: false
                            },
 "field_visit_status_notes":
 { Args: { "p_date": string }; Returns: {
-              "actor_kind": string,"actor_name": string,"actor_qualification": string,"actor_role": string,"created_at": string,"kind": string,"note": string,"reason_code": string,"visit_id": string
+              "actor_kind": string,"actor_name": string,"actor_qualification": string,"actor_role": string,"created_at": string,"kind": string,"note": string,"reason_code": string,"responsible_absent": boolean,"visit_id": string
             }[]
                            },
 "field_visits":

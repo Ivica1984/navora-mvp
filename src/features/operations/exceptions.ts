@@ -1,6 +1,8 @@
 // OPS1 exception center — pure helpers (ADR-002). Exceptions themselves are derived in the
 // database (public.operations_exceptions, migration 0019); this only formats and groups them.
 
+import { RESPONSIBLE_ABSENT_NOTE } from "@/features/lifecycle/rules";
+
 export type ExceptionLike = {
   priority: string;
   since: string;
@@ -72,6 +74,8 @@ export function parseComments(raw: unknown): Comment[] {
 // stored). Fixed labels only; NAVORA stores no reason for an absence, so none can be shown.
 export const ALERT_FLAG_LABEL: Record<string, string> = {
   responsible_absent: "Zuständige Person abwesend gemeldet",
+  // CSR1 / CGR-34 (migration 0054): stored on the cancellation of a flagged past visit, shown on a late team cancellation.
+  not_done_responsible_absent: RESPONSIBLE_ABSENT_NOTE,
 };
 
 /** Labels for the known flags of one alert, each once, in the order given; unknown flags are not shown. */
