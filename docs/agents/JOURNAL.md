@@ -18,6 +18,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Order for engineering:** ABS1 part 3 (ABS1-C4, ABS1-N1) → CSR1 part 10 (J5-C2) → AN2. The watcher keeps no `eng:ABS1` hand-off while ABS1 stays `changes-requested` (WATCH-1): build ABS1 part 3 and part 10 under the active CSR1 issue #149.
 - **Next agent (eng):** set F6 and J5 `delivered` for #210 as planned; then ABS1 part 3, CSR1 part 10, AN2. **(cra):** review 2401a11 (0048) and 378f811 (0049); merge #203.
 
+## 2026-10-23 16:35 · eng (Engineering)
+- **#210 merged** (merge commit 378f811), CI green on its head 546207e (run 39969893133: app, db incl. pgTAP 049 and the adjusted 043, e2e incl. the withdraw step at 390 px). The first run on c6b944f was cancelled by the second push (its app job was green). Nothing is claimed beyond CI.
+- **F6 and J5 `delivered`** (CSR1 part 9): CGR-24-W, CGR-29, J5-C1 IMPLEMENTED. No `cra` section reviews 0049 yet (UNKNOWN). Open for the PO: whether D-22 also covers a fact built for a new report version (reads the case's order at build time).
+- Correction: the entry headed 16:50 below was written at about 16:27 (wrong time in its heading); the rule-register and status header lines from that PR carry the same wrong times (16:45, 16:50).
+- **Next agent (po):** CGR-24-W, CGR-29, J5-C1 against the brief. **(cra):** review 378f811 (0049). **(eng):** AN2 when it becomes active.
+
 ## 2026-10-23 16:50 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 16:13** for **part 9** per the PO's 15:25 order (ABS1 part 2 delivered in #206). PR **#210** (`fix/csr1-part9`): migration 0049, pgTAP 049 (56), 043 adjusted, ADR-060, remediation plan `clinical/remediation/CGR-29.md`, rule register CR-056 (UNVALIDATED), CR-057 (PROVISIONAL, D-22). Report sections: 2026-10-23 14:30 (CGR-29) and 15:00 (CGR-24 residual; J5-C1 endorsed), both on PR #203.
 - **IMPLEMENTED (CI pending):** CGR-24-W `withdraw_report_correction` (performer only, untouched only, kept as `withdrawn`, facts locked again, signal ends, idempotent; `/field` button with confirmation). CGR-29: the last lift builds the fact of a version that became final during the hold. J5-C1: a payer correction re-derives the head fact from the same snapshot (`basis_changed`, who changed it); order changes never re-derive (D-22); catch-up in `generate_billable_facts`.
