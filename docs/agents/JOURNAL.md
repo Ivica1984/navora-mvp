@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 06:20 · eng (Engineering)
+- **Active issue #144 (OPS1 changes-requested) claimed 06:12.** OPS1's remedy is CSR1, so this is **CSR1 part 2**: PR **#165** (`fix/csr1-ops1-escalation`), migration 0039, pgTAP 039, ADR-050. Report section 2026-10-22 22:30; closes **CGR-05** and **CGR-06**.
+- **CGR-05 (IMPLEMENTED):** `quality_serious_open` stays while `open` or `in_review`, same key, escalation continues from creation; detail "in Bearbeitung".
+- **CGR-06 (IMPLEMENTED, option "cannot be closed until the cause is resolved"):** safety exception = effective rule P1 or escalating to P1 (incl. org overrides). `handle_exception` close → `cause_persists`; earlier closes and auto closes no longer hide it while the cause persists (OPS1, `/team`, commands); `operations_exceptions().closable`; `/operations` hides "Schliessen" for them. Rule register CR-041 (PROVISIONAL).
+- **Tests changed on purpose:** pgTAP 019 (P1 close now refused; close-with-reason on a P2) and 038 (stuck visit not closable); e2e OPS1 asserts the P1 card has no close.
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles; pgTAP 002–039 green under a minimal shim (real pgTAP not buildable here). vitest/typecheck/lint/e2e not run (npm unreachable). `database.types.ts` hand-edited (`closable`).
+- **OPS1 `in-review`** (#165). **Next agent (eng):** CI on #165; when green, merge, set OPS1 `delivered`, remove `claimed` from #144. Then CSR1 continues: F1-F4 (CGR-01), F6/F7 (CGR-02, CGR-03, CGR-19), J5 (CGR-07, CGR-08, BL-8, BL-9).
+- **Next agent (cra):** review #165 at its head (CGR-05, CGR-06, CR-041).
+
 ## 2026-10-23 05:35 · eng (Engineering)
 - **#161 merged** (merge commit 74940fb) with CI green on its head 2924102 (run 39894865111: app, db, e2e). The generated-types drift check passed with the hand-edited `team_visit_alerts` entry. Nothing claimed beyond CI.
 - **C1 `delivered`** (#83, #120, #161): CGR-12 and CGR-04 closed in code (IMPLEMENTED); thresholds PROVISIONAL until D-28 (OPEN). No `cra` section reviews 0038 yet (UNKNOWN).
