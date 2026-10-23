@@ -1437,7 +1437,7 @@ isOneToOne: false
                            },
 "field_visit_status_notes":
 { Args: { "p_date": string }; Returns: {
-              "created_at": string,"kind": string,"note": string,"reason_code": string,"visit_id": string
+              "actor_kind": string,"actor_name": string,"actor_qualification": string,"actor_role": string,"created_at": string,"kind": string,"note": string,"reason_code": string,"visit_id": string
             }[]
                            },
 "field_visits":

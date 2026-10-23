@@ -3,12 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { recordQualityEvent, setQualityEventStatus, setQualityHold } from "@/features/quality/commands";
-import { EVENT_STATUS_LABEL, NO_TYPES_NOTICE, SEVERITIES, SEVERITY_LABEL, isSerious } from "@/features/quality/rules";
+import { EVENT_STATUS_LABEL, HOLD_MEANING, NO_TYPES_NOTICE, SEVERITIES, SEVERITY_LABEL, isSerious } from "@/features/quality/rules";
 import type { FieldQuality, QualityEventType } from "@/features/quality/queries";
 
 /**
  * QG1 on the /field card: events and holds of this visit, report an event (clinically approved
  * types only, D-16), and set a quality hold with a reason. Lifting a hold is for coach/admin.
+ * CSR1 / CGR-13: the hold is labelled "Abrechnungssperre" (billing hold), so nobody reads it as a stop of care.
  */
 export default function QualitySection({
   visitId,
@@ -45,11 +46,16 @@ export default function QualitySection({
         <h3 className="font-bold">Qualität</h3>
         {openHold && (
           <span data-testid="quality-hold" className="rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-900">
-            Qualitäts-Stopp
+            Abrechnungssperre
           </span>
         )}
       </div>
-      {openHold && <p className="text-xs text-rose-900">Stopp: {openHold.label} · nicht abrechenbar, bis Coach oder Admin ihn aufhebt.</p>}
+      {openHold && (
+        // CSR1 / CGR-13 (until D-16): a hold blocks billing only; it is never shown as a stop of care.
+        <p className="text-xs text-rose-900" data-testid="quality-hold-meaning">
+          Abrechnungssperre: {openHold.label} · {HOLD_MEANING} Aufheben: Coach oder Admin.
+        </p>
+      )}
 
       {events.length > 0 && (
         <ul className="grid gap-1" aria-label="Qualitätsereignisse">
@@ -74,7 +80,7 @@ export default function QualitySection({
           </button>
           {!openHold && (
             <button type="button" onClick={() => setMode("hold")} className="min-h-11 rounded-lg border border-rose-400 bg-white font-semibold text-rose-900">
-              Qualitäts-Stopp setzen
+              Abrechnungssperre setzen
             </button>
           )}
         </div>
@@ -135,11 +141,11 @@ export default function QualitySection({
           className="grid gap-2"
         >
           <label className="grid gap-1">
-            <span className="text-xs font-semibold">Begründung für den Stopp</span>
+            <span className="text-xs font-semibold">Begründung für die Abrechnungssperre</span>
             <textarea name="reason" required minLength={3} maxLength={500} rows={2} className="rounded-lg border border-stone-300 bg-white p-2" />
           </label>
-          <FormButtons pending={pending} label="Stopp setzen" onCancel={() => setMode("idle")} />
-          <p className="text-xs text-emerald-900/60">Ein Einsatz im Qualitäts-Stopp wird nicht abgerechnet, bis Coach oder Admin ihn mit Begründung aufhebt.</p>
+          <FormButtons pending={pending} label="Sperre setzen" onCancel={() => setMode("idle")} />
+          <p className="text-xs text-emerald-900/60">{HOLD_MEANING} Aufheben: Coach oder Admin, mit Begründung.</p>
         </form>
       )}
     </section>

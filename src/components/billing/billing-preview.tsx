@@ -31,7 +31,7 @@ export default function BillingPreview({ rows, month }: { rows: BillingPreviewRo
         <div>
           <h2 className="text-lg font-bold">Abrechnungsvorschau {month.slice(0, 7)}</h2>
           <p className="text-sm font-semibold text-amber-800" data-testid="estimate-label">
-            Schätzung – keine Rechnung. Nur abgeschlossene, unterschriebene Einsätze ohne Qualitäts-Stopp zählen.
+            Schätzung – keine Rechnung. Nur abgeschlossene, unterschriebene Einsätze ohne Abrechnungssperre zählen.
           </p>
         </div>
         <button type="button" onClick={generate} disabled={pending}

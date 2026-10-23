@@ -1,5 +1,8 @@
 // C1 — case and visit lifecycle: reason lists and labels (mirror the database checks, migration 0024).
 
+import { ROLE_LABEL } from "@/features/admin/rules";
+import { QUALIFICATION_LABEL } from "@/features/team/rules";
+
 export const PAUSE_REASONS = ["hospital_stay", "rehabilitation", "client_absence", "other"] as const;
 export const CLOSE_REASONS = ["goal_reached", "moved_inpatient", "moved_away", "declined", "died", "other"] as const;
 export const CANCEL_REASONS = ["client_cancelled", "client_in_hospital", "team_cancelled", "other"] as const;
@@ -74,4 +77,39 @@ export function followupOf<T extends { kind: string }>(notes: readonly T[]): T |
 /** CSR1 / CGR-25: an interrupted visit without a follow-up decision still waits for a person. */
 export function needsFollowup(status: string | null, notes: readonly { kind: string }[]): boolean {
   return status === "interrupted" && !followupOf(notes);
+}
+
+/** CSR1 / CGR-26 (migration 0047): who recorded a status note, as the database labels it (never a user id). */
+export type NoteActor = {
+  actor_kind: string | null;
+  actor_name: string | null;
+  actor_qualification: string | null;
+  actor_role: string | null;
+};
+
+/** "Ich", "Anna – Pflegeassistenz", "Teammitglied – Pflegefachperson", "Operations", "nicht mehr im Team". */
+export function recordedByLabel(a: NoteActor): string {
+  const name = a.actor_name?.trim() || null;
+  switch (a.actor_kind) {
+    case "me":
+      return "Ich";
+    case "team": {
+      const who = name ?? "Teammitglied";
+      const qualification = a.actor_qualification ? QUALIFICATION_LABEL[a.actor_qualification] ?? a.actor_qualification : null;
+      return qualification ? `${who} – ${qualification}` : who;
+    }
+    case "coordination": {
+      const role = a.actor_role ? ROLE_LABEL[a.actor_role] ?? a.actor_role : "Koordination";
+      return name ? `${name} (${role})` : role;
+    }
+    case "former":
+      return "nicht mehr im Team";
+    default:
+      return "unbekannt";
+  }
+}
+
+/** CSR1 / CGR-26: an end recorded by someone other than the reader is shown prominently. */
+export function recordedBySomeoneElse(a: NoteActor): boolean {
+  return a.actor_kind !== "me";
 }

@@ -86,7 +86,7 @@ export async function setQualityHold(input: unknown): Promise<CommandResult> {
     return { ok: false, error: error.code === "22023" ? INVALID : FAILED };
   }
   if (data === "ok" || data === "duplicate") return done();
-  if (data === "already_held") return { ok: false, error: "Für diesen Einsatz besteht bereits ein Qualitäts-Stopp." };
+  if (data === "already_held") return { ok: false, error: "Für diesen Einsatz besteht bereits eine Abrechnungssperre." };
   return { ok: false, error: "Nicht gespeichert: Du gehörst nicht zum zuständigen Team." };
 }
 

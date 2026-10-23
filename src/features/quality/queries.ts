@@ -40,7 +40,7 @@ export async function getOpenHolds(): Promise<OpenHold[]> {
     .order("set_at", { ascending: true });
   if (error) {
     logEvent("error", "quality.holds_load_failed", errorFields(error));
-    throw new Error("Qualitäts-Stopps konnten nicht geladen werden.");
+    throw new Error("Abrechnungssperren konnten nicht geladen werden.");
   }
   return data ?? [];
 }

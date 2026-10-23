@@ -149,7 +149,7 @@ export default function TeamClient({
 }
 
 // CSR1 / CGR-04: a visit that did not happen, or is stuck, stays visible to the whole team until it moves on or a
-// person closes it. CSR1 / CGR-25: a visit ended as not completed stays until someone records the follow-up decision. Thresholds are PROVISIONAL (D-28, clinical); no clinical instruction is given here.
+// person closes it. CSR1 / CGR-25: a visit ended as not completed stays until someone records the follow-up decision. CSR1 / CGR-24: a report correction not final after the report_not_final threshold stays until it is final. Thresholds are PROVISIONAL (D-28, clinical); no clinical instruction is given here.
 function VisitAlerts({ alerts }: { alerts: TeamVisitAlert[] }) {
   if (alerts.length === 0) return null;
   return (
@@ -172,7 +172,7 @@ function VisitAlerts({ alerts }: { alerts: TeamVisitAlert[] }) {
         ))}
       </ul>
       <p className="text-xs text-rose-900/80">
-        Erledigt sich, sobald der Einsatz weitergeht, abgesagt oder als «nicht angetroffen» erfasst ist; ein nicht abgeschlossener Einsatz, sobald jemand über die noch fällige Pflege entschieden hat. Schwellen und Regeln provisorisch (klinische Entscheidungen offen).
+        Erledigt sich, sobald der Einsatz weitergeht, abgesagt oder als «nicht angetroffen» erfasst ist; ein nicht abgeschlossener Einsatz, sobald jemand über die noch fällige Pflege entschieden hat; eine offene Berichtskorrektur, sobald sie unterschrieben und, falls nötig, gegengezeichnet ist. Schwellen und Regeln provisorisch (klinische Entscheidungen offen).
       </p>
     </section>
   );
