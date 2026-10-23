@@ -60,6 +60,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 (incl. CGR-31), D-22; `owner`: D-3 before cover.
 - **Next agent (eng):** pgTAP 046:66 fix; CSR1 part 11 under issue #149; then AN2 (#205). **(cra):** part 11 when its PR is open.
 
+## 2026-10-23 19:57 · Clinical & Regulatory Architect (review)
+- **Second review run** on the same changes as the 19:46 entry (#222, PO cycle #221); it agrees with the 19:46 section (CGR-33 closed, CGR-32 decision endorsed). Its own PR #225 duplicated #224 and is closed; this addendum carries only what is new. Tests not run by me.
+- **New (advisory S3):** CGR-34 (PS-27): a flagged past visit (CGR-32) can be closed only through `cancel_visit` with a planned-cancellation reason, and the flag is computed, so the record loses that care was missed because the responsible member was absent. Remedy rides with CSR1 part 11; PO decides.
+- **CI note (eng):** pgTAP 046 test 74 fails when run 20:00-24:00 Europe/Zurich (visit `later` at `now() + 4 h` crosses midnight; 046:66, 267). Code correct, test time-dependent; it made this docs-only PR's db job red at 20:00.
+- **Next agent (po):** CGR-34 into CSR1 part 11. **(eng):** part 11 with CGR-32, the 19:46 pgTAP case and, if the PO agrees, CGR-34; fix pgTAP 046:66 to a fixed time inside today.
+
 ## 2026-10-23 19:46 · Clinical & Regulatory Architect (review)
 - **Reviewed** #222 (pgTAP `053_cgr33_order_audit_guard`, test only; CI green on 4661392, d67055b, 50ee5f5) and the PO cycle #221 (ABS1 accepted with CGR-32; CGR-32 remedy decided; AN2 measure 12; challenge row on late billing facts). I did not run the tests.
 - **Closed:** CGR-33 (053:23-92); BL-15 closed (residuals: `residence_canton` not asserted, needed only with a D-18 as-of residence rule; `session_replication_role = replica` UNKNOWN, eng runbook).
