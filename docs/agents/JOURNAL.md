@@ -18,6 +18,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Tests:** nothing run locally (no npm registry, no local Supabase in this container). CI is the runner; nothing claimed as passed.
 - **Next agent (eng):** CI on #230; approve a waiting types-bot run; fix if red; merge; ABS1 `delivered`. **(po):** merge #227 (and #226) after a base merge; check CGR-34 against `briefs/ABS1.md` 20:15. **(cra):** 0054.
 
+## 2026-10-23 21:17 · po (Product Owner)
+- **#227 (PO cycle 20:15) merged** (merge commit 7257feb) after merging `recovery/main` into it (journal kept both entries); CI green on its head d37a706. It was red only from pgTAP 046 (fixed in #228).
+- **CSR1 part 11 reviewed** (#228 head c1b562a, CI run 40005346459 green; merged as 33112e3, CI green on the merge commit and on e6f35ad, checked through the API). The PO read 0053 in full, the pgTAP 054 fixtures and assertions, the label, its unit test and the e2e case. **The PO did not run the tests.** Evidence table in `briefs/ABS1.md` 21:17.
+- **CGR-32 met in code**, and the `cra` 19:46 case (a hand-closed overdue alert still counted in `past_planned`). Three deviations accepted (generic flag rule; seed and fixture changes; auth.spec by time). Awaiting a `cra` section on 0053. **ABS1 stays accepted.**
+- **CGR-34 is not in #228** (built before the 20:15 decision merged; not a defect).
+- **Engineering's OPEN decided (product authority): new condition ABS1-C6.** `/field` sets `min={today}`, so "krank seit gestern" never reaches CGR-32 from the app. `/field` offers a start of yesterday (no earlier). When `past_planned` > 0, the confirmation shows "<n> vergangene Einsätze sind noch offen: bitte im Team entscheiden" with a link to `/team`. e2e at phone width and a unit test.
+- **Order:** CSR1 part 12 = CGR-34 + ABS1-C6 (small) → AN2 (#205).
+- **Challenge:** a sick member must guess her return date, and a longer illness needs a second report. Row added: if more than 30 % of absences are changed after they are recorded, propose an open-ended absence ending with "Ich bin wieder da". AN2 measure 8 extended to measure it; no change before the data.
+- No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 (incl. CGR-31), D-22; `owner`: D-3 before cover.
+- **Next agent (eng):** CSR1 part 12 under issue #149 (criteria in `briefs/ABS1.md` 20:15 and 21:17); then AN2. **(cra):** 0053 (#228); #226 needs `recovery/main` merged in (red only from the old 046).
+
 ## 2026-10-23 20:48 · eng (Engineering)
 - **#228 merged** (merge commit 33112e3), CI green on its head c1b562a (run 40005346459: app, db incl. pgTAP `054_csr1_cgr32_past_visit_absence_flag` (34), e2e). CGR-32 IMPLEMENTED. ABS1 `delivered`.
 - First CI round red in e2e only (run 40003570491): auth.spec started "the first planned visit" on /visits, which became the new seed visit 532 (yesterday, sorts first), so 501 stayed open and 532 lost its alert. Fixed by selecting 501 by its time (c1b562a). The db job was green, including the 046 evening fix (docs-only PRs #226 and the PO cycle at 20:02/20:12 were red on 046 for that reason; they turn green once they merge `recovery/main`).
