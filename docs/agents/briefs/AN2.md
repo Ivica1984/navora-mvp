@@ -8,6 +8,10 @@ updated: 2026-10-23
 
 # AN2 — Pilot hypotheses measured from events, not tallied
 
+## PO update — 2026-10-23 23:15: AN2 is next; CGR-35 and ABS1-C7 ride with it; measure 8 extended
+
+CSR1 is complete (`briefs/CSR1.md` 23:15), so AN2 is the active capability. **First change, before or inside AN2's first PR (engineering decides the split):** CGR-35 (a flagged past visit moved forward stores `responsible_absent` on its `moved` row) and ABS1-C7 (singular confirmation text), criteria (1)-(5) in `briefs/ABS1.md` 23:15. Measure 8 reads CGR-35's column; without it, moved flagged visits would be undercounted (`cra` 22:30). **Precondition:** CI on `recovery/main` is red since 62609af (`npm audit`: `zod` < 4.6.6, GHSA-mrhx-c7xc-m3w5, high, runtime dependency); engineering fixes that first, since no PR can merge on a red app job. The PO did not run any test.
+
 ## Problem
 The challenge table in `NEXT_CAPABILITY.md` holds about a dozen hypotheses that decide whether a coordination or administration step can disappear: does Operations still need to see uncovered visits once teams take them; are correction rounds mostly late-typed times; is "Folgeeinsatz geplant" followed by a planned visit; do nurses give away single visits by phone; do coordinators end visits that are in progress. Each one names a measure, and today nobody computes any of them. The pilot would answer them with hand tallies and a monthly compilation by a coach or Operations. That is the administration NAVORA is meant to remove, applied to NAVORA's own learning. Every one of these counts is already in NAVORA's events (field events, report versions, exceptions and their handling, absences, plan changes, billing facts).
 
@@ -33,7 +37,7 @@ Teams (their own figures, for their monthly self-review), the coach and the orga
   5. **Correction rounds:** report correction versions per 100 signed reports; median minutes from the signature to the correction version; share of correction versions whose snapshot hash equals the previous version's (signed again with no change).
   6. **Open corrections:** `report_correction_open` signals in the period, median hours open, and the share ended by withdrawal (CSR1 CGR-24-W) versus signature.
   7. **Not-billable facts:** J5 facts not billable per reason, and median days until a later fact of the same visit is billable.
-  8. **Absences:** absences recorded per 100 planned visits; share recorded by a colleague; share of those later withdrawn by the member herself; **(PO 2026-10-23 21:17, challenge row "guessed return date")** share of absences shortened, withdrawn, or followed by an adjacent or overlapping new absence of the same member within 48 h; share of absences recorded with a start of yesterday (ABS1-C6); **(PO 2026-10-23 20:15)** past planned visits flagged `responsible_absent` (CGR-32) per 100 absences, and how they ended: started late, cancelled (with the stored CGR-34 mark), or still open at the end of the period.
+  8. **Absences:** absences recorded per 100 planned visits; share recorded by a colleague; share of those later withdrawn by the member herself; **(PO 2026-10-23 21:17, challenge row "guessed return date")** share of absences shortened, withdrawn, or followed by an adjacent or overlapping new absence of the same member within 48 h; share of absences recorded with a start of yesterday (ABS1-C6); **(PO 2026-10-23 20:15)** past planned visits flagged `responsible_absent` (CGR-32) per 100 absences, and how they ended: started late, cancelled (with the stored CGR-34 mark), or still open at the end of the period; **(PO 2026-10-23 23:15, CGR-35, ABS1-C6)** flagged past visits that were moved (`moved` rows with `responsible_absent = true`) as a fourth ending, and absences whose start is earlier than the day before they were recorded (the form offers yesterday only; such starts come from the command path).
   9. **Long or fragmented visits (CGR-23):** visits with more than two pause/resume cycles, and visits open longer than planned plus the P1 threshold.
   10. **How exceptions end:** for `visit_overdue` and `visit_stuck`, share ended by a visit command (start, cancel, not completed, complete) versus closed by hand in OPS1.
   11. **Quality holds:** median hours from hold to lift.
@@ -51,7 +55,7 @@ Teams (their own figures, for their monthly self-review), the coach and the orga
 - The North Star (direct care share) itself: it waits for recorded working time (D-23).
 
 ## Dependencies
-- Reads the events of ABS1 part 2 and CSR1 part 9; starts after both are delivered (Next up 2, after CSR1).
+- Reads the events of ABS1 part 2 and CSR1 part 9; starts after both are delivered (Next up 2, after CSR1). **2026-10-23 23:15:** both delivered and CSR1 complete; AN2 is Next up 1, with CGR-35 and ABS1-C7 as its first change.
 - AN1 (accepted; its suppression condition must be met in the same or an earlier PR that touches `pilot_kpis`).
 - No open decision blocks it: it stores nothing new about people and processes no health data.
 

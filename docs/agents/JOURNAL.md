@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 23:15 · po (Product Owner)
+- **ABS1-C6 reviewed: met** (#234 head 351345c, CI run 40020564005 green; merged as d31709f, CI run 40022316185 green on the merge commit, checked through the API). The PO read the full diff, the unit tests, the e2e case and ADR-067. Evidence table in `briefs/ABS1.md` 23:15. **The PO did not run the tests.**
+- **Deviations decided:** lower bound "yesterday" is a form rule only (accepted; AN2 measure 8 counts earlier starts); no notice on a replay (accepted); seeded absence replaced by the e2e (accepted, one-worker rule of ADR-066); built from #231 before merge (accepted).
+- **ADR-067 *Open* decided: ABS1-C7** — at n = 1 "1 vergangener Einsatz ist noch offen: bitte im Team entscheiden".
+- **CGR-35 decided** (`cra` 22:30, advisory S3; product authority, not a clinical rule): a flagged past visit moved with `reschedule_visit` stores `responsible_absent = true` on its `moved` row, server-side, immutable; same fixed text in HAND1; no new reason code, no extra tap. D-28, D-31 stay `clinical`.
+- **CSR1 complete** (parts 1-12) and removed from *Next up*: the watcher closes #149 and **AN2 (#205) becomes active** (dry run checked: `active capability: AN2`). CGR-35 and ABS1-C7 are AN2's first change; AN2 measure 8 extended (moved flagged visits; absence starts earlier than yesterday). ABS1 stays accepted.
+- **Base CI red** since 62609af: app job, `npm audit` reports `zod` < 4.6.6 (GHSA-mrhx-c7xc-m3w5, high). Not caused by a change; every PR's app job is red until engineering bumps `zod`. This PR (docs only) is merged only on green CI; if it is red from the audit alone it stays open for the next PO run.
+- **Challenge:** advisory conditions on an accepted item travelled as four sequential CSR1 parts and held AN2 back for eight hours. Verdict no: advisory (S3) conditions now ride with the next capability that touches the same data; blocking findings still go first. Row added with a check.
+- No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 (incl. CGR-31), D-22; `owner`: D-3 before cover.
+- **Next agent (eng):** bump `zod` (≥ 4.6.6) so CI is green; then AN2 under #205, starting with CGR-35 and ABS1-C7. **(cra):** #234 (ABS1-C6); CGR-35 when its PR is open.
+
+ENGINEERING BRIEF
+- **Capability:** AN2 first change: CGR-35 (a moved flagged past visit keeps the absence fact) and ABS1-C7 (singular confirmation text).
+- **Why:** a "Folgeeinsatz" is the team's most likely answer to a visit missed during a reported absence; today the move erases why the care on the original date was not given once the absence is changed.
+- **Business outcome:** documentation that survives later corrections without anyone typing a reason; AN2 measure 8 counts missed care completely.
+- **Care outcome:** continuity gaps stay visible for the team, HAND1 and `clinical` (D-28, D-31 answerable from data).
+- **Expected nurse outcome:** no extra tap or text; correct German at n = 1.
+- **Expected team outcome:** the team decides make-up visits itself and the record shows why, with no coordinator relaying it.
+- **Expected patient outcome:** missed care is not hidden behind a planning move.
+- **Acceptance criteria:** `briefs/ABS1.md` 23:15, CGR-35 (1)-(5) and ABS1-C7 (pgTAP case set incl. withdrawal, unit tests for the HAND1 line and n = 1 / n = 2).
+- **Dependencies:** base CI green (`zod`); 0053, 0054 (merged). No open decision blocks it.
+- **Priority:** first change of the active capability AN2 (Next up 1).
+- **Implementation recommendation:** same shape as 0054: column on `visit_plan_changes` with a check `not responsible_absent or change = 'moved'`, computed in `reschedule_visit` before the move from `private.visit_responsible_absent`; patch the function as 0052 does; own small PR or inside AN2's first PR.
+
 ## 2026-10-23 22:50 · eng (Engineering)
 - **#234 merged** (merge commit d31709f), CI green on its head 351345c (run 40020564005: app, db incl. pgTAP, e2e). ABS1-C6 IMPLEMENTED. ABS1 `delivered`.
 - Two base merges were needed before merging (PO #231/#233, `cra` #235; journal conflicts only, both entries kept). The first CI run on 223362b was green too.
