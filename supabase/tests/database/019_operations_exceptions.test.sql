@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(32);
+select plan(34);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -111,11 +111,17 @@ select is(public.handle_exception('quality_serious_open:00000000-0000-4000-a000-
           'a9000000-0000-4000-8000-000000000022'), 'ok', 'Operations comments');
 select throws_ok($$ select public.handle_exception('quality_serious_open:00000000-0000-4000-a000-000000000701', 'close', null,
           'a9000000-0000-4000-8000-000000000023') $$, '22023', null, 'closing needs a reason');
+-- CSR1 / CGR-06 (migration 0039): a safety exception (P1 or escalating to P1) is not closed by hand; it stays.
 select is(public.handle_exception('quality_serious_open:00000000-0000-4000-a000-000000000701', 'close', 'Mit Team geklärt',
-          'a9000000-0000-4000-8000-000000000024'), 'ok', 'Operations closes with a reason');
-select is((select count(*)::int from public.operations_exceptions() where exception_type = 'quality_serious_open' and entity_id = '00000000-0000-4000-a000-000000000701'), 0,
+          'a9000000-0000-4000-8000-000000000024'), 'cause_persists', 'a serious quality event is not closed by hand (CGR-06)');
+select is((select count(*)::int from public.operations_exceptions() where exception_type = 'quality_serious_open' and entity_id = '00000000-0000-4000-a000-000000000701'), 1,
+  'the safety exception stays in the list while its cause persists');
+-- A continuity exception without escalation (P2) still closes with a reason.
+select is(public.handle_exception((select exception_key from public.operations_exceptions() where exception_type = 'candidates_exhausted' and case_label like '%OPS1N%'),
+          'close', 'Mit zuweisender Stelle geklärt', 'a9000000-0000-4000-8000-000000000026'), 'ok', 'Operations closes a P2 exception with a reason');
+select is((select count(*)::int from public.operations_exceptions() where exception_type = 'candidates_exhausted' and case_label like '%OPS1N%'), 0,
   'a closed exception leaves the list');
-select is(public.handle_exception('quality_serious_open:00000000-0000-4000-a000-000000000701', 'comment', 'zu spät',
+select is(public.handle_exception((select exception_key from public.exception_events where text = 'Mit zuweisender Stelle geklärt'), 'comment', 'zu spät',
           'a9000000-0000-4000-8000-000000000025'), 'rejected', 'a closed exception takes no more handling');
 
 -- Auto close when the cause is fixed: the team signs the report

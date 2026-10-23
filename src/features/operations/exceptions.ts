@@ -8,6 +8,8 @@ export type ExceptionLike = {
   taken_by_me: boolean;
   /** ADM1: display name of whoever took it over (null without a profile). */
   owner_name?: string | null;
+  /** CSR1 / CGR-06: false for safety exceptions (P1 or escalating to P1); they close only with their cause. */
+  closable?: boolean | null;
 };
 
 export const PRIORITY_LABEL: Record<string, string> = {
@@ -39,6 +41,17 @@ export function handlerLabel(item: ExceptionLike): string {
   if (item.taken_by_me) return "von dir übernommen";
   return item.owner_name ? `von ${item.owner_name} übernommen` : "von Operations übernommen";
 }
+
+/**
+ * CSR1 / CGR-06: whether a person may close it. Only an explicit `true` from the database allows it, so a
+ * missing value never offers a close for a safety exception.
+ */
+export function canClose(item: Pick<ExceptionLike, "closable">): boolean {
+  return item.closable === true;
+}
+
+export const CLOSES_WITH_CAUSE =
+  "Sicherheitsausnahme: schliesst automatisch, sobald die Ursache behoben ist (z. B. Ergebnis erfasst, Einsatz begonnen, Ereignis abgeschlossen).";
 
 export type Comment = { text: string; at: string; mine: boolean };
 

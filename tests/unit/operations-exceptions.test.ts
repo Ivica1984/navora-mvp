@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
+import { canClose, countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
 
 const NOW = Date.parse("2026-10-21T20:00:00Z");
 
@@ -22,6 +22,13 @@ describe("OPS1 exception helpers", () => {
     expect(handlerLabel({ priority: "P1", since: "", taken: true, taken_by_me: true })).toBe("von dir übernommen");
     expect(handlerLabel({ priority: "P1", since: "", taken: true, taken_by_me: false })).toBe("von Operations übernommen");
     expect(handlerLabel({ priority: "P1", since: "", taken: true, taken_by_me: false, owner_name: "Olga Ops" })).toBe("von Olga Ops übernommen");
+  });
+
+  it("offers a close only when the database says the exception is closable (CSR1 / CGR-06)", () => {
+    expect(canClose({ closable: true })).toBe(true);
+    expect(canClose({ closable: false })).toBe(false);
+    expect(canClose({ closable: null })).toBe(false);
+    expect(canClose({})).toBe(false);
   });
 
   it("parses comments defensively", () => {

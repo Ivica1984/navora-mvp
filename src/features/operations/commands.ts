@@ -1,6 +1,7 @@
 "use server";
 
 // OPS1: take over, comment, close (reason required) — audited in exception_events (migration 0019).
+// Safety exceptions (P1 or escalating to P1) are not closed by hand: `cause_persists` (CSR1 / CGR-06, migration 0039).
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -20,6 +21,9 @@ const schema = z
 const MESSAGES = {
   invalid: "Bitte einen Text eingeben (mind. 3 Zeichen). Schliessen braucht eine Begründung.",
   rejected: "Nicht gespeichert: Die Ausnahme ist bereits geschlossen oder nicht mehr aktuell.",
+  // CSR1 / CGR-06 (migration 0039): a safety exception closes only when its cause is resolved.
+  cause_persists:
+    "Nicht geschlossen: Sicherheitsausnahmen schliessen erst, wenn die Ursache behoben ist. Übernehmen und Notizen sind möglich.",
   failed: "Konnte nicht gespeichert werden.",
 };
 
@@ -41,5 +45,6 @@ export async function handleException(input: unknown): Promise<CommandResult> {
     revalidatePath("/operations");
     return { ok: true };
   }
+  if (data === "cause_persists") return { ok: false, error: MESSAGES.cause_persists };
   return { ok: false, error: data === "rejected" ? MESSAGES.rejected : MESSAGES.failed };
 }

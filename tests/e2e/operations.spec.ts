@@ -14,7 +14,7 @@ async function signIn(page: Page, email: string, landing: RegExp) {
   await page.waitForURL(landing);
 }
 
-test("Operations takes over, comments and closes a derived exception with a reason (OPS1)", async ({ page }) => {
+test("Operations takes over and comments a derived exception; a safety exception has no close (OPS1, CGR-06)", async ({ page }) => {
   await signIn(page, OPS, /\/operations$/);
   const center = page.getByRole("region", { name: "Ausnahmen" });
   await expect(center).toBeVisible();
@@ -32,11 +32,11 @@ test("Operations takes over, comments and closes a derived exception with a reas
   await serious.getByRole("button", { name: "Notiz speichern" }).click();
   await expect(serious.getByRole("list", { name: "Notizen" })).toContainText("Rückruf heute");
 
-  // Closing needs a reason (the browser refuses an empty one; the server refuses short ones).
-  await serious.getByRole("button", { name: "Schliessen" }).click();
-  await serious.getByLabel("Begründung (nötig)").fill("Mit Team geklärt, Massnahme eingeleitet");
-  await serious.getByRole("button", { name: "Ausnahme schliessen" }).click();
-  await expect(center.getByTestId("exception").filter({ hasText: "Testereignis hoch" })).toHaveCount(0);
+  // CSR1 / CGR-06: a safety exception has no close; it ends only when its cause is resolved (the event is closed).
+  await expect(serious.getByRole("button", { name: "Schliessen" })).toHaveCount(0);
+  await expect(serious.getByTestId("exception-closes-with-cause")).toContainText("schliesst automatisch");
+  await page.reload();
+  await expect(center.getByTestId("exception").filter({ hasText: "Testereignis hoch" })).toHaveCount(1);
 
   // No dispatch from OPS1: no matching start, no case editing.
   await expect(center.getByRole("button", { name: /Team zuweisen|Matching starten|Fall bearbeiten/ })).toHaveCount(0);
