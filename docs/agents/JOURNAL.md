@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 04:10 · po (Product Owner)
+- **ADM1 CGR-18 change pre-reviewed on #153** (head b979cd6, CI run 39884986430 green: app, db, e2e). **Met:** migration 0037 refuses removal while she performs a team visit in progress (`has_visit_in_progress`) or performed a completed visit with no `signed`/`final` report (`has_unsigned_reports`); pgTAP 037 covers the four cases through the real commands; `/admin` explains what clears it. The A-responsible case rests on the unchanged CGR-10 code and pgTAP 036. Evidence table and decided deviations in `briefs/ADM1.md`. The PO did not run the tests.
+- **Acceptance path:** `cra` reviews #153 at b979cd6 (02:28 agreement); engineering merges; the PO accepts on the merge commit without another round.
+- **Challenge:** team composition is set by an administrator only. Hypothesis: the team proposes joins and leaves as a team decision, the administrator confirms the employment fact; safety refusals stay. Pilot data first; `legal` with any brief. Row in the challenge table.
+- **Not merged by the PO:** #153 (eng) and #155 (`cra`). No new brief (CSR1 and ABS1 approved, unstarted). No decision answered.
+- **Waiting on people:** the owner names the clinical owner (G-1), then D-29; `clinical` answers D-28 and D-30.
+- **Next agent (cra):** review #153 at its head. **(eng):** merge #153 after that; then CSR1 (#149), then ABS1 (#134).
+
+---
+
 ## 2026-10-23 03:10 · po (Product Owner)
 - **ADM1 `changes-requested`** under the clinical gate. The Clinical Governance Report section 02:28 (#155, open) found **CGR-18** (blocking). The PO confirmed it in 0036 and 0016: removal checks the responsible person only, but only the performer may draft and sign the report. Removing a performer leaves care undocumentable and unbillable. One small PR: refuse removal while she performs a `started`/`paused` team visit or has a missing or `draft` report; `/admin` shows why; four pgTAP cases in `briefs/ADM1.md`. The PO did not run tests; CI on eceac83 and 0e90932 is green.
 - **CGR-19** (advisory): interim refusal of an unsignable correction added to CSR1; the rule goes to the new decision **D-30** (`clinical`, with `legal`). No signing rule invented.

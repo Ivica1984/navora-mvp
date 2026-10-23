@@ -8,6 +8,27 @@ updated: 2026-10-23
 
 # ADM1 — Pilot administration: members, qualifications and operating rules
 
+## PO pre-review — 2026-10-23 04:10: #153 head b979cd6 (CI green: app, db, e2e); the CGR-18 change is met
+
+Read from PR #153 (migration 0037 `remove_team_member`, pgTAP 037 with 24 assertions, `src/features/admin/rules.ts`, unit `admin-rules.test.ts`, ADR-046 amendment, `clinical/remediation/CGR-18.md`) and from 0016 (report statuses). **The PO did not run the tests**; results are taken from CI run 39884986430 on b979cd6 and from reading the code.
+
+| Criterion (03:10 change) | Result | Evidence |
+|---|---|---|
+| 1a. refused while she is the performer of a `started`/`paused` team visit | met | 0037: `has_visit_in_progress` when `private.visit_performer(v.id) = p_user_id` and the visit is `on_the_way`, `started` or `paused`, checked before any release. pgTAP 037 (1): B starts A's visit → refused while started and while paused; B stays a member; her own planned visit is not released |
+| 1b. refused while she performed a `completed` team visit whose report is missing or `draft` | met | 0037: `has_unsigned_reports` unless a report is `signed` or `final`. pgTAP 037 (2) no report → refused; (3) draft → refused, nothing released |
+| 3. `signed` (awaiting countersignature) or `final` → allowed | met | pgTAP 037 (4a) care assistant signs → `signed` → removal `ok`, her future visit released, the completed visit untouched; (4b) registered nurse signs → `final` → `ok`. 0016 has no path from `signed` back to `draft`, so a countersigner never needs the removed author |
+| 3. A (responsible, not performer) still handled by CGR-10 | met | the CGR-10 block is unchanged in 0037 (same condition as 0036:107-110); pgTAP 036 still runs green in the db job. No new 037 case for A; the PO accepts the unchanged code plus 036 as evidence |
+| 2. `/admin` shows the reason and what clears it | met | `ADMIN_MESSAGES.has_unsigned_reports`: "… Nur sie kann ihn schreiben und unterschreiben. Erst unterschreiben lassen, dann entfernen."; unit test added |
+| 4. PR names the 02:28 section and CGR-18 | met | PR body and migration header |
+| No regression | met on the PR head | CI green on b979cd6: app (lint, typecheck, unit, audit, build), db (migrations from scratch, pgTAP), e2e |
+
+**Deviations, decided:**
+- A correction draft of a `final` report does not refuse removal (the final version stays in force). **Accepted:** the care is documented; who may sign a correction after she leaves is CGR-19 → CSR1 interim refusal and D-30.
+- Residual race between the check and the commit (membership row locked; drafting, signing and starting need that membership). **Accepted** as low, same as CGR-10.
+- CR-036 in the Clinical Rule Register is left to `cra`. **Agreed:** the register is the Architect's.
+
+**Decision:** status stays `changes-requested` until the two steps code review cannot replace are done. ADM1 is **accepted without another PO round** once (1) #153 is merged with green CI on the merge commit and (2) the `cra` review of #153 at its head (the 02:28 agreement) finds no blocking finding. **Engineering:** #153 is mergeable (`clean`); merge it once `cra` has commented on b979cd6.
+
 ## PO review — 2026-10-23 03:10: changes-requested (clinical gate, CGR-18)
 
 Read from `recovery/main` @ 0e90932 (ADM1 merged as eceac83), the Clinical Governance Report section 2026-10-23 02:28 (PR #155, open) and the code it cites. **The PO did not run the tests**; CI on eceac83 and 0e90932 is green (app, db, e2e).
