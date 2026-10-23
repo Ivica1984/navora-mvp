@@ -18,7 +18,7 @@ Every rule that encodes a clinical, care-organisation, billing or regulatory jud
 | CR-004 | Categories A and C need no medical order; an "inform GP" task is created, never required | 0014:263; `briefs/J1.md:102` | "since 1 July 2024" (PO statement) | PO J1 | D-22 | UNVALIDATED | legal basis to be confirmed |
 | CR-005 | A B visit after the order end date is allowed and flagged; PLAN2 drops B after expiry | 0014:148; 0030:103-107 | – | PO J3/PLAN2 | D-15, D-22 | UNVALIDATED | |
 | CR-006 | Order `present` with no end date counts as valid indefinitely | 0023:114 | – | eng (implicit) | – | UNVALIDATED | CGR-07 |
-| CR-007 | Category B and needs-assessment visits are **started** by a registered nurse | 0024:125-130 | KLV (J3) | PO J3 | D-15 | UNVALIDATED | checked at first start only (CGR-12) |
+| CR-007 | Category B and needs-assessment visits are **started, resumed and completed** by a registered nurse | 0038 §1 (was 0024:125-130) | KLV (J3) | PO J3 | D-15 | UNVALIDATED | every transition into `started` and `completed` since 0038 (CGR-12, eng 2026-10-23; for Architect review) |
 | CR-008 | A case needs a team with a registered nurse when no needs assessment exists yet or an order is present | 0017:301-306 | derived from CR-002/007 | eng J2 | D-15 | UNVALIDATED | |
 | CR-009 | Qualifications: `registered_nurse`, `care_assistant`; a member without a value is `care_assistant` | 0018:118, 145 | – | owner D-5 | D-5, D-15 | UNVALIDATED (clinical) | no registration evidence (CGR-16) |
 | CR-010 | Whether a care assistant may perform category A work (other than the needs assessment) | not addressed | – | – | D-15 | UNVALIDATED | open question, not a rule |
@@ -32,6 +32,9 @@ Every rule that encodes a clinical, care-organisation, billing or regulatory jud
 | CR-018 | A quality hold attaches to one visit and blocks only billing | 0020:92-110; 0022; 0023 | – | eng QG1 | D-16 | UNVALIDATED | CGR-13 |
 | CR-019 | A hold is lifted only by a coach or administrator, with a reason | 0020:281-303 | – | eng QG1 | D-16 | PROVISIONAL | |
 | CR-020 | OPS1 thresholds: serious quality event P2 → P1 after 4 h; uncovered visit 24 h ahead (P1 hospital discharge); report not final 24 h (P3); order expiring 7 days (P3); no-show P1 | 0019:36-47; 0024:443-447 | – | PO Q9 | – | UNVALIDATED | |
+| CR-038 | `visit_overdue`: a planned, not suspended visit not started at its planned start raises P2 at once, P1 one hour later; independent of the responsible person; untimed visits count from 00:00 | 0038 §2-3 | – | eng CSR1 (strict default) | D-28 | PROVISIONAL | listed out of ID order to avoid a merge conflict with #155 |
+| CR-039 | `visit_stuck`: a visit `on_the_way`, `started` or `paused` with no status change for 1 h (started: 1 h after the planned end) raises P2, P1 after 3 h | 0038 §2-3 | – | eng CSR1 (strict default) | D-28 | PROVISIONAL | |
+| CR-040 | The uncovered exception stays after the planned start while the visit is planned and nobody is responsible | 0038 §3 | – | eng CSR1 (PS-2) | D-28 | PROVISIONAL | |
 | CR-021 | Organisations may override thresholds up to 2× the default; P1 cannot be lowered | 0035:526-536 | – | eng D-21 | – | UNVALIDATED | safety thresholds need clinical approval to change |
 | CR-022 | Team response deadlines: hospital discharge 4 working hours, nursing home 1 working day, private 2 working days; working time Mon–Fri 08:00–18:00 | J2 (#36); Q8, Q10 | – | PO | Q8, Q10 | UNVALIDATED | |
 | CR-023 | Handover window: 14 days of handover notes; "since your last visit", else the last 3 completed visits | 0009:172; 0033:24-29 | – | PO | – | UNVALIDATED | display default |

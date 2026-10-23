@@ -93,3 +93,20 @@ export function formatContinuity(row: { visits: number; distinct_nurses: number;
   const share = row.primary_share_pct === null ? "Bezugspflege nicht bestimmt" : `${row.primary_share_pct} % durch Bezugspflege`;
   return `${row.visits} Einsätze · ${row.distinct_nurses} verschiedene Pflegende · ${share}`;
 }
+
+// CSR1 / CGR-04 (migration 0038): overdue and stuck visits of the team. Thresholds are PROVISIONAL (D-28).
+export type VisitAlertLike = { priority: string; since: string; taken: boolean };
+
+const ALERT_RANK: Record<string, number> = { P1: 1, P2: 2, P3: 3 };
+
+/** P1 first, then the oldest; unknown priorities last. Does not mutate the input. */
+export function sortVisitAlerts<T extends VisitAlertLike>(alerts: T[]): T[] {
+  return [...alerts].sort(
+    (a, b) => (ALERT_RANK[a.priority] ?? 9) - (ALERT_RANK[b.priority] ?? 9) || Date.parse(a.since) - Date.parse(b.since),
+  );
+}
+
+/** Whether Operations already took the alert over; the team still resolves it by acting on the visit. */
+export function visitAlertHandling(taken: boolean): string {
+  return taken ? "Operations ist informiert und kümmert sich mit" : "Operations sieht es auch, noch nicht übernommen";
+}

@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { getContinuity, getTeamCases, getTeamOffers } from "@/features/team/queries";
+import { getContinuity, getTeamCases, getTeamOffers, getTeamVisitAlerts } from "@/features/team/queries";
 import { todayInZurich } from "@/features/field/rules";
 import { getBillingPreview } from "@/features/billing/queries";
 import { monthStart } from "@/features/billing/rules";
@@ -16,12 +16,14 @@ export default async function TeamPage() {
   const month = monthStart(todayInZurich());
   // PLAN2: refresh the four-week series first, so the case cards show the generated visits.
   const planStatus = await getPlanStatus();
-  const [offers, cases, continuity, billing, lifecycle] = await Promise.all([
+  // CSR1 / CGR-04: overdue and stuck visits of the team, after the plan refresh.
+  const [offers, cases, continuity, billing, lifecycle, visitAlerts] = await Promise.all([
     getTeamOffers(),
     getTeamCases(),
     getContinuity(month),
     getBillingPreview(month),
     getCaseLifecycle(),
+    getTeamVisitAlerts(),
   ]);
-  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} />;
+  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} visitAlerts={visitAlerts} />;
 }
