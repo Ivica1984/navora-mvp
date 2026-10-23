@@ -94,6 +94,8 @@ export const ENTRY_TITLE: Record<string, string> = {
   care_plan_schedule: "Pflegeplan: Rhythmus geändert",
   visit_moved: "Einsatz verschoben",
   visit_removed: "Einsatz entfernt",
+  // ABS1: the fact only, never a reason (absence, removal or qualification change are not told apart).
+  visit_released: "Einsatz wieder offen im Team",
   visit_cancelled: "Einsatz abgesagt",
   visit_no_show: "Niemand angetroffen",
   visit_no_show_outcome: "Niemand angetroffen: Ergebnis",
@@ -181,6 +183,9 @@ export function entryLines(kind: string, detail: Record<string, unknown>): strin
     case "visit_removed":
       add(slot(detail.before));
       add(str(detail.reason) && `Begründung: ${detail.reason}`);
+      break;
+    case "visit_released":
+      add(`Einsatz ${slot(detail.before)} wieder offen im Team`);
       break;
     case "visit_cancelled":
     case "visit_no_show":

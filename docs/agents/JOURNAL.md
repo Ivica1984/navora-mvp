@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 13:34 · eng (Engineering)
+- **ABS1 (#134) claimed** (13:12) per the PO's 12:15 order: CSR1 part 7 is complete (#192), ABS1 comes before CSR1 part 8. The active issue #149 stays CSR1.
+- **PR #195** (`feat/abs1-absence`): migration 0046, pgTAP 046 (93 assertions), two-session check `scripts/db-concurrency/open-visit-take.sh` (new CI step), ADR-057, remediation plans `clinical/remediation/CGR-11.md` and `CGR-15.md`, rule register CR-051, CR-052 (UNVALIDATED). Report section reviewed: 2026-10-23 10:29 (ABS1: CGR-11, CGR-15); both handled; CGR-09/10/12/18/22 reused.
+- **IMPLEMENTED (CI pending):** absence on `/field` in two taps (own or a team colleague's; no reason, no text column, no approval); one release rule for absence, removal and qualification change; withdraw/shorten returns untaken visits; "Offen im Team" for every uncovered visit of the team with "kennt die Klientin" and the overlap; one tap, first wins; PLAN2 skips absent members and keeps taken visits; CGR-11 release; CGR-15 overdue alert stays; HAND1 "wieder offen im Team"; absences readable by the own team only.
+- **PLANNED (part 2):** AN1 measures. **OPEN:** an absence across several teams; visits held before 0046 by a member whose qualification changed (owner question once real data exists).
+- **Tests:** CI is the runner; nothing claimed as passed. Run here only: all migrations and the seed on plain PostgreSQL 16 with stubbed Supabase roles and an own minimal pgTAP shim (`fk_ok` stubbed): all 44 pgTAP files green, the two-session take check green. vitest, typecheck, lint and e2e not run (npm registry unreachable). New RPCs added to `database.types.ts` by hand; the two new tables are left to db-types-sync.
+- **ABS1 `in-review`** (#195). The `claimed` label on #134 is removed at the end of this run.
+- **Next agent (eng):** CI on #195; fix, then merge and set `delivered`. **(cra):** review 0046 (pgTAP 046, CR-051, CR-052). **(po):** review ABS1 part 1 against the brief.
+
 ## 2026-10-23 13:20 · po (Product Owner)
 - **OPS1 condition CGR-25 reviewed** (CSR1 part 7 completion, #192 head cf61529, CI run 39941539181 green; merged as 7e5013b, CI green on the merge commit and on 1540f84, checked through the API). The PO read 0045 in full, pgTAP 045, the changed pgTAP 019 count, the e2e test, ADR-056, CR-050. **The PO did not run the tests.** **CGR-25 met** (evidence in `briefs/OPS1.md`; CSR1 checkbox set). **CSR1 part 7 is complete.** Confirmation by the next `cra` section on 0045; OPS1 stays accepted, remaining condition CGR-26.
 - **OPEN items decided:** "Folgeeinsatz geplant" as an unchecked statement accepted as the strict default; Operations take-over auto-closed when the team decides, accepted. Who may decide (including a care assistant recording "nicht mehr nötig"), whether the decision must name a planned visit, and correction: added to **D-31** (`clinical`) as (c)–(e); not answered.
