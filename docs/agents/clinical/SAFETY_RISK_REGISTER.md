@@ -1,6 +1,6 @@
 # Safety Risk Register
 
-**Maintained by:** Clinical & Regulatory Architect (review role) · **Last change:** 2026-10-23 02:28 (ADM1 merged) · **Baseline:** `recovery/main` @ `0e90932`
+**Maintained by:** Clinical & Regulatory Architect (review role) · **Last change:** 2026-10-23 06:30 (0037, 0038 merged; #165 open) · **Baseline:** `recovery/main` @ `8ec3351`
 
 This register holds every open risk from the clinical governance reviews: clinical (`C`), patient safety (`PS`), regulatory (`R`), billing (`BL`) and governance (`G`). Hazards to clients are in [`HAZARD_LOG.md`](HAZARD_LOG.md). Gate findings with remedies are in [`../reports/CLINICAL_GOVERNANCE.md`](../reports/CLINICAL_GOVERNANCE.md). Engineering items are in `docs/engineering/SECURITY_RISKS.md`; this register does not duplicate them.
 
@@ -28,26 +28,30 @@ Gate details are in the report.
 | C-2 | clin | Needs assessment labelled category A without sign-off | CR-002 | S2 | clinical | D-15 | B | open |
 | C-3 | clin | Two qualification levels only, default `care_assistant` | CR-009 | S2 | clinical | D-15 | B | open |
 | C-4 | clin | Qualification without registration evidence | CGR-16 | S1 | owner, eng | verification step before a qualification is active | C | open |
-| C-5 | clin | Registered-nurse check only at first start | CGR-12 | S1 | eng | check at every transition | B | open |
+| C-5 | clin | Registered-nurse check only at first start | CGR-12 closed: 0038:52-58, pgTAP 038:76-109 | S1 | eng | check at every transition | B | mitigated-in-code (rule needs D-15) |
 | C-6 | clin | Care-assistant scope for category A undefined | CR-010 | S2 | clinical | D-15 | B | open |
 | C-7 | clin | Pressure to reduce countersignature (D-10) | `OPEN_DECISIONS.md` D-10 | S2 | clinical | keep universal countersignature for the pilot | B | open |
 | C-8 | clin | No reassessment on resume, reopen or return | 0024:236-258; 0025:158-165 | S1 | clinical | triggers and intervals; instrument D-13 | B | open |
 | C-9 | clin | Review date passed only raises a P3 flag | 0014:150 | S2 | clinical | defined consequence of an overdue review | B | open |
 | C-10 | clin | Free-text observations only; no deterioration signal | 0009:7-8 | S2 | clinical, po | structured items chosen by `clinical` | C | open |
 | C-12 | clin | Severity scale hard-coded | CR-017 | S2 | clinical | D-16 | B | open |
-| PS-1 | safety | Missed or overdue visit raises no alert | CGR-04 | S1 | eng, clinical | exception type + threshold | B | open |
-| PS-2 | safety | Uncovered alert disappears at start time | CGR-04 | S1 | eng | alert persists until resolved | B | open |
+| PS-1 | safety | Missed or overdue visit raises no alert | CGR-04 closed: 0038, pgTAP 038 | S1 | eng, clinical | exception type + threshold | B | mitigated-in-code (thresholds PROVISIONAL, D-28) |
+| PS-2 | safety | Uncovered alert disappears at start time | CGR-04 closed: 0038:91-92, pgTAP 038:136; hand close still possible (CGR-22) | S1 | eng | alert persists until resolved | B | mitigated-in-code |
 | PS-3 | safety | Phantom coverage after removal, downgrade, role change, absence | CGR-09, CGR-10 closed (0036, pgTAP 036); CGR-11 open; past-dated visits of a removed member (CSR1) | S1 | eng | one eligibility release rule | B | partly mitigated (removal); downgrade and absence open |
 | PS-4 | safety | No-show only detectable after departure; no protocol | CR-014 | S1 | clinical | D-19 | B | open |
 | PS-5 | safety | Hold does not stop care | CGR-13 | S1 | clinical, eng | D-16 hold semantics | B | open |
-| PS-6 | safety | Serious event leaves OPS1 on `in_review` | CGR-05 | S1 | eng | exception until closed | B | open |
-| PS-7 | safety | Closed P1 exception never returns | CGR-06 | S1 | eng | re-open while cause persists | B | open |
+| PS-6 | safety | Serious event leaves OPS1 on `in_review` | CGR-05 met on #165 (0039:59-64, pgTAP 039:40-66) | S1 | eng | exception until closed | B | mitigated on #165 (not merged) |
+| PS-7 | safety | Closed P1 exception never returns | CGR-06 met on #165 (0039, pgTAP 039:68-127) | S1 | eng | re-open while cause persists | B | mitigated on #165 (not merged) |
 | PS-8 | safety | Case closable while visits in progress or holds open | 0031:8-50 | S2 | eng | refuse or require explicit handling | B | open |
 | PS-9 | safety | Pause leaves later visits planned; no alert on resume | 0024:231, 236-258 | S2 | eng | suspend through the actual return; alert | B | open |
 | PS-10 | safety | No capacity or overlap check | 0030:157-164 | S2 | eng, po | overlap check | C | open |
 | PS-11 | safety | Report stuck if performer absent | CR-012 | S2 | clinical, eng | delegated takeover | C | open |
-| PS-14 | safety | Removing a member leaves her own in-progress or undocumented visits permanently undocumentable | CGR-18; 0036:107-110; 0016:184, 262 | S1 | eng | refuse removal while she is the performer (CGR-18) | B | open |
+| PS-14 | safety | Removing a member leaves her own in-progress or undocumented visits permanently undocumentable | CGR-18 closed: 0037:57-75, pgTAP 037 | S1 | eng | refuse removal while she is the performer (CGR-18) | B | mitigated-in-code |
 | PS-15 | safety | A correction of a departed author's report can never be signed | CGR-19; 0016:343-349 | S2 | clinical, legal, eng | decision; refuse the unsignable correction until answered | C | open |
+| PS-16 | safety | A started or paused visit can only end as `completed`; with #165 its stuck alert cannot be closed, so a broken-off visit is either a permanent P1 or a false completion | CGR-20; 0038:38-45; 0024:353, 374; 0039:132-134 | S1 | eng, clinical, legal | audited "not completed" end, not billable until decided | B | open |
+| PS-17 | safety | Overdue and stuck alerts of a covered visit do not reach the covering team; the detail suggests someone is going | CGR-21; 0038:102, 154 | S2 if cover enabled | eng | include the covering team before D-3 enables cover | C | open (cover off) |
+| PS-18 | safety | A hand-closed uncovered visit stays silent until it is overdue | CGR-22; 0039:29-31 | S2 | eng, clinical | strict default or recorded reason; D-28 | B | open |
+| PS-19 | safety | The stuck clock restarts with every pause or resume | CGR-23; 0038:115-128 | S3 | po, clinical | pilot measure; D-28 | C | open |
 | PS-12 | safety | Covering nurse without context | 0028:118-151 | S1 if enabled | owner, clinical | D-3 and D-17 before enabling | C | mitigated (off) |
 | PS-13 | safety | No offline capability | grep | S2 | eng, po | offline concept (Gate 2) | C | open |
 | R-1 | reg | No legal entity, licence or OKP admission | D-12 | S1 | owner | decide entity, apply | C | open |

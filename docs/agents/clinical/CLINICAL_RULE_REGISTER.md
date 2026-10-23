@@ -1,6 +1,6 @@
 # Clinical Rule Register
 
-**Maintained by:** Clinical & Regulatory Architect (review role) · **Approves rules:** the named, qualified human clinical owner (`clinical`), or `legal` / `owner` for their rules (D-27) · **Last change:** 2026-10-23 02:28 · **Baseline:** `recovery/main` @ `0e90932`
+**Maintained by:** Clinical & Regulatory Architect (review role) · **Approves rules:** the named, qualified human clinical owner (`clinical`), or `legal` / `owner` for their rules (D-27) · **Last change:** 2026-10-23 06:30 · **Baseline:** `recovery/main` @ `8ec3351`
 
 Every rule that encodes a clinical, care-organisation, billing or regulatory judgement is listed here: where it lives, its cited source, who set it, and whether a qualified owner has approved it. **No rule below is clinically or legally approved yet.** Engineering adds a row whenever a migration introduces or changes such a rule; the Architect reviews it.
 
@@ -18,7 +18,7 @@ Every rule that encodes a clinical, care-organisation, billing or regulatory jud
 | CR-004 | Categories A and C need no medical order; an "inform GP" task is created, never required | 0014:263; `briefs/J1.md:102` | "since 1 July 2024" (PO statement) | PO J1 | D-22 | UNVALIDATED | legal basis to be confirmed |
 | CR-005 | A B visit after the order end date is allowed and flagged; PLAN2 drops B after expiry | 0014:148; 0030:103-107 | – | PO J3/PLAN2 | D-15, D-22 | UNVALIDATED | |
 | CR-006 | Order `present` with no end date counts as valid indefinitely | 0023:114 | – | eng (implicit) | – | UNVALIDATED | CGR-07 |
-| CR-007 | Category B and needs-assessment visits are **started, resumed and completed** by a registered nurse | 0038 §1 (was 0024:125-130) | KLV (J3) | PO J3 | D-15 | UNVALIDATED | every transition into `started` and `completed` since 0038 (CGR-12, eng 2026-10-23; for Architect review) |
+| CR-007 | Category B and needs-assessment visits are **started, resumed and completed** by a registered nurse | 0038 §1 (was 0024:125-130) | KLV (J3) | PO J3 | D-15 | UNVALIDATED | every transition into `started` and `completed` since 0038; CGR-12 closed (Architect 2026-10-23 06:30, pgTAP 038:76-109). The rule itself still needs D-15 |
 | CR-008 | A case needs a team with a registered nurse when no needs assessment exists yet or an order is present | 0017:301-306 | derived from CR-002/007 | eng J2 | D-15 | UNVALIDATED | |
 | CR-009 | Qualifications: `registered_nurse`, `care_assistant`; a member without a value is `care_assistant` | 0018:118, 145 | – | owner D-5 | D-5, D-15 | UNVALIDATED (clinical) | no registration evidence (CGR-16) |
 | CR-010 | Whether a care assistant may perform category A work (other than the needs assessment) | not addressed | – | – | D-15 | UNVALIDATED | open question, not a rule |
@@ -50,7 +50,7 @@ Every rule that encodes a clinical, care-organisation, billing or regulatory jud
 | CR-033 | Readiness checklist: consent, residence, insurer, insurance type, care need, requested start | 0013:159-172 | – | PO J1 | D-15 | UNVALIDATED | no clinical items |
 | CR-034 | Legacy Operations heuristics: team utilisation ≥ 90 % P1, ≥ 80 % or ≤ 1 open slot P2, 24 h → P1 | `src/features/operations/rules.ts` | – | legacy | – | DEPRECATED | removed by #135 (merged `eceac83`); intake alerts remain in OPS1 |
 | CR-035 | Removing a member from a team releases her planned visits of that team dated today or later, suspended ones included; earlier and in-progress visits are not touched | 0036:38-71 | – | PO ADM1 | – | UNVALIDATED | care-organisation rule; visits dated before today stay with her (CSR1 / CGR-04) |
-| CR-036 | Removal is refused while she is primary nurse or deputy of an open case of the team, or responsible for a visit `on_the_way`, `started` or `paused` | 0036:100-111 | – | PO ADM1, CGR-10 | – | UNVALIDATED | the performer is not checked (CGR-18) |
+| CR-036 | Removal is refused while she is primary nurse or deputy of an open case of the team, responsible for or performer of a team visit `on_the_way`, `started` or `paused`, or performer of a `completed` team visit without a `signed` or `final` report | 0036:100-111; 0037:46-75 | – | PO ADM1, CGR-10, CGR-18 | – | UNVALIDATED | performer check added by 0037 (CGR-18 closed 2026-10-23 06:30); a correction draft does not refuse (CGR-19, D-30) |
 | CR-037 | A change of organisation role leaves team membership, qualification and responsible visits unchanged | 0036 header item 2; ADR-046 | – | PO ADM1 | – | UNVALIDATED | organisational, not clinical |
 
 ## Not in the code (correct, keep it so)
