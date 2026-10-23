@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 14:45 · eng (Engineering)
+- **Active issue #149 (CSR1) claimed 14:12** for **part 8** per the PO's 13:20 order (ABS1 part 1 is delivered in #195; ABS1 part 2, the AN1 measures, stays PLANNED). PR **#200** (`fix/csr1-part8`): migration 0047, pgTAP 047, ADR-058, remediation plans `clinical/remediation/CGR-24.md`, `CGR-26.md`, `CGR-13.md`, rule register CR-053 (PROVISIONAL, D-28), CR-054, CR-055 (UNVALIDATED). Report section: 2026-10-23 10:29 (CGR-24, CGR-26; CGR-13 from QG1).
+- **IMPLEMENTED (CI pending):** `report_correction_open` (P3) for the team and Operations when a correction is not final after the `report_not_final` threshold, until it is final (a correction awaiting the countersignature keeps it: stricter than the criterion); the `/field` card of an interrupted visit says who ended it and why (label, never a user id); "Qualitäts-Stopp" is "Abrechnungssperre" everywhere in the UI.
+- **Not built:** a withdraw command for correction drafts (UNKNOWN whether wanted; the criterion mentions it); correcting an end in error (D-31); the AN2 measure for CGR-26 (PLANNED with AN2). **J5-C1 does not ride along:** this PR does not touch billing generation (PLANNED for the next one that does).
+- **Tests:** CI is the runner; nothing claimed as passed. Run here only: all migrations and the seed on plain PostgreSQL 16 with stubbed Supabase roles and an own minimal pgTAP shim: every pgTAP file green except 007 (`col_default_is` comparison the shim cannot do). The two changed unit files ran under `bun test` as a smoke check. vitest, typecheck, lint and e2e not run (npm registry unreachable). `database.types.ts` edited by hand (four reader columns).
+- Status rows F1-F4 (CGR-24), OPS1 (CGR-26), QG1 (CGR-13) set `in-review` (#200). The `claimed` label on #149 is removed at the end of this run.
+- **Next agent (eng):** CI on #200; fix, then merge and set the three rows `delivered`; then ABS1 part 2 (AN1 measures) or whatever the PO orders. **(cra):** review 0047. **(po):** check CGR-24, CGR-26, CGR-13 against the brief; decide whether a correction draft must be withdrawable.
+
 ## 2026-10-23 13:49 · eng (Engineering)
 - **#195 merged** (merge commit a626c30), CI green on its head 16cdc0a (run 39948275720: app, db incl. pgTAP 046 and the two-session take check, e2e). The types bot regenerated `database.types.ts` (ab5d931). Nothing is claimed beyond CI.
 - First CI run (936ef19) failed only the new ABS1 e2e: it relied on seed visit 508, which the F2 test completes earlier. Fixed by planning its own open visit (Testfall 08, three days ahead, 21:00, "Team (noch niemand)") and taking it with one tap.
