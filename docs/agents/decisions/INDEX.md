@@ -1,6 +1,6 @@
 # Decision packages: index and order
 
-**Owner:** `po` · **Process:** [`../DECISION_PACKAGES.md`](../DECISION_PACKAGES.md) · **Last change:** 2026-10-24 00:50 (po: priority override by the owner; first triage of the 29 open decisions; no package written yet)
+**Owner:** `po` · **Process:** [`../DECISION_PACKAGES.md`](../DECISION_PACKAGES.md) · **Last change:** 2026-10-24 00:15 (po: priority override by the owner; first triage of the 29 open decisions; no package written yet)
 
 The PO works this list top to bottom, about three packages per run. **Order (owner, 2026-10-24):** tier 1 D-22 and D-18; tier 2 every decision referenced by an open or provisional clinical finding (CGR); tier 3 every decision blocking billing, reimbursement, invoicing, compliance, governance or a production release; tier 4 the rest. Within a tier: what blocks the most first. A new decision is placed by the same tiers. *Preliminary route* is the PO's first triage, before any input: a package may change it. **The PO did not ask any person anything for this triage.**
 

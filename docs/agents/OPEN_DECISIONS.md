@@ -1,6 +1,6 @@
 # Open decisions
 
-**Opened by:** anyone · **Decided by:** the role in *Owner*, or the PO when its decision package shows owner approval is not required ([`DECISION_PACKAGES.md`](DECISION_PACKAGES.md)) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-24 00:40 (po: decision-package process, owner 2026-10-24); 2026-10-23 12:15 (po: D-10 scope sharpened: it blocks a relaxation of F6, not its acceptance)
+**Opened by:** anyone · **Decided by:** the role in *Owner*, or the PO when its decision package shows owner approval is not required ([`DECISION_PACKAGES.md`](DECISION_PACKAGES.md)) · **Protocol:** [`README.md`](README.md) · **Last change:** 2026-10-24 00:15 (po: decision-package process, owner 2026-10-24); 2026-10-23 12:15 (po: D-10 scope sharpened: it blocks a relaxation of F6, not its acceptance)
 Background, options and consequences for the `D-*` items: `docs/engineering/DECISIONS_NEEDED.md`.
 
 **Decision packages (owner 2026-10-24):** every decision owned by `owner`, `legal` or `clinical` is first prepared as a package in [`decisions/`](decisions/INDEX.md) ([process](DECISION_PACKAGES.md)). The PO decides it when the package shows that owner approval is not required (the row then moves to *Decided* with owner `po`); otherwise the row's *Recommendation* starts with the package link and the role whose approval is awaited.
