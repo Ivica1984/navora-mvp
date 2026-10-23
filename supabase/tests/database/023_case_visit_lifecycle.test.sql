@@ -31,7 +31,7 @@ select throws_ok($$ select public.pause_case('00000000-0000-4000-a000-0000000002
   '22023', null, 'pause reason from the list');
 select throws_ok($$ select public.pause_case('00000000-0000-4000-a000-000000000208', 'other', null, null, 'ad000000-0000-4000-8000-000000000003') $$,
   '22023', null, '"other" needs a note');
-select is(public.pause_case('00000000-0000-4000-a000-000000000208', 'hospital_stay', 'Spitaleintritt', current_date + 3,
+select is(public.pause_case('00000000-0000-4000-a000-000000000208', 'hospital_stay', 'Spitaleintritt', (now() at time zone 'Europe/Zurich')::date + 3,
           'ad000000-0000-4000-8000-000000000004'), 'ok', 'the team pauses the case (hospital stay, expected end)');
 select is(public.pause_case('00000000-0000-4000-a000-000000000208', 'hospital_stay', null, null, 'ad000000-0000-4000-8000-000000000004'),
   'duplicate', 'resend is a duplicate');
@@ -40,11 +40,11 @@ select ok((select suspended_at is not null and status = 'planned' from public.ca
 select throws_ok($$ select public.depart_visit('00000000-0000-4000-a000-000000000508', 'ad000000-0000-4000-8000-000000000005') $$,
   '23514', null, 'a suspended visit cannot start');
 reset role;
-select ok(not ('uncovered' = any (private.visit_flags('00000000-0000-4000-a000-000000000208', current_date + 1, 0, null, 'planned', '09:00'))),
+select ok(not ('uncovered' = any (private.visit_flags('00000000-0000-4000-a000-000000000208', (now() at time zone 'Europe/Zurich')::date + 1, 0, null, 'planned', '09:00'))),
   'a paused case raises no uncovered flag');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select throws_ok($$ select public.plan_visit('00000000-0000-4000-a000-000000000208', current_date + 2, '10:00', '10:30', 30, 0, 0, false, null,
+select throws_ok($$ select public.plan_visit('00000000-0000-4000-a000-000000000208', (now() at time zone 'Europe/Zurich')::date + 2, '10:00', '10:30', 30, 0, 0, false, null,
           'ad000000-0000-4000-8000-000000000006') $$, 'NV002', null, 'no new visits while the case is paused');
 select is(public.pause_case('00000000-0000-4000-a000-000000000208', 'rehabilitation', null, null, 'ad000000-0000-4000-8000-000000000007'),
   'wrong_state', 'an already paused case cannot be paused again');
@@ -139,7 +139,7 @@ select throws_ok($$ select public.reopen_case('00000000-0000-4000-a000-000000000
   '22023', null, 'reopening needs a reason');
 select is(public.reopen_case('00000000-0000-4000-a000-000000000208', 'Rückkehr nach Hause', 'ad000000-0000-4000-8000-000000000033'),
   'ok', 'the team reopens the case');
-select throws_ok($$ select public.plan_visit('00000000-0000-4000-a000-000000000208', current_date + 2, '10:00', '10:30', 30, 0, 0, false, null,
+select throws_ok($$ select public.plan_visit('00000000-0000-4000-a000-000000000208', (now() at time zone 'Europe/Zurich')::date + 2, '10:00', '10:30', 30, 0, 0, false, null,
           'ad000000-0000-4000-8000-000000000034') $$, 'NV003', null, 'after a reopen, planning waits for the J1 readiness check');
 reset role;
 

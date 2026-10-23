@@ -5,7 +5,7 @@
 -- owner": the intake edits of the case's order and payer (the audit trigger records them whichever command writes
 -- them), and dating those audit rows to the day they stand for (a test transaction has one `now()`), and, for the
 -- catch-up, making one fact look as if it was built before 0051.
--- Timeline (D = current_date - 10, times 12:00 Europe/Zurich): D order `present` without an end date; visit a1 and c1 on
+-- Timeline (D = (now() at time zone 'Europe/Zurich')::date - 10, times 12:00 Europe/Zurich): D order `present` without an end date; visit a1 and c1 on
 -- D+1; D+3 the end date D+30 is entered; visit b1 on D+5; D+7 the end date is removed again; generation today.
 begin;
 create extension if not exists pgtap with schema extensions;
@@ -17,7 +17,7 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claim.sub', uid, true);
 $$;
 
-create temp table d0 as select (current_date - 10) as d;
+create temp table d0 as select ((now() at time zone 'Europe/Zurich')::date - 10) as d;
 grant select on d0 to authenticated;
 create function pg_temp.day(k int) returns date language sql as $$ select d + k from d0 $$;
 create function pg_temp.noon(k int) returns timestamptz language sql as $$

@@ -31,24 +31,24 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 
 select results_eq(
-  $$ select visit_id from public.field_visits(current_date) $$,
+  $$ select visit_id from public.field_visits((now() at time zone 'Europe/Zurich')::date) $$,
   $$ values ('00000000-0000-4000-a000-000000000501'::uuid), ('00000000-0000-4000-a000-000000000502'::uuid) $$,
   'nurse sees exactly her team''s two visits today, ordered by start time');
 select is(
-  (select count(*)::int from public.field_visits(current_date)
+  (select count(*)::int from public.field_visits((now() at time zone 'Europe/Zurich')::date)
    where visit_id = '00000000-0000-4000-a000-000000000503'), 0,
   'nurse does not see a visit of another team on the same day (Testteam West)');
 select is(
-  (select count(*)::int from public.field_visits(current_date)
+  (select count(*)::int from public.field_visits((now() at time zone 'Europe/Zurich')::date)
    where visit_id = '00000000-0000-4000-a000-000000000551'), 0,
   'nurse does not see an org-B visit on the same day');
 select is(
-  (select client_name || ' / ' || team_name from public.field_visits(current_date)
+  (select client_name || ' / ' || team_name from public.field_visits((now() at time zone 'Europe/Zurich')::date)
    where visit_id = '00000000-0000-4000-a000-000000000501'),
   'Testfall 08 / Testteam Nord',
   'client name and team name are resolved');
 select is(
-  (select count(*)::int from public.field_visits(current_date - 2)), 1,
+  (select count(*)::int from public.field_visits((now() at time zone 'Europe/Zurich')::date - 2)), 1,
   'another day returns that day''s visits (the cancelled one two days ago)');
 select is((select count(*)::int from public.field_visits(null)), 0, 'no date → no rows');
 reset role;
@@ -56,13 +56,13 @@ reset role;
 -- Coach without team, foreign organisation -----------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000901');
 set local role authenticated;
-select is((select count(*)::int from public.field_visits(current_date)), 0,
+select is((select count(*)::int from public.field_visits((now() at time zone 'Europe/Zurich')::date)), 0,
   'a coach who is in no team gets an empty field list');
 reset role;
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
 set local role authenticated;
-select is((select count(*)::int from public.field_visits(current_date)), 0,
+select is((select count(*)::int from public.field_visits((now() at time zone 'Europe/Zurich')::date)), 0,
   'org-B admin (no team in org A) sees no org-A visits');
 reset role;
 

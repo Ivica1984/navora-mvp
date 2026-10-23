@@ -34,15 +34,15 @@ select is(
                             'Losfahren vergessen zu tippen', 'f3000000-0000-4000-8000-000000000010'),
   'duplicate', 'the same key again is a duplicate');
 select is(
-  (select (events -> 0 ->> 'corrected')::boolean from public.field_visits(current_date)
+  (select (events -> 0 ->> 'corrected')::boolean from public.field_visits((now() at time zone 'Europe/Zurich')::date)
    where visit_id = '00000000-0000-4000-a000-000000000501'),
   true, 'field_visits marks the corrected event');
 select is(
   (select ((events -> 0 ->> 'recorded_at')::timestamptz - (events -> 0 ->> 'at')::timestamptz)
-   from public.field_visits(current_date) where visit_id = '00000000-0000-4000-a000-000000000501'),
+   from public.field_visits((now() at time zone 'Europe/Zurich')::date) where visit_id = '00000000-0000-4000-a000-000000000501'),
   interval '30 minutes', 'effective time is the correction; the recorded time stays visible');
 select is(
-  (select events -> 0 ->> 'reason' from public.field_visits(current_date)
+  (select events -> 0 ->> 'reason' from public.field_visits((now() at time zone 'Europe/Zurich')::date)
    where visit_id = '00000000-0000-4000-a000-000000000501'),
   'Losfahren vergessen zu tippen', 'the reason is shown with the correction');
 

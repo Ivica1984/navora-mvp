@@ -11,11 +11,11 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claim.sub', uid, true);
 $$;
 create function pg_temp.at(d integer, t time) returns timestamptz language sql as $$
-  select ((current_date + d) + t) at time zone 'Europe/Zurich'
+  select (((now() at time zone 'Europe/Zurich')::date + d) + t) at time zone 'Europe/Zurich'
 $$;
 -- Entries of the card visit …c0 for the current user.
 create function pg_temp.card() returns setof jsonb language sql as $$
-  select to_jsonb(s) from public.field_since_last(current_date) s where s.visit_id = 'c3000000-0000-4000-8000-0000000000c0'
+  select to_jsonb(s) from public.field_since_last((now() at time zone 'Europe/Zurich')::date) s where s.visit_id = 'c3000000-0000-4000-8000-0000000000c0'
 $$;
 
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
@@ -32,7 +32,7 @@ insert into public.team_memberships (team_id, user_id, qualification) values
 -- a cancelled visit V4 (−2); the card visit …c0 (today 23:00, planned).
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status)
 select '00000000-0000-4000-b000-000000000011', x.id, '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-       current_date + x.d, x.t, x.t + interval '1 hour', false, x.s
+       (now() at time zone 'Europe/Zurich')::date + x.d, x.t, x.t + interval '1 hour', false, x.s
 from (values ('c3000000-0000-4000-8000-0000000000a1'::uuid, -5, time '08:00', 'completed'),
              ('c3000000-0000-4000-8000-0000000000a2'::uuid, -3, time '08:00', 'completed'),
              ('c3000000-0000-4000-8000-0000000000a3'::uuid, -1, time '08:00', 'completed'),
@@ -95,16 +95,16 @@ insert into public.cases (organization_id, id, created_at, name, first_name, las
    'Bern West', 'laufend', 'mittel', '00000000-0000-4000-a000-000000000101');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status) values
   ('00000000-0000-4000-b000-000000000011', 'c3000000-0000-4000-8000-0000000000f1', 'c3000000-0000-4000-8000-000000000208',
-   '00000000-0000-4000-a000-000000000101', current_date - 2, '14:00', '15:00', false, 'completed'),
+   '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich')::date - 2, '14:00', '15:00', false, 'completed'),
   ('00000000-0000-4000-b000-000000000011', 'c3000000-0000-4000-8000-0000000000f2', 'c3000000-0000-4000-8000-000000000208',
-   '00000000-0000-4000-a000-000000000101', current_date, '21:00', '21:30', false, 'planned');
+   '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich')::date, '21:00', '21:30', false, 'planned');
 -- A case without any history, with a card today.
 insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, assigned_team_id) values
   ('00000000-0000-4000-b000-000000000011', 'c3000000-0000-4000-8000-000000000210', now(), 'Testfall 99', 'Testfall', '99',
    'Bern West', 'laufend', 'mittel', '00000000-0000-4000-a000-000000000101');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status) values
   ('00000000-0000-4000-b000-000000000011', 'c3000000-0000-4000-8000-0000000000f3', 'c3000000-0000-4000-8000-000000000210',
-   '00000000-0000-4000-a000-000000000101', current_date, '20:00', '20:30', false, 'planned');
+   '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich')::date, '20:00', '20:30', false, 'planned');
 insert into public.visit_observations (organization_id, visit_id, case_id, team_id, author_id, recorded_at, content, idempotency_key) values
   ('00000000-0000-4000-b000-000000000011', 'c3000000-0000-4000-8000-0000000000f1', 'c3000000-0000-4000-8000-000000000208',
    '00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000906', pg_temp.at(-2, '14:30'), 'Synthetisch: anderer Fall', gen_random_uuid());
@@ -113,7 +113,7 @@ insert into public.visit_observations (organization_id, visit_id, case_id, team_
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select is((select distinct x ->> 'rule' from pg_temp.card() x), 'since_own_visit', 'her own last completed visit sets the window');
-select is((select distinct (x ->> 'since_date')::date from pg_temp.card() x), current_date - 5, 'and the card names its date');
+select is((select distinct (x ->> 'since_date')::date from pg_temp.card() x), (now() at time zone 'Europe/Zurich')::date - 5, 'and the card names its date');
 select ok(not exists (select 1 from pg_temp.card() x where x -> 'detail' ->> 'content' like '%alte Beobachtung V1%'),
   'what was recorded before her last visit ended is not repeated');
 select is((select x -> 'detail' ->> 'content' from pg_temp.card() x where x ->> 'entry_id' = 'c3000000-0000-4000-8000-000000000b03'),
@@ -121,7 +121,7 @@ select is((select x -> 'detail' ->> 'content' from pg_temp.card() x where x ->> 
 select is((select x ->> 'author' from pg_temp.card() x where x ->> 'entry_id' = 'c3000000-0000-4000-8000-000000000b03'), 'member:2',
   'with who recorded it as a member label');
 select is((select x ->> 'source_visit_date' from pg_temp.card() x where x ->> 'entry_id' = 'c3000000-0000-4000-8000-000000000b03'),
-  (current_date - 3)::text, 'and in which visit');
+  ((now() at time zone 'Europe/Zurich')::date - 3)::text, 'and in which visit');
 select ok(not exists (select 1 from pg_temp.card() x where x ->> 'entry_id' = 'c3000000-0000-4000-8000-000000000b02'),
   'an edited observation appears once, in its current version');
 select is((select count(*)::int from pg_temp.card() x where x ->> 'kind' in ('case_pause', 'case_resume')), 2, 'pause and resume of the case');
@@ -147,14 +147,14 @@ select ok(not exists (select 1 from pg_temp.card() x where x::text like '%000000
                                                          or x::text like '%00000000-0000-4000-a000-000000000904%'),
   'no user ids leave the database');
 select ok((select bool_or(s.detail ->> 'content' like '%anderer Fall%') and not bool_or(s.detail::text like '%Übergabe%')
-           from public.field_since_last(current_date) s where s.visit_id = 'c3000000-0000-4000-8000-0000000000f2'),
+           from public.field_since_last((now() at time zone 'Europe/Zurich')::date) s where s.visit_id = 'c3000000-0000-4000-8000-0000000000f2'),
   'the other case''s card shows that case''s entries only');
 reset role;
 
 -- A nurse who never visited the client ---------------------------------------------------------------------------------
 select pg_temp.act_as('c3000000-0000-4000-8000-000000000907');
 set local role authenticated;
-select ok((select bool_and(x ->> 'rule' = 'last_visits' and (x ->> 'lookback')::int = 3 and (x ->> 'since_date')::date = current_date - 5)
+select ok((select bool_and(x ->> 'rule' = 'last_visits' and (x ->> 'lookback')::int = 3 and (x ->> 'since_date')::date = (now() at time zone 'Europe/Zurich')::date - 5)
            from pg_temp.card() x), 'never here: the last 3 completed visits, from the oldest of them');
 select ok(exists (select 1 from pg_temp.card() x where x -> 'detail' ->> 'content' like '%alte Beobachtung V1%'),
   'so the observation of V1 is included');
@@ -162,7 +162,7 @@ reset role;
 insert into public.handover_settings (organization_id, lookback_visits) values ('00000000-0000-4000-b000-000000000011', 1);
 select pg_temp.act_as('c3000000-0000-4000-8000-000000000907');
 set local role authenticated;
-select is((select distinct (x ->> 'since_date')::date from pg_temp.card() x), current_date - 1, 'the number of visits is configuration');
+select is((select distinct (x ->> 'since_date')::date from pg_temp.card() x), (now() at time zone 'Europe/Zurich')::date - 1, 'the number of visits is configuration');
 reset role;
 delete from public.handover_settings where organization_id = '00000000-0000-4000-b000-000000000011';
 
@@ -170,7 +170,7 @@ delete from public.handover_settings where organization_id = '00000000-0000-4000
 select pg_temp.act_as('00000000-0000-4000-a000-000000000906');
 set local role authenticated;
 select ok((select count(*) = 1 and bool_and(s.kind is null) and bool_and(s.rule = 'no_visits')
-           from public.field_since_last(current_date) s where s.visit_id = 'c3000000-0000-4000-8000-0000000000f3'),
+           from public.field_since_last((now() at time zone 'Europe/Zurich')::date) s where s.visit_id = 'c3000000-0000-4000-8000-0000000000f3'),
   'nothing recorded: one row with the rule, no entries');
 reset role;
 
@@ -182,7 +182,7 @@ select is((select count(*)::int from pg_temp.card()), 0, 'another team''s nurse 
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
 set local role authenticated;
-select is((select count(*)::int from public.field_since_last(current_date)), 0, 'another organisation sees nothing');
+select is((select count(*)::int from public.field_since_last((now() at time zone 'Europe/Zurich')::date)), 0, 'another organisation sees nothing');
 reset role;
 update public.care_visits set covered_by = null where id = 'c3000000-0000-4000-8000-0000000000c0';
 
@@ -208,7 +208,7 @@ select throws_ok($$ delete from public.handover_shown $$, '42501', null, 'the ha
 update public.care_visits set status = 'completed' where id = 'c3000000-0000-4000-8000-0000000000c0';
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
-select ok(exists (select 1 from public.pilot_kpis(current_date) k where k.kpi = 'handover_shown_before_start' and k.team_id is null
+select ok(exists (select 1 from public.pilot_kpis((now() at time zone 'Europe/Zurich')::date) k where k.kpi = 'handover_shown_before_start' and k.team_id is null
                   and k.note like 'Gezeigt heisst%'), 'AN1 reports the share with its definition');
 reset role;
 
