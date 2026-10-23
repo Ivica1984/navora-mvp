@@ -22,7 +22,7 @@ A visit without a start time counted as 00:00-00:01 and a visit with a start but
 
 ## Tests
 
-- pgTAP `048_abs1_part2` §0-§2: the interval values; an absence from 10:00 releases that day's untimed visit; an absence from 08:30 releases a visit 08:00 without an end and with 60 planned minutes, and one without minutes; a visit 07:00 without an end and 30 minutes stays; the absent nurse is neither offered nor able to take them; a member absent tomorrow from 15:00 is not offered an untimed visit of tomorrow; `known_by` skips both absent nurses; shortening keeps an untimed visit open while she is still absent that day.
+- pgTAP `048_abs1_part2` §0-§2: the interval values; an absence from 12:00 releases that day's untimed visit; an absence ending 07:59 releases nothing at 08:00; an absence from 08:30 releases a visit 08:00 without an end and with 60 planned minutes, and one without minutes; a visit 07:00 without an end and 30 minutes stays; the absent nurse is neither offered nor able to take either one; a member absent tomorrow from 15:00 is not offered an untimed visit of tomorrow; `known_by` skips both absent nurses; shortening keeps an untimed visit open while she is still absent that day.
 - CI runs them; nothing is claimed as passed before CI.
 
 ## Needs a decision (not built here)

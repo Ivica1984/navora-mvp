@@ -8,6 +8,15 @@ updated: 2026-10-23
 
 # ABS1 — Absence without the phone chain: "I can't work" hands the day to the team
 
+## PO note — 2026-10-23 15:25: clinical gate on part 1 is blocking (CGR-27); part 2 widened
+
+The Clinical Governance Report section 14:30 (PR #203, head 31a6a16) reviewed 0046 and found **CGR-27 (blocking, S1)**; the 15:00 section keeps it open. The PO confirmed it in 0046:90-98: `private.visit_interval` makes a visit **without a start time** 00:00-00:01 (the PO's ABS1-C1) and a visit **with a start but no end time** one minute long. An absence from 08:30 therefore does not release a visit planned 08:00 without an end: it stays with the absent nurse, is missing from "Offen im Team", raises no `visit_uncovered`, and looks covered. **The PO did not run the tests.**
+
+**PO status stays `changes-requested`.** Part 2 now has four conditions; CGR-27 is done **first** in part 2 and replaces the narrower ABS1-C1 (its pgTAP cases stay). The rest is unchanged: ABS1-C2, ABS1-C3 (endorsed by `cra` 14:30), AN1 measures. Accepted without another full review once part 2 is merged with green CI and a `cra` section on it holds no blocking finding.
+
+- **CGR-28 (advisory, S2 once cover is on):** an absence does not end covers she accepted for another team. Cover is switched off (D-3), so this is **not** a part-2 criterion; it is a condition on enabling cover, recorded in `briefs/COVER1.md` and D-3.
+- **AN2:** "absences recorded by a colleague and later withdrawn by the member" (the `cra` 14:30 suggestion) is an AN2 measure.
+
 ## PO review — 2026-10-23 14:16: part 1 met; changes-requested for part 2 (three conditions) and the clinical gate
 
 Reviewed ABS1 part 1: #195 (head 16cdc0a, CI run 39948275720 green: app, db incl. pgTAP 046 and the two-session take check, e2e; merged as a626c30, CI run 39948793722 green on the merge commit and on c8dab8d, checked through the API). The PO read migration 0046 in full, pgTAP 046 (93 assertions), `scripts/db-concurrency/open-visit-take.sh`, the e2e test in `tests/e2e/field.spec.ts`, `absence-section.tsx`, `src/features/absence/*`, the unit test, ADR-057, CR-051 and CR-052. **The PO did not run the tests.** Evidence is merged code and tests plus green CI.
@@ -94,6 +103,7 @@ A nurse records in a few seconds that she is not available. Her visits in that p
 - [x] **Performed visits and open reports (PO 2026-10-23 03:10, from CGR-18):** recording an absence is **never refused**. A visit she is performing (`on_the_way`, `started`, `paused`) is not released and stays visible to the team through CSR1's stuck-visit exception (CGR-04); her missing or `draft` reports stay hers and appear as `report_not_final`. She stays a team member, so she can document on return. pgTAP: an absence recorded while she has a `paused` visit is accepted, that visit keeps her as responsible and performer, and it carries the stuck-visit exception; an absence recorded while she has a `draft` report is accepted and the report stays signable by her.
 - [x] The PR names the latest Clinical Governance Report section and the CGR IDs it addresses.
 - [ ] **ABS1-C1 (PO 2026-10-23 14:16):** an untimed visit is released when the absence covers any part of its date; the same whole-day interval for the absent checks at take, in "Offen im Team" and in PLAN2. pgTAP.
+- [ ] **CGR-27 (blocking S1, `cra` 14:30; PO 2026-10-23 15:25; includes ABS1-C1):** one interval function for the release, the take, "Offen im Team", `known_by`, PLAN2's absent check and `change_absence`: a visit **without a start time** occupies its whole date (Europe/Zurich, 00:00 to 24:00); a visit **with a start and no end** occupies at least start + its planned minutes (A+B+C), and with no planned minutes to the end of its date. Arithmetic over planned data, no clinical rule. pgTAP: an absence from 12:00 releases that day's untimed visit; an absence from 08:30 releases a visit at 08:00 without an end and with 60 planned minutes; the absent nurse cannot take either one; an absence ending 07:59 does not release the 08:00 visit.
 - [ ] **ABS1-C2 (PO 2026-10-23 14:16):** pgTAP asserts "überschneidet sich" (`overlaps_my_visit`) set and not set.
 - [ ] **ABS1-C3 (PO 2026-10-23 14:16):** an absence applies to every team of the member in the organisation; withdraw and shorten change all; pgTAP with a member of two teams.
 
