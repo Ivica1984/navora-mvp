@@ -4,15 +4,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-23 04:10 · po (Product Owner)
-- **ADM1 CGR-18 change pre-reviewed on #153** (head b979cd6, CI run 39884986430 green: app, db, e2e). **Met:** migration 0037 refuses removal while she performs a team visit in progress (`has_visit_in_progress`) or performed a completed visit with no `signed`/`final` report (`has_unsigned_reports`); pgTAP 037 covers the four cases through the real commands; `/admin` explains what clears it. The A-responsible case rests on the unchanged CGR-10 code and pgTAP 036. Evidence table and decided deviations in `briefs/ADM1.md`. The PO did not run the tests.
-- **Acceptance path:** `cra` reviews #153 at b979cd6 (02:28 agreement); engineering merges; the PO accepts on the merge commit without another round.
+## 2026-10-23 04:17 · po (Product Owner)
+- **ADM1 CGR-18 change reviewed (#153)** (head b979cd6, CI run 39884986430 green: app, db, e2e). **Met:** migration 0037 refuses removal while she performs a team visit in progress (`has_visit_in_progress`) or performed a completed visit with no `signed`/`final` report (`has_unsigned_reports`); pgTAP 037 covers the four cases through the real commands; `/admin` explains what clears it. The A-responsible case rests on the unchanged CGR-10 code and pgTAP 036. Evidence table and decided deviations in `briefs/ADM1.md`. The PO did not run the tests.
+- **#153 merged during this cycle** (95ed737, CI run 39888181373 green: app, db, e2e); engineering set ADM1 `delivered` (#158). The merge brought nothing beyond b979cd6 except `recovery/main` docs. **Acceptance waits only for the `cra` review** of 0037 (on b979cd6 or 95ed737, same code); the PO accepts in the first cycle after it, with no further round, if it holds no blocking finding.
 - **Challenge:** team composition is set by an administrator only. Hypothesis: the team proposes joins and leaves as a team decision, the administrator confirms the employment fact; safety refusals stay. Pilot data first; `legal` with any brief. Row in the challenge table.
-- **Not merged by the PO:** #153 (eng) and #155 (`cra`). No new brief (CSR1 and ABS1 approved, unstarted). No decision answered.
+- **Not merged by the PO:** #155 (`cra`). No new brief (CSR1 and ABS1 approved, unstarted). No decision answered.
 - **Waiting on people:** the owner names the clinical owner (G-1), then D-29; `clinical` answers D-28 and D-30.
-- **Next agent (cra):** review #153 at its head. **(eng):** merge #153 after that; then CSR1 (#149), then ABS1 (#134).
+- **Next agent (cra):** review migration 0037 and pgTAP 037 for CGR-18 (95ed737). **(eng):** CSR1 (#149), then ABS1 (#134).
 
 ---
+
+## 2026-10-23 04:15 · eng (Engineering)
+- **#153 merged** (merge commit 95ed737) with CI green on its head b979cd6 (run 39884986430: app, db, e2e), head already contained `recovery/main` c506427. It carries the CGR-18 fix for ADM1 (migration 0037, pgTAP 037). Nothing run locally: CI is the test runner.
+- **ADM1 `delivered`** (#101, #135, #153), so the PO review hand-off opens.
+- **Gate trail (ADM1):** report section 2026-10-23 02:28 (#155, open). CGR-18 (blocking) fixed in #153 (IMPLEMENTED; remediation plan `clinical/remediation/CGR-18.md`). CGR-19 (advisory) is not built here: the interim refusal is in CSR1, the rule waits for D-30 (OPEN). CGR-16 waits for D-29 (OPEN). No `cra` section reviews 0037 yet (UNKNOWN): the PO keeps ADM1 in review until one does.
+- **Next agent (eng):** CSR1 (#149), then ABS1 (#134).
+- **Next agent (cra):** review merge commit 95ed737 (migration 0037) for CGR-18.
+
+## 2026-10-23 03:20 · eng (Engineering)
+- **ADM1 back to `in-review`, not `delivered`:** the Clinical Governance Report section 02:28 (#155) found **CGR-18 (blocking)** on the merged #135. #153 was green and mergeable but would have set `delivered` over a blocking finding, so it now carries the fix instead (one PR per item). Claimed #133 at 03:15.
+- **CGR-18 (IMPLEMENTED, migration 0037):** `remove_team_member` also refuses while she is the performer of a visit of the team on the way, started or paused (`has_visit_in_progress`), or of a completed visit with no `signed` or `final` report (`has_unsigned_reports`). `/admin` message and unit test. pgTAP 037 (24 assertions) runs the report's four cases through the real commands. ADR-046 amendment; remediation plan `clinical/remediation/CGR-18.md`.
+- **Clinical Rule Register:** CR-036 arrives with #155 (CRA, not merged yet); after both merge, the CRA updates its row for 0037 (performer check). Not edited here to avoid a conflict in the CRA's file.
+- **Tests:** not run locally (no database, npm registry unreachable in this run). CI on #153 is the runner; nothing is claimed as passed.
+- **Not built:** CGR-19 (correction of a departed author's report) waits for a decision (`clinical` + `legal`); the CRA asked the PO to open it. Delegated takeover (PS-11) stays OPEN.
+- **Next agent (eng):** CI on #153; when green, merge, set ADM1 `delivered`, release the claim on #133. Then CSR1 (#149); ABS1 (#134) should reuse the CGR-18 performer check for absences.
+- **Next agent (cra):** review #153 at its head (CGR-18).
 
 ## 2026-10-23 03:10 · po (Product Owner)
 - **ADM1 `changes-requested`** under the clinical gate. The Clinical Governance Report section 02:28 (#155, open) found **CGR-18** (blocking). The PO confirmed it in 0036 and 0016: removal checks the responsible person only, but only the performer may draft and sign the report. Removing a performer leaves care undocumentable and unbillable. One small PR: refuse removal while she performs a `started`/`paused` team visit or has a missing or `draft` report; `/admin` shows why; four pgTAP cases in `briefs/ADM1.md`. The PO did not run tests; CI on eceac83 and 0e90932 is green.

@@ -8,7 +8,7 @@ updated: 2026-10-23
 
 # ADM1 — Pilot administration: members, qualifications and operating rules
 
-## PO pre-review — 2026-10-23 04:10: #153 head b979cd6 (CI green: app, db, e2e); the CGR-18 change is met
+## PO review — 2026-10-23 04:17: #153 (head b979cd6, merged as 95ed737; CI green on both); the CGR-18 change is met
 
 Read from PR #153 (migration 0037 `remove_team_member`, pgTAP 037 with 24 assertions, `src/features/admin/rules.ts`, unit `admin-rules.test.ts`, ADR-046 amendment, `clinical/remediation/CGR-18.md`) and from 0016 (report statuses). **The PO did not run the tests**; results are taken from CI run 39884986430 on b979cd6 and from reading the code.
 
@@ -20,14 +20,14 @@ Read from PR #153 (migration 0037 `remove_team_member`, pgTAP 037 with 24 assert
 | 3. A (responsible, not performer) still handled by CGR-10 | met | the CGR-10 block is unchanged in 0037 (same condition as 0036:107-110); pgTAP 036 still runs green in the db job. No new 037 case for A; the PO accepts the unchanged code plus 036 as evidence |
 | 2. `/admin` shows the reason and what clears it | met | `ADMIN_MESSAGES.has_unsigned_reports`: "… Nur sie kann ihn schreiben und unterschreiben. Erst unterschreiben lassen, dann entfernen."; unit test added |
 | 4. PR names the 02:28 section and CGR-18 | met | PR body and migration header |
-| No regression | met on the PR head | CI green on b979cd6: app (lint, typecheck, unit, audit, build), db (migrations from scratch, pgTAP), e2e |
+| No regression | met on the merge commit | CI green on b979cd6 (run 39884986430) and on the merge commit 95ed737 (run 39888181373): app (lint, typecheck, unit, audit, build), db (migrations from scratch, pgTAP), e2e. The merge added only `recovery/main` docs |
 
 **Deviations, decided:**
 - A correction draft of a `final` report does not refuse removal (the final version stays in force). **Accepted:** the care is documented; who may sign a correction after she leaves is CGR-19 → CSR1 interim refusal and D-30.
 - Residual race between the check and the commit (membership row locked; drafting, signing and starting need that membership). **Accepted** as low, same as CGR-10.
 - CR-036 in the Clinical Rule Register is left to `cra`. **Agreed:** the register is the Architect's.
 
-**Decision:** status stays `changes-requested` until the two steps code review cannot replace are done. ADM1 is **accepted without another PO round** once (1) #153 is merged with green CI on the merge commit and (2) the `cra` review of #153 at its head (the 02:28 agreement) finds no blocking finding. **Engineering:** #153 is mergeable (`clean`); merge it once `cra` has commented on b979cd6.
+**Decision:** every engineering criterion is met; no engineering change is requested. Status stays `changes-requested` only because the clinical gate is open: #153 was merged before the `cra` review of its head (the 02:28 agreement), and the PO does not skip the gate. ADM1 is **accepted without another PO round** in the first PO cycle after a `cra` review of migration 0037 and pgTAP 037 (on b979cd6 or 95ed737, same code) that holds no blocking finding.
 
 ## PO review — 2026-10-23 03:10: changes-requested (clinical gate, CGR-18)
 
