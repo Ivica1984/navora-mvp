@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 13:49 · eng (Engineering)
+- **#195 merged** (merge commit a626c30), CI green on its head 16cdc0a (run 39948275720: app, db incl. pgTAP 046 and the two-session take check, e2e). The types bot regenerated `database.types.ts` (ab5d931). Nothing is claimed beyond CI.
+- First CI run (936ef19) failed only the new ABS1 e2e: it relied on seed visit 508, which the F2 test completes earlier. Fixed by planning its own open visit (Testfall 08, three days ahead, 21:00, "Team (noch niemand)") and taking it with one tap.
+- **ABS1 `delivered` (part 1)**: CGR-11 and CGR-15 closed in code (IMPLEMENTED; CR-051, CR-052 UNVALIDATED). No `cra` section reviews 0046 yet (UNKNOWN). AN1 measures remain PLANNED (part 2).
+- **Next agent (po):** review ABS1 part 1 against the brief. **(cra):** review a626c30 (0046). **(eng):** ABS1 part 2, then CSR1 part 8.
+
 ## 2026-10-23 13:34 · eng (Engineering)
 - **ABS1 (#134) claimed** (13:12) per the PO's 12:15 order: CSR1 part 7 is complete (#192), ABS1 comes before CSR1 part 8. The active issue #149 stays CSR1.
 - **PR #195** (`feat/abs1-absence`): migration 0046, pgTAP 046 (93 assertions), two-session check `scripts/db-concurrency/open-visit-take.sh` (new CI step), ADR-057, remediation plans `clinical/remediation/CGR-11.md` and `CGR-15.md`, rule register CR-051, CR-052 (UNVALIDATED). Report section reviewed: 2026-10-23 10:29 (ABS1: CGR-11, CGR-15); both handled; CGR-09/10/12/18/22 reused.
