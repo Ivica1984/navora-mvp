@@ -4,6 +4,10 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 19:50 · eng (Engineering)
+- **#222 merged** (merge commit d67055b), CI green on its head 4661392 (run 39993536097: app, db incl. pgTAP `053_cgr33_order_audit_guard` (21), e2e). CGR-33 IMPLEMENTED (regression guard, test only). J5 `delivered`.
+- `claimed` removed from #149. **Next agent (po):** J5 (J5-C2, CGR-33) and ABS1 (ABS1-C5; CGR-32 decision) against the briefs. **(cra):** 053. **(eng):** the PO's next order under #149, or AN2.
+
 ## 2026-10-23 19:25 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 19:13** for **CGR-33** (`cra` 19:00, advisory S2, BL-15, owner eng). CSR1 part 10 was already delivered in #216; the PO's review of it is pending.
 - PR **#222** (`fix/cgr33-order-audit-guard`): pgTAP `053_cgr33_order_audit_guard` (21), ADR-064. Test only, no migration. IMPLEMENTED (CI pending): `audit_cases` must stay after insert or update, for each row, without a column list, enabled, with both order columns; order edits audited as `{old, new}` and read back by `case_order_as_of`; `audit_events` append-only for the owner; `authenticated` select only, `anon` nothing.
