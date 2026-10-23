@@ -63,4 +63,14 @@ describe("handover rules (HAND1)", () => {
     expect(sourceText("2026-10-18", "08:00:00")).toBe("Einsatz vom 18.10.2026 08:00");
     expect(sourceText(null, null)).toBeNull();
   });
+
+  it("CSR1 / CGR-34: a cancellation stored with responsible_absent shows the fixed text once; otherwise not", () => {
+    expect(entryLines("visit_cancelled", { reason_code: "team_cancelled", note: null, responsible_absent: true }))
+      .toEqual(["Abgesagt durch das Team", "nicht durchgeführt: zuständige Person abwesend gemeldet"]);
+    expect(entryLines("visit_cancelled", { reason_code: "client_cancelled", note: null, responsible_absent: false }))
+      .toEqual(["Abgesagt durch Klient:in"]);
+    expect(entryLines("visit_cancelled", { reason_code: "other", note: "Synthetisch: Notiz" }))
+      .toEqual(["Anderer Grund", "Synthetisch: Notiz"]);
+    expect(entryLines("visit_no_show", { reason_code: null, note: "Synthetisch", responsible_absent: true })).toEqual(["Synthetisch"]);
+  });
 });

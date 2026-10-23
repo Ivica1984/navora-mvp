@@ -53,4 +53,10 @@ describe("OPS1 exception helpers", () => {
     expect(alertFlagLabels(null)).toEqual([]);
     expect(alertFlagLabels(undefined)).toEqual([]);
   });
+
+  it("CGR-34: labels a late team cancellation of a flagged past visit with the fixed text", () => {
+    expect(alertFlagLabels(["not_done_responsible_absent"])).toEqual(["nicht durchgeführt: zuständige Person abwesend gemeldet"]);
+    expect(alertFlagLabels(["responsible_absent", "not_done_responsible_absent"]))
+      .toEqual(["Zuständige Person abwesend gemeldet", "nicht durchgeführt: zuständige Person abwesend gemeldet"]);
+  });
 });

@@ -4,7 +4,7 @@
 // nothing is summarised, ranked or interpreted.
 
 import { MEDICAL_ORDER_LABEL } from "@/features/intake/rules";
-import { REASON_LABEL } from "@/features/lifecycle/rules";
+import { REASON_LABEL, RESPONSIBLE_ABSENT_NOTE } from "@/features/lifecycle/rules";
 import { EVENT_STATUS_LABEL, SEVERITY_LABEL } from "@/features/quality/rules";
 import { WEEKDAYS } from "@/features/planning/rules";
 
@@ -188,6 +188,11 @@ export function entryLines(kind: string, detail: Record<string, unknown>): strin
       add(`Einsatz ${slot(detail.before)} wieder offen im Team`);
       break;
     case "visit_cancelled":
+      add(reasonCode && (REASON_LABEL[reasonCode] ?? reasonCode));
+      add(str(detail.note));
+      // CSR1 / CGR-34 (migration 0054): stored by the server, shown as a fixed text.
+      add(detail.responsible_absent === true && RESPONSIBLE_ABSENT_NOTE);
+      break;
     case "visit_no_show":
     case "visit_no_show_outcome":
     case "visit_interrupted":

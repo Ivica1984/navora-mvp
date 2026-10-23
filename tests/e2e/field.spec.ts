@@ -388,4 +388,28 @@ test.describe("field tool (F1)", () => {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
   });
+
+  // CSR1 part 11 / CGR-34 (migration 0054): runs after the CGR-32 test above (same file, one worker, declared order).
+  // The team cancels the flagged visit 532 (yesterday 07:00) with an existing reason; the server stores that its
+  // responsible member was reported absent, and the card's cancellation entry shows the fixed text once. The stored
+  // fact and the false cases are asserted in pgTAP 055.
+  test("CGR-34: cancelling a flagged past visit shows \"nicht durchgeführt: zuständige Person abwesend gemeldet\" once, at phone width", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signIn(page, NURSE, /\/field$/);
+    const yesterday = new Date(Date.now() - 86_400_000).toLocaleDateString("sv-SE", { timeZone: "Europe/Zurich" });
+    await page.goto(`/field?datum=${yesterday}`);
+    const visit = page.getByRole("article", { name: /07:00 – 07:30, Testfall 08/ });
+    await expect(visit).toHaveCount(1);
+    await visit.getByRole("button", { name: "Einsatz absagen" }).click();
+    await visit.locator("select[name=code]").selectOption("team_cancelled");
+    await visit.getByRole("button", { name: "Absage speichern" }).click();
+    const entry = visit.getByTestId("cancel-reason");
+    await expect(entry).toContainText("Abgesagt (Abgesagt durch das Team)");
+    const fact = visit.getByTestId("cancel-responsible-absent");
+    await expect(fact).toHaveCount(1);
+    await expect(fact).toHaveText(/^\s*·\s*nicht durchgeführt: zuständige Person abwesend gemeldet\s*$/);
+    await expect(visit.getByRole("button", { name: "Einsatz absagen" })).toHaveCount(0);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
 });
