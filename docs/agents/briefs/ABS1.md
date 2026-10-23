@@ -8,6 +8,22 @@ updated: 2026-10-23
 
 # ABS1 — Absence without the phone chain: "I can't work" hands the day to the team
 
+## PO decision — 2026-10-23 20:15: CGR-34 (how a flagged past visit is closed); added to the CGR-32 condition
+
+`cra` addendum 19:57 (PR #226, advisory S3, PS-27): a past planned visit flagged by CGR-32 can be closed only with `cancel_visit` (0024: `client_cancelled`, `client_in_hospital`, `team_cancelled`, `other`), and the flag is computed, so after the cancellation the record reads as a planned cancellation. That the care was due and not given because the responsible member was absent is lost for the team, for HAND1, for AN2 and for any later quality review. The PO read `cancel_visit` (0024:334-360). **The PO did not run any test.**
+
+**Decision (product authority; a documentation-integrity rule, not a clinical rule):** NAVORA records what it already knows; nobody is asked to type it.
+- No new reason code and no extra tap: the team keeps choosing among the existing reasons. Asking the nurse to re-state a fact the system holds is administration NAVORA removes, and a free-text "other" is where it would get lost.
+- When `cancel_visit` closes a visit while the CGR-32 condition holds (planned, dated before today, its responsible member absent at its interval per `member_absent_during`), the cancellation stores that fact on its status note (`responsible_absent`, set by the server, never by the caller). The stored fact is immutable: withdrawing or shortening the absence later does not erase it (the overdue flag itself stays computed, CGR-32 (3)).
+- Wherever the cancellation is shown (visit history, HAND1 "Seit deinem letzten Einsatz", OPS1 detail), it reads "Abgesagt (<reason>) · nicht durchgeführt: zuständige Person abwesend gemeldet". Fixed text, no reason for the absence, no health data.
+- Whether missed care must be made up or reported stays `clinical` (D-28, D-31). Not decided here.
+
+**Condition CGR-34 (CSR1 part 11, with CGR-32; concrete, testable):**
+- (1) `cancel_visit` on a visit that meets the CGR-32 condition stores `responsible_absent = true` on its `visit_status_notes` row; on any other visit `false`. The caller cannot set it.
+- (2) pgTAP: absence from yesterday 06:00 recorded today → yesterday's flagged 07:00 visit cancelled with `team_cancelled` → its note has `responsible_absent = true`; the absence then withdrawn → the note still has it; the same cancel on a past visit without an absence → `false`; a cancel of a future visit (released, nobody responsible) → `false`.
+- (3) The label has a unit test; e2e at phone width shows it once on the visit's cancellation entry.
+- (4) The `cra` 19:46 case belongs to CGR-32 (4): an overdue alert closed by hand before the absence was recorded → `past_planned` still counts the visit.
+
 ## PO acceptance — 2026-10-23 19:12: accepted (clinical gate passed); condition CGR-32
 
 Reviewed ABS1-C5: #216 (head 9ea3cb3, CI run 39988490243 green: app, db incl. pgTAP `052_abs1_c5_no_past_move_into_absence` (12), e2e; merged as 3d48a00, CI runs 39989101189 and 39989106823 green on the merge commit; runs 39989752365 and 39989758895 green on 279d026; checked through the API). The PO read migration 0052 in full and the pgTAP 052 assertions. **The PO did not run the tests.**
@@ -184,6 +200,7 @@ A nurse records in a few seconds that she is not available. Her visits in that p
 - [x] The PR names the latest Clinical Governance Report section and the CGR IDs it addresses.
 - [x] **ABS1-C4 (PO 2026-10-23 16:18, patient safety; met in code 18:15, #212, except ABS1-C5):** no command gives a planned visit to a member absent at its interval: `plan_visit` refuses with `responsible_absent`; `reschedule_visit` into her absence releases the visit ("Abwesenheit"). pgTAP (a)-(e) in the 16:18 review. **ABS1-N1:** `released` counts only the caller's teams.
 - [x] **ABS1-C5 (PO 2026-10-23 18:15, patient safety; met 19:12, #216, 0052):** `reschedule_visit` refuses with `responsible_absent` a move that would leave the visit with a member absent at its interval (a date before today); pgTAP (a)-(c) in the 18:15 review.
+- [ ] **CGR-34 (PO 2026-10-23 20:15, with CGR-32; CSR1 part 11):** a cancellation of a flagged past visit stores, server-side and immutably, that the responsible member was absent (`responsible_absent` on its status note) and shows "nicht durchgeführt: zuständige Person abwesend gemeldet"; no new reason code, no extra tap. pgTAP, unit and e2e in the 20:15 decision.
 - [ ] **CGR-32 (PO 2026-10-23 19:12, acceptance condition; CSR1 part 11):** a planned, not started visit dated before today inside a newly recorded absence keeps its responsible member and its overdue alert is flagged "Zuständige Person abwesend gemeldet"; `record_absence` returns `past_planned`; never refused. pgTAP and e2e in the 19:12 review.
 - [x] **ABS1-C1 (PO 2026-10-23 14:16; met in code 16:18, #206):** an untimed visit is released when the absence covers any part of its date; the same whole-day interval for the absent checks at take, in "Offen im Team" and in PLAN2. pgTAP.
 - [x] **CGR-27 (met in code 16:18, #206; awaits `cra`) (blocking S1, `cra` 14:30; PO 2026-10-23 15:25; includes ABS1-C1):** one interval function for the release, the take, "Offen im Team", `known_by`, PLAN2's absent check and `change_absence`: a visit **without a start time** occupies its whole date (Europe/Zurich, 00:00 to 24:00); a visit **with a start and no end** occupies at least start + its planned minutes (A+B+C), and with no planned minutes to the end of its date. Arithmetic over planned data, no clinical rule. pgTAP: an absence from 12:00 releases that day's untimed visit; an absence from 08:30 releases a visit at 08:00 without an end and with 60 planned minutes; the absent nurse cannot take either one; an absence ending 07:59 does not release the 08:00 visit.

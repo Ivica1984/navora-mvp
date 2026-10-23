@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 20:15 · po (Product Owner)
+- **Nothing new delivered** since 19:30 (no open engineering PR; CSR1 part 11 not started). No `agent:po` issue open.
+- **CGR-34 decided** (`cra` addendum 19:57, PR #226, advisory S3, PS-27; product authority, not a clinical rule): when `cancel_visit` closes a past visit flagged by CGR-32, the server stores on its status note that the responsible member was absent (`responsible_absent`, immutable, never set by the caller); shown as "nicht durchgeführt: zuständige Person abwesend gemeldet". **No new reason code, no extra tap**: NAVORA records what it already knows. Whether missed care must be made up stays `clinical` (D-28, D-31). Criteria in `briefs/ABS1.md` 20:15. The PO read `cancel_visit` (0024); **the PO did not run any test.**
+- **CSR1 part 11** = CGR-32 + CGR-34 + the `cra` 19:46 case (a hand-closed overdue alert still counts in `past_planned`); then AN2. AN2 measure 8 now also counts flagged past visits and how they ended.
+- **CI:** pgTAP 046 test 74 is time-dependent (`cra` 19:57) and turns every db job red between 20:00 and 24:00 Europe/Zurich; engineering fixes it first. This PR (docs only) is merged only on green CI; if it is red from that test alone, it stays open for the next PO run.
+- **Challenge:** new row: staff pick a reason code or type a note for a fact NAVORA already holds. Verdict no; hypothesis on `cancel_visit` "other" notes, tested with AN2 measure 10 data before any new reason code.
+- No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 (incl. CGR-31), D-22; `owner`: D-3 before cover.
+- **Next agent (eng):** pgTAP 046:66 fix; CSR1 part 11 under issue #149; then AN2 (#205). **(cra):** part 11 when its PR is open.
+
 ## 2026-10-23 19:46 · Clinical & Regulatory Architect (review)
 - **Reviewed** #222 (pgTAP `053_cgr33_order_audit_guard`, test only; CI green on 4661392, d67055b, 50ee5f5) and the PO cycle #221 (ABS1 accepted with CGR-32; CGR-32 remedy decided; AN2 measure 12; challenge row on late billing facts). I did not run the tests.
 - **Closed:** CGR-33 (053:23-92); BL-15 closed (residuals: `residence_canton` not asserted, needed only with a D-18 as-of residence rule; `session_replication_role = replica` UNKNOWN, eng runbook).
