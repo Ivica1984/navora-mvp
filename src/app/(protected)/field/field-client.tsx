@@ -34,6 +34,8 @@ import { createReportDraft } from "@/features/field/report-commands";
 import type { CountersignItem } from "@/features/field/queries";
 import type { CoverOffer, MyCover } from "@/features/cover/queries";
 import CoverSection from "./cover-section";
+import { AbsenceSection, OpenVisitsSection } from "./absence-section";
+import type { OpenVisit, TeamAbsence, TeamColleague } from "@/features/absence/queries";
 import SinceLastSection from "./since-last-section";
 import { groupSinceLast, type SinceLast } from "@/features/handover/rules";
 import type { SinceLastRowDb } from "@/features/field/queries";
@@ -60,6 +62,8 @@ type Props = {
   sinceLast: SinceLastRowDb[];
   /** CSR1 / CGR-25: visits of her teams ended as not completed that still wait for a follow-up decision. */
   openFollowups?: TeamVisitAlert[];
+  /** ABS1: absences of her teams, "Offen im Team", and the members she can record an absence for. */
+  absence?: { today: string; absences: TeamAbsence[]; open: OpenVisit[]; colleagues: TeamColleague[] };
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -84,7 +88,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover, sinceLast, openFollowups = [] }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover, sinceLast, openFollowups = [], absence }: Props) {
   const summary = summarizeDay(visits);
   const sinceLastByVisit = groupSinceLast(sinceLast);
 
@@ -125,6 +129,9 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
           <Stat label="Laufend" value={summary.running} />
           <Stat label="Erledigt" value={summary.done} />
         </section>
+
+        {absence && <AbsenceSection today={absence.today} absences={absence.absences} colleagues={absence.colleagues} />}
+        {absence && <OpenVisitsSection open={absence.open} />}
 
         <CoverSection offers={cover.offers} mine={cover.mine} />
 

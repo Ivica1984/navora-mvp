@@ -1306,6 +1306,9 @@ isOneToOne: false
               "case_id": string,"gp_named": boolean,"insurance_type": string,"insurer_name": string,"medical_order_status": string,"medical_order_valid_until": string,"open_tasks": (string)[],"ready_for_matching_at": string,"residence_canton": string,"residence_municipality": string
             }[]
                            },
+"change_absence":
+{ Args: { "p_absence_id": string,"p_idempotency_key": string,"p_until": string,"p_until_time": string,"p_withdraw": boolean }; Returns: Json
+                           },
 "close_case":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code": string }; Returns: string
                            },
@@ -1457,6 +1460,9 @@ isOneToOne: false
 "plan_visit":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
                            },
+"record_absence":
+{ Args: { "p_from": string,"p_from_time": string,"p_idempotency_key": string,"p_team_id": string,"p_until": string,"p_until_time": string,"p_user_id": string }; Returns: Json
+                           },
 "record_interruption_followup":
 { Args: { "p_decision": string,"p_idempotency_key": string,"p_note": string,"p_visit_id": string }; Returns: string
                            },
@@ -1550,6 +1556,14 @@ isOneToOne: false
 "sync_exceptions":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
+"take_open_visit":
+{ Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: Json
+                           },
+"team_absences":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "absence_id": string,"ends_at": string,"is_me": boolean,"may_change": boolean,"member": string,"recorded_by_me": boolean,"starts_at": string,"team_id": string
+            }[]
+                           },
 "team_case_lifecycle":
 { Args: Record<PropertyKey, never>; Returns: {
               "case_id": string,"changed_at": string,"client_name": string,"expected_end": string,"last_kind": string,"last_reason": string,"lifecycle": string,"suspended_visits": number,"team_name": string
@@ -1563,6 +1577,11 @@ isOneToOne: false
 "team_offers":
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"expected_hours_per_week": number,"first_refusal_until": string,"matching_request_id": string,"my_team_declined": boolean,"region": string,"request_title": string,"requested_start": string,"required_qualification": string,"required_services": (string)[],"response_due_at": string,"returning_client": boolean,"team_id": string,"team_name": string,"urgency": string
+            }[]
+                           },
+"team_open_visits":
+{ Args: { "p_from": string }; Returns: {
+              "case_id": string,"client_name": string,"is_needs_assessment": boolean,"known_by": string,"known_by_me": boolean,"may_take": boolean,"overlaps_my_visit": string,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"services_provided": (string)[],"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
 "team_plan_status":

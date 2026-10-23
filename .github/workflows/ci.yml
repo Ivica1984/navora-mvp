@@ -77,7 +77,9 @@ jobs:
         run: scripts/ci-step.sh pgtap supabase test db
       - name: Concurrency checks (two real sessions)
         if: steps.detect.outputs.present == 'true'
-        run: scripts/ci-step.sh concurrency scripts/db-concurrency/cover-accept.sh
+        run: |
+          scripts/ci-step.sh concurrency scripts/db-concurrency/cover-accept.sh
+          scripts/ci-step.sh concurrency-take scripts/db-concurrency/open-visit-take.sh
       - name: Generated types match the migrations (T14)
         if: steps.detect.outputs.present == 'true'
         run: |

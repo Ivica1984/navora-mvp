@@ -315,4 +315,28 @@ test.describe("field tool (F1)", () => {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
   });
+
+  // ABS1 (migration 0046): "Ich kann nicht arbeiten" at the top of /field in two taps (open, save), no reason field;
+  // "Offen im Team" lists visits of the team with nobody responsible (seed visit 508, tomorrow 09:00) with one tap
+  // to take. Nothing is saved here: the database behaviour is pgTAP 046 and the two-session take check.
+  test("ABS1: absence is two taps from the top and open team visits are listed, at phone width", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signIn(page, NURSE, /\/field$/);
+    await page.goto(`/field?datum=${NEXT_DAY}`);
+    const absence = page.getByTestId("absence");
+    const open = absence.getByTestId("absence-open");
+    await expect(open).toBeInViewport();
+    await open.click();
+    const form = absence.getByRole("form", { name: "Abwesenheit erfassen" });
+    await expect(form.getByTestId("absence-save")).toBeVisible();
+    await expect(form.getByLabel(/Grund|Begründung|Notiz/)).toHaveCount(0);
+    await form.getByRole("button", { name: "Abbrechen" }).click();
+    await expect(form).toHaveCount(0);
+
+    const team = page.getByTestId("open-in-team");
+    await expect(team.getByRole("heading", { name: /Offen im Team/ })).toBeVisible();
+    await expect(team.getByTestId("open-visit").filter({ hasText: "09:00" }).getByRole("button", { name: "Übernehmen" })).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
 });

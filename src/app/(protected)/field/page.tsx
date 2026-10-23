@@ -5,6 +5,7 @@ import { getFieldQuality, getQualityEventTypes } from "@/features/quality/querie
 import { getVisitStatusNotes } from "@/features/lifecycle/queries";
 import { getCover } from "@/features/cover/queries";
 import { getTeamVisitAlerts } from "@/features/team/queries";
+import { getAbsenceView } from "@/features/absence/queries";
 import FieldClient from "./field-client";
 
 // F1: the nurse's day. Mobile-first; visits of her own teams only (public.field_visits).
@@ -15,7 +16,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
   const today = todayInZurich();
   const { datum } = await searchParams;
   const day = parseDayParam(datum, today);
-  const [visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover, sinceLast, visitAlerts] = await Promise.all([
+  const [visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover, sinceLast, visitAlerts, absence] = await Promise.all([
     getFieldVisits(day),
     getFieldNotes(day),
     getFieldReports(day),
@@ -26,6 +27,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
     getCover(),
     getSinceLast(day),
     getTeamVisitAlerts(),
+    getAbsenceView(day),
   ]);
 
   return (
@@ -44,6 +46,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
       cover={cover}
       sinceLast={sinceLast}
       openFollowups={visitAlerts.filter((a) => a.exception_type === "visit_interrupted")}
+      absence={{ today, ...absence }}
     />
   );
 }
