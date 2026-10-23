@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { handleException } from "@/features/operations/commands";
-import { PRIORITY_LABEL, countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
+import { CLOSES_WITH_CAUSE, PRIORITY_LABEL, canClose, countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
 import type { OperationsException } from "@/features/operations/types";
 
 const PRIORITY_CLASS: Record<string, string> = {
@@ -15,6 +15,7 @@ const PRIORITY_CLASS: Record<string, string> = {
 /**
  * OPS1: one list of open exceptions, derived from state and sorted by urgency.
  * Operations takes over, comments and closes (with a reason); it never assigns or edits cases here.
+ * Safety exceptions (P1 or escalating to P1) have no close: they end when their cause is resolved (CSR1 / CGR-06).
  */
 export default function ExceptionCenter({ exceptions }: { exceptions: OperationsException[] }) {
   const counts = countByPriority(exceptions);
@@ -83,6 +84,9 @@ function ExceptionCard({ exception: e }: { exception: OperationsException }) {
       </p>
       <p className="text-xs text-stone-600">Nächster Schritt: {e.next_step}</p>
       <p className="text-xs font-semibold" data-testid="exception-handler">{handlerLabel(e)}</p>
+      {!canClose(e) && (
+        <p className="text-xs text-stone-700" data-testid="exception-closes-with-cause">{CLOSES_WITH_CAUSE}</p>
+      )}
       {comments.length > 0 && (
         <ul className="grid gap-0.5 text-xs" aria-label="Notizen">
           {comments.map((c, i) => (
@@ -108,9 +112,11 @@ function ExceptionCard({ exception: e }: { exception: OperationsException }) {
           <button type="button" onClick={() => setMode("comment")} className="min-h-10 rounded-lg border border-stone-400 bg-white px-3 font-semibold">
             Notiz
           </button>
-          <button type="button" onClick={() => setMode("close")} className="min-h-10 rounded-lg border border-stone-400 bg-white px-3 font-semibold">
-            Schliessen
-          </button>
+          {canClose(e) && (
+            <button type="button" onClick={() => setMode("close")} className="min-h-10 rounded-lg border border-stone-400 bg-white px-3 font-semibold">
+              Schliessen
+            </button>
+          )}
         </div>
       ) : (
         <form
