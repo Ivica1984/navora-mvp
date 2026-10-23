@@ -41,7 +41,10 @@ export const ADMIN_MESSAGES: Record<string, string> = {
   last_admin: "Die letzte Administratorin bzw. der letzte Administrator kann die Rolle nicht abgeben.",
   has_cases: "Es gibt noch offene Fälle (oder Bezugspflege). Zuerst übergeben.",
   // CGR-10 (migration 0036): never removed while on the way to, in, or pausing a visit of this team.
+  // CGR-18 (migration 0037): also when she performs a colleague's visit of this team.
   has_visit_in_progress: "Sie ist gerade unterwegs zu einem Einsatz oder mitten in einem Einsatz dieses Teams. Erst abschliessen lassen, dann entfernen.",
+  // CGR-18 (migration 0037): only she can write and sign the report of a visit she carried out, and only as a member.
+  has_unsigned_reports: "Sie hat Einsätze in diesem Team durchgeführt, deren Bericht fehlt oder noch nicht unterschrieben ist. Nur sie kann ihn schreiben und unterschreiben. Erst unterschreiben lassen, dann entfernen.",
   name_taken: "Ein Team mit diesem Namen gibt es bereits.",
   wrong_state: "Nicht mehr im passenden Zustand.",
   out_of_range: "Ausserhalb des sicheren Bereichs.",
