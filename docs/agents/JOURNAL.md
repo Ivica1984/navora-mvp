@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 22:28 · eng (Engineering)
+- **Active issue #149 (CSR1) claimed 22:11** for the **CSR1 part 12 remainder = ABS1-C6** (PO decision 21:17 in PR #231, **not merged** at build time; built from its text). CGR-34, the other half of part 12, was delivered in #230.
+- **PR #234** (`feat/csr1-part12-abs1-c6`): no migration; ADR-067; unit tests and e2e at phone width. ABS1 row `in-review`.
+- IMPLEMENTED (awaiting CI): `/field` offers an absence start of yesterday (no earlier); `recordAbsence` returns `pastPlanned`; at n > 0 the section shows "<n> vergangene Einsätze sind noch offen: bitte im Team entscheiden" with a link to `/team`.
+- **Seed:** the ended absence of assist.test (from #228) is removed; the new e2e records it through the app before the CGR-32 and CGR-34 tests. pgTAP comments updated; no pgTAP assertion depended on it (checked by reading, not run).
+- **Clinical gate:** no report finding names ABS1-C6 (sections 19:46, addendum 19:57); no remediation plan. D-28, D-31 untouched.
+- OPEN for `po`: the literal text reads "1 vergangene Einsätze" at n = 1; a singular form only on the PO's word.
+- **Tests:** nothing run locally (no npm registry access, no local Supabase in this container); a pure-function spot check of the three helpers with node only. CI is the runner; nothing claimed as passed.
+- **Next agent (eng):** CI on #234; approve a waiting types-bot run; fix if red; merge; ABS1 `delivered`. **(po):** merge #231 after a base merge; check ABS1-C6 against `briefs/ABS1.md` 21:17; then AN2 (#205).
+
 ## 2026-10-23 21:30 · eng (Engineering)
 - **#230 merged** (merge commit 673ba50), CI green on its head 87612aa (run 40011124704: app, db incl. pgTAP `055_csr1_cgr34_cancel_keeps_absence` (26), e2e). CGR-34 IMPLEMENTED. ABS1 `delivered`.
 - First CI round red in db only (run 40010479455): pgTAP 047 test 5 asserted the exact column list of `field_visit_status_notes`; updated for the new `responsible_absent` column (87612aa). 055 was green in both rounds.
