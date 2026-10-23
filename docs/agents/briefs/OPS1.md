@@ -8,6 +8,27 @@ updated: 2026-10-23
 
 # OPS1 — Operations exception center
 
+## PO review — 2026-10-23 13:20: condition CGR-25 met (awaits clinical review of 0045)
+
+Delivered by CSR1 part 7 completion (#192, head cf61529, CI run 39941539181 green; merged as 7e5013b, CI green on the merge commit and on 1540f84, checked through the API). The PO read migration 0045 in full, pgTAP 045 (46 assertions), the changed pgTAP 019 count, the new e2e test in `lifecycle.spec.ts`, ADR-056, CR-050 and `clinical/remediation/CGR-25.md`. **The PO did not run the tests.**
+
+| Criterion (CSR1 CGR-25) | Result | Evidence |
+|---|---|---|
+| An `interrupted` visit raises an exception for its team (`/field`, `/team`) | met | 0045 §4a derives `visit_interrupted` from `status = 'interrupted'` without a follow-up decision; §4c adds it to `team_visit_alerts`; pgTAP 045 "the team sees the interrupted visit", "every member of the team sees it (care assistant)", "a nurse of another team does not"; e2e: card "Entscheid offen", `/field` queue and `/team` alert at 390 px |
+| … and for Operations; type and priority PROVISIONAL, not escalating | met | `exception_rules` row P2, no threshold, no escalation (pgTAP 045 "P2/-/-"); not a safety exception; `operations_exceptions` lists it (pgTAP 045 "Operations sees the interrupted visit (P2)") |
+| Closed by a team member or a coordination role with a reason from the short list | met | `record_interruption_followup` (team member or coordinator; audited, idempotent, row lock, unique index): pgTAP 045 team member "Folgeeinsatz geplant" and coordinator outside the team "nicht mehr nötig" → gone for team and Operations; actor and audit row asserted; outsiders and another organisation `rejected` |
+| A close without a reason is refused | met | OPS1 hand close returns `cause_persists`, `closable = false`, refused close writes no event (pgTAP 045); command refuses null, off-list and `other` without a note (22023); a second decision `already_decided`; an earlier close row hides it neither from Operations nor from the team |
+| Detail shows the interruption reason and note; for `client_transferred` the next planned visit | met | §4a detail text; pgTAP 045 asserts the next planned visit for `client_transferred` and no next-visit line for another reason |
+| Rule register: one PROVISIONAL row referring to D-31 | met | CR-050 PROVISIONAL, D-31 |
+| No regression | met (CI) | pgTAP 019 counts 16 types; app, db and e2e green on head, merge commit and 1540f84 |
+
+**Decisions on the OPEN items engineering listed (all interim until D-31, no rule assumed):**
+- "Folgeeinsatz geplant" is a statement; nothing checks that a visit was planned. **Accepted** as the strict default asked for in CSR1 (the criterion asked for a reason, not a plan). Product follow-up recorded as a challenge row (link the decision to a visit planned in the same step); measured first in AN2.
+- Who may decide, including whether a care assistant may record "nicht mehr nötig", and how a decision is corrected: **not answered by the PO**; added to D-31 (`clinical`).
+- A take-over by Operations stays possible and is auto-closed with a note when the team decides (pgTAP 045). Accepted: Operations stays a safety net, the team holds the resolution.
+
+OPS1 stays **accepted**; the CGR-25 condition is met in code and is confirmed by the next `cra` section on 0045. Remaining condition: CGR-26 (CSR1 part 8).
+
 ## PO review — 2026-10-23 12:15: condition CGR-22 met (awaits clinical review of 0044)
 
 Delivered by CSR1 part 7 (#188, merged as e215924, CI green on head 678b12e, the merge commit and 39b9994). The PO read 0044 §2–§4, pgTAP 044 (CGR-22 block), the changed pgTAP 039 assertion and the e2e change; **the PO did not run the tests**.
