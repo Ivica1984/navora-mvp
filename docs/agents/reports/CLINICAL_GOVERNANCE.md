@@ -16,6 +16,67 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-23 10:29: CSR1 parts 3, 4 and 5 (0040, 0041, 0042)
+
+**Scope:** `recovery/main` @ `50681da`. Changes since the 06:30 section (merged with #167 as `6fc517a`):
+- **Code merged:** #171 (CSR1 part 3, F1-F4: CGR-01, CGR-03 F3/F4 part; migration 0040, pgTAP 040) as `bf37957`; #175 (CSR1 part 4, F7/F6: CGR-02; migration 0041, pgTAP 041; pgTAP 016, 019, 022, 026, 037, 038 adapted to the hashed sign) as `479701c`; #179 (CSR1 part 5, OPS1: CGR-20; migration 0042, pgTAP 042, `/field`, HAND1 label, CR-042) as `a78fa7e`.
+- **Docs:** #169, #172, #174, #176, #178, #180, #182 (PO and engineering cycles): D-31 opened (CGR-20), CGR-22 added to D-28, countersigner return question added to D-10, CSR1 order (CGR-20, then J5, then CGR-19), WATCH-1, remediation plans CGR-02 and CGR-20.
+- **Open PRs:** only #3 (`recovery/main` → `main`), out of scope for this review. No open PR in scope, so no PR comments this run.
+
+I read migrations 0040, 0041 and 0042 in full, pgTAP 040, 041 and 042, the remediation plans, `report-commands.ts`, `report-section.tsx`, and the functions they interact with (0008, 0009, 0016, 0024, 0038, 0039). **I did not run the tests.** CI (checked through the API) is green for app, db (migrations, seed, pgTAP) and e2e on `bf37957`, `479701c` and `a78fa7e` (one e2e run on `a78fa7e` was cancelled and a second one passed). On `50681da` (docs only) app and db are green and e2e was still running.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-24 | F1-F4, F6 (0040) | advisory (S2) | Since 0040 a `signed` or `final` report locks the visit's times and observations, which is correct (CGR-03). The lock is lifted by `correct_report`, which **any team member** may call with a reason, and the correction draft then stays open **with no time limit and no signal**: `report_not_final` looks only for the absence of any `final` version, and the earlier final version still exists. While the draft is open, team members can change times and add observations, handover reads the changed live observations, and J5 still bills from the live times (CGR-03 J5 part, BL-3). A correction that is never signed (performer absent, or gone: CGR-19) therefore reopens the record silently and indefinitely. The changes stay attributable and audited, and nothing becomes signed unseen (0041), so this is not blocking. IMPLEMENTED gap. | `correct_report` 0016:343-349 (team member, no performer check); `private.visit_facts_locked` 0040:24-33 (latest version only); `report_not_final` 0024:519-527 (`not exists ... status = 'final'`); billable facts 0022:278 (any `final` version) | A correction draft older than the `report_not_final` threshold raises a P3 exception (type engineering's choice, e.g. `report_correction_open`) for the team and Operations until it is signed. Its threshold is a provisional default (`PROVISIONAL`, D-28). J5 takes minutes from the latest **final** snapshot, not the live facts, while a correction is open (the J5 part of CGR-03). pgTAP: final → correction draft opened → after the threshold the exception exists → signed → it ends. |
+| CGR-25 | OPS1 (0042) | advisory (S2) | Ending a visit as *not completed* removes **every** signal about it: `visit_stuck` ends (correct), and nothing replaces it. Care that was due and not given (medication, wound care, a meal) is visible only passively, on `/field` and in HAND1 at the case's **next** visit. For `nurse_unavailable` (the nurse called away or unwell) the person who knows least about the follow-up may be the one recording it, and nobody else is told. For `client_transferred` the case's later visits stay planned (PO challenge 10:15). Before 0042 the P1 stuck alert at least forced a person to look. Whether a follow-up is required, by whom and at which priority is a clinical rule; it cannot be set here. UNKNOWN; owner `clinical` (D-31). | 0042:129-133 (status `interrupted`, no exception written); derived exceptions read only `on_the_way`, `started`, `paused` for `visit_stuck` (0038 §2); pgTAP 042 checks "no stuck or overdue exception" afterwards; remediation plan CGR-20 step 5 (visibility through `/field` and HAND1 only) | Strict provisional default until D-31: an `interrupted` visit raises an exception for the visit's team and Operations (type and priority engineering's choice, `PROVISIONAL`, e.g. P2 `visit_interrupted`, not escalating), closable by a person with a reason ("Folgeeinsatz geplant", "nicht mehr nötig"), with the reason code and note in its detail; for `client_transferred` the detail names the case's next planned visit. The PO adds the follow-up question to D-31. pgTAP: interrupted → exception visible to team and Operations → closed with a reason → gone. |
+| CGR-26 | OPS1 (0042) | advisory (S3) | A coordinator outside the team can end any started or paused visit of the organisation as *not completed*, and the status is terminal. If that is done in error while the nurse is still on site, she can no longer complete the visit or add an observation, and care actually given is recorded as not given. The actor is recorded and audited, so the error is traceable, but it cannot be corrected. Who may record the end is already a D-31 question. | 0042:124-129 (`is_team_member` or `is_coordinator`), 0042:17-19 (no way out of `interrupted`); `record_observation` 0040:144 (no `interrupted`) | Until D-31: show the performer, on `/field`, who ended her visit and why; count coordinator-recorded interruptions of a visit in progress as a weekly pilot measure. If D-31 keeps the coordinator, it also says how an interruption recorded in error is corrected. |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| CGR-01 | **closed** | `record_observation` refuses a supersede unless `prev.author_id = auth.uid()` (0040:154-163). pgTAP 040:83 (a colleague's supersede is `rejected`); 040:71-73 (the colleague adds her own observation); 040:63-67 (the author still supersedes her own). Only this command writes `visit_observations` (0009:50-61: select-only grants, update and delete refused) |
+| CGR-02 | **closed** | `field_reports` shows a draft's live snapshot and its `snapshot_hash` (0041:60-77); `sign_report(report, hash, key)` refuses `facts_changed` and writes nothing when the current facts have another hash, and stores exactly the snapshot whose hash was sent (0041:114-124); the two-argument version is dropped (0041:84); the builder runs in UTC (0041:25). `/field` sends the hash and reloads after a refusal (`report-section.tsx`, `report-commands.ts:73-85, 120-135`). pgTAP 041:75-94 (a colleague's observation after display → `facts_changed`, still a draft), 041:99-115 (sign after reload), 041:119-130 (a corrected time reaches the signed correction version), 041:136 (time-zone independent), 041:148-154 (countersignature of the frozen version). The summary is not hashed; only the performer edits it (0016 `update_report_draft`), so no colleague's text is signed unseen |
+| CGR-03 | **closed for F3, F4 and F6**; **open for J5** (billing from the signed snapshot) | `private.visit_facts_locked` true while the latest version is `signed` or `final` (0040:24-33); `correct_visit_time` and `record_observation` return `rejected` under the lock, serialised with the report row lock (0040:80-85, 148-152); `correct_report` reopens through a correction draft (0016:343-349). pgTAP 040:104-124 (after final: time correction, new and superseding observation refused, nothing written), 040:130-147 (correction draft reopens; the signed correction version carries the changes; version 1 unchanged; locked again), 040:158-162 (`signed` awaiting countersignature locks too). J5 still reads live times (0023:28-50); residual CGR-24 |
+| CGR-20 | **closed** (interim rule PROVISIONAL, D-31) | terminal status `interrupted` only through `end_visit_not_completed` with a reason from a list, `other` with a note, actor and timeline event, audited, idempotent, row-locked (0042:99-135); a direct update to `interrupted` is refused (pgTAP 042:112-113); a care assistant ends a started B visit (042:130); `visit_stuck` ends without a hand close; no report draft, no billable or working-time fact, no `report_not_final`, no assessment marker (pgTAP 042, remediation plan *Tests*); `/field` and HAND1 show the reason (042:199-204). Residual CGR-25, CGR-26 |
+| CGR-19 | open (advisory) | unchanged; next CSR1 part after J5 (PO 09:10) |
+| CGR-22 | open (advisory) | not built yet; strict default is a CSR1 criterion (PO 07:10), question in D-28 |
+| CGR-07, CGR-08 | open, unchanged | no change in 0022, 0023; J5's CSR1 part (#148) is next |
+| CGR-11, CGR-13, CGR-15, CGR-16, CGR-21, CGR-23 | open, unchanged | no change in 0018, 0020, 0029, 0038 |
+
+### Other changes reviewed (no finding)
+
+- **`signed` locks too (0040, ADR-051):** stricter than the report asked. A countersigner who sees an error must countersign and then open a correction. The PO asked `clinical` in D-10 whether she may return the report instead. Endorsed as the strict default; nothing changes silently.
+- **0042 is `security definer`** (ADR-053), not invoker as the brief recommended, so the state machine keeps refusing a direct update to `interrupted` and the reason cannot be skipped. Endorsed.
+- **Observations after the end refused (0042):** the reason note (up to 1000 characters) carries what happened, and observations recorded during the visit stay. Acceptable until D-31. These observations are never signed, because no report exists for an interrupted visit; whether a report of the care already given is required is already a D-31 question.
+- **Time corrections on an interrupted visit** stay possible (remediation plan, UNKNOWN): reasoned, audited, and no fact derives from them today. No finding; it must be re-checked if D-31 makes interrupted minutes billable.
+- **Rule register:** CR-042 (engineering, 0042) checked against the code. CR-043 (0040) and CR-044 (0041) added by this review; CR-012 and CR-013 updated.
+- **PO challenge (10:15):** after a hospital-transfer interruption, offer "Fall pausieren" in the same step. No safety objection: it only offers an existing, audited command, and the team chooses. It reduces the CGR-25 risk for that reason but does not replace the follow-up signal for the other reasons.
+- **WATCH-1 (PO 09:10):** a coordination gap, not clinical. No finding.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| F1-F4 (#171 merged, `delivered`) | **no blocking finding**; the PO may accept | CGR-01 closed; CGR-03 closed for F3 and F4; CGR-24 advisory |
+| F7 (#175 merged, `delivered`) | **no blocking finding**; the PO may accept | CGR-02 closed; CGR-03 closed for F6 sign and correction (0040) |
+| F6 | **no blocking finding from this review**; D-10 (`clinical`) still blocks it in `OPEN_DECISIONS.md` | CGR-02 and CGR-03 closed for F6; CGR-19 and CGR-24 advisory |
+| OPS1 (#179 merged, `delivered`) | **no blocking finding**; the PO may accept, recording CGR-22 and CGR-25 as conditions | CGR-20 closed (interim rule, D-31); CGR-22, CGR-25 advisory (S2); CGR-26 advisory (S3) |
+| J5 | changes-requested (unchanged) | CGR-03 (J5 part), CGR-07 blocking; CGR-08, BL-8, BL-9 |
+| ABS1 | approved, unstarted | CGR-11, CGR-15; the CGR-20 dependency is met |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **owner (critical path):** name the qualified clinical owner and a deputy (G-1). Gate C cannot open without one.
+- **po:** add to D-31: (a) after a visit is ended as not completed, must a follow-up be decided, by whom, by when and at which priority (CGR-25); (b) how an interruption recorded in error is corrected (CGR-26). Add to D-28: how long a report correction may stay unsigned before it is a signal (CGR-24).
+- **clinical** (once named): D-31, D-28, D-10, D-30, D-16, D-17.
+- **legal:** D-18, D-22; D-31 with `clinical`.
+
+---
+
 ## 2026-10-23 06:30: ADM1 CGR-18 fix, CSR1 parts 1 and 2
 
 **Scope:** `recovery/main` @ `8ec3351`, plus #165 at head `74f3acf`. #165 was merged during this run as `c987e83` (tree identical to `74f3acf`), and OPS1 was set `delivered` (#166). Changes since the 02:28 section (`0e90932`):
