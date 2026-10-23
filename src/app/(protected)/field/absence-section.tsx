@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { changeAbsence, recordAbsence, takeOpenVisit } from "@/features/absence/commands";
 import type { OpenVisit, TeamAbsence, TeamColleague } from "@/features/absence/queries";
-import { absenceMemberLabel, formatAbsencePeriod, knownByLabel } from "@/features/absence/rules";
+import { absenceMemberLabel, earliestAbsenceStart, formatAbsencePeriod, knownByLabel, pastPlannedNotice } from "@/features/absence/rules";
 import { offerMinutes } from "@/features/cover/rules";
 import { formatDayLabel, formatTime } from "@/features/field/rules";
 
@@ -13,23 +14,30 @@ import { formatDayLabel, formatTime } from "@/features/field/rules";
  * for a colleague of the same team too. No reason field and no free text: NAVORA stores no reason for an absence.
  * Shows the team's current and future absences; the absent member and the colleague who recorded it may withdraw
  * or shorten it.
+ * ABS1-C6 (PO 2026-10-23 21:17): the start may be today or yesterday ("krank seit gestern"), no earlier. When the new
+ * absence covers planned visits before today (`past_planned`, CGR-32), the confirmation names their number and links
+ * to /team, where the team decides; they are not released.
  */
 export function AbsenceSection({ today, absences, colleagues }: { today: string; absences: TeamAbsence[]; colleagues: TeamColleague[] }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const earliest = earliestAbsenceStart(today);
   const mine = absences.filter((a) => a.is_me);
   if (colleagues.length === 0 && absences.length === 0) return null;
 
-  async function run(fn: () => Promise<{ ok: boolean; error?: string }>) {
+  async function run<R extends { ok: boolean; error?: string }>(fn: () => Promise<R>): Promise<R> {
     setPending(true);
     setError(null);
+    setNotice(null);
     const result = await fn();
     setPending(false);
     if (!result.ok) setError(result.error ?? null);
     else setOpen(false);
     router.refresh();
+    return result;
   }
 
   return (
@@ -54,7 +62,7 @@ export function AbsenceSection({ today, absences, colleagues }: { today: string;
           void run(() => recordAbsence({
             teamId, userId: me ? null : userId, from: v("from"), until: v("until"),
             fromTime: v("fromTime"), untilTime: v("untilTime"), idempotencyKey: crypto.randomUUID(),
-          }));
+          })).then((r) => { if (r.ok) setNotice(pastPlannedNotice(r.pastPlanned)); });
         }}>
           <label className="grid gap-1">
             <span className="font-semibold">Wer</span>
@@ -66,7 +74,7 @@ export function AbsenceSection({ today, absences, colleagues }: { today: string;
           </label>
           <div className="grid grid-cols-2 gap-2">
             <label className="grid gap-1"><span>Von</span>
-              <input type="date" name="from" defaultValue={today} min={today} className="min-h-11 rounded-lg border border-stone-300 bg-white px-2" /></label>
+              <input type="date" name="from" defaultValue={today} min={earliest} className="min-h-11 rounded-lg border border-stone-300 bg-white px-2" /></label>
             <label className="grid gap-1"><span>Bis</span>
               <input type="date" name="until" defaultValue={today} min={today} className="min-h-11 rounded-lg border border-stone-300 bg-white px-2" /></label>
             <label className="grid gap-1"><span>ab Uhrzeit (optional)</span>
@@ -84,6 +92,11 @@ export function AbsenceSection({ today, absences, colleagues }: { today: string;
         </form>
       )}
       {error && <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">{error}</p>}
+      {notice && (
+        <p role="status" data-testid="absence-past-planned" className="rounded-lg border border-amber-300 bg-amber-50 p-2 font-semibold text-amber-950">
+          {notice} · <Link href="/team" className="underline">Zum Team</Link>
+        </p>
+      )}
       {absences.length > 0 && (
         <ul aria-label="Abwesend im Team" className="grid gap-1">
           {absences.map((a) => (

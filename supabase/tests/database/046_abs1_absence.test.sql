@@ -136,7 +136,7 @@ select is((select known_by_me from public.team_open_visits(pg_temp.today()) wher
   'known_by_me is set for her');
 select is((select may_take from public.team_open_visits(pg_temp.today()) where visit_id = pg_temp.vid('open_b')), true,
   'a registered nurse may take a B visit');
--- created in this transaction only: the seed holds an ended absence of 906 (CGR-32 e2e fixture)
+-- created in this transaction only (the seed holds no absence since ABS1-C6; the filter stays as a guard)
 select is((select count(*)::int from public.member_absences where created_at >= now()), 1, 'a team member reads the absence row of her team');
 select ok((select array_agg(visit_id order by visit_date, time_start) = array[pg_temp.vid('t1'), pg_temp.vid('t2'), pg_temp.vid('open_b')]
            from public.team_open_visits(pg_temp.today() + 1) where visit_id in (select id from fx)),

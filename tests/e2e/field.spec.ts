@@ -369,8 +369,44 @@ test.describe("field tool (F1)", () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
-  // CSR1 part 11 / CGR-32 (migration 0053): the seed holds an ended absence of assist.test for all of yesterday and her
-  // planned visit yesterday 07:00 (visit 532, never started). The visit keeps her as responsible; its overdue alert on
+  // CSR1 part 12 / ABS1-C6 (PO 2026-10-23 21:17): "krank seit gestern" from the app. The seed holds assist.test's planned
+  // visit yesterday 07:00 (visit 532, never started) and no absence. A colleague records her absence from yesterday on
+  // /field (the form offers yesterday, no earlier); the confirmation names the one open past visit with the fixed text
+  // and links to /team, where that visit's overdue alert carries the CGR-32 label. The CGR-32 and CGR-34 tests below
+  // run on this state (same file, one worker, declared order). The count itself is asserted in pgTAP 054.
+  test("ABS1-C6: an absence from yesterday names the open past visit once and links to /team, at phone width", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signIn(page, NURSE, /\/field$/);
+    const tz = { timeZone: "Europe/Zurich" };
+    const today = new Date().toLocaleDateString("sv-SE", tz);
+    const yesterday = new Date(Date.now() - 86_400_000).toLocaleDateString("sv-SE", tz);
+    await page.goto("/field");
+    const absence = page.getByTestId("absence");
+    await absence.getByTestId("absence-open").click();
+    const form = absence.getByRole("form", { name: "Abwesenheit erfassen" });
+    const from = form.locator("input[name=from]");
+    await expect(from).toHaveAttribute("min", yesterday);
+    await expect(form.locator("input[name=until]")).toHaveAttribute("min", today);
+    await form.locator("select[name=who]").selectOption("00000000-0000-4000-a000-000000000101|00000000-0000-4000-a000-000000000906");
+    await from.fill(yesterday);
+    await form.getByTestId("absence-save").click();
+    const notice = absence.getByTestId("absence-past-planned");
+    await expect(notice).toHaveCount(1);
+    await expect(notice).toContainText("1 vergangene Einsätze sind noch offen: bitte im Team entscheiden");
+    await expect(page.getByText("vergangene Einsätze sind noch offen")).toHaveCount(1);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+
+    await notice.getByRole("link", { name: "Zum Team" }).click();
+    await page.waitForURL(/\/team$/);
+    const flagged = page.getByTestId("visit-alert").filter({ has: page.getByTestId("visit-alert-flag") });
+    await expect(flagged).toHaveCount(1);
+    await expect(flagged).toContainText("07:00");
+    await expect(flagged.getByTestId("visit-alert-flag")).toHaveText("Zuständige Person abwesend gemeldet");
+  });
+
+  // CSR1 part 11 / CGR-32 (migration 0053): runs after the ABS1-C6 test above, which records assist.test absent from
+  // yesterday; her planned visit yesterday 07:00 (visit 532, never started) keeps her as responsible; its overdue alert on
   // /team carries the fixed label once, with no reason. The flag itself is computed in the database (pgTAP 054).
   test("CGR-32: an overdue visit of a member reported absent shows \"Zuständige Person abwesend gemeldet\" once on /team, at phone width", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
