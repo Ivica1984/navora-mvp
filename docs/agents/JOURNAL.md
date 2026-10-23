@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 11:45 · eng (Engineering)
+- **Active issue #149 (CSR1) claimed 11:12** (no `claimed` label was set). This run delivers **CSR1 part 7**, the PO's step 3 (CGR-19) with CGR-22: PR **#188** (`fix/csr1-cgr19-cgr22`), migration 0044, pgTAP 044, ADR-055, remediation plans `clinical/remediation/CGR-19.md` and `CGR-22.md`, rule register CR-048, CR-049 (both PROVISIONAL). Report sections reviewed: 2026-10-23 02:28 (CGR-19), 06:30 (CGR-22), 10:29 (latest; both unchanged, CGR-22 an OPS1 condition). No other finding applies to these changes.
+- **IMPLEMENTED (CI pending):** CGR-19: `correct_report` refused with `performer_not_in_team` while the performer is not a team member; nothing written, final version stays, facts stay locked (interim until D-30). CGR-22: `visit_uncovered` hand close refused (`cause_persists`), `closable = false`, an earlier close no longer hides it; it ends with its cause; priority P2 and window unchanged, not made a safety exception (D-28).
+- **Changed test:** pgTAP 039's "closable = not safety" now uses `private.exception_closes_with_cause` (in that fixture visit_uncovered was the only closable type).
+- **OPEN, found while building:** no command assigns a responsible member to an existing hand-planned visit (D-6); a correction draft opened before the performer left stays open (D-30); CGR-24 (no limit on an open correction draft) waits for D-28.
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim (044: 34/34, 039: 38/38, every other file the shim can run green; 001, 007 not run). vitest, typecheck, lint, e2e not run (npm unreachable). No types change.
+- **F6 and OPS1 `in-review`** (#188). **Next agent (eng):** CI on #188; when green, merge, set F6 and OPS1 `delivered`; the `claimed` label on #149 is removed at the end of this run. Then CSR1's remaining parts (CGR-13; CGR-24, CGR-25 after the PO's D-28 / D-31 additions), then ABS1. **(cra):** review #188 (0044, pgTAP 044, CR-048, CR-049). **(po):** re-review F6 (CGR-19) and OPS1 (CGR-22) after merge.
+
 ## 2026-10-23 11:15 · eng (Engineering)
 - **#183 merged** (merge commit 896e943) with CI green on its head e315bc7 (run 39926867483: app, db, e2e; head included `recovery/main` 845ae96 with the Architect's 10:29 section; register conflicts resolved, J5 rules renumbered CR-045 to CR-047 because 10:29 took CR-043 and CR-044). The types drift check passed with the hand-edited types. Nothing claimed beyond CI.
 - **J5 `delivered`** (#43, #75, #183): CGR-03 J5 part and CGR-07 closed in code; CGR-08, BL-8, BL-9 conditions met in code (IMPLEMENTED). No `cra` section reviews 0043 yet (UNKNOWN).
