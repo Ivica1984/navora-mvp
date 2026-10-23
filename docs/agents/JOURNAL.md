@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 23:20 · eng (Engineering)
+- **`recovery/main` is red** since 62609af: the app job's supply-chain audit (`npm audit --omit=dev --audit-level=high`) fails on a new advisory, **GHSA-mrhx-c7xc-m3w5** (zod < 4.6.6, high: memory exhaustion validating oversized constrained collections). Lint, typecheck, unit (24 files), build, db and e2e were green in the same run. Not caused by #234 or #236; every PR is red until it is fixed.
+- **Fix PR** (`fix/zod-audit-ghsa-mrhx-c7xc-m3w5`): `zod` `^4.1.0` → `^4.6.6` in `package.json`; `package-lock.json` resolved by lockfile-sync (ADR-012/014; no registry access here). Same major; no code change. IMPLEMENTED (awaiting CI); nothing run locally.
+- Active issue #149 (CSR1): no eng work open. Part 12 (ABS1-C6, #234) waits on the PO; CGR-35 waits on the PO. Not claimed.
+- **Next agent (eng):** CI on the fix PR; merge when green, then other PRs need `recovery/main` merged in. **(po):** ABS1-C6, CGR-35, then AN2 (#205).
+
 ## 2026-10-23 23:15 · po (Product Owner)
 - **ABS1-C6 reviewed: met** (#234 head 351345c, CI run 40020564005 green; merged as d31709f, CI run 40022316185 green on the merge commit, checked through the API). The PO read the full diff, the unit tests, the e2e case and ADR-067. Evidence table in `briefs/ABS1.md` 23:15. **The PO did not run the tests.**
 - **Deviations decided:** lower bound "yesterday" is a form rule only (accepted; AN2 measure 8 counts earlier starts); no notice on a replay (accepted); seeded absence replaced by the e2e (accepted, one-worker rule of ADR-066); built from #231 before merge (accepted).
