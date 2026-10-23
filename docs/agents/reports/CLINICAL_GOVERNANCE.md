@@ -16,6 +16,53 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-23 19:46: CGR-33 guard (pgTAP 053) merged; PO decisions on ABS1 (CGR-32) and J5
+
+**Scope:** `recovery/main` @ `50ee5f5`. Changes since the 19:00 section:
+- **Code merged:** #222 (CGR-33: pgTAP `053_cgr33_order_audit_guard` (21), test only, no migration; ADR-064 PROPOSED) as `d67055b`.
+- **Docs:** #221 (PO cycle 19:12: ABS1 accepted with condition CGR-32 and the PO's decision on it; J5-C2 and CGR-33 met; CSR1 part 11 = CGR-32 ordered before AN2; AN2 measure 12 "late billing facts"; challenge row "billing facts are built in a later batch"), #223 (eng: delivered, journal). **No decision answered** (no `clinical`, `legal` or `owner` row changed). **No open PR in scope** (only #3, M2 to `main`).
+
+I read pgTAP 053 in full, ADR-064, the PO's CGR-32 decision and condition (`briefs/ABS1.md` 19:12), the J5 and CSR1 notes, the AN2 diff and the new challenge row. **I did not run the tests.** CI (checked through the API) is green for app, db (migrations, seed, pgTAP) and e2e on `4661392` (head of #222), `d67055b` (one e2e run cancelled, a second passed) and `50ee5f5`.
+
+### Findings
+
+No new finding.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| CGR-33 | **closed** (IMPLEMENTED; regression guard) | pgTAP 053:23-37: `audit_cases` exists on `public.cases`, calls `private.write_audit_event`, fires after insert and update for each row, has no `UPDATE OF` list, is enabled (`O`/`A`; a replica-only trigger fails), and names `medical_order_status` and `medical_order_valid_until`; 053:40-79: two order edits leave two `{old, new}` audit rows and `case_order_as_of` reads the order before them at their instant and the live order after; 053:82-92: update, delete and truncate of `audit_events` refused (`42501`) also for the owner, `authenticated` SELECT only, `anon` nothing. CI green on `4661392`, `d67055b`, `50ee5f5`. Residuals: (1) `residence_canton` is not asserted; needed only if D-18 adopts an as-of-visit-date residence rule through the same reconstruction (CGR-31), then 053 must be extended in that PR. (2) A write under `session_replication_role = replica` skips the trigger (superuser only; ADR-064 open): UNKNOWN whether any operator procedure uses it; owner `eng` (runbook) |
+| CGR-32 | open, advisory (S3); **remedy decided by the PO** (product authority), build PLANNED (CSR1 part 11) | Decision `briefs/ABS1.md` 19:12: the absence is always recorded; past planned visits inside it keep their responsible member, are counted in `past_planned`, and their `visit_overdue` alert carries the fixed flag "Zuständige Person abwesend gemeldet", computed from the absence. **Architect view:** consistent with the strict default I proposed at 19:00 and safe: nothing is refused, the visit keeps one accountable trail, and no past visit appears in "Offen im Team" where it could be "taken" for a time that has passed. The fixed label carries no reason, so no health data reaches the team view (privacy acceptable). Whether missed care must be made up stays `clinical` (D-28, D-31), correctly not decided. For the pgTAP of part 11 I add one case: the flag is shown while an overdue alert for that visit is **open**; if that alert was already closed by hand before the absence was recorded, the result's `past_planned` still counts the visit (so the recorder sees it). Closes when part 11 is merged with that pgTAP and green CI |
+| CGR-31 | open, advisory (S3; S1 before invoicing), unchanged | PO: any invoicing brief must first carry the D-18 answer; the preview keeps "Schätzung". See residual (1) of CGR-33 |
+| CGR-28 | open, advisory (S2 if cover is enabled), unchanged | no change |
+| CGR-16, CGR-21, CGR-23 | open, unchanged | no change in their code |
+
+### Other changes reviewed (no finding)
+
+- **AN2 measure 12** (share of `report` facts built more than 24 h after the visit end; `basis_changed` facts per 100): an operational measure, not a clinical or tariff rule; the 24 h is a reporting cut, not a billing deadline. No finding. PLANNED.
+- **Challenge row "billing facts are built in a later batch"** (PO): I support measuring it first. If an ADR later snapshots the order, payer and residence at visit end, note that "at visit end" and the current cut-off "end of the visit date" (0051, D-22) differ for an order recorded later the same day; which one applies is D-22 (`legal`), UNKNOWN, and must be decided before such an ADR. A snapshot inside the signed report must not let the nurse edit the payer or order basis (intake owns them, J5-C1).
+- **Rule register:** no new or changed hard-coded rule (053 is a test). CR-058 note updated.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| J5 (0043, 0049, 0051, pgTAP 053; accepted) | **no blocking finding**; CGR-33 closed | CGR-31 advisory (before invoicing) |
+| ABS1 (accepted) | **no blocking finding**; acceptance with condition CGR-32 is consistent with the 19:00 gate | CGR-32 (part 11, PLANNED); CGR-28 before cover |
+| CSR1 part 11 (CGR-32) | not started; reviewed when its PR is open | – |
+| COVER1 | unchanged: cover stays off until CGR-28, the `accept_cover` absence check, PS-12 and D-3 | CGR-21, CGR-28 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **owner (critical path):** name the qualified clinical owner and a deputy (G-1). Gate C cannot open without one.
+- **eng:** CSR1 part 11 with the extra pgTAP case above (CGR-32); state in the runbook whether any operator procedure writes with `session_replication_role = replica` (BL-15 residual).
+- **legal:** D-22 (order before the visit; whether A/C need an order; the cut-off, also for any snapshot ADR); D-18 (incl. CGR-31).
+- **clinical** (once named): D-28, D-31 (incl. whether care missed during an absence must be made up), D-10, D-30, D-16, D-17.
+
+---
+
 ## 2026-10-23 19:00: CSR1 part 10 (0051) and ABS1-C5 (0052) merged
 
 **Scope:** `recovery/main` @ `279d026`. Changes since the 18:30 section:
