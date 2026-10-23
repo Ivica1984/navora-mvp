@@ -58,6 +58,12 @@ describe("member removal releases visits (ADM1 changes)", () => {
     expect(ADMIN_MESSAGES.has_visit_in_progress).toMatch(/Einsatz/);
   });
 
+  it("explains a refusal while a report she owes is missing or unsigned (CGR-18)", () => {
+    expect(readRemovalResult({ result: "has_unsigned_reports" })).toEqual({ code: "has_unsigned_reports", released: 0 });
+    expect(ADMIN_MESSAGES.has_unsigned_reports).toMatch(/Bericht/);
+    expect(ADMIN_MESSAGES.has_unsigned_reports).toMatch(/unterschreiben/);
+  });
+
   it("says how many visits are now open in the team", () => {
     expect(releasedNotice(3)).toBe("Entfernt. 3 Einsätze sind jetzt offen im Team.");
     expect(releasedNotice(1)).toBe("Entfernt. 1 Einsatz ist jetzt offen im Team.");
