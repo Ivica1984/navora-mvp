@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 16:55 · po (Product Owner)
+- Run started 16:18; #210 (CSR1 part 9) merged during it, so this cycle reviews both. One PO PR: #209.
+- **ABS1 part 2 reviewed** (#206 head 9bcd151, CI run 39962574922 green; merged as 2401a11, CI green on the merge commit (PR run 39963139033; the push run was cancelled by the next push) and on d264ea9, checked through the API). The PO read 0048 in full, both pgTAP 048 files and the UI diff, and searched every migration for the absence checks. **The PO did not run the tests.** Evidence in `briefs/ABS1.md`.
+- **Met in code:** CGR-27/ABS1-C1 (one interval for release, take, "Offen im Team", `known_by`, `change_absence`; PLAN2 slots always have a window), ABS1-C2, ABS1-C3, the three AN1 measures. Deviations decided in the brief (all accepted; the "team she joins later" one together with ABS1-C4).
+- **Clinical gate:** no `cra` section covers 0048 (14:30 and 15:00 on #203 predate #206): **awaiting clinical review**, not accepted.
+- **New condition ABS1-C4 (patient safety), ABS1 stays `changes-requested`, part 3 next for engineering:** `plan_visit` and `reschedule_visit` never call `member_absent_during`, so a visit planned for, or moved into the absence of, an absent member stays with her and looks covered. ABS1-N1 rides along (`record_absence` returns `released` summed over all her teams).
+- **COVER1:** third condition before cover is switched on: `accept_cover` refuses a nurse absent at the visit's interval (same class as CGR-28).
+- **Challenge:** row added: a hand-picked responsible member at planning is a dispatcher habit and one more path where a safety check can be forgotten; hypothesis (< 10 % of visits need it), measured after AN2, no change before the data.
+- No `po` decision open. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-28, D-30, D-31; `legal`: D-18, D-22; `owner`: D-3 before cover.
+- **CSR1 part 9 reviewed** (#210 merged as 378f811; CI green on its head (run 39969893133) and on the merge commit (runs 39970600351, 39970609212), checked through the API). The PO read 0049 in full and the pgTAP 049 assertions, and checked the other "latest version" readers. **The PO did not run the tests.** CGR-24-W, CGR-29 and J5-C1 **met in code**; deviations accepted (evidence in `briefs/CSR1.md`). No `cra` section on 0049: awaiting clinical review. F6 and J5 stay `accepted`.
+- **Engineering's UNKNOWN (order read at fact build time), answered as the strict default within product authority, not as a legal answer:** new J5 condition **J5-C2** (CSR1 part 10): a fact's order basis is the order as recorded at the end of the visit date (audited history), never at build time; else not billable with a named reason. D-22 sharpened (`legal`).
+- **Order for engineering:** ABS1 part 3 (ABS1-C4, ABS1-N1) → CSR1 part 10 (J5-C2) → AN2. The watcher keeps no `eng:ABS1` hand-off while ABS1 stays `changes-requested` (WATCH-1): build ABS1 part 3 and part 10 under the active CSR1 issue #149.
+- **Next agent (eng):** set F6 and J5 `delivered` for #210 as planned; then ABS1 part 3, CSR1 part 10, AN2. **(cra):** review 2401a11 (0048) and 378f811 (0049); merge #203.
+
 ## 2026-10-23 16:35 · eng (Engineering)
 - **#210 merged** (merge commit 378f811), CI green on its head 546207e (run 39969893133: app, db incl. pgTAP 049 and the adjusted 043, e2e incl. the withdraw step at 390 px). The first run on c6b944f was cancelled by the second push (its app job was green). Nothing is claimed beyond CI.
 - **F6 and J5 `delivered`** (CSR1 part 9): CGR-24-W, CGR-29, J5-C1 IMPLEMENTED. No `cra` section reviews 0049 yet (UNKNOWN). Open for the PO: whether D-22 also covers a fact built for a new report version (reads the case's order at build time).
