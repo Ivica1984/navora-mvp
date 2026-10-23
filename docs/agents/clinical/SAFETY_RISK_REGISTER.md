@@ -1,6 +1,6 @@
 # Safety Risk Register
 
-**Maintained by:** Clinical & Regulatory Architect (review role) · **Last change:** 2026-10-22 23:05 (D-27) · **Baseline:** `recovery/main` @ `b546299`
+**Maintained by:** Clinical & Regulatory Architect (review role) · **Last change:** 2026-10-23 02:28 (ADM1 merged) · **Baseline:** `recovery/main` @ `0e90932`
 
 This register holds every open risk from the clinical governance reviews: clinical (`C`), patient safety (`PS`), regulatory (`R`), billing (`BL`) and governance (`G`). Hazards to clients are in [`HAZARD_LOG.md`](HAZARD_LOG.md). Gate findings with remedies are in [`../reports/CLINICAL_GOVERNANCE.md`](../reports/CLINICAL_GOVERNANCE.md). Engineering items are in `docs/engineering/SECURITY_RISKS.md`; this register does not duplicate them.
 
@@ -18,7 +18,7 @@ Gate details are in the report.
 | ID | Cat. | Risk | Evidence | Sev. | Owner | Required action | Gate | Status |
 |---|---|---|---|---|---|---|---|---|
 | G-1 | gov | No named clinical owner or legal adviser. Per D-27 (decided 2026-10-22) all clinical decisions stay OPEN and provisional until one is named, so real-client use cannot start | `README.md` *Participants*; D-27 | S1 | owner | appoint the qualified clinical owner and a deputy; name a legal adviser | C | open (role decided; person not named) |
-| G-2 | gov | Acceptance on green CI without clinical review | `NEXT_CAPABILITY.md` standing review rule | S1 | owner, po | clinical review gate (#136) including the D-27 interim rule (CGR-17) | A | in-review (#136) |
+| G-2 | gov | Acceptance on green CI without clinical review | `NEXT_CAPABILITY.md` standing review rule | S1 | owner, po | clinical review gate (#136) including the D-27 interim rule (CGR-17) | A | mitigated (gate in README via #136; interim rule in D-27 via #140; reviews of open PRs agreed 2026-10-23) |
 | G-3 | gov | AI agents write clinical and billing logic without a human merge | `README.md` *Participants* | S1 | owner | human approval for migrations touching clinical or billing logic | A | open |
 | G-4 | gov | Operational rules with clinical effect decided by the PO alone (Q8, Q9, Q11, D-21) | `OPEN_DECISIONS.md` *Decided* | S2 | owner | clinical co-approval; entries in the Clinical Rule Register | A | open |
 | G-5 | gov | No outcome indicators; patient outcomes ranked 6th of 10 | `NEXT_CAPABILITY.md` value order; AN1 | S2 | owner, clinical | define pilot outcome indicators | C | open |
@@ -37,7 +37,7 @@ Gate details are in the report.
 | C-12 | clin | Severity scale hard-coded | CR-017 | S2 | clinical | D-16 | B | open |
 | PS-1 | safety | Missed or overdue visit raises no alert | CGR-04 | S1 | eng, clinical | exception type + threshold | B | open |
 | PS-2 | safety | Uncovered alert disappears at start time | CGR-04 | S1 | eng | alert persists until resolved | B | open |
-| PS-3 | safety | Phantom coverage after removal, downgrade, role change, absence | CGR-09, CGR-10, CGR-11 | S1 | eng | one eligibility release rule | B | partly in review (#135) |
+| PS-3 | safety | Phantom coverage after removal, downgrade, role change, absence | CGR-09, CGR-10 closed (0036, pgTAP 036); CGR-11 open; past-dated visits of a removed member (CSR1) | S1 | eng | one eligibility release rule | B | partly mitigated (removal); downgrade and absence open |
 | PS-4 | safety | No-show only detectable after departure; no protocol | CR-014 | S1 | clinical | D-19 | B | open |
 | PS-5 | safety | Hold does not stop care | CGR-13 | S1 | clinical, eng | D-16 hold semantics | B | open |
 | PS-6 | safety | Serious event leaves OPS1 on `in_review` | CGR-05 | S1 | eng | exception until closed | B | open |
@@ -46,6 +46,8 @@ Gate details are in the report.
 | PS-9 | safety | Pause leaves later visits planned; no alert on resume | 0024:231, 236-258 | S2 | eng | suspend through the actual return; alert | B | open |
 | PS-10 | safety | No capacity or overlap check | 0030:157-164 | S2 | eng, po | overlap check | C | open |
 | PS-11 | safety | Report stuck if performer absent | CR-012 | S2 | clinical, eng | delegated takeover | C | open |
+| PS-14 | safety | Removing a member leaves her own in-progress or undocumented visits permanently undocumentable | CGR-18; 0036:107-110; 0016:184, 262 | S1 | eng | refuse removal while she is the performer (CGR-18) | B | open |
+| PS-15 | safety | A correction of a departed author's report can never be signed | CGR-19; 0016:343-349 | S2 | clinical, legal, eng | decision; refuse the unsignable correction until answered | C | open |
 | PS-12 | safety | Covering nurse without context | 0028:118-151 | S1 if enabled | owner, clinical | D-3 and D-17 before enabling | C | mitigated (off) |
 | PS-13 | safety | No offline capability | grep | S2 | eng, po | offline concept (Gate 2) | C | open |
 | R-1 | reg | No legal entity, licence or OKP admission | D-12 | S1 | owner | decide entity, apply | C | open |
@@ -66,8 +68,8 @@ Gate details are in the report.
 | BL-5 | billing | All cases priced at KVG rates whatever the insurance type | CGR-07 | S1 | eng | non-KVG not billable until modelled | B | open |
 | BL-6 | billing | Billing ignores qualification, needs assessment and review date | 0023:82, 120-125 | S1 | eng, clinical | billing gates after D-15 | C | open |
 | BL-7 | billing | Proportional minute split is a PO rule | CR-030 | S2 | legal | D-18 | C | open |
-| BL-8 | billing | Fact stays billable after a later hold | 0023:198 | S2 | eng | supersede or flag the fact | B | open |
-| BL-9 | billing | Working-time facts never pick up corrections | 0023:154 | S2 | eng | regenerate on correction | B | open |
+| BL-8 | billing | Fact stays billable after a later hold | 0023:198 | S2 | eng | supersede or flag the fact | B | in a brief (CSR1 condition, 2026-10-23) |
+| BL-9 | billing | Working-time facts never pick up corrections | 0023:154 | S2 | eng | regenerate on correction | B | in a brief (CSR1 condition, 2026-10-23) |
 | BL-10 | billing | Any team member can generate billing facts | `billing/commands.ts` | S3 | eng, po | restrict to a billing role | C | open |
 | BL-11 | billing | Patient contribution and residual financing missing | 0022:358-359 | S2 | owner | D-11 | C | open |
 | BL-12 | billing | Income model may reward volume over need | D-14 | S2 | owner, clinical | guardrails in J7 | C | open |

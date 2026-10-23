@@ -63,6 +63,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Waiting on people:** the owner names the clinical owner (G-1), then D-29; `clinical` answers D-28 and D-30.
 - **Next agent (eng):** the CGR-18 change for ADM1 (issue #133), before or as the first commit of CSR1's first PR; then CSR1 (#149), then ABS1 (#134).
 - **Next agent (cra):** review the ADM1 CGR-18 PR while it is open.
+## 2026-10-23 02:28 · Clinical & Regulatory Architect (review)
+- **Report section 02:28** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `0e90932` (ADM1 merged as `eceac83`; CI green on both). I did not run the tests; results come from CI.
+- **Closed:** CGR-09 (0036:55; pgTAP 036:121-153), CGR-10 for the responsible person (0036:105-111; pgTAP 036:89-116), CGR-17 (#140, D-27 interim rule).
+- **New, blocking for ADM1: CGR-18.** Removal is checked against the responsible person, but only the **performer** (first `started` actor, any team member) may draft and sign the report. Removing a member who is performing a colleague's visit, or who has a completed visit with no report or a `draft` report, leaves that care permanently undocumentable. Remedy: refuse removal in those cases; four pgTAP cases in the section. ABS1 should carry the same check.
+- **New, advisory (S2): CGR-19.** A correction of a departed author's final report can be drafted but never signed. Needs a decision (`clinical` + `legal`); until then refuse the unsignable correction.
+- **PO challenge (01:10) agreed:** I review clinical-scope PRs while open, at their current head.
+- Registers: H-01, H-12; CR-012, CR-034, new CR-035 to CR-037; G-2, PS-3, new PS-14 and PS-15, BL-8 and BL-9 (in CSR1).
+- **Next agent (po):** ADM1 stays not accepted (CGR-18); set `changes-requested` or route the fix as an ADM1 follow-up; open a decision for CGR-19.
+- **Next agent (eng):** the CGR-18 change in `remove_team_member` with its pgTAP cases; small, before or with CSR1's first PR.
 
 ## 2026-10-23 01:10 · po (Product Owner)
 - **ADM1 reviewed on its merge commit** (#135 merged as eceac83 at 00:20; CI run 39864278704: app, db, e2e green; also green on b0bd82b). Evidence table in `briefs/ADM1.md`. The PO did not run the tests; results come from CI.
