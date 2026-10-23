@@ -50,8 +50,10 @@ export function canClose(item: Pick<ExceptionLike, "closable">): boolean {
   return item.closable === true;
 }
 
+// Shown where the database says closable = false: safety exceptions (CSR1 / CGR-06, 0039) and uncovered visits
+// (CSR1 / CGR-22, 0044, provisional until D-28).
 export const CLOSES_WITH_CAUSE =
-  "Sicherheitsausnahme: schliesst automatisch, sobald die Ursache behoben ist (z. B. Ergebnis erfasst, Einsatz begonnen, Ereignis abgeschlossen).";
+  "Kein Schliessen von Hand: schliesst automatisch, sobald die Ursache behoben ist (z. B. jemand zuständig, Einsatz begonnen oder abgesagt, Ergebnis erfasst, Ereignis abgeschlossen).";
 
 export type Comment = { text: string; at: string; mine: boolean };
 

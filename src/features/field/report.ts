@@ -64,7 +64,7 @@ export function reportView(visitStatus: string | null, report: FieldReport | nul
   return { label: "Berichtstatus unbekannt", tone: "waiting", actions: [], hint: null };
 }
 
-/** German messages for rejection reasons returned by the report commands (migrations 0016, 0041). */
+/** German messages for rejection reasons returned by the report commands (migrations 0016, 0041, 0044). */
 export const REPORT_REJECTION_MESSAGE: Record<string, string> = {
   not_team_member: "Nicht gespeichert: Du gehörst nicht zum zuständigen Team.",
   visit_not_completed: "Ein Bericht ist erst nach Abschluss des Einsatzes möglich.",
@@ -78,6 +78,9 @@ export const REPORT_REJECTION_MESSAGE: Record<string, string> = {
   not_final: "Korrigiert werden kann nur ein abgeschlossener Bericht.",
   not_latest: "Es gibt bereits eine neuere Fassung dieses Berichts.",
   // CSR1 / CGR-02 (migration 0041): the facts changed after they were shown; nothing was signed.
+  // CSR1 / CGR-19 (migration 0044, interim until D-30): only the performer signs a correction, and she left the team.
+  performer_not_in_team:
+    "Korrektur nicht möglich: Die Person, die den Einsatz durchgeführt hat, gehört nicht mehr zum Team und könnte die Korrektur nicht unterschreiben. Der abgeschlossene Bericht bleibt gültig. Wer in diesem Fall korrigieren darf, ist noch nicht geregelt.",
   facts_changed:
     "Nicht unterschrieben: Zeiten oder Beobachtungen haben sich geändert, seit du den Bericht geöffnet hast. Bitte die aktualisierten Angaben prüfen und erneut unterschreiben.",
 };
