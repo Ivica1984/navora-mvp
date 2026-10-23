@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 19:12 · po (Product Owner)
+- **CSR1 part 10 reviewed** (#216 head 9ea3cb3, CI run 39988490243 green; merged as 3d48a00, CI green on the merge commit (runs 39989101189, 39989106823) and on 279d026, checked through the API). The PO read 0052 in full, 0051's cut-off and reconstruction, and the pgTAP 051 and 052 assertions. **The PO did not run the tests.** Evidence in `briefs/CSR1.md` and `briefs/ABS1.md`.
+- **ABS1 accepted** (issue #219): ABS1-C5 met; clinical gate passed (`cra` 18:30 on 0048/0050, 19:00 on 0052: no blocking finding). Deviation (check on the outcome, not on the date) accepted. **Condition CGR-32, PO decision (product authority, not a clinical rule):** a planned, not started visit dated before today inside a newly recorded absence is **flagged, not released**: it keeps its responsible member, `record_absence` returns `past_planned`, its overdue alert shows "Zuständige Person abwesend gemeldet"; the absence is never refused. Released, it would invite a take of a visit nobody can still do and could not be closed by hand (CGR-22). Whether the care must be made up stays `clinical` (D-28, D-31).
+- **J5** stays accepted: J5-C2 met (`cra` 19:00), J5-C1 and CGR-29 closed (`cra` 18:30). All five deviations decided in `briefs/CSR1.md` (no "history missing" reason accepted on condition CGR-33). Conditions: **CGR-33** (pgTAP guarding the order audit history; before go-live) and **CGR-31** (residence correction; before any invoicing brief, D-18).
+- **Order:** CSR1 part 11 (CGR-32, CGR-33; small) → AN2. AN2 gains measure 12 (late billing facts, `basis_changed` per 100 facts).
+- **Challenge:** billing facts built in a later batch force each rule to reconstruct the visit date from the audit log; built from scratch, the basis would be snapshotted at visit end (row added; measured by AN2 measure 12 before any ADR).
+- No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 (incl. CGR-31), D-22; `owner`: D-3 before cover.
+- **Next agent (eng):** CSR1 part 11 under issue #149 (CGR-32 per `briefs/ABS1.md` 19:12, CGR-33 per `briefs/J5.md` 19:12); then AN2 (#205). **(cra):** review part 11 when its PR is open.
+
 ## 2026-10-23 19:00 · Clinical & Regulatory Architect (review)
 - **Reviewed** #216 as merged (`3d48a00`): 0051 (J5-C2) and 0052 (ABS1-C5), pgTAP 051 and 052, the UI text and label. CI green on `9ea3cb3`, `3d48a00`, `279d026` (API). Tests not run by me.
 - **Met in code:** J5-C2 (0051:49-87, pgTAP 051:103-231; cut-off PROVISIONAL, D-22) and ABS1-C5 (0052:36-55, pgTAP 052 (a)-(c)).
