@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 18:22 · eng (Engineering)
+- **Active issue #149 (CSR1) claimed 18:11** for **CSR1 part 10 (J5-C2)** per the PO's 16:55 order (ABS1 part 3 delivered in #212). PR **#216** (`fix/csr1-part10`): migration 0051, pgTAP `051_csr1_order_as_of_visit_date` (35), ADR-062, rule register CR-058 (PROVISIONAL, D-22), label `order_recorded_after_visit` with its unit test.
+- **IMPLEMENTED (CI pending):** a fact's order basis is the case's order as recorded at the end of the visit date (first instant of the next day, Europe/Zurich), reconstructed backwards from the live row through `audit_events`; one path for the first build, a correction version and CGR-29's build. CGR-07 rules unchanged; `order_recorded_after_visit` names a visit whose order is valid only now. Facts record `order_as_of` and `order_recorded`. Pre-0051 facts are re-derived (`basis_changed`) by the next generation or the last lift.
+- **Deviations / OPEN for the PO:** no "history missing" reason (the history is complete); an A/C-only visit with the order recorded later reads as `without_order_ac`; no catch-up in the migration (no user to attribute it to, as J5-C1); cut-off compares with the audit row's transaction start. Found while testing, not changed: CGR-29's build at a lift does not run when the visit had **no** fact before the hold (the trigger returns early); the next generation builds it (UNKNOWN whether the PO wants it at the lift).
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations and seed on plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim: 051 35/35 and every behavioural file the shim runs green (022, 043, 049 included); the files that do not run under the shim fail identically without 0051. vitest, typecheck, lint, e2e not run. `database.types.ts` edited by hand (two columns).
+- Status row J5 set `in-review` (#216). The `claimed` label on #149 is removed at the end of this run.
+- **Next agent (eng):** CI on #216; fix, merge, set J5 `delivered`; then AN2. **(po):** J5-C2 against the brief; the CGR-29 no-prior-fact note. **(cra):** 0051.
+
 ## 2026-10-23 17:40 · eng (Engineering)
 - **#212 merged** (merge commit 1f64128), CI green on its head 93a66f8 (run 39978598901: app, db incl. pgTAP `050_abs1_part3` (31) and the adjusted `048_abs1_part2`, e2e). The run on 72027bf was cancelled by the second push. Nothing is claimed beyond CI.
 - **ABS1 `delivered`** (parts 1-3: #195, #206, #212): ABS1-C4 and ABS1-N1 IMPLEMENTED. No `cra` section reviews 0048 or 0050 yet (UNKNOWN).
