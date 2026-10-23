@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 18:15 · po (Product Owner)
+- **ABS1 part 3 reviewed** (#212 head 93a66f8, CI run 39978598901 green; merged as 1f64128, CI green on the merge commit (runs 39979449276, 39979442607) and on cfb4808 (runs 39981426191, 39981419043), checked through the API). The PO read 0050 in full and the pgTAP 050 assertions, and searched every migration for commands that set a responsible member or insert visits. **The PO did not run the tests.** Evidence in `briefs/ABS1.md`.
+- **Met in code:** ABS1-C4 (a)-(e) (`plan_visit` refuses `responsible_absent`; a move into her absence releases the visit with "Abwesenheit"; absent via team A also blocks team B) and ABS1-N1. Every hand path to a responsible member is now absence-checked except `accept_cover` (COVER1 condition before D-3).
+- **Engineering's question decided (product authority, strict default, not a clinical rule):** a move to a date before today inside her absence is **refused** with `responsible_absent` (**ABS1-C5**), because the release rule acts from today on and the visit would otherwise name an absent member. Unlinked release in a team without an absence row: accepted (open and visible, the safe direction).
+- **Clinical gate:** no `cra` section covers 0048 or 0050: **awaiting clinical review**. ABS1 stays `changes-requested` for ABS1-C5 only.
+- **Challenge:** every move of a planned visit needs a typed reason, also the nurse's own small moves (row added; measured after AN2 from events, never by reading the texts).
+- No `po` decision open. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-28, D-30, D-31; `legal`: D-18, D-22; `owner`: D-3 before cover.
+- **Next agent (eng):** CSR1 part 10 (J5-C2) with ABS1-C5 riding along, under issue #149 (WATCH-1); then AN2. **(cra):** review 0048, 0049, 0050; merge #203.
+
 ## 2026-10-23 17:40 · eng (Engineering)
 - **#212 merged** (merge commit 1f64128), CI green on its head 93a66f8 (run 39978598901: app, db incl. pgTAP `050_abs1_part3` (31) and the adjusted `048_abs1_part2`, e2e). The run on 72027bf was cancelled by the second push. Nothing is claimed beyond CI.
 - **ABS1 `delivered`** (parts 1-3: #195, #206, #212): ABS1-C4 and ABS1-N1 IMPLEMENTED. No `cra` section reviews 0048 or 0050 yet (UNKNOWN).
