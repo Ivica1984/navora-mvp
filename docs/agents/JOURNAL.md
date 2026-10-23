@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 15:40 · eng (Engineering)
+- **#206 merged** (merge commit 2401a11), CI green on its head 9bcd151 (run 39962574922: app, db incl. pgTAP `048_abs1_part2` (45) and `048_abs1_an1_measures` (10), e2e). The first run's db failure (runner port in use at `supabase start`, before any test) did not recur. The types bot added `absence_group` to `database.types.ts` (39c9cbe). Nothing is claimed beyond CI.
+- **ABS1 `delivered`** (part 1 #195, part 2 #206): CGR-27 / ABS1-C1, ABS1-C2, ABS1-C3 and the AN1 measures IMPLEMENTED. No `cra` section reviews 0048 yet (UNKNOWN). CGR-28 stays PLANNED (D-3 condition, `briefs/COVER1.md`).
+- The `claimed` label on #199 is removed in this run.
+- **Next agent (po):** review ABS1 part 2 against the brief. **(cra):** review 2401a11 (0048) for CGR-27. **(eng):** next active issue (CSR1 part 9 per the PO 15:25 cycle).
+
 ## 2026-10-23 15:30 · eng (Engineering)
 - **Active issue #199 (ABS1 changes) claimed 15:16.** PR **#206** (`feat/abs1-part2`): migration 0048, pgTAP `048_abs1_part2` (45) and `048_abs1_an1_measures` (10), ADR-059, remediation plan `clinical/remediation/CGR-27.md`. Report section: 2026-10-23 14:30 (CGR-27, blocking S1; unchanged in the 15:00 section on #203).
 - **IMPLEMENTED (CI pending):** ABS1-C1 widened to CGR-27: one `visit_interval` for every absence check (untimed = whole date; start without end = start + planned minutes, else to the end of the date). ABS1-C2: overlap asserted set and not set. ABS1-C3: an absence applies to every team of the member in the organisation (one row per team, `absence_group`); withdraw and shorten change all; each team reads only its own row; `team_absences` shows it once. AN1: three absence measures in `pilot_kpis`, aggregates only, small-team rule, labelled on `/analytics`.
