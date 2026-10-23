@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canClose, countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
+import { CLOSES_WITH_CAUSE, canClose, countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
 
 const NOW = Date.parse("2026-10-21T20:00:00Z");
 
@@ -29,6 +29,12 @@ describe("OPS1 exception helpers", () => {
     expect(canClose({ closable: false })).toBe(false);
     expect(canClose({ closable: null })).toBe(false);
     expect(canClose({})).toBe(false);
+  });
+
+  it("explains a not-closable exception without calling every one a safety exception (CGR-06, CGR-22)", () => {
+    expect(CLOSES_WITH_CAUSE).toContain("schliesst automatisch");
+    expect(CLOSES_WITH_CAUSE).toContain("jemand zuständig");
+    expect(CLOSES_WITH_CAUSE).not.toMatch(/^Sicherheitsausnahme/);
   });
 
   it("parses comments defensively", () => {

@@ -2,6 +2,7 @@
 
 // OPS1: take over, comment, close (reason required) — audited in exception_events (migration 0019).
 // Safety exceptions (P1 or escalating to P1) are not closed by hand: `cause_persists` (CSR1 / CGR-06, migration 0039).
+// Nor is an uncovered visit (`visit_uncovered`) while nobody is responsible (CSR1 / CGR-22, migration 0044).
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -21,9 +22,9 @@ const schema = z
 const MESSAGES = {
   invalid: "Bitte einen Text eingeben (mind. 3 Zeichen). Schliessen braucht eine Begründung.",
   rejected: "Nicht gespeichert: Die Ausnahme ist bereits geschlossen oder nicht mehr aktuell.",
-  // CSR1 / CGR-06 (migration 0039): a safety exception closes only when its cause is resolved.
+  // CSR1 / CGR-06 (migration 0039) and CGR-22 (0044): it closes only when its cause is resolved.
   cause_persists:
-    "Nicht geschlossen: Sicherheitsausnahmen schliessen erst, wenn die Ursache behoben ist. Übernehmen und Notizen sind möglich.",
+    "Nicht geschlossen: Diese Ausnahme schliesst erst, wenn die Ursache behoben ist (bei einem unbesetzten Einsatz: jemand ist zuständig oder der Einsatz ist abgesagt). Übernehmen und Notizen sind möglich.",
   failed: "Konnte nicht gespeichert werden.",
 };
 

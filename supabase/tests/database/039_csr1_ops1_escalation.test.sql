@@ -126,15 +126,20 @@ select is((select count(*)::int from public.team_visit_alerts() where exception_
   'the alert ends with its cause');
 reset role;
 
--- Every listed exception: closable exactly when it is not a safety exception ----------------------------------------
+-- Every listed exception: closable exactly when it does not close only with its cause ----------------------------------
+-- (0044, CSR1 / CGR-22: since then visit_uncovered also closes only with its cause, without becoming a safety type)
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 create temp table listed as select exception_type, closable from public.operations_exceptions();
 reset role;
 select is((select count(*)::int from listed
-           where closable = private.exception_is_safety('00000000-0000-4000-b000-000000000011', exception_type)), 0,
-  'closable = not a safety exception, for every listed exception');
-select ok((select bool_or(closable) from listed), 'non-safety exceptions (e.g. an uncovered visit, P2) stay closable');
+           where closable = private.exception_closes_with_cause('00000000-0000-4000-b000-000000000011', exception_type)), 0,
+  'closable = not a safety exception and not visit_uncovered, for every listed exception');
+-- This fixture lists only visit_uncovered besides safety types; closing an overdue offer by hand is tested in 019.
+select ok(not private.exception_closes_with_cause('00000000-0000-4000-b000-000000000011', 'offer_overdue')
+          and not private.exception_closes_with_cause('00000000-0000-4000-b000-000000000011', 'report_not_final')
+          and not private.exception_closes_with_cause('00000000-0000-4000-b000-000000000011', 'case_not_ready'),
+  'other non-safety exceptions (an overdue offer, a missing report, a case not ready) stay closable');
 
 -- An organisation that raises a type to P1 (ADM1 override) makes it a safety exception too --------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000905');

@@ -79,6 +79,7 @@ describe("report rejection messages", () => {
     for (const reason of [
       "not_team_member", "visit_not_completed", "no_performer", "draft_exists", "not_draft", "not_performer",
       "not_awaiting_countersignature", "rn_required", "own_report", "not_final", "not_latest", "facts_changed",
+      "performer_not_in_team",
     ]) {
       expect(REPORT_REJECTION_MESSAGE[reason]).toBeTruthy();
     }
@@ -87,6 +88,11 @@ describe("report rejection messages", () => {
   it("asks her to check the reloaded facts when they changed before signing (CGR-02)", () => {
     expect(reportRejectionMessage("facts_changed")).toContain("geändert");
     expect(reportRejectionMessage("facts_changed")).toContain("erneut unterschreiben");
+  });
+
+  it("explains a refused correction when the performer left the team, and that the final report stays (CGR-19)", () => {
+    expect(reportRejectionMessage("performer_not_in_team")).toContain("nicht mehr zum Team");
+    expect(reportRejectionMessage("performer_not_in_team")).toContain("bleibt gültig");
   });
 
   it("falls back to a generic message", () => {
