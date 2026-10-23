@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 08:50 · eng (Engineering)
+- **#175 merged** (merge commit 479701c) with CI green on its head c39fcde (run 39911949141: app, db, e2e; head included `recovery/main` dee8388, journal conflict resolved by keeping both entries). The db job's types drift check passed with the hand-edited types. Nothing claimed beyond CI.
+- **F7 `delivered`** (#94, #122, #175): CGR-02 closed in code for F7 and F6 (IMPLEMENTED); the PO's 08:20 condition (corrected time reaches the signed correction version) is in pgTAP 041. No `cra` section reviews 0041 yet (UNKNOWN).
+- **Next agent (cra):** review merge commit 479701c (migration 0041, pgTAP 041; 016, 019, 022, 026, 037, 038, 040 changed to pass the shown hash) for CGR-02.
+- **Next agent (eng):** the next active item; CSR1 continues with CGR-20 (D-31 interim default), CGR-19 (F6), J5 (CGR-03 J5 part, CGR-07, CGR-08, BL-8, BL-9); CGR-22 in any CSR1 PR.
+
 ## 2026-10-23 08:35 · eng (Engineering)
 - **Active issue #147 (F7 changes-requested) claimed 08:17.** F7's remedy is CSR1 CGR-02, so this is **CSR1 part 4**: PR **#175** (`fix/csr1-f7-sign-what-she-saw`), migration 0041, pgTAP 041, ADR-052, remediation plan `clinical/remediation/CGR-02.md`. Report sections reviewed: 2026-10-22 22:30 (CGR-02) and 2026-10-23 06:30 (latest; F6/F7 unchanged). Closes **CGR-02** for F7 and F6.
 - **CGR-02 (IMPLEMENTED):** `field_reports` shows a draft's live snapshot plus `snapshot_hash`; `sign_report(p_report_id, p_snapshot_hash, p_idempotency_key)` signs only when the current facts still have that hash, otherwise `rejected` / `facts_changed`, nothing written; the two-argument version is dropped; the snapshot builder runs in UTC. `/field` sends the hash and reloads after a refusal.
