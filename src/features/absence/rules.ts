@@ -61,6 +61,34 @@ export function knownByLabel(knownBy: string | null): string | null {
   return knownBy === "me" ? "Du kennst die Klientin" : `${knownBy} kennt die Klientin`;
 }
 
+/**
+ * ABS1-C6 (PO 2026-10-23 21:17): the fixed confirmation after `record_absence` when the new absence covers planned,
+ * not started visits dated before today (`past_planned`, CGR-32, migration 0053). Null at 0: nothing is added.
+ * No reason, no free text, no name.
+ */
+export function pastPlannedNotice(pastPlanned: number): string | null {
+  if (!Number.isInteger(pastPlanned) || pastPlanned <= 0) return null;
+  return `${pastPlanned} vergangene Einsätze sind noch offen: bitte im Team entscheiden`;
+}
+
+/** `past_planned` of a `record_absence` result; 0 when absent (replay, older result) or not a whole number ≥ 0. */
+export function pastPlannedOf(data: unknown): number {
+  if (data && typeof data === "object" && "past_planned" in data) {
+    const n = Number((data as { past_planned: unknown }).past_planned);
+    if (Number.isInteger(n) && n > 0) return n;
+  }
+  return 0;
+}
+
+/**
+ * ABS1-C6: the earliest start the /field form offers is yesterday (no earlier). `record_absence` itself is unchanged;
+ * earlier starts stay out of the app (PO 2026-10-23 21:17).
+ */
+export function earliestAbsenceStart(today: string): string {
+  const [y, m, d] = today.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d - 1)).toISOString().slice(0, 10);
+}
+
 /** Maps a command's jsonb {result} to a UI outcome. */
 export function resultOf(data: unknown): string {
   if (data && typeof data === "object" && "result" in data) return String((data as { result: unknown }).result);

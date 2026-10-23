@@ -21,7 +21,7 @@ grant select on fx to authenticated;
 insert into fx values
   -- yesterday 07:00, hers, inside the absence recorded below: flagged by CGR-32
   ('flagged', 'a0550000-0000-4000-8000-000000000001', -1, '07:00', '00000000-0000-4000-a000-000000000902'),
-  -- two days ago 07:00, the colleague's; nobody absent then (the seed's ended absence of 906 covers yesterday only)
+  -- two days ago 07:00, the colleague's; nobody absent then (the seed holds no absence)
   ('plain',   'a0550000-0000-4000-8000-000000000002', -2, '07:00', '00000000-0000-4000-a000-000000000906'),
   -- tomorrow 09:00, hers: released by the absence (nobody responsible), then cancelled
   ('future',  'a0550000-0000-4000-8000-000000000003',  1, '09:00', '00000000-0000-4000-a000-000000000902');

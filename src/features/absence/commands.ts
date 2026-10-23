@@ -8,7 +8,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
-import { ABSENCE_MESSAGES, TAKE_MESSAGES, resultOf } from "./rules";
+import { ABSENCE_MESSAGES, TAKE_MESSAGES, pastPlannedOf, resultOf } from "./rules";
 
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const time = z.string().regex(/^\d{2}:\d{2}$/);
@@ -29,7 +29,10 @@ function done(): CommandResult {
   return { ok: true };
 }
 
-export async function recordAbsence(input: unknown): Promise<CommandResult> {
+/** ABS1-C6: a recorded absence also says how many planned visits before today it covers (CGR-32 `past_planned`). */
+export type RecordAbsenceResult = { ok: true; pastPlanned: number } | { ok: false; error: string };
+
+export async function recordAbsence(input: unknown): Promise<RecordAbsenceResult> {
   const p = recordSchema.safeParse(input);
   if (!p.success) return { ok: false, error: ABSENCE_MESSAGES.invalid };
   const { supabase } = await requireUser();
@@ -48,7 +51,10 @@ export async function recordAbsence(input: unknown): Promise<CommandResult> {
     return { ok: false, error: error.code === "22023" ? ABSENCE_MESSAGES.invalid : ABSENCE_MESSAGES.failed };
   }
   const r = resultOf(data);
-  if (r === "ok" || r === "duplicate") return done();
+  if (r === "ok" || r === "duplicate") {
+    done();
+    return { ok: true, pastPlanned: pastPlannedOf(data) };
+  }
   return { ok: false, error: ABSENCE_MESSAGES[r] ?? ABSENCE_MESSAGES.failed };
 }
 

@@ -30,7 +30,7 @@ insert into fx values
   ('closed',    'a0540000-0000-4000-8000-000000000007', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101', -1, '09:00', '00000000-0000-4000-a000-000000000902'),
   -- yesterday 05:00, hers, before the absence starts: not counted, not flagged
   ('early',     'a0540000-0000-4000-8000-000000000002', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101', -1, '05:00', '00000000-0000-4000-a000-000000000902'),
-  -- two days ago 07:00, the colleague's (not absent then; the seed's ended absence of 906 covers only yesterday): no flag
+  -- two days ago 07:00, the colleague's (not absent then; the seed holds no absence): no flag
   ('other',     'a0540000-0000-4000-8000-000000000003', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101', -2, '07:00', '00000000-0000-4000-a000-000000000906'),
   -- yesterday 08:00, hers, in Testteam Mitte: kept and flagged, but not counted for a Nord-only caller (ABS1-N1)
   ('past_mitte','a0540000-0000-4000-8000-000000000004', '00000000-0000-4000-a000-000000000210', '00000000-0000-4000-a000-000000000102', -1, '08:00', '00000000-0000-4000-a000-000000000902'),
