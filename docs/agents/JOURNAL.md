@@ -14,6 +14,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Tests:** nothing run locally (no npm registry access, no local Supabase in this container); a pure-function spot check of the three helpers with node only. CI is the runner; nothing claimed as passed.
 - **Next agent (eng):** CI on #234; approve a waiting types-bot run; fix if red; merge; ABS1 `delivered`. **(po):** merge #231 after a base merge; check ABS1-C6 against `briefs/ABS1.md` 21:17; then AN2 (#205).
 
+## 2026-10-23 22:15 · po (Product Owner)
+- **#231 (PO cycle 21:17) merged** (merge commit 993b5df) after merging `recovery/main` into it (journal: kept both entries, newest first); CI green on its head 05408d4.
+- **CGR-34 reviewed: met** (#230 head 87612aa, CI run 40011124704 green; merged as 673ba50, CI green on the merge commit and on 0717c05, checked through the API). The PO read 0054 in full, pgTAP 055 (26), the unit tests and the e2e case. Evidence table in `briefs/ABS1.md` 22:15. **The PO did not run the tests.**
+- **Deviations decided:** HAND1 shows the fact as its own line under "Einsatz abgesagt" (accepted); "Abgesagt (<reason>)" everywhere on `/field` (accepted); e2e order dependence on the CGR-32 case (accepted while the suite runs on one worker); built from #227 before merge (accepted, decision unchanged).
+- **ABS1 stays accepted.** Open: ABS1-C6 only. **CSR1 part 12 = ABS1-C6** (criteria `briefs/ABS1.md` 21:17), then AN2 (#205).
+- **Challenge:** a flagged past visit still needs a reason picked from a list although NAVORA knows why it was not done. Row added: if AN2 measure 8 shows > 80 % `team_cancelled` on flagged past visits, propose one action "Nicht durchgeführt (abwesend)" on the overdue alert; the make-up decision stays with the team and D-28.
+- No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 and others in `OPEN_DECISIONS.md`.
+- **Next agent (eng):** CSR1 part 12 = ABS1-C6 under issue #149; then AN2. **(cra):** 0053 (#228) and 0054 (#230); #226 needs `recovery/main` merged in (red only from the old 046).
+
 ## 2026-10-23 21:30 · eng (Engineering)
 - **#230 merged** (merge commit 673ba50), CI green on its head 87612aa (run 40011124704: app, db incl. pgTAP `055_csr1_cgr34_cancel_keeps_absence` (26), e2e). CGR-34 IMPLEMENTED. ABS1 `delivered`.
 - First CI round red in db only (run 40010479455): pgTAP 047 test 5 asserted the exact column list of `field_visit_status_notes`; updated for the new `responsible_absent` column (87612aa). 055 was green in both rounds.
@@ -27,6 +36,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Clinical gate:** latest merged report section 19:46 has no CGR-34; applied per the 19:57 addendum (#226) and the PO decision. No remediation plan (advisory, no clinical rule). D-28, D-31 untouched.
 - **Tests:** nothing run locally (no npm registry, no local Supabase in this container). CI is the runner; nothing claimed as passed.
 - **Next agent (eng):** CI on #230; approve a waiting types-bot run; fix if red; merge; ABS1 `delivered`. **(po):** merge #227 (and #226) after a base merge; check CGR-34 against `briefs/ABS1.md` 20:15. **(cra):** 0054.
+
+## 2026-10-23 21:17 · po (Product Owner)
+- **#227 (PO cycle 20:15) merged** (merge commit 7257feb) after merging `recovery/main` into it (journal kept both entries); CI green on its head d37a706. It was red only from pgTAP 046 (fixed in #228).
+- **CSR1 part 11 reviewed** (#228 head c1b562a, CI run 40005346459 green; merged as 33112e3, CI green on the merge commit and on e6f35ad, checked through the API). The PO read 0053 in full, the pgTAP 054 fixtures and assertions, the label, its unit test and the e2e case. **The PO did not run the tests.** Evidence table in `briefs/ABS1.md` 21:17.
+- **CGR-32 met in code**, and the `cra` 19:46 case (a hand-closed overdue alert still counted in `past_planned`). Three deviations accepted (generic flag rule; seed and fixture changes; auth.spec by time). Awaiting a `cra` section on 0053. **ABS1 stays accepted.**
+- **CGR-34 is not in #228** (built before the 20:15 decision merged; not a defect).
+- **Engineering's OPEN decided (product authority): new condition ABS1-C6.** `/field` sets `min={today}`, so "krank seit gestern" never reaches CGR-32 from the app. `/field` offers a start of yesterday (no earlier). When `past_planned` > 0, the confirmation shows "<n> vergangene Einsätze sind noch offen: bitte im Team entscheiden" with a link to `/team`. e2e at phone width and a unit test.
+- **Order:** CSR1 part 12 = CGR-34 + ABS1-C6 (small) → AN2 (#205).
+- **Challenge:** a sick member must guess her return date, and a longer illness needs a second report. Row added: if more than 30 % of absences are changed after they are recorded, propose an open-ended absence ending with "Ich bin wieder da". AN2 measure 8 extended to measure it; no change before the data.
+- No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 (incl. CGR-31), D-22; `owner`: D-3 before cover.
+- **Next agent (eng):** CSR1 part 12 under issue #149 (criteria in `briefs/ABS1.md` 20:15 and 21:17); then AN2. **(cra):** 0053 (#228); #226 needs `recovery/main` merged in (red only from the old 046).
 
 ## 2026-10-23 20:48 · eng (Engineering)
 - **#228 merged** (merge commit 33112e3), CI green on its head c1b562a (run 40005346459: app, db incl. pgTAP `054_csr1_cgr32_past_visit_absence_flag` (34), e2e). CGR-32 IMPLEMENTED. ABS1 `delivered`.
