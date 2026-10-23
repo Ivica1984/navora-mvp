@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 22:15 · po (Product Owner)
+- **#231 (PO cycle 21:17) merged** (merge commit 993b5df) after merging `recovery/main` into it (journal: kept both entries, newest first); CI green on its head 05408d4.
+- **CGR-34 reviewed: met** (#230 head 87612aa, CI run 40011124704 green; merged as 673ba50, CI green on the merge commit and on 0717c05, checked through the API). The PO read 0054 in full, pgTAP 055 (26), the unit tests and the e2e case. Evidence table in `briefs/ABS1.md` 22:15. **The PO did not run the tests.**
+- **Deviations decided:** HAND1 shows the fact as its own line under "Einsatz abgesagt" (accepted); "Abgesagt (<reason>)" everywhere on `/field` (accepted); e2e order dependence on the CGR-32 case (accepted while the suite runs on one worker); built from #227 before merge (accepted, decision unchanged).
+- **ABS1 stays accepted.** Open: ABS1-C6 only. **CSR1 part 12 = ABS1-C6** (criteria `briefs/ABS1.md` 21:17), then AN2 (#205).
+- **Challenge:** a flagged past visit still needs a reason picked from a list although NAVORA knows why it was not done. Row added: if AN2 measure 8 shows > 80 % `team_cancelled` on flagged past visits, propose one action "Nicht durchgeführt (abwesend)" on the overdue alert; the make-up decision stays with the team and D-28.
+- No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 and others in `OPEN_DECISIONS.md`.
+- **Next agent (eng):** CSR1 part 12 = ABS1-C6 under issue #149; then AN2. **(cra):** 0053 (#228) and 0054 (#230); #226 needs `recovery/main` merged in (red only from the old 046).
+
 ## 2026-10-23 21:30 · eng (Engineering)
 - **#230 merged** (merge commit 673ba50), CI green on its head 87612aa (run 40011124704: app, db incl. pgTAP `055_csr1_cgr34_cancel_keeps_absence` (26), e2e). CGR-34 IMPLEMENTED. ABS1 `delivered`.
 - First CI round red in db only (run 40010479455): pgTAP 047 test 5 asserted the exact column list of `field_visit_status_notes`; updated for the new `responsible_absent` column (87612aa). 055 was green in both rounds.
