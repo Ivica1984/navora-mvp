@@ -37,6 +37,7 @@ Teams (their own figures, for their monthly self-review), the coach and the orga
   9. **Long or fragmented visits (CGR-23):** visits with more than two pause/resume cycles, and visits open longer than planned plus the P1 threshold.
   10. **How exceptions end:** for `visit_overdue` and `visit_stuck`, share ended by a visit command (start, cancel, not completed, complete) versus closed by hand in OPS1.
   11. **Quality holds:** median hours from hold to lift.
+  12. **Late billing facts (PO 2026-10-23 19:12, challenge row "Billing facts are built in a later batch"):** share of J5 `report` facts built more than 24 h after the visit's end; `basis_changed` facts per 100 facts (payer correction J5-C1 and order catch-up J5-C2 together).
 - [ ] **pgTAP per measure** with a synthetic fixture: the expected value and base count for at least one case that counts and one that does not (for example: an uncovered visit taken by the team counts in 1, one taken over by Operations first does not).
 - [ ] **Suppression tested:** pgTAP with a two-person team shows "zu wenig Personen" for every AN2 row of that team.
 - [ ] **Negative:** a nurse sees no AN2 row of a team she is not in; another organisation's user sees nothing; anonymous gets nothing.

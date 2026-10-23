@@ -8,6 +8,30 @@ updated: 2026-10-23
 
 # CSR1: Clinical safety remediation (Clinical Governance Report, 2026-10-22 22:30)
 
+## PO review — 2026-10-23 19:12: part 10 met (J5-C2, ABS1-C5); part 11 ordered (CGR-32, CGR-33), then AN2
+
+Reviewed CSR1 part 10: #216 (head 9ea3cb3, CI run 39988490243 green: app, db incl. pgTAP `051_csr1_order_as_of_visit_date` (35), e2e; merged as 3d48a00, CI runs 39989101189 and 39989106823 green on the merge commit; checked through the API). The PO read migration 0051 (header, cut-off, reconstruction) and the pgTAP 051 assertion list. **The PO did not run the tests.**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| J5-C2: the order basis is the order as recorded at the end of the visit date, never at build time | met | 0051: `private.order_cutoff` (first instant of the next day, Europe/Zurich; one place D-22 changes) and the reconstruction from `audit_events` (old value of the earliest change at or after the cut-off, else the live value); every build path through `build_billable_fact`; facts record `order_as_of` and `order_recorded` |
+| (a) order without end date on day 1, end date entered day 3, first generation later → not billable | met | pgTAP 051 (a): `order_validity_missing` plus `order_recorded_after_visit`, although the live order is valid |
+| (b) order valid on the visit date → billable whenever built | met | pgTAP 051 (b), also after the end date is removed again |
+| (c) correction v2 of (a) signed after the order fix → still not billable | met | pgTAP 051 (c) |
+| (d) J5-C1 payer correction unchanged | met | pgTAP 051 (d): IV → `payer_not_modelled`, KVG → billable again; order part copied |
+| CGR-29's build at the lift reads the same order | met | pgTAP 051 (lift section) |
+| No regression | met | CI green (all pgTAP files, unit, e2e) |
+| **Clinical gate** | passed | `cra` 19:00: J5-C2 met in code (cut-off PROVISIONAL, D-22), no blocking finding; CGR-33 and CGR-31 advisory |
+
+**Deviations, decided:**
+- No separate "history missing" reason, because the audit history is complete backwards from the live row: **accepted on condition CGR-33**, the test that keeps it complete.
+- An A/C-only visit whose order was recorded after the visit reads as `without_order_ac`: **accepted**; it is the existing CGR-07 rule, unchanged; whether A/C need an order is D-22 (`legal`).
+- No catch-up inside the migration (no user to attribute it to); pre-0051 facts re-derive at the next generation or lift: **accepted**; no real data (D-1), nothing is invoiced.
+- Cut-off compared with the audit row's transaction start: **accepted** (seconds around midnight; D-22 may move the cut-off).
+- CGR-29's build at the lift does not run when the visit had no fact before the hold; the next generation builds it: **accepted**. It delays a fact, never releases billing (`cra` 19:00 agrees). No change.
+
+**Part 11 (ordered now, small, before AN2):** CGR-32 (ABS1 condition, text in `briefs/ABS1.md`, review 19:12). CGR-33 (J5 condition, `briefs/J5.md`) was delivered by engineering in the same hour (#222, pgTAP 053) and is met (PO 19:30).
+
 ## PO review — 2026-10-23 16:55: part 9 met in code; awaiting clinical review; part 10 ordered (J5-C2)
 
 Reviewed CSR1 part 9: PR #210 (CI run 39969893133 green on its head: app, db incl. pgTAP 049, e2e; merged as 378f811, CI runs 39970600351 and 39970609212 green on the merge commit, checked through the API). The PO read migration 0049 in full, the pgTAP 049 assertions, and searched every migration for "latest version" checks that a `withdrawn` successor could break. **The PO did not run the tests.** Evidence is merged code and tests plus green CI.
@@ -109,8 +133,10 @@ Order of work: patient safety first.
 - [x] (met in code 16:55, #210, 0049; awaits `cra`) **CGR-24-W (PO decision 2026-10-23 15:25; residual of CGR-24 in the `cra` 15:00 section):** the performer can **withdraw her own correction draft while it is untouched**: status `draft`, and no time correction, observation or other change recorded on the visit since the draft was opened. One tap with a confirmation, no reason field (nothing changed, so nothing to explain). The draft row is kept with a terminal status (e.g. `withdrawn`) and who and when, never deleted; the last final version stays in force; the visit's times and observations are locked again exactly as before the draft; `report_correction_open` ends. Refused: by anyone other than the draft's performer (`not_performer`); for a draft with changes since it was opened (`draft_has_changes`: those changes must be signed, so the record and the signed snapshot never diverge); for a `signed` correction awaiting the countersignature (whether a countersigner may return a report is D-10). Idempotent. pgTAP: untouched draft → withdraw → `withdrawn`, final v1 in force, `visit_facts_locked` true, no signal, audit row; draft with a time correction → `draft_has_changes`, nothing written; a colleague → refused; signed correction → refused; second call → same result. This invents no clinical rule: a withdrawn draft never took effect.
 - [x] (met in code 16:55, #210, 0049; awaits `cra`) **CGR-29 (J5, advisory S3, `cra` 14:30):** on the last lift of a quality hold, if the visit's latest final report version has no J5-v3 `report` fact, the fact is built from that version (the same function) instead of restoring the pre-hold fact. pgTAP: v1 final → fact → hold → correction v2 final → lift → the head fact carries v2's `report_id` and snapshot hash.
 - [x] (met in code 16:55, #210, 0049; awaits `cra`) **J5-C1 (J5 condition, PO 2026-10-23 11:25; text in `briefs/J5.md`):** a payer correction in intake re-derives the fact from the same signed snapshot (no report version); a later order change does not make an earlier visit billable until D-22. pgTAP as in `J5.md`.
-- [ ] **J5-C2 (PO 2026-10-23 16:55, part 10; billing integrity, strict default until D-22):** a fact's order basis is the order as recorded at the end of the visit date (audited history), never the order at build time; else not billable with a named reason. pgTAP (a)-(d) in the 16:55 review.
+- [x] (met 19:12, #216, 0051; `cra` 19:00) **J5-C2 (PO 2026-10-23 16:55, part 10; billing integrity, strict default until D-22):** a fact's order basis is the order as recorded at the end of the visit date (audited history), never the order at build time; else not billable with a named reason. pgTAP (a)-(d) in the 16:55 review.
 - [x] **CGR-19 (F6, advisory, interim safe default 2026-10-23 03:10):** `correct_report` is refused with a clear reason (for example `performer_not_in_team`) while the report's performer is not a member of the visit's team, instead of creating a correction draft that nobody can ever sign. The current final version stays in force and readable. The rule for who may correct and sign in that case is D-30 (`clinical`, with `legal`); this criterion is replaced when D-30 is answered. pgTAP: performer removed → correction refused, no draft row; performer still a member → correction allowed as today. *(Met by part 7, #188, 0044, PO 12:15; delivered ahead of the 11:25 order, deviation accepted.)*
+- [ ] **CGR-32 (ABS1 condition, PO 2026-10-23 19:12, part 11):** a past planned visit inside a newly recorded absence keeps its responsible member, is counted in `past_planned` and its overdue alert carries "Zuständige Person abwesend gemeldet"; the absence is never refused. pgTAP and e2e in `briefs/ABS1.md` (19:12).
+- [x] (met 19:30, #222, pgTAP 053) **CGR-33 (J5 condition, PO 2026-10-23 19:12):** pgTAP guards that both order columns are audited with their old value and that `audit_events` is append-only (`briefs/J5.md`, 19:12).
 - [ ] **No regression:** all existing pgTAP, unit and e2e tests stay green. The Clinical Rule Register lists every provisional default CSR1 introduces.
 - [ ] **Clinical gate trail:** each PR names the report section it addresses and the CGR IDs it closes (README *Clinical review gate*).
 
