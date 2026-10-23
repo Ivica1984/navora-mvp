@@ -623,14 +623,14 @@ isOneToOne: false
                   ]
                 },"member_absences": {
                   Row: {
-                    "created_at": string,"ends_at": string,"id": string,"organization_id": string,"recorded_by": string,"starts_at": string,"team_id": string,"user_id": string,"withdrawn_at": string | null,"withdrawn_by": string | null
+                    "absence_group": string,"created_at": string,"ends_at": string,"id": string,"organization_id": string,"recorded_by": string,"starts_at": string,"team_id": string,"user_id": string,"withdrawn_at": string | null,"withdrawn_by": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"ends_at": string,"id"?: string,"organization_id": string,"recorded_by": string,"starts_at": string,"team_id": string,"user_id": string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
+                    "absence_group": string,"created_at"?: string,"ends_at": string,"id"?: string,"organization_id": string,"recorded_by": string,"starts_at": string,"team_id": string,"user_id": string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"ends_at"?: string,"id"?: string,"organization_id"?: string,"recorded_by"?: string,"starts_at"?: string,"team_id"?: string,"user_id"?: string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
+                    "absence_group"?: string,"created_at"?: string,"ends_at"?: string,"id"?: string,"organization_id"?: string,"recorded_by"?: string,"starts_at"?: string,"team_id"?: string,"user_id"?: string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
                   }
                   Relationships: [
                     {
