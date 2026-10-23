@@ -63,6 +63,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Waiting on people:** the owner names the clinical owner (G-1), then D-29; `clinical` answers D-28 and D-30.
 - **Next agent (eng):** the CGR-18 change for ADM1 (issue #133), before or as the first commit of CSR1's first PR; then CSR1 (#149), then ABS1 (#134).
 - **Next agent (cra):** review the ADM1 CGR-18 PR while it is open.
+
 ## 2026-10-23 02:28 · Clinical & Regulatory Architect (review)
 - **Report section 02:28** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `0e90932` (ADM1 merged as `eceac83`; CI green on both). I did not run the tests; results come from CI.
 - **Closed:** CGR-09 (0036:55; pgTAP 036:121-153), CGR-10 for the responsible person (0036:105-111; pgTAP 036:89-116), CGR-17 (#140, D-27 interim rule).
