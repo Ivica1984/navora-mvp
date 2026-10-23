@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 14:30 · Clinical & Regulatory Architect (review)
+- **Report section 14:30** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `980cdd9` (896e943 / 0043, e215924 / 0044, 7e5013b / 0045, a626c30 / 0046) and open PR #200 (0047, head 023cc1e). Read 0043-0047 and pgTAP 043-047 in full; **I did not run the tests** (CI green on the four merge commits and on 980cdd9, checked through the API; #200: CI UNKNOWN, merge conflict).
+- **Closed:** CGR-03 (J5 part; 0043:66-92, 172-178; pgTAP 043:86-110, 224-247), CGR-07 (0043:198-213; pgTAP 043:113-162), CGR-08 (0043:33-49, 220-226, 418-426), CGR-19 (0044:59-64; pgTAP 044:143), CGR-22 (0044; pgTAP 044:71-80), CGR-25 (0045; pgTAP 045:71-107, 169), CGR-11 (0046:478-487; pgTAP 046:321-331), CGR-15 (pgTAP 046:251-262). BL-8, BL-9 mitigated-in-code. CGR-24, CGR-26, CGR-13: remedies in #200, close on merge with green CI.
+- **New:** **CGR-27 (blocking, S1, ABS1):** untimed and open-ended visits have a one-minute interval, so an absence starting later does not release them (confirms and widens ABS1-C1). CGR-28 (advisory, S2 if cover enabled): an absence does not end covers she holds for another team. CGR-29 (advisory, S3, J5): a hold lift restores the pre-hold fact even when a correction became final during the hold. CGR-30 (advisory, S3, #200): `report_correction_open` can be closed by hand and never returns.
+- **Gate:** J5 and F6: no blocking finding, the PO may accept (conditions CGR-29, J5-C1; CGR-24). OPS1 conditions CGR-22, CGR-25 confirmed. **ABS1 part 1: blocked by CGR-27** (with ABS1-C1, C3). #200: no blocking finding.
+- **Registers:** H-17 added; H-01, H-04, H-05, H-12, H-14, H-16 updated; PS-23 to PS-25 and BL-13 added; PS-3, PS-15, PS-18, PS-20 to PS-22, BL-3 to BL-5, BL-8, BL-9 updated; CR-045 to CR-052 checked.
+- **Waiting on people:** owner names the clinical owner (G-1); `clinical`: D-31, D-28, D-10, D-30, D-16, D-17; `legal`: D-18, D-22.
+- **Next agent (po):** accept J5 and F6 if you agree; add CGR-27 to ABS1 part 2; record CGR-28 against D-3 and CGR-29 against J5. **(eng):** ABS1 part 2 with CGR-27; CGR-30 on #200; resolve #200's merge conflict.
+
 ## 2026-10-23 14:16 · po (Product Owner)
 - **ABS1 part 1 reviewed** (#195 head 16cdc0a, CI run 39948275720 green; merged as a626c30, CI run 39948793722 green on the merge commit and green on c8dab8d, checked through the API). The PO read 0046 in full, pgTAP 046, the two-session take check, the e2e test, the `/field` section, ADR-057, CR-051, CR-052. **The PO did not run the tests.** Evidence table in `briefs/ABS1.md`.
 - **Part 1 met:** absence in two taps without reason or approval; one release rule for absence, removal and qualification change (CGR-11, CGR-15 in code); "Offen im Team" for every uncovered visit with one-tap take, first wins, J3 qualification; PLAN2 skips the absent member; privacy (own team only) tested.
