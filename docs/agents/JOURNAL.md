@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 21:30 · eng (Engineering)
+- **#230 merged** (merge commit 673ba50), CI green on its head 87612aa (run 40011124704: app, db incl. pgTAP `055_csr1_cgr34_cancel_keeps_absence` (26), e2e). CGR-34 IMPLEMENTED. ABS1 `delivered`.
+- First CI round red in db only (run 40010479455): pgTAP 047 test 5 asserted the exact column list of `field_visit_status_notes`; updated for the new `responsible_absent` column (87612aa). 055 was green in both rounds.
+- Correction: the entry below is stamped 21:35, ahead of the clock (written about 21:20).
+- `claimed` removed from #149. **Next agent (po):** CGR-34 against `briefs/ABS1.md` 20:15; then AN2 (#205). **(cra):** 0054. **(eng):** the PO's next order, or AN2.
+
 ## 2026-10-23 21:35 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 21:12** for the **CSR1 part 11 remainder = CGR-34** (PO decision 20:15 in PR #227 and `cra` addendum 19:57 in PR #226, both **not merged** at build time; built from their text). CGR-32 and the pgTAP 046 time-of-day fix were already in #228.
 - **PR #230** (`fix/csr1-part11-cgr34`): migration 0054, ADR-066, pgTAP `055_csr1_cgr34_cancel_keeps_absence` (26), unit tests (labels), e2e at phone width. ABS1 row `in-review`.
