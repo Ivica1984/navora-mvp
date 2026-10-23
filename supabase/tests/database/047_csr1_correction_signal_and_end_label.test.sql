@@ -2,6 +2,8 @@
 -- `docs/agents/briefs/CSR1.md` (2026-10-23 11:25; Clinical Governance Report section 2026-10-23 10:29).
 -- CGR-24: a report correction that is not final after the `report_not_final` threshold raises `report_correction_open`
 --         (P3, PROVISIONAL, D-28) for the team and Operations, until the correction version is final.
+--         CGR-30 (`cra` 2026-10-23 14:30): it closes only with its cause; a hand close is refused, an earlier close
+--         hides nothing.
 -- CGR-26: `field_visit_status_notes` says who ended an interrupted visit (label, never a user id) and why.
 -- Users: nurse …902 (registered nurse, Testteam Nord …101) · nurse …906 (care assistant, Nord) · ops …904
 --        (operations, org A) · fremd …903 (admin of org B). All data synthetic; every step goes through the real
@@ -10,7 +12,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(35);
+select plan(39);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -21,8 +23,10 @@ $$;
 select is((select priority || '/' || coalesce(amount::text, '-') || '/' || coalesce(escalate_to_p1_after_hours::text, '-')
            from public.exception_rules where exception_type = 'report_correction_open'),
   'P3/-/-', 'report_correction_open: P3, no own threshold, not escalating (PROVISIONAL, D-28)');
-select ok(not private.exception_closes_with_cause('00000000-0000-4000-b000-000000000011', 'report_correction_open'),
-  'it is not made a safety exception (as report_not_final)');
+select ok(private.exception_closes_with_cause('00000000-0000-4000-b000-000000000011', 'report_correction_open'),
+  'CGR-30: report_correction_open closes only with its cause');
+select ok(not private.exception_is_safety('00000000-0000-4000-b000-000000000011', 'report_correction_open'),
+  'it is not made a safety exception: its priority stays with D-28');
 select ok(has_function_privilege('authenticated', 'public.field_visit_status_notes(date)', 'execute')
           and not has_function_privilege('anon', 'public.field_visit_status_notes(date)', 'execute'),
   'field_visit_status_notes: members yes, anon no');
@@ -101,6 +105,10 @@ select pg_temp.age_correction('rep', 25);
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 select is((select priority from pg_temp.ops('rep')), 'P3', 'CGR-24: 25 h old, Operations sees report_correction_open (P3)');
+select is((select x.closable from public.operations_exceptions() x where x.exception_type = 'report_correction_open'
+           and x.entity_id = pg_temp.vid('rep')), false, 'CGR-30: Operations is not offered "Schliessen" for it');
+select is(public.handle_exception((select exception_key from pg_temp.ops('rep')), 'close', 'Synthetisch: erledigt',
+          'a4700000-0000-4000-8000-000000000030'), 'cause_persists', 'CGR-30: a hand close is refused (cause_persists)');
 select is((select detail from pg_temp.ops('rep')) ~ 'Korrektur Version 2 · nicht unterschrieben$', true,
   'its detail names the version and that it is not signed, and no clinical text');
 insert into seen_key select exception_key from pg_temp.ops('rep');
@@ -108,9 +116,17 @@ reset role;
 select is((select exception_key from seen_key),
   'report_correction_open:' || (select id from public.visit_reports where visit_id = pg_temp.vid('rep') and version = 2),
   'the key carries the correction version, so a later correction raises a new signal');
+-- A close written before (or around) this rule, simulated as the table owner, hides it neither for the team nor for Operations.
+insert into public.exception_events (organization_id, exception_key, kind, text, actor_id)
+select '00000000-0000-4000-b000-000000000011', exception_key, 'close', 'Synthetisch: früher geschlossen', '00000000-0000-4000-a000-000000000904'
+from seen_key;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000906');
 set local role authenticated;
-select is((select priority from pg_temp.team('rep')), 'P3', 'CGR-24: every member of the visit''s team sees it (team view)');
+select is((select priority from pg_temp.team('rep')), 'P3', 'CGR-24: every member of the visit''s team sees it (team view), an earlier close does not hide it');
+reset role;
+select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
+set local role authenticated;
+select is((select count(*)::int from pg_temp.ops('rep')), 1, 'CGR-30: nor for Operations');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
 set local role authenticated;

@@ -1,6 +1,7 @@
 -- CSR1, part 8: CGR-24 (F1-F4, F6, advisory S2) and CGR-26 (OPS1, advisory S3), the PO's criteria in
 -- `docs/agents/briefs/CSR1.md` (added 2026-10-23 11:25 from the Clinical Governance Report section 2026-10-23 10:29).
--- CGR-13 (QG1, UI label "Abrechnungssperre") is UI only and needs nothing here. ADR-058.
+-- CGR-13 (QG1, UI label "Abrechnungssperre") is UI only and needs nothing here. CGR-30 (advisory S3, `cra` section
+-- 2026-10-23 14:30, on this PR): the correction signal closes only with its cause. ADR-058.
 --
 -- CGR-24 (strict provisional default; threshold PROVISIONAL, D-28 `clinical`): a report correction draft could stay
 --   unsigned for good. Since 0040 an open correction draft also unlocks the visit's times and observations, and since
@@ -14,9 +15,10 @@
 --   version stays in force and billing reads only final versions (0043). There is no command to withdraw a
 --   correction draft (UNKNOWN whether one is wanted; not built). Visible to the team (`team_visit_alerts`, `/team`)
 --   and to Operations (`operations_exceptions`). Its key carries the correction's id, so a later correction of the
---   same visit raises a new signal. Like `report_not_final` it can be closed by hand in OPS1 (it is not made a safety
---   exception; OPEN, ADR-058). The detail carries no clinical text: date, time, version, and whether the
---   countersignature is missing.
+--   same visit raises a new signal. It **closes only with its cause** (CGR-30, `cra` section 2026-10-23 14:30): a
+--   hand close in OPS1 returns `cause_persists`, `closable = false`, and an earlier close never hides it (team or
+--   Operations), like `visit_interrupted` (0045); it is not made a safety exception (its priority stays D-28). The
+--   detail carries no clinical text: date, time, version, and whether the countersignature is missing.
 --
 -- CGR-26: the performer of an interrupted visit sees who ended it and why. `field_visit_status_notes` (0024) gains
 --   who recorded each note, as a label the caller may see: `actor_kind` ('me', 'team' for a member of the visit's
@@ -35,6 +37,19 @@
 insert into public.exception_rules (exception_type, priority, amount, unit, escalate_to_p1_after_hours, label, next_step) values
   ('report_correction_open', 'P3', null, null, null, 'Berichtskorrektur nicht abgeschlossen',
    'Die Pflegeperson, die den Einsatz geleistet hat, prüft die Korrektur und unterschreibt sie. Bis dahin gilt die bisherige Version. Provisorische Frist wie «Einsatzbericht nicht abgeschlossen» (D-28, klinisch offen).');
+
+-- 1b. CGR-30: it closes only with its cause (the correction becomes final) ---------------------------------------------
+create or replace function private.exception_closes_with_cause(p_org uuid, p_type text)
+returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select p_type in ('visit_uncovered', 'visit_interrupted', 'report_correction_open') or private.exception_is_safety(p_org, p_type)
+$$;
+revoke all on function private.exception_closes_with_cause(uuid, text) from public, anon, authenticated;
+comment on function private.exception_closes_with_cause(uuid, text) is
+  'CSR1: true for safety exceptions (CGR-06), for visit_uncovered (CGR-22, PROVISIONAL until D-28), for '
+  'visit_interrupted (CGR-25, PROVISIONAL until D-31) and for report_correction_open (CGR-24/CGR-30, PROVISIONAL until '
+  'D-28). Such exceptions are not closed by hand; they end when their cause is resolved.';
 
 -- 2. Readers, regenerated from their current definitions (every find must match exactly once) ------------------------
 create function private.csr1i_patch(p_fn text, p_pairs text[])
@@ -73,15 +88,33 @@ select private.csr1i_patch('private.derived_exceptions(uuid)', array[
 '
 ]);
 
--- 2b. Team view: the team sees an open correction of its visits (CGR-24 "for the team and Operations").
+-- 2b. Team view: the team sees an open correction of its visits (CGR-24 "for the team and Operations"); an earlier
+--     close never hides it (CGR-30).
 select private.csr1i_patch('public.team_visit_alerts()', array[
   E'x.exception_type in (''visit_overdue'', ''visit_stuck'', ''visit_interrupted'')',
-  E'x.exception_type in (''visit_overdue'', ''visit_stuck'', ''visit_interrupted'', ''report_correction_open'')'
+  E'x.exception_type in (''visit_overdue'', ''visit_stuck'', ''visit_interrupted'', ''report_correction_open'')',
+  E'     or d.exception_type = ''visit_interrupted''  -- CGR-25: an earlier close never hides it\n',
+  E'     or d.exception_type in (''visit_interrupted'', ''report_correction_open'')  -- CGR-25, CGR-30: an earlier close never hides it\n'
+]);
+
+-- 2c. OPS1 reader: not closable, and an earlier close never hides it (CGR-30).
+select private.csr1i_patch('public.operations_exceptions()', array[
+  E'or d.exception_type in (''visit_uncovered'', ''visit_interrupted''))\n',
+  E'or d.exception_type in (''visit_uncovered'', ''visit_interrupted'', ''report_correction_open''))\n',
+  E'     or d.exception_type in (''visit_uncovered'', ''visit_interrupted'')  -- CGR-25 (PROVISIONAL, D-31)\n',
+  E'     or d.exception_type in (''visit_uncovered'', ''visit_interrupted'', ''report_correction_open'')  -- CGR-25 (D-31), CGR-30 (D-28)\n'
 ]);
 
 drop function private.csr1i_patch(text, text[]);
 
 revoke all on function private.derived_exceptions(uuid) from public, anon, authenticated;
+revoke all on function public.operations_exceptions() from public, anon;
+grant execute on function public.operations_exceptions() to authenticated;
+comment on function public.operations_exceptions() is
+  'OPS1: open exceptions for coordinators. closable = false for exceptions that close only with their cause: safety '
+  'exceptions (P1 or escalating, CSR1 / CGR-06), visit_uncovered (CSR1 / CGR-22, PROVISIONAL until D-28), '
+  'visit_interrupted (CSR1 / CGR-25, PROVISIONAL until D-31) and report_correction_open (CSR1 / CGR-30, PROVISIONAL '
+  'until D-28).';
 revoke all on function public.team_visit_alerts() from public, anon;
 grant execute on function public.team_visit_alerts() to authenticated;
 comment on function public.team_visit_alerts() is
