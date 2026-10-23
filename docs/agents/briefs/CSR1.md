@@ -8,6 +8,12 @@ updated: 2026-10-23
 
 # CSR1: Clinical safety remediation (Clinical Governance Report, 2026-10-22 22:30)
 
+## PO update — 2026-10-23 20:15: part 11 = CGR-32 + CGR-34 (+ the `cra` 19:46 case)
+
+Part 11 (not started; no PR yet) now carries three things, all small and in the same functions: **CGR-32** (ABS1 condition, `briefs/ABS1.md` 19:12), **CGR-34** (PO decision 20:15 on the `cra` 19:57 addendum: a cancellation of a flagged past visit stores, server-side and immutably, that the responsible member was absent; no new reason code), and the `cra` 19:46 pgTAP case (a hand-closed overdue alert still counts in `past_planned`). Criteria in `briefs/ABS1.md` 20:15. Then AN2.
+
+**CI note (not a PO criterion, an order):** pgTAP 046 test 74 depends on the time of day (`cra` 19:57: `now() + 4 h` crosses midnight between 20:00 and 24:00 Europe/Zurich) and makes every PR's db job red in the evening. Engineering fixes it first, in part 11's PR or a separate one; a red db job from any other test is not this.
+
 ## PO review — 2026-10-23 19:12: part 10 met (J5-C2, ABS1-C5); part 11 ordered (CGR-32, CGR-33), then AN2
 
 Reviewed CSR1 part 10: #216 (head 9ea3cb3, CI run 39988490243 green: app, db incl. pgTAP `051_csr1_order_as_of_visit_date` (35), e2e; merged as 3d48a00, CI runs 39989101189 and 39989106823 green on the merge commit; checked through the API). The PO read migration 0051 (header, cut-off, reconstruction) and the pgTAP 051 assertion list. **The PO did not run the tests.**
@@ -135,6 +141,7 @@ Order of work: patient safety first.
 - [x] (met in code 16:55, #210, 0049; awaits `cra`) **J5-C1 (J5 condition, PO 2026-10-23 11:25; text in `briefs/J5.md`):** a payer correction in intake re-derives the fact from the same signed snapshot (no report version); a later order change does not make an earlier visit billable until D-22. pgTAP as in `J5.md`.
 - [x] (met 19:12, #216, 0051; `cra` 19:00) **J5-C2 (PO 2026-10-23 16:55, part 10; billing integrity, strict default until D-22):** a fact's order basis is the order as recorded at the end of the visit date (audited history), never the order at build time; else not billable with a named reason. pgTAP (a)-(d) in the 16:55 review.
 - [x] **CGR-19 (F6, advisory, interim safe default 2026-10-23 03:10):** `correct_report` is refused with a clear reason (for example `performer_not_in_team`) while the report's performer is not a member of the visit's team, instead of creating a correction draft that nobody can ever sign. The current final version stays in force and readable. The rule for who may correct and sign in that case is D-30 (`clinical`, with `legal`); this criterion is replaced when D-30 is answered. pgTAP: performer removed → correction refused, no draft row; performer still a member → correction allowed as today. *(Met by part 7, #188, 0044, PO 12:15; delivered ahead of the 11:25 order, deviation accepted.)*
+- [ ] **CGR-34 (ABS1 condition, PO 2026-10-23 20:15, part 11):** a cancellation of a flagged past visit stores `responsible_absent` server-side and immutably and shows "nicht durchgeführt: zuständige Person abwesend gemeldet". pgTAP, unit and e2e in `briefs/ABS1.md` (20:15).
 - [ ] **CGR-32 (ABS1 condition, PO 2026-10-23 19:12, part 11):** a past planned visit inside a newly recorded absence keeps its responsible member, is counted in `past_planned` and its overdue alert carries "Zuständige Person abwesend gemeldet"; the absence is never refused. pgTAP and e2e in `briefs/ABS1.md` (19:12).
 - [x] (met 19:30, #222, pgTAP 053) **CGR-33 (J5 condition, PO 2026-10-23 19:12):** pgTAP guards that both order columns are audited with their old value and that `audit_events` is append-only (`briefs/J5.md`, 19:12).
 - [ ] **No regression:** all existing pgTAP, unit and e2e tests stay green. The Clinical Rule Register lists every provisional default CSR1 introduces.
