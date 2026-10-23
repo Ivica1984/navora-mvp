@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CLOSES_WITH_CAUSE, CLOSES_WITH_FOLLOWUP, canClose, countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
+import { CLOSES_WITH_CAUSE, CLOSES_WITH_FOLLOWUP, alertFlagLabels, canClose, countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
 
 const NOW = Date.parse("2026-10-21T20:00:00Z");
 
@@ -43,5 +43,14 @@ describe("OPS1 exception helpers", () => {
   it("parses comments defensively", () => {
     expect(parseComments([{ text: "a", at: "2026-10-21T20:00:00Z", mine: true }, { text: 1 }, null])).toHaveLength(1);
     expect(parseComments("x")).toEqual([]);
+  });
+
+  it("CGR-32: labels the responsible_absent flag with the fixed text, once, and ignores unknown flags", () => {
+    expect(alertFlagLabels(["responsible_absent"])).toEqual(["Zuständige Person abwesend gemeldet"]);
+    expect(alertFlagLabels(["responsible_absent", "responsible_absent"])).toEqual(["Zuständige Person abwesend gemeldet"]);
+    expect(alertFlagLabels(["something_else"])).toEqual([]);
+    expect(alertFlagLabels([])).toEqual([]);
+    expect(alertFlagLabels(null)).toEqual([]);
+    expect(alertFlagLabels(undefined)).toEqual([]);
   });
 });

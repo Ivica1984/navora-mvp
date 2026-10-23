@@ -47,7 +47,7 @@ select is((select count(*)::int from public.cases), 10, 'coach A sees the 10 org
 select is((select count(*)::int from public.cases where organization_id = '00000000-0000-4000-b000-000000000012'),
   0, 'coach A sees no org-B case');
 select is((select count(*)::int from public.teams where name = 'Fremdteam B'), 0, 'coach A does not see Fremdteam B');
-select is((select count(*)::int from public.care_visits), 9, 'coach A sees the 9 org-A visits');
+select is((select count(*)::int from public.care_visits), 10, 'coach A sees the 10 org-A visits (incl. the CGR-32 seed visit)');
 select is((select count(*)::int from public.organizations), 1, 'coach A sees only own organisation');
 select is((select count(*)::int from public.organization_memberships), 1, 'coach A sees only own membership');
 

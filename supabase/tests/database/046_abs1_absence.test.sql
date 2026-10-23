@@ -59,11 +59,12 @@ insert into fx values
   ('t3',      'a0460000-0000-4000-8000-000000000003', (pg_temp.today() + 3 + time '09:00') at time zone 'Europe/Zurich', '00000000-0000-4000-a000-000000000906', 0, 'planned'),
   -- open visits nobody is responsible for
   ('open_b',  'a0460000-0000-4000-8000-000000000004', (pg_temp.today() + 1 + time '18:00') at time zone 'Europe/Zurich', null, 20, 'planned'),
-  ('hand',    'a0460000-0000-4000-8000-000000000005', now() + interval '3 hours', null, 0, 'planned'),
+  -- 'hand' and 'later' stay today whatever the time of day (least: before 23:00 Zurich); 'overdue' stays today too.
+  ('hand',    'a0460000-0000-4000-8000-000000000005', least(now() + interval '3 hours', (pg_temp.today() + time '23:00') at time zone 'Europe/Zurich'), null, 0, 'planned'),
   -- 902's visits (registered nurse) for her absence today
   ('paused',  'a0460000-0000-4000-8000-000000000006', now() - interval '3 hours', '00000000-0000-4000-a000-000000000902', 0, 'paused'),
-  ('overdue', 'a0460000-0000-4000-8000-000000000007', now() - interval '20 minutes', '00000000-0000-4000-a000-000000000902', 0, 'planned'),
-  ('later',   'a0460000-0000-4000-8000-000000000008', now() + interval '4 hours', '00000000-0000-4000-a000-000000000902', 0, 'planned'),
+  ('overdue', 'a0460000-0000-4000-8000-000000000007', greatest(now() - interval '20 minutes', (pg_temp.today() + time '00:00') at time zone 'Europe/Zurich'), '00000000-0000-4000-a000-000000000902', 0, 'planned'),
+  ('later',   'a0460000-0000-4000-8000-000000000008', least(now() + interval '4 hours', (pg_temp.today() + time '23:00') at time zone 'Europe/Zurich'), '00000000-0000-4000-a000-000000000902', 0, 'planned'),
   ('done',    'a0460000-0000-4000-8000-000000000009', now() - interval '6 hours', '00000000-0000-4000-a000-000000000902', 0, 'completed'),
   -- 902's visits for the qualification change (CGR-11)
   ('rn_b',    'a0460000-0000-4000-8000-000000000010', (pg_temp.today() + 5 + time '10:00') at time zone 'Europe/Zurich', '00000000-0000-4000-a000-000000000902', 20, 'planned'),
@@ -135,7 +136,8 @@ select is((select known_by_me from public.team_open_visits(pg_temp.today()) wher
   'known_by_me is set for her');
 select is((select may_take from public.team_open_visits(pg_temp.today()) where visit_id = pg_temp.vid('open_b')), true,
   'a registered nurse may take a B visit');
-select is((select count(*)::int from public.member_absences), 1, 'a team member reads the absence row of her team');
+-- created in this transaction only: the seed holds an ended absence of 906 (CGR-32 e2e fixture)
+select is((select count(*)::int from public.member_absences where created_at >= now()), 1, 'a team member reads the absence row of her team');
 select ok((select array_agg(visit_id order by visit_date, time_start) = array[pg_temp.vid('t1'), pg_temp.vid('t2'), pg_temp.vid('open_b')]
            from public.team_open_visits(pg_temp.today() + 1) where visit_id in (select id from fx)),
   'in time order');

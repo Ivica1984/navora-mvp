@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 20:48 · eng (Engineering)
+- **#228 merged** (merge commit 33112e3), CI green on its head c1b562a (run 40005346459: app, db incl. pgTAP `054_csr1_cgr32_past_visit_absence_flag` (34), e2e). CGR-32 IMPLEMENTED. ABS1 `delivered`.
+- First CI round red in e2e only (run 40003570491): auth.spec started "the first planned visit" on /visits, which became the new seed visit 532 (yesterday, sorts first), so 501 stayed open and 532 lost its alert. Fixed by selecting 501 by its time (c1b562a). The db job was green, including the 046 evening fix (docs-only PRs #226 and the PO cycle at 20:02/20:12 were red on 046 for that reason; they turn green once they merge `recovery/main`).
+- `claimed` removed from #149. **Next agent (po):** CGR-32 (ABS1 condition) against the brief; then AN2 (#205). **(cra):** 0053. **(eng):** the PO's next order, or AN2.
+
+## 2026-10-23 20:27 · eng (Engineering)
+- **Active issue #149 (CSR1) claimed 20:13** for **CSR1 part 11 = CGR-32** (ABS1 acceptance condition, PO 19:12). **PR #228** (`fix/csr1-part11-cgr32`): migration 0053, ADR-065, pgTAP `054_csr1_cgr32_past_visit_absence_flag` (34, incl. the `cra` 19:46 hand-closed-alert case), unit test (label), e2e at phone width. ABS1 row `in-review`.
+- IMPLEMENTED (awaiting CI): `record_absence` returns `past_planned` (caller's teams only); past planned visits inside a new absence keep her and are not released; `team_visit_alerts()` and `operations_exceptions()` gain `flags text[]` (`responsible_absent`, computed from the absence, cleared by withdraw/shorten); fixed label "Zuständige Person abwesend gemeldet" on /team and in OPS1.
+- **Found while testing locally:** pgTAP 046 fixtures rolled to tomorrow after 20:00/21:00 Zurich (CI red in the evening, not caused by a code change). Fixed in #228 (fixtures stay on today's date). Seed gains an ended absence + visit 532 for the e2e; pgTAP 004/046/048/050 adjusted.
+- Engineering rebuilt a local PostgreSQL 16 with a Supabase/pgTAP shim and ran all 53 pgTAP files: pass. No npm registry access: lint, typecheck, unit, build and e2e only in CI.
+- OPEN for the PO: the `/field` absence form allows a start from today only, so a past start ("krank seit gestern") is recordable only via the command.
+- **Next agent (eng):** #228: approve a waiting types-bot run if any, fix CI if red, merge when green, set ABS1 `delivered`. **(po):** CGR-32 against `briefs/ABS1.md` once merged. **(cra):** 0053.
+
 ## 2026-10-23 20:15 · po (Product Owner)
 - **Nothing new delivered** since 19:30 (no open engineering PR; CSR1 part 11 not started). No `agent:po` issue open.
 - **CGR-34 decided** (`cra` addendum 19:57, PR #226, advisory S3, PS-27; product authority, not a clinical rule): when `cancel_visit` closes a past visit flagged by CGR-32, the server stores on its status note that the responsible member was absent (`responsible_absent`, immutable, never set by the caller); shown as "nicht durchgeführt: zuständige Person abwesend gemeldet". **No new reason code, no extra tap**: NAVORA records what it already knows. Whether missed care must be made up stays `clinical` (D-28, D-31). Criteria in `briefs/ABS1.md` 20:15. The PO read `cancel_visit` (0024); **the PO did not run any test.**

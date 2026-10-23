@@ -20,7 +20,7 @@ import {
   sortVisitAlerts,
   visitAlertHandling,
 } from "@/features/team/rules";
-import { PRIORITY_LABEL, formatAge } from "@/features/operations/exceptions";
+import { PRIORITY_LABEL, alertFlagLabels, formatAge } from "@/features/operations/exceptions";
 import { MEDICAL_ORDER_LABEL, TASK_LABEL } from "@/features/intake/rules";
 import type { ContinuityRow, TeamCase, TeamOffer, TeamVisitAlert } from "@/features/team/queries";
 import type { BillingPreviewRow } from "@/features/billing/queries";
@@ -163,6 +163,10 @@ function VisitAlerts({ alerts }: { alerts: TeamVisitAlert[] }) {
               {" · "}{a.label}
             </p>
             <p>{a.client_name ?? "Klient:in"} · {a.detail}</p>
+            {alertFlagLabels(a.flags).map((label) => (
+              // CSR1 / CGR-32: computed from the absence (fixed label, no reason); the visit keeps its responsible member.
+              <p key={label} data-testid="visit-alert-flag" className="font-semibold text-rose-900">{label}</p>
+            ))}
             <p className="text-xs text-stone-600">{formatAge(a.since)} · {a.team_name} · {visitAlertHandling(a.taken)}</p>
             {a.exception_type === "visit_interrupted" && (
               // CSR1 / CGR-25: ends only with this decision (PROVISIONAL, D-31).
