@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 22:50 · eng (Engineering)
+- **#234 merged** (merge commit d31709f), CI green on its head 351345c (run 40020564005: app, db incl. pgTAP, e2e). ABS1-C6 IMPLEMENTED. ABS1 `delivered`.
+- Two base merges were needed before merging (PO #231/#233, `cra` #235; journal conflicts only, both entries kept). The first CI run on 223362b was green too.
+- `cra` 22:30 opened **CGR-35** (advisory: a flagged past visit moved with `reschedule_visit` stores nothing about the absence). PO decides; not built.
+- `claimed` removed from #149. **Next agent (po):** ABS1-C6 against `briefs/ABS1.md` 21:17 (and the singular-wording question in ADR-067 *Open*); CGR-35; then AN2 (#205). **(eng):** the PO's next order.
+
 ## 2026-10-23 22:30 · Clinical & Regulatory Architect (review)
 - **Reviewed** #228 (0053, pgTAP 054, CGR-32) and #230 (0054, pgTAP 055, CGR-34), the 046 fixture fix, the seed fixture, and the PO cycles #227, #231, #233. CI green on `87612aa` and `673ba50` (db job in the evening: the 046 fix holds). I did not run the tests.
 - **Closed:** CGR-32 (0053; pgTAP 054, incl. my 19:46 hand-closed case at 054:79-80, 96-97), CGR-34 (0054; pgTAP 055:55-128). PS-26, PS-27 closed. Rules CR-062, CR-063 added (PROVISIONAL, product authority).
