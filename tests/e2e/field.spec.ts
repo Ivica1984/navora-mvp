@@ -317,12 +317,27 @@ test.describe("field tool (F1)", () => {
   });
 
   // ABS1 (migration 0046): "Ich kann nicht arbeiten" at the top of /field in two taps (open, save), no reason field;
-  // "Offen im Team" lists visits of the team with nobody responsible (seed visit 508, tomorrow 09:00) with one tap
-  // to take. Nothing is saved here: the database behaviour is pgTAP 046 and the two-session take check.
-  test("ABS1: absence is two taps from the top and open team visits are listed, at phone width", async ({ page }) => {
+  // "Offen im Team" lists a visit of the team with nobody responsible, and one tap takes it. The absence itself is not
+  // saved here (it would release seed visits other specs use): the database behaviour is pgTAP 046 and the
+  // two-session take check. The open visit is planned here (Testfall 08, three days ahead, 21:00, "Team (noch niemand)").
+  test("ABS1: absence is two taps from the top; an open team visit is taken with one tap, at phone width", async ({ page }) => {
+    const day = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10);
     await page.setViewportSize({ width: 390, height: 844 });
     await signIn(page, NURSE, /\/field$/);
-    await page.goto(`/field?datum=${NEXT_DAY}`);
+
+    await page.goto("/team");
+    const card = page.getByRole("article", { name: /Fall Testfall 08/ });
+    await card.getByRole("button", { name: "Einsatz planen" }).click();
+    const planForm = card.getByRole("form", { name: "Einsatz planen" });
+    await planForm.getByLabel("Datum").fill(day);
+    await planForm.getByLabel("Von").fill("21:00");
+    await planForm.getByLabel("Bis").fill("21:30");
+    await planForm.getByLabel("A", { exact: true }).fill("30");
+    await planForm.getByLabel("Verantwortlich").selectOption("");
+    await planForm.getByRole("button", { name: "Einsatz speichern" }).click();
+    await expect(card.getByRole("list", { name: "Geplante Einsätze" })).toContainText("21:00–21:30");
+
+    await page.goto(`/field?datum=${day}`);
     const absence = page.getByTestId("absence");
     const open = absence.getByTestId("absence-open");
     await expect(open).toBeInViewport();
@@ -335,7 +350,9 @@ test.describe("field tool (F1)", () => {
 
     const team = page.getByTestId("open-in-team");
     await expect(team.getByRole("heading", { name: /Offen im Team/ })).toBeVisible();
-    await expect(team.getByTestId("open-visit").filter({ hasText: "09:00" }).getByRole("button", { name: "Übernehmen" })).toBeVisible();
+    const visit = team.getByTestId("open-visit").filter({ hasText: "21:00" });
+    await visit.getByRole("button", { name: "Übernehmen" }).click();
+    await expect(team.getByTestId("open-visit").filter({ hasText: "21:00" })).toHaveCount(0);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
   });
