@@ -1,6 +1,7 @@
 "use server";
 
-// F3: time corrections (migration 0008). F4: observations (migration 0009). The database checks team membership,
+// F3: time corrections (migration 0008). F4: observations (migration 0009). CSR1 (0040): only the author supersedes
+// an observation (CGR-01); both are refused while the visit report is signed or final (CGR-03). The database checks team membership,
 // reason, "not in the future" and timeline order; corrections are append-only.
 
 import { revalidatePath } from "next/cache";
@@ -20,7 +21,9 @@ const MESSAGES = {
   invalid: "Bitte eine gültige Uhrzeit und eine Begründung (mind. 5 Zeichen) angeben.",
   future: "Die korrigierte Zeit darf nicht in der Zukunft liegen.",
   order: "Die korrigierte Zeit passt nicht in die Reihenfolge des Einsatzes (z. B. Ende vor Start).",
-  rejected: "Nicht gespeichert: Du gehörst nicht zum zuständigen Team.",
+  // 'rejected' covers: not in the visit's team, or the report is signed (CSR1 / CGR-03, migration 0040).
+  rejected:
+    "Nicht gespeichert: nur im zuständigen Team, und nach der Unterschrift des Berichts nur über «Bericht korrigieren».",
   failed: "Korrektur konnte nicht gespeichert werden.",
 };
 
@@ -62,7 +65,7 @@ const observationSchema = z.object({
 const OBSERVATION_MESSAGES = {
   invalid: "Bitte eine Beobachtung eingeben (höchstens 2000 Zeichen).",
   rejected:
-    "Nicht gespeichert: Beobachtungen sind erst ab Abfahrt möglich, nur im zuständigen Team, und nur die neueste Fassung kann geändert werden.",
+    "Nicht gespeichert: Beobachtungen sind erst ab Abfahrt möglich, nur im zuständigen Team, nur die eigene und neueste Fassung kann geändert werden, und nach der Unterschrift des Berichts nur über «Bericht korrigieren».",
   failed: "Beobachtung konnte nicht gespeichert werden.",
 };
 

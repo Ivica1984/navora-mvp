@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { REPORT_REJECTION_MESSAGE, reportRejectionMessage, reportView, type FieldReport } from "@/features/field/report";
+import {
+  FACTS_LOCKED_HINT,
+  REPORT_REJECTION_MESSAGE,
+  reportRejectionMessage,
+  reportView,
+  visitFactsLocked,
+  type FieldReport,
+} from "@/features/field/report";
 
 function report(overrides: Partial<FieldReport>): FieldReport {
   return {
@@ -78,5 +85,22 @@ describe("report rejection messages", () => {
   it("falls back to a generic message", () => {
     expect(reportRejectionMessage("something_else")).toBe("Bericht konnte nicht gespeichert werden.");
     expect(reportRejectionMessage(undefined)).toBe("Bericht konnte nicht gespeichert werden.");
+  });
+});
+
+describe("visitFactsLocked (CSR1 / CGR-03, migration 0040)", () => {
+  it("is open without a report and while the latest version is a draft (first draft or correction draft)", () => {
+    expect(visitFactsLocked(null)).toBe(false);
+    expect(visitFactsLocked(report({ status: "draft" }))).toBe(false);
+    expect(visitFactsLocked(report({ status: "draft", version: 2 }))).toBe(false);
+  });
+
+  it("is locked once the latest version is signed or final", () => {
+    expect(visitFactsLocked(report({ status: "signed", countersign_required: true }))).toBe(true);
+    expect(visitFactsLocked(report({ status: "final" }))).toBe(true);
+  });
+
+  it("names the correction path in the hint", () => {
+    expect(FACTS_LOCKED_HINT).toContain("Bericht korrigieren");
   });
 });

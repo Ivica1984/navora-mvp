@@ -82,3 +82,15 @@ export const REPORT_REJECTION_MESSAGE: Record<string, string> = {
 export function reportRejectionMessage(reason: unknown): string {
   return (typeof reason === "string" && REPORT_REJECTION_MESSAGE[reason]) || "Bericht konnte nicht gespeichert werden.";
 }
+
+/**
+ * CSR1 / CGR-03 (migration 0040): the visit's times and observations are fixed while its latest report version is
+ * `signed` or `final`. They change again only through a report correction version ("Bericht korrigieren"), which
+ * opens a new draft. The database enforces the same rule (`private.visit_facts_locked`); this only hides the buttons.
+ */
+export function visitFactsLocked(report: Pick<FieldReport, "status"> | null): boolean {
+  return report?.status === "signed" || report?.status === "final";
+}
+
+export const FACTS_LOCKED_HINT =
+  "Der Bericht ist unterschrieben. Zeiten und Beobachtungen ändern sich nur noch über «Bericht korrigieren» (neue Fassung).";
