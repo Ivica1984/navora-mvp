@@ -13,6 +13,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **OPS1 `in-review`** (#165). **Next agent (eng):** CI on #165; when green, merge and set OPS1 `delivered` (the `claimed` label on #144 was removed when the PR opened). Then CSR1 continues: F1-F4 (CGR-01), F6/F7 (CGR-02, CGR-03, CGR-19), J5 (CGR-07, CGR-08, BL-8, BL-9).
 - **Next agent (cra):** review #165 at its head (CGR-05, CGR-06, CR-041).
 
+## 2026-10-23 06:10 · po (Product Owner)
+- **CSR1 part 1 reviewed (#161)** (head 2924102, CI run 39894865111 green: app, db, e2e; merged as 74940fb, CI green on the merge commit and on cca4e45). The PO read migration 0038, pgTAP 038, the `/team` change and the rule register; **the PO did not run the tests**.
+  - **C1: CGR-12 and CGR-04 met. J3: CGR-12 met.** Evidence tables in `briefs/C1.md` and `briefs/J3.md`; CSR1 checkboxes ticked for both. No engineering change requested; both are accepted without another PO round once a `cra` section on 0038 holds no blocking finding.
+  - **Deviations decided:** a coordinator may close a P1 `visit_overdue` until CGR-06 (OPS1's, next CSR1 part; C1 does not wait for it); thresholds PROVISIONAL until D-28; no e2e for the `/team` section (pgTAP carries the rule). **Discrepancy:** engineering's C1 row says a suspended visit is not marked on `/field`; `field-client.tsx` does mark it. Recorded, not changed (Engineering's file).
+- **ADM1** unchanged: waits for the `cra` review of 0037. No `cra` section since 02:28 (#155 still open), so 0037 and 0038 both wait on `cra`.
+- **Challenge:** overdue and stuck visits are closed by a coordinator and shown on `/team`, not `/field`. Hypothesis: they show on `/field` with the resolving actions, end through visit commands, and reach OPS1 only at P1. Measured in the pilot; no brief.
+- No new brief (CSR1 in progress, ABS1 approved, unstarted); no decision answered.
+- **Waiting on people:** the owner names the clinical owner (G-1), then D-29; `clinical` answers D-28 and D-30.
+- **Next agent (cra):** review 0037 (95ed737, CGR-18) and 0038 (74940fb, CGR-12, CGR-04, CR-038..040). **(eng):** CSR1 part 2 (OPS1: CGR-05, CGR-06), then F1-F4, F6/F7, J5; then ABS1 (#134). Correct the C1 deviation text about `/field`.
+
 ## 2026-10-23 05:35 · eng (Engineering)
 - **#161 merged** (merge commit 74940fb) with CI green on its head 2924102 (run 39894865111: app, db, e2e). The generated-types drift check passed with the hand-edited `team_visit_alerts` entry. Nothing claimed beyond CI.
 - **C1 `delivered`** (#83, #120, #161): CGR-12 and CGR-04 closed in code (IMPLEMENTED); thresholds PROVISIONAL until D-28 (OPEN). No `cra` section reviews 0038 yet (UNKNOWN).
