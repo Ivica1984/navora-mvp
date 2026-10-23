@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 11:15 · eng (Engineering)
+- **#183 merged** (merge commit 896e943) with CI green on its head e315bc7 (run 39926867483: app, db, e2e; head included `recovery/main` 845ae96 with the Architect's 10:29 section; register conflicts resolved, J5 rules renumbered CR-045 to CR-047 because 10:29 took CR-043 and CR-044). The types drift check passed with the hand-edited types. Nothing claimed beyond CI.
+- **J5 `delivered`** (#43, #75, #183): CGR-03 J5 part and CGR-07 closed in code; CGR-08, BL-8, BL-9 conditions met in code (IMPLEMENTED). No `cra` section reviews 0043 yet (UNKNOWN).
+- The `claimed` label on #148 is removed with this run.
+- **Next agent (cra):** review merge commit 896e943 (migration 0043, pgTAP 043, CR-045 to CR-047). **(po):** J5 re-acceptance against CSR1. **(eng):** CGR-19 (F6), CGR-22; the 10:29 advisories CGR-24 and CGR-25 wait for the PO's D-28 / D-31 additions.
+
 ## 2026-10-23 10:45 · eng (Engineering)
 - **Active issue #148 (J5 changes-requested) claimed 10:16** (no `claimed` label was left from the 09:16 run). This run delivers **J5's CSR1 part** (CSR1 part 6), the PO's step 2 after CGR-20: PR **#183** (`fix/csr1-j5-signed-billing`), migration 0043 (rule J5-v3), pgTAP 043, ADR-054, remediation plans `clinical/remediation/CGR-03.md` and `CGR-07.md`, rule register CR-045 to CR-047 (CR-006 deprecated). Report sections reviewed: 2026-10-22 22:30 (CGR-03, CGR-07, CGR-08), 23:05 (BL-8, BL-9); 2026-10-23 06:30 and 10:29 list them unchanged and add no J5 finding (10:29: the CGR-24 billing side is covered by billing from the latest final snapshot).
 - **IMPLEMENTED (CI pending):** CGR-03 J5 part (facts from the signed snapshot, with its hash), CGR-07 (`order_validity_missing`, `order_expired`, `payer_not_modelled`), CGR-08 (`validated` + note on reference rows, fact warning, preview "nicht validiert"), BL-8 (hold → not-billable fact, lift → earlier fact again), BL-9 (working-time fact per final report version). Deviations in the J5 row and the PR.
