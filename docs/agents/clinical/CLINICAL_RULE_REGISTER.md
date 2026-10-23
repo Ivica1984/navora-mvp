@@ -1,6 +1,6 @@
 # Clinical Rule Register
 
-**Maintained by:** Clinical & Regulatory Architect (review role) · **Approves rules:** the named, qualified human clinical owner (`clinical`), or `legal` / `owner` for their rules (D-27) · **Last change:** 2026-10-22 23:05 · **Baseline:** `recovery/main` @ `b546299`
+**Maintained by:** Clinical & Regulatory Architect (review role) · **Approves rules:** the named, qualified human clinical owner (`clinical`), or `legal` / `owner` for their rules (D-27) · **Last change:** 2026-10-23 02:28 · **Baseline:** `recovery/main` @ `0e90932`
 
 Every rule that encodes a clinical, care-organisation, billing or regulatory judgement is listed here: where it lives, its cited source, who set it, and whether a qualified owner has approved it. **No rule below is clinically or legally approved yet.** Engineering adds a row whenever a migration introduces or changes such a rule; the Architect reviews it.
 
@@ -23,7 +23,7 @@ Every rule that encodes a clinical, care-organisation, billing or regulatory jud
 | CR-009 | Qualifications: `registered_nurse`, `care_assistant`; a member without a value is `care_assistant` | 0018:118, 145 | – | owner D-5 | D-5, D-15 | UNVALIDATED (clinical) | no registration evidence (CGR-16) |
 | CR-010 | Whether a care assistant may perform category A work (other than the needs assessment) | not addressed | – | – | D-15 | UNVALIDATED | open question, not a rule |
 | CR-011 | Countersignature by another registered nurse whenever the performer is not a registered nurse | 0016:194, 302 | – | eng F6 | D-10 | PROVISIONAL | keep for the pilot |
-| CR-012 | The performer (first `started` event) alone drafts and signs the report | 0016:98-105, 184, 262 | – | PO Q4 | Q4 | UNVALIDATED | no takeover path (PS-11) |
+| CR-012 | The performer (first `started` event) alone drafts and signs the report, including a correction version | 0016:98-105, 184, 262, 343-349 | – | PO Q4 | Q4 | UNVALIDATED | no takeover path (PS-11); permanent after removal (CGR-18, CGR-19) |
 | CR-013 | Visit states and transitions (planned, on_the_way, started, paused, completed, cancelled, no_show) | 0024:105-134 | – | PO/eng | D-6 | UNVALIDATED | |
 | CR-014 | A no-show can be recorded only from `on_the_way`; outcome list `client_reached`, `emergency_contact_informed`, `emergency_services_called`, `other` | 0024:374, 391 | – | PO C1 | D-19 | UNVALIDATED | no on-site protocol |
 | CR-015 | Cancel reasons `client_cancelled`, `client_in_hospital`, `team_cancelled`, `other` | 0024:345 | – | PO C1 | – | UNVALIDATED | |
@@ -45,7 +45,10 @@ Every rule that encodes a clinical, care-organisation, billing or regulatory jud
 | CR-031 | Care time = started → completed minus pauses; travel and documentation not care time; exact minutes, no rounding | 0023:10-11, 28-50 | – | PO/eng | D-18 | PROVISIONAL | |
 | CR-032 | Insurance type `unknown` counts as missing for readiness | 0013:169 | – | eng J1 (PO accepted) | – | UNVALIDATED | |
 | CR-033 | Readiness checklist: consent, residence, insurer, insurance type, care need, requested start | 0013:159-172 | – | PO J1 | D-15 | UNVALIDATED | no clinical items |
-| CR-034 | Legacy Operations heuristics: team utilisation ≥ 90 % P1, ≥ 80 % or ≤ 1 open slot P2, 24 h → P1 | `src/features/operations/rules.ts` | – | legacy | – | DEPRECATED | removed by #135 (unmerged) |
+| CR-034 | Legacy Operations heuristics: team utilisation ≥ 90 % P1, ≥ 80 % or ≤ 1 open slot P2, 24 h → P1 | `src/features/operations/rules.ts` | – | legacy | – | DEPRECATED | removed by #135 (merged `eceac83`); intake alerts remain in OPS1 |
+| CR-035 | Removing a member from a team releases her planned visits of that team dated today or later, suspended ones included; earlier and in-progress visits are not touched | 0036:38-71 | – | PO ADM1 | – | UNVALIDATED | care-organisation rule; visits dated before today stay with her (CSR1 / CGR-04) |
+| CR-036 | Removal is refused while she is primary nurse or deputy of an open case of the team, or responsible for a visit `on_the_way`, `started` or `paused` | 0036:100-111 | – | PO ADM1, CGR-10 | – | UNVALIDATED | the performer is not checked (CGR-18) |
+| CR-037 | A change of organisation role leaves team membership, qualification and responsible visits unchanged | 0036 header item 2; ADR-046 | – | PO ADM1 | – | UNVALIDATED | organisational, not clinical |
 
 ## Not in the code (correct, keep it so)
 
