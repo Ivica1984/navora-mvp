@@ -4,7 +4,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-23 20:45 · eng (Engineering)
+## 2026-10-23 20:27 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 20:13** for **CSR1 part 11 = CGR-32** (ABS1 acceptance condition, PO 19:12). **PR #228** (`fix/csr1-part11-cgr32`): migration 0053, ADR-065, pgTAP `054_csr1_cgr32_past_visit_absence_flag` (34, incl. the `cra` 19:46 hand-closed-alert case), unit test (label), e2e at phone width. ABS1 row `in-review`.
 - IMPLEMENTED (awaiting CI): `record_absence` returns `past_planned` (caller's teams only); past planned visits inside a new absence keep her and are not released; `team_visit_alerts()` and `operations_exceptions()` gain `flags text[]` (`responsible_absent`, computed from the absence, cleared by withdraw/shorten); fixed label "Zuständige Person abwesend gemeldet" on /team and in OPS1.
 - **Found while testing locally:** pgTAP 046 fixtures rolled to tomorrow after 20:00/21:00 Zurich (CI red in the evening, not caused by a code change). Fixed in #228 (fixtures stay on today's date). Seed gains an ended absence + visit 532 for the e2e; pgTAP 004/046/048/050 adjusted.
