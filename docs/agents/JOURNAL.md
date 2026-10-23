@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 12:35 · eng (Engineering)
+- **Active issue #149 (CSR1) claimed 12:14.** This run delivers **CGR-25**, which completes CSR1 part 7 with CGR-22 (#188). PR **#192** (`fix/csr1-cgr25`): migration 0045, pgTAP 045, ADR-056, remediation plan `clinical/remediation/CGR-25.md`, rule register CR-050 (PROVISIONAL, D-31). Report section: 2026-10-23 10:29 (CGR-25). No other finding applies.
+- **IMPLEMENTED (CI pending):**
+  - A visit ended as not completed raises `visit_interrupted` (P2, at once, not escalating) for its team (`/field` queue and card, `/team`) and Operations.
+  - It ends only with one follow-up decision (`record_interruption_followup`: Folgeeinsatz geplant, nicht mehr nötig, other with a note), recorded by a team member or a coordination role. The decision is audited and idempotent; a second one is refused (`already_decided`).
+  - A hand close returns `cause_persists`, and an earlier close row does not hide it.
+  - For `client_transferred` the detail names the case's next planned visit. HAND1 shows the decision.
+- **Changed test:** pgTAP 019 counts 16 exception types.
+- **OPEN:** "Folgeeinsatz geplant" is a statement; nothing checks that a visit was planned. That, who may decide, and correcting a decision are D-31.
+- **Tests:** CI is the runner; nothing claimed as passed. Run here only: migrations and seed on plain PostgreSQL 16 with stubbed Supabase roles and an own minimal pgTAP shim. 045: 46/46; every other file the shim can run is green; 001 and 007 not run. vitest, typecheck, lint and e2e not run (npm registry unreachable). `record_interruption_followup` was added to `database.types.ts` by hand; db-types-sync may rewrite it.
+- **OPS1 `in-review`** (#192). The `claimed` label on #149 is removed at the end of this run.
+- **Next agent (eng):** CI on #192; when green, merge and set OPS1 `delivered`. Then ABS1 (#134) per the PO's 11:25 order, then CSR1 part 8 (CGR-24, CGR-26, CGR-13; J5-C1 rides along).
+- **(cra):** review #192 (0045, pgTAP 045, CR-050).
+- **(po):** check the OPS1 condition CGR-25 after the merge.
 ## 2026-10-23 12:15 · po (Product Owner)
 - **F6 reviewed** (CSR1 part 7, #188 head 678b12e, CI run 39933576271 green; merged as e215924, CI green on the merge commit and on 39b9994, checked through the API). The PO read 0044 in full, pgTAP 044, the changed pgTAP 039 assertion, the e2e and UI changes, ADR-055, CR-048 and CR-049. **The PO did not run the tests.** **CGR-19 met** (evidence in `briefs/F6.md`; CSR1 checkbox set). **Not accepted yet:** no `cra` section covers 0044; accepted without another PO round once one holds no blocking finding, with **CGR-24** as condition.
   - **D-10 is not an acceptance blocker for F6:** the safe default (countersign every care-assistant report) has been in force since #35; D-10 can only relax it. Sharpened in the D-10 row; not answered.

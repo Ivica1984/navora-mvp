@@ -55,6 +55,10 @@ export function canClose(item: Pick<ExceptionLike, "closable">): boolean {
 export const CLOSES_WITH_CAUSE =
   "Kein Schliessen von Hand: schliesst automatisch, sobald die Ursache behoben ist (z. B. jemand zuständig, Einsatz begonnen oder abgesagt, Ergebnis erfasst, Ereignis abgeschlossen).";
 
+// CSR1 / CGR-25 (0045, provisional until D-31): an interrupted visit closes only with a follow-up decision.
+export const CLOSES_WITH_FOLLOWUP =
+  "Kein Schliessen von Hand: schliesst, sobald das Team oder Operations über die noch fällige Pflege entschieden hat (Folgeeinsatz geplant, nicht mehr nötig oder anderer Grund mit Notiz).";
+
 export type Comment = { text: string; at: string; mine: boolean };
 
 export function parseComments(raw: unknown): Comment[] {

@@ -25,6 +25,7 @@ import { MEDICAL_ORDER_LABEL, TASK_LABEL } from "@/features/intake/rules";
 import type { ContinuityRow, TeamCase, TeamOffer, TeamVisitAlert } from "@/features/team/queries";
 import type { BillingPreviewRow } from "@/features/billing/queries";
 import BillingPreview from "@/components/billing/billing-preview";
+import InterruptionFollowupForm from "@/components/lifecycle/InterruptionFollowupForm";
 import CaseLifecycleControls, { ClosedCases } from "./case-lifecycle";
 import AutoPlan, { type ScheduledItem } from "./auto-plan";
 import type { PlanStatus } from "@/features/planning/queries";
@@ -148,7 +149,7 @@ export default function TeamClient({
 }
 
 // CSR1 / CGR-04: a visit that did not happen, or is stuck, stays visible to the whole team until it moves on or a
-// person closes it. Thresholds are PROVISIONAL (D-28, clinical); no clinical instruction is given here.
+// person closes it. CSR1 / CGR-25: a visit ended as not completed stays until someone records the follow-up decision. Thresholds are PROVISIONAL (D-28, clinical); no clinical instruction is given here.
 function VisitAlerts({ alerts }: { alerts: TeamVisitAlert[] }) {
   if (alerts.length === 0) return null;
   return (
@@ -163,11 +164,15 @@ function VisitAlerts({ alerts }: { alerts: TeamVisitAlert[] }) {
             </p>
             <p>{a.client_name ?? "Klient:in"} · {a.detail}</p>
             <p className="text-xs text-stone-600">{formatAge(a.since)} · {a.team_name} · {visitAlertHandling(a.taken)}</p>
+            {a.exception_type === "visit_interrupted" && (
+              // CSR1 / CGR-25: ends only with this decision (PROVISIONAL, D-31).
+              <div className="mt-2"><InterruptionFollowupForm visitId={a.visit_id} /></div>
+            )}
           </li>
         ))}
       </ul>
       <p className="text-xs text-rose-900/80">
-        Erledigt sich, sobald der Einsatz weitergeht, abgesagt oder als «nicht angetroffen» erfasst ist. Schwellen provisorisch (klinische Entscheidung offen).
+        Erledigt sich, sobald der Einsatz weitergeht, abgesagt oder als «nicht angetroffen» erfasst ist; ein nicht abgeschlossener Einsatz, sobald jemand über die noch fällige Pflege entschieden hat. Schwellen und Regeln provisorisch (klinische Entscheidungen offen).
       </p>
     </section>
   );

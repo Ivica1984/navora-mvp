@@ -3,8 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { handleException } from "@/features/operations/commands";
-import { CLOSES_WITH_CAUSE, PRIORITY_LABEL, canClose, countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
+import { CLOSES_WITH_CAUSE, CLOSES_WITH_FOLLOWUP, PRIORITY_LABEL, canClose, countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
 import type { OperationsException } from "@/features/operations/types";
+import InterruptionFollowupForm from "@/components/lifecycle/InterruptionFollowupForm";
 
 const PRIORITY_CLASS: Record<string, string> = {
   P1: "border-rose-600 bg-rose-50",
@@ -85,7 +86,13 @@ function ExceptionCard({ exception: e }: { exception: OperationsException }) {
       <p className="text-xs text-stone-600">Nächster Schritt: {e.next_step}</p>
       <p className="text-xs font-semibold" data-testid="exception-handler">{handlerLabel(e)}</p>
       {!canClose(e) && (
-        <p className="text-xs text-stone-700" data-testid="exception-closes-with-cause">{CLOSES_WITH_CAUSE}</p>
+        <p className="text-xs text-stone-700" data-testid="exception-closes-with-cause">
+          {e.exception_type === "visit_interrupted" ? CLOSES_WITH_FOLLOWUP : CLOSES_WITH_CAUSE}
+        </p>
+      )}
+      {e.exception_type === "visit_interrupted" && e.entity_id && (
+        // CSR1 / CGR-25: closes only with a follow-up decision from the short list (PROVISIONAL, D-31).
+        <InterruptionFollowupForm visitId={e.entity_id} />
       )}
       {comments.length > 0 && (
         <ul className="grid gap-0.5 text-xs" aria-label="Notizen">

@@ -2,13 +2,14 @@
 
 // C1: pause/resume/close/reopen a case; cancel a visit; record a no-show and its outcome (migration 0024).
 // CSR1 / CGR-20: end a started or paused visit as not completed, with a reason (migration 0042).
+// CSR1 / CGR-25: record the follow-up decision after such an end (migration 0045).
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
-import { CANCEL_REASONS, CLOSE_REASONS, INTERRUPT_REASONS, LIFECYCLE_MESSAGES, NO_SHOW_OUTCOMES, PAUSE_REASONS } from "./rules";
+import { CANCEL_REASONS, CLOSE_REASONS, FOLLOWUP_DECISIONS, INTERRUPT_REASONS, LIFECYCLE_MESSAGES, NO_SHOW_OUTCOMES, PAUSE_REASONS } from "./rules";
 
 const key = z.uuid();
 const note = z.string().trim().max(1000);
@@ -88,4 +89,14 @@ export async function endVisitNotCompleted(input: unknown): Promise<CommandResul
   const { supabase } = await requireUser();
   return interpret("end_visit_not_completed", await supabase.rpc("end_visit_not_completed", { p_visit_id: p.data.visitId, p_reason_code: p.data.reasonCode,
     p_reason: (p.data.note || null) as string, p_idempotency_key: p.data.idempotencyKey }));
+}
+
+export async function recordInterruptionFollowup(input: unknown): Promise<CommandResult> {
+  const p = z.object({ visitId: z.uuid(), decision: z.enum(FOLLOWUP_DECISIONS), note, idempotencyKey: key })
+    .refine((d) => d.decision !== "other" || d.note.length >= 3, { message: "note" })
+    .safeParse(input);
+  if (!p.success) return { ok: false, error: LIFECYCLE_MESSAGES.invalid };
+  const { supabase } = await requireUser();
+  return interpret("record_interruption_followup", await supabase.rpc("record_interruption_followup", { p_visit_id: p.data.visitId,
+    p_decision: p.data.decision, p_note: (p.data.note || null) as string, p_idempotency_key: p.data.idempotencyKey }));
 }

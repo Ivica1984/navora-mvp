@@ -4,13 +4,15 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { cancelVisit, endVisitNotCompleted, recordNoShow, recordNoShowOutcome } from "@/features/lifecycle/commands";
 import {
-  CANCEL_REASONS, INTERRUPT_NOTICE, INTERRUPT_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, REASON_LABEL, canEndNotCompleted, reasonError,
+  CANCEL_REASONS, INTERRUPT_NOTICE, INTERRUPT_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, REASON_LABEL, canEndNotCompleted, followupOf, reasonError,
 } from "@/features/lifecycle/rules";
 import type { VisitStatusNote } from "@/features/lifecycle/queries";
+import InterruptionFollowupForm from "@/components/lifecycle/InterruptionFollowupForm";
 
 /**
  * C1 on the /field card: cancel before start, record a no-show after arrival, and its outcome.
  * CSR1 / CGR-20: end a started or paused visit as not completed, with a reason, so "complete" is never the only way out.
+ * CSR1 / CGR-25: until someone records the follow-up decision, the card says so and offers it.
  */
 export default function VisitLifecycle({ visitId, status, notes }: { visitId: string; status: string | null; notes: VisitStatusNote[] }) {
   const router = useRouter();
@@ -21,6 +23,7 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
   const noShow = notes.find((n) => n.kind === "no_show");
   const outcome = notes.find((n) => n.kind === "no_show_outcome");
   const interrupted = notes.find((n) => n.kind === "interrupted");
+  const followup = followupOf(notes);
 
   async function run(call: () => Promise<{ ok: boolean; error?: string }>) {
     setPending(true);
@@ -65,6 +68,18 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
           {interrupted.note ? ` – ${interrupted.note}` : ""}
         </p>
       )}
+      {interrupted && status === "interrupted" && (followup ? (
+        <p className="rounded-lg bg-stone-100 p-2" data-testid="interrupt-followup">
+          Entscheid: {REASON_LABEL[followup.reason_code ?? ""] ?? followup.reason_code}{followup.note ? ` – ${followup.note}` : ""}
+        </p>
+      ) : (
+        <div className="grid gap-2 rounded-lg border border-amber-300 bg-white p-2" data-testid="interrupt-followup-open">
+          <p className="text-xs font-semibold text-amber-900">
+            Entscheid offen: Wie geht es mit der noch fälligen Pflege weiter? Bis dahin bleibt der Einsatz im Team und bei Operations sichtbar.
+          </p>
+          <InterruptionFollowupForm visitId={visitId} />
+        </div>
+      ))}
       {error && (
         <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">{error}</p>
       )}
