@@ -20,6 +20,9 @@ test("the team sees a labelled estimate and can create billing facts (J5)", asyn
   await expect(preview.getByTestId("estimate-label")).toContainText("Schätzung – keine Rechnung");
   await expect(preview.getByTestId("billing-team").filter({ hasText: "Testteam Nord" })).toBeVisible();
   await expect(preview).toContainText("Restfinanzierung: nicht hinterlegt");
+  // CSR1 / CGR-08: the seeded rates and minimum are canton-sourced and not validated.
+  await expect(preview.getByTestId("billing-team").filter({ hasText: "Testteam Nord" }).getByTestId("reference-not-validated"))
+    .toContainText("nicht validiert");
   await preview.getByRole("button", { name: "Abrechnungsfakten erzeugen" }).click();
   await expect(preview.getByRole("status")).toContainText("neue Abrechnungsfakten erfasst");
   await expect(page.getByText(/Rechnung (erstellen|senden)/)).toHaveCount(0);

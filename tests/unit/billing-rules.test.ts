@@ -1,14 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { NOT_BILLABLE_LABEL, formatChf, monthStart, notBillableText, parseNotBillable } from "@/features/billing/rules";
+import { NOT_BILLABLE_LABEL, REFERENCE_NOT_VALIDATED, formatChf, monthStart, notBillableText, parseNotBillable } from "@/features/billing/rules";
 
 describe("J5 billing preview helpers", () => {
   it("labels every non-billable reason the database returns", () => {
     for (const r of ["quality_hold", "report_not_final", "not_generated", "b_without_valid_order", "no_insurer",
-      "below_minimum", "no_planned_minutes", "no_measured_time"]) {
+      "below_minimum", "no_planned_minutes", "no_measured_time", "order_validity_missing", "order_expired", "payer_not_modelled"]) {
       expect(NOT_BILLABLE_LABEL[r]).toBeTruthy();
     }
     expect(notBillableText(["no_insurer", "below_minimum"])).toBe("Krankenversicherer fehlt, unter der Mindestdauer");
     expect(notBillableText([])).toBe("Grund unbekannt");
+    expect(notBillableText(["order_expired", "payer_not_modelled"])).toBe("Verordnung abgelaufen, Kostenträger nicht abgebildet (nur KVG)");
+  });
+
+  it("names unvalidated reference data and its open decisions (CGR-08)", () => {
+    expect(REFERENCE_NOT_VALIDATED).toContain("nicht validiert");
+    expect(REFERENCE_NOT_VALIDATED).toMatch(/D-11.*D-18/);
   });
 
   it("formats Swiss francs and leaves unknown amounts blank", () => {

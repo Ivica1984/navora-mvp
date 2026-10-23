@@ -65,15 +65,15 @@ Gate details are in the report.
 | R-9 | reg | Working-time record undecided | D-23 | S2 | legal | D-23 | C | open |
 | R-10 | reg | Nursing-home leadership rules vs self-organised ward | D-25 | S1 (Horizon 3) | legal | D-25 | – | open |
 | R-11 | reg | Professional accountability without line management unassigned | `MASTER_CONTEXT.md`; D-20 | S1 | owner, legal | name the accountable clinical lead per licence | C | open |
-| BL-1 | billing | Rates from one canton's publication, citation inconsistent | CR-028 | S2 | legal | verify source and citation | C | open |
+| BL-1 | billing | Rates from one canton's publication, citation inconsistent | CR-028 | S2 | legal | verify source and citation | C | open; rows marked unvalidated in the data since 0043 (CGR-08) |
 | BL-2 | billing | 10-minute minimum from Basel-Stadt, applied nationally, read differently from the brief | CR-029 | S1 | legal | D-18, D-11 | C | open |
-| BL-3 | billing | Billed minutes can differ from the signed report | CGR-03 | S1 | eng | bill from the signed snapshot | B | open |
-| BL-4 | billing | Order without an end date valid forever; expired orders ignored for A/C | CGR-07 | S1 | eng, legal | validity required; D-22 | B | open |
-| BL-5 | billing | All cases priced at KVG rates whatever the insurance type | CGR-07 | S1 | eng | non-KVG not billable until modelled | B | open |
+| BL-3 | billing | Billed minutes can differ from the signed report | CGR-03 | S1 | eng | bill from the signed snapshot | B | remedy in review (CSR1 part 6, #PRNUM, 0043); Architect to confirm |
+| BL-4 | billing | Order without an end date valid forever; expired orders ignored for A/C | CGR-07 | S1 | eng, legal | validity required; D-22 | B | remedy in review (CSR1 part 6, #PRNUM, 0043); Architect to confirm |
+| BL-5 | billing | All cases priced at KVG rates whatever the insurance type | CGR-07 | S1 | eng | non-KVG not billable until modelled | B | remedy in review (CSR1 part 6, #PRNUM, 0043); Architect to confirm |
 | BL-6 | billing | Billing ignores qualification, needs assessment and review date | 0023:82, 120-125 | S1 | eng, clinical | billing gates after D-15 | C | open |
 | BL-7 | billing | Proportional minute split is a PO rule | CR-030 | S2 | legal | D-18 | C | open |
-| BL-8 | billing | Fact stays billable after a later hold | 0023:198 | S2 | eng | supersede or flag the fact | B | in a brief (CSR1 condition, 2026-10-23) |
-| BL-9 | billing | Working-time facts never pick up corrections | 0023:154 | S2 | eng | regenerate on correction | B | in a brief (CSR1 condition, 2026-10-23) |
+| BL-8 | billing | Fact stays billable after a later hold | 0023:198 | S2 | eng | supersede or flag the fact | B | remedy in review (CSR1 part 6, #PRNUM, 0043); Architect to confirm |
+| BL-9 | billing | Working-time facts never pick up corrections | 0023:154 | S2 | eng | regenerate on correction | B | remedy in review (CSR1 part 6, #PRNUM, 0043); Architect to confirm |
 | BL-10 | billing | Any team member can generate billing facts | `billing/commands.ts` | S3 | eng, po | restrict to a billing role | C | open |
 | BL-11 | billing | Patient contribution and residual financing missing | 0022:358-359 | S2 | owner | D-11 | C | open |
 | BL-12 | billing | Income model may reward volume over need | D-14 | S2 | owner, clinical | guardrails in J7 | C | open |
