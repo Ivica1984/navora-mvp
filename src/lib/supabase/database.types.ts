@@ -5,7 +5,33 @@ export type Database = {
   
   "public": {
           Tables: {
-            "audit_events": {
+            "absence_releases": {
+                  Row: {
+                    "absence_id": string,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "absence_id": string,"visit_id": string
+                  }
+                  Update: {
+                    "absence_id"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "absence_releases_absence_id_fkey"
+      columns: ["absence_id"]
+isOneToOne: false
+      referencedRelation: "member_absences"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "absence_releases_visit_id_fkey"
+      columns: ["visit_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"audit_events": {
                   Row: {
                     "actor_id": string | null,"actor_role": string,"changed": NonNullable<Json>,"command": string | null,"entity_id": string,"id": number,"idempotency_key": string | null,"occurred_at": string,"organization_id": string,"table_name": string
                   }
@@ -593,6 +619,32 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "teams"
       referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"member_absences": {
+                  Row: {
+                    "created_at": string,"ends_at": string,"id": string,"organization_id": string,"recorded_by": string,"starts_at": string,"team_id": string,"user_id": string,"withdrawn_at": string | null,"withdrawn_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"ends_at": string,"id"?: string,"organization_id": string,"recorded_by": string,"starts_at": string,"team_id": string,"user_id": string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"ends_at"?: string,"id"?: string,"organization_id"?: string,"recorded_by"?: string,"starts_at"?: string,"team_id"?: string,"user_id"?: string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "member_absences_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "member_absences_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
     }
                   ]
                 },"member_invitations": {
