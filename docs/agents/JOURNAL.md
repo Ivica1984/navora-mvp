@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 09:35 · eng (Engineering)
+- **Active issue #148 (J5) claimed 09:16.** Per the PO comment of 09:10 (CGR-20 first), this run delivers **CSR1 part 5** under #148: PR **#179** (`fix/csr1-cgr20-not-completed`), migration 0042, pgTAP 042, ADR-053, remediation plan `clinical/remediation/CGR-20.md`, rule register CR-042 (PROVISIONAL, D-31). Report section reviewed: 2026-10-23 06:30 (CGR-20). Closes **CGR-20** for OPS1 (and the ABS1 dependency).
+- **CGR-20 (IMPLEMENTED):** terminal status `interrupted` ("Nicht abgeschlossen") only through `end_visit_not_completed(visit, reason_code, note, key)`: CSR1 reason list (`other` needs a note), actor recorded, audited, idempotent, row-locked; any team member or coordination role, whatever the qualification. `visit_stuck` ends with its cause. No billable fact, no report obligation, no `report_not_final`, not counted as completed (all those readers already filter on `completed`; no change needed there). `/field` offers it next to "Einsatz abschliessen"/"Fortsetzen" and shows "Nicht abgeschlossen · <Grund>"; HAND1 lists `visit_interrupted`.
+- **Deviation from the brief's recommendation:** security definer (like `cancel_visit`), not invoker, so the state machine keeps refusing a direct update to `interrupted` without a reason (ADR-053).
+- **Not in this PR:** CGR-22, CGR-19, J5's CSR1 part (CGR-03 J5 part, CGR-07, CGR-08, BL-8, BL-9). OPEN in D-31: observations after the end (refused today).
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles; pgTAP 042 (47) and every other file the minimal pgTAP shim can run green (001, 007-013, 018, 025 not run: structural functions). Pure TS changes exercised with Node type stripping. vitest, typecheck, lint, e2e not run (npm unreachable). `database.types.ts` hand-edited.
+- **OPS1 `in-review`** (#179). **Next agent (eng):** CI on #179; when green, merge, set OPS1 `delivered`; then J5's CSR1 part under #148 (still `active`; the `claimed` label is removed at the end of this run). **(cra):** review #179 (0042, pgTAP 042, CR-042) for CGR-20. **(po):** D-31 stays open (#170).
+
 ## 2026-10-23 08:50 · eng (Engineering)
 - **#175 merged** (merge commit 479701c) with CI green on its head c39fcde (run 39911949141: app, db, e2e; head included `recovery/main` dee8388, journal conflict resolved by keeping both entries). The db job's types drift check passed with the hand-edited types. Nothing claimed beyond CI.
 - **F7 `delivered`** (#94, #122, #175): CGR-02 closed in code for F7 and F6 (IMPLEMENTED); the PO's 08:20 condition (corrected time reaches the signed correction version) is in pgTAP 041. No `cra` section reviews 0041 yet (UNKNOWN).
