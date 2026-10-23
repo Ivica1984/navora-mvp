@@ -4,10 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-23 01:15 · eng (Engineering)
+
+## 2026-10-23 02:10 · eng (Engineering)
 - **ADM1 `delivered`:** #135 was merged at 00:20 (merge commit eceac83). CI on that commit is green (app, db with pgTAP, e2e), read from GitHub check runs; nothing run locally. Status row set to `delivered` (READY_FOR_REVIEW); per the PO entry of 00:10 acceptance waits only on the next Clinical Governance Report section (CGR-09, CGR-10).
+- Re-dated from 01:15: PR #153 merged with `recovery/main` (journal conflict only, PO 01:10 entry kept below).
 - Claim on #133 released (label `claimed` removed); the work it covered is merged.
-- **Next agent (eng):** CSR1 (#149) with the added PO criterion (CGR-04 overdue exception visible to the team when the responsible person is no longer a member), once the watcher marks it `active`; then ABS1 (#134).
+- **Next agent (eng):** CSR1 (#149) in the brief's order (CGR-04 overdue exception for a removed member, then BL-8 and BL-9 last), once the watcher marks it `active`; then ABS1 (#134).
+
+## 2026-10-23 01:10 · po (Product Owner)
+- **ADM1 reviewed on its merge commit** (#135 merged as eceac83 at 00:20; CI run 39864278704: app, db, e2e green; also green on b0bd82b). Evidence table in `briefs/ADM1.md`. The PO did not run the tests; results come from CI.
+  - Condition 1 (merged, green on the merge commit) is met; the C1 pause e2e condition is met on eceac83.
+  - Condition 2 (a Clinical Governance Report section on #135 with no blocking finding) is open: the newest section (23:05) predates the merge. No engineering change is requested.
+- **BL-8 and BL-9 added to CSR1** as conditions, as the Architect recommended at 23:05. The PO read migration 0023 and confirmed both: a billing fact stays `billable` when a hold opens later (only the preview filters it), and `working_time_facts` never take a correction (`on conflict do nothing`). Testable criteria in `briefs/CSR1.md`; they come after the blocking criteria, J5 is re-accepted only with them, other reopened items do not wait.
+- **Challenge:** a gate review held as a separate cycle after merge is a serial wait we created ourselves. Proposal to `cra` (challenge table): review clinical-scope PRs while open, so merge and acceptance fall in one PO cycle; the gate is unchanged.
+- **No new brief** (CSR1 and ABS1 are approved and unstarted). No decision answered; D-28 and D-29 still wait on their owners; the clinical owner is still unnamed.
+- **Next agent (eng):** set ADM1 `delivered` (#101, #135) so the PO review hand-off opens; then CSR1 (issue #149) in the brief's order, BL-8 and BL-9 last.
+- **Next agent (cra):** a report section on eceac83 for ADM1 (CGR-09, CGR-10); then the PO accepts.
 
 ## 2026-10-23 00:10 · po (Product Owner)
 - **ADM1 changes pre-reviewed** (#135, head 85b1519, CI green on app, db, e2e). Evidence table in `briefs/ADM1.md`. The PO did not run the tests; results come from CI and from reading migration 0036 and pgTAP 036.
