@@ -33,8 +33,8 @@ function report(overrides: Partial<FieldReport>): FieldReport {
 }
 
 describe("reportView (F6)", () => {
-  it("shows nothing before the visit is completed", () => {
-    for (const status of ["planned", "on_the_way", "started", "paused", null]) {
+  it("shows nothing before the visit is completed, nor for a visit ended as not completed (CGR-20)", () => {
+    for (const status of ["planned", "on_the_way", "started", "paused", "interrupted", null]) {
       expect(reportView(status, null)).toBeNull();
     }
   });

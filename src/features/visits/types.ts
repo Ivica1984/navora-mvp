@@ -10,6 +10,7 @@ export type VisitStatus =
   | "completed"
   | "cancelled"
   | "no_show"
+  | "interrupted"
   | string;
 
 /** Columns selected by getCareVisits() for /visits. */
@@ -61,6 +62,7 @@ export function getVisitStatusLabel(status: string | null) {
   if (status === "completed") return "Abgeschlossen";
   if (status === "cancelled") return "Abgesagt";
   if (status === "no_show") return "Nicht angetroffen";
+  if (status === "interrupted") return "Nicht abgeschlossen";
 
   return status || "Unbekannt";
 }

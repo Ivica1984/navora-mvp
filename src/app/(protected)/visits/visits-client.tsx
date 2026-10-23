@@ -45,7 +45,7 @@ function getStatusStyles(status: string | null) {
     };
   }
 
-  if (status === "cancelled" || status === "no_show") {
+  if (status === "cancelled" || status === "no_show" || status === "interrupted") {
     return {
       background: "#fee2e2",
       color: "#b91c1c",

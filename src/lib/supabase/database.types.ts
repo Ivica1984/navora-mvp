@@ -1334,6 +1334,9 @@ isOneToOne: false
 "depart_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"end_visit_not_completed":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_reason_code": string,"p_visit_id": string }; Returns: string
+                           },
 "field_countersign_queue":
 { Args: Record<PropertyKey, never>; Returns: {
               "client_name": string,"report_id": string,"signed_at": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string

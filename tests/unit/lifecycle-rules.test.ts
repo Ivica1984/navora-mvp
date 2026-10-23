@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { CANCEL_REASONS, CLOSE_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, PAUSE_REASONS, REASON_LABEL, reasonError } from "@/features/lifecycle/rules";
+import {
+  CANCEL_REASONS, CLOSE_REASONS, INTERRUPT_NOTICE, INTERRUPT_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, PAUSE_REASONS, REASON_LABEL,
+  canEndNotCompleted, reasonError,
+} from "@/features/lifecycle/rules";
 
 describe("C1 lifecycle rules", () => {
   it("reason lists follow the PO brief", () => {
@@ -10,7 +13,7 @@ describe("C1 lifecycle rules", () => {
   });
 
   it("every reason has a label", () => {
-    for (const r of [...PAUSE_REASONS, ...CLOSE_REASONS, ...CANCEL_REASONS, ...NO_SHOW_OUTCOMES, "case_closed"]) {
+    for (const r of [...PAUSE_REASONS, ...CLOSE_REASONS, ...CANCEL_REASONS, ...NO_SHOW_OUTCOMES, ...INTERRUPT_REASONS, "case_closed"]) {
       expect(REASON_LABEL[r]).toBeTruthy();
     }
   });
@@ -20,6 +23,18 @@ describe("C1 lifecycle rules", () => {
     expect(reasonError("died", "", PAUSE_REASONS)).toMatch(/Grund/);
     expect(reasonError("other", "x", PAUSE_REASONS)).toMatch(/beschreiben/);
     expect(reasonError("hospital_stay", "", PAUSE_REASONS)).toBeNull();
+  });
+
+  it("CSR1 / CGR-20: a started or paused visit can end as not completed, with the reasons of the CSR1 criterion", () => {
+    expect([...INTERRUPT_REASONS]).toEqual(["client_transferred", "client_declined", "nurse_unavailable", "started_by_mistake", "other"]);
+    expect(canEndNotCompleted("started")).toBe(true);
+    expect(canEndNotCompleted("paused")).toBe(true);
+    for (const s of ["planned", "on_the_way", "completed", "cancelled", "no_show", "interrupted", null]) {
+      expect(canEndNotCompleted(s)).toBe(false);
+    }
+    expect(reasonError("other", "", INTERRUPT_REASONS)).toMatch(/beschreiben/);
+    expect(reasonError("client_cancelled", "", INTERRUPT_REASONS)).toMatch(/Grund/);
+    expect(INTERRUPT_NOTICE).toContain("D-31");
   });
 
   it("the no-show notice gives no clinical instructions and points to D-19", () => {

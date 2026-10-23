@@ -1,13 +1,14 @@
 "use server";
 
 // C1: pause/resume/close/reopen a case; cancel a visit; record a no-show and its outcome (migration 0024).
+// CSR1 / CGR-20: end a started or paused visit as not completed, with a reason (migration 0042).
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
-import { CANCEL_REASONS, CLOSE_REASONS, LIFECYCLE_MESSAGES, NO_SHOW_OUTCOMES, PAUSE_REASONS } from "./rules";
+import { CANCEL_REASONS, CLOSE_REASONS, INTERRUPT_REASONS, LIFECYCLE_MESSAGES, NO_SHOW_OUTCOMES, PAUSE_REASONS } from "./rules";
 
 const key = z.uuid();
 const note = z.string().trim().max(1000);
@@ -79,4 +80,12 @@ export async function recordNoShowOutcome(input: unknown): Promise<CommandResult
   const { supabase } = await requireUser();
   return interpret("record_no_show_outcome", await supabase.rpc("record_no_show_outcome", { p_visit_id: p.data.visitId, p_outcome: p.data.outcome, p_reason: p.data.note,
     p_idempotency_key: p.data.idempotencyKey }));
+}
+
+export async function endVisitNotCompleted(input: unknown): Promise<CommandResult> {
+  const p = z.object({ visitId: z.uuid(), reasonCode: z.enum(INTERRUPT_REASONS), note, idempotencyKey: key }).safeParse(input);
+  if (!p.success) return { ok: false, error: LIFECYCLE_MESSAGES.invalid };
+  const { supabase } = await requireUser();
+  return interpret("end_visit_not_completed", await supabase.rpc("end_visit_not_completed", { p_visit_id: p.data.visitId, p_reason_code: p.data.reasonCode,
+    p_reason: (p.data.note || null) as string, p_idempotency_key: p.data.idempotencyKey }));
 }

@@ -77,6 +77,7 @@ const STATUS_CLASS: Record<string, string> = {
   completed: "bg-emerald-100 text-emerald-900",
   cancelled: "bg-rose-100 text-rose-900",
   no_show: "bg-rose-100 text-rose-900",
+  interrupted: "bg-amber-100 text-amber-900",
 };
 
 export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover, sinceLast }: Props) {

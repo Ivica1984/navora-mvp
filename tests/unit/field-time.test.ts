@@ -31,6 +31,19 @@ describe("visit times from events (F2)", () => {
     ).toMatchObject({ careMinutes: 20, pauseMinutes: 10 });
   });
 
+  it("a visit ended as not completed stops the clock, also from a pause (CSR1 / CGR-20)", () => {
+    const now = new Date(t("12:00"));
+    expect(
+      computeVisitTimes([{ type: "started", at: t("08:00") }, { type: "interrupted", at: t("08:25") }], now)
+    ).toMatchObject({ careMinutes: 25, pauseMinutes: null });
+    expect(
+      computeVisitTimes(
+        [{ type: "started", at: t("08:00") }, { type: "paused", at: t("08:10") }, { type: "interrupted", at: t("08:40") }],
+        now
+      )
+    ).toMatchObject({ careMinutes: 10, pauseMinutes: 30 });
+  });
+
   it("without departure there is no travel time (not zero)", () => {
     expect(computeVisitTimes([{ type: "started", at: t("08:00") }, { type: "completed", at: t("08:30") }]))
       .toMatchObject({ travelMinutes: null, careMinutes: 30, pauseMinutes: null });

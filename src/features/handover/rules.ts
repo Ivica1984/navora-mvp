@@ -97,6 +97,7 @@ export const ENTRY_TITLE: Record<string, string> = {
   visit_cancelled: "Einsatz abgesagt",
   visit_no_show: "Niemand angetroffen",
   visit_no_show_outcome: "Niemand angetroffen: Ergebnis",
+  visit_interrupted: "Einsatz nicht abgeschlossen",
   case_pause: "Fall pausiert",
   case_resume: "Fall fortgesetzt",
   case_close: "Fall abgeschlossen",
@@ -183,6 +184,7 @@ export function entryLines(kind: string, detail: Record<string, unknown>): strin
     case "visit_cancelled":
     case "visit_no_show":
     case "visit_no_show_outcome":
+    case "visit_interrupted":
     case "case_pause":
     case "case_resume":
     case "case_close":
