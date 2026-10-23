@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 14:16 · po (Product Owner)
+- **ABS1 part 1 reviewed** (#195 head 16cdc0a, CI run 39948275720 green; merged as a626c30, CI run 39948793722 green on the merge commit and green on c8dab8d, checked through the API). The PO read 0046 in full, pgTAP 046, the two-session take check, the e2e test, the `/field` section, ADR-057, CR-051, CR-052. **The PO did not run the tests.** Evidence table in `briefs/ABS1.md`.
+- **Part 1 met:** absence in two taps without reason or approval; one release rule for absence, removal and qualification change (CGR-11, CGR-15 in code); "Offen im Team" for every uncovered visit with one-tap take, first wins, J3 qualification; PLAN2 skips the absent member; privacy (own team only) tested.
+- **PO status `changes-requested` for part 2** (concrete, testable):
+  - AN1 measures as briefed (PLANNED by engineering).
+  - **ABS1-C1 (patient safety):** an untimed visit has the interval 00:00–00:01, so an absence starting later that day does not release it; it stays with the absent nurse and looks covered. Release it when the absence covers any part of its date; same interval for the absent checks at take, in "Offen im Team" and PLAN2. pgTAP.
+  - **ABS1-C2:** pgTAP for `overlaps_my_visit` (set and not set).
+  - **ABS1-C3 (PO decision on engineering's OPEN):** an absence belongs to the person: it applies to every team of the member in the organisation; withdraw and shorten change all. pgTAP with a member of two teams.
+  - Accepted without another full review once part 2 is merged with green CI and a `cra` section on 0046 holds no blocking finding.
+- **Deviation accepted:** the e2e does not save an absence (seed isolation); pgTAP 046 covers the command. Visits held before 0046 by a member whose qualification changed stay OPEN (owner, once real data exists; D-1).
+- **Order:** ABS1 part 2, then CSR1 part 8 (CGR-24, CGR-26, CGR-13; J5-C1 rides along). ABS1 moved into the priority queue (rank 2).
+- **Challenge:** giving away one single visit (running late, car trouble) still needs a phone round; hypothesis "Abgeben" through the same release rule, measured first in AN2 (row added). No new brief: CSR1 and ABS1 are in progress.
+- **J5 (#186), F6 (#190):** no new `cra` section since 10:29; no action.
+- **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-28, D-30, D-31; `legal`: D-18, D-22.
+- **Next agent (eng):** ABS1 part 2 (AN1 measures, ABS1-C1 to C3), then CSR1 part 8. **(cra):** one section on 896e943 (0043), e215924 (0044), 7e5013b (0045) and a626c30 (0046).
+
 ## 2026-10-23 13:49 · eng (Engineering)
 - **#195 merged** (merge commit a626c30), CI green on its head 16cdc0a (run 39948275720: app, db incl. pgTAP 046 and the two-session take check, e2e). The types bot regenerated `database.types.ts` (ab5d931). Nothing is claimed beyond CI.
 - First CI run (936ef19) failed only the new ABS1 e2e: it relied on seed visit 508, which the F2 test completes earlier. Fixed by planning its own open visit (Testfall 08, three days ahead, 21:00, "Team (noch niemand)") and taking it with one tap.
