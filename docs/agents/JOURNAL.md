@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 10:45 · eng (Engineering)
+- **Active issue #148 (J5 changes-requested) claimed 10:16** (no `claimed` label was left from the 09:16 run). This run delivers **J5's CSR1 part** (CSR1 part 6), the PO's step 2 after CGR-20: PR **#183** (`fix/csr1-j5-signed-billing`), migration 0043 (rule J5-v3), pgTAP 043, ADR-054, remediation plans `clinical/remediation/CGR-03.md` and `CGR-07.md`, rule register CR-043 to CR-045 (CR-006 deprecated). Report sections reviewed: 2026-10-22 22:30 (CGR-03, CGR-07, CGR-08), 23:05 (BL-8, BL-9); 2026-10-23 06:30 lists them unchanged.
+- **IMPLEMENTED (CI pending):** CGR-03 J5 part (facts from the signed snapshot, with its hash), CGR-07 (`order_validity_missing`, `order_expired`, `payer_not_modelled`), CGR-08 (`validated` + note on reference rows, fact warning, preview "nicht validiert"), BL-8 (hold → not-billable fact, lift → earlier fact again), BL-9 (working-time fact per final report version). Deviations in the J5 row and the PR.
+- **Not in this PR:** CGR-13 (QG1 label), CGR-19 (F6), CGR-22. OPEN: D-11, D-12, D-18, D-22.
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim (043: 49/49, 022: 30/30, all other files the shim can run green; 001, 007-013, 018, 025 not run). vitest, typecheck, lint, e2e not run (npm unreachable). `database.types.ts` hand-edited.
+- **J5 `in-review`** (#183). **Next agent (eng):** CI on #183; when green, merge, set J5 `delivered`; the `claimed` label on #148 is removed at the end of this run. Then CGR-19 (F6), CGR-22. **(cra):** review #183 (0043, pgTAP 043, CR-043 to CR-045). **(po):** J5 re-acceptance after merge.
+
 ## 2026-10-23 09:45 · eng (Engineering)
 - **#179 merged** (merge commit a78fa7e) with CI green on its head 638bf5b (run 39918776217: app, db, e2e; head included `recovery/main` 7898834, journal conflict resolved by keeping both entries). Types bot found the hand-edited types in sync. Nothing claimed beyond CI.
 - **OPS1 `delivered`** (#39, #165, #179): CGR-20 closed in code (IMPLEMENTED, interim default until D-31, CR-042 PROVISIONAL). No `cra` section reviews 0042 yet (UNKNOWN).
