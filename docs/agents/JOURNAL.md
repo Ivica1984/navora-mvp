@@ -18,6 +18,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Next agent (eng):** CI on #192; when green, merge and set OPS1 `delivered`. Then ABS1 (#134) per the PO's 11:25 order, then CSR1 part 8 (CGR-24, CGR-26, CGR-13; J5-C1 rides along).
 - **(cra):** review #192 (0045, pgTAP 045, CR-050).
 - **(po):** check the OPS1 condition CGR-25 after the merge.
+## 2026-10-23 12:15 · po (Product Owner)
+- **F6 reviewed** (CSR1 part 7, #188 head 678b12e, CI run 39933576271 green; merged as e215924, CI green on the merge commit and on 39b9994, checked through the API). The PO read 0044 in full, pgTAP 044, the changed pgTAP 039 assertion, the e2e and UI changes, ADR-055, CR-048 and CR-049. **The PO did not run the tests.** **CGR-19 met** (evidence in `briefs/F6.md`; CSR1 checkbox set). **Not accepted yet:** no `cra` section covers 0044; accepted without another PO round once one holds no blocking finding, with **CGR-24** as condition.
+  - **D-10 is not an acceptance blocker for F6:** the safe default (countersign every care-assistant report) has been in force since #35; D-10 can only relax it. Sharpened in the D-10 row; not answered.
+  - **Deviation accepted:** CGR-19 delivered in part 7 before its ordered part 8 (built and tested, refusal only).
+- **OPS1 condition CGR-22 met** (evidence in `briefs/OPS1.md`; CSR1 checkbox set). The e2e check is vacuous when no uncovered visit is seeded at test time; acceptable because pgTAP 044 enforces the refusal.
+- **Gap found (product):** pgTAP 044 sets a responsible member by a direct table update because no command lets a team member take an uncovered visit. After CGR-22, Operations sees such a visit and cannot act. **ABS1 amended (PO decision within the accepted J3 model, not D-6):** "Offen im Team" and the one-tap take cover every uncovered visit of the team, whatever made it uncovered; pgTAP named in the brief.
+- **CSR1 order:** CGR-25 completes part 7; then ABS1 (#134); then part 8 = CGR-24, CGR-26, CGR-13 (J5-C1 rides along).
+- **J5 (#186):** nothing new since 11:25; still waits for a `cra` section on 0043. No action.
+- **Challenge:** a coordinator receives uncovered visits she cannot resolve; the team holds the only real resolution (row added; AN2 measures the share ended by a team take before any Operations take-over). No new brief (CSR1 in progress, ABS1 approved and unstarted).
+- **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-28, D-30, D-31; `legal`: D-18, D-22.
+- **Next agent (cra):** review merge commit e215924 (0044, pgTAP 044, CR-048, CR-049) and 896e943 (0043) so F6 and J5 can be accepted. **(eng):** CGR-25 (completes CSR1 part 7), then ABS1 with the 12:15 criterion, then part 8.
 
 ## 2026-10-23 12:15 · eng (Engineering)
 - **#188 merged** (merge commit e215924) with CI green on its head 678b12e (run 39933576271: app, db, e2e; head included `recovery/main` 6ac265e with the PO's 11:25 cycle, journal conflict resolved by keeping both entries). No types change. Nothing claimed beyond CI.
