@@ -13,6 +13,8 @@ export const NOT_BILLABLE_LABEL: Record<string, string> = {
   order_validity_missing: "Verordnung ohne Enddatum",
   order_expired: "Verordnung abgelaufen",
   payer_not_modelled: "Kostenträger nicht abgebildet (nur KVG)",
+  // CSR1 / J5-C2 (migration 0051): the order counts as recorded at the end of the visit date (D-22).
+  order_recorded_after_visit: "Verordnung erst nach dem Besuchstag erfasst",
 };
 
 /** CSR1 / CGR-08: shown while a rate or the minimum duration in use is not validated (D-11, D-18). */

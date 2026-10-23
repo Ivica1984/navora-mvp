@@ -103,6 +103,10 @@ const PLAN_REASONS: Record<string, string> = {
   not_removable: "Nur geplante Einsätze ohne Dokumentation können entfernt werden.",
 };
 
+/** ABS1-C5 (0052): a move that would leave a past visit with an absent member is refused, nothing is changed. */
+const MOVE_RESPONSIBLE_ABSENT =
+  "Nicht verschoben: Die verantwortliche Person ist zu dieser Zeit abwesend, und ein Einsatz vor heute wird nicht automatisch freigegeben. Bitte einen anderen Zeitpunkt wählen.";
+
 /** `released`: a move put the visit into its responsible member's absence, so it is open in the team (ABS1-C4, 0050). */
 export type PlanResult = { ok: true; flags: string[]; released: boolean } | { ok: false; error: string };
 
@@ -115,7 +119,10 @@ function planResult(op: string, data: unknown, error: { code?: string } | null):
     };
   }
   const res = (data ?? {}) as { result?: string; reason?: string; flags?: unknown; released?: unknown };
-  if (res.result === "rejected") return { ok: false, error: PLAN_REASONS[res.reason ?? ""] ?? "Nicht gespeichert." };
+  if (res.result === "rejected") {
+    if (op === "reschedule_visit" && res.reason === "responsible_absent") return { ok: false, error: MOVE_RESPONSIBLE_ABSENT };
+    return { ok: false, error: PLAN_REASONS[res.reason ?? ""] ?? "Nicht gespeichert." };
+  }
   if (res.result !== "ok" && res.result !== "duplicate") return { ok: false, error: "Planung konnte nicht gespeichert werden." };
   revalidatePath("/team");
   revalidatePath("/field");

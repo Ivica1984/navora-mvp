@@ -4,12 +4,15 @@ import { NOT_BILLABLE_LABEL, REFERENCE_NOT_VALIDATED, formatChf, monthStart, not
 describe("J5 billing preview helpers", () => {
   it("labels every non-billable reason the database returns", () => {
     for (const r of ["quality_hold", "report_not_final", "not_generated", "b_without_valid_order", "no_insurer",
-      "below_minimum", "no_planned_minutes", "no_measured_time", "order_validity_missing", "order_expired", "payer_not_modelled"]) {
+      "below_minimum", "no_planned_minutes", "no_measured_time", "order_validity_missing", "order_expired", "payer_not_modelled",
+      "order_recorded_after_visit"]) {
       expect(NOT_BILLABLE_LABEL[r]).toBeTruthy();
     }
     expect(notBillableText(["no_insurer", "below_minimum"])).toBe("Krankenversicherer fehlt, unter der Mindestdauer");
     expect(notBillableText([])).toBe("Grund unbekannt");
     expect(notBillableText(["order_expired", "payer_not_modelled"])).toBe("Verordnung abgelaufen, Kostenträger nicht abgebildet (nur KVG)");
+    expect(notBillableText(["order_validity_missing", "order_recorded_after_visit"]))
+      .toBe("Verordnung ohne Enddatum, Verordnung erst nach dem Besuchstag erfasst");
   });
 
   it("names unvalidated reference data and its open decisions (CGR-08)", () => {
