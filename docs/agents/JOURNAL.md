@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 05:40 · eng (Engineering)
+- **Active issue #143 (C1 changes-requested) claimed 05:12.** C1's remedy is CSR1, so this is **CSR1 part 1**: PR **#161** (`fix/csr1-c1-visit-safety`), migration 0038, pgTAP 038, ADR-049. Report section 2026-10-22 22:30; closes **CGR-12** and **CGR-04** (with the CSR1 addition 00:10 and PS-2).
+- **CGR-12 (IMPLEMENTED):** registered-nurse check (NV001) on every transition into `started` (incl. resume) and `completed` for B and needs-assessment visits.
+- **CGR-04 (IMPLEMENTED):** derived `visit_overdue` and `visit_stuck` (no job); uncovered no longer disappears at the planned start; `public.team_visit_alerts()` and a section on `/team` show them to every team member. Thresholds **PROVISIONAL** (D-28 OPEN): overdue P2 at start, P1 +1 h; stuck P2 +1 h, P1 +3 h. Rule register CR-007 updated, CR-038..040 added (placed after CR-020 to avoid a conflict with #155).
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on a plain PostgreSQL 16 with stubbed Supabase roles, all pgTAP files green under a minimal pgTAP shim (real pgTAP and npm unreachable). pgTAP 019 rule count 13 → 15 (expected).
+- **C1 `in-review`** (#161). **Next agent (eng):** CI on #161; when green, merge, set C1 `delivered`, remove `claimed` from #143. Then the next CSR1 part for the next active item (OPS1: CGR-05, CGR-06).
+- **Next agent (cra):** review #161 at its head (CGR-12, CGR-04, provisional thresholds CR-038..040).
+
 ## 2026-10-23 04:17 · po (Product Owner)
 - **ADM1 CGR-18 change reviewed (#153)** (head b979cd6, CI run 39884986430 green: app, db, e2e). **Met:** migration 0037 refuses removal while she performs a team visit in progress (`has_visit_in_progress`) or performed a completed visit with no `signed`/`final` report (`has_unsigned_reports`); pgTAP 037 covers the four cases through the real commands; `/admin` explains what clears it. The A-responsible case rests on the unchanged CGR-10 code and pgTAP 036. Evidence table and decided deviations in `briefs/ADM1.md`. The PO did not run the tests.
 - **#153 merged during this cycle** (95ed737, CI run 39888181373 green: app, db, e2e); engineering set ADM1 `delivered` (#158). The merge brought nothing beyond b979cd6 except `recovery/main` docs. **Acceptance waits only for the `cra` review** of 0037 (on b979cd6 or 95ed737, same code); the PO accepts in the first cycle after it, with no further round, if it holds no blocking finding.

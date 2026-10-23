@@ -1546,6 +1546,11 @@ isOneToOne: false
               "auto_planning": boolean,"b_until": string,"blocked_reason": string,"case_id": string,"generated_ahead": number,"generated_on": string,"order_flagged": number,"unscheduled": Json
             }[]
                            },
+"team_visit_alerts":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "case_id": string,"client_name": string,"detail": string,"exception_key": string,"exception_type": string,"label": string,"priority": string,"since": string,"taken": boolean,"team_id": string,"team_name": string,"visit_id": string
+            }[]
+                           },
 "uncovered_visits":
 { Args: Record<PropertyKey, never>; Returns: {
               "team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string

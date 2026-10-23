@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatMinutesByCategory, minutesFromForm } from "@/features/team/rules";
+import { formatMinutesByCategory, minutesFromForm, sortVisitAlerts, visitAlertHandling } from "@/features/team/rules";
 
 describe("team planning rules (J3)", () => {
   it("reads minutes per category; empty or invalid → 0", () => {
@@ -45,5 +45,24 @@ describe("continuity (J6)", () => {
     expect(formatContinuity({ visits: 6, distinct_nurses: 3, primary_share_pct: 67 })).toBe("6 Einsätze · 3 verschiedene Pflegende · 67 % durch Bezugspflege");
     expect(formatContinuity({ visits: 2, distinct_nurses: 1, primary_share_pct: null })).toContain("Bezugspflege nicht bestimmt");
     expect(PLAN_FLAG_LABEL.not_primary).toBeTruthy();
+  });
+});
+
+describe("CSR1 team visit alerts (CGR-04)", () => {
+  it("orders P1 first, then the oldest, unknown priorities last, without mutating the input", () => {
+    const input = [
+      { id: "p2-old", priority: "P2", since: "2026-10-23T05:00:00Z", taken: false },
+      { id: "x", priority: "X", since: "2026-10-23T01:00:00Z", taken: false },
+      { id: "p1-new", priority: "P1", since: "2026-10-23T06:00:00Z", taken: false },
+      { id: "p1-old", priority: "P1", since: "2026-10-23T04:00:00Z", taken: true },
+      { id: "p2-new", priority: "P2", since: "2026-10-23T06:30:00Z", taken: false },
+    ];
+    expect(sortVisitAlerts(input).map((a) => a.id)).toEqual(["p1-old", "p1-new", "p2-old", "p2-new", "x"]);
+    expect(input[0].id).toBe("p2-old");
+  });
+
+  it("says whether Operations took the alert over", () => {
+    expect(visitAlertHandling(true)).toContain("kümmert sich");
+    expect(visitAlertHandling(false)).toContain("noch nicht übernommen");
   });
 });

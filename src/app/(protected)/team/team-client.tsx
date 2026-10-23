@@ -17,9 +17,12 @@ import {
   formatWeeklyHours,
   memberLabel,
   minutesFromForm,
+  sortVisitAlerts,
+  visitAlertHandling,
 } from "@/features/team/rules";
+import { PRIORITY_LABEL, formatAge } from "@/features/operations/exceptions";
 import { MEDICAL_ORDER_LABEL, TASK_LABEL } from "@/features/intake/rules";
-import type { ContinuityRow, TeamCase, TeamOffer } from "@/features/team/queries";
+import type { ContinuityRow, TeamCase, TeamOffer, TeamVisitAlert } from "@/features/team/queries";
 import type { BillingPreviewRow } from "@/features/billing/queries";
 import BillingPreview from "@/components/billing/billing-preview";
 import CaseLifecycleControls, { ClosedCases } from "./case-lifecycle";
@@ -47,6 +50,7 @@ export default function TeamClient({
   month,
   lifecycle,
   planStatus,
+  visitAlerts = [],
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
@@ -55,6 +59,7 @@ export default function TeamClient({
   month: string;
   lifecycle: CaseLifecycle[];
   planStatus: PlanStatus[];
+  visitAlerts?: TeamVisitAlert[];
 }) {
   const open = offers.filter((o) => !o.my_team_declined);
   const declined = offers.filter((o) => o.my_team_declined);
@@ -78,6 +83,8 @@ export default function TeamClient({
       </header>
 
       <main className="mx-auto grid max-w-xl gap-3 px-4 py-4">
+        <VisitAlerts alerts={visitAlerts} />
+
         <h2 className="text-lg font-bold">Anfragen an dein Team</h2>
         {open.length === 0 && (
           <p className="rounded-2xl border border-dashed border-emerald-900/20 bg-white/70 p-6 text-center">
@@ -137,6 +144,32 @@ export default function TeamClient({
         </p>
       </main>
     </div>
+  );
+}
+
+// CSR1 / CGR-04: a visit that did not happen, or is stuck, stays visible to the whole team until it moves on or a
+// person closes it. Thresholds are PROVISIONAL (D-28, clinical); no clinical instruction is given here.
+function VisitAlerts({ alerts }: { alerts: TeamVisitAlert[] }) {
+  if (alerts.length === 0) return null;
+  return (
+    <section aria-label="Einsätze mit Handlungsbedarf" className="grid gap-2 rounded-2xl border border-rose-300 bg-rose-50 p-3">
+      <h2 className="text-lg font-bold text-rose-950">Einsätze mit Handlungsbedarf</h2>
+      <ul className="grid gap-2">
+        {sortVisitAlerts(alerts).map((a) => (
+          <li key={a.exception_key} data-testid="visit-alert" className="rounded-xl bg-white p-3 text-sm shadow-sm">
+            <p className="font-semibold">
+              <span className={a.priority === "P1" ? "text-rose-800" : "text-amber-800"}>{a.priority} {PRIORITY_LABEL[a.priority] ?? ""}</span>
+              {" · "}{a.label}
+            </p>
+            <p>{a.client_name ?? "Klient:in"} · {a.detail}</p>
+            <p className="text-xs text-stone-600">{formatAge(a.since)} · {a.team_name} · {visitAlertHandling(a.taken)}</p>
+          </li>
+        ))}
+      </ul>
+      <p className="text-xs text-rose-900/80">
+        Erledigt sich, sobald der Einsatz weitergeht, abgesagt oder als «nicht angetroffen» erfasst ist. Schwellen provisorisch (klinische Entscheidung offen).
+      </p>
+    </section>
   );
 }
 
