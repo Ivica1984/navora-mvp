@@ -25,10 +25,11 @@ Supporting files:
 |---|---|---|---|
 | `po` | Product Owner (a person, or an agent acting for them) | **what** is built and its order; accepts or rejects delivered items | edit the engineering state |
 | `eng` | Engineering (Lead Engineer agent, future engineering agents) | **how** it is built (ADRs) | reorder or invent priorities; accept its own work |
-| `owner` | Company owner | business, financial, regulatory questions; production risk | — |
+| `owner` | Company owner | commercial, strategic, pricing, funding and partnership decisions; regulatory liability; irreversible production risk; legal questions that stay unresolved after the `lca` review when no legal adviser is named. Receives only finished decision packages ([`DECISION_PACKAGES.md`](DECISION_PACKAGES.md), owner 2026-10-24) | — |
 | `cra` | **Clinical & Regulatory Architect** (permanent, mandatory role, owner 2026-10-22) | nothing on its own authority: it identifies risks, controls, findings and recommendations for patient safety, clinical workflows, care quality, billing integrity, regulatory compliance, LTCF, PAG and MQI. It is a **mandatory reviewer** (gate below) and writes recommendations into `clinical` decision rows | present its guidance as authoritative (D-27); answer a decision; invent medical, clinical, tariff or regulatory rules; write code; set PO status; edit `IMPLEMENTATION_STATUS.md` |
 | `clinical` | **Named, qualified human clinical owner**, named by the owner (D-27) | approves clinical rules, care quality rules, patient safety rules and LTCF, PAG and MQI interpretations; decides the `clinical` decisions in `OPEN_DECISIONS.md` | — |
-| `legal` | Advisers named by the owner | legal questions | — |
+| `lca` | **Legal & Compliance Agent** (permanent role, owner 2026-10-24) | nothing on its own authority: it writes the *Legal/compliance impact* of decision packages (Swiss health, data-protection, social-insurance, tariff, labour and contract law), with sources, and says whether a recommended default is compliant under every plausible interpretation | present its analysis as legal advice; answer a decision; invent a legal, tariff or regulatory rule; write code; set PO status; edit `IMPLEMENTATION_STATUS.md` |
+| `legal` | Advisers named by the owner | legal interpretations that stay unresolved after the `lca` review | — |
 
 ### Clinical review gate (owner instruction, 2026-10-22; D-27)
 
@@ -56,7 +57,7 @@ Supporting files:
 2. **Every priority is acknowledged.** Each ID in the PO queue has a row in `IMPLEMENTATION_STATUS.md` (CI enforces this). A row with origin `po` must be in the queue or have a published brief in `briefs/` (draft items waiting for the queue).
 3. **Disagreement is explicit.** If engineering disagrees with a brief, it opens a decision (`owner: po`) with the reason, the risks and an alternative, and lists it under *Blocked by*. If it builds something different from the brief, the *Deviations* column says what and why.
 4. **Blocked names its blocker.** State `blocked` requires decision IDs in *Blocked by*, and those decisions must exist in `OPEN_DECISIONS.md`.
-5. **Decisions go to the right owner.** Legal, financial, regulatory, clinical and production questions are owned by `owner`, `legal` or `clinical`, never by `eng` (CI enforces this).
+5. **Decisions go to the right owner.** Legal, financial, regulatory, clinical and production questions are owned by `owner`, `legal` or `clinical`, never by `eng` (CI enforces this). **Decision packages first (owner 2026-10-24):** no such decision is put to a person as an open question. The agents prepare a package (`decisions/<ID>.md`) with Engineering, Clinical & Regulatory and, where needed, Legal & Compliance input; the PO decides it when the package shows owner approval is not required, and escalates only on the criteria in [`DECISION_PACKAGES.md`](DECISION_PACKAGES.md).
 6. **Done means accepted.** Engineering sets `delivered` with PR numbers. The PO checks the brief's acceptance criteria and sets *PO status* to `accepted` or `changes-requested`. For items in clinical scope, delivery and acceptance also follow the clinical review gate (*Roles* above).
 7. **Leave a trail.** Every session that changes one of these files adds a `JOURNAL.md` entry.
 8. **No personal or health data** in this folder.
@@ -89,6 +90,7 @@ Multiple values are comma-separated. Use `–` for none. PRs are written as `#23
 | NAVORA PO agent (scheduled, hourly) | `po` | 2026-10-22 |
 | NAVORA Engineering agent (scheduled, hourly) | `eng` | 2026-10-22 |
 | NAVORA Clinical & Regulatory Architect | `cra` (mandatory reviewer) | 2026-10-22 |
+| NAVORA Legal & Compliance Agent (scheduled, hourly) | `lca` (decision-package input) | 2026-10-24 |
 | Human clinical owner (named, qualified) | `clinical` | OPEN: to be named by the owner (D-27) |
 | agents-coordination watcher (GitHub Action) | – (writes issues only) | 2026-10-22 |
 
