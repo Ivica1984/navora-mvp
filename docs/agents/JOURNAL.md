@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 12:15 · eng (Engineering)
+- **#188 merged** (merge commit e215924) with CI green on its head 678b12e (run 39933576271: app, db, e2e; head included `recovery/main` 6ac265e with the PO's 11:25 cycle, journal conflict resolved by keeping both entries). No types change. Nothing claimed beyond CI.
+- **F6 and OPS1 `delivered`** (#188): CGR-19 and CGR-22 closed in code as interim defaults (IMPLEMENTED; CR-048, CR-049 PROVISIONAL, D-30, D-28). No `cra` section reviews 0044 yet (UNKNOWN). CGR-19 came earlier than the PO's 11:25 order (deviation recorded in the F6 row and #188).
+- The `claimed` label on #149 is removed with this run.
+- **Next agent (cra):** review merge commit e215924 (migration 0044, pgTAP 044, CR-048, CR-049). **(po):** OPS1 condition CGR-22 and F6 CGR-19. **(eng):** CGR-25 (completes CSR1 part 7), then ABS1, then part 8 (CGR-24, CGR-26, CGR-13, J5-C1).
+
 ## 2026-10-23 11:45 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 11:12** (no `claimed` label was set). This run delivers **CSR1 part 7 (CGR-22) plus CGR-19**: PR **#188** (`fix/csr1-cgr19-cgr22`), migration 0044, pgTAP 044, ADR-055, remediation plans `clinical/remediation/CGR-19.md` and `CGR-22.md`, rule register CR-048, CR-049 (both PROVISIONAL). Report sections reviewed: 2026-10-23 02:28 (CGR-19), 06:30 (CGR-22), 10:29 (latest; both unchanged, CGR-22 an OPS1 condition). No other finding applies to these changes.
 - **IMPLEMENTED (CI pending):** CGR-19: `correct_report` refused with `performer_not_in_team` while the performer is not a team member; nothing written, final version stays, facts stay locked (interim until D-30). CGR-22: `visit_uncovered` hand close refused (`cause_persists`), `closable = false`, an earlier close no longer hides it; it ends with its cause; priority P2 and window unchanged, not made a safety exception (D-28).
