@@ -51,9 +51,9 @@ export function canClose(item: Pick<ExceptionLike, "closable">): boolean {
 }
 
 // Shown where the database says closable = false: safety exceptions (CSR1 / CGR-06, 0039) and uncovered visits
-// (CSR1 / CGR-22, 0044, provisional until D-28).
+// (CSR1 / CGR-22, 0044, provisional until D-28), open report corrections (CSR1 / CGR-30, 0047, provisional until D-28).
 export const CLOSES_WITH_CAUSE =
-  "Kein Schliessen von Hand: schliesst automatisch, sobald die Ursache behoben ist (z. B. jemand zuständig, Einsatz begonnen oder abgesagt, Ergebnis erfasst, Ereignis abgeschlossen).";
+  "Kein Schliessen von Hand: schliesst automatisch, sobald die Ursache behoben ist (z. B. jemand zuständig, Einsatz begonnen oder abgesagt, Ergebnis erfasst, Ereignis abgeschlossen, Berichtskorrektur abgeschlossen).";
 
 // CSR1 / CGR-25 (0045, provisional until D-31): an interrupted visit closes only with a follow-up decision.
 export const CLOSES_WITH_FOLLOWUP =

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   CANCEL_REASONS, CLOSE_REASONS, FOLLOWUP_DECISIONS, FOLLOWUP_NOTICE, INTERRUPT_NOTICE, INTERRUPT_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, PAUSE_REASONS, REASON_LABEL,
-  canEndNotCompleted, followupOf, needsFollowup, reasonError,
+  canEndNotCompleted, followupOf, needsFollowup, reasonError, recordedByLabel, recordedBySomeoneElse,
 } from "@/features/lifecycle/rules";
 
 describe("C1 lifecycle rules", () => {
@@ -57,5 +57,19 @@ describe("C1 lifecycle rules", () => {
 
   it("the no-show notice gives no clinical instructions and points to D-19", () => {
     expect(NO_SHOW_NOTICE).toContain("D-19");
+  });
+
+  it("CSR1 / CGR-26: who ended a visit is a label, never an id", () => {
+    const none = { actor_name: null, actor_qualification: null, actor_role: null };
+    expect(recordedByLabel({ ...none, actor_kind: "me" })).toBe("Ich");
+    expect(recordedByLabel({ ...none, actor_kind: "team", actor_name: "Synthetisch Anna", actor_qualification: "care_assistant" }))
+      .toBe("Synthetisch Anna – Pflegeassistenz");
+    expect(recordedByLabel({ ...none, actor_kind: "team", actor_qualification: "registered_nurse" })).toBe("Teammitglied – Pflegefachperson");
+    expect(recordedByLabel({ ...none, actor_kind: "coordination", actor_role: "operations" })).toBe("Operations");
+    expect(recordedByLabel({ ...none, actor_kind: "coordination", actor_name: "Synthetisch Bea", actor_role: "coach" })).toBe("Synthetisch Bea (Coach)");
+    expect(recordedByLabel({ ...none, actor_kind: "former", actor_name: "darf nicht erscheinen" })).toBe("nicht mehr im Team");
+    expect(recordedByLabel({ ...none, actor_kind: null })).toBe("unbekannt");
+    expect(recordedBySomeoneElse({ ...none, actor_kind: "me" })).toBe(false);
+    expect(recordedBySomeoneElse({ ...none, actor_kind: "coordination" })).toBe(true);
   });
 });

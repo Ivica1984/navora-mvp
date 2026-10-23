@@ -32,4 +32,10 @@ export function qualityRejectionMessage(reason: unknown): string {
 
 /** Shown while the clinical list (D-16) is not yet approved. */
 export const NO_TYPES_NOTICE =
-  "Die Liste der Qualitätsereignisse wird klinisch festgelegt (D-16). Bis dahin: Beobachtung erfassen und bei Bedarf einen Qualitäts-Stopp setzen.";
+  "Die Liste der Qualitätsereignisse wird klinisch festgelegt (D-16). Bis dahin: Beobachtung erfassen und bei Bedarf eine Abrechnungssperre setzen.";
+
+/**
+ * CSR1 / CGR-13 (QG1, until `clinical` answers D-16): a quality hold is shown as "Abrechnungssperre" (billing hold).
+ * It blocks billing of the visit only; NAVORA gives no care instruction with it.
+ */
+export const HOLD_MEANING = "Gesperrt ist nur die Abrechnung; ob und wie gepflegt wird, regelt die Sperre nicht.";

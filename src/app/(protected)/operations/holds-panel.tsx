@@ -4,15 +4,16 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { liftQualityHold } from "@/features/quality/commands";
 import type { OpenHold } from "@/features/quality/queries";
+import { HOLD_MEANING } from "@/features/quality/rules";
 
-/** QG1: open quality holds. Coach or admin lift them with a reason (provisional role rule, D-16). */
+/** QG1: open quality holds, labelled "Abrechnungssperre" (CSR1 / CGR-13). Coach or admin lift them with a reason (provisional role rule, D-16). */
 export default function HoldsPanel({ holds }: { holds: OpenHold[] }) {
   return (
-    <section aria-label="Qualitäts-Stopps" className="grid gap-2 rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
-      <h2 className="text-lg font-bold">Qualitäts-Stopps</h2>
-      <p className="text-sm text-stone-500">Einsätze im Stopp werden nicht abgerechnet. Aufheben: Coach oder Admin, mit Begründung.</p>
+    <section aria-label="Abrechnungssperren" className="grid gap-2 rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
+      <h2 className="text-lg font-bold">Abrechnungssperren</h2>
+      <p className="text-sm text-stone-500">{HOLD_MEANING} Aufheben: Coach oder Admin, mit Begründung.</p>
       {holds.length === 0 ? (
-        <p className="text-sm text-stone-500">Keine offenen Stopps.</p>
+        <p className="text-sm text-stone-500">Keine offenen Abrechnungssperren.</p>
       ) : (
         <ul className="grid gap-2">
           {holds.map((h) => (
@@ -45,13 +46,13 @@ function HoldRow({ hold }: { hold: OpenHold }) {
   }
 
   return (
-    <article aria-label={`Stopp ${hold.reason}`} data-testid="hold" className="rounded-lg border-l-8 border-rose-500 bg-rose-50 p-2 text-sm">
+    <article aria-label={`Abrechnungssperre ${hold.reason}`} data-testid="hold" className="rounded-lg border-l-8 border-rose-500 bg-rose-50 p-2 text-sm">
       <p className="font-semibold">{hold.reason}</p>
       <p className="text-xs text-stone-600">gesetzt {new Date(hold.set_at).toLocaleString("de-CH", { timeZone: "Europe/Zurich" })}</p>
       {error && <p role="alert" data-testid="command-error" className="mt-1 font-semibold text-rose-800">{error}</p>}
       {!open ? (
         <button type="button" onClick={() => setOpen(true)} className="mt-1 min-h-10 rounded-lg border border-stone-400 bg-white px-3 font-semibold">
-          Stopp aufheben
+          Sperre aufheben
         </button>
       ) : (
         <form action={lift} className="mt-1 grid gap-1">

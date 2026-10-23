@@ -25,17 +25,20 @@ test("the team sets a quality hold; only coach or admin lift it, with a reason (
   await expect(quality.getByTestId("no-types")).toContainText("D-16");
   await quality.getByRole("button", { name: "Schliessen" }).click();
 
-  await quality.getByRole("button", { name: "Qualitäts-Stopp setzen" }).click();
-  await quality.getByLabel("Begründung für den Stopp").fill("E2E: Leistung strittig");
-  await quality.getByRole("button", { name: "Stopp setzen" }).click();
-  await expect(quality.getByTestId("quality-hold")).toBeVisible();
-  await expect(quality.getByRole("button", { name: "Qualitäts-Stopp setzen" })).toHaveCount(0);
+  await quality.getByRole("button", { name: "Abrechnungssperre setzen" }).click();
+  await quality.getByLabel("Begründung für die Abrechnungssperre").fill("E2E: Leistung strittig");
+  await quality.getByRole("button", { name: "Sperre setzen" }).click();
+  await expect(quality.getByTestId("quality-hold")).toHaveText("Abrechnungssperre");
+  // CSR1 / CGR-13: the hold reads as a billing hold, not as a stop of care.
+  await expect(quality.getByTestId("quality-hold-meaning")).toContainText("nur die Abrechnung");
+  await expect(quality).not.toContainText("Stopp");
+  await expect(quality.getByRole("button", { name: "Abrechnungssperre setzen" })).toHaveCount(0);
 
   // Operations sees the hold but may not lift it (provisional role rule, D-16).
   await page.context().clearCookies();
   await signIn(page, OPS, /\/operations$/);
   const opsHold = page.getByTestId("hold").filter({ hasText: "E2E: Leistung strittig" });
-  await opsHold.getByRole("button", { name: "Stopp aufheben" }).click();
+  await opsHold.getByRole("button", { name: "Sperre aufheben" }).click();
   await opsHold.getByLabel("Begründung").fill("Versuch durch Operations");
   await opsHold.getByRole("button", { name: "Aufheben" }).click();
   await expect(opsHold.getByTestId("command-error")).toContainText("Coach oder Admin");
@@ -43,7 +46,7 @@ test("the team sets a quality hold; only coach or admin lift it, with a reason (
   await page.context().clearCookies();
   await signIn(page, COACH, /\/operations$/);
   const hold = page.getByTestId("hold").filter({ hasText: "E2E: Leistung strittig" });
-  await hold.getByRole("button", { name: "Stopp aufheben" }).click();
+  await hold.getByRole("button", { name: "Sperre aufheben" }).click();
   await hold.getByLabel("Begründung").fill("Mit Team geklärt, Leistung korrekt");
   await hold.getByRole("button", { name: "Aufheben" }).click();
   await expect(page.getByTestId("hold").filter({ hasText: "E2E: Leistung strittig" })).toHaveCount(0);

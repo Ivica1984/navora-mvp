@@ -5,7 +5,12 @@ import { useState } from "react";
 import { cancelVisit, endVisitNotCompleted, recordNoShow, recordNoShowOutcome } from "@/features/lifecycle/commands";
 import {
   CANCEL_REASONS, INTERRUPT_NOTICE, INTERRUPT_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, REASON_LABEL, canEndNotCompleted, followupOf, reasonError,
+  recordedByLabel, recordedBySomeoneElse,
 } from "@/features/lifecycle/rules";
+
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleString("de-CH", { timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
 import type { VisitStatusNote } from "@/features/lifecycle/queries";
 import InterruptionFollowupForm from "@/components/lifecycle/InterruptionFollowupForm";
 
@@ -63,10 +68,19 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
         </div>
       )}
       {interrupted && (
-        <p className="rounded-lg border-l-4 border-amber-600 bg-amber-50 p-2" data-testid="interrupt-reason">
-          <span className="font-bold">Nicht abgeschlossen · {REASON_LABEL[interrupted.reason_code ?? ""] ?? interrupted.reason_code}</span>
-          {interrupted.note ? ` – ${interrupted.note}` : ""}
-        </p>
+        <div className="rounded-lg border-l-4 border-amber-600 bg-amber-50 p-2">
+          <p data-testid="interrupt-reason">
+            <span className="font-bold">Nicht abgeschlossen · {REASON_LABEL[interrupted.reason_code ?? ""] ?? interrupted.reason_code}</span>
+            {interrupted.note ? ` – ${interrupted.note}` : ""}
+          </p>
+          {/* CSR1 / CGR-26: who ended it, so an end recorded by someone else is seen at once. Correction of an end in error: D-31. */}
+          <p
+            data-testid="interrupt-ended-by"
+            className={recordedBySomeoneElse(interrupted) ? "mt-1 font-semibold text-amber-950" : "mt-1 text-xs text-stone-700"}
+          >
+            Beendet von {recordedByLabel(interrupted)} · {formatTime(interrupted.created_at)}
+          </p>
+        </div>
       )}
       {interrupted && status === "interrupted" && (followup ? (
         <p className="rounded-lg bg-stone-100 p-2" data-testid="interrupt-followup">

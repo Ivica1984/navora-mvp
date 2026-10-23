@@ -173,6 +173,53 @@ test("an interrupted visit keeps a signal until the team decides about the care 
   expect(overflow).toBeLessThanOrEqual(0);
 });
 
+test("the performer sees who ended her visit and why, at phone width (CSR1 / CGR-26)", async ({ page, browser }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signIn(page, NURSE, /\/field$/);
+  await page.goto("/team");
+  const card = page.getByRole("article", { name: /Fall Testfall 08/ });
+
+  // A visit seven days ahead at 20:00 (no other test uses that slot); the registered nurse starts it.
+  const day = new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10);
+  await card.getByRole("button", { name: "Einsatz planen" }).click();
+  const planForm = card.getByRole("form", { name: "Einsatz planen" });
+  await planForm.getByLabel("Datum").fill(day);
+  await planForm.getByLabel("Von").fill("20:00");
+  await planForm.getByLabel("Bis").fill("20:30");
+  await planForm.getByLabel("A", { exact: true }).fill("30");
+  await planForm.getByRole("button", { name: "Einsatz speichern" }).click();
+  await expect(card.getByRole("list", { name: "Geplante Einsätze" })).toContainText("20:00–20:30");
+  await page.goto(`/field?datum=${day}`);
+  const visit = page.getByRole("article", { name: /20:00 – 20:30, Testfall 08/ });
+  await visit.getByRole("button", { name: "Einsatz starten" }).click();
+  await expect(visit.getByTestId("visit-status")).toHaveText("Gestartet");
+
+  // Another member of the team (the seeded care assistant) ends it as not completed, on her own phone.
+  const other = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const colleague = await other.newPage();
+  await signIn(colleague, "assist.test@navora.test", /\/field$/);
+  await colleague.goto(`/field?datum=${day}`);
+  const theirs = colleague.getByRole("article", { name: /20:00 – 20:30, Testfall 08/ });
+  await theirs.getByRole("button", { name: "Nicht abgeschlossen beenden" }).click();
+  const endForm = theirs.getByRole("form", { name: "Einsatz nicht abgeschlossen beenden" });
+  await endForm.locator("select[name=code]").selectOption("nurse_unavailable");
+  await endForm.getByRole("button", { name: "Nicht abgeschlossen speichern" }).click();
+  await expect(theirs.getByTestId("visit-status")).toHaveText("Nicht abgeschlossen");
+  await expect(theirs.getByTestId("interrupt-ended-by")).toContainText("Beendet von Ich");
+  await other.close();
+
+  // The performer's card says who ended it and why.
+  await page.reload();
+  const mine = page.getByRole("article", { name: /20:00 – 20:30, Testfall 08/ });
+  await expect(mine.getByTestId("visit-status")).toHaveText("Nicht abgeschlossen");
+  await expect(mine.getByTestId("interrupt-reason")).toContainText("Pflegeperson abberufen oder unwohl");
+  await expect(mine.getByTestId("interrupt-ended-by")).toContainText("Beendet von");
+  await expect(mine.getByTestId("interrupt-ended-by")).toContainText("Pflegeassistenz");
+  await expect(mine.getByTestId("interrupt-ended-by")).not.toContainText("Ich");
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
 test("Operations closes a case with a reason and reopens it in the app (C1, PO addendum)", async ({ page }) => {
   await signIn(page, "ops.test@navora.test", /\/operations$/);
   const panel = page.getByTestId("ops-case-lifecycle");

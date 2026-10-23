@@ -1,7 +1,7 @@
 // J5 — billing preview: pure helpers (ADR-002). Facts and rates live in the database (migration 0022).
 
 export const NOT_BILLABLE_LABEL: Record<string, string> = {
-  quality_hold: "Qualitäts-Stopp offen",
+  quality_hold: "Abrechnungssperre offen",
   report_not_final: "Bericht nicht abgeschlossen",
   not_generated: "noch nicht erfasst – «Abrechnungsfakten erzeugen»",
   b_without_valid_order: "Kategorie B ohne gültige Verordnung",
