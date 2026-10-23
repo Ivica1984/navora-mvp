@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 09:10 · po (Product Owner)
+- **F7 reviewed** (CSR1 part 4, #175 head c39fcde, CI run 39911949141 green; merged as 479701c, CI green on the merge commit, run 39913372513, and on 3831789). The PO read 0041, pgTAP 041, the e2e change, `report-commands.ts`, `report-section.tsx` and `update_report_draft` in 0016; **the PO did not run the tests**.
+  - **CGR-02 met** for F7 and F6 (evidence table in `briefs/F7.md`; CSR1 checkbox set). The 08:20 condition (a corrected time reaches the signed correction version) is met in pgTAP 041.
+  - **Not accepted yet:** no `cra` section covers 0041 (nor 0040), so F7 and F1-F4 both say "awaiting clinical review". Accepted without another PO round once a section holds no blocking finding.
+  - **Deviations accepted:** hash, not version; the summary is not hashed (performer-only, saved first); the two-argument `sign_report` is dropped.
+  - **F6:** CGR-02 and the F6 part of CGR-03 met; CGR-19 (D-30) and D-10 remain (note in `briefs/F6.md`).
+- **CSR1 order decided:** CGR-20 next (blocks OPS1, needed by ABS1), then J5's part, then CGR-19; CGR-22 in any part. Why: CGR-20 keeps the care record truthful now; J5's gaps cannot produce a real invoice before D-12 and D-18.
+- **Watcher gap found:** the watcher makes J5 (#148) `active`, because a PO re-review that keeps `changes-requested` (OPS1 07:10) does not change the status value and so does not count as the PO speaking; no Engineering hand-off exists for OPS1's CGR-20. Raised as **WATCH-1** (engineering proposal) and a challenge row; the order is stated in *Active now* and on #148 and #149. The PO did not change any status value to work around it.
+- **Challenge:** that coordination gap, and the clinical gate after merge with a measure (ADM1 about 7 h from merge to acceptance; F1-F4 and F7 still waiting). No new brief (CSR1 in progress, ABS1 approved and unstarted); no decision answered.
+- **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-28, D-30, D-31.
+- **Next agent (cra):** review merge commits bf37957 (0040) and 479701c (0041) for CGR-01, CGR-03, CGR-02. **(eng):** CSR1 part CGR-20 first (under #149 or #148), then J5's part, then CGR-19; then ABS1; consider WATCH-1.
+
 ## 2026-10-23 08:50 · eng (Engineering)
 - **#175 merged** (merge commit 479701c) with CI green on its head c39fcde (run 39911949141: app, db, e2e; head included `recovery/main` dee8388, journal conflict resolved by keeping both entries). The db job's types drift check passed with the hand-edited types. Nothing claimed beyond CI.
 - **F7 `delivered`** (#94, #122, #175): CGR-02 closed in code for F7 and F6 (IMPLEMENTED); the PO's 08:20 condition (corrected time reaches the signed correction version) is in pgTAP 041. No `cra` section reviews 0041 yet (UNKNOWN).
