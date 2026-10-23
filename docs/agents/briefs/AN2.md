@@ -8,6 +8,30 @@ updated: 2026-10-23
 
 # AN2 — Pilot hypotheses measured from events, not tallied
 
+## PO review — 2026-10-24 01:15: DAY-1 delivered as #239; safety fix met, proof partly open (remainder rides with CGR-35)
+
+Engineering fixed the cause outside AN2 as an engineering fix: #239 (`fix/zurich-today`, migration 0055, pgTAP 056, ADR-068), merged as 2e79532. CI on the PR head green in app, db and e2e (run 40033219652, started 22:22 UTC = 00:22 Zurich, inside the split-day window). **The PO did not run the tests**; evidence is the diff read by the PO and CI read through the API.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| (1) one server-side source for "today"; CI check against bare `current_date` / `now()::date` | **partly met** | 0055 re-creates every `public`/`private` function body with `current_date` replaced by `(now() at time zone 'Europe/Zurich')::date` and fails if one remains; pgTAP 056 refuses `current_date` in function bodies. Open: no single helper (the expression is repeated inline); the guard does not refuse `now()::date`, `current_timestamp::date`, `localtimestamp` or a date in a view. The PO's grep of the migrations finds none of these today |
+| (2) pgTAP at a split day: `order_expiring`, review overdue, pause end = Zurich today accepted, J1/J2 requested-start bounds | **not met** | 056 checks function source text only (two `like` checks); no behavioural test at a split-day clock |
+| (3) whole pgTAP and e2e suite pass at a split-day clock, shown once in CI | **met by observation** | run 40033219652 ran at 00:22 Zurich (UTC date ≠ Zurich date) and was green in db and e2e. Not repeatable: it depends on when CI runs |
+| (4) no behaviour change outside the window; assertions not weakened | **met** | the test diff replaces `current_date` with the Zurich date in fixtures and arguments; assertions unchanged in meaning (PO read 008-021, 044); 044 reads the report on its visit's own Zurich date |
+| (5) ADR names helper and rule; hosted DB time zone as an owner check once staging exists (D-2) | **partly met** | ADR-068 names the rule (status PROPOSED). It assumes "UTC on Supabase" and does not state the hosted time zone as an owner check with D-2 |
+
+**PO status for DAY-1: `changes-requested`, non-blocking.** Why: the patient-safety part (OPS1 order-expiring and review-overdue, `pause_case`, `apply_case_facts`, `add_care_plan_item` judged against the Zurich day) is fixed and CI is green at night, so nothing waits on DAY-1 any more. What is missing is the proof that keeps it fixed: a later function written with `now()::date` would pass the guard, and no test pins the behaviour at a split-day clock.
+
+**Deviations decided:**
+- Inline expression instead of a helper: **accepted**, if the guard (below) catches every other way to derive a day.
+- Proof (3) by a night run instead of a set test clock: **accepted for this delivery**; (2) supplies the repeatable proof.
+- Delivered as an engineering fix outside AN2: **accepted** (CI was red every night; speed was right).
+
+**Remaining criteria (DAY-1-R), ride in AN2's first PR together with CGR-35 and ABS1-C7, no separate PR:**
+- [ ] R1: pgTAP 056 (or a successor) also fails on `now()::date`, `current_timestamp::date`, `localtimestamp` and `current_date` in a view or materialised view in `public`/`private`.
+- [ ] R2: at least one behavioural pgTAP at a split-day clock (UTC date ≠ Zurich date, set by engineering's test-clock method): `private.derived_exceptions` judges an order end date and a care-plan review date against the Zurich day (one case each where the UTC day would give a different result), and `pause_case` accepts an expected end of Zurich today. Thresholds and priorities unchanged (D-28).
+- [ ] R3: ADR-068 records the hosted database time zone as an owner check once staging exists (D-2).
+
 ## PO update — 2026-10-24 00:20: precondition DAY-1 (one calendar day: Europe/Zurich), before CGR-35
 
 **Finding (PO, from CI, not from running tests):** the docs-only PR #238 went red at 22:00 UTC (= 00:00 Europe/Zurich, summer time) in `db` and `e2e` (run 40030758280), while `recovery/main` was green at 21:23 UTC on the same code (runs 40026345400, 40026353505). Failed pgTAP: 008 (5), 015 (11), 043 (14, 16, 21, 23), 044 (23-26, 28-32, 34), 049 (52-53). A docs change cannot cause this; the cause is the time of day. IMPLEMENTED in the repository and read by the PO: (a) tests mix `current_date` (the database day, UTC in CI) with `(now() at time zone 'Europe/Zurich')::date`, and build visits at `now() ± hours` that fall on the previous Zurich day after midnight; (b) live functions mix the two days too: `current_date` in 0013 and 0017 (requested start bounds), 0014 (care-plan review date), 0019 and 0024 (OPS1 `order_expiring`, care-plan review overdue), 0024 and 0031 (C1 pause expected end, visit window), against `Europe/Zurich` in 0012, 0014, 0021. UNKNOWN: the hosted database time zone (Supabase default UTC) and the e2e failure cause (report artifact not read).
