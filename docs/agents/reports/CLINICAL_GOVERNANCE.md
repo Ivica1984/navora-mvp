@@ -16,6 +16,54 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-23 19:50: CGR-33 guard (pgTAP 053) merged; PO decision on CGR-32 reviewed
+
+**Scope:** `recovery/main` @ `50ee5f5`. Changes since the 19:00 section:
+- **Code merged:** #222 (CGR-33: pgTAP `053_cgr33_order_audit_guard` (21), ADR-064 PROPOSED; test only, no migration) as `d67055b`.
+- **Docs:** #223 (eng: delivered rows, journal), #221 (PO cycle 19:12/19:30): **ABS1 accepted** with condition CGR-32; PO decision on CGR-32 (flagged, not released; CSR1 part 11); J5 stays accepted, CGR-33 met, CGR-31 remains; AN2 measure 12 (late billing facts); challenge row "billing facts built in a later batch". **No decision answered; no open PR in scope** (only #3, M2 to `main`).
+
+I read pgTAP 053 in full, ADR-064, the PO's CGR-32 decision and condition text (`briefs/ABS1.md` 19:12), the J5 and CSR1 brief notes, and `cancel_visit` (0024) and `end_visit_not_completed` (0042, header) for how a flagged past visit can be closed. **I did not run the tests.** CI (checked through the API) is green for app, db (migrations, seed, pgTAP) and e2e on `4661392` (head of #222), `d67055b` (one e2e run cancelled, a second passed) and `50ee5f5`.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-34 | ABS1 condition CGR-32 (CSR1 part 11, PLANNED) | advisory (S3) | The PO's CGR-32 decision keeps a past planned visit inside a newly recorded absence with its responsible member and flags its overdue alert; the team then closes it "with existing commands". For a planned visit that is `cancel_visit`, whose reasons are `client_cancelled`, `client_in_hospital`, `team_cancelled` or `other` (note). The flag is computed from the absence, not stored (condition (3)), and the overdue alert ends with the cancellation. The closed record then reads as a planned cancellation; that care was due and not given because the responsible member was absent survives only in free text, if at all, and is lost for AN2 and any later quality review. Documentation-integrity gap in a PLANNED rule; no clinical rule is needed to close it. Whether missed care must be made up or reported is `clinical` (D-28, D-31): UNKNOWN. | `cancel_visit` 0024 (reason list; `planned`/`on_the_way` only; any team member); PO condition CGR-32 (2)-(3), `briefs/ABS1.md` 19:12; `visit_overdue` derived from a planned visit past its start, closable by a coordinator with a reason (0038:10, 28) | PO decides (product authority) within CSR1 part 11. Strict default: when a visit is cancelled while the CGR-32 flag holds, the status note records it (for example `responsible_absent` stored on the cancellation, or a fixed reason "nicht durchgeführt: zuständige Person abwesend"), and withdrawing the absence later does not erase it. pgTAP: absence from yesterday recorded today → yesterday's flagged visit cancelled with `team_cancelled` → its status note shows it was not done while the responsible member was absent; the same cancel without an absence does not. |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| CGR-33 | **closed** | pgTAP 053: `audit_cases` exists on `public.cases`, calls `private.write_audit_event`, fires after insert and update for each row, no `UPDATE OF` column list, enabled (053:24-33); both order columns in its arguments (053:34-37); two order edits leave two `{old, new}` audit rows read back by `private.case_order_as_of` before and after the edit instant (053:41-82); update, delete and truncate of `audit_events` refused with `42501` for the owner, `authenticated` select only, `anon` nothing (053:85-95). CI green on `4661392`, `d67055b`, `50ee5f5`. Residuals, accepted: (a) `residence_canton` is not asserted; needed only if D-18 makes the residence "as of the visit date" (carried in CGR-31); (b) a write with `session_replication_role = replica` bypasses the trigger (superuser only; ADR-064 marks it UNKNOWN whether any operator procedure uses it) |
+| CGR-32 | open, advisory (S3); **PO decision reviewed and endorsed** | flag, not release, is the safe direction: the visit stays one accountable, visible exception (overdue alert persists while `planned`) and does not appear as a takeable visit in "Offen im Team" for a past time; the absence is never refused. Closes only when CSR1 part 11 is merged with the PO's pgTAP (4) and e2e (5). Gap in the closing step: CGR-34 |
+| CGR-31 | open, advisory (S3; S1 before invoicing), unchanged | no code change; PO keeps it as a J5 condition before any invoicing brief (D-18, `legal`) |
+| CGR-28 | open, advisory (S2 if cover is enabled), unchanged | no code change |
+| CGR-16, CGR-21, CGR-23 | open, unchanged | no code change |
+
+### Other changes reviewed (no finding)
+
+- **PO challenge row: billing facts built in a later batch.** Endorsed as a direction, not a decision: capturing the basis on file (order, payer, residence) once at visit end, inside the signed snapshot, would replace three reconstruction rules (J5-C2, J5-C1, CGR-31) and their guards with one recorded fact, a simpler and more auditable control. Two limits for any later ADR: the corrections J5-C1 deliberately follows (a payer corrected after the visit) must still re-derive, and whether "recorded in NAVORA" stands for "issued by the doctor" stays D-22 (`legal`), UNKNOWN. AN2 measure 12 (share of facts built more than 24 h after the visit, `basis_changed` per 100 facts) is a team-level aggregate with no person named: acceptable.
+- **Rule register:** no new hard-coded rule (pgTAP 053 is a test). CR-058 note updated (premise guarded); CR-061 note points to the PO's CGR-32 decision. No clinical threshold, tariff, KLV, LTCF, interRAI, PAG or MQI rule was invented.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| J5 (`accepted`) | **no blocking finding**; CGR-33 closed; CGR-31 remains the condition before invoicing | CGR-33 closed; CGR-31 open |
+| ABS1 (`accepted`) | **no blocking finding**; condition CGR-32 open (CSR1 part 11), CGR-34 advisory for the same part | CGR-32, CGR-34; CGR-28 before cover |
+| CSR1 part 11 (not started) | review when its PR is open; it should carry CGR-34 | CGR-32, CGR-34 |
+| COVER1 | unchanged: cover stays off until CGR-28, the `accept_cover` absence check, PS-12 and D-3 | CGR-21, CGR-28 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **owner (critical path):** name the qualified clinical owner and a deputy (G-1). Gate C cannot open without one.
+- **po:** decide CGR-34 within CSR1 part 11 (how a flagged past visit's closing record keeps the absence).
+- **legal:** D-22 (order before the visit; whether A/C need an order; the cut-off); D-18 (incl. CGR-31).
+- **clinical** (once named): D-28 and D-31 (incl. whether care missed through an unreported absence must be made up or reported), D-10, D-30, D-16, D-17.
+
+---
+
 ## 2026-10-23 19:00: CSR1 part 10 (0051) and ABS1-C5 (0052) merged
 
 **Scope:** `recovery/main` @ `279d026`. Changes since the 18:30 section:

@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 19:50 · Clinical & Regulatory Architect (review)
+- **Reviewed** #222 as merged (`d67055b`): pgTAP `053_cgr33_order_audit_guard`, ADR-064; and the PO cycle 19:12/19:30 (#221): ABS1 acceptance, the CGR-32 decision, the J5 note, AN2 measure 12, the challenge row on late-built billing facts. CI green on `4661392`, `d67055b`, `50ee5f5` (API). Tests not run by me.
+- **Closed:** CGR-33 (pgTAP 053:24-95; BL-15 closed). Residuals accepted: `residence_canton` not asserted (carried in CGR-31), `session_replication_role = replica` (UNKNOWN, ADR-064).
+- **Endorsed:** the PO's CGR-32 direction (flag, not release; the absence never refused). CGR-32 stays open until CSR1 part 11 is merged.
+- **New (advisory S3):** CGR-34 (PS-27): a flagged past visit can only be closed by `cancel_visit` with a planned-cancellation reason, and the flag is computed, so the record loses that the care was missed because the responsible member was absent. Remedy rides with CSR1 part 11; PO decides.
+- **Gate:** no blocking finding on J5, ABS1 or any open item. Cover stays off.
+- **Waiting on people:** owner G-1; `po` CGR-34; `legal` D-22, D-18; `clinical` D-28, D-31, D-10, D-30, D-16, D-17; `owner` D-3.
+- **Next agent (po):** CGR-34 into CSR1 part 11. **(eng):** CSR1 part 11 with CGR-32 and, if the PO agrees, CGR-34.
+
 ## 2026-10-23 19:30 · po (Product Owner)
 - **CSR1 part 10 reviewed** (#216 head 9ea3cb3, CI run 39988490243 green; merged as 3d48a00, CI green on the merge commit (runs 39989101189, 39989106823) and on 279d026, checked through the API). The PO read 0052 in full, 0051's cut-off and reconstruction, and the pgTAP 051 and 052 assertions. **The PO did not run the tests.** Evidence in `briefs/CSR1.md` and `briefs/ABS1.md`.
 - **ABS1 accepted** (issue #219): ABS1-C5 met; clinical gate passed (`cra` 18:30 on 0048/0050, 19:00 on 0052: no blocking finding). Deviation (check on the outcome, not on the date) accepted. **Condition CGR-32, PO decision (product authority, not a clinical rule):** a planned, not started visit dated before today inside a newly recorded absence is **flagged, not released**: it keeps its responsible member, `record_absence` returns `past_planned`, its overdue alert shows "Zuständige Person abwesend gemeldet"; the absence is never refused. Released, it would invite a take of a visit nobody can still do and could not be closed by hand (CGR-22). Whether the care must be made up stays `clinical` (D-28, D-31).
