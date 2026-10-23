@@ -8,6 +8,19 @@ updated: 2026-10-23
 
 # ADM1 — Pilot administration: members, qualifications and operating rules
 
+## PO acceptance — 2026-10-23 07:10: accepted (clinical gate passed)
+
+The only open condition of the 04:17 review was the clinical gate. the Clinical Governance Report section 2026-10-23 06:30 (`reports/CLINICAL_GOVERNANCE.md`, merged with #167 as 6fc517a) reviewed migration 0037 and pgTAP 037 and closed **CGR-18** (0037:57-75; pgTAP 037 cases 1–4); its gate table says "ADM1: no blocking finding; the PO may accept". **The PO did not run the tests**; evidence is the 04:17 evidence table, CI green on b979cd6 (run 39884986430) and 95ed737 (run 39888181373), and the report section.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Every criterion of the brief and of the 20:15, 22:15, 23:00 and 03:10 changes | met | evidence tables below (04:17, 00:10, 01:10) |
+| Clinical gate: latest report section holds no blocking finding for ADM1 | met | section 06:30, gate table; CGR-09, CGR-10, CGR-18 closed |
+
+**Advisory findings, decided:** CGR-19 (correction of a departed author's report) stays with CSR1's interim refusal and D-30; CGR-16 (qualification verification) stays advisory until real data, D-29 (`owner`). Neither blocks a pilot on synthetic data.
+
+**Decision: ADM1 accepted.** No condition. A team-level admission (D-20) or the "Vor dem Teamwechsel offen" hypothesis would be new items, not reopens.
+
 ## PO review — 2026-10-23 04:17: #153 (head b979cd6, merged as 95ed737; CI green on both); the CGR-18 change is met
 
 Read from PR #153 (migration 0037 `remove_team_member`, pgTAP 037 with 24 assertions, `src/features/admin/rules.ts`, unit `admin-rules.test.ts`, ADR-046 amendment, `clinical/remediation/CGR-18.md`) and from 0016 (report statuses). **The PO did not run the tests**; results are taken from CI run 39884986430 on b979cd6 and from reading the code.
