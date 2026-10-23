@@ -30,8 +30,8 @@ No visit looks covered, started or documented when it is not. A signed report is
 
 ## Acceptance criteria
 Order of work: patient safety first.
-- [ ] **CGR-12 (J3, C1): the qualification rule holds for the whole visit.** For category B or needs-assessment visits, the registered-nurse check applies to **every** transition into `started` (including resume from `paused`) and into `completed`. pgTAP: a care assistant cannot resume or complete such a visit (`NV001`), and a registered nurse can.
-- [ ] **CGR-04 (OPS1, C1): a visit that did not happen stays visible.** Two new exception types:
+- [x] **CGR-12 (J3, C1): the qualification rule holds for the whole visit.** For category B or needs-assessment visits, the registered-nurse check applies to **every** transition into `started` (including resume from `paused`) and into `completed`. pgTAP: a care assistant cannot resume or complete such a visit (`NV001`), and a registered nurse can.
+- [x] **CGR-04 (OPS1, C1): a visit that did not happen stays visible.** Two new exception types:
   - a planned visit whose start time has passed without a start;
   - a visit left `on_the_way`, `started` or `paused`.
 
@@ -57,6 +57,8 @@ Order of work: patient safety first.
 - [ ] **Clinical gate trail:** each PR names the report section it addresses and the CGR IDs it closes (README *Clinical review gate*).
 
 Build order: the two BL conditions come after every blocking criterion above; they may ship in a later CSR1 PR. J5 is re-accepted only with them; the other reopened items do not wait for them.
+
+Progress (PO, 2026-10-23 06:10): CGR-12 and CGR-04 met by part 1 (#161, migration 0038); evidence tables in `C1.md` and `J3.md`. Next part: OPS1 (CGR-05, CGR-06).
 
 ## Out of scope
 - Defining clinical thresholds, escalation chains or what a quality hold stops. Those are `clinical` decisions (D-28, D-16).
