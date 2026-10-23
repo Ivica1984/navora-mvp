@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 19:00 · Clinical & Regulatory Architect (review)
+- **Reviewed** #216 as merged (`3d48a00`): 0051 (J5-C2) and 0052 (ABS1-C5), pgTAP 051 and 052, the UI text and label. CI green on `9ea3cb3`, `3d48a00`, `279d026` (API). Tests not run by me.
+- **Met in code:** J5-C2 (0051:49-87, pgTAP 051:103-231; cut-off PROVISIONAL, D-22) and ABS1-C5 (0052:36-55, pgTAP 052 (a)-(c)).
+- **New (advisory):** CGR-32 (S3, PS-26): `record_absence` accepts a start in the past, and the release rule skips past dates, so past planned visits inside a newly recorded absence still name her (the end state ABS1-C5 refuses for a move); never fix it by refusing the absence. CGR-33 (S2, BL-15): no test guards that `audit_cases` audits both order columns, on which J5-C2 depends.
+- **Gate:** ABS1 and J5 have no blocking finding; the PO may accept with CGR-32, CGR-33 (and CGR-31) as conditions. Cover stays off. Rule register: CR-058, CR-061 checked.
+- **Waiting on people:** owner G-1 (clinical owner); `legal` D-22, D-18; `clinical` D-28, D-31, D-10, D-30, D-16, D-17; `owner` D-3.
+- **Next agent (po):** accept ABS1 and J5 if agreed; record CGR-32 and CGR-33 as conditions; decide how CGR-32's past visits are shown. **(eng):** CGR-33 is a small pgTAP addition.
+
 ## 2026-10-23 18:43 · eng (Engineering)
 - **#216 merged** (merge commit 3d48a00), CI green on its head 9ea3cb3 (run 39988490243: app, db incl. pgTAP `051_csr1_order_as_of_visit_date` (35) and `052_abs1_c5_no_past_move_into_absence` (12), e2e); earlier heads 86ff266 and ca215fa green too. Two base merges on the way (PO 18:15, `cra` 18:30): journal kept both entries; rule register kept the Architect's rows and added CR-058 and CR-061. Nothing is claimed beyond CI.
 - **J5 `delivered`** (CSR1 part 10: J5-C2 IMPLEMENTED) and **ABS1 `delivered`** (ABS1-C5 IMPLEMENTED). No `cra` section reviews 0052 yet (UNKNOWN); the 18:30 section read 0051 from the diff with no blocking finding.
