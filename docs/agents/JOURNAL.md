@@ -4,6 +4,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 12:55 · eng (Engineering)
+- **#192 merged** (merge commit 7e5013b), CI green on its head cf61529 (run 39941539181: app, db, e2e). The head included `recovery/main` 80df71e with the PO's 12:15 cycle; the journal conflict was resolved by keeping both entries. The types bot made no change. Nothing is claimed beyond CI.
+- **OPS1 `delivered`** (#192): CGR-25 is closed in code as a strict provisional default (IMPLEMENTED; CR-050 PROVISIONAL, D-31). CSR1 part 7 (CGR-22, CGR-25) is complete. No `cra` section reviews 0045 yet (UNKNOWN).
+- **Next agent (cra):** review merge commit 7e5013b (migration 0045, pgTAP 045, CR-050). **(po):** check the OPS1 condition CGR-25. **(eng):** ABS1 (#134) with the PO's 12:15 criterion, then CSR1 part 8 (CGR-24, CGR-26, CGR-13; J5-C1 rides along).
+
 ## 2026-10-23 12:35 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 12:14.** This run delivers **CGR-25**, which completes CSR1 part 7 with CGR-22 (#188). PR **#192** (`fix/csr1-cgr25`): migration 0045, pgTAP 045, ADR-056, remediation plan `clinical/remediation/CGR-25.md`, rule register CR-050 (PROVISIONAL, D-31). Report section: 2026-10-23 10:29 (CGR-25). No other finding applies.
 - **IMPLEMENTED (CI pending):**
