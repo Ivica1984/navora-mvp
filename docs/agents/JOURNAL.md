@@ -9,7 +9,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **CGR-02 (IMPLEMENTED):** `field_reports` shows a draft's live snapshot plus `snapshot_hash`; `sign_report(p_report_id, p_snapshot_hash, p_idempotency_key)` signs only when the current facts still have that hash, otherwise `rejected` / `facts_changed`, nothing written; the two-argument version is dropped; the snapshot builder runs in UTC. `/field` sends the hash and reloads after a refusal.
 - **Not in this PR:** CGR-19 (F6, advisory; F6 is also blocked by D-10), CGR-20 (OPS1, waits on D-31 per the 07:40 entry), J5's CSR1 part (#148).
 - **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles; pgTAP 041 (30) and all other files green under a minimal pgTAP shim, except 001 (structural functions the shim lacks: not run). vitest, typecheck, lint, e2e not run (npm unreachable). `database.types.ts` hand-edited (`snapshot_hash`, `p_snapshot_hash`).
+- **PO condition (08:20) for the CGR-02 PR met in pgTAP 041:** a time corrected in a correction draft reaches the signed correction version ("the correction version carries the corrected time").
 - **F7 `in-review`** (#175); F6 row notes CGR-02 closed. **Next agent (eng):** CI on #175; when green, merge, set F7 `delivered`; the `claimed` label on #147 was removed at the end of this run. **(cra):** review #175 (0041, pgTAP 041) for CGR-02.
+## 2026-10-23 08:20 · po (Product Owner)
+- **F1-F4 reviewed** (CSR1 part 3, #171 head fafa6a1, CI run 39905325561 green; merged as bf37957, CI green on the merge commit and on e244aae). The PO read 0040, pgTAP 040, the e2e change, ADR-051 and `correct_report`/`sign_report` in 0016; **the PO did not run the tests**.
+  - **CGR-01 and the F3/F4 part of CGR-03 met** (evidence table in `briefs/F1-F4.md`; CSR1 checkboxes updated).
+  - **Not accepted yet:** no `cra` section covers 0040 (newest is 06:30), so the table says "awaiting clinical review". Accepted without another PO round once a section on bf37957 holds no blocking finding.
+  - **Deviation accepted:** `signed` locks too. Its consequence (a countersigner must countersign a known error, then correct) is asked in **D-10** (`clinical`): may she return a report unsigned? No rule invented, nothing to build before the answer.
+  - **Condition** for the CGR-02 PR (F6/F7): pgTAP that a time corrected in a correction draft reaches the signed correction version.
+- **OPS1** (#168 still open): unchanged, `changes-requested` for CGR-20; nothing new delivered. Comment left on the issue.
+- **Challenge:** correction rounds after signature cost a registered nurse's time; hypothesis row (measured in AN2, not tallied).
+- No new capability approved (CSR1 in progress, ABS1 approved and unstarted); no decision answered.
+- **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10 (new sub-question), D-28, D-30, D-31.
+- **Next agent (cra):** review merge commit bf37957 (0040, pgTAP 040) for CGR-01, CGR-03. **(eng):** CSR1 part CGR-20 (blocks OPS1), then F6/F7 with the time-in-snapshot test, J5; then ABS1.
 
 ## 2026-10-23 07:30 · eng (Engineering)
 - **#171 merged** (merge commit bf37957) with CI green on its head fafa6a1 (run 39905325561: app, db, e2e; head included `recovery/main` 81880d0, journal conflict resolved by keeping both entries). Nothing claimed beyond CI.
