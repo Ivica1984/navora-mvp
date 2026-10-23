@@ -146,6 +146,13 @@ select is(public.generate_billable_facts(current_date), 1, 'one new fact (p2)');
 reset role;
 select ok((select not billable and 'payer_not_modelled' = any (reasons) from pg_temp.head_fact('p2')),
   'CGR-07: a missing insurance type is not modelled either');
+-- Checked before the payer is set back to KVG: since 0049 (J5-C1) that correction re-derives every fact of the case
+-- from its signed snapshot, so payer_not_modelled disappears from the preview afterwards (pgTAP 049 covers it).
+select ok((select not_billable @> '[{"reasons": ["order_validity_missing"]}]'::jsonb
+                  and not_billable @> '[{"reasons": ["order_expired"]}]'::jsonb
+                  and not_billable @> '[{"reasons": ["payer_not_modelled"]}]'::jsonb
+           from public.billing_preview(current_date) where team_id = '00000000-0000-4000-a000-000000000101'),
+  'CGR-07: the preview lists the three new reasons');
 
 update public.cases set insurance_type = 'KVG' where id = '00000000-0000-4000-a000-000000000208';
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
@@ -155,11 +162,6 @@ select is(public.generate_billable_facts(current_date), 1, 'one new fact (b1)');
 reset role;
 select ok((select billable and order_basis = 'with_order' and billable_minutes_b = 30 and reasons = '{}' from pg_temp.head_fact('b1')),
   'control: B minutes with a dated, valid order and KVG stay billable');
-select ok((select not_billable @> '[{"reasons": ["order_validity_missing"]}]'::jsonb
-                  and not_billable @> '[{"reasons": ["order_expired"]}]'::jsonb
-                  and not_billable @> '[{"reasons": ["payer_not_modelled"]}]'::jsonb
-           from public.billing_preview(current_date) where team_id = '00000000-0000-4000-a000-000000000101'),
-  'CGR-07: the preview lists the three new reasons');
 
 -- CGR-08 in the preview ------------------------------------------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
@@ -170,7 +172,8 @@ reset role;
 
 -- BL-8: a hold set after the fact makes it not billable; lifting restores it ----------------------------------------------------
 create temp table s1_before as select (pg_temp.head_fact('s1')).id as fact_id, (select billing.billable_visits
-  from public.billing_preview(current_date) billing where billing.team_id = '00000000-0000-4000-a000-000000000101') as visits;
+  from public.billing_preview(current_date) billing where billing.team_id = '00000000-0000-4000-a000-000000000101') as visits,
+  (select count(*)::int from public.billable_facts where visit_id = pg_temp.vid('s1')) as facts;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select is(public.set_quality_hold(pg_temp.vid('s1'), 'Synthetisch: Leistung nachträglich strittig', 'a0432000-0000-4000-8000-000000000010'),
@@ -181,7 +184,7 @@ select ok((select not f.billable and f.cause = 'quality_hold' and 'quality_hold'
                   and f.supersedes_id = (select fact_id from s1_before)
            from pg_temp.head_fact('s1') f),
   'BL-8: the hold appends a not-billable fact (quality_hold) that supersedes the billable one');
-select ok((select billable and cause = 'report' from public.billable_facts where id = (select fact_id from s1_before)),
+select ok((select billable and cause in ('report', 'basis_changed') from public.billable_facts where id = (select fact_id from s1_before)),
   'BL-8: the earlier fact is kept unchanged (history)');
 select is((select billable_visits from public.billing_preview(current_date) where team_id = '00000000-0000-4000-a000-000000000101'),
   (select visits - 1 from s1_before), 'the preview stops counting the held visit');
@@ -202,7 +205,7 @@ select ok((select f.billable and f.cause = 'hold_lifted' and f.reasons = '{}' an
                   and f.supersedes_id = (select x.id from public.billable_facts x where x.visit_id = f.visit_id and x.cause = 'quality_hold')
            from pg_temp.head_fact('s1') f),
   'BL-8: lifting the hold appends the earlier fact again, billable, after the hold fact');
-select is((select count(*)::int from public.billable_facts where visit_id = pg_temp.vid('s1')), 3,
+select is((select count(*)::int from public.billable_facts where visit_id = pg_temp.vid('s1')), (select facts + 2 from s1_before),
   'BL-8: history kept: billable → held → billable again');
 select is((select billable_visits from public.billing_preview(current_date) where team_id = '00000000-0000-4000-a000-000000000101'),
   (select visits from s1_before), 'the preview counts the visit again');
