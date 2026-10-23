@@ -16,6 +16,57 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-23 19:00: CSR1 part 10 (0051) and ABS1-C5 (0052) merged
+
+**Scope:** `recovery/main` @ `279d026`. Changes since the 18:30 section:
+- **Code merged:** #216 (CSR1 part 10, J5-C2: migration 0051, pgTAP `051_csr1_order_as_of_visit_date` (35); ABS1-C5: migration 0052, pgTAP `052_abs1_c5_no_past_move_into_absence` (12); label `order_recorded_after_visit` in `src/features/billing/rules.ts` with its unit test; move-specific refusal text in `src/features/team/commands.ts`) as `3d48a00`.
+- **Docs:** #217 (the 18:30 section), #218 (eng: delivered rows, journal). ADR-062, ADR-063 (PROPOSED). Rule register: CR-058 and CR-061 added by engineering. **No decision answered; no open PR in scope** (only #3, M2 to `main`).
+
+I read 0052 in full, 0051 as merged (unchanged since the head `57d3a3f` I read at 18:30; the only later code is 0052), `case_order_as_of` (0051:57-87), the `audit_cases` trigger (0013:77-82) and `audit_events` (0004:20-31), `record_absence` (0048:89-158), `release_visits_between` (0046:125-160), pgTAP 052 in full and pgTAP 051 (assertion list). **I did not run the tests.** CI (checked through the API) is green for app, db (migrations, seed, pgTAP) and e2e on `9ea3cb3` (head of #216), `3d48a00` and `279d026`.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-32 | ABS1 (0046, 0048, 0052) | advisory (S3) | ABS1-C5 refuses a **move** that would leave a past visit with an absent member, but `record_absence` reaches the same end state another way: an absence may **start in the past** (only an end in the past is refused), and the one release rule never touches visits dated before today. A planned visit yesterday inside an absence recorded today ("krank seit gestern") stays planned with her as responsible. `visit_overdue` (0038, independent of the responsible person) still alerts, so this is not a silent miss; the record names an absent member for a visit nobody did, which is the PO's reason for ABS1-C5 (PS-26). Refusing such an absence would be **unsafe** (her visits from today on would not be released), so the ABS1-C5 remedy must not be copied. IMPLEMENTED gap. | `record_absence` 0048:111-113 (start from `p_from`, no lower bound), 0048:127-129 (`in_past` only when the end has passed), 0048:151 (release); `release_visits_between` 0046:139 (`greatest(..., today)`); pgTAP 052:40-44 records exactly such an absence (from yesterday 06:00) | PO decides (product authority) how a past planned visit inside a newly recorded absence is shown; no clinical rule is needed. The absence is always recorded and today's and later visits are released as now. Strict default: the result names the past planned visits it covers (count) and they no longer read as hers (released, or flagged "verantwortliche Person abwesend" in the overdue alert). pgTAP: absence from yesterday 06:00 → yesterday's planned 07:00 visit does not name her as an available responsible member; today's visits released as in 048; the `visit_overdue` alert for yesterday's visit still shows. |
+| CGR-33 | J5 (0051) | advisory (S2) | J5-C2 reads a fact's order basis backwards from the live case row through `audit_events`. That is correct only while the `audit_cases` trigger records **every** write of `medical_order_status` and `medical_order_valid_until`, and `audit_events` stays append-only. Both hold today, but no test guards them: a later migration that re-creates `audit_cases` without one of the two columns (it has been re-created twice, 0010 and 0013) would make every earlier visit read today's order, i.e. silently re-open the J5-C2 gap (an order recorded after the visit makes the visit billable). I recommended this assertion at 18:30; it is not in pgTAP 051. IMPLEMENTED dependency, no regression test (BL-15). | 0051:9-11, 57-80 (reconstruction); 0013:77-82 (trigger argument list); 0004:53-63 (append-only); pgTAP 051 has no assertion on `pg_trigger` / the trigger's arguments | pgTAP (in 051 or a new file): `audit_cases` exists on `public.cases`, fires after insert and update, and its arguments include `medical_order_status` and `medical_order_valid_until` (and `residence_canton`, which CGR-31 may rely on); `update`/`delete` on `audit_events` fail. A migration that drops either column from the trigger then fails CI. |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| ABS1-C5 (PO condition) | **met in code** | `reschedule_visit` runs the move, its log and the ABS1-C4 release in one subtransaction and refuses with `responsible_absent`, nothing written, when the visit would still name a member absent at its interval (0052:36-55). Tested on the outcome, not on "before today". pgTAP 052 (a) refusal and replay, date/time/responsible unchanged, no plan change of any kind; (b) a move to yesterday outside the absence accepted, still hers; (c) a move into her absence ahead still releases. Residual: CGR-32 (the same end state through `record_absence`) |
+| J5-C2 (PO condition) | **met in code** (cut-off PROVISIONAL, D-22) | one cut-off function `private.order_cutoff` (0051:49-54; pgTAP 051:103-105 incl. the day summer time ends); order as of the cut-off from the audit log, ties ordered by the identity `audit_events.id` (0004:21); every build path through `build_billable_fact`; `order_recorded_after_visit` never stands alone; pre-0051 facts re-derived by the next generation or lift. pgTAP 051:109-231. Guard against regression: CGR-33 |
+| CGR-31 | open, advisory (S3; S1 before invoicing), unchanged | no change in 0051/0052 for the residence. Note for the PO and `legal`: `residence_canton` is in the `audit_cases` argument list (0013:82), so an "as of the visit date" residence rule could use the same reconstruction as J5-C2; which rule applies stays D-18 (UNKNOWN) |
+| CGR-28 | open, advisory (S2 if cover is enabled), unchanged | 0052 leaves covers alone |
+| CGR-16, CGR-21, CGR-23 | open, unchanged | no change in their code |
+
+### Other changes reviewed (no finding)
+
+- **A/C-only visit with the order recorded after the visit** reads as `without_order_ac` (ADR-062 consequences). This follows the pre-existing CGR-07 order rules (CR-046), unchanged; whether A and C services need an order and from when is D-22 (`legal`), UNKNOWN. No new finding.
+- **CGR-29 build at the lift** does not run when the visit had no fact before the hold (engineering, journal 18:22); the next generation builds it. Nothing is billable without a fact, so this delays, never releases, billing. No finding; the PO decides whether it is wanted at the lift.
+- **Cut-off against the transaction start** (ADR-062 open (1)): a change started before midnight and committed after counts for that date, within seconds. Acceptable as a strict-default deviation; D-22 may move the cut-off.
+- **Privacy:** `billable_facts.order_recorded` holds the order status and end date only, already readable in the fact's scope (0022 RLS unchanged). The refusal text on `/team` names no person. Acceptable.
+- **Rule register:** CR-058 checked against 0051 and CR-061 against 0052 (Architect notes added). No clinical threshold, tariff or KLV rule was invented.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| ABS1 (parts 1-3, ABS1-C5; `delivered`) | **no blocking clinical finding**; the PO may accept, with CGR-32 as an advisory condition | CGR-32 new; CGR-28 advisory (before cover) |
+| J5 (0043, 0049, 0051; `delivered`) | **no blocking finding**; J5-C2 met; CGR-31 and CGR-33 advisory conditions (CGR-33 before go-live, CGR-31 before invoicing) | CGR-33 new; CGR-31 open |
+| COVER1 | unchanged: cover stays off until CGR-28, the `accept_cover` absence check, PS-12 and D-3 | CGR-21, CGR-28 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **owner (critical path):** name the qualified clinical owner and a deputy (G-1). Gate C cannot open without one.
+- **po:** accept ABS1 and J5 if you agree; record CGR-32 (ABS1) and CGR-33 (J5) as conditions; decide how a past planned visit inside a newly recorded absence is shown (CGR-32); CGR-31 time rule with `legal`.
+- **legal:** D-22 (order before the visit; whether A/C need an order; the cut-off); D-18 (incl. CGR-31).
+- **clinical** (once named): D-28, D-31, D-10, D-30, D-16, D-17.
+
+---
+
 ## 2026-10-23 18:30: ABS1 parts 2 and 3 (0048, 0050), CSR1 part 9 (0049); open PR #216 (0051)
 
 **Scope:** `recovery/main` @ `be22e2c`. Changes since the 15:00 section (open as #203, not merged; this PR carries it, see below):
