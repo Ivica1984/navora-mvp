@@ -4,6 +4,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 19:57 · Clinical & Regulatory Architect (review)
+- **Second review run** on the same changes as the 19:46 entry (#222, PO cycle #221); it agrees with the 19:46 section (CGR-33 closed, CGR-32 decision endorsed). Its own PR #225 duplicated #224 and is closed; this addendum carries only what is new. Tests not run by me.
+- **New (advisory S3):** CGR-34 (PS-27): a flagged past visit (CGR-32) can be closed only through `cancel_visit` with a planned-cancellation reason, and the flag is computed, so the record loses that care was missed because the responsible member was absent. Remedy rides with CSR1 part 11; PO decides.
+- **Next agent (po):** CGR-34 into CSR1 part 11. **(eng):** part 11 with CGR-32, the 19:46 pgTAP case and, if the PO agrees, CGR-34.
+
 ## 2026-10-23 19:46 · Clinical & Regulatory Architect (review)
 - **Reviewed** #222 (pgTAP `053_cgr33_order_audit_guard`, test only; CI green on 4661392, d67055b, 50ee5f5) and the PO cycle #221 (ABS1 accepted with CGR-32; CGR-32 remedy decided; AN2 measure 12; challenge row on late billing facts). I did not run the tests.
 - **Closed:** CGR-33 (053:23-92); BL-15 closed (residuals: `residence_canton` not asserted, needed only with a D-18 as-of residence rule; `session_replication_role = replica` UNKNOWN, eng runbook).

@@ -16,6 +16,35 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-23 19:57: addendum to the 19:46 section (CGR-34)
+
+**Scope:** `recovery/main` @ `790ae40`. No code, brief or decision changed since the 19:46 section (`50ee5f5` plus #224, the 19:46 section itself). A second review run read the same changes (pgTAP 053, the PO's CGR-32 decision) and agrees with the 19:46 section on CGR-33 (closed) and CGR-32 (decision endorsed, open until CSR1 part 11). It adds one finding on how a flagged past visit is closed. I read `cancel_visit` (0024), `end_visit_not_completed` (0042, header) and the `visit_overdue` definition (0038). **I did not run the tests.**
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-34 | ABS1 condition CGR-32 (CSR1 part 11, PLANNED) | advisory (S3) | The PO's CGR-32 decision keeps a past planned visit inside a newly recorded absence with its responsible member and flags its overdue alert; the team then closes it "with existing commands". For a planned visit that is `cancel_visit`, whose reasons are `client_cancelled`, `client_in_hospital`, `team_cancelled` or `other` (note). The flag is computed from the absence, not stored (condition (3)), and the overdue alert ends with the cancellation. The closed record then reads as a planned cancellation; that care was due and not given because the responsible member was absent survives only in free text, if at all, and is lost for AN2 and any later quality review. Documentation-integrity gap in a PLANNED rule; no clinical rule is needed to close it. Whether missed care must be made up or reported is `clinical` (D-28, D-31): UNKNOWN. | `cancel_visit` 0024 (reason list; `planned`/`on_the_way` only; any team member); PO condition CGR-32 (2)-(3), `briefs/ABS1.md` 19:12; `visit_overdue` derived from a planned visit past its start, closable by a coordinator with a reason (0038:10, 28) | PO decides (product authority) within CSR1 part 11. Strict default: when a visit is cancelled while the CGR-32 flag holds, the status note records it (for example `responsible_absent` stored on the cancellation, or a fixed reason "nicht durchgeführt: zuständige Person abwesend"), and withdrawing the absence later does not erase it. pgTAP: absence from yesterday recorded today → yesterday's flagged visit cancelled with `team_cancelled` → its status note shows it was not done while the responsible member was absent; the same cancel without an absence does not. |
+
+### Status of earlier findings
+
+Unchanged from the 19:46 section (CGR-33 closed; CGR-32, CGR-31, CGR-28, CGR-16, CGR-21, CGR-23 open).
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| ABS1 (accepted) | **no blocking finding**; CGR-34 advisory, rides with CGR-32 in CSR1 part 11 | CGR-32, CGR-34 |
+| CSR1 part 11 (not started) | review when its PR is open; it should carry CGR-34 with the 19:46 pgTAP case | CGR-32, CGR-34 |
+| All other items | as in the 19:46 section | – |
+
+### Decisions requested
+
+- **po:** decide CGR-34 within CSR1 part 11 (how a flagged past visit's closing record keeps the absence).
+- All other requests as in the 19:46 section (owner G-1; `legal` D-22, D-18; `clinical` D-28, D-31, D-10, D-30, D-16, D-17).
+
+---
+
 ## 2026-10-23 19:46: CGR-33 guard (pgTAP 053) merged; PO decisions on ABS1 (CGR-32) and J5
 
 **Scope:** `recovery/main` @ `50ee5f5`. Changes since the 19:00 section:
