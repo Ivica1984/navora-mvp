@@ -8,6 +8,13 @@ updated: 2026-10-23
 
 # OPS1 — Operations exception center
 
+## PO note — 2026-10-23 15:25: condition CGR-26 met (label); CGR-22 and CGR-25 confirmed by the clinical gate
+
+- **CGR-26 met for the label** by CSR1 part 8 (#200, merged as 20a3566): `field_visit_status_notes` returns who recorded each note as a label (`me`, `team` with name and qualification, `coordination` with name and role, `former`), never a user id (0047 §3); `/field` shows "Beendet von …" with the reason; e2e `lifecycle.spec.ts` "the performer sees who ended her visit and why, at phone width" (a colleague ends it on her own phone; the performer's card names "Pflegeassistenz" and the reason, no overflow at 390 px). `cra` 15:00 (PR #203): closed for the label.
+- **The AN2 measure** (ends recorded by a coordination role while the visit was in progress) is part of the new **AN2** brief; it stays an OPS1 condition until AN2 is delivered.
+- **CGR-22 and CGR-25** are confirmed closed by the `cra` section 14:30 (PR #203).
+- OPS1 stays `accepted`. **The PO did not run the tests.** Correcting an end recorded in error stays D-31 (`clinical`).
+
 ## PO review — 2026-10-23 13:20: condition CGR-25 met (awaits clinical review of 0045)
 
 Delivered by CSR1 part 7 completion (#192, head cf61529, CI run 39941539181 green; merged as 7e5013b, CI green on the merge commit and on 1540f84, checked through the API). The PO read migration 0045 in full, pgTAP 045 (46 assertions), the changed pgTAP 019 count, the new e2e test in `lifecycle.spec.ts`, ADR-056, CR-050 and `clinical/remediation/CGR-25.md`. **The PO did not run the tests.**

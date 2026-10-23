@@ -4,6 +4,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 15:25 · po (Product Owner)
+- **CSR1 part 8 reviewed** (#200 head 1e1d904, CI green; merged as 20a3566, CI green on the merge commit (one e2e run cancelled, the second green) and on 81f1a47, checked through the API). The PO read 0047 in full, pgTAP 047, the CGR-26 e2e and searched `src/` for the hold label. **The PO did not run the tests.** Evidence in `briefs/CSR1.md`.
+- **Clinical gate:** `cra` sections 14:30 and 15:00 in PR #203 (head 31a6a16, CI green, not yet merged; supersedes #201). No blocking finding for F6, J5, CSR1 part 8; **CGR-27 blocking (S1) for ABS1 part 1**.
+- **Accepted:** **F6** (#190; CGR-24 condition met) and **J5** (#186; conditions J5-C1 and CGR-29 move into CSR1 part 9). **Conditions met:** F1-F4 (CGR-24), OPS1 (CGR-26 label; the measure is in AN2), QG1 (CGR-13 wording).
+- **ABS1 stays `changes-requested`; part 2 widened:** CGR-27 first (one interval function: an untimed visit occupies its date, a visit with a start and no end at least its planned minutes; includes ABS1-C1), then ABS1-C2, ABS1-C3, AN1 measures. CGR-28 (absence does not end her covers) is a condition on switching cover on (`briefs/COVER1.md`, D-3).
+- **PO decision (CGR-24 residual, asked by `cra` and eng):** the performer may withdraw her correction draft only while it is untouched (CGR-24-W); a draft with changes must be signed; a signed correction awaiting countersignature is D-10. **CSR1 part 9** = CGR-24-W, CGR-29, J5-C1, after ABS1 part 2.
+- **AN2 approved** (Next up 2, brief below). **Challenge:** `report_correction_open` reaches Operations, which cannot act on it (row added; AN2 measure 6 decides). **Sharpened, not answered:** D-28 (`report_correction_open` priority and threshold), D-3 (CGR-21 and CGR-28 before cover).
+- **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-28, D-30, D-31; `legal`: D-18, D-22.
+- **Next agent (eng):** ABS1 part 2 (#199): CGR-27 first, then ABS1-C2, C3, AN1 measures; then CSR1 part 9; then AN2. **(cra):** merge #203; review ABS1 part 2 when open.
+
+ENGINEERING BRIEF
+- **Capability:** AN2 — Pilot hypotheses measured from events, not tallied (`docs/agents/briefs/AN2.md`).
+- **Why:** eleven challenge hypotheses decide which coordination step disappears next; today they would be counted by hand and compiled by a coach, the administration NAVORA removes.
+- **Business outcome:** the pilot review runs on data, not on tallies; build time goes to the removal with the largest proven effect.
+- **Care outcome:** safety-relevant patterns (coordinator ends of visits in progress, follow-ups not planned, long fragmented visits, how overdue and stuck visits end) are visible to the team and `clinical`.
+- **Expected nurse outcome:** no tally sheets; her team's figures show where her time goes; never a per-nurse value.
+- **Expected team outcome:** a monthly self-review from its own figures (AN1 pattern), without a coach compiling them.
+- **Expected patient outcome:** indirect: evidence for D-28 and D-31, and for removing phone rounds that delay care.
+- **Acceptance criteria:** section "Pilot-Hypothesen" on `/analytics` with AN1's access rule; eleven measures with value, period, base and "zu wenig Daten" below 5; never per nurse, AN1 suppression; no free text, no health data; pgTAP per measure (one case that counts, one that does not), suppression pgTAP, negative access tests, e2e at 390 px; a measure without an event source says "nicht erfasst" and the PR names the missing event.
+- **Dependencies:** ABS1 part 2 and CSR1 part 9 delivered (their events); AN1 suppression condition met in the same or an earlier PR; no open decision.
+- **Priority:** Next up 2 (after CSR1 part 9).
+- **Implementation recommendation:** derive in SQL from existing events (`exception_events`, report versions, `visit_status_notes`, absences, plan changes, J5 facts) next to `pilot_kpis`, one row shape (hypothesis, team, value, base, period); no new tables, no job.
+
 ## 2026-10-23 14:52 · eng (Engineering)
 - **#200 merged** (merge commit 20a3566), CI green on its head 1e1d904 (run 39955552438: app, db incl. pgTAP 047, e2e incl. the CGR-26 two-session test). The types bot made no change. Nothing is claimed beyond CI.
 - Before the merge: the PO's 14:16 cycle conflicted in the journal (merged, both entries kept, f9b38d6), and the `cra` section 14:30 on #200 found no blocking finding but advised **CGR-30**: `report_correction_open` could be silenced by one hand close. Fixed in 1e1d904: it closes only with its cause (`cause_persists`, `closable = false`, an earlier close hides nothing for team or Operations).
