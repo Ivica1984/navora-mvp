@@ -8,6 +8,41 @@ updated: 2026-10-23
 
 # ABS1 — Absence without the phone chain: "I can't work" hands the day to the team
 
+## PO review — 2026-10-23 23:15: ABS1-C6 met; CGR-35 decided; singular wording decided (ABS1-C7); ABS1 stays accepted
+
+Reviewed #234 (CSR1 part 12 = ABS1-C6; branch `feat/csr1-part12-abs1-c6`, head 351345c, CI run 40020564005 green: app, db incl. pgTAP, e2e; merged as d31709f, CI run 40022316185 green on the merge commit (a second run, 40022324810, had e2e cancelled by the newer run), checked through the API). The PO read the full diff: `absence-section.tsx`, `commands.ts`, `rules.ts`, their unit tests, the e2e case, the seed change, the pgTAP comment changes (046, 054, 055: comments only, no assertion changed) and ADR-067. **The PO did not run the tests.**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| ABS1-C6 (1): `/field` offers a start of today or yesterday, no earlier; `record_absence` unchanged | met | "Von" `min = earliestAbsenceStart(today)` (yesterday), "Bis" keeps `min = today`; no migration in #234; unit test `absence-rules.test.ts` (month, year and leap-day boundaries); e2e asserts both `min` attributes |
+| ABS1-C6 (2): at `past_planned` > 0 the fixed text "<n> vergangene Einsätze sind noch offen: bitte im Team entscheiden" with a link to `/team`; nothing at 0; no reason, free text or name | met | `pastPlannedNotice` (null at 0, negative, NaN); `pastPlannedOf` reads the result (0 on replay or missing); `absence-past-planned` with "Zum Team" link; no new input field |
+| ABS1-C6 (3): e2e at phone width, a colleague records an absence from yesterday for a member with a planned visit yesterday → text with n = 1 once; `/team` shows "Zuständige Person abwesend gemeldet" on that visit | met | `tests/e2e/field.spec.ts` "ABS1-C6" (390 px, NURSE records for assist.test, `toHaveCount(1)`, no horizontal overflow, link to `/team`, flagged alert at 07:00 with the CGR-32 label) |
+| ABS1-C6 (3): unit test for n = 1, n = 2, n = 0 | met | `absence-rules.test.ts` |
+| Visits not released (CGR-32 unchanged) | met | no database change; pgTAP 054 unchanged in its assertions |
+| No regression | met | CI green on head and merge commit; the later red on 62609af is the npm audit of `zod` (below), not this change |
+| Clinical gate | considered | latest report (`cra` 22:30) lists ABS1-C6 as PLANNED with no finding on it; CGR-35 (advisory) decided below. ABS1 is already accepted; a `cra` look at #234 is requested, not awaited |
+
+**Deviations, decided:**
+- *The lower bound "yesterday" is a form rule only (`min`); the server action and `record_absence` accept earlier starts* (ADR-067): **accepted**. The command path accepted it before; the risk is data quality, not safety (a past visit is flagged, never released). AN2 measure 8 now counts absences whose start is earlier than the day before they were recorded, so the pilot shows whether the bound needs a server check.
+- *A replay (`duplicate`) shows no notice*: **accepted**. The visits stay flagged on `/team`, so nothing is hidden.
+- *The seeded ended absence is replaced by the e2e recording it through the app; CGR-32 and CGR-34 e2e cases depend on it running first*: **accepted** under the rule already set for ADR-066 (one worker, declared order; a parallel suite needs own fixtures).
+- *Built from PR #231 before it merged*: **accepted**; the decision did not change.
+
+**ADR-067 *Open*, decided (product authority, wording only): condition ABS1-C7.** At n = 1 the text reads "1 vergangener Einsatz ist noch offen: bitte im Team entscheiden"; at n ≥ 2 it stays "<n> vergangene Einsätze sind noch offen: bitte im Team entscheiden". Unit test for n = 1 and n = 2. Rides with the next PR that touches `src/features/absence/` (CGR-35 below, under AN2).
+
+**CGR-35 decided (`cra` 22:30, advisory S3, PS-28; product authority, not a clinical rule).** A flagged past visit moved forward ("Folgeeinsatz") is the path a team will choose most often, and today the move reads as an ordinary planning change: the fact that care due on the original date was not given because the responsible member was reported absent disappears once the absence is shortened or withdrawn. Same answer as CGR-34: NAVORA stores what it already knows, nobody types it.
+- (1) When `reschedule_visit` moves a visit for which, **before the move**, the CGR-34 condition holds (planned, dated before today Europe/Zurich, `private.visit_responsible_absent`), its `moved` row in `visit_plan_changes` stores `responsible_absent = true`, set by the server only (no parameter, no write privilege); otherwise `false`. Append-only as today; `responsible_absent` only on `moved` rows.
+- (2) A later withdrawal or shortening of the absence keeps the stored value.
+- (3) Shown with the same fixed text "nicht durchgeführt: zuständige Person abwesend gemeldet" with the HAND1 entry of that move, and wherever the `moved` row is shown today (engineering names the places in the PR). No new reason code, no extra tap; the move keeps its typed reason as today (challenge row "Every move of a planned visit needs a typed reason" stays a separate hypothesis).
+- (4) pgTAP (the `cra` case set): absence from yesterday recorded today → yesterday's flagged visit moved to tomorrow → its `moved` row has `true`; the absence then withdrawn → still `true`; the same move without an absence → `false`; a move of a future visit → `false`; the caller cannot set or update it; the audit row carries it. Unit test for the HAND1 line.
+- (5) AN2 measure 8 counts moved flagged visits from this column.
+- Whether missed care must be made up, and whether a move counts as making it up, stays `clinical` (D-28, D-31).
+- **Where it is built:** with AN2, as its first change (own PR or inside AN2's first PR, engineering decides), together with ABS1-C7. Not a new CSR1 part (challenge row "Advisory conditions found after acceptance travel as their own part").
+
+**Product value:** "krank seit gestern" can now be reported from the phone, and the reporting colleague learns in the same screen that yesterday's visit still needs a team decision, instead of the team finding it later on an overdue alert. That turns a missed visit into a team decision within minutes, which is continuity of care (value 2) without a coordinator (value 4).
+
+**ABS1 stays `accepted`.** Open conditions: CGR-35 and ABS1-C7 (with AN2); CGR-28 stays a COVER1 condition. `cra` review of #234.
+
 ## PO review — 2026-10-23 22:15: CGR-34 met; ABS1 stays accepted; open: ABS1-C6
 
 Reviewed #230 (CSR1 part 11 remainder = CGR-34; branch `fix/csr1-part11-cgr34`, head 87612aa, CI run 40011124704 green: app, db incl. pgTAP `055_csr1_cgr34_cancel_keeps_absence` (26), e2e; merged as 673ba50, CI green on the merge commit (runs 40011804520, 40011810722) and on 0717c05 (runs 40013812705, 40013820173), checked through the API). The PO read migration 0054 in full, the pgTAP 055 fixtures and assertions, `cancellationText` / `RESPONSIBLE_ABSENT_NOTE` and their unit tests (lifecycle, handover, operations), the `/field` card change and the e2e case, and ADR-066. **The PO did not run the tests.**

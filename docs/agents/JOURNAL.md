@@ -4,17 +4,80 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 01:15 · po (Product Owner)
+- **#238 continued, not a second PO PR:** `recovery/main` (with #239) merged in at 33b2532 (JOURNAL conflict resolved, both entries kept, newest first); CI re-runs at 01:1x Zurich, inside the split-day window. Merge on green.
+- **DAY-1 reviewed (#239, migration 0055, pgTAP 056, ADR-068; merged as 2e79532; CI green in app, db, e2e, run 40033219652 at 00:22 Zurich).** The PO read the diff and CI through the API; **the PO did not run the tests**. Evidence table in `briefs/AN2.md` 01:15. Safety fix met: OPS1 order-expiring and review-overdue, `pause_case`, `apply_case_facts`, `add_care_plan_item` use the Zurich day. Proof `changes-requested`, non-blocking: **DAY-1-R1** guard also refuses `now()::date`, `current_timestamp::date`, `localtimestamp`, dates in views; **R2** one behavioural pgTAP at a split-day clock; **R3** ADR-068 names the hosted DB time zone as an owner check with D-2. They ride in AN2's first PR with CGR-35 and ABS1-C7. Deviations accepted: inline expression instead of a helper (given R1), night run as proof (given R2), delivered outside AN2 (speed was right).
+- **COORD5 unblocked** (was "after DAY-1").
+- **Decision packages (owner process 2026-10-24), INDEX order:** D-22, D-18, D-28 written (`decisions/D-22.md`, `D-18.md`, `D-28.md`), status `inputs-requested`; one comment per issue (#104, #80, #150) names the roles. D-22 and D-18: `eng`, `cra`, `lca`. D-28: `eng`, `cra` (legal not needed unless `cra` names a professional-accountability question). All three Low confidence; no recommendation and no new rule; the strict defaults stay. D-18 likely cannot settle before D-11 and D-12 name the tariff contract.
+- **Challenge:** why is a safety-signal threshold one central value for every team? From scratch the Clinical Owner sets a band and each team chooses inside it (D-28 option C). Row added; AN2 data first.
+- Nothing escalated. **Waiting on people (unchanged):** owner names the clinical owner (G-1); `clinical`, `legal` and `owner` rows now go through packages.
+- **Next agent (po):** merge #238 on green; packages D-31, D-3, D-29 (INDEX 4-6). **(eng):** AN2 first PR (DAY-1-R1-R3, CGR-35, ABS1-C7); COORD5; *Engineering impact* in D-22, D-18, D-28. **(cra):** *Clinical impact* in D-22, D-18, D-28; a look at 0055 (date logic of safety exceptions). **(lca):** D-22, D-18.
+
 ## 2026-10-24 00:40 · eng (Lead Engineer)
 - **CI red between 00:00 and 02:00 Zurich (UTC vs Zurich "today").** The PO cycle PR #238 (docs only) failed db and e2e at 00:03: the seed, pgTAP and two e2e specs used `current_date` (UTC), seed visit 532 and the app use the Zurich date. Five product functions also used `current_date` (OPS1 order expiring and review overdue, `pause_case`, `apply_case_facts`, `add_care_plan_item`), so for one or two hours a night they judged dates against yesterday.
 - **Fix PR (fix/zurich-today):** migration 0055 replaces `current_date` with the Zurich date in every `public`/`private` function body (no rule changes), pgTAP 056 guards it, seed/pgTAP/e2e use the Zurich date, pgTAP 044 reads reports on the visit's own date. ADR-068. IMPLEMENTED; CI is the test runner, no local run (container registries are blocked here).
 - **CSR1 (#149):** nothing left to build; the hand-off closes when #238 merges. AN2 (#205) starts once it carries `active`.
 - **For the PO:** #238 needs a fresh CI run after this merges (or outside 00:00–02:00 Zurich).
 
+## 2026-10-24 00:15 · po (Product Owner, session with the owner)
+- **Owner instruction (2026-10-24, live session): decision packages.** No `human-decision` issue is put to the owner as an open question any more. Agents analyse it, gather Engineering, Clinical & Regulatory and (where needed) Legal & Compliance input, and write a package with a recommended default, a confidence and whether owner approval is actually required. The PO decides when no escalation criterion applies; escalation only for unresolved legal interpretation, the Clinical Owner, commercial/strategic/business, regulatory liability, funding, pricing or partnership (and, carried over, irreversible production changes). Process: `DECISION_PACKAGES.md`; template and order: `decisions/_TEMPLATE.md`, `decisions/INDEX.md`.
+- **New role `lca` (Legal & Compliance Agent)**, approved by the owner with additions: advisory only, never a final legal determination; reads the newest `cra` findings first when a decision touches safety, documentation, billing, care delivery or professional accountability; names missing canton, tariff-contract, payer-agreement or policy information; no repeat review unless the package changed, new evidence exists or a reviewer asks. Involved automatically for billing, reimbursement, tariffs, OKP/KVG/KLV, data protection, privacy, retention, contracts, governance, regulatory compliance. Scheduled task "NAVORA Legal & Compliance Agent" (`trig_011mvABASzho3mC4nYWHhyFk`, hourly at :39 UTC).
+- **Priority (owner):** D-22 and D-18 first; then decisions referenced by open or provisional CGR findings (D-28, D-31, D-3, D-29, D-30, D-16); then decisions blocking billing, reimbursement, invoicing, compliance, governance or production release; then the rest. 29 decisions triaged in `decisions/INDEX.md`; **no package written yet**, all `not-started`. Preliminary routes are a first triage, not answers.
+- **Scheduled tasks:** PO prompt updated for the package workflow (step F). The Engineering prompt update was refused by the platform's permission check, and the `cra` prompt was not changed; both agents read README and COORDINATION each run, which now carry their package duties (`eng`: *Engineering impact*; `cra`: *Clinical impact*). If they do not pick them up within two runs, the PO drafts those sections, marked unconfirmed.
+- **COORD5 approved** (Next up 2): the watcher assigns a decision issue to a person only when its package awaits approval; buildable right after DAY-1. Until then the INDEX is authoritative and the watcher still assigns every decision issue to the owner.
+- Tests: none run; `node scripts/agents-check.mjs` ok; watcher dry run: active AN2, COORD5 next.
+- **Next agent (po):** packages D-22, D-18, D-28 (inputs requested). **(lca):** D-22, D-18 once requested. **(eng):** DAY-1, then COORD5; *Engineering impact* in requested packages. **(cra):** *Clinical impact* in requested packages.
+
+## 2026-10-24 00:20 · po (Product Owner)
+- **#238 (PO cycle 23:15) not merged:** after the base merge (09e4416, `zod` fix #237) its CI went red in `db` and `e2e` (run 40030758280, started 22:00 UTC = 00:00 Zurich). `app` is green, so the `zod` audit is fixed. The PR is docs only; `recovery/main` was green at 21:23 UTC on the same code. The failure follows the clock, not the change. No second PO PR opened: this entry rides on #238.
+- **Cause, read in the repository (the PO did not run the tests):** pgTAP 008, 015, 043, 044, 049 mix `current_date` (UTC in CI) with the Zurich day and build visits at `now() ± hours` that fall on the previous Zurich day after midnight; live functions use `current_date` too (0013/0017 requested start, 0014 review date, 0019/0024 OPS1 order expiring and review overdue, 0024/0031 C1 pause end and visit window). UNKNOWN: hosted DB time zone; the e2e failure (report not read).
+- **PO decision (product authority):** NAVORA's calendar day is the Europe/Zurich day everywhere. **DAY-1** ordered as AN2's first change, before CGR-35 and ABS1-C7; criteria (1)-(5) in `briefs/AN2.md` 00:20, including a CI proof at a split-day clock. Reason: CI red two hours every night stalls merges, and date-based safety exceptions run on the UTC day in that window (patient safety is a precondition).
+- **Challenge:** why does any function decide "today" for itself? From scratch there would be one clock and one rule; DAY-1 makes it so and adds a CI check against new bare `current_date`.
+- No review delivered since 23:15; no `po` decision open. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 (incl. CGR-31), D-22; `owner`: D-3 before cover.
+- **Next agent (po):** after 00:00 UTC re-run #238's failed jobs once; merge on green (merge commit). **(eng):** DAY-1 under #205, then CGR-35 and ABS1-C7, then the AN2 measures. **(cra):** #234 (ABS1-C6).
+
+ENGINEERING BRIEF
+- **Capability:** DAY-1, one calendar day (Europe/Zurich) for every server-side "today" and date bound; first change of AN2.
+- **Why:** functions and tests mix the UTC and the Zurich day; CI is red every night between 22:00 and 24:00 UTC (23:00-24:00 in winter time), and OPS1's order-expiring and review-overdue exceptions use the UTC day in that window.
+- **Business outcome:** merges do not stall at night; no red build mistaken for a flake.
+- **Care outcome:** date-based safety exceptions fire from the first minute of the Zurich day.
+- **Expected nurse outcome:** a pause ending "today" or a date entered after midnight is judged by the day she lives in.
+- **Expected team outcome:** exceptions and "yesterday" in `/field` agree with the team's clock.
+- **Expected patient outcome:** an expired order or overdue care-plan review is not missed for two hours each night.
+- **Acceptance criteria:** `briefs/AN2.md` 00:20, DAY-1 (1)-(5).
+- **Dependencies:** none open; base CI green (#237). Hosted DB time zone is an owner check once staging exists (D-2).
+- **Priority:** first, before CGR-35 and ABS1-C7 (Next up 1, AN2).
+- **Implementation recommendation:** one stable SQL helper for the Zurich day, used by functions and pgTAP fixtures; a test clock override for one CI pass at a split-day time; a pgTAP or script check over `pg_proc` source for bare `current_date`/`now()::date`; own small PR with an ADR.
+
 ## 2026-10-23 23:20 · eng (Engineering)
 - **`recovery/main` is red** since 62609af: the app job's supply-chain audit (`npm audit --omit=dev --audit-level=high`) fails on a new advisory, **GHSA-mrhx-c7xc-m3w5** (zod < 4.6.6, high: memory exhaustion validating oversized constrained collections). Lint, typecheck, unit (24 files), build, db and e2e were green in the same run. Not caused by #234 or #236; every PR is red until it is fixed.
 - **Fix PR** (`fix/zod-audit-ghsa-mrhx-c7xc-m3w5`): `zod` `^4.1.0` → `^4.6.6` in `package.json`; `package-lock.json` resolved by lockfile-sync (ADR-012/014; no registry access here). Same major; no code change. IMPLEMENTED (awaiting CI); nothing run locally.
 - Active issue #149 (CSR1): no eng work open. Part 12 (ABS1-C6, #234) waits on the PO; CGR-35 waits on the PO. Not claimed.
 - **Next agent (eng):** CI on the fix PR; merge when green, then other PRs need `recovery/main` merged in. **(po):** ABS1-C6, CGR-35, then AN2 (#205).
+
+## 2026-10-23 23:15 · po (Product Owner)
+- **ABS1-C6 reviewed: met** (#234 head 351345c, CI run 40020564005 green; merged as d31709f, CI run 40022316185 green on the merge commit, checked through the API). The PO read the full diff, the unit tests, the e2e case and ADR-067. Evidence table in `briefs/ABS1.md` 23:15. **The PO did not run the tests.**
+- **Deviations decided:** lower bound "yesterday" is a form rule only (accepted; AN2 measure 8 counts earlier starts); no notice on a replay (accepted); seeded absence replaced by the e2e (accepted, one-worker rule of ADR-066); built from #231 before merge (accepted).
+- **ADR-067 *Open* decided: ABS1-C7** — at n = 1 "1 vergangener Einsatz ist noch offen: bitte im Team entscheiden".
+- **CGR-35 decided** (`cra` 22:30, advisory S3; product authority, not a clinical rule): a flagged past visit moved with `reschedule_visit` stores `responsible_absent = true` on its `moved` row, server-side, immutable; same fixed text in HAND1; no new reason code, no extra tap. D-28, D-31 stay `clinical`.
+- **CSR1 complete** (parts 1-12) and removed from *Next up*: the watcher closes #149 and **AN2 (#205) becomes active** (dry run checked: `active capability: AN2`). CGR-35 and ABS1-C7 are AN2's first change; AN2 measure 8 extended (moved flagged visits; absence starts earlier than yesterday). ABS1 stays accepted.
+- **Base CI red** since 62609af: app job, `npm audit` reports `zod` < 4.6.6 (GHSA-mrhx-c7xc-m3w5, high). Not caused by a change; every PR's app job is red until engineering bumps `zod`. This PR (docs only) is merged only on green CI; if it is red from the audit alone it stays open for the next PO run.
+- **Challenge:** advisory conditions on an accepted item travelled as four sequential CSR1 parts and held AN2 back for eight hours. Verdict no: advisory (S3) conditions now ride with the next capability that touches the same data; blocking findings still go first. Row added with a check.
+- No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 (incl. CGR-31), D-22; `owner`: D-3 before cover.
+- **Next agent (eng):** bump `zod` (≥ 4.6.6) so CI is green; then AN2 under #205, starting with CGR-35 and ABS1-C7. **(cra):** #234 (ABS1-C6); CGR-35 when its PR is open.
+
+ENGINEERING BRIEF
+- **Capability:** AN2 first change: CGR-35 (a moved flagged past visit keeps the absence fact) and ABS1-C7 (singular confirmation text).
+- **Why:** a "Folgeeinsatz" is the team's most likely answer to a visit missed during a reported absence; today the move erases why the care on the original date was not given once the absence is changed.
+- **Business outcome:** documentation that survives later corrections without anyone typing a reason; AN2 measure 8 counts missed care completely.
+- **Care outcome:** continuity gaps stay visible for the team, HAND1 and `clinical` (D-28, D-31 answerable from data).
+- **Expected nurse outcome:** no extra tap or text; correct German at n = 1.
+- **Expected team outcome:** the team decides make-up visits itself and the record shows why, with no coordinator relaying it.
+- **Expected patient outcome:** missed care is not hidden behind a planning move.
+- **Acceptance criteria:** `briefs/ABS1.md` 23:15, CGR-35 (1)-(5) and ABS1-C7 (pgTAP case set incl. withdrawal, unit tests for the HAND1 line and n = 1 / n = 2).
+- **Dependencies:** base CI green (`zod`); 0053, 0054 (merged). No open decision blocks it.
+- **Priority:** first change of the active capability AN2 (Next up 1).
+- **Implementation recommendation:** same shape as 0054: column on `visit_plan_changes` with a check `not responsible_absent or change = 'moved'`, computed in `reschedule_visit` before the move from `private.visit_responsible_absent`; patch the function as 0052 does; own small PR or inside AN2's first PR.
 
 ## 2026-10-23 22:50 · eng (Engineering)
 - **#234 merged** (merge commit d31709f), CI green on its head 351345c (run 40020564005: app, db incl. pgTAP, e2e). ABS1-C6 IMPLEMENTED. ABS1 `delivered`.

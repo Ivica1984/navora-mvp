@@ -8,6 +8,12 @@ updated: 2026-10-23
 
 # CSR1: Clinical safety remediation (Clinical Governance Report, 2026-10-22 22:30)
 
+## PO review — 2026-10-23 23:15: part 12 met (ABS1-C6, #234); CSR1 complete; removed from Next up
+
+Engineering delivered ABS1-C6 as part 12 (#234, no migration, ADR-067; merged as d31709f, CI green on the head and the merge commit). Evidence table in `briefs/ABS1.md` 23:15. **The PO did not run the tests.**
+
+**CSR1 is complete**: parts 1-12 are merged with green CI and reviewed by the PO, and every finding the brief named is met or carried as a condition of the capability it belongs to (J5: CGR-31 before any invoicing brief, D-18; COVER1: CGR-21, CGR-28 before it is switched on; ABS1: CGR-35 and ABS1-C7, with AN2). CSR1 is removed from *Next up* so the coordination watcher closes its hand-off (#149) and AN2 (#205) becomes the active capability. New advisory findings on accepted items no longer open a CSR1 part; they ride with the next capability that reads or touches the same data (challenge row "Advisory conditions found after acceptance travel as their own part"). A blocking finding (S1, or any patient-safety gap) still gets its own PR first.
+
 ## PO review — 2026-10-23 22:15: CGR-34 met (#230); part 12 = ABS1-C6 only, then AN2
 
 Engineering delivered CGR-34 as the part 11 remainder (#230, migration 0054, ADR-066; merged as 673ba50, CI green). Evidence table in `briefs/ABS1.md` 22:15. **The PO did not run the tests.** **Part 12 is now ABS1-C6 only** (`briefs/ABS1.md` 21:17: a start of yesterday on `/field`, and the `past_planned` confirmation with a link to `/team`). Then AN2 (#205).

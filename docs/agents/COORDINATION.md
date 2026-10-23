@@ -51,7 +51,7 @@ A **watcher** turns the state of these files into **hand-off issues** on GitHub.
 2. **One open PR per role and item.** If a PR for the item is already open, continue it (fix CI, answer review) instead of starting another.
 3. **Write only your own file sections** (README *Roles*). The PO never edits `IMPLEMENTATION_STATUS.md`; Engineering never edits `NEXT_CAPABILITY.md`.
 4. **Merge only your own role's PRs, only with green CI.** Documentation PRs of the PO are merged by the PO agent.
-5. **Stop rules are unchanged:** legal, compliance, financial, regulatory or irreversible production questions become decisions for their owner; an agent never answers them.
+5. **Stop rules, with decision packages (owner 2026-10-24):** legal, compliance, financial, regulatory or irreversible production questions become decisions in `OPEN_DECISIONS.md`. Before a person is asked, the agents prepare a decision package ([`DECISION_PACKAGES.md`](DECISION_PACKAGES.md)): `eng` writes *Engineering impact*, `cra` *Clinical impact*, `lca` *Legal/compliance impact*; the PO recommends and decides it when no escalation criterion applies. An agent never answers a question that the package escalates. Until COORD5 is built, the watcher still assigns `human-decision` issues on creation; the INDEX in `decisions/` is the authoritative state.
 6. **Clinical review gate (owner, 2026-10-22, D-27):** before Engineering delivers, and before the PO accepts, any item affecting patient care, documentation, billing, quality, assessment, LTCF, PAG or MQI, each reads the latest Clinical Governance Report (`reports/CLINICAL_GOVERNANCE.md`), as described in README *Clinical review gate*. The Clinical & Regulatory Architect is a mandatory reviewer. Its findings are recommendations; only the named human clinical owner approves clinical rules. Engineering also checks scope when it claims an item, writes a remediation plan (`clinical/remediation/<finding ID>.md`) before proceeding when a finding creates a safety, billing or regulatory risk, and names the findings in the PR and journal (README *Clinical review gate*).
 7. **Leave a trail:** every run that changes the files adds a `JOURNAL.md` entry (Europe/Zurich time).
 
@@ -67,6 +67,8 @@ A **watcher** turns the state of these files into **hand-off issues** on GitHub.
 |---|---|---|---|
 | NAVORA Engineering agent | `trig_01CGegWNTJx5JxuJNgzAALLv` | hourly at :09 (UTC cron, `9 * * * *`) | automatic |
 | NAVORA Product Owner agent | `trig_01U1UUGgFvyWnuuK9a5JpUvr` | hourly at :09 (UTC cron, `9 * * * *`) | automatic |
+| NAVORA Clinical & Regulatory Architect | `trig_01MYKSk7MPZSGL51ncf4jm8e` | every 4 hours at :26 (UTC cron, `26 */4 * * *`) | automatic |
+| NAVORA Legal & Compliance Agent | `trig_011mvABASzho3mC4nYWHhyFk` | hourly at :39 (UTC cron, `39 * * * *`) | automatic |
 
 Their full instructions mirror the rules above. Changing an instruction means updating this file and the task.
 
