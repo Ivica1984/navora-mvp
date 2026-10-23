@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 15:00 · Clinical & Regulatory Architect (review)
+- **Report section 15:00** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `20a3566` (#200 merged: 0047 with the CGR-30 commit `1e1d904`). Read the final 0047, pgTAP 047 and the UI changes; **I did not run the tests** (CI green on `1e1d904` and `20a3566`, checked through the API).
+- **Closed:** CGR-24 (pgTAP 047:101-155, 174-195), CGR-30 (0047 §1b, 2b, 2c; pgTAP 047:26-27, 108-129), CGR-26 for the label (0047 §3, `visit-lifecycle.tsx:81`), CGR-13 for the wording (`HOLD_MEANING`). **No new findings.**
+- **Gate:** F1-F4/F6, OPS1 (label), QG1 (wording): no blocking finding. **ABS1 part 1 still blocked by CGR-27.**
+- **Carries #201** (the 14:30 section; green CI, merge conflict): merged its branch here, both journal entries kept, rule register conflict resolved (Architect notes on CR-045 to CR-052 plus eng's CR-053 to CR-055). #201 is closed as superseded.
+- **Registers:** CR-053 to CR-055 checked; H-05, PS-5, PS-21, PS-22, PS-25 updated.
+- **Waiting on people:** owner names the clinical owner (G-1); `clinical`: D-28, D-31, D-10, D-30, D-16, D-17; `legal`: D-18, D-22; `po`: whether a correction draft must be withdrawable.
+- **Next agent (po):** accept the CGR-24, CGR-26, CGR-13 conditions if you agree. **(eng):** ABS1 part 2 with CGR-27 first.
+
 ## 2026-10-23 14:45 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 14:12** for **part 8** per the PO's 13:20 order (ABS1 part 1 is delivered in #195; ABS1 part 2, the AN1 measures, stays PLANNED). PR **#200** (`fix/csr1-part8`): migration 0047, pgTAP 047, ADR-058, remediation plans `clinical/remediation/CGR-24.md`, `CGR-26.md`, `CGR-13.md`, rule register CR-053 (PROVISIONAL, D-28), CR-054, CR-055 (UNVALIDATED). Report section: 2026-10-23 10:29 (CGR-24, CGR-26; CGR-13 from QG1).
 - **IMPLEMENTED (CI pending):** `report_correction_open` (P3) for the team and Operations when a correction is not final after the `report_not_final` threshold, until it is final; it closes only with its cause (CGR-30, the `cra` 14:30 advisory on #200, added in this PR) (a correction awaiting the countersignature keeps it: stricter than the criterion); the `/field` card of an interrupted visit says who ended it and why (label, never a user id); "Qualitäts-Stopp" is "Abrechnungssperre" everywhere in the UI.
@@ -12,6 +21,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Order deviation:** the PO's 14:16 cycle (#198, merged after this claim) puts ABS1 part 2 before CSR1 part 8. Part 8 was already built and pushed (#200, CI green on 61c7d76), so it stays in review rather than being reverted; ABS1 part 2 (AN1 measures, ABS1-C1 to C3) is next for eng. ABS1-C1 (untimed visit not released) is a patient-safety gap and goes first.
 - Status rows F1-F4 (CGR-24), OPS1 (CGR-26), QG1 (CGR-13) set `in-review` (#200). The `claimed` label on #149 is removed at the end of this run.
 - **Next agent (eng):** CI on #200; fix, then merge and set the three rows `delivered`; then ABS1 part 2 (ABS1-C1 first, then C2, C3, AN1 measures). **(cra):** review 0047. **(po):** check CGR-24, CGR-26, CGR-13 against the brief; decide whether a correction draft must be withdrawable.
+
+## 2026-10-23 14:30 · Clinical & Regulatory Architect (review)
+- **Report section 14:30** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `980cdd9` (896e943 / 0043, e215924 / 0044, 7e5013b / 0045, a626c30 / 0046) and open PR #200 (0047, head 023cc1e). Read 0043-0047 and pgTAP 043-047 in full; **I did not run the tests** (CI green on the four merge commits and on 980cdd9, checked through the API; #200: CI UNKNOWN, merge conflict).
+- **Closed:** CGR-03 (J5 part; 0043:66-92, 172-178; pgTAP 043:86-110, 224-247), CGR-07 (0043:198-213; pgTAP 043:113-162), CGR-08 (0043:33-49, 220-226, 418-426), CGR-19 (0044:59-64; pgTAP 044:143), CGR-22 (0044; pgTAP 044:71-80), CGR-25 (0045; pgTAP 045:71-107, 169), CGR-11 (0046:478-487; pgTAP 046:321-331), CGR-15 (pgTAP 046:251-262). BL-8, BL-9 mitigated-in-code. CGR-24, CGR-26, CGR-13: remedies in #200, close on merge with green CI.
+- **New:** **CGR-27 (blocking, S1, ABS1):** untimed and open-ended visits have a one-minute interval, so an absence starting later does not release them (confirms and widens ABS1-C1). CGR-28 (advisory, S2 if cover enabled): an absence does not end covers she holds for another team. CGR-29 (advisory, S3, J5): a hold lift restores the pre-hold fact even when a correction became final during the hold. CGR-30 (advisory, S3, #200): `report_correction_open` can be closed by hand and never returns.
+- **Gate:** J5 and F6: no blocking finding, the PO may accept (conditions CGR-29, J5-C1; CGR-24). OPS1 conditions CGR-22, CGR-25 confirmed. **ABS1 part 1: blocked by CGR-27** (with ABS1-C1, C3). #200: no blocking finding.
+- **Registers:** H-17 added; H-01, H-04, H-05, H-12, H-14, H-16 updated; PS-23 to PS-25 and BL-13 added; PS-3, PS-15, PS-18, PS-20 to PS-22, BL-3 to BL-5, BL-8, BL-9 updated; CR-045 to CR-052 checked.
+- **Waiting on people:** owner names the clinical owner (G-1); `clinical`: D-31, D-28, D-10, D-30, D-16, D-17; `legal`: D-18, D-22.
+- **Next agent (po):** accept J5 and F6 if you agree; add CGR-27 to ABS1 part 2; record CGR-28 against D-3 and CGR-29 against J5. **(eng):** ABS1 part 2 with CGR-27; CGR-30 on #200; resolve #200's merge conflict.
 
 ## 2026-10-23 14:16 · po (Product Owner)
 - **ABS1 part 1 reviewed** (#195 head 16cdc0a, CI run 39948275720 green; merged as a626c30, CI run 39948793722 green on the merge commit and green on c8dab8d, checked through the API). The PO read 0046 in full, pgTAP 046, the two-session take check, the e2e test, the `/field` section, ADR-057, CR-051, CR-052. **The PO did not run the tests.** Evidence table in `briefs/ABS1.md`.
