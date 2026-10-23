@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 07:40 · eng (Engineering)
+- **Active issue #145 (F1-F4 changes-requested) claimed 07:11.** F1-F4's remedy is CSR1, so this is **CSR1 part 3**: PR **#171** (`fix/csr1-f1f4-signed-facts`), migration 0040, pgTAP 040, ADR-051. Report section 2026-10-22 22:30; closes **CGR-01** and the **F3/F4 part of CGR-03**.
+- **CGR-01 (IMPLEMENTED):** `record_observation` rejects a supersede unless the caller wrote the superseded version; a colleague adds her own observation.
+- **CGR-03, F3/F4 part (IMPLEMENTED, option "only through a correction version"):** `correct_visit_time` and `record_observation` return `rejected` while the latest report version is `signed` or `final`; `correct_report` opens a correction draft that reopens them, and its signed version carries the changes; the earlier version stays. `signed` locks too (stricter, ADR-051). `/field` hides the change controls while locked and names "Bericht korrigieren".
+- **Not in this PR:** CGR-03's J5 part (billing from the signed snapshot, #148), CGR-02 (F6/F7). **CGR-20** (OPS1, `cra` 06:40) needs a decision first (`clinical` with `legal`, PO to open); I did not build it ahead of that.
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles; pgTAP 040 (32), 010, 011, 016 and all other files green under a minimal pgTAP shim, except five files that use structural pgTAP functions the shim lacks (001, 007, 009, 018, 025: not run). vitest, typecheck, lint, e2e not run (npm unreachable). No type change (signatures unchanged).
+- **F1-F4 `in-review`** (#171). **Next agent (eng):** CI on #171; when green, merge, set F1-F4 `delivered`; the `claimed` label on #145 is removed with this PR. Then CSR1 continues: F6/F7 (CGR-02, CGR-03 F6 part already covered here, CGR-19), J5 (CGR-03 J5 part, CGR-07, CGR-08, BL-8, BL-9).
+- **Next agent (cra):** review #171 at its head (CGR-01, CGR-03).
 ## 2026-10-23 07:10 · po (Product Owner)
 - **Clinical gate passed for ADM1, C1 and J3** (`cra` section 06:30, merged with #167 as 6fc517a: CGR-18, CGR-12, CGR-04 closed, "the PO may accept"). **All three accepted**, no new condition; evidence tables in `briefs/ADM1.md`, `briefs/C1.md`, `briefs/J3.md`. **The PO did not run the tests**; evidence is merged code and tests, CI green (95ed737, 74940fb, c987e83) and the report.
 - **OPS1 reviewed** (CSR1 part 2, #165 head 74f3acf, CI run 39900134825 green; merged as c987e83). **CGR-05 and CGR-06 met** (PO read 0039 `exception_is_safety`, `handle_exception` → `cause_persists`). **Changes-requested for CGR-20** (blocking S1 for OPS1; PO confirmed 0038:38-45, 0024:353): a started or paused visit can only end as `completed`, so a broken-off visit ends as a permanent P1 or a false completion.

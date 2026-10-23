@@ -27,7 +27,7 @@ import {
 import { correctVisitTime, recordObservation } from "@/features/field/commands";
 import { formatMinutesByCategory } from "@/features/team/rules";
 import type { FieldNote, FieldVisit } from "@/features/field/types";
-import type { FieldReport } from "@/features/field/report";
+import { FACTS_LOCKED_HINT, visitFactsLocked, type FieldReport } from "@/features/field/report";
 import ReportSection from "./report-section";
 import { REASON_LABEL as LIFECYCLE_REASON_LABEL } from "@/features/lifecycle/rules";
 import { createReportDraft } from "@/features/field/report-commands";
@@ -209,6 +209,8 @@ function VisitCard({
   const needs = visit.care_needs?.length ? visit.care_needs.join(", ") : null;
   const events = parseEvents(visit.events);
   const times = events.length > 0 ? computeVisitTimes(events) : null;
+  // CSR1 / CGR-03: signed means fixed; changes only through a report correction version.
+  const locked = visitFactsLocked(report);
 
   async function run(action: FieldAction) {
     setPending(action);
@@ -283,11 +285,12 @@ function VisitCard({
         </section>
       )}
 
-      {events.length > 0 && <Timeline events={events} />}
+      {events.length > 0 && <Timeline events={events} locked={locked} />}
 
       <Observations
         visitId={visit.visit_id}
         canRecord={OBSERVABLE.has(visit.status ?? "")}
+        locked={locked}
         notes={notes.filter((n) => n.kind === "observation")}
       />
 
@@ -334,7 +337,17 @@ function formatDateTime(iso: string) {
   }).format(new Date(iso));
 }
 
-function Observations({ visitId, canRecord, notes }: { visitId: string; canRecord: boolean; notes: FieldNote[] }) {
+function Observations({
+  visitId,
+  canRecord,
+  locked,
+  notes,
+}: {
+  visitId: string;
+  canRecord: boolean;
+  locked: boolean;
+  notes: FieldNote[];
+}) {
   if (!canRecord && notes.length === 0) return null;
   return (
     <section aria-label="Beobachtungen" className="mt-3 grid gap-2 text-sm">
@@ -343,17 +356,22 @@ function Observations({ visitId, canRecord, notes }: { visitId: string; canRecor
         <ul className="grid gap-2">
           {notes.map((note) => (
             <li key={note.id}>
-              <ObservationEntry visitId={visitId} note={note} />
+              <ObservationEntry visitId={visitId} note={note} locked={locked} />
             </li>
           ))}
         </ul>
       )}
-      {canRecord && <ObservationForm visitId={visitId} supersedesId={null} />}
+      {canRecord && !locked && <ObservationForm visitId={visitId} supersedesId={null} />}
+      {canRecord && locked && (
+        <p data-testid="facts-locked" className="text-xs text-emerald-900/70">
+          {FACTS_LOCKED_HINT}
+        </p>
+      )}
     </section>
   );
 }
 
-function ObservationEntry({ visitId, note }: { visitId: string; note: FieldNote }) {
+function ObservationEntry({ visitId, note, locked }: { visitId: string; note: FieldNote; locked: boolean }) {
   const [editing, setEditing] = useState(false);
   if (editing) {
     return (
@@ -375,7 +393,8 @@ function ObservationEntry({ visitId, note }: { visitId: string; note: FieldNote 
           {note.edited ? " · geändert" : ""}
           {note.for_handover ? " · Übergabe" : ""}
         </p>
-        {note.own && (
+        {/* CGR-01: only the author changes her observation; a colleague adds her own. */}
+        {note.own && !locked && (
           <button type="button" onClick={() => setEditing(true)} className="min-h-11 shrink-0 px-2 font-semibold underline underline-offset-4">
             Ändern
           </button>
@@ -463,27 +482,27 @@ function ObservationForm({
   );
 }
 
-function Timeline({ events }: { events: VisitEvent[] }) {
+function Timeline({ events, locked }: { events: VisitEvent[]; locked: boolean }) {
   return (
     <details className="mt-2 rounded-xl border border-stone-200 p-2 text-sm">
       <summary className="min-h-11 cursor-pointer content-center px-1 font-semibold text-emerald-900">
-        Zeiten ansehen und korrigieren
+        {locked ? "Zeiten ansehen" : "Zeiten ansehen und korrigieren"}
       </summary>
       <ol className="mt-1 grid gap-2" aria-label="Zeitverlauf">
         {events.map((event, index) => (
           <li key={event.id ?? index}>
-            <TimelineEntry event={event} />
+            <TimelineEntry event={event} locked={locked} />
           </li>
         ))}
       </ol>
       <p className="mt-2 text-xs text-emerald-900/60">
-        Korrekturen werden mit Begründung gespeichert; die ursprünglich erfasste Zeit bleibt sichtbar.
+        {locked ? FACTS_LOCKED_HINT : "Korrekturen werden mit Begründung gespeichert; die ursprünglich erfasste Zeit bleibt sichtbar."}
       </p>
     </details>
   );
 }
 
-function TimelineEntry({ event }: { event: VisitEvent }) {
+function TimelineEntry({ event, locked }: { event: VisitEvent; locked: boolean }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [pending, setPending] = useState(false);
@@ -529,7 +548,7 @@ function TimelineEntry({ event }: { event: VisitEvent }) {
             </span>
           )}
         </p>
-        {!editing && event.id && (
+        {!editing && !locked && event.id && (
           <button
             type="button"
             onClick={() => setEditing(true)}

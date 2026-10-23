@@ -218,12 +218,22 @@ test.describe("field tool (F1)", () => {
     await expect(report.getByRole("button", { name: "Bericht unterschreiben" })).toHaveCount(0);
     await expect(report.getByRole("button", { name: "Zusammenfassung bearbeiten" })).toHaveCount(0);
 
+    // CSR1 / CGR-03: signed means fixed. Times and observations are no longer offered for change; the hint names
+    // the correction path (the database refuses them too, pgTAP 040).
+    await card.getByText("Zeiten ansehen", { exact: true }).click();
+    await expect(card.getByRole("list", { name: "Zeitverlauf" }).getByRole("button", { name: "Korrigieren", exact: true })).toHaveCount(0);
+    await expect(card.getByRole("region", { name: "Beobachtungen" }).getByLabel("Neue Beobachtung")).toHaveCount(0);
+    await expect(card.getByTestId("facts-locked")).toContainText("Bericht korrigieren");
+
     // Correction = new version with a reason; the signed version stays unchanged.
     await report.getByRole("button", { name: "Bericht korrigieren" }).click();
     await report.getByLabel("Begründung der Korrektur").fill("Leistung ergänzt");
     await report.getByRole("button", { name: "Neue Fassung anlegen" }).click();
     await expect(report.getByTestId("report-status")).toHaveText("Entwurf (Fassung 2)");
     await expect(report).toContainText("Korrektur: Leistung ergänzt");
+    // The correction draft reopens the facts: they flow into the new version when it is signed.
+    await expect(card.getByRole("region", { name: "Beobachtungen" }).getByLabel("Neue Beobachtung")).toBeVisible();
+    await expect(card.getByTestId("facts-locked")).toHaveCount(0);
 
     await page.reload();
     await expect(page.getByRole("article", { name: /09:00 – 09:45/ }).getByTestId("report-status")).toHaveText("Entwurf (Fassung 2)");
