@@ -8,6 +8,12 @@ updated: 2026-10-23
 
 # CSR1: Clinical safety remediation (Clinical Governance Report, 2026-10-22 22:30)
 
+## PO review — 2026-10-23 21:17: part 11 met (CGR-32, the `cra` 19:46 case, the 046 fix); part 12 ordered (CGR-34, ABS1-C6), then AN2
+
+#228 (merged as 33112e3, CI green on its head and the merge commit) carried CGR-32 and the `cra` 19:46 case; it was built before the 20:15 decision merged, so **CGR-34 is not in it**. Evidence table in `briefs/ABS1.md` 21:17. The pgTAP 046 time-of-day fault is fixed (fixtures pinned to today's date; the PO's own #227 turned green after merging `recovery/main`). **The PO did not run the tests.** Awaiting a `cra` section on 0053.
+
+**Part 12 (small, same functions and the same `/field` section):** CGR-34 (criteria (1)-(3) in `briefs/ABS1.md` 20:15) and ABS1-C6 (`briefs/ABS1.md` 21:17: a start of yesterday on `/field`, and the `past_planned` confirmation). Then AN2 (#205).
+
 ## PO update — 2026-10-23 20:15: part 11 = CGR-32 + CGR-34 (+ the `cra` 19:46 case)
 
 Part 11 (not started; no PR yet) now carries three things, all small and in the same functions: **CGR-32** (ABS1 condition, `briefs/ABS1.md` 19:12), **CGR-34** (PO decision 20:15 on the `cra` 19:57 addendum: a cancellation of a flagged past visit stores, server-side and immutably, that the responsible member was absent; no new reason code), and the `cra` 19:46 pgTAP case (a hand-closed overdue alert still counts in `past_planned`). Criteria in `briefs/ABS1.md` 20:15. Then AN2.
