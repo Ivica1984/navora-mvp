@@ -1,6 +1,6 @@
 # Safety Risk Register
 
-**Maintained by:** Clinical & Regulatory Architect (review role) · **Last change:** 2026-10-23 15:00 (0047 merged with #200) · **Baseline:** `recovery/main` @ `20a3566`
+**Maintained by:** Clinical & Regulatory Architect (review role) · **Last change:** 2026-10-23 18:30 (0048-0050 merged; CGR-31 added) · **Baseline:** `recovery/main` @ `be22e2c`
 
 This register holds every open risk from the clinical governance reviews: clinical (`C`), patient safety (`PS`), regulatory (`R`), billing (`BL`) and governance (`G`). Hazards to clients are in [`HAZARD_LOG.md`](HAZARD_LOG.md). Gate findings with remedies are in [`../reports/CLINICAL_GOVERNANCE.md`](../reports/CLINICAL_GOVERNANCE.md). Engineering items are in `docs/engineering/SECURITY_RISKS.md`; this register does not duplicate them.
 
@@ -37,7 +37,7 @@ Gate details are in the report.
 | C-12 | clin | Severity scale hard-coded | CR-017 | S2 | clinical | D-16 | B | open |
 | PS-1 | safety | Missed or overdue visit raises no alert | CGR-04 closed: 0038, pgTAP 038 | S1 | eng, clinical | exception type + threshold | B | mitigated-in-code (thresholds PROVISIONAL, D-28) |
 | PS-2 | safety | Uncovered alert disappears at start time | CGR-04 closed: 0038:91-92, pgTAP 038:136; hand close still possible (CGR-22) | S1 | eng | alert persists until resolved | B | mitigated-in-code |
-| PS-3 | safety | Phantom coverage after removal, downgrade, role change, absence | CGR-09, CGR-10 closed (0036); CGR-11, CGR-15 closed (0046, pgTAP 046:251-262, 321-331); residual CGR-27, CGR-28, ABS1-C3; past-dated visits of a removed member (CSR1) | S1 | eng | one eligibility release rule | B | mitigated-in-code (removal, downgrade); absence partly (CGR-27 blocking) |
+| PS-3 | safety | Phantom coverage after removal, downgrade, role change, absence | CGR-09, CGR-10 closed (0036); CGR-11, CGR-15 closed (0046); CGR-27, ABS1-C3, ABS1-C4 closed (0048, 0050; pgTAP 048:65-200, 050); residual CGR-28 and `accept_cover` (cover off); past-dated visits of a removed member (CSR1) | S1 | eng | one eligibility release rule | B | mitigated-in-code (cover residual before D-3) |
 | PS-4 | safety | No-show only detectable after departure; no protocol | CR-014 | S1 | clinical | D-19 | B | open |
 | PS-5 | safety | Hold does not stop care | CGR-13 (wording closed in 0047 / #200: "Abrechnungssperre", `HOLD_MEANING`); what a hold stops stays D-16 | S1 | clinical, eng | D-16 hold semantics | B | open |
 | PS-6 | safety | Serious event leaves OPS1 on `in_review` | CGR-05 closed: 0039:59-64, pgTAP 039:40-66 | S1 | eng | exception until closed | B | mitigated-in-code |
@@ -50,9 +50,9 @@ Gate details are in the report.
 | PS-15 | safety | A correction of a departed author's report can never be signed | CGR-19 closed: 0044:59-64, pgTAP 044:143; a draft opened before she left stays open | S2 | clinical, legal, eng | D-30 | C | mitigated-in-code (interim, D-30) |
 | PS-16 | safety | A started or paused visit can only end as `completed`; since 0039 its stuck alert cannot be closed, so a broken-off visit is either a permanent P1 or a false completion | CGR-20 closed: 0042:99-135, pgTAP 042 | S1 | eng, clinical, legal | audited "not completed" end, not billable until decided (D-31) | B | mitigated-in-code (interim rule, D-31) |
 | PS-20 | safety | After a visit is ended as not completed, no signal asks anyone to decide the follow-up for care that was due | CGR-25 closed: 0045, pgTAP 045:71-107, 169 | S2 | eng, clinical | D-31 (c)-(e) | B | mitigated-in-code (PROVISIONAL) |
-| PS-21 | safety | A report correction draft reopens the visit's facts with no time limit and no exception | CGR-24 closed: 0047 (merged as `20a3566`), pgTAP 047:101-155, 174-195; CGR-30 closed | S2 | eng, clinical | P3 exception for an open correction; D-28 threshold | B | mitigated-in-code (threshold PROVISIONAL, D-28) |
+| PS-21 | safety | A report correction draft reopens the visit's facts with no time limit and no exception | CGR-24 closed: 0047, pgTAP 047:101-155, 174-195; CGR-30 closed; withdraw of an untouched draft (CGR-24-W) closed: 0049:206-262, pgTAP 049:101-237 | S2 | eng, clinical | P3 exception for an open correction; D-28 threshold | B | mitigated-in-code (threshold PROVISIONAL, D-28) |
 | PS-22 | safety | A coordinator's "not completed" end of a visit in progress is irreversible | CGR-26 closed for the label: 0047 §3, `visit-lifecycle.tsx:81`, pgTAP 047 (who ended it); pilot measure PLANNED (AN2) | S3 | po, clinical | show the actor to the performer; pilot measure; D-31 | C | mitigated-in-code (correction of an erroneous end: D-31) |
-| PS-23 | safety | An absence does not release untimed or open-ended visits; they stay with the absent nurse and look covered | CGR-27; 0046:90-98, 145 | S1 | eng | correct interval in release, take, "Offen im Team", `known_by` | B | open |
+| PS-23 | safety | An absence does not release untimed or open-ended visits; they stay with the absent nurse and look covered | CGR-27 closed: 0048:29-54, pgTAP 048:65-126 | S1 | eng | correct interval in release, take, "Offen im Team", `known_by` | B | closed |
 | PS-24 | safety | An absent nurse keeps the covers she accepted for another team | CGR-28; 0046:142; 0029:186, 215-218 | S2 if cover enabled | eng | absence ends her covers before D-3 enables cover | C | open (cover off) |
 | PS-25 | safety | The open-correction signal can be closed by hand and never returns | CGR-30 closed: 0047 §1b, 2b, 2c; pgTAP 047:26-27, 108-111, 119-129 | S3 | eng | close only with its cause | C | closed |
 | PS-17 | safety | Overdue and stuck alerts of a covered visit do not reach the covering team; the detail suggests someone is going | CGR-21; 0038:102, 154 | S2 if cover enabled | eng | include the covering team before D-3 enables cover | C | open (cover off) |
@@ -83,7 +83,8 @@ Gate details are in the report.
 | BL-10 | billing | Any team member can generate billing facts | `billing/commands.ts` | S3 | eng, po | restrict to a billing role | C | open |
 | BL-11 | billing | Patient contribution and residual financing missing | 0022:358-359 | S2 | owner | D-11 | C | open |
 | BL-12 | billing | Income model may reward volume over need | D-14 | S2 | owner, clinical | guardrails in J7 | C | open |
-| BL-13 | billing | After a hold is lifted, an older signed snapshot counts as billable when a correction became final during the hold, until generation runs again | CGR-29; 0043:166-169, 295-308 | S3 | eng | build from the latest final version on lift | C | open |
+| BL-13 | billing | After a hold is lifted, an older signed snapshot counts as billable when a correction became final during the hold, until generation runs again | CGR-29 closed: 0049:383-388, pgTAP 049:243-271 | S3 | eng | build from the latest final version on lift | C | closed |
+| BL-14 | billing | A residence correction never re-derives a fact; the fact's minimum rule and tariff versions come from the old canton while the preview prices with the live one | CGR-31; 0043:179, 221, 244, 373-378; 0049:342-346 | S3 (S1 before invoicing) | eng, legal | one time rule for the residence (D-18), re-derive or flag; preview prices with the fact's canton | C | open |
 | LT-1 | LTCF/PAG | Nursing-home analysis uses an unvalidated partial source and treats assessment roles as overhead | `NURSING_HOME_TRANSFORMATION.md` | S1 (Horizon 3) | po, owner | licence D-24; show the replacement control for each role | – | open |
 | LT-2 | PAG | Upcoding incentive if team income tracks classification | D-14 | S1 (Horizon 3) | owner | written guardrail; second review of upward changes | – | open |
 | LT-3 | MQI | AN1 process KPIs could be presented as care quality | AN1 | S2 | po | label AN1 as process indicators | C | open |

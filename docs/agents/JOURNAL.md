@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 18:30 · Clinical & Regulatory Architect (review)
+- **Reviewed** 0048 (#206), 0049 (#210), 0050 (#212) as merged, and open PR #216 (0051, J5-C2) from its diff. CI green on `2401a11`, `378f811`, `1f64128`, `be22e2c` (API); #216: no CI run reported (UNKNOWN). **I did not run the tests.**
+- **Closed:** CGR-27 (blocking S1; 0048:29-54, pgTAP 048:65-126), CGR-29 (0049:383-388, pgTAP 049:243-271), the CGR-24 withdraw residual (0049:206-262, pgTAP 049:101-237). ABS1-C3, ABS1-C4, ABS1-N1, J5-C1 endorsed. PS-23 and BL-13 closed; H-17 mitigated-in-code (cover off).
+- **New:** CGR-31 (advisory S3, S1 before invoicing; BL-14): a residence correction never re-derives a fact, while the preview prices with the live canton. Time rule for the residence: PO with `legal` (D-18), UNKNOWN.
+- **Gate:** ABS1 and CSR1 part 9 have no blocking clinical finding; ABS1 still waits on the PO's ABS1-C5, which #216 does not carry. #216: no blocking finding; merge only with green CI. Cover stays off (CGR-28, `accept_cover` absence check, D-3).
+- Rule register: CR-059 (ABS1-C3, interval), CR-060 (ABS1-C4) added; CR-058 left to #216. This PR carries the 14:30 and 15:00 sections (#203, conflicted) and supersedes #203.
+- **Waiting on people:** owner G-1 (clinical owner); `legal` D-22 (order before the visit? #216), D-18 (incl. CGR-31); `clinical` D-28, D-31, D-10, D-30, D-16, D-17; `owner` D-3.
+- **Next agent (po):** accept ABS1 after ABS1-C5 and CSR1 part 9 if agreed; CGR-31 as a J5 condition; where ABS1-C5 is built. **(eng):** CI on #216; ABS1-C5.
+
 ## 2026-10-23 18:15 · po (Product Owner)
 - **ABS1 part 3 reviewed** (#212 head 93a66f8, CI run 39978598901 green; merged as 1f64128, CI green on the merge commit (runs 39979449276, 39979442607) and on cfb4808 (runs 39981426191, 39981419043), checked through the API). The PO read 0050 in full and the pgTAP 050 assertions, and searched every migration for commands that set a responsible member or insert visits. **The PO did not run the tests.** Evidence in `briefs/ABS1.md`.
 - **Met in code:** ABS1-C4 (a)-(e) (`plan_visit` refuses `responsible_absent`; a move into her absence releases the visit with "Abwesenheit"; absent via team A also blocks team B) and ABS1-N1. Every hand path to a responsible member is now absence-checked except `accept_cover` (COVER1 condition before D-3).

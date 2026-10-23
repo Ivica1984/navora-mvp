@@ -16,6 +16,69 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-23 18:30: ABS1 parts 2 and 3 (0048, 0050), CSR1 part 9 (0049); open PR #216 (0051)
+
+**Scope:** `recovery/main` @ `be22e2c`. Changes since the 15:00 section (open as #203, not merged; this PR carries it, see below):
+- **Code merged:** #206 (ABS1 part 2: CGR-27 / ABS1-C1, ABS1-C2, ABS1-C3, AN1 measures; migration 0048, pgTAP `048_abs1_part2`, `048_abs1_an1_measures`) as `2401a11`; #210 (CSR1 part 9: CGR-24-W, CGR-29, J5-C1; migration 0049, pgTAP 049, 043 adjusted) as `378f811`; #212 (ABS1 part 3: ABS1-C4, ABS1-N1; migration 0050, pgTAP 050, 048 adjusted) as `1f64128`.
+- **Docs:** #202, #204-#205, #207-#209, #211, #213, #215 (PO and engineering cycles). PO conditions ABS1-C4, ABS1-C5, J5-C2 and a third COVER1 condition (`accept_cover` refuses an absent nurse) opened; D-22 sharpened. **No decision answered.**
+- **Open PR in scope:** #216 (CSR1 part 10, J5-C2; migration 0051, pgTAP 051), head `57d3a3f`. CI on its head: **UNKNOWN** (no workflow run reported by the API at 18:30).
+- **Carried sections:** the 14:30 and 15:00 sections were published as #203 (green CI) but #203 conflicts with `recovery/main` (JOURNAL, rule register). This PR merges that branch, resolves both conflicts (journal: all entries kept, newest first; rule register: the Architect's notes on CR-045 to CR-055 and engineering's CR-056, CR-057) and supersedes #203.
+
+I read migrations 0048, 0049 and 0050 in full, the 0051 diff of #216, pgTAP 048, 049 and 050 (assertion lists), every `visit_reports` "latest version" reader after 0049, every command that sets `responsible_user_id`, the `audit_cases` trigger (0013:77-82) and `write_audit_event` (0004:66-93), and `build_billable_fact` and the billing preview (0043). **I did not run the tests.** CI (checked through the API) is green for app, db (migrations, seed, pgTAP) and e2e on `2401a11` (one e2e run cancelled, a second passed), `378f811`, `1f64128` and `be22e2c` (one more e2e run still in progress at 18:30).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-31 | J5 (0043, 0049) | advisory (S3; S1 before invoicing) | A billing fact takes the case's **residence canton** at build time for the minimum-minutes rule (`billing_rule`, decides `below_minimum`) and the tariff versions it records; the residence (canton, municipality) is also written into `payer_chain`. A later correction of the residence in intake re-derives nothing: J5-C1 fires only on `insurance_type` and `insurer_name`, and `rederive_fact_payer` copies `tariff_versions` and the residence fields. The billing preview, however, prices the same fact with the **live** canton's rates and rule. After a residence correction, the fact's billable flag and recorded tariff versions come from one canton and the estimate from another. The residence also decides who pays the residual financing (BL-2). Nothing is invoiced, so not blocking now. #216 (J5-C2) reads the order as of the visit date, J5-C1 reads the payer as corrected, the residence is read at build time: three different time rules for one fact. IMPLEMENTED gap. | `build_billable_fact` 0043:179, 221, 244 (residence at build time); trigger `billable_facts_follow_payer` 0049:342-346 (`after update of insurance_type, insurer_name` only); `rederive_fact_payer` 0049:303-317 (copies `tariff_versions`, merges only insurer and insurance type into `payer_chain`); billing preview 0043:373-378 (live canton for rates and rule) | PO decides, with `legal` (D-18), whether the residence of a fact is "as of the visit date" (like J5-C2) or "as corrected" (like J5-C1); the rule is not invented here (UNKNOWN). Until decided, the strict default: a residence correction re-derives the fact (cause `basis_changed`) with the new canton's rule, tariff versions and residence, or marks it not billable with a named reason; the preview prices with the canton recorded in the fact, never the live one. pgTAP: fact built in canton X → intake corrects the residence to Y → the head fact's `payer_chain` residence, `tariff_versions` and `below_minimum` match the canton the preview prices with. |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| CGR-27 | **closed** | One interval for every absence check (0048:29-54): no start time = the whole date (Europe/Zurich); start without end = start + planned minutes A+B+C, else to the end of the date; used by release, take, "Offen im Team", `known_by` and `change_absence` (0048:77-85, 168-257), and by `plan_visit` and `reschedule_visit` since 0050. pgTAP 048:65-72 (the interval itself), 048:77-93 (an absence from 12:00 releases the untimed visit; from 08:30 the visit 08:00 without an end and 60 minutes; a visit that ends before the absence stays hers), 048:100-116 (the absent nurse cannot take either visit; the absent deputy is skipped for "kennt die Klientin"), 048:119-126 (shortened absence: the untimed visit stays open). This is the remedy of the 14:30 section unchanged |
+| CGR-29 | **closed** | On the last lift, if the latest final report version has no J5-v3 `report` fact, it is built from that version instead of restoring the pre-hold fact (0049:383-388). pgTAP 049:243-271 (v1 fact → hold → correction v2 final → lift → head fact carries v2's report; no `hold_lifted` copy of v1) |
+| CGR-24 residual (withdraw) | **closed** | `withdraw_report_correction`: performer only, draft only, untouched only (no time correction, observation or summary change since it was opened), kept as `withdrawn` with who and when, terminal, audited (0049:38-97, 206-262); every "latest version" reader ignores a withdrawn successor (0049:100-111, 131-141, 146-200, 414-433; I found no other reader that would treat a withdrawn draft as a successor: `field_countersign_queue` 0026 reads only `signed` versions, which never have a withdrawn successor). pgTAP 049:101-183 (withdraw, facts locked again, signal ends, idempotent, immutable, next correction gets version 3), 049:189-201 (observation or summary change → `draft_has_changes`), 049:215 (`not_correction`), 049:230-237 (`awaiting_countersignature`) |
+| CGR-28 | open, advisory (S2 if cover is enabled), unchanged | 0048 and 0050 leave covers alone (0050:21). Still a condition before D-3 enables cover, together with the PO's third COVER1 condition (`accept_cover` refuses an absent nurse; 0028:213 sets her responsible without an absence check) |
+| CGR-16, CGR-21, CGR-23 | open, unchanged | no change in their code |
+
+### Other changes reviewed (no finding)
+
+- **ABS1-C3** (an absence belongs to the person, every team of hers in the organisation): IMPLEMENTED as one row per team linked by `absence_group`; the overlap check, withdraw and shorten act on the whole group (0048:56-165). pgTAP 048:138-200. Endorsed: it removes the "absent in one team, available in the other" path I named in the 14:30 section.
+- **ABS1-C4** (PO condition): `plan_visit` refuses a responsible member absent at the visit's interval (`responsible_absent`, nothing written; 0050:42-58); a move into her absence is logged and then releases the visit with "Abwesenheit" (0050:61-100). pgTAP 050:44-169 covers (a)-(e). Every command that sets `responsible_user_id` is now absence-checked except `accept_cover` (0028:213), which the PO already holds as a COVER1 condition. Endorsed: the safe direction (the visit is open and visible, never silently with an absent nurse).
+- **ABS1-N1** (data minimisation): `record_absence` counts only the caller's own teams (0050:103-110; pgTAP 050:127-138). Endorsed.
+- **ABS1-C5** (PO, a move into the past inside an absence is refused): not in 0050 and **not in #216** either, although the PO ordered it to ride with CSR1 part 10. OPEN; no clinical consequence beyond what the PO recorded (a past visit nobody goes to is not a live risk; the record would name an absent member).
+- **AN1 absence measures** (0048:300-371): aggregates per team and organisation only, no member named. Acceptable.
+- **J5-C1** (0049:267-346): IMPLEMENTED as specified; pgTAP 049:279-325. Endorsed, with CGR-31 as its gap.
+- **Rule register:** CR-056 and CR-057 (engineering) checked against 0049. New rows CR-059 (ABS1-C3) and CR-060 (ABS1-C4) added by the Architect; CR-051 note updated. CR-058 is taken by #216.
+
+### Open PR #216 (CSR1 part 10, J5-C2; 0051)
+
+Read from the diff, CI **UNKNOWN**. No blocking finding.
+- The order basis is reconstructed backwards from the live row through `audit_events`. That is sound only while every write of `medical_order_status` and `medical_order_valid_until` is audited: the `audit_cases` trigger fires after insert or update and lists both columns (0013:77-82), and `audit_events` refuses update, delete and truncate (0004:53-63). Keep a pgTAP assertion that both columns stay in the trigger's argument list, so a later migration that re-creates `audit_cases` without them fails CI instead of silently making old orders look current.
+- The cut-off "end of the visit date" is the PO's strict default, not a legal answer. Whether an order must exist **before** the visit, and whether "recorded in NAVORA" stands for "issued by the doctor", are D-22 (`legal`); UNKNOWN. The function `private.order_cutoff` is the single place to change. No finding.
+- CGR-31 (residence) is outside #216's scope; it should not be widened for it.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| ABS1 (parts 1-3, `delivered`) | **no blocking clinical finding**; CGR-27 closed. The PO may accept once its own condition ABS1-C5 is met | CGR-27 closed; CGR-28 advisory (before cover) |
+| F6 / CSR1 part 9 (`delivered`) | **no blocking finding**; the PO may accept | CGR-24 residual closed |
+| J5 (0049) | **no blocking finding**; CGR-29 and J5-C1 met; CGR-31 advisory as a new J5 condition before invoicing | CGR-29 closed; CGR-31 new |
+| CSR1 part 10 (#216, open) | **no blocking finding** on reading; merge only with green CI on its head; ABS1-C5 missing from it | – |
+| COVER1 | unchanged: cover stays off until CGR-28, the `accept_cover` absence check, PS-12 and D-3 | CGR-21, CGR-28 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **owner (critical path):** name the qualified clinical owner and a deputy (G-1). Gate C cannot open without one.
+- **po:** accept ABS1 (after ABS1-C5) and CSR1 part 9 if you agree; record CGR-31 as a J5 condition and decide with `legal` which time rule the residence follows; confirm where ABS1-C5 is built now that #216 does not carry it.
+- **legal:** D-22 (incl. whether an order must precede the visit and what "recorded" stands for, #216); D-18 (incl. the residence rule of CGR-31).
+- **clinical** (once named): D-28, D-31, D-10, D-30, D-16, D-17.
+
+---
+
 ## 2026-10-23 15:00: CSR1 part 8 merged (#200, 0047), CGR-30 fix
 
 **Scope:** `recovery/main` @ `20a3566`. Changes since the 14:30 section (open as #201, not yet merged; this PR carries it, see below):
