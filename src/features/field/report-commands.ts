@@ -20,6 +20,7 @@ const schemas = {
   sign: z.object({ reportId: z.uuid(), snapshotHash: z.string().regex(/^[0-9a-f]{64}$/), idempotencyKey: key }),
   countersign: z.object({ reportId: z.uuid(), idempotencyKey: key }),
   correct: z.object({ reportId: z.uuid(), reason: z.string().trim().min(3).max(300), summary, idempotencyKey: key }),
+  withdraw: z.object({ reportId: z.uuid(), idempotencyKey: key }),
 };
 
 const INVALID = "Bitte die Eingaben prüfen (Zusammenfassung höchstens 4000 Zeichen, Begründung 3–300 Zeichen).";
@@ -107,6 +108,23 @@ export async function correctReport(input: unknown): Promise<CommandResult> {
       p_report_id: parsed.data.reportId,
       p_reason: parsed.data.reason,
       p_summary: parsed.data.summary as string,
+      p_idempotency_key: parsed.data.idempotencyKey,
+    }),
+  );
+}
+
+/**
+ * CSR1 / CGR-24-W (migration 0049): the performer withdraws her untouched correction draft. No reason: nothing changed.
+ * The database refuses a draft with changes (`draft_has_changes`), anyone else and a signed correction.
+ */
+export async function withdrawReportCorrection(input: unknown): Promise<CommandResult> {
+  const parsed = schemas.withdraw.safeParse(input);
+  if (!parsed.success) return { ok: false, error: INVALID };
+  const { supabase } = await requireUser();
+  return interpret(
+    "withdraw_report_correction",
+    await supabase.rpc("withdraw_report_correction", {
+      p_report_id: parsed.data.reportId,
       p_idempotency_key: parsed.data.idempotencyKey,
     }),
   );
