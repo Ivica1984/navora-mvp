@@ -31,7 +31,7 @@ insert into public.team_memberships (team_id, user_id, qualification)
 values ('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000901', 'care_assistant');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided, billable, status, planned_minutes_a)
 values ('00000000-0000-4000-b000-000000000011', 'a6000000-0000-4000-8000-000000000601', '00000000-0000-4000-a000-000000000208',
-        '00000000-0000-4000-a000-000000000101', current_date, '15:00', '15:30', array['Grundpflege'], false, 'planned', 30);
+        '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich')::date, '15:00', '15:30', array['Grundpflege'], false, 'planned', 30);
 
 -- Registered nurse: draft → sign → final ---------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
@@ -108,7 +108,7 @@ select ok((select version = 2 and status = 'draft' and supersedes_id = (select i
   'the new version links the old one, keeps its summary and stores the reason');
 select is(public.correct_report((select id from r1), 'Noch einmal', null, 'a6000000-0000-4000-8000-000000000022') ->> 'reason',
   'not_latest', 'only the latest version can be corrected');
-select is((select version from public.field_reports(current_date) where visit_id = '00000000-0000-4000-a000-000000000501'), 2,
+select is((select version from public.field_reports((now() at time zone 'Europe/Zurich')::date) where visit_id = '00000000-0000-4000-a000-000000000501'), 2,
   '/field shows the latest version');
 select is((select count(*)::int from public.final_report_visits() where visit_id = '00000000-0000-4000-a000-000000000501'), 1,
   'the signed version stays valid while its correction is a draft');
@@ -133,7 +133,7 @@ reset role;
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is((select i_can_countersign from public.field_reports(current_date) where visit_id = 'a6000000-0000-4000-8000-000000000601'), true,
+select is((select i_can_countersign from public.field_reports((now() at time zone 'Europe/Zurich')::date) where visit_id = 'a6000000-0000-4000-8000-000000000601'), true,
   'a registered nurse of the team is offered the countersignature');
 select is(public.countersign_report((select id from r2), 'a6000000-0000-4000-8000-000000000035') ->> 'result', 'ok',
   'a registered nurse of the team countersigns');

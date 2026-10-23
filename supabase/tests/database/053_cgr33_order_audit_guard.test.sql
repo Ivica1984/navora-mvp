@@ -42,7 +42,7 @@ select (select coalesce(max(id), 0) from public.audit_events) as id,
        c.medical_order_status as status, c.medical_order_valid_until as valid_until
 from public.cases c where c.id = '00000000-0000-4000-a000-000000000208';
 update public.cases
-set medical_order_status = 'present', medical_order_valid_until = current_date + 400
+set medical_order_status = 'present', medical_order_valid_until = (now() at time zone 'Europe/Zurich')::date + 400
 where id = '00000000-0000-4000-a000-000000000208';
 update public.cases
 set medical_order_status = 'requested', medical_order_valid_until = null
@@ -58,7 +58,7 @@ select is(
    where a.id > b.id and a.table_name = 'cases' and a.entity_id = '00000000-0000-4000-a000-000000000208'
      and a.changed ? 'medical_order_valid_until'
    order by a.id limit 1),
-  (current_date + 400)::text, 'the end date is recorded as {old, new}');
+  ((now() at time zone 'Europe/Zurich')::date + 400)::text, 'the end date is recorded as {old, new}');
 select is(
   (select a.changed -> 'medical_order_status' ->> 'old' from public.audit_events a, t_before b
    where a.id > b.id and a.table_name = 'cases' and a.entity_id = '00000000-0000-4000-a000-000000000208'

@@ -295,7 +295,7 @@ values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-0000000
 insert into public.care_plan_items (organization_id, case_id, team_id, service, category, planned_minutes, frequency, review_date, created_by,
                                     freq_times, freq_period, freq_weekdays, window_start, window_end) values
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-   'Körperpflege', 'A', 30, 'täglich', current_date + 30, '00000000-0000-4000-a000-000000000902', 1, 'day', null, '06:00', '07:00');
+   'Körperpflege', 'A', 30, 'täglich', (now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 1, 'day', null, '06:00', '07:00');
 select lives_ok($$ select private.generate_case_plan('00000000-0000-4000-a000-000000000208', private.plan_system_actor()) $$, 'the plan is generated');
 create function pg_temp.gen(d integer) returns uuid language sql as $$
   select responsible_user_id from public.care_visits where case_id = '00000000-0000-4000-a000-000000000208' and plan_generated

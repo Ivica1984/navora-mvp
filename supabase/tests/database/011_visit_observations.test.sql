@@ -54,23 +54,23 @@ select is(public.record_observation('00000000-0000-4000-a000-000000000501', 'zwe
           'f4000000-0000-4000-8000-000000000007'),
   'rejected', 'an already superseded version cannot be superseded again');
 select results_eq(
-  $$ select content, edited from public.field_notes(current_date)
+  $$ select content, edited from public.field_notes((now() at time zone 'Europe/Zurich')::date)
      where kind = 'observation' and visit_id = '00000000-0000-4000-a000-000000000501' order by recorded_at, content $$,
   $$ values ('Bitte Blutzucker morgen früh messen (Arztauftrag liegt bei).', false),
             ('Klientin wach und orientiert, isst wenig.', true) $$,
   'field_notes shows only current versions, with the edited flag');
 select ok(
-  (select bool_and(own) from public.field_notes(current_date)),
+  (select bool_and(own) from public.field_notes((now() at time zone 'Europe/Zurich')::date)),
   'notes written by the caller are marked as own (no author ids are returned)');
 
 -- Handover onto the next visit of the same client
 select results_eq(
-  $$ select content, source_date from public.field_notes(current_date + 1)
+  $$ select content, source_date from public.field_notes((now() at time zone 'Europe/Zurich')::date + 1)
      where kind = 'handover' and visit_id = '00000000-0000-4000-a000-000000000508' $$,
-  $$ values ('Bitte Blutzucker morgen früh messen (Arztauftrag liegt bei).', current_date) $$,
+  $$ values ('Bitte Blutzucker morgen früh messen (Arztauftrag liegt bei).', (now() at time zone 'Europe/Zurich')::date) $$,
   'the handover note appears on the client''s next visit of the team');
 select is(
-  (select count(*)::int from public.field_notes(current_date + 1) where kind = 'observation'),
+  (select count(*)::int from public.field_notes((now() at time zone 'Europe/Zurich')::date + 1) where kind = 'observation'),
   0, 'non-handover observations do not travel to other visits');
 
 -- Direct writes

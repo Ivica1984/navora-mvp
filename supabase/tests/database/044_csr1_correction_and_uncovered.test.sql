@@ -62,7 +62,9 @@ create function pg_temp.latest_report(n text) returns uuid language sql as $$
   select r.id from public.visit_reports r
   where r.visit_id = pg_temp.vid(n) and not exists (select 1 from public.visit_reports s where s.supersedes_id = r.id) $$;
 create function pg_temp.shown_hash(n text) returns text language sql as $$
-  select f.snapshot_hash from public.field_reports((now() at time zone 'Europe/Zurich')::date) f where f.visit_id = pg_temp.vid(n) $$;
+  -- the visit's own Zurich date: a visit 2-3 hours ago is yesterday shortly after midnight
+  select f.snapshot_hash from fx x, public.field_reports((x.at at time zone 'Europe/Zurich')::date) f
+  where x.name = n and f.visit_id = x.id $$;
 
 -- CGR-22: the uncovered exception cannot be closed by hand ------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
@@ -150,7 +152,8 @@ select ok((select status = 'final' from public.visit_reports where id = pg_temp.
 select ok(private.visit_facts_locked(pg_temp.vid('rep_rn')), 'and the visit''s facts stay locked');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000906');
 set local role authenticated;
-select is((select status from public.field_reports((now() at time zone 'Europe/Zurich')::date) where visit_id = pg_temp.vid('rep_rn')),
+select is((select f.status from fx x, public.field_reports((x.at at time zone 'Europe/Zurich')::date) f
+            where x.name = 'rep_rn' and f.visit_id = x.id),
   'final', 'the team still reads the final report');
 select is(public.correct_report(pg_temp.latest_report('rep_ca'), 'Synthetisch: Massnahme ergänzen', null, 'a4400000-0000-4000-8000-000000000041')
           ->> 'result', 'ok', 'a correction of a report whose performer is still a member is allowed as today');

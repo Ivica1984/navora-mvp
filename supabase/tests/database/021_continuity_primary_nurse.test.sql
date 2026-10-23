@@ -53,11 +53,11 @@ reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select ok((select r ->> 'result' = 'ok' and (r -> 'flags') ? 'not_primary'
-           from (select public.plan_visit('00000000-0000-4000-a000-000000000208', current_date + 2, '15:00', '15:30', 30, 0, 0, false,
+           from (select public.plan_visit('00000000-0000-4000-a000-000000000208', (now() at time zone 'Europe/Zurich')::date + 2, '15:00', '15:30', 30, 0, 0, false,
                                           '00000000-0000-4000-a000-000000000904', 'ab000000-0000-4000-8000-000000000010') r) x),
   'a visit for someone who is neither primary nor deputy is planned, with a flag');
 select ok((select not ((r -> 'flags') ? 'not_primary')
-           from (select public.plan_visit('00000000-0000-4000-a000-000000000208', current_date + 3, '15:00', '15:30', 30, 0, 0, false,
+           from (select public.plan_visit('00000000-0000-4000-a000-000000000208', (now() at time zone 'Europe/Zurich')::date + 3, '15:00', '15:30', 30, 0, 0, false,
                                           '00000000-0000-4000-a000-000000000902', 'ab000000-0000-4000-8000-000000000011') r) x),
   'the deputy raises no flag');
 
@@ -66,9 +66,9 @@ do $$ begin
   perform public.start_visit('00000000-0000-4000-a000-000000000501', 'ab000000-0000-4000-8000-000000000020');
   perform public.complete_visit('00000000-0000-4000-a000-000000000501', 'ab000000-0000-4000-8000-000000000021');
 end $$;
-select ok((select visits >= 1 and distinct_nurses >= 1 and primary_set from public.continuity_by_case(current_date)
+select ok((select visits >= 1 and distinct_nurses >= 1 and primary_set from public.continuity_by_case((now() at time zone 'Europe/Zurich')::date)
            where case_id = '00000000-0000-4000-a000-000000000208'), 'the team sees visits and distinct nurses per client this month');
-select is((select primary_share_pct from public.continuity_by_case(current_date) where case_id = '00000000-0000-4000-a000-000000000208'), 0,
+select is((select primary_share_pct from public.continuity_by_case((now() at time zone 'Europe/Zurich')::date) where case_id = '00000000-0000-4000-a000-000000000208'), 0,
   'and the share of visits by the primary nurse');
 reset role;
 select is(
@@ -78,16 +78,16 @@ select is(
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000901');
 set local role authenticated;
-select ok((select count(*) from public.continuity_by_case(current_date)) > 0, 'coordination roles (coach) see the measure');
+select ok((select count(*) from public.continuity_by_case((now() at time zone 'Europe/Zurich')::date)) > 0, 'coordination roles (coach) see the measure');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
 set local role authenticated;
-select is((select count(*)::int from public.continuity_by_case(current_date) where case_id = '00000000-0000-4000-a000-000000000208'), 0,
+select is((select count(*)::int from public.continuity_by_case((now() at time zone 'Europe/Zurich')::date) where case_id = '00000000-0000-4000-a000-000000000208'), 0,
   'another organisation sees nothing');
 reset role;
-select ok(private.visit_flags('00000000-0000-4000-a000-000000000208', current_date + 5, 0,
+select ok(private.visit_flags('00000000-0000-4000-a000-000000000208', (now() at time zone 'Europe/Zurich')::date + 5, 0,
           '00000000-0000-4000-a000-000000000901', 'planned', '10:00') = '{}'::text[] or
-          not ('not_primary' = any (private.visit_flags('00000000-0000-4000-a000-000000000208', current_date + 5, 0,
+          not ('not_primary' = any (private.visit_flags('00000000-0000-4000-a000-000000000208', (now() at time zone 'Europe/Zurich')::date + 5, 0,
           '00000000-0000-4000-a000-000000000901', 'planned', '10:00'))), 'the primary nurse raises no flag');
 
 select * from finish();

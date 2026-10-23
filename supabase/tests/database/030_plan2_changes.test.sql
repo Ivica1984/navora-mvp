@@ -32,9 +32,9 @@ values ('00000000-0000-4000-b000-000000000011', 'af000000-0000-4000-8000-0000000
 insert into public.care_plan_items (organization_id, case_id, team_id, service, category, planned_minutes, frequency, review_date, created_by,
                                     freq_times, freq_period, freq_weekdays, window_start, window_end) values
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-   'Körperpflege', 'A', 30, 'täglich', current_date + 30, '00000000-0000-4000-a000-000000000902', 1, 'day', null, '08:00', '09:00'),
+   'Körperpflege', 'A', 30, 'täglich', (now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 1, 'day', null, '08:00', '09:00'),
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-   'Wundversorgung', 'B', 20, '2x wöchentlich', current_date + 30, '00000000-0000-4000-a000-000000000902', 2, 'week', '{1,4}', '08:00', '09:00');
+   'Wundversorgung', 'B', 20, '2x wöchentlich', (now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 2, 'week', '{1,4}', '08:00', '09:00');
 
 -- No double planning ------------------------------------------------------------------------------------------------
 select is((select count(*)::int from public.care_visits where case_id = '00000000-0000-4000-a000-000000000208'
@@ -107,7 +107,7 @@ reset role;
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
-select ok((select value is not null and value > 0 from public.pilot_kpis(current_date)
+select ok((select value is not null and value > 0 from public.pilot_kpis((now() at time zone 'Europe/Zurich')::date)
            where team_id is null and kpi = 'planning_actions_per_client_week' and organization_id = '00000000-0000-4000-b000-000000000011'),
   'AN1 counts the team''s own planning actions per client and week (the move above), not the generated ones');
 reset role;

@@ -10,20 +10,20 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claim.sub', uid, true);
 $$;
 create function pg_temp.kpi(p_kpi text, p_team uuid default null) returns jsonb language sql as $$
-  select to_jsonb(k) from public.pilot_kpis(current_date) k where k.kpi = p_kpi and k.team_id is not distinct from p_team
+  select to_jsonb(k) from public.pilot_kpis((now() at time zone 'Europe/Zurich')::date) k where k.kpi = p_kpi and k.team_id is not distinct from p_team
 $$;
 
 -- Six completed visits this month: five complete (15 min travel, 45 min care), one without departure.
 -- Performers: three persons (the admin and two synthetic ids), so the team may show its figures.
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status)
 select '00000000-0000-4000-b000-000000000012', ('b2000000-0000-4000-8000-00000000000' || g)::uuid, '00000000-0000-4000-a000-000000000251',
-       '00000000-0000-4000-a000-000000000151', date_trunc('month', current_date)::date, '08:00', '09:00', false, 'completed'
+       '00000000-0000-4000-a000-000000000151', date_trunc('month', (now() at time zone 'Europe/Zurich')::date)::date, '08:00', '09:00', false, 'completed'
 from generate_series(1, 6) g;
 insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, occurred_at)
 select '00000000-0000-4000-b000-000000000012', ('b2000000-0000-4000-8000-00000000000' || g)::uuid, '00000000-0000-4000-a000-000000000151',
        e.t, e.f, e.s,
        (array['00000000-0000-4000-a000-000000000903', 'b2000000-0000-4000-8000-0000000000f1', 'b2000000-0000-4000-8000-0000000000f2'])[1 + g % 3]::uuid,
-       date_trunc('month', current_date) + e.at
+       date_trunc('month', (now() at time zone 'Europe/Zurich')::date) + e.at
 from generate_series(1, 6) g
 cross join (values ('departed', 'planned', 'on_the_way', interval '8 hours'),
                    ('started', 'on_the_way', 'started', interval '8 hours 15 minutes'),
@@ -33,17 +33,17 @@ where not (g = 6 and e.t = 'departed');      -- visit 6 has no departure
 -- COVER1: two offered visits of the team; one covered without Operations, one covered after Operations took over.
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, billable, status, created_at)
 select '00000000-0000-4000-b000-000000000012', x.id, '00000000-0000-4000-a000-000000000251', '00000000-0000-4000-a000-000000000151',
-       date_trunc('month', current_date)::date + 1, '10:00', false, 'planned', date_trunc('month', current_date) - interval '5 days'
+       date_trunc('month', (now() at time zone 'Europe/Zurich')::date)::date + 1, '10:00', false, 'planned', date_trunc('month', (now() at time zone 'Europe/Zurich')::date) - interval '5 days'
 from (values ('b2000000-0000-4000-8000-0000000000c1'::uuid), ('b2000000-0000-4000-8000-0000000000c2'::uuid)) x(id);
 insert into public.cover_events (organization_id, visit_id, kind, nurse_id, team_id, created_at)
-select '00000000-0000-4000-b000-000000000012', x.id, x.kind, x.nurse, null, (date_trunc('month', current_date)::date + 1 + time '10:00') at time zone 'Europe/Zurich' - x.before
+select '00000000-0000-4000-b000-000000000012', x.id, x.kind, x.nurse, null, (date_trunc('month', (now() at time zone 'Europe/Zurich')::date)::date + 1 + time '10:00') at time zone 'Europe/Zurich' - x.before
 from (values ('b2000000-0000-4000-8000-0000000000c1'::uuid, 'offered', null::uuid, interval '23 hours'),
              ('b2000000-0000-4000-8000-0000000000c1'::uuid, 'accepted', '00000000-0000-4000-a000-000000000903'::uuid, interval '18 hours'),
              ('b2000000-0000-4000-8000-0000000000c2'::uuid, 'offered', null::uuid, interval '23 hours'),
              ('b2000000-0000-4000-8000-0000000000c2'::uuid, 'accepted', '00000000-0000-4000-a000-000000000903'::uuid, interval '10 hours')) x(id, kind, nurse, before);
 insert into public.exception_events (organization_id, exception_key, kind, actor_id, created_at)
 values ('00000000-0000-4000-b000-000000000012', 'visit_uncovered:b2000000-0000-4000-8000-0000000000c2', 'take', '00000000-0000-4000-a000-000000000903',
-        (date_trunc('month', current_date)::date + 1 + time '10:00') at time zone 'Europe/Zurich' - interval '12 hours');
+        (date_trunc('month', (now() at time zone 'Europe/Zurich')::date)::date + 1 + time '10:00') at time zone 'Europe/Zurich' - interval '12 hours');
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
 set local role authenticated;
@@ -69,13 +69,13 @@ insert into public.teams (organization_id, id, name, region, status) values
   ('00000000-0000-4000-b000-000000000012', 'b2000000-0000-4000-8000-0000000000b2', 'Fremdteam B2', 'Bern West', 'active');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status)
 select '00000000-0000-4000-b000-000000000012', ('b2000000-0000-4000-8000-0000000000d' || g)::uuid, '00000000-0000-4000-a000-000000000251',
-       'b2000000-0000-4000-8000-0000000000b2', date_trunc('month', current_date)::date, '11:00', '12:00', false, 'completed'
+       'b2000000-0000-4000-8000-0000000000b2', date_trunc('month', (now() at time zone 'Europe/Zurich')::date)::date, '11:00', '12:00', false, 'completed'
 from generate_series(1, 3) g;
 insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, occurred_at)
 select '00000000-0000-4000-b000-000000000012', ('b2000000-0000-4000-8000-0000000000d' || g)::uuid, 'b2000000-0000-4000-8000-0000000000b2',
        e.t, e.f, e.s,
        (array['b2000000-0000-4000-8000-0000000000f1', 'b2000000-0000-4000-8000-0000000000f2'])[1 + g % 2]::uuid,
-       date_trunc('month', current_date) + e.at
+       date_trunc('month', (now() at time zone 'Europe/Zurich')::date) + e.at
 from generate_series(1, 3) g
 cross join (values ('departed', 'planned', 'on_the_way', interval '11 hours'),
                    ('started', 'on_the_way', 'started', interval '11 hours 10 minutes'),

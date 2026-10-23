@@ -88,8 +88,8 @@ select ok(exists (select 1 from public.team_cases() tc, jsonb_array_elements(tc.
   'the team view shows the member''s name');
 select ok(exists (select 1 from public.team_cases() tc where tc.primary_nurse_id = '00000000-0000-4000-a000-000000000902'),
   'the primary nurse is a named member of the team view');
-select lives_ok($$ select * from public.field_reports(current_date) $$, 'report list with signer names');
-select lives_ok($$ select * from public.field_quality(current_date) $$, 'quality list with author names');
+select lives_ok($$ select * from public.field_reports((now() at time zone 'Europe/Zurich')::date) $$, 'report list with signer names');
+select lives_ok($$ select * from public.field_quality((now() at time zone 'Europe/Zurich')::date) $$, 'quality list with author names');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
 set local role authenticated;

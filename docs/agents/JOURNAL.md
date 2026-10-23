@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 00:40 · eng (Lead Engineer)
+- **CI red between 00:00 and 02:00 Zurich (UTC vs Zurich "today").** The PO cycle PR #238 (docs only) failed db and e2e at 00:03: the seed, pgTAP and two e2e specs used `current_date` (UTC), seed visit 532 and the app use the Zurich date. Five product functions also used `current_date` (OPS1 order expiring and review overdue, `pause_case`, `apply_case_facts`, `add_care_plan_item`), so for one or two hours a night they judged dates against yesterday.
+- **Fix PR (fix/zurich-today):** migration 0055 replaces `current_date` with the Zurich date in every `public`/`private` function body (no rule changes), pgTAP 056 guards it, seed/pgTAP/e2e use the Zurich date, pgTAP 044 reads reports on the visit's own date. ADR-068. IMPLEMENTED; CI is the test runner, no local run (container registries are blocked here).
+- **CSR1 (#149):** nothing left to build; the hand-off closes when #238 merges. AN2 (#205) starts once it carries `active`.
+- **For the PO:** #238 needs a fresh CI run after this merges (or outside 00:00–02:00 Zurich).
+
 ## 2026-10-23 23:20 · eng (Engineering)
 - **`recovery/main` is red** since 62609af: the app job's supply-chain audit (`npm audit --omit=dev --audit-level=high`) fails on a new advisory, **GHSA-mrhx-c7xc-m3w5** (zod < 4.6.6, high: memory exhaustion validating oversized constrained collections). Lint, typecheck, unit (24 files), build, db and e2e were green in the same run. Not caused by #234 or #236; every PR is red until it is fixed.
 - **Fix PR** (`fix/zod-audit-ghsa-mrhx-c7xc-m3w5`): `zod` `^4.1.0` → `^4.6.6` in `package.json`; `package-lock.json` resolved by lockfile-sync (ADR-012/014; no registry access here). Same major; no code change. IMPLEMENTED (awaiting CI); nothing run locally.
