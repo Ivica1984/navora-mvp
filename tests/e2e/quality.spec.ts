@@ -6,7 +6,12 @@ const NURSE = "pflege.test@navora.test"; // Testteam Nord
 const COACH = "coach.test@navora.test"; //  org A, coach
 const OPS = "ops.test@navora.test"; //      org A, operations
 const PASSWORD = "navora-local-only";
-const SEED_DAY = new Date().toISOString().slice(0, 10);
+// The seed and the app use the Europe/Zurich calendar date (ADR-068); CI's clock runs in UTC.
+function zurichDay(offset = 0): string {
+  const [y, m, d] = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Zurich" }).split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + offset)).toISOString().slice(0, 10);
+}
+const SEED_DAY = zurichDay();
 
 async function signIn(page: Page, email: string, landing: RegExp) {
   await page.goto("/login");

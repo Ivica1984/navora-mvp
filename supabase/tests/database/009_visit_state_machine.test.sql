@@ -49,11 +49,11 @@ select is(
      and actor_id = '00000000-0000-4000-a000-000000000902' and idempotency_key is not null and command is not null),
   5, 'every event carries actor, command and idempotency key');
 select is(
-  (select jsonb_array_length(events) from public.field_visits(current_date)
+  (select jsonb_array_length(events) from public.field_visits((now() at time zone 'Europe/Zurich')::date)
    where visit_id = '00000000-0000-4000-a000-000000000501'),
   5, 'field_visits returns the timeline');
 select is(
-  (select events -> 0 ->> 'type' from public.field_visits(current_date)
+  (select events -> 0 ->> 'type' from public.field_visits((now() at time zone 'Europe/Zurich')::date)
    where visit_id = '00000000-0000-4000-a000-000000000501'),
   'departed', 'timeline entries carry the event type');
 

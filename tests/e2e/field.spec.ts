@@ -8,12 +8,16 @@ const NURSE = "pflege.test@navora.test"; // org A, nurse, Testteam Nord
 const ASSISTANT = "assist.test@navora.test"; // org A, care assistant, Testteam Nord (F7)
 const PASSWORD = "navora-local-only";
 
-// The seed uses the database's current_date; CI's database runs in UTC.
-const SEED_DAY = new Date().toISOString().slice(0, 10);
+// The seed and the app use the Europe/Zurich calendar date (ADR-068); CI's clock runs in UTC.
+function zurichDay(offset = 0): string {
+  const [y, m, d] = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Zurich" }).split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + offset)).toISOString().slice(0, 10);
+}
+const SEED_DAY = zurichDay();
 // Visit 508 (Testteam Nord, 09:00) is planned for the day after and untouched by other tests.
-const NEXT_DAY = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+const NEXT_DAY = zurichDay(1);
 // Visit 509 (Testteam Nord, 18:00) two days ahead: the care assistant runs it in the F7 test below.
-const DAY_AFTER_NEXT = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10);
+const DAY_AFTER_NEXT = zurichDay(2);
 // Status buttons only (F4 adds "Beobachtung speichern" to completed visits).
 const TRANSITION = /^(Losfahren|Einsatz starten|Pause|Fortsetzen|Einsatz abschliessen)$/;
 
@@ -287,7 +291,7 @@ test.describe("field tool (F1)", () => {
 
   test("a care assistant signs what she sees; the countersignature request reaches a registered nurse of the team (F7)", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    const DAY_AFTER = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10);
+    const DAY_AFTER = zurichDay(2);
 
     // Visit 509 (18:00, Testfall 08) is run by the seeded care assistant of Testteam Nord.
     await signIn(page, ASSISTANT, /\/field$/);

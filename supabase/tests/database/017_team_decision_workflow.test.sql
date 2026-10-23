@@ -47,21 +47,21 @@ begin
     'mittel', null, 'J2v2 Heim', 'Bedarf Heim', array['Begleitung'], 'a7000000-0000-4000-8000-000000000002');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2v2 Spital'),
     'Klient', 'J2S', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
-      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', current_date + 2, 'expected_hours_per_week', 6),
+      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (now() at time zone 'Europe/Zurich')::date + 2, 'expected_hours_per_week', 6),
     'a7000000-0000-4000-8000-000000000003');
   -- A GP referral (referral type "other": no default deadline)
   perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Praxis J2v2', 'Hausarzt', 'Bern West', null,
     'mittel', null, 'J2v2 Praxis', 'Bedarf Praxis', array['Begleitung'], 'a7000000-0000-4000-8000-000000000008');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2v2 Praxis'),
     'Klient', 'J2O', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
-      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', current_date + 3),
+      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (now() at time zone 'Europe/Zurich')::date + 3),
     'a7000000-0000-4000-8000-000000000009');
   -- A region without any team (no eligible team at all)
   perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Privat J2v2', 'Privat / Angehörige', 'Testregion ohne Team', null,
     'niedrig', null, 'J2v2 Leer', 'Bedarf Leer', array['Begleitung'], 'a7000000-0000-4000-8000-000000000006');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2v2 Leer'),
     'Klient', 'J2L', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
-      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', current_date + 3),
+      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (now() at time zone 'Europe/Zurich')::date + 3),
     'a7000000-0000-4000-8000-000000000007');
 end
 $$;
@@ -72,7 +72,7 @@ select throws_ok(
 do $$ begin
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2v2 Heim'),
     'Klient', 'J2H', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
-      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', current_date + 3),
+      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (now() at time zone 'Europe/Zurich')::date + 3),
     'a7000000-0000-4000-8000-000000000005');
 end $$;
 reset role;
@@ -99,7 +99,7 @@ select is((select referral_type || '/' || coalesce(response_due_at::text, 'none'
 -- Offer fields before acceptance (F0 criterion 4) --------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select ok((select requested_start = current_date + 2 and expected_hours_per_week = 6 and required_qualification = 'registered_nurse'
+select ok((select requested_start = (now() at time zone 'Europe/Zurich')::date + 2 and expected_hours_per_week = 6 and required_qualification = 'registered_nurse'
            from public.team_offers() where matching_request_id = (select id from r where last_name = 'J2S')),
   'the offer shows start, expected hours per week and required qualification');
 select is(

@@ -35,7 +35,7 @@ insert into fx values
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status,
                                 planned_minutes_a, planned_minutes_b, planned_minutes_c, responsible_user_id)
 select '00000000-0000-4000-b000-000000000011', f.id, '00000000-0000-4000-a000-000000000208',
-       '00000000-0000-4000-a000-000000000101', current_date, f.t, f.t + interval '30 minutes', false, 'planned', f.a, f.b, f.c, f.resp
+       '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich')::date, f.t, f.t + interval '30 minutes', false, 'planned', f.a, f.b, f.c, f.resp
 from fx f;
 -- Billing basis for the CGR-29 part: KVG, insurer, no order (A/C minutes are billable).
 update public.cases set insurer_name = 'Testkasse', insurance_type = 'KVG', residence_canton = 'BE',
@@ -51,7 +51,7 @@ create function pg_temp.latest_report(n text) returns uuid language sql as $$
 create function pg_temp.report_v(n text, v int) returns public.visit_reports language sql as $$
   select r.* from public.visit_reports r where r.visit_id = pg_temp.vid(n) and r.version = v $$;
 create function pg_temp.shown_hash(n text) returns text language sql as $$
-  select f.snapshot_hash from public.field_reports(current_date) f where f.visit_id = pg_temp.vid(n) $$;
+  select f.snapshot_hash from public.field_reports((now() at time zone 'Europe/Zurich')::date) f where f.visit_id = pg_temp.vid(n) $$;
 create function pg_temp.started_event(n text) returns bigint language sql as $$
   select e.id from public.visit_events e where e.visit_id = pg_temp.vid(n) and e.event_type = 'started' $$;
 create function pg_temp.head_fact(n text) returns public.billable_facts language sql as $$
@@ -132,7 +132,7 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select is(public.correct_visit_time(pg_temp.started_event('w1'), now() - interval '40 minutes', 'Synthetisch: nach Rückzug',
                                     pg_temp.k(18)), 'rejected', 'a time correction is refused again (locked)');
-select is((select f.version || '/' || f.status from public.field_reports(current_date) f where f.visit_id = pg_temp.vid('w1')), '1/final',
+select is((select f.version || '/' || f.status from public.field_reports((now() at time zone 'Europe/Zurich')::date) f where f.visit_id = pg_temp.vid('w1')), '1/final',
   '/field shows the final version again');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
@@ -240,7 +240,7 @@ select is((select status from public.visit_reports where id = pg_temp.latest_rep
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select pg_temp.run_and_sign('k1', 5);
-select ok(public.generate_billable_facts(current_date) >= 1, 'k1: the fact of version 1 is built');
+select ok(public.generate_billable_facts((now() at time zone 'Europe/Zurich')::date) >= 1, 'k1: the fact of version 1 is built');
 reset role;
 create temp table k1_v1 as select (pg_temp.head_fact('k1')).report_id as report_id, (pg_temp.head_fact('k1')).measured_care_minutes as m;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
@@ -252,7 +252,7 @@ select is(public.correct_visit_time(pg_temp.started_event('k1'), now() - interva
                                     pg_temp.k(53)), 'ok', 'its time is corrected');
 select is(public.sign_report(pg_temp.latest_report('k1'), pg_temp.shown_hash('k1'), pg_temp.k(54)) ->> 'result', 'ok',
   'and signed: version 2 is final during the hold');
-select is(public.generate_billable_facts(current_date), 0, 'no fact while the hold is open');
+select is(public.generate_billable_facts((now() at time zone 'Europe/Zurich')::date), 0, 'no fact while the hold is open');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000901');
 set local role authenticated;
@@ -276,7 +276,7 @@ update public.cases set insurance_type = 'IV' where id = '00000000-0000-4000-a00
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select pg_temp.run_and_sign('j1', 6);
-select ok(public.generate_billable_facts(current_date) >= 1, 'j1: fact built');
+select ok(public.generate_billable_facts((now() at time zone 'Europe/Zurich')::date) >= 1, 'j1: fact built');
 reset role;
 create temp table j1_before as select (pg_temp.head_fact('j1')).* ;
 select ok((select not billable and reasons = array['payer_not_modelled'] from j1_before), 'j1: IV is payer_not_modelled');
@@ -299,11 +299,11 @@ update public.cases set medical_order_status = 'present', medical_order_valid_un
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select pg_temp.run_and_sign('j2', 7);
-select ok(public.generate_billable_facts(current_date) >= 1, 'j2: fact built');
+select ok(public.generate_billable_facts((now() at time zone 'Europe/Zurich')::date) >= 1, 'j2: fact built');
 reset role;
 create temp table j2_before as select (pg_temp.head_fact('j2')).* ;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
-update public.cases set medical_order_valid_until = current_date + 30 where id = '00000000-0000-4000-a000-000000000208';
+update public.cases set medical_order_valid_until = (now() at time zone 'Europe/Zurich')::date + 30 where id = '00000000-0000-4000-a000-000000000208';
 select ok((select f.id = (select id from j2_before) and not f.billable and 'order_validity_missing' = any (f.reasons)
            from pg_temp.head_fact('j2') f),
   'J5-C1 / D-22: an order end date entered later does not make the earlier visit billable');
@@ -320,7 +320,7 @@ select is((select f.payer_chain ->> 'insurer' from pg_temp.head_fact('j1') f), '
   'without a signed-in user nothing is re-derived at once');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select ok(public.generate_billable_facts(current_date) >= 1, 'the next generation re-derives');
+select ok(public.generate_billable_facts((now() at time zone 'Europe/Zurich')::date) >= 1, 'the next generation re-derives');
 reset role;
 select ok((select f.cause = 'basis_changed' and not f.billable and f.reasons = array['no_insurer']
            from pg_temp.head_fact('j1') f), 'j1: no_insurer after the catch-up');

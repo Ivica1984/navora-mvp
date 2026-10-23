@@ -103,7 +103,7 @@ select is(public.set_quality_hold('00000000-0000-4000-a000-000000000501', 'nochm
   'already_held', 'one open hold per visit');
 select is(public.lift_quality_hold((select id from public.quality_holds where visit_id = '00000000-0000-4000-a000-000000000501'),
           'erledigt', 'aa000000-0000-4000-8000-000000000022'), 'rejected', 'the team cannot lift a hold');
-select is((select count(*)::int from public.field_quality(current_date) where kind = 'hold' and status = 'open'), 2,
+select is((select count(*)::int from public.field_quality((now() at time zone 'Europe/Zurich')::date) where kind = 'hold' and status = 'open'), 2,
   '/field shows the open holds of the day');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');

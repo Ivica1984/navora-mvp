@@ -39,7 +39,7 @@ insert into public.case_lifecycle_events (organization_id, case_id, kind, reason
    '00000000-0000-4000-a000-000000000903', gen_random_uuid(), now() - interval '3 days');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status, suspended_at)
 values ('00000000-0000-4000-b000-000000000011', 'c4000000-0000-4000-8000-0000000000a1', '00000000-0000-4000-a000-000000000210',
-        '00000000-0000-4000-a000-000000000102', current_date + 3, '09:00', '09:30', false, 'planned', now() - interval '3 days');
+        '00000000-0000-4000-a000-000000000102', (now() at time zone 'Europe/Zurich')::date + 3, '09:00', '09:30', false, 'planned', now() - interval '3 days');
 update public.cases set lifecycle = 'paused' where id in ('00000000-0000-4000-a000-000000000210', '00000000-0000-4000-a000-000000000251');
 
 -- Two more hospital referrals (Bern West).
@@ -182,7 +182,7 @@ select is(public.link_returning_referral('c4000000-0000-4000-8000-000000000303',
   'Bekannte Klientin', 'Testfall', '06', true, (select f from facts), 'c4000000-0000-4000-8000-000000000e40') ->> 'result', 'duplicate', 'a retried link is applied once');
 
 -- AN1 -------------------------------------------------------------------------------------------------------------------------
-select ok((select k.value = 100 and k.base = 2 from public.pilot_kpis(current_date) k where k.kpi = 'returning_previous_team_share' and k.team_id is null),
+select ok((select k.value = 100 and k.base = 2 from public.pilot_kpis((now() at time zone 'Europe/Zurich')::date) k where k.kpi = 'returning_previous_team_share' and k.team_id is null),
   'AN1: returning clients served by their previous team (resumed case and accepted return)');
 reset role;
 
