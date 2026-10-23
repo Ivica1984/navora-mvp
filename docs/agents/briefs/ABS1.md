@@ -3,7 +3,7 @@ id: ABS1
 title: Absence without the phone chain
 author: po
 status: approved
-updated: 2026-10-22
+updated: 2026-10-23
 ---
 
 # ABS1 — Absence without the phone chain: "I can't work" hands the day to the team
@@ -54,6 +54,7 @@ A nurse records in a few seconds that she is not available. Her visits in that p
 - [ ] **Clinical gate (2026-10-22 23:00, CGR-15, CGR-11):** one eligibility and release rule for every path that takes a person off a visit (absence, removal, qualification change). It covers suspended visits (CGR-09), refuses or excludes in-progress visits (CGR-10), and respects qualification for B and needs-assessment visits at take, resume and complete (CGR-12, from CSR1).
 - [ ] **CGR-11:** `set_member_qualification` from `registered_nurse` to `care_assistant` releases the B and needs-assessment visits she may no longer perform, through the same release rule, logged with a fixed reason text. pgTAP.
 - [ ] **CGR-15:** a released visit that nobody takes stays alerted after its planned start, through CSR1's overdue-visit exception; it does not vanish at start time. pgTAP.
+- [ ] **Performed visits and open reports (PO 2026-10-23 03:10, from CGR-18):** recording an absence is **never refused**. A visit she is performing (`on_the_way`, `started`, `paused`) is not released and stays visible to the team through CSR1's stuck-visit exception (CGR-04); her missing or `draft` reports stay hers and appear as `report_not_final`. She stays a team member, so she can document on return. pgTAP: an absence recorded while she has a `paused` visit is accepted, that visit keeps her as responsible and performer, and it carries the stuck-visit exception; an absence recorded while she has a `draft` report is accepted and the report stays signable by her.
 - [ ] The PR names the latest Clinical Governance Report section and the CGR IDs it addresses.
 
 ## Out of scope

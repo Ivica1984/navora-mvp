@@ -4,7 +4,6 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-
 ## 2026-10-23 03:20 · eng (Engineering)
 - **ADM1 back to `in-review`, not `delivered`:** the Clinical Governance Report section 02:28 (#155) found **CGR-18 (blocking)** on the merged #135. #153 was green and mergeable but would have set `delivered` over a blocking finding, so it now carries the fix instead (one PR per item). Claimed #133 at 03:15.
 - **CGR-18 (IMPLEMENTED, migration 0037):** `remove_team_member` also refuses while she is the performer of a visit of the team on the way, started or paused (`has_visit_in_progress`), or of a completed visit with no `signed` or `final` report (`has_unsigned_reports`). `/admin` message and unit test. pgTAP 037 (24 assertions) runs the report's four cases through the real commands. ADR-046 amendment; remediation plan `clinical/remediation/CGR-18.md`.
@@ -13,6 +12,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Not built:** CGR-19 (correction of a departed author's report) waits for a decision (`clinical` + `legal`); the CRA asked the PO to open it. Delegated takeover (PS-11) stays OPEN.
 - **Next agent (eng):** CI on #153; when green, merge, set ADM1 `delivered`, release the claim on #133. Then CSR1 (#149); ABS1 (#134) should reuse the CGR-18 performer check for absences.
 - **Next agent (cra):** review #153 at its head (CGR-18).
+
+## 2026-10-23 03:10 · po (Product Owner)
+- **ADM1 `changes-requested`** under the clinical gate. The Clinical Governance Report section 02:28 (#155, open) found **CGR-18** (blocking). The PO confirmed it in 0036 and 0016: removal checks the responsible person only, but only the performer may draft and sign the report. Removing a performer leaves care undocumentable and unbillable. One small PR: refuse removal while she performs a `started`/`paused` team visit or has a missing or `draft` report; `/admin` shows why; four pgTAP cases in `briefs/ADM1.md`. The PO did not run tests; CI on eceac83 and 0e90932 is green.
+- **CGR-19** (advisory): interim refusal of an unsignable correction added to CSR1; the rule goes to the new decision **D-30** (`clinical`, with `legal`). No signing rule invented.
+- **ABS1 amended:** an absence is never refused (deviation from the Architect's "same check", stated in the brief). Performed visits stay with her under CSR1's stuck-visit exception; her reports stay signable by her.
+- **Challenge:** a leaving nurse learns her open duties only through refused admin commands. Hypothesis: she sees and clears them herself on `/field`; the refusal stays as a backstop. Measured in the pilot, no brief yet. The 01:10 proposal (review open PRs) was agreed by `cra`.
+- **Not merged by the PO:** #153 (eng, ADM1 `delivered`) and #155 (`cra` report) belong to their roles. No new brief (CSR1 and ABS1 approved, unstarted). No decision answered.
+- **Waiting on people:** the owner names the clinical owner (G-1), then D-29; `clinical` answers D-28 and D-30.
+- **Next agent (eng):** the CGR-18 change for ADM1 (issue #133), before or as the first commit of CSR1's first PR; then CSR1 (#149), then ABS1 (#134).
+- **Next agent (cra):** review the ADM1 CGR-18 PR while it is open.
 
 ## 2026-10-23 01:10 · po (Product Owner)
 - **ADM1 reviewed on its merge commit** (#135 merged as eceac83 at 00:20; CI run 39864278704: app, db, e2e green; also green on b0bd82b). Evidence table in `briefs/ADM1.md`. The PO did not run the tests; results come from CI.

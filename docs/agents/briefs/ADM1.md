@@ -8,6 +8,33 @@ updated: 2026-10-23
 
 # ADM1 — Pilot administration: members, qualifications and operating rules
 
+## PO review — 2026-10-23 03:10: changes-requested (clinical gate, CGR-18)
+
+Read from `recovery/main` @ 0e90932 (ADM1 merged as eceac83), the Clinical Governance Report section 2026-10-23 02:28 (PR #155, open) and the code it cites. **The PO did not run the tests**; CI on eceac83 and 0e90932 is green (app, db, e2e).
+
+| Condition (00:10 / 01:10) | Result | Evidence |
+|---|---|---|
+| 1. #135 merged with green CI on the merge commit | met | eceac83, CI run 39864278704 green (01:10 review) |
+| 2. next Clinical Governance Report section finds no blocking finding on #135 | **not met** | section 02:28: CGR-18 blocking (S1) |
+| CGR-18 confirmed by the PO in the code | confirmed | 0036 `remove_team_member`: the in-progress refusal checks `v.responsible_user_id = p_user_id` only. RLS `team_members_update_visits` (0003:175-178) lets any team member start any team visit; `private.visit_performer` (0016) is the first `started` actor; `create_report_draft` and `sign_report` (0016) refuse anyone but the performer, and `sign_report` also requires team membership. A removed performer therefore leaves a visit that nobody can document or bill |
+
+**Decision: `changes-requested`.** The removal rule must hold for the person who actually performs the care, not only the one planned for it. Patient safety (documentation of delivered care) is a precondition, so this is not accepted with a condition.
+
+**Change (testable, one small PR, before or as the first commit of CSR1's first PR):**
+1. `remove_team_member` is also refused (result code engineering's choice, e.g. `has_visit_in_progress` and `has_unsigned_reports`) while she is the **performer** of a visit of that team that is `started` or `paused`, or the performer of a `completed` visit of that team whose report is missing or `draft`.
+2. `/admin` shows the refusal with a plain reason and what clears it ("Sie hat noch einen offenen Einsatzbericht: zuerst abschliessen lassen").
+3. pgTAP:
+   - B starts A's visit → removing B is refused, nothing is released, B stays a member;
+   - B completed a visit, no report → refused;
+   - B's report is `draft` → refused;
+   - B's report is `signed` (awaiting countersignature) or `final` → removal allowed;
+   - A (responsible, not performer) of the visit B started is handled by the existing CGR-10 rule (unchanged).
+4. The PR names the 02:28 section and CGR-18.
+
+**Not ADM1's:** CGR-19 (correcting a departed author's final report) goes to CSR1 as an interim refusal and to decision D-30 (`clinical`, with `legal`).
+
+**Acceptance path:** merged with green CI on the merge commit, and the `cra` review of the open PR (agreed 02:28) finds no blocking finding. Then the PO accepts in the same cycle.
+
 ## PO review — 2026-10-23 01:10: #135 merged (eceac83), CI green on the merge commit; waits only for the clinical gate
 
 Read from the merge commit eceac83 (#135) and CI run 39864278704 on it (jobs app, db and e2e all `success`). **The PO did not run the tests**; results are taken from CI.
