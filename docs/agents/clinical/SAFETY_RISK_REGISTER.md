@@ -1,6 +1,6 @@
 # Safety Risk Register
 
-**Maintained by:** Clinical & Regulatory Architect (review role) · **Last change:** 2026-10-23 06:30 (0037, 0038, 0039 merged) · **Baseline:** `recovery/main` @ `53147cc`
+**Maintained by:** Clinical & Regulatory Architect (review role) · **Last change:** 2026-10-23 10:29 (0040, 0041, 0042 merged) · **Baseline:** `recovery/main` @ `50681da`
 
 This register holds every open risk from the clinical governance reviews: clinical (`C`), patient safety (`PS`), regulatory (`R`), billing (`BL`) and governance (`G`). Hazards to clients are in [`HAZARD_LOG.md`](HAZARD_LOG.md). Gate findings with remedies are in [`../reports/CLINICAL_GOVERNANCE.md`](../reports/CLINICAL_GOVERNANCE.md). Engineering items are in `docs/engineering/SECURITY_RISKS.md`; this register does not duplicate them.
 
@@ -30,7 +30,7 @@ Gate details are in the report.
 | C-4 | clin | Qualification without registration evidence | CGR-16 | S1 | owner, eng | verification step before a qualification is active | C | open |
 | C-5 | clin | Registered-nurse check only at first start | CGR-12 closed: 0038:52-58, pgTAP 038:76-109 | S1 | eng | check at every transition | B | mitigated-in-code (rule needs D-15) |
 | C-6 | clin | Care-assistant scope for category A undefined | CR-010 | S2 | clinical | D-15 | B | open |
-| C-7 | clin | Pressure to reduce countersignature (D-10) | `OPEN_DECISIONS.md` D-10 | S2 | clinical | keep universal countersignature for the pilot | B | open |
+| C-7 | clin | Pressure to reduce countersignature (D-10); since 0040 a countersigner who sees an error must countersign and then correct (return path asked in D-10) | `OPEN_DECISIONS.md` D-10; 0040 | S2 | clinical | keep universal countersignature for the pilot | B | open |
 | C-8 | clin | No reassessment on resume, reopen or return | 0024:236-258; 0025:158-165 | S1 | clinical | triggers and intervals; instrument D-13 | B | open |
 | C-9 | clin | Review date passed only raises a P3 flag | 0014:150 | S2 | clinical | defined consequence of an overdue review | B | open |
 | C-10 | clin | Free-text observations only; no deterioration signal | 0009:7-8 | S2 | clinical, po | structured items chosen by `clinical` | C | open |
@@ -48,7 +48,10 @@ Gate details are in the report.
 | PS-11 | safety | Report stuck if performer absent | CR-012 | S2 | clinical, eng | delegated takeover | C | open |
 | PS-14 | safety | Removing a member leaves her own in-progress or undocumented visits permanently undocumentable | CGR-18 closed: 0037:57-75, pgTAP 037 | S1 | eng | refuse removal while she is the performer (CGR-18) | B | mitigated-in-code |
 | PS-15 | safety | A correction of a departed author's report can never be signed | CGR-19; 0016:343-349 | S2 | clinical, legal, eng | decision; refuse the unsignable correction until answered | C | open |
-| PS-16 | safety | A started or paused visit can only end as `completed`; since 0039 its stuck alert cannot be closed, so a broken-off visit is either a permanent P1 or a false completion | CGR-20; 0038:38-45; 0024:353, 374; 0039:132-134 | S1 | eng, clinical, legal | audited "not completed" end, not billable until decided | B | open |
+| PS-16 | safety | A started or paused visit can only end as `completed`; since 0039 its stuck alert cannot be closed, so a broken-off visit is either a permanent P1 or a false completion | CGR-20 closed: 0042:99-135, pgTAP 042 | S1 | eng, clinical, legal | audited "not completed" end, not billable until decided (D-31) | B | mitigated-in-code (interim rule, D-31) |
+| PS-20 | safety | After a visit is ended as not completed, no signal asks anyone to decide the follow-up for care that was due | CGR-25; 0042:129-133 | S2 | eng, clinical | provisional follow-up exception; D-31 | B | open |
+| PS-21 | safety | A report correction draft reopens the visit's facts with no time limit and no exception | CGR-24; 0016:343-349; 0024:519-527; 0040:24-33 | S2 | eng, clinical | P3 exception for an open correction; D-28 threshold | B | open |
+| PS-22 | safety | A coordinator's "not completed" end of a visit in progress is irreversible | CGR-26; 0042:124-129 | S3 | po, clinical | show the actor to the performer; pilot measure; D-31 | C | open |
 | PS-17 | safety | Overdue and stuck alerts of a covered visit do not reach the covering team; the detail suggests someone is going | CGR-21; 0038:102, 154 | S2 if cover enabled | eng | include the covering team before D-3 enables cover | C | open (cover off) |
 | PS-18 | safety | A hand-closed uncovered visit stays silent until it is overdue | CGR-22; 0039:29-31 | S2 | eng, clinical | strict default or recorded reason; D-28 | B | open |
 | PS-19 | safety | The stuck clock restarts with every pause or resume | CGR-23; 0038:115-128 | S3 | po, clinical | pilot measure; D-28 | C | open |
@@ -67,7 +70,7 @@ Gate details are in the report.
 | R-11 | reg | Professional accountability without line management unassigned | `MASTER_CONTEXT.md`; D-20 | S1 | owner, legal | name the accountable clinical lead per licence | C | open |
 | BL-1 | billing | Rates from one canton's publication, citation inconsistent | CR-028 | S2 | legal | verify source and citation | C | open; rows marked unvalidated in the data since 0043 (CGR-08) |
 | BL-2 | billing | 10-minute minimum from Basel-Stadt, applied nationally, read differently from the brief | CR-029 | S1 | legal | D-18, D-11 | C | open |
-| BL-3 | billing | Billed minutes can differ from the signed report | CGR-03 | S1 | eng | bill from the signed snapshot | B | remedy in review (CSR1 part 6, #183, 0043); Architect to confirm |
+| BL-3 | billing | Billed minutes can differ from the signed report | CGR-03 (J5 part open); since 0040 facts change after signature only through a correction draft (CGR-24) | S1 | eng | bill from the latest final snapshot | B | remedy in review (CSR1 part 6, #183, 0043); Architect to confirm |
 | BL-4 | billing | Order without an end date valid forever; expired orders ignored for A/C | CGR-07 | S1 | eng, legal | validity required; D-22 | B | remedy in review (CSR1 part 6, #183, 0043); Architect to confirm |
 | BL-5 | billing | All cases priced at KVG rates whatever the insurance type | CGR-07 | S1 | eng | non-KVG not billable until modelled | B | remedy in review (CSR1 part 6, #183, 0043); Architect to confirm |
 | BL-6 | billing | Billing ignores qualification, needs assessment and review date | 0023:82, 120-125 | S1 | eng, clinical | billing gates after D-15 | C | open |
