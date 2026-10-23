@@ -2,19 +2,25 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { cancelVisit, recordNoShow, recordNoShowOutcome } from "@/features/lifecycle/commands";
-import { CANCEL_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, REASON_LABEL, reasonError } from "@/features/lifecycle/rules";
+import { cancelVisit, endVisitNotCompleted, recordNoShow, recordNoShowOutcome } from "@/features/lifecycle/commands";
+import {
+  CANCEL_REASONS, INTERRUPT_NOTICE, INTERRUPT_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, REASON_LABEL, canEndNotCompleted, reasonError,
+} from "@/features/lifecycle/rules";
 import type { VisitStatusNote } from "@/features/lifecycle/queries";
 
-/** C1 on the /field card: cancel before start, record a no-show after arrival, and its outcome. */
+/**
+ * C1 on the /field card: cancel before start, record a no-show after arrival, and its outcome.
+ * CSR1 / CGR-20: end a started or paused visit as not completed, with a reason, so "complete" is never the only way out.
+ */
 export default function VisitLifecycle({ visitId, status, notes }: { visitId: string; status: string | null; notes: VisitStatusNote[] }) {
   const router = useRouter();
-  const [mode, setMode] = useState<"idle" | "cancel" | "no_show" | "outcome">("idle");
+  const [mode, setMode] = useState<"idle" | "cancel" | "no_show" | "outcome" | "interrupt">("idle");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const cancelled = notes.find((n) => n.kind === "cancelled");
   const noShow = notes.find((n) => n.kind === "no_show");
   const outcome = notes.find((n) => n.kind === "no_show_outcome");
+  const interrupted = notes.find((n) => n.kind === "interrupted");
 
   async function run(call: () => Promise<{ ok: boolean; error?: string }>) {
     setPending(true);
@@ -32,7 +38,8 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
   const canCancel = status === "planned" || status === "on_the_way";
   const canNoShow = status === "on_the_way";
   const needsOutcome = status === "no_show" && !outcome;
-  if (!canCancel && !cancelled && !noShow) return null;
+  const canInterrupt = canEndNotCompleted(status);
+  if (!canCancel && !canInterrupt && !cancelled && !noShow && !interrupted) return null;
 
   return (
     <section aria-label="Absage und Nichtantreffen" data-testid="visit-lifecycle" className="mt-3 grid gap-2 text-sm">
@@ -52,10 +59,16 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
           )}
         </div>
       )}
+      {interrupted && (
+        <p className="rounded-lg border-l-4 border-amber-600 bg-amber-50 p-2" data-testid="interrupt-reason">
+          <span className="font-bold">Nicht abgeschlossen · {REASON_LABEL[interrupted.reason_code ?? ""] ?? interrupted.reason_code}</span>
+          {interrupted.note ? ` – ${interrupted.note}` : ""}
+        </p>
+      )}
       {error && (
         <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">{error}</p>
       )}
-      {mode === "idle" && (canCancel || needsOutcome) && (
+      {mode === "idle" && (canCancel || needsOutcome || canInterrupt) && (
         <div className="flex flex-wrap gap-2">
           {canCancel && (
             <button type="button" onClick={() => setMode("cancel")} className="min-h-11 rounded-lg border border-stone-400 bg-white px-3 font-semibold">
@@ -65,6 +78,11 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
           {canNoShow && (
             <button type="button" onClick={() => setMode("no_show")} className="min-h-11 rounded-lg border border-rose-500 bg-white px-3 font-semibold text-rose-900">
               Nicht angetroffen
+            </button>
+          )}
+          {canInterrupt && (
+            <button type="button" onClick={() => setMode("interrupt")} className="min-h-11 rounded-lg border border-amber-600 bg-white px-3 font-semibold text-amber-900">
+              Nicht abgeschlossen beenden
             </button>
           )}
           {needsOutcome && (
@@ -83,6 +101,20 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
             run(() => cancelVisit({ visitId, reasonCode: code, note, idempotencyKey: crypto.randomUUID() }));
           }}
         />
+      )}
+      {mode === "interrupt" && (
+        <div role="form" aria-label="Einsatz nicht abgeschlossen beenden" className="grid gap-2">
+          <p className="text-xs text-amber-900">{INTERRUPT_NOTICE}</p>
+          <ReasonForm
+            title="Warum endet der Einsatz?" reasons={INTERRUPT_REASONS} pending={pending} submitLabel="Nicht abgeschlossen speichern"
+            onCancel={() => setMode("idle")}
+            onSubmit={(code, note) => {
+              const problem = reasonError(code, note, INTERRUPT_REASONS);
+              if (problem) return setError(problem);
+              run(() => endVisitNotCompleted({ visitId, reasonCode: code, note, idempotencyKey: crypto.randomUUID() }));
+            }}
+          />
+        </div>
       )}
       {mode === "no_show" && (
         <form action={(f) => run(() => recordNoShow({ visitId, note: String(f.get("note") ?? ""), idempotencyKey: crypto.randomUUID() }))} className="grid gap-2">

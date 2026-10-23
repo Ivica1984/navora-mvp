@@ -54,7 +54,8 @@ export type FieldAction = "depart" | "start" | "pause" | "resume" | "complete";
  * Actions the field tool offers for a status, primary action first. Mirrors the
  * transitions the database allows (migration 0007, ADR-023):
  *   planned → on_the_way → started ↔ paused → completed, plus planned → started.
- * assigned/accepted/cancelled/no_show wait for owner decision D-6.
+ * assigned/accepted wait for owner decision D-6. cancel, no-show and the not-completed end (CSR1 / CGR-20)
+ * are reason commands on the card (visit-lifecycle.tsx), not field actions.
  * The database is the authority; this only decides which buttons to show.
  */
 export function fieldActions(status: string | null): FieldAction[] {
@@ -89,7 +90,8 @@ export function summarizeDay(visits: ReadonlyArray<FieldVisitLike>) {
   for (const v of visits) {
     if (v.status === "completed") done += 1;
     else if (v.status === "started" || v.status === "on_the_way" || v.status === "paused") running += 1;
-    else if (v.status !== "cancelled" && v.status !== "no_show") open += 1;
+    // CSR1 / CGR-20: a visit ended as not completed is neither open nor done.
+    else if (v.status !== "cancelled" && v.status !== "no_show" && v.status !== "interrupted") open += 1;
   }
   return { total: visits.length, open, running, done };
 }

@@ -70,6 +70,53 @@ test("a visit suspended by a pause is marked on /field and has no depart button,
   await expect(page.getByRole("article", { name: /16:00 – 16:30, Testfall 08/ }).getByRole("button", { name: "Losfahren" })).toBeVisible();
 });
 
+test("a started visit ends as not completed with a reason, never only as complete, at phone width (CSR1 / CGR-20)", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signIn(page, NURSE, /\/field$/);
+  await page.goto("/team");
+  const card = page.getByRole("article", { name: /Fall Testfall 08/ });
+
+  // A visit five days ahead (no other test uses that slot).
+  const day = new Date(Date.now() + 5 * 86_400_000).toISOString().slice(0, 10);
+  await card.getByRole("button", { name: "Einsatz planen" }).click();
+  const planForm = card.getByRole("form", { name: "Einsatz planen" });
+  await planForm.getByLabel("Datum").fill(day);
+  await planForm.getByLabel("Von").fill("17:00");
+  await planForm.getByLabel("Bis").fill("17:30");
+  await planForm.getByLabel("A", { exact: true }).fill("30");
+  await planForm.getByRole("button", { name: "Einsatz speichern" }).click();
+  await expect(card.getByRole("list", { name: "Geplante Einsätze" })).toContainText("17:00–17:30");
+
+  await page.goto(`/field?datum=${day}`);
+  const visit = page.getByRole("article", { name: /17:00 – 17:30, Testfall 08/ });
+  await expect(visit.getByRole("button", { name: "Nicht abgeschlossen beenden" })).toHaveCount(0);   // only once started
+  await visit.getByRole("button", { name: "Einsatz starten" }).click();
+  await expect(visit.getByTestId("visit-status")).toHaveText("Gestartet");
+
+  // Next to "Einsatz abschliessen" there is an honest end.
+  await expect(visit.getByRole("button", { name: "Einsatz abschliessen" })).toBeVisible();
+  await visit.getByRole("button", { name: "Nicht abgeschlossen beenden" }).click();
+  const form = visit.getByRole("form", { name: "Einsatz nicht abgeschlossen beenden" });
+  await expect(form).toContainText("D-31");
+  await expect(form.locator("select[name=code]")).toHaveAttribute("required", "");   // a reason is required
+  await form.locator("select[name=code]").selectOption("client_transferred");
+  await form.getByRole("button", { name: "Nicht abgeschlossen speichern" }).click();
+
+  await expect(visit.getByTestId("visit-status")).toHaveText("Nicht abgeschlossen");
+  await expect(visit.getByTestId("interrupt-reason")).toContainText("Nicht abgeschlossen · Klient:in verlegt bzw. ins Spital gebracht");
+  for (const name of ["Einsatz abschliessen", "Fortsetzen", "Einsatz starten", "Nicht abgeschlossen beenden"]) {
+    await expect(visit.getByRole("button", { name })).toHaveCount(0);
+  }
+  // No report obligation: the card has no report section.
+  await expect(visit.getByTestId("visit-report")).toHaveCount(0);
+
+  // It stays so after a reload, and the page does not scroll sideways.
+  await page.reload();
+  await expect(page.getByRole("article", { name: /17:00 – 17:30, Testfall 08/ }).getByTestId("interrupt-reason")).toBeVisible();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
 test("Operations closes a case with a reason and reopens it in the app (C1, PO addendum)", async ({ page }) => {
   await signIn(page, "ops.test@navora.test", /\/operations$/);
   const panel = page.getByTestId("ops-case-lifecycle");

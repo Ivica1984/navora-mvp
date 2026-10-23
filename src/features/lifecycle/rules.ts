@@ -4,6 +4,13 @@ export const PAUSE_REASONS = ["hospital_stay", "rehabilitation", "client_absence
 export const CLOSE_REASONS = ["goal_reached", "moved_inpatient", "moved_away", "declined", "died", "other"] as const;
 export const CANCEL_REASONS = ["client_cancelled", "client_in_hospital", "team_cancelled", "other"] as const;
 export const NO_SHOW_OUTCOMES = ["client_reached", "emergency_contact_informed", "emergency_services_called", "other"] as const;
+/** CSR1 / CGR-20 (migration 0042): why a started or paused visit ended without completion. */
+export const INTERRUPT_REASONS = ["client_transferred", "client_declined", "nurse_unavailable", "started_by_mistake", "other"] as const;
+
+/** Visit states from which a visit can be ended as not completed (the database checks the same). */
+export function canEndNotCompleted(status: string | null): boolean {
+  return status === "started" || status === "paused";
+}
 
 export const REASON_LABEL: Record<string, string> = {
   hospital_stay: "Spitalaufenthalt",
@@ -21,6 +28,10 @@ export const REASON_LABEL: Record<string, string> = {
   client_reached: "Klient:in erreicht",
   emergency_contact_informed: "Notfallkontakt informiert",
   emergency_services_called: "Rettungsdienst alarmiert",
+  client_transferred: "Klient:in verlegt bzw. ins Spital gebracht",
+  client_declined: "Klient:in lehnt die Fortsetzung ab",
+  nurse_unavailable: "Pflegeperson abberufen oder unwohl",
+  started_by_mistake: "Irrtümlich gestartet",
   other: "Anderer Grund",
 };
 
@@ -37,6 +48,10 @@ export const LIFECYCLE_MESSAGES: Record<string, string> = {
   invalid: "Bitte die Eingaben prüfen (Grund wählen; Begründung bzw. Notiz mindestens 3 Zeichen).",
   failed: "Konnte nicht gespeichert werden.",
 };
+
+/** CSR1 / CGR-20: shown with the not-completed end until the clinical rule (D-31) exists. */
+export const INTERRUPT_NOTICE =
+  "Hält fest, dass die Pflege abgebrochen wurde – nicht, dass sie erbracht wurde: keine Abrechnung, kein Bericht, nicht als abgeschlossen gezählt. Dokumentation und Abrechnung legt die klinische Leitung fest (D-31); bis dahin gilt diese provisorische Regel.";
 
 /** Shown with the no-show workflow until the clinical on-site protocol (D-19) exists. */
 export const NO_SHOW_NOTICE =

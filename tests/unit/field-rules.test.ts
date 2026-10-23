@@ -62,4 +62,9 @@ describe("field rules (F1)", () => {
       ])
     ).toEqual({ total: 5, open: 1, running: 2, done: 1 });
   });
+
+  it("a visit ended as not completed is neither open nor done (CSR1 / CGR-20)", () => {
+    expect(summarizeDay([{ status: "interrupted" }, { status: "completed" }])).toEqual({ total: 2, open: 0, running: 0, done: 1 });
+    expect(fieldActions("interrupted")).toEqual([]);
+  });
 });

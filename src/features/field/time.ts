@@ -3,7 +3,7 @@
 // Times are facts for the team's own overview only: payroll relevance and
 // billability are separate, later decisions (Lohnrelevanz ≠ Tarifabrechenbarkeit).
 
-export type VisitEventType = "departed" | "started" | "paused" | "resumed" | "completed";
+export type VisitEventType = "departed" | "started" | "paused" | "resumed" | "completed" | "interrupted";
 export type VisitEvent = {
   type: VisitEventType | string;
   /** Effective time: the latest correction, else the recorded time (F3). */
@@ -82,6 +82,13 @@ export function computeVisitTimes(events: ReadonlyArray<VisitEvent>, now: Date =
         if (careSince !== null) care = (care ?? 0) + Math.max(0, at - careSince);
         careSince = null;
         break;
+      // CSR1 / CGR-20: ended as not completed. The clock stops; the minutes are shown, never counted as completed care.
+      case "interrupted":
+        if (careSince !== null) care = (care ?? 0) + Math.max(0, at - careSince);
+        if (pauseSince !== null) pause = (pause ?? 0) + Math.max(0, at - pauseSince);
+        careSince = null;
+        pauseSince = null;
+        break;
     }
   }
 
@@ -115,6 +122,7 @@ export const EVENT_LABEL: Record<string, string> = {
   paused: "Pause begonnen",
   resumed: "Fortgesetzt",
   completed: "Abgeschlossen",
+  interrupted: "Nicht abgeschlossen beendet",
 };
 
 const ZONE = "Europe/Zurich";

@@ -51,6 +51,8 @@ describe("handover rules (HAND1)", () => {
       .toEqual(["20.10.2026 08:00 → 21.10.2026 09:00", "Begründung: Arzttermin"]);
     expect(entryLines("care_plan_schedule", { service: "Grundpflege", changed: { freq_period: { old: null, new: "day" } } }))
       .toEqual(["Grundpflege", "Rhythmus: – → täglich"]);
+    expect(entryLines("visit_interrupted", { reason_code: "client_transferred", note: "Ins Spital gebracht" }))
+      .toEqual(["Klient:in verlegt bzw. ins Spital gebracht", "Ins Spital gebracht"]);
     expect(entryLines("care_plan_schedule", { service: "Grundpflege", changed: {} }))
       .toEqual(["Grundpflege", "Werte vor der Protokollierung nicht erfasst"]);
   });
