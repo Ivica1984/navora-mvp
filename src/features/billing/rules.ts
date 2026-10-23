@@ -9,7 +9,15 @@ export const NOT_BILLABLE_LABEL: Record<string, string> = {
   below_minimum: "unter der Mindestdauer",
   no_planned_minutes: "keine Minuten pro Kategorie geplant",
   no_measured_time: "keine gemessene Pflegezeit",
+  // CSR1 / CGR-07 (migration 0043): no estimate on a missing, expired or unmodelled basis.
+  order_validity_missing: "Verordnung ohne Enddatum",
+  order_expired: "Verordnung abgelaufen",
+  payer_not_modelled: "Kostenträger nicht abgebildet (nur KVG)",
 };
+
+/** CSR1 / CGR-08: shown while a rate or the minimum duration in use is not validated (D-11, D-18). */
+export const REFERENCE_NOT_VALIDATED =
+  "Tarife und Mindestdauer nicht validiert (kantonale Quelle, Pilotkanton offen: D-11, D-18)";
 
 export function notBillableText(reasons: unknown): string {
   if (!Array.isArray(reasons) || reasons.length === 0) return "Grund unbekannt";

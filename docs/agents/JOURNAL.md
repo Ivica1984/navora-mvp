@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 10:45 · eng (Engineering)
+- **Active issue #148 (J5 changes-requested) claimed 10:16** (no `claimed` label was left from the 09:16 run). This run delivers **J5's CSR1 part** (CSR1 part 6), the PO's step 2 after CGR-20: PR **#183** (`fix/csr1-j5-signed-billing`), migration 0043 (rule J5-v3), pgTAP 043, ADR-054, remediation plans `clinical/remediation/CGR-03.md` and `CGR-07.md`, rule register CR-045 to CR-047 (CR-006 deprecated). Report sections reviewed: 2026-10-22 22:30 (CGR-03, CGR-07, CGR-08), 23:05 (BL-8, BL-9); 2026-10-23 06:30 and 10:29 list them unchanged and add no J5 finding (10:29: the CGR-24 billing side is covered by billing from the latest final snapshot).
+- **IMPLEMENTED (CI pending):** CGR-03 J5 part (facts from the signed snapshot, with its hash), CGR-07 (`order_validity_missing`, `order_expired`, `payer_not_modelled`), CGR-08 (`validated` + note on reference rows, fact warning, preview "nicht validiert"), BL-8 (hold → not-billable fact, lift → earlier fact again), BL-9 (working-time fact per final report version). Deviations in the J5 row and the PR.
+- **Not in this PR:** CGR-13 (QG1 label), CGR-19 (F6), CGR-22. OPEN: D-11, D-12, D-18, D-22.
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim (043: 49/49, 022: 30/30, all other files the shim can run green; 001, 007-013, 018, 025 not run). vitest, typecheck, lint, e2e not run (npm unreachable). `database.types.ts` hand-edited.
+- **J5 `in-review`** (#183). **Next agent (eng):** CI on #183; when green, merge, set J5 `delivered`; the `claimed` label on #148 is removed at the end of this run. Then CGR-19 (F6), CGR-22. **(cra):** review #183 (0043, pgTAP 043, CR-045 to CR-047). **(po):** J5 re-acceptance after merge.
+
 ## 2026-10-23 10:29 · Clinical & Regulatory Architect (review)
 - **Report section 10:29** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `50681da` (merge commits bf37957 / 0040, 479701c / 0041, a78fa7e / 0042). Read 0040-0042 and pgTAP 040-042 in full; **I did not run the tests** (CI green on the three merge commits, checked through the API).
 - **Closed:** CGR-01 (0040:154-163; pgTAP 040:83), CGR-02 (0041:60-124; pgTAP 041:75-154), CGR-20 (0042:99-135; pgTAP 042; interim rule, D-31). CGR-03 closed for F3, F4 and F6 (0040:24-33, 80-85, 148-152; pgTAP 040:104-162); its J5 part stays open.

@@ -3,12 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { generateBillableFacts } from "@/features/billing/commands";
-import { formatChf, notBillableText, parseNotBillable } from "@/features/billing/rules";
+import { REFERENCE_NOT_VALIDATED, formatChf, notBillableText, parseNotBillable } from "@/features/billing/rules";
 import type { BillingPreviewRow } from "@/features/billing/queries";
 
 /**
  * J5: monthly billing preview per team. An ESTIMATE from billable facts — never an invoice.
  * Patient and residual shares appear only once cantonal reference data is on file (D-11).
+ * CSR1 / CGR-08: unvalidated rates or minimums are labelled "nicht validiert".
  */
 export default function BillingPreview({ rows, month }: { rows: BillingPreviewRow[]; month: string }) {
   const router = useRouter();
@@ -56,6 +57,11 @@ export default function BillingPreview({ rows, month }: { rows: BillingPreviewRo
                     Krankenversicherer (Schätzung): <span data-testid="insurer-chf">{formatChf(Number(r.insurer_chf))}</span>
                     {!r.insurer_complete && <span className="text-amber-800"> · Tarif fehlt für einen Teil der Minuten</span>}
                   </p>
+                  {!r.reference_validated && (
+                    <p className="font-semibold text-amber-800" data-testid="reference-not-validated">
+                      {REFERENCE_NOT_VALIDATED}
+                    </p>
+                  )}
                   <p className="text-xs text-stone-600">
                     Patientenbeteiligung: {r.patient_on_file ? "hinterlegt" : "nicht hinterlegt"} · Restfinanzierung:{" "}
                     {r.residual_on_file ? "hinterlegt" : "nicht hinterlegt (Pilotkanton offen, D-11)"}

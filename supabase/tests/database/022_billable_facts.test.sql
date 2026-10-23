@@ -72,7 +72,7 @@ select ok((select billable and order_basis = 'without_order_ac' and planned_minu
 select ok((select actual_care_minutes between 29 and 31 from public.billable_facts where visit_id = '00000000-0000-4000-a000-000000000501'),
   'actual care minutes are measured from the (corrected) events');
 select ok((select 'scaled_to_measured' = any (warnings) and billable_minutes_a = 17.14 and billable_minutes_c = 12.86
-                  and measured_care_minutes = 30.00 and rule_version = 'J5-v2'
+                  and measured_care_minutes = 30.00 and rule_version = 'J5-v3'
            from public.billable_facts where visit_id = '00000000-0000-4000-a000-000000000501'),
   'Q11: measured 30 of planned 35 minutes → categories scaled proportionally (A 17.14, C 12.86), exact minutes');
 select is((select tariff_versions ->> 'A' from public.billable_facts where visit_id = '00000000-0000-4000-a000-000000000501'),
@@ -139,7 +139,7 @@ select is((select count(*)::int from public.billable_facts) + (select count(*)::
            where team_id = '00000000-0000-4000-a000-000000000101'), 0, 'another organisation sees nothing');
 reset role;
 
--- Above plan, and a legacy (J5-v1) fact recalculated as a new fact -----------------------------------------------------
+-- Above plan, and a legacy (J5-v1) fact recalculated as a new fact (current rule J5-v3, CSR1 0043) ---------------------
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status, planned_minutes_a)
 values ('00000000-0000-4000-b000-000000000011', 'ac000000-0000-4000-8000-0000000000cc', '00000000-0000-4000-a000-000000000208',
         '00000000-0000-4000-a000-000000000101', current_date, '18:00', '18:15', false, 'planned', 10);
@@ -165,9 +165,9 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select is(public.generate_billable_facts(current_date), 1, 'a fact from the old rule is recalculated once');
 reset role;
-select ok((select f.rule_version = 'J5-v2' and f.billable_minutes_a = 10 and 'above_plan' = any (f.warnings)
+select ok((select f.rule_version = 'J5-v3' and f.billable_minutes_a = 10 and 'above_plan' = any (f.warnings)
                   and f.supersedes_id = (select o.id from public.billable_facts o where o.visit_id = f.visit_id and o.rule_version = 'J5-v1')
-           from public.billable_facts f where f.visit_id = 'ac000000-0000-4000-8000-0000000000cc' and f.rule_version = 'J5-v2'),
+           from public.billable_facts f where f.visit_id = 'ac000000-0000-4000-8000-0000000000cc' and f.rule_version = 'J5-v3'),
   'measured above plan: only the planned minutes are billed, flagged above_plan; the new fact references the old one');
 select ok((select billable_minutes_a is null and planned_minutes_a = 10 from public.billable_facts
            where visit_id = 'ac000000-0000-4000-8000-0000000000cc' and rule_version = 'J5-v1'), 'the old fact is not rewritten');

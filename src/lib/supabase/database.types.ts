@@ -27,17 +27,23 @@ isOneToOne: false
                   ]
                 },"billable_facts": {
                   Row: {
-                    "actual_care_minutes": number | null,"billable": boolean,"billable_minutes_a": number | null,"billable_minutes_b": number | null,"billable_minutes_c": number | null,"case_id": string,"created_at": string,"created_by": string,"id": string,"measured_care_minutes": number | null,"order_basis": string,"organization_id": string,"payer_chain": NonNullable<Json>,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"reasons": (string)[],"report_id": string,"rule_version": string,"supersedes_id": string | null,"tariff_versions": NonNullable<Json>,"team_id": string,"visit_date": string,"visit_id": string,"warnings": (string)[]
+                    "actual_care_minutes": number | null,"billable": boolean,"billable_minutes_a": number | null,"billable_minutes_b": number | null,"billable_minutes_c": number | null,"case_id": string,"cause": string,"created_at": string,"created_by": string,"hold_id": string | null,"id": string,"measured_care_minutes": number | null,"order_basis": string,"organization_id": string,"payer_chain": NonNullable<Json>,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"reasons": (string)[],"report_id": string,"rule_version": string,"snapshot_hash": string | null,"supersedes_id": string | null,"tariff_versions": NonNullable<Json>,"team_id": string,"visit_date": string,"visit_id": string,"warnings": (string)[]
                   }
                   ComputedFields: never
                   Insert: {
-                    "actual_care_minutes"?: number | null,"billable": boolean,"billable_minutes_a"?: number | null,"billable_minutes_b"?: number | null,"billable_minutes_c"?: number | null,"case_id": string,"created_at"?: string,"created_by": string,"id"?: string,"measured_care_minutes"?: number | null,"order_basis": string,"organization_id": string,"payer_chain": NonNullable<Json>,"planned_minutes_a"?: number,"planned_minutes_b"?: number,"planned_minutes_c"?: number,"reasons"?: (string)[],"report_id": string,"rule_version"?: string,"supersedes_id"?: string | null,"tariff_versions": NonNullable<Json>,"team_id": string,"visit_date": string,"visit_id": string,"warnings"?: (string)[]
+                    "actual_care_minutes"?: number | null,"billable": boolean,"billable_minutes_a"?: number | null,"billable_minutes_b"?: number | null,"billable_minutes_c"?: number | null,"case_id": string,"cause"?: string,"created_at"?: string,"created_by": string,"hold_id"?: string | null,"id"?: string,"measured_care_minutes"?: number | null,"order_basis": string,"organization_id": string,"payer_chain": NonNullable<Json>,"planned_minutes_a"?: number,"planned_minutes_b"?: number,"planned_minutes_c"?: number,"reasons"?: (string)[],"report_id": string,"rule_version"?: string,"snapshot_hash"?: string | null,"supersedes_id"?: string | null,"tariff_versions": NonNullable<Json>,"team_id": string,"visit_date": string,"visit_id": string,"warnings"?: (string)[]
                   }
                   Update: {
-                    "actual_care_minutes"?: number | null,"billable"?: boolean,"billable_minutes_a"?: number | null,"billable_minutes_b"?: number | null,"billable_minutes_c"?: number | null,"case_id"?: string,"created_at"?: string,"created_by"?: string,"id"?: string,"measured_care_minutes"?: number | null,"order_basis"?: string,"organization_id"?: string,"payer_chain"?: NonNullable<Json>,"planned_minutes_a"?: number,"planned_minutes_b"?: number,"planned_minutes_c"?: number,"reasons"?: (string)[],"report_id"?: string,"rule_version"?: string,"supersedes_id"?: string | null,"tariff_versions"?: NonNullable<Json>,"team_id"?: string,"visit_date"?: string,"visit_id"?: string,"warnings"?: (string)[]
+                    "actual_care_minutes"?: number | null,"billable"?: boolean,"billable_minutes_a"?: number | null,"billable_minutes_b"?: number | null,"billable_minutes_c"?: number | null,"case_id"?: string,"cause"?: string,"created_at"?: string,"created_by"?: string,"hold_id"?: string | null,"id"?: string,"measured_care_minutes"?: number | null,"order_basis"?: string,"organization_id"?: string,"payer_chain"?: NonNullable<Json>,"planned_minutes_a"?: number,"planned_minutes_b"?: number,"planned_minutes_c"?: number,"reasons"?: (string)[],"report_id"?: string,"rule_version"?: string,"snapshot_hash"?: string | null,"supersedes_id"?: string | null,"tariff_versions"?: NonNullable<Json>,"team_id"?: string,"visit_date"?: string,"visit_id"?: string,"warnings"?: (string)[]
                   }
                   Relationships: [
                     {
+      foreignKeyName: "billable_facts_hold_id_fkey"
+      columns: ["hold_id"]
+isOneToOne: false
+      referencedRelation: "quality_holds"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "billable_facts_organization_id_fkey"
       columns: ["organization_id"]
 isOneToOne: false
@@ -65,14 +71,14 @@ isOneToOne: false
                   ]
                 },"billing_rules": {
                   Row: {
-                    "id": string,"min_billable_minutes": number,"region": string,"source": string,"valid_from": string,"valid_to": string | null,"version": string
+                    "id": string,"min_billable_minutes": number,"region": string,"source": string,"valid_from": string,"valid_to": string | null,"validated": boolean,"validation_note": string | null,"version": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "id"?: string,"min_billable_minutes": number,"region": string,"source": string,"valid_from": string,"valid_to"?: string | null,"version": string
+                    "id"?: string,"min_billable_minutes": number,"region": string,"source": string,"valid_from": string,"valid_to"?: string | null,"validated"?: boolean,"validation_note"?: string | null,"version": string
                   }
                   Update: {
-                    "id"?: string,"min_billable_minutes"?: number,"region"?: string,"source"?: string,"valid_from"?: string,"valid_to"?: string | null,"version"?: string
+                    "id"?: string,"min_billable_minutes"?: number,"region"?: string,"source"?: string,"valid_from"?: string,"valid_to"?: string | null,"validated"?: boolean,"validation_note"?: string | null,"version"?: string
                   }
                   Relationships: [
                     
@@ -935,14 +941,14 @@ isOneToOne: true
                   ]
                 },"tariff_rates": {
                   Row: {
-                    "amount": number,"category": string | null,"id": string,"payer": string,"region": string,"source": string,"unit": string,"valid_from": string,"valid_to": string | null,"version": string
+                    "amount": number,"category": string | null,"id": string,"payer": string,"region": string,"source": string,"unit": string,"valid_from": string,"valid_to": string | null,"validated": boolean,"validation_note": string | null,"version": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount": number,"category"?: string | null,"id"?: string,"payer": string,"region": string,"source": string,"unit": string,"valid_from": string,"valid_to"?: string | null,"version": string
+                    "amount": number,"category"?: string | null,"id"?: string,"payer": string,"region": string,"source": string,"unit": string,"valid_from": string,"valid_to"?: string | null,"validated"?: boolean,"validation_note"?: string | null,"version": string
                   }
                   Update: {
-                    "amount"?: number,"category"?: string | null,"id"?: string,"payer"?: string,"region"?: string,"source"?: string,"unit"?: string,"valid_from"?: string,"valid_to"?: string | null,"version"?: string
+                    "amount"?: number,"category"?: string | null,"id"?: string,"payer"?: string,"region"?: string,"source"?: string,"unit"?: string,"valid_from"?: string,"valid_to"?: string | null,"validated"?: boolean,"validation_note"?: string | null,"version"?: string
                   }
                   Relationships: [
                     
@@ -1215,14 +1221,14 @@ isOneToOne: false
                   ]
                 },"working_time_facts": {
                   Row: {
-                    "care_minutes": number | null,"created_at": string,"id": string,"organization_id": string,"pause_minutes": number | null,"performer_id": string | null,"team_id": string,"travel_minutes": number | null,"visit_date": string,"visit_id": string
+                    "care_minutes": number | null,"created_at": string,"id": string,"organization_id": string,"pause_minutes": number | null,"performer_id": string | null,"report_id": string | null,"source": string,"supersedes_id": string | null,"team_id": string,"travel_minutes": number | null,"visit_date": string,"visit_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "care_minutes"?: number | null,"created_at"?: string,"id"?: string,"organization_id": string,"pause_minutes"?: number | null,"performer_id"?: string | null,"team_id": string,"travel_minutes"?: number | null,"visit_date": string,"visit_id": string
+                    "care_minutes"?: number | null,"created_at"?: string,"id"?: string,"organization_id": string,"pause_minutes"?: number | null,"performer_id"?: string | null,"report_id"?: string | null,"source"?: string,"supersedes_id"?: string | null,"team_id": string,"travel_minutes"?: number | null,"visit_date": string,"visit_id": string
                   }
                   Update: {
-                    "care_minutes"?: number | null,"created_at"?: string,"id"?: string,"organization_id"?: string,"pause_minutes"?: number | null,"performer_id"?: string | null,"team_id"?: string,"travel_minutes"?: number | null,"visit_date"?: string,"visit_id"?: string
+                    "care_minutes"?: number | null,"created_at"?: string,"id"?: string,"organization_id"?: string,"pause_minutes"?: number | null,"performer_id"?: string | null,"report_id"?: string | null,"source"?: string,"supersedes_id"?: string | null,"team_id"?: string,"travel_minutes"?: number | null,"visit_date"?: string,"visit_id"?: string
                   }
                   Relationships: [
                     {
@@ -1230,6 +1236,18 @@ isOneToOne: false
       columns: ["organization_id"]
 isOneToOne: false
       referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "working_time_facts_report_id_fkey"
+      columns: ["report_id"]
+isOneToOne: false
+      referencedRelation: "visit_reports"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "working_time_facts_supersedes_id_fkey"
+      columns: ["supersedes_id"]
+isOneToOne: false
+      referencedRelation: "working_time_facts"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "working_time_facts_visit_id_organization_id_fkey"
@@ -1277,7 +1295,7 @@ isOneToOne: false
                            },
 "billing_preview":
 { Args: { "p_month": string }; Returns: {
-              "billable_visits": number,"insurer_chf": number,"insurer_complete": boolean,"minutes_a": number,"minutes_b": number,"minutes_c": number,"not_billable": Json,"patient_on_file": boolean,"residual_on_file": boolean,"team_id": string,"team_name": string
+              "billable_visits": number,"insurer_chf": number,"insurer_complete": boolean,"minutes_a": number,"minutes_b": number,"minutes_c": number,"not_billable": Json,"patient_on_file": boolean,"reference_validated": boolean,"residual_on_file": boolean,"team_id": string,"team_name": string
             }[]
                            },
 "cancel_visit":
