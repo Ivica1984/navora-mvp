@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   CANCEL_REASONS, CLOSE_REASONS, FOLLOWUP_DECISIONS, FOLLOWUP_NOTICE, INTERRUPT_NOTICE, INTERRUPT_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, PAUSE_REASONS, REASON_LABEL,
-  canEndNotCompleted, followupOf, needsFollowup, reasonError, recordedByLabel, recordedBySomeoneElse,
+  RESPONSIBLE_ABSENT_NOTE, canEndNotCompleted, cancellationText, followupOf, needsFollowup, reasonError, recordedByLabel, recordedBySomeoneElse,
 } from "@/features/lifecycle/rules";
 
 describe("C1 lifecycle rules", () => {
@@ -71,5 +71,17 @@ describe("C1 lifecycle rules", () => {
     expect(recordedByLabel({ ...none, actor_kind: null })).toBe("unbekannt");
     expect(recordedBySomeoneElse({ ...none, actor_kind: "me" })).toBe(false);
     expect(recordedBySomeoneElse({ ...none, actor_kind: "coordination" })).toBe(true);
+  });
+
+  it("CSR1 / CGR-34: a cancellation reads \"Abgesagt (<reason>)\" and adds the stored absence fact once, as a fixed text", () => {
+    expect(RESPONSIBLE_ABSENT_NOTE).toBe("nicht durchgeführt: zuständige Person abwesend gemeldet");
+    expect(cancellationText("team_cancelled", null, true))
+      .toBe("Abgesagt (Abgesagt durch das Team) · nicht durchgeführt: zuständige Person abwesend gemeldet");
+    expect(cancellationText("other", "Synthetisch: Notiz", true))
+      .toBe("Abgesagt (Anderer Grund) – Synthetisch: Notiz · nicht durchgeführt: zuständige Person abwesend gemeldet");
+    expect(cancellationText("client_cancelled", null, false)).toBe("Abgesagt (Abgesagt durch Klient:in)");
+    expect(cancellationText("client_cancelled", null, null)).toBe("Abgesagt (Abgesagt durch Klient:in)");
+    expect(cancellationText("client_cancelled", null, undefined)).not.toContain("abwesend");
+    expect(cancellationText(null, null, false)).toBe("Abgesagt (ohne Grund)");
   });
 });

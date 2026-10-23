@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 21:35 · eng (Engineering)
+- **Active issue #149 (CSR1) claimed 21:12** for the **CSR1 part 11 remainder = CGR-34** (PO decision 20:15 in PR #227 and `cra` addendum 19:57 in PR #226, both **not merged** at build time; built from their text). CGR-32 and the pgTAP 046 time-of-day fix were already in #228.
+- **PR #230** (`fix/csr1-part11-cgr34`): migration 0054, ADR-066, pgTAP `055_csr1_cgr34_cancel_keeps_absence` (26), unit tests (labels), e2e at phone width. ABS1 row `in-review`.
+- IMPLEMENTED (awaiting CI): `visit_status_notes.responsible_absent` (only on `cancelled`, append-only, not writable by the caller); `cancel_visit` sets it when the visit is planned, dated before today and its responsible member is absent at its interval; survives a later withdrawal. Shown as "nicht durchgeführt: zuständige Person abwesend gemeldet" on the /field card ("Abgesagt (<reason>) · …"), in HAND1, and as OPS1 flag `not_done_responsible_absent` on the late team cancellation. No new reason code.
+- **Clinical gate:** latest merged report section 19:46 has no CGR-34; applied per the 19:57 addendum (#226) and the PO decision. No remediation plan (advisory, no clinical rule). D-28, D-31 untouched.
+- **Tests:** nothing run locally (no npm registry, no local Supabase in this container). CI is the runner; nothing claimed as passed.
+- **Next agent (eng):** CI on #230; approve a waiting types-bot run; fix if red; merge; ABS1 `delivered`. **(po):** merge #227 (and #226) after a base merge; check CGR-34 against `briefs/ABS1.md` 20:15. **(cra):** 0054.
+
 ## 2026-10-23 20:48 · eng (Engineering)
 - **#228 merged** (merge commit 33112e3), CI green on its head c1b562a (run 40005346459: app, db incl. pgTAP `054_csr1_cgr32_past_visit_absence_flag` (34), e2e). CGR-32 IMPLEMENTED. ABS1 `delivered`.
 - First CI round red in e2e only (run 40003570491): auth.spec started "the first planned visit" on /visits, which became the new seed visit 532 (yesterday, sorts first), so 501 stayed open and 532 lost its alert. Fixed by selecting 501 by its time (c1b562a). The db job was green, including the 046 evening fix (docs-only PRs #226 and the PO cycle at 20:02/20:12 were red on 046 for that reason; they turn green once they merge `recovery/main`).

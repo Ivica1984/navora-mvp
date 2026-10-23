@@ -42,6 +42,21 @@ export const REASON_LABEL: Record<string, string> = {
   other: "Anderer Grund",
 };
 
+/**
+ * CSR1 / CGR-34 (migration 0054): stored by the server on the cancellation of a past planned visit whose responsible
+ * member was recorded absent at its time (CGR-32). Fixed text; NAVORA stores no reason for an absence.
+ */
+export const RESPONSIBLE_ABSENT_NOTE = "nicht durchgeführt: zuständige Person abwesend gemeldet";
+
+/** The cancellation as one line: "Abgesagt (<reason>)", the note, and the CGR-34 fact when stored. */
+export function cancellationText(reasonCode: string | null, note: string | null, responsibleAbsent: boolean | null | undefined): string {
+  const reason = REASON_LABEL[reasonCode ?? ""] ?? reasonCode ?? "ohne Grund";
+  let text = `Abgesagt (${reason})`;
+  if (note) text += ` – ${note}`;
+  if (responsibleAbsent === true) text += ` · ${RESPONSIBLE_ABSENT_NOTE}`;
+  return text;
+}
+
 /** Client-side check; the database checks the same. "other" needs a short note. */
 export function reasonError(code: string, note: string, allowed: readonly string[]): string | null {
   if (!allowed.includes(code)) return "Bitte einen Grund wählen.";

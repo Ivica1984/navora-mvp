@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { cancelVisit, endVisitNotCompleted, recordNoShow, recordNoShowOutcome } from "@/features/lifecycle/commands";
 import {
-  CANCEL_REASONS, INTERRUPT_NOTICE, INTERRUPT_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, REASON_LABEL, canEndNotCompleted, followupOf, reasonError,
+  CANCEL_REASONS, INTERRUPT_NOTICE, INTERRUPT_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, REASON_LABEL, canEndNotCompleted, cancellationText, followupOf, reasonError, RESPONSIBLE_ABSENT_NOTE,
   recordedByLabel, recordedBySomeoneElse,
 } from "@/features/lifecycle/rules";
 
@@ -53,7 +53,9 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
     <section aria-label="Absage und Nichtantreffen" data-testid="visit-lifecycle" className="mt-3 grid gap-2 text-sm">
       {cancelled && (
         <p className="rounded-lg bg-stone-100 p-2" data-testid="cancel-reason">
-          Abgesagt: {REASON_LABEL[cancelled.reason_code ?? ""] ?? cancelled.reason_code}{cancelled.note ? ` – ${cancelled.note}` : ""}
+          {/* CSR1 / CGR-34: responsible_absent is stored by the server (migration 0054), never chosen here. */}
+          {cancellationText(cancelled.reason_code, cancelled.note, false)}
+          {cancelled.responsible_absent && <span data-testid="cancel-responsible-absent"> · {RESPONSIBLE_ABSENT_NOTE}</span>}
         </p>
       )}
       {noShow && (
