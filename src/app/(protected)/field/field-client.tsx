@@ -39,8 +39,10 @@ import { groupSinceLast, type SinceLast } from "@/features/handover/rules";
 import type { SinceLastRowDb } from "@/features/field/queries";
 import QualitySection from "./quality-section";
 import VisitLifecycle from "./visit-lifecycle";
+import InterruptionFollowupForm from "@/components/lifecycle/InterruptionFollowupForm";
 import type { VisitStatusNote } from "@/features/lifecycle/queries";
 import type { FieldQuality, QualityEventType } from "@/features/quality/queries";
+import type { TeamVisitAlert } from "@/features/team/queries";
 
 type Props = {
   day: string;
@@ -56,6 +58,8 @@ type Props = {
   countersign: CountersignItem[];
   cover: { offers: CoverOffer[]; mine: MyCover[] };
   sinceLast: SinceLastRowDb[];
+  /** CSR1 / CGR-25: visits of her teams ended as not completed that still wait for a follow-up decision. */
+  openFollowups?: TeamVisitAlert[];
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -80,7 +84,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover, sinceLast }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover, sinceLast, openFollowups = [] }: Props) {
   const summary = summarizeDay(visits);
   const sinceLastByVisit = groupSinceLast(sinceLast);
 
@@ -123,6 +127,21 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
         </section>
 
         <CoverSection offers={cover.offers} mine={cover.mine} />
+
+        {openFollowups.length > 0 && (
+          // CSR1 / CGR-25: an interrupted visit keeps a signal until a person decides about the care still due.
+          <section aria-label="Nicht abgeschlossen: Entscheid offen" data-testid="followup-queue" className="mb-4 rounded-2xl border-l-4 border-amber-600 bg-amber-50 p-3 text-sm">
+            <h2 className="font-bold text-amber-900">Nicht abgeschlossen: Entscheid offen ({openFollowups.length})</h2>
+            <ul className="mt-1 grid gap-2">
+              {openFollowups.map((a) => (
+                <li key={a.exception_key} data-testid="followup-item" className="grid gap-1 rounded-xl bg-white p-2">
+                  <p>{a.client_name ?? "Klient:in"} · {a.detail} · {a.team_name}</p>
+                  <InterruptionFollowupForm visitId={a.visit_id} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {countersign.length > 0 && (
           // F7: the countersignature request reaches the team at the moment of signing.

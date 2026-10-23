@@ -53,6 +53,8 @@ describe("handover rules (HAND1)", () => {
       .toEqual(["Grundpflege", "Rhythmus: – → täglich"]);
     expect(entryLines("visit_interrupted", { reason_code: "client_transferred", note: "Ins Spital gebracht" }))
       .toEqual(["Klient:in verlegt bzw. ins Spital gebracht", "Ins Spital gebracht"]);
+    expect(entryLines("visit_interruption_followup", { reason_code: "follow_up_planned", note: "Morgen früh" }))
+      .toEqual(["Folgeeinsatz geplant", "Morgen früh"]);
     expect(entryLines("care_plan_schedule", { service: "Grundpflege", changed: {} }))
       .toEqual(["Grundpflege", "Werte vor der Protokollierung nicht erfasst"]);
   });

@@ -1457,6 +1457,9 @@ isOneToOne: false
 "plan_visit":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
                            },
+"record_interruption_followup":
+{ Args: { "p_decision": string,"p_idempotency_key": string,"p_note": string,"p_visit_id": string }; Returns: string
+                           },
 "record_no_show":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: string
                            },

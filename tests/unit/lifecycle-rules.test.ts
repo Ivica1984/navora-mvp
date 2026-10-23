@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  CANCEL_REASONS, CLOSE_REASONS, INTERRUPT_NOTICE, INTERRUPT_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, PAUSE_REASONS, REASON_LABEL,
-  canEndNotCompleted, reasonError,
+  CANCEL_REASONS, CLOSE_REASONS, FOLLOWUP_DECISIONS, FOLLOWUP_NOTICE, INTERRUPT_NOTICE, INTERRUPT_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, PAUSE_REASONS, REASON_LABEL,
+  canEndNotCompleted, followupOf, needsFollowup, reasonError,
 } from "@/features/lifecycle/rules";
 
 describe("C1 lifecycle rules", () => {
@@ -13,7 +13,7 @@ describe("C1 lifecycle rules", () => {
   });
 
   it("every reason has a label", () => {
-    for (const r of [...PAUSE_REASONS, ...CLOSE_REASONS, ...CANCEL_REASONS, ...NO_SHOW_OUTCOMES, ...INTERRUPT_REASONS, "case_closed"]) {
+    for (const r of [...PAUSE_REASONS, ...CLOSE_REASONS, ...CANCEL_REASONS, ...NO_SHOW_OUTCOMES, ...INTERRUPT_REASONS, ...FOLLOWUP_DECISIONS, "case_closed"]) {
       expect(REASON_LABEL[r]).toBeTruthy();
     }
   });
@@ -35,6 +35,24 @@ describe("C1 lifecycle rules", () => {
     expect(reasonError("other", "", INTERRUPT_REASONS)).toMatch(/beschreiben/);
     expect(reasonError("client_cancelled", "", INTERRUPT_REASONS)).toMatch(/Grund/);
     expect(INTERRUPT_NOTICE).toContain("D-31");
+  });
+
+  it("CSR1 / CGR-25: an interrupted visit waits for a follow-up decision from the short list", () => {
+    expect([...FOLLOWUP_DECISIONS]).toEqual(["follow_up_planned", "no_longer_needed", "other"]);
+    expect(REASON_LABEL.follow_up_planned).toBe("Folgeeinsatz geplant");
+    expect(REASON_LABEL.no_longer_needed).toBe("Nicht mehr nötig");
+    expect(reasonError("", "", FOLLOWUP_DECISIONS)).toMatch(/Grund/);
+    expect(reasonError("other", " ", FOLLOWUP_DECISIONS)).toMatch(/beschreiben/);
+    expect(reasonError("client_transferred", "", FOLLOWUP_DECISIONS)).toMatch(/Grund/);
+    expect(reasonError("no_longer_needed", "", FOLLOWUP_DECISIONS)).toBeNull();
+    const interrupted = { kind: "interrupted" };
+    const decided = { kind: "interruption_followup" };
+    expect(needsFollowup("interrupted", [interrupted])).toBe(true);
+    expect(needsFollowup("interrupted", [interrupted, decided])).toBe(false);
+    expect(needsFollowup("completed", [])).toBe(false);
+    expect(followupOf([interrupted, decided])).toBe(decided);
+    expect(FOLLOWUP_NOTICE).toContain("D-31");
+    expect(FOLLOWUP_NOTICE).toContain("die App plant nichts");
   });
 
   it("the no-show notice gives no clinical instructions and points to D-19", () => {

@@ -2,7 +2,8 @@
 
 // OPS1: take over, comment, close (reason required) — audited in exception_events (migration 0019).
 // Safety exceptions (P1 or escalating to P1) are not closed by hand: `cause_persists` (CSR1 / CGR-06, migration 0039).
-// Nor is an uncovered visit (`visit_uncovered`) while nobody is responsible (CSR1 / CGR-22, migration 0044).
+// Nor is an uncovered visit (`visit_uncovered`) while nobody is responsible (CSR1 / CGR-22, migration 0044), nor an
+// interrupted visit without a follow-up decision (`visit_interrupted`, CSR1 / CGR-25, migration 0045).
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CLOSES_WITH_CAUSE, canClose, countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
+import { CLOSES_WITH_CAUSE, CLOSES_WITH_FOLLOWUP, canClose, countByPriority, formatAge, handlerLabel, parseComments } from "@/features/operations/exceptions";
 
 const NOW = Date.parse("2026-10-21T20:00:00Z");
 
@@ -35,6 +35,9 @@ describe("OPS1 exception helpers", () => {
     expect(CLOSES_WITH_CAUSE).toContain("schliesst automatisch");
     expect(CLOSES_WITH_CAUSE).toContain("jemand zuständig");
     expect(CLOSES_WITH_CAUSE).not.toMatch(/^Sicherheitsausnahme/);
+    // CSR1 / CGR-25: an interrupted visit names the decision that ends it.
+    expect(CLOSES_WITH_FOLLOWUP).toContain("Kein Schliessen von Hand");
+    expect(CLOSES_WITH_FOLLOWUP).toContain("Folgeeinsatz geplant");
   });
 
   it("parses comments defensively", () => {

@@ -117,6 +117,62 @@ test("a started visit ends as not completed with a reason, never only as complet
   expect(overflow).toBeLessThanOrEqual(0);
 });
 
+test("an interrupted visit keeps a signal until the team decides about the care still due, at phone width (CSR1 / CGR-25)", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signIn(page, NURSE, /\/field$/);
+  await page.goto("/team");
+  const card = page.getByRole("article", { name: /Fall Testfall 08/ });
+
+  // A visit six days ahead at 19:00 (no other test uses that slot).
+  const day = new Date(Date.now() + 6 * 86_400_000).toISOString().slice(0, 10);
+  await card.getByRole("button", { name: "Einsatz planen" }).click();
+  const planForm = card.getByRole("form", { name: "Einsatz planen" });
+  await planForm.getByLabel("Datum").fill(day);
+  await planForm.getByLabel("Von").fill("19:00");
+  await planForm.getByLabel("Bis").fill("19:30");
+  await planForm.getByLabel("A", { exact: true }).fill("30");
+  await planForm.getByRole("button", { name: "Einsatz speichern" }).click();
+  await expect(card.getByRole("list", { name: "Geplante Einsätze" })).toContainText("19:00–19:30");
+
+  await page.goto(`/field?datum=${day}`);
+  const visit = page.getByRole("article", { name: /19:00 – 19:30, Testfall 08/ });
+  await visit.getByRole("button", { name: "Einsatz starten" }).click();
+  await expect(visit.getByTestId("visit-status")).toHaveText("Gestartet");
+  await visit.getByRole("button", { name: "Nicht abgeschlossen beenden" }).click();
+  const endForm = visit.getByRole("form", { name: "Einsatz nicht abgeschlossen beenden" });
+  await endForm.locator("select[name=code]").selectOption("client_transferred");
+  await endForm.getByRole("button", { name: "Nicht abgeschlossen speichern" }).click();
+  await expect(visit.getByTestId("visit-status")).toHaveText("Nicht abgeschlossen");
+
+  // The signal: on the card, in the /field queue and on /team, until a person decides.
+  await expect(visit.getByTestId("interrupt-followup-open")).toContainText("Entscheid offen");
+  await expect(page.getByTestId("followup-queue")).toContainText("Klient:in verlegt bzw. ins Spital gebracht");
+  await page.goto("/team");
+  const alert = page.getByTestId("visit-alert").filter({ hasText: "Einsatz nicht abgeschlossen: Entscheid offen" })
+    .filter({ hasText: "19:00" });
+  await expect(alert).toHaveCount(1);
+
+  // One decision from the short list ends it; a decision needs a choice.
+  await page.goto(`/field?datum=${day}`);
+  const open = page.getByRole("article", { name: /19:00 – 19:30, Testfall 08/ }).getByTestId("interrupt-followup-open");
+  await open.getByRole("button", { name: "Entscheid erfassen" }).click();
+  const decision = open.getByRole("form", { name: "Entscheid zur noch fälligen Pflege" });
+  await expect(decision).toContainText("D-31");
+  await expect(decision.locator("select[name=decision]")).toHaveAttribute("required", "");
+  await decision.locator("select[name=decision]").selectOption("follow_up_planned");
+  await decision.getByLabel(/Notiz/).fill("Synthetisch: Folgeeinsatz morgen");
+  await decision.getByRole("button", { name: "Entscheid speichern" }).click();
+
+  const after = page.getByRole("article", { name: /19:00 – 19:30, Testfall 08/ });
+  await expect(after.getByTestId("interrupt-followup")).toContainText("Entscheid: Folgeeinsatz geplant – Synthetisch: Folgeeinsatz morgen");
+  await expect(after.getByTestId("interrupt-followup-open")).toHaveCount(0);
+  await page.goto("/team");
+  await expect(page.getByTestId("visit-alert").filter({ hasText: "Einsatz nicht abgeschlossen: Entscheid offen" }).filter({ hasText: "19:00" }))
+    .toHaveCount(0);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
 test("Operations closes a case with a reason and reopens it in the app (C1, PO addendum)", async ({ page }) => {
   await signIn(page, "ops.test@navora.test", /\/operations$/);
   const panel = page.getByTestId("ops-case-lifecycle");
