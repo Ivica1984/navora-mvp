@@ -4,6 +4,27 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 00:20 · po (Product Owner)
+- **#238 (PO cycle 23:15) not merged:** after the base merge (09e4416, `zod` fix #237) its CI went red in `db` and `e2e` (run 40030758280, started 22:00 UTC = 00:00 Zurich). `app` is green, so the `zod` audit is fixed. The PR is docs only; `recovery/main` was green at 21:23 UTC on the same code. The failure follows the clock, not the change. No second PO PR opened: this entry rides on #238.
+- **Cause, read in the repository (the PO did not run the tests):** pgTAP 008, 015, 043, 044, 049 mix `current_date` (UTC in CI) with the Zurich day and build visits at `now() ± hours` that fall on the previous Zurich day after midnight; live functions use `current_date` too (0013/0017 requested start, 0014 review date, 0019/0024 OPS1 order expiring and review overdue, 0024/0031 C1 pause end and visit window). UNKNOWN: hosted DB time zone; the e2e failure (report not read).
+- **PO decision (product authority):** NAVORA's calendar day is the Europe/Zurich day everywhere. **DAY-1** ordered as AN2's first change, before CGR-35 and ABS1-C7; criteria (1)-(5) in `briefs/AN2.md` 00:20, including a CI proof at a split-day clock. Reason: CI red two hours every night stalls merges, and date-based safety exceptions run on the UTC day in that window (patient safety is a precondition).
+- **Challenge:** why does any function decide "today" for itself? From scratch there would be one clock and one rule; DAY-1 makes it so and adds a CI check against new bare `current_date`.
+- No review delivered since 23:15; no `po` decision open. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 (incl. CGR-31), D-22; `owner`: D-3 before cover.
+- **Next agent (po):** after 00:00 UTC re-run #238's failed jobs once; merge on green (merge commit). **(eng):** DAY-1 under #205, then CGR-35 and ABS1-C7, then the AN2 measures. **(cra):** #234 (ABS1-C6).
+
+ENGINEERING BRIEF
+- **Capability:** DAY-1, one calendar day (Europe/Zurich) for every server-side "today" and date bound; first change of AN2.
+- **Why:** functions and tests mix the UTC and the Zurich day; CI is red every night between 22:00 and 24:00 UTC (23:00-24:00 in winter time), and OPS1's order-expiring and review-overdue exceptions use the UTC day in that window.
+- **Business outcome:** merges do not stall at night; no red build mistaken for a flake.
+- **Care outcome:** date-based safety exceptions fire from the first minute of the Zurich day.
+- **Expected nurse outcome:** a pause ending "today" or a date entered after midnight is judged by the day she lives in.
+- **Expected team outcome:** exceptions and "yesterday" in `/field` agree with the team's clock.
+- **Expected patient outcome:** an expired order or overdue care-plan review is not missed for two hours each night.
+- **Acceptance criteria:** `briefs/AN2.md` 00:20, DAY-1 (1)-(5).
+- **Dependencies:** none open; base CI green (#237). Hosted DB time zone is an owner check once staging exists (D-2).
+- **Priority:** first, before CGR-35 and ABS1-C7 (Next up 1, AN2).
+- **Implementation recommendation:** one stable SQL helper for the Zurich day, used by functions and pgTAP fixtures; a test clock override for one CI pass at a split-day time; a pgTAP or script check over `pg_proc` source for bare `current_date`/`now()::date`; own small PR with an ADR.
+
 ## 2026-10-23 23:20 · eng (Engineering)
 - **`recovery/main` is red** since 62609af: the app job's supply-chain audit (`npm audit --omit=dev --audit-level=high`) fails on a new advisory, **GHSA-mrhx-c7xc-m3w5** (zod < 4.6.6, high: memory exhaustion validating oversized constrained collections). Lint, typecheck, unit (24 files), build, db and e2e were green in the same run. Not caused by #234 or #236; every PR is red until it is fixed.
 - **Fix PR** (`fix/zod-audit-ghsa-mrhx-c7xc-m3w5`): `zod` `^4.1.0` → `^4.6.6` in `package.json`; `package-lock.json` resolved by lockfile-sync (ADR-012/014; no registry access here). Same major; no code change. IMPLEMENTED (awaiting CI); nothing run locally.

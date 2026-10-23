@@ -8,6 +8,23 @@ updated: 2026-10-23
 
 # AN2 — Pilot hypotheses measured from events, not tallied
 
+## PO update — 2026-10-24 00:20: precondition DAY-1 (one calendar day: Europe/Zurich), before CGR-35
+
+**Finding (PO, from CI, not from running tests):** the docs-only PR #238 went red at 22:00 UTC (= 00:00 Europe/Zurich, summer time) in `db` and `e2e` (run 40030758280), while `recovery/main` was green at 21:23 UTC on the same code (runs 40026345400, 40026353505). Failed pgTAP: 008 (5), 015 (11), 043 (14, 16, 21, 23), 044 (23-26, 28-32, 34), 049 (52-53). A docs change cannot cause this; the cause is the time of day. IMPLEMENTED in the repository and read by the PO: (a) tests mix `current_date` (the database day, UTC in CI) with `(now() at time zone 'Europe/Zurich')::date`, and build visits at `now() ± hours` that fall on the previous Zurich day after midnight; (b) live functions mix the two days too: `current_date` in 0013 and 0017 (requested start bounds), 0014 (care-plan review date), 0019 and 0024 (OPS1 `order_expiring`, care-plan review overdue), 0024 and 0031 (C1 pause expected end, visit window), against `Europe/Zurich` in 0012, 0014, 0021. UNKNOWN: the hosted database time zone (Supabase default UTC) and the e2e failure cause (report artifact not read).
+
+**Why it matters:** every night CI is red for two hours (one hour in winter time, from 25 October), so merges stall and a red can be mistaken for a flake; and between 00:00 and 02:00 Zurich time an order that expired "yesterday" or a review date that passed "yesterday" is judged against the UTC day, so the safety exceptions come up to two hours late and a pause end of "today" can be refused. Patient safety is a precondition: this goes first.
+
+**PO decision (product authority, not a clinical rule):** NAVORA's calendar day is the Europe/Zurich day, everywhere, for every "today", "yesterday", date bound and date-based exception. Thresholds and their values are unchanged (D-28 stays `clinical`).
+
+**Acceptance criteria DAY-1** (first change under issue #205, its own small PR, before CGR-35 and ABS1-C7):
+- [ ] (1) One server-side source for "today" in Europe/Zurich; no live function or view in the migrated schema compares a date with bare `current_date` or `now()::date`. A check in CI (pgTAP over `pg_proc` bodies, or a script in the `db` job) fails when one is added.
+- [ ] (2) pgTAP at a split day (UTC date ≠ Zurich date, e.g. 23:30 UTC in summer time): `order_expiring` and the care-plan review-overdue exception use the Zurich day; a pause with expected end = Zurich today is accepted; the J1/J2 requested-start bounds use the Zurich day. How the clock is set in tests is engineering's choice (ADR).
+- [ ] (3) The whole pgTAP suite and the e2e suite pass with the database clock at a split-day time; shown once in CI (for example a second pgTAP pass with the test clock set to 23:30 UTC), not by waiting for the night.
+- [ ] (4) No behaviour change outside the split-day window: existing pgTAP passes unchanged in meaning (fixtures may change, assertions may not be weakened).
+- [ ] (5) ADR names the helper and the rule, and states the hosted database time zone once staging exists (D-2) as an owner check.
+
+**Order:** DAY-1, then CGR-35 and ABS1-C7, then the AN2 measures. Until DAY-1 is merged, a PR red only in `db`/`e2e` between 22:00 and 24:00 UTC is re-run once after 00:00 UTC before anyone debugs it.
+
 ## PO update — 2026-10-23 23:15: AN2 is next; CGR-35 and ABS1-C7 ride with it; measure 8 extended
 
 CSR1 is complete (`briefs/CSR1.md` 23:15), so AN2 is the active capability. **First change, before or inside AN2's first PR (engineering decides the split):** CGR-35 (a flagged past visit moved forward stores `responsible_absent` on its `moved` row) and ABS1-C7 (singular confirmation text), criteria (1)-(5) in `briefs/ABS1.md` 23:15. Measure 8 reads CGR-35's column; without it, moved flagged visits would be undercounted (`cra` 22:30). **Precondition:** CI on `recovery/main` is red since 62609af (`npm audit`: `zod` < 4.6.6, GHSA-mrhx-c7xc-m3w5, high, runtime dependency); engineering fixes that first, since no PR can merge on a red app job. The PO did not run any test.
