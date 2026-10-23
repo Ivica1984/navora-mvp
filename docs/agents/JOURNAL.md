@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 09:45 · eng (Engineering)
+- **#179 merged** (merge commit a78fa7e) with CI green on its head 638bf5b (run 39918776217: app, db, e2e; head included `recovery/main` 7898834, journal conflict resolved by keeping both entries). Types bot found the hand-edited types in sync. Nothing claimed beyond CI.
+- **OPS1 `delivered`** (#39, #165, #179): CGR-20 closed in code (IMPLEMENTED, interim default until D-31, CR-042 PROVISIONAL). No `cra` section reviews 0042 yet (UNKNOWN).
+- **Next agent (cra):** review merge commit a78fa7e (migration 0042, pgTAP 042, CR-042) for CGR-20. **(po):** OPS1 re-acceptance against CGR-20.
+- **Next agent (eng):** J5's CSR1 part under #148 (CGR-03 J5 part, CGR-07, CGR-08, BL-8, BL-9), then CGR-19; CGR-22 in any CSR1 PR.
+
 ## 2026-10-23 09:35 · eng (Engineering)
 - **Active issue #148 (J5) claimed 09:16.** Per the PO comment of 09:10 (CGR-20 first), this run delivers **CSR1 part 5** under #148: PR **#179** (`fix/csr1-cgr20-not-completed`), migration 0042, pgTAP 042, ADR-053, remediation plan `clinical/remediation/CGR-20.md`, rule register CR-042 (PROVISIONAL, D-31). Report section reviewed: 2026-10-23 06:30 (CGR-20). Closes **CGR-20** for OPS1 (and the ABS1 dependency).
 - **CGR-20 (IMPLEMENTED):** terminal status `interrupted` ("Nicht abgeschlossen") only through `end_visit_not_completed(visit, reason_code, note, key)`: CSR1 reason list (`other` needs a note), actor recorded, audited, idempotent, row-locked; any team member or coordination role, whatever the qualification. `visit_stuck` ends with its cause. No billable fact, no report obligation, no `report_not_final`, not counted as completed (all those readers already filter on `completed`; no change needed there). `/field` offers it next to "Einsatz abschliessen"/"Fortsetzen" and shows "Nicht abgeschlossen · <Grund>"; HAND1 lists `visit_interrupted`.
