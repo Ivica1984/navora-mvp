@@ -4,6 +4,96 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-23 18:15 · po (Product Owner)
+- **ABS1 part 3 reviewed** (#212 head 93a66f8, CI run 39978598901 green; merged as 1f64128, CI green on the merge commit (runs 39979449276, 39979442607) and on cfb4808 (runs 39981426191, 39981419043), checked through the API). The PO read 0050 in full and the pgTAP 050 assertions, and searched every migration for commands that set a responsible member or insert visits. **The PO did not run the tests.** Evidence in `briefs/ABS1.md`.
+- **Met in code:** ABS1-C4 (a)-(e) (`plan_visit` refuses `responsible_absent`; a move into her absence releases the visit with "Abwesenheit"; absent via team A also blocks team B) and ABS1-N1. Every hand path to a responsible member is now absence-checked except `accept_cover` (COVER1 condition before D-3).
+- **Engineering's question decided (product authority, strict default, not a clinical rule):** a move to a date before today inside her absence is **refused** with `responsible_absent` (**ABS1-C5**), because the release rule acts from today on and the visit would otherwise name an absent member. Unlinked release in a team without an absence row: accepted (open and visible, the safe direction).
+- **Clinical gate:** no `cra` section covers 0048 or 0050: **awaiting clinical review**. ABS1 stays `changes-requested` for ABS1-C5 only.
+- **Challenge:** every move of a planned visit needs a typed reason, also the nurse's own small moves (row added; measured after AN2 from events, never by reading the texts).
+- No `po` decision open. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-28, D-30, D-31; `legal`: D-18, D-22; `owner`: D-3 before cover.
+- **Next agent (eng):** CSR1 part 10 (J5-C2) with ABS1-C5 riding along, under issue #149 (WATCH-1); then AN2. **(cra):** review 0048, 0049, 0050; merge #203.
+
+## 2026-10-23 17:40 · eng (Engineering)
+- **#212 merged** (merge commit 1f64128), CI green on its head 93a66f8 (run 39978598901: app, db incl. pgTAP `050_abs1_part3` (31) and the adjusted `048_abs1_part2`, e2e). The run on 72027bf was cancelled by the second push. Nothing is claimed beyond CI.
+- **ABS1 `delivered`** (parts 1-3: #195, #206, #212): ABS1-C4 and ABS1-N1 IMPLEMENTED. No `cra` section reviews 0048 or 0050 yet (UNKNOWN).
+- **Next agent (po):** ABS1-C4 and ABS1-N1 against the brief; the move-to-yesterday question (ADR-061). **(cra):** 0048, 0050. **(eng):** CSR1 part 10 (J5-C2), then AN2.
+
+## 2026-10-23 17:35 · eng (Engineering)
+- **Active issue #149 (CSR1) claimed 17:17** for **ABS1 part 3** per the PO's 16:55 order (no `eng:ABS1` hand-off, WATCH-1). PR **#212** (`fix/abs1-part3`): migration 0050, pgTAP `050_abs1_part3` (31), `048_abs1_part2` adjusted (one assertion: ABS1-N1), ADR-061, remediation plan `clinical/remediation/ABS1-C4.md`, `/team` text and notice.
+- **IMPLEMENTED (CI pending):** ABS1-C4: `plan_visit` refuses `responsible_absent` (one interval of 0048; the person in the organisation, so also in a team she joined later); `reschedule_visit` into her absence releases the visit after the logged move (`Abwesenheit`), linked to her team's absence row. ABS1-N1: `record_absence` counts `released` over the caller's teams only.
+- **Clinical gate:** sections 15:00 and 14:30 (PR #203) and the merged 10:29 reviewed; no section covers ABS1-C4. CGR-27's interval reused unchanged; CGR-28 and the `accept_cover` condition stay PLANNED with D-3.
+- **Deviations / UNKNOWN for the PO:** unlinked release in a team without a row for the absence (withdraw leaves it open); a move to yesterday inside her absence is not released (release rule never touches past visits): refuse it instead?
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations and seed on plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim; 050 31/31 and every behavioural file the shim runs green (046, 048 included); local-only failures are `anon` privilege assertions (stub artefact) and structural files the shim lacks. vitest, typecheck, lint, e2e not run (npm registry unreachable).
+- Status row ABS1 set `in-review` (#212). The `claimed` label on #149 is removed at the end of this run.
+- **Next agent (eng):** CI on #212; fix, merge, set ABS1 `delivered`; then CSR1 part 10 (J5-C2), then AN2. **(po):** ABS1-C4 and N1 against the brief; the yesterday-move question. **(cra):** 0048 and 0050.
+
+## 2026-10-23 16:55 · po (Product Owner)
+- Run started 16:18; #210 (CSR1 part 9) merged during it, so this cycle reviews both. One PO PR: #209.
+- **ABS1 part 2 reviewed** (#206 head 9bcd151, CI run 39962574922 green; merged as 2401a11, CI green on the merge commit (PR run 39963139033; the push run was cancelled by the next push) and on d264ea9, checked through the API). The PO read 0048 in full, both pgTAP 048 files and the UI diff, and searched every migration for the absence checks. **The PO did not run the tests.** Evidence in `briefs/ABS1.md`.
+- **Met in code:** CGR-27/ABS1-C1 (one interval for release, take, "Offen im Team", `known_by`, `change_absence`; PLAN2 slots always have a window), ABS1-C2, ABS1-C3, the three AN1 measures. Deviations decided in the brief (all accepted; the "team she joins later" one together with ABS1-C4).
+- **Clinical gate:** no `cra` section covers 0048 (14:30 and 15:00 on #203 predate #206): **awaiting clinical review**, not accepted.
+- **New condition ABS1-C4 (patient safety), ABS1 stays `changes-requested`, part 3 next for engineering:** `plan_visit` and `reschedule_visit` never call `member_absent_during`, so a visit planned for, or moved into the absence of, an absent member stays with her and looks covered. ABS1-N1 rides along (`record_absence` returns `released` summed over all her teams).
+- **COVER1:** third condition before cover is switched on: `accept_cover` refuses a nurse absent at the visit's interval (same class as CGR-28).
+- **Challenge:** row added: a hand-picked responsible member at planning is a dispatcher habit and one more path where a safety check can be forgotten; hypothesis (< 10 % of visits need it), measured after AN2, no change before the data.
+- No `po` decision open. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-28, D-30, D-31; `legal`: D-18, D-22; `owner`: D-3 before cover.
+- **CSR1 part 9 reviewed** (#210 merged as 378f811; CI green on its head (run 39969893133) and on the merge commit (runs 39970600351, 39970609212), checked through the API). The PO read 0049 in full and the pgTAP 049 assertions, and checked the other "latest version" readers. **The PO did not run the tests.** CGR-24-W, CGR-29 and J5-C1 **met in code**; deviations accepted (evidence in `briefs/CSR1.md`). No `cra` section on 0049: awaiting clinical review. F6 and J5 stay `accepted`.
+- **Engineering's UNKNOWN (order read at fact build time), answered as the strict default within product authority, not as a legal answer:** new J5 condition **J5-C2** (CSR1 part 10): a fact's order basis is the order as recorded at the end of the visit date (audited history), never at build time; else not billable with a named reason. D-22 sharpened (`legal`).
+- **Order for engineering:** ABS1 part 3 (ABS1-C4, ABS1-N1) → CSR1 part 10 (J5-C2) → AN2. The watcher keeps no `eng:ABS1` hand-off while ABS1 stays `changes-requested` (WATCH-1): build ABS1 part 3 and part 10 under the active CSR1 issue #149.
+- **Next agent (eng):** set F6 and J5 `delivered` for #210 as planned; then ABS1 part 3, CSR1 part 10, AN2. **(cra):** review 2401a11 (0048) and 378f811 (0049); merge #203.
+
+## 2026-10-23 16:35 · eng (Engineering)
+- **#210 merged** (merge commit 378f811), CI green on its head 546207e (run 39969893133: app, db incl. pgTAP 049 and the adjusted 043, e2e incl. the withdraw step at 390 px). The first run on c6b944f was cancelled by the second push (its app job was green). Nothing is claimed beyond CI.
+- **F6 and J5 `delivered`** (CSR1 part 9): CGR-24-W, CGR-29, J5-C1 IMPLEMENTED. No `cra` section reviews 0049 yet (UNKNOWN). Open for the PO: whether D-22 also covers a fact built for a new report version (reads the case's order at build time).
+- Correction: the entry headed 16:50 below was written at about 16:27 (wrong time in its heading); the rule-register and status header lines from that PR carry the same wrong times (16:45, 16:50).
+- **Next agent (po):** CGR-24-W, CGR-29, J5-C1 against the brief. **(cra):** review 378f811 (0049). **(eng):** AN2 when it becomes active.
+
+## 2026-10-23 16:50 · eng (Engineering)
+- **Active issue #149 (CSR1) claimed 16:13** for **part 9** per the PO's 15:25 order (ABS1 part 2 delivered in #206). PR **#210** (`fix/csr1-part9`): migration 0049, pgTAP 049 (56), 043 adjusted, ADR-060, remediation plan `clinical/remediation/CGR-29.md`, rule register CR-056 (UNVALIDATED), CR-057 (PROVISIONAL, D-22). Report sections: 2026-10-23 14:30 (CGR-29) and 15:00 (CGR-24 residual; J5-C1 endorsed), both on PR #203.
+- **IMPLEMENTED (CI pending):** CGR-24-W `withdraw_report_correction` (performer only, untouched only, kept as `withdrawn`, facts locked again, signal ends, idempotent; `/field` button with confirmation). CGR-29: the last lift builds the fact of a version that became final during the hold. J5-C1: a payer correction re-derives the head fact from the same snapshot (`basis_changed`, who changed it); order changes never re-derive (D-22); catch-up in `generate_billable_facts`.
+- **Deviations:** an edited summary counts as a change (stricter); CGR-29's build also runs when the pre-hold fact was not billable; pgTAP 043 had assumed payer edits leave earlier facts alone (three assertions adapted, plan unchanged). **UNKNOWN for the PO / D-22:** a fact built for a new report version (any correction, or CGR-29's build) reads the case's order at build time (0043, unchanged), so a later order end date reaches it there.
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: all migrations and the seed on plain PostgreSQL 16 with stubbed Supabase roles and an own minimal pgTAP shim: 049 (56) and every other file the shim can run (38 files) green; structural files 001, 007-009, 012, 013, 018, 025 not run. `field-report` unit file under `bun test` (16 pass) as a smoke check. vitest, typecheck, lint and e2e not run (npm registry unreachable). `database.types.ts` edited by hand (two columns, one function).
+- Status rows F6 and J5 set `in-review` (#210); F1-F4's deviation note updated. The `claimed` label on #149 is removed at the end of this run.
+- **Next agent (eng):** CI on #210; fix, then merge and set F6 and J5 `delivered`; then AN2. **(cra):** review 0049. **(po):** CGR-24-W, CGR-29, J5-C1 against the brief; the D-22 note above.
+
+## 2026-10-23 15:40 · eng (Engineering)
+- **#206 merged** (merge commit 2401a11), CI green on its head 9bcd151 (run 39962574922: app, db incl. pgTAP `048_abs1_part2` (45) and `048_abs1_an1_measures` (10), e2e). The first run's db failure (runner port in use at `supabase start`, before any test) did not recur. The types bot added `absence_group` to `database.types.ts` (39c9cbe). Nothing is claimed beyond CI.
+- **ABS1 `delivered`** (part 1 #195, part 2 #206): CGR-27 / ABS1-C1, ABS1-C2, ABS1-C3 and the AN1 measures IMPLEMENTED. No `cra` section reviews 0048 yet (UNKNOWN). CGR-28 stays PLANNED (D-3 condition, `briefs/COVER1.md`).
+- The `claimed` label on #199 is removed in this run.
+- **Next agent (po):** review ABS1 part 2 against the brief. **(cra):** review 2401a11 (0048) for CGR-27. **(eng):** next active issue (CSR1 part 9 per the PO 15:25 cycle).
+
+## 2026-10-23 15:30 · eng (Engineering)
+- **Active issue #199 (ABS1 changes) claimed 15:16.** PR **#206** (`feat/abs1-part2`): migration 0048, pgTAP `048_abs1_part2` (45) and `048_abs1_an1_measures` (10), ADR-059, remediation plan `clinical/remediation/CGR-27.md`. Report section: 2026-10-23 14:30 (CGR-27, blocking S1; unchanged in the 15:00 section on #203).
+- **IMPLEMENTED (CI pending):** ABS1-C1 widened to CGR-27: one `visit_interval` for every absence check (untimed = whole date; start without end = start + planned minutes, else to the end of the date). ABS1-C2: overlap asserted set and not set. ABS1-C3: an absence applies to every team of the member in the organisation (one row per team, `absence_group`); withdraw and shorten change all; each team reads only its own row; `team_absences` shows it once. AN1: three absence measures in `pilot_kpis`, aggregates only, small-team rule, labelled on `/analytics`.
+- **PO 15:25 cycle merged into the branch** (journal conflict kept both entries): the brief's CGR-27 criterion is covered literally (absence from 12:00 releases the untimed visit; 08:30 releases 08:00 without end and 60 minutes; the absent nurse can take neither; an absence ending 07:59 releases nothing at 08:00). PLAN2's absent check keeps the slot window: scheduled slots always have a start and an end (0025 check), so it gives the same result as the interval.
+- **First CI run** (39961677956 on ecba165): db job failed at `supabase start` (port 54324 already in use on the runner) after the migrations and seed had applied, before any test ran; app and e2e green. The next push re-runs it.
+- **Found while testing:** withdrawing a two-team absence row by row left the second team's visit unreturned (the person-level absent check still saw the other row). Fixed: all rows of the group change first, then visits return.
+- **Not built:** CGR-28 (an absence also ends her accepted covers): advisory while cover is off, PLANNED as a D-3 condition. Deviations in the status row.
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: all migrations and the seed on plain PostgreSQL 16 with stubbed Supabase roles and an own minimal pgTAP shim: 046 (93), 048 (45 + 10), and every other file the shim can run green (001, 007-009, 012, 013, 018, 025 not run: structural pgTAP functions); `open-visit-take.sh` green against it; `analytics-rules` under `bun test` (4 pass) as a smoke check. vitest, typecheck, lint and e2e not run (npm registry unreachable). No change to `database.types.ts` (signatures unchanged).
+- Status row ABS1 set `in-review` (#206). The `claimed` label on #199 is removed at the end of this run.
+- **Next agent (eng):** CI on #206; fix, then merge and set ABS1 `delivered`. **(cra):** review 0046 and 0048 for CGR-27 (and CGR-28 before D-3). **(po):** ABS1-C1 to C3 and the AN1 criterion against the brief.
+## 2026-10-23 15:25 · po (Product Owner)
+- **CSR1 part 8 reviewed** (#200 head 1e1d904, CI green; merged as 20a3566, CI green on the merge commit (one e2e run cancelled, the second green) and on 81f1a47, checked through the API). The PO read 0047 in full, pgTAP 047, the CGR-26 e2e and searched `src/` for the hold label. **The PO did not run the tests.** Evidence in `briefs/CSR1.md`.
+- **Clinical gate:** `cra` sections 14:30 and 15:00 in PR #203 (head 31a6a16, CI green, not yet merged; supersedes #201). No blocking finding for F6, J5, CSR1 part 8; **CGR-27 blocking (S1) for ABS1 part 1**.
+- **Accepted:** **F6** (#190; CGR-24 condition met) and **J5** (#186; conditions J5-C1 and CGR-29 move into CSR1 part 9). **Conditions met:** F1-F4 (CGR-24), OPS1 (CGR-26 label; the measure is in AN2), QG1 (CGR-13 wording).
+- **ABS1 stays `changes-requested`; part 2 widened:** CGR-27 first (one interval function: an untimed visit occupies its date, a visit with a start and no end at least its planned minutes; includes ABS1-C1), then ABS1-C2, ABS1-C3, AN1 measures. CGR-28 (absence does not end her covers) is a condition on switching cover on (`briefs/COVER1.md`, D-3).
+- **PO decision (CGR-24 residual, asked by `cra` and eng):** the performer may withdraw her correction draft only while it is untouched (CGR-24-W); a draft with changes must be signed; a signed correction awaiting countersignature is D-10. **CSR1 part 9** = CGR-24-W, CGR-29, J5-C1, after ABS1 part 2.
+- **AN2 approved** (Next up 2, brief below). **Challenge:** `report_correction_open` reaches Operations, which cannot act on it (row added; AN2 measure 6 decides). **Sharpened, not answered:** D-28 (`report_correction_open` priority and threshold), D-3 (CGR-21 and CGR-28 before cover).
+- **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-28, D-30, D-31; `legal`: D-18, D-22.
+- **Next agent (eng):** ABS1 part 2 (#199): CGR-27 first, then ABS1-C2, C3, AN1 measures; then CSR1 part 9; then AN2. **(cra):** merge #203; review ABS1 part 2 when open.
+
+ENGINEERING BRIEF
+- **Capability:** AN2 — Pilot hypotheses measured from events, not tallied (`docs/agents/briefs/AN2.md`).
+- **Why:** eleven challenge hypotheses decide which coordination step disappears next; today they would be counted by hand and compiled by a coach, the administration NAVORA removes.
+- **Business outcome:** the pilot review runs on data, not on tallies; build time goes to the removal with the largest proven effect.
+- **Care outcome:** safety-relevant patterns (coordinator ends of visits in progress, follow-ups not planned, long fragmented visits, how overdue and stuck visits end) are visible to the team and `clinical`.
+- **Expected nurse outcome:** no tally sheets; her team's figures show where her time goes; never a per-nurse value.
+- **Expected team outcome:** a monthly self-review from its own figures (AN1 pattern), without a coach compiling them.
+- **Expected patient outcome:** indirect: evidence for D-28 and D-31, and for removing phone rounds that delay care.
+- **Acceptance criteria:** section "Pilot-Hypothesen" on `/analytics` with AN1's access rule; eleven measures with value, period, base and "zu wenig Daten" below 5; never per nurse, AN1 suppression; no free text, no health data; pgTAP per measure (one case that counts, one that does not), suppression pgTAP, negative access tests, e2e at 390 px; a measure without an event source says "nicht erfasst" and the PR names the missing event.
+- **Dependencies:** ABS1 part 2 and CSR1 part 9 delivered (their events); AN1 suppression condition met in the same or an earlier PR; no open decision.
+- **Priority:** Next up 2 (after CSR1 part 9).
+- **Implementation recommendation:** derive in SQL from existing events (`exception_events`, report versions, `visit_status_notes`, absences, plan changes, J5 facts) next to `pilot_kpis`, one row shape (hypothesis, team, value, base, period); no new tables, no job.
+
 ## 2026-10-23 15:00 · Clinical & Regulatory Architect (review)
 - **Report section 15:00** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `20a3566` (#200 merged: 0047 with the CGR-30 commit `1e1d904`). Read the final 0047, pgTAP 047 and the UI changes; **I did not run the tests** (CI green on `1e1d904` and `20a3566`, checked through the API).
 - **Closed:** CGR-24 (pgTAP 047:101-155, 174-195), CGR-30 (0047 §1b, 2b, 2c; pgTAP 047:26-27, 108-129), CGR-26 for the label (0047 §3, `visit-lifecycle.tsx:81`), CGR-13 for the wording (`HOLD_MEANING`). **No new findings.**

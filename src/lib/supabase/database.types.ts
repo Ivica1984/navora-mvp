@@ -623,14 +623,14 @@ isOneToOne: false
                   ]
                 },"member_absences": {
                   Row: {
-                    "created_at": string,"ends_at": string,"id": string,"organization_id": string,"recorded_by": string,"starts_at": string,"team_id": string,"user_id": string,"withdrawn_at": string | null,"withdrawn_by": string | null
+                    "absence_group": string,"created_at": string,"ends_at": string,"id": string,"organization_id": string,"recorded_by": string,"starts_at": string,"team_id": string,"user_id": string,"withdrawn_at": string | null,"withdrawn_by": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"ends_at": string,"id"?: string,"organization_id": string,"recorded_by": string,"starts_at": string,"team_id": string,"user_id": string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
+                    "absence_group": string,"created_at"?: string,"ends_at": string,"id"?: string,"organization_id": string,"recorded_by": string,"starts_at": string,"team_id": string,"user_id": string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"ends_at"?: string,"id"?: string,"organization_id"?: string,"recorded_by"?: string,"starts_at"?: string,"team_id"?: string,"user_id"?: string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
+                    "absence_group"?: string,"created_at"?: string,"ends_at"?: string,"id"?: string,"organization_id"?: string,"recorded_by"?: string,"starts_at"?: string,"team_id"?: string,"user_id"?: string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
                   }
                   Relationships: [
                     {
@@ -1163,14 +1163,14 @@ isOneToOne: false
                   ]
                 },"visit_reports": {
                   Row: {
-                    "case_id": string | null,"correction_reason": string | null,"countersign_required": boolean,"countersigned_at": string | null,"countersigned_by": string | null,"created_at": string,"created_by": string,"id": string,"organization_id": string,"performer_id": string,"signed_at": string | null,"signed_by": string | null,"snapshot": NonNullable<Json>,"status": string,"summary": string | null,"supersedes_id": string | null,"team_id": string,"version": number,"visit_id": string
+                    "case_id": string | null,"correction_reason": string | null,"countersign_required": boolean,"countersigned_at": string | null,"countersigned_by": string | null,"created_at": string,"created_by": string,"id": string,"organization_id": string,"performer_id": string,"signed_at": string | null,"signed_by": string | null,"snapshot": NonNullable<Json>,"status": string,"summary": string | null,"supersedes_id": string | null,"team_id": string,"version": number,"visit_id": string,"withdrawn_at": string | null,"withdrawn_by": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "case_id"?: string | null,"correction_reason"?: string | null,"countersign_required": boolean,"countersigned_at"?: string | null,"countersigned_by"?: string | null,"created_at"?: string,"created_by": string,"id"?: string,"organization_id": string,"performer_id": string,"signed_at"?: string | null,"signed_by"?: string | null,"snapshot": NonNullable<Json>,"status"?: string,"summary"?: string | null,"supersedes_id"?: string | null,"team_id": string,"version": number,"visit_id": string
+                    "case_id"?: string | null,"correction_reason"?: string | null,"countersign_required": boolean,"countersigned_at"?: string | null,"countersigned_by"?: string | null,"created_at"?: string,"created_by": string,"id"?: string,"organization_id": string,"performer_id": string,"signed_at"?: string | null,"signed_by"?: string | null,"snapshot": NonNullable<Json>,"status"?: string,"summary"?: string | null,"supersedes_id"?: string | null,"team_id": string,"version": number,"visit_id": string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
                   }
                   Update: {
-                    "case_id"?: string | null,"correction_reason"?: string | null,"countersign_required"?: boolean,"countersigned_at"?: string | null,"countersigned_by"?: string | null,"created_at"?: string,"created_by"?: string,"id"?: string,"organization_id"?: string,"performer_id"?: string,"signed_at"?: string | null,"signed_by"?: string | null,"snapshot"?: NonNullable<Json>,"status"?: string,"summary"?: string | null,"supersedes_id"?: string | null,"team_id"?: string,"version"?: number,"visit_id"?: string
+                    "case_id"?: string | null,"correction_reason"?: string | null,"countersign_required"?: boolean,"countersigned_at"?: string | null,"countersigned_by"?: string | null,"created_at"?: string,"created_by"?: string,"id"?: string,"organization_id"?: string,"performer_id"?: string,"signed_at"?: string | null,"signed_by"?: string | null,"snapshot"?: NonNullable<Json>,"status"?: string,"summary"?: string | null,"supersedes_id"?: string | null,"team_id"?: string,"version"?: number,"visit_id"?: string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
                   }
                   Relationships: [
                     {
@@ -1662,6 +1662,9 @@ isOneToOne: false
                            },
 "withdraw_cover":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: string
+                           },
+"withdraw_report_correction":
+{ Args: { "p_idempotency_key": string,"p_report_id": string }; Returns: Json
                            }
           }
           Enums: {

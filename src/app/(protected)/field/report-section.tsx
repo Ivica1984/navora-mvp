@@ -8,6 +8,7 @@ import {
   createReportDraft,
   signAtCompletion,
   updateReportDraft,
+  withdrawReportCorrection,
 } from "@/features/field/report-commands";
 import { reportView, type FieldReport } from "@/features/field/report";
 
@@ -38,7 +39,7 @@ export default function ReportSection({
   report: FieldReport | null;
 }) {
   const router = useRouter();
-  const [mode, setMode] = useState<"idle" | "edit" | "correct">("idle");
+  const [mode, setMode] = useState<"idle" | "edit" | "correct" | "withdraw">("idle");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -193,6 +194,41 @@ export default function ReportSection({
             {pending ? "Wird gespeichert …" : "Bericht unterschreiben"}
           </button>
         </form>
+      )}
+
+      {mode === "idle" && report && view.actions.includes("withdraw") && (
+        // CSR1 / CGR-24-W: one tap with a confirmation; no reason (nothing changed).
+        <button
+          type="button"
+          data-testid="withdraw-correction"
+          onClick={() => setMode("withdraw")}
+          className="min-h-11 rounded-lg border border-stone-300 bg-white font-semibold"
+        >
+          Korrektur zurückziehen
+        </button>
+      )}
+
+      {mode === "withdraw" && report && (
+        <div role="group" aria-label="Korrektur zurückziehen" className="grid gap-2">
+          <p className="text-xs text-emerald-900/80">
+            Die Korrektur wird zurückgezogen, ohne dass sich etwas ändert. Die abgeschlossene Fassung bleibt gültig; Zeiten
+            und Beobachtungen sind wieder gesperrt. Nur möglich, solange in der Korrektur nichts geändert wurde.
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              data-testid="withdraw-correction-confirm"
+              disabled={pending}
+              onClick={() => run(() => withdrawReportCorrection({ reportId: report.report_id, idempotencyKey: crypto.randomUUID() }))}
+              className="min-h-11 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60"
+            >
+              {pending ? "Wird gespeichert …" : "Zurückziehen"}
+            </button>
+            <button type="button" onClick={() => setMode("idle")} className="min-h-11 rounded-lg border border-stone-300 font-semibold">
+              Abbrechen
+            </button>
+          </div>
+        </div>
       )}
 
       {mode === "idle" && report && view.actions.some((a) => a === "countersign" || a === "correct") && (

@@ -65,6 +65,13 @@ describe("reportView (F6)", () => {
     expect(view?.actions).not.toContain("sign");
   });
 
+  it("offers the performer to withdraw a correction draft, never a first draft (CGR-24-W)", () => {
+    expect(reportView("completed", report({ version: 2, correction_reason: "Synthetisch" }))?.actions).toEqual(["edit", "sign", "withdraw"]);
+    expect(reportView("completed", report({ version: 1 }))?.actions).not.toContain("withdraw");
+    expect(reportView("completed", report({ version: 2, correction_reason: "Synthetisch", i_am_performer: false }))?.actions).toEqual([]);
+    expect(reportView("completed", report({ version: 2, status: "signed", correction_reason: "Synthetisch" }))?.actions).not.toContain("withdraw");
+  });
+
   it("labels later versions", () => {
     expect(reportView("completed", report({ version: 2 }))?.label).toBe("Entwurf (Fassung 2)");
   });
@@ -79,7 +86,7 @@ describe("report rejection messages", () => {
     for (const reason of [
       "not_team_member", "visit_not_completed", "no_performer", "draft_exists", "not_draft", "not_performer",
       "not_awaiting_countersignature", "rn_required", "own_report", "not_final", "not_latest", "facts_changed",
-      "performer_not_in_team",
+      "performer_not_in_team", "not_correction", "draft_has_changes", "awaiting_countersignature",
     ]) {
       expect(REPORT_REJECTION_MESSAGE[reason]).toBeTruthy();
     }
@@ -93,6 +100,11 @@ describe("report rejection messages", () => {
   it("explains a refused correction when the performer left the team, and that the final report stays (CGR-19)", () => {
     expect(reportRejectionMessage("performer_not_in_team")).toContain("nicht mehr zum Team");
     expect(reportRejectionMessage("performer_not_in_team")).toContain("bleibt gültig");
+  });
+
+  it("says why a correction draft with changes cannot be withdrawn (CGR-24-W)", () => {
+    expect(reportRejectionMessage("draft_has_changes")).toContain("unterschrieben werden");
+    expect(reportRejectionMessage("awaiting_countersignature")).toContain("Gegenzeichnung");
   });
 
   it("falls back to a generic message", () => {

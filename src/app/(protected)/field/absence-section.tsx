@@ -74,7 +74,7 @@ export function AbsenceSection({ today, absences, colleagues }: { today: string;
             <label className="grid gap-1"><span>bis Uhrzeit (optional)</span>
               <input type="time" name="untilTime" className="min-h-11 rounded-lg border border-stone-300 bg-white px-2" /></label>
           </div>
-          <p className="text-xs text-sky-950/80">Kein Grund nötig. Die Einsätze in dieser Zeit sind sofort im Team offen; Einsätze, die schon laufen, bleiben bei dir.</p>
+          <p className="text-xs text-sky-950/80">Kein Grund nötig. Gilt für alle Teams der Person. Die Einsätze in dieser Zeit sind sofort im jeweiligen Team offen; Einsätze, die schon laufen, bleiben, wo sie sind.</p>
           <div className="flex gap-2">
             <button type="submit" disabled={pending} data-testid="absence-save" className="min-h-11 flex-1 rounded-lg bg-sky-800 font-bold text-white disabled:opacity-60">
               {pending ? "Wird gespeichert …" : "Speichern"}

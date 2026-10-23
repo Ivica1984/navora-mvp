@@ -8,6 +8,14 @@ updated: 2026-10-22
 
 # COVER1 — Cross-team cover without a dispatcher
 
+## PO note — 2026-10-23 16:18: third condition before cover is switched on (from the ABS1 part 2 review)
+
+`accept_cover` does not check whether the accepting nurse is absent at the visit's interval (only 0046 and 0048 call `member_absent_during`). Before D-3 switches cover on, in the same delta review as CGR-21 and CGR-28: `accept_cover` by a member absent at `private.visit_interval` of the visit returns `absent` and writes nothing. pgTAP: she records an absence → a cover offer in that period → accept → `absent`, `covered_by` empty. Not a criterion today: cover is off.
+
+## PO note — 2026-10-23 15:25: second condition before cover is switched on (CGR-28)
+
+Cover stays switched off until D-3. Before it is switched on, two conditions must be met in the same delta review: **CGR-21** (overdue and stuck alerts of a covered visit reach the covering nurse and her team) and, new, **CGR-28** (`cra` 14:30, advisory S2): an absence of the covering nurse also ends her covers in the period, like `withdraw_cover` but without the lead-time limit and with the fixed text "Abwesenheit"; the visit is uncovered again for its own team and Operations. pgTAP: she accepts a cover → records an absence → `covered_by` is empty → `visit_uncovered` for the original team.
+
 ## PO acceptance — 2026-10-22 16:15: accepted (switched off; performing a cover waits for D-3)
 
 Reviewed on merged evidence: #114 (merge f717074; its own CI run was cancelled by the next push, the same code is green on every later merge commit, latest 57962ee), migration 0029, pgTAP 029 (27 assertions) and the amended pgTAP 028, the two-session check `scripts/db-concurrency/cover-accept.sh` (CI step "Concurrency checks", green), `cover-section.tsx`. The cover KPIs are tested in AN1's PR #124 (pgTAP 032), which is reviewed with AN1. **The PO did not run the tests**; results come from reading the migrations, the tests and the CI runs.

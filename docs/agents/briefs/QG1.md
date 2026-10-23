@@ -8,6 +8,10 @@ updated: 2026-10-22
 
 # QG1 — Quality signals and quality hold
 
+## PO note — 2026-10-23 15:25: condition CGR-13 met (wording)
+
+"Qualitäts-Stopp" no longer appears in `src/` (PO search on 81f1a47); the UI says "Abrechnungssperre" with the sentence that only billing is blocked, on `/field`, `/operations` and the billing preview (`quality-section.tsx`, `holds-panel.tsx`, `billing-preview.tsx`, `features/quality/rules.ts`, `features/billing/rules.ts`); unit `quality-rules.test.ts` and e2e `quality.spec.ts` updated; CI green on 20a3566 and 81f1a47. `cra` 15:00 (PR #203): closed for the wording. QG1 stays `accepted`; what a hold stops clinically and who may lift it stay **D-16** (`clinical`). **The PO did not run the tests.**
+
 ## Clinical review gate — 2026-10-22 23:00: stays accepted, one condition
 
 Clinical Governance Report 2026-10-22 22:30 considered.
