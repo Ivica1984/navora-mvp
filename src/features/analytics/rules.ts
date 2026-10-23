@@ -30,6 +30,9 @@ export const KPI_ORDER = [
   "p1_median_close_hours",
   "cover_without_operations",
   "cover_median_hours",
+  "absence_taken_before_cover_lead",
+  "absence_last_take_minutes",
+  "absence_taken_by_known_share",
 ] as const;
 
 export const KPI: Record<string, KpiDefinition> = {
@@ -132,6 +135,22 @@ export const KPI: Record<string, KpiDefinition> = {
     label: "Zeit bis zur Übernahme", unit: "Std.",
     definition: "Median der Stunden vom ersten Angebot bis zur Übernahme durch ein Nachbarteam.",
     source: "Übernahmen COVER1",
+  },
+  // ABS1 (migration 0048): aggregates only, never who was absent.
+  absence_taken_before_cover_lead: {
+    label: "Abwesenheit: im eigenen Team übernommen vor Nachbarteams", unit: "%",
+    definition: "Einsätze, die durch eine in diesem Monat erfasste Abwesenheit frei wurden: Anteil, den jemand aus dem eigenen Team übernommen hat, bevor die Vorlaufzeit für Nachbarteams (COVER1) beginnt. Nicht gezählt: abgesagte Einsätze und solche, die ungenommen zurückgingen.",
+    source: "Abwesenheit ABS1, Übernahmen COVER1",
+  },
+  absence_last_take_minutes: {
+    label: "Abwesenheit: Zeit bis alles übernommen", unit: "Min.",
+    definition: "Median der Minuten von der Erfassung einer Abwesenheit bis zur Übernahme ihres letzten freigegebenen Einsatzes; nur Abwesenheiten, deren Einsätze alle übernommen sind. Eine Abwesenheit in zwei Teams zählt pro Team.",
+    source: "Abwesenheit ABS1",
+  },
+  absence_taken_by_known_share: {
+    label: "Abwesenheit: von bekannter Pflegender übernommen", unit: "%",
+    definition: "Übernommene freigegebene Einsätze: Anteil, den die Stellvertretung oder die Bezugspflegende des Falls übernommen hat (Fallangaben, wie sie heute erfasst sind).",
+    source: "Abwesenheit ABS1, Kontinuität J6",
   },
 };
 
