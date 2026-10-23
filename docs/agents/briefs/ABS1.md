@@ -29,7 +29,7 @@ Reviewed ABS1-C5: #216 (head 9ea3cb3, CI run 39988490243 green: app, db incl. pg
 
 **PO status: `accepted`.** ABS1 parts 1-3 and ABS1-C5 are met; the clinical gate holds no blocking finding.
 
-**Condition (concrete, testable; CSR1 part 11, before AN2):**
+**Condition (concrete, testable; CSR1 part 11, before AN2; CGR-33 of the same `cra` section is a J5 matter, met 19:30):**
 - **CGR-32:** (1) `record_absence` (and `change_absence` when it moves the start earlier) returns `past_planned` = the number of planned, not started visits dated before today inside the absence that name the absent member, over the caller's teams only (ABS1-N1 rule); the absence is never refused for them. (2) Those visits keep their responsible member, and their `visit_overdue` alert on `/team` and in OPS1 carries the flag `responsible_absent` with the fixed label "Zuständige Person abwesend gemeldet" (no reason, no free text). (3) The flag is computed from the absence (not stored): withdrawing or shortening the absence clears it. (4) pgTAP: absence from yesterday 06:00 recorded today → yesterday's planned 07:00 visit still names her, `past_planned` = 1, overdue alert present with the flag; today's and later visits released as in 048; the same visit without an absence has the alert without the flag; withdraw clears the flag. (5) The label has a unit test; e2e at phone width shows it on `/team` once.
 
 ## PO review — 2026-10-23 18:15: part 3 met in code for every visit from today; one residual (ABS1-C5); awaiting clinical review

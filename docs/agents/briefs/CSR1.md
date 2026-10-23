@@ -30,7 +30,7 @@ Reviewed CSR1 part 10: #216 (head 9ea3cb3, CI run 39988490243 green: app, db inc
 - Cut-off compared with the audit row's transaction start: **accepted** (seconds around midnight; D-22 may move the cut-off).
 - CGR-29's build at the lift does not run when the visit had no fact before the hold; the next generation builds it: **accepted**. It delays a fact, never releases billing (`cra` 19:00 agrees). No change.
 
-**Part 11 (ordered now, small, before AN2):** CGR-32 (ABS1 condition, text in `briefs/ABS1.md`, review 19:12) and CGR-33 (J5 condition, text in `briefs/J5.md`, note 19:12). Both are criteria below.
+**Part 11 (ordered now, small, before AN2):** CGR-32 (ABS1 condition, text in `briefs/ABS1.md`, review 19:12). CGR-33 (J5 condition, `briefs/J5.md`) was delivered by engineering in the same hour (#222, pgTAP 053) and is met (PO 19:30).
 
 ## PO review — 2026-10-23 16:55: part 9 met in code; awaiting clinical review; part 10 ordered (J5-C2)
 
@@ -136,7 +136,7 @@ Order of work: patient safety first.
 - [x] (met 19:12, #216, 0051; `cra` 19:00) **J5-C2 (PO 2026-10-23 16:55, part 10; billing integrity, strict default until D-22):** a fact's order basis is the order as recorded at the end of the visit date (audited history), never the order at build time; else not billable with a named reason. pgTAP (a)-(d) in the 16:55 review.
 - [x] **CGR-19 (F6, advisory, interim safe default 2026-10-23 03:10):** `correct_report` is refused with a clear reason (for example `performer_not_in_team`) while the report's performer is not a member of the visit's team, instead of creating a correction draft that nobody can ever sign. The current final version stays in force and readable. The rule for who may correct and sign in that case is D-30 (`clinical`, with `legal`); this criterion is replaced when D-30 is answered. pgTAP: performer removed → correction refused, no draft row; performer still a member → correction allowed as today. *(Met by part 7, #188, 0044, PO 12:15; delivered ahead of the 11:25 order, deviation accepted.)*
 - [ ] **CGR-32 (ABS1 condition, PO 2026-10-23 19:12, part 11):** a past planned visit inside a newly recorded absence keeps its responsible member, is counted in `past_planned` and its overdue alert carries "Zuständige Person abwesend gemeldet"; the absence is never refused. pgTAP and e2e in `briefs/ABS1.md` (19:12).
-- [ ] **CGR-33 (J5 condition, PO 2026-10-23 19:12, part 11):** pgTAP guards that both order columns are audited with their old value and that `audit_events` is append-only (`briefs/J5.md`, 19:12).
+- [x] (met 19:30, #222, pgTAP 053) **CGR-33 (J5 condition, PO 2026-10-23 19:12):** pgTAP guards that both order columns are audited with their old value and that `audit_events` is append-only (`briefs/J5.md`, 19:12).
 - [ ] **No regression:** all existing pgTAP, unit and e2e tests stay green. The Clinical Rule Register lists every provisional default CSR1 introduces.
 - [ ] **Clinical gate trail:** each PR names the report section it addresses and the CGR IDs it closes (README *Clinical review gate*).
 

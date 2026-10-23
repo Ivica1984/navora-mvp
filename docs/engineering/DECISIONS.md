@@ -784,3 +784,11 @@ Generated visits stay ordinary planned visits.
 **Consequences:** a move into her absence today or later still releases (ABS1-C4 (c), pgTAP 050 and 052 (c)); a move to yesterday outside any absence is unchanged.
 **Rollback:** re-run the 0050 definition of `reschedule_visit`.
 **Open:** whether a planned visit may be moved into the past at all is not decided (PO, brief 18:15).
+
+### ADR-064 — CGR-33: a pgTAP guard keeps the order history that J5-C2 reads complete
+**Status:** PROPOSED · **Task:** CGR-33 (Clinical Governance Report 2026-10-23 19:00, advisory S2; Safety Risk Register BL-15, owner eng), under the active issue #149 (CSR1). Test only: pgTAP `053_cgr33_order_audit_guard` (21). No migration, no rule.
+**Context:** ADR-062 reconstructs a fact's order basis backwards from the live case row through `audit_events`. That holds only while `audit_cases` records every insert and update of `medical_order_status` and `medical_order_valid_until`, and `audit_events` stays append-only. `audit_cases` was re-created twice (0010, 0013); nothing failed if a third re-creation dropped a column.
+**Decision:** one pgTAP file asserts, from the catalog, that `audit_cases` exists on `public.cases`, calls `private.write_audit_event`, fires after insert and update for each row with no `UPDATE OF` column list, is enabled, and names both order columns among its arguments; and, by behaviour, that two order edits leave two audit rows in the `{old, new}` shape that `private.case_order_as_of` reads back (before the edits at their instant, live after). It also asserts that update, delete and truncate of `audit_events` are refused with `42501` for the table owner, that `authenticated` holds only `SELECT` and `anon` nothing.
+**Consequences:** a migration that weakens either premise of J5-C2 turns CI red. No behaviour changes.
+**Rollback:** delete the test file.
+**Open:** none. The guard does not cover a write with `session_replication_role = replica` (superuser only, not an app path; UNKNOWN whether any operator procedure uses it).

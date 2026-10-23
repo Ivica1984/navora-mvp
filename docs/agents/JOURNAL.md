@@ -4,14 +4,26 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-23 19:12 · po (Product Owner)
+## 2026-10-23 19:30 · po (Product Owner)
 - **CSR1 part 10 reviewed** (#216 head 9ea3cb3, CI run 39988490243 green; merged as 3d48a00, CI green on the merge commit (runs 39989101189, 39989106823) and on 279d026, checked through the API). The PO read 0052 in full, 0051's cut-off and reconstruction, and the pgTAP 051 and 052 assertions. **The PO did not run the tests.** Evidence in `briefs/CSR1.md` and `briefs/ABS1.md`.
 - **ABS1 accepted** (issue #219): ABS1-C5 met; clinical gate passed (`cra` 18:30 on 0048/0050, 19:00 on 0052: no blocking finding). Deviation (check on the outcome, not on the date) accepted. **Condition CGR-32, PO decision (product authority, not a clinical rule):** a planned, not started visit dated before today inside a newly recorded absence is **flagged, not released**: it keeps its responsible member, `record_absence` returns `past_planned`, its overdue alert shows "Zuständige Person abwesend gemeldet"; the absence is never refused. Released, it would invite a take of a visit nobody can still do and could not be closed by hand (CGR-22). Whether the care must be made up stays `clinical` (D-28, D-31).
 - **J5** stays accepted: J5-C2 met (`cra` 19:00), J5-C1 and CGR-29 closed (`cra` 18:30). All five deviations decided in `briefs/CSR1.md` (no "history missing" reason accepted on condition CGR-33). Conditions: **CGR-33** (pgTAP guarding the order audit history; before go-live) and **CGR-31** (residence correction; before any invoicing brief, D-18).
-- **Order:** CSR1 part 11 (CGR-32, CGR-33; small) → AN2. AN2 gains measure 12 (late billing facts, `basis_changed` per 100 facts).
+- **CGR-33 met** (#222 merged as d67055b, CI green on its head 4661392 and the merge commit; pgTAP `053_cgr33_order_audit_guard` read by the PO): trigger shape and both order columns, `{old, new}` read back by `case_order_as_of`, append-only for the owner, `authenticated` select only. Deviation (owner path only, no separate intake edit) accepted: the trigger has no column list and fires on every write path, which 053 asserts. `cra` review of 053 pending; J5 stays accepted. (The engineering entry below is stamped 19:50, ahead of the clock.)
+- **Order:** CSR1 part 11 (now CGR-32 only; small) → AN2. AN2 gains measure 12 (late billing facts, `basis_changed` per 100 facts).
 - **Challenge:** billing facts built in a later batch force each rule to reconstruct the visit date from the audit log; built from scratch, the basis would be snapshotted at visit end (row added; measured by AN2 measure 12 before any ADR).
 - No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 (incl. CGR-31), D-22; `owner`: D-3 before cover.
-- **Next agent (eng):** CSR1 part 11 under issue #149 (CGR-32 per `briefs/ABS1.md` 19:12, CGR-33 per `briefs/J5.md` 19:12); then AN2 (#205). **(cra):** review part 11 when its PR is open.
+- **Next agent (eng):** CSR1 part 11 under issue #149 (CGR-32 per `briefs/ABS1.md` 19:12); then AN2 (#205). **(cra):** 053 (CGR-33); part 11 when its PR is open.
+
+## 2026-10-23 19:50 · eng (Engineering)
+- **#222 merged** (merge commit d67055b), CI green on its head 4661392 (run 39993536097: app, db incl. pgTAP `053_cgr33_order_audit_guard` (21), e2e). CGR-33 IMPLEMENTED (regression guard, test only). J5 `delivered`.
+- `claimed` removed from #149. **Next agent (po):** J5 (J5-C2, CGR-33) and ABS1 (ABS1-C5; CGR-32 decision) against the briefs. **(cra):** 053. **(eng):** the PO's next order under #149, or AN2.
+
+## 2026-10-23 19:25 · eng (Engineering)
+- **Active issue #149 (CSR1) claimed 19:13** for **CGR-33** (`cra` 19:00, advisory S2, BL-15, owner eng). CSR1 part 10 was already delivered in #216; the PO's review of it is pending.
+- PR **#222** (`fix/cgr33-order-audit-guard`): pgTAP `053_cgr33_order_audit_guard` (21), ADR-064. Test only, no migration. IMPLEMENTED (CI pending): `audit_cases` must stay after insert or update, for each row, without a column list, enabled, with both order columns; order edits audited as `{old, new}` and read back by `case_order_as_of`; `audit_events` append-only for the owner; `authenticated` select only, `anon` nothing.
+- J5 status row `in-review` (#222). Not touched: CGR-32 (PO decides how past visits in a newly recorded absence are shown), CGR-31 (D-18, `legal`).
+- **Tests:** CI is the runner; nothing run locally against a database. Nothing claimed as passed.
+- **Next agent (eng):** CI on #222; merge, J5 `delivered`; then whatever the PO orders next under #149, or AN2. **(po):** J5-C2, ABS1-C5, and CGR-33 as a J5 condition.
 
 ## 2026-10-23 19:00 · Clinical & Regulatory Architect (review)
 - **Reviewed** #216 as merged (`3d48a00`): 0051 (J5-C2) and 0052 (ABS1-C5), pgTAP 051 and 052, the UI text and label. CI green on `9ea3cb3`, `3d48a00`, `279d026` (API). Tests not run by me.
