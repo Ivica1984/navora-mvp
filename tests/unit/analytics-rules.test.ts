@@ -17,6 +17,14 @@ describe("analytics rules (AN1)", () => {
     expect(KPI.care_share_in_visits.definition).toContain("Nicht enthalten");
   });
 
+  it("lists the three ABS1 measures (AN1 criterion of ABS1 part 2)", () => {
+    for (const key of ["absence_taken_before_cover_lead", "absence_last_take_minutes", "absence_taken_by_known_share"]) {
+      expect(KPI_ORDER).toContain(key);
+    }
+    expect(KPI.absence_last_take_minutes.unit).toBe("Min.");
+    expect(formatKpi("absence_taken_by_known_share", "66.7")).toMatch(/^66[.,]7 %$/);
+  });
+
   it("formats values with their unit and never invents a figure", () => {
     expect(formatKpi("care_share_in_visits", 75)).toBe("75 %");
     expect(formatKpi("care_share_in_visits", "62.5")).toMatch(/^62[.,]5 %$/);
