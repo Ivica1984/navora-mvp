@@ -261,6 +261,18 @@ test.describe("field tool (F1)", () => {
     await shownReview.getByRole("button", { name: "Bericht unterschreiben" }).click();
     await expect(shownReport.getByTestId("report-status")).toHaveText("Bericht abgeschlossen (Fassung 2)");
     await expect(shownReport.getByTestId("command-error")).toHaveCount(0);
+
+    // CSR1 / CGR-24-W: a correction opened by mistake and left untouched is withdrawn with one confirmation; the
+    // signed version 2 stays in force and the facts are locked again.
+    await shownReport.getByRole("button", { name: "Bericht korrigieren" }).click();
+    await shownReport.getByLabel("Begründung der Korrektur").fill("Synthetisch: versehentlich geöffnet");
+    await shownReport.getByRole("button", { name: "Neue Fassung anlegen" }).click();
+    await expect(shownReport.getByTestId("report-status")).toHaveText("Entwurf (Fassung 3)");
+    await shownReport.getByTestId("withdraw-correction").click();
+    await shownReport.getByTestId("withdraw-correction-confirm").click();
+    await expect(shownReport.getByTestId("report-status")).toHaveText("Bericht abgeschlossen (Fassung 2)");
+    await expect(shownReport.getByTestId("command-error")).toHaveCount(0);
+    await expect(shownCard.getByTestId("facts-locked")).toContainText("Bericht korrigieren");
   });
 
   test("a visit without a recorded start cannot get a report (no performer to sign) (F6)", async ({ page }) => {

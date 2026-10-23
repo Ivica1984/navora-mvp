@@ -3,7 +3,7 @@ import type { Database } from "@/lib/supabase/database.types";
 /** One row of public.field_reports() — latest report version per visit (F6, migration 0016). */
 export type FieldReport = Database["public"]["Functions"]["field_reports"]["Returns"][number];
 
-export type ReportAction = "create" | "edit" | "sign" | "countersign" | "correct";
+export type ReportAction = "create" | "edit" | "sign" | "countersign" | "correct" | "withdraw";
 
 export type ReportView = {
   /** Short status line shown on the card. */
@@ -34,8 +34,11 @@ export function reportView(visitStatus: string | null, report: FieldReport | nul
   const version = report.version > 1 ? ` (Fassung ${report.version})` : "";
 
   if (report.status === "draft") {
+    // CSR1 / CGR-24-W (migration 0049): the performer may withdraw her own correction draft while it is untouched.
+    // The database decides "untouched" (no time correction, observation or summary change since it was opened).
+    const isCorrection = report.correction_reason != null;
     return report.i_am_performer
-      ? { label: `Entwurf${version}`, tone: "open", actions: ["edit", "sign"], hint: null }
+      ? { label: `Entwurf${version}`, tone: "open", actions: isCorrection ? ["edit", "sign", "withdraw"] : ["edit", "sign"], hint: null }
       : {
           label: `Entwurf${version}`,
           tone: "waiting",
@@ -64,7 +67,7 @@ export function reportView(visitStatus: string | null, report: FieldReport | nul
   return { label: "Berichtstatus unbekannt", tone: "waiting", actions: [], hint: null };
 }
 
-/** German messages for rejection reasons returned by the report commands (migrations 0016, 0041, 0044). */
+/** German messages for rejection reasons returned by the report commands (migrations 0016, 0041, 0044, 0049). */
 export const REPORT_REJECTION_MESSAGE: Record<string, string> = {
   not_team_member: "Nicht gespeichert: Du gehörst nicht zum zuständigen Team.",
   visit_not_completed: "Ein Bericht ist erst nach Abschluss des Einsatzes möglich.",
@@ -81,6 +84,12 @@ export const REPORT_REJECTION_MESSAGE: Record<string, string> = {
   // CSR1 / CGR-19 (migration 0044, interim until D-30): only the performer signs a correction, and she left the team.
   performer_not_in_team:
     "Korrektur nicht möglich: Die Person, die den Einsatz durchgeführt hat, gehört nicht mehr zum Team und könnte die Korrektur nicht unterschreiben. Der abgeschlossene Bericht bleibt gültig. Wer in diesem Fall korrigieren darf, ist noch nicht geregelt.",
+  // CSR1 / CGR-24-W (migration 0049): withdrawing a correction draft.
+  not_correction: "Zurückziehen geht nur bei einer Korrektur; der erste Bericht wird unterschrieben.",
+  draft_has_changes:
+    "Nicht zurückgezogen: Seit dem Öffnen der Korrektur wurden Zeiten, Beobachtungen oder die Zusammenfassung geändert. Diese Änderungen müssen unterschrieben werden.",
+  awaiting_countersignature:
+    "Nicht zurückgezogen: Die Korrektur ist unterschrieben und wartet auf die Gegenzeichnung.",
   facts_changed:
     "Nicht unterschrieben: Zeiten oder Beobachtungen haben sich geändert, seit du den Bericht geöffnet hast. Bitte die aktualisierten Angaben prüfen und erneut unterschreiben.",
 };
