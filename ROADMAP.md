@@ -13,6 +13,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 ## Änderungen gegenüber 9. Oktober 2026
 
 - **DECIDED (Owner, PRIO-1):** Reihenfolge F0, J1, J2, J3.
+- **Stand 23.10. 06:10:** CSR1 Teil 1 (#161) gemergt (CI grün) und geprüft: erfüllt. Pflegehilfen können B- und Bedarfsabklärungs-Einsätze weder fortsetzen noch abschliessen (CGR-12); ein nicht begonnener oder hängender Einsatz bleibt als Ausnahme sichtbar, auch für das ganze Team (CGR-04; Schwellen provisorisch bis D-28). C1 und J3 werden nach der Prüfung durch das Klinik-Gate (`cra`) abgenommen. ADM1 wartet weiterhin auf diese Prüfung.
 - **Stand 23.10. 04:17:** ADM1-Nachbesserung CGR-18 (#153) gemergt (CI grün) und geprüft: erfüllt. Wer einen Einsatz durchführt oder einen fehlenden bzw. unfertigen Bericht hat, kann nicht entfernt werden; nach der Unterschrift schon. Abnahme nur noch nach der Prüfung durch das Klinik-Gate (`cra`).
 - **Stand 23.10. 03:10:** ADM1 nach dem Klinik-Gate (Report 02:28) wieder **changes-requested**: Wer einen Einsatz durchführt oder noch einen offenen Bericht hat, darf nicht aus dem Team entfernt werden, sonst kann diese Pflege nie dokumentiert werden (CGR-18). Eine kleine Nachbesserung genügt. CSR1 ergänzt: Korrektur eines Berichts einer ausgetretenen Person wird vorläufig abgelehnt (CGR-19); Regel dazu neu als D-30 (clinical, mit legal). ABS1 ergänzt: eine Abwesenheit wird nie abgelehnt.
 - **Stand 23.10. 01:10:** ADM1 (#135) ist gemergt, CI auf dem Merge-Commit grün; keine Änderung mehr verlangt. Abnahme folgt nach dem Abschnitt des Clinical Governance Reports zu #135. CSR1 ergänzt um zwei Abrechnungsauflagen: ein Einsatz mit Qualitätssperre bleibt nicht abrechenbar, und Arbeitszeitdaten folgen einem korrigierten Bericht.
@@ -48,18 +49,18 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 ## Gate 2: Care Journey MVP
 
-Reihenfolge der offenen Punkte: ADM1 (CGR-18) → CSR1 (klinische Sicherheitsnachbesserung) → ABS1. Leitbild und North Star (direkter Pflegeanteil): `docs/product/CARE_OPERATING_MODEL.md` (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
+Reihenfolge der offenen Punkte: CSR1 (klinische Sicherheitsnachbesserung, Teil 1 erledigt) → ABS1; ADM1, C1 und J3 warten nur auf das Klinik-Gate. Leitbild und North Star (direkter Pflegeanteil): `docs/product/CARE_OPERATING_MODEL.md` (Rangliste in `docs/agents/NEXT_CAPABILITY.md`).
 
 | ID | Fähigkeit | Priorität | Stand |
 | --- | --- | --- | --- |
 | J1 | Zuweisung → Fall → Matching-Anfrage mit Readiness-Prüfung und Kostenträgerkette | Critical | IMPLEMENTED (#23, #30), **abgenommen** 21.10.; Warnhinweise warten auf D-17 |
-| J3 | Einsatzplanung mit Kategorie A/B/C, geplanten Minuten, Anordnungsprüfung | High | IMPLEMENTED (#25, #32), **abgenommen** 21.10.; Kategorie-Mapping wartet auf D-15; **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-12), Nachbesserung in CSR1 |
+| J3 | Einsatzplanung mit Kategorie A/B/C, geplanten Minuten, Anordnungsprüfung | High | IMPLEMENTED (#25, #32), **abgenommen** 21.10.; Kategorie-Mapping wartet auf D-15; **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-12), Nachbesserung in CSR1; CSR1 Teil 1 (#161) gemergt 23.10. (CI grün), PO-Prüfung 06:10: erfüllt, Abnahme nach Klinik-Gate |
 | F6 | Signierter Einsatzbericht | High | IMPLEMENTED (#35), **abgenommen** 21.10.; **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-02, CGR-03), Nachbesserung in CSR1 |
 | J2 | Teamentscheid mit Antwortfrist, Eskalation, Qualifikationsprüfung | High | IMPLEMENTED (#24, #36), **abgenommen** 22.10. |
 | F1-F4 | Verified Visit: Tagesansicht, Zustandsmaschine, Zeitkorrekturen, Beobachtung, Übergabe | High | IMPLEMENTED (#19–#22), abgenommen 21.10. (Pflegeziele via J3, Warnhinweise via J1/D-17); **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-01, CGR-03), Nachbesserung in CSR1 |
 | QG1 | Qualitätsereignisse, Prüfung, Quality Hold | High | IMPLEMENTED (#41), **abgenommen** 22.10.; in Betrieb, sobald `clinical` die Ereignisliste (D-16) liefert |
 | OPS1 | Operations Exception Center über J1–J3, QG1, F6 | High | IMPLEMENTED (#39), **abgenommen** 22.10.; **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-04, CGR-05, CGR-06), Nachbesserung in CSR1 |
-| C1 | Fall- und Einsatz-Lebenszyklus: pausieren, abschliessen, wiedereröffnen, absagen, Klient nicht angetroffen | High | IMPLEMENTED (#83, #120), PO: **abgenommen** 22.10. 16:15 (Auflage: instabilen e2e-Test beheben); Vor-Ort-Protokoll D-19; **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-04, CGR-12), Nachbesserung in CSR1 |
+| C1 | Fall- und Einsatz-Lebenszyklus: pausieren, abschliessen, wiedereröffnen, absagen, Klient nicht angetroffen | High | IMPLEMENTED (#83, #120), PO: **abgenommen** 22.10. 16:15 (Auflage: instabilen e2e-Test beheben); Vor-Ort-Protokoll D-19; **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-04, CGR-12), Nachbesserung in CSR1; CSR1 Teil 1 (#161) gemergt 23.10. (CI grün), PO-Prüfung 06:10: erfüllt, Abnahme nach Klinik-Gate |
 | ADM1 | Pilot-Administration: Mitglieder mit Namen, Qualifikationen, Teams, Fristen, Schwellen | High | IMPLEMENTED (#101), PO: **changes-requested** 22.10. 20:15 (entfernte Mitglieder geben ihre künftigen Einsätze ans Team zurück); Nachbesserung #135 gemergt 23.10. (CI grün); Klinik-Gate 23.10. 02:28: **changes-requested** (CGR-18, Entfernung auch bei durchgeführtem Einsatz oder offenem Bericht ablehnen); Nachbesserung #153 gemergt 23.10. (CI grün), PO-Prüfung 04:17: erfüllt, Abnahme nach Klinik-Gate |
 | PLAN2 | Selbstplanung: Einsätze folgen dem Pflegeplan (rollierende 4 Wochen, Bezugspflegeperson) | High | IMPLEMENTED (#92, #118), PO: **abgenommen** 22.10. 16:15; täglicher Job auf Staging prüfen (D-2) |
 | F7 | Unterschrift beim Abschluss: Einsatz endet mit finalem Bericht | High | IMPLEMENTED (#94, #122), PO: **abgenommen** 22.10. 16:15; **wieder geöffnet 22.10. 23:00** (Klinik-Gate: CGR-02), Nachbesserung in CSR1 |
@@ -67,7 +68,7 @@ Reihenfolge der offenen Punkte: ADM1 (CGR-18) → CSR1 (klinische Sicherheitsnac
 | REF2 | Spitalzuweisung ohne Intake-Koordination | High | DRAFT; wartet auf D-9, D-3 |
 | HAND1 | Übergabe ohne Rapport: „seit Ihrem letzten Besuch“ auf jeder Einsatzkarte | High | IMPLEMENTED (#128), PO: **abgenommen** 22.10. 18:20 (Auflage: e2e-Test in Handybreite); Voraussetzung für sichere Vertretung (COVER1) |
 | RET1 | Wiederkehrende Klientin kehrt zu ihrem Team zurück (pausierter Fall wird fortgesetzt) | High | IMPLEMENTED (#129), PO: **abgenommen** 22.10. 18:20 (Auflagen: Fortsetzung ab gewünschtem Start, Test Qualifikation) |
-| CSR1 | Klinische Sicherheitsnachbesserung: kein Einsatz wirkt sicher, wenn er es nicht ist; signiert heisst unveränderlich | Critical | PLANNED (Brief approved 22.10. 23:00), aus dem Clinical Governance Report |
+| CSR1 | Klinische Sicherheitsnachbesserung: kein Einsatz wirkt sicher, wenn er es nicht ist; signiert heisst unveränderlich | Critical | PLANNED (Brief approved 22.10. 23:00), aus dem Clinical Governance Report; Teil 1 (CGR-12, CGR-04) IMPLEMENTED (#161), PO 06:10: erfüllt; nächster Teil OPS1 (CGR-05, CGR-06) |
 | ABS1 | Abwesenheit ohne Telefonkette: Einsätze gehen sofort ans eigene Team, Stellvertretung bzw. Bezugspflegeperson zuerst | High | PLANNED (Brief approved), Challenge-Befund; schliesst eine Sicherheitslücke (Einsätze bleiben sonst einer abwesenden Pflegeperson zugewiesen) |
 | ORD1 | Verordnungserneuerung ohne Nachtelefonieren beim Hausarzt | Medium | DRAFT; wartet auf D-22 (legal), D-9 |
 
