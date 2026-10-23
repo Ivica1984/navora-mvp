@@ -8,7 +8,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(42);
+select plan(45);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -29,12 +29,13 @@ create temp table fx (name text primary key, id uuid not null, team uuid not nul
                       t0 time, t1 time, a int, resp uuid);
 grant select on fx to authenticated;
 insert into fx values
-  -- §1 CGR-27: 902's visits without a start or without an end
+  -- §1 CGR-27 (brief criterion, PO 15:25): 902's visits without a start or without an end
   ('untimed_today', 'a0480000-0000-4000-8000-000000000001', '00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000208', 0, null, null, 30, '00000000-0000-4000-a000-000000000902'),
   ('untimed_tmr',   'a0480000-0000-4000-8000-000000000002', '00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000208', 1, null, null, 30, '00000000-0000-4000-a000-000000000902'),
   ('noend_60',      'a0480000-0000-4000-8000-000000000003', '00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000208', 1, '08:00', null, 60, '00000000-0000-4000-a000-000000000902'),
   ('noend_nomin',   'a0480000-0000-4000-8000-000000000004', '00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000208', 1, '06:00', null, null, '00000000-0000-4000-a000-000000000902'),
   ('noend_short',   'a0480000-0000-4000-8000-000000000005', '00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000208', 1, '07:00', null, 30, '00000000-0000-4000-a000-000000000902'),
+  ('at_0800',       'a0480000-0000-4000-8000-000000000006', '00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000208', 2, '08:00', null, 60, '00000000-0000-4000-a000-000000000902'),
   -- §3 overlap: her own visit and three open ones
   ('mine',          'a0480000-0000-4000-8000-000000000010', '00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000208', 4, '10:00', '10:30', 30, '00000000-0000-4000-a000-000000000902'),
   ('ov_yes',        'a0480000-0000-4000-8000-000000000011', '00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000208', 4, '10:15', '10:45', 30, null),
@@ -73,16 +74,22 @@ select is((select private.visit_interval(v) from public.care_visits v where v.id
 -- 1. ABS1-C1 / CGR-27: release --------------------------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is(public.record_absence('00000000-0000-4000-a000-000000000101', null, pg_temp.today(), null, '10:00', null,
-          'a4800000-0000-4000-8000-000000000001') ->> 'result', 'ok', 'an absence today from 10:00');
+select is(public.record_absence('00000000-0000-4000-a000-000000000101', null, pg_temp.today(), null, '12:00', null,
+          'a4800000-0000-4000-8000-000000000001') ->> 'result', 'ok', 'an absence today from 12:00');
 select is(public.record_absence('00000000-0000-4000-a000-000000000101', null, pg_temp.today() + 1, null, '08:30', null,
           'a4800000-0000-4000-8000-000000000002') ->> 'result', 'ok', 'an absence tomorrow from 08:30');
 reset role;
-select is(pg_temp.resp('untimed_today'), null, 'ABS1-C1: the absence from 10:00 releases her untimed visit of today');
+select is(pg_temp.resp('untimed_today'), null, 'ABS1-C1: the absence from 12:00 releases her untimed visit of today');
 select is(pg_temp.resp('untimed_tmr'), null, 'and the one from 08:30 her untimed visit of tomorrow');
 select is(pg_temp.resp('noend_60'), null, 'CGR-27: a visit 08:00 without an end and with 60 planned minutes is released by an absence from 08:30');
 select is(pg_temp.resp('noend_nomin'), null, 'a visit 06:00 without an end and without planned minutes too (to the end of its date)');
 select is(pg_temp.resp('noend_short'), '00000000-0000-4000-a000-000000000902'::uuid, 'a visit 07:00-07:30 (no end, 30 minutes) stays hers');
+select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
+set local role authenticated;
+select is(public.record_absence('00000000-0000-4000-a000-000000000101', null, pg_temp.today() + 2, null, null, '07:59',
+          'a4800000-0000-4000-8000-000000000003') ->> 'released', '0', 'an absence ending 07:59 releases nothing at 08:00');
+reset role;
+select is(pg_temp.resp('at_0800'), '00000000-0000-4000-a000-000000000902'::uuid, 'the visit 08:00 without an end stays hers');
 select is((select count(*)::int from public.visit_plan_changes where visit_id in (pg_temp.vid('untimed_today'), pg_temp.vid('untimed_tmr'),
              pg_temp.vid('noend_60'), pg_temp.vid('noend_nomin')) and change = 'released' and reason = 'Abwesenheit'), 4,
   'each release is logged with the fixed text');
@@ -93,6 +100,8 @@ set local role authenticated;
 select is(pg_temp.may_take('untimed_tmr', 1), false, 'CGR-27: the absent nurse is not offered her untimed visit');
 select is(public.take_open_visit(pg_temp.vid('noend_60'), 'a4800000-0000-4000-8000-000000000010') ->> 'result', 'absent',
   'and cannot take the visit without an end');
+select is(public.take_open_visit(pg_temp.vid('untimed_tmr'), 'a4800000-0000-4000-8000-000000000014') ->> 'result', 'absent',
+  'nor the untimed one');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000906');
 set local role authenticated;
@@ -110,7 +119,7 @@ reset role;
 -- change_absence uses the same interval: shortened to 08:45, she is still absent part of that date.
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is(public.change_absence((select absence_id from public.team_absences() where is_me and starts_at > now()), false,
+select is(public.change_absence((select absence_id from public.team_absences() where is_me and starts_at = ((pg_temp.today() + 1) + time '08:30') at time zone 'Europe/Zurich'), false,
           pg_temp.today() + 1, '08:45', 'a4800000-0000-4000-8000-000000000013') ->> 'returned', '0',
   'shortened to 08:45: nothing returns (the untimed and the 08:00 visits still fall in the absence)');
 reset role;
