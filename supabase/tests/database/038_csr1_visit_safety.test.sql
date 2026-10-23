@@ -168,16 +168,17 @@ select is(public.resume_visit(pg_temp.vid('paused2h'), 'a3800000-0000-4000-8000-
 select is((select count(*)::int from pg_temp.team('visit_stuck', 'paused2h')), 0, 'the stuck exception of the old state ends with the new status change');
 reset role;
 
--- Closed by a person in OPS1 with a reason: closed for the team as well.
+-- A person in OPS1 cannot silence a stuck visit (CGR-06, 0039): it stays for the team as well.
 select pg_temp.act_as('00000000-0000-4000-a000-000000000901');
 set local role authenticated;
+-- Since 0039 (CGR-06) a stuck visit escalates to P1, so it is a safety exception: a coordinator cannot close it.
 select is(public.handle_exception((select exception_key from pg_temp.ops('visit_stuck', 'way4h')), 'close',
-          'Pflegeperson erreicht, Einsatz läuft', 'a3800000-0000-4000-8000-000000000030'), 'ok',
-  'a coordinator closes the stuck exception with a reason');
+          'Pflegeperson erreicht, Einsatz läuft', 'a3800000-0000-4000-8000-000000000030'), 'cause_persists',
+  'a coordinator cannot close the stuck exception (CGR-06, migration 0039)');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is((select count(*)::int from pg_temp.team('visit_stuck', 'way4h')), 0, 'a closed exception is closed for the team too');
+select is((select count(*)::int from pg_temp.team('visit_stuck', 'way4h')), 1, 'the team still sees it while the visit is stuck');
 reset role;
 
 -- CSR1 addition (ADM1 pre-review): a removed member's missed visit dated yesterday.

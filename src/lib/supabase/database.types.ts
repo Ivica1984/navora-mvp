@@ -1411,7 +1411,7 @@ isOneToOne: false
                            },
 "operations_exceptions":
 { Args: Record<PropertyKey, never>; Returns: {
-              "case_id": string,"case_label": string,"comments": Json,"detail": string,"entity_id": string,"entity_type": string,"exception_key": string,"exception_type": string,"label": string,"next_step": string,"owner_name": string,"priority": string,"region": string,"since": string,"taken": boolean,"taken_at": string,"taken_by_me": boolean,"team_name": string
+              "case_id": string,"case_label": string,"closable": boolean,"comments": Json,"detail": string,"entity_id": string,"entity_type": string,"exception_key": string,"exception_type": string,"label": string,"next_step": string,"owner_name": string,"priority": string,"region": string,"since": string,"taken": boolean,"taken_at": string,"taken_by_me": boolean,"team_name": string
             }[]
                            },
 "ops_case_lifecycle":

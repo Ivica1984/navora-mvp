@@ -4,14 +4,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-23 06:30 · Clinical & Regulatory Architect (review)
-- **Report section 06:30** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `8ec3351` and open #165 @ `74f3acf`. Read 0037, 0038, 0039 and pgTAP 037-039; **I did not run the tests** (CI green as reported, and checked on #165). This PR also carries the unmerged 02:28 section (#155).
-- **Closed:** CGR-18 (0037:57-75; pgTAP 037), CGR-12 (0038:52-58; pgTAP 038:76-109), CGR-04 (0038; pgTAP 038:127-203; thresholds PROVISIONAL, D-28). **Met on #165, close on merge:** CGR-05, CGR-06.
-- **New:** CGR-20 (blocking S1 for OPS1 acceptance, not for merging #165): a started or paused visit can only end as `completed`, and with 0039 its stuck alert cannot be closed, so a broken-off visit becomes a permanent P1 or a false completion. Remedy: an audited "not completed" end, not billable until decided. Advisory: CGR-21 (covered visits, dormant), CGR-22 (hand-closed uncovered visit), CGR-23 (stuck clock restarts on pause).
-- **Gate:** ADM1, C1 and J3 have no blocking finding; the PO may accept. OPS1: merge #165, acceptance waits for CGR-20.
-- **Registers:** H-15, PS-16 to PS-19 added; H-01, H-04, H-07, H-12, C-5, PS-1, PS-2, PS-6, PS-7, PS-14 updated; CR-007 and CR-036 updated; CR-041 (#165) endorsed as PROVISIONAL, not edited here.
+## 2026-10-23 06:40 · Clinical & Regulatory Architect (review)
+- **Report section 06:30** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `8ec3351` and #165 @ `74f3acf` (merged during this run as `c987e83`, same code). Read 0037, 0038, 0039 and pgTAP 037-039; **I did not run the tests** (CI green as reported, and checked on #165). This PR also carries the unmerged 02:28 section (#155).
+- **Closed:** CGR-18 (0037:57-75; pgTAP 037), CGR-12 (0038:52-58; pgTAP 038:76-109), CGR-04 (0038; pgTAP 038:127-203; thresholds PROVISIONAL, D-28). CGR-05 and CGR-06 (0039, pgTAP 039; merged as `c987e83`).
+- **New:** CGR-20 (blocking S1 for OPS1 acceptance): a started or paused visit can only end as `completed`, and with 0039 its stuck alert cannot be closed, so a broken-off visit becomes a permanent P1 or a false completion. Remedy: an audited "not completed" end, not billable until decided. Advisory: CGR-21 (covered visits, dormant), CGR-22 (hand-closed uncovered visit), CGR-23 (stuck clock restarts on pause).
+- **Gate:** ADM1, C1 and J3 have no blocking finding; the PO may accept. OPS1 (`delivered`): not acceptable until CGR-20 is met.
+- **Registers:** H-15, PS-16 to PS-19 added; H-01, H-04, H-07, H-12, C-5, PS-1, PS-2, PS-6, PS-7, PS-14 updated; CR-007 and CR-036 updated; CR-041 (0039) endorsed as PROVISIONAL.
 - **Waiting on people:** owner names the clinical owner (G-1); `po` opens a decision for CGR-20 (`clinical`, with `legal`) and adds CGR-22 to D-28; `clinical`: D-28, D-30, D-16, D-17; `legal`: D-18, D-22.
-- **Next agent (eng):** CGR-20 in the next CSR1 part (or on #165). **(po):** accept ADM1, C1, J3 if you agree; keep OPS1 in review.
+- **Next agent (eng):** CGR-20 as the next CSR1 part, before F1-F4. **(po):** accept ADM1, C1, J3 if you agree; set OPS1 `changes-requested` for CGR-20.
+
+## 2026-10-23 06:30 · eng (Engineering)
+- **#165 merged** (merge commit c987e83) with CI green on its head 74f3acf (run 39900134825: app, db, e2e; head included `recovery/main` 8ec3351, journal conflict resolved by keeping both entries). db-types-sync made no commit: the hand-edited `closable` matched. Nothing claimed beyond CI.
+- **OPS1 `delivered`** (#39, #165): CGR-05 and CGR-06 closed in code (IMPLEMENTED); CR-041 PROVISIONAL; D-28 OPEN. No `cra` section reviews 0039 yet (UNKNOWN).
+- **Next agent (cra):** review merge commit c987e83 (migration 0039, pgTAP 039; 019 and 038 changed on purpose) for CGR-05, CGR-06.
+- **Next agent (eng):** the next active item; CSR1 continues with F1-F4 (CGR-01), F6/F7 (CGR-02, CGR-03, CGR-19), J5 (CGR-07, CGR-08, BL-8, BL-9).
+
+## 2026-10-23 06:20 · eng (Engineering)
+- **Active issue #144 (OPS1 changes-requested) claimed 06:09.** OPS1's remedy is CSR1, so this is **CSR1 part 2**: PR **#165** (`fix/csr1-ops1-escalation`), migration 0039, pgTAP 039, ADR-050. Report section 2026-10-22 22:30; closes **CGR-05** and **CGR-06**.
+- **CGR-05 (IMPLEMENTED):** `quality_serious_open` stays while `open` or `in_review`, same key, escalation continues from creation; detail "in Bearbeitung".
+- **CGR-06 (IMPLEMENTED, option "cannot be closed until the cause is resolved"):** safety exception = effective rule P1 or escalating to P1 (incl. org overrides). `handle_exception` close → `cause_persists`; earlier closes and auto closes no longer hide it while the cause persists (OPS1, `/team`, commands); `operations_exceptions().closable`; `/operations` hides "Schliessen" for them. Rule register CR-041 (PROVISIONAL).
+- **Tests changed on purpose:** pgTAP 019 (P1 close now refused; close-with-reason on a P2) and 038 (stuck visit not closable); e2e OPS1 asserts the P1 card has no close.
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles; pgTAP 002–039 green under a minimal shim (real pgTAP not buildable here). vitest/typecheck/lint/e2e not run (npm unreachable). `database.types.ts` hand-edited (`closable`).
+- **OPS1 `in-review`** (#165). **Next agent (eng):** CI on #165; when green, merge and set OPS1 `delivered` (the `claimed` label on #144 was removed when the PR opened). Then CSR1 continues: F1-F4 (CGR-01), F6/F7 (CGR-02, CGR-03, CGR-19), J5 (CGR-07, CGR-08, BL-8, BL-9).
+- **Next agent (cra):** review #165 at its head (CGR-05, CGR-06, CR-041).
 
 ## 2026-10-23 06:10 · po (Product Owner)
 - **CSR1 part 1 reviewed (#161)** (head 2924102, CI run 39894865111 green: app, db, e2e; merged as 74940fb, CI green on the merge commit and on cca4e45). The PO read migration 0038, pgTAP 038, the `/team` change and the rule register; **the PO did not run the tests**.
