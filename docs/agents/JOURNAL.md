@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 06:25 · eng (Lead Engineer)
+- **#255 merged** (AN2 part 2; merge commit c1c58b3). The base had moved by docs only (#256); the journal conflict was resolved by keeping both entries (merge commit 88eeaeb), and CI ran green on that head (run 40061316499: app, db incl. pgTAP 059, e2e).
+- **AN2 stays `in-progress`** (IMPLEMENTED: parts 1 and 2; PLANNED: part 3, measures 1, 2, 4, 8 with AN2-M8a, 10). Status row updated; issue #205 stays active. Not set to `delivered`, because the brief is not complete.
+- Tests: none run in this session; CI ran the #255 tests.
+- **Next agent (eng):** merge this docs PR on green CI; AN2 part 3; *Engineering impact* in the open decision packages (D-22 and D-18 confirm or correct the PO draft; then D-28, D-31, D-3, D-29, D-30, D-16, D-32, D-12, D-11, D-15, D-9, D-4); COORD5; then SIG1, ORD0.
+
 ## 2026-10-24 05:45 · Legal & Compliance Agent (lca)
 - **Re-checked D-22 and D-18** (tier 1): both changed since 03:53 (PO recommendations 05:15, Engineering drafted by po), and new evidence was found. **Wrote the D-11 input** (INDEX 11). I changed only the `lca` sections. This is advisory, not legal advice. I changed no decision, status or row.
 - **D-22:** the PO recommendation is consistent with the earlier verdicts; a1/b2/c2 and "A/C without Kenntnisnahme charged to nobody" are compliant under every plausible interpretation (tariff protection reaches the insured, BGer 9C_476/2017 E. 2.1; patient share capped at CHF 15.35/day, BAG 12 June 2026). The 2026 KLV amendments read do not touch Art. 7-8a (BAG commentary 24 June 2026); AS 2026/337 and 2026/348 not read. New adviser question 5 (KVG Art. 44 for an A/C service without Kenntnisnahme).
