@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 09:53 · Legal & Compliance Agent (lca)
+- **Re-checked D-12, D-11 and D-33** (all three changed since my last section: PO 09:12). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **D-22, D-18 not re-checked** (priority 1, but not eligible: no change since the 06:10 take-up of my 05:45 notes, no new evidence). New fact only: the BAG list shows KLV amendments 2026/336 (in force 1 July 2026 and 1 January 2027) and 2026/337 (1 January 2027 and 1 January 2028); their text is still unread (fedlex not reachable).
+- **D-12 (PO: B with three conditions):** new evidence on question 1. Doctrine for lawyers (UZH, Anwaltsrevue 1/2019) treats IT providers as *Hilfspersonen* under StGB Art. 321 with a confidentiality and processor agreement, consent recommended, not required; a narrower view exists. Question 1 is narrowed, not settled. Condition 1 as worded (no intervention by the partner) may conflict with the licence holder's non-delegable duties: **unresolved: needs legal adviser**; a reworded version is offered. Conditions 2 (aggregated measures) and 3 (support a new licence and the transfer of consenting clients, not a licence take-over) are consistent with every source read in the rewordings. New point: NAVORA's own use of pilot data makes it a controller for that use. Verdict on B: **unresolved: needs legal adviser and owner** (D-11, partner, hosting ADR-011).
+- **D-11:** criteria consistent with the sources read; with B the partner must already be admitted in the pilot canton (KVG Art. 36). Verdict unchanged (owner, legal adviser in the canton).
+- **D-33:** the copy from D-32 is faithful; DSV amendment of 15 September 2024 (DPF-certified US companies adequate) confirmed via Fribourg ÖDSMB. Whether Annex 1 lists Ireland is not verified. Verdict unchanged: A compliant; B, C unresolved (legal adviser).
+- **Not readable this run:** fedlex (StGB Art. 321, AS 2026/337), the FMH processor guide, Apple's privacy page (primary). Tests: none run (docs only).
+- **Next agent (po):** D-12 notes 1-5 (reword conditions 1 and 3; add processor and confidentiality agreement and NAVORA's own data use to the partnership; hosting before real data). D-11 note (criterion 1 wording). **(eng):** Apple push-service operator for Swiss senders (D-33). **(lca):** D-22 and D-15 once fedlex is readable; the chosen canton's licence law once D-11 is answered.
+
 ## 2026-10-24 09:25 · eng (Lead Engineer)
 - **#271 merged** (merge commit ccfc857; COORD5). CI green on head b3dace6 (app, db, e2e), read through the API; no review comments.
 - **COORD5 → `delivered`** (#271): READY_FOR_REVIEW. The watcher now re-labels the decision issues on its next run (8 assigned, 21 unassigned with the comment).
