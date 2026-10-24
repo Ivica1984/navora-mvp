@@ -73,4 +73,16 @@ describe("handover rules (HAND1)", () => {
       .toEqual(["Anderer Grund", "Synthetisch: Notiz"]);
     expect(entryLines("visit_no_show", { reason_code: null, note: "Synthetisch", responsible_absent: true })).toEqual(["Synthetisch"]);
   });
+
+  it("AN2 / CGR-35: a move stored with responsible_absent shows the fixed text once after the reason; otherwise not", () => {
+    const before = { date: "2026-10-23", start: "08:00:00", end: "08:30:00" };
+    const after = { date: "2026-10-25", start: "08:00:00", end: "08:30:00" };
+    const flagged = entryLines("visit_moved", { before, after, reason: "Folgeeinsatz", responsible_absent: true });
+    expect(flagged).toHaveLength(3);
+    expect(flagged[1]).toBe("Begründung: Folgeeinsatz");
+    expect(flagged[2]).toBe("nicht durchgeführt: zuständige Person abwesend gemeldet");
+    expect(entryLines("visit_moved", { before, after, reason: "Folgeeinsatz", responsible_absent: false })).toHaveLength(2);
+    expect(entryLines("visit_moved", { before, after, reason: "Folgeeinsatz" })).toHaveLength(2);
+    expect(entryLines("visit_removed", { before, reason: "Synthetisch", responsible_absent: true })).toHaveLength(2);
+  });
 });

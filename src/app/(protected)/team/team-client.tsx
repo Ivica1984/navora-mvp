@@ -30,6 +30,7 @@ import CaseLifecycleControls, { ClosedCases } from "./case-lifecycle";
 import AutoPlan, { type ScheduledItem } from "./auto-plan";
 import type { PlanStatus } from "@/features/planning/queries";
 import type { CaseLifecycle } from "@/features/lifecycle/queries";
+import { RESPONSIBLE_ABSENT_NOTE } from "@/features/lifecycle/rules";
 import { formatDayLabel, shiftDay, todayInZurich } from "@/features/field/rules";
 import { getVisitStatusLabel } from "@/features/visits/types";
 
@@ -338,7 +339,7 @@ type Upcoming = {
   covered_by_team?: string | null;   // COVER1
   responsible_id?: string | null;    // ADM1
   flags: string[] | null;
-  last_change: { change: string; reason: string | null; own: boolean } | null;
+  last_change: { change: string; reason: string | null; own: boolean; responsible_absent?: boolean } | null;
 };
 type PlanItem = {
   id: string; service: string; category: string; minutes: number; frequency: string; review_date: string; goal?: string | null;
@@ -857,6 +858,10 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
           {visit.last_change?.reason && (
             <p className="text-xs text-emerald-900/60">
               {visit.last_change.change === "moved" ? "Verschoben" : "Geändert"} {visit.last_change.own ? "von dir" : "im Team"}: {visit.last_change.reason}
+              {/* AN2 / CGR-35: stored by the server on the `moved` row (migration 0056), never chosen here. */}
+              {visit.last_change.change === "moved" && visit.last_change.responsible_absent === true && (
+                <span data-testid="moved-responsible-absent"> · {RESPONSIBLE_ABSENT_NOTE}</span>
+              )}
             </p>
           )}
           <Flags flags={visit.flags} />

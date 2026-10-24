@@ -68,6 +68,8 @@ export function knownByLabel(knownBy: string | null): string | null {
  */
 export function pastPlannedNotice(pastPlanned: number): string | null {
   if (!Number.isInteger(pastPlanned) || pastPlanned <= 0) return null;
+  // ABS1-C7 (PO 2026-10-23 23:15): singular at n = 1.
+  if (pastPlanned === 1) return "1 vergangener Einsatz ist noch offen: bitte im Team entscheiden";
   return `${pastPlanned} vergangene Einsätze sind noch offen: bitte im Team entscheiden`;
 }
 

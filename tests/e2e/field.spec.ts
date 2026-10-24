@@ -396,8 +396,9 @@ test.describe("field tool (F1)", () => {
     await form.getByTestId("absence-save").click();
     const notice = absence.getByTestId("absence-past-planned");
     await expect(notice).toHaveCount(1);
-    await expect(notice).toContainText("1 vergangene Einsätze sind noch offen: bitte im Team entscheiden");
-    await expect(page.getByText("vergangene Einsätze sind noch offen")).toHaveCount(1);
+    // ABS1-C7: singular at n = 1.
+    await expect(notice).toContainText("1 vergangener Einsatz ist noch offen: bitte im Team entscheiden");
+    await expect(page.getByText("vergangener Einsatz ist noch offen")).toHaveCount(1);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
 

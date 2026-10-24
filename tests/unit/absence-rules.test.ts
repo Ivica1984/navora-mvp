@@ -41,8 +41,9 @@ describe("absence rules (ABS1)", () => {
 
   // ABS1-C6 (PO 2026-10-23 21:17): the fixed confirmation and the earliest start /field offers.
   it("ABS1-C6: names the open past visits with the fixed text, nothing at 0", () => {
-    expect(pastPlannedNotice(1)).toBe("1 vergangene Einsätze sind noch offen: bitte im Team entscheiden");
+    expect(pastPlannedNotice(1)).toBe("1 vergangener Einsatz ist noch offen: bitte im Team entscheiden"); // ABS1-C7
     expect(pastPlannedNotice(2)).toBe("2 vergangene Einsätze sind noch offen: bitte im Team entscheiden");
+    expect(pastPlannedNotice(3)).toBe("3 vergangene Einsätze sind noch offen: bitte im Team entscheiden");
     expect(pastPlannedNotice(0)).toBeNull();
     expect(pastPlannedNotice(-1)).toBeNull();
     expect(pastPlannedNotice(Number.NaN)).toBeNull();
