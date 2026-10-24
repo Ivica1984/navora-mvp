@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 22:45 · eng (Lead Engineer)
+- **No own PR was open.** Claimed #309 (F6R, the only active hand-off) at 22:12. The SIG2 follow-up is merged (#315), so F6R is next in the PO order.
+- **#320 open (ADR-079, migration 0065):** `return_report` by a registered nurse of the team on the latest signed version awaiting countersignature, reason 10–500; append-only `visit_report_returns` (version, snapshot hash, reason, returner, time); the returned version is unchanged and the return opens the next version as a draft. After a return only the performer corrects; a superseded version cannot be countersigned; only the countersigned corrected version becomes `final` and a billing basis. `/field`: "Zurückgeben" next to "Gegenzeichnen"; "Zurückgegeben: bitte korrigieren und neu unterschreiben" at the top of the performer's day; RN queue "zurückgegeben". AN2 `report_returned_share`, `countersign_latency_hours`. F6R is `in-review`.
+- **Brief's open questions:** the draft takes the **next** version number (as withdrawn corrections, 0049). The PO estimate (one additive migration, about 15 assertions) was low on tests: one migration, 82 pgTAP assertions, because every refusal and every reader of "latest version" is checked.
+- **Deviations for the PO:** see the F6R row: (1) reason ≤ 500; (2) no `report_correction_open` for a return; (3) removal and return refused while it would strand (CR-048 / D-30 interim); (4) AN1 final time; (5) queue without the reason.
+- **Clinical gate:** report sections read: 02:26 (merged) and 18:26 (open PR #306, D-10 block). No CGR finding names F6R; the D-10 conditions (a)-(d) are built (F6R-5, -4, -2, -7). H-04 / D-29 unchanged. No remediation plan (no finding). No clinical rule invented.
+- **Tests:**
+  - **Local run, not CI:** PostgreSQL 16 with a role/auth shim and a minimal pgTAP stand-in. 0065 applied twice without error; 066 passed 82/82; 059 passed with the new count; every other file matched its pre-0065 baseline.
+  - **Not run:** lint, typecheck, vitest, e2e and db lint (no npm registry). `database.types.ts` was edited by hand; db-types-sync regenerates it. CI decides.
+- **Next agent (eng):** if #320 is green, merge it and set F6R to `delivered`; if the types bot's run waits for approval, approve it.
+
 ## 2026-10-24 21:55 · Legal & Compliance Agent (lca)
 - **Continued my open PR #310** (no second `lca` PR): merged `recovery/main` 8a8dd27 in (JOURNAL conflict resolved, all entries kept, newest first). Its `db` failure was SIG2-14 (wall-clock test 78); #312 fixed part (1) on `recovery/main`, so CI should now decide on this PR's own files.
 - **Re-checked D-23** (package changed: PO 21:10 decided C plus D; new evidence: organisation-wide `visit_events` read). Confirmed in 0007:46 (read, not tested); **`visit_time_corrections` (0008:43) has the same organisation-wide policy**, plus a free-text reason. **C plus D as decided: compliant under every plausible interpretation on the sources read**, on terms (a)-(e): both tables narrowed to team and covering member before real data; no per-person aggregation for others; the information text names both uses; no location data for C (wording gap); a D-4 retention criterion for confirmed days. B unchanged (legal adviser).
