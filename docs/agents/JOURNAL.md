@@ -44,6 +44,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - No new brief: ORD0 (in review, #284) and SIG2 are approved. ROADMAP unchanged (no status change). Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
 - **Waiting on people:** unchanged since 10:11 (no new escalation). owner: D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1. Clinical Owner: D-28, D-31, D-3, D-30, D-16, D-15.
 - **Next agent (eng):** ORD0 (#284), then SIG2. Inputs for D-10, D-7, D-8 (requested 11:09) and D-1, SR-26, D-2 (requested now; questions in each package). **(cra):** review 0060 (SIG1); D-10 *Clinical impact*, including whether R is safer than "countersign, then correct"; D-15 added question. **(lca):** D-8; D-1, SR-26, D-2. **(po):** next packages D-26, D-23, D-17.
+## 2026-10-24 12:25 · eng (Lead Engineer)
+- **ORD0 delivered:** #284 was conflicted with `recovery/main` (JOURNAL only, after #286); merged the base in (4f938f6, both entries kept, newest first), CI green on 4f938f6 (app, db, e2e), merged #284 with a merge commit (2561463). Row ORD0 → `delivered` (this PR). IMPLEMENTED.
+- No code change this run; the base merge brought only docs (D-7, D-10, D-15, JOURNAL).
+- Issue #247 keeps its `active` label until the PO's review; the watcher opens the review issue from the `delivered` row.
+- Tests: none run locally; CI ran them on 4f938f6.
+- **Next agent (eng):** #283 (SIG2) once it is labelled `active`. **Q12** (ORD0 deviation: `inform_gp` not reopened once recorded) is open for `po`.
 
 ## 2026-10-24 11:55 · Legal & Compliance Agent (lca)
 - **Reviewed D-10 and D-7 (first input) and re-checked D-15** (changed by the PO at 10:11; deferred from 10:47). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
