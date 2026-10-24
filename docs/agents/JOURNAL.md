@@ -13,6 +13,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Sources this run: DSG (BBl 2020 7639, fedlex publication copy hosted by HSLU) Art. 5 lit. h, 6 Abs. 2 and 4, 8 Abs. 1-2; HIN, "Technische und organisatorische Massnahmen gemäss DSG/DSV", V1.1, February 2026 (secondary). DSV text not read (fedlex not reachable).
 - **Next for `lca`:** D-3 gate (iv) once RLS2 merges; D-10 R against the pilot canton once D-11 is answered; D-26 production question if the owner answers.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+## 2026-10-25 00:10 · po (Product Owner)
+- **No PO PR was open** at the start. Open PRs: #321, #306, #294, #278, #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#328** (F6R review), **#72, #60, #59** (D-6, D-14, D-13); claims removed at the end.
+- **F6R accepted** (#320 merged 868e3e0; migration 0065, pgTAP 066 (82), ADR-079; CI green on head 3766bde and `recovery/main` d293062; merge-commit runs cancelled by the next push). F6R-1 to F6R-9 met; deviations 1-6 accepted; evidence table in `briefs/F6R.md`. Clinical gate: no merged `cra` section covers 0065; `cra` 22:26 (#321) said no gate is needed unless the PR adds a rule; the PO found none. **Condition F6R-G1:** `cra` confirms on 0065; a `blocking` finding returns F6R to `changes-requested`. Moved into the queue (rank 26); *Next up* renumbered: 1 RLS2, 2 SIG1-C2 + SIG1-C3 + SIG2-C1, 3 DOOR1.
+- **Packages (INDEX order; tiers 1-3 all awaiting a person or decided):**
+  - **D-6 decided by po** (Medium; E and C drafted by po, two-run rule): option A as built (team plus optional responsible member; workflow state list; missed, overdue, stuck stay derived). B, C, D rejected. Clinical meanings stay D-28, D-19, D-31; reopens to `clinical` if `cra` classifies it as a clinical rule.
+  - **D-13 decided by po** (Medium; E and C drafted by po; `lca` 18:47 in): option B, instrument-neutral assessment record (several per case; assessing RN with GLN; no items, scores or outputs). A is a new `owner` decision once D-12 names the provider. A brief follows once the approved queue is clear.
+  - **D-14 `awaiting-approval: owner`** (Medium; E and the C point drafted by po; `lca` 17:57 in): approve **F3** (fee per active team member per month), or F4; no per-hour or revenue-share fee. S1 and constraints 1-5 in force; J7 stays draft.
+- **Challenge:** new row, a supplier fee tied to billed hours or revenue (with a pilot hypothesis on visit length and category mix under a volume-neutral fee).
+- ROADMAP: line 25.10. 00:10. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` run before publishing.
+- **Waiting on people:** **owner:** D-1 (urgent), SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, **D-14 (new)**, G-1 (name the Clinical Owner); merge `cra` PR #321 (supersedes #306, #294, #278, #259). **Clinical Owner:** unchanged (D-10, D-28, D-31, D-3, D-30, D-16, D-15, D-19, D-17).
+- **Next agent:**
+  - **(eng):** RLS2, then SIG1-C2 + SIG1-C3 + SIG2-C1, then DOOR1. Confirm or correct the po drafts in D-6, D-13, D-14.
+  - **(cra):** F6R-G1 (0065); confirm or correct the po drafts in D-6 (is the assignment model a clinical rule?), D-13 (points 1-4), D-14 (hazards and guard measures); D-24, D-25 as planned.
+  - **(lca):** nothing new requested; D-6 has no legal question, D-13 and D-14 rest on your 18:47 and 17:57 sections.
+  - **(po):** D-24, D-25 next (two-run rule for E and C); write the D-13 B brief once the approved queue is clear.
 
 ## 2026-10-24 23:25 · eng (Lead Engineer)
 - **#320 merged** as 868e3e0 with a merge commit. CI was green on head 3766bde (app, db, e2e).
