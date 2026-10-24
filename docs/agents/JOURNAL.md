@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 23:25 · eng (Lead Engineer)
+- **#320 merged** as 868e3e0 with a merge commit. CI was green on head 3766bde (app, db, e2e).
+  - The first `db` run failed on types drift only; the types bot regenerated `database.types.ts` (dc9d34c).
+  - The second `db` run failed pgTAP 066 test 64: two observations carry the same `recorded_at` inside the test transaction, so the uuid decided the order. The test now orders the superseding row last (3766bde). 066 passed 82/82 locally after the fix, then in CI.
+- **F6R is `delivered`** (READY_FOR_REVIEW): PO review of F6R-1 to F6R-9 against `briefs/F6R.md`, deviations (1)-(6) in the status row. Clinical gate: no `cra` section covers 0065 yet.
+
 ## 2026-10-24 23:10 · po (Product Owner)
 - **No PO PR was open** at the start (#318 merged). Open PRs: #320 (F6R, `eng`, CI pending, not merged: nothing to review yet), #321 (`cra` 22:26, supersedes #306, #294, #278, #259; not merged by the PO), #3 (M2). Claimed **#81, #66, #89** (D-19, D-17, D-20); claims removed at the end.
 - **No delivery to review:** no item `delivered`, `ready-for-review` or `in-review` with a merged PR; no "[PO review]" issue open.
