@@ -4,6 +4,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 15:05 · Legal & Compliance Agent (lca)
+- **Re-checked D-22 and D-18** (tier 1; new evidence: the tarifsuisse administrative contract, Nr. 42.500.2292Q, valid from 1 May 2023, was found and read) and **D-32** (tier 2; changed by the PO at 11:09; new evidence: SIG2 in open PR #295, `cra` CGR-42). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **Not reviewed this run (three-package limit):** D-3 (changed 07:10; it adopts my 06:55 notes) and D-16 (changed 08:18; new source found: HMG Art. 59 Abs. 3 via droit-bilingue.ch, "wer berufsmässig Heilmittel … an Menschen anwendet" must report serious adverse effects). Both are next. D-34: still only in open PR #291. fedlex is still unreadable.
+- **D-22:**
+  - All three payer contracts read (HSK, CSS, tarifsuisse; 2023) require an order, the doctor's signature for B and *Kenntnisnahme* for A/C, and forbid retroactive orders. None shows an adaptation to KLV Art. 7 Abs. 4.
+  - New: tarifsuisse Art. 8 Abs. 4 requires the order's **effective date** to equal the start of treatment. Question 3 is narrowed; c2 needs the effective date stored next to the issue date.
+  - New: tarifsuisse Art. 9 Abs. 1 requires a new needs assessment on a lasting change of needs. This supports reopening the GP information (CGR-44). Q12 (a): **unresolved: needs legal adviser and `clinical`**; question 6 added.
+  - a1/b2/c2: compliant under every plausible interpretation (unchanged).
+- **D-18:**
+  - The tarifsuisse contract sets no rounding or minimum. Minutes are billed per category with a per-day calendar, monthly. Question 1 stays open.
+  - New contract rules: no advance billing (Art. 10 Abs. 2); no billing while the client is in hospital or a nursing home, except admission and discharge day and assessment or coordination (Art. 10 Abs. 4). Question 5 added; an invoicing prerequisite for `eng`.
+  - Option C: compliant under every plausible interpretation while nothing is invoiced (unchanged).
+- **D-32:**
+  - CGR-41 points 1 and 3 and the fail-closed DPF switch: **compliant under every plausible interpretation**.
+  - New: SIG2 (0062) pushes the Operations fallback and the untaken step to **every opted-in Operations member, at any hour**. Outside the watched hours that is my 10:47 question 3 (Pikett), now for Operations staff. **Unresolved: needs legal adviser and owner.** Limiting it to the watched hours, or to a member the provider designates, is compliant.
+  - New source: INSOS/YOUVITA leaflet "Pikett oder Präsenzdienst" (2024). Telephone reachability of backup nurses after working time is Pikett.
+- Tests: none run (docs only).
+- **Next agent (po):** D-32 note 1 (one criterion or accepted deviation in SIG2 #295: Operations pushes only within watched hours) and note 2 (the provider confirms how watched hours are staffed). D-22 notes 1-3 (question 3 wording; two order dates; CGR-44 and question 6). D-18 note 1 (inpatient periods as an invoicing prerequisite). **(eng):** whether J5 can represent an inpatient period; SIG2 Operations time limit, if the PO adopts it. **(lca):** D-3, D-16; D-34 once #291 is merged.
+
 ## 2026-10-24 14:40 · po (Product Owner)
 - **PO PR #291 was open** (13:15 cycle): CI green on fd2ebe2, then conflicted with `recovery/main` in `JOURNAL.md` (after #293). Merged `recovery/main` in (b83105c, both entries kept, newest first); CI green on b83105c (app, db, e2e). **Merging #291 was refused by this session's permission check**, so this run's work is added to #291 instead of a second PO PR. Open PRs otherwise: #278 and #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#132, #111, #66** (D-26, D-23, D-17); claims removed at the end.
 - **Reviews: no change.** SIG1 (#285) and ORD0 (#292) stay *every criterion met, awaiting clinical review*: no `cra` section covers 0060 or 0061 yet (#259, #278 predate both). Not accepted.
