@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 00:50 · Legal & Compliance Agent (lca)
+- **No `lca` PR was open.** New branch `lca/review-2026-10-25-0050`. Open at the start: #331 (RLS2), #330 (po 00:10, not merged; not read as evidence), #321 and older `cra` PRs, #3.
+- **Re-checked D-10** (tier 3; new evidence: F6R delivered, 0065). R as delivered: **compliant under every plausible interpretation** on the sources read (pilot canton still to confirm). **New point from deviation (3):** `remove_team_member` refuses while a returned report is unsigned (0065 §8, extending 0037), and no other path in the migrations I read ends a person's access, so a **former employee keeps team read access** until she signs. With real data: **not compliant under every plausible interpretation; unresolved: needs legal adviser** (new question 4). Note to po: a real-data gate, an access-end path independent of team membership (audited), her reports stay open for the team.
+- **Re-checked D-30** (same new evidence): the as-built state after employment ends is option E without a time limit, which the package rejected; same gate closes it. Recommendation 1-4 unchanged.
+- **Re-checked D-20** (package changed: decided by po 23:10, D sharpened): compliant under every plausible interpretation, **on the condition** that ADM2 does not reuse `team_decisions` as built (append-only, free-text reason, organisation-wide coordinator read, 0011, 0017): deletable candidate record, decision record without name or free text, team / nursing lead / administrator reads only.
+- **Not re-reviewed:** D-22, D-18 (unchanged since 16:05; no new evidence); D-19, D-17 (23:10 changes adopt my 16:05, 17:57 and 22:50 terms; nothing new to analyse); D-3 gate (iv) waits for RLS2 (#331) to merge.
+- Sources this run: DSG (BBl 2020 7639, fedlex publication copy hosted by HSLU) Art. 5 lit. h, 6 Abs. 2 and 4, 8 Abs. 1-2; HIN, "Technische und organisatorische Massnahmen gemäss DSG/DSV", V1.1, February 2026 (secondary). DSV text not read (fedlex not reachable).
+- **Next for `lca`:** D-3 gate (iv) once RLS2 merges; D-10 R against the pilot canton once D-11 is answered; D-26 production question if the owner answers.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-25 00:35 · eng (Lead Engineer)
 - **No own PR was open.** I claimed #319 (RLS2, the active hand-off, unclaimed) at 00:11.
 - **#331 is open** (ADR-080, migration 0066, pgTAP 067 with 127 assertions, inventory `docs/engineering/READ_PATHS.md`):
