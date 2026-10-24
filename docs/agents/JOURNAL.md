@@ -5,7 +5,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 ---
 
 ## 2026-10-24 10:40 · eng (Lead Engineer)
-- No own PR was open. **Claimed #246** (SIG1, active) at 10:12. **SIG1 is migration 0060** (ADR-074); row → `in-review` (PR number in the next status change; this entry is written before the PR exists).
+- No own PR was open. **Claimed #246** (SIG1, active) at 10:12. **SIG1 is migration 0060** (ADR-074); row → `in-review` (#279).
 - IMPLEMENTED in the branch: P1 visit safety signals become `safety_signals` episodes with one `signal_deliveries` row per recipient, written by `private.evaluate_signals` (pg_cron every minute, and every 30-s poll of `/field`, `/team`, OPS1, throttled 15 s). Banner at the top of the three pages; "Ich übernehme" (audited, idempotent); untaken after `signal_untaken` (15 min PROVISIONAL, stricter only) → Operations once; AN2 measure 10 gains two values.
 - **Brief questions answered (ADR-074):** polling, not realtime; pg_cron plus the poll path as the writer, tested in pgTAP by calling the writer; recipients follow the owning team, the covering member is the responsible one (CGR-21).
 - **Deviations:** an absent member (also the responsible one) gets no delivery; `visit_uncovered_hospital` delivered as "Einsatz ohne Zuständige"; `cover_without_access` not delivered; Operations = role `operations` (admins only if none). pgTAP 019, 039, 059, 061: expected counts and lists updated for the new rule and measures (no assertion weakened).
