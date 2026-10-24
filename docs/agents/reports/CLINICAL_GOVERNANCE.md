@@ -16,6 +16,117 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-24 02:26: ABS1-C6 (#234), DAY-1 (0055, #239); Clinical impact for decision packages D-22, D-18, D-28
+
+**Scope:** `recovery/main` @ `35e28a4`. Changes since the 22:30 section (merged as #235):
+- **Code merged:** #234 (CSR1 part 12, ABS1-C6: `/field` absence start of yesterday, `past_planned` notice; no migration; ADR-067) as `d31709f`; #237 (`zod` ≥ 4.6.6, GHSA-mrhx-c7xc-m3w5; no product change) as `c2b39e1`; #239 (DAY-1: migration `0055_zurich_today_everywhere`, pgTAP `056`, seed, pgTAP and e2e on the Zurich day; ADR-068) as `2e79532`.
+- **Docs:** #236 (eng), #238 (PO 23:15, 00:20, 00:15, 01:15): CGR-35 **decided** by the PO (product authority; PLANNED as AN2's first change with ABS1-C7 and DAY-1-R1-R3); CSR1 complete, AN2 active; decision-package process and new role `lca` (owner, 2026-10-24); packages D-22, D-18, D-28 `inputs-requested`, each asking `cra` for *Clinical impact*. **No `clinical`, `legal` or `owner` decision answered.**
+- **Open PRs in scope:** #241 (`lca` input for D-22 and D-18; read, see below); #242 (PO: packages D-31, D-3, D-29; not merged, read; my *Clinical impact* for them follows once it is on `recovery/main`). No open engineering PR.
+
+I read 0055 and pgTAP 056 in full, ADR-067 and ADR-068, the #234 diff (`absence-section.tsx`, `absence/commands.ts`, `absence/rules.ts`, unit tests), the packages D-22, D-18, D-28, the `lca` sections in #241, and, for the packages, 0013:180-205, 0014:140-152, 255-268, 0019/0024 `derived_exceptions` (order expiring, review overdue, late team cancellation), 0030:98-116, 0034:420-443, 0035:524-582, and searched `src/` and the migrations for any other derivation of "today" and for any push or realtime delivery of alerts. **I did not run the tests.** CI (checked through the API) is green for app, db (migrations, seed, pgTAP) and e2e on `d31709f`, `2e79532` and `35e28a4`.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-36 | J1 / CR-004 (accepted); D-22 (b) | advisory (S2) | The "Hausärztin/Hausarzt informieren (A/C ohne Verordnung)" task can never be completed. It is created when an A/C visit is planned without an order, but no command closes it: `complete_case_task` refuses every kind except `review_after_pause`, `sync_case_tasks` handles four other kinds only, and the task closes only when the whole case closes. NAVORA therefore cannot record **whether, when and by whom** the treating doctor was informed, and the open task is permanent noise that teams learn to ignore. `lca` (#241, D-22 (b)) reads KLV Art. 8a Abs. 1bis as: the needs-assessment result **is** sent promptly to the treating doctor when A/C are given without an order; CR-004 says "never required". Whether the information is a billing condition, and what "promptly" means, is `legal`/`clinical`: UNKNOWN. Clinically it is the only link between home care given without an order and the client's doctor (medication, deterioration, coordination). | created: 0014:263-266, 0025:258, 0030:215; not closable: 0034:428-430 (`complete_case_task` raises for other kinds), 0013:190 (`sync_case_tasks` kinds), only case close: 0024:290, 0031:38; label `src/features/intake/rules.ts:49` | PO decides the workflow (product authority; no deadline or content rule invented): a team command records "Hausärztin/Hausarzt informiert" with the date and a fixed channel code, actor and time server-side, no free text and no health data, audited and idempotent; it closes the `inform_gp` task; nothing else closes it except a case close. pgTAP: A visit planned without an order → task open; a team member records it → `done`, `done_by`, an audit row; a non-member → `rejected`; replay → `duplicate`; `complete_case_task('inform_gp')` still refused if the new command is separate. Deadline, content and billing effect stay D-22 (`legal`, `clinical`). |
+| CGR-37 | C1 / CSR1 safety signals (accepted); D-28 recipients | advisory (S2; **S1** if the pilot has visits at times when nobody has `/team` or OPS1 open) | Every visit safety signal (`visit_overdue`, `visit_stuck`, `visit_uncovered`, `visit_interrupted`, no-show) is **pull-only**: it exists only when someone opens `/team` or OPS1. There is no push, e-mail, SMS, realtime subscription or periodic refresh anywhere in `src/` or the migrations, and no on-duty person is named for early mornings, evenings or weekends. A P1 overdue alert at 07:15 reaches nobody until somebody looks. The thresholds (D-28) only matter if the signal reaches a person. Pilot operating hours: UNKNOWN (`owner`, `po`). | search over `src/` and `supabase/migrations/` for push, notification, realtime, channel, `setInterval`, `refetchInterval`, on-call: no hit; alerts read by `public.team_visit_alerts()` (0038:140-175) and `operations_exceptions` on page load only | PO decides delivery (product authority; who must respond, and how fast, is D-28 `clinical`): strict default, a P1 safety signal writes one delivery record per named recipient (the visit's responsible member and the team's members on duty, else Operations), with delivery and acknowledgement audited, and the signal stays open until its cause ends (CR-041 unchanged). pgTAP: a visit overdue past P1 → one delivery record per recipient, no record for another team or organisation, no duplicate on a second evaluation, no record after the cause ends. Until built: the pilot plan names who watches `/team`/OPS1 at every hour visits are planned. |
+| CGR-38 | J1/J3 orders (accepted); D-22 | advisory (S2) | A medical order recorded `present` **without an end date** never raises a signal: `order_expiring` requires an end date, the visit flag `order_expired` requires one, and PLAN2 keeps generating B visits for it indefinitely. Billing refuses such an order (CR-046, `order_validity_missing`), so the money is protected but the care is not: B care can continue for any length of time without anyone being prompted to renew the medical order. `lca` (#241) reads KLV Art. 8 Abs. 2-4 as limiting B orders in time (with exceptions); I adopt no duration. Whether an open-ended B order is ever valid is `legal`: UNKNOWN. | `order_expiring` 0024:499-501 (`medical_order_valid_until is not null`); visit flag 0014:147-148; PLAN2 0030:104-107 (`valid_until is null or …`); intake accepts a null end date 0013:143; CR-006 note (planning unchanged) | PO decides (product authority, no duration invented): strict default, a running case with an active B care-plan item and an order `present` without an end date raises a P3 exception "Verordnung ohne Enddatum" for the team and OPS1, not closable by hand while it holds. pgTAP: such a case → exception; end date entered → gone; a case with A/C only → none; another organisation → none. Alternative: intake refuses `present` without an end date when B items exist. The duration rule stays D-22 (`legal`). |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| CGR-35 | open, advisory (S3); **decided by the PO** 2026-10-23 23:15 (moved `moved` row stores `responsible_absent`, server-side, immutable; HAND1 text); PLANNED in AN2's first PR | `briefs/ABS1.md` 23:15; not built (no migration after 0055). Closes when the migration and the pgTAP set I named on 22:30 are merged and green |
+| CGR-31 | open, advisory (S3; S1 before invoicing); **evidence widened** | `lca` (#241, D-18 (3)) reads KVG Art. 25a Abs. 5 (2017 amendment) as: for home care the residual-financing **rules** are those of the provider's location canton, the residence canton **pays**; the OKP part and the 10-minute rule are federal. If that holds, the residence canton is the wrong key for the minimum and tariff versions, not only a time-rule question. Not a determination; `legal` (D-18). Remedy unchanged in substance; it must follow the key D-18 names |
+| CGR-28, CGR-21 | open, unchanged (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open, unchanged | no change |
+
+### Other changes reviewed (no finding)
+
+- **ABS1-C6 (#234, met by the PO 23:15):** `earliestAbsenceStart` = yesterday (form `min`, unit tests incl. month, year and leap-day boundaries); `pastPlannedOf` reads `past_planned`, 0 on a replay; the notice is fixed text, no name, no reason, no health data, with a link to `/team`; the visits are not released (CGR-32 unchanged). The notice is transient (gone after a reload or a replay); acceptable, because the persistent signal is the CGR-32 flag on `/team` and OPS1. Lower bound is an app rule only; `record_absence` still accepts earlier starts by command, counted by AN2 measure 8. Rule CR-065 added.
+- **DAY-1 (0055, pgTAP 056; ADR-068):** a safety fix I support: for one to two hours each night OPS1 *order expiring* and *care-plan review overdue*, `pause_case`, `apply_case_facts`, `add_care_plan_item` and the late-team-cancellation window used the UTC day. 0055 rewrites every function body in `public`/`private` that contains `current_date`, fails if one remains, and is idempotent. My search of all migrations finds no other derivation of the day (`now()::date`, `current_timestamp::date`, `localtimestamp`, `date(now())`, `date_trunc('day', …)`) and no `current_date` in a view, default, check or policy; in `src/` the day comes from Europe/Zurich (`features/field/rules.ts`, `absence/rules.ts`, `team/auto-plan.tsx:25`) and other date helpers are calendar arithmetic. So the guard's narrow pattern is complete **today**, by reading; it is not complete for the future, which is the PO's DAY-1-R1 (I agree: R1-R3). pgTAP 056 cases 2 and 3 assert function text, not behaviour; R2 (one behavioural run at a split-day clock) is the real proof. Rule CR-064 added.
+- **`lca` input (#241), as evidence for my sections below:** (a) KLV sets no form; the 2023 administrative contracts require a signed *Bedarfsmeldung* for B, the doctor's *Kenntnisnahme* for A/C, doctor identified by ZSR/GLN, and "Rückwirkende Verordnungen sind nicht zulässig"; (b) A/C without an order since 1 July 2024 (KLV Art. 7 Abs. 4), result sent promptly to the doctor (Art. 8a Abs. 1bis); (c) KLV Art. 7a Abs. 2: 5-minute units, "mindestens 10 Minuten", which reads as a floor on payment, the opposite of CR-029's "below → not billable". I have not verified these sources; they are `lca` readings, not rules. Register notes on CR-004 and CR-029 updated accordingly; no status changed.
+- **zod bump (#237):** no product behaviour; no finding.
+
+### Clinical impact for decision packages (cra 2026-10-24)
+
+The process (`DECISION_PACKAGES.md` step 3) asks for these sections in the package files. My scheduled instructions limit my self-merged PR to the report, the three registers and the journal, so the sections are here. **`po`: please copy each block verbatim into the package's *Clinical impact* section, signed "cra 2026-10-24 02:26 (copied from `reports/CLINICAL_GOVERNANCE.md` by po)". This is confirmed `cra` input, not a PO draft.**
+
+#### D-22: valid medical order and renewal
+
+- **Hazards.**
+  (1) *Care continues without medical oversight.* CR-005 lets B visits continue after the order end date with a visit flag (0014:147-148), and OPS1 raises `order_expiring` (P3, 7 days, closable by hand) per case. An order `present` without an end date raises nothing (CGR-38), so B care can continue with no renewal prompt at all.
+  (2) *Care stops abruptly.* After expiry PLAN2 leaves B services out of generated visits (`order_missing_or_expired`, 0030:104-116). For B services such as wound care or medication, an unnoticed renewal gap means the care simply stops being planned. The prompt that prevents both is the expiry warning, which is P3 and closable by hand; whether that suffices is `clinical` (D-28, C-9).
+  (3) *The doctor is not informed about A/C care.* The `inform_gp` task cannot be completed (CGR-36), so b1 as built has no evidence of the information `lca` reads as required (Art. 8a Abs. 1bis).
+  (4) *Back-dating.* Back-dating is a documentation-integrity hazard as well as a billing one. CR-058 measures the order against the moment it was **recorded in NAVORA**. Per `lca`, the contracts measure retroactivity against the order itself, i.e. the doctor's issue date, which NAVORA does not store.
+- **Findings that apply.** CGR-07 (closed, strict default CR-046); CGR-33 (closed, order history); CGR-36, CGR-38 (new, advisory); BL-4, BL-15.
+- **Does b1 hide a safety-relevant GP notification gap?** Yes, today: CGR-36. b1 is only safe with a recorded, audited "doctor informed" step. b2 (an order or the doctor's *Kenntnisnahme* also for A/C) removes the gap by construction, at the cost of GP work. From a safety view I see no hazard in b2. b1 is acceptable only with CGR-36's remedy, and its legality is `legal`.
+- **Sub-question (c).** Clinically neutral between c1 and c2. Back-dating protection matters for documentation integrity; c3 weakens it. If the doctor's issue date is recorded (`lca` note 2), store it as a separate, immutable fact next to the recording time, never overwriting it.
+- **Safe default.** a1 (signed order referenced, signer identified) or "no electronic form" as today; b as built **plus** CGR-36; c1 as built (strictest built option); CGR-38 before go-live.
+- **What only the Clinical Owner must approve.** Whether an expiry warning of P3, 7 days ahead and closable by hand is sufficient for B care, or must become a stronger signal (D-28). Whether B care may continue on an expired order while renewal is pending, and for how long (CR-005: a clinical and legal rule, not a product choice). The content of the information sent to the doctor for A/C (`clinical`, with `legal` for the duty). The form, the A/C order question and the cut-off are `legal`, not clinical.
+
+#### D-18: billing time rules
+
+- **Does a time rule reward shorter or split visits?** Not as built. Exact minutes, billable never above measured (CR-030, CR-031), and the minimum (CR-029) is used only in fact derivation (0022, 0023, 0043, 0051), never in planning. `/field` shows no billing information (only `/visits` shows "abrechenbar", `visits-client.tsx:305`).
+  Hazards to guard when the contract rule is modelled:
+  (1) Per-visit rounding up to 5-minute units would reward splitting one visit into several; summing per day before rounding would not. Which applies is UNKNOWN (`lca` question 1).
+  (2) If CR-029's reading is right (below 10 minutes → not billable), it rewards stretching a short visit to 10 minutes and penalises a correctly short one. If `lca`'s reading is right (paid as at least 10 minutes), it rewards many very short visits.
+  Either way the safeguard is the same: no billing rule may feed back into planned minutes, which must come from the needs assessment (CR-002, D-13). AN2 should measure the distribution of measured minutes around the threshold (5, 10, 15) once real data exists. I propose this as evidence, not a rule.
+- **Documentation time.** CR-031 excludes documentation from care time. That creates a documentation-quality hazard: reports written after the visit, from memory, or not at all. The existing controls are sign-at-completion (0026) and the lock on signed reports (CR-043) and `report_not_final` / `report_correction_open` (CR-053). If the contract pays category-a coordination time, documentation done **with** the client (assessment, coordination) should be measurable separately. That is a product question once `lca` question 2 is answered. No finding today.
+- **CGR-31.** A billing finding, not a clinical one. Its key may change (see CGR-31 status above).
+- **What only the Clinical Owner must approve.** Nothing in D-18 itself. The tariff rules are `legal`/contract. The Clinical Owner should see the AN2 minute distribution before invoicing starts.
+
+#### D-28: thresholds of visit safety signals
+
+- **Hazards per signal** (H-01, H-07, H-15, H-16, H-17):
+  - `visit_overdue` (CR-038): a missed visit noticed late, causing missed medication, nutrition, hygiene or wound care, or an unnoticed fall. Untimed visits count from 00:00, so they turn P2 at midnight: a likely source of alert fatigue unless untimed visits get a window.
+  - `visit_stuck` (CR-039): a nurse or client in difficulty during a visit. The clock restarts with every pause or resume (CGR-23, PS-19), so a visit paused and resumed repeatedly never escalates.
+  - `visit_uncovered` (CR-040/049): nobody goes. It stays P2 with a 24 h window and is not closable by hand.
+  - `report_not_final` / `report_correction_open` (CR-053): the next carer works from an incomplete record.
+  - `visit_interrupted` (D-31) and the absence flag (CGR-32/CGR-35): missed care that needs a follow-up decision.
+- **Evidence for the provisional values.** None. They are strict engineering defaults (CSR1), not clinically derived. NAVORA has no pilot data. AN2 can supply: time from planned start to actual start, how exceptions end, and repeat pauses per visit. I know of no Swiss standard that fixes these values: UNKNOWN; the Clinical Owner may name one.
+- **Option C (team choice inside a clinical band).** A mechanism already exists at organisation level: an override cannot lower the priority, cannot set the amount above twice the default, and cannot escalate later than the default (0035:524-535, 575-582; D-21). Those limits are engineering choices, not clinical ones. Option C keeps safety a precondition only if all of these hold:
+  (1) the band limits are set by the Clinical Owner, not by engineering;
+  (2) the server refuses values outside the band (as 0035 does);
+  (3) a team can make a signal stricter, never switch it off or make it closable by hand (CR-041 untouched);
+  (4) every change is audited with the actor, and only a registered nurse of the team or the Clinical Owner may change it (UNKNOWN who; `clinical`);
+  (5) the value applied is the one of the team that owns the visit, also for a covered visit (CGR-21).
+  Under these conditions I see no safety objection to C.
+- **Delivery comes before thresholds.** A threshold only helps if the signal reaches a person (CGR-37, new). The package should treat recipients and delivery as part of the decision. Who must respond, and how fast, is clinical. How the signal is delivered is product.
+- **CGR-35 and CGR-23.** CGR-35 is a documentation fact, not a threshold. The PO decided it (PLANNED); whether a move counts as making up missed care stays D-31/D-28 `clinical`. CGR-23 (the stuck clock restarts) is a threshold-semantics question the Clinical Owner must answer: does a pause stop the clock?
+- **What the Clinical Owner must approve.**
+  (1) Per signal: a value or a band (earliest P2, latest P1), and for untimed visits a time window.
+  (2) The priorities.
+  (3) Who must respond to each priority, and at which hours (with CGR-37).
+  (4) Which signals may never be closed by hand (today CR-041, CR-049, CR-053).
+  (5) Whether a pause restarts the stuck clock (CGR-23).
+  (6) If C is chosen: who in a team may change the value.
+  The PO may decide only how the signal is shown and delivered.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| ABS1 (accepted; ABS1-C6 met) | **no blocking finding** | CGR-35 PLANNED (AN2); CGR-28 before cover |
+| DAY-1 (0055; merged, inside AN2) | **no blocking finding**; safety fix endorsed | DAY-1-R1-R3 (PO) |
+| AN2 (active) | first PR to carry CGR-35, ABS1-C7, DAY-1-R1-R3; reviewed when open | CGR-35 |
+| J1/J3 orders (accepted) | **no blocking finding**; two advisory gaps | CGR-36, CGR-38 (S2) |
+| C1/CSR1 safety signals (accepted) | **no blocking finding**; delivery gap | CGR-37 (S2; S1 depending on pilot hours) |
+| J5 (accepted) | unchanged | CGR-31 (key question widened) |
+| COVER1 | unchanged: cover stays off until CGR-28, the `accept_cover` absence check, PS-12 and D-3 | CGR-21, CGR-28 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:** decide CGR-36, CGR-37, CGR-38 (all product authority; they can ride with AN2 or the next capability that touches the same data, per your 23:15 rule for advisory findings); copy the three *Clinical impact* blocks above into D-22, D-18, D-28; state the pilot's visit hours and who watches `/team`/OPS1 at those hours (CGR-37, with `owner`).
+- **owner (critical path):** name the qualified Clinical Owner and a deputy (G-1); D-28 cannot leave `awaiting-approval: clinical` without one. Optional: allow `cra` to write its *Clinical impact* sections into `decisions/*.md` within its self-merged governance PR, so the PO need not copy them.
+- **eng:** *Engineering impact* in D-22, D-18, D-28; for D-22, whether the doctor's issue date and ZSR/GLN can be stored apart from the recording time (`lca` note 2).
+- **legal** (via `lca` / advisers): D-22 questions 1-3 and D-18 questions 1-3 of #241; additionally whether informing the doctor (Art. 8a Abs. 1bis) is a billing condition and its deadline (CGR-36).
+- **clinical** (once named): D-28 (list above), D-31, D-10, D-30, D-16, D-17; for D-22, whether B care may continue on an expired order and whether the expiry prompt suffices.
+
+---
+
 ## 2026-10-23 22:30: CSR1 part 11 merged (0053 CGR-32, 0054 CGR-34); PO cycles 20:15, 21:17, 22:15
 
 **Scope:** `recovery/main` @ `dee3891`. Changes since the 19:57 addendum (PR #226, not merged until now: its db job ran into the pgTAP 046 evening failure; this PR carries it):
