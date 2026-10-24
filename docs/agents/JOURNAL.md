@@ -4,6 +4,36 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 22:10 · po (Product Owner)
+- **No PO PR was open** at the start (#311 merged). Open PRs: #306, #294, #278, #259 (`cra`), #3 (M2); not merged by the PO. Claimed **#317, #81** (SIG2 review, D-19); claims removed at the end.
+- **SIG2 `accepted`** (#315, 0064, ADR-078; CI green on head 508ad33, merge commit 8a8dd27 and `recovery/main` 68c05dc; the PO did not run the tests): SIG2-11 (run recorded only by the scheduled evaluator; 5-minute warning on /operations and /admin; "aktiv" withdrawn on /team and /settings; dispatch kicked by the job, fail closed), SIG2-12 (Operations push only inside watched hours), SIG2-13 (raise at the later of period start and end minus 2 h) and SIG2-14 (2) (predicate proven at six fixed instants) met; evidence table in `briefs/SIG2.md`. Deviations 12 (`operations_fallback` counts as an Operations push), 13 (no run row = not running), 14 (heartbeat not audited) accepted. **`cra` asked to cover 0064** (a blocking finding returns SIG2). Not live until DPF entries, D-2, D-26 and the Vault/pg_net wiring (owner).
+- **New brief RLS2 approved** (*Next up* 2, after F6R): `lca` 21:55 found `visit_events`, `visit_time_corrections`, `team_decisions` and `case_tasks` readable organisation-wide (two with free-text reasons); D-3 B with real data is not compliant until narrowed, D-23 C plus D only with it. Narrows only, so product authority.
+- **Packages (INDEX order; tiers 1-3 otherwise all awaiting approval):**
+  - **D-19** (tier 2): Engineering **drafted by po, not confirmed by eng** (two-run rule; requested 15:10): C1 records one outcome row, no step list; **"Notfallkontakt informiert" is offered while NAVORA shows no emergency contact** (revoked in 0015:68, no reader in `src/`) and no consent fact. Still `inputs-requested` (C; one `cra` run since the request).
+  - **D-3** (tier 2): `lca` 21:55 taken up: real-data gate **(iv)** added (every client- or visit-linked read path team-scoped, inventory; RLS2), *Context* corrected, go-live conditions updated. Status unchanged (`awaiting-approval: clinical`, cover-read field list).
+  - **D-23** (tier 3): `lca` 21:55 terms (a)-(e) all taken in (precondition widened to `visit_time_corrections`; no per-person aggregation for others; information text names both uses; no location data; D-4 retention criterion for confirmed days). Still `po-decided`. D-4 gains that criterion (no period set).
+- **Challenge:** the emergency contact at the door (row added; hypothesis: more than 1 in 4 no-show outcomes recorded later than 15 minutes, or `other` → build D-19 option C first once D-9 allows it).
+- ROADMAP: line 24.10. 22:10. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` run before publishing.
+- **Waiting on people (unchanged):** **owner:** D-1 (urgent), SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1 (name the Clinical Owner); merge `cra` PR #306. **Clinical Owner:** D-10, D-28, D-31, D-3, D-30, D-16, D-15.
+- **Next agent:**
+  - **(eng):** F6R, then RLS2. Confirm or correct the po drafts in D-19, D-26, D-23, SR-26, D-1, D-8, D-10, D-2, D-7, D-34.
+  - **(cra):** cover 0064 (SIG2-11 to SIG2-14; CR-076, CR-077); D-19 and D-17 first, then D-24, D-13, D-25, D-6, D-20 (one point); comment on RLS2 if a coordination-role read is a clinical need.
+  - **(lca):** nothing new requested; D-10 R against the pilot canton once D-11 is answered.
+  - **(po):** D-17 (Engineering two-run rule reached), D-6, D-20 next.
+
+**ENGINEERING BRIEF — RLS2**
+- **Capability:** Visit and case records are read only by the people who care for the client (`briefs/RLS2.md`).
+- **Why:** four tables (`visit_events`, `visit_time_corrections`, `team_decisions`, `case_tasks`) are readable by every organisation member; free-text reasons can carry health data, and any member can rebuild a colleague's working day. `lca` 21:55: D-3 B with real data not compliant until narrowed.
+- **Business outcome:** removes a blocker for the first real client (D-3 gate iv) and for D-23 (no separate timesheet); one inventory instead of finding gaps table by table.
+- **Care outcome:** what a team records about a client stays with the people treating her; professional secrecy holds inside the provider.
+- **Expected nurse outcome:** her visit times and corrections are not visible to other teams; nothing changes on her screens.
+- **Expected team outcome:** teams can write honest reasons (a fall, a decline) knowing they stay in the team; autonomy without exposure.
+- **Expected patient outcome:** fewer people can read about her; her data is used only by those who care for her.
+- **Acceptance criteria:** RLS2-1 read-path inventory with a catalogue check in pgTAP; RLS2-2 the four tables team-scoped (team, covering member while active, coordination roles only for a named task), pgTAP per table incl. other team, other organisation, anon, cover end; RLS2-3 free-text reasons never outside team and covering member; RLS2-4 no per-person aggregation for others; RLS2-5 further gaps narrowed or listed as findings, nothing widened; RLS2-6 no regression (pgTAP, unit, e2e, AN1/AN2 values); RLS2-7 no scope widening through function arguments, removed member reads nothing.
+- **Dependencies:** none to start; COVER1 cover predicate (built). Real data still blocked by D-1, D-9, D-29 and gates (i)-(iii).
+- **Priority:** *Next up* 2, after F6R.
+- **Implementation recommendation:** follow the 0015 pattern (policies through the visit's or case's team, column revoke for the reasons); start with the inventory from the catalogue (`information_schema` plus `pg_proc` for `security definer` functions executable by `authenticated`), then narrow; one additive migration, about 30-40 pgTAP assertions.
+
 ## 2026-10-24 21:55 · Legal & Compliance Agent (lca)
 - **Continued my open PR #310** (no second `lca` PR): merged `recovery/main` 8a8dd27 in (JOURNAL conflict resolved, all entries kept, newest first). Its `db` failure was SIG2-14 (wall-clock test 78); #312 fixed part (1) on `recovery/main`, so CI should now decide on this PR's own files.
 - **Re-checked D-23** (package changed: PO 21:10 decided C plus D; new evidence: organisation-wide `visit_events` read). Confirmed in 0007:46 (read, not tested); **`visit_time_corrections` (0008:43) has the same organisation-wide policy**, plus a free-text reason. **C plus D as decided: compliant under every plausible interpretation on the sources read**, on terms (a)-(e): both tables narrowed to team and covering member before real data; no per-person aggregation for others; the information text names both uses; no location data for C (wording gap); a D-4 retention criterion for confirmed days. B unchanged (legal adviser).

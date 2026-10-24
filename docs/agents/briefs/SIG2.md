@@ -117,3 +117,32 @@ No new delivery. A docs-only PR (#310, `lca`) turned `db` red at 20:00 Zurich on
 | SIG2-14 (3) nothing removed or weakened, no re-run as a fix | met | #312 diff on 064: +3 / −1 lines, the same assertion |
 
 Until (2) lands, the 20:09 rule about a red `db` on test 78 no longer applies (the cause is fixed); any new red `db` is the PR's to explain. SIG2 stays `changes-requested`: SIG2-11, SIG2-12, SIG2-13 and SIG2-14 (2) in the one follow-up PR (*Next up* 1 now).
+
+## PO review — 2026-10-24 22:10: **`accepted`** (SIG2-1 to SIG2-14)
+
+#315 (head 508ad33, merged as 8a8dd27 with a merge commit; migration 0064, ADR-078; row `delivered` by #316). CI green on the head 508ad33 (app, db, e2e), on the merge commit 8a8dd27 and on `recovery/main` 68c05dc (read through the GitHub API). **The PO did not run the tests.** Engineering's own run of pgTAP 064 (106/106) was local with a shim; CI is the evidence. SIG2-1 to SIG2-10 were met at 15:35 (table above).
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| SIG2-11 (1) each scheduled run records its time; a page poll does not | met | 0064 §3 `private.signal_scheduler_runs`, written only in `private.evaluate_all_signals`; pgTAP 064 "a page-poll evaluation records no scheduled run", "the scheduled evaluator records its run time" |
+| SIG2-11 (2) older than 5 minutes → "Signalprüfung läuft nicht" on /operations and /admin; /team and /settings stop showing "aktiv"; not visible to another organisation | met | `signal_evaluator_health()` (Operations and administrators of the organisation only); pgTAP 064 1 min → running, 6 min → not running for Operations and for the administrator, another organisation's administrator sees only her own, a nurse reads none; `team_push_status` and `my_push_state` false at 6 min; `EvaluatorHealth.tsx` on /operations and /admin; e2e `push.spec.ts` |
+| SIG2-11 (3) the outside send path is started by the scheduled evaluator; `cron.job` contains it | met | `evaluate_all_signals` calls `push_dispatch_kick` (pg_net + two Vault entries, fail closed without them); job `navora-sig1-signals` scheduled idempotently; pgTAP 064 "when pg_cron exists, cron.job contains the evaluator job", kick returns false without channel, pg_net and Vault. Production wiring (Vault entries, pg_net) is an owner step (OWNER_RUNBOOK 5a) |
+| SIG2-12 Operations push only inside watched hours; none recorded → in the app only, /admin says so | met | 0064 §2 patch of `outside_classify` (`operations_fallback`, `untaken` and not `watched_inside` → `outside_working_time`); pgTAP 064 no watched hours → `outside_working_time` with the in-app delivery present; inside → `pending` → `sent` (test transport); predicate 14:00 inside, 22:00 outside; e2e "Keine überwachten Zeiten erfasst: Operations erhält Signale nur in der App" |
+| SIG2-13 raise at the later of the last period's start and its end minus 2 h, inside | met | 0064 §1 `watched_raise_at`; pgTAP 064 22:00 → 18:00, 05:00 → 18:00 the evening before, 18:00 inside and 20:00 outside, 07:00-08:30 only → 07:00, no watched hours → effective rule; 064:318-321 changed from 20:00 to 18:00 |
+| SIG2-14 (2) the look-ahead predicate proven at fixed instants | met | `private.lookahead_raised(org, now, window_opens)` used by `derived_exceptions` (0064 patch with marker); pgTAP 064 at 03:00, 12:00, 17:59, 18:00, 19:30, 22:30 Zurich, and the no-watched-hours case |
+| SIG2-14 (3) nothing removed or weakened | met | 064 diff: plan 82 → 106; the one changed expectation (Operations push `pending` → `outside_working_time` without watched hours) is SIG2-12 itself, and the `pending` case now has its own assertion inside watched hours |
+
+**Deviations (decided):**
+- **(12) `operations_fallback` treated as a push to Operations under SIG2-12: accepted.** It is a push to an Operations member; the brief's rule is about the recipient, not the step. It narrows outside sends only; in-app delivery is unchanged.
+- **(13) No run row means "not running": accepted.** Fail closed: a fresh organisation shows the warning until the job has run once.
+- **(14) The heartbeat is not audited: accepted.** One overwritten row per organisation, no person and no client in it; it is operating telemetry, not a care action. Changes to watched hours and to the channel stay audited as built.
+
+**Minor notes (no condition):** the e2e assertion matches both "läuft" and "läuft nicht" (pgTAP carries the proof); the SIG2-12 22:00 case is asserted on the predicate and the no-hours case on a delivery row, which together cover the criterion.
+
+**Clinical gate:** `cra` 18:26 found no blocking finding on 0062 and said the PO may accept once SIG2-11, SIG2-12 and a decision on CGR-45 are met. 0064 adds no clinical rule: 5 minutes and 2 hours are PO operating limits (register rows CR-076, CR-077 PROVISIONAL, remediation plans CGR-42, CGR-45). **`cra` is asked to cover 0064 in its next section; a blocking finding returns SIG2 to `changes-requested`.**
+
+**Business value and care model.** A safety signal now reaches the right nurse's phone within her planned working time, Operations only inside hours someone actually watches, and everybody can see when the watcher itself has stopped. That is what lets SIG1-8's screen-watcher disappear once the Clinical Owner has SIG2-10 evidence. **Architecture:** no new dependency, liveness in the database rather than in a page, fail closed everywhere: in line with the Handbook.
+
+**Before the channel goes live (unchanged, not conditions of acceptance):** DPF entries recorded per vendor; D-2 (staging); D-26 production answer (the sender holds the service-role key on the app host); the two Vault entries and pg_net in the pilot project (owner, OWNER_RUNBOOK 5a); SIG1-8 lifted only by the Clinical Owner.
+
+**Result: `accepted`.** F6R becomes *Next up* 1.
