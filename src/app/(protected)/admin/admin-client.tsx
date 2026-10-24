@@ -13,6 +13,8 @@ import {
 } from "@/features/admin/rules";
 import { QUALIFICATION_LABEL } from "@/features/team/rules";
 import type { CommandResult } from "@/lib/commands/result";
+import type { AdminPush } from "@/features/push/queries";
+import OutsideDelivery from "./outside-section";
 
 const field = "min-h-10 rounded-lg border border-stone-300 bg-white px-2 text-sm";
 const button = "min-h-10 rounded-lg bg-emerald-800 px-3 text-sm font-bold text-white disabled:opacity-60";
@@ -47,7 +49,7 @@ function Feedback({ error, notice }: { error: string | null; notice: string | nu
 const newKey = () => crypto.randomUUID();
 const text = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 
-export default function AdminClient({ data }: { data: AdminData | null }) {
+export default function AdminClient({ data, push = null }: { data: AdminData | null; push?: AdminPush | null }) {
   return (
     <div style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "280px 1fr", background: "#f4f7f4", color: "#153328" }}>
       <Sidebar active="admin" />
@@ -68,6 +70,7 @@ export default function AdminClient({ data }: { data: AdminData | null }) {
             <Teams data={data} />
             <Deadlines data={data} />
             <Rules data={data} />
+            {push && <OutsideDelivery organizationId={data.organizationId} push={push} />}
           </>
         )}
       </main>

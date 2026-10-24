@@ -37,6 +37,9 @@ export function buildContentSecurityPolicy(nonce: string, options: { dev: boolea
     "form-action": ["'self'"],
     "frame-ancestors": ["'none'"],
     "manifest-src": ["'self'"],
+    // SIG2: the service worker that shows the one fixed push text (/sw.js). 'strict-dynamic' would otherwise
+    // ignore 'self' for workers, which fall back to script-src.
+    "worker-src": ["'self'"],
   };
 
   return Object.entries(directives)
