@@ -4,6 +4,33 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 07:10 · po (Product Owner)
+- **No PO PR was open** at the start (#258 merged). No `agent:po` issue worked except as noted; nothing claimed (#248 D-32 waits on `eng`).
+- **CGR-39 (blocking S1, `cra` 06:30, open PR #259) confirmed in the code** (0035:526-536 range, 0035:577-583 check, 0019:175-178 window; pgTAP 035:191-196 asserts the inversion): for the four look-ahead rules a lower amount is a later signal, and an admin can set the P1 `visit_uncovered_hospital` window to 0 h so it never fires. **ADM1 → `changes-requested`** with **ADM1-R1 to ADM1-R6** (`briefs/ADM1.md`): direction per rule, never later than the default (look-ahead: not below; delay: not above), reset of existing overrides audited, pgTAP replacing 035:191-196 plus one behavioural test, `/admin` text. The watcher dry run makes **eng:ADM1 the active hand-off, ahead of AN2 part 3.** The PO's acceptance on 2026-10-23 and the PO's own SIG1-9 (06:10) both missed it; **SIG1-9 rewritten** to point at ADM1-R. D-28 recommendation annotated.
+- **CGR-40 (S3) decided (product authority):** ORD0-1's "doctor informed" date may not be before the **case** was created (was: the task), pgTAP added to the brief.
+- **AN2 part 2 reviewed** (#255, merged c1c58b3; CI green on head 88eeaeb and merge commit, run 40061609501, read through the API; **the PO did not run the tests**): measures 3, 5, 6, 7 (AN2-M7), 9, 11, 12 met (pgTAP 059, 57 assertions; e2e at 390 px); **the AN1 organisation condition is met**. Deviations accepted: suppressed rows hide the base; 032 assertion replaced; late AN1 condition closed; measure 9 uses today's threshold, with **AN2-M9a** (name the threshold used) for part 3. Evidence table in `briefs/AN2.md`. AN2 stays approved; the row stays `in-progress`.
+- **Decision packages (tier 2, INDEX 4-6):** `cra` 06:30 *Clinical impact* copied verbatim into D-31, D-3, D-29, D-30, D-16, D-32, D-15 (from #259's head 98541a0, as `cra` asked).
+  - **D-31 → `awaiting-approval: clinical` (Medium).** PO decided within product authority: server check that *Folgeeinsatz geplant* names a planned visit of the same case; `client_transferred` offers `pause_case`; 4b same-day correction with the four `cra` limits; 3a stays. Asked of the Clinical Owner: 1b with "keine Pflege erbracht", who may decide *nicht mehr nötig* (code fact: today any team member or coordination role, 0045:186), follow-up time, making up missed care.
+  - **D-3 → `awaiting-approval: clinical` (Medium), cover-read field list only.** PO decided: B as built on synthetic data; real-data gates plus an `lca` re-check against the pilot canton's law after D-11; cover read (b′) with **consent recorded at intake** (`lca` 06:55 note 1). Cover stays off until D-9, the field list, D-17, CGR-21, CGR-28 and D-29.
+  - **D-29 → `awaiting-approval: owner` (Medium).** Engineering impact drafted by po (two-run rule: four `eng` runs without an answer): suspension can reuse the downgrade release path (0046 §9). Recommendation: option B (evidence incl. cantonal licence, a second person confirms, mandatory re-check date, expiry downgrades); C later; D rejected.
+- **Challenge:** why does an administrator tune safety thresholds for the whole organisation? Row in `NEXT_CAPABILITY.md` and `CARE_OPERATING_MODEL.md`; hypothesis: no organisation sets an override in 8 pilot weeks, then the screen goes and only the team's choice inside the clinical band stays.
+- No new brief: COORD5, SIG1, ORD0 approved and unstarted; the D-31 PO decisions become a brief when the queue frees. Tests: none run (docs only); `node scripts/agents-check.mjs` ok; watcher dry run: active ADM1.
+- **Waiting on people:** owner: D-22, D-18 (after D-11, D-12), D-29 (approve option B, accept liability), names the Clinical Owner (G-1); Clinical Owner (once named): D-28, D-31, D-3 field list.
+- **Next agent (eng):** ADM1-R1 to R6 first (CGR-39, S1); then AN2 part 3 with AN2-M9a; Engineering impact (confirm or correct D-22, D-18, D-28, D-31, D-3, D-29; D-30, D-16, D-32, D-15, D-12, D-11, D-9, D-4 open). **(cra):** review the ADM1-R PR; #259 is still open (the PO copied its blocks, did not merge it). **(lca):** D-9, D-4; D-31 re-check optional. **(po):** D-30, D-16 (draft E if `eng` stays silent), D-32, D-11 escalation, D-10 package; review ADM1-R.
+
+ENGINEERING BRIEF (ADM1-R, re-opened item, not a new capability)
+- **Capability:** ADM1-R: organisation threshold overrides can never make a safety signal later than its default (direction-aware range).
+- **Why:** CGR-39 (S1): an admin can silence the P1 hospital-discharge signal by setting its look-ahead to 0 h; a stricter value is refused.
+- **Business outcome:** the pilot administration cannot create a silent safety gap; no clinical value is invented.
+- **Care outcome:** an unassigned visit after a hospital discharge always raises P1 at least 24 h ahead.
+- **Expected nurse outcome:** the team is told in time that nobody is responsible for a visit; no surprise gaps after discharge.
+- **Expected team outcome:** signals the team relies on cannot be weakened centrally.
+- **Expected patient outcome:** no missed first visit after discharge because a setting silenced the signal.
+- **Acceptance criteria:** ADM1-R1 to ADM1-R6 in `briefs/ADM1.md`.
+- **Dependencies:** none; D-28 (band) is not needed, the default is the bound.
+- **Priority:** first, ahead of AN2 part 3 (patient safety precondition).
+- **Implementation recommendation:** one migration: a `direction` column (or a fixed map in `private.exception_rule_range`) checked by `set_exception_rule`; reset of offending overrides with audit rows; replace pgTAP 035:191-196; one behavioural pgTAP through the exception read model; `/admin` text and a unit or e2e test; `cra` reviews the PR.
+
 ## 2026-10-24 06:55 · Legal & Compliance Agent (lca)
 - **Wrote the D-15 input** (INDEX 12) and **re-checked D-3 and D-29** (tier 2): D-3 changed (PO draft recommendation 06:10) and the `cra` field list is new; D-29 because `cra` 06:30 (open PR #259) asks `lca` whether a qualification or licence can lapse. I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-checked:** D-22 and D-18 (the 06:10 changes only take up my 05:45 notes; no new evidence); D-31 (PO draft adopts the 02:52 verdicts; the `cra` block in #259 supports them; re-check once it is copied in, if the PO asks).
