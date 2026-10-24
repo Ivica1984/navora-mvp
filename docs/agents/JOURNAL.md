@@ -4,6 +4,75 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 11:30 · Clinical & Regulatory Architect (review)
+- **#278 merge conflict resolved** (merge of `recovery/main` @ `afa6f40`; JOURNAL: all entries kept, newest first).
+- **Register ID collision:** eng (SIG1, #279) added CR-066 to CR-068 to `CLINICAL_RULE_REGISTER.md`; those IDs were already used in #259/#278 (CR-066 to CR-069). eng's rows are kept with content unchanged and renumbered **CR-070 to CR-072**; no code or test refers to them. **eng:** please take the next free ID from the register on the open governance PR, or ask.
+- SIG1 (#279, 0060) and the PO 11:09 cycle (CGR-41 decided in D-32, SIG2 approved) are not reviewed in this check-in; they go into the next report section.
+
+## 2026-10-24 11:09 · po (Product Owner)
+- **No PO PR was open** at the start. Open PRs: #278 and #259 (`cra`, not merged by the PO), #3 (M2). No `[PO review]` issue was open (SIG1's row still says `in-review`). Claimed **#56, #67, #68** (D-10, D-7, D-8); claims removed at the end.
+- **SIG1 reviewed: every criterion met, not accepted (clinical review gate).** #279 was merged as 7a3fdb5. CI was read through the API: green on head dad4dbe, on 7a3fdb5 and on `recovery/main` a081031. **The PO did not run the tests.**
+  - Evidence table in `briefs/SIG1.md`: SIG1-1 to SIG1-9 met. pgTAP 019, 039, 059 and 061 updated counts and lists only; no assertion was weakened.
+  - No `cra` section covers 0060: #259 and #278 both call SIG1 unstarted. So it is **awaiting clinical review**, and `cra` is asked to review 0060.
+  - **Deviations decided:**
+    - accepted: an absent member (also the responsible one) gets no delivery;
+    - accepted: a hospital-discharge visit without a responsible member is shown as "Einsatz ohne Zuständige";
+    - accepted: Operations means role `operations`, and admins only when there is none;
+    - accepted: `signal_untaken` is an operating rule;
+    - `cover_without_access` not delivered: becomes a **COVER1 enablement condition**, together with CGR-21's "her team" part.
+  - **eng:** set the SIG1 row to `delivered`.
+- **CGR-41** (`cra` 10:26, #278) **decided in D-32, addendum** after the `lca` 10:47 re-check:
+  1. When nobody can be reached outside the app, Operations gets the signal at once.
+  2. The untaken step goes to Operations, not to the whole team: Pikett is unresolved, and an on-call person waits for the provider's policy.
+  3. Look-ahead P1s are raised inside watched hours. SIG1-8 is extended in `CARE_OPERATING_MODEL.md`.
+- **SIG2 approved** (*Next up* 3, after ORD0).
+- **Packages D-10, D-7, D-8 written** (`inputs-requested`). Engineering and `lca` are asked for all three; `cra` for D-10.
+  - D-7 fact read through the API: the repository is **public**, `main` and `recovery/main` are **unprotected**, and secret scanning is **off**.
+  - The PO's working view on D-7: protection and scanning now; private on a plan that keeps them, before real data.
+  - D-8: B (merge after D-7; O-C as a gate re-examined by `eng`). All three stay `owner`/`clinical` routes.
+- **Challenge:** a person keeping a page open for every visit hour (SIG1-8), and foreseeable signals that first appear at night. From scratch, the signal finds the person, and foreseeable ones are raised during the day. The row is in `NEXT_CAPABILITY.md`; measured by SIG2-10.
+- Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** unchanged since 10:11 (no new escalation). owner: D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1. Clinical Owner: D-28, D-31, D-3, D-30, D-16, D-15.
+- **Next agent (eng):** SIG1 → `delivered`. ORD0, then SIG2. Inputs for D-10, D-7 (the plan terms for a private repository and the Actions minutes) and D-8 (deploys from `main`? does O-C still protect anything?). **(cra):** review 0060 (SIG1); D-10 *Clinical impact*. **(lca):** D-10, D-7, D-8. **(po):** next packages D-1, SR-26, D-2.
+
+ENGINEERING BRIEF
+- **Capability:** SIG2: safety signals reach the nurse's phone (`briefs/SIG2.md`).
+- **Why:** SIG1 works only while a page is open, so SIG1-8 still needs a screen-watcher for every planned hour.
+- **Business outcome:** no watcher role to staff; a P1 reaches a person without a coordinator.
+- **Care outcome:** a missed or stuck visit is noticed in minutes by someone at work; foreseeable gaps are seen during the day.
+- **Expected nurse outcome:** one content-free push, only within her planned working time; no calls off duty; opt-in with a test.
+- **Expected team outcome:** the team sees whose outside delivery works; one tap takes the signal; Operations only when nobody can be reached.
+- **Expected patient outcome:** fewer visits missed unnoticed (AN2 measure 10, SIG2-10).
+- **Acceptance criteria:** SIG2-1 to SIG2-10 (opt-in and vendor allowlist, test delivery and status, switch-on with the DPF entries, recipients within planned working time, empty set → Operations at once, watched-hours raise, untaken step to Operations only, fixed payload and records, negative cases, evidence).
+- **Dependencies:** SIG1 (0060), D-32 (decided), ADM1 range guard; the VAPID production key is an owner task with D-2; D-33 stays out.
+- **Priority:** *Next up* 3, after ORD0.
+- **Implementation recommendation:** a test transport and a fixed clock in pgTAP; no real push call in CI; fail closed on an unknown endpoint host; SIG2-6 stricter only (ADM1-R direction).
+
+## 2026-10-24 10:47 · Legal & Compliance Agent (lca)
+- **Re-checked D-32, D-9 and D-4.** D-32 because of new evidence: `cra` CGR-41 (open PR #278) on recipients outside working time. D-9 and D-4 because the PO changed them at 10:11. I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **Not re-checked:**
+  - D-22, D-18: unchanged since 06:10, and still no new evidence (fedlex request withdrawn unanswered this run).
+  - D-15: changed at 10:11, but the PO's option C text reproduces my conditions (i)-(iii). Deferred to the next run (three-package limit). One point for then: `requires_2bis` should gate the *needs assessment* for b13, b14 and c2, not the services themselves.
+- **D-32 (CGR-41):** new sources: SECO "Pikettdienst" (ArGV 1 Art. 14, 15, 19 Abs. 3, as summarised by SECO) and ArGV 2 Art. 17 (Spitex: no permit for night and Sunday work).
+  - Point 1 (empty outside set → Operations at once): **compliant under every plausible interpretation**.
+  - Point 2 (whole team outside the app): **unresolved: needs legal adviser and owner** outside working time, because a reaction is expected in substance, which makes it unplanned Pikett. Protective form: a planned on-call person, otherwise Operations. New question 3.
+  - Point 3 (watcher for look-ahead hours): **unresolved: needs owner** (the provider's on-call policy).
+  - The 09:12 narrow variant is unaffected.
+- **D-9:** the PO's option D matches 07:58. "Anonymised" must mean removing the free-text fields (`title`, `need_summary`, `notes`). Gates g1-g5 consistent. Verdict unchanged: compliant for NAVORA's steps; **unresolved: needs legal adviser and owner** (D-12 secrecy and processor, D-11 canton, the referrer). Note: refusal of cover consent (g4) has a safety consequence for `cra`.
+- **D-4:** new source: Onlinekommentar on DSG Art. 26. A restriction needs a weighing in the individual case and a stated reason (Abs. 4).
+  - Provisional rule: **compliant under every plausible interpretation**, provided r1's staff masking is a weighed, stated and liftable restriction, not a fixed mask.
+  - Final periods: **unresolved: needs legal adviser and owner**. New question 5.
+- Tests: none run (docs only).
+- **Next agent (po):** D-32 notes 1-3 into the SIG2 brief (on-call person, not the whole team; named watcher for look-ahead hours). D-9 note 1 (anonymisation wording). D-4 notes 1-2 (r1 wording; operational-rows criterion). **(cra):** D-9 note 2 (cover refused). **(lca):** D-15 re-check; D-22 and D-18 once fedlex is readable.
+
+## 2026-10-24 10:40 · eng (Lead Engineer)
+- No own PR was open. **Claimed #246** (SIG1, active) at 10:12. **SIG1 is migration 0060** (ADR-074); row → `in-review` (#279).
+- IMPLEMENTED in the branch: P1 visit safety signals become `safety_signals` episodes with one `signal_deliveries` row per recipient, written by `private.evaluate_signals` (pg_cron every minute, and every 30-s poll of `/field`, `/team`, OPS1, throttled 15 s). Banner at the top of the three pages; "Ich übernehme" (audited, idempotent); untaken after `signal_untaken` (15 min PROVISIONAL, stricter only) → Operations once; AN2 measure 10 gains two values.
+- **Brief questions answered (ADR-074):** polling, not realtime; pg_cron plus the poll path as the writer, tested in pgTAP by calling the writer; recipients follow the owning team, the covering member is the responsible one (CGR-21).
+- **Deviations:** an absent member (also the responsible one) gets no delivery; `visit_uncovered_hospital` delivered as "Einsatz ohne Zuständige"; `cover_without_access` not delivered; Operations = role `operations` (admins only if none). pgTAP 019, 039, 059, 061: expected counts and lists updated for the new rule and measures (no assertion weakened).
+- Clinical review gate: latest merged report 2026-10-24 02:26, CGR-37 (advisory S2) applied; remediation plan `clinical/remediation/CGR-37.md`; register rows CR-066 to CR-068 (eng).
+- Tests: CI is the runner. Locally a stand-in only: all migrations and the seed applied to a local PostgreSQL 16 with a Supabase auth stub; a minimal pgTAP stand-in ran 062 (54 pass) and every other file it can run (all pass; 11 files use pgTAP functions the stand-in lacks); `bun test` on `signals-rules`, `analytics-hypotheses`, `admin-rules`. **Not run:** real pgTAP, vitest, typecheck, lint, build, e2e (npm registry unreachable).
+- **Next agent (eng):** fix CI on the SIG1 PR if red (types bot for the two new tables); merge on green; SIG1 → `delivered`. Then ORD0. **(po):** the two deviations above (absent responsible member; `cover_without_access`).
 ## 2026-10-24 10:26 · Clinical & Regulatory Architect (review)
 - **Reviewed** `recovery/main` @ `11202ef` since the 06:30 section: #263 (AN2 part 3: 0058, pgTAP 060), #268 (ADM1-R: 0059, pgTAP 061, pgTAP 035 rewrite; AN2-C1 pgTAP 045), #271 (COORD5, out of clinical scope), PO cycles 07:10-10:11, `lca` #260, #266, #276. I did not run the tests; CI green on `d386a1b`, `c1bd8cb`, `11202ef`.
 - **Closed:** **CGR-39** (0059 direction-aware range, reset with audit; pgTAP 061, 035:188-205; PS-31 closed). CGR-40 decided by the PO (ORD0-1), PLANNED.

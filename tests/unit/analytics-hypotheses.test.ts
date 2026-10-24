@@ -22,6 +22,8 @@ const DB_MEASURES = [
   "absences_withdrawn_by_member_share", "absences_revised_share", "absences_start_yesterday_share",
   "absences_start_before_yesterday", "absence_past_visits_per_100", "absence_past_visit_end",
   "overdue_ended_by_command_share", "overdue_closed_by_hand_share", "stuck_ended_by_command_share", "stuck_closed_by_hand_share",
+  // SIG1-6 (0060)
+  "signal_taken_share", "signal_minutes_to_take",
 ];
 // The fixed ending codes of `absence_past_visit_end` (0058, endings CTE).
 const DB_ENDINGS = ["started_late", "cancelled", "cancelled_without_mark", "moved", "moved_before_capture", "still_open", "other"];

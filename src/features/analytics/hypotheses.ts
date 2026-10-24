@@ -89,7 +89,11 @@ export const HYPOTHESIS_GROUPS: readonly HypothesisGroup[] = [
     hypothesis: "Überfällige und hängende Einsätze enden mit einem Einsatzbefehl, nicht durch Schliessen in OPS1.",
     challenge: "Überfällige und hängende Einsätze schliesst eine Koordinationsperson mit Grund (CSR1 Teil 1)",
     source: "Ausnahmen «Einsatz nicht begonnen» und «Einsatz hängt», Einsatzereignisse, Ausnahmebearbeitung OPS1",
-    measures: ["overdue_ended_by_command_share", "overdue_closed_by_hand_share", "stuck_ended_by_command_share", "stuck_closed_by_hand_share"],
+    measures: [
+      "overdue_ended_by_command_share", "overdue_closed_by_hand_share", "stuck_ended_by_command_share", "stuck_closed_by_hand_share",
+      // SIG1-6 (0060)
+      "signal_taken_share", "signal_minutes_to_take",
+    ],
   },
   {
     no: 11,
@@ -179,6 +183,14 @@ export const MEASURE: Record<string, MeasureDefinition> = {
   stuck_closed_by_hand_share: {
     label: "«Hängt»: in OPS1 geschlossen", unit: "%",
     definition: "Ausnahmen «Einsatz hängt», die zuerst von Hand geschlossen wurden.",
+  },
+  signal_taken_share: {
+    label: "P1-Signale übernommen", unit: "%",
+    definition: "P1-Sicherheitssignale (SIG1), die ein Mitglied mit «Ich übernehme» übernommen hat. Basis: alle P1-Signale des Monats, auch noch offene. Nie pro Person.",
+  },
+  signal_minutes_to_take: {
+    label: "P1 bis übernommen", unit: "Min.",
+    definition: "Median der Minuten vom Erreichen von P1 bis «Ich übernehme». Basis: übernommene P1-Signale.",
   },
   coordinator_ends: {
     label: "Von Koordination beendet", unit: "",
