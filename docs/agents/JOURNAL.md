@@ -4,6 +4,34 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 19:09 · po (Product Owner)
+- **No PO PR was open** at the start (#305 merged). Open PRs: #306 (new, `cra` 18:26; supersedes #294, #278, #259), #3 (M2); `cra` PRs are not merged by the PO. Claimed **#56, #299, #59, #89, #116, #298** (D-10, D-34, D-13, D-20, D-25, SIG2); claims removed at the end.
+- **Reviews: no delivery.** No `eng` merge since #295; only `lca` #307. **SIG2:** `cra` 18:26 (read on `gov/review-2026-10-24-1826`) finds **no blocking finding on 0062**, closes CGR-41 points 1, 2; the clinical gate is met. New **CGR-45** (S2; S1 for go-live): the look-ahead raise time is the end instant of the watched period, which the code treats as outside. **PO decision (product authority): SIG2-13**, raise at the later of the last watched period's start and its end minus 2 hours, inside by the SIG2-12 predicate; pgTAP 064:318-321 move from 20:00 to 18:00. SIG2 stays `changes-requested` (SIG2-11, -12, -13 in one follow-up PR). ORD0 stays `changes-requested`.
+- **D-10 `awaiting-approval: clinical`** (Medium): `cra` 18:26 block copied. **R decided by po**: `cra` classifies it as a documentation-integrity workflow inside CR-011/CR-043 under (a)-(d); `lca` 11:55 compliant under (a)-(c). Built as **F6R** (approved, *Next up* 3). Clinical Owner asked: "confirm A for the pilot; B only after the pilot, on AN2 evidence." C rejected.
+- **D-34 `awaiting-approval: owner`** (Medium): `cra` 18:26 block copied (no IMPLEMENTED rule reads clinical content; SIG1 watches service delivery). **Input-class control decided by po**: every brief states each rule's input class (visit/schedule fact, care-context fact recorded by a nurse, clinical content); a clinical-content rule is not built in the core; added to `briefs/_TEMPLATE.md`. `cra` asked to add the same column to `CLINICAL_RULE_REGISTER.md`.
+- **`lca` 18:47 taken up (no status change; E open in all three, C open in D-13, D-25, one point in D-20):** **D-13:** B compliant with the assessor's GLN and several assessments per case; the instrument is the provider's choice. **D-20:** working view **D sharpened** (team decides membership; employer records the contract fact once; D-29; lead roles never team-changeable); C dropped. **D-25:** ZH requirements (one nursing lead, no job-sharing; no ward leader named; skill mix; RN cover) recorded as future NH roster constraints; B unresolved after D-11.
+- **Challenge:** assessment results re-typed from the provider's licensed tool (row added; hypothesis: more than 1 in 20 assessments corrected after entry → import of the result only, D-13 A, `owner`).
+- ROADMAP: line 24.10. 19:09. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` run before publishing.
+- **Waiting on people:** **owner:** D-1 (urgent), D-7, D-8, D-2, **D-34 (new: approve A plus C, name a regulatory adviser)**, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1 (name the Clinical Owner); merge `cra` PR #306 (supersedes #294, #278, #259). **Clinical Owner:** **D-10 (new: confirm A for the pilot)**, D-28, D-31, D-3, D-30, D-16, D-15.
+- **Next agent:**
+  - **(eng):** ORD0-C1, ORD0-C2, SIG1-C1 (covering `outside_settle`, CGR-43 note) in one PR; then SIG2-11, SIG2-12, SIG2-13; then F6R. Please confirm or correct the po drafts in D-8, D-10, D-2, D-7, D-34; inputs open for D-23, D-17, D-14, D-13, D-24, D-26, D-6, D-19, D-20, D-25, D-1, SR-26.
+  - **(cra):** input-class column in `CLINICAL_RULE_REGISTER.md` (D-34); D-17, D-19 first, then D-14, D-13, D-24, D-25, D-6, D-20 (one point); F6R needs no gate unless its PR adds a rule.
+  - **(lca):** D-26, D-24; D-10 R against the pilot canton once D-11 is answered.
+  - **(po):** D-17, D-23 reach the Engineering two-run rule after the next `eng` run; D-26 next.
+
+ENGINEERING BRIEF
+- **Capability:** F6R, return a report instead of countersigning a version known to be wrong ([brief](briefs/F6R.md)).
+- **Why:** today an RN who sees a wrong time in a care assistant's report must countersign it; the wrong version becomes `final`, the team's record and a billing basis until a correction round finishes (C-7). D-10 R decided by po (`cra` 18:26, `lca` 11:55).
+- **Business outcome:** nothing is billed from a version a nurse knew was wrong; one correction round per error disappears; countersignature latency and the returned share become measurable (F6R-9).
+- **Care outcome:** the record the team reads after a visit is the agreed one; supervision of delegated care means "checked and agreed" again.
+- **Expected nurse outcome:** the countersigning RN sends the report back with a reason in one step instead of signing against her judgement; the care assistant sees what to fix in `/field`.
+- **Expected team outcome:** fewer correction versions; a returned report stays visible in the team queue, so nothing is stranded.
+- **Expected patient outcome:** observations and times in the record are correct before the next nurse relies on them (HAND1); no silent overwrite of an observation.
+- **Acceptance criteria:** F6R-1 to F6R-9 in the brief (return command and negative roles, append-only return record, performer-only changes, superseding observations, never stranded with `report_not_final`, no billing fact until `final`, reason visible only to performer and team RNs and never in push/AN1/AN2/export, UI with e2e at phone width, AN2 shares).
+- **Dependencies:** none open (D-10 R decided; A stays in force; D-30 interim rule for a departed performer unchanged; D-29 real-data gate unchanged).
+- **Priority:** *Next up* 3, after the ORD0/SIG1 conditions and the SIG2 follow-up.
+- **Implementation recommendation:** one additive migration (`return_report`, an append-only return table, state `signed` → `draft` for the performer), RLS on the reason, reuse the existing sign and countersign paths; about 15 pgTAP assertions plus one e2e; no change to who must countersign.
+
 ## 2026-10-24 18:47 · Legal & Compliance Agent (lca)
 - **Reviewed D-13, D-20, D-25** (tier 2: named by the open findings C-8/H-08/CR-002, R-11 and R-10/LT-1; also tier 3: billing, governance, licensing). First `lca` sections in all three. Only the `lca` sections changed. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-reviewed: D-22, D-18** (unchanged since my 16:05 sections; no new evidence).
