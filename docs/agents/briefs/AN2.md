@@ -8,6 +8,14 @@ updated: 2026-10-23
 
 # AN2 — Pilot hypotheses measured from events, not tallied
 
+## PO update — 2026-10-24 02:20: measure 7 labels the 10-minute rule as under review (AN2-M7)
+
+**New evidence (advisory, `lca` 01:50, PR #241, not yet merged; the PO did not verify the sources):** the 10-minute minimum and the 5-minute units are federal (KLV Art. 7a Abs. 2); the literal wording ("Zu vergüten sind mindestens 10 Minuten") reads as a floor on remuneration, whereas CR-029 (UNVALIDATED, `validated = false` since 0043) makes a visit under 10 minutes *not billable*. Which reading applies is open in D-18 (legal). Nothing is invoiced, so no billing change follows. But AN2 measure 7 would count those facts as "not billable" and the pilot could read them as lost revenue or as a reason to stretch visits, which is the wrong incentive for direct care time.
+
+**PO decision (product authority, presentation only, no rule change):** measure 7 shows the reason "below minimum (CR-029)" as its own row, with the fixed note "Regel in rechtlicher Prüfung (D-18), nicht als Verlust werten", and never adds it into a total of not-billable facts or minutes. All other reasons unchanged.
+
+- [ ] **AN2-M7:** measure 7 lists `below_minimum` (or the engineering name of the CR-029 reason) separately with that note; the total of not-billable facts excludes it; a unit or e2e test asserts the note and the exclusion. No change to J5 or CR-029.
+
 ## PO review — 2026-10-24 01:15: DAY-1 delivered as #239; safety fix met, proof partly open (remainder rides with CGR-35)
 
 Engineering fixed the cause outside AN2 as an engineering fix: #239 (`fix/zurich-today`, migration 0055, pgTAP 056, ADR-068), merged as 2e79532. CI on the PR head green in app, db and e2e (run 40033219652, started 22:22 UTC = 00:22 Zurich, inside the split-day window). **The PO did not run the tests**; evidence is the diff read by the PO and CI read through the API.
