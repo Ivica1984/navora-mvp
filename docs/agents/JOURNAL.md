@@ -4,6 +4,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 11:30 · Clinical & Regulatory Architect (review)
+- **#278 merge conflict resolved** (merge of `recovery/main` @ `afa6f40`; JOURNAL: all entries kept, newest first).
+- **Register ID collision:** eng (SIG1, #279) added CR-066 to CR-068 to `CLINICAL_RULE_REGISTER.md`; those IDs were already used in #259/#278 (CR-066 to CR-069). eng's rows are kept with content unchanged and renumbered **CR-070 to CR-072**; no code or test refers to them. **eng:** please take the next free ID from the register on the open governance PR, or ask.
+- SIG1 (#279, 0060) and the PO 11:09 cycle (CGR-41 decided in D-32, SIG2 approved) are not reviewed in this check-in; they go into the next report section.
+
 ## 2026-10-24 11:09 · po (Product Owner)
 - **No PO PR was open** at the start. Open PRs: #278 and #259 (`cra`, not merged by the PO), #3 (M2). No `[PO review]` issue was open (SIG1's row still says `in-review`). Claimed **#56, #67, #68** (D-10, D-7, D-8); claims removed at the end.
 - **SIG1 reviewed: every criterion met, not accepted (clinical review gate).** #279 was merged as 7a3fdb5. CI was read through the API: green on head dad4dbe, on 7a3fdb5 and on `recovery/main` a081031. **The PO did not run the tests.**
@@ -68,6 +73,12 @@ ENGINEERING BRIEF
 - Clinical review gate: latest merged report 2026-10-24 02:26, CGR-37 (advisory S2) applied; remediation plan `clinical/remediation/CGR-37.md`; register rows CR-066 to CR-068 (eng).
 - Tests: CI is the runner. Locally a stand-in only: all migrations and the seed applied to a local PostgreSQL 16 with a Supabase auth stub; a minimal pgTAP stand-in ran 062 (54 pass) and every other file it can run (all pass; 11 files use pgTAP functions the stand-in lacks); `bun test` on `signals-rules`, `analytics-hypotheses`, `admin-rules`. **Not run:** real pgTAP, vitest, typecheck, lint, build, e2e (npm registry unreachable).
 - **Next agent (eng):** fix CI on the SIG1 PR if red (types bot for the two new tables); merge on green; SIG1 → `delivered`. Then ORD0. **(po):** the two deviations above (absent responsible member; `cover_without_access`).
+## 2026-10-24 10:26 · Clinical & Regulatory Architect (review)
+- **Reviewed** `recovery/main` @ `11202ef` since the 06:30 section: #263 (AN2 part 3: 0058, pgTAP 060), #268 (ADM1-R: 0059, pgTAP 061, pgTAP 035 rewrite; AN2-C1 pgTAP 045), #271 (COORD5, out of clinical scope), PO cycles 07:10-10:11, `lca` #260, #266, #276. I did not run the tests; CI green on `d386a1b`, `c1bd8cb`, `11202ef`.
+- **Closed:** **CGR-39** (0059 direction-aware range, reset with audit; pgTAP 061, 035:188-205; PS-31 closed). CGR-40 decided by the PO (ORD0-1), PLANNED.
+- **New:** **CGR-41 advisory (S2)** on D-32 (decided by the PO 09:12): outside delivery can leave a P1 with no outside recipient (uncovered visits have no responsible member; colleagues only inside their planned-visit span; Operations in-app); the SIG1-5 step to the whole team is undecided; SIG1-8 hours do not cover look-ahead P1s. Registers: CR-068, CR-069, CR-021 superseded; PS-31 closed, PS-32 PLANNED, PS-33 new; H-01 updated.
+- **#259 not merged:** my merge was refused by the session's permission control. This PR (`gov/review-2026-10-24-1026`) contains #259's commits and supersedes it.
+- **Next agent (po):** decide CGR-41 in the SIG2 brief and D-32. **(owner):** name the Clinical Owner (G-1); merge this governance PR or grant/name the merger. **(clinical, once named):** whether a P1 raised at night must be answered at once, and by whom.
 
 ## 2026-10-24 10:11 · po (Product Owner)
 - **No PO PR was open** at the start. Open PRs: #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#274** ([PO review] COORD5); claim removed at the end.
@@ -251,6 +262,12 @@ ENGINEERING BRIEF (ADM1-R, re-opened item, not a new capability)
 - **D-29:** diploma: no lapse found; practice licence: can be restricted, withdrawn or not renewed (GesBG Art. 13, 14, 19, 27 by title; VS example), is valid per canton of work incl. home visits; licence needed when working without supervision by a nurse (BAG FAQ). Verdict unchanged (unresolved: owner D-11/D-12 and legal adviser); questions 1 narrowed, 6 and 7 added.
 - **Not readable this run:** lexfind KLV Stand 1 Jan 2026 page, GesBG article text, KVV Art. 49/51 primary text, fedlex. Tests: none run (docs only).
 - **Next agent (po):** D-3 note 1 (consent, not opt-out); D-15 note 1 (Abs. 2bis experience conditions, to `cra`/`eng`); D-29 notes. **(lca):** D-9, D-4; D-31 once the `cra` block is in the package.
+## 2026-10-24 06:30 · Clinical & Regulatory Architect (review)
+- **Reviewed** `recovery/main` @ `38b986d` since the 02:26 section: #243 (AN2 part 1: 0056 CGR-35, pgTAP 057, 058), #255 (AN2 part 2: 0057, pgTAP 059), briefs SIG1 and ORD0, the PO, eng and `lca` docs since 02:20, and open PR #258 (SIG1-9). I did not run the tests; CI green on `56c8756`, `c1c58b3`, `38b986d`.
+- **Closed:** CGR-35 (0056, pgTAP 057:45-126; PS-28 closed). DAY-1-R1-R3 endorsed (pgTAP 058).
+- **New:** **CGR-39 blocking (S1)** on ADM1: for the four look-ahead exception rules (`visit_uncovered_hospital` P1, `visit_uncovered`, `order_expiring`, `team_cancellation_late`) the override range is inverted. An admin can set the P1 rule to 0 h, so it never fires, while a stricter value is refused; pgTAP 035:191-196 assert the inversion; SIG1-9 in #258 repeats it. **CGR-40 advisory (S3)** on ORD0-1 (date lower bound). Registers: CR-066, CR-067, CR-021 note; PS-31, PS-32; H-01, H-04, H-17, H-18 updated.
+- **Clinical impact written** (report section, for po to copy verbatim) for D-31, D-3, D-29, D-30, D-16, D-32, D-15. No decision taken; no rule approved; no catalogue invented (D-15: `lca` to extract KLV Art. 7 Abs. 2 verbatim).
+- **Next agent (po):** ADM1 `changes-requested` for CGR-39 and correct SIG1-9 (direction-aware); decide CGR-40; copy the seven blocks. **(eng):** CGR-39 with SIG1-9 (incl. pgTAP 035:191-196); D-32 phone push facts. **(lca):** D-15 KLV Art. 7 Abs. 2 enumeration; D-29 lapse of qualification. **(owner):** name the Clinical Owner (G-1); D-28 waits on that person.
 
 ## 2026-10-24 06:25 · eng (Lead Engineer)
 - **#255 merged** (AN2 part 2; merge commit c1c58b3). The base had moved by docs only (#256); the journal conflict was resolved by keeping both entries (merge commit 88eeaeb), and CI ran green on that head (run 40061316499: app, db incl. pgTAP 059, e2e).

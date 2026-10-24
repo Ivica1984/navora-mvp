@@ -16,6 +16,235 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-24 10:26: ADM1-R (0059, CGR-39 fix), AN2 part 3 (0058); D-32 decided by the PO, D-4 provisional rule; COORD5
+
+**Scope:** `recovery/main` @ `11202ef`. Changes since the 06:30 section (open PR #259 at `98541a0`; that PR was not merged, because this role's merge of it was refused by the session's permission control at 10:32 (Europe/Zurich) today, and its content is carried unchanged in this PR):
+- **Code merged:** #263 (AN2 part 3: migration `0058_an2_pilot_hypotheses_part3`, pgTAP 060, `/analytics`; ADR-071) as `d386a1b`; #268 (ADM1-R, CGR-39: migration `0059_adm1_cgr39_direction_aware_range`, pgTAP 061, pgTAP 035:188-205 rewritten, `/admin` text; ADR-072; remediation plan `clinical/remediation/CGR-39.md`) as `c1bd8cb`, including AN2-C1 (pgTAP 045 fixture made independent of the hour); #271 (COORD5: decision-issue watcher assigns a person only when a package asks; ADR-073) as `ccfc857`.
+- **Docs:** PO cycles 07:10, 08:18, 09:12, 10:11: ADM1 set `changes-requested` for CGR-39 (07:10) and accepted after ADM1-R (09:12); SIG1-9 rewritten (the range fix ships with ADM1); ORD0-1 lower bound changed for CGR-40; my *Clinical impact* blocks copied verbatim into D-31, D-3, D-29, D-30, D-16, D-32, D-15; **D-32 decided by the PO** (option B narrow variant, PROVISIONAL); D-33 opened (`owner`); **D-4 provisional rule decided by the PO**; D-28, D-30, D-16, D-31, D-3, D-15 `awaiting-approval: clinical`; D-22, D-18, D-29, D-9, D-11, D-12, D-33 `awaiting-approval: owner`. `lca` inputs #260, #266, #276. **No `clinical`, `legal` or `owner` decision answered.**
+- **Open PRs:** #259 (mine, superseded by this PR); #3 (M2, out of scope). No open engineering or PO PR.
+
+I read 0059 and pgTAP 061 in full, the pgTAP 035 and 045 diffs, the `/admin` and `src/features/admin/rules.ts` diffs, the header and every threshold, window and output column of 0058, the briefs ADM1 (R1-R6), SIG1 (SIG1-9) and ORD0 (ORD0-1), and D-32 and D-4 (*Recommended default*). COORD5 changes issue assignment only (`scripts/agents-coordination/`); no care, billing or health data: out of clinical scope. **I did not run the tests.** CI (checked through the API) is green for app, db (migrations, seed, pgTAP) and e2e on `d386a1b`, `c1bd8cb` and `11202ef`.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-41 | D-32 (decided by the PO 09:12, PROVISIONAL); SIG2 (PLANNED, no brief yet) | advisory (S2; SIG1-8 stays a go-live condition, so no S1 today) | The recipient rule for delivery outside the app can leave a P1 with **no outside recipient at all**: (a) for `visit_uncovered_hospital` and `visit_uncovered` there is, by definition, no responsible member; (b) colleagues receive it only inside the span of their own planned visits that day, so a P1 raised before the first or after the last planned visit of every colleague (a look-ahead P1 is raised up to 24 h ahead, at any hour; an absence recorded at 06:30 releases visits before anyone's first visit) reaches nobody outside the app; Operations stays in-app only. My 06:30 input also asked for **a step to the whole team when nobody has taken it after the SIG1-5 threshold**; D-32 does not adopt or reject it. SIG1-8 names a watcher only "for every hour in which visits are planned", not for the hours in which a look-ahead P1 can arise. Whether a P1 must be answered at night, and by whom, is `clinical` (D-28): UNKNOWN. | D-32 *Recommended default* items 2 and 6; `briefs/SIG1.md` SIG1-5, SIG1-8; look-ahead semantics 0019:175-178, 0038:91-92, 0059 header item 1 | PO decides (product authority; no response time invented), in the SIG2 brief: (1) when the computed outside recipient set is empty, the SIG1 delivery row records "kein Empfänger ausserhalb der App" and the signal is shown at once to Operations as untaken (no 15-minute wait); (2) state whether the SIG1-5 step goes to the whole team outside the app (my 06:30 recommendation) or only to Operations, and record the choice in D-32; (3) SIG1-8 also names who watches during the hours in which a look-ahead P1 can be raised for the next 24 h of planned visits. pgTAP in SIG2: an uncovered hospital-discharge visit whose window opens when no colleague has a planned visit that day → zero outside recipients, the row says so, Operations sees it untaken at once; a colleague inside her span → one outside recipient; a colleague outside her span → in-app only. |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| CGR-39 | **closed** (IMPLEMENTED) | 0059 §1: `exception_rules.amount_direction`, required whenever an amount exists (constraint `exception_rules_amount_has_direction`), five look-ahead rules (including `cover_without_access`, which Engineering found beyond my four) and four delay rules, each with the reader line. §2: `private.exception_rule_range`: look-ahead from the default up to 4× (cap 720), delay from the floor (0; `visit_stuck` 1 h) up to the default; priority and escalation never later (unchanged); one check `exception_override_in_range`, used by the command and the reset. §3: existing overrides outside the range deleted with one audit row each naming the old values. pgTAP 061: directions for every amount rule and the insert constraint (19-35); with the 24 h default a hospital visit in 36 h raises no P1, with an accepted 48 h override it does (37-53, 106-113); hospital 12 h, 0 h, P2, 97 h → `out_of_range`, 48 h → `ok`; the same pattern for `visit_uncovered`, `order_expiring`, `team_cancellation_late`, `cover_without_access`; delay rules above the default refused (55-87); `/admin` reads direction and bounds (89-104); reset of two out-of-range overrides, the valid one kept, audited, idempotent, not executable by users (115-137). pgTAP 035:191-196: the inverted assertions are replaced (a test change I named, not a skip). `/admin` text no longer promises the opposite (`src/features/admin/rules.ts` `RULES_INTRO`, `stricterHint`). CI green on `c1bd8cb`. PS-31 closed. Residuals: (1) the bounds (4×, 720, `visit_stuck` floor 1 h) are engineering bounds, not clinical values (D-28); (2) `visit_stuck` can no longer be changed in amount at all (range 1 to 1); that is safe, and the value stays D-28 with CGR-23 |
+| CGR-40 | open, advisory (S3); **decided by the PO** 2026-10-24 07:10: ORD0-1 lower bound is the case's creation date, with my pgTAP set; PLANNED in ORD0 | `briefs/ORD0.md` ORD0-1. Closes when ORD0 is merged with that pgTAP green |
+| CGR-36, CGR-38 | open, advisory (S2); decided, PLANNED in ORD0 (rank 2), unstarted | no change |
+| CGR-37 | open, advisory (S2; S1 if visits are planned when nobody watches); SIG1 PLANNED (rank 1), unstarted; SIG1-9 now met by ADM1-R | `briefs/SIG1.md` SIG1-9; outside delivery decided as D-32 (see CGR-41) |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open, unchanged (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open, unchanged | CGR-23 unchanged by 0059 (the stuck clock still restarts with each status change) |
+
+### Other changes reviewed (no finding)
+
+- **AN2 part 3 (0058, read-only):** no command, visit, signal or record changes; the only new object is the internal marker table `private.an2_capture_starts` (RLS on, no grants). Thresholds are read from `effective_exception_rules`. The 24 h and 48 h windows of measures 2, 4 and 8 are PO analytics parameters, not care rules (new register row CR-069). Absence measures return no person, reason or date, and absences store no reason (0046 header item 7), so no employee health data reaches `/analytics`. The AN1 suppression is unchanged (CR-067). With CGR-39 closed, the distortion I noted on 06:30 for measure 9 (a lowered threshold) can no longer arise; the measure still uses today's threshold for past visits (ADR-070).
+- **AN2-C1 (pgTAP 045):** a fixture fix with an added guard assertion; no assertion weakened.
+- **D-4 provisional rule (PO 10:11):** no audit row is deleted or anonymised before the final rule. That is the strictest option for documentation integrity. Clinically neutral on the periods (`legal`).
+- **D-32 itself:** the narrow variant, the fixed text, opt-in, test delivery, per-member status and SIG1-8 as a go-live condition all follow my 06:30 input. Apart from CGR-41, no objection.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| ADM1 operating rules (accepted after ADM1-R) | **no blocking finding**; CGR-39 closed | – |
+| AN2 (accepted 08:18; parts 1-3 merged) | **no blocking finding** | – |
+| SIG1 (approved, rank 1, unstarted) | **no blocking finding**; SIG1-9 met | CGR-37 |
+| SIG2 / D-32 (decided, no brief) | **advisory** before the SIG2 brief is approved | CGR-41 (S2) |
+| ORD0 (approved, rank 2, unstarted) | **no blocking finding** | CGR-36, CGR-38, CGR-40 (all decided) |
+| COORD5 (accepted) | out of clinical scope | – |
+| J5 (accepted) | unchanged | CGR-31 |
+| COVER1 | unchanged; cover stays off (D-3 read, D-17, CGR-21, CGR-28, D-29) | CGR-21, CGR-28 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:** decide CGR-41 in the SIG2 brief (empty recipient set, the SIG1-5 step, SIG1-8 hours) and record the choice in D-32.
+- **owner:** (1) name the Clinical Owner and a deputy (G-1); six packages wait only on that person (D-28, D-30, D-16, D-31, D-3, D-15). (2) The governance PRs of this role cannot be merged by it in this session (permission control); please merge this PR (it contains #259), or grant the self-merge the role prompt describes, or name who merges.
+- **eng:** none new.
+- **clinical** (once named): unchanged from 06:30; add for D-28/D-32: whether a P1 raised at night must be answered at once, and by whom (CGR-41).
+
+---
+
+## 2026-10-24 06:30: AN2 parts 1-2 (0056 CGR-35, 0057, pgTAP 057-059); briefs SIG1, ORD0 and SIG1-9 (#258); Clinical impact for D-31, D-3, D-29, D-30, D-16, D-32, D-15
+
+**Scope:** `recovery/main` @ `38b986d`. Changes since the 02:26 section (merged as #244):
+- **Code merged:** #243 (AN2 part 1: migration `0056_an2_cgr35_moved_keeps_absence`, pgTAP 057 and 058, ADR-069, ADR-068 addendum; HAND1 and `/team` text) as `56c8756`; #255 (AN2 part 2: migration `0057_an2_pilot_hypotheses`, pgTAP 059, fixtures in 027, 030, 032, 033, 034, 048; `/analytics` "Pilot-Hypothesen"; ADR-070) as `c1c58b3`.
+- **Docs:** PO cycles 02:20, 03:10, 04:10, 05:15 (#242, #245, #252, #254): briefs **SIG1** (CGR-37) and **ORD0** (CGR-36, CGR-38) approved 03:10, unstarted; CGR-35 met, DAY-1 accepted (04:10); packages D-31, D-3, D-29, D-30, D-16, D-32, D-15 ask `cra` for *Clinical impact*; `lca` inputs #241, #249, #253, #256; eng journal #250, #257. **No `clinical`, `legal` or `owner` decision answered.**
+- **Open PR in scope:** #258 (PO 06:10, docs only): D-28 → `awaiting-approval: clinical`, new acceptance criterion **SIG1-9**, Engineering impact drafted by po for D-28, D-31, D-3, draft recommendations for D-31 and D-3. Read; see CGR-39.
+
+I read 0056 and 0057 in full, pgTAP 057 and 058 (headers and every assertion line) and the assertion list of 059, the app diffs (`team-client.tsx`, `handover/rules.ts`, `absence/rules.ts`, `analytics/hypotheses.ts`), the briefs SIG1 and ORD0, the seven packages, and for CGR-39 0035:524-582, 0019:36-47 and 169-177, 0024:443-447, 492-501, 539-546, and pgTAP 035:185-198. **I did not run the tests.** CI (checked through the API) is green for app, db (migrations, seed, pgTAP) and e2e on `56c8756`, `c1c58b3` and `38b986d`.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-39 | ADM1 operating rules (accepted; CR-021); SIG1-9 (#258, PLANNED) | **blocking (S1)** | The safe-range check for organisation overrides treats every threshold as a **delay** ("a larger amount means a later signal"). Four rules are **look-ahead windows**, where a larger amount means an *earlier* signal and a smaller one a *later* signal: `visit_uncovered_hospital` (P1, signal when an unassigned visit starts within 24 h), `visit_uncovered` (P2, 24 h), `order_expiring` (P3, 7 days before the end date) and `team_cancellation_late` (P2, a team cancellation less than 24 h before the start). For these the check is inverted. An administrator can set the **P1** hospital-discharge rule to 0 hours: the window `between now() and now()` is then empty and the P1 signal **never fires**. At 0 `team_cancellation_late` also never fires, and `order_expiring` fires only on the end date. A stricter value is refused: the P1 rule cannot go above 24 h, and the others cannot go above twice the default. pgTAP 035 asserts the inversion: 12 h for the P1 rule is `ok` with the label "it can come earlier", and 48 h is refused as "later". The `/admin` text promises "Sicherheitsausnahmen (P1) melden sich nie später als der Standard". **SIG1-9 in #258 repeats the inversion** for `visit_uncovered`: it refuses a value above the default, which is stricter, and still allows 0. No clinician approved any of these values (D-28). | range 0035:526-536 (`max_amount` = default for P1, else 2×; minimum 0), check 0035:577-583; look-ahead semantics 0019:175-177 (`between now() and after_threshold(now(), amount)`), 0024:492, 0024:501 (`valid_until <= today + amount`), 0024:543-546 (`start < cancelled_at + amount`); defaults 0019:37, 39, 45, 0024:446; inverted assertions pgTAP 035:191-196; UI `admin-client.tsx:377-378`; #258 `briefs/SIG1.md` SIG1-9 | The range becomes direction-aware, built with SIG1-9 (product authority; no clinical value is set). For the four look-ahead rules an override may not go **below** the default: `out_of_range` for any lower amount, including 0. A higher amount is stricter and stays allowed, under an engineering upper cap. For delay rules SIG1-9 applies as written. A migration reports and resets, audited, any existing look-ahead override below its default. Fix the `/admin` text. pgTAP: `visit_uncovered_hospital` P1 12 → `out_of_range`, 0 → `out_of_range`, 48 → `ok`; `visit_uncovered` 0 → `out_of_range`, 36 → `ok`; `order_expiring` 0 → `out_of_range`, 14 → `ok`; `team_cancellation_late` 0 → `out_of_range`; replace the inverted assertions 035:193-196, a test change named here, not a skip. **PO: set ADM1 `changes-requested` for this condition, and correct SIG1-9 before SIG1 starts.** |
+| CGR-40 | ORD0-1 (approved, unstarted) | advisory (S3) | ORD0-1 refuses a "doctor informed" date **before the task was created**. The task is created when an A/C item is planned without an order (0014:263-266), and that is often after the needs assessment, when the doctor may already have been informed. A team that informed the doctor at the assessment can then only record a later, false date. This fact is the evidence D-22 relies on. | `briefs/ORD0.md` ORD0-1; task creation 0014:263-266, 0025:258, 0030:215 | PO decides (product authority). The lower bound is the case's creation date (or its intake date), not the task's creation. Not in the future stays. pgTAP: a date between case creation and task creation → `ok`; a date before case creation → `rejected`; a future date → `rejected`. |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| CGR-35 | **closed** (IMPLEMENTED) | 0056 §1: `visit_plan_changes.responsible_absent`, check `not responsible_absent or change = 'moved'`, append-only (0014 trigger). §3: set in `reschedule_visit` **before** the move, server-side, from planned + dated before today (Zurich) + `visit_responsible_absent`; no new parameter. §2: one audit row per move. §4: HAND1 detail and `/team` `last_change`. pgTAP 057:45-66 (flagged move → true, typed reason kept, one row, audit row with command); 057:75 (`/team`); 057:87-90 (withdrawal keeps it); 057:95-104 (past visit without absence and future visit → false); 057:109-126 (no write privilege, no parameter, update and non-move insert refused). CI green on `afd1d11` and `56c8756`. Residuals, all acceptable: (1) HAND1 is again asserted by function text (057:80) plus the unit test `handover-rules.test.ts`, as for CGR-34; (2) `/team` shows the fact only while the move is the visit's **last** change, while HAND1 and the table keep it; (3) moves before 0056 are `false`, and AN2-M8a shows them as "vor Erfassung (nicht gezählt)" |
+| CGR-36, CGR-38 | open, advisory (S2); **decided by the PO** 2026-10-24 03:10 (ORD0-1 to ORD0-6, which carry my pgTAP set); PLANNED, unstarted | `briefs/ORD0.md`. Close when ORD0 is merged with green pgTAP. ORD0-1 needs CGR-40 |
+| CGR-37 | open, advisory (S2; S1 if visits are planned when nobody watches); **decided by the PO** 2026-10-24 03:10 (SIG1-1 to SIG1-8); PLANNED, unstarted | `briefs/SIG1.md`. SIG1-8 (named watcher for every planned hour) is the interim control and stays a go-live condition until SIG1 and D-32 are built and measured (see D-32 below). SIG1-9 needs CGR-39 |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | `lca` 05:45 (#256): rates may follow the provider location or the place of care, and the residence municipality pays; palliative contribution versioned from 1 January 2027. This supports a versioned, re-keyable rate lookup. Remedy unchanged; the key is D-18 |
+| CGR-28, CGR-21 | open, unchanged (S2 if cover is enabled) | no change; see D-3 below |
+| CGR-16, CGR-23 | open, unchanged | see D-29 below; CGR-23 is now measured by AN2 measure 9 (0057) |
+
+### Other changes reviewed (no finding)
+
+- **AN2 part 1, DAY-1-R1-R3 (pgTAP 058):** the guard now covers `now()::date`, `localtimestamp`, `date(now())`, `date_trunc('day', now())` and views, and its patterns are first tested against samples (058:37-42). R2 is the behavioural proof I asked for on 02:26: under a session time zone whose date differs from Zurich, `order_expiring`, `care_plan_review_overdue` and `pause_case` give the Zurich answer (058:78-141). CR-064 note updated.
+- **AN2 part 2 (0057, read-only):** no table, command or signal changes. Thresholds are read from `effective_exception_rules`, not invented; rows that depend on them carry "Schwelle wie heute eingestellt (provisorisch, D-28)". `below_minimum` is kept out of the not-billable total and has the fixed D-18 note, consistent with CR-029 under legal review. There is no client, person or free text, only counts, medians and reason codes. The organisation row is hidden when it could point at one or two nurses. This closes a privacy gap in AN1 that the PO named on 2026-10-22 and that was open until now. Notes, no finding:
+  (a) measure 9 (`visits_open_past_p1`) uses today's threshold for past visits, because no history of rule values exists. With CGR-39 open, a lowered value would distort it. ADR-070 states the limitation.
+  (b) A team row with a base of 1-4 shows its value, flagged "zu wenig Daten", as AN1 does. Inside a team of 3 or more, a single correction or hold can be traced to its visit, but team members already read those records (team-scoped read, D-3 option B). Acceptable for synthetic data. Revisit with D-3's real-data gates.
+  (c) the 24 h of measure 12 is a PO analytics parameter, not a care rule.
+  New register row CR-067.
+- **CGR-35 app text:** fixed text `RESPONSIBLE_ABSENT_NOTE`, the same as CGR-34. It is shown only from the server field.
+- **ABS1-C7:** singular notice at n = 1, app text only. CR-065 note updated.
+- **SIG1 (approved):** it matches my CGR-37 remedy: a delivery row per recipient, exactly once, taken but not closed (CR-041 unchanged), Operations fallback, no health data, interim control SIG1-8. SIG1-5's 15 minutes is PROVISIONAL and D-28. Apart from CGR-39, I support SIG1-9's purpose: it removes an engineering range that no clinician approved.
+- **ORD0 (approved):** matches my CGR-36 and CGR-38 remedies and test sets, except CGR-40. ORD0-4 prompts and does not block, which is consistent with `lca`'s reading that some open-ended B orders are lawful. ORD0-6 shows the 7-day share as evidence, not as a deadline. Agreed.
+
+### Clinical impact for decision packages (cra 2026-10-24 06:30)
+
+As on 02:26, **`po`: please copy each block verbatim into the package's *Clinical impact* section, signed "cra 2026-10-24 06:30 (copied from `reports/CLINICAL_GOVERNANCE.md` by po)".** This is confirmed `cra` input. I am not a licensed clinician, and nothing below is a clinical rule. Every rule named here waits for the Clinical Owner (D-27, G-1).
+
+#### D-31: broken-off visit
+
+- **Hazards by reason code** (H-15, H-16):
+  - `client_transferred`: care given before the transfer is not documented, and the case's next visits stay planned (CGR-25), so a nurse may go to an empty home or, worse, nobody resumes care after discharge. A medication given and not recorded can be given twice by the next nurse or the hospital.
+  - `client_declined`: a refusal is a clinical observation. It can signal deterioration, pain, conflict or a capacity question. Today only the code exists, with no record of what was refused, and repeated refusals are not visible as a pattern.
+  - `nurse_unavailable`: the due care was not given and the client still needs it. This is the case where the follow-up is most time-critical.
+  - `started_by_mistake`: no care was given. The risk is that a visit that should have taken place disappears into "interrupted" instead of staying overdue. The required follow-up decision (2a) catches this, so keep it.
+  - `other`: free-text note. Hazard: health data in free text (privacy) and no structure for follow-up.
+- **(1) Documentation of care given.** Where care **was** given, documenting it is not a free product choice. Clinically, undocumented administration is a medication-safety hazard and breaks continuity. Whether it is a legal duty is `legal` under cantonal record-keeping law; `lca` read ZH GesG § 13, and the canton is D-11. Clinical position: 1b, with `started_by_mistake` and a fixed "keine Pflege erbracht" statement as the only ways to record no report. The content of the short report is for the Clinical Owner.
+- **(2) A safe follow-up rule must cover:**
+  (a) *Folgeeinsatz geplant* names a real planned visit of the same case (2b's server check); an unchecked statement is the CGR-25 residual.
+  (b) *nicht mehr nötig* is a care-plan judgement (the care is no longer needed). The conservative default is a registered nurse. Whether a care assistant may decide it is for the Clinical Owner.
+  (c) The expected time to the follow-up per reason is UNKNOWN (`clinical`). AN2 measure 2 (no planned visit within 48 h) is evidence, not a rule.
+  (d) `client_transferred`: offer `pause_case('hospital_stay')` (exists) as a follow-up, so the next visits stop being planned on purpose and do not just go overdue.
+  (e) CGR-35, now IMPLEMENTED: a move records that the care was missed because the responsible member was absent. In my reading a move is a **plan change**, not evidence that the missed care was given. Whether a missed service (e.g. medication, wound care) must be given the same day, or may wait for the next planned visit, depends on the service and is for the Clinical Owner.
+- **(4) Correction of an erroneous end.**
+  4b reduces PS-22 but needs limits:
+  - it only reverts to the previous status, because a reverted visit that was really over raises `visit_stuck` again;
+  - it is refused once a follow-up visit of the decision has started;
+  - it voids the follow-up decision, audited;
+  - it creates no billable fact (none exists for `interrupted`).
+
+  4c removes the cause of PS-22, a coordinator ending another person's visit, but delays the follow-up signal when the performer is unwell. The stuck signal covers that time, so 4c is acceptable clinically, though weaker on continuity. I prefer 4b with the limits above and today's ending rights.
+- **Clinical Owner must approve:** the content of the short report (1b); who may decide *nicht mehr nötig*; follow-up expectations per reason; whether missed care must be made up and when. **`legal`:** whether documenting care given is a legal duty, and billing of partial minutes (3b, with D-18). **`po`:** the correction workflow (4), once the limits above are in.
+
+#### D-3: read scope, including the cover read
+
+- **Is B+cover the minimum for a safe visit?** The PO's list is address, care goals, safety alerts and recent HAND1 entries. Missing, and all present in the schema today: the **services planned for this visit** with category and minutes (from the care plan); whether a **B order is present and valid** for it; **access notes** and **language notes** (`cases.access_notes`, `language_notes`, 0013:46-47); the **emergency contact** (`clients.emergency_contact_*`, column-scoped in 0015:68). The C1 no-show outcome `emergency_contact_informed` (CR-014) cannot be done without the emergency contact. "Safety alerts" **do not exist as structured data**: D-17 is not started. The cover read cannot include them until then, which is why PS-12 already needs D-17 before cover is enabled. Superfluous: insurer, billing, order details beyond present/valid, the case's other visits and its full history. How the covering nurse identifies the client at the door is `clinical` (UNKNOWN).
+- **Hazards of a cover without the read** (PS-12, S1 if enabled): a B service performed without knowing the order or care goal; no emergency contact on a no-show; access failure; language barrier. Each is a missed or unsafe visit.
+- **Do CGR-21, CGR-28 and the `accept_cover` absence check close the known cover hazards?** They close the *signal* hazards: alerts reach the covering nurse, an absence ends her covers, and an absent nurse cannot accept. They do not close the *context* hazard above (D-17 and the read) or the *qualification* hazard: CR-025 limits B covers to a registered nurse, but that rests on an unverified label (D-29, CGR-16). Before cover is enabled, all of D-3 (read), D-17, CGR-21, CGR-28 and D-29 are needed.
+- **Clinical Owner must approve:** the field list of the cover read, as clinical minimum content; D-17 (what a safety alert is). The legal basis of the read is `lca`/`legal`. The role matrix itself is `owner`.
+
+#### D-29: verification of qualification
+
+- **What the qualification gates today** (IMPLEMENTED, all UNVALIDATED rules):
+  - needs assessment by a registered nurse (CR-002);
+  - B and needs-assessment visits started, resumed and completed by a registered nurse (CR-007, every transition since 0038);
+  - a team with a registered nurse for a case without an assessment or with an order (CR-008);
+  - countersignature by a registered nurse when the performer is not one (CR-011, D-10);
+  - B covers only by a registered nurse (CR-025);
+  - a downgrade releases her B and assessment visits (CR-052);
+  - the matching filter "verified qualification" has the name only (0011).
+- **Hazard of an unverified or lapsed qualification:** every gate above trusts a label. A wrong `registered_nurse` label means B care (treatment and examination services) by a person who may not be qualified for it. It also means signatures and countersignatures that attest nothing, and B billing that may be invalid (`legal`). That is H-04, S1 for real clients.
+- **Granularity (question for the Clinical Owner and `legal`):** `care_assistant` puts every non-registered member in one class. In Swiss practice that class covers qualifications with very different scopes. Whether NAVORA needs finer qualification classes before CR-010 (care-assistant scope for A) and D-15 can be answered is UNKNOWN. I name no classes.
+- **Must a suspension release planned visits immediately?** Yes, as a safety default, through the existing one release rule (CR-051 and CR-052): planned visits are released and appear uncovered (signal), and visits in progress keep her with `visit_stuck`. A suspension that leaves her planned B visits in place recreates H-04. Whether a qualification can **expire** depends on Swiss law (diploma, registration, cantonal practice licence): `lca`/`legal`, UNKNOWN.
+- **Clinical Owner must approve:** the mapping of qualification to service (CR-007, CR-010, CR-011, CR-025) and any finer classes. The evidence process (A-D) is `owner`/`legal`. Clinically, C (register check with suspension) or B (second-person check) are safer than D, because the evidence stays in the audit trail.
+
+#### D-30: correcting a report when its author left
+
+- **Hazards.** *A wrong record staying in force* (option A): a wrong observation or a missing administration misleads the next nurse, the doctor and later readers. This is a continuity hazard, and the stranded draft of PS-15 adds a permanent, unresolvable signal. *A correction signed by someone who did not see the visit* (B): the corrected version looks authoritative but attests to facts the corrector did not observe. This is a false-attestation hazard, worse than a visible error if readers cannot tell.
+- **Clinical authorship vs administrative fields** (input for C; the Clinical Owner approves the classification): observations, care given and services performed, the narrative summary, and assessment findings are clinical authorship, by the author only. Payer data is administrative. The KLV category split is clinical-billing (D-15). Times are evidence of care and also billing data; they are best corrected by the author, or by another person only from a documented source, recorded as such.
+- **Does D (addendum) suffice for clinical safety?** Yes, if three conditions hold:
+  1. the addendum is shown **with** the report wherever the report is read (`/field`, HAND1, any export) and marked at the top;
+  2. it names its author, and the source when it relays the former author (E′);
+  3. it cannot alter the original.
+
+  D does not fix billing, but that is not a safety question. My recommendation to the Clinical Owner: D for clinical content, C for administrative fields, and a team registered nurse may withdraw the stranded draft of PS-15 with a reason, audited.
+- **Clinical Owner must approve:** the field classification; whether an addendum by a non-author may state clinical facts (hearsay) and how they are marked.
+
+#### D-16: quality events, holds, lift
+
+- **Are the provisional types and the serious threshold safe interim values?** Only as interim values for synthetic data. The five types (fall, wound, medication, acute decline, social situation) are engineering's seed (0020), not a taxonomy. Severity `low` to `critical` has no definitions, so the serious threshold (`high` or `critical`) depends on the reporter. A medication error rated `medium` never escalates. Gaps the Clinical Owner should consider (not rules): near misses; suspected neglect or abuse, where `lca` names a possible KESB reporting route (ZGB Art. 443); infection; aggression towards staff. The choice of taxonomy (D option) is `clinical`.
+- **Does B keep patient safety a precondition?** For the **billing** hold, yes. A hold blocks billing only (CR-018, CR-055), so who lifts it does not change care. Four eyes within the team (not the author, a registered nurse) is adequate for a billing lift. Conditions:
+  - the lift never closes the quality event or its escalation (CR-041);
+  - for serious events, the review afterwards is an OPS1 item that cannot be closed by hand until a review is recorded, so it cannot be forgotten.
+- **Option C (hold governs care):** stopping a service automatically after an event can be more harmful than continuing. Examples: stopping medication administration after a medication error, or wound care after a fall. I do not support an automatic stop. The hazard in PS-5 is not that "care continues" but that "nobody reviews the care after a serious event". The control is a mandatory care-plan review signal for the affected case after a serious event (P2, not closable by hand until a review by a registered nurse is recorded). What the review must cover is clinical.
+- **Clinical Owner must approve:** taxonomy and severity definitions; what "serious" means; the review after a serious event (who, content, time); whether any event type changes care.
+
+#### D-32: delivery outside the app
+
+- **Is a content-free text enough?** It is enough to make a member open NAVORA. It does not let her judge urgency without opening it. That is acceptable, because the only thing that leaves the app is a P1, which is urgent by definition. The larger hazard is **alert fatigue**: SIG1-1 sends to every active member of the team, so outside the app every member's phone rings for every P1, including members off duty. Clinically safer:
+  - outside the app, first the responsible member and the members on duty;
+  - the whole team only when nobody has taken it after the SIG1-5 threshold;
+  - Operations as today.
+
+  Who is "on duty" has no data today (PO 05:15: no shift data). The time steps are D-28 (`clinical`).
+- **Hazard of a channel that fails silently:** a team that believes it will be called, but whose push is off (permission revoked, browser or OS restrictions; `eng` to confirm iOS and Android behaviour), is less safe than a team that knows it must look. Clinical position:
+  - **SIG1-8 stays a go-live condition until delivery is shown to work**: a test delivery when a member opts in, and a per-member indication in `/team` of whether outside delivery is active;
+  - SIG1-6 and AN2 measure 10 show the share of P1s taken and the time to taking. The threshold for "works" is for the Clinical Owner.
+- **Clinical Owner must approve:** response duties and times (D-28); whether off-duty members are ever called; the evidence threshold that ends SIG1-8. Provider, region and contract are `lca`/`owner`.
+
+#### D-15: readiness checklist, care-plan fields, KLV category
+
+- **Readiness checklist (1).** Today it has no clinical item (CR-033). Before the first real client, items for the Clinical Owner to consider, mostly already in the schema:
+  - treating doctor named (`gp_named`, 0013);
+  - emergency contact present;
+  - access notes;
+  - known safety alerts (D-17, not built);
+  - the instrument of the needs assessment (D-13).
+
+  I set none of these as a rule.
+- **Care-plan fields (2).** Category, minutes, frequency, review date and goal are a minimum for planning and billing. They are not a full care plan: there is no per-service instruction, no link to the assessment finding the service answers, and no statement of the qualification the service needs beyond the category. Whether the pilot needs more is `clinical`.
+- **Hazards of A versus C (3).**
+  - A: a B service labelled A or C bypasses the registered-nurse gate (CR-007) and the order gate (CR-003). That is care by an unqualified person without a doctor's order, and a billing error (C-1, S1).
+  - C: the catalogue default removes most classification, and an override needs a reason and triggers a review. The hazard left is a wrong catalogue entry, which affects every client. That is why the catalogue needs a source and an approver.
+
+  C is safer.
+- **Draft service catalogue.** I do not draft one from memory: that would be inventing a billing and clinical mapping. The source is KLV Art. 7 Abs. 2 lit. a, b and c, which enumerates the services per category. Proposal: `lca` extracts that enumeration verbatim from the consolidated text (fedlex, in force on the pilot date) with article and letter per service. `cra` then checks it against what the code can represent, and the Clinical Owner approves it. Until then, A stays with C-1 open.
+- **CR-010 (question for the Clinical Owner):** which category A tasks (assessment, advice, coordination), and which C tasks, a member who is not a registered nurse may perform, and under what delegation. This depends on D-29's qualification classes.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| ADM1 operating rules (accepted) | **blocking**: changes-requested for CGR-39 | CGR-39 (S1) |
+| AN2 (in-progress; parts 1-2 merged) | **no blocking finding**; CGR-35 closed, DAY-1-R1-R3 endorsed | – |
+| ABS1 (accepted) | **no blocking finding**; no ABS1 finding open | CGR-28 before cover |
+| SIG1 (approved, unstarted) | **no blocking finding** on the brief; SIG1-9 must be corrected before start | CGR-37, CGR-39 |
+| ORD0 (approved, unstarted) | **no blocking finding** | CGR-36, CGR-38; CGR-40 (S3) |
+| J5 (accepted) | unchanged | CGR-31 |
+| COVER1 | unchanged; cover stays off (D-3 read, D-17, CGR-21, CGR-28, D-29) | CGR-21, CGR-28 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:**
+  - set ADM1 `changes-requested` for CGR-39 and correct SIG1-9 in #258 or the next cycle (direction-aware range);
+  - decide CGR-40 (ORD0-1 lower bound);
+  - copy the seven *Clinical impact* blocks into D-31, D-3, D-29, D-30, D-16, D-32, D-15.
+- **eng:**
+  - CGR-39 with SIG1-9, including the test change to pgTAP 035:191-196;
+  - for D-32, the push behaviour on the pilot members' phones (iOS and Android) and a per-member delivery check.
+- **lca:** for D-15, the verbatim KLV Art. 7 Abs. 2 enumeration with article references; for D-29, whether and how a nursing qualification or practice licence can lapse.
+- **owner (critical path):** name the Clinical Owner and a deputy (G-1). D-28 is now `awaiting-approval: clinical` (#258) and waits only on that person.
+- **clinical** (once named): D-28; D-31 (1b content, *nicht mehr nötig*, missed care); D-3 cover field list and D-17; D-29 mapping and classes; D-30 field classification; D-16 taxonomy, severity and review after a serious event; D-32 response duties and the SIG1-8 exit threshold; D-15 checklist, catalogue approval and CR-010.
+
+---
+
 ## 2026-10-24 02:26: ABS1-C6 (#234), DAY-1 (0055, #239); Clinical impact for decision packages D-22, D-18, D-28
 
 **Scope:** `recovery/main` @ `35e28a4`. Changes since the 22:30 section (merged as #235):
