@@ -4,6 +4,100 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 14:27 · Clinical & Regulatory Architect (review)
+- **Reviewed SIG1 (#279, 0060, pgTAP 062) and ORD0 (#284, 0061, pgTAP 063)** in full, plus PO cycles 11:09, 12:10 and open #291 (13:15, 14:40). Section 2026-10-24 14:27 in `reports/CLINICAL_GOVERNANCE.md`. Tests not run by me; CI green on `7a3fdb5` and `3928572`.
+- **Closed:** CGR-37 (in-app delivery), CGR-36, CGR-38, CGR-40. **Decided, PLANNED:** CGR-41 (SIG2). **New, all advisory S2:** CGR-42 (no one can see if the evaluator job is not running; S1 for SIG2 go-live), CGR-43 (any recipient's take, whatever her qualification, stops the step to Operations), CGR-44 (Q12 (a): a case never asks again after a later A/C change).
+- **Gate:** no blocking finding on SIG1 or ORD0. The PO may accept both (ORD0 with ORD0-C1). CGR-42 goes into the SIG2 brief before work starts.
+- **Register IDs reconciled:** eng's CR-066 to CR-070 on `recovery/main` stand. My unmerged CR-066 to CR-069 are now CR-073 to CR-076, and my 11:30 renumbering is reversed. CR-077 added. Hazard log (H-01, H-18) and risk register updated: PS-29, PS-30, PS-32 closed; BL-16 mitigated; PS-34 to PS-36 new.
+- This PR carries and supersedes #259 and #278.
+- **Next agent (po):** decide CGR-43 and CGR-44, add CGR-42 to SIG2, then accept SIG1/ORD0. **(owner):** D-1; name the Clinical Owner; merge this PR (self-merge refused earlier); confirm the pg_cron job in the pilot project. **(cra next run):** *Clinical impact* for D-34 and D-17 once #291 is merged.
+
+## 2026-10-24 13:50 · Legal & Compliance Agent (lca)
+- **Reviewed D-29 and D-30** (tier 2; both changed since my last section: PO 07:10 and 09:12) and **wrote the D-2 input** (first input; requested 12:10). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **Not reviewed:** D-22, D-18 (no change since 06:10; no new evidence; fedlex still not reachable). D-34 (new package from `lca`'s D-8 point) is only in open PO PR #291, not on `recovery/main`: next run once merged.
+- **New sources:** BJ list of states with adequate data protection (DSV Annex 1; Singapore not listed, US only DPF-certified); Supabase regions (Zurich `eu-central-2` exists), transfer FAQ and DPA of 1 August 2026 (contracting party Supabase Pte. Ltd, Singapore; SCCs with Swiss addendum; no DPF); Vercel and Render compliance statements; EDÖB transfer guide (June 2021, old law, method only); OR Art. 328b.
+- **D-2:**
+  - The PO working view (specific EU or Zurich region, synthetic data, staging-only accounts, deploy from CI): **compliant under every plausible interpretation**, under five conditions: a specific region; nothing from the live project; test-domain accounts or informed testers; the app's function region set to the EU (Vercel's default is the US); SIG2 on staging only for D-32 browsers until D-33.
+  - Production with real data: **unresolved: needs legal adviser and owner** (Singapore contracting entity and US/Singapore access under SCCs; StGB Art. 321; pilot canton).
+  - Choosing a staging provider creates no legal lock-in.
+- **D-29 (PO recommendation B):** consistent with the sources read. OR Art. 328b covers storing qualification evidence (type, identifier, dates, checker; no copies). The confirmer must act as someone the licence holder authorised. The owner ask should say the licence holder "remains responsible", not that the owner "accepts" the liability. Verdict unchanged: **unresolved: needs owner (D-11, D-12) and legal adviser.**
+- **D-30:** the 09:12 billing block for disputed time or category: **compliant under every plausible interpretation**. Residual: an invoicing deadline (a revenue risk, D-18). Other verdicts unchanged.
+- Tests: none run (docs only).
+- **Next agent (po):** D-2 notes 1-4 (conditions into the design; Zurich if same cost; ADR-011 note). D-29 notes 1-2. **(eng):** D-2: Vercel's DPF listing (Swiss-U.S.?), function and log regions. **(lca):** D-34 once #291 is merged; D-22 and D-18 once fedlex is readable.
+
+## 2026-10-24 12:55 · Legal & Compliance Agent (lca)
+- **Reviewed D-1, SR-26 and D-8** (first input for all three; requested by the PO at 12:10 and 11:09). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **Not re-checked:** D-22, D-18 (no change since 06:10, no new evidence; fedlex again unreachable: the request was withdrawn unanswered). D-2 waits for the next run (three-package limit).
+- **New sources:** DSG as published in BBl 2020 7639 (Art. 5, 6, 7, 8, 9, 12, 24); FDPIC guidance on Art. 24, version 1.2 of 23 April 2025; law.ch on DSV Art. 15 Abs. 4 (secondary); Kanton Zürich orientation page on software as a medical device (30 January 2026).
+- **D-1 (urgent):**
+  - If any live row concerns a real person, even renamed, the pre-C-1 exposure is a case the breach definition covers ("made accessible").
+  - With health data the FDPIC assumes a high risk in many cases. A report is due "as soon as possible", and doubt is no reason to wait. The exposure was found three days ago.
+  - Rotation and leaked-password protection now: **compliant under every plausible interpretation**.
+  - A (owner confirms synthetic): **compliant under every plausible interpretation**.
+  - B: compliant as measures; the reporting and information duties are **unresolved: needs legal adviser**, after the owner's fact answer.
+  - C, D: **unresolved: needs owner**.
+- **SR-26:**
+  - The e-mail addresses widen D-1's assessment.
+  - Contained: compliant only as a short interim.
+  - A (move, then delete): **compliant under every plausible interpretation** under three conditions: the owner is that application's controller; the target project is protected; the D-1 facts are documented first.
+  - B: **unresolved: needs owner**.
+  - No deletion before D-1 is answered.
+- **D-8:**
+  - No source read ties any record duty to byte evidence of recovered code, so O-C can be dropped as a gate from the legal side.
+  - B and C: **compliant under every plausible interpretation** of the data-protection sources read, provided nothing deploys from `main` into an environment with personal data before D-1.
+  - A: **unresolved: needs `eng`** (deploy fact).
+  - New, separate open point: whether NAVORA is a medical device under the MepV (signals and exceptions). **Unresolved: needs owner and a regulatory adviser**; no row exists.
+- Tests: none run (docs only).
+- **Next agent (po):** D-1 note 1: ask the owner the fact question now, alone and in one line; "not sure" means B. D-1 note 3 (escalation wording). SR-26 notes 1-2. D-8 note 2 (medical-device row?). **(eng):** D-8 question 1; SR-26 RLS state of `orders` before C-1. **(lca):** D-2; D-22 and D-18 once fedlex is readable.
+
+## 2026-10-24 12:10 · po (Product Owner)
+- **No PO PR was open** at the start. Open PRs: #284 (ORD0, `eng`, not merged), #278 and #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#285** ([PO review] SIG1), **#63, #69, #64** (D-1, SR-26, D-2); claims removed at the end.
+- **SIG1 (#285): no change.** Reviewed at 11:09 (every criterion met); still **awaiting clinical review**: no `cra` section covers 0060 (#278 is from 10:26, before #279 merged). Not accepted; #285 stays open for the acceptance.
+- **`lca` 11:55 taken up** (no status change; `eng` and `cra` inputs requested 11:09 are not yet due under the two-run rule):
+  - **D-10:** PO working view **A plus R**: every care-assistant report countersigned, and the countersigner may return it unsigned with a reason under `lca` conditions (a)-(c). B is a post-pilot hypothesis (needs the licence holder's head of nursing, D-12, and a legal adviser); C is out. D-29's real-data gate is a precondition for every option.
+  - **D-7:** rulesets and push protection first (no legal question; the owner applies them once `eng` names the checks). Visibility hinges on **D-1**. B reworded: private before real personal data in any environment the repository describes, the live project included.
+  - **D-15:** the Engineering draft (by po) is aligned with condition (iii): `requires_2bis` gates a3 and the *needs assessment* for b13, b14 and c2, not those services after assessment. One added question for the Clinical Owner with the same approval (keep as worded, or block entirely until D-29); the PO recommends as worded. Status unchanged (`awaiting-approval: clinical`). `cra` is asked for a hazard view on it.
+- **Packages D-1, SR-26, D-2 written** (`inputs-requested`; Engineering and `lca` asked, no `cra`: no care rule).
+  - D-1: the fact question first (are the live rows real people?); working view: rotate the key and enable leaked-password protection now whatever the answer; nothing deleted before the answer or a legal clearance. Owner-executed (rule 5).
+  - SR-26: working view A (move to the other app's project, then delete), by the owner after D-1.
+  - D-2: working view one EU (Swiss if offered) staging Supabase project, a protected EU app host, deploy from CI, synthetic data only; the design is po's once `lca` clears it, the paid plan and the account actions are the owner's. D ("no staging until the pilot partner") rejected: SIG1/SIG2 and the hosted jobs must be shown on a hosted clock before any real client.
+- **Challenge:** the founder as the hand-operator of every protective setting (D-7, D-1, SR-26, D-2, VAPID key, hosted job checks). From scratch: settings declared in the repository and applied by CI after one owner approval (a GitHub environment only the owner releases), verified and recorded by the same run; agents still hold no live or admin rights. Row in `NEXT_CAPABILITY.md`; brief after D-2 and D-7.
+- No new brief: ORD0 (in review, #284) and SIG2 are approved. ROADMAP unchanged (no status change). Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** unchanged since 10:11 (no new escalation). owner: D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1. Clinical Owner: D-28, D-31, D-3, D-30, D-16, D-15.
+- **Next agent (eng):** ORD0 (#284), then SIG2. Inputs for D-10, D-7, D-8 (requested 11:09) and D-1, SR-26, D-2 (requested now; questions in each package). **(cra):** review 0060 (SIG1); D-10 *Clinical impact*, including whether R is safer than "countersign, then correct"; D-15 added question. **(lca):** D-8; D-1, SR-26, D-2. **(po):** next packages D-26, D-23, D-17.
+## 2026-10-24 12:25 · eng (Lead Engineer)
+- **ORD0 delivered:** #284 was conflicted with `recovery/main` (JOURNAL only, after #286); merged the base in (4f938f6, both entries kept, newest first), CI green on 4f938f6 (app, db, e2e), merged #284 with a merge commit (2561463). Row ORD0 → `delivered` (this PR). IMPLEMENTED.
+- No code change this run; the base merge brought only docs (D-7, D-10, D-15, JOURNAL).
+- Issue #247 keeps its `active` label until the PO's review; the watcher opens the review issue from the `delivered` row.
+- Tests: none run locally; CI ran them on 4f938f6.
+- **Next agent (eng):** #283 (SIG2) once it is labelled `active`. **Q12** (ORD0 deviation: `inform_gp` not reopened once recorded) is open for `po`.
+
+## 2026-10-24 11:55 · Legal & Compliance Agent (lca)
+- **Reviewed D-10 and D-7 (first input) and re-checked D-15** (changed by the PO at 10:11; deferred from 10:47). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **Not re-checked:** D-22, D-18 (unchanged since 06:10; no new evidence; the lexfind/fedlex request was withdrawn unanswered again). D-8 waits for the next run (three-package limit).
+- **New sources:** Kanton Zürich *Merkblatt Betriebsbewilligung Spitex-Institution* (November 2023); Kanton Graubünden Betriebsführung information (2017, currency UNKNOWN); DSG final-vote text of 25 September 2020 (Art. 5 lit. h, 7, 8, 24); HIN's summary of DSV Art. 3 (secondary).
+- **D-10:** no source read requires an RN to countersign each care-assistant report. What they require is supervision of delegated care under a qualified nurse's responsibility (ZH Ziff. 5.2, 5.4; GR), plus attributable entries.
+  - A: **compliant under every plausible interpretation**.
+  - R (return unsigned, with conditions a-c): **compliant** on the sources read; to be confirmed for the pilot canton.
+  - B: **unresolved: needs legal adviser** and the licence holder's supervision concept (D-12).
+  - C: **unresolved**, not protective.
+- **D-7:** rulesets and push protection: **compliant under every plausible interpretation**.
+  - Staying public: **unresolved: needs owner (D-1)**. The public repository names the live project and documents its security state, and whether the live data are real is still open.
+  - B (private before real data): compliant as a measure.
+- **D-15:** the recommendation matches my conditions. Gap: the Engineering draft's `requires_2bis` blocks b13, b14 and c2 themselves, while Abs. 2bis gates a3 and the *assessment* for them. That is stricter than the law and a care-access question for `cra`. Verdicts unchanged.
+- Tests: none run (docs only).
+- **Next agent (po):** D-10 notes 1-3 (A plus R; B needs the head of nursing of D-12; D-29 gate). D-7 notes 1-2 (D-1 link; wording of B). D-15 notes 1-2. **(owner, through po):** D-1 answers D-7's open question. **(lca):** D-8; D-22 and D-18 once fedlex is readable.
+
+## 2026-10-24 11:35 · eng (Lead Engineer)
+- **SIG1:** #279 had been merged at 10:54 by the previous run, which pushed `docs/sig1-delivered` (row → `delivered`) without opening a PR. This run opened **#281**, merged `recovery/main` into it (JOURNAL conflict, both entries kept); CI green on 7f198b2. Merging #281 was refused by this session's permission check; it was merged later as 82396ba (not by this run).
+- **Claimed #247** (ORD0, active) at 11:10. **ORD0 is migration 0061** (ADR-075); row → `in-review` (#284).
+- IMPLEMENTED in the branch: `record_gp_informed` (date not future, not before the case, CGR-40; four channel codes; audited, idempotent) closes `inform_gp`; `/team` card shows "informiert am … (…)"; HAND1 entry; P3 exception `order_without_end_date` on `/team` and OPS1, closes only with its cause; AN2 measure 10 gains `order_open_end_ending` and `inform_gp_done_within_7d_share`.
+- **Brief questions answered (ADR-075):** a separate command (`complete_case_task('inform_gp')` stays refused); the exception fits `derived_exceptions` without a new table (an internal episode table only feeds the start time and measure 10).
+- **Deviations:** planning and PLAN2 no longer reopen `inform_gp` once a record exists (else every `/team` load reopened it) → **Q12 opened for `po`**; "running" = lifecycle `active`; pgTAP 019, 059, 061 counts updated (no assertion weakened).
+- Clinical review gate: report 2026-10-24 02:26 (CGR-36, CGR-38, advisory S2) and `cra` 06:30 (CGR-40, S3) applied; no blocking finding names ORD0; remediation plans `clinical/remediation/CGR-36.md`, `CGR-38.md`; register CR-069, CR-070 (eng).
+- Tests: CI is the runner. Locally a stand-in only: all migrations and the seed applied to a local PostgreSQL 16 with a Supabase auth stub; a minimal pgTAP stand-in ran 063 (53 pass) and every other file it can run (all pass; 11 files use pgTAP functions the stand-in lacks); `bun test` on `gp-rules`, `analytics-hypotheses`, `team-rules`, `handover`; `tsc` on the pure modules. **Not run:** real pgTAP, vitest, full typecheck, lint, build, e2e (npm registry unreachable).
+- **Next agent (eng):** fix CI on the ORD0 PR if red (types bot for the new table and command); merge the ORD0 PR on green; ORD0 → `delivered`. **(po):** Q12; the deviations above. **(cra):** CR-069, CR-070; 0061.
+
 ## 2026-10-24 11:30 · Clinical & Regulatory Architect (review)
 - **#278 merge conflict resolved** (merge of `recovery/main` @ `afa6f40`; JOURNAL: all entries kept, newest first).
 - **Register ID collision:** eng (SIG1, #279) added CR-066 to CR-068 to `CLINICAL_RULE_REGISTER.md`; those IDs were already used in #259/#278 (CR-066 to CR-069). eng's rows are kept with content unchanged and renumbered **CR-070 to CR-072**; no code or test refers to them. **eng:** please take the next free ID from the register on the open governance PR, or ask.
@@ -48,6 +142,12 @@ ENGINEERING BRIEF
 - **Priority:** *Next up* 3, after ORD0.
 - **Implementation recommendation:** a test transport and a fixed clock in pgTAP; no real push call in CI; fail closed on an unknown endpoint host; SIG2-6 stricter only (ADM1-R direction).
 
+## 2026-10-24 10:54 · eng (Lead Engineer)
+- **#279 merged** (merge commit 7a3fdb5; SIG1). CI green on head dad4dbe (app, db, e2e), read through the API; no review comments.
+- Two fixes on the way: a `JOURNAL.md` merge conflict with `recovery/main` (both entries kept); the e2e failed on a163956 because `field.spec.ts` records assist.test absent before `signals.spec.ts` runs, and an absent member receives no delivery (by design). The e2e now uses the present nurse in two sessions; no assertion removed.
+- **SIG1 → `delivered`** (#279): READY_FOR_REVIEW. Clinical gate: CGR-37 applied (remediation plan `clinical/remediation/CGR-37.md`); CR-066 to CR-068 for `cra`.
+- Tests: CI ran the suite; nothing more run here.
+- **Next agent (po):** review SIG1; decide the two deviations (absent responsible member gets no delivery; `cover_without_access` not delivered). **(eng):** ORD0.
 ## 2026-10-24 10:47 · Legal & Compliance Agent (lca)
 - **Re-checked D-32, D-9 and D-4.** D-32 because of new evidence: `cra` CGR-41 (open PR #278) on recipients outside working time. D-9 and D-4 because the PO changed them at 10:11. I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-checked:**

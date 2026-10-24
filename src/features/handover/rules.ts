@@ -7,6 +7,7 @@ import { MEDICAL_ORDER_LABEL } from "@/features/intake/rules";
 import { REASON_LABEL, RESPONSIBLE_ABSENT_NOTE } from "@/features/lifecycle/rules";
 import { EVENT_STATUS_LABEL, SEVERITY_LABEL } from "@/features/quality/rules";
 import { WEEKDAYS } from "@/features/planning/rules";
+import { gpInformedEntryLine } from "@/features/gp/rules";
 
 export type SinceLastRow = {
   visit_id: string;
@@ -98,6 +99,8 @@ export const ENTRY_TITLE: Record<string, string> = {
   visit_released: "Einsatz wieder offen im Team",
   visit_cancelled: "Einsatz abgesagt",
   visit_no_show: "Niemand angetroffen",
+  // ORD0-3 (migration 0061): date and channel only.
+  gp_informed: "Hausärztin/Hausarzt informiert",
   visit_no_show_outcome: "Niemand angetroffen: Ergebnis",
   visit_interrupted: "Einsatz nicht abgeschlossen",
   visit_interruption_followup: "Nicht abgeschlossen: Entscheid",
@@ -221,6 +224,9 @@ export function entryLines(kind: string, detail: Record<string, unknown>): strin
       add(str(detail.reason) && `Begründung: ${detail.reason}`);
       break;
     }
+    case "gp_informed":
+      add(gpInformedEntryLine(detail));
+      break;
     case "quality_event": {
       const severity = str(detail.severity);
       const status = str(detail.status);

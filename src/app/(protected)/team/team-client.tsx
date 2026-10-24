@@ -35,6 +35,8 @@ import type { CaseLifecycle } from "@/features/lifecycle/queries";
 import { RESPONSIBLE_ABSENT_NOTE } from "@/features/lifecycle/rules";
 import { formatDayLabel, shiftDay, todayInZurich } from "@/features/field/rules";
 import { getVisitStatusLabel } from "@/features/visits/types";
+import { recordGpInformed } from "@/features/gp/commands";
+import { GP_CHANNELS, GP_CHANNEL_LABEL, GP_MESSAGES, gpInformedText, informedOnProblem, latestNoticeByCase, type GpNotice } from "@/features/gp/rules";
 
 const URGENCY_CLASS: Record<string, string> = {
   hoch: "bg-rose-100 text-rose-900",
@@ -56,6 +58,7 @@ export default function TeamClient({
   planStatus,
   visitAlerts = [],
   signals = [],
+  gpNotices = [],
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
@@ -67,7 +70,10 @@ export default function TeamClient({
   visitAlerts?: TeamVisitAlert[];
   /** SIG1: the caller's open P1 safety signals. */
   signals?: SignalRow[];
+  /** ORD0-3: "Hausärztin/Hausarzt informiert" records of the team's cases. */
+  gpNotices?: GpNotice[];
 }) {
+  const gpByCase = latestNoticeByCase(gpNotices);
   const open = offers.filter((o) => !o.my_team_declined);
   const declined = offers.filter((o) => o.my_team_declined);
 
@@ -133,6 +139,7 @@ export default function TeamClient({
                   continuity={continuity.find((r) => r.case_id === c.case_id) ?? null}
                   lifecycle={lifecycle.find((l) => l.case_id === c.case_id) ?? null}
                   planStatus={planStatus.find((p) => p.case_id === c.case_id) ?? null}
+                  gpNotice={gpByCase.get(c.case_id) ?? null}
                 />
               </li>
             ))}
@@ -183,7 +190,7 @@ function VisitAlerts({ alerts }: { alerts: TeamVisitAlert[] }) {
         ))}
       </ul>
       <p className="text-xs text-rose-900/80">
-        Erledigt sich, sobald der Einsatz weitergeht, abgesagt oder als «nicht angetroffen» erfasst ist; ein nicht abgeschlossener Einsatz, sobald jemand über die noch fällige Pflege entschieden hat; eine offene Berichtskorrektur, sobald sie unterschrieben und, falls nötig, gegengezeichnet ist. Schwellen und Regeln provisorisch (klinische Entscheidungen offen).
+        Erledigt sich, sobald der Einsatz weitergeht, abgesagt oder als «nicht angetroffen» erfasst ist; ein nicht abgeschlossener Einsatz, sobald jemand über die noch fällige Pflege entschieden hat; eine offene Berichtskorrektur, sobald sie unterschrieben und, falls nötig, gegengezeichnet ist; eine Verordnung ohne Enddatum, sobald ein Enddatum erfasst ist. Schwellen und Regeln provisorisch (klinische Entscheidungen offen).
       </p>
     </section>
   );
@@ -405,8 +412,9 @@ function ErrorText({ message }: { message: string | null }) {
   );
 }
 
-function CaseCard({ teamCase, continuity, lifecycle, planStatus }: {
+function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice }: {
   teamCase: TeamCase; continuity: ContinuityRow | null; lifecycle: CaseLifecycle | null; planStatus: PlanStatus | null;
+  gpNotice: GpNotice | null;
 }) {
   const upcoming = arr<Upcoming>(teamCase.upcoming, "visit_id");
   const plan = arr<PlanItem>(teamCase.care_plan, "category");
@@ -432,11 +440,18 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus }: {
           {teamCase.open_tasks.map((t) =>
             t === "review_after_pause" ? (
               <ReviewTask key={t} caseId={teamCase.case_id} reason={teamCase.review_after_pause_reason} />
+            ) : t === "inform_gp" ? (
+              <GpInformedTask key={t} caseId={teamCase.case_id} />
             ) : (
               <li key={t}>☐ {TASK_LABEL[t] ?? t}</li>
             ),
           )}
         </ul>
+      )}
+
+      {gpNotice && (
+        // ORD0-3: the recorded fact (date and channel), shown also after the task closed.
+        <p data-testid="gp-informed" className="mt-1 text-xs font-semibold text-emerald-900">{gpInformedText(gpNotice)}</p>
       )}
 
       {lifecycle && <CaseLifecycleControls item={lifecycle} />}
@@ -484,6 +499,74 @@ function ReviewTask({ caseId, reason }: { caseId: string; reason: string | null 
       <button type="button" onClick={done} disabled={pending} className="justify-self-start min-h-11 px-1 font-semibold underline underline-offset-4 disabled:opacity-60">
         {pending ? "Wird gespeichert …" : "Entschieden – erledigt"}
       </button>
+      {error && <ErrorText message={error} />}
+    </li>
+  );
+}
+
+// ORD0-1/2: one step records that the doctor was informed (date, channel code; no free text) and closes the task.
+function GpInformedTask({ caseId }: { caseId: string }) {
+  const router = useRouter();
+  const today = todayInZurich();
+  const [open, setOpen] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const field = "min-h-11 rounded-lg border border-stone-300 bg-white px-2";
+
+  async function save(form: FormData) {
+    const informedOn = String(form.get("informed_on") ?? "");
+    const channel = String(form.get("channel") ?? "");
+    const problem = informedOnProblem(informedOn, today);
+    if (problem || !channel) {
+      setError(problem === "future" ? GP_MESSAGES.future : GP_MESSAGES.invalid);
+      return;
+    }
+    setPending(true);
+    setError(null);
+    const result = await recordGpInformed({ caseId, informedOn, channel, idempotencyKey: crypto.randomUUID() });
+    setPending(false);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setOpen(false);
+    router.refresh();
+  }
+
+  return (
+    <li data-testid="inform-gp-task" className="grid gap-1">
+      <span>☐ {TASK_LABEL.inform_gp}</span>
+      {!open ? (
+        <button type="button" onClick={() => setOpen(true)} className="justify-self-start min-h-11 px-1 font-semibold underline underline-offset-4">
+          Informiert – erfassen
+        </button>
+      ) : (
+        <form action={save} aria-label="Hausärztin/Hausarzt informiert" className="grid gap-2 rounded-xl bg-stone-50 p-3">
+          <label className="grid gap-1 text-sm">
+            Informiert am
+            <input type="date" name="informed_on" defaultValue={today} max={today} required className={field} />
+          </label>
+          <fieldset className="grid gap-1 text-sm">
+            <legend>Kanal</legend>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              {GP_CHANNELS.map((c) => (
+                <label key={c} className="flex min-h-11 items-center gap-2">
+                  <input type="radio" name="channel" value={c} required /> {GP_CHANNEL_LABEL[c]}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <div className="flex flex-wrap gap-2">
+            <button type="submit" disabled={pending} className="min-h-11 rounded-lg bg-emerald-800 px-4 font-semibold text-white disabled:opacity-60">
+              {pending ? "Wird gespeichert …" : "Informiert speichern"}
+            </button>
+            <button type="button" onClick={() => setOpen(false)} className="min-h-11 px-2 font-semibold underline underline-offset-4">
+              Abbrechen
+            </button>
+          </div>
+          <p className="text-xs text-emerald-900/70">Nur Datum und Kanal, keine Inhalte. Frist und Inhalt der Information sind offen (D-22).</p>
+        </form>
+      )}
       {error && <ErrorText message={error} />}
     </li>
   );
