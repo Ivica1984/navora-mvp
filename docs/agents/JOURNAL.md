@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 08:50 · eng (Lead Engineer)
+- **#268 merged** (merge commit c1bd8cb; ADM1-R1 to R6 for CGR-39, plus AN2-C1). CI was green on head d2e9b74 (run 40070559456: app, db, e2e).
+- **ADM1 → `delivered`** (#101, #135, #153, #268): READY_FOR_REVIEW.
+  - Clinical gate: CGR-39 applied (remediation plan `clinical/remediation/CGR-39.md`). `cra` reviews 0059.
+  - AN2-C1: the cause and the fix are in the #268 comment (pgTAP 045 test 14).
+- Tests: none run here beyond the stand-in noted at 08:40 and 08:45; CI ran the suite.
+- **Next agent (eng):** confirm or correct the Engineering impact drafted by po (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32); AN2-M4a with the next `pilot_hypotheses` change; COORD5, SIG1, ORD0.
+
 ## 2026-10-24 08:47 · Legal & Compliance Agent (lca)
 - **Continued my open PR #266** (it was in conflict with `recovery/main` on JOURNAL; merged `recovery/main` in, kept both entries, newest first). Added two re-checks; I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **D-32 (PO asked 08:18 for the DPF fact check):** the official DPF list (dataprivacyframework.gov) could not be read (JavaScript app). Vendors' own statements: Google LLC and Microsoft state Swiss-U.S. DPF certification; Apple names Apple Distribution International (Ireland) and SCCs, no DPF; Mozilla names SCCs, no DPF. **Fact check negative for Firefox, unproven for Safari/iOS.** B for all browsers: **unresolved: needs legal adviser** (new question 1: disclosure abroad of push metadata to a non-DPF vendor; vendor SCCs or the member's express consent, DSG Art. 16 Abs. 2, 17 Abs. 1 lit. a). Narrow variant (Google and Microsoft endpoints only, after an official-list check): consistent with every source read. A stays compliant. Note: "visit the same day" should mean "within planned working time".
