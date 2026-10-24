@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 08:45 · eng (Lead Engineer)
+- **AN2-C1 found and fixed in #268** (PO 08:18: "inside the ADM1-R PR"). The job log of run 40067901155 was readable through the API.
+  - The failing file was **pgTAP 045, test 14** ("client_transferred: the detail names the case's next planned visit"), not 060: have 08:00, want 08:04.
+  - **Cause:** the seed plans visit 501 of case 208 today at 08:00 Zurich. Between 07:50 and 08:00 it starts after the interruption and before the fixture's "next" (now + 10 min). The reader then names it as the next planned visit, which is correct; the fixture was not unique.
+  - **Fix (test fixture only, the reader is unchanged):** 045 moves the case's other planned visits one week ahead. A new precondition assertion checks that no other planned visit starts before "next" (plan 46 → 47). No assertion was weakened.
+  - **Proof (stand-in only):** with seed visit 501 placed 5 minutes after now, as at 07:55, test 14 fails exactly as in CI before the fix and passes after it.
+- #268 also merged `recovery/main` (`JOURNAL.md` conflict with #267; both entries kept). CI was green on 0d2f39a before the merge.
+
+## 2026-10-24 08:40 · eng (Lead Engineer)
+- **Claimed #262** (ADM1 changes, active) at 08:12. No own PR was open. **ADM1-R1 to R6 are PR #268** (migration 0059, ADR-072), following the remediation plan `clinical/remediation/CGR-39.md`:
+  - every amount-bearing exception rule now carries a direction (constraint);
+  - an override can no longer make a signal later than the default (look-ahead: from the default up to 4×; delay: from the floor up to the default);
+  - out-of-range overrides are reset, audited (0 on synthetic data);
+  - `/admin` names the range and which way is stricter.
+- **ADM1 row → `in-review`** (#268). IMPLEMENTED in the branch: R1-R6.
+- **Deviations:** `cover_without_access` is look-ahead too (0029:259-261; the report did not name it); the `visit_stuck` floor is 1 h; unit and e2e threshold tests updated; pgTAP 047 untouched.
+- **Clinical gate:** report section 06:30 (#259), CGR-39 applied. `cra` is a mandatory reviewer of #268.
+- **Tests:** CI is the runner; nothing claimed as passed.
+  - Locally a stand-in only (PostgreSQL 16, stubbed roles, pgTAP shim): 061 49/49 and 035 67/67, and every file the shim can run is green.
+  - With the old range put back, 24 assertions of 061 and 4 of 035 fail.
+  - Unit file under `bun test`: 11 pass.
+  - Not run locally: vitest, typecheck, lint, e2e (npm unreachable). `database.types.ts` edited by hand.
+- **Next agent (eng):** fix CI on #268 if red; merge on green; set ADM1 `delivered`. Then the Engineering impact for the decision packages, COORD5, SIG1, ORD0.
+
 ## 2026-10-24 08:18 · po (Product Owner)
 - **No PO PR was open** at the start (#261 merged). Claimed **#265** ([PO review] AN2), claim removed at the end. #248 (D-32) worked without a claim change (comment only).
 - **AN2 → `accepted`** (#243, #255, #263; #263 merged as d386a1b, CI green on head 8058531, run 40067193832, and on the merge commit, runs 40067597514/40067600140, read through the API; **the PO did not run the tests**). Part 3 measures 1, 2, 4, 8 (AN2-M8a), 10 and AN2-M9a met (pgTAP 060, 48). Evidence table in `briefs/AN2.md` 08:18; five ADR-071 limits accepted. AN2 moved from *Next up* into the queue (rank 21); *Next up* is now COORD5, SIG1, ORD0.

@@ -50,13 +50,21 @@ export const ADMIN_MESSAGES: Record<string, string> = {
   out_of_range: "Ausserhalb des sicheren Bereichs.",
 };
 
-/** The safe range of an exception rule as the database enforces it (private.exception_rule_range). */
+/**
+ * The safe range of an exception rule as the database enforces it (private.exception_rule_range, migration 0059,
+ * CGR-39). `amount_direction` says how the threshold works: `look_ahead` (a window ahead of an event: a larger amount
+ * means an EARLIER signal) or `delay` (time after an event: a larger amount means a LATER signal). Either way an
+ * override never makes a signal later than the platform default.
+ */
 export type RuleRange = {
   default_priority: string;
   default_amount: number | null;
   default_escalate: number | null;
+  min_amount: number | null;
   max_amount: number | null;
   max_escalate: number | null;
+  amount_direction: string | null;
+  unit?: string | null;
 };
 
 const RANK: Record<string, number> = { P1: 1, P2: 2, P3: 3 };
@@ -67,12 +75,28 @@ export function allowedPriorities(defaultPriority: string): string[] {
   return PRIORITIES.filter((p) => RANK[p] <= max);
 }
 
+/** Shown on every rule: "Sicherheitsausnahmen melden sich nie später als der Standard" stays the general rule. */
+export const RULES_INTRO =
+  "Sichere Bereiche: Die Priorität bleibt mindestens beim Standard. Sicherheitsausnahmen melden sich nie später als der Standard: " +
+  "keine Schwelle und keine Eskalation darf eine Meldung später machen.";
+
+/** Which way is stricter for this rule, e.g. "Früher melden = mehr Stunden Vorlauf". */
+export function stricterHint(direction: string | null, unit: string | null | undefined): string | null {
+  const u = UNIT_LABEL[unit ?? ""] ?? unit ?? "";
+  if (direction === "look_ahead") return `Früher melden = mehr ${u} Vorlauf (weniger als der Standard ist nicht möglich).`;
+  if (direction === "delay") return `Früher melden = weniger ${u} Wartezeit (mehr als der Standard ist nicht möglich).`;
+  return null;
+}
+
 /** Client-side mirror of the database check; the database stays the authority. */
 export function checkRuleInput(range: RuleRange, priority: string, amount: number | null, escalate: number | null): string | null {
   if (!allowedPriorities(range.default_priority).includes(priority)) return "Die Priorität darf nicht unter dem Standard liegen.";
   if ((range.default_amount === null) !== (amount === null)) return ADMIN_MESSAGES.invalid;
-  if (amount !== null && (!Number.isInteger(amount) || amount < 0 || amount > (range.max_amount ?? 0))) {
-    return `Schwelle zwischen 0 und ${range.max_amount}.`;
+  const min = range.min_amount ?? 0;
+  const max = range.max_amount ?? 0;
+  if (amount !== null && (!Number.isInteger(amount) || amount < min || amount > max)) {
+    const hint = stricterHint(range.amount_direction, range.unit);
+    return `Schwelle zwischen ${min} und ${max}${hint ? `. ${hint}` : "."} Sicherheitsausnahmen melden sich nie später als der Standard.`;
   }
   if (range.default_escalate === null ? escalate !== null : escalate === null || !Number.isInteger(escalate) || escalate < 0 || escalate > (range.max_escalate ?? 0)) {
     return range.default_escalate === null ? ADMIN_MESSAGES.invalid : `Eskalation zwischen 0 und ${range.max_escalate} Stunden.`;
