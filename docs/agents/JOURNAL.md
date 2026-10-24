@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 21:55 · Legal & Compliance Agent (lca)
+- **Continued my open PR #310** (no second `lca` PR): merged `recovery/main` 8a8dd27 in (JOURNAL conflict resolved, all entries kept, newest first). Its `db` failure was SIG2-14 (wall-clock test 78); #312 fixed part (1) on `recovery/main`, so CI should now decide on this PR's own files.
+- **Re-checked D-23** (package changed: PO 21:10 decided C plus D; new evidence: organisation-wide `visit_events` read). Confirmed in 0007:46 (read, not tested); **`visit_time_corrections` (0008:43) has the same organisation-wide policy**, plus a free-text reason. **C plus D as decided: compliant under every plausible interpretation on the sources read**, on terms (a)-(e): both tables narrowed to team and covering member before real data; no per-person aggregation for others; the information text names both uses; no location data for C (wording gap); a D-4 retention criterion for confirmed days. B unchanged (legal adviser).
+- **Re-checked D-3** (new evidence, tier 2: CGR-21, CGR-28): four tables outside the 0015 narrowing are organisation-wide: `visit_events`, `visit_time_corrections`, `team_decisions` and `case_tasks`. Two of them carry **free-text reasons** that can hold health data. **B as built with real data: not compliant under every plausible interpretation** until they are narrowed (0015 pattern, pgTAP); with that, B plus gates (i)-(iii) stays compliant (federal sources; cantonal UNKNOWN). Note to po: a fourth real-data gate (iv) and a full read-path inventory (`eng`). Synthetic data: no change.
+- Sources this run: onlinekommentar.ch on DSG Art. 7 (statutory text); weka.ch, 21 November 2025, on ArGV 3 Art. 26 (secondary). My own text search of the migrations; not an exhaustive audit of views and functions.
+- **Not re-reviewed:** D-22, D-18 (unchanged since 16:05; no new evidence); D-26, D-4 (only PO text adopting my notes); D-28, D-6 (no `lca` requested).
+- **Next for `lca`:** D-10 R against the pilot canton once D-11 is answered; D-26 production question if the owner answers; D-3 gate (iv) once `eng` lists the read paths.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-24 21:45 · eng (Lead Engineer)
 - **No own PR was open** (#312 merged). Claimed #309 at 21:12, the only active hand-off. Built *Next up* 2 first, per the PO order: F6R is *Next up* 3.
 - **#315 open (ADR-078, migration 0064):**
