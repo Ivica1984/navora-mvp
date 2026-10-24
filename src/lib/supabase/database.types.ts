@@ -253,6 +253,44 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"case_gp_notices": {
+                  Row: {
+                    "case_id": string,"channel": string,"id": string,"informed_on": string,"organization_id": string,"recorded_at": string,"recorded_by": string,"task_id": string | null,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "case_id": string,"channel": string,"id"?: string,"informed_on": string,"organization_id": string,"recorded_at"?: string,"recorded_by": string,"task_id"?: string | null,"team_id": string
+                  }
+                  Update: {
+                    "case_id"?: string,"channel"?: string,"id"?: string,"informed_on"?: string,"organization_id"?: string,"recorded_at"?: string,"recorded_by"?: string,"task_id"?: string | null,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "case_gp_notices_case_id_organization_id_fkey"
+      columns: ["case_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "cases"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "case_gp_notices_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "case_gp_notices_task_id_fkey"
+      columns: ["task_id"]
+isOneToOne: false
+      referencedRelation: "case_tasks"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "case_gp_notices_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"case_lifecycle_events": {
                   Row: {
                     "actor_id": string,"case_id": string,"created_at": string,"expected_end": string | null,"id": string,"idempotency_key": string,"kind": string,"note": string | null,"organization_id": string,"reason_code": string | null
@@ -1576,6 +1614,9 @@ isOneToOne: false
                            },
 "record_absence":
 { Args: { "p_from": string,"p_from_time": string,"p_idempotency_key": string,"p_team_id": string,"p_until": string,"p_until_time": string,"p_user_id": string }; Returns: Json
+                           },
+"record_gp_informed":
+{ Args: { "p_case_id": string,"p_channel": string,"p_idempotency_key": string,"p_informed_on": string }; Returns: Json
                            },
 "record_interruption_followup":
 { Args: { "p_decision": string,"p_idempotency_key": string,"p_note": string,"p_visit_id": string }; Returns: string

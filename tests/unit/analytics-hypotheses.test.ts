@@ -4,6 +4,7 @@ import {
   BELOW_MINIMUM_NOTE,
   HYPOTHESIS_GROUPS,
   MEASURE,
+  ORDER_OPEN_END_ENDING_LABEL,
   formatMeasure,
   measureLabel,
   orderGroupRows,
@@ -24,6 +25,8 @@ const DB_MEASURES = [
   "overdue_ended_by_command_share", "overdue_closed_by_hand_share", "stuck_ended_by_command_share", "stuck_closed_by_hand_share",
   // SIG1-6 (0060)
   "signal_taken_share", "signal_minutes_to_take",
+  // ORD0-6 (0061)
+  "order_open_end_ending", "inform_gp_done_within_7d_share",
 ];
 // The fixed ending codes of `absence_past_visit_end` (0058, endings CTE).
 const DB_ENDINGS = ["started_late", "cancelled", "cancelled_without_mark", "moved", "moved_before_capture", "still_open", "other"];
@@ -81,6 +84,16 @@ describe("pilot hypotheses (AN2)", () => {
     const rows = [...DB_ENDINGS].reverse().map((d) => ({ measure: "absence_past_visit_end", detail: d as string | null }));
     rows.push({ measure: "absences_per_100", detail: null });
     expect(orderGroupRows(g, rows).map((r) => r.detail ?? r.measure)).toEqual(["absences_per_100", ...DB_ENDINGS]);
+  });
+
+  it("ORD0-6: labels and orders every ending of 'Verordnung ohne Enddatum' as the database defines them (0061)", () => {
+    const codes = ["end_date_entered", "order_not_present", "no_b_item", "case_not_active", "still_open"];
+    expect(Object.keys(ORDER_OPEN_END_ENDING_LABEL)).toEqual(codes);
+    expect(measureLabel("order_open_end_ending", "end_date_entered")).toBe("Ohne Enddatum, Ende: Enddatum erfasst");
+    const g = HYPOTHESIS_GROUPS.find((x) => x.no === 10)!;
+    const rows = [...codes].reverse().map((d) => ({ measure: "order_open_end_ending", detail: d as string | null }));
+    expect(orderGroupRows(g, rows).map((r) => r.detail)).toEqual(codes);
+    expect(MEASURE.inform_gp_done_within_7d_share.definition).toContain("keine Frist");
   });
 
   it("formats values with their unit and never invents a figure", () => {
