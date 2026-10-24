@@ -45,6 +45,8 @@ import InterruptionFollowupForm from "@/components/lifecycle/InterruptionFollowu
 import type { VisitStatusNote } from "@/features/lifecycle/queries";
 import type { FieldQuality, QualityEventType } from "@/features/quality/queries";
 import type { TeamVisitAlert } from "@/features/team/queries";
+import SignalBanner from "@/components/signals/SignalBanner";
+import type { SignalRow } from "@/features/signals/rules";
 
 type Props = {
   day: string;
@@ -64,6 +66,8 @@ type Props = {
   openFollowups?: TeamVisitAlert[];
   /** ABS1: absences of her teams, "Offen im Team", and the members she can record an absence for. */
   absence?: { today: string; absences: TeamAbsence[]; open: OpenVisit[]; colleagues: TeamColleague[] };
+  /** SIG1: her open P1 safety signals at the top, refreshed without a reload. */
+  signals?: SignalRow[];
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -88,7 +92,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover, sinceLast, openFollowups = [], absence }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover, sinceLast, openFollowups = [], absence, signals = [] }: Props) {
   const summary = summarizeDay(visits);
   const sinceLastByVisit = groupSinceLast(sinceLast);
 
@@ -124,6 +128,7 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
       </header>
 
       <main className="mx-auto max-w-xl px-4 py-4">
+        <SignalBanner initial={signals} />
         <section className="mb-4 grid grid-cols-3 gap-2 text-center" aria-label="Tagesübersicht">
           <Stat label="Offen" value={summary.open} />
           <Stat label="Laufend" value={summary.running} />

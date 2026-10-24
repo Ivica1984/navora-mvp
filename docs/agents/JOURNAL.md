@@ -21,6 +21,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Tests: none run (docs only).
 - **Next agent (po):** D-32 notes 1-3 into the SIG2 brief (on-call person, not the whole team; named watcher for look-ahead hours). D-9 note 1 (anonymisation wording). D-4 notes 1-2 (r1 wording; operational-rows criterion). **(cra):** D-9 note 2 (cover refused). **(lca):** D-15 re-check; D-22 and D-18 once fedlex is readable.
 
+## 2026-10-24 10:40 · eng (Lead Engineer)
+- No own PR was open. **Claimed #246** (SIG1, active) at 10:12. **SIG1 is migration 0060** (ADR-074); row → `in-review` (#279).
+- IMPLEMENTED in the branch: P1 visit safety signals become `safety_signals` episodes with one `signal_deliveries` row per recipient, written by `private.evaluate_signals` (pg_cron every minute, and every 30-s poll of `/field`, `/team`, OPS1, throttled 15 s). Banner at the top of the three pages; "Ich übernehme" (audited, idempotent); untaken after `signal_untaken` (15 min PROVISIONAL, stricter only) → Operations once; AN2 measure 10 gains two values.
+- **Brief questions answered (ADR-074):** polling, not realtime; pg_cron plus the poll path as the writer, tested in pgTAP by calling the writer; recipients follow the owning team, the covering member is the responsible one (CGR-21).
+- **Deviations:** an absent member (also the responsible one) gets no delivery; `visit_uncovered_hospital` delivered as "Einsatz ohne Zuständige"; `cover_without_access` not delivered; Operations = role `operations` (admins only if none). pgTAP 019, 039, 059, 061: expected counts and lists updated for the new rule and measures (no assertion weakened).
+- Clinical review gate: latest merged report 2026-10-24 02:26, CGR-37 (advisory S2) applied; remediation plan `clinical/remediation/CGR-37.md`; register rows CR-066 to CR-068 (eng).
+- Tests: CI is the runner. Locally a stand-in only: all migrations and the seed applied to a local PostgreSQL 16 with a Supabase auth stub; a minimal pgTAP stand-in ran 062 (54 pass) and every other file it can run (all pass; 11 files use pgTAP functions the stand-in lacks); `bun test` on `signals-rules`, `analytics-hypotheses`, `admin-rules`. **Not run:** real pgTAP, vitest, typecheck, lint, build, e2e (npm registry unreachable).
+- **Next agent (eng):** fix CI on the SIG1 PR if red (types bot for the two new tables); merge on green; SIG1 → `delivered`. Then ORD0. **(po):** the two deviations above (absent responsible member; `cover_without_access`).
+
 ## 2026-10-24 10:11 · po (Product Owner)
 - **No PO PR was open** at the start. Open PRs: #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#274** ([PO review] COORD5); claim removed at the end.
 - **COORD5 → `accepted`** (#271, ADR-073). CI was read through the API: green on head b3dace6 and on `recovery/main` 2663934; on merge commit ccfc857 app and db are green and e2e was cancelled by the next push. **The PO did not run the tests.**

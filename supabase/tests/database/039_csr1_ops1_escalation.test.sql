@@ -31,8 +31,8 @@ values ('00000000-0000-4000-b000-000000000011', 'visit_overdue:a3900000-0000-400
 -- Which types are safety exceptions (pilot defaults) ----------------------------------------------------------------
 select is((select string_agg(exception_type, ',' order by exception_type) from public.exception_rules
            where private.exception_is_safety('00000000-0000-4000-b000-000000000011', exception_type)),
-  'cover_without_access,no_show_open,quality_serious_open,visit_overdue,visit_stuck,visit_uncovered_hospital',
-  'safety exceptions = P1 or escalating to P1 (pilot defaults)');
+  'cover_without_access,no_show_open,quality_serious_open,signal_untaken,visit_overdue,visit_stuck,visit_uncovered_hospital',
+  'safety exceptions = P1 or escalating to P1 (pilot defaults; SIG1 signal_untaken (0060) is the P1 operating rule for untaken signals, no exception key of that type exists)');
 select ok(not private.exception_is_safety('00000000-0000-4000-b000-000000000011', 'unknown_type'), 'an unknown type is not a safety exception');
 select ok(not has_function_privilege('authenticated', 'private.exception_is_safety(uuid, text)', 'execute'),
   'the safety helper is internal');
