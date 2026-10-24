@@ -463,14 +463,14 @@ isOneToOne: false
                   ]
                 },"exception_rules": {
                   Row: {
-                    "amount": number | null,"escalate_to_p1_after_hours": number | null,"exception_type": string,"label": string,"next_step": string,"priority": string,"unit": string | null,"updated_at": string
+                    "amount": number | null,"amount_direction": string | null,"escalate_to_p1_after_hours": number | null,"exception_type": string,"label": string,"next_step": string,"priority": string,"unit": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount"?: number | null,"escalate_to_p1_after_hours"?: number | null,"exception_type": string,"label": string,"next_step": string,"priority": string,"unit"?: string | null,"updated_at"?: string
+                    "amount"?: number | null,"amount_direction"?: string | null,"escalate_to_p1_after_hours"?: number | null,"exception_type": string,"label": string,"next_step": string,"priority": string,"unit"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "amount"?: number | null,"escalate_to_p1_after_hours"?: number | null,"exception_type"?: string,"label"?: string,"next_step"?: string,"priority"?: string,"unit"?: string | null,"updated_at"?: string
+                    "amount"?: number | null,"amount_direction"?: string | null,"escalate_to_p1_after_hours"?: number | null,"exception_type"?: string,"label"?: string,"next_step"?: string,"priority"?: string,"unit"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -1329,7 +1329,7 @@ isOneToOne: false
                            },
 "admin_exception_rules":
 { Args: { "p_organization_id": string }; Returns: {
-              "amount": number,"default_amount": number,"default_escalate": number,"default_priority": string,"escalate_to_p1_after_hours": number,"exception_type": string,"is_default": boolean,"label": string,"max_amount": number,"max_escalate": number,"priority": string,"unit": string,"updated_at": string,"updated_by_name": string
+              "amount": number,"amount_direction": string,"default_amount": number,"default_escalate": number,"default_priority": string,"escalate_to_p1_after_hours": number,"exception_type": string,"is_default": boolean,"label": string,"max_amount": number,"max_escalate": number,"min_amount": number,"priority": string,"unit": string,"updated_at": string,"updated_by_name": string
             }[]
                            },
 "admin_members":

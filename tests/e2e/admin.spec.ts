@@ -54,11 +54,15 @@ test("exception thresholds change only within the safe range and show who change
   const rule = page.getByRole("region", { name: "Ausnahmeregeln" })
     .getByRole("listitem", { name: "Regel Ärztliche Verordnung läuft ab oder ist abgelaufen" });
 
-  await rule.getByLabel(/Schwelle/).fill("20");
+  // CGR-39 (migration 0059): a look-ahead rule; a shorter window would signal later, so a lower value is refused.
+  await expect(rule.getByTestId("rule-direction")).toHaveText("Früher melden = mehr Tage Vorlauf (weniger als der Standard ist nicht möglich).");
+  await rule.getByLabel(/Schwelle/).fill("3");
   await rule.getByRole("button", { name: "Speichern" }).click();
-  await expect(rule.getByTestId("command-error")).toContainText("0 und 14");
+  await expect(rule.getByTestId("command-error")).toContainText("zwischen 7 und 28");
+  await expect(rule.getByTestId("command-error")).toContainText("Früher melden = mehr Tage Vorlauf");
+  await expect(rule.getByTestId("command-error")).toContainText("Sicherheitsausnahmen melden sich nie später als der Standard");
 
-  await rule.getByLabel(/Schwelle/).fill("10");
+  await rule.getByLabel(/Schwelle/).fill("14");
   await rule.getByRole("button", { name: "Speichern" }).click();
   await expect(rule.getByTestId("rule-changed")).toContainText("geändert");
 
