@@ -36,11 +36,16 @@ export function parseTable(text, heading) {
 }
 
 /**
- * The three official files → typed rows.
- * @param {{ next: string, status: string, decisions: string }} texts
+ * The three official files (plus, since COORD5, the decision-package index and package files) → typed rows.
+ * `index` is decisions/INDEX.md; `packageFiles` maps a file name in decisions/ (e.g. "D-22.md") to its text.
+ * @param {{ next: string, status: string, decisions: string, index?: string, packageFiles?: Record<string, string> }} texts
  */
-export function readLayerTexts({ next, status, decisions }) {
+export function readLayerTexts({ next, status, decisions, index = "", packageFiles = {} }) {
   return {
+    packages: readPackageIndex(index).map((p) => ({
+      ...p,
+      approval: p.file && packageFiles[p.file] !== undefined ? packageSection(packageFiles[p.file], "Owner approval required?") : "",
+    })),
     queue: [
       ...parseTable(next, "Priority queue").map((r) => ({
         rank: Number(bare(r.Rank)), id: bare(r.ID), capability: r.Capability, poStatus: bare(r["PO status"]), brief: r.Brief,
@@ -60,4 +65,68 @@ export function readLayerTexts({ next, status, decisions }) {
     })),
     decided: parseTable(decisions, "Decided").map((r) => ({ id: bare(r.ID), owner: bare(r.Owner), answer: r.Answer, date: r.Date })),
   };
+}
+
+// ---- Decision packages (COORD5, docs/agents/DECISION_PACKAGES.md) ----
+
+/** Package status values, in DECISION_PACKAGES.md "Package status". */
+export const PACKAGE_STATUS = [
+  "not-started", "inputs-requested", "po-decided",
+  "awaiting-approval: owner", "awaiting-approval: clinical", "awaiting-approval: legal", "decided",
+];
+export const AWAITING = /^awaiting-approval: (owner|clinical|legal)$/;
+
+/** First Markdown table in a file that has no "## " heading above it (decisions/INDEX.md). */
+export function parseFirstTable(text) {
+  const lines = (text ?? "").split("\n");
+  const rows = [];
+  let header = null;
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line.startsWith("|")) {
+      if (header) break;
+      continue;
+    }
+    const cells = line.replace(/^\|/, "").replace(/\|$/, "").split(/(?<!\\)\|/).map((c) => c.trim());
+    if (!header) {
+      header = cells;
+      continue;
+    }
+    if (cells.every((c) => /^:?-+:?$/.test(c))) continue;
+    if (cells.length !== header.length) continue;
+    rows.push(Object.fromEntries(header.map((h, j) => [h, cells[j]])));
+  }
+  return rows;
+}
+
+/**
+ * "[awaiting-approval: owner](D-22.md) (2026-10-24 05:15; …)" → { status: "awaiting-approval: owner", file: "D-22.md" }
+ * "not-started" → { status: "not-started", file: null }. The status is returned as written; callers check it
+ * against PACKAGE_STATUS.
+ */
+export function packageStatusOf(cell) {
+  const s = (cell ?? "").trim();
+  const link = s.match(/^\[([^\]]+)\]\(([^)]+)\)/);
+  if (link) return { status: bare(link[1]), file: link[2].trim() };
+  return { status: bare(s.split(/\s\(/)[0]), file: null };
+}
+
+/** decisions/INDEX.md → [{ id, status, file }] (rows in INDEX order). */
+export function readPackageIndex(text) {
+  return parseFirstTable(text)
+    .filter((r) => r["Package status"] !== undefined)
+    .map((r) => ({ id: bare(r.ID), ...packageStatusOf(r["Package status"]) }));
+}
+
+/** The body of "## <heading>" in a package file (up to the next "## "), trimmed; "" when absent. */
+export function packageSection(text, heading) {
+  const lines = (text ?? "").split("\n");
+  const start = lines.findIndex((l) => l.trim().startsWith(`## ${heading}`));
+  if (start < 0) return "";
+  const out = [];
+  for (let i = start + 1; i < lines.length; i++) {
+    if (lines[i].trim().startsWith("## ")) break;
+    out.push(lines[i]);
+  }
+  return out.join("\n").trim();
 }

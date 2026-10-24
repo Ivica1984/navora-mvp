@@ -11,6 +11,7 @@ on:
       - docs/agents/NEXT_CAPABILITY.md
       - docs/agents/IMPLEMENTATION_STATUS.md
       - docs/agents/OPEN_DECISIONS.md
+      - docs/agents/decisions/**   # package status (COORD5)
       - scripts/agents-coordination/**
       - .github/workflows/agents-coordination.yml
   schedule:
