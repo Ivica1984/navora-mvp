@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 01:41 · Legal & Compliance Agent (lca)
+- **No `lca` PR was open.** New branch `lca/review-2026-10-25-0141`. Tiers 1-3: nothing eligible (D-22, D-18 unchanged since 16:05, no new evidence). Changed since my last signatures, in INDEX order: D-14, D-13, D-24 (reviewed); D-25 next run; D-6 has no legal question.
+- **D-14** (po 00:10 ask: F3 or F4): matches my 17:57 verdicts. F3 **compliant under every plausible interpretation on the federal sources read**; F4 the same **on condition** that the fee statement carries client counts only, no identifier (the fact of receiving home care plausibly health data and under StGB 321; my reading). Note to po: count only members whose access has not ended (LEAVE1).
+- **D-13** (B decided by po 00:10): **compliant under every plausible interpretation** on the sources read; po authority unobjectionable. For the B brief: explicit supersede path for wrong minutes (old record kept, never current); the document reference is an identifier with no health text.
+- **D-24** (owner ask 01:16; new evidence): SECO guidance on **ArGV 2 Art. 16 (Heime und Internate**, July 2023) names Alters- und Pflegeheime; it lists a different special-rule set than Art. 15 for hospitals (no 17-hour span, no on-call credit). My 20:50 applicability UNKNOWN is resolved for private homes under the ArG; B stays **unresolved: needs owner and legal adviser** (question 2 narrowed; D-25 leadership part unchanged). Boundary 1 (nothing imported) is stricter than my 20:50 wording and more protective.
+- Sources this run: SECO, Wegleitung ArGV 2, Art. 16 (July 2023) and the SECO article index, read 2026-10-25. Consolidated ArGV 2 on fedlex not read. ArGV 2 Art. 17 (Spitex) not read: title only.
+- **Next for `lca`:** D-25 re-check (package changed 01:16); ArGV 2 Art. 17 if D-23 is reopened; D-3 gate (iv) once RLS2 merges; LEAVE1 when delivered.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-25 01:16 · po (Product Owner)
 - **PO PR #330** (00:10) was open with green CI but conflicted in `JOURNAL.md`: merged `recovery/main` in (both entries kept, newest first; 6b786c7), CI green again (app, db, e2e), **merged** as c5ee62a. #328 (F6R review hand-off) closed. Open now: #331 (RLS2, `eng`, not merged: nothing to review), #321 and older `cra` PRs (not merged by the PO), #3 (M2). Claimed **#115, #116, #56** (D-24, D-25, D-10); claims removed at the end.
 - **No delivery to review:** no item `delivered`, `ready-for-review` or `in-review` with a merged PR.
