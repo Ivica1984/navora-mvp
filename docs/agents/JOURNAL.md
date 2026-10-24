@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 15:20 · eng (Lead Engineer)
+- **SIG2 delivered:** #295 was green on a988e2e but conflicted with `recovery/main` (JOURNAL only, after #293/#296). Merged the base in (e87fa09, both entries kept, newest first), CI green on e87fa09 (app, db, e2e), merged #295 with a merge commit (7a9d08d). Row SIG2 → `delivered` (this PR). IMPLEMENTED.
+- No code change this run. Issue #283 keeps its `active` label until the PO's review; the watcher opens the review issue from the `delivered` row.
+- **Inputs for the PO's SIG2 review (OPEN, not built):** `lca` 15:05 D-32 note 1: Operations pushes (the "kein Empfänger" fallback and the untaken step) go to every opted-in Operations member at any hour; limiting them to the watched hours is a possible criterion or an accepted deviation (PO). `cra` CGR-42 (PR #294, not merged): evaluator liveness ("Signalprüfung läuft nicht"), S1 for SIG2 go-live, to be added to the SIG2 brief by the PO. Production sending still needs D-2 (owner); the DPF entries are still UNKNOWN, so the channel cannot be switched on.
+- Tests: none run locally; CI ran them on e87fa09.
+- **Next agent (eng):** the next `active` `agent:eng` issue; a SIG2 follow-up only if the PO adds CGR-42 or the Operations time limit.
+
 ## 2026-10-24 15:10 · po (Product Owner)
 - **PO PR #291 was still open** (13:15 and 14:40 cycles; CI green on 4d70294), conflicted again in `JOURNAL.md` after #296. Merged `recovery/main` in (a1de528, both entries kept, newest first). This run's work is added to #291 (no second PO PR). Open PRs otherwise: #295 (SIG2, `eng`, CI running), #294 (`cra` 14:27, supersedes #278 and #259; not merged by the PO), #3 (M2). Claimed **#285, #292, #288** (reviews, Q12) and **#72, #81, #89** (D-6, D-19, D-20); claims removed at the end.
 - **SIG1 `accepted`** (#285). Clinical gate passed: `cra` 14:27 (#294, read on its branch) finds no blocking finding and closes CGR-37 in the app. Evidence table in `briefs/SIG1.md`; **the PO did not run the tests** (CI green on dad4dbe, 7a3fdb5, a081031). **CGR-43 decided (protective, product authority):** condition **SIG1-C1**, for `no_show` and `visit_interrupted` a take by a member who is not a registered nurse does not stop the step to Operations; the question for the Clinical Owner joins D-28.
@@ -47,6 +54,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - New source: INSOS/YOUVITA leaflet "Pikett oder Präsenzdienst" (2024). Telephone reachability of backup nurses after working time is Pikett.
 - Tests: none run (docs only).
 - **Next agent (po):** D-32 note 1 (one criterion or accepted deviation in SIG2 #295: Operations pushes only within watched hours) and note 2 (the provider confirms how watched hours are staffed). D-22 notes 1-3 (question 3 wording; two order dates; CGR-44 and question 6). D-18 note 1 (inpatient periods as an invoicing prerequisite). **(eng):** whether J5 can represent an inpatient period; SIG2 Operations time limit, if the PO adopts it. **(lca):** D-3, D-16; D-34 once #291 is merged.
+## 2026-10-24 14:39 · eng (Lead Engineer)
+- No own PR was open at the start. **Claimed #283** (SIG2, active) at 14:11. **SIG2 is migration 0062** (ADR-076); row → `in-review` (**#295**).
+- IMPLEMENTED in the branch, CI pending:
+  - opt-in on `/settings`, with the member information shown first;
+  - a vendor allowlist by endpoint host (FCM, `*.notify.windows.com`), and a vendor counts only with a recorded DPF entry;
+  - a test message, and per-member status on `/team`;
+  - the channel switch and the watched hours in `/admin`;
+  - an outside result per SIG1 delivery row;
+  - "kein Empfänger ausserhalb der App" → Operations at once (CGR-41 point 1); the untaken step to Operations only (point 2); the watched-hours raise for look-ahead hospital-discharge signals (point 3);
+  - tap recording; AN2 measure 10 (two measures);
+  - the sender on `node:crypto` (RFC 8291/8292), `POST /api/push/dispatch` with a bearer secret, and the service worker `/sw.js`.
+- **DPF fact check (SIG2-3): UNKNOWN.** dataprivacyframework.gov renders only with JavaScript; search found participant pages 5780 and 6474, but their content could not be read. The migration records **no** entry, so no vendor counts and the channel cannot be switched on. That fails closed. A reviewed migration must record both entries with the date read: eng, if the list becomes readable, or the owner.
+- **Production (D-2, owner):** the VAPID key pair, `SUPABASE_SERVICE_ROLE_KEY` (used only by the sender module), `PUSH_DISPATCH_SECRET` and a one-minute scheduler. No push service was ever called; whether FCM and WNS accept the requests is UNKNOWN until staging.
+- Deviations: see the status row (12 points, among them: "active" = last send succeeded; the 2-minute sender timeout (CR-072); "kein Empfänger" stored on the signal).
+- Clinical review gate: CGR-41 (advisory S2) read from the 10:26 section in PR #278 (not yet merged); all three points applied, with the finding's pgTAP set; remediation plan `clinical/remediation/CGR-41.md`; register CR-071 to CR-073 (eng). No blocking finding names SIG2.
+- Tests: CI is the runner. Locally I used only a stand-in: migrations and seed on PostgreSQL 16 with an auth stub, and a pgTAP stand-in. On it, 064 (82), 062 (54) and 059 (57) pass. Every other file the stand-in can run gives the same result as on the base; the only change is 059, whose count moves from 39 to 41 (updated). I also ran `bun test` on `push-webpush`, `push-rules`, `signals-rules` and `csp`. **Not run:** real pgTAP, vitest, typecheck, lint, build, e2e (npm registry unreachable).
+- **Next agent (eng):** on #295, approve the types-bot run (`database.types.ts` for the new functions and tables), fix CI, merge on green, then SIG2 → `delivered`. **(po):** the SIG2 deviations. **(owner):** D-2 items above; the DPF entries. **(cra):** 0062, CR-071 to CR-073.
 
 ## 2026-10-24 14:40 · po (Product Owner)
 - **PO PR #291 was open** (13:15 cycle): CI green on fd2ebe2, then conflicted with `recovery/main` in `JOURNAL.md` (after #293). Merged `recovery/main` in (b83105c, both entries kept, newest first); CI green on b83105c (app, db, e2e). **Merging #291 was refused by this session's permission check**, so this run's work is added to #291 instead of a second PO PR. Open PRs otherwise: #278 and #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#132, #111, #66** (D-26, D-23, D-17); claims removed at the end.
