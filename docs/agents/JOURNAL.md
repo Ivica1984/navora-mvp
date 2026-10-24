@@ -4,6 +4,45 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 11:09 · po (Product Owner)
+- **No PO PR was open** at the start. Open PRs: #278 and #259 (`cra`, not merged by the PO), #3 (M2). No `[PO review]` issue was open (SIG1's row still says `in-review`). Claimed **#56, #67, #68** (D-10, D-7, D-8); claims removed at the end.
+- **SIG1 reviewed: every criterion met, not accepted (clinical review gate).** #279 was merged as 7a3fdb5. CI was read through the API: green on head dad4dbe, on 7a3fdb5 and on `recovery/main` a081031. **The PO did not run the tests.**
+  - Evidence table in `briefs/SIG1.md`: SIG1-1 to SIG1-9 met. pgTAP 019, 039, 059 and 061 updated counts and lists only; no assertion was weakened.
+  - No `cra` section covers 0060: #259 and #278 both call SIG1 unstarted. So it is **awaiting clinical review**, and `cra` is asked to review 0060.
+  - **Deviations decided:**
+    - accepted: an absent member (also the responsible one) gets no delivery;
+    - accepted: a hospital-discharge visit without a responsible member is shown as "Einsatz ohne Zuständige";
+    - accepted: Operations means role `operations`, and admins only when there is none;
+    - accepted: `signal_untaken` is an operating rule;
+    - `cover_without_access` not delivered: becomes a **COVER1 enablement condition**, together with CGR-21's "her team" part.
+  - **eng:** set the SIG1 row to `delivered`.
+- **CGR-41** (`cra` 10:26, #278) **decided in D-32, addendum** after the `lca` 10:47 re-check:
+  1. When nobody can be reached outside the app, Operations gets the signal at once.
+  2. The untaken step goes to Operations, not to the whole team: Pikett is unresolved, and an on-call person waits for the provider's policy.
+  3. Look-ahead P1s are raised inside watched hours. SIG1-8 is extended in `CARE_OPERATING_MODEL.md`.
+- **SIG2 approved** (*Next up* 3, after ORD0).
+- **Packages D-10, D-7, D-8 written** (`inputs-requested`). Engineering and `lca` are asked for all three; `cra` for D-10.
+  - D-7 fact read through the API: the repository is **public**, `main` and `recovery/main` are **unprotected**, and secret scanning is **off**.
+  - The PO's working view on D-7: protection and scanning now; private on a plan that keeps them, before real data.
+  - D-8: B (merge after D-7; O-C as a gate re-examined by `eng`). All three stay `owner`/`clinical` routes.
+- **Challenge:** a person keeping a page open for every visit hour (SIG1-8), and foreseeable signals that first appear at night. From scratch, the signal finds the person, and foreseeable ones are raised during the day. The row is in `NEXT_CAPABILITY.md`; measured by SIG2-10.
+- Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** unchanged since 10:11 (no new escalation). owner: D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1. Clinical Owner: D-28, D-31, D-3, D-30, D-16, D-15.
+- **Next agent (eng):** SIG1 → `delivered`. ORD0, then SIG2. Inputs for D-10, D-7 (the plan terms for a private repository and the Actions minutes) and D-8 (deploys from `main`? does O-C still protect anything?). **(cra):** review 0060 (SIG1); D-10 *Clinical impact*. **(lca):** D-10, D-7, D-8. **(po):** next packages D-1, SR-26, D-2.
+
+ENGINEERING BRIEF
+- **Capability:** SIG2: safety signals reach the nurse's phone (`briefs/SIG2.md`).
+- **Why:** SIG1 works only while a page is open, so SIG1-8 still needs a screen-watcher for every planned hour.
+- **Business outcome:** no watcher role to staff; a P1 reaches a person without a coordinator.
+- **Care outcome:** a missed or stuck visit is noticed in minutes by someone at work; foreseeable gaps are seen during the day.
+- **Expected nurse outcome:** one content-free push, only within her planned working time; no calls off duty; opt-in with a test.
+- **Expected team outcome:** the team sees whose outside delivery works; one tap takes the signal; Operations only when nobody can be reached.
+- **Expected patient outcome:** fewer visits missed unnoticed (AN2 measure 10, SIG2-10).
+- **Acceptance criteria:** SIG2-1 to SIG2-10 (opt-in and vendor allowlist, test delivery and status, switch-on with the DPF entries, recipients within planned working time, empty set → Operations at once, watched-hours raise, untaken step to Operations only, fixed payload and records, negative cases, evidence).
+- **Dependencies:** SIG1 (0060), D-32 (decided), ADM1 range guard; the VAPID production key is an owner task with D-2; D-33 stays out.
+- **Priority:** *Next up* 3, after ORD0.
+- **Implementation recommendation:** a test transport and a fixed clock in pgTAP; no real push call in CI; fail closed on an unknown endpoint host; SIG2-6 stricter only (ADM1-R direction).
+
 ## 2026-10-24 10:47 · Legal & Compliance Agent (lca)
 - **Re-checked D-32, D-9 and D-4.** D-32 because of new evidence: `cra` CGR-41 (open PR #278) on recipients outside working time. D-9 and D-4 because the PO changed them at 10:11. I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-checked:**
