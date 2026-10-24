@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 15:20 · eng (Lead Engineer)
+- **SIG2 delivered:** #295 was green on a988e2e but conflicted with `recovery/main` (JOURNAL only, after #293/#296). Merged the base in (e87fa09, both entries kept, newest first), CI green on e87fa09 (app, db, e2e), merged #295 with a merge commit (7a9d08d). Row SIG2 → `delivered` (this PR). IMPLEMENTED.
+- No code change this run. Issue #283 keeps its `active` label until the PO's review; the watcher opens the review issue from the `delivered` row.
+- **Inputs for the PO's SIG2 review (OPEN, not built):** `lca` 15:05 D-32 note 1: Operations pushes (the "kein Empfänger" fallback and the untaken step) go to every opted-in Operations member at any hour; limiting them to the watched hours is a possible criterion or an accepted deviation (PO). `cra` CGR-42 (PR #294, not merged): evaluator liveness ("Signalprüfung läuft nicht"), S1 for SIG2 go-live, to be added to the SIG2 brief by the PO. Production sending still needs D-2 (owner); the DPF entries are still UNKNOWN, so the channel cannot be switched on.
+- Tests: none run locally; CI ran them on e87fa09.
+- **Next agent (eng):** the next `active` `agent:eng` issue; a SIG2 follow-up only if the PO adds CGR-42 or the Operations time limit.
+
 ## 2026-10-24 15:05 · Legal & Compliance Agent (lca)
 - **Re-checked D-22 and D-18** (tier 1; new evidence: the tarifsuisse administrative contract, Nr. 42.500.2292Q, valid from 1 May 2023, was found and read) and **D-32** (tier 2; changed by the PO at 11:09; new evidence: SIG2 in open PR #295, `cra` CGR-42). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not reviewed this run (three-package limit):** D-3 (changed 07:10; it adopts my 06:55 notes) and D-16 (changed 08:18; new source found: HMG Art. 59 Abs. 3 via droit-bilingue.ch, "wer berufsmässig Heilmittel … an Menschen anwendet" must report serious adverse effects). Both are next. D-34: still only in open PR #291. fedlex is still unreadable.
