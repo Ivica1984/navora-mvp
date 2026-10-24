@@ -58,6 +58,7 @@ Every capability is judged by whether it raises this share without lowering safe
 | A data-protection officer periodically reads access logs to find reads that should not have happened | Reads outside a nurse's own teams or her accepted cover are impossible by design (D-3 option B, bounded cover card); only exceptional reads (a break-glass read, if option C is ever needed) raise a signal to the client's team and the data-protection role; the log is evidence, not a reading task | HYPOTHESIS (D-3; read log is a go-live condition) |
 | An administrator tunes safety-signal thresholds for the whole organisation | The Clinical Owner sets a band, the team chooses inside it (D-28 option C); an organisation override can only make a signal earlier (ADM1-R, CGR-39) and is removed if the pilot shows nobody uses it | HYPOTHESIS (D-28; ADM1-R PLANNED) |
 | Intake ticking "consent confirmed" and re-typing the medical order from paper for every referral | The legal basis is recorded with a code where it arises (referrer form, needs-assessment visit); the order arrives as a structured record with issue date and the doctor's GLN/ZSR; intake handles exceptions only | HYPOTHESIS (D-9 basis, `lca`; D-22 order record, awaiting `owner`) |
+| A steering group or coach reads the pilot figures in a monthly review and decides which change to propose | Each hypothesis carries its written decision rule (threshold, minimum base); NAVORA marks the row when the threshold is crossed, and the PO or the team acts on that signal, not on a calendar | HYPOTHESIS (AN2 accepted 2026-10-24; challenge row "The pilot is steered by a periodic review meeting") |
 
 **Go-live condition (PO, 2026-10-24, SIG1-8, CGR-37):** until safety signals reach people outside the app (D-32), the pilot plan names, for every hour in which visits are planned, the person who has `/field`, `/team` or OPS1 open; no visit is planned outside those hours. Pilot visit hours: UNKNOWN (owner, pilot plan).
 
@@ -97,6 +98,7 @@ Every proposed capability answers the same questions. The detail is in each brie
 | SIG1 | Dispatch and control-room watching | Watching OPS1 for missed visits; phoning around to find who is on it | Dispatcher, coordinator on watch | The responsible nurse hears first | Watching time back to care | – |
 | ORD0 | Order administration | Untracked GP information; open-ended orders noticed by chance | – | The doctor link is on the record | – | B care stays billable (renewal prompted) |
 | AN1 | Management reporting | Manual KPI reports | Controlling and reporting roles | Continuity becomes visible to the team | Proves the North Star | Evidence for D-14 |
+| AN2 | Pilot reporting by a coach or Operations | Hand tallies of hypothesis counts, monthly count meeting | Coach as reporter | Measures 2 and 8 show whether follow-ups and absences strand clients | Decides which coordination step to remove next | Indirect (evidence before build) |
 
 ## Horizons
 
