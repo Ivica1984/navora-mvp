@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 13:50 · Legal & Compliance Agent (lca)
+- **Reviewed D-29 and D-30** (tier 2; both changed since my last section: PO 07:10 and 09:12) and **wrote the D-2 input** (first input; requested 12:10). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **Not reviewed:** D-22, D-18 (no change since 06:10; no new evidence; fedlex still not reachable). D-34 (new package from `lca`'s D-8 point) is only in open PO PR #291, not on `recovery/main`: next run once merged.
+- **New sources:** BJ list of states with adequate data protection (DSV Annex 1; Singapore not listed, US only DPF-certified); Supabase regions (Zurich `eu-central-2` exists), transfer FAQ and DPA of 1 August 2026 (contracting party Supabase Pte. Ltd, Singapore; SCCs with Swiss addendum; no DPF); Vercel and Render compliance statements; EDÖB transfer guide (June 2021, old law, method only); OR Art. 328b.
+- **D-2:**
+  - The PO working view (specific EU or Zurich region, synthetic data, staging-only accounts, deploy from CI): **compliant under every plausible interpretation**, under five conditions: a specific region; nothing from the live project; test-domain accounts or informed testers; the app's function region set to the EU (Vercel's default is the US); SIG2 on staging only for D-32 browsers until D-33.
+  - Production with real data: **unresolved: needs legal adviser and owner** (Singapore contracting entity and US/Singapore access under SCCs; StGB Art. 321; pilot canton).
+  - Choosing a staging provider creates no legal lock-in.
+- **D-29 (PO recommendation B):** consistent with the sources read. OR Art. 328b covers storing qualification evidence (type, identifier, dates, checker; no copies). The confirmer must act as someone the licence holder authorised. The owner ask should say the licence holder "remains responsible", not that the owner "accepts" the liability. Verdict unchanged: **unresolved: needs owner (D-11, D-12) and legal adviser.**
+- **D-30:** the 09:12 billing block for disputed time or category: **compliant under every plausible interpretation**. Residual: an invoicing deadline (a revenue risk, D-18). Other verdicts unchanged.
+- Tests: none run (docs only).
+- **Next agent (po):** D-2 notes 1-4 (conditions into the design; Zurich if same cost; ADR-011 note). D-29 notes 1-2. **(eng):** D-2: Vercel's DPF listing (Swiss-U.S.?), function and log regions. **(lca):** D-34 once #291 is merged; D-22 and D-18 once fedlex is readable.
+
 ## 2026-10-24 13:15 · po (Product Owner)
 - **No PO PR was open** at the start. Open PRs: #289 (`eng`, ORD0 → `delivered`), #278 and #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#288** (Q12), **#63, #69, #68** (D-1, SR-26, D-8); claims removed at the end. #285 (SIG1) not claimed: no change (no `cra` section on 0060 yet).
 - **ORD0 reviewed (#284, 0061): every criterion met, not accepted (clinical review gate).** CI read through the API: green on head 4f938f6 and on `recovery/main` f35d60e (on the merge commit 2561463 `e2e` was *cancelled* by the next push, not failed). **The PO did not run the tests.** Evidence table in `briefs/ORD0.md`.
@@ -60,6 +73,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - No new brief: ORD0 (in review, #284) and SIG2 are approved. ROADMAP unchanged (no status change). Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
 - **Waiting on people:** unchanged since 10:11 (no new escalation). owner: D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1. Clinical Owner: D-28, D-31, D-3, D-30, D-16, D-15.
 - **Next agent (eng):** ORD0 (#284), then SIG2. Inputs for D-10, D-7, D-8 (requested 11:09) and D-1, SR-26, D-2 (requested now; questions in each package). **(cra):** review 0060 (SIG1); D-10 *Clinical impact*, including whether R is safer than "countersign, then correct"; D-15 added question. **(lca):** D-8; D-1, SR-26, D-2. **(po):** next packages D-26, D-23, D-17.
+## 2026-10-24 12:25 · eng (Lead Engineer)
+- **ORD0 delivered:** #284 was conflicted with `recovery/main` (JOURNAL only, after #286); merged the base in (4f938f6, both entries kept, newest first), CI green on 4f938f6 (app, db, e2e), merged #284 with a merge commit (2561463). Row ORD0 → `delivered` (this PR). IMPLEMENTED.
+- No code change this run; the base merge brought only docs (D-7, D-10, D-15, JOURNAL).
+- Issue #247 keeps its `active` label until the PO's review; the watcher opens the review issue from the `delivered` row.
+- Tests: none run locally; CI ran them on 4f938f6.
+- **Next agent (eng):** #283 (SIG2) once it is labelled `active`. **Q12** (ORD0 deviation: `inform_gp` not reopened once recorded) is open for `po`.
 
 ## 2026-10-24 11:55 · Legal & Compliance Agent (lca)
 - **Reviewed D-10 and D-7 (first input) and re-checked D-15** (changed by the PO at 10:11; deferred from 10:47). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
