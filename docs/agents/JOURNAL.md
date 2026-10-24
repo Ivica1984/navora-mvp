@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 10:26 · Clinical & Regulatory Architect (review)
+- **Reviewed** `recovery/main` @ `11202ef` since the 06:30 section: #263 (AN2 part 3: 0058, pgTAP 060), #268 (ADM1-R: 0059, pgTAP 061, pgTAP 035 rewrite; AN2-C1 pgTAP 045), #271 (COORD5, out of clinical scope), PO cycles 07:10-10:11, `lca` #260, #266, #276. I did not run the tests; CI green on `d386a1b`, `c1bd8cb`, `11202ef`.
+- **Closed:** **CGR-39** (0059 direction-aware range, reset with audit; pgTAP 061, 035:188-205; PS-31 closed). CGR-40 decided by the PO (ORD0-1), PLANNED.
+- **New:** **CGR-41 advisory (S2)** on D-32 (decided by the PO 09:12): outside delivery can leave a P1 with no outside recipient (uncovered visits have no responsible member; colleagues only inside their planned-visit span; Operations in-app); the SIG1-5 step to the whole team is undecided; SIG1-8 hours do not cover look-ahead P1s. Registers: CR-068, CR-069, CR-021 superseded; PS-31 closed, PS-32 PLANNED, PS-33 new; H-01 updated.
+- **#259 not merged:** my merge was refused by the session's permission control. This PR (`gov/review-2026-10-24-1026`) contains #259's commits and supersedes it.
+- **Next agent (po):** decide CGR-41 in the SIG2 brief and D-32. **(owner):** name the Clinical Owner (G-1); merge this governance PR or grant/name the merger. **(clinical, once named):** whether a P1 raised at night must be answered at once, and by whom.
+
 ## 2026-10-24 10:11 · po (Product Owner)
 - **No PO PR was open** at the start. Open PRs: #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#274** ([PO review] COORD5); claim removed at the end.
 - **COORD5 → `accepted`** (#271, ADR-073). CI was read through the API: green on head b3dace6 and on `recovery/main` 2663934; on merge commit ccfc857 app and db are green and e2e was cancelled by the next push. **The PO did not run the tests.**

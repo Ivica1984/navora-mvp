@@ -16,6 +16,63 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-24 10:26: ADM1-R (0059, CGR-39 fix), AN2 part 3 (0058); D-32 decided by the PO, D-4 provisional rule; COORD5
+
+**Scope:** `recovery/main` @ `11202ef`. Changes since the 06:30 section (open PR #259 at `98541a0`; that PR was not merged, because this role's merge of it was refused by the session's permission control at 10:32 (Europe/Zurich) today, and its content is carried unchanged in this PR):
+- **Code merged:** #263 (AN2 part 3: migration `0058_an2_pilot_hypotheses_part3`, pgTAP 060, `/analytics`; ADR-071) as `d386a1b`; #268 (ADM1-R, CGR-39: migration `0059_adm1_cgr39_direction_aware_range`, pgTAP 061, pgTAP 035:188-205 rewritten, `/admin` text; ADR-072; remediation plan `clinical/remediation/CGR-39.md`) as `c1bd8cb`, including AN2-C1 (pgTAP 045 fixture made independent of the hour); #271 (COORD5: decision-issue watcher assigns a person only when a package asks; ADR-073) as `ccfc857`.
+- **Docs:** PO cycles 07:10, 08:18, 09:12, 10:11: ADM1 set `changes-requested` for CGR-39 (07:10) and accepted after ADM1-R (09:12); SIG1-9 rewritten (the range fix ships with ADM1); ORD0-1 lower bound changed for CGR-40; my *Clinical impact* blocks copied verbatim into D-31, D-3, D-29, D-30, D-16, D-32, D-15; **D-32 decided by the PO** (option B narrow variant, PROVISIONAL); D-33 opened (`owner`); **D-4 provisional rule decided by the PO**; D-28, D-30, D-16, D-31, D-3, D-15 `awaiting-approval: clinical`; D-22, D-18, D-29, D-9, D-11, D-12, D-33 `awaiting-approval: owner`. `lca` inputs #260, #266, #276. **No `clinical`, `legal` or `owner` decision answered.**
+- **Open PRs:** #259 (mine, superseded by this PR); #3 (M2, out of scope). No open engineering or PO PR.
+
+I read 0059 and pgTAP 061 in full, the pgTAP 035 and 045 diffs, the `/admin` and `src/features/admin/rules.ts` diffs, the header and every threshold, window and output column of 0058, the briefs ADM1 (R1-R6), SIG1 (SIG1-9) and ORD0 (ORD0-1), and D-32 and D-4 (*Recommended default*). COORD5 changes issue assignment only (`scripts/agents-coordination/`); no care, billing or health data: out of clinical scope. **I did not run the tests.** CI (checked through the API) is green for app, db (migrations, seed, pgTAP) and e2e on `d386a1b`, `c1bd8cb` and `11202ef`.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-41 | D-32 (decided by the PO 09:12, PROVISIONAL); SIG2 (PLANNED, no brief yet) | advisory (S2; SIG1-8 stays a go-live condition, so no S1 today) | The recipient rule for delivery outside the app can leave a P1 with **no outside recipient at all**: (a) for `visit_uncovered_hospital` and `visit_uncovered` there is, by definition, no responsible member; (b) colleagues receive it only inside the span of their own planned visits that day, so a P1 raised before the first or after the last planned visit of every colleague (a look-ahead P1 is raised up to 24 h ahead, at any hour; an absence recorded at 06:30 releases visits before anyone's first visit) reaches nobody outside the app; Operations stays in-app only. My 06:30 input also asked for **a step to the whole team when nobody has taken it after the SIG1-5 threshold**; D-32 does not adopt or reject it. SIG1-8 names a watcher only "for every hour in which visits are planned", not for the hours in which a look-ahead P1 can arise. Whether a P1 must be answered at night, and by whom, is `clinical` (D-28): UNKNOWN. | D-32 *Recommended default* items 2 and 6; `briefs/SIG1.md` SIG1-5, SIG1-8; look-ahead semantics 0019:175-178, 0038:91-92, 0059 header item 1 | PO decides (product authority; no response time invented), in the SIG2 brief: (1) when the computed outside recipient set is empty, the SIG1 delivery row records "kein Empfänger ausserhalb der App" and the signal is shown at once to Operations as untaken (no 15-minute wait); (2) state whether the SIG1-5 step goes to the whole team outside the app (my 06:30 recommendation) or only to Operations, and record the choice in D-32; (3) SIG1-8 also names who watches during the hours in which a look-ahead P1 can be raised for the next 24 h of planned visits. pgTAP in SIG2: an uncovered hospital-discharge visit whose window opens when no colleague has a planned visit that day → zero outside recipients, the row says so, Operations sees it untaken at once; a colleague inside her span → one outside recipient; a colleague outside her span → in-app only. |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| CGR-39 | **closed** (IMPLEMENTED) | 0059 §1: `exception_rules.amount_direction`, required whenever an amount exists (constraint `exception_rules_amount_has_direction`), five look-ahead rules (including `cover_without_access`, which Engineering found beyond my four) and four delay rules, each with the reader line. §2: `private.exception_rule_range`: look-ahead from the default up to 4× (cap 720), delay from the floor (0; `visit_stuck` 1 h) up to the default; priority and escalation never later (unchanged); one check `exception_override_in_range`, used by the command and the reset. §3: existing overrides outside the range deleted with one audit row each naming the old values. pgTAP 061: directions for every amount rule and the insert constraint (19-35); with the 24 h default a hospital visit in 36 h raises no P1, with an accepted 48 h override it does (37-53, 106-113); hospital 12 h, 0 h, P2, 97 h → `out_of_range`, 48 h → `ok`; the same pattern for `visit_uncovered`, `order_expiring`, `team_cancellation_late`, `cover_without_access`; delay rules above the default refused (55-87); `/admin` reads direction and bounds (89-104); reset of two out-of-range overrides, the valid one kept, audited, idempotent, not executable by users (115-137). pgTAP 035:191-196: the inverted assertions are replaced (a test change I named, not a skip). `/admin` text no longer promises the opposite (`src/features/admin/rules.ts` `RULES_INTRO`, `stricterHint`). CI green on `c1bd8cb`. PS-31 closed. Residuals: (1) the bounds (4×, 720, `visit_stuck` floor 1 h) are engineering bounds, not clinical values (D-28); (2) `visit_stuck` can no longer be changed in amount at all (range 1 to 1); that is safe, and the value stays D-28 with CGR-23 |
+| CGR-40 | open, advisory (S3); **decided by the PO** 2026-10-24 07:10: ORD0-1 lower bound is the case's creation date, with my pgTAP set; PLANNED in ORD0 | `briefs/ORD0.md` ORD0-1. Closes when ORD0 is merged with that pgTAP green |
+| CGR-36, CGR-38 | open, advisory (S2); decided, PLANNED in ORD0 (rank 2), unstarted | no change |
+| CGR-37 | open, advisory (S2; S1 if visits are planned when nobody watches); SIG1 PLANNED (rank 1), unstarted; SIG1-9 now met by ADM1-R | `briefs/SIG1.md` SIG1-9; outside delivery decided as D-32 (see CGR-41) |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open, unchanged (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open, unchanged | CGR-23 unchanged by 0059 (the stuck clock still restarts with each status change) |
+
+### Other changes reviewed (no finding)
+
+- **AN2 part 3 (0058, read-only):** no command, visit, signal or record changes; the only new object is the internal marker table `private.an2_capture_starts` (RLS on, no grants). Thresholds are read from `effective_exception_rules`. The 24 h and 48 h windows of measures 2, 4 and 8 are PO analytics parameters, not care rules (new register row CR-069). Absence measures return no person, reason or date, and absences store no reason (0046 header item 7), so no employee health data reaches `/analytics`. The AN1 suppression is unchanged (CR-067). With CGR-39 closed, the distortion I noted on 06:30 for measure 9 (a lowered threshold) can no longer arise; the measure still uses today's threshold for past visits (ADR-070).
+- **AN2-C1 (pgTAP 045):** a fixture fix with an added guard assertion; no assertion weakened.
+- **D-4 provisional rule (PO 10:11):** no audit row is deleted or anonymised before the final rule. That is the strictest option for documentation integrity. Clinically neutral on the periods (`legal`).
+- **D-32 itself:** the narrow variant, the fixed text, opt-in, test delivery, per-member status and SIG1-8 as a go-live condition all follow my 06:30 input. Apart from CGR-41, no objection.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| ADM1 operating rules (accepted after ADM1-R) | **no blocking finding**; CGR-39 closed | – |
+| AN2 (accepted 08:18; parts 1-3 merged) | **no blocking finding** | – |
+| SIG1 (approved, rank 1, unstarted) | **no blocking finding**; SIG1-9 met | CGR-37 |
+| SIG2 / D-32 (decided, no brief) | **advisory** before the SIG2 brief is approved | CGR-41 (S2) |
+| ORD0 (approved, rank 2, unstarted) | **no blocking finding** | CGR-36, CGR-38, CGR-40 (all decided) |
+| COORD5 (accepted) | out of clinical scope | – |
+| J5 (accepted) | unchanged | CGR-31 |
+| COVER1 | unchanged; cover stays off (D-3 read, D-17, CGR-21, CGR-28, D-29) | CGR-21, CGR-28 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:** decide CGR-41 in the SIG2 brief (empty recipient set, the SIG1-5 step, SIG1-8 hours) and record the choice in D-32.
+- **owner:** (1) name the Clinical Owner and a deputy (G-1); six packages wait only on that person (D-28, D-30, D-16, D-31, D-3, D-15). (2) The governance PRs of this role cannot be merged by it in this session (permission control); please merge this PR (it contains #259), or grant the self-merge the role prompt describes, or name who merges.
+- **eng:** none new.
+- **clinical** (once named): unchanged from 06:30; add for D-28/D-32: whether a P1 raised at night must be answered at once, and by whom (CGR-41).
+
+---
+
 ## 2026-10-24 06:30: AN2 parts 1-2 (0056 CGR-35, 0057, pgTAP 057-059); briefs SIG1, ORD0 and SIG1-9 (#258); Clinical impact for D-31, D-3, D-29, D-30, D-16, D-32, D-15
 
 **Scope:** `recovery/main` @ `38b986d`. Changes since the 02:26 section (merged as #244):
