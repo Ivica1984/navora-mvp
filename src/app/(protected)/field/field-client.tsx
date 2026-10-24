@@ -27,11 +27,11 @@ import {
 import { correctVisitTime, recordObservation } from "@/features/field/commands";
 import { formatMinutesByCategory } from "@/features/team/rules";
 import type { FieldNote, FieldVisit } from "@/features/field/types";
-import { FACTS_LOCKED_HINT, visitFactsLocked, type FieldReport } from "@/features/field/report";
+import { FACTS_LOCKED_HINT, RETURNED_LOCKED_HINT, visitFactsLocked, type FieldReport } from "@/features/field/report";
 import ReportSection from "./report-section";
 import { REASON_LABEL as LIFECYCLE_REASON_LABEL } from "@/features/lifecycle/rules";
 import { createReportDraft } from "@/features/field/report-commands";
-import type { CountersignItem } from "@/features/field/queries";
+import type { CountersignItem, ReturnedItem } from "@/features/field/queries";
 import type { CoverOffer, MyCover } from "@/features/cover/queries";
 import CoverSection from "./cover-section";
 import { AbsenceSection, OpenVisitsSection } from "./absence-section";
@@ -60,6 +60,8 @@ type Props = {
   qualityTypes: QualityEventType[];
   statusNotes: VisitStatusNote[];
   countersign: CountersignItem[];
+  /** F6R-5: her reports a registered nurse returned, any date, until she signs again. */
+  returned?: ReturnedItem[];
   cover: { offers: CoverOffer[]; mine: MyCover[] };
   sinceLast: SinceLastRowDb[];
   /** CSR1 / CGR-25: visits of her teams ended as not completed that still wait for a follow-up decision. */
@@ -92,7 +94,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover, sinceLast, openFollowups = [], absence, signals = [] }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [] }: Props) {
   const summary = summarizeDay(visits);
   const sinceLastByVisit = groupSinceLast(sinceLast);
 
@@ -155,6 +157,25 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
           </section>
         )}
 
+        {returned.length > 0 && (
+          // F6R-5: a returned report is never stranded: it stays at the top of her day until she signs again.
+          <section aria-label="Zurückgegeben" data-testid="returned-reports" className="mb-4 rounded-2xl border-l-4 border-amber-500 bg-amber-50 p-3 text-sm">
+            <h2 className="font-bold text-amber-900">Zurückgegeben: bitte korrigieren und neu unterschreiben ({returned.length})</h2>
+            <ul className="mt-1 grid gap-2">
+              {returned.map((r) => (
+                <li key={r.report_id}>
+                  <Link href={`/field?datum=${r.visit_date}`} className="underline underline-offset-2">
+                    {formatDayLabel(r.visit_date)} · {formatTime(r.time_start) ?? "Zeit offen"} · {r.client_name ?? "Klient:in"} · {r.team_name}
+                  </Link>
+                  <p className="whitespace-pre-wrap text-xs text-amber-900/80">
+                    {r.returned_by_name ? `${r.returned_by_name}: ` : ""}{r.reason}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         {countersign.length > 0 && (
           // F7: the countersignature request reaches the team at the moment of signing.
           <section aria-label="Zur Gegenzeichnung" data-testid="countersign-queue" className="mb-4 rounded-2xl border-l-4 border-blue-600 bg-blue-50 p-3 text-sm">
@@ -165,6 +186,12 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
                   <Link href={`/field?datum=${c.visit_date}`} className="underline underline-offset-2">
                     {formatDayLabel(c.visit_date)} · {formatTime(c.time_start) ?? "Zeit offen"} · {c.client_name ?? "Klient:in"} · {c.team_name}
                   </Link>
+                  {/* F6R-5: returned to its performer; it comes back here once she signed again. */}
+                  {c.returned && (
+                    <span className="text-xs font-semibold text-amber-800">
+                      {" "}· zurückgegeben{c.performer_name ? ` an ${c.performer_name}` : ""}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
@@ -243,6 +270,8 @@ function VisitCard({
   const times = events.length > 0 ? computeVisitTimes(events) : null;
   // CSR1 / CGR-03: signed means fixed; changes only through a report correction version.
   const locked = visitFactsLocked(report);
+  // F6R-3: a returned report is open for its performer only; everyone else sees why the facts are fixed.
+  const lockedHint = report?.status === "draft" && report.returned ? RETURNED_LOCKED_HINT : FACTS_LOCKED_HINT;
 
   async function run(action: FieldAction) {
     setPending(action);
@@ -317,12 +346,13 @@ function VisitCard({
         </section>
       )}
 
-      {events.length > 0 && <Timeline events={events} locked={locked} />}
+      {events.length > 0 && <Timeline events={events} locked={locked} lockedHint={lockedHint} />}
 
       <Observations
         visitId={visit.visit_id}
         canRecord={OBSERVABLE.has(visit.status ?? "")}
         locked={locked}
+        lockedHint={lockedHint}
         notes={notes.filter((n) => n.kind === "observation")}
       />
 
@@ -373,11 +403,13 @@ function Observations({
   visitId,
   canRecord,
   locked,
+  lockedHint = FACTS_LOCKED_HINT,
   notes,
 }: {
   visitId: string;
   canRecord: boolean;
   locked: boolean;
+  lockedHint?: string;
   notes: FieldNote[];
 }) {
   if (!canRecord && notes.length === 0) return null;
@@ -396,7 +428,7 @@ function Observations({
       {canRecord && !locked && <ObservationForm visitId={visitId} supersedesId={null} />}
       {canRecord && locked && (
         <p data-testid="facts-locked" className="text-xs text-emerald-900/70">
-          {FACTS_LOCKED_HINT}
+          {lockedHint}
         </p>
       )}
     </section>
@@ -514,7 +546,7 @@ function ObservationForm({
   );
 }
 
-function Timeline({ events, locked }: { events: VisitEvent[]; locked: boolean }) {
+function Timeline({ events, locked, lockedHint = FACTS_LOCKED_HINT }: { events: VisitEvent[]; locked: boolean; lockedHint?: string }) {
   return (
     <details className="mt-2 rounded-xl border border-stone-200 p-2 text-sm">
       <summary className="min-h-11 cursor-pointer content-center px-1 font-semibold text-emerald-900">
@@ -528,7 +560,7 @@ function Timeline({ events, locked }: { events: VisitEvent[]; locked: boolean })
         ))}
       </ol>
       <p className="mt-2 text-xs text-emerald-900/60">
-        {locked ? FACTS_LOCKED_HINT : "Korrekturen werden mit Begründung gespeichert; die ursprünglich erfasste Zeit bleibt sichtbar."}
+        {locked ? lockedHint : "Korrekturen werden mit Begründung gespeichert; die ursprünglich erfasste Zeit bleibt sichtbar."}
       </p>
     </details>
   );

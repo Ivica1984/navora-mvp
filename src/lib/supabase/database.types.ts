@@ -1389,16 +1389,54 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"visit_reports": {
+                },"visit_report_returns": {
                   Row: {
-                    "case_id": string | null,"correction_reason": string | null,"countersign_required": boolean,"countersigned_at": string | null,"countersigned_by": string | null,"created_at": string,"created_by": string,"id": string,"organization_id": string,"performer_id": string,"signed_at": string | null,"signed_by": string | null,"snapshot": NonNullable<Json>,"status": string,"summary": string | null,"supersedes_id": string | null,"team_id": string,"version": number,"visit_id": string,"withdrawn_at": string | null,"withdrawn_by": string | null
+                    "id": string,"organization_id": string,"performer_id": string,"reason": string,"report_id": string,"report_version": number,"returned_at": string,"returned_by": string,"snapshot_hash": string,"team_id": string,"visit_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "case_id"?: string | null,"correction_reason"?: string | null,"countersign_required": boolean,"countersigned_at"?: string | null,"countersigned_by"?: string | null,"created_at"?: string,"created_by": string,"id"?: string,"organization_id": string,"performer_id": string,"signed_at"?: string | null,"signed_by"?: string | null,"snapshot": NonNullable<Json>,"status"?: string,"summary"?: string | null,"supersedes_id"?: string | null,"team_id": string,"version": number,"visit_id": string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
+                    "id"?: string,"organization_id": string,"performer_id": string,"reason": string,"report_id": string,"report_version": number,"returned_at"?: string,"returned_by": string,"snapshot_hash": string,"team_id": string,"visit_id": string
                   }
                   Update: {
-                    "case_id"?: string | null,"correction_reason"?: string | null,"countersign_required"?: boolean,"countersigned_at"?: string | null,"countersigned_by"?: string | null,"created_at"?: string,"created_by"?: string,"id"?: string,"organization_id"?: string,"performer_id"?: string,"signed_at"?: string | null,"signed_by"?: string | null,"snapshot"?: NonNullable<Json>,"status"?: string,"summary"?: string | null,"supersedes_id"?: string | null,"team_id"?: string,"version"?: number,"visit_id"?: string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
+                    "id"?: string,"organization_id"?: string,"performer_id"?: string,"reason"?: string,"report_id"?: string,"report_version"?: number,"returned_at"?: string,"returned_by"?: string,"snapshot_hash"?: string,"team_id"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "visit_report_returns_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_report_returns_report_id_fkey"
+      columns: ["report_id"]
+isOneToOne: true
+      referencedRelation: "visit_reports"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_report_returns_team_id_organization_id_fkey"
+      columns: ["team_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "visit_report_returns_visit_id_organization_id_fkey"
+      columns: ["visit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"visit_reports": {
+                  Row: {
+                    "case_id": string | null,"correction_reason": string | null,"countersign_required": boolean,"countersigned_at": string | null,"countersigned_by": string | null,"created_at": string,"created_by": string,"id": string,"organization_id": string,"performer_id": string,"return_id": string | null,"signed_at": string | null,"signed_by": string | null,"snapshot": NonNullable<Json>,"status": string,"summary": string | null,"supersedes_id": string | null,"team_id": string,"version": number,"visit_id": string,"withdrawn_at": string | null,"withdrawn_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "case_id"?: string | null,"correction_reason"?: string | null,"countersign_required": boolean,"countersigned_at"?: string | null,"countersigned_by"?: string | null,"created_at"?: string,"created_by": string,"id"?: string,"organization_id": string,"performer_id": string,"return_id"?: string | null,"signed_at"?: string | null,"signed_by"?: string | null,"snapshot": NonNullable<Json>,"status"?: string,"summary"?: string | null,"supersedes_id"?: string | null,"team_id": string,"version": number,"visit_id": string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
+                  }
+                  Update: {
+                    "case_id"?: string | null,"correction_reason"?: string | null,"countersign_required"?: boolean,"countersigned_at"?: string | null,"countersigned_by"?: string | null,"created_at"?: string,"created_by"?: string,"id"?: string,"organization_id"?: string,"performer_id"?: string,"return_id"?: string | null,"signed_at"?: string | null,"signed_by"?: string | null,"snapshot"?: NonNullable<Json>,"status"?: string,"summary"?: string | null,"supersedes_id"?: string | null,"team_id"?: string,"version"?: number,"visit_id"?: string,"withdrawn_at"?: string | null,"withdrawn_by"?: string | null
                   }
                   Relationships: [
                     {
@@ -1406,6 +1444,12 @@ isOneToOne: false
       columns: ["organization_id"]
 isOneToOne: false
       referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "visit_reports_return_id_fkey"
+      columns: ["return_id"]
+isOneToOne: false
+      referencedRelation: "visit_report_returns"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "visit_reports_supersedes_id_fkey"
@@ -1640,7 +1684,7 @@ isOneToOne: false
                            },
 "field_countersign_queue":
 { Args: Record<PropertyKey, never>; Returns: {
-              "client_name": string,"report_id": string,"signed_at": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
+              "client_name": string,"performer_name": string,"report_id": string,"returned": boolean,"returned_at": string,"signed_at": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
 "field_notes":
@@ -1655,7 +1699,12 @@ isOneToOne: false
                            },
 "field_reports":
 { Args: { "p_date": string }; Returns: {
-              "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"countersigned_by_name": string,"i_am_performer": boolean,"i_can_countersign": boolean,"i_signed": boolean,"report_id": string,"signed_at": string,"signed_by_name": string,"snapshot": Json,"snapshot_hash": string,"status": string,"summary": string,"version": number,"visit_id": string
+              "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"countersigned_by_name": string,"i_am_performer": boolean,"i_can_countersign": boolean,"i_can_return": boolean,"i_signed": boolean,"report_id": string,"return_reason": string,"returned": boolean,"returned_at": string,"returned_by_name": string,"returned_snapshot": Json,"signed_at": string,"signed_by_name": string,"snapshot": Json,"snapshot_hash": string,"status": string,"summary": string,"version": number,"visit_id": string
+            }[]
+                           },
+"field_returned_reports":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "client_name": string,"reason": string,"report_id": string,"returned_at": string,"returned_by_name": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
 "field_since_last":
@@ -1803,6 +1852,11 @@ isOneToOne: false
 "reopen_case":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_reason": string }; Returns: string
                            },
+"report_returns":
+{ Args: { "p_visit_id": string }; Returns: {
+              "reason": string,"report_id": string,"report_version": number,"return_id": string,"returned_at": string,"returned_by_name": string,"snapshot": Json,"snapshot_hash": string,"summary": string
+            }[]
+                           },
 "reschedule_visit":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
                            },
@@ -1817,6 +1871,9 @@ isOneToOne: false
                            },
 "retire_care_plan_item":
 { Args: { "p_idempotency_key": string,"p_item_id": string,"p_reason": string }; Returns: string
+                           },
+"return_report":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_report_id": string }; Returns: Json
                            },
 "revoke_invitation":
 { Args: { "p_idempotency_key": string,"p_invitation_id": string }; Returns: string

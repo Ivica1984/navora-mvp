@@ -71,6 +71,19 @@ export async function getCountersignQueue(): Promise<CountersignItem[]> {
   return data ?? [];
 }
 
+export type ReturnedItem = Database["public"]["Functions"]["field_returned_reports"]["Returns"][number];
+
+/** F6R-5: the caller's reports returned to her by a registered nurse, any date, until she signs again. */
+export async function getReturnedReports(): Promise<ReturnedItem[]> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("field_returned_reports");
+  if (error) {
+    logEvent("error", "field.returned_reports_failed", errorFields(error));
+    throw new Error("Zurückgegebene Berichte konnten nicht geladen werden.");
+  }
+  return data ?? [];
+}
+
 export type SinceLastRowDb = Database["public"]["Functions"]["field_since_last"]["Returns"][number];
 
 /**

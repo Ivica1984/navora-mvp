@@ -6,11 +6,12 @@ import {
   correctReport,
   countersignReport,
   createReportDraft,
+  returnReport,
   signAtCompletion,
   updateReportDraft,
   withdrawReportCorrection,
 } from "@/features/field/report-commands";
-import { reportView, type FieldReport } from "@/features/field/report";
+import { returnConfirmation, reportView, type FieldReport } from "@/features/field/report";
 
 const TONE_CLASS = {
   open: "border-amber-500 bg-amber-50",
@@ -39,7 +40,7 @@ export default function ReportSection({
   report: FieldReport | null;
 }) {
   const router = useRouter();
-  const [mode, setMode] = useState<"idle" | "edit" | "correct" | "withdraw">("idle");
+  const [mode, setMode] = useState<"idle" | "edit" | "correct" | "withdraw" | "return">("idle");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,6 +94,25 @@ export default function ReportSection({
         </p>
       )}
       {view.hint && <p className="text-xs text-emerald-900/70">{view.hint}</p>}
+      {report?.returned && report.return_reason && (
+        // F6R-7: the reason is shown only to the performer and the team's registered nurses (the database nulls it otherwise).
+        <div data-testid="return-reason" className="grid gap-1 rounded-lg border border-amber-300 bg-white p-2 text-xs">
+          <p>
+            <span className="font-semibold">Zurückgegeben</span>
+            {report.returned_at ? ` ${formatStamp(report.returned_at)}` : ""}
+            {report.returned_by_name ? ` von ${report.returned_by_name}` : ""}:
+          </p>
+          <p className="whitespace-pre-wrap">{report.return_reason}</p>
+          {report.returned_snapshot != null && (
+            <details>
+              <summary className="min-h-11 cursor-pointer content-center font-semibold underline underline-offset-4">
+                Zurückgegebene Fassung ansehen
+              </summary>
+              <ReportFacts snapshot={report.returned_snapshot} />
+            </details>
+          )}
+        </div>
+      )}
 
       {error && (
         <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">
@@ -231,6 +251,33 @@ export default function ReportSection({
         </div>
       )}
 
+      {mode === "return" && report && (
+        // F6R-8: required reason; the confirmation names what happens.
+        <form
+          aria-label="Bericht zurückgeben"
+          action={(form) =>
+            run(() =>
+              returnReport({ reportId: report.report_id, reason: String(form.get("reason") ?? ""), idempotencyKey: crypto.randomUUID() }),
+            )
+          }
+          className="grid gap-2"
+        >
+          <label className="grid gap-1">
+            <span className="text-xs font-semibold">Was muss korrigiert werden?</span>
+            <textarea name="reason" required minLength={10} maxLength={500} rows={3} className="rounded-lg border border-stone-300 bg-white p-2" />
+          </label>
+          <p data-testid="return-confirmation" className="text-xs text-emerald-900/80">{returnConfirmation(report.signed_by_name)}</p>
+          <div className="grid grid-cols-2 gap-2">
+            <button type="submit" disabled={pending} className="min-h-11 rounded-lg bg-amber-700 font-bold text-white disabled:opacity-60">
+              {pending ? "Wird gespeichert …" : "Zurückgeben"}
+            </button>
+            <button type="button" onClick={() => setMode("idle")} className="min-h-11 rounded-lg border border-stone-300 font-semibold">
+              Abbrechen
+            </button>
+          </div>
+        </form>
+      )}
+
       {mode === "idle" && report && view.actions.some((a) => a === "countersign" || a === "correct") && (
         <div className="grid grid-cols-2 gap-2">
           {view.actions.includes("countersign") && (
@@ -241,6 +288,15 @@ export default function ReportSection({
               className="col-span-2 min-h-11 rounded-lg bg-blue-800 font-bold text-white disabled:opacity-60"
             >
               {pending ? "Wird gespeichert …" : "Gegenzeichnen"}
+            </button>
+          )}
+          {view.actions.includes("return") && (
+            <button
+              type="button"
+              onClick={() => setMode("return")}
+              className="col-span-2 min-h-11 rounded-lg border border-amber-600 bg-white font-semibold text-amber-900"
+            >
+              Zurückgeben
             </button>
           )}
           {view.actions.includes("correct") && (
