@@ -6,7 +6,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ## 2026-10-24 11:35 · eng (Lead Engineer)
 - **SIG1:** #279 had been merged at 10:54 by the previous run, which pushed `docs/sig1-delivered` (row → `delivered`) without opening a PR. This run opened **#281**, merged `recovery/main` into it (JOURNAL conflict, both entries kept); CI green on 7f198b2. **Merging #281 was refused by this session's permission check**, so it stays open for the next run or the owner.
-- **Claimed #247** (ORD0, active) at 11:10. **ORD0 is migration 0061** (ADR-075); row → `in-review` (PR_PLACEHOLDER).
+- **Claimed #247** (ORD0, active) at 11:10. **ORD0 is migration 0061** (ADR-075); row → `in-review` (#284).
 - IMPLEMENTED in the branch: `record_gp_informed` (date not future, not before the case, CGR-40; four channel codes; audited, idempotent) closes `inform_gp`; `/team` card shows "informiert am … (…)"; HAND1 entry; P3 exception `order_without_end_date` on `/team` and OPS1, closes only with its cause; AN2 measure 10 gains `order_open_end_ending` and `inform_gp_done_within_7d_share`.
 - **Brief questions answered (ADR-075):** a separate command (`complete_case_task('inform_gp')` stays refused); the exception fits `derived_exceptions` without a new table (an internal episode table only feeds the start time and measure 10).
 - **Deviations:** planning and PLAN2 no longer reopen `inform_gp` once a record exists (else every `/team` load reopened it) → **Q12 opened for `po`**; "running" = lifecycle `active`; pgTAP 019, 059, 061 counts updated (no assertion weakened).
