@@ -3,7 +3,7 @@ import type { Database } from "@/lib/supabase/database.types";
 /** One row of public.field_reports() — latest report version per visit (F6, migration 0016). */
 export type FieldReport = Database["public"]["Functions"]["field_reports"]["Returns"][number];
 
-export type ReportAction = "create" | "edit" | "sign" | "countersign" | "correct" | "withdraw";
+export type ReportAction = "create" | "edit" | "sign" | "countersign" | "return" | "correct" | "withdraw";
 
 export type ReportView = {
   /** Short status line shown on the card. */
@@ -33,6 +33,23 @@ export function reportView(visitStatus: string | null, report: FieldReport | nul
 
   const version = report.version > 1 ? ` (Fassung ${report.version})` : "";
 
+  if (report.status === "draft" && report.returned) {
+    // F6R (migration 0065): a registered nurse returned the signed version; only the performer corrects and signs again.
+    return report.i_am_performer
+      ? {
+          label: `Zurückgegeben: bitte korrigieren und neu unterschreiben${version}`,
+          tone: "open",
+          actions: ["edit", "sign"],
+          hint: null,
+        }
+      : {
+          label: `Zurückgegeben – wartet auf neue Unterschrift${version}`,
+          tone: "waiting",
+          actions: [],
+          hint: "Korrigieren und neu unterschreiben kann nur die Person, die den Einsatz durchgeführt hat. Danach wird gegengezeichnet.",
+        };
+  }
+
   if (report.status === "draft") {
     // CSR1 / CGR-24-W (migration 0049): the performer may withdraw her own correction draft while it is untouched.
     // The database decides "untouched" (no time correction, observation or summary change since it was opened).
@@ -48,8 +65,14 @@ export function reportView(visitStatus: string | null, report: FieldReport | nul
   }
 
   if (report.status === "signed") {
+    // F6R: next to "Gegenzeichnen", a registered nurse may return a version she knows is wrong (database: return_report).
     return report.i_can_countersign
-      ? { label: `Unterschrieben – Gegenzeichnung offen${version}`, tone: "waiting", actions: ["countersign"], hint: null }
+      ? {
+          label: `Unterschrieben – Gegenzeichnung offen${version}`,
+          tone: "waiting",
+          actions: report.i_can_return ? ["countersign", "return"] : ["countersign"],
+          hint: null,
+        }
       : {
           label: `Unterschrieben – Gegenzeichnung offen${version}`,
           tone: "waiting",
@@ -67,7 +90,7 @@ export function reportView(visitStatus: string | null, report: FieldReport | nul
   return { label: "Berichtstatus unbekannt", tone: "waiting", actions: [], hint: null };
 }
 
-/** German messages for rejection reasons returned by the report commands (migrations 0016, 0041, 0044, 0049). */
+/** German messages for rejection reasons returned by the report commands (migrations 0016, 0041, 0044, 0049, 0065). */
 export const REPORT_REJECTION_MESSAGE: Record<string, string> = {
   not_team_member: "Nicht gespeichert: Du gehörst nicht zum zuständigen Team.",
   visit_not_completed: "Ein Bericht ist erst nach Abschluss des Einsatzes möglich.",
@@ -90,6 +113,10 @@ export const REPORT_REJECTION_MESSAGE: Record<string, string> = {
     "Nicht zurückgezogen: Seit dem Öffnen der Korrektur wurden Zeiten, Beobachtungen oder die Zusammenfassung geändert. Diese Änderungen müssen unterschrieben werden.",
   awaiting_countersignature:
     "Nicht zurückgezogen: Die Korrektur ist unterschrieben und wartet auf die Gegenzeichnung.",
+  // F6R (migration 0065): returning a report.
+  reason_too_short: "Bitte begründen, was korrigiert werden muss (mindestens 10 Zeichen).",
+  returned_report:
+    "Ein zurückgegebener Bericht wird nicht zurückgezogen: Bitte korrigieren und neu unterschreiben; danach wird gegengezeichnet.",
   facts_changed:
     "Nicht unterschrieben: Zeiten oder Beobachtungen haben sich geändert, seit du den Bericht geöffnet hast. Bitte die aktualisierten Angaben prüfen und erneut unterschreiben.",
 };
@@ -103,8 +130,22 @@ export function reportRejectionMessage(reason: unknown): string {
  * `signed` or `final`. They change again only through a report correction version ("Bericht korrigieren"), which
  * opens a new draft. The database enforces the same rule (`private.visit_facts_locked`); this only hides the buttons.
  */
-export function visitFactsLocked(report: Pick<FieldReport, "status"> | null): boolean {
-  return report?.status === "signed" || report?.status === "final";
+export function visitFactsLocked(
+  report: (Pick<FieldReport, "status"> & Partial<Pick<FieldReport, "returned" | "i_am_performer">>) | null,
+): boolean {
+  if (report?.status === "signed" || report?.status === "final") return true;
+  // F6R-3 (migration 0065): after a return only the performer changes the visit's facts.
+  return report?.status === "draft" && report.returned === true && report.i_am_performer !== true;
+}
+
+/** F6R: the visit's facts are open, but only for the performer of a returned report. */
+export const RETURNED_LOCKED_HINT =
+  "Der Bericht wurde zurückgegeben. Zeiten und Beobachtungen korrigiert nur die Person, die den Einsatz durchgeführt hat.";
+
+/** F6R-8: what the countersigner confirms before returning. */
+export function returnConfirmation(performerName: string | null | undefined): string {
+  const who = performerName?.trim() ? performerName.trim() : "die ausführende Person";
+  return `Der Bericht geht an ${who} zurück und wird erst nach erneuter Unterschrift und deiner Gegenzeichnung gültig.`;
 }
 
 export const FACTS_LOCKED_HINT =

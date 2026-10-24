@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   FACTS_LOCKED_HINT,
+  RETURNED_LOCKED_HINT,
   REPORT_REJECTION_MESSAGE,
+  returnConfirmation,
   reportRejectionMessage,
   reportView,
   visitFactsLocked,
@@ -28,6 +30,13 @@ function report(overrides: Partial<FieldReport>): FieldReport {
     countersigned_by_name: null as unknown as string,
     // CSR1 / CGR-02 (migration 0041): hash of the snapshot shown; sign_report carries it back
     snapshot_hash: "h1",
+    // F6R (migration 0065): the return; reason, time, returner and returned version only for performer and team RNs
+    returned: false,
+    return_reason: null as unknown as string,
+    returned_at: null as unknown as string,
+    returned_by_name: null as unknown as string,
+    returned_snapshot: null,
+    i_can_return: false,
     ...overrides,
   };
 }
@@ -56,6 +65,29 @@ describe("reportView (F6)", () => {
     expect(reportView("completed", report({ ...signed, i_can_countersign: true }))?.actions).toEqual(["countersign"]);
     expect(reportView("completed", report({ ...signed, i_can_countersign: false }))?.actions).toEqual([]);
     expect(reportView("completed", report({ ...signed, i_am_performer: true }))?.hint).toContain("Pflegefachperson");
+  });
+
+  it("F6R-8: next to Gegenzeichnen a registered nurse may return the report, when the database allows it", () => {
+    const signed = { status: "signed", countersign_required: true, i_am_performer: false, i_can_countersign: true };
+    expect(reportView("completed", report({ ...signed, i_can_return: true }))?.actions).toEqual(["countersign", "return"]);
+    expect(reportView("completed", report({ ...signed, i_can_return: false }))?.actions).toEqual(["countersign"]);
+    expect(reportView("completed", report({ ...signed, i_can_countersign: false, i_can_return: true }))?.actions).toEqual([]);
+  });
+
+  it("F6R-5: a returned draft asks the performer to correct and sign again; nobody else acts on it", () => {
+    const mine = reportView("completed", report({ version: 2, returned: true }));
+    expect(mine).toMatchObject({ label: "Zurückgegeben: bitte korrigieren und neu unterschreiben (Fassung 2)", actions: ["edit", "sign"] });
+    expect(mine?.actions).not.toContain("withdraw");
+    const other = reportView("completed", report({ version: 2, returned: true, i_am_performer: false }));
+    expect(other?.actions).toEqual([]);
+    expect(other?.label).toContain("Zurückgegeben");
+  });
+
+  it("F6R-8: the confirmation names who gets the report back and when it becomes valid", () => {
+    expect(returnConfirmation("Anna Test")).toBe(
+      "Der Bericht geht an Anna Test zurück und wird erst nach erneuter Unterschrift und deiner Gegenzeichnung gültig.",
+    );
+    expect(returnConfirmation(null)).toContain("an die ausführende Person zurück");
   });
 
   it("a final report is never editable or signable, only correctable as a new version", () => {
@@ -87,6 +119,7 @@ describe("report rejection messages", () => {
       "not_team_member", "visit_not_completed", "no_performer", "draft_exists", "not_draft", "not_performer",
       "not_awaiting_countersignature", "rn_required", "own_report", "not_final", "not_latest", "facts_changed",
       "performer_not_in_team", "not_correction", "draft_has_changes", "awaiting_countersignature",
+      "reason_too_short", "returned_report",
     ]) {
       expect(REPORT_REJECTION_MESSAGE[reason]).toBeTruthy();
     }
@@ -123,6 +156,13 @@ describe("visitFactsLocked (CSR1 / CGR-03, migration 0040)", () => {
   it("is locked once the latest version is signed or final", () => {
     expect(visitFactsLocked(report({ status: "signed", countersign_required: true }))).toBe(true);
     expect(visitFactsLocked(report({ status: "final" }))).toBe(true);
+  });
+
+  it("F6R-3: a returned draft is open only for its performer", () => {
+    expect(visitFactsLocked(report({ status: "draft", version: 2, returned: true, i_am_performer: true }))).toBe(false);
+    expect(visitFactsLocked(report({ status: "draft", version: 2, returned: true, i_am_performer: false }))).toBe(true);
+    expect(visitFactsLocked({ status: "draft" })).toBe(false);
+    expect(RETURNED_LOCKED_HINT).toContain("durchgeführt");
   });
 
   it("names the correction path in the hint", () => {
