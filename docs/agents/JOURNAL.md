@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 17:10 · po (Product Owner)
+- **No PO PR was open** at the start (#301 merged). Open PRs: #294, #278, #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#64, #67, #299** (D-2, D-7, D-34); claims removed at the end.
+- **Reviews: no delivery.** Nothing merged since #302 (`lca`). SIG2 (#298) and ORD0 (#292) stay `changes-requested`; no `eng` or `cra` change to review.
+- **Two-run rule reached for Engineering** on D-2 (requested 12:10), D-7 (11:09) and D-34 (13:15): no answer in the `eng` runs 12:25, 14:39, 15:20. Engineering impact **drafted by po, not confirmed by eng** in all three (no package can be High).
+- **D-2 `awaiting-approval: owner`, design decided by po** (Medium): Supabase staging in Zurich `eu-central-2` (else Frankfurt, never "Europe"; a plan that does not pause), app on **Render Frankfurt** behind access protection (Vercel's Swiss-U.S. DPF coverage not shown), migrations and seed from CI only, synthetic only, the five `lca` 13:50 conditions; staging is no production clearance (ADR-011). Written into the D-2 row, not moved to *Decided*: T12 lists D-2 under "Blocked by". **Owner asked:** approve the two paid plans, create both, add the staging deploy secrets.
+- **D-7 `awaiting-approval: owner`** (Medium): ruleset on `main` and `recovery/main` (PR required; checks `app`, `db`, `e2e`; no force-push or deletion; neither bot pushes to those branches) and push protection **now**; private on a paid plan (B) if D-1 is "real" or "not sure". C rejected: the free personal plan drops rulesets and its Actions quota would stop CI within about a day (73 of the last 100 runs are `ci`, ~5 min wall time, three parallel jobs; estimate).
+- **D-34 still `inputs-requested`** (Low; `cra` open). Rule inventory drafted: no IMPLEMENTED rule reads clinical content; two take a care fact (the hospital-discharge referral category → P1; the nurse-chosen severity → escalation). Draft **intended-purpose statement**, exclusion list and a UI **wording rule** (signals are organisational, never "monitoring") in force as the safe default. `visit_uncovered_hospital` stays as built until the adviser answers (removing it would lower protection).
+- **`lca` 16:45 taken up (no status change):** **D-16:** "Meldepflicht geprüft" moves to the event, recordable at recording by the author or an RN of her team, fixed recipient list incl. Swissmedic, outcome/recipient/date/person only; the serious-event review shows it and cannot close while it is open (QG2 scope). **D-3:** note only (Art. 321 settles the UNKNOWN; "nach Spitalaustritt" in the app only, never in a push).
+- **Challenge:** statutory reporting behind a management review. Hypothesis row: with the step at recording, at least 9 in 10 serious events have it within 24 h.
+- No new brief: *Next up* 1 (ORD0-C1, widened ORD0-C2, SIG1-C1) and 2 (SIG2-11, SIG2-12) are approved and unstarted. ROADMAP: line 24.10. 17:10. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** **owner:** D-1 (urgent, one-line fact answer), **D-2 (new: approve plans, create staging)**, **D-7 (new: apply ruleset and push protection)**, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1 (name the Clinical Owner). **Clinical Owner:** D-28, D-31, D-3, D-30, D-16, D-15. **Owner, process:** `cra` PRs #294, #278, #259 need a merge.
+- **Next agent:**
+  - **(eng):** ORD0-C1, widened ORD0-C2 and SIG1-C1 in one PR; then SIG2-11, SIG2-12. Please confirm or correct the po drafts in D-2, D-7 and D-34 (inventory); inputs still open for D-14, D-13, D-24, D-26, D-23, D-17, D-6, D-19, D-20, D-10, D-8, D-1, SR-26.
+  - **(cra):** D-34 (which features are clinical decision support; device incidents as a type or marker, D-16); 0062; D-14, D-13, D-24, D-17, D-6, D-19, D-10.
+  - **(lca):** D-2 and D-7 changed (re-check only if wanted); D-26, D-23 and its queue.
+  - **(po):** next package D-25; D-8 and D-10 (Engineering two-run rule reached; D-10 also needs `cra`).
+
 ## 2026-10-24 16:45 · Legal & Compliance Agent (lca)
 - **Reviewed D-16, D-3** (tier 2; both changed by the PO after my last sections; new evidence) and **D-34** (tier 3; first `lca` section). Only the `lca` sections changed. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-reviewed: D-22, D-18.** The PO's 16:20 addenda adopt my 16:05 notes as written (ORD0-C2 (b)+(c), question 6a, AÜP, dates and kind only). No new evidence, so there is nothing to add.
