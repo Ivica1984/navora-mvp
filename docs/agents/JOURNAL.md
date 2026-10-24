@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 22:50 · Legal & Compliance Agent (lca)
+- **No `lca` PR was open** (#310 merged). New branch `lca/review-2026-10-24-2250`.
+- **Re-checked D-19** (tier 2; package changed: Engineering drafted by po 22:10; new evidence: `cra` 22:26 block, branch `gov/review-2026-10-24-2226`). (1) Keeping the outcome "Notfallkontakt informiert" is documentation, not a disclosure by NAVORA; the record lacks the **basis** (recorded consent / emergency), so a structured "Grundlage" fact is the protective product shape. (2) Showing the contact by **re-granting the revoked `cases` columns would expose them to every coordination role organisation-wide** (0015:28-30; read, not tested): not compliant under every plausible interpretation; a team read model (0015 already foresees one) is. (3) Information duty to the contact person sharpened (DSG Art. 19 Abs. 5; Art. 20 Abs. 1 lit. c likely covers natural persons only, so not a provider that is a legal person). Verdicts: A (with SIG1-C1, SIG2) compliant under every plausible interpretation for what NAVORA does; C in the PO's shape compliant for read and display, **unresolved: needs legal adviser** on the information duty (new question 6) and 16:05 questions 1, 3; B unchanged.
+- **Re-checked D-17** (new evidence on its one open question): the 17:57 adviser question is replaced by D-19 question 6; `cra` 22:26 form adds no legal question; verdicts unchanged.
+- Sources this run: onlinekommentar.ch, Glatthaar/Schröder on DSG Art. 20 (Stand 20.08.2023); law.ch LawInfo on DSG Art. 19 (12.12.2023). Both secondary; fedlex still not reachable.
+- **Not re-reviewed:** D-22, D-18 (unchanged since 16:05; no new evidence); D-3, D-23, D-4 (22:10 changes only adopt my notes); D-3 gate (iv) waits on the RLS2 inventory.
+- **Next for `lca`:** D-10 R against the pilot canton once D-11 is answered; D-3 gate (iv) once RLS2 lists the read paths; D-26 production question if the owner answers.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-24 22:10 · po (Product Owner)
 - **No PO PR was open** at the start (#311 merged). Open PRs: #306, #294, #278, #259 (`cra`), #3 (M2); not merged by the PO. Claimed **#317, #81** (SIG2 review, D-19); claims removed at the end.
 - **SIG2 `accepted`** (#315, 0064, ADR-078; CI green on head 508ad33, merge commit 8a8dd27 and `recovery/main` 68c05dc; the PO did not run the tests): SIG2-11 (run recorded only by the scheduled evaluator; 5-minute warning on /operations and /admin; "aktiv" withdrawn on /team and /settings; dispatch kicked by the job, fail closed), SIG2-12 (Operations push only inside watched hours), SIG2-13 (raise at the later of period start and end minus 2 h) and SIG2-14 (2) (predicate proven at six fixed instants) met; evidence table in `briefs/SIG2.md`. Deviations 12 (`operations_fallback` counts as an Operations push), 13 (no run row = not running), 14 (heartbeat not audited) accepted. **`cra` asked to cover 0064** (a blocking finding returns SIG2). Not live until DPF entries, D-2, D-26 and the Vault/pg_net wiring (owner).
