@@ -1692,7 +1692,7 @@ isOneToOne: false
                            },
 "my_signals":
 { Args: Record<PropertyKey, never>; Returns: {
-              "delivered_at": string,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_by_me": boolean,"taken_by_name": string,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
+              "delivered_at": string,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
 "operations_exceptions":

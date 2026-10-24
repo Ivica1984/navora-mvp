@@ -60,6 +60,10 @@ export default function SignalBanner({ initial }: { initial: SignalRow[] }) {
                 <Link href={signalHref(s)} className="underline">{signalWhen(s)}</Link>
                 {reasonText(s.reason, Boolean(s.outside_none)) ? ` · ${reasonText(s.reason, Boolean(s.outside_none))}` : ""}
               </p>
+              {/* SIG1-C1: taken by a care assistant; the step to Operations still follows until a registered nurse takes it. */}
+              {s.taken_awaits_rn && (
+                <p data-testid="safety-signal-taken-by" className="font-semibold text-rose-900">{takenText(s)}</p>
+              )}
               <button type="button" disabled={pending === s.signal_id} onClick={() => take(s.signal_id)}
                       className="mt-2 min-h-11 rounded-lg bg-rose-800 px-4 font-bold text-white disabled:opacity-60">
                 Ich übernehme
