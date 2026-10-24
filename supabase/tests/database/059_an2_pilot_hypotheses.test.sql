@@ -238,8 +238,8 @@ select ok((select bool_and(not suppressed) from public.pilot_hypotheses('2025-04
 select ok((select count(*) > 0 and bool_and(suppressed and value is null and base is null)
            from public.pilot_hypotheses('2025-01-01') where team_id is null),
   'January (only a two-person team): the organisation rows are hidden too');
-select is((select count(distinct measure)::int from public.pilot_hypotheses('2025-06-01') where team_id is null), 39,
-  'every measure of parts 2 and 3 (and the two SIG1-6 measures, 0060, and the two ORD0-6 measures, 0061) appears, also in a month without events');
+select is((select count(distinct measure)::int from public.pilot_hypotheses('2025-06-01') where team_id is null), 41,
+  'every measure of parts 2 and 3 (and the two SIG1-6 measures, 0060, the two ORD0-6 measures, 0061, and the two SIG2-10 measures, 0062) appears, also in a month without events');
 reset role;
 
 -- Access ------------------------------------------------------------------------------------------------------------

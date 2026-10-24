@@ -32,6 +32,8 @@ export type SignalRow = {
   taken_by_me: boolean;
   taken_by_name: string | null;
   taken_at: string | null;
+  /** SIG2-5: nobody received it outside the app, so Operations got it at once. */
+  outside_none?: boolean | null;
 };
 
 export function signalText(kind: string): string {
@@ -63,8 +65,10 @@ export function takenText(row: Pick<SignalRow, "taken_by_me" | "taken_by_name">)
 }
 
 /** Why the person received it (Operations rows say so). */
-export function reasonText(reason: string): string | null {
+export function reasonText(reason: string, outsideNone = false): string | null {
   if (reason === "operations_fallback") return "an Operations: niemand im Team im Dienst";
+  // SIG2-5: "kein Empfänger ausserhalb der App" → Operations at once, without waiting for the untaken threshold.
+  if (reason === "untaken" && outsideNone) return "an Operations: kein Empfänger ausserhalb der App";
   if (reason === "untaken") return "an Operations: nicht rechtzeitig übernommen";
   return null;
 }

@@ -7,6 +7,7 @@ import { getCover } from "@/features/cover/queries";
 import { getTeamVisitAlerts } from "@/features/team/queries";
 import { getAbsenceView } from "@/features/absence/queries";
 import { getMySignals } from "@/features/signals/queries";
+import { recordPushTap } from "@/features/push/queries";
 import FieldClient from "./field-client";
 
 // F1: the nurse's day. Mobile-first; visits of her own teams only (public.field_visits).
@@ -15,7 +16,9 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
   await connection();
 
   const today = todayInZurich();
-  const { datum } = await searchParams;
+  const { datum, von } = await searchParams;
+  // SIG2-8: opened from the push message: record the tap (never display on the device).
+  if (von === "push") await recordPushTap();
   const day = parseDayParam(datum, today);
   const [visits, notes, reports, quality, qualityTypes, statusNotes, countersign, cover, sinceLast, visitAlerts, absence, signals] = await Promise.all([
     getFieldVisits(day),
