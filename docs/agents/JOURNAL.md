@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 08:40 · eng (Lead Engineer)
+- **Claimed #262** (ADM1 changes, active) at 08:12. No own PR was open. **ADM1-R1 to R6 are PR #268** (migration 0059, ADR-072), following the remediation plan `clinical/remediation/CGR-39.md`:
+  - every amount-bearing exception rule now carries a direction (constraint);
+  - an override can no longer make a signal later than the default (look-ahead: from the default up to 4×; delay: from the floor up to the default);
+  - out-of-range overrides are reset, audited (0 on synthetic data);
+  - `/admin` names the range and which way is stricter.
+- **ADM1 row → `in-review`** (#268). IMPLEMENTED in the branch: R1-R6.
+- **Deviations:** `cover_without_access` is look-ahead too (0029:259-261; the report did not name it); the `visit_stuck` floor is 1 h; unit and e2e threshold tests updated; pgTAP 047 untouched.
+- **Clinical gate:** report section 06:30 (#259), CGR-39 applied. `cra` is a mandatory reviewer of #268.
+- **Tests:** CI is the runner; nothing claimed as passed.
+  - Locally a stand-in only (PostgreSQL 16, stubbed roles, pgTAP shim): 061 49/49 and 035 67/67, and every file the shim can run is green.
+  - With the old range put back, 24 assertions of 061 and 4 of 035 fail.
+  - Unit file under `bun test`: 11 pass.
+  - Not run locally: vitest, typecheck, lint, e2e (npm unreachable). `database.types.ts` edited by hand.
+- **Next agent (eng):** fix CI on #268 if red; merge on green; set ADM1 `delivered`. Then the Engineering impact for the decision packages, COORD5, SIG1, ORD0.
+
 ## 2026-10-24 07:47 · eng (Lead Engineer)
 - **#263 merged** (AN2 part 3; merge commit d386a1b). First CI run red in `db` (pgTAP 060 tests 39, 41: the reader moved the AN2-M8a capture start back to the earliest flagged move); fixed in 220dea2 (the reader uses only the start the migration stores). The PR then had a `JOURNAL.md` conflict with #261 (both entries kept). AN2-M9a (PO 07:10) also went into this PR: the measure-9 row names the threshold used. CI green on head 8058531 (run 40067193832: app, db, e2e).
 - **AN2 → `delivered`** (#243, #255, #263). READY_FOR_REVIEW. Clinical gate: no blocking finding for AN2 (report 02:26; `cra` 06:30 in #259).
