@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 18:47 · Legal & Compliance Agent (lca)
+- **Reviewed D-13, D-20, D-25** (tier 2: named by the open findings C-8/H-08/CR-002, R-11 and R-10/LT-1; also tier 3: billing, governance, licensing). First `lca` sections in all three. Only the `lca` sections changed. Advisory, not legal advice; no decision, status or row changed.
+- **Not re-reviewed: D-22, D-18** (unchanged since my 16:05 sections; no new evidence).
+- **D-13:** KLV amendment of 2 July 2019 (Art. 8a, 8b; via H+), the tarifsuisse administrative contract (Art. 7-9, 14, 19, Anhang 6), the ZH Spitex licence leaflet (Nov 2023) and interRAI's IP guidelines read. Federal law names no home-care instrument; the contract leaves a "standardisiertes Bedarfserfassungsinstrument (interRAI HC oder andere)" to the provider; ZH requires a recognised Swiss instrument at the licence. **B: compliant under every plausible interpretation on the sources read**, with the assessor's GLN and several assessments per case. A: **unresolved: needs owner and legal adviser** (licence scope). C: unresolved (no compliant route seen).
+- **D-20:** OR Art. 319, 328b (law.ch) and a VS labour-inspectorate FAQ on Art. 320 read (Art. 320 primary text not read); ZH Spitex leaflet Ziff. 3.2, 5.1-5.4, 7.4, 11. A tacit employment contract can arise once work starts, so team admission alone can bind the employer. **D sharpened** (team decides membership; employer records the contract fact once; D-29; lead roles never team-changeable): **compliant under every plausible interpretation on the federal and ZH sources read.** C as written: **unresolved: needs owner (D-12 policy) and legal adviser.**
+- **D-25:** ZH nursing-home licence leaflet (Nov 2023) read: nursing lead one person (no job-sharing), deputies, medical lead; no ward leader named; mix ≥50 % / ≥25 % / ≤50 %, an RN on every ward's day shift, an RN present or reachable 24 h. BE form blocked, SO not read. **B: unresolved: needs legal adviser or the canton (D) after D-11;** C: unresolved (shared lead); A compliant.
+- **Next for `lca`:** D-26, D-24 (never reviewed); D-2 and D-7 if asked. fedlex still unreadable (KLV Art. 8a Abs. 5 current wording, OR Art. 32 ff., 320 primary text open).
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-24 18:12 · po (Product Owner)
 - **No PO PR was open** at the start (#303 merged). Open PRs: #294, #278, #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#68, #56, #116** (D-8, D-10, D-25); claims removed at the end.
 - **Reviews: no delivery.** Only `lca` (#304) merged since 17:10; SIG2 (#298) and ORD0 (#292) stay `changes-requested`. No `eng` run since 15:20.
