@@ -102,3 +102,31 @@ CGR-36, CGR-38 (`reports/CLINICAL_GOVERNANCE.md` 2026-10-24 02:26); CR-003, CR-0
 - The first opening stays as built (planning finds A/C minutes without an order, `no_order_ac` in 0030 and earlier); (a′) adds the assessment event, mostly relevant for reassessments.
 
 Everything else in ORD0-C2 and ORD0-C1 is unchanged. Acceptance: ORD0-C1 and the widened ORD0-C2 merged with green CI.
+
+## PO review — 2026-10-24 21:10: **`accepted`** (ORD0-C1 and ORD0-C2 met; #312)
+
+**Delivered:** #312 (`fix/ord0-c2-sig1-c1`, migration 0063, ADR-077), merged as b574966 with a merge commit. **CI green** on the PR head 5aa2390 (run 40121336431: `app`, `db`, `e2e`), on the merge commit b574966 (push run 40122052920, 20:44-20:48 Zurich) and on `recovery/main` b55d7b1 (push run 40122505168). **The PO did not run the tests**; the evidence below is the merged test code read by the PO and those CI runs. Engineering's own run was local with a pgTAP stand-in (journal 20:45); CI is the evidence.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| ORD0-C1 (a): HAND1 returns one `gp_informed` entry (date, channel, member code, no free text) | met | pgTAP 063 (+1): `private.handover_entries(...)` filtered on `gp_informed` returns `1 persoenlich -10 channel,informed_on true` (one entry, keys only `channel`, `informed_on`, an author) |
+| ORD0-C1 (b): the exception ends when the order is no longer `present` | met | pgTAP 063 (+3): B item active again → exception back; `medical_order_status = 'requested'` → gone; `order_open_end_episodes.ending = 'order_not_present'` (ORD0-6) |
+| ORD0-C2 (a): an A/C item becoming active without an order and without a record on or after that day → **one** task | met | 0063 §1 `open_inform_gp_after_event`, `inform_gp_from_plan_item` (insert active, re-activation, change to A/C while active); pgTAP 065 "an active C item … → one task" |
+| ORD0-C2 (a): refreshes, PLAN2 runs or more A/C items never open a second task while one is open, never reopen a covered item | met | pgTAP 065: two `generate_case_plan` runs plus a new A item → `done,open` (one open); after a record, a refresh → no new task; a re-activated C item on a covered day → no task |
+| ORD0-C2 (a′): a completed needs-assessment visit (every one, not `needs_assessment_done_at`) → one task | met | 0063 §1 `inform_gp_from_assessment`; pgTAP 065 "(d′) a record, then a completed (second) needs-assessment visit without an order → one new task" |
+| ORD0-C2 (b): the record closes the task; without an open task it stays `unchanged` | met | pgTAP 065 "the record closes it"; `record_gp_informed` body unchanged since 0061 (pgTAP 063 `unchanged` case still green) |
+| ORD0-C2 (c): a B item, an order `present`, a closed case open nothing; a close still closes | met | pgTAP 065 "(c) a new B item or a C item with the order present → no task", "a completed assessment with the order present → no task", "no open task on the closed case" |
+| ORD0-C2 (d) and (d′): the named pgTAP cases | met | pgTAP 065, 21 ORD0-C2 assertions, every case in (d) and (d′) present, including "a completed assessment and a new C item on the same day → still one task" |
+| ORD0-C2 (e): HAND1 shows the reopened task like the first; AN2 measure 10 counts each task episode | met, with deviation 2 | HAND1 never listed the `inform_gp` task, only the record (ORD0-C1 (a)), so "like the first" adds nothing; the open task shows on the team's case view (ORD0-3, e2e `doctor.spec.ts`). Measure 10 counts `inform_gp` tasks created in the month (0061:358-391), so each new task row is one episode |
+| No deadline, content or clinical threshold set (D-22 question 6) | met | 0063 header lines 1-4, 30-31; no time limit in the triggers |
+| Clinical review gate | passed for ORD0 (`cra` 14:27); 0063 not yet covered | `cra` 14:27 (PR #294): "the PO may accept with ORD0-C1 and a decision on CGR-44"; CGR-44 decided as ORD0-C2 and now built (remediation `clinical/remediation/CGR-44.md`, register row CR-074 PROVISIONAL). The 15:10 review said no further gate is needed for these two unless `cra` finds a new hazard. **`cra` is asked to cover 0063 in its next section**; a blocking finding there returns ORD0 to `changes-requested` (README, *already accepted items*) |
+| Architecture (Handbook) | in line | event-driven triggers on the existing task, one-open-per-kind index reused, no new subsystem, audited commands unchanged |
+
+**Deviations (Engineering 20:45), decided:**
+- (2) HAND1 has no `inform_gp` task entry, so ORD0-C2 (e) adds none: **accepted.** HAND1 carries what changed since a nurse was last there; the record is that change and it is listed. The open task is an action and lives on the case view, which the team opens anyway. Adding a task entry to HAND1 would duplicate it.
+- (4) pgTAP 064 fixture made clock-independent: **accepted**, reviewed under SIG2-14 (`briefs/SIG2.md`, note 21:10).
+- (1) and (3) concern SIG1-C1 and are decided in `briefs/SIG1.md` (note 21:10).
+
+**Business and care value.** A client whose A or C care grows months later, or who is reassessed, is no longer silently left without a doctor link: the team gets one task at the moment of the event, never a stream of reminders, and no coordinator has to remember to ask (value 2 continuity; value 5 administration; value 6 outcomes). The task episodes feed AN2 measure 10, which is the evidence D-22 question 6 will need.
+
+**Result: `accepted`.** ORD0 moves from *Next up* into the priority queue; issue #314 closes with this cycle (#292 is already closed). The deadline and content of the information stay D-22 (owner/legal adviser, Clinical Owner).

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { setOutsidePush, setWatchedHours } from "@/features/push/commands";
 import type { AdminPush } from "@/features/push/queries";
-import { ADMIN_PUSH_MESSAGES, OUTSIDE_LABEL, WEEKDAYS, formatWatchedDay, parseWatchedDay, type WatchedPeriod } from "@/features/push/rules";
+import { ADMIN_PUSH_MESSAGES, NO_WATCHED_HOURS, OUTSIDE_LABEL, WATCHED_HOURS_HELP, WEEKDAYS, formatWatchedDay, parseWatchedDay, type WatchedPeriod } from "@/features/push/rules";
 
 const field = "min-h-10 rounded-lg border border-stone-300 bg-white px-2 text-sm";
 const secondary = "min-h-10 rounded-lg border border-stone-400 bg-white px-3 text-sm font-semibold disabled:opacity-60";
@@ -59,11 +59,8 @@ export default function OutsideDelivery({ organizationId, push }: { organization
         }
         run(() => setWatchedHours({ organizationId, hours, idempotencyKey: crypto.randomUUID() }));
       }}>
-        <p className="text-xs text-stone-600">
-          Überwachte Zeiten (Pilotplan, SIG1-8), z. B. «07:00-20:00». Ein vorausschauendes Signal «Einsatz ohne Zuständige (Spitalaustritt)»,
-          dessen Frist ausserhalb dieser Zeiten beginnen würde, erscheint am Ende der letzten überwachten Zeit davor: früher, nie später.
-          Leer = keine Änderung gegenüber heute.
-        </p>
+        <p className="text-xs text-stone-600">{WATCHED_HOURS_HELP}</p>
+        {push.hours.length === 0 && <p data-testid="no-watched-hours" className="rounded-lg border border-amber-300 bg-amber-50 p-2 text-sm">{NO_WATCHED_HOURS}</p>}
         <div className="grid grid-cols-[3rem_1fr] items-center gap-2">
           {WEEKDAYS.map((label, i) => (
             <label key={label} className="contents">

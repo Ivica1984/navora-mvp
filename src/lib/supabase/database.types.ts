@@ -1193,6 +1193,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"signal_takes": {
+                  Row: {
+                    "id": string,"organization_id": string,"qualification": string | null,"signal_id": string,"stops_escalation": boolean,"taken_at": string,"taker_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: string,"organization_id": string,"qualification"?: string | null,"signal_id": string,"stops_escalation": boolean,"taken_at"?: string,"taker_id": string
+                  }
+                  Update: {
+                    "id"?: string,"organization_id"?: string,"qualification"?: string | null,"signal_id"?: string,"stops_escalation"?: boolean,"taken_at"?: string,"taker_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "signal_takes_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "signal_takes_signal_id_fkey"
+      columns: ["signal_id"]
+isOneToOne: false
+      referencedRelation: "safety_signals"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"tariff_rates": {
                   Row: {
                     "amount": number,"category": string | null,"id": string,"payer": string,"region": string,"source": string,"unit": string,"valid_from": string,"valid_to": string | null,"validated": boolean,"validation_note": string | null,"version": string
@@ -1692,7 +1718,7 @@ isOneToOne: false
                            },
 "my_signals":
 { Args: Record<PropertyKey, never>; Returns: {
-              "delivered_at": string,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_by_me": boolean,"taken_by_name": string,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
+              "delivered_at": string,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
 "operations_exceptions":
@@ -1836,6 +1862,11 @@ isOneToOne: false
                            },
 "sign_report":
 { Args: { "p_idempotency_key": string,"p_report_id": string,"p_snapshot_hash": string }; Returns: Json
+                           },
+"signal_evaluator_health":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "last_run_at": string,"organization_id": string,"running": boolean
+            }[]
                            },
 "start_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string

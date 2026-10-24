@@ -34,6 +34,10 @@ export type SignalRow = {
   taken_at: string | null;
   /** SIG2-5: nobody received it outside the app, so Operations got it at once. */
   outside_none?: boolean | null;
+  /** SIG1-C1 (0063): qualification of the person shown as taker (`registered_nurse`, `care_assistant`, or none). */
+  taken_by_qualification?: string | null;
+  /** SIG1-C1: taken, but by nobody whose take stops the step to Operations (a no-show or broken-off visit). */
+  taken_awaits_rn?: boolean | null;
 };
 
 export function signalText(kind: string): string {
@@ -52,16 +56,33 @@ export function signalHref(row: Pick<SignalRow, "visit_date">): string {
   return `/field?datum=${row.visit_date}`;
 }
 
-/** SIG1-4: untaken signals at the top; taken ones leave the top list and show who took them. */
-export function splitSignals<T extends Pick<SignalRow, "taken_by_name" | "taken_by_me">>(rows: T[]): { open: T[]; taken: T[] } {
+/**
+ * SIG1-4: untaken signals at the top; taken ones leave the top list and show who took them.
+ * SIG1-C1: a signal taken only by someone whose take does not stop the step to Operations (a care assistant's take of a
+ * no-show or broken-off visit) stays at the top for everyone who has not taken it, so a registered nurse can take it.
+ */
+export function splitSignals<T extends Pick<SignalRow, "taken_by_name" | "taken_by_me" | "taken_awaits_rn">>(rows: T[]): { open: T[]; taken: T[] } {
   const open: T[] = [];
   const taken: T[] = [];
-  for (const r of rows) (r.taken_by_name || r.taken_by_me ? taken : open).push(r);
+  for (const r of rows) {
+    const isTaken = r.taken_by_me || (Boolean(r.taken_by_name) && !r.taken_awaits_rn);
+    (isTaken ? taken : open).push(r);
+  }
   return { open, taken };
 }
 
-export function takenText(row: Pick<SignalRow, "taken_by_me" | "taken_by_name">): string {
-  return row.taken_by_me ? "von dir übernommen" : `übernommen von ${row.taken_by_name ?? "Teammitglied"}`;
+/** Fixed qualification labels (D-5 pilot model). */
+export const QUALIFICATION_LABEL: Record<string, string> = {
+  registered_nurse: "Pflegefachperson",
+  care_assistant: "Pflegehilfe",
+};
+
+/** "übernommen von Anna (Pflegehilfe), Meldung an Operations folgt" (SIG1-C1 (a)); otherwise as before. */
+export function takenText(row: Pick<SignalRow, "taken_by_me" | "taken_by_name" | "taken_by_qualification" | "taken_awaits_rn">): string {
+  const base = row.taken_by_me ? "von dir übernommen" : `übernommen von ${row.taken_by_name ?? "Teammitglied"}`;
+  if (!row.taken_awaits_rn) return base;
+  const label = row.taken_by_qualification ? QUALIFICATION_LABEL[row.taken_by_qualification] : undefined;
+  return `${label ? `${base} (${label})` : base}, Meldung an Operations folgt`;
 }
 
 /** Why the person received it (Operations rows say so). */
@@ -80,3 +101,27 @@ export function takeOutcome(data: unknown): { result: string; reason?: string } 
   }
   return { result: "failed" };
 }
+
+/** SIG2-11 (0064, ADR-078): the scheduled evaluator's last run per organisation (Operations and administrators only). */
+export type EvaluatorHealth = { organization_id: string; last_run_at: string | null; running: boolean };
+
+export const EVALUATOR_DOWN = "Signalprüfung läuft nicht";
+export const EVALUATOR_RUNNING = "Signalprüfung läuft";
+
+/** The organisations whose scheduled evaluator has not run for more than 5 minutes (decided by the database). */
+export function evaluatorDown(rows: EvaluatorHealth[]): EvaluatorHealth[] {
+  return rows.filter((r) => !r.running);
+}
+
+/** One line per organisation for the warning; the time is Europe/Zurich wall time. */
+export function evaluatorDownText(row: EvaluatorHealth): string {
+  if (!row.last_run_at) return `${EVALUATOR_DOWN}: kein geplanter Lauf erfasst.`;
+  const at = new Intl.DateTimeFormat("de-CH", { timeZone: "Europe/Zurich", dateStyle: "short", timeStyle: "short" })
+    .format(new Date(row.last_run_at));
+  return `${EVALUATOR_DOWN}: letzter geplanter Lauf ${at}.`;
+}
+
+/** What it means for the team (SIG2-11 (2)): no outside channel is shown as active, signals need an open page. */
+export const EVALUATOR_DOWN_CONSEQUENCE =
+  "Signale erscheinen nur, solange eine NAVORA-Seite geöffnet ist; ausserhalb der App wird keine Benachrichtigung als aktiv angezeigt. " +
+  "Bitte die Administration bzw. den Betrieb der Plattform informieren.";

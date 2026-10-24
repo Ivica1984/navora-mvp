@@ -48,6 +48,20 @@ describe("safety signals (SIG1)", () => {
     expect(takenText(rows[2])).toBe("von dir übernommen");
   });
 
+  it("keeps a no-show taken only by a care assistant at the top for the others (SIG1-C1)", () => {
+    const rows = [
+      { id: 1, taken_by_me: false, taken_by_name: "Assistenz Test", taken_by_qualification: "care_assistant", taken_awaits_rn: true },
+      { id: 2, taken_by_me: true, taken_by_name: "Assistenz Test", taken_by_qualification: "care_assistant", taken_awaits_rn: true },
+      { id: 3, taken_by_me: false, taken_by_name: "Pflege Test", taken_by_qualification: "registered_nurse", taken_awaits_rn: false },
+    ];
+    const { open, taken } = splitSignals(rows);
+    expect(open.map((r) => r.id)).toEqual([1]);
+    expect(taken.map((r) => r.id)).toEqual([2, 3]);
+    expect(takenText(rows[0])).toBe("übernommen von Assistenz Test (Pflegehilfe), Meldung an Operations folgt");
+    expect(takenText(rows[1])).toBe("von dir übernommen (Pflegehilfe), Meldung an Operations folgt");
+    expect(takenText(rows[2])).toBe("übernommen von Pflege Test");
+  });
+
   it("says why Operations received it", () => {
     expect(reasonText("team")).toBeNull();
     expect(reasonText("responsible")).toBeNull();
@@ -62,5 +76,20 @@ describe("safety signals (SIG1)", () => {
     expect(takeOutcome({ result: "ok" })).toEqual({ result: "ok", reason: undefined });
     expect(takeOutcome({ result: "rejected", reason: "not_recipient" })).toEqual({ result: "rejected", reason: "not_recipient" });
     expect(takeOutcome(null)).toEqual({ result: "failed" });
+  });
+});
+
+describe("SIG2-11: evaluator health (0064)", () => {
+  it("warns only for organisations whose scheduled evaluator is not running", async () => {
+    const { evaluatorDown, evaluatorDownText, EVALUATOR_DOWN } = await import("@/features/signals/rules");
+    const rows = [
+      { organization_id: "a", last_run_at: "2026-10-24T19:00:00Z", running: false },
+      { organization_id: "b", last_run_at: "2026-10-24T19:20:00Z", running: true },
+      { organization_id: "c", last_run_at: null, running: false },
+    ];
+    expect(evaluatorDown(rows).map((r) => r.organization_id)).toEqual(["a", "c"]);
+    expect(evaluatorDownText(rows[0])).toBe(`${EVALUATOR_DOWN}: letzter geplanter Lauf 24.10.26, 21:00.`);
+    expect(evaluatorDownText(rows[2])).toBe(`${EVALUATOR_DOWN}: kein geplanter Lauf erfasst.`);
+    expect(EVALUATOR_DOWN).toBe("Signalprüfung läuft nicht");
   });
 });
