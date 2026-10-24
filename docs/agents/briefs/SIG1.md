@@ -32,7 +32,7 @@ Product decision on CGR-37 (PO, 2026-10-24 03:10, product authority). Who must r
 - [ ] **SIG1-8 Pilot precondition (until an external channel exists, D-32).** The pilot plan names, for every hour in which visits are planned, the person who has `/field`, `/team` or OPS1 open; visits outside those hours are not planned. This is a go-live condition written into `docs/product/CARE_OPERATING_MODEL.md` by the PO, not a software check.
 
 ## Out of scope
-- Delivery outside the app (web push, SMS, e-mail, phone): needs D-32 (provider, region, message content without personal data). SIG1 builds the delivery record so a channel can be added without changing the rule.
+- Delivery outside the app (web push, SMS, e-mail, phone): needs D-32 (provider, region, message content without personal data). SIG1 builds the delivery record so a channel can be added without changing the rule. **PO 2026-10-24 05:15 (D-32, `lca` note 1):** whenever a channel is added, its message is one fixed text, not configurable per organisation or per message, without client name, address, visit time or health data; members receive an information text before it is switched on.
 - Response deadlines, on-call rosters, response duties: `clinical` (D-28 items 3 and 6). SIG1 names recipients, not duties.
 - P2 and P3 signals: they stay pull-only, by design (alert fatigue); a later change needs AN2 evidence.
 
