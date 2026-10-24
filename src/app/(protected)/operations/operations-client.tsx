@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import SignalBanner from "@/components/signals/SignalBanner";
+import type { SignalRow } from "@/features/signals/rules";
 import Sidebar from "@/components/layout/Sidebar";
 import type {
   OperationsDashboard,
@@ -42,6 +44,8 @@ type OperationsClientProps = {
   billing: BillingPreviewRow[];
   month: string;
   lifecycle: CaseLifecycle[];
+  /** SIG1: P1 safety signals delivered to Operations (fallback or untaken). */
+  signals?: SignalRow[];
 };
 
 function getStatusLabel(status: string | null) {
@@ -130,7 +134,7 @@ function getSlaStatus(careCase: CaseSummaryRow) {
   return "ok";
 }
 
-export default function OperationsClient({ dashboard, holds, continuity, billing, month, lifecycle }: OperationsClientProps) {
+export default function OperationsClient({ dashboard, holds, continuity, billing, month, lifecycle, signals = [] }: OperationsClientProps) {
   const {
     cases,
     teams,
@@ -201,6 +205,7 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
       <Sidebar active="operations" />
 
       <main style={{ padding: "24px", display: "grid", gap: "16px" }}>
+        <SignalBanner initial={signals} />
         <Header
           activeCases={activeCases.length}
           openSlots={openSlots}

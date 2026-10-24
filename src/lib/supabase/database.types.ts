@@ -1485,6 +1485,11 @@ isOneToOne: false
               "area": string,"covered_at": string,"minutes_a": number,"minutes_b": number,"minutes_c": number,"services": (string)[],"status": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
+"my_signals":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "delivered_at": string,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_by_me": boolean,"taken_by_name": string,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
+            }[]
+                           },
 "operations_exceptions":
 { Args: Record<PropertyKey, never>; Returns: {
               "case_id": string,"case_label": string,"closable": boolean,"comments": Json,"detail": string,"entity_id": string,"entity_type": string,"exception_key": string,"exception_type": string,"flags": (string)[],"label": string,"next_step": string,"owner_name": string,"priority": string,"region": string,"since": string,"taken": boolean,"taken_at": string,"taken_by_me": boolean,"team_name": string
@@ -1615,6 +1620,9 @@ isOneToOne: false
                            },
 "take_open_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: Json
+                           },
+"take_signal":
+{ Args: { "p_idempotency_key": string,"p_signal_id": string }; Returns: Json
                            },
 "team_absences":
 { Args: Record<PropertyKey, never>; Returns: {

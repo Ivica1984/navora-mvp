@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import SignalBanner from "@/components/signals/SignalBanner";
+import type { SignalRow } from "@/features/signals/rules";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { addCarePlanItem, completeCaseTask, decideMatchingRequest, planVisit, removePlannedVisit, rescheduleVisit, retireCarePlanItem, setPrimaryNurse } from "@/features/team/commands";
@@ -53,6 +55,7 @@ export default function TeamClient({
   lifecycle,
   planStatus,
   visitAlerts = [],
+  signals = [],
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
@@ -62,6 +65,8 @@ export default function TeamClient({
   lifecycle: CaseLifecycle[];
   planStatus: PlanStatus[];
   visitAlerts?: TeamVisitAlert[];
+  /** SIG1: the caller's open P1 safety signals. */
+  signals?: SignalRow[];
 }) {
   const open = offers.filter((o) => !o.my_team_declined);
   const declined = offers.filter((o) => o.my_team_declined);
@@ -85,6 +90,7 @@ export default function TeamClient({
       </header>
 
       <main className="mx-auto grid max-w-xl gap-3 px-4 py-4">
+        <SignalBanner initial={signals} />
         <VisitAlerts alerts={visitAlerts} />
 
         <h2 className="text-lg font-bold">Anfragen an dein Team</h2>
