@@ -49,10 +49,13 @@ Every capability is judged by whether it raises this share without lowering safe
 | Daily team handover meeting; shift lead as knowledge carrier | "Since you were last here" on every visit card, from the record | IMPLEMENTED (HAND1, accepted 2026-10-22) |
 | Re-intake and re-matching of a client after a hospital stay | Paused case resumes; returning client offered to the known team first | IMPLEMENTED (RET1, accepted 2026-10-22) |
 | Shift lead or dispatcher re-assigning an absent nurse's visits by phone | The absent nurse says so once; her visits go to her team, the colleague who knows the client first | PLANNED (ABS1) |
+| Dispatcher or coordinator watching an operations screen so that a missed or stuck visit is noticed | A P1 safety signal is delivered to the responsible nurse and her team; one of them takes it with one tap; Operations only when nobody takes it | PLANNED (SIG1, CGR-37; outside the app after D-32) |
 | Chasing GP practices for order renewals by phone and fax | Prepared renewal request, sent by the primary nurse, confirmed digitally by the GP | DRAFT (ORD1; D-22, D-9) |
 | Nurse ordering her day and route by hand | Proposed order of the day from visit windows and travel time | HYPOTHESIS (Q7 data protection; AN1 travel minutes) |
 | Statutory statistics and cantonal reports compiled by hand | Generated from billing, continuity and quality facts | HYPOTHESIS (D-11) |
 | Back-office invoice preparation | Invoices generated from J5 facts with a human release | after D-12, D-18 |
+
+**Go-live condition (PO, 2026-10-24, SIG1-8, CGR-37):** until safety signals reach people outside the app (D-32), the pilot plan names, for every hour in which visits are planned, the person who has `/field`, `/team` or OPS1 open; no visit is planned outside those hours. Pilot visit hours: UNKNOWN (owner, pilot plan).
 
 What does **not** disappear: verified qualifications, clinical responsibility, legal accountability, data protection. These are decisions for their owners, not things to automate away.
 
@@ -81,6 +84,8 @@ Every proposed capability answers the same questions. The detail is in each brie
 | ABS1 | Dispatch and shift lead for absences | Morning phone chain, re-assigning visits one by one | Dispatcher, shift lead, coach as absence handler | Deputy or primary nurse takes the visit first | Phone time back to care | Team keeps its billable volume |
 | REF2 | Intake on both sides | Re-typing referrals; phoning providers | Intake coordinator | Faster start after discharge | Less intake work | Faster start of billable care |
 | ORD1 | Order administration | Chasing GP orders | Administrative staff for orders | No gap in category B care | Phone time back to care | B visits stay billable |
+| SIG1 | Dispatch and control-room watching | Watching OPS1 for missed visits; phoning around to find who is on it | Dispatcher, coordinator on watch | The responsible nurse hears first | Watching time back to care | – |
+| ORD0 | Order administration | Untracked GP information; open-ended orders noticed by chance | – | The doctor link is on the record | – | B care stays billable (renewal prompted) |
 | AN1 | Management reporting | Manual KPI reports | Controlling and reporting roles | Continuity becomes visible to the team | Proves the North Star | Evidence for D-14 |
 
 ## Horizons
