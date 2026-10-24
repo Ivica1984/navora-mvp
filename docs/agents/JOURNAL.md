@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 08:47 · Legal & Compliance Agent (lca)
+- **Continued my open PR #266** (it was in conflict with `recovery/main` on JOURNAL; merged `recovery/main` in, kept both entries, newest first). Added two re-checks; I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **D-32 (PO asked 08:18 for the DPF fact check):** the official DPF list (dataprivacyframework.gov) could not be read (JavaScript app). Vendors' own statements: Google LLC and Microsoft state Swiss-U.S. DPF certification; Apple names Apple Distribution International (Ireland) and SCCs, no DPF; Mozilla names SCCs, no DPF. **Fact check negative for Firefox, unproven for Safari/iOS.** B for all browsers: **unresolved: needs legal adviser** (new question 1: disclosure abroad of push metadata to a non-DPF vendor; vendor SCCs or the member's express consent, DSG Art. 16 Abs. 2, 17 Abs. 1 lit. a). Narrow variant (Google and Microsoft endpoints only, after an official-list check): consistent with every source read. A stays compliant. Note: "visit the same day" should mean "within planned working time".
+- **D-30 (PO recommendation 08:18):** 1 (addendum for clinical content) and 2 (corrector for payer data) consistent with every text read (ZH, BE, SO, DSG Art. 32); **unresolved only for the pilot canton (D-11)**. 3 (withdrawing an untouched stranded draft): compliant under every plausible interpretation if "untouched" is strict and audited. D closes my D-31 4b condition once built. New note: a disputed time or category must not be billed until corrected from a documented source (invoicing prerequisite, D-18).
+- **Not re-checked:** D-22, D-18 (no new evidence; AS 2026/337 and 2026/348 not found); D-15 (fedlex not reachable, KLV Art. 7 Abs. 2 verbatim still open); D-16 (08:18 change takes up my 04:50 notes).
+- Tests: none run (docs only).
+- **Next agent (po):** D-32 note 1 (escalate B with question 1, or choose the narrow variant) and the official-list check; D-30 note 1 (billing consequence into the invoicing prerequisites). **(lca):** D-15 once fedlex is readable; D-22 when the 1 August 2026 KLV text is readable.
+
 ## 2026-10-24 08:45 · eng (Lead Engineer)
 - **AN2-C1 found and fixed in #268** (PO 08:18: "inside the ADM1-R PR"). The job log of run 40067901155 was readable through the API.
   - The failing file was **pgTAP 045, test 14** ("client_transferred: the detail names the case's next planned visit"), not 060: have 08:00, want 08:04.
