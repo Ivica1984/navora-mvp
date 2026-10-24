@@ -4,6 +4,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 10:11 · po (Product Owner)
+- **No PO PR was open** at the start. Open PRs: #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#274** ([PO review] COORD5); claim removed at the end.
+- **COORD5 → `accepted`** (#271, ADR-073). CI was read through the API: green on head b3dace6 and on `recovery/main` 2663934; on merge commit ccfc857 app and db are green and e2e was cancelled by the next push. **The PO did not run the tests.**
+  - Every criterion met. Live effect checked: 11 `human-decision` issues, each assigned and with a package; the others carry `decision-package`, are unassigned and were commented once (e.g. #71).
+  - One deviation accepted (`po-decided` still in *Open* stays a package issue). Non-blocking **COORD5-M1**: assign `clinical` packages to the Clinical Owner's account once G-1 names one. Evidence in `briefs/COORD5.md`.
+  - COORD5 moved to the queue (rank 22). *Next up*: 1 SIG1, 2 ORD0.
+- **Decision packages** (Engineering impact drafted by po for D-15, D-9, D-4: two-run rule, requested 04:10 and 05:15, not answered):
+  - **D-15 → `awaiting-approval: clinical` (Medium).** Option C: the catalogue proposes the service and its KLV category, and the team may choose another *listed* service with a reason, audited and reviewed by an RN. `lca` conditions (i)-(iii) apply; Abs. 2bis services cannot be planned until qualifications show experience (D-29). The catalogue text is copied verbatim from fedlex, not drafted by an agent. Readiness: as built plus three `cra` items. Real-data gate (po): no real care plan while the category is chosen freely.
+  - **D-9 → `awaiting-approval: owner` (Medium).** Option D, protective variant:
+    - referral on the referrer's confirmation;
+    - case and record on the care contract and the statutory record duty, with the Art. 19 information recorded;
+    - per-category consent for sharing;
+    - representative recorded.
+    Real-data gates g1-g5 decided by po. `lca` questions 1-5 go to the legal adviser of D-11/D-12.
+  - **D-4: provisional rule decided by po** (`lca` 08:05: compliant under every plausible interpretation): no deletion before the final rule, written retention criteria, purpose-bound reading as the target; real-data gates r1-r3. **Final periods → `awaiting-approval: owner`**, asked once D-11 and D-12 are answered (as D-18). The row stays in *Open* for the final part.
+  - **D-12** (`lca` 09:53 adopted). Four conditions: (1) the partner's nursing management may intervene in a single case, recorded and visible, instead of being excluded; (2) measures aggregated per team; (3) "support a new licence and the transfer of consenting clients" instead of "take over"; (4) processor and confidentiality agreement, NAVORA's own use anonymised and aggregated only, hosting and DPIA before real data. Still `owner`.
+  - **D-11:** criterion 1 = a design partner already licensed and admitted in that canton. Still `owner`.
+  - Go-live conditions for D-9, D-4 and D-15 added to `CARE_OPERATING_MODEL.md`.
+- **Challenge:** data-protection housekeeping (retention, access requests, clearing old referrals) done by people. From scratch these are properties of the data: a retention class per audited column, a one-command extract, self-expiring referrals. Row in `NEXT_CAPABILITY.md` and `CARE_OPERATING_MODEL.md`; hypothesis: zero staff hours per request and per run. Brief after D-11 and D-12.
+- No new brief: SIG1 and ORD0 are approved and unstarted. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:**
+  - owner: D-22, D-18 (after D-11, D-12), D-29, D-11, D-12, D-33, **D-9**; D-4 final periods (after D-11, D-12); names the Clinical Owner (G-1);
+  - Clinical Owner (once named): D-28, D-31, D-3 field list, D-30, D-16, **D-15**.
+- **Next agent (eng):** SIG1, then ORD0. Confirm or correct the Engineering impact drafted by po (now also D-15, D-9, D-4). COORD5-M1, AN2-M4a, ADM1-M1 at their next touch. **(cra):** ADM1-G1 (CGR-39 on 0059); merge or update #259; a look at D-15's option C wording. **(lca):** D-15, D-9 and D-4 recommendations changed (re-check is eligible); D-22 and D-15 once fedlex is readable. **(po):** D-10, D-7, D-8 packages.
+
 ## 2026-10-24 09:53 · Legal & Compliance Agent (lca)
 - **Re-checked D-12, D-11 and D-33** (all three changed since my last section: PO 09:12). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **D-22, D-18 not re-checked** (priority 1, but not eligible: no change since the 06:10 take-up of my 05:45 notes, no new evidence). New fact only: the BAG list shows KLV amendments 2026/336 (in force 1 July 2026 and 1 January 2027) and 2026/337 (1 January 2027 and 1 January 2028); their text is still unread (fedlex not reachable).
