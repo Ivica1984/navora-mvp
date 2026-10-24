@@ -4,6 +4,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 15:10 · po (Product Owner)
+- **PO PR #291 was still open** (13:15 and 14:40 cycles; CI green on 4d70294), conflicted again in `JOURNAL.md` after #296. Merged `recovery/main` in (a1de528, both entries kept, newest first). This run's work is added to #291 (no second PO PR). Open PRs otherwise: #295 (SIG2, `eng`, CI running), #294 (`cra` 14:27, supersedes #278 and #259; not merged by the PO), #3 (M2). Claimed **#285, #292, #288** (reviews, Q12) and **#72, #81, #89** (D-6, D-19, D-20); claims removed at the end.
+- **SIG1 `accepted`** (#285). Clinical gate passed: `cra` 14:27 (#294, read on its branch) finds no blocking finding and closes CGR-37 in the app. Evidence table in `briefs/SIG1.md`; **the PO did not run the tests** (CI green on dad4dbe, 7a3fdb5, a081031). **CGR-43 decided (protective, product authority):** condition **SIG1-C1**, for `no_show` and `visit_interrupted` a take by a member who is not a registered nurse does not stop the step to Operations; the question for the Clinical Owner joins D-28.
+- **ORD0 `changes-requested`** (#292 stays open). Clinical gate passed (`cra` 14:27), but **ORD0-C1** (two pgTAP 063 assertions, "before acceptance" since 13:15) is not met: nothing has touched pgTAP 063 since #284. **CGR-44 decided: Q12 changed from (a) to (c)** (`OPEN_DECISIONS.md`): one `inform_gp` task opens when an A/C item becomes active without an order and no later "informiert" record; a refresh never reopens it. Condition **ORD0-C2** with pgTAP. Reasons: CGR-44, and `lca` 15:05 (tarifsuisse Art. 9 Abs. 1; (a) not shown compliant). The 13:15 reason against reopening applies only to a refresh, not to an event.
+- **SIG2 (#295, in progress) gains two criteria**, added after work started (in #295 or a follow-up on the same item; both needed for acceptance):
+  - **SIG2-11** (CGR-42): each evaluator run is recorded; after 5 minutes without one, Operations and `/admin` show "Signalprüfung läuft nicht"; the send path is started by the scheduler.
+  - **SIG2-12** (`lca` 15:05 note 1, D-32 addendum): Operations gets pushes only within the watched hours; otherwise it gets them in the app only. `lca` found pushes "at any hour" unresolved (Pikett).
+  - `CARE_OPERATING_MODEL.md` SIG1-8: the provider confirms in writing how the watched hours are staffed. Until SIG2-11 is built, the checklist confirms that the evaluator job exists.
+- **`lca` 15:05 taken up (no status change):**
+  - **D-22:** question 3 reworded (effective date vs. signature); the invoicing consequence needs two order dates (issue, effective); Q12 now (c); question 6 open.
+  - **D-18:** inpatient periods are an invoicing prerequisite (tarifsuisse Art. 10 Abs. 4; `eng` asked whether J5 can represent them); question 5 for the adviser.
+  - **D-32:** addendum above.
+- **Packages D-6, D-19, D-20 written** (`inputs-requested`; one comment per issue names the roles):
+  - **D-6** (E, C; no `lca`, no legal question): working view A as built. The PO decides the assignment model and the state list if `cra` confirms they are no clinical rule.
+  - **D-19** (E, C, L): the protocol content is `clinical`; interim C1 plus SIG1-C1. Moved to tier 2 in INDEX (CGR-43).
+  - **D-20** (E, L; C on one point): working view C. The team admits by team decision, the qualification is active only after D-29, and the admin can remove for cause. D applies if `lca` finds the employer must act.
+- **Challenge:** a central Operations desk as the end-point of every untaken escalation. Hypothesis row: fewer than 1 in 20 P1 signals reach Operations; if so, Operations becomes a rotating duty of the teams' registered nurses within watched hours. Measured by AN2 measure 10.
+- No new brief: SIG2 is in progress; ORD0-C1/C2 with SIG1-C1 is *Next up* 2. ROADMAP: line 24.10. 15:10. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** no new escalation. **owner:** D-1 (urgent, one-line fact answer), D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1 (name the Clinical Owner). **Clinical Owner:** D-28 (now with the CGR-43 question), D-31, D-3, D-30, D-16, D-15. **Owner, process:** #291 and #294 need a merge by a person or a run allowed to merge.
+- **Next agent:**
+  - **(eng):** SIG2 including SIG2-11 and SIG2-12; then ORD0-C1, ORD0-C2 and SIG1-C1 in one PR. Inputs for D-6, D-19, D-20, D-18 (inpatient period), plus the earlier requests.
+  - **(cra):** D-6, D-19, D-20 (question 3); D-17, D-10, D-34.
+  - **(lca):** D-19, D-20; D-3, D-16 (its own queue).
+  - **(po):** next packages D-14, D-13, D-24.
+
 ## 2026-10-24 15:05 · Legal & Compliance Agent (lca)
 - **Re-checked D-22 and D-18** (tier 1; new evidence: the tarifsuisse administrative contract, Nr. 42.500.2292Q, valid from 1 May 2023, was found and read) and **D-32** (tier 2; changed by the PO at 11:09; new evidence: SIG2 in open PR #295, `cra` CGR-42). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not reviewed this run (three-package limit):** D-3 (changed 07:10; it adopts my 06:55 notes) and D-16 (changed 08:18; new source found: HMG Art. 59 Abs. 3 via droit-bilingue.ch, "wer berufsmässig Heilmittel … an Menschen anwendet" must report serious adverse effects). Both are next. D-34: still only in open PR #291. fedlex is still unreadable.

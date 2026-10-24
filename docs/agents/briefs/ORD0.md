@@ -69,3 +69,28 @@ CGR-36, CGR-38 (`reports/CLINICAL_GOVERNANCE.md` 2026-10-24 02:26); CR-003, CR-0
 **Condition ORD0-C1 (before acceptance, small, in the next PR that touches pgTAP 063):** two assertions in pgTAP 063: (a) `private.handover_entries` returns one `gp_informed` entry (date, channel, member code, no free text) for the team after a record; (b) setting the order to a status other than `present` ends the exception (the third ending in ORD0-4). Both are met in code; they are tested so the next migration that patches these readers cannot drop them unnoticed.
 
 **Business and care value.** The doctor link is now a fact the team sees and records in one step, without a coordinator; an open-ended order on B care is visible to the team instead of silently generating visits. Measured by ORD0-6 (7-day share; how the exception ends). Architecture: commands and derived exceptions in the existing readers, no new subsystem (Handbook: one exception surface, audited commands).
+
+## PO review — 2026-10-24 15:10: clinical gate passed, **`changes-requested`** (ORD0-C1 open; ORD0-C2 added for CGR-44)
+
+**Clinical review gate passed.** The `cra` section 2026-10-24 14:27 (open PR #294, read on its branch, afef2cc) reviews 0061 and pgTAP 063: **no blocking finding**; CGR-36, CGR-38 and CGR-40 closed; BL-16 mitigated; one new advisory finding, CGR-44 (S2), on Q12 (a). `cra` supports ORD0-C1 and adds nothing to it. **The PO did not run the tests.** CI unchanged since 13:15 (green on head 4f938f6 and `recovery/main` f35d60e).
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| ORD0-1 to ORD0-6 | met (13:15 table above, unchanged) | 0061, pgTAP 063, e2e `doctor.spec.ts`; `cra` 14:27 CGR-36 evidence row (pgTAP 063 lines 63-158) |
+| Clinical review gate | passed | `cra` 14:27: "the PO may accept with ORD0-C1 and a decision on CGR-44" |
+| ORD0-C1 (two pgTAP assertions: HAND1 `gp_informed` entry; exception ends when the order is no longer `present`) | **not met** | no PR has touched pgTAP 063 since #284 (`git log` on `supabase/tests/database/063_*`; #295 does not touch it) |
+| CGR-44 (Q12 (a): a case never asks again after a later A/C change) | decided: Q12 changes to (c) → ORD0-C2 | 0061:183, 190 (`not exists … case_gp_notices` per case), 0061:159 (`no_open_task` → `unchanged`) |
+
+**Why `changes-requested`, not `accepted`.** ORD0-C1 was set at 13:15 as a condition *before* acceptance and is still open. CGR-44 makes deviation 1 (Q12 (a)) a continuity gap: a client whose A/C care grows months later is never prompted again. `lca` 15:05 (D-22) finds Q12 (a) not shown to be compliant and option (c) a better fit with the tarifsuisse contract (Art. 9 Abs. 1: a lasting change of needs requires a new needs assessment). The PO's 13:15 reason against reopening (a task reopened on every `/team` load is ignored) does not apply to (c), which reopens on an event, once.
+
+**Q12 changed to (c) (PO, product authority; no deadline or content invented; D-22 question 6 stays open).** Deviation 1 is replaced by:
+
+**ORD0-C2 (with ORD0-C1, in one PR, next after SIG2 #295):**
+- (a) When a care-plan item of category A or C becomes active in a case whose medical order is not `present`, and no "Hausärztin/Hausarzt informiert" record exists with a date on or after the day that item became active, **one** `inform_gp` task opens for the case. A plan refresh, PLAN2 run or `/team` load never opens a second one while one is open, and never reopens it for an item already covered by a record.
+- (b) `record_gp_informed` then closes that task (ORD0-1/ORD0-2 unchanged); with no open task it still returns `unchanged`.
+- (c) A new B item with an order `present` opens no task; a case close closes the task (unchanged).
+- (d) pgTAP: record, then a new active C item → one new task; a second refresh → still one; a record → `done`; a new B item with order `present` → no task; a new A item with an earlier record dated after its activation → no task.
+- (e) HAND1 shows the reopened task like the first one; AN2 measure 10's 7-day share counts each task episode.
+- The deadline, the content of the information and whether a reassessment result must be sent remain D-22 question 6 (legal adviser, Clinical Owner).
+
+**Deviations 2-4** (13:15) stay accepted. **Result: `changes-requested`** (ORD0-C1, ORD0-C2). Acceptance follows when both are merged with green CI; no further `cra` gate is needed for these two unless `cra` finds a new hazard in them. Issue #292 stays open for that review.
