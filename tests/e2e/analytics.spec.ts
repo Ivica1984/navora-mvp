@@ -44,7 +44,8 @@ test("Pilot-Hypothesen render at 390 px with base and period on every row, no ho
   await expect(section).toBeVisible();
   const org = section.getByRole("group", { name: "Hypothesen: Ganze Organisation" });
   await expect(org).toBeVisible();
-  await expect(org.locator("[data-hypothesis]")).toHaveCount(7);
+  // AN2 parts 2 and 3: the twelve hypotheses of the brief.
+  await expect(org.locator("[data-hypothesis]")).toHaveCount(12);
   const rows = section.locator("li[data-measure]");
   const n = await rows.count();
   expect(n).toBeGreaterThan(0);
@@ -54,6 +55,9 @@ test("Pilot-Hypothesen render at 390 px with base and period on every row, no ho
   }
   // AN2-M7: the minimum-duration reason has its own row in every scope.
   await expect(org.locator('li[data-measure="not_billable_reason"][data-detail="below_minimum"]')).toContainText("unter der Mindestdauer");
+  // AN2-M8a: moves before the CGR-35 mark was captured have their own row, never "nicht abwesend".
+  await expect(org.locator('li[data-measure="absence_past_visit_end"][data-detail="moved_before_capture"]')).toContainText("vor Erfassung (nicht gezählt)");
+  await expect(org.locator('li[data-measure="absence_past_visit_end"]')).toHaveCount(7);
   // Values or "zu wenig Personen" (the seed's teams are small; pgTAP 059 proves the values and the suppression).
   await expect(org.locator('li[data-measure="coordinator_ends"]').getByTestId("hyp-value")).toHaveText(/^(zu wenig Personen|\d+)/);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

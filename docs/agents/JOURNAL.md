@@ -4,6 +4,188 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 10:11 · po (Product Owner)
+- **No PO PR was open** at the start. Open PRs: #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#274** ([PO review] COORD5); claim removed at the end.
+- **COORD5 → `accepted`** (#271, ADR-073). CI was read through the API: green on head b3dace6 and on `recovery/main` 2663934; on merge commit ccfc857 app and db are green and e2e was cancelled by the next push. **The PO did not run the tests.**
+  - Every criterion met. Live effect checked: 11 `human-decision` issues, each assigned and with a package; the others carry `decision-package`, are unassigned and were commented once (e.g. #71).
+  - One deviation accepted (`po-decided` still in *Open* stays a package issue). Non-blocking **COORD5-M1**: assign `clinical` packages to the Clinical Owner's account once G-1 names one. Evidence in `briefs/COORD5.md`.
+  - COORD5 moved to the queue (rank 22). *Next up*: 1 SIG1, 2 ORD0.
+- **Decision packages** (Engineering impact drafted by po for D-15, D-9, D-4: two-run rule, requested 04:10 and 05:15, not answered):
+  - **D-15 → `awaiting-approval: clinical` (Medium).** Option C: the catalogue proposes the service and its KLV category, and the team may choose another *listed* service with a reason, audited and reviewed by an RN. `lca` conditions (i)-(iii) apply; Abs. 2bis services cannot be planned until qualifications show experience (D-29). The catalogue text is copied verbatim from fedlex, not drafted by an agent. Readiness: as built plus three `cra` items. Real-data gate (po): no real care plan while the category is chosen freely.
+  - **D-9 → `awaiting-approval: owner` (Medium).** Option D, protective variant:
+    - referral on the referrer's confirmation;
+    - case and record on the care contract and the statutory record duty, with the Art. 19 information recorded;
+    - per-category consent for sharing;
+    - representative recorded.
+    Real-data gates g1-g5 decided by po. `lca` questions 1-5 go to the legal adviser of D-11/D-12.
+  - **D-4: provisional rule decided by po** (`lca` 08:05: compliant under every plausible interpretation): no deletion before the final rule, written retention criteria, purpose-bound reading as the target; real-data gates r1-r3. **Final periods → `awaiting-approval: owner`**, asked once D-11 and D-12 are answered (as D-18). The row stays in *Open* for the final part.
+  - **D-12** (`lca` 09:53 adopted). Four conditions: (1) the partner's nursing management may intervene in a single case, recorded and visible, instead of being excluded; (2) measures aggregated per team; (3) "support a new licence and the transfer of consenting clients" instead of "take over"; (4) processor and confidentiality agreement, NAVORA's own use anonymised and aggregated only, hosting and DPIA before real data. Still `owner`.
+  - **D-11:** criterion 1 = a design partner already licensed and admitted in that canton. Still `owner`.
+  - Go-live conditions for D-9, D-4 and D-15 added to `CARE_OPERATING_MODEL.md`.
+- **Challenge:** data-protection housekeeping (retention, access requests, clearing old referrals) done by people. From scratch these are properties of the data: a retention class per audited column, a one-command extract, self-expiring referrals. Row in `NEXT_CAPABILITY.md` and `CARE_OPERATING_MODEL.md`; hypothesis: zero staff hours per request and per run. Brief after D-11 and D-12.
+- No new brief: SIG1 and ORD0 are approved and unstarted. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:**
+  - owner: D-22, D-18 (after D-11, D-12), D-29, D-11, D-12, D-33, **D-9**; D-4 final periods (after D-11, D-12); names the Clinical Owner (G-1);
+  - Clinical Owner (once named): D-28, D-31, D-3 field list, D-30, D-16, **D-15**.
+- **Next agent (eng):** SIG1, then ORD0. Confirm or correct the Engineering impact drafted by po (now also D-15, D-9, D-4). COORD5-M1, AN2-M4a, ADM1-M1 at their next touch. **(cra):** ADM1-G1 (CGR-39 on 0059); merge or update #259; a look at D-15's option C wording. **(lca):** D-15, D-9 and D-4 recommendations changed (re-check is eligible); D-22 and D-15 once fedlex is readable. **(po):** D-10, D-7, D-8 packages.
+
+## 2026-10-24 09:53 · Legal & Compliance Agent (lca)
+- **Re-checked D-12, D-11 and D-33** (all three changed since my last section: PO 09:12). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **D-22, D-18 not re-checked** (priority 1, but not eligible: no change since the 06:10 take-up of my 05:45 notes, no new evidence). New fact only: the BAG list shows KLV amendments 2026/336 (in force 1 July 2026 and 1 January 2027) and 2026/337 (1 January 2027 and 1 January 2028); their text is still unread (fedlex not reachable).
+- **D-12 (PO: B with three conditions):** new evidence on question 1. Doctrine for lawyers (UZH, Anwaltsrevue 1/2019) treats IT providers as *Hilfspersonen* under StGB Art. 321 with a confidentiality and processor agreement, consent recommended, not required; a narrower view exists. Question 1 is narrowed, not settled. Condition 1 as worded (no intervention by the partner) may conflict with the licence holder's non-delegable duties: **unresolved: needs legal adviser**; a reworded version is offered. Conditions 2 (aggregated measures) and 3 (support a new licence and the transfer of consenting clients, not a licence take-over) are consistent with every source read in the rewordings. New point: NAVORA's own use of pilot data makes it a controller for that use. Verdict on B: **unresolved: needs legal adviser and owner** (D-11, partner, hosting ADR-011).
+- **D-11:** criteria consistent with the sources read; with B the partner must already be admitted in the pilot canton (KVG Art. 36). Verdict unchanged (owner, legal adviser in the canton).
+- **D-33:** the copy from D-32 is faithful; DSV amendment of 15 September 2024 (DPF-certified US companies adequate) confirmed via Fribourg ÖDSMB. Whether Annex 1 lists Ireland is not verified. Verdict unchanged: A compliant; B, C unresolved (legal adviser).
+- **Not readable this run:** fedlex (StGB Art. 321, AS 2026/337), the FMH processor guide, Apple's privacy page (primary). Tests: none run (docs only).
+- **Next agent (po):** D-12 notes 1-5 (reword conditions 1 and 3; add processor and confidentiality agreement and NAVORA's own data use to the partnership; hosting before real data). D-11 note (criterion 1 wording). **(eng):** Apple push-service operator for Swiss senders (D-33). **(lca):** D-22 and D-15 once fedlex is readable; the chosen canton's licence law once D-11 is answered.
+
+## 2026-10-24 09:25 · eng (Lead Engineer)
+- **#271 merged** (merge commit ccfc857; COORD5). CI green on head b3dace6 (app, db, e2e), read through the API; no review comments.
+- **COORD5 → `delivered`** (#271): READY_FOR_REVIEW. The watcher now re-labels the decision issues on its next run (8 assigned, 21 unassigned with the comment).
+- **Correction:** the 09:40 entry below carries a planned time; it was written at 09:15.
+- Tests: none run here beyond the bun stand-in; CI ran the suite.
+- **Next agent (eng):** Engineering impact for the packages (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32), SIG1, ORD0.
+
+## 2026-10-24 09:40 · eng (Lead Engineer)
+- No own PR was open. **Claimed #240** (COORD5, active) at 09:10. **COORD5 is PR #271** (ADR-073); row → `in-review`.
+- IMPLEMENTED in the branch: the watcher reads *Package status* from `decisions/INDEX.md`. `awaiting-approval: <role>` → `human-decision`, owner assigned, package linked, *Owner approval required?* quoted. Anything else → `agent:po` + `decision-package`, nobody assigned; an assigned issue is unassigned once, with the German comment from the brief. Validator checks the INDEX; `--dry-run` prints the package status.
+- **Brief question answered:** INDEX is read in `parse.mjs` as an optional input, not added to the official layer (stays PO-owned).
+- **Deviation:** `po-decided` while still in *Open* keeps the issue as `decision-package` (validator warning); it closes when the row moves to *Decided*. Reconciles two brief criteria.
+- **Effect after merge** (dry run on today's files): 8 issues assigned (D-22, D-18, D-29 owner; D-28, D-31, D-3, D-30, D-16 clinical, assigned to the owner until a Clinical Owner account exists); 21 unassigned with a comment.
+- Clinical review gate: not applicable (coordination only).
+- Tests: CI is the runner. Locally a stand-in only: `bun test` on both unit files (25 + 12 pass), `agents-check`, dry run. Not run: vitest, typecheck, lint, e2e (npm unreachable).
+- **Next agent (eng):** fix CI on #271 if red; merge on green; COORD5 → `delivered`. Then the Engineering impact for the packages (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32), SIG1, ORD0.
+
+## 2026-10-24 09:12 · po (Product Owner)
+- **No PO PR was open** at the start. `lca` #266 is merged (f35ab63); `cra` #259 is still open (not merged by the PO). Claimed **#270** ([PO review] ADM1); claim removed at the end. #248 (D-32) worked with a comment only.
+- **ADM1 → `accepted`** (#268, migration 0059, pgTAP 061, ADR-072). CI green on head d2e9b74 (run 40070559456), merge commit c1bd8cb (40070955122, 40070952402) and `recovery/main` f35ab63 (40072166088, 40072162324), read through the API; **the PO did not run the tests.**
+  - ADM1-R1 to R6 met; each `cra` remedy point for CGR-39 (#259 head) met in code. Evidence table in `briefs/ADM1.md` 09:12.
+  - Five deviations accepted (`cover_without_access` is look-ahead, the brief was wrong; `visit_stuck` floor 1 h; unit and e2e updated; pgTAP 047 fixture left as is, **ADM1-M1** at its next touch; hand-edited types).
+  - **ADM1-G1:** `cra` confirms CGR-39 closed on 0059 in its next section; else ADM1 returns to `changes-requested`. The PO accepted before that cycle because the README gate asks the PO to consider the report, and every remedy point is checkable in the code.
+  - **AN2-C1 met** (pgTAP 045 test 14 fixture, not the reader). SIG1-9 range part met.
+- **Decision packages:**
+  - **D-32 → `po-decided` (Medium):** option B, narrow variant. Web push of the fixed text only to Google and Microsoft endpoints, after the official DPF list check is recorded in the SIG2 PR. Recipients: the responsible member and colleagues within planned working time (span of their planned visits that day). Opt-in, information text naming vendor and country, test delivery, per-member status on `/team`. SIG1-8 stays. Built later as SIG2, after SIG1. Why po may decide: `lca` 08:47 finds this variant consistent with every source read; no clinical rule, reversible, no paid contract.
+  - **D-33 (new, tier 2, CGR-37) → `awaiting-approval: owner`:** Safari/iOS and Firefox (`lca` question 1 unresolved; no legal adviser named). Default A: in-app only for those browsers.
+  - **D-11 → `awaiting-approval: owner` (Medium as a package):** Engineering impact drafted by po (two-run rule; requested 04:10, seven `eng` runs since). Canton is per case; J5 reference rows are per region; `region` of teams is a service area, not a canton; a second language is the largest single cost. Asked: "name the pilot canton and two to five municipalities", five criteria.
+  - **D-12 → `awaiting-approval: owner` (Medium):** Engineering impact drafted by po (A ≈ B small, D medium, C per team large). Recommendation: **B for the pilot** (a licensed partner organisation) with three partnership conditions: no added dispatch or approval layer; measures shared; a path to a cooperative of teams (C) after the pilot. A only if no partner. `lca` question 1 (processor under professional secrecy) first.
+  - **D-30:** `lca` 08:47 note adopted. A disputed time or category is not billable until corrected from a documented source (invoicing prerequisite for D-18).
+  - Comments on #248, #57, #58.
+- **Challenge:** why does the licence bring a nursing-management line layer above the teams? From scratch its duties are a few named functions (serious-event review, qualification confirmation, clinical-rule approval, untaken escalations) carried by one fractional clinical lead. Hypothesis row in `NEXT_CAPABILITY.md` and `CARE_OPERATING_MODEL.md`: fewer than 5 such actions per week per 50 clients, counted from the audit log.
+- No new brief: COORD5, SIG1, ORD0 are approved and unstarted; SIG2 waits for SIG1. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:**
+  - owner: D-22, D-18 (after D-11, D-12), D-29, **D-11, D-12, D-33**; names the Clinical Owner (G-1);
+  - Clinical Owner (once named): D-28, D-31, D-3 field list, D-30, D-16.
+- **Next agent (eng):** COORD5, SIG1, ORD0 in order; confirm or correct the Engineering impact drafted by po (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32, **D-11, D-12**); AN2-M4a, ADM1-M1 at their next touch. **(cra):** ADM1-G1 (CGR-39 on 0059); merge or update #259. **(lca):** nothing new requested; D-15 once fedlex is readable. **(po):** D-15, D-9, D-4 packages (inputs in), D-10.
+
+## 2026-10-24 08:50 · eng (Lead Engineer)
+- **#268 merged** (merge commit c1bd8cb; ADM1-R1 to R6 for CGR-39, plus AN2-C1). CI was green on head d2e9b74 (run 40070559456: app, db, e2e).
+- **ADM1 → `delivered`** (#101, #135, #153, #268): READY_FOR_REVIEW.
+  - Clinical gate: CGR-39 applied (remediation plan `clinical/remediation/CGR-39.md`). `cra` reviews 0059.
+  - AN2-C1: the cause and the fix are in the #268 comment (pgTAP 045 test 14).
+- Tests: none run here beyond the stand-in noted at 08:40 and 08:45; CI ran the suite.
+- **Next agent (eng):** confirm or correct the Engineering impact drafted by po (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32); AN2-M4a with the next `pilot_hypotheses` change; COORD5, SIG1, ORD0.
+
+## 2026-10-24 08:47 · Legal & Compliance Agent (lca)
+- **Continued my open PR #266** (it was in conflict with `recovery/main` on JOURNAL; merged `recovery/main` in, kept both entries, newest first). Added two re-checks; I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **D-32 (PO asked 08:18 for the DPF fact check):** the official DPF list (dataprivacyframework.gov) could not be read (JavaScript app). Vendors' own statements: Google LLC and Microsoft state Swiss-U.S. DPF certification; Apple names Apple Distribution International (Ireland) and SCCs, no DPF; Mozilla names SCCs, no DPF. **Fact check negative for Firefox, unproven for Safari/iOS.** B for all browsers: **unresolved: needs legal adviser** (new question 1: disclosure abroad of push metadata to a non-DPF vendor; vendor SCCs or the member's express consent, DSG Art. 16 Abs. 2, 17 Abs. 1 lit. a). Narrow variant (Google and Microsoft endpoints only, after an official-list check): consistent with every source read. A stays compliant. Note: "visit the same day" should mean "within planned working time".
+- **D-30 (PO recommendation 08:18):** 1 (addendum for clinical content) and 2 (corrector for payer data) consistent with every text read (ZH, BE, SO, DSG Art. 32); **unresolved only for the pilot canton (D-11)**. 3 (withdrawing an untouched stranded draft): compliant under every plausible interpretation if "untouched" is strict and audited. D closes my D-31 4b condition once built. New note: a disputed time or category must not be billed until corrected from a documented source (invoicing prerequisite, D-18).
+- **Not re-checked:** D-22, D-18 (no new evidence; AS 2026/337 and 2026/348 not found); D-15 (fedlex not reachable, KLV Art. 7 Abs. 2 verbatim still open); D-16 (08:18 change takes up my 04:50 notes).
+- Tests: none run (docs only).
+- **Next agent (po):** D-32 note 1 (escalate B with question 1, or choose the narrow variant) and the official-list check; D-30 note 1 (billing consequence into the invoicing prerequisites). **(lca):** D-15 once fedlex is readable; D-22 when the 1 August 2026 KLV text is readable.
+
+## 2026-10-24 08:45 · eng (Lead Engineer)
+- **AN2-C1 found and fixed in #268** (PO 08:18: "inside the ADM1-R PR"). The job log of run 40067901155 was readable through the API.
+  - The failing file was **pgTAP 045, test 14** ("client_transferred: the detail names the case's next planned visit"), not 060: have 08:00, want 08:04.
+  - **Cause:** the seed plans visit 501 of case 208 today at 08:00 Zurich. Between 07:50 and 08:00 it starts after the interruption and before the fixture's "next" (now + 10 min). The reader then names it as the next planned visit, which is correct; the fixture was not unique.
+  - **Fix (test fixture only, the reader is unchanged):** 045 moves the case's other planned visits one week ahead. A new precondition assertion checks that no other planned visit starts before "next" (plan 46 → 47). No assertion was weakened.
+  - **Proof (stand-in only):** with seed visit 501 placed 5 minutes after now, as at 07:55, test 14 fails exactly as in CI before the fix and passes after it.
+- #268 also merged `recovery/main` (`JOURNAL.md` conflict with #267; both entries kept). CI was green on 0d2f39a before the merge.
+
+## 2026-10-24 08:40 · eng (Lead Engineer)
+- **Claimed #262** (ADM1 changes, active) at 08:12. No own PR was open. **ADM1-R1 to R6 are PR #268** (migration 0059, ADR-072), following the remediation plan `clinical/remediation/CGR-39.md`:
+  - every amount-bearing exception rule now carries a direction (constraint);
+  - an override can no longer make a signal later than the default (look-ahead: from the default up to 4×; delay: from the floor up to the default);
+  - out-of-range overrides are reset, audited (0 on synthetic data);
+  - `/admin` names the range and which way is stricter.
+- **ADM1 row → `in-review`** (#268). IMPLEMENTED in the branch: R1-R6.
+- **Deviations:** `cover_without_access` is look-ahead too (0029:259-261; the report did not name it); the `visit_stuck` floor is 1 h; unit and e2e threshold tests updated; pgTAP 047 untouched.
+- **Clinical gate:** report section 06:30 (#259), CGR-39 applied. `cra` is a mandatory reviewer of #268.
+- **Tests:** CI is the runner; nothing claimed as passed.
+  - Locally a stand-in only (PostgreSQL 16, stubbed roles, pgTAP shim): 061 49/49 and 035 67/67, and every file the shim can run is green.
+  - With the old range put back, 24 assertions of 061 and 4 of 035 fail.
+  - Unit file under `bun test`: 11 pass.
+  - Not run locally: vitest, typecheck, lint, e2e (npm unreachable). `database.types.ts` edited by hand.
+- **Next agent (eng):** fix CI on #268 if red; merge on green; set ADM1 `delivered`. Then the Engineering impact for the decision packages, COORD5, SIG1, ORD0.
+
+## 2026-10-24 08:18 · po (Product Owner)
+- **No PO PR was open** at the start (#261 merged). Claimed **#265** ([PO review] AN2), claim removed at the end. #248 (D-32) worked without a claim change (comment only).
+- **AN2 → `accepted`** (#243, #255, #263; #263 merged as d386a1b, CI green on head 8058531, run 40067193832, and on the merge commit, runs 40067597514/40067600140, read through the API; **the PO did not run the tests**). Part 3 measures 1, 2, 4, 8 (AN2-M8a), 10 and AN2-M9a met (pgTAP 060, 48). Evidence table in `briefs/AN2.md` 08:18; five ADR-071 limits accepted. AN2 moved from *Next up* into the queue (rank 21); *Next up* is now COORD5, SIG1, ORD0.
+  - **AN2-C1 (CI):** `recovery/main` `9a9e8db` (docs-only merge of #264) was **red in `db` in both runs at 05:51 UTC** (40067901155, 40067898560), green on identical code at 05:47. The PO re-ran the failed job of 40067898560 once: green. Job log not readable here (log host blocked); annotation cut off after 059, so probably 060 (UNKNOWN). Same-minute failure in two runs points to a clock dependence. Engineering finds and fixes the cause; a re-run is not a fix.
+  - **AN2-M4a:** measure 4's "responsible changes" row counts ABS1 `released`/`taken`/`returned`, while a hand handover through `reschedule_visit` (a `moved` row with a changed responsible member) is counted only as a move (0058:355-366). Split: hand handovers in their own row, ABS1 paths separate; pgTAP named in the brief.
+- **Decision packages (INDEX 7-9), Engineering impact drafted by po** (two-run rule: requested 03:10 / 04:10, no answer in the `eng` runs 05:29, 06:25, 07:11, 07:47):
+  - **D-30 → `awaiting-approval: clinical` (Medium).** Recommendation: clinical content only by a dated addendum of a team RN (D), payer data by a named corrector (C); legal adviser after D-11. **Decided by po (workflow):** a team RN may withdraw an untouched correction draft whose performer left (PS-15). Code fact: `signed_by` already exists separately from `performer_id` (0016); only `sign_report` ties them. This also gives D-31 4b the correction path `lca` asks for (open PR #266).
+  - **D-16 → `awaiting-approval: clinical` (Medium).** Recommendation: B (team RN, not the author, lifts the billing hold; serious events get a review by the licensed nursing management, not closable by hand, with "Meldepflicht geprüft"); no automatic stop of care, a care-plan review signal instead; taxonomy to the Clinical Owner. Legal verdict unresolved until D-11, D-12. Code fact (corrects the package context): `quality_event_types` **ships empty** (0020), so no typed event can be recorded today; the lift touches only `quality_holds`, never the event or its escalation.
+  - **D-32 (stays `inputs-requested`, Low):** Engineering drafted (no service worker, manifest or push dependency; four push vendors by browser; iOS needs a home-screen install; display cannot be confirmed, only send and tap). Draft recommendation B, outside the app first to the responsible member and colleagues with a visit the same day (no shift data needed; avoids Pikett), SIG1-8 stays until delivery is shown to work. **`lca` re-check requested** (package changed): DPF list for the four vendors. Comment on #248.
+- **Challenge:** why is the pilot steered by a review meeting that reads the numbers? From scratch each hypothesis carries its decision rule and NAVORA marks "Schwelle erreicht". Rows in `NEXT_CAPABILITY.md` and `CARE_OPERATING_MODEL.md` (also AN2 in the impact ledger).
+- No new brief: COORD5, SIG1, ORD0 approved and unstarted; ADM1-R open. `lca` PR #266 (D-9, D-4, D-31 re-check) and `cra` PR #259 are open; not merged by the PO; their notes are taken up once merged. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** owner: D-22, D-18 (after D-11, D-12), D-29, names the Clinical Owner (G-1); Clinical Owner (once named): D-28, D-31, D-3 field list, **D-30, D-16**.
+- **Next agent (eng):** AN2-C1 first if `db` goes red again, else inside the ADM1-R PR; ADM1-R1 to R6 (CGR-39); confirm or correct the Engineering impact drafted by po (D-22, D-18, D-28, D-31, D-3, D-29, **D-30, D-16, D-32**); AN2-M4a with the next `pilot_hypotheses` change; COORD5, SIG1, ORD0. **(lca):** D-32 DPF fact check. **(cra):** look at D-30 point 3 and D-16 delivery shape. **(po):** D-12, D-11 escalation, D-15, D-9, D-4 (once #266 is merged); review ADM1-R.
+
+## 2026-10-24 08:10 · Legal & Compliance Agent (lca)
+- **Wrote the D-9 and D-4 inputs** (INDEX order; both tie to R-4, S1, "complete before real data") and **re-checked D-31** (tier 2: `cra` 06:30 block and PO recommendation 07:10 are new). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **Not re-checked:** D-22, D-18 (the 06:10 changes only take up my 05:45 notes; no new evidence).
+- **D-9:** under the DSG a private provider needs no per-processing basis; justification matters for disclosure of health data and processing against an objection (Art. 30 Abs. 2, 31). Case and record rest on the care contract (Art. 31 Abs. 2 lit. a) and the cantonal record duty; disclosure to a doctor or new provider needs consent (BE Leitfaden 3.2.1, 3.2.3; nurses bound by StGB 321 per 1.5.1). Today's boolean gate: compliant on synthetic data, **unresolved** for real data (no scope, information or withdrawal state; referral free text stored before it). Protective option D (referrer confirms, contract and statutory duty, express consent per recipient category, withdrawal stops only consent-based flows): compliant for NAVORA's own steps; **unresolved: needs legal adviser and owner** (secrecy and processor D-12, canton D-11, referrer's disclosure); 5 questions.
+- **D-4:** minimums found: care record 10 y (ZH, BE) or 20 y (SO) after the last treatment; billing evidence 10 y after the business year if *Buchungsbelege* (OR 958f); logs at least 1 y (DSV Art. 4 Abs. 5). Maximum: DSG Art. 6 Abs. 4 (delete or anonymise when no longer needed). A as a permanent rule: unresolved, likely incompatible with Art. 6 Abs. 4 and the access right (Art. 25 Abs. 2 lit. d). A as a **provisional** rule (no deletion until the final rule, documented criteria, purpose-bound access, client extract): compliant under every plausible interpretation on the federal sources read. Final periods: **unresolved: needs legal adviser and owner** (D-11, D-12, D-18); 4 questions. Staff data in `actor_id` (OR 328b) argue for D.
+- **D-31:** 1b with the `started_by_mistake` statement, 3a: compliant. 4b with the four `cra` limits: compliant **provided** a correction path (addendum or disputed mark, as D-30) exists after limit (ii).
+- **Not readable or not read this run:** fedlex (DSG, StGB Art. 321, KVG/KVV); GeBüV; ArGV 3 Art. 26; ZGB representation rules. Tests: none run (docs only).
+- **Next agent (po):** D-9 notes 1-4 (referral-stage data and unconverted referrals as real-data gates); D-4 note 1 (provisional default wording) and note 2 (client extract); D-31 note (correction gap after limit (ii)). **(lca):** D-12, D-16, D-32 re-checks only if changed; D-15 verbatim KLV Art. 7 Abs. 2 extraction once fedlex is readable.
+## 2026-10-24 07:47 · eng (Lead Engineer)
+- **#263 merged** (AN2 part 3; merge commit d386a1b). First CI run red in `db` (pgTAP 060 tests 39, 41: the reader moved the AN2-M8a capture start back to the earliest flagged move); fixed in 220dea2 (the reader uses only the start the migration stores). The PR then had a `JOURNAL.md` conflict with #261 (both entries kept). AN2-M9a (PO 07:10) also went into this PR: the measure-9 row names the threshold used. CI green on head 8058531 (run 40067193832: app, db, e2e).
+- **AN2 → `delivered`** (#243, #255, #263). READY_FOR_REVIEW. Clinical gate: no blocking finding for AN2 (report 02:26; `cra` 06:30 in #259).
+- Tests: none run in this session; CI ran them.
+- **Next agent (eng):** ADM1-R1 to R6 (CGR-39, S1), as the PO ordered; then Engineering impact for the decision packages, COORD5, SIG1, ORD0.
+
+## 2026-10-24 07:11 · eng (Lead Engineer)
+- **Claimed #205** (AN2) at 07:11; no own PR was open. **AN2 part 3 is PR #263** (migration 0058, ADR-071): measures 1, 2, 4, 8 with **AN2-M8a**, and 10 in `pilot_hypotheses`. The access, suppression and 0057 measures are unchanged. Sources per measure are in the PR and the migration header. A new internal marker `private.an2_capture_starts` (RLS on, no grants) holds the capture start for M8a.
+- **AN2 row → `in-review`** (#263). IMPLEMENTED in the branch: every measure of the brief. Delivery follows once CI is green and #263 is merged.
+- **Clinical gate:** reviewed the merged report section 02:26 and the open `cra` section 06:30 (#259). No blocking finding for AN2. Note (a) (today's thresholds) also applies to measures 1 and 10 and is stated in ADR-071. CGR-39 is out of AN2's scope. No remediation plan needed.
+- **Tests:** none run here. The npm registry was unreachable from this session and there is no local Supabase stack. CI runs pgTAP 060 (47), the changed 059, unit and e2e. **UNKNOWN** until CI reports.
+- **Next agent (eng):** fix CI on #263 if red; merge on green; set AN2 `delivered`. Then the *Engineering impact* items listed at 06:25, COORD5, SIG1 (with the CGR-39 correction of SIG1-9), ORD0.
+
+## 2026-10-24 07:10 · po (Product Owner)
+- **No PO PR was open** at the start (#258 merged). No `agent:po` issue worked except as noted; nothing claimed (#248 D-32 waits on `eng`).
+- **CGR-39 (blocking S1, `cra` 06:30, open PR #259) confirmed in the code** (0035:526-536 range, 0035:577-583 check, 0019:175-178 window; pgTAP 035:191-196 asserts the inversion): for the four look-ahead rules a lower amount is a later signal, and an admin can set the P1 `visit_uncovered_hospital` window to 0 h so it never fires. **ADM1 → `changes-requested`** with **ADM1-R1 to ADM1-R6** (`briefs/ADM1.md`): direction per rule, never later than the default (look-ahead: not below; delay: not above), reset of existing overrides audited, pgTAP replacing 035:191-196 plus one behavioural test, `/admin` text. The watcher dry run makes **eng:ADM1 the active hand-off, ahead of AN2 part 3.** The PO's acceptance on 2026-10-23 and the PO's own SIG1-9 (06:10) both missed it; **SIG1-9 rewritten** to point at ADM1-R. D-28 recommendation annotated.
+- **CGR-40 (S3) decided (product authority):** ORD0-1's "doctor informed" date may not be before the **case** was created (was: the task), pgTAP added to the brief.
+- **AN2 part 2 reviewed** (#255, merged c1c58b3; CI green on head 88eeaeb and merge commit, run 40061609501, read through the API; **the PO did not run the tests**): measures 3, 5, 6, 7 (AN2-M7), 9, 11, 12 met (pgTAP 059, 57 assertions; e2e at 390 px); **the AN1 organisation condition is met**. Deviations accepted: suppressed rows hide the base; 032 assertion replaced; late AN1 condition closed; measure 9 uses today's threshold, with **AN2-M9a** (name the threshold used) for part 3. Evidence table in `briefs/AN2.md`. AN2 stays approved; the row stays `in-progress`.
+- **Decision packages (tier 2, INDEX 4-6):** `cra` 06:30 *Clinical impact* copied verbatim into D-31, D-3, D-29, D-30, D-16, D-32, D-15 (from #259's head 98541a0, as `cra` asked).
+  - **D-31 → `awaiting-approval: clinical` (Medium).** PO decided within product authority: server check that *Folgeeinsatz geplant* names a planned visit of the same case; `client_transferred` offers `pause_case`; 4b same-day correction with the four `cra` limits; 3a stays. Asked of the Clinical Owner: 1b with "keine Pflege erbracht", who may decide *nicht mehr nötig* (code fact: today any team member or coordination role, 0045:186), follow-up time, making up missed care.
+  - **D-3 → `awaiting-approval: clinical` (Medium), cover-read field list only.** PO decided: B as built on synthetic data; real-data gates plus an `lca` re-check against the pilot canton's law after D-11; cover read (b′) with **consent recorded at intake** (`lca` 06:55 note 1). Cover stays off until D-9, the field list, D-17, CGR-21, CGR-28 and D-29.
+  - **D-29 → `awaiting-approval: owner` (Medium).** Engineering impact drafted by po (two-run rule: four `eng` runs without an answer): suspension can reuse the downgrade release path (0046 §9). Recommendation: option B (evidence incl. cantonal licence, a second person confirms, mandatory re-check date, expiry downgrades); C later; D rejected.
+- **Challenge:** why does an administrator tune safety thresholds for the whole organisation? Row in `NEXT_CAPABILITY.md` and `CARE_OPERATING_MODEL.md`; hypothesis: no organisation sets an override in 8 pilot weeks, then the screen goes and only the team's choice inside the clinical band stays.
+- No new brief: COORD5, SIG1, ORD0 approved and unstarted; the D-31 PO decisions become a brief when the queue frees. Tests: none run (docs only); `node scripts/agents-check.mjs` ok; watcher dry run: active ADM1.
+- **Waiting on people:** owner: D-22, D-18 (after D-11, D-12), D-29 (approve option B, accept liability), names the Clinical Owner (G-1); Clinical Owner (once named): D-28, D-31, D-3 field list.
+- **Next agent (eng):** ADM1-R1 to R6 first (CGR-39, S1); then AN2 part 3 with AN2-M9a; Engineering impact (confirm or correct D-22, D-18, D-28, D-31, D-3, D-29; D-30, D-16, D-32, D-15, D-12, D-11, D-9, D-4 open). **(cra):** review the ADM1-R PR; #259 is still open (the PO copied its blocks, did not merge it). **(lca):** D-9, D-4; D-31 re-check optional. **(po):** D-30, D-16 (draft E if `eng` stays silent), D-32, D-11 escalation, D-10 package; review ADM1-R.
+
+ENGINEERING BRIEF (ADM1-R, re-opened item, not a new capability)
+- **Capability:** ADM1-R: organisation threshold overrides can never make a safety signal later than its default (direction-aware range).
+- **Why:** CGR-39 (S1): an admin can silence the P1 hospital-discharge signal by setting its look-ahead to 0 h; a stricter value is refused.
+- **Business outcome:** the pilot administration cannot create a silent safety gap; no clinical value is invented.
+- **Care outcome:** an unassigned visit after a hospital discharge always raises P1 at least 24 h ahead.
+- **Expected nurse outcome:** the team is told in time that nobody is responsible for a visit; no surprise gaps after discharge.
+- **Expected team outcome:** signals the team relies on cannot be weakened centrally.
+- **Expected patient outcome:** no missed first visit after discharge because a setting silenced the signal.
+- **Acceptance criteria:** ADM1-R1 to ADM1-R6 in `briefs/ADM1.md`.
+- **Dependencies:** none; D-28 (band) is not needed, the default is the bound.
+- **Priority:** first, ahead of AN2 part 3 (patient safety precondition).
+- **Implementation recommendation:** one migration: a `direction` column (or a fixed map in `private.exception_rule_range`) checked by `set_exception_rule`; reset of offending overrides with audit rows; replace pgTAP 035:191-196; one behavioural pgTAP through the exception read model; `/admin` text and a unit or e2e test; `cra` reviews the PR.
+
+## 2026-10-24 06:55 · Legal & Compliance Agent (lca)
+- **Wrote the D-15 input** (INDEX 12) and **re-checked D-3 and D-29** (tier 2): D-3 changed (PO draft recommendation 06:10) and the `cra` field list is new; D-29 because `cra` 06:30 (open PR #259) asks `lca` whether a qualification or licence can lapse. I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **Not re-checked:** D-22 and D-18 (the 06:10 changes only take up my 05:45 notes; no new evidence); D-31 (PO draft adopts the 02:52 verdicts; the `cra` block in #259 supports them; re-check once it is copied in, if the PO asks).
+- **D-15:** KLV Art. 7 Abs. 2 (Stand 16 Dec 2025) fixes the category by service type (index a1-a3, b1-b14, c1-c2, paraphrased; verbatim text to be copied from fedlex). Abs. 2bis sets legal experience conditions (a3; psychiatric assessment for b13, b14, c2) that NAVORA's `registered_nurse` label cannot show. No source read limits all B work to registered nurses (CR-007 plausibly stricter, the safe side). C with three conditions is the protective option; **unresolved: needs legal adviser** with the contract (D-18, D-12), 3 questions.
+- **D-3:** DSV amendment of 1 Dec 2025 (secondary source) does not change the private-controller logging trigger. Real-data gates (i)-(iii) and (b′) with **recorded consent**: compliant under every plausible interpretation on the federal sources read; (b′) as **opt-out** (PO text): unresolved (question 2). Cover field list: no legal objection; emergency contact depends on D-9.
+- **D-29:** diploma: no lapse found; practice licence: can be restricted, withdrawn or not renewed (GesBG Art. 13, 14, 19, 27 by title; VS example), is valid per canton of work incl. home visits; licence needed when working without supervision by a nurse (BAG FAQ). Verdict unchanged (unresolved: owner D-11/D-12 and legal adviser); questions 1 narrowed, 6 and 7 added.
+- **Not readable this run:** lexfind KLV Stand 1 Jan 2026 page, GesBG article text, KVV Art. 49/51 primary text, fedlex. Tests: none run (docs only).
+- **Next agent (po):** D-3 note 1 (consent, not opt-out); D-15 note 1 (Abs. 2bis experience conditions, to `cra`/`eng`); D-29 notes. **(lca):** D-9, D-4; D-31 once the `cra` block is in the package.
 ## 2026-10-24 06:30 · Clinical & Regulatory Architect (review)
 - **Reviewed** `recovery/main` @ `38b986d` since the 02:26 section: #243 (AN2 part 1: 0056 CGR-35, pgTAP 057, 058), #255 (AN2 part 2: 0057, pgTAP 059), briefs SIG1 and ORD0, the PO, eng and `lca` docs since 02:20, and open PR #258 (SIG1-9). I did not run the tests; CI green on `56c8756`, `c1c58b3`, `38b986d`.
 - **Closed:** CGR-35 (0056, pgTAP 057:45-126; PS-28 closed). DAY-1-R1-R3 endorsed (pgTAP 058).
@@ -16,6 +198,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **AN2 stays `in-progress`** (IMPLEMENTED: parts 1 and 2; PLANNED: part 3, measures 1, 2, 4, 8 with AN2-M8a, 10). Status row updated; issue #205 stays active. Not set to `delivered`, because the brief is not complete.
 - Tests: none run in this session; CI ran the #255 tests.
 - **Next agent (eng):** merge this docs PR on green CI; AN2 part 3; *Engineering impact* in the open decision packages (D-22 and D-18 confirm or correct the PO draft; then D-28, D-31, D-3, D-29, D-30, D-16, D-32, D-12, D-11, D-15, D-9, D-4); COORD5; then SIG1, ORD0.
+
+## 2026-10-24 06:10 · po (Product Owner)
+- **No PO PR was open** at the start (#254 merged). **No delivery to review:** nothing newly `ready-for-review`, `delivered` or `in-review` since #243 (reviewed 04:10); #255 (AN2 part 2) was merged at 06:15 during this run (c1c58b3; head 88eeaeb green: app, db, e2e; merge-commit CI still running at publish time); the AN2 row stays `in-progress`. **Part 2 is reviewed in the next PO run** against `briefs/AN2.md` once the merge-commit CI is green. No `agent:po` issue worked except as noted; nothing claimed (D-32 #248 waits on `eng` and `cra`).
+- **Engineering impact drafted by po, not confirmed by eng** (two-run rule: requested 01:15 / 02:20, no answer in the `eng` runs 02:55 and 04:10) for **D-28, D-31, D-3**, from the code with files and lines (0015, 0019, 0035, 0038, 0040, 0042, 0043, 0045, 0047, 0029, 0004).
+- **D-28 → `awaiting-approval: clinical` (Medium).** Finding from the code: the organisation override range of 0035 lets an admin make `visit_stuck` P2 appear up to 2 h and `report_not_final` up to 48 h, an engineering range no clinician approved. **PO decision (product authority, strictest default): SIG1-9** in `briefs/SIG1.md`: no override later than the default until the Clinical Owner sets a band; stricter stays allowed; pgTAP named. Option C (team value inside a clinical band) stays the PO proposal under the five `cra` conditions. Asked of the Clinical Owner in one line (package and `OPEN_DECISIONS.md` row). Comment on #150.
+- **D-31 draft recommendation (Low; `cra` open, no `cra` run since 02:26, so not drafted):** 1b (short report of care given), 2b's planned-visit check, 3a (not billable), 4b (audited same-day correction; `lca`: the irreversible default is not the safe side). **Go-live condition:** care given before a break-off is documented before the first real client.
+- **D-3 draft recommendation (Low; `cra` open):** B as built on synthetic data; **real-data gates** (read log through functions with DSV Art. 4 content, DSFA, need-to-know client identity for coordination roles) written as a go-live condition; cover read as variant b′ (intake statement and the client's choice; D-9). Code fact: no read is audited today; per-read logging is cheap only where reads go through `security definer` functions.
+- **`lca` 05:45 taken up:** D-22 question 5 joins the escalation (changes nothing in force); D-18 point 3 gains a place-of-care key and versioned rates (palliative contribution from 1 January 2027), questions 1-4; D-11 criteria gain the mandate row (escalation text ready once `eng` answers or the two-run rule is met).
+- **Challenge:** why does a data-protection officer read access logs? From scratch the forbidden read is impossible by design and only exceptional reads raise a signal. Rows in `NEXT_CAPABILITY.md` and `CARE_OPERATING_MODEL.md`; hypothesis: fewer than 1 in 1,000 health-data reads need human review.
+- No new brief: COORD5, SIG1, ORD0 approved and unstarted (SIG1 gains SIG1-9 before start). Tests: none run (docs only); `node scripts/agents-check.mjs` run before publishing.
+- **Waiting on people:** owner: D-22 (approve the default, name a legal adviser), D-18 (after D-11, D-12), names the Clinical Owner (G-1); Clinical Owner (once named): D-28.
+- **Next agent (po):** review AN2 part 2 (#255: measures 3, 5, 6, 7 with AN2-M7, 9, 11, 12; AN1 organisation condition; deviations in ADR-070); D-29, D-30, D-16 Engineering impact (two-run rule met for D-29; D-30 and D-16 after the next `eng` run) and recommendations; D-10 package; D-11 escalation; D-31 and D-3 once `cra` answers. **(eng):** confirm or correct the drafted Engineering impact in D-22, D-18, D-28, D-31, D-3; SIG1-9 with SIG1; AN2 measures; COORD5. **(cra):** Clinical impact in D-31, D-3, D-29, D-30, D-16, D-32, D-15; look at SIG1-9. **(lca):** D-15, D-9, D-4.
 
 ## 2026-10-24 05:45 · Legal & Compliance Agent (lca)
 - **Re-checked D-22 and D-18** (tier 1): both changed since 03:53 (PO recommendations 05:15, Engineering drafted by po), and new evidence was found. **Wrote the D-11 input** (INDEX 11). I changed only the `lca` sections. This is advisory, not legal advice. I changed no decision, status or row.

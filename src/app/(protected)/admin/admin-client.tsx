@@ -9,7 +9,7 @@ import {
 } from "@/features/admin/commands";
 import {
   ROLES, ROLE_LABEL, QUALIFICATIONS, REFERRAL_TYPE_LABEL, UNIT_LABEL, DEADLINE_UNITS,
-  allowedPriorities, changedLabel, checkRuleInput, isValidEmail, releasedNotice,
+  allowedPriorities, changedLabel, checkRuleInput, isValidEmail, releasedNotice, RULES_INTRO, stricterHint,
 } from "@/features/admin/rules";
 import { QUALIFICATION_LABEL } from "@/features/team/rules";
 import type { CommandResult } from "@/lib/commands/result";
@@ -373,10 +373,7 @@ function Deadlines({ data }: { data: AdminData }) {
 function Rules({ data }: { data: AdminData }) {
   return (
     <Section title="Ausnahmen: Schwellen und Prioritäten" label="Ausnahmeregeln">
-      <p className="text-xs text-stone-600">
-        Sichere Bereiche: Die Priorität bleibt mindestens beim Standard; Sicherheitsausnahmen (P1) melden sich nie später als der Standard;
-        andere Schwellen höchstens doppelt so lang; Eskalationen nie später.
-      </p>
+      <p className="text-xs text-stone-600">{RULES_INTRO}</p>
       <ul className="grid gap-2">{data.rules.map((r) => <RuleRow key={r.exception_type} rule={r} organizationId={data.organizationId} />)}</ul>
     </Section>
   );
@@ -386,7 +383,9 @@ function RuleRow({ rule, organizationId }: { rule: AdminExceptionRule; organizat
   const { run, pending, error } = useCommand();
   const [localError, setLocalError] = useState<string | null>(null);
   const range = { default_priority: rule.default_priority, default_amount: rule.default_amount, default_escalate: rule.default_escalate,
-    max_amount: rule.max_amount, max_escalate: rule.max_escalate };
+    min_amount: rule.min_amount, max_amount: rule.max_amount, max_escalate: rule.max_escalate,
+    amount_direction: rule.amount_direction, unit: rule.unit };
+  const hint = stricterHint(rule.amount_direction, rule.unit);
   return (
     <li aria-label={`Regel ${rule.label}`} className="rounded-xl border border-stone-200 p-3 text-sm">
       {/* noValidate: the safe range is checked below (and again in the database) with a clear message. */}
@@ -408,8 +407,8 @@ function RuleRow({ rule, organizationId }: { rule: AdminExceptionRule; organizat
           </select>
         </label>
         {rule.default_amount !== null && (
-          <label className="grid gap-1 text-xs font-semibold">Schwelle ({UNIT_LABEL[rule.unit ?? ""] ?? rule.unit}, max. {rule.max_amount})
-            <input name="amount" type="number" min={0} max={rule.max_amount ?? 0} required defaultValue={rule.amount ?? ""} className={field} />
+          <label className="grid gap-1 text-xs font-semibold">Schwelle ({UNIT_LABEL[rule.unit ?? ""] ?? rule.unit}, {rule.min_amount} bis {rule.max_amount})
+            <input name="amount" type="number" min={rule.min_amount ?? 0} max={rule.max_amount ?? 0} required defaultValue={rule.amount ?? ""} className={field} />
           </label>
         )}
         {rule.default_escalate !== null && (
@@ -424,6 +423,7 @@ function RuleRow({ rule, organizationId }: { rule: AdminExceptionRule; organizat
             Standard ({rule.default_priority}{rule.default_amount !== null ? `, ${rule.default_amount}` : ""}) wiederherstellen
           </button>
         )}
+        {hint && <span className="w-full text-xs text-stone-600" data-testid="rule-direction">{hint}</span>}
         <span className="text-xs text-stone-600" data-testid="rule-changed">{changedLabel(rule.is_default, rule.updated_by_name, rule.updated_at)}</span>
       </form>
       {(localError ?? error) && <p role="alert" data-testid="command-error" className="font-semibold text-rose-800">{localError ?? error}</p>}

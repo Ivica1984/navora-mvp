@@ -3,10 +3,59 @@ id: ADM1
 title: Pilot administration — members, qualifications and operating rules
 author: po
 status: approved
-updated: 2026-10-23
+updated: 2026-10-24
 ---
 
 # ADM1 — Pilot administration: members, qualifications and operating rules
+
+## PO acceptance — 2026-10-24 09:12: accepted (ADM1-R1 to R6 met; CGR-39 remedy met in code)
+
+Reviewed #268 (head `d2e9b74`, merged as `c1bd8cb`): migration 0059, pgTAP 061 (49 assertions) and the changed 035 and 045, `src/features/admin/rules.ts`, `admin-client.tsx`, unit `admin-rules` and e2e `admin.spec.ts`, ADR-072, remediation plan `clinical/remediation/CGR-39.md`. CI read through the API: green for app, db (migrations, seed, pgTAP) and e2e on the head (run 40070559456), on the merge commit (runs 40070955122, 40070952402) and on the current `recovery/main` `f35ab63` (runs 40072166088, 40072162324). **The PO did not run the tests.**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| ADM1-R1 direction per rule; no amount-bearing rule without one | met | 0059 §1: `amount_direction`, constraint `exception_rules_amount_has_direction` (`(amount is null) = (amount_direction is null)`); look_ahead for `visit_uncovered_hospital`, `visit_uncovered`, `order_expiring`, `team_cancellation_late`, `cover_without_access`; delay for `case_not_ready`, `report_not_final`, `visit_overdue`, `visit_stuck`, each with the reader line; pgTAP 061 lines 20-31 (list, count 0, two refused inserts) |
+| ADM1-R2 never later than the default; stricter allowed within an engineering bound | met | `private.exception_rule_range` (look_ahead: default to min(4×, 720); delay: floor 0, `visit_stuck` 1, up to the default); one check `private.exception_override_in_range` used by `set_exception_rule` and the reset; priority and escalation unchanged; pgTAP 061 lines 58-88 |
+| ADM1-R3 existing overrides reset, audited, count stated | met | `private.adm1_reset_out_of_range_overrides` (delete plus one `audit_events` row `adm1_range_reset` with the old values), NOTICE with the count; PR: 0 on `db reset` (the seed has no override); pgTAP 061 lines 123-136 (2 found in a fixture, audited, idempotent, not executable by `authenticated`) |
+| ADM1-R4 pgTAP matrix and behavioural test; 035:191-196 replaced | met | every value of the brief's matrix in 061 lines 58-84 (plus `cover_without_access`, `visit_overdue`, `case_not_ready`, 4× caps); behavioural: no P1 with the default, P1 with an accepted 48 h override for an unassigned visit in 36 h after a hospital discharge (061 lines 36-51 and 107-112); 035 diff replaces the inverted assertions, plan stays 67 |
+| ADM1-R5 `/admin` text per rule, tested | met | `RULES_INTRO` keeps "Sicherheitsausnahmen melden sich nie später als der Standard"; `stricterHint` ("Früher melden = mehr … Vorlauf" / "weniger … Wartezeit"); range shown as "min bis max"; e2e: `order_expiring` 3 is refused with "zwischen 7 und 28", the hint and the general rule |
+| ADM1-R6 read model unchanged otherwise | met | `derived_exceptions`, `operations_exceptions` and every default unchanged; `effective_exception_rules` re-created only for the row type (same rows, direction appended); CI green on every pgTAP file without other edits except 045 (AN2-C1 fixture, below) |
+| `cra` remedy for CGR-39 (section 06:30, #259 head) | met in code | each remedy point: no look-ahead override below the default (0 included); higher allowed under a cap; delay rules never above the default; audited reset; `/admin` text; the named pgTAP values; inverted 035 assertions replaced |
+| Clinical gate | met with condition **ADM1-G1** | see below |
+
+**Deviations, decided:**
+1. `cover_without_access` is look-ahead (the brief said "delay for every other"): **accepted**; Engineering is right, the reader (0029:259-261) is a window ahead, and "delay" would have repeated the inversion. The brief was wrong.
+2. `visit_stuck` floor 1 h, not 0: **accepted**; at 0 every visit in progress would be stuck at once. Its default is 1 h, so no override is possible today (range 1 to 1); that is intended.
+3. Unit and e2e threshold tests updated: **accepted**; they asserted the inverted range.
+4. pgTAP 047 still inserts a 48 h `report_not_final` override directly as table owner, a value the command now refuses: **accepted for now** (R6 asked for no edits). **ADM1-M1 (non-blocking):** the next PR that touches 047 changes that fixture to a value inside the range, or states in the file why an out-of-range row is needed. No user path can write the table (RLS: `authenticated` has select only, 0035:515-518).
+5. `database.types.ts` edited by hand: **accepted**; db-types-sync may regenerate it.
+
+**AN2-C1 met** (same PR): the red `db` job was pgTAP 045 test 14, a fixture that was not unique between 07:50 and 08:00 Zurich (seed visit 501). The reader is unchanged; the fixture moves the case's other planned visits a week ahead and a new precondition assertion proves no other planned visit precedes "next" at any hour. No assertion was weakened.
+
+**Clinical gate (why accepted before the `cra` re-review).** The README gate asks the PO to consider the latest report before acceptance; it does not require a second `cra` cycle. The PO checked 0059 against every remedy point `cra` wrote for CGR-39, and all are met. Waiting for a further review cycle while the fix is merged and green is the serial hand-off this team challenged before (challenge row "A clinical gate review held as a separate cycle after merge"). The 07:10 sentence "the PO accepts after the `cra` section closes CGR-39" is replaced by: **ADM1-G1:** `cra` confirms CGR-39 closed on 0059 in its next section; if it names a remaining blocking gap, ADM1 returns to `changes-requested` with that gap as the criterion.
+
+**Business value and care model.** A setting can no longer silence a safety signal; it can only bring it forward. The administration screen keeps no power to weaken what a team relies on. Alignment with the Handbook: safety rules stay server-side, one check function, audited changes. The challenge row of 07:10 (the override screen may go entirely if no organisation uses it) stays open for pilot data.
+
+**SIG1-9:** its range part is now met by ADM1-R; what remains for SIG1 is only "every signal reads its threshold from `effective_exception_rules`".
+
+## PO review — 2026-10-24 07:10: `changes-requested` (CGR-39, blocking S1): the override range is inverted for look-ahead rules
+
+**Why.** The Clinical Governance Report section 2026-10-24 06:30 (`cra`, open PR #259) found **CGR-39 (blocking, S1)**. The PO checked it against the code on `recovery/main` @ `f77cb08` and confirms it: `private.exception_rule_range` (0035:526-536) treats every amount as a **delay** (larger = later) and `public.set_exception_rule` (0035:577-583) accepts any amount from **0** up to that maximum. Four rules are **look-ahead windows**, where a *smaller* amount means a *later* signal: `visit_uncovered_hospital` (P1, 24 h; window `between now() and after_threshold(now(), amount)`, 0019:175-178), `visit_uncovered` (P2, 24 h, same window), `order_expiring` (P3, 7 days, 0024:492, 501) and `team_cancellation_late` (P2, 24 h, 0024:543-546). An organisation administrator can therefore set the **P1 hospital-discharge rule to 0 h**, and the P1 signal for an unassigned visit after a hospital discharge **never fires**; a stricter value (e.g. 48 h) is refused. pgTAP 035:191-196 asserts this inversion ("it can come earlier" for 12 h), and the `/admin` text promises the opposite. ADM1 was accepted on 2026-10-23 07:10 with this defect; the PO's acceptance missed it. Patient safety is a precondition, so ADM1 goes back to Engineering **ahead of AN2 part 3** (ADM1 ranks above *Next up*; the watcher makes it the active hand-off). The PO's own SIG1-9 (2026-10-24 06:10) repeated the inversion for `visit_uncovered`; SIG1-9 is rewritten and its delay-rule part moves here, so the range is fixed once, in one migration.
+
+No clinical value is set by any criterion below: each only removes an engineering range that no clinician approved (D-28). Synthetic data only; the live database is not touched.
+
+**Acceptance criteria (each testable):**
+- [x] **ADM1-R1 Direction per rule.** Each amount-bearing exception rule carries a server-side direction: `look_ahead` (larger = earlier signal) for `visit_uncovered_hospital`, `visit_uncovered`, `order_expiring`, `team_cancellation_late`; `delay` (larger = later signal) for every other amount-bearing rule (`visit_overdue`, `visit_stuck`, `report_not_final`, which also times `report_correction_open` (CR-053), `case_not_ready`, and any further one Engineering finds; the PR lists every rule with its direction and the line that proves it). A new amount-bearing rule without a direction cannot be inserted (constraint or pgTAP over the whole table).
+- [x] **ADM1-R2 Never later than the default.** Until the Clinical Owner approves a band (D-28), `public.set_exception_rule` returns `out_of_range` for any override that makes a signal later than the platform default: for `look_ahead` an amount **below** the default (0 included); for `delay` an amount **above** the default. A stricter amount stays `ok` within an engineering bound: for `delay` rules down to 0 where 0 means "immediately" in that rule's query, else down to 1 (Engineering states it per rule); for `look_ahead` rules up to 4× the default (a bound against alert floods, not a clinical value). Priority may not be lowered (as today); the escalation hours of `quality_serious_open` stay "never later" (as today).
+- [x] **ADM1-R3 Existing overrides.** A migration lists every existing organisation override that R2 would refuse and resets it to the platform default, with one audit row per reset naming the old value (expected none on synthetic data; the PR says how many).
+- [x] **ADM1-R4 pgTAP (replacing 035:191-196, the inverted assertions).** `visit_uncovered_hospital` P1: 12 → `out_of_range`, 0 → `out_of_range`, 48 → `ok`; `visit_uncovered`: 0 → `out_of_range`, 36 → `ok`; `order_expiring`: 0 → `out_of_range`, 3 → `out_of_range`, 14 → `ok`; `team_cancellation_late`: 0 → `out_of_range`, 48 → `ok`; `visit_stuck`: 2 → `out_of_range`, 1 → `ok`; `report_not_final`: 48 → `out_of_range`, 12 → `ok`; priority P1 → P2 for `visit_uncovered_hospital` → `out_of_range` (kept). One behavioural test: with an accepted stricter `visit_uncovered_hospital` override of 48 h, an unassigned planned visit after a hospital discharge starting in 36 h raises the P1 exception; with the default it does not.
+- [x] **ADM1-R5 Text.** The `/admin` operating-rules text says, per rule, which way is stricter (e.g. "früher melden = mehr Stunden Vorlauf" for look-ahead rules) and keeps "Sicherheitsausnahmen melden sich nie später als der Standard"; an e2e or unit test asserts that a look-ahead rule's input refuses a lower value with that text.
+- [x] **ADM1-R6 Read model unchanged otherwise.** `effective_exception_rules` and every exception query keep their results for the defaults (existing pgTAP for OPS1, CSR1, SIG1-free paths stay green without edits other than 035:191-196).
+
+**Out of scope:** any clinical band or value (D-28, Clinical Owner); team-level overrides (D-28 option C).
+
+**Clinical gate:** `cra` is a mandatory reviewer of the PR (CGR-39 is its finding); the PO accepts after the `cra` section closes CGR-39 or names no blocking finding.
+
 
 ## PO acceptance — 2026-10-23 07:10: accepted (clinical gate passed)
 
