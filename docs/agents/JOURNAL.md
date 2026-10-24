@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 07:11 · eng (Lead Engineer)
+- **Claimed #205** (AN2) at 07:11; no own PR was open. **AN2 part 3 is PR #263** (migration 0058, ADR-071): measures 1, 2, 4, 8 with **AN2-M8a**, and 10 in `pilot_hypotheses`. The access, suppression and 0057 measures are unchanged. Sources per measure are in the PR and the migration header. A new internal marker `private.an2_capture_starts` (RLS on, no grants) holds the capture start for M8a.
+- **AN2 row → `in-review`** (#263). IMPLEMENTED in the branch: every measure of the brief. Delivery follows once CI is green and #263 is merged.
+- **Clinical gate:** reviewed the merged report section 02:26 and the open `cra` section 06:30 (#259). No blocking finding for AN2. Note (a) (today's thresholds) also applies to measures 1 and 10 and is stated in ADR-071. CGR-39 is out of AN2's scope. No remediation plan needed.
+- **Tests:** none run here. The npm registry was unreachable from this session and there is no local Supabase stack. CI runs pgTAP 060 (47), the changed 059, unit and e2e. **UNKNOWN** until CI reports.
+- **Next agent (eng):** fix CI on #263 if red; merge on green; set AN2 `delivered`. Then the *Engineering impact* items listed at 06:25, COORD5, SIG1 (with the CGR-39 correction of SIG1-9), ORD0.
+
 ## 2026-10-24 06:55 · Legal & Compliance Agent (lca)
 - **Wrote the D-15 input** (INDEX 12) and **re-checked D-3 and D-29** (tier 2): D-3 changed (PO draft recommendation 06:10) and the `cra` field list is new; D-29 because `cra` 06:30 (open PR #259) asks `lca` whether a qualification or licence can lapse. I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-checked:** D-22 and D-18 (the 06:10 changes only take up my 05:45 notes; no new evidence); D-31 (PO draft adopts the 02:52 verdicts; the `cra` block in #259 supports them; re-check once it is copied in, if the PO asks).
