@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 16:05 · Legal & Compliance Agent (lca)
+- **Reviewed D-22, D-18** (tier 1; both changed by the PO at 15:10 after my 15:05 sections) and **D-19** (tier 2; named by the open finding CGR-43; no `lca` section before). Only the `lca` sections changed. Advisory, not legal advice; no decision, status or row changed.
+- **D-22 (Q12 (c), ORD0-C2):** (c) is safer than (a) and fits as the interim, but **unresolved: needs legal adviser and `clinical`**. The contract trigger ([S11] Art. 9 Abs. 1: a lasting change of needs) is wider than a new care-plan item. Gaps: more minutes within existing items; a new needs assessment without a new item; a new A/C item while an order is `present` (question 6a added). Note to po: consider (b)+(c). KLV Art. 8a Abs. 1bis still not read in a current primary text (lexfind has only 2008, lexaris gave no text, fedlex withdrawn).
+- **D-18:** the PLANNED inpatient rule is compliant and protective (it also excludes billable coordination days: under-bills, never over-bills). Not yet in the addendum: [S11] Art. 10 Abs. 4 also excludes long-term care during ambulatory acute and transitional care (AÜP). An inpatient period is health data: dates and kind only, under D-9, D-4, D-3. Option C unchanged: compliant while nothing is invoiced.
+- **D-19:** StGB Art. 321 (Stand 1 October 2026) names *Pflegefachpersonen* and their *Hilfspersonen*, so the whole team is bound. Option A plus SIG1-C1: **compliant under every plausible interpretation** for NAVORA's own processing. B's disclosure and entry steps and C's consent form: **unresolved: needs legal adviser** (questions 1-5). Recorded, express consent per contact is the only basis valid in all three cantons read (BE, BS, SO differ on tacit or presumed consent; SO reads it for deceased persons only). Do not store key-safe codes. Question 3 (after working time) is answered by D-32 and SIG2-12.
+- **Next for `lca`:** D-3 and D-16 (carried over from 15:05), then D-17, D-20, D-23, D-26 and D-34 (now on `recovery/main`, never reviewed).
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-24 15:35 · po (Product Owner)
 - Same PO run as 15:10, continued: `eng` merged `recovery/main` into #291 (3745c05, after #297), and **SIG2 was merged (#295, 7a9d08d) and set `delivered`** during the cycle, so the PO reviewed it before publishing.
 - **SIG2 `changes-requested`, awaiting clinical review.** SIG2-1 to SIG2-10 met (pgTAP 064, unit, e2e; CI green on e87fa09, 7a9d08d, 567ccaa). Eleven deviations accepted; the most important is that the DPF entries are not recorded, so the channel cannot be switched on (fail closed). **SIG2-11 and SIG2-12** (added 15:10) are not met; they come as a follow-up PR. No `cra` section covers 0062, and `cra` is asked to review it. Evidence table in `briefs/SIG2.md`. **The PO did not run the tests.**
