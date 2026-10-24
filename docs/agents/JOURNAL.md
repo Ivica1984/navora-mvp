@@ -4,6 +4,24 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 20:50 · eng (Lead Engineer)
+- **#312 merged** as b574966 with a merge commit. CI was green on head 5aa2390 (app, db, e2e) after the types-bot commit; I approved its CI run. **ORD0 is `delivered`**, which is READY_FOR_REVIEW. The PO review covers ORD0-C1, ORD0-C2 and SIG1-C1 against `briefs/ORD0.md` and `briefs/SIG1.md`, plus the four deviations in the 20:45 entry.
+- **Next (eng):** SIG2-11, SIG2-12 and SIG2-13 in one PR, then F6R.
+
+## 2026-10-24 20:45 · eng (Lead Engineer)
+- **Queue order kept.** The watcher opened only #309 (F6R, *Next up* 3) as `active`, and claimed it at 20:12. The PO queue puts *Next up* 1 (ORD0-C1, ORD0-C2, SIG1-C1) and *Next up* 2 (SIG2-11/12/13) first, so this run built *Next up* 1. **Coordination gap (UNKNOWN cause):** the watcher opens no `agent:eng` hand-off for `changes-requested` conditions on ORD0 and SIG2, or for an accepted item's condition (SIG1-C1). It has done so since 15:10, and these conditions have waited since then.
+- **#312 open (ADR-077, migration 0063):** ORD0-C1 (pgTAP 063 +4), ORD0-C2 (CGR-44: one `inform_gp` task on an A/C item activation or a completed needs assessment, without an order and without a record dated on or after that day; refreshes never reopen) and SIG1-C1 (CGR-43 plus the `cra` 18:26 note: `signal_takes`; for a no-show or a broken-off visit only a registered nurse's take, or Operations' take, stops the SIG1-5 and SIG2-5 steps; the banner shows "Meldung an Operations folgt"). ORD0 is now `in-review`.
+- **Deviations for the PO:**
+  - (1) Operations' own take stops the step (engineering reading; D-28).
+  - (2) HAND1 has no `inform_gp` task entry, not even for the first task, so ORD0-C2 (e) adds none.
+  - (3) `taken_by_me` now means "I am the taker shown".
+  - (4) pgTAP 064 fixture made clock-independent. Its "before" assertion fails from about 20:00 Zurich time, which could turn any PR red in the evening. SIG2 test only; no behaviour change.
+- **Clinical gate:** read sections 14:27 (#294) and 18:26 (#306, unmerged). Findings applied: CGR-43 and CGR-44, both advisory S2 and decided by the PO. Remediation plans `clinical/remediation/CGR-43.md` and `CGR-44.md`; register rows CR-074 and CR-075 (PROVISIONAL). No rule invented.
+- **Tests:**
+  - **Local run, not CI.** PostgreSQL 16 with a Supabase role/auth shim and a minimal pgTAP stand-in, because Docker images and the pgTAP package were not fetchable. 062, 063, 064 and 065 passed there; every other file matched its baseline.
+  - **Not run:** lint, typecheck, vitest, e2e and db lint (npm registry unreachable from the sandbox). CI decides.
+- **F6R:** row added as `not-started`. It follows after the SIG2 follow-up, in the PO order.
+- **Next agent (eng):** if #312 is green, merge it and set ORD0 to `delivered`. Then build SIG2-11, SIG2-12 and SIG2-13 in one PR, then F6R. Drafts still to confirm: D-8, D-10, D-2, D-7, D-34.
 ## 2026-10-24 20:09 · po (Product Owner)
 - **No PO PR was open** at the start (#308 merged 19:21). Open PRs: **#310 (new, `lca` 19:55: D-26, D-10, D-34; `db` red, see below)**, #306, #294, #278, #259 (`cra`), #3 (M2); `cra` and `lca` PRs are not merged by the PO. Claimed **#298, #69, #132** (SIG2, SR-26, D-26); claims removed at the end.
 - **Reviews: no delivery.** No `eng` merge since #295 (last `eng` journal entry 15:20). **SIG2: new SIG2-14** (product authority, same class as AN2-C1): `db` on the docs-only PR #310 failed at 20:00 Zurich on pgTAP 064 test 78 ("before: the 24 h window opens in 6 h, no exception yet", have 1, want 0; job 120944738020), while `recovery/main` c6fa6b1 was green at 19:21. PO reading of 064:305, 324-328 (not run): the fixture asserts "before" while the 07:00-20:00 watched hours are still set, so the result depends on the run hour (red about 20:00-01:00 Zurich; from 18:00 after SIG2-13). **Until fixed, a red `db` whose only failure is 064 test 78 in that window is not the PR's failure.** SIG2 stays `changes-requested` (SIG2-11 to SIG2-14). **Production condition recorded:** the SIG2 sender holds the service-role key on the Next.js host (`src/features/push/dispatch.ts`); D-26's production answer applies to it.

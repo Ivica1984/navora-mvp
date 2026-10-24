@@ -324,9 +324,11 @@ select is(private.watched_raise_at('00000000-0000-4000-b000-000000000012', pg_te
 -- Integration: watched hours [now − 2 h, now − 2 h + 1 min) every day; a hospital visit in 30 h (window opens in 6 h,
 -- outside) is raised at the end of the last watched period (about now − 2 h): it is an exception now.
 select pg_temp.visit(8, interval '30 hours', null, '00000000-0000-4000-a000-000000000208');
+-- "before" is judged with no watched hours, so it does not depend on the clock (0063 run: at 20:30 Zurich the window
+-- opening at 02:30 lay outside 07:00-20:00 and was already raised).
+delete from public.organization_watched_hours where organization_id = '00000000-0000-4000-b000-000000000011';
 select is((select count(*)::int from private.derived_exceptions('00000000-0000-4000-b000-000000000011') where exception_key = 'visit_uncovered_hospital:' || pg_temp.v(8)), 0,
   'before: the 24 h window opens in 6 h, no exception yet');
-delete from public.organization_watched_hours where organization_id = '00000000-0000-4000-b000-000000000011';
 insert into public.organization_watched_hours (organization_id, weekday, starts, ends)
 select '00000000-0000-4000-b000-000000000011', d, x, x + interval '1 minute'
 from generate_series(1, 7) d,
