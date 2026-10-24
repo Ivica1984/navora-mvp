@@ -5,7 +5,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(53);
+select plan(57);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -134,6 +134,17 @@ select is((select count(*)::int from public.audit_events where table_name = 'cas
 select is((select count(*)::int from public.audit_events where table_name = 'case_tasks' and command = 'record_gp_informed'
            and changed ? 'status'), 1, 'and one for the task');
 
+-- ORD0-C1 (a): HAND1 lists the record for the team (date, channel, member code; no free text) -----------------------------
+select is((select count(*)::int || ' ' || min(detail ->> 'channel') || ' ' || min((detail ->> 'informed_on')::date - pg_temp.today())
+                  || ' ' || min(jsonb_object_keys_list) || ' ' || (min(author) is not null)::text
+           from (select h.*, (select string_agg(x, ',' order by x) from jsonb_object_keys(h.detail) x) as jsonb_object_keys_list
+                 from private.handover_entries((select id from public.care_visits where case_id = '00000000-0000-4000-a000-000000000208'
+                                                and visit_date = pg_temp.today() + 2 and time_start = '15:00'),
+                                               '00000000-0000-4000-a000-000000000902') h
+                 where h.kind = 'gp_informed') q),
+  '1 persoenlich -10 channel,informed_on true',
+  'ORD0-C1 (a): HAND1 returns one gp_informed entry with date, channel and a member code, no free text');
+
 -- RLS: who reads the record --------------------------------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
@@ -222,6 +233,17 @@ select is(pg_temp.exc('00000000-0000-4000-b000-000000000011', '00000000-0000-400
   'ORD0-5: org B''s case is not in org A''s list');
 select is(pg_temp.exc('00000000-0000-4000-b000-000000000012', '00000000-0000-4000-a000-000000000251'), 1,
   'and is in org B''s');
+
+-- ORD0-C1 (b): the third ending of ORD0-4: the order is no longer `present` ------------------------------------------------
+update public.care_plan_items set active = true where id = (select id from t_item);
+select is(pg_temp.exc('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208'), 1,
+  'fixture: the B item active again → the exception is back');
+update public.cases set medical_order_status = 'requested' where id = '00000000-0000-4000-a000-000000000208';
+select is(pg_temp.exc('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208'), 0,
+  'ORD0-C1 (b): the order no longer present → gone');
+select is((select count(*)::int from private.order_open_end_episodes where case_id = '00000000-0000-4000-a000-000000000208'
+           and ending = 'order_not_present'), 1,
+  'ORD0-6: that episode ended with order_not_present');
 
 -- ORD0-6: AN2 measure 10 rows exist for the team (values follow AN1 suppression; Testteam Nord has 2 people → hidden)
 select pg_temp.act_as('00000000-0000-4000-a000-000000000905');

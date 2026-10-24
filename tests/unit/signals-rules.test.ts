@@ -48,6 +48,20 @@ describe("safety signals (SIG1)", () => {
     expect(takenText(rows[2])).toBe("von dir übernommen");
   });
 
+  it("keeps a no-show taken only by a care assistant at the top for the others (SIG1-C1)", () => {
+    const rows = [
+      { id: 1, taken_by_me: false, taken_by_name: "Assistenz Test", taken_by_qualification: "care_assistant", taken_awaits_rn: true },
+      { id: 2, taken_by_me: true, taken_by_name: "Assistenz Test", taken_by_qualification: "care_assistant", taken_awaits_rn: true },
+      { id: 3, taken_by_me: false, taken_by_name: "Pflege Test", taken_by_qualification: "registered_nurse", taken_awaits_rn: false },
+    ];
+    const { open, taken } = splitSignals(rows);
+    expect(open.map((r) => r.id)).toEqual([1]);
+    expect(taken.map((r) => r.id)).toEqual([2, 3]);
+    expect(takenText(rows[0])).toBe("übernommen von Assistenz Test (Pflegehilfe), Meldung an Operations folgt");
+    expect(takenText(rows[1])).toBe("von dir übernommen (Pflegehilfe), Meldung an Operations folgt");
+    expect(takenText(rows[2])).toBe("übernommen von Pflege Test");
+  });
+
   it("says why Operations received it", () => {
     expect(reasonText("team")).toBeNull();
     expect(reasonText("responsible")).toBeNull();
