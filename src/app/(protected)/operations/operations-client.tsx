@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import SignalBanner from "@/components/signals/SignalBanner";
-import type { SignalRow } from "@/features/signals/rules";
+import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
+import type { EvaluatorHealth, SignalRow } from "@/features/signals/rules";
 import Sidebar from "@/components/layout/Sidebar";
 import type {
   OperationsDashboard,
@@ -46,6 +47,8 @@ type OperationsClientProps = {
   lifecycle: CaseLifecycle[];
   /** SIG1: P1 safety signals delivered to Operations (fallback or untaken). */
   signals?: SignalRow[];
+  /** SIG2-11: the scheduled evaluator's health ("Signalprüfung läuft nicht"). */
+  evaluator?: EvaluatorHealth[];
 };
 
 function getStatusLabel(status: string | null) {
@@ -134,7 +137,7 @@ function getSlaStatus(careCase: CaseSummaryRow) {
   return "ok";
 }
 
-export default function OperationsClient({ dashboard, holds, continuity, billing, month, lifecycle, signals = [] }: OperationsClientProps) {
+export default function OperationsClient({ dashboard, holds, continuity, billing, month, lifecycle, signals = [], evaluator = [] }: OperationsClientProps) {
   const {
     cases,
     teams,
@@ -205,6 +208,7 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
       <Sidebar active="operations" />
 
       <main style={{ padding: "24px", display: "grid", gap: "16px" }}>
+        <EvaluatorHealthNotice health={evaluator} />
         <SignalBanner initial={signals} />
         <Header
           activeCases={activeCases.length}

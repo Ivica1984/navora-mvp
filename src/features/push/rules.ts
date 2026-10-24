@@ -34,7 +34,7 @@ export function memberInformation(vendors: Vendor[]): string[] {
   return [
     `Was: eine feste Nachricht «${PUSH_TEXT}» mit einem Link zu NAVORA. Keine Klientendaten, kein Name, keine Adresse, keine Uhrzeit.`,
     "Wann: bei einem P1-Sicherheitssignal, das an dich geht, innerhalb deiner geplanten Arbeitszeit (von deinem ersten bis zu deinem letzten geplanten Einsatz des Tages); als Zuständige des Einsatzes immer, solange du nicht abwesend bist.",
-    "Für Operations: jedes P1-Signal, das an Operations geht, zu jeder Zeit.",
+    "Für Operations: jedes P1-Signal, das an Operations geht, nur während der überwachten Zeiten der Organisation; ausserhalb davon nur in der App.",
     through,
     "Beim Einschalten erhältst du eine Testnachricht. Dein Team sieht nur, ob die Benachrichtigung bei dir aktiv ist.",
     "Ausschalten: hier jederzeit; das Gerät wird sofort gelöscht. In der App erhältst du Signale weiterhin.",
@@ -64,6 +64,16 @@ export const ADMIN_PUSH_MESSAGES: Record<string, string> = {
   failed: "Konnte nicht gespeichert werden. Bitte nochmals versuchen.",
   unchanged: "Unverändert.",
 };
+
+/** SIG2-12 (0064): with no watched hours recorded, no push goes to Operations. */
+export const NO_WATCHED_HOURS = "Keine überwachten Zeiten erfasst: Operations erhält Signale nur in der App";
+
+/** SIG2-6 with SIG2-12 and SIG2-13 (0064): what the watched hours change. */
+export const WATCHED_HOURS_HELP =
+  "Überwachte Zeiten (Pilotplan, SIG1-8), z. B. «07:00-20:00». Operations erhält Signale ausserhalb der App nur während dieser Zeiten. " +
+  "Ein vorausschauendes Signal «Einsatz ohne Zuständige (Spitalaustritt)», dessen Frist ausserhalb dieser Zeiten beginnen würde, " +
+  "erscheint in der letzten überwachten Zeit davor, 2 Stunden vor ihrem Ende (frühestens bei ihrem Beginn): früher, nie später. " +
+  "Leer = keine Änderung für dieses Signal.";
 
 export const TEAM_STATUS_NOTE =
   "Ausserhalb der App erhalten nur Mitglieder mit aktiver Benachrichtigung ein Signal, innerhalb ihrer geplanten Arbeitszeit. " +
