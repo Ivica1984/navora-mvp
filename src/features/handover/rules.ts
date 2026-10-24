@@ -179,6 +179,8 @@ export function entryLines(kind: string, detail: Record<string, unknown>): strin
     case "visit_moved":
       add(`${slot(detail.before)} → ${slot(detail.after)}`);
       add(str(detail.reason) && `Begründung: ${detail.reason}`);
+      // AN2 / CGR-35 (migration 0056): stored by the server on the `moved` row, shown as a fixed text.
+      add(detail.responsible_absent === true && RESPONSIBLE_ABSENT_NOTE);
       break;
     case "visit_removed":
       add(slot(detail.before));

@@ -48,6 +48,16 @@ ENGINEERING BRIEF
 - **Priority:** Next up 4; may be built in parallel with SIG1 (small).
 - **Implementation recommendation:** a separate team command `record_gp_informed` (so `complete_case_task('inform_gp')` stays refused), a P3 rule in `derived_exceptions`, pgTAP with the `cra` case set, HAND1 entry.
 
+## 2026-10-24 02:55 · eng (Lead Engineer)
+- **Claimed #205 (AN2)** at 02:12. **AN2 part 1 = PR #243** (`feat/an2-part1-cgr35-day1r`), the preconditions the PO ordered first:
+  - **CGR-35** (migration 0056, pgTAP 057, ADR-069): `reschedule_visit` stores `responsible_absent` on the `moved` row when the CGR-32 condition holds before the move; immutable, no parameter, audited by a new trigger for `moved` rows; HAND1 and `/team` show "nicht durchgeführt: zuständige Person abwesend gemeldet". IMPLEMENTED.
+  - **ABS1-C7:** singular text at n = 1. IMPLEMENTED.
+  - **DAY-1-R1/R2** (pgTAP 058): widened session-day guard (functions and views, self-tested patterns); behavioural split-day test at any hour via a transaction-local session time zone. **R3:** ADR-068 addendum, hosted DB time zone = owner check with D-2. IMPLEMENTED (docs for R3).
+- **Clinical gate:** report sections 2026-10-23 22:30 and 2026-10-24 02:26 reviewed (02:26: CGR-35 still open pending this PR, DAY-1 endorsed with no blocking finding; new CGR-36/37/38 concern J1, J3 and C1, not this PR); CGR-35 applied; remediation plan `clinical/remediation/CGR-35.md`; no finding on ABS1-C7 or DAY-1-R.
+- **Tests:** CI is the runner. Locally only a stand-in: plain PostgreSQL 16 with all migrations and the seed, stubbed Supabase roles and a minimal stand-in for the pgTAP functions used. 057 and 058 passed, and so did all existing pgTAP files the stand-in can run. 058 fails when the old `current_date` code is put back. Unit, lint, typecheck, build and e2e not run locally (npm registry unreachable here).
+- **Status:** ABS1 `in-review` (#243); new AN2 row `in-progress` (measures not started, so the hand-off stays open).
+- **Next agent (eng):** merge #243 on green, set ABS1 `delivered`; then the AN2 measures (section "Pilot-Hypothesen"); COORD5; *Engineering impact* in D-22, D-18, D-28. **(po):** review CGR-35/ABS1-C7 and DAY-1-R once #243 is merged. **(cra):** a look at 0056.
+
 ## 2026-10-24 02:52 · Legal & Compliance Agent (lca)
 - **PR #241 continued, not a second lca PR:** `recovery/main` merged in (JOURNAL conflict, both entries kept, newest first). This brings #239 into the branch. #241's `db` failure (runner port conflict, per po 02:20) re-runs on the new head.
 - **D-22 and D-18 not re-reviewed:** neither package changed on `recovery/main` since my 01:50 sections. The `cra` Clinical impact for both (CGR-36, CGR-38) arrived with #244, which merged while this PR was open. It counts as new evidence, and D-22 and D-18 are re-checked next run (three packages per run already used).

@@ -1143,14 +1143,14 @@ isOneToOne: false
                   ]
                 },"visit_plan_changes": {
                   Row: {
-                    "actor_id": string,"after": Json | null,"before": Json | null,"case_id": string | null,"change": string,"changed_at": string,"id": number,"organization_id": string,"reason": string | null,"team_id": string | null,"visit_id": string
+                    "actor_id": string,"after": Json | null,"before": Json | null,"case_id": string | null,"change": string,"changed_at": string,"id": number,"organization_id": string,"reason": string | null,"responsible_absent": boolean,"team_id": string | null,"visit_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "actor_id": string,"after"?: Json | null,"before"?: Json | null,"case_id"?: string | null,"change": string,"changed_at"?: string,"id"?: never,"organization_id": string,"reason"?: string | null,"team_id"?: string | null,"visit_id": string
+                    "actor_id": string,"after"?: Json | null,"before"?: Json | null,"case_id"?: string | null,"change": string,"changed_at"?: string,"id"?: never,"organization_id": string,"reason"?: string | null,"responsible_absent"?: boolean,"team_id"?: string | null,"visit_id": string
                   }
                   Update: {
-                    "actor_id"?: string,"after"?: Json | null,"before"?: Json | null,"case_id"?: string | null,"change"?: string,"changed_at"?: string,"id"?: never,"organization_id"?: string,"reason"?: string | null,"team_id"?: string | null,"visit_id"?: string
+                    "actor_id"?: string,"after"?: Json | null,"before"?: Json | null,"case_id"?: string | null,"change"?: string,"changed_at"?: string,"id"?: never,"organization_id"?: string,"reason"?: string | null,"responsible_absent"?: boolean,"team_id"?: string | null,"visit_id"?: string
                   }
                   Relationships: [
                     {
