@@ -1,5 +1,6 @@
 import type { HypothesisRow } from "@/features/analytics/queries";
 import {
+  DETAIL_MEASURES,
   HYPOTHESIS_GROUPS,
   MEASURE,
   PERIOD_NOTE,
@@ -46,7 +47,7 @@ export default function PilotHypotheses({ rows, periodLabel }: { rows: Hypothesi
                 <p className="font-semibold break-words">H{g.no} · {g.hypothesis}</p>
                 <p className="text-xs text-stone-500 break-words">Prüft: «{g.challenge}» (Challenge-Tabelle) · Quelle: {g.source}</p>
                 <ul className="grid gap-2">
-                  {groupRows.map((r) => (
+                  {groupRows.map((r, i) => (
                     <li
                       key={`${r.measure}:${r.detail ?? ""}`}
                       data-measure={r.measure}
@@ -65,7 +66,10 @@ export default function PilotHypotheses({ rows, periodLabel }: { rows: Hypothesi
                       <p className="text-xs text-stone-600">
                         <span data-testid="hyp-base">Basis {r.base ?? "–"}</span> · <span data-testid="hyp-period">{periodLabel}</span>
                       </p>
-                      {r.measure !== "not_billable_reason" && (
+                      {/* rows with a fixed code (reasons, endings) explain their measure once, on its first row */}
+                      {(r.measure === "absence_past_visit_end"
+                        ? i === 0 || groupRows[i - 1].measure !== r.measure
+                        : !DETAIL_MEASURES.has(r.measure)) && (
                         <p className="text-xs text-stone-600 break-words">{MEASURE[r.measure]?.definition}</p>
                       )}
                       {r.note && <p className="text-xs text-amber-900 break-words" data-testid="hyp-note">{r.note}</p>}
