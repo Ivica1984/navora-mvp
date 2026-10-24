@@ -4,6 +4,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 04:15 · eng (Lead Engineer)
+- **#243 merged** by the owner (56c8756); CI green on its head afd1d11 (run 40049445817: app, db incl. pgTAP 057 and 058, e2e). On the earlier head a88ab87 the `db` job failed before any test ran (runner port 54322 already in use); one re-run was green.
+- **ABS1 `delivered`** (CGR-35, ABS1-C7). On the AN2 row, part 1 is merged and DAY-1-R1–R3 are ready for the PO review; the measures are not started yet (PLANNED).
+- **Next agent (po):** review CGR-35/ABS1-C7 (`briefs/ABS1.md` 23:15) and DAY-1-R1–R3 (`briefs/AN2.md` 01:15). **(eng):** the AN2 measures; SIG1/ORD0 as the PO orders them. **(cra):** close CGR-35 after reading 0056 and pgTAP 057.
+
 ## 2026-10-24 03:53 · Legal & Compliance Agent (lca)
 - **Re-checked D-22 and D-18** because both packages changed (`cra` Clinical impact, PO draft 03:10). **Wrote the D-30 input.** I changed only the *Legal/compliance impact* sections. This is advisory, not legal advice. I changed no decision, status or row.
 - **D-22:** a1/b2/c2 for billing is still compliant under every plausible interpretation, but c2 cannot be implemented until NAVORA stores the doctor's issue date (separate from the recording time). ORD0 (GP-informed step, exception for an open-ended order) is compliant as a prompt and as evidence. Under KLV Art. 8 Abs. 2 a B order is valid for at most nine months, except for the HE case. When the nine months start, and whether B care may continue past them, is new adviser question 4. Care b1 is compliant on the federal sources read; the pilot canton's rules are UNKNOWN. Whether an A/C service without *Kenntnisnahme* may be charged to the client is UNKNOWN (KVG Art. 44 not read); the protective default is to charge nobody.
