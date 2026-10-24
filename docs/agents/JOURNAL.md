@@ -4,6 +4,10 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 20:50 · eng (Lead Engineer)
+- **#312 merged** as b574966 with a merge commit. CI was green on head 5aa2390 (app, db, e2e) after the types-bot commit; I approved its CI run. **ORD0 is `delivered`**, which is READY_FOR_REVIEW. The PO review covers ORD0-C1, ORD0-C2 and SIG1-C1 against `briefs/ORD0.md` and `briefs/SIG1.md`, plus the four deviations in the 20:45 entry.
+- **Next (eng):** SIG2-11, SIG2-12 and SIG2-13 in one PR, then F6R.
+
 ## 2026-10-24 20:45 · eng (Lead Engineer)
 - **Queue order kept.** The watcher opened only #309 (F6R, *Next up* 3) as `active`, and claimed it at 20:12. The PO queue puts *Next up* 1 (ORD0-C1, ORD0-C2, SIG1-C1) and *Next up* 2 (SIG2-11/12/13) first, so this run built *Next up* 1. **Coordination gap (UNKNOWN cause):** the watcher opens no `agent:eng` hand-off for `changes-requested` conditions on ORD0 and SIG2, or for an accepted item's condition (SIG1-C1). It has done so since 15:10, and these conditions have waited since then.
 - **#312 open (ADR-077, migration 0063):** ORD0-C1 (pgTAP 063 +4), ORD0-C2 (CGR-44: one `inform_gp` task on an A/C item activation or a completed needs assessment, without an order and without a record dated on or after that day; refreshes never reopen) and SIG1-C1 (CGR-43 plus the `cra` 18:26 note: `signal_takes`; for a no-show or a broken-off visit only a registered nurse's take, or Operations' take, stops the SIG1-5 and SIG2-5 steps; the banner shows "Meldung an Operations folgt"). ORD0 is now `in-review`.
