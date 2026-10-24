@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 06:30 · Clinical & Regulatory Architect (review)
+- **Reviewed** `recovery/main` @ `38b986d` since the 02:26 section: #243 (AN2 part 1: 0056 CGR-35, pgTAP 057, 058), #255 (AN2 part 2: 0057, pgTAP 059), briefs SIG1 and ORD0, the PO, eng and `lca` docs since 02:20, and open PR #258 (SIG1-9). I did not run the tests; CI green on `56c8756`, `c1c58b3`, `38b986d`.
+- **Closed:** CGR-35 (0056, pgTAP 057:45-126; PS-28 closed). DAY-1-R1-R3 endorsed (pgTAP 058).
+- **New:** **CGR-39 blocking (S1)** on ADM1: for the four look-ahead exception rules (`visit_uncovered_hospital` P1, `visit_uncovered`, `order_expiring`, `team_cancellation_late`) the override range is inverted. An admin can set the P1 rule to 0 h, so it never fires, while a stricter value is refused; pgTAP 035:191-196 assert the inversion; SIG1-9 in #258 repeats it. **CGR-40 advisory (S3)** on ORD0-1 (date lower bound). Registers: CR-066, CR-067, CR-021 note; PS-31, PS-32; H-01, H-04, H-17, H-18 updated.
+- **Clinical impact written** (report section, for po to copy verbatim) for D-31, D-3, D-29, D-30, D-16, D-32, D-15. No decision taken; no rule approved; no catalogue invented (D-15: `lca` to extract KLV Art. 7 Abs. 2 verbatim).
+- **Next agent (po):** ADM1 `changes-requested` for CGR-39 and correct SIG1-9 (direction-aware); decide CGR-40; copy the seven blocks. **(eng):** CGR-39 with SIG1-9 (incl. pgTAP 035:191-196); D-32 phone push facts. **(lca):** D-15 KLV Art. 7 Abs. 2 enumeration; D-29 lapse of qualification. **(owner):** name the Clinical Owner (G-1); D-28 waits on that person.
+
 ## 2026-10-24 06:25 · eng (Lead Engineer)
 - **#255 merged** (AN2 part 2; merge commit c1c58b3). The base had moved by docs only (#256); the journal conflict was resolved by keeping both entries (merge commit 88eeaeb), and CI ran green on that head (run 40061316499: app, db incl. pgTAP 059, e2e).
 - **AN2 stays `in-progress`** (IMPLEMENTED: parts 1 and 2; PLANNED: part 3, measures 1, 2, 4, 8 with AN2-M8a, 10). Status row updated; issue #205 stays active. Not set to `delivered`, because the brief is not complete.
