@@ -607,7 +607,14 @@ as $$
                 then 'vor Erfassung (nicht gezählt): Verschiebungen vor der Erfassung der Abwesenheitsmarke (0056); ob die zuständige Person abwesend war, ist nicht gespeichert.'
               when r.measure = 'followup_without_visit_share'
                 then 'Gezählt werden neu geplante Einsätze desselben Falls; ein verschobener bestehender Einsatz zählt nicht. «Folgeeinsatz geplant» ist eine Aussage, keine Prüfung (D-31).'
-              when r.measure in ('correction_open_signals', 'visits_open_past_p1', 'uncovered_taken_by_team_share', 'uncovered_hours_to_take',
+              -- AN2-M9a (PO 2026-10-24 07:10): measure 9 names the threshold value it used, as set today.
+              when r.measure = 'visits_open_past_p1'
+                then (select 'Schwelle heute: geplantes Ende + ' || coalesce(er.amount, 0)::text || ' '
+                             || case er.unit when 'days' then 'Tage' when 'working_days' then 'Arbeitstage' else 'Std.' end
+                             || ' + ' || coalesce(er.escalate_to_p1_after_hours, 0)::text
+                             || ' Std. bis P1. Wie heute eingestellt (provisorisch, D-28).'
+                      from private.effective_exception_rules(r.organization_id) er where er.exception_type = 'visit_stuck')
+              when r.measure in ('correction_open_signals', 'uncovered_taken_by_team_share', 'uncovered_hours_to_take',
                                  'overdue_ended_by_command_share', 'overdue_closed_by_hand_share',
                                  'stuck_ended_by_command_share', 'stuck_closed_by_hand_share')
                 then 'Schwelle wie heute eingestellt (provisorisch, D-28).'

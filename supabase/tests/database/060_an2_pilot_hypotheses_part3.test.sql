@@ -7,7 +7,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(47);
+select plan(48);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -255,6 +255,10 @@ select is(pg_temp.hv('2025-07-01', 'absence_past_visit_end', 'other'), 0::numeri
 select is((select count(*)::int from public.pilot_hypotheses('2025-07-01')
            where team_id = pg_temp.id('t3') and measure = 'absence_past_visit_end'), 7,
   '8: every ending has its row (fixed codes), also with value 0');
+-- AN2-M9a (PO 2026-10-24 07:10): measure 9 names the threshold it used (org B: visit_stuck 1 h, P1 after 3 h).
+select is(pg_temp.h('2025-06-01', 'visits_open_past_p1') ->> 'note',
+  'Schwelle heute: geplantes Ende + 1 Std. + 3 Std. bis P1. Wie heute eingestellt (provisorisch, D-28).',
+  'AN2-M9a: the measure-9 row names the threshold value used today');
 select is(pg_temp.ho('2025-07-01', 'absences_by_colleague_share'), 20.0::numeric,
   '8: the organisation row counts each absence once (one group per absence)');
 reset role;
