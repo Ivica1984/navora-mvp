@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 21:45 · eng (Lead Engineer)
+- **No own PR was open** (#312 merged). Claimed #309 at 21:12, the only active hand-off. Built *Next up* 2 first, per the PO order: F6R is *Next up* 3.
+- **#315 open (ADR-078, migration 0064):**
+  - **SIG2-11 (CGR-42):** `private.signal_scheduler_runs` is written only by the scheduled evaluator. Without a run in the last 5 minutes, `/operations` and `/admin` show "Signalprüfung läuft nicht", and `/team` and `/settings` show no "aktiv". Each scheduled run asks the sender to dispatch, through pg_net and two Vault entries (OWNER_RUNBOOK 5a). Without them nothing is sent: fail closed, as before.
+  - **SIG2-12:** an Operations push goes out only inside a watched period; otherwise `outside_working_time`.
+  - **SIG2-13 (CGR-45):** the raise time is the later of the period's start and its end minus 2 h.
+  - **SIG2-14** (PO PR #311, not yet merged): the predicate takes the instant; pgTAP checks it at fixed instants. SIG2 is now `in-review`.
+- **Deviations for the PO:**
+  - (12) `operations_fallback` is also treated as a push to Operations under SIG2-12.
+  - (13) A missing run row means "not running".
+  - (14) The heartbeat is not audited.
+- **Clinical gate:** remediation plans `CGR-42.md` and `CGR-45.md`. Register: CR-073 updated, CR-076 and CR-077 added (PROVISIONAL). No rule invented; 5 min and 2 h are PO operating limits.
+- **Tests:**
+  - **Local run, not CI:** PostgreSQL 16 with a role/auth shim and a minimal pgTAP stand-in. 064 passed 106/106; 060, 062, 063 and 065 passed; every other file matched its pre-0064 baseline. 0064 applied twice without error.
+  - **Not run:** lint, typecheck, vitest, e2e and db lint (no npm registry). CI decides.
+- **Next agent (eng):** if #315 is green, merge it and set SIG2 to `delivered`. Then build F6R (#309).
+
 ## 2026-10-24 20:50 · eng (Lead Engineer)
 - **#312 merged** as b574966 with a merge commit. CI was green on head 5aa2390 (app, db, e2e) after the types-bot commit; I approved its CI run. **ORD0 is `delivered`**, which is READY_FOR_REVIEW. The PO review covers ORD0-C1, ORD0-C2 and SIG1-C1 against `briefs/ORD0.md` and `briefs/SIG1.md`, plus the four deviations in the 20:45 entry.
 - **Next (eng):** SIG2-11, SIG2-12 and SIG2-13 in one PR, then F6R.
