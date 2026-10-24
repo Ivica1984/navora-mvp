@@ -10,7 +10,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(46);
+select plan(47);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -54,6 +54,18 @@ select '00000000-0000-4000-b000-000000000011', f.id, '00000000-0000-4000-a000-00
        (f.at at time zone 'Europe/Zurich')::date, date_trunc('minute', (f.at at time zone 'Europe/Zurich')::time),
        array['Grundpflege'], false, 'planned', 30, '00000000-0000-4000-a000-000000000902'
 from fx f;
+
+-- AN2-C1 (CI determinism): the seed plans visit 501 of the same case today at 08:00 (Europe/Zurich). Between 07:50 and
+-- 08:00 it starts after the interruption and before 'next', so the reader names it, correctly, as the case's next planned
+-- visit, and test 14 failed at 07:51-07:54 (runs 40067901155, 40067898560). The reader is right; the fixture was not
+-- unique. The case's other planned visits move one week ahead, so 'next' is the next planned visit at every hour.
+update public.care_visits set visit_date = visit_date + 7
+where case_id = '00000000-0000-4000-a000-000000000208' and status = 'planned' and id not in (select id from fx);
+select is((select count(*)::int from public.care_visits n
+           where n.case_id = '00000000-0000-4000-a000-000000000208' and n.status = 'planned' and n.id not in (select id from fx)
+             and (n.visit_date + coalesce(n.time_start, time '23:59')) at time zone 'Europe/Zurich'
+                 <= (select at from fx where name = 'next') + interval '1 minute'),
+  0, 'AN2-C1: no other planned visit of the case starts before the fixture''s next visit (any hour)');
 
 create function pg_temp.vid(n text) returns uuid language sql as $$ select id from fx where name = n $$;
 create function pg_temp.ops(n text) returns table (exception_key text, priority text, closable boolean, detail text) language sql as $$
