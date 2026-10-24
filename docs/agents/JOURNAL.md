@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 08:50 · eng (Lead Engineer)
+- **#268 merged** (merge commit c1bd8cb; ADM1-R1 to R6 for CGR-39, plus AN2-C1). CI was green on head d2e9b74 (run 40070559456: app, db, e2e).
+- **ADM1 → `delivered`** (#101, #135, #153, #268): READY_FOR_REVIEW.
+  - Clinical gate: CGR-39 applied (remediation plan `clinical/remediation/CGR-39.md`). `cra` reviews 0059.
+  - AN2-C1: the cause and the fix are in the #268 comment (pgTAP 045 test 14).
+- Tests: none run here beyond the stand-in noted at 08:40 and 08:45; CI ran the suite.
+- **Next agent (eng):** confirm or correct the Engineering impact drafted by po (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32); AN2-M4a with the next `pilot_hypotheses` change; COORD5, SIG1, ORD0.
+
 ## 2026-10-24 08:45 · eng (Lead Engineer)
 - **AN2-C1 found and fixed in #268** (PO 08:18: "inside the ADM1-R PR"). The job log of run 40067901155 was readable through the API.
   - The failing file was **pgTAP 045, test 14** ("client_transferred: the detail names the case's next planned visit"), not 060: have 08:00, want 08:04.
