@@ -99,3 +99,26 @@ CGR-37 (S2; S1 if visits are planned when nobody watches), `reports/CLINICAL_GOV
 **Business value and care model.** The dispatcher's watching job is now the team's and the software's: a P1 reaches named people in their own tool and one tap takes it. SIG1-8 (a named watcher for every planned hour) stays a go-live condition until SIG2 shows outside delivery works. **Architecture:** one exception surface (`derived_exceptions`, `effective_exception_rules`), audited commands, no second threshold copy: in line with the Handbook.
 
 **Result: `accepted`** with SIG1-C1. Issue #285 closes with this cycle.
+
+## PO review — 2026-10-24 21:10: condition **SIG1-C1 met** (#312); stays `accepted`
+
+**Delivered** in #312 (migration 0063 §2-§4, ADR-077), merged as b574966; CI green on head 5aa2390, merge commit b574966 and `recovery/main` b55d7b1. **The PO did not run the tests.** Remediation plan `clinical/remediation/CGR-43.md`; register row CR-075 (PROVISIONAL).
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| (a) `no_show` / `visit_interrupted`: a non-RN take is recorded and shown ("übernommen von <Name> (Pflegehilfe), Meldung an Operations folgt") and does not stop the SIG1-5 step | met | `public.signal_takes` (append-only, RLS on, no direct read or write, columns without free text: pgTAP 065 structure tests); `private.signal_take_stops`; pgTAP 065 "care assistant takes a P1 no-show → escalated after signal_untaken"; `my_signals.taken_awaits_rn`; `SignalBanner.tsx` `safety-signal-taken-by`, `rules.ts` `takenText` ("…, Meldung an Operations folgt"); unit `signals-rules.test.ts` |
+| (a) also SIG2's immediate step (`cra` 18:26 note) | met | 0063 §2 one predicate `private.signal_taken_stops_step` read by both steps; pgTAP 065 "no outside send succeeded → Operations receives it although the care assistant took it" |
+| (b) an RN's take stops the step | met | pgTAP 065 "registered nurse takes → not escalated" and "care assistant then registered nurse → not escalated" |
+| (c) other kinds unchanged | met | pgTAP 065 "care assistant takes visit_overdue → not escalated (as built)" |
+| (d) the four named pgTAP cases | met | pgTAP 065 SIG1-C1 (d) block, all four |
+| (e) no threshold, response time, range guard or SIG1-9 change | met | 0063 header line 30; the test sets the untaken threshold through `set_exception_rule` (the ADM1 path), not by hand |
+| Takes recorded before 0063 | protective | 0063 §2 back-fill: one row each, judged by the same rule (synthetic data only today) |
+
+**Deviations (Engineering 20:45), decided:**
+- **(1) A take by a person the step would reach (Operations) stops the step: accepted.** The step exists to make sure Operations knows; when an Operations member has taken the signal, Operations knows, and sending the same signal to Operations again changes nothing for the client. It is a workflow reading, not a clinical rule; it is added to the Clinical Owner's CGR-43 question in D-28 (no new escalation).
+- **(3) `taken_by_me` means "I am the taker shown": accepted.** With two takes the banner must show the take that counts (the RN's), so the nurse reads one consistent line; pgTAP 065 covers both views.
+- `safety_signals.taken_by` stays the first take, so AN2 measure 10 (time to the first take) keeps its meaning: accepted.
+
+**Clinical gate:** `cra` has not yet reviewed 0063 (its last section, 18:26, predates it). SIG1 stays `accepted` (accepted 15:10, gate passed then); **`cra` is asked to cover 0063 in its next section**; a blocking finding returns SIG1 to `changes-requested`. COVER1's enablement condition (`cover_without_access`) is unchanged.
+
+**Care-model value.** A no-show behind a closed door is no longer closed by one tap of the least qualified person on duty; the RN or Operations still hears about it, without a dispatcher watching a screen. That is the protective interim until the Clinical Owner answers D-28.
