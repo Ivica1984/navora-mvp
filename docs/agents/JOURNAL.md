@@ -21,6 +21,27 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Tests: CI is the runner. Locally a stand-in only: `bun test` on both unit files (25 + 12 pass), `agents-check`, dry run. Not run: vitest, typecheck, lint, e2e (npm unreachable).
 - **Next agent (eng):** fix CI on #271 if red; merge on green; COORD5 → `delivered`. Then the Engineering impact for the packages (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32), SIG1, ORD0.
 
+## 2026-10-24 09:12 · po (Product Owner)
+- **No PO PR was open** at the start. `lca` #266 is merged (f35ab63); `cra` #259 is still open (not merged by the PO). Claimed **#270** ([PO review] ADM1); claim removed at the end. #248 (D-32) worked with a comment only.
+- **ADM1 → `accepted`** (#268, migration 0059, pgTAP 061, ADR-072). CI green on head d2e9b74 (run 40070559456), merge commit c1bd8cb (40070955122, 40070952402) and `recovery/main` f35ab63 (40072166088, 40072162324), read through the API; **the PO did not run the tests.**
+  - ADM1-R1 to R6 met; each `cra` remedy point for CGR-39 (#259 head) met in code. Evidence table in `briefs/ADM1.md` 09:12.
+  - Five deviations accepted (`cover_without_access` is look-ahead, the brief was wrong; `visit_stuck` floor 1 h; unit and e2e updated; pgTAP 047 fixture left as is, **ADM1-M1** at its next touch; hand-edited types).
+  - **ADM1-G1:** `cra` confirms CGR-39 closed on 0059 in its next section; else ADM1 returns to `changes-requested`. The PO accepted before that cycle because the README gate asks the PO to consider the report, and every remedy point is checkable in the code.
+  - **AN2-C1 met** (pgTAP 045 test 14 fixture, not the reader). SIG1-9 range part met.
+- **Decision packages:**
+  - **D-32 → `po-decided` (Medium):** option B, narrow variant. Web push of the fixed text only to Google and Microsoft endpoints, after the official DPF list check is recorded in the SIG2 PR. Recipients: the responsible member and colleagues within planned working time (span of their planned visits that day). Opt-in, information text naming vendor and country, test delivery, per-member status on `/team`. SIG1-8 stays. Built later as SIG2, after SIG1. Why po may decide: `lca` 08:47 finds this variant consistent with every source read; no clinical rule, reversible, no paid contract.
+  - **D-33 (new, tier 2, CGR-37) → `awaiting-approval: owner`:** Safari/iOS and Firefox (`lca` question 1 unresolved; no legal adviser named). Default A: in-app only for those browsers.
+  - **D-11 → `awaiting-approval: owner` (Medium as a package):** Engineering impact drafted by po (two-run rule; requested 04:10, seven `eng` runs since). Canton is per case; J5 reference rows are per region; `region` of teams is a service area, not a canton; a second language is the largest single cost. Asked: "name the pilot canton and two to five municipalities", five criteria.
+  - **D-12 → `awaiting-approval: owner` (Medium):** Engineering impact drafted by po (A ≈ B small, D medium, C per team large). Recommendation: **B for the pilot** (a licensed partner organisation) with three partnership conditions: no added dispatch or approval layer; measures shared; a path to a cooperative of teams (C) after the pilot. A only if no partner. `lca` question 1 (processor under professional secrecy) first.
+  - **D-30:** `lca` 08:47 note adopted. A disputed time or category is not billable until corrected from a documented source (invoicing prerequisite for D-18).
+  - Comments on #248, #57, #58.
+- **Challenge:** why does the licence bring a nursing-management line layer above the teams? From scratch its duties are a few named functions (serious-event review, qualification confirmation, clinical-rule approval, untaken escalations) carried by one fractional clinical lead. Hypothesis row in `NEXT_CAPABILITY.md` and `CARE_OPERATING_MODEL.md`: fewer than 5 such actions per week per 50 clients, counted from the audit log.
+- No new brief: COORD5, SIG1, ORD0 are approved and unstarted; SIG2 waits for SIG1. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:**
+  - owner: D-22, D-18 (after D-11, D-12), D-29, **D-11, D-12, D-33**; names the Clinical Owner (G-1);
+  - Clinical Owner (once named): D-28, D-31, D-3 field list, D-30, D-16.
+- **Next agent (eng):** COORD5, SIG1, ORD0 in order; confirm or correct the Engineering impact drafted by po (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32, **D-11, D-12**); AN2-M4a, ADM1-M1 at their next touch. **(cra):** ADM1-G1 (CGR-39 on 0059); merge or update #259. **(lca):** nothing new requested; D-15 once fedlex is readable. **(po):** D-15, D-9, D-4 packages (inputs in), D-10.
+
 ## 2026-10-24 08:50 · eng (Lead Engineer)
 - **#268 merged** (merge commit c1bd8cb; ADM1-R1 to R6 for CGR-39, plus AN2-C1). CI was green on head d2e9b74 (run 40070559456: app, db, e2e).
 - **ADM1 → `delivered`** (#101, #135, #153, #268): READY_FOR_REVIEW.
