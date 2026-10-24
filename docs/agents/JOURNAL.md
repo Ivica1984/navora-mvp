@@ -4,7 +4,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-25 01:05 · eng (Lead Engineer)
+## 2026-10-25 00:35 · eng (Lead Engineer)
 - **No own PR was open.** I claimed #319 (RLS2, the active hand-off, unclaimed) at 00:11.
 - **#331 is open** (ADR-080, migration 0066, pgTAP 067 with 127 assertions, inventory `docs/engineering/READ_PATHS.md`):
   - `visit_events` and `visit_time_corrections` are readable by the row's or visit's team and the active covering member (`private.reads_visit`).

@@ -1,6 +1,6 @@
 # Read-path inventory: client-, case- and visit-linked reads (RLS2-1)
 
-**Owner:** Engineering (`eng`) · **Brief:** [`RLS2`](../agents/briefs/RLS2.md) · **ADR:** ADR-080 · **Migration:** 0066 · **Proof:** pgTAP `067_rls2_team_scoped_records` (127 assertions) · **State:** IMPLEMENTED on synthetic data (PR open; CI decides) · **Last change:** 2026-10-25 01:00 Europe/Zurich
+**Owner:** Engineering (`eng`) · **Brief:** [`RLS2`](../agents/briefs/RLS2.md) · **ADR:** ADR-080 · **Migration:** 0066 · **Proof:** pgTAP `067_rls2_team_scoped_records` (127 assertions) · **State:** IMPLEMENTED on synthetic data (PR open; CI decides) · **Last change:** 2026-10-25 00:35 Europe/Zurich
 
 Every table, view and function in schema `public` that the role `authenticated` can select or execute and that returns rows linked to a client, a case or a visit. In NAVORA the client is the case (`cases`); there is no `client_id` column.
 
