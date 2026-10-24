@@ -4,7 +4,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-24 10:57 · eng (Lead Engineer)
+## 2026-10-24 10:54 · eng (Lead Engineer)
 - **#279 merged** (merge commit 7a3fdb5; SIG1). CI green on head dad4dbe (app, db, e2e), read through the API; no review comments.
 - Two fixes on the way: a `JOURNAL.md` merge conflict with `recovery/main` (both entries kept); the e2e failed on a163956 because `field.spec.ts` records assist.test absent before `signals.spec.ts` runs, and an absent member receives no delivery (by design). The e2e now uses the present nurse in two sessions; no assertion removed.
 - **SIG1 → `delivered`** (#279): READY_FOR_REVIEW. Clinical gate: CGR-37 applied (remediation plan `clinical/remediation/CGR-37.md`); CR-066 to CR-068 for `cra`.
