@@ -54,8 +54,11 @@ Every capability is judged by whether it raises this share without lowering safe
 | Nurse ordering her day and route by hand | Proposed order of the day from visit windows and travel time | HYPOTHESIS (Q7 data protection; AN1 travel minutes) |
 | Statutory statistics and cantonal reports compiled by hand | Generated from billing, continuity and quality facts | HYPOTHESIS (D-11) |
 | Back-office invoice preparation | Invoices generated from J5 facts with a human release | after D-12, D-18 |
+| Nurses classify every planned service into a KLV category (A/B/C) by hand | The category comes from an approved service catalogue; the team changes it only with a reason, and the change is visible | HYPOTHESIS (D-15 option C; the catalogue is a clinical and billing rule for the Clinical Owner) |
 
 **Go-live condition (PO, 2026-10-24, SIG1-8, CGR-37):** until safety signals reach people outside the app (D-32), the pilot plan names, for every hour in which visits are planned, the person who has `/field`, `/team` or OPS1 open; no visit is planned outside those hours. Pilot visit hours: UNKNOWN (owner, pilot plan).
+
+**Go-live condition (PO, 2026-10-24 04:10, D-30, `lca` 03:53):** before the first real client, a client's request to correct a care record can be met when the report's author has left the team: at least a dated addendum or a "bestritten" mark by a registered nurse of the team, shown with the final version, original untouched, audited. Who may write it and which fields: `clinical` (D-30).
 
 What does **not** disappear: verified qualifications, clinical responsibility, legal accountability, data protection. These are decisions for their owners, not things to automate away.
 

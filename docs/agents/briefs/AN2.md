@@ -3,10 +3,30 @@ id: AN2
 title: Pilot hypotheses measured from events, not tallied
 author: po
 status: approved
-updated: 2026-10-23
+updated: 2026-10-24
 ---
 
 # AN2 — Pilot hypotheses measured from events, not tallied
+
+## PO review — 2026-10-24 04:10: DAY-1-R1–R3 met (#243); DAY-1 accepted; AN2 measures next; AN2-M8a
+
+Reviewed #243 (AN2 part 1, head afd1d11, CI run 40049445817 green; merged as 56c8756, CI run 40053036646 green on the merge commit, checked through the API). The PO read pgTAP 058 (15 assertions) and the ADR-068 addendum. **The PO did not run the tests.** CGR-35 and ABS1-C7 are reviewed in `briefs/ABS1.md` 04:10.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| R1: guard also fails on `now()::date`, `current_timestamp::date`, `localtimestamp` and on day derivations in a view or materialised view in `public`/`private` | met | 058 tests its day patterns against bad samples (all match) and good samples (none match) first, then refuses them in function bodies and in views/materialised views, `current_date` included for views; ADR-068 addendum lists the patterns |
+| R2: behavioural pgTAP at a split day: `derived_exceptions` judges an order end and a review date against the Zurich day; `pause_case` accepts Zurich today | met | 058 sets a transaction-local session time zone whose date differs from Zurich (asserted: `current_date`, `now()::date` differ by exactly one day); pairs of cases where only the Zurich day gives the expected result for `order_expiring` and `care_plan_review_overdue` through `derived_exceptions` and OPS1 `operations_exceptions`; `pause_case` refuses Zurich yesterday and accepts Zurich today. Thresholds read from `exception_rules` (D-28 unchanged). Runs in every CI run |
+| R3: ADR-068 names the hosted DB time zone as an owner check once staging exists (D-2) | met | ADR-068 addendum: `show timezone;` as the API roles on staging, recorded in the ADR; the live project is never touched |
+| No weakening of existing assertions | met | no existing test changed in #243 except the ABS1-C7 text |
+
+**Deviation decided:** *R2's test clock is the session time zone, not a moved instant* (ADR-068 addendum): **accepted**. It reproduces exactly the failure UTC caused (session day ≠ Zurich day) without a clock hook inside product functions that a caller might reach; the asserted precondition proves the test is in the split state at any hour.
+
+**PO status for DAY-1: `accepted`** (01:15 `changes-requested` resolved). Why: the safety fix was met at 01:15; the proof that keeps it fixed is now in every CI run.
+
+**New criterion (PO, product authority, presentation only):**
+- [ ] **AN2-M8a:** measure 8 counts moved flagged visits only from `visit_plan_changes.responsible_absent` (migration 0056) and shows moves recorded before 0056 was applied as "vor Erfassung (nicht gezählt)", never as "nicht abwesend". Unit or pgTAP test for both rows. Why: an honest measure says what it cannot know; a pilot reading zero would otherwise conclude that absences never strand visits.
+
+**Next:** the measures (section "Pilot-Hypothesen"), in engineering's order; COORD5 may be built in parallel.
 
 ## PO update — 2026-10-24 02:20: measure 7 labels the 10-minute rule as under review (AN2-M7)
 
