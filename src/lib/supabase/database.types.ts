@@ -991,6 +991,58 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"safety_signals": {
+                  Row: {
+                    "created_at": string,"ended_at": string | null,"escalated_at": string | null,"exception_key": string,"id": string,"organization_id": string,"p1_at": string,"signal_kind": string,"taken_at": string | null,"taken_by": string | null,"team_id": string,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"ended_at"?: string | null,"escalated_at"?: string | null,"exception_key": string,"id"?: string,"organization_id": string,"p1_at": string,"signal_kind": string,"taken_at"?: string | null,"taken_by"?: string | null,"team_id": string,"visit_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"ended_at"?: string | null,"escalated_at"?: string | null,"exception_key"?: string,"id"?: string,"organization_id"?: string,"p1_at"?: string,"signal_kind"?: string,"taken_at"?: string | null,"taken_by"?: string | null,"team_id"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "safety_signals_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_signals_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"signal_deliveries": {
+                  Row: {
+                    "created_at": string,"id": string,"organization_id": string,"reason": string,"recipient_id": string,"signal_id": string,"signal_kind": string,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"organization_id": string,"reason": string,"recipient_id": string,"signal_id": string,"signal_kind": string,"visit_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"organization_id"?: string,"reason"?: string,"recipient_id"?: string,"signal_id"?: string,"signal_kind"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "signal_deliveries_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "signal_deliveries_signal_id_fkey"
+      columns: ["signal_id"]
+isOneToOne: false
+      referencedRelation: "safety_signals"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"tariff_rates": {
                   Row: {
                     "amount": number,"category": string | null,"id": string,"payer": string,"region": string,"source": string,"unit": string,"valid_from": string,"valid_to": string | null,"validated": boolean,"validation_note": string | null,"version": string
