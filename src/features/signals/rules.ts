@@ -101,3 +101,27 @@ export function takeOutcome(data: unknown): { result: string; reason?: string } 
   }
   return { result: "failed" };
 }
+
+/** SIG2-11 (0064, ADR-078): the scheduled evaluator's last run per organisation (Operations and administrators only). */
+export type EvaluatorHealth = { organization_id: string; last_run_at: string | null; running: boolean };
+
+export const EVALUATOR_DOWN = "Signalprüfung läuft nicht";
+export const EVALUATOR_RUNNING = "Signalprüfung läuft";
+
+/** The organisations whose scheduled evaluator has not run for more than 5 minutes (decided by the database). */
+export function evaluatorDown(rows: EvaluatorHealth[]): EvaluatorHealth[] {
+  return rows.filter((r) => !r.running);
+}
+
+/** One line per organisation for the warning; the time is Europe/Zurich wall time. */
+export function evaluatorDownText(row: EvaluatorHealth): string {
+  if (!row.last_run_at) return `${EVALUATOR_DOWN}: kein geplanter Lauf erfasst.`;
+  const at = new Intl.DateTimeFormat("de-CH", { timeZone: "Europe/Zurich", dateStyle: "short", timeStyle: "short" })
+    .format(new Date(row.last_run_at));
+  return `${EVALUATOR_DOWN}: letzter geplanter Lauf ${at}.`;
+}
+
+/** What it means for the team (SIG2-11 (2)): no outside channel is shown as active, signals need an open page. */
+export const EVALUATOR_DOWN_CONSEQUENCE =
+  "Signale erscheinen nur, solange eine NAVORA-Seite geöffnet ist; ausserhalb der App wird keine Benachrichtigung als aktiv angezeigt. " +
+  "Bitte die Administration bzw. den Betrieb der Plattform informieren.";
