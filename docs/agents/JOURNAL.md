@@ -4,6 +4,44 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 08:45 · eng (Lead Engineer)
+- **AN2-C1 found and fixed in #268** (PO 08:18: "inside the ADM1-R PR"). The job log of run 40067901155 was readable through the API.
+  - The failing file was **pgTAP 045, test 14** ("client_transferred: the detail names the case's next planned visit"), not 060: have 08:00, want 08:04.
+  - **Cause:** the seed plans visit 501 of case 208 today at 08:00 Zurich. Between 07:50 and 08:00 it starts after the interruption and before the fixture's "next" (now + 10 min). The reader then names it as the next planned visit, which is correct; the fixture was not unique.
+  - **Fix (test fixture only, the reader is unchanged):** 045 moves the case's other planned visits one week ahead. A new precondition assertion checks that no other planned visit starts before "next" (plan 46 → 47). No assertion was weakened.
+  - **Proof (stand-in only):** with seed visit 501 placed 5 minutes after now, as at 07:55, test 14 fails exactly as in CI before the fix and passes after it.
+- #268 also merged `recovery/main` (`JOURNAL.md` conflict with #267; both entries kept). CI was green on 0d2f39a before the merge.
+
+## 2026-10-24 08:40 · eng (Lead Engineer)
+- **Claimed #262** (ADM1 changes, active) at 08:12. No own PR was open. **ADM1-R1 to R6 are PR #268** (migration 0059, ADR-072), following the remediation plan `clinical/remediation/CGR-39.md`:
+  - every amount-bearing exception rule now carries a direction (constraint);
+  - an override can no longer make a signal later than the default (look-ahead: from the default up to 4×; delay: from the floor up to the default);
+  - out-of-range overrides are reset, audited (0 on synthetic data);
+  - `/admin` names the range and which way is stricter.
+- **ADM1 row → `in-review`** (#268). IMPLEMENTED in the branch: R1-R6.
+- **Deviations:** `cover_without_access` is look-ahead too (0029:259-261; the report did not name it); the `visit_stuck` floor is 1 h; unit and e2e threshold tests updated; pgTAP 047 untouched.
+- **Clinical gate:** report section 06:30 (#259), CGR-39 applied. `cra` is a mandatory reviewer of #268.
+- **Tests:** CI is the runner; nothing claimed as passed.
+  - Locally a stand-in only (PostgreSQL 16, stubbed roles, pgTAP shim): 061 49/49 and 035 67/67, and every file the shim can run is green.
+  - With the old range put back, 24 assertions of 061 and 4 of 035 fail.
+  - Unit file under `bun test`: 11 pass.
+  - Not run locally: vitest, typecheck, lint, e2e (npm unreachable). `database.types.ts` edited by hand.
+- **Next agent (eng):** fix CI on #268 if red; merge on green; set ADM1 `delivered`. Then the Engineering impact for the decision packages, COORD5, SIG1, ORD0.
+
+## 2026-10-24 08:18 · po (Product Owner)
+- **No PO PR was open** at the start (#261 merged). Claimed **#265** ([PO review] AN2), claim removed at the end. #248 (D-32) worked without a claim change (comment only).
+- **AN2 → `accepted`** (#243, #255, #263; #263 merged as d386a1b, CI green on head 8058531, run 40067193832, and on the merge commit, runs 40067597514/40067600140, read through the API; **the PO did not run the tests**). Part 3 measures 1, 2, 4, 8 (AN2-M8a), 10 and AN2-M9a met (pgTAP 060, 48). Evidence table in `briefs/AN2.md` 08:18; five ADR-071 limits accepted. AN2 moved from *Next up* into the queue (rank 21); *Next up* is now COORD5, SIG1, ORD0.
+  - **AN2-C1 (CI):** `recovery/main` `9a9e8db` (docs-only merge of #264) was **red in `db` in both runs at 05:51 UTC** (40067901155, 40067898560), green on identical code at 05:47. The PO re-ran the failed job of 40067898560 once: green. Job log not readable here (log host blocked); annotation cut off after 059, so probably 060 (UNKNOWN). Same-minute failure in two runs points to a clock dependence. Engineering finds and fixes the cause; a re-run is not a fix.
+  - **AN2-M4a:** measure 4's "responsible changes" row counts ABS1 `released`/`taken`/`returned`, while a hand handover through `reschedule_visit` (a `moved` row with a changed responsible member) is counted only as a move (0058:355-366). Split: hand handovers in their own row, ABS1 paths separate; pgTAP named in the brief.
+- **Decision packages (INDEX 7-9), Engineering impact drafted by po** (two-run rule: requested 03:10 / 04:10, no answer in the `eng` runs 05:29, 06:25, 07:11, 07:47):
+  - **D-30 → `awaiting-approval: clinical` (Medium).** Recommendation: clinical content only by a dated addendum of a team RN (D), payer data by a named corrector (C); legal adviser after D-11. **Decided by po (workflow):** a team RN may withdraw an untouched correction draft whose performer left (PS-15). Code fact: `signed_by` already exists separately from `performer_id` (0016); only `sign_report` ties them. This also gives D-31 4b the correction path `lca` asks for (open PR #266).
+  - **D-16 → `awaiting-approval: clinical` (Medium).** Recommendation: B (team RN, not the author, lifts the billing hold; serious events get a review by the licensed nursing management, not closable by hand, with "Meldepflicht geprüft"); no automatic stop of care, a care-plan review signal instead; taxonomy to the Clinical Owner. Legal verdict unresolved until D-11, D-12. Code fact (corrects the package context): `quality_event_types` **ships empty** (0020), so no typed event can be recorded today; the lift touches only `quality_holds`, never the event or its escalation.
+  - **D-32 (stays `inputs-requested`, Low):** Engineering drafted (no service worker, manifest or push dependency; four push vendors by browser; iOS needs a home-screen install; display cannot be confirmed, only send and tap). Draft recommendation B, outside the app first to the responsible member and colleagues with a visit the same day (no shift data needed; avoids Pikett), SIG1-8 stays until delivery is shown to work. **`lca` re-check requested** (package changed): DPF list for the four vendors. Comment on #248.
+- **Challenge:** why is the pilot steered by a review meeting that reads the numbers? From scratch each hypothesis carries its decision rule and NAVORA marks "Schwelle erreicht". Rows in `NEXT_CAPABILITY.md` and `CARE_OPERATING_MODEL.md` (also AN2 in the impact ledger).
+- No new brief: COORD5, SIG1, ORD0 approved and unstarted; ADM1-R open. `lca` PR #266 (D-9, D-4, D-31 re-check) and `cra` PR #259 are open; not merged by the PO; their notes are taken up once merged. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** owner: D-22, D-18 (after D-11, D-12), D-29, names the Clinical Owner (G-1); Clinical Owner (once named): D-28, D-31, D-3 field list, **D-30, D-16**.
+- **Next agent (eng):** AN2-C1 first if `db` goes red again, else inside the ADM1-R PR; ADM1-R1 to R6 (CGR-39); confirm or correct the Engineering impact drafted by po (D-22, D-18, D-28, D-31, D-3, D-29, **D-30, D-16, D-32**); AN2-M4a with the next `pilot_hypotheses` change; COORD5, SIG1, ORD0. **(lca):** D-32 DPF fact check. **(cra):** look at D-30 point 3 and D-16 delivery shape. **(po):** D-12, D-11 escalation, D-15, D-9, D-4 (once #266 is merged); review ADM1-R.
+
 ## 2026-10-24 08:10 · Legal & Compliance Agent (lca)
 - **Wrote the D-9 and D-4 inputs** (INDEX order; both tie to R-4, S1, "complete before real data") and **re-checked D-31** (tier 2: `cra` 06:30 block and PO recommendation 07:10 are new). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-checked:** D-22, D-18 (the 06:10 changes only take up my 05:45 notes; no new evidence).
@@ -12,6 +50,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **D-31:** 1b with the `started_by_mistake` statement, 3a: compliant. 4b with the four `cra` limits: compliant **provided** a correction path (addendum or disputed mark, as D-30) exists after limit (ii).
 - **Not readable or not read this run:** fedlex (DSG, StGB Art. 321, KVG/KVV); GeBüV; ArGV 3 Art. 26; ZGB representation rules. Tests: none run (docs only).
 - **Next agent (po):** D-9 notes 1-4 (referral-stage data and unconverted referrals as real-data gates); D-4 note 1 (provisional default wording) and note 2 (client extract); D-31 note (correction gap after limit (ii)). **(lca):** D-12, D-16, D-32 re-checks only if changed; D-15 verbatim KLV Art. 7 Abs. 2 extraction once fedlex is readable.
+## 2026-10-24 07:47 · eng (Lead Engineer)
+- **#263 merged** (AN2 part 3; merge commit d386a1b). First CI run red in `db` (pgTAP 060 tests 39, 41: the reader moved the AN2-M8a capture start back to the earliest flagged move); fixed in 220dea2 (the reader uses only the start the migration stores). The PR then had a `JOURNAL.md` conflict with #261 (both entries kept). AN2-M9a (PO 07:10) also went into this PR: the measure-9 row names the threshold used. CI green on head 8058531 (run 40067193832: app, db, e2e).
+- **AN2 → `delivered`** (#243, #255, #263). READY_FOR_REVIEW. Clinical gate: no blocking finding for AN2 (report 02:26; `cra` 06:30 in #259).
+- Tests: none run in this session; CI ran them.
+- **Next agent (eng):** ADM1-R1 to R6 (CGR-39, S1), as the PO ordered; then Engineering impact for the decision packages, COORD5, SIG1, ORD0.
+
+## 2026-10-24 07:11 · eng (Lead Engineer)
+- **Claimed #205** (AN2) at 07:11; no own PR was open. **AN2 part 3 is PR #263** (migration 0058, ADR-071): measures 1, 2, 4, 8 with **AN2-M8a**, and 10 in `pilot_hypotheses`. The access, suppression and 0057 measures are unchanged. Sources per measure are in the PR and the migration header. A new internal marker `private.an2_capture_starts` (RLS on, no grants) holds the capture start for M8a.
+- **AN2 row → `in-review`** (#263). IMPLEMENTED in the branch: every measure of the brief. Delivery follows once CI is green and #263 is merged.
+- **Clinical gate:** reviewed the merged report section 02:26 and the open `cra` section 06:30 (#259). No blocking finding for AN2. Note (a) (today's thresholds) also applies to measures 1 and 10 and is stated in ADR-071. CGR-39 is out of AN2's scope. No remediation plan needed.
+- **Tests:** none run here. The npm registry was unreachable from this session and there is no local Supabase stack. CI runs pgTAP 060 (47), the changed 059, unit and e2e. **UNKNOWN** until CI reports.
+- **Next agent (eng):** fix CI on #263 if red; merge on green; set AN2 `delivered`. Then the *Engineering impact* items listed at 06:25, COORD5, SIG1 (with the CGR-39 correction of SIG1-9), ORD0.
 
 ## 2026-10-24 07:10 · po (Product Owner)
 - **No PO PR was open** at the start (#258 merged). No `agent:po` issue worked except as noted; nothing claimed (#248 D-32 waits on `eng`).

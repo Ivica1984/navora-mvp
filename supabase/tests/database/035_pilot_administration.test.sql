@@ -188,20 +188,21 @@ select ok((select not is_default and amount = 3 and updated_at is not null from 
            where referral_type = 'private'), 'the change shows with who and when');
 select is(public.set_exception_rule('00000000-0000-4000-b000-000000000011', 'visit_uncovered_hospital', 'P2', 24, null,
           'a2500000-0000-4000-8000-000000000051'), 'out_of_range', 'a P1 safety rule cannot be lowered');
-select is(public.set_exception_rule('00000000-0000-4000-b000-000000000011', 'visit_uncovered_hospital', 'P1', 48, null,
-          'a2500000-0000-4000-8000-000000000052'), 'out_of_range', 'a P1 safety alert cannot come later');
+-- ADM1-R4 (CGR-39, migration 0059): replaces the inverted assertions. Look-ahead rules: a shorter window is later.
 select is(public.set_exception_rule('00000000-0000-4000-b000-000000000011', 'visit_uncovered_hospital', 'P1', 12, null,
-          'a2500000-0000-4000-8000-000000000053'), 'ok', 'it can come earlier');
-select is(public.set_exception_rule('00000000-0000-4000-b000-000000000011', 'visit_uncovered', 'P2', 49, null,
-          'a2500000-0000-4000-8000-000000000054'), 'out_of_range', 'other thresholds at most twice the default');
+          'a2500000-0000-4000-8000-000000000052'), 'out_of_range', 'a P1 safety alert cannot come later (shorter look-ahead)');
+select is(public.set_exception_rule('00000000-0000-4000-b000-000000000011', 'visit_uncovered_hospital', 'P1', 48, null,
+          'a2500000-0000-4000-8000-000000000053'), 'ok', 'it can come earlier (longer look-ahead)');
+select is(public.set_exception_rule('00000000-0000-4000-b000-000000000011', 'visit_uncovered', 'P2', 97, null,
+          'a2500000-0000-4000-8000-000000000054'), 'out_of_range', 'a look-ahead is at most four times the default');
 select is(public.set_exception_rule('00000000-0000-4000-b000-000000000011', 'quality_serious_open', 'P2', null, 8,
           'a2500000-0000-4000-8000-000000000055'), 'out_of_range', 'escalation of serious quality events never later');
-select ok((select not is_default and amount = 12 and updated_by_name is not null
+select ok((select not is_default and amount = 48 and updated_by_name is not null
            from public.admin_exception_rules('00000000-0000-4000-b000-000000000011') where exception_type = 'visit_uncovered_hospital'),
   'the override shows with who and when');
 reset role;
 select is((select amount from private.effective_exception_rules('00000000-0000-4000-b000-000000000011')
-           where exception_type = 'visit_uncovered_hospital'), 12, 'the organisation''s exceptions use the override');
+           where exception_type = 'visit_uncovered_hospital'), 48, 'the organisation''s exceptions use the override');
 select is((select amount from private.effective_exception_rules('00000000-0000-4000-b000-000000000012')
            where exception_type = 'visit_uncovered_hospital'), 24, 'other organisations keep the default');
 select lives_ok($$ select * from private.derived_exceptions('00000000-0000-4000-b000-000000000011') $$, 'exception derivation runs with overrides');
