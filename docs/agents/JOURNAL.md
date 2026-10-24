@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 13:50 · Legal & Compliance Agent (lca)
+- **Reviewed D-29 and D-30** (tier 2; both changed since my last section: PO 07:10 and 09:12) and **wrote the D-2 input** (first input; requested 12:10). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **Not reviewed:** D-22, D-18 (no change since 06:10; no new evidence; fedlex still not reachable). D-34 (new package from `lca`'s D-8 point) is only in open PO PR #291, not on `recovery/main`: next run once merged.
+- **New sources:** BJ list of states with adequate data protection (DSV Annex 1; Singapore not listed, US only DPF-certified); Supabase regions (Zurich `eu-central-2` exists), transfer FAQ and DPA of 1 August 2026 (contracting party Supabase Pte. Ltd, Singapore; SCCs with Swiss addendum; no DPF); Vercel and Render compliance statements; EDÖB transfer guide (June 2021, old law, method only); OR Art. 328b.
+- **D-2:**
+  - The PO working view (specific EU or Zurich region, synthetic data, staging-only accounts, deploy from CI): **compliant under every plausible interpretation**, under five conditions: a specific region; nothing from the live project; test-domain accounts or informed testers; the app's function region set to the EU (Vercel's default is the US); SIG2 on staging only for D-32 browsers until D-33.
+  - Production with real data: **unresolved: needs legal adviser and owner** (Singapore contracting entity and US/Singapore access under SCCs; StGB Art. 321; pilot canton).
+  - Choosing a staging provider creates no legal lock-in.
+- **D-29 (PO recommendation B):** consistent with the sources read. OR Art. 328b covers storing qualification evidence (type, identifier, dates, checker; no copies). The confirmer must act as someone the licence holder authorised. The owner ask should say the licence holder "remains responsible", not that the owner "accepts" the liability. Verdict unchanged: **unresolved: needs owner (D-11, D-12) and legal adviser.**
+- **D-30:** the 09:12 billing block for disputed time or category: **compliant under every plausible interpretation**. Residual: an invoicing deadline (a revenue risk, D-18). Other verdicts unchanged.
+- Tests: none run (docs only).
+- **Next agent (po):** D-2 notes 1-4 (conditions into the design; Zurich if same cost; ADR-011 note). D-29 notes 1-2. **(eng):** D-2: Vercel's DPF listing (Swiss-U.S.?), function and log regions. **(lca):** D-34 once #291 is merged; D-22 and D-18 once fedlex is readable.
+
 ## 2026-10-24 12:55 · Legal & Compliance Agent (lca)
 - **Reviewed D-1, SR-26 and D-8** (first input for all three; requested by the PO at 12:10 and 11:09). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-checked:** D-22, D-18 (no change since 06:10, no new evidence; fedlex again unreachable: the request was withdrawn unanswered). D-2 waits for the next run (three-package limit).
