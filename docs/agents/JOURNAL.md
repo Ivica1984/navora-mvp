@@ -4,6 +4,35 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 01:16 · po (Product Owner)
+- **PO PR #330** (00:10) was open with green CI but conflicted in `JOURNAL.md`: merged `recovery/main` in (both entries kept, newest first; 6b786c7), CI green again (app, db, e2e), **merged** as c5ee62a. #328 (F6R review hand-off) closed. Open now: #331 (RLS2, `eng`, not merged: nothing to review), #321 and older `cra` PRs (not merged by the PO), #3 (M2). Claimed **#115, #116, #56** (D-24, D-25, D-10); claims removed at the end.
+- **No delivery to review:** no item `delivered`, `ready-for-review` or `in-review` with a merged PR.
+- **New brief LEAVE1 approved** (*Next up* 4, after DOOR1), from `lca` 00:50 on D-10 and D-30: `remove_team_member` refuses while a member has an unsigned or returned report (0037, 0065 §8), and no other command ends a person's access, so a former employee keeps the team's read access. Real-data gate: no real client before LEAVE1 is accepted. Challenge row added (access tied to finished paperwork).
+- **Packages (INDEX order; tiers 1-3 unchanged, all awaiting a person or decided):**
+  - **D-24 `awaiting-approval: owner`** (Medium; E and C drafted by po, two-run rule; L 20:50): approve **A** now (no nursing-home build); B, one design-partner ward, after D-11, D-12, one pilot month and D-25, under five hard boundaries (no interRAI item, scale, CH-Index or care level shown; named licence roles never team-changeable; skill mix, RN cover and working-time limits as hard roster constraints; a Clinical-Owner-approved stop rule); C after a licence and D-34.
+  - **D-25 `awaiting-approval: owner`** (Medium; E and C drafted by po; L 18:47): A in force; design target B adopted; C rejected for now; only once D-24 moves past A: name a legal adviser for the partner canton, or approve D (ask the canton).
+  - **D-10, D-30:** `lca` 00:50 taken up (LEAVE1); status unchanged (`awaiting-approval: clinical`). **D-20:** `lca` 00:50 condition for ADM2 recorded (no reuse of `team_decisions` as built); still `po-decided`.
+- ROADMAP: line 25.10. 01:16. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` run before publishing.
+- **Waiting on people:** **owner:** D-1 (urgent), SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, D-14, **D-24 (new)**, **D-25 (new, only once D-24 moves past A)**, G-1 (name the Clinical Owner); merge `cra` PR #321. **Clinical Owner:** unchanged.
+- **Next agent:**
+  - **(eng):** RLS2 (#331), then SIG1-C2 + SIG1-C3 + SIG2-C1, then DOOR1, then LEAVE1. Confirm or correct the po drafts in D-24 and D-25 (Engineering impact).
+  - **(cra):** F6R-G1 (0065); whether ending a leaver's access before she signs changes H-12 or PS-15 (LEAVE1); confirm or correct the po drafts in D-24 and D-25 (Clinical impact).
+  - **(lca):** LEAVE1 against your 00:50 note 1 when it is delivered; nothing new requested on D-24 or D-25.
+  - **(po):** the D-13 B brief once the approved queue is clear; review RLS2 when merged.
+
+ENGINEERING BRIEF
+- **Capability:** LEAVE1, access ends when employment ends ([brief](briefs/LEAVE1.md)).
+- **Why:** a leaver keeps the team's read access to client health data while any report of hers is unsigned or returned, because the only lever (team removal) is refused for a reason only she can clear; `lca`: not compliant under every plausible interpretation with real data.
+- **Business outcome:** a real-data gate closed; an offboarding the organisation can complete the day employment ends.
+- **Care outcome:** her open reports stay visible to the team as not final and follow D-30; no record lost or rewritten.
+- **Expected nurse outcome:** no change to the remaining nurses' work except a visible "Zugang beendet" marker on the leaver's open reports.
+- **Expected team outcome:** the team, not an administrator chasing a former colleague, sees what is still open.
+- **Expected patient outcome:** clients' records are read only by people who currently care for them.
+- **Acceptance criteria:** LEAVE1-1 to LEAVE1-10 (command and refusals; not blocked by what only she can clear; zero reads, refused commands and no push after the end, with a catalogue check; history kept, no deletion; open work visible to the team's RNs; leaver's screen; restore; who sees the record; real-data gate entry; no regression).
+- **Dependencies:** none blocking; consistent with RLS2 (read-path inventory) and D-26 (enforced in the database, no service-role key on the app host). D-30 governs her reports.
+- **Priority:** *Next up* 4, after DOOR1 (no real data exists yet).
+- **Implementation recommendation:** one additive migration in the ADM1 command pattern; an access-ended fact read by every access helper; a pgTAP catalogue loop over every table and view readable by `authenticated`; one e2e for the leaver's screen.
+
 ## 2026-10-25 00:50 · Legal & Compliance Agent (lca)
 - **No `lca` PR was open.** New branch `lca/review-2026-10-25-0050`. Open at the start: #331 (RLS2), #330 (po 00:10, not merged; not read as evidence), #321 and older `cra` PRs, #3.
 - **Re-checked D-10** (tier 3; new evidence: F6R delivered, 0065). R as delivered: **compliant under every plausible interpretation** on the sources read (pilot canton still to confirm). **New point from deviation (3):** `remove_team_member` refuses while a returned report is unsigned (0065 §8, extending 0037), and no other path in the migrations I read ends a person's access, so a **former employee keeps team read access** until she signs. With real data: **not compliant under every plausible interpretation; unresolved: needs legal adviser** (new question 4). Note to po: a real-data gate, an access-end path independent of team membership (audited), her reports stay open for the team.
