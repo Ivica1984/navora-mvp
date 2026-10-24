@@ -1,6 +1,6 @@
 # Decision packages: index and order
 
-**Owner:** `po` · **Process:** [`../DECISION_PACKAGES.md`](../DECISION_PACKAGES.md) · **Last change:** 2026-10-24 01:15 (po: packages D-22, D-18, D-28 written, inputs requested); 2026-10-24 00:15 (po: priority override by the owner; first triage of the 29 open decisions)
+**Owner:** `po` · **Process:** [`../DECISION_PACKAGES.md`](../DECISION_PACKAGES.md) · **Last change:** 2026-10-24 02:20 (po: packages D-31, D-3, D-29 written, inputs requested; `lca` input for D-22 and D-18 in PR #241, not yet merged); 2026-10-24 01:15 (po: packages D-22, D-18, D-28 written, inputs requested); 2026-10-24 00:15 (po: priority override by the owner; first triage of the 29 open decisions)
 
 The PO works this list top to bottom, about three packages per run. **Order (owner, 2026-10-24):** tier 1 D-22 and D-18; tier 2 every decision referenced by an open or provisional clinical finding (CGR); tier 3 every decision blocking billing, reimbursement, invoicing, compliance, governance or a production release; tier 4 the rest. Within a tier: what blocks the most first. A new decision is placed by the same tiers. *Preliminary route* is the PO's first triage, before any input: a package may change it. **The PO did not ask any person anything for this triage.**
 
@@ -11,9 +11,9 @@ Inputs: **E** Engineering (`eng`), **C** Clinical & Regulatory Architect (`cra`)
 | 1 | 1 owner override | D-22 | legal | Valid form of a medical order and renewal | ORD1, J5-C2 provisional | CGR-07 (provisional) | E, C, L | `legal` | [inputs-requested](D-22.md) (2026-10-24 01:15) |
 | 2 | 1 owner override | D-18 | legal | Billing time rules of the tariff contract | invoicing (CGR-31) | CGR-31 (open), CGR-07, CGR-08 | E, C, L | `legal` (needs the actual contract; D-11, D-12 first) | [inputs-requested](D-18.md) (2026-10-24 01:15) |
 | 3 | 2 open CGR finding | D-28 | clinical | When an overdue or stuck visit raises an exception | CSR1 thresholds (PROVISIONAL) | CGR-23, CGR-35 (open); CGR-04, -22, -24 (provisional) | E, C | `clinical` | [inputs-requested](D-28.md) (2026-10-24 01:15) |
-| 4 | 2 open CGR finding | D-31 | clinical | Documentation and billing of a broken-off visit | OPS1 (PROVISIONAL) | CGR-35 (open); CGR-20, -25, -26 (provisional) | E, C, L | `clinical` | not-started |
-| 5 | 2 open CGR finding | D-3 | owner | Read scope of health data per role | F0, COVER1; any real client data | CGR-21, CGR-28 (open) | E, C, L | po may decide if `lca` finds option B compliant under every interpretation (privacy, professional secrecy); otherwise `owner` | not-started |
-| 6 | 2 open CGR finding | D-29 | owner | How a member's qualification is verified before it is active | real clients | CGR-16 (open) | E, C, L | `owner` (regulatory liability) | not-started |
+| 4 | 2 open CGR finding | D-31 | clinical | Documentation and billing of a broken-off visit | OPS1 (PROVISIONAL) | CGR-35 (open); CGR-20, -25, -26 (provisional) | E, C, L | `clinical` | [inputs-requested](D-31.md) (2026-10-24 02:20) |
+| 5 | 2 open CGR finding | D-3 | owner | Read scope of health data per role | F0, COVER1; any real client data | CGR-21, CGR-28 (open) | E, C, L | po may decide if `lca` finds option B compliant under every interpretation (privacy, professional secrecy); otherwise `owner` | [inputs-requested](D-3.md) (2026-10-24 02:20) |
+| 6 | 2 open CGR finding | D-29 | owner | How a member's qualification is verified before it is active | real clients | CGR-16 (open) | E, C, L | `owner` (regulatory liability) | [inputs-requested](D-29.md) (2026-10-24 02:20) |
 | 7 | 2 open CGR finding | D-30 | clinical | Correcting a report when its author left the team | F6 (PROVISIONAL) | CGR-19 (provisional) | E, C, L | `clinical` | not-started |
 | 8 | 2 open CGR finding | D-16 | clinical | Quality event types, holds, who lifts them | QG1 relaxation | CGR-13 (provisional) | E, C, L | `clinical` | not-started |
 | 9 | 3 billing, compliance, governance, release | D-12 | owner | Legal entity for licence and OKP admission | billing | – | L | `owner` (regulatory liability) | not-started |
