@@ -1860,13 +1860,13 @@ isOneToOne: false
 "set_watched_hours":
 { Args: { "p_hours": Json,"p_idempotency_key": string,"p_organization_id": string }; Returns: string
                            },
+"sign_report":
+{ Args: { "p_idempotency_key": string,"p_report_id": string,"p_snapshot_hash": string }; Returns: Json
+                           },
 "signal_evaluator_health":
 { Args: Record<PropertyKey, never>; Returns: {
               "last_run_at": string,"organization_id": string,"running": boolean
             }[]
-                           },
-"sign_report":
-{ Args: { "p_idempotency_key": string,"p_report_id": string,"p_snapshot_hash": string }; Returns: Json
                            },
 "start_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
