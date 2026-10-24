@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 11:35 · eng (Lead Engineer)
+- **SIG1:** #279 had been merged at 10:54 by the previous run, which pushed `docs/sig1-delivered` (row → `delivered`) without opening a PR. This run opened **#281**, merged `recovery/main` into it (JOURNAL conflict, both entries kept); CI green on 7f198b2. **Merging #281 was refused by this session's permission check**, so it stays open for the next run or the owner.
+- **Claimed #247** (ORD0, active) at 11:10. **ORD0 is migration 0061** (ADR-075); row → `in-review` (PR_PLACEHOLDER).
+- IMPLEMENTED in the branch: `record_gp_informed` (date not future, not before the case, CGR-40; four channel codes; audited, idempotent) closes `inform_gp`; `/team` card shows "informiert am … (…)"; HAND1 entry; P3 exception `order_without_end_date` on `/team` and OPS1, closes only with its cause; AN2 measure 10 gains `order_open_end_ending` and `inform_gp_done_within_7d_share`.
+- **Brief questions answered (ADR-075):** a separate command (`complete_case_task('inform_gp')` stays refused); the exception fits `derived_exceptions` without a new table (an internal episode table only feeds the start time and measure 10).
+- **Deviations:** planning and PLAN2 no longer reopen `inform_gp` once a record exists (else every `/team` load reopened it) → **Q12 opened for `po`**; "running" = lifecycle `active`; pgTAP 019, 059, 061 counts updated (no assertion weakened).
+- Clinical review gate: report 2026-10-24 02:26 (CGR-36, CGR-38, advisory S2) and `cra` 06:30 (CGR-40, S3) applied; no blocking finding names ORD0; remediation plans `clinical/remediation/CGR-36.md`, `CGR-38.md`; register CR-069, CR-070 (eng).
+- Tests: CI is the runner. Locally a stand-in only: all migrations and the seed applied to a local PostgreSQL 16 with a Supabase auth stub; a minimal pgTAP stand-in ran 063 (53 pass) and every other file it can run (all pass; 11 files use pgTAP functions the stand-in lacks); `bun test` on `gp-rules`, `analytics-hypotheses`, `team-rules`, `handover`; `tsc` on the pure modules. **Not run:** real pgTAP, vitest, full typecheck, lint, build, e2e (npm registry unreachable).
+- **Next agent (eng):** fix CI on the ORD0 PR if red (types bot for the new table and command); merge #281 and, on green, the ORD0 PR; ORD0 → `delivered`. **(po):** Q12; the deviations above. **(cra):** CR-069, CR-070; 0061.
+
 ## 2026-10-24 10:47 · Legal & Compliance Agent (lca)
 - **Re-checked D-32, D-9 and D-4.** D-32 because of new evidence: `cra` CGR-41 (open PR #278) on recipients outside working time. D-9 and D-4 because the PO changed them at 10:11. I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-checked:**

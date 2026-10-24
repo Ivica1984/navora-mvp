@@ -93,6 +93,8 @@ export const HYPOTHESIS_GROUPS: readonly HypothesisGroup[] = [
       "overdue_ended_by_command_share", "overdue_closed_by_hand_share", "stuck_ended_by_command_share", "stuck_closed_by_hand_share",
       // SIG1-6 (0060)
       "signal_taken_share", "signal_minutes_to_take",
+      // ORD0-6 (0061)
+      "order_open_end_ending", "inform_gp_done_within_7d_share",
     ],
   },
   {
@@ -188,6 +190,14 @@ export const MEASURE: Record<string, MeasureDefinition> = {
     label: "P1-Signale übernommen", unit: "%",
     definition: "P1-Sicherheitssignale (SIG1), die ein Mitglied mit «Ich übernehme» übernommen hat. Basis: alle P1-Signale des Monats, auch noch offene. Nie pro Person.",
   },
+  order_open_end_ending: {
+    label: "«Verordnung ohne Enddatum»: wie sie endet", unit: "%",
+    definition: "Zeiträume «Verordnung vorhanden, ohne Enddatum, B-Leistung aktiv» (ORD0), die im Monat begannen, nach ihrem Ende. Nie von Hand geschlossen. Basis: alle, auch noch offene. Ob eine Verordnung ohne Enddatum zulässig ist, ist offen (D-22).",
+  },
+  inform_gp_done_within_7d_share: {
+    label: "Hausärztin/Hausarzt innert 7 Tagen als informiert erfasst", unit: "%",
+    definition: "Aufgaben «Hausärztin/Hausarzt informieren (A/C ohne Verordnung)» des Monats, die innerhalb von 7 Tagen nach ihrer Entstehung mit «informiert» erledigt wurden (nicht durch Fallabschluss). Evidenz für D-22, keine Frist.",
+  },
   signal_minutes_to_take: {
     label: "P1 bis übernommen", unit: "Min.",
     definition: "Median der Minuten vom Erreichen von P1 bis «Ich übernehme». Basis: übernommene P1-Signale.",
@@ -279,12 +289,25 @@ export const ABSENCE_ENDING_LABEL: Record<string, string> = {
 };
 const ABSENCE_ENDING_ORDER = Object.keys(ABSENCE_ENDING_LABEL);
 
+/** ORD0-6: how "Verordnung ohne Enddatum" ended (fixed codes of `order_open_end_ending`, in display order). */
+export const ORDER_OPEN_END_ENDING_LABEL: Record<string, string> = {
+  end_date_entered: "Enddatum erfasst",
+  order_not_present: "Verordnung nicht mehr vorhanden",
+  no_b_item: "keine B-Leistung mehr aktiv",
+  case_not_active: "Fall nicht mehr laufend",
+  still_open: "noch offen",
+};
+const ORDER_OPEN_END_ORDER = Object.keys(ORDER_OPEN_END_ENDING_LABEL);
+
 /** Measures whose rows carry a fixed code in `detail` (one line each). */
-export const DETAIL_MEASURES = new Set(["not_billable_reason", "absence_past_visit_end"]);
+export const DETAIL_MEASURES = new Set(["not_billable_reason", "absence_past_visit_end", "order_open_end_ending"]);
 
 export function measureLabel(measure: string, detail: string | null): string {
   if (measure === "absence_past_visit_end") {
     return `Ende: ${(detail && ABSENCE_ENDING_LABEL[detail]) ?? detail ?? "unbekannt"}`;
+  }
+  if (measure === "order_open_end_ending") {
+    return `Ohne Enddatum, Ende: ${(detail && ORDER_OPEN_END_ENDING_LABEL[detail]) ?? detail ?? "unbekannt"}`;
   }
   if (measure === "not_billable_reason") {
     if (detail === "none") return "Grund: ohne Angabe";
@@ -312,6 +335,12 @@ export function orderGroupRows<T extends { measure: string; detail: string | nul
       const rank = (d: string | null) => {
         const i = ABSENCE_ENDING_ORDER.indexOf(d ?? "");
         return i < 0 ? ABSENCE_ENDING_ORDER.length : i;
+      };
+      of.sort((a, b) => rank(a.detail) - rank(b.detail));
+    } else if (m === "order_open_end_ending") {
+      const rank = (d: string | null) => {
+        const i = ORDER_OPEN_END_ORDER.indexOf(d ?? "");
+        return i < 0 ? ORDER_OPEN_END_ORDER.length : i;
       };
       of.sort((a, b) => rank(a.detail) - rank(b.detail));
     } else {

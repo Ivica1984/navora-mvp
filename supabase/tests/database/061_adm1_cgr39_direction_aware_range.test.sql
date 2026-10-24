@@ -31,7 +31,7 @@ select throws_ok($$ insert into public.exception_rules (exception_type, priority
 select throws_ok($$ insert into public.exception_rules (exception_type, priority, amount, unit, amount_direction, label, next_step)
                     values ('adm1_test_new', 'P3', 5, 'hours', 'later', 'Test', 'Test') $$,
   '23514', null, 'only look_ahead or delay');
-select ok((select count(*) = 18 from private.effective_exception_rules('00000000-0000-4000-b000-000000000011')),   -- SIG1 signal_untaken (0060)
+select ok((select count(*) = 19 from private.effective_exception_rules('00000000-0000-4000-b000-000000000011')),   -- SIG1 signal_untaken (0060), ORD0 order_without_end_date (0061)
   'the effective rules still list every rule (row type with the new column)');
 
 -- ADM1-R4: behaviour with the default (before any override) --------------------------------------------------------
