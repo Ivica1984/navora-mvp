@@ -13,7 +13,8 @@ type SidebarProps = {
     | "intake"
     | "quality"
     | "analytics"
-    | "admin";
+    | "admin"
+    | "settings";
 };
 
 const allNavItems = [
@@ -51,6 +52,12 @@ const allNavItems = [
     key: "field",
     label: "Mein Tag (mobil)",
     href: "/field",
+  },
+  {
+    // SIG2-1: the member's own settings (delivery outside the app).
+    key: "settings",
+    label: "Meine Einstellungen",
+    href: "/settings",
   },
   {
     // ADM1: shown to everybody; the page and the database admit administrators only.

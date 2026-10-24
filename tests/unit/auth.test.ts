@@ -19,6 +19,11 @@ describe("isPublicPath", () => {
     ["/login-bypass", false],
     ["/loginx", false],
     ["/LOGIN", false],
+    // SIG2: the service worker and the sender's bearer-protected entry point; nothing else under /api
+    ["/sw.js", true],
+    ["/api/push/dispatch", true],
+    ["/api/push", false],
+    ["/api/push/dispatch/x", false],
   ])("%s → %s", (path, expected) => {
     expect(isPublicPath(path)).toBe(expected);
   });

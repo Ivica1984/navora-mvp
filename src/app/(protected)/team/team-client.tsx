@@ -36,6 +36,8 @@ import { RESPONSIBLE_ABSENT_NOTE } from "@/features/lifecycle/rules";
 import { formatDayLabel, shiftDay, todayInZurich } from "@/features/field/rules";
 import { getVisitStatusLabel } from "@/features/visits/types";
 import { recordGpInformed } from "@/features/gp/commands";
+import { OUTSIDE_LABEL, TEAM_STATUS_NOTE, statusText } from "@/features/push/rules";
+import type { TeamPushRow } from "@/features/push/queries";
 import { GP_CHANNELS, GP_CHANNEL_LABEL, GP_MESSAGES, gpInformedText, informedOnProblem, latestNoticeByCase, type GpNotice } from "@/features/gp/rules";
 
 const URGENCY_CLASS: Record<string, string> = {
@@ -59,6 +61,7 @@ export default function TeamClient({
   visitAlerts = [],
   signals = [],
   gpNotices = [],
+  pushStatus = [],
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
@@ -72,6 +75,8 @@ export default function TeamClient({
   signals?: SignalRow[];
   /** ORD0-3: "Hausärztin/Hausarzt informiert" records of the team's cases. */
   gpNotices?: GpNotice[];
+  /** SIG2-2: per member, whether delivery outside the app is active. */
+  pushStatus?: TeamPushRow[];
 }) {
   const gpByCase = latestNoticeByCase(gpNotices);
   const open = offers.filter((o) => !o.my_team_declined);
@@ -98,6 +103,7 @@ export default function TeamClient({
       <main className="mx-auto grid max-w-xl gap-3 px-4 py-4">
         <SignalBanner initial={signals} />
         <VisitAlerts alerts={visitAlerts} />
+        <OutsideDeliveryStatus rows={pushStatus} />
 
         <h2 className="text-lg font-bold">Anfragen an dein Team</h2>
         {open.length === 0 && (
@@ -990,5 +996,29 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
       )}
       <ErrorText message={error} />
     </div>
+  );
+}
+
+// SIG2-2: whose delivery outside the app works. Active / not active only; nothing else about the member.
+function OutsideDeliveryStatus({ rows }: { rows: TeamPushRow[] }) {
+  if (rows.length === 0) return null;
+  const teams = [...new Set(rows.map((r) => r.team_id))];
+  return (
+    <details className="rounded-2xl border border-emerald-900/10 bg-white p-4" aria-label={OUTSIDE_LABEL} data-testid="push-team-status">
+      <summary className="cursor-pointer text-sm font-bold">
+        {OUTSIDE_LABEL}: {rows.filter((r) => r.active).length} von {rows.length} aktiv
+      </summary>
+      <p className="mt-2 text-xs text-stone-600">{TEAM_STATUS_NOTE}</p>
+      {teams.map((teamId) => (
+        <ul key={teamId} className="mt-2 grid gap-1 text-sm" aria-label={rows.find((r) => r.team_id === teamId)?.team_name}>
+          {rows.filter((r) => r.team_id === teamId).map((r) => (
+            <li key={r.user_id} className="flex justify-between gap-2">
+              <span>{r.member_name}</span>
+              <span className={r.active ? "font-semibold text-emerald-800" : "text-stone-600"}>{statusText(r.active).replace(`${OUTSIDE_LABEL}: `, "")}</span>
+            </li>
+          ))}
+        </ul>
+      ))}
+    </details>
   );
 }

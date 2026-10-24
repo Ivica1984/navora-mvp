@@ -53,6 +53,9 @@ describe("safety signals (SIG1)", () => {
     expect(reasonText("responsible")).toBeNull();
     expect(reasonText("operations_fallback")).toContain("niemand im Team im Dienst");
     expect(reasonText("untaken")).toContain("nicht rechtzeitig übernommen");
+    // SIG2-5: Operations at once because nobody was reachable outside the app
+    expect(reasonText("untaken", true)).toBe("an Operations: kein Empfänger ausserhalb der App");
+    expect(reasonText("team", true)).toBeNull();
   });
 
   it("reads the command outcome", () => {

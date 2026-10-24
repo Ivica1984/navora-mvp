@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
+import { kickDispatch } from "@/features/push/dispatch";
 import { TAKE_MESSAGES, takeOutcome, type SignalRow } from "./rules";
 
 export async function pollSignals(): Promise<{ ok: true; rows: SignalRow[] } | { ok: false }> {
@@ -16,6 +17,8 @@ export async function pollSignals(): Promise<{ ok: true; rows: SignalRow[] } | {
     logEvent("warn", "signals.poll_failed", errorFields(error));
     return { ok: false };
   }
+  // SIG2: the poll has just evaluated; hand new outside deliveries to the sender at once (the scheduler is primary).
+  kickDispatch();
   return { ok: true, rows: (data ?? []) as SignalRow[] };
 }
 

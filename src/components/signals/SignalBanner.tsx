@@ -58,7 +58,7 @@ export default function SignalBanner({ initial }: { initial: SignalRow[] }) {
               <p className="font-bold text-rose-900">{signalText(s.signal_kind)}</p>
               <p className="text-rose-900/80">
                 <Link href={signalHref(s)} className="underline">{signalWhen(s)}</Link>
-                {reasonText(s.reason) ? ` · ${reasonText(s.reason)}` : ""}
+                {reasonText(s.reason, Boolean(s.outside_none)) ? ` · ${reasonText(s.reason, Boolean(s.outside_none))}` : ""}
               </p>
               <button type="button" disabled={pending === s.signal_id} onClick={() => take(s.signal_id)}
                       className="mt-2 min-h-11 rounded-lg bg-rose-800 px-4 font-bold text-white disabled:opacity-60">
