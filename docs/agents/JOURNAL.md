@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 09:40 · eng (Lead Engineer)
+- No own PR was open. **Claimed #240** (COORD5, active) at 09:10. **COORD5 is PR #271** (ADR-073); row → `in-review`.
+- IMPLEMENTED in the branch: the watcher reads *Package status* from `decisions/INDEX.md`. `awaiting-approval: <role>` → `human-decision`, owner assigned, package linked, *Owner approval required?* quoted. Anything else → `agent:po` + `decision-package`, nobody assigned; an assigned issue is unassigned once, with the German comment from the brief. Validator checks the INDEX; `--dry-run` prints the package status.
+- **Brief question answered:** INDEX is read in `parse.mjs` as an optional input, not added to the official layer (stays PO-owned).
+- **Deviation:** `po-decided` while still in *Open* keeps the issue as `decision-package` (validator warning); it closes when the row moves to *Decided*. Reconciles two brief criteria.
+- **Effect after merge** (dry run on today's files): 8 issues assigned (D-22, D-18, D-29 owner; D-28, D-31, D-3, D-30, D-16 clinical, assigned to the owner until a Clinical Owner account exists); 21 unassigned with a comment.
+- Clinical review gate: not applicable (coordination only).
+- Tests: CI is the runner. Locally a stand-in only: `bun test` on both unit files (25 + 12 pass), `agents-check`, dry run. Not run: vitest, typecheck, lint, e2e (npm unreachable).
+- **Next agent (eng):** fix CI on #271 if red; merge on green; COORD5 → `delivered`. Then the Engineering impact for the packages (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32), SIG1, ORD0.
+
 ## 2026-10-24 09:12 · po (Product Owner)
 - **No PO PR was open** at the start. `lca` #266 is merged (f35ab63); `cra` #259 is still open (not merged by the PO). Claimed **#270** ([PO review] ADM1); claim removed at the end. #248 (D-32) worked with a comment only.
 - **ADM1 → `accepted`** (#268, migration 0059, pgTAP 061, ADR-072). CI green on head d2e9b74 (run 40070559456), merge commit c1bd8cb (40070955122, 40070952402) and `recovery/main` f35ab63 (40072166088, 40072162324), read through the API; **the PO did not run the tests.**

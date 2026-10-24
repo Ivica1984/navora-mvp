@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 // Validates the official agent collaboration layer in docs/agents/ (approved 2026-10-21):
 //   NEXT_CAPABILITY.md (po) · IMPLEMENTATION_STATUS.md (eng) · OPEN_DECISIONS.md (all)
+//   + decisions/INDEX.md (po, decision packages; COORD5)
 // Reads the first Markdown table under a given heading. No dependencies, so it also runs
-// in agent sandboxes without `npm ci`. Protocol and table formats: docs/agents/README.md
+// in agent sandboxes without `npm ci` (it imports only the sibling parse.mjs). Protocol and table formats: docs/agents/README.md
 //   node scripts/agents-check.mjs     (AGENTS_DIR overrides the folder, for tests)
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { AWAITING, PACKAGE_STATUS, readPackageIndex } from "./agents-coordination/parse.mjs";
 
 const DIR = process.env.AGENTS_DIR ?? join(dirname(fileURLToPath(import.meta.url)), "..", "docs", "agents");
 
@@ -148,6 +150,31 @@ for (const d of open) {
 for (const d of decided) {
   enumCheck("OPEN_DECISIONS.md", bare(d.ID), "Owner", d.Owner, OWNER);
   if (NONE.has(d.Answer.trim())) errors.push(`OPEN_DECISIONS.md: ${bare(d.ID)}: decided without an answer`);
+}
+
+// Decision packages (COORD5): decisions/INDEX.md is the authoritative package state (DECISION_PACKAGES.md).
+const HUMAN = ["owner", "legal", "clinical"];
+const indexPath = join(DIR, "decisions", "INDEX.md");
+const pkgs = existsSync(indexPath) ? readPackageIndex(readFileSync(indexPath, "utf8")) : [];
+if (!existsSync(indexPath) && open.some((d) => HUMAN.includes(bare(d.Owner)))) errors.push("decisions/INDEX.md: missing");
+const pkgById = new Map();
+for (const p of pkgs) {
+  if (pkgById.has(p.id)) errors.push(`decisions/INDEX.md: duplicate ID ${p.id}`);
+  pkgById.set(p.id, p);
+  if (!PACKAGE_STATUS.includes(p.status)) {
+    errors.push(`decisions/INDEX.md: ${p.id}: package status "${p.status}" must be one of ${PACKAGE_STATUS.join(", ")}`);
+  }
+  if ((AWAITING.test(p.status) || p.status === "po-decided") && !existsSync(join(DIR, "decisions", `${p.id}.md`))) {
+    errors.push(`decisions/INDEX.md: ${p.id}: status "${p.status}" requires decisions/${p.id}.md`);
+  }
+  if (!openIds.has(p.id) && !decidedIds.has(p.id)) errors.push(`decisions/INDEX.md: ${p.id} is neither in Open nor in Decided`);
+  if ((p.status === "po-decided" || p.status === "decided") && openIds.has(p.id)) {
+    warnings.push(`${p.id}: package is ${p.status} but the row is still in Open (record it in Decided; the issue stays a decision-package issue)`);
+  }
+}
+for (const d of open) {
+  const id = bare(d.ID);
+  if (HUMAN.includes(bare(d.Owner)) && !pkgById.has(id)) errors.push(`decisions/INDEX.md: ${id} (owner ${bare(d.Owner)}) is open but has no INDEX row`);
 }
 
 if (errors.length) {
