@@ -3,10 +3,32 @@ id: ABS1
 title: Absence without the phone chain
 author: po
 status: approved
-updated: 2026-10-23
+updated: 2026-10-24
 ---
 
 # ABS1 — Absence without the phone chain: "I can't work" hands the day to the team
+
+## PO review — 2026-10-24 04:10: CGR-35 and ABS1-C7 met (#243); ABS1 stays accepted, no open ABS1 condition
+
+Reviewed #243 (AN2 part 1, branch `feat/an2-part1-cgr35-day1r`, head afd1d11, CI run 40049445817 green: app, db incl. pgTAP, e2e; merged as 56c8756, CI run 40053036646 green on the merge commit, checked through the API). The PO read the full diff: migration 0056, pgTAP 057 (24 assertions), `team-client.tsx`, `absence/rules.ts`, `handover/rules.ts`, the unit and e2e changes, the generated types, ADR-069 and `clinical/remediation/CGR-35.md`. **The PO did not run the tests.**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| CGR-35 (1): `reschedule_visit` stores `responsible_absent = true` on the `moved` row when, before the move, the visit is planned, dated before the Zurich today and `private.visit_responsible_absent` holds; otherwise `false`; server only; only on `moved` rows | met | 0056 §3 computes `absent` before the update from the same three conditions and writes it into the insert; check constraint `not responsible_absent or change = 'moved'`; pgTAP 057: flagged → `true`, plain past → `false`, future → `false`, no parameter on `reschedule_visit`, `authenticated` has select only, a `removed` row with `true` refused (23514) |
+| CGR-35 (2): a later withdrawal or shortening keeps the stored value | met | pgTAP 057 withdraws the absence with `change_absence` and asserts `true` again; append-only trigger of 0014 refuses an update (42501, asserted) |
+| CGR-35 (3): shown with the fixed text in HAND1 and wherever the `moved` row is shown; places named | met | HAND1 `entryLines('visit_moved')` adds "nicht durchgeführt: zuständige Person abwesend gemeldet" (unit test: once, after the reason; not on `false`, missing, or a removal); `/team` `last_change.responsible_absent` returned by `team_cases` (pgTAP 057) and shown after "Verschoben …"; ADR-069 names OPS1 as not listing moves. No new reason code, no extra tap |
+| CGR-35 (4): pgTAP case set incl. the audit row | met | 057: audit row of the move carries `responsible_absent` `true` (flagged) and `false` (ordinary), and names the command |
+| CGR-35 (5): AN2 measure 8 counts moved flagged visits from this column | open, by design | measures are not built yet (AN2 row: measures 1–12 not started); stays an AN2 criterion, sharpened as AN2-M8a in `briefs/AN2.md` 04:10 |
+| ABS1-C7: singular text at n = 1; n ≥ 2 unchanged; unit test n = 1 and n = 2 | met | `pastPlannedNotice(1)`; unit test for 1, 2, 3, 0, −1, NaN; e2e at phone width updated to the singular |
+| No regression | met | CI green on head and merge commit; existing unit, pgTAP and e2e unchanged in meaning |
+| Clinical gate | considered | latest report (`cra` 02:26) lists CGR-35 as decided and PLANNED, no blocking finding on ABS1; a `cra` look at 0056 is requested by engineering. Not awaited: ABS1 is already accepted, and this change only adds a stored fact |
+
+**Deviations, decided:**
+- *HAND1 is asserted in pgTAP by the function source (`like`), behaviour by the unit test of the app line*: **accepted**. The detail key is the only change in `handover_entries`; the `/team` reader is asserted behaviourally. A behavioural HAND1 assertion rides with the next PR that touches `handover_entries`.
+- *The new audit trigger also audits the `moved` rows of `accept_cover` and `withdraw_cover` (always `false`)*: **accepted**; more audit, no new data.
+- *Rows written before 0056 stay `false`*: **accepted** (nothing was recorded then; data are synthetic). AN2-M8a makes measure 8 say so instead of counting them as "not absent".
+
+**ABS1 stays `accepted`. No ABS1 condition is open any more** (CGR-28 stays a COVER1 condition). If the `cra` look at 0056 finds something blocking, ABS1 is reopened.
 
 ## PO review — 2026-10-23 23:15: ABS1-C6 met; CGR-35 decided; singular wording decided (ABS1-C7); ABS1 stays accepted
 
