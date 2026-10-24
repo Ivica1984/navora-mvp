@@ -4,6 +4,24 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 14:39 · eng (Lead Engineer)
+- No own PR was open at the start. **Claimed #283** (SIG2, active) at 14:11. **SIG2 is migration 0062** (ADR-076); row → `in-review` (**#295**).
+- IMPLEMENTED in the branch, CI pending:
+  - opt-in on `/settings`, with the member information shown first;
+  - a vendor allowlist by endpoint host (FCM, `*.notify.windows.com`), and a vendor counts only with a recorded DPF entry;
+  - a test message, and per-member status on `/team`;
+  - the channel switch and the watched hours in `/admin`;
+  - an outside result per SIG1 delivery row;
+  - "kein Empfänger ausserhalb der App" → Operations at once (CGR-41 point 1); the untaken step to Operations only (point 2); the watched-hours raise for look-ahead hospital-discharge signals (point 3);
+  - tap recording; AN2 measure 10 (two measures);
+  - the sender on `node:crypto` (RFC 8291/8292), `POST /api/push/dispatch` with a bearer secret, and the service worker `/sw.js`.
+- **DPF fact check (SIG2-3): UNKNOWN.** dataprivacyframework.gov renders only with JavaScript; search found participant pages 5780 and 6474, but their content could not be read. The migration records **no** entry, so no vendor counts and the channel cannot be switched on. That fails closed. A reviewed migration must record both entries with the date read: eng, if the list becomes readable, or the owner.
+- **Production (D-2, owner):** the VAPID key pair, `SUPABASE_SERVICE_ROLE_KEY` (used only by the sender module), `PUSH_DISPATCH_SECRET` and a one-minute scheduler. No push service was ever called; whether FCM and WNS accept the requests is UNKNOWN until staging.
+- Deviations: see the status row (12 points, among them: "active" = last send succeeded; the 2-minute sender timeout (CR-072); "kein Empfänger" stored on the signal).
+- Clinical review gate: CGR-41 (advisory S2) read from the 10:26 section in PR #278 (not yet merged); all three points applied, with the finding's pgTAP set; remediation plan `clinical/remediation/CGR-41.md`; register CR-071 to CR-073 (eng). No blocking finding names SIG2.
+- Tests: CI is the runner. Locally I used only a stand-in: migrations and seed on PostgreSQL 16 with an auth stub, and a pgTAP stand-in. On it, 064 (82), 062 (54) and 059 (57) pass. Every other file the stand-in can run gives the same result as on the base; the only change is 059, whose count moves from 39 to 41 (updated). I also ran `bun test` on `push-webpush`, `push-rules`, `signals-rules` and `csp`. **Not run:** real pgTAP, vitest, typecheck, lint, build, e2e (npm registry unreachable).
+- **Next agent (eng):** on #295, approve the types-bot run (`database.types.ts` for the new functions and tables), fix CI, merge on green, then SIG2 → `delivered`. **(po):** the SIG2 deviations. **(owner):** D-2 items above; the DPF entries. **(cra):** 0062, CR-071 to CR-073.
+
 ## 2026-10-24 13:50 · Legal & Compliance Agent (lca)
 - **Reviewed D-29 and D-30** (tier 2; both changed since my last section: PO 07:10 and 09:12) and **wrote the D-2 input** (first input; requested 12:10). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not reviewed:** D-22, D-18 (no change since 06:10; no new evidence; fedlex still not reachable). D-34 (new package from `lca`'s D-8 point) is only in open PO PR #291, not on `recovery/main`: next run once merged.
