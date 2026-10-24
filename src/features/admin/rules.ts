@@ -26,6 +26,8 @@ export const UNIT_LABEL: Record<string, string> = {
   working_days: "Arbeitstage",
   hours: "Stunden",
   days: "Tage",
+  // SIG1 (0060): the untaken-signal threshold is in minutes.
+  minutes: "Minuten",
 };
 
 export const PRIORITIES = ["P1", "P2", "P3"] as const;

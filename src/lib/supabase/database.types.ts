@@ -991,6 +991,58 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"safety_signals": {
+                  Row: {
+                    "created_at": string,"ended_at": string | null,"escalated_at": string | null,"exception_key": string,"id": string,"organization_id": string,"p1_at": string,"signal_kind": string,"taken_at": string | null,"taken_by": string | null,"team_id": string,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"ended_at"?: string | null,"escalated_at"?: string | null,"exception_key": string,"id"?: string,"organization_id": string,"p1_at": string,"signal_kind": string,"taken_at"?: string | null,"taken_by"?: string | null,"team_id": string,"visit_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"ended_at"?: string | null,"escalated_at"?: string | null,"exception_key"?: string,"id"?: string,"organization_id"?: string,"p1_at"?: string,"signal_kind"?: string,"taken_at"?: string | null,"taken_by"?: string | null,"team_id"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "safety_signals_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_signals_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"signal_deliveries": {
+                  Row: {
+                    "created_at": string,"id": string,"organization_id": string,"reason": string,"recipient_id": string,"signal_id": string,"signal_kind": string,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"organization_id": string,"reason": string,"recipient_id": string,"signal_id": string,"signal_kind": string,"visit_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"organization_id"?: string,"reason"?: string,"recipient_id"?: string,"signal_id"?: string,"signal_kind"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "signal_deliveries_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "signal_deliveries_signal_id_fkey"
+      columns: ["signal_id"]
+isOneToOne: false
+      referencedRelation: "safety_signals"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"tariff_rates": {
                   Row: {
                     "amount": number,"category": string | null,"id": string,"payer": string,"region": string,"source": string,"unit": string,"valid_from": string,"valid_to": string | null,"validated": boolean,"validation_note": string | null,"version": string
@@ -1485,6 +1537,11 @@ isOneToOne: false
               "area": string,"covered_at": string,"minutes_a": number,"minutes_b": number,"minutes_c": number,"services": (string)[],"status": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
+"my_signals":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "delivered_at": string,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_by_me": boolean,"taken_by_name": string,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
+            }[]
+                           },
 "operations_exceptions":
 { Args: Record<PropertyKey, never>; Returns: {
               "case_id": string,"case_label": string,"closable": boolean,"comments": Json,"detail": string,"entity_id": string,"entity_type": string,"exception_key": string,"exception_type": string,"flags": (string)[],"label": string,"next_step": string,"owner_name": string,"priority": string,"region": string,"since": string,"taken": boolean,"taken_at": string,"taken_by_me": boolean,"team_name": string
@@ -1615,6 +1672,9 @@ isOneToOne: false
                            },
 "take_open_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: Json
+                           },
+"take_signal":
+{ Args: { "p_idempotency_key": string,"p_signal_id": string }; Returns: Json
                            },
 "team_absences":
 { Args: Record<PropertyKey, never>; Returns: {

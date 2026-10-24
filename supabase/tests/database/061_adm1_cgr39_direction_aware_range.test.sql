@@ -20,7 +20,7 @@ $$;
 select is((select string_agg(exception_type || '=' || amount_direction, ',' order by exception_type)
            from public.exception_rules where amount is not null),
   'case_not_ready=delay,cover_without_access=look_ahead,order_expiring=look_ahead,report_not_final=delay,'
-  'team_cancellation_late=look_ahead,visit_overdue=delay,visit_stuck=delay,visit_uncovered=look_ahead,'
+  'signal_untaken=delay,team_cancellation_late=look_ahead,visit_overdue=delay,visit_stuck=delay,visit_uncovered=look_ahead,'
   'visit_uncovered_hospital=look_ahead',
   'every amount-bearing rule has its direction (look-ahead: uncovered, hospital, order, late cancellation, cover)');
 select is((select count(*)::int from public.exception_rules where (amount is null) <> (amount_direction is null)), 0,
@@ -31,7 +31,7 @@ select throws_ok($$ insert into public.exception_rules (exception_type, priority
 select throws_ok($$ insert into public.exception_rules (exception_type, priority, amount, unit, amount_direction, label, next_step)
                     values ('adm1_test_new', 'P3', 5, 'hours', 'later', 'Test', 'Test') $$,
   '23514', null, 'only look_ahead or delay');
-select ok((select count(*) = 17 from private.effective_exception_rules('00000000-0000-4000-b000-000000000011')),
+select ok((select count(*) = 18 from private.effective_exception_rules('00000000-0000-4000-b000-000000000011')),   -- SIG1 signal_untaken (0060)
   'the effective rules still list every rule (row type with the new column)');
 
 -- ADM1-R4: behaviour with the default (before any override) --------------------------------------------------------
