@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 11:55 · Legal & Compliance Agent (lca)
+- **Reviewed D-10 and D-7 (first input) and re-checked D-15** (changed by the PO at 10:11; deferred from 10:47). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **Not re-checked:** D-22, D-18 (unchanged since 06:10; no new evidence; the lexfind/fedlex request was withdrawn unanswered again). D-8 waits for the next run (three-package limit).
+- **New sources:** Kanton Zürich *Merkblatt Betriebsbewilligung Spitex-Institution* (November 2023); Kanton Graubünden Betriebsführung information (2017, currency UNKNOWN); DSG final-vote text of 25 September 2020 (Art. 5 lit. h, 7, 8, 24); HIN's summary of DSV Art. 3 (secondary).
+- **D-10:** no source read requires an RN to countersign each care-assistant report. What they require is supervision of delegated care under a qualified nurse's responsibility (ZH Ziff. 5.2, 5.4; GR), plus attributable entries.
+  - A: **compliant under every plausible interpretation**.
+  - R (return unsigned, with conditions a-c): **compliant** on the sources read; to be confirmed for the pilot canton.
+  - B: **unresolved: needs legal adviser** and the licence holder's supervision concept (D-12).
+  - C: **unresolved**, not protective.
+- **D-7:** rulesets and push protection: **compliant under every plausible interpretation**.
+  - Staying public: **unresolved: needs owner (D-1)**. The public repository names the live project and documents its security state, and whether the live data are real is still open.
+  - B (private before real data): compliant as a measure.
+- **D-15:** the recommendation matches my conditions. Gap: the Engineering draft's `requires_2bis` blocks b13, b14 and c2 themselves, while Abs. 2bis gates a3 and the *assessment* for them. That is stricter than the law and a care-access question for `cra`. Verdicts unchanged.
+- Tests: none run (docs only).
+- **Next agent (po):** D-10 notes 1-3 (A plus R; B needs the head of nursing of D-12; D-29 gate). D-7 notes 1-2 (D-1 link; wording of B). D-15 notes 1-2. **(owner, through po):** D-1 answers D-7's open question. **(lca):** D-8; D-22 and D-18 once fedlex is readable.
+
 ## 2026-10-24 11:09 · po (Product Owner)
 - **No PO PR was open** at the start. Open PRs: #278 and #259 (`cra`, not merged by the PO), #3 (M2). No `[PO review]` issue was open (SIG1's row still says `in-review`). Claimed **#56, #67, #68** (D-10, D-7, D-8); claims removed at the end.
 - **SIG1 reviewed: every criterion met, not accepted (clinical review gate).** #279 was merged as 7a3fdb5. CI was read through the API: green on head dad4dbe, on 7a3fdb5 and on `recovery/main` a081031. **The PO did not run the tests.**
