@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 13:15 · po (Product Owner)
+- **No PO PR was open** at the start. Open PRs: #289 (`eng`, ORD0 → `delivered`), #278 and #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#288** (Q12), **#63, #69, #68** (D-1, SR-26, D-8); claims removed at the end. #285 (SIG1) not claimed: no change (no `cra` section on 0060 yet).
+- **ORD0 reviewed (#284, 0061): every criterion met, not accepted (clinical review gate).** CI read through the API: green on head 4f938f6 and on `recovery/main` f35d60e (on the merge commit 2561463 `e2e` was *cancelled* by the next push, not failed). **The PO did not run the tests.** Evidence table in `briefs/ORD0.md`.
+  - Deviations accepted: no reopening of `inform_gp` within the case (**Q12 decided (a)**, moved to *Decided*; a re-assessment duty is question 6 added to the D-22 package); `case_closed` refused; no open task → `unchanged`; running = lifecycle `active`.
+  - **Condition ORD0-C1:** two pgTAP 063 assertions (HAND1 `handover_entries` returns `gp_informed`; the exception ends when the order is no longer `present`). Met in code, untested.
+  - No `cra` section covers 0061 (#259, #278 predate it): **awaiting clinical review**; `cra` is asked for 0061, CR-069, CR-070.
+- **`lca` 12:55 taken up:**
+  - **D-1 escalated: `awaiting-approval: owner`, urgent.** The fact question goes to the owner now and alone (`lca` note 1): real people in the live rows, including the `orders` e-mail addresses (SR-26)? yes / no / not sure. Leaked-password protection now; key rotation once `eng` names what uses the key. "Not sure" = B: legal adviser now, a report to the FDPIC may already be due (advisory). Confidence Low (E only); escalated anyway because the answer depends on no input.
+  - **SR-26:** working view A under `lca` conditions (i)-(iii), no deletion before D-1; still `inputs-requested` (E open).
+  - **D-8:** working view B; O-C is no legal gate; still `inputs-requested` (E: deploy fact, O-C).
+  - **D-34 added** (`owner`, regulatory, tier 3, INDEX order 22): is NAVORA a medical device under the MepV? Package written, E, C and L requested. Working view A plus C: the core stays an organisation and documentation tool; anything that interprets a client's clinical information (AI assessment drafts, interRAI outputs) ships only as a separately qualified module. Safe default in force: no such feature; D-17 stays "nothing diagnostic".
+- **Challenge:** the team phones or writes to the doctor and then records that it did (ORD0). From scratch, the assessment summary leaves NAVORA by a secure channel and the send is the record. Hypothesis row with thresholds on ORD0-6 (channel mix, 7-day share); no brief before D-22.
+- No new brief: SIG2 is approved and unstarted. ROADMAP: line 24.10. 13:15. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** **owner: D-1 (new, urgent, one-line fact answer)**; otherwise unchanged: owner D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1; Clinical Owner D-28, D-31, D-3, D-30, D-16, D-15.
+- **Next agent (eng):** merge #289; SIG2; ORD0-C1 in the next PR touching pgTAP 063. Inputs: D-1 (what still uses the anon key; rotation steps; read-only checks), SR-26, D-8 (deploys from `main`? O-C), D-10, D-7, D-2, D-34 (feature inventory). **(cra):** review 0060 (SIG1) and 0061 (ORD0, CR-069, CR-070); D-10; D-34. **(lca):** D-2; D-34; D-22 question 6 if useful; D-22 and D-18 once fedlex is readable. **(po):** next packages D-26, D-23, D-17.
+
 ## 2026-10-24 12:55 · Legal & Compliance Agent (lca)
 - **Reviewed D-1, SR-26 and D-8** (first input for all three; requested by the PO at 12:10 and 11:09). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-checked:** D-22, D-18 (no change since 06:10, no new evidence; fedlex again unreachable: the request was withdrawn unanswered). D-2 waits for the next run (three-package limit).
