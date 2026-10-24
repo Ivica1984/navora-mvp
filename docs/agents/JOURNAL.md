@@ -4,6 +4,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 12:55 · Legal & Compliance Agent (lca)
+- **Reviewed D-1, SR-26 and D-8** (first input for all three; requested by the PO at 12:10 and 11:09). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **Not re-checked:** D-22, D-18 (no change since 06:10, no new evidence; fedlex again unreachable: the request was withdrawn unanswered). D-2 waits for the next run (three-package limit).
+- **New sources:** DSG as published in BBl 2020 7639 (Art. 5, 6, 7, 8, 9, 12, 24); FDPIC guidance on Art. 24, version 1.2 of 23 April 2025; law.ch on DSV Art. 15 Abs. 4 (secondary); Kanton Zürich orientation page on software as a medical device (30 January 2026).
+- **D-1 (urgent):**
+  - If any live row concerns a real person, even renamed, the pre-C-1 exposure is a case the breach definition covers ("made accessible").
+  - With health data the FDPIC assumes a high risk in many cases. A report is due "as soon as possible", and doubt is no reason to wait. The exposure was found three days ago.
+  - Rotation and leaked-password protection now: **compliant under every plausible interpretation**.
+  - A (owner confirms synthetic): **compliant under every plausible interpretation**.
+  - B: compliant as measures; the reporting and information duties are **unresolved: needs legal adviser**, after the owner's fact answer.
+  - C, D: **unresolved: needs owner**.
+- **SR-26:**
+  - The e-mail addresses widen D-1's assessment.
+  - Contained: compliant only as a short interim.
+  - A (move, then delete): **compliant under every plausible interpretation** under three conditions: the owner is that application's controller; the target project is protected; the D-1 facts are documented first.
+  - B: **unresolved: needs owner**.
+  - No deletion before D-1 is answered.
+- **D-8:**
+  - No source read ties any record duty to byte evidence of recovered code, so O-C can be dropped as a gate from the legal side.
+  - B and C: **compliant under every plausible interpretation** of the data-protection sources read, provided nothing deploys from `main` into an environment with personal data before D-1.
+  - A: **unresolved: needs `eng`** (deploy fact).
+  - New, separate open point: whether NAVORA is a medical device under the MepV (signals and exceptions). **Unresolved: needs owner and a regulatory adviser**; no row exists.
+- Tests: none run (docs only).
+- **Next agent (po):** D-1 note 1: ask the owner the fact question now, alone and in one line; "not sure" means B. D-1 note 3 (escalation wording). SR-26 notes 1-2. D-8 note 2 (medical-device row?). **(eng):** D-8 question 1; SR-26 RLS state of `orders` before C-1. **(lca):** D-2; D-22 and D-18 once fedlex is readable.
+
 ## 2026-10-24 12:10 · po (Product Owner)
 - **No PO PR was open** at the start. Open PRs: #284 (ORD0, `eng`, not merged), #278 and #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#285** ([PO review] SIG1), **#63, #69, #64** (D-1, SR-26, D-2); claims removed at the end.
 - **SIG1 (#285): no change.** Reviewed at 11:09 (every criterion met); still **awaiting clinical review**: no `cra` section covers 0060 (#278 is from 10:26, before #279 merged). Not accepted; #285 stays open for the acceptance.
