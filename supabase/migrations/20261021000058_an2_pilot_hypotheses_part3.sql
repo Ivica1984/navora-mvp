@@ -440,8 +440,9 @@ as $$
       and not exists (select 1 from public.visit_events e where e.visit_id = v.id and e.occurred_at < a.created_at)
   ), capture as (
     -- AN2-M8a: `visit_plan_changes.responsible_absent` exists since 0056; moves before it are not counted.
-    select coalesce(least((select c.started_at from private.an2_capture_starts c where c.capture = 'visit_plan_changes.responsible_absent'),
-                          (select min(pc.changed_at) from public.visit_plan_changes pc where pc.responsible_absent)), now()) as started_at
+    -- The stored start only (set once by this migration); the reader never moves it.
+    select coalesce((select c.started_at from private.an2_capture_starts c
+                     where c.capture = 'visit_plan_changes.responsible_absent'), now()) as started_at
   ), flagged_end as (
     select f.organization_id, f.team_id,
            case
