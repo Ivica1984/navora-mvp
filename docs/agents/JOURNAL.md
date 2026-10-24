@@ -4,12 +4,45 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 15:35 · po (Product Owner)
+- Same PO run as 15:10, continued: `eng` merged `recovery/main` into #291 (3745c05, after #297), and **SIG2 was merged (#295, 7a9d08d) and set `delivered`** during the cycle, so the PO reviewed it before publishing.
+- **SIG2 `changes-requested`, awaiting clinical review.** SIG2-1 to SIG2-10 met (pgTAP 064, unit, e2e; CI green on e87fa09, 7a9d08d, 567ccaa). Eleven deviations accepted; the most important is that the DPF entries are not recorded, so the channel cannot be switched on (fail closed). **SIG2-11 and SIG2-12** (added 15:10) are not met; they come as a follow-up PR. No `cra` section covers 0062, and `cra` is asked to review it. Evidence table in `briefs/SIG2.md`. **The PO did not run the tests.**
+- *Next up* reordered: **1** ORD0-C1, ORD0-C2 with SIG1-C1 (in-app safety today); **2** the SIG2 follow-up (SIG2 cannot be switched on before the DPF entries and D-2 exist).
+- For `eng`: on `recovery/main` 567ccaa a second check suite shows `app` *failure* next to a green suite. Its log was unreadable (403). Please say whether it was a duplicate run.
+- Issue #283 (SIG2) keeps `active` until acceptance. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Next agent (eng):** ORD0-C1, ORD0-C2 and SIG1-C1 in one PR, then SIG2-11 and SIG2-12. **(cra):** 0062 (SIG2), then the follow-ups.
+
 ## 2026-10-24 15:20 · eng (Lead Engineer)
 - **SIG2 delivered:** #295 was green on a988e2e but conflicted with `recovery/main` (JOURNAL only, after #293/#296). Merged the base in (e87fa09, both entries kept, newest first), CI green on e87fa09 (app, db, e2e), merged #295 with a merge commit (7a9d08d). Row SIG2 → `delivered` (this PR). IMPLEMENTED.
 - No code change this run. Issue #283 keeps its `active` label until the PO's review; the watcher opens the review issue from the `delivered` row.
 - **Inputs for the PO's SIG2 review (OPEN, not built):** `lca` 15:05 D-32 note 1: Operations pushes (the "kein Empfänger" fallback and the untaken step) go to every opted-in Operations member at any hour; limiting them to the watched hours is a possible criterion or an accepted deviation (PO). `cra` CGR-42 (PR #294, not merged): evaluator liveness ("Signalprüfung läuft nicht"), S1 for SIG2 go-live, to be added to the SIG2 brief by the PO. Production sending still needs D-2 (owner); the DPF entries are still UNKNOWN, so the channel cannot be switched on.
 - Tests: none run locally; CI ran them on e87fa09.
 - **Next agent (eng):** the next `active` `agent:eng` issue; a SIG2 follow-up only if the PO adds CGR-42 or the Operations time limit.
+
+## 2026-10-24 15:10 · po (Product Owner)
+- **PO PR #291 was still open** (13:15 and 14:40 cycles; CI green on 4d70294), conflicted again in `JOURNAL.md` after #296. Merged `recovery/main` in (a1de528, both entries kept, newest first). This run's work is added to #291 (no second PO PR). Open PRs otherwise: #295 (SIG2, `eng`, CI running), #294 (`cra` 14:27, supersedes #278 and #259; not merged by the PO), #3 (M2). Claimed **#285, #292, #288** (reviews, Q12) and **#72, #81, #89** (D-6, D-19, D-20); claims removed at the end.
+- **SIG1 `accepted`** (#285). Clinical gate passed: `cra` 14:27 (#294, read on its branch) finds no blocking finding and closes CGR-37 in the app. Evidence table in `briefs/SIG1.md`; **the PO did not run the tests** (CI green on dad4dbe, 7a3fdb5, a081031). **CGR-43 decided (protective, product authority):** condition **SIG1-C1**, for `no_show` and `visit_interrupted` a take by a member who is not a registered nurse does not stop the step to Operations; the question for the Clinical Owner joins D-28.
+- **ORD0 `changes-requested`** (#292 stays open). Clinical gate passed (`cra` 14:27), but **ORD0-C1** (two pgTAP 063 assertions, "before acceptance" since 13:15) is not met: nothing has touched pgTAP 063 since #284. **CGR-44 decided: Q12 changed from (a) to (c)** (`OPEN_DECISIONS.md`): one `inform_gp` task opens when an A/C item becomes active without an order and no later "informiert" record; a refresh never reopens it. Condition **ORD0-C2** with pgTAP. Reasons: CGR-44, and `lca` 15:05 (tarifsuisse Art. 9 Abs. 1; (a) not shown compliant). The 13:15 reason against reopening applies only to a refresh, not to an event.
+- **SIG2 (#295, in progress) gains two criteria**, added after work started (in #295 or a follow-up on the same item; both needed for acceptance):
+  - **SIG2-11** (CGR-42): each evaluator run is recorded; after 5 minutes without one, Operations and `/admin` show "Signalprüfung läuft nicht"; the send path is started by the scheduler.
+  - **SIG2-12** (`lca` 15:05 note 1, D-32 addendum): Operations gets pushes only within the watched hours; otherwise it gets them in the app only. `lca` found pushes "at any hour" unresolved (Pikett).
+  - `CARE_OPERATING_MODEL.md` SIG1-8: the provider confirms in writing how the watched hours are staffed. Until SIG2-11 is built, the checklist confirms that the evaluator job exists.
+- **`lca` 15:05 taken up (no status change):**
+  - **D-22:** question 3 reworded (effective date vs. signature); the invoicing consequence needs two order dates (issue, effective); Q12 now (c); question 6 open.
+  - **D-18:** inpatient periods are an invoicing prerequisite (tarifsuisse Art. 10 Abs. 4; `eng` asked whether J5 can represent them); question 5 for the adviser.
+  - **D-32:** addendum above.
+- **Packages D-6, D-19, D-20 written** (`inputs-requested`; one comment per issue names the roles):
+  - **D-6** (E, C; no `lca`, no legal question): working view A as built. The PO decides the assignment model and the state list if `cra` confirms they are no clinical rule.
+  - **D-19** (E, C, L): the protocol content is `clinical`; interim C1 plus SIG1-C1. Moved to tier 2 in INDEX (CGR-43).
+  - **D-20** (E, L; C on one point): working view C. The team admits by team decision, the qualification is active only after D-29, and the admin can remove for cause. D applies if `lca` finds the employer must act.
+- **Challenge:** a central Operations desk as the end-point of every untaken escalation. Hypothesis row: fewer than 1 in 20 P1 signals reach Operations; if so, Operations becomes a rotating duty of the teams' registered nurses within watched hours. Measured by AN2 measure 10.
+- No new brief: SIG2 is in progress; ORD0-C1/C2 with SIG1-C1 is *Next up* 2. ROADMAP: line 24.10. 15:10. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** no new escalation. **owner:** D-1 (urgent, one-line fact answer), D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1 (name the Clinical Owner). **Clinical Owner:** D-28 (now with the CGR-43 question), D-31, D-3, D-30, D-16, D-15. **Owner, process:** #291 and #294 need a merge by a person or a run allowed to merge.
+- **Next agent:**
+  - **(eng):** SIG2 including SIG2-11 and SIG2-12; then ORD0-C1, ORD0-C2 and SIG1-C1 in one PR. Inputs for D-6, D-19, D-20, D-18 (inpatient period), plus the earlier requests.
+  - **(cra):** D-6, D-19, D-20 (question 3); D-17, D-10, D-34.
+  - **(lca):** D-19, D-20; D-3, D-16 (its own queue).
+  - **(po):** next packages D-14, D-13, D-24.
 
 ## 2026-10-24 15:05 · Legal & Compliance Agent (lca)
 - **Re-checked D-22 and D-18** (tier 1; new evidence: the tarifsuisse administrative contract, Nr. 42.500.2292Q, valid from 1 May 2023, was found and read) and **D-32** (tier 2; changed by the PO at 11:09; new evidence: SIG2 in open PR #295, `cra` CGR-42). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
@@ -47,6 +80,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Tests: CI is the runner. Locally I used only a stand-in: migrations and seed on PostgreSQL 16 with an auth stub, and a pgTAP stand-in. On it, 064 (82), 062 (54) and 059 (57) pass. Every other file the stand-in can run gives the same result as on the base; the only change is 059, whose count moves from 39 to 41 (updated). I also ran `bun test` on `push-webpush`, `push-rules`, `signals-rules` and `csp`. **Not run:** real pgTAP, vitest, typecheck, lint, build, e2e (npm registry unreachable).
 - **Next agent (eng):** on #295, approve the types-bot run (`database.types.ts` for the new functions and tables), fix CI, merge on green, then SIG2 → `delivered`. **(po):** the SIG2 deviations. **(owner):** D-2 items above; the DPF entries. **(cra):** 0062, CR-071 to CR-073.
 
+## 2026-10-24 14:40 · po (Product Owner)
+- **PO PR #291 was open** (13:15 cycle): CI green on fd2ebe2, then conflicted with `recovery/main` in `JOURNAL.md` (after #293). Merged `recovery/main` in (b83105c, both entries kept, newest first); CI green on b83105c (app, db, e2e). **Merging #291 was refused by this session's permission check**, so this run's work is added to #291 instead of a second PO PR. Open PRs otherwise: #278 and #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#132, #111, #66** (D-26, D-23, D-17); claims removed at the end.
+- **Reviews: no change.** SIG1 (#285) and ORD0 (#292) stay *every criterion met, awaiting clinical review*: no `cra` section covers 0060 or 0061 yet (#259, #278 predate both). Not accepted.
+- **`lca` 13:50 taken up (no status change):**
+  - **D-2:** the five `lca` conditions are now the design (specific region, Zurich if the same cost; nothing from the live project; test-domain or informed testers; EU function region; SIG2 on staging only for D-32 push services). Host **B (Render Frankfurt)** unless `eng` shows Vercel's listing covers the Swiss-U.S. DPF. ADR-011 note: staging is no production clearance. The design becomes the PO's decision once `eng` gives cost and region facts (requested 12:10; two-run rule not reached).
+  - **D-29:** B now says the confirmer acts as someone the licence holder authorised; the owner ask reworded ("the licence holder remains responsible … and authorises who may confirm"); no option changed, still `awaiting-approval: owner`.
+  - D-30: billing block for disputed time confirmed compliant; nothing to change.
+- **Packages D-26, D-23, D-17 written** (`inputs-requested`):
+  - **D-26** (E, L): working view C (an Edge Function holds the service-role key; the app never sees it) or B (server-only invite call), audited and rate-limited, **staging only until D-1 and D-2**; setting the key is the owner's (rule 5). Unblocks D-20 (teams invite colleagues).
+  - **D-23** (E, L): no labour-law rule assumed; A (no record) in force; target B (derived day, confirmed by the nurse once a day) only if `lca` shows it admissible; C (proposal only) and D (team-level North Star statistic only) as fallbacks.
+  - **D-17** (E, C; L on one point): working view B (fixed categories with yes / no / unknown plus a note, on every visit card, changes in HAND1); clinical categories only from the Clinical Owner; organisational part (access, emergency contact, language) first if `cra` confirms it is no clinical rule; reuse D-15's readiness fields; nothing diagnostic (D-34).
+  - One comment per issue names the roles asked.
+- **Challenge:** the intake coordinator's phone briefing before a first visit or a cover. From scratch: recorded once at intake, structured, on every card. Hypothesis row with a threshold (fewer than 1 in 5 first visits and covers need a briefing call; two-week tally before and after).
+- No new brief: SIG2 is approved and in progress (#283). ROADMAP: line 24.10. 14:40. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** unchanged since 13:15. **owner: D-1 (urgent, one-line fact answer)**, D-22, D-18, D-29 (reworded ask), D-11, D-12, D-33, D-9, the D-4 final periods, G-1; Clinical Owner: D-28, D-31, D-3, D-30, D-16, D-15. **Owner, process:** #291 needs a merge by a person or a run allowed to merge.
+- **Next agent (eng):** SIG2; ORD0-C1. Inputs: D-2 (cost; Zurich on the plan; Vercel Swiss-U.S. DPF, function and log regions), D-26 (questions 1-6), D-23 (questions 1-5), D-17 (questions 1-6), plus the earlier D-1, SR-26, D-8, D-10, D-7, D-34. **(cra):** 0060, 0061; D-17 *Clinical impact*; D-10; D-34. **(lca):** D-26, D-23, D-17 (one point); D-34. **(po):** next packages D-6, D-19, D-20.
+
 ## 2026-10-24 13:50 · Legal & Compliance Agent (lca)
 - **Reviewed D-29 and D-30** (tier 2; both changed since my last section: PO 07:10 and 09:12) and **wrote the D-2 input** (first input; requested 12:10). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not reviewed:** D-22, D-18 (no change since 06:10; no new evidence; fedlex still not reachable). D-34 (new package from `lca`'s D-8 point) is only in open PO PR #291, not on `recovery/main`: next run once merged.
@@ -59,6 +109,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **D-30:** the 09:12 billing block for disputed time or category: **compliant under every plausible interpretation**. Residual: an invoicing deadline (a revenue risk, D-18). Other verdicts unchanged.
 - Tests: none run (docs only).
 - **Next agent (po):** D-2 notes 1-4 (conditions into the design; Zurich if same cost; ADR-011 note). D-29 notes 1-2. **(eng):** D-2: Vercel's DPF listing (Swiss-U.S.?), function and log regions. **(lca):** D-34 once #291 is merged; D-22 and D-18 once fedlex is readable.
+
+## 2026-10-24 13:15 · po (Product Owner)
+- **No PO PR was open** at the start. Open PRs: #289 (`eng`, ORD0 → `delivered`), #278 and #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#288** (Q12), **#63, #69, #68** (D-1, SR-26, D-8); claims removed at the end. #285 (SIG1) not claimed: no change (no `cra` section on 0060 yet).
+- **ORD0 reviewed (#284, 0061): every criterion met, not accepted (clinical review gate).** CI read through the API: green on head 4f938f6 and on `recovery/main` f35d60e (on the merge commit 2561463 `e2e` was *cancelled* by the next push, not failed). **The PO did not run the tests.** Evidence table in `briefs/ORD0.md`.
+  - Deviations accepted: no reopening of `inform_gp` within the case (**Q12 decided (a)**, moved to *Decided*; a re-assessment duty is question 6 added to the D-22 package); `case_closed` refused; no open task → `unchanged`; running = lifecycle `active`.
+  - **Condition ORD0-C1:** two pgTAP 063 assertions (HAND1 `handover_entries` returns `gp_informed`; the exception ends when the order is no longer `present`). Met in code, untested.
+  - No `cra` section covers 0061 (#259, #278 predate it): **awaiting clinical review**; `cra` is asked for 0061, CR-069, CR-070.
+- **`lca` 12:55 taken up:**
+  - **D-1 escalated: `awaiting-approval: owner`, urgent.** The fact question goes to the owner now and alone (`lca` note 1): real people in the live rows, including the `orders` e-mail addresses (SR-26)? yes / no / not sure. Leaked-password protection now; key rotation once `eng` names what uses the key. "Not sure" = B: legal adviser now, a report to the FDPIC may already be due (advisory). Confidence Low (E only); escalated anyway because the answer depends on no input.
+  - **SR-26:** working view A under `lca` conditions (i)-(iii), no deletion before D-1; still `inputs-requested` (E open).
+  - **D-8:** working view B; O-C is no legal gate; still `inputs-requested` (E: deploy fact, O-C).
+  - **D-34 added** (`owner`, regulatory, tier 3, INDEX order 22): is NAVORA a medical device under the MepV? Package written, E, C and L requested. Working view A plus C: the core stays an organisation and documentation tool; anything that interprets a client's clinical information (AI assessment drafts, interRAI outputs) ships only as a separately qualified module. Safe default in force: no such feature; D-17 stays "nothing diagnostic".
+- **Challenge:** the team phones or writes to the doctor and then records that it did (ORD0). From scratch, the assessment summary leaves NAVORA by a secure channel and the send is the record. Hypothesis row with thresholds on ORD0-6 (channel mix, 7-day share); no brief before D-22.
+- No new brief: SIG2 is approved and unstarted. ROADMAP: line 24.10. 13:15. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** **owner: D-1 (new, urgent, one-line fact answer)**; otherwise unchanged: owner D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1; Clinical Owner D-28, D-31, D-3, D-30, D-16, D-15.
+- **Next agent (eng):** merge #289; SIG2; ORD0-C1 in the next PR touching pgTAP 063. Inputs: D-1 (what still uses the anon key; rotation steps; read-only checks), SR-26, D-8 (deploys from `main`? O-C), D-10, D-7, D-2, D-34 (feature inventory). **(cra):** review 0060 (SIG1) and 0061 (ORD0, CR-069, CR-070); D-10; D-34. **(lca):** D-2; D-34; D-22 question 6 if useful; D-22 and D-18 once fedlex is readable. **(po):** next packages D-26, D-23, D-17.
 
 ## 2026-10-24 12:55 · Legal & Compliance Agent (lca)
 - **Reviewed D-1, SR-26 and D-8** (first input for all three; requested by the PO at 12:10 and 11:09). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.

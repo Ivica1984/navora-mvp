@@ -2,7 +2,7 @@
 id: SIG1
 title: Safety signals reach a person, nobody watches a screen
 author: po
-status: approved
+status: accepted
 updated: 2026-10-24
 ---
 
@@ -76,3 +76,26 @@ CGR-37 (S2; S1 if visits are planned when nobody watches), `reports/CLINICAL_GOV
 **Business value and care model.** The P1 now goes to named people in their own tool, one of them takes it in one tap, and AN2 shows how often and how fast. That is the dispatcher's job done by the team and the software. **Until SIG2 the gain is limited**: SIG1-8 still needs a named watcher with a page open. **Handbook alignment:** team autonomy before central dispatch; no new service; no personal data in the new tables; the delivery row is the base SIG2 builds on.
 
 **Result:** every criterion met in code and tests (per CI); five deviations accepted. **PO status stays `approved` (awaiting clinical review)**. Acceptance follows when a `cra` section covers 0060 without a blocking finding.
+
+## PO acceptance — 2026-10-24 15:10: **accepted**, with condition SIG1-C1 (CGR-43)
+
+**Clinical review gate passed.** The `cra` section 2026-10-24 14:27 (`reports/CLINICAL_GOVERNANCE.md`, open PR #294, read on its branch `gov/review-2026-10-24-1427`, afef2cc) reviews 0060 and pgTAP 062 in full: **no blocking finding**; CGR-37 closed for in-app delivery (PS-29 closed); one new advisory finding, CGR-43 (S2). CI: unchanged since the 11:09 review (green on head dad4dbe, merge commit 7a3fdb5, `recovery/main` a081031). **The PO did not run the tests.** The section is not yet merged; the PO relies on it as on earlier unmerged `cra` sections (#259), and the acceptance stands unless the merged text differs.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| SIG1-1 to SIG1-9 | met (11:09 table above, unchanged) | 0060, pgTAP 062, e2e `signals.spec.ts`; `cra` 14:27 CGR-37 evidence row (pgTAP 062 lines 57-192) |
+| Clinical review gate | passed | `cra` 14:27: "no blocking finding: the PO may accept, recording CGR-43 as a condition or as a D-28 question" |
+| CGR-43 (any recipient's take stops the Operations step) | condition SIG1-C1 | 0060:394-418 (`take_signal` without qualification check), 0060:304 (`taken_by is null`), pgTAP 062:111-113 (care assistant takes) |
+
+**Decision on CGR-43 (PO, product authority; protective; the clinical rule stays D-28 and D-19).** A P1 no-show or a broken-off visit can hide a fall or a deterioration behind a closed door; whether a care assistant may answer it alone is a clinical question NAVORA does not answer. Until the Clinical Owner does, NAVORA keeps a second pair of eyes on it instead of letting one tap end the escalation.
+
+**Condition SIG1-C1 (small; in the next engineering PR after SIG2 #295, before any real client):**
+- (a) For signal kinds `no_show` and `visit_interrupted`, a take by a member whose qualification in the visit's team is not `registered_nurse` is recorded and shown ("übernommen von <Name> (Pflegehilfe), Meldung an Operations folgt"), but **does not** stop the SIG1-5 step: after `signal_untaken` Operations receives the signal as untaken unless a registered nurse of the team (or the covering member, if a registered nurse) has also taken it.
+- (b) A take by a registered nurse stops the step as built.
+- (c) Other kinds (`visit_overdue`, `visit_stuck`, `visit_uncovered`, `visit_uncovered_hospital`): unchanged (any recipient's take stops the step) until D-28 answers; the PO records this as a question for the Clinical Owner in D-28.
+- (d) pgTAP: care assistant takes a P1 no-show → `escalated_at` set after `signal_untaken`; registered nurse takes → not escalated; care assistant then registered nurse take → not escalated; care assistant takes `visit_overdue` → not escalated (as built).
+- (e) No threshold or response time changes; the ADM1 range guard and SIG1-9 apply.
+
+**Business value and care model.** The dispatcher's watching job is now the team's and the software's: a P1 reaches named people in their own tool and one tap takes it. SIG1-8 (a named watcher for every planned hour) stays a go-live condition until SIG2 shows outside delivery works. **Architecture:** one exception surface (`derived_exceptions`, `effective_exception_rules`), audited commands, no second threshold copy: in line with the Handbook.
+
+**Result: `accepted`** with SIG1-C1. Issue #285 closes with this cycle.
