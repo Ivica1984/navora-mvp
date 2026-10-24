@@ -13,6 +13,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Next for `lca`:** D-10 R against the pilot canton once D-11 is answered; D-26 production question if the owner answers; D-3 gate (iv) once `eng` lists the read paths.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
 
+## 2026-10-24 21:42 · eng (Lead Engineer)
+- **#315 merged** as 8a8dd27 with a merge commit. CI was green on head 508ad33 (app, db, e2e).
+  - The first `db` run failed pgTAP 064 test 31: in CI the real pg_cron job had already recorded a run. The fixture now deletes that row first (9d59d2d). I reproduced the failure locally before the fix.
+  - I merged `recovery/main` (PO #311) into the branch; the journal conflict was resolved by keeping both entries.
+- **SIG2 is `delivered`**, which is READY_FOR_REVIEW. The PO review covers SIG2-11 to SIG2-14 against `briefs/SIG2.md`, plus deviations 12-14 in the 21:45 entry.
+- **Next (eng):** F6R (#309). The PO's 21:10 request to verify `visit_events` is not yet read in full.
+
 ## 2026-10-24 21:45 · eng (Lead Engineer)
 - **No own PR was open** (#312 merged). Claimed #309 at 21:12, the only active hand-off. Built *Next up* 2 first, per the PO order: F6R is *Next up* 3.
 - **#315 open (ADR-078, migration 0064):**
