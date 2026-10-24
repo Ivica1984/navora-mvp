@@ -20,7 +20,10 @@ select '00000000-0000-4000-b000-000000000012', ('ab000000-0000-4000-8000-0000000
 from generate_series(1, 5) g;
 insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, occurred_at)
 select '00000000-0000-4000-b000-000000000012', ('ab000000-0000-4000-8000-00000000000' || g)::uuid, '00000000-0000-4000-a000-000000000151',
-       e.t, e.f, e.s, '00000000-0000-4000-a000-000000000903', date_trunc('month', (now() at time zone 'Europe/Zurich')::date) + e.at
+       e.t, e.f, e.s,
+       -- AN2 / AN1 condition (0057): three performers, so the organisation row may show its figures
+       (array['00000000-0000-4000-a000-000000000903', 'ab000000-0000-4000-8000-0000000000f1', 'ab000000-0000-4000-8000-0000000000f2'])[1 + g % 3]::uuid,
+       date_trunc('month', (now() at time zone 'Europe/Zurich')::date) + e.at
 from generate_series(1, 5) g
 cross join (values ('departed', 'planned', 'on_the_way', interval '8 hours'),
                    ('started', 'on_the_way', 'started', interval '8 hours 15 minutes'),
@@ -37,8 +40,27 @@ select is((select base from public.pilot_kpis((now() at time zone 'Europe/Zurich
 select is((select too_few from public.pilot_kpis((now() at time zone 'Europe/Zurich')::date) where team_id is null and kpi = 'care_share_in_visits'), false, 'five visits are enough');
 select is((select value from public.pilot_kpis((now() at time zone 'Europe/Zurich')::date) where team_id is null and kpi = 'time_correction_share'), 20.0::numeric,
   'share of visits with a time correction');
+reset role;
+-- A second team of org B whose visits were performed by two persons (AN2 part 2: the fixture's first team now has
+-- three performers, so the small team is added here).
+insert into public.teams (organization_id, id, name, region, status) values
+  ('00000000-0000-4000-b000-000000000012', 'ab000000-0000-4000-8000-0000000000b2', 'Fremdteam B2', 'Bern West', 'active');
+insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status)
+select '00000000-0000-4000-b000-000000000012', ('ab000000-0000-4000-8000-0000000000d' || g)::uuid, '00000000-0000-4000-a000-000000000251',
+       'ab000000-0000-4000-8000-0000000000b2', date_trunc('month', (now() at time zone 'Europe/Zurich')::date)::date, '11:00', '12:00', false, 'completed'
+from generate_series(1, 2) g;
+insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, occurred_at)
+select '00000000-0000-4000-b000-000000000012', ('ab000000-0000-4000-8000-0000000000d' || g)::uuid, 'ab000000-0000-4000-8000-0000000000b2',
+       e.t, e.f, e.s, ('ab000000-0000-4000-8000-0000000000e' || g)::uuid,
+       date_trunc('month', (now() at time zone 'Europe/Zurich')::date) + e.at
+from generate_series(1, 2) g
+cross join (values ('departed', 'planned', 'on_the_way', interval '11 hours'),
+                   ('started', 'on_the_way', 'started', interval '11 hours 10 minutes'),
+                   ('completed', 'started', 'completed', interval '12 hours')) e(t, f, s, at);
+select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
+set local role authenticated;
 select ok((select value is null and too_few and note like 'Zu wenig Personen%' from public.pilot_kpis((now() at time zone 'Europe/Zurich')::date)
-           where team_id = '00000000-0000-4000-a000-000000000151' and kpi = 'care_share_in_visits'),
+           where team_id = 'ab000000-0000-4000-8000-0000000000b2' and kpi = 'care_share_in_visits'),
   'a team with fewer than 3 persons shows no figure (no per-nurse inference)');
 select is((select count(*)::int from public.pilot_kpis((now() at time zone 'Europe/Zurich')::date) where organization_id = '00000000-0000-4000-b000-000000000011'), 0,
   'nothing of another organisation');

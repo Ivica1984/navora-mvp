@@ -53,6 +53,21 @@ from fx f join (values
   ('v5', 'taken',    'Übernommen aus «Offen im Team»', '00000000-0000-4000-a000-000000000906'::uuid, now() - interval '150 minutes')
 ) as x(name, change, reason, actor, at) on x.name = f.name;
 
+-- AN1 condition (0057, ADR-070): the seed's small teams would hide the organisation row of org A. Three more synthetic
+-- persons with one completed visit each this month, in two small teams of their own (no case, no client, no
+-- departure), make the hidden teams' persons number 3 or more, so the organisation figures under test may show.
+insert into public.teams (organization_id, id, name, region, status) values
+  ('00000000-0000-4000-b000-000000000011', 'ad570000-0000-4000-8000-0000000000b1', 'AN1 Fixture 1', 'Test', 'active'),
+  ('00000000-0000-4000-b000-000000000011', 'ad570000-0000-4000-8000-0000000000b2', 'AN1 Fixture 2', 'Test', 'active');
+insert into public.care_visits (organization_id, id, team_id, visit_date, time_start, time_end, billable, status)
+select '00000000-0000-4000-b000-000000000011', ('ad570000-0000-4000-8000-00000000000' || g)::uuid,
+       case when g < 3 then 'ad570000-0000-4000-8000-0000000000b1' else 'ad570000-0000-4000-8000-0000000000b2' end::uuid,
+       date_trunc('month', (now() at time zone 'Europe/Zurich')::date)::date, '06:00', '06:30', false, 'completed'
+from generate_series(1, 3) g;
+insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, occurred_at)
+select v.organization_id, v.id, v.team_id, 'started', 'on_the_way', 'started',
+       ('ad570000-0000-4000-8000-0000000000f' || right(v.id::text, 1))::uuid, (v.visit_date + time '06:00') at time zone 'Europe/Zurich'
+from public.care_visits v where v.team_id in ('ad570000-0000-4000-8000-0000000000b1', 'ad570000-0000-4000-8000-0000000000b2');
 -- Organisation level (coordination role) --------------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000905');
 set local role authenticated;
