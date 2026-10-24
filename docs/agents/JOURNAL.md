@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 12:10 · po (Product Owner)
+- **No PO PR was open** at the start. Open PRs: #284 (ORD0, `eng`, not merged), #278 and #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#285** ([PO review] SIG1), **#63, #69, #64** (D-1, SR-26, D-2); claims removed at the end.
+- **SIG1 (#285): no change.** Reviewed at 11:09 (every criterion met); still **awaiting clinical review**: no `cra` section covers 0060 (#278 is from 10:26, before #279 merged). Not accepted; #285 stays open for the acceptance.
+- **`lca` 11:55 taken up** (no status change; `eng` and `cra` inputs requested 11:09 are not yet due under the two-run rule):
+  - **D-10:** PO working view **A plus R**: every care-assistant report countersigned, and the countersigner may return it unsigned with a reason under `lca` conditions (a)-(c). B is a post-pilot hypothesis (needs the licence holder's head of nursing, D-12, and a legal adviser); C is out. D-29's real-data gate is a precondition for every option.
+  - **D-7:** rulesets and push protection first (no legal question; the owner applies them once `eng` names the checks). Visibility hinges on **D-1**. B reworded: private before real personal data in any environment the repository describes, the live project included.
+  - **D-15:** the Engineering draft (by po) is aligned with condition (iii): `requires_2bis` gates a3 and the *needs assessment* for b13, b14 and c2, not those services after assessment. One added question for the Clinical Owner with the same approval (keep as worded, or block entirely until D-29); the PO recommends as worded. Status unchanged (`awaiting-approval: clinical`). `cra` is asked for a hazard view on it.
+- **Packages D-1, SR-26, D-2 written** (`inputs-requested`; Engineering and `lca` asked, no `cra`: no care rule).
+  - D-1: the fact question first (are the live rows real people?); working view: rotate the key and enable leaked-password protection now whatever the answer; nothing deleted before the answer or a legal clearance. Owner-executed (rule 5).
+  - SR-26: working view A (move to the other app's project, then delete), by the owner after D-1.
+  - D-2: working view one EU (Swiss if offered) staging Supabase project, a protected EU app host, deploy from CI, synthetic data only; the design is po's once `lca` clears it, the paid plan and the account actions are the owner's. D ("no staging until the pilot partner") rejected: SIG1/SIG2 and the hosted jobs must be shown on a hosted clock before any real client.
+- **Challenge:** the founder as the hand-operator of every protective setting (D-7, D-1, SR-26, D-2, VAPID key, hosted job checks). From scratch: settings declared in the repository and applied by CI after one owner approval (a GitHub environment only the owner releases), verified and recorded by the same run; agents still hold no live or admin rights. Row in `NEXT_CAPABILITY.md`; brief after D-2 and D-7.
+- No new brief: ORD0 (in review, #284) and SIG2 are approved. ROADMAP unchanged (no status change). Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** unchanged since 10:11 (no new escalation). owner: D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1. Clinical Owner: D-28, D-31, D-3, D-30, D-16, D-15.
+- **Next agent (eng):** ORD0 (#284), then SIG2. Inputs for D-10, D-7, D-8 (requested 11:09) and D-1, SR-26, D-2 (requested now; questions in each package). **(cra):** review 0060 (SIG1); D-10 *Clinical impact*, including whether R is safer than "countersign, then correct"; D-15 added question. **(lca):** D-8; D-1, SR-26, D-2. **(po):** next packages D-26, D-23, D-17.
+
 ## 2026-10-24 11:55 · Legal & Compliance Agent (lca)
 - **Reviewed D-10 and D-7 (first input) and re-checked D-15** (changed by the PO at 10:11; deferred from 10:47). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-checked:** D-22, D-18 (unchanged since 06:10; no new evidence; the lexfind/fedlex request was withdrawn unanswered again). D-8 waits for the next run (three-package limit).
