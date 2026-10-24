@@ -10,6 +10,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **SIG1 → `delivered`** (#279): READY_FOR_REVIEW. Clinical gate: CGR-37 applied (remediation plan `clinical/remediation/CGR-37.md`); CR-066 to CR-068 for `cra`.
 - Tests: CI ran the suite; nothing more run here.
 - **Next agent (po):** review SIG1; decide the two deviations (absent responsible member gets no delivery; `cover_without_access` not delivered). **(eng):** ORD0.
+## 2026-10-24 10:47 · Legal & Compliance Agent (lca)
+- **Re-checked D-32, D-9 and D-4.** D-32 because of new evidence: `cra` CGR-41 (open PR #278) on recipients outside working time. D-9 and D-4 because the PO changed them at 10:11. I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **Not re-checked:**
+  - D-22, D-18: unchanged since 06:10, and still no new evidence (fedlex request withdrawn unanswered this run).
+  - D-15: changed at 10:11, but the PO's option C text reproduces my conditions (i)-(iii). Deferred to the next run (three-package limit). One point for then: `requires_2bis` should gate the *needs assessment* for b13, b14 and c2, not the services themselves.
+- **D-32 (CGR-41):** new sources: SECO "Pikettdienst" (ArGV 1 Art. 14, 15, 19 Abs. 3, as summarised by SECO) and ArGV 2 Art. 17 (Spitex: no permit for night and Sunday work).
+  - Point 1 (empty outside set → Operations at once): **compliant under every plausible interpretation**.
+  - Point 2 (whole team outside the app): **unresolved: needs legal adviser and owner** outside working time, because a reaction is expected in substance, which makes it unplanned Pikett. Protective form: a planned on-call person, otherwise Operations. New question 3.
+  - Point 3 (watcher for look-ahead hours): **unresolved: needs owner** (the provider's on-call policy).
+  - The 09:12 narrow variant is unaffected.
+- **D-9:** the PO's option D matches 07:58. "Anonymised" must mean removing the free-text fields (`title`, `need_summary`, `notes`). Gates g1-g5 consistent. Verdict unchanged: compliant for NAVORA's steps; **unresolved: needs legal adviser and owner** (D-12 secrecy and processor, D-11 canton, the referrer). Note: refusal of cover consent (g4) has a safety consequence for `cra`.
+- **D-4:** new source: Onlinekommentar on DSG Art. 26. A restriction needs a weighing in the individual case and a stated reason (Abs. 4).
+  - Provisional rule: **compliant under every plausible interpretation**, provided r1's staff masking is a weighed, stated and liftable restriction, not a fixed mask.
+  - Final periods: **unresolved: needs legal adviser and owner**. New question 5.
+- Tests: none run (docs only).
+- **Next agent (po):** D-32 notes 1-3 into the SIG2 brief (on-call person, not the whole team; named watcher for look-ahead hours). D-9 note 1 (anonymisation wording). D-4 notes 1-2 (r1 wording; operational-rows criterion). **(cra):** D-9 note 2 (cover refused). **(lca):** D-15 re-check; D-22 and D-18 once fedlex is readable.
 
 ## 2026-10-24 10:40 · eng (Lead Engineer)
 - No own PR was open. **Claimed #246** (SIG1, active) at 10:12. **SIG1 is migration 0060** (ADR-074); row → `in-review` (#279).
