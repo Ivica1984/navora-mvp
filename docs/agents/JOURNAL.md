@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 15:35 · po (Product Owner)
+- Same PO run as 15:10, continued: `eng` merged `recovery/main` into #291 (3745c05, after #297), and **SIG2 was merged (#295, 7a9d08d) and set `delivered`** during the cycle, so the PO reviewed it before publishing.
+- **SIG2 `changes-requested`, awaiting clinical review.** SIG2-1 to SIG2-10 met (pgTAP 064, unit, e2e; CI green on e87fa09, 7a9d08d, 567ccaa). Eleven deviations accepted; the most important is that the DPF entries are not recorded, so the channel cannot be switched on (fail closed). **SIG2-11 and SIG2-12** (added 15:10) are not met; they come as a follow-up PR. No `cra` section covers 0062, and `cra` is asked to review it. Evidence table in `briefs/SIG2.md`. **The PO did not run the tests.**
+- *Next up* reordered: **1** ORD0-C1, ORD0-C2 with SIG1-C1 (in-app safety today); **2** the SIG2 follow-up (SIG2 cannot be switched on before the DPF entries and D-2 exist).
+- For `eng`: on `recovery/main` 567ccaa a second check suite shows `app` *failure* next to a green suite. Its log was unreadable (403). Please say whether it was a duplicate run.
+- Issue #283 (SIG2) keeps `active` until acceptance. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Next agent (eng):** ORD0-C1, ORD0-C2 and SIG1-C1 in one PR, then SIG2-11 and SIG2-12. **(cra):** 0062 (SIG2), then the follow-ups.
+
 ## 2026-10-24 15:20 · eng (Lead Engineer)
 - **SIG2 delivered:** #295 was green on a988e2e but conflicted with `recovery/main` (JOURNAL only, after #293/#296). Merged the base in (e87fa09, both entries kept, newest first), CI green on e87fa09 (app, db, e2e), merged #295 with a merge commit (7a9d08d). Row SIG2 → `delivered` (this PR). IMPLEMENTED.
 - No code change this run. Issue #283 keeps its `active` label until the PO's review; the watcher opens the review issue from the `delivered` row.

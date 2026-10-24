@@ -51,3 +51,41 @@ D-32 (po-decided; items 1-8), D-33 (`owner`), CGR-37, CGR-41 (`cra` 10:26, PR #2
 - How to test SIG2-4/SIG2-5 deterministically in pgTAP (test transport, fixed clock as in DAY-1).
 - Endpoint-host allowlist: the exact hosts used by FCM and Windows push today; how a changed host is noticed (fail closed).
 - Whether SIG2-6 is better built as a shifted window in `derived_exceptions` or as an early raise in the writer; either way stricter only (ADM1-R direction).
+
+## PO review — 2026-10-24 15:35: **`changes-requested`** (SIG2-11, SIG2-12), awaiting clinical review
+
+#295 (head e87fa09, merged as 7a9d08d; migration 0062, ADR-076; row `delivered` by #297). CI green on the head e87fa09, on the merge commit 7a9d08d and on `recovery/main` 567ccaa (read through the GitHub API). On 567ccaa a second check suite shows `app` *failure* next to a green suite for the same commit; its log was not readable (403), so `eng` is asked to confirm whether that was a duplicate push run. **The PO did not run the tests.**
+
+**Clinical review gate (README).** SIG2 is in scope (patient safety). The newest `cra` section (14:27, PR #294) treats SIG2 as approved and unstarted and adds CGR-42 to the brief; **no section covers 0062**. `cra` is asked to review 0062.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| SIG2-1 opt-in, member information, vendor allowlist, switch-off deletes | met | `/settings`; `register_push_subscription`; pgTAP 064 "an Apple endpoint is refused", "a Mozilla endpoint is refused", "a look-alike host is refused", "plain http is refused", "nothing was stored for a refused endpoint", "a Google (FCM) endpoint is stored", "a Microsoft (Windows push) endpoint is stored", "her subscription is deleted", deletion audited without endpoint |
+| SIG2-2 test delivery and per-member status | met, deviation 2 | pgTAP 064 "opting in requests one test message per device", "/team shows per member active / not active (a failed last send is not active)", "team, member, name and active only" |
+| SIG2-3 off by default, admin only, DPF entries | met in code; **entries not recorded** (deviation 1) | pgTAP 064 "the channel is off by default", "no vendor with a recorded DPF entry → the channel cannot be switched on", "a nurse cannot switch it on", "the migration records no DPF entry it could not read (fail closed)" |
+| SIG2-4 outside recipients within planned working time; per-row result | met, deviation 8 | pgTAP 064 "responsible → handed to the sender; colleague outside her planned working time → in the app only", "a colleague inside her span", "on a day without planned visits she has no planned working time", "no subscription → not_active" |
+| SIG2-5 nobody reachable → Operations at once | met, deviations 3 and 4 | pgTAP 064 "zero outside recipients → Operations has the delivery at once", "every send failed → … escalated at once", "not reported within 2 minutes → failed (fail closed)", "one recipient outside the app → no immediate Operations delivery" |
+| SIG2-6 watched hours; look-ahead raised earlier | met, deviation 9 | pgTAP 064 "the administrator records watched hours", "overlapping periods are refused", "a nurse cannot change them", "a window opening at 08:00 (inside) opens as today" and the outside case |
+| SIG2-7 untaken step to Operations only | met | pgTAP 064 "the untaken step goes to Operations, never to the whole team", "outside the app to the Operations member who opted in" |
+| SIG2-8 fixed content, records, display never claimed | met, deviations 6 and 7 | pgTAP 064 "no free-text or payload column on the push tables", "send time stored; no tap yet; display is never claimed", tap recorded once; unit `push-webpush`; `/field?von=push` without ID |
+| SIG2-9 negative cases, RLS, secret | met | pgTAP 064 "RLS is on for every SIG2 table", "endpoint and keys are not readable by any user", "only the sender (service_role) claims and reports", "a P2 overdue visit has no delivery", "nothing outside for another organisation", "a coach without team is not a recipient" |
+| SIG2-10 AN2 measure 10 shares | met | 0062 patch of `pilot_hypotheses` (`signal_outside_sent_share`, `signal_taken_within_threshold_share`); pgTAP 059 count 39 → 41 (no assertion weakened, per #295) |
+| SIG2-11 evaluator liveness (CGR-42; added 15:10) | **not met** (added after #295 was ready) | no run record or warning in 0062 |
+| SIG2-12 Operations outside the app only within watched hours (added 15:10) | **not met** | pgTAP 064 "outside the app to the Operations member who opted in" sends at any hour |
+
+**Deviations (decided by the PO):**
+1. *DPF entries not recorded; channel cannot be switched on until a reviewed migration records both with the date read* — **accepted**: fails closed as the brief prescribes. Recording them is a fact check (owner or `eng` with a browser), not a legal question (D-32).
+2. *"Active" = last send succeeded* — **accepted** (stricter).
+3. *"kein Empfänger" stored on the signal, not as a per-row result* — **accepted**: the rows still say why each recipient got nothing.
+4. *2-minute sender timeout (CR-072)* — **accepted** as an engineering fail-closed bound, not a response time (D-28 untouched).
+5. *Switching off fails pending rows (`channel_off`)* — **accepted**.
+6. *The tap marks the caller's sent, untapped rows of the last 24 h* — **accepted**: the message carries no ID by design.
+7. *The service worker shows the constant text and ignores the payload* — **accepted** (stricter).
+8. *Working-time span counts visits she is responsible for or covers, any status except cancelled* — **accepted**.
+9. *SIG2-6 shifts only `visit_uncovered_hospital`* — **accepted**: the brief named only it; `visit_uncovered` is P2 by default and not delivered.
+10. *A member in several organisations registers under the first one with the channel on* — **accepted for the pilot** (one organisation); revisit before a second organisation shares members.
+11. *Production sending needs D-2; never tried against FCM or WNS* — **accepted**: until then a switched-on organisation's P1 goes to Operations at once (SIG2-5 fail closed). A first real delivery on staging is a go-live check, not a criterion.
+
+**Business value and care model.** The software can now tap the right nurse on the shoulder instead of someone watching a screen. That is the step that can retire SIG1-8's screen-watcher once the Clinical Owner sees SIG2-10 evidence. It is not live yet: DPF entries, D-2 and staging are missing. **Architecture:** sender without a new dependency, endpoints readable only by the sender, fixed text: in line with the Handbook (privacy by design, no client data leaves NAVORA).
+
+**Result: `changes-requested`** (SIG2-11, SIG2-12; follow-up PR on SIG2, *Next up* 2), and awaiting clinical review on 0062. Acceptance follows when both are merged with green CI and a `cra` section covers 0062 and the follow-up without a blocking finding.
