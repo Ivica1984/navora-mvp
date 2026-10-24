@@ -4,6 +4,42 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 03:10 · po (Product Owner)
+- **No PO PR was open** at the start (last PO PR #242 merged). **No delivery to review:** no item `ready-for-review`, `delivered` or newly `in-review`; AN2 part 1 (#243, `eng`) is open, not merged, so not reviewed yet. No open `agent:po` issue, nothing claimed.
+- **`cra` Clinical impact copied verbatim** into `decisions/D-22.md`, `D-18.md`, `D-28.md`, signed "cra 2026-10-24 02:26 (copied from `reports/CLINICAL_GOVERNANCE.md` by po)": confirmed `cra` input, not a PO draft. **`lca` input for D-31, D-3, D-29** arrived with #241 (merged 03:10). Read; no status change: Engineering input is missing in all six (requested 01:15 and 02:20; `eng` has had one run since, so the PO does not draft it yet), and `cra` input is missing for D-31, D-3, D-29.
+- **PO draft directions (not recommendations, confidence Low):** D-22: care b1 as built with a recorded GP information step; billing (once invoicing exists) the set `lca` found compliant under every interpretation (a1, b2, c2); relaxations stay `legal` questions 1-3. D-18: option C as built; product rule from `cra` adopted: no billing rule feeds back into planned minutes; AN2 shows the minute distribution around 5/10/15 once real data exists.
+- **CGR-36, CGR-37, CGR-38 decided (product authority; no threshold, deadline, content or duration rule invented):** CGR-37 → **SIG1** approved (Next up 3): a P1 safety signal is delivered to the responsible member and her team, shown without a reload, taken by one tap (audited), Operations only when nobody takes it within a PROVISIONAL 15 minutes; the signal still closes only when its cause ends (CR-041). Go-live condition SIG1-8 in `CARE_OPERATING_MODEL.md`: until delivery outside the app (new **D-32**, `po` with `lca`, tier 2), the pilot plans visits only at hours a named person has the app open. CGR-36 and CGR-38 → **ORD0** approved (Next up 4): "Hausärztin/Hausarzt informiert" (date, channel code, no free text) closes the `inform_gp` task; a running case with B care and an order `present` without end date raises a P3 exception, not closable by hand. Intake keeps accepting open-ended orders (the exception prompts, it does not block).
+- **Packages INDEX 7, 8, 10 written:** D-30 (correction after the author left; `eng`, `cra`, `lca`), D-16 (quality events, hold, lift role; `eng`, `cra`, `lca`), D-12 (legal entity; `eng`, `lca`; owner approval required in any case). Status `inputs-requested`; one comment each on #157, #62, #58. All Low; strict defaults stay. D-32 inserted at INDEX 9 (tier 2, CGR-37).
+- **Challenge:** why does a dispatcher watch an operations screen? From scratch the signal knows the visit, its nurse and her team; it goes to them. Row added (SIG1); hypothesis: most P1 signals are taken by the team within 15 minutes, AN2 measure 10 decides whether the Operations fallback can shrink. Impact ledger rows SIG1, ORD0.
+- Nothing escalated. **Waiting on people (unchanged):** owner names the Clinical Owner (G-1). Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Next agent (po):** review #243 once merged; D-22/D-18 recommendations once `eng` answers (draft Engineering impact after `eng`'s second run without an answer); packages D-32, D-11, D-15. **(eng):** finish AN2 part 1 (#243); COORD5; *Engineering impact* in D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-12; then SIG1, ORD0 (parallel allowed). **(cra):** *Clinical impact* in D-31, D-3, D-29, D-30, D-16. **(lca):** D-22, D-18 re-check (new `cra` evidence); D-30, D-16, D-12; D-32 once packaged.
+
+ENGINEERING BRIEF
+- **Capability:** SIG1, safety signals reach a person, nobody watches a screen.
+- **Why:** every visit safety signal is pull-only (CGR-37); a P1 overdue visit at 07:15 reaches nobody until someone opens `/team` or OPS1.
+- **Business outcome:** no control-room or dispatcher role is needed to run safely; Operations handles only untaken signals.
+- **Care outcome:** a missed or stuck visit is acted on by the people of the visit, with a recorded time to response.
+- **Expected nurse outcome:** she sees an urgent signal for her visits in her own tool without reloading and takes it with one tap.
+- **Expected team outcome:** the team, not a coordinator, takes its signals; everybody sees who took one.
+- **Expected patient outcome:** a missed visit (medication, nutrition, wound care, a fall) is noticed within minutes, not hours.
+- **Acceptance criteria:** `briefs/SIG1.md` SIG1-1 to SIG1-8.
+- **Dependencies:** none open for the in-app part; outside the app D-32; response duties and thresholds D-28 (`clinical`, unchanged).
+- **Priority:** Next up 3, after AN2 and COORD5.
+- **Implementation recommendation:** a delivery table written by a scheduled evaluation of the P1 transition (minute cadence, testable in pgTAP by calling the evaluator), RLS by organisation and recipient, `take_signal` command (audited, idempotent), polling or realtime on `/field` and `/team`; own ADR.
+
+ENGINEERING BRIEF
+- **Capability:** ORD0, the doctor link that must not get lost (GP informed, order without end date).
+- **Why:** the `inform_gp` task cannot be completed (CGR-36); an order `present` without an end date never prompts a renewal while B visits keep being planned (CGR-38).
+- **Business outcome:** B care stays billable because renewal is prompted; no permanent noise tasks.
+- **Care outcome:** the link between home care given without an order and the client's doctor is on the record.
+- **Expected nurse outcome:** one tap records that the doctor was informed; no task that can never be closed.
+- **Expected team outcome:** open-ended orders are visible to the team that owns the case, without a coordinator.
+- **Expected patient outcome:** the doctor knows about A/C care; B care does not run for months without medical review.
+- **Acceptance criteria:** `briefs/ORD0.md` ORD0-1 to ORD0-6.
+- **Dependencies:** none open; deadline, content and duration rules stay D-22.
+- **Priority:** Next up 4; may be built in parallel with SIG1 (small).
+- **Implementation recommendation:** a separate team command `record_gp_informed` (so `complete_case_task('inform_gp')` stays refused), a P3 rule in `derived_exceptions`, pgTAP with the `cra` case set, HAND1 entry.
+
 ## 2026-10-24 02:55 · eng (Lead Engineer)
 - **Claimed #205 (AN2)** at 02:12. **AN2 part 1 = PR #243** (`feat/an2-part1-cgr35-day1r`), the preconditions the PO ordered first:
   - **CGR-35** (migration 0056, pgTAP 057, ADR-069): `reschedule_visit` stores `responsible_absent` on the `moved` row when the CGR-32 condition holds before the move; immutable, no parameter, audited by a new trigger for `moved` rows; HAND1 and `/team` show "nicht durchgeführt: zuständige Person abwesend gemeldet". IMPLEMENTED.
