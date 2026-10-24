@@ -8,6 +8,38 @@ updated: 2026-10-24
 
 # AN2 — Pilot hypotheses measured from events, not tallied
 
+## PO review — 2026-10-24 07:10: part 2 (#255) meets its measures; AN1 condition met; AN2 stays approved, part 3 after ADM1-R
+
+**Delivery reviewed:** #255 (`eng`, migration `0057_an2_pilot_hypotheses`, pgTAP `059_an2_pilot_hypotheses` (57 assertions), unit `analytics-hypotheses`, e2e `tests/e2e/analytics.spec.ts:38-72`, ADR-070), merged as `c1c58b3`. CI green on head `88eeaeb` (run 40061316499) and on the merge commit `c1c58b3` (run 40061609501: app, db incl. pgTAP, e2e), read through the GitHub API. **The PO did not run the tests**; evidence is the CI result, the assertion labels of pgTAP 059 and the e2e spec, read in the repository. The engineering row stays `in-progress` (part 3 PLANNED), so this is a part review, not acceptance of AN2.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Section "Pilot-Hypothesen", same access as AN1, value, period, base, "zu wenig Daten" below 5 | met for part 2 | one read model `public.pilot_hypotheses(p_month)` (0057); pgTAP 059 "3: a base below 5 says zu wenig Daten", "5: a base of 5 is enough"; every measure in every scope, base 0 without events (059 "every measure of this part appears, also in a month without events") |
+| Never per nurse; AN1 suppression; no client, free text or health data | met | 059 "a two-person team shows zu wenig Personen on every AN2 row, with neither value nor base", "and so does a one-person team", "the read model has no per-person, client or visit columns", "details are fixed reason codes only", "no report text, hold reason or correction reason reaches a row" |
+| Measure 3 coordinator ends | met | 059 "3: base = not-completed ends from started or paused", organisation base 3 |
+| Measure 5 correction rounds | met | 059 "80 per 100", "median ... = 25", "one has the same snapshot hash and summary (signed again with no change)" |
+| Measure 6 open corrections | met | 059 "three corrections stayed open past the report_not_final threshold", median 15 h, "one ended by withdrawal (CGR-24-W)", "one ended by signature", threshold named provisional (D-28) |
+| Measure 7 not-billable facts, with AN2-M7 | met | 059 "7 / AN2-M7: the total counts f1 and f3; f2, not billable only below the minimum, is not in it", "below_minimum has its own row", "with the fixed note", "f1 became billable 2 days later" |
+| Measure 9 long or fragmented visits (CGR-23) | met, with a limitation | 059 "9: one visit with more than two pauses", "l1 was open past planned end + visit_stuck threshold + P1 escalation"; uses **today's** threshold for past visits (no history of rule values; ADR-070) |
+| Measure 11 holds | met | 059 "11: median hours from hold to lift (5, 9) = 7", "one hold still open" |
+| Measure 12 late billing facts | met | 059 "12: one basis_changed fact per six facts" and the late-share assertion |
+| pgTAP per measure (counts and does not count) | met for 3, 5, 6, 7, 9, 11, 12 | 059 assertion list above |
+| Suppression tested | met | 059 two- and one-person team rows; January organisation rows hidden |
+| Negative (other team, other organisation, anon) | met | 059 "a nurse sees no organisation row", "and no row of a team she is not in", "a user of another organisation sees nothing of org B", "anon cannot execute the read model", "anon gets nothing" |
+| e2e at 390 px, base and period on every row, no overflow | met | `analytics.spec.ts:39-60` (viewport 390, `scrollWidth - innerWidth <= 0`), :63-72 (nurse sees own team only) |
+| Measures 1, 2, 4, 8 (with AN2-M8a), 10 | open | PLANNED, part 3 |
+| **AN1 condition (PO 2026-10-22 17:15):** organisation row suppressed when it would reveal a hidden team of one or two persons | **met** | 0057; pgTAP 059 "AN1: one visible three-person team and one hidden one-person team: no organisation value", "two hidden teams of two persons each: the organisation value shows", "open P1 exceptions ... are not hidden" |
+
+**Deviations (decided):**
+1. *Suppressed AN2 rows hide the base too* (brief: base on every row). **Accepted:** a base of 1 or 2 on a hidden team is itself the information suppression protects.
+2. *pgTAP 032's last assertion replaced, fixtures of 027, 030, 033, 034, 048 widened to three performers.* **Accepted:** 032 asserted the opposite of the PO's AN1 condition; the fixture change keeps those files testing what they tested.
+3. *The AN1 condition was due in 0043 and 0048 and came only now.* **Accepted as closed;** no rework.
+4. *Measure 9 uses today's threshold for past visits.* **Accepted for the pilot, with a condition:** while CGR-39 is open an organisation could have lowered the threshold; **AN2-M9a** (with ADM1-R): the measure-9 row names the threshold value used ("Schwelle heute: … h") so a reader can see it. Rides in part 3.
+
+**Business and care value.** Part 2 turns seven hypotheses from the challenge table into numbers without anybody tallying: correction rounds (administration), coordinator ends (hierarchy), hold to lift (who waits on whom), late billing facts. This is the evidence base for removing coordination layers, which is the product. The AN1 privacy gap is closed. Alignment with the Architecture Handbook: one read model from events, read-only, team-scoped; no new state.
+
+**Order:** ADM1-R (CGR-39, S1) goes first; AN2 part 3 (measures 1, 2, 4, 8 with AN2-M8a, 10, and AN2-M9a) follows.
+
 ## PO review — 2026-10-24 04:10: DAY-1-R1–R3 met (#243); DAY-1 accepted; AN2 measures next; AN2-M8a
 
 Reviewed #243 (AN2 part 1, head afd1d11, CI run 40049445817 green; merged as 56c8756, CI run 40053036646 green on the merge commit, checked through the API). The PO read pgTAP 058 (15 assertions) and the ADR-068 addendum. **The PO did not run the tests.** CGR-35 and ABS1-C7 are reviewed in `briefs/ABS1.md` 04:10.
