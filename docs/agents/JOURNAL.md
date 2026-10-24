@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 14:40 · po (Product Owner)
+- **PO PR #291 was open** (13:15 cycle): CI green on fd2ebe2, then conflicted with `recovery/main` in `JOURNAL.md` (after #293). Merged `recovery/main` in (b83105c, both entries kept, newest first); CI green on b83105c (app, db, e2e). **Merging #291 was refused by this session's permission check**, so this run's work is added to #291 instead of a second PO PR. Open PRs otherwise: #278 and #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#132, #111, #66** (D-26, D-23, D-17); claims removed at the end.
+- **Reviews: no change.** SIG1 (#285) and ORD0 (#292) stay *every criterion met, awaiting clinical review*: no `cra` section covers 0060 or 0061 yet (#259, #278 predate both). Not accepted.
+- **`lca` 13:50 taken up (no status change):**
+  - **D-2:** the five `lca` conditions are now the design (specific region, Zurich if the same cost; nothing from the live project; test-domain or informed testers; EU function region; SIG2 on staging only for D-32 push services). Host **B (Render Frankfurt)** unless `eng` shows Vercel's listing covers the Swiss-U.S. DPF. ADR-011 note: staging is no production clearance. The design becomes the PO's decision once `eng` gives cost and region facts (requested 12:10; two-run rule not reached).
+  - **D-29:** B now says the confirmer acts as someone the licence holder authorised; the owner ask reworded ("the licence holder remains responsible … and authorises who may confirm"); no option changed, still `awaiting-approval: owner`.
+  - D-30: billing block for disputed time confirmed compliant; nothing to change.
+- **Packages D-26, D-23, D-17 written** (`inputs-requested`):
+  - **D-26** (E, L): working view C (an Edge Function holds the service-role key; the app never sees it) or B (server-only invite call), audited and rate-limited, **staging only until D-1 and D-2**; setting the key is the owner's (rule 5). Unblocks D-20 (teams invite colleagues).
+  - **D-23** (E, L): no labour-law rule assumed; A (no record) in force; target B (derived day, confirmed by the nurse once a day) only if `lca` shows it admissible; C (proposal only) and D (team-level North Star statistic only) as fallbacks.
+  - **D-17** (E, C; L on one point): working view B (fixed categories with yes / no / unknown plus a note, on every visit card, changes in HAND1); clinical categories only from the Clinical Owner; organisational part (access, emergency contact, language) first if `cra` confirms it is no clinical rule; reuse D-15's readiness fields; nothing diagnostic (D-34).
+  - One comment per issue names the roles asked.
+- **Challenge:** the intake coordinator's phone briefing before a first visit or a cover. From scratch: recorded once at intake, structured, on every card. Hypothesis row with a threshold (fewer than 1 in 5 first visits and covers need a briefing call; two-week tally before and after).
+- No new brief: SIG2 is approved and in progress (#283). ROADMAP: line 24.10. 14:40. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** unchanged since 13:15. **owner: D-1 (urgent, one-line fact answer)**, D-22, D-18, D-29 (reworded ask), D-11, D-12, D-33, D-9, the D-4 final periods, G-1; Clinical Owner: D-28, D-31, D-3, D-30, D-16, D-15. **Owner, process:** #291 needs a merge by a person or a run allowed to merge.
+- **Next agent (eng):** SIG2; ORD0-C1. Inputs: D-2 (cost; Zurich on the plan; Vercel Swiss-U.S. DPF, function and log regions), D-26 (questions 1-6), D-23 (questions 1-5), D-17 (questions 1-6), plus the earlier D-1, SR-26, D-8, D-10, D-7, D-34. **(cra):** 0060, 0061; D-17 *Clinical impact*; D-10; D-34. **(lca):** D-26, D-23, D-17 (one point); D-34. **(po):** next packages D-6, D-19, D-20.
+
 ## 2026-10-24 13:50 · Legal & Compliance Agent (lca)
 - **Reviewed D-29 and D-30** (tier 2; both changed since my last section: PO 07:10 and 09:12) and **wrote the D-2 input** (first input; requested 12:10). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not reviewed:** D-22, D-18 (no change since 06:10; no new evidence; fedlex still not reachable). D-34 (new package from `lca`'s D-8 point) is only in open PO PR #291, not on `recovery/main`: next run once merged.
