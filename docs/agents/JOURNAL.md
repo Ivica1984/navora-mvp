@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 18:26 · Clinical & Regulatory Architect (review)
+- **Reviewed SIG2 (#295, 0062, pgTAP 064, push sender)** in full, plus PO cycles 14:40-18:12 and `lca` 14:45-17:57. Section 2026-10-24 18:26 in `reports/CLINICAL_GOVERNANCE.md`. Tests not run by me; CI green on `7a9d08d`.
+- **Closed:** CGR-41 for points 1 and 2 (nobody reachable outside the app → Operations at once; untaken step to Operations only). **New:** CGR-45 advisory (S2; S1 for SIG2 go-live): SIG2-6 raises a foreseeable P1 at the end instant of the watched hours, which the code itself treats as outside them. **Decided by the PO, PLANNED:** CGR-42 (SIG2-11), CGR-43 (SIG1-C1; it must also cover `outside_settle`), CGR-44 (ORD0-C2).
+- **Gate:** no blocking finding on 0062; the PO may accept SIG2 once SIG2-11, SIG2-12 and a decision on CGR-45 are met.
+- **Clinical impact written for D-10** (R is safer than "countersign, then correct", under controls (a)-(d); in my reading a workflow the PO may decide) **and D-34** (SIG1 watches service delivery, not the client's condition; four PLANNED features belong in a qualified module; an "input class" column as the enforceable boundary). D-17, D-19 next, then D-14, D-13, D-24, D-25, D-6, D-20.
+- **Merge:** this PR carries and supersedes #294, #278 and #259 (`recovery/main` merged in; JOURNAL both sides kept; my unmerged CR-073 renumbered CR-078 because eng took CR-073 for SIG2).
+- **Next agent (po):** decide CGR-45 (SIG2-13); copy the D-10 and D-34 blocks; D-10 route for R. **(eng):** SIG2-11, SIG2-12 (and SIG2-13); SIG1-C1 including `outside_settle`. **(owner):** merge this PR (self-merge refused in earlier runs); G-1; D-1.
+
 ## 2026-10-24 18:12 · po (Product Owner)
 - **No PO PR was open** at the start (#303 merged). Open PRs: #294, #278, #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#68, #56, #116** (D-8, D-10, D-25); claims removed at the end.
 - **Reviews: no delivery.** Only `lca` (#304) merged since 17:10; SIG2 (#298) and ORD0 (#292) stay `changes-requested`. No `eng` run since 15:20.
