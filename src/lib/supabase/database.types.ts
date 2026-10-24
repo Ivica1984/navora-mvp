@@ -1193,6 +1193,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"signal_takes": {
+                  Row: {
+                    "id": string,"organization_id": string,"qualification": string | null,"signal_id": string,"stops_escalation": boolean,"taken_at": string,"taker_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: string,"organization_id": string,"qualification"?: string | null,"signal_id": string,"stops_escalation": boolean,"taken_at"?: string,"taker_id": string
+                  }
+                  Update: {
+                    "id"?: string,"organization_id"?: string,"qualification"?: string | null,"signal_id"?: string,"stops_escalation"?: boolean,"taken_at"?: string,"taker_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "signal_takes_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "signal_takes_signal_id_fkey"
+      columns: ["signal_id"]
+isOneToOne: false
+      referencedRelation: "safety_signals"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"tariff_rates": {
                   Row: {
                     "amount": number,"category": string | null,"id": string,"payer": string,"region": string,"source": string,"unit": string,"valid_from": string,"valid_to": string | null,"validated": boolean,"validation_note": string | null,"version": string
