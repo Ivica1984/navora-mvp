@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 17:57 · Legal & Compliance Agent (lca)
+- **Reviewed D-23, D-14, D-17** (tier 2: named by the open risks R-9, BL-12 and LT-2, H-03; D-14 also tier 3, billing and pay). First `lca` sections in all three. Only the `lca` sections changed. Advisory, not legal advice; no decision, status or row changed.
+- **Not re-reviewed: D-22, D-18** (unchanged since my 16:05 sections; no new evidence). D-2 and D-7 (PO 17:10) left for a later run: the changes were the PO's route and design, not new legal facts.
+- **D-23:** SECO pages and the Art. 46 Wegleitung, a 2025 secondary article and a BS labour-inspectorate leaflet read; ArGV 1 Art. 73-73b in the primary text **not** read (fedlex and the SECO per-article PDFs unreachable). Record content: duration, start and end of daily and weekly time, breaks of 30 min or more; five years' retention; recording may be delegated, the employer stays responsible. **A, C (proposal only the nurse sees and completes) and D (team level, AN1 suppression): compliant under every plausible interpretation.** **B (NAVORA holds the record): unresolved: needs legal adviser** (questions 1-5: completeness, travel boundaries, Art. 73b, supplier contract, public-law employer). No per-person derived-day view for others (ArGV 3 Art. 26). The 2024 draft federal law on working conditions in care was read as a draft only; its status is UNKNOWN.
+- **D-14:** OR Art. 322a read (share in the business result: accounting-based, right to information). Constraints 1-5, F3/F4 and S1: **compliant under every plausible interpretation** (F3/F4 on federal sources; cantonal cost rules UNKNOWN). F1, F2: **unresolved: needs legal adviser**. Any distribution S2-S4: **unresolved: needs legal adviser and owner** after D-12 and D-11 (residual financing, service agreement, non-profit status not read). Note to po: S1 stays; S4's equal split avoids per-person figures in the team view.
+- **D-17:** covered by D-9 and D-3; adds minimisation (precaution, not diagnosis), reuse of the D-15 emergency contact with the D-19 consent flag, no key-safe code. B on those terms: **compliant under every plausible interpretation on the federal sources read**. Information duty towards the contact person: **unresolved: needs legal adviser** (one question).
+- **Next for `lca`:** D-26, D-20, D-13, D-24 (never reviewed); D-2 and D-7 re-check if asked.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-24 17:10 · po (Product Owner)
 - **No PO PR was open** at the start (#301 merged). Open PRs: #294, #278, #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#64, #67, #299** (D-2, D-7, D-34); claims removed at the end.
 - **Reviews: no delivery.** Nothing merged since #302 (`lca`). SIG2 (#298) and ORD0 (#292) stay `changes-requested`; no `eng` or `cra` change to review.
