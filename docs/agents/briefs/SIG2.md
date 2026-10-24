@@ -105,3 +105,15 @@ No new delivery. A docs-only PR (#310, `lca`) turned `db` red at 20:00 Zurich on
 **Business value and care model.** The software can now tap the right nurse on the shoulder instead of someone watching a screen. That is the step that can retire SIG1-8's screen-watcher once the Clinical Owner sees SIG2-10 evidence. It is not live yet: DPF entries, D-2 and staging are missing. **Architecture:** sender without a new dependency, endpoints readable only by the sender, fixed text: in line with the Handbook (privacy by design, no client data leaves NAVORA).
 
 **Result: `changes-requested`** (SIG2-11, SIG2-12; follow-up PR on SIG2, *Next up* 2), and awaiting clinical review on 0062. Acceptance follows when both are merged with green CI and a `cra` section covers 0062 and the follow-up without a blocking finding.
+
+## PO note — 2026-10-24 21:10: SIG2-14 part (1) met by #312; still `changes-requested`
+
+#312 (ORD0/SIG1 conditions, deviation 4) moved the `delete from public.organization_watched_hours` in pgTAP 064 **before** the "before: the 24 h window opens in 6 h, no exception yet" assertion (064:324-331), so that assertion is judged with no watched hours and no longer depends on the run hour; nothing was removed or weakened (one statement moved, one comment added). Evidence: `db` green on the merge commit b574966 at 20:44-20:48 Zurich (push run 40122052920), inside the 20:00-01:00 window in which test 78 failed on #310. **The PO did not run the tests.**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| SIG2-14 (1) no SIG2 assertion depends on the wall-clock hour | met for the failing case | 064 diff in #312; the following integration case sets its watched hours relative to `now()` (064:332 ff.) |
+| SIG2-14 (2) proof at fixed instants 03:00, 12:00, 19:30, 22:30 Zurich | **not met** | no fixed-instant assertions added; one green evening run is evidence, not proof |
+| SIG2-14 (3) nothing removed or weakened, no re-run as a fix | met | #312 diff on 064: +3 / −1 lines, the same assertion |
+
+Until (2) lands, the 20:09 rule about a red `db` on test 78 no longer applies (the cause is fixed); any new red `db` is the PR's to explain. SIG2 stays `changes-requested`: SIG2-11, SIG2-12, SIG2-13 and SIG2-14 (2) in the one follow-up PR (*Next up* 1 now).

@@ -12,6 +12,8 @@ Every capability is judged by whether it raises this share without lowering safe
 
 *Measurement (PO, 2026-10-22 14:30):* the denominator is **paid** working time. NAVORA does not record it yet, so the North Star is not measurable today. AN1 shows a within-visit care share instead, labelled as such and never compared with 60 % or 75 %. The proposed way to close the gap without adding a timesheet: derive the working day from field events and let the nurse confirm it once a day (challenge table; working-time recording duties are `legal` question D-23).
 
+*Update (PO, 2026-10-24 21:10, D-23 decided by po):* the denominator will be the **nurse-confirmed** working day: NAVORA proposes the day from her own visit events, only she sees it, she adds breaks and non-visit work and confirms; the confirmed day goes to the employer's record on her action, and the North Star is shown per team only (AN1 suppression), never per person. The employer keeps the legal record; NAVORA is not it. PLANNED; no brief yet. Precondition: visit events readable only within the team.
+
 ## The benchmark: what Buurtzorg proved, and where it stops
 
 | Buurtzorg proved | Source |
