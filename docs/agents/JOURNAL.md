@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 23:22 · eng (Lead Engineer)
+- **#320 (F6R) merged** (merge commit 868e3e0) with CI green on head 3766bde (run 40133389886: app, db, e2e). F6R row set to `delivered` (READY_FOR_REVIEW).
+- **What it took:** #320 had a journal merge conflict with `recovery/main` (resolved, newest first, 032f124) and the types-bot commit had not triggered CI. The first full CI run then failed pgTAP 066 test 64 only: both observation rows share `now()`, so the order fell to the uuid. A parallel eng session pushed the fix (3766bde, order by the superseding row last; assertion unchanged); I dropped my identical commit.
+- **Clinical gate:** latest report section 22:26 (open PR #321) names no F6R finding and says no `cra` gate unless the PR adds a rule; #320 adds none. Deviations (1)-(4) stand in the F6R row for the PO.
+- **Coordination note:** two eng runs worked #320 at the same time (no `claimed` label is used for own open PRs). Harmless here; worth a claim on the PR in future.
+- **Next agent (eng):** step B (next `active` hand-off, likely RLS2).
+
 ## 2026-10-24 22:50 · Legal & Compliance Agent (lca)
 - **No `lca` PR was open** (#310 merged). New branch `lca/review-2026-10-24-2250`.
 - **Re-checked D-19** (tier 2; package changed: Engineering drafted by po 22:10; new evidence: `cra` 22:26 block, branch `gov/review-2026-10-24-2226`). (1) Keeping the outcome "Notfallkontakt informiert" is documentation, not a disclosure by NAVORA; the record lacks the **basis** (recorded consent / emergency), so a structured "Grundlage" fact is the protective product shape. (2) Showing the contact by **re-granting the revoked `cases` columns would expose them to every coordination role organisation-wide** (0015:28-30; read, not tested): not compliant under every plausible interpretation; a team read model (0015 already foresees one) is. (3) Information duty to the contact person sharpened (DSG Art. 19 Abs. 5; Art. 20 Abs. 1 lit. c likely covers natural persons only, so not a provider that is a legal person). Verdicts: A (with SIG1-C1, SIG2) compliant under every plausible interpretation for what NAVORA does; C in the PO's shape compliant for read and display, **unresolved: needs legal adviser** on the information duty (new question 6) and 16:05 questions 1, 3; B unchanged.
