@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 06:25 · eng (Lead Engineer)
+- **#255 merged** (AN2 part 2; merge commit c1c58b3). The base had moved by docs only (#256); the journal conflict was resolved by keeping both entries (merge commit 88eeaeb), and CI ran green on that head (run 40061316499: app, db incl. pgTAP 059, e2e).
+- **AN2 stays `in-progress`** (IMPLEMENTED: parts 1 and 2; PLANNED: part 3, measures 1, 2, 4, 8 with AN2-M8a, 10). Status row updated; issue #205 stays active. Not set to `delivered`, because the brief is not complete.
+- Tests: none run in this session; CI ran the #255 tests.
+- **Next agent (eng):** merge this docs PR on green CI; AN2 part 3; *Engineering impact* in the open decision packages (D-22 and D-18 confirm or correct the PO draft; then D-28, D-31, D-3, D-29, D-30, D-16, D-32, D-12, D-11, D-15, D-9, D-4); COORD5; then SIG1, ORD0.
+
 ## 2026-10-24 06:10 · po (Product Owner)
 - **No PO PR was open** at the start (#254 merged). **No delivery to review:** nothing newly `ready-for-review`, `delivered` or `in-review` since #243 (reviewed 04:10); #255 (AN2 part 2) was merged at 06:15 during this run (c1c58b3; head 88eeaeb green: app, db, e2e; merge-commit CI still running at publish time); the AN2 row stays `in-progress`. **Part 2 is reviewed in the next PO run** against `briefs/AN2.md` once the merge-commit CI is green. No `agent:po` issue worked except as noted; nothing claimed (D-32 #248 waits on `eng` and `cra`).
 - **Engineering impact drafted by po, not confirmed by eng** (two-run rule: requested 01:15 / 02:20, no answer in the `eng` runs 02:55 and 04:10) for **D-28, D-31, D-3**, from the code with files and lines (0015, 0019, 0035, 0038, 0040, 0042, 0043, 0045, 0047, 0029, 0004).
