@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 21:55 · Legal & Compliance Agent (lca)
+- **Continued my open PR #310** (no second `lca` PR): merged `recovery/main` 8a8dd27 in (JOURNAL conflict resolved, all entries kept, newest first). Its `db` failure was SIG2-14 (wall-clock test 78); #312 fixed part (1) on `recovery/main`, so CI should now decide on this PR's own files.
+- **Re-checked D-23** (package changed: PO 21:10 decided C plus D; new evidence: organisation-wide `visit_events` read). Confirmed in 0007:46 (read, not tested); **`visit_time_corrections` (0008:43) has the same organisation-wide policy**, plus a free-text reason. **C plus D as decided: compliant under every plausible interpretation on the sources read**, on terms (a)-(e): both tables narrowed to team and covering member before real data; no per-person aggregation for others; the information text names both uses; no location data for C (wording gap); a D-4 retention criterion for confirmed days. B unchanged (legal adviser).
+- **Re-checked D-3** (new evidence, tier 2: CGR-21, CGR-28): four tables outside the 0015 narrowing are organisation-wide: `visit_events`, `visit_time_corrections`, `team_decisions` and `case_tasks`. Two of them carry **free-text reasons** that can hold health data. **B as built with real data: not compliant under every plausible interpretation** until they are narrowed (0015 pattern, pgTAP); with that, B plus gates (i)-(iii) stays compliant (federal sources; cantonal UNKNOWN). Note to po: a fourth real-data gate (iv) and a full read-path inventory (`eng`). Synthetic data: no change.
+- Sources this run: onlinekommentar.ch on DSG Art. 7 (statutory text); weka.ch, 21 November 2025, on ArGV 3 Art. 26 (secondary). My own text search of the migrations; not an exhaustive audit of views and functions.
+- **Not re-reviewed:** D-22, D-18 (unchanged since 16:05; no new evidence); D-26, D-4 (only PO text adopting my notes); D-28, D-6 (no `lca` requested).
+- **Next for `lca`:** D-10 R against the pilot canton once D-11 is answered; D-26 production question if the owner answers; D-3 gate (iv) once `eng` lists the read paths.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-24 21:42 · eng (Lead Engineer)
 - **#315 merged** as 8a8dd27 with a merge commit. CI was green on head 508ad33 (app, db, e2e).
   - The first `db` run failed pgTAP 064 test 31: in CI the real pg_cron job had already recorded a run. The fixture now deletes that row first (9d59d2d). I reproduced the failure locally before the fix.
@@ -45,6 +54,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - **(lca):** D-26 production question only if the owner answers; D-10 R against the pilot canton once D-11 is answered.
   - **(po):** D-17 (Engineering two-run rule reached; C still open), D-6, D-19 next.
 
+## 2026-10-24 20:50 · Legal & Compliance Agent (lca)
+- **Continued my open PR #310** (no second `lca` PR); its `db` failure is SIG2-14 (pgTAP 064 test 78 by wall clock, not this PR's; PO 20:09 agrees); PR #312 touches that test file. Left open until `recovery/main` carries the fix.
+- **Re-checked D-1 and SR-26** on the PO's request (20:09, narrowed exposure, inferred from the C-1 records, not tested; read on PO PR #311). **D-1:** the narrowing removes `care_notes` from the disclosure scope but **not health data**: the readable `cases` table has fields named `diagnosis_tags`, `cognitive_status`, `mobility_status` (presence only, SCHEMA_DRIFT:40); alteration was possible (insert/update open; TRUNCATE not governed by RLS, PostgreSQL docs). Verdicts unchanged; rotation after SR-26 step 3 compliant if short and dated; adviser question 2 sharpened. **SR-26:** if verified, `orders` was not disclosed (deletion exposure only, count unchanged); Art. 24 Abs. 4 then no longer blocks deletion; conditions (i)-(iii) and the owner's facts still do. Ask: run the catalogue-only RLS check with SR-26 step 3.
+- **Reviewed D-24** (first `lca` section): interRAI licensing page (written licence; vendors pay royalties; vendor duties incl. export to interRAI and "no open web"; scales not copyrighted, items are), SO RRB 2023/1583 and BS ordinance (interRAI LTCF CH as the KLV Art. 8b instrument), KLV amendment 2019 (Art. 8b, 7a), SECO ArGV 2 Art. 15 Wegleitung. A **compliant under every plausible interpretation**; B **unresolved: needs owner and legal adviser** (D-25 for the partner canton; whether a home falls under ArGV 2 Art. 15; no LTCF content even displayed); C, D **unresolved: needs owner** (licence/contract) and regulatory adviser (NH4, NH5 under D-34).
+- **Not re-reviewed:** D-22, D-18 (no change since my 16:05 sections besides PO adoption; no new evidence).
+- **Next for `lca`:** D-10 R against the pilot canton once D-11 is answered; D-26 production question if the owner answers. fedlex still unreadable from this environment; Swiss interRAI vendor list not readable (dynamic page).
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-24 20:50 · eng (Lead Engineer)
 - **#312 merged** as b574966 with a merge commit. CI was green on head 5aa2390 (app, db, e2e) after the types-bot commit; I approved its CI run. **ORD0 is `delivered`**, which is READY_FOR_REVIEW. The PO review covers ORD0-C1, ORD0-C2 and SIG1-C1 against `briefs/ORD0.md` and `briefs/SIG1.md`, plus the four deviations in the 20:45 entry.
 - **Next (eng):** SIG2-11, SIG2-12 and SIG2-13 in one PR, then F6R.
@@ -63,6 +80,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - **Not run:** lint, typecheck, vitest, e2e and db lint (npm registry unreachable from the sandbox). CI decides.
 - **F6R:** row added as `not-started`. It follows after the SIG2 follow-up, in the PO order.
 - **Next agent (eng):** if #312 is green, merge it and set ORD0 to `delivered`. Then build SIG2-11, SIG2-12 and SIG2-13 in one PR, then F6R. Drafts still to confirm: D-8, D-10, D-2, D-7, D-34.
+
 ## 2026-10-24 20:09 · po (Product Owner)
 - **No PO PR was open** at the start (#308 merged 19:21). Open PRs: **#310 (new, `lca` 19:55: D-26, D-10, D-34; `db` red, see below)**, #306, #294, #278, #259 (`cra`), #3 (M2); `cra` and `lca` PRs are not merged by the PO. Claimed **#298, #69, #132** (SIG2, SR-26, D-26); claims removed at the end.
 - **Reviews: no delivery.** No `eng` merge since #295 (last `eng` journal entry 15:20). **SIG2: new SIG2-14** (product authority, same class as AN2-C1): `db` on the docs-only PR #310 failed at 20:00 Zurich on pgTAP 064 test 78 ("before: the 24 h window opens in 6 h, no exception yet", have 1, want 0; job 120944738020), while `recovery/main` c6fa6b1 was green at 19:21. PO reading of 064:305, 324-328 (not run): the fixture asserts "before" while the 07:00-20:00 watched hours are still set, so the result depends on the run hour (red about 20:00-01:00 Zurich; from 18:00 after SIG2-13). **Until fixed, a red `db` whose only failure is 064 test 78 in that window is not the PR's failure.** SIG2 stays `changes-requested` (SIG2-11 to SIG2-14). **Production condition recorded:** the SIG2 sender holds the service-role key on the Next.js host (`src/features/push/dispatch.ts`); D-26's production answer applies to it.
@@ -77,6 +95,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - **(cra):** "for the adviser" mark in the input-class column of `CLINICAL_RULE_REGISTER.md` (D-34); D-17, D-19 first.
   - **(lca):** re-check D-1 and SR-26 on the narrowed exposure (inferred, Engineering item 5 / item 2); D-24. PR #310's `db` failure is SIG2-14, not the PR's.
   - **(po):** D-26, D-23, D-17 reach the Engineering two-run rule after the next `eng` run; then D-26's staging design is the PO's.
+
+## 2026-10-24 19:55 · Legal & Compliance Agent (lca)
+- **Reviewed D-26** (first `lca` section; tier 3, blocks ADM1 invitations and D-20), **re-checked D-10** (R decided by po as F6R since my 11:55 section) and **D-34** (statement, inventory, `cra` 18:26 and the input-class control since my 16:45 section; new evidence). Only the `lca` sections changed. Advisory, not legal advice; no final determination.
+- **Not re-reviewed:** D-22, D-18 (only PO addenda adopting my 16:05 notes; no new evidence); D-28 (no `lca` requested); D-7, D-8, D-1, D-2, D-12 (only PO text adopting my verdicts).
+- **D-26:** DSG Art. 19, 20 (Onlinekommentar), Art. 8 (law.ch), EDÖB logging recommendation (DSV Art. 4, 2023) and the DSV amendments of 1 Dec 2025 (synopsis) read. Invitation e-mail compliant; it is the latest point for the Art. 19 information (controller, purpose, Supabase as recipient, data categories, Singapore/US with SCCs). **B and C compliant for staging under (i)-(v); production unresolved: needs owner** (residual risk of a key that bypasses RLS, DSG Art. 8); C the more protective. Retention of unaccepted invitations: a D-4 criterion, no period set. DSV Art. 1-3 primary text still unread.
+- **D-10:** F6R carries my (a)-(c) and more; **R compliant under every plausible interpretation** (pilot canton to confirm, D-11). Note: F6R-7 "never in any export" must not exclude the client's access extract (DSG Art. 25 Abs. 2 lit. b; D-4 gate r1).
+- **D-34:** CJEU C-427/24 (2 July 2026; two secondary summaries, judgment not read): intended purpose from use-related manufacturer data **and** objective capability. Supports "wording alone does not decide". Verdict unchanged: **unresolved: needs owner and a regulatory adviser**. Notes: describe both care-context rules (hospital-discharge P1, nurse-chosen severity) in the statement; mark ranking/escalating rules of the middle input class "for the adviser"; question 1a added.
+- **Next for `lca`:** D-24 (never reviewed); D-10 R against the pilot canton once D-11 is answered. fedlex still unreadable from this environment.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
 
 ## 2026-10-24 19:09 · po (Product Owner)
 - **No PO PR was open** at the start (#305 merged). Open PRs: #306 (new, `cra` 18:26; supersedes #294, #278, #259), #3 (M2); `cra` PRs are not merged by the PO. Claimed **#56, #299, #59, #89, #116, #298** (D-10, D-34, D-13, D-20, D-25, SIG2); claims removed at the end.
