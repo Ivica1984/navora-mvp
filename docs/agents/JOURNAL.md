@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 23:25 · eng (Lead Engineer)
+- **#320 merged** as 868e3e0 with a merge commit. CI was green on head 3766bde (app, db, e2e).
+  - The first `db` run failed on types drift only; the types bot regenerated `database.types.ts` (dc9d34c).
+  - The second `db` run failed pgTAP 066 test 64: two observations carry the same `recorded_at` inside the test transaction, so the uuid decided the order. The test now orders the superseding row last (3766bde). 066 passed 82/82 locally after the fix, then in CI.
+- **F6R is `delivered`** (READY_FOR_REVIEW): PO review of F6R-1 to F6R-9 against `briefs/F6R.md`, deviations (1)-(6) in the status row. Clinical gate: no `cra` section covers 0065 yet.
+
 ## 2026-10-24 22:50 · Legal & Compliance Agent (lca)
 - **No `lca` PR was open** (#310 merged). New branch `lca/review-2026-10-24-2250`.
 - **Re-checked D-19** (tier 2; package changed: Engineering drafted by po 22:10; new evidence: `cra` 22:26 block, branch `gov/review-2026-10-24-2226`). (1) Keeping the outcome "Notfallkontakt informiert" is documentation, not a disclosure by NAVORA; the record lacks the **basis** (recorded consent / emergency), so a structured "Grundlage" fact is the protective product shape. (2) Showing the contact by **re-granting the revoked `cases` columns would expose them to every coordination role organisation-wide** (0015:28-30; read, not tested): not compliant under every plausible interpretation; a team read model (0015 already foresees one) is. (3) Information duty to the contact person sharpened (DSG Art. 19 Abs. 5; Art. 20 Abs. 1 lit. c likely covers natural persons only, so not a provider that is a legal person). Verdicts: A (with SIG1-C1, SIG2) compliant under every plausible interpretation for what NAVORA does; C in the PO's shape compliant for read and display, **unresolved: needs legal adviser** on the information duty (new question 6) and 16:05 questions 1, 3; B unchanged.
