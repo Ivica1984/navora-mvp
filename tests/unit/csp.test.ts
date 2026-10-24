@@ -25,6 +25,10 @@ describe("buildContentSecurityPolicy (production)", () => {
     expect(csp["base-uri"]).toEqual(["'self'"]);
   });
 
+  it("allows a service worker from its own origin only (SIG2)", () => {
+    expect(csp["worker-src"]).toEqual(["'self'"]);
+  });
+
   it("lets the browser connect only to its own origin (no Supabase from the browser)", () => {
     expect(csp["connect-src"]).toEqual(["'self'"]);
   });

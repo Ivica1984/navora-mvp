@@ -7,6 +7,7 @@ import { getCaseLifecycle } from "@/features/lifecycle/queries";
 import { getPlanStatus } from "@/features/planning/queries";
 import { getMySignals } from "@/features/signals/queries";
 import { getGpNotices } from "@/features/gp/queries";
+import { getTeamPushStatus } from "@/features/push/queries";
 import TeamClient from "./team-client";
 
 // J2: requests offered to the caller's teams — the team decides (Teamautonomie).
@@ -20,7 +21,8 @@ export default async function TeamPage() {
   const planStatus = await getPlanStatus();
   // CSR1 / CGR-04: overdue and stuck visits of the team, after the plan refresh.
   // ORD0-3: "Hausärztin/Hausarzt informiert" records of the team's cases.
-  const [offers, cases, continuity, billing, lifecycle, visitAlerts, signals, gpNotices] = await Promise.all([
+  // SIG2-2: per member, whether delivery outside the app is active.
+  const [offers, cases, continuity, billing, lifecycle, visitAlerts, signals, gpNotices, pushStatus] = await Promise.all([
     getTeamOffers(),
     getTeamCases(),
     getContinuity(month),
@@ -29,6 +31,7 @@ export default async function TeamPage() {
     getTeamVisitAlerts(),
     getMySignals(),
     getGpNotices(),
+    getTeamPushStatus(),
   ]);
-  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} visitAlerts={visitAlerts} signals={signals} gpNotices={gpNotices} />;
+  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} visitAlerts={visitAlerts} signals={signals} gpNotices={gpNotices} pushStatus={pushStatus} />;
 }

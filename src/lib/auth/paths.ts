@@ -1,7 +1,8 @@
 // Pure route rules for the proxy — no Next or Supabase imports, unit-tested.
 
 /** Routes reachable without a session. Everything else requires sign-in. */
-const PUBLIC_PATHS: ReadonlySet<string> = new Set(["/login"]);
+// SIG2 (ADR-076): the service worker script (no data) and the sender's entry point (bearer secret, no session).
+const PUBLIC_PATHS: ReadonlySet<string> = new Set(["/login", "/sw.js", "/api/push/dispatch"]);
 
 export const LOGIN_PATH = "/login";
 export const HOME_PATH = "/operations";
