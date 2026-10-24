@@ -78,3 +78,18 @@ describe("safety signals (SIG1)", () => {
     expect(takeOutcome(null)).toEqual({ result: "failed" });
   });
 });
+
+describe("SIG2-11: evaluator health (0064)", () => {
+  it("warns only for organisations whose scheduled evaluator is not running", async () => {
+    const { evaluatorDown, evaluatorDownText, EVALUATOR_DOWN } = await import("@/features/signals/rules");
+    const rows = [
+      { organization_id: "a", last_run_at: "2026-10-24T19:00:00Z", running: false },
+      { organization_id: "b", last_run_at: "2026-10-24T19:20:00Z", running: true },
+      { organization_id: "c", last_run_at: null, running: false },
+    ];
+    expect(evaluatorDown(rows).map((r) => r.organization_id)).toEqual(["a", "c"]);
+    expect(evaluatorDownText(rows[0])).toBe(`${EVALUATOR_DOWN}: letzter geplanter Lauf 24.10.26, 21:00.`);
+    expect(evaluatorDownText(rows[2])).toBe(`${EVALUATOR_DOWN}: kein geplanter Lauf erfasst.`);
+    expect(EVALUATOR_DOWN).toBe("Signalprüfung läuft nicht");
+  });
+});

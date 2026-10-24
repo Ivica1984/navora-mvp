@@ -41,6 +41,10 @@ describe("SIG2-1: member information (DSG Art. 19)", () => {
     expect(text).toContain("Microsoft Corporation, USA");
     expect(text).toContain("Ausschalten");
   });
+  it("SIG2-12: says that Operations is reached outside the app only during the watched hours", () => {
+    expect(memberInformation(vendors).join(" ")).toContain("nur während der überwachten Zeiten");
+    expect(memberInformation(vendors).join(" ")).not.toContain("zu jeder Zeit");
+  });
   it("says so when no vendor is released", () => {
     expect(memberInformation([]).join(" ")).toContain("kein Anbieter freigegeben");
   });

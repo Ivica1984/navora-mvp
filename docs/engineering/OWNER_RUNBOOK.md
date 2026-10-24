@@ -45,6 +45,15 @@ supabase db dump --schema public,private --file live_schema.sql   # schema only,
 ```
 Send `live_schema.sql` (contains no data). Never use `--data-only` or a full dump.
 
+## 5a. Signal evaluator and push dispatch in a pilot or staging project (SIG2-11, ADR-078) — before the outside channel is switched on
+Only in a **non-live** project (never `jwmfxrmougneeceldhsa`). PLANNED until D-2 is answered; nothing here is needed for CI.
+1. Dashboard → Database → Extensions: enable `pg_cron`, `pg_net` and `supabase_vault`. Then run `supabase db push` again (0064 re-schedules the job `navora-sig1-signals` by name).
+2. SQL editor (one statement each; the values never go into the repository):
+   `select vault.create_secret('<https URL of the deployed app>/api/push/dispatch', 'navora_push_dispatch_url');`
+   `select vault.create_secret('<the same value as PUSH_DISPATCH_SECRET on the app host, 32+ characters>', 'navora_push_dispatch_secret');`
+3. Check: `select jobname, schedule from cron.job;` shows `navora-sig1-signals` every minute; after two minutes `/admin` shows "Signalprüfung läuft." and not "Signalprüfung läuft nicht".
+Without step 2 nothing leaves the app from the scheduler; pending pushes fail after 2 minutes and Operations gets the signal at once (fail closed).
+
 ## 6. Decisions
 Read `docs/engineering/DECISIONS.md` and reply "accept all" or name the ADRs you reject.
 Then merge PR #3 with **"Create a merge commit"**.

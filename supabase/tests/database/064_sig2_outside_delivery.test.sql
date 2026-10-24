@@ -5,7 +5,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(82);
+select plan(106);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -145,7 +145,28 @@ reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select is((select string_agg(right(user_id::text, 3) || '=' || active, ',' order by user_id) from public.team_push_status()),
+  '902=false,906=false', 'SIG2-11 (2): no run of the scheduled evaluator recorded → nobody is shown as active');
+reset role;
+-- Fixture (SIG2-11): the scheduled evaluator ran 1 minute ago for org A.
+insert into private.signal_scheduler_runs (organization_id, ran_at) values ('00000000-0000-4000-b000-000000000011', now() - interval '1 minute')
+on conflict (organization_id) do update set ran_at = excluded.ran_at;
+select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
+set local role authenticated;
+select is((select string_agg(right(user_id::text, 3) || '=' || active, ',' order by user_id) from public.team_push_status()),
   '902=true,906=false', 'SIG2-2: /team shows per member active / not active (a failed last send is not active)');
+select is((public.my_push_state() ->> 'active')::boolean, true, 'SIG2-2: /settings says active while the evaluator runs');
+reset role;
+update private.signal_scheduler_runs set ran_at = now() - interval '6 minutes' where organization_id = '00000000-0000-4000-b000-000000000011';
+select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
+set local role authenticated;
+select is((select string_agg(right(user_id::text, 3) || '=' || active, ',' order by user_id) from public.team_push_status()),
+  '902=false,906=false', 'SIG2-11 (2): last scheduled run 6 minutes ago → /team stops showing "aktiv"');
+select ok(not (public.my_push_state() ->> 'active')::boolean and not (public.my_push_state() ->> 'evaluator_running')::boolean,
+  'SIG2-11 (2): and /settings stops showing "aktiv"');
+reset role;
+update private.signal_scheduler_runs set ran_at = now() - interval '1 minute' where organization_id = '00000000-0000-4000-b000-000000000011';
+select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
+set local role authenticated;
 select is((select count(*)::int from information_schema.routines r
            join information_schema.parameters p on p.specific_name = r.specific_name
            where r.routine_schema = 'public' and r.routine_name = 'team_push_status' and p.parameter_mode = 'OUT'), 5,
@@ -256,8 +277,23 @@ select is((select string_agg(right(d.recipient_id::text, 3) || '=' || d.reason, 
            from public.signal_deliveries d join public.safety_signals s on s.id = d.signal_id
            where s.visit_id = pg_temp.v(5) and d.reason = 'untaken'), '904=untaken',
   'SIG2-7: the untaken step goes to Operations, never to the whole team');
-select is((select o.result from public.signal_outside_deliveries o where o.id = pg_temp.delivery(5, 904)), 'pending',
-  'SIG2-7: outside the app to the Operations member who opted in');
+-- SIG2-12: with no watched hours recorded no push goes to Operations; the signal is in the app.
+select is((select o.result from public.signal_outside_deliveries o where o.id = pg_temp.delivery(5, 904)), 'outside_working_time',
+  'SIG2-12: no watched hours recorded → Operations outside the app: outside_working_time');
+select ok(pg_temp.delivery(5, 904) is not null, 'SIG2-12: the in-app delivery to Operations is present');
+-- Inside a watched period (fixture: every day 00:00-24:00, so the run hour does not matter) → handed to the sender.
+insert into public.organization_watched_hours (organization_id, weekday, starts, ends)
+select '00000000-0000-4000-b000-000000000011', d, time '00:00', time '24:00' from generate_series(1, 7) d;
+select pg_temp.visit(9, - interval '2 hours', pg_temp.u(902));
+select pg_temp.eval();
+select is((select o.result from public.signal_outside_deliveries o where o.id = pg_temp.delivery(9, 904)), 'pending',
+  'SIG2-7 / SIG2-12: inside the watched hours, outside the app to the Operations member who opted in');
+set local role service_role;
+select is(public.push_dispatch_report('signal', pg_temp.delivery(9, 904),
+            jsonb_build_array(jsonb_build_object('subscription_id', pg_temp.sub(904), 'ok', true))), 'sent',
+  'SIG2-12 / SIG2-13: the Operations push inside a watched period is sent (test transport)');
+reset role;
+delete from public.organization_watched_hours where organization_id = '00000000-0000-4000-b000-000000000011';
 
 -- SIG2-8: a tap is recorded; nothing else ------------------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
@@ -315,10 +351,31 @@ reset role;
 -- 2026-10-26 is a Monday.
 select is(private.watched_raise_at('00000000-0000-4000-b000-000000000011', pg_temp.zurich('2026-10-26 08:00')), pg_temp.zurich('2026-10-26 08:00'),
   'SIG2-6: a window opening at 08:00 (inside) opens as today');
-select is(private.watched_raise_at('00000000-0000-4000-b000-000000000011', pg_temp.zurich('2026-10-26 22:00')), pg_temp.zurich('2026-10-26 20:00'),
-  'SIG2-6: a window opening at 22:00 (outside) is raised by 20:00 the same day');
-select is(private.watched_raise_at('00000000-0000-4000-b000-000000000011', pg_temp.zurich('2026-10-27 05:00')), pg_temp.zurich('2026-10-26 20:00'),
-  'SIG2-6: a window opening at 05:00 is raised at 20:00 the evening before');
+select is(private.watched_raise_at('00000000-0000-4000-b000-000000000011', pg_temp.zurich('2026-10-26 22:00')), pg_temp.zurich('2026-10-26 18:00'),
+  'SIG2-13: a window opening at 22:00 (outside 07:00-20:00) is raised at 18:00 (end minus 2 h)');
+select is(private.watched_raise_at('00000000-0000-4000-b000-000000000011', pg_temp.zurich('2026-10-27 05:00')), pg_temp.zurich('2026-10-26 18:00'),
+  'SIG2-13: a window opening at 05:00 is raised at 18:00 the evening before');
+select ok(private.watched_inside('00000000-0000-4000-b000-000000000011', pg_temp.zurich('2026-10-26 18:00')),
+  'SIG2-13: the raise time 18:00 lies inside a watched period (start inclusive, end exclusive)');
+select ok(not private.watched_inside('00000000-0000-4000-b000-000000000011', pg_temp.zurich('2026-10-26 20:00')),
+  'SIG2-13 / SIG2-12: the end instant 20:00 is outside (the old raise time)');
+select ok(private.watched_inside('00000000-0000-4000-b000-000000000011', pg_temp.zurich('2026-10-26 14:00'))
+          and not private.watched_inside('00000000-0000-4000-b000-000000000011', pg_temp.zurich('2026-10-26 22:00')),
+  'SIG2-12: 14:00 is inside (Operations push sent), 22:00 is outside (outside_working_time)');
+-- SIG2-14: the look-ahead predicate at fixed instants (a hospital visit 30 h after the instant: its window opens 6 h after it).
+select is((select string_agg(to_char(i, 'HH24:MI') || '=' || private.lookahead_raised('00000000-0000-4000-b000-000000000011',
+                               pg_temp.zurich('2026-10-26 ' || i), pg_temp.zurich('2026-10-26 ' || i) + interval '6 hours'), ',' order by i)
+           from unnest(array[time '03:00', time '12:00', time '17:59', time '18:00', time '19:30', time '22:30']) i),
+  '03:00=false,12:00=false,17:59=false,18:00=true,19:30=true,22:30=true',
+  'SIG2-14: at 03:00 and 12:00 the window opens inside (not yet); from 18:00 a window opening outside is raised');
+select ok(not private.lookahead_raised('00000000-0000-4000-b000-000000000012', pg_temp.zurich('2026-10-26 22:30'), pg_temp.zurich('2026-10-27 04:30')),
+  'SIG2-14: with no watched hours the effective rule applies at every instant');
+-- SIG2-13: watched 07:00-08:30 only → a window opening at 22:00 is raised at 07:00 (the start bounds it).
+reset role;
+update public.organization_watched_hours set ends = time '08:30' where organization_id = '00000000-0000-4000-b000-000000000011';
+select is(private.watched_raise_at('00000000-0000-4000-b000-000000000011', pg_temp.zurich('2026-10-26 22:00')), pg_temp.zurich('2026-10-26 07:00'),
+  'SIG2-13: watched 07:00-08:30 only, window opens 22:00 → raised at 07:00 (never before the start)');
+update public.organization_watched_hours set ends = time '20:00' where organization_id = '00000000-0000-4000-b000-000000000011';
 select is(private.watched_raise_at('00000000-0000-4000-b000-000000000012', pg_temp.zurich('2026-10-26 22:00')), pg_temp.zurich('2026-10-26 22:00'),
   'SIG2-6: with no watched hours recorded nothing changes');
 -- Integration: watched hours [now − 2 h, now − 2 h + 1 min) every day; a hospital visit in 30 h (window opens in 6 h,
@@ -349,6 +406,57 @@ select ok((select bool_and(suppressed and value is null) from public.pilot_hypot
            where measure in ('signal_outside_sent_share', 'signal_taken_within_threshold_share') and team_id = '00000000-0000-4000-a000-000000000101'),
   'SIG2-10: AN1 suppression applies (two people in Testteam Nord)');
 reset role;
+
+-- SIG2-11: the scheduled evaluator is seen to run ----------------------------------------------------------------------
+select is((select count(*)::int from information_schema.routines where routine_schema = 'public' and routine_name = 'signal_evaluator_health'), 1,
+  'SIG2-11: the health reader exists');
+select ok(not has_function_privilege('anon', 'public.signal_evaluator_health()', 'execute')
+          and not has_function_privilege('authenticated', 'private.evaluate_all_signals()', 'execute')
+          and not has_function_privilege('authenticated', 'private.push_dispatch_kick()', 'execute'),
+  'SIG2-11: users cannot run the scheduler or the dispatch request; anon cannot read the health');
+update private.signal_scheduler_runs set ran_at = now() - interval '1 minute' where organization_id = '00000000-0000-4000-b000-000000000011';
+select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
+set local role authenticated;
+select is((select string_agg(right(organization_id::text, 3) || '=' || running, ',') from public.signal_evaluator_health()), '011=true',
+  'SIG2-11: last run 1 minute ago → no warning for Operations');
+reset role;
+update private.signal_scheduler_runs set ran_at = now() - interval '6 minutes' where organization_id = '00000000-0000-4000-b000-000000000011';
+select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
+set local role authenticated;
+select is((select string_agg(right(organization_id::text, 3) || '=' || running, ',') from public.signal_evaluator_health()), '011=false',
+  'SIG2-11: last run 6 minutes ago → "Signalprüfung läuft nicht" for Operations');
+reset role;
+select pg_temp.act_as('00000000-0000-4000-a000-000000000905');
+set local role authenticated;
+select is((select string_agg(right(organization_id::text, 3) || '=' || running, ',') from public.signal_evaluator_health()), '011=false',
+  'SIG2-11: and for /admin of the organisation');
+reset role;
+select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
+set local role authenticated;
+select is((select string_agg(right(organization_id::text, 3), ',') from public.signal_evaluator_health()), '012',
+  'SIG2-11: another organisation''s administrator sees only her own organisation');
+reset role;
+select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
+set local role authenticated;
+select is((select count(*)::int from public.signal_evaluator_health()), 0, 'SIG2-11: a nurse reads no evaluator health');
+reset role;
+-- A page poll does not count as a scheduled run; the scheduled entry point does.
+select pg_temp.eval();
+select ok((select ran_at < now() - interval '5 minutes' from private.signal_scheduler_runs where organization_id = '00000000-0000-4000-b000-000000000011'),
+  'SIG2-11 (1): a page-poll evaluation records no scheduled run');
+select private.evaluate_all_signals();
+select ok((select ran_at = now() from private.signal_scheduler_runs where organization_id = '00000000-0000-4000-b000-000000000011')
+          and private.signal_evaluator_live('00000000-0000-4000-b000-000000000011'),
+  'SIG2-11 (1): the scheduled evaluator records its run time');
+select is(private.push_dispatch_kick(), false,
+  'SIG2-11 (3): without the channel on, pg_net and the Vault entries no dispatch request is sent (fail closed: 2-minute timeout)');
+create function pg_temp.cron_has_evaluator() returns boolean language plpgsql as $$
+begin
+  if not exists (select 1 from pg_extension where extname = 'pg_cron') then return true; end if;
+  return exists (select 1 from cron.job where command like '%private.evaluate_all_signals()%');
+end;
+$$;
+select ok(pg_temp.cron_has_evaluator(), 'SIG2-11: when pg_cron exists, cron.job contains the evaluator job');
 
 select * from finish();
 rollback;
