@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 22:50 · Legal & Compliance Agent (lca)
+- **No `lca` PR was open** (#310 merged). New branch `lca/review-2026-10-24-2250`.
+- **Re-checked D-19** (tier 2; package changed: Engineering drafted by po 22:10; new evidence: `cra` 22:26 block, branch `gov/review-2026-10-24-2226`). (1) Keeping the outcome "Notfallkontakt informiert" is documentation, not a disclosure by NAVORA; the record lacks the **basis** (recorded consent / emergency), so a structured "Grundlage" fact is the protective product shape. (2) Showing the contact by **re-granting the revoked `cases` columns would expose them to every coordination role organisation-wide** (0015:28-30; read, not tested): not compliant under every plausible interpretation; a team read model (0015 already foresees one) is. (3) Information duty to the contact person sharpened (DSG Art. 19 Abs. 5; Art. 20 Abs. 1 lit. c likely covers natural persons only, so not a provider that is a legal person). Verdicts: A (with SIG1-C1, SIG2) compliant under every plausible interpretation for what NAVORA does; C in the PO's shape compliant for read and display, **unresolved: needs legal adviser** on the information duty (new question 6) and 16:05 questions 1, 3; B unchanged.
+- **Re-checked D-17** (new evidence on its one open question): the 17:57 adviser question is replaced by D-19 question 6; `cra` 22:26 form adds no legal question; verdicts unchanged.
+- Sources this run: onlinekommentar.ch, Glatthaar/Schröder on DSG Art. 20 (Stand 20.08.2023); law.ch LawInfo on DSG Art. 19 (12.12.2023). Both secondary; fedlex still not reachable.
+- **Not re-reviewed:** D-22, D-18 (unchanged since 16:05; no new evidence); D-3, D-23, D-4 (22:10 changes only adopt my notes); D-3 gate (iv) waits on the RLS2 inventory.
+- **Next for `lca`:** D-10 R against the pilot canton once D-11 is answered; D-3 gate (iv) once RLS2 lists the read paths; D-26 production question if the owner answers.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-24 22:45 · eng (Lead Engineer)
 - **No own PR was open.** Claimed #309 (F6R, the only active hand-off) at 22:12. The SIG2 follow-up is merged (#315), so F6R is next in the PO order.
 - **#320 open (ADR-079, migration 0065):** `return_report` by a registered nurse of the team on the latest signed version awaiting countersignature, reason 10–500; append-only `visit_report_returns` (version, snapshot hash, reason, returner, time); the returned version is unchanged and the return opens the next version as a draft. After a return only the performer corrects; a superseded version cannot be countersigned; only the countersigned corrected version becomes `final` and a billing basis. `/field`: "Zurückgeben" next to "Gegenzeichnen"; "Zurückgegeben: bitte korrigieren und neu unterschreiben" at the top of the performer's day; RN queue "zurückgegeben". AN2 `report_returned_share`, `countersign_latency_hours`. F6R is `in-review`.
@@ -14,6 +23,36 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - **Local run, not CI:** PostgreSQL 16 with a role/auth shim and a minimal pgTAP stand-in. 0065 applied twice without error; 066 passed 82/82; 059 passed with the new count; every other file matched its pre-0065 baseline.
   - **Not run:** lint, typecheck, vitest, e2e and db lint (no npm registry). `database.types.ts` was edited by hand; db-types-sync regenerates it. CI decides.
 - **Next agent (eng):** if #320 is green, merge it and set F6R to `delivered`; if the types bot's run waits for approval, approve it.
+
+## 2026-10-24 22:10 · po (Product Owner)
+- **No PO PR was open** at the start (#311 merged). Open PRs: #306, #294, #278, #259 (`cra`), #3 (M2); not merged by the PO. Claimed **#317, #81** (SIG2 review, D-19); claims removed at the end.
+- **SIG2 `accepted`** (#315, 0064, ADR-078; CI green on head 508ad33, merge commit 8a8dd27 and `recovery/main` 68c05dc; the PO did not run the tests): SIG2-11 (run recorded only by the scheduled evaluator; 5-minute warning on /operations and /admin; "aktiv" withdrawn on /team and /settings; dispatch kicked by the job, fail closed), SIG2-12 (Operations push only inside watched hours), SIG2-13 (raise at the later of period start and end minus 2 h) and SIG2-14 (2) (predicate proven at six fixed instants) met; evidence table in `briefs/SIG2.md`. Deviations 12 (`operations_fallback` counts as an Operations push), 13 (no run row = not running), 14 (heartbeat not audited) accepted. **`cra` asked to cover 0064** (a blocking finding returns SIG2). Not live until DPF entries, D-2, D-26 and the Vault/pg_net wiring (owner).
+- **New brief RLS2 approved** (*Next up* 2, after F6R): `lca` 21:55 found `visit_events`, `visit_time_corrections`, `team_decisions` and `case_tasks` readable organisation-wide (two with free-text reasons); D-3 B with real data is not compliant until narrowed, D-23 C plus D only with it. Narrows only, so product authority.
+- **Packages (INDEX order; tiers 1-3 otherwise all awaiting approval):**
+  - **D-19** (tier 2): Engineering **drafted by po, not confirmed by eng** (two-run rule; requested 15:10): C1 records one outcome row, no step list; **"Notfallkontakt informiert" is offered while NAVORA shows no emergency contact** (revoked in 0015:68, no reader in `src/`) and no consent fact. Still `inputs-requested` (C; one `cra` run since the request).
+  - **D-3** (tier 2): `lca` 21:55 taken up: real-data gate **(iv)** added (every client- or visit-linked read path team-scoped, inventory; RLS2), *Context* corrected, go-live conditions updated. Status unchanged (`awaiting-approval: clinical`, cover-read field list).
+  - **D-23** (tier 3): `lca` 21:55 terms (a)-(e) all taken in (precondition widened to `visit_time_corrections`; no per-person aggregation for others; information text names both uses; no location data; D-4 retention criterion for confirmed days). Still `po-decided`. D-4 gains that criterion (no period set).
+- **Challenge:** the emergency contact at the door (row added; hypothesis: more than 1 in 4 no-show outcomes recorded later than 15 minutes, or `other` → build D-19 option C first once D-9 allows it).
+- ROADMAP: line 24.10. 22:10. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` run before publishing.
+- **Waiting on people (unchanged):** **owner:** D-1 (urgent), SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1 (name the Clinical Owner); merge `cra` PR #306. **Clinical Owner:** D-10, D-28, D-31, D-3, D-30, D-16, D-15.
+- **Next agent:**
+  - **(eng):** F6R, then RLS2. Confirm or correct the po drafts in D-19, D-26, D-23, SR-26, D-1, D-8, D-10, D-2, D-7, D-34.
+  - **(cra):** cover 0064 (SIG2-11 to SIG2-14; CR-076, CR-077); D-19 and D-17 first, then D-24, D-13, D-25, D-6, D-20 (one point); comment on RLS2 if a coordination-role read is a clinical need.
+  - **(lca):** nothing new requested; D-10 R against the pilot canton once D-11 is answered.
+  - **(po):** D-17 (Engineering two-run rule reached), D-6, D-20 next.
+
+**ENGINEERING BRIEF — RLS2**
+- **Capability:** Visit and case records are read only by the people who care for the client (`briefs/RLS2.md`).
+- **Why:** four tables (`visit_events`, `visit_time_corrections`, `team_decisions`, `case_tasks`) are readable by every organisation member; free-text reasons can carry health data, and any member can rebuild a colleague's working day. `lca` 21:55: D-3 B with real data not compliant until narrowed.
+- **Business outcome:** removes a blocker for the first real client (D-3 gate iv) and for D-23 (no separate timesheet); one inventory instead of finding gaps table by table.
+- **Care outcome:** what a team records about a client stays with the people treating her; professional secrecy holds inside the provider.
+- **Expected nurse outcome:** her visit times and corrections are not visible to other teams; nothing changes on her screens.
+- **Expected team outcome:** teams can write honest reasons (a fall, a decline) knowing they stay in the team; autonomy without exposure.
+- **Expected patient outcome:** fewer people can read about her; her data is used only by those who care for her.
+- **Acceptance criteria:** RLS2-1 read-path inventory with a catalogue check in pgTAP; RLS2-2 the four tables team-scoped (team, covering member while active, coordination roles only for a named task), pgTAP per table incl. other team, other organisation, anon, cover end; RLS2-3 free-text reasons never outside team and covering member; RLS2-4 no per-person aggregation for others; RLS2-5 further gaps narrowed or listed as findings, nothing widened; RLS2-6 no regression (pgTAP, unit, e2e, AN1/AN2 values); RLS2-7 no scope widening through function arguments, removed member reads nothing.
+- **Dependencies:** none to start; COVER1 cover predicate (built). Real data still blocked by D-1, D-9, D-29 and gates (i)-(iii).
+- **Priority:** *Next up* 2, after F6R.
+- **Implementation recommendation:** follow the 0015 pattern (policies through the visit's or case's team, column revoke for the reasons); start with the inventory from the catalogue (`information_schema` plus `pg_proc` for `security definer` functions executable by `authenticated`), then narrow; one additive migration, about 30-40 pgTAP assertions.
 
 ## 2026-10-24 21:55 · Legal & Compliance Agent (lca)
 - **Continued my open PR #310** (no second `lca` PR): merged `recovery/main` 8a8dd27 in (JOURNAL conflict resolved, all entries kept, newest first). Its `db` failure was SIG2-14 (wall-clock test 78); #312 fixed part (1) on `recovery/main`, so CI should now decide on this PR's own files.
