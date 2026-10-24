@@ -55,11 +55,16 @@ Every capability is judged by whether it raises this share without lowering safe
 | Statutory statistics and cantonal reports compiled by hand | Generated from billing, continuity and quality facts | HYPOTHESIS (D-11) |
 | Back-office invoice preparation | Invoices generated from J5 facts with a human release | after D-12, D-18 |
 | Nurses classify every planned service into a KLV category (A/B/C) by hand | The category comes from an approved service catalogue; the team changes it only with a reason, and the change is visible | HYPOTHESIS (D-15 option C; the catalogue is a clinical and billing rule for the Clinical Owner) |
+| A data-protection officer periodically reads access logs to find reads that should not have happened | Reads outside a nurse's own teams or her accepted cover are impossible by design (D-3 option B, bounded cover card); only exceptional reads (a break-glass read, if option C is ever needed) raise a signal to the client's team and the data-protection role; the log is evidence, not a reading task | HYPOTHESIS (D-3; read log is a go-live condition) |
 | Intake ticking "consent confirmed" and re-typing the medical order from paper for every referral | The legal basis is recorded with a code where it arises (referrer form, needs-assessment visit); the order arrives as a structured record with issue date and the doctor's GLN/ZSR; intake handles exceptions only | HYPOTHESIS (D-9 basis, `lca`; D-22 order record, awaiting `owner`) |
 
 **Go-live condition (PO, 2026-10-24, SIG1-8, CGR-37):** until safety signals reach people outside the app (D-32), the pilot plan names, for every hour in which visits are planned, the person who has `/field`, `/team` or OPS1 open; no visit is planned outside those hours. Pilot visit hours: UNKNOWN (owner, pilot plan).
 
 **Go-live condition (PO, 2026-10-24 04:10, D-30, `lca` 03:53):** before the first real client, a client's request to correct a care record can be met when the report's author has left the team: at least a dated addendum or a "bestritten" mark by a registered nurse of the team, shown with the final version, original untouched, audited. Who may write it and which fields: `clinical` (D-30).
+
+**Go-live condition (PO, 2026-10-24 06:10, D-3, `lca` 02:52):** before the first real client, (i) every read of client health data goes through a function that writes a read-log row (person, type, date and time, recipient; kept at least one year, separate, readable only by a data-protection role; content of DSV Art. 4 Abs. 4-5 as read by `lca`); (ii) a data-protection impact assessment (DSG Art. 22) is done; (iii) coordination roles see a client's identity only where their task needs it. Whether a pilot strictly requires each stays a question for a legal adviser (`lca` questions 1, 3, 4); until answered these are the safe side.
+
+**Go-live condition (PO, 2026-10-24 06:10, D-31, `lca` 02:52):** before the first real client, care given in a visit that was broken off is documented, in NAVORA (D-31 option 1b) or by a documented procedure of the organisation outside it. The report's content: `clinical` (D-31).
 
 What does **not** disappear: verified qualifications, clinical responsibility, legal accountability, data protection. These are decisions for their owners, not things to automate away.
 
