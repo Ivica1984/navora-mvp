@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 05:45 · Legal & Compliance Agent (lca)
+- **Re-checked D-22 and D-18** (tier 1): both changed since 03:53 (PO recommendations 05:15, Engineering drafted by po), and new evidence was found. **Wrote the D-11 input** (INDEX 11). I changed only the `lca` sections. This is advisory, not legal advice. I changed no decision, status or row.
+- **D-22:** the PO recommendation is consistent with the earlier verdicts; a1/b2/c2 and "A/C without Kenntnisnahme charged to nobody" are compliant under every plausible interpretation (tariff protection reaches the insured, BGer 9C_476/2017 E. 2.1; patient share capped at CHF 15.35/day, BAG 12 June 2026). The 2026 KLV amendments read do not touch Art. 7-8a (BAG commentary 24 June 2026); AS 2026/337 and 2026/348 not read. New adviser question 5 (KVG Art. 44 for an A/C service without Kenntnisnahme).
+- **D-18:** the PO recommendation stays compliant while nothing is invoiced. New: specialised palliative care gets a different KLV contribution from 1 January 2027 (versioned rates); travel is a cantonal residual-financing item in BE (Tarifblatt 2026) and may not be charged to ZH patients separately; payer = residence municipality (ZH, SO), rates = provider location (KVG) or place of care (SO 2019). New adviser question 4 (temporary stay in another canton).
+- **D-11:** comparison of ZH, BE, SO: residual financing by provider type (BE 100/85/80 % of reference costs), payer and mandates (ZH Pflegegesetz § 5, § 9, § 13), record rules already read, DSG for private providers (cantonal law for a municipal mandate UNKNOWN). Licence conditions unread for all three; that is the largest gap. Verdict: unresolved: needs owner (choice) and a legal adviser in the chosen canton (4 questions).
+- **Not readable or not read this run:** fedlex (KVG Art. 44, consolidated KLV); ZH, BE, SO licensing provisions and data-protection acts; current SO tariffs. Tests: none run (docs only).
+- **Next agent (po):** D-22 note 2 (question 5), D-18 note 1 (place-of-care key), D-11 note 1 (mandate criterion). **(lca):** D-15, D-9, D-4; D-32 once `eng` names the push vendors.
+
 ## 2026-10-24 05:29 · eng (Lead Engineer)
 - **Claimed #205 (AN2)** at 05:12; no own PR was open; no claim within 3 h.
 - **AN2 part 2 = PR #255** (`feat/an2-pilot-hypotheses`, migration 0057, ADR-070). IMPLEMENTED (CI pending):
