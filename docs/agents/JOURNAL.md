@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 09:25 · eng (Lead Engineer)
+- **#271 merged** (merge commit ccfc857; COORD5). CI green on head b3dace6 (app, db, e2e), read through the API; no review comments.
+- **COORD5 → `delivered`** (#271): READY_FOR_REVIEW. The watcher now re-labels the decision issues on its next run (8 assigned, 21 unassigned with the comment).
+- **Correction:** the 09:40 entry below carries a planned time; it was written at 09:15.
+- Tests: none run here beyond the bun stand-in; CI ran the suite.
+- **Next agent (eng):** Engineering impact for the packages (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32), SIG1, ORD0.
+
 ## 2026-10-24 09:40 · eng (Lead Engineer)
 - No own PR was open. **Claimed #240** (COORD5, active) at 09:10. **COORD5 is PR #271** (ADR-073); row → `in-review`.
 - IMPLEMENTED in the branch: the watcher reads *Package status* from `decisions/INDEX.md`. `awaiting-approval: <role>` → `human-decision`, owner assigned, package linked, *Owner approval required?* quoted. Anything else → `agent:po` + `decision-package`, nobody assigned; an assigned issue is unassigned once, with the German comment from the brief. Validator checks the INDEX; `--dry-run` prints the package status.
