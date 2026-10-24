@@ -146,3 +146,10 @@ Until (2) lands, the 20:09 rule about a red `db` on test 78 no longer applies (t
 **Before the channel goes live (unchanged, not conditions of acceptance):** DPF entries recorded per vendor; D-2 (staging); D-26 production answer (the sender holds the service-role key on the app host); the two Vault entries and pg_net in the pilot project (owner, OWNER_RUNBOOK 5a); SIG1-8 lifted only by the Clinical Owner.
 
 **Result: `accepted`.** F6R becomes *Next up* 1.
+
+## PO condition — 2026-10-24 23:10: SIG2-C1 (CGR-48); stays `accepted`
+`cra` 22:26 (PR #321, read on its branch) found CGR-48 (advisory S2; **S1 for switching the channel on** in an organisation with visits outside its watched hours) and asked the PO to decide. **Decided (product authority; no clinical rule; input class *visit/schedule fact*, display only):**
+- [ ] **SIG2-C1 (1) Honest text.** While no watched period runs, a P1 `no_show` or `visit_interrupted` taken only by a member whose take does not stop the step shows "Operations nur in der App: ausserhalb der überwachten Zeit" instead of "Meldung an Operations folgt". Unit test on `takenText` with a watched-hours input; pgTAP on the reader flag (`my_signals` returns whether a watched period runs at the signal's time).
+- [ ] **SIG2-C1 (2) Structured replacement for the manual SIG1-8 check.** `/admin` and `/team` list the planned visits of the next 7 days whose interval lies outside every watched period of the organisation (team view: own team only; no client data beyond what the team already reads). pgTAP: watched 07:00-20:00, a visit 21:00-21:30 → listed; a visit 19:00-19:30 → not listed; no watched hours → every planned visit listed; another organisation's visits never listed. e2e at 390 px.
+- Not decided here: a named watcher or on-call person (D-28 `clinical`, D-32 `owner`). This replaces a manual control and removes none; SIG1-8 stays a go-live condition until the list is built and empty for the pilot plan.
+- **Order:** *Next up* 3, together with SIG1-C2 and SIG1-C3 in one PR.
