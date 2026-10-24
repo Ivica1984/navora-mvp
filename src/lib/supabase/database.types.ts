@@ -1501,6 +1501,11 @@ isOneToOne: false
 "pause_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"pilot_hypotheses":
+{ Args: { "p_month": string }; Returns: {
+              "base": number,"detail": string,"measure": string,"note": string,"organization_id": string,"suppressed": boolean,"team_id": string,"team_name": string,"too_few": boolean,"value": number
+            }[]
+                           },
 "pilot_kpis":
 { Args: { "p_month": string }; Returns: {
               "base": number,"kpi": string,"note": string,"organization_id": string,"team_id": string,"team_name": string,"too_few": boolean,"value": number

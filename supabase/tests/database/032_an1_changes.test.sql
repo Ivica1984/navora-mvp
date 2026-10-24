@@ -85,7 +85,11 @@ set local role authenticated;
 select ok((pg_temp.kpi('care_share_in_visits', 'b2000000-0000-4000-8000-0000000000b2') ->> 'value') is null
           and (pg_temp.kpi('care_share_in_visits', 'b2000000-0000-4000-8000-0000000000b2') ->> 'too_few')::boolean,
   'a team with two persons shows no figure');
-select ok((pg_temp.kpi('care_share_in_visits') ->> 'value') is not null, 'the organisation figure stays');
+-- AN1 condition (PO review 2026-10-22 17:15, built in 0057 with AN2): the hidden team's figure would be "organisation
+-- minus the visible team", i.e. the two persons of Fremdteam B2, so the organisation figure is hidden too.
+select ok((pg_temp.kpi('care_share_in_visits') ->> 'value') is null
+          and (pg_temp.kpi('care_share_in_visits') ->> 'note') like 'Zu wenig Personen%',
+  'the organisation figure is hidden while the persons of all hidden teams number 1 or 2 (AN1 condition)');
 reset role;
 
 select * from finish();

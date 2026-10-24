@@ -34,3 +34,40 @@ test("a nurse sees only her own team, never organisation figures (AN1)", async (
   await expect(page.getByRole("region", { name: "Ganze Organisation" })).toHaveCount(0);
   await expect(page.getByRole("region", { name: /^Team / })).toHaveCount(1);
 });
+
+// AN2 part 2 — "Pilot-Hypothesen" at phone width (the team page links here as "Teamzahlen").
+test("Pilot-Hypothesen render at 390 px with base and period on every row, no horizontal overflow (AN2)", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signIn(page, OPS, /\/operations$/);
+  await page.goto("/analytics");
+  const section = page.getByRole("region", { name: "Pilot-Hypothesen" });
+  await expect(section).toBeVisible();
+  const org = section.getByRole("group", { name: "Hypothesen: Ganze Organisation" });
+  await expect(org).toBeVisible();
+  await expect(org.locator("[data-hypothesis]")).toHaveCount(7);
+  const rows = section.locator("li[data-measure]");
+  const n = await rows.count();
+  expect(n).toBeGreaterThan(0);
+  for (let i = 0; i < n; i++) {
+    await expect(rows.nth(i).getByTestId("hyp-base")).toContainText("Basis");
+    await expect(rows.nth(i).getByTestId("hyp-period")).not.toBeEmpty();
+  }
+  // AN2-M7: the minimum-duration reason has its own row in every scope.
+  await expect(org.locator('li[data-measure="not_billable_reason"][data-detail="below_minimum"]')).toContainText("unter der Mindestdauer");
+  // Values or "zu wenig Personen" (the seed's teams are small; pgTAP 059 proves the values and the suppression).
+  await expect(org.locator('li[data-measure="coordinator_ends"]').getByTestId("hyp-value")).toHaveText(/^(zu wenig Personen|\d+)/);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
+test("a nurse sees Pilot-Hypothesen of her own team only (AN2)", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signIn(page, NURSE, /\/field$/);
+  await page.goto("/analytics");
+  const section = page.getByRole("region", { name: "Pilot-Hypothesen" });
+  await expect(section.getByRole("group", { name: "Hypothesen: Ganze Organisation" })).toHaveCount(0);
+  await expect(section.getByRole("group", { name: /^Hypothesen: Team / })).toHaveCount(1);
+  await expect(section.getByRole("group", { name: "Hypothesen: Team Testteam Nord" })).toBeVisible();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
