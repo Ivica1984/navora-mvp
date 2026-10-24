@@ -751,6 +751,46 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"organization_push_settings": {
+                  Row: {
+                    "enabled": boolean,"enabled_since": string | null,"id": string,"organization_id": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "enabled"?: boolean,"enabled_since"?: string | null,"id"?: string,"organization_id": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "enabled"?: boolean,"enabled_since"?: string | null,"id"?: string,"organization_id"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "organization_push_settings_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: true
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"organization_watched_hours": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"ends": string,"id": string,"organization_id": string,"starts": string,"weekday": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"ends": string,"id"?: string,"organization_id": string,"starts": string,"weekday": number
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"ends"?: string,"id"?: string,"organization_id"?: string,"starts"?: string,"weekday"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "organization_watched_hours_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"organizations": {
                   Row: {
                     "created_at": string,"id": string,"name": string
@@ -816,6 +856,46 @@ isOneToOne: false
       referencedRelation: "organizations"
       referencedColumns: ["id"]
     }
+                  ]
+                },"push_subscriptions": {
+                  Row: {
+                    "auth_secret": string,"claimed_at": string | null,"created_at": string,"endpoint": string,"id": string,"last_result": string | null,"last_sent_at": string | null,"organization_id": string,"p256dh": string,"test_requested_at": string | null,"user_id": string,"vendor": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "auth_secret": string,"claimed_at"?: string | null,"created_at"?: string,"endpoint": string,"id"?: string,"last_result"?: string | null,"last_sent_at"?: string | null,"organization_id": string,"p256dh": string,"test_requested_at"?: string | null,"user_id": string,"vendor": string
+                  }
+                  Update: {
+                    "auth_secret"?: string,"claimed_at"?: string | null,"created_at"?: string,"endpoint"?: string,"id"?: string,"last_result"?: string | null,"last_sent_at"?: string | null,"organization_id"?: string,"p256dh"?: string,"test_requested_at"?: string | null,"user_id"?: string,"vendor"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "push_subscriptions_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "push_subscriptions_vendor_fkey"
+      columns: ["vendor"]
+isOneToOne: false
+      referencedRelation: "push_vendors"
+      referencedColumns: ["vendor"]
+    }
+                  ]
+                },"push_vendors": {
+                  Row: {
+                    "country": string,"dpf_read_on": string | null,"dpf_swiss_status": string | null,"hosts_exact": (string)[],"hosts_suffix": (string)[],"legal_entity": string,"vendor": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "country": string,"dpf_read_on"?: string | null,"dpf_swiss_status"?: string | null,"hosts_exact"?: (string)[],"hosts_suffix"?: (string)[],"legal_entity": string,"vendor": string
+                  }
+                  Update: {
+                    "country"?: string,"dpf_read_on"?: string | null,"dpf_swiss_status"?: string | null,"hosts_exact"?: (string)[],"hosts_suffix"?: (string)[],"legal_entity"?: string,"vendor"?: string
+                  }
+                  Relationships: [
+                    
                   ]
                 },"quality_event_log": {
                   Row: {
@@ -1031,14 +1111,14 @@ isOneToOne: true
                   ]
                 },"safety_signals": {
                   Row: {
-                    "created_at": string,"ended_at": string | null,"escalated_at": string | null,"exception_key": string,"id": string,"organization_id": string,"p1_at": string,"signal_kind": string,"taken_at": string | null,"taken_by": string | null,"team_id": string,"visit_id": string
+                    "created_at": string,"ended_at": string | null,"escalated_at": string | null,"exception_key": string,"id": string,"organization_id": string,"outside_none_at": string | null,"p1_at": string,"signal_kind": string,"taken_at": string | null,"taken_by": string | null,"team_id": string,"visit_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"ended_at"?: string | null,"escalated_at"?: string | null,"exception_key": string,"id"?: string,"organization_id": string,"p1_at": string,"signal_kind": string,"taken_at"?: string | null,"taken_by"?: string | null,"team_id": string,"visit_id": string
+                    "created_at"?: string,"ended_at"?: string | null,"escalated_at"?: string | null,"exception_key": string,"id"?: string,"organization_id": string,"outside_none_at"?: string | null,"p1_at": string,"signal_kind": string,"taken_at"?: string | null,"taken_by"?: string | null,"team_id": string,"visit_id": string
                   }
                   Update: {
-                    "created_at"?: string,"ended_at"?: string | null,"escalated_at"?: string | null,"exception_key"?: string,"id"?: string,"organization_id"?: string,"p1_at"?: string,"signal_kind"?: string,"taken_at"?: string | null,"taken_by"?: string | null,"team_id"?: string,"visit_id"?: string
+                    "created_at"?: string,"ended_at"?: string | null,"escalated_at"?: string | null,"exception_key"?: string,"id"?: string,"organization_id"?: string,"outside_none_at"?: string | null,"p1_at"?: string,"signal_kind"?: string,"taken_at"?: string | null,"taken_by"?: string | null,"team_id"?: string,"visit_id"?: string
                   }
                   Relationships: [
                     {
@@ -1075,6 +1155,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     },{
       foreignKeyName: "signal_deliveries_signal_id_fkey"
+      columns: ["signal_id"]
+isOneToOne: false
+      referencedRelation: "safety_signals"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"signal_outside_deliveries": {
+                  Row: {
+                    "claimed_at": string | null,"decided_at": string,"failure": string | null,"id": string,"organization_id": string,"recipient_id": string,"result": string,"sent_at": string | null,"signal_id": string,"tapped_at": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "claimed_at"?: string | null,"decided_at"?: string,"failure"?: string | null,"id": string,"organization_id": string,"recipient_id": string,"result": string,"sent_at"?: string | null,"signal_id": string,"tapped_at"?: string | null
+                  }
+                  Update: {
+                    "claimed_at"?: string | null,"decided_at"?: string,"failure"?: string | null,"id"?: string,"organization_id"?: string,"recipient_id"?: string,"result"?: string,"sent_at"?: string | null,"signal_id"?: string,"tapped_at"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "signal_outside_deliveries_id_fkey"
+      columns: ["id"]
+isOneToOne: true
+      referencedRelation: "signal_deliveries"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "signal_outside_deliveries_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "signal_outside_deliveries_signal_id_fkey"
       columns: ["signal_id"]
 isOneToOne: false
       referencedRelation: "safety_signals"
@@ -1575,9 +1687,12 @@ isOneToOne: false
               "area": string,"covered_at": string,"minutes_a": number,"minutes_b": number,"minutes_c": number,"services": (string)[],"status": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
+"my_push_state":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "my_signals":
 { Args: Record<PropertyKey, never>; Returns: {
-              "delivered_at": string,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_by_me": boolean,"taken_by_name": string,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
+              "delivered_at": string,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_by_me": boolean,"taken_by_name": string,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
 "operations_exceptions":
@@ -1612,6 +1727,14 @@ isOneToOne: false
 "plan_visit":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
                            },
+"push_dispatch_claim":
+{ Args: { "p_limit"?: number }; Returns: {
+              "auth_secret": string,"endpoint": string,"kind": string,"p256dh": string,"ref_id": string,"subscription_id": string
+            }[]
+                           },
+"push_dispatch_report":
+{ Args: { "p_kind": string,"p_ref_id": string,"p_results": Json }; Returns: string
+                           },
 "record_absence":
 { Args: { "p_from": string,"p_from_time": string,"p_idempotency_key": string,"p_team_id": string,"p_until": string,"p_until_time": string,"p_user_id": string }; Returns: Json
                            },
@@ -1633,11 +1756,17 @@ isOneToOne: false
 "record_partner_request":
 { Args: { "p_city": string,"p_idempotency_key": string,"p_need_summary": string,"p_organization_id": string,"p_partner_name": string,"p_partner_type": string,"p_region": string,"p_request_title": string,"p_requested_services": (string)[],"p_time_info": string,"p_urgency": string }; Returns: string
                            },
+"record_push_tap":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
 "record_quality_event":
 { Args: { "p_idempotency_key": string,"p_note": string,"p_occurred_at": string,"p_severity": string,"p_type_code": string,"p_visit_id": string }; Returns: Json
                            },
 "refresh_team_plans":
 { Args: Record<PropertyKey, never>; Returns: number
+                           },
+"register_push_subscription":
+{ Args: { "p_auth": string,"p_endpoint": string,"p_idempotency_key": string,"p_p256dh": string }; Returns: Json
                            },
 "remove_planned_visit":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: Json
@@ -1684,6 +1813,9 @@ isOneToOne: false
 "set_member_role":
 { Args: { "p_idempotency_key": string,"p_organization_id": string,"p_reason": string,"p_role": string,"p_user_id": string }; Returns: string
                            },
+"set_outside_push":
+{ Args: { "p_enabled": boolean,"p_idempotency_key": string,"p_organization_id": string }; Returns: string
+                           },
 "set_primary_nurse":
 { Args: { "p_case_id": string,"p_deputy": string,"p_idempotency_key": string,"p_primary": string,"p_reason": string }; Returns: string
                            },
@@ -1698,6 +1830,9 @@ isOneToOne: false
                            },
 "set_team_priority":
 { Args: { "p_idempotency_key": string,"p_priority": boolean,"p_team_id": string }; Returns: string
+                           },
+"set_watched_hours":
+{ Args: { "p_hours": Json,"p_idempotency_key": string,"p_organization_id": string }; Returns: string
                            },
 "sign_report":
 { Args: { "p_idempotency_key": string,"p_report_id": string,"p_snapshot_hash": string }; Returns: Json
@@ -1747,6 +1882,11 @@ isOneToOne: false
               "auto_planning": boolean,"b_until": string,"blocked_reason": string,"case_id": string,"generated_ahead": number,"generated_on": string,"order_flagged": number,"unscheduled": Json
             }[]
                            },
+"team_push_status":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "active": boolean,"member_name": string,"team_id": string,"team_name": string,"user_id": string
+            }[]
+                           },
 "team_visit_alerts":
 { Args: Record<PropertyKey, never>; Returns: {
               "case_id": string,"client_name": string,"detail": string,"exception_key": string,"exception_type": string,"flags": (string)[],"label": string,"priority": string,"since": string,"taken": boolean,"team_id": string,"team_name": string,"visit_id": string
@@ -1756,6 +1896,9 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
+                           },
+"unregister_push_subscription":
+{ Args: { "p_endpoint": string,"p_idempotency_key": string }; Returns: string
                            },
 "update_case_intake":
 { Args: { "p_case_id": string,"p_facts": Json,"p_idempotency_key": string,"p_reason"?: string }; Returns: Json
