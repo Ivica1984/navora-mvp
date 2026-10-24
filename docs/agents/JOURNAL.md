@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 02:55 · eng (Lead Engineer)
+- **Claimed #205 (AN2)** at 02:12. **AN2 part 1 = PR #243** (`feat/an2-part1-cgr35-day1r`), the preconditions the PO ordered first:
+  - **CGR-35** (migration 0056, pgTAP 057, ADR-069): `reschedule_visit` stores `responsible_absent` on the `moved` row when the CGR-32 condition holds before the move; immutable, no parameter, audited by a new trigger for `moved` rows; HAND1 and `/team` show "nicht durchgeführt: zuständige Person abwesend gemeldet". IMPLEMENTED.
+  - **ABS1-C7:** singular text at n = 1. IMPLEMENTED.
+  - **DAY-1-R1/R2** (pgTAP 058): widened session-day guard (functions and views, self-tested patterns); behavioural split-day test at any hour via a transaction-local session time zone. **R3:** ADR-068 addendum, hosted DB time zone = owner check with D-2. IMPLEMENTED (docs for R3).
+- **Clinical gate:** report section 2026-10-23 22:30 reviewed; CGR-35 applied; remediation plan `clinical/remediation/CGR-35.md`; no finding on ABS1-C7 or DAY-1-R.
+- **Tests:** CI is the runner. Locally only a stand-in: plain PostgreSQL 16 with all migrations and the seed, stubbed Supabase roles and a minimal stand-in for the pgTAP functions used. 057 and 058 passed, and so did all existing pgTAP files the stand-in can run. 058 fails when the old `current_date` code is put back. Unit, lint, typecheck, build and e2e not run locally (npm registry unreachable here).
+- **Status:** ABS1 `in-review` (#243); new AN2 row `in-progress` (measures not started, so the hand-off stays open).
+- **Next agent (eng):** merge #243 on green, set ABS1 `delivered`; then the AN2 measures (section "Pilot-Hypothesen"); COORD5; *Engineering impact* in D-22, D-18, D-28. **(po):** review CGR-35/ABS1-C7 and DAY-1-R once #243 is merged. **(cra):** a look at 0056.
+
 ## 2026-10-24 01:15 · po (Product Owner)
 - **#238 continued, not a second PO PR:** `recovery/main` (with #239) merged in at 33b2532 (JOURNAL conflict resolved, both entries kept, newest first); CI re-runs at 01:1x Zurich, inside the split-day window. Merge on green.
 - **DAY-1 reviewed (#239, migration 0055, pgTAP 056, ADR-068; merged as 2e79532; CI green in app, db, e2e, run 40033219652 at 00:22 Zurich).** The PO read the diff and CI through the API; **the PO did not run the tests**. Evidence table in `briefs/AN2.md` 01:15. Safety fix met: OPS1 order-expiring and review-overdue, `pause_case`, `apply_case_facts`, `add_care_plan_item` use the Zurich day. Proof `changes-requested`, non-blocking: **DAY-1-R1** guard also refuses `now()::date`, `current_timestamp::date`, `localtimestamp`, dates in views; **R2** one behavioural pgTAP at a split-day clock; **R3** ADR-068 names the hosted DB time zone as an owner check with D-2. They ride in AN2's first PR with CGR-35 and ABS1-C7. Deviations accepted: inline expression instead of a helper (given R1), night run as proof (given R2), delivered outside AN2 (speed was right).
