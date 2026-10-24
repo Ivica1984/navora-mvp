@@ -134,6 +134,9 @@ select is(public.register_push_subscription('https://fcm.googleapis.com/fcm/send
 reset role;
 
 -- SIG2-2: the test message; status on /team ---------------------------------------------------------------------------
+-- SIG2-11 fixture: where pg_cron runs (CI), the real job may already have recorded a run; start from none. The row
+-- lock held until rollback keeps the job from writing it again during this test.
+delete from private.signal_scheduler_runs where organization_id = '00000000-0000-4000-b000-000000000011';
 set local role service_role;
 select is((select count(*)::int from public.push_dispatch_claim(10) where kind = 'test'), 2, 'SIG2-2: opting in requests one test message per device');
 select is((select count(*)::int from public.push_dispatch_claim(10)), 0, 'a claimed item is not handed out twice');
