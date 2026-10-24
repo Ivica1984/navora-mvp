@@ -94,3 +94,11 @@ CGR-36, CGR-38 (`reports/CLINICAL_GOVERNANCE.md` 2026-10-24 02:26); CR-003, CR-0
 - The deadline, the content of the information and whether a reassessment result must be sent remain D-22 question 6 (legal adviser, Clinical Owner).
 
 **Deviations 2-4** (13:15) stay accepted. **Result: `changes-requested`** (ORD0-C1, ORD0-C2). Acceptance follows when both are merged with green CI; no further `cra` gate is needed for these two unless `cra` finds a new hazard in them. Issue #292 stays open for that review.
+
+## PO note — 2026-10-24 16:20: ORD0-C2 widened to (b)+(c) before work starts
+`lca` 16:05 (D-22) finds (c) safer than (a) but narrower than the contract's trigger (a lasting change of needs, [S11] Art. 9 Abs. 1). ORD0-C2 is unstarted (*Next up* 1), so it is widened now, as one more trigger on the same task (product authority; no deadline, content or clinical threshold set). Added to ORD0-C2:
+- (a′) **One** `inform_gp` task also opens when a needs-assessment visit (`is_needs_assessment`) reaches `completed` in a case whose order is not `present`, and no "Hausärztin/Hausarzt informiert" record is dated on or after the day of that completion. The trigger reads the completed assessment visits, not `cases.needs_assessment_done_at` (which keeps only the first assessment). The rule "never a second task while one is open; a refresh never reopens" applies to both triggers.
+- (d′) pgTAP, in addition to (d): a record, then a completed second needs-assessment visit in a case without an order → one new task; the same with an order `present` → no task; a completed assessment and a new C item on the same day → still one task.
+- The first opening stays as built (planning finds A/C minutes without an order, `no_order_ac` in 0030 and earlier); (a′) adds the assessment event, mostly relevant for reassessments.
+
+Everything else in ORD0-C2 and ORD0-C1 is unchanged. Acceptance: ORD0-C1 and the widened ORD0-C2 merged with green CI.
