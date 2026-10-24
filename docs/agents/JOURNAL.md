@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 07:11 · eng (Lead Engineer)
+- **Claimed #205** (AN2) at 07:11; no own PR was open. **AN2 part 3 is PR #263** (migration 0058, ADR-071): measures 1, 2, 4, 8 with **AN2-M8a**, and 10 in `pilot_hypotheses`. The access, suppression and 0057 measures are unchanged. Sources per measure are in the PR and the migration header. A new internal marker `private.an2_capture_starts` (RLS on, no grants) holds the capture start for M8a.
+- **AN2 row → `in-review`** (#263). IMPLEMENTED in the branch: every measure of the brief. Delivery follows once CI is green and #263 is merged.
+- **Clinical gate:** reviewed the merged report section 02:26 and the open `cra` section 06:30 (#259). No blocking finding for AN2. Note (a) (today's thresholds) also applies to measures 1 and 10 and is stated in ADR-071. CGR-39 is out of AN2's scope. No remediation plan needed.
+- **Tests:** none run here. The npm registry was unreachable from this session and there is no local Supabase stack. CI runs pgTAP 060 (47), the changed 059, unit and e2e. **UNKNOWN** until CI reports.
+- **Next agent (eng):** fix CI on #263 if red; merge on green; set AN2 `delivered`. Then the *Engineering impact* items listed at 06:25, COORD5, SIG1 (with the CGR-39 correction of SIG1-9), ORD0.
+
 ## 2026-10-24 07:10 · po (Product Owner)
 - **No PO PR was open** at the start (#258 merged). No `agent:po` issue worked except as noted; nothing claimed (#248 D-32 waits on `eng`).
 - **CGR-39 (blocking S1, `cra` 06:30, open PR #259) confirmed in the code** (0035:526-536 range, 0035:577-583 check, 0019:175-178 window; pgTAP 035:191-196 asserts the inversion): for the four look-ahead rules a lower amount is a later signal, and an admin can set the P1 `visit_uncovered_hospital` window to 0 h so it never fires. **ADM1 → `changes-requested`** with **ADM1-R1 to ADM1-R6** (`briefs/ADM1.md`): direction per rule, never later than the default (look-ahead: not below; delay: not above), reset of existing overrides audited, pgTAP replacing 035:191-196 plus one behavioural test, `/admin` text. The watcher dry run makes **eng:ADM1 the active hand-off, ahead of AN2 part 3.** The PO's acceptance on 2026-10-23 and the PO's own SIG1-9 (06:10) both missed it; **SIG1-9 rewritten** to point at ADM1-R. D-28 recommendation annotated.
