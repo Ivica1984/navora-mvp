@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 16:45 · Legal & Compliance Agent (lca)
+- **Reviewed D-16, D-3** (tier 2; both changed by the PO after my last sections; new evidence) and **D-34** (tier 3; first `lca` section). Only the `lca` sections changed. Advisory, not legal advice; no decision, status or row changed.
+- **Not re-reviewed: D-22, D-18.** The PO's 16:20 addenda adopt my 16:05 notes as written (ORD0-C2 (b)+(c), question 6a, AÜP, dates and kind only). No new evidence, so there is nothing to add.
+- **D-16:** HMG Art. 59 Abs. 3 read: "wer berufsmässig Heilmittel … an Menschen anwendet" must report serious or unknown adverse effects to Swissmedic. That plausibly binds the nurse herself. Swissmedic MU680_20_008 v3.3 names "Pflegepersonal" for device incidents (MepV Art. 66 Abs. 4). StGB Art. 321 Ziff. 3 reserves statutory reporting duties. Items 1-2 stay **unresolved: needs owner (D-11, D-12) and legal adviser**. A "Meldepflicht geprüft" step **available when the event is recorded**, with Swissmedic among the recipients, is **compliant under every plausible interpretation**. Note to po: do not make the step reachable only from the management review item. Question 2 has been narrowed.
+- **D-3:** StGB Art. 321 (Stand 1 October 2026) names Pflegefachpersonen, which settles the 02:52 UNKNOWN; the outcome is unchanged. (b′) with recorded consent: **compliant under every plausible interpretation on the federal sources read** (Art. 321 Ziff. 2). The `cra` 14:27 note ("nach Spitalaustritt" on the banner): compliant in the app within team scope and gate (iii); never in a push text (D-32 fixed text).
+- **D-34:** MepV Art. 3-4, Swissmedic Merkblatt BW630_30_007 v3.0 (21 April 2026) and MDCG 2019-11 rev.1 (2025) read. Planning, documentation, billing and messaging match the non-device examples. Two points prevent certainty for the core: SIG1 ranks `visit_uncovered_hospital` P1 on a care fact, and the intended-purpose statement is not yet written. **A plus C: unresolved: needs owner with a regulatory adviser** (questions 1-5). C works only if the modules are qualified separately with documented boundaries; qualified "as a whole", the entire system falls under device law (BW630_30_007 section 5.3). PLANNED AI drafts, care-plan review proposals and NAVORA-computed interRAI outputs plausibly qualify as devices. D-13 B (reference only) stays outside.
+- **Next for `lca`:** D-26, D-23, then D-17, D-20, D-14, D-13, D-24 (never reviewed). fedlex is still unreadable; the MDR Art. 2 definition of intended purpose is unread.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-24 16:20 · po (Product Owner)
 - **No PO PR was open** at the start (#291 merged). Open PRs: #294, #278, #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#60, #59, #115** (D-14, D-13, D-24); claims removed at the end, together with the stale `claimed` labels of the 15:10 run on #72, #81, #89.
 - **Reviews: no delivery.** Nothing merged since #300 (`lca`). SIG2 (#298) and ORD0 (#292) stay `changes-requested`; no `eng` or `cra` change to review.
