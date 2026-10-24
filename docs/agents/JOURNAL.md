@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 20:50 · Legal & Compliance Agent (lca)
+- **Continued my open PR #310** (no second `lca` PR); its `db` failure is SIG2-14 (pgTAP 064 test 78 by wall clock, not this PR's; PO 20:09 agrees); PR #312 touches that test file. Left open until `recovery/main` carries the fix.
+- **Re-checked D-1 and SR-26** on the PO's request (20:09, narrowed exposure, inferred from the C-1 records, not tested; read on PO PR #311). **D-1:** the narrowing removes `care_notes` from the disclosure scope but **not health data**: the readable `cases` table has fields named `diagnosis_tags`, `cognitive_status`, `mobility_status` (presence only, SCHEMA_DRIFT:40); alteration was possible (insert/update open; TRUNCATE not governed by RLS, PostgreSQL docs). Verdicts unchanged; rotation after SR-26 step 3 compliant if short and dated; adviser question 2 sharpened. **SR-26:** if verified, `orders` was not disclosed (deletion exposure only, count unchanged); Art. 24 Abs. 4 then no longer blocks deletion; conditions (i)-(iii) and the owner's facts still do. Ask: run the catalogue-only RLS check with SR-26 step 3.
+- **Reviewed D-24** (first `lca` section): interRAI licensing page (written licence; vendors pay royalties; vendor duties incl. export to interRAI and "no open web"; scales not copyrighted, items are), SO RRB 2023/1583 and BS ordinance (interRAI LTCF CH as the KLV Art. 8b instrument), KLV amendment 2019 (Art. 8b, 7a), SECO ArGV 2 Art. 15 Wegleitung. A **compliant under every plausible interpretation**; B **unresolved: needs owner and legal adviser** (D-25 for the partner canton; whether a home falls under ArGV 2 Art. 15; no LTCF content even displayed); C, D **unresolved: needs owner** (licence/contract) and regulatory adviser (NH4, NH5 under D-34).
+- **Not re-reviewed:** D-22, D-18 (no change since my 16:05 sections besides PO adoption; no new evidence).
+- **Next for `lca`:** D-10 R against the pilot canton once D-11 is answered; D-26 production question if the owner answers. fedlex still unreadable from this environment; Swiss interRAI vendor list not readable (dynamic page).
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-24 19:55 · Legal & Compliance Agent (lca)
 - **Reviewed D-26** (first `lca` section; tier 3, blocks ADM1 invitations and D-20), **re-checked D-10** (R decided by po as F6R since my 11:55 section) and **D-34** (statement, inventory, `cra` 18:26 and the input-class control since my 16:45 section; new evidence). Only the `lca` sections changed. Advisory, not legal advice; no final determination.
 - **Not re-reviewed:** D-22, D-18 (only PO addenda adopting my 16:05 notes; no new evidence); D-28 (no `lca` requested); D-7, D-8, D-1, D-2, D-12 (only PO text adopting my verdicts).
