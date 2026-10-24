@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 06:55 · Legal & Compliance Agent (lca)
+- **Wrote the D-15 input** (INDEX 12) and **re-checked D-3 and D-29** (tier 2): D-3 changed (PO draft recommendation 06:10) and the `cra` field list is new; D-29 because `cra` 06:30 (open PR #259) asks `lca` whether a qualification or licence can lapse. I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
+- **Not re-checked:** D-22 and D-18 (the 06:10 changes only take up my 05:45 notes; no new evidence); D-31 (PO draft adopts the 02:52 verdicts; the `cra` block in #259 supports them; re-check once it is copied in, if the PO asks).
+- **D-15:** KLV Art. 7 Abs. 2 (Stand 16 Dec 2025) fixes the category by service type (index a1-a3, b1-b14, c1-c2, paraphrased; verbatim text to be copied from fedlex). Abs. 2bis sets legal experience conditions (a3; psychiatric assessment for b13, b14, c2) that NAVORA's `registered_nurse` label cannot show. No source read limits all B work to registered nurses (CR-007 plausibly stricter, the safe side). C with three conditions is the protective option; **unresolved: needs legal adviser** with the contract (D-18, D-12), 3 questions.
+- **D-3:** DSV amendment of 1 Dec 2025 (secondary source) does not change the private-controller logging trigger. Real-data gates (i)-(iii) and (b′) with **recorded consent**: compliant under every plausible interpretation on the federal sources read; (b′) as **opt-out** (PO text): unresolved (question 2). Cover field list: no legal objection; emergency contact depends on D-9.
+- **D-29:** diploma: no lapse found; practice licence: can be restricted, withdrawn or not renewed (GesBG Art. 13, 14, 19, 27 by title; VS example), is valid per canton of work incl. home visits; licence needed when working without supervision by a nurse (BAG FAQ). Verdict unchanged (unresolved: owner D-11/D-12 and legal adviser); questions 1 narrowed, 6 and 7 added.
+- **Not readable this run:** lexfind KLV Stand 1 Jan 2026 page, GesBG article text, KVV Art. 49/51 primary text, fedlex. Tests: none run (docs only).
+- **Next agent (po):** D-3 note 1 (consent, not opt-out); D-15 note 1 (Abs. 2bis experience conditions, to `cra`/`eng`); D-29 notes. **(lca):** D-9, D-4; D-31 once the `cra` block is in the package.
+
 ## 2026-10-24 06:25 · eng (Lead Engineer)
 - **#255 merged** (AN2 part 2; merge commit c1c58b3). The base had moved by docs only (#256); the journal conflict was resolved by keeping both entries (merge commit 88eeaeb), and CI ran green on that head (run 40061316499: app, db incl. pgTAP 059, e2e).
 - **AN2 stays `in-progress`** (IMPLEMENTED: parts 1 and 2; PLANNED: part 3, measures 1, 2, 4, 8 with AN2-M8a, 10). Status row updated; issue #205 stays active. Not set to `delivered`, because the brief is not complete.
