@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 18:12 · po (Product Owner)
+- **No PO PR was open** at the start (#303 merged). Open PRs: #294, #278, #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#68, #56, #116** (D-8, D-10, D-25); claims removed at the end.
+- **Reviews: no delivery.** Only `lca` (#304) merged since 17:10; SIG2 (#298) and ORD0 (#292) stay `changes-requested`. No `eng` run since 15:20.
+- **D-8 `awaiting-approval: owner`** (Medium). Engineering **drafted by po, not confirmed by eng** (two-run rule: requested 11:09, `eng` runs 12:25, 14:39, 15:20). Evidence from the repository: no workflow deploys anything, no hosting config, the deployments API is empty; **none of the 21 transcribed `src/` files survives unchanged** on `recovery/main` (12 removed, 9 rewritten), so O-C is dropped as a gate; **no `preserve-*` tag exists yet**. **Owner asked:** approve B: tag `preserve-main-2026-10-24` and `preserve-transcription-2026-10-21`, then merge PR #3 with a merge commit after D-7's ruleset; confirm no Codespace and no hosting service on `main`.
+- **D-10** Engineering drafted by po (two-run rule). New fact: a care-assistant visit is **billable only once countersigned** (`report_not_final`); R is about one additive migration and 15 pgTAP assertions. Still `inputs-requested`: `cra` open (one `cra` run since 11:09). Working view A plus R.
+- **D-25 package written**, `inputs-requested` (E, C, L). Working view A (no ward pilot); design target B: every role the licence names stays accountable and cannot be removed by a team command; only ward leadership, if not named, moves to the team; a prescribed mix becomes a hard roster constraint. After D-11.
+- **`lca` 17:57 taken up (no status change; Engineering still open in all three):** **D-23:** working view moves to **C plus D** (proposal only the nurse sees and completes; team-level North Star); B needs a legal adviser and is not pursued for the pilot; the licence holder adopts C as its record (D-12 condition). **D-14:** lean F3/F4 (F1, F2 unresolved); S1 in force; later owner ask S4 with an equal split; constraint 4 gains a published team-result calculation. **D-17:** B on three terms (precaution not diagnosis; the D-15 contact reused with the D-19 consent flag; no key-safe code); the contact person's information duty needs a legal adviser.
+- **Challenge:** billing waits on the countersignature queue. Hypothesis row: median signature → countersignature at most 1 working day, at least 95 in 100 within 3 working days; otherwise D-10 B is reopened with evidence.
+- No new brief: *Next up* 1 (ORD0-C1, widened ORD0-C2, SIG1-C1) and 2 (SIG2-11, SIG2-12) are approved and unstarted. ROADMAP: line 24.10. 18:12. Tests: none run (docs only); `node scripts/agents-check.mjs` run before publishing.
+- **Waiting on people:** **owner:** D-1 (urgent, one-line fact answer), D-7 (ruleset now), **D-8 (new: tags, then merge PR #3 after D-7)**, D-2, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1 (name the Clinical Owner). **Clinical Owner:** D-28, D-31, D-3, D-30, D-16, D-15. **Owner, process:** `cra` PRs #294, #278, #259 need a merge.
+- **Next agent:**
+  - **(eng):** ORD0-C1, widened ORD0-C2 and SIG1-C1 in one PR; then SIG2-11, SIG2-12. Please confirm or correct the po drafts in D-8, D-10, D-2, D-7, D-34; inputs still open for D-23, D-17, D-14, D-13, D-24, D-26, D-6, D-19, D-20, D-25, D-1, SR-26.
+  - **(cra):** D-10 (is R safer, workflow or documentation rule), D-34, D-17, D-14, D-13, D-24, D-25, D-6, D-19; 0062.
+  - **(lca):** D-25 (new), D-26, D-20, D-13, D-24.
+  - **(po):** D-17 and D-23 reach the Engineering two-run rule after the next `eng` run; D-26 next.
+
 ## 2026-10-24 17:57 · Legal & Compliance Agent (lca)
 - **Reviewed D-23, D-14, D-17** (tier 2: named by the open risks R-9, BL-12 and LT-2, H-03; D-14 also tier 3, billing and pay). First `lca` sections in all three. Only the `lca` sections changed. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-reviewed: D-22, D-18** (unchanged since my 16:05 sections; no new evidence). D-2 and D-7 (PO 17:10) left for a later run: the changes were the PO's route and design, not new legal facts.
