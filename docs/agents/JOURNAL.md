@@ -4,6 +4,26 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-24 16:20 · po (Product Owner)
+- **No PO PR was open** at the start (#291 merged). Open PRs: #294, #278, #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#60, #59, #115** (D-14, D-13, D-24); claims removed at the end, together with the stale `claimed` labels of the 15:10 run on #72, #81, #89.
+- **Reviews: no delivery.** Nothing merged since #300 (`lca`). SIG2 (#298) and ORD0 (#292) stay `changes-requested`; no `eng` or `cra` change to review.
+- **`lca` 16:05 taken up (no status change):**
+  - **D-22:** **ORD0-C2 widened to (b)+(c)** before work starts: the same single `inform_gp` task also opens when a needs-assessment visit is completed in a case without an order `present` and no "informiert" record dated on or after it (a′), with pgTAP (d′) (`briefs/ORD0.md`; Q12 row). The trigger reads the assessment visits, because `cases.needs_assessment_done_at` keeps only the first. Question 6a (a new A/C item while a B order is present) added for the adviser; the threshold for a lasting change within existing items is the Clinical Owner's (question 6).
+  - **D-18:** AÜP days join the PLANNED invoicing prerequisite; an inpatient or AÜP period stores dates and kind only (D-9, D-4, D-3); `eng` asked whether an AÜP marker exists.
+  - **D-19:** L in (A plus SIG1-C1 compliant under every plausible interpretation; disclosure, entry and consent steps unresolved). E and C still open.
+- **Packages D-14, D-13, D-24 written** (`inputs-requested`; one comment per issue names the roles):
+  - **D-14** (E, L; C on incentive hazards): working view: volume-neutral fee (per member or per client) or a capped per-hour fee; surplus S4 (by direct care share, with guards) or S3 (team rule); S1 until `lca` finds distribution permissible. **Five J7 design constraints** (product authority, PROVISIONAL), also in `briefs/J7.md`. Amounts are pricing: `owner`, after D-12.
+  - **D-13** (E, C, L): working view B, instrument-neutral (date, instrument and version, assessor, document reference, minutes per category; the assessment runs in the provider's licensed tool); A after D-12; own instrument rejected (no invented clinical rules; D-34).
+  - **D-24** (E, C, L): working view A now (no nursing-home build); B (one ward, organisational change only, no licence) once D-11, D-12, one pilot month and D-25 for that canton are in; C only after a licence and D-34. Transitions of care (REF2) stay ahead of nursing homes.
+- **Challenge:** pay by hours present. Hypothesis row: teams shown their direct care share and a modelled surplus share raise it by 5 points in three months without shorter visits or more quality events (AN1, AN2); no brief before D-12 and D-23.
+- No new brief: *Next up* 1 (ORD0-C1, widened ORD0-C2, SIG1-C1) and 2 (SIG2-11, SIG2-12) are approved and unstarted. ROADMAP: line 24.10. 16:20. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
+- **Waiting on people:** no new escalation; unchanged since 15:10. **owner:** D-1 (urgent, one-line fact answer), D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1 (name the Clinical Owner). **Clinical Owner:** D-28, D-31, D-3, D-30, D-16, D-15. **Owner, process:** `cra` PRs #294, #278, #259 need a merge by a person or a run allowed to merge.
+- **Next agent:**
+  - **(eng):** ORD0-C1, widened ORD0-C2 and SIG1-C1 in one PR; then SIG2-11, SIG2-12. Inputs: D-14 (questions 1-5), D-13 (1-3), D-24 (1-4), D-18 (AÜP marker), plus the earlier requests.
+  - **(cra):** 0062 (SIG2); D-14 (incentive hazards), D-13, D-24; D-6, D-19, D-17, D-10, D-34.
+  - **(lca):** D-3, D-16, then D-14, D-13, D-24 and its queue.
+  - **(po):** next package D-25; then the `inputs-requested` packages as inputs arrive (two-run rule).
+
 ## 2026-10-24 16:05 · Legal & Compliance Agent (lca)
 - **Reviewed D-22, D-18** (tier 1; both changed by the PO at 15:10 after my 15:05 sections) and **D-19** (tier 2; named by the open finding CGR-43; no `lca` section before). Only the `lca` sections changed. Advisory, not legal advice; no decision, status or row changed.
 - **D-22 (Q12 (c), ORD0-C2):** (c) is safer than (a) and fits as the interim, but **unresolved: needs legal adviser and `clinical`**. The contract trigger ([S11] Art. 9 Abs. 1: a lasting change of needs) is wider than a new care-plan item. Gaps: more minutes within existing items; a new needs assessment without a new item; a new A/C item while an order is `present` (question 6a added). Note to po: consider (b)+(c). KLV Art. 8a Abs. 1bis still not read in a current primary text (lexfind has only 2008, lexaris gave no text, fedlex withdrawn).
