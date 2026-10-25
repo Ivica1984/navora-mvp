@@ -43,3 +43,37 @@ Any threshold or watched-hours change (D-28, D-32), a planning-time notice (chal
 ## Open questions for engineering
 - Can `visits_outside_watched_hours` reuse `private.visit_interval` directly (it returns instants, the list compares wall-clock periods)? If not, name the shared helper in the ADR.
 - Estimate: one additive migration, about 12-18 pgTAP assertions, one unit test.
+
+## PO review 2026-10-25 17:11 CET: criteria met, awaiting clinical review (not accepted)
+
+**Reviewed:** PR #383 merged as `5fbda91` (merge commit; head `c93e82c`): migration 0071, ADR-084, pgTAP 069 (59 → 80) and 071 (81 → 88), unit `signals-rules.test.ts`, `rules.ts` (`operationsFollows`), remediation plans `clinical/remediation/CGR-57.md`, `CGR-58.md`, `CGR-59.md`, `READ_PATHS.md`. **CI** `app`, `db`, `e2e` green on head `c93e82c`, on the merge commit `5fbda91` and on `recovery/main` `9e97b03` (GitHub check runs read by the PO). **The PO did not run the tests**; Engineering ran them locally only with a pgTAP stand-in (vitest, typecheck, e2e not run locally); CI is the runner. `database.types.ts` was edited by hand.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| FUP1-1 one visit length: shares `visit_interval` | met | `private.visit_wall_range(care_visits)` reads `private.visit_interval(v)` for a visit without an end or with end = start (0071 part 1); the 3-argument helper is dropped (069 catalogue assertion), so the two cannot drift |
+| FUP1-1 pgTAP 19:50, 45 planned minutes → listed | met | 069 `f1950m45` listed; upper bound equals the wall reading of `visit_interval` |
+| FUP1-1 pgTAP 19:50, no planned minutes → listed | met | 069 `f1950m0` listed (to the end of its day) |
+| FUP1-1 pgTAP 08:00, 20 planned minutes → not listed | met | 069 `f0800m20` not listed; extra cases `f1930m20` not listed, `f1950eq` (end = start) listed |
+| FUP1-1 existing 069 assertions keep their result (06:50 stays listed) | met | 069 `w0650` listed; plan 59 → 80, no assertion removed (diff shows only the plan line changed among removed lines) |
+| FUP1-2 delivery exists → text follows its classification | met | `private.signal_step_outside_app`: made step → true only for an Operations delivery `pending` or `sent`; 069 `fsa` with an outside row `sent` → true, `outside_working_time` → false; `fsb`, `fsc` (no outside row, channel off) → false |
+| FUP1-2 no delivery yet → judged at the instant the step is due | met | 069: watched until 20:00, P1 at 19:50 due 20:05, read at 19:55 → `watched_inside` true but `signal_step_outside_app` false |
+| FUP1-2 reader flag and `takenText` | met | `my_signals.operations_outside_app` (0071); `operationsFollows` in `rules.ts`; unit test "follows operations_outside_app, not the reading instant" ; 069 `c3b`: `watched_now` and the new flag differ and the reader returns the new one |
+| FUP1-2 a missing flag never promises | met | `operationsFollows`: only `true` promises; a row without the field falls back to `watched_now` (null → no promise) |
+| FUP1-3 `in_billed_version` true / false / null | met | 071 v1: two corrections before the countersignature → true, one after → false; v4 without a billing fact → null; signature used when no countersignature is required (0071 `billed_at`) |
+| FUP1-3 level (b) without reason and corrector; nothing per person | met | 071: Operations reads `reason`, `corrector_name`, `corrected_by_me` all null; argument-name catalogue check; no grouping in the reader |
+| FUP1-4 no regression | met (CI) | `app`, `db`, `e2e` green on `c93e82c`, `5fbda91`, `9e97b03`; no 069, 070 or 071 assertion removed (plans only grew); SIG1-8 unchanged as a go-live condition (0071 header "Unchanged") |
+| FUP1-5 inventory header current | met | `READ_PATHS.md` header and the `visit_correction_history` row (#383, 16:40) |
+| One PR, status row ID `FUP1` | met | #383; `IMPLEMENTATION_STATUS.md` row `FUP1` |
+
+**Business value and care model.** The list that replaces a person's manual SIG1-8 check now uses the same visit length as every other safety check, so a planning team can trust it without re-counting (less coordination, value 1 and 5; patient safety precondition). The banner no longer promises a push that will not happen, so a care assistant does not wait for Operations when she should call (safety). Billing reads whether a correction is in the billed version from two recorded instants, so no clerk compares logs (value 5, before invoicing gate C). **Architecture Handbook:** read models over recorded facts, definer readers with the RLS3 access levels, additive migration; aligned.
+
+**Deviations (Engineering status row), decided:**
+1. *End = start reads as no end in the list*: **accepted**; it matches `visit_interval`, which is the point of FUP1-1 (one length everywhere), and it lists more, never fewer.
+2. *Watched periods read up to two days after the visit date*: **accepted**; covers a visit up to 30 planned hours, which no planned home-care visit reaches; protective.
+3. *New flag instead of changing `watched_now`*: **accepted**; `watched_now` keeps its SIGC meaning (is a period running now), and the banner reads the new flag.
+4. *Residual (UNKNOWN): a step due within the minute before a watched period ends may be classified one evaluator run later*: **decided as Q16** (po, product authority, display narrowing only): the banner promises the message only when a watched period runs **both** at the instant the step is due **and** one evaluator interval later (the scheduled job's cadence, one minute today per 0060; an operating fact, not a clinical value). Built as **FUP1-C1** below. Not a condition for acceptance: the window is at most one minute per watched-period end, and the wrong case is a promise the in-app delivery still covers (Operations receives the signal in the app either way).
+
+**Condition (rides in the next Engineering PR that touches 0071's `signal_step_outside_app` or pgTAP 069; before go-live):**
+- [ ] **FUP1-C1 (Q16) No promise in the last evaluator interval.** `private.signal_step_outside_app` (not-yet-made branch) returns true only when `watched_inside` is true at the due instant and at the due instant plus the evaluator interval (one minute; named once as a constant with a comment pointing to the cron schedule). pgTAP: watched until 20:00, step due 19:59:30 → false; due 19:58 → true; the made-step branch unchanged.
+
+**Not accepted yet: clinical gate.** FUP1 is in the clinical review scope (safety signals, billing); `cra` reviews the merge commit `5fbda91` (0071) before acceptance, as for SIGC. The PO accepts on a `cra` section with no blocking finding on 0071. FUP1 moves from *Next up* 1 to the queue (rank 31).
