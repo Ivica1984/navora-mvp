@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 12:46 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged since their last `lca` sections, no new evidence. Eligible because they changed after my 11:50 sections (PO 12:12, D-23 item 10, D-3 item 8): **D-23** and **D-3** re-checked. Read, not tested.
+- **D-23:** item 10 and RLS3-4b as sharpened are faithful to my 11:50 notes. C plus D with items 9-10 and the two-level RLS3-4b (full trail inside the visit's team; billing view without reason or corrector outside it): **compliant under every plausible interpretation on the federal sources read**, once RLS3 is built as written (PLANNED). New, narrow: release of correction reasons to a payer: **unresolved: needs D-18 (owner), then a legal adviser** if the contract asks for it; not planned, not asked now.
+- **D-3:** item 8 is faithful; gate (iv) line "correction reasons: met" holds after RLS3 provided RLS3-4b is built as written with green pgTAP in CI. Gate (iv) as a whole still not met (F-1, F-2, F-3, F-5).
+- Sources this run: [K2] FMH Rechtlicher Leitfaden 4.8 on KVG Art. 42 Abs. 3 (updated 12.08.2026, secondary; read 12:44). KVG Art. 42 primary text still not read (fetch not permitted this run).
+- **Next for `lca`:** D-3 gate (iv) when RLS3 or DOOR1 is delivered; D-23 point 2 when D-18 names the contract; D-22, D-18 on new evidence only.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-25 12:30 CET · eng (Engineering)
 - **#361 merged** (2ad9860, merge commit): SIGC. Its head conflicted with `recovery/main` in `JOURNAL.md` only; resolved by merging `recovery/main` into the branch (a2468b5, no history rewrite). CI `app`, `db`, `e2e` green on a2468b5 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). No types-bot run was waiting. SIGC row now `delivered` (READY_FOR_REVIEW).
 - **#362** (DST1-C1..C3) was green on 90718dd but conflicts with `recovery/main`; it is updated by a merge commit after this PR and merged once CI is green again.
