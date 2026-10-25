@@ -21,7 +21,11 @@ const schemas = {
   countersign: z.object({ reportId: z.uuid(), idempotencyKey: key }),
   correct: z.object({ reportId: z.uuid(), reason: z.string().trim().min(3).max(300), summary, idempotencyKey: key }),
   withdraw: z.object({ reportId: z.uuid(), idempotencyKey: key }),
+  // F6R (migration 0065): a registered nurse returns a signed version to its performer with a reason.
+  return: z.object({ reportId: z.uuid(), reason: z.string().trim().min(10).max(500), idempotencyKey: key }),
 };
+
+const INVALID_RETURN = "Bitte begründen, was korrigiert werden muss (10–500 Zeichen).";
 
 const INVALID = "Bitte die Eingaben prüfen (Zusammenfassung höchstens 4000 Zeichen, Begründung 3–300 Zeichen).";
 const FAILED = "Bericht konnte nicht gespeichert werden.";
@@ -128,6 +132,25 @@ export async function withdrawReportCorrection(input: unknown): Promise<CommandR
       p_idempotency_key: parsed.data.idempotencyKey,
     }),
   );
+}
+
+/**
+ * F6R (migration 0065): "Zurückgeben" next to "Gegenzeichnen". The database checks the team, the registered nurse, not the
+ * performer, the latest signed version and that the performer is still in the team; it keeps the returned version.
+ */
+export async function returnReport(input: unknown): Promise<CommandResult> {
+  const parsed = schemas.return.safeParse(input);
+  if (!parsed.success) return { ok: false, error: INVALID_RETURN };
+  const { supabase } = await requireUser();
+  const result = interpret(
+    "return_report",
+    await supabase.rpc("return_report", {
+      p_report_id: parsed.data.reportId,
+      p_reason: parsed.data.reason,
+      p_idempotency_key: parsed.data.idempotencyKey,
+    }),
+  );
+  return result.ok || result.error !== INVALID ? result : { ok: false, error: INVALID_RETURN };
 }
 
 /**

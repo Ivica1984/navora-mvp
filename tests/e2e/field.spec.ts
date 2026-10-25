@@ -289,7 +289,7 @@ test.describe("field tool (F1)", () => {
     await expect(report.getByTestId("report-status")).toHaveText("Bericht nicht automatisch erstellt");
   });
 
-  test("a care assistant signs what she sees; the countersignature request reaches a registered nurse of the team (F7)", async ({ page }) => {
+  test("a care assistant signs what she sees; the countersignature request reaches a registered nurse of the team (F7), who returns it, and countersigns the corrected version (F6R)", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     const DAY_AFTER = zurichDay(2);
 
@@ -311,7 +311,7 @@ test.describe("field tool (F1)", () => {
     await review.getByRole("button", { name: "Bericht unterschreiben" }).click();
     await expect(card.getByTestId("report-status")).toHaveText("Unterschrieben – Gegenzeichnung offen");
 
-    // A registered nurse of the team sees the request at the top of her day and countersigns.
+    // A registered nurse of the team sees the request at the top of her day.
     await page.context().clearCookies();
     await signIn(page, NURSE, /\/field$/);
     const queue = page.getByTestId("countersign-queue");
@@ -319,8 +319,50 @@ test.describe("field tool (F1)", () => {
     await queue.getByRole("link", { name: /Testfall 08/ }).click();
     await page.waitForURL(new RegExp(`datum=${DAY_AFTER}`));
     const report = page.getByRole("article", { name: /18:00 – 18:30/ }).getByTestId("visit-report");
-    await report.getByRole("button", { name: "Gegenzeichnen" }).click();
-    await expect(report.getByTestId("report-status")).toHaveText("Bericht abgeschlossen");
+
+    // F6R (migration 0065): she sees a wrong time and returns the report with a reason instead of countersigning it.
+    await report.getByRole("button", { name: "Zurückgeben" }).click();
+    const returnForm = report.getByRole("form", { name: "Bericht zurückgeben" });
+    await expect(returnForm.getByTestId("return-confirmation")).toContainText("zurück und wird erst nach erneuter Unterschrift und deiner Gegenzeichnung gültig");
+    await returnForm.getByLabel("Was muss korrigiert werden?").fill("Abfahrtszeit stimmt nicht, bitte korrigieren.");
+    await returnForm.getByRole("button", { name: "Zurückgeben" }).click();
+    await expect(report.getByTestId("report-status")).toHaveText("Zurückgegeben – wartet auf neue Unterschrift (Fassung 2)");
+    await expect(report.getByTestId("return-reason")).toContainText("Abfahrtszeit stimmt nicht");
+    await expect(page.getByTestId("countersign-queue")).toContainText("zurückgegeben");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+
+    // The care assistant finds it at the top of her day, corrects the departure time and signs again.
+    await page.context().clearCookies();
+    await signIn(page, ASSISTANT, /\/field$/);
+    const returned = page.getByTestId("returned-reports");
+    await expect(returned).toContainText("Abfahrtszeit stimmt nicht, bitte korrigieren.");
+    await returned.getByRole("link", { name: /Testfall 08/ }).click();
+    await page.waitForURL(new RegExp(`datum=${DAY_AFTER}`));
+    const mine = page.getByRole("article", { name: /18:00 – 18:30/ });
+    await expect(mine.getByTestId("report-status")).toHaveText("Zurückgegeben: bitte korrigieren und neu unterschreiben (Fassung 2)");
+    const zurich = (offsetMin: number) =>
+      new Intl.DateTimeFormat("de-CH", { timeZone: "Europe/Zurich", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+        .format(new Date(Date.now() + offsetMin * 60_000));
+    test.skip(zurich(0) < "00:30", "too close to midnight in Zurich for a same-day correction");
+    await mine.getByText("Zeiten ansehen und korrigieren").click();
+    const departed = mine.getByRole("list", { name: "Zeitverlauf" }).getByRole("listitem").filter({ hasText: "Losgefahren" });
+    await departed.getByRole("button", { name: "Korrigieren" }).click();
+    await departed.getByLabel("Richtige Uhrzeit").fill(zurich(-15));
+    await departed.getByLabel("Begründung").fill("Abfahrt zu spät getippt");
+    await departed.getByRole("button", { name: "Korrektur speichern" }).click();
+    await expect(departed).toContainText("korrigiert");
+    await mine.getByTestId("visit-report").getByRole("form", { name: "Bericht prüfen und unterschreiben" })
+      .getByRole("button", { name: "Bericht unterschreiben" }).click();
+    await expect(mine.getByTestId("report-status")).toHaveText("Unterschrieben – Gegenzeichnung offen (Fassung 2)");
+    await expect(page.getByTestId("returned-reports")).toHaveCount(0);
+
+    // The registered nurse countersigns the corrected version: only now is the report final.
+    await page.context().clearCookies();
+    await signIn(page, NURSE, /\/field$/);
+    await page.goto(`/field?datum=${DAY_AFTER}`);
+    const again = page.getByRole("article", { name: /18:00 – 18:30/ }).getByTestId("visit-report");
+    await again.getByRole("button", { name: "Gegenzeichnen" }).click();
+    await expect(again.getByTestId("report-status")).toHaveText("Bericht abgeschlossen (Fassung 2)");
   });
 
   test("works on a phone-sized screen without horizontal scrolling", async ({ page }) => {
