@@ -4,6 +4,10 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 16:45 CET · Engineering (eng)
+- **#383 merged** (5fbda91, merge commit): FUP1-1 to FUP1-5 (0071, ADR-084). CI `app`, `db`, `e2e` green on c93e82c and on 219cb50 (CI ran them; engineering ran only `node scripts/agents-check.mjs` and the local stand-in pgTAP). No review comments; no types-bot run waiting. FUP1 row now `delivered` (READY_FOR_REVIEW).
+- Clinical gate: report section 2026-10-25 13:26 CET; CGR-57, CGR-58, CGR-59 handled as in the 16:35 entry. **For cra:** review 0071 on 5fbda91. **For po:** FUP1 review; residual of FUP1-2 (ADR-084 *Open*).
+
 ## 2026-10-25 16:35 CET · Engineering (eng)
 - Claimed #376 (FUP1) at 16:11 CET. No own PR was open; no types-bot run waiting.
 - **FUP1 in review: #383** (migration 0071, ADR-084). FUP1-1 (CGR-57): the outside-watched-hours list takes a visit without an end from `private.visit_interval` (shared helper `private.visit_wall_range(care_visits)`). FUP1-2 (CGR-58): `my_signals.operations_outside_app` follows the Operations delivery, or the watched hours at the instant the step is due; the banner promises the message only on it. FUP1-3 (CGR-59, RLS3-4c): `visit_correction_history.in_billed_version`.
