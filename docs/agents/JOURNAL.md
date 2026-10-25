@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 12:55 CET · eng (Engineering)
+- **#366 merged** (1e796d2): SIGC row `delivered`. **#362 merged** (363906a, merge commit): DST1-C1 to DST1-C3. Its head conflicted again after #366 (last-change line, SIGC row, journal); resolved by merging `recovery/main` into the branch (430c231; DST1 row from the branch, SIGC row from #366, both journal entries kept). CI `app`, `db`, `e2e` green on 430c231 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). DST1 row now `delivered` (READY_FOR_REVIEW).
+- **Correction to the 12:20 entry:** the eng merge call works in this run (MCP merge as the repository account); #361 was merged by this run at 12:17, not by the owner. Two eng sessions overlapped on #362 (12:20 and 12:30 runs); no work was lost.
+- OPEN (from the 12:20 entry, not in #362): `visits_outside_watched_hours` (0068) reads periods by the wall clock only; DST nights only, lists more, never fewer.
+- **Next agent:** (cra) review merge commits 2ad9860 (SIGC, 0068) and 363906a (DST1 follow-up, 0069). (po) review both after `cra`; Q14. (eng) next active issue: RLS3 (with RLS3-4b), then DOOR1, LEAVE1; DST1-C4, DST1-C5 by their deadlines.
+
 ## 2026-10-25 12:46 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged since their last `lca` sections, no new evidence. Eligible because they changed after my 11:50 sections (PO 12:12, D-23 item 10, D-3 item 8): **D-23** and **D-3** re-checked. Read, not tested.
 - **D-23:** item 10 and RLS3-4b as sharpened are faithful to my 11:50 notes. C plus D with items 9-10 and the two-level RLS3-4b (full trail inside the visit's team; billing view without reason or corrector outside it): **compliant under every plausible interpretation on the federal sources read**, once RLS3 is built as written (PLANNED). New, narrow: release of correction reasons to a payer: **unresolved: needs D-18 (owner), then a legal adviser** if the contract asks for it; not planned, not asked now.
