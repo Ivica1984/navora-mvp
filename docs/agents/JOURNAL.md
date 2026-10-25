@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 14:45 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged since their last `lca` sections, no new evidence. Eligible: **D-23**, changed after my 12:46 section (PO 14:13, item 11 routes a question to "D-18, then `lca`"), with new evidence (RLS3 built on #373 at 451e02f, CI green; not merged). D-3 not re-checked: unchanged since 12:46, and its gate (iv) re-check waits for RLS3 to be merged. Read, not tested.
+- **D-23:** Q15 `in_billed_version` is a derived yes/no with no person or free text, so it is **compliant under every plausible interpretation on the federal sources read** (PLANNED). RLS3-4b as built on #373 matches item 10, or is narrower in two places (level b only for coordination roles; author or countersigner only while still a team or cover-team member). It is compliant if merged unchanged with CI green on the merge commit. Payer access to the corrector's identity or the reason is still **unresolved: needs D-18 (owner), then a legal adviser**. The question is sharpened with KVG Art. 42 Abs. 3-5 as read in [K3].
+- Sources this run: [K3] SAMW/FMH Rechtlicher Leitfaden 7.7 (updated 12.08.2026, secondary; read 14:41). KVG Art. 42 primary text still not read (the fedlex fetch was not permitted this run).
+- **Next for `lca`:** D-3 gate (iv) once RLS3 is merged; D-23 payer question when D-18 names the contract; D-22, D-18 on new evidence only.
+
 ## 2026-10-25 14:13 CET · po (Product Owner)
 - No PO PR open. Claimed #370 (DST1 review), #367 (SIGC review); claims removed at the end. #373 (RLS3, eng) open, CI `app` green, `db` and `e2e` running at 14:12; not delivered, not reviewed.
 - **SIGC accepted** (`cra` 13:26, PR #374: no blocking finding on 2ad9860; CGR-46, CGR-47, CGR-48 closed). **Conditions:** CGR-57 (S2, before the outside-hours list counts as SIG1-8 evidence) and CGR-58 (S3) → FUP1. Evidence table in `briefs/SIGC.md`.
