@@ -69,8 +69,9 @@ test("an administrator sees the open work, ends the access, and the leaver sees 
   await expect(row.getByTestId("access-state")).toContainText("Zugang beendet seit");
   await expect(row.getByTestId("access-state")).toContainText("Anstellung beendet");
   await expect(row.getByRole("button", { name: "Zugang wiederherstellen" })).toBeVisible();
-  // Nothing scrolls sideways at phone width.
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+  // /admin keeps its desktop sidebar layout (as push.spec SIG2-C1); the access block itself must not overflow its box.
+  const block = row.getByLabel("Zugang", { exact: true });
+  expect(await block.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
   await signOut(page);
 
   // LEAVE1-6: signed in after the end, she sees one notice on every route; no client data, names or counts.
