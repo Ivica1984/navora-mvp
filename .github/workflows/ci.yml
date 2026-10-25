@@ -81,7 +81,8 @@ jobs:
           PGPASSWORD: postgres
         run: |
           DB="postgresql://postgres@127.0.0.1:54322/postgres"
-          scripts/ci-step.sh db-clock psql "$DB" -v ON_ERROR_STOP=1 -Atc "
+          # ALTER DATABASE … SET of a custom setting needs a superuser (PostgreSQL 15+): the local stack's supabase_admin.
+          scripts/ci-step.sh db-clock psql "postgresql://supabase_admin@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -Atc "
             do \$\$ begin
               execute format('alter database %I set navora.test_now = %L', current_database(),
                              private.at_zurich((private.at_zurich(now()))::date + time '10:00')::text);
@@ -95,7 +96,7 @@ jobs:
         if: steps.detect.outputs.present == 'true'
         env:
           PGPASSWORD: postgres
-        run: psql "postgresql://postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -c "alter database postgres reset navora.test_now"
+        run: psql "postgresql://supabase_admin@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -c "alter database postgres reset navora.test_now"
       - name: Concurrency checks (two real sessions)
         if: steps.detect.outputs.present == 'true'
         run: |
