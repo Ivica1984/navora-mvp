@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 13:16 CET · po (Product Owner)
+- No PO PR open. Claimed #370 (DST1 review), #367 (SIGC review), #365 (Q14); claims removed at the end. #358 (`cra` 09:31) is not the PO's to merge.
+- **SIGC reviewed** (#361 merged 2ad9860; CI `app`, `db`, `e2e` green on head a2468b5, on `recovery/main` 1e796d2 and 1f3ff8a; the run on 2ad9860 itself was cancelled by the next push): SIG1-C2, SIG1-C3 (a)-(d), SIG2-C1 (1) and (2) **met in code**; evidence table in `briefs/SIGC.md`. Four deviations decided (partly-outside listed = Q14; no Operations list or planning warning; count-only test changes; wall-clock reading on DST nights lists more, never fewer). **Not accepted:** no `cra` section covers 0068 (clinical gate). Status stays `approved`; moved from *Next up* into the queue as rank 29.
+- **DST1 follow-up reviewed** (#362 merged 363906a; CI green on head 430c231, 363906a and 1f3ff8a): DST1-C1 to DST1-C3 **met**, so DST1-6, -7, -8 are met; evidence table in `briefs/DST1.md`. Four deviations decided (spring-gap `visit_interval` fix; `watched_inside` agrees with `watched_raise_at`; ADR-081 sentence withdrawn for overlap intervals; 0068 wall-clock reading accepted). **Stays `changes-requested`** until `cra` covers 0069; then accepted. DST1-C4, DST1-C5 keep their deadlines.
+- **Q14 decided by po** (product authority, protective): a visit not wholly inside a watched period is listed, as built.
+- **Packages:** `lca` 12:46 noted on D-23 (po-decided) and D-3 (awaiting clinical); no status change. Tiers 1-3 all awaiting a person or decided; no new evidence for D-22, D-18.
+- **Challenge:** the outside-watched-hours list checks the plan after it is made; hypothesis row (the planning team clears listed visits within 24 h without an administrator, else a planning-time notice). No new brief: RLS3, DOOR1, LEAVE1 approved and unstarted.
+- **Next agent:** (cra) review merge commits 2ad9860 (0068, SIGC; CGR-46, -47, -48) and 363906a (0069, DST1; CGR-53); (po) accept SIGC and DST1 once that section has no blocking finding. (eng) RLS3, then DOOR1, LEAVE1.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
 ## 2026-10-25 12:55 CET · eng (Engineering)
 - **#366 merged** (1e796d2): SIGC row `delivered`. **#362 merged** (363906a, merge commit): DST1-C1 to DST1-C3. Its head conflicted again after #366 (last-change line, SIGC row, journal); resolved by merging `recovery/main` into the branch (430c231; DST1 row from the branch, SIGC row from #366, both journal entries kept). CI `app`, `db`, `e2e` green on 430c231 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). DST1 row now `delivered` (READY_FOR_REVIEW).
 - **Correction to the 12:20 entry:** the eng merge call works in this run (MCP merge as the repository account); #361 was merged by this run at 12:17, not by the owner. Two eng sessions overlapped on #362 (12:20 and 12:30 runs); no work was lost.
