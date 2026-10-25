@@ -118,3 +118,22 @@ export async function getDoorNotes(day: string): Promise<DoorNote[]> {
 
   return data ?? [];
 }
+
+export type SafetyAlert = Database["public"]["Functions"]["field_safety_alerts"]["Returns"][number];
+
+/**
+ * DOOR1-3/-4: the latest safety-alert value per active category of each visit's case on that day (the team, or the
+ * covering member while her cover runs). public.field_safety_alerts() (migration 0073, pgTAP 073). Display only.
+ */
+export async function getSafetyAlerts(day: string): Promise<SafetyAlert[]> {
+  const { supabase } = await requireUser();
+
+  const { data, error } = await supabase.rpc("field_safety_alerts", { p_date: day });
+
+  if (error) {
+    logEvent("error", "field.safety_alerts_load_failed", errorFields(error));
+    throw new Error("Sicherheitshinweise konnten nicht geladen werden.");
+  }
+
+  return data ?? [];
+}

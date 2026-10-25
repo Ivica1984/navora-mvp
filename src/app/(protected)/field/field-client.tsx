@@ -31,7 +31,8 @@ import { FACTS_LOCKED_HINT, RETURNED_LOCKED_HINT, visitFactsLocked, type FieldRe
 import ReportSection from "./report-section";
 import { REASON_LABEL as LIFECYCLE_REASON_LABEL, doorNoteText } from "@/features/lifecycle/rules";
 import { createReportDraft } from "@/features/field/report-commands";
-import type { CountersignItem, DoorNote, ReturnedItem } from "@/features/field/queries";
+import type { CountersignItem, DoorNote, ReturnedItem, SafetyAlert } from "@/features/field/queries";
+import { SafetyAlertRow } from "@/components/door/SafetyAlertForm";
 import type { CoverOffer, MyCover } from "@/features/cover/queries";
 import CoverSection from "./cover-section";
 import { AbsenceSection, OpenVisitsSection } from "./absence-section";
@@ -66,6 +67,8 @@ type Props = {
   sinceLast: SinceLastRowDb[];
   /** DOOR1-1 (migration 0072): access and language notes per visit. */
   doorNotes?: DoorNote[];
+  /** DOOR1-3/-4 (migration 0073): latest safety-alert value per active category and visit. */
+  safetyAlerts?: SafetyAlert[];
   /** CSR1 / CGR-25: visits of her teams ended as not completed that still wait for a follow-up decision. */
   openFollowups?: TeamVisitAlert[];
   /** ABS1: absences of her teams, "Offen im Team", and the members she can record an absence for. */
@@ -96,7 +99,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [] }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [] }: Props) {
   const summary = summarizeDay(visits);
   const sinceLastByVisit = groupSinceLast(sinceLast);
 
@@ -217,6 +220,7 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
                   statusNotes={statusNotes.filter((n) => n.visit_id === visit.visit_id)}
                   sinceLast={sinceLastByVisit.get(visit.visit_id)}
                   door={doorNotes.find((d) => d.visit_id === visit.visit_id)}
+                  alerts={safetyAlerts.filter((a) => a.visit_id === visit.visit_id)}
                 />
               </li>
             ))}
@@ -249,6 +253,7 @@ function VisitCard({
   statusNotes,
   sinceLast,
   door,
+  alerts,
 }: {
   visit: FieldVisit;
   notes: FieldNote[];
@@ -258,6 +263,7 @@ function VisitCard({
   statusNotes: VisitStatusNote[];
   sinceLast: SinceLast | undefined;
   door: DoorNote | undefined;
+  alerts: SafetyAlert[];
 }) {
   const router = useRouter();
   const [pending, setPending] = useState<FieldAction | null>(null);
@@ -342,6 +348,20 @@ function VisitCard({
           muted={!visit.responsible_set}
         />
       </dl>
+
+      {/* DOOR1-4 (migration 0073): safety-alert values, "nicht erfasst" when none; display only (DOOR1-8). */}
+      {visit.case_id && alerts.length > 0 && (
+        <section aria-label="Sicherheitshinweise" data-testid="safety-alerts" className="mt-3 grid gap-2">
+          {alerts.map((a) => (
+            <SafetyAlertRow
+              key={a.category_code}
+              caseId={visit.case_id as string}
+              category={{ code: a.category_code, label: a.category_label, help_text: a.help_text, refuses_codes: a.refuses_codes }}
+              current={a.value ? a : null}
+            />
+          ))}
+        </section>
+      )}
 
       <SinceLastSection block={sinceLast} visitStatus={visit.status} />
 
