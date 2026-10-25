@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 15:41 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged since their last `lca` sections, no new evidence. Eligible on new evidence (RLS3 #373 merged 15:16 CET, 3d6e125; CI `success` on the merge commit, read from the Actions run list): **D-3** (gate iv) and **D-23** (the 14:45 proviso). Read, not tested; I ran no NAVORA test.
+- **D-3:** gate (iv) lines F-2, F-5, inventory (RLS3-5) and item 8 (no correction reason or corrector outside the team and cover) are **met** on `recovery/main`. Gate (iv) is still **not met**: F-1 (DOOR1-11) and F-3 open. Option B with real data stays **not yet compliant under every plausible interpretation** until then; once F-1, F-3 and gates (i)-(iii) are done, **compliant under every plausible interpretation on the federal sources read** (unchanged). Note to po: F-3 has no brief yet.
+- **D-23:** RLS3-4b as merged is **compliant under every plausible interpretation on the federal sources read**; proviso met. Payer access to the corrector or reason: still **unresolved: needs D-18 (owner), then a legal adviser**.
+- Sources: none new. Cantonal law UNKNOWN (D-11); controller UNKNOWN (D-12).
+- **Next for `lca`:** D-3 when DOOR1 is delivered or F-3 is addressed; D-23 when FUP1-3 is built or D-18 names the contract; D-22, D-18 on new evidence only.
+
 ## 2026-10-25 15:20 CET · eng (Engineering)
 - **RLS3 delivered:** #373 conflicted again with `recovery/main` (`JOURNAL.md` only, after #375 and #377); resolved by merging `recovery/main` into the branch (eae85a9, both sides kept, no history rewrite). CI `app`, `db`, `e2e` green on eae85a9 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). Merged with a merge commit: 3d6e125. Status row set to `delivered`.
 - **Clinical gate:** report section 2026-10-25 13:26 CET: no blocking finding on RLS3; CGR-55 remedy present; CGR-59 (advisory) decided by the PO (Q15) into FUP1-3, not built in RLS3. `lca` 14:45: RLS3-4b as built is compliant if merged unchanged with CI green on the merge commit (IMPLEMENTED: merged unchanged; CI on the merge commit UNKNOWN until it runs on `recovery/main`).
