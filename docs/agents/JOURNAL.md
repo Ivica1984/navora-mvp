@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 02:42 CET · Legal & Compliance Agent (lca)
+- **Continued `lca` PR #342** (opened 02:48 CEST, before the clock change; this entry is later). Its `db` and `e2e` jobs failed in the repeated DST hour (comment on #342; `cra` CGR-52, po DST1). Still inside the repeated hour at the start of this run, so no re-run yet. Tiers 1-3: nothing eligible (D-22, D-18 unchanged, no new evidence).
+- **New evidence: ZH Spitex leaflet [Z2], September 2025** (supersedes [Z1], November 2023). Re-checked **D-10** and **D-15**:
+  - Countersignature still not required. Supervision now rests on the site nursing lead (3.4.4) and single-task delegation (3.4.8). [Z1] 7.3 (record access by competence) has no counterpart.
+  - [Z2] 3.5.3 recommends keeping patient records 20 years (input for D-4, not a rule). A.2 limits the doctor's order to KLV lit. b services, so my 11:55 D-15 wording is outdated for ZH (D-22).
+  - **Verdicts unchanged** in both packages. D-10 deviation (3) stays not compliant with real data until LEAVE1 is accepted.
+- Sources this run: [Z2] zh.ch PDF, read 2026-10-25 (tool summary). GesG ZH, KLV and KVV not read.
+- **Next for `lca`:** re-run the failed #342 jobs once after 02:00 UTC and merge if green; the January 2026 home leaflet if readable; D-4 against the [Z2] retention recommendation if the po asks; D-3 gate (iv) once RLS2 merges; LEAVE1 when delivered.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-25 02:10 CET · po (Product Owner)
 - **Time note:** the second 02:10 of the night (clocks went back at 03:00 CEST); the po entry below is 02:10 CEST, one hour earlier.
 - **PO PR #340 (02:10 CEST) was still open**, `db` red after its one re-run (pgTAP 038, 046, 062 on a docs-only diff; comments on #340). Rule A: no second PO PR; this cycle continues on the same branch. My push re-runs CI with new content (not a re-run to kick CI). Open: #342 (`lca` 02:48), #341 (`cra` 02:26, supersedes #321, #306, #294, #278, #259), #331 (RLS2, `db` red), #3. Read both on their branches as evidence; not merged by the PO. Claimed **#115, #116, #60** (D-24, D-25, D-14); claims removed at the end.
@@ -34,6 +44,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Priority:** *Next up* 1 (patient safety precondition; unblocks CI for every later item).
 - **Implementation recommendation:** a single `private.now()` (or a test-only clock setting) used by every time-dependent function and fixture; one conversion helper from Zurich local date and time to an instant with an explicit rule for ambiguous and missing times; a pgTAP file pinned at both transitions; a one-off CI run (or matrix) at the four clocks.
 
+## 2026-10-25 02:48 · Legal & Compliance Agent (lca)
+- **No `lca` PR was open.** New branch `lca/review-2026-10-25-0240`. Open at the start: #341 (`cra` 02:26), #340 (po 02:10), #331 (RLS2), #321 and older `cra` PRs, #3; none merged, none read as evidence. Tiers 1-3: nothing eligible (D-22, D-18 unchanged since 16:05, no new evidence). Changed since my signature: **D-25** (po 01:16), reviewed; nothing else eligible.
+- **D-25 new evidence: the ZH leaflet I cited at 18:47 ([L8], November 2023) is superseded.** Read [L9] (December 2024 with changes of 17 September 2025); the authority's page [L10] links a newer one dated 6 January 2026, **not readable** this run. On [L9]: mix ≥20 % tertiary nurses / ≥30 % diploma + EFZ / ≤50 % assistants (the ≥50/≥25 figures in the po 19:09 note and the D-24 Engineering draft must not be built); RN cover "on site within ~20 min", written on-call rules, 24 h medical on-call; added named roles: **site nursing lead and deputy per site**, a management member responsible for health-police rules (§ 36 GesG as reported); still **no ward leader**; delegation to a team needs a written document, not just a chart.
+- **Verdicts:** A and "B as a design target only" **compliant under every plausible interpretation**; B operated **unresolved: needs legal adviser or the canton (D)**, question updated; C **unresolved** (rejection for now is protective); D an owner step.
+- **Note:** the ZH Spitex leaflet [Z1] (November 2023) cited in D-10 and D-15 is also superseded (September 2025 version linked on [L10]).
+- Sources this run: [L9] zh.ch leaflet (tool summary, short quotes as reported), [L10] zh.ch page, both read 2026-10-25. GesG ZH §§ 35-37, 40 and the January 2026 leaflet not read.
+- **Next for `lca`:** D-10 and D-15 against the September 2025 Spitex leaflet; the January 2026 home leaflet if readable; D-3 gate (iv) once RLS2 merges; LEAVE1 when delivered.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
 ## 2026-10-25 02:10 · po (Product Owner)
 - **No PO PR was open.** Open: #331 (RLS2, `eng`, not merged: nothing to review), #321 and older `cra` PRs (not merged by the PO), #3 (M2). No `agent:po` issue open. Nothing `delivered`, `ready-for-review` or `in-review` with a merged PR.
 - **Coordination defect found and fixed in the PO's file:** the *Next up* ID "SIG1-C2, SIG1-C3, SIG2-C1" contains spaces; the watcher's marker regex reads a key only up to the first space, so each of its runs opened a new hand-off issue that it can never match, update or close (#326, #329, #333, #334, #336, #339). Renamed **SIGC** (content, approval and order unchanged; `briefs/SIGC.md` points to the conditions in SIG1 and SIG2). The PO closes the six duplicates once the watcher has opened the SIGC issue. **WATCH-2** for Engineering: validate *Next up* IDs (today only the priority queue is checked).
