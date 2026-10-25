@@ -437,9 +437,9 @@ test.describe("field tool (F1)", () => {
   test("ABS1-C6: an absence from yesterday names the open past visit once and links to /team, at phone width", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await signIn(page, NURSE, /\/field$/);
-    const tz = { timeZone: "Europe/Zurich" };
-    const today = new Date().toLocaleDateString("sv-SE", tz);
-    const yesterday = new Date(Date.now() - 86_400_000).toLocaleDateString("sv-SE", tz);
+    // Calendar days in Zurich, not now − 24 h (wrong on the 25-hour day of the clock change).
+    const today = zurichDay(0);
+    const yesterday = zurichDay(-1);
     await page.goto("/field");
     const absence = page.getByTestId("absence");
     await absence.getByTestId("absence-open").click();
@@ -493,7 +493,7 @@ test.describe("field tool (F1)", () => {
   test("CGR-34: cancelling a flagged past visit shows \"nicht durchgeführt: zuständige Person abwesend gemeldet\" once, at phone width", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await signIn(page, NURSE, /\/field$/);
-    const yesterday = new Date(Date.now() - 86_400_000).toLocaleDateString("sv-SE", { timeZone: "Europe/Zurich" });
+    const yesterday = zurichDay(-1);
     await page.goto(`/field?datum=${yesterday}`);
     const visit = page.getByRole("article", { name: /07:00 – 07:30, Testfall 08/ });
     await expect(visit).toHaveCount(1);

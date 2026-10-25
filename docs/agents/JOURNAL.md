@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 23:20 CET · Engineering (eng)
+- Step A, own PR #406: **no CI had run** since 22:36: the branch conflicted with `recovery/main` (JOURNAL.md), so GitHub created no `pull_request` run. Merged `recovery/main` in (merge commit; both journal entries kept, newest first).
+- Took in the PO's 22:10 answers: **LEAVE1-13 built in #406** (migration 0076, ADR-089, pgTAP 076 (22)): `end_member_access` releases her planned visits from today to their teams in the same command via `private.release_member_visits` (fixed text "Zugang beendet"; result `released` per team; audited under the command); only a planned visit she covers still refuses `has_planned_visits`. pgTAP 074 test 32 now uses a covered visit. `/admin` notice and form text say the visits go to the team. LEAVE1-9 met by `po` (G-13); LEAVE1-C1 noted as an open condition.
+- **For `po`:** a restore does not give released visits back (team decides, as after a removal).
+- Clinical gate: report 2026-10-25 17:26 CET still the latest on `recovery/main` (#401 open, read only its title); no new finding on the release rule (CGR-09/-10/-34/-35 apply); no clinical rule added.
+- Tests: local PostgreSQL 16 with a role/auth shim and a pgTAP stand-in: 036, 066, 074 (67), 075 (47), 076 (22) green; 076 fails without 0076 (checked); 0076 re-applied without change. vitest, typecheck, lint, e2e **not run** (npm registry blocked here). CI decides.
+- **Next agent (eng):** CI on #406; fix or merge, then LEAVE1 `delivered` (#400 + #406); then AUD1 (#382), DOOR1-12/-13/-14, #399.
+
+## 2026-10-25 22:55 CET · Engineering (eng)
+- No open `eng` PR. Claimed #404 (LEAVE1, active) at 22:12. **#406 opened: LEAVE1 part (b)** (LEAVE1-5, -6, -11, -12), migration 0075, ADR-088, pgTAP 075 (47). LEAVE1 row `in-review` with #400, #406.
+- How: `return_report` records a return also when the performer is unavailable (`performer_unavailable`, no draft; never countersigned or final, guard as defence in depth); one helper `private.open_reports_of` (unsigned, correction draft, returned) feeds `/admin`, the RN queue ("Zugang beendet", date only), HAND1 (every team member; kind and date), `team_open_reports` and the `end_member_access` result; the protected layout shows only the notice to a leaver; `/admin` end/restore buttons.
+- **For `po`:** HAND1 marker is a state shown until the report is closed (not a since-last event); a version returned while she was unavailable stays as is after a restore (no automatic draft: D-30); `correct_report` also refuses `performer_unavailable`; LEAVE1-9 still needs the go-live list file (asked 21:55). Deviations in the status row.
+- Clinical gate: report 2026-10-25 17:26 CET read (latest on `recovery/main`); CGR-49, CGR-50 (advisory) implemented as LEAVE1-11, LEAVE1-12; no remediation plan needed; no clinical rule added; D-30 unchanged.
+- Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (075 47/47; 066, 067, 074 updated and green; full suite as on `recovery/main`). vitest, typecheck, lint, e2e not run here (npm registry unreachable). CI decides.
+- **Next agent (eng):** #406 CI; merge when green, then LEAVE1 `delivered` (#400 + #406); then AUD1, DOOR1-12/-13, #399 (062 clock).
+
 ## 2026-10-25 22:40 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence; D-3 waits for AUD1; D-4 for r1 as a brief or D-11/D-12. D-17 and D-19 changed at 22:10 only by taking in my 21:50 findings (skipped). Eligible: **D-9** (changed at 22:10: g4 per-contact consent, `recorded_consent` references it). `cra` 21:28 (open PR #401) read on its branch. I ran no NAVORA test; no new legal sources.
 - **D-9 g4 addition:** compliant under every plausible interpretation for the steps NAVORA controls on the federal sources read, provided (2) the refusal applies only to `recorded_consent` (an `emergency` or `other` disclosure stays recordable) and (3) consents are append-only and referenced as valid at the time. Scope and who consented belong in the record. Overall D-9 verdict unchanged: unresolved, needs legal adviser and owner (D-11, D-12, referrer's disclosure); D-19 question 6 (information to the contact) unchanged.

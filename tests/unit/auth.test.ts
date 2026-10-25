@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { signInSchema } from "@/features/auth/schema";
+import { ACCESS_ENDED_MESSAGE, parseAccessState } from "@/features/auth/access-state";
 import { isPublicPath } from "@/lib/auth/paths";
 import { assignTeamCoachSchema, setTeamPrioritySchema } from "@/features/teams/command-schemas";
 import { visitCommandSchema } from "@/features/visits/command-schemas";
@@ -74,5 +75,19 @@ describe("visit command schema", () => {
     expect(visitCommandSchema.safeParse({ visitId: VISIT }).success).toBe(false);
     expect(visitCommandSchema.safeParse({ visitId: "501", idempotencyKey: KEY }).success).toBe(false);
     expect(visitCommandSchema.safeParse({}).success).toBe(false);
+  });
+});
+
+describe("parseAccessState (LEAVE1-6)", () => {
+  it("is ended only on an explicit true", () => {
+    expect(parseAccessState({ ended: true, ended_at: "2026-10-25T20:00:00Z" })).toEqual({ ended: true, endedAt: "2026-10-25T20:00:00Z" });
+    expect(parseAccessState({ ended: false, ended_at: null })).toEqual({ ended: false, endedAt: null });
+    expect(parseAccessState(null)).toEqual({ ended: false, endedAt: null });
+    expect(parseAccessState("ended")).toEqual({ ended: false, endedAt: null });
+    expect(parseAccessState({ ended: "true" })).toEqual({ ended: false, endedAt: null });
+  });
+
+  it("the notice carries no client data, names or counts", () => {
+    expect(ACCESS_ENDED_MESSAGE).toBe("Ihr Zugang ist beendet. Bitte wenden Sie sich an Ihre Organisation.");
   });
 });

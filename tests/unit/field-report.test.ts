@@ -3,6 +3,7 @@ import {
   FACTS_LOCKED_HINT,
   RETURNED_LOCKED_HINT,
   REPORT_REJECTION_MESSAGE,
+  countersignItemNote,
   returnConfirmation,
   reportRejectionMessage,
   reportView,
@@ -37,6 +38,9 @@ function report(overrides: Partial<FieldReport>): FieldReport {
     returned_by_name: null as unknown as string,
     returned_snapshot: null,
     i_can_return: false,
+    // LEAVE1 (migration 0075): returned while the performer was unavailable; her access ended
+    performer_unavailable: false,
+    performer_access_ended: false,
     ...overrides,
   };
 }
@@ -167,5 +171,63 @@ describe("visitFactsLocked (CSR1 / CGR-03, migration 0040)", () => {
 
   it("names the correction path in the hint", () => {
     expect(FACTS_LOCKED_HINT).toContain("Bericht korrigieren");
+  });
+});
+
+describe("LEAVE1 (migration 0075): a performer who is no longer available", () => {
+  it("LEAVE1-11: a version returned while its performer was unavailable offers nothing and is never final", () => {
+    const view = reportView("completed", report({ status: "signed", countersign_required: true, i_am_performer: false,
+      returned: true, performer_unavailable: true, i_can_countersign: false, i_can_return: false }));
+    expect(view?.label).toBe("Zurückgegeben – Autorin nicht mehr verfügbar");
+    expect(view?.actions).toEqual([]);
+    expect(view?.hint).toContain("nicht verrechnet");
+  });
+
+  it("LEAVE1-5: her open draft names the access end to the team, never a reason", () => {
+    const view = reportView("completed", report({ status: "draft", i_am_performer: false, performer_access_ended: true }));
+    expect(view?.actions).toEqual([]);
+    expect(view?.hint).toContain("Zugang beendet");
+    const returned = reportView("completed", report({ status: "draft", version: 2, returned: true, i_am_performer: false,
+      performer_access_ended: true }));
+    expect(returned?.hint).toContain("Zugang beendet");
+  });
+
+  it("a signed report of a leaver still offers countersignature and return to a registered nurse", () => {
+    const view = reportView("completed", report({ status: "signed", countersign_required: true, i_am_performer: false,
+      i_can_countersign: true, i_can_return: true, performer_access_ended: true }));
+    expect(view?.actions).toEqual(["countersign", "return"]);
+  });
+
+  it("the return confirmation says that no draft opens when her access ended", () => {
+    expect(returnConfirmation("Anna Test", true)).toContain("nicht verrechnet");
+    expect(returnConfirmation("Anna Test", true)).not.toContain("Anna Test");
+  });
+
+  it("has messages for the new refusals", () => {
+    expect(reportRejectionMessage("performer_unavailable")).toContain("Zugang");
+    expect(reportRejectionMessage("returned_performer_unavailable")).toContain("nicht abgeschlossen");
+  });
+});
+
+describe("countersignItemNote (F6R-5, LEAVE1-5, LEAVE1-11)", () => {
+  it("adds nothing to a report awaiting countersignature of a colleague with open access", () => {
+    expect(countersignItemNote({ kind: "awaiting_countersignature", performer_name: "Anna Test", performer_access_ended: null })).toBeNull();
+  });
+
+  it("names a return to its performer, and the state when she was unavailable", () => {
+    expect(countersignItemNote({ kind: "returned", performer_name: "Anna Test", performer_access_ended: null })).toBe("zurückgegeben an Anna Test");
+    expect(countersignItemNote({ kind: "returned_performer_unavailable", performer_name: "Anna Test", performer_access_ended: "2026-10-25" }))
+      .toBe("Zurückgegeben – Autorin nicht mehr verfügbar · Zugang beendet (25.10.2026)");
+  });
+
+  it("marks the open work of a member whose access ended with the date only", () => {
+    expect(countersignItemNote({ kind: "unsigned", performer_name: "Anna Test", performer_access_ended: "2026-10-25" }))
+      .toBe("nicht unterschrieben · Zugang beendet (25.10.2026)");
+    expect(countersignItemNote({ kind: "correction_draft", performer_name: null, performer_access_ended: "2026-10-25" }))
+      .toBe("Korrektur nicht unterschrieben · Zugang beendet (25.10.2026)");
+  });
+
+  it("falls back to the F6R flag when no kind is present", () => {
+    expect(countersignItemNote({ returned: true, performer_name: null })).toBe("zurückgegeben");
   });
 });
