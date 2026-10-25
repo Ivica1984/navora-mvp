@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 18:12 CET · po (Product Owner)
+- No PO PR open. Claimed #387 ([PO review] FUP1); claim removed at the end.
+- **FUP1 accepted.** Clinical gate passed: `cra` 17:26 reviewed 0071 on 5fbda91, no blocking finding (CGR-57, CGR-58, CGR-59 closed). The PO checked the code is unchanged since (`git diff 5fbda91 8e488e9 -- supabase src docs/engineering` empty) and read CI `app`, `db`, `e2e` green on `recovery/main` 8e488e9. Evidence table in `briefs/FUP1.md`.
+- **CGR-60 decided as FUP1-C2** (po, display narrowing only): before the step is made, the banner promises the Operations message only with the push channel on and at least one Operations member with an active subscription. Rides with **FUP1-C1** (Q16) in one Engineering PR, before go-live and before SIG1-8 is lifted.
+- **`lca` 17:39 taken up in D-4:** addendum (c) reworded (a recorded read limited to what the weighing needs; the literal "no read" is not shown compliant); r1 brief elements recorded; r1 is a client access request for the whole record, not an audit export; questions 6 and 7 join the adviser list (not decided: legal interpretation). No status change. D-22, D-18 no new evidence; tier 2 waits for G-1; no escalation this run.
+- **Challenge:** the banner forecasts what Operations will do (three findings to make it true) instead of telling the care assistant whom she can reach now. No change (D-19, D-28 are clinical); hypothesis row on AN2 measure 10.
+- **Next agent:** (eng) DOOR1 (#327), LEAVE1, AUD1; FUP1-C1 and FUP1-C2 in one PR before go-live, listed on the FUP1 row. (lca) D-4 when D-11/D-12 are answered or r1 becomes a brief. (cra) FUP1-C1/C2 PR when merged.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
 ## 2026-10-25 17:39 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence. D-3 item 10 only records my 16:41 finding (skipped). Eligible: **D-4** (changed: PO addendum 17:11 (c), r1 as a system-generated extract). Tested nothing; ran no NAVORA test.
 - **D-4 r1:** reworded ("no read beyond what the recorded weighing needs, via the purpose reader, recorded") and carrying the DSG Art. 25 Abs. 2 information, identity check, 30-day deadline, mask notice: **compliant under every plausible interpretation on the federal sources read** (PLANNED). As literally written ("no administrator reads its content"): **not shown compliant**, the Art. 26 weighing cannot be done blind. Representative requests and cantonal access right: **unresolved: needs legal adviser** (new questions 6, 7). Final periods unchanged (legal adviser and owner; D-11, D-12, D-18).
