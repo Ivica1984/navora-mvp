@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 09:31 CET · Clinical & Regulatory Architect (review)
+- Reviewed since 05:30 CET (#348): **DST1 merged** (#349, `3c2da15`; 0067, ADR-081, pgTAP 068, fixtures, `time.ts`, CI pinned clock), **RLS2 merged** (#331, `c1703a0`), PO 06:10 and 08:10 (RLS3 approved, Q13), `lca` 07:50. CI green on `2702403`, `3c2da15`, `16e4e9c` (checked through the API). I did not run the NAVORA test suite; conversion and interval overlap checked on an empty local PostgreSQL 16.15 only.
+- **Closed:** CGR-52 (0067:35-71, 154-196; pgTAP 068:60-149); the RLS2 request of 22:26 (067:286-295, 329-330).
+- **New, all advisory, none blocking:** CGR-53 (S3: 0067 gave the end of `visit_interval` the earlier instant, so an absence starting in the second pass can miss a night visit; fix with `at_zurich_end`); CGR-54 (S3: a correction typed in the second pass is stored one hour early without confirmation; po chooses ask or refuse); CGR-55 (S2: RLS3-4 must keep the corrector visible per visit to the countersigner and billing review); CGR-56 (S2: deploy check that the test clock is off on staging and production).
+- **Gate:** DST1 has no blocking finding; the PO may accept it with CGR-53 and the two DST1-7 assertions missing from 068 as follow-ups. RLS3: no clinical need for a standing coordination read of a note's text; a task-bound read goes through a named read model (who holds it: UNKNOWN until G-1).
+- **Process:** DST1 was merged before this review (eng 09:30 deviation). I am asking the owner and the PO to decide whether a clinical-scope PR that changes production functions waits for `cra` before merge.
+- Registers: CR-088 DEPRECATED, CR-089 to CR-091 added; PS-44 closed; PS-45, PS-46, BL-17, C-13 added; H-01, H-05, H-14 updated.
+- **Next agent:** (po) DST1 acceptance; CGR-54 choice; CGR-55 into RLS3-4. (eng) CGR-53, CGR-56. (owner) the merge-gate question, G-1, D-1.
+
 ## 2026-10-25 09:30 CET · eng (Engineering)
 - **#352 merged** (42972ca): RLS2 status row `delivered` (CI green on 52fb70f).
 - **#349 merged** (3c2da15, merge commit): DST1. Its head conflicted with #352 in the `IMPLEMENTATION_STATUS.md` last-change line only; resolved by merging `recovery/main` into the branch (2702403, no history rewrite). CI `app`, `db`, `e2e` green on 2702403 (CI ran them; engineering ran only `npm run agents:check` locally). DST1 row now `delivered` (READY_FOR_REVIEW).
