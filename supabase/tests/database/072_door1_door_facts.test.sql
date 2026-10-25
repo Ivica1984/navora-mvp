@@ -226,7 +226,7 @@ select ok((select bool_and(e.author is not null and e.at is not null) from priva
   'DOOR1-7: each with who and when');
 
 -- DOOR1-9: catalogue check: which functions read the case notes or the two facts ---------------------------------------
-select is((select string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text)
+select is((select string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text collate "C")
            from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname in ('public', 'private') and p.prokind = 'f'
              and p.prosrc ~ '(access_notes|language_notes|at_door|disclosure_basis)'),
