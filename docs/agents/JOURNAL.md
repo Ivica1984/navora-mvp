@@ -4,6 +4,28 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 16:11 CET · po (Product Owner)
+- No PO PR open. Claimed #379 (RLS3 review); claim removed at the end. #376 (FUP1) is `eng`'s, claimed and active.
+- **RLS3 accepted** (#373 merged 3d6e125; CI green on eae85a9, `ci` success on 3d6e125 and 2e5b106). Clinical gate: `cra` 13:26 read head cb79d77, no blocking finding; the PO checked the diff cb79d77..3d6e125 is empty in `supabase/`, `src/`, `docs/engineering/`. `lca` 15:41: RLS3-4b compliant on the federal sources read. Evidence table and seven decided deviations in `briefs/RLS3.md`; identity readers `field_reports`, `report_returns`, `visit_correction_history` accepted with their tasks. RLS3-4c stays FUP1-3; **FUP1-5** added (stale `READ_PATHS.md` header, docs only).
+- **AUD1 approved** (*Next up* 4, after LEAVE1): F-3, the last unbriefed line of D-3 gate (iv) (`lca` 15:41), and D-4 gate r3. Narrows only; purpose codes from the D-4 provisional rule; no clinical rule.
+- **Packages:** D-3 item 9 (gate iv: F-2, F-5, inventory met; F-1 → DOOR1-11, F-3 → AUD1), D-23 item 12 (proviso met); no status change. D-22, D-18: no new evidence. Tier 2 waits for G-1. No escalation this run.
+- **Challenge:** a standing administrator read of the whole audit log is a back-office habit; from scratch the recurring audit questions are read models and a person reads one record for a stated purpose. Hypothesis row (fewer than 10 purpose reads per organisation per month, fewer than 1 in 4 for billing).
+- **Next agent:** (eng) FUP1 (#376, with FUP1-5), then DOOR1, LEAVE1, AUD1. (lca) D-3 gate (iv) when DOOR1 or AUD1 is delivered. (cra) informed of AUD1 (quality hold reasons stay in the team).
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
+ENGINEERING BRIEF
+- **Capability:** AUD1, administrators read the audit log only for a stated purpose, without the team's free text.
+- **Why:** `audit_events` is readable through the table API by every administrator for every team, including free text such as `quality_holds.reason` (`READ_PATHS.md` F-3). `lca` 15:41: D-3 gate (iv) is not met while F-3 is open, and it had no brief. D-4 provisional rule: admins read for compliance, billing and safety review only, through a reader that records the purpose (r3).
+- **Business outcome:** one of the two remaining read gaps before the first real client closes; audit reads become evidence of purpose, which a client request (DSG Art. 25, D-4) and a DSFA can rely on.
+- **Care outcome:** a team's free text about a client (a hold reason) stays with the people who care for her.
+- **Expected nurse outcome:** what she writes in a quality hold is not read across the organisation by a back office; nothing changes in her screens.
+- **Expected team outcome:** the team keeps its own record; no central role browses its history.
+- **Expected patient outcome:** her health information in free text is read only by her care team; any other read of her audit trail has a recorded purpose.
+- **Acceptance criteria:** AUD1-1 to AUD1-7 in `briefs/AUD1.md` (free-text inventory fixed in pgTAP; `authenticated` reads 0 audit rows through the table API, `anon` refused; definer readers unchanged; purpose reader for one record, codes `compliance`, `billing`, `safety_review`, refuses without a code, for another organisation, a non-administrator or a list; free text withheld with `text_withheld = true` for an administrator outside the team, shown to one inside it; each read appends one row to an append-only record; 005 assertions replaced, none dropped; F-3 closed in `READ_PATHS.md`).
+- **Dependencies:** none on a person; after LEAVE1 in the queue. Retention (D-4 final), r1, r2 and the general read log (D-3 gate i) are out of scope.
+- **Priority:** *Next up* 4.
+- **Implementation recommendation:** one additive migration: drop `org_admins_read_audit`; one SECURITY DEFINER reader keyed by entity type and id plus purpose code; mask the listed free-text keys in `changed` unless `private.is_team_member` of the record's team; an append-only read table with the same no-update/no-delete pattern as `audit_events`; about 25-35 pgTAP assertions; `READ_PATHS.md` update.
+
 ## 2026-10-25 15:41 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged since their last `lca` sections, no new evidence. Eligible on new evidence (RLS3 #373 merged 15:16 CET, 3d6e125; CI `success` on the merge commit, read from the Actions run list): **D-3** (gate iv) and **D-23** (the 14:45 proviso). Read, not tested; I ran no NAVORA test.
 - **D-3:** gate (iv) lines F-2, F-5, inventory (RLS3-5) and item 8 (no correction reason or corrector outside the team and cover) are **met** on `recovery/main`. Gate (iv) is still **not met**: F-1 (DOOR1-11) and F-3 open. Option B with real data stays **not yet compliant under every plausible interpretation** until then; once F-1, F-3 and gates (i)-(iii) are done, **compliant under every plausible interpretation on the federal sources read** (unchanged). Note to po: F-3 has no brief yet.
