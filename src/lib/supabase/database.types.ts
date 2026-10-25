@@ -1997,6 +1997,11 @@ isOneToOne: false
 "update_team":
 { Args: { "p_idempotency_key": string,"p_name": string,"p_region": string,"p_team_id": string }; Returns: string
                            },
+"visit_correction_history":
+{ Args: { "p_visit_id": string }; Returns: {
+              "corrected_by_me": boolean,"corrected_on": string,"correction_id": number,"corrector_name": string,"event_id": number,"event_type": string,"fact_countersigned_by_name": string,"fact_report_version": number,"full_trail": boolean,"new_at": string,"old_at": string,"reason": string,"recorded_at": string
+            }[]
+                           },
 "visits_outside_watched_hours":
 { Args: { "p_own_teams"?: boolean }; Returns: {
               "organization_id": string,"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string

@@ -225,8 +225,8 @@ select is(pg_temp.as_user('rn', format($$ select e ->> 'reason' from public.fiel
 -- Every function that reads the two reason columns is on a fixed list (READ_PATHS.md decides each one).
 select is((select string_agg(n.nspname || '.' || p.proname, ',' order by n.nspname, p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname in ('public', 'private') and p.prosrc ~ 'visit_time_corrections' and p.prosrc ~ '\.reason\M'),
-  'private.visit_report_snapshot,public.field_visits,public.pilot_kpis',
-  'RLS2-3: the functions that read visit_time_corrections and a reason column are a fixed list (READ_PATHS.md: the team''s report snapshot and day view; pilot_kpis reads visit_plan_changes.reason as a filter, never as output)');
+  'private.visit_report_snapshot,public.field_visits,public.pilot_kpis,public.visit_correction_history',
+  'RLS2-3: the functions that read visit_time_corrections and a reason column are a fixed list (READ_PATHS.md: the team''s report snapshot and day view; pilot_kpis reads visit_plan_changes.reason as a filter, never as output; visit_correction_history returns the reason to the visit''s team and cover only, RLS3-4b, 071)');
 select is((select string_agg(n.nspname || '.' || p.proname, ',' order by n.nspname, p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname in ('public', 'private') and p.prosrc ~ 'team_decisions' and p.prosrc ~ 'd\.reason\M'),
   null, 'RLS2-3: no function returns team_decisions.reason');
@@ -247,7 +247,7 @@ select is((select string_agg(distinct p.proname, ',' order by p.proname) from pg
 select is((select string_agg(distinct p.proname, ',' order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'execute')
              and p.prosrc ~ '(visit_events|visit_time_corrections)' and p.proretset),
-  'field_visits,pilot_hypotheses,pilot_kpis', 'RLS2-4: the readers of visit events are the team''s day view and the AN1/AN2 team measures');
+  'field_visits,pilot_hypotheses,pilot_kpis,visit_correction_history', 'RLS2-4: the readers of visit events are the team''s day view, the AN1/AN2 team measures and the per-visit correction trail (RLS3-4b, 071)');
 
 -- RLS2-5: further organisation-wide path narrowed: uncovered_visits() -----------------------------------------------------
 update public.care_visits set visit_date = ((private.now() + interval '2 hours') at time zone 'Europe/Zurich')::date,
