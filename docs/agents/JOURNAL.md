@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 14:13 CET · po (Product Owner)
+- No PO PR open. Claimed #370 (DST1 review), #367 (SIGC review); claims removed at the end. #373 (RLS3, eng) open, CI `app` green, `db` and `e2e` running at 14:12; not delivered, not reviewed.
+- **SIGC accepted** (`cra` 13:26, PR #374: no blocking finding on 2ad9860; CGR-46, CGR-47, CGR-48 closed). **Conditions:** CGR-57 (S2, before the outside-hours list counts as SIG1-8 evidence) and CGR-58 (S3) → FUP1. Evidence table in `briefs/SIGC.md`.
+- **DST1 accepted** (`cra` 13:26: no blocking finding on 363906a; CGR-53 closed). DST1-C4 (before 2027-10-31 or the first real client) and DST1-C5 (before gate B) keep their deadlines. Evidence table in `briefs/DST1.md`.
+- **Q15 decided by po** (CGR-59, product authority): per correction `in_billed_version` in the correction reader; **RLS3-4c** in #373 if still open, else FUP1-3; not a condition for accepting RLS3; before invoicing (gate C).
+- **FUP1 approved** (*Next up* 2, after RLS3, before DOOR1; DOOR1 now 3, LEAVE1 4): CGR-57, CGR-58, CGR-59 in one PR.
+- **Packages:** D-23 item 11 records the `cra` answer to the 12:12 question; status `po-decided` unchanged, no `lca` re-check requested (no new personal data in the billing view). D-22, D-18: no new evidence. Tier 2 waits for G-1 (Clinical Owner). No escalation this run.
+- **Challenge:** a correction after the countersignature leaves the billed snapshot behind and a clerk would compare logs by hand; now a recorded fact. Hypothesis row (fewer than 1 in 50 visits corrected after countersignature, else the countersignature moves to the end of the shift); what invoicing does with it stays D-18.
+- **Next agent:** (eng) finish RLS3 (#373; RLS3-4c optional there), then FUP1, DOOR1, LEAVE1. (cra) RLS3 merge commit when merged; FUP1 later. (po) review RLS3 after merge and `cra`.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
+ENGINEERING BRIEF
+- **Capability:** FUP1, follow-ups of SIGC and RLS3: the outside-watched-hours list uses the planned visit length, the banner promise follows the actual Operations delivery, the billing view says per correction whether the billed version contains it.
+- **Why:** `cra` 13:26 CGR-57 (S2), CGR-58 (S3), CGR-59 (S2): the list that replaces the manual SIG1-8 go-live check misses a visit without an end that runs past the watched period; the banner can promise a push that stays in the app; billing cannot tell a billed correction from an unbilled one.
+- **Business outcome:** go-live evidence that is true; billing preparation without a person comparing correction times with invoices.
+- **Care outcome:** no P1 falls into an unwatched hour that the plan check reported as covered.
+- **Expected nurse outcome:** the care assistant who takes a P1 near the end of watched hours reads what will actually happen, so she knows whether she must phone a registered nurse herself.
+- **Expected team outcome:** the planning team sees every visit that runs past its watched hours and can move it; no extra list to maintain.
+- **Expected patient outcome:** a no-show or broken-off visit at the edge of the watched hours gets a qualified response, not a silent one.
+- **Acceptance criteria:** FUP1-1 to FUP1-4 in `briefs/FUP1.md` (pgTAP: 19:50 without end + 45 planned min → listed; 19:50 without end, no planned minutes → listed; 08:00 + 20 min → not listed; take at 19:55 with step due after 20:00 → app only; correction before countersignature → `in_billed_version` true, after → false, no billing fact → null; level (b) still without reason and corrector; no 069-071 assertion weakened).
+- **Dependencies:** RLS3 (#373) merged first (FUP1-3 extends its reader); none on a person.
+- **Priority:** *Next up* 2 (after RLS3, before DOOR1).
+- **Implementation recommendation:** one additive migration; reuse `private.visit_interval` or a shared helper for the visit length; compute the banner flag at the episode's untaken-threshold instant; `in_billed_version` as a computed column in both reader levels; about 12-18 pgTAP assertions and one unit test on `takenText`.
+
 ## 2026-10-25 13:26 CET · Clinical & Regulatory Architect (review)
 - Reviewed since 09:31 CET (open #358, merged into this PR's branch, JOURNAL both sides kept): **SIGC** on merge commit `2ad9860` (0068, pgTAP 069) and the **DST1 follow-up** on `363906a` (0069, pgTAP 070); CI `app`, `db`, `e2e` green on `430c231`, `363906a`, `1f3ff8a`, `78891aa` (checked through the API). **RLS3** (#373, open, 0070, pgTAP 071; CI not yet reported on head `cb79d77`) read on the PR branch. I did not run the NAVORA test suite.
 - **Closed:** CGR-46 (069:198-231), CGR-47 (0068:57-106; 069:115-143), CGR-48 (0068:111-202; 069:253-350; `rules.ts:92-99`), CGR-53 (0069:32-63; 070:55-86).
