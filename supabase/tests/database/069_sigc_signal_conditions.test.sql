@@ -7,7 +7,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(59);
+select plan(80);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -348,6 +348,122 @@ select ok((select string_agg(a, ',' order by a) from unnest((select proargnames 
           = 'organization_id,p_own_teams,team_id,team_name,time_end,time_start,visit_date,visit_id',
   'the list holds date, times and team only: no client, case or person column');
 select ok(not has_function_privilege('anon', 'public.visits_outside_watched_hours(boolean)', 'execute'), 'anon cannot read the list');
+
+-- =====================================================================================================================
+-- FUP1-1 (CGR-57, 0071, ADR-084): a planned visit without an end has the ABS1 length (private.visit_interval)
+-- =====================================================================================================================
+select pg_temp.planned('f1950m45', 1, '19:50', null);
+select pg_temp.planned('f1950m0', 1, '19:50', null);
+select pg_temp.planned('f0800m20', 1, '08:00', null);
+select pg_temp.planned('f1930m20', 1, '19:30', null);
+select pg_temp.planned('f1950eq', 1, '19:50', '19:50');
+update public.care_visits set planned_minutes_a = 30, planned_minutes_b = 15 where id = pg_temp.id('f1950m45');
+update public.care_visits set planned_minutes_a = 20 where id in (pg_temp.id('f0800m20'), pg_temp.id('f1930m20'));
+update public.care_visits set planned_minutes_c = 45 where id = pg_temp.id('f1950eq');
+select pg_temp.hours('07:00', '20:00');
+select is(pg_temp.listed(pg_temp.u(905), 'f1950m45'), true,
+  'FUP1-1: watched 07:00-20:00, a visit at 19:50 without an end and 45 planned minutes (to 20:35) → listed');
+select is(pg_temp.listed(pg_temp.u(905), 'f1950m0'), true,
+  'FUP1-1: a visit at 19:50 without an end and without planned minutes (to the end of its day) → listed');
+select is(pg_temp.listed(pg_temp.u(905), 'f0800m20'), false,
+  'FUP1-1: a visit at 08:00 without an end and 20 planned minutes → not listed');
+select is(pg_temp.listed(pg_temp.u(905), 'f1930m20'), false,
+  'FUP1-1: a visit at 19:30 without an end and 20 planned minutes (to 19:50) → not listed');
+select is(pg_temp.listed(pg_temp.u(905), 'f1950eq'), true,
+  'FUP1-1: end = start reads as no end, as in visit_interval (19:50 + 45 planned minutes) → listed');
+select is(pg_temp.listed(pg_temp.u(905), 'w0650'), true, 'FUP1-1: the 06:50 case without a planned end stays listed');
+select is((select upper(private.visit_wall_range(v)) from public.care_visits v where v.id = pg_temp.id('f1950m45')),
+  (pg_temp.today() + 1) + time '20:35', 'FUP1-1: the wall-clock end is start + planned minutes A+B+C (20:35)');
+select is((select private.at_zurich(upper(private.visit_interval(v))) = upper(private.visit_wall_range(v))
+           from public.care_visits v where v.id = pg_temp.id('f1950m45')), true,
+  'FUP1-1: the list and ABS1 (private.visit_interval) give the visit the same end');
+select is((select upper(private.visit_wall_range(v)) from public.care_visits v where v.id = pg_temp.id('f1950m0')),
+  (pg_temp.today() + 2)::timestamp, 'FUP1-1: without planned minutes the visit runs to the end of its day, as visit_interval');
+select ok(not exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                      where n.nspname = 'private' and p.proname = 'visit_wall_range' and p.pronargs = 3),
+  'FUP1-1: the one-minute helper (date, time, time) is gone');
+
+-- =====================================================================================================================
+-- FUP1-2 (CGR-58, 0071, ADR-084): the banner follows the delivery, or the instant the step is due
+-- =====================================================================================================================
+select pg_temp.act_as('00000000-0000-4000-a000-000000000905');
+set local role authenticated;
+select is(public.set_exception_rule('00000000-0000-4000-b000-000000000011', 'signal_untaken', 'P1', 15, null, pg_temp.k(11)), 'ok',
+  'fixture: the untaken threshold back to 15 minutes');
+reset role;
+-- A P1 no-show of Nord at a fixed instant (Monday 2 November 2026), taken by the care assistant of Nord (the take does not
+-- stop the step), not escalated, no Operations delivery yet.
+create function pg_temp.fsig(p_n text, p_created timestamptz) returns uuid language plpgsql as $$
+begin
+  perform pg_temp.planned('fv' || p_n, 1, '19:00', '19:30');
+  insert into public.safety_signals (organization_id, id, team_id, visit_id, signal_kind, exception_key, p1_at, created_at)
+  values ('00000000-0000-4000-b000-000000000011', pg_temp.id('fs' || p_n), '00000000-0000-4000-a000-000000000101',
+          pg_temp.id('fv' || p_n), 'no_show', 'fup1:' || p_n, p_created, p_created);
+  insert into public.signal_takes (organization_id, signal_id, taker_id, qualification, stops_escalation, taken_at)
+  values ('00000000-0000-4000-b000-000000000011', pg_temp.id('fs' || p_n), pg_temp.u(906), 'care_assistant', false,
+          p_created + interval '5 minutes');
+  return pg_temp.id('fs' || p_n);
+end $$;
+-- An Operations delivery of the signal (…904, reason untaken) with an outside result (null: no outside row).
+create function pg_temp.fops(p_n text, p_result text) returns void language plpgsql as $$
+begin
+  insert into public.signal_deliveries (id, organization_id, signal_id, recipient_id, reason, signal_kind, visit_id)
+  values (pg_temp.id('fd' || p_n), '00000000-0000-4000-b000-000000000011', pg_temp.id('fs' || p_n), pg_temp.u(904), 'untaken',
+          'no_show', pg_temp.id('fv' || p_n));
+  if p_result is not null then
+    insert into public.signal_outside_deliveries (id, organization_id, signal_id, recipient_id, result, sent_at)
+    values (pg_temp.id('fd' || p_n), '00000000-0000-4000-b000-000000000011', pg_temp.id('fs' || p_n), pg_temp.u(904), p_result,
+            case when p_result = 'sent' then pg_temp.at('2026-11-02', '19:58') end);
+  end if;
+end $$;
+select pg_temp.fsig('a', pg_temp.at('2026-11-02', '19:50'));   -- due 20:05
+select pg_temp.fsig('b', pg_temp.at('2026-11-02', '19:50'));
+select pg_temp.fsig('c', pg_temp.at('2026-11-02', '19:50'));
+
+select pg_temp.hours('07:00', '20:00');
+select is(private.watched_inside('00000000-0000-4000-b000-000000000011', pg_temp.at('2026-11-02', '19:55')), true,
+  'fixture: 19:55 is inside the watched period 07:00-20:00 (watched_now at that instant would promise the message)');
+select is(private.signal_step_outside_app(pg_temp.id('fsa'), pg_temp.at('2026-11-02', '19:55')), false,
+  'FUP1-2: watched until 20:00, a care assistant takes at 19:55, the step is due at 20:05 → app only');
+select is(private.signal_step_outside_app(pg_temp.id('fsa'), pg_temp.at('2026-11-02', '19:52')), false,
+  'FUP1-2: judged at the due instant, not at the reading instant (19:52 → still app only)');
+select pg_temp.hours('07:00', '21:00');
+select is(private.signal_step_outside_app(pg_temp.id('fsa'), pg_temp.at('2026-11-02', '19:55')), true,
+  'FUP1-2: watched until 21:00, the step due at 20:05 reaches Operations outside the app → the message follows');
+select is(private.signal_step_outside_app(pg_temp.id('fsa'), pg_temp.at('2026-11-02', '21:10')), false,
+  'FUP1-2: the step overdue and not yet made at 21:10 (after the watched period) → app only (never earlier than the reading)');
+
+select pg_temp.fops('a', 'sent');
+select pg_temp.hours('07:00', '20:00');
+select is(private.signal_step_outside_app(pg_temp.id('fsa'), pg_temp.at('2026-11-02', '20:30')), true,
+  'FUP1-2: an Operations delivery already sent outside the app → the flag follows it, also when read after the watched period');
+select pg_temp.fops('b', 'outside_working_time');
+select pg_temp.hours('00:00', '24:00');
+select is(private.signal_step_outside_app(pg_temp.id('fsb'), pg_temp.at('2026-11-02', '19:55')), false,
+  'FUP1-2: an Operations delivery classified outside_working_time → app only, even while a watched period runs');
+select pg_temp.fops('c', null);
+select is(private.signal_step_outside_app(pg_temp.id('fsc'), pg_temp.at('2026-11-02', '19:55')), false,
+  'FUP1-2: the step made, but no outside delivery (channel off) → app only');
+
+-- The reader: c3b was taken by a covering care assistant and went to Operations in the app only (no outside channel).
+create function pg_temp.outside_app_for(p_user uuid, p_n text) returns boolean language plpgsql as $$
+declare r boolean;
+begin
+  perform pg_temp.act_as(p_user::text);
+  set local role authenticated;
+  select m.operations_outside_app into r from public.my_signals() m where m.signal_id = pg_temp.sig(p_n);
+  reset role;
+  return r;
+end $$;
+select pg_temp.hours('00:00', '24:00');
+select ok(pg_temp.watched_now_for(pg_temp.u(902), 'c3b') and not pg_temp.outside_app_for(pg_temp.u(902), 'c3b'),
+  'FUP1-2 reader: a watched period runs now (watched_now) but the step was made in the app only → operations_outside_app false');
+insert into public.signal_outside_deliveries (id, organization_id, signal_id, recipient_id, result, sent_at)
+select d.id, d.organization_id, d.signal_id, d.recipient_id, 'sent', private.now()
+from public.signal_deliveries d where d.signal_id = pg_temp.sig('c3b') and d.reason = 'untaken';
+select pg_temp.hours(null, null);
+select ok(not pg_temp.watched_now_for(pg_temp.u(902), 'c3b') and pg_temp.outside_app_for(pg_temp.u(902), 'c3b'),
+  'FUP1-2 reader: the Operations delivery was sent outside the app → operations_outside_app true without a watched period');
 
 select * from finish();
 rollback;

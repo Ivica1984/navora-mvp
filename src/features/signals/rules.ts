@@ -40,6 +40,11 @@ export type SignalRow = {
   taken_awaits_rn?: boolean | null;
   /** SIG2-C1 (1) (0068): a watched period of the organisation runs now (no watched hours recorded → false). */
   watched_now?: boolean | null;
+  /**
+   * FUP1-2 (0071, CGR-58): the step to Operations reaches Operations outside the app: once made, it follows the
+   * Operations delivery; before, it is judged at the instant the step is due. Decides the banner text when present.
+   */
+  operations_outside_app?: boolean | null;
 };
 
 export function signalText(kind: string): string {
@@ -85,17 +90,27 @@ export const OPERATIONS_FOLLOWS = "Meldung an Operations folgt";
 export const OPERATIONS_APP_ONLY = "Operations nur in der App: ausserhalb der überwachten Zeit";
 
 /**
- * "übernommen von Anna (Pflegehilfe), Meldung an Operations folgt" (SIG1-C1 (a)) while a watched period runs;
- * otherwise "…, Operations nur in der App: ausserhalb der überwachten Zeit" (SIG2-C1 (1)). Only a reader row that says
- * a watched period runs (`watched_now === true`) promises the message to Operations; a missing flag never does.
+ * Does the banner promise the message to Operations? FUP1-2 (0071): the reader's `operations_outside_app` decides
+ * whenever the row carries the field (the step follows its delivery, or the instant it is due); only a row without the
+ * field (a reader older than 0071) falls back to `watched_now` (SIG2-C1 (1)). Only `true` promises; null never does.
+ */
+export function operationsFollows(row: Pick<SignalRow, "watched_now" | "operations_outside_app">): boolean {
+  if (row.operations_outside_app !== undefined) return row.operations_outside_app === true;
+  return row.watched_now === true;
+}
+
+/**
+ * "übernommen von Anna (Pflegehilfe), Meldung an Operations folgt" (SIG1-C1 (a)) when the step reaches Operations
+ * outside the app; otherwise "…, Operations nur in der App: ausserhalb der überwachten Zeit" (SIG2-C1 (1), FUP1-2).
+ * A missing flag never promises the message to Operations.
  */
 export function takenText(
-  row: Pick<SignalRow, "taken_by_me" | "taken_by_name" | "taken_by_qualification" | "taken_awaits_rn" | "watched_now">,
+  row: Pick<SignalRow, "taken_by_me" | "taken_by_name" | "taken_by_qualification" | "taken_awaits_rn" | "watched_now" | "operations_outside_app">,
 ): string {
   const base = row.taken_by_me ? "von dir übernommen" : `übernommen von ${row.taken_by_name ?? "Teammitglied"}`;
   if (!row.taken_awaits_rn) return base;
   const label = row.taken_by_qualification ? QUALIFICATION_LABEL[row.taken_by_qualification] : undefined;
-  return `${label ? `${base} (${label})` : base}, ${row.watched_now === true ? OPERATIONS_FOLLOWS : OPERATIONS_APP_ONLY}`;
+  return `${label ? `${base} (${label})` : base}, ${operationsFollows(row) ? OPERATIONS_FOLLOWS : OPERATIONS_APP_ONLY}`;
 }
 
 /** SIG2-C1 (2) (0068, ADR-082): a planned visit of the next 7 days outside the organisation's watched periods. */

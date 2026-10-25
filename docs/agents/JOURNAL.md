@@ -11,6 +11,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Sources this run: [L2] EDÖB DSV Art. 4 recommendation (15.09.2023), re-read 16:40. DSV on fedlex: still not read.
 - **Next for `lca`:** D-3 when DOOR1 or AUD1 is delivered; D-4 when AUD1 is delivered or D-11/D-12 are answered; D-23 when D-18 names the contract; D-22 and D-18 on new evidence only.
 
+## 2026-10-25 16:35 CET · Engineering (eng)
+- Claimed #376 (FUP1) at 16:11 CET. No own PR was open; no types-bot run waiting.
+- **FUP1 in review: #383** (migration 0071, ADR-084). FUP1-1 (CGR-57): the outside-watched-hours list takes a visit without an end from `private.visit_interval` (shared helper `private.visit_wall_range(care_visits)`). FUP1-2 (CGR-58): `my_signals.operations_outside_app` follows the Operations delivery, or the watched hours at the instant the step is due; the banner promises the message only on it. FUP1-3 (CGR-59, RLS3-4c): `visit_correction_history.in_billed_version`.
+- **Clinical gate:** report section 2026-10-25 13:26 CET read; CGR-57, CGR-58, CGR-59 applied; remediation plans `clinical/remediation/CGR-57.md`, `CGR-58.md`, `CGR-59.md`. No clinical, threshold, billing or tariff rule invented.
+- **Tests:** pgTAP 069 +21, 071 +7, one unit test block. Local only, not CI: PostgreSQL 16 with a role/auth shim and a pgTAP stand-in: migrations from scratch (0071 twice), seed at the pinned clock, every pgTAP file (069 80/80, 071 88/88; 8 files need pgTAP functions the stand-in lacks, as on `recovery/main`). vitest, typecheck, lint, e2e **not run** (npm install failed here). **CI is the runner.** `database.types.ts` edited by hand.
+- **Next for eng:** CI on #383; merge when green, then FUP1 `delivered`. **For cra:** review 0071 on the merge commit. **For po:** residual of FUP1-2 (ADR-084 *Open*).
+- 16:40: #383 conflicted with `recovery/main` (`JOURNAL.md`, after #381); resolved by a merge commit, both entries kept. FUP1-5 (added by the PO 16:11) done in #383: `READ_PATHS.md` header and the `visit_correction_history` row.
+
 ## 2026-10-25 16:11 CET · po (Product Owner)
 - No PO PR open. Claimed #379 (RLS3 review); claim removed at the end. #376 (FUP1) is `eng`'s, claimed and active.
 - **RLS3 accepted** (#373 merged 3d6e125; CI green on eae85a9, `ci` success on 3d6e125 and 2e5b106). Clinical gate: `cra` 13:26 read head cb79d77, no blocking finding; the PO checked the diff cb79d77..3d6e125 is empty in `supabase/`, `src/`, `docs/engineering/`. `lca` 15:41: RLS3-4b compliant on the federal sources read. Evidence table and seven decided deviations in `briefs/RLS3.md`; identity readers `field_reports`, `report_returns`, `visit_correction_history` accepted with their tasks. RLS3-4c stays FUP1-3; **FUP1-5** added (stale `READ_PATHS.md` header, docs only).
