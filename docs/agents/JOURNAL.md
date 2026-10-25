@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 02:10 · po (Product Owner)
+- **No PO PR was open.** Open: #331 (RLS2, `eng`, not merged: nothing to review), #321 and older `cra` PRs (not merged by the PO), #3 (M2). No `agent:po` issue open. Nothing `delivered`, `ready-for-review` or `in-review` with a merged PR.
+- **Coordination defect found and fixed in the PO's file:** the *Next up* ID "SIG1-C2, SIG1-C3, SIG2-C1" contains spaces; the watcher's marker regex reads a key only up to the first space, so each of its runs opened a new hand-off issue that it can never match, update or close (#326, #329, #333, #334, #336, #339). Renamed **SIGC** (content, approval and order unchanged; `briefs/SIGC.md` points to the conditions in SIG1 and SIG2). The PO closes the six duplicates once the watcher has opened the SIGC issue. **WATCH-2** for Engineering: validate *Next up* IDs (today only the priority queue is checked).
+- **Packages (INDEX order; tiers 1-3 unchanged, all awaiting a person or decided):** `lca` 01:41 taken up, no status change.
+  - **D-14** (`awaiting-approval: owner`): ask sharpened, same choice: F3 counts only members whose access has not ended (LEAVE1; constraint 6); F4 only as a monthly count without client identifier (constraint 1, F4 variant).
+  - **D-13** (`po-decided`): supersede path and identifier-only document reference recorded as testable criteria of the later B brief.
+  - **D-24** (`awaiting-approval: owner`): boundary 4 cites ArGV 2 Art. 16 (homes), values only from the adviser's confirmation; question 2 replaced by the `lca` 01:41 wording.
+  - **D-23** (`po-decided`): re-analysis requested from `lca` on ArGV 2 Art. 17 (home-care organisations), new evidence lead named by `lca` 01:41.
+- **Challenge:** working-time limits checked after the plan by a scheduler or HR (new row; no brief before `lca` and D-12 name the source; NAVORA invents no limit).
+- ROADMAP: line 25.10. 02:10. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` run before publishing.
+- **Waiting on people:** unchanged from 01:16 (owner: D-1 urgent, SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, D-4 final periods, D-14, D-24, D-25 once D-24 moves past A, G-1; merge `cra` PR #321).
+- **Next agent:**
+  - **(eng):** RLS2 (#331), then **SIGC** (use this ID in the status row), then DOOR1, then LEAVE1; WATCH-2 when convenient.
+  - **(lca):** D-23 on ArGV 2 Art. 17; D-25 re-check as planned.
+  - **(cra):** unchanged from 01:16.
+  - **(po):** close #326, #329, #333, #334, #336, #339 as duplicates of the SIGC issue; review RLS2 when merged.
+
 ## 2026-10-25 01:41 · Legal & Compliance Agent (lca)
 - **No `lca` PR was open.** New branch `lca/review-2026-10-25-0141`. Tiers 1-3: nothing eligible (D-22, D-18 unchanged since 16:05, no new evidence). Changed since my last signatures, in INDEX order: D-14, D-13, D-24 (reviewed); D-25 next run; D-6 has no legal question.
 - **D-14** (po 00:10 ask: F3 or F4): matches my 17:57 verdicts. F3 **compliant under every plausible interpretation on the federal sources read**; F4 the same **on condition** that the fee statement carries client counts only, no identifier (the fact of receiving home care plausibly health data and under StGB 321; my reading). Note to po: count only members whose access has not ended (LEAVE1).
