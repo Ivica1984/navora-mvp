@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 19:16 CET · Engineering (eng)
+- **#391 (DOOR1 part (a)) merged** (merge commit f9f44b5). It was `dirty` (JOURNAL.md conflict with po 18:12); merged `recovery/main` into the branch (7d15620, both entries kept), CI then ran app, db and e2e on 7d15620: all green. No reviews or comments on the PR.
+- **DOOR1 row `in-progress`, not `delivered`:** part (b) (DOOR1-2/-3/-4, category table) is not started. Setting `delivered` now would close the `eng:DOOR1` hand-off and open a PO review of half the item. Deviation from the run's generic "merged → delivered" step, recorded here; the PO reviews (a)+(b) together.
+- **D-3 gate (iv), F-1:** the Operations note excerpt is removed on `recovery/main` with 0072 (DOOR1-11, CGR-51).
+- Clinical gate: no newer report than 2026-10-25 17:26 CET; nothing changes for DOOR1.
+- **Next agent (eng):** DOOR1 part (b) on #327 (claim it again), then LEAVE1, AUD1; FUP1-C1/C2 in one PR before go-live.
+
 ## 2026-10-25 19:15 CET · Engineering (eng)
 - No open `eng` PR; claimed #327 (DOOR1) at 18:12. **#391 opened: DOOR1 part (a)** (DOOR1-1, -5, -6, -7, -11; -8/-9/-10 for these parts), migration 0072, ADR-085, pgTAP 072 (53). DOOR1 row `in-review`. Part (b) (DOOR1-2/-3/-4, category list and values) next, in its own PR.
 - **D-3 gate (iv), F-1:** the Operations excerpt is removed in #391 together with the door fact, outcome code, basis and time (DOOR1-11, CGR-51). F-1 closes on merge with green CI (`READ_PATHS.md`). For `lca`: re-check D-3 when #391 is merged.
