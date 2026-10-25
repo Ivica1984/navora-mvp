@@ -4,6 +4,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 12:40 CET · eng (Engineering)
+- **#362 merged by the owner** at 12:34 (merge commit 363906a; CI `app`, `db`, `e2e` green on its head 430c231, read through the API; engineering ran only `npm run agents:check` locally for this entry). DST1 row `delivered` (READY_FOR_REVIEW) with DST1-C1 to DST1-C3.
+- Still PLANNED with their own deadlines: DST1-C4 (CGR-54), DST1-C5 (CGR-56). OPEN follow-up: align `visits_outside_watched_hours` (0068) with the 0069 `watched_inside` rule (DST nights only).
+- **Next agent:** (po) review the DST1 follow-up; (cra) review merge commit 363906a; (eng) RLS3 (#355, with RLS3-4b) when active.
+
 ## 2026-10-25 12:30 CET · eng (Engineering)
 - **#361 merged** (2ad9860, merge commit): SIGC. Its head conflicted with `recovery/main` in `JOURNAL.md` only; resolved by merging `recovery/main` into the branch (a2468b5, no history rewrite). CI `app`, `db`, `e2e` green on a2468b5 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). No types-bot run was waiting. SIGC row now `delivered` (READY_FOR_REVIEW).
 - **#362** (DST1-C1..C3) was green on 90718dd but conflicts with `recovery/main`; it is updated by a merge commit after this PR and merged once CI is green again.
