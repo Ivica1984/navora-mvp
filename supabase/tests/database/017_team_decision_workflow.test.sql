@@ -201,8 +201,10 @@ select is((select declines -> 0 ->> 'code' from public.matching_escalations() wh
   'capacity', 'the escalation carries the decline reasons');
 select is((select declines -> 0 ->> 'team' from public.matching_escalations() where matching_request_id = (select id from r where last_name = 'J2S')),
   'Testteam Nord', 'Operations sees which team declined');
-select is((select count(*)::int from public.team_decisions where matching_request_id = (select id from r where last_name = 'J2H')), 1,
-  'coordination roles see all decisions of their organisation');
+-- RLS2 (0066, ADR-080) replaces the 0017 rule: coordination roles read decisions only through matching_escalations()
+-- (code, team, time; no free text), never row by row through the table API.
+select is((select count(*)::int from public.team_decisions where matching_request_id = (select id from r where last_name = 'J2H')), 0,
+  'RLS2: coordination roles do not read the teams'' decisions row by row (escalations through matching_escalations())');
 reset role;
 select ok((select assigned_team_id is null and status <> 'laufend' from public.cases where last_name = 'J2S'),
   'nothing is assigned automatically');

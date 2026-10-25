@@ -67,10 +67,14 @@ select is(
 select is(
   (select count(*)::int from public.matching_requests m join public.cases c on c.id = m.case_id where c.last_name = 'Person J1'),
   0, 'no matching request for a case that is not ready');
+-- RLS2 (0066): Operations no longer reads `case_tasks` row by row; the task rows are checked as the table owner and
+-- through the intake read model Operations uses (`case_funding_facts.open_tasks`, 067).
+reset role;
 select is(
   (select array_agg(kind order by kind) from public.case_tasks t join public.cases c on c.id = t.case_id where c.last_name = 'Person J1' and t.status = 'open'),
   array['access_unknown', 'gp_missing', 'language_unknown', 'other_providers_unknown'],
   'missing non-blocking items are open tasks on the case');
+set local role authenticated;
 select is(
   (select source_partner_request_id from public.cases where last_name = 'Person J1'),
   (select id from public.partner_requests where request_title = 'Austritt J1'), 'the case links to its referral');
@@ -92,10 +96,12 @@ select is(
    join public.cases c on c.id = m.case_id where c.last_name = 'Person J1'),
   'open/Bern West', 'the server opens the matching request once the case is ready');
 select ok((select ready_for_matching_at is not null from public.cases where last_name = 'Person J1'), 'readiness time recorded');
+reset role; -- RLS2 (0066): as the table owner (see above)
 select is(
   (select count(*)::int from public.case_tasks t join public.cases c on c.id = t.case_id
    where c.last_name = 'Person J1' and t.kind = 'gp_missing' and t.status = 'done'),
   1, 'the GP task closes once a GP is named');
+set local role authenticated;
 select is(
   (select insurer_name || '/' || medical_order_status from public.case_funding_facts((select id from public.cases where last_name = 'Person J1'))),
   'Testkasse/requested', 'intake reads the funding facts through the protected function');

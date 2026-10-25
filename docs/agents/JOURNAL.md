@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 07:50 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR (#346 merged). Tiers 1-3: D-22, D-18 unchanged, no new evidence. New evidence: **RLS2 (#331) merged** at 07:11 CET (0066, `READ_PATHS.md`; ADR-080 asks for the `lca` re-check of D-3 gate iv). Re-checked two packages against the merged code (read, not tested):
+- **D-3 gate (iv):** the organisation-wide gap of 21:55 is **closed in code**. Gate (iv) is still **not met**: F-2 (every coordination role can read the whole `visit_status_notes.note` through the table API), F-1 (DOOR1-11), F-3 and the F-5 negative tests are open. Real data: **not yet compliant**; compliant under every plausible interpretation on the federal sources once those four are done with gates (i)-(iii). Task-bound coordination reads (intake, quality review, holds): DSFA. Note to po: name F-2 and F-5 in item 6.
+- **D-23:** term (a) built; C plus D **unchanged, compliant** on (a)-(e). F-4 (`actor_id` readable row by row inside the team) with real data: **unresolved: needs the DSFA** (or an adviser). Protective route: revoke before the first real employee or with C, whichever is first (note to po; Q13 now ties it to C only).
+- Sources this run: [W15] weka.ch on ArGV 3 Art. 26 (21.11.2025, secondary, summarising fetch tool). ArGV 3 primary text not read.
+- **Next for `lca`:** D-3 gate (iv) again when F-2, DOOR1 or LEAVE1 are delivered; D-22, D-18 on new evidence only.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+## 2026-10-25 06:10 CET · po (Product Owner)
+- No PO PR open (#347 merged). No issue claimed (nothing new for `po`; DST1 #344 is claimed by `eng`).
+- **No delivery to review:** DST1 PR #349 (opened 04:55 UTC; `db`, `app` green, `e2e` running at 06:10) and RLS2 PR #331 (CI green on `bb3ed48`) are open, not merged; nothing `delivered`, `ready-for-review` or `in-review`.
+- **DST1 amended** (product authority; time-conversion rule only, no threshold, priority or receiver changed) from `cra` 05:30 (CGR-52 S2, production code affected):
+  - **DST1-7:** a watched period starts at the earlier and ends at the later instant, so it is never shorter than its wall-clock length (`cra` addition (4); PR #349 already follows it, so the deviation it lists is now in the brief).
+  - **DST1-8:** the fixed-clock mechanism cannot act in a database built without the seed (assertion before the seed), no app role can set or read the pin, and the ADR says how staging and production stay free of it. Reason: a pin outside tests would freeze every overdue and escalation signal (H-01). No check against the live database.
+  - Review note: DST1-4 needs the four-clock proof in CI; the local run in #349 counts for DST1-1 only.
+- **Packages:** no new input since 04:10; tiers 1-3 all awaiting a person or decided; no status change.
+- **Challenge:** minute-exact planned starts (row added): from scratch, only time-bound care needs a fixed minute; hypothesis on start deviation and unacted P2 signals (AN1, counts only); any change goes to D-28 (Clinical Owner), no rule built.
+- ROADMAP: line 25.10. 06:10. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` passed before publishing.
+- **Waiting on people (unchanged):** **owner:** D-1 (urgent), SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, D-14, D-24, D-25 (only once D-24 moves past A), G-1 (name the Clinical Owner); merge #331 (RLS2) and, once green and `cra`-reviewed, #349 (DST1). **Clinical Owner:** D-10, D-28, D-31, D-3, D-30, D-16, D-15, D-19, D-17.
+- **Next agent:**
+  - **(eng):** DST1-7 and DST1-8 on PR #349 (DST1-7 is implemented per the PR; DST1-8 (a) and (b) need assertions); the four-clock CI proof for DST1-4.
+  - **(cra):** review 0067 (CSR1, SIG1), as #349 requests.
+  - **(po):** review DST1 and RLS2 when merged.
+
 ## 2026-10-25 05:55 CET · eng (Lead Engineer)
 - **A (own PRs):** RLS2 #331 is green and mergeable (clean) on bb3ed48. The merge was **refused again by this session's permission policy** (merge without review), as at 04:10. It stays open for the owner to merge (merge commit) and stays `in-review`.
 - **B/C:** claimed **#344 (DST1)** at 05:14. Clinical scope (CSR1, SIG1). Read `cra` 02:26 (open PR #341): **CGR-52** (advisory, S3) applies. Remediation plan `clinical/remediation/CGR-52.md` written. No other finding touches DST1.
@@ -209,6 +233,36 @@ ENGINEERING BRIEF
   - **(cra):** F6R-G1 (0065); confirm or correct the po drafts in D-6 (is the assignment model a clinical rule?), D-13 (points 1-4), D-14 (hazards and guard measures); D-24, D-25 as planned.
   - **(lca):** nothing new requested; D-6 has no legal question, D-13 and D-14 rest on your 18:47 and 17:57 sections.
   - **(po):** D-24, D-25 next (two-run rule for E and C); write the D-13 B brief once the approved queue is clear.
+
+## 2026-10-25 00:35 · eng (Lead Engineer)
+- **No own PR was open.** I claimed #319 (RLS2, the active hand-off, unclaimed) at 00:11.
+- **#331 is open** (ADR-080, migration 0066, pgTAP 067 with 127 assertions, inventory `docs/engineering/READ_PATHS.md`):
+  - `visit_events` and `visit_time_corrections` are readable by the row's or visit's team and the active covering member (`private.reads_visit`).
+  - `team_decisions` is readable by the deciding team; `case_tasks` by the case's team (`private.reads_case`).
+  - No coordination role reads any of the four through the table API.
+  - The escalation readers no longer return the decline free text.
+  - `uncovered_visits()` is no longer organisation-wide.
+- **Found while reading the code:**
+  - `team_decisions` had been narrowed by 0017 already (the brief says organisation-wide). 0066 removes the coordination roles too.
+  - `field_visits` is `SECURITY INVOKER`. It reads the correction reason under RLS, so no column grant was revoked: the row scope does the job.
+- **Brief's open questions:**
+  - Coordination tasks: OPS1, SIG1, intake, J2 escalation and AN1/AN2 all use read models. None needs the table API.
+  - The catalogue check is keyed on column names (`case_id`, `visit_id`, `client_id`) for tables and function results, plus a cross-team sweep of every reader.
+  - Estimate: one migration as planned, but 127 assertions instead of 30-40, because the sweep calls every reader.
+- **Deviations for the PO** (status row):
+  1. `team_decisions` already narrowed by 0017 (see above).
+  2. pgTAP 017 test 42 inverted to 0 rows; 012 tests 16 and 23 now read as the table owner. No assertion removed.
+  3. The cover read ends at the final report.
+  4. No column grant changed.
+- **RLS2-5 findings F-1 to F-5:** coordination-role paths, not narrowed here. They are eng-proposal **RLS3** and decision **Q13** for `po`. F-1, the free-text no-show note in the OPS1 detail, may become a `clinical` question if Operations needs the text.
+- **Clinical gate:** I read `cra` 22:26 (open PR #321). Its RLS2 note is applied: pgTAP shows that OPS1 and `my_signals` still raise a no-show and an overdue visit of the team after the narrowing. No CGR finding names RLS2, so no remediation plan. No rule invented.
+- **Tests:**
+  - **Local run, not CI:** PostgreSQL 16 with a role/auth shim and a minimal pgTAP stand-in. Migrations, seed and 0066 twice applied without error. 067 passed 127/127; every other file matched its pre-0066 baseline.
+  - **Not run:** lint, typecheck, vitest, e2e, db lint. CI decides.
+- **Next:**
+  - **(eng):** CI on #331, then merge and `delivered`; then SIG1-C2 + SIG1-C3 + SIG2-C1, then DOOR1.
+  - **(po):** Q13.
+  - **(lca):** D-3 gate (iv) against READ_PATHS.md once #331 is merged.
 
 ## 2026-10-24 23:25 · eng (Lead Engineer)
 - **#320 merged** as 868e3e0 with a merge commit. CI was green on head 3766bde (app, db, e2e).
