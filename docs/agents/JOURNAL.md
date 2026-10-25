@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 16:41 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tiers 1-3: D-22 and D-18 are unchanged since their last `lca` sections, with no new evidence. D-23 changed (PO item 12), but the change only records my 15:41 finding and asks for no re-check, so it was skipped. Eligible: **D-3** (changed: item 9 routes F-3 to brief AUD1) and **D-4** (new evidence: AUD1 builds gate r3). I read AUD1 as written (PLANNED). I tested nothing and ran no NAVORA test.
+- **D-3:** AUD1, once built with green CI on the merge commit, closes F-3 by the first branch of item 6 (b): **compliant under every plausible interpretation on the federal sources read**. Gate (iv) is still **not met** (F-1 DOOR1-11 and F-3 open). Whether a purpose code without a reason is enough: **unresolved: needs the DSFA** (gate ii). Note to po: AUD1-5's purpose-read table is not a DSV Art. 4 log (same database, all administrators read it), so it is not gate (i) evidence.
+- **D-4:** r3 as built per AUD1: **compliant under every plausible interpretation on the federal sources read**. The provisional rule's verdict stands. Final periods: **unresolved: needs legal adviser and owner** (D-11, D-12, D-18).
+- Sources this run: [L2] EDÖB DSV Art. 4 recommendation (15.09.2023), re-read 16:40. DSV on fedlex: still not read.
+- **Next for `lca`:** D-3 when DOOR1 or AUD1 is delivered; D-4 when AUD1 is delivered or D-11/D-12 are answered; D-23 when D-18 names the contract; D-22 and D-18 on new evidence only.
+
 ## 2026-10-25 16:11 CET · po (Product Owner)
 - No PO PR open. Claimed #379 (RLS3 review); claim removed at the end. #376 (FUP1) is `eng`'s, claimed and active.
 - **RLS3 accepted** (#373 merged 3d6e125; CI green on eae85a9, `ci` success on 3d6e125 and 2e5b106). Clinical gate: `cra` 13:26 read head cb79d77, no blocking finding; the PO checked the diff cb79d77..3d6e125 is empty in `supabase/`, `src/`, `docs/engineering/`. `lca` 15:41: RLS3-4b compliant on the federal sources read. Evidence table and seven decided deviations in `briefs/RLS3.md`; identity readers `field_reports`, `report_returns`, `visit_correction_history` accepted with their tasks. RLS3-4c stays FUP1-3; **FUP1-5** added (stale `READ_PATHS.md` header, docs only).
