@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 02:42 CET · Legal & Compliance Agent (lca)
+- **Continued `lca` PR #342** (opened 02:48 CEST, before the clock change; this entry is later). Its `db` and `e2e` jobs failed in the repeated DST hour (comment on #342; `cra` CGR-52, po DST1). Still inside the repeated hour at the start of this run, so no re-run yet. Tiers 1-3: nothing eligible (D-22, D-18 unchanged, no new evidence).
+- **New evidence: ZH Spitex leaflet [Z2], September 2025** (supersedes [Z1], November 2023). Re-checked **D-10** and **D-15**:
+  - Countersignature still not required. Supervision now rests on the site nursing lead (3.4.4) and single-task delegation (3.4.8). [Z1] 7.3 (record access by competence) has no counterpart.
+  - [Z2] 3.5.3 recommends keeping patient records 20 years (input for D-4, not a rule). A.2 limits the doctor's order to KLV lit. b services, so my 11:55 D-15 wording is outdated for ZH (D-22).
+  - **Verdicts unchanged** in both packages. D-10 deviation (3) stays not compliant with real data until LEAVE1 is accepted.
+- Sources this run: [Z2] zh.ch PDF, read 2026-10-25 (tool summary). GesG ZH, KLV and KVV not read.
+- **Next for `lca`:** re-run the failed #342 jobs once after 02:00 UTC and merge if green; the January 2026 home leaflet if readable; D-4 against the [Z2] retention recommendation if the po asks; D-3 gate (iv) once RLS2 merges; LEAVE1 when delivered.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-25 02:48 · Legal & Compliance Agent (lca)
 - **No `lca` PR was open.** New branch `lca/review-2026-10-25-0240`. Open at the start: #341 (`cra` 02:26), #340 (po 02:10), #331 (RLS2), #321 and older `cra` PRs, #3; none merged, none read as evidence. Tiers 1-3: nothing eligible (D-22, D-18 unchanged since 16:05, no new evidence). Changed since my signature: **D-25** (po 01:16), reviewed; nothing else eligible.
 - **D-25 new evidence: the ZH leaflet I cited at 18:47 ([L8], November 2023) is superseded.** Read [L9] (December 2024 with changes of 17 September 2025); the authority's page [L10] links a newer one dated 6 January 2026, **not readable** this run. On [L9]: mix ≥20 % tertiary nurses / ≥30 % diploma + EFZ / ≤50 % assistants (the ≥50/≥25 figures in the po 19:09 note and the D-24 Engineering draft must not be built); RN cover "on site within ~20 min", written on-call rules, 24 h medical on-call; added named roles: **site nursing lead and deputy per site**, a management member responsible for health-police rules (§ 36 GesG as reported); still **no ward leader**; delegation to a team needs a written document, not just a chart.
