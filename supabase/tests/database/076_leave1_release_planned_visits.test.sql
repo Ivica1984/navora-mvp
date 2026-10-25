@@ -8,6 +8,11 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(22);
 
+-- Pinned clock (DST1 pattern): 10:00 Zurich today, so "tomorrow 09:00" is inside the 24 h threshold at any hour CI
+-- runs (unpinned it failed between 00:00 and 09:00 Zurich: tomorrow 09:00 was then more than 24 h away).
+select set_config('navora.test_now',
+  (((private.now() at time zone 'Europe/Zurich')::date + time '10:00') at time zone 'Europe/Zurich')::text, true);
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);

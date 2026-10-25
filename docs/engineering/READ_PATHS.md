@@ -1,6 +1,6 @@
 # Read-path inventory: client-, case- and visit-linked reads (RLS2-1)
 
-**Owner:** Engineering (`eng`) · **Briefs:** [`RLS2`](../agents/briefs/RLS2.md), [`RLS3`](../agents/briefs/RLS3.md) · **ADRs:** ADR-080, ADR-083 · **Migrations:** 0066, 0070 · **Proof:** pgTAP `067_rls2_team_scoped_records` (128 assertions), `071_rls3_task_scoped_reads` (88) · **State:** IMPLEMENTED on synthetic data: 0066 and 0070 merged (RLS3 #373 merged as 3d6e125, CI green); F-2, F-4, F-5 closed; F-1 open (DOOR1-11), F-3 open (AUD1, D-4) · **Last change:** 2026-10-25 16:40 Europe/Zurich (FUP1-5; FUP1-3 `in_billed_version`, 0071, PR #383)
+**Owner:** Engineering (`eng`) · **Briefs:** [`RLS2`](../agents/briefs/RLS2.md), [`RLS3`](../agents/briefs/RLS3.md) · **ADRs:** ADR-080, ADR-083 · **Migrations:** 0066, 0070 · **Proof:** pgTAP `067_rls2_team_scoped_records` (128 assertions), `071_rls3_task_scoped_reads` (88) · **State:** IMPLEMENTED on synthetic data: 0066 and 0070 merged (RLS3 #373 merged as 3d6e125, CI green); F-2, F-4, F-5 closed; F-1 closed (DOOR1-11, 0072), F-3 **closed in PR** (AUD1, 0077, pgTAP 077; closed on merge) · **Last change:** 2026-10-26 00:40 Europe/Zurich (AUD1: audit-log section, F-3 closed in PR, 0077). Earlier 2026-10-25 16:40 Europe/Zurich (FUP1-5; FUP1-3 `in_billed_version`, 0071, PR #383)
 
 Every table, view and function in schema `public` that the role `authenticated` can select or execute and that returns rows linked to a client, a case or a visit. In NAVORA the client is the case (`cases`); there is no `client_id` column.
 
@@ -60,7 +60,7 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 | `matching_requests` | coordination: intake and matching (J2) | `notes` | 015 |
 | `partner_requests` (referral, no case column) | coordination: intake (`src/features/intake/queries.ts:49`) | referral fields | 015 |
 | `match_candidates` (no case column) | coordination: matching | no | *015* |
-| `audit_events` (entity-linked, no case column) | coordination: admin only, audit review | `changed` holds audited columns, incl. `quality_holds.reason` and signal reason codes | *005*, *063* → F-3 |
+| `audit_events` (entity-linked, no case column) | **none through the table API (AUD1-2, 0077)**: administrators of the record's organisation read one record's rows through `read_audit_record(entity_type, entity_id, purpose)` | `changed`: free-text keys withheld unless the administrator is an active member of the record's team (AUD1-4; list below) | 077, *005* (F-3 closed in PR) |
 
 ## Functions
 
@@ -92,15 +92,50 @@ Commands (`correct_visit_time`, `complete_case_task`, `decide_matching_request`,
 
 ## Findings (RLS2-5)
 
-No further **organisation-wide** client-linked path remains (catalogue and sweep). The findings below are coordination-role paths; narrowing them would change a screen or needs a product answer, so they were proposals (eng-proposal **RLS3**, decision **Q13** decided by `po` 2026-10-25 08:10). State after RLS3 (0070): F-2, F-4, F-5 closed; F-1 and F-3 open with their route:
+No further **organisation-wide** client-linked path remains (catalogue and sweep). The findings below are coordination-role paths; narrowing them would change a screen or needs a product answer, so they were proposals (eng-proposal **RLS3**, decision **Q13** decided by `po` 2026-10-25 08:10). State after RLS3 (0070): F-2, F-4, F-5 closed. F-1 closed by DOOR1-11 (0072); F-3 closed in PR by AUD1 (0077):
 
 | ID | Finding | Proposed change | Screen affected |
 |---|---|---|---|
 | F-1 — **CLOSED in PR (DOOR1-11, 0072, pgTAP 072; closed on merge)**: route DOOR1-11 | `operations_exceptions()` shows Operations the first 120 (no-show) or 200 (interruption) characters of the nurse's free-text note. The note can carry health data. `cra` 22:26: Operations must know *that* and *when*; it did not name the note | show the reason code and "Notiz im Team" instead of the text; the team keeps the note | `/operations` exception detail |
 | F-2 — **CLOSED** by RLS3-1 (0070, pgTAP 071) | Coordination roles read `visit_status_notes` (note), `cover_events` and `working_time_facts` row by row through the table API, because their policies inherit or copy the 0015 coordination clause. No screen reads them directly; Operations uses the read models | narrow the three policies to team (+ cover for `visit_status_notes`), like 0066 | none known (no `.from()` in `src/`) |
-| F-3 — **OPEN**: route D-4 or the DSFA (D-3 item 6 b) | `audit_events` is readable by the organisation's administrators for every team, including the audited `quality_holds.reason` text | part of the D-3 read log and D-4 access rules; keep until D-4 decides, then restrict the free-text columns | `/admin` audit view (if any) |
+| F-3 — **CLOSED in PR (AUD1, 0077, pgTAP 077; closed on merge)**: route AUD1 (D-3 item 6 b, D-4 gate r3) | `audit_events` was readable by the organisation's administrators for every team, including the audited `quality_holds.reason` text | policy dropped; one purpose reader per record (`compliance`, `billing`, `safety_review`), free text only inside the team, every read recorded in `audit_read_log` | none (no screen read the log) |
 | F-4 — **CLOSED** by RLS3-4 (0070, pgTAP 071; column revoke before the first real employee, Q13) | Inside the team, `visit_events.actor_id` and times are readable row by row; a teammate could rebuild a colleague's day from the table API (no function does, RLS2-4). D-23 term (b) | revoke `actor_id` on `visit_events` and `visit_time_corrections` from `authenticated` together with the D-23 working-day proposal (her own events through a read model) | none today |
 | F-5 — **CLOSED** by RLS3-3 (pgTAP 071; no policy needed narrowing) | No negative pgTAP case was found for `care_plan_items`, `case_lifecycle_events` and `cover_events` table reads (the policies are team-scoped by reading) | add the cross-team table-API case for them to the next PR that touches them | none |
+
+## Audit log: free text and readers (AUD1-1)
+
+**State:** IMPLEMENTED in PR (migration 0077, ADR-090, pgTAP 077; CI decides). The value catalogue `private.audit_value_classes` classifies every key of `audit_events.changed` per audited table as `code` or `free_text`; pgTAP 077 fails when a column the audit trigger records is not in it, when the free-text list changes, or when a text column the app can write freely is classed `code`. A key that is not in the catalogue (a direct writer adding a new key) is withheld for every reader (fail closed).
+
+**Audited free text** (withheld by `read_audit_record` unless the administrator is an active member of the record's team; records without a team in `private.audit_record_team` are withheld for everyone):
+
+| Table · key | Written by | Team of the record |
+|---|---|---|
+| `quality_holds.reason` | `set_quality_hold` (3–500 characters; may describe health) | `quality_holds.team_id` |
+| `quality_holds.lift_reason` | `lift_quality_hold` (3–500 characters) | `quality_holds.team_id` |
+| `teams.coach_name` | `assign_team_coach` | the team |
+| `teams.name`, `teams.region` | `create_team`, `update_team` (`private.audit_command`) | the team |
+| `cases.region` | intake (2–80 characters) | `cases.assigned_team_id` |
+| `matching_requests.region` | copied from the case | `matching_requests.selected_team_id` |
+| `partner_requests.region` | intake | none (withheld) |
+| `member_profiles.display_name` | the member (2–80 characters) | none (withheld) |
+| `member_invitations.email` | the administrator | none (withheld) |
+
+Every other audited key is a code: a closed value set (CHECK or foreign key), a number, date, time, id or flag, or a status only commands set (no column grant to app roles; `care_visits.status` only through the 0004 state machine). Not free text in the log: notes, care notes, observation text, `visit_status_notes.note`, `case_safety_alert_values.note`, `change_log.reason`, `visit_plan_changes.reason` are not audited columns; their reasons stay in team-scoped tables.
+
+**Functions that read `audit_events`** (all SECURITY DEFINER; pgTAP 077 fixes the list):
+
+| Function | Task | Returns free text from `changed`? |
+|---|---|---|
+| `private.begin_command` | idempotency: did this user apply this key | no (boolean) |
+| `private.handover_entries` (HAND1, `field_since_last`) | team handover: care-plan schedule change, primary-nurse change, medical-order status and validity | no (codes, dates, member codes; reasons from `change_log`) |
+| `private.last_primary_nurse` (RET1) | the last primary nurse of a closed case | no (id) |
+| `private.case_order_as_of` (CSR1, CGR-33) | the medical order as of the visit date | no (status code, date) |
+| `public.pilot_hypotheses` (AN2) | absence end moved (CGR-35) | no (time) |
+| `public.read_audit_record` (AUD1-3) | administrators: one record, for `compliance`, `billing` or `safety_review` | only inside the team (AUD1-4) |
+
+Writers only (no read): `private.write_audit_event`, `private.write_audit_delete`, `private.audit_visit_plan_move`, `private.audit_command`, `set_member_qualification`, `plan_from_care_plan`, `set_auto_planning`, `private.adm1_reset_out_of_range_overrides`. The answer to the brief's question: no definer function returns free text from `changed` to a coordination role. `org_admins_read_audit` was used by no fixture or script outside pgTAP (`scripts/db-concurrency` deletes rows as the database owner).
+
+**Read record (AUD1-5):** `public.audit_read_log` (append-only, no app grant): reader, time, organisation (null when nothing was returned), entity type and id, purpose code, rows returned. `org_audit_read_log(organisation)` returns an administrator her organisation's rows, never a count or rank per reader. Not the D-3 gate (i) read log and not the DSV Art. 4 log. D-4 gate (r3) met by this; r1 (client extract) and r2 (retention class per audited column) stay open.
 
 ## Identity with event or correction times (RLS3-4)
 
