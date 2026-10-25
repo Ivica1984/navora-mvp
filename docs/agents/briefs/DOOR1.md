@@ -3,7 +3,7 @@ id: DOOR1
 title: What the nurse needs at the door
 author: po
 status: approved
-updated: 2026-10-24
+updated: 2026-10-25
 ---
 
 # DOOR1 — What the nurse needs at the door
@@ -33,6 +33,8 @@ The nurse opens her visit card and sees how to get in, which language, and what 
 - [ ] **DOOR1-9 Read scope.** Values, notes and the two no-show facts are read only by the case's or visit's team and the covering member while the cover is active; Operations sees a no-show through the existing signal and exception readers, without the free-text notes. No AN1, AN2, billing, export or push function reads the notes (pgTAP catalogue check, as F6R-7). Consistent with RLS2: nothing widened.
 - [ ] **DOOR1-11 Operations sees what was done, not the note (CGR-51, Q13 F-1, PO 2026-10-25 02:10 CET).** In `operations_exceptions()` (and any Operations read model of a no-show or interruption), the row shows "an der Tür: ja/nein" (DOOR1-5), the recorded outcome code and its basis (DOOR1-6) and the time, with **no free-text note**; without an outcome it shows "Ergebnis offen"; the team keeps the note. The free-text excerpt (120/200 characters, `READ_PATHS.md` F-1) is removed **in the same PR**, not before. pgTAP: a no-show with "an der Tür: ja" and outcome "Notfallkontakt informiert" → Operations' row carries both codes and the basis and no note text; without an outcome → "Ergebnis offen"; an interruption → its reason code and no note text. *PO 2026-10-25 04:10 CET (`lca` 03:43): DOOR1-11 is part of D-3 real-data gate (iv); no real client before it is merged. The criterion itself is unchanged.*
 - [ ] **DOOR1-10 No regression.** pgTAP, unit and e2e green; C1 no-show path, SIG1 P1 signal and SIG1-C1 unchanged (a no-show without an outcome stays P1).
+- [ ] **DOOR1-12 No code at intake either (PO 2026-10-25 20:10 CET, product authority, narrows only).** Since part (a), the intake note `cases.access_notes` (free text, 500 characters, written by `private.apply_case_facts`, 0017) is shown on every team member's card (DOOR1-1), but only the category note (DOOR1-4) refuses a code. Every writer of `cases.access_notes` refuses a run of four or more digits with "Bitte keinen Code erfassen" (server-side, 22023; the intake form shows the same text and the DOOR1-4 help text). Engineering may propose a better guard, the same one for both fields. pgTAP: intake note with a four-digit run refused, with three digits accepted, existing synthetic rows unchanged; unit test on the shared guard. No existing row is rewritten.
+- [ ] **DOOR1-13 One access record, not two (PO 2026-10-25 20:10 CET, product authority; challenge row 2026-10-25 20:10).** The card shows one "Zugang" line. While the case has no access-arrangement value (DOOR1-3), it shows the intake note labelled "aus der Aufnahme" with the case's intake date; once a value exists, it shows the latest value (who, when, source) and the intake note only in the history of that category, as its earliest entry (source `referral`). The intake note is never copied into the value table, never edited by the field, and `access_unknown` (0013) keeps reading `cases.access_notes` as today (DOOR1-8). pgTAP or unit test: intake note only → one line "aus der Aufnahme"; intake note plus a later team value → one line with the team value, the intake note in the history; neither → "nicht erfasst".
 
 ## Rules and their input class
 - DOOR1-3/-4 alert values: *care-context fact recorded by a nurse*, **display only**, so not "for the adviser" (`cra` 22:26 D-34 note).
@@ -54,3 +56,7 @@ D-17, D-19 (packages), D-9 (intake legal basis; no real data before its gates), 
 1. Whether the language notes belong in the category table or stay as the existing note (the PO's view: keep the note, show it; no second record, D-15).
 2. Whether "an der Tür" and the basis fit as columns on `visit_status_notes` or need their own append-only rows.
 3. Size estimate; DOOR1 may be split into (a) DOOR1-1, -5, -6, -7 and (b) the category table, in that order.
+
+## PO notes
+- **2026-10-25 20:10 CET (po), part (a) merged (#391, f9f44b5; CI `app`, `db`, `e2e` green on f9f44b5, 6f17458, 50b0ab2; the PO ran no test).** Not reviewed for acceptance yet: the PO reviews (a)+(b) together once the row is `delivered`, as Engineering proposes (19:16); keeping the row `in-progress` until then is accepted. Early view on the part (a) deviation (final at review): the open Operations row always reads "Ergebnis offen" because the P1 no-show exception closes with the outcome (C1, SIG1-C1 unchanged). That fits DOOR1-11: an open exception has no outcome yet, and the coded outcome line (`private.no_show_ops_detail`, pgTAP 072:197, 202) is what any later Operations read of a closed no-show must use. DOOR1-11's F-1 line is recorded as met in D-3 item 11.
+- **DOOR1-12 and DOOR1-13 added** for part (b) (not started): part (a) put the unguarded intake note on the card, and part (b) would otherwise add a second, competing record of the same access arrangement. Both narrow or simplify a display; no clinical rule, no new category, no change to readiness or planning. `READ_PATHS.md` header and F-1 row to be brought in line in the same PR (DOOR1-10).

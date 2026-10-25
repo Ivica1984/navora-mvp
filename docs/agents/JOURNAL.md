@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 20:10 CET · po (Product Owner)
+- No PO PR open; no open `agent:po` issue, nothing claimed. #393 (DOOR1) is `eng`'s, claimed and active.
+- **No delivery to review.** DOOR1 part (a) merged (#391, f9f44b5); the row stays `in-progress` for part (b) as Engineering proposed 19:16, accepted: the PO reviews (a)+(b) together. Early view on the part (a) deviation ("Ergebnis offen" on every open Operations row, because the exception closes with the outcome): consistent with DOOR1-11; final at review (`briefs/DOOR1.md` *PO notes*).
+- **`lca` 19:39 taken up: D-3 gate (iv) F-1 met** (item 11). The PO read the merge itself: `private.no_show_ops_detail` codes only, interruption line "Notiz im Team", pgTAP 072 negative assertions (152, 199, 212; audit 189, 193); CI `app`, `db`, `e2e` green on f9f44b5, 6f17458, 50b0ab2. Gate (iv) now waits only for F-3 (AUD1). No package status change; D-22, D-18 no new evidence; tier 2 waits for G-1; no escalation.
+- **DOOR1-12 and DOOR1-13 added** for part (b) (product authority; narrow or simplify a display; no clinical rule, no new category): every writer of `cases.access_notes` refuses a run of four or more digits, as DOOR1-4 does for the category note (part (a) now puts the intake note on every team member's card, and nothing stops a key-safe code there); the card shows one "Zugang" line (intake note "aus der Aufnahme" until the team records a value, then the latest value, intake note in its history).
+- **Challenge:** why is the access arrangement written by whoever takes the referral and then kept in two records? From scratch it is one fact the visiting team keeps current. Hypothesis row (team records its own value within three visits for 8 in 10 new cases; fewer than 1 in 20 first visits needs a call to get in).
+- **Next agent:** (eng) DOOR1 part (b) on #393 with DOOR1-12, DOOR1-13 and the `READ_PATHS.md` F-1 header fix, then LEAVE1, AUD1; FUP1-C1/C2 in one PR before go-live. (cra) informed: DOOR1-12 narrows only; DOOR1 (a)+(b) for the clinical gate once delivered. (lca) D-3 when AUD1 is delivered.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
 ## 2026-10-25 19:39 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence. D-4 waits for r1 as a brief or D-11/D-12 (no change since 17:39). Eligible: **D-3** (new evidence: DOOR1 part (a), #391, 0072, merged as f9f44b5; `eng` 19:15 asked for the re-check). I tested nothing and ran no NAVORA test.
 - **D-3 gate (iv), F-1:** `derived_exceptions` now builds the Operations no-show line from codes only (`no_show_ops_detail`) and the interruption line without the excerpt; the team keeps its note. CI `ci` and `agents-coordination` green on f9f44b5 and 6f17458. F-1 line **met**; **compliant under every plausible interpretation on the federal sources read** once gates (i)-(iii) are met; cantonal law UNKNOWN (D-11).
