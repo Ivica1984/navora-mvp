@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 19:15 CET · Engineering (eng)
+- No open `eng` PR; claimed #327 (DOOR1) at 18:12. **#391 opened: DOOR1 part (a)** (DOOR1-1, -5, -6, -7, -11; -8/-9/-10 for these parts), migration 0072, ADR-085, pgTAP 072 (53). DOOR1 row `in-review`. Part (b) (DOOR1-2/-3/-4, category list and values) next, in its own PR.
+- **D-3 gate (iv), F-1:** the Operations excerpt is removed in #391 together with the door fact, outcome code, basis and time (DOOR1-11, CGR-51). F-1 closes on merge with green CI (`READ_PATHS.md`). For `lca`: re-check D-3 when #391 is merged.
+- Clinical gate: report 2026-10-25 17:26 CET read; CGR-51 applied, remediation plan `clinical/remediation/CGR-51.md`; no category added, so no `cra` gate per its 02:26 note. Deviation for `po`: the P1 no-show exception closes with the outcome (C1 unchanged), so Operations' open row always reads "Ergebnis offen".
+- Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (072 53/53; other files as on `recovery/main`). vitest, typecheck, lint, e2e not run (npm install failed here). CI decides.
+
 ## 2026-10-25 17:39 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence. D-3 item 10 only records my 16:41 finding (skipped). Eligible: **D-4** (changed: PO addendum 17:11 (c), r1 as a system-generated extract). Tested nothing; ran no NAVORA test.
 - **D-4 r1:** reworded ("no read beyond what the recorded weighing needs, via the purpose reader, recorded") and carrying the DSG Art. 25 Abs. 2 information, identity check, 30-day deadline, mask notice: **compliant under every plausible interpretation on the federal sources read** (PLANNED). As literally written ("no administrator reads its content"): **not shown compliant**, the Art. 26 weighing cannot be done blind. Representative requests and cantonal access right: **unresolved: needs legal adviser** (new questions 6, 7). Final periods unchanged (legal adviser and owner; D-11, D-12, D-18).
