@@ -21,7 +21,7 @@
 
 ## Tests
 
-pgTAP 070 (31) at a pinned clock: the 01:30-02:30 visit occupies 23:30-01:30 UTC; an ordinary night unchanged; both ends in the repeated hour; a visit 02:30-03:30 keeps its earlier start; the spring cases. ABS1 on the fall-back night acts as on an ordinary night: an absence from 30 minutes before the visit end flags `responsible_absent` and releases the visit (audited once in `visit_plan_changes`); an absence from the visit end does neither, on both nights. `record_absence` and `change_absence` ends in the repeated hour take the later instant; an ordinary day is unchanged. The stuck reference keeps the earlier end. DST1-7 and DST1-8 (b) assertions. A local run on a PostgreSQL 16 stand-in (not CI) passed 070, and with the 0069 changes reverted 070 failed (two interval assertions and the spring-gap error). **CI is the runner.**
+pgTAP 070 (31) at a pinned clock: the 01:30-02:30 visit occupies 23:30-01:30 UTC; an ordinary night unchanged; both ends in the repeated hour; a visit 02:30-03:30 keeps its earlier start; the spring cases. ABS1 on the fall-back night acts as on an ordinary night: an absence from 30 minutes before the visit end flags `responsible_absent` and releases the visit (audited once in `visit_plan_changes`); an absence from the visit end does not release it, on both nights. `record_absence` and `change_absence` ends in the repeated hour take the later instant; an ordinary day is unchanged. The stuck reference keeps the earlier end. DST1-7 and DST1-8 (b) assertions. A local run on a PostgreSQL 16 stand-in (not CI) passed 070, and with the 0069 changes reverted 070 failed (two interval assertions and the spring-gap error). **CI is the runner.**
 
 ## Needs a decision
 
