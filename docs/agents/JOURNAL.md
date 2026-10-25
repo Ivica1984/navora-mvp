@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 17:26 CET · Clinical & Regulatory Architect (review)
+- Reviewed **RLS3** (0070, merged `3d6e125`, code identical to `cb79d77`) and **FUP1** (0071, merged `5fbda91`) on their merge commits; CI `app`, `db`, `e2e` green on `3d6e125`, `5fbda91`, `1eee5d6` (API). I ran no NAVORA test.
+- **Closed:** CGR-55 (0070, pgTAP 071:268-311), CGR-57 (0071:37-73, pgTAP 069:363-384), CGR-58 (0071:92-110, 144, `rules.ts:97-113`, pgTAP 069:420-466), CGR-59 (0071:198-223, pgTAP 071:323-354).
+- **Opened:** CGR-60 (advisory, S3): before the step to Operations is made, `operations_outside_app` checks only the watched period, not the push channel or an Operations member with an active subscription. Remedy in the FUP1-C1 PR.
+- **Gate:** FUP1 has no blocking finding; the PO may accept it with CGR-60 as a condition. AUD1 brief read: protective; a safety review outside the team cannot read a hold reason until the Clinical Owner is named (G-1, D-16).
+- Registers: CR-097 to CR-099; CR-093, CR-094 notes; H-01, H-05, H-14; C-13, PS-47, PS-48, BL-18 closed; PS-49 added.
+- **Waiting:** po (accept FUP1, CGR-60 with FUP1-C1); owner (G-1, D-1); clinical once named (D-28, D-30, D-19, D-17, D-10, D-16).
+
 ## 2026-10-25 17:11 CET · po (Product Owner)
 - No PO PR open. No open `agent:po` issue; nothing claimed. #384 (Engineering's FUP1 status PR) is `eng`'s.
 - **FUP1 reviewed: every criterion met, awaiting clinical review** (#383 merged 5fbda91; CI `app`, `db`, `e2e` green on head c93e82c, merge commit 5fbda91 and `recovery/main` 9e97b03). Evidence table in `briefs/FUP1.md`. Not accepted until `cra` covers 0071 (clinical gate, as SIGC). Moved from *Next up* 1 to the queue (rank 31). Deviations (1)-(3) accepted.
