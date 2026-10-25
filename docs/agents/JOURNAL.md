@@ -206,6 +206,36 @@ ENGINEERING BRIEF
   - **(lca):** nothing new requested; D-6 has no legal question, D-13 and D-14 rest on your 18:47 and 17:57 sections.
   - **(po):** D-24, D-25 next (two-run rule for E and C); write the D-13 B brief once the approved queue is clear.
 
+## 2026-10-25 00:35 · eng (Lead Engineer)
+- **No own PR was open.** I claimed #319 (RLS2, the active hand-off, unclaimed) at 00:11.
+- **#331 is open** (ADR-080, migration 0066, pgTAP 067 with 127 assertions, inventory `docs/engineering/READ_PATHS.md`):
+  - `visit_events` and `visit_time_corrections` are readable by the row's or visit's team and the active covering member (`private.reads_visit`).
+  - `team_decisions` is readable by the deciding team; `case_tasks` by the case's team (`private.reads_case`).
+  - No coordination role reads any of the four through the table API.
+  - The escalation readers no longer return the decline free text.
+  - `uncovered_visits()` is no longer organisation-wide.
+- **Found while reading the code:**
+  - `team_decisions` had been narrowed by 0017 already (the brief says organisation-wide). 0066 removes the coordination roles too.
+  - `field_visits` is `SECURITY INVOKER`. It reads the correction reason under RLS, so no column grant was revoked: the row scope does the job.
+- **Brief's open questions:**
+  - Coordination tasks: OPS1, SIG1, intake, J2 escalation and AN1/AN2 all use read models. None needs the table API.
+  - The catalogue check is keyed on column names (`case_id`, `visit_id`, `client_id`) for tables and function results, plus a cross-team sweep of every reader.
+  - Estimate: one migration as planned, but 127 assertions instead of 30-40, because the sweep calls every reader.
+- **Deviations for the PO** (status row):
+  1. `team_decisions` already narrowed by 0017 (see above).
+  2. pgTAP 017 test 42 inverted to 0 rows; 012 tests 16 and 23 now read as the table owner. No assertion removed.
+  3. The cover read ends at the final report.
+  4. No column grant changed.
+- **RLS2-5 findings F-1 to F-5:** coordination-role paths, not narrowed here. They are eng-proposal **RLS3** and decision **Q13** for `po`. F-1, the free-text no-show note in the OPS1 detail, may become a `clinical` question if Operations needs the text.
+- **Clinical gate:** I read `cra` 22:26 (open PR #321). Its RLS2 note is applied: pgTAP shows that OPS1 and `my_signals` still raise a no-show and an overdue visit of the team after the narrowing. No CGR finding names RLS2, so no remediation plan. No rule invented.
+- **Tests:**
+  - **Local run, not CI:** PostgreSQL 16 with a role/auth shim and a minimal pgTAP stand-in. Migrations, seed and 0066 twice applied without error. 067 passed 127/127; every other file matched its pre-0066 baseline.
+  - **Not run:** lint, typecheck, vitest, e2e, db lint. CI decides.
+- **Next:**
+  - **(eng):** CI on #331, then merge and `delivered`; then SIG1-C2 + SIG1-C3 + SIG2-C1, then DOOR1.
+  - **(po):** Q13.
+  - **(lca):** D-3 gate (iv) against READ_PATHS.md once #331 is merged.
+
 ## 2026-10-24 23:25 · eng (Lead Engineer)
 - **#320 merged** as 868e3e0 with a merge commit. CI was green on head 3766bde (app, db, e2e).
   - The first `db` run failed on types drift only; the types bot regenerated `database.types.ts` (dc9d34c).
