@@ -30,7 +30,7 @@ select is(public.pause_case('00000000-0000-4000-a000-000000000208', 'hospital_st
 select is(public.resume_case('00000000-0000-4000-a000-000000000208', 'b1000000-0000-4000-8000-000000000011'), 'rejected', 'nor resume');
 select is(public.cancel_visit('b1000000-0000-4000-8000-000000000001', 'team_cancelled', null, 'b1000000-0000-4000-8000-000000000012'),
   'rejected', 'nor cancel a visit');
-select is(public.record_no_show('b1000000-0000-4000-8000-000000000001', 'Niemand öffnet', 'b1000000-0000-4000-8000-000000000013'),
+select is(public.record_no_show('b1000000-0000-4000-8000-000000000001', 'Niemand öffnet', 'b1000000-0000-4000-8000-000000000013', true),
   'rejected', 'nor record a no-show');
 select is(public.reopen_case('00000000-0000-4000-a000-000000000208', 'Rückkehr', 'b1000000-0000-4000-8000-000000000014'), 'rejected',
   'nor reopen (neither the assigned team nor Operations)');
@@ -51,7 +51,7 @@ reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 do $$ begin perform public.depart_visit('b1000000-0000-4000-8000-000000000002', 'b1000000-0000-4000-8000-000000000030'); end $$;
-select is(public.record_no_show('b1000000-0000-4000-8000-000000000002', 'Niemand öffnet', 'b1000000-0000-4000-8000-000000000031'), 'ok', 'no-show');
+select is(public.record_no_show('b1000000-0000-4000-8000-000000000002', 'Niemand öffnet', 'b1000000-0000-4000-8000-000000000031', true), 'ok', 'no-show');
 select is(public.create_report_draft('b1000000-0000-4000-8000-000000000002', null, 'b1000000-0000-4000-8000-000000000032') ->> 'reason',
   'visit_not_completed', 'a no-show visit gets no report draft');
 reset role;

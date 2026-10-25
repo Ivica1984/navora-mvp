@@ -1473,14 +1473,14 @@ isOneToOne: false
                   ]
                 },"visit_status_notes": {
                   Row: {
-                    "actor_id": string,"created_at": string,"id": string,"idempotency_key": string,"kind": string,"note": string | null,"organization_id": string,"reason_code": string | null,"responsible_absent": boolean,"visit_id": string
+                    "actor_id": string,"at_door": boolean | null,"created_at": string,"disclosure_basis": string | null,"id": string,"idempotency_key": string,"kind": string,"note": string | null,"organization_id": string,"reason_code": string | null,"responsible_absent": boolean,"visit_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "actor_id": string,"created_at"?: string,"id"?: string,"idempotency_key": string,"kind": string,"note"?: string | null,"organization_id": string,"reason_code"?: string | null,"responsible_absent"?: boolean,"visit_id": string
+                    "actor_id": string,"at_door"?: boolean | null,"created_at"?: string,"disclosure_basis"?: string | null,"id"?: string,"idempotency_key": string,"kind": string,"note"?: string | null,"organization_id": string,"reason_code"?: string | null,"responsible_absent"?: boolean,"visit_id": string
                   }
                   Update: {
-                    "actor_id"?: string,"created_at"?: string,"id"?: string,"idempotency_key"?: string,"kind"?: string,"note"?: string | null,"organization_id"?: string,"reason_code"?: string | null,"responsible_absent"?: boolean,"visit_id"?: string
+                    "actor_id"?: string,"at_door"?: boolean | null,"created_at"?: string,"disclosure_basis"?: string | null,"id"?: string,"idempotency_key"?: string,"kind"?: string,"note"?: string | null,"organization_id"?: string,"reason_code"?: string | null,"responsible_absent"?: boolean,"visit_id"?: string
                   }
                   Relationships: [
                     {
@@ -1687,6 +1687,11 @@ isOneToOne: false
               "client_name": string,"performer_name": string,"report_id": string,"returned": boolean,"returned_at": string,"signed_at": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
+"field_door_notes":
+{ Args: { "p_date": string }; Returns: {
+              "access_notes": string,"case_id": string,"language_notes": string,"visit_id": string
+            }[]
+                           },
 "field_notes":
 { Args: { "p_date": string }; Returns: {
               "content": string,"edited": boolean,"for_handover": boolean,"id": string,"kind": string,"own": boolean,"recorded_at": string,"source_date": string,"visit_id": string
@@ -1714,7 +1719,7 @@ isOneToOne: false
                            },
 "field_visit_status_notes":
 { Args: { "p_date": string }; Returns: {
-              "actor_kind": string,"actor_name": string,"actor_qualification": string,"actor_role": string,"created_at": string,"kind": string,"note": string,"reason_code": string,"responsible_absent": boolean,"visit_id": string
+              "actor_kind": string,"actor_name": string,"actor_qualification": string,"actor_role": string,"at_door": boolean,"created_at": string,"disclosure_basis": string,"kind": string,"note": string,"reason_code": string,"responsible_absent": boolean,"visit_id": string
             }[]
                            },
 "field_visits":
@@ -1820,10 +1825,10 @@ isOneToOne: false
 { Args: { "p_decision": string,"p_idempotency_key": string,"p_note": string,"p_visit_id": string }; Returns: string
                            },
 "record_no_show":
-{ Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: string
+{ Args: { "p_at_door"?: boolean,"p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: string
                            },
 "record_no_show_outcome":
-{ Args: { "p_idempotency_key": string,"p_outcome": string,"p_reason": string,"p_visit_id": string }; Returns: string
+{ Args: { "p_basis"?: string,"p_idempotency_key": string,"p_outcome": string,"p_reason": string,"p_visit_id": string }; Returns: string
                            },
 "record_observation":
 { Args: { "p_content": string,"p_for_handover": boolean,"p_idempotency_key": string,"p_supersedes_id": string,"p_visit_id": string }; Returns: string

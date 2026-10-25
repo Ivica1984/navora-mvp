@@ -122,9 +122,9 @@ select ok(not exists (select 1 from information_schema.parameters p
   'cancel_visit has no parameter for it');
 select throws_ok($$ update public.visit_status_notes set responsible_absent = false where visit_id = pg_temp.vid('flagged') $$,
   '42501', null, 'the stored fact is immutable: status notes stay append-only, even for the table owner');
-select throws_ok($$ insert into public.visit_status_notes (organization_id, visit_id, kind, note, actor_id, idempotency_key, responsible_absent)
+select throws_ok($$ insert into public.visit_status_notes (organization_id, visit_id, kind, note, actor_id, idempotency_key, responsible_absent, at_door)
                     values ('00000000-0000-4000-b000-000000000011', pg_temp.vid('plain'), 'no_show', 'Synthetisch',
-                            '00000000-0000-4000-a000-000000000906', 'a5500000-0000-4000-8000-000000000006', true) $$,
+                            '00000000-0000-4000-a000-000000000906', 'a5500000-0000-4000-8000-000000000006', true, true) $$,
   '23514', null, 'only a cancelled note can carry responsible_absent = true (check constraint)');
 
 -- 7. HAND1 carries it in the detail of a status-note entry -----------------------------------------------------------

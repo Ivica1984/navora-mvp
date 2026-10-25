@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { getCountersignQueue, getFieldNotes, getFieldReports, getFieldVisits, getReturnedReports, getSinceLast } from "@/features/field/queries";
+import { getCountersignQueue, getDoorNotes, getFieldNotes, getFieldReports, getFieldVisits, getReturnedReports, getSinceLast } from "@/features/field/queries";
 import { parseDayParam, shiftDay, todayInZurich } from "@/features/field/rules";
 import { getFieldQuality, getQualityEventTypes } from "@/features/quality/queries";
 import { getVisitStatusNotes } from "@/features/lifecycle/queries";
@@ -20,7 +20,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
   // SIG2-8: opened from the push message: record the tap (never display on the device).
   if (von === "push") await recordPushTap();
   const day = parseDayParam(datum, today);
-  const [visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned, cover, sinceLast, visitAlerts, absence, signals] = await Promise.all([
+  const [visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned, cover, sinceLast, visitAlerts, absence, signals, doorNotes] = await Promise.all([
     getFieldVisits(day),
     getFieldNotes(day),
     getFieldReports(day),
@@ -34,6 +34,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
     getTeamVisitAlerts(),
     getAbsenceView(day),
     getMySignals(),
+    getDoorNotes(day),
   ]);
 
   return (
@@ -55,6 +56,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
       openFollowups={visitAlerts.filter((a) => a.exception_type === "visit_interrupted")}
       absence={{ today, ...absence }}
       signals={signals}
+      doorNotes={doorNotes}
     />
   );
 }

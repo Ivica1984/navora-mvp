@@ -281,7 +281,7 @@ insert into public.care_visits (organization_id, id, case_id, team_id, visit_dat
   ('00000000-0000-4000-b000-000000000011', pg_temp.v(5), '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
    ((private.now() + interval '1 day') at time zone 'Europe/Zurich')::date, '09:30', '10:00', false, 'planned', pg_temp.u('rn'));
 select is(pg_temp.as_user('rn', format($$ select public.depart_visit(%L, %L) $$, pg_temp.v(5), pg_temp.k(600))), 'ok', 'fixture: on the way');
-select is(pg_temp.as_user('rn', format($$ select public.record_no_show(%L, 'Synthetisch: niemand öffnet', %L) $$, pg_temp.v(5), pg_temp.k(601))), 'ok',
+select is(pg_temp.as_user('rn', format($$ select public.record_no_show(%L, 'Synthetisch: niemand öffnet', %L, true) $$, pg_temp.v(5), pg_temp.k(601))), 'ok',
   'fixture: no-show recorded');
 select is(pg_temp.as_user('ops', format($$ select string_agg(exception_type, ',' order by exception_type) from public.operations_exceptions()
                                             where entity_id = %L $$, pg_temp.v(5))), 'no_show_open',
@@ -342,7 +342,7 @@ select is((select string_agg(distinct p.proname, ',' order by p.proname) from pg
                   unnest(p.proargnames, p.proargmodes) a(nm, md)
            where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'execute')
              and md in ('t', 'o') and nm in ('case_id', 'visit_id', 'client_id')),
-  'case_funding_facts,continuity_by_case,cover_offers,field_countersign_queue,field_notes,field_quality,field_reports,'
+  'case_funding_facts,continuity_by_case,cover_offers,field_countersign_queue,field_door_notes,field_notes,field_quality,field_reports,'
   'field_returned_reports,field_since_last,field_visit_status_notes,field_visits,final_report_visits,intake_cases,linkable_cases,'
   'my_covers,my_signals,operations_exceptions,ops_case_lifecycle,team_case_lifecycle,team_cases,team_open_visits,team_plan_status,'
   'team_visit_alerts,uncovered_visits,visits_outside_watched_hours',

@@ -52,9 +52,11 @@ test("a no-show reaches an open /field without navigation; one tap takes it, the
   const visit = act.getByRole("article", { name: /06:15 – 06:45, Testfall 08/ });
   await visit.getByRole("button", { name: "Losfahren" }).click();
   await visit.getByRole("button", { name: "Nicht angetroffen" }).click();
+  await visit.getByLabel("Ja, an der Tür").check();   // DOOR1-5: required fact
   await visit.locator("textarea[name=note]").fill("Synthetisch: niemand öffnet");
   await visit.getByRole("button", { name: "Nichtantreffen melden" }).click();
   await expect(visit.getByRole("button", { name: "Ergebnis erfassen" })).toBeVisible();
+  await expect(visit.getByTestId("no-show-at-door")).toHaveText("an der Tür: ja");
 
   // SIG1-3: the open page shows it at the top, with the fixed text and a link to the visit's day.
   const incoming = signal(watch, "safety-signal");

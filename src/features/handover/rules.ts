@@ -4,7 +4,7 @@
 // nothing is summarised, ranked or interpreted.
 
 import { MEDICAL_ORDER_LABEL } from "@/features/intake/rules";
-import { REASON_LABEL, RESPONSIBLE_ABSENT_NOTE } from "@/features/lifecycle/rules";
+import { REASON_LABEL, RESPONSIBLE_ABSENT_NOTE, atDoorText, basisText } from "@/features/lifecycle/rules";
 import { EVENT_STATUS_LABEL, SEVERITY_LABEL } from "@/features/quality/rules";
 import { WEEKDAYS } from "@/features/planning/rules";
 import { gpInformedEntryLine } from "@/features/gp/rules";
@@ -199,7 +199,16 @@ export function entryLines(kind: string, detail: Record<string, unknown>): strin
       add(detail.responsible_absent === true && RESPONSIBLE_ABSENT_NOTE);
       break;
     case "visit_no_show":
+      // DOOR1-7 (migration 0072): the door fact, "nicht erfasst" on rows recorded before it.
+      add(str(detail.note));
+      add(atDoorText(typeof detail.at_door === "boolean" ? detail.at_door : null));
+      break;
     case "visit_no_show_outcome":
+      add(reasonCode && (REASON_LABEL[reasonCode] ?? reasonCode));
+      // DOOR1-7: the basis of "Notfallkontakt informiert".
+      add(basisText(reasonCode, str(detail.disclosure_basis)));
+      add(str(detail.note));
+      break;
     case "visit_interrupted":
     case "visit_interruption_followup":
     case "case_pause":

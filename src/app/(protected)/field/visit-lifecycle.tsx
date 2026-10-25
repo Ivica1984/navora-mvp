@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { cancelVisit, endVisitNotCompleted, recordNoShow, recordNoShowOutcome } from "@/features/lifecycle/commands";
 import {
-  CANCEL_REASONS, INTERRUPT_NOTICE, INTERRUPT_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, REASON_LABEL, canEndNotCompleted, cancellationText, followupOf, reasonError, RESPONSIBLE_ABSENT_NOTE,
-  recordedByLabel, recordedBySomeoneElse,
+  CANCEL_REASONS, DISCLOSURE_BASES, DISCLOSURE_BASIS_LABEL, INTERRUPT_NOTICE, INTERRUPT_REASONS, NO_SHOW_NOTICE, NO_SHOW_OUTCOMES, REASON_LABEL, atDoorText, basisText,
+  canEndNotCompleted, cancellationText, followupOf, outcomeError, outcomeNeedsBasis, reasonError, RESPONSIBLE_ABSENT_NOTE, recordedByLabel, recordedBySomeoneElse,
 } from "@/features/lifecycle/rules";
 
 function formatTime(iso: string): string {
@@ -61,9 +61,15 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
       {noShow && (
         <div className="rounded-lg border-l-4 border-rose-600 bg-rose-50 p-2" data-testid="no-show">
           <p className="font-bold text-rose-900">Klient:in nicht angetroffen</p>
+          {/* DOOR1-5 (migration 0072): whether she was at the door; rows recorded before read "nicht erfasst". */}
+          <p data-testid="no-show-at-door" className="font-semibold">{atDoorText(noShow.at_door)}</p>
           <p>{noShow.note}</p>
           {outcome ? (
-            <p data-testid="no-show-outcome">Ergebnis: {REASON_LABEL[outcome.reason_code ?? ""] ?? outcome.reason_code} – {outcome.note}</p>
+            <p data-testid="no-show-outcome">
+              Ergebnis: {REASON_LABEL[outcome.reason_code ?? ""] ?? outcome.reason_code}
+              {/* DOOR1-6: the basis of a disclosure to the emergency contact. */}
+              {basisText(outcome.reason_code, outcome.disclosure_basis) ? ` (${basisText(outcome.reason_code, outcome.disclosure_basis)})` : ""} – {outcome.note}
+            </p>
           ) : (
             <p className="text-xs text-rose-900">Offen bei Operations (P1), bis das Ergebnis erfasst ist. {NO_SHOW_NOTICE}</p>
           )}
@@ -148,7 +154,24 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
         </div>
       )}
       {mode === "no_show" && (
-        <form action={(f) => run(() => recordNoShow({ visitId, note: String(f.get("note") ?? ""), idempotencyKey: crypto.randomUUID() }))} className="grid gap-2">
+        <form
+          action={(f) => {
+            // DOOR1-5: "an der Tür: ja/nein" is required (the database refuses a no-show without it).
+            const door = String(f.get("at_door") ?? "");
+            if (door !== "yes" && door !== "no") return setError("Bitte angeben, ob du an der Tür warst.");
+            run(() => recordNoShow({ visitId, atDoor: door === "yes", note: String(f.get("note") ?? ""), idempotencyKey: crypto.randomUUID() }));
+          }}
+          className="grid gap-2"
+        >
+          <fieldset className="grid gap-1">
+            <legend className="text-xs font-semibold">Warst du an der Tür? (nötig)</legend>
+            <label className="flex min-h-11 items-center gap-2">
+              <input type="radio" name="at_door" value="yes" required className="h-5 w-5" /> Ja, an der Tür
+            </label>
+            <label className="flex min-h-11 items-center gap-2">
+              <input type="radio" name="at_door" value="no" className="h-5 w-5" /> Nein (z. B. nur telefonisch versucht)
+            </label>
+          </fieldset>
           <label className="grid gap-1">
             <span className="text-xs font-semibold">Was ist passiert? (nötig)</span>
             <textarea name="note" required minLength={3} maxLength={1000} rows={2} className="rounded-lg border border-stone-300 bg-white p-2" />
@@ -158,15 +181,53 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
         </form>
       )}
       {mode === "outcome" && (
-        <ReasonForm
-          title="Ergebnis" reasons={NO_SHOW_OUTCOMES} pending={pending} submitLabel="Ergebnis speichern" noteRequired onCancel={() => setMode("idle")}
-          onSubmit={(code, note) => {
-            if (note.trim().length < 3) return setError("Bitte das Ergebnis kurz beschreiben (mind. 3 Zeichen).");
-            run(() => recordNoShowOutcome({ visitId, outcome: code, note, idempotencyKey: crypto.randomUUID() }));
+        <OutcomeForm
+          pending={pending} onCancel={() => setMode("idle")}
+          onSubmit={(code, note, basis) => {
+            const problem = outcomeError(code, note, basis);
+            if (problem) return setError(problem);
+            run(() => recordNoShowOutcome({ visitId, outcome: code, note, basis, idempotencyKey: crypto.randomUUID() }));
           }}
         />
       )}
     </section>
+  );
+}
+
+/** C1 + DOOR1-6: the outcome of a no-show; "Notfallkontakt informiert" asks for the basis of the disclosure. */
+function OutcomeForm({ pending, onSubmit, onCancel }: {
+  pending: boolean; onSubmit: (code: string, note: string, basis: string | null) => void; onCancel: () => void;
+}) {
+  const [code, setCode] = useState("");
+  const needsBasis = outcomeNeedsBasis(code);
+  return (
+    <form
+      action={(f) => onSubmit(code, String(f.get("note") ?? ""), needsBasis ? String(f.get("basis") ?? "") || null : null)}
+      className="grid gap-2"
+    >
+      <label className="grid gap-1">
+        <span className="text-xs font-semibold">Ergebnis</span>
+        <select name="code" required value={code} onChange={(e) => setCode(e.target.value)} className="min-h-11 rounded-lg border border-stone-300 bg-white px-2">
+          <option value="" disabled>– bitte wählen –</option>
+          {NO_SHOW_OUTCOMES.map((r) => <option key={r} value={r}>{REASON_LABEL[r] ?? r}</option>)}
+        </select>
+      </label>
+      {needsBasis && (
+        <label className="grid gap-1">
+          <span className="text-xs font-semibold">Grundlage der Information (nötig)</span>
+          <select name="basis" required defaultValue="" className="min-h-11 rounded-lg border border-stone-300 bg-white px-2">
+            <option value="" disabled>– bitte wählen –</option>
+            {DISCLOSURE_BASES.map((b) => <option key={b} value={b}>{DISCLOSURE_BASIS_LABEL[b]}</option>)}
+          </select>
+          <span className="text-xs text-stone-700">Bei «andere» in der Notiz sagen, welche.</span>
+        </label>
+      )}
+      <label className="grid gap-1">
+        <span className="text-xs font-semibold">Notiz (nötig)</span>
+        <textarea name="note" maxLength={1000} rows={2} className="rounded-lg border border-stone-300 bg-white p-2" />
+      </label>
+      <Buttons pending={pending} label="Ergebnis speichern" onCancel={onCancel} />
+    </form>
   );
 }
 

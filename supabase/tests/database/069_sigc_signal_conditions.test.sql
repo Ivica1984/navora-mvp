@@ -162,7 +162,7 @@ begin
   perform pg_temp.act_as('00000000-0000-4000-a000-000000000902');
   set local role authenticated;
   perform public.depart_visit(pg_temp.id(p_n), pg_temp.id('depart' || p_n));
-  perform public.record_no_show(pg_temp.id(p_n), 'Synthetisch: niemand öffnet', pg_temp.id('noshow' || p_n));
+  perform public.record_no_show(pg_temp.id(p_n), 'Synthetisch: niemand öffnet', pg_temp.id('noshow' || p_n), true);
   reset role;
 end $$;
 create function pg_temp.sig(p_n text) returns uuid language sql as $$

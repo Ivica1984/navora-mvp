@@ -128,3 +128,52 @@ export function recordedByLabel(a: NoteActor): string {
 export function recordedBySomeoneElse(a: NoteActor): boolean {
   return a.actor_kind !== "me";
 }
+
+// DOOR1 (migration 0072): two recorded facts of a no-show. Display and record only: neither raises a signal, ranks or
+// blocks anything (DOOR1-8). Rows recorded before 0072 carry neither and read "nicht erfasst".
+
+/** DOOR1-6: the basis of a disclosure to an emergency contact (mirrors the database check). */
+export const DISCLOSURE_BASES = ["recorded_consent", "emergency", "other"] as const;
+export type DisclosureBasis = (typeof DISCLOSURE_BASES)[number];
+
+export const DISCLOSURE_BASIS_LABEL: Record<DisclosureBasis, string> = {
+  recorded_consent: "erfasste Einwilligung",
+  emergency: "Notfall",
+  other: "andere",
+};
+
+/** DOOR1-6: only "Notfallkontakt informiert" takes a basis, and then it is required. */
+export function outcomeNeedsBasis(outcome: string): boolean {
+  return outcome === "emergency_contact_informed";
+}
+
+/** Client-side check of an outcome; the database checks the same (22023). */
+export function outcomeError(outcome: string, note: string, basis: string | null): string | null {
+  if (!(NO_SHOW_OUTCOMES as readonly string[]).includes(outcome)) return "Bitte ein Ergebnis wählen.";
+  if (note.trim().length < 3) return "Bitte das Ergebnis kurz beschreiben (mind. 3 Zeichen).";
+  if (outcomeNeedsBasis(outcome)) {
+    // With "andere" the (required) note says which basis.
+    if (!basis || !(DISCLOSURE_BASES as readonly string[]).includes(basis)) return "Bitte die Grundlage wählen (erfasste Einwilligung, Notfall oder andere).";
+  } else if (basis) {
+    return "Eine Grundlage gibt es nur bei «Notfallkontakt informiert».";
+  }
+  return null;
+}
+
+/** DOOR1-5: "an der Tür: ja / nein / nicht erfasst". */
+export function atDoorText(atDoor: boolean | null | undefined): string {
+  return `an der Tür: ${atDoor === true ? "ja" : atDoor === false ? "nein" : "nicht erfasst"}`;
+}
+
+/** DOOR1-6: "Grundlage: …" for "Notfallkontakt informiert"; null for every other outcome. */
+export function basisText(outcome: string | null | undefined, basis: string | null | undefined): string | null {
+  if (outcome !== "emergency_contact_informed") return null;
+  const label = basis && basis in DISCLOSURE_BASIS_LABEL ? DISCLOSURE_BASIS_LABEL[basis as DisclosureBasis] : "nicht erfasst";
+  return `Grundlage: ${label}`;
+}
+
+/** DOOR1-1: a note that was not recorded is shown as "nicht erfasst", never blank. */
+export function doorNoteText(note: string | null | undefined): string {
+  const t = note?.trim();
+  return t ? t : "nicht erfasst";
+}

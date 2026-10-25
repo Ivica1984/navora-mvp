@@ -70,7 +70,7 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 do $$ begin perform public.depart_visit('a3900000-0000-4000-8000-0000000000a1', 'a3900000-0000-4000-8000-000000000010'); end $$;
 select is(public.record_no_show('a3900000-0000-4000-8000-0000000000a1', 'Niemand öffnet, Telefon ohne Antwort',
-          'a3900000-0000-4000-8000-000000000011'), 'ok', 'the nurse records that the client was not reached');
+          'a3900000-0000-4000-8000-000000000011', true), 'ok', 'the nurse records that the client was not reached');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
@@ -99,7 +99,7 @@ reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select is(public.record_no_show_outcome('a3900000-0000-4000-8000-0000000000a1', 'emergency_contact_informed', 'Tochter informiert, besucht heute',
-          'a3900000-0000-4000-8000-000000000015'), 'ok', 'the team records the outcome');
+          'a3900000-0000-4000-8000-000000000015', 'emergency'), 'ok', 'the team records the outcome');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;

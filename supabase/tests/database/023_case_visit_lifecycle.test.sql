@@ -82,13 +82,13 @@ reset role;
 -- No-show -------------------------------------------------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is(public.record_no_show('ad000000-0000-4000-8000-0000000000bb', 'Niemand öffnet', 'ad000000-0000-4000-8000-000000000020'),
+select is(public.record_no_show('ad000000-0000-4000-8000-0000000000bb', 'Niemand öffnet', 'ad000000-0000-4000-8000-000000000020', true),
   'wrong_state', 'a no-show is recorded after arrival (on the way), not from the plan');
 do $$ begin perform public.depart_visit('ad000000-0000-4000-8000-0000000000bb', 'ad000000-0000-4000-8000-000000000021'); end $$;
-select throws_ok($$ select public.record_no_show('ad000000-0000-4000-8000-0000000000bb', null, 'ad000000-0000-4000-8000-000000000022') $$,
+select throws_ok($$ select public.record_no_show('ad000000-0000-4000-8000-0000000000bb', null, 'ad000000-0000-4000-8000-000000000022', true) $$,
   '22023', null, 'a no-show needs a note');
 select is(public.record_no_show('ad000000-0000-4000-8000-0000000000bb', 'Niemand öffnet, Telefon ohne Antwort',
-          'ad000000-0000-4000-8000-000000000023'), 'ok', 'the nurse records that the client was not reached');
+          'ad000000-0000-4000-8000-000000000023', true), 'ok', 'the nurse records that the client was not reached');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
@@ -105,7 +105,7 @@ set local role authenticated;
 select throws_ok($$ select public.record_no_show_outcome('ad000000-0000-4000-8000-0000000000bb', 'client_reached', null,
           'ad000000-0000-4000-8000-000000000025') $$, '22023', null, 'the outcome needs a note');
 select is(public.record_no_show_outcome('ad000000-0000-4000-8000-0000000000bb', 'emergency_contact_informed', 'Tochter informiert, besucht heute',
-          'ad000000-0000-4000-8000-000000000026'), 'ok', 'the team records the outcome');
+          'ad000000-0000-4000-8000-000000000026', 'emergency'), 'ok', 'the team records the outcome');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;

@@ -9,7 +9,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
-import { CANCEL_REASONS, CLOSE_REASONS, FOLLOWUP_DECISIONS, INTERRUPT_REASONS, LIFECYCLE_MESSAGES, NO_SHOW_OUTCOMES, PAUSE_REASONS } from "./rules";
+import { CANCEL_REASONS, CLOSE_REASONS, DISCLOSURE_BASES, FOLLOWUP_DECISIONS, INTERRUPT_REASONS, LIFECYCLE_MESSAGES, NO_SHOW_OUTCOMES, PAUSE_REASONS, outcomeNeedsBasis } from "./rules";
 
 const key = z.uuid();
 const note = z.string().trim().max(1000);
@@ -69,18 +69,24 @@ export async function cancelVisit(input: unknown): Promise<CommandResult> {
 }
 
 export async function recordNoShow(input: unknown): Promise<CommandResult> {
-  const p = z.object({ visitId: z.uuid(), note: z.string().trim().min(3).max(1000), idempotencyKey: key }).safeParse(input);
+  // DOOR1-5 (migration 0072): "an der Tür: ja/nein" is required with the note.
+  const p = z.object({ visitId: z.uuid(), atDoor: z.boolean(), note: z.string().trim().min(3).max(1000), idempotencyKey: key }).safeParse(input);
   if (!p.success) return { ok: false, error: LIFECYCLE_MESSAGES.invalid };
   const { supabase } = await requireUser();
-  return interpret("record_no_show", await supabase.rpc("record_no_show", { p_visit_id: p.data.visitId, p_reason: p.data.note, p_idempotency_key: p.data.idempotencyKey }));
+  return interpret("record_no_show", await supabase.rpc("record_no_show", { p_visit_id: p.data.visitId, p_reason: p.data.note, p_idempotency_key: p.data.idempotencyKey,
+    p_at_door: p.data.atDoor }));
 }
 
 export async function recordNoShowOutcome(input: unknown): Promise<CommandResult> {
-  const p = z.object({ visitId: z.uuid(), outcome: z.enum(NO_SHOW_OUTCOMES), note: z.string().trim().min(3).max(1000), idempotencyKey: key }).safeParse(input);
+  // DOOR1-6 (migration 0072): "Notfallkontakt informiert" requires the basis; every other outcome takes none.
+  const p = z.object({ visitId: z.uuid(), outcome: z.enum(NO_SHOW_OUTCOMES), note: z.string().trim().min(3).max(1000),
+    basis: z.enum(DISCLOSURE_BASES).nullable().default(null), idempotencyKey: key })
+    .refine((d) => outcomeNeedsBasis(d.outcome) === (d.basis !== null), { message: "basis" })
+    .safeParse(input);
   if (!p.success) return { ok: false, error: LIFECYCLE_MESSAGES.invalid };
   const { supabase } = await requireUser();
   return interpret("record_no_show_outcome", await supabase.rpc("record_no_show_outcome", { p_visit_id: p.data.visitId, p_outcome: p.data.outcome, p_reason: p.data.note,
-    p_idempotency_key: p.data.idempotencyKey }));
+    p_idempotency_key: p.data.idempotencyKey, ...(p.data.basis ? { p_basis: p.data.basis } : {}) }));
 }
 
 export async function endVisitNotCompleted(input: unknown): Promise<CommandResult> {

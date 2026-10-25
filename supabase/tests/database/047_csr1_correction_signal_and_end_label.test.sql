@@ -33,8 +33,8 @@ select ok(has_function_privilege('authenticated', 'public.field_visit_status_not
 select is((select string_agg(a, ',' order by n) from unnest(
              (select proargnames from pg_proc where oid = 'public.field_visit_status_notes(date)'::regprocedure)) with ordinality u(a, n)
            where a not like 'p\_%'),
-  -- CGR-34 (0054) adds responsible_absent (a boolean fact, no user id)
-  'visit_id,kind,reason_code,note,created_at,actor_kind,actor_name,actor_qualification,actor_role,responsible_absent',
+  -- CGR-34 (0054) adds responsible_absent; DOOR1 (0072) adds at_door and disclosure_basis (codes, no user id)
+  'visit_id,kind,reason_code,note,created_at,actor_kind,actor_name,actor_qualification,actor_role,responsible_absent,at_door,disclosure_basis',
   'CGR-26: the reader returns who recorded a note as a label; no user id column');
 
 -- Fixtures (synthetic) ----------------------------------------------------------------------------------------------
