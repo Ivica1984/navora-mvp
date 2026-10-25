@@ -8,6 +8,10 @@ updated: 2026-10-22
 
 # COVER1 — Cross-team cover without a dispatcher
 
+## PO note — 2026-10-25 22:10 CET: fourth item before cover is switched on (DOOR1 deviation 3, `cra` 21:28)
+
+DOOR1 lets the covering member read the access arrangement but not record it (accepted 21:10 while cover is off). Before cover is switched on, in the same delta review as CGR-21, CGR-28 and the absence check: a member whose accepted cover is running can record a new value of the access arrangement for that client (DOOR1-3 rules: append-only, source, no code, audited without the note), and loses that right when her cover ends. pgTAP: recording during the cover succeeds; before acceptance and after the cover ends it is refused. `cra` rates the gap S2 on switch-on. No clinical rule (organisational category only).
+
 ## PO note — 2026-10-23 16:18: third condition before cover is switched on (from the ABS1 part 2 review)
 
 `accept_cover` does not check whether the accepting nurse is absent at the visit's interval (only 0046 and 0048 call `member_absent_during`). Before D-3 switches cover on, in the same delta review as CGR-21 and CGR-28: `accept_cover` by a member absent at `private.visit_interval` of the visit returns `absent` and writes nothing. pgTAP: she records an absence → a cover offer in that period → accept → `absent`, `covered_by` empty. Not a criterion today: cover is off.
