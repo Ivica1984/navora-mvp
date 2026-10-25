@@ -11,6 +11,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - No new item claimed this run (step A was substantial).
 - **Next agent:** (po) Q14; review SIGC after `cra`. (cra) 0068 on merge commit 2ad9860. (eng) finish #362, then RLS3 (with RLS3-4b), DOOR1, LEAVE1.
 
+## 2026-10-25 12:20 CET · eng (Engineering)
+- **#361 (SIGC) merged by the owner** at 12:17 (merge commit 2ad9860; CI green on its head a2468b5: `app`, `db`, `e2e`). SIGC row `delivered` (READY_FOR_REVIEW).
+- **#362 (DST1-C1 to DST1-C3):** CI was green on 90718dd; the eng merge call was refused by the permission policy (comment on #362). After #361 and #363 merged it conflicted in `JOURNAL.md`, `DECISIONS.md` (ADR-081 addendum vs ADR-082) and `IMPLEMENTATION_STATUS.md` (last-change line, SIGC row) only; resolved by merging `recovery/main` into the branch (both sides kept, no history rewrite).
+- **Tests:** local PostgreSQL 16 stand-in (not CI), fresh build with 0068 and 0069 in order: pre-seed clock check passes; pgTAP 068, 069, 070, 046-050, 062, 064 pass. CI decides.
+- **OPEN (follow-up, not in #362):** `visits_outside_watched_hours` (0068) reads periods by the wall clock only; after 0069 `watched_inside` also accepts the period instants. DST nights only; the list shows more, never fewer.
+- **Next agent:** (owner) merge #362 (merge commit) once CI is green on the merge head; (eng) then DST1 row `delivered`, then RLS3 (#355); (po) review SIGC; (cra) SIGC and the DST1 follow-up merge commits.
+
 ## 2026-10-25 12:12 CET · po (Product Owner)
 - No PO PR open. Open: #362 (DST1-C1..C3, CI green, not merged), #361 (SIGC, CI running), #358 (`cra` 09:31, not merged by the PO), #3. No `agent:po` issue, no `[PO review]` issue, nothing `delivered`, `ready-for-review` or `in-review` since 10:12: **no review this run**. Nothing claimed.
 - **`lca` 11:50 (#363) taken up (product authority, narrows only, no clinical rule):** **RLS3-4b sharpened** into two levels: (a) full correction trail (corrector, time, old and new value, reason) to the report's author, the countersigning RN, active members of the visit's team and the covering member; (b) **billing view** for every reader outside the visit's team, coordination roles included (`billing_preview` scope): correction exists, old and new value, time, signed version and countersigner, **never the free-text reason or the corrector**. "The billing review" is not a named person until the D-12 organisational policy names one; widening needs a new PO decision and a fresh `lca` check. pgTAP for admin, coach and Operations outside the team added to RLS3-4b. Recorded as **D-23 item 10** and **D-3 item 8**; D-3 gate (iv) "correction reasons: met" stays true after RLS3; the unresolved `lca` question becomes moot. INDEX rows 5 and 25 noted; **no status change**.
@@ -27,6 +34,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Sources this run: [O2] OR Art. 328b (droit-bilingue.ch, unofficial; read 11:35); [K1] KVV Art. 59 Abs. 1 (justement.ch, Stand 22.10.2026; read 11:37). KVG Art. 42 not read.
 - **Next for `lca`:** D-3 gate (iv) when RLS3 or DOOR1 is delivered; D-22, D-18 on new evidence only.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+## 2026-10-25 11:30 CET · eng (Engineering)
+- **Step A, #361 (SIGC):** CI green on 1c9122f (`app`, `db`, `e2e`), mergeable. The merge call was **refused again by this run's permission policy** (as at 09:30 on #361 and earlier on #331). Not worked around. The merge stays with the owner: **merge commit**, not squash; then the SIGC row can be set `delivered` (#361).
+- **Claimed #360** (DST1 changes-requested, `active`) at 11:14; claim removed at the end. **PR #362** (`fix/dst1-c1-c3`): DST1-C1 to DST1-C3, migration **0069**, **ADR-081 addendum**, pgTAP **070** (31), CI `db` step "Real clock before the seed (DST1-8 a)". DST1 row `in-review` (#362).
+  - **DST1-C1 (CGR-53), IMPLEMENTED:** `visit_interval` end, `record_absence` end and `change_absence` new end use `private.at_zurich_end`; starts unchanged. Every other interval listed in the addendum (stuck reference and its AN2 mirror keep the earlier end).
+  - **Found and fixed (deviation, in the same functions):** `visit_interval` raised a range error for a visit starting in the spring gap and ending after it (since 0048); `watched_inside` disagreed with `watched_raise_at` on 2027-03-28 (window "outside" from 01:00 UTC though its end is 01:30 UTC). Both now never shorter; ordinary days unchanged.
+  - **DST1-C3:** (a) pre-seed CI check; (b) catalogue assertions in 070 for all three API roles.
+  - **Not in #362 (own deadlines, PLANNED):** DST1-C4 (CGR-54), DST1-C5 (CGR-56).
+- **Clinical gate:** report 2026-10-25 09:31 (open #358) read; CGR-53 applied, remediation plan `clinical/remediation/CGR-53.md`; CGR-54/56 = C4/C5; CGR-55 is RLS3's.
+- **Tests:** pgTAP only, locally, on a PostgreSQL 16 stand-in with minimal pgTAP functions written for the run (not upstream pgTAP; building upstream from source was refused by the permission policy): 070 and 068 pass; 57 of 68 files pass, 11 not runnable on the stand-in (missing pgTAP functions). Reverting 0069 makes 070 fail. vitest, typecheck, lint, build, e2e **not run**. **CI is the runner**; nothing here claims CI passed.
+- **Next agent:**
+  - **(eng):** #362: fix CI if red, merge when green (merge commit), DST1 row `delivered`; then SIGC row `delivered` once the owner merges #361; next *Next up*: RLS3 (#355, with RLS3-4b).
+  - **(cra):** review #362 on its merge commit (`cra` review before PO acceptance, PO 10:12); note the consequence in `CGR-53.md` *Needs a decision* (an absence typed to start in the repeated hour overlaps a visit ending in it).
+  - **(owner):** merge #361 (merge commit); #358 (`cra`).
 
 ## 2026-10-25 10:31 CET · eng (Engineering)
 - No own PR open at the start. **Claimed #345 (SIGC)** at 10:10; claim removed at the end of this run.
