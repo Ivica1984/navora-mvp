@@ -284,7 +284,7 @@ select is(pg_temp.seen('admin', 'select 1 from public.member_access_events'), 3,
 select is(pg_temp.seen('rn', 'select 1 from public.member_access_events'), 0, 'a colleague reads no record (the team marker is part b)');
 select is(pg_temp.seen('ops', 'select 1 from public.member_access_events'), 0, 'operations reads no record');
 select is(pg_temp.seen('admin_b', 'select 1 from public.member_access_events'), 0, 'another organisation reads nothing');
-select is((select string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text)
+select is((select string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text collate "C")
            from pg_proc p join pg_namespace s on s.oid = p.pronamespace
            where s.nspname in ('public', 'private') and p.prosrc like '%member_access_events%'),
   'end_member_access(uuid,text,uuid),my_access_state(),private.access_ended(uuid),private.access_ended_at(uuid),private.guard_member_access_event(),restore_member_access(uuid,text,uuid)',

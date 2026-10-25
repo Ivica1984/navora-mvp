@@ -270,7 +270,7 @@ select ok(has_function_privilege('authenticated', 'public.member_open_reports(uu
           and not has_function_privilege('authenticated', 'private.open_reports_of(uuid)', 'execute')
           and not has_function_privilege('authenticated', 'private.access_ended_at(uuid)', 'execute'),
   'the two read models are callable by members, not by anon; the helpers are private');
-select is((select string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text)
+select is((select string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text collate "C")
            from pg_proc p join pg_namespace s on s.oid = p.pronamespace
            where s.nspname in ('public', 'private') and p.prosrc ~ '(open_reports_of|open_report_counts|access_ended_at)'
              and p.proname not in ('open_reports_of', 'open_report_counts', 'access_ended_at')),
