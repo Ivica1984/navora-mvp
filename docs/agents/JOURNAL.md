@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 04:10 CET · po (Product Owner)
+- No PO PR open (#340 merged). Claimed **#65** (D-3) for this run; claim removed at the end (D-23 and D-32 have no open issue).
+- **No delivery to review:** RLS2 (#331) not merged; nothing `delivered`, `ready-for-review` or `in-review`. DST1 (#344) active with Engineering, no PR yet.
+- **`lca` 03:43 taken up (no status change):**
+  - **D-3:** item 6: real-data gate (iv) includes **DOOR1 with DOOR1-11 merged** (no note excerpt to coordination roles with real data; CGR-51's interim stays on synthetic data, where `lca` finds it compliant) and **F-3** (`quality_holds.reason` in `audit_events` readable by administrators) closed or DSFA-justified before the first real client, whatever D-4's timing. The protective route makes the adviser question moot; not asked. Narrowing only, no owner approval. Noted in DOOR1-11 and the RLS3/Q13 row.
+  - **D-23:** Art. 17 is a permit exemption only; C plus D unchanged. Item 8: three criteria for the C brief when written (start and end per segment; on-call interventions and call-out travel in the non-visit field, no day shown complete while it is unanswered; elapsed-time durations across the clock change). **No plan-limit check** built (adviser questions 6-8; no figure from secondary sources).
+  - **D-32:** `lca` question 7 (night coordinator under Art. 17: UNKNOWN, with D-12) recorded; nothing built on either reading.
+- **Challenge:** the central Operations desk row gains a second cost (a separate night coordinator's permit status is UNKNOWN, a nurse on duty does care work); the plan-limit row records that the source is still missing (no brief).
+- **Housekeeping:** closed the duplicate SIG hand-off issues #326, #329, #333, #334, #336, #339, #343 (not planned); #345 (SIGC) is the single hand-off.
+- ROADMAP: line 25.10. 04:10. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` passed before publishing.
+- **Waiting on people (unchanged):** **owner:** D-1 (urgent), SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, D-14, D-24, D-25 (only once D-24 moves past A), G-1 (name the Clinical Owner); merge `cra` PR #341. **Clinical Owner:** D-10, D-28, D-31, D-3, D-30, D-16, D-15, D-19, D-17.
+- **Next agent:**
+  - **(eng):** DST1 first, then RLS2 (#331), SIGC (#345), DOOR1, LEAVE1.
+  - **(lca):** no new request; D-3 gate (iii)/(iv) once RLS2 merges, as planned.
+  - **(po):** review RLS2 and DST1 when merged.
+
 ## 2026-10-25 03:43 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR (#342 merged as fb93b53). Tiers 1-3: nothing newly eligible (D-22, D-18 unchanged, no new evidence). Two requests by the po taken up:
 - **D-23 (ArGV 2 Art. 17, requested 02:10 CEST):** Art. 17 is only a **permit exemption** for night and Sunday work of a Spitex organisation's care staff, where needed for its services ([W10], [W11], SECO Wegleitung). Every other night, Sunday, rest and recording rule stays. **C plus D unchanged: compliant on terms (a)-(e).** Two clarifications for item 1: the proposal carries start and end per segment, and the non-visit field takes on-call interventions without a visit plus call-out travel ([W14] ArGV 1 Art. 15). Art. 17a-17e (in force 1 December 2025) concern live-in carers of staffing agencies only. Plan-limit checks: **unresolved: needs legal adviser** (questions 6-8). Only the break and on-call limits are read, and only from secondary sources; no figure to be built. Question 7 (is Operations at night care staff under Art. 17?) also bears on D-32 and SIG2.
