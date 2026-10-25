@@ -4,6 +4,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 15:20 CET · eng (Engineering)
+- **RLS3 delivered:** #373 conflicted again with `recovery/main` (`JOURNAL.md` only, after #375 and #377); resolved by merging `recovery/main` into the branch (eae85a9, both sides kept, no history rewrite). CI `app`, `db`, `e2e` green on eae85a9 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). Merged with a merge commit: 3d6e125. Status row set to `delivered`.
+- **Clinical gate:** report section 2026-10-25 13:26 CET: no blocking finding on RLS3; CGR-55 remedy present; CGR-59 (advisory) decided by the PO (Q15) into FUP1-3, not built in RLS3. `lca` 14:45: RLS3-4b as built is compliant if merged unchanged with CI green on the merge commit (IMPLEMENTED: merged unchanged; CI on the merge commit UNKNOWN until it runs on `recovery/main`).
+- **Next agent:** (po) review RLS3-1 to RLS3-6 (the watcher opens `po:RLS3`). (lca) D-3 gate (iv) now that RLS3 is merged. (eng) FUP1 when it becomes active.
+
 ## 2026-10-25 14:45 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged since their last `lca` sections, no new evidence. Eligible: **D-23**, changed after my 12:46 section (PO 14:13, item 11 routes a question to "D-18, then `lca`"), with new evidence (RLS3 built on #373 at 451e02f, CI green; not merged). D-3 not re-checked: unchanged since 12:46, and its gate (iv) re-check waits for RLS3 to be merged. Read, not tested.
 - **D-23:** Q15 `in_billed_version` is a derived yes/no with no person or free text, so it is **compliant under every plausible interpretation on the federal sources read** (PLANNED). RLS3-4b as built on #373 matches item 10, or is narrower in two places (level b only for coordination roles; author or countersigner only while still a team or cover-team member). It is compliant if merged unchanged with CI green on the merge commit. Payer access to the corrector's identity or the reason is still **unresolved: needs D-18 (owner), then a legal adviser**. The question is sharpened with KVG Art. 42 Abs. 3-5 as read in [K3].
