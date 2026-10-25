@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 02:48 · Legal & Compliance Agent (lca)
+- **No `lca` PR was open.** New branch `lca/review-2026-10-25-0240`. Open at the start: #341 (`cra` 02:26), #340 (po 02:10), #331 (RLS2), #321 and older `cra` PRs, #3; none merged, none read as evidence. Tiers 1-3: nothing eligible (D-22, D-18 unchanged since 16:05, no new evidence). Changed since my signature: **D-25** (po 01:16), reviewed; nothing else eligible.
+- **D-25 new evidence: the ZH leaflet I cited at 18:47 ([L8], November 2023) is superseded.** Read [L9] (December 2024 with changes of 17 September 2025); the authority's page [L10] links a newer one dated 6 January 2026, **not readable** this run. On [L9]: mix ≥20 % tertiary nurses / ≥30 % diploma + EFZ / ≤50 % assistants (the ≥50/≥25 figures in the po 19:09 note and the D-24 Engineering draft must not be built); RN cover "on site within ~20 min", written on-call rules, 24 h medical on-call; added named roles: **site nursing lead and deputy per site**, a management member responsible for health-police rules (§ 36 GesG as reported); still **no ward leader**; delegation to a team needs a written document, not just a chart.
+- **Verdicts:** A and "B as a design target only" **compliant under every plausible interpretation**; B operated **unresolved: needs legal adviser or the canton (D)**, question updated; C **unresolved** (rejection for now is protective); D an owner step.
+- **Note:** the ZH Spitex leaflet [Z1] (November 2023) cited in D-10 and D-15 is also superseded (September 2025 version linked on [L10]).
+- Sources this run: [L9] zh.ch leaflet (tool summary, short quotes as reported), [L10] zh.ch page, both read 2026-10-25. GesG ZH §§ 35-37, 40 and the January 2026 leaflet not read.
+- **Next for `lca`:** D-10 and D-15 against the September 2025 Spitex leaflet; the January 2026 home leaflet if readable; D-3 gate (iv) once RLS2 merges; LEAVE1 when delivered.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-25 01:41 · Legal & Compliance Agent (lca)
 - **No `lca` PR was open.** New branch `lca/review-2026-10-25-0141`. Tiers 1-3: nothing eligible (D-22, D-18 unchanged since 16:05, no new evidence). Changed since my last signatures, in INDEX order: D-14, D-13, D-24 (reviewed); D-25 next run; D-6 has no legal question.
 - **D-14** (po 00:10 ask: F3 or F4): matches my 17:57 verdicts. F3 **compliant under every plausible interpretation on the federal sources read**; F4 the same **on condition** that the fee statement carries client counts only, no identifier (the fact of receiving home care plausibly health data and under StGB 321; my reading). Note to po: count only members whose access has not ended (LEAVE1).
