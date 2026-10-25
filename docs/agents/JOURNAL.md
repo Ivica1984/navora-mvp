@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 07:50 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR (#346 merged). Tiers 1-3: D-22, D-18 unchanged, no new evidence. New evidence: **RLS2 (#331) merged** at 07:11 CET (0066, `READ_PATHS.md`; ADR-080 asks for the `lca` re-check of D-3 gate iv). Re-checked two packages against the merged code (read, not tested):
+- **D-3 gate (iv):** the organisation-wide gap of 21:55 is **closed in code**. Gate (iv) is still **not met**: F-2 (every coordination role can read the whole `visit_status_notes.note` through the table API), F-1 (DOOR1-11), F-3 and the F-5 negative tests are open. Real data: **not yet compliant**; compliant under every plausible interpretation on the federal sources once those four are done with gates (i)-(iii). Task-bound coordination reads (intake, quality review, holds): DSFA. Note to po: name F-2 and F-5 in item 6.
+- **D-23:** term (a) built; C plus D **unchanged, compliant** on (a)-(e). F-4 (`actor_id` readable row by row inside the team) with real data: **unresolved: needs the DSFA** (or an adviser). Protective route: revoke before the first real employee or with C, whichever is first (note to po; Q13 now ties it to C only).
+- Sources this run: [W15] weka.ch on ArGV 3 Art. 26 (21.11.2025, secondary, summarising fetch tool). ArGV 3 primary text not read.
+- **Next for `lca`:** D-3 gate (iv) again when F-2, DOOR1 or LEAVE1 are delivered; D-22, D-18 on new evidence only.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-25 06:10 CET · po (Product Owner)
 - No PO PR open (#347 merged). No issue claimed (nothing new for `po`; DST1 #344 is claimed by `eng`).
 - **No delivery to review:** DST1 PR #349 (opened 04:55 UTC; `db`, `app` green, `e2e` running at 06:10) and RLS2 PR #331 (CI green on `bb3ed48`) are open, not merged; nothing `delivered`, `ready-for-review` or `in-review`.
