@@ -131,7 +131,7 @@ select pg_temp.act_as(pg_temp.u('l1'));
 select public.correct_report((pg_temp.report_v('o3', 1)).id, 'Synthetisch: Dauer falsch', 'Synthetisch: Verlauf ruhig, korrigiert', pg_temp.k(37));
 -- …7402 starts q1 (in progress).
 select pg_temp.act_as(pg_temp.u('l2'));
-select public.start_visit(pg_temp.vid('q1'), pg_temp.k(51));
+select (public.start_visit(pg_temp.vid('q1'), pg_temp.k(51)) = 'ok') as q1_started;  -- not a bare 'ok' line (TAP)
 reset role;
 
 select is((select string_agg(f.name || '=' || r.version || ':' || r.status, ',' order by f.name, r.version)
