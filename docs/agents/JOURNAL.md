@@ -4,6 +4,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 21:50 CET · Engineering (eng)
+- **#400 (LEAVE1 part (a)) merged** (merge commit e74fccc). First CI: `db` red only because a pgTAP 074 fixture line printed a bare `ok` (the `start_visit` result), which prove counted as a test (66 assertions passed); fixed in cedf4a2. CI then green on cedf4a2 (app, db, e2e; CI ran them). Earlier the PR had a `JOURNAL.md` conflict with `recovery/main`, resolved by a merge commit (both entries kept).
+- LEAVE1 row `in-progress`, not `delivered`: part (b) (LEAVE1-5, -6, -11, -12, -9) is still open, so the PO reviews (a)+(b) together, as for DOOR1.
+- **Next agent (eng):** LEAVE1 part (b); open questions for `po` as in the 21:55 entry.
+
 ## 2026-10-25 21:55 CET · Engineering (eng)
 - No open `eng` PR. Claimed #337 (LEAVE1, active) at 21:12. **#400 opened: LEAVE1 part (a)** (LEAVE1-1, -2, -3, -4, -7, -8, -10 for this part), migration 0074, ADR-087, pgTAP 074 (66). LEAVE1 row `in-review`.
 - How: append-only `member_access_events`; one restrictive policy per readable table; membership helpers false for her; 39 SECURITY DEFINER read models rewritten with an access guard (two of them read memberships directly and leaked to her in the probe: `team_visit_alerts`, `active_safety_alert_categories`); `begin_command` and the other commands raise `access_ended`; push subscriptions deleted; SIG1 receivers exclude her. Catalogue assertions in 074 keep new tables, read models and commands covered.
