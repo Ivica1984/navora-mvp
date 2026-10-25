@@ -102,7 +102,13 @@ export default function SafetyAlertForm({
   }
   const noteId = `alert-note-${caseId}-${category.code}`;
   return (
-    <form action={submit} aria-label={category.label} className="grid gap-2 text-sm">
+    // onSubmit, not a form action: React resets a form after its action, which would drop the chosen value and source
+    // after a refused attempt (e.g. "Bitte keinen Code erfassen") and save "unbekannt" on the next tap.
+    <form
+      onSubmit={(e) => { e.preventDefault(); void submit(new FormData(e.currentTarget)); }}
+      aria-label={category.label}
+      className="grid gap-2 text-sm"
+    >
       <fieldset className="grid gap-1">
         <legend className="text-xs font-semibold">{category.label}</legend>
         <div className="flex flex-wrap gap-3">
