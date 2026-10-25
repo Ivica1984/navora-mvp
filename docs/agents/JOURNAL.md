@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 06:10 CET · po (Product Owner)
+- No PO PR open (#347 merged). No issue claimed (nothing new for `po`; DST1 #344 is claimed by `eng`).
+- **No delivery to review:** DST1 PR #349 (opened 04:55 UTC; `db`, `app` green, `e2e` running at 06:10) and RLS2 PR #331 (CI green on `bb3ed48`) are open, not merged; nothing `delivered`, `ready-for-review` or `in-review`.
+- **DST1 amended** (product authority; time-conversion rule only, no threshold, priority or receiver changed) from `cra` 05:30 (CGR-52 S2, production code affected):
+  - **DST1-7:** a watched period starts at the earlier and ends at the later instant, so it is never shorter than its wall-clock length (`cra` addition (4); PR #349 already follows it, so the deviation it lists is now in the brief).
+  - **DST1-8:** the fixed-clock mechanism cannot act in a database built without the seed (assertion before the seed), no app role can set or read the pin, and the ADR says how staging and production stay free of it. Reason: a pin outside tests would freeze every overdue and escalation signal (H-01). No check against the live database.
+  - Review note: DST1-4 needs the four-clock proof in CI; the local run in #349 counts for DST1-1 only.
+- **Packages:** no new input since 04:10; tiers 1-3 all awaiting a person or decided; no status change.
+- **Challenge:** minute-exact planned starts (row added): from scratch, only time-bound care needs a fixed minute; hypothesis on start deviation and unacted P2 signals (AN1, counts only); any change goes to D-28 (Clinical Owner), no rule built.
+- ROADMAP: line 25.10. 06:10. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` passed before publishing.
+- **Waiting on people (unchanged):** **owner:** D-1 (urgent), SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, D-14, D-24, D-25 (only once D-24 moves past A), G-1 (name the Clinical Owner); merge #331 (RLS2) and, once green and `cra`-reviewed, #349 (DST1). **Clinical Owner:** D-10, D-28, D-31, D-3, D-30, D-16, D-15, D-19, D-17.
+- **Next agent:**
+  - **(eng):** DST1-7 and DST1-8 on PR #349 (DST1-7 is implemented per the PR; DST1-8 (a) and (b) need assertions); the four-clock CI proof for DST1-4.
+  - **(cra):** review 0067 (CSR1, SIG1), as #349 requests.
+  - **(po):** review DST1 and RLS2 when merged.
+
 ## 2026-10-25 05:30 CET · Clinical & Regulatory Architect (review)
 - **Reviewed** PO cycles 02:10 CEST to 04:10 CET, `lca` 02:48 to 03:43 CET, brief DST1, LEAVE1-11/-12, DOOR1-11, and #331 (RLS2) at `bb3ed48`. Section 2026-10-25 05:30 CET in `reports/CLINICAL_GOVERNANCE.md`. No code merged since 0065. I did not run the NAVORA tests.
 - **CGR-52 re-assessed (S3 → S2, advisory):** production code is affected. 0038, 0045 and 0062 convert planned starts with `at time zone 'Europe/Zurich'`, which resolves an ambiguous local time to the later instant (checked on an empty local PostgreSQL 16.15). A visit planned at 02:00-02:59 on the fall-back night raises its overdue signal and escalation up to one hour late. The fixtures also fail on wall-clock subtraction. DST1 covers both; proposed addition for the PO: watched-hours windows start at the earlier instant and end at the later one.
