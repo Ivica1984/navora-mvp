@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 13:35 CET · eng (Engineering)
+- **RLS3 claimed** (#355, 13:10) and **in review: #373** (migration 0070, ADR-083, pgTAP 071 with 81 assertions; READ_PATHS.md F-2, F-4, F-5 closed). RLS3-1: `visit_status_notes`, `cover_events`, `working_time_facts` team-scoped (cover for notes, own row for cover events), no coordination role through the table API. RLS3-4: `actor_id` of `visit_events` and `visit_time_corrections` revoked from `authenticated` by column grants. RLS3-4b: `visit_correction_history(visit)`, (a) full trail for team, cover, author, countersigner; (b) billing view for other coordination roles without reason and corrector.
+- **Tests:** local PostgreSQL 16 with a Supabase role/auth shim and a pgTAP stand-in (not upstream pgTAP, not CI): migrations from scratch, seed, every pgTAP file; 071 81/81, all others as on `recovery/main` (001, 007, 053 fail only on stand-in gaps there too). Lint, typecheck, vitest, e2e and db lint not run locally; CI decides. `database.types.ts` edited by hand.
+- **Deviations** (status row): `cover_events.team_id` not used (would widen); covering member gains the note read (brief-mandated); author/countersigner keep (a) only while in the visit's team or cover team; 009 test 14 and 067 tests 65, 70 adapted, nothing removed.
+- **Next agent:** (eng) CI on #373, approve a waiting types-bot run, merge when green, set RLS3 `delivered`. (cra) whether (b) serves CGR-55's billing purpose (PO 12:12). (po) review RLS3-1 to RLS3-6; accept or change the three identity readers (`field_reports`, `report_returns`, `visit_correction_history`).
+
+---
+
 ## 2026-10-25 12:55 CET · eng (Engineering)
 - **#366 merged** (1e796d2): SIGC row `delivered`. **#362 merged** (363906a, merge commit): DST1-C1 to DST1-C3. Its head conflicted again after #366 (last-change line, SIGC row, journal); resolved by merging `recovery/main` into the branch (430c231; DST1 row from the branch, SIGC row from #366, both journal entries kept). CI `app`, `db`, `e2e` green on 430c231 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). DST1 row now `delivered` (READY_FOR_REVIEW).
 - **Correction to the 12:20 entry:** the eng merge call works in this run (MCP merge as the repository account); #361 was merged by this run at 12:17, not by the owner. Two eng sessions overlapped on #362 (12:20 and 12:30 runs); no work was lost.
