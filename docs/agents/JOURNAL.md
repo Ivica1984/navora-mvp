@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 03:43 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR (#342 merged as fb93b53). Tiers 1-3: nothing newly eligible (D-22, D-18 unchanged, no new evidence). Two requests by the po taken up:
+- **D-23 (ArGV 2 Art. 17, requested 02:10 CEST):** Art. 17 is only a **permit exemption** for night and Sunday work of a Spitex organisation's care staff, where needed for its services ([W10], [W11], SECO Wegleitung). Every other night, Sunday, rest and recording rule stays. **C plus D unchanged: compliant on terms (a)-(e).** Two clarifications for item 1: the proposal carries start and end per segment, and the non-visit field takes on-call interventions without a visit plus call-out travel ([W14] ArGV 1 Art. 15). Art. 17a-17e (in force 1 December 2025) concern live-in carers of staffing agencies only. Plan-limit checks: **unresolved: needs legal adviser** (questions 6-8). Only the break and on-call limits are read, and only from secondary sources; no figure to be built. Question 7 (is Operations at night care staff under Art. 17?) also bears on D-32 and SIG2.
+- **D-3 (Q13 F-1, the note excerpt to Operations until DOOR1):** on synthetic data **compliant under every plausible interpretation**. With real data: **unresolved: needs legal adviser**, because it conflicts with gate (iv)'s free-text clause. Protective route: DOOR1-11 merged before the first real client (note to po: make it part of gate iv). DOOR1-11 as decided: compliant on the federal sources read. Same free-text gap for F-3 (`audit_events` admins) with real data. Relied on `cra` CGR-51.
+- Sources this run: SECO Wegleitung ArGV 2 Art. 4, 17, 17a; SECO page "Pikettdienst"; BS news of 20.11.2025 (all through a summarising fetch tool). Not read: ArGV 2, ArG Art. 15a-20 and ArGV 1 Art. 73 in the primary text (fedlex fetch refused).
+- **Next for `lca`:** D-3 gate (iii)/(iv) once RLS2 (#331) merges; LEAVE1 and DOOR1 when delivered; the ArGV 2 primary text if fedlex becomes readable; D-4 against [Z2] if the po asks.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+## 2026-10-25 03:10 CET · po (Product Owner)
+- **PO PR #340 still open**, CI red on 0e155e9 (01:24 UTC: `db` pgTAP 062 test 15, `app` failed; clock-dependent, `cra` CGR-52, brief DST1 *Next up* 1). Rule A: continued on the same branch; `recovery/main` (fb93b53, `lca` #342) merged in, JOURNAL conflict resolved keeping both sides newest first. The push re-runs CI with new content and a new base (not a re-run to kick CI). Claimed **#104, #61, #56, #70** (D-22, D-15, D-10, D-4); claims removed at the end.
+- **No delivery to review:** RLS2 (#331) not merged; nothing `delivered`, `ready-for-review` or `in-review`. No Engineering commit since 02:10 CET; DST1 not started.
+- **Packages (INDEX order; tiers 1-3 all awaiting a person or decided; no status change):** `lca` 02:42 CET re-check against the ZH Spitex leaflet [Z2] (September 2025) taken up:
+  - **D-22:** [Z2] A.2 (lit. b only on a doctor's order, lit. a and c without) is consistent with the package's federal reading. Checked `lca`'s warning in the briefs: none builds an order for every service (J1 `not-required-A/C-only`; J3 order gate for B only). Ask unchanged.
+  - **D-15:** CR-010 question cites [Z2] 3.4.8, with 3.4.7 as context; `lca`'s 11:55 order sentence marked superseded and not built. Recommendation C unchanged.
+  - **D-10:** [Z1] references read as [Z2]; adviser question 1 replaced by `lca`'s wording. Verdicts unchanged; LEAVE1 stays the real-data gate for deviation (3).
+  - **D-4:** retention item (4), the [Z2] 20-year recommendation for patient documentation, goes to the adviser; the provisional rule (no deletion) covers it.
+- **Challenge:** the site nursing lead as a manager (row added): the licensed accountable role stays; the manager's work around it (reading every report, the roster, the phone) should not. Pilot hypothesis on her supervision hours and direct care share.
+- ROADMAP: line 25.10. 03:10. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` passed before publishing.
+- **Waiting on people (unchanged):** **owner:** D-1 (urgent), SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, D-14, D-24, D-25 (only once D-24 moves past A), G-1 (name the Clinical Owner); merge `cra` PR #341. **Clinical Owner:** D-10, D-28, D-31, D-3, D-30 (before the first real leaver), D-16, D-15, D-19, D-17.
+- **Next agent:**
+  - **(eng):** DST1 first: CI is red on every docs PR tonight (#340, #341, #331). Then RLS2, SIGC, DOOR1, LEAVE1.
+  - **(lca):** D-23 Art. 17 and the Q13 F-1 view as requested; no new request this run.
+  - **(po):** merge #340 once CI is green; close the duplicate SIG hand-off issues (#329, #333, #334, #336, #339, #343) once the SIGC issue exists; review RLS2 and DST1 when merged.
+
 ## 2026-10-25 02:42 CET · Legal & Compliance Agent (lca)
 - **Continued `lca` PR #342** (opened 02:48 CEST, before the clock change; this entry is later). Its `db` and `e2e` jobs failed in the repeated DST hour (comment on #342; `cra` CGR-52, po DST1). Still inside the repeated hour at the start of this run, so no re-run yet. Tiers 1-3: nothing eligible (D-22, D-18 unchanged, no new evidence).
 - **New evidence: ZH Spitex leaflet [Z2], September 2025** (supersedes [Z1], November 2023). Re-checked **D-10** and **D-15**:
@@ -14,6 +38,36 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Next for `lca`:** re-run the failed #342 jobs once after 02:00 UTC and merge if green; the January 2026 home leaflet if readable; D-4 against the [Z2] retention recommendation if the po asks; D-3 gate (iv) once RLS2 merges; LEAVE1 when delivered.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
 
+## 2026-10-25 02:10 CET · po (Product Owner)
+- **Time note:** the second 02:10 of the night (clocks went back at 03:00 CEST); the po entry below is 02:10 CEST, one hour earlier.
+- **PO PR #340 (02:10 CEST) was still open**, `db` red after its one re-run (pgTAP 038, 046, 062 on a docs-only diff; comments on #340). Rule A: no second PO PR; this cycle continues on the same branch. My push re-runs CI with new content (not a re-run to kick CI). Open: #342 (`lca` 02:48), #341 (`cra` 02:26, supersedes #321, #306, #294, #278, #259), #331 (RLS2, `db` red), #3. Read both on their branches as evidence; not merged by the PO. Claimed **#115, #116, #60** (D-24, D-25, D-14); claims removed at the end.
+- **No delivery to review:** nothing `delivered`, `ready-for-review` or `in-review` with a merged PR.
+- **F6R-G1 met** (`cra` 02:26: no blocking finding on 0065); F6R stays accepted.
+- **CGR-49, CGR-50, CGR-51 decided (product authority):** **LEAVE1-11** (a known-wrong signed report of a performer whose access ended or who left the team is returned into "Zurückgegeben – Autorin nicht mehr verfügbar": not final, not billable, no draft only she could sign, `report_not_final` raising, D-30 route; never countersigned into `final`); **LEAVE1-12** (open reports by kind listed to `/admin` and the team RNs before the access end; marker for every team member); **DOOR1-11** (Operations sees the door fact, outcome code and basis instead of the note excerpt, removed in the same PR). **Q13 answered** (RLS3 row: F-1 with DOOR1; F-2 approved as a narrowing before real data; F-3 after D-4; F-4 with D-23; F-5 next PR). `lca` asked for a view on keeping the excerpt until DOOR1 (next run).
+- **New brief DST1 approved** (*Next up* 1) from `cra` CGR-52: the `db` job failed on docs-only PRs in the DST night on the overdue, ABS1 and SIG1 P1 controls (H-01). *Next up* renumbered: 1 DST1, 2 RLS2, 3 SIGC, 4 DOOR1, 5 LEAVE1.
+- **Packages (INDEX order; tiers 1-3 all awaiting a person or decided; no status change):** `cra` 02:26 *Clinical impact* recorded verbatim in **D-6** (confirmed; not a clinical rule; not reopened), **D-13** (point 3 corrected → three B-brief criteria: plan shows its assessment date and a newer one, minutes only with the reference, the named assessor confirms), **D-14** (guards corrected → design constraint 7: every self-reported guard paired with a source the team does not write; F3 fatigue measure; owner ask unchanged), **D-20** (confirmed), **D-24** and **D-25** (hazard areas f-h, leading-signal stop rule). `lca` 02:48 (D-25, new evidence: ZH leaflet [L8] superseded by [L9]): D-24 boundaries 2 (site nursing lead and deputy, health-police-responsible management member; written delegation from the nursing lead), 3 (values only from the leaflet or law in force; RN on site within the guide time; written on-call rule) and 5 (leading signals) sharpened; [L8] mix figures marked superseded in D-24 and D-25, never built; D-25 legal question replaced by `lca`'s wording. Asks to the owner unchanged.
+- **Challenge:** two rows (the paperwork reminder before a last day; Operations reading the door note).
+- ROADMAP: line 25.10. 02:10 (Winterzeit). Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` passed before publishing.
+- **Waiting on people (unchanged):** **owner:** D-1 (urgent), SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, D-14, D-24, D-25 (only once D-24 moves past A), G-1 (name the Clinical Owner); merge `cra` PR #341 (supersedes five). **Clinical Owner:** D-10, D-28, D-31, D-3, **D-30 (before the first real leaver)**, D-16, D-15, D-19, D-17.
+- **Next agent:**
+  - **(eng):** DST1 first (it may also explain RLS2's red `db`), then RLS2 (with Q13 F-2 if still open), SIGC, DOOR1 (with DOOR1-11), LEAVE1 (with LEAVE1-11, -12). The po drafts in D-6, D-13, D-14, D-20, D-24, D-25 (Engineering impact) still wait for confirmation.
+  - **(cra):** review DST1 if production code changes (CSR1, SIG1); LEAVE1-11 when delivered.
+  - **(lca):** a view on keeping the 120/200-character note excerpt for Operations until DOOR1 merges (Q13 F-1, CGR-51); D-23 Art. 17 as requested 02:10 CEST.
+  - **(po):** merge #340 once `db` is green; close the six duplicate SIG hand-off issues once the SIGC issue exists; review RLS2 and DST1 when merged.
+
+**ENGINEERING BRIEF — DST1**
+- **Capability:** Safety alerts are on time on the nights the clock changes (`briefs/DST1.md`).
+- **Why:** on 2026-10-25 (clocks back) the `db` job failed on docs-only PRs with unchanged code in pgTAP 038, 046 and 062, the overdue, ABS1-release and SIG1 P1 controls against H-01 (`cra` CGR-52, root cause UNKNOWN). If production code resolves a planned time in the repeated hour to the later instant, an overdue alert and its escalation come up to an hour late that night; the spring night has a missing hour. Clock-dependent tests have now blocked every PR three times.
+- **Business outcome:** CI that passes whatever hour it runs; no more nights where every agent's PR is red for reasons outside its diff.
+- **Care outcome:** a visit planned in the repeated or missing hour is noticed as late as fast as on any other night.
+- **Expected nurse outcome:** no change on her screens; an overdue visit of hers is raised on time twice a year as on every other day.
+- **Expected team outcome:** the team and Operations receive the same P2/P1 signals on transition nights as on ordinary ones.
+- **Expected patient outcome:** a client whose visit falls in that hour is not left waiting an extra hour before anyone is alerted.
+- **Acceptance criteria:** DST1-1 root cause at four fixed clocks, recorded in an ADR, with a fixed-clock test mechanism; DST1-2 an ambiguous local time resolves to the earlier instant, pgTAP at 02:30 local on 2026-10-25 (CR-038 from 00:30 UTC; SIG1 P1 path unchanged); DST1-3 the missing spring hour refused or resolved by a written rule, never later than standard time, pgTAP on 2027-03-28; DST1-4 every `now()`-based fixture deterministic, the suite green at all four clocks; DST1-5 no assertion weakened, skipped or quarantined, `cra` review if production code changed; DST1-6 no regression (DAY-1, AN2-C1, SIG2-14).
+- **Dependencies:** none; may share a cause with RLS2's red `db` (#331).
+- **Priority:** *Next up* 1 (patient safety precondition; unblocks CI for every later item).
+- **Implementation recommendation:** a single `private.now()` (or a test-only clock setting) used by every time-dependent function and fixture; one conversion helper from Zurich local date and time to an instant with an explicit rule for ambiguous and missing times; a pgTAP file pinned at both transitions; a one-off CI run (or matrix) at the four clocks.
+
 ## 2026-10-25 02:48 · Legal & Compliance Agent (lca)
 - **No `lca` PR was open.** New branch `lca/review-2026-10-25-0240`. Open at the start: #341 (`cra` 02:26), #340 (po 02:10), #331 (RLS2), #321 and older `cra` PRs, #3; none merged, none read as evidence. Tiers 1-3: nothing eligible (D-22, D-18 unchanged since 16:05, no new evidence). Changed since my signature: **D-25** (po 01:16), reviewed; nothing else eligible.
 - **D-25 new evidence: the ZH leaflet I cited at 18:47 ([L8], November 2023) is superseded.** Read [L9] (December 2024 with changes of 17 September 2025); the authority's page [L10] links a newer one dated 6 January 2026, **not readable** this run. On [L9]: mix ≥20 % tertiary nurses / ≥30 % diploma + EFZ / ≤50 % assistants (the ≥50/≥25 figures in the po 19:09 note and the D-24 Engineering draft must not be built); RN cover "on site within ~20 min", written on-call rules, 24 h medical on-call; added named roles: **site nursing lead and deputy per site**, a management member responsible for health-police rules (§ 36 GesG as reported); still **no ward leader**; delegation to a team needs a written document, not just a chart.
@@ -22,6 +76,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Sources this run: [L9] zh.ch leaflet (tool summary, short quotes as reported), [L10] zh.ch page, both read 2026-10-25. GesG ZH §§ 35-37, 40 and the January 2026 leaflet not read.
 - **Next for `lca`:** D-10 and D-15 against the September 2025 Spitex leaflet; the January 2026 home leaflet if readable; D-3 gate (iv) once RLS2 merges; LEAVE1 when delivered.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+## 2026-10-25 02:10 · po (Product Owner)
+- **No PO PR was open.** Open: #331 (RLS2, `eng`, not merged: nothing to review), #321 and older `cra` PRs (not merged by the PO), #3 (M2). No `agent:po` issue open. Nothing `delivered`, `ready-for-review` or `in-review` with a merged PR.
+- **Coordination defect found and fixed in the PO's file:** the *Next up* ID "SIG1-C2, SIG1-C3, SIG2-C1" contains spaces; the watcher's marker regex reads a key only up to the first space, so each of its runs opened a new hand-off issue that it can never match, update or close (#326, #329, #333, #334, #336, #339). Renamed **SIGC** (content, approval and order unchanged; `briefs/SIGC.md` points to the conditions in SIG1 and SIG2). The PO closes the six duplicates once the watcher has opened the SIGC issue. **WATCH-2** for Engineering: validate *Next up* IDs (today only the priority queue is checked).
+- **Packages (INDEX order; tiers 1-3 unchanged, all awaiting a person or decided):** `lca` 01:41 taken up, no status change.
+  - **D-14** (`awaiting-approval: owner`): ask sharpened, same choice: F3 counts only members whose access has not ended (LEAVE1; constraint 6); F4 only as a monthly count without client identifier (constraint 1, F4 variant).
+  - **D-13** (`po-decided`): supersede path and identifier-only document reference recorded as testable criteria of the later B brief.
+  - **D-24** (`awaiting-approval: owner`): boundary 4 cites ArGV 2 Art. 16 (homes), values only from the adviser's confirmation; question 2 replaced by the `lca` 01:41 wording.
+  - **D-23** (`po-decided`): re-analysis requested from `lca` on ArGV 2 Art. 17 (home-care organisations), new evidence lead named by `lca` 01:41.
+- **Challenge:** working-time limits checked after the plan by a scheduler or HR (new row; no brief before `lca` and D-12 name the source; NAVORA invents no limit).
+- ROADMAP: line 25.10. 02:10. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` run before publishing.
+- **Waiting on people:** unchanged from 01:16 (owner: D-1 urgent, SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, D-4 final periods, D-14, D-24, D-25 once D-24 moves past A, G-1; merge `cra` PR #321).
+- **Next agent:**
+  - **(eng):** RLS2 (#331), then **SIGC** (use this ID in the status row), then DOOR1, then LEAVE1; WATCH-2 when convenient.
+  - **(lca):** D-23 on ArGV 2 Art. 17; D-25 re-check as planned.
+  - **(cra):** unchanged from 01:16.
+  - **(po):** close #326, #329, #333, #334, #336, #339 as duplicates of the SIGC issue; review RLS2 when merged.
 
 ## 2026-10-25 01:41 · Legal & Compliance Agent (lca)
 - **No `lca` PR was open.** New branch `lca/review-2026-10-25-0141`. Tiers 1-3: nothing eligible (D-22, D-18 unchanged since 16:05, no new evidence). Changed since my last signatures, in INDEX order: D-14, D-13, D-24 (reviewed); D-25 next run; D-6 has no legal question.
