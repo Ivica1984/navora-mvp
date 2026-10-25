@@ -14,6 +14,9 @@
 --      * non-existent local time → standard-time reading (CET), i.e. what PostgreSQL does; never later than CET. DST1-3
 --      * every other local time → unchanged.
 --      `private.at_zurich(timestamptz) → timestamp` is the plain reverse (instant → Zurich wall clock), unchanged.
+--      `private.at_zurich_end(timestamp) → timestamptz`: the END of a SIG2 watched-hours window: an ambiguous local time
+--      → the LATER instant, so a window is never shorter than its wall-clock length (`cra` CGR-52 (4), 05:30 CET);
+--      used by `private.watched_raise_at` for the period end. Non-existent → CET reading, as above.
 --   2. Every function in `public` and `private` (extension functions excluded) is re-created from its own current
 --      definition with each `<operand> at time zone 'Europe/Zurich'` replaced by `private.at_zurich(<operand>)`
 --      (the overload keeps the direction), and each `now()` replaced by `private.now()`. Signatures, owners, grants,
@@ -56,6 +59,17 @@ as $$ select p_instant at time zone 'Europe/Zurich' $$;
 comment on function private.at_zurich(timestamptz) is
   'DST1 / ADR-081: instant → Zurich wall clock (unchanged reverse of at_zurich(timestamp)).';
 
+create or replace function private.at_zurich_end(p_local timestamp)
+returns timestamptz
+language sql
+immutable
+parallel safe
+set search_path = ''
+as $$ select p_local at time zone 'Europe/Zurich' $$;
+comment on function private.at_zurich_end(timestamp) is
+  'DST1 / ADR-081 / CGR-52 (4): Zurich local time → instant for the END of a watched-hours window. Ambiguous → the '
+  'later instant (CET), so the window is never shorter than its wall-clock length; non-existent → CET reading.';
+
 -- 2. Test clock ----------------------------------------------------------------------------------------------------------
 create table if not exists private.test_clock (
   enabled boolean primary key default true check (enabled)
@@ -87,6 +101,7 @@ revoke all on function private.now() from public;
 grant execute on function private.now() to anon, authenticated, service_role;
 grant execute on function private.at_zurich(timestamp) to anon, authenticated, service_role;
 grant execute on function private.at_zurich(timestamptz) to anon, authenticated, service_role;
+grant execute on function private.at_zurich_end(timestamp) to anon, authenticated, service_role;
 
 -- 3. Re-create every affected function ----------------------------------------------------------------------------------
 -- Wraps the operand of each `<operand> at time zone 'Europe/Zurich'` (also inside dynamic SQL strings, where the quotes
@@ -148,7 +163,7 @@ begin
     where n.nspname in ('public', 'private')
       and p.prokind = 'f'
       and p.oid not in ('private.at_zurich(timestamp)'::regprocedure, 'private.at_zurich(timestamptz)'::regprocedure,
-                        'private.now()'::regprocedure)
+                        'private.at_zurich_end(timestamp)'::regprocedure, 'private.now()'::regprocedure)
       and (p.prosrc ~* 'at\s+time\s+zone\s+\\?''{1,2}Europe/Zurich' or p.prosrc ~ '(^|[^.\w])now\(\)')
       and not exists (select 1 from pg_depend d where d.classid = 'pg_proc'::regclass and d.objid = p.oid and d.deptype = 'e')
   loop
@@ -171,13 +186,22 @@ begin
                    regexp_replace(r.expr, '(^|[^.\w])now\(\)', '\1private.now()', 'g'));
   end loop;
 
+  -- CGR-52 (4): the period end of a watched-hours window takes the later instant.
+  def := pg_get_functiondef('private.watched_raise_at(uuid, timestamptz)'::regprocedure);
+  if def like '%private.at_zurich(((l.lt::date - d) + h.ends))%' then
+    execute replace(def, 'private.at_zurich(((l.lt::date - d) + h.ends))', 'private.at_zurich_end(((l.lt::date - d) + h.ends))');
+  end if;
+  if pg_get_functiondef('private.watched_raise_at(uuid, timestamptz)'::regprocedure) not like '%private.at_zurich_end(((l.lt::date - d) + h.ends))%' then
+    raise exception 'ADR-081: private.watched_raise_at does not resolve the window end with private.at_zurich_end';
+  end if;
+
   if exists (
     select 1
     from pg_proc p
     join pg_namespace n on n.oid = p.pronamespace
     where n.nspname in ('public', 'private')
       and p.oid not in ('private.at_zurich(timestamp)'::regprocedure, 'private.at_zurich(timestamptz)'::regprocedure,
-                        'private.now()'::regprocedure)
+                        'private.at_zurich_end(timestamp)'::regprocedure, 'private.now()'::regprocedure)
       and (p.prosrc ~* 'at\s+time\s+zone\s+\\?''{1,2}Europe/Zurich' or p.prosrc ~ '(^|[^.\w])now\(\)')
       and not exists (select 1 from pg_depend d where d.classid = 'pg_proc'::regclass and d.objid = p.oid and d.deptype = 'e')
   ) then

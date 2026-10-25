@@ -8,7 +8,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(40);
+select plan(44);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -135,12 +135,26 @@ select is(pg_temp.ops_overdue(21), 'P2', 'ordinary day: 15 min after the planned
 select is(pg_temp.ops_overdue(22), 'P1', 'ordinary day: 90 min after, P1');
 select is(pg_temp.ops_overdue(23), null, 'ordinary day: still ahead');
 
+-- CGR-52 (4): a SIG2 watched-hours window is never shorter than its wall-clock length --------------------------------
+select is(private.at_zurich_end(timestamp '2026-10-25 02:30'), timestamptz '2026-10-25 01:30:00+00',
+  'CGR-52 (4): a window END at 02:30 in the repeated hour → the later instant (CET), 01:30 UTC');
+insert into public.organization_watched_hours (organization_id, weekday, starts, ends)
+values ('00000000-0000-4000-b000-000000000011', 7, time '00:00', time '02:30');   -- Sunday 2026-10-25, 00:00-02:30 local
+select ok(private.watched_inside('00000000-0000-4000-b000-000000000011', timestamptz '2026-10-25 01:15:00+00'),
+  'CGR-52 (4): the window 00:00-02:30 still covers 01:15 UTC (02:15 CET, second pass)');
+select ok(not private.watched_inside('00000000-0000-4000-b000-000000000011', timestamptz '2026-10-25 01:35:00+00'),
+  'and ends at 02:30 CET (01:35 UTC is outside)');
+select is(private.watched_raise_at('00000000-0000-4000-b000-000000000011', timestamptz '2026-10-25 05:00:00+00'),
+  timestamptz '2026-10-24 23:30:00+00',
+  'CGR-52 (4) / SIG2-13: the look-ahead raise lies 2 h before the window end read as 01:30 UTC, inside the window');
+delete from public.organization_watched_hours where organization_id = '00000000-0000-4000-b000-000000000011';
+
 -- Guards: no later migration brings the native forms back ---------------------------------------------------------------
 select is((select count(*)::int
            from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname in ('public', 'private')
              and p.oid not in ('private.at_zurich(timestamp)'::regprocedure, 'private.at_zurich(timestamptz)'::regprocedure,
-                               'private.now()'::regprocedure)
+                               'private.at_zurich_end(timestamp)'::regprocedure, 'private.now()'::regprocedure)
              and p.prosrc ~* 'at\s+time\s+zone\s+\\?''{1,2}Europe/Zurich'
              and not exists (select 1 from pg_depend d where d.classid = 'pg_proc'::regclass and d.objid = p.oid and d.deptype = 'e')),
   0, 'ADR-081: no function body converts with a native AT TIME ZONE ''Europe/Zurich'' (use private.at_zurich)');
