@@ -17,7 +17,7 @@ insert into public.team_memberships (team_id, user_id, qualification) values
   ('00000000-0000-4000-a000-000000000104', '00000000-0000-4000-a000-000000000901', 'registered_nurse');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status, planned_minutes_a)
 select '00000000-0000-4000-b000-000000000011', x.id, '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-       (now() at time zone 'Europe/Zurich')::date + x.d, x.t, x.t + interval '30 minutes', false, 'planned', 30
+       (private.now() at time zone 'Europe/Zurich')::date + x.d, x.t, x.t + interval '30 minutes', false, 'planned', 30
 from (values ('b1000000-0000-4000-8000-000000000001'::uuid, 3, time '14:00'),
              ('b1000000-0000-4000-8000-000000000002'::uuid, 0, time '23:30'),
              ('b1000000-0000-4000-8000-000000000003'::uuid, 4, time '15:00')) x(id, d, t);
@@ -67,9 +67,9 @@ select is(public.cancel_visit('b1000000-0000-4000-8000-000000000003', 'team_canc
   'the team cancels a visit');
 reset role;
 -- Two days later, seen from the database: move the cancellation note and the visit into the past.
-update public.care_visits set visit_date = (now() at time zone 'Europe/Zurich')::date - 2 where id = 'b1000000-0000-4000-8000-000000000003';
+update public.care_visits set visit_date = (private.now() at time zone 'Europe/Zurich')::date - 2 where id = 'b1000000-0000-4000-8000-000000000003';
 alter table public.visit_status_notes disable trigger visit_status_notes_no_update_delete;
-update public.visit_status_notes set created_at = (((now() at time zone 'Europe/Zurich')::date - 2) + time '15:00') at time zone 'Europe/Zurich' - interval '2 hours'
+update public.visit_status_notes set created_at = (((private.now() at time zone 'Europe/Zurich')::date - 2) + time '15:00') at time zone 'Europe/Zurich' - interval '2 hours'
   where visit_id = 'b1000000-0000-4000-8000-000000000003';
 alter table public.visit_status_notes enable trigger visit_status_notes_no_update_delete;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');

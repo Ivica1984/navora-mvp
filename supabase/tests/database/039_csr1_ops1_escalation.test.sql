@@ -19,7 +19,7 @@ $$;
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status,
                                 responsible_user_id, planned_minutes_a)
 select '00000000-0000-4000-b000-000000000011', x.id, '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-       (now() at time zone 'Europe/Zurich' + x.shift)::date, (now() at time zone 'Europe/Zurich' + x.shift)::time, null, false, 'planned',
+       ((private.now() + x.shift) at time zone 'Europe/Zurich')::date, ((private.now() + x.shift) at time zone 'Europe/Zurich')::time, null, false, 'planned',
        '00000000-0000-4000-a000-000000000902', 30
 from (values ('a3900000-0000-4000-8000-0000000000a1'::uuid, interval '1 hour'),
              ('a3900000-0000-4000-8000-0000000000a2'::uuid, interval '-2 hours')) x(id, shift);

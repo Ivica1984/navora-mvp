@@ -17,12 +17,13 @@ select is(
   'no function in public or private uses current_date (session time zone); today is the Europe/Zurich date');
 
 select ok(
-  (select p.prosrc like '%Europe/Zurich%' from pg_proc p where p.oid = 'private.derived_exceptions(uuid)'::regprocedure),
+  -- ADR-081 (0067): the Zurich conversion is written private.at_zurich(...) since DST1.
+  (select p.prosrc like '%private.at_zurich(private.now())%' from pg_proc p where p.oid = 'private.derived_exceptions(uuid)'::regprocedure),
   'OPS1 derived exceptions judge order expiry and review dates against the Zurich date');
 
 -- A session in UTC just after midnight Zurich time: pause_case must refuse an expected end of the Zurich yesterday.
 select ok(
-  (select p.prosrc like '%p_expected_end < (now() at time zone ''Europe/Zurich'')::date%'
+  (select p.prosrc like '%p_expected_end < (private.at_zurich(private.now()))::date%'
    from pg_proc p where p.proname = 'pause_case' and p.pronamespace = 'public'::regnamespace),
   'pause_case compares the expected end with the Zurich date');
 

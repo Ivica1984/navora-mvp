@@ -11,7 +11,7 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
 $$;
-create function pg_temp.today() returns date language sql as $$ select (now() at time zone 'Europe/Zurich')::date $$;
+create function pg_temp.today() returns date language sql as $$ select (private.now() at time zone 'Europe/Zurich')::date $$;
 create function pg_temp.generated() returns integer language sql as $$
   select count(*)::int from public.care_visits where case_id = '00000000-0000-4000-a000-000000000208' and plan_generated
 $$;
@@ -29,16 +29,16 @@ select ok(not has_table_privilege('authenticated', 'public.plan_slot_skips', 'in
 select throws_ok($$ insert into public.care_plan_items (organization_id, case_id, team_id, service, category, planned_minutes, frequency,
                       review_date, created_by, freq_times, freq_period, window_start, window_end)
                     values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-                      'Test', 'A', 10, '2x täglich', (now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 2, 'day', '08:00', '09:00') $$,
+                      'Test', 'A', 10, '2x täglich', (private.now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 2, 'day', '08:00', '09:00') $$,
   '23514', null, 'once a day per item (a second daily visit is a second item with its own window)');
 
 -- The care plan generates four weeks ---------------------------------------------------------------------------
 insert into public.care_plan_items (organization_id, case_id, team_id, service, category, planned_minutes, frequency, review_date, created_by,
                                     freq_times, freq_period, freq_weekdays, window_start, window_end) values
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-   'Körperpflege', 'A', 30, 'täglich', (now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 1, 'day', null, '08:00', '09:00'),
+   'Körperpflege', 'A', 30, 'täglich', (private.now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 1, 'day', null, '08:00', '09:00'),
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-   'Wundversorgung', 'B', 20, '2x wöchentlich', (now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 2, 'week', '{1,4}', '08:00', '09:00');
+   'Wundversorgung', 'B', 20, '2x wöchentlich', (private.now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 2, 'week', '{1,4}', '08:00', '09:00');
 
 select is(pg_temp.generated(), 28, 'one visit per day for the next four weeks');
 select is((select count(*)::int from public.care_visits where case_id = '00000000-0000-4000-a000-000000000208' and plan_generated and planned_minutes_b = 20),
@@ -58,7 +58,7 @@ select is((select count(*)::int from public.visit_plan_changes pc join public.ca
 
 insert into public.care_plan_items (organization_id, case_id, team_id, service, category, planned_minutes, frequency, review_date, created_by)
 values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-        'Hauswirtschaft', 'A', 15, 'wöchentlich', (now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902');
+        'Hauswirtschaft', 'A', 15, 'wöchentlich', (private.now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902');
 
 -- The team stays in charge -------------------------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');

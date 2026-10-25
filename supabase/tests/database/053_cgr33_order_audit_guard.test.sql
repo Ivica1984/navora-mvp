@@ -42,7 +42,7 @@ select (select coalesce(max(id), 0) from public.audit_events) as id,
        c.medical_order_status as status, c.medical_order_valid_until as valid_until
 from public.cases c where c.id = '00000000-0000-4000-a000-000000000208';
 update public.cases
-set medical_order_status = 'present', medical_order_valid_until = (now() at time zone 'Europe/Zurich')::date + 400
+set medical_order_status = 'present', medical_order_valid_until = (private.now() at time zone 'Europe/Zurich')::date + 400
 where id = '00000000-0000-4000-a000-000000000208';
 update public.cases
 set medical_order_status = 'requested', medical_order_valid_until = null
@@ -58,24 +58,24 @@ select is(
    where a.id > b.id and a.table_name = 'cases' and a.entity_id = '00000000-0000-4000-a000-000000000208'
      and a.changed ? 'medical_order_valid_until'
    order by a.id limit 1),
-  ((now() at time zone 'Europe/Zurich')::date + 400)::text, 'the end date is recorded as {old, new}');
+  ((private.now() at time zone 'Europe/Zurich')::date + 400)::text, 'the end date is recorded as {old, new}');
 select is(
   (select a.changed -> 'medical_order_status' ->> 'old' from public.audit_events a, t_before b
    where a.id > b.id and a.table_name = 'cases' and a.entity_id = '00000000-0000-4000-a000-000000000208'
      and a.changed ? 'medical_order_status'
    order by a.id desc limit 1),
   'present', 'the status is recorded as {old, new}');
--- Both edits share this transaction's now(): read at now(), the order is the one before the first edit (the earliest
+-- Both edits share this transaction's private.now(): read at private.now(), the order is the one before the first edit (the earliest
 -- audited change at or after the instant holds it as `old`); read just after, it is the live order.
 select is(
-  (select o.valid_until from private.case_order_as_of('00000000-0000-4000-a000-000000000208', now()) o),
+  (select o.valid_until from private.case_order_as_of('00000000-0000-4000-a000-000000000208', private.now()) o),
   (select valid_until from t_before), 'case_order_as_of at the edit instant reads the end date before the edits');
 select is(
-  (select o.status from private.case_order_as_of('00000000-0000-4000-a000-000000000208', now()) o),
+  (select o.status from private.case_order_as_of('00000000-0000-4000-a000-000000000208', private.now()) o),
   (select status from t_before), 'case_order_as_of at the edit instant reads the status before the edits');
 select is(
   (select o.status from private.case_order_as_of('00000000-0000-4000-a000-000000000208',
-     now() + interval '1 second') o),
+     private.now() + interval '1 second') o),
   'requested', 'case_order_as_of after the edits reads the live order');
 
 -- (2) audit_events stays append-only, also for the table owner ---------------------------------------------------------

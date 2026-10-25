@@ -3,9 +3,9 @@
 -- Users: nurse …902 (registered nurse, Testteam Nord …101) · coach …901 (lifts holds) · ops …904 (intake edits).
 -- Case …208. All data synthetic. Every visit, report and fact goes through the real commands. Steps "as the table
 -- owner": the intake edits of the case's order and payer (the audit trigger records them whichever command writes
--- them), and dating those audit rows to the day they stand for (a test transaction has one `now()`), and, for the
+-- them), and dating those audit rows to the day they stand for (a test transaction has one `private.now()`), and, for the
 -- catch-up, making one fact look as if it was built before 0051.
--- Timeline (D = (now() at time zone 'Europe/Zurich')::date - 10, times 12:00 Europe/Zurich): D order `present` without an end date; visit a1 and c1 on
+-- Timeline (D = (private.now() at time zone 'Europe/Zurich')::date - 10, times 12:00 Europe/Zurich): D order `present` without an end date; visit a1 and c1 on
 -- D+1; D+3 the end date D+30 is entered; visit b1 on D+5; D+7 the end date is removed again; generation today.
 begin;
 create extension if not exists pgtap with schema extensions;
@@ -17,7 +17,7 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claim.sub', uid, true);
 $$;
 
-create temp table d0 as select ((now() at time zone 'Europe/Zurich')::date - 10) as d;
+create temp table d0 as select ((private.now() at time zone 'Europe/Zurich')::date - 10) as d;
 grant select on d0 to authenticated;
 create function pg_temp.day(k int) returns date language sql as $$ select d + k from d0 $$;
 create function pg_temp.noon(k int) returns timestamptz language sql as $$
@@ -82,7 +82,7 @@ declare r jsonb;
 begin
   perform public.start_visit(pg_temp.vid(n), pg_temp.key(1000 + k * 10 + 1));
   perform public.complete_visit(pg_temp.vid(n), pg_temp.key(1000 + k * 10 + 2));
-  perform public.correct_visit_time(pg_temp.started_event(n), now() - interval '30 minutes', 'Synthetisch: Start nachgetragen',
+  perform public.correct_visit_time(pg_temp.started_event(n), private.now() - interval '30 minutes', 'Synthetisch: Start nachgetragen',
                                     pg_temp.key(1000 + k * 10 + 5));
   r := public.create_report_draft(pg_temp.vid(n), 'Synthetisch: Verlauf ruhig', pg_temp.key(1000 + k * 10 + 3));
   perform public.sign_report((r ->> 'report_id')::uuid, pg_temp.shown_hash(n), pg_temp.key(1000 + k * 10 + 4));
@@ -154,7 +154,7 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select is(public.correct_report(pg_temp.latest_report('a1'), 'Synthetisch: Massnahme präzisiert', null, pg_temp.key(31)) ->> 'result',
   'ok', 'a1: the performer opens a correction');
-select is(public.correct_visit_time(pg_temp.started_event('a1'), now() - interval '40 minutes', 'Synthetisch: Start früher',
+select is(public.correct_visit_time(pg_temp.started_event('a1'), private.now() - interval '40 minutes', 'Synthetisch: Start früher',
                                     pg_temp.key(32)), 'ok', 'and corrects the start');
 select is(public.sign_report(pg_temp.latest_report('a1'), pg_temp.shown_hash('a1'), pg_temp.key(33)) ->> 'result', 'ok',
   'and signs: version 2 is final');
@@ -174,7 +174,7 @@ select ok(public.generate_billable_facts(pg_temp.vday('c1')) >= 1, 'c1: version 
 select is(public.set_quality_hold(pg_temp.vid('c1'), 'Synthetisch: Leistung strittig', pg_temp.key(41)), 'ok', 'c1: a hold is set');
 select is(public.correct_report(pg_temp.latest_report('c1'), 'Synthetisch: Start früher', null, pg_temp.key(42)) ->> 'result', 'ok',
   'during the hold a correction is opened');
-select is(public.correct_visit_time(pg_temp.started_event('c1'), now() - interval '45 minutes', 'Synthetisch: Start früher',
+select is(public.correct_visit_time(pg_temp.started_event('c1'), private.now() - interval '45 minutes', 'Synthetisch: Start früher',
                                     pg_temp.key(43)), 'ok', 'its time is corrected');
 select is(public.sign_report(pg_temp.latest_report('c1'), pg_temp.shown_hash('c1'), pg_temp.key(44)) ->> 'result', 'ok',
   'and signed during the hold');

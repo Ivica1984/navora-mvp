@@ -59,19 +59,19 @@ insert into public.team_memberships (team_id, user_id, qualification) values
 -- v1, v2: Nord (case 208); v2 is covered by …6702 of Mitte. v3: Mitte (case 205).
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status) values
   ('00000000-0000-4000-b000-000000000011', pg_temp.v(1), '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-   (now() at time zone 'Europe/Zurich')::date + 1, '06:10', '06:40', false, 'planned'),
+   (private.now() at time zone 'Europe/Zurich')::date + 1, '06:10', '06:40', false, 'planned'),
   ('00000000-0000-4000-b000-000000000011', pg_temp.v(2), '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-   (now() at time zone 'Europe/Zurich')::date + 1, '07:10', '07:40', false, 'planned'),
+   (private.now() at time zone 'Europe/Zurich')::date + 1, '07:10', '07:40', false, 'planned'),
   ('00000000-0000-4000-b000-000000000011', pg_temp.v(3), '00000000-0000-4000-a000-000000000205', '00000000-0000-4000-a000-000000000102',
-   (now() at time zone 'Europe/Zurich')::date + 1, '08:10', '08:40', false, 'planned');
-update public.care_visits set covered_by = pg_temp.u('cover'), covered_at = now(), cover_team_id = '00000000-0000-4000-a000-000000000102'
+   (private.now() at time zone 'Europe/Zurich')::date + 1, '08:10', '08:40', false, 'planned');
+update public.care_visits set covered_by = pg_temp.u('cover'), covered_at = private.now(), cover_team_id = '00000000-0000-4000-a000-000000000102'
 where id = pg_temp.v(2);
 
 insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, occurred_at) values
-  ('00000000-0000-4000-b000-000000000011', pg_temp.v(1), '00000000-0000-4000-a000-000000000101', 'departed', 'planned', 'on_the_way', pg_temp.u('rn'), now() - interval '50 minutes'),
-  ('00000000-0000-4000-b000-000000000011', pg_temp.v(1), '00000000-0000-4000-a000-000000000101', 'started', 'on_the_way', 'started', pg_temp.u('rn'), now() - interval '40 minutes'),
-  ('00000000-0000-4000-b000-000000000011', pg_temp.v(2), '00000000-0000-4000-a000-000000000101', 'departed', 'planned', 'on_the_way', pg_temp.u('ca'), now() - interval '30 minutes'),
-  ('00000000-0000-4000-b000-000000000011', pg_temp.v(3), '00000000-0000-4000-a000-000000000102', 'departed', 'planned', 'on_the_way', pg_temp.u('mitte'), now() - interval '20 minutes');
+  ('00000000-0000-4000-b000-000000000011', pg_temp.v(1), '00000000-0000-4000-a000-000000000101', 'departed', 'planned', 'on_the_way', pg_temp.u('rn'), private.now() - interval '50 minutes'),
+  ('00000000-0000-4000-b000-000000000011', pg_temp.v(1), '00000000-0000-4000-a000-000000000101', 'started', 'on_the_way', 'started', pg_temp.u('rn'), private.now() - interval '40 minutes'),
+  ('00000000-0000-4000-b000-000000000011', pg_temp.v(2), '00000000-0000-4000-a000-000000000101', 'departed', 'planned', 'on_the_way', pg_temp.u('ca'), private.now() - interval '30 minutes'),
+  ('00000000-0000-4000-b000-000000000011', pg_temp.v(3), '00000000-0000-4000-a000-000000000102', 'departed', 'planned', 'on_the_way', pg_temp.u('mitte'), private.now() - interval '20 minutes');
 insert into public.visit_time_corrections (organization_id, visit_id, team_id, event_id, corrected_at, reason, actor_id, idempotency_key)
 select e.organization_id, e.visit_id, e.team_id, e.id, e.occurred_at - interval '5 minutes', 'Synthetisch: RLS2 Korrekturgrund ' || e.visit_id,
        e.actor_id, pg_temp.k(e.id::int)
@@ -178,7 +178,7 @@ select is(pg_temp.as_user('rn', $$ select array_to_string(open_tasks, ',') from 
 update public.care_visits set covered_by = null, covered_at = null, cover_team_id = null where id = pg_temp.v(2);
 select is(pg_temp.n('cover', 've_v2'), 0, 'visit_events: 0 rows after the cover ends (withdrawn)');
 select is(pg_temp.n('cover', 'vtc_v2'), 0, 'visit_time_corrections: 0 rows after the cover ends');
-update public.care_visits set covered_by = pg_temp.u('cover'), covered_at = now(), cover_team_id = '00000000-0000-4000-a000-000000000102'
+update public.care_visits set covered_by = pg_temp.u('cover'), covered_at = private.now(), cover_team_id = '00000000-0000-4000-a000-000000000102'
 where id = pg_temp.v(2);
 delete from public.team_memberships where team_id = '00000000-0000-4000-a000-000000000102' and user_id = pg_temp.u('cover');
 select is(pg_temp.n('cover', 've_v2'), 0, 'visit_events: 0 rows once the covering member has left her cover team');
@@ -188,7 +188,7 @@ select is(pg_temp.n('cover', 've_v2'), 1, 'fixture: the cover is active again');
 insert into public.visit_reports (organization_id, visit_id, case_id, team_id, version, status, snapshot, performer_id,
                                   countersign_required, created_by, signed_by, signed_at)
 values ('00000000-0000-4000-b000-000000000011', pg_temp.v(2), '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-        1, 'final', '{}'::jsonb, pg_temp.u('rn'), false, pg_temp.u('rn'), pg_temp.u('rn'), now());
+        1, 'final', '{}'::jsonb, pg_temp.u('rn'), false, pg_temp.u('rn'), pg_temp.u('rn'), private.now());
 select is(pg_temp.n('cover', 've_v2'), 0, 'visit_events: 0 rows once the covered visit''s report is final');
 select is(pg_temp.n('cover', 'vtc_v2'), 0, 'visit_time_corrections: 0 rows once the covered visit''s report is final');
 select is(pg_temp.n('rn', 've_v2'), 1, 'visit_events: the team keeps reading the visit after its report is final');
@@ -216,11 +216,11 @@ select is((select string_agg((d ? 'reason')::text, ',') from private.matching_es
            jsonb_array_elements(m.declines) d where m.matching_request_id = pg_temp.v(10)), 'false,false',
   'RLS2-3: the internal escalation reader carries no decline free text either');
 select is(pg_temp.as_user('mitte', format($$ select count(*)::text from public.field_visits(%L::date) where visit_id in (%L, %L) $$,
-                                              (now() at time zone 'Europe/Zurich')::date + 1, pg_temp.v(1), pg_temp.v(2))), '0',
+                                              (private.now() at time zone 'Europe/Zurich')::date + 1, pg_temp.v(1), pg_temp.v(2))), '0',
   'RLS2-3: field_visits shows Mitte no Nord visit, hence no Nord correction reason');
 select is(pg_temp.as_user('rn', format($$ select e ->> 'reason' from public.field_visits(%L::date) f, jsonb_array_elements(f.events) e
                                            where f.visit_id = %L and e ->> 'type' = 'departed' $$,
-                                           (now() at time zone 'Europe/Zurich')::date + 1, pg_temp.v(1))),
+                                           (private.now() at time zone 'Europe/Zurich')::date + 1, pg_temp.v(1))),
   'Synthetisch: RLS2 Korrekturgrund ' || pg_temp.v(1), 'RLS2-3: the team itself still sees its correction reason on /field (unchanged)');
 -- Every function that reads the two reason columns is on a fixed list (READ_PATHS.md decides each one).
 select is((select string_agg(n.nspname || '.' || p.proname, ',' order by n.nspname, p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
@@ -233,10 +233,10 @@ select is((select string_agg(n.nspname || '.' || p.proname, ',' order by n.nspna
 
 -- RLS2-4: no per-person day for others -----------------------------------------------------------------------------------
 select is(pg_temp.as_user('ca', format($$ select string_agg(e ->> 'type', ',' order by e ->> 'type') from public.field_visits(%L::date) f, jsonb_array_elements(f.events) e
-                                           where f.visit_id = %L $$, (now() at time zone 'Europe/Zurich')::date + 1, pg_temp.v(1))),
+                                           where f.visit_id = %L $$, (private.now() at time zone 'Europe/Zurich')::date + 1, pg_temp.v(1))),
   'departed,started', 'RLS2-4: a member of the same team sees the visit''s status times (care coordination)');
 select is(pg_temp.as_user('ca', format($$ select count(*)::text from public.field_visits(%L::date) f, jsonb_array_elements(f.events) e
-                                           where f.visit_id = %L and (e ? 'actor_id' or e ? 'actor') $$, (now() at time zone 'Europe/Zurich')::date + 1, pg_temp.v(1))),
+                                           where f.visit_id = %L and (e ? 'actor_id' or e ? 'actor') $$, (private.now() at time zone 'Europe/Zurich')::date + 1, pg_temp.v(1))),
   '0', 'RLS2-4: … without who recorded them');
 select is((select string_agg(distinct p.proname, ',' order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace,
                   unnest(p.proargnames, p.proargmodes) a(nm, md)
@@ -250,8 +250,8 @@ select is((select string_agg(distinct p.proname, ',' order by p.proname) from pg
   'field_visits,pilot_hypotheses,pilot_kpis', 'RLS2-4: the readers of visit events are the team''s day view and the AN1/AN2 team measures');
 
 -- RLS2-5: further organisation-wide path narrowed: uncovered_visits() -----------------------------------------------------
-update public.care_visits set visit_date = (now() at time zone 'Europe/Zurich' + interval '2 hours')::date,
-                              time_start = (now() at time zone 'Europe/Zurich' + interval '2 hours')::time(0),
+update public.care_visits set visit_date = ((private.now() + interval '2 hours') at time zone 'Europe/Zurich')::date,
+                              time_start = ((private.now() + interval '2 hours') at time zone 'Europe/Zurich')::time(0),
                               time_end = null, covered_by = null, covered_at = null, cover_team_id = null
 where id = pg_temp.v(2);
 select is(pg_temp.as_user('ops', format($$ select count(*)::text from public.uncovered_visits() where visit_id = %L $$, pg_temp.v(2))), '1',
@@ -268,7 +268,7 @@ select is(pg_temp.as_user('mitte', format($$ select count(*)::text from public.r
   'RLS2-7: report_returns with Nord''s visit id returns nothing to Mitte');
 select is(pg_temp.as_user('mitte', format($$ select count(*)::text from public.linkable_cases(%L) $$, pg_temp.v(10))), '0',
   'RLS2-7: linkable_cases returns nothing to a nurse');
-select is(pg_temp.as_user('mitte', format($$ select public.correct_visit_time((select min(id) from public.visit_events where visit_id = %L) , now(), 'Synthetisch: fremd', %L) $$,
+select is(pg_temp.as_user('mitte', format($$ select public.correct_visit_time((select min(id) from public.visit_events where visit_id = %L) , private.now(), 'Synthetisch: fremd', %L) $$,
                                              pg_temp.v(1), pg_temp.k(500))), 'rejected',
   'RLS2-7: Mitte cannot correct a Nord event');
 select is(pg_temp.as_user('mitte', format($$ select public.complete_case_task('00000000-0000-4000-a000-000000000208', 'review_after_pause', %L) $$, pg_temp.k(501))),
@@ -277,9 +277,9 @@ select is(pg_temp.as_user('mitte', format($$ select public.complete_case_task('0
 -- cra 22:26 (PR #321): after the narrowing, a no-show and an overdue visit of Nord still reach Operations ------------------
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status, responsible_user_id) values
   ('00000000-0000-4000-b000-000000000011', pg_temp.v(4), '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-   (now() at time zone 'Europe/Zurich' - interval '3 hours')::date, (now() at time zone 'Europe/Zurich' - interval '3 hours')::time(0), null, false, 'planned', pg_temp.u('rn')),
+   ((private.now() - interval '3 hours') at time zone 'Europe/Zurich')::date, ((private.now() - interval '3 hours') at time zone 'Europe/Zurich')::time(0), null, false, 'planned', pg_temp.u('rn')),
   ('00000000-0000-4000-b000-000000000011', pg_temp.v(5), '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-   (now() at time zone 'Europe/Zurich' + interval '1 day')::date, '09:30', '10:00', false, 'planned', pg_temp.u('rn'));
+   ((private.now() + interval '1 day') at time zone 'Europe/Zurich')::date, '09:30', '10:00', false, 'planned', pg_temp.u('rn'));
 select is(pg_temp.as_user('rn', format($$ select public.depart_visit(%L, %L) $$, pg_temp.v(5), pg_temp.k(600))), 'ok', 'fixture: on the way');
 select is(pg_temp.as_user('rn', format($$ select public.record_no_show(%L, 'Synthetisch: niemand öffnet', %L) $$, pg_temp.v(5), pg_temp.k(601))), 'ok',
   'fixture: no-show recorded');
@@ -301,7 +301,7 @@ grant select on nord_visits to authenticated;
 create temp table sweep (call text primary key);
 grant select on sweep to authenticated;
 insert into sweep
-select format(c, (now() at time zone 'Europe/Zurich')::date + d)
+select format(c, (private.now() at time zone 'Europe/Zurich')::date + d)
 from unnest(array['public.field_visits(%L)', 'public.field_notes(%L)', 'public.field_quality(%L)', 'public.field_reports(%L)',
                   'public.field_since_last(%L)', 'public.field_visit_status_notes(%L)', 'public.team_open_visits(%L)']) c,
      unnest(array[0, 1]) d
@@ -310,10 +310,10 @@ select unnest(array['public.field_countersign_queue()', 'public.field_returned_r
                     'public.team_plan_status()', 'public.team_visit_alerts()', 'public.my_covers()', 'public.my_signals()', 'public.cover_offers()',
                     'public.final_report_visits()', 'public.uncovered_visits()', 'public.intake_cases()', 'public.ops_case_lifecycle()',
                     'public.operations_exceptions()', 'public.matching_escalations()', 'public.team_offers()',
-                    format('public.continuity_by_case(%L)', date_trunc('month', now() at time zone 'Europe/Zurich')::date),
-                    format('public.pilot_kpis(%L)', date_trunc('month', now() at time zone 'Europe/Zurich')::date),
-                    format('public.pilot_hypotheses(%L)', date_trunc('month', now() at time zone 'Europe/Zurich')::date),
-                    format('public.billing_preview(%L)', date_trunc('month', now() at time zone 'Europe/Zurich')::date),
+                    format('public.continuity_by_case(%L)', date_trunc('month', private.now() at time zone 'Europe/Zurich')::date),
+                    format('public.pilot_kpis(%L)', date_trunc('month', private.now() at time zone 'Europe/Zurich')::date),
+                    format('public.pilot_hypotheses(%L)', date_trunc('month', private.now() at time zone 'Europe/Zurich')::date),
+                    format('public.billing_preview(%L)', date_trunc('month', private.now() at time zone 'Europe/Zurich')::date),
                     format('public.case_funding_facts(%L)', '00000000-0000-4000-a000-000000000208'),
                     format('public.report_returns(%L)', pg_temp.v(1)), format('public.linkable_cases(%L)', pg_temp.v(10))]);
 create function pg_temp.nord_rows(p_call text) returns text language sql as $$
@@ -323,7 +323,7 @@ create function pg_temp.nord_rows(p_call text) returns text language sql as $$
                       or (to_jsonb(x) ->> 'visit_id')::uuid in (select id from nord_visits) $q$, p_call) $$;
 select is(pg_temp.as_user('mitte', pg_temp.nord_rows(call)), '0', 'RLS2-7 sweep: ' || call || ' returns no row of Nord to Mitte')
 from sweep order by call;
-select ok(pg_temp.as_user('rn', pg_temp.nord_rows(format('public.field_visits(%L)', (now() at time zone 'Europe/Zurich')::date + 1)))::int > 0,
+select ok(pg_temp.as_user('rn', pg_temp.nord_rows(format('public.field_visits(%L)', (private.now() at time zone 'Europe/Zurich')::date + 1)))::int > 0,
   'sweep control: field_visits returns Nord''s rows to Nord');
 select ok(pg_temp.as_user('rn', pg_temp.nord_rows('public.team_cases()'))::int > 0, 'sweep control: team_cases returns Nord''s case to Nord');
 select ok(pg_temp.as_user('ops', pg_temp.nord_rows('public.operations_exceptions()'))::int > 0,

@@ -21,7 +21,7 @@ create function pg_temp.at(d date, t time) returns timestamptz language sql immu
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
                         created_at, updated_at, confirmation_token, recovery_token, email_change_token_new, email_change)
 select '00000000-0000-0000-0000-000000000000', pg_temp.id(p), 'authenticated', 'authenticated', p || '.an2p3@navora.test', '',
-       now(), '{}', '{}', now(), now(), '', '', '', ''
+       private.now(), '{}', '{}', private.now(), private.now(), '', '', '', ''
 from unnest(array['p1', 'p2', 'p3']) p;
 
 insert into public.teams (organization_id, id, name, region, status) values
@@ -35,7 +35,7 @@ begin
   insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status,
                                   responsible_user_id, created_at)
   values ('00000000-0000-4000-b000-000000000012', pg_temp.id(p_id), '00000000-0000-4000-a000-000000000251',
-          pg_temp.id('t3'), p_date, '08:00', '09:00', false, p_status, pg_temp.id(p_resp), coalesce(p_created, now()));
+          pg_temp.id('t3'), p_date, '08:00', '09:00', false, p_status, pg_temp.id(p_resp), coalesce(p_created, private.now()));
   for i in 1 .. coalesce(array_length(p_events, 1), 0) loop
     insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, occurred_at)
     values ('00000000-0000-4000-b000-000000000012', pg_temp.id(p_id), pg_temp.id('t3'), p_events[i][1], p_events[i][2],

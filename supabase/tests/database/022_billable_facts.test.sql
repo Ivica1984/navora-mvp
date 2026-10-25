@@ -22,7 +22,7 @@ select is((select amount from public.tariff_rates where region = 'CH' and payer 
   'federal insurer rate A on file, with version and source');
 select is((select count(*)::int from public.tariff_rates where payer in ('patient', 'residual')), 0,
   'no cantonal patient or residual rates are invented (D-11)');
-select is(private.min_billable_minutes('BE', (now() at time zone 'Europe/Zurich')::date), 10, 'minimum billable minutes come from reference data');
+select is(private.min_billable_minutes('BE', (private.now() at time zone 'Europe/Zurich')::date), 10, 'minimum billable minutes come from reference data');
 select ok(not has_function_privilege('anon', 'public.generate_billable_facts(date)', 'execute'), 'anon cannot generate facts');
 
 -- Fixtures (as owner) -------------------------------------------------------------------------------------------
@@ -32,9 +32,9 @@ update public.cases set insurer_name = 'Testkasse', insurance_type = 'KVG', resi
 update public.care_visits set planned_minutes_a = 20, planned_minutes_c = 15 where id = '00000000-0000-4000-a000-000000000501';
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status, planned_minutes_c, planned_minutes_b) values
   ('00000000-0000-4000-b000-000000000011', 'ac000000-0000-4000-8000-0000000000aa', '00000000-0000-4000-a000-000000000208',
-   '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich')::date, '16:00', '16:30', false, 'planned', 30, 0),
+   '00000000-0000-4000-a000-000000000101', (private.now() at time zone 'Europe/Zurich')::date, '16:00', '16:30', false, 'planned', 30, 0),
   ('00000000-0000-4000-b000-000000000011', 'ac000000-0000-4000-8000-0000000000bb', '00000000-0000-4000-a000-000000000208',
-   '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich')::date, '17:00', '17:30', false, 'planned', 0, 20);
+   '00000000-0000-4000-a000-000000000101', (private.now() at time zone 'Europe/Zurich')::date, '17:00', '17:30', false, 'planned', 0, 20);
 
 -- The nurse runs three visits; visit 501 had 30 minutes of care (start corrected, F3)
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
@@ -43,13 +43,13 @@ do $$ begin
   perform public.start_visit('00000000-0000-4000-a000-000000000501', 'ac000000-0000-4000-8000-000000000001');
   perform public.complete_visit('00000000-0000-4000-a000-000000000501', 'ac000000-0000-4000-8000-000000000002');
   perform public.correct_visit_time((select id from public.visit_events where visit_id = '00000000-0000-4000-a000-000000000501' and event_type = 'started'),
-    now() - interval '30 minutes', 'Start zu spät getippt', 'ac000000-0000-4000-8000-000000000003');
+    private.now() - interval '30 minutes', 'Start zu spät getippt', 'ac000000-0000-4000-8000-000000000003');
   perform public.start_visit('ac000000-0000-4000-8000-0000000000aa', 'ac000000-0000-4000-8000-000000000004');
   perform public.complete_visit('ac000000-0000-4000-8000-0000000000aa', 'ac000000-0000-4000-8000-000000000005');
   perform public.start_visit('ac000000-0000-4000-8000-0000000000bb', 'ac000000-0000-4000-8000-000000000006');
   perform public.complete_visit('ac000000-0000-4000-8000-0000000000bb', 'ac000000-0000-4000-8000-000000000007');
 end $$;
-select is(public.generate_billable_facts((now() at time zone 'Europe/Zurich')::date), 0, 'no fact without a final report');
+select is(public.generate_billable_facts((private.now() at time zone 'Europe/Zurich')::date), 0, 'no fact without a final report');
 
 do $$ declare r jsonb; begin
   r := public.create_report_draft('00000000-0000-4000-a000-000000000501', null, 'ac000000-0000-4000-8000-000000000010');
@@ -61,8 +61,8 @@ do $$ declare r jsonb; begin
   perform public.sign_report((r ->> 'report_id')::uuid, pg_temp.shown_hash((r ->> 'report_id')::uuid), 'ac000000-0000-4000-8000-000000000016');
 end $$;
 
-select is(public.generate_billable_facts((now() at time zone 'Europe/Zurich')::date), 2, 'facts for final reports without a hold (the held visit gets none)');
-select is(public.generate_billable_facts((now() at time zone 'Europe/Zurich')::date), 0, 'generation is idempotent');
+select is(public.generate_billable_facts((private.now() at time zone 'Europe/Zurich')::date), 2, 'facts for final reports without a hold (the held visit gets none)');
+select is(public.generate_billable_facts((private.now() at time zone 'Europe/Zurich')::date), 0, 'generation is idempotent');
 select is((select count(*)::int from public.billable_facts where visit_id = 'ac000000-0000-4000-8000-0000000000aa'), 0,
   'a visit with an open quality hold never becomes a fact');
 
@@ -88,12 +88,12 @@ select ok((select care_minutes between 29 and 31 and performer_id = '00000000-00
 
 -- Preview ------------------------------------------------------------------------------------------------------------------
 select ok((select minutes_a = 17.14 and minutes_c = 12.86 and insurer_chf = 33.24 and insurer_complete
-           from public.billing_preview((now() at time zone 'Europe/Zurich')::date) where team_id = '00000000-0000-4000-a000-000000000101'),
+           from public.billing_preview((private.now() at time zone 'Europe/Zurich')::date) where team_id = '00000000-0000-4000-a000-000000000101'),
   'the preview uses billable minutes (17.14×76.90/60 + 12.86×52.60/60), never more than measured');
-select ok((select not patient_on_file and not residual_on_file from public.billing_preview((now() at time zone 'Europe/Zurich')::date)
+select ok((select not patient_on_file and not residual_on_file from public.billing_preview((private.now() at time zone 'Europe/Zurich')::date)
            where team_id = '00000000-0000-4000-a000-000000000101'), 'patient and residual shares are marked as not on file');
 select ok((select not_billable @> '[{"reasons": ["quality_hold"]}]'::jsonb and not_billable @> '[{"reasons": ["b_without_valid_order"]}]'::jsonb
-           from public.billing_preview((now() at time zone 'Europe/Zurich')::date) where team_id = '00000000-0000-4000-a000-000000000101'),
+           from public.billing_preview((private.now() at time zone 'Europe/Zurich')::date) where team_id = '00000000-0000-4000-a000-000000000101'),
   'every non-billable visit is listed with its reason');
 reset role;
 
@@ -108,11 +108,11 @@ do $$ declare r jsonb; begin
                              'Leistung ergänzt', null, 'ac000000-0000-4000-8000-000000000020');
   perform public.sign_report((r ->> 'report_id')::uuid, pg_temp.shown_hash((r ->> 'report_id')::uuid), 'ac000000-0000-4000-8000-000000000021');
 end $$;
-select is(public.generate_billable_facts((now() at time zone 'Europe/Zurich')::date), 1, 'the corrected report yields a new fact');
+select is(public.generate_billable_facts((private.now() at time zone 'Europe/Zurich')::date), 1, 'the corrected report yields a new fact');
 select is((select count(*)::int from public.billable_facts f where f.visit_id = '00000000-0000-4000-a000-000000000501'
            and f.supersedes_id = (select o.id from public.billable_facts o where o.visit_id = f.visit_id and o.supersedes_id is null)), 1,
   'the new fact references the old one');
-select is((select billable_visits from public.billing_preview((now() at time zone 'Europe/Zurich')::date) where team_id = '00000000-0000-4000-a000-000000000101'), 1,
+select is((select billable_visits from public.billing_preview((private.now() at time zone 'Europe/Zurich')::date) where team_id = '00000000-0000-4000-a000-000000000101'), 1,
   'the preview counts only the latest fact per visit');
 reset role;
 
@@ -120,7 +120,7 @@ reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 do $$ begin perform public.set_quality_hold('00000000-0000-4000-a000-000000000501', 'Nachträglich strittig', 'ac000000-0000-4000-8000-000000000030'); end $$;
-select is((select billable_visits from public.billing_preview((now() at time zone 'Europe/Zurich')::date) where team_id = '00000000-0000-4000-a000-000000000101'), 0,
+select is((select billable_visits from public.billing_preview((private.now() at time zone 'Europe/Zurich')::date) where team_id = '00000000-0000-4000-a000-000000000101'), 0,
   'a hold set later stops the visit from counting');
 reset role;
 
@@ -135,21 +135,21 @@ select ok((select count(*) from public.billable_facts) >= 3, 'operations (intake
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
 set local role authenticated;
-select is((select count(*)::int from public.billable_facts) + (select count(*)::int from public.billing_preview((now() at time zone 'Europe/Zurich')::date)
+select is((select count(*)::int from public.billable_facts) + (select count(*)::int from public.billing_preview((private.now() at time zone 'Europe/Zurich')::date)
            where team_id = '00000000-0000-4000-a000-000000000101'), 0, 'another organisation sees nothing');
 reset role;
 
 -- Above plan, and a legacy (J5-v1) fact recalculated as a new fact (current rule J5-v3, CSR1 0043) ---------------------
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status, planned_minutes_a)
 values ('00000000-0000-4000-b000-000000000011', 'ac000000-0000-4000-8000-0000000000cc', '00000000-0000-4000-a000-000000000208',
-        '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich')::date, '18:00', '18:15', false, 'planned', 10);
+        '00000000-0000-4000-a000-000000000101', (private.now() at time zone 'Europe/Zurich')::date, '18:00', '18:15', false, 'planned', 10);
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 do $$ declare r jsonb; begin
   perform public.start_visit('ac000000-0000-4000-8000-0000000000cc', 'ac000000-0000-4000-8000-000000000040');
   perform public.complete_visit('ac000000-0000-4000-8000-0000000000cc', 'ac000000-0000-4000-8000-000000000041');
   perform public.correct_visit_time((select id from public.visit_events where visit_id = 'ac000000-0000-4000-8000-0000000000cc' and event_type = 'started'),
-    now() - interval '30 minutes', 'Start zu spät getippt', 'ac000000-0000-4000-8000-000000000042');
+    private.now() - interval '30 minutes', 'Start zu spät getippt', 'ac000000-0000-4000-8000-000000000042');
   r := public.create_report_draft('ac000000-0000-4000-8000-0000000000cc', null, 'ac000000-0000-4000-8000-000000000043');
   perform public.sign_report((r ->> 'report_id')::uuid, pg_temp.shown_hash((r ->> 'report_id')::uuid), 'ac000000-0000-4000-8000-000000000044');
 end $$;
@@ -163,7 +163,7 @@ from public.care_visits v join public.visit_reports r on r.visit_id = v.id and r
 where v.id = 'ac000000-0000-4000-8000-0000000000cc';
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is(public.generate_billable_facts((now() at time zone 'Europe/Zurich')::date), 1, 'a fact from the old rule is recalculated once');
+select is(public.generate_billable_facts((private.now() at time zone 'Europe/Zurich')::date), 1, 'a fact from the old rule is recalculated once');
 reset role;
 select ok((select f.rule_version = 'J5-v3' and f.billable_minutes_a = 10 and 'above_plan' = any (f.warnings)
                   and f.supersedes_id = (select o.id from public.billable_facts o where o.visit_id = f.visit_id and o.rule_version = 'J5-v1')

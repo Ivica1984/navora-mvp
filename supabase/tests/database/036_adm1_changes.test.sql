@@ -39,25 +39,25 @@ insert into public.care_visits (id, organization_id, case_id, team_id, visit_dat
 select f.id, '00000000-0000-4000-b000-000000000011', x.case_id, x.team_id, x.d, x.t, x.status, x.who, x.susp
 from fx f join (values
   ('near',      '00000000-0000-4000-a000-000000000208'::uuid, '00000000-0000-4000-a000-000000000101'::uuid,
-                ((now() + interval '2 hours') at time zone 'Europe/Zurich')::date,
-                date_trunc('minute', ((now() + interval '2 hours') at time zone 'Europe/Zurich'))::time,
+                ((private.now() + interval '2 hours') at time zone 'Europe/Zurich')::date,
+                date_trunc('minute', ((private.now() + interval '2 hours') at time zone 'Europe/Zurich'))::time,
                 'planned', '00000000-0000-4000-a000-000000000906'::uuid, null::timestamptz),
   ('later',     '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-                (now() at time zone 'Europe/Zurich')::date + 3, time '09:00', 'planned', '00000000-0000-4000-a000-000000000906', null),
+                (private.now() at time zone 'Europe/Zurich')::date + 3, time '09:00', 'planned', '00000000-0000-4000-a000-000000000906', null),
   ('started',   '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-                (now() at time zone 'Europe/Zurich')::date, time '07:00', 'started', '00000000-0000-4000-a000-000000000906', null),
+                (private.now() at time zone 'Europe/Zurich')::date, time '07:00', 'started', '00000000-0000-4000-a000-000000000906', null),
   ('past',      '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-                (now() at time zone 'Europe/Zurich')::date - 1, time '09:00', 'planned', '00000000-0000-4000-a000-000000000906', null),
+                (private.now() at time zone 'Europe/Zurich')::date - 1, time '09:00', 'planned', '00000000-0000-4000-a000-000000000906', null),
   ('completed', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-                (now() at time zone 'Europe/Zurich')::date, time '06:00', 'completed', '00000000-0000-4000-a000-000000000906', null),
+                (private.now() at time zone 'Europe/Zurich')::date, time '06:00', 'completed', '00000000-0000-4000-a000-000000000906', null),
   ('otw',       '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-                (now() at time zone 'Europe/Zurich')::date, time '07:30', 'on_the_way', '00000000-0000-4000-a000-000000000906', null),
+                (private.now() at time zone 'Europe/Zurich')::date, time '07:30', 'on_the_way', '00000000-0000-4000-a000-000000000906', null),
   ('paused',    '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-                (now() at time zone 'Europe/Zurich')::date, time '07:45', 'paused', '00000000-0000-4000-a000-000000000906', null),
+                (private.now() at time zone 'Europe/Zurich')::date, time '07:45', 'paused', '00000000-0000-4000-a000-000000000906', null),
   ('other',     '00000000-0000-4000-a000-000000000210', '00000000-0000-4000-a000-000000000102',
-                (now() at time zone 'Europe/Zurich')::date + 2, time '09:00', 'planned', '00000000-0000-4000-a000-000000000906', null),
+                (private.now() at time zone 'Europe/Zurich')::date + 2, time '09:00', 'planned', '00000000-0000-4000-a000-000000000906', null),
   ('rn',        '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-                (now() at time zone 'Europe/Zurich')::date + 1, time '10:00', 'planned', '00000000-0000-4000-a000-000000000902', null)
+                (private.now() at time zone 'Europe/Zurich')::date + 1, time '10:00', 'planned', '00000000-0000-4000-a000-000000000902', null)
 ) as x(name, case_id, team_id, d, t, status, who, susp) on x.name = f.name;
 
 create function pg_temp.resp(n text) returns uuid language sql as $$
@@ -202,8 +202,8 @@ insert into public.visit_reports (organization_id, visit_id, case_id, team_id, v
                                   countersign_required, created_by, signed_by, signed_at, countersigned_by, countersigned_at)
 values ('00000000-0000-4000-b000-000000000011', (select id from fx where name = 'started'), '00000000-0000-4000-a000-000000000208',
         '00000000-0000-4000-a000-000000000101', 1, 'final', '{}', '00000000-0000-4000-a000-000000000902', true,
-        '00000000-0000-4000-a000-000000000902', '00000000-0000-4000-a000-000000000902', now(),
-        '00000000-0000-4000-a000-000000000906', now());
+        '00000000-0000-4000-a000-000000000902', '00000000-0000-4000-a000-000000000902', private.now(),
+        '00000000-0000-4000-a000-000000000906', private.now());
 insert into public.quality_events (organization_id, visit_id, case_id, team_id, event_type, severity, title, author_id) values
   ('00000000-0000-4000-b000-000000000011', (select id from fx where name = 'started'), '00000000-0000-4000-a000-000000000208',
    '00000000-0000-4000-a000-000000000101', 'other', 'low', 'Testereignis A', '00000000-0000-4000-a000-000000000902'),
@@ -212,15 +212,15 @@ insert into public.quality_events (organization_id, visit_id, case_id, team_id, 
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is((select signed_by_name from public.field_reports((now() at time zone 'Europe/Zurich')::date)
+select is((select signed_by_name from public.field_reports((private.now() at time zone 'Europe/Zurich')::date)
            where visit_id = (select id from fx where name = 'started')), 'Anna Muster',
   'the report shows the signer''s display name');
-select is((select countersigned_by_name from public.field_reports((now() at time zone 'Europe/Zurich')::date)
+select is((select countersigned_by_name from public.field_reports((private.now() at time zone 'Europe/Zurich')::date)
            where visit_id = (select id from fx where name = 'started')), null,
   'without a profile in this organisation the countersigner''s name is null (neutral label), never another organisation''s');
-select is((select person_name from public.field_quality((now() at time zone 'Europe/Zurich')::date) where label = 'Testereignis A'),
+select is((select person_name from public.field_quality((private.now() at time zone 'Europe/Zurich')::date) where label = 'Testereignis A'),
   'Anna Muster', 'the quality event shows the author''s display name');
-select is((select person_name from public.field_quality((now() at time zone 'Europe/Zurich')::date) where label = 'Testereignis B'),
+select is((select person_name from public.field_quality((private.now() at time zone 'Europe/Zurich')::date) where label = 'Testereignis B'),
   null, 'an author without a profile here has no name, never another organisation''s');
 reset role;
 

@@ -87,7 +87,7 @@ select is((select count(*)::int from public.cases where last_name = 'Person J1')
 -- Completing the intake ------------------------------------------------------------------------
 create temp table r2 as
   select public.update_case_intake((select id from public.cases where last_name = 'Person J1'),
-           jsonb_build_object('insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (now() at time zone 'Europe/Zurich')::date + 2,
+           jsonb_build_object('insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (private.now() at time zone 'Europe/Zurich')::date + 2,
                               'medical_order_status', 'requested', 'gp_named', true),
            'a1000000-0000-4000-8000-000000000020') as res;
 select is((select (res ->> 'ready')::boolean from r2), true, 'with all blocking facts the case is ready');

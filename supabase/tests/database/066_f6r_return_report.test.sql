@@ -45,12 +45,12 @@ insert into fx values
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status,
                                 planned_minutes_a, planned_minutes_b, planned_minutes_c, responsible_user_id)
 select '00000000-0000-4000-b000-000000000011', f.id, '00000000-0000-4000-a000-000000000208',
-       '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich')::date, f.t, f.t + interval '30 minutes',
+       '00000000-0000-4000-a000-000000000101', (private.now() at time zone 'Europe/Zurich')::date, f.t, f.t + interval '30 minutes',
        false, 'planned', 20, 0, 10, f.resp
 from fx f;
 
 create function pg_temp.vid(n text) returns uuid language sql as $$ select id from fx where name = n $$;
-create function pg_temp.today() returns date language sql as $$ select (now() at time zone 'Europe/Zurich')::date $$;
+create function pg_temp.today() returns date language sql as $$ select (private.now() at time zone 'Europe/Zurich')::date $$;
 create function pg_temp.report_v(n text, v int) returns public.visit_reports language sql security definer as $$
   select r.* from public.visit_reports r where r.visit_id = pg_temp.vid(n) and r.version = v $$;
 create function pg_temp.shown(n text) returns jsonb language sql as $$
@@ -228,7 +228,7 @@ select public.generate_billable_facts(pg_temp.today());
 select is((select count(*)::int from public.billable_facts where visit_id = pg_temp.vid('r1')), 0, 'a returned report produces no billing fact');
 
 -- F6R-3: only the performer changes the content ------------------------------------------------------------------------
-select is(public.correct_visit_time(pg_temp.started_event('r1'), now() - interval '20 minutes', 'Synthetisch: vom Rückgebenden',
+select is(public.correct_visit_time(pg_temp.started_event('r1'), private.now() - interval '20 minutes', 'Synthetisch: vom Rückgebenden',
                                     pg_temp.k(130)), 'rejected', 'the returner cannot correct a time');
 select is(public.record_observation(pg_temp.vid('r1'), 'Synthetisch: vom Rückgebenden', false, null, pg_temp.k(131)), 'rejected',
   'nor record an observation');
@@ -239,7 +239,7 @@ select is(public.sign_report((pg_temp.report_v('r1', 2)).id, pg_temp.shown('r1')
 select is(public.countersign_report((pg_temp.report_v('r1', 1)).id, pg_temp.k(134)) ->> 'reason', 'not_latest',
   'the returned version can no longer be countersigned');
 select pg_temp.act_as(pg_temp.u('ca2'));
-select is(public.correct_visit_time(pg_temp.started_event('r1'), now() - interval '20 minutes', 'Synthetisch: von Kollegin',
+select is(public.correct_visit_time(pg_temp.started_event('r1'), private.now() - interval '20 minutes', 'Synthetisch: von Kollegin',
                                     pg_temp.k(135)), 'rejected', 'a colleague cannot correct a time either');
 reset role;
 select is((select count(*)::int from public.visit_time_corrections where visit_id = pg_temp.vid('r1')), 0, 'nothing written');
@@ -253,7 +253,7 @@ select is(public.remove_team_member('00000000-0000-4000-a000-000000000101', pg_t
 select pg_temp.act_as(pg_temp.u('ca'));
 select is(public.withdraw_report_correction((pg_temp.report_v('r1', 2)).id, pg_temp.k(137)) ->> 'reason', 'returned_report',
   'the performer cannot withdraw the returned draft');
-select is(public.correct_visit_time(pg_temp.started_event('r1'), now() - interval '20 minutes', 'Synthetisch: Start war früher',
+select is(public.correct_visit_time(pg_temp.started_event('r1'), private.now() - interval '20 minutes', 'Synthetisch: Start war früher',
                                     pg_temp.k(138)), 'ok', 'the performer corrects the time');
 
 -- F6R-4: an observation already visible changes only through a new row -----------------------------------------------

@@ -15,12 +15,12 @@ create extension if not exists pgtap with schema extensions;
 select plan(22);
 
 create temp view org_a_cases as
-  select *, floor(extract(epoch from (now() - created_at)) / 3600)::int as hours_open
+  select *, floor(extract(epoch from (private.now() - created_at)) / 3600)::int as hours_open
   from public.cases where organization_id = '00000000-0000-4000-b000-000000000011';
 create temp view org_a_teams as
   select * from public.teams where organization_id = '00000000-0000-4000-b000-000000000011';
 create temp view org_a_partner as
-  select *, floor(extract(epoch from (now() - created_at)) / 3600)::int as hours_open
+  select *, floor(extract(epoch from (private.now() - created_at)) / 3600)::int as hours_open
   from public.partner_requests where organization_id = '00000000-0000-4000-b000-000000000011';
 
 -- ── capacity (teams) ───────────────────────────────────────────────────────────

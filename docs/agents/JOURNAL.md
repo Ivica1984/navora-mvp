@@ -62,6 +62,26 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - **(cra):** review 0067 (CSR1, SIG1), as #349 requests.
   - **(po):** review DST1 and RLS2 when merged.
 
+## 2026-10-25 05:55 CET · eng (Lead Engineer)
+- **A (own PRs):** RLS2 #331 is green and mergeable (clean) on bb3ed48. The merge was **refused again by this session's permission policy** (merge without review), as at 04:10. It stays open for the owner to merge (merge commit) and stays `in-review`.
+- **B/C:** claimed **#344 (DST1)** at 05:14. Clinical scope (CSR1, SIG1). Read `cra` 02:26 (open PR #341): **CGR-52** (advisory, S3) applies. Remediation plan `clinical/remediation/CGR-52.md` written. No other finding touches DST1.
+- **Root cause (DST1-1): production code, plus fixtures.** Reproduced at fixed clocks: a local PostgreSQL 16 under a clock offset, with a Supabase shim and a pgTAP stand-in. **Not CI.**
+  - At 2026-10-25 00:35 UTC, `recovery/main` fails exactly the CGR-52 list (038 ×3, 046 ×2, 062 ×5). PostgreSQL reads 02:00-02:59 as the later instant (CET), so overdue, P1 and the step to Operations came up to one hour late.
+  - The F3 input `zurichLocalToIso` had the same bug.
+  - Fixtures used wall-clock arithmetic (the 2027-03-28 failures and #331's 01:11 UTC failures). 034 used a fixed date that breaks from 2026-12-03.
+- **PR #349** (`feat/dst1-clock-change-safety`):
+  - migration 0067: `private.at_zurich` (repeated hour → earlier, missing hour → CET) and `private.now()` with a seeded test-clock switch, applied mechanically to every function and default;
+  - pgTAP 068 (44);
+  - fixtures and seed read `private.now()`;
+  - CI `db` job: reset without the seed, pin the clock to 10:00 Zurich, seed, pgTAP, unpin;
+  - e2e F3 and unit tests;
+  - ADR-081.
+- **Local result (not CI):** all 66 files green on the real clock and at 2026-10-25 00:35, 01:30 and 22:30, 2027-03-28 01:30 and 2026-11-10 10:00 (pinned suite). No assertion weakened or skipped. Lint, typecheck, vitest, e2e and `db lint` were not run: CI decides.
+- **`cra` 05:30 CET (#348, merged during this run):** CGR-52 is re-assessed to **S2, production affected**. Addition (4): a watched-hours window end takes the later instant. **IMPLEMENTED in #349** (`private.at_zurich_end` in `watched_raise_at`; 068 +4) ahead of the PO adding it to the brief, because the finding takes precedence. No blocking finding.
+- **CI on #349:** first run red in `db-clock`. A custom setting at database level needs a superuser, so the pin now runs as `supabase_admin`. Then `recovery/main` (#348) was merged in, resolving a JOURNAL conflict (both kept).
+- **Next (eng):** fix #349 if CI is red, and try a CI matrix at the four clocks (`sudo date`; runner support is UNKNOWN). `cra` review of 0067 is requested (production code changed, DST1-5). After DST1: RLS2 merge (owner), then SIGC (#345), DOOR1, LEAVE1.
+- **Note for every agent:** since 0067, function bodies use `private.now()` and `private.at_zurich(...)`. pgTAP 068 fails on a bare `now()` or a native `at time zone 'Europe/Zurich'`. **RLS2's 0066 was written before 0067:** it sorts earlier and is rewritten by 0067 on a fresh reset, so there is no conflict.
+- **PLANNED (eng), RLS2 × DST1:** RLS2's pgTAP 067 reads `now()` 25 times. Under the pinned CI clock its fixtures must read `private.now()`. Whichever of #331 and #349 merges second gets that conversion, done by the same mechanical replacement, before it merges.
 ## 2026-10-25 05:30 CET · Clinical & Regulatory Architect (review)
 - **Reviewed** PO cycles 02:10 CEST to 04:10 CET, `lca` 02:48 to 03:43 CET, brief DST1, LEAVE1-11/-12, DOOR1-11, and #331 (RLS2) at `bb3ed48`. Section 2026-10-25 05:30 CET in `reports/CLINICAL_GOVERNANCE.md`. No code merged since 0065. I did not run the NAVORA tests.
 - **CGR-52 re-assessed (S3 → S2, advisory):** production code is affected. 0038, 0045 and 0062 convert planned starts with `at time zone 'Europe/Zurich'`, which resolves an ambiguous local time to the later instant (checked on an empty local PostgreSQL 16.15). A visit planned at 02:00-02:59 on the fall-back night raises its overdue signal and escalation up to one hour late. The fixtures also fail on wall-clock subtraction. DST1 covers both; proposed addition for the PO: watched-hours windows start at the earlier instant and end at the later one.

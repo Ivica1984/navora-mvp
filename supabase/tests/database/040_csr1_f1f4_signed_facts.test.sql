@@ -34,7 +34,7 @@ insert into fx values
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end,
                                 services_provided, billable, status, planned_minutes_a, responsible_user_id)
 select '00000000-0000-4000-b000-000000000011', f.id, '00000000-0000-4000-a000-000000000208',
-       '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich')::date, x.t,
+       '00000000-0000-4000-a000-000000000101', (private.now() at time zone 'Europe/Zurich')::date, x.t,
        x.t + interval '30 minutes', array['Grundpflege'], false, 'planned', 30, x.who
 from fx f join (values
   ('rn', time '06:00', '00000000-0000-4000-a000-000000000902'::uuid),
@@ -70,7 +70,7 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000906');
 set local role authenticated;
 select is(public.record_observation(pg_temp.vid('rn'), 'Synthetisch: aus meiner Sicht isst sie wenig.', false, null,
           'a4000000-0000-4000-8000-000000000004'), 'ok', 'CGR-01: the colleague adds her own observation instead');
-select is((select count(*)::int from public.field_notes((now() at time zone 'Europe/Zurich')::date)
+select is((select count(*)::int from public.field_notes((private.now() at time zone 'Europe/Zurich')::date)
            where kind = 'observation' and visit_id = pg_temp.vid('rn')),
   2, 'both statements stay current, side by side');
 reset role;
@@ -92,7 +92,7 @@ reset role;
 select ok(not private.visit_facts_locked(pg_temp.vid('rn')), 'a draft does not lock the facts');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is(public.correct_visit_time(pg_temp.started_event('rn'), now() - interval '20 minutes', 'Start zu spät getippt',
+select is(public.correct_visit_time(pg_temp.started_event('rn'), private.now() - interval '20 minutes', 'Start zu spät getippt',
           'a4000000-0000-4000-8000-000000000012'), 'ok', 'a time correction before signing is accepted');
 select is(public.sign_report(pg_temp.latest_report('rn'), pg_temp.shown_hash(pg_temp.latest_report('rn')), 'a4000000-0000-4000-8000-000000000013') ->> 'result', 'ok',
   'she signs');
@@ -106,7 +106,7 @@ create temp table signed_v1 as
   select id, snapshot from public.visit_reports where id = pg_temp.latest_report('rn');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is(public.correct_visit_time(pg_temp.started_event('rn'), now() - interval '40 minutes', 'nachträglich anders',
+select is(public.correct_visit_time(pg_temp.started_event('rn'), private.now() - interval '40 minutes', 'nachträglich anders',
           'a4000000-0000-4000-8000-000000000020'), 'rejected', 'CGR-03: a time correction after final is refused');
 select is(public.record_observation(pg_temp.vid('rn'), 'Synthetisch: nachträglich ergänzt', false, null,
           'a4000000-0000-4000-8000-000000000021'), 'rejected', 'CGR-03: a new observation after final is refused');
@@ -133,7 +133,7 @@ reset role;
 select ok(not private.visit_facts_locked(pg_temp.vid('rn')), 'the correction draft reopens the facts');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is(public.correct_visit_time(pg_temp.started_event('rn'), now() - interval '25 minutes', 'Start laut Notiz',
+select is(public.correct_visit_time(pg_temp.started_event('rn'), private.now() - interval '25 minutes', 'Start laut Notiz',
           'a4000000-0000-4000-8000-000000000031'), 'ok', 'a time correction goes through the correction version');
 select is(public.record_observation(pg_temp.vid('rn'), 'Synthetisch: Korrekturfassung ergänzt', false, null,
           'a4000000-0000-4000-8000-000000000032'), 'ok', 'an observation goes through the correction version');
@@ -155,7 +155,7 @@ do $$ begin
   perform public.create_report_draft(pg_temp.vid('ca'), null, 'a4000000-0000-4000-8000-000000000042');
   perform public.sign_report(pg_temp.latest_report('ca'), pg_temp.shown_hash(pg_temp.latest_report('ca')), 'a4000000-0000-4000-8000-000000000043');
 end $$;
-select is(public.correct_visit_time(pg_temp.started_event('ca'), now() - interval '10 minutes', 'Start zu spät getippt',
+select is(public.correct_visit_time(pg_temp.started_event('ca'), private.now() - interval '10 minutes', 'Start zu spät getippt',
           'a4000000-0000-4000-8000-000000000044'), 'rejected',
   'CGR-03: while the report awaits countersignature, a time correction is refused');
 reset role;

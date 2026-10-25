@@ -13,7 +13,7 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
 $$;
-create function pg_temp.today() returns date language sql as $$ select (now() at time zone 'Europe/Zurich')::date $$;
+create function pg_temp.today() returns date language sql as $$ select (private.now() at time zone 'Europe/Zurich')::date $$;
 
 create temp table fx (name text primary key, id uuid not null, d int not null, t0 time not null, t1 time not null);
 grant select on fx to authenticated;

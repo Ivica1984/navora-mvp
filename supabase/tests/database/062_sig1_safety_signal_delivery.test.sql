@@ -22,7 +22,7 @@ create function pg_temp.visit(p_n integer, p_team text, p_ago interval, p_respon
 returns void language sql as $$
   insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status, responsible_user_id)
   values (p_org::uuid, pg_temp.v(p_n), p_case::uuid, p_team::uuid,
-          (now() at time zone 'Europe/Zurich' - p_ago)::date, (now() at time zone 'Europe/Zurich' - p_ago)::time(0), null, false,
+          ((private.now() - p_ago) at time zone 'Europe/Zurich')::date, ((private.now() - p_ago) at time zone 'Europe/Zurich')::time(0), null, false,
           'planned', p_responsible::uuid)
 $$;
 create function pg_temp.recipients(p_n integer) returns text language sql as $$
@@ -63,8 +63,8 @@ select is((select signal_kind from public.safety_signals where visit_id = pg_tem
 select is(pg_temp.recipients(1), '902=responsible,906=team',
   'SIG1-1: the responsible member and every member of the owning team; not the coach, not Operations, not the admin');
 select is((select p1_at from public.safety_signals where visit_id = pg_temp.v(1)),
-  ((now() at time zone 'Europe/Zurich' - interval '2 hours')::date + (now() at time zone 'Europe/Zurich' - interval '2 hours')::time(0))
-    at time zone 'Europe/Zurich' + interval '1 hour',
+  private.at_zurich(((private.now() - interval '2 hours') at time zone 'Europe/Zurich')::date + ((private.now() - interval '2 hours') at time zone 'Europe/Zurich')::time(0))
+    + interval '1 hour',
   'SIG1-9: the P1 time comes from the effective rule (planned start + 1 h)');
 
 -- SIG1-2: exactly once ------------------------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ select pg_temp.eval();
 select is(pg_temp.recipients(2), '902=team,906=responsible', 'SIG1-9: with the stricter effective rule the 30-min visit is P1 and delivered');
 
 -- SIG1-2: a signal that ends and starts again gets new rows -----------------------------------------------------------
-update public.care_visits set suspended_at = now() where id = pg_temp.v(1);
+update public.care_visits set suspended_at = private.now() where id = pg_temp.v(1);
 select pg_temp.eval();
 select ok((select ended_at is not null from public.safety_signals where visit_id = pg_temp.v(1)), 'the cause ended: the signal ends');
 select is(pg_temp.recipients(1), '', 'no open delivery while the cause is gone');
@@ -172,7 +172,7 @@ select is(pg_temp.recipients(6), '902=team,904=untaken',
 
 -- Fallback: nobody of the team is on duty → Operations; never another organisation -----------------------------------
 insert into public.member_absences (organization_id, team_id, user_id, starts_at, ends_at, recorded_by, absence_group)
-select '00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000101', u, now() - interval '1 day', now() + interval '1 day',
+select '00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000101', u, private.now() - interval '1 day', private.now() + interval '1 day',
        '00000000-0000-4000-a000-000000000905', gen_random_uuid()
 from unnest(array['00000000-0000-4000-a000-000000000902', '00000000-0000-4000-a000-000000000906']::uuid[]) u;
 select pg_temp.visit(4, '00000000-0000-4000-a000-000000000101', interval '20 minutes', '00000000-0000-4000-a000-000000000906');
@@ -204,10 +204,10 @@ select ok((select bool_and(ended_at is not null) from public.safety_signals wher
 -- SIG1-6: AN2 measure 10 rows ------------------------------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
-select is((select count(*)::int from public.pilot_hypotheses((now() at time zone 'Europe/Zurich')::date)
+select is((select count(*)::int from public.pilot_hypotheses((private.now() at time zone 'Europe/Zurich')::date)
            where measure in ('signal_taken_share', 'signal_minutes_to_take') and team_id = '00000000-0000-4000-a000-000000000101'), 2,
   'SIG1-6: both measures per team');
-select ok((select bool_and(suppressed and value is null) from public.pilot_hypotheses((now() at time zone 'Europe/Zurich')::date)
+select ok((select bool_and(suppressed and value is null) from public.pilot_hypotheses((private.now() at time zone 'Europe/Zurich')::date)
            where measure in ('signal_taken_share', 'signal_minutes_to_take') and team_id = '00000000-0000-4000-a000-000000000101'),
   'SIG1-6: AN1 suppression applies (two people in Testteam Nord)');
 reset role;

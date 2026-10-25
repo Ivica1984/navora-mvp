@@ -69,12 +69,34 @@ jobs:
       - name: Start local Supabase
         if: steps.detect.outputs.present == 'true'
         run: supabase start
-      - name: Apply migrations and seed from scratch
+      - name: Apply migrations from scratch
         if: steps.detect.outputs.present == 'true'
-        run: scripts/ci-step.sh db-reset supabase db reset
+        run: scripts/ci-step.sh db-reset supabase db reset --no-seed
+      # DST1 / ADR-081: seed and pgTAP run at a pinned clock, 10:00 of the Zurich day of the run, so their result does
+      # not depend on the hour CI runs (repeated or missing hour, midnight). private.now() honours the pin only once the
+      # seed has written the test-clock row (its first statement); 068 pins its own DST instants on top.
+      - name: Pin the database clock, then seed
+        if: steps.detect.outputs.present == 'true'
+        env:
+          PGPASSWORD: postgres
+        run: |
+          DB="postgresql://postgres@127.0.0.1:54322/postgres"
+          # ALTER DATABASE … SET of a custom setting needs a superuser (PostgreSQL 15+): the local stack's supabase_admin.
+          scripts/ci-step.sh db-clock psql "postgresql://supabase_admin@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -Atc "
+            do \$\$ begin
+              execute format('alter database %I set navora.test_now = %L', current_database(),
+                             private.at_zurich((private.at_zurich(now()))::date + time '10:00')::text);
+            end \$\$;"
+          scripts/ci-step.sh db-seed psql "$DB" -X -q -1 -v ON_ERROR_STOP=1 -f supabase/seed.sql
+          psql "$DB" -Atc "select 'pinned database clock: ' || current_setting('navora.test_now') || ', private.now() = ' || private.now()"
       - name: Database tests
         if: steps.detect.outputs.present == 'true'
         run: scripts/ci-step.sh pgtap supabase test db
+      - name: Unpin the database clock
+        if: steps.detect.outputs.present == 'true'
+        env:
+          PGPASSWORD: postgres
+        run: psql "postgresql://supabase_admin@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -c "alter database postgres reset navora.test_now"
       - name: Concurrency checks (two real sessions)
         if: steps.detect.outputs.present == 'true'
         run: |

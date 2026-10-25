@@ -151,16 +151,23 @@ function zurichOffsetMinutes(utcMs: number): number {
 
 /**
  * Swiss wall-clock time ("YYYY-MM-DD", "HH:MM") → ISO instant. Returns null for
- * malformed input. In the autumn DST overlap the earlier instant is chosen; a
- * time skipped in spring resolves to the instant one hour later — both are
- * shown back to the user before saving.
+ * malformed input. Same rule as the database (`private.at_zurich`, ADR-081, DST1):
+ * in the autumn repeated hour (02:00-02:59) the EARLIER instant (CEST) is chosen;
+ * a time skipped in spring (02:00-02:59) is read in standard time (CET), i.e. it
+ * resolves to the instant one hour later on the clock — both are shown back to
+ * the user before saving.
  */
 export function zurichLocalToIso(day: string, hhmm: string): string | null {
   const d = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
   const t = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(hhmm);
   if (!d || !t) return null;
   const wall = Date.UTC(+d[1], +d[2] - 1, +d[3], +t[1], +t[2]);
-  let utc = wall - zurichOffsetMinutes(wall) * 60_000;
-  utc = wall - zurichOffsetMinutes(utc) * 60_000;
+  // The offsets in force around this wall time (at most two in Zurich: CET +60, CEST +120).
+  const offsets = [...new Set([zurichOffsetMinutes(wall - 86_400_000), zurichOffsetMinutes(wall + 86_400_000)])];
+  const valid = offsets
+    .map((o) => wall - o * 60_000)
+    .filter((utc) => zurichOffsetMinutes(utc) * 60_000 === wall - utc);
+  // Valid readings: one on an ordinary day, two in the repeated hour (take the earlier), none in the gap.
+  const utc = valid.length > 0 ? Math.min(...valid) : wall - Math.min(...offsets) * 60_000;
   return new Date(utc).toISOString();
 }
