@@ -23,8 +23,8 @@ const DB_MEASURES = [
   "absences_withdrawn_by_member_share", "absences_revised_share", "absences_start_yesterday_share",
   "absences_start_before_yesterday", "absence_past_visits_per_100", "absence_past_visit_end",
   "overdue_ended_by_command_share", "overdue_closed_by_hand_share", "stuck_ended_by_command_share", "stuck_closed_by_hand_share",
-  // SIG1-6 (0060)
-  "signal_taken_share", "signal_minutes_to_take",
+  // SIG1-6 (0060); SIG1-C2 (0068)
+  "signal_taken_share", "signal_minutes_to_take", "first_take_any_minutes",
   // ORD0-6 (0061)
   "order_open_end_ending", "inform_gp_done_within_7d_share",
 ];

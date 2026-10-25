@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import SignalBanner from "@/components/signals/SignalBanner";
-import type { SignalRow } from "@/features/signals/rules";
+import type { OutsideWatchedVisit, SignalRow } from "@/features/signals/rules";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { addCarePlanItem, completeCaseTask, decideMatchingRequest, planVisit, removePlannedVisit, rescheduleVisit, retireCarePlanItem, setPrimaryNurse } from "@/features/team/commands";
@@ -38,6 +38,7 @@ import { getVisitStatusLabel } from "@/features/visits/types";
 import { recordGpInformed } from "@/features/gp/commands";
 import { OUTSIDE_LABEL, TEAM_STATUS_NOTE, statusText } from "@/features/push/rules";
 import type { TeamPushRow } from "@/features/push/queries";
+import OutsideWatchedVisits from "@/components/signals/OutsideWatchedVisits";
 import { GP_CHANNELS, GP_CHANNEL_LABEL, GP_MESSAGES, gpInformedText, informedOnProblem, latestNoticeByCase, type GpNotice } from "@/features/gp/rules";
 
 const URGENCY_CLASS: Record<string, string> = {
@@ -62,6 +63,7 @@ export default function TeamClient({
   signals = [],
   gpNotices = [],
   pushStatus = [],
+  outsideWatched = [],
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
@@ -77,6 +79,8 @@ export default function TeamClient({
   gpNotices?: GpNotice[];
   /** SIG2-2: per member, whether delivery outside the app is active. */
   pushStatus?: TeamPushRow[];
+  /** SIG2-C1 (2): planned visits of the team's next 7 days outside the watched hours (null: could not be loaded). */
+  outsideWatched?: OutsideWatchedVisit[] | null;
 }) {
   const gpByCase = latestNoticeByCase(gpNotices);
   const open = offers.filter((o) => !o.my_team_declined);
@@ -104,6 +108,7 @@ export default function TeamClient({
         <SignalBanner initial={signals} />
         <VisitAlerts alerts={visitAlerts} />
         <OutsideDeliveryStatus rows={pushStatus} />
+        <OutsideWatchedVisits rows={outsideWatched} />
 
         <h2 className="text-lg font-bold">Anfragen an dein Team</h2>
         {open.length === 0 && (

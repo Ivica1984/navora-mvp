@@ -54,6 +54,34 @@ test("SIG2-3 / SIG2-6: the administrator sees the vendors as recorded; without a
   await expect(page.getByRole("region", { name: "Benachrichtigung ausserhalb der App" }).getByRole("status")).toHaveText("Gespeichert.");
 });
 
+test("SIG2-C1 (2): /admin and /team list the planned visits outside the watched hours at 390 px, without horizontal overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const label = "Geplante Einsätze ausserhalb der überwachten Zeiten";
+  const line = /^(Mo|Di|Mi|Do|Fr|Sa|So) \d\d\.\d\d\. (\d\d:\d\d(–\d\d:\d\d)?|ohne Zeit) · .+$/;
+  // The seed records no watched hours (SIG2-12), so every planned visit of the next 7 days is listed.
+  await signIn(page, "admin.test@navora.test");
+  await page.goto("/admin");
+  const admin = page.getByRole("region", { name: label });
+  await expect(admin.getByTestId("outside-watched-count")).toContainText("in den nächsten 7 Tagen");
+  await admin.getByTestId("outside-watched-count").click();
+  await expect(admin.getByTestId("outside-watched-visit").first()).toHaveText(line);
+  await expect(admin).toContainText("SIG1-8");
+  // /admin keeps its desktop sidebar layout; the list itself must not overflow its own box.
+  expect(await admin.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
+
+  await page.context().clearCookies();
+  await signIn(page, "pflege.test@navora.test");
+  await page.goto("/team");
+  const team = page.getByRole("region", { name: label });
+  await expect(team.getByTestId("outside-watched-count")).toContainText("in den nächsten 7 Tagen");
+  await team.getByTestId("outside-watched-count").click();
+  // Team view: own team only (pgTAP 069), and no client data on the line.
+  const visits = team.getByTestId("outside-watched-visit");
+  await expect(visits.first()).toHaveText(line);
+  for (const text of await visits.allTextContents()) expect(text).toMatch(/· Testteam Nord$/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+});
+
 test("SIG2-9: the sender's entry point refuses a request without the secret; the service worker is served", async ({ request }) => {
   const res = await request.post("/api/push/dispatch");
   expect(res.status()).toBe(401);
