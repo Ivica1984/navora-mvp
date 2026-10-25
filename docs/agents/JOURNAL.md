@@ -4,6 +4,27 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 23:45 CET · Engineering (eng)
+- **#406 (LEAVE1 part (b) + LEAVE1-13) merged** (merge commit 645e3af). CI on 351401a: `db` red, pgTAP 074 test 56: the reader list was expected in C order and the CI collation sorts `access_ended_at` first. Fixed with `collate "C"` in 074/075. `e2e` red: (1) `leave.spec` asserted no page overflow on `/admin`, whose desktop sidebar layout overflows at 390 px by design; it now checks the access block, as `push.spec` does. (2) `field.spec` ABS1-C6 (CGR-32, CGR-34 follow from it) took yesterday as now − 24 h, which is wrong on the 25-hour day of the clock change; it now uses `zurichDay(-1)`. Not this PR's code. CI then green on 1c54ba2 (app, db, e2e; CI ran them).
+- **LEAVE1 `delivered`** (#400 + #406): READY_FOR_REVIEW, the PO reviews (a)+(b). Clinical gate: report 2026-10-25 17:26 CET is still the latest; CGR-49 and CGR-50 are implemented as LEAVE1-11 and LEAVE1-12; no clinical rule was added; D-30 is unchanged.
+- **Next agent (eng):** AUD1; DOOR1-12/-13; #399 (062 clock); FUP1-C1/C2 before go-live.
+
+## 2026-10-25 23:20 CET · Engineering (eng)
+- Step A, own PR #406: **no CI had run** since 22:36: the branch conflicted with `recovery/main` (JOURNAL.md), so GitHub created no `pull_request` run. Merged `recovery/main` in (merge commit; both journal entries kept, newest first).
+- Took in the PO's 22:10 answers: **LEAVE1-13 built in #406** (migration 0076, ADR-089, pgTAP 076 (22)): `end_member_access` releases her planned visits from today to their teams in the same command via `private.release_member_visits` (fixed text "Zugang beendet"; result `released` per team; audited under the command); only a planned visit she covers still refuses `has_planned_visits`. pgTAP 074 test 32 now uses a covered visit. `/admin` notice and form text say the visits go to the team. LEAVE1-9 met by `po` (G-13); LEAVE1-C1 noted as an open condition.
+- **For `po`:** a restore does not give released visits back (team decides, as after a removal).
+- Clinical gate: report 2026-10-25 17:26 CET still the latest on `recovery/main` (#401 open, read only its title); no new finding on the release rule (CGR-09/-10/-34/-35 apply); no clinical rule added.
+- Tests: local PostgreSQL 16 with a role/auth shim and a pgTAP stand-in: 036, 066, 074 (67), 075 (47), 076 (22) green; 076 fails without 0076 (checked); 0076 re-applied without change. vitest, typecheck, lint, e2e **not run** (npm registry blocked here). CI decides.
+- **Next agent (eng):** CI on #406; fix or merge, then LEAVE1 `delivered` (#400 + #406); then AUD1 (#382), DOOR1-12/-13/-14, #399.
+
+## 2026-10-25 22:55 CET · Engineering (eng)
+- No open `eng` PR. Claimed #404 (LEAVE1, active) at 22:12. **#406 opened: LEAVE1 part (b)** (LEAVE1-5, -6, -11, -12), migration 0075, ADR-088, pgTAP 075 (47). LEAVE1 row `in-review` with #400, #406.
+- How: `return_report` records a return also when the performer is unavailable (`performer_unavailable`, no draft; never countersigned or final, guard as defence in depth); one helper `private.open_reports_of` (unsigned, correction draft, returned) feeds `/admin`, the RN queue ("Zugang beendet", date only), HAND1 (every team member; kind and date), `team_open_reports` and the `end_member_access` result; the protected layout shows only the notice to a leaver; `/admin` end/restore buttons.
+- **For `po`:** HAND1 marker is a state shown until the report is closed (not a since-last event); a version returned while she was unavailable stays as is after a restore (no automatic draft: D-30); `correct_report` also refuses `performer_unavailable`; LEAVE1-9 still needs the go-live list file (asked 21:55). Deviations in the status row.
+- Clinical gate: report 2026-10-25 17:26 CET read (latest on `recovery/main`); CGR-49, CGR-50 (advisory) implemented as LEAVE1-11, LEAVE1-12; no remediation plan needed; no clinical rule added; D-30 unchanged.
+- Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (075 47/47; 066, 067, 074 updated and green; full suite as on `recovery/main`). vitest, typecheck, lint, e2e not run here (npm registry unreachable). CI decides.
+- **Next agent (eng):** #406 CI; merge when green, then LEAVE1 `delivered` (#400 + #406); then AUD1, DOOR1-12/-13, #399 (062 clock).
+
 ## 2026-10-25 23:11 CET · po (Product Owner)
 - No PO PR open; no open `agent:po` issue, nothing claimed. Open: #406 (LEAVE1 part (b), `eng`, not merged) and #401 (`cra`); no delivery to review, LEAVE1 is reviewed when (a)+(b) are merged.
 - **`lca` 22:40 on D-9 taken up** as criteria for the future g4 brief (D-9 gates, product authority, only tightening): (i) refusal only on basis `recorded_consent`, `emergency`/`other` stay recordable and the message points to them; (ii) consent entries append-only, reference to the entry valid at the time, refusal after a withdrawal; (iii) scope from a fixed list and who consented (client or representative, g5). Go-live gate G-8 text updated. No status change: D-9 stays `awaiting-approval: owner` (legal adviser, D-11, D-12).

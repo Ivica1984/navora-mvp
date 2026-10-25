@@ -199,8 +199,8 @@ reset role;
 select is((select string_agg(distinct n.nspname || '.' || p.proname, ',' order by n.nspname || '.' || p.proname)
            from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname in ('public', 'private', 'auth', 'extensions') and p.prosrc ilike '%visit_report_returns%'),
-  'public.field_countersign_queue,public.field_reports,public.field_returned_reports,public.report_returns,public.return_report',
-  'only the return command and the four /field read models read the return table (no AN1, AN2, billing, export or push function)');
+  'private.report_returned_unavailable,public.field_countersign_queue,public.field_reports,public.field_returned_reports,public.report_returns,public.return_report',
+  'only the return command, the four /field read models and the LEAVE1-11 flag (0075, no reason) read the return table (no AN1, AN2, billing, export or push function)');
 select is((select count(*)::int from pg_views where definition ilike '%visit_report_returns%'), 0, 'no view reads it');
 
 -- F6R-5: never stranded ----------------------------------------------------------------------------------------------
@@ -298,15 +298,17 @@ select ok((select f.report_id = (pg_temp.report_v('r1', 2)).id
            from public.billable_facts f where f.visit_id = pg_temp.vid('r1')),
   'built from the countersigned version, with the corrected (longer) minutes');
 
--- CR-048 interim: no return while the performer is not in the team ---------------------------------------------------
+-- CR-048 interim, changed by LEAVE1-11 (0075, CGR-49): a return while the performer is not in the team is recorded, but
+-- opens no draft only she could sign (full behaviour in pgTAP 075) ------------------------------------------------------
 set local role authenticated;
 select pg_temp.act_as(pg_temp.u('admin'));
 select is(public.remove_team_member('00000000-0000-4000-a000-000000000101', pg_temp.u('ca2')::uuid, 'Synthetisch', pg_temp.k(150)) ->> 'result',
   'ok', 'a performer whose reports are signed is removed');
 select pg_temp.act_as(pg_temp.u('rn'));
-select is((pg_temp.shown('r4') ->> 'i_can_return')::boolean, false, '/field offers no return of her report');
-select is(pg_temp.ret('r4', 1, 'Synthetisch: Startzeit stimmt nicht', 151) ->> 'reason', 'performer_not_in_team',
-  'a report whose performer left cannot be returned (it would strand)');
+select is((pg_temp.shown('r4') ->> 'i_can_return')::boolean, true, 'LEAVE1-11: /field offers the return of her report');
+select is((select x ->> 'result' || ':' || (x ->> 'performer_unavailable') || ':' || coalesce(x ->> 'report_id', 'no draft')
+           from pg_temp.ret('r4', 1, 'Synthetisch: Startzeit stimmt nicht', 151) x),
+  'ok:true:no draft', 'LEAVE1-11: a report whose performer left is returned without a draft (it cannot strand a draft)');
 select is(public.countersign_report((pg_temp.report_v('r2', 1)).id, pg_temp.k(152)) ->> 'result', 'ok', 'r2 is countersigned without a return');
 reset role;
 
