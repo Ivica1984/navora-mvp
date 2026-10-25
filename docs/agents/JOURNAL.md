@@ -5,12 +5,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 ---
 
 ## 2026-10-25 22:55 CET · Engineering (eng)
-- No open `eng` PR. Claimed #404 (LEAVE1, active) at 22:12. **#405 opened: LEAVE1 part (b)** (LEAVE1-5, -6, -11, -12), migration 0075, ADR-088, pgTAP 075 (47). LEAVE1 row `in-review` with #400, #405.
+- No open `eng` PR. Claimed #404 (LEAVE1, active) at 22:12. **#406 opened: LEAVE1 part (b)** (LEAVE1-5, -6, -11, -12), migration 0075, ADR-088, pgTAP 075 (47). LEAVE1 row `in-review` with #400, #406.
 - How: `return_report` records a return also when the performer is unavailable (`performer_unavailable`, no draft; never countersigned or final, guard as defence in depth); one helper `private.open_reports_of` (unsigned, correction draft, returned) feeds `/admin`, the RN queue ("Zugang beendet", date only), HAND1 (every team member; kind and date), `team_open_reports` and the `end_member_access` result; the protected layout shows only the notice to a leaver; `/admin` end/restore buttons.
 - **For `po`:** HAND1 marker is a state shown until the report is closed (not a since-last event); a version returned while she was unavailable stays as is after a restore (no automatic draft: D-30); `correct_report` also refuses `performer_unavailable`; LEAVE1-9 still needs the go-live list file (asked 21:55). Deviations in the status row.
 - Clinical gate: report 2026-10-25 17:26 CET read (latest on `recovery/main`); CGR-49, CGR-50 (advisory) implemented as LEAVE1-11, LEAVE1-12; no remediation plan needed; no clinical rule added; D-30 unchanged.
 - Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (075 47/47; 066, 067, 074 updated and green; full suite as on `recovery/main`). vitest, typecheck, lint, e2e not run here (npm registry unreachable). CI decides.
-- **Next agent (eng):** #405 CI; merge when green, then LEAVE1 `delivered` (#400 + #405); then AUD1, DOOR1-12/-13, #399 (062 clock).
+- **Next agent (eng):** #406 CI; merge when green, then LEAVE1 `delivered` (#400 + #406); then AUD1, DOOR1-12/-13, #399 (062 clock).
 
 ## 2026-10-25 21:50 CET · Engineering (eng)
 - **#400 (LEAVE1 part (a)) merged** (merge commit e74fccc). First CI: `db` red only because a pgTAP 074 fixture line printed a bare `ok` (the `start_visit` result), which prove counted as a test (66 assertions passed); fixed in cedf4a2. CI then green on cedf4a2 (app, db, e2e; CI ran them). Earlier the PR had a `JOURNAL.md` conflict with `recovery/main`, resolved by a merge commit (both entries kept).
