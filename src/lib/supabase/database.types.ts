@@ -317,6 +317,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"case_safety_alert_values": {
+                  Row: {
+                    "actor_id": string,"case_id": string,"category_id": string,"created_at": string,"id": string,"idempotency_key": string,"note": string | null,"organization_id": string,"seq": number,"source": string,"value": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id": string,"case_id": string,"category_id": string,"created_at"?: string,"id"?: string,"idempotency_key": string,"note"?: string | null,"organization_id": string,"seq"?: never,"source": string,"value": string
+                  }
+                  Update: {
+                    "actor_id"?: string,"case_id"?: string,"category_id"?: string,"created_at"?: string,"id"?: string,"idempotency_key"?: string,"note"?: string | null,"organization_id"?: string,"seq"?: never,"source"?: string,"value"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "case_safety_alert_values_case_id_organization_id_fkey"
+      columns: ["case_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "cases"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "case_safety_alert_values_category_id_fkey"
+      columns: ["category_id"]
+isOneToOne: false
+      referencedRelation: "safety_alert_categories"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "case_safety_alert_values_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"case_tasks": {
                   Row: {
                     "case_id": string,"created_at": string,"detail": string | null,"done_at": string | null,"done_by": string | null,"id": string,"kind": string,"organization_id": string,"status": string
@@ -1109,6 +1141,20 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"safety_alert_categories": {
+                  Row: {
+                    "active_from": string,"approval_ref": string | null,"class": string,"code": string,"created_at": string,"help_text": string | null,"id": string,"label": string,"refuses_codes": boolean,"source": string,"version": number,"withdrawn": boolean
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "active_from": string,"approval_ref"?: string | null,"class": string,"code": string,"created_at"?: string,"help_text"?: string | null,"id"?: string,"label": string,"refuses_codes"?: boolean,"source": string,"version": number,"withdrawn"?: boolean
+                  }
+                  Update: {
+                    "active_from"?: string,"approval_ref"?: string | null,"class"?: string,"code"?: string,"created_at"?: string,"help_text"?: string | null,"id"?: string,"label"?: string,"refuses_codes"?: boolean,"source"?: string,"version"?: number,"withdrawn"?: boolean
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"safety_signals": {
                   Row: {
                     "created_at": string,"ended_at": string | null,"escalated_at": string | null,"exception_key": string,"id": string,"organization_id": string,"outside_none_at": string | null,"p1_at": string,"signal_kind": string,"taken_at": string | null,"taken_by": string | null,"team_id": string,"visit_id": string
@@ -1593,6 +1639,11 @@ isOneToOne: false
 "accept_my_invitations":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
+"active_safety_alert_categories":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "class": string,"code": string,"help_text": string,"label": string,"refuses_codes": boolean,"version": number
+            }[]
+                           },
 "add_care_plan_item":
 { Args: { "p_case_id": string,"p_category": string,"p_frequency": string,"p_goal": string,"p_idempotency_key": string,"p_planned_minutes": number,"p_review_date": string,"p_service": string }; Returns: string
                            },
@@ -1710,6 +1761,11 @@ isOneToOne: false
 "field_returned_reports":
 { Args: Record<PropertyKey, never>; Returns: {
               "client_name": string,"reason": string,"report_id": string,"returned_at": string,"returned_by_name": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
+            }[]
+                           },
+"field_safety_alerts":
+{ Args: { "p_date": string }; Returns: {
+              "actor_kind": string,"actor_name": string,"case_id": string,"category_class": string,"category_code": string,"category_label": string,"help_text": string,"note": string,"recorded_at": string,"refuses_codes": boolean,"source": string,"value": string,"visit_id": string
             }[]
                            },
 "field_since_last":
@@ -1841,6 +1897,9 @@ isOneToOne: false
                            },
 "record_quality_event":
 { Args: { "p_idempotency_key": string,"p_note": string,"p_occurred_at": string,"p_severity": string,"p_type_code": string,"p_visit_id": string }; Returns: Json
+                           },
+"record_safety_alert_value":
+{ Args: { "p_case_id": string,"p_category": string,"p_idempotency_key": string,"p_note": string,"p_source": string,"p_value": string }; Returns: string
                            },
 "refresh_team_plans":
 { Args: Record<PropertyKey, never>; Returns: number

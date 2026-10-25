@@ -5,6 +5,8 @@ import { useState } from "react";
 import { convertPartnerRequest, linkReturningReferral, recordPartnerRequest, updateCaseIntake } from "@/features/intake/commands";
 import { linkEffect, linkableLabel } from "@/features/returning/rules";
 import type { IntakeCase, LinkableCase, OpenPartnerRequest } from "@/features/intake/queries";
+import type { AlertCategory } from "@/features/door/queries";
+import SafetyAlertForm from "@/components/door/SafetyAlertForm";
 import {
   CANTONS,
   INSURANCE_TYPES,
@@ -32,11 +34,14 @@ export default function IntakeClient({
   requests,
   cases,
   linkable,
+  alertCategories = [],
 }: {
   organizationId: string;
   requests: OpenPartnerRequest[];
   cases: IntakeCase[];
   linkable: Record<string, LinkableCase[]>;
+  /** DOOR1-4 (migration 0073): the active safety-alert categories (labels only). */
+  alertCategories?: AlertCategory[];
 }) {
   return (
     <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
@@ -50,7 +55,7 @@ export default function IntakeClient({
         <ul className="grid gap-3">
           {cases.map((c) => (
             <li key={c.case_id}>
-              <IntakeCaseCard intakeCase={c} />
+              <IntakeCaseCard intakeCase={c} alertCategories={alertCategories} />
             </li>
           ))}
         </ul>
@@ -404,11 +409,12 @@ function MissingList({ missing }: { missing: ReadinessItem[] }) {
   );
 }
 
-function IntakeCaseCard({ intakeCase }: { intakeCase: IntakeCase }) {
+function IntakeCaseCard({ intakeCase, alertCategories }: { intakeCase: IntakeCase; alertCategories: AlertCategory[] }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [alertSaved, setAlertSaved] = useState<string | null>(null);
   const missing = parseMissing(intakeCase.missing);
 
   async function save(form: FormData) {
@@ -444,6 +450,28 @@ function IntakeCaseCard({ intakeCase }: { intakeCase: IntakeCase }) {
             <li key={t}>☐ {TASK_LABEL[t] ?? t}</li>
           ))}
         </ul>
+      )}
+      {/* DOOR1-4 (migration 0073): the intake records a value with its source; it does not read the values back
+          (DOOR1-9: only the case's team and the covering member read them). */}
+      {alertCategories.length > 0 && (
+        <section aria-label="Sicherheitshinweise erfassen" className="mt-3 grid gap-2 rounded-xl bg-stone-50 p-3">
+          {alertCategories.map((c) => (
+            <div key={c.code} className="grid gap-1">
+              <SafetyAlertForm
+                caseId={intakeCase.case_id}
+                category={c}
+                label={`${c.label} erfassen`}
+                defaultSource="referral"
+                onSaved={() => setAlertSaved(c.label)}
+              />
+            </div>
+          ))}
+          {alertSaved && (
+            <p role="status" className="text-xs text-emerald-900/80">
+              {alertSaved}: erfasst. Sichtbar für das Team des Falls auf der Einsatzkarte, nicht in der Aufnahme.
+            </p>
+          )}
+        </section>
       )}
       <ErrorBox message={error} />
       {!editing ? (
