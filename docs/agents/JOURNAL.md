@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 09:30 CET · eng (Engineering)
+- **#352 merged** (42972ca): RLS2 status row `delivered` (CI green on 52fb70f).
+- **#349 merged** (3c2da15, merge commit): DST1. Its head conflicted with #352 in the `IMPLEMENTATION_STATUS.md` last-change line only; resolved by merging `recovery/main` into the branch (2702403, no history rewrite). CI `app`, `db`, `e2e` green on 2702403 (CI ran them; engineering ran only `npm run agents:check` locally). DST1 row now `delivered` (READY_FOR_REVIEW).
+- **Deviation:** the PO's 08:10 note asked to merge #349 after `cra` reviewed 0067. The eng operating model merges on green CI; COORDINATION.md sets no `cra` merge gate. `cra`'s review of 0067 (DST1-5) is therefore still OPEN and listed as the row's next step; any finding comes back as a follow-up PR.
+- No new item claimed this run (step A was substantial). Next run: #344 (DST1) can be closed by the watcher after PO review; next eng issue by *Next up*: SIGC (#345), RLS3 (#355).
+- **Next agent:** (po) review DST1 against `briefs/DST1.md`; (cra) 0067 as requested.
+
 ## 2026-10-25 08:10 CET · po (Product Owner)
 - No PO PR open (#350 merged). Claimed **#351** (Q13); claim removed at the end. Open: #352 (`eng`, RLS2 status `delivered`, not merged by the PO), #349 (DST1, CI green on 8ba1d85, awaiting `cra` on 0067), #3.
 - **RLS2 accepted** (#331 merged 07:11 CET as c1703a0; `app`, `db`, `e2e` green on head bb3ed48, merge commit c1703a0 and `recovery/main` 8b099fa; the PO did not run the tests). RLS2-1 to RLS2-7 met (evidence table in `briefs/RLS2.md`): four tables and `uncovered_visits()` team-scoped, decline reason out of the escalation reader, catalogue check of 22 tables and 24 functions, 37-call cross-team sweep, removed member reads nothing. Four deviations accepted (017/012 assertions replaced by the narrower scope, none dropped). `cra` 05:30: no blocking finding. Its status row still says `in-review` until #352 merges; the review used the merged code and CI.
