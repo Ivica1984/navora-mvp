@@ -8,7 +8,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(81);
+select plan(88);
 
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
   select (case n when 'rn' then '00000000-0000-4000-a000-000000000902' when 'ca' then '00000000-0000-4000-a000-000000000906'
@@ -319,6 +319,39 @@ select is((select string_agg(nm, ',' order by nm) from pg_proc p, unnest(p.proar
            where p.oid = 'public.visit_correction_history(uuid)'::regprocedure and md = 't'
              and nm in ('actor_id', 'user_id', 'nurse_id', 'member_id', 'performer_id', 'corrector_id')), null,
   'RLS3-4b / D-23 (b): the reader returns no person id column (a name per correction, per visit)');
+
+-- FUP1-3 / RLS3-4c (CGR-59, 0071, ADR-084): billed or not, per correction ---------------------------------------------------
+-- v1's two corrections (-23 h, -22 h) were made before the countersignature of version 1 (-19 h), on which the billing
+-- fact rests. A third correction after it (-10 h) is not in the billed version.
+select is(pg_temp.as_user('admin', format($$ select string_agg(in_billed_version::text, ',' order by corrected_on) from public.visit_correction_history(%L) $$, pg_temp.v(1))),
+  'true,true', 'FUP1-3 (b): corrections made before the countersignature of the billed version → in_billed_version true');
+insert into public.visit_time_corrections (organization_id, visit_id, team_id, event_id, corrected_at, reason, actor_id, idempotency_key, created_at)
+select e.organization_id, e.visit_id, e.team_id, e.id, e.occurred_at - interval '9 minutes', 'Synthetisch: FUP1 Korrektur nach Gegenzeichnung',
+       pg_temp.u('rn'), pg_temp.k(4), private.now() - interval '10 hours'
+from public.visit_events e where e.visit_id = pg_temp.v(1) and e.event_type = 'started';
+select is(pg_temp.as_user('admin', format($$ select string_agg(in_billed_version::text, ',' order by corrected_on) from public.visit_correction_history(%L) $$, pg_temp.v(1))),
+  'true,true,false', 'FUP1-3 (b): a correction made after the countersignature → in_billed_version false');
+select is(pg_temp.as_user('rn', format($$ select string_agg(in_billed_version::text, ',' order by corrected_on) from public.visit_correction_history(%L) where full_trail $$, pg_temp.v(1))),
+  'true,true,false', 'FUP1-3 (a): the full trail carries the same flag');
+select is(pg_temp.as_user('ops', format($$ select count(*)::text from public.visit_correction_history(%L) where reason is not null or corrector_name is not null or corrected_by_me is not null $$, pg_temp.v(1))),
+  '0', 'FUP1-3 (b): the billing view still returns no reason and no corrector');
+-- v4: final report without countersignature (signed -20 h), no billing fact yet.
+select is(pg_temp.as_user('admin', format($$ select coalesce(string_agg(coalesce(in_billed_version::text, 'null'), ','), '-') from public.visit_correction_history(%L) $$, pg_temp.v(4))),
+  'null', 'FUP1-3: a visit without a billing fact → in_billed_version null');
+insert into public.billable_facts (organization_id, visit_id, case_id, team_id, report_id, visit_date, billable, reasons, order_basis,
+                                   payer_chain, tariff_versions, created_by, created_at, rule_version, cause)
+select v.organization_id, v.id, v.case_id, v.team_id, pg_temp.v(14), v.visit_date, true, '{}', 'with_order', '{}'::jsonb, '{}'::jsonb,
+       pg_temp.u('cover'), private.now() - interval '19 hours', 'J5-v3', 'report'
+from public.care_visits v where v.id = pg_temp.v(4);
+insert into public.visit_time_corrections (organization_id, visit_id, team_id, event_id, corrected_at, reason, actor_id, idempotency_key, created_at)
+select e.organization_id, e.visit_id, e.team_id, e.id, e.occurred_at - interval '4 minutes', 'Synthetisch: FUP1 Korrektur nach Signatur',
+       pg_temp.u('cover'), pg_temp.k(5), private.now() - interval '8 hours'
+from public.visit_events e where e.visit_id = pg_temp.v(4) and e.event_type = 'started';
+select is(pg_temp.as_user('admin', format($$ select string_agg(in_billed_version::text, ',' order by corrected_on) from public.visit_correction_history(%L) $$, pg_temp.v(4))),
+  'true,false', 'FUP1-3: no countersignature required → the signature time decides (before → true, after → false)');
+select is((select string_agg(nm, ',' order by nm) from pg_proc p, unnest(p.proargnames, p.proargmodes) a(nm, md)
+           where p.oid = 'public.visit_correction_history(uuid)'::regprocedure and md = 't' and nm = 'in_billed_version'),
+  'in_billed_version', 'FUP1-3: the reader returns in_billed_version (one flag per correction, no instant per person)');
 
 -- Cover end: the covering member's note read ends with her cover (RLS3-1) ----------------------------------------------------
 update public.care_visits set covered_by = null, covered_at = null, cover_team_id = null where id = pg_temp.v(2);

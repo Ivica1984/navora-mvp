@@ -1767,7 +1767,7 @@ isOneToOne: false
                            },
 "my_signals":
 { Args: Record<PropertyKey, never>; Returns: {
-              "delivered_at": string,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string,"watched_now": boolean
+              "delivered_at": string,"operations_outside_app": boolean,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string,"watched_now": boolean
             }[]
                            },
 "operations_exceptions":
@@ -1999,7 +1999,7 @@ isOneToOne: false
                            },
 "visit_correction_history":
 { Args: { "p_visit_id": string }; Returns: {
-              "corrected_by_me": boolean,"corrected_on": string,"correction_id": number,"corrector_name": string,"event_id": number,"event_type": string,"fact_countersigned_by_name": string,"fact_report_version": number,"full_trail": boolean,"new_at": string,"old_at": string,"reason": string,"recorded_at": string
+              "corrected_by_me": boolean,"corrected_on": string,"correction_id": number,"corrector_name": string,"event_id": number,"event_type": string,"fact_countersigned_by_name": string,"fact_report_version": number,"full_trail": boolean,"in_billed_version": boolean,"new_at": string,"old_at": string,"reason": string,"recorded_at": string
             }[]
                            },
 "visits_outside_watched_hours":
