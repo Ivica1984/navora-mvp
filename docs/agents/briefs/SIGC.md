@@ -62,3 +62,18 @@ Any threshold change (D-28), switching the push channel on (owner, D-2, D-26), l
 **Business value and care model.** A go-live control that a person did by reading a plan (SIG1-8) is now a list the data computes, and AN2's response measure counts the response that actually stops the escalation, so pilot data cannot overstate how fast a qualified person responds. Less administration, honest evidence, no new role. SIG1-8 remains a go-live condition until the list is empty for the pilot plan.
 
 **Why not accepted yet:** every criterion is met in code, but the item is in clinical scope (safety signals) and no `cra` section covers its merge commit (README *Clinical review gate*). PO status stays `approved`; the next PO run accepts once `cra` has reviewed `2ad9860` without a blocking finding.
+
+## PO review 2026-10-25 14:13 CET: accepted, with conditions CGR-57 and CGR-58 (FUP1)
+
+**Clinical gate passed:** `cra` 2026-10-25 13:26 CET (PR #374, merged as `21d1e99`) reviewed merge commit `2ad9860` (0068, pgTAP 069): **no blocking finding**; **CGR-46, CGR-47, CGR-48 closed** (069:198-231; 0068:57-106, 069:115-143; 0068:111-202, 069:253-350, `rules.ts`:92-99). Q14 and the four deviations of 13:16 agreed by `cra` ("protective, agreed"; "no Operations list: accepted"). CI `app`, `db`, `e2e` green on `a2468b5`, `1e796d2`, `1f3ff8a`, `78891aa`. **The PO did not run the tests.**
+
+| Finding (latest report) | Considered | Decision |
+|---|---|---|
+| CGR-46 | closed by `cra` | – |
+| CGR-47 | closed by `cra` | – |
+| CGR-48 | closed by `cra`; residuals CGR-57, CGR-58 | – |
+| CGR-57 (advisory, S2): the outside-hours list treats a visit without an end as one minute | yes | **condition**, brief [FUP1](FUP1.md)-1: must hold before the list is used as evidence for SIG1-8, i.e. before go-live; accepted as a condition because SIG1-8 stays a go-live condition lifted only by the Clinical Owner and no real visit is planned yet |
+| CGR-58 (advisory, S3): the banner judges watched hours at read time | yes | **condition**, FUP1-2; accepted as a condition because the error window is the minutes before a watched period ends, the text corrects itself on the next read, and the push channel is not switched on (D-2, D-26) |
+| Clinical review gate | passed | `cra` 13:26 gate table: "no blocking finding; the PO may accept" |
+
+**Accepted** against SIG1-C2, SIG1-C3 (a)-(d), SIG2-C1 (1) and (2) (13:16 evidence table above). SIG1-8 remains a go-live condition. The challenge row of 13:16 (planning-time notice) stays a pilot hypothesis.
