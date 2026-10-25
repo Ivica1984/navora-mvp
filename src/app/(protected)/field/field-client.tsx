@@ -29,9 +29,9 @@ import { formatMinutesByCategory } from "@/features/team/rules";
 import type { FieldNote, FieldVisit } from "@/features/field/types";
 import { FACTS_LOCKED_HINT, RETURNED_LOCKED_HINT, visitFactsLocked, type FieldReport } from "@/features/field/report";
 import ReportSection from "./report-section";
-import { REASON_LABEL as LIFECYCLE_REASON_LABEL } from "@/features/lifecycle/rules";
+import { REASON_LABEL as LIFECYCLE_REASON_LABEL, doorNoteText } from "@/features/lifecycle/rules";
 import { createReportDraft } from "@/features/field/report-commands";
-import type { CountersignItem, ReturnedItem } from "@/features/field/queries";
+import type { CountersignItem, DoorNote, ReturnedItem } from "@/features/field/queries";
 import type { CoverOffer, MyCover } from "@/features/cover/queries";
 import CoverSection from "./cover-section";
 import { AbsenceSection, OpenVisitsSection } from "./absence-section";
@@ -64,6 +64,8 @@ type Props = {
   returned?: ReturnedItem[];
   cover: { offers: CoverOffer[]; mine: MyCover[] };
   sinceLast: SinceLastRowDb[];
+  /** DOOR1-1 (migration 0072): access and language notes per visit. */
+  doorNotes?: DoorNote[];
   /** CSR1 / CGR-25: visits of her teams ended as not completed that still wait for a follow-up decision. */
   openFollowups?: TeamVisitAlert[];
   /** ABS1: absences of her teams, "Offen im Team", and the members she can record an absence for. */
@@ -94,7 +96,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [] }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [] }: Props) {
   const summary = summarizeDay(visits);
   const sinceLastByVisit = groupSinceLast(sinceLast);
 
@@ -214,6 +216,7 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
                   qualityTypes={qualityTypes}
                   statusNotes={statusNotes.filter((n) => n.visit_id === visit.visit_id)}
                   sinceLast={sinceLastByVisit.get(visit.visit_id)}
+                  door={doorNotes.find((d) => d.visit_id === visit.visit_id)}
                 />
               </li>
             ))}
@@ -245,6 +248,7 @@ function VisitCard({
   qualityTypes,
   statusNotes,
   sinceLast,
+  door,
 }: {
   visit: FieldVisit;
   notes: FieldNote[];
@@ -253,6 +257,7 @@ function VisitCard({
   qualityTypes: QualityEventType[];
   statusNotes: VisitStatusNote[];
   sinceLast: SinceLast | undefined;
+  door: DoorNote | undefined;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState<FieldAction | null>(null);
@@ -308,6 +313,13 @@ function VisitCard({
 
       <dl className="mt-3 grid gap-1 text-sm">
         <Row label="Ort" value={place || "Adresse fehlt – im Team klären"} muted={!place} />
+        {/* DOOR1-1 (migration 0072): what the nurse needs at the door, recorded at intake; never blank. */}
+        {visit.case_id && (
+          <>
+            <Row label="Zugang" value={doorNoteText(door?.access_notes)} muted={!door?.access_notes} testId="door-access" />
+            <Row label="Sprache" value={doorNoteText(door?.language_notes)} muted={!door?.language_notes} testId="door-language" />
+          </>
+        )}
         <Row label="Leistungen" value={services ?? "Noch nicht erfasst"} muted={!services} />
         {needs && <Row label="Pflegebedarf" value={needs} />}
         <Row label="Team" value={visit.team_name} />
@@ -673,11 +685,11 @@ function TimeCell({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Row({ label, value, muted = false }: { label: string; value: string; muted?: boolean }) {
+function Row({ label, value, muted = false, testId }: { label: string; value: string; muted?: boolean; testId?: string }) {
   return (
     <div className="grid grid-cols-[7.5rem_1fr] gap-2">
       <dt className="text-emerald-900/60">{label}</dt>
-      <dd className={muted ? "text-emerald-900/50 italic" : ""}>{value}</dd>
+      <dd data-testid={testId} className={muted ? "text-emerald-900/50 italic" : ""}>{value}</dd>
     </div>
   );
 }

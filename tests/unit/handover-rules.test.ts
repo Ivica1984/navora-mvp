@@ -71,7 +71,19 @@ describe("handover rules (HAND1)", () => {
       .toEqual(["Abgesagt durch Klient:in"]);
     expect(entryLines("visit_cancelled", { reason_code: "other", note: "Synthetisch: Notiz" }))
       .toEqual(["Anderer Grund", "Synthetisch: Notiz"]);
-    expect(entryLines("visit_no_show", { reason_code: null, note: "Synthetisch", responsible_absent: true })).toEqual(["Synthetisch"]);
+    // DOOR1-7 (0072): a no-show row recorded before 0072 has no door fact and reads "nicht erfasst".
+    expect(entryLines("visit_no_show", { reason_code: null, note: "Synthetisch", responsible_absent: true })).toEqual(["Synthetisch", "an der Tür: nicht erfasst"]);
+  });
+
+  it("DOOR1-7: a no-show shows the door fact; an outcome shows the basis of a disclosure to the emergency contact", () => {
+    expect(entryLines("visit_no_show", { note: "Synthetisch", at_door: true })).toEqual(["Synthetisch", "an der Tür: ja"]);
+    expect(entryLines("visit_no_show", { note: "Synthetisch", at_door: false })).toEqual(["Synthetisch", "an der Tür: nein"]);
+    expect(entryLines("visit_no_show_outcome", { reason_code: "emergency_contact_informed", note: "Synthetisch", disclosure_basis: "emergency" }))
+      .toEqual(["Notfallkontakt informiert", "Grundlage: Notfall", "Synthetisch"]);
+    expect(entryLines("visit_no_show_outcome", { reason_code: "emergency_contact_informed", note: "Synthetisch", disclosure_basis: null }))
+      .toEqual(["Notfallkontakt informiert", "Grundlage: nicht erfasst", "Synthetisch"]);
+    expect(entryLines("visit_no_show_outcome", { reason_code: "client_reached", note: "Synthetisch", disclosure_basis: null }))
+      .toEqual(["Klient:in erreicht", "Synthetisch"]);
   });
 
   it("AN2 / CGR-35: a move stored with responsible_absent shows the fixed text once after the reason; otherwise not", () => {

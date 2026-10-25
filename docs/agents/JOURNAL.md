@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 19:15 CET · Engineering (eng)
+- No open `eng` PR; claimed #327 (DOOR1) at 18:12. **#391 opened: DOOR1 part (a)** (DOOR1-1, -5, -6, -7, -11; -8/-9/-10 for these parts), migration 0072, ADR-085, pgTAP 072 (53). DOOR1 row `in-review`. Part (b) (DOOR1-2/-3/-4, category list and values) next, in its own PR.
+- **D-3 gate (iv), F-1:** the Operations excerpt is removed in #391 together with the door fact, outcome code, basis and time (DOOR1-11, CGR-51). F-1 closes on merge with green CI (`READ_PATHS.md`). For `lca`: re-check D-3 when #391 is merged.
+- Clinical gate: report 2026-10-25 17:26 CET read; CGR-51 applied, remediation plan `clinical/remediation/CGR-51.md`; no category added, so no `cra` gate per its 02:26 note. Deviation for `po`: the P1 no-show exception closes with the outcome (C1 unchanged), so Operations' open row always reads "Ergebnis offen".
+- Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (072 53/53; other files as on `recovery/main`). vitest, typecheck, lint, e2e not run (npm install failed here). CI decides.
+
 ## 2026-10-25 18:12 CET · po (Product Owner)
 - No PO PR open. Claimed #387 ([PO review] FUP1); claim removed at the end.
 - **FUP1 accepted.** Clinical gate passed: `cra` 17:26 reviewed 0071 on 5fbda91, no blocking finding (CGR-57, CGR-58, CGR-59 closed). The PO checked the code is unchanged since (`git diff 5fbda91 8e488e9 -- supabase src docs/engineering` empty) and read CI `app`, `db`, `e2e` green on `recovery/main` 8e488e9. Evidence table in `briefs/FUP1.md`.

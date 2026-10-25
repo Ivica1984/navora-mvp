@@ -123,9 +123,9 @@ select v.organization_id, v.id, v.case_id, v.team_id, pg_temp.v(11), v.visit_dat
        pg_temp.u('rn'), private.now() - interval '18 hours', 'J5-v3', 'report'
 from public.care_visits v where v.id = pg_temp.v(1);
 
-insert into public.visit_status_notes (organization_id, visit_id, kind, note, actor_id, idempotency_key) values
-  ('00000000-0000-4000-b000-000000000011', pg_temp.v(2), 'no_show', 'Synthetisch: RLS3 Notiz Nord', pg_temp.u('rn'), pg_temp.k(21)),
-  ('00000000-0000-4000-b000-000000000011', pg_temp.v(3), 'no_show', 'Synthetisch: RLS3 Notiz Mitte', pg_temp.u('mitte'), pg_temp.k(22));
+insert into public.visit_status_notes (organization_id, visit_id, kind, note, actor_id, idempotency_key, at_door) values
+  ('00000000-0000-4000-b000-000000000011', pg_temp.v(2), 'no_show', 'Synthetisch: RLS3 Notiz Nord', pg_temp.u('rn'), pg_temp.k(21), true),
+  ('00000000-0000-4000-b000-000000000011', pg_temp.v(3), 'no_show', 'Synthetisch: RLS3 Notiz Mitte', pg_temp.u('mitte'), pg_temp.k(22), true);
 insert into public.cover_events (organization_id, visit_id, kind, nurse_id, team_id) values
   ('00000000-0000-4000-b000-000000000011', pg_temp.v(2), 'offered', null, null),
   ('00000000-0000-4000-b000-000000000011', pg_temp.v(2), 'accepted', pg_temp.u('cover'), '00000000-0000-4000-a000-000000000102'),

@@ -133,7 +133,7 @@ begin
   perform pg_temp.act_as('00000000-0000-4000-a000-000000000902');
   set local role authenticated;
   perform public.depart_visit(pg_temp.v(p_n), pg_temp.k(100 + p_n));
-  perform public.record_no_show(pg_temp.v(p_n), 'Synthetisch: niemand öffnet', pg_temp.k(200 + p_n));
+  perform public.record_no_show(pg_temp.v(p_n), 'Synthetisch: niemand öffnet', pg_temp.k(200 + p_n), true);
   reset role;
 end;
 $$;

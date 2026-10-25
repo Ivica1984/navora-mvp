@@ -158,7 +158,7 @@ select pg_temp.visit(3, '00000000-0000-4000-a000-000000000101', interval '-1 day
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select is(public.depart_visit(pg_temp.v(3), pg_temp.k(20)), 'ok', 'fixture: on the way');
-select is(public.record_no_show(pg_temp.v(3), 'Synthetisch: niemand öffnet', pg_temp.k(21)), 'ok', 'fixture: no-show recorded');
+select is(public.record_no_show(pg_temp.v(3), 'Synthetisch: niemand öffnet', pg_temp.k(21), true), 'ok', 'fixture: no-show recorded');
 reset role;
 select pg_temp.eval();
 select is((select signal_kind from public.safety_signals where visit_id = pg_temp.v(3) and ended_at is null), 'no_show', 'a no-show is delivered as no_show');

@@ -99,3 +99,22 @@ export async function getSinceLast(day: string): Promise<SinceLastRowDb[]> {
   }
   return data ?? [];
 }
+
+export type DoorNote = Database["public"]["Functions"]["field_door_notes"]["Returns"][number];
+
+/**
+ * DOOR1-1: access and language notes of the case of each visit of the day the user reads (her team's visits, or a
+ * visit she covers while the cover runs). public.field_door_notes() (migration 0072, pgTAP 072). Display only.
+ */
+export async function getDoorNotes(day: string): Promise<DoorNote[]> {
+  const { supabase } = await requireUser();
+
+  const { data, error } = await supabase.rpc("field_door_notes", { p_date: day });
+
+  if (error) {
+    logEvent("error", "field.door_notes_load_failed", errorFields(error));
+    throw new Error("Zugangs- und Sprachhinweise konnten nicht geladen werden.");
+  }
+
+  return data ?? [];
+}
