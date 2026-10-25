@@ -3,8 +3,8 @@
 -- Users: nurse …902 (registered nurse, Testteam Nord …101) · nurse …906 (care assistant, Nord) · coach …901
 --        (coordinator of org A, in no team) · fremd …903 (admin of org B) · c4200000-…-907 (nurse of org A in
 --        Testteam Mitte only, created here).
--- Every step goes through the real commands. Within one transaction now() is constant, so visit times are placed
--- relative to now(); the stuck fixture gets a synthetic earlier status event (inserted as the table owner).
+-- Every step goes through the real commands. Within one transaction private.now() is constant, so visit times are placed
+-- relative to private.now(); the stuck fixture gets a synthetic earlier status event (inserted as the table owner).
 begin;
 create extension if not exists pgtap with schema extensions;
 
@@ -19,7 +19,7 @@ $$;
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
                         created_at, updated_at, confirmation_token, recovery_token, email_change_token_new, email_change)
 values ('00000000-0000-0000-0000-000000000000', 'c4200000-0000-4000-8000-000000000907', 'authenticated', 'authenticated',
-        'mitte.csr1@navora.test', '', now(), '{}', '{}', now(), now(), '', '', '', '');
+        'mitte.csr1@navora.test', '', private.now(), '{}', '{}', private.now(), private.now(), '', '', '', '');
 insert into public.organization_memberships (organization_id, user_id, role) values
   ('00000000-0000-4000-b000-000000000011', 'c4200000-0000-4000-8000-000000000907', 'nurse');
 insert into public.team_memberships (team_id, user_id, qualification) values
@@ -38,8 +38,8 @@ insert into fx values
   ('later',    '00000000-0000-4000-a042-000000000007', 'planned', 30, 0, false);   -- a later visit of the case (HAND1)
 
 -- One day for every fixture (the Swiss date 20 minutes ago); 'later' at the end of that day.
-create temp table d as select ((now() - interval '20 minutes') at time zone 'Europe/Zurich')::date as day,
-                              ((now() - interval '20 minutes') at time zone 'Europe/Zurich')::time as at;
+create temp table d as select ((private.now() - interval '20 minutes') at time zone 'Europe/Zurich')::date as day,
+                              ((private.now() - interval '20 minutes') at time zone 'Europe/Zurich')::time as at;
 grant select on d to authenticated;
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided,
                                 billable, status, planned_minutes_a, planned_minutes_b, is_needs_assessment, responsible_user_id)
@@ -53,9 +53,9 @@ from fx f cross join d;
 insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, occurred_at, actor_id)
 values
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a042-000000000002', '00000000-0000-4000-a000-000000000101',
-   'started', 'planned', 'started', now() - interval '3 hours', '00000000-0000-4000-a000-000000000902'),
+   'started', 'planned', 'started', private.now() - interval '3 hours', '00000000-0000-4000-a000-000000000902'),
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a042-000000000002', '00000000-0000-4000-a000-000000000101',
-   'paused', 'started', 'paused', now() - interval '2 hours', '00000000-0000-4000-a000-000000000902');
+   'paused', 'started', 'paused', private.now() - interval '2 hours', '00000000-0000-4000-a000-000000000902');
 
 -- Needs assessment: the case has none on record, so a wrongly counted completion would show.
 update public.cases set needs_assessment_done_at = null where id = '00000000-0000-4000-a000-000000000208';

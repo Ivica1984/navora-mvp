@@ -15,7 +15,7 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
 $$;
-create function pg_temp.today() returns date language sql as $$ select (now() at time zone 'Europe/Zurich')::date $$;
+create function pg_temp.today() returns date language sql as $$ select (private.now() at time zone 'Europe/Zurich')::date $$;
 
 -- Privileges --------------------------------------------------------------------------------------------------------
 select ok(has_function_privilege('authenticated', 'public.record_absence(uuid, uuid, date, date, time, time, uuid)', 'execute')
@@ -60,12 +60,12 @@ insert into fx values
   -- open visits nobody is responsible for
   ('open_b',  'a0460000-0000-4000-8000-000000000004', (pg_temp.today() + 1 + time '18:00') at time zone 'Europe/Zurich', null, 20, 'planned'),
   -- 'hand' and 'later' stay today whatever the time of day (least: before 23:00 Zurich); 'overdue' stays today too.
-  ('hand',    'a0460000-0000-4000-8000-000000000005', least(now() + interval '3 hours', (pg_temp.today() + time '23:00') at time zone 'Europe/Zurich'), null, 0, 'planned'),
+  ('hand',    'a0460000-0000-4000-8000-000000000005', least(private.now() + interval '3 hours', (pg_temp.today() + time '23:00') at time zone 'Europe/Zurich'), null, 0, 'planned'),
   -- 902's visits (registered nurse) for her absence today
-  ('paused',  'a0460000-0000-4000-8000-000000000006', now() - interval '3 hours', '00000000-0000-4000-a000-000000000902', 0, 'paused'),
-  ('overdue', 'a0460000-0000-4000-8000-000000000007', greatest(now() - interval '20 minutes', (pg_temp.today() + time '00:00') at time zone 'Europe/Zurich'), '00000000-0000-4000-a000-000000000902', 0, 'planned'),
-  ('later',   'a0460000-0000-4000-8000-000000000008', least(now() + interval '4 hours', (pg_temp.today() + time '23:00') at time zone 'Europe/Zurich'), '00000000-0000-4000-a000-000000000902', 0, 'planned'),
-  ('done',    'a0460000-0000-4000-8000-000000000009', now() - interval '6 hours', '00000000-0000-4000-a000-000000000902', 0, 'completed'),
+  ('paused',  'a0460000-0000-4000-8000-000000000006', private.now() - interval '3 hours', '00000000-0000-4000-a000-000000000902', 0, 'paused'),
+  ('overdue', 'a0460000-0000-4000-8000-000000000007', greatest(private.now() - interval '20 minutes', (pg_temp.today() + time '00:00') at time zone 'Europe/Zurich'), '00000000-0000-4000-a000-000000000902', 0, 'planned'),
+  ('later',   'a0460000-0000-4000-8000-000000000008', least(private.now() + interval '4 hours', (pg_temp.today() + time '23:00') at time zone 'Europe/Zurich'), '00000000-0000-4000-a000-000000000902', 0, 'planned'),
+  ('done',    'a0460000-0000-4000-8000-000000000009', private.now() - interval '6 hours', '00000000-0000-4000-a000-000000000902', 0, 'completed'),
   -- 902's visits for the qualification change (CGR-11)
   ('rn_b',    'a0460000-0000-4000-8000-000000000010', (pg_temp.today() + 5 + time '10:00') at time zone 'Europe/Zurich', '00000000-0000-4000-a000-000000000902', 20, 'planned'),
   ('rn_a',    'a0460000-0000-4000-8000-000000000011', (pg_temp.today() + 5 + time '12:00') at time zone 'Europe/Zurich', '00000000-0000-4000-a000-000000000902', 0, 'planned');
@@ -137,7 +137,7 @@ select is((select known_by_me from public.team_open_visits(pg_temp.today()) wher
 select is((select may_take from public.team_open_visits(pg_temp.today()) where visit_id = pg_temp.vid('open_b')), true,
   'a registered nurse may take a B visit');
 -- created in this transaction only (the seed holds no absence since ABS1-C6; the filter stays as a guard)
-select is((select count(*)::int from public.member_absences where created_at >= now()), 1, 'a team member reads the absence row of her team');
+select is((select count(*)::int from public.member_absences where created_at >= private.now()), 1, 'a team member reads the absence row of her team');
 select ok((select array_agg(visit_id order by visit_date, time_start) = array[pg_temp.vid('t1'), pg_temp.vid('t2'), pg_temp.vid('open_b')]
            from public.team_open_visits(pg_temp.today() + 1) where visit_id in (select id from fx)),
   'in time order');
@@ -203,9 +203,9 @@ select is((select recorded_by from public.member_absences where starts_at = (pg_
 select is(pg_temp.resp('t3'), null, 'her visit that day is released');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000906');
 set local role authenticated;
-select is((select recorded_by_me from public.team_absences() where is_me and starts_at > now() + interval '2 days'), false,
+select is((select recorded_by_me from public.team_absences() where is_me and starts_at > private.now() + interval '2 days'), false,
   'she sees it on her /field, recorded by a colleague');
-select is((public.change_absence((select absence_id from public.team_absences() where is_me and starts_at > now() + interval '2 days'),
+select is((public.change_absence((select absence_id from public.team_absences() where is_me and starts_at > private.now() + interval '2 days'),
           true, null, null, 'a4600000-0000-4000-8000-000000000041') ->> 'returned')::int, 1, 'she withdraws it; the untaken visit returns');
 reset role;
 select is(pg_temp.resp('t3'), '00000000-0000-4000-a000-000000000906'::uuid, 'and is hers again');
@@ -295,7 +295,7 @@ values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-0000000
 insert into public.care_plan_items (organization_id, case_id, team_id, service, category, planned_minutes, frequency, review_date, created_by,
                                     freq_times, freq_period, freq_weekdays, window_start, window_end) values
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-   'Körperpflege', 'A', 30, 'täglich', (now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 1, 'day', null, '06:00', '07:00');
+   'Körperpflege', 'A', 30, 'täglich', (private.now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 1, 'day', null, '06:00', '07:00');
 select lives_ok($$ select private.generate_case_plan('00000000-0000-4000-a000-000000000208', private.plan_system_actor()) $$, 'the plan is generated');
 create function pg_temp.gen(d integer) returns uuid language sql as $$
   select responsible_user_id from public.care_visits where case_id = '00000000-0000-4000-a000-000000000208' and plan_generated
@@ -307,7 +307,7 @@ select lives_ok($$ select private.generate_case_plan('00000000-0000-4000-a000-00
 select ok(pg_temp.gen(6) = '00000000-0000-4000-a000-000000000902' and pg_temp.gen(7) is null,
   're-generation never assigns the absent member');
 -- A visit taken from "Offen im Team" is not reassigned by regeneration.
-update public.member_absences set withdrawn_at = now(), withdrawn_by = '00000000-0000-4000-a000-000000000902'
+update public.member_absences set withdrawn_at = private.now(), withdrawn_by = '00000000-0000-4000-a000-000000000902'
   where user_id = '00000000-0000-4000-a000-000000000902' and starts_at = (pg_temp.today() + 7 + time '00:00') at time zone 'Europe/Zurich';
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
@@ -315,7 +315,7 @@ select is(public.take_open_visit((select id from public.care_visits where case_i
           and plan_generated and visit_date = pg_temp.today() + 7 and plan_slot_start = '06:00'), 'a4600000-0000-4000-8000-000000000082') ->> 'result',
   'ok', 'the deputy, back, takes the generated uncovered visit');
 reset role;
-update public.member_absences set withdrawn_at = now(), withdrawn_by = '00000000-0000-4000-a000-000000000906'
+update public.member_absences set withdrawn_at = private.now(), withdrawn_by = '00000000-0000-4000-a000-000000000906'
   where user_id = '00000000-0000-4000-a000-000000000906' and starts_at = (pg_temp.today() + 7 + time '00:00') at time zone 'Europe/Zurich';
 select lives_ok($$ select private.generate_case_plan('00000000-0000-4000-a000-000000000208', private.plan_system_actor()) $$, 'regeneration after both return');
 select is(pg_temp.gen(7), '00000000-0000-4000-a000-000000000902'::uuid, 'the taken visit stays with the taker (not reassigned to the primary nurse)');

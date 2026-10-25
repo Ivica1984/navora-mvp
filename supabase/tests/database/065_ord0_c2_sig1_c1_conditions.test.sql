@@ -20,7 +20,7 @@ $$;
 create function pg_temp.u(n integer) returns uuid language sql immutable as $$
   select ('00000000-0000-4000-a000-' || lpad(n::text, 12, '0'))::uuid
 $$;
-create function pg_temp.today() returns date language sql stable as $$ select (now() at time zone 'Europe/Zurich')::date $$;
+create function pg_temp.today() returns date language sql stable as $$ select (private.now() at time zone 'Europe/Zurich')::date $$;
 create function pg_temp.task() returns text language sql as $$
   select coalesce(string_agg(status, ',' order by status), '') from public.case_tasks
   where case_id = '00000000-0000-4000-a000-000000000208' and kind = 'inform_gp'
@@ -56,7 +56,7 @@ $$;
 
 -- ORD0-C2 (CGR-44) ------------------------------------------------------------------------------------------------------
 -- One transaction: every row has the same created_at, so pg_temp.task() lists the tasks by status.
-update public.cases set medical_order_status = null, medical_order_valid_until = null, created_at = now() - interval '20 days'
+update public.cases set medical_order_status = null, medical_order_valid_until = null, created_at = private.now() - interval '20 days'
 where id = '00000000-0000-4000-a000-000000000208';
 delete from public.case_tasks where case_id = '00000000-0000-4000-a000-000000000208' and kind = 'inform_gp';
 
@@ -179,7 +179,7 @@ select ok(pg_temp.sig(11) is not null and not pg_temp.escalated(11), 'fixture: a
 select is(pg_temp.take(906, 11, 21) ->> 'result', 'ok', 'SIG1-C1 (a): the care assistant takes the no-show');
 select is((pg_temp.take(906, 11, 22) ->> 'operations_follows'), null, 'a second tap by her → duplicate (nothing more to record)');
 set local session_replication_role = replica;
-update public.signal_outside_deliveries set decided_at = now() - interval '3 minutes'
+update public.signal_outside_deliveries set decided_at = private.now() - interval '3 minutes'
 where id in (select d.id from public.signal_deliveries d where d.signal_id = pg_temp.sig(11));
 set local session_replication_role = origin;
 select pg_temp.eval();
@@ -196,7 +196,7 @@ select pg_temp.no_show(13);
 select pg_temp.no_show(14);
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, billable, status, responsible_user_id)
 values ('00000000-0000-4000-b000-000000000011', pg_temp.v(15), '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-        (now() at time zone 'Europe/Zurich' - interval '2 hours')::date, (now() at time zone 'Europe/Zurich' - interval '2 hours')::time(0),
+        ((private.now() - interval '2 hours') at time zone 'Europe/Zurich')::date, ((private.now() - interval '2 hours') at time zone 'Europe/Zurich')::time(0),
         false, 'planned', '00000000-0000-4000-a000-000000000902');
 select pg_temp.eval();
 select ok(pg_temp.sig(12) is not null and pg_temp.sig(13) is not null and pg_temp.sig(14) is not null and pg_temp.sig(15) is not null,

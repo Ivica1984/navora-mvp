@@ -31,11 +31,11 @@ begin
   -- J1 (PO brief): complete facts so the cases are ready and the matching requests exist.
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2 Anfrage A'),
     'Klient', 'J2A', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
-      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (now() at time zone 'Europe/Zurich')::date + 1),
+      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (private.now() at time zone 'Europe/Zurich')::date + 1),
     'a2000000-0000-4000-8000-000000000003');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2 Anfrage B'),
     'Klient', 'J2B', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
-      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (now() at time zone 'Europe/Zurich')::date + 1),
+      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (private.now() at time zone 'Europe/Zurich')::date + 1),
     'a2000000-0000-4000-8000-000000000004');
 end
 $$;

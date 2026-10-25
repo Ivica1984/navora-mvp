@@ -14,7 +14,7 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
 $$;
-create function pg_temp.today() returns date language sql as $$ select (now() at time zone 'Europe/Zurich')::date $$;
+create function pg_temp.today() returns date language sql as $$ select (private.now() at time zone 'Europe/Zurich')::date $$;
 
 -- Fixtures (synthetic) ----------------------------------------------------------------------------------------------
 insert into public.member_profiles (organization_id, user_id, display_name, updated_by) values

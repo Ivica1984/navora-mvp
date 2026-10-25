@@ -31,7 +31,7 @@ select ok(not has_table_privilege('authenticated', 'public.exception_rules', 'up
 -- Fixtures (as owner) --------------------------------------------------------------------------------------
 -- a fresh serious event (1 h) → still P2
 insert into public.quality_events (organization_id, id, created_at, case_id, team_id, event_type, severity, title, status)
-values ('00000000-0000-4000-b000-000000000011', 'a9000000-0000-4000-8000-000000000701', now() - interval '1 hour',
+values ('00000000-0000-4000-b000-000000000011', 'a9000000-0000-4000-8000-000000000701', private.now() - interval '1 hour',
         '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101', 'process', 'critical', 'Frisches Ereignis', 'open');
 -- case 208 came as a hospital discharge; an uncovered visit in 3 hours
 insert into public.matching_requests (organization_id, case_id, request_title, region, urgency, status, referral_type, selected_team_id)
@@ -39,14 +39,14 @@ values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-0000000
         'accepted', 'hospital_discharge', '00000000-0000-4000-a000-000000000101');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status)
 select '00000000-0000-4000-b000-000000000011', 'a9000000-0000-4000-8000-000000000601', '00000000-0000-4000-a000-000000000208',
-       '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich' + interval '3 hours')::date,
-       (now() at time zone 'Europe/Zurich' + interval '3 hours')::time, null, false, 'planned';
+       '00000000-0000-4000-a000-000000000101', ((private.now() + interval '3 hours') at time zone 'Europe/Zurich')::date,
+       ((private.now() + interval '3 hours') at time zone 'Europe/Zurich')::time, null, false, 'planned';
 -- order expiring in 3 days; care-plan review overdue
-update public.cases set medical_order_status = 'present', medical_order_valid_until = (now() at time zone 'Europe/Zurich')::date + 3
+update public.cases set medical_order_status = 'present', medical_order_valid_until = (private.now() at time zone 'Europe/Zurich')::date + 3
   where id = '00000000-0000-4000-a000-000000000208';
 insert into public.care_plan_items (organization_id, case_id, team_id, service, category, planned_minutes, frequency, review_date, created_by)
 values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-        'OPS1 Testleistung', 'A', 20, 'täglich', (now() at time zone 'Europe/Zurich')::date - 1, '00000000-0000-4000-a000-000000000902');
+        'OPS1 Testleistung', 'A', 20, 'täglich', (private.now() at time zone 'Europe/Zurich')::date - 1, '00000000-0000-4000-a000-000000000902');
 -- thresholds 0 so the time-based types exist now (configuration, not code)
 update public.exception_rules set amount = 0 where exception_type in ('case_not_ready', 'report_not_final');
 
@@ -62,7 +62,7 @@ do $$ begin
     'mittel', null, 'OPS1 ohne Team', 'Bedarf', array['Grundpflege'], 'a9000000-0000-4000-8000-000000000003');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'OPS1 ohne Team'),
     'Klient', 'OPS1N', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
-      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (now() at time zone 'Europe/Zurich')::date + 2),
+      'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (private.now() at time zone 'Europe/Zurich')::date + 2),
     'a9000000-0000-4000-8000-000000000004');
 end $$;
 reset role;

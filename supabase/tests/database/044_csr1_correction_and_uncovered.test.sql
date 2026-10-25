@@ -36,11 +36,11 @@ select ok(has_function_privilege('authenticated', 'public.correct_report(uuid, t
 create temp table fx (name text primary key, id uuid not null, at timestamptz not null, resp uuid);
 grant select on fx to authenticated;
 insert into fx values
-  ('unc',    '00000000-0000-4000-a044-000000000001', now() + interval '3 hours', null),   -- ends by a start
-  ('unc2',   '00000000-0000-4000-a044-000000000002', now() + interval '5 hours', null),   -- ends by a cancellation
-  ('legacy', '00000000-0000-4000-a044-000000000003', now() + interval '6 hours', null),   -- closed before 0044
-  ('rep_rn', '00000000-0000-4000-a044-000000000011', now() - interval '3 hours', '00000000-0000-4000-a000-000000000902'),
-  ('rep_ca', '00000000-0000-4000-a044-000000000012', now() - interval '2 hours', '00000000-0000-4000-a000-000000000906');
+  ('unc',    '00000000-0000-4000-a044-000000000001', private.now() + interval '3 hours', null),   -- ends by a start
+  ('unc2',   '00000000-0000-4000-a044-000000000002', private.now() + interval '5 hours', null),   -- ends by a cancellation
+  ('legacy', '00000000-0000-4000-a044-000000000003', private.now() + interval '6 hours', null),   -- closed before 0044
+  ('rep_rn', '00000000-0000-4000-a044-000000000011', private.now() - interval '3 hours', '00000000-0000-4000-a000-000000000902'),
+  ('rep_ca', '00000000-0000-4000-a044-000000000012', private.now() - interval '2 hours', '00000000-0000-4000-a000-000000000906');
 
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided,
                                 billable, status, planned_minutes_a, responsible_user_id)

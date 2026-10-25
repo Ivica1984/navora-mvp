@@ -247,17 +247,17 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000902');   -- nurse of org
 set local role authenticated;
 select is((select count(*)::int from public.pilot_hypotheses('2025-04-01') where organization_id = '00000000-0000-4000-b000-000000000012'), 0,
   'a user of another organisation sees nothing of org B');
-select is((select count(*)::int from public.pilot_hypotheses((now() at time zone 'Europe/Zurich')::date) where team_id is null), 0,
+select is((select count(*)::int from public.pilot_hypotheses((private.now() at time zone 'Europe/Zurich')::date) where team_id is null), 0,
   'a nurse sees no organisation row');
-select is((select count(*)::int from public.pilot_hypotheses((now() at time zone 'Europe/Zurich')::date)
+select is((select count(*)::int from public.pilot_hypotheses((private.now() at time zone 'Europe/Zurich')::date)
            where team_id is distinct from '00000000-0000-4000-a000-000000000101'), 0,
   'and no row of a team she is not in');
-select ok((select count(*) > 0 from public.pilot_hypotheses((now() at time zone 'Europe/Zurich')::date)
+select ok((select count(*) > 0 from public.pilot_hypotheses((private.now() at time zone 'Europe/Zurich')::date)
            where team_id = '00000000-0000-4000-a000-000000000101'), 'but her own team''s rows');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
 set local role authenticated;
-select is((select count(*)::int from public.pilot_hypotheses((now() at time zone 'Europe/Zurich')::date)
+select is((select count(*)::int from public.pilot_hypotheses((private.now() at time zone 'Europe/Zurich')::date)
            where organization_id = '00000000-0000-4000-b000-000000000011'), 0,
   'a coordination role of org B sees nothing of org A');
 reset role;

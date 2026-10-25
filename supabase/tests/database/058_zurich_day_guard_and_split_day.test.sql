@@ -18,6 +18,10 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(15);
 
+-- DST1 / ADR-081: the CI db job pins the database clock (navora.test_now) for the suite; this file keeps its own clock
+-- method (a session time zone chosen by the real hour), so the database clock is the real one for this transaction.
+select set_config('navora.test_now', now()::text, true);
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);

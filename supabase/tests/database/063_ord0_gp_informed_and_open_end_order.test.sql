@@ -14,7 +14,7 @@ $$;
 create function pg_temp.k(n integer) returns uuid language sql immutable as $$
   select ('a6300000-0000-4000-9000-' || lpad(n::text, 12, '0'))::uuid
 $$;
-create function pg_temp.today() returns date language sql stable as $$ select (now() at time zone 'Europe/Zurich')::date $$;
+create function pg_temp.today() returns date language sql stable as $$ select (private.now() at time zone 'Europe/Zurich')::date $$;
 create function pg_temp.rec(p_case text, p_date date, p_channel text, p_key integer) returns text language sql as $$
   select public.record_gp_informed(p_case::uuid, p_date, p_channel, pg_temp.k(p_key)) ->> 'result'
 $$;
@@ -55,8 +55,8 @@ select is((select priority || ' ' || coalesce(amount::text, '-') || ' ' || label
   'P3 - Verordnung ohne Enddatum', 'ORD0-4: an operating rule, P3, no threshold');
 
 -- CGR-36: an A/C visit planned without an order opens the task ------------------------------------------------------------
-update public.cases set needs_assessment_done_at = now() - interval '2 days', medical_order_status = null,
-                        created_at = now() - interval '20 days'
+update public.cases set needs_assessment_done_at = private.now() - interval '2 days', medical_order_status = null,
+                        created_at = private.now() - interval '20 days'
 where id = '00000000-0000-4000-a000-000000000208';
 -- the task was created 5 days ago (CGR-40: the doctor may have been informed before that, at the assessment)
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
@@ -65,7 +65,7 @@ select is((public.plan_visit('00000000-0000-4000-a000-000000000208', pg_temp.tod
   'an A/C visit is planned without a medical order');
 reset role;
 select is(pg_temp.task('00000000-0000-4000-a000-000000000208'), 'open', 'CGR-36: the inform_gp task is open');
-update public.case_tasks set created_at = now() - interval '5 days'
+update public.case_tasks set created_at = private.now() - interval '5 days'
 where case_id = '00000000-0000-4000-a000-000000000208' and kind = 'inform_gp';
 
 -- complete_case_task stays refused for inform_gp (separate command) ------------------------------------------------------
@@ -75,7 +75,7 @@ select throws_ok($$select public.complete_case_task('00000000-0000-4000-a000-000
   '22023', null, 'ORD0-2: complete_case_task(''inform_gp'') stays refused');
 
 -- Input checks ------------------------------------------------------------------------------------------------------------
-select throws_ok($$select public.record_gp_informed('00000000-0000-4000-a000-000000000208', (now() at time zone 'Europe/Zurich')::date, 'fax', 'a6300000-0000-4000-9000-000000000003')$$,
+select throws_ok($$select public.record_gp_informed('00000000-0000-4000-a000-000000000208', (private.now() at time zone 'Europe/Zurich')::date, 'fax', 'a6300000-0000-4000-9000-000000000003')$$,
   '22023', null, 'ORD0-1: only the fixed channel codes');
 select throws_ok($$select public.record_gp_informed('00000000-0000-4000-a000-000000000208', null, 'telefon', 'a6300000-0000-4000-9000-000000000004')$$,
   '22023', null, 'ORD0-1: the date is required');

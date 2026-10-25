@@ -40,9 +40,9 @@ select '00000000-0000-4000-b000-000000000011', f.id, '00000000-0000-4000-a000-00
        '00000000-0000-4000-a000-000000000101', x.d, x.t, x.t + interval '30 minutes', array['Grundpflege'], false,
        'planned', 30, x.who
 from fx f join (values
-  ('colleague', (now() at time zone 'Europe/Zurich')::date,     time '07:00', '00000000-0000-4000-a000-000000000902'::uuid),
-  ('mine',      (now() at time zone 'Europe/Zurich')::date + 1, time '09:00', '00000000-0000-4000-a000-000000000906'::uuid),
-  ('rn',        (now() at time zone 'Europe/Zurich')::date,     time '08:00', '00000000-0000-4000-a000-000000000902'::uuid)
+  ('colleague', (private.now() at time zone 'Europe/Zurich')::date,     time '07:00', '00000000-0000-4000-a000-000000000902'::uuid),
+  ('mine',      (private.now() at time zone 'Europe/Zurich')::date + 1, time '09:00', '00000000-0000-4000-a000-000000000906'::uuid),
+  ('rn',        (private.now() at time zone 'Europe/Zurich')::date,     time '08:00', '00000000-0000-4000-a000-000000000902'::uuid)
 ) as x(name, d, t, who) on x.name = f.name;
 
 create function pg_temp.vid(n text) returns uuid language sql as $$ select id from fx where name = n $$;

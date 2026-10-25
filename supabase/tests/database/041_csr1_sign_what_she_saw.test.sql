@@ -32,7 +32,7 @@ insert into fx values
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end,
                                 services_provided, billable, status, planned_minutes_a, responsible_user_id)
 select '00000000-0000-4000-b000-000000000011', f.id, '00000000-0000-4000-a000-000000000208',
-       '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich')::date, x.t,
+       '00000000-0000-4000-a000-000000000101', (private.now() at time zone 'Europe/Zurich')::date, x.t,
        x.t + interval '30 minutes', array['Grundpflege'], false, 'planned', 30, x.who
 from fx f join (values
   ('rn', time '05:00', '00000000-0000-4000-a000-000000000902'::uuid),
@@ -45,7 +45,7 @@ create function pg_temp.latest_report(n text) returns uuid language sql as $$
   where r.visit_id = pg_temp.vid(n) and not exists (select 1 from public.visit_reports s where s.supersedes_id = r.id) $$;
 -- What /field shows for the visit's latest report version (the caller's view).
 create function pg_temp.shown(n text) returns table (snapshot jsonb, snapshot_hash text, status text) language sql as $$
-  select f.snapshot, f.snapshot_hash, f.status from public.field_reports((now() at time zone 'Europe/Zurich')::date) f
+  select f.snapshot, f.snapshot_hash, f.status from public.field_reports((private.now() at time zone 'Europe/Zurich')::date) f
   where f.visit_id = pg_temp.vid(n) $$;
 create function pg_temp.started_event(n text) returns bigint language sql as $$
   select e.id from public.visit_events e where e.visit_id = pg_temp.vid(n) and e.event_type = 'started' $$;
@@ -119,7 +119,7 @@ select is(public.sign_report(pg_temp.latest_report('rn'), (select hash from seen
 select is(public.correct_report(pg_temp.latest_report('rn'), 'Startzeit prüfen', null, 'a4100000-0000-4000-8000-000000000020')
           ->> 'result', 'ok', 'a correction draft is opened');
 insert into seen select 'correction', snapshot_hash from pg_temp.shown('rn');
-select is(public.correct_visit_time(pg_temp.started_event('rn'), now() - interval '25 minutes', 'Start zu spät getippt',
+select is(public.correct_visit_time(pg_temp.started_event('rn'), private.now() - interval '25 minutes', 'Start zu spät getippt',
           'a4100000-0000-4000-8000-000000000021'), 'ok', 'the time is corrected in the correction draft');
 select is(public.sign_report(pg_temp.latest_report('rn'), (select hash from seen where step = 'correction'),
           'a4100000-0000-4000-8000-000000000022') ->> 'reason', 'facts_changed',

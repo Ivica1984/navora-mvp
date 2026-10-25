@@ -41,16 +41,16 @@ select is((select string_agg(a, ',' order by n) from unnest(
 create temp table fx (name text primary key, id uuid not null, at timestamptz not null, resp uuid);
 grant select on fx to authenticated;
 insert into fx values
-  ('rep',  '00000000-0000-4000-a047-000000000001', now() - interval '3 hours', '00000000-0000-4000-a000-000000000902'),
-  ('ca',   '00000000-0000-4000-a047-000000000002', now() - interval '2 hours', '00000000-0000-4000-a000-000000000906'),
-  ('by_team', '00000000-0000-4000-a047-000000000011', now() - interval '1 hour', '00000000-0000-4000-a000-000000000902'),
-  ('by_ops',  '00000000-0000-4000-a047-000000000012', now() - interval '1 hour', '00000000-0000-4000-a000-000000000902'),
-  ('by_me',   '00000000-0000-4000-a047-000000000013', now() - interval '1 hour', '00000000-0000-4000-a000-000000000902');
+  ('rep',  '00000000-0000-4000-a047-000000000001', private.now() - interval '3 hours', '00000000-0000-4000-a000-000000000902'),
+  ('ca',   '00000000-0000-4000-a047-000000000002', private.now() - interval '2 hours', '00000000-0000-4000-a000-000000000906'),
+  ('by_team', '00000000-0000-4000-a047-000000000011', private.now() - interval '1 hour', '00000000-0000-4000-a000-000000000902'),
+  ('by_ops',  '00000000-0000-4000-a047-000000000012', private.now() - interval '1 hour', '00000000-0000-4000-a000-000000000902'),
+  ('by_me',   '00000000-0000-4000-a047-000000000013', private.now() - interval '1 hour', '00000000-0000-4000-a000-000000000902');
 
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided,
                                 billable, status, planned_minutes_a, responsible_user_id)
 select '00000000-0000-4000-b000-000000000011', f.id, '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-       (now() at time zone 'Europe/Zurich')::date, (f.at at time zone 'Europe/Zurich')::time,
+       (private.now() at time zone 'Europe/Zurich')::date, (f.at at time zone 'Europe/Zurich')::time,
        ((f.at + interval '30 minutes') at time zone 'Europe/Zurich')::time, array['Grundpflege'], false, 'planned', 30, f.resp
 from fx f;
 
@@ -62,7 +62,7 @@ create function pg_temp.latest_report(n text) returns uuid language sql as $$
   select r.id from public.visit_reports r
   where r.visit_id = pg_temp.vid(n) and not exists (select 1 from public.visit_reports s where s.supersedes_id = r.id) $$;
 create function pg_temp.shown_hash(n text) returns text language sql as $$
-  select f.snapshot_hash from public.field_reports((now() at time zone 'Europe/Zurich')::date) f where f.visit_id = pg_temp.vid(n) $$;
+  select f.snapshot_hash from public.field_reports((private.now() at time zone 'Europe/Zurich')::date) f where f.visit_id = pg_temp.vid(n) $$;
 create function pg_temp.ops(n text) returns table (exception_key text, priority text, detail text) language sql as $$
   select x.exception_key, x.priority, x.detail from public.operations_exceptions() x
   where x.exception_type = 'report_correction_open' and x.entity_id = pg_temp.vid(n) $$;
@@ -73,7 +73,7 @@ create function pg_temp.team(n text) returns table (exception_key text, priority
 create function pg_temp.age_correction(n text, h int) returns void language plpgsql as $$
 begin
   alter table public.visit_reports disable trigger visit_reports_guard;
-  update public.visit_reports set created_at = now() - make_interval(hours => h)
+  update public.visit_reports set created_at = private.now() - make_interval(hours => h)
   where visit_id = pg_temp.vid(n) and supersedes_id is not null and status <> 'final';
   alter table public.visit_reports enable trigger visit_reports_guard;
 end $$;
@@ -226,7 +226,7 @@ create function pg_temp.ended(n text) returns table (reason_code text, note text
                                                      actor_qualification text, actor_role text)
 language sql as $$
   select s.reason_code, s.note, s.actor_kind, s.actor_name, s.actor_qualification, s.actor_role
-  from public.field_visit_status_notes((now() at time zone 'Europe/Zurich')::date) s
+  from public.field_visit_status_notes((private.now() at time zone 'Europe/Zurich')::date) s
   where s.visit_id = pg_temp.vid(n) and s.kind = 'interrupted' $$;
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
@@ -254,7 +254,7 @@ select is((select row(actor_kind, actor_name, actor_qualification)::text from pg
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
 set local role authenticated;
-select is((select count(*)::int from public.field_visit_status_notes((now() at time zone 'Europe/Zurich')::date)
+select is((select count(*)::int from public.field_visit_status_notes((private.now() at time zone 'Europe/Zurich')::date)
            where visit_id in (pg_temp.vid('by_team'), pg_temp.vid('by_ops'), pg_temp.vid('by_me'))), 0,
   'another organisation reads no status notes');
 reset role;

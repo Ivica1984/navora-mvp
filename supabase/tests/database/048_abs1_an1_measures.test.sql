@@ -1,6 +1,6 @@
 -- ABS1 part 2, AN1 (migration 0048, ADR-059): the three absence measures in pilot_kpis, organisation level for
 -- coordination roles, team level under the small-team rule. Aggregates only: no row names who was absent.
--- Fixtures (synthetic) are written as the table owner with fixed offsets from now(), so the figures do not depend on
+-- Fixtures (synthetic) are written as the table owner with fixed offsets from private.now(), so the figures do not depend on
 -- the time of day (only a run in the first three hours of a month would put the fixtures in the previous month).
 -- COVER1 lead time: the seed default (24 h).
 begin;
@@ -12,7 +12,7 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
 $$;
-create function pg_temp.today() returns date language sql as $$ select (now() at time zone 'Europe/Zurich')::date $$;
+create function pg_temp.today() returns date language sql as $$ select (private.now() at time zone 'Europe/Zurich')::date $$;
 
 update public.cases set primary_nurse_id = '00000000-0000-4000-a000-000000000906', deputy_nurse_id = '00000000-0000-4000-a000-000000000902'
   where id = '00000000-0000-4000-a000-000000000208';
@@ -21,11 +21,11 @@ update public.cases set primary_nurse_id = '00000000-0000-4000-a000-000000000906
 -- to her untaken (left out). Absence 2 (902, recorded 3 h ago): v5 taken by the primary nurse 30 min later.
 insert into public.member_absences (id, organization_id, team_id, user_id, starts_at, ends_at, recorded_by, created_at) values
   ('a0480000-0000-4000-9000-000000000001', '00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000101',
-   '00000000-0000-4000-a000-000000000906', now() - interval '1 hour', now() + interval '5 days', '00000000-0000-4000-a000-000000000902',
-   now() - interval '2 hours'),
+   '00000000-0000-4000-a000-000000000906', private.now() - interval '1 hour', private.now() + interval '5 days', '00000000-0000-4000-a000-000000000902',
+   private.now() - interval '2 hours'),
   ('a0480000-0000-4000-9000-000000000002', '00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000101',
-   '00000000-0000-4000-a000-000000000902', now() - interval '1 hour', now() + interval '2 hours', '00000000-0000-4000-a000-000000000902',
-   now() - interval '3 hours');
+   '00000000-0000-4000-a000-000000000902', private.now() - interval '1 hour', private.now() + interval '2 hours', '00000000-0000-4000-a000-000000000902',
+   private.now() - interval '3 hours');
 
 create temp table fx (name text primary key, id uuid not null, absence uuid not null, at timestamptz not null);
 insert into fx values
@@ -33,7 +33,7 @@ insert into fx values
   ('v2', 'a0480000-0000-4000-8000-000000000102', 'a0480000-0000-4000-9000-000000000001', ((pg_temp.today() + 3) + time '11:00') at time zone 'Europe/Zurich'),
   ('v3', 'a0480000-0000-4000-8000-000000000103', 'a0480000-0000-4000-9000-000000000001', ((pg_temp.today() + 3) + time '13:00') at time zone 'Europe/Zurich'),
   ('v4', 'a0480000-0000-4000-8000-000000000104', 'a0480000-0000-4000-9000-000000000001', ((pg_temp.today() + 3) + time '15:00') at time zone 'Europe/Zurich'),
-  ('v5', 'a0480000-0000-4000-8000-000000000105', 'a0480000-0000-4000-9000-000000000002', now() + interval '1 hour');
+  ('v5', 'a0480000-0000-4000-8000-000000000105', 'a0480000-0000-4000-9000-000000000002', private.now() + interval '1 hour');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided,
                                 billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id)
 select '00000000-0000-4000-b000-000000000011', f.id, '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
@@ -47,10 +47,10 @@ insert into public.visit_plan_changes (organization_id, visit_id, case_id, team_
 select '00000000-0000-4000-b000-000000000011', f.id, '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
        x.change, '{}'::jsonb, '{}'::jsonb, x.reason, x.actor, x.at
 from fx f join (values
-  ('v1', 'taken',    'Übernommen aus «Offen im Team»', '00000000-0000-4000-a000-000000000902'::uuid, now() - interval '90 minutes'),
-  ('v2', 'taken',    'Übernommen aus «Offen im Team»', '00000000-0000-4000-a000-000000000901'::uuid, now() - interval '60 minutes'),
-  ('v4', 'returned', 'Abwesenheit beendet',            '00000000-0000-4000-a000-000000000902'::uuid, now() - interval '30 minutes'),
-  ('v5', 'taken',    'Übernommen aus «Offen im Team»', '00000000-0000-4000-a000-000000000906'::uuid, now() - interval '150 minutes')
+  ('v1', 'taken',    'Übernommen aus «Offen im Team»', '00000000-0000-4000-a000-000000000902'::uuid, private.now() - interval '90 minutes'),
+  ('v2', 'taken',    'Übernommen aus «Offen im Team»', '00000000-0000-4000-a000-000000000901'::uuid, private.now() - interval '60 minutes'),
+  ('v4', 'returned', 'Abwesenheit beendet',            '00000000-0000-4000-a000-000000000902'::uuid, private.now() - interval '30 minutes'),
+  ('v5', 'taken',    'Übernommen aus «Offen im Team»', '00000000-0000-4000-a000-000000000906'::uuid, private.now() - interval '150 minutes')
 ) as x(name, change, reason, actor, at) on x.name = f.name;
 
 -- AN1 condition (0057, ADR-070): the seed's small teams would hide the organisation row of org A. Three more synthetic
@@ -62,7 +62,7 @@ insert into public.teams (organization_id, id, name, region, status) values
 insert into public.care_visits (organization_id, id, team_id, visit_date, time_start, time_end, billable, status)
 select '00000000-0000-4000-b000-000000000011', ('ad570000-0000-4000-8000-00000000000' || g)::uuid,
        case when g < 3 then 'ad570000-0000-4000-8000-0000000000b1' else 'ad570000-0000-4000-8000-0000000000b2' end::uuid,
-       date_trunc('month', (now() at time zone 'Europe/Zurich')::date)::date, '06:00', '06:30', false, 'completed'
+       date_trunc('month', (private.now() at time zone 'Europe/Zurich')::date)::date, '06:00', '06:30', false, 'completed'
 from generate_series(1, 3) g;
 insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, occurred_at)
 select v.organization_id, v.id, v.team_id, 'started', 'on_the_way', 'started',

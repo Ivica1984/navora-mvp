@@ -26,8 +26,8 @@ cleanup
 psql_q <<SQL
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, services_provided, billable, status, planned_minutes_a)
 values ('$ORG', '$VISIT', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-        (now() at time zone 'Europe/Zurich' + interval '10 hours')::date,
-        date_trunc('minute', (now() at time zone 'Europe/Zurich' + interval '10 hours'))::time, array['Grundpflege'], false, 'planned', 30);
+        ((now() + interval '10 hours') at time zone 'Europe/Zurich')::date,
+        date_trunc('minute', ((now() + interval '10 hours') at time zone 'Europe/Zurich'))::time, array['Grundpflege'], false, 'planned', 30);
 SQL
 
 take() {  # $1 user, $2 idempotency key

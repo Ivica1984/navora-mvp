@@ -18,6 +18,18 @@ const SEED_DAY = zurichDay();
 const NEXT_DAY = zurichDay(1);
 // Visit 509 (Testteam Nord, 18:00) two days ahead: the care assistant runs it in the F7 test below.
 const DAY_AFTER_NEXT = zurichDay(2);
+// DST1 (ADR-081): corrections are typed as Swiss wall time, and a wall time in the autumn repeated hour reads back
+// as its EARLIER instant (CEST). In the second pass of that hour "N minutes ago" therefore cannot be typed; pick the
+// first number of minutes back whose wall time reads back to the same instant (an hour more, the same check).
+function zurichWall(ms: number): string {
+  return new Intl.DateTimeFormat("de-CH", { timeZone: "Europe/Zurich", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+    .format(new Date(ms));
+}
+function typeableMinutesBack(...candidates: number[]): number {
+  const now = Date.now();
+  const found = candidates.find((m) => zurichWall(now - m * 60_000) !== zurichWall(now - m * 60_000 - 3_600_000));
+  return found ?? candidates[candidates.length - 1];
+}
 // Status buttons only (F4 adds "Beobachtung speichern" to completed visits).
 const TRANSITION = /^(Losfahren|Einsatz starten|Pause|Fortsetzen|Einsatz abschliessen)$/;
 
@@ -142,16 +154,18 @@ test.describe("field tool (F1)", () => {
     await expect(completed.getByTestId("command-error")).toContainText("Reihenfolge");
     await completed.getByRole("button", { name: "Abbrechen" }).click();
 
-    // Valid correction: departure 20 minutes earlier, with a reason.
+    // Valid correction: departure 20 minutes earlier (80 in the second pass of the repeated hour, DST1), with a reason.
+    const back = typeableMinutesBack(20, 80);
     const departed = timeline.getByRole("listitem").filter({ hasText: "Losgefahren" });
     await departed.getByRole("button", { name: "Korrigieren" }).click();
-    await departed.getByLabel("Richtige Uhrzeit").fill(zurich(-20));
+    await departed.getByLabel("Richtige Uhrzeit").fill(zurich(-back));
     await departed.getByLabel("Begründung").fill("Abfahrt zu spät getippt");
     await departed.getByRole("button", { name: "Korrektur speichern" }).click();
 
     await expect(departed).toContainText("korrigiert");
     await expect(departed).toContainText("Abfahrt zu spät getippt");
-    await expect(card.getByRole("region", { name: "Erfasste Zeit" })).toContainText(/(19|20|21) min/);
+    await expect(card.getByRole("region", { name: "Erfasste Zeit" }))
+      .toContainText(back === 20 ? /(19|20|21) min/ : /1 h (19|20|21) min/);
 
     await page.reload();
     const again = page.getByRole("article", { name: /09:00 – 09:45/ });
@@ -347,7 +361,7 @@ test.describe("field tool (F1)", () => {
     await mine.getByText("Zeiten ansehen und korrigieren").click();
     const departed = mine.getByRole("list", { name: "Zeitverlauf" }).getByRole("listitem").filter({ hasText: "Losgefahren" });
     await departed.getByRole("button", { name: "Korrigieren" }).click();
-    await departed.getByLabel("Richtige Uhrzeit").fill(zurich(-15));
+    await departed.getByLabel("Richtige Uhrzeit").fill(zurich(-typeableMinutesBack(15, 75)));
     await departed.getByLabel("Begründung").fill("Abfahrt zu spät getippt");
     await departed.getByRole("button", { name: "Korrektur speichern" }).click();
     await expect(departed).toContainText("korrigiert");

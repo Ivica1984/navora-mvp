@@ -25,7 +25,7 @@ values ('00000000-0000-4000-b000-000000000011', 24, 4, true);
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided, billable, status,
                                 planned_minutes_a, planned_minutes_b, planned_minutes_c)
 select '00000000-0000-4000-b000-000000000011', x.id, '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-       (now() at time zone 'Europe/Zurich' + x.lead)::date, date_trunc('minute', (now() at time zone 'Europe/Zurich' + x.lead))::time,
+       ((private.now() + x.lead) at time zone 'Europe/Zurich')::date, date_trunc('minute', ((private.now() + x.lead) at time zone 'Europe/Zurich'))::time,
        null, array['Grundpflege'], false, 'planned', x.a, x.b, 0
 from (values ('ac000000-0000-4000-8000-00000000000a'::uuid, interval '10 hours', 30, 0),
              ('ac000000-0000-4000-8000-00000000000b'::uuid, interval '10 hours', 0, 20),

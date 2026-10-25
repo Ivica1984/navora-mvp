@@ -18,7 +18,7 @@ select ok(not has_table_privilege('authenticated', 'public.quality_events', 'ins
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is(public.record_quality_event('00000000-0000-4000-a000-000000000501', 'fall', 'high', now(), null,
+select is(public.record_quality_event('00000000-0000-4000-a000-000000000501', 'fall', 'high', private.now(), null,
           'aa000000-0000-4000-8000-000000000001') ->> 'reason', 'type_not_approved', 'without an approved type nothing is recorded');
 reset role;
 
@@ -29,17 +29,17 @@ insert into public.quality_event_types (code, label, sets_hold, serious_default,
 -- Recording -----------------------------------------------------------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select throws_ok($$ select public.record_quality_event('00000000-0000-4000-a000-000000000501', 'test_info', 'urgent', now(), null,
+select throws_ok($$ select public.record_quality_event('00000000-0000-4000-a000-000000000501', 'test_info', 'urgent', private.now(), null,
           'aa000000-0000-4000-8000-000000000002') $$, '22023', null, 'severity from the fixed set');
-select is(public.record_quality_event('00000000-0000-4000-a000-000000000505', 'test_info', 'low', now(), null,
+select is(public.record_quality_event('00000000-0000-4000-a000-000000000505', 'test_info', 'low', private.now(), null,
           'aa000000-0000-4000-8000-000000000003') ->> 'reason', 'not_team_member', 'not from another team''s visit');
 select ok((select r ->> 'result' = 'ok' and (r ->> 'hold')::boolean = false
-           from (select public.record_quality_event('00000000-0000-4000-a000-000000000501', 'test_info', 'medium', now() - interval '10 minutes',
+           from (select public.record_quality_event('00000000-0000-4000-a000-000000000501', 'test_info', 'medium', private.now() - interval '10 minutes',
                         'Synthetische Beobachtung', 'aa000000-0000-4000-8000-000000000004') r) x),
   'the nurse records an event from the visit; this type sets no hold');
-select is(public.record_quality_event('00000000-0000-4000-a000-000000000501', 'test_info', 'medium', now() - interval '10 minutes',
+select is(public.record_quality_event('00000000-0000-4000-a000-000000000501', 'test_info', 'medium', private.now() - interval '10 minutes',
           'Synthetische Beobachtung', 'aa000000-0000-4000-8000-000000000004') ->> 'result', 'duplicate', 'resend is a duplicate');
-select ok((select (r ->> 'hold')::boolean from (select public.record_quality_event('00000000-0000-4000-a000-000000000502', 'test_hold', 'high', now(),
+select ok((select (r ->> 'hold')::boolean from (select public.record_quality_event('00000000-0000-4000-a000-000000000502', 'test_hold', 'high', private.now(),
           null, 'aa000000-0000-4000-8000-000000000005') r) x), 'a type flagged by the clinical list sets a hold');
 select ok(private.visit_has_open_hold('00000000-0000-4000-a000-000000000502'), 'the visit is on hold (J5 rule)');
 select ok((select author_id = '00000000-0000-4000-a000-000000000902' and occurred_at is not null and case_id is not null
@@ -103,7 +103,7 @@ select is(public.set_quality_hold('00000000-0000-4000-a000-000000000501', 'nochm
   'already_held', 'one open hold per visit');
 select is(public.lift_quality_hold((select id from public.quality_holds where visit_id = '00000000-0000-4000-a000-000000000501'),
           'erledigt', 'aa000000-0000-4000-8000-000000000022'), 'rejected', 'the team cannot lift a hold');
-select is((select count(*)::int from public.field_quality((now() at time zone 'Europe/Zurich')::date) where kind = 'hold' and status = 'open'), 2,
+select is((select count(*)::int from public.field_quality((private.now() at time zone 'Europe/Zurich')::date) where kind = 'hold' and status = 'open'), 2,
   '/field shows the open holds of the day');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');

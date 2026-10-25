@@ -16,7 +16,7 @@ values ('00000000-0000-4000-a000-000000000102', '00000000-0000-4000-a000-0000000
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided, billable, status,
                                 planned_minutes_a, planned_minutes_b, planned_minutes_c)
 select '00000000-0000-4000-b000-000000000011', x.id, '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-       (now() at time zone 'Europe/Zurich' + x.lead)::date, date_trunc('minute', (now() at time zone 'Europe/Zurich' + x.lead))::time,
+       ((private.now() + x.lead) at time zone 'Europe/Zurich')::date, date_trunc('minute', ((private.now() + x.lead) at time zone 'Europe/Zurich'))::time,
        null, array['Grundpflege'], false, 'planned', 30, 0, 0
 from (values ('ad900000-0000-4000-8000-00000000000a'::uuid, interval '10 hours'),
              ('ad900000-0000-4000-8000-00000000000b'::uuid, interval '5 hours'),
@@ -64,8 +64,8 @@ select is((select count(*)::int from public.operations_exceptions() where except
            and entity_id = 'ad900000-0000-4000-8000-00000000000a'), 0, 'instead of the plain uncovered exception');
 reset role;
 -- Move V to 3 h ahead (inside the fallback lead) to see the escalation.
-update public.care_visits set visit_date = (now() at time zone 'Europe/Zurich' + interval '3 hours')::date,
-                              time_start = date_trunc('minute', (now() at time zone 'Europe/Zurich' + interval '3 hours'))::time
+update public.care_visits set visit_date = ((private.now() + interval '3 hours') at time zone 'Europe/Zurich')::date,
+                              time_start = date_trunc('minute', ((private.now() + interval '3 hours') at time zone 'Europe/Zurich'))::time
   where id = 'ad900000-0000-4000-8000-00000000000b';
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
@@ -108,7 +108,7 @@ reset role;
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
                         created_at, updated_at, confirmation_token, recovery_token, email_change_token_new, email_change)
 values ('00000000-0000-0000-0000-000000000000', 'ad900000-0000-4000-8000-0000000000f9', 'authenticated', 'authenticated',
-        'mitte.test@navora.test', '', now(), '{}', '{}', now(), now(), '', '', '', '');
+        'mitte.test@navora.test', '', private.now(), '{}', '{}', private.now(), private.now(), '', '', '', '');
 insert into public.organization_memberships (organization_id, user_id, role)
 values ('00000000-0000-4000-b000-000000000011', 'ad900000-0000-4000-8000-0000000000f9', 'nurse');
 insert into public.team_memberships (team_id, user_id, qualification)
@@ -129,8 +129,8 @@ reset role;
 -- A needs-assessment visit is never offered to, or accepted by, a care assistant.
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, billable, status, planned_minutes_a, is_needs_assessment)
 values ('00000000-0000-4000-b000-000000000011', 'ad900000-0000-4000-8000-0000000000ee', '00000000-0000-4000-a000-000000000208',
-        '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich' + interval '12 hours')::date,
-        date_trunc('minute', (now() at time zone 'Europe/Zurich' + interval '12 hours'))::time, false, 'planned', 60, true);
+        '00000000-0000-4000-a000-000000000101', ((private.now() + interval '12 hours') at time zone 'Europe/Zurich')::date,
+        date_trunc('minute', ((private.now() + interval '12 hours') at time zone 'Europe/Zurich'))::time, false, 'planned', 60, true);
 select pg_temp.act_as('00000000-0000-4000-a000-000000000901');
 set local role authenticated;
 select ok(not exists (select 1 from public.cover_offers() where visit_id = 'ad900000-0000-4000-8000-0000000000ee'),

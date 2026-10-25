@@ -34,7 +34,7 @@ select throws_ok($$ select diagnosis_tags from public.cases limit 1 $$, '42501',
   'not even the own team reads diagnosis tags through the table API');
 select throws_ok($$ select content from public.care_notes limit 1 $$, '42501', null,
   'visit-report content is not readable through the table API');
-select is((select count(*)::int from public.field_visits((now() at time zone 'Europe/Zurich')::date)), 2,
+select is((select count(*)::int from public.field_visits((private.now() at time zone 'Europe/Zurich')::date)), 2,
   'the field read model still works for the nurse (F1)');
 reset role;
 

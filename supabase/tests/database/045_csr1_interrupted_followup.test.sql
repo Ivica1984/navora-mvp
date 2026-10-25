@@ -34,7 +34,7 @@ select ok(not private.exception_is_safety('00000000-0000-4000-b000-000000000011'
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
                         created_at, updated_at, confirmation_token, recovery_token, email_change_token_new, email_change)
 values ('00000000-0000-0000-0000-000000000000', 'c4500000-0000-4000-8000-000000000907', 'authenticated', 'authenticated',
-        'mitte.csr1h@navora.test', '', now(), '{}', '{}', now(), now(), '', '', '', '');
+        'mitte.csr1h@navora.test', '', private.now(), '{}', '{}', private.now(), private.now(), '', '', '', '');
 insert into public.organization_memberships (organization_id, user_id, role) values
   ('00000000-0000-4000-b000-000000000011', 'c4500000-0000-4000-8000-000000000907', 'nurse');
 insert into public.team_memberships (team_id, user_id, qualification) values
@@ -43,10 +43,10 @@ insert into public.team_memberships (team_id, user_id, qualification) values
 create temp table fx (name text primary key, id uuid not null, at timestamptz not null);
 grant select on fx to authenticated;
 insert into fx values
-  ('transfer', '00000000-0000-4000-a045-000000000001', now() - interval '20 minutes'),  -- client_transferred; team decides
-  ('declined', '00000000-0000-4000-a045-000000000002', now() - interval '20 minutes'),  -- client_declined; coordinator decides
-  ('running',  '00000000-0000-4000-a045-000000000003', now() - interval '20 minutes'),  -- stays started: wrong state
-  ('next',     '00000000-0000-4000-a045-000000000004', now() + interval '10 minutes');  -- the case's next planned visit
+  ('transfer', '00000000-0000-4000-a045-000000000001', private.now() - interval '20 minutes'),  -- client_transferred; team decides
+  ('declined', '00000000-0000-4000-a045-000000000002', private.now() - interval '20 minutes'),  -- client_declined; coordinator decides
+  ('running',  '00000000-0000-4000-a045-000000000003', private.now() - interval '20 minutes'),  -- stays started: wrong state
+  ('next',     '00000000-0000-4000-a045-000000000004', private.now() + interval '10 minutes');  -- the case's next planned visit
 
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, services_provided,
                                 billable, status, planned_minutes_a, responsible_user_id)

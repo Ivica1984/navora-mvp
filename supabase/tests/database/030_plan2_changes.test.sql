@@ -10,10 +10,10 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
 $$;
-create function pg_temp.today() returns date language sql as $$ select (now() at time zone 'Europe/Zurich')::date $$;
+create function pg_temp.today() returns date language sql as $$ select (private.now() at time zone 'Europe/Zurich')::date $$;
 create function pg_temp.generated_planned() returns integer language sql as $$
   select count(*)::int from public.care_visits where case_id = '00000000-0000-4000-a000-000000000208' and plan_generated
-    and status = 'planned' and visit_date > (now() at time zone 'Europe/Zurich')::date
+    and status = 'planned' and visit_date > (private.now() at time zone 'Europe/Zurich')::date
 $$;
 
 insert into public.team_memberships (team_id, user_id, qualification) values
@@ -32,9 +32,9 @@ values ('00000000-0000-4000-b000-000000000011', 'af000000-0000-4000-8000-0000000
 insert into public.care_plan_items (organization_id, case_id, team_id, service, category, planned_minutes, frequency, review_date, created_by,
                                     freq_times, freq_period, freq_weekdays, window_start, window_end) values
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-   'Körperpflege', 'A', 30, 'täglich', (now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 1, 'day', null, '08:00', '09:00'),
+   'Körperpflege', 'A', 30, 'täglich', (private.now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 1, 'day', null, '08:00', '09:00'),
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-   'Wundversorgung', 'B', 20, '2x wöchentlich', (now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 2, 'week', '{1,4}', '08:00', '09:00');
+   'Wundversorgung', 'B', 20, '2x wöchentlich', (private.now() at time zone 'Europe/Zurich')::date + 30, '00000000-0000-4000-a000-000000000902', 2, 'week', '{1,4}', '08:00', '09:00');
 
 -- No double planning ------------------------------------------------------------------------------------------------
 select is((select count(*)::int from public.care_visits where case_id = '00000000-0000-4000-a000-000000000208'
@@ -88,7 +88,7 @@ update public.cases set needs_assessment_done_at = null where id = '00000000-000
 select is(pg_temp.generated_planned(), 1, 'needs assessment no longer done: untouched generated visits are dropped, the moved one stays');
 select ok(exists (select 1 from public.visit_plan_changes where case_id = '00000000-0000-4000-a000-000000000208'
                   and change = 'removed' and reason = 'care plan: needs assessment first'), 'with the reason logged');
-update public.cases set needs_assessment_done_at = now() - interval '30 days' where id = '00000000-0000-4000-a000-000000000208';
+update public.cases set needs_assessment_done_at = private.now() - interval '30 days' where id = '00000000-0000-4000-a000-000000000208';
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
@@ -114,7 +114,7 @@ insert into public.teams (organization_id, id, name, region, status) values
 insert into public.care_visits (organization_id, id, team_id, visit_date, time_start, time_end, billable, status)
 select '00000000-0000-4000-b000-000000000011', ('ad570000-0000-4000-8000-00000000000' || g)::uuid,
        case when g < 3 then 'ad570000-0000-4000-8000-0000000000b1' else 'ad570000-0000-4000-8000-0000000000b2' end::uuid,
-       date_trunc('month', (now() at time zone 'Europe/Zurich')::date)::date, '06:00', '06:30', false, 'completed'
+       date_trunc('month', (private.now() at time zone 'Europe/Zurich')::date)::date, '06:00', '06:30', false, 'completed'
 from generate_series(1, 3) g;
 insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, occurred_at)
 select v.organization_id, v.id, v.team_id, 'started', 'on_the_way', 'started',
@@ -122,7 +122,7 @@ select v.organization_id, v.id, v.team_id, 'started', 'on_the_way', 'started',
 from public.care_visits v where v.team_id in ('ad570000-0000-4000-8000-0000000000b1', 'ad570000-0000-4000-8000-0000000000b2');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
-select ok((select value is not null and value > 0 from public.pilot_kpis((now() at time zone 'Europe/Zurich')::date)
+select ok((select value is not null and value > 0 from public.pilot_kpis((private.now() at time zone 'Europe/Zurich')::date)
            where team_id is null and kpi = 'planning_actions_per_client_week' and organization_id = '00000000-0000-4000-b000-000000000011'),
   'AN1 counts the team''s own planning actions per client and week (the move above), not the generated ones');
 reset role;

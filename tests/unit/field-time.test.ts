@@ -94,6 +94,20 @@ describe("Swiss wall-clock time for corrections (F3)", () => {
     expect(zurichLocalToIso("2026-03-29", "12:00")).toBe("2026-03-29T10:00:00.000Z"); // after spring-forward
   });
 
+  it("DST1: the repeated autumn hour resolves to the earlier instant (CEST), like private.at_zurich", () => {
+    expect(zurichLocalToIso("2026-10-25", "02:00")).toBe("2026-10-25T00:00:00.000Z");
+    expect(zurichLocalToIso("2026-10-25", "02:30")).toBe("2026-10-25T00:30:00.000Z");
+    expect(zurichLocalToIso("2026-10-25", "02:59")).toBe("2026-10-25T00:59:00.000Z");
+    expect(zurichLocalToIso("2026-10-25", "01:59")).toBe("2026-10-24T23:59:00.000Z");
+    expect(zurichLocalToIso("2026-10-25", "03:00")).toBe("2026-10-25T02:00:00.000Z");
+  });
+
+  it("DST1: a skipped spring time is read in standard time (CET), like private.at_zurich", () => {
+    expect(zurichLocalToIso("2027-03-28", "02:30")).toBe("2027-03-28T01:30:00.000Z");
+    expect(zurichLocalToIso("2027-03-28", "01:59")).toBe("2027-03-28T00:59:00.000Z");
+    expect(zurichLocalToIso("2027-03-28", "03:00")).toBe("2027-03-28T01:00:00.000Z");
+  });
+
   it("rejects malformed input", () => {
     expect(zurichLocalToIso("2026-10-21", "24:00")).toBeNull();
     expect(zurichLocalToIso("21.10.2026", "08:00")).toBeNull();

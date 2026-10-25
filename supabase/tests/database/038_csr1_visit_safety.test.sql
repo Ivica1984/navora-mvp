@@ -5,7 +5,7 @@
 --         nurse can; category A stays open to every member. All steps through the real commands.
 -- CGR-04: `visit_overdue` and `visit_stuck` (PROVISIONAL thresholds, D-28); the uncovered exception stays after the
 --         planned start; a removed member's visit dated yesterday is raised and shown to another team member.
--- Within one transaction now() is constant, so visit times are placed relative to now() and stuck visits get a
+-- Within one transaction private.now() is constant, so visit times are placed relative to private.now() and stuck visits get a
 -- synthetic earlier status event (inserted as the table owner, as a fixture).
 begin;
 create extension if not exists pgtap with schema extensions;
@@ -29,20 +29,20 @@ create temp table fx (name text primary key, id uuid not null, at timestamptz no
 grant select on fx to authenticated;
 insert into fx values
   -- CGR-12
-  ('b_visit',   '00000000-0000-4000-a038-000000000001', now() - interval '20 minutes', 'planned', '00000000-0000-4000-a000-000000000902', 0, 30, false),
-  ('na_visit',  '00000000-0000-4000-a038-000000000002', now() - interval '20 minutes', 'planned', '00000000-0000-4000-a000-000000000902', 30, 0, true),
-  ('a_visit',   '00000000-0000-4000-a038-000000000003', now() - interval '20 minutes', 'planned', '00000000-0000-4000-a000-000000000906', 30, 0, false),
+  ('b_visit',   '00000000-0000-4000-a038-000000000001', private.now() - interval '20 minutes', 'planned', '00000000-0000-4000-a000-000000000902', 0, 30, false),
+  ('na_visit',  '00000000-0000-4000-a038-000000000002', private.now() - interval '20 minutes', 'planned', '00000000-0000-4000-a000-000000000902', 30, 0, true),
+  ('a_visit',   '00000000-0000-4000-a038-000000000003', private.now() - interval '20 minutes', 'planned', '00000000-0000-4000-a000-000000000906', 30, 0, false),
   -- CGR-04 overdue
-  ('late2h',    '00000000-0000-4000-a038-000000000011', now() - interval '2 hours',    'planned', '00000000-0000-4000-a000-000000000902', 30, 0, false),
-  ('late10',    '00000000-0000-4000-a038-000000000012', now() - interval '10 minutes', 'planned', '00000000-0000-4000-a000-000000000902', 30, 0, false),
-  ('ahead',     '00000000-0000-4000-a038-000000000013', now() + interval '2 hours',    'planned', '00000000-0000-4000-a000-000000000902', 30, 0, false),
-  ('nobody',    '00000000-0000-4000-a038-000000000014', now() - interval '10 minutes', 'planned', null,                                    30, 0, false),
-  ('yesterday', '00000000-0000-4000-a038-000000000015', now() - interval '1 day',      'planned', '00000000-0000-4000-a000-000000000906', 30, 0, false),
-  ('suspended', '00000000-0000-4000-a038-000000000016', now() - interval '2 hours',    'planned', '00000000-0000-4000-a000-000000000902', 30, 0, false),
+  ('late2h',    '00000000-0000-4000-a038-000000000011', private.now() - interval '2 hours',    'planned', '00000000-0000-4000-a000-000000000902', 30, 0, false),
+  ('late10',    '00000000-0000-4000-a038-000000000012', private.now() - interval '10 minutes', 'planned', '00000000-0000-4000-a000-000000000902', 30, 0, false),
+  ('ahead',     '00000000-0000-4000-a038-000000000013', private.now() + interval '2 hours',    'planned', '00000000-0000-4000-a000-000000000902', 30, 0, false),
+  ('nobody',    '00000000-0000-4000-a038-000000000014', private.now() - interval '10 minutes', 'planned', null,                                    30, 0, false),
+  ('yesterday', '00000000-0000-4000-a038-000000000015', private.now() - interval '1 day',      'planned', '00000000-0000-4000-a000-000000000906', 30, 0, false),
+  ('suspended', '00000000-0000-4000-a038-000000000016', private.now() - interval '2 hours',    'planned', '00000000-0000-4000-a000-000000000902', 30, 0, false),
   -- CGR-04 stuck
-  ('paused2h',  '00000000-0000-4000-a038-000000000021', now() - interval '3 hours',    'paused',  '00000000-0000-4000-a000-000000000902', 30, 0, false),
-  ('way4h',     '00000000-0000-4000-a038-000000000022', now() - interval '5 hours',    'on_the_way', '00000000-0000-4000-a000-000000000902', 30, 0, false),
-  ('long',      '00000000-0000-4000-a038-000000000023', now() - interval '10 minutes', 'started', '00000000-0000-4000-a000-000000000902', 30, 0, false);
+  ('paused2h',  '00000000-0000-4000-a038-000000000021', private.now() - interval '3 hours',    'paused',  '00000000-0000-4000-a000-000000000902', 30, 0, false),
+  ('way4h',     '00000000-0000-4000-a038-000000000022', private.now() - interval '5 hours',    'on_the_way', '00000000-0000-4000-a000-000000000902', 30, 0, false),
+  ('long',      '00000000-0000-4000-a038-000000000023', private.now() - interval '10 minutes', 'started', '00000000-0000-4000-a000-000000000902', 30, 0, false);
 
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided,
                                 billable, status, planned_minutes_a, planned_minutes_b, is_needs_assessment, responsible_user_id)
@@ -53,17 +53,17 @@ select '00000000-0000-4000-b000-000000000011', f.id, '00000000-0000-4000-a000-00
        array['Grundpflege'], false, f.status, f.min_a, f.min_b, f.na, f.resp
 from fx f;
 -- 'long' may end after midnight; the stuck rule then counts its end on the next day (0038).
-update public.care_visits set suspended_at = now() where id = '00000000-0000-4000-a038-000000000016';
+update public.care_visits set suspended_at = private.now() where id = '00000000-0000-4000-a038-000000000016';
 
 -- Synthetic last status events for the stuck fixtures: paused 2 h ago, on the way 4 h ago, started 1 h 30 ago.
 insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, occurred_at, actor_id)
 values
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a038-000000000021', '00000000-0000-4000-a000-000000000101',
-   'paused', 'started', 'paused', now() - interval '2 hours', '00000000-0000-4000-a000-000000000902'),
+   'paused', 'started', 'paused', private.now() - interval '2 hours', '00000000-0000-4000-a000-000000000902'),
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a038-000000000022', '00000000-0000-4000-a000-000000000101',
-   'departed', 'planned', 'on_the_way', now() - interval '4 hours', '00000000-0000-4000-a000-000000000902'),
+   'departed', 'planned', 'on_the_way', private.now() - interval '4 hours', '00000000-0000-4000-a000-000000000902'),
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a038-000000000023', '00000000-0000-4000-a000-000000000101',
-   'started', 'planned', 'started', now() - interval '90 minutes', '00000000-0000-4000-a000-000000000902');
+   'started', 'planned', 'started', private.now() - interval '90 minutes', '00000000-0000-4000-a000-000000000902');
 
 create function pg_temp.vid(n text) returns uuid language sql as $$ select id from fx where name = n $$;
 create function pg_temp.status(n text) returns text language sql as $$

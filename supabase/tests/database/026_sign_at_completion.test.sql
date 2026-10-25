@@ -24,7 +24,7 @@ insert into public.team_memberships (team_id, user_id, qualification)
 values ('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000901', 'care_assistant');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided, billable, status, planned_minutes_a)
 values ('00000000-0000-4000-b000-000000000011', 'a7000000-0000-4000-8000-000000000701', '00000000-0000-4000-a000-000000000208',
-        '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich')::date, '16:00', '16:30', array['Grundpflege'], false, 'planned', 30);
+        '00000000-0000-4000-a000-000000000101', (private.now() at time zone 'Europe/Zurich')::date, '16:00', '16:30', array['Grundpflege'], false, 'planned', 30);
 
 -- The care assistant completes the visit; the draft exists at once and she signs it with one confirmation.
 select pg_temp.act_as('00000000-0000-4000-a000-000000000901');

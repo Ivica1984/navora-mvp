@@ -41,8 +41,8 @@ values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-0000000
         'accepted', 'hospital_discharge', '00000000-0000-4000-a000-000000000101');
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status)
 select '00000000-0000-4000-b000-000000000011', 'a6100000-0000-4000-8000-000000000601', '00000000-0000-4000-a000-000000000208',
-       '00000000-0000-4000-a000-000000000101', (now() at time zone 'Europe/Zurich' + interval '36 hours')::date,
-       (now() at time zone 'Europe/Zurich' + interval '36 hours')::time, null, false, 'planned';
+       '00000000-0000-4000-a000-000000000101', ((private.now() + interval '36 hours') at time zone 'Europe/Zurich')::date,
+       ((private.now() + interval '36 hours') at time zone 'Europe/Zurich')::time, null, false, 'planned';
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
