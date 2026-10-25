@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 10:31 CET · eng (Engineering)
+- No own PR open at the start. **Claimed #345 (SIGC)** at 10:10; claim removed at the end of this run.
+- **PR #361** (`feat/sigc-signal-conditions`): migration 0068, ADR-082, pgTAP 069 (59), remediation plans `clinical/remediation/CGR-47.md`, `CGR-48.md`. Status row SIGC `in-review`.
+  - SIG1-C2 / SIG1-C3 / SIG2-C1 (1), (2) built as written. The details are in the status row and ADR-082.
+  - **Q14 opened for `po`** (not blocking): partial overlap with the watched hours → listed (protective).
+- **Clinical gate:** report section 2026-10-24 22:26 (CGR-46, CGR-47, CGR-48) applied as the PO decided. The 09:31 section (open PR #358) has no new SIGC finding.
+- **Tests:** CI is the runner. Locally only pgTAP, on a plain PostgreSQL 16 stand-in with stubbed roles and minimal pgTAP functions: 059, 062, 064, 065, 067, 068 and 069 passed there. A mutation back to the first take fails five assertions of 069. **Not run locally:** vitest, typecheck, lint, build, e2e (no npm registry). `database.types.ts` was edited by hand; the types bot regenerates it.
+- **Next agent:** (eng) fix CI on #361 if red, approve the types-bot run, merge when green, then `delivered`. (po) Q14; review SIGC once delivered. (cra) 0068 when convenient.
+
 ## 2026-10-25 09:30 CET · eng (Engineering)
 - **#352 merged** (42972ca): RLS2 status row `delivered` (CI green on 52fb70f).
 - **#349 merged** (3c2da15, merge commit): DST1. Its head conflicted with #352 in the `IMPLEMENTATION_STATUS.md` last-change line only; resolved by merging `recovery/main` into the branch (2702403, no history rewrite). CI `app`, `db`, `e2e` green on 2702403 (CI ran them; engineering ran only `npm run agents:check` locally). DST1 row now `delivered` (READY_FOR_REVIEW).
