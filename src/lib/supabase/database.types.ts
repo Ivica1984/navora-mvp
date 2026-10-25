@@ -317,6 +317,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"case_safety_alert_values": {
+                  Row: {
+                    "actor_id": string,"case_id": string,"category_id": string,"created_at": string,"id": string,"idempotency_key": string,"note": string | null,"organization_id": string,"seq": number,"source": string,"value": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id": string,"case_id": string,"category_id": string,"created_at"?: string,"id"?: string,"idempotency_key": string,"note"?: string | null,"organization_id": string,"seq"?: never,"source": string,"value": string
+                  }
+                  Update: {
+                    "actor_id"?: string,"case_id"?: string,"category_id"?: string,"created_at"?: string,"id"?: string,"idempotency_key"?: string,"note"?: string | null,"organization_id"?: string,"seq"?: never,"source"?: string,"value"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "case_safety_alert_values_case_id_organization_id_fkey"
+      columns: ["case_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "cases"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "case_safety_alert_values_category_id_fkey"
+      columns: ["category_id"]
+isOneToOne: false
+      referencedRelation: "safety_alert_categories"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "case_safety_alert_values_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"case_tasks": {
                   Row: {
                     "case_id": string,"created_at": string,"detail": string | null,"done_at": string | null,"done_by": string | null,"id": string,"kind": string,"organization_id": string,"status": string
@@ -1108,6 +1140,20 @@ isOneToOne: true
       referencedRelation: "organizations"
       referencedColumns: ["id"]
     }
+                  ]
+                },"safety_alert_categories": {
+                  Row: {
+                    "active_from": string,"approval_ref": string | null,"class": string,"code": string,"created_at": string,"help_text": string | null,"id": string,"label": string,"refuses_codes": boolean,"source": string,"version": number,"withdrawn": boolean
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "active_from": string,"approval_ref"?: string | null,"class": string,"code": string,"created_at"?: string,"help_text"?: string | null,"id"?: string,"label": string,"refuses_codes"?: boolean,"source": string,"version": number,"withdrawn"?: boolean
+                  }
+                  Update: {
+                    "active_from"?: string,"approval_ref"?: string | null,"class"?: string,"code"?: string,"created_at"?: string,"help_text"?: string | null,"id"?: string,"label"?: string,"refuses_codes"?: boolean,"source"?: string,"version"?: number,"withdrawn"?: boolean
+                  }
+                  Relationships: [
+                    
                   ]
                 },"safety_signals": {
                   Row: {
