@@ -33,6 +33,19 @@ export function reportView(visitStatus: string | null, report: FieldReport | nul
 
   const version = report.version > 1 ? ` (Fassung ${report.version})` : "";
 
+  // LEAVE1-5: the performer's access ended; her open report stays open and not billable (D-30 decides who completes it).
+  const accessEnded = report.performer_access_ended === true && !report.i_am_performer;
+
+  if (report.status === "signed" && report.performer_unavailable) {
+    // LEAVE1-11 (migration 0075): returned while its performer was unavailable: no draft, never countersigned or final.
+    return {
+      label: `${RETURNED_UNAVAILABLE_LABEL}${version}`,
+      tone: "waiting",
+      actions: [],
+      hint: RETURNED_UNAVAILABLE_HINT,
+    };
+  }
+
   if (report.status === "draft" && report.returned) {
     // F6R (migration 0065): a registered nurse returned the signed version; only the performer corrects and signs again.
     return report.i_am_performer
@@ -46,7 +59,9 @@ export function reportView(visitStatus: string | null, report: FieldReport | nul
           label: `Zurückgegeben – wartet auf neue Unterschrift${version}`,
           tone: "waiting",
           actions: [],
-          hint: "Korrigieren und neu unterschreiben kann nur die Person, die den Einsatz durchgeführt hat. Danach wird gegengezeichnet.",
+          hint: accessEnded
+            ? ACCESS_ENDED_REPORT_HINT
+            : "Korrigieren und neu unterschreiben kann nur die Person, die den Einsatz durchgeführt hat. Danach wird gegengezeichnet.",
         };
   }
 
@@ -60,7 +75,7 @@ export function reportView(visitStatus: string | null, report: FieldReport | nul
           label: `Entwurf${version}`,
           tone: "waiting",
           actions: [],
-          hint: "Unterschreiben kann nur die Person, die den Einsatz durchgeführt hat.",
+          hint: accessEnded ? ACCESS_ENDED_REPORT_HINT : "Unterschreiben kann nur die Person, die den Einsatz durchgeführt hat.",
         };
   }
 
@@ -90,6 +105,46 @@ export function reportView(visitStatus: string | null, report: FieldReport | nul
   return { label: "Berichtstatus unbekannt", tone: "waiting", actions: [], hint: null };
 }
 
+/** LEAVE1-11: the state of a version returned while its performer was unavailable (brief wording). */
+export const RETURNED_UNAVAILABLE_LABEL = "Zurückgegeben – Autorin nicht mehr verfügbar";
+export const RETURNED_UNAVAILABLE_HINT =
+  "Der Bericht wird nicht abgeschlossen und nicht verrechnet. Wer ihn in diesem Fall vervollständigt, ist noch nicht geregelt.";
+/** LEAVE1-5: an open report of a person whose access ended (never the reason). */
+export const ACCESS_ENDED_REPORT_HINT =
+  "Zugang beendet: Die ausführende Person kann den Bericht nicht mehr unterschreiben. Er bleibt offen und wird nicht verrechnet.";
+
+/** LEAVE1-5 / LEAVE1-11: the note after a row of the registered nurse's queue (field_countersign_queue kind). */
+export function countersignItemNote(item: {
+  kind?: string | null;
+  returned?: boolean | null;
+  performer_name?: string | null;
+  performer_access_ended?: string | null;
+}): string | null {
+  const parts: string[] = [];
+  const who = item.performer_name?.trim() ? ` an ${item.performer_name.trim()}` : "";
+  switch (item.kind ?? (item.returned ? "returned" : "awaiting_countersignature")) {
+    case "returned":
+      parts.push(`zurückgegeben${who}`);
+      break;
+    case "returned_performer_unavailable":
+      parts.push(RETURNED_UNAVAILABLE_LABEL);
+      break;
+    case "unsigned":
+      parts.push("nicht unterschrieben");
+      break;
+    case "correction_draft":
+      parts.push("Korrektur nicht unterschrieben");
+      break;
+    default:
+      break;
+  }
+  if (item.performer_access_ended) {
+    const [y, m, d] = item.performer_access_ended.slice(0, 10).split("-");
+    parts.push(`Zugang beendet (${d}.${m}.${y})`);
+  }
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
 /** German messages for rejection reasons returned by the report commands (migrations 0016, 0041, 0044, 0049, 0065). */
 export const REPORT_REJECTION_MESSAGE: Record<string, string> = {
   not_team_member: "Nicht gespeichert: Du gehörst nicht zum zuständigen Team.",
@@ -107,6 +162,11 @@ export const REPORT_REJECTION_MESSAGE: Record<string, string> = {
   // CSR1 / CGR-19 (migration 0044, interim until D-30): only the performer signs a correction, and she left the team.
   performer_not_in_team:
     "Korrektur nicht möglich: Die Person, die den Einsatz durchgeführt hat, gehört nicht mehr zum Team und könnte die Korrektur nicht unterschreiben. Der abgeschlossene Bericht bleibt gültig. Wer in diesem Fall korrigieren darf, ist noch nicht geregelt.",
+  // LEAVE1 (migration 0075): the performer's access ended; a correction or countersignature would never become final.
+  performer_unavailable:
+    "Korrektur nicht möglich: Der Zugang der Person, die den Einsatz durchgeführt hat, ist beendet; sie könnte die Korrektur nicht unterschreiben. Der abgeschlossene Bericht bleibt gültig.",
+  returned_performer_unavailable:
+    "Nicht gegengezeichnet: Dieser Bericht wurde zurückgegeben, als die ausführende Person nicht mehr verfügbar war. Er wird nicht abgeschlossen.",
   // CSR1 / CGR-24-W (migration 0049): withdrawing a correction draft.
   not_correction: "Zurückziehen geht nur bei einer Korrektur; der erste Bericht wird unterschrieben.",
   draft_has_changes:
@@ -143,7 +203,11 @@ export const RETURNED_LOCKED_HINT =
   "Der Bericht wurde zurückgegeben. Zeiten und Beobachtungen korrigiert nur die Person, die den Einsatz durchgeführt hat.";
 
 /** F6R-8: what the countersigner confirms before returning. */
-export function returnConfirmation(performerName: string | null | undefined): string {
+export function returnConfirmation(performerName: string | null | undefined, performerAccessEnded = false): string {
+  // LEAVE1-11: with her access ended no draft opens; the report stays open and is never countersigned or billed.
+  if (performerAccessEnded) {
+    return "Der Zugang der ausführenden Person ist beendet: Die Rückgabe wird festgehalten, der Bericht bleibt offen, wird nicht abgeschlossen und nicht verrechnet.";
+  }
   const who = performerName?.trim() ? performerName.trim() : "die ausführende Person";
   return `Der Bericht geht an ${who} zurück und wird erst nach erneuter Unterschrift und deiner Gegenzeichnung gültig.`;
 }

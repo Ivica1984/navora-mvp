@@ -4,12 +4,15 @@ import { useState, useTransition, type ReactNode } from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import type { AdminData, AdminExceptionRule, AdminMember, AdminTeam } from "@/features/admin/queries";
 import {
-  addTeamMember, createTeam, deactivateTeam, inviteMember, removeTeamMember, resetExceptionRule, revokeInvitation,
-  setDisplayName, setExceptionRule, setMemberQualification, setMemberRole, setResponseDeadline, updateTeam,
+  addTeamMember, createTeam, deactivateTeam, endMemberAccess, inviteMember, removeTeamMember, resetExceptionRule,
+  restoreMemberAccess, revokeInvitation, setDisplayName, setExceptionRule, setMemberQualification, setMemberRole,
+  setResponseDeadline, updateTeam,
 } from "@/features/admin/commands";
 import {
   ROLES, ROLE_LABEL, QUALIFICATIONS, REFERRAL_TYPE_LABEL, UNIT_LABEL, DEADLINE_UNITS,
   allowedPriorities, changedLabel, checkRuleInput, isValidEmail, releasedNotice, RULES_INTRO, stricterHint,
+  ACCESS_END_REASONS, ACCESS_REASON_LABEL, ACCESS_RESTORE_REASONS, OPEN_REPORT_LABEL, accessEndedNotice, countOpenReports,
+  openReportsText,
 } from "@/features/admin/rules";
 import { QUALIFICATION_LABEL } from "@/features/team/rules";
 import type { CommandResult } from "@/lib/commands/result";
@@ -131,6 +134,7 @@ function MemberRow({ member, data }: { member: AdminMember; data: AdminData }) {
         {teamsOf(member).length === 0 && <li className="text-stone-500">in keinem Team</li>}
       </ul>
       {released && <p role="status" data-testid="released-visits" className="text-sm font-semibold text-amber-900">{released}</p>}
+      <MemberAccess member={member} data={data} />
       {mode === "idle" && (
         <div className="flex flex-wrap gap-2">
           <button type="button" className={secondary} onClick={() => setMode("name")}>Name</button>
@@ -187,6 +191,77 @@ function MemberRow({ member, data }: { member: AdminMember; data: AdminData }) {
       )}
       <Feedback error={error} notice={notice} />
     </li>
+  );
+}
+
+// LEAVE1 (migrations 0074, 0075): her open reports (LEAVE1-12 (1)), ending and restoring her access.
+const day = (iso: string | null | undefined) => {
+  if (!iso) return "";
+  const [y, m, d] = iso.slice(0, 10).split("-");
+  return `${d}.${m}.${y}`;
+};
+
+function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }) {
+  const { run, pending, error, notice } = useCommand();
+  const [mode, setMode] = useState<"idle" | "end" | "restore">("idle");
+  const [ended, setEnded] = useState<string | null>(null);
+  const state = data.access[member.user_id];
+  const open = data.openReports[member.user_id] ?? [];
+  return (
+    <div className="grid gap-1 text-sm" aria-label="Zugang">
+      {state?.ended && (
+        <p data-testid="access-state" className="font-semibold text-rose-900">
+          Zugang beendet seit {day(state.endedAt)}{state.reasonCode ? ` (${ACCESS_REASON_LABEL[state.reasonCode] ?? state.reasonCode})` : ""}
+        </p>
+      )}
+      <div data-testid="open-reports">
+        <p className="text-stone-700">Offene Berichte: {openReportsText(countOpenReports(open))}</p>
+        {open.length > 0 && (
+          <ul className="grid gap-0.5 pl-3 text-xs text-stone-700" aria-label="Offene Berichte">
+            {open.map((r, i) => (
+              <li key={`${r.visit_date}:${r.kind}:${i}`}>{day(r.visit_date)} · {r.team_name} · {OPEN_REPORT_LABEL[r.kind] ?? r.kind}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {ended && <p role="status" data-testid="access-ended-notice" className="font-semibold text-amber-900">{ended}</p>}
+      {mode === "idle" && (
+        <div className="flex flex-wrap gap-2">
+          {state?.ended
+            ? <button type="button" className={secondary} onClick={() => setMode("restore")}>Zugang wiederherstellen</button>
+            : <button type="button" className={secondary} onClick={() => setMode("end")}>Zugang beenden</button>}
+        </div>
+      )}
+      {mode !== "idle" && (
+        <form aria-label={mode === "end" ? "Zugang beenden" : "Zugang wiederherstellen"} className="flex flex-wrap items-end gap-2" onSubmit={(e) => {
+          e.preventDefault();
+          const f = new FormData(e.currentTarget);
+          setEnded(null);
+          run(() => mode === "end"
+            ? endMemberAccess({ userId: member.user_id, reasonCode: text(f, "reason"), idempotencyKey: newKey() })
+                .then((r) => { if (r.ok) setEnded(accessEndedNotice(r.openReports)); return r.ok ? { ok: true as const } : r; })
+            : restoreMemberAccess({ userId: member.user_id, reasonCode: text(f, "reason"), idempotencyKey: newKey() }),
+          () => setMode("idle"));
+        }}>
+          <label className="grid gap-1 text-xs font-semibold">Grund
+            <select name="reason" required defaultValue="" className={field}>
+              <option value="" disabled>– bitte wählen –</option>
+              {(mode === "end" ? [...ACCESS_END_REASONS] as string[] : [...ACCESS_RESTORE_REASONS] as string[]).map((r) => (
+                <option key={r} value={r}>{ACCESS_REASON_LABEL[r]}</option>
+              ))}
+            </select>
+          </label>
+          <button type="submit" disabled={pending} className={button}>{mode === "end" ? "Zugang beenden" : "Wiederherstellen"}</button>
+          <button type="button" className={secondary} onClick={() => setMode("idle")}>Abbrechen</button>
+          {mode === "end" && (
+            <p className="w-full text-xs text-stone-600">
+              Danach sieht sie keine Daten mehr und kann nichts mehr tun. Ihre offenen Berichte bleiben für das Team sichtbar und werden nicht verrechnet.
+            </p>
+          )}
+        </form>
+      )}
+      <Feedback error={error} notice={notice} />
+    </div>
   );
 }
 

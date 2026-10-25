@@ -8,7 +8,10 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
-import { ADMIN_MESSAGES, DEADLINE_UNITS, PRIORITIES, QUALIFICATIONS, REFERRAL_TYPES, ROLES, readRemovalResult } from "./rules";
+import {
+  ACCESS_END_REASONS, ACCESS_RESTORE_REASONS, ADMIN_MESSAGES, DEADLINE_UNITS, PRIORITIES, QUALIFICATIONS, REFERRAL_TYPES, ROLES,
+  readAccessEndResult, readRemovalResult, type OpenReportCounts,
+} from "./rules";
 
 const key = z.uuid();
 const reason = z.string().trim().min(3).max(300);
@@ -148,4 +151,28 @@ export async function resetExceptionRule(input: unknown): Promise<CommandResult>
   const { supabase } = await requireUser();
   return interpret("reset_exception_rule", await supabase.rpc("reset_exception_rule", {
     p_organization_id: p.data.organizationId, p_exception_type: p.data.exceptionType, p_idempotency_key: p.data.idempotencyKey }));
+}
+
+/** LEAVE1-1 / LEAVE1-12 (2): ending her access returns her open reports by kind (they never refuse it, LEAVE1-2). */
+export type AccessEndResult = { ok: true; openReports: OpenReportCounts | null } | { ok: false; error: string };
+
+export async function endMemberAccess(input: unknown): Promise<AccessEndResult> {
+  const p = z.object({ userId: z.uuid(), reasonCode: z.enum(ACCESS_END_REASONS), idempotencyKey: key }).safeParse(input);
+  if (!p.success) return { ok: false, error: ADMIN_MESSAGES.invalid };
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("end_member_access", {
+    p_user_id: p.data.userId, p_reason_code: p.data.reasonCode, p_idempotency_key: p.data.idempotencyKey });
+  const { code, openReports } = readAccessEndResult(data);
+  const result = interpret("end_member_access", { data: error ? null : code, error });
+  return result.ok ? { ok: true, openReports } : result;
+}
+
+/** LEAVE1-7: restores exactly the access she had (memberships were never removed). */
+export async function restoreMemberAccess(input: unknown): Promise<CommandResult> {
+  const p = z.object({ userId: z.uuid(), reasonCode: z.enum(ACCESS_RESTORE_REASONS), idempotencyKey: key }).safeParse(input);
+  if (!p.success) return invalid;
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("restore_member_access", {
+    p_user_id: p.data.userId, p_reason_code: p.data.reasonCode, p_idempotency_key: p.data.idempotencyKey });
+  return interpret("restore_member_access", { data: error ? null : readAccessEndResult(data).code, error });
 }

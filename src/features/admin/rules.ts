@@ -47,6 +47,9 @@ export const ADMIN_MESSAGES: Record<string, string> = {
   has_visit_in_progress: "Sie ist gerade unterwegs zu einem Einsatz oder mitten in einem Einsatz dieses Teams. Erst abschliessen lassen, dann entfernen.",
   // CGR-18 (migration 0037): only she can write and sign the report of a visit she carried out, and only as a member.
   has_unsigned_reports: "Sie hat Einsätze in diesem Team durchgeführt, deren Bericht fehlt oder noch nicht unterschrieben ist. Nur sie kann ihn schreiben und unterschreiben. Erst unterschreiben lassen, dann entfernen.",
+  // LEAVE1 (migrations 0074, 0075): ending and restoring a person's access.
+  self: "Den eigenen Zugang kann man nicht beenden.",
+  has_planned_visits: "Sie ist für geplante Einsätze ab heute zuständig oder vertritt dabei. Zuerst umplanen, dann den Zugang beenden.",
   name_taken: "Ein Team mit diesem Namen gibt es bereits.",
   wrong_state: "Nicht mehr im passenden Zustand.",
   out_of_range: "Ausserhalb des sicheren Bereichs.",
@@ -135,4 +138,75 @@ export function releasedNotice(released: number): string {
   if (released <= 0) return "Entfernt. Keine geplanten Einsätze betroffen.";
   if (released === 1) return "Entfernt. 1 Einsatz ist jetzt offen im Team.";
   return `Entfernt. ${released} Einsätze sind jetzt offen im Team.`;
+}
+
+// LEAVE1 (migrations 0074, 0075) -----------------------------------------------------------------------------------------
+
+/** Reason codes of end_member_access / restore_member_access (no free text). */
+export const ACCESS_END_REASONS = ["employment_ended", "access_withdrawn"] as const;
+export const ACCESS_RESTORE_REASONS = ["employment_resumed", "ended_in_error"] as const;
+export const ACCESS_REASON_LABEL: Record<string, string> = {
+  employment_ended: "Anstellung beendet",
+  access_withdrawn: "Zugang entzogen",
+  employment_resumed: "Anstellung wieder aufgenommen",
+  ended_in_error: "Irrtümlich beendet",
+};
+
+/** LEAVE1-12: open report kinds (private.open_reports_of, migration 0075). */
+export const OPEN_REPORT_KINDS = ["unsigned", "correction_draft", "returned"] as const;
+export const OPEN_REPORT_LABEL: Record<string, string> = {
+  unsigned: "nicht unterschrieben",
+  correction_draft: "Korrektur nicht unterschrieben",
+  returned: "zurückgegeben, offen",
+};
+export type OpenReportCounts = Record<(typeof OPEN_REPORT_KINDS)[number], number>;
+
+/** The end_member_access result: its code and, on success, her open reports by kind (LEAVE1-12 (2)). */
+export function readAccessEndResult(data: unknown): { code: string; openReports: OpenReportCounts | null } {
+  if (!data || typeof data !== "object" || !("result" in data)) return { code: "failed", openReports: null };
+  const d = data as { result?: unknown; open_reports?: unknown };
+  let openReports: OpenReportCounts | null = null;
+  if (d.open_reports && typeof d.open_reports === "object") {
+    const o = d.open_reports as Record<string, unknown>;
+    const n = (k: string) => (typeof o[k] === "number" && Number.isInteger(o[k]) && (o[k] as number) > 0 ? (o[k] as number) : 0);
+    openReports = { unsigned: n("unsigned"), correction_draft: n("correction_draft"), returned: n("returned") };
+  }
+  return { code: String(d.result), openReports };
+}
+
+/** Counts open reports by kind from list rows (member_open_reports). */
+export function countOpenReports(rows: { kind: string }[]): OpenReportCounts {
+  const counts: OpenReportCounts = { unsigned: 0, correction_draft: 0, returned: 0 };
+  for (const r of rows) if (r.kind in counts) counts[r.kind as keyof OpenReportCounts] += 1;
+  return counts;
+}
+
+/** "2 nicht unterschrieben · 1 zurückgegeben, offen", or the empty text. */
+export function openReportsText(counts: OpenReportCounts | null): string {
+  if (!counts) return "";
+  const parts = OPEN_REPORT_KINDS.filter((k) => counts[k] > 0).map((k) => `${counts[k]} ${OPEN_REPORT_LABEL[k]}`);
+  return parts.length > 0 ? parts.join(" · ") : "keine offenen Berichte";
+}
+
+/** After an end: what stays open for the team (the command is never refused by open reports, LEAVE1-2). */
+export function accessEndedNotice(counts: OpenReportCounts | null): string {
+  const open = counts ? OPEN_REPORT_KINDS.reduce((sum, k) => sum + counts[k], 0) : 0;
+  if (open === 0) return "Zugang beendet. Keine offenen Berichte.";
+  return `Zugang beendet. Offen bleiben: ${openReportsText(counts)}. Das Team sieht sie mit «Zugang beendet»; sie werden nicht verrechnet.`;
+}
+
+export type AccessEvent = { user_id: string; kind: string; reason_code: string; created_at: string; seq: number };
+export type AccessState = { ended: boolean; endedAt: string | null; reasonCode: string | null };
+
+/** Current state per person = her newest access event (0074). */
+export function accessStateByUser(events: AccessEvent[]): Record<string, AccessState> {
+  const latest: Record<string, AccessEvent> = {};
+  for (const e of events) if (!latest[e.user_id] || e.seq > latest[e.user_id].seq) latest[e.user_id] = e;
+  const out: Record<string, AccessState> = {};
+  for (const [user, e] of Object.entries(latest)) {
+    out[user] = e.kind === "ended"
+      ? { ended: true, endedAt: e.created_at, reasonCode: e.reason_code }
+      : { ended: false, endedAt: null, reasonCode: null };
+  }
+  return out;
 }

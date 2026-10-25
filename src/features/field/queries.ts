@@ -137,3 +137,19 @@ export async function getSafetyAlerts(day: string): Promise<SafetyAlert[]> {
 
   return data ?? [];
 }
+
+export type TeamOpenReport = Database["public"]["Functions"]["team_open_reports"]["Returns"][number];
+
+/**
+ * LEAVE1-12 (1) (migration 0075): for a registered nurse, the members of her teams with open reports in that team,
+ * counts by kind and the date an access ended. No content, no reason. Empty for everyone else.
+ */
+export async function getTeamOpenReports(): Promise<TeamOpenReport[]> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("team_open_reports");
+  if (error) {
+    logEvent("error", "field.team_open_reports_failed", errorFields(error));
+    throw new Error("Offene Berichte im Team konnten nicht geladen werden.");
+  }
+  return data ?? [];
+}

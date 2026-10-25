@@ -27,11 +27,12 @@ import {
 import { correctVisitTime, recordObservation } from "@/features/field/commands";
 import { formatMinutesByCategory } from "@/features/team/rules";
 import type { FieldNote, FieldVisit } from "@/features/field/types";
-import { FACTS_LOCKED_HINT, RETURNED_LOCKED_HINT, visitFactsLocked, type FieldReport } from "@/features/field/report";
+import { FACTS_LOCKED_HINT, RETURNED_LOCKED_HINT, countersignItemNote, visitFactsLocked, type FieldReport } from "@/features/field/report";
 import ReportSection from "./report-section";
+import { openReportsText } from "@/features/admin/rules";
 import { REASON_LABEL as LIFECYCLE_REASON_LABEL, doorNoteText } from "@/features/lifecycle/rules";
 import { createReportDraft } from "@/features/field/report-commands";
-import type { CountersignItem, DoorNote, ReturnedItem, SafetyAlert } from "@/features/field/queries";
+import type { CountersignItem, DoorNote, ReturnedItem, SafetyAlert, TeamOpenReport } from "@/features/field/queries";
 import { SafetyAlertRow } from "@/components/door/SafetyAlertForm";
 import type { CoverOffer, MyCover } from "@/features/cover/queries";
 import CoverSection from "./cover-section";
@@ -75,6 +76,8 @@ type Props = {
   absence?: { today: string; absences: TeamAbsence[]; open: OpenVisit[]; colleagues: TeamColleague[] };
   /** SIG1: her open P1 safety signals at the top, refreshed without a reload. */
   signals?: SignalRow[];
+  /** LEAVE1-12 (1): registered nurses only: team members with open reports (counts by kind, access-end date). */
+  teamOpenReports?: TeamOpenReport[];
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -99,7 +102,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [] }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], teamOpenReports = [] }: Props) {
   const summary = summarizeDay(visits);
   const sinceLastByVisit = groupSinceLast(sinceLast);
 
@@ -186,17 +189,32 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
           <section aria-label="Zur Gegenzeichnung" data-testid="countersign-queue" className="mb-4 rounded-2xl border-l-4 border-blue-600 bg-blue-50 p-3 text-sm">
             <h2 className="font-bold text-blue-900">Zur Gegenzeichnung ({countersign.length})</h2>
             <ul className="mt-1 grid gap-1">
-              {countersign.map((c) => (
-                <li key={c.report_id}>
-                  <Link href={`/field?datum=${c.visit_date}`} className="underline underline-offset-2">
-                    {formatDayLabel(c.visit_date)} · {formatTime(c.time_start) ?? "Zeit offen"} · {c.client_name ?? "Klient:in"} · {c.team_name}
-                  </Link>
-                  {/* F6R-5: returned to its performer; it comes back here once she signed again. */}
-                  {c.returned && (
-                    <span className="text-xs font-semibold text-amber-800">
-                      {" "}· zurückgegeben{c.performer_name ? ` an ${c.performer_name}` : ""}
-                    </span>
-                  )}
+              {countersign.map((c) => {
+                // F6R-5: returned to its performer; LEAVE1-5 / LEAVE1-11 (migration 0075): the open work of a
+                // member whose access ended, with "Zugang beendet" (date only, never a reason).
+                const note = countersignItemNote(c);
+                return (
+                  <li key={`${c.visit_id}:${c.report_id ?? "none"}:${c.kind}`} data-testid="countersign-item">
+                    <Link href={`/field?datum=${c.visit_date}`} className="underline underline-offset-2">
+                      {formatDayLabel(c.visit_date)} · {formatTime(c.time_start) ?? "Zeit offen"} · {c.client_name ?? "Klient:in"} · {c.team_name}
+                    </Link>
+                    {note && <span className="text-xs font-semibold text-amber-800">{" "}· {note}</span>}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
+
+        {teamOpenReports.length > 0 && (
+          // LEAVE1-12 (1): open reports of team members, visible before (and after) an access end. Counts only.
+          <section aria-label="Offene Berichte im Team" data-testid="team-open-reports" className="mb-4 rounded-2xl border-l-4 border-stone-500 bg-white p-3 text-sm">
+            <h2 className="font-bold">Offene Berichte im Team</h2>
+            <ul className="mt-1 grid gap-1">
+              {teamOpenReports.map((m) => (
+                <li key={`${m.user_id}:${m.team_name}`}>
+                  {m.member_name ?? "Teammitglied"} · {m.team_name} · {openReportsText({ unsigned: m.unsigned, correction_draft: m.correction_draft, returned: m.returned })}
+                  {m.access_ended_on && <span className="text-xs font-semibold text-amber-800"> · Zugang beendet</span>}
                 </li>
               ))}
             </ul>

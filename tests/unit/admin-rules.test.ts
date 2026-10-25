@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { ADMIN_MESSAGES, allowedPriorities, changedLabel, checkRuleInput, isValidEmail, readRemovalResult, releasedNotice, RULES_INTRO, stricterHint } from "@/features/admin/rules";
+import {
+  ACCESS_END_REASONS, ACCESS_REASON_LABEL, ACCESS_RESTORE_REASONS, ADMIN_MESSAGES, accessEndedNotice, accessStateByUser, allowedPriorities,
+  changedLabel, checkRuleInput, countOpenReports, isValidEmail, openReportsText, readAccessEndResult, readRemovalResult, releasedNotice,
+  RULES_INTRO, stricterHint,
+} from "@/features/admin/rules";
 
 // ADM1: client-side mirror of the safe ranges in private.exception_rule_range (migration 0059, CGR-39).
 describe("admin rules (ADM1)", () => {
@@ -85,5 +89,42 @@ describe("member removal releases visits (ADM1 changes)", () => {
     expect(releasedNotice(3)).toBe("Entfernt. 3 Einsätze sind jetzt offen im Team.");
     expect(releasedNotice(1)).toBe("Entfernt. 1 Einsatz ist jetzt offen im Team.");
     expect(releasedNotice(0)).toBe("Entfernt. Keine geplanten Einsätze betroffen.");
+  });
+});
+
+describe("LEAVE1 (migrations 0074, 0075): access end and the open-work list", () => {
+  it("reads the end_member_access result with her open reports by kind", () => {
+    expect(readAccessEndResult({ result: "ok", push_subscriptions_removed: 1, open_reports: { unsigned: 1, correction_draft: 0, returned: 2 } }))
+      .toEqual({ code: "ok", openReports: { unsigned: 1, correction_draft: 0, returned: 2 } });
+    expect(readAccessEndResult({ result: "has_cases" })).toEqual({ code: "has_cases", openReports: null });
+    expect(readAccessEndResult(null)).toEqual({ code: "failed", openReports: null });
+    expect(readAccessEndResult({ result: "ok", open_reports: { unsigned: -1, returned: "x" } }).openReports)
+      .toEqual({ unsigned: 0, correction_draft: 0, returned: 0 });
+  });
+
+  it("counts and describes open reports by kind", () => {
+    const counts = countOpenReports([{ kind: "unsigned" }, { kind: "unsigned" }, { kind: "returned" }, { kind: "other" }]);
+    expect(counts).toEqual({ unsigned: 2, correction_draft: 0, returned: 1 });
+    expect(openReportsText(counts)).toBe("2 nicht unterschrieben · 1 zurückgegeben, offen");
+    expect(openReportsText(countOpenReports([]))).toBe("keine offenen Berichte");
+    expect(accessEndedNotice(counts)).toContain("Offen bleiben: 2 nicht unterschrieben");
+    expect(accessEndedNotice({ unsigned: 0, correction_draft: 0, returned: 0 })).toBe("Zugang beendet. Keine offenen Berichte.");
+  });
+
+  it("takes the newest access event per person as her state", () => {
+    const state = accessStateByUser([
+      { user_id: "a", kind: "ended", reason_code: "employment_ended", created_at: "2026-10-20T08:00:00Z", seq: 1 },
+      { user_id: "a", kind: "restored", reason_code: "ended_in_error", created_at: "2026-10-21T08:00:00Z", seq: 2 },
+      { user_id: "b", kind: "ended", reason_code: "access_withdrawn", created_at: "2026-10-22T08:00:00Z", seq: 3 },
+    ]);
+    expect(state.a).toEqual({ ended: false, endedAt: null, reasonCode: null });
+    expect(state.b).toEqual({ ended: true, endedAt: "2026-10-22T08:00:00Z", reasonCode: "access_withdrawn" });
+  });
+
+  it("labels every reason code and has messages for the refusals", () => {
+    for (const code of [...ACCESS_END_REASONS, ...ACCESS_RESTORE_REASONS]) expect(ACCESS_REASON_LABEL[code]).toBeTruthy();
+    for (const code of ["self", "has_cases", "has_visit_in_progress", "has_planned_visits", "rejected", "unchanged"]) {
+      expect(ADMIN_MESSAGES[code]).toBeTruthy();
+    }
   });
 });
