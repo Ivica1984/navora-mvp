@@ -75,18 +75,45 @@ jobs:
       # DST1 / ADR-081: seed and pgTAP run at a pinned clock, 10:00 of the Zurich day of the run, so their result does
       # not depend on the hour CI runs (repeated or missing hour, midnight). private.now() honours the pin only once the
       # seed has written the test-clock row (its first statement); 068 pins its own DST instants on top.
-      - name: Pin the database clock, then seed
+      - name: Pin the database clock
         if: steps.detect.outputs.present == 'true'
         env:
           PGPASSWORD: postgres
         run: |
-          DB="postgresql://postgres@127.0.0.1:54322/postgres"
           # ALTER DATABASE … SET of a custom setting needs a superuser (PostgreSQL 15+): the local stack's supabase_admin.
           scripts/ci-step.sh db-clock psql "postgresql://supabase_admin@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -Atc "
             do \$\$ begin
               execute format('alter database %I set navora.test_now = %L', current_database(),
                              private.at_zurich((private.at_zurich(now()))::date + time '10:00')::text);
             end \$\$;"
+      # DST1-8 (a) / DST1-C3 (a): a database built from the migrations alone (no seed, as staging and production) reads the
+      # real clock even while navora.test_now is set. Runs in a new session, so the database-level setting applies.
+      - name: Real clock before the seed (DST1-8 a)
+        if: steps.detect.outputs.present == 'true'
+        env:
+          PGPASSWORD: postgres
+        run: |
+          scripts/ci-step.sh db-clock-unseeded psql "postgresql://postgres@127.0.0.1:54322/postgres" -X -v ON_ERROR_STOP=1 -Atc "
+            do \$\$ begin
+              if nullif(current_setting('navora.test_now', true), '') is null then
+                raise exception 'DST1-8 (a): navora.test_now is not set, so this check would prove nothing';
+              end if;
+              if exists (select 1 from private.test_clock) then
+                raise exception 'DST1-8 (a): private.test_clock holds a row before the seed';
+              end if;
+              if private.now() is distinct from now() then
+                raise exception 'DST1-8 (a): private.now() = % follows the pin % without the seed', private.now(),
+                  current_setting('navora.test_now');
+              end if;
+              raise notice 'DST1-8 (a): unseeded database, pin % set, private.now() = now() = %',
+                current_setting('navora.test_now'), now();
+            end \$\$;"
+      - name: Seed
+        if: steps.detect.outputs.present == 'true'
+        env:
+          PGPASSWORD: postgres
+        run: |
+          DB="postgresql://postgres@127.0.0.1:54322/postgres"
           scripts/ci-step.sh db-seed psql "$DB" -X -q -1 -v ON_ERROR_STOP=1 -f supabase/seed.sql
           psql "$DB" -Atc "select 'pinned database clock: ' || current_setting('navora.test_now') || ', private.now() = ' || private.now()"
       - name: Database tests
