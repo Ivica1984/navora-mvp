@@ -16,6 +16,68 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-25 17:26 CET: RLS3 (0070) and FUP1 (0071) reviewed on their merge commits; CGR-55, CGR-57, CGR-58, CGR-59 closed; CGR-60 (advisory, S3); AUD1 brief read
+
+**Scope:** `recovery/main` @ `1eee5d6`. Changes since the 13:26 CET section (#374, merged as `21d1e99`):
+- **Code merged:** #373 **RLS3** (0070, ADR-083, pgTAP 071) as `3d6e125`. The code is identical to the head I read at 13:26 (`cb79d77`; `git diff cb79d77 3d6e125 -- supabase src tests` is empty). #383 **FUP1** (0071, ADR-084, pgTAP 069 +21 and 071 +7 assertions, `rules.ts`, unit `signals-rules`) as `5fbda91`. **CI `app`, `db`, `e2e` green on `3d6e125`, `5fbda91` and `1eee5d6`** (checked through the API: runs 939/940, 952/953, 960/961).
+- **Docs merged:** PO 14:13 CET (SIGC and DST1 accepted, FUP1 approved), PO 16:11 CET (RLS3 accepted, AUD1 approved); `lca` 14:45, 15:41, 16:41 CET (D-3, D-4, D-23); `eng` remediation plans `CGR-57.md`, `CGR-58.md`, `CGR-59.md`.
+- **Open PRs:** #386 (PO 17:11 CET: FUP1 reviewed, "awaiting `cra` on 0071"; Q16 decided as FUP1-C1), #3 (owner, `main`). **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read 0071 in full, the FUP1 assertions of pgTAP 069 (350-466) and 071 (323-354), the `rules.ts` change and its unit test, the SIG1 untaken step (0060:298-313) and the SIG2 outside classification (0062:466-490, 0064:109-114) it predicts, and the 0040 lock that `in_billed_version` relies on. **I did not run the NAVORA test suite** and touched no live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-60 | FUP1-2 (0071): `private.signal_step_outside_app` before the step to Operations is made | advisory (S3) | **Before the step is made, the flag predicts only the watched period, not whether anybody in Operations can be reached outside the app.** Once the step is made the flag follows the real delivery (correct). Before it, it returns `watched_inside(org, due instant)`. The real classification at the step also needs the organisation's push channel on (`organization_push_settings.enabled`, rows only after `enabled_since`) and an Operations member with an active subscription (`push_active`); without either, the step reaches Operations in the app only. So with the channel off, or no Operations member opted in, a care assistant who takes a P1 no-show inside the watched hours reads "Meldung an Operations folgt" until the step is made. She may then wait for Operations instead of calling the registered nurse herself. Same class as CGR-58; the FUP1 outcome ("the banner never promises a push that will not happen") is not fully met. Distinct from the evaluator-interval residual the PO decided as FUP1-C1 (Q16) | 0071:92-110 (`else coalesce(... watched_inside ...)`); 0062:466-490 (`push_active`, `organization_push_settings ... enabled`, `enabled_since`); 0064:109-114; pgTAP 069:420-446 (fixtures all with an Operations member, no case with the channel off before the step) | **eng (with FUP1-C1, same function), po; display only, input class V, no threshold:** in the not-made branch, also require the organisation's channel to be on and at least one Operations recipient of the step (`signal_operations_users`) with `push_active`. pgTAP: watched until 21:00, step due 20:05; channel off → false; channel on, no Operations member with an active subscription → false; channel on and one active → true |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-55** | **closed**, IMPLEMENTED; CI green on `3d6e125` | 0070:83-148 (`visit_correction_history`, levels (a) and (b)); pgTAP 071:268-311 (countersigner and author see corrector and reason; covering author keeps her trail; admin, coach, Operations see values without reason or corrector; other team, other organisation, outsider: nothing). Billing residual closed as CGR-59 below |
+| **CGR-57** | **closed**, IMPLEMENTED; CI green on `5fbda91` | 0071:37-49 (`visit_wall_range(care_visits)` takes the length from `private.visit_interval`, never shorter than either wall reading), 0071:56-73, 83 (the one-minute helper dropped); pgTAP 069:363-384 (19:50 + 45 min → listed; 19:50 no minutes → listed; 08:00 + 20 → not; 19:30 + 20 → not; end = start → listed; 06:50 stays listed; end 20:35; same end as `visit_interval`; helper gone) |
+| **CGR-58** | **closed**, IMPLEMENTED (both branches of the remedy); residuals FUP1-C1 (PO, Q16) and CGR-60 | 0071:92-110, 144; `rules.ts:97-100` (`operationsFollows`: only `true` promises; a reader without the field falls back to `watched_now`), 113; pgTAP 069:420-466 (19:55 take, due 20:05, watched until 20:00 → app only; until 21:00 → true; overdue unmade step after the period → app only; delivery `sent` → true after the period; `outside_working_time` → false; no outside row → false; reader both ways); unit `signals-rules.test.ts:89-107` |
+| **CGR-59** | **closed**, IMPLEMENTED; CI green on `5fbda91` | 0071:198-223 (`billed_at` = countersignature time, or signature time when none is required, of the version the current fact rests on; `in_billed_version = created_at <= billed_at`, null without a fact); pgTAP 071:323-354 (before → true; after → false; level (a) the same; level (b) still no reason or corrector; no fact → null; no countersignature required → signature decides; one flag per correction). Correctness rests on the 0040 lock (no time correction while the latest version is `signed` or `final`, 0040:24-31, 83), so comparing with the countersignature or the signature gives the same answer for real data |
+| CGR-54 | open, advisory (S3); DST1-C4 (PO), due before 2027-10-31 or the first real client. PLANNED | no change |
+| CGR-56 | open, advisory (S2); DST1-C5 (PO), before gate B. PLANNED | no change |
+| CGR-49, CGR-50 | open, advisory; LEAVE1-11, LEAVE1-12. PLANNED | no change |
+| CGR-51 | open, advisory; DOOR1-11. PLANNED | no change; F-1 stays open in `READ_PATHS.md` (FUP1-5 header) |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-55, CGR-57, CGR-58, CGR-59.**
+
+### Other changes reviewed (no finding)
+
+- **FUP1-1 is protective.** A visit without an end is now as long in the outside-hours list as in ABS1; on a clock-change night the longer of the two wall readings is taken. No threshold, watched period or rule changed. SIG1-8 stays a go-live condition (Clinical Owner).
+- **FUP1-2 after the step** follows the delivery's own result (`pending`/`sent` → message; `outside_working_time`, `not_active`, `failed`, no row, no Operations member → app only). The step's due instant uses `after_threshold(s.created_at, …)`, the same base as the SIG1-5 step (0060:305) and the AN2 measures (0068:88-90). Under-promising cases (the SIG2 early step for `outside_none` happens before the predicted instant) are safe.
+- **FUP1-3 states a fact, decides nothing:** what invoicing does with `in_billed_version = false` stays D-18 and the invoice brief (out of scope, as the brief says). Level (b) still returns neither corrector nor reason, and nothing counts per person (D-23 term b).
+- **Q16 / FUP1-C1 (PO 17:11, #386):** no promise in the last evaluator interval of a watched period. Protective, agreed; CGR-60 belongs in the same PR.
+- **AUD1 (brief, approved; PLANNED):** removes the administrators' standing read of `audit_events` and gives a purpose reader (`compliance`, `billing`, `safety_review`) that withholds team free text such as `quality_holds.reason` from an administrator outside the team. Clinical view: protective for confidentiality. It means a safety review of a quality hold by somebody outside the team cannot read the reason until the Clinical Owner is named and given a task-bound read (brief *Out of scope*; G-1, D-16). Acceptable on synthetic data; before the first real client the Clinical Owner's read must exist or the safety review stays inside the team. I will review the migration when it is delivered.
+- **RLS3 accepted by the PO (16:11):** consistent with my 13:26 gate ("no blocking finding; CGR-59 decided by the PO", now closed).
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| RLS3 (merged `3d6e125`, accepted) | **no blocking finding**; CGR-55 closed | none open |
+| FUP1 (merged `5fbda91`, `delivered`) | **no blocking finding; the PO may accept FUP1.** CGR-57, CGR-58, CGR-59 closed | CGR-60 (S3) as a condition, with FUP1-C1 |
+| SIGC (accepted 14:13) | conditions CGR-57 and CGR-58 now met | CGR-60 (S3) |
+| AUD1 (brief) | not built; clinical note above | none |
+| DOOR1, LEAVE1 (briefs) | unchanged | CGR-51; CGR-49/50 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:** (1) accept FUP1 with CGR-60 as a condition; (2) put CGR-60 into the FUP1-C1 PR (same function, same pgTAP file).
+- **eng:** CGR-60 with FUP1-C1; DST1-C4, DST1-C5 by their deadlines; AUD1 as approved.
+- **owner:** as before: G-1 (name the Clinical Owner and a deputy), D-1 (urgent); merge this PR if my own merge is refused.
+- **clinical** (once named): D-28 (who watches outside the watched hours, thresholds), D-30, D-19, D-17, D-10, D-16 (who outside the team may read a quality hold's reason) as before.
+
+---
+
 ## 2026-10-25 13:26 CET: SIGC (0068, pgTAP 069) and the DST1 follow-up (0069, pgTAP 070) reviewed on their merge commits; CGR-46, CGR-47, CGR-48, CGR-53 closed; RLS3 (#373, open) reviewed; CGR-57 to CGR-59 (advisory); the PO's D-23 question answered
 
 **Scope:** `recovery/main` @ `78891aa`. Changes since the 09:31 CET section (open PR #358, carried into this PR by a merge commit; JOURNAL both sides kept):
