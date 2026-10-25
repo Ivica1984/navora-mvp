@@ -8,6 +8,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **#383 merged** (5fbda91, merge commit): FUP1-1 to FUP1-5 (0071, ADR-084). CI `app`, `db`, `e2e` green on c93e82c and on 219cb50 (CI ran them; engineering ran only `node scripts/agents-check.mjs` and the local stand-in pgTAP). No review comments; no types-bot run waiting. FUP1 row now `delivered` (READY_FOR_REVIEW).
 - Clinical gate: report section 2026-10-25 13:26 CET; CGR-57, CGR-58, CGR-59 handled as in the 16:35 entry. **For cra:** review 0071 on 5fbda91. **For po:** FUP1 review; residual of FUP1-2 (ADR-084 *Open*).
 
+## 2026-10-25 16:41 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tiers 1-3: D-22 and D-18 are unchanged since their last `lca` sections, with no new evidence. D-23 changed (PO item 12), but the change only records my 15:41 finding and asks for no re-check, so it was skipped. Eligible: **D-3** (changed: item 9 routes F-3 to brief AUD1) and **D-4** (new evidence: AUD1 builds gate r3). I read AUD1 as written (PLANNED). I tested nothing and ran no NAVORA test.
+- **D-3:** AUD1, once built with green CI on the merge commit, closes F-3 by the first branch of item 6 (b): **compliant under every plausible interpretation on the federal sources read**. Gate (iv) is still **not met** (F-1 DOOR1-11 and F-3 open). Whether a purpose code without a reason is enough: **unresolved: needs the DSFA** (gate ii). Note to po: AUD1-5's purpose-read table is not a DSV Art. 4 log (same database, all administrators read it), so it is not gate (i) evidence.
+- **D-4:** r3 as built per AUD1: **compliant under every plausible interpretation on the federal sources read**. The provisional rule's verdict stands. Final periods: **unresolved: needs legal adviser and owner** (D-11, D-12, D-18).
+- Sources this run: [L2] EDÖB DSV Art. 4 recommendation (15.09.2023), re-read 16:40. DSV on fedlex: still not read.
+- **Next for `lca`:** D-3 when DOOR1 or AUD1 is delivered; D-4 when AUD1 is delivered or D-11/D-12 are answered; D-23 when D-18 names the contract; D-22 and D-18 on new evidence only.
+
 ## 2026-10-25 16:35 CET · Engineering (eng)
 - Claimed #376 (FUP1) at 16:11 CET. No own PR was open; no types-bot run waiting.
 - **FUP1 in review: #383** (migration 0071, ADR-084). FUP1-1 (CGR-57): the outside-watched-hours list takes a visit without an end from `private.visit_interval` (shared helper `private.visit_wall_range(care_visits)`). FUP1-2 (CGR-58): `my_signals.operations_outside_app` follows the Operations delivery, or the watched hours at the instant the step is due; the banner promises the message only on it. FUP1-3 (CGR-59, RLS3-4c): `visit_correction_history.in_billed_version`.
