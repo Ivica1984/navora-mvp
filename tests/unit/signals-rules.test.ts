@@ -9,6 +9,11 @@ import {
   splitSignals,
   takeOutcome,
   takenText,
+  OPERATIONS_APP_ONLY,
+  OPERATIONS_FOLLOWS,
+  OUTSIDE_WATCHED_EMPTY,
+  OUTSIDE_WATCHED_NOTE,
+  outsideWatchedLine,
 } from "@/features/signals/rules";
 
 // SIG1 (migration 0060, ADR-074): fixed texts and the split between open and taken signals.
@@ -50,8 +55,8 @@ describe("safety signals (SIG1)", () => {
 
   it("keeps a no-show taken only by a care assistant at the top for the others (SIG1-C1)", () => {
     const rows = [
-      { id: 1, taken_by_me: false, taken_by_name: "Assistenz Test", taken_by_qualification: "care_assistant", taken_awaits_rn: true },
-      { id: 2, taken_by_me: true, taken_by_name: "Assistenz Test", taken_by_qualification: "care_assistant", taken_awaits_rn: true },
+      { id: 1, taken_by_me: false, taken_by_name: "Assistenz Test", taken_by_qualification: "care_assistant", taken_awaits_rn: true, watched_now: true },
+      { id: 2, taken_by_me: true, taken_by_name: "Assistenz Test", taken_by_qualification: "care_assistant", taken_awaits_rn: true, watched_now: true },
       { id: 3, taken_by_me: false, taken_by_name: "Pflege Test", taken_by_qualification: "registered_nurse", taken_awaits_rn: false },
     ];
     const { open, taken } = splitSignals(rows);
@@ -60,6 +65,36 @@ describe("safety signals (SIG1)", () => {
     expect(takenText(rows[0])).toBe("übernommen von Assistenz Test (Pflegehilfe), Meldung an Operations folgt");
     expect(takenText(rows[1])).toBe("von dir übernommen (Pflegehilfe), Meldung an Operations folgt");
     expect(takenText(rows[2])).toBe("übernommen von Pflege Test");
+  });
+
+  // SIG2-C1 (1) (CGR-48, migration 0068): outside every watched period the step to Operations stays in the app.
+  it("says that Operations is informed in the app only while no watched period runs (SIG2-C1 (1))", () => {
+    const ca = { taken_by_me: false, taken_by_name: "Assistenz Test", taken_by_qualification: "care_assistant", taken_awaits_rn: true };
+    expect(OPERATIONS_FOLLOWS).toBe("Meldung an Operations folgt");
+    expect(OPERATIONS_APP_ONLY).toBe("Operations nur in der App: ausserhalb der überwachten Zeit");
+    expect(takenText({ ...ca, watched_now: true })).toBe("übernommen von Assistenz Test (Pflegehilfe), Meldung an Operations folgt");
+    expect(takenText({ ...ca, watched_now: false }))
+      .toBe("übernommen von Assistenz Test (Pflegehilfe), Operations nur in der App: ausserhalb der überwachten Zeit");
+    expect(takenText({ ...ca, taken_by_me: true, watched_now: false }))
+      .toBe("von dir übernommen (Pflegehilfe), Operations nur in der App: ausserhalb der überwachten Zeit");
+    // A reader row without the flag never promises the message to Operations.
+    expect(takenText({ ...ca, watched_now: null })).toContain(OPERATIONS_APP_ONLY);
+    expect(takenText(ca)).toContain(OPERATIONS_APP_ONLY);
+    // A take that stops the step shows no Operations text at any hour.
+    expect(takenText({ ...ca, taken_by_qualification: "registered_nurse", taken_awaits_rn: false, watched_now: false }))
+      .toBe("übernommen von Assistenz Test");
+  });
+
+  // SIG2-C1 (2): the list of planned visits outside the watched hours (date, times, team; no client data).
+  it("formats a planned visit outside the watched hours with weekday, date, times and team (SIG2-C1 (2))", () => {
+    expect(outsideWatchedLine({ visit_date: "2026-10-26", time_start: "21:00:00", time_end: "21:30:00", team_name: "Testteam Nord" }))
+      .toBe("Mo 26.10. 21:00–21:30 · Testteam Nord");
+    expect(outsideWatchedLine({ visit_date: "2026-11-01", time_start: "06:50:00", time_end: null, team_name: "Testteam Nord" }))
+      .toBe("So 01.11. 06:50 · Testteam Nord");
+    expect(outsideWatchedLine({ visit_date: "2026-11-03", time_start: null, time_end: null, team_name: "Testteam Nord" }))
+      .toBe("Di 03.11. ohne Zeit · Testteam Nord");
+    expect(OUTSIDE_WATCHED_EMPTY).toContain("nächsten 7 Tagen");
+    expect(OUTSIDE_WATCHED_NOTE).toContain("SIG1-8");
   });
 
   it("says why Operations received it", () => {

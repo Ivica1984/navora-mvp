@@ -1767,7 +1767,7 @@ isOneToOne: false
                            },
 "my_signals":
 { Args: Record<PropertyKey, never>; Returns: {
-              "delivered_at": string,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
+              "delivered_at": string,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string,"watched_now": boolean
             }[]
                            },
 "operations_exceptions":
@@ -1996,6 +1996,11 @@ isOneToOne: false
                            },
 "update_team":
 { Args: { "p_idempotency_key": string,"p_name": string,"p_region": string,"p_team_id": string }; Returns: string
+                           },
+"visits_outside_watched_hours":
+{ Args: { "p_own_teams"?: boolean }; Returns: {
+              "organization_id": string,"team_id": string,"team_name": string,"time_end": string,"time_start": string,"visit_date": string,"visit_id": string
+            }[]
                            },
 "withdraw_cover":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: string
