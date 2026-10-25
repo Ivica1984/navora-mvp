@@ -4,6 +4,103 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 13:16 CET · po (Product Owner)
+- No PO PR open. Claimed #370 (DST1 review), #367 (SIGC review), #365 (Q14); claims removed at the end. #358 (`cra` 09:31) is not the PO's to merge.
+- **SIGC reviewed** (#361 merged 2ad9860; CI `app`, `db`, `e2e` green on head a2468b5, on `recovery/main` 1e796d2 and 1f3ff8a; the run on 2ad9860 itself was cancelled by the next push): SIG1-C2, SIG1-C3 (a)-(d), SIG2-C1 (1) and (2) **met in code**; evidence table in `briefs/SIGC.md`. Four deviations decided (partly-outside listed = Q14; no Operations list or planning warning; count-only test changes; wall-clock reading on DST nights lists more, never fewer). **Not accepted:** no `cra` section covers 0068 (clinical gate). Status stays `approved`; moved from *Next up* into the queue as rank 29.
+- **DST1 follow-up reviewed** (#362 merged 363906a; CI green on head 430c231, 363906a and 1f3ff8a): DST1-C1 to DST1-C3 **met**, so DST1-6, -7, -8 are met; evidence table in `briefs/DST1.md`. Four deviations decided (spring-gap `visit_interval` fix; `watched_inside` agrees with `watched_raise_at`; ADR-081 sentence withdrawn for overlap intervals; 0068 wall-clock reading accepted). **Stays `changes-requested`** until `cra` covers 0069; then accepted. DST1-C4, DST1-C5 keep their deadlines.
+- **Q14 decided by po** (product authority, protective): a visit not wholly inside a watched period is listed, as built.
+- **Packages:** `lca` 12:46 noted on D-23 (po-decided) and D-3 (awaiting clinical); no status change. Tiers 1-3 all awaiting a person or decided; no new evidence for D-22, D-18.
+- **Challenge:** the outside-watched-hours list checks the plan after it is made; hypothesis row (the planning team clears listed visits within 24 h without an administrator, else a planning-time notice). No new brief: RLS3, DOOR1, LEAVE1 approved and unstarted.
+- **Next agent:** (cra) review merge commits 2ad9860 (0068, SIGC; CGR-46, -47, -48) and 363906a (0069, DST1; CGR-53); (po) accept SIGC and DST1 once that section has no blocking finding. (eng) RLS3, then DOOR1, LEAVE1.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
+## 2026-10-25 12:55 CET · eng (Engineering)
+- **#366 merged** (1e796d2): SIGC row `delivered`. **#362 merged** (363906a, merge commit): DST1-C1 to DST1-C3. Its head conflicted again after #366 (last-change line, SIGC row, journal); resolved by merging `recovery/main` into the branch (430c231; DST1 row from the branch, SIGC row from #366, both journal entries kept). CI `app`, `db`, `e2e` green on 430c231 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). DST1 row now `delivered` (READY_FOR_REVIEW).
+- **Correction to the 12:20 entry:** the eng merge call works in this run (MCP merge as the repository account); #361 was merged by this run at 12:17, not by the owner. Two eng sessions overlapped on #362 (12:20 and 12:30 runs); no work was lost.
+- OPEN (from the 12:20 entry, not in #362): `visits_outside_watched_hours` (0068) reads periods by the wall clock only; DST nights only, lists more, never fewer.
+- **Next agent:** (cra) review merge commits 2ad9860 (SIGC, 0068) and 363906a (DST1 follow-up, 0069). (po) review both after `cra`; Q14. (eng) next active issue: RLS3 (with RLS3-4b), then DOOR1, LEAVE1; DST1-C4, DST1-C5 by their deadlines.
+
+## 2026-10-25 12:46 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged since their last `lca` sections, no new evidence. Eligible because they changed after my 11:50 sections (PO 12:12, D-23 item 10, D-3 item 8): **D-23** and **D-3** re-checked. Read, not tested.
+- **D-23:** item 10 and RLS3-4b as sharpened are faithful to my 11:50 notes. C plus D with items 9-10 and the two-level RLS3-4b (full trail inside the visit's team; billing view without reason or corrector outside it): **compliant under every plausible interpretation on the federal sources read**, once RLS3 is built as written (PLANNED). New, narrow: release of correction reasons to a payer: **unresolved: needs D-18 (owner), then a legal adviser** if the contract asks for it; not planned, not asked now.
+- **D-3:** item 8 is faithful; gate (iv) line "correction reasons: met" holds after RLS3 provided RLS3-4b is built as written with green pgTAP in CI. Gate (iv) as a whole still not met (F-1, F-2, F-3, F-5).
+- Sources this run: [K2] FMH Rechtlicher Leitfaden 4.8 on KVG Art. 42 Abs. 3 (updated 12.08.2026, secondary; read 12:44). KVG Art. 42 primary text still not read (fetch not permitted this run).
+- **Next for `lca`:** D-3 gate (iv) when RLS3 or DOOR1 is delivered; D-23 point 2 when D-18 names the contract; D-22, D-18 on new evidence only.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+## 2026-10-25 12:30 CET · eng (Engineering)
+- **#361 merged** (2ad9860, merge commit): SIGC. Its head conflicted with `recovery/main` in `JOURNAL.md` only; resolved by merging `recovery/main` into the branch (a2468b5, no history rewrite). CI `app`, `db`, `e2e` green on a2468b5 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). No types-bot run was waiting. SIGC row now `delivered` (READY_FOR_REVIEW).
+- **#362** (DST1-C1..C3) was green on 90718dd but conflicts with `recovery/main`; it is updated by a merge commit after this PR and merged once CI is green again.
+- Clinical review gate: `cra` review of 0068 (SIGC) and of #362 (0069) is OPEN; the PO accepts only after it (README *Clinical review gate*).
+- No new item claimed this run (step A was substantial).
+- **Next agent:** (po) Q14; review SIGC after `cra`. (cra) 0068 on merge commit 2ad9860. (eng) finish #362, then RLS3 (with RLS3-4b), DOOR1, LEAVE1.
+
+## 2026-10-25 12:20 CET · eng (Engineering)
+- **#361 (SIGC) merged by the owner** at 12:17 (merge commit 2ad9860; CI green on its head a2468b5: `app`, `db`, `e2e`). SIGC row `delivered` (READY_FOR_REVIEW).
+- **#362 (DST1-C1 to DST1-C3):** CI was green on 90718dd; the eng merge call was refused by the permission policy (comment on #362). After #361 and #363 merged it conflicted in `JOURNAL.md`, `DECISIONS.md` (ADR-081 addendum vs ADR-082) and `IMPLEMENTATION_STATUS.md` (last-change line, SIGC row) only; resolved by merging `recovery/main` into the branch (both sides kept, no history rewrite).
+- **Tests:** local PostgreSQL 16 stand-in (not CI), fresh build with 0068 and 0069 in order: pre-seed clock check passes; pgTAP 068, 069, 070, 046-050, 062, 064 pass. CI decides.
+- **OPEN (follow-up, not in #362):** `visits_outside_watched_hours` (0068) reads periods by the wall clock only; after 0069 `watched_inside` also accepts the period instants. DST nights only; the list shows more, never fewer.
+- **Next agent:** (owner) merge #362 (merge commit) once CI is green on the merge head; (eng) then DST1 row `delivered`, then RLS3 (#355); (po) review SIGC; (cra) SIGC and the DST1 follow-up merge commits.
+
+## 2026-10-25 12:12 CET · po (Product Owner)
+- No PO PR open. Open: #362 (DST1-C1..C3, CI green, not merged), #361 (SIGC, CI running), #358 (`cra` 09:31, not merged by the PO), #3. No `agent:po` issue, no `[PO review]` issue, nothing `delivered`, `ready-for-review` or `in-review` since 10:12: **no review this run**. Nothing claimed.
+- **`lca` 11:50 (#363) taken up (product authority, narrows only, no clinical rule):** **RLS3-4b sharpened** into two levels: (a) full correction trail (corrector, time, old and new value, reason) to the report's author, the countersigning RN, active members of the visit's team and the covering member; (b) **billing view** for every reader outside the visit's team, coordination roles included (`billing_preview` scope): correction exists, old and new value, time, signed version and countersigner, **never the free-text reason or the corrector**. "The billing review" is not a named person until the D-12 organisational policy names one; widening needs a new PO decision and a fresh `lca` check. pgTAP for admin, coach and Operations outside the team added to RLS3-4b. Recorded as **D-23 item 10** and **D-3 item 8**; D-3 gate (iv) "correction reasons: met" stays true after RLS3; the unresolved `lca` question becomes moot. INDEX rows 5 and 25 noted; **no status change**.
+- **Input requested:** `cra`, narrow, in D-23 *Clinical impact*: does the billing view serve CGR-55's billing purpose? If not, name what billing needs beyond it.
+- **Decision packages:** INDEX tiers 1-2 (D-22, D-18, D-28, D-31, ...) all `awaiting-approval` with no new evidence since their last update; nothing to escalate anew. Owner asks unchanged (see 10:12 and earlier entries; G-1 still gates every `clinical` package).
+- **Challenge:** new row "A back-office billing reviewer reads every corrected visit": doubtful; hypothesis that invoices release by batch with defined exceptions only (after D-12, D-18), measured in the first invoice months.
+- **Next for po:** review DST1 again once #362 is merged and Engineering marks it `delivered`; SIGC once #361 is delivered. **Next for eng:** RLS3 with RLS3-4b as sharpened (not started). **Next for `cra`:** the D-23 question above; #358 merge.
+- Tests: none run by the PO (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+## 2026-10-25 11:50 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged, no new evidence. Eligible because they changed after my 07:50 sections (PO 08:10) and there is new evidence (RLS3-4b, PO 10:12 from `cra` CGR-55): **D-23** and **D-3** re-checked. Read, not tested.
+- **D-23:** C plus D with item 9 (per-visit identity for a named care task inside the team) **compliant under every plausible interpretation on the federal sources read**. RLS3-4b for the author and the countersigning RN: compliant. RLS3-4b for a "billing review" that is any coordination role (as `billing_preview` scopes it today, 0043/0015), with corrector identity and the free-text reason: **unresolved: needs the DSFA, else a legal adviser**. Protective variant, compliant: outside the visit's team, show correction, old and new values, time and signed version, but no reason and no corrector. Note to po: name who "the billing review" is, and add a pgTAP check.
+- **D-3:** item 7 is faithful. Gate (iv) line "correction reasons: met" holds only if RLS3-4b gives no reader outside the team (and the covering member) the reason. Note to po: add that as an RLS3-4b criterion.
+- Sources this run: [O2] OR Art. 328b (droit-bilingue.ch, unofficial; read 11:35); [K1] KVV Art. 59 Abs. 1 (justement.ch, Stand 22.10.2026; read 11:37). KVG Art. 42 not read.
+- **Next for `lca`:** D-3 gate (iv) when RLS3 or DOOR1 is delivered; D-22, D-18 on new evidence only.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+## 2026-10-25 11:30 CET · eng (Engineering)
+- **Step A, #361 (SIGC):** CI green on 1c9122f (`app`, `db`, `e2e`), mergeable. The merge call was **refused again by this run's permission policy** (as at 09:30 on #361 and earlier on #331). Not worked around. The merge stays with the owner: **merge commit**, not squash; then the SIGC row can be set `delivered` (#361).
+- **Claimed #360** (DST1 changes-requested, `active`) at 11:14; claim removed at the end. **PR #362** (`fix/dst1-c1-c3`): DST1-C1 to DST1-C3, migration **0069**, **ADR-081 addendum**, pgTAP **070** (31), CI `db` step "Real clock before the seed (DST1-8 a)". DST1 row `in-review` (#362).
+  - **DST1-C1 (CGR-53), IMPLEMENTED:** `visit_interval` end, `record_absence` end and `change_absence` new end use `private.at_zurich_end`; starts unchanged. Every other interval listed in the addendum (stuck reference and its AN2 mirror keep the earlier end).
+  - **Found and fixed (deviation, in the same functions):** `visit_interval` raised a range error for a visit starting in the spring gap and ending after it (since 0048); `watched_inside` disagreed with `watched_raise_at` on 2027-03-28 (window "outside" from 01:00 UTC though its end is 01:30 UTC). Both now never shorter; ordinary days unchanged.
+  - **DST1-C3:** (a) pre-seed CI check; (b) catalogue assertions in 070 for all three API roles.
+  - **Not in #362 (own deadlines, PLANNED):** DST1-C4 (CGR-54), DST1-C5 (CGR-56).
+- **Clinical gate:** report 2026-10-25 09:31 (open #358) read; CGR-53 applied, remediation plan `clinical/remediation/CGR-53.md`; CGR-54/56 = C4/C5; CGR-55 is RLS3's.
+- **Tests:** pgTAP only, locally, on a PostgreSQL 16 stand-in with minimal pgTAP functions written for the run (not upstream pgTAP; building upstream from source was refused by the permission policy): 070 and 068 pass; 57 of 68 files pass, 11 not runnable on the stand-in (missing pgTAP functions). Reverting 0069 makes 070 fail. vitest, typecheck, lint, build, e2e **not run**. **CI is the runner**; nothing here claims CI passed.
+- **Next agent:**
+  - **(eng):** #362: fix CI if red, merge when green (merge commit), DST1 row `delivered`; then SIGC row `delivered` once the owner merges #361; next *Next up*: RLS3 (#355, with RLS3-4b).
+  - **(cra):** review #362 on its merge commit (`cra` review before PO acceptance, PO 10:12); note the consequence in `CGR-53.md` *Needs a decision* (an absence typed to start in the repeated hour overlaps a visit ending in it).
+  - **(owner):** merge #361 (merge commit); #358 (`cra`).
+
+## 2026-10-25 10:31 CET · eng (Engineering)
+- No own PR open at the start. **Claimed #345 (SIGC)** at 10:10; claim removed at the end of this run.
+- **PR #361** (`feat/sigc-signal-conditions`): migration 0068, ADR-082, pgTAP 069 (59), remediation plans `clinical/remediation/CGR-47.md`, `CGR-48.md`. Status row SIGC `in-review`.
+  - SIG1-C2 / SIG1-C3 / SIG2-C1 (1), (2) built as written. The details are in the status row and ADR-082.
+  - **Q14 opened for `po`** (not blocking): partial overlap with the watched hours → listed (protective).
+- **Clinical gate:** report section 2026-10-24 22:26 (CGR-46, CGR-47, CGR-48) applied as the PO decided. The 09:31 section (open PR #358) has no new SIGC finding.
+- **Tests:** CI is the runner. Locally only pgTAP, on a plain PostgreSQL 16 stand-in with stubbed roles and minimal pgTAP functions: 059, 062, 064, 065, 067, 068 and 069 passed there. A mutation back to the first take fails five assertions of 069. **Not run locally:** vitest, typecheck, lint, build, e2e (no npm registry). `database.types.ts` was edited by hand; the types bot regenerates it.
+- **Next agent:** (eng) fix CI on #361 if red, approve the types-bot run, merge when green, then `delivered`. (po) Q14; review SIGC once delivered. (cra) 0068 when convenient.
+
+## 2026-10-25 10:12 CET · po (Product Owner)
+- No PO PR open. Open: #358 (`cra` 09:31, DST1 review; not merged by the PO), #3. Claimed **#357** ([PO review] DST1); claim removed at the end.
+- **DST1 reviewed: `changes-requested`** (#349 merged 3c2da15; `app`, `db`, `e2e` green on head 2702403, merge commit 3c2da15 and `recovery/main` 16e4e9c; the PO did not run the tests; evidence table in `briefs/DST1.md`). DST1-1 to DST1-5 met; DST1-4 through the pinned suite plus 068's DST instants in CI (the allowed fallback; CI matrix PLANNED, with one night-time instant). **Not met:** DST1-6 (`cra` CGR-53: 0067 gives the end of `private.visit_interval` the earlier instant, so a visit 01:30-02:30 on the fall-back night is not released by ABS1 when its nurse is absent from 01:00 UTC; before 0067 it was), DST1-7 (two named assertions missing), DST1-8 (a) not proved before the seed, (b) without `service_role`.
+  - **Requested, one PR:** DST1-C1 (every interval used in a safety overlap check ends at the later instant; pgTAP for the ABS1 case), DST1-C2 (the two DST1-7 assertions), DST1-C3 (a CI step before the seed; grants of all three API roles).
+  - **Own deadline:** DST1-C4 (CGR-54, **decided option (a)**: the correction form asks "Sommerzeit / Winterzeit" for 02:xx on the fall-back date, nothing preselected; before 2027-10-31 or the first real client) and DST1-C5 (CGR-56: deploy check that `private.test_clock` is empty and `navora.test_now` unset; before gate B).
+  - Deviations: no-show path proved through the overdue path (accepted); earlier end for the stuck reference (accepted); earlier end for overlap intervals (not accepted, C1).
+- **Process (`cra` asked the owner whether a clinical-scope PR waits for `cra` before merge):** decided by po, no owner question: merging on green CI stays allowed; the PO accepts an item in clinical scope only once `cra` has reviewed its merge commit (README *Clinical review gate*). Reversible; COORDINATION.md unchanged.
+- **RLS3-4b added** (CGR-55, product authority): one listed per-visit reader keeps the correction trail (corrector, time, old and new value, reason) visible to the report's author, countersigner and the billing review after the `actor_id` revoke; never per person. `cra`'s RLS3 note (no standing clinical need of coordination roles for note text) recorded in the brief.
+- *Next up* now: 1 SIGC, 2 RLS3, 3 DOOR1, 4 LEAVE1; the DST1 follow-up (rank 28) comes first.
+- **Packages:** `cra` 09:31 brings no new input to any package (D-28 thresholds untouched); tiers 1-3 all awaiting a person or decided (D-22, D-18 no new evidence); no status change.
+- **Challenge:** typed time corrections (row added): from scratch the tap is the record; hypothesis on correction share and size from AN counts; no brief before pilot data.
+- ROADMAP: line 25.10. 10:12. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` passed before publishing.
+- **Waiting on people (unchanged):** **owner:** D-1 (urgent), SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, D-14, D-24, D-25 (only once D-24 moves past A), G-1 (name the Clinical Owner); merge `cra` PR #358. **Clinical Owner:** D-10, D-28, D-31, D-3, D-30, D-16, D-15, D-19, D-17.
+- **Next agent:**
+  - **(eng):** DST1-C1 to DST1-C3 in one PR first (`cra` review before PO acceptance); then SIGC, RLS3 (with RLS3-4b), DOOR1, LEAVE1. DST1-C4 and DST1-C5 by their deadlines.
+  - **(cra):** review the DST1 follow-up PR on its merge commit.
+  - **(lca):** no new request.
+  - **(po):** review the DST1 follow-up when merged.
+
 ## 2026-10-25 09:31 CET · Clinical & Regulatory Architect (review)
 - Reviewed since 05:30 CET (#348): **DST1 merged** (#349, `3c2da15`; 0067, ADR-081, pgTAP 068, fixtures, `time.ts`, CI pinned clock), **RLS2 merged** (#331, `c1703a0`), PO 06:10 and 08:10 (RLS3 approved, Q13), `lca` 07:50. CI green on `2702403`, `3c2da15`, `16e4e9c` (checked through the API). I did not run the NAVORA test suite; conversion and interval overlap checked on an empty local PostgreSQL 16.15 only.
 - **Closed:** CGR-52 (0067:35-71, 154-196; pgTAP 068:60-149); the RLS2 request of 22:26 (067:286-295, 329-330).

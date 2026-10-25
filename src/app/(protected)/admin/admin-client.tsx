@@ -16,7 +16,8 @@ import type { CommandResult } from "@/lib/commands/result";
 import type { AdminPush } from "@/features/push/queries";
 import OutsideDelivery from "./outside-section";
 import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
-import type { EvaluatorHealth } from "@/features/signals/rules";
+import type { EvaluatorHealth, OutsideWatchedVisit } from "@/features/signals/rules";
+import OutsideWatchedVisits from "@/components/signals/OutsideWatchedVisits";
 
 const field = "min-h-10 rounded-lg border border-stone-300 bg-white px-2 text-sm";
 const button = "min-h-10 rounded-lg bg-emerald-800 px-3 text-sm font-bold text-white disabled:opacity-60";
@@ -51,7 +52,11 @@ function Feedback({ error, notice }: { error: string | null; notice: string | nu
 const newKey = () => crypto.randomUUID();
 const text = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 
-export default function AdminClient({ data, push = null, evaluator = [] }: { data: AdminData | null; push?: AdminPush | null; evaluator?: EvaluatorHealth[] }) {
+export default function AdminClient({ data, push = null, evaluator = [], outsideWatched = [] }: {
+  data: AdminData | null; push?: AdminPush | null; evaluator?: EvaluatorHealth[];
+  /** SIG2-C1 (2): planned visits outside the watched hours (null: could not be loaded). */
+  outsideWatched?: OutsideWatchedVisit[] | null;
+}) {
   return (
     <div style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "280px 1fr", background: "#f4f7f4", color: "#153328" }}>
       <Sidebar active="admin" />
@@ -74,6 +79,7 @@ export default function AdminClient({ data, push = null, evaluator = [] }: { dat
             <Rules data={data} />
             <EvaluatorHealthNotice health={evaluator} showRunning />
             {push && <OutsideDelivery organizationId={data.organizationId} push={push} />}
+            <OutsideWatchedVisits rows={outsideWatched} />
           </>
         )}
       </main>

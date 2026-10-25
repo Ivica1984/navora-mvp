@@ -1,6 +1,6 @@
 # Read-path inventory: client-, case- and visit-linked reads (RLS2-1)
 
-**Owner:** Engineering (`eng`) · **Brief:** [`RLS2`](../agents/briefs/RLS2.md) · **ADR:** ADR-080 · **Migration:** 0066 · **Proof:** pgTAP `067_rls2_team_scoped_records` (127 assertions) · **State:** IMPLEMENTED on synthetic data (PR open; CI decides) · **Last change:** 2026-10-25 00:35 Europe/Zurich
+**Owner:** Engineering (`eng`) · **Brief:** [`RLS2`](../agents/briefs/RLS2.md) · **ADR:** ADR-080 · **Migration:** 0066 · **Proof:** pgTAP `067_rls2_team_scoped_records` (128 assertions) · **State:** IMPLEMENTED on synthetic data (PR open; CI decides) · **Last change:** 2026-10-25 10:50 Europe/Zurich (SIGC: `visits_outside_watched_hours`, 0068)
 
 Every table, view and function in schema `public` that the role `authenticated` can select or execute and that returns rows linked to a client, a case or a visit. In NAVORA the client is the case (`cases`); there is no `client_id` column.
 
@@ -76,6 +76,7 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 | `matching_escalations()` | coordination: J2 escalation | decline **code, team, time; the free-text reason was removed by 0066** | 067, 017 |
 | `team_offers()` | team (offers without client identity) | no | *031*, *034* |
 | `uncovered_visits()` | coordination: Operations; team of the visit (**was ⚠ organisation-wide, 0014**) | no | 067, 014 |
+| `visits_outside_watched_hours(own_teams)` | administrators: their organisation (`/admin`); `/team` (own teams flag) and every other member: her own teams (SIGC, SIG2-C1 (2), 0068); date, times and team only | no | 067 sweep, 069 |
 | `final_report_visits()`, `continuity_by_case(month)` | team; coordination | no | 067 sweep, *016*, *021* |
 | `pilot_kpis(month)`, `pilot_hypotheses(month)` | team rows for members; organisation rows under AN1 suppression; coordination: pilot review | no; **no per-person column** (asserted, RLS2-4) | 067, 059 |
 | `billing_preview(month)` | team; coordination | no | 067 sweep, *022* |

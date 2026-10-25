@@ -8,7 +8,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(127);
+select plan(128);
 
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
   select (case n when 'rn' then '00000000-0000-4000-a000-000000000902' when 'ca' then '00000000-0000-4000-a000-000000000906'
@@ -308,7 +308,7 @@ from unnest(array['public.field_visits(%L)', 'public.field_notes(%L)', 'public.f
 union all
 select unnest(array['public.field_countersign_queue()', 'public.field_returned_reports()', 'public.team_cases()', 'public.team_case_lifecycle()',
                     'public.team_plan_status()', 'public.team_visit_alerts()', 'public.my_covers()', 'public.my_signals()', 'public.cover_offers()',
-                    'public.final_report_visits()', 'public.uncovered_visits()', 'public.intake_cases()', 'public.ops_case_lifecycle()',
+                    'public.final_report_visits()', 'public.uncovered_visits()', 'public.visits_outside_watched_hours()', 'public.intake_cases()', 'public.ops_case_lifecycle()',
                     'public.operations_exceptions()', 'public.matching_escalations()', 'public.team_offers()',
                     format('public.continuity_by_case(%L)', date_trunc('month', private.now() at time zone 'Europe/Zurich')::date),
                     format('public.pilot_kpis(%L)', date_trunc('month', private.now() at time zone 'Europe/Zurich')::date),
@@ -345,7 +345,7 @@ select is((select string_agg(distinct p.proname, ',' order by p.proname) from pg
   'case_funding_facts,continuity_by_case,cover_offers,field_countersign_queue,field_notes,field_quality,field_reports,'
   'field_returned_reports,field_since_last,field_visit_status_notes,field_visits,final_report_visits,intake_cases,linkable_cases,'
   'my_covers,my_signals,operations_exceptions,ops_case_lifecycle,team_case_lifecycle,team_cases,team_open_visits,team_plan_status,'
-  'team_visit_alerts,uncovered_visits',
+  'team_visit_alerts,uncovered_visits,visits_outside_watched_hours',
   'RLS2-1: the functions returning a case, visit or client column are exactly the ones in READ_PATHS.md');
 select is((select count(*)::int from pg_class c join pg_namespace n on n.oid = c.relnamespace
            where n.nspname = 'public' and c.relkind in ('v', 'm') and has_any_column_privilege('authenticated', c.oid, 'select')), 0,

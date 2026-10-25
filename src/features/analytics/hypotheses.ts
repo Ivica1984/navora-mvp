@@ -91,8 +91,8 @@ export const HYPOTHESIS_GROUPS: readonly HypothesisGroup[] = [
     source: "Ausnahmen «Einsatz nicht begonnen» und «Einsatz hängt», Einsatzereignisse, Ausnahmebearbeitung OPS1",
     measures: [
       "overdue_ended_by_command_share", "overdue_closed_by_hand_share", "stuck_ended_by_command_share", "stuck_closed_by_hand_share",
-      // SIG1-6 (0060)
-      "signal_taken_share", "signal_minutes_to_take",
+      // SIG1-6 (0060); SIG1-C2 (0068): the first take of any member, beside the counted one
+      "signal_taken_share", "signal_minutes_to_take", "first_take_any_minutes",
       // ORD0-6 (0061)
       "order_open_end_ending", "inform_gp_done_within_7d_share",
     ],
@@ -188,7 +188,7 @@ export const MEASURE: Record<string, MeasureDefinition> = {
   },
   signal_taken_share: {
     label: "P1-Signale übernommen", unit: "%",
-    definition: "P1-Sicherheitssignale (SIG1), die ein Mitglied mit «Ich übernehme» übernommen hat. Basis: alle P1-Signale des Monats, auch noch offene. Nie pro Person.",
+    definition: "P1-Sicherheitssignale (SIG1), die ein Mitglied mit «Ich übernehme» übernommen hat; bei «Klientin öffnet nicht» und «Einsatz abgebrochen» nur mit einer Übernahme, die die Meldung an Operations stoppt (SIG1-C2). Basis: alle P1-Signale des Monats, auch noch offene. Nie pro Person.",
   },
   order_open_end_ending: {
     label: "«Verordnung ohne Enddatum»: wie sie endet", unit: "%",
@@ -200,7 +200,11 @@ export const MEASURE: Record<string, MeasureDefinition> = {
   },
   signal_minutes_to_take: {
     label: "P1 bis übernommen", unit: "Min.",
-    definition: "Median der Minuten vom Erreichen von P1 bis «Ich übernehme». Basis: übernommene P1-Signale.",
+    definition: "Median der Minuten vom Erreichen von P1 bis «Ich übernehme». Bei «Klientin öffnet nicht» und «Einsatz abgebrochen» zählt die Übernahme, die die Meldung an Operations stoppt (SIG1-C2). Basis: so übernommene P1-Signale.",
+  },
+  first_take_any_minutes: {
+    label: "P1 bis erste Übernahme (irgendein Mitglied)", unit: "Min.",
+    definition: "Median der Minuten vom Erreichen von P1 bis zur ersten «Ich übernehme» irgendeines Mitglieds, auch wenn sie die Meldung an Operations nicht stoppt. Nicht die qualifizierte Antwort (SIG1-C2). Basis: P1-Signale mit mindestens einer Übernahme.",
   },
   coordinator_ends: {
     label: "Von Koordination beendet", unit: "",
