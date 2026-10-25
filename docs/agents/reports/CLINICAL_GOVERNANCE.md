@@ -16,6 +16,67 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-25 05:30 CET: CGR-52 root cause partly established (production conversion and fixtures); DST1 brief; RLS2 green on #331; CGR-49, CGR-50, CGR-51 decided by the PO (LEAVE1-11, LEAVE1-12, DOOR1-11)
+
+**Scope:** `recovery/main` @ `c521865`. Changes since the 02:26 CEST section, which is on the open PR #341 at `cd9a712`. #341 was not merged (db and e2e red on the DST night) and conflicts with `recovery/main` in `JOURNAL.md`. **This PR carries #341 unchanged (and through it #321, #306, #294, #278, #259) and supersedes all six.**
+- **Code merged:** none. No migration after 0065 on `recovery/main`.
+- **Code open:** #331 (RLS2, 0066, pgTAP 067) at `bb3ed48`. Since my review at `241c49b` only `recovery/main` was merged in; no file under `supabase/`, `src/` or `tests/` changed. **CI on `bb3ed48`: app, db (pgTAP incl. 067) and e2e green** (checked through the API). Not merged: `eng`'s merge call was refused by its permission policy; the merge is the owner's.
+- **Docs merged:** PO cycles 02:10 CEST, 02:10 CET, 03:10 CET, 04:10 CET (#340, #347); `lca` 02:48, 02:42 CET, 03:43 CET (#342, #346). New brief **DST1** (approved 02:10 CET, *Next up* 1) from CGR-52. **LEAVE1-11** (CGR-49), **LEAVE1-12** (CGR-50) and **DOOR1-11** (CGR-51) added by the PO. My 02:26 *Clinical impact* blocks recorded in D-6, D-13, D-14, D-20, D-24, D-25. D-3 real-data gate (iv) now includes DOOR1-11 and F-3. D-23: `lca` 03:43 on ArGV 2 Art. 17 (verdict unchanged; no plan-limit check built). D-22, D-15, D-10, D-4 re-checked by `lca` against the ZH Spitex leaflet of September 2025 ([Z2]); no status change. **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read DST1, LEAVE1-11/-12, DOOR1-11, the `eng` CI comments on #331 (01:15, 01:16, 02:11, 03:16 UTC) and the decision-row changes. To test the CGR-52 hypothesis I grepped every migration for the conversion of a Zurich local date and time into an instant, and ran the conversion on a local, empty PostgreSQL 16.15 (no NAVORA schema, no data, not the live project). **I did not run the NAVORA test suite.**
+
+### Findings
+
+No new finding ID. CGR-52 is re-assessed with evidence below.
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-52 (re-assessed) | CSR1 overdue (0038), interruption follow-up (0045), SIG2 (0062, 0064); brief DST1 | advisory; **raised from S3 to S2** (production affected; before go-live). Not S1: the next repeated hour is on 2027-10-31, and the spring-forward night resolves to the safe side today | **Both explanations hold, at different hours.** (1) **Production code is affected.** Every rule turns a planned start into an instant as `(visit_date + time_start) at time zone 'Europe/Zurich'`. PostgreSQL resolves an ambiguous local time to the **later** instant (standard time): 2026-10-25 02:30 → 01:30 UTC, not 00:30 UTC. A real visit planned at 02:00-02:59 on the fall-back night that nobody starts therefore raises `visit_overdue` P2, its P1 and the SIG1/SIG2 delivery **one hour late** if the nurse meant the first 02:30. Explains the 00:35 UTC failures (fixture "10 minutes ago" = 02:25 local → 01:25 UTC, in the future). (2) **Fixtures are also affected.** At 01:11 UTC (02:11 CET), "30 minutes ago" as a wall-clock subtraction gives 01:41 local → 23:41 UTC, 90 minutes earlier, so a P2 fixture is seen as P1 (`eng` 01:16 UTC on #331). (3) **Spring-forward is on the safe side today:** a nonexistent 2027-03-28 02:30 resolves to 01:30 UTC, the same as a CET reading, which is the bound DST1-3 sets; it is not tested. (4) **One gap in DST1-2:** the SIG2 watched-hours windows (0062:215-224, 0064:80-83) are built the same way. For a window, "earlier instant" is not always the safe side: an end at 02:30 resolved to the earlier instant ends the watched time one hour sooner. | conversion sites: 0038:91-92, 99, 112, 126-127; 0045:114; 0062:678-689; windows 0062:215-224, 0064:80-83. PostgreSQL 16.15, `timezone=UTC`: `(date '2026-10-25' + time '02:30') at time zone 'Europe/Zurich'` = `2026-10-25 01:30+00`; `'02:00'` = `01:00+00`; `(date '2027-03-28' + time '02:30') …` = `2027-03-28 01:30+00`; fixture at 00:35 UTC minus 10 min = `01:25+00`; at 01:11 UTC minus 30 min = `2026-10-24 23:41+00` | DST1 as approved covers (1)-(3). **Add to DST1 (PO, product authority, no threshold changed):** for a watched-hours window, an ambiguous **start** takes the earlier instant and an ambiguous **end** the later instant, so the window is never shorter than its wall-clock length; pgTAP at a pinned clock on 2026-10-25: a window 00:00-02:30 local still covers 01:15 UTC. DST1-5 stands: no assertion weakened. The ADR (DST1-1) must state that production code was affected, so the gate review applies to the PR |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| CGR-49 | open, advisory (S2; S1 before the first real leaver); **decided by the PO** 02:10 CET as **LEAVE1-11**. PLANNED | `briefs/LEAVE1.md` LEAVE1-11: a return stays possible when the performer's access has ended or she left the team, opens no draft only she could sign, shows "Zurückgegeben – Autorin nicht mehr verfügbar", stays not final and not billable, `report_not_final` keeps raising; `i_can_return` agrees with `return_report`. This is the remedy I proposed. Closes when merged with the pgTAP (a)-(c) green |
+| CGR-50 | open, advisory (S2); **decided by the PO** 02:10 CET as **LEAVE1-12**. PLANNED | `briefs/LEAVE1.md` LEAVE1-12 (open-reports list by kind before `end_member_access`, counts in the command result, HAND1 marker for every team member, return reason RN-only). Matches my remedy; it replaces a manual reminder with data and removes no control. D-30 stays `clinical`, before the first real leaver |
+| CGR-51 | open, advisory (S2); **decided by the PO** 02:10 CET as **DOOR1-11**, and 04:10 CET part of D-3 real-data gate (iv) | `briefs/DOOR1.md` DOOR1-11: the excerpt is removed **in the same PR** that gives Operations the door attempt, outcome code, basis and time; "Ergebnis offen" without an outcome. Matches my remedy. The excerpt stays until then (RLS3/Q13 F-1 interim on synthetic data only, `NEXT_CAPABILITY.md` 04:10) |
+| RLS2 request (22:26) | **met in code and green on the PR head**; closes on merge | pgTAP 067:277-294 passed in the db job on `bb3ed48`; no code change since my 02:26 review |
+| CGR-46, CGR-47, CGR-48 | open, advisory; decided as SIGC (*Next up* 3). PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open, unchanged (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open, unchanged | no change |
+
+No finding closed in this section.
+
+### Other changes reviewed (no finding)
+
+- **DST1 (brief).** Matches the CGR-52 remedy: root cause per assertion in an ADR, a fixed-clock mechanism, the earlier instant for an ambiguous planned start, a defined rule for a missing time that is never later than a CET reading, deterministic fixtures, and **no assertion weakened** (DST1-5). Changes no threshold, priority, receiver or step (D-28 untouched). Clinical review gate applies, because (1) above shows production code is affected. Rule CR-088 records today's implicit conversion.
+- **`lca` 02:42 CET ([Z2], ZH Spitex leaflet September 2025) in D-22, D-15, D-10, D-4.** "Only category B needs a medical order" is consistent with CR-004/CR-005 as noted 2026-10-24; no rule changes. The 20-year retention recommendation for nursing documentation goes to a legal adviser (D-4); nothing is deleted meanwhile. That is the safe default for documentation integrity. I set no period.
+- **`lca` 03:43 CET in D-23 (ArGV 2 Art. 17) and D-3.** Art. 17 exempts home-care organisations only from the permit for night and Sunday work, as read by `lca`. The working-day proposal shows the start and end of every segment and on-call calls without a visit. Clinically right: on-call calls are the hours that cause fatigue (H-10) and were invisible. No plan-limit check is built until a legal adviser answers. NAVORA invents no limit. Agreed; H-10 stays open.
+- **D-3 gate (iv)** now includes DOOR1-11 and F-3 before the first real client. Protective; consistent with CGR-51.
+- **PO challenge row (central Operations desk).** No change to who receives a P1; SIG1/SIG2 routes unchanged.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| RLS2 (#331, open) | **no blocking finding; CI green on `bb3ed48`**; ready to merge from the clinical side (owner merges) | CGR-51 (on F-1, not on 0066; decided as DOOR1-11) |
+| DST1 (brief, *Next up* 1) | no blocking finding on the brief; **one addition proposed** (watched-hours window ends); the PR needs the clinical gate | CGR-52 (S2) |
+| LEAVE1 (brief) | CGR-49 and CGR-50 taken up as LEAVE1-11 and LEAVE1-12 | open until delivered |
+| DOOR1 (brief) | CGR-51 taken up as DOOR1-11 | open until delivered |
+| SIGC (brief) | unchanged | CGR-46, CGR-47, CGR-48 |
+| F6R (accepted) | unchanged; F6R-G1 met (02:26) | CGR-49 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:** add the watched-hours window rule to DST1 (CGR-52 (4)); note in DST1 that production code is affected (CGR-52 (1)), so DST1 is a clinical-gate item.
+- **eng:** DST1 with the ADR stating that 0038, 0045 and 0062 resolve an ambiguous start to the later instant today; the fixed-clock pgTAP at the four DST1-1 clocks.
+- **owner:** (1) **merge this PR.** It carries #341, #321, #306, #294, #278 and #259, which can then be closed; seven of my sections are not on `recovery/main`. (2) Merge #331 (RLS2; green, no blocking finding). (3) G-1 (name the Clinical Owner and a deputy). (4) D-1 (urgent).
+- **clinical** (once named): D-30 before the first real leaver; D-19, D-17, D-10, D-28 as in the 22:26 section.
+
+---
+
 ## 2026-10-25 02:26: F6R merged (0065, pgTAP 066); F6R-G1 confirmed; RLS2 (#331, open, db red) reviewed; LEAVE1 and DOOR1 briefs; CGR-49, CGR-50, CGR-51, CGR-52 (DST night CI failure); Clinical impact confirmed or corrected for D-6, D-13, D-14, D-20, D-24, D-25
 
 **Scope:** `recovery/main` @ `fca2b40`. Changes since the 22:26 section, which is on the open PR #321 at `592cd3d`. #321 was not merged and conflicted with `recovery/main` in `JOURNAL.md`. **This PR carries #321 unchanged (and through it #306, #294, #278, #259) and supersedes all five.**

@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 05:30 CET · Clinical & Regulatory Architect (review)
+- **Reviewed** PO cycles 02:10 CEST to 04:10 CET, `lca` 02:48 to 03:43 CET, brief DST1, LEAVE1-11/-12, DOOR1-11, and #331 (RLS2) at `bb3ed48`. Section 2026-10-25 05:30 CET in `reports/CLINICAL_GOVERNANCE.md`. No code merged since 0065. I did not run the NAVORA tests.
+- **CGR-52 re-assessed (S3 → S2, advisory):** production code is affected. 0038, 0045 and 0062 convert planned starts with `at time zone 'Europe/Zurich'`, which resolves an ambiguous local time to the later instant (checked on an empty local PostgreSQL 16.15). A visit planned at 02:00-02:59 on the fall-back night raises its overdue signal and escalation up to one hour late. The fixtures also fail on wall-clock subtraction. DST1 covers both; proposed addition for the PO: watched-hours windows start at the earlier instant and end at the later one.
+- **Decided by the PO, PLANNED:** CGR-49 (LEAVE1-11), CGR-50 (LEAVE1-12), CGR-51 (DOOR1-11). No finding closed; no new finding ID.
+- **RLS2 (#331):** no blocking finding; CI green on `bb3ed48`; the owner merges.
+- **Registers:** CR-088 (implicit DST conversion, UNVALIDATED); CR-038 note; PS-41 to PS-44 and H-01, H-05, H-12 updated.
+- **Next:** owner merges this PR (it supersedes #341, #321, #306, #294, #278, #259) and #331; `eng` DST1 needs the clinical gate.
+
 ## 2026-10-25 04:10 CET · po (Product Owner)
 - No PO PR open (#340 merged). Claimed **#65** (D-3) for this run; claim removed at the end (D-23 and D-32 have no open issue).
 - **No delivery to review:** RLS2 (#331) not merged; nothing `delivered`, `ready-for-review` or `in-review`. DST1 (#344) active with Engineering, no PR yet.
