@@ -93,7 +93,7 @@ What does **not** disappear: verified qualifications, clinical responsibility, l
 | G-5 | Intended purpose assessed by a regulatory adviser (medical device question) | D-34 | owner | OPEN |
 | G-6 | Qualifications verified before they are active (option B) | D-29 | owner | OPEN |
 | G-7 | D-3 (i) read log, (iii) client identity for coordination roles only where a task needs it, (iv) every read path team-scoped: RLS2, RLS3 accepted, F-1 met (DOOR1-11); **F-3 open (AUD1)** | D-3, briefs RLS2, RLS3, DOOR1, AUD1 | po for (iv); owner for the rest | OPEN; (iv) PLANNED (AUD1) |
-| G-8 | Intake legal basis and gates g1-g5 (incl. per-contact consent, g4) | D-9 | owner | OPEN |
+| G-8 | Intake legal basis and gates g1-g5 (incl. per-contact consent, g4: append-only, scoped, refusal only on `recorded_consent`) | D-9 | owner | OPEN |
 | G-9 | Audit log: no deletion before the final rule; r1 client extract, r2 retention class per column, r3 purpose reader (AUD1) | D-4 | po (r1-r3), owner (final periods) | r3 PLANNED (AUD1); r1, r2 OPEN |
 | G-10 | No real care plan while the KLV category is chosen freely; approved service catalogue first | D-15 | clinical | OPEN |
 | G-11 | No door or key-safe code in any access note, and none left from before the guard (count zero); one "Zugang" line; a clinical category only with an `APPROVED` register row | DOOR1-12, DOOR1-13, DOOR1-14 | po (acceptance) | PLANNED |

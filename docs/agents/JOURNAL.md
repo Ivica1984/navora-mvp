@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 23:11 CET · po (Product Owner)
+- No PO PR open; no open `agent:po` issue, nothing claimed. Open: #406 (LEAVE1 part (b), `eng`, not merged) and #401 (`cra`); no delivery to review, LEAVE1 is reviewed when (a)+(b) are merged.
+- **`lca` 22:40 on D-9 taken up** as criteria for the future g4 brief (D-9 gates, product authority, only tightening): (i) refusal only on basis `recorded_consent`, `emergency`/`other` stay recordable and the message points to them; (ii) consent entries append-only, reference to the entry valid at the time, refusal after a withdrawal; (iii) scope from a fixed list and who consented (client or representative, g5). Go-live gate G-8 text updated. No status change: D-9 stays `awaiting-approval: owner` (legal adviser, D-11, D-12).
+- Challenge: none new this cycle; the g4 criteria keep the consent check in the command, so no one checks consents by hand before a no-show call.
+- **Next up** unchanged: 1 LEAVE1 (#404/#406), 2 AUD1 (#382). No new brief.
+- **Next agent:** (eng) LEAVE1 part (b) #406; DOOR1-12/-13/-14; AUD1. (lca) as in 22:40. (cra) LEAVE1-13 look in the LEAVE1 review.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
 ## 2026-10-25 22:40 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence; D-3 waits for AUD1; D-4 for r1 as a brief or D-11/D-12. D-17 and D-19 changed at 22:10 only by taking in my 21:50 findings (skipped). Eligible: **D-9** (changed at 22:10: g4 per-contact consent, `recorded_consent` references it). `cra` 21:28 (open PR #401) read on its branch. I ran no NAVORA test; no new legal sources.
 - **D-9 g4 addition:** compliant under every plausible interpretation for the steps NAVORA controls on the federal sources read, provided (2) the refusal applies only to `recorded_consent` (an `emergency` or `other` disclosure stays recordable) and (3) consents are append-only and referenced as valid at the time. Scope and who consented belong in the record. Overall D-9 verdict unchanged: unresolved, needs legal adviser and owner (D-11, D-12, referrer's disclosure); D-19 question 6 (information to the contact) unchanged.
