@@ -34,6 +34,31 @@ A visit planned in the repeated or missing hour raises its overdue signal and it
 
 **PO notes for the review (2026-10-25 06:10 CET, PR #349 open, not reviewed):** DST1-4 asks for proof at the four clocks in **CI** (a matrix or a documented one-off CI run). A local run under a clock offset is useful evidence of the root cause (DST1-1) but does not by itself meet DST1-4; if the runner cannot set the clock, the PR shows the pinned-clock pgTAP files for the four instants running in CI instead, and says so. DST1-7 and DST1-8 apply to PR #349 as it stands; neither asks for new production behaviour beyond what the PR describes.
 
+## PO review 2026-10-25 13:16 CET: DST1-C1 to DST1-C3 met, awaiting clinical review (stays `changes-requested`)
+
+**Reviewed:** PR #362 merged as `363906a` (merge commit; head `430c231`): migration 0069, ADR-081 addendum 2026-10-25 11:25, pgTAP 070 (31), CI `db` step "Real clock before the seed (DST1-8 a)", remediation plan `clinical/remediation/CGR-53.md`. **CI** `app`, `db`, `e2e` green on head `430c231` (run 40189035972), merge commit `363906a` (run 40189465706) and `recovery/main` `1f3ff8a` (run 40190817363); read through the API. **The PO did not run the tests.**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| DST1-C1 (CGR-53) visit interval never shorter than its wall-clock length | met | `private.visit_interval` end via `private.at_zurich_end` (0069); 070:55 a visit 01:30-02:30 on 2026-10-25 occupies 23:30-01:30 UTC; ordinary night unchanged (070:57) |
+| DST1-C1 ABS1 behaves as on an ordinary day | met | 070:72-81: `responsible_absent` flagged and ABS1 releases the visit for an absence from 01:00 UTC, as on 2026-11-10; an absence from the end releases on neither night (070:85-86) |
+| DST1-C1 other overlap intervals checked and listed in ADR-081 | met | `record_absence` and `change_absence` ends take the later instant (070:91-108); addendum lists every interval; stuck reference and its AN2 mirror keep the earlier end (accepted deviation (c)) |
+| DST1-C2 period 02:30-06:00 on 2026-10-25 covers 00:45 UTC | met | 070:129-132 (and starts at the earlier 02:30) |
+| DST1-C2 period on 2027-03-28 ending in the missing hour ends at the DST1-3 reading | met | 070:136-143: 00:00-02:30 ends at 01:30 UTC; look-ahead raise consistent (SIG2-13) |
+| DST1-C3 (a) CI step before the seed proves the real clock | met | `ci.yml` step between "Pin the database clock" and "Seed": fails unless `navora.test_now` is set, `private.test_clock` is empty and `private.now()` = `now()` |
+| DST1-C3 (b) no privilege of any kind for `anon`, `authenticated`, `service_role`; no executable function writes the pin | met | 070:147-167: table and column privileges 0 for all three roles; no executable function names `test_clock` except `private.now()`, which is STABLE SQL |
+| DST1-6 no regression (open since 10:12) | met in code | the CGR-53 regression is reversed by DST1-C1; CI green on the full suite |
+| DST1-7, DST1-8 (open since 10:12) | met | through DST1-C2 and DST1-C3 |
+| Clinical review gate | **awaiting clinical review** | no `cra` section covers 0069 (newest: 09:31 in open #358, before the merge); CGR-53 (advisory) is the finding this delivery answers; its closure is `cra`'s call on `363906a` |
+
+**Deviations decided:**
+1. **`visit_interval` for a visit starting in the spring gap** raised a range error since 0048; now covers both readings (start the earlier, end the later instant; 070:61). Accepted: a fix of an existing defect in the same function, never shorter.
+2. **`watched_inside` accepts the wall clock or the period instants** so it agrees with `watched_raise_at` on 2027-03-28. Accepted: protective, both checks now give the same answer.
+3. **ADR-081 sentence "every other end takes the earlier instant" withdrawn for overlap intervals.** Accepted; this is what DST1-C1 asked.
+4. **`visits_outside_watched_hours` (0068) still reads periods by the wall clock** on the two nights (eng 12:20, OPEN): lists more, never fewer. Accepted as protective; not a DST1 condition.
+
+**Why still `changes-requested`:** the requested changes are met in code and CI, but DST1 is in clinical scope and its 10:12 status can turn into `accepted` only after `cra` reviews `363906a` (README *Clinical review gate*; decided 10:12, deviation (d)). DST1-C4 (before 2027-10-31 or the first real client) and DST1-C5 (before gate B) keep their own deadlines and do not block acceptance.
+
 ## PO review 2026-10-25 10:12 CET: changes-requested
 
 **Reviewed:** PR #349 merged as `3c2da15` (merge commit; head `2702403`): migration 0067, pgTAP 068 (44), ADR-081, CI `db` job, `src/features/field/time.ts`, unit `field-time`, e2e `field.spec.ts` F3, fixture changes in about 60 pgTAP files. **CI** `app`, `db`, `e2e` green on `2702403`, `3c2da15` and `recovery/main` `16e4e9c` (runs 40176036755, 40176429793; read through the API). `cra` 09:31 CET (open PR #358): CGR-52 closed, no blocking finding, advisory CGR-53, CGR-54, CGR-56; DST1-7 test gaps named. **The PO did not run the tests**; results below are from the code, CI and the `cra` review.
@@ -60,9 +85,9 @@ A visit planned in the repeated or missing hour raises its overdue signal and it
 **Why `changes-requested`:** DST1's outcome is "never later than on any other night". CGR-53 makes one safety check later than before on the same night (an absent nurse's visit is not released), and three criteria are only partly proved. Each fix is small and in the same files.
 
 **Changes requested (must be met for acceptance; one follow-up PR):**
-- [ ] **DST1-C1 (CGR-53) A visit interval is never shorter than its wall-clock length.** The end of `private.visit_interval` uses `private.at_zurich_end`, the start stays `private.at_zurich`. Check every other interval used for an overlap test (absence, cover, plan conflicts) and apply the same rule; list them in ADR-081. pgTAP at a pinned clock: a visit 01:30-02:30 local on 2026-10-25 overlaps an absence of its responsible nurse starting 01:00 UTC; ABS1 releases it or flags `responsible_absent` exactly as for the same case on an ordinary day; the 0058 stuck reference keeps the earlier end.
-- [ ] **DST1-C2 The two DST1-7 assertions.** In 068 (or a new file): a watched period 02:30-06:00 local on 2026-10-25 covers 00:45 UTC; a period on 2027-03-28 that ends in the missing hour ends at the DST1-3 reading.
-- [ ] **DST1-C3 DST1-8 proved as written.** (a) a CI step between "Pin the database clock" and the seed fails unless `private.now()` equals `now()` while `navora.test_now` is set (the row is not yet there); (b) 068 asserts that `anon`, `authenticated` and `service_role` hold no privilege of any kind on `private.test_clock` and that no function executable by them writes it.
+- [x] **DST1-C1 (CGR-53) A visit interval is never shorter than its wall-clock length.** The end of `private.visit_interval` uses `private.at_zurich_end`, the start stays `private.at_zurich`. Check every other interval used for an overlap test (absence, cover, plan conflicts) and apply the same rule; list them in ADR-081. pgTAP at a pinned clock: a visit 01:30-02:30 local on 2026-10-25 overlaps an absence of its responsible nurse starting 01:00 UTC; ABS1 releases it or flags `responsible_absent` exactly as for the same case on an ordinary day; the 0058 stuck reference keeps the earlier end.
+- [x] **DST1-C2 The two DST1-7 assertions.** In 068 (or a new file): a watched period 02:30-06:00 local on 2026-10-25 covers 00:45 UTC; a period on 2027-03-28 that ends in the missing hour ends at the DST1-3 reading.
+- [x] **DST1-C3 DST1-8 proved as written.** (a) a CI step between "Pin the database clock" and the seed fails unless `private.now()` equals `now()` while `navora.test_now` is set (the row is not yet there); (b) 068 asserts that `anon`, `authenticated` and `service_role` hold no privilege of any kind on `private.test_clock` and that no function executable by them writes it.
 
 **Conditions with their own deadline (do not block this acceptance; tracked here):**
 - [ ] **DST1-C4 (CGR-54) A corrected time in the repeated hour can be entered either way.** Decided by po: option (a). When a typed correction on the fall-back date lies in 02:00-02:59, the form asks "02:20 Sommerzeit (MESZ)" or "02:20 Winterzeit (MEZ)", nothing preselected, and sends the chosen instant; the doc comment of `zurichLocalToIso` matches the code. Unit test: both readings of 02:20 on 2026-10-25 can be produced; e2e or component test of the choice. Reason: a corrected time is documentation and, once signed, the billing basis (H-14); option (b) (refuse) would leave the nurse unable to record what happened. **Due** before 2027-10-31 or before the first real client, whichever is first.
