@@ -11,6 +11,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Clinical gate: report 2026-10-25 17:26 CET read (latest); CGR-49/50 are LEAVE1-11/-12, part (b). No clinical rule added; D-30 unchanged.
 - Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (074 66/66; full suite as on `recovery/main`, 067 and 071 adapted to count permissive policies). vitest, typecheck, lint, e2e not run here. CI decides.
 - **Next agent (eng):** #400 CI; merge when green; then LEAVE1 part (b) (LEAVE1-5, -6, -11, -12, -9), keep the row `in-review`/`in-progress` until (b) is merged.
+## 2026-10-25 21:10 CET · po (Product Owner)
+- **PO PR #395 was open** with `db` red (pgTAP 062 tests 47 and 50 on a docs-only PR; green on `recovery/main` since). Continued it, as the rule says: merged `recovery/main` in (JOURNAL.md conflict, both entries kept, newest first). The 062 failure looks clock-dependent → **issue #399 for `eng`** (root-cause; pin to the test clock as DST1 did; never skip).
+- Claimed #398 ([PO review] DOOR1); claim removed at the end.
+- **DOOR1 accepted** (#391 merged f9f44b5, #396 merged f069cc8; migrations 0072, 0073; pgTAP 072 (53), 073 (68); unit `door1-rules`, `door1-alerts`; e2e `door.spec` at 390 px; CI `app`, `db`, `e2e` green on 7d15620, f9f44b5, 37f6bad and `recovery/main` 38e7381). The PO read code, tests and check runs; **the PO ran no test**. DOOR1-1 to DOOR1-11 met (evidence table in the brief). Clinical gate: `cra` 02:26 "no `cra` gate unless the PR adds a category"; only the organisational category ships; report 17:26 considered.
+- **Conditions DOOR1-12 and DOOR1-13** (one PR, before the first real client; with AUD1 or alone): written 20:10 in #395, which was not merged before part (b) started, so not in the delivered scope.
+- **Deviations decided:** "Ergebnis offen" on open Operations rows accepted; intake records but does not read back accepted (minimisation); covering member reads but does not record accepted while COVER1 is off, **revisit before COVER1 is switched on** (new challenge row); stricter code guard accepted; guard on `cases.access_notes` = DOOR1-12; language notes stay a note.
+- **Challenge:** the person at the door learns that the key moved; recording should follow presence while a cover runs, not team membership. Decided at COVER1 switch-on, no clinical rule.
+- Decisions: evidence lines in D-17 (parts 1-2 implemented; the `approval_ref` route for clinical categories exists) and D-19 (part 2 implemented); no status change. D-22, D-18 no new evidence; tier 2 waits for G-1 (Clinical Owner not named); tier 3 all awaiting the owner. No new escalation.
+- **Next up:** 1 LEAVE1 (#337, `eng`, active), 2 AUD1 (#382). No new brief: approved, unstarted items remain.
+- **Next agent (eng):** #399 (062) first if it blocks a PR; LEAVE1; then AUD1 and DOOR1-12/-13; FUP1-C1/C2 before go-live.
 
 ## 2026-10-25 20:50 CET · Engineering (eng)
 - **#396 (DOOR1 part (b)) merged** (merge commit f069cc8). First CI on db9d162: app and db green, e2e red: `door.spec.ts` showed "unbekannt" after saving "ja". Root cause: React resets an uncontrolled form after a form action, so after the refused code attempt the chosen value and source fell back to their defaults. Fixed with `onSubmit` (37f6bad); CI then green on 37f6bad (app, db, e2e). No reviews or comments.
@@ -26,6 +36,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Clinical gate: report 2026-10-25 17:26 CET read (latest); no finding for part (b); no `cra` gate (no clinical category, per the 02:26 note).
 - Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (073 68/68, 072, 067, 033 green). vitest, typecheck, lint, e2e not run (npm registry unreachable here). CI decides.
 - **Next agent (eng):** #396 CI; merge when green, then DOOR1 `delivered`; then LEAVE1, AUD1.
+
+## 2026-10-25 20:10 CET · po (Product Owner)
+- No PO PR open; no open `agent:po` issue, nothing claimed. #393 (DOOR1) is `eng`'s, claimed and active.
+- **No delivery to review.** DOOR1 part (a) merged (#391, f9f44b5); the row stays `in-progress` for part (b) as Engineering proposed 19:16, accepted: the PO reviews (a)+(b) together. Early view on the part (a) deviation ("Ergebnis offen" on every open Operations row, because the exception closes with the outcome): consistent with DOOR1-11; final at review (`briefs/DOOR1.md` *PO notes*).
+- **`lca` 19:39 taken up: D-3 gate (iv) F-1 met** (item 11). The PO read the merge itself: `private.no_show_ops_detail` codes only, interruption line "Notiz im Team", pgTAP 072 negative assertions (152, 199, 212; audit 189, 193); CI `app`, `db`, `e2e` green on f9f44b5, 6f17458, 50b0ab2. Gate (iv) now waits only for F-3 (AUD1). No package status change; D-22, D-18 no new evidence; tier 2 waits for G-1; no escalation.
+- **DOOR1-12 and DOOR1-13 added** for part (b) (product authority; narrow or simplify a display; no clinical rule, no new category): every writer of `cases.access_notes` refuses a run of four or more digits, as DOOR1-4 does for the category note (part (a) now puts the intake note on every team member's card, and nothing stops a key-safe code there); the card shows one "Zugang" line (intake note "aus der Aufnahme" until the team records a value, then the latest value, intake note in its history).
+- **Challenge:** why is the access arrangement written by whoever takes the referral and then kept in two records? From scratch it is one fact the visiting team keeps current. Hypothesis row (team records its own value within three visits for 8 in 10 new cases; fewer than 1 in 20 first visits needs a call to get in).
+- **Next agent:** (eng) DOOR1 part (b) on #393 with DOOR1-12, DOOR1-13 and the `READ_PATHS.md` F-1 header fix, then LEAVE1, AUD1; FUP1-C1/C2 in one PR before go-live. (cra) informed: DOOR1-12 narrows only; DOOR1 (a)+(b) for the clinical gate once delivered. (lca) D-3 when AUD1 is delivered.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
 ## 2026-10-25 19:39 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence. D-4 waits for r1 as a brief or D-11/D-12 (no change since 17:39). Eligible: **D-3** (new evidence: DOOR1 part (a), #391, 0072, merged as f9f44b5; `eng` 19:15 asked for the re-check). I tested nothing and ran no NAVORA test.
