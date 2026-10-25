@@ -38,6 +38,8 @@ export type SignalRow = {
   taken_by_qualification?: string | null;
   /** SIG1-C1: taken, but by nobody whose take stops the step to Operations (a no-show or broken-off visit). */
   taken_awaits_rn?: boolean | null;
+  /** SIG2-C1 (1) (0068): a watched period of the organisation runs now (no watched hours recorded → false). */
+  watched_now?: boolean | null;
 };
 
 export function signalText(kind: string): string {
@@ -77,12 +79,53 @@ export const QUALIFICATION_LABEL: Record<string, string> = {
   care_assistant: "Pflegehilfe",
 };
 
-/** "übernommen von Anna (Pflegehilfe), Meldung an Operations folgt" (SIG1-C1 (a)); otherwise as before. */
-export function takenText(row: Pick<SignalRow, "taken_by_me" | "taken_by_name" | "taken_by_qualification" | "taken_awaits_rn">): string {
+/** SIG1-C1 (a): the step to Operations follows, and a watched period runs (Operations is told outside the app too). */
+export const OPERATIONS_FOLLOWS = "Meldung an Operations folgt";
+/** SIG2-C1 (1) (CGR-48): no watched period runs, so the step to Operations stays in the app (SIG2-12). */
+export const OPERATIONS_APP_ONLY = "Operations nur in der App: ausserhalb der überwachten Zeit";
+
+/**
+ * "übernommen von Anna (Pflegehilfe), Meldung an Operations folgt" (SIG1-C1 (a)) while a watched period runs;
+ * otherwise "…, Operations nur in der App: ausserhalb der überwachten Zeit" (SIG2-C1 (1)). Only a reader row that says
+ * a watched period runs (`watched_now === true`) promises the message to Operations; a missing flag never does.
+ */
+export function takenText(
+  row: Pick<SignalRow, "taken_by_me" | "taken_by_name" | "taken_by_qualification" | "taken_awaits_rn" | "watched_now">,
+): string {
   const base = row.taken_by_me ? "von dir übernommen" : `übernommen von ${row.taken_by_name ?? "Teammitglied"}`;
   if (!row.taken_awaits_rn) return base;
   const label = row.taken_by_qualification ? QUALIFICATION_LABEL[row.taken_by_qualification] : undefined;
-  return `${label ? `${base} (${label})` : base}, Meldung an Operations folgt`;
+  return `${label ? `${base} (${label})` : base}, ${row.watched_now === true ? OPERATIONS_FOLLOWS : OPERATIONS_APP_ONLY}`;
+}
+
+/** SIG2-C1 (2) (0068, ADR-082): a planned visit of the next 7 days outside the organisation's watched periods. */
+export type OutsideWatchedVisit = {
+  visit_id: string;
+  organization_id: string;
+  team_id: string;
+  team_name: string;
+  visit_date: string;
+  time_start: string | null;
+  time_end: string | null;
+};
+
+export const OUTSIDE_WATCHED_LABEL = "Geplante Einsätze ausserhalb der überwachten Zeiten";
+export const OUTSIDE_WATCHED_EMPTY = "Keine geplanten Einsätze ausserhalb der überwachten Zeiten in den nächsten 7 Tagen.";
+/** Why the list exists (SIG1-8 stays a go-live condition until the list is empty for the pilot plan). */
+export const OUTSIDE_WATCHED_NOTE =
+  "Heute und die nächsten 6 Tage. Ausserhalb der überwachten Zeiten erhält Operations Signale nur in der App. " +
+  "Bedingung SIG1-8: solche Einsätze sind im Pilot nicht geplant, oder jemand beobachtet die Signale in dieser Zeit.";
+
+/** "Mo 26.10. 21:00–21:30 · Testteam Nord"; without a planned start: "ohne Zeit". */
+export function outsideWatchedLine(row: Pick<OutsideWatchedVisit, "visit_date" | "time_start" | "time_end" | "team_name">): string {
+  const [y, m, d] = row.visit_date.split("-").map(Number);
+  const weekday = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"][new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+  const dd = String(d).padStart(2, "0");
+  const mm = String(m).padStart(2, "0");
+  const start = row.time_start ? row.time_start.slice(0, 5) : null;
+  const end = row.time_end ? row.time_end.slice(0, 5) : null;
+  const time = start ? (end ? `${start}–${end}` : start) : "ohne Zeit";
+  return `${weekday} ${dd}.${mm}. ${time} · ${row.team_name}`;
 }
 
 /** Why the person received it (Operations rows say so). */

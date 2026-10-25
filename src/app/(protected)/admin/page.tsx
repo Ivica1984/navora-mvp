@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 import { getAdminData } from "@/features/admin/queries";
 import { getAdminPush } from "@/features/push/queries";
-import { getSignalEvaluatorHealth } from "@/features/signals/queries";
+import { getSignalEvaluatorHealth, getVisitsOutsideWatchedHours } from "@/features/signals/queries";
 import AdminClient from "./admin-client";
 
 // ADM1: pilot administration. Administrators of an organisation only; everybody else sees a notice
@@ -13,5 +13,8 @@ export default async function AdminPage() {
   const push = data ? await getAdminPush(data.organizationId) : null;
   // SIG2-11: "Signalprüfung läuft nicht" for this organisation.
   const evaluator = data ? (await getSignalEvaluatorHealth()).filter((h) => h.organization_id === data.organizationId) : [];
-  return <AdminClient data={data} push={push} evaluator={evaluator} />;
+  // SIG2-C1 (2): planned visits of the next 7 days outside the watched hours of this organisation.
+  const outside = data ? await getVisitsOutsideWatchedHours(false) : null;
+  const outsideWatched = outside === null ? null : outside.filter((v) => v.organization_id === data?.organizationId);
+  return <AdminClient data={data} push={push} evaluator={evaluator} outsideWatched={outsideWatched} />;
 }
