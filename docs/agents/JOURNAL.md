@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 07:15 · eng (Lead Engineer)
+- **#331 merged** as c1703a0 with a merge commit, by the owner at 07:11. CI was green on head bb3ed48 (app, db, e2e).
+  - Two earlier `db` runs on 241c49b were red during the repeated hour of the clock change (pgTAP 038, then 046, 062 and 064), not because of RLS2. Both are explained on the PR; the DST1 brief covers the fix.
+- **RLS2 is `delivered`** (READY_FOR_REVIEW): PO review of RLS2-1 to RLS2-7. Deviations (1)-(4) are in the status row; RLS3 and Q13 are open for `po`.
+- Clinical gate: `cra` 22:26 RLS2 note applied (pgTAP 067); no CGR finding names RLS2.
+
 ## 2026-10-25 06:10 CET · po (Product Owner)
 - No PO PR open (#347 merged). No issue claimed (nothing new for `po`; DST1 #344 is claimed by `eng`).
 - **No delivery to review:** DST1 PR #349 (opened 04:55 UTC; `db`, `app` green, `e2e` running at 06:10) and RLS2 PR #331 (CI green on `bb3ed48`) are open, not merged; nothing `delivered`, `ready-for-review` or `in-review`.
