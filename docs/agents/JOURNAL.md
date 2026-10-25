@@ -4,6 +4,34 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 08:10 CET · po (Product Owner)
+- No PO PR open (#350 merged). Claimed **#351** (Q13); claim removed at the end. Open: #352 (`eng`, RLS2 status `delivered`, not merged by the PO), #349 (DST1, CI green on 8ba1d85, awaiting `cra` on 0067), #3.
+- **RLS2 accepted** (#331 merged 07:11 CET as c1703a0; `app`, `db`, `e2e` green on head bb3ed48, merge commit c1703a0 and `recovery/main` 8b099fa; the PO did not run the tests). RLS2-1 to RLS2-7 met (evidence table in `briefs/RLS2.md`): four tables and `uncovered_visits()` team-scoped, decline reason out of the escalation reader, catalogue check of 22 tables and 24 functions, 37-call cross-team sweep, removed member reads nothing. Four deviations accepted (017/012 assertions replaced by the narrower scope, none dropped). `cra` 05:30: no blocking finding. Its status row still says `in-review` until #352 merges; the review used the merged code and CI.
+- **Q13 decided by po** (product authority, narrowing only): F-1 with DOOR1-11; F-2, F-4, F-5 as **RLS3**; F-3 with D-4 or the DSFA. **F-4 moved** from "with D-23 C" to **before the first real employee, or with C, whichever is first** (`lca` 07:50: the events are written for care today).
+- **RLS3 approved** (*Next up* 3). *Next up* now: 1 DST1, 2 SIGC, 3 RLS3, 4 DOOR1, 5 LEAVE1.
+- **Packages (`lca` 07:50 taken up; no status change):** **D-3** item 7: gate (iv) is a checklist (F-1, F-2, F-3, F-5, inventory); the task-bound coordination reads go to the DSFA line by line. **D-23** item 9: precondition 3 (a) met; F-4 protective route (RLS3-4), the DSFA question moot. Tiers 1-3 otherwise unchanged (D-22, D-18 no new evidence; the rest awaiting a person or decided).
+- **Challenge:** standing coordination read rights (row added): from scratch, a coordination role reads a client only while it holds an open task for her; hypothesis from the read log (fewer than 1 in 20 coordination reads without an open task); no brief beyond RLS3 until the read log exists.
+- ROADMAP: line 25.10. 08:10. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` passed before publishing.
+- **Waiting on people (unchanged):** **owner:** D-1 (urgent), SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, D-14, D-24, D-25 (only once D-24 moves past A), G-1 (name the Clinical Owner); merge #349 (DST1) once `cra` has reviewed 0067. **Clinical Owner:** D-10, D-28, D-31, D-3, D-30, D-16, D-15, D-19, D-17.
+- **Next agent:**
+  - **(eng):** merge #352; DST1 (#349) after `cra`; then SIGC, RLS3, DOOR1, LEAVE1. RLS3's open questions name the invoker read models and the `actor_id` readers.
+  - **(cra):** DST1 0067 as requested; RLS3 is informed only (say whether any coordination role has a clinical need for a note's text).
+  - **(lca):** no new request; D-3 gate (iv) again when RLS3 or DOOR1 is delivered.
+  - **(po):** review DST1 when merged.
+
+**ENGINEERING BRIEF — RLS3**
+- **Capability:** Coordination roles and teammates read no more than their task needs (`briefs/RLS3.md`).
+- **Why:** after RLS2 no organisation-wide path is left, but admin, coach and Operations still read the whole no-show and interruption note, cover events and working-time facts of every team through the table API (F-2), three tables have no negative test (F-5), and a teammate can list who recorded which visit event when (F-4). `lca` 07:50: F-2 is the larger free-text exposure; F-4 exists without D-23 C. No screen needs any of them.
+- **Business outcome:** D-3 real-data gate (iv) is two items from met (F-1 with DOOR1-11, F-3 with D-4 or DSFA); a DSFA that lists one reader per task instead of standing rights.
+- **Care outcome:** a client's note about a closed door or a broken-off visit stays with the team that cares for her and the nurse covering that visit.
+- **Expected nurse outcome:** no screen change; nobody outside her team, and no teammate, can reconstruct her working day from the raw rows.
+- **Expected team outcome:** the team stays the reader of its own records; Operations keeps every exception and signal through its read models.
+- **Expected patient outcome:** what she told her nurse at the door is not readable by every coordinator of the organisation.
+- **Acceptance criteria:** RLS3-1 `visit_status_notes`, `cover_events`, `working_time_facts` team (+ cover, + own cover event) only, coordination roles 0, pgTAP per table; RLS3-2 read models unchanged on the seed (019, 042, 045, 057-059, 067 green; OPS1 still raises); RLS3-3 negative pgTAP for `care_plan_items`, `case_lifecycle_events`, `cover_events`; RLS3-4 `actor_id` of `visit_events` and `visit_time_corrections` not selectable through the table API, per-visit identity only through listed functions with a named care task, never per person; RLS3-5 inventory updated; RLS3-6 no regression, no assertion weakened.
+- **Dependencies:** RLS2 (accepted). None blocking.
+- **Priority:** *Next up* 3 (after DST1 and SIGC, before DOOR1).
+- **Implementation recommendation:** one additive migration in the 0066 pattern (`private.reads_visit`, `private.reads_case`); a column revoke for `actor_id` with any own-event read moved into a definer read model; extend the fixed lists in pgTAP 067 rather than a new mechanism.
+
 ## 2026-10-25 07:50 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR (#346 merged). Tiers 1-3: D-22, D-18 unchanged, no new evidence. New evidence: **RLS2 (#331) merged** at 07:11 CET (0066, `READ_PATHS.md`; ADR-080 asks for the `lca` re-check of D-3 gate iv). Re-checked two packages against the merged code (read, not tested):
 - **D-3 gate (iv):** the organisation-wide gap of 21:55 is **closed in code**. Gate (iv) is still **not met**: F-2 (every coordination role can read the whole `visit_status_notes.note` through the table API), F-1 (DOOR1-11), F-3 and the F-5 negative tests are open. Real data: **not yet compliant**; compliant under every plausible interpretation on the federal sources once those four are done with gates (i)-(iii). Task-bound coordination reads (intake, quality review, holds): DSFA. Note to po: name F-2 and F-5 in item 6.
