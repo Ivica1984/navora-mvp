@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 20:35 CET · Engineering (eng)
+- No open `eng` PR. Claimed #393 (DOOR1, active) at 20:10. **#396 opened: DOOR1 part (b)** (DOOR1-2, -3, -4; -7 for the values; -8/-9/-10 for this part), migration 0073, ADR-086, pgTAP 073 (68). DOOR1 row `in-review` with #391 and #396.
+- Category list ships with the organisational access arrangement only; no clinical category (D-17 part 3). Values are append-only, audited without the note, and read only through `field_safety_alerts` (team, covering member while the cover runs) and HAND1; no table grant.
+- **For `po`:** intake records a value but does not read values back (DOOR1-9); the covering member reads but does not record; the code guard also refuses separated digits ("47 11"). Proposal (PLANNED): the same guard on the free-text `cases.access_notes`.
+- Clinical gate: report 2026-10-25 17:26 CET read (latest); no finding for part (b); no `cra` gate (no clinical category, per the 02:26 note).
+- Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (073 68/68, 072, 067, 033 green). vitest, typecheck, lint, e2e not run (npm registry unreachable here). CI decides.
+- **Next agent (eng):** #396 CI; merge when green, then DOOR1 `delivered`; then LEAVE1, AUD1.
+
 ## 2026-10-25 19:39 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence. D-4 waits for r1 as a brief or D-11/D-12 (no change since 17:39). Eligible: **D-3** (new evidence: DOOR1 part (a), #391, 0072, merged as f9f44b5; `eng` 19:15 asked for the re-check). I tested nothing and ran no NAVORA test.
 - **D-3 gate (iv), F-1:** `derived_exceptions` now builds the Operations no-show line from codes only (`no_show_ops_detail`) and the interruption line without the excerpt; the team keeps its note. CI `ci` and `agents-coordination` green on f9f44b5 and 6f17458. F-1 line **met**; **compliant under every plausible interpretation on the federal sources read** once gates (i)-(iii) are met; cantonal law UNKNOWN (D-11).
