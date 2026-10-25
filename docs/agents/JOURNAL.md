@@ -4,6 +4,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 10:12 CET · po (Product Owner)
+- No PO PR open. Open: #358 (`cra` 09:31, DST1 review; not merged by the PO), #3. Claimed **#357** ([PO review] DST1); claim removed at the end.
+- **DST1 reviewed: `changes-requested`** (#349 merged 3c2da15; `app`, `db`, `e2e` green on head 2702403, merge commit 3c2da15 and `recovery/main` 16e4e9c; the PO did not run the tests; evidence table in `briefs/DST1.md`). DST1-1 to DST1-5 met; DST1-4 through the pinned suite plus 068's DST instants in CI (the allowed fallback; CI matrix PLANNED, with one night-time instant). **Not met:** DST1-6 (`cra` CGR-53: 0067 gives the end of `private.visit_interval` the earlier instant, so a visit 01:30-02:30 on the fall-back night is not released by ABS1 when its nurse is absent from 01:00 UTC; before 0067 it was), DST1-7 (two named assertions missing), DST1-8 (a) not proved before the seed, (b) without `service_role`.
+  - **Requested, one PR:** DST1-C1 (every interval used in a safety overlap check ends at the later instant; pgTAP for the ABS1 case), DST1-C2 (the two DST1-7 assertions), DST1-C3 (a CI step before the seed; grants of all three API roles).
+  - **Own deadline:** DST1-C4 (CGR-54, **decided option (a)**: the correction form asks "Sommerzeit / Winterzeit" for 02:xx on the fall-back date, nothing preselected; before 2027-10-31 or the first real client) and DST1-C5 (CGR-56: deploy check that `private.test_clock` is empty and `navora.test_now` unset; before gate B).
+  - Deviations: no-show path proved through the overdue path (accepted); earlier end for the stuck reference (accepted); earlier end for overlap intervals (not accepted, C1).
+- **Process (`cra` asked the owner whether a clinical-scope PR waits for `cra` before merge):** decided by po, no owner question: merging on green CI stays allowed; the PO accepts an item in clinical scope only once `cra` has reviewed its merge commit (README *Clinical review gate*). Reversible; COORDINATION.md unchanged.
+- **RLS3-4b added** (CGR-55, product authority): one listed per-visit reader keeps the correction trail (corrector, time, old and new value, reason) visible to the report's author, countersigner and the billing review after the `actor_id` revoke; never per person. `cra`'s RLS3 note (no standing clinical need of coordination roles for note text) recorded in the brief.
+- *Next up* now: 1 SIGC, 2 RLS3, 3 DOOR1, 4 LEAVE1; the DST1 follow-up (rank 28) comes first.
+- **Packages:** `cra` 09:31 brings no new input to any package (D-28 thresholds untouched); tiers 1-3 all awaiting a person or decided (D-22, D-18 no new evidence); no status change.
+- **Challenge:** typed time corrections (row added): from scratch the tap is the record; hypothesis on correction share and size from AN counts; no brief before pilot data.
+- ROADMAP: line 25.10. 10:12. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` passed before publishing.
+- **Waiting on people (unchanged):** **owner:** D-1 (urgent), SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, D-14, D-24, D-25 (only once D-24 moves past A), G-1 (name the Clinical Owner); merge `cra` PR #358. **Clinical Owner:** D-10, D-28, D-31, D-3, D-30, D-16, D-15, D-19, D-17.
+- **Next agent:**
+  - **(eng):** DST1-C1 to DST1-C3 in one PR first (`cra` review before PO acceptance); then SIGC, RLS3 (with RLS3-4b), DOOR1, LEAVE1. DST1-C4 and DST1-C5 by their deadlines.
+  - **(cra):** review the DST1 follow-up PR on its merge commit.
+  - **(lca):** no new request.
+  - **(po):** review the DST1 follow-up when merged.
+
 ## 2026-10-25 09:30 CET · eng (Engineering)
 - **#352 merged** (42972ca): RLS2 status row `delivered` (CI green on 52fb70f).
 - **#349 merged** (3c2da15, merge commit): DST1. Its head conflicted with #352 in the `IMPLEMENTATION_STATUS.md` last-change line only; resolved by merging `recovery/main` into the branch (2702403, no history rewrite). CI `app`, `db`, `e2e` green on 2702403 (CI ran them; engineering ran only `npm run agents:check` locally). DST1 row now `delivered` (READY_FOR_REVIEW).
