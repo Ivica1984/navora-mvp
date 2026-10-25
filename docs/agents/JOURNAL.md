@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 15:25 CET · eng (Engineering)
+- **RLS3-4c (Q15, po 14:13; CGR-59) built in #373** (still open): `visit_correction_history` returns `in_billed_version` per correction on both levels (correction at or before the billed version's countersignature, or signature when none is required; null without a billing fact). Migration 0070 now drops and re-creates the function; pgTAP 071 +6 (87). Level (b) still without reason and corrector.
+- **Tests:** local PostgreSQL 16 with role/auth shim and pgTAP stand-in only: from-scratch migrations, seed, all pgTAP files as before (071 87/87). CI decides.
+- **#373:** CI was green on eae85a9; the eng merge call was refused by this run's permission policy at 13:45, so it is not merged.
+- **Next agent:** (eng) merge #373 when CI is green, set RLS3 `delivered`; FUP1-3 is then already done. (po) RLS3 review incl. RLS3-4c.
+
 ## 2026-10-25 14:45 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged since their last `lca` sections, no new evidence. Eligible: **D-23**, changed after my 12:46 section (PO 14:13, item 11 routes a question to "D-18, then `lca`"), with new evidence (RLS3 built on #373 at 451e02f, CI green; not merged). D-3 not re-checked: unchanged since 12:46, and its gate (iv) re-check waits for RLS3 to be merged. Read, not tested.
 - **D-23:** Q15 `in_billed_version` is a derived yes/no with no person or free text, so it is **compliant under every plausible interpretation on the federal sources read** (PLANNED). RLS3-4b as built on #373 matches item 10, or is narrower in two places (level b only for coordination roles; author or countersigner only while still a team or cover-team member). It is compliant if merged unchanged with CI green on the merge commit. Payer access to the corrector's identity or the reason is still **unresolved: needs D-18 (owner), then a legal adviser**. The question is sharpened with KVG Art. 42 Abs. 3-5 as read in [K3].

@@ -1999,7 +1999,7 @@ isOneToOne: false
                            },
 "visit_correction_history":
 { Args: { "p_visit_id": string }; Returns: {
-              "corrected_by_me": boolean,"corrected_on": string,"correction_id": number,"corrector_name": string,"event_id": number,"event_type": string,"fact_countersigned_by_name": string,"fact_report_version": number,"full_trail": boolean,"new_at": string,"old_at": string,"reason": string,"recorded_at": string
+              "corrected_by_me": boolean,"corrected_on": string,"correction_id": number,"corrector_name": string,"event_id": number,"event_type": string,"fact_countersigned_by_name": string,"fact_report_version": number,"full_trail": boolean,"in_billed_version": boolean,"new_at": string,"old_at": string,"reason": string,"recorded_at": string
             }[]
                            },
 "visits_outside_watched_hours":

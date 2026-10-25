@@ -35,7 +35,9 @@
 --            through `teams_in_scope`): that the visit has a correction, old and new value, time of the correction, and
 --            the signed report version the current billing fact is based on with its countersigner; `reason` and the
 --            corrector are null. Nobody else reads a row.
---      Never grouped or counted per person.
+--      Both levels also return `in_billed_version` per correction (RLS3-4c, Q15): true when the correction was made at or
+--      before the countersignature (the signature when none is required) of the version the current billing fact rests
+--      on, false after it, null without a billing fact. Never grouped or counted per person.
 -- One read is added, as the brief requires: the active covering member now reads the status notes of the visit she covers
 -- (before: no policy admitted her, because `care_visits` has no cover clause); it ends with her cover (0066). Nothing
 -- else is widened. No signal, threshold, priority, clinical rule, tariff or screen changes. Idempotent: re-running
@@ -80,7 +82,9 @@ end
 $$;
 
 -- 3. RLS3-4b: the correction trail of one visit, two levels ---------------------------------------------------------------
-create or replace function public.visit_correction_history(p_visit_id uuid)
+-- RLS3-4c (Q15, po 2026-10-25 14:13 CET, CGR-59) added `in_billed_version`; drop first so a re-run can change the columns.
+drop function if exists public.visit_correction_history(uuid);
+create function public.visit_correction_history(p_visit_id uuid)
 returns table (
   correction_id bigint,
   event_id bigint,
@@ -94,7 +98,9 @@ returns table (
   corrector_name text,                -- (a) only
   corrected_by_me boolean,            -- (a) only
   fact_report_version integer,        -- signed report version the current billing fact is based on (null: no fact yet)
-  fact_countersigned_by_name text     -- its countersigner (already on the report)
+  fact_countersigned_by_name text,    -- its countersigner (already on the report)
+  in_billed_version boolean           -- RLS3-4c: correction made at or before that version's countersignature (its
+                                      -- signature when none is required); null without a billing fact or that instant
 )
 language sql stable security definer set search_path = ''
 as $$
@@ -114,7 +120,8 @@ as $$
     where cv.id = p_visit_id
       and private.is_org_member(cv.organization_id)
   ), fact as (
-    select r.version, private.member_name(r.organization_id, r.countersigned_by) as countersigner
+    select r.version, private.member_name(r.organization_id, r.countersigned_by) as countersigner,
+           case when r.countersign_required then r.countersigned_at else r.signed_at end as billed_at
     from v
     join public.billable_facts f on f.visit_id = v.id
     join public.visit_reports r on r.id = f.report_id
@@ -133,7 +140,8 @@ as $$
          case when v.lvl = 'a' then private.member_name(x.organization_id, x.actor_id) end,
          case when v.lvl = 'a' then x.actor_id = (select auth.uid()) end,
          (select fact.version from fact),
-         (select fact.countersigner from fact)
+         (select fact.countersigner from fact),
+         x.created_at <= (select fact.billed_at from fact)
   from v
   join public.visit_time_corrections x on x.visit_id = v.id
   join public.visit_events e on e.id = x.event_id

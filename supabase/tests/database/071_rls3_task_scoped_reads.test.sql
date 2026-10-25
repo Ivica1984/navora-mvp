@@ -8,7 +8,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(81);
+select plan(87);
 
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
   select (case n when 'rn' then '00000000-0000-4000-a000-000000000902' when 'ca' then '00000000-0000-4000-a000-000000000906'
@@ -141,6 +141,31 @@ insert into public.care_plan_items (organization_id, case_id, team_id, service, 
 insert into public.case_lifecycle_events (organization_id, case_id, kind, reason_code, actor_id, idempotency_key, created_at) values
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000208', 'resume', null, pg_temp.u('rn'), pg_temp.k(31), private.now() - interval '30 days'),
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000205', 'resume', null, pg_temp.u('mitte'), pg_temp.k(32), private.now() - interval '30 days');
+
+-- RLS3-4c (Q15): v5 Nord, yesterday, countersigned at now - 10 h and billed; one correction before the countersignature
+-- (now - 12 h), one after it (now - 2 h). v4 has no billing fact.
+insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status) values
+  ('00000000-0000-4000-b000-000000000011', pg_temp.v(5), '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
+   pg_temp.today() - 1, '11:10', '11:40', false, 'completed');
+insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, actor_id, occurred_at) values
+  ('00000000-0000-4000-b000-000000000011', pg_temp.v(5), '00000000-0000-4000-a000-000000000101', 'started', 'on_the_way', 'started', pg_temp.u('ca'), private.now() - interval '27 hours'),
+  ('00000000-0000-4000-b000-000000000011', pg_temp.v(5), '00000000-0000-4000-a000-000000000101', 'completed', 'started', 'completed', pg_temp.u('ca'), private.now() - interval '26 hours');
+insert into public.visit_time_corrections (organization_id, visit_id, team_id, event_id, corrected_at, reason, actor_id, idempotency_key, created_at)
+select e.organization_id, e.visit_id, e.team_id, e.id, e.occurred_at - interval '4 minutes',
+       case e.event_type when 'started' then 'Synthetisch: RLS3 vor Visum' else 'Synthetisch: RLS3 nach Visum' end, pg_temp.u('ca'),
+       case e.event_type when 'started' then pg_temp.k(5) else pg_temp.k(6) end,
+       case e.event_type when 'started' then private.now() - interval '12 hours' else private.now() - interval '2 hours' end
+from public.visit_events e where e.visit_id = pg_temp.v(5);
+insert into public.visit_reports (organization_id, id, visit_id, case_id, team_id, version, status, snapshot, performer_id,
+                                  countersign_required, created_by, signed_by, signed_at, countersigned_by, countersigned_at)
+values ('00000000-0000-4000-b000-000000000011', pg_temp.v(15), pg_temp.v(5), '00000000-0000-4000-a000-000000000208',
+        '00000000-0000-4000-a000-000000000101', 1, 'final', '{}', pg_temp.u('ca'), true,
+        pg_temp.u('ca'), pg_temp.u('ca'), private.now() - interval '11 hours', pg_temp.u('rn'), private.now() - interval '10 hours');
+insert into public.billable_facts (organization_id, visit_id, case_id, team_id, report_id, visit_date, billable, reasons, order_basis,
+                                   payer_chain, tariff_versions, created_by, created_at, rule_version, cause)
+select v.organization_id, v.id, v.case_id, v.team_id, pg_temp.v(15), v.visit_date, true, '{}', 'with_order', '{}'::jsonb, '{}'::jsonb,
+       pg_temp.u('rn'), private.now() - interval '9 hours', 'J5-v3', 'report'
+from public.care_visits v where v.id = pg_temp.v(5);
 
 create temp table q (name text primary key, sql text not null);
 grant select on q to authenticated;
@@ -319,6 +344,22 @@ select is((select string_agg(nm, ',' order by nm) from pg_proc p, unnest(p.proar
            where p.oid = 'public.visit_correction_history(uuid)'::regprocedure and md = 't'
              and nm in ('actor_id', 'user_id', 'nurse_id', 'member_id', 'performer_id', 'corrector_id')), null,
   'RLS3-4b / D-23 (b): the reader returns no person id column (a name per correction, per visit)');
+
+-- RLS3-4c (Q15): billed or not, per correction, both levels -----------------------------------------------------------------
+select is(pg_temp.as_user('rn', format($$ select string_agg(in_billed_version::text, ',' order by corrected_on) from public.visit_correction_history(%L) $$, pg_temp.v(5))),
+  'true,false', 'RLS3-4c (a): a correction before the countersignature is in the billed version, one after it is not');
+select is(pg_temp.as_user('rn', format($$ select string_agg(in_billed_version::text, ',' order by corrected_on) from public.visit_correction_history(%L) $$, pg_temp.v(1))),
+  'true,true', 'RLS3-4c (a): both corrections of v1 precede its countersignature');
+select is(pg_temp.as_user('admin', format($$ select string_agg(in_billed_version::text || '|' || coalesce(reason, '-') || '|' || coalesce(corrector_name, '-'), ',' order by corrected_on)
+                                              from public.visit_correction_history(%L) $$, pg_temp.v(5))),
+  'true|-|-,false|-|-', 'RLS3-4c (b): the administrator sees billed or not, still without reason and corrector');
+select is(pg_temp.as_user('ops', format($$ select string_agg(in_billed_version::text, ',' order by corrected_on) from public.visit_correction_history(%L) $$, pg_temp.v(5))),
+  'true,false', 'RLS3-4c (b): Operations sees it too');
+select is(pg_temp.as_user('cover', format($$ select coalesce(in_billed_version::text, 'null') from public.visit_correction_history(%L) $$, pg_temp.v(4))),
+  'null', 'RLS3-4c: without a billing fact the flag is null, never false or true');
+select is(pg_temp.as_user('rn', format($$ select string_agg(in_billed_version::text, ',' order by corrected_on) from public.visit_correction_history(%L) $$, pg_temp.v(5))),
+  pg_temp.as_user('ca', format($$ select string_agg(in_billed_version::text, ',' order by corrected_on) from public.visit_correction_history(%L) $$, pg_temp.v(5))),
+  'RLS3-4c: author and countersigner read the same flags');
 
 -- Cover end: the covering member's note read ends with her cover (RLS3-1) ----------------------------------------------------
 update public.care_visits set covered_by = null, covered_at = null, cover_team_id = null where id = pg_temp.v(2);

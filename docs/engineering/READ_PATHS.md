@@ -1,6 +1,6 @@
 # Read-path inventory: client-, case- and visit-linked reads (RLS2-1)
 
-**Owner:** Engineering (`eng`) · **Briefs:** [`RLS2`](../agents/briefs/RLS2.md), [`RLS3`](../agents/briefs/RLS3.md) · **ADRs:** ADR-080, ADR-083 · **Migrations:** 0066, 0070 · **Proof:** pgTAP `067_rls2_team_scoped_records` (128 assertions), `071_rls3_task_scoped_reads` (81) · **State:** IMPLEMENTED on synthetic data (RLS3 PR open; CI decides) · **Last change:** 2026-10-25 13:30 Europe/Zurich (RLS3: F-2, F-4, F-5 closed, 0070)
+**Owner:** Engineering (`eng`) · **Briefs:** [`RLS2`](../agents/briefs/RLS2.md), [`RLS3`](../agents/briefs/RLS3.md) · **ADRs:** ADR-080, ADR-083 · **Migrations:** 0066, 0070 · **Proof:** pgTAP `067_rls2_team_scoped_records` (128 assertions), `071_rls3_task_scoped_reads` (87) · **State:** IMPLEMENTED on synthetic data (RLS3 PR open; CI decides) · **Last change:** 2026-10-25 13:30 Europe/Zurich (RLS3: F-2, F-4, F-5 closed, 0070)
 
 Every table, view and function in schema `public` that the role `authenticated` can select or execute and that returns rows linked to a client, a case or a visit. In NAVORA the client is the case (`cases`); there is no `client_id` column.
 
@@ -80,7 +80,7 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 | `final_report_visits()`, `continuity_by_case(month)` | team; coordination | no | 067 sweep, *016*, *021* |
 | `pilot_kpis(month)`, `pilot_hypotheses(month)` | team rows for members; organisation rows under AN1 suppression; coordination: pilot review | no; **no per-person column** (asserted, RLS2-4) | 067, 059 |
 | `billing_preview(month)` | team; coordination | no | 067 sweep, *022* |
-| `visit_correction_history(visit)` | (a) full trail: team, cover, the report's author or countersigner while in the visit's team or cover team; (b) billing view: every other coordination role of the organisation (as `billing_preview`). Per visit, never per person (RLS3-4b, 0070) | `reason` and corrector: (a) only; (b) gets old and new value, time, signed version and countersigner | 071 |
+| `visit_correction_history(visit)` | (a) full trail: team, cover, the report's author or countersigner while in the visit's team or cover team; (b) billing view: every other coordination role of the organisation (as `billing_preview`). Per visit, never per person (RLS3-4b, 0070) | `reason` and corrector: (a) only; (b) gets old and new value, time, signed version and countersigner; both levels: `in_billed_version` (RLS3-4c) | 071 |
 
 Commands (`correct_visit_time`, `complete_case_task`, `decide_matching_request`, …) return a result code, not rows. 067 checks that a nurse of another team cannot act on Nord's event or case task (RLS2-7).
 
