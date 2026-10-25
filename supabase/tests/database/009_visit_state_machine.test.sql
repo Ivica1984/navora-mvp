@@ -43,11 +43,14 @@ select results_eq(
      where visit_id = '00000000-0000-4000-a000-000000000501' order by id $$,
   $$ values ('departed'), ('started'), ('paused'), ('resumed'), ('completed') $$,
   'exactly one event per transition, in order (the duplicate wrote none)');
+-- RLS3-4 (0070): `actor_id` is not selectable through the table API, so the write check reads as the table owner.
+reset role;
 select is(
   (select count(*)::int from public.visit_events
    where visit_id = '00000000-0000-4000-a000-000000000501'
      and actor_id = '00000000-0000-4000-a000-000000000902' and idempotency_key is not null and command is not null),
   5, 'every event carries actor, command and idempotency key');
+set local role authenticated;
 select is(
   (select jsonb_array_length(events) from public.field_visits((private.now() at time zone 'Europe/Zurich')::date)
    where visit_id = '00000000-0000-4000-a000-000000000501'),
