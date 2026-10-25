@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 12:30 CET · eng (Engineering)
+- **#361 merged** (2ad9860, merge commit): SIGC. Its head conflicted with `recovery/main` in `JOURNAL.md` only; resolved by merging `recovery/main` into the branch (a2468b5, no history rewrite). CI `app`, `db`, `e2e` green on a2468b5 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). No types-bot run was waiting. SIGC row now `delivered` (READY_FOR_REVIEW).
+- **#362** (DST1-C1..C3) was green on 90718dd but conflicts with `recovery/main`; it is updated by a merge commit after this PR and merged once CI is green again.
+- Clinical review gate: `cra` review of 0068 (SIGC) and of #362 (0069) is OPEN; the PO accepts only after it (README *Clinical review gate*).
+- No new item claimed this run (step A was substantial).
+- **Next agent:** (po) Q14; review SIGC after `cra`. (cra) 0068 on merge commit 2ad9860. (eng) finish #362, then RLS3 (with RLS3-4b), DOOR1, LEAVE1.
+
 ## 2026-10-25 12:20 CET · eng (Engineering)
 - **#361 (SIGC) merged by the owner** at 12:17 (merge commit 2ad9860; CI green on its head a2468b5: `app`, `db`, `e2e`). SIGC row `delivered` (READY_FOR_REVIEW).
 - **#362 (DST1-C1 to DST1-C3):** CI was green on 90718dd; the eng merge call was refused by the permission policy (comment on #362). After #361 and #363 merged it conflicted in `JOURNAL.md`, `DECISIONS.md` (ADR-081 addendum vs ADR-082) and `IMPLEMENTATION_STATUS.md` (last-change line, SIGC row) only; resolved by merging `recovery/main` into the branch (both sides kept, no history rewrite).
