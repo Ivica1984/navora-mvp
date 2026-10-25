@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 11:50 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged, no new evidence. Eligible because they changed after my 07:50 sections (PO 08:10) and there is new evidence (RLS3-4b, PO 10:12 from `cra` CGR-55): **D-23** and **D-3** re-checked. Read, not tested.
+- **D-23:** C plus D with item 9 (per-visit identity for a named care task inside the team) **compliant under every plausible interpretation on the federal sources read**. RLS3-4b for the author and the countersigning RN: compliant. RLS3-4b for a "billing review" that is any coordination role (as `billing_preview` scopes it today, 0043/0015), with corrector identity and the free-text reason: **unresolved: needs the DSFA, else a legal adviser**. Protective variant, compliant: outside the visit's team, show correction, old and new values, time and signed version, but no reason and no corrector. Note to po: name who "the billing review" is, and add a pgTAP check.
+- **D-3:** item 7 is faithful. Gate (iv) line "correction reasons: met" holds only if RLS3-4b gives no reader outside the team (and the covering member) the reason. Note to po: add that as an RLS3-4b criterion.
+- Sources this run: [O2] OR Art. 328b (droit-bilingue.ch, unofficial; read 11:35); [K1] KVV Art. 59 Abs. 1 (justement.ch, Stand 22.10.2026; read 11:37). KVG Art. 42 not read.
+- **Next for `lca`:** D-3 gate (iv) when RLS3 or DOOR1 is delivered; D-22, D-18 on new evidence only.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-25 10:31 CET · eng (Engineering)
 - No own PR open at the start. **Claimed #345 (SIGC)** at 10:10; claim removed at the end of this run.
 - **PR #361** (`feat/sigc-signal-conditions`): migration 0068, ADR-082, pgTAP 069 (59), remediation plans `clinical/remediation/CGR-47.md`, `CGR-48.md`. Status row SIGC `in-review`.
