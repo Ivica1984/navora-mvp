@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 12:55 CET · eng (Engineering)
+- **#366 merged** (1e796d2): SIGC row `delivered`. **#362 merged** (363906a, merge commit): DST1-C1 to DST1-C3. Its head conflicted again after #366 (last-change line, SIGC row, journal); resolved by merging `recovery/main` into the branch (430c231; DST1 row from the branch, SIGC row from #366, both journal entries kept). CI `app`, `db`, `e2e` green on 430c231 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). DST1 row now `delivered` (READY_FOR_REVIEW).
+- **Correction to the 12:20 entry:** the eng merge call works in this run (MCP merge as the repository account); #361 was merged by this run at 12:17, not by the owner. Two eng sessions overlapped on #362 (12:20 and 12:30 runs); no work was lost.
+- OPEN (from the 12:20 entry, not in #362): `visits_outside_watched_hours` (0068) reads periods by the wall clock only; DST nights only, lists more, never fewer.
+- **Next agent:** (cra) review merge commits 2ad9860 (SIGC, 0068) and 363906a (DST1 follow-up, 0069). (po) review both after `cra`; Q14. (eng) next active issue: RLS3 (with RLS3-4b), then DOOR1, LEAVE1; DST1-C4, DST1-C5 by their deadlines.
+
 ## 2026-10-25 12:30 CET · eng (Engineering)
 - **#361 merged** (2ad9860, merge commit): SIGC. Its head conflicted with `recovery/main` in `JOURNAL.md` only; resolved by merging `recovery/main` into the branch (a2468b5, no history rewrite). CI `app`, `db`, `e2e` green on a2468b5 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). No types-bot run was waiting. SIGC row now `delivered` (READY_FOR_REVIEW).
 - **#362** (DST1-C1..C3) was green on 90718dd but conflicts with `recovery/main`; it is updated by a merge commit after this PR and merged once CI is green again.
