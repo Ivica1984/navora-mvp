@@ -16,6 +16,66 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-25 21:28 CET: DOOR1 (0072, 0073) reviewed on its merge commits; CGR-51 closed; CGR-61 (advisory, S2); DOOR1-12 and DOOR1-13 supported as S1 and S2 conditions
+
+**Scope:** `recovery/main` @ `14b9320`. Changes since the 17:26 CET section:
+- **Code merged:** #391 **DOOR1 part (a)** (0072, ADR-085, pgTAP 072, plan 53) as `f9f44b5`; #396 **DOOR1 part (b)** (0073, ADR-086, pgTAP 073, plan 68, `src/features/door/*`, `SafetyAlertForm.tsx`, unit `door1-rules`, `door1-alerts`, e2e `door.spec`) as `f069cc8`. **CI `app`, `db`, `e2e` green on `f9f44b5`, `f069cc8`, `38e7381` and `14b9320`** (check runs read through the API).
+- **Docs merged:** `lca` 19:39 (D-3 gate (iv) F-1 met); PO 20:10 (DOOR1-12, DOOR1-13 added) and 21:10 (DOOR1 accepted with DOOR1-12, DOOR1-13 as conditions; challenge rows); `eng` 19:15-20:50 journal entries.
+- **Open PRs:** only #3 (owner, `main`). Issue #399 (pgTAP 062 clock-dependent failure, `eng`). **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read 0072 and 0073 in full, the DOOR1-11 assertions of pgTAP 072 (150-155, 197-216), the DOOR1-2 assertions of pgTAP 073 (114-157), `src/features/door/rules.ts` (code pattern, line 29) against `private.looks_like_code` (0073:174-177), and the exception types of `team_visit_alerts` (0047:94-105) to check that the team keeps every note it had. **I did not run the NAVORA test suite** and touched no live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-61 | DOOR1-2 (0073): the gate for a future clinical safety-alert category | advisory (S2; before the first clinical category, and in any case before go-live) | **The only barrier to a clinical category is that `approval_ref` is non-empty text (3-200 characters).** Any string passes: "D-17", "pending", a PR number. Nothing ties it to a named, qualified Clinical Owner's approval (D-27) or to a Clinical Rule Register row. A later migration could therefore ship "Allergie" or "Sturzrisiko" with `approval_ref = 'D-17'` while D-17 part 3 is still OPEN, and the check would pass. Second, the order of the card is fixed in code: `order by c.class desc` (0073:106, 283) puts every clinical category after the organisational ones. Whether an allergy or infection precaution must be shown first, or more prominently, is part of the D-17 part 3 form decision and belongs to the Clinical Owner, not to an alphabetical sort. Today no clinical category exists (pgTAP 073:114-129), so nothing is wrong on synthetic data; this is about the next migration | 0073:49, 54-56 (`approval_ref` free text; check `class <> 'clinical' or approval_ref is not null`); 0073:106, 283 (order); pgTAP 073:120-123 (only "null is refused" is tested) | **eng, po; no clinical rule:** (1) a clinical row's `approval_ref` must name a Clinical Rule Register ID (`^CR-[0-9]{3}$`, check constraint); `node scripts/agents-check.mjs` fails when a migration inserts a `clinical` category whose `approval_ref` row is not `APPROVED` with a named approver (D-27). pgTAP: `approval_ref = 'D-17'` refused, `'CR-123'` accepted by the constraint. (2) The display order of clinical against organisational categories is left to the D-17 part 3 decision: until then, a comment at 0073:106 says the order is PROVISIONAL (CR-104), and the brief of the first clinical category states it |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-51** | **closed**, IMPLEMENTED; CI green on `f9f44b5` | 0072:237-266 (`private.no_show_ops_detail`: date, time, "an der Tür: ja/nein/nicht erfasst", "Ergebnis offen" or outcome code with basis and time, "Notiz im Team"; no note); 0072:272-279 (`derived_exceptions`: the 120-character no-show excerpt and the 200-character interruption excerpt removed at the source); 0072:282-301 (the team's own list keeps the interruption note). pgTAP 072:150-155 (open no-show: door fact, "Ergebnis offen", no note), 197-202 (outcome with basis), 210-212 (interruption: reason code, no note text), 213-215 (team keeps its note). The no-show line was never in `team_visit_alerts` (its types are overdue, stuck, interrupted, report correction, uncovered: 0047:94-105), so the team loses nothing. Confirmed independently by `lca` 19:39 (F-1) |
+| CGR-60 | open, advisory (S3); with FUP1-C1 (PO). PLANNED | no change |
+| CGR-54 | open, advisory (S3); DST1-C4 (PO). PLANNED | no change |
+| CGR-56 | open, advisory (S2); DST1-C5 (PO), before gate B. PLANNED | no change |
+| CGR-49, CGR-50 | open, advisory; LEAVE1-11, LEAVE1-12 (LEAVE1 active, #337). PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change; see the covering-member note below |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-51.**
+
+### Other changes reviewed (no finding)
+
+- **DOOR1 adds no clinical rule.** One organisational category (access arrangement), no clinical category, no protocol step, no waiting time, no signal, no readiness or planning change (pgTAP 073 DOOR1-8 block; pgTAP 072: "an der Tür: nein" still P1, the exception still closes only with an outcome). New rows CR-100 to CR-105, all input class V or N, display or refuse only. **H-03 is partly mitigated** (access and language notes on the card, structured access arrangement with "unbekannt" distinct from "nein", who, when, source); allergies, fall risk, infection precautions and the emergency contact stay **OPEN** with the Clinical Owner (D-17 part 3) and D-9.
+- **DOOR1-5 "an der Tür".** A no-show with "nein" (only a phone attempt) is now distinguishable from one where the nurse stood at the door, for the team, HAND1 and Operations. This is a fact, not a protocol: whether "nein" needs a different next step (for example going to the door before the outcome is recorded) is D-19 part 1, **UNKNOWN**, Clinical Owner. Nothing in code suggests a step; correct.
+- **DOOR1-6 basis.** Recording the basis of a disclosure to the emergency contact is a privacy control (`lca` 22:50), not a clinical rule. `other` relies on the note to say which basis; the note is required (3-1000) but its content is not checked. Acceptable: the code records, `legal` judges.
+- **Operations without the note (DOOR1-11).** This was my own remedy for CGR-51. The residual is deliberate: on an open P1 no-show, Operations reads "an der Tür: ja · Ergebnis offen · Notiz im Team" and must call the team for the content. Who acts, and when, stays D-19 part 1.
+- **DOOR1-12 (code in the intake note) supported, S1.** Since 0072 the intake note `cases.access_notes` is shown on every team member's phone (0072:306-317) and only the category note refuses a code (0073:174-196). A key-safe code on a phone is a physical-safety risk for a client who often cannot defend herself, not only a privacy issue. The PO made it a condition before the first real client: that is the right gate. New PS-50 (S1).
+- **DOOR1-13 (two access lines) supported, S2.** Today the card can show the intake note "Schlüssel bei der Nachbarin" next to a later team value "nein". A nurse at the door who has to decide which is current loses time, and on a no-show visit time matters. New PS-51 (S2).
+- **Covering member reads, cannot record (PO deviation 3).** Agreed while COVER1 is off. Before COVER1 is switched on the covering nurse is the one who finds that the key has moved; if she cannot record it, the next visitor arrives with the old arrangement. I attach this to the cover conditions already open (CGR-21, CGR-28, PS-12): S2 if cover is enabled.
+- **Intake records, cannot read back (PO deviation 2).** The source field is self-declared: an intake administrator could pick `team`. The card shows the recorder's kind ("coordination"), so the provenance stays visible. No finding.
+- **Issue #399 (pgTAP 062, SIG1 safety-signal delivery, clock-dependent).** A safety-signal test that fails on some clocks hides real regressions as "flakes". It must be root-caused and pinned to the test clock, never skipped (PO already said so). I will review the fix when it is merged.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| DOOR1 (merged `f9f44b5`, `f069cc8`; accepted 21:10) | **no blocking finding; acceptance consistent.** CGR-51 closed | CGR-61 (S2, before the first clinical category); conditions DOOR1-12 (S1, PS-50) and DOOR1-13 (S2, PS-51) before the first real client |
+| FUP1 (accepted) | unchanged | CGR-60 (S3) with FUP1-C1 |
+| LEAVE1 (active), AUD1 (brief) | not delivered | CGR-49/50; AUD1 note of 17:26 stands |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:** (1) take CGR-61 into the brief of the first clinical category, or as a DOOR1 condition (no clinical rule; it narrows what the check accepts); (2) keep DOOR1-12 before the first real client (S1); (3) add "covering member can record the access arrangement" to the COVER1 switch-on list with CGR-21 and CGR-28.
+- **eng:** DOOR1-12 and DOOR1-13 in one PR; CGR-61 (constraint, pgTAP, agents-check rule) when the PO places it; #399 root cause; CGR-60 with FUP1-C1.
+- **owner:** G-1 (name the Clinical Owner and a deputy), D-1 (urgent); merge this PR if my own merge is refused.
+- **clinical** (once named): D-17 part 3 (clinical categories, their order and prominence on the card), D-19 part 1 (no-show protocol, including what "an der Tür: nein" requires), D-28, D-30, D-10, D-16 as before.
+
+---
+
 ## 2026-10-25 17:26 CET: RLS3 (0070) and FUP1 (0071) reviewed on their merge commits; CGR-55, CGR-57, CGR-58, CGR-59 closed; CGR-60 (advisory, S3); AUD1 brief read
 
 **Scope:** `recovery/main` @ `1eee5d6`. Changes since the 13:26 CET section (#374, merged as `21d1e99`):

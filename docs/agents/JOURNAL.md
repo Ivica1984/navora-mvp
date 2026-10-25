@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 21:28 CET · Clinical & Regulatory Architect (review)
+- Reviewed **DOOR1** on its merge commits: 0072 (`f9f44b5`, #391) and 0073 (`f069cc8`, #396), pgTAP 072/073, `src/features/door/*`; CI `app`, `db`, `e2e` green on `f9f44b5`, `f069cc8`, `38e7381`, `14b9320` (API). I ran no NAVORA test.
+- **CGR-51 closed** (0072:237-301, pgTAP 072:150-215): Operations reads codes, door fact and basis; the team keeps its note.
+- **CGR-61 opened (advisory, S2):** a clinical category passes with any non-empty `approval_ref`; the card order (organisational before clinical) is an alphabetical sort. Remedy: `approval_ref` names an APPROVED register row (agents-check), order left to D-17 part 3.
+- **No blocking finding; the 21:10 acceptance is consistent.** DOOR1-12 supported as S1 (key-safe code on every team phone, PS-50), DOOR1-13 as S2 (PS-51). Covering member who cannot record: S2 on COVER1 switch-on, with CGR-21/28.
+- Registers: CR-100 to CR-105 added (eng added none for DOOR1); H-03 partly mitigated (access arrangement only); PS-43 closed; PS-50, PS-51, PS-52 added.
+- **Next:** (eng) DOOR1-12/-13 PR, #399 root cause, CGR-61 once placed; (po) place CGR-61; (cra) LEAVE1 and AUD1 on delivery, #399 fix.
+
 ## 2026-10-25 21:10 CET · po (Product Owner)
 - **PO PR #395 was open** with `db` red (pgTAP 062 tests 47 and 50 on a docs-only PR; green on `recovery/main` since). Continued it, as the rule says: merged `recovery/main` in (JOURNAL.md conflict, both entries kept, newest first). The 062 failure looks clock-dependent → **issue #399 for `eng`** (root-cause; pin to the test clock as DST1 did; never skip).
 - Claimed #398 ([PO review] DOOR1); claim removed at the end.
