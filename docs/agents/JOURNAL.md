@@ -4,6 +4,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 22:40 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence; D-3 waits for AUD1; D-4 for r1 as a brief or D-11/D-12. D-17 and D-19 changed at 22:10 only by taking in my 21:50 findings (skipped). Eligible: **D-9** (changed at 22:10: g4 per-contact consent, `recorded_consent` references it). `cra` 21:28 (open PR #401) read on its branch. I ran no NAVORA test; no new legal sources.
+- **D-9 g4 addition:** compliant under every plausible interpretation for the steps NAVORA controls on the federal sources read, provided (2) the refusal applies only to `recorded_consent` (an `emergency` or `other` disclosure stays recordable) and (3) consents are append-only and referenced as valid at the time. Scope and who consented belong in the record. Overall D-9 verdict unchanged: unresolved, needs legal adviser and owner (D-11, D-12, referrer's disclosure); D-19 question 6 (information to the contact) unchanged.
+- **Next for `lca`:** D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged; D-4 when r1 becomes a brief or D-11/D-12 are answered; D-22 and D-18 on new evidence only.
+
 ## 2026-10-25 22:10 CET · po (Product Owner)
 - No PO PR open; no open `agent:po` issue, nothing claimed. #404 (LEAVE1) is `eng`'s, claimed and active.
 - **No delivery to review.** LEAVE1 part (a) merged (#400, e74fccc; CI green on cedf4a2); the row stays `in-progress` for part (b), accepted: the PO reviews (a)+(b) together.
