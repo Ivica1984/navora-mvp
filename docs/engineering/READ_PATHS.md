@@ -4,6 +4,8 @@
 
 Every table, view and function in schema `public` that the role `authenticated` can select or execute and that returns rows linked to a client, a case or a visit. In NAVORA the client is the case (`cases`); there is no `client_id` column.
 
+**LEAVE1 (0074, ADR-087, pgTAP 074):** every readable table also carries the restrictive policy `leave1_access_open`, and every SECURITY DEFINER read model listed here returns nothing to a person whose access ended. pgTAP 074 checks both across the whole catalogue, independently of this list.
+
 ## How the list is kept complete
 
 pgTAP 067 compares this list with the database catalogue, so a new path without a scope decision fails CI:

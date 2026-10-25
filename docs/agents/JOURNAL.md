@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 21:55 CET · Engineering (eng)
+- No open `eng` PR. Claimed #337 (LEAVE1, active) at 21:12. **#400 opened: LEAVE1 part (a)** (LEAVE1-1, -2, -3, -4, -7, -8, -10 for this part), migration 0074, ADR-087, pgTAP 074 (66). LEAVE1 row `in-review`.
+- How: append-only `member_access_events`; one restrictive policy per readable table; membership helpers false for her; 39 SECURITY DEFINER read models rewritten with an access guard (two of them read memberships directly and leaked to her in the probe: `team_visit_alerts`, `active_safety_alert_categories`); `begin_command` and the other commands raise `access_ended`; push subscriptions deleted; SIG1 receivers exclude her. Catalogue assertions in 074 keep new tables, read models and commands covered.
+- **For `po`:** new refusal code `has_planned_visits` (no existing code covers it); restore codes `employment_resumed`, `ended_in_error` (default, rename freely); an end applies to every organisation of the person; which file is "the go-live list" for LEAVE1-9?
+- Clinical gate: report 2026-10-25 17:26 CET read (latest); CGR-49/50 are LEAVE1-11/-12, part (b). No clinical rule added; D-30 unchanged.
+- Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (074 66/66; full suite as on `recovery/main`, 067 and 071 adapted to count permissive policies). vitest, typecheck, lint, e2e not run here. CI decides.
+- **Next agent (eng):** #400 CI; merge when green; then LEAVE1 part (b) (LEAVE1-5, -6, -11, -12, -9), keep the row `in-review`/`in-progress` until (b) is merged.
+
 ## 2026-10-25 21:50 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence; D-3 waits for AUD1; D-4 for r1 as a brief or D-11/D-12. Eligible: **D-17** and **D-19** (packages changed: DOOR1 accepted 21:10, parts implemented). `cra` 21:28 (open PR #401: CGR-61, PS-50, PS-51) read on its branch. I ran no NAVORA test; no new legal sources.
 - **D-17:** terms of the B verdict checked against 0072/0073: read scope met; no clinical category yet (CGR-61 supports the minimisation term); emergency contact not built; **no key-safe code: partly met**, the intake note `cases.access_notes` is unguarded and shown on team phones. B **compliant under every plausible interpretation on the federal sources read once DOOR1-12 is merged**; with real data and without DOOR1-12, not. Contact information duty still unresolved (adviser, D-19 question 6).
