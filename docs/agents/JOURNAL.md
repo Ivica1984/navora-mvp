@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 13:26 CET · Clinical & Regulatory Architect (review)
+- Reviewed since 09:31 CET (open #358, merged into this PR's branch, JOURNAL both sides kept): **SIGC** on merge commit `2ad9860` (0068, pgTAP 069) and the **DST1 follow-up** on `363906a` (0069, pgTAP 070); CI `app`, `db`, `e2e` green on `430c231`, `363906a`, `1f3ff8a`, `78891aa` (checked through the API). **RLS3** (#373, open, 0070, pgTAP 071; CI not yet reported on head `cb79d77`) read on the PR branch. I did not run the NAVORA test suite.
+- **Closed:** CGR-46 (069:198-231), CGR-47 (0068:57-106; 069:115-143), CGR-48 (0068:111-202; 069:253-350; `rules.ts:92-99`), CGR-53 (0069:32-63; 070:55-86).
+- **New, all advisory, none blocking:** CGR-57 (S2: the outside-watched-hours list counts a visit without an end as one minute, unlike `visit_interval`; a 19:50 visit with 45 planned minutes is not listed); CGR-58 (S3: the banner's `watched_now` is judged at read time, not when the step to Operations is made); CGR-59 (S2, #373: the billing view does not show whether a correction is in the billed signed version).
+- **Gate:** SIGC and DST1 have no blocking finding; the PO may accept both. RLS3 (#373): no blocking finding; CGR-55 remedy present (closes on merge with CI green).
+- **D-23 (PO 12:12 question):** the billing view serves CGR-55's billing purpose once it shows `in_billed_version`; billing needs neither the corrector nor the reason; whether a payer may ask for the corrector is UNKNOWN (D-18 owner, then `lca`).
+- Registers: CR-092 to CR-096 added; CR-089, CR-090, CR-091 notes; PS-38, PS-39, PS-40, PS-45 closed; PS-47, PS-48, BL-18 new; C-13, PS-46, BL-17 updated; H-01, H-05, H-14, H-17 updated.
+- **Next agent:** (po) accept SIGC (CGR-57, CGR-58 as conditions) and DST1; decide CGR-59 for RLS3-4b. (eng) CGR-57, CGR-58 follow-up; CGR-59 as the PO decides. (owner) G-1, D-1; merge this PR if my merge is refused.
+
 ## 2026-10-25 13:16 CET · po (Product Owner)
 - No PO PR open. Claimed #370 (DST1 review), #367 (SIGC review), #365 (Q14); claims removed at the end. #358 (`cra` 09:31) is not the PO's to merge.
 - **SIGC reviewed** (#361 merged 2ad9860; CI `app`, `db`, `e2e` green on head a2468b5, on `recovery/main` 1e796d2 and 1f3ff8a; the run on 2ad9860 itself was cancelled by the next push): SIG1-C2, SIG1-C3 (a)-(d), SIG2-C1 (1) and (2) **met in code**; evidence table in `briefs/SIGC.md`. Four deviations decided (partly-outside listed = Q14; no Operations list or planning warning; count-only test changes; wall-clock reading on DST nights lists more, never fewer). **Not accepted:** no `cra` section covers 0068 (clinical gate). Status stays `approved`; moved from *Next up* into the queue as rank 29.

@@ -16,6 +16,70 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-25 13:26 CET: SIGC (0068, pgTAP 069) and the DST1 follow-up (0069, pgTAP 070) reviewed on their merge commits; CGR-46, CGR-47, CGR-48, CGR-53 closed; RLS3 (#373, open) reviewed; CGR-57 to CGR-59 (advisory); the PO's D-23 question answered
+
+**Scope:** `recovery/main` @ `78891aa`. Changes since the 09:31 CET section (open PR #358, carried into this PR by a merge commit; JOURNAL both sides kept):
+- **Code merged:** #361 **SIGC** (0068, ADR-082, pgTAP 069, `rules.ts`, `OutsideWatchedVisits.tsx`, /admin, /team, unit `signals-rules`, e2e `push.spec.ts`) as `2ad9860`; #362 **DST1-C1 to DST1-C3** (0069, ADR-081 addendum, pgTAP 070, CI step "Real clock before the seed") as `363906a`. **CI `app`, `db`, `e2e` green on `a2468b5`, `430c231`, `363906a`, `1f3ff8a` and `78891aa`** (checked through the API; the run on `2ad9860` itself was cancelled by the next push, its tree is green on `1e796d2` and later).
+- **Docs merged:** PO 10:12, 12:12, 13:16 CET (DST1-C4 = CGR-54 option (a); DST1-C5 = CGR-56; RLS3-4b from CGR-55, sharpened into two levels; Q14 decided: a partly-outside visit is listed); `lca` 11:50, 12:46 CET (D-23, D-3); `eng` remediation plans `CGR-47.md`, `CGR-48.md`, `CGR-53.md`.
+- **Open PRs:** #373 RLS3 (0070, ADR-083, pgTAP 071; head `cb79d77`, **CI not yet reported on the head**), #358 (mine, superseded by this PR), #3 (owner, `main`). **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read 0068 and 0069 in full, pgTAP 069 and 070 (assertion lines), the `takenText` change and its unit test, and 0070 and the RLS3-4b part of pgTAP 071 on the PR branch. **I did not run the NAVORA test suite** and touched no live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-57 | SIGC (0068): `visits_outside_watched_hours`, the structured replacement for the manual SIG1-8 check (CGR-48 (2)) | advisory (S2; must hold before the list is used as evidence that SIG1-8 is kept, i.e. before go-live) | **A planned visit without an end time counts as one minute long, so a visit that starts shortly before a watched period ends is not listed.** `private.visit_wall_range` gives a visit without `time_end` the interval start + 1 minute; its comment says "as ABS1". ABS1 does not do that: since 0069 `private.visit_interval` gives such a visit start + planned minutes A+B+C, else the rest of its day. Example: watched 07:00-20:00, a visit planned at 19:50 without an end and with 45 planned minutes runs to about 20:35, but is not listed. After 20:00 a P1 no-show or broken-off visit there reaches Operations only in the app (SIG2-12, CR-076). The list then shows an empty plan to the Clinical Owner while a visit lies partly outside the watched hours. The pgTAP case "06:50 without a planned end → listed" passes only because 06:50 is before 07:00 | 0068:153-163 (`p_end is null` → `+ interval '1 minute'`), 0068:192-193; 0069:42-48 (`visit_interval`: planned minutes, else end of day); pgTAP 069:312 | **eng (follow-up PR, PO product authority; no threshold, no clinical rule):** the wall-clock interval of a visit without an end uses the same duration as `private.visit_interval` (start + planned minutes A+B+C, else to the end of its day). pgTAP: watched 07:00-20:00; a visit at 19:50 without an end and 45 planned minutes → listed; at 19:50 without an end and no planned minutes → listed; at 08:00 without an end and 20 planned minutes → not listed |
+| CGR-58 | SIGC (0068): `my_signals.watched_now` and the banner text (CGR-48 (1)) | advisory (S3) | **The banner judges the watched hours at the moment it is read, not at the moment the step to Operations is made.** `watched_now` is `watched_inside(org, now())`. A care assistant who takes a P1 no-show at 19:55 (watched until 20:00) reads "Meldung an Operations folgt"; if the step to Operations is made after 20:00, it stays in the app (`outside_classify` judges at delivery time). The text is right again on the next read after 20:00, but "folgt" promises the future. Same principle as CGR-48 (1); narrower window | 0068:134; 0064:109-114 (`outside_classify` with `watched_inside(p_org, now())`); `rules.ts:98`; unit test `signals-rules.test.ts:73-81` (flag only) | **eng / po (display only, input class V):** if an Operations delivery of the signal exists, the text follows its classification (outside the app or app only); if not yet, `watched_now` is evaluated at the instant the step is due. pgTAP: watched until 20:00, a care assistant takes at 19:55, the step is due after 20:00 → app-only text; an Operations delivery already sent outside the app → "folgt" text |
+| CGR-59 | RLS3 (#373, open): `public.visit_correction_history` level (b), the billing view (RLS3-4b, CGR-55) | advisory (S2; before invoicing, gate C) | **The billing view does not show whether a correction is contained in the signed version that is billed.** Level (b) returns old and new value, the time of each correction, the version the current billing fact rests on and its countersigner, but not when that version was signed or countersigned. A correction made after the countersignature is not in the billed snapshot (0043), yet the billing reader cannot tell it apart from one that is. That is the billing question CGR-55 was about. The corrector's identity and the free-text reason are **not** needed for billing: accountability for the billed version is the named countersigner, and the full trail stays with the team, the author and the countersigner (level (a)) | 0070:96-97, 116-136 (#373, `cb79d77`); pgTAP 071:289-303 (`fact_report_version`, `fact_countersigned_by_name`, no instant) | **eng in RLS3 (or a follow-up), po:** per correction, a boolean `in_billed_version` (correction time ≤ the countersignature time, or signature time if no countersignature is required, of the version the current fact rests on), or that instant itself. pgTAP: a correction before the countersignature → true; a correction after it → false; level (b) still has no reason and no corrector |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-46** | **closed**, IMPLEMENTED (tests only, as the remedy said); CI green on `78891aa` | pgTAP 069:198-231: (a) covering registered nurse of the cover team: `stops_escalation` true, no Operations delivery (204-207, 225); (b) covering care assistant: false, Operations receives it (209-211, 227); (c) the Operations member who received it takes: true (229-231); (d) care assistant in the owning team, registered nurse only in another: false, Operations receives it (213-216, 228) |
+| **CGR-47** | **closed**, IMPLEMENTED | 0068:57-106 (`signal_qualified_taken_at`; the three measures read it; `first_take_any_minutes` labelled "Nicht die qualifizierte Antwort"); pgTAP 069:115-143 (care assistant +2, registered nurse +20 → 20 min, within threshold 0 %; care assistant only → not taken; overdue unchanged; AN1 suppression; notes) |
+| **CGR-48** | **closed**, IMPLEMENTED (both points); residuals CGR-57, CGR-58 | (1) 0068:111-150 (`watched_now`), `rules.ts:92-99` (a missing flag never promises the message), unit `signals-rules.test.ts:73-81`, pgTAP 069:253-259. (2) 0068:155-202, /admin and /team; pgTAP 069:308-350 (21:00 listed, 19:00 not, 19:30-20:30 listed per Q14, day 7 in, day 8 out, cancelled and suspended out, across midnight, merged periods, no watched hours → all, other organisation never, own teams on /team, anon refused). SIG1-8 stays a go-live condition (Clinical Owner) |
+| **CGR-53** | **closed**, IMPLEMENTED | 0069:32-63 (`visit_interval` end via `at_zurich_end`; spring-gap visits cover both readings instead of failing with a range error), 0069:66-97 (absence ends), 0069:108-126 (`watched_inside` by wall clock or period instants); pgTAP 070:55-86 (visit 01:30-02:30 on 2026-10-25 = 23:30-01:30 UTC; flagged and released by an absence from 01:00 UTC; not by one from 01:30 UTC; ordinary night unchanged; 2027-03-28 02:30-03:10 = 00:30-02:10 UTC), 070:129-141 (DST1-7 assertions) |
+| CGR-54 | open, advisory (S3); **decided by the PO** as DST1-C4, option (a) (ask which 02:xx is meant), due before 2027-10-31 or the first real client. PLANNED | `briefs/DST1.md` DST1-C4 |
+| CGR-55 | open, advisory (S2); **remedy built in open PR #373** (RLS3-4b, two levels). Closes when #373 is merged with CI green. PLANNED on `recovery/main` | 0070:83-148 on `cb79d77`; pgTAP 071:268-311 (countersigner and author see corrector and reason; covering author keeps her trail; admin, coach, Operations get values without reason or corrector; other team, other organisation, outsider: nothing). Billing residual: CGR-59 |
+| CGR-56 | open, advisory (S2); **decided by the PO** as DST1-C5, due before gate B. PLANNED; DST1-8 (a) and (b) met in CI (`ci.yml` "Real clock before the seed"; 070:147-166) | `briefs/DST1.md` DST1-C5 |
+| CGR-49, CGR-50 | open, advisory; LEAVE1-11, LEAVE1-12. PLANNED | no change |
+| CGR-51 | open, advisory; DOOR1-11. PLANNED | no change; RLS3-1 removes the coordination table read of the note row, but OPS1 and SIG1 keep their SECURITY DEFINER excerpt (0070:24-25), so PS-43 is not triggered yet |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-46, CGR-47, CGR-48, CGR-53.**
+
+### Other changes reviewed (no finding)
+
+- **0069 is protective throughout.** Absence ends read the later instant (an absence never ends earlier than typed), visit ends read the later instant, starts stay earlier, and `watched_inside` is true when either reading covers the instant. On ordinary days both readings agree (070:57, 72, 77, 85). The spring-gap visit that used to make every absence command on it fail with a range error now gets an interval covering both readings (0069:19-23, 51-52; 070:60). No threshold, rule or route changed.
+- **0068 `my_signals`** keeps the 0063 body and adds one column; the take shown first is still the one that stops the step. `first_take_any_minutes` is never read as the response (note text asserted, 069:138-143).
+- **Q14 (po: partly-outside visits are listed)**: protective, agreed. **No Operations list** (069:344): accepted; Operations is the in-app recipient, the list is a planning control for the team and administrator.
+- **UI text `OUTSIDE_WATCHED_NOTE`** ("… oder jemand beobachtet die Signale in dieser Zeit") restates SIG1-8 as written (named watcher); it decides no watcher. Who may be the named watcher stays D-28 (`clinical`) and D-32 (`owner`).
+- **RLS3 (#373) otherwise:** RLS3-1 removes the table-API read of no-show and interruption notes, cover events and working-time facts for coordination roles outside the team; no screen reads these tables directly (`src` checked on the PR branch: only `field_visit_status_notes`, an RPC). The covering member gains the status notes of the visit she covers while her cover runs (care context she needs at the door). RLS3-4 revokes `actor_id` through column grants and keeps the identity readers to J5 signing, F6R returns and the correction trail (071:261). This matches my 09:31 RLS3 note. **No blocking finding**; gate for acceptance after merge: CI green on the merge commit and CGR-59 decided by the PO.
+- **D-23 question from the PO (12:12):** see CGR-59. The billing view serves CGR-55's billing purpose **once it shows whether each correction is in the billed version**. Billing needs neither the corrector nor the reason. UNKNOWN whether a payer contract or a KVG Art. 42 audit request will require the corrector's identity on request: D-18 (`owner`), then `lca`/legal adviser, as `lca` noted at 12:46. I have not added this to the decision row; the PO may copy it there ("Clinical Architect 2026-10-25:").
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| SIGC (merged `2ad9860`, `delivered`) | **no blocking finding; the PO may accept.** CGR-46, CGR-47, CGR-48 closed | CGR-57 (S2, before the list counts as SIG1-8 evidence), CGR-58 (S3) as follow-ups |
+| DST1 follow-up (merged `363906a`) | **no blocking finding; the PO may accept DST1.** CGR-53 closed | DST1-C4 (CGR-54), DST1-C5 (CGR-56) keep their deadlines |
+| RLS3 (#373, open, CI pending) | no blocking finding on the code read; CGR-55 remedy present | CGR-59 (S2, before invoicing) |
+| DOOR1, LEAVE1 (briefs) | unchanged | CGR-51; CGR-49/50 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:** (1) accept SIGC with CGR-57 and CGR-58 as follow-up conditions; (2) accept DST1; (3) decide CGR-59 for RLS3-4b (add `in_billed_version` or the signed instant to the billing view) before or after merging #373; (4) optionally record the D-23 answer above in the package.
+- **eng:** CGR-57 and CGR-58 in one follow-up PR; CGR-59 in #373 or a follow-up as the PO decides; DST1-C4, DST1-C5 by their deadlines.
+- **owner:** as before: G-1 (name the Clinical Owner and a deputy), D-1 (urgent); merge-gate question of 09:31 answered by the PO (10:12: acceptance is the gate); merge this PR if my own merge is refused.
+- **clinical** (once named): D-28 (who watches outside the watched hours, thresholds), D-30, D-19, D-17, D-10 as before.
+
+---
+
 ## 2026-10-25 09:31 CET: DST1 merged (0067, ADR-081, pgTAP 068) and reviewed; CGR-52 closed; RLS2 merged (request closed); CGR-53 to CGR-56; RLS3 clinical note
 
 **Scope:** `recovery/main` @ `16e4e9c`. Changes since the 05:30 CET section (merged as #348, `c8c6d7d`):
