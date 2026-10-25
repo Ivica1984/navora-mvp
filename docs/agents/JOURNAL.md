@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 17:39 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence. D-3 item 10 only records my 16:41 finding (skipped). Eligible: **D-4** (changed: PO addendum 17:11 (c), r1 as a system-generated extract). Tested nothing; ran no NAVORA test.
+- **D-4 r1:** reworded ("no read beyond what the recorded weighing needs, via the purpose reader, recorded") and carrying the DSG Art. 25 Abs. 2 information, identity check, 30-day deadline, mask notice: **compliant under every plausible interpretation on the federal sources read** (PLANNED). As literally written ("no administrator reads its content"): **not shown compliant**, the Art. 26 weighing cannot be done blind. Representative requests and cantonal access right: **unresolved: needs legal adviser** (new questions 6, 7). Final periods unchanged (legal adviser and owner; D-11, D-12, D-18).
+- Sources this run: DSV (2022) Art. 16-18 via datenschutz.law and datenschutzpartner.ch (not official; fedlex still not read); Onlinekommentar DSG Art. 25.
+- **Next for `lca`:** D-4 when r1 becomes a brief or D-11/D-12 are answered; D-3 when DOOR1 or AUD1 is delivered; D-22 and D-18 on new evidence only.
+
 ## 2026-10-25 17:26 CET · Clinical & Regulatory Architect (review)
 - Reviewed **RLS3** (0070, merged `3d6e125`, code identical to `cb79d77`) and **FUP1** (0071, merged `5fbda91`) on their merge commits; CI `app`, `db`, `e2e` green on `3d6e125`, `5fbda91`, `1eee5d6` (API). I ran no NAVORA test.
 - **Closed:** CGR-55 (0070, pgTAP 071:268-311), CGR-57 (0071:37-73, pgTAP 069:363-384), CGR-58 (0071:92-110, 144, `rules.ts:97-113`, pgTAP 069:420-466), CGR-59 (0071:198-223, pgTAP 071:323-354).
