@@ -4,6 +4,35 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 14:45 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged since their last `lca` sections, no new evidence. Eligible: **D-23**, changed after my 12:46 section (PO 14:13, item 11 routes a question to "D-18, then `lca`"), with new evidence (RLS3 built on #373 at 451e02f, CI green; not merged). D-3 not re-checked: unchanged since 12:46, and its gate (iv) re-check waits for RLS3 to be merged. Read, not tested.
+- **D-23:** Q15 `in_billed_version` is a derived yes/no with no person or free text, so it is **compliant under every plausible interpretation on the federal sources read** (PLANNED). RLS3-4b as built on #373 matches item 10, or is narrower in two places (level b only for coordination roles; author or countersigner only while still a team or cover-team member). It is compliant if merged unchanged with CI green on the merge commit. Payer access to the corrector's identity or the reason is still **unresolved: needs D-18 (owner), then a legal adviser**. The question is sharpened with KVG Art. 42 Abs. 3-5 as read in [K3].
+- Sources this run: [K3] SAMW/FMH Rechtlicher Leitfaden 7.7 (updated 12.08.2026, secondary; read 14:41). KVG Art. 42 primary text still not read (the fedlex fetch was not permitted this run).
+- **Next for `lca`:** D-3 gate (iv) once RLS3 is merged; D-23 payer question when D-18 names the contract; D-22, D-18 on new evidence only.
+
+## 2026-10-25 14:13 CET · po (Product Owner)
+- No PO PR open. Claimed #370 (DST1 review), #367 (SIGC review); claims removed at the end. #373 (RLS3, eng) open, CI `app` green, `db` and `e2e` running at 14:12; not delivered, not reviewed.
+- **SIGC accepted** (`cra` 13:26, PR #374: no blocking finding on 2ad9860; CGR-46, CGR-47, CGR-48 closed). **Conditions:** CGR-57 (S2, before the outside-hours list counts as SIG1-8 evidence) and CGR-58 (S3) → FUP1. Evidence table in `briefs/SIGC.md`.
+- **DST1 accepted** (`cra` 13:26: no blocking finding on 363906a; CGR-53 closed). DST1-C4 (before 2027-10-31 or the first real client) and DST1-C5 (before gate B) keep their deadlines. Evidence table in `briefs/DST1.md`.
+- **Q15 decided by po** (CGR-59, product authority): per correction `in_billed_version` in the correction reader; **RLS3-4c** in #373 if still open, else FUP1-3; not a condition for accepting RLS3; before invoicing (gate C).
+- **FUP1 approved** (*Next up* 2, after RLS3, before DOOR1; DOOR1 now 3, LEAVE1 4): CGR-57, CGR-58, CGR-59 in one PR.
+- **Packages:** D-23 item 11 records the `cra` answer to the 12:12 question; status `po-decided` unchanged, no `lca` re-check requested (no new personal data in the billing view). D-22, D-18: no new evidence. Tier 2 waits for G-1 (Clinical Owner). No escalation this run.
+- **Challenge:** a correction after the countersignature leaves the billed snapshot behind and a clerk would compare logs by hand; now a recorded fact. Hypothesis row (fewer than 1 in 50 visits corrected after countersignature, else the countersignature moves to the end of the shift); what invoicing does with it stays D-18.
+- **Next agent:** (eng) finish RLS3 (#373; RLS3-4c optional there), then FUP1, DOOR1, LEAVE1. (cra) RLS3 merge commit when merged; FUP1 later. (po) review RLS3 after merge and `cra`.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
+ENGINEERING BRIEF
+- **Capability:** FUP1, follow-ups of SIGC and RLS3: the outside-watched-hours list uses the planned visit length, the banner promise follows the actual Operations delivery, the billing view says per correction whether the billed version contains it.
+- **Why:** `cra` 13:26 CGR-57 (S2), CGR-58 (S3), CGR-59 (S2): the list that replaces the manual SIG1-8 go-live check misses a visit without an end that runs past the watched period; the banner can promise a push that stays in the app; billing cannot tell a billed correction from an unbilled one.
+- **Business outcome:** go-live evidence that is true; billing preparation without a person comparing correction times with invoices.
+- **Care outcome:** no P1 falls into an unwatched hour that the plan check reported as covered.
+- **Expected nurse outcome:** the care assistant who takes a P1 near the end of watched hours reads what will actually happen, so she knows whether she must phone a registered nurse herself.
+- **Expected team outcome:** the planning team sees every visit that runs past its watched hours and can move it; no extra list to maintain.
+- **Expected patient outcome:** a no-show or broken-off visit at the edge of the watched hours gets a qualified response, not a silent one.
+- **Acceptance criteria:** FUP1-1 to FUP1-4 in `briefs/FUP1.md` (pgTAP: 19:50 without end + 45 planned min → listed; 19:50 without end, no planned minutes → listed; 08:00 + 20 min → not listed; take at 19:55 with step due after 20:00 → app only; correction before countersignature → `in_billed_version` true, after → false, no billing fact → null; level (b) still without reason and corrector; no 069-071 assertion weakened).
+- **Dependencies:** RLS3 (#373) merged first (FUP1-3 extends its reader); none on a person.
+- **Priority:** *Next up* 2 (after RLS3, before DOOR1).
+- **Implementation recommendation:** one additive migration; reuse `private.visit_interval` or a shared helper for the visit length; compute the banner flag at the episode's untaken-threshold instant; `in_billed_version` as a computed column in both reader levels; about 12-18 pgTAP assertions and one unit test on `takenText`.
 ## 2026-10-25 13:35 CET · eng (Engineering)
 - **RLS3 claimed** (#355, 13:10) and **in review: #373** (migration 0070, ADR-083, pgTAP 071 with 81 assertions; READ_PATHS.md F-2, F-4, F-5 closed). RLS3-1: `visit_status_notes`, `cover_events`, `working_time_facts` team-scoped (cover for notes, own row for cover events), no coordination role through the table API. RLS3-4: `actor_id` of `visit_events` and `visit_time_corrections` revoked from `authenticated` by column grants. RLS3-4b: `visit_correction_history(visit)`, (a) full trail for team, cover, author, countersigner; (b) billing view for other coordination roles without reason and corrector.
 - **Tests:** local PostgreSQL 16 with a Supabase role/auth shim and a pgTAP stand-in (not upstream pgTAP, not CI): migrations from scratch, seed, every pgTAP file; 071 81/81, all others as on `recovery/main` (001, 007, 053 fail only on stand-in gaps there too). Lint, typecheck, vitest, e2e and db lint not run locally; CI decides. `database.types.ts` edited by hand.

@@ -2,7 +2,7 @@
 id: DST1
 title: Safety alerts are on time on the nights the clock changes
 author: po
-status: changes-requested
+status: accepted
 updated: 2026-10-25
 ---
 
@@ -33,6 +33,22 @@ A visit planned in the repeated or missing hour raises its overdue signal and it
 - [ ] **DST1-8 The test clock cannot act outside a test database** (added by the PO 2026-10-25 06:10 CET; patient safety: a pinned clock in staging or production would freeze every overdue and escalation signal). Whatever fixed-clock mechanism DST1-1 delivers: (a) a database built from the migrations alone (no seed) reads the real clock, proved by a pgTAP assertion or CI step run **before** the seed; (b) no role used by the app (`anon`, `authenticated`, `service_role`) can set, read or change the pin (catalogue assertion on grants and on any setting function); (c) the ADR states how staging and production are kept free of the pin and that no seed runs there. No check is run against the live database for this criterion.
 
 **PO notes for the review (2026-10-25 06:10 CET, PR #349 open, not reviewed):** DST1-4 asks for proof at the four clocks in **CI** (a matrix or a documented one-off CI run). A local run under a clock offset is useful evidence of the root cause (DST1-1) but does not by itself meet DST1-4; if the runner cannot set the clock, the PR shows the pinned-clock pgTAP files for the four instants running in CI instead, and says so. DST1-7 and DST1-8 apply to PR #349 as it stands; neither asks for new production behaviour beyond what the PR describes.
+
+## PO review 2026-10-25 14:13 CET: accepted
+
+**Clinical gate passed:** `cra` 2026-10-25 13:26 CET (PR #374, merged as `21d1e99`) reviewed merge commit `363906a` (0069, pgTAP 070) and found **no blocking finding**; **CGR-53 closed** (0069:32-63; 070:55-86); "the PO may accept DST1". CI `app`, `db`, `e2e` green on `430c231`, `363906a`, `1f3ff8a`, `78891aa` (`cra`, through the API). **The PO did not run the tests.**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| DST1-1 to DST1-5 | met (10:12) | evidence table 10:12 below |
+| DST1-6 no regression | met | CGR-53 regression reversed by DST1-C1; `cra` 13:26 closed CGR-53 |
+| DST1-7, DST1-8 | met | DST1-C2, DST1-C3 (13:16 table); `cra` 13:26: DST1-8 (a), (b) met in CI (`ci.yml` "Real clock before the seed"; 070:147-166) |
+| DST1-C1 to DST1-C3 | met | 13:16 table; `cra` 13:26 "0069 is protective throughout" |
+| Clinical review gate | passed | `cra` 13:26: no blocking finding; CGR-53 closed. CGR-54 → DST1-C4, CGR-56 → DST1-C5 (advisory, decided) |
+
+**Conditions with their own deadline (advisory findings accepted as conditions):** **DST1-C4** (CGR-54, option (a): the time-correction form asks which 02:xx is meant) before 2027-10-31 or the first real client, whichever is first; **DST1-C5** (CGR-56: deploy check that no test-clock pin exists in staging or production) before gate B. Both stay PLANNED and are re-checked at every PO cycle that reviews a release gate.
+
+**Business value and care model:** an overdue alert, its escalation and an absence release now behave on the two clock-change nights as on any other night, and the test suite no longer turns red because of the hour it runs at, which had blocked every agent's PR for hours at a time. Patient safety precondition; no new role, no new administration.
 
 ## PO review 2026-10-25 13:16 CET: DST1-C1 to DST1-C3 met, awaiting clinical review (stays `changes-requested`)
 
