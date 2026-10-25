@@ -1593,6 +1593,11 @@ isOneToOne: false
 "accept_my_invitations":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
+"active_safety_alert_categories":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "class": string,"code": string,"help_text": string,"label": string,"refuses_codes": boolean,"version": number
+            }[]
+                           },
 "add_care_plan_item":
 { Args: { "p_case_id": string,"p_category": string,"p_frequency": string,"p_goal": string,"p_idempotency_key": string,"p_planned_minutes": number,"p_review_date": string,"p_service": string }; Returns: string
                            },
@@ -1710,6 +1715,11 @@ isOneToOne: false
 "field_returned_reports":
 { Args: Record<PropertyKey, never>; Returns: {
               "client_name": string,"reason": string,"report_id": string,"returned_at": string,"returned_by_name": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
+            }[]
+                           },
+"field_safety_alerts":
+{ Args: { "p_date": string }; Returns: {
+              "actor_kind": string,"actor_name": string,"case_id": string,"category_class": string,"category_code": string,"category_label": string,"help_text": string,"note": string,"recorded_at": string,"refuses_codes": boolean,"source": string,"value": string,"visit_id": string
             }[]
                            },
 "field_since_last":
@@ -1841,6 +1851,9 @@ isOneToOne: false
                            },
 "record_quality_event":
 { Args: { "p_idempotency_key": string,"p_note": string,"p_occurred_at": string,"p_severity": string,"p_type_code": string,"p_visit_id": string }; Returns: Json
+                           },
+"record_safety_alert_value":
+{ Args: { "p_case_id": string,"p_category": string,"p_idempotency_key": string,"p_note": string,"p_source": string,"p_value": string }; Returns: string
                            },
 "refresh_team_plans":
 { Args: Record<PropertyKey, never>; Returns: number

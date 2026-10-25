@@ -8,6 +8,7 @@ import { REASON_LABEL, RESPONSIBLE_ABSENT_NOTE, atDoorText, basisText } from "@/
 import { EVENT_STATUS_LABEL, SEVERITY_LABEL } from "@/features/quality/rules";
 import { WEEKDAYS } from "@/features/planning/rules";
 import { gpInformedEntryLine } from "@/features/gp/rules";
+import { alertHandoverLines } from "@/features/door/rules";
 
 export type SinceLastRow = {
   visit_id: string;
@@ -111,6 +112,8 @@ export const ENTRY_TITLE: Record<string, string> = {
   primary_nurse: "Bezugspflege geändert",
   medical_order: "Ärztliche Verordnung geändert",
   quality_event: "Qualitätsereignis",
+  // DOOR1-7 (migration 0073): a new safety-alert value (category, value, source, note; who and when as every entry).
+  safety_alert: "Sicherheitshinweis erfasst",
 };
 
 const str = (v: unknown): string | null => (typeof v === "string" && v.length > 0 ? v : typeof v === "number" ? String(v) : null);
@@ -235,6 +238,9 @@ export function entryLines(kind: string, detail: Record<string, unknown>): strin
     }
     case "gp_informed":
       add(gpInformedEntryLine(detail));
+      break;
+    case "safety_alert":
+      for (const line of alertHandoverLines(detail)) add(line);
       break;
     case "quality_event": {
       const severity = str(detail.severity);
