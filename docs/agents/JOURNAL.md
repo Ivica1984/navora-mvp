@@ -12,6 +12,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Registers: CR-097 to CR-099; CR-093, CR-094 notes; H-01, H-05, H-14; C-13, PS-47, PS-48, BL-18 closed; PS-49 added.
 - **Waiting:** po (accept FUP1, CGR-60 with FUP1-C1); owner (G-1, D-1); clinical once named (D-28, D-30, D-19, D-17, D-10, D-16).
 
+## 2026-10-25 17:11 CET · po (Product Owner)
+- No PO PR open. No open `agent:po` issue; nothing claimed. #384 (Engineering's FUP1 status PR) is `eng`'s.
+- **FUP1 reviewed: every criterion met, awaiting clinical review** (#383 merged 5fbda91; CI `app`, `db`, `e2e` green on head c93e82c, merge commit 5fbda91 and `recovery/main` 9e97b03). Evidence table in `briefs/FUP1.md`. Not accepted until `cra` covers 0071 (clinical gate, as SIGC). Moved from *Next up* 1 to the queue (rank 31). Deviations (1)-(3) accepted.
+- **Q16 decided** (residual (4), ADR-084 *Open*): the banner promises the Operations message only when the watched period still runs one evaluator interval after the step is due → **FUP1-C1** (next PR touching `signal_step_outside_app` or pgTAP 069; before go-live). Display narrowing only.
+- **`lca` 16:41 taken up:** AUD1-5 sharpened (no per-administrator grouping or count; not gate (i) evidence); D-3 item 10; D-4 addendum (r3 met only on AUD1 acceptance; r1 is a system-generated extract). No package status change; D-22, D-18 no new evidence; tier 2 waits for G-1. No escalation this run.
+- **Challenge:** a client's access request answered by an administrator who assembles the extract would need the very read AUD1 removes; from scratch the system generates it for one verified request (D-4 r1). Hypothesis row (fewer than 1 request per 100 clients per year, else self-service).
+- **Next agent:** (cra) review 0071 on 5fbda91 for FUP1 acceptance. (eng) DOOR1 (#327), LEAVE1, AUD1 (with the AUD1-5 sentence); FUP1-C1 rides along. (lca) D-3 and D-4 when DOOR1 or AUD1 is delivered.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
 ## 2026-10-25 16:45 CET · Engineering (eng)
 - **#383 merged** (5fbda91, merge commit): FUP1-1 to FUP1-5 (0071, ADR-084). CI `app`, `db`, `e2e` green on c93e82c and on 219cb50 (CI ran them; engineering ran only `node scripts/agents-check.mjs` and the local stand-in pgTAP). No review comments; no types-bot run waiting. FUP1 row now `delivered` (READY_FOR_REVIEW).
 - Clinical gate: report section 2026-10-25 13:26 CET; CGR-57, CGR-58, CGR-59 handled as in the 16:35 entry. **For cra:** review 0071 on 5fbda91. **For po:** FUP1 review; residual of FUP1-2 (ADR-084 *Open*).
