@@ -11,6 +11,7 @@ import {
   takenText,
   OPERATIONS_APP_ONLY,
   OPERATIONS_FOLLOWS,
+  operationsFollows,
   OUTSIDE_WATCHED_EMPTY,
   OUTSIDE_WATCHED_NOTE,
   outsideWatchedLine,
@@ -82,6 +83,26 @@ describe("safety signals (SIG1)", () => {
     expect(takenText(ca)).toContain(OPERATIONS_APP_ONLY);
     // A take that stops the step shows no Operations text at any hour.
     expect(takenText({ ...ca, taken_by_qualification: "registered_nurse", taken_awaits_rn: false, watched_now: false }))
+      .toBe("übernommen von Assistenz Test");
+  });
+
+  // FUP1-2 (CGR-58, migration 0071): the text follows the Operations delivery, or the instant the step is due.
+  it("follows operations_outside_app, not the reading instant, when the reader carries it (FUP1-2)", () => {
+    const ca = { taken_by_me: false, taken_by_name: "Assistenz Test", taken_by_qualification: "care_assistant", taken_awaits_rn: true };
+    // Taken at 19:55 inside the watched period, the step due after it ends: app only although watched_now is true.
+    expect(takenText({ ...ca, watched_now: true, operations_outside_app: false }))
+      .toBe("übernommen von Assistenz Test (Pflegehilfe), Operations nur in der App: ausserhalb der überwachten Zeit");
+    // The Operations delivery was already sent outside the app: the message follows, also when read after the period.
+    expect(takenText({ ...ca, watched_now: false, operations_outside_app: true }))
+      .toBe("übernommen von Assistenz Test (Pflegehilfe), Meldung an Operations folgt");
+    expect(takenText({ ...ca, taken_by_me: true, watched_now: true, operations_outside_app: false })).toContain(OPERATIONS_APP_ONLY);
+    // A null flag never promises the message, whatever watched_now says.
+    expect(takenText({ ...ca, watched_now: true, operations_outside_app: null })).toContain(OPERATIONS_APP_ONLY);
+    expect(operationsFollows({ watched_now: true, operations_outside_app: null })).toBe(false);
+    expect(operationsFollows({ watched_now: true })).toBe(true);
+    expect(operationsFollows({})).toBe(false);
+    // A take that stops the step shows no Operations text.
+    expect(takenText({ ...ca, taken_by_qualification: "registered_nurse", taken_awaits_rn: false, operations_outside_app: true }))
       .toBe("übernommen von Assistenz Test");
   });
 
