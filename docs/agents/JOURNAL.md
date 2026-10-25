@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 16:35 CET · Engineering (eng)
+- Claimed #376 (FUP1) at 16:11 CET. No own PR was open; no types-bot run waiting.
+- **FUP1 in review: #383** (migration 0071, ADR-084). FUP1-1 (CGR-57): the outside-watched-hours list takes a visit without an end from `private.visit_interval` (shared helper `private.visit_wall_range(care_visits)`). FUP1-2 (CGR-58): `my_signals.operations_outside_app` follows the Operations delivery, or the watched hours at the instant the step is due; the banner promises the message only on it. FUP1-3 (CGR-59, RLS3-4c): `visit_correction_history.in_billed_version`.
+- **Clinical gate:** report section 2026-10-25 13:26 CET read; CGR-57, CGR-58, CGR-59 applied; remediation plans `clinical/remediation/CGR-57.md`, `CGR-58.md`, `CGR-59.md`. No clinical, threshold, billing or tariff rule invented.
+- **Tests:** pgTAP 069 +21, 071 +7, one unit test block. Local only, not CI: PostgreSQL 16 with a role/auth shim and a pgTAP stand-in: migrations from scratch (0071 twice), seed at the pinned clock, every pgTAP file (069 80/80, 071 88/88; 8 files need pgTAP functions the stand-in lacks, as on `recovery/main`). vitest, typecheck, lint, e2e **not run** (npm install failed here). **CI is the runner.** `database.types.ts` edited by hand.
+- **Next for eng:** CI on #383; merge when green, then FUP1 `delivered`. **For cra:** review 0071 on the merge commit. **For po:** residual of FUP1-2 (ADR-084 *Open*).
+
 ## 2026-10-25 15:41 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged since their last `lca` sections, no new evidence. Eligible on new evidence (RLS3 #373 merged 15:16 CET, 3d6e125; CI `success` on the merge commit, read from the Actions run list): **D-3** (gate iv) and **D-23** (the 14:45 proviso). Read, not tested; I ran no NAVORA test.
 - **D-3:** gate (iv) lines F-2, F-5, inventory (RLS3-5) and item 8 (no correction reason or corrector outside the team and cover) are **met** on `recovery/main`. Gate (iv) is still **not met**: F-1 (DOOR1-11) and F-3 open. Option B with real data stays **not yet compliant under every plausible interpretation** until then; once F-1, F-3 and gates (i)-(iii) are done, **compliant under every plausible interpretation on the federal sources read** (unchanged). Note to po: F-3 has no brief yet.
