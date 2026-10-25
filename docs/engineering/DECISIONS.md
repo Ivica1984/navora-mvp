@@ -1199,4 +1199,24 @@ Generated visits stay ordinary planned visits.
 
 **Rollback:** re-create `return_report`, `countersign_report`, `correct_report`, `guard_visit_report`, `field_reports`, `field_countersign_queue`, `handover_entries` and `end_member_access` from 0065/0074; drop `member_open_reports`, `team_open_reports`, `open_reports_of`, `open_report_counts`, `report_returned_unavailable`, `access_ended_at` and the column (only after no row has it true).
 
-**Open:** (1) LEAVE1-9 (documentation only): which file holds the go-live list (`po`, asked 21:55). (2) UNKNOWN until CI: typecheck, vitest, lint, e2e (not runnable here: npm registry unreachable). (3) D-30 (Clinical Owner): who completes a report returned while its performer was unavailable.
+**Open:** (1) LEAVE1-9: answered by `po` 2026-10-25 22:10 (go-live gate index G-13, met by the PO). (2) UNKNOWN until CI: typecheck, vitest, lint, e2e (not runnable here: npm registry unreachable). (3) D-30 (Clinical Owner): who completes a report returned while its performer was unavailable.
+
+### ADR-089 — LEAVE1-13: the access end releases her planned visits to the team by the one release rule
+
+**Date:** 2026-10-25 · **Status:** IMPLEMENTED in migration 0076 (in PR #406; CI decides) · **Brief:** `docs/agents/briefs/LEAVE1.md` LEAVE1-13 (PO 2026-10-25 22:10 CET, product authority) · **Findings:** none new; the release rule and its exceptions are the ones `cra` reviewed for ADM1/ABS1 (CGR-09, CGR-10, CGR-34, CGR-35).
+
+**Context:** part (a) (0074) refused `end_member_access` with `has_planned_visits` while she was responsible for or covered a planned visit from today on, so an administrator re-assigned a leaver's visits one by one. NAVORA already has one release rule for removal, absence and qualification change (`private.release_member_visits`, 0036/0046).
+
+**Decision:**
+- `end_member_access` (0076, full `create or replace`, same signature): after every refusal check, in the same command context, it releases her planned visits from today per team (teams taken from her visits in the administrator's organisation, so a visit of a team she already left is released too) through `private.release_member_visits(team, user, null, null, 'Zugang beendet', actor)`, as `remove_team_member` does: suspended included, in progress never, dated before today never. The released visits are uncovered, so the J3 flag, OPS1 `visit_uncovered` and SIG1 signals apply unchanged.
+- The team-readable plan change row carries the fixed text "Zugang beendet" only; the reason code stays in `member_access_events`, `change_log`, `audit_events` (LEAVE1-8). Visit audit rows carry `end_member_access` and its key.
+- The result gains `released` = `{team_id: n}` (`{}` when none); change log and audit row carry the same object. `/admin` shows "N geplante Einsätze sind jetzt offen im Team." after the end, and the form says so before.
+- `has_planned_visits` stays only for a planned visit she **covers** (`covered_by`), while COVER1 is off. `has_cases`, `has_visit_in_progress` unchanged.
+
+**Deviations:** (1) a restore (LEAVE1-7) does not give the released visits back; the team decides who takes them (same as after a removal). (2) pgTAP 074 test 32 now proves `has_planned_visits` with a covered visit (the responsible case is proven released in 076).
+
+**Not chosen:** a separate release in the app before the command (two transactions; the access could end with visits still assigned); re-assigning to a named colleague (that is the team's decision, ADM1).
+
+**Rollback:** re-create `end_member_access` from 0074 with the 0075 result patch.
+
+**Tests:** pgTAP 076 (22): covered visit refuses and releases nothing; 3 visits in Nord (today, next week, suspended) and 1 in Mitte released, per-team counts in result and change log; past and colleague visits untouched; plan change rows with the fixed text, no reason code; uncovered exception for today's and tomorrow's, none for next week's; audited under the command; duplicate key releases nothing; restore leaves them released. Unit: `readAccessEndResult` sums `released`, notice texts.

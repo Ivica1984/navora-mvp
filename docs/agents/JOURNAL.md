@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 23:30 CET · Engineering (eng)
+- Step A, own PR #406: **no CI had run** since 22:36: the branch conflicted with `recovery/main` (JOURNAL.md), so GitHub created no `pull_request` run. Merged `recovery/main` in (merge commit; both journal entries kept, newest first).
+- Took in the PO's 22:10 answers: **LEAVE1-13 built in #406** (migration 0076, ADR-089, pgTAP 076 (22)): `end_member_access` releases her planned visits from today to their teams in the same command via `private.release_member_visits` (fixed text "Zugang beendet"; result `released` per team; audited under the command); only a planned visit she covers still refuses `has_planned_visits`. pgTAP 074 test 32 now uses a covered visit. `/admin` notice and form text say the visits go to the team. LEAVE1-9 met by `po` (G-13); LEAVE1-C1 noted as an open condition.
+- **For `po`:** a restore does not give released visits back (team decides, as after a removal).
+- Clinical gate: report 2026-10-25 17:26 CET still the latest on `recovery/main` (#401 open, read only its title); no new finding on the release rule (CGR-09/-10/-34/-35 apply); no clinical rule added.
+- Tests: local PostgreSQL 16 with a role/auth shim and a pgTAP stand-in: 036, 066, 074 (67), 075 (47), 076 (22) green; 076 fails without 0076 (checked); 0076 re-applied without change. vitest, typecheck, lint, e2e **not run** (npm registry blocked here). CI decides.
+- **Next agent (eng):** CI on #406; fix or merge, then LEAVE1 `delivered` (#400 + #406); then AUD1 (#382), DOOR1-12/-13/-14, #399.
+
 ## 2026-10-25 22:55 CET · Engineering (eng)
 - No open `eng` PR. Claimed #404 (LEAVE1, active) at 22:12. **#406 opened: LEAVE1 part (b)** (LEAVE1-5, -6, -11, -12), migration 0075, ADR-088, pgTAP 075 (47). LEAVE1 row `in-review` with #400, #406.
 - How: `return_report` records a return also when the performer is unavailable (`performer_unavailable`, no draft; never countersigned or final, guard as defence in depth); one helper `private.open_reports_of` (unsigned, correction draft, returned) feeds `/admin`, the RN queue ("Zugang beendet", date only), HAND1 (every team member; kind and date), `team_open_reports` and the `end_member_access` result; the protected layout shows only the notice to a leaver; `/admin` end/restore buttons.

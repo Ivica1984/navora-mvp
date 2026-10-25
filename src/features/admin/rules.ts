@@ -49,7 +49,8 @@ export const ADMIN_MESSAGES: Record<string, string> = {
   has_unsigned_reports: "Sie hat Einsätze in diesem Team durchgeführt, deren Bericht fehlt oder noch nicht unterschrieben ist. Nur sie kann ihn schreiben und unterschreiben. Erst unterschreiben lassen, dann entfernen.",
   // LEAVE1 (migrations 0074, 0075): ending and restoring a person's access.
   self: "Den eigenen Zugang kann man nicht beenden.",
-  has_planned_visits: "Sie ist für geplante Einsätze ab heute zuständig oder vertritt dabei. Zuerst umplanen, dann den Zugang beenden.",
+  // LEAVE1-13 (migration 0076): only a planned visit she covers for another team still refuses; her own are released.
+  has_planned_visits: "Sie vertritt ab heute bei einem geplanten Einsatz eines anderen Teams. Zuerst die Vertretung beenden, dann den Zugang beenden.",
   name_taken: "Ein Team mit diesem Namen gibt es bereits.",
   wrong_state: "Nicht mehr im passenden Zustand.",
   out_of_range: "Ausserhalb des sicheren Bereichs.",
@@ -161,17 +162,24 @@ export const OPEN_REPORT_LABEL: Record<string, string> = {
 };
 export type OpenReportCounts = Record<(typeof OPEN_REPORT_KINDS)[number], number>;
 
-/** The end_member_access result: its code and, on success, her open reports by kind (LEAVE1-12 (2)). */
-export function readAccessEndResult(data: unknown): { code: string; openReports: OpenReportCounts | null } {
-  if (!data || typeof data !== "object" || !("result" in data)) return { code: "failed", openReports: null };
-  const d = data as { result?: unknown; open_reports?: unknown };
+const count = (v: unknown): number => (typeof v === "number" && Number.isInteger(v) && v > 0 ? v : 0);
+
+/**
+ * The end_member_access result: its code and, on success, her open reports by kind (LEAVE1-12 (2)) and the number of
+ * planned visits released to their teams (LEAVE1-13; the command returns them per team, summed here).
+ */
+export function readAccessEndResult(data: unknown): { code: string; openReports: OpenReportCounts | null; released: number } {
+  if (!data || typeof data !== "object" || !("result" in data)) return { code: "failed", openReports: null, released: 0 };
+  const d = data as { result?: unknown; open_reports?: unknown; released?: unknown };
   let openReports: OpenReportCounts | null = null;
   if (d.open_reports && typeof d.open_reports === "object") {
     const o = d.open_reports as Record<string, unknown>;
-    const n = (k: string) => (typeof o[k] === "number" && Number.isInteger(o[k]) && (o[k] as number) > 0 ? (o[k] as number) : 0);
-    openReports = { unsigned: n("unsigned"), correction_draft: n("correction_draft"), returned: n("returned") };
+    openReports = { unsigned: count(o.unsigned), correction_draft: count(o.correction_draft), returned: count(o.returned) };
   }
-  return { code: String(d.result), openReports };
+  const released = d.released && typeof d.released === "object"
+    ? Object.values(d.released as Record<string, unknown>).reduce<number>((sum, v) => sum + count(v), 0)
+    : 0;
+  return { code: String(d.result), openReports, released };
 }
 
 /** Counts open reports by kind from list rows (member_open_reports). */
@@ -188,11 +196,17 @@ export function openReportsText(counts: OpenReportCounts | null): string {
   return parts.length > 0 ? parts.join(" · ") : "keine offenen Berichte";
 }
 
-/** After an end: what stays open for the team (the command is never refused by open reports, LEAVE1-2). */
-export function accessEndedNotice(counts: OpenReportCounts | null): string {
+/**
+ * After an end: her planned visits now open in the team (LEAVE1-13) and what stays open for the team (the command is
+ * never refused by open reports, LEAVE1-2).
+ */
+export function accessEndedNotice(counts: OpenReportCounts | null, released = 0): string {
+  const visits = released <= 0 ? "" : released === 1
+    ? " 1 geplanter Einsatz ist jetzt offen im Team."
+    : ` ${released} geplante Einsätze sind jetzt offen im Team.`;
   const open = counts ? OPEN_REPORT_KINDS.reduce((sum, k) => sum + counts[k], 0) : 0;
-  if (open === 0) return "Zugang beendet. Keine offenen Berichte.";
-  return `Zugang beendet. Offen bleiben: ${openReportsText(counts)}. Das Team sieht sie mit «Zugang beendet»; sie werden nicht verrechnet.`;
+  if (open === 0) return `Zugang beendet.${visits} Keine offenen Berichte.`;
+  return `Zugang beendet.${visits} Offen bleiben: ${openReportsText(counts)}. Das Team sieht sie mit «Zugang beendet»; sie werden nicht verrechnet.`;
 }
 
 export type AccessEvent = { user_id: string; kind: string; reason_code: string; created_at: string; seq: number };

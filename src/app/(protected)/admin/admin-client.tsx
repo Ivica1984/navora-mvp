@@ -239,7 +239,7 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
           setEnded(null);
           run(() => mode === "end"
             ? endMemberAccess({ userId: member.user_id, reasonCode: text(f, "reason"), idempotencyKey: newKey() })
-                .then((r) => { if (r.ok) setEnded(accessEndedNotice(r.openReports)); return r.ok ? { ok: true as const } : r; })
+                .then((r) => { if (r.ok) setEnded(accessEndedNotice(r.openReports, r.released)); return r.ok ? { ok: true as const } : r; })
             : restoreMemberAccess({ userId: member.user_id, reasonCode: text(f, "reason"), idempotencyKey: newKey() }),
           () => setMode("idle"));
         }}>
@@ -255,7 +255,7 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
           <button type="button" className={secondary} onClick={() => setMode("idle")}>Abbrechen</button>
           {mode === "end" && (
             <p className="w-full text-xs text-stone-600">
-              Danach sieht sie keine Daten mehr und kann nichts mehr tun. Ihre offenen Berichte bleiben für das Team sichtbar und werden nicht verrechnet.
+              Danach sieht sie keine Daten mehr und kann nichts mehr tun. Ihre geplanten Einsätze ab heute werden offen im Team. Ihre offenen Berichte bleiben für das Team sichtbar und werden nicht verrechnet.
             </p>
           )}
         </form>

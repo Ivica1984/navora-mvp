@@ -7,7 +7,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(66);
+select plan(67);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -186,10 +186,17 @@ select is(pg_temp.end_('admin', 'l2', 'employment_ended', 201), 'has_cases', 'pr
 update public.cases set primary_nurse_id = null where id = '00000000-0000-4000-a000-000000000208';  -- re-assigned (as the table owner)
 select is(pg_temp.end_('admin', 'l2', 'employment_ended', 202), 'has_visit_in_progress', 'a visit in progress: has_visit_in_progress');
 update public.care_visits set status = 'completed' where id = pg_temp.vid('q1');  -- closed (as the table owner)
-select is(pg_temp.end_('admin', 'l2', 'employment_ended', 203), 'has_planned_visits', 'responsible for a planned visit from today: has_planned_visits');
-update public.care_visits set responsible_user_id = null where id = pg_temp.vid('p1');  -- released (as the table owner)
+-- LEAVE1-13 (0076): only a planned visit she covers still refuses; one she is responsible for is released (pgTAP 076).
+update public.care_visits set responsible_user_id = pg_temp.u('ca')::uuid, covered_by = pg_temp.u('l2')::uuid, covered_at = private.now(),
+                              cover_team_id = '00000000-0000-4000-a000-000000000101'
+where id = pg_temp.vid('p1');  -- she covers p1 for …906 (as the table owner)
+select is(pg_temp.end_('admin', 'l2', 'employment_ended', 203), 'has_planned_visits', 'covers a planned visit from today: has_planned_visits');
+update public.care_visits set responsible_user_id = pg_temp.u('l2')::uuid, covered_by = null, covered_at = null, cover_team_id = null
+where id = pg_temp.vid('p1');  -- cover ended; she is responsible for p1 again (as the table owner)
 select is(pg_temp.end_('admin', 'l2', 'access_withdrawn', 204), 'ok',
-  'cleared: the access ends (her completed visit without a report does not refuse)');
+  'cleared: the access ends (her completed visit without a report does not refuse; her planned visit p1 is released)');
+select is((select responsible_user_id from public.care_visits where id = pg_temp.vid('p1')), null::uuid,
+  'LEAVE1-13: the planned visit she was responsible for is released to the team');
 
 select is(pg_temp.end_('admin', 'l1', 'employment_ended', 301), 'ok', 'LEAVE1-2: the leaver with an unsigned, a returned and a correction draft: ok');
 select is(pg_temp.end_('admin', 'l1', 'employment_ended', 301), 'duplicate', 'same key: duplicate');

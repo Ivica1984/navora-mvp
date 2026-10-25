@@ -153,8 +153,11 @@ export async function resetExceptionRule(input: unknown): Promise<CommandResult>
     p_organization_id: p.data.organizationId, p_exception_type: p.data.exceptionType, p_idempotency_key: p.data.idempotencyKey }));
 }
 
-/** LEAVE1-1 / LEAVE1-12 (2): ending her access returns her open reports by kind (they never refuse it, LEAVE1-2). */
-export type AccessEndResult = { ok: true; openReports: OpenReportCounts | null } | { ok: false; error: string };
+/**
+ * LEAVE1-1 / LEAVE1-12 (2) / LEAVE1-13: ending her access returns her open reports by kind (they never refuse it,
+ * LEAVE1-2) and the number of her planned visits released to their teams.
+ */
+export type AccessEndResult = { ok: true; openReports: OpenReportCounts | null; released: number } | { ok: false; error: string };
 
 export async function endMemberAccess(input: unknown): Promise<AccessEndResult> {
   const p = z.object({ userId: z.uuid(), reasonCode: z.enum(ACCESS_END_REASONS), idempotencyKey: key }).safeParse(input);
@@ -162,9 +165,9 @@ export async function endMemberAccess(input: unknown): Promise<AccessEndResult> 
   const { supabase } = await requireUser();
   const { data, error } = await supabase.rpc("end_member_access", {
     p_user_id: p.data.userId, p_reason_code: p.data.reasonCode, p_idempotency_key: p.data.idempotencyKey });
-  const { code, openReports } = readAccessEndResult(data);
+  const { code, openReports, released } = readAccessEndResult(data);
   const result = interpret("end_member_access", { data: error ? null : code, error });
-  return result.ok ? { ok: true, openReports } : result;
+  return result.ok ? { ok: true, openReports, released } : result;
 }
 
 /** LEAVE1-7: restores exactly the access she had (memberships were never removed). */

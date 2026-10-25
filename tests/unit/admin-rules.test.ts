@@ -95,11 +95,22 @@ describe("member removal releases visits (ADM1 changes)", () => {
 describe("LEAVE1 (migrations 0074, 0075): access end and the open-work list", () => {
   it("reads the end_member_access result with her open reports by kind", () => {
     expect(readAccessEndResult({ result: "ok", push_subscriptions_removed: 1, open_reports: { unsigned: 1, correction_draft: 0, returned: 2 } }))
-      .toEqual({ code: "ok", openReports: { unsigned: 1, correction_draft: 0, returned: 2 } });
-    expect(readAccessEndResult({ result: "has_cases" })).toEqual({ code: "has_cases", openReports: null });
-    expect(readAccessEndResult(null)).toEqual({ code: "failed", openReports: null });
+      .toEqual({ code: "ok", openReports: { unsigned: 1, correction_draft: 0, returned: 2 }, released: 0 });
+    expect(readAccessEndResult({ result: "has_cases" })).toEqual({ code: "has_cases", openReports: null, released: 0 });
+    expect(readAccessEndResult(null)).toEqual({ code: "failed", openReports: null, released: 0 });
     expect(readAccessEndResult({ result: "ok", open_reports: { unsigned: -1, returned: "x" } }).openReports)
       .toEqual({ unsigned: 0, correction_draft: 0, returned: 0 });
+  });
+
+  it("sums the planned visits released per team (LEAVE1-13, migration 0076)", () => {
+    expect(readAccessEndResult({ result: "ok", released: { "team-a": 3, "team-b": 1 } }).released).toBe(4);
+    expect(readAccessEndResult({ result: "ok", released: {} }).released).toBe(0);
+    expect(readAccessEndResult({ result: "ok", released: { a: -2, b: "x", c: 1.5, d: 2 } }).released).toBe(2);
+    expect(accessEndedNotice({ unsigned: 0, correction_draft: 0, returned: 0 }, 3))
+      .toBe("Zugang beendet. 3 geplante Einsätze sind jetzt offen im Team. Keine offenen Berichte.");
+    expect(accessEndedNotice({ unsigned: 1, correction_draft: 0, returned: 0 }, 1))
+      .toBe("Zugang beendet. 1 geplanter Einsatz ist jetzt offen im Team. Offen bleiben: 1 nicht unterschrieben. Das Team sieht sie mit «Zugang beendet»; sie werden nicht verrechnet.");
+    expect(ADMIN_MESSAGES.has_planned_visits).toMatch(/vertritt/);
   });
 
   it("counts and describes open reports by kind", () => {
