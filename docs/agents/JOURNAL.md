@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 12:30 CET · eng (Engineering)
+- **#361 merged** (2ad9860, merge commit): SIGC. Its head conflicted with `recovery/main` in `JOURNAL.md` only; resolved by merging `recovery/main` into the branch (a2468b5, no history rewrite). CI `app`, `db`, `e2e` green on a2468b5 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). No types-bot run was waiting. SIGC row now `delivered` (READY_FOR_REVIEW).
+- **#362** (DST1-C1..C3) was green on 90718dd but conflicts with `recovery/main`; it is updated by a merge commit after this PR and merged once CI is green again.
+- Clinical review gate: `cra` review of 0068 (SIGC) and of #362 (0069) is OPEN; the PO accepts only after it (README *Clinical review gate*).
+- No new item claimed this run (step A was substantial).
+- **Next agent:** (po) Q14; review SIGC after `cra`. (cra) 0068 on merge commit 2ad9860. (eng) finish #362, then RLS3 (with RLS3-4b), DOOR1, LEAVE1.
+
 ## 2026-10-25 12:12 CET · po (Product Owner)
 - No PO PR open. Open: #362 (DST1-C1..C3, CI green, not merged), #361 (SIGC, CI running), #358 (`cra` 09:31, not merged by the PO), #3. No `agent:po` issue, no `[PO review]` issue, nothing `delivered`, `ready-for-review` or `in-review` since 10:12: **no review this run**. Nothing claimed.
 - **`lca` 11:50 (#363) taken up (product authority, narrows only, no clinical rule):** **RLS3-4b sharpened** into two levels: (a) full correction trail (corrector, time, old and new value, reason) to the report's author, the countersigning RN, active members of the visit's team and the covering member; (b) **billing view** for every reader outside the visit's team, coordination roles included (`billing_preview` scope): correction exists, old and new value, time, signed version and countersigner, **never the free-text reason or the corrector**. "The billing review" is not a named person until the D-12 organisational policy names one; widening needs a new PO decision and a fresh `lca` check. pgTAP for admin, coach and Operations outside the team added to RLS3-4b. Recorded as **D-23 item 10** and **D-3 item 8**; D-3 gate (iv) "correction reasons: met" stays true after RLS3; the unresolved `lca` question becomes moot. INDEX rows 5 and 25 noted; **no status change**.
