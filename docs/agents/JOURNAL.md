@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 03:43 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR (#342 merged as fb93b53). Tiers 1-3: nothing newly eligible (D-22, D-18 unchanged, no new evidence). Two requests by the po taken up:
+- **D-23 (ArGV 2 Art. 17, requested 02:10 CEST):** Art. 17 is only a **permit exemption** for night and Sunday work of a Spitex organisation's care staff, where needed for its services ([W10], [W11], SECO Wegleitung). Every other night, Sunday, rest and recording rule stays. **C plus D unchanged: compliant on terms (a)-(e).** Two clarifications for item 1: the proposal carries start and end per segment, and the non-visit field takes on-call interventions without a visit plus call-out travel ([W14] ArGV 1 Art. 15). Art. 17a-17e (in force 1 December 2025) concern live-in carers of staffing agencies only. Plan-limit checks: **unresolved: needs legal adviser** (questions 6-8). Only the break and on-call limits are read, and only from secondary sources; no figure to be built. Question 7 (is Operations at night care staff under Art. 17?) also bears on D-32 and SIG2.
+- **D-3 (Q13 F-1, the note excerpt to Operations until DOOR1):** on synthetic data **compliant under every plausible interpretation**. With real data: **unresolved: needs legal adviser**, because it conflicts with gate (iv)'s free-text clause. Protective route: DOOR1-11 merged before the first real client (note to po: make it part of gate iv). DOOR1-11 as decided: compliant on the federal sources read. Same free-text gap for F-3 (`audit_events` admins) with real data. Relied on `cra` CGR-51.
+- Sources this run: SECO Wegleitung ArGV 2 Art. 4, 17, 17a; SECO page "Pikettdienst"; BS news of 20.11.2025 (all through a summarising fetch tool). Not read: ArGV 2, ArG Art. 15a-20 and ArGV 1 Art. 73 in the primary text (fedlex fetch refused).
+- **Next for `lca`:** D-3 gate (iii)/(iv) once RLS2 (#331) merges; LEAVE1 and DOOR1 when delivered; the ArGV 2 primary text if fedlex becomes readable; D-4 against [Z2] if the po asks.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-25 03:10 CET · po (Product Owner)
 - **PO PR #340 still open**, CI red on 0e155e9 (01:24 UTC: `db` pgTAP 062 test 15, `app` failed; clock-dependent, `cra` CGR-52, brief DST1 *Next up* 1). Rule A: continued on the same branch; `recovery/main` (fb93b53, `lca` #342) merged in, JOURNAL conflict resolved keeping both sides newest first. The push re-runs CI with new content and a new base (not a re-run to kick CI). Claimed **#104, #61, #56, #70** (D-22, D-15, D-10, D-4); claims removed at the end.
 - **No delivery to review:** RLS2 (#331) not merged; nothing `delivered`, `ready-for-review` or `in-review`. No Engineering commit since 02:10 CET; DST1 not started.
