@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 03:10 CET · po (Product Owner)
+- **PO PR #340 still open**, CI red on 0e155e9 (01:24 UTC: `db` pgTAP 062 test 15, `app` failed; clock-dependent, `cra` CGR-52, brief DST1 *Next up* 1). Rule A: continued on the same branch; `recovery/main` (fb93b53, `lca` #342) merged in, JOURNAL conflict resolved keeping both sides newest first. The push re-runs CI with new content and a new base (not a re-run to kick CI). Claimed **#104, #61, #56, #70** (D-22, D-15, D-10, D-4); claims removed at the end.
+- **No delivery to review:** RLS2 (#331) not merged; nothing `delivered`, `ready-for-review` or `in-review`. No Engineering commit since 02:10 CET; DST1 not started.
+- **Packages (INDEX order; tiers 1-3 all awaiting a person or decided; no status change):** `lca` 02:42 CET re-check against the ZH Spitex leaflet [Z2] (September 2025) taken up:
+  - **D-22:** [Z2] A.2 (lit. b only on a doctor's order, lit. a and c without) is consistent with the package's federal reading. Checked `lca`'s warning in the briefs: none builds an order for every service (J1 `not-required-A/C-only`; J3 order gate for B only). Ask unchanged.
+  - **D-15:** CR-010 question cites [Z2] 3.4.8, with 3.4.7 as context; `lca`'s 11:55 order sentence marked superseded and not built. Recommendation C unchanged.
+  - **D-10:** [Z1] references read as [Z2]; adviser question 1 replaced by `lca`'s wording. Verdicts unchanged; LEAVE1 stays the real-data gate for deviation (3).
+  - **D-4:** retention item (4), the [Z2] 20-year recommendation for patient documentation, goes to the adviser; the provisional rule (no deletion) covers it.
+- **Challenge:** the site nursing lead as a manager (row added): the licensed accountable role stays; the manager's work around it (reading every report, the roster, the phone) should not. Pilot hypothesis on her supervision hours and direct care share.
+- ROADMAP: line 25.10. 03:10. Tests: none run (docs only); the PO did not run any test; `node scripts/agents-check.mjs` passed before publishing.
+- **Waiting on people (unchanged):** **owner:** D-1 (urgent), SR-26, D-26, D-7, D-8, D-2, D-34, D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, D-14, D-24, D-25 (only once D-24 moves past A), G-1 (name the Clinical Owner); merge `cra` PR #341. **Clinical Owner:** D-10, D-28, D-31, D-3, D-30 (before the first real leaver), D-16, D-15, D-19, D-17.
+- **Next agent:**
+  - **(eng):** DST1 first: CI is red on every docs PR tonight (#340, #341, #331). Then RLS2, SIGC, DOOR1, LEAVE1.
+  - **(lca):** D-23 Art. 17 and the Q13 F-1 view as requested; no new request this run.
+  - **(po):** merge #340 once CI is green; close the duplicate SIG hand-off issues (#329, #333, #334, #336, #339, #343) once the SIGC issue exists; review RLS2 and DST1 when merged.
+
 ## 2026-10-25 02:42 CET · Legal & Compliance Agent (lca)
 - **Continued `lca` PR #342** (opened 02:48 CEST, before the clock change; this entry is later). Its `db` and `e2e` jobs failed in the repeated DST hour (comment on #342; `cra` CGR-52, po DST1). Still inside the repeated hour at the start of this run, so no re-run yet. Tiers 1-3: nothing eligible (D-22, D-18 unchanged, no new evidence).
 - **New evidence: ZH Spitex leaflet [Z2], September 2025** (supersedes [Z1], November 2023). Re-checked **D-10** and **D-15**:
@@ -52,6 +68,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Sources this run: [L9] zh.ch leaflet (tool summary, short quotes as reported), [L10] zh.ch page, both read 2026-10-25. GesG ZH §§ 35-37, 40 and the January 2026 leaflet not read.
 - **Next for `lca`:** D-10 and D-15 against the September 2025 Spitex leaflet; the January 2026 home leaflet if readable; D-3 gate (iv) once RLS2 merges; LEAVE1 when delivered.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-25 02:10 · po (Product Owner)
 - **No PO PR was open.** Open: #331 (RLS2, `eng`, not merged: nothing to review), #321 and older `cra` PRs (not merged by the PO), #3 (M2). No `agent:po` issue open. Nothing `delivered`, `ready-for-review` or `in-review` with a merged PR.
 - **Coordination defect found and fixed in the PO's file:** the *Next up* ID "SIG1-C2, SIG1-C3, SIG2-C1" contains spaces; the watcher's marker regex reads a key only up to the first space, so each of its runs opened a new hand-off issue that it can never match, update or close (#326, #329, #333, #334, #336, #339). Renamed **SIGC** (content, approval and order unchanged; `briefs/SIGC.md` points to the conditions in SIG1 and SIG2). The PO closes the six duplicates once the watcher has opened the SIGC issue. **WATCH-2** for Engineering: validate *Next up* IDs (today only the priority queue is checked).
