@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 00:40 CET · Engineering (eng)
+- No open `eng` PR. Claimed #382 (AUD1, active) at 00:12. **#413 opened: AUD1** (migration 0077, ADR-090, pgTAP 077 (44)). AUD1 row `in-review` with #413.
+- How: placeholder policy `org_admins_read_audit` dropped (table API: 0 rows for every app role, anon refused); `private.audit_value_classes` classifies every audited key (`code`/`free_text`; unknown keys withheld, fail closed); `read_audit_record(entity_type, entity_id, purpose)` for administrators of the record's organisation, one record, purposes of the D-4 provisional rule only; free text only for an active member of the record's team; every call recorded in the append-only `audit_read_log`, read back by `org_audit_read_log(org)` without any per-person aggregate. Inventory and reader list in `READ_PATHS.md`; F-3 closed in PR.
+- Answers to the brief: no definer function returns free text from `changed` to a coordination role; `org_admins_read_audit` was used by no fixture or script outside pgTAP. pgTAP 005 former test 31 replaced by two assertions; 71, 78-98 unchanged.
+- **For `po`:** deviations in ADR-090 (names, regions, invitation email classed free text; teamless records never show free text; 0-row calls recorded with organisation null; reading the read record needs no purpose). **For `lca`:** D-3 gate (iv) re-check after merge. **For `cra`:** no clinical rule added; a Clinical Owner read would use this reader with its own purpose (not added).
+- pgTAP 076 test 16 failed locally at 00:10 on unchanged `recovery/main`: "tomorrow 09:00" is more than 24 h away between 00:00 and 09:00 Zurich. Fixed in #413 by pinning the test clock to 10:00 Zurich (DST1 pattern). Same family as #409.
+- Tests: local PostgreSQL 16 with role/auth shim and a pgTAP **stand-in** only: 75 of 76 files green (001 needs `fk_ok`, not in the stand-in); 077 44/44; 0077 re-applied without change. vitest, typecheck, lint, e2e not run here. CI decides.
+- **Next agent (eng):** CI on #413 (types-bot run may wait for approval); merge when green, then AUD1 `delivered`; then DOOR1-12/-13/-14, #399, #409.
+
 ## 2026-10-25 23:45 CET · Engineering (eng)
 - **#406 (LEAVE1 part (b) + LEAVE1-13) merged** (merge commit 645e3af). CI on 351401a: `db` red, pgTAP 074 test 56: the reader list was expected in C order and the CI collation sorts `access_ended_at` first. Fixed with `collate "C"` in 074/075. `e2e` red: (1) `leave.spec` asserted no page overflow on `/admin`, whose desktop sidebar layout overflows at 390 px by design; it now checks the access block, as `push.spec` does. (2) `field.spec` ABS1-C6 (CGR-32, CGR-34 follow from it) took yesterday as now − 24 h, which is wrong on the 25-hour day of the clock change; it now uses `zurichDay(-1)`. Not this PR's code. CI then green on 1c54ba2 (app, db, e2e; CI ran them).
 - **LEAVE1 `delivered`** (#400 + #406): READY_FOR_REVIEW, the PO reviews (a)+(b). Clinical gate: report 2026-10-25 17:26 CET is still the latest; CGR-49 and CGR-50 are implemented as LEAVE1-11 and LEAVE1-12; no clinical rule was added; D-30 is unchanged.
