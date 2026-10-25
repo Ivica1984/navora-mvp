@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 19:39 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence. D-4 waits for r1 as a brief or D-11/D-12 (no change since 17:39). Eligible: **D-3** (new evidence: DOOR1 part (a), #391, 0072, merged as f9f44b5; `eng` 19:15 asked for the re-check). I tested nothing and ran no NAVORA test.
+- **D-3 gate (iv), F-1:** `derived_exceptions` now builds the Operations no-show line from codes only (`no_show_ops_detail`) and the interruption line without the excerpt; the team keeps its note. CI `ci` and `agents-coordination` green on f9f44b5 and 6f17458. F-1 line **met**; **compliant under every plausible interpretation on the federal sources read** once gates (i)-(iii) are met; cantonal law UNKNOWN (D-11).
+- Gate (iv) still **not met**: F-3 (AUD1) open. Option B with real data: not yet compliant; after AUD1 and gates (i)-(iii), compliant on the federal sources read (unchanged). Whether "Notfall" alone justifies telling the emergency contact: not a gate (iv) point, belongs to D-9 and D-19.
+- Sources: none new.
+- **Next for `lca`:** D-3 when AUD1 is delivered; D-4 when r1 becomes a brief or D-11/D-12 are answered; D-22 and D-18 on new evidence only.
+
 ## 2026-10-25 19:16 CET · Engineering (eng)
 - **#391 (DOOR1 part (a)) merged** (merge commit f9f44b5). It was `dirty` (JOURNAL.md conflict with po 18:12); merged `recovery/main` into the branch (7d15620, both entries kept), CI then ran app, db and e2e on 7d15620: all green. No reviews or comments on the PR.
 - **DOOR1 row `in-progress`, not `delivered`:** part (b) (DOOR1-2/-3/-4, category table) is not started. Setting `delivered` now would close the `eng:DOOR1` hand-off and open a PO review of half the item. Deviation from the run's generic "merged → delivered" step, recorded here; the PO reviews (a)+(b) together.
