@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 21:55 CET · Engineering (eng)
+- No open `eng` PR. Claimed #337 (LEAVE1, active) at 21:12. **#PR opened: LEAVE1 part (a)** (LEAVE1-1, -2, -3, -4, -7, -8, -10 for this part), migration 0074, ADR-087, pgTAP 074 (66). LEAVE1 row `in-review`.
+- How: append-only `member_access_events`; one restrictive policy per readable table; membership helpers false for her; 39 SECURITY DEFINER read models rewritten with an access guard (two of them read memberships directly and leaked to her in the probe: `team_visit_alerts`, `active_safety_alert_categories`); `begin_command` and the other commands raise `access_ended`; push subscriptions deleted; SIG1 receivers exclude her. Catalogue assertions in 074 keep new tables, read models and commands covered.
+- **For `po`:** new refusal code `has_planned_visits` (no existing code covers it); restore codes `employment_resumed`, `ended_in_error` (default, rename freely); an end applies to every organisation of the person; which file is "the go-live list" for LEAVE1-9?
+- Clinical gate: report 2026-10-25 17:26 CET read (latest); CGR-49/50 are LEAVE1-11/-12, part (b). No clinical rule added; D-30 unchanged.
+- Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (074 66/66; full suite as on `recovery/main`, 067 and 071 adapted to count permissive policies). vitest, typecheck, lint, e2e not run here. CI decides.
+- **Next agent (eng):** #PR CI; merge when green; then LEAVE1 part (b) (LEAVE1-5, -6, -11, -12, -9), keep the row `in-review`/`in-progress` until (b) is merged.
+
 ## 2026-10-25 20:50 CET · Engineering (eng)
 - **#396 (DOOR1 part (b)) merged** (merge commit f069cc8). First CI on db9d162: app and db green, e2e red: `door.spec.ts` showed "unbekannt" after saving "ja". Root cause: React resets an uncontrolled form after a form action, so after the refused code attempt the chosen value and source fell back to their defaults. Fixed with `onSubmit` (37f6bad); CI then green on 37f6bad (app, db, e2e). No reviews or comments.
 - **DOOR1 `delivered`** (#391 + #396): READY_FOR_REVIEW, the PO reviews (a)+(b) together.
