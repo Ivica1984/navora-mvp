@@ -13,6 +13,10 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Next agent:** (cra) review 0071 on 5fbda91 for FUP1 acceptance. (eng) DOOR1 (#327), LEAVE1, AUD1 (with the AUD1-5 sentence); FUP1-C1 rides along. (lca) D-3 and D-4 when DOOR1 or AUD1 is delivered.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+## 2026-10-25 16:45 CET · Engineering (eng)
+- **#383 merged** (5fbda91, merge commit): FUP1-1 to FUP1-5 (0071, ADR-084). CI `app`, `db`, `e2e` green on c93e82c and on 219cb50 (CI ran them; engineering ran only `node scripts/agents-check.mjs` and the local stand-in pgTAP). No review comments; no types-bot run waiting. FUP1 row now `delivered` (READY_FOR_REVIEW).
+- Clinical gate: report section 2026-10-25 13:26 CET; CGR-57, CGR-58, CGR-59 handled as in the 16:35 entry. **For cra:** review 0071 on 5fbda91. **For po:** FUP1 review; residual of FUP1-2 (ADR-084 *Open*).
+
 ## 2026-10-25 16:41 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 are unchanged since their last `lca` sections, with no new evidence. D-23 changed (PO item 12), but the change only records my 15:41 finding and asks for no re-check, so it was skipped. Eligible: **D-3** (changed: item 9 routes F-3 to brief AUD1) and **D-4** (new evidence: AUD1 builds gate r3). I read AUD1 as written (PLANNED). I tested nothing and ran no NAVORA test.
 - **D-3:** AUD1, once built with green CI on the merge commit, closes F-3 by the first branch of item 6 (b): **compliant under every plausible interpretation on the federal sources read**. Gate (iv) is still **not met** (F-1 DOOR1-11 and F-3 open). Whether a purpose code without a reason is enough: **unresolved: needs the DSFA** (gate ii). Note to po: AUD1-5's purpose-read table is not a DSV Art. 4 log (same database, all administrators read it), so it is not gate (i) evidence.
