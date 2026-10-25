@@ -16,6 +16,93 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-25 02:26: F6R merged (0065, pgTAP 066); F6R-G1 confirmed; RLS2 (#331, open, db red) reviewed; LEAVE1 and DOOR1 briefs; CGR-49, CGR-50, CGR-51; Clinical impact confirmed or corrected for D-6, D-13, D-14, D-20, D-24, D-25
+
+**Scope:** `recovery/main` @ `fca2b40`. Changes since the 22:26 section, which is on the open PR #321 at `592cd3d`. #321 was not merged and conflicted with `recovery/main` in `JOURNAL.md`. **This PR carries #321 unchanged (and through it #306, #294, #278, #259) and supersedes all five.**
+- **Code merged:** #320 (F6R: migration `0065_f6r_return_report`, pgTAP 066 with 82 assertions, `/field` return UI, ADR-079) as `868e3e0`. CI green on head `3766bde` (`eng` 23:25).
+- **Code open:** #331 (RLS2: migration `0066_rls2_team_scoped_visit_case_records`, pgTAP 067, `docs/engineering/READ_PATHS.md`, ADR-080) at `241c49b`. **CI: app and e2e green, db (migrations, seed, pgTAP) failed.** Not merged.
+- **Docs:** PO cycles 23:10, 00:10, 01:16 (merged) and 02:10 (#340, open). `lca` 22:50, 00:50, 01:41. **F6R accepted** 00:10 with condition **F6R-G1** (`cra` confirms on 0065). The PO decided CGR-46, CGR-47 and CGR-48 as conditions SIG1-C3, SIG1-C2 and SIG2-C1, now brief **SIGC** (#340). New briefs **DOOR1** (approved 23:10) and **LEAVE1** (approved 01:16). D-6, D-13 and D-20 are `po-decided`. D-14, D-24 and D-25 are `awaiting-approval: owner`. D-19 and D-17 are `awaiting-approval: clinical`. **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read 0065 in full, the assertion list of pgTAP 066, 0066 in full, the cra-requested block of pgTAP 067 (lines 277-294), `READ_PATHS.md` findings F-1 to F-5, the briefs LEAVE1, DOOR1 and SIGC, and the *Clinical impact* drafts of D-6, D-13, D-14, D-20, D-24 and D-25. **I did not run the tests.** CI status is as stated above, checked through the API.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-49 | F6R (0065, accepted) with LEAVE1 (brief, PLANNED) | advisory (S2; **S1 before the first real leaver**) | A countersigner who finds an error in a signed report of a performer who is **no longer available** has no safe path, and LEAVE1 as written makes the result undefined. (1) **After a team removal** (allowed once her reports are signed, CR-036), `return_report` refuses with `performer_not_in_team` (CR-048 interim). The registered nurse can then only countersign a version she knows is wrong, which becomes `final` and a billing basis, or leave it unsigned. That is the H-05 hazard that F6R was built to remove (C-7). (2) **After a LEAVE1 access end**, memberships are kept (LEAVE1-4), so `private.user_in_team(team, performer)` stays true. `return_report` and `i_can_return` would then accept a return and open a draft that only the leaver can sign. LEAVE1-3 names `is_team_member`, the organisation helper and `cover_team_for`, but not `user_in_team`. | 0065 §3 (`performer_not_in_team` check); 0065 §11 `field_reports.i_can_return` (`user_in_team`); pgTAP 066:301-308 (r4: no return after removal); `briefs/LEAVE1.md` LEAVE1-3, LEAVE1-4 | PO decides (product authority; who signs instead stays D-30, `clinical`). In my view, a version a registered nurse knows to be wrong should never be pushed into `final`: a visible "zurückgegeben, Autorin nicht mehr verfügbar" state (not final, not billable, `report_not_final` raising, on the D-30 route) is safer than a false final. Whichever way the PO decides, LEAVE1 must fix the behaviour in pgTAP: (a) a signed report of a performer whose access ended → `return_report` returns the chosen result, and `i_can_return` agrees with it; (b) the same after a team removal; (c) no path lets a countersignature turn a returned version `final` (066:239 stays). |
+| CGR-50 | LEAVE1 (brief, PLANNED) | advisory (S2) | LEAVE1 is right on access (`lca` 00:50). Clinically, it turns the H-12 interim ("she keeps access until she signs") into a **permanent** unsigned or uncorrected record for every leaver who has open reports, until D-30 is answered. Today the only control that prevents this is a manager asking her to finish her paperwork before her last day. That is a manual control, and nothing in the data supports it: the "open before leaving" list is out of scope in the brief. | `briefs/LEAVE1.md` *Out of scope* (last bullet), LEAVE1-2, LEAVE1-5; H-12; PS-15; CR-036, CR-048 | Replace the manual reminder with structured data, and remove no control. (1) Before `end_member_access`, `/admin` and the team's registered nurses see the person's open reports by kind (unsigned, correction draft, returned), with visit date and team only (no content). The command result returns the same counts. (2) LEAVE1-5's marker shows to every team member who reads that visit in HAND1. pgTAP: a member with 2 unsigned reports and 1 returned report → the list shows 3 with their kinds; she signs one → 2; a care-assistant colleague sees the marker but not the return reason; a nurse of another team sees nothing. (3) For the Clinical Owner: answer D-30 before the first real leaver |
+| CGR-51 | RLS2 (#331, open), proposal F-1 (`READ_PATHS.md`, for po as Q13) | advisory (S2) | F-1 proposes to stop showing Operations the first 120 or 200 characters of a no-show or interruption note. Operations is the **escalation recipient** for these P1 signals (SIG1-5, SIG2's untaken step, CR-072). At that step, what the nurse has already done (tried the door, informed a contact, called emergency services) decides what Operations does next. Today the note excerpt is the only carrier of that information. Removing it before a structured outcome reaches Operations would leave Operations unable to see what was done at the very step that depends on it. My 22:26 "*that* and *when*" was about the table API, not about this read model. | PR #331 `docs/engineering/READ_PATHS.md` F-1 (and line 74, `operations_exceptions()`); `briefs/DOOR1.md` DOOR1-5, DOOR1-6; CR-072 | PO decides with `lca` (a privacy-versus-safety trade-off). Do F-1 only together with, or after, DOOR1's structured facts: Operations' row for a no-show or interruption shows "an der Tür: ja/nein", the recorded outcome code and its basis, and the time, with no free text. pgTAP: a no-show with "an der Tür: ja" and outcome "Notfallkontakt informiert" → Operations' row carries both codes and no note text; without an outcome → "Ergebnis offen". Until then, keep the excerpt |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| F6R-G1 (PO condition, 00:10) | **met: no blocking finding on 0065** | 0065 §1-11. A team registered nurse who is not the performer returns only the latest version that is signed and awaits countersignature (066:105-139). The returned version is never changed (066:147, 286). The return is append-only for every role, the table owner included (066:149-175). The reason is readable only by the performer and the team's registered nurses, and no view, analytics, billing or push function reads it (066:177-204). The report is never stranded while she is in the team (066:206-222). No billing fact exists while it is returned, and exactly one comes from the countersigned corrected version (066:224-228, 288-299). After a return, only the performer changes the facts (066:230-245). A returned version cannot be countersigned (066:239) or withdrawn (066:254). Audit excludes the reason (0065 §1). CI green on `3766bde`. **Residuals:** CGR-49 (performer not available), CGR-50. A returned report pushes nothing to its performer; she sees it at the top of `/field`, and `report_not_final` keeps raising for the team (CR-053). Acceptable for the pilot |
+| CGR-46, CGR-47, CGR-48 | open, advisory; **decided by the PO** as SIG1-C3, SIG1-C2 and SIG2-C1 (23:10), brief **SIGC** (#340), *Next up* 2. PLANNED | `NEXT_CAPABILITY.md`; `briefs/SIGC.md` on #340. The PO's wording matches my remedies |
+| RLS2 request (22:26: OPS1 and SIG1 still raise after the narrowing) | **met in code, not yet evidenced** | pgTAP 067:277-294: a no-show and an overdue visit of Nord still reach Operations (`operations_exceptions`), and `my_signals` delivers both. The db job on `241c49b` is red, so this is not shown to pass. To be confirmed once CI is green and #331 is merged |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open, unchanged (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open, unchanged | no change |
+
+### Other changes reviewed (no finding)
+
+- **F6R design.** The return takes the **next** version number, so a number is never reused (as in 0049). The draft starts from the live snapshot and the old summary, and only the performer signs it (`sign_report`, `update_report_draft`: `not_performer`, 066:235-237). A return is not a correction round (AN2 measure 5, `report_correction_open`), and `report_not_final` covers it. That is the right signal, because no version is final. The F6R-9 measures (`report_returned_share`, `countersign_latency_hours`) read versions only, never the reason, and fall under AN1 suppression. They are the evidence for D-10 A versus B. **A return is a documentation path, not a clinical escalation.** If the error a registered nurse finds is clinically relevant (for example an observation that points to deterioration), the return raises nothing for the client. That stays H-02 and D-16 and D-28 (`clinical`), not an F6R defect.
+- **RLS2 (0066).** Protective: four tables are narrowed to the team, plus the covering member for the two visit-linked tables until the report is final. Coordination roles keep their view only through the `security definer` read models. `uncovered_visits()` is narrowed to coordination roles and the visit's team, so Operations keeps it. My needs (1)-(4) from 22:26 are met as described. Deviation 3 (the cover read ends at `final`) is acceptable clinically, because a covering nurse needs no events after the report is final. F-2 to F-5 add no clinical risk. Gate: **no blocking finding**. The db job must be green before merge (`eng`).
+- **DOOR1 (brief).** Category list: one organisational category (access arrangement), no clinical one. Clinical categories wait for D-17. "unbekannt" comes first and is distinct (DOOR1-4). Values are append-only with source, who and when (DOOR1-3). The note is display only (DOOR1-8). This matches my D-17 points (2)-(3) and D-19 point (2). No field reads as clinical content. **No `cra` gate unless the PR adds a category.**
+- **SIGC (#340).** A rename only; content, approval and order are unchanged.
+- **PO 02:10 challenge row (working-time limits checked after the plan).** Fatigue is a care-safety hazard (H-10). The source of any limit is legal (ArGV, `lca`). NAVORA invents none. Agreed.
+
+### Clinical impact for decision packages (cra 2026-10-25 02:26)
+
+**`po`: please record each block below in the package's *Clinical impact* section as "cra 2026-10-25 02:26: confirmed / corrected" (copied from `reports/CLINICAL_GOVERNANCE.md` by po).** Advisory (D-27); I am not a licensed clinician. These blocks set no value, step, interval, ratio or threshold.
+
+#### D-6 (po draft 00:10): **confirmed, one addition**
+- Points 1-3 confirmed. The assignment model (team plus an optional responsible member, the state list) is an organisational workflow of input class V. **It is not a clinical rule, and D-6 does not need to be reopened.**
+- Addition to point 2: the clinical weight sits in what reads the responsible member, not in the model itself. That is the qualification gates (CR-002, CR-007, CR-011: an unverified label, D-29) and the signal route (SIG1: the responsible member first). Both are covered elsewhere (H-04, D-29, D-28).
+
+#### D-13 (po draft 00:10): **points 1, 2 and 4 confirmed; point 3 corrected**
+- (1) Confirmed. Which instrument the pilot provider uses is **UNKNOWN** (owner, from the provider; D-12). NAVORA records its name and version, not its content.
+- (2) Confirmed, with one hazard named for the B brief: if the team writes the care plan without the assessment's problem list, the plan can drift away from the assessed needs. A product guard, not a clinical rule: the care plan shows the date of the latest assessment it was written against, and the team sees when a newer assessment exists (display only).
+- (3) Corrected. Two more product guards, with no clinical threshold: (a) the minutes per category are entered with the assessment's document reference (an identifier only, `lca` 01:41); (b) the assessing registered nurse confirms the record she is named on, so a transcription by someone else is visible as such. "A mismatch shown, no block" stays right: a block on a transcription difference could delay care.
+- (4) Confirmed. Reassessment triggers and intervals stay `clinical` (H-08, C-8). B records them and never schedules them.
+
+#### D-14 (po draft 00:10): **hazard list confirmed; guard measures corrected**
+- Hazard list confirmed (BL-12, LT-2). Addition: F3 (a fee per active member) creates no volume link. Its only care-side effect is a weak incentive toward fewer members working more hours each (H-10, fatigue). Counting only members whose access has not ended (LEAVE1) is right.
+- Guard measures: the PO's list is confirmed, with three additions: (a) time since each client's last needs assessment, per team (delayed reassessment, H-08); (b) the share of category changes upward versus downward per team (LT-2); (c) missed and uncovered visits per team (H-01), and the F6R-9 return share (documentation quality).
+- **Correction:** a guard that the guarded group feeds itself can be gamed. A quality-event rate reported by the team it guards rewards under-reporting. Pair each such guard with a source the team does not write (for example, unplanned hospital transfers recorded at intake, or client and relative feedback). Which sources to use, and every level, are for the Clinical Owner. None is needed for the fee-basis ask (F3 or F4).
+
+#### D-20 (po draft 23:10, one point): **confirmed**
+- D sharpened changes no qualification gate. Rules on the skill mix stay the Clinical Owner's (D-10, D-25). One note: a team-decided removal still meets the 0037 and 0065 §8 refusals. A leaver's open reports are CGR-50 and D-30, not D-20.
+
+#### D-24 and D-25 (po drafts): **structure confirmed; three additions; no LTCF content**
+- Point 1 confirmed. Add these hazard areas: (f) shift handover (what passes from one shift to the next, and who confirms it); (g) delegation to care assistants and FaGe (who may delegate what, and who supervises); (h) the residents' reassessment cycle. That cycle belongs to the licensed instrument and the canton (interRAI LTCF or another, UNKNOWN). NAVORA must not model it before the licence and D-34.
+- Point 2 confirmed. Addition: NH1 (rosters) treats skill mix and RN cover as hard constraints. Their **values** are cantonal and clinical (`lca` [L8], ArGV 2 Art. 16), never NAVORA defaults.
+- Point 3 corrected. NH0's measures look back: they show harm after it has happened. A stop rule needs signals that warn earlier. The Clinical Owner chooses them. Candidate kinds, none set here: missed or late medication, falls, unplanned hospital transfers, pressure injuries, and night escalations that went unanswered. Where the national MQI set covers such an indicator, its definition comes from the official BAG specification, never from NAVORA (UNKNOWN which indicators apply).
+- D-25 (2) confirmed. Addition: a network lead must also be reachable for questions about delegation beyond a person's scope.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| F6R (accepted 00:10, condition F6R-G1) | **F6R-G1 met: no blocking finding** on 0065. The acceptance stands | CGR-49 (S2; S1 before the first real leaver) |
+| RLS2 (#331, open) | **no blocking finding**; my 22:26 pgTAP request is in 067:277-294; db CI red, so merge waits on `eng` | CGR-51 (on proposal F-1, not on 0066) |
+| LEAVE1 (brief, approved) | no blocking finding; two conditions proposed for the PO | CGR-49, CGR-50 |
+| DOOR1 (brief, approved) | no `cra` gate unless the PR adds a category | – |
+| SIGC (brief) | carries CGR-46, CGR-47, CGR-48 as decided | open until delivered |
+| J5 | unchanged | CGR-31 |
+| COVER1 | unchanged; cover stays off | CGR-21, CGR-28 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:** (1) CGR-49: choose how a return of an unavailable performer's report behaves, and add it with pgTAP to LEAVE1; (2) CGR-50: the open-reports list before an access end, as a LEAVE1 criterion; (3) CGR-51: when answering Q13, do F-1 only together with DOOR1's structured facts for Operations, with `lca`; (4) record the D-6, D-13, D-14, D-20, D-24 and D-25 blocks above.
+- **eng:** RLS2 db CI; then the CGR-49 and CGR-50 assertions in LEAVE1 once the PO decides.
+- **owner:** (1) **merge this PR.** It carries #321, #306, #294, #278 and #259, which can then be closed. Six of my sections are not on `recovery/main`; earlier self-merges were refused. (2) G-1 (name the Clinical Owner and a deputy). (3) D-1 (urgent).
+- **clinical** (once named): **D-30 before the first real leaver** (CGR-49, CGR-50); D-19, D-17, D-10 and D-28 as in the 22:26 section; the D-24 stop-rule signals if D-24 moves past A.
+
+---
+
+
 ## 2026-10-24 22:26: ORD0-C2 and SIG1-C1 (0063, pgTAP 065) and the SIG2 follow-up (0064) merged; CGR-42, CGR-43, CGR-44, CGR-45 closed; CGR-46, CGR-47, CGR-48; input class in the rule register; Clinical impact for D-19 and D-17
 
 **Scope:** `recovery/main` @ `bdb47a8`. Changes since the 18:26 section, which is on the open PR #306 at `5af9a01`. #306 was not merged and now conflicts with `recovery/main`. **This PR carries #306 unchanged, and through it #294, #278 and #259, and supersedes all four.**
