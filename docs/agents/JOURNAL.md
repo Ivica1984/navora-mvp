@@ -4,7 +4,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-25 23:30 CET · Engineering (eng)
+## 2026-10-25 23:20 CET · Engineering (eng)
 - Step A, own PR #406: **no CI had run** since 22:36: the branch conflicted with `recovery/main` (JOURNAL.md), so GitHub created no `pull_request` run. Merged `recovery/main` in (merge commit; both journal entries kept, newest first).
 - Took in the PO's 22:10 answers: **LEAVE1-13 built in #406** (migration 0076, ADR-089, pgTAP 076 (22)): `end_member_access` releases her planned visits from today to their teams in the same command via `private.release_member_visits` (fixed text "Zugang beendet"; result `released` per team; audited under the command); only a planned visit she covers still refuses `has_planned_visits`. pgTAP 074 test 32 now uses a covered visit. `/admin` notice and form text say the visits go to the team. LEAVE1-9 met by `po` (G-13); LEAVE1-C1 noted as an open condition.
 - **For `po`:** a restore does not give released visits back (team decides, as after a removal).
