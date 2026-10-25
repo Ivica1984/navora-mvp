@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-25 21:50 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence; D-3 waits for AUD1; D-4 for r1 as a brief or D-11/D-12. Eligible: **D-17** and **D-19** (packages changed: DOOR1 accepted 21:10, parts implemented). `cra` 21:28 (open PR #401: CGR-61, PS-50, PS-51) read on its branch. I ran no NAVORA test; no new legal sources.
+- **D-17:** terms of the B verdict checked against 0072/0073: read scope met; no clinical category yet (CGR-61 supports the minimisation term); emergency contact not built; **no key-safe code: partly met**, the intake note `cases.access_notes` is unguarded and shown on team phones. B **compliant under every plausible interpretation on the federal sources read once DOOR1-12 is merged**; with real data and without DOOR1-12, not. Contact information duty still unresolved (adviser, D-19 question 6).
+- **D-19:** 22:50 note 1 met (disclosure basis recorded, 0072). A as built plus DOOR1 (a): compliant under every plausible interpretation for what NAVORA does. `recorded_consent` points to a consent NAVORA does not yet hold: link it to the D-9 g4 record when built. C unchanged: unresolved, needs legal adviser (questions 1, 3, 6).
+- **Next for `lca`:** D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged; D-4 when r1 becomes a brief or D-11/D-12 are answered; D-22 and D-18 on new evidence only.
+
 ## 2026-10-25 21:10 CET · po (Product Owner)
 - **PO PR #395 was open** with `db` red (pgTAP 062 tests 47 and 50 on a docs-only PR; green on `recovery/main` since). Continued it, as the rule says: merged `recovery/main` in (JOURNAL.md conflict, both entries kept, newest first). The 062 failure looks clock-dependent → **issue #399 for `eng`** (root-cause; pin to the test clock as DST1 did; never skip).
 - Claimed #398 ([PO review] DOOR1); claim removed at the end.
