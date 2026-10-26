@@ -98,7 +98,7 @@ export const QUALIFICATION_LABEL: Record<string, string> = {
 /** SIG1-C1 (a): the step to Operations follows, and a watched period runs (Operations is told outside the app too). */
 export const OPERATIONS_FOLLOWS = "Meldung an Operations folgt";
 /** SIG2-C1 (1) (CGR-48): no watched period runs, so the step to Operations stays in the app (SIG2-12). */
-export const OPERATIONS_APP_ONLY = "Operations nur in der App: ausserhalb der überwachten Zeit";
+export const OPERATIONS_APP_ONLY = "Operations nur in der App: ausserhalb der besetzten Zeit";
 
 /**
  * Does the banner promise the message to Operations? FUP1-2 (0071): the reader's `operations_outside_app` decides
@@ -112,7 +112,7 @@ export function operationsFollows(row: Pick<SignalRow, "watched_now" | "operatio
 
 /**
  * "übernommen von Anna (Pflegehilfe), Meldung an Operations folgt" (SIG1-C1 (a)) when the step reaches Operations
- * outside the app; otherwise "…, Operations nur in der App: ausserhalb der überwachten Zeit" (SIG2-C1 (1), FUP1-2).
+ * outside the app; otherwise "…, Operations nur in der App: ausserhalb der besetzten Zeit" (SIG2-C1 (1), FUP1-2).
  * A missing flag never promises the message to Operations.
  */
 export function takenText(
@@ -137,11 +137,11 @@ export type OutsideWatchedVisit = {
   time_end: string | null;
 };
 
-export const OUTSIDE_WATCHED_LABEL = "Geplante Einsätze ausserhalb der überwachten Zeiten";
-export const OUTSIDE_WATCHED_EMPTY = "Keine geplanten Einsätze ausserhalb der überwachten Zeiten in den nächsten 7 Tagen.";
+export const OUTSIDE_WATCHED_LABEL = "Geplante Einsätze ausserhalb der besetzten Zeiten";
+export const OUTSIDE_WATCHED_EMPTY = "Keine geplanten Einsätze ausserhalb der besetzten Zeiten in den nächsten 7 Tagen.";
 /** Why the list exists (SIG1-8 stays a go-live condition until the list is empty for the pilot plan). */
 export const OUTSIDE_WATCHED_NOTE =
-  "Heute und die nächsten 6 Tage. Ausserhalb der überwachten Zeiten erhält Operations Signale nur in der App. " +
+  "Heute und die nächsten 6 Tage. Ausserhalb der besetzten Zeiten erhält Operations Signale nur in der App. " +
   "Bedingung SIG1-8: solche Einsätze sind im Pilot nicht geplant, oder jemand beobachtet die Signale in dieser Zeit.";
 
 /** "Mo 26.10. 21:00–21:30 · Testteam Nord"; without a planned start: "ohne Zeit". */

@@ -56,3 +56,25 @@ test("a nurse sees no Operations exceptions", async ({ page }) => {
   await page.goto("/operations");
   await expect(page.getByTestId("exception")).toHaveCount(0);
 });
+
+test("at 390 px /operations has no client risk panel, no team risk score and no SLA monitor; OPS1 exceptions and signals are unchanged (IPA1-1, -2, -6)", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signIn(page, OPS, /\/operations$/);
+
+  // OPS1 exceptions still render from the server model, with the seeded P1 serious quality event.
+  const center = page.getByRole("region", { name: "Ausnahmen" });
+  await expect(center).toBeVisible();
+  await expect(center.getByTestId("exception").filter({ hasText: "Testereignis hoch" })).toContainText("P1");
+
+  // Removed: the client-filtered case list, the team risk score and the client-side age rule.
+  for (const text of ["Top Risiko-Fälle", "Keine Risikofälle.", "Nach Risiko sortiert", "Team Health", "Kapazitätsmonitor", "SLA Monitor", "SLA-Verletzungen", "Qualitätsrisiken", "24–48h gefährdet"]) {
+    await expect(page.getByText(text, { exact: false })).toHaveCount(0);
+  }
+  await expect(page.getByRole("columnheader", { name: "Risk" })).toHaveCount(0);
+  await expect(page.locator("main")).not.toContainText(/Risiko|überwacht/i);
+
+  // Kept, renamed: teams by name with utilisation; the serious-event count from the exceptions.
+  await expect(page.getByRole("region", { name: "Pflegeteams" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Auslastung je Pflegeteam" })).toBeVisible();
+  await expect(page.getByText("Schwere Qualitätsereignisse")).toBeVisible();
+});

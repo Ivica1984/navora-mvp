@@ -25,7 +25,7 @@ export default function OutsideDelivery({ organizationId, push }: { organization
 
   return (
     <section aria-label={OUTSIDE_LABEL} className="grid gap-3 rounded-2xl border border-stone-200 bg-white p-5">
-      <h3 className="text-lg font-bold">{OUTSIDE_LABEL} und überwachte Zeiten</h3>
+      <h3 className="text-lg font-bold">{OUTSIDE_LABEL} und besetzte Zeiten</h3>
       <p className="text-xs text-stone-600">
         Eine feste Nachricht ohne Klientendaten an Mitglieder, die eingeschaltet haben (Web-Push über Google oder Microsoft).
         Bis zur Freigabe durch die Clinical Owner bleibt die Bedingung SIG1-8 bestehen: jemand beobachtet die Signale in jeder geplanten Stunde.
@@ -48,7 +48,7 @@ export default function OutsideDelivery({ organizationId, push }: { organization
         {!push.enabled && released.length === 0 && <span className="text-xs text-stone-600">{ADMIN_PUSH_MESSAGES.vendors_unverified}</span>}
       </div>
 
-      <form className="grid gap-2 text-sm" aria-label="Überwachte Zeiten" onSubmit={(e) => {
+      <form className="grid gap-2 text-sm" aria-label="Besetzte Zeiten" onSubmit={(e) => {
         e.preventDefault();
         const f = new FormData(e.currentTarget);
         const hours: WatchedPeriod[] = [];
@@ -65,7 +65,7 @@ export default function OutsideDelivery({ organizationId, push }: { organization
           {WEEKDAYS.map((label, i) => (
             <label key={label} className="contents">
               <span className="font-semibold">{label}</span>
-              <input name={`day${i + 1}`} aria-label={`Überwachte Zeiten ${label}`} className={field}
+              <input name={`day${i + 1}`} aria-label={`Besetzte Zeiten ${label}`} className={field}
                 defaultValue={formatWatchedDay(push.hours.filter((h) => h.weekday === i + 1))} placeholder="07:00-20:00" />
             </label>
           ))}
