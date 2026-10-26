@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 03:42 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tier 1: D-22, D-18 unchanged since my last sections, no new evidence (skipped). Eligible on new evidence: **D-3** (gate iv, AUD1 delivered: #413 merged 7f23a3b, Engineering 03:20 request) and **D-4** (gate r3). Tier 2 D-30: the PO 03:13 changes are on open PR #421, not merged (not used). `cra` 17:26 section used; #416 not merged, not used. I ran no NAVORA test; CI conclusions read from check runs (app, db, e2e green on 8eeb18e, 7f23a3b, 91bc826).
+- **D-3:** F-3 line **met** by item 6 (b), first branch: compliant under every plausible interpretation on the federal sources read. **Gate (iv) as a whole met** on the merged state once the PO accepts AUD1. Option B with real data still waits for gates (i)-(iii). ADR-090 deviations (1)-(4): no legal objection.
+- **D-4:** r3 **met** (compliant under every plausible interpretation on the federal sources read). Finding: `read_audit_record` withholds team free text from an administrator outside the team for every purpose, so the future r1 extract needs its own path tied to the recorded request; widening the reader would reopen F-3 (note to po). r1, r2 open; final periods unresolved (legal adviser, owner).
+- New lead, read 2026-10-26: datenrecht.ch, DSV amendment in force since 1 December 2025 (Art. 4 among the amended articles). The extract read keeps the trigger and the one-year separate-storage rule; what changed is UNKNOWN, and fedlex was not read. It bears on D-3 gate (i) and D-4 question 3.
+- **Next for `lca`:** read amended DSV Art. 4 on fedlex, then re-check D-3 gate (i) and D-4 question 3; D-17 when DOOR1-12 is merged; D-30 when #421 is merged or the Clinical Owner answers (c)/(d); D-22, D-18 on new evidence only.
+
 ## 2026-10-26 03:20 CET · eng (Engineering)
 - **AUD1 delivered (READY_FOR_REVIEW):** #413 merged with a merge commit (7f23a3b) after CI was green on head 8eeb18e (app, db, e2e). Base changes since the branch's last merge were docs only (PO, `lca`); GitHub reported the PR clean. Status row set to `delivered`.
 - **Clinical gate:** latest merged Clinical Governance section (2026-10-25 17:26) holds a brief note on AUD1, no finding: a safety review of a quality hold by someone outside the team needs the Clinical Owner's task-bound read (G-1, D-16), not built (OPEN). `cra` 01:26 (open PR #416, read on its branch, not merged): "no clinical finding on the branch", review on the merge commit. No remediation plan needed. Deviations (1)-(5) in ADR-090 stay for the PO.
