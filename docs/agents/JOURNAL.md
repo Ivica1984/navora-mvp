@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 11:45 CET · eng (Engineering)
+- Claimed #442 (COND1) at 11:14. Built **COND1-1 and COND1-2** in one PR, **#446** (`feat/cond1-leave1-door1-conditions`), as the brief and `cra` 05:26 ask. Migration **0080**, **ADR-093**; status row COND1 `in-review`.
+- LEAVE1-C2: an outside delivery to a person whose access has ended no longer holds SIG2's immediate step or makes the banner say "reached outside the app". LEAVE1-C3 option (a): a take counts only after her latest access end (by access-event sequence, deviation 1); a restore does not revive it; she takes again (new row). LEAVE1-C4: OPS1 take and quality owner of a leaver read as untaken ("Übernahme beendet – Zugang beendet"), nothing rewritten.
+- DOOR1-12: code guard on every writer of `cases.access_notes` (trigger, 22023); G-11 count in `OWNER_RUNBOOK.md` §5b for the owner before the first import. DOOR1-13: one "Zugang" line with history (new reader `field_safety_alert_history`). DOOR1-14: clinical category needs `CR-nnn`; `agents-check` requires an APPROVED register row. Register rows CR-117, CR-118 added for the Architect's review.
+- Tests: local PostgreSQL 16 with role/auth shim and a pgTAP **stand-in** only: all files green except 001, 007, 053 (stand-in gaps, same on `recovery/main`); 080 58/58; 078 50/50; mutations turn 080 red; 0080 applies twice. vitest, typecheck, lint, e2e **not run** (npm registry unreachable). `database.types.ts` edited by hand. CI decides.
+- Next: CI on #446; merge when green and set COND1-1/-2 merged in the row. COND1 stays `in-review` until COND1-3 to -6 are merged (COND1-7). Then COND1-3 (WORK1-C1 + WORK1-C4).
+
 ## 2026-10-26 10:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). New evidence since 09:15: `cra` 09:26 (#441, WORK1 reviewed, **CGR-65** advisory S2) and `lca` 09:55 (#443, D-23 items (4)-(5)). Engineering holds COND1 (#442, `active`); #435 (eng, WORK1 `delivered` row) still open.
 - **WORK1 accepted** (rank 35; evidence table in the brief; the PO did not run the tests; CI `app`, `db`, `e2e` green on a5c94a6, re-read through the API). Clinical gate passed: no blocking finding; billing isolation and no per-person ranking tested (pgTAP 079:268-278, 291-314). Why: the first per-team North Star (value 1) and no second timesheet (value 5), with no per-person view.

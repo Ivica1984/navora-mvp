@@ -10,6 +10,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
+import { CODE_REFUSED, looksLikeCode } from "@/features/door/rules";
 import { CANTONS, INSURANCE_TYPES, MEDICAL_ORDER_STATUSES, URGENCIES, parseMissing, type ReadinessItem } from "./rules";
 
 const recordSchema = z.object({
@@ -38,7 +39,8 @@ const factsSchema = z
     other_providers_active: z.boolean(),
     requested_start: z.iso.date(),
     language_notes: z.string().trim().max(500),
-    access_notes: z.string().trim().max(500),
+    // DOOR1-12 (migration 0080): never a door or key-safe code; the database refuses it again for every writer.
+    access_notes: z.string().trim().max(500).refine((v) => !looksLikeCode(v), { message: CODE_REFUSED }),
     expected_hours_per_week: z.number().positive().max(168),
   })
   .partial()
@@ -105,9 +107,20 @@ export async function recordPartnerRequest(input: unknown): Promise<CommandResul
   return done(data, error, "record_partner_request", invalid);
 }
 
-function intakeResult(data: unknown, error: { code?: string } | null, op: string, invalid: string): IntakeResult {
+/** DOOR1-12: a refused code in the intake note is named as such; any other input problem keeps its text. */
+function parseError(error: { issues: readonly { message: string }[] }, invalid: string): string {
+  return error.issues.some((i) => i.message === CODE_REFUSED) ? CODE_REFUSED : invalid;
+}
+
+/** DOOR1-12: the intake note held a code (zod or the database's guard): say so, not the generic text. */
+function codeRefused(error: { message?: string } | null): boolean {
+  return error?.message === CODE_REFUSED;
+}
+
+function intakeResult(data: unknown, error: { code?: string; message?: string } | null, op: string, invalid: string): IntakeResult {
   if (error) {
     logEvent("warn", "command.failed", { op, ...errorFields(error) });
+    if (codeRefused(error)) return { ok: false, error: CODE_REFUSED };
     return { ok: false, error: error.code === "22023" ? invalid : "Speichern fehlgeschlagen." };
   }
   const res = (data ?? {}) as { result?: string; ready?: boolean; missing?: unknown };
@@ -122,7 +135,7 @@ function intakeResult(data: unknown, error: { code?: string } | null, op: string
 export async function convertPartnerRequest(input: unknown): Promise<IntakeResult> {
   const invalid = "Bitte Vor- und Nachname angeben, die Einwilligung bestätigen und gültige Angaben machen (z. B. Kanton, Datum).";
   const parsed = convertSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: invalid };
+  if (!parsed.success) return { ok: false, error: parseError(parsed.error, invalid) };
   const d = parsed.data;
 
   const { supabase } = await requireUser();
@@ -144,7 +157,7 @@ export async function convertPartnerRequest(input: unknown): Promise<IntakeResul
 export async function linkReturningReferral(input: unknown): Promise<IntakeResult> {
   const invalid = "Bitte einen Grund für die Verknüpfung (mind. 3 Zeichen), bei abgeschlossenem Fall Vor- und Nachname angeben und die Einwilligung bestätigen.";
   const parsed = linkSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: invalid };
+  if (!parsed.success) return { ok: false, error: parseError(parsed.error, invalid) };
   const d = parsed.data;
   const { supabase } = await requireUser();
   const { data, error } = await supabase.rpc("link_returning_referral", {
@@ -166,7 +179,7 @@ export async function linkReturningReferral(input: unknown): Promise<IntakeResul
 export async function updateCaseIntake(input: unknown): Promise<IntakeResult> {
   const invalid = "Bitte gültige Angaben machen (z. B. Kanton, Datum).";
   const parsed = updateSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: invalid };
+  if (!parsed.success) return { ok: false, error: parseError(parsed.error, invalid) };
   const { supabase } = await requireUser();
   const { data, error } = await supabase.rpc("update_case_intake", {
     p_case_id: parsed.data.caseId,

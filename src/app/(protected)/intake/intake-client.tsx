@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { convertPartnerRequest, linkReturningReferral, recordPartnerRequest, updateCaseIntake } from "@/features/intake/commands";
 import { linkEffect, linkableLabel } from "@/features/returning/rules";
 import type { IntakeCase, LinkableCase, OpenPartnerRequest } from "@/features/intake/queries";
@@ -304,6 +304,7 @@ function RequestCard({ request, linkable }: { request: OpenPartnerRequest; linka
 }
 
 function FactsFields({ initial }: { initial?: Partial<IntakeCase> }) {
+  const helpId = useId();
   const sel = "min-h-11 rounded-lg border border-stone-300 bg-white px-2";
   const yn = (v: boolean | null | undefined) => (v === true ? "yes" : v === false ? "no" : "");
   return (
@@ -389,7 +390,10 @@ function FactsFields({ initial }: { initial?: Partial<IntakeCase> }) {
       </label>
       <label className="grid gap-1 text-sm">
         <span className="font-semibold">Zugang zur Wohnung</span>
-        <input name="access_notes" maxLength={500} defaultValue={initial?.access_notes ?? ""} className={sel} />
+        <input name="access_notes" maxLength={500} defaultValue={initial?.access_notes ?? ""} className={sel}
+               aria-describedby={helpId} />
+        {/* DOOR1-12 (migration 0080): the same help text as the DOOR1-4 note; a code is refused ("Bitte keinen Code erfassen"). */}
+        <span id={helpId} className="text-xs text-emerald-900/70">Ort und wer den Schlüssel hat, nie den Code</span>
       </label>
     </fieldset>
   );

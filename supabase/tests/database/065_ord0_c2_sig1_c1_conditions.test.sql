@@ -122,7 +122,8 @@ select ok(not has_table_privilege('authenticated', 'public.signal_takes', 'selec
   'users never read or write takes directly (command and reader only)');
 select is((select string_agg(column_name, ',' order by column_name) from information_schema.columns
            where table_schema = 'public' and table_name = 'signal_takes'),
-  'id,organization_id,qualification,signal_id,stops_escalation,taken_at,taker_id', 'a take holds who, her qualification, when; no free text');
+  'access_seq,id,organization_id,qualification,signal_id,stops_escalation,taken_at,taker_id',
+  'a take holds who, her qualification, when, and the access sequence she took under (LEAVE1-C3, 0080); no free text');
 
 -- Fixtures: P1 no-show signals for visits 11-14 (responsible: the registered nurse); one P1 overdue visit 15.
 create function pg_temp.no_show(p_n integer) returns void language plpgsql as $$

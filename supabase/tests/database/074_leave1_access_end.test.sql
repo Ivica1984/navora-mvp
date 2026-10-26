@@ -287,8 +287,9 @@ select is(pg_temp.seen('admin_b', 'select 1 from public.member_access_events'), 
 select is((select string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text collate "C")
            from pg_proc p join pg_namespace s on s.oid = p.pronamespace
            where s.nspname in ('public', 'private') and p.prosrc like '%member_access_events%'),
-  'end_member_access(uuid,text,uuid),my_access_state(),private.access_ended(uuid),private.access_ended_at(uuid),private.guard_member_access_event(),restore_member_access(uuid,text,uuid)',
-  'catalogue: only the access commands and helpers read the record (no analytics, billing, export or push)');
+  'end_member_access(uuid,text,uuid),my_access_state(),private.access_ended(uuid),private.access_ended_at(uuid),private.guard_member_access_event(),'
+  'private.latest_access_end_seq(uuid),private.signal_take_lapsed(uuid,bigint,timestamp with time zone),restore_member_access(uuid,text,uuid)',
+  'catalogue: only the access commands and helpers read the record (0080: the LEAVE1-C3 take stamp and lapse predicate) (no analytics, billing, export or push)');
 
 -- LEAVE1-7: reversible ------------------------------------------------------------------------------------------------
 select is(pg_temp.restore_('rn', 'l1', 'employment_resumed', 601), 'rejected', 'restore by a nurse: refused');

@@ -6,10 +6,11 @@
 // in agent sandboxes without `npm ci` (it imports only the sibling parse.mjs). Protocol and table formats: docs/agents/README.md
 //   node scripts/agents-check.mjs     (AGENTS_DIR overrides the folder, for tests)
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AWAITING, PACKAGE_STATUS, readPackageIndex } from "./agents-coordination/parse.mjs";
+import { clinicalCategoryErrors } from "./agents-coordination/clinical-categories.mjs";
 
 const DIR = process.env.AGENTS_DIR ?? join(dirname(fileURLToPath(import.meta.url)), "..", "docs", "agents");
 
@@ -175,6 +176,16 @@ for (const p of pkgs) {
 for (const d of open) {
   const id = bare(d.ID);
   if (HUMAN.includes(bare(d.Owner)) && !pkgById.has(id)) errors.push(`decisions/INDEX.md: ${id} (owner ${bare(d.Owner)}) is open but has no INDEX row`);
+}
+
+// DOOR1-14 (CGR-61, ADR-093): a clinical safety-alert category needs an APPROVED Clinical Rule Register row.
+// MIGRATIONS_DIR overrides the folder (tests); the register is read from the agents folder.
+const MIGRATIONS = process.env.MIGRATIONS_DIR ?? join(dirname(fileURLToPath(import.meta.url)), "..", "supabase", "migrations");
+if (existsSync(MIGRATIONS)) {
+  const files = readdirSync(MIGRATIONS).filter((f) => f.endsWith(".sql")).sort()
+    .map((name) => ({ name, sql: readFileSync(join(MIGRATIONS, name), "utf8") }));
+  const registerPath = join(DIR, "clinical", "CLINICAL_RULE_REGISTER.md");
+  errors.push(...clinicalCategoryErrors(files, existsSync(registerPath) ? readFileSync(registerPath, "utf8") : null));
 }
 
 if (errors.length) {

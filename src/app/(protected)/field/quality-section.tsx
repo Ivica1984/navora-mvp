@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { recordQualityEvent, setQualityEventStatus, setQualityHold } from "@/features/quality/commands";
-import { EVENT_STATUS_LABEL, HOLD_MEANING, NO_TYPES_NOTICE, SEVERITIES, SEVERITY_LABEL, isSerious } from "@/features/quality/rules";
+import { HOLD_MEANING, NO_TYPES_NOTICE, SEVERITIES, SEVERITY_LABEL, eventStatusText, isSerious } from "@/features/quality/rules";
 import type { FieldQuality, QualityEventType } from "@/features/quality/queries";
 
 /**
@@ -166,7 +166,7 @@ function EventRow({
     <div className={`rounded-lg p-2 ${isSerious(event.severity) ? "bg-rose-50" : "bg-stone-50"}`}>
       <p>
         <span className="font-semibold">{event.label}</span> · {SEVERITY_LABEL[event.severity as keyof typeof SEVERITY_LABEL] ?? event.severity} ·{" "}
-        <span data-testid="event-status">{EVENT_STATUS_LABEL[event.status] ?? event.status}</span>
+        <span data-testid="event-status">{eventStatusText(event)}</span>
         {event.own ? " · von dir" : event.person_name ? ` · von ${event.person_name}` : ""}
       </p>
       {event.status !== "closed" && !closing && (
