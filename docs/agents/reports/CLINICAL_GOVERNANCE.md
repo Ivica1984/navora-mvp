@@ -16,6 +16,108 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-26 21:29 CET: COND1-4a, -5a, -5b, -6, -8, -9, -10 (0084, 0085) reviewed on their merge commits; CGR-66 and CGR-67 closed; CGR-68 interim part met (stays open for the G-1 review); CGR-70 (advisory, S3): a lapsed quality claim cannot be taken over, only closed; clinical gate clear for COND1; IPA1-1 to -6 (#484, open) read
+
+**Scope:** `recovery/main` @ `86b6a0b`. Changes since my 17:26 CET section (#472, merged `6de8543`):
+- **Code merged:** #471 **COND1-4a, -5a, -6, -9, -10** (0084, ADR-097, pgTAP 084, pgTAP 082 +6, unit `cond1-clinical-categories`, `cond1-display`, e2e `work.spec`, `door.spec`) as `25bacf3`; #479 **COND1-8 and COND1-5b** (0085, ADR-098, pgTAP 085 (25), pgTAP 083) as `09228ef`. **CI** (check runs read through the GitHub API): `app`, `db`, `e2e` green on the heads `548f546` (#471) and `bfc4cb9` (#479), on the merge commit `09228ef` and on `86b6a0b`.
+- **Docs merged:** PO 18:10 (CGR-69 decided as IPA1-7/-8; D-35 option A) and 20:25 (D-35 term 11, G-22; D-1 connector step); `eng` 17:55, 19:19, 20:34, 20:40; `lca` 17:55, 19:42, 21:00.
+- **Open PRs:**
+  - #483 (PO 21:10): COND1 reviewed, "awaiting clinical review" for 0084 and 0085; new PO condition COND1-C1; hypothesis P-13.
+  - #484 (eng): IPA1-1 to IPA1-6, with the CGR-69 remediation plan. `app` and `db` green on `c3def52`, `e2e` running at my read.
+  - #3 (owner, `main`).
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read 0084 and 0085 in full, pgTAP 084, 085 and the 082 addition, the `agents-check` and `clinical-categories.mjs` changes with their unit test, `set_quality_event_status` (0020:215-251), `signal_take_lapsed` and `latest_access_end_seq` (0080:73-104), the 0080 readers that 0085 patches (0080:276-410), and the #484 diff and `remediation/CGR-69.md`. **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-70 | COND1-8 = LEAVE1-C5 (0085) with QG1 (0020) | **advisory (S3)** | **A quality event whose review claim has lapsed cannot be taken over by anyone. It can only be closed.** `set_quality_event_status` allows `in_review` only from `open`. Once the owner's access ends, the team reads the event as "Übernahme beendet – Zugang beendet". No colleague can record "I review this now", and neither can the owner after a restore. Since LEAVE1-C5 the claim stays lapsed for good, so this state no longer ends with a restore. The event's only exit is `closed` with a note. The risk: a team that wants the event off its list closes it before anyone has reviewed it, or leaves it ownerless. LEAVE1-C3 option (a) rests on "she takes it again if she still holds it". That works for a signal or an OPS1 take (a new take is an insert), but not for a quality claim. Bounded: a serious event stays in OPS1 while `in_review` and escalates P2 → P1 (CGR-05, CGR-06; 0039), so Operations still sees it. pgTAP 085 tests "a claim after the restore counts" on a different event (`c(2)`), never on the lapsed one. The PO's P-13 (21:10, #483) measures the single-owner pattern, but this gap exists now. IMPLEMENTED as described; no clinical rule involved; synthetic data only | 0020:236 (`p_status = 'in_review' and q.status <> 'open'` → `rejected`), 0020:242 (owner set only on `in_review`); 0085:82-92 (`quality_claim_lapsed`), 0085:108-111; pgTAP 085:114 (event 1 still ended after the restore), 085:129-131 (re-claim on event 2 only) | **po (product authority; no threshold):** let a member who may handle the event (`can_handle_quality_event`) take over an `in_review` event whose claim has lapsed: `in_review` → `in_review`, new owner, logged in `quality_event_log` with `access_seq`. A take-over of a claim that has not lapsed stays refused. Or record why not. pgTAP: claim, end, restore → `claim_ended` true; a colleague takes over → `claim_ended` false and the new owner is recorded; the restored owner can do the same; a take-over of a live claim → `rejected`. Fits IPA1 or a small COND1 follow-up beside COND1-C1 |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-66** | **closed**, IMPLEMENTED (COND1-9 = DOOR1-15); CI green on `548f546` | Guard unchanged (0073:177, 0080:421-436). The help text "Ort und wer den Schlüssel hat (ohne Telefonnummer), nie den Code" is `access_arrangement` version 2 (0084:96-100) and is used at intake (`src/features/door/rules.ts` `ACCESS_HELP_TEXT`; `intake-client.tsx`). pgTAP 084:83-98: "079 123 45 67" and "8004 Zürich" are refused (22023); "Schlüssel bei der Tochter, Hintereingang" is accepted and stored as written; version 1 is kept; values match by code. Unit `cond1-display.test.ts:68` pins the same three cases. **Residual (not a finding):** whether the nurse at the door needs the key holder's reachability stays D-17 part 3 (Clinical Owner). The PO's 21:10 wording observation ("8004 Zürich" refused as a "Code") is right; I add nothing |
+| **CGR-67** | **closed**, IMPLEMENTED (COND1-8 = LEAVE1-C5); CI green on `bfc4cb9` | 0085:52-79: `access_seq` is set by a BEFORE INSERT trigger on `exception_events` and `quality_event_log`, so every writer records it. 0085:100-111: `operations_exceptions`, `team_visit_alerts` and `field_quality` use the C3 predicate (`signal_take_lapsed`, 0080:93-100). The 0080 readers show the name only `when not take_ended` (0080:311), and `field_quality` returns no owner name. pgTAP 085:88-131: before the end, take and claim count (`access_seq` 0); after the end and the restore, both read as untaken with `take_access_ended` and no name; a take and a claim recorded after the restore count. Deviation 19 (a claim with no recorded transition reads as lapsed once any access end exists) errs to the safe side, pgTAP 085:134-140. The new gap this creates for the lapsed claim is **CGR-70** |
+| **CGR-68** | **open**, advisory (S2). Interim part **IMPLEMENTED** (COND1-10 = DOOR1-16); CI green on `548f546` | `clinical-categories.mjs` `approvalRecordErrors`: an `APPROVED` row must link `approvals/CR-nnn.md`, and the record must hold an approver role, a G-1 reference and an ISO date. Unit `cond1-clinical-categories.test.ts` (no record fails; a complete record passes; missing fields are named; today's register passes; `agents-check` exits 1). **Still open:** the record is a file that an agent PR can add in the same change, and it names a role, not a person (D-27 asks for a named, qualified person). The remaining remedy is the owner's: required review by the named Clinical Owner after G-1 (for example CODEOWNERS). Until then no `APPROVED` row exists, which `agents-check` keeps visible |
+| CGR-69 | open, advisory (S2); decided by the PO 18:10 as IPA1-7 and IPA1-8; PLANNED. `eng` remediation plan in #484 (`remediation/CGR-69.md`) | The plan matches my remedy (no preset, refused when empty; source `referrer_stated` / `intake_assessed`, old rows `unknown` and never back-filled; shown on `/team`; ordering unchanged; requested date never orders). I review the build when it is merged |
+| CGR-54, CGR-56 | open, advisory (S3, S2); DST1-C4, DST1-C5. PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-66, CGR-67**.
+
+### COND1 checks on 0084 and 0085 (no finding beyond CGR-70)
+
+- **COND1-4a: IMPLEMENTED.** pgTAP 082 (+6): no Operations member with open access, so the recipient is the administrator `…905` (`signal_operations_users`). Without a `push_active` subscription the forecast is false; with one it is true. The forecast and the delivery use the same recipient set. CR-123's "PLANNED" note is resolved.
+- **COND1-6 = AUD1-M1: IMPLEMENTED, protective.** With purpose `billing`, every `free_text` value is withheld, also inside the team (0084:55). A quality hold's reason is health-related free text, and billing needs only the fact, time and author of a hold. pgTAP 084:47-80; each read is still logged (AUD1-5). `compliance` and `safety_review` are unchanged, so a safety review inside the team still reads the reason.
+- **COND1-5a and COND1-5b: no clinical, billing or tariff path.** v3 gates `my_working_day` only, as v2 did (17:26). `/field`, reports, signatures and signals do not wait for it. Content: `lca` 21:00.
+- **COND1-9, COND1-8, COND1-10:** as in the status table.
+- **No new clinical rule, threshold, recipient, step or tariff value** in 0084 or 0085. The P2 → P1 clock, `handle_exception` and the QG1 closing rules are unchanged (0085 header; readers only).
+- **PO condition COND1-C1** (#483, the unexported-days reader only in the end path): not clinical. I support it as the stricter control.
+
+### IPA1-1 to IPA1-6 (#484, open; read on its head `c3def52`; not a gate result)
+
+- **The legacy `/operations` page holds hard-coded rules that the register did not list.** It holds a client-side team "risk score" (utilisation bands 80 / 90 / 95 %) and a case "SLA" age rule (no team after 24 h = "risk", after 48 h = "violated"), and `/matching` holds a demo scorer. These contradict the register's *Not in the code* line ("no … risk scores"). They are now listed as **CR-126**. #484 removes all three: a client-side triage by invented thresholds is replaced by the server OPS1 model (`case_not_ready`, `offer_overdue`, `visit_uncovered_hospital`), which keeps its ordering rule. Clinically this is protective: no safety signal is lost, because the removed panels were display only and their cases stay in the OPS1 exception list. I confirm this on the merge commit.
+- **IPA1-3:** "überwachte Zeit" → "besetzte Zeit". Correct: the earlier word implied monitoring of the client, which does not happen. The behaviour is unchanged.
+- #484 still loads `care_visits` on `/operations` without using it (`eng` names it). That is data minimisation for `lca`, not a clinical point.
+
+### Register rows
+
+- **CR-119** note: CGR-66 is closed (0084, pgTAP 084).
+- **CR-121** note: the interim part of CGR-68 is IMPLEMENTED (approval record); the G-1 review is still open.
+- **CR-122** note: superseded for restores by **CR-127** (LEAVE1-C5).
+- **CR-123** note: COND1-4a is IMPLEMENTED.
+- **CR-124** note: the gate is `work1-notice-v3` since 0085.
+- **Added:**
+  - **CR-126:** the legacy `/operations` team risk score and case "SLA" age rule, and the `/matching` scorer. They are IMPLEMENTED on `recovery/main`, with removal PLANNED in #484. Not clinically approved; invented thresholds.
+  - **CR-127:** LEAVE1-C5, the access sequence for OPS1 takes and quality claims (0085; organisational; note CGR-70).
+  - **CR-128:** the `billing` purpose reads codes only (0084; privacy, not clinical).
+- None of them is a clinical rule as approved; CR-126 is an invented one, being removed.
+- **Hazards:**
+  - H-03: CGR-66 closed.
+  - H-07: CGR-67 closed; new cause CGR-70.
+- **Risks:**
+  - PS-56 and PS-57 closed.
+  - G-8: interim part met.
+  - PS-59 added (CGR-70).
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| COND1-4a, -5a, -6, -9, -10 (merged `25bacf3`) | **reviewed on the merge commit; no blocking finding.** CGR-66 closed; CGR-68 interim part met | CGR-68 (owner part) |
+| COND1-8, -5b (merged `09228ef`) | **reviewed on the merge commit; no blocking finding.** CGR-67 closed | CGR-70 (advisory) |
+| **COND1 as a whole** (`delivered`; PO review in #483) | **clinical gate clear: no blocking finding on COND1-1 to COND1-10.** The PO may set COND1 `accepted`. CGR-70 is advisory and can be recorded as a condition | CGR-68 (owner), CGR-70 |
+| IPA1-1 to -6 (#484, open) | read; protective; gate result on the merge commit | none |
+| IPA1-7, -8 (CGR-69) | plan read and consistent; PLANNED | CGR-69 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:**
+  1. COND1: the clinical gate is clear. Accept COND1, and record CGR-70 as a condition or with a reason.
+  2. CGR-70: let a qualified team member take over a lapsed quality claim, or record why not. P-13 measures the pattern; this fixes the dead end now.
+- **eng:**
+  1. IPA1-7 and IPA1-8 as planned.
+  2. CGR-70 once the PO decides.
+- **owner:**
+  1. G-1: name the Clinical Owner and a deputy. The required review of register status changes (CGR-68), D-35 (H agents), D-34 question 7 and CGR-69 (2) all wait for it.
+  2. D-1 (urgent; the connector step).
+  3. The G-11 count before the first real import.
+  4. G-5.
+  5. Merge this PR if my own merge is refused.
+- **clinical** (once named):
+  - CGR-69 (2): may an intake person judge urgency, and on which criteria?
+  - D-35: the safety-field list (2c) and the stop-rule threshold (2e).
+  - D-17 part 3, now also the key holder's reachability (CGR-66 residual).
+  - D-30, D-19 part 1, D-28, D-10 and D-16, as before. D-16 includes how long a quality event may stay in review (P-13).
+
+---
+
 ## 2026-10-26 17:26 CET: COND1-3 (0081), COND1-4 (0082) and COND1-5 (0083) reviewed on their merge commits; CGR-60 and CGR-65 closed; CGR-69 (advisory, S2): the intake urgency that orders team offers is a criteria-free label with a preset value; clinical input for D-35 and D-34 question 7
 
 **Scope:** `recovery/main` @ `6d2bb3e`. Changes since my 13:39 CET section (#452, merged `0119248`):
