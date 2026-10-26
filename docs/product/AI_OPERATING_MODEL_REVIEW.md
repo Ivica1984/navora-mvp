@@ -220,6 +220,8 @@ The order follows value and risk: **L first**, because L agents need no clinical
 - **Automatic coding or care-plan changes:** a person always confirms, and NAVORA never codes into a billing system by itself (NH report §5).
 - **A general "care copilot" across all data:** it breaks the access scopes and the D-34 boundary at once.
 - **Unconfirmed record entries** *(added by po 2026-10-26 16:20, D-35 `lca` 15:04 note 4 and condition 6):* no agent output enters the record without a named confirmer who can in fact reject it, with the source of each claim shown. No agent output is a decision.
+- **A per-person view of confirmations** *(added by po 2026-10-26 18:10, D-35 `lca` 17:55 term 9):* the per-value confirmer is read per value, or through the AUD1 purpose reader for a stated audit; no reader, report or export aggregates confirmations, edits or rejections per person.
+- **Dictation of a conversation** *(added by po 2026-10-26 18:10, D-35 `lca` 17:55 term 10):* A7 records only the nurse's own dictation, outside the client's presence, or with the consent of everyone present. A7 is not the first agent to use real data.
 
 ---
 
@@ -231,7 +233,10 @@ PLANNED. Nothing here is built; D-35 decides the basis.
 | **Suggestion ledger** | append-only row per suggestion: agent, model and version, input reference (no copy of the payload outside the scope), output, confirmer, edits, time | every AI influence on a record is traceable; today a human's influence is not |
 | **Source per claim** | each drafted statement links to the entries it came from; unsupported statements are marked, not hidden | counters automation bias (H-03); follows the NH report rule "never codes without an entry" |
 | **Forced attention on uncertainty** | the confirmer must act on each marked item; no "accept all" | confirmation is not a click-through |
-| **Correction rate and later errors** | per agent, per team | the agent earns its scope with evidence (P-1) |
+| **Provenance per value** *(po 2026-10-26 18:10, `cra` D-35 2(a))* | an agent value is stored as a proposal (agent, version, input reference) and becomes record content only when a named person confirms it; the record shows "vorgeschlagen von … / bestätigt von … am …"; signing a draft is not confirming every value | the record says who stands behind each fact |
+| **"Not found" is explicit** *(`cra` 2(b))* | "im Dokument nicht gefunden", never an empty or "keine" value; a safety field cannot be confirmed without the source open beside it | an omission never reads as "none" (H-03, H-20) |
+| **No accept-all on safety fields** *(`cra` 2(c))* | fields that feed the safety alerts (D-17), the care plan or a medical order are confirmed one by one; the list is the Clinical Owner's (D-17 part 3) | the fields that hurt when wrong get the attention |
+| **Correction rate and later errors** | per agent and field, per team; never per person (`cra` 2(e), `lca` term 9) | the agent earns its scope with evidence (P-1) |
 | **Stop rule (P-6)** | an agent stops by itself when its correction rate or later-error count crosses its written threshold, or when its provider, region or model changes without review | no silent drift |
 | **Evaluation on synthetic data first** | every agent is tested on synthetic cases before any real data | consistent with "synthetic only" until the gates |
 | **Scope inheritance** | an agent reads only what its confirmer may read | no new access path (RLS2, RLS3) |
@@ -241,7 +246,7 @@ PLANNED. Nothing here is built; D-35 decides the basis.
 
 ## 9. Decision opened: D-35
 
-**D-35 (`owner`; package [decisions/D-35.md](../agents/decisions/D-35.md), `inputs-requested`).** May NAVORA send client or staff data to an AI service, and on what basis?
+**D-35 (package [decisions/D-35.md](../agents/decisions/D-35.md); decided by po 2026-10-26 18:10: option A as the pilot rule).** May NAVORA send client or staff data to an AI service, and on what basis? **Answer for the pilot: no.** B or C (provider, region, contract) is a later `owner` decision through a new package, on `lca` conditions 1-10 and the controls in §8.
 - Covers provider and hosting country, processor terms, professional secrecy, consent or legal basis, minimisation, the suggestion ledger, and which agent levels (L, G, H) may run before which gates.
 - **Safe default in force:** no client or staff data reaches any AI service; agents run only on synthetic data; L agents that need no AI are built as deterministic rules.
 - Inputs: `eng`, `lca`, `cra`.
