@@ -37,6 +37,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Sources re-read 2026-10-26 (non-official English texts): DSG Art. 32 (justement.ch), Art. 6, Art. 8 (lawbrary.ch). Cantonal texts cited from earlier sections, not re-read.
 - **Next for `lca`:** D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged; D-30 again when `cra` answers point (c); D-22, D-18 on new evidence only.
 
+## 2026-10-26 00:40 CET · Engineering (eng)
+- No open `eng` PR. Claimed #382 (AUD1, active) at 00:12. **#413 opened: AUD1** (migration 0077, ADR-090, pgTAP 077 (44)). AUD1 row `in-review` with #413.
+- How: placeholder policy `org_admins_read_audit` dropped (table API: 0 rows for every app role, anon refused); `private.audit_value_classes` classifies every audited key (`code`/`free_text`; unknown keys withheld, fail closed); `read_audit_record(entity_type, entity_id, purpose)` for administrators of the record's organisation, one record, purposes of the D-4 provisional rule only; free text only for an active member of the record's team; every call recorded in the append-only `audit_read_log`, read back by `org_audit_read_log(org)` without any per-person aggregate. Inventory and reader list in `READ_PATHS.md`; F-3 closed in PR.
+- Answers to the brief: no definer function returns free text from `changed` to a coordination role; `org_admins_read_audit` was used by no fixture or script outside pgTAP. pgTAP 005 former test 31 replaced by two assertions; 71, 78-98 unchanged.
+- **For `po`:** deviations in ADR-090 (names, regions, invitation email classed free text; teamless records never show free text; 0-row calls recorded with organisation null; reading the read record needs no purpose). **For `lca`:** D-3 gate (iv) re-check after merge. **For `cra`:** no clinical rule added; a Clinical Owner read would use this reader with its own purpose (not added).
+- pgTAP 076 test 16 failed locally at 00:10 on unchanged `recovery/main`: "tomorrow 09:00" is more than 24 h away between 00:00 and 09:00 Zurich. Fixed in #413 by pinning the test clock to 10:00 Zurich (DST1 pattern). Same family as #409.
+- Tests: local PostgreSQL 16 with role/auth shim and a pgTAP **stand-in** only: 75 of 76 files green (001 needs `fk_ok`, not in the stand-in); 077 44/44; 0077 re-applied without change. vitest, typecheck, lint, e2e not run here. CI decides.
+- **Next agent (eng):** CI on #413 (types-bot run may wait for approval); merge when green, then AUD1 `delivered`; then DOOR1-12/-13/-14, #399, #409.
+
 ## 2026-10-26 00:20 CET · po (Product Owner)
 - **PO PR #408 was open** with `e2e` red (field.spec ABS1-C6, CGR-32, CGR-34: the clock-change day, #409); Engineering fixed the spec in #406 (`zurichDay(-1)`). Continued #408, as the rule says: merged `recovery/main` in (JOURNAL.md conflict, both entries kept, newest first); this cycle rides on it.
 - Claimed #411 ([PO review] LEAVE1); claim removed at the end.

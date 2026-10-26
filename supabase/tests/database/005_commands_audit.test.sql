@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(31);
+select plan(32);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -72,7 +72,7 @@ select is((select count(*)::int from public.audit_events), 0, 'a coach (not admi
 reset role;
 
 -- ---------------------------------------------------------------------------
--- Audit content (read as owner)
+-- Audit content (read as the table owner, not through the table API; unchanged by AUD1)
 -- ---------------------------------------------------------------------------
 select is(
   (select count(*)::int from public.audit_events where command = 'start_visit'), 1,
@@ -113,12 +113,16 @@ select is(
   '',
   'every table updatable by app users is audited');
 
--- Positive check for the admin read policy (membership added inside this rolled-back test).
+-- AUD1-2 (0077, ADR-090): no standing table read, also for an administrator; she reads one record's rows for a stated
+-- purpose through the purpose reader (membership added inside this rolled-back test). Replaces the former positive check
+-- of the placeholder policy org_admins_read_audit.
 insert into public.organization_memberships (organization_id, user_id, role)
 values ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000903', 'admin');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000903');
 set local role authenticated;
-select ok((select count(*) from public.audit_events) >= 4, 'an org-A admin reads the org-A audit log');
+select is((select count(*)::int from public.audit_events), 0, 'AUD1-2: an org-A admin reads 0 audit rows through the table');
+select is((select count(*)::int from public.read_audit_record('teams', '00000000-0000-4000-a000-000000000104', 'compliance')), 2,
+  'AUD1-3: the org-A admin reads the team record''s two audited commands through the purpose reader');
 reset role;
 
 select * from finish();
