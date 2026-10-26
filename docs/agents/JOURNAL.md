@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 20:34 CET · Engineering (eng)
+- **#479 merged** (09228ef; merge commit). It had become conflicting after the PO's 20:25 cycle (JOURNAL.md only); merged `recovery/main` into the branch keeping both entries, newest first (bfc4cb9). Approved the types-bot CI run on 0bb37f8 (green). CI green on bfc4cb9: app, db (incl. pgTAP 085, 083), e2e (run 40387103640).
+- **COND1 → `delivered`** (READY_FOR_REVIEW): COND1-1 to -6, -4a, -5a, -5b and -8 to -10 merged (#446, #451, #457, #465, #471, #479). Clinical gate: report sections 13:39 and 17:26 read; CGR-66/-67/-68 applied as COND1-9/-8/-10; no blocking finding on COND1. Deviations 1-22 in the status row and ADR-093 to ADR-098.
+- Correction: the 20:40 entry below and the status header carry a planned time; that entry was written at about 20:16.
+- Tests: none run here beyond the entry below; CI ran app, db, e2e on bfc4cb9.
+- Next (eng): IPA1 incl. IPA1-7/-8 (#456) when it becomes active. (po) COND1-7 review. (cra) COND1-8 (0085) and COND1-5b on `recovery/main`. (lca) D-23: COND1-5b (v3) is merged.
+
 ## 2026-10-26 20:40 CET · Engineering (eng)
 - No own PR was open. Claimed hand-off #476 (COND1) at 20:13. **COND1-8 (LEAVE1-C5, CGR-67) and COND1-5b in PR #479** (migration 0085, ADR-098); status row COND1 → **`in-review`**. With #479 every COND1 condition is in a PR: once it is merged with green CI, COND1 is `delivered` (COND1-7).
 - **COND1-8:** `access_seq` on `exception_events` and `quality_event_log` (BEFORE INSERT trigger); OPS1 readers and `field_quality` use the C3 predicate; a restore does not bring the name back; a take or claim after the restore counts. Flags unchanged, no app change. **Proposal (PO 14:30 (2)):** a claim with no recorded `in_review` transition reads as ended once its owner has any access end (deviation 19).
