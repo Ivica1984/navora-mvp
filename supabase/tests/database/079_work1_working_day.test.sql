@@ -46,7 +46,7 @@ end $$;
 create function pg_temp.confirm(p_user text, p_date text, p_payload jsonb, k int) returns jsonb language sql as $$
   select pg_temp.cmd(p_user, format('select public.confirm_working_day(%L::date, %L::jsonb, %L::uuid)', p_date, p_payload, pg_temp.k(k))) $$;
 create function pg_temp.ack(p_user text, k int) returns text language sql as $$
-  select pg_temp.cmd(p_user, format('select public.acknowledge_working_time_notice(%L, %L::uuid)', 'work1-notice-v1', pg_temp.k(k))) ->> 'result' $$;
+  select pg_temp.cmd(p_user, format('select public.acknowledge_working_time_notice(%L, %L::uuid)', 'work1-notice-v2', pg_temp.k(k))) ->> 'result' $$;
 create function pg_temp.day(p_start text, p_end text, p_segments jsonb, p_breaks jsonb, p_outside jsonb) returns jsonb language sql as $$
   select jsonb_build_object('day_start', p_start, 'day_end', p_end, 'segments', p_segments, 'breaks', p_breaks, 'outside_work', p_outside) $$;
 -- WORK1-5 catalogue: a fingerprint of everything the user reads through every readable table (selectable columns
@@ -142,10 +142,11 @@ select is(pg_temp.cmd('w1', format('select public.acknowledge_working_time_notic
 select is(pg_temp.ack('w1', 101), 'ok', 'WORK1-8: she acknowledges once');
 select is(pg_temp.ack('w1', 101), 'duplicate', 'same key: duplicate');
 select is(pg_temp.ack('w1', 102), 'unchanged', 'a second acknowledgement records nothing');
-select is((select text_version || ':' || (user_id = pg_temp.u('w1')::uuid) from public.working_time_notice_acks), 'work1-notice-v1:true',
+select is((select text_version || ':' || (user_id = pg_temp.u('w1')::uuid) from public.working_time_notice_acks where user_id = pg_temp.u('w1')::uuid),
+  'work1-notice-v2:true',
   'WORK1-8: the acknowledgement is recorded (who, text version, when)');
 select is((select count(*)::int from public.audit_events where table_name = 'working_time_notice_acks' and actor_id = pg_temp.u('w1')::uuid
-           and changed -> 'text_version' ->> 'new' = 'work1-notice-v1'), 1, 'WORK1-8: audited');
+           and changed -> 'text_version' ->> 'new' = 'work1-notice-v2'), 1, 'WORK1-8: audited');
 
 -- WORK1-1: the proposal from her own events ---------------------------------------------------------------------------
 select is(pg_temp.cmd('w1', $$ select to_jsonb(string_agg(visit_no || ':' || kind || ':' || to_char(starts_at at time zone 'UTC', 'HH24:MI') || '-'
@@ -268,8 +269,8 @@ select is((select string_agg(p.oid::regprocedure::text, ',' order by p.oid::regp
            from pg_proc p join pg_namespace s on s.oid = p.pronamespace
            where s.nspname in ('public', 'private')
              and p.prosrc ~ '(working_day_versions|working_time_notice_acks|working_day_proposal|team_confirmed_care_share)'),
-  'acknowledge_working_time_notice(text,uuid),confirm_working_day(date,jsonb,uuid),export_working_month(date,uuid),my_working_day(date),my_working_day_versions(date),my_working_time_notice(),pilot_kpis(date),private.team_confirmed_care_share(date)',
-  'WORK1-5 / WORK1-7 catalogue: the working-day data is read only by her read models and commands and the WORK1-6 team aggregate (no billing, J5, export-to-payer, push or signal function)');
+  'acknowledge_working_time_notice(text,uuid),confirm_working_day(date,jsonb,uuid),export_working_month(date,uuid),my_working_day(date),my_working_day_versions(date),my_working_time_notice(),pilot_kpis(date),private.team_confirmed_care_share(date),private.unexported_working_days(uuid,uuid)',
+  'WORK1-5 / WORK1-7 catalogue: the working-day data is read only by her read models and commands and the WORK1-6 team aggregate (no billing, J5, export-to-payer, push or signal function); 0083: the WORK1-C3 count helper');
 select ok(not has_function_privilege('authenticated', 'private.working_day_proposal(uuid, date)', 'execute')
           and not has_function_privilege('authenticated', 'private.team_confirmed_care_share(date)', 'execute'),
   'WORK1-5: the helpers that take a person or aggregate are not callable by app roles');

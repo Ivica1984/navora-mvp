@@ -131,7 +131,7 @@ from (values
   (1, pg_temp.step('depart_visit', 1, '2026-10-22 08:00:00+02', 101)), (2, pg_temp.step('start_visit', 1, '2026-10-22 08:15:00+02', 102)),
   (3, pg_temp.step('complete_visit', 1, '2026-10-22 09:00:00+02', 103)), (4, pg_temp.step('depart_visit', 2, '2026-10-23 00:10:00+02', 104)),
   (5, pg_temp.step('start_visit', 2, '2026-10-23 00:20:00+02', 105)), (6, pg_temp.step('complete_visit', 2, '2026-10-23 00:50:00+02', 106))) s(o, r);
-select is(pg_temp.cmd('c1', format('select public.acknowledge_working_time_notice(%L, %L::uuid)', 'work1-notice-v1', pg_temp.k(107))) ->> 'result',
+select is(pg_temp.cmd('c1', format('select public.acknowledge_working_time_notice(%L, %L::uuid)', 'work1-notice-v2', pg_temp.k(107))) ->> 'result',
   'ok', 'c1 acknowledges the information text');
 select is(pg_temp.proposal('2026-10-22'), '1:travel:10-22 06:00-06:15:false,1:care:10-22 06:15-07:00:false',
   'before any correction: the recorded instants, corrected false');

@@ -4,18 +4,33 @@
 
 const ZONE = "Europe/Zurich";
 
-/** WORK1-8: the fixed information text. A changed text needs a new version (and the database constant in 0079). */
-export const NOTICE_VERSION = "work1-notice-v1";
+/**
+ * WORK1-8 / WORK1-C2 (migration 0083): the fixed information text. A changed text needs a new version (and the
+ * database constant); an earlier acknowledgement does not carry over. v2 adds (D-23 item 15, lca gaps b, c, d): who
+ * else sees status times and corrections, that confirmations and exports are logged and read only for a stated audit
+ * purpose, the administration's unexported-days count (WORK1-C3), and why the team ratio exists and when it is shown.
+ */
+export const NOTICE_VERSION = "work1-notice-v2";
 export const NOTICE_TITLE = "Information zu deinem Arbeitstag";
 export const NOTICE_PARAGRAPHS: readonly string[] = [
-  "NAVORA speichert, wann ein Einsatz beginnt, unterbrochen und abgeschlossen wird und wann du losfährst. Die Mitglieder deines Teams sehen diese Statuszeiten der Einsätze, damit ihr die Pflege koordinieren könnt.",
-  "Aus deinen eigenen Statuszeiten schlägt NAVORA dir deinen Arbeitstag vor. Diesen Vorschlag, deine Bestätigung, frühere Fassungen und deine Notizen siehst nur du. Niemand sonst im Team, in der Koordination oder in der Administration sieht sie.",
+  "NAVORA speichert, wann ein Einsatz beginnt, unterbrochen und abgeschlossen wird und wann du losfährst. Die Mitglieder deines Teams und Personen, die dein Team vertreten (Stellvertretung), sehen diese Statuszeiten der Einsätze, damit ihr die Pflege koordinieren könnt. Wird die Zeit eines Einsatzes korrigiert, sehen die Mitglieder deines Teams den Grund der Korrektur und wer korrigiert hat.",
+  "Aus deinen eigenen Statuszeiten schlägt NAVORA dir deinen Arbeitstag vor. Diesen Vorschlag, deine Bestätigung, frühere Fassungen und deine Notizen siehst nur du.",
+  "NAVORA protokolliert deine Bestätigungen und Exporte: bei einer Bestätigung Datum, Fassung und Korrekturgrund, bei einem Export Monat und Anzahl Tage, nie Uhrzeiten oder Notizen. Dieses Protokoll wird nur für einen angegebenen Prüfzweck gelesen. Die Administration deiner Organisation sieht nur, wie viele bestätigte Tage du noch nicht exportiert hast (eine Zahl, keine Daten, Zeiten oder Inhalte), damit sie dich vor dem Ende deines Zugangs an den Export erinnern kann.",
   "Du ergänzt Beginn und Ende des Arbeitstags, Pausen von 30 Minuten oder mehr und Arbeit ausserhalb der Einsätze und bestätigst den Tag. Den bestätigten Monat exportierst du selbst als Datei und gibst ihn deiner Arbeitgeberin. NAVORA schickt nichts automatisch.",
-  "Dein Team sieht pro Monat nur einen Anteil für das ganze Team (direkte Pflegezeit an bestätigter Arbeitszeit), nie Zahlen einer einzelnen Person und erst ab drei Personen.",
+  "Dein Team sieht pro Monat nur einen Anteil für das ganze Team: wie viel der bestätigten bezahlten Arbeitszeit auf direkte Pflege entfällt. Er dient der Planung im Team und der Auswertung des Pilotbetriebs. Er wird erst ab drei Personen und fünf bestätigten Arbeitstagen gezeigt, nie mit Zahlen einer einzelnen Person.",
   "NAVORA prüft keine Pausen-, Ruhe- oder Höchstarbeitszeiten.",
 ];
 /** Shown with the text: it is a draft for the employer (go-live gate G-19), not the employer's adopted information. */
 export const NOTICE_DRAFT_HINT = "Entwurf für die Arbeitgeberin (Testbetrieb mit synthetischen Daten).";
+
+/** WORK1-C3 (d), migration 0083: her own count of confirmed days not yet exported, with a prompt to export. */
+export function unexportedText(n: number | null): string | null {
+  if (n === null || !Number.isInteger(n) || n < 0) return null;
+  if (n === 0) return "Alle bestätigten Tage sind exportiert.";
+  return n === 1
+    ? "1 bestätigter Tag ist noch nicht exportiert. Exportiere seinen Monat und gib die Datei deiner Arbeitgeberin."
+    : `${n} bestätigte Tage sind noch nicht exportiert. Exportiere ihre Monate und gib die Dateien deiner Arbeitgeberin.`;
+}
 
 export const VISIT_KINDS = ["travel", "care", "visit_pause"] as const;
 export const OUTSIDE_KINDS = ["team_meeting", "training", "administration", "on_call", "call_out_travel", "other"] as const;

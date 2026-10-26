@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ACCESS_END_REASONS, ACCESS_REASON_LABEL, ACCESS_RESTORE_REASONS, ADMIN_MESSAGES, accessEndedNotice, accessStateByUser, allowedPriorities,
   changedLabel, checkRuleInput, countOpenReports, isValidEmail, openReportsText, readAccessEndResult, readRemovalResult, releasedNotice,
+  UNEXPORTED_DAYS_LABEL, unexportedDaysText, unexportedEndPrompt,
   RULES_INTRO, stricterHint,
 } from "@/features/admin/rules";
 
@@ -95,9 +96,9 @@ describe("member removal releases visits (ADM1 changes)", () => {
 describe("LEAVE1 (migrations 0074, 0075): access end and the open-work list", () => {
   it("reads the end_member_access result with her open reports by kind", () => {
     expect(readAccessEndResult({ result: "ok", push_subscriptions_removed: 1, open_reports: { unsigned: 1, correction_draft: 0, returned: 2 } }))
-      .toEqual({ code: "ok", openReports: { unsigned: 1, correction_draft: 0, returned: 2 }, released: 0, takenSignals: 0 });
-    expect(readAccessEndResult({ result: "has_cases" })).toEqual({ code: "has_cases", openReports: null, released: 0, takenSignals: 0 });
-    expect(readAccessEndResult(null)).toEqual({ code: "failed", openReports: null, released: 0, takenSignals: 0 });
+      .toEqual({ code: "ok", openReports: { unsigned: 1, correction_draft: 0, returned: 2 }, released: 0, takenSignals: 0, unexportedDays: null });
+    expect(readAccessEndResult({ result: "has_cases" })).toEqual({ code: "has_cases", openReports: null, released: 0, takenSignals: 0, unexportedDays: null });
+    expect(readAccessEndResult(null)).toEqual({ code: "failed", openReports: null, released: 0, takenSignals: 0, unexportedDays: null });
     expect(readAccessEndResult({ result: "ok", open_reports: { unsigned: -1, returned: "x" } }).openReports)
       .toEqual({ unsigned: 0, correction_draft: 0, returned: 0 });
   });
@@ -147,5 +148,34 @@ describe("LEAVE1 (migrations 0074, 0075): access end and the open-work list", ()
     for (const code of ["self", "has_cases", "has_visit_in_progress", "has_planned_visits", "rejected", "unchanged"]) {
       expect(ADMIN_MESSAGES[code]).toBeTruthy();
     }
+  });
+});
+
+// WORK1-C3 (migration 0083, ADR-096): a leaver's confirmed days not yet exported, one number for administrators only.
+describe("WORK1-C3: the unexported-days count on /admin", () => {
+  it("uses the label of the brief (lca term c) and shows one number only", () => {
+    expect(UNEXPORTED_DAYS_LABEL).toBe("Bestätigte Tage, die sie noch nicht exportiert hat");
+    expect(unexportedDaysText(2)).toBe("Bestätigte Tage, die sie noch nicht exportiert hat: 2");
+    expect(unexportedDaysText(0)).toBe("Bestätigte Tage, die sie noch nicht exportiert hat: 0");
+    expect(unexportedDaysText(null)).toBeNull();
+    expect(unexportedDaysText(undefined)).toBeNull();
+    expect(unexportedDaysText(-1)).toBeNull();
+  });
+
+  it("prompts the administrator to ask her to export before the end (G-19 item 4), only when there are some", () => {
+    expect(unexportedEndPrompt(1)).toBe("Sie hat 1 bestätigten Tag noch nicht exportiert. Bitten Sie sie, diese vorher selbst zu exportieren; nach dem Ende kann sie es nicht mehr.");
+    expect(unexportedEndPrompt(3)).toMatch(/^Sie hat 3 bestätigte Tage noch nicht exportiert\./);
+    expect(unexportedEndPrompt(0)).toBeNull();
+    expect(unexportedEndPrompt(undefined)).toBeNull();
+  });
+
+  it("reads the count from the end_member_access result and names it in the notice", () => {
+    expect(readAccessEndResult({ result: "ok", unexported_days: 2 }).unexportedDays).toBe(2);
+    expect(readAccessEndResult({ result: "ok", unexported_days: 0 }).unexportedDays).toBe(0);
+    expect(readAccessEndResult({ result: "ok", unexported_days: "x" }).unexportedDays).toBeNull();
+    expect(readAccessEndResult({ result: "ok" }).unexportedDays).toBeNull();
+    expect(accessEndedNotice({ unsigned: 0, correction_draft: 0, returned: 0 }, 0, 0, 2))
+      .toBe("Zugang beendet. Keine offenen Berichte. Bestätigte Tage, die sie noch nicht exportiert hat: 2.");
+    expect(accessEndedNotice({ unsigned: 0, correction_draft: 0, returned: 0 }, 0, 0, 0)).toBe("Zugang beendet. Keine offenen Berichte.");
   });
 });

@@ -8,8 +8,8 @@ import { acknowledgeWorkingTimeNotice, confirmWorkingDay, exportWorkingMonth } f
 import type { DayVersion } from "@/features/work/queries";
 import {
   CORRECTED_MARK, KIND_LABEL, NOTICE_DRAFT_HINT, NOTICE_PARAGRAPHS, NOTICE_TITLE, OUTSIDE_KINDS, REASON_CODES, REASON_LABEL,
-  VISIT_TIME_HINT, VISIT_TIME_LINK, buildPayload, monthOf, nextDate, openQuestions, proposalSegments, visitCorrectionHref,
-  visitSegmentChanged, zurichInstant, zurichTime,
+  VISIT_TIME_HINT, VISIT_TIME_LINK, buildPayload, monthOf, nextDate, openQuestions, proposalSegments, unexportedText,
+  visitCorrectionHref, visitSegmentChanged, zurichInstant, zurichTime,
   type DayDraft, type OutsideKind, type ProposalRow, type ReasonCode, type VisitKind,
 } from "@/features/work/rules";
 
@@ -21,6 +21,8 @@ type Props = {
   acknowledged: boolean;
   proposal: ProposalRow[];
   versions: DayVersion[];
+  /** WORK1-C3 (d): her own number of confirmed days not yet exported (null when not available). */
+  unexported: number | null;
 };
 
 const primary = "min-h-11 rounded-lg bg-emerald-800 px-4 text-sm font-bold text-white disabled:opacity-60";
@@ -267,7 +269,7 @@ function DayForm({ day, proposal, versions }: Pick<Props, "day" | "proposal" | "
   );
 }
 
-function Export({ day }: { day: string }) {
+function Export({ day, unexported }: { day: string; unexported: number | null }) {
   const [month, setMonth] = useState(monthOf(day));
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
@@ -275,6 +277,12 @@ function Export({ day }: { day: string }) {
     <section aria-label="Monat exportieren" className="grid gap-2 rounded-2xl border border-stone-300 bg-white p-4">
       <h2 className="font-bold">Monat exportieren</h2>
       <p className="text-sm text-stone-700">Nur bestätigte Tage. Die Datei enthält keine Klient:innen, Einsätze oder Notizen.</p>
+      {unexportedText(unexported) && (
+        // WORK1-C3 (d): her own count, with a prompt to export (nothing is exported on her behalf).
+        <p data-testid="unexported-days" className={unexported ? "text-sm font-semibold text-amber-900" : "text-sm text-stone-700"}>
+          {unexportedText(unexported)}
+        </p>
+      )}
       <label className="grid gap-1 text-sm">
         Monat
         <input type="month" className={input} value={month} onChange={(e) => setMonth(e.target.value)} />
@@ -308,7 +316,7 @@ export default function WorkClient(props: Props) {
         {props.acknowledged ? (
           <>
             <DayForm day={props.day} proposal={props.proposal} versions={props.versions} />
-            <Export day={props.day} />
+            <Export day={props.day} unexported={props.unexported} />
           </>
         ) : (
           <Notice />
