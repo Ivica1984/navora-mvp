@@ -92,9 +92,9 @@ What does **not** disappear: verified qualifications, clinical responsibility, l
 | G-4 | Production hosting settled and the data-protection impact assessment done | D-12 condition, D-2, D-3 (ii) | owner | OPEN |
 | G-5 | Intended purpose assessed by a regulatory adviser (medical device question) | D-34 | owner | OPEN |
 | G-6 | Qualifications verified before they are active (option B) | D-29 | owner | OPEN |
-| G-7 | D-3 (i) read log, (iii) client identity for coordination roles only where a task needs it, (iv) every read path team-scoped: RLS2, RLS3 accepted, F-1 met (DOOR1-11); **F-3 open (AUD1)** | D-3, briefs RLS2, RLS3, DOOR1, AUD1 | po for (iv); owner for the rest | OPEN; (iv) PLANNED (AUD1) |
+| G-7 | D-3 (i) read log, (iii) client identity for coordination roles only where a task needs it, (iv) every read path team-scoped: RLS2, RLS3 accepted, F-1 met (DOOR1-11), F-3 met (AUD1, accepted 2026-10-26 04:10); AUD1-M1 (`billing` audit reads return codes only) | D-3, briefs RLS2, RLS3, DOOR1, AUD1 | po for (iv); owner for the rest | OPEN; (iv) IMPLEMENTED (met 2026-10-26); AUD1-M1 PLANNED |
 | G-8 | Intake legal basis and gates g1-g5 (incl. per-contact consent, g4: append-only, scoped, refusal only on `recorded_consent`) | D-9 | owner | OPEN |
-| G-9 | Audit log: no deletion before the final rule; r1 client extract, r2 retention class per column, r3 purpose reader (AUD1) | D-4 | po (r1-r3), owner (final periods) | r3 PLANNED (AUD1); r1, r2 OPEN |
+| G-9 | Audit log: no deletion before the final rule; r1 client extract (its own path tied to the recorded request), r2 retention class per column, r3 purpose reader (AUD1) | D-4 | po (r1-r3), owner (final periods) | r3 IMPLEMENTED (AUD1 accepted 2026-10-26); r1, r2 OPEN |
 | G-10 | No real care plan while the KLV category is chosen freely; approved service catalogue first | D-15 | clinical | OPEN |
 | G-11 | No door or key-safe code in any access note, and none left from before the guard (count zero); one "Zugang" line; a clinical category only with an `APPROVED` register row | DOOR1-12, DOOR1-13, DOOR1-14 | po (acceptance) | PLANNED |
 | G-12 | A correction request can be met when the report's author has left (addendum or "bestritten" mark); D-30 answered before the first real leaver | D-30 | clinical | OPEN |
