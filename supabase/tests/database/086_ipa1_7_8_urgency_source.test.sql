@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(28);
+select plan(29);
 
 -- Pinned clock (DST1 pattern): 10:00 Zurich today, so no step depends on the hour CI runs.
 select set_config('navora.test_now',
@@ -156,6 +156,8 @@ select ok(
   (select pg_get_functiondef('public.team_offers()'::regprocedure)
      ~ 'order by case m\.urgency when ''hoch'' then 0 when ''mittel'' then 1 else 2 end, m\.response_due_at nulls last, m\.created_at;'),
   'the ORDER BY of team_offers is the 0034 rule, unchanged');
+select ok(position('LEAVE1-3' in (select prosrc from pg_proc where oid = 'public.team_offers()'::regprocedure)) > 0,
+  'team_offers keeps the LEAVE1-3 access guard (a person whose access ended reads no offer)');
 select ok(
   not exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
               where n.nspname in ('public', 'private')

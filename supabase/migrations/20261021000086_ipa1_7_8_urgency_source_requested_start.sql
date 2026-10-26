@@ -39,7 +39,7 @@ alter table public.matching_requests
 -- IPA1-8: never before the day the request was recorded (Zurich calendar day).
 alter table public.partner_requests drop constraint if exists partner_requests_referrer_start_not_before_request;
 alter table public.partner_requests add constraint partner_requests_referrer_start_not_before_request
-  check (referrer_requested_start is null or referrer_requested_start >= (created_at at time zone 'Europe/Zurich')::date);
+  check (referrer_requested_start is null or referrer_requested_start >= private.at_zurich(created_at)::date);
 
 comment on column public.partner_requests.urgency_source is
   'IPA1-7: who set the urgency: referrer_stated | intake_assessed | unknown (rows before IPA1-7). No criteria in NAVORA.';
@@ -137,7 +137,7 @@ begin
   if p_urgency_source is null or p_urgency_source not in ('referrer_stated', 'intake_assessed') then
     raise exception 'urgency_source_required' using errcode = '22023';
   end if;
-  if p_requested_start is not null and p_requested_start < (private.now() at time zone 'Europe/Zurich')::date then
+  if p_requested_start is not null and p_requested_start < (private.at_zurich(private.now()))::date then
     raise exception 'requested_start_before_request' using errcode = '22023';
   end if;
   select coalesce(array_agg(btrim(s)) filter (where btrim(s) <> ''), '{}')
@@ -177,7 +177,8 @@ grant execute on function public.record_partner_request(uuid, text, text, text, 
   to authenticated;
 
 -- 4. The team sees the source (and the referrer's date) beside the level before it decides --------------------------
--- Body as 0034 with two columns added; the ORDER BY (G3) is unchanged.
+-- Body as 0034 with two columns added; the ORDER BY (G3) is unchanged. Kept in the LEAVE1-3 form of 0074 (plpgsql,
+-- `return query`, the access guard first), so a person whose access ended still reads no offer (pgTAP 074 catalogue).
 drop function if exists public.team_offers();
 create function public.team_offers()
 returns table (matching_request_id uuid, team_id uuid, team_name text, request_title text, region text, urgency text,
@@ -185,8 +186,12 @@ returns table (matching_request_id uuid, team_id uuid, team_name text, request_t
                expected_hours_per_week numeric, required_qualification text, response_due_at timestamptz,
                returning_client boolean, first_refusal_until timestamptz,
                urgency_source text, referrer_requested_start date)
-language sql stable security definer set search_path = ''
+language plpgsql stable security definer set search_path = ''
 as $$
+#variable_conflict use_column
+begin
+  if private.access_ended((select auth.uid())) then return; end if;  -- LEAVE1-3
+  return query
   -- RET1: only the preferred (previous) team sees "returning" and its window; other teams see the J2 offer
   -- without any mention of an earlier case, and only once the window is over or declined.
   select m.id, t.id, t.name, m.request_title, m.region, m.urgency, m.required_services, m.created_at,
@@ -207,6 +212,7 @@ as $$
     and (m.required_qualification is null or private.team_has_registered_nurse(t.id))
     and (m.preferred_team_id = t.id or not private.first_refusal_open(m.id))
   order by case m.urgency when 'hoch' then 0 when 'mittel' then 1 else 2 end, m.response_due_at nulls last, m.created_at;
+end
 $$;
 revoke all on function public.team_offers() from public, anon;
 grant execute on function public.team_offers() to authenticated;
