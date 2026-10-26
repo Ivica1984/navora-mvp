@@ -16,6 +16,73 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-26 09:26 CET: WORK1 (0079, pgTAP 079) reviewed on its merge commit; CGR-65 (advisory, S2): the working-day proposal and the visit record can hold two different times for the same visit; billing isolation and no per-person ranking confirmed; the PO's segment-check hypothesis judged
+
+**Scope:** `recovery/main` @ `e715436`. Changes since my 05:26 CET section (#431, merged):
+- **Code merged:** #434 **WORK1** (0079, ADR-092, pgTAP 079 (68), unit `work-rules`, e2e `work.spec`, `/work` page, AN1 `pilot_kpis` team row, pgTAP 032 adjusted) as `a5c94a6`. **CI `app`, `db`, `e2e` green on `a5c94a6` and on `e715436`** (read through the GitHub API). Between them only docs changed.
+- **Docs merged:** PO 06:10 (**LEAVE1 accepted**; CGR-64 placed as LEAVE1-C2, CGR-63 as LEAVE1-C3 option (a), step 6 display-only relations as LEAVE1-C4), 07:15 (WORK1 reviewed, awaiting clinical review; WORK1-C1), 08:15 (WORK1-C2, WORK1-C3, G-19 item (4)); `lca` 05:41 (D-12, D-14), 07:45 (D-23 item 14).
+- **Open PRs:** #440 (PO, docs: **COND1** brief, all pre-pilot conditions under one hand-off), #435 (eng, docs: WORK1 `delivered`), #3 (owner, `main`). Issues #399, #409 still open. **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read 0079 in full, pgTAP 079 (catalogue, billing and team-ratio parts), `work-client.tsx` segment editing, the F3 table (0008) and the billing reader of effective event times (0023:28-40). **I did not run the NAVORA test suite** and touched no live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-65 | WORK1 (0079) with F3 (0008) and billing (0022, 0023) | **advisory (S2)** | **The same visit can carry two different times, and nothing tells the nurse.** The proposal builds care and travel segments from the raw `visit_events.occurred_at`, while the clinical record and the billing basis use the *effective* time (latest F3 correction, else the recorded time). So (1) a nurse who corrected a visit time on the visit (F3, reasoned, authored) is shown the uncorrected time again at night and must correct it a second time; (2) a nurse who notices a wrong visit time while confirming her day corrects it **only** in her working day (reason `time_wrong`): the visit record, the signed report's time basis and the measured minutes stay wrong, because the working day never writes back (correctly, WORK1-7). Her exported record (employer) and the billed minutes (payer) then disagree for the same visit, without a trace on the visit. Bounded: synthetic data only until G-19; billing itself is unchanged and isolated. Hence S2 (before go-live), not S1. IMPLEMENTED as described; no clinical rule involved | 0079:196-209 (`occurred_at`, no join to `visit_time_corrections`; ordering also by raw time); ADR-092 deviation 3 (accepted "for now"); 0008 header (effective time = latest correction; "keine stillen Zeitkorrekturen", DOMAIN_RULES); 0023:33-36 and 0022:101 (billing reads `coalesce(corrected_at, occurred_at)`); `work-client.tsx:179-183` (segment times editable, no hint that the visit is unchanged) | **eng, po (product authority; no threshold, no clinical rule):** (1) the proposal uses the effective event time (the same lateral join as 0023:33-36) and marks corrected segments; (2) when she changes the start or end of a segment that came from a visit, `/work` states that the visit record keeps its time and points her to the time correction on that visit (F3); the working day still never writes to `visit_events` or `visit_time_corrections`. pgTAP: an event with an F3 correction → `my_working_day` returns the corrected instant; `confirm_working_day` leaves both visit tables unchanged (row fingerprint before/after). Unit or e2e: editing a visit segment shows the hint. May ride COND1-3 (WORK1-C1 touches the same command) |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| CGR-64 | open, advisory (S2); **placed by the PO as LEAVE1-C2** (06:10; includes `pending` and the banner's `signal_step_outside_app`), scheduled as COND1-1 (#440, open). PLANNED | `briefs/LEAVE1.md` *Conditions*; COND1 brief |
+| CGR-63 | open, advisory (S3); **placed as LEAVE1-C3, option (a)** (a take counts only if recorded after the taker's latest access end). PLANNED. Option (a) is the safer of the two I offered: it adds no reading task | same |
+| CGR-61 | open, advisory (S2); DOOR1-14, COND1-2. PLANNED | no change |
+| CGR-60 | open, advisory (S3); FUP1-C1, COND1-4. PLANNED | no change |
+| CGR-54, CGR-56 | open, advisory (S3, S2); DST1-C4, DST1-C5. PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: none.
+
+### WORK1 checks asked for (no finding)
+
+- **Working time never feeds billing (WORK1-7): IMPLEMENTED and tested.** Only 0079 and `src/features/work` name the working-day tables or helpers (text search over all migrations and `src`). pgTAP 079:268-278: the reader catalogue over all functions reading `working_day_versions`, `working_time_notice_acks`, `working_day_proposal` or `team_confirmed_care_share` is exactly her read models and commands plus `pilot_kpis`; no `billable|billing|invoice|payer` function reads `working_`. `generate_billable_facts` is not touched by 0079. Billing keeps its own time basis (0023), which is why CGR-65 matters.
+- **No per-person ranking: IMPLEMENTED and tested.** `team_confirmed_care_share` groups by team only and is executable by no app role (0079:233-254; pgTAP 079:272-275); `pilot_kpis` shows value and base only from 3 people **and** 5 confirmed days (0079:617-624; pgTAP 079:291-314); the organisation row is a note, so a hidden team cannot be derived by difference. Tables readable only by the person (0079:94-111; pgTAP 079:251-263).
+- **Documentation integrity: no regression.** The working day writes only `working_day_versions` and `working_time_notice_acks` (append-only, 0079:113-137); no visit, report, signal or quality table is written. A leaver confirms and reads nothing (pgTAP 079:320-329).
+- **WORK1-C1 (PO condition): supported from a measure-validity view.** A North Star that can exceed 100 % is wrong in the direction the pilot hopes for, so it must hold before any ratio is read as evidence. I add one point for the same PR: with CGR-65 (1) the care segments come from the effective visit times, so the team ratio and the billed measured minutes rest on the same times.
+- **What the ratio means (LT-3, G-5).** "Direkte Pflegezeit" here is visit time from start to completion, including documentation done during the visit. It is a process measure, not a care-quality or outcome measure. A rising share can also come from removing coordination, handover reading or report time, which protect the client. Before a team ratio is read as pilot evidence, the PO should show it next to the existing safety measures of the same team and month (uncovered and missed visits, untaken P1 signals, unsigned reports), never alone. Which outcome indicators belong there is **UNKNOWN, owner and Clinical Owner** (G-5).
+
+### Clinical view on the PO's 07:15 hypothesis (drop nightly segment editing; care minutes from corrected events; not a decision)
+
+Supported, because it moves every visit time correction to one place: the visit (F3), where it is reasoned, authored, visible to the team and read by billing and the record. That removes CGR-65 (2) by design. Two conditions from a safety view: (a) the nurse must still be able to correct her own past visit times through F3 after the day ends (as built in 0008 corrections are refused only in the future or out of order; any later time limit must keep this route open); (b) the day start, day end, breaks and work outside visits stay hers to confirm, since they are not in any visit record. The 5 % threshold is a product threshold, not a clinical one.
+
+### Other changes reviewed (no finding)
+
+- **COND1 (#440, open, docs).** COND1-1 carries CGR-64 (incl. `pending` and the banner path) and CGR-63 option (a) as I asked; COND1-2 carries CGR-61 as DOOR1-14. The brief adds no rule and keeps "stop and say so" for any missing clinical value. Consistent with my remedies.
+- **LEAVE1 accepted (PO 06:10)** after my 05:26 section; consistent (no blocking finding was open).
+- **`lca` D-23 item 14 and PO item 15** (audit log of confirmations named in the text; leaver's unexported-day count for administrators only): working-time privacy, no clinical content; no finding.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| WORK1 (merged `a5c94a6`; reviewed, awaiting clinical review) | **reviewed on the merge commit; no blocking finding. The clinical gate does not block acceptance**; CI green on `a5c94a6` and `e715436`. CGR-65 (S2) may be placed as a condition with WORK1-C1 (before G-19 and before any ratio is read as evidence) | CGR-65; WORK1-C1 to -C3 |
+| LEAVE1 (accepted) | consistent; CGR-63, CGR-64 placed as LEAVE1-C3, -C2 | CGR-63, CGR-64 |
+| COND1 (approved brief, #440 open) | consistent with my remedies | none |
+| DOOR1, AUD1, FUP1 | unchanged | as before |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:** (1) WORK1 may be accepted: no blocking clinical finding; (2) place CGR-65 as a WORK1 condition, best inside COND1-3; (3) before a team ratio is read as pilot evidence, show it only beside the team's safety measures (above); (4) the four points of the 07:15 hypothesis view above, when that hypothesis becomes a brief.
+- **eng:** COND1 in the PO's order (COND1-1 first, patient safety); CGR-65 with WORK1-C1; #399, #409.
+- **owner:** G-1 (name the Clinical Owner and a deputy), D-1 (urgent); G-5 outcome indicators for the pilot; merge this PR if my own merge is refused.
+- **clinical** (once named): D-30, D-17 part 3, D-19 part 1, D-28, D-10, D-16 as before.
+
+---
+
 ## 2026-10-26 05:26 CET: LEAVE1-14 (0078, pgTAP 078) and AUD1 (0077) reviewed on their merge commits; CGR-62 closed; CGR-63 (advisory, S3) and CGR-64 (advisory, S2); the PO's D-30 (d) hypothesis judged
 
 **Scope:** `recovery/main` @ `71147a5`. Changes since my 01:26 CET section (PR #416, CI green, not merged; carried into this PR by a merge commit, JOURNAL both sides kept; #416 is closed as superseded):
