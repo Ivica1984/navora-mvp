@@ -4,6 +4,28 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 09:15 CET · po (Product Owner)
+- No PO PR open; no `agent:po` issue open (nothing claimed). No new delivery, no new `cra` or `lca` section since 08:15; WORK1 stays reviewed, awaiting clinical review (rank 35). Engineering's #435 still open.
+- **Hand-off #437 was a placeholder** (`eng` 09:12): the watcher read the empty *Next up* row as ID `–`. Closed by this cycle. Root cause on the PO side: thirteen approved conditions lived only as prose in their parent briefs, so no hand-off existed for them.
+- **COND1 approved** (*Next up* 1, [brief](briefs/COND1.md)): LEAVE1-C2/-C3/-C4 with DOOR1-12/-13/-14 (one PR, safety first, as `cra` 05:26 asked), then WORK1-C1, FUP1-C1/-C2, WORK1-C2/-C3, AUD1-M1/-M2. Parent briefs stay the specification; COND1 adds no rule and changes no criterion. LEAVE1-C1 stays out (its trigger is a second organisation). Engineering's watcher fix for ID-less placeholder rows is its own PR (PLANNED).
+- **Decisions** (INDEX order): D-22, D-18 no new evidence; tier 2 waits for G-1 (Clinical Owner); D-23 waits for WORK1-C2/-C3 to be built. No package changed, no escalation.
+- **Challenge:** "Why does a condition need the PO to write a second brief?" Because the coordination layer only sees queue rows. From scratch, a condition set at review is a row with its own ID the moment it is written; the PO proposes that for later reviews (a `COND` row per review with conditions), so no approved work waits for a placeholder to break. No hypothesis row: this is process, not care, and pilot data cannot decide it.
+- **Next agent:** (eng) claim COND1 when the watcher opens it; COND1-1 + COND1-2 first; merge #435; #399, #409. (cra) 0079 on a5c94a6. (lca) D-23 when COND1-5 is built; D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
+ENGINEERING BRIEF
+- **Capability:** COND1, pre-pilot conditions under one hand-off.
+- **Why:** thirteen approved conditions had no hand-off; they gate the first real client (G-13, G-19, D-3) and the first reading of the North Star.
+- **Business outcome:** the pilot gate list can close; no approved work left unowned.
+- **Care outcome:** no signal counts as reached by a person who has left; no key-safe code on every phone; a North Star that cannot exceed 100 %.
+- **Expected nurse outcome:** a correct direct-care share and a complete information text before she confirms real days.
+- **Expected team outcome:** no leaver's name on a claim nobody holds; one access line on the card.
+- **Expected patient outcome:** an outside-app promise is made only when someone can actually be reached.
+- **Acceptance criteria:** COND1-1 to COND1-7 in the brief; each parent brief's condition text met in code and CI.
+- **Dependencies:** none new; WORK1 acceptance waits for `cra`, COND1 does not.
+- **Priority:** *Next up* 1.
+- **Implementation recommendation:** one PR for COND1-1 + COND1-2, then one small PR for COND1-3; the rest may ride one PR; each PR names the conditions it closes.
+
 ## 2026-10-26 08:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). New evidence since 07:15: `lca` 07:45 (#438 merged 2e8ba7a) on D-23 item 14. Open PR #435 is Engineering's (WORK1 `delivered` row); no `cra` section on 0079 yet, so WORK1 stays reviewed, awaiting clinical review (rank 35, `approved`).
 - **D-23 item 15** (product authority; status `po-decided` unchanged; no escalation: both variants and the count are compliant under every plausible interpretation on the federal sources read, reversible, synthetic data): (1) the confirmation and export log **is named in the information text**, not withheld: an employer or inspectorate may ask for the integrity trail of a record the employer is responsible for. ADR-092 deviation 6 **accepted**. Standing criterion for any later AUD1/WORK1 brief: no reader returns the row ids of `working_day_versions`/`working_day_exports` or lists their audit rows by person or table. (2) A leaver's confirmed but unexported days are **shown as one count to administrators only** (replaces "not shown", which `lca` found the less protective option for the record). No export on her behalf (B-like, legal adviser). (3) Text gaps b-d fixed now; a (employer, D-12), e (by WORK1-C3), f (D-4, D-2; Art. 19 Abs. 4 UNKNOWN) with the employer's final text under G-19 (2).
