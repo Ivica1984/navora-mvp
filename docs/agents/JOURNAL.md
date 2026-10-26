@@ -4,6 +4,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 18:10 CET · po (Product Owner)
+- No open PO PR; nothing delivered (COND1 `in-progress`; #471 open, COND1-8 still to come, so no COND1-7 review). `agent:po` #460 (D-35) claimed. **New evidence:** `cra` 17:26 (COND1-3 to -5 clinically clear; **CGR-69**; D-35 *Clinical impact*; D-34 question 7) and `lca` 17:55 (D-23 P-11 answer; D-34 question 7 (a)-(c); D-35 terms 9 and 10).
+- **CGR-69 decided** (product authority; no threshold, no criteria; `lca`: compliant under every plausible interpretation): [IPA1](briefs/IPA1.md) gains **IPA1-7** (no preset intake urgency, refused when empty; source recorded as "vom Zuweiser angegeben" / "bei der Aufnahme eingeschätzt", carried to case and matching request, shown on `/team`; old rows "Quelle nicht erfasst") and **IPA1-8** (the referrer's requested first-visit date, optional, shown, never used to order: P-10 data). G3 ordering unchanged. Whether intake may assess urgency at all: `clinical` (G-1).
+- **Decision packages** (INDEX order; tier 1 D-22, D-18 without new evidence; tier-2 clinical packages wait for G-1):
+  - **D-34** moves to **tier 2** (CGR-69 names question 7; INDEX order 13, rows renumbered). Question 7 now `lca`'s (a)-(c); owner ask unchanged (`awaiting-approval: owner`).
+  - **D-35 `po-decided`: option A as the pilot rule** (Medium; C and L in, E drafted by po). No client or staff data reaches any AI service during the pilot; A1, A3-A6 as deterministic rules. B or C only through a new `owner` package on `lca` conditions 1-10 and `cra` 2(a)-(e), G-1 named, A7 not first. No escalation criterion applies to A (compliant under every interpretation, no provider or spend, reversible). `cra` 2(a)-(c), terms 9 and 10 added to the [AI review](../product/AI_OPERATING_MODEL_REVIEW.md) §7/§8. Moved to *Decided*.
+  - **D-23** item 18: the WORK1 acknowledgement gate stays until D-12 names the employer (recorded display compliant only for a private-law employer); label stays non-consent. **D-12** gains a policy term: employer type and whether the employer wants an acknowledgement.
+- **Challenge:** "Why does an intake person judge how urgent a client is?" The team's RN reads the need summary before accepting anyway. **Hypothesis P-12** (no build beyond IPA1-7): intake records only what the referrer states; measure the intake-assessed share and time to decision by source; remove "eingeschätzt" if under 1 in 5 without slower decisions.
+- No new brief (approved, unstarted work remains: COND1 rest, IPA1). No new escalation; owner asks unchanged.
+- **Next agent:** (eng) #471 and COND1-8; then IPA1 incl. IPA1-7/-8; confirm the D-34 question 7 fact. (cra) COND1-4a, -6, -8 to -10 when merged; IPA1-7 when built. (lca) D-34 question 7 once IPA1-7 is built; D-23 at COND1-5b's merge.
+- No clinical, PAG, MQI or LTCF rule invented. Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing.
+
+ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
+- **Capability:** IPA1-7 and IPA1-8: the intake urgency has no preset and a recorded source; the referrer's requested first-visit date is recorded.
+- **Why:** as built, a preset "mittel" orders team offers without anyone choosing, and the record cannot show whose urgency it is (CGR-69; D-34 question 7).
+- **Business outcome:** the regulatory adviser can assess G3 from the product as it ships; P-10 and P-12 are measured from events, not tallied.
+- **Care outcome:** a discharged client's offer is not silently ranked "mittel" (H-19); the team sees whose urgency it is.
+- **Expected nurse outcome:** the accepting RN knows whether the urgency is the referrer's or an intake judgement before deciding.
+- **Expected team outcome:** the team, not intake, holds the clinical reading of the need (P-12 test).
+- **Expected patient outcome:** fewer delayed first visits from a default value.
+- **Acceptance criteria:** IPA1-7 and IPA1-8 in [briefs/IPA1.md](briefs/IPA1.md) (pgTAP refusal, storage and `team_offers` output; e2e at 390 px; ordering unchanged).
+- **Dependencies:** none blocking; the criteria for choosing an urgency are `clinical` (G-1), not part of this work.
+- **Priority:** with IPA1 (*Next up* 2), after COND1.
+- **Implementation recommendation:** one migration adding the source enum and the optional date to the request, case and matching-request tables, `record_partner_request` and the 0013 case path re-created with the new required argument; existing rows `unknown`; UI select without default.
+
 ## 2026-10-26 17:55 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). **Three packages this run**, all on new evidence or an explicit ask. I ran no NAVORA test and did not access the live project.
