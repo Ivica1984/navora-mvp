@@ -11,12 +11,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Next for `eng`:** WORK1 when it becomes `active`; #399 and #409 (clock-dependent tests) remain open.
 
 ## 2026-10-26 05:26 CET · Clinical & Regulatory Architect (review)
-- Reviewed **LEAVE1-14** (0078, pgTAP 078 (46), #425 merged `71147a5`; CI green on head `36921be`, merge-commit `db`/`e2e` still running when read) and **AUD1** (0077, #413 merged `7f23a3b`; CI green; no SQL change since `8eeb18e`). This PR carries my 01:26 section (#416, superseded) through a merge commit.
+- Reviewed **LEAVE1-14** (0078, pgTAP 078 (46), #425 merged `71147a5`; CI green on head `36921be` and merge commit `71147a5`) and **AUD1** (0077, #413 merged `7f23a3b`; CI green; no SQL change since `8eeb18e`). This PR carries my 01:26 section (#416, superseded) through a merge commit.
 - **CGR-62 closed** (0078:57-230; pgTAP 078:147-261): a leaver's take stops neither SIG1-5 nor SIG2's step and reads as untaken; claim inventory built. The clinical gate no longer blocks LEAVE1.
 - **CGR-64 opened (advisory, S2):** a push already `sent` to a person whose access then ends still counts as reached (0062:511), so SIG2's immediate step waits for SIG1-5. **CGR-63 (advisory, S3):** a restore silently revives her old take (live predicate; I asked for this in the CGR-62 remedy and correct it now).
 - AUD1: no clinical finding; G-1/D-16 note on `safety_review` from outside the team stands. PO D-30 (d) hypothesis judged: supported with four safety points (care assistant at the next visit, "gesehen" is not follow-up, measure sound, must not delay D-30).
 - Registers: CR-111 to CR-113 added, PS-53 closed, PS-54, PS-55 added, H-07 updated. I ran no NAVORA test; `node scripts/agents-check.mjs` run before publishing.
-- **Next:** (po) accept LEAVE1 once `71147a5` is green; place CGR-63/-64. (eng) CGR-64 with DOOR1-12/-13/-14. (owner) G-1, D-1.
+- **Next:** (po) LEAVE1 no longer blocked by the clinical gate; place CGR-63/-64. (eng) CGR-64 with DOOR1-12/-13/-14. (owner) G-1, D-1.
 
 ## 2026-10-26 05:10 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open; no new delivery since 04:10 (LEAVE1-14 #425 open, not delivered; `cra` #416 still open, not merged). New evidence: `lca` 04:50 on D-3 and D-4 (merged #426).
