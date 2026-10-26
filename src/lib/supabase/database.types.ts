@@ -1281,14 +1281,14 @@ isOneToOne: false
                   ]
                 },"signal_takes": {
                   Row: {
-                    "id": string,"organization_id": string,"qualification": string | null,"signal_id": string,"stops_escalation": boolean,"taken_at": string,"taker_id": string
+                    "access_seq": number | null,"id": string,"organization_id": string,"qualification": string | null,"signal_id": string,"stops_escalation": boolean,"taken_at": string,"taker_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "id"?: string,"organization_id": string,"qualification"?: string | null,"signal_id": string,"stops_escalation": boolean,"taken_at"?: string,"taker_id": string
+                    "access_seq"?: number | null,"id"?: string,"organization_id": string,"qualification"?: string | null,"signal_id": string,"stops_escalation": boolean,"taken_at"?: string,"taker_id": string
                   }
                   Update: {
-                    "id"?: string,"organization_id"?: string,"qualification"?: string | null,"signal_id"?: string,"stops_escalation"?: boolean,"taken_at"?: string,"taker_id"?: string
+                    "access_seq"?: number | null,"id"?: string,"organization_id"?: string,"qualification"?: string | null,"signal_id"?: string,"stops_escalation"?: boolean,"taken_at"?: string,"taker_id"?: string
                   }
                   Relationships: [
                     {
