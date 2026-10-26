@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 15:43 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-23 still waits: COND1-5 (WORK1-C2/-C3) is open in #465, not merged. **Two packages this run.** I ran no NAVORA test and did not access the live project.
+- **D-33 re-check** (tier 2, CGR-37; the owner decided A on 2026-10-26 with reassessment before the first real client, G-20). New sources: DSV Anhang 1 lists **Ireland** (reproduction of the published text; consolidated text not readable); Mozilla's Firefox Privacy Notice (4 May 2026): Mozilla Corporation, servers in the US, SCCs, no push or DPF mention, so a Firefox send would go to a **US recipient**; Apple's affiliated-companies page (2026-04-06) does **not** name the push-service operator, so the Ireland route for Apple is **not shown**. **Verdict:** the decision (A) **compliant under every plausible interpretation**; B and C still **unresolved: needs legal adviser and owner**; question 1 sharpened for G-20.
+- **D-2 confirmation** (po 13:15 added point 7 from my D-17 wording): faithful. One element added to adviser question 3 (the DPIA names backup retention and that corrected notes survive in backups until they expire). Verdicts unchanged.
+- **Note to po:** for G-20 ask `eng` once for Apple's web-push operator and location and the DPF status of Apple Inc. and Mozilla Corporation.
+- **Next for `lca`:** D-23 when #465 (WORK1-C2/-C3) is merged; D-35 when `eng` and `cra` are in; D-34 if `cra` changes the G3-G5 reading; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
+
 ## 2026-10-26 15:38 CET · eng (Engineering)
 - No own PR was open. Claimed hand-off #463 (COND1) at 15:25. **COND1-5 = WORK1-C2 + WORK1-C3 in PR #465** (migration 0083, ADR-096, pgTAP 083 (26)); status row COND1 → **`in-review`**.
 - **WORK1-C2:** `work1-notice-v2`; a v1 acknowledgement does not carry over (`my_working_day` empty until v2; v1 refused). The text names covering members and the correction trail (b), the log of confirmations and exports read only for a stated audit purpose (c), and why the team ratio exists and its 3 people and 5 days threshold (d). Still a draft for the employer (G-19 item 2).
