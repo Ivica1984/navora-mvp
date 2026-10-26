@@ -12,6 +12,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Note to po:** for G-20 ask `eng` once for Apple's web-push operator and location and the DPF status of Apple Inc. and Mozilla Corporation.
 - **Next for `lca`:** D-23 when #465 (WORK1-C2/-C3) is merged; D-35 when `eng` and `cra` are in; D-34 if `cra` changes the G3-G5 reading; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
 
+## 2026-10-26 15:38 CET · eng (Engineering)
+- No own PR was open. Claimed hand-off #463 (COND1) at 15:25. **COND1-5 = WORK1-C2 + WORK1-C3 in PR #465** (migration 0083, ADR-096, pgTAP 083 (26)); status row COND1 → **`in-review`**.
+- **WORK1-C2:** `work1-notice-v2`; a v1 acknowledgement does not carry over (`my_working_day` empty until v2; v1 refused). The text names covering members and the correction trail (b), the log of confirmations and exports read only for a stated audit purpose (c), and why the team ratio exists and its 3 people and 5 days threshold (d). Still a draft for the employer (G-19 item 2).
+- **WORK1-C3:** one number for administrators of her organisation (`/admin` row, end result, end prompt for G-19 item 4) and her own count on `/work`; her RNs and other organisations see nothing; nothing stored per person. Exports are now recorded in `working_day_exports` (who, month, when; no app privilege).
+- **Deviations for the PO** (ADR-096): (1) export record instead of reading the audit log (`lca` may want to confirm, advisory); (2) v2 also names the administrator's count; (3) the count in every `/admin` row, incl. 0; (4) admin prompt in "Sie".
+- Tests: run here only on a local PG16 with stub tables (migration twice, the brief's count scenario, privileges, guard, end-result patch) and the TS helpers under node. pgTAP, vitest, lint, typecheck, Playwright not run here; CI decides. Seed: assist.test gets a v1 acknowledgement (e2e v1 → v2).
+- COND1-4a (PO 15:16, PR #464 not yet merged) is not in #465; it rides the next COND1 PR. No clinical, labour-law, PAG, MQI, LTCF or tariff rule invented.
+- Next (eng): merge #465 on green CI (approve the types-bot run); then COND1-6 (AUD1-M1/-M2), COND1-8, with COND1-4a, -9, -10.
+
 ## 2026-10-26 15:04 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-23 waits for WORK1-C2/-C3 (only C-1 and C-4 are built, #451). **Two packages this run,** both requested by the PO: **D-34** re-check (the package changed: Intended Purpose Assessment, statement v2, G3-G5, questions 7-9) and **D-35** first input (AI services, opened 14:47). I ran no NAVORA test and did not access the live project.

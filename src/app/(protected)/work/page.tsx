@@ -1,6 +1,6 @@
 import { connection } from "next/server";
 import { parseDayParam, shiftDay, todayInZurich } from "@/features/field/rules";
-import { getMyWorkingDay, getMyWorkingDayVersions, getWorkingTimeNotice } from "@/features/work/queries";
+import { getMyUnexportedDays, getMyWorkingDay, getMyWorkingDayVersions, getWorkingTimeNotice } from "@/features/work/queries";
 import WorkClient from "./work-client";
 
 // WORK1 (migration 0079, ADR-092): the nurse's own working day, proposed from her visit events, confirmed and exported
@@ -15,6 +15,8 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
   const [proposal, versions] = notice.acknowledged
     ? await Promise.all([getMyWorkingDay(day), getMyWorkingDayVersions(day)])
     : [[], []];
+  // WORK1-C3 (d): her own count of confirmed days not yet exported (only after the information text).
+  const unexported = notice.acknowledged ? await getMyUnexportedDays() : null;
   return (
     <WorkClient
       key={`${day}:${versions[0]?.version ?? 0}`}
@@ -25,6 +27,7 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
       acknowledged={notice.acknowledged}
       proposal={proposal}
       versions={versions}
+      unexported={unexported}
     />
   );
 }

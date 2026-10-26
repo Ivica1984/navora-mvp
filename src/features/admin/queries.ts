@@ -33,6 +33,8 @@ export type AdminData = {
   access: Record<string, AccessState>;
   /** LEAVE1-12 (1): her open reports by kind, visit date and team (no content, no reason). */
   openReports: Record<string, OpenReport[]>;
+  /** WORK1-C3 (a), migration 0083: her confirmed days not yet exported, one number (administrators only; else absent). */
+  unexportedDays: Record<string, number>;
 };
 
 function fail(event: string, error: unknown): never {
@@ -74,6 +76,13 @@ export async function getAdminData(): Promise<AdminData | null> {
     if (r.error) fail("admin.open_reports_failed", r.error);
     if ((r.data ?? []).length > 0) openReports[memberRows[i].user_id] = r.data ?? [];
   });
+  // WORK1-C3 (a): one number per member at this moment (null for non-administrators, then not shown).
+  const counts = await Promise.all(memberRows.map((m) => supabase.rpc("member_unexported_working_days", { p_user_id: m.user_id })));
+  const unexportedDays: Record<string, number> = {};
+  counts.forEach((r, i) => {
+    if (r.error) fail("admin.unexported_days_failed", r.error);
+    if (typeof r.data === "number") unexportedDays[memberRows[i].user_id] = r.data;
+  });
   return {
     organizationId,
     members: memberRows,
@@ -83,5 +92,6 @@ export async function getAdminData(): Promise<AdminData | null> {
     rules: rules.data ?? [],
     access: accessStateByUser((accessEvents.data ?? []) as AccessEvent[]),
     openReports,
+    unexportedDays,
   };
 }

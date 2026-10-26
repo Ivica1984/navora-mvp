@@ -5,7 +5,10 @@ import { expect, test, type Page } from "@playwright/test";
 // questions open (WORK1-2), confirm, correct (WORK1-3) and export the month (WORK1-4). Synthetic local-only account from
 // supabase/seed.sql: assist.test (care assistant, Testteam Nord). The day is three days back, a day without her visit
 // events, so start, end and both questions are hers to enter (gaps are never filled).
+// COND1-5 (migration 0083, ADR-096): the seed gives assist.test a v1 acknowledgement, so she is shown v2 first
+// (WORK1-C2); her own count of unexported days on /work and the administrator's count on /admin (WORK1-C3).
 const NURSE = "assist.test@navora.test";
+const ADMIN = "admin.test@navora.test"; // org A, role admin
 const PASSWORD = "navora-local-only";
 
 function zurichDay(offsetDays: number): string {
@@ -13,12 +16,12 @@ function zurichDay(offsetDays: number): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Zurich", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
 }
 
-async function signIn(page: Page) {
+async function signIn(page: Page, email = NURSE, landing: RegExp = /\/field/) {
   await page.goto("/login");
-  await page.getByLabel("E-Mail").fill(NURSE);
+  await page.getByLabel("E-Mail").fill(email);
   await page.getByLabel("Passwort").fill(PASSWORD);
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await page.waitForURL(/\/field/);
+  await page.waitForURL(landing);
 }
 
 test("the nurse confirms, corrects and exports her working day (WORK1-2, -3, -4, -8)", async ({ page }) => {
@@ -27,10 +30,13 @@ test("the nurse confirms, corrects and exports her working day (WORK1-2, -3, -4,
   await signIn(page);
   await page.goto(`/work?datum=${day}`);
 
-  // WORK1-8: the information text comes first; after acknowledging it, the proposal.
+  // WORK1-8 / WORK1-C2: the information text comes first; she acknowledged v1 (seed), so v2 is shown before her
+  // proposal. After acknowledging it, the proposal.
   const notice = page.getByRole("region", { name: "Information zu deinem Arbeitstag" });
   await expect(notice).toContainText("damit ihr die Pflege koordinieren könnt");
   await expect(notice).toContainText("siehst nur du");
+  await expect(notice).toContainText("nur für einen angegebenen Prüfzweck gelesen");
+  await expect(notice).toContainText("erst ab drei Personen und fünf bestätigten Arbeitstagen");
   await notice.getByRole("button", { name: "Gelesen und verstanden" }).click();
   const proposal = page.getByRole("region", { name: "Vorschlag aus deinen Einsätzen" });
   await expect(proposal).toBeVisible();
@@ -53,6 +59,8 @@ test("the nurse confirms, corrects and exports her working day (WORK1-2, -3, -4,
   // WORK1-3: confirmed as version 1; paid time = start to end minus the break.
   await expect(page.getByRole("heading", { name: "Bestätigt (Fassung 1)" })).toBeVisible();
   await expect(page.getByTestId("paid-minutes")).toContainText("480 Min.");
+  // WORK1-C3 (d): her own count, with a prompt to export.
+  await expect(page.getByTestId("unexported-days")).toContainText("1 bestätigter Tag ist noch nicht exportiert.");
 
   // Correction: a new version with a reason code; the earlier version stays readable.
   await page.getByRole("button", { name: "Korrigieren" }).click();
@@ -79,7 +87,40 @@ test("the nurse confirms, corrects and exports her working day (WORK1-2, -3, -4,
   expect(csv).toContain(`${day};Arbeitstag;`);
   expect(csv).toContain(`${day};Bezahlte Arbeitszeit (Tag ohne Pausen);;;510;2;`);
   expect(csv).not.toContain("Synthetisch");
+  // WORK1-C3: the export was made after her latest version, so nothing is left unexported.
+  await expect(page.getByTestId("unexported-days")).toHaveText("Alle bestätigten Tage sind exportiert.");
 
   // Phone width: no horizontal scroll.
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
+test("the administrator sees her unexported days as one number in the /admin list (WORK1-C3)", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  // She confirms one more day (four days back, no visit events) and does not export it.
+  const day = zurichDay(-4);
+  await signIn(page);
+  await page.goto(`/work?datum=${day}`);
+  await page.getByLabel("Beginn des Arbeitstags?").fill("08:00");
+  await page.getByLabel("Ende des Arbeitstags?").fill("12:00");
+  await page.getByRole("group", { name: "Pausen von 30 Minuten oder mehr?" }).getByLabel("Keine", { exact: true }).check();
+  await page.getByRole("group", { name: "Arbeit ausserhalb der Einsätze?" }).getByLabel("Keine", { exact: true }).check();
+  await page.getByRole("button", { name: "Arbeitstag bestätigen" }).click();
+  await expect(page.getByRole("heading", { name: "Bestätigt (Fassung 1)" })).toBeVisible();
+  await expect(page.getByTestId("unexported-days")).toContainText("1 bestätigter Tag ist noch nicht exportiert.");
+  await page.context().clearCookies();
+
+  // The administrator of her organisation sees one number in the LEAVE1-12 list, no date, month or time.
+  await signIn(page, ADMIN, /\/operations$/);
+  await page.goto("/admin");
+  const row = page.getByRole("region", { name: "Mitglieder" }).locator('li[aria-label^="Mitglied "]', { hasText: NURSE });
+  const count = row.getByTestId("unexported-days");
+  await expect(count).toHaveText("Bestätigte Tage, die sie noch nicht exportiert hat: 1");
+  await expect(count).not.toContainText(day.slice(0, 7));
+  // G-19 item (4): before ending her access, the administrator is asked to have her export first (not ended here).
+  await row.getByRole("button", { name: "Zugang beenden" }).click();
+  await expect(row.getByTestId("unexported-end-prompt")).toContainText("Sie hat 1 bestätigten Tag noch nicht exportiert.");
+  await row.getByRole("button", { name: "Abbrechen" }).click();
+
+  // Phone width: /admin keeps its desktop sidebar layout (as push.spec SIG2-C1), so the count's own box must not overflow.
+  expect(await count.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
 });

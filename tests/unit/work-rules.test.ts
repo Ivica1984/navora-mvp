@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  NOTICE_PARAGRAPHS, NOTICE_VERSION, buildCsv, buildPayload, elapsedMinutes, endInstant, openQuestions,
+  NOTICE_PARAGRAPHS, NOTICE_VERSION, unexportedText, buildCsv, buildPayload, elapsedMinutes, endInstant, openQuestions,
   proposalSegments, visitCorrectionHref, visitSegmentChanged, zurichInstant, zurichLocalWithOffset, VISIT_TIME_HINT,
   type DayDraft, type MonthExport,
 } from "@/features/work/rules";
@@ -99,7 +99,43 @@ describe("information text (WORK1-8)", () => {
     const text = NOTICE_PARAGRAPHS.join(" ");
     expect(text).toContain("damit ihr die Pflege koordinieren könnt");
     expect(text).toContain("siehst nur du");
-    expect(NOTICE_VERSION).toBe("work1-notice-v1");
+    expect(NOTICE_VERSION).toBe("work1-notice-v2");
+  });
+
+  // WORK1-C2 (migration 0083): the four statements of v2 (D-23 item 15, lca gaps b, c, d); paragraph 5 stays.
+  it("v2 names who else sees status times and corrections (gap b)", () => {
+    const text = NOTICE_PARAGRAPHS.join(" ");
+    expect(text).toContain("Personen, die dein Team vertreten (Stellvertretung), sehen diese Statuszeiten");
+    expect(text).toContain("sehen die Mitglieder deines Teams den Grund der Korrektur und wer korrigiert hat");
+  });
+
+  it("v2 names the log instead of 'nobody else, the administration included' (gap c)", () => {
+    const text = NOTICE_PARAGRAPHS.join(" ");
+    expect(text).toContain("NAVORA protokolliert deine Bestätigungen und Exporte");
+    expect(text).toContain("Datum, Fassung und Korrekturgrund");
+    expect(text).toContain("Monat und Anzahl Tage, nie Uhrzeiten oder Notizen");
+    expect(text).toContain("nur für einen angegebenen Prüfzweck gelesen");
+    expect(text).not.toMatch(/Niemand sonst/);
+    expect(text).toContain("wie viele bestätigte Tage du noch nicht exportiert hast");
+  });
+
+  it("v2 says why the team ratio exists and when it is shown (gap d); no labour-law check stays", () => {
+    const text = NOTICE_PARAGRAPHS.join(" ");
+    expect(text).toContain("wie viel der bestätigten bezahlten Arbeitszeit auf direkte Pflege entfällt");
+    expect(text).toContain("Planung im Team und der Auswertung des Pilotbetriebs");
+    expect(text).toContain("erst ab drei Personen und fünf bestätigten Arbeitstagen");
+    expect(NOTICE_PARAGRAPHS).toContain("NAVORA prüft keine Pausen-, Ruhe- oder Höchstarbeitszeiten.");
+  });
+});
+
+// WORK1-C3 (d) (migration 0083): her own count on /work, with a prompt to export.
+describe("unexported days on /work (WORK1-C3 d)", () => {
+  it("prompts her to export when days are open, and stays quiet otherwise", () => {
+    expect(unexportedText(1)).toBe("1 bestätigter Tag ist noch nicht exportiert. Exportiere seinen Monat und gib die Datei deiner Arbeitgeberin.");
+    expect(unexportedText(3)).toMatch(/^3 bestätigte Tage sind noch nicht exportiert\./);
+    expect(unexportedText(0)).toBe("Alle bestätigten Tage sind exportiert.");
+    expect(unexportedText(null)).toBeNull();
+    expect(unexportedText(-1)).toBeNull();
   });
 });
 

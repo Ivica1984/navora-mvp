@@ -164,16 +164,34 @@ export type OpenReportCounts = Record<(typeof OPEN_REPORT_KINDS)[number], number
 
 const count = (v: unknown): number => (typeof v === "number" && Number.isInteger(v) && v > 0 ? v : 0);
 
+/** WORK1-C3 (c), migration 0083: the label of the administrator's count (lca term c, wording of the PO brief). */
+export const UNEXPORTED_DAYS_LABEL = "Bestätigte Tage, die sie noch nicht exportiert hat";
+
+/** "Bestätigte Tage, die sie noch nicht exportiert hat: 2", or null when no count is available. */
+export function unexportedDaysText(n: number | null | undefined): string | null {
+  return typeof n === "number" && Number.isInteger(n) && n >= 0 ? `${UNEXPORTED_DAYS_LABEL}: ${n}` : null;
+}
+
+/** G-19 item (4): before an access end, ask her to export first (nothing is exported on her behalf). */
+export function unexportedEndPrompt(n: number | null | undefined): string | null {
+  if (typeof n !== "number" || !Number.isInteger(n) || n <= 0) return null;
+  const days = n === 1 ? "1 bestätigten Tag" : `${n} bestätigte Tage`;
+  return `Sie hat ${days} noch nicht exportiert. Bitten Sie sie, diese vorher selbst zu exportieren; nach dem Ende kann sie es nicht mehr.`;
+}
+
 /**
  * The end_member_access result: its code and, on success, her open reports by kind (LEAVE1-12 (2)), the number of
  * planned visits released to their teams (LEAVE1-13; the command returns them per team, summed here) and the number of
- * open safety signals she had taken (LEAVE1-14 (3), migration 0078; they now read as untaken).
+ * open safety signals she had taken (LEAVE1-14 (3), migration 0078; they now read as untaken). WORK1-C3 (a), migration
+ * 0083: her confirmed days not yet exported (null when the result carries none).
  */
 export function readAccessEndResult(data: unknown): {
-  code: string; openReports: OpenReportCounts | null; released: number; takenSignals: number;
+  code: string; openReports: OpenReportCounts | null; released: number; takenSignals: number; unexportedDays: number | null;
 } {
-  if (!data || typeof data !== "object" || !("result" in data)) return { code: "failed", openReports: null, released: 0, takenSignals: 0 };
-  const d = data as { result?: unknown; open_reports?: unknown; released?: unknown; taken_signals?: unknown };
+  if (!data || typeof data !== "object" || !("result" in data)) {
+    return { code: "failed", openReports: null, released: 0, takenSignals: 0, unexportedDays: null };
+  }
+  const d = data as { result?: unknown; open_reports?: unknown; released?: unknown; taken_signals?: unknown; unexported_days?: unknown };
   let openReports: OpenReportCounts | null = null;
   if (d.open_reports && typeof d.open_reports === "object") {
     const o = d.open_reports as Record<string, unknown>;
@@ -182,7 +200,9 @@ export function readAccessEndResult(data: unknown): {
   const released = d.released && typeof d.released === "object"
     ? Object.values(d.released as Record<string, unknown>).reduce<number>((sum, v) => sum + count(v), 0)
     : 0;
-  return { code: String(d.result), openReports, released, takenSignals: count(d.taken_signals) };
+  const unexportedDays = typeof d.unexported_days === "number" && Number.isInteger(d.unexported_days) && d.unexported_days >= 0
+    ? d.unexported_days : null;
+  return { code: String(d.result), openReports, released, takenSignals: count(d.taken_signals), unexportedDays };
 }
 
 /** Counts open reports by kind from list rows (member_open_reports). */
@@ -204,7 +224,7 @@ export function openReportsText(counts: OpenReportCounts | null): string {
  * again for the team (LEAVE1-14) and what stays open for the team (the command is never refused by open reports,
  * LEAVE1-2).
  */
-export function accessEndedNotice(counts: OpenReportCounts | null, released = 0, takenSignals = 0): string {
+export function accessEndedNotice(counts: OpenReportCounts | null, released = 0, takenSignals = 0, unexportedDays: number | null = null): string {
   const visits = released <= 0 ? "" : released === 1
     ? " 1 geplanter Einsatz ist jetzt offen im Team."
     : ` ${released} geplante Einsätze sind jetzt offen im Team.`;
@@ -212,8 +232,10 @@ export function accessEndedNotice(counts: OpenReportCounts | null, released = 0,
     ? " 1 übernommenes Sicherheitssignal ist wieder offen im Team."
     : ` ${takenSignals} übernommene Sicherheitssignale sind wieder offen im Team.`;
   const open = counts ? OPEN_REPORT_KINDS.reduce((sum, k) => sum + counts[k], 0) : 0;
-  if (open === 0) return `Zugang beendet.${visits}${signals} Keine offenen Berichte.`;
-  return `Zugang beendet.${visits}${signals} Offen bleiben: ${openReportsText(counts)}. Das Team sieht sie mit «Zugang beendet»; sie werden nicht verrechnet.`;
+  // WORK1-C3 (a): only when there are some; the administrator alone receives this result.
+  const days = unexportedDays && unexportedDays > 0 ? ` ${unexportedDaysText(unexportedDays)}.` : "";
+  if (open === 0) return `Zugang beendet.${visits}${signals} Keine offenen Berichte.${days}`;
+  return `Zugang beendet.${visits}${signals} Offen bleiben: ${openReportsText(counts)}. Das Team sieht sie mit «Zugang beendet»; sie werden nicht verrechnet.${days}`;
 }
 
 export type AccessEvent = { user_id: string; kind: string; reason_code: string; created_at: string; seq: number };
