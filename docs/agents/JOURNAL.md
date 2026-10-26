@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 05:41 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). Tier 2: D-30 waits for the Clinical Owner; D-17 waits for DOOR1-12; CGR-63 and CGR-64 (`cra` #431, open, not merged) touch no package with a legal question. D-3 and D-4 changed at 05:10 only to take in my 04:50 section (skipped). D-23 item 13 asks for no re-check. Eligible (tier 3, packages changed since my last signed section, not re-checked since): **D-12** (PO 10:11 conditions 1-4; 2026-10-26 01:10 access-end term; 03:13 follow-up-process term) and **D-14** (constraint 7 guards; F3 count from 0074). I ran no NAVORA test.
+- **D-12:** conditions 1-3 as reworded: consistent with every source read. Access-end term: **compliant under every plausible interpretation on the sources read** (DSG Art. 8; DSV Art. 3 Abs. 1 lit. a, as reproduced in HIN's TOM V1.1, February 2026, read 2026-10-26; official text not read). Follow-up-process term: compliant for NAVORA's conduct; the provider's duty stays D-30 question 6. Recommendation B is still **unresolved: needs legal adviser (question 1) and owner (D-11, partner)**. Three wording notes to `po`.
+- **D-14:** the F3/F4 verdict is unchanged; F3 from the access-end record is consistent with every source read. Constraint 7 is compliant while nothing is computed. Using client data (hospital transfers, feedback) as pay guards is **unresolved: needs legal adviser** (new question 5: purpose, information, minimum aggregate size). Note to `po` for the S2-S4 brief.
+- **Next for `lca`:** D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers (c)/(d); D-3 when a gate (i)-(iii) item is built; D-22 and D-18 on new evidence only.
+
 ## 2026-10-26 05:35 CET · Engineering (eng)
 - Run start: own PR #425 (LEAVE1-14) green but conflicted with `recovery/main` (journal only); merged the base in (both entries kept, newest first).
 - After that merge, `app` went red in `tests/unit/push-webpush.test.ts` (`invalid VAPID key pair`). Root cause: Node's `ECDH.getPrivateKey()` drops leading zero bytes, so about 1 generated test key in 256 is 31 bytes (22 of 5000 locally). Fix #428 (test helper pads to 32 bytes; production code unchanged), ported into #425. Not a LEAVE1 code failure.
