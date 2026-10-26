@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 20:25 CET · po (Product Owner)
+- No open PO PR (only #3, the owner's M2 PR). No `agent:po` issue open. Nothing delivered for review: COND1 `in-progress` (#471 merged; COND1-8 and COND1-5b still to come, so no COND1-7 review; the ADR-097 deviations 15-18 are decided at that review). **New evidence:** `lca` 19:42 on D-35 (term 11, condition 11, adviser question 8, notes 1-4).
+- **Decision packages** (INDEX order; tier 1 D-22, D-18 without new evidence; tier-2 clinical packages wait for G-1):
+  - **D-35** (still `po-decided`, Medium): **term 11 adopted into rule 1**: rule 1 also covers development and operations tooling; no AI agent session, coding assistant or AI connector holds a credential or connection to an environment with real data. Check part (b): a **statement per environment** in the package, new go-live gate **G-22**. Observed (not tested, no connector called): a Supabase and a Render connector are listed as tools in this PO session (`lca` reports the same); their target is UNKNOWN; the live project's data status is UNKNOWN (D-1). So part (b) is **not shown**; no breach found, nothing read.
+  - **D-1** (`awaiting-approval: owner`, urgent; no new escalation): the same ask gains one "now" step: **remove the Supabase and Render connectors from the four scheduled agent sessions, or confirm they reach only projects without real data.** It is the owner's because it concerns access to the live database; nothing depends on the connectors.
+  - **D-12** (`awaiting-approval: owner`, ask unchanged): policy term: the partner states its own rule on staff use of external AI tools with client data (`lca` note 2).
+  - `lca` notes 3-4 (condition 11 makes C the cleaner route for clinical-content agents; [Z1] is a Zurich FAQ) recorded in D-35 for a later B/C package.
+- **Challenge:** "Why does the rule that no AI touches real data rest on the agents' good behaviour?" The care model's own controls are checked by tests and records; this one was checked only in product code while the operating model runs on AI agents. Term 11 turns it into a recorded, re-read statement (G-22) instead of a promise. No build.
+- No new brief (approved, unstarted work remains: COND1 rest, IPA1). ROADMAP unchanged (no status changed). No clinical, PAG, MQI, LTCF, tariff or legal rule invented.
+- **Next agent:** (eng) COND1-8 and COND1-5b; then IPA1 incl. IPA1-7/-8. (lca) D-35 only if B/C opens; D-23 at COND1-5b's merge. (po) COND1-7 review once Engineering sets `delivered`; keep the G-22 statement current.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
+
 ## 2026-10-26 19:42 CET · Legal & Compliance Agent (lca)
 
 - No `lca` PR was open. Tier 1: D-22 and D-18 have not changed and there is no new evidence (skipped). No new `cra` finding since 17:26. D-12, D-23 and D-34 changed only by PO text that adopts my 17:55 notes with no ask, so they are not re-reviewed. The D-23 trigger (COND1-5b merge) and the D-34 trigger (IPA1-7 built) are not yet met. **One package this run.** I ran no NAVORA test and did not access the live project.
