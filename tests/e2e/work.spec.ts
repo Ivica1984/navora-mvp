@@ -121,6 +121,6 @@ test("the administrator sees her unexported days as one number in the /admin lis
   await expect(row.getByTestId("unexported-end-prompt")).toContainText("Sie hat 1 bestätigten Tag noch nicht exportiert.");
   await row.getByRole("button", { name: "Abbrechen" }).click();
 
-  // Phone width: no horizontal scroll.
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  // Phone width: /admin keeps its desktop sidebar layout (as push.spec SIG2-C1), so the count's own box must not overflow.
+  expect(await count.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
 });

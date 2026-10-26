@@ -250,8 +250,9 @@ select is((select count(*)::int from public.audit_events where table_name = 'wor
 -- WORK1-5: nobody else reads her working day ---------------------------------------------------------------------------
 select is((select string_agg(b.p, ',' order by b.p) from before_fp b where b.fp <> pg_temp.fingerprint(b.p)), null,
   'WORK1-5 catalogue: every readable table and read model shows a teammate, her RN, a coach, Operations and an administrator exactly what it showed before her acknowledgement, confirmations and export');
-select is((select string_agg(x || '=' || pg_temp.seen(x, 'select 1 from public.working_day_versions') || '/'
-                             || pg_temp.seen(x, 'select 1 from public.working_time_notice_acks'), ',' order by x)
+-- 0083: rows of w1 only (the seed gives …906 her own v1 acknowledgement, which she may read).
+select is((select string_agg(x || '=' || pg_temp.seen(x, format('select 1 from public.working_day_versions where user_id = %L', pg_temp.u('w1'))) || '/'
+                             || pg_temp.seen(x, format('select 1 from public.working_time_notice_acks where user_id = %L', pg_temp.u('w1'))), ',' order by x)
            from unnest(array['admin', 'ca', 'coach', 'ops', 'rn']) x),
   'admin=0/0,ca=0/0,coach=0/0,ops=0/0,rn=0/0', 'WORK1-5: no other person reads her versions, notes or acknowledgement');
 select is(pg_temp.seen('w1', 'select 1 from public.working_day_versions'), 3, 'she reads her own versions');
