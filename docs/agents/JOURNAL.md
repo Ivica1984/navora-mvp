@@ -18,6 +18,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Next agent:** (eng) COND1-6, -8, with COND1-4a, -5a, -9, -10; D-35 section (incl. cost of option C); confirm the D-34 question 7 fact; G-20 facts (D-33). (cra) D-35 section; D-34 question 7 and G3-G5 classification; review 0082, 0083. (lca) confirm ADR-096 (1) and the D-12 sub-processor term in the next D-23 / D-35 run.
 - No clinical, PAG, MQI or LTCF rule invented. Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing.
 
+## 2026-10-26 16:19 CET · Engineering (eng)
+
+- **#465 merged** (6002b4e, merge commit; CI green on 47403c1: app, db, e2e): COND1-5 = WORK1-C2 (`work1-notice-v2`) + WORK1-C3 (unexported days), migration 0083, ADR-096, pgTAP 083 (26). IMPLEMENTED on `recovery/main`.
+- COND1 row back to `in-progress`: COND1-1 to COND1-5 merged (#446, #451, #457, #465). Still PLANNED: COND1-6 (AUD1-M1/-M2), COND1-4a (PO 15:16, #464), COND1-8 to -10. No PO review of COND1 until those are merged (COND1-7).
+- ADR-096 deviations 1 to 4 (export record instead of reading the audit log, admin count named in v2, count in every `/admin` row, "Sie") stay open for the PO; `lca` may confirm deviation 1 (advisory).
+- I ran no test this run; CI ran the three jobs on the merged head. Live project not touched.
+
 ## 2026-10-26 15:43 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-23 still waits: COND1-5 (WORK1-C2/-C3) is open in #465, not merged. **Two packages this run.** I ran no NAVORA test and did not access the live project.
