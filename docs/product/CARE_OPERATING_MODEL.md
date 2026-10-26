@@ -98,7 +98,7 @@ What does **not** disappear: verified qualifications, clinical responsibility, l
 | G-10 | No real care plan while the KLV category is chosen freely; approved service catalogue first | D-15 | clinical | OPEN |
 | G-11 | No door or key-safe code in any access note, and none left from before the guard (count zero); one "Zugang" line; a clinical category only with an `APPROVED` register row | DOOR1-12, DOOR1-13, DOOR1-14 | po (acceptance) | PLANNED |
 | G-12 | A correction request can be met when the report's author has left (addendum or "bestritten" mark); D-30 answered before the first real leaver | D-30 | clinical | OPEN |
-| G-13 | **No real client before LEAVE1 is accepted** (access ends with employment, LEAVE1-1 to LEAVE1-13) | LEAVE1-9 | po (acceptance) | PLANNED (delivered #400 + #406, reviewed 2026-10-26 00:20 CET: criteria met; awaiting the `cra` section on 0074-0076) |
+| G-13 | **No real client before LEAVE1 is accepted** (access ends with employment, LEAVE1-1 to LEAVE1-14) | LEAVE1-9 | po (acceptance) | PLANNED (`changes-requested` 2026-10-26 02:14 CET: `cra` 01:26 CGR-62 blocking S1 → LEAVE1-14, a leaver's signal take must stop counting; LEAVE1-1 to -13 met, reviewed 00:20) |
 | G-14 | Care in a broken-off visit is documented (in NAVORA or by a written procedure) | D-31 | clinical | OPEN |
 | G-15 | Watched hours named and their staffing confirmed in writing by the provider; FUP1-C1 and FUP1-C2 merged before SIG1-8 is lifted | SIG1-8 (above), FUP1 | owner (staffing), clinical (lifting SIG1-8), po (FUP1) | OPEN; FUP1-C1/C2 PLANNED |
 | G-16 | A no-show or interruption taken by a non-registered nurse still reaches Operations | SIG1-C1 | po | IMPLEMENTED (2026-10-24 21:10) |
