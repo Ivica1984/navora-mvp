@@ -96,3 +96,27 @@ At the end of her day the nurse sees her working day already laid out from her v
 - Standing criterion for every later brief that touches AUD1 or WORK1 (D-23 item 15 (1)): no reader returns the row ids of `working_day_versions` or `working_day_exports`, and none lists their audit rows by person or by table.
 
 **Acceptance** follows a `cra` section on 0079 without a blocking finding.
+
+## PO review 2026-10-26 10:15 CET: `accepted` (WORK1-1 to WORK1-10), with conditions WORK1-C1 to WORK1-C4
+
+**The PO did not run the tests.** The evidence is the 07:15 table above (merge commit a5c94a6); nothing touching 0079, `src/features/work` or `/work` merged since (docs only). CI re-read through the GitHub API in this run: `app`, `db`, `e2e` green on a5c94a6; on `recovery/main` b2bf502 `app` and `db` green, `e2e` green on one run (a second run still in progress at reading time).
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| WORK1-1 to WORK1-10 | met | 07:15 table above. `cra` 09:26 (#441, merged f8f4b6a) confirmed from the code: WORK1-5 (tables readable only by the person, 0079:94-111, pgTAP 079:251-263), WORK1-6 suppression (3 people **and** 5 days, organisation row a note; pgTAP 079:291-314), WORK1-7 (reader catalogue, no billing function reads `working_`; pgTAP 079:268-278), WORK1-9 (pgTAP 079:320-329) |
+| Clinical gate (README) | passed | `cra` 09:26 gate table: "no blocking finding. The clinical gate does not block acceptance" |
+| CGR-65 (advisory, S2) | open, placed as **WORK1-C4** | Read by the PO: `private.working_day_proposal` (0079:192-210) takes `visit_events.occurred_at` with no join to `visit_time_corrections`; the measured billing minutes take the latest F3 correction (0023:28-36). One visit can carry two times |
+
+**Why accepted.** Care model: the nurse confirms a day NAVORA prepared instead of filling a timesheet (value 5), and the North Star becomes measurable per team for the first time (value 1), without a per-person view (team autonomy, value 4; no control instrument). Architecture: append-only versions, own-row reads, a team aggregate under the AN1 suppression and billing isolation match the handbook's privacy and auditability principles. The open conditions do not block acceptance: data stay synthetic until G-19, and no ratio is read as pilot evidence before WORK1-C1 and WORK1-C4.
+
+**Deviation 3 (F3 corrections not applied "for now") is superseded by WORK1-C4.** CGR-65 shows what "for now" costs: a nurse who corrected a visit time on the visit sees the old time again at night, and a nurse who corrects it only in her working day leaves the visit record and the billing basis wrong, with nothing telling her. `lca` 09:55 (D-23 item (4), advisory): the remedy below is compliant under every plausible interpretation on the federal sources read; a write-back is the less protective option. So it is never built.
+
+**WORK1-C4 One time per visit event** (CGR-65; same deadline as WORK1-C1: before any team ratio is read as pilot evidence and before G-19; rides **COND1-3** with WORK1-C1, which touches the same command):
+- (a) The proposal uses the **effective** time of each visit event: the latest F3 correction, else the recorded time (the same lateral join as 0023:33-36), for the segment start and end, for the order of segments and for the Zurich date the event belongs to. `my_working_day` marks a segment whose start or end came from a corrected event (`corrected` true); it shows no correction reason and no corrector.
+- (b) When she changes the start or end of a segment that came from a visit, `/work` states that the visit keeps its time and links to the time correction of that visit (F3): "Die Zeit im Einsatz bleibt unverändert. Korrigieren Sie sie im Einsatz, damit Bericht und Abrechnung stimmen." Her confirmation is still stored as she entered it.
+- (c) The working day never writes `visit_events` or `visit_time_corrections` (no write-back).
+- Tests. pgTAP: an event with two F3 corrections → `my_working_day` returns the latest corrected instant and `corrected = true`; a correction that moves an event to the previous Zurich date places its segment on that date and removes it from the original date; `confirm_working_day` leaves `visit_events` and `visit_time_corrections` unchanged (row fingerprint before and after). Unit or e2e at 390 px: editing a visit segment shows the hint and the link; editing the day start does not.
+
+**Reading rule (product authority; `cra` 09:26 point (3), LT-3):** the team ratio is a process measure. Before any team ratio is read or reported as pilot evidence, it is read together with the same team's safety measures of the same month in AN1, never alone. Which outcome indicators belong beside it is **UNKNOWN** (owner and Clinical Owner, G-5). Recorded in `CARE_OPERATING_MODEL.md` (North Star); no build now.
+
+**Conditions now:** WORK1-C1, WORK1-C4 (COND1-3); WORK1-C2, WORK1-C3 (COND1-5). The PO marks each done at the review of its PR.
