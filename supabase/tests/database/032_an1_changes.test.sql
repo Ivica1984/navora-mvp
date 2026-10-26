@@ -51,8 +51,8 @@ select is((pg_temp.kpi('care_share_in_visits') ->> 'value')::numeric, 75.0::nume
 select is((pg_temp.kpi('care_share_in_visits') ->> 'base')::int, 5, 'a visit without departure changes the base, not the share');
 select is((pg_temp.kpi('incomplete_visits') ->> 'value')::numeric, 1::numeric, 'and is counted as incomplete');
 select ok((pg_temp.kpi('care_share_in_visits') ->> 'note') like '%Nicht enthalten: Dokumentation, Rückweg%', 'its definition says what is not included');
-select ok((pg_temp.kpi('direct_care_share') ->> 'value')::numeric is null and (pg_temp.kpi('direct_care_share') ->> 'note') like 'Noch nicht messbar%',
-  'the North Star is a placeholder until paid working time is recorded');
+select ok((pg_temp.kpi('direct_care_share') ->> 'value')::numeric is null and (pg_temp.kpi('direct_care_share') ->> 'note') like 'Nur pro Team%',
+  'the organisation North Star row is a note: the figure is per team, from confirmed working days (WORK1-6, 0079)');
 select is((pg_temp.kpi('care_share_in_visits', '00000000-0000-4000-a000-000000000151') ->> 'value')::numeric, 75.0::numeric,
   'a team with three persons shows its figure');
 select is((pg_temp.kpi('cover_without_operations') ->> 'value')::numeric, 50.0::numeric,

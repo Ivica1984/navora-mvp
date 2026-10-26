@@ -1679,6 +1679,9 @@ isOneToOne: false
 "accept_my_invitations":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
+"acknowledge_working_time_notice":
+{ Args: { "p_idempotency_key": string,"p_text_version": string }; Returns: Json
+                           },
 "active_safety_alert_categories":
 { Args: Record<PropertyKey, never>; Returns: {
               "class": string,"code": string,"help_text": string,"label": string,"refuses_codes": boolean,"version": number
@@ -1733,6 +1736,9 @@ isOneToOne: false
 "complete_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"confirm_working_day":
+{ Args: { "p_date": string,"p_idempotency_key": string,"p_payload": Json }; Returns: Json
+                           },
 "continuity_by_case":
 { Args: { "p_month": string }; Returns: {
               "case_id": string,"client_label": string,"distinct_nurses": number,"primary_set": boolean,"primary_share_pct": number,"team_name": string,"visits": number
@@ -1775,6 +1781,9 @@ isOneToOne: false
                            },
 "end_visit_not_completed":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_reason_code": string,"p_visit_id": string }; Returns: string
+                           },
+"export_working_month":
+{ Args: { "p_idempotency_key": string,"p_month": string }; Returns: Json
                            },
 "field_countersign_queue":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -1881,6 +1890,19 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "delivered_at": string,"operations_outside_app": boolean,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"taker_access_ended": boolean,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string,"watched_now": boolean
             }[]
+                           },
+"my_working_day":
+{ Args: { "p_date": string }; Returns: {
+              "ends_at": string,"kind": string,"seq": number,"starts_at": string,"visit_no": number
+            }[]
+                           },
+"my_working_day_versions":
+{ Args: { "p_date": string }; Returns: {
+              "break_minutes": number,"breaks_answer": string,"care_minutes": number,"confirmed_at": string,"day_end": string,"day_start": string,"entries": Json,"note": string,"outside_answer": string,"paid_minutes": number,"reason_code": string,"version": number
+            }[]
+                           },
+"my_working_time_notice":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "operations_exceptions":
 { Args: Record<PropertyKey, never>; Returns: {

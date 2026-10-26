@@ -10,6 +10,7 @@ type SidebarProps = {
     | "matching"
     | "visits"
     | "field"
+    | "work"
     | "intake"
     | "quality"
     | "analytics"
@@ -52,6 +53,12 @@ const allNavItems = [
     key: "field",
     label: "Mein Tag (mobil)",
     href: "/field",
+  },
+  {
+    // WORK1: the person's own working day (only she reads it).
+    key: "work",
+    label: "Mein Arbeitstag",
+    href: "/work",
   },
   {
     // SIG2-1: the member's own settings (delivery outside the app).

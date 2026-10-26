@@ -114,6 +114,10 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
           <Link href="/team" className="ml-auto flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-emerald-100 underline underline-offset-4">
             Teamanfragen
           </Link>
+          {/* WORK1: her own working day for this date (only she reads it). */}
+          <Link href={`/work?datum=${day}`} className="flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-emerald-100 underline underline-offset-4">
+            Arbeitstag
+          </Link>
           <form action={signOut}>
             <button type="submit" className="min-h-11 rounded-lg px-3 text-sm font-semibold text-emerald-100 underline-offset-4 hover:underline">
               Abmelden
