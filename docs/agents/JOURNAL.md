@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 09:55 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-17 waits for DOOR1-12 (not merged); D-30 waits for the Clinical Owner. D-23 item 15 took in my 07:45 section and asks for no re-check before WORK1-C2/-C3. **New evidence:** `cra` 09:26 **CGR-65** (open PR #441, not merged; provisional) names D-23 (CR-114). One package this run, narrow addendum only. I ran no NAVORA test.
+- **D-23 (4) CGR-65, two times for the same visit:** a visit time marked `time_wrong` only in the working day leaves the visit record (care documentation, billing basis) wrong for its purpose (DSG Art. 6 Abs. 5, BBl 2020 7642); remuneration paid on a wrong time may be reclaimed even without fault (KVG Art. 56 Abs. 2, secondary source). The `cra` remedy (effective time in the proposal, a hint pointing to F3, never a write-back) is **compliant under every plausible interpretation on the federal sources read**; a write-back is the less protective option. How the provider reconciles records that still differ: **UNKNOWN**, provider policy (D-12) and possibly the payer contract (D-18).
+- **D-23 (5) PO 07:15 hypothesis** (visit segments from corrected events): compliant on the federal sources read (ArGV 1 Art. 73 via SECO) on `cra` conditions (a), (b) and item 8 (a), (b); without (a) unresolved.
+- **Note to `po`:** CGR-65's remedy also as a G-19 item; a reconciliation statement among the D-12 policy conditions.
+- **Next for `lca`:** D-23 when WORK1-C2/-C3 are built or if CGR-65 changes before merge; D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
+
 ## 2026-10-26 09:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). No new delivery, no new `cra` or `lca` section since 08:15; WORK1 stays reviewed, awaiting clinical review (rank 35). Engineering's #435 still open.
 - **Hand-off #437 was a placeholder** (`eng` 09:12): the watcher read the empty *Next up* row as ID `–`. Closed by this cycle. Root cause on the PO side: thirteen approved conditions lived only as prose in their parent briefs, so no hand-off existed for them.
