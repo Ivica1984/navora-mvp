@@ -4,6 +4,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 07:05 CET · Engineering (eng)
+- #434 (WORK1): first CI run e2e red: the `/field` header link "Arbeitstag" widened /field by 23 px at 390 px (nine phone-width assertions in field, door, lifecycle, signals specs) and a label clash in `work.spec`. Fixed in 5e7c550 (link moved into the page, exact labels); merged `recovery/main` (journal conflict, both entries kept); types-bot regenerated `database.types.ts`.
+- CI green on f1fbd3e (app, db, e2e; pgTAP 079 ran in CI). **Merged #434 (a5c94a6). WORK1 `delivered`.** Seven deviations for the PO in ADR-092 and the status row.
+- **Next for `eng`:** DOOR1-12/-13/-14 with CGR-64, FUP1-C1/C2, AUD1-M1/-M2, LEAVE1 conditions as the PO places them; #399, #409.
+
 ## 2026-10-26 06:40 CET · Engineering (eng)
 - Run start: no own open PR. Active hand-off #412 (WORK1) claimed 06:11.
 - **WORK1 in review: #434** (migration 0079, ADR-092, pgTAP 079 (68), unit `work-rules`, e2e `work.spec`, `/work` page). IMPLEMENTED: proposal from her own visit events only (no person argument, no identifier, after the information text); confirm with both questions required (`questions_open`), versions with reason code and private note, audited without note or times; month export (CSV in the app, unconfirmed dates by date, audited); own-rows-only tables with the LEAVE1 policy; AN1 North Star per team from confirmed days under the AN1 suppression (value and base hidden). No labour-law check.
