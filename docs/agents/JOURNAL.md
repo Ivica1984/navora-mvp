@@ -4,6 +4,46 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 14:30 CET · po (Product Owner)
+- **PO PR #453 was open** (`po/cycle-2026-10-26-1500`, published 13:54 CET by another session; its entry is labelled 15:00, ahead of the clock). CI `app`, `db`, `e2e`, `sync` green on 2644d11. **My merge was refused by the tool's permission check**, so I did not open a second PO PR and continue on #453 (rule A). It still needs a merge (owner or next PO run). No `agent:po` issue open.
+- New evidence since 13:15: `cra` 13:39 (CGR-66, -67, -68, all advisory), `eng` 13:50 (#451 merged b58e9fc: COND1-3 = WORK1-C1 + WORK1-C4). **Review:** none; COND1 is `in-progress` and reviewed only per COND1-7.
+- **Decided** (product authority; [COND1](briefs/COND1.md) *PO decisions 14:30*): **CGR-66 → COND1-9 (DOOR1-15)**: the intake guard stays, no phone number or postal code in the access note, help text "Ort und wer den Schlüssel hat (ohne Telefonnummer), nie den Code", tests pin both. **CGR-67 → COND1-8 (LEAVE1-C5)**: the C3 rule (counts only after the latest access end) for OPS1 takes and quality claims too. **CGR-68 → COND1-10 (DOOR1-16)**: `agents-check` fails an `APPROVED` register row without an approval record; CODEOWNERS review stays with the owner after G-1. **`eng` 13:50 deviation** (WORK1-C4 links by event instant): accepted provisionally, final at the COND1 review. COND1-7 now needs -8 to -10 too.
+- **Decisions** (INDEX order): D-22, D-18 no new evidence. **D-17** moves to tier 2 (CGR-66 names part 3; order 12, rows below renumbered); the Clinical Owner's part 3 ask gains the key holder's reachability at the door, as a structured contact (D-15, D-19 consent flag), never free text; no processing added, so no `lca` re-check; status `awaiting-approval: clinical` unchanged. Tier 2 otherwise waits for G-1. No new escalation; nothing decided in a package this run.
+- **Challenge:** "Why is access to the home free text checked by a digit heuristic?" From scratch it is structured. Hypothesis row: access-note refusals at fewer than 1 in 10 intakes in the pilot; at 1 in 10 or more, a structured-access brief goes to D-17 part 3 and D-3 with `lca` first. No build.
+- No new brief: approved, unstarted work remains (COND1-4 to -10, IPA1).
+- **Next agent:** (owner or po) merge #453 (green). (eng) COND1-4, then COND1-8, COND1-5, COND1-6; COND1-9, -10 in any later COND1 PR; #399, #409. (cra) CGR-65 on #451's merge commit; COND1-8 to -10 when built. (lca) D-34 re-check as requested in #453; D-23 when WORK1-C2/-C3 are built.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing.
+
+## 2026-10-26 15:00 CET · po (Product Owner)
+- **Owner work packages** (owner at the session, 2026-10-26), plus one owner decision. No PO PR was open; #450 was merged at 13:35.
+- **D-33 decided by the owner:** "Until legal review concludes otherwise: P1 safety signals remain in-app only for Safari (macOS, iOS, iPadOS) and Firefox. No external push delivery for those browsers. Reassess before real-client deployment."
+  - Recorded in *Decided*, the package and INDEX (`decided`).
+  - The reassessment is a new go-live gate, **G-20**.
+  - SIG2-1 stays as built.
+- **D-34 Intended Purpose Assessment** ([report](reports/D34_INTENDED_PURPOSE_ASSESSMENT.md); decision support, not a regulatory determination):
+  - Inventory extended to migration 0080 and `src/` (static reading).
+  - No rule reads clinical content. **Five grey rules** (G1-G5; three are new: urgency ordering of offers, deadlines by referral type, the RET1 window). The legacy `/operations` panel "Top Risiko-Fälle" ranks cases in TypeScript.
+  - Correction: the hospital category comes from the partner type entered by intake staff, so input class N now reads "recorded by a person" (`_TEMPLATE.md`).
+  - **Statement v2** and exclusion list v2 are the safe default.
+  - Adviser questions 7-9 added.
+  - `lca` and `cra` re-check requested.
+  - D-34 stays `awaiting-approval: owner`, with the ask sharpened.
+- **IPA1 approved** (*Next up* 2; product authority; wording and removal only, no rule change). Go-live gate **G-21**.
+- **Transformation Alignment Report** ([report](../product/TRANSFORMATION_ALIGNMENT_REPORT.md)):
+  - Coordination is redesigned. Control is mostly added, with few human steps retired. Assessment and quality are still traditional.
+  - The NH3-NH5 proposals digitise LTCF.
+  - The largest brake is NAVORA's own approval queue (G-1, advisers, D-11/D-12).
+  - Recorded:
+    - P-1 "parallel run, then retire" and P-5 balancing pairs, in `CARE_OPERATING_MODEL.md` and as challenge rows;
+    - P-2 exception reporting and P-3 Operations shrink target, as hypothesis rows;
+    - P-4 NH re-sequencing (NH2′, evidence linked by the nurse, before any coding agent or sentinel), in the NH report.
+  - No clinical, PAG, MQI or LTCF rule invented.
+- **Next agent:**
+  - (eng) COND1 in order, then IPA1.
+  - (lca) D-34 statement v2, G3-G5, questions 7-9.
+  - (cra) D-34 report §6 classification and G3-G5; P-2 view.
+- **Tests:** none run by the PO (docs only). The PO read the code it cites: 0010:89-90, 0017:211-230 and 293-298, 0019:119-131, 0034:144-149 and 245-249, 0072:52-55, 0073:30-34, `operations-client.tsx`. `node scripts/agents-check.mjs` passed.
+
 ## 2026-10-26 14:10 CET · eng (Engineering)
 - **#451 merged** (merge commit b58e9fc): CI green on head 8b63dcd (`app`, `db`, `e2e`), after two base merges that only resolved journal conflicts (docs only). COND1-3 (WORK1-C1 + WORK1-C4) is on `recovery/main` (IMPLEMENTED, CI-verified; clinical review OPEN).
 - Status row COND1 back to **`in-progress`**: COND1-7 says delivered only when COND1-1 to -6 are merged. The ADR-094 deviation (link by event instant, not visit id) still waits for the PO.

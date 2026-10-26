@@ -84,6 +84,14 @@ Every capability is judged by whether it raises this share without lowering safe
 
 What does **not** disappear: verified qualifications, clinical responsibility, legal accountability, data protection. These are decisions for their owners, not things to automate away.
 
+## Superior controls, not removed controls (PO, 2026-10-26)
+
+From the [Transformation Alignment Report](TRANSFORMATION_ALIGNMENT_REPORT.md):
+- **A superior control** is structural (the wrong state cannot be entered), continuous, complete rather than sampled, evidenced (audit trail, test, measure), and owned by the people closest to the client.
+- **Parallel run, then retire (P-1):** a human control step is retired only after its replacement ran alongside it in the pilot and detected the same failures at least as well on a written decision rule (AN2 pattern). Until then both run. This is a product principle; which clinical controls may be retired stays with the Clinical Owner.
+- **Balancing pairs (P-5):** every efficiency measure is read beside a named safety or quality measure.
+- **Assessment:** NAVORA builds the evidence layer around licensed instruments (complete, sourced, nurse-linked documentation; completeness shown before signature). It does not build the classifier (D-13 B, D-34 module rule).
+
 ## Go-live gates: one list
 
 **PO, 2026-10-25 22:10 CET.** The go-live conditions above, and the real-data gates written in briefs and decision packages, in one place, so nobody has to collect them from twenty files before the first real client. This list is an index: the linked source holds the rule, and a gate is lifted only by the role named there. Status labels: IMPLEMENTED (built and accepted), PLANNED (approved, not yet delivered), OPEN (waits on a decision). Engineering and the other agents add a line by asking the PO; the PO updates the status when the source changes. **No real client, and no real employee data, while any line is not IMPLEMENTED.** Switching on cover (COVER1) has its own list in `docs/agents/briefs/COVER1.md`; it is not needed for go-live because cover stays off.
@@ -109,6 +117,8 @@ What does **not** disappear: verified qualifications, clinical responsibility, l
 | G-17 | A corrected time in the repeated hour can be entered either way (DST1-C4, due before the first real client or 2027-10-31); the test clock can never reach a shared database (DST1-C5, before staging with real users) | DST1 | po (acceptance) | PLANNED |
 | G-18 | Before the first real **employee**: no teammate reads who performed each visit event row by row | D-3 (iv) note, RLS3-4, D-23 | po | see RLS3 (accepted 2026-10-25 16:11) |
 | G-19 | Before the first real **employee** confirms a working day (WORK1): the licence holder adopts the nurse-confirmed export as its way of keeping the working-time record and states whether ArGV 1 Art. 73b applies under its agreements; the employer adopts the information text after an `lca` look at the final wording; D-4 carries a retention criterion for confirmed working days (and their audit rows); *added 2026-10-26 08:15 (po):* (4) before an access end, the administrator sees the leaver's count of unexported confirmed days (WORK1-C3) and asks her to export first; no export on her behalf; *added 2026-10-26 10:15 (po, `lca` 09:55 note 1, CGR-65):* (5) WORK1-C4 is built, so no real day is confirmed against uncorrected visit times, and the licence holder states in its policy how working-time records and billed visit times are reconciled when they differ (D-12 policy term; organisational policy, not a NAVORA feature) | D-23 items 3b, 4, 7e, 15, 16; brief WORK1 | owner (D-12, policy), po (D-4 criterion) | OPEN |
+| G-20 | Before the first real client: reassess whether P1 safety signals may be pushed to Safari (macOS, iOS, iPadOS) and Firefox (legal adviser, `lca` question 1); until then in-app only for those browsers | D-33 (owner, decided 2026-10-26) | owner | OPEN |
+| G-21 | Before the first real client: as-built texts match the intended-purpose statement (no "Risiko" or "überwacht" wording for clients, no client ranking in the UI) | IPA1, D-34 | po | PLANNED |
 
 ## Where NAVORA exceeds Buurtzorg
 
