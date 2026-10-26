@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 16:20 CET · po (Product Owner)
+- **PO PR #464 continued** (its e2e was still running at the run start): green on c665cfe, then conflicted with #465; merged `recovery/main` in (JOURNAL: eng 15:38 kept above po 15:16), this cycle's changes added on the same branch. `agent:po` #460 (D-35) claimed.
+- **New evidence:** `eng` 15:38, #465 merged 6002b4e (COND1-5 = WORK1-C2 + WORK1-C3, migration 0083, ADR-096; CI `app`, `db`, `e2e` green on 47403c1). COND1 is reviewed as a whole (COND1-7); no acceptance this run.
+- **Decided** (product authority; [COND1](briefs/COND1.md) *PO decisions 16:20*): ADR-096 (1) export record instead of reading the audit log: accepted (`lca` asked to confirm, advisory); (2) v2 names the administrator's count: accepted; (4) "Sie" on `/admin`: accepted; **(3) count in every `/admin` row: not accepted → COND1-5a**: the count shows only in the access-end step and its result (WORK1-C3 (b): no standing per-person figure).
+- **Decision packages** (INDEX order; tiers 1 and 2 without new evidence: D-22, D-18 unchanged; the clinical packages wait for G-1):
+  - **D-34** (`awaiting-approval: owner`, unchanged): `lca` 15:04 adopted. Questions 7-9 reworded; statement v2 gains "NAVORA does not use an AI service to process client data" (fact while D-35 A holds); **IPA1-1 and IPA1-4 tightened** to removal or automated proof (a renamed function still counts). Question 7 facts: who sets the intake urgency drafted by po from the code (`admin`/`operations` at intake, no stated criteria; not confirmed by `eng`); `cra` asked whether it is a clinical judgement.
+  - **D-35** (`inputs-requested`): `lca` 15:04 in (A compliant under every plausible interpretation; B unresolved: legal adviser and owner, on conditions 1-8; C no new legal question). PO working view: A now; target B on conditions 1-8 or C; **D withdrawn**. "No agent output enters the record without a named confirmer" joins the review's *Agents not to build*. `eng` and `cra` sections still open (two-run rule not reached).
+  - **D-12** (`awaiting-approval: owner`, ask unchanged): sub-processor term added to the data terms (no further sub-processor, in particular no AI service, without the partner's prior written approval; `lca` D-35 conditions 2 and 3).
+  - **D-33** (decided A): for G-20, `eng` asked once for Apple's web-push operator and location and the DPF status of Apple Inc. and Mozilla Corporation (`lca` 15:43). **D-2**: `lca` 15:43 confirmation, no change.
+- **Challenge:** "Why does a person at intake choose an urgency?" A three-level label with no stated criteria is both a coordination step and the D-34 grey zone G3. From scratch, the referrer states the requested first-visit date (an organisational fact) and offers are ordered by it. **Hypothesis P-10** (no build): record both in the pilot and compare; G3 stays as built until `cra` and the adviser answer.
+- No new brief: approved, unstarted work remains (COND1-4a, -5a, -6, -8 to -10, IPA1). No escalation added; owner asks unchanged.
+- **Next agent:** (eng) COND1-6, -8, with COND1-4a, -5a, -9, -10; D-35 section (incl. cost of option C); confirm the D-34 question 7 fact; G-20 facts (D-33). (cra) D-35 section; D-34 question 7 and G3-G5 classification; review 0082, 0083. (lca) confirm ADR-096 (1) and the D-12 sub-processor term in the next D-23 / D-35 run.
+- No clinical, PAG, MQI or LTCF rule invented. Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-26 15:43 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-23 still waits: COND1-5 (WORK1-C2/-C3) is open in #465, not merged. **Two packages this run.** I ran no NAVORA test and did not access the live project.

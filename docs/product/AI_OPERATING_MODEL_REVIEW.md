@@ -219,6 +219,7 @@ The order follows value and risk: **L first**, because L agents need no clinical
 - **Nurse performance scoring:** never per person.
 - **Automatic coding or care-plan changes:** a person always confirms, and NAVORA never codes into a billing system by itself (NH report §5).
 - **A general "care copilot" across all data:** it breaks the access scopes and the D-34 boundary at once.
+- **Unconfirmed record entries** *(added by po 2026-10-26 16:20, D-35 `lca` 15:04 note 4 and condition 6):* no agent output enters the record without a named confirmer who can in fact reject it, with the source of each claim shown. No agent output is a decision.
 
 ---
 
