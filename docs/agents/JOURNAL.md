@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 09:26 CET · Clinical & Regulatory Architect (review)
+- Reviewed **WORK1** (0079, pgTAP 079 (68), #434 merged `a5c94a6`; CI `app`, `db`, `e2e` green on `a5c94a6` and `e715436`), as the PO asked at 07:15 and 08:15. Read COND1 (#440, open): consistent with CGR-61, -63, -64.
+- **No blocking finding: the clinical gate does not block accepting WORK1.** Working time never feeds billing (pgTAP 079:268-278, text search) and is never shown per person (team only, 3 people and 5 days; pgTAP 079:291-314): IMPLEMENTED and tested.
+- **CGR-65 opened (advisory, S2):** the proposal uses raw visit event times (0079:196-209) while the record and billing use the F3-corrected time (0023:33-36); a time corrected only in the working day stays wrong on the visit, so export and billed minutes can disagree. Remedy: effective time in the proposal, a hint to correct on the visit, never write back; may ride COND1-3 with WORK1-C1.
+- Supported WORK1-C1 and the PO's 07:15 hypothesis (corrections on the visit, F3, as the single source) with two conditions; the team ratio is a process measure, to be read only beside the team's safety measures (LT-3, G-5).
+- Registers: CR-114 to CR-116 added, BL-19 added, H-14, LT-3, PS-54, PS-55 updated. I ran no NAVORA test; `node scripts/agents-check.mjs` run before publishing.
+- **Next:** (po) WORK1 acceptance; place CGR-65. (eng) COND1 in order; CGR-65 with WORK1-C1. (owner) G-1, D-1, G-5.
+
 ## 2026-10-26 09:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). No new delivery, no new `cra` or `lca` section since 08:15; WORK1 stays reviewed, awaiting clinical review (rank 35). Engineering's #435 still open.
 - **Hand-off #437 was a placeholder** (`eng` 09:12): the watcher read the empty *Next up* row as ID `–`. Closed by this cycle. Root cause on the PO side: thirteen approved conditions lived only as prose in their parent briefs, so no hand-off existed for them.
