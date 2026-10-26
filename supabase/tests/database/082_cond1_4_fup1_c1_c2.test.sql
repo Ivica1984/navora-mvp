@@ -7,7 +7,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(23);
+select plan(29);
 
 create function pg_temp.act_as(uid uuid) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -112,6 +112,23 @@ values (pg_temp.id('da'), '00000000-0000-4000-b000-000000000011', pg_temp.id('sa
 select is(pg_temp.as_user(905, format('select public.set_outside_push(%L, false, %L)', '00000000-0000-4000-b000-000000000011', pg_temp.k(6))),
   'ok', 'fixture: the administrator switches the outside channel off');
 select is(pg_temp.f('a', '20:30'), true, 'made-step branch unchanged: a sent Operations delivery → true, channel off, after the period');
+
+-- COND1-4a (PO 15:16, ADR-095 deviation 1): the fallback recipient set. No Operations member with open access, so the
+-- step goes to the administrator (signal_operations_users, 0074); her active subscription makes the forecast true.
+select is(pg_temp.as_user(905, format('select public.set_outside_push(%L, true, %L)', '00000000-0000-4000-b000-000000000011', pg_temp.k(7))),
+  'ok', 'fixture: the administrator switches the outside channel on again');
+select is(pg_temp.as_user(905, format('select public.end_member_access(%L::uuid, %L, %L::uuid) ->> ''result''',
+            pg_temp.u(904), 'access_withdrawn', pg_temp.k(8))), 'ok',
+  'fixture: the access of …904, the only Operations member, ends');
+select is((select array_agg(o order by o) from private.signal_operations_users('00000000-0000-4000-b000-000000000011') o),
+  array[pg_temp.u(905)], 'COND1-4a fixture: no Operations member with open access → the administrator …905 is the step''s recipient');
+select is(pg_temp.f('b', '19:45'), false, 'COND1-4a: fallback administrator without an active subscription → false');
+select is(pg_temp.as_user(905, format('select public.register_push_subscription(%L, %L, %L, %L) ->> ''result''',
+            'https://fcm.googleapis.com/fcm/send/syn-cond14-905', repeat('G', 87), repeat('f', 22), pg_temp.k(9))), 'ok',
+  'fixture: …905 opts in');
+update public.push_subscriptions set last_result = 'sent' where user_id = pg_temp.u(905);   -- fixture: the test message arrived
+select is(pg_temp.f('b', '19:45'), true,
+  'COND1-4a: no Operations member with open access, one administrator push_active in the fallback, inside the watched period → true');
 
 -- Privileges: no app role runs the helpers.
 select ok(not has_function_privilege('authenticated', 'private.signal_operations_reachable(uuid, timestamptz)', 'execute')

@@ -109,8 +109,9 @@ create temp table door1b_before as
          (select count(*) from private.derived_exceptions('00000000-0000-4000-b000-000000000011')) as exceptions;
 
 -- DOOR1-2: the category list -------------------------------------------------------------------------------------------
-select is((select string_agg(code || ':' || class || ':v' || version, ',') from private.active_alert_categories(pg_temp.today())),
-  'access_arrangement:organisational:v1', 'DOOR1-2: the list ships with one active category, the access arrangement (organisational)');
+-- 0084 (COND1-9 = DOOR1-15) adds version 2 of the access arrangement (new help text), so the version is not pinned here.
+select is((select string_agg(code || ':' || class, ',') from private.active_alert_categories(pg_temp.today())),
+  'access_arrangement:organisational', 'DOOR1-2: the list ships with one active category, the access arrangement (organisational)');
 select is((select count(*)::int from private.active_alert_categories(pg_temp.today()) where class = 'clinical'), 0,
   'DOOR1-2: no active clinical category');
 select is((select help_text from public.safety_alert_categories where code = 'access_arrangement' and version = 1),

@@ -1,9 +1,11 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  approvalRecordErrors,
+  approvalRecordMissing,
   clinicalCategoryErrors,
   clinicalCategoryInserts,
   registerStatus,
@@ -79,5 +81,68 @@ describe("DOOR1-14 clinical category check", () => {
     expect(code).toBe(1);
     expect(out).toContain("0999_syn.sql: clinical safety-alert category syn_cat");
     expect(execFileSync(process.execPath, [script], { encoding: "utf8" })).toContain("agents: ok");
+  });
+});
+
+// COND1-10 = DOOR1-16 (CGR-68, interim part; ADR-097): an APPROVED register row names an approval record
+// clinical/approvals/CR-nnn.md with the approver's role, the G-1 reference and the date. Synthetic rows and records only.
+const HEADER = [
+  "## Rules",
+  "",
+  "| ID | Rule (as implemented) | Where | Cited source | Set by | Decision | Status | Architect note |",
+  "|---|---|---|---|---|---|---|---|",
+];
+const RECORD = ["# CR-900 approval (synthetic)", "", "- **Approver role:** Clinical Owner (synthetic)",
+  "- **G-1 reference:** G-1 (synthetic)", "- **Date:** 2027-01-01"].join("\n");
+const register = (note: string) =>
+  [...HEADER, "| CR-001 | synthetic rule | 0000 | – | eng | – | UNVALIDATED | |",
+   `| CR-900 | synthetic approved rule | 0000 | – | clinical | D-99 | APPROVED | ${note} |`].join("\n");
+
+describe("DOOR1-16 approval record for an APPROVED register row", () => {
+  it("an APPROVED row without a record fails", () => {
+    expect(approvalRecordErrors(register("synthetic"), () => null)[0]).toContain("CR-900 is APPROVED but names no approval record");
+    expect(approvalRecordErrors(register("[record](approvals/CR-900.md)"), () => null)[0]).toContain("approvals/CR-900.md: missing");
+  });
+
+  it("with a complete record it passes", () => {
+    expect(approvalRecordErrors(register("[record](approvals/CR-900.md)"), (p: string) => (p === "approvals/CR-900.md" ? RECORD : null))).toEqual([]);
+  });
+
+  it("a record without role, G-1 reference or date fails, naming what is missing", () => {
+    expect(approvalRecordMissing(RECORD)).toEqual([]);
+    expect(approvalRecordMissing("- Approver role: Clinical Owner\n- G-1 reference: pending\n- Date: 1.1.2027"))
+      .toEqual(["G-1 reference", "Date (YYYY-MM-DD)"]);
+    expect(approvalRecordMissing("")).toEqual(["Approver role", "G-1 reference", "Date (YYYY-MM-DD)"]);
+    const errors = approvalRecordErrors(register("approvals/CR-900.md"), () => "- Date: 2027-01-01");
+    expect(errors).toEqual(["clinical/approvals/CR-900.md: names no Approver role, no G-1 reference (DOOR1-16)"]);
+  });
+
+  it("rows that are not APPROVED need no record", () => {
+    expect(approvalRecordErrors([...HEADER, "| CR-001 | synthetic rule | 0000 | – | eng | – | PROVISIONAL | |"].join("\n"), () => null)).toEqual([]);
+    expect(approvalRecordErrors(null, () => null)).toEqual([]);
+  });
+
+  it("today's register (no APPROVED row) passes, and agents-check fails on an APPROVED row without a record", () => {
+    const real = readFileSync(join(process.cwd(), "docs", "agents", "clinical", "CLINICAL_RULE_REGISTER.md"), "utf8");
+    expect([...registerStatus(real).values()]).not.toContain("APPROVED");
+    expect(approvalRecordErrors(real, () => null)).toEqual([]);
+
+    const script = join(process.cwd(), "scripts", "agents-check.mjs");
+    const dir = mkdtempSync(join(tmpdir(), "clin-"));
+    writeFileSync(join(dir, "CLINICAL_RULE_REGISTER.md"), register("[record](approvals/CR-900.md)"));
+    let code = 0;
+    let out = "";
+    try {
+      execFileSync(process.execPath, [script], { env: { ...process.env, CLINICAL_DIR: dir }, encoding: "utf8", stdio: "pipe" });
+    } catch (e) {
+      const err = e as { status: number; stderr: string };
+      code = err.status;
+      out = err.stderr;
+    }
+    expect(code).toBe(1);
+    expect(out).toContain("clinical/approvals/CR-900.md: missing; CR-900 is APPROVED (DOOR1-16)");
+    mkdirSync(join(dir, "approvals"));
+    writeFileSync(join(dir, "approvals", "CR-900.md"), RECORD);
+    expect(execFileSync(process.execPath, [script], { env: { ...process.env, CLINICAL_DIR: dir }, encoding: "utf8" })).toContain("agents: ok");
   });
 });

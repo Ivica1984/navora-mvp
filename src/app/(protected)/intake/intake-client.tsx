@@ -7,6 +7,7 @@ import { linkEffect, linkableLabel } from "@/features/returning/rules";
 import type { IntakeCase, LinkableCase, OpenPartnerRequest } from "@/features/intake/queries";
 import type { AlertCategory } from "@/features/door/queries";
 import SafetyAlertForm from "@/components/door/SafetyAlertForm";
+import { ACCESS_HELP_TEXT } from "@/features/door/rules";
 import {
   CANTONS,
   INSURANCE_TYPES,
@@ -392,8 +393,9 @@ function FactsFields({ initial }: { initial?: Partial<IntakeCase> }) {
         <span className="font-semibold">Zugang zur Wohnung</span>
         <input name="access_notes" maxLength={500} defaultValue={initial?.access_notes ?? ""} className={sel}
                aria-describedby={helpId} />
-        {/* DOOR1-12 (migration 0080): the same help text as the DOOR1-4 note; a code is refused ("Bitte keinen Code erfassen"). */}
-        <span id={helpId} className="text-xs text-emerald-900/70">Ort und wer den Schlüssel hat, nie den Code</span>
+        {/* DOOR1-12 (0080), DOOR1-15 (0084): the same help text as the DOOR1-4 note; a code, a phone number or a postal
+            code is refused ("Bitte keinen Code erfassen"). */}
+        <span id={helpId} className="text-xs text-emerald-900/70">{ACCESS_HELP_TEXT}</span>
       </label>
     </fieldset>
   );

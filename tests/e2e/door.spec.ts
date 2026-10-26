@@ -40,7 +40,8 @@ test("the access arrangement on the card: unbekannt first and distinct, never a 
   const radios = form.getByRole("radio");
   await expect(radios.first()).toHaveAttribute("value", "unbekannt");
   await expect(radios.first()).toBeChecked();
-  await expect(form).toContainText("Ort und wer den Schlüssel hat, nie den Code");
+  // COND1-9 = DOOR1-15 (migration 0084): the help text names the phone number.
+  await expect(form).toContainText("Ort und wer den Schlüssel hat (ohne Telefonnummer), nie den Code");
 
   // A code is refused.
   await form.getByLabel("ja", { exact: true }).check();
