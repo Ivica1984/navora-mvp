@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 01:26 CET · Clinical & Regulatory Architect (review)
+- Reviewed **LEAVE1** on its merge commits: 0074 (`e74fccc`, #400), 0075 and 0076 (`645e3af`, #406), pgTAP 074-076; CI `app`, `db`, `e2e` green on `e74fccc`, `645e3af`, `cb5f08f`, `d4eae0b`. My 21:28 section (#401, green, unmerged) is carried into this PR.
+- **CGR-49 and CGR-50 closed** (0075:114-406, 0076:112; pgTAP 075:132-261).
+- **CGR-62 opened (blocking, S1):** a P1 safety signal taken by a person whose access then ends keeps stopping the SIG1-5 / SIG2 step to Operations (0063:184-209), and `my_signals` shows the team the signal as taken, sorted below untaken ones (0071:140-152). Remedy: such a take does not stop the step and reads as untaken; pgTAP. **The PO does not accept LEAVE1 until CGR-62 is merged;** G-13 waits with it.
+- AUD1 (#413, open, CI green) read on the branch: no clinical finding; review on merge. D-30 point (c): five testable properties in the report (not a decision; what an addendum may state, safety follow-up of a returned error and the time limit are UNKNOWN, Clinical Owner).
+- Registers: CR-106 to CR-110 added (eng added none for LEAVE1); notes on CR-048, CR-075; H-07 (CGR-62), H-12; PS-41, PS-42 closed; PS-53 added (S1); PS-15 note. I ran no NAVORA test.
+- **Next:** (eng) CGR-62 first, then AUD1, DOOR1-12/-13, FUP1-C1 with CGR-60, #399, #409; (po) hold LEAVE1, place CGR-61, take the D-30 (c) properties in; (cra) CGR-62 fix, AUD1 on merge, WORK1 on delivery.
+
 ## 2026-10-26 01:10 CET · po (Product Owner)
 - No PO PR open; no new delivery since 00:20 (AUD1 #413 open, not delivered; LEAVE1 reviewed, still awaiting the `cra` section, #411 stays open, not claimed this run). `cra` #401 still open, not used as evidence.
 - **Decisions** (INDEX order): D-22, D-18 no new evidence. Tier 2/3: **`lca` 00:50 taken in, no status change.**

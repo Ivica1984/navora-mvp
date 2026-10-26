@@ -16,6 +16,76 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-26 01:26 CET: LEAVE1 (0074, 0075, 0076) reviewed on its merge commits; CGR-49, CGR-50 closed; CGR-62 (blocking, S1): a leaver's take keeps a P1 safety signal from escalating; AUD1 (#413, open) read; clinical view on D-30 point (c)
+
+**Scope:** `recovery/main` @ `d4eae0b`. Changes since my 21:28 CET section (PR #401, green, not merged; carried into this PR by a merge commit, JOURNAL both sides kept):
+- **Code merged:** #400 **LEAVE1 part (a)** (0074, ADR-087, pgTAP 074) as `e74fccc`; #406 **LEAVE1 part (b)** (0075, 0076, ADR-088, ADR-089, pgTAP 075, 076, `tests/e2e/leave.spec.ts`, unit `admin-rules`, `auth`, `field-report`, `handover-rules`; e2e `field.spec` fixed to Zurich calendar days) as `645e3af`. **CI `app`, `db`, `e2e` green on `e74fccc`, `645e3af`, `cb5f08f` and `d4eae0b`** (check runs read through the API).
+- **Docs merged:** PO 22:10, 23:11 (LEAVE1-13 added; LEAVE1-C1), 00:20 (LEAVE1 reviewed, "awaiting clinical review"; WORK1 approved; D-30 point (c)), 01:10; `lca` 21:50, 22:40, 00:50 (D-17, D-19, D-9, D-30, D-10); `eng` 21:50-23:45.
+- **Open PRs:** #413 **AUD1** (0077, ADR-090, pgTAP 077; head `8eeb18e`, CI green, not delivered), #401 (mine, superseded by this PR), #3 (owner, `main`). Issues #399 (pgTAP 062 clock) and #409 (field.spec clock) still open. **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read 0074, 0075 (return, countersignature, correction, open-report helpers, lists) and 0076 in full; the signal, push and catalogue assertions of pgTAP 074 (245-262), the LEAVE1-11 and LEAVE1-12 blocks of pgTAP 075, pgTAP 076; and, to check what a leaver leaves behind, the SIG1 take path (0063:121-209, `my_signals` 0071:140-152) and the untaken step (0060:298-313 as patched by 0063:198-209). 0077 read on the PR branch. **I did not run the NAVORA test suite** and touched no live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-62 | LEAVE1 (0074, 0076): `end_member_access` and an open safety signal she has taken | **blocking (S1)** | **A take by a person whose access has ended keeps stopping the step to Operations, and the team reads the signal as handled.** `private.signal_taken_stops_step` is true when any take with `stops_escalation` exists; it never asks whether the taker can still act. The SIG1-5 step (untaken after the threshold → Operations) and SIG2's immediate step outside the watched hours both read it. LEAVE1 removes her from every receiver set and refuses her every command, but leaves her take in force. `my_signals` then shows every team member "übernommen von <her name>" and sorts the signal **below** untaken ones. Example: 09:50 a registered nurse takes a P1 "Klientin öffnet nicht"; 10:05 the administrator withdraws her access (`access_withdrawn`, e.g. a lost phone or an incident). She can record nothing, Operations never receives the signal, and colleagues see it as taken. A client who does not open the door is then followed up by nobody in NAVORA until the cause ends. The refusals of LEAVE1-2 protect a visit in progress, not a signal she holds. No test covers a take by a leaver | 0063:184-188 (`signal_taken_stops_step`: any stopping take), 0063:198-209 (both steps read it); 0071:140-152 (`my_signals`: taker's name, `order by (taker_id is null or not stops_escalation) desc`); 0074:174-197, 227-230 (receivers and `my_signals` only for her); 0076:68-84 (refusals: cases, visit in progress, covered visit; no signal check); pgTAP 074:249-262 (no case with a take) | **eng, po (product authority; no threshold, no clinical rule; reuses the SIG1-5 and SIG2 steps as built):** (1) a take whose taker's access has ended no longer stops the step: `signal_taken_stops_step` (and therefore SIG1-5 and SIG2-5) counts only takes with `not private.access_ended(taker_id)`; (2) `my_signals` treats such a take as untaken (sort and text: "Übernahme beendet – Zugang beendet", or no taker shown), so the team sees it as open again; (3) the `end_member_access` result names the number of open signals she had taken. Takes stay append-only; the SIGC response measures keep the historical take. pgTAP: RN takes a P1 no-show (step stopped); her access ends; after the `signal_untaken` threshold since the signal's start `evaluate_signals` delivers to Operations once and sets `escalated_at`; a team colleague's `my_signals` lists it as untaken; outside the watched hours SIG2's immediate step fires; a restore before the step makes her take count again; a take by a colleague with open access still stops the step |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-49** | **closed**, IMPLEMENTED; CI green on `645e3af` | 0075:114-190 (`return_report`: `unavl := access_ended or not user_in_team`; return row with `performer_unavailable`, no draft); 0075:90-93 (guard: such a version never signed → final), 0075:199-245 (`countersign_report` refuses `returned_performer_unavailable`); pgTAP 075:168-203 (access ended: return accepted, no draft, countersignature refused, guard refuses as table owner, not billable), 075:225-236 (the same after a team removal), 075:239 (no returned version final), 075:184-192 (`i_can_return`, `i_can_countersign` agree), 075:243-261 (restored and in the team: next return opens the F6R draft) |
+| **CGR-50** | **closed**, IMPLEMENTED; CI green on `645e3af` | 0075:314-336 (`open_reports_of`: unsigned incl. a completed visit with no report at all, correction draft, returned), 0075:356-406 (`member_open_reports`, `team_open_reports`: kind, date, team; admin and the report team's RNs only), 0076:112 (counts in the result); pgTAP 075:132-156 (3 by kind, 2 after one signature, others see nothing, counts in the result), 075:211-222 (HAND1 marker for a care assistant, no return reason) |
+| **CGR-61** | open, advisory (S2); not yet placed by the PO (21:28 section was in unmerged #401) | no change |
+| CGR-60 | open, advisory (S3); with FUP1-C1 (PO). PLANNED | no change |
+| CGR-54 | open, advisory (S3); DST1-C4. PLANNED | no change |
+| CGR-56 | open, advisory (S2); DST1-C5, before gate B. PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change; LEAVE1 keeps the refusal `has_planned_visits` for a visit she covers, so a leaver never leaves a cover behind (0076:80-84, pgTAP 076:86-88) |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-49, CGR-50.**
+
+### Other changes reviewed (no finding)
+
+- **LEAVE1-13 (0076) reuses the reviewed release rule.** Her planned visits from today go to the team through `private.release_member_visits` (as removal and ABS1: CR-035, CGR-09, CGR-10, CGR-34, CGR-35); they become uncovered, so J3, OPS1 `visit_uncovered` and SIG1 apply unchanged; past and in-progress visits are not touched (pgTAP 076:95-121). This is better than the part (a) refusal: an administrator no longer has to re-assign visits one by one while the clock runs. A visit she covers still refuses. No threshold changed.
+- **LEAVE1-2 refusals are the right ones clinically:** primary or deputy nurse of an open case (the case would lose its named nurse), a visit on the way, started or paused (somebody must close it through the existing path). Her open reports do not refuse (only she could clear them), and LEAVE1-12 lists them before and in the result.
+- **LEAVE1-3 reads and commands.** A restrictive policy on every readable table, the membership helpers, a guard in every SECURITY DEFINER set-returning read model and in every command, catalogue loops in pgTAP 074 so a new object fails the test. Privacy-protective; nothing clinical is lost because her history stays (074:266-279). The Operations fallback to administrators skips an ended Operations user (0074:174-184, pgTAP 074:259-260): protective.
+- **LEAVE1-11 behaviour (CGR-49 remedy).** A known-wrong version is never pushed into `final` or billing, and stays readable with its marker. Residual (not a finding, D-30): the reason for the return is RN-only (F6R), so a care assistant who reads the visit sees "Zurückgegeben – Autorin nicht mehr verfügbar" but not what is wrong. Whether the next visit or the care plan must be checked when a return names a clinical error is part of D-30 point (c) below (Clinical Owner).
+- **The "unsigned" kind** includes a completed visit she performed with no report at all (0075:329-335): protective; such a visit is now visible to the team as open documentation.
+- **LEAVE1-C1** (an end applies to every organisation of the person): privacy first, nothing clinical lost; agreed as a condition.
+- **AUD1 (#413, open, CI green on `8eeb18e`, not delivered): no clinical finding on the branch.** The purpose reader withholds free text (`quality_holds.reason`, `lift_reason`) from an administrator outside the team, also for `safety_review`, and fails closed on unknown keys. My 17:26 note stands: before the first real client, a safety review of a quality hold by someone outside the team needs the Clinical Owner's task-bound read (G-1, D-16), or the review stays inside the team. The pgTAP 076 clock pin in #413 (076 failed between 00:00 and 09:00 Zurich) is a test fix, not a rule change; the same class as #399 and #409: each clock-dependent safety test must be pinned, never skipped. I will review 0077 on its merge commit.
+
+### Clinical view on D-30 point (c) (PO 00:20 request; not a decision; the Clinical Owner and `legal` decide)
+
+Who completes a version returned while its performer is unavailable. From documentation integrity and patient safety, any route the Clinical Owner chooses should keep these properties (all testable; none sets a clinical rule):
+1. The returned version stays readable and unchanged, with its marker (built, 0075). Nothing is written in the performer's name.
+2. A completion by someone else is her own dated entry (addendum) with her name and qualification, linked to the returned version; it does not replace the performer's observations. **What a registered nurse may state in it** (only what she observed herself, for example at a follow-up visit, or also what she reconstructs) is **UNKNOWN, Clinical Owner.**
+3. If nobody can verify the content, the version stays not final and not billable; whether it may ever be billed is D-18 / D-22 (`legal`).
+4. Patient safety must not wait for the documentation route: when a return names a clinically relevant error, whether the returning RN must check the next visit, the care plan or inform the treating doctor is **UNKNOWN, Clinical Owner** (D-30 with D-16).
+5. A restored author's late completion carries its own date and shows the absence; its time limit is **UNKNOWN, Clinical Owner and `legal`.** I support the PO requirement that route 3 is never the only route.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| LEAVE1 (merged `e74fccc`, `645e3af`; reviewed by the PO, not accepted) | **blocking finding CGR-62 (S1): the PO does not accept LEAVE1 until CGR-62 is fixed with its pgTAP** (or sets `changes-requested`). CGR-49, CGR-50 closed | CGR-62; condition LEAVE1-C1 (PO) |
+| AUD1 (#413, open) | read on the branch; no clinical finding; review on merge | none |
+| DOOR1 (accepted) | unchanged from my 21:28 section (now merged with this PR) | CGR-61 (S2); DOOR1-12 (S1), DOOR1-13 (S2) |
+| FUP1 (accepted) | unchanged | CGR-60 (S3) with FUP1-C1 |
+| WORK1 (brief, approved) | not built; working time, no clinical rule; I will check on delivery that it never feeds billing or a per-person ranking | none |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:** (1) LEAVE1 stays not accepted until CGR-62 is merged with its pgTAP; G-13 ("no real client before LEAVE1 is accepted") therefore also waits on CGR-62; (2) place CGR-61 (21:28 section); (3) take the D-30 point (c) properties above into the D-30 ask.
+- **eng:** CGR-62 first (small: one predicate, one read-model sort, one result field, pgTAP); then AUD1, DOOR1-12/-13, FUP1-C1 with CGR-60, #399, #409.
+- **owner:** G-1 (name the Clinical Owner and a deputy), D-1 (urgent); merge this PR if my own merge is refused.
+- **clinical** (once named): D-30 (routes, what an addendum may state, safety follow-up of a returned error, time limit), D-17 part 3, D-19 part 1, D-28, D-10, D-16 as before.
+
+---
+
 ## 2026-10-25 21:28 CET: DOOR1 (0072, 0073) reviewed on its merge commits; CGR-51 closed; CGR-61 (advisory, S2); DOOR1-12 and DOOR1-13 supported as S1 and S2 conditions
 
 **Scope:** `recovery/main` @ `14b9320`. Changes since the 17:26 CET section:
