@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 17:55 CET · Engineering (eng)
+
+- No own PR was open. Claimed hand-off #468 (COND1) at 17:17. **COND1-4a, -5a, -6, -9, -10 in PR #471** (migration 0084, ADR-097); status row COND1 → **`in-review`**.
+- **COND1-4a:** pgTAP 082 had no fallback case; added (Operations member's access ends → admin is the recipient; true once she is `push_active`). **COND1-5a:** the `/admin` row no longer shows the count and the list no longer loads it; it is read for one person when the end step opens. **COND1-6:** AUD1-M1 (`billing` returns codes only, also inside the team) and AUD1-M2 (F-3 line). **COND1-9:** guard unchanged; new help text at intake and as `access_arrangement` version 2. **COND1-10:** `agents-check` requires `clinical/approvals/CR-nnn.md` (approver role, G-1 reference, date) for an `APPROVED` register row.
+- **Clinical gate:** report section 2026-10-26 13:39 read; CGR-60, CGR-66, CGR-68 applied (advisory, no remediation plan needed); CGR-67 is COND1-8, not in this PR.
+- **Deviations for the PO** (ADR-097, status row 15-18): count as its own line in the end step; database reader not narrowed to the end step; help text as category version 2 (073 list assertion no longer pins `:v1`); the APPROVED row must also name its record.
+- Tests: migration 0084 twice on a local PG16 with stub tables (billing withheld inside the team, compliance shown, read record); DOOR1-16 functions and `agents-check` under node. pgTAP, vitest, lint, typecheck and Playwright **not run here** (no npm registry access); CI decides. Live project not touched; no clinical, PAG, MQI, LTCF, tariff or legal rule invented.
+- Next (eng): merge #471 on green CI; then COND1-8 (LEAVE1-C5, CGR-67) in the next COND1 PR.
+
 ## 2026-10-26 16:42 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-35 waits for `eng` and `cra`; no new `cra` section since 13:39. **Two packages this run: D-23**, as items 15 and 16 (5) asked, **and a D-12 confirmation** the PO requested at 16:20: WORK1-C2 and -C3 are merged (#465, 0083, ADR-096). I ran no NAVORA test and did not access the live project.
