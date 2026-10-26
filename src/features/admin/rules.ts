@@ -165,12 +165,15 @@ export type OpenReportCounts = Record<(typeof OPEN_REPORT_KINDS)[number], number
 const count = (v: unknown): number => (typeof v === "number" && Number.isInteger(v) && v > 0 ? v : 0);
 
 /**
- * The end_member_access result: its code and, on success, her open reports by kind (LEAVE1-12 (2)) and the number of
- * planned visits released to their teams (LEAVE1-13; the command returns them per team, summed here).
+ * The end_member_access result: its code and, on success, her open reports by kind (LEAVE1-12 (2)), the number of
+ * planned visits released to their teams (LEAVE1-13; the command returns them per team, summed here) and the number of
+ * open safety signals she had taken (LEAVE1-14 (3), migration 0078; they now read as untaken).
  */
-export function readAccessEndResult(data: unknown): { code: string; openReports: OpenReportCounts | null; released: number } {
-  if (!data || typeof data !== "object" || !("result" in data)) return { code: "failed", openReports: null, released: 0 };
-  const d = data as { result?: unknown; open_reports?: unknown; released?: unknown };
+export function readAccessEndResult(data: unknown): {
+  code: string; openReports: OpenReportCounts | null; released: number; takenSignals: number;
+} {
+  if (!data || typeof data !== "object" || !("result" in data)) return { code: "failed", openReports: null, released: 0, takenSignals: 0 };
+  const d = data as { result?: unknown; open_reports?: unknown; released?: unknown; taken_signals?: unknown };
   let openReports: OpenReportCounts | null = null;
   if (d.open_reports && typeof d.open_reports === "object") {
     const o = d.open_reports as Record<string, unknown>;
@@ -179,7 +182,7 @@ export function readAccessEndResult(data: unknown): { code: string; openReports:
   const released = d.released && typeof d.released === "object"
     ? Object.values(d.released as Record<string, unknown>).reduce<number>((sum, v) => sum + count(v), 0)
     : 0;
-  return { code: String(d.result), openReports, released };
+  return { code: String(d.result), openReports, released, takenSignals: count(d.taken_signals) };
 }
 
 /** Counts open reports by kind from list rows (member_open_reports). */
@@ -197,16 +200,20 @@ export function openReportsText(counts: OpenReportCounts | null): string {
 }
 
 /**
- * After an end: her planned visits now open in the team (LEAVE1-13) and what stays open for the team (the command is
- * never refused by open reports, LEAVE1-2).
+ * After an end: her planned visits now open in the team (LEAVE1-13), the safety signals she had taken that are open
+ * again for the team (LEAVE1-14) and what stays open for the team (the command is never refused by open reports,
+ * LEAVE1-2).
  */
-export function accessEndedNotice(counts: OpenReportCounts | null, released = 0): string {
+export function accessEndedNotice(counts: OpenReportCounts | null, released = 0, takenSignals = 0): string {
   const visits = released <= 0 ? "" : released === 1
     ? " 1 geplanter Einsatz ist jetzt offen im Team."
     : ` ${released} geplante Einsätze sind jetzt offen im Team.`;
+  const signals = takenSignals <= 0 ? "" : takenSignals === 1
+    ? " 1 übernommenes Sicherheitssignal ist wieder offen im Team."
+    : ` ${takenSignals} übernommene Sicherheitssignale sind wieder offen im Team.`;
   const open = counts ? OPEN_REPORT_KINDS.reduce((sum, k) => sum + counts[k], 0) : 0;
-  if (open === 0) return `Zugang beendet.${visits} Keine offenen Berichte.`;
-  return `Zugang beendet.${visits} Offen bleiben: ${openReportsText(counts)}. Das Team sieht sie mit «Zugang beendet»; sie werden nicht verrechnet.`;
+  if (open === 0) return `Zugang beendet.${visits}${signals} Keine offenen Berichte.`;
+  return `Zugang beendet.${visits}${signals} Offen bleiben: ${openReportsText(counts)}. Das Team sieht sie mit «Zugang beendet»; sie werden nicht verrechnet.`;
 }
 
 export type AccessEvent = { user_id: string; kind: string; reason_code: string; created_at: string; seq: number };

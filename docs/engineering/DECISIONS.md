@@ -1240,3 +1240,38 @@ Generated visits stay ordinary planned visits.
 **Rollback:** drop `read_audit_record`, `org_audit_read_log`, `private.audit_record_team`, `private.audit_value_classes`; keep `audit_read_log` (evidence); re-creating `org_admins_read_audit` would reopen F-3 and needs a PO decision.
 
 **Tests:** pgTAP 077 (44): privileges, no permissive policy, catalogue completeness, fixed free-text list, no freely writable text column classed `code`, the fixed list of readers, argument and output catalogue of both readers (no aggregate), table reads 0 for admin, coach, nurse, operations, other organisation, anon refused; purpose refused when unknown or missing, record refused when missing or malformed; outside the team the hold reason is withheld with time, command, actor present and the text nowhere in the row; a code shown and a typed name withheld on a team record; other organisation, coach and nurse read 0 rows; a team member who is administrator reads the text; an unlisted key is withheld inside the team; each call recorded (count, purpose, 0 rows with null organisation), update and delete refused; administrators read their organisation's rows only, a coach none. pgTAP 005: former test 31 (line 121, positive check of the placeholder policy) replaced by two assertions (admin reads 0 through the table; reads the team record's two rows through the purpose reader); tests 71 and 78–98 unchanged (71 still holds; 78–98 read as the table owner, not through the table API).
+
+### ADR-091 — LEAVE1-14: a claim lapses when the claimant's access ends; the claim inventory
+
+**Date:** 2026-10-26 · **Status:** IMPLEMENTED in migration 0078 (in PR; CI decides) · **Brief:** `docs/agents/briefs/LEAVE1.md` LEAVE1-14 (PO 2026-10-26 02:14 CET, `changes-requested`) · **Finding:** `cra` 2026-10-26 01:26 CET CGR-62 (blocking, S1); remediation plan `docs/agents/clinical/remediation/CGR-62.md`.
+
+**Context:** a safety-signal take by a person whose access then ended kept stopping the SIG1-5 and SIG2 steps to Operations, and the team read the signal as taken (CGR-62). LEAVE1 (ADR-087 to ADR-089) had removed her from receivers and commands, released her planned visits and refused while she held a case or a visit in progress, but had not asked, relation by relation, whether something she claimed still kept others from acting.
+
+**Decision:**
+- **One predicate, evaluated live.** `private.signal_taken_stops_step` counts only takes with `not private.access_ended(taker_id)`. SIG1-5 (`evaluate_signals`) and SIG2's immediate step (`outside_settle`) both read it, so neither needs a change; a restore makes her take count again because nothing is rewritten. Takes stay append-only; `safety_signals.taken_by` and `signal_qualified_taken_at` (SIGC/AN2) keep the historical take.
+- **The team sees it as open.** `my_signals` gains `taker_access_ended` (a column, not a sentinel in `taken_by_name`, so the text stays in the app and no reason code can travel: "Übernahme beendet – Zugang beendet"). The shown take prefers a taker with open access; an ended take carries no name, time or qualification and sorts with the untaken signals. `take_signal`'s "already taken" answer orders takers the same way.
+- **The administrator sees it.** `end_member_access` returns `taken_signals` (open signals she had taken; also in the change log and the audit row); `/admin` adds "n übernommene Sicherheitssignale sind wieder offen im Team".
+- **Claim inventory** (every relation in which one person's row stops another person or a step from acting, and what the access end does):
+
+| Relation | Effect at access end | Where |
+|---|---|---|
+| Safety-signal take (`signal_takes`) | **stops counting** (new) | 0078 predicate, `my_signals`, `take_signal` |
+| Responsible member of a planned visit from today | **releases** to the team (LEAVE1-13) | 0076 |
+| Responsible, covering member or performer of a visit on the way, started or paused | **refuses** `has_visit_in_progress` (LEAVE1-2) | 0074, 0076 |
+| Covering member of a planned visit (COVER1, off) | **refuses** `has_planned_visits` | 0076 |
+| Primary or deputy nurse of a case not closed | **refuses** `has_cases` (LEAVE1-2) | 0074 |
+| Performer of an unsigned, correction-draft or returned report | not refused (LEAVE1-2); listed for the team, not billable, return `performer_unavailable` (LEAVE1-5, -11, -12); who completes it is D-30 | 0075 |
+| New claims after the end: ABS1 return of released visits, PLAN2 responsible member (primary/deputy), `set_primary_nurse`, `plan_visit` responsible | **refuses or skips her** (new): `may_perform_visit` false; PLAN2 skips her (visit uncovered → existing exceptions); `not_in_team`, `responsible_not_in_team` (existing codes, no reason code) | 0078 |
+| Cover offer (`cover_events.nurse_id`, COVER1 off) | none while COVER1 is off; the end path is a COVER1 switch-on item | — |
+| OPS1 exception take (`exception_events` kind `take`) | **none — listed for the PO**: stops no step (P2 → P1 clock runs on, any coordinator can take over, CGR-05/-06), but Operations still reads her name | 0019, 0039 |
+| Quality event `owner_id` (`in_review`) | **none — listed for the PO**: stops nobody (any team member or, if serious, coach/admin may close; OPS1 escalation continues, CGR-05) | 0020 |
+| SIG2 outside delivery `sent` to her phone | **none — listed for the PO**: counts as "reached outside the app", so SIG2's immediate step waits; SIG1-5 still fires at the `signal_untaken` threshold | 0062 |
+| Primary nurse of a closed case that is reopened | **none — listed for the PO**: her name stays until the team changes it (`set_primary_nurse` refuses her as the new one; PLAN2 skips her) | 0024, 0078 |
+
+**Deviations:** (1) the inventory fixes four "new claim" paths the brief did not name (ABS1 return, PLAN2, `set_primary_nurse`, `plan_visit`): an automatic return or a pick of a leaver would create a claim nobody can act on, so they are treated "the same way as (1)" as the brief allows; the refusals reuse existing codes. (2) Four display-only relations (last four rows) are listed for the PO instead of fixed: none stops a step or a person, and fixing them touches OPS1 readers outside this item's scope.
+
+**Not chosen:** deleting or rewriting her takes at the end (breaks append-only and the SIGC measures, and a restore could not bring them back); ending the signal (it must reach someone); carrying the text in `taken_by_name` (no type change, but a display string in a name column).
+
+**Rollback:** re-create `signal_taken_stops_step`, `take_signal`, `my_signals`, `end_member_access`, `may_perform_visit`, `generate_case_plan`, `set_primary_nurse`, `plan_visit` from 0063/0071/0076/0046/0030/0021/0061; `my_signals` loses `taker_access_ended` (types regenerate).
+
+**Tests:** pgTAP 078 (46), pinned to the DST1 test clock: step stopped before the end; after the end the predicate is false for her take and true for a colleague's; the colleague's reader shows it as ended and sorted with the untaken; restore before the step → her take counts again; ended again → SIG1-5 escalates once after the threshold since the signal's start; SIG2's immediate step fires; take, `taken_by` and the AN2 measure unchanged; a colleague can take it and "already taken" names her; `taken_signals` in result, change log and audit; the four new-claim paths refuse or skip her. Unit `signals-rules`, `admin-rules`.
