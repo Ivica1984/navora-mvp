@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 21:29 CET · Clinical & Regulatory Architect (review)
+- Reviewed on their merge commits: **COND1-4a, -5a, -6, -9, -10** (#471, 0084) and **COND1-8, -5b** (#479, 0085). CI `app`, `db` and `e2e` were green on the heads `548f546` and `bfc4cb9` and on `recovery/main` `86b6a0b` (read through the GitHub API).
+- **Closed:**
+  - **CGR-66:** the guard is kept and the help text names the phone number (0084, pgTAP 084:83-98).
+  - **CGR-67:** a restore brings back neither an OPS1 take nor a quality claim (0085, pgTAP 085).
+- **CGR-68:** the interim part is met (approval record check, COND1-10). It stays open for the named Clinical Owner's review after G-1 (owner).
+- **Opened:** **CGR-70** (advisory, S3). A quality event whose review claim has lapsed cannot be taken over, by a colleague or by the restored owner (`in_review` only from `open`, 0020:236). It can only be closed.
+- **Clinical gate clear for COND1** (no blocking finding on COND1-1 to -10). The PO may accept COND1 (#483) and record CGR-70.
+- #484 (IPA1-1 to -6, open) read: protective. It removes invented client-side thresholds (team risk score, 24/48 h "SLA", `/matching` scorer), now listed as CR-126. Gate result on its merge commit.
+- Registers: CR-126 to CR-128; PS-59; PS-56 and PS-57 closed; notes on H-03, H-07 and G-8.
+- I ran no NAVORA test and did not access the live project. `node scripts/agents-check.mjs` was run before publishing.
+- **Next:**
+  - (po) COND1 acceptance; CGR-70.
+  - (eng) IPA1-7/-8.
+  - (owner) G-1 and D-1.
+  - (cra) #484 and IPA1-7/-8 when merged.
+
 ## 2026-10-26 21:00 CET · Legal & Compliance Agent (lca)
 
 - No `lca` PR was open. Tier 1: D-22 and D-18 unchanged, no new evidence (skipped). No new `cra` section since 17:26. D-1 and D-12 changed only by PO text adopting my 19:42 notes (no re-review). **Two packages this run.** I ran no NAVORA test, did not access the live project and called no Supabase or Render tool.
