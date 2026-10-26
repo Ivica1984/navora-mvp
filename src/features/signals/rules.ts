@@ -45,7 +45,15 @@ export type SignalRow = {
    * Operations delivery; before, it is judged at the instant the step is due. Decides the banner text when present.
    */
   operations_outside_app?: boolean | null;
+  /**
+   * LEAVE1-14 (0078, CGR-62): the only take is by a person whose access has ended. It stops nothing and reads as
+   * untaken: no name, time or qualification; the banner shows TAKE_ENDED.
+   */
+  taker_access_ended?: boolean | null;
 };
+
+/** LEAVE1-14: fixed text for a take whose taker's access has ended (no reason code, LEAVE1-8). */
+export const TAKE_ENDED = "Übernahme beendet – Zugang beendet";
 
 export function signalText(kind: string): string {
   return SIGNAL_TEXT[kind] ?? "Sicherheitssignal";
@@ -67,12 +75,15 @@ export function signalHref(row: Pick<SignalRow, "visit_date">): string {
  * SIG1-4: untaken signals at the top; taken ones leave the top list and show who took them.
  * SIG1-C1: a signal taken only by someone whose take does not stop the step to Operations (a care assistant's take of a
  * no-show or broken-off visit) stays at the top for everyone who has not taken it, so a registered nurse can take it.
+ * LEAVE1-14: a take by a person whose access has ended stays at the top too (it stops nothing).
  */
-export function splitSignals<T extends Pick<SignalRow, "taken_by_name" | "taken_by_me" | "taken_awaits_rn">>(rows: T[]): { open: T[]; taken: T[] } {
+export function splitSignals<T extends Pick<SignalRow, "taken_by_name" | "taken_by_me" | "taken_awaits_rn"> & { taker_access_ended?: boolean | null }>(
+  rows: T[],
+): { open: T[]; taken: T[] } {
   const open: T[] = [];
   const taken: T[] = [];
   for (const r of rows) {
-    const isTaken = r.taken_by_me || (Boolean(r.taken_by_name) && !r.taken_awaits_rn);
+    const isTaken = !r.taker_access_ended && (r.taken_by_me || (Boolean(r.taken_by_name) && !r.taken_awaits_rn));
     (isTaken ? taken : open).push(r);
   }
   return { open, taken };
@@ -105,8 +116,10 @@ export function operationsFollows(row: Pick<SignalRow, "watched_now" | "operatio
  * A missing flag never promises the message to Operations.
  */
 export function takenText(
-  row: Pick<SignalRow, "taken_by_me" | "taken_by_name" | "taken_by_qualification" | "taken_awaits_rn" | "watched_now" | "operations_outside_app">,
+  row: Pick<SignalRow, "taken_by_me" | "taken_by_name" | "taken_by_qualification" | "taken_awaits_rn" | "watched_now" | "operations_outside_app">
+    & { taker_access_ended?: boolean | null },
 ): string {
+  if (row.taker_access_ended) return TAKE_ENDED;
   const base = row.taken_by_me ? "von dir übernommen" : `übernommen von ${row.taken_by_name ?? "Teammitglied"}`;
   if (!row.taken_awaits_rn) return base;
   const label = row.taken_by_qualification ? QUALIFICATION_LABEL[row.taken_by_qualification] : undefined;

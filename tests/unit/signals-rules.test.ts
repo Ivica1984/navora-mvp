@@ -9,6 +9,7 @@ import {
   splitSignals,
   takeOutcome,
   takenText,
+  TAKE_ENDED,
   OPERATIONS_APP_ONLY,
   OPERATIONS_FOLLOWS,
   operationsFollows,
@@ -66,6 +67,22 @@ describe("safety signals (SIG1)", () => {
     expect(takenText(rows[0])).toBe("übernommen von Assistenz Test (Pflegehilfe), Meldung an Operations folgt");
     expect(takenText(rows[1])).toBe("von dir übernommen (Pflegehilfe), Meldung an Operations folgt");
     expect(takenText(rows[2])).toBe("übernommen von Pflege Test");
+  });
+
+  // LEAVE1-14 (CGR-62, migration 0078): a take by a person whose access has ended stops nothing and reads as untaken.
+  it("keeps a signal whose taker's access ended at the top with the fixed text (LEAVE1-14)", () => {
+    const rows = [
+      { id: 1, taken_by_me: false, taken_by_name: null, taken_by_qualification: null, taken_awaits_rn: false, taker_access_ended: true },
+      { id: 2, taken_by_me: false, taken_by_name: "Pflege Test", taken_by_qualification: "registered_nurse", taken_awaits_rn: false, taker_access_ended: false },
+      { id: 3, taken_by_me: false, taken_by_name: "Leaver Test", taken_by_qualification: "registered_nurse", taken_awaits_rn: false, taker_access_ended: true },
+    ];
+    const { open, taken } = splitSignals(rows);
+    expect(open.map((r) => r.id)).toEqual([1, 3]);
+    expect(taken.map((r) => r.id)).toEqual([2]);
+    expect(TAKE_ENDED).toBe("Übernahme beendet – Zugang beendet");
+    expect(takenText(rows[0])).toBe(TAKE_ENDED);
+    expect(takenText(rows[2])).toBe(TAKE_ENDED);
+    expect(takenText(rows[1])).toBe("übernommen von Pflege Test");
   });
 
   // SIG2-C1 (1) (CGR-48, migration 0068): outside every watched period the step to Operations stays in the app.
