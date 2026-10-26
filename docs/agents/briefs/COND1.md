@@ -120,3 +120,26 @@ Inputs: hand-off #482 (`delivered`, `eng` 20:34); PRs #446, #451, #457, #465, #4
 **Observation (non-blocking, no condition):** a postal code is refused with the message "Bitte keinen Code erfassen" (pgTAP 084:85), which does not tell the intake person why "8004 Zürich" is refused. The refusal is right (D-17 term 4, COND1-9); the wording rides the next brief that touches the intake form (IPA1 if still open, else later).
 
 **Next:** `cra` reviews 0084 and 0085 (its next run). With no blocking finding, the PO sets COND1 `accepted` and marks the parent condition lines done (LEAVE1-C2 to -C5, DOOR1-12 to -16, WORK1-C1 to -C4, FUP1-C1/-C2, AUD1-M1/-M2). A blocking finding leads to `changes-requested`.
+
+## PO acceptance 2026-10-26 22:10 CET: `accepted` (COND1-1 to COND1-10), with conditions COND1-C1 and COND1-C2
+
+Inputs: PO review 21:10 above (every criterion met in code and CI); `cra` section 2026-10-26 21:29 (`reports/CLINICAL_GOVERNANCE.md`, PR #485): 0084 and 0085 reviewed on their merge commits, **clinical gate clear, no blocking finding on COND1-1 to COND1-10**; CGR-66 and CGR-67 closed, CGR-68 interim part met (stays open for the Clinical Owner after G-1), CGR-70 opened (advisory, S3). CI read through the GitHub API on `recovery/main` 6b19b84 (the #485 merge, docs only on top of 09228ef): `app`, `db`, `e2e` green (runs 40397725023, 40397739853). The PO read `20261021000020_quality_events_and_holds.sql:236` to confirm CGR-70. **The PO ran no test.**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| COND1-1 to COND1-10, COND1-4a, -5a, -5b | met | PO review 21:10 table (unchanged code since; #485 touched docs only) |
+| COND1-7 tracking | met | six PRs, each naming its conditions, merged with a merge commit and green CI |
+| Clinical gate (README) | **passed** | `cra` 13:39, 17:26 (COND1-1 to -5) and 21:29 (COND1-4a, -5a, -5b, -6, -8, -9, -10): no blocking finding; CGR-66 closed (0084, pgTAP 084:83-98), CGR-67 closed (0085, pgTAP 085) |
+| CI on `recovery/main` | green | 6b19b84: `app`, `db` (migrations, seed, pgTAP), `e2e` |
+
+**Status:** `accepted`. Parent condition lines are done: LEAVE1-C2, -C3, -C4, -C5; DOOR1-12 to DOOR1-16 (DOOR1-16 interim; the G-1 review of CGR-68 stays with the owner); WORK1-C1 to WORK1-C4; FUP1-C1, FUP1-C2; AUD1-M1, AUD1-M2. Hand-off #482 closes.
+
+**Why accepted:** the conditions remove the last known ways a safety signal, a take or a claim counts as handled by a person who can no longer act (value: patient safety as precondition), make the North Star ratio honest before it is read (value 1), and keep the working-day record a confirmation, not a timesheet (value 5). No clinical, PAG, MQI, LTCF, tariff or legal rule was added.
+
+**CGR-70 decided (product authority; workflow, no clinical value, no threshold): condition COND1-C2.**
+- **COND1-C2** (before the first real client, G-13; may ride in the same small PR as COND1-C1): a quality event whose `in_review` claim has lapsed (`quality_claim_lapsed`, 0085) can be taken over. `set_quality_event_status(…, 'in_review')` is accepted from `in_review` when, and only when, the current claim has lapsed; the caller needs the same permission that already allows `open` → `in_review` (no new role, no new rule). The new owner and the transition are written to `quality_event_log` with `access_seq` (0085 trigger); the old claim and its history stay readable; nothing is rewritten. A live claim (owner's access not ended) stays refused with the existing `rejected`. The team view shows "Übernehmen" on a lapsed claim, at 390 px.
+  - pgTAP: (a) owner claims, access ends → a colleague takes over (`in_review`, new owner); (b) owner claims, access ends, access restored → the restored owner takes over; (c) a live claim → take-over by a colleague `rejected`; (d) a closed event → `rejected`; (e) the log holds both transitions in order. P2 → P1 escalation (0039) and closing rules unchanged (assert one).
+  - *Why:* since LEAVE1-C5 a lapsed claim stays lapsed for good, so today its only exit is `closed`. A team that wants the event off its list may close it unreviewed (PS-59). The fix lets the team continue the work itself (value 4 team autonomy, value 2 continuity) instead of waiting on Operations or closing. It is the smallest step toward P-13, which stays a pilot hypothesis.
+- **COND1-C1** (21:10) unchanged.
+
+**Observation carried:** the postal-code refusal wording ("Bitte keinen Code erfassen") rides the next brief that touches the intake form (not added to IPA1, which is in PR #484); no condition.

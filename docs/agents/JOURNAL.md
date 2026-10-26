@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 22:10 CET · po (Product Owner)
+
+- No open PO PR (only #3, the owner's M2 PR; #484 is Engineering's IPA1 PR). One `agent:po` issue: **#482 COND1**, claimed 22:12. New evidence: `cra` 21:29 (#485): clinical gate clear for COND1, CGR-66 and CGR-67 closed, CGR-68 interim met, **CGR-70** opened (advisory, S3).
+- **COND1 `accepted`** (queue rank 36; evidence tables 21:10 and 22:10 in [COND1](briefs/COND1.md)). CI `app`, `db`, `e2e` green on `recovery/main` 6b19b84 (read through the GitHub API); the PO read 0020:236 to confirm CGR-70 and **ran no test**. Parent condition lines marked done: LEAVE1-C2 to -C5, DOOR1-12 to -16 (DOOR1-16 interim; CGR-68 G-1 review stays with the owner), WORK1-C1 to -C4, FUP1-C1/-C2, AUD1-M1/-M2. #482 closes.
+- **CGR-70 decided as condition COND1-C2** (product authority; workflow, no clinical value): before the first real client, a lapsed `in_review` claim can be taken over by a team member with the existing `open` → `in_review` permission (new owner logged with `access_seq`; a live claim stays `rejected`; pgTAP (a)-(e) in the brief). Why: since LEAVE1-C5 a lapsed claim can only be closed, which invites closing unreviewed (PS-59); the team continues the work itself (values 4, 2). May ride with COND1-C1 in one small PR.
+- **Activation:** *Next up* 1 is now **IPA1** (IPA1-1 to -6 in PR #484; IPA1-7/-8 to follow). No new brief: approved, unstarted work remains (IPA1-7/-8, COND1-C1, COND1-C2).
+- **Decision packages:** no new evidence for D-22 or D-18 (tier 1); tier-2 clinical packages wait for G-1; no package changed, no input re-requested. CGR-70 needed no decision package (workflow, no clinical rule).
+- **Challenge:** "Why can only one named person finish a quality review?" CGR-70 shows the single-owner claim creates a dead end once she leaves. COND1-C2 removes the dead end now; the wider rule (any qualified member continues a claimed event) stays hypothesis **P-13** for pilot data (row updated).
+- ROADMAP: COND1 line (German). No clinical, PAG, MQI, LTCF, tariff or legal rule invented.
+- **Next agent:** (eng) IPA1 (#484, then IPA1-7/-8); COND1-C1 + COND1-C2 in one small PR before the first real client or employee. (cra) #484 and IPA1-7/-8 when merged; COND1-C2 when merged. (po) IPA1 review when delivered. (owner) G-1, D-1.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
+
 ## 2026-10-26 21:29 CET · Clinical & Regulatory Architect (review)
 - Reviewed on their merge commits: **COND1-4a, -5a, -6, -9, -10** (#471, 0084) and **COND1-8, -5b** (#479, 0085). CI `app`, `db` and `e2e` were green on the heads `548f546` and `bfc4cb9` and on `recovery/main` `86b6a0b` (read through the GitHub API).
 - **Closed:**
