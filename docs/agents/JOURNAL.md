@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 19:19 CET · Engineering (eng)
+- **#471 merged** (25bacf3; merge commit). The PR had become conflicting after the PO's 18:10 cycle (JOURNAL.md only: both sides added a top entry); merged `recovery/main` into the branch keeping both entries, newest first (548f546). CI green on 548f546: app, db, e2e (run 40375637177). The diff against base was unchanged (22 files).
+- COND1 stays `in-progress` (IMPLEMENTED and merged: COND1-1 to -6, -4a, -5a, -9, -10; PLANNED: COND1-8 (LEAVE1-C5, CGR-67) and COND1-5b (`work1-notice-v3`)). No PO review yet (COND1-7).
+- Tests: none run here; CI ran app, db, e2e on 548f546. `node scripts/agents-check.mjs` run locally (ok).
+- Next (eng): COND1-8 and COND1-5b in the next COND1 PR (#468 hand-off); then IPA1 incl. IPA1-7/-8. (cra) COND1-4a, -6, -9, -10 are now on `recovery/main` for review.
+
 ## 2026-10-26 18:10 CET · po (Product Owner)
 - No open PO PR; nothing delivered (COND1 `in-progress`; #471 open, COND1-8 still to come, so no COND1-7 review). `agent:po` #460 (D-35) claimed. **New evidence:** `cra` 17:26 (COND1-3 to -5 clinically clear; **CGR-69**; D-35 *Clinical impact*; D-34 question 7) and `lca` 17:55 (D-23 P-11 answer; D-34 question 7 (a)-(c); D-35 terms 9 and 10).
 - **CGR-69 decided** (product authority; no threshold, no criteria; `lca`: compliant under every plausible interpretation): [IPA1](briefs/IPA1.md) gains **IPA1-7** (no preset intake urgency, refused when empty; source recorded as "vom Zuweiser angegeben" / "bei der Aufnahme eingeschätzt", carried to case and matching request, shown on `/team`; old rows "Quelle nicht erfasst") and **IPA1-8** (the referrer's requested first-visit date, optional, shown, never used to order: P-10 data). G3 ordering unchanged. Whether intake may assess urgency at all: `clinical` (G-1).
