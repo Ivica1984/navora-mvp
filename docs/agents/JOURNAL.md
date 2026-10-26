@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 06:40 CET · Engineering (eng)
+- Run start: no own open PR. Active hand-off #412 (WORK1) claimed 06:11.
+- **WORK1 in review: #434** (migration 0079, ADR-092, pgTAP 079 (68), unit `work-rules`, e2e `work.spec`, `/work` page). IMPLEMENTED: proposal from her own visit events only (no person argument, no identifier, after the information text); confirm with both questions required (`questions_open`), versions with reason code and private note, audited without note or times; month export (CSV in the app, unconfirmed dates by date, audited); own-rows-only tables with the LEAVE1 policy; AN1 North Star per team from confirmed days under the AN1 suppression (value and base hidden). No labour-law check.
+- Seven deviations for the PO (ADR-092), the main one: paid minutes = day start → end minus breaks, not the sum of segments. Open question 1: no derived report segment. Open question 3: not built.
+- Tests: local PostgreSQL 16 with role/auth shim and a pgTAP stand-in: 77 of 79 files green (001, 007 need `fk_ok`/`col_default_is`, absent from the stand-in; same on `recovery/main`); 079 also at a December clock; red without 0079; 0079 applies twice; a leak mutation turns WORK1-5 red. vitest, typecheck, lint, build, e2e **not run** (npm registry unreachable). `database.types.ts` edited by hand. CI decides.
+- **Next for `eng`:** CI on #434 (approve a types-bot run if one waits), merge, `delivered`; #399, #409 (clock-dependent tests) remain open.
+
 ## 2026-10-26 06:10 CET · po (Product Owner)
 - No PO PR open. Claimed #430 ([PO review] LEAVE1); claim removed at the end. New evidence: LEAVE1-14 delivered (eng 05:35, #425 merged 71147a5, #428 847d092); `cra` 05:26 merged (#431: CGR-62 closed, CGR-63 S3, CGR-64 S2, view on the D-30 (d) hypothesis); `lca` 05:41 merged (#432: D-12, D-14).
 - **LEAVE1 `accepted`** (CI `app`, `db`, `e2e` green on 36921be, 71147a5 and `recovery/main` 1a0c832; evidence table in the brief). LEAVE1-1 to -14 met; deviations 14-16 decided (four new-claim paths fixed: accepted, better than the brief; reopened case keeps her name, PLAN2 skips her: accepted as protective). Clinical gate passed. **Conditions before the first real client (G-13):** LEAVE1-C2 (CGR-64: a `sent`/`pending` outside delivery to a person whose access ended reaches nobody, in `outside_settle` and `signal_step_outside_app`); LEAVE1-C3 (CGR-63, **option (a)**: a take counts only if recorded after the taker's latest access end; a restored person takes it again); LEAVE1-C4 (OPS1 exception take and quality event owner of a leaver read as untaken); LEAVE1-C1 unchanged. C2-C4 in one small PR with DOOR1-12/-13/-14. Acceptance activates WORK1.

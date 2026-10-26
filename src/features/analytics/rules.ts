@@ -47,9 +47,9 @@ export const KPI: Record<string, KpiDefinition> = {
     source: "Einsatzereignisse F1–F4",
   },
   direct_care_share: {
-    label: "Direkter Pflegeanteil (North Star)", unit: "%",
-    definition: "Pflegeminuten ÷ bezahlte Arbeitsminuten. Wird messbar, sobald die Arbeitszeit erfasst ist (D-23).",
-    source: "Einsatzereignisse und Arbeitszeit",
+    label: "Anteil direkte Pflegezeit an bestätigter Arbeitszeit (North Star)", unit: "%",
+    definition: "Pflegeminuten der bestätigten Arbeitstage ÷ bestätigte bezahlte Arbeitsminuten derselben Tage (Beginn bis Ende ohne Pausen von 30 Minuten oder mehr). Nur bestätigte Tage; Basis = Anzahl bestätigter Tage. Nur pro Team, ab 3 Personen und 5 Tagen; nie pro Person.",
+    source: "Von den Pflegenden bestätigte Arbeitstage (WORK1)",
   },
   referral_to_first_visit_days: {
     label: "Zuweisung bis erster Einsatz", unit: "Tage",

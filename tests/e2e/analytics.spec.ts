@@ -23,7 +23,8 @@ test("Operations sees the organisation and every team, with definitions and sour
   // AN1 change: the measured figure is named honestly, without the 60 % / 75 % reference line.
   await expect(org.locator('[data-kpi="care_share_in_visits"]')).toContainText("Pflegeanteil im Einsatz");
   await expect(org).not.toContainText("Buurtzorg 60");
-  await expect(org.locator('[data-kpi="direct_care_share"]')).toContainText("Noch nicht messbar");
+  // WORK1-6 (0079): the North Star is shown per team from confirmed working days; the organisation row is a note.
+  await expect(org.locator('[data-kpi="direct_care_share"]')).toContainText("Nur pro Team ausgewiesen");
   await expect(org.getByTestId("period-open_p1_exceptions")).toHaveText("Stand jetzt");
   await expect(page.getByRole("region", { name: "Team Testteam Nord" })).toBeVisible();
 });

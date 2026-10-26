@@ -1615,6 +1615,32 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"working_day_versions": {
+                  Row: {
+                    "break_minutes": number,"breaks_answer": string,"care_minutes": number,"confirmed_at": string,"day_end": string,"day_start": string,"entries": NonNullable<Json>,"id": string,"note": string | null,"organization_id": string,"outside_answer": string,"paid_minutes": number,"reason_code": string | null,"team_id": string | null,"user_id": string,"version": number,"work_date": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "break_minutes": number,"breaks_answer": string,"care_minutes": number,"confirmed_at"?: string,"day_end": string,"day_start": string,"entries": NonNullable<Json>,"id"?: string,"note"?: string | null,"organization_id": string,"outside_answer": string,"paid_minutes": number,"reason_code"?: string | null,"team_id"?: string | null,"user_id": string,"version": number,"work_date": string
+                  }
+                  Update: {
+                    "break_minutes"?: number,"breaks_answer"?: string,"care_minutes"?: number,"confirmed_at"?: string,"day_end"?: string,"day_start"?: string,"entries"?: NonNullable<Json>,"id"?: string,"note"?: string | null,"organization_id"?: string,"outside_answer"?: string,"paid_minutes"?: number,"reason_code"?: string | null,"team_id"?: string | null,"user_id"?: string,"version"?: number,"work_date"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "working_day_versions_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "working_day_versions_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"working_time": {
                   Row: {
                     "day_end": string,"day_start": string,"id": boolean,"time_zone": string,"weekdays": (number)[]
@@ -1667,6 +1693,26 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"working_time_notice_acks": {
+                  Row: {
+                    "acknowledged_at": string,"id": string,"organization_id": string,"text_version": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "acknowledged_at"?: string,"id"?: string,"organization_id": string,"text_version": string,"user_id": string
+                  }
+                  Update: {
+                    "acknowledged_at"?: string,"id"?: string,"organization_id"?: string,"text_version"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "working_time_notice_acks_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
@@ -1678,6 +1724,9 @@ isOneToOne: false
                            },
 "accept_my_invitations":
 { Args: Record<PropertyKey, never>; Returns: number
+                           },
+"acknowledge_working_time_notice":
+{ Args: { "p_idempotency_key": string,"p_text_version": string }; Returns: Json
                            },
 "active_safety_alert_categories":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -1733,6 +1782,9 @@ isOneToOne: false
 "complete_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"confirm_working_day":
+{ Args: { "p_date": string,"p_idempotency_key": string,"p_payload": Json }; Returns: Json
+                           },
 "continuity_by_case":
 { Args: { "p_month": string }; Returns: {
               "case_id": string,"client_label": string,"distinct_nurses": number,"primary_set": boolean,"primary_share_pct": number,"team_name": string,"visits": number
@@ -1775,6 +1827,9 @@ isOneToOne: false
                            },
 "end_visit_not_completed":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_reason_code": string,"p_visit_id": string }; Returns: string
+                           },
+"export_working_month":
+{ Args: { "p_idempotency_key": string,"p_month": string }; Returns: Json
                            },
 "field_countersign_queue":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -1881,6 +1936,19 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "delivered_at": string,"operations_outside_app": boolean,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"taker_access_ended": boolean,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string,"watched_now": boolean
             }[]
+                           },
+"my_working_day":
+{ Args: { "p_date": string }; Returns: {
+              "ends_at": string,"kind": string,"seq": number,"starts_at": string,"visit_no": number
+            }[]
+                           },
+"my_working_day_versions":
+{ Args: { "p_date": string }; Returns: {
+              "break_minutes": number,"breaks_answer": string,"care_minutes": number,"confirmed_at": string,"day_end": string,"day_start": string,"entries": Json,"note": string,"outside_answer": string,"paid_minutes": number,"reason_code": string,"version": number
+            }[]
+                           },
+"my_working_time_notice":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "operations_exceptions":
 { Args: Record<PropertyKey, never>; Returns: {
