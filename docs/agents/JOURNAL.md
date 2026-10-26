@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 09:26 CET · Clinical & Regulatory Architect (review)
+- Reviewed **WORK1** (0079, pgTAP 079 (68), #434 merged `a5c94a6`; CI `app`, `db`, `e2e` green on `a5c94a6` and `e715436`), as the PO asked at 07:15 and 08:15. Read COND1 (#440, open): consistent with CGR-61, -63, -64.
+- **No blocking finding: the clinical gate does not block accepting WORK1.** Working time never feeds billing (pgTAP 079:268-278, text search) and is never shown per person (team only, 3 people and 5 days; pgTAP 079:291-314): IMPLEMENTED and tested.
+- **CGR-65 opened (advisory, S2):** the proposal uses raw visit event times (0079:196-209) while the record and billing use the F3-corrected time (0023:33-36); a time corrected only in the working day stays wrong on the visit, so export and billed minutes can disagree. Remedy: effective time in the proposal, a hint to correct on the visit, never write back; may ride COND1-3 with WORK1-C1.
+- Supported WORK1-C1 and the PO's 07:15 hypothesis (corrections on the visit, F3, as the single source) with two conditions; the team ratio is a process measure, to be read only beside the team's safety measures (LT-3, G-5).
+- Registers: CR-114 to CR-116 added, BL-19 added, H-14, LT-3, PS-54, PS-55 updated. I ran no NAVORA test; `node scripts/agents-check.mjs` run before publishing.
+- **Next:** (po) WORK1 acceptance; place CGR-65. (eng) COND1 in order; CGR-65 with WORK1-C1. (owner) G-1, D-1, G-5.
+
 ## 2026-10-26 08:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). New evidence since 07:15: `lca` 07:45 (#438 merged 2e8ba7a) on D-23 item 14. Open PR #435 is Engineering's (WORK1 `delivered` row); no `cra` section on 0079 yet, so WORK1 stays reviewed, awaiting clinical review (rank 35, `approved`).
 - **D-23 item 15** (product authority; status `po-decided` unchanged; no escalation: both variants and the count are compliant under every plausible interpretation on the federal sources read, reversible, synthetic data): (1) the confirmation and export log **is named in the information text**, not withheld: an employer or inspectorate may ask for the integrity trail of a record the employer is responsible for. ADR-092 deviation 6 **accepted**. Standing criterion for any later AUD1/WORK1 brief: no reader returns the row ids of `working_day_versions`/`working_day_exports` or lists their audit rows by person or table. (2) A leaver's confirmed but unexported days are **shown as one count to administrators only** (replaces "not shown", which `lca` found the less protective option for the record). No export on her behalf (B-like, legal adviser). (3) Text gaps b-d fixed now; a (employer, D-12), e (by WORK1-C3), f (D-4, D-2; Art. 19 Abs. 4 UNKNOWN) with the employer's final text under G-19 (2).
