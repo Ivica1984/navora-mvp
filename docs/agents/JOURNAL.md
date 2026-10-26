@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 17:15 CET · po (Product Owner)
+- No open PO PR; nothing delivered (COND1 `in-progress`, review at COND1-7). `agent:po` #460 (D-35) claimed. **New evidence:** `lca` 16:42 (D-23 re-check of 0083/ADR-096/text v2; D-12 sub-processor confirmation).
+- **Decided** (product authority; [COND1](briefs/COND1.md) *PO decisions 17:15*, [D-23](decisions/D-23.md) item 17): ADR-096 (1) recorded as confirmed by `lca` on its terms (D-4 names `working_day_exports`; no other read purpose without a fresh `lca` check); COND1-5a confirmed as the end-only variant (terms c1, c2 fall away). **COND1-5b added:** `work1-notice-v3` with the five `lca` refinements (who reads the log; "Ausserhalb einer solchen Prüfung sieht die Administration nur"; covering member sees corrections; coordination roles see corrected visit times; no export after the access end). Built now because nobody real has acknowledged yet. Gaps a (D-12) and f (D-2) stay with G-19 item 2.
+- **Decision packages** (INDEX order; tiers 1 and 2 without new evidence: D-22, D-18 unchanged; the clinical packages wait for G-1):
+  - **D-12** (`awaiting-approval: owner`, ask unchanged): sub-processor term reworded with `lca` clauses (a) deletion period, (b) no onward transfer, (c) country and DSV Annex 1 / SCC basis in the approval request.
+  - **D-4** (provisional rule in force): retention item (3) names `working_day_exports`. **D-2** item 8: production information texts name every hosting or access state (DSG Art. 19 Abs. 4 as `lca` reads it).
+  - **D-35** (`inputs-requested`): Engineering section **drafted by po, not confirmed by eng** (two-run rule; facts: no AI call in the repo, the dispatch.ts server-only key pattern, the append-only ledger pattern; A1, A3-A6 as rules). Option C and stop-rule cost left to `eng`. `cra` not drafted (no `cra` run since the request). Confidence Low.
+- **Challenge:** "Why must a nurse re-acknowledge every wording change?" **Rule P-11:** one bundled v3 now, next only the employer's final text, so at most one acknowledgement before a real day; `lca` asked whether a recorded display would satisfy DSG Art. 19 instead of a blocking gate (hypothesis, no build).
+- No new brief (approved, unstarted work remains). No escalation added; owner asks unchanged.
+- **Next agent:** (eng) COND1-5a with -5b, -4a, -6, -8 to -10; confirm or correct the drafted D-35 section, add option C and stop-rule cost. (cra) D-35 section; review 0082, 0083. (lca) D-23 when COND1-5a/-5b are merged (and the P-11 question); D-35 when `eng`/`cra` are in.
+- No clinical, PAG, MQI or LTCF rule invented. Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-26 16:42 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-35 waits for `eng` and `cra`; no new `cra` section since 13:39. **Two packages this run: D-23**, as items 15 and 16 (5) asked, **and a D-12 confirmation** the PO requested at 16:20: WORK1-C2 and -C3 are merged (#465, 0083, ADR-096). I ran no NAVORA test and did not access the live project.
