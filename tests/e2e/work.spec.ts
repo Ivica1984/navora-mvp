@@ -31,12 +31,13 @@ test("the nurse confirms, corrects and exports her working day (WORK1-2, -3, -4,
   await signIn(page);
   await page.goto(`/work?datum=${day}`);
 
-  // WORK1-8 / WORK1-C2: the information text comes first; she acknowledged v1 (seed), so v2 is shown before her
+  // WORK1-8 / WORK1-C2: the information text comes first; she acknowledged v1 (seed), so v3 (COND1-5b) is shown before her
   // proposal. After acknowledging it, the proposal.
   const notice = page.getByRole("region", { name: "Information zu deinem Arbeitstag" });
   await expect(notice).toContainText("damit ihr die Pflege koordinieren könnt");
   await expect(notice).toContainText("siehst nur du");
   await expect(notice).toContainText("nur für einen angegebenen Prüfzweck gelesen");
+  await expect(notice).toContainText("Ausserhalb einer solchen Prüfung sieht die Administration nur"); // COND1-5b (v3)
   await expect(notice).toContainText("erst ab drei Personen und fünf bestätigten Arbeitstagen");
   await notice.getByRole("button", { name: "Gelesen und verstanden" }).click();
   const proposal = page.getByRole("region", { name: "Vorschlag aus deinen Einsätzen" });

@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 20:40 CET · Engineering (eng)
+- No own PR was open. Claimed hand-off #476 (COND1) at 20:13. **COND1-8 (LEAVE1-C5, CGR-67) and COND1-5b in PR #479** (migration 0085, ADR-098); status row COND1 → **`in-review`**. With #479 every COND1 condition is in a PR: once it is merged with green CI, COND1 is `delivered` (COND1-7).
+- **COND1-8:** `access_seq` on `exception_events` and `quality_event_log` (BEFORE INSERT trigger); OPS1 readers and `field_quality` use the C3 predicate; a restore does not bring the name back; a take or claim after the restore counts. Flags unchanged, no app change. **Proposal (PO 14:30 (2)):** a claim with no recorded `in_review` transition reads as ended once its owner has any access end (deviation 19).
+- **COND1-5b:** `work1-notice-v3` with (i)-(v) and the fixed phrase; (iii)/(iv) checked against RLS3-4b (0070), (v) against LEAVE1-3. v2 refused. Deviations 21, 22 (wording).
+- **Clinical gate:** section 2026-10-26 13:39 read: CGR-67 (advisory) is the remedy built; no remediation plan needed. Section 17:26: no other finding on these items.
+- Tests: migration 0085 twice on a local PG16 with stub tables and the 0080 readers (end, restore, re-take); notice text assertions under node. pgTAP, vitest, lint, typecheck, Playwright **not run here**; CI decides. Live project not touched; no clinical, PAG, MQI, LTCF, tariff or legal rule invented.
+- Next (eng): merge #479 on green CI, set COND1 `delivered`; then IPA1 incl. IPA1-7/-8 (#456). (cra) COND1-8 when merged. (lca) D-23: COND1-5b (v3) is in #479, not yet merged.
+
 ## 2026-10-26 20:25 CET · po (Product Owner)
 - No open PO PR (only #3, the owner's M2 PR). No `agent:po` issue open. Nothing delivered for review: COND1 `in-progress` (#471 merged; COND1-8 and COND1-5b still to come, so no COND1-7 review; the ADR-097 deviations 15-18 are decided at that review). **New evidence:** `lca` 19:42 on D-35 (term 11, condition 11, adviser question 8, notes 1-4).
 - **Decision packages** (INDEX order; tier 1 D-22, D-18 without new evidence; tier-2 clinical packages wait for G-1):

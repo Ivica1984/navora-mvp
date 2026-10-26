@@ -5,18 +5,23 @@
 const ZONE = "Europe/Zurich";
 
 /**
- * WORK1-8 / WORK1-C2 (migration 0083): the fixed information text. A changed text needs a new version (and the
- * database constant); an earlier acknowledgement does not carry over. v2 adds (D-23 item 15, lca gaps b, c, d): who
- * else sees status times and corrections, that confirmations and exports are logged and read only for a stated audit
- * purpose, the administration's unexported-days count (WORK1-C3), and why the team ratio exists and when it is shown.
+ * WORK1-8 / WORK1-C2 (migration 0083) / COND1-5b (migration 0085): the fixed information text. A changed text needs a
+ * new version (and the database constant); an earlier acknowledgement does not carry over. v2 adds (D-23 item 15, lca
+ * gaps b, c, d): who else sees status times and corrections, that confirmations and exports are logged and read only
+ * for a stated audit purpose, the administration's unexported-days count (WORK1-C3), and why the team ratio exists and
+ * when it is shown. v3 keeps every statement of v2 and adds (PO 17:15, lca 16:42 on D-23 point (2)): (i) who reads the
+ * log (the administration of her organisation), (ii) "Ausserhalb einer solchen Prüfung sieht die Administration nur",
+ * (iii) the covering member also sees reason and author of a correction, (iv) coordination roles outside the team see
+ * that a visit time was corrected (old and new value, time) but not the reason (RLS3-4b, 0070), (v) no export after the
+ * access end. Still the employer's draft (G-19 item 2: gaps a and f).
  */
-export const NOTICE_VERSION = "work1-notice-v2";
+export const NOTICE_VERSION = "work1-notice-v3";
 export const NOTICE_TITLE = "Information zu deinem Arbeitstag";
 export const NOTICE_PARAGRAPHS: readonly string[] = [
-  "NAVORA speichert, wann ein Einsatz beginnt, unterbrochen und abgeschlossen wird und wann du losfährst. Die Mitglieder deines Teams und Personen, die dein Team vertreten (Stellvertretung), sehen diese Statuszeiten der Einsätze, damit ihr die Pflege koordinieren könnt. Wird die Zeit eines Einsatzes korrigiert, sehen die Mitglieder deines Teams den Grund der Korrektur und wer korrigiert hat.",
+  "NAVORA speichert, wann ein Einsatz beginnt, unterbrochen und abgeschlossen wird und wann du losfährst. Die Mitglieder deines Teams und Personen, die dein Team vertreten (Stellvertretung), sehen diese Statuszeiten der Einsätze, damit ihr die Pflege koordinieren könnt. Wird die Zeit eines Einsatzes korrigiert, sehen die Mitglieder deines Teams den Grund der Korrektur und wer korrigiert hat. Auch wer dein Team vertritt (Vertretung), sieht den Grund und wer korrigiert hat. Koordinationsrollen ausserhalb deines Teams sehen nur, dass eine Einsatzzeit korrigiert wurde (alter und neuer Wert, Zeitpunkt der Korrektur), nicht den Grund und nicht, wer korrigiert hat.",
   "Aus deinen eigenen Statuszeiten schlägt NAVORA dir deinen Arbeitstag vor. Diesen Vorschlag, deine Bestätigung, frühere Fassungen und deine Notizen siehst nur du.",
-  "NAVORA protokolliert deine Bestätigungen und Exporte: bei einer Bestätigung Datum, Fassung und Korrekturgrund, bei einem Export Monat und Anzahl Tage, nie Uhrzeiten oder Notizen. Dieses Protokoll wird nur für einen angegebenen Prüfzweck gelesen. Die Administration deiner Organisation sieht nur, wie viele bestätigte Tage du noch nicht exportiert hast (eine Zahl, keine Daten, Zeiten oder Inhalte), damit sie dich vor dem Ende deines Zugangs an den Export erinnern kann.",
-  "Du ergänzt Beginn und Ende des Arbeitstags, Pausen von 30 Minuten oder mehr und Arbeit ausserhalb der Einsätze und bestätigst den Tag. Den bestätigten Monat exportierst du selbst als Datei und gibst ihn deiner Arbeitgeberin. NAVORA schickt nichts automatisch.",
+  "NAVORA protokolliert deine Bestätigungen und Exporte: bei einer Bestätigung Datum, Fassung und Korrekturgrund, bei einem Export Monat und Anzahl Tage, nie Uhrzeiten oder Notizen. Dieses Protokoll liest die Administration deiner Organisation; es wird nur für einen angegebenen Prüfzweck gelesen. Ausserhalb einer solchen Prüfung sieht die Administration nur, wie viele bestätigte Tage du noch nicht exportiert hast (eine Zahl, keine Daten, Zeiten oder Inhalte), damit sie dich vor dem Ende deines Zugangs an den Export erinnern kann.",
+  "Du ergänzt Beginn und Ende des Arbeitstags, Pausen von 30 Minuten oder mehr und Arbeit ausserhalb der Einsätze und bestätigst den Tag. Den bestätigten Monat exportierst du selbst als Datei und gibst ihn deiner Arbeitgeberin. NAVORA schickt nichts automatisch. Nach dem Ende deines Zugangs kannst du nicht mehr exportieren; Tage, die bis dahin nicht exportiert sind, bleiben unexportiert.",
   "Dein Team sieht pro Monat nur einen Anteil für das ganze Team: wie viel der bestätigten bezahlten Arbeitszeit auf direkte Pflege entfällt. Er dient der Planung im Team und der Auswertung des Pilotbetriebs. Er wird erst ab drei Personen und fünf bestätigten Arbeitstagen gezeigt, nie mit Zahlen einer einzelnen Person.",
   "NAVORA prüft keine Pausen-, Ruhe- oder Höchstarbeitszeiten.",
 ];

@@ -7,7 +7,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(26);
+select plan(27);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -64,8 +64,8 @@ insert into public.team_memberships (team_id, user_id, qualification) values
   ('00000000-0000-4000-a000-000000000101', pg_temp.u('x2')::uuid, 'registered_nurse'),
   ('00000000-0000-4000-a000-000000000101', pg_temp.u('x3')::uuid, 'care_assistant');
 
--- WORK1-C2: information text v2; a v1 acknowledgement does not carry over --------------------------------------------
-select is(private.working_time_notice_version(), 'work1-notice-v2', 'WORK1-C2: the current text version is work1-notice-v2');
+-- WORK1-C2 / COND1-5b (0085): information text v3; neither a v1 nor a v2 acknowledgement carries over ------------------
+select is(private.working_time_notice_version(), 'work1-notice-v3', 'COND1-5b: the current text version is work1-notice-v3');
 -- x1 runs one visit of Nord (case 208) on 2026-10-22 through the real commands, so her day has a proposal.
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status,
                                 planned_minutes_a, planned_minutes_b, planned_minutes_c, responsible_user_id)
@@ -76,21 +76,24 @@ create function pg_temp.step(p_cmd text, p_at text, k int) returns text language
                                   pg_temp.k(k)), p_at) #>> '{}' $$;
 select is(pg_temp.step('depart_visit', '2026-10-22 08:00:00+02', 1) || ',' || pg_temp.step('start_visit', '2026-10-22 08:15:00+02', 2)
           || ',' || pg_temp.step('complete_visit', '2026-10-22 09:00:00+02', 3), 'ok,ok,ok', 'fixture: x1 runs her visit through the real commands');
--- She acknowledged v1 before 0083 (as the table owner: the command accepts only the current version).
+-- She acknowledged v1 before 0083 and v2 before 0085 (as the table owner: the command accepts only the current version).
 insert into public.working_time_notice_acks (organization_id, user_id, text_version, acknowledged_at)
-values ('00000000-0000-4000-b000-000000000011', pg_temp.u('x1')::uuid, 'work1-notice-v1', '2026-10-21 09:00:00+02');
+values ('00000000-0000-4000-b000-000000000011', pg_temp.u('x1')::uuid, 'work1-notice-v1', '2026-10-21 09:00:00+02'),
+       ('00000000-0000-4000-b000-000000000011', pg_temp.u('x1')::uuid, 'work1-notice-v2', '2026-10-26 16:00:00+01');
 select is(pg_temp.cmd('x1', 'select public.my_working_time_notice()') - 'acknowledged_at',
-  '{"text_version": "work1-notice-v2", "acknowledged": false}'::jsonb, 'WORK1-C2: with a v1 acknowledgement she is shown v2 as not acknowledged');
+  '{"text_version": "work1-notice-v3", "acknowledged": false}'::jsonb, 'COND1-5b: with v1 and v2 acknowledgements she is shown v3 as not acknowledged');
 select is(pg_temp.seen('x1', $$ select 1 from public.my_working_day('2026-10-22') $$), 0,
-  'WORK1-C2: my_working_day returns nothing for a v1-only acknowledgement');
+  'COND1-5b: my_working_day returns nothing while only v1 and v2 are acknowledged');
 select is(pg_temp.cmd('x1', format('select public.acknowledge_working_time_notice(%L, %L::uuid)', 'work1-notice-v1', pg_temp.k(10))) ->> 'result',
   'invalid', 'WORK1-C2: v1 can no longer be acknowledged');
-select is(pg_temp.cmd('x1', format('select public.acknowledge_working_time_notice(%L, %L::uuid)', 'work1-notice-v2', pg_temp.k(11))) ->> 'result',
-  'ok', 'WORK1-C2: she acknowledges v2');
+select is(pg_temp.cmd('x1', format('select public.acknowledge_working_time_notice(%L, %L::uuid)', 'work1-notice-v2', pg_temp.k(12))) ->> 'result',
+  'invalid', 'COND1-5b: v2 can no longer be acknowledged');
+select is(pg_temp.cmd('x1', format('select public.acknowledge_working_time_notice(%L, %L::uuid)', 'work1-notice-v3', pg_temp.k(11))) ->> 'result',
+  'ok', 'COND1-5b: she acknowledges v3');
 select is(pg_temp.seen('x1', $$ select 1 from public.my_working_day('2026-10-22') $$), 2,
-  'WORK1-C2: after v2 her proposal is shown (travel and care of her visit)');
+  'COND1-5b: after v3 her proposal is shown (travel and care of her visit)');
 select is((select string_agg(text_version, ',' order by text_version) from public.working_time_notice_acks where user_id = pg_temp.u('x1')::uuid),
-  'work1-notice-v1,work1-notice-v2', 'both acknowledgements stay recorded (append-only)');
+  'work1-notice-v1,work1-notice-v2,work1-notice-v3', 'all three acknowledgements stay recorded (append-only)');
 
 -- WORK1-C3: the count ------------------------------------------------------------------------------------------------
 select is(pg_temp.confirm('2026-09-28', 20, '2026-10-26 10:00:00+01') || pg_temp.confirm('2026-09-29', 21, '2026-10-26 10:00:00+01')

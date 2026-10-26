@@ -46,7 +46,7 @@ end $$;
 create function pg_temp.confirm(p_user text, p_date text, p_payload jsonb, k int) returns jsonb language sql as $$
   select pg_temp.cmd(p_user, format('select public.confirm_working_day(%L::date, %L::jsonb, %L::uuid)', p_date, p_payload, pg_temp.k(k))) $$;
 create function pg_temp.ack(p_user text, k int) returns text language sql as $$
-  select pg_temp.cmd(p_user, format('select public.acknowledge_working_time_notice(%L, %L::uuid)', 'work1-notice-v2', pg_temp.k(k))) ->> 'result' $$;
+  select pg_temp.cmd(p_user, format('select public.acknowledge_working_time_notice(%L, %L::uuid)', 'work1-notice-v3', pg_temp.k(k))) ->> 'result' $$;
 create function pg_temp.day(p_start text, p_end text, p_segments jsonb, p_breaks jsonb, p_outside jsonb) returns jsonb language sql as $$
   select jsonb_build_object('day_start', p_start, 'day_end', p_end, 'segments', p_segments, 'breaks', p_breaks, 'outside_work', p_outside) $$;
 -- WORK1-5 catalogue: a fingerprint of everything the user reads through every readable table (selectable columns
@@ -143,10 +143,10 @@ select is(pg_temp.ack('w1', 101), 'ok', 'WORK1-8: she acknowledges once');
 select is(pg_temp.ack('w1', 101), 'duplicate', 'same key: duplicate');
 select is(pg_temp.ack('w1', 102), 'unchanged', 'a second acknowledgement records nothing');
 select is((select text_version || ':' || (user_id = pg_temp.u('w1')::uuid) from public.working_time_notice_acks where user_id = pg_temp.u('w1')::uuid),
-  'work1-notice-v2:true',
+  'work1-notice-v3:true',
   'WORK1-8: the acknowledgement is recorded (who, text version, when)');
 select is((select count(*)::int from public.audit_events where table_name = 'working_time_notice_acks' and actor_id = pg_temp.u('w1')::uuid
-           and changed -> 'text_version' ->> 'new' = 'work1-notice-v2'), 1, 'WORK1-8: audited');
+           and changed -> 'text_version' ->> 'new' = 'work1-notice-v3'), 1, 'WORK1-8: audited');
 
 -- WORK1-1: the proposal from her own events ---------------------------------------------------------------------------
 select is(pg_temp.cmd('w1', $$ select to_jsonb(string_agg(visit_no || ':' || kind || ':' || to_char(starts_at at time zone 'UTC', 'HH24:MI') || '-'
