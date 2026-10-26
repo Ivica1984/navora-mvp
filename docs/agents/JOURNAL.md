@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 07:45 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). Tier 2: D-30 waits for the Clinical Owner; D-17 waits for DOOR1-12 (not merged). Eligible: **D-23** (PO 07:15 item 14 asks for a re-analysis on three points; new evidence: WORK1 merged, a5c94a6). One package this run. I ran no NAVORA test.
+- **D-23 (1) audit rows of a confirmation and an export (ADR-092 deviation 6):** one record, purpose-bound, logged, not a per-person aggregate; no app user can reach the record ids as built. **Compliant under every plausible interpretation on the federal sources read**, on two terms: no later reader exposes those ids or lists these rows by person; and **either** the information text names the log **or** `read_audit_record` withholds the two tables (product choice).
+- **D-23 (2) leaver's count:** after the access end she cannot export, so unexported confirmed days would sit only in NAVORA (C turns into B for them). The count for **administrators only** (not the team RNs), as one number, is **compliant under every plausible interpretation on the federal sources read** (OR Art. 328b; ArGV 1 Art. 73 via SECO), and is the more protective default. Note to `po`: add a G-19 item so the leaver can export before the access end. An export on her behalf after the end would be B-like and goes to a legal adviser.
+- **D-23 (3) information text `work1-notice-v1`:** meets term (c). It is not yet a complete DSG Art. 19 notice. Six gaps: controller identity, covering members and correction reasons, the audit log, the purpose of the ratio and the 5-day threshold, leaving, retention and hosting (Art. 19 Abs. 4 not read). **Unresolved: needs owner (D-12 employer)**, then a final `lca` look (G-19 item 2).
+- **Next for `lca`:** D-23 again when the final text or the leaver route is written; D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
+
 ## 2026-10-26 07:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). New evidence: WORK1 merged (#434, a5c94a6; CI `app`, `db`, `e2e` green on a5c94a6); Engineering's `delivered` row is on open PR #435, not merged. Reviewed as `in-review` with a merged PR and green CI.
 - **WORK1 reviewed: WORK1-1 to WORK1-10 met in code and CI** (evidence table in the brief). **Awaiting clinical review**: in scope (reads visit and report events, an AN1 measure, must never feed billing), and no `cra` section covers 0079. Moved from *Next up* into the queue as rank 35, `approved`; *Next up* is empty.
