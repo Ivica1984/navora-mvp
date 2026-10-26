@@ -16,6 +16,125 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-26 17:26 CET: COND1-3 (0081), COND1-4 (0082) and COND1-5 (0083) reviewed on their merge commits; CGR-60 and CGR-65 closed; CGR-69 (advisory, S2): the intake urgency that orders team offers is a criteria-free label with a preset value; clinical input for D-35 and D-34 question 7
+
+**Scope:** `recovery/main` @ `6d2bb3e`. Changes since my 13:39 CET section (#452, merged `0119248`):
+- **Code merged:** #451 **COND1-3** (WORK1-C1 + WORK1-C4; 0081, ADR-094, pgTAP 081) as `b58e9fc`; #457 **COND1-4** (FUP1-C1 + FUP1-C2; 0082, ADR-095, pgTAP 082 (23), pgTAP 069 fixture) as `a6757d0`; #465 **COND1-5** (WORK1-C2 + WORK1-C3; 0083, ADR-096, pgTAP 083 (26)) as `6002b4e`. **CI** (check runs read through the GitHub API): `app`, `db`, `e2e` green on the heads `8b63dcd` (#451), `4e0cd29` (#457) and `47403c1` (#465). On `a6757d0` one `db` run failed and a second run is green; `eng` 14:59 names the cause (a bare `ok` fixture row broke the TAP stream; fixed by wrapping it in `ok()`, as 082:57 shows). On `6d2bb3e`, `app` and `db` are green and `e2e` was still running when I read it.
+- **Docs merged:** PO 14:20 (labelled 15:00), 14:30, 14:40, 14:47, 15:16, 16:20 and 17:15; `eng` 13:50, 14:10, 14:31, 14:59, 15:38 and 16:19; `lca` 15:04, 15:43 and 16:42.
+  - **CGR-66, CGR-67 and CGR-68 were decided by the PO (14:30) as COND1-9, COND1-8 and COND1-10.** All three are PLANNED.
+  - **D-35** is open (`inputs-requested`). It asks `cra` for a *Clinical impact*.
+  - **D-34 question 7** asks `cra` whether the intake urgency is a clinical judgement.
+  - **D-33** was decided by the owner: Safari and Firefox stay in-app only. New gate G-20.
+- **Open PRs:** only #3 (owner, `main`); I commented on no PR. **No `clinical`, `legal` or `owner` decision was answered by a person** apart from the owner's D-33.
+
+I read 0082 and pgTAP 082 in full, the 0083 migration, the classifier `private.outside_classify` and `private.push_active` (0062) as the step uses them, `record_partner_request` (0010:71-94), the intake form (`intake-client.tsx:142-147`), `team_offers` (0017:410) and the D-35 and D-34 packages. For COND1-3 I diffed the merged files against the head I read at 13:39 (`e46dc87`): no change in `supabase/`, `src/` or `tests/`. **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-69 | Intake urgency (J1 intake, 0010) as used by `team_offers` (0017:410); D-34 G3, question 7 | **advisory (S2)** | **The urgency that orders the team's offers is a three-level label chosen by an administrator or Operations person, with no stated criteria and a preset value of "mittel".** The team sees its offers sorted `hoch` → `mittel` → `niedrig` before the response deadline. A coordinator who does not touch the select files every referral as "mittel". The record does not say whether the value is the referrer's stated urgency or an intake person's own reading of the need summary. Clinically, the second case is a triage judgement of the client's condition, made by a role that need not be a nurse. Wrong in either direction, it delays acceptance and so the first visit of a client who was sent home from hospital needing care (H-19). The preset value also hides who chose the level: "mittel" can mean "chosen" or "never chosen". No clinical rule is in the code, so nothing here is invented. What is missing is the provenance of a value that is used to rank. IMPLEMENTED as described; synthetic data only | 0010:71-94 (`has_org_role(... 'admin', 'operations')`; `p_urgency in ('niedrig','mittel','hoch')`, no criteria); `src/app/(protected)/intake/intake-client.tsx:142-147` (`defaultValue="mittel"`); `src/features/intake/commands.ts:22`; 0017:347, 410 (`order by case m.urgency when 'hoch' then 0 …`); D-34 report §7.2 G3; D-34 *PO 16:20* (question 7 fact drafted by the PO, not confirmed by `eng`) | **po (product authority; no threshold, no criteria):** (1) remove the preset, so the intake person must choose a level (an empty select is refused); (2) record whose urgency it is, as a fixed choice: "vom Zuweiser angegeben" or "bei der Aufnahme eingeschätzt". With PO hypothesis P-10, also record the referrer's requested first-visit date. pgTAP: a request without an urgency or without a source is refused; the source is stored and shown with the level on `/team`. e2e: the form has no preselected urgency. **clinical (Clinical Owner, with D-34 question 7):** whether an intake person may set "eingeschätzt" at all, and on which criteria. I set none |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-60** | **closed**, IMPLEMENTED (FUP1-C2); CI green on `4e0cd29` | 0082:33-41 (`private.signal_operations_reachable`: the channel on after `enabled_since`, and a recipient of the step's own set `signal_operations_users` with `push_active`, both reused); 0082:65 (the not-made branch also requires it). The same two inputs decide the real classification (0062 `outside_classify`: `ps.enabled`, `d.created_at >= ps.enabled_since`, `push_active`), so the forecast and the step agree. pgTAP 082:72-86: channel off → false; channel on with no member subscribed → false; subscribed but no send has succeeded yet → false; one active → true; read before `enabled_since` → false. 082:97-105: subscription ended, or last send failed → false. **Residual (no finding):** reachability is read at the reading instant, not at the due instant. A subscription that lapses in the minutes between can still show the promise. The in-app delivery covers that case (display only) |
+| **FUP1-C1 (Q16)** | IMPLEMENTED; CI green on `4e0cd29` (PO condition, not a CGR) | 0082:24-30 (`signal_evaluator_interval()` = 1 minute, commented with the cron job); 0082:58-60. pgTAP 082:88-94: due 19:59:30 → false, 19:58 → true, 19:59 → false (end exclusive), watched to 21:00 → true; 082:107-114: made-step branch unchanged |
+| **CGR-65** | **closed**, IMPLEMENTED (WORK1-C4); CI green on `8b63dcd` | as read on #451 at 13:39, merged unchanged: 0081 `working_day_proposal` takes the effective event time (latest F3 correction, else the recorded time) for start, end, order and Zurich date, through the same lateral join as billing (0023:33-36), and marks `corrected`. `/work` shows the hint and a link to the visit's time correction. No write-back: pgTAP 081:139-161 (a corrected event moves the segment and its day; the visit tables' row fingerprint is unchanged). The ADR-094 deviation (link by event instant) reaches the day only for a segment she already edited. That is not a safety point: the visit's time is corrected on `/field` either way |
+| CGR-66, CGR-67, CGR-68 | open, advisory (S3, S3, S2); decided by the PO 14:30 as COND1-9 (DOOR1-15), COND1-8 (LEAVE1-C5), COND1-10 (DOOR1-16). PLANNED | `briefs/COND1.md` *PO decisions 14:30*. The decided remedies match mine. For CGR-66 the PO chose "no phone number in the note", with the help text naming where the key holder is. The key holder's reachability goes to D-17 part 3 as a structured contact. I support that: the decision keeps the guard and does not loosen it |
+| CGR-54, CGR-56 | open, advisory (S3, S2); DST1-C4, DST1-C5. PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-60, CGR-65**.
+
+### COND1-3, COND1-4 and COND1-5 checks (no finding beyond CGR-69, which is outside COND1)
+
+- **WORK1-C1 (0081): IMPLEMENTED.** Care minutes are the union of the care segments, clipped to the day, minus breaks. `care_le_paid` holds (NOT VALID only on old synthetic rows). pgTAP 081:61-102. The team ratio (CR-116) can no longer exceed 100 %. It stays a process measure, to be read beside the team's safety measures (G-5).
+- **COND1-4 (0082): display narrowing only, protective.** A `false` makes the banner say "Operations in der App", and the in-app delivery happens either way. The step, thresholds, watched hours and recipients are unchanged (D-28, D-32). The admin fallback is reused, not copied. Its own pgTAP assertion is COND1-4a (PO 15:16), PLANNED: 082 has an Operations member, so the fallback branch is not exercised there.
+- **COND1-5 (0083): no clinical, billing or tariff path.**
+  - The export record `working_day_exports` holds who, month and when. No app role can read or write it, it is append-only, and the LEAVE1-3 policy applies.
+  - The count reads only `working_day_versions` and the export record. No billing function reads either.
+  - The v2 acknowledgement gates `my_working_day` only. Nothing on `/field`, a report, a signature or a signal waits for it, so a nurse who has not yet acknowledged v2 can still document and sign care. I checked this because a blocking notice in front of a care workflow would be a safety point. It is not.
+  - Labour-law and privacy content is `lca`'s (D-23; `lca` 16:42 compliant on its terms).
+- **No new clinical rule, threshold, recipient or step** in 0081 to 0083.
+
+### Clinical impact for D-35 (AI services), as requested by the PO; for the PO to take into the package
+
+*Advisory. I am not a licensed clinician; the Clinical Owner decides (G-1). Today no AI service is called anywhere (D-35 Context, IMPLEMENTED). Everything below is about agents that are PLANNED or proposed.*
+
+1. **Hazards of G and H agents** (new hazard **H-20**):
+   - *Omission in extraction* (A8): a discharge letter names an allergy, an anticoagulant or an infection precaution, and the structured referral does not. An empty field reads the same as "none". That is H-03 at the moment of intake.
+   - *Summarising away a safety fact* (A9, A12): a handover or transfer summary leaves out the one sentence that mattered (a new wound, a fall last night, "refuses medication").
+   - *Content the nurse did not observe* (A7, A9): a draft states a fact or a measurement nobody recorded. If it is signed, it enters the record as hers. That damages documentation integrity (H-05) and, through the signed snapshot, the billing basis (H-14).
+   - *Automation bias* (all G and H agents): proposals that are accepted unread. `lca` notes that this also moves the case towards DSG Art. 21.
+   - *A7 transcription errors*: drug names, doses and numbers are the words most at risk. "Transcription" is not clinically neutral.
+2. **Minimum forced-attention design** before any G or H agent touches real data. Each point is a testable product property; none is a clinical threshold:
+   - (a) **Provenance on every value.** An agent-produced value is stored as a *proposal* with agent, version and input reference. It becomes record content only when a named person confirms it, and the record shows "vorgeschlagen von … / bestätigt von … am …". Signing a draft is not confirming every value in it.
+   - (b) **"Not found" is explicit.** An extraction field the agent did not find shows "im Dokument nicht gefunden", never an empty or "keine" value. A safety field (allergy, anticoagulation, infection precaution, access) cannot be confirmed without the source document open beside it.
+   - (c) **No accept-all.** Fields that feed the safety-alert set (D-17), the care plan or a medical order are confirmed one by one. Which fields count as safety fields is the Clinical Owner's list (D-17 part 3). I do not set it.
+   - (d) **Source beside proposal.** Each proposed value links to the passage it came from. A value with no source passage cannot be confirmed as a fact; it can only be typed by the person.
+   - (e) **Measured acceptance.** The suggestion ledger records accepted unchanged, edited and rejected per agent and field (aggregated, never per nurse, as CR-079). A stop rule pauses an agent when its safety fields are accepted unchanged at a rate the Clinical Owner sets. That threshold is UNKNOWN, owner `clinical`.
+3. **Which agents are clinical rules in substance** (for the Clinical Owner):
+   - **Yes:** A8, A9, A10, A11, A12 (H, as the review says).
+   - **Yes as to errors:** A7. It records clinical content, so its error modes are clinical even if its function is transcription.
+   - **Not clinical, but on a clinical boundary:** A2 (order renewal: a missed renewal leaves B care without an order, H-18), A3 (the roster must apply the qualification and delegation rules CR-007, CR-009 and CR-010, still UNVALIDATED under D-15; an agent must not plan around them) and A4 (billing integrity, H-14).
+   - **Not clinical:** A1, A5, A6 as rules without AI.
+4. **Position:** option A stays the clinically safe default. Before a real client, no G or H agent is clinically acceptable without 2(a) to 2(e), the D-34 module for H, and a named Clinical Owner (G-1).
+
+### Clinical input for D-34 question 7 (who sets the intake urgency, and is it a clinical judgement)
+
+- **Fact (IMPLEMENTED, static reading, agrees with the PO's draft):** an `admin` or `operations` member chooses one of three levels at intake. The form preselects "mittel" and states no criteria (CGR-69 evidence).
+- **Clinical reading:** if the level copies what the referrer said, it is an administrative fact, as with G4 and G5. If the intake person derives it from the need summary, it is in substance a clinical triage judgement of the client's condition. As built, the record cannot tell the two apart, so neither can the adviser. CGR-69 (2) makes it visible. Whether an intake person may make the second kind of judgement, and on which criteria, is UNKNOWN. Owner: `clinical` (Clinical Owner). If yes, it needs a named qualification for that person.
+- No opinion on the regulatory classification; that is `lca` and the adviser.
+
+### Register rows
+
+- **CR-098** note: FUP1-C1 and FUP1-C2 are IMPLEMENTED (0082), and CGR-60 is closed.
+- **CR-114** note: CGR-65 is closed. Since 0081 the proposal uses the effective time.
+- **CR-116** note: WORK1-C1 is IMPLEMENTED (0081), so the ratio is ≤ 100 %.
+- **Added:**
+  - **CR-123:** the FUP1-C1/-C2 forecast conditions (0082; organisational, input class V).
+  - **CR-124:** the unexported-days count and the v2 acknowledgement gate (0083; not clinical, listed for the boundary check above).
+  - **CR-125:** the intake urgency order (0010, 0017:410; note CGR-69).
+- None of them is clinical.
+- **Hazards:** H-19 (delayed start of care after a referral) added. H-20 (an AI agent's output drops, alters or adds a safety fact; PLANNED agents only) added.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| COND1-3 (merged `b58e9fc`) | **reviewed on the merge commit; no blocking finding.** CGR-65 closed | none |
+| COND1-4 (merged `a6757d0`) | **reviewed on the merge commit; no blocking finding.** CGR-60 closed, FUP1-C1 met | COND1-4a (admin fallback assertion) still PLANNED |
+| COND1-5 (merged `6002b4e`) | **reviewed on the merge commit; no clinical or billing finding** (privacy and labour law: `lca`) | none |
+| COND1 as a whole (`in-progress`) | the clinical gate does not block the PO's COND1-7 review once COND1-6 and COND1-8 to -10 are merged; I review those when merged | CGR-66, -67, -68 until COND1-8 to -10 |
+| J1 intake / D-34 G3 (accepted earlier) | advisory finding | CGR-69 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:**
+  1. CGR-69: remove the preset urgency and record its source (referrer or intake), as a small brief or an IPA1 or COND1 addition. Take the clinical input above into D-34 question 7.
+  2. Take the D-35 *Clinical impact* above into the package.
+  3. COND1-7: the clinical gate is clear for COND1-1 to -5.
+- **eng:**
+  1. COND1-4a, COND1-6, COND1-8 to -10.
+  2. Confirm the D-34 question 7 fact (who sets the urgency).
+- **owner:**
+  1. G-1: name the Clinical Owner and a deputy. D-35 (H agents), D-34 question 7 and CGR-68 all wait for it.
+  2. D-1 (urgent).
+  3. The G-11 count before the first real import.
+  4. G-5.
+  5. Merge this PR if my own merge is refused.
+- **clinical** (once named):
+  - CGR-69 (2): may an intake person judge urgency, and on which criteria?
+  - D-35: the safety-field list (2c) and the stop-rule threshold (2e).
+  - D-17 part 3, D-30, D-19 part 1, D-28, D-10 and D-16, as before.
+
+---
+
 ## 2026-10-26 13:39 CET: COND1-1 and COND1-2 (0080, pgTAP 080, 078) reviewed on their merge commit; CGR-61, CGR-63, CGR-64 closed; CGR-66 (S3), CGR-67 (S3), CGR-68 (S2), all advisory; COND1-3 (#451, open) read: CGR-65 remedy as built, not yet merged
 
 **Scope:** `recovery/main` @ `a5d5cc7`. Changes since my 09:26 CET section (#441, merged `f8f4b6a`):

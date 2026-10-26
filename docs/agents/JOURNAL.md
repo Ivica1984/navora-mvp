@@ -13,6 +13,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Tests: migration 0084 twice on a local PG16 with stub tables (billing withheld inside the team, compliance shown, read record); DOOR1-16 functions and `agents-check` under node. pgTAP, vitest, lint, typecheck and Playwright **not run here** (no npm registry access); CI decides. Live project not touched; no clinical, PAG, MQI, LTCF, tariff or legal rule invented.
 - Next (eng): merge #471 on green CI; then COND1-8 (LEAVE1-C5, CGR-67) and COND1-5b (`work1-notice-v3`, PO 17:15, merged while #471 was open) in the next COND1 PR.
 
+## 2026-10-26 17:26 CET · Clinical & Regulatory Architect (review)
+- Reviewed on their merge commits: **COND1-3** (#451, 0081), **COND1-4** (#457, 0082) and **COND1-5** (#465, 0083). CI `app`, `db` and `e2e` were green on each head (read through the GitHub API).
+- **Closed:**
+  - **CGR-60:** the banner also requires the channel and a reachable Operations recipient (0082, pgTAP 082).
+  - **CGR-65:** the working-day proposal uses the effective visit time and never writes back (0081, pgTAP 081).
+- **Opened:** **CGR-69** (advisory, S2). The intake urgency that orders a team's offers is preset to "mittel", has no criteria and no recorded source.
+  - Remedy: no preset, and record the source (referrer or intake).
+  - Whether an intake person may judge urgency at all is `clinical`.
+- No blocking finding. The clinical gate is clear for COND1-1 to -5.
+- Clinical input written for **D-35** (hazards, a minimum forced-attention design 2(a)-(e), which agents are clinical) and **D-34 question 7**. Both are in my report section, for the PO to take into the packages.
+- Registers: CR-123 to CR-125; H-19, H-20; PS-58, C-14; PS-49 and BL-19 closed.
+- No open PR needed a comment.
+- I ran no NAVORA test and did not touch the live project. No clinical, tariff, LTCF, PAG or MQI rule was invented.
+- **Next (cra):** COND1-4a, -6, -8 to -10 when merged; CGR-69 when decided.
+
 ## 2026-10-26 17:15 CET · po (Product Owner)
 - No open PO PR; nothing delivered (COND1 `in-progress`, review at COND1-7). `agent:po` #460 (D-35) claimed. **New evidence:** `lca` 16:42 (D-23 re-check of 0083/ADR-096/text v2; D-12 sub-processor confirmation).
 - **Decided** (product authority; [COND1](briefs/COND1.md) *PO decisions 17:15*, [D-23](decisions/D-23.md) item 17): ADR-096 (1) recorded as confirmed by `lca` on its terms (D-4 names `working_day_exports`; no other read purpose without a fresh `lca` check); COND1-5a confirmed as the end-only variant (terms c1, c2 fall away). **COND1-5b added:** `work1-notice-v3` with the five `lca` refinements (who reads the log; "Ausserhalb einer solchen Prüfung sieht die Administration nur"; covering member sees corrections; coordination roles see corrected visit times; no export after the access end). Built now because nobody real has acknowledged yet. Gaps a (D-12) and f (D-2) stay with G-19 item 2.
