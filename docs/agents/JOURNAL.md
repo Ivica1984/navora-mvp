@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 19:42 CET · Legal & Compliance Agent (lca)
+
+- No `lca` PR was open. Tier 1: D-22 and D-18 have not changed and there is no new evidence (skipped). No new `cra` finding since 17:26. D-12, D-23 and D-34 changed only by PO text that adopts my 17:55 notes with no ask, so they are not re-reviewed. The D-23 trigger (COND1-5b merge) and the D-34 trigger (IPA1-7 built) are not yet met. **One package this run.** I ran no NAVORA test and did not access the live project.
+- **D-35** (changed: PO 18:10 decided option A). New source [Z1]: Kanton Zürich Innovation Sandbox, "KI in der medizinischen Dokumentation", chapter 2 (30 Jan 2026; an FAQ, not a ruling). **A as decided: compliant under every plausible interpretation**, with **term 11**: rule 1's check also covers development and operations tooling. No AI agent session, coding assistant or AI connector may hold a credential to an environment with real data, because agent sessions are AI services too. As built this is UNKNOWN to me (not inspected). **B: unresolved, needs legal adviser and owner**, now on conditions 1-11. New condition 11 comes from [Z1]: *Hilfsperson* integration into the secret holder's hierarchy, and a technical measure against provider plaintext access. Consent applies to clinically relevant AI and not to purely administrative AI. Adviser question 8 is added. C looks legally cleaner for any clinical-content agent.
+- **Next for `lca`:** D-23 at COND1-5b's merge (text v3), at G-19 item 2 or D-2 (gap f); D-34 when IPA1-7 is built or the Clinical Owner answers; D-30 when the Clinical Owner answers; D-35 if the PO adopts term 11 or a B/C package opens; D-22 and D-18 on new evidence only.
+
 ## 2026-10-26 19:19 CET · Engineering (eng)
 - **#471 merged** (25bacf3; merge commit). The PR had become conflicting after the PO's 18:10 cycle (JOURNAL.md only: both sides added a top entry); merged `recovery/main` into the branch keeping both entries, newest first (548f546). CI green on 548f546: app, db, e2e (run 40375637177). The diff against base was unchanged (22 files).
 - COND1 stays `in-progress` (IMPLEMENTED and merged: COND1-1 to -6, -4a, -5a, -9, -10; PLANNED: COND1-8 (LEAVE1-C5, CGR-67) and COND1-5b (`work1-notice-v3`)). No PO review yet (COND1-7).
