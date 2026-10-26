@@ -10,6 +10,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - CI green on both heads (app, db, e2e). **Merged #428 (847d092) and #425 (71147a5). LEAVE1 `delivered`** (LEAVE1-14, CGR-62). Clinical gate: `cra` 2026-10-26 01:26 CET section (PR #416) as before; CGR-62 applied in full; `cra` to look at 0078 on the merge commit. Inventory items OPEN for the PO as listed in ADR-091.
 - **Next for `eng`:** WORK1 when it becomes `active`; #399 and #409 (clock-dependent tests) remain open.
 
+## 2026-10-26 05:26 CET · Clinical & Regulatory Architect (review)
+- Reviewed **LEAVE1-14** (0078, pgTAP 078 (46), #425 merged `71147a5`; CI green on head `36921be` and merge commit `71147a5`) and **AUD1** (0077, #413 merged `7f23a3b`; CI green; no SQL change since `8eeb18e`). This PR carries my 01:26 section (#416, superseded) through a merge commit.
+- **CGR-62 closed** (0078:57-230; pgTAP 078:147-261): a leaver's take stops neither SIG1-5 nor SIG2's step and reads as untaken; claim inventory built. The clinical gate no longer blocks LEAVE1.
+- **CGR-64 opened (advisory, S2):** a push already `sent` to a person whose access then ends still counts as reached (0062:511), so SIG2's immediate step waits for SIG1-5. **CGR-63 (advisory, S3):** a restore silently revives her old take (live predicate; I asked for this in the CGR-62 remedy and correct it now).
+- AUD1: no clinical finding; G-1/D-16 note on `safety_review` from outside the team stands. PO D-30 (d) hypothesis judged: supported with four safety points (care assistant at the next visit, "gesehen" is not follow-up, measure sound, must not delay D-30).
+- Registers: CR-111 to CR-113 added, PS-53 closed, PS-54, PS-55 added, H-07 updated. I ran no NAVORA test; `node scripts/agents-check.mjs` run before publishing.
+- **Next:** (po) LEAVE1 no longer blocked by the clinical gate; place CGR-63/-64. (eng) CGR-64 with DOOR1-12/-13/-14. (owner) G-1, D-1.
+
 ## 2026-10-26 05:10 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open; no new delivery since 04:10 (LEAVE1-14 #425 open, not delivered; `cra` #416 still open, not merged). New evidence: `lca` 04:50 on D-3 and D-4 (merged #426).
 - **Decisions** (INDEX order): D-22, D-18 no new evidence; tier 2 waits for G-1. **D-3** item 13: the DSV amendment of 29 October 2025 (in force 1 December 2025) concerns federal bodies; Abs. 1, 4, 5 unchanged in substance for a private provider on the sources read, so **gate (i) stays as written**; question 1 for the legal adviser on the text in force since 1 December 2025; public-body case under cantonal law (UNKNOWN until D-11, D-12). **D-4**: 04:10 (d) reworded as `lca` proposes; adviser **question 3** now asks the DSG Art. 6 Abs. 4 period for operational audit rows incl. `audit_read_log` (not a DSV Art. 4 log) and whether gate (i)'s read log alone carries the one-year floor. No status change, no new escalation.
@@ -75,6 +83,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Challenge:** "Why does a taken signal stay taken after the taker is gone?" A take is a claim of responsibility; the system knows when a claimant can no longer act, so from scratch every claim lapses, releases or refuses at that moment and no dispatcher has to notice a silence. LEAVE1-14 with a claim inventory; hypothesis row (no build, `cra` first): a take by a nurse who reports "I can't work" (ABS1) should lapse the same way.
 - **Next agent:** (eng) AUD1 (#413); LEAVE1-14; WORK1; DOOR1-12/-13/-14, FUP1-C1/C2; #399, #409. (cra) merge #416; look at LEAVE1-14 on delivery; judge the ABS1 hypothesis. (lca) D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
+## 2026-10-26 01:26 CET · Clinical & Regulatory Architect (review)
+- Reviewed **LEAVE1** on its merge commits: 0074 (`e74fccc`, #400), 0075 and 0076 (`645e3af`, #406), pgTAP 074-076; CI `app`, `db`, `e2e` green on `e74fccc`, `645e3af`, `cb5f08f`, `d4eae0b`. My 21:28 section (#401, green, unmerged) is carried into this PR.
+- **CGR-49 and CGR-50 closed** (0075:114-406, 0076:112; pgTAP 075:132-261).
+- **CGR-62 opened (blocking, S1):** a P1 safety signal taken by a person whose access then ends keeps stopping the SIG1-5 / SIG2 step to Operations (0063:184-209), and `my_signals` shows the team the signal as taken, sorted below untaken ones (0071:140-152). Remedy: such a take does not stop the step and reads as untaken; pgTAP. **The PO does not accept LEAVE1 until CGR-62 is merged;** G-13 waits with it.
+- AUD1 (#413, open, CI green) read on the branch: no clinical finding; review on merge. D-30 point (c): five testable properties in the report (not a decision; what an addendum may state, safety follow-up of a returned error and the time limit are UNKNOWN, Clinical Owner).
+- Registers: CR-106 to CR-110 added (eng added none for LEAVE1); notes on CR-048, CR-075; H-07 (CGR-62), H-12; PS-41, PS-42 closed; PS-53 added (S1); PS-15 note. I ran no NAVORA test.
+- **Next:** (eng) CGR-62 first, then AUD1, DOOR1-12/-13, FUP1-C1 with CGR-60, #399, #409; (po) hold LEAVE1, place CGR-61, take the D-30 (c) properties in; (cra) CGR-62 fix, AUD1 on merge, WORK1 on delivery.
 
 ## 2026-10-26 01:10 CET · po (Product Owner)
 - No PO PR open; no new delivery since 00:20 (AUD1 #413 open, not delivered; LEAVE1 reviewed, still awaiting the `cra` section, #411 stays open, not claimed this run). `cra` #401 still open, not used as evidence.
@@ -190,6 +206,14 @@ ENGINEERING BRIEF
 - **D-17:** terms of the B verdict checked against 0072/0073: read scope met; no clinical category yet (CGR-61 supports the minimisation term); emergency contact not built; **no key-safe code: partly met**, the intake note `cases.access_notes` is unguarded and shown on team phones. B **compliant under every plausible interpretation on the federal sources read once DOOR1-12 is merged**; with real data and without DOOR1-12, not. Contact information duty still unresolved (adviser, D-19 question 6).
 - **D-19:** 22:50 note 1 met (disclosure basis recorded, 0072). A as built plus DOOR1 (a): compliant under every plausible interpretation for what NAVORA does. `recorded_consent` points to a consent NAVORA does not yet hold: link it to the D-9 g4 record when built. C unchanged: unresolved, needs legal adviser (questions 1, 3, 6).
 - **Next for `lca`:** D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged; D-4 when r1 becomes a brief or D-11/D-12 are answered; D-22 and D-18 on new evidence only.
+
+## 2026-10-25 21:28 CET · Clinical & Regulatory Architect (review)
+- Reviewed **DOOR1** on its merge commits: 0072 (`f9f44b5`, #391) and 0073 (`f069cc8`, #396), pgTAP 072/073, `src/features/door/*`; CI `app`, `db`, `e2e` green on `f9f44b5`, `f069cc8`, `38e7381`, `14b9320` (API). I ran no NAVORA test.
+- **CGR-51 closed** (0072:237-301, pgTAP 072:150-215): Operations reads codes, door fact and basis; the team keeps its note.
+- **CGR-61 opened (advisory, S2):** a clinical category passes with any non-empty `approval_ref`; the card order (organisational before clinical) is an alphabetical sort. Remedy: `approval_ref` names an APPROVED register row (agents-check), order left to D-17 part 3.
+- **No blocking finding; the 21:10 acceptance is consistent.** DOOR1-12 supported as S1 (key-safe code on every team phone, PS-50), DOOR1-13 as S2 (PS-51). Covering member who cannot record: S2 on COVER1 switch-on, with CGR-21/28.
+- Registers: CR-100 to CR-105 added (eng added none for DOOR1); H-03 partly mitigated (access arrangement only); PS-43 closed; PS-50, PS-51, PS-52 added.
+- **Next:** (eng) DOOR1-12/-13 PR, #399 root cause, CGR-61 once placed; (po) place CGR-61; (cra) LEAVE1 and AUD1 on delivery, #399 fix.
 
 ## 2026-10-25 21:10 CET · po (Product Owner)
 - **PO PR #395 was open** with `db` red (pgTAP 062 tests 47 and 50 on a docs-only PR; green on `recovery/main` since). Continued it, as the rule says: merged `recovery/main` in (JOURNAL.md conflict, both entries kept, newest first). The 062 failure looks clock-dependent → **issue #399 for `eng`** (root-cause; pin to the test clock as DST1 did; never skip).
