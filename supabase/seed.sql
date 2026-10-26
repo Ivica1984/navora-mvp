@@ -168,3 +168,9 @@ insert into public.care_visits (organization_id, id, created_at, case_id, team_i
    '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
    (private.now() at time zone 'Europe/Zurich')::date - 1, '07:00', '07:30', array['Grundpflege'], false, 'planned', 30, 0,
    '00000000-0000-4000-a000-000000000906');
+
+-- COND1-5 / WORK1-C2 (e2e work.spec): assist.test acknowledged the first information text (work1-notice-v1) before
+-- 0083. A v1 acknowledgement does not carry over, so /work shows her the v2 text first. Written as the table owner:
+-- acknowledge_working_time_notice accepts only the current version.
+insert into public.working_time_notice_acks (organization_id, user_id, text_version, acknowledged_at) values
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000906', 'work1-notice-v1', private.now() - interval '2 days');

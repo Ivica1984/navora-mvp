@@ -159,7 +159,7 @@ export async function resetExceptionRule(input: unknown): Promise<CommandResult>
  * she had taken (they read as untaken from now on).
  */
 export type AccessEndResult =
-  | { ok: true; openReports: OpenReportCounts | null; released: number; takenSignals: number }
+  | { ok: true; openReports: OpenReportCounts | null; released: number; takenSignals: number; unexportedDays: number | null }
   | { ok: false; error: string };
 
 export async function endMemberAccess(input: unknown): Promise<AccessEndResult> {
@@ -168,9 +168,9 @@ export async function endMemberAccess(input: unknown): Promise<AccessEndResult> 
   const { supabase } = await requireUser();
   const { data, error } = await supabase.rpc("end_member_access", {
     p_user_id: p.data.userId, p_reason_code: p.data.reasonCode, p_idempotency_key: p.data.idempotencyKey });
-  const { code, openReports, released, takenSignals } = readAccessEndResult(data);
+  const { code, openReports, released, takenSignals, unexportedDays } = readAccessEndResult(data);
   const result = interpret("end_member_access", { data: error ? null : code, error });
-  return result.ok ? { ok: true, openReports, released, takenSignals } : result;
+  return result.ok ? { ok: true, openReports, released, takenSignals, unexportedDays } : result;
 }
 
 /** LEAVE1-7: restores exactly the access she had (memberships were never removed). */

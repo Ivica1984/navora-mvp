@@ -61,5 +61,6 @@ export async function exportWorkingMonth(input: unknown): Promise<{ ok: true; fi
   const r = (data ?? {}) as Partial<MonthExport> & { result?: string };
   if (r.result !== "ok" && r.result !== "duplicate") return { ok: false, message: "Export nicht möglich." };
   const csv = buildCsv({ month: String(r.month), days: r.days ?? [], unconfirmed: r.unconfirmed ?? [] });
+  revalidatePath("/work");  // WORK1-C3 (d): her unexported-days count changes with the export
   return { ok: true, filename: `navora-arbeitszeit-${r.month}.csv`, csv };
 }

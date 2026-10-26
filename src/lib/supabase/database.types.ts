@@ -1615,6 +1615,26 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"working_day_exports": {
+                  Row: {
+                    "exported_at": string,"id": string,"month": string,"organization_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "exported_at"?: string,"id"?: string,"month": string,"organization_id": string,"user_id": string
+                  }
+                  Update: {
+                    "exported_at"?: string,"id"?: string,"month"?: string,"organization_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "working_day_exports_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"working_day_versions": {
                   Row: {
                     "break_minutes": number,"breaks_answer": string,"care_minutes": number,"confirmed_at": string,"day_end": string,"day_start": string,"entries": NonNullable<Json>,"id": string,"note": string | null,"organization_id": string,"outside_answer": string,"paid_minutes": number,"reason_code": string | null,"team_id": string | null,"user_id": string,"version": number,"work_date": string
@@ -1926,6 +1946,9 @@ isOneToOne: false
               "kind": string,"team_name": string,"visit_date": string
             }[]
                            },
+"member_unexported_working_days":
+{ Args: { "p_user_id": string }; Returns: number
+                           },
 "my_access_state":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -1941,6 +1964,9 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "delivered_at": string,"operations_outside_app": boolean,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"taker_access_ended": boolean,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string,"watched_now": boolean
             }[]
+                           },
+"my_unexported_working_days":
+{ Args: Record<PropertyKey, never>; Returns: number
                            },
 "my_working_day":
 { Args: { "p_date": string }; Returns: {

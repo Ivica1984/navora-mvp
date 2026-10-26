@@ -59,3 +59,14 @@ export async function getMyWorkingDayVersions(day: string): Promise<DayVersion[]
     outside_answer: v.outside_answer as DayVersion["outside_answer"],
   }));
 }
+
+/** WORK1-C3 (d), migration 0083: her own number of confirmed days not yet exported (null after her access end). */
+export async function getMyUnexportedDays(): Promise<number | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("my_unexported_working_days");
+  if (error) {
+    logEvent("error", "work.unexported_failed", errorFields(error));
+    return null;
+  }
+  return typeof data === "number" ? data : null;
+}

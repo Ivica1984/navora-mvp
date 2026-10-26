@@ -12,7 +12,7 @@ import {
   ROLES, ROLE_LABEL, QUALIFICATIONS, REFERRAL_TYPE_LABEL, UNIT_LABEL, DEADLINE_UNITS,
   allowedPriorities, changedLabel, checkRuleInput, isValidEmail, releasedNotice, RULES_INTRO, stricterHint,
   ACCESS_END_REASONS, ACCESS_REASON_LABEL, ACCESS_RESTORE_REASONS, OPEN_REPORT_LABEL, accessEndedNotice, countOpenReports,
-  openReportsText,
+  openReportsText, unexportedDaysText, unexportedEndPrompt,
 } from "@/features/admin/rules";
 import { QUALIFICATION_LABEL } from "@/features/team/rules";
 import type { CommandResult } from "@/lib/commands/result";
@@ -207,6 +207,7 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
   const [ended, setEnded] = useState<string | null>(null);
   const state = data.access[member.user_id];
   const open = data.openReports[member.user_id] ?? [];
+  const unexported = data.unexportedDays[member.user_id];
   return (
     <div className="grid gap-1 text-sm" aria-label="Zugang">
       {state?.ended && (
@@ -222,6 +223,10 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
               <li key={`${r.visit_date}:${r.kind}:${i}`}>{day(r.visit_date)} · {r.team_name} · {OPEN_REPORT_LABEL[r.kind] ?? r.kind}</li>
             ))}
           </ul>
+        )}
+        {unexportedDaysText(unexported) && (
+          // WORK1-C3 (a): one number for this person now, administrators only (no dates, months or content).
+          <p data-testid="unexported-days" className="text-stone-700">{unexportedDaysText(unexported)}</p>
         )}
       </div>
       {ended && <p role="status" data-testid="access-ended-notice" className="font-semibold text-amber-900">{ended}</p>}
@@ -239,7 +244,7 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
           setEnded(null);
           run(() => mode === "end"
             ? endMemberAccess({ userId: member.user_id, reasonCode: text(f, "reason"), idempotencyKey: newKey() })
-                .then((r) => { if (r.ok) setEnded(accessEndedNotice(r.openReports, r.released, r.takenSignals)); return r.ok ? { ok: true as const } : r; })
+                .then((r) => { if (r.ok) setEnded(accessEndedNotice(r.openReports, r.released, r.takenSignals, r.unexportedDays)); return r.ok ? { ok: true as const } : r; })
             : restoreMemberAccess({ userId: member.user_id, reasonCode: text(f, "reason"), idempotencyKey: newKey() }),
           () => setMode("idle"));
         }}>
@@ -253,6 +258,10 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
           </label>
           <button type="submit" disabled={pending} className={button}>{mode === "end" ? "Zugang beenden" : "Wiederherstellen"}</button>
           <button type="button" className={secondary} onClick={() => setMode("idle")}>Abbrechen</button>
+          {mode === "end" && unexportedEndPrompt(unexported) && (
+            // G-19 item (4): ask her to export first; nothing is exported on her behalf.
+            <p data-testid="unexported-end-prompt" className="w-full text-xs font-semibold text-amber-900">{unexportedEndPrompt(unexported)}</p>
+          )}
           {mode === "end" && (
             <p className="w-full text-xs text-stone-600">
               Danach sieht sie keine Daten mehr und kann nichts mehr tun. Ihre geplanten Einsätze ab heute werden offen im Team. Ihre offenen Berichte bleiben für das Team sichtbar und werden nicht verrechnet.
