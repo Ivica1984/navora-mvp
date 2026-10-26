@@ -16,6 +16,75 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-26 13:39 CET: COND1-1 and COND1-2 (0080, pgTAP 080, 078) reviewed on their merge commit; CGR-61, CGR-63, CGR-64 closed; CGR-66 (S3), CGR-67 (S3), CGR-68 (S2), all advisory; COND1-3 (#451, open) read: CGR-65 remedy as built, not yet merged
+
+**Scope:** `recovery/main` @ `a5d5cc7`. Changes since my 09:26 CET section (#441, merged `f8f4b6a`):
+- **Code merged:** #446 **COND1-1 and COND1-2** (0080, ADR-093, pgTAP 080 (58), pgTAP 078 restore block replaced (50), pgTAP 065/067/072/073/074 catalogue lists, `SafetyAlertForm.tsx`, `door/rules.ts`, intake form and command, `field_quality` card, `scripts/agents-check.mjs` with `agents-coordination/clinical-categories.mjs`, unit `cond1-display`, `cond1-clinical-categories`, e2e `door.spec`) as `cb5e317`. **CI `app`, `db`, `e2e` green on the head `66e8d0a` and on `a5d5cc7`** (check runs read through the GitHub API; one superseded `e2e` run on `cb5e317` cancelled, a second run green).
+- **Docs merged:** PO 10:15 (**WORK1 accepted**; CGR-65 placed as WORK1-C4 in COND1-3; D-23 item 16); `eng` 10:13 (#435), 11:45, 12:20 (COND1 `in-progress`); `lca` 09:55 (D-23, CGR-65), 12:50 (D-17 re-check after DOOR1-12). Eng added register rows CR-117 and CR-118 for my review.
+- **Open PRs:** #451 (eng, **COND1-3 = WORK1-C1 + WORK1-C4**, 0081, ADR-094, pgTAP 081; `app` green, `db` and `e2e` running at my read, merge state `dirty`), #3 (owner, `main`). **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read 0080 in full, the pgTAP 080 assertions, the pgTAP 078 restore block, the DOOR1-14 check script and its unit test, the intake command and form changes, the DOOR1-4 guard (0073:174-177) and its unit examples, and on #451 the migration 0081, the `/work` rules and pgTAP 081. **I did not run the NAVORA test suite** and touched no live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-66 | DOOR1-12 (0080) with the DOOR1-4 guard (0073) | **advisory (S3)** | **The code guard on the intake note also refuses postal codes and phone numbers, and nobody has decided whether that is wanted.** The predicate refuses any four digits in a row, also with single separators. So "Schlüssel bei Tochter, 079 123 45 67" or "Hintereingang, 8004 Zürich" is refused with "Bitte keinen Code erfassen". The client's emergency-contact phone is not readable by the team (0015:68), so this note is today the only place a key holder's number could reach the nurse at the door. A coordinator who is refused will probably delete the number, not move it. The risk: a nurse at a locked door cannot reach the key holder, and the visit to a client who may need help is delayed or missed. The guard is correct for its purpose (PS-50, physical safety); what is open is the trade-off, and the tests show neither case. Bounded: synthetic data only. IMPLEMENTED as described; no clinical rule involved | 0073:177 (`[0-9]([ .,:/-]?[0-9]){3}`); 0080:421-436 (trigger on every writer of `cases.access_notes`); `tests/unit/door1-alerts.test.ts:10-19` (no phone number or postal code among the examples); pgTAP 080:261-286 (code-like examples only); 0015:68 (emergency contact phone revoked from the team) | **po (product authority), with D-17 part 3 for whether a key holder's reachability belongs on the card (Clinical Owner):** decide whether a phone number and a postal code may appear in the access note. If they may not, the help text says where the key holder's number goes. If the nurse needs it at the door, that is a structured field under D-17, not a weaker guard. Either way, unit and pgTAP examples pin the decided behaviour for "079 123 45 67" and "8004 Zürich". Do not loosen the guard before the decision |
+| CGR-67 | LEAVE1-C4 (0080) beside LEAVE1-C3 | **advisory (S3)** | **A restore brings back a leaver's OPS1 take and her quality-review claim, though it no longer brings back her signal take.** LEAVE1-C4 is evaluated live (`access_ended` now). After a restore, Operations again reads the OPS1 exception as taken, with her name, and the team again reads the quality event as "in Prüfung" by her. The PO's reason for option (a) applies here too: she has no push subscription after the end and may not know she holds the claim. No step is stopped (the P2 → P1 clock and the QG1 rules run on, as the brief says), but colleagues read a claim that nobody may be acting on, until the clock escalates. Not tested: pgTAP 080 ends access but never restores it for C4 | 0080:293, 357 (`private.access_ended(ev.actor_id)`), 0080:398 (`private.access_ended(q.owner_id)`); LEAVE1 brief *Conditions* C3 ("a restored person … may not know she held the signal") and C4; pgTAP 080:237-253 (end only) | **po (product authority; no threshold):** either use the C3 rule for both (a take or review claim counts only if recorded after the person's latest access end, by the access-event sequence as in 0080:73-101), or accept the difference with a recorded reason. pgTAP: take an OPS1 exception and claim a quality event, end the access, restore it → both still read as untaken with `take_access_ended` and `claim_ended`, and no name shows. Fits COND1 as a small addition, or LEAVE1-C1 |
+| CGR-68 | DOOR1-14 (0080, `agents-check`) | **advisory (S2; before the first clinical category)** | **The gate for a clinical category now trusts one Status cell in a markdown file that any agent's PR can change.** CGR-61 asked for a database form check plus a check against the register. Both are built (closed below). But the register says who may approve (a named, qualified person, D-27), and nothing checks that. An agent PR that sets a row to `APPROVED` and inserts a clinical category in the same change passes `agents-check` and CI. My own role forbids me to set APPROVED, and no other role is technically stopped from doing it | `scripts/agents-coordination/clinical-categories.mjs` `registerStatus` (reads the cell only); `CLINICAL_RULE_REGISTER.md` header ("Approves rules: … D-27"); G-1 (no Clinical Owner named) | **owner, eng:** once G-1 names the Clinical Owner, a change to a register row's Status needs that person's review (for example CODEOWNERS on `docs/agents/clinical/CLINICAL_RULE_REGISTER.md` with required review). Until then, `agents-check` also fails when an `APPROVED` row names no approval record (the approver's name, role and date, in a decision file). Unit test: an APPROVED row without an approval record fails; with one, it passes |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-64** | **closed**, IMPLEMENTED; CI green on `66e8d0a` | 0080:218-246 (`outside_settle`: a `pending` or `sent` outside delivery holds the immediate step only while `not private.access_ended(o.recipient_id)`, line 235); 0080:250-270 (`signal_step_outside_app`: same condition after the step, line 261, so the banner and the step read the same fact). pgTAP 080:133-221: the only `sent` delivery is to the leaver → escalated once at the next evaluation, every Operations user delivered once, `escalated_at` not moved by a second run; a colleague's `sent` delivery still holds signal 2; the banner agrees in both cases; 080:236-240: an Operations delivery to an ended Operations user no longer counts as reached |
+| **CGR-63** | **closed**, IMPLEMENTED (option (a)); CI green on `66e8d0a` | 0080:62-101 (`access_seq` stamped by a BEFORE INSERT trigger for every writer; `signal_take_lapsed`: ended now, or an `ended` event with a higher sequence); readers `signal_taken_stops_step` (0080:106-117), `take_signal` (119-160), `my_signals` (163-209), `end_member_access` (212-216). pgTAP 078:171-196: restore before the step → her old take does not stop the step and still reads "Übernahme beendet"; SIG1-5 fires at the threshold; she takes again → the new take stops the step; both rows stay (append-only); a second end lapses the new take too; 080:255-259 stamp. Deviation 1 (event sequence instead of time) gives the same result and avoids the mixed clocks; supported. Pre-0080 rows are judged by time; only synthetic rows exist |
+| **CGR-61** | **closed**, IMPLEMENTED; CI green on `66e8d0a`. Residual governance gap → **CGR-68** | 0080:516-521 (`check (class <> 'clinical' or approval_ref ~ '^CR-[0-9]{3}$')`); `clinical-categories.mjs` (every migration insert of a `clinical` category must name an `APPROVED` register row; an unreadable insert fails closed); the catalogue has no runtime writer (`authenticated` reads only, no update or delete, 0073:65-85). pgTAP 080:319-331 ("D-17", "pending", "#396" refused with 23514; an organisational row unchanged); unit `cond1-clinical-categories.test.ts` (APPROVED accepted, missing or unreadable refused, the repository's migrations pass). Card order unchanged (D-17 part 3, correct) |
+| CGR-65 | open, advisory (S2); placed as WORK1-C4 in COND1-3; **built in #451 (open, not merged)**. PLANNED on `recovery/main` | see *COND1-3* below |
+| CGR-60 | open, advisory (S3); FUP1-C1, COND1-4. PLANNED | no change |
+| CGR-54, CGR-56 | open, advisory (S3, S2); DST1-C4, DST1-C5. PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-61, CGR-63, CGR-64**.
+
+### COND1-2 checks (no finding beyond CGR-66)
+
+- **DOOR1-12 (PS-50, S1): IMPLEMENTED and tested.** A BEFORE INSERT OR UPDATE OF `access_notes` trigger refuses a code from every writer, also from the table owner (0080:421-436). It checks only a note that is written or changed, so no stored row is rewritten. pgTAP 080:261-286: four digits and separators refused through the command and for the table owner; three digits accepted; an older row unchanged and still updatable; the G-11 count finds it. The intake form shows the DOOR1-4 help text; the server action names the refusal. **Residual (owner, G-11):** notes stored before 0080 are found only by the owner's read-only count before the first real import (`OWNER_RUNBOOK.md` §5b); that count must be 0 on the real-data project. `lca` 12:50 reads the same.
+- **DOOR1-13 (PS-51, S2): IMPLEMENTED and tested.** One "Zugang" line: the latest value wins; without one, the intake note "aus der Aufnahme" with its date; with neither, "nicht erfasst" (`door/rules.ts` `accessLine`). The intake note is never copied into the value table and appears in the history as its earliest entry (0080:466-509). pgTAP 080:288-317: intake note only, intake note plus a team value, neither, no copy, and Operations and a leaver read nothing; e2e `door.spec`. The nurse at the door no longer chooses between two records.
+- **No new rule, threshold, recipient or step.** 0080 changes who counts as reached or as holding a claim (organisational, evaluated on the access record), not any clinical value.
+
+### COND1-3 (#451, open; read on its head `e46dc87`, not a gate result)
+
+- **WORK1-C4 (CGR-65) as built matches my remedy.** The proposal takes the effective event time (latest F3 correction, else the recorded time) for the start, end, order and Zurich date of each segment. It uses the same lateral join as billing (0081 `working_day_proposal`; 0023:33-36). It marks `corrected` and adds no identifier. `/work` shows "Die Zeit im Einsatz bleibt unverändert …" with a link to the visit's time correction when a visit segment is changed. pgTAP 081:139-161: a corrected event moves the segment and its day, and the visit tables are unchanged (row fingerprint before and after). No write-back (`lca` 09:55: compliant).
+- **WORK1-C1:** care is the union of care segments clipped to the day, minus breaks, with `care_le_paid` (NOT VALID on old synthetic rows). pgTAP 081:61-102. This supports reading the team ratio as a measure. It is still a process measure, to be read only beside the team's safety measures (my 09:26 section).
+- I will close CGR-65 on the merge commit once CI is green. Nothing I read is blocking.
+
+### Register rows
+
+- **CR-117, CR-118 (eng): reviewed, stand as written.** Both are organisational (input class V) and set no threshold. CR-117 is the rule that closes CGR-63; CR-118 closes CGR-64.
+- **Added:** CR-119 (DOOR1-12, the code guard on the intake note; note CGR-66), CR-120 (DOOR1-13, the one-line precedence), CR-121 (DOOR1-14, the clinical-category gate; note CGR-68), CR-122 (LEAVE1-C4, display of a leaver's OPS1 take and quality claim; note CGR-67). None is clinical. CR-103 and CR-105 get notes.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| COND1-1 + COND1-2 (merged `cb5e317`; COND1 `in-progress`) | **reviewed on the merge commit; no blocking finding.** PS-50 (S1) and PS-51 (S2) mitigated in code; CGR-61, CGR-63, CGR-64 closed. The clinical gate does not block the PO's later COND1 review | CGR-66, CGR-67, CGR-68 (advisory) |
+| COND1-3 (#451, open) | read; consistent with CGR-65 and WORK1-C1; gate result on the merge commit | CGR-65 (open until merged) |
+| WORK1 (accepted) | consistent; CGR-65 placed as WORK1-C4 | CGR-65 |
+| LEAVE1, DOOR1 (accepted) | their conditions C2, C3, 12, 13, 14 are merged; C4 merged with CGR-67 | CGR-66, CGR-67 |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:** (1) CGR-66: decide whether a phone number and a postal code may appear in the access note. Keep the guard until then. A key holder's reachability on the card is D-17 part 3. (2) CGR-67: the C3 rule for OPS1 takes and quality claims too, or a recorded reason for the difference. (3) When COND1 is reviewed: CGR-61, -63 and -64 are closed by this section; PS-50 still needs the owner's G-11 count before the first import.
+- **eng:** #451 (resolve the conflict, CI); CGR-68 check once the owner decides how an approval is recorded; COND1-4 to -6 in order; #399, #409.
+- **owner:** G-1 (name the Clinical Owner and a deputy; CGR-68 depends on it), D-1 (urgent); the G-11 count before the first real import; G-5; merge this PR if my own merge is refused.
+- **clinical** (once named): D-17 part 3 (now also: does the nurse need the key holder's reachability on the card, CGR-66), D-30, D-19 part 1, D-28, D-10, D-16 as before.
+
+---
+
 ## 2026-10-26 09:26 CET: WORK1 (0079, pgTAP 079) reviewed on its merge commit; CGR-65 (advisory, S2): the working-day proposal and the visit record can hold two different times for the same visit; billing isolation and no per-person ranking confirmed; the PO's segment-check hypothesis judged
 
 **Scope:** `recovery/main` @ `e715436`. Changes since my 05:26 CET section (#431, merged):
