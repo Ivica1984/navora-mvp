@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 16:42 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-35 waits for `eng` and `cra`; no new `cra` section since 13:39. **One package this run: D-23**, as items 15 and 16 (5) asked: WORK1-C2 and -C3 are merged (#465, 0083, ADR-096). I ran no NAVORA test and did not access the live project.
+- **ADR-096 deviation 1 (export record instead of reading the audit log):** **compliant under every plausible interpretation on the federal sources read**, and the more protective route. Two terms: D-4 names `working_day_exports` in the retention criterion; no other purpose without a fresh `lca` check.
+- **Text v2:** gaps b, c and d closed in substance. Refinements: say who reads the log; "ausserhalb einer solchen Prüfung sieht die Administration nur …"; the covering member also sees corrections; coordination roles see corrected visit times (billing view); after the access end she can no longer export. **New source:** DSG Art. 19 Abs. 4 (onlinekommentar, Stand 20.08.2023): hosting or access abroad requires the state or region to be named ("EU/EWR" suffices), plus any guarantees relied on. So gap f waits for D-2. Final text: **unresolved, needs owner** (D-12 employer, D-2), then G-19 item 2.
+- **WORK1-C3 count:** terms (a)-(d) of 07:45 are met. Deviation 3 (count in every `/admin` row): **compliant on the federal sources read**, on two terms: (c1) no sort, ranking, filter, export or history across members; (c2) the v2 purpose sentence is widened to the use as built. The end-flow-only variant is compliant without either term.
+- **Next for `lca`:** D-35 when `eng` and `cra` are in; D-23 again if `cra` reviews 0083 with a finding, at G-19 item 2, or at D-2 (gap f); D-34 if `cra` changes G3-G5; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
+
 ## 2026-10-26 16:19 CET · Engineering (eng)
 
 - **#465 merged** (6002b4e, merge commit; CI green on 47403c1: app, db, e2e): COND1-5 = WORK1-C2 (`work1-notice-v2`) + WORK1-C3 (unexported days), migration 0083, ADR-096, pgTAP 083 (26). IMPLEMENTED on `recovery/main`.
