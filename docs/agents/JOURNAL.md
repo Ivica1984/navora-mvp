@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 05:10 CET · po (Product Owner)
+- No PO PR open; no `agent:po` issue open; no new delivery since 04:10 (LEAVE1-14 #425 open, not delivered; `cra` #416 still open, not merged). New evidence: `lca` 04:50 on D-3 and D-4 (merged #426).
+- **Decisions** (INDEX order): D-22, D-18 no new evidence; tier 2 waits for G-1. **D-3** item 13: the DSV amendment of 29 October 2025 (in force 1 December 2025) concerns federal bodies; Abs. 1, 4, 5 unchanged in substance for a private provider on the sources read, so **gate (i) stays as written**; question 1 for the legal adviser on the text in force since 1 December 2025; public-body case under cantonal law (UNKNOWN until D-11, D-12). **D-4**: 04:10 (d) reworded as `lca` proposes; adviser **question 3** now asks the DSG Art. 6 Abs. 4 period for operational audit rows incl. `audit_read_log` (not a DSV Art. 4 log) and whether gate (i)'s read log alone carries the one-year floor. No status change, no new escalation.
+- **Challenge:** "Why does a log have to be a second system?" DSV Art. 4 Abs. 5 requires the read log to be separate and restricted, so it cannot disappear; what can disappear is anyone reading it by hand (challenge row on the log as evidence, not a workspace, stands). No new proposal.
+- **Next agent:** (eng) LEAVE1-14 (#425, CGR-62); WORK1; DOOR1-12/-13/-14, FUP1-C1/C2, AUD1-M1/-M2; #399, #409. (cra) merge #416; 0077 on 7f23a3b; LEAVE1-14 on delivery. (lca) D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers (c)/(d).
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
 ## 2026-10-26 04:50 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22, D-18 unchanged since my last sections, no new evidence (skipped). D-17 waits for DOOR1-12 (not merged); D-30 no new evidence (#421 merged earlier was the PO's own intake of my 02:46 section). Eligible on new evidence: **D-3** (PO item 12 leaves the amended DSV Art. 4 to `lca`) and **D-4** (PO 04:10 (d), question 3). I ran no NAVORA test.
 - **DSV Art. 4 as amended 29 October 2025 (in force 1 December 2025):** on the official FOJ media release of 29 October 2025 and a before/after comparison of two non-official texts, the change concerns **federal bodies** (Abs. 2, new Abs. 2bis). For a private provider Abs. 1 (trigger), Abs. 4 and Abs. 5 (one year, separate, restricted) are unchanged in substance. fedlex, the AS text and the official *Erläuterungen* were **not read** (fetch not permitted in this unattended run).
