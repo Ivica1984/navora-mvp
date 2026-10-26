@@ -1944,7 +1944,7 @@ isOneToOne: false
                            },
 "my_working_day":
 { Args: { "p_date": string }; Returns: {
-              "ends_at": string,"kind": string,"seq": number,"starts_at": string,"visit_no": number
+              "corrected": boolean,"ends_at": string,"kind": string,"seq": number,"starts_at": string,"visit_no": number
             }[]
                            },
 "my_working_day_versions":
