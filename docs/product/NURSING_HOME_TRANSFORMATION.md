@@ -265,6 +265,14 @@ All are PLANNED proposals. **None is approved.** Each needs D-13 and D-24. Any i
 
 ---
 
+**Re-sequencing proposal (PO, 2026-10-26, [Transformation Alignment Report](TRANSFORMATION_ALIGNMENT_REPORT.md) §6.1, P-4; PLANNED, not approved):**
+- As written, NH3-NH5 automate the LTCF apparatus (the periodic cycle, coding, checking) rather than replace it. They are also level H in the [D-34 assessment](../agents/reports/D34_INTENDED_PURPOSE_ASSESSMENT.md).
+- First-principles order:
+  - **NH2′**: evidence linked to an instrument item **by the nurse** (a recorded choice, not a NAVORA mapping), with completeness shown before signature;
+  - then NH3 due dates only, and the NH6 evidence pack;
+  - NH4 (coding draft), NH5 (sentinel) and any computed item, score or trigger only later, as a separately qualified module, if the evidence shows the nurse-linked layer is not enough.
+- The classification is computed in the licensed tool (D-13 B). UNKNOWN: whether the licence and the insurers accept continuous evidence instead of the observation period (D-24).
+
 ## 10. Required new agents
 
 Implement in this order. Each one starts as a **draft-only** agent, and its acceptance error rate is measured before any wider use.
