@@ -27,15 +27,15 @@ set local role authenticated;
 
 select is(public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Testspital J1', 'Spital', 'Bern West',
           'Teststadt', 'hoch', 'ab morgen', 'Austritt J1', 'Synthetischer Bedarf J1', array['Grundpflege', ' Wundversorgung '],
-          'a1000000-0000-4000-8000-000000000001'),
+          'a1000000-0000-4000-8000-000000000001', 'referrer_stated'),
   'ok', 'operations records a partner request');
 select is(public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Testspital J1', 'Spital', 'Bern West',
           'Teststadt', 'hoch', 'ab morgen', 'Austritt J1', 'Synthetischer Bedarf J1', array['Grundpflege'],
-          'a1000000-0000-4000-8000-000000000001'),
+          'a1000000-0000-4000-8000-000000000001', 'referrer_stated'),
   'duplicate', 'the same key again is a duplicate');
 select throws_ok(
   $$ select public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Testspital', null, 'Bern West',
-       null, 'sehr hoch', null, 'Titel', 'Bedarf', null, 'a1000000-0000-4000-8000-000000000002') $$,
+       null, 'sehr hoch', null, 'Titel', 'Bedarf', null, 'a1000000-0000-4000-8000-000000000002', 'referrer_stated') $$,
   '22023', null, 'an urgency outside niedrig/mittel/hoch is refused');
 
 -- Converting with incomplete facts -----------------------------------------------------------
@@ -125,7 +125,7 @@ select is(
   (select count(*)::int from public.case_funding_facts((select id from j1case))),
   0, 'a nurse of a team not assigned to the case cannot read its insurer or order data');
 select is(public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital N', null, 'Bern West',
-          null, 'mittel', null, 'Titel N', 'Bedarf N', null, 'a1000000-0000-4000-8000-000000000021'),
+          null, 'mittel', null, 'Titel N', 'Bedarf N', null, 'a1000000-0000-4000-8000-000000000021', 'referrer_stated'),
   'rejected', 'a nurse cannot record partner requests');
 reset role;
 

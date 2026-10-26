@@ -25,6 +25,9 @@ test("referral → case → team takes it over → team plans a visit → it is 
   await page.goto("/intake");
   const form = page.getByRole("form", { name: "Neue Anfrage" });
   await form.getByLabel("Zuweisende Stelle").fill("Testheim Journey");
+  // IPA1-7: no preset urgency; the level is chosen with its source.
+  await form.getByLabel("Dringlichkeit", { exact: true }).selectOption("mittel");
+  await form.getByLabel("Quelle der Dringlichkeit").selectOption({ label: "vom Zuweiser angegeben" });
   await form.getByLabel("Region").fill("Bern West");
   await form.getByLabel("Titel").fill("Journey Übergangspflege");
   await form.getByLabel("Bedarf (Zusammenfassung)").fill("Synthetischer Bedarf, Journey-Test.");
@@ -55,6 +58,7 @@ test("referral → case → team takes it over → team plans a visit → it is 
   await expect(page).toHaveURL(/\/team$/);
   const offer = page.getByRole("article", { name: "Anfrage Teamsuche: Journey Übergangspflege" });
   await expect(offer).toContainText("für Testteam Nord");
+  await expect(offer.getByTestId("urgency-source")).toHaveText("Dringlichkeit: mittel (vom Zuweiser angegeben)");
   await expect(offer).toContainText("nicht automatisch geprüft");
   // J2 / F0 criterion 4: start, expected hours and required qualification before acceptance.
   const facts = offer.getByRole("definition");

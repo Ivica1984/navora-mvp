@@ -879,14 +879,14 @@ isOneToOne: false
                   ]
                 },"partner_requests": {
                   Row: {
-                    "city": string | null,"converted_case_id": string | null,"created_at": string,"id": string,"need_summary": string,"notes": string | null,"organization_id": string,"partner_name": string,"partner_type": string | null,"region": string,"request_title": string,"requested_services": (string)[] | null,"status": string,"time_info": string | null,"urgency": string
+                    "city": string | null,"converted_case_id": string | null,"created_at": string,"id": string,"need_summary": string,"notes": string | null,"organization_id": string,"partner_name": string,"partner_type": string | null,"region": string,"request_title": string,"requested_services": (string)[] | null,"status": string,"time_info": string | null,"urgency": string,"urgency_source": string,"referrer_requested_start": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "city"?: string | null,"converted_case_id"?: string | null,"created_at"?: string,"id"?: string,"need_summary": string,"notes"?: string | null,"organization_id": string,"partner_name": string,"partner_type"?: string | null,"region": string,"request_title": string,"requested_services"?: (string)[] | null,"status"?: string,"time_info"?: string | null,"urgency": string
+                    "city"?: string | null,"converted_case_id"?: string | null,"created_at"?: string,"id"?: string,"need_summary": string,"notes"?: string | null,"organization_id": string,"partner_name": string,"partner_type"?: string | null,"region": string,"request_title": string,"requested_services"?: (string)[] | null,"status"?: string,"time_info"?: string | null,"urgency": string,"urgency_source"?: string,"referrer_requested_start"?: string | null
                   }
                   Update: {
-                    "city"?: string | null,"converted_case_id"?: string | null,"created_at"?: string,"id"?: string,"need_summary"?: string,"notes"?: string | null,"organization_id"?: string,"partner_name"?: string,"partner_type"?: string | null,"region"?: string,"request_title"?: string,"requested_services"?: (string)[] | null,"status"?: string,"time_info"?: string | null,"urgency"?: string
+                    "city"?: string | null,"converted_case_id"?: string | null,"created_at"?: string,"id"?: string,"need_summary"?: string,"notes"?: string | null,"organization_id"?: string,"partner_name"?: string,"partner_type"?: string | null,"region"?: string,"request_title"?: string,"requested_services"?: (string)[] | null,"status"?: string,"time_info"?: string | null,"urgency"?: string,"urgency_source"?: string,"referrer_requested_start"?: string | null
                   }
                   Relationships: [
                     {
@@ -2050,7 +2050,7 @@ isOneToOne: false
 { Args: { "p_content": string,"p_for_handover": boolean,"p_idempotency_key": string,"p_supersedes_id": string,"p_visit_id": string }; Returns: string
                            },
 "record_partner_request":
-{ Args: { "p_city": string,"p_idempotency_key": string,"p_need_summary": string,"p_organization_id": string,"p_partner_name": string,"p_partner_type": string,"p_region": string,"p_request_title": string,"p_requested_services": (string)[],"p_time_info": string,"p_urgency": string }; Returns: string
+{ Args: { "p_city": string,"p_idempotency_key": string,"p_need_summary": string,"p_organization_id": string,"p_partner_name": string,"p_partner_type": string,"p_region": string,"p_request_title": string,"p_requested_services": (string)[],"p_time_info": string,"p_urgency": string,"p_urgency_source"?: string,"p_requested_start"?: string }; Returns: string
                            },
 "record_push_tap":
 { Args: Record<PropertyKey, never>; Returns: number
@@ -2184,7 +2184,7 @@ isOneToOne: false
                            },
 "team_offers":
 { Args: Record<PropertyKey, never>; Returns: {
-              "created_at": string,"expected_hours_per_week": number,"first_refusal_until": string,"matching_request_id": string,"my_team_declined": boolean,"region": string,"request_title": string,"requested_start": string,"required_qualification": string,"required_services": (string)[],"response_due_at": string,"returning_client": boolean,"team_id": string,"team_name": string,"urgency": string
+              "created_at": string,"expected_hours_per_week": number,"first_refusal_until": string,"matching_request_id": string,"my_team_declined": boolean,"region": string,"request_title": string,"requested_start": string,"required_qualification": string,"required_services": (string)[],"response_due_at": string,"returning_client": boolean,"team_id": string,"team_name": string,"urgency": string,"urgency_source": string,"referrer_requested_start": string
             }[]
                            },
 "team_open_reports":

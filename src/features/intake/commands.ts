@@ -11,7 +11,15 @@ import { requireUser } from "@/lib/auth/session";
 import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
 import { CODE_REFUSED, looksLikeCode } from "@/features/door/rules";
-import { CANTONS, INSURANCE_TYPES, MEDICAL_ORDER_STATUSES, URGENCIES, parseMissing, type ReadinessItem } from "./rules";
+import {
+  CANTONS,
+  INSURANCE_TYPES,
+  MEDICAL_ORDER_STATUSES,
+  URGENCIES,
+  URGENCY_SOURCES,
+  parseMissing,
+  type ReadinessItem,
+} from "./rules";
 
 const recordSchema = z.object({
   organizationId: z.uuid(),
@@ -19,7 +27,11 @@ const recordSchema = z.object({
   partnerType: z.string().trim().max(60).optional(),
   region: z.string().trim().min(2).max(80),
   city: z.string().trim().max(80).optional(),
+  // IPA1-7 (migration 0086): no preset level; the level always comes with its source.
   urgency: z.enum(URGENCIES),
+  urgencySource: z.enum(URGENCY_SOURCES),
+  // IPA1-8: the referrer's requested first-visit date, optional; the database refuses a day before the request.
+  requestedStart: z.union([z.iso.date(), z.literal("")]).optional(),
   timeInfo: z.string().trim().max(120).optional(),
   requestTitle: z.string().trim().min(3).max(160),
   needSummary: z.string().trim().min(3).max(2000),
@@ -85,7 +97,8 @@ function done(data: unknown, error: { code?: string } | null, op: string, invali
 }
 
 export async function recordPartnerRequest(input: unknown): Promise<CommandResult> {
-  const invalid = "Bitte Partner, Region, Dringlichkeit, Titel und Bedarf vollständig angeben.";
+  const invalid =
+    "Bitte Partner, Region, Dringlichkeit mit Quelle, Titel und Bedarf vollständig angeben; der gewünschte Beginn darf nicht vor heute liegen.";
   const parsed = recordSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: invalid };
   const d = parsed.data;
@@ -103,6 +116,8 @@ export async function recordPartnerRequest(input: unknown): Promise<CommandResul
     p_need_summary: d.needSummary,
     p_requested_services: d.services,
     p_idempotency_key: d.idempotencyKey,
+    p_urgency_source: d.urgencySource,
+    ...(d.requestedStart ? { p_requested_start: d.requestedStart } : {}),
   });
   return done(data, error, "record_partner_request", invalid);
 }

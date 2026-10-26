@@ -23,7 +23,7 @@ import {
   visitAlertHandling,
 } from "@/features/team/rules";
 import { PRIORITY_LABEL, alertFlagLabels, formatAge } from "@/features/operations/exceptions";
-import { MEDICAL_ORDER_LABEL, TASK_LABEL } from "@/features/intake/rules";
+import { MEDICAL_ORDER_LABEL, TASK_LABEL, urgencyWithSource } from "@/features/intake/rules";
 import type { ContinuityRow, TeamCase, TeamOffer, TeamVisitAlert } from "@/features/team/queries";
 import type { BillingPreviewRow } from "@/features/billing/queries";
 import BillingPreview from "@/components/billing/billing-preview";
@@ -251,6 +251,10 @@ function OfferCard({ offer }: { offer: TeamOffer }) {
           {offer.urgency}
         </span>
       </div>
+      {/* IPA1-7: the level is never shown without who set it. */}
+      <p data-testid="urgency-source" className="mt-1 text-sm text-emerald-900/70">
+        {urgencyWithSource(offer.urgency, offer.urgency_source)}
+      </p>
       {offer.returning_client && (
         // RET1: only the previous team sees this; other teams get the plain J2 offer after the window.
         <p data-testid="returning-client" className="mt-2 rounded-lg bg-emerald-50 p-2 text-sm font-semibold text-emerald-900">
@@ -263,6 +267,11 @@ function OfferCard({ offer }: { offer: TeamOffer }) {
       <dl className="mt-2 grid grid-cols-[9rem_1fr] gap-x-2 gap-y-0.5 text-sm" aria-label="Eckdaten">
         <dt className="text-emerald-900/60">Beginn</dt>
         <dd>{offer.requested_start ? formatDayLabel(offer.requested_start) : "nicht erfasst"}</dd>
+        {/* IPA1-8: the referrer's date, shown only (never orders, filters or escalates). */}
+        <dt className="text-emerald-900/60">Gewünschter Beginn (laut Zuweiser)</dt>
+        <dd data-testid="referrer-start">
+          {offer.referrer_requested_start ? formatDayLabel(offer.referrer_requested_start) : "nicht angegeben"}
+        </dd>
         <dt className="text-emerald-900/60">Umfang</dt>
         <dd>{formatWeeklyHours(offer.expected_hours_per_week)}</dd>
         <dt className="text-emerald-900/60">Qualifikation</dt>

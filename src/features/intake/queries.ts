@@ -18,6 +18,10 @@ export type OpenPartnerRequest = {
   region: string;
   city: string | null;
   urgency: string;
+  /** IPA1-7: referrer_stated | intake_assessed | unknown (before IPA1-7). */
+  urgency_source: string;
+  /** IPA1-8: the referrer's requested first-visit date (shown only). */
+  referrer_requested_start: string | null;
   time_info: string | null;
   request_title: string;
   need_summary: string;
@@ -47,7 +51,9 @@ export async function getIntakeData(): Promise<{
 
   const { data, error } = await supabase
     .from("partner_requests")
-    .select("id, created_at, partner_name, partner_type, region, city, urgency, time_info, request_title, need_summary, requested_services, status")
+    .select(
+      "id, created_at, partner_name, partner_type, region, city, urgency, urgency_source, referrer_requested_start, time_info, request_title, need_summary, requested_services, status",
+    )
     .eq("organization_id", organizationId)
     .in("status", ["open", "ready_to_convert"])
     .order("created_at", { ascending: false });

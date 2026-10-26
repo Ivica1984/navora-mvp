@@ -23,6 +23,29 @@ export function parseServices(input: string): string[] {
 export const URGENCIES = ["niedrig", "mittel", "hoch"] as const;
 export type Urgency = (typeof URGENCIES)[number];
 
+/**
+ * IPA1-7 (migration 0086, ADR-100): who set the urgency. Only the two recorded values can be chosen; rows from
+ * before IPA1-7 read "unknown". NAVORA sets no criteria for a level or a source (D-34 question 7 stays with clinical).
+ */
+export const URGENCY_SOURCES = ["referrer_stated", "intake_assessed"] as const;
+export type UrgencySource = (typeof URGENCY_SOURCES)[number];
+
+const URGENCY_SOURCE_LABEL: Record<string, string> = {
+  referrer_stated: "vom Zuweiser angegeben",
+  intake_assessed: "bei der Aufnahme eingeschätzt",
+  unknown: "Quelle nicht erfasst",
+};
+
+/** "vom Zuweiser angegeben" | "bei der Aufnahme eingeschätzt" | "Quelle nicht erfasst" (also for any other value). */
+export function urgencySourceLabel(source: string | null | undefined): string {
+  return (source && URGENCY_SOURCE_LABEL[source]) || URGENCY_SOURCE_LABEL.unknown;
+}
+
+/** IPA1-7: "Dringlichkeit: hoch (vom Zuweiser angegeben)", the level always with its source. */
+export function urgencyWithSource(urgency: string, source: string | null | undefined): string {
+  return `Dringlichkeit: ${urgency} (${urgencySourceLabel(source)})`;
+}
+
 export const PARTNER_TYPES = ["Spital", "Pflegeheim", "Hausarzt", "Privat / Angehörige", "Andere"] as const;
 
 // J1 (PO brief): funding facts at intake. Value sets mirror the database checks (migration 0013).

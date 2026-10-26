@@ -42,23 +42,23 @@ set local role authenticated;
 do $$
 begin
   perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital J2v2', 'Spital', 'Bern West', null,
-    'hoch', null, 'J2v2 Spital', 'Bedarf Spital', array['Grundpflege'], 'a7000000-0000-4000-8000-000000000001');
+    'hoch', null, 'J2v2 Spital', 'Bedarf Spital', array['Grundpflege'], 'a7000000-0000-4000-8000-000000000001', 'referrer_stated');
   perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Heim J2v2', 'Pflegeheim', 'Bern West', null,
-    'mittel', null, 'J2v2 Heim', 'Bedarf Heim', array['Begleitung'], 'a7000000-0000-4000-8000-000000000002');
+    'mittel', null, 'J2v2 Heim', 'Bedarf Heim', array['Begleitung'], 'a7000000-0000-4000-8000-000000000002', 'referrer_stated');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2v2 Spital'),
     'Klient', 'J2S', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
       'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (private.now() at time zone 'Europe/Zurich')::date + 2, 'expected_hours_per_week', 6),
     'a7000000-0000-4000-8000-000000000003');
   -- A GP referral (referral type "other": no default deadline)
   perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Praxis J2v2', 'Hausarzt', 'Bern West', null,
-    'mittel', null, 'J2v2 Praxis', 'Bedarf Praxis', array['Begleitung'], 'a7000000-0000-4000-8000-000000000008');
+    'mittel', null, 'J2v2 Praxis', 'Bedarf Praxis', array['Begleitung'], 'a7000000-0000-4000-8000-000000000008', 'referrer_stated');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2v2 Praxis'),
     'Klient', 'J2O', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
       'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (private.now() at time zone 'Europe/Zurich')::date + 3),
     'a7000000-0000-4000-8000-000000000009');
   -- A region without any team (no eligible team at all)
   perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Privat J2v2', 'Privat / Angehörige', 'Testregion ohne Team', null,
-    'niedrig', null, 'J2v2 Leer', 'Bedarf Leer', array['Begleitung'], 'a7000000-0000-4000-8000-000000000006');
+    'niedrig', null, 'J2v2 Leer', 'Bedarf Leer', array['Begleitung'], 'a7000000-0000-4000-8000-000000000006', 'referrer_stated');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J2v2 Leer'),
     'Klient', 'J2L', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
       'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (private.now() at time zone 'Europe/Zurich')::date + 3),

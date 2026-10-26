@@ -23,7 +23,7 @@ set local role authenticated;
 do $$
 begin
   perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital J3', 'Spital', 'Bern West', null,
-    'mittel', null, 'J3 Anfrage', 'Bedarf J3', array['Grundpflege'], 'a3000000-0000-4000-8000-000000000101');
+    'mittel', null, 'J3 Anfrage', 'Bedarf J3', array['Grundpflege'], 'a3000000-0000-4000-8000-000000000101', 'referrer_stated');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'J3 Anfrage'),
     'Klient', 'J3neu', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
       'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (private.now() at time zone 'Europe/Zurich')::date + 1,
