@@ -163,9 +163,9 @@ create function pg_temp.n(p_user text, p_q text) returns integer language sql as
 -- RLS3-1 structure: one team-scoped read policy per table, no coordination role in it; anon reads nothing --------------
 select is((select string_agg(c.relname || ':' || p.polname, ',' order by c.relname)
            from pg_policy p join pg_class c on c.oid = p.polrelid
-           where c.relname in ('visit_status_notes', 'cover_events', 'working_time_facts') and p.polcmd in ('r', '*')),
+           where c.relname in ('visit_status_notes', 'cover_events', 'working_time_facts') and p.polcmd in ('r', '*') and p.polpermissive),  -- LEAVE1 (0074) adds a restrictive policy to every table
   'cover_events:team_scoped_read,visit_status_notes:team_scoped_read,working_time_facts:team_scoped_read',
-  'RLS3-1: each of the three tables has exactly one read policy, team_scoped_read');
+  'RLS3-1: each of the three tables has exactly one permissive read policy, team_scoped_read');
 select is((select count(*)::int from pg_policy p join pg_class c on c.oid = p.polrelid
            where c.relname in ('visit_status_notes', 'cover_events', 'working_time_facts')
              and pg_get_expr(p.polqual, p.polrelid) ~ '(is_coordinator|has_org_role|is_intake_role|is_org_admin)'), 0,

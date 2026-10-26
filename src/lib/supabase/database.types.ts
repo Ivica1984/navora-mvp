@@ -717,6 +717,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"member_access_events": {
+                  Row: {
+                    "actor_id": string,"created_at": string,"id": string,"kind": string,"organization_id": string,"reason_code": string,"seq": number,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id": string,"created_at"?: string,"id"?: string,"kind": string,"organization_id": string,"reason_code": string,"seq"?: never,"user_id": string
+                  }
+                  Update: {
+                    "actor_id"?: string,"created_at"?: string,"id"?: string,"kind"?: string,"organization_id"?: string,"reason_code"?: string,"seq"?: never,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "member_access_events_organization_id_user_id_fkey"
+      columns: ["organization_id","user_id"]
+isOneToOne: false
+      referencedRelation: "organization_memberships"
+      referencedColumns: ["organization_id","user_id"]
+    }
+                  ]
                 },"member_invitations": {
                   Row: {
                     "accepted_at": string | null,"accepted_user": string | null,"created_at": string,"display_name": string,"email": string,"expires_at": string,"id": string,"invited_by": string,"organization_id": string,"qualification": string | null,"revoked_at": string | null,"role": string,"team_id": string | null
@@ -1437,14 +1457,14 @@ isOneToOne: false
                   ]
                 },"visit_report_returns": {
                   Row: {
-                    "id": string,"organization_id": string,"performer_id": string,"reason": string,"report_id": string,"report_version": number,"returned_at": string,"returned_by": string,"snapshot_hash": string,"team_id": string,"visit_id": string
+                    "id": string,"organization_id": string,"performer_id": string,"performer_unavailable": boolean,"reason": string,"report_id": string,"report_version": number,"returned_at": string,"returned_by": string,"snapshot_hash": string,"team_id": string,"visit_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "id"?: string,"organization_id": string,"performer_id": string,"reason": string,"report_id": string,"report_version": number,"returned_at"?: string,"returned_by": string,"snapshot_hash": string,"team_id": string,"visit_id": string
+                    "id"?: string,"organization_id": string,"performer_id": string,"performer_unavailable"?: boolean,"reason": string,"report_id": string,"report_version": number,"returned_at"?: string,"returned_by": string,"snapshot_hash": string,"team_id": string,"visit_id": string
                   }
                   Update: {
-                    "id"?: string,"organization_id"?: string,"performer_id"?: string,"reason"?: string,"report_id"?: string,"report_version"?: number,"returned_at"?: string,"returned_by"?: string,"snapshot_hash"?: string,"team_id"?: string,"visit_id"?: string
+                    "id"?: string,"organization_id"?: string,"performer_id"?: string,"performer_unavailable"?: boolean,"reason"?: string,"report_id"?: string,"report_version"?: number,"returned_at"?: string,"returned_by"?: string,"snapshot_hash"?: string,"team_id"?: string,"visit_id"?: string
                   }
                   Relationships: [
                     {
@@ -1730,12 +1750,15 @@ isOneToOne: false
 "depart_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"end_member_access":
+{ Args: { "p_idempotency_key": string,"p_reason_code": string,"p_user_id": string }; Returns: Json
+                           },
 "end_visit_not_completed":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_reason_code": string,"p_visit_id": string }; Returns: string
                            },
 "field_countersign_queue":
 { Args: Record<PropertyKey, never>; Returns: {
-              "client_name": string,"performer_name": string,"report_id": string,"returned": boolean,"returned_at": string,"signed_at": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
+              "client_name": string,"kind": string,"performer_access_ended": string,"performer_name": string,"report_id": string,"returned": boolean,"returned_at": string,"signed_at": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
             }[]
                            },
 "field_door_notes":
@@ -1755,7 +1778,7 @@ isOneToOne: false
                            },
 "field_reports":
 { Args: { "p_date": string }; Returns: {
-              "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"countersigned_by_name": string,"i_am_performer": boolean,"i_can_countersign": boolean,"i_can_return": boolean,"i_signed": boolean,"report_id": string,"return_reason": string,"returned": boolean,"returned_at": string,"returned_by_name": string,"returned_snapshot": Json,"signed_at": string,"signed_by_name": string,"snapshot": Json,"snapshot_hash": string,"status": string,"summary": string,"version": number,"visit_id": string
+              "correction_reason": string,"countersign_required": boolean,"countersigned_at": string,"countersigned_by_name": string,"i_am_performer": boolean,"i_can_countersign": boolean,"i_can_return": boolean,"i_signed": boolean,"performer_access_ended": boolean,"performer_unavailable": boolean,"report_id": string,"return_reason": string,"returned": boolean,"returned_at": string,"returned_by_name": string,"returned_snapshot": Json,"signed_at": string,"signed_by_name": string,"snapshot": Json,"snapshot_hash": string,"status": string,"summary": string,"version": number,"visit_id": string
             }[]
                            },
 "field_returned_reports":
@@ -1817,6 +1840,14 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"declines": Json,"eligible_teams": number,"matching_request_id": string,"reason": string,"referral_type": string,"region": string,"request_title": string,"response_due_at": string,"urgency": string
             }[]
+                           },
+"member_open_reports":
+{ Args: { "p_user_id": string }; Returns: {
+              "kind": string,"team_name": string,"visit_date": string
+            }[]
+                           },
+"my_access_state":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "my_covers":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -1927,6 +1958,9 @@ isOneToOne: false
 "reset_exception_rule":
 { Args: { "p_exception_type": string,"p_idempotency_key": string,"p_organization_id": string }; Returns: string
                            },
+"restore_member_access":
+{ Args: { "p_idempotency_key": string,"p_reason_code": string,"p_user_id": string }; Returns: Json
+                           },
 "resume_case":
 { Args: { "p_case_id": string,"p_idempotency_key": string }; Returns: string
                            },
@@ -2022,6 +2056,11 @@ isOneToOne: false
 "team_offers":
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"expected_hours_per_week": number,"first_refusal_until": string,"matching_request_id": string,"my_team_declined": boolean,"region": string,"request_title": string,"requested_start": string,"required_qualification": string,"required_services": (string)[],"response_due_at": string,"returning_client": boolean,"team_id": string,"team_name": string,"urgency": string
+            }[]
+                           },
+"team_open_reports":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "access_ended_on": string,"correction_draft": number,"member_name": string,"returned": number,"team_name": string,"unsigned": number,"user_id": string
             }[]
                            },
 "team_open_visits":

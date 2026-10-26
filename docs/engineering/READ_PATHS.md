@@ -4,6 +4,10 @@
 
 Every table, view and function in schema `public` that the role `authenticated` can select or execute and that returns rows linked to a client, a case or a visit. In NAVORA the client is the case (`cases`); there is no `client_id` column.
 
+**LEAVE1 (0074, ADR-087, pgTAP 074):** every readable table also carries the restrictive policy `leave1_access_open`, and every SECURITY DEFINER read model listed here returns nothing to a person whose access ended. pgTAP 074 checks both across the whole catalogue, independently of this list.
+
+**LEAVE1 part (b) (0075, ADR-088, pgTAP 075):** `field_countersign_queue()` also lists the open reports of a team member whose access ended (kind and the date of the end, never a reason); HAND1 (`field_since_last`) shows every team member who reads a client's visit the entry `performer_access_ended` (open-report kind and date). `field_reports` gains `performer_unavailable`, `performer_access_ended`. Two new read models carry no case, visit or client column, so they are outside 067's function list: `member_open_reports(user)` (kind, visit date, team; the organisation's administrators and the registered nurses of the report's team) and `team_open_reports()` (a registered nurse's team members with open reports: counts by kind, access-end date). pgTAP 075 asserts their scope (another team's nurse and another organisation see nothing) and that only these, the queue, HAND1 and `end_member_access` read the open-work helpers.
+
 ## How the list is kept complete
 
 pgTAP 067 compares this list with the database catalogue, so a new path without a scope decision fails CI:

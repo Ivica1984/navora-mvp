@@ -114,6 +114,15 @@ export const ENTRY_TITLE: Record<string, string> = {
   quality_event: "Qualitätsereignis",
   // DOOR1-7 (migration 0073): a new safety-alert value (category, value, source, note; who and when as every entry).
   safety_alert: "Sicherheitshinweis erfasst",
+  // LEAVE1-5 / LEAVE1-12 (3) (migration 0075): an open report of a person whose access ended (kind and date only).
+  performer_access_ended: "Zugang beendet",
+};
+
+/** LEAVE1-12: what is still open in a report (codes from private.open_reports_of, migration 0075). */
+export const OPEN_REPORT_KIND_LABEL: Record<string, string> = {
+  unsigned: "Bericht nicht unterschrieben",
+  correction_draft: "Korrektur nicht unterschrieben",
+  returned: "Zurückgegebener Bericht offen",
 };
 
 const str = (v: unknown): string | null => (typeof v === "string" && v.length > 0 ? v : typeof v === "number" ? String(v) : null);
@@ -242,6 +251,13 @@ export function entryLines(kind: string, detail: Record<string, unknown>): strin
     case "safety_alert":
       for (const line of alertHandoverLines(detail)) add(line);
       break;
+    case "performer_access_ended": {
+      // Never a reason: neither the access reason code nor the return reason reaches this entry.
+      const kindCode = str(detail.report_kind);
+      add(kindCode && (OPEN_REPORT_KIND_LABEL[kindCode] ?? kindCode));
+      add(str(detail.access_ended_on) && `Zugang beendet am ${formatDate(str(detail.access_ended_on))}; der Bericht bleibt offen und wird nicht verrechnet.`);
+      break;
+    }
     case "quality_event": {
       const severity = str(detail.severity);
       const status = str(detail.status);

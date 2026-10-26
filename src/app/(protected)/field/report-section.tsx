@@ -266,7 +266,7 @@ export default function ReportSection({
             <span className="text-xs font-semibold">Was muss korrigiert werden?</span>
             <textarea name="reason" required minLength={10} maxLength={500} rows={3} className="rounded-lg border border-stone-300 bg-white p-2" />
           </label>
-          <p data-testid="return-confirmation" className="text-xs text-emerald-900/80">{returnConfirmation(report.signed_by_name)}</p>
+          <p data-testid="return-confirmation" className="text-xs text-emerald-900/80">{returnConfirmation(report.signed_by_name, report.performer_access_ended === true)}</p>
           <div className="grid grid-cols-2 gap-2">
             <button type="submit" disabled={pending} className="min-h-11 rounded-lg bg-amber-700 font-bold text-white disabled:opacity-60">
               {pending ? "Wird gespeichert …" : "Zurückgeben"}

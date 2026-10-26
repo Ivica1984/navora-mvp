@@ -1,6 +1,6 @@
 # NAVORA Care Operating Model — beyond Buurtzorg
 
-**Owner:** Product Owner (`po`) · **Stand:** 2026-10-22 18:20 · **Status:** strategic direction. Approved items appear in `docs/agents/NEXT_CAPABILITY.md`. Targets marked *hypothesis* are validated with pilot data (AN1), not assumed.
+**Owner:** Product Owner (`po`) · **Stand:** 2026-10-25 22:10 (go-live gate index added; earlier 2026-10-22 18:20) · **Status:** strategic direction. Approved items appear in `docs/agents/NEXT_CAPABILITY.md`. Targets marked *hypothesis* are validated with pilot data (AN1), not assumed.
 
 ## North Star
 
@@ -72,13 +72,39 @@ Every capability is judged by whether it raises this share without lowering safe
 
 **Go-live condition (PO, 2026-10-24 06:10, D-31, `lca` 02:52):** before the first real client, care given in a visit that was broken off is documented, in NAVORA (D-31 option 1b) or by a documented procedure of the organisation outside it. The report's content: `clinical` (D-31).
 
-**Go-live condition (PO, 2026-10-24 10:11, D-9, `lca` 07:58):** before the first real client: (g1) a referral holds no free-text need data before the referrer has confirmed that the client was informed and agreed; (g2) a referral that is never converted expires and is anonymised by itself, with no manual clean-up (period with D-4's final rule); (g3) the DSG Art. 19 information given at intake is recorded (text version, when, by whom); (g4) consents per recipient category (other teams for cover, treating doctor, network), with a withdrawn state, replace the single consent box before cover is switched on or anything is shared; (g5) a representative can be recorded. The legal basis itself: owner (D-9, option D).
+**Go-live condition (PO, 2026-10-24 10:11, D-9, `lca` 07:58):** before the first real client: (g1) a referral holds no free-text need data before the referrer has confirmed that the client was informed and agreed; (g2) a referral that is never converted expires and is anonymised by itself, with no manual clean-up (period with D-4's final rule); (g3) the DSG Art. 19 information given at intake is recorded (text version, when, by whom); (g4) consents per recipient category (other teams for cover, treating doctor, network) and per emergency contact, with a withdrawn state, replace the single consent box before cover is switched on or anything is shared; a no-show outcome "Notfallkontakt informiert" on the basis of a recorded consent then references that record (PO 2026-10-25 22:10, D-19); (g5) a representative can be recorded. The legal basis itself: owner (D-9, option D).
 
 **Go-live condition (PO, 2026-10-24 10:11, D-4, `lca` 08:05):** no audit row is deleted or anonymised before the final retention rule; the retention criteria (care record: the canton's record period after the last treatment; billing evidence: 10 years after the business year; access logs: at least one year; operational rows: until the final rule) can be told to a client; before the first real client, (r1) a client's audit rows can be extracted with one command, staff identities masked by default; (r2) every audited column carries a retention class the validator checks; (r3) admins read the log only through a reader that records the purpose. Final periods: owner after D-11 and D-12.
 
 **Go-live condition (PO, 2026-10-24 10:11, D-15, C-1):** no real client's care plan is created while the team chooses the KLV category freely; the approved service catalogue (option C, `clinical`) comes first.
 
 What does **not** disappear: verified qualifications, clinical responsibility, legal accountability, data protection. These are decisions for their owners, not things to automate away.
+
+## Go-live gates: one list
+
+**PO, 2026-10-25 22:10 CET.** The go-live conditions above, and the real-data gates written in briefs and decision packages, in one place, so nobody has to collect them from twenty files before the first real client. This list is an index: the linked source holds the rule, and a gate is lifted only by the role named there. Status labels: IMPLEMENTED (built and accepted), PLANNED (approved, not yet delivered), OPEN (waits on a decision). Engineering and the other agents add a line by asking the PO; the PO updates the status when the source changes. **No real client, and no real employee data, while any line is not IMPLEMENTED.** Switching on cover (COVER1) has its own list in `docs/agents/briefs/COVER1.md`; it is not needed for go-live because cover stays off.
+
+| Gate | What must hold before the first real client | Source | Lifted by | Status |
+|---|---|---|---|---|
+| G-1 | A named, qualified Clinical Owner exists (every `clinical` package waits for this) | D-27, `decisions/INDEX.md` | owner | OPEN |
+| G-2 | Live database facts known; SR-01 (live) and SR-22 closed; leaked-password protection on | D-1, `docs/engineering/SECURITY_RISKS.md` | owner | OPEN |
+| G-3 | Legal entity with licence and OKP admission, pilot canton named | D-12, D-11 | owner | OPEN |
+| G-4 | Production hosting settled and the data-protection impact assessment done | D-12 condition, D-2, D-3 (ii) | owner | OPEN |
+| G-5 | Intended purpose assessed by a regulatory adviser (medical device question) | D-34 | owner | OPEN |
+| G-6 | Qualifications verified before they are active (option B) | D-29 | owner | OPEN |
+| G-7 | D-3 (i) read log, (iii) client identity for coordination roles only where a task needs it, (iv) every read path team-scoped: RLS2, RLS3 accepted, F-1 met (DOOR1-11); **F-3 open (AUD1)** | D-3, briefs RLS2, RLS3, DOOR1, AUD1 | po for (iv); owner for the rest | OPEN; (iv) PLANNED (AUD1) |
+| G-8 | Intake legal basis and gates g1-g5 (incl. per-contact consent, g4: append-only, scoped, refusal only on `recorded_consent`) | D-9 | owner | OPEN |
+| G-9 | Audit log: no deletion before the final rule; r1 client extract, r2 retention class per column, r3 purpose reader (AUD1) | D-4 | po (r1-r3), owner (final periods) | r3 PLANNED (AUD1); r1, r2 OPEN |
+| G-10 | No real care plan while the KLV category is chosen freely; approved service catalogue first | D-15 | clinical | OPEN |
+| G-11 | No door or key-safe code in any access note, and none left from before the guard (count zero); one "Zugang" line; a clinical category only with an `APPROVED` register row | DOOR1-12, DOOR1-13, DOOR1-14 | po (acceptance) | PLANNED |
+| G-12 | A correction request can be met when the report's author has left (addendum or "bestritten" mark); D-30 answered before the first real leaver | D-30 | clinical | OPEN |
+| G-13 | **No real client before LEAVE1 is accepted** (access ends with employment, LEAVE1-1 to LEAVE1-13) | LEAVE1-9 | po (acceptance) | PLANNED (delivered #400 + #406, reviewed 2026-10-26 00:20 CET: criteria met; awaiting the `cra` section on 0074-0076) |
+| G-14 | Care in a broken-off visit is documented (in NAVORA or by a written procedure) | D-31 | clinical | OPEN |
+| G-15 | Watched hours named and their staffing confirmed in writing by the provider; FUP1-C1 and FUP1-C2 merged before SIG1-8 is lifted | SIG1-8 (above), FUP1 | owner (staffing), clinical (lifting SIG1-8), po (FUP1) | OPEN; FUP1-C1/C2 PLANNED |
+| G-16 | A no-show or interruption taken by a non-registered nurse still reaches Operations | SIG1-C1 | po | IMPLEMENTED (2026-10-24 21:10) |
+| G-17 | A corrected time in the repeated hour can be entered either way (DST1-C4, due before the first real client or 2027-10-31); the test clock can never reach a shared database (DST1-C5, before staging with real users) | DST1 | po (acceptance) | PLANNED |
+| G-18 | Before the first real **employee**: no teammate reads who performed each visit event row by row | D-3 (iv) note, RLS3-4, D-23 | po | see RLS3 (accepted 2026-10-25 16:11) |
+| G-19 | Before the first real **employee** confirms a working day (WORK1): the licence holder adopts the nurse-confirmed export as its way of keeping the working-time record and states whether ArGV 1 Art. 73b applies under its agreements; the employer adopts the information text after an `lca` look at the final wording; D-4 carries a retention criterion for confirmed working days | D-23 items 3b, 4, 7e; brief WORK1 | owner (D-12, policy), po (D-4 criterion) | OPEN |
 
 ## Where NAVORA exceeds Buurtzorg
 

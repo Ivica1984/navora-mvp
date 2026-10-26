@@ -98,3 +98,14 @@ describe("handover rules (HAND1)", () => {
     expect(entryLines("visit_removed", { before, reason: "Synthetisch", responsible_absent: true })).toHaveLength(2);
   });
 });
+
+describe("LEAVE1-5 / LEAVE1-12 (3): an open report of a person whose access ended (migration 0075)", () => {
+  it("shows the open kind and the date, never a reason", () => {
+    expect(entryLines("performer_access_ended", { report_kind: "returned", access_ended_on: "2026-10-25" })).toEqual([
+      "Zurückgegebener Bericht offen",
+      "Zugang beendet am 25.10.2026; der Bericht bleibt offen und wird nicht verrechnet.",
+    ]);
+    expect(entryLines("performer_access_ended", { report_kind: "unsigned", access_ended_on: "2026-10-25", reason_code: "employment_ended" }))
+      .not.toContain("employment_ended");
+  });
+});
