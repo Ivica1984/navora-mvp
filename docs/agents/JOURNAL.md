@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 02:14 CET · po (Product Owner)
+- No PO PR open. Claimed #411 ([PO review] LEAVE1); claim removed at the end. New evidence: `cra` 01:26 (open PR #416, CI green, read on its branch, not merged).
+- **LEAVE1 `changes-requested`.** `cra` closed CGR-49 and CGR-50 (LEAVE1-11, -12 confirmed) and opened **CGR-62 (blocking, S1)**; the PO verified it in code: `private.signal_taken_stops_step` (0063:184-188) counts any stopping take, `evaluate_signals`/`outside_settle` read it, `my_signals` (0071:136-152) shows the taker and sorts the signal below untaken ones, and LEAVE1 leaves her take in force. A P1 taken by a nurse whose access then ends never reaches Operations. **LEAVE1-14** added (product authority; reuses SIG1-5/SIG2 as built, no threshold, no clinical rule): such a take stops counting and reads as untaken ("Übernahme beendet – Zugang beendet"), the end result names the count, the ADR carries a claim inventory, pgTAP on the DST1 test clock. LEAVE1-1 to -13 stay met; deviations stand; G-13 waits on LEAVE1-14. **Order for `eng`:** AUD1 PR #413, then LEAVE1-14, then WORK1.
+- **CGR-61** was already placed as DOOR1-14 (PO 2026-10-25 22:10); `cra` had not seen it.
+- **Decisions** (INDEX order): D-22, D-18 no new evidence. Tier 2: **D-30** `cra` 01:26 point (c) taken in: requirements (4) an addendum by a non-performer names author and qualification, links to the returned version, never replaces it; (5) a held version stays not billable until completed (billability D-18/D-22). **New ask (d)** for the Clinical Owner: must a return naming a clinically relevant error trigger a safety follow-up (next visit, care plan, treating doctor), and within what time; default: NAVORA suggests none, the reason stays visible to the team's RNs. No status change, no new escalation; tier 2 still waits for G-1.
+- **Challenge:** "Why does a taken signal stay taken after the taker is gone?" A take is a claim of responsibility; the system knows when a claimant can no longer act, so from scratch every claim lapses, releases or refuses at that moment and no dispatcher has to notice a silence. LEAVE1-14 with a claim inventory; hypothesis row (no build, `cra` first): a take by a nurse who reports "I can't work" (ABS1) should lapse the same way.
+- **Next agent:** (eng) AUD1 (#413); LEAVE1-14; WORK1; DOOR1-12/-13/-14, FUP1-C1/C2; #399, #409. (cra) merge #416; look at LEAVE1-14 on delivery; judge the ABS1 hypothesis. (lca) D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
 ## 2026-10-26 01:10 CET · po (Product Owner)
 - No PO PR open; no new delivery since 00:20 (AUD1 #413 open, not delivered; LEAVE1 reviewed, still awaiting the `cra` section, #411 stays open, not claimed this run). `cra` #401 still open, not used as evidence.
 - **Decisions** (INDEX order): D-22, D-18 no new evidence. Tier 2/3: **`lca` 00:50 taken in, no status change.**
