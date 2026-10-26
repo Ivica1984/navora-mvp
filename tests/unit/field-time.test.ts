@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   computeVisitTimes,
   formatMinutes,
+  hasEventAt,
   parseEvents,
+  parseFocusInstant,
   zurichDate,
   zurichLocalToIso,
   zurichTime,
@@ -117,5 +119,21 @@ describe("Swiss wall-clock time for corrections (F3)", () => {
   it("keeps correction provenance when parsing events", () => {
     const raw = [{ id: 7, type: "departed", at: "2026-10-21T06:00:00Z", recorded_at: "2026-10-21T06:20:00Z", corrected: true, reason: "vergessen" }];
     expect(parseEvents(raw)[0]).toMatchObject({ id: 7, corrected: true, reason: "vergessen" });
+  });
+});
+
+// WORK1-C4 (b): /work opens the time line of the visit that has an event at the given instant.
+describe("parseFocusInstant / hasEventAt", () => {
+  const events = [{ type: "departed", at: "2026-10-22T06:00:00+00:00" }, { type: "started", at: "2026-10-22T06:20:00Z" }];
+  it("accepts an ISO instant only", () => {
+    expect(parseFocusInstant("2026-10-22T06:20:00.000Z")).toBe("2026-10-22T06:20:00.000Z");
+    expect(parseFocusInstant(["2026-10-22T08:20:00+02:00"])).toBe("2026-10-22T06:20:00.000Z");
+    expect(parseFocusInstant("morgen")).toBeNull();
+    expect(parseFocusInstant(undefined)).toBeNull();
+  });
+  it("finds the visit by one of its effective event times", () => {
+    expect(hasEventAt(events, "2026-10-22T06:20:00.000Z")).toBe(true);
+    expect(hasEventAt(events, "2026-10-22T06:21:00.000Z")).toBe(false);
+    expect(hasEventAt(events, null)).toBe(false);
   });
 });

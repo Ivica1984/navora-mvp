@@ -107,6 +107,11 @@ export function zurichInstant(date: string, time: string): string | null {
   return `${date}T${time}:00+01:00`;
 }
 
+/** Instant → "YYYY-MM-DD" Zurich calendar date. */
+export function zurichDate(iso: string): string {
+  return zurichParts(new Date(iso)).date;
+}
+
 /** Instant → "HH:MM" Zurich wall clock. */
 export function zurichTime(iso: string): string {
   return zurichParts(new Date(iso)).time;
@@ -137,7 +142,12 @@ export function endInstant(date: string, startTime: string, endTime: string): st
   return endTime > startTime ? zurichInstant(date, endTime) : zurichInstant(nextDate(date), endTime);
 }
 
-export type ProposalRow = { seq: number; visit_no: number | null; kind: string; starts_at: string; ends_at: string | null };
+/** WORK1-C4 (0081): `corrected` = the start or end came from an F3-corrected visit event (effective time). */
+export type ProposalRow = {
+  seq: number; visit_no: number | null; kind: string; starts_at: string; ends_at: string | null; corrected?: boolean;
+};
+/** The times a visit segment had when the form opened (proposal or confirmed version), to see whether she changed it. */
+export type SegmentOrigin = { start: string | null; end: string | null; corrected: boolean };
 export type Interval = { start: string; end: string };
 export type OutsideEntry = Interval & { kind: OutsideKind };
 /** "none" is an explicit answer; null is "not answered yet". Nothing is pre-answered (WORK1-2). */
@@ -147,7 +157,7 @@ export type DayDraft = {
   date: string;
   dayStart: string; // "HH:MM" or ""
   dayEnd: string;
-  segments: Array<{ kind: VisitKind; start: string | null; end: string | null }>;
+  segments: Array<{ kind: VisitKind; start: string | null; end: string | null; origin?: SegmentOrigin }>;
   breaks: Answer<{ start: string; end: string }>; // HH:MM pairs
   outside: Answer<{ kind: OutsideKind; start: string; end: string }>;
   reason?: ReasonCode | null;
@@ -168,7 +178,41 @@ export function openQuestions(d: Pick<DayDraft, "dayStart" | "dayEnd" | "breaks"
 export function proposalSegments(rows: ProposalRow[]): DayDraft["segments"] {
   return rows
     .filter((r): r is ProposalRow & { kind: VisitKind } => (VISIT_KINDS as readonly string[]).includes(r.kind))
-    .map((r) => ({ kind: r.kind, start: r.starts_at, end: r.ends_at }));
+    .map((r) => ({
+      kind: r.kind, start: r.starts_at, end: r.ends_at,
+      origin: { start: r.starts_at, end: r.ends_at, corrected: Boolean(r.corrected) },
+    }));
+}
+
+/**
+ * WORK1-C4 (b): the hint when she changes the start or end of a segment that came from a visit. Her confirmation is
+ * still stored as she entered it; the working day never writes the visit's times (no write-back, 0081).
+ */
+export const VISIT_TIME_HINT =
+  "Die Zeit im Einsatz bleibt unverändert. Korrigieren Sie sie im Einsatz, damit Bericht und Abrechnung stimmen.";
+export const VISIT_TIME_LINK = "Zeit im Einsatz korrigieren";
+export const CORRECTED_MARK = "im Einsatz korrigiert";
+
+function sameInstant(a: string | null, b: string | null): boolean {
+  if (a === null || b === null) return a === b;
+  return Math.abs(new Date(a).getTime() - new Date(b).getTime()) < 1000;
+}
+
+/** True when a visit segment's start or end differs from the time it had when the form opened. */
+export function visitSegmentChanged(seg: { start: string | null; end: string | null; origin?: SegmentOrigin }): boolean {
+  if (!seg.origin) return false;
+  return !sameInstant(seg.start, seg.origin.start) || !sameInstant(seg.end, seg.origin.end);
+}
+
+/**
+ * Link to the visit's time correction (F3) on /field: the Zurich day of the segment and its original start instant;
+ * /field opens the time line of the visit that has an event at that instant. No visit identifier is needed (the
+ * proposal carries none, WORK1-1). Without a start, the day of the working day.
+ */
+export function visitCorrectionHref(origin: SegmentOrigin | undefined, day: string): string {
+  const at = origin?.start ?? origin?.end ?? null;
+  if (!at) return `/field?datum=${day}`;
+  return `/field?datum=${zurichDate(at)}&zeit=${encodeURIComponent(new Date(at).toISOString())}#einsatz-korrektur`;
 }
 
 function hhmmInterval(date: string, dayStartTime: string, start: string, end: string): Interval | null {

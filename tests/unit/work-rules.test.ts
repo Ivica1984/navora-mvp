@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   NOTICE_PARAGRAPHS, NOTICE_VERSION, buildCsv, buildPayload, elapsedMinutes, endInstant, openQuestions,
-  proposalSegments, zurichInstant, zurichLocalWithOffset, type MonthExport,
+  proposalSegments, visitCorrectionHref, visitSegmentChanged, zurichInstant, zurichLocalWithOffset, VISIT_TIME_HINT,
+  type DayDraft, type MonthExport,
 } from "@/features/work/rules";
 
 // WORK1 (migration 0079, ADR-092): pure rules of the working-day proposal, confirmation payload and CSV export.
@@ -58,7 +59,7 @@ describe("the day is never complete by default (WORK1-2)", () => {
     expect(proposalSegments([
       { seq: 1, visit_no: 1, kind: "care", starts_at: "2026-10-22T05:15:00Z", ends_at: null },
       { seq: 2, visit_no: null, kind: "report_signed", starts_at: "2026-10-22T06:00:00Z", ends_at: "2026-10-22T06:00:00Z" },
-    ])).toEqual([{ kind: "care", start: "2026-10-22T05:15:00Z", end: null }]);
+    ])).toEqual([{ kind: "care", start: "2026-10-22T05:15:00Z", end: null, origin: { start: "2026-10-22T05:15:00Z", end: null, corrected: false } }]);
   });
 });
 
@@ -99,5 +100,43 @@ describe("information text (WORK1-8)", () => {
     expect(text).toContain("damit ihr die Pflege koordinieren könnt");
     expect(text).toContain("siehst nur du");
     expect(NOTICE_VERSION).toBe("work1-notice-v1");
+  });
+});
+
+// WORK1-C4 (migration 0081, ADR-094): one time per visit event.
+describe("visit segments and the visit's time correction (WORK1-C4)", () => {
+  const rows = [
+    { seq: 1, visit_no: 1, kind: "travel", starts_at: "2026-10-22T06:00:00Z", ends_at: "2026-10-22T06:20:00Z", corrected: true },
+    { seq: 2, visit_no: 1, kind: "care", starts_at: "2026-10-22T06:20:00Z", ends_at: "2026-10-22T07:00:00Z", corrected: false },
+  ];
+  const draft = (): DayDraft => ({
+    date: "2026-10-22", dayStart: "", dayEnd: "", segments: proposalSegments(rows), breaks: null, outside: null,
+  });
+  it("a segment from a corrected event carries the mark from the proposal", () => {
+    expect(proposalSegments(rows).map((s) => s.origin?.corrected)).toEqual([true, false]);
+  });
+  it("editing a visit segment shows the hint and the link to the visit's time correction", () => {
+    const d = draft();
+    const edited = { ...d.segments[1], end: zurichInstant("2026-10-22", "09:10") };
+    expect(visitSegmentChanged(edited)).toBe(true);
+    expect(VISIT_TIME_HINT).toBe("Die Zeit im Einsatz bleibt unverändert. Korrigieren Sie sie im Einsatz, damit Bericht und Abrechnung stimmen.");
+    expect(visitCorrectionHref(edited.origin, d.date)).toBe("/field?datum=2026-10-22&zeit=2026-10-22T06%3A20%3A00.000Z#einsatz-korrektur");
+  });
+  it("editing the day start does not (no visit segment changed); the same instant written differently is no change", () => {
+    const d = { ...draft(), dayStart: "06:45" };
+    expect(d.segments.some(visitSegmentChanged)).toBe(false);
+    expect(visitSegmentChanged({ ...d.segments[0], start: "2026-10-22T08:00:00+02:00" })).toBe(false);
+  });
+  it("the link uses the Zurich date of the segment (a segment just before midnight belongs to that day)", () => {
+    expect(visitCorrectionHref({ start: "2026-10-22T21:55:00Z", end: "2026-10-22T22:20:00Z", corrected: true }, "2026-10-22"))
+      .toBe("/field?datum=2026-10-22&zeit=2026-10-22T21%3A55%3A00.000Z#einsatz-korrektur");
+    expect(visitCorrectionHref(undefined, "2026-10-22")).toBe("/field?datum=2026-10-22");
+  });
+  it("the confirm payload carries no origin and no mark (her confirmation is stored as she entered it)", () => {
+    const p = buildPayload({ ...draft(), dayStart: "07:30", dayEnd: "16:00", breaks: "none", outside: "none" });
+    expect(p.segments).toEqual([
+      { kind: "travel", start: "2026-10-22T06:00:00Z", end: "2026-10-22T06:20:00Z" },
+      { kind: "care", start: "2026-10-22T06:20:00Z", end: "2026-10-22T07:00:00Z" },
+    ]);
   });
 });

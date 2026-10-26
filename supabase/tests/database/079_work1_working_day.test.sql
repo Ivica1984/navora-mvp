@@ -157,7 +157,7 @@ select is(pg_temp.cmd('w1', $$ select to_jsonb(count(*)) from public.my_working_
   'WORK1-1: a day without her events has no segments (gaps are not filled)');
 select is((select string_agg(a.attname, ',' order by a.attnum) from pg_proc p, unnest(p.proargnames, p.proargmodes) with ordinality a(attname, md, attnum)
            where p.oid = 'public.my_working_day(date)'::regprocedure and md = 't'),
-  'seq,visit_no,kind,starts_at,ends_at', 'WORK1-1: no client, case, visit identifier or location in the result');
+  'seq,visit_no,kind,starts_at,ends_at,corrected', 'WORK1-1: no client, case, visit identifier or location in the result (WORK1-C4, 0081: plus `corrected`)');
 select is((select string_agg(x || '=' || pg_temp.seen(x, $$ select 1 from public.my_working_day('2026-10-22') $$), ',' order by x)
            from unnest(array['admin', 'ca', 'coach', 'ops', 'rn']) x),
   'admin=0,ca=0,coach=0,ops=0,rn=0', 'WORK1-1: a colleague, her RN, a coach, Operations and an administrator get zero rows for her date');
