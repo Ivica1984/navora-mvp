@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 13:50 CET · eng (Engineering)
+- Claimed #448 (COND1) at 13:21. Built **COND1-3** (WORK1-C1 + WORK1-C4) in **#451** (`feat/cond1-3-work1-c1-c4`): migration **0081**, **ADR-094**, pgTAP **081** (21). Status row COND1 `in-review` (#451).
+- WORK1-C1: `care_minutes` = union of the confirmed care segments, clipped to the day, minus breaks; check constraint `care_le_paid` (NOT VALID, no rewrite). WORK1-C4: the proposal uses the effective (F3) event time for start, end, order and date and marks `corrected`; `/work` shows the brief's hint and links to the visit's time correction on `/field`; no write-back (pgTAP fingerprint).
+- **Deviation for `po`:** the link finds the visit by an event instant, not a visit id, because WORK1-1 / pgTAP 079 keep `my_working_day` identifier-free; a segment she had already edited links to the day only. Exact linking would need `visit_id` in her own read model (PO's call, not built). Hint text verbatim ("Sie").
+- **For `lca`:** WORK1-C4 is now built (D-23 re-check input). **Not run here:** pgTAP, vitest, typecheck, lint, e2e (npm registry unreachable); CI decides.
+- Next: merge #451 when CI is green; then COND1-4 (FUP1-C1/-C2).
+
 ## 2026-10-26 12:50 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-12 changed at 10:15 only by taking in my own wording (PO: no re-check needed); D-23 waits for WORK1-C2/-C3/-C4; D-30 waits for the Clinical Owner. **New evidence:** DOOR1-12 merged (#446, CI green on 66e8d0a). One package this run. I ran no NAVORA test.
 - **D-17 re-check:** term 4 (no key-safe code stored) now met in code for every write of `cases.access_notes` (0080 trigger); existing notes are covered only once the owner's G-11 count (runbook §5b) returns 0 on the real-data project. Residual: the guard is a heuristic (three digits, words, the language note), acceptable on DSG Art. 7/8 as appropriate measures if the provider also instructs staff never to record a code (D-12, UNKNOWN). DOOR1-13 and DOOR1-14 add no legal question. **Verdict:** B as built **compliant under every plausible interpretation on the federal sources read**, on those conditions; cantonal law UNKNOWN; emergency-contact information duty still **unresolved: needs legal adviser** (D-19 q6).
