@@ -428,10 +428,20 @@ select is(private.signal_step_outside_app(pg_temp.id('fsa'), pg_temp.at('2026-11
 select is(private.signal_step_outside_app(pg_temp.id('fsa'), pg_temp.at('2026-11-02', '19:52')), false,
   'FUP1-2: judged at the due instant, not at the reading instant (19:52 → still app only)');
 select pg_temp.hours('07:00', '21:00');
+-- FUP1-C2 (0082, ADR-095): the forecast also needs the channel on and an Operations recipient with an active
+-- subscription. Fixture as the table owner, only for the next two assertions (removed again below).
+insert into public.organization_push_settings (organization_id, enabled, enabled_since, updated_by, updated_at)
+values ('00000000-0000-4000-b000-000000000011', true, '2026-10-01 00:00+00', pg_temp.u(905), '2026-10-01 00:00+00')
+on conflict (organization_id) do update set enabled = true, enabled_since = excluded.enabled_since;
+insert into public.push_subscriptions (organization_id, user_id, vendor, endpoint, p256dh, auth_secret, last_result, last_sent_at)
+values ('00000000-0000-4000-b000-000000000011', pg_temp.u(904), 'google_fcm', 'https://fcm.googleapis.com/fcm/send/syn-069-904',
+        repeat('G', 87), repeat('f', 22), 'sent', '2026-10-01 00:00+00');
 select is(private.signal_step_outside_app(pg_temp.id('fsa'), pg_temp.at('2026-11-02', '19:55')), true,
   'FUP1-2: watched until 21:00, the step due at 20:05 reaches Operations outside the app → the message follows');
 select is(private.signal_step_outside_app(pg_temp.id('fsa'), pg_temp.at('2026-11-02', '21:10')), false,
   'FUP1-2: the step overdue and not yet made at 21:10 (after the watched period) → app only (never earlier than the reading)');
+delete from public.push_subscriptions where endpoint = 'https://fcm.googleapis.com/fcm/send/syn-069-904';
+delete from public.organization_push_settings where organization_id = '00000000-0000-4000-b000-000000000011';
 
 select pg_temp.fops('a', 'sent');
 select pg_temp.hours('07:00', '20:00');
