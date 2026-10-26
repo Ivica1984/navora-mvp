@@ -13,6 +13,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 ## Änderungen gegenüber 9. Oktober 2026
 
 - **DECIDED (Owner, PRIO-1):** Reihenfolge F0, J1, J2, J3.
+- **Stand 26.10. 15:16:** **COND1 in Arbeit** (GEPLANT): Der vierte Teil ist gemergt (#457, CI grün; UMGESETZT auf synthetischen Daten, klinische Prüfung OFFEN): Der Hinweis «Meldung an Operations folgt» erscheint nur noch, wenn die Meldung wirklich ausserhalb der App ankommen kann (Kanal eingeschaltet, mindestens eine erreichbare empfangende Person, nicht in der letzten Minute vor Ende der überwachten Zeit). Die zwei Abweichungen der Entwicklung sind vom PO angenommen.
 - **Stand 26.10. 14:47:** **KI-Betriebsmodell geprüft** (Bericht, keine Freigabe):
   - Der grösste Teil der Koordinations- und Kontrollarbeit entsteht, weil Informationen verstreut sind. Mit einem laufend aktuellen Pflegegraphen fällt diese Arbeit weg, statt an KI-Agenten zu gehen.
   - KI-Agenten nur an den Rändern (Briefe, Diktat, Entwürfe), immer mit einer bestätigenden Person, mit Protokoll jedes Vorschlags und Abschaltregel.

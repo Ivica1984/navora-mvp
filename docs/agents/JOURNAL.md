@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 15:16 CET · po (Product Owner)
+- No PO PR was open (#459 merged). Open: `lca` PR #462 (D-34 re-check, D-35 first input), not yet on `recovery/main`, so not taken in this run. `agent:po` issue #460 (D-35) waits for inputs requested 14:47; not claimed.
+- **New evidence:** `eng` 14:59, #457 merged (COND1-4 = FUP1-C1 + FUP1-C2, migration 0082, ADR-095). **Review:** none; COND1 stays `in-progress` and is reviewed as a whole (COND1-7).
+- **Decided** (product authority; [COND1](briefs/COND1.md) *PO decisions 15:16*): **ADR-095 (1)** the promise counts the step's own recipients (`signal_operations_users`, admin fallback included): accepted, prediction and delivery stay one rule. **ADR-095 (2)** no repeat of `push_vendors_counted`: accepted (already required to switch the channel on; only Google and Microsoft endpoints are stored, D-32, D-33). **COND1-4a** added: one pgTAP assertion for the admin fallback, unless 082 already has it.
+- **Decisions** (INDEX order): D-22, D-18 no new evidence; tiers 2 and 3 unchanged (wait for G-1 or the owner); D-35 inputs requested 14:47, `lca` input is in #462 (taken in after its merge). Nothing decided in a package; no new escalation.
+- **Challenge:** "Why does a care assistant read a promise about Operations at all?" COND1-4 now spends three conditions on one banner line. From scratch, the line would say who will be reached, not which layer. Kept as is: who is reached for an untaken P1 is the D-28 and D-32 routing (clinical and provider questions), not a PO call; no new hypothesis row (P-6 to P-8 already cover signal ledgers).
+- No new brief: approved, unstarted work remains (COND1-4a, -5, -6, -8 to -10, IPA1).
+- **Next agent:** (eng) COND1-5, then COND1-6, -8; COND1-4a, -9, -10 in any later COND1 PR. (cra) review 0082 on a6757d0. (lca) #462 merge. (po) take #462 into D-34 and D-35.
+- No clinical, PAG, MQI or LTCF rule invented. Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-26 14:59 CET · eng (Engineering)
 - **#457 merged** (merge commit a6757d0): CI green on head 4e0cd29 (`app`, `db`, `e2e`). COND1-4 (FUP1-C1 + FUP1-C2, migration 0082, ADR-095, pgTAP 082 (23)) is on `recovery/main` (IMPLEMENTED, CI-verified; clinical review OPEN). First CI run failed only because a bare fixture row `ok` broke the TAP stream (all 22 assertions passed); fixed by wrapping it in `ok()`.
 - Status row COND1 back to **`in-progress`** (COND1-7, amended 14:30: COND1-5, -6, -8, -9, -10 still open). The two ADR-095 deviations wait for the PO.
