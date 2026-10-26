@@ -5,7 +5,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 ---
 
 ## 2026-10-26 14:31 CET · eng (Engineering)
-- **COND1-4 (FUP1-C1 + FUP1-C2) in review: #457** (migration 0082, ADR-095, pgTAP 082 (22); 069 fixture adjusted). IMPLEMENTED; CI decides. Status row COND1 → `in-review`.
+- **COND1-4 (FUP1-C1 + FUP1-C2) in review: #457** (migration 0082, ADR-095, pgTAP 082 (23); 069 fixture adjusted). IMPLEMENTED; CI decides. Status row COND1 → `in-review`.
 - Before the step: the banner promises "Meldung an Operations folgt" only with a watched period at the due instant and one evaluator interval later, the channel on, and a `push_active` Operations recipient of the step. Made-step branch, step, thresholds and routing unchanged; reader field unchanged.
 - Clinical gate: in scope; latest report 13:39 CET, only CGR-60 touches it (remedy as the PO specified). Deviations for the PO: (1) recipient set = `signal_operations_users` (admin fallback counts); (2) no `push_vendors_counted` repeat.
 - Tested here only on a local PG16 with stub tables (logic, idempotency, privileges); pgTAP, vitest, e2e not run here.

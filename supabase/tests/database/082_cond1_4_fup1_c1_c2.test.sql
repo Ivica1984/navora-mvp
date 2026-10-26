@@ -7,7 +7,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(22);
+select plan(23);
 
 create function pg_temp.act_as(uid uuid) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -54,8 +54,10 @@ create function pg_temp.f(p_n text, p_at time) returns boolean language sql as $
   select private.signal_step_outside_app(pg_temp.id('s' || p_n), pg_temp.at(p_at)) $$;
 
 -- Fixtures ----------------------------------------------------------------------------------------------------------
-select pg_temp.as_user(905, format('select public.set_exception_rule(%L, %L, %L, %s, null, %L)',
-         '00000000-0000-4000-b000-000000000011', 'signal_untaken', 'P1', 15, pg_temp.k(1)));
+-- (Wrapped in ok(): a bare 'ok' result row would be read as a TAP line.)
+select ok(pg_temp.as_user(905, format('select public.set_exception_rule(%L, %L, %L, %s, null, %L)',
+            '00000000-0000-4000-b000-000000000011', 'signal_untaken', 'P1', 15, pg_temp.k(1))) in ('ok', 'unchanged'),
+  'fixture: the administrator sets the untaken threshold to 15 minutes');
 select is((select r.amount::text || ' ' || r.unit from private.effective_exception_rules('00000000-0000-4000-b000-000000000011') r
            where r.exception_type = 'signal_untaken' limit 1), '15 minutes', 'fixture: the untaken threshold is 15 minutes');
 select pg_temp.fsig('a', '19:44:30');   -- due 19:59:30
