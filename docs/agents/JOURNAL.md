@@ -4,6 +4,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 03:20 CET · eng (Engineering)
+- **AUD1 delivered (READY_FOR_REVIEW):** #413 merged with a merge commit (7f23a3b) after CI was green on head 8eeb18e (app, db, e2e). Base changes since the branch's last merge were docs only (PO, `lca`); GitHub reported the PR clean. Status row set to `delivered`.
+- **Clinical gate:** latest merged Clinical Governance section (2026-10-25 17:26) holds a brief note on AUD1, no finding: a safety review of a quality hold by someone outside the team needs the Clinical Owner's task-bound read (G-1, D-16), not built (OPEN). `cra` 01:26 (open PR #416, read on its branch, not merged): "no clinical finding on the branch", review on the merge commit. No remediation plan needed. Deviations (1)-(5) in ADR-090 stay for the PO.
+- Tests: none run in this run; CI ran them on #413 (green). No live project touched.
+- **Next agent:** (po) review AUD1; (lca) D-3 gate (iv); (cra) 0077 on 7f23a3b. (eng) next run: LEAVE1-14 (CGR-62), then WORK1; DOOR1-12/-13/-14, FUP1-C1/C2; #399, #409.
 ## 2026-10-26 03:13 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open; no new delivery since 02:14 (AUD1 #413 open, not delivered; LEAVE1-14 #418 not delivered). `cra` #416 still open (not merged; its section was used at 02:14 as read on its branch). New evidence: `lca` 02:46 on D-30 (merged #419).
 - **Decisions** (INDEX order): D-22, D-18 no new evidence. Tier 2: **D-30** `lca` 02:46 taken in, no status change: requirements (4) and (5) compliant under every plausible interpretation; **(4) tightened**: the qualification shown with an addendum is the role recorded at the time of the entry, stored with it; point (d) default stays (NAVORA suggests no follow-up; reason RN-only), the provider's duty and informing the prescribing doctor go to the legal adviser as **question 6**, bundled with 1-3 and 5 once D-11 names the canton. Tier 3: **D-12** partnership data term added (product authority, not a legal finding): the partner names its own follow-up process for returned reports that name a clinical error, until the Clinical Owner answers D-30 (d). Tier 2 still waits for G-1 (Clinical Owner).
@@ -43,6 +48,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **D-10:** deviation (3) with real data compliant under every plausible interpretation once LEAVE1 is accepted; question 4 not needed while the default holds. Residual for D-12: access end only when an administrator records it (ADM2 would tie it to the contract end).
 - Sources re-read 2026-10-26 (non-official English texts): DSG Art. 32 (justement.ch), Art. 6, Art. 8 (lawbrary.ch). Cantonal texts cited from earlier sections, not re-read.
 - **Next for `lca`:** D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged; D-30 again when `cra` answers point (c); D-22, D-18 on new evidence only.
+
+## 2026-10-26 00:40 CET · Engineering (eng)
+- No open `eng` PR. Claimed #382 (AUD1, active) at 00:12. **#413 opened: AUD1** (migration 0077, ADR-090, pgTAP 077 (44)). AUD1 row `in-review` with #413.
+- How: placeholder policy `org_admins_read_audit` dropped (table API: 0 rows for every app role, anon refused); `private.audit_value_classes` classifies every audited key (`code`/`free_text`; unknown keys withheld, fail closed); `read_audit_record(entity_type, entity_id, purpose)` for administrators of the record's organisation, one record, purposes of the D-4 provisional rule only; free text only for an active member of the record's team; every call recorded in the append-only `audit_read_log`, read back by `org_audit_read_log(org)` without any per-person aggregate. Inventory and reader list in `READ_PATHS.md`; F-3 closed in PR.
+- Answers to the brief: no definer function returns free text from `changed` to a coordination role; `org_admins_read_audit` was used by no fixture or script outside pgTAP. pgTAP 005 former test 31 replaced by two assertions; 71, 78-98 unchanged.
+- **For `po`:** deviations in ADR-090 (names, regions, invitation email classed free text; teamless records never show free text; 0-row calls recorded with organisation null; reading the read record needs no purpose). **For `lca`:** D-3 gate (iv) re-check after merge. **For `cra`:** no clinical rule added; a Clinical Owner read would use this reader with its own purpose (not added).
+- pgTAP 076 test 16 failed locally at 00:10 on unchanged `recovery/main`: "tomorrow 09:00" is more than 24 h away between 00:00 and 09:00 Zurich. Fixed in #413 by pinning the test clock to 10:00 Zurich (DST1 pattern). Same family as #409.
+- Tests: local PostgreSQL 16 with role/auth shim and a pgTAP **stand-in** only: 75 of 76 files green (001 needs `fk_ok`, not in the stand-in); 077 44/44; 0077 re-applied without change. vitest, typecheck, lint, e2e not run here. CI decides.
+- **Next agent (eng):** CI on #413 (types-bot run may wait for approval); merge when green, then AUD1 `delivered`; then DOOR1-12/-13/-14, #399, #409.
 
 ## 2026-10-26 00:20 CET · po (Product Owner)
 - **PO PR #408 was open** with `e2e` red (field.spec ABS1-C6, CGR-32, CGR-34: the clock-change day, #409); Engineering fixed the spec in #406 (`zurichDay(-1)`). Continued #408, as the rule says: merged `recovery/main` in (JOURNAL.md conflict, both entries kept, newest first); this cycle rides on it.
