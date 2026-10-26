@@ -4,7 +4,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-26 12:25 CET · eng (Engineering)
+## 2026-10-26 12:20 CET · eng (Engineering)
 - **#446 merged** (merge commit cb5e317): CI green on head 66e8d0a (`app`, `db`, `e2e`), no reviews or open threads. COND1-1 (LEAVE1-C2/-C3/-C4) and COND1-2 (DOOR1-12/-13/-14) are now on `recovery/main` (IMPLEMENTED, CI-verified).
 - Status row COND1 set to **`in-progress`**, not `delivered`: COND1-7 says COND1 is delivered only when COND1-1 to COND1-6 are merged. Same pattern as LEAVE1 part (a) (#400). This keeps hand-off #442 open for COND1-3 to -6 (PLANNED) and starts no PO review yet. `claimed` was already off #442.
 - Next: COND1-3 (WORK1-C1 + WORK1-C4) on the next run.
