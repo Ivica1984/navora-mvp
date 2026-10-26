@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 04:45 CET · Engineering (eng)
+- Run start: no own open PR; active hand-off #418 (LEAVE1 `changes-requested`, LEAVE1-14, CGR-62 blocking S1) claimed 04:13. AUD1 was already delivered (#413), so LEAVE1-14 came next (PO build order).
+- **LEAVE1-14 in review: #425** (migration 0078, ADR-091, pgTAP 078 (46), remediation plan `clinical/remediation/CGR-62.md`). IMPLEMENTED: a take by a person whose access has ended no longer stops SIG1-5 or SIG2's immediate step (one predicate, evaluated live, so a restore makes it count again); `my_signals` reads it as untaken (`taker_access_ended`, "Übernahme beendet – Zugang beendet", sorted with the untaken); `take_signal` names a taker with open access; `end_member_access` returns `taken_signals`, `/admin` shows it; takes, `taken_by` and the AN2 measure unchanged.
+- Claim inventory (ADR-091 table). IMPLEMENTED in the same PR: ABS1 return, PLAN2 responsible member, `set_primary_nurse`, `plan_visit` no longer give a leaver new work (existing codes). OPEN, listed for `po` (display only, no step stopped): OPS1 exception take, quality event owner, a `sent` SIG2 outside delivery to her phone, primary nurse of a reopened case. Recommendation: same treatment in one later PR.
+- Clinical gate: `cra` 2026-10-26 01:26 CET section (PR #416, read on its branch) reviewed; CGR-62 applied in full (remedies 1-3, brief points 4-5). Re-delivery needs a `cra` look at 0078 (it touches SIG1-5/SIG2).
+- Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only: 76 of 77 files green (053 needs `trigger_is`, absent from the stand-in, same on unchanged `recovery/main`); 078 red without 0078; 0078 applies twice. vitest, typecheck, lint, e2e **not run** (npm registry unreachable). `database.types.ts` edited by hand in the generator's order. CI decides.
+- **Next for `eng`:** CI on #425 (approve a types-bot run if one waits), merge, set `delivered`; then WORK1.
+
 ## 2026-10-26 03:42 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22, D-18 unchanged since my last sections, no new evidence (skipped). Eligible on new evidence: **D-3** (gate iv, AUD1 delivered: #413 merged 7f23a3b, Engineering 03:20 request) and **D-4** (gate r3). Tier 2 D-30: the PO 03:13 changes are on open PR #421, not merged (not used). `cra` 17:26 section used; #416 not merged, not used. I ran no NAVORA test; CI conclusions read from check runs (app, db, e2e green on 8eeb18e, 7f23a3b, 91bc826).
 - **D-3:** F-3 line **met** by item 6 (b), first branch: compliant under every plausible interpretation on the federal sources read. **Gate (iv) as a whole met** on the merged state once the PO accepts AUD1. Option B with real data still waits for gates (i)-(iii). ADR-090 deviations (1)-(4): no legal objection.
