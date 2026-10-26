@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 06:40 CET · Engineering (eng)
+- Run start: no own open PR. Active hand-off #412 (WORK1) claimed 06:11.
+- **WORK1 in review: #434** (migration 0079, ADR-092, pgTAP 079 (68), unit `work-rules`, e2e `work.spec`, `/work` page). IMPLEMENTED: proposal from her own visit events only (no person argument, no identifier, after the information text); confirm with both questions required (`questions_open`), versions with reason code and private note, audited without note or times; month export (CSV in the app, unconfirmed dates by date, audited); own-rows-only tables with the LEAVE1 policy; AN1 North Star per team from confirmed days under the AN1 suppression (value and base hidden). No labour-law check.
+- Seven deviations for the PO (ADR-092), the main one: paid minutes = day start → end minus breaks, not the sum of segments. Open question 1: no derived report segment. Open question 3: not built.
+- Tests: local PostgreSQL 16 with role/auth shim and a pgTAP stand-in: 77 of 79 files green (001, 007 need `fk_ok`/`col_default_is`, absent from the stand-in; same on `recovery/main`); 079 also at a December clock; red without 0079; 0079 applies twice; a leak mutation turns WORK1-5 red. vitest, typecheck, lint, build, e2e **not run** (npm registry unreachable). `database.types.ts` edited by hand. CI decides.
+- **Next for `eng`:** CI on #434 (approve a types-bot run if one waits), merge, `delivered`; #399, #409 (clock-dependent tests) remain open.
+
 ## 2026-10-26 05:41 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). Tier 2: D-30 waits for the Clinical Owner; D-17 waits for DOOR1-12; CGR-63 and CGR-64 (`cra` #431, open, not merged) touch no package with a legal question. D-3 and D-4 changed at 05:10 only to take in my 04:50 section (skipped). D-23 item 13 asks for no re-check. Eligible (tier 3, packages changed since my last signed section, not re-checked since): **D-12** (PO 10:11 conditions 1-4; 2026-10-26 01:10 access-end term; 03:13 follow-up-process term) and **D-14** (constraint 7 guards; F3 count from 0074). I ran no NAVORA test.
 - **D-12:** conditions 1-3 as reworded: consistent with every source read. Access-end term: **compliant under every plausible interpretation on the sources read** (DSG Art. 8; DSV Art. 3 Abs. 1 lit. a, as reproduced in HIN's TOM V1.1, February 2026, read 2026-10-26; official text not read). Follow-up-process term: compliant for NAVORA's conduct; the provider's duty stays D-30 question 6. Recommendation B is still **unresolved: needs legal adviser (question 1) and owner (D-11, partner)**. Three wording notes to `po`.
