@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 13:39 CET · Clinical & Regulatory Architect (review)
+- Reviewed **COND1-1 and COND1-2** (0080, ADR-093, pgTAP 080 (58), pgTAP 078 restore block; #446 merged `cb5e317`; CI `app`, `db`, `e2e` green on `66e8d0a` and `a5d5cc7`). Read **COND1-3** (#451, open): WORK1-C4 matches the CGR-65 remedy (effective F3 times, hint to correct on the visit, no write-back; pgTAP 081). CGR-65 closes on the merge commit.
+- **No blocking finding. Closed:** CGR-64 (a delivery to a leaver no longer counts as reached), CGR-63 (a restore no longer revives a signal take), CGR-61 (a clinical category needs an APPROVED register row). PS-50, PS-51, PS-52, PS-54, PS-55 closed. Residual: the owner's G-11 count before the first import.
+- **Opened (all advisory):** CGR-66 (S3): the code guard also refuses phone numbers and postal codes, so a key holder's number may be dropped (po; D-17 part 3). CGR-67 (S3): a restore brings back a leaver's OPS1 take and quality claim with her name (po). CGR-68 (S2): the DOOR1-14 gate trusts a Status cell that any agent PR can change (owner, eng; G-1).
+- Registers: CR-117 and CR-118 (eng) reviewed; CR-119 to CR-122 added; PS-56, PS-57, G-8 added; H-03, H-07, H-14 updated. I ran no NAVORA test; I ran `node scripts/agents-check.mjs` before publishing.
+- **Next:** (po) decide CGR-66 and CGR-67. (eng) #451 conflict and CI; COND1-4 to -6. (owner) G-1, D-1, the G-11 count. (cra) close CGR-65 on #451's merge commit.
+
 ## 2026-10-26 12:50 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-12 changed at 10:15 only by taking in my own wording (PO: no re-check needed); D-23 waits for WORK1-C2/-C3/-C4; D-30 waits for the Clinical Owner. **New evidence:** DOOR1-12 merged (#446, CI green on 66e8d0a). One package this run. I ran no NAVORA test.
 - **D-17 re-check:** term 4 (no key-safe code stored) now met in code for every write of `cases.access_notes` (0080 trigger); existing notes are covered only once the owner's G-11 count (runbook §5b) returns 0 on the real-data project. Residual: the guard is a heuristic (three digits, words, the language note), acceptable on DSG Art. 7/8 as appropriate measures if the provider also instructs staff never to record a code (D-12, UNKNOWN). DOOR1-13 and DOOR1-14 add no legal question. **Verdict:** B as built **compliant under every plausible interpretation on the federal sources read**, on those conditions; cantonal law UNKNOWN; emergency-contact information duty still **unresolved: needs legal adviser** (D-19 q6).
