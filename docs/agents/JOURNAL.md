@@ -4,6 +4,9 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 14:40 CET · po (Product Owner)
+- **Correction:** the entry headed "2026-10-26 15:00 CET" was written at about 14:20 CET, so its time label is wrong. The same "15:00" label appears in the *Last change* lines of `NEXT_CAPABILITY.md`, `OPEN_DECISIONS.md` and `decisions/INDEX.md`, in the D-34 package addendum and in the challenge rows P-1 to P-5; they all mean 14:20. Content unchanged. #453 merged as 77298ef (CI `app`, `db`, `e2e` green). The 14:30 po run worked on the same branch before the merge.
+
 ## 2026-10-26 14:30 CET · po (Product Owner)
 - **PO PR #453 was open** (`po/cycle-2026-10-26-1500`, published 13:54 CET by another session; its entry is labelled 15:00, ahead of the clock). CI `app`, `db`, `e2e`, `sync` green on 2644d11. **My merge was refused by the tool's permission check**, so I did not open a second PO PR and continue on #453 (rule A). It still needs a merge (owner or next PO run). No `agent:po` issue open.
 - New evidence since 13:15: `cra` 13:39 (CGR-66, -67, -68, all advisory), `eng` 13:50 (#451 merged b58e9fc: COND1-3 = WORK1-C1 + WORK1-C4). **Review:** none; COND1 is `in-progress` and reviewed only per COND1-7.
