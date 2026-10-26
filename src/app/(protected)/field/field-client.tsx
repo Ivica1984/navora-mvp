@@ -31,9 +31,10 @@ import { FACTS_LOCKED_HINT, RETURNED_LOCKED_HINT, countersignItemNote, visitFact
 import ReportSection from "./report-section";
 import { openReportsText } from "@/features/admin/rules";
 import { REASON_LABEL as LIFECYCLE_REASON_LABEL, doorNoteText } from "@/features/lifecycle/rules";
+import { ACCESS_CATEGORY } from "@/features/door/rules";
 import { createReportDraft } from "@/features/field/report-commands";
-import type { CountersignItem, DoorNote, ReturnedItem, SafetyAlert, TeamOpenReport } from "@/features/field/queries";
-import { SafetyAlertRow } from "@/components/door/SafetyAlertForm";
+import type { CountersignItem, DoorNote, ReturnedItem, SafetyAlert, SafetyAlertHistoryEntry, TeamOpenReport } from "@/features/field/queries";
+import { AccessRow, SafetyAlertRow } from "@/components/door/SafetyAlertForm";
 import type { CoverOffer, MyCover } from "@/features/cover/queries";
 import CoverSection from "./cover-section";
 import { AbsenceSection, OpenVisitsSection } from "./absence-section";
@@ -70,6 +71,8 @@ type Props = {
   doorNotes?: DoorNote[];
   /** DOOR1-3/-4 (migration 0073): latest safety-alert value per active category and visit. */
   safetyAlerts?: SafetyAlert[];
+  /** DOOR1-13 (migration 0080): the access arrangement's history, the intake note as its earliest entry. */
+  alertHistory?: SafetyAlertHistoryEntry[];
   /** CSR1 / CGR-25: visits of her teams ended as not completed that still wait for a follow-up decision. */
   openFollowups?: TeamVisitAlert[];
   /** ABS1: absences of her teams, "Offen im Team", and the members she can record an absence for. */
@@ -102,7 +105,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], teamOpenReports = [] }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [] }: Props) {
   const summary = summarizeDay(visits);
   const sinceLastByVisit = groupSinceLast(sinceLast);
 
@@ -243,6 +246,7 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
                   sinceLast={sinceLastByVisit.get(visit.visit_id)}
                   door={doorNotes.find((d) => d.visit_id === visit.visit_id)}
                   alerts={safetyAlerts.filter((a) => a.visit_id === visit.visit_id)}
+                  history={alertHistory.filter((h) => h.case_id === visit.case_id)}
                 />
               </li>
             ))}
@@ -276,6 +280,7 @@ function VisitCard({
   sinceLast,
   door,
   alerts,
+  history,
 }: {
   visit: FieldVisit;
   notes: FieldNote[];
@@ -286,6 +291,7 @@ function VisitCard({
   sinceLast: SinceLast | undefined;
   door: DoorNote | undefined;
   alerts: SafetyAlert[];
+  history: SafetyAlertHistoryEntry[];
 }) {
   const router = useRouter();
   const [pending, setPending] = useState<FieldAction | null>(null);
@@ -341,12 +347,10 @@ function VisitCard({
 
       <dl className="mt-3 grid gap-1 text-sm">
         <Row label="Ort" value={place || "Adresse fehlt – im Team klären"} muted={!place} />
-        {/* DOOR1-1 (migration 0072): what the nurse needs at the door, recorded at intake; never blank. */}
+        {/* DOOR1-1 (migration 0072): what the nurse needs at the door, recorded at intake; never blank. The access line
+            is the one "Zugang" row below (DOOR1-13, 0080). */}
         {visit.case_id && (
-          <>
-            <Row label="Zugang" value={doorNoteText(door?.access_notes)} muted={!door?.access_notes} testId="door-access" />
-            <Row label="Sprache" value={doorNoteText(door?.language_notes)} muted={!door?.language_notes} testId="door-language" />
-          </>
+          <Row label="Sprache" value={doorNoteText(door?.language_notes)} muted={!door?.language_notes} testId="door-language" />
         )}
         <Row label="Leistungen" value={services ?? "Noch nicht erfasst"} muted={!services} />
         {needs && <Row label="Pflegebedarf" value={needs} />}
@@ -371,10 +375,22 @@ function VisitCard({
         />
       </dl>
 
-      {/* DOOR1-4 (migration 0073): safety-alert values, "nicht erfasst" when none; display only (DOOR1-8). */}
-      {visit.case_id && alerts.length > 0 && (
+      {/* DOOR1-4 (migration 0073): safety-alert values, "nicht erfasst" when none; display only (DOOR1-8). DOOR1-13 (0080):
+          the access arrangement and the intake note are one "Zugang" line. */}
+      {visit.case_id && (
         <section aria-label="Sicherheitshinweise" data-testid="safety-alerts" className="mt-3 grid gap-2">
-          {alerts.map((a) => (
+          <AccessRow
+            caseId={visit.case_id}
+            category={(() => {
+              const a = alerts.find((x) => x.category_code === ACCESS_CATEGORY);
+              return a ? { code: a.category_code, label: a.category_label, help_text: a.help_text, refuses_codes: a.refuses_codes } : null;
+            })()}
+            current={alerts.find((x) => x.category_code === ACCESS_CATEGORY && x.value) ?? null}
+            intakeNote={door?.access_notes ?? null}
+            intakeOn={door?.intake_on ?? null}
+            history={history}
+          />
+          {alerts.filter((a) => a.category_code !== ACCESS_CATEGORY).map((a) => (
             <SafetyAlertRow
               key={a.category_code}
               caseId={visit.case_id as string}

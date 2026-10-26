@@ -54,6 +54,14 @@ Only in a **non-live** project (never `jwmfxrmougneeceldhsa`). PLANNED until D-2
 3. Check: `select jobname, schedule from cron.job;` shows `navora-sig1-signals` every minute; after two minutes `/admin` shows "Signalprüfung läuft." and not "Signalprüfung läuft nicht".
 Without step 2 nothing leaves the app from the scheduler; pending pushes fail after 2 minutes and Operations gets the signal at once (fail closed).
 
+## 5b. No code in the intake notes before the first real import (DOOR1-12, G-11, ADR-093) — before the first real client
+Only in the project that will receive the first real data (never `jwmfxrmougneeceldhsa` for tests). Read-only; nothing is changed.
+Since migration 0080 every write of `cases.access_notes` refuses a door or key-safe code ("Bitte keinen Code erfassen"), but a
+note written before the guard stays as it is (no migration rewrites it). Run in the SQL editor:
+`select count(*) from public.cases where private.looks_like_code(access_notes);`
+Go-live needs **0** (gate G-11). If it is not 0, the team or intake edits those notes in the app (the guard then refuses the code);
+nobody copies the note text out of the database. pgTAP 080 holds the same query on a synthetic fixture.
+
 ## 6. Decisions
 Read `docs/engineering/DECISIONS.md` and reply "accept all" or name the ADRs you reject.
 Then merge PR #3 with **"Create a merge commit"**.

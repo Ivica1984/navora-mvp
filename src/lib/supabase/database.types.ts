@@ -1838,7 +1838,7 @@ isOneToOne: false
                            },
 "field_door_notes":
 { Args: { "p_date": string }; Returns: {
-              "access_notes": string,"case_id": string,"language_notes": string,"visit_id": string
+              "access_notes": string,"case_id": string,"intake_on": string,"language_notes": string,"visit_id": string
             }[]
                            },
 "field_notes":
@@ -1848,7 +1848,7 @@ isOneToOne: false
                            },
 "field_quality":
 { Args: { "p_date": string }; Returns: {
-              "at": string,"id": string,"kind": string,"label": string,"own": boolean,"person_name": string,"severity": string,"status": string,"visit_id": string
+              "at": string,"claim_ended": boolean,"id": string,"kind": string,"label": string,"own": boolean,"person_name": string,"severity": string,"status": string,"visit_id": string
             }[]
                            },
 "field_reports":
@@ -1859,6 +1859,11 @@ isOneToOne: false
 "field_returned_reports":
 { Args: Record<PropertyKey, never>; Returns: {
               "client_name": string,"reason": string,"report_id": string,"returned_at": string,"returned_by_name": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string
+            }[]
+                           },
+"field_safety_alert_history":
+{ Args: { "p_date": string }; Returns: {
+              "actor_kind": string,"actor_name": string,"case_id": string,"category_code": string,"from_intake": boolean,"note": string,"recorded_at": string,"source": string,"value": string
             }[]
                            },
 "field_safety_alerts":

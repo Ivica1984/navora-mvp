@@ -138,6 +138,25 @@ export async function getSafetyAlerts(day: string): Promise<SafetyAlert[]> {
   return data ?? [];
 }
 
+export type SafetyAlertHistoryEntry = Database["public"]["Functions"]["field_safety_alert_history"]["Returns"][number];
+
+/**
+ * DOOR1-13: every value of the access arrangement of the day's cases (newest first), then the intake note as the
+ * earliest entry (source referral). public.field_safety_alert_history() (migration 0080, pgTAP 080). Display only.
+ */
+export async function getSafetyAlertHistory(day: string): Promise<SafetyAlertHistoryEntry[]> {
+  const { supabase } = await requireUser();
+
+  const { data, error } = await supabase.rpc("field_safety_alert_history", { p_date: day });
+
+  if (error) {
+    logEvent("error", "field.safety_alert_history_load_failed", errorFields(error));
+    throw new Error("Verlauf der Zugangsregelung konnte nicht geladen werden.");
+  }
+
+  return data ?? [];
+}
+
 export type TeamOpenReport = Database["public"]["Functions"]["team_open_reports"]["Returns"][number];
 
 /**

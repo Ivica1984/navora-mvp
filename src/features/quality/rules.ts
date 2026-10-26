@@ -1,5 +1,7 @@
 // QG1 — quality events and holds: pure helpers (ADR-002). Rules live in the database (migration 0020).
 
+import { TAKE_ENDED } from "@/features/signals/rules";
+
 export const SEVERITIES = ["low", "medium", "high", "critical"] as const;
 export type Severity = (typeof SEVERITIES)[number];
 
@@ -15,6 +17,15 @@ export const EVENT_STATUS_LABEL: Record<string, string> = {
   in_review: "in Prüfung",
   closed: "geschlossen",
 };
+
+/**
+ * LEAVE1-C4 (migration 0080): an event in review whose owner's access has ended reads as untaken: "Übernahme beendet –
+ * Zugang beendet" instead of "in Prüfung", no name. Closing stays open to the team (QG1 unchanged).
+ */
+export function eventStatusText(event: { status: string; claim_ended?: boolean | null }): string {
+  if (event.status === "in_review" && event.claim_ended) return TAKE_ENDED;
+  return EVENT_STATUS_LABEL[event.status] ?? event.status;
+}
 
 /** Serious = high or critical (same rule as OPS1 and the database). */
 export function isSerious(severity: string | null | undefined): boolean {

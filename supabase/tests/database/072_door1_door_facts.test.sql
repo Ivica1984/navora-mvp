@@ -230,11 +230,11 @@ select is((select string_agg(p.oid::regprocedure::text, ',' order by p.oid::regp
            from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname in ('public', 'private') and p.prokind = 'f'
              and p.prosrc ~ '(access_notes|language_notes|at_door|disclosure_basis)'),
-  'field_door_notes(date),field_visit_status_notes(date),intake_cases(),private.apply_case_facts(uuid,jsonb),'
-  'private.guard_door_facts(),private.handover_entries(uuid,uuid),private.no_show_ops_detail(uuid),private.sync_case_tasks(uuid),'
+  'field_door_notes(date),field_safety_alert_history(date),field_visit_status_notes(date),intake_cases(),private.apply_case_facts(uuid,jsonb),'
+  'private.guard_case_access_notes(),private.guard_door_facts(),private.handover_entries(uuid,uuid),private.no_show_ops_detail(uuid),private.sync_case_tasks(uuid),'
   'record_no_show(uuid,text,uuid,boolean),record_no_show_outcome(uuid,text,text,uuid,text)',
-  'DOOR1-9: only intake, the /field readers, HAND1, the commands and the Operations codes line read the notes or facts '
-  '(no AN1, AN2, billing, export or push function)');
+  'DOOR1-9: only intake, the /field readers, HAND1, the commands, the DOOR1-12 write guard and the Operations codes line read '
+  'the notes or facts (no AN1, AN2, billing, export or push function)');
 
 -- DOOR1-8: display only ------------------------------------------------------------------------------------------------
 select is((select count(*)::int from public.case_tasks where case_id = '00000000-0000-4000-a000-000000000208' and kind = 'access_unknown' and status = 'open'),

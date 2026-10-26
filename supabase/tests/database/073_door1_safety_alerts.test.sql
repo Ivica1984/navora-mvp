@@ -123,8 +123,8 @@ select is(pg_temp.owner_state($q$ insert into public.safety_alert_categories (co
   '23514', 'DOOR1-2: a clinical category cannot be inserted without an approval reference (even by the table owner)');
 select is(pg_temp.owner_state($q$ insert into public.safety_alert_categories (code, version, label, class, active_from, source, approval_ref)
                                    values ('door1b_clinical', 1, 'Synthetisch klinisch', 'clinical', current_date + 3650, 'Synthetischer Test',
-                                           'Synthetische Freigabe-Referenz') $q$),
-  'ok', 'DOOR1-2: with an approval reference it can (here a synthetic row that starts in ten years)');
+                                           'CR-999') $q$),
+  'ok', 'DOOR1-2: with an approval reference it can (here a synthetic row that starts in ten years; DOOR1-14: a register reference CR-nnn, 0080)');
 select is((select count(*)::int from private.active_alert_categories(pg_temp.today()) where class = 'clinical'), 0,
   'DOOR1-2: a clinical version is not active before its start date');
 select is(pg_temp.owner_state($q$ update public.safety_alert_categories set label = 'Geändert' where code = 'access_arrangement' $q$),
@@ -253,8 +253,8 @@ select is(pg_temp.owner_state($q$ insert into public.care_visits (organization_i
 select is((select string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text collate "C")
            from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname in ('public', 'private') and p.prokind = 'f' and p.prosrc ~ 'case_safety_alert_values'),
-  'field_safety_alerts(date),private.handover_entries(uuid,uuid),record_safety_alert_value(uuid,text,text,text,text,uuid)',
-  'DOOR1-9: only the /field reader, HAND1 and the command read the values (no AN1, AN2, billing, export, push or Operations function)');
+  'field_safety_alert_history(date),field_safety_alerts(date),private.handover_entries(uuid,uuid),record_safety_alert_value(uuid,text,text,text,text,uuid)',
+  'DOOR1-9: only the /field readers (DOOR1-13 history, 0080), HAND1 and the command read the values (no AN1, AN2, billing, export, push or Operations function)');
 
 select * from finish();
 rollback;

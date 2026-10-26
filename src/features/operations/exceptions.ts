@@ -2,6 +2,7 @@
 // database (public.operations_exceptions, migration 0019); this only formats and groups them.
 
 import { RESPONSIBLE_ABSENT_NOTE } from "@/features/lifecycle/rules";
+import { TAKE_ENDED } from "@/features/signals/rules";
 
 export type ExceptionLike = {
   priority: string;
@@ -76,6 +77,8 @@ export const ALERT_FLAG_LABEL: Record<string, string> = {
   responsible_absent: "Zuständige Person abwesend gemeldet",
   // CSR1 / CGR-34 (migration 0054): stored on the cancellation of a flagged past visit, shown on a late team cancellation.
   not_done_responsible_absent: RESPONSIBLE_ABSENT_NOTE,
+  // LEAVE1-C4 (migration 0080): the take of a person whose access has ended; the item reads as untaken, no name.
+  take_access_ended: TAKE_ENDED,
 };
 
 /** Labels for the known flags of one alert, each once, in the order given; unknown flags are not shown. */

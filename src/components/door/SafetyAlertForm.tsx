@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { recordSafetyAlertValue } from "@/features/door/commands";
 import {
-  ALERT_NOTE_MAX, ALERT_SOURCES, ALERT_SOURCE_LABEL, ALERT_VALUES, alertMetaLine, alertValueError, alertValueText, alertValueTone,
+  ALERT_NOTE_MAX, ALERT_SOURCES, ALERT_SOURCE_LABEL, ALERT_VALUES, accessHistory, accessLine, alertMetaLine, alertValueError, alertValueText,
+  alertValueTone,
 } from "@/features/door/rules";
 
 export type AlertCategoryView = { code: string; label: string; help_text: string | null; refuses_codes: boolean };
@@ -49,6 +50,58 @@ export function SafetyAlertRow({ caseId, category, current }: { caseId: string; 
       {current?.note && <p data-testid="alert-note" className="text-sm">{current.note}</p>}
       {meta && <p data-testid="alert-meta" className="text-xs text-emerald-900/60">{meta}</p>}
       <SafetyAlertForm caseId={caseId} category={category} label="Ändern" defaultSource="team" />
+    </div>
+  );
+}
+
+export type AccessHistoryEntry = AlertValueView & { from_intake: boolean | null };
+
+/**
+ * DOOR1-13 (migration 0080): the one "Zugang" line of the card. The latest access-arrangement value (who, when, source);
+ * without one the intake note "aus der Aufnahme" with the intake date; neither: "nicht erfasst". Once a value exists,
+ * the intake note appears only in the history, as its earliest entry. Display only (DOOR1-8).
+ */
+export function AccessRow({
+  caseId, category, current, intakeNote, intakeOn, history,
+}: {
+  caseId: string;
+  category: AlertCategoryView | null;
+  current: AlertValueView | null;
+  intakeNote: string | null;
+  intakeOn: string | null;
+  history: AccessHistoryEntry[];
+}) {
+  const line = accessLine({ intakeNote, intakeOn, current });
+  const tone = line.kind === "value" ? alertValueTone(current?.value) : "none";
+  const past = accessHistory(history);
+  return (
+    <div data-testid="alert-access_arrangement" data-access-kind={line.kind} className="grid gap-1 rounded-lg bg-stone-50 p-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-sm font-semibold">Zugang</span>
+        {line.kind !== "intake" && (
+          <span data-testid="alert-value" data-tone={tone} className={`rounded-full px-3 py-0.5 text-xs font-bold ${TONE_CLASS[tone]}`}>
+            {line.kind === "value" ? line.value : line.text}
+          </span>
+        )}
+      </div>
+      {line.kind === "value" && line.note && <p data-testid="alert-note" className="text-sm">{line.note}</p>}
+      {line.kind === "intake" && <p data-testid="alert-note" className="text-sm">{line.note}</p>}
+      {line.kind !== "none" && line.meta && <p data-testid="alert-meta" className="text-xs text-emerald-900/60">{line.meta}</p>}
+      {past.length > 0 && (
+        <details data-testid="alert-history" className="text-xs">
+          <summary className="min-h-11 cursor-pointer py-2 font-semibold">Verlauf ({past.length})</summary>
+          <ol className="grid gap-1">
+            {past.map((h, i) => (
+              <li key={i} data-testid="alert-history-entry" className="rounded border border-stone-200 bg-white p-2">
+                {h.value && <span className="font-semibold">{h.value}</span>}
+                {h.note && <p className="text-sm">{h.note}</p>}
+                <p className="text-emerald-900/60">{h.meta}</p>
+              </li>
+            ))}
+          </ol>
+        </details>
+      )}
+      {category && <SafetyAlertForm caseId={caseId} category={category} label="Ändern" defaultSource="team" />}
     </div>
   );
 }

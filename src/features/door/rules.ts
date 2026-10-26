@@ -87,3 +87,60 @@ export function alertHandoverLines(detail: Record<string, unknown>): string[] {
     str(detail.note),
   ].filter((l): l is string => Boolean(l));
 }
+
+// DOOR1-13 (migration 0080, ADR-093): one "Zugang" line on the card, never two competing records of the same thing.
+export const ACCESS_CATEGORY = "access_arrangement";
+export const FROM_INTAKE = "aus der Aufnahme";
+
+const dayFormat = new Intl.DateTimeFormat("de-CH", { timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit", year: "numeric" });
+
+/** "25.10.2026" from a date ("2026-10-25") or an instant. */
+export function formatDay(value: string): string {
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T12:00:00Z`) : new Date(value);
+  return dayFormat.format(date);
+}
+
+export type AccessLine =
+  | { kind: "value"; value: string; note: string | null; meta: string | null }
+  | { kind: "intake"; note: string; meta: string }
+  | { kind: "none"; text: typeof NOT_RECORDED };
+
+/**
+ * The one "Zugang" line. A recorded access-arrangement value wins (latest value, who, when, source); without one, the
+ * intake note "aus der Aufnahme" with the case's intake date; neither: "nicht erfasst".
+ */
+export function accessLine(input: {
+  intakeNote: string | null | undefined;
+  intakeOn: string | null | undefined;
+  current: { value: string | null; note: string | null; source: string | null; recorded_at: string | null; actor_kind: string | null; actor_name: string | null } | null | undefined;
+}): AccessLine {
+  const current = input.current;
+  if (current?.value) {
+    return { kind: "value", value: alertValueText(current.value), note: current.note?.trim() || null, meta: alertMetaLine(current) };
+  }
+  const note = input.intakeNote?.trim();
+  if (note) return { kind: "intake", note, meta: [FROM_INTAKE, input.intakeOn ? formatDay(input.intakeOn) : null].filter(Boolean).join(" · ") };
+  return { kind: "none", text: NOT_RECORDED };
+}
+
+export type AccessHistoryLine = { value: string | null; note: string | null; meta: string };
+
+/**
+ * The history of the access arrangement, newest first; the intake note is its earliest entry (source referral). Shown
+ * only once a value exists: before that the intake note is the line itself.
+ */
+export function accessHistory(
+  entries: readonly { value: string | null; note: string | null; source: string | null; recorded_at: string | null; actor_kind: string | null; actor_name: string | null; from_intake: boolean | null }[],
+): AccessHistoryLine[] {
+  if (!entries.some((e) => !e.from_intake)) return [];
+  const values = entries.filter((e) => !e.from_intake);
+  const intake = entries.filter((e) => e.from_intake);
+  return [
+    ...values.map((e) => ({ value: alertValueText(e.value), note: e.note, meta: alertMetaLine(e) ?? "" })),
+    ...intake.map((e) => ({
+      value: null,
+      note: e.note,
+      meta: [FROM_INTAKE, e.recorded_at ? formatDay(e.recorded_at) : null, alertSourceText("referral")].filter(Boolean).join(" · "),
+    })),
+  ];
+}

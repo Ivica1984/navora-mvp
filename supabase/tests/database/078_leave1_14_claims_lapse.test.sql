@@ -1,5 +1,6 @@
 -- LEAVE1-14: nothing she claimed keeps others from acting once her access ends (migration 0078, ADR-091). Brief
 -- `docs/agents/briefs/LEAVE1.md` LEAVE1-14 (PO 2026-10-26 02:14 CET); `cra` CGR-62 (blocking, S1).
+-- LEAVE1-C3 (COND1-1, migration 0080, ADR-093): the restore block follows option (a) (a restore does not revive a take).
 -- Users: registered nurse …902 and care assistant …906 (org A, Testteam Nord …101) · operations …904 · admin …905
 -- (org A …011). Synthetic user added here: …7801, a registered nurse of Testteam Nord, the leaver. Case …208 (org A,
 -- Testteam Nord). All data synthetic; every step goes through the real commands, except the steps marked
@@ -7,7 +8,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(46);
+select plan(50);
 
 -- Pinned clock (DST1 pattern, #399/#409 class): 10:00 Zurich today, so no step depends on the hour CI runs.
 select set_config('navora.test_now',
@@ -167,33 +168,42 @@ select ok((select r ->> 'taken_by_name' is not null and not (r ->> 'taker_access
 select ok(pg_temp.position(11) < pg_temp.position(12),
   'sorted with the untaken signals: the older signal 11 comes before the newer, taken signal 12');
 
--- A restore before the step makes her take count again.
-select is(pg_temp.admin('restore', 11) ->> 'result', 'ok', 'fixture: her access is restored');
-select ok(private.signal_taken_stops_step(pg_temp.sig(11)), 'after the restore her take counts again');
+-- LEAVE1-C3 (CGR-63, option (a), migration 0080; replaces the 0078 "restore revives the take" block): a restore before
+-- the step does not revive her earlier take.
+select is(pg_temp.admin('restore', 11) ->> 'result', 'ok', 'fixture: her access is restored before the step');
+select ok(not private.signal_taken_stops_step(pg_temp.sig(11)),
+  'LEAVE1-C3: after the restore her earlier take (recorded before her access end) does not stop the step');
+select is((select (r ->> 'taker_access_ended')::boolean from (select pg_temp.seen(11) as r) x), true,
+  'LEAVE1-C3: the team still reads "Übernahme beendet – Zugang beendet" after the restore; the signal stays in the open list');
 select pg_temp.eval();
-select ok(not pg_temp.escalated(11) and pg_temp.ops(11) = 0, 'restored before the step → the step does not fire');
-select is((select (r ->> 'taker_access_ended')::boolean from (select pg_temp.seen(11) as r) x), false,
-  'restored → the team reads her take again');
-
--- Ended again: the step fires once.
-select is(pg_temp.admin('end', 12) ->> 'taken_signals', '1', 'her access ends again; the result names 1 open signal');
-select pg_temp.eval();
-select ok(pg_temp.escalated(11), 'LEAVE1-14 (1): after the signal_untaken threshold since the start, evaluate_signals sets escalated_at');
+select ok(pg_temp.escalated(11), 'LEAVE1-C3: SIG1-5 fires at the threshold (the signal started 20 minutes ago)');
 select is(pg_temp.ops(11), (select count(*)::int from private.signal_operations_users('00000000-0000-4000-b000-000000000011')),
   'and delivers to Operations');
 select ok(pg_temp.ops(11) >= 1, 'fixture: Operations has at least one receiver');
 select ok(not pg_temp.escalated(12) and pg_temp.ops(12) = 0, 'the colleague''s take still holds signal 12');
+
+-- She takes it again after the restore: that take counts (a new row; the earlier one stays as recorded).
+select is(pg_temp.take(7801, 11, 5) ->> 'result', 'ok', 'LEAVE1-C3: she takes the signal again after the restore');
+select ok(private.signal_taken_stops_step(pg_temp.sig(11)), 'LEAVE1-C3: her take after the restore stops the step');
+select is((select (r ->> 'taker_access_ended')::boolean from (select pg_temp.seen(11) as r) x), false,
+  'LEAVE1-C3: the team reads her new take');
+select is((select count(*)::int from public.signal_takes where signal_id = pg_temp.sig(11) and taker_id = pg_temp.u(7801)), 2,
+  'LEAVE1-C3: the new take is appended; the earlier take stays');
+
+-- Ended again: her new take lapses too.
+select is(pg_temp.admin('end', 12) ->> 'taken_signals', '1', 'her access ends again; the result names 1 open signal (her new take of 11)');
+select ok(not private.signal_taken_stops_step(pg_temp.sig(11)), 'after the second end no take of hers stops the step');
 create temp table before_ops as select pg_temp.ops(11) as n;
 select pg_temp.eval();
 select is(pg_temp.ops(11), (select n from before_ops), 'once: a second evaluation delivers nothing more');
 
 -- LEAVE1-14 (4): nothing is rewritten.
 select is((select string_agg(right(taker_id::text, 4) || ':' || stops_escalation, ',') from public.signal_takes
-           where signal_id = pg_temp.sig(11)), '7801:true', 'her take stays as recorded (append-only)');
+           where signal_id = pg_temp.sig(11)), '7801:true,7801:true', 'her takes stay as recorded (append-only)');
 select is((select taken_by from public.safety_signals where id = pg_temp.sig(11)), pg_temp.u(7801),
   'safety_signals.taken_by stays the first take');
 select is(private.signal_qualified_taken_at(pg_temp.sig(11)),
-          (select taken_at from public.signal_takes where signal_id = pg_temp.sig(11) and taker_id = pg_temp.u(7801)),
+          (select min(taken_at) from public.signal_takes where signal_id = pg_temp.sig(11) and taker_id = pg_temp.u(7801)),
   'the SIGC/AN2 response measure keeps the historical take');
 
 -- A colleague can take it now; "already taken" then names her, not the leaver.
@@ -226,7 +236,8 @@ where id in (select d.id from public.signal_deliveries d where d.signal_id = pg_
 set local session_replication_role = origin;
 select pg_temp.eval();
 select ok(not pg_temp.escalated(13), 'before the end: nobody reached outside the app, but her take holds the immediate step');
-select is(pg_temp.admin('end', 24) ->> 'taken_signals', '2', 'her access ends; the result names 2 open signals (11 and 13)');
+select is(pg_temp.admin('end', 24) ->> 'taken_signals', '1',
+  'her access ends; the result names 1 open signal (13; her takes of 11 lapsed at the earlier ends, LEAVE1-C3)');
 select pg_temp.eval();
 select ok(pg_temp.escalated(13) and (select outside_none_at is not null from public.safety_signals where id = pg_temp.sig(13)),
   'LEAVE1-14 (1): SIG2''s immediate step fires as for an untaken signal');
