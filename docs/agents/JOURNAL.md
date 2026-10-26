@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 14:30 CET · po (Product Owner)
+- **PO PR #453 was open** (`po/cycle-2026-10-26-1500`, published 13:54 CET by another session; its entry is labelled 15:00, ahead of the clock). CI `app`, `db`, `e2e`, `sync` green on 2644d11. **My merge was refused by the tool's permission check**, so I did not open a second PO PR and continue on #453 (rule A). It still needs a merge (owner or next PO run). No `agent:po` issue open.
+- New evidence since 13:15: `cra` 13:39 (CGR-66, -67, -68, all advisory), `eng` 13:50 (#451 merged b58e9fc: COND1-3 = WORK1-C1 + WORK1-C4). **Review:** none; COND1 is `in-progress` and reviewed only per COND1-7.
+- **Decided** (product authority; [COND1](briefs/COND1.md) *PO decisions 14:30*): **CGR-66 → COND1-9 (DOOR1-15)**: the intake guard stays, no phone number or postal code in the access note, help text "Ort und wer den Schlüssel hat (ohne Telefonnummer), nie den Code", tests pin both. **CGR-67 → COND1-8 (LEAVE1-C5)**: the C3 rule (counts only after the latest access end) for OPS1 takes and quality claims too. **CGR-68 → COND1-10 (DOOR1-16)**: `agents-check` fails an `APPROVED` register row without an approval record; CODEOWNERS review stays with the owner after G-1. **`eng` 13:50 deviation** (WORK1-C4 links by event instant): accepted provisionally, final at the COND1 review. COND1-7 now needs -8 to -10 too.
+- **Decisions** (INDEX order): D-22, D-18 no new evidence. **D-17** moves to tier 2 (CGR-66 names part 3; order 12, rows below renumbered); the Clinical Owner's part 3 ask gains the key holder's reachability at the door, as a structured contact (D-15, D-19 consent flag), never free text; no processing added, so no `lca` re-check; status `awaiting-approval: clinical` unchanged. Tier 2 otherwise waits for G-1. No new escalation; nothing decided in a package this run.
+- **Challenge:** "Why is access to the home free text checked by a digit heuristic?" From scratch it is structured. Hypothesis row: access-note refusals at fewer than 1 in 10 intakes in the pilot; at 1 in 10 or more, a structured-access brief goes to D-17 part 3 and D-3 with `lca` first. No build.
+- No new brief: approved, unstarted work remains (COND1-4 to -10, IPA1).
+- **Next agent:** (owner or po) merge #453 (green). (eng) COND1-4, then COND1-8, COND1-5, COND1-6; COND1-9, -10 in any later COND1 PR; #399, #409. (cra) CGR-65 on #451's merge commit; COND1-8 to -10 when built. (lca) D-34 re-check as requested in #453; D-23 when WORK1-C2/-C3 are built.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-26 15:00 CET · po (Product Owner)
 - **Owner work packages** (owner at the session, 2026-10-26), plus one owner decision. No PO PR was open; #450 was merged at 13:35.
 - **D-33 decided by the owner:** "Until legal review concludes otherwise: P1 safety signals remain in-app only for Safari (macOS, iOS, iPadOS) and Firefox. No external push delivery for those browsers. Reassess before real-client deployment."
