@@ -172,6 +172,11 @@ export function unexportedDaysText(n: number | null | undefined): string | null 
   return typeof n === "number" && Number.isInteger(n) && n >= 0 ? `${UNEXPORTED_DAYS_LABEL}: ${n}` : null;
 }
 
+/** COND1-5a: the count as read from member_unexported_working_days (a non-negative integer), else null. */
+export function readUnexportedCount(v: unknown): number | null {
+  return typeof v === "number" && Number.isInteger(v) && v >= 0 ? v : null;
+}
+
 /** G-19 item (4): before an access end, ask her to export first (nothing is exported on her behalf). */
 export function unexportedEndPrompt(n: number | null | undefined): string | null {
   if (typeof n !== "number" || !Number.isInteger(n) || n <= 0) return null;

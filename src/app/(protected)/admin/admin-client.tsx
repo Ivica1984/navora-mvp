@@ -4,7 +4,7 @@ import { useState, useTransition, type ReactNode } from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import type { AdminData, AdminExceptionRule, AdminMember, AdminTeam } from "@/features/admin/queries";
 import {
-  addTeamMember, createTeam, deactivateTeam, endMemberAccess, inviteMember, removeTeamMember, resetExceptionRule,
+  addTeamMember, createTeam, deactivateTeam, endMemberAccess, inviteMember, memberUnexportedDays, removeTeamMember, resetExceptionRule,
   restoreMemberAccess, revokeInvitation, setDisplayName, setExceptionRule, setMemberQualification, setMemberRole,
   setResponseDeadline, updateTeam,
 } from "@/features/admin/commands";
@@ -207,7 +207,13 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
   const [ended, setEnded] = useState<string | null>(null);
   const state = data.access[member.user_id];
   const open = data.openReports[member.user_id] ?? [];
-  const unexported = data.unexportedDays[member.user_id];
+  // COND1-5a (PO 16:20): her unexported-days count is read when the end step opens, never shown in the row itself.
+  const [unexported, setUnexported] = useState<number | null>(null);
+  const openEnd = () => {
+    setMode("end");
+    setUnexported(null);
+    memberUnexportedDays({ userId: member.user_id }).then(setUnexported, () => setUnexported(null));
+  };
   return (
     <div className="grid gap-1 text-sm" aria-label="Zugang">
       {state?.ended && (
@@ -224,17 +230,13 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
             ))}
           </ul>
         )}
-        {unexportedDaysText(unexported) && (
-          // WORK1-C3 (a): one number for this person now, administrators only (no dates, months or content).
-          <p data-testid="unexported-days" className="text-stone-700">{unexportedDaysText(unexported)}</p>
-        )}
       </div>
       {ended && <p role="status" data-testid="access-ended-notice" className="font-semibold text-amber-900">{ended}</p>}
       {mode === "idle" && (
         <div className="flex flex-wrap gap-2">
           {state?.ended
             ? <button type="button" className={secondary} onClick={() => setMode("restore")}>Zugang wiederherstellen</button>
-            : <button type="button" className={secondary} onClick={() => setMode("end")}>Zugang beenden</button>}
+            : <button type="button" className={secondary} onClick={openEnd}>Zugang beenden</button>}
         </div>
       )}
       {mode !== "idle" && (
@@ -258,6 +260,10 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
           </label>
           <button type="submit" disabled={pending} className={button}>{mode === "end" ? "Zugang beenden" : "Wiederherstellen"}</button>
           <button type="button" className={secondary} onClick={() => setMode("idle")}>Abbrechen</button>
+          {mode === "end" && unexportedDaysText(unexported) && (
+            // WORK1-C3 (a), COND1-5a: one number for this person now, administrators only, in the end step only.
+            <p data-testid="unexported-end-count" className="w-full text-xs text-stone-700">{unexportedDaysText(unexported)}</p>
+          )}
           {mode === "end" && unexportedEndPrompt(unexported) && (
             // G-19 item (4): ask her to export first; nothing is exported on her behalf.
             <p data-testid="unexported-end-prompt" className="w-full text-xs font-semibold text-amber-900">{unexportedEndPrompt(unexported)}</p>

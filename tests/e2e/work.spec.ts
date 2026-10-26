@@ -6,7 +6,8 @@ import { expect, test, type Page } from "@playwright/test";
 // supabase/seed.sql: assist.test (care assistant, Testteam Nord). The day is three days back, a day without her visit
 // events, so start, end and both questions are hers to enter (gaps are never filled).
 // COND1-5 (migration 0083, ADR-096): the seed gives assist.test a v1 acknowledgement, so she is shown v2 first
-// (WORK1-C2); her own count of unexported days on /work and the administrator's count on /admin (WORK1-C3).
+// (WORK1-C2); her own count of unexported days on /work and the administrator's count on /admin (WORK1-C3), shown only
+// in the access-end step (COND1-5a, PO 16:20).
 const NURSE = "assist.test@navora.test";
 const ADMIN = "admin.test@navora.test"; // org A, role admin
 const PASSWORD = "navora-local-only";
@@ -94,7 +95,7 @@ test("the nurse confirms, corrects and exports her working day (WORK1-2, -3, -4,
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
-test("the administrator sees her unexported days as one number in the /admin list (WORK1-C3)", async ({ page }) => {
+test("the administrator sees her unexported days only in the access-end step (WORK1-C3, COND1-5a)", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   // She confirms one more day (four days back, no visit events) and does not export it.
   const day = zurichDay(-4);
@@ -106,21 +107,25 @@ test("the administrator sees her unexported days as one number in the /admin lis
   await page.getByRole("group", { name: "Arbeit ausserhalb der Einsätze?" }).getByLabel("Keine", { exact: true }).check();
   await page.getByRole("button", { name: "Arbeitstag bestätigen" }).click();
   await expect(page.getByRole("heading", { name: "Bestätigt (Fassung 1)" })).toBeVisible();
+  // Her own count on /work is unchanged by COND1-5a.
   await expect(page.getByTestId("unexported-days")).toContainText("1 bestätigter Tag ist noch nicht exportiert.");
   await page.context().clearCookies();
 
-  // The administrator of her organisation sees one number in the LEAVE1-12 list, no date, month or time.
+  // COND1-5a: the member row itself shows no count (no standing per-person figure).
   await signIn(page, ADMIN, /\/operations$/);
   await page.goto("/admin");
   const row = page.getByRole("region", { name: "Mitglieder" }).locator('li[aria-label^="Mitglied "]', { hasText: NURSE });
-  const count = row.getByTestId("unexported-days");
+  await expect(row.getByRole("button", { name: "Zugang beenden" })).toBeVisible();
+  await expect(row.getByTestId("unexported-days")).toHaveCount(0);
+  await expect(row).not.toContainText("Bestätigte Tage, die sie noch nicht exportiert hat");
+  // After choosing to end her access: one number (no date, month or time) and the G-19 item (4) prompt (not ended here).
+  await row.getByRole("button", { name: "Zugang beenden" }).click();
+  const count = row.getByTestId("unexported-end-count");
   await expect(count).toHaveText("Bestätigte Tage, die sie noch nicht exportiert hat: 1");
   await expect(count).not.toContainText(day.slice(0, 7));
-  // G-19 item (4): before ending her access, the administrator is asked to have her export first (not ended here).
-  await row.getByRole("button", { name: "Zugang beenden" }).click();
   await expect(row.getByTestId("unexported-end-prompt")).toContainText("Sie hat 1 bestätigten Tag noch nicht exportiert.");
-  await row.getByRole("button", { name: "Abbrechen" }).click();
-
   // Phone width: /admin keeps its desktop sidebar layout (as push.spec SIG2-C1), so the count's own box must not overflow.
   expect(await count.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
+  await row.getByRole("button", { name: "Abbrechen" }).click();
+  await expect(row.getByTestId("unexported-end-count")).toHaveCount(0);
 });

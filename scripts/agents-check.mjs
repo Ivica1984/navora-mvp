@@ -10,7 +10,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AWAITING, PACKAGE_STATUS, readPackageIndex } from "./agents-coordination/parse.mjs";
-import { clinicalCategoryErrors } from "./agents-coordination/clinical-categories.mjs";
+import { approvalRecordErrors, clinicalCategoryErrors } from "./agents-coordination/clinical-categories.mjs";
 
 const DIR = process.env.AGENTS_DIR ?? join(dirname(fileURLToPath(import.meta.url)), "..", "docs", "agents");
 
@@ -179,14 +179,22 @@ for (const d of open) {
 }
 
 // DOOR1-14 (CGR-61, ADR-093): a clinical safety-alert category needs an APPROVED Clinical Rule Register row.
-// MIGRATIONS_DIR overrides the folder (tests); the register is read from the agents folder.
+// MIGRATIONS_DIR overrides the folder (tests); the register is read from the agents folder (CLINICAL_DIR overrides
+// the clinical folder, tests only).
 const MIGRATIONS = process.env.MIGRATIONS_DIR ?? join(dirname(fileURLToPath(import.meta.url)), "..", "supabase", "migrations");
+const CLINICAL = process.env.CLINICAL_DIR ?? join(DIR, "clinical");
+const registerPath = join(CLINICAL, "CLINICAL_RULE_REGISTER.md");
+const registerText = existsSync(registerPath) ? readFileSync(registerPath, "utf8") : null;
 if (existsSync(MIGRATIONS)) {
   const files = readdirSync(MIGRATIONS).filter((f) => f.endsWith(".sql")).sort()
     .map((name) => ({ name, sql: readFileSync(join(MIGRATIONS, name), "utf8") }));
-  const registerPath = join(DIR, "clinical", "CLINICAL_RULE_REGISTER.md");
-  errors.push(...clinicalCategoryErrors(files, existsSync(registerPath) ? readFileSync(registerPath, "utf8") : null));
+  errors.push(...clinicalCategoryErrors(files, registerText));
 }
+// COND1-10 = DOOR1-16 (CGR-68, ADR-097): an APPROVED register row needs an approval record clinical/approvals/CR-nnn.md.
+errors.push(...approvalRecordErrors(registerText, (rel) => {
+  const p = join(CLINICAL, rel);
+  return existsSync(p) ? readFileSync(p, "utf8") : null;
+}));
 
 if (errors.length) {
   console.error("docs/agents is inconsistent:\n- " + errors.join("\n- "));

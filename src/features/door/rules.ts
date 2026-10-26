@@ -21,6 +21,12 @@ export const ALERT_SOURCE_LABEL: Record<AlertSource, string> = {
 export const ALERT_NOTE_MAX = 300;
 export const NOT_RECORDED = "nicht erfasst";
 export const CODE_REFUSED = "Bitte keinen Code erfassen";
+/**
+ * COND1-9 = DOOR1-15 (PO 2026-10-26 14:30, CGR-66): the help text under "Zugang zur Wohnung" at intake, the same text as
+ * the DOOR1-4 note (category access_arrangement version 2, migration 0084). The code guard stays: a phone number or a
+ * postal code (four digits or more in a row) is refused like a code.
+ */
+export const ACCESS_HELP_TEXT = "Ort und wer den Schlüssel hat (ohne Telefonnummer), nie den Code";
 
 /**
  * DOOR1-4 guard: four or more digits in a row, also with single spaces, dots, commas, colons, slashes or dashes between

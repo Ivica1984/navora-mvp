@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CODE_REFUSED, FROM_INTAKE, NOT_RECORDED, accessHistory, accessLine, looksLikeCode } from "@/features/door/rules";
+import { ACCESS_HELP_TEXT, CODE_REFUSED, FROM_INTAKE, NOT_RECORDED, accessHistory, accessLine, looksLikeCode } from "@/features/door/rules";
 import { alertFlagLabels, handlerLabel } from "@/features/operations/exceptions";
 import { eventStatusText } from "@/features/quality/rules";
 import { TAKE_ENDED } from "@/features/signals/rules";
@@ -61,6 +61,16 @@ describe("DOOR1-12: the same code guard for the intake note", () => {
     });
   it("names the refusal in the fixed text", () => {
     expect(CODE_REFUSED).toBe("Bitte keinen Code erfassen");
+  });
+});
+
+describe("COND1-9 = DOOR1-15: the guard stays; the help text names the phone number", () => {
+  it.each([["079 123 45 67", true], ["8004 Zürich", true], ["Schlüssel bei der Tochter, Hintereingang", false]])(
+    "%s → refused: %s", (note, refused) => {
+      expect(looksLikeCode(note)).toBe(refused);
+    });
+  it("reads exactly as decided (intake and the DOOR1-4 note, migration 0084)", () => {
+    expect(ACCESS_HELP_TEXT).toBe("Ort und wer den Schlüssel hat (ohne Telefonnummer), nie den Code");
   });
 });
 

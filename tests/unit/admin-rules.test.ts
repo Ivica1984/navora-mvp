@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ACCESS_END_REASONS, ACCESS_REASON_LABEL, ACCESS_RESTORE_REASONS, ADMIN_MESSAGES, accessEndedNotice, accessStateByUser, allowedPriorities,
   changedLabel, checkRuleInput, countOpenReports, isValidEmail, openReportsText, readAccessEndResult, readRemovalResult, releasedNotice,
-  UNEXPORTED_DAYS_LABEL, unexportedDaysText, unexportedEndPrompt,
+  UNEXPORTED_DAYS_LABEL, readUnexportedCount, unexportedDaysText, unexportedEndPrompt,
   RULES_INTRO, stricterHint,
 } from "@/features/admin/rules";
 
@@ -160,6 +160,15 @@ describe("WORK1-C3: the unexported-days count on /admin", () => {
     expect(unexportedDaysText(null)).toBeNull();
     expect(unexportedDaysText(undefined)).toBeNull();
     expect(unexportedDaysText(-1)).toBeNull();
+  });
+
+  it("COND1-5a: reads the count fetched for the end step (a non-negative integer, else nothing to show)", () => {
+    expect(readUnexportedCount(1)).toBe(1);
+    expect(readUnexportedCount(0)).toBe(0);
+    expect(readUnexportedCount(null)).toBeNull();
+    expect(readUnexportedCount(-1)).toBeNull();
+    expect(readUnexportedCount(1.5)).toBeNull();
+    expect(readUnexportedCount("1")).toBeNull();
   });
 
   it("prompts the administrator to ask her to export before the end (G-19 item 4), only when there are some", () => {

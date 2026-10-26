@@ -10,7 +10,7 @@ import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
 import {
   ACCESS_END_REASONS, ACCESS_RESTORE_REASONS, ADMIN_MESSAGES, DEADLINE_UNITS, PRIORITIES, QUALIFICATIONS, REFERRAL_TYPES, ROLES,
-  readAccessEndResult, readRemovalResult, type OpenReportCounts,
+  readAccessEndResult, readRemovalResult, readUnexportedCount, type OpenReportCounts,
 } from "./rules";
 
 const key = z.uuid();
@@ -171,6 +171,23 @@ export async function endMemberAccess(input: unknown): Promise<AccessEndResult> 
   const { code, openReports, released, takenSignals, unexportedDays } = readAccessEndResult(data);
   const result = interpret("end_member_access", { data: error ? null : code, error });
   return result.ok ? { ok: true, openReports, released, takenSignals, unexportedDays } : result;
+}
+
+/**
+ * WORK1-C3 (a) with COND1-5a (PO 16:20): her confirmed days not yet exported, one number, read only when an
+ * administrator opens the access-end step for her (the database answers administrators of her organisation only;
+ * anyone else gets null). Not loaded with the member list: no standing per-person figure on /admin.
+ */
+export async function memberUnexportedDays(input: unknown): Promise<number | null> {
+  const p = z.object({ userId: z.uuid() }).safeParse(input);
+  if (!p.success) return null;
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("member_unexported_working_days", { p_user_id: p.data.userId });
+  if (error) {
+    logEvent("warn", "admin.unexported_days_failed", errorFields(error));
+    return null;
+  }
+  return readUnexportedCount(data);
 }
 
 /** LEAVE1-7: restores exactly the access she had (memberships were never removed). */
