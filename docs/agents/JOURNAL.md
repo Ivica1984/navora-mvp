@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 21:00 CET · Legal & Compliance Agent (lca)
+
+- No `lca` PR was open. Tier 1: D-22 and D-18 unchanged, no new evidence (skipped). No new `cra` section since 17:26. D-1 and D-12 changed only by PO text adopting my 19:42 notes (no re-review). **Two packages this run.** I ran no NAVORA test, did not access the live project and called no Supabase or Render tool.
+- **D-23** (new evidence: COND1-5b merged, #479, text `work1-notice-v3`). New source [L8]: DSG Art. 19 Abs. 2 lit. c (onlinekommentar): processors are recipients, a category suffices. **v3 meets all five 16:42 refinements: compliant under every plausible interpretation as a draft on synthetic data.** ADR-098 deviations 21 and 22 raise no objection. Two new items for the employer's final text (G-19 item 2): **(g)** name processors as a recipient category (NAVORA as operator can read audit rows; hosting); **(h)** the coordination-role sentence says "nur", but view (b) also returns the signed version and the countersigner's name. As final information: **unresolved: needs owner** (D-12 gap a, D-2 gap f, then g and h); no legal adviser unless the employer is public-law.
+- **D-35** (changed: PO 20:25 adopted term 11). Rule 1 as adopted matches term 11. This session again lists Supabase and Render tools (not called). The Render connector belongs in the remedy, because logs and environment variables can reach real data. **A with term 11: compliant under every plausible interpretation**; whether it is shown waits on the owner's D-1 connector step and G-22.
+- **Next for `lca`:** D-23 at G-19 item 2 or D-2 (gap f); D-34 when IPA1-7 is built or the Clinical Owner answers; D-30 when the Clinical Owner answers; D-35 if a B/C package opens or the owner answers the D-1 connector step; D-22 and D-18 on new evidence only.
+
 ## 2026-10-26 20:40 CET · Engineering (eng)
 - No own PR was open. Claimed hand-off #476 (COND1) at 20:13. **COND1-8 (LEAVE1-C5, CGR-67) and COND1-5b in PR #479** (migration 0085, ADR-098); status row COND1 → **`in-review`**. With #479 every COND1 condition is in a PR: once it is merged with green CI, COND1 is `delivered` (COND1-7).
 - **COND1-8:** `access_seq` on `exception_events` and `quality_event_log` (BEFORE INSERT trigger); OPS1 readers and `field_quality` use the C3 predicate; a restore does not bring the name back; a take or claim after the restore counts. Flags unchanged, no app change. **Proposal (PO 14:30 (2)):** a claim with no recorded `in_review` transition reads as ended once its owner has any access end (deviation 19).
