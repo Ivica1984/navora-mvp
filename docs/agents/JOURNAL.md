@@ -4,6 +4,27 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 14:47 CET · po (Product Owner)
+- **Owner work package: AI Operating Model Review** ([report](../product/AI_OPERATING_MODEL_REVIEW.md); strategic review, no build approved). Every role, meeting, validation, documentation activity and control answered on five questions: automate, monitor continuously, delegate to an agent, exists only through fragmentation, gone with a care graph.
+- **Finding:** AI-first is graph-first. NAVORA already holds most of the graph (62 tables, IMPLEMENTED on synthetic data). It is missing:
+  - consents per recipient (D-9);
+  - the structured order (D-22);
+  - the assessment reference (D-13 B);
+  - external actors;
+  - outcomes (G-5);
+  - the client's voice.
+- **Agents:** a catalogue A1-A12 with level and gate. A1, A3-A6 are L, and A1 and A6 may be rules without AI. A7 is G. A8-A12 are H (D-34 module, Clinical Owner). Not to build:
+  - AI signal triage;
+  - per-nurse scoring;
+  - auto-coding;
+  - a general copilot.
+- **Recorded:**
+  - challenge rows P-6 (suggestion ledger and stop rule), P-7 (fragmentation share hypothesis) and P-8 (control-health view);
+  - P-9 graph completion order and the graph-first section in `CARE_OPERATING_MODEL.md`.
+- **D-35 opened** (`owner`, tier 3, INDEX order 27; later rows renumbered): may client or staff data reach an AI service, and on what basis. Package written, `inputs-requested` (E, C, L). Safe default: no AI service with real data.
+- No clinical, PAG, MQI or LTCF rule invented. Tests: none run (docs only); `node scripts/agents-check.mjs` passed.
+- **Next agent:** (eng, cra, lca) D-35 inputs. (po) the next hourly run continues with COND1 and IPA1.
+
 ## 2026-10-26 14:40 CET · po (Product Owner)
 - **Correction:** the entry headed "2026-10-26 15:00 CET" was written at about 14:20 CET, so its time label is wrong. The same "15:00" label appears in the *Last change* lines of `NEXT_CAPABILITY.md`, `OPEN_DECISIONS.md` and `decisions/INDEX.md`, in the D-34 package addendum and in the challenge rows P-1 to P-5; they all mean 14:20. Content unchanged. #453 merged as 77298ef (CI `app`, `db`, `e2e` green). The 14:30 po run worked on the same branch before the merge.
 

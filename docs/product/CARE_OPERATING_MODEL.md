@@ -92,6 +92,23 @@ From the [Transformation Alignment Report](TRANSFORMATION_ALIGNMENT_REPORT.md):
 - **Balancing pairs (P-5):** every efficiency measure is read beside a named safety or quality measure.
 - **Assessment:** NAVORA builds the evidence layer around licensed instruments (complete, sourced, nurse-linked documentation; completeness shown before signature). It does not build the classifier (D-13 B, D-34 module rule).
 
+## AI-first means graph-first (PO, 2026-10-26)
+
+From the [AI Operating Model Review](AI_OPERATING_MODEL_REVIEW.md):
+- **Design order:**
+  1. eliminate the work through a continuously updated **care graph** (provenance, version, scope, consent on every node);
+  2. automate what is rule-shaped;
+  3. monitor continuously (service delivery, completeness, the controls, the agents, access);
+  4. use agents only at the edges of the graph (unstructured input, drafts for people), always with a named confirmer;
+  5. keep people for judgement, accountability and relationship.
+- **Graph completion before agents (P-9):** the consent record (D-9 g4), the structured order (D-22), the D-13 B assessment reference, and the external actors (REF2, ORD1). Each waits for its decision.
+- **In the core the graph is never:**
+  - a clinical inference engine (D-34);
+  - a per-person performance profile;
+  - an identity matcher without an explicit, audited link (RET1);
+  - a source for secondary use beyond anonymised aggregates (D-12).
+- **AI basis:** D-35 (`owner`). Until it is decided, no client or staff data reaches any AI service.
+
 ## Go-live gates: one list
 
 **PO, 2026-10-25 22:10 CET.** The go-live conditions above, and the real-data gates written in briefs and decision packages, in one place, so nobody has to collect them from twenty files before the first real client. This list is an index: the linked source holds the rule, and a gate is lifted only by the role named there. Status labels: IMPLEMENTED (built and accepted), PLANNED (approved, not yet delivered), OPEN (waits on a decision). Engineering and the other agents add a line by asking the PO; the PO updates the status when the source changes. **No real client, and no real employee data, while any line is not IMPLEMENTED.** Switching on cover (COVER1) has its own list in `docs/agents/briefs/COVER1.md`; it is not needed for go-live because cover stays off.
