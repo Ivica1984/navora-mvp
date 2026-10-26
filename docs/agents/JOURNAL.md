@@ -21,6 +21,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - (owner) G-1 and D-1.
   - (cra) #484 and IPA1-7/-8 when merged.
 
+## 2026-10-26 21:10 CET · po (Product Owner)
+
+- No open PO PR (only #3, the owner's M2 PR). One `agent:po` issue: **#482 COND1** `delivered`, claimed 21:10. New evidence: `lca` 21:00 (D-23 on `work1-notice-v3`, D-35 on term 11). No new `cra` section since 17:26.
+- **COND1 reviewed (COND1-7): every criterion met in code and CI, awaiting clinical review.** Evidence table in [COND1](briefs/COND1.md) *PO review 21:10* (CI `app`, `db`, `e2e` green on all six heads, the `ci` workflow green on 09228ef and `recovery/main` 86b6a0b; the PO read 0085, pgTAP 083-085, the v3 text, the 390 px e2e and the COND1-10 unit test, and **ran no test**). `cra` 13:39 and 17:26 cover COND1-1 to COND1-5 only; 0084 and 0085 (COND1-4a, -5a, -5b, -6, -8, -9, -10) have no clinical section yet, so **not accepted** (README clinical gate); PO status stays `approved`, #482 stays open.
+  - Deviations: (6) WORK1-C4 link by event instant **final**; (15), (17)-(22) accepted; (16) accepted for synthetic data with new condition **COND1-C1** (before the first real employee, G-19 item 6): the unexported-days count is readable only in the access-end path, not by any administrator at any time, because WORK1-C3 (b) promised no standing per-person view and the UI alone does not keep that promise.
+  - Observation, no condition: "8004 Zürich" is refused with "Bitte keinen Code erfassen", which does not say why; the wording rides the next intake brief.
+- **Decision packages** (INDEX order; D-22, D-18 no new evidence; tier-2 clinical packages wait for G-1):
+  - **D-23** item 19 (`po-decided` unchanged): `lca` 20:55: v3 compliant as a draft on synthetic data; ADR-098 deviations 21, 22 accepted; **G-19 item 2 checklist** gains (g) processors as a recipient category and (h) the billing view's signed version and countersigner (or drop "nur"); no v4 now (P-11).
+  - **D-35** (`po-decided` unchanged) and **D-1** (`awaiting-approval: owner`, urgent, ask sharpened, not widened): if the owner confirms instead of removing the connectors, the confirmation covers the Render service's logs and environment variables as well as the database (`lca` 21:00). G-22 updated. Statement per environment re-read: this PO session again lists Supabase and Render tools (not called), so part (b) is still not shown.
+- **Challenge:** "Why does one person hold a quality event while the team waits?" COND1-8 needed a rule for a leaver's claim because QG1 inherited a single-owner assignment. **Hypothesis P-13** (no build): AN2 measures time in `in_review` and the share of lapsed claims; if claims wait on one person, a later brief lets any qualified team member continue the event. "Too long" is a quality rule for the Clinical Owner (D-16), not set by the PO.
+- No new brief: approved, unstarted work remains (IPA1, *Next up* 2). ROADMAP: COND1 line (German). No clinical, PAG, MQI, LTCF, tariff or legal rule invented.
+- **Next agent:** (cra) review 0084 and 0085 (COND1-4a, -5a, -5b, -6, -8, -9, -10; CGR-66, -67, -68 remedies). (eng) IPA1 incl. IPA1-7/-8; COND1-C1 in a small PR before G-19 (no hand-off needed yet). (po) accept COND1 once `cra` finds no blocking finding, and mark the parent condition lines done. (lca) nothing new requested.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
+
+
 ## 2026-10-26 21:00 CET · Legal & Compliance Agent (lca)
 
 - No `lca` PR was open. Tier 1: D-22 and D-18 unchanged, no new evidence (skipped). No new `cra` section since 17:26. D-1 and D-12 changed only by PO text adopting my 19:42 notes (no re-review). **Two packages this run.** I ran no NAVORA test, did not access the live project and called no Supabase or Render tool.
