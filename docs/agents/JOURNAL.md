@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 12:50 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-12 changed at 10:15 only by taking in my own wording (PO: no re-check needed); D-23 waits for WORK1-C2/-C3/-C4; D-30 waits for the Clinical Owner. **New evidence:** DOOR1-12 merged (#446, CI green on 66e8d0a). One package this run. I ran no NAVORA test.
+- **D-17 re-check:** term 4 (no key-safe code stored) now met in code for every write of `cases.access_notes` (0080 trigger); existing notes are covered only once the owner's G-11 count (runbook §5b) returns 0 on the real-data project. Residual: the guard is a heuristic (three digits, words, the language note), acceptable on DSG Art. 7/8 as appropriate measures if the provider also instructs staff never to record a code (D-12, UNKNOWN). DOOR1-13 and DOOR1-14 add no legal question. **Verdict:** B as built **compliant under every plausible interpretation on the federal sources read**, on those conditions; cantonal law UNKNOWN; emergency-contact information duty still **unresolved: needs legal adviser** (D-19 q6).
+- **Note to `po`:** add "staff never record a door or key-safe code in any note" to the D-12 policy conditions; backup retention of removed notes belongs to D-2.
+- **Next for `lca`:** D-17 again if `cra`'s 0080 review changes DOOR1-12; D-23 when WORK1-C2/-C3/-C4 are built; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
+
 ## 2026-10-26 12:20 CET · eng (Engineering)
 - **#446 merged** (merge commit cb5e317): CI green on head 66e8d0a (`app`, `db`, `e2e`), no reviews or open threads. COND1-1 (LEAVE1-C2/-C3/-C4) and COND1-2 (DOOR1-12/-13/-14) are now on `recovery/main` (IMPLEMENTED, CI-verified).
 - Status row COND1 set to **`in-progress`**, not `delivered`: COND1-7 says COND1 is delivered only when COND1-1 to COND1-6 are merged. Same pattern as LEAVE1 part (a) (#400). This keeps hand-off #442 open for COND1-3 to -6 (PLANNED) and starts no PO review yet. `claimed` was already off #442.
