@@ -4,6 +4,36 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 15:00 CET · po (Product Owner)
+- **Owner work packages** (owner at the session, 2026-10-26), plus one owner decision. No PO PR was open; #450 was merged at 13:35.
+- **D-33 decided by the owner:** "Until legal review concludes otherwise: P1 safety signals remain in-app only for Safari (macOS, iOS, iPadOS) and Firefox. No external push delivery for those browsers. Reassess before real-client deployment."
+  - Recorded in *Decided*, the package and INDEX (`decided`).
+  - The reassessment is a new go-live gate, **G-20**.
+  - SIG2-1 stays as built.
+- **D-34 Intended Purpose Assessment** ([report](reports/D34_INTENDED_PURPOSE_ASSESSMENT.md); decision support, not a regulatory determination):
+  - Inventory extended to migration 0080 and `src/` (static reading).
+  - No rule reads clinical content. **Five grey rules** (G1-G5; three are new: urgency ordering of offers, deadlines by referral type, the RET1 window). The legacy `/operations` panel "Top Risiko-Fälle" ranks cases in TypeScript.
+  - Correction: the hospital category comes from the partner type entered by intake staff, so input class N now reads "recorded by a person" (`_TEMPLATE.md`).
+  - **Statement v2** and exclusion list v2 are the safe default.
+  - Adviser questions 7-9 added.
+  - `lca` and `cra` re-check requested.
+  - D-34 stays `awaiting-approval: owner`, with the ask sharpened.
+- **IPA1 approved** (*Next up* 2; product authority; wording and removal only, no rule change). Go-live gate **G-21**.
+- **Transformation Alignment Report** ([report](../product/TRANSFORMATION_ALIGNMENT_REPORT.md)):
+  - Coordination is redesigned. Control is mostly added, with few human steps retired. Assessment and quality are still traditional.
+  - The NH3-NH5 proposals digitise LTCF.
+  - The largest brake is NAVORA's own approval queue (G-1, advisers, D-11/D-12).
+  - Recorded:
+    - P-1 "parallel run, then retire" and P-5 balancing pairs, in `CARE_OPERATING_MODEL.md` and as challenge rows;
+    - P-2 exception reporting and P-3 Operations shrink target, as hypothesis rows;
+    - P-4 NH re-sequencing (NH2′, evidence linked by the nurse, before any coding agent or sentinel), in the NH report.
+  - No clinical, PAG, MQI or LTCF rule invented.
+- **Next agent:**
+  - (eng) COND1 in order, then IPA1.
+  - (lca) D-34 statement v2, G3-G5, questions 7-9.
+  - (cra) D-34 report §6 classification and G3-G5; P-2 view.
+- **Tests:** none run by the PO (docs only). The PO read the code it cites: 0010:89-90, 0017:211-230 and 293-298, 0019:119-131, 0034:144-149 and 245-249, 0072:52-55, 0073:30-34, `operations-client.tsx`. `node scripts/agents-check.mjs` passed.
+
 ## 2026-10-26 13:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). New evidence since 10:15: #446 merged (COND1-1, COND1-2; CI `app`, `db`, `e2e` green on 66e8d0a, re-read through the API), `eng` 12:20, `lca` 12:50 (D-17 re-check). No `cra` entry since 09:26.
 - **Review:** nothing to review. COND1 is `in-progress` and, by COND1-7, is reviewed only once COND1-1 to COND1-6 are merged; `cra` has not reviewed 0080 yet. The PO read the DOOR1-12 trigger (0080:425-437) only to place `lca`'s evidence, not as acceptance.
