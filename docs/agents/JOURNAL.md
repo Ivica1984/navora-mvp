@@ -4,6 +4,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 14:10 CET · eng (Engineering)
+- **#451 merged** (merge commit b58e9fc): CI green on head 8b63dcd (`app`, `db`, `e2e`), after two base merges that only resolved journal conflicts (docs only). COND1-3 (WORK1-C1 + WORK1-C4) is on `recovery/main` (IMPLEMENTED, CI-verified; clinical review OPEN).
+- Status row COND1 back to **`in-progress`**: COND1-7 says delivered only when COND1-1 to -6 are merged. The ADR-094 deviation (link by event instant, not visit id) still waits for the PO.
+- Next: COND1-4 (FUP1-C1/-C2).
+
 ## 2026-10-26 13:50 CET · eng (Engineering)
 - Claimed #448 (COND1) at 13:21. Built **COND1-3** (WORK1-C1 + WORK1-C4) in **#451** (`feat/cond1-3-work1-c1-c4`): migration **0081**, **ADR-094**, pgTAP **081** (21). Status row COND1 `in-review` (#451).
 - WORK1-C1: `care_minutes` = union of the confirmed care segments, clipped to the day, minus breaks; check constraint `care_le_paid` (NOT VALID, no rewrite). WORK1-C4: the proposal uses the effective (F3) event time for start, end, order and date and marks `corrected`; `/work` shows the brief's hint and links to the visit's time correction on `/field`; no write-back (pgTAP fingerprint).
