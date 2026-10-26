@@ -95,9 +95,9 @@ describe("member removal releases visits (ADM1 changes)", () => {
 describe("LEAVE1 (migrations 0074, 0075): access end and the open-work list", () => {
   it("reads the end_member_access result with her open reports by kind", () => {
     expect(readAccessEndResult({ result: "ok", push_subscriptions_removed: 1, open_reports: { unsigned: 1, correction_draft: 0, returned: 2 } }))
-      .toEqual({ code: "ok", openReports: { unsigned: 1, correction_draft: 0, returned: 2 }, released: 0 });
-    expect(readAccessEndResult({ result: "has_cases" })).toEqual({ code: "has_cases", openReports: null, released: 0 });
-    expect(readAccessEndResult(null)).toEqual({ code: "failed", openReports: null, released: 0 });
+      .toEqual({ code: "ok", openReports: { unsigned: 1, correction_draft: 0, returned: 2 }, released: 0, takenSignals: 0 });
+    expect(readAccessEndResult({ result: "has_cases" })).toEqual({ code: "has_cases", openReports: null, released: 0, takenSignals: 0 });
+    expect(readAccessEndResult(null)).toEqual({ code: "failed", openReports: null, released: 0, takenSignals: 0 });
     expect(readAccessEndResult({ result: "ok", open_reports: { unsigned: -1, returned: "x" } }).openReports)
       .toEqual({ unsigned: 0, correction_draft: 0, returned: 0 });
   });
@@ -111,6 +111,16 @@ describe("LEAVE1 (migrations 0074, 0075): access end and the open-work list", ()
     expect(accessEndedNotice({ unsigned: 1, correction_draft: 0, returned: 0 }, 1))
       .toBe("Zugang beendet. 1 geplanter Einsatz ist jetzt offen im Team. Offen bleiben: 1 nicht unterschrieben. Das Team sieht sie mit «Zugang beendet»; sie werden nicht verrechnet.");
     expect(ADMIN_MESSAGES.has_planned_visits).toMatch(/vertritt/);
+  });
+
+  it("reads and names the open safety signals she had taken (LEAVE1-14, migration 0078)", () => {
+    expect(readAccessEndResult({ result: "ok", taken_signals: 2 }).takenSignals).toBe(2);
+    expect(readAccessEndResult({ result: "ok" }).takenSignals).toBe(0);
+    expect(readAccessEndResult({ result: "ok", taken_signals: "x" }).takenSignals).toBe(0);
+    expect(accessEndedNotice({ unsigned: 0, correction_draft: 0, returned: 0 }, 0, 1))
+      .toBe("Zugang beendet. 1 übernommenes Sicherheitssignal ist wieder offen im Team. Keine offenen Berichte.");
+    expect(accessEndedNotice({ unsigned: 0, correction_draft: 0, returned: 0 }, 2, 3))
+      .toBe("Zugang beendet. 2 geplante Einsätze sind jetzt offen im Team. 3 übernommene Sicherheitssignale sind wieder offen im Team. Keine offenen Berichte.");
   });
 
   it("counts and describes open reports by kind", () => {

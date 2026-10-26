@@ -51,6 +51,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"audit_read_log": {
+                  Row: {
+                    "entity_id": string,"entity_type": string,"id": number,"organization_id": string | null,"purpose": string,"read_at": string,"reader_id": string,"rows_returned": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "entity_id": string,"entity_type": string,"id"?: never,"organization_id"?: string | null,"purpose": string,"read_at"?: string,"reader_id": string,"rows_returned": number
+                  }
+                  Update: {
+                    "entity_id"?: string,"entity_type"?: string,"id"?: never,"organization_id"?: string | null,"purpose"?: string,"read_at"?: string,"reader_id"?: string,"rows_returned"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "audit_read_log_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"billable_facts": {
                   Row: {
                     "actual_care_minutes": number | null,"billable": boolean,"billable_minutes_a": number | null,"billable_minutes_b": number | null,"billable_minutes_c": number | null,"case_id": string,"cause": string,"created_at": string,"created_by": string,"hold_id": string | null,"id": string,"measured_care_minutes": number | null,"order_as_of": string | null,"order_basis": string,"order_recorded": Json | null,"organization_id": string,"payer_chain": NonNullable<Json>,"planned_minutes_a": number,"planned_minutes_b": number,"planned_minutes_c": number,"reasons": (string)[],"report_id": string,"rule_version": string,"snapshot_hash": string | null,"supersedes_id": string | null,"tariff_versions": NonNullable<Json>,"team_id": string,"visit_date": string,"visit_id": string,"warnings": (string)[]
@@ -1859,7 +1879,7 @@ isOneToOne: false
                            },
 "my_signals":
 { Args: Record<PropertyKey, never>; Returns: {
-              "delivered_at": string,"operations_outside_app": boolean,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string,"watched_now": boolean
+              "delivered_at": string,"operations_outside_app": boolean,"outside_none": boolean,"p1_at": string,"reason": string,"signal_id": string,"signal_kind": string,"taken_at": string,"taken_awaits_rn": boolean,"taken_by_me": boolean,"taken_by_name": string,"taken_by_qualification": string,"taker_access_ended": boolean,"team_id": string,"team_name": string,"time_start": string,"visit_date": string,"visit_id": string,"watched_now": boolean
             }[]
                            },
 "operations_exceptions":
@@ -1870,6 +1890,11 @@ isOneToOne: false
 "ops_case_lifecycle":
 { Args: Record<PropertyKey, never>; Returns: {
               "case_id": string,"changed_at": string,"client_name": string,"expected_end": string,"last_kind": string,"last_reason": string,"lifecycle": string,"suspended_visits": number,"team_name": string
+            }[]
+                           },
+"org_audit_read_log":
+{ Args: { "p_organization_id": string }; Returns: {
+              "entity_id": string,"entity_type": string,"purpose": string,"read_at": string,"reader_id": string,"rows_returned": number
             }[]
                            },
 "pause_case":
@@ -1901,6 +1926,11 @@ isOneToOne: false
                            },
 "push_dispatch_report":
 { Args: { "p_kind": string,"p_ref_id": string,"p_results": Json }; Returns: string
+                           },
+"read_audit_record":
+{ Args: { "p_entity_id": string,"p_entity_type": string,"p_purpose": string }; Returns: {
+              "actor_id": string,"actor_role": string,"changed": Json,"command": string,"occurred_at": string,"text_withheld": boolean,"withheld_keys": (string)[]
+            }[]
                            },
 "record_absence":
 { Args: { "p_from": string,"p_from_time": string,"p_idempotency_key": string,"p_team_id": string,"p_until": string,"p_until_time": string,"p_user_id": string }; Returns: Json

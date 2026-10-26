@@ -239,7 +239,7 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
           setEnded(null);
           run(() => mode === "end"
             ? endMemberAccess({ userId: member.user_id, reasonCode: text(f, "reason"), idempotencyKey: newKey() })
-                .then((r) => { if (r.ok) setEnded(accessEndedNotice(r.openReports, r.released)); return r.ok ? { ok: true as const } : r; })
+                .then((r) => { if (r.ok) setEnded(accessEndedNotice(r.openReports, r.released, r.takenSignals)); return r.ok ? { ok: true as const } : r; })
             : restoreMemberAccess({ userId: member.user_id, reasonCode: text(f, "reason"), idempotencyKey: newKey() }),
           () => setMode("idle"));
         }}>

@@ -40,7 +40,10 @@ function decrypt(body: Buffer, ua: ReturnType<typeof createECDH>, auth: Buffer):
 function vapidPair() {
   const e = createECDH("prime256v1");
   e.generateKeys();
-  return { publicKey: b64url(e.getPublicKey()), privateKey: b64url(e.getPrivateKey()) };
+  // Node returns the private scalar without leading zero bytes (about 1 key in 256 is 31 bytes);
+  // a VAPID private key is exchanged as exactly 32 bytes, so pad it as a key generator would.
+  const d = Buffer.concat([Buffer.alloc(32), e.getPrivateKey()]).subarray(-32);
+  return { publicKey: b64url(e.getPublicKey()), privateKey: b64url(d) };
 }
 
 describe("encryptPayload (RFC 8291)", () => {
