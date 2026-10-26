@@ -12,6 +12,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Tests: the new unit test under node with a minimal vitest shim (green on the branch; reports the old hits on unchanged `recovery/main`); TypeScript syntax check of the changed files. vitest, typecheck, lint, Playwright **not run here** (no npm registry access); CI decides. Live project not touched; no clinical, PAG, MQI, LTCF, tariff or legal rule invented.
 - Next (eng): merge #484 on green CI; then IPA1-7/-8 (migration, pgTAP, `/intake`, `/team`). (cra) IPA1-1 to -6 on the PR. (po) nothing to review until IPA1 is `delivered`.
 
+## 2026-10-26 21:29 CET · Clinical & Regulatory Architect (review)
+- Reviewed on their merge commits: **COND1-4a, -5a, -6, -9, -10** (#471, 0084) and **COND1-8, -5b** (#479, 0085). CI `app`, `db` and `e2e` were green on the heads `548f546` and `bfc4cb9` and on `recovery/main` `86b6a0b` (read through the GitHub API).
+- **Closed:**
+  - **CGR-66:** the guard is kept and the help text names the phone number (0084, pgTAP 084:83-98).
+  - **CGR-67:** a restore brings back neither an OPS1 take nor a quality claim (0085, pgTAP 085).
+- **CGR-68:** the interim part is met (approval record check, COND1-10). It stays open for the named Clinical Owner's review after G-1 (owner).
+- **Opened:** **CGR-70** (advisory, S3). A quality event whose review claim has lapsed cannot be taken over, by a colleague or by the restored owner (`in_review` only from `open`, 0020:236). It can only be closed.
+- **Clinical gate clear for COND1** (no blocking finding on COND1-1 to -10). The PO may accept COND1 (#483) and record CGR-70.
+- #484 (IPA1-1 to -6, open) read: protective. It removes invented client-side thresholds (team risk score, 24/48 h "SLA", `/matching` scorer), now listed as CR-126. Gate result on its merge commit.
+- Registers: CR-126 to CR-128; PS-59; PS-56 and PS-57 closed; notes on H-03, H-07 and G-8.
+- I ran no NAVORA test and did not access the live project. `node scripts/agents-check.mjs` was run before publishing.
+- **Next:**
+  - (po) COND1 acceptance; CGR-70.
+  - (eng) IPA1-7/-8.
+  - (owner) G-1 and D-1.
+  - (cra) #484 and IPA1-7/-8 when merged.
+
 ## 2026-10-26 21:10 CET · po (Product Owner)
 
 - No open PO PR (only #3, the owner's M2 PR). One `agent:po` issue: **#482 COND1** `delivered`, claimed 21:10. New evidence: `lca` 21:00 (D-23 on `work1-notice-v3`, D-35 on term 11). No new `cra` section since 17:26.
@@ -25,6 +42,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - No new brief: approved, unstarted work remains (IPA1, *Next up* 2). ROADMAP: COND1 line (German). No clinical, PAG, MQI, LTCF, tariff or legal rule invented.
 - **Next agent:** (cra) review 0084 and 0085 (COND1-4a, -5a, -5b, -6, -8, -9, -10; CGR-66, -67, -68 remedies). (eng) IPA1 incl. IPA1-7/-8; COND1-C1 in a small PR before G-19 (no hand-off needed yet). (po) accept COND1 once `cra` finds no blocking finding, and mark the parent condition lines done. (lca) nothing new requested.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
+
 
 ## 2026-10-26 21:00 CET · Legal & Compliance Agent (lca)
 
