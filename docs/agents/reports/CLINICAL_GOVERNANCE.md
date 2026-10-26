@@ -16,6 +16,70 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-26 05:26 CET: LEAVE1-14 (0078, pgTAP 078) and AUD1 (0077) reviewed on their merge commits; CGR-62 closed; CGR-63 (advisory, S3) and CGR-64 (advisory, S2); the PO's D-30 (d) hypothesis judged
+
+**Scope:** `recovery/main` @ `71147a5`. Changes since my 01:26 CET section (PR #416, CI green, not merged; carried into this PR by a merge commit, JOURNAL both sides kept; #416 is closed as superseded):
+- **Code merged:** #413 **AUD1** (0077, ADR-090, pgTAP 077, pgTAP 005 and 076 adjusted) as `7f23a3b`; #425 **LEAVE1-14** (0078, ADR-091, pgTAP 078 (46), `SignalBanner.tsx`, `signals/rules.ts`, `admin` result text, unit `signals-rules`, `admin-rules`) as `71147a5`; #428 test helper only (`push-webpush.test.ts`: VAPID key padded to 32 bytes; no rule). **CI `app`, `db`, `e2e` green on `8eeb18e`, `7f23a3b` (AUD1) and on the #425 head `36921be` (LEAVE1-14)**; on the merge commit `71147a5` `app` is green and `db`, `e2e` were still running when I read the check runs (UNKNOWN). Between `8eeb18e` and `7f23a3b` only docs and `ROADMAP.md` changed, no SQL.
+- **Docs merged:** PO 02:14 (LEAVE1 `changes-requested`, LEAVE1-14), 03:13 (D-30 hypothesis row for `cra`), 04:10 (**AUD1 accepted**, AUD1-M1, AUD1-M2; **CGR-61 placed as DOOR1-14**), 05:10; `lca` 02:46, 03:42, 04:50 (D-30, D-3, D-4); `eng` 03:20, 04:45 (remediation plan `clinical/remediation/CGR-62.md`).
+- **Open PRs:** #429 (docs, LEAVE1 delivered), #416 (mine, superseded), #3 (owner, `main`). Issues #399, #409 (clock-dependent tests) still open. **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read 0078 in full, pgTAP 078 in full, the banner and rule diffs, `outside_settle` (0062:496-530 as patched by 0063:207), `restore_member_access` (0074:386-433), and 0077 sections 1-3 with the pgTAP 005 change. **I did not run the NAVORA test suite** and touched no live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-64 | LEAVE1-14 (0078) with SIG2 (0062) | **advisory (S2)** | **A push already `sent` to a person whose access then ends still counts as "somebody was reached outside the app"**, so SIG2's immediate step does not fire for a P1 signal outside the watched hours; Operations then hears of it only through SIG1-5 after the `signal_untaken` threshold (PROVISIONAL, D-28). Example: 22:40 a no-show push reaches the on-call nurse's phone; 22:45 her access is withdrawn because the phone was lost. Nobody who can act has been reached, yet the signal waits up to the threshold. Bounded by SIG1-5 (no signal is lost), so not S1. Engineering listed it itself as OPEN (remediation plan step 6) | 0062:511 (`not exists … result in ('pending','sent')` for any recipient); 0071:92-102 (`signal_step_outside_app`, the banner's `operations_outside_app`: a `sent` delivery to an Operations member counts the same way, also after her access ends); 0078:57-64 (only the take predicate checks `access_ended`); pgTAP 078 cycle 2 covers a take, not a `sent` delivery | **eng, po (product authority; no threshold, no clinical rule):** a `sent` outside delivery counts as reached only while its recipient's access is open (`not private.access_ended(o.recipient_id)`) in `outside_settle` and in `signal_step_outside_app`, evaluated live like CGR-62 (1). pgTAP: outside channel on, P1 no-show outside the watched hours, the only `sent` delivery is to a nurse; her access ends; next evaluation sets `outside_none_at` and `escalated_at` and delivers to Operations once; a `sent` delivery to a colleague with open access still holds the step |
+| CGR-63 | LEAVE1-14 (0078) with LEAVE1-7 restore (0074) | **advisory (S3)** | **A restore silently revives a take made before the access end.** The predicate is evaluated live (ADR-091; I asked for this in the CGR-62 remedy myself), so after `restore_member_access` her old take stops the SIG1-5 step again and colleagues read "übernommen von <her>" again. But the restored person has no push subscription (deleted at the end, LEAVE1-7), the restore result names no signal, and nothing tells her she holds a P1 signal again. If the restore falls inside the threshold window, Operations is not reached and the team's list again sorts the signal below untaken ones. A restore that late is rare, and a signal already escalated stays escalated; hence S3. I correct my own remedy point: reviving was not the safe default | 0078:58-64 (live predicate), 0078:118 (`my_signals` prefers open access, an ended-then-restored take counts again); 0074:386-433 (`restore_member_access` returns `{result}` only); pgTAP 078:170-176 (restore before the step: the step does not fire; asserted as intended) | **eng, po (product authority):** either (a) a take counts only if it was recorded after the taker's latest access end (`t.taken_at > ` latest `member_access_events.kind = 'ended'` of the taker), so after a restore she takes it again if she still holds it; or (b) the restore result names the open signals whose take revives, and her `my_signals` shows them at the top until she takes them again. pgTAP for the chosen option, replacing 078:170-176 |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-62** | **closed**, IMPLEMENTED; CI green on the #425 head `36921be` (`app`, `db`, `e2e`); merge commit `71147a5` `db`/`e2e` still running when read | remedy (1): 0078:57-64 (`signal_taken_stops_step` counts only takes with `not private.access_ended(taker_id)`; read by SIG1-5 and SIG2's step); pgTAP 078:155-156 (her take no longer stops, a colleague's still does), 078:179-188 (after the threshold `escalated_at` set, delivered to every Operations receiver, once), 078:222-232 (SIG2's immediate step fires as for an untaken signal). Remedy (2): 0078:81-121 (`my_signals`: no name, time, qualification; sorted with untaken; `taker_access_ended`), `rules.ts` `TAKE_ENDED`, `splitSignals` puts it in the open list; pgTAP 078:159-168. Remedy (3): 0078:206-230 (`taken_signals` in result, change log, audit); pgTAP 078:147-153, 229. Takes append-only and the SIGC/AN2 measure unchanged: 078:191-197. A colleague can take it after the lapse and "already taken" names her: 078:200-202. Claim inventory (brief point 5): ABS1 return, PLAN2 responsible member, `set_primary_nurse`, `plan_visit` refuse or skip her (0078:247-284; pgTAP 078:235-261). Residuals: CGR-63, CGR-64 |
+| **CGR-61** | open, advisory (S2); **placed by the PO as DOOR1-14** (04:10). PLANNED | NEXT_CAPABILITY rank 32 |
+| CGR-60 | open, advisory (S3); FUP1-C1. PLANNED | no change |
+| CGR-54, CGR-56 | open, advisory (S3, S2); DST1-C4, DST1-C5. PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-62.**
+
+### Other changes reviewed (no finding)
+
+- **LEAVE1-14 claim inventory, display-only relations (remediation plan step 6, OPEN).** An OPS1 exception "take" and a quality event owner still show the leaver's name. Neither stops a step (the P2 → P1 clock runs on, CGR-05/-06 as built), so no finding; I support Engineering's recommendation that they read as untaken in the same way, in one later PR, before go-live (S3). A reopened case whose primary nurse has left keeps her name, and PLAN2 skips her (pgTAP 078:245-261), so its visits are uncovered and J3, OPS1 and SIG1 apply: protective.
+- **LEAVE1-14 banner text** "Übernahme beendet – Zugang beendet": fixed text, no reason code (LEAVE1-8). The signal goes back to the open list for everyone, so a registered nurse can take it.
+- **AUD1 (0077) on `7f23a3b`: no clinical finding.** Free text (`quality_holds.reason`, `lift_reason`) reaches only an administrator who is an active member of the record's team; unknown keys fail closed; no per-member aggregate; each read is logged. The derived readers (HAND1 handover, J6 last primary nurse, CSR1 order as of, AN2) run as the table owner and are unchanged, so no clinical display loses data (0077 header point 1; pgTAP 005 now reads through the purpose reader). AUD1-M1 (purpose `billing` returns codes only, also inside the team) is privacy-protective and costs nothing clinically: billing needs that a hold exists, which J5 already reads. My 17:26 note stands: a `safety_review` of a hold by someone outside the team returns codes only, so before the first real client a safety review needs the Clinical Owner's task-bound read (G-1, D-16), or the review stays inside the team.
+- **#428** fixes a test helper (31-byte keys about 1 in 256); no rule changed. The same class as #399 and #409: fix, never skip.
+
+### Clinical view on the PO's D-30 (d) hypothesis (NEXT_CAPABILITY challenge row, 03:13; not a decision)
+
+The idea (the return reason is also shown to the team's registered nurses on the client's next planned visit until one records "gesehen") moves knowledge about the client's care from a document to the client, which is the right direction for patient safety. Before a brief, from a safety view:
+1. **The next visit may be performed by a care assistant** (A/C work). An RN-only display then reaches nobody at the door. Whether, and what, a care assistant must be told when a return names an error is **UNKNOWN, Clinical Owner** (D-30 (d), D-10). A neutral marker without content ("Hinweis für Pflegefachperson offen – Rücksprache") keeps the free text RN-only (F6R, RLS2) and is product design, not a clinical rule.
+2. **"Gesehen" is an acknowledgement, not a follow-up.** It must not read as "handled"; what follow-up is required (check the care plan, inform the doctor) and by when is **UNKNOWN, Clinical Owner** (D-30 (d), D-16).
+3. **The measure** (returns naming an error where the next visit took place before any other RN read the reason; target 0) is sound and can be computed from events once the display exists.
+4. **Do not let the hypothesis delay D-30.** Until the Clinical Owner answers, the D-12 partnership term (the licence holder's own follow-up process) is the interim control.
+
+### Gate status per item
+
+| Item | Result | Findings |
+|---|---|---|
+| LEAVE1 (merged incl. LEAVE1-14 `71147a5`; `changes-requested`) | **CGR-62 closed; no blocking finding.** The clinical gate no longer blocks acceptance; the PO should confirm CI `db`/`e2e` green on `71147a5` (UNKNOWN when I read). CGR-63 (S3) and CGR-64 (S2) may be placed as conditions | CGR-63, CGR-64; LEAVE1-C1 |
+| AUD1 (accepted) | reviewed on the merge commit; no clinical finding; acceptance consistent | none (note: G-1, D-16) |
+| DOOR1 (accepted) | CGR-61 placed as DOOR1-14; DOOR1-12 (S1), -13 (S2), -14 (S2) PLANNED | CGR-61 |
+| WORK1 (approved) | not built; I will check on delivery that it never feeds billing or a per-person ranking | none |
+| All other items | unchanged | as in the earlier sections |
+
+### Decisions requested
+
+- **po:** (1) LEAVE1 may be accepted once CI is green on `71147a5`; G-13 then no longer waits on CGR-62; (2) place CGR-64 (S2) and CGR-63 (S3) as LEAVE1 conditions, with the step 6 display-only relations; (3) take the four points above into the D-30 (d) hypothesis before any brief.
+- **eng:** DOOR1-12/-13/-14, FUP1-C1 with CGR-60, CGR-64 (small: one predicate in two places, pgTAP), #399, #409; then WORK1 in the PO's order.
+- **owner:** G-1 (name the Clinical Owner and a deputy), D-1 (urgent); merge this PR if my own merge is refused.
+- **clinical** (once named): D-30 (routes, what an addendum may state, follow-up of a returned error and who is told, time limit), D-17 part 3, D-19 part 1, D-28, D-10, D-16 as before.
+
+---
+
 ## 2026-10-26 01:26 CET: LEAVE1 (0074, 0075, 0076) reviewed on its merge commits; CGR-49, CGR-50 closed; CGR-62 (blocking, S1): a leaver's take keeps a P1 safety signal from escalating; AUD1 (#413, open) read; clinical view on D-30 point (c)
 
 **Scope:** `recovery/main` @ `d4eae0b`. Changes since my 21:28 CET section (PR #401, green, not merged; carried into this PR by a merge commit, JOURNAL both sides kept):
