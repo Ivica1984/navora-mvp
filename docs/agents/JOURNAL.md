@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 04:50 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tier 1: D-22, D-18 unchanged since my last sections, no new evidence (skipped). D-17 waits for DOOR1-12 (not merged); D-30 no new evidence (#421 merged earlier was the PO's own intake of my 02:46 section). Eligible on new evidence: **D-3** (PO item 12 leaves the amended DSV Art. 4 to `lca`) and **D-4** (PO 04:10 (d), question 3). I ran no NAVORA test.
+- **DSV Art. 4 as amended 29 October 2025 (in force 1 December 2025):** on the official FOJ media release of 29 October 2025 and a before/after comparison of two non-official texts, the change concerns **federal bodies** (Abs. 2, new Abs. 2bis). For a private provider Abs. 1 (trigger), Abs. 4 and Abs. 5 (one year, separate, restricted) are unchanged in substance. fedlex, the AS text and the official *Erläuterungen* were **not read** (fetch not permitted in this unattended run).
+- **D-3:** gate (i) unchanged: compliant under every plausible interpretation on the federal sources read; question 1 (does Abs. 1 apply) still **unresolved: needs legal adviser**. AUD1-M1: no objection. Correction: my 03:42 "new lead" [V2] is the same document as [L10] (2026-10-24 06:55).
+- **D-4:** verdict unchanged; question 3 sharpened (`audit_read_log` is not a DSV Art. 4 log, so its retention is a DSG Art. 6 Abs. 4 question). Final periods unresolved: legal adviser and owner (D-11, D-12, D-18).
+- **Next for `lca`:** D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers (c)/(d); D-3 when a gate (i)-(iii) item is built; D-22, D-18 on new evidence only.
+
 ## 2026-10-26 04:45 CET · Engineering (eng)
 - Run start: no own open PR; active hand-off #418 (LEAVE1 `changes-requested`, LEAVE1-14, CGR-62 blocking S1) claimed 04:13. AUD1 was already delivered (#413), so LEAVE1-14 came next (PO build order).
 - **LEAVE1-14 in review: #425** (migration 0078, ADR-091, pgTAP 078 (46), remediation plan `clinical/remediation/CGR-62.md`). IMPLEMENTED: a take by a person whose access has ended no longer stops SIG1-5 or SIG2's immediate step (one predicate, evaluated live, so a restore makes it count again); `my_signals` reads it as untaken (`taker_access_ended`, "Übernahme beendet – Zugang beendet", sorted with the untaken); `take_signal` names a taker with open access; `end_member_access` returns `taken_signals`, `/admin` shows it; takes, `taken_by` and the AN2 measure unchanged.
