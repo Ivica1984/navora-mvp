@@ -99,7 +99,7 @@ describe("information text (WORK1-8)", () => {
     const text = NOTICE_PARAGRAPHS.join(" ");
     expect(text).toContain("damit ihr die Pflege koordinieren könnt");
     expect(text).toContain("siehst nur du");
-    expect(NOTICE_VERSION).toBe("work1-notice-v2");
+    expect(NOTICE_VERSION).toBe("work1-notice-v3");
   });
 
   // WORK1-C2 (migration 0083): the four statements of v2 (D-23 item 15, lca gaps b, c, d); paragraph 5 stays.
@@ -125,6 +125,32 @@ describe("information text (WORK1-8)", () => {
     expect(text).toContain("Planung im Team und der Auswertung des Pilotbetriebs");
     expect(text).toContain("erst ab drei Personen und fünf bestätigten Arbeitstagen");
     expect(NOTICE_PARAGRAPHS).toContain("NAVORA prüft keine Pausen-, Ruhe- oder Höchstarbeitszeiten.");
+  });
+});
+
+// COND1-5b (migration 0085): v3 keeps every statement of v2 (the tests above) and adds five (PO 17:15, lca 16:42).
+describe("information text v3 (COND1-5b)", () => {
+  const text = NOTICE_PARAGRAPHS.join(" ");
+  it("(i) names who reads the log: the administration of her organisation, only for a stated audit purpose", () => {
+    expect(text).toContain("Dieses Protokoll liest die Administration deiner Organisation");
+    expect(text).toContain("nur für einen angegebenen Prüfzweck gelesen");
+  });
+  it("(ii) the next sentence begins with the fixed phrase", () => {
+    expect(text).toMatch(/Prüfzweck gelesen\. Ausserhalb einer solchen Prüfung sieht die Administration nur, wie viele bestätigte Tage/);
+  });
+  it("(iii) the covering member also sees reason and author of a correction", () => {
+    expect(text).toContain("Auch wer dein Team vertritt (Vertretung), sieht den Grund und wer korrigiert hat.");
+  });
+  it("(iv) coordination roles outside the team see that a time was corrected, old and new value and when, not the reason", () => {
+    expect(text).toContain("Koordinationsrollen ausserhalb deines Teams sehen nur, dass eine Einsatzzeit korrigiert wurde");
+    expect(text).toContain("(alter und neuer Wert, Zeitpunkt der Korrektur), nicht den Grund");
+  });
+  it("(v) no export after her access ends; days not exported by then stay unexported", () => {
+    expect(text).toContain("Nach dem Ende deines Zugangs kannst du nicht mehr exportieren");
+    expect(text).toContain("bleiben unexportiert");
+  });
+  it("keeps the COND1-5a purpose sentence as written", () => {
+    expect(text).toContain("damit sie dich vor dem Ende deines Zugangs an den Export erinnern kann");
   });
 });
 
