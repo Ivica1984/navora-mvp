@@ -26,7 +26,7 @@ test("referral → case → team takes it over → team plans a visit → it is 
   const form = page.getByRole("form", { name: "Neue Anfrage" });
   await form.getByLabel("Zuweisende Stelle").fill("Testheim Journey");
   // IPA1-7: no preset urgency; the level is chosen with its source.
-  await form.getByLabel("Dringlichkeit", { exact: true }).selectOption("mittel");
+  await form.getByLabel(/^Dringlichkeit/).selectOption("mittel");
   await form.getByLabel("Quelle der Dringlichkeit").selectOption({ label: "vom Zuweiser angegeben" });
   await form.getByLabel("Region").fill("Bern West");
   await form.getByLabel("Titel").fill("Journey Übergangspflege");

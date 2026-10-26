@@ -20,7 +20,7 @@ test.describe("referral intake (J1)", () => {
 
     const form = page.getByRole("form", { name: "Neue Anfrage" });
     await form.getByLabel("Zuweisende Stelle").fill("Testspital Intake");
-    await form.getByLabel("Dringlichkeit", { exact: true }).selectOption("hoch");
+    await form.getByLabel(/^Dringlichkeit/).selectOption("hoch");
     await form.getByLabel("Quelle der Dringlichkeit").selectOption({ label: "vom Zuweiser angegeben" });
     await form.getByLabel("Region").fill("Bern West");
     await form.getByLabel("Titel").fill("Austritt E2E Intake");
@@ -75,7 +75,8 @@ test.describe("referral intake (J1)", () => {
     await page.goto("/intake");
 
     const form = page.getByRole("form", { name: "Neue Anfrage" });
-    const urgency = form.getByLabel("Dringlichkeit", { exact: true });
+    // The label's accessible name includes the selected option ("Dringlichkeit bitte wählen"), so match its start.
+    const urgency = form.getByLabel(/^Dringlichkeit/);
     const source = form.getByLabel("Quelle der Dringlichkeit");
     // No preselected level and no preselected source.
     await expect(urgency).toHaveValue("");
