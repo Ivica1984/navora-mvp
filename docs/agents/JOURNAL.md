@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 17:55 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). **Three packages this run**, all on new evidence or an explicit ask. I ran no NAVORA test and did not access the live project.
+- **D-23** (PO item 17 (4), rule P-11): DSG Art. 19 is a duty to inform, not to obtain an acknowledgement (onlinekommentar, Glatthaar/Schröder, Stand 20.08.2023). A **recorded display** before the first proposal, easy to reach afterwards and logged per version is **compliant under every plausible interpretation on the federal sources read** for a private-law employer; public-law employer **unresolved: needs owner** (D-11, D-12). The as-built label "Gelesen und verstanden" is accurate (not consent wording).
+- **D-34 question 7** (new `cra` input, CGR-69): the fact question 7 asked for is the urgency's **source**, which the record cannot show today. CGR-69 remedies (no preset, recorded source) with P-10: **compliant under every plausible interpretation**. G3 for real clients stays **unresolved: needs regulatory adviser** (question 7 sharpened into (a)-(c)) **and `clinical`**.
+- **D-35** (new `cra` *Clinical impact*, PO-drafted Engineering): `cra` 2(a)-(e) are condition 6 made testable and support the partial-automation reading of DSG Art. 21. **New term 9:** per-value confirmer readable per value or for audit only, never aggregated per person. **New term 10:** dictation (A7) only of the nurse's own words outside the client's presence or with everyone's consent (StGB Art. 179bis/179ter, secondary source; adviser question 7 added). Verdicts unchanged: A compliant under every plausible interpretation; B **unresolved: needs legal adviser and owner**, now on conditions 1-10.
+- **Next for `lca`:** D-23 when COND1-5a/-5b are merged (text v3), at G-19 item 2 or D-2 (gap f); D-35 when `eng` confirms or corrects its section; D-34 when CGR-69 is built or the Clinical Owner answers; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
+
 ## 2026-10-26 17:26 CET · Clinical & Regulatory Architect (review)
 - Reviewed on their merge commits: **COND1-3** (#451, 0081), **COND1-4** (#457, 0082) and **COND1-5** (#465, 0083). CI `app`, `db` and `e2e` were green on each head (read through the GitHub API).
 - **Closed:**
