@@ -61,8 +61,8 @@ select ok(exists (select 1 from public.team_memberships where team_id = '0000000
 select is(pg_temp.as_user(905, $q$ select (r.changed -> 'reason')::text || '|' || r.text_withheld::text || '|' || array_to_string(r.withheld_keys, ',')
                                    from public.read_audit_record('quality_holds', (select hold_id from fx), 'billing') r
                                    where r.command = 'set_quality_hold' $q$),
-  'null|true|reason',
-  'AUD1-M1: an administrator in the team reading a hold with purpose billing gets reason null, text_withheld true');
+  'null|true|lift_reason,reason',
+  'AUD1-M1: an administrator in the team reading a hold with purpose billing gets reason (and lift_reason) null, text_withheld true');
 select is(pg_temp.as_user(905, $q$ select (r.changed::text ~ 'Synthetischer Haltegrund')::text || '|' || (r.changed ? 'reason')::text
                                           || '|' || (r.occurred_at is not null and r.actor_id is not null)::text
                                    from public.read_audit_record('quality_holds', (select hold_id from fx), 'billing') r

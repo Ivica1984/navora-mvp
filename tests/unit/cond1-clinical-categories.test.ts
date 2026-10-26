@@ -105,7 +105,7 @@ describe("DOOR1-16 approval record for an APPROVED register row", () => {
   });
 
   it("with a complete record it passes", () => {
-    expect(approvalRecordErrors(register("[record](approvals/CR-900.md)"), (p) => (p === "approvals/CR-900.md" ? RECORD : null))).toEqual([]);
+    expect(approvalRecordErrors(register("[record](approvals/CR-900.md)"), (p: string) => (p === "approvals/CR-900.md" ? RECORD : null))).toEqual([]);
   });
 
   it("a record without role, G-1 reference or date fails, naming what is missing", () => {
