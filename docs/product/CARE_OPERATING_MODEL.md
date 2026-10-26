@@ -14,6 +14,8 @@ Every capability is judged by whether it raises this share without lowering safe
 
 *Update (PO, 2026-10-24 21:10, D-23 decided by po):* the denominator will be the **nurse-confirmed** working day: NAVORA proposes the day from her own visit events, only she sees it, she adds breaks and non-visit work and confirms; the confirmed day goes to the employer's record on her action, and the North Star is shown per team only (AN1 suppression), never per person. The employer keeps the legal record; NAVORA is not it. PLANNED; no brief yet. Precondition: visit events readable only within the team.
 
+*Update (PO, 2026-10-26 07:15, WORK1 reviewed):* the North Star is now **computed** per team and month in AN1 (`direct_care_share`: care minutes ÷ confirmed paid minutes, confirmed days only, hidden below 3 people or 5 days), on synthetic data only (IMPLEMENTED, #434; acceptance after the clinical review OPEN). Before any pilot figure is compared with the Buurtzorg 60 % benchmark, **WORK1-C1** must hold (care counted once, never inside a break, so care ≤ paid; PLANNED) and gate G-19 must be met (OPEN). Paid time runs from her day start to day end minus breaks, so time between visits counts as paid: the measure shows exactly the gaps NAVORA should shrink.
+
 ## The benchmark: what Buurtzorg proved, and where it stops
 
 | Buurtzorg proved | Source |
