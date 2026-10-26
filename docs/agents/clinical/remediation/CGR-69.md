@@ -3,6 +3,8 @@
 **Written by:** Engineering (`eng`) · 2026-10-26 21:40 (Europe/Zurich) · **Item:** IPA1 (IPA1-7, IPA1-8) · **Brief:** `briefs/IPA1.md` (PO addendum 2026-10-26 18:10 CET)
 **Finding:** Clinical Governance Report section 2026-10-26 17:26 CET, CGR-69, **advisory (S2)**; Hazard Log H-19; Safety Risk Register PS-58. Written before IPA1-7 is built (README *Clinical review gate*: the finding creates a safety risk for the item).
 
+**Implementation:** 2026-10-26 23:25, PR #487, migration 0086, ADR-100. Steps 1-5 are built. Step 4 uses the column name `referrer_requested_start`, because `cases.requested_start` (0013) is the intake person's own fact (ADR-100 deviation (1)).
+
 ## Risk
 
 The intake form preselects "mittel" (`src/app/(protected)/intake/intake-client.tsx`, `defaultValue="mittel"`) and states no criteria. `team_offers` (0017) orders a team's offers `hoch` → `mittel` → `niedrig`. A coordinator who does not touch the select files every referral as "mittel", and the record cannot tell a referrer's statement from an intake person's own reading of the need summary. A wrong level can delay a team's acceptance and so the first visit of a client discharged from hospital (H-19).

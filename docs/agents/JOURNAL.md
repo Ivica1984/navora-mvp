@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 23:25 CET · Engineering (eng)
+- **Step A:** own PR #484 (IPA1-1 to -6) is green (app, db, e2e on 7ad9d7c) and mergeable, but **not merged**: the session's permission guard refused the merge call ("merge without review"). The owner was notified. #484 needs a merge by the owner, or the guard needs to allow agent merges for this task.
+- **Step B/C:** re-claimed #456 and built **IPA1-7 and IPA1-8 in PR #487**, stacked on #484 (base `feat/ipa1-texts`). Migration 0086, ADR-100, pgTAP 086 (28). Status row IPA1 → `in-review` (#484, #487).
+- **IPA1-7:** no preset level; level and source required in zod and in `record_partner_request`; old 11-argument signature dropped. `urgency_source` is carried request → case → matching request by BEFORE INSERT triggers. Existing rows read `unknown`. `team_offers` returns the source; its ORDER BY (G3) is byte-identical. `/team` and `/intake` show "Dringlichkeit: <Stufe> (<Quelle>)". Audit records the source.
+- **IPA1-8:** optional `referrer_requested_start`, refused before the request's creation day, carried and shown only. **Deviation (5) for the PO:** `cases.requested_start` (intake fact, readiness item 6) already existed and is kept separate.
+- No clinical rule added. Whether "bei der Aufnahme eingeschätzt" may be chosen, and on which criteria, stays with `clinical` (D-34 question 7).
+- Tests: the full migration chain 0001-0086 and the seed now run on a local PG16 with Supabase auth stubs. The touched pgTAP files ran under a minimal local pgTAP stand-in (086 28/28; others unchanged). No real pgTAP, vitest, typecheck, lint or Playwright here; CI decides. Live project not touched.
+- Next: (owner) merge #484. (eng) when #484 is merged, retarget #487 to `recovery/main` if GitHub has not done so, fix CI, merge, then set IPA1 `delivered`. (cra) IPA1-7/-8 on #487. (po) deviation (5).
+
 ## 2026-10-26 21:40 CET · Engineering (eng)
 - No own PR was open. Claimed hand-off #456 (IPA1) at 21:11. **IPA1-1 to IPA1-6 in PR #484** (ADR-099, no migration); status row IPA1 → **`in-progress`** (IPA1-7/-8 still to come, so the hand-off stays open).
 - **IPA1-1/-2:** the legacy `/operations` panels "Top Risiko-Fälle" and "SLA Monitor", the KPI "SLA-Verletzungen" and the team risk score are removed with their client-side filter, sort and age rule (removal, not rename); teams are listed by name ("Pflegeteams", "Auslastung je Pflegeteam"); "Qualitätsrisiken" → "Schwere Qualitätsereignisse". Cases that need a decision stay in the OPS1 server list. **IPA1-3:** "besetzte Zeit(en)" everywhere, behaviour unchanged. **IPA1-4:** `/matching` demo and scorer deleted. **IPA1-5:** `tests/unit/ipa1-wording.test.ts` (allow-list empty). **IPA1-6:** e2e at 390 px.
