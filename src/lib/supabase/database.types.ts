@@ -507,14 +507,14 @@ isOneToOne: true
                   ]
                 },"exception_events": {
                   Row: {
-                    "actor_id": string | null,"created_at": string,"exception_key": string,"id": number,"idempotency_key": string | null,"kind": string,"organization_id": string,"text": string | null
+                    "access_seq": number | null,"actor_id": string | null,"created_at": string,"exception_key": string,"id": number,"idempotency_key": string | null,"kind": string,"organization_id": string,"text": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "actor_id"?: string | null,"created_at"?: string,"exception_key": string,"id"?: never,"idempotency_key"?: string | null,"kind": string,"organization_id": string,"text"?: string | null
+                    "access_seq"?: number | null,"actor_id"?: string | null,"created_at"?: string,"exception_key": string,"id"?: never,"idempotency_key"?: string | null,"kind": string,"organization_id": string,"text"?: string | null
                   }
                   Update: {
-                    "actor_id"?: string | null,"created_at"?: string,"exception_key"?: string,"id"?: never,"idempotency_key"?: string | null,"kind"?: string,"organization_id"?: string,"text"?: string | null
+                    "access_seq"?: number | null,"actor_id"?: string | null,"created_at"?: string,"exception_key"?: string,"id"?: never,"idempotency_key"?: string | null,"kind"?: string,"organization_id"?: string,"text"?: string | null
                   }
                   Relationships: [
                     {
@@ -971,14 +971,14 @@ isOneToOne: false
                   ]
                 },"quality_event_log": {
                   Row: {
-                    "actor_id": string,"created_at": string,"event_id": string,"from_status": string | null,"id": number,"idempotency_key": string,"note": string | null,"organization_id": string,"to_status": string
+                    "access_seq": number | null,"actor_id": string,"created_at": string,"event_id": string,"from_status": string | null,"id": number,"idempotency_key": string,"note": string | null,"organization_id": string,"to_status": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "actor_id": string,"created_at"?: string,"event_id": string,"from_status"?: string | null,"id"?: never,"idempotency_key": string,"note"?: string | null,"organization_id": string,"to_status": string
+                    "access_seq"?: number | null,"actor_id": string,"created_at"?: string,"event_id": string,"from_status"?: string | null,"id"?: never,"idempotency_key": string,"note"?: string | null,"organization_id": string,"to_status": string
                   }
                   Update: {
-                    "actor_id"?: string,"created_at"?: string,"event_id"?: string,"from_status"?: string | null,"id"?: never,"idempotency_key"?: string,"note"?: string | null,"organization_id"?: string,"to_status"?: string
+                    "access_seq"?: number | null,"actor_id"?: string,"created_at"?: string,"event_id"?: string,"from_status"?: string | null,"id"?: never,"idempotency_key"?: string,"note"?: string | null,"organization_id"?: string,"to_status"?: string
                   }
                   Relationships: [
                     {
