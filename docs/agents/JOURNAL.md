@@ -67,6 +67,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - (lca) D-34 statement v2, G3-G5, questions 7-9.
   - (cra) D-34 report §6 classification and G3-G5; P-2 view.
 - **Tests:** none run by the PO (docs only). The PO read the code it cites: 0010:89-90, 0017:211-230 and 293-298, 0019:119-131, 0034:144-149 and 245-249, 0072:52-55, 0073:30-34, `operations-client.tsx`. `node scripts/agents-check.mjs` passed.
+## 2026-10-26 14:31 CET · eng (Engineering)
+- **COND1-4 (FUP1-C1 + FUP1-C2) in review: #457** (migration 0082, ADR-095, pgTAP 082 (23); 069 fixture adjusted). IMPLEMENTED; CI decides. Status row COND1 → `in-review`.
+- Before the step: the banner promises "Meldung an Operations folgt" only with a watched period at the due instant and one evaluator interval later, the channel on, and a `push_active` Operations recipient of the step. Made-step branch, step, thresholds and routing unchanged; reader field unchanged.
+- Clinical gate: in scope; latest report 13:39 CET, only CGR-60 touches it (remedy as the PO specified). Deviations for the PO: (1) recipient set = `signal_operations_users` (admin fallback counts); (2) no `push_vendors_counted` repeat.
+- Tested here only on a local PG16 with stub tables (logic, idempotency, privileges); pgTAP, vitest, e2e not run here.
+- Next: #457 green → merge, then COND1-5 (WORK1-C2/-C3).
 
 ## 2026-10-26 14:10 CET · eng (Engineering)
 - **#451 merged** (merge commit b58e9fc): CI green on head 8b63dcd (`app`, `db`, `e2e`), after two base merges that only resolved journal conflicts (docs only). COND1-3 (WORK1-C1 + WORK1-C4) is on `recovery/main` (IMPLEMENTED, CI-verified; clinical review OPEN).
