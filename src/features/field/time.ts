@@ -32,6 +32,25 @@ function minutes(ms: number): number {
   return Math.floor(ms / MINUTE);
 }
 
+/**
+ * WORK1-C4 (b): the `zeit` parameter /work sends to open a visit's time line (an ISO instant). Anything that is not
+ * a parseable instant is ignored (null).
+ */
+export function parseFocusInstant(raw: unknown): string | null {
+  const v = Array.isArray(raw) ? raw[0] : raw;
+  if (typeof v !== "string" || v.length > 40 || !/^\d{4}-\d{2}-\d{2}T/.test(v)) return null;
+  const t = Date.parse(v);
+  return Number.isNaN(t) ? null : new Date(t).toISOString();
+}
+
+/** True when one of the visit's events has its effective time at this instant (to the second). */
+export function hasEventAt(events: ReadonlyArray<VisitEvent>, iso: string | null | undefined): boolean {
+  if (!iso) return false;
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return false;
+  return events.some((e) => Math.abs(Date.parse(e.at) - t) < 1000);
+}
+
 /** Parses the jsonb timeline returned by public.field_visits(). Unknown shapes become an empty list. */
 export function parseEvents(raw: unknown): VisitEvent[] {
   if (!Array.isArray(raw)) return [];

@@ -7,8 +7,9 @@ import { formatDayLabel } from "@/features/field/rules";
 import { acknowledgeWorkingTimeNotice, confirmWorkingDay, exportWorkingMonth } from "@/features/work/commands";
 import type { DayVersion } from "@/features/work/queries";
 import {
-  KIND_LABEL, NOTICE_DRAFT_HINT, NOTICE_PARAGRAPHS, NOTICE_TITLE, OUTSIDE_KINDS, REASON_CODES, REASON_LABEL,
-  buildPayload, monthOf, nextDate, openQuestions, proposalSegments, zurichInstant, zurichTime,
+  CORRECTED_MARK, KIND_LABEL, NOTICE_DRAFT_HINT, NOTICE_PARAGRAPHS, NOTICE_TITLE, OUTSIDE_KINDS, REASON_CODES, REASON_LABEL,
+  VISIT_TIME_HINT, VISIT_TIME_LINK, buildPayload, monthOf, nextDate, openQuestions, proposalSegments, visitCorrectionHref,
+  visitSegmentChanged, zurichInstant, zurichTime,
   type DayDraft, type OutsideKind, type ProposalRow, type ReasonCode, type VisitKind,
 } from "@/features/work/rules";
 
@@ -82,7 +83,7 @@ function draftFrom(proposal: ProposalRow[], latest: DayVersion | undefined): Omi
     return { dayStart: "", dayEnd: "", segments: proposalSegments(proposal), breaks: null, outside: null, reason: null, note: "" };
   }
   const visit = latest.entries.filter((e) => ["travel", "care", "visit_pause"].includes(e.kind))
-    .map((e) => ({ kind: e.kind as VisitKind, start: e.start, end: e.end }));
+    .map((e) => ({ kind: e.kind as VisitKind, start: e.start, end: e.end, origin: { start: e.start, end: e.end, corrected: false } }));
   const breaks = latest.breaks_answer === "none" ? "none" as const
     : latest.entries.filter((e) => e.kind === "break").map((e) => ({ start: zurichTime(e.start), end: zurichTime(e.end) }));
   const outside = latest.outside_answer === "none" ? "none" as const
@@ -182,6 +183,15 @@ function DayForm({ day, proposal, versions }: Pick<Props, "day" | "proposal" | "
                 placeholder="Ende offen"
                 onChange={(e) => set({ segments: d.segments.map((x, j) => (j === i ? { ...x, end: instantFor(e.target.value) } : x)) })} />
               {!s.end && <span className="col-span-3 text-xs font-semibold text-amber-900">Ende offen: bitte eintragen.</span>}
+              {s.origin?.corrected && !visitSegmentChanged(s) && (
+                <span data-testid="segment-corrected" className="col-span-3 text-xs text-stone-700">{CORRECTED_MARK}</span>
+              )}
+              {visitSegmentChanged(s) && (
+                <p data-testid="visit-time-hint" className="col-span-3 rounded-lg bg-amber-50 p-2 text-xs text-amber-950">
+                  {VISIT_TIME_HINT}{" "}
+                  <Link href={visitCorrectionHref(s.origin, day)} className="font-semibold underline underline-offset-2">{VISIT_TIME_LINK}</Link>
+                </p>
+              )}
             </li>
           ))}
         </ol>
