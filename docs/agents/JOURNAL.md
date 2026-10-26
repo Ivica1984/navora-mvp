@@ -12,6 +12,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Note to po** (both packages): the sub-processor approval belongs in the D-12 partnership terms; the suggestion ledger should hold no payload copy (retention to D-4); IPA1 should remove or prove unreachable the `/operations` client-side ranking and the `/matching` scorer, not only rename them (the objective-capability limb of C-427/24); D-34 question 8 and D-35 question 1 go to the same adviser pair.
 - **Next for `lca`:** D-35 again when `eng` and `cra` are in; D-34 again if `cra`'s G3-G5 classification changes the reading; D-23 when WORK1-C2/-C3 are built; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
 
+## 2026-10-26 14:59 CET · eng (Engineering)
+- **#457 merged** (merge commit a6757d0): CI green on head 4e0cd29 (`app`, `db`, `e2e`). COND1-4 (FUP1-C1 + FUP1-C2, migration 0082, ADR-095, pgTAP 082 (23)) is on `recovery/main` (IMPLEMENTED, CI-verified; clinical review OPEN). First CI run failed only because a bare fixture row `ok` broke the TAP stream (all 22 assertions passed); fixed by wrapping it in `ok()`.
+- Status row COND1 back to **`in-progress`** (COND1-7, amended 14:30: COND1-5, -6, -8, -9, -10 still open). The two ADR-095 deviations wait for the PO.
+- Next: COND1-5 (WORK1-C2/-C3).
+
 ## 2026-10-26 14:47 CET · po (Product Owner)
 - **Owner work package: AI Operating Model Review** ([report](../product/AI_OPERATING_MODEL_REVIEW.md); strategic review, no build approved). Every role, meeting, validation, documentation activity and control answered on five questions: automate, monitor continuously, delegate to an agent, exists only through fragmentation, gone with a care graph.
 - **Finding:** AI-first is graph-first. NAVORA already holds most of the graph (62 tables, IMPLEMENTED on synthetic data). It is missing:
@@ -75,6 +80,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - (lca) D-34 statement v2, G3-G5, questions 7-9.
   - (cra) D-34 report §6 classification and G3-G5; P-2 view.
 - **Tests:** none run by the PO (docs only). The PO read the code it cites: 0010:89-90, 0017:211-230 and 293-298, 0019:119-131, 0034:144-149 and 245-249, 0072:52-55, 0073:30-34, `operations-client.tsx`. `node scripts/agents-check.mjs` passed.
+## 2026-10-26 14:31 CET · eng (Engineering)
+- **COND1-4 (FUP1-C1 + FUP1-C2) in review: #457** (migration 0082, ADR-095, pgTAP 082 (23); 069 fixture adjusted). IMPLEMENTED; CI decides. Status row COND1 → `in-review`.
+- Before the step: the banner promises "Meldung an Operations folgt" only with a watched period at the due instant and one evaluator interval later, the channel on, and a `push_active` Operations recipient of the step. Made-step branch, step, thresholds and routing unchanged; reader field unchanged.
+- Clinical gate: in scope; latest report 13:39 CET, only CGR-60 touches it (remedy as the PO specified). Deviations for the PO: (1) recipient set = `signal_operations_users` (admin fallback counts); (2) no `push_vendors_counted` repeat.
+- Tested here only on a local PG16 with stub tables (logic, idempotency, privileges); pgTAP, vitest, e2e not run here.
+- Next: #457 green → merge, then COND1-5 (WORK1-C2/-C3).
 
 ## 2026-10-26 14:10 CET · eng (Engineering)
 - **#451 merged** (merge commit b58e9fc): CI green on head 8b63dcd (`app`, `db`, `e2e`), after two base merges that only resolved journal conflicts (docs only). COND1-3 (WORK1-C1 + WORK1-C4) is on `recovery/main` (IMPLEMENTED, CI-verified; clinical review OPEN).
