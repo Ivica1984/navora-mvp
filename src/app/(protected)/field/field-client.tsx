@@ -18,6 +18,7 @@ import {
   EVENT_LABEL,
   computeVisitTimes,
   formatMinutes,
+  hasEventAt,
   parseEvents,
   zurichDate,
   zurichLocalToIso,
@@ -81,6 +82,8 @@ type Props = {
   signals?: SignalRow[];
   /** LEAVE1-12 (1): registered nurses only: team members with open reports (counts by kind, access-end date). */
   teamOpenReports?: TeamOpenReport[];
+  /** WORK1-C4 (b): opened from /work to correct a visit time: the instant of one of the visit's events. */
+  focusAt?: string | null;
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -105,7 +108,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [] }: Props) {
+export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null }: Props) {
   const summary = summarizeDay(visits);
   const sinceLastByVisit = groupSinceLast(sinceLast);
 
@@ -247,6 +250,7 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
                   door={doorNotes.find((d) => d.visit_id === visit.visit_id)}
                   alerts={safetyAlerts.filter((a) => a.visit_id === visit.visit_id)}
                   history={alertHistory.filter((h) => h.case_id === visit.case_id)}
+                  focusAt={focusAt}
                 />
               </li>
             ))}
@@ -281,7 +285,9 @@ function VisitCard({
   door,
   alerts,
   history,
+  focusAt = null,
 }: {
+  focusAt?: string | null;
   visit: FieldVisit;
   notes: FieldNote[];
   report: FieldReport | null;
@@ -307,6 +313,8 @@ function VisitCard({
   const needs = visit.care_needs?.length ? visit.care_needs.join(", ") : null;
   const events = parseEvents(visit.events);
   const times = events.length > 0 ? computeVisitTimes(events) : null;
+  // WORK1-C4 (b): /work links here with the instant of one of this visit's events; its time line opens.
+  const focused = hasEventAt(events, focusAt);
   // CSR1 / CGR-03: signed means fixed; changes only through a report correction version.
   const locked = visitFactsLocked(report);
   // F6R-3: a returned report is open for its performer only; everyone else sees why the facts are fixed.
@@ -332,8 +340,9 @@ function VisitCard({
 
   return (
     <article
+      id={focused ? "einsatz-korrektur" : undefined}
       aria-label={`Einsatz ${time}, ${visit.client_name ?? "Klient:in"}`}
-      className="rounded-2xl bg-white p-4 shadow-sm"
+      className="scroll-mt-4 rounded-2xl bg-white p-4 shadow-sm"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -416,7 +425,7 @@ function VisitCard({
         </section>
       )}
 
-      {events.length > 0 && <Timeline events={events} locked={locked} lockedHint={lockedHint} />}
+      {events.length > 0 && <Timeline events={events} locked={locked} lockedHint={lockedHint} open={focused} />}
 
       <Observations
         visitId={visit.visit_id}
@@ -616,9 +625,9 @@ function ObservationForm({
   );
 }
 
-function Timeline({ events, locked, lockedHint = FACTS_LOCKED_HINT }: { events: VisitEvent[]; locked: boolean; lockedHint?: string }) {
+function Timeline({ events, locked, lockedHint = FACTS_LOCKED_HINT, open = false }: { events: VisitEvent[]; locked: boolean; lockedHint?: string; open?: boolean }) {
   return (
-    <details className="mt-2 rounded-xl border border-stone-200 p-2 text-sm">
+    <details open={open || undefined} className="mt-2 rounded-xl border border-stone-200 p-2 text-sm">
       <summary className="min-h-11 cursor-pointer content-center px-1 font-semibold text-emerald-900">
         {locked ? "Zeiten ansehen" : "Zeiten ansehen und korrigieren"}
       </summary>

@@ -4,12 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 13:50 CET · eng (Engineering)
+- Claimed #448 (COND1) at 13:21. Built **COND1-3** (WORK1-C1 + WORK1-C4) in **#451** (`feat/cond1-3-work1-c1-c4`): migration **0081**, **ADR-094**, pgTAP **081** (21). Status row COND1 `in-review` (#451).
+- WORK1-C1: `care_minutes` = union of the confirmed care segments, clipped to the day, minus breaks; check constraint `care_le_paid` (NOT VALID, no rewrite). WORK1-C4: the proposal uses the effective (F3) event time for start, end, order and date and marks `corrected`; `/work` shows the brief's hint and links to the visit's time correction on `/field`; no write-back (pgTAP fingerprint).
+- **Deviation for `po`:** the link finds the visit by an event instant, not a visit id, because WORK1-1 / pgTAP 079 keep `my_working_day` identifier-free; a segment she had already edited links to the day only. Exact linking would need `visit_id` in her own read model (PO's call, not built). Hint text verbatim ("Sie").
+- **For `lca`:** WORK1-C4 is now built (D-23 re-check input). **Not run here:** pgTAP, vitest, typecheck, lint, e2e (npm registry unreachable); CI decides.
+- Next: merge #451 when CI is green; then COND1-4 (FUP1-C1/-C2).
+
 ## 2026-10-26 13:39 CET · Clinical & Regulatory Architect (review)
 - Reviewed **COND1-1 and COND1-2** (0080, ADR-093, pgTAP 080 (58), pgTAP 078 restore block; #446 merged `cb5e317`; CI `app`, `db`, `e2e` green on `66e8d0a` and `a5d5cc7`). Read **COND1-3** (#451, open): WORK1-C4 matches the CGR-65 remedy (effective F3 times, hint to correct on the visit, no write-back; pgTAP 081). CGR-65 closes on the merge commit.
 - **No blocking finding. Closed:** CGR-64 (a delivery to a leaver no longer counts as reached), CGR-63 (a restore no longer revives a signal take), CGR-61 (a clinical category needs an APPROVED register row). PS-50, PS-51, PS-52, PS-54, PS-55 closed. Residual: the owner's G-11 count before the first import.
 - **Opened (all advisory):** CGR-66 (S3): the code guard also refuses phone numbers and postal codes, so a key holder's number may be dropped (po; D-17 part 3). CGR-67 (S3): a restore brings back a leaver's OPS1 take and quality claim with her name (po). CGR-68 (S2): the DOOR1-14 gate trusts a Status cell that any agent PR can change (owner, eng; G-1).
 - Registers: CR-117 and CR-118 (eng) reviewed; CR-119 to CR-122 added; PS-56, PS-57, G-8 added; H-03, H-07, H-14 updated. I ran no NAVORA test; I ran `node scripts/agents-check.mjs` before publishing.
 - **Next:** (po) decide CGR-66 and CGR-67. (eng) #451 conflict and CI; COND1-4 to -6. (owner) G-1, D-1, the G-11 count. (cra) close CGR-65 on #451's merge commit.
+
 ## 2026-10-26 13:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). New evidence since 10:15: #446 merged (COND1-1, COND1-2; CI `app`, `db`, `e2e` green on 66e8d0a, re-read through the API), `eng` 12:20, `lca` 12:50 (D-17 re-check). No `cra` entry since 09:26.
 - **Review:** nothing to review. COND1 is `in-progress` and, by COND1-7, is reviewed only once COND1-1 to COND1-6 are merged; `cra` has not reviewed 0080 yet. The PO read the DOOR1-12 trigger (0080:425-437) only to place `lca`'s evidence, not as acceptance.
