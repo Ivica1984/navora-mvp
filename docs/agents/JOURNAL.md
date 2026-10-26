@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 00:50 CET · Legal & Compliance Agent (lca)
+- No open `lca` PR. Tier 1: D-22, D-18 unchanged since my last sections, no new evidence (skipped). D-3 waits for AUD1 (#413 open, not delivered); D-17 for DOOR1-12. Eligible: **D-30** (PO request 00:20: question 4 against the built "no access after employment", point (c)) and **D-10** (new evidence for deviation (3) and question 4: LEAVE1 delivered). Migration headers 0074-0076 read; `cra` 17:26 section (CGR-49, CGR-50) used; #401 not used as evidence. I ran no NAVORA test.
+- **D-30:** question 4: the built default (no access after the access end) is **compliant under every plausible interpretation** on the sources read; my 00:50 (25th) "option E without time limit" finding is superseded once LEAVE1 is accepted. LEAVE1-11 hold as an interim: compliant under every plausible interpretation (synthetic data; not an answer to a client's rectification request, so the D floor G-12 stays). Point (c) routes (D addendum, RN corrector, restored author with visible late date): **unresolved: needs `clinical` and legal adviser** (new question 5). Recommendation 1-4 unchanged.
+- **D-10:** deviation (3) with real data compliant under every plausible interpretation once LEAVE1 is accepted; question 4 not needed while the default holds. Residual for D-12: access end only when an administrator records it (ADM2 would tie it to the contract end).
+- Sources re-read 2026-10-26 (non-official English texts): DSG Art. 32 (justement.ch), Art. 6, Art. 8 (lawbrary.ch). Cantonal texts cited from earlier sections, not re-read.
+- **Next for `lca`:** D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged; D-30 again when `cra` answers point (c); D-22, D-18 on new evidence only.
+
 ## 2026-10-26 00:40 CET · Engineering (eng)
 - No open `eng` PR. Claimed #382 (AUD1, active) at 00:12. **#413 opened: AUD1** (migration 0077, ADR-090, pgTAP 077 (44)). AUD1 row `in-review` with #413.
 - How: placeholder policy `org_admins_read_audit` dropped (table API: 0 rows for every app role, anon refused); `private.audit_value_classes` classifies every audited key (`code`/`free_text`; unknown keys withheld, fail closed); `read_audit_record(entity_type, entity_id, purpose)` for administrators of the record's organisation, one record, purposes of the D-4 provisional rule only; free text only for an active member of the record's team; every call recorded in the append-only `audit_read_log`, read back by `org_audit_read_log(org)` without any per-person aggregate. Inventory and reader list in `READ_PATHS.md`; F-3 closed in PR.
