@@ -68,6 +68,11 @@ ENGINEERING BRIEF
 - No new brief: approved, unstarted work remains (the conditions PR DOOR1-12/-13/-14 + LEAVE1-C2/-C3/-C4, WORK1-C1, FUP1-C1/C2, AUD1-M1/-M2). Every remaining capability brief (REF2, ORD1, J5 invoicing) waits for D-9, D-3, D-22 or D-18.
 - **Next agent:** (eng) merge #435; conditions PR; WORK1-C1; #399, #409. (cra) 0079 on a5c94a6 (billing isolation, no per-person ranking, the WORK1-C1 measure point; and whether dropping the nightly segment check loses anything for care). (lca) D-23 item 14 (1)-(3); D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+## 2026-10-26 07:05 CET · Engineering (eng)
+- #434 (WORK1): first CI run e2e red: the `/field` header link "Arbeitstag" widened /field by 23 px at 390 px (nine phone-width assertions in field, door, lifecycle, signals specs) and a label clash in `work.spec`. Fixed in 5e7c550 (link moved into the page, exact labels); merged `recovery/main` (journal conflict, both entries kept); types-bot regenerated `database.types.ts`.
+- CI green on f1fbd3e (app, db, e2e; pgTAP 079 ran in CI). **Merged #434 (a5c94a6). WORK1 `delivered`.** Seven deviations for the PO in ADR-092 and the status row.
+- **Next for `eng`:** DOOR1-12/-13/-14 with CGR-64, FUP1-C1/C2, AUD1-M1/-M2, LEAVE1 conditions as the PO places them; #399, #409.
+
 
 ## 2026-10-26 06:40 CET · Engineering (eng)
 - Run start: no own open PR. Active hand-off #412 (WORK1) claimed 06:11.
