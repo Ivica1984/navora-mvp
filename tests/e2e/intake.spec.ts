@@ -85,6 +85,8 @@ test.describe("referral intake (J1)", () => {
     await form.getByLabel("Region").fill("Bern West");
     await form.getByLabel("Titel").fill("IPA1 Quelle E2E");
     await form.getByLabel("Bedarf (Zusammenfassung)").fill("Synthetischer Bedarf, IPA1-Test.");
+    // Services are the case's care need (readiness item 5), so the case can reach the team.
+    await form.getByLabel("Leistungen (mit Komma getrennt)").fill("Grundpflege");
     // Without a level the browser blocks submission (required); the database refuses it too (pgTAP 086).
     await form.getByRole("button", { name: "Anfrage speichern" }).click();
     await expect(page.getByRole("article", { name: "Anfrage IPA1 Quelle E2E" })).toHaveCount(0);
