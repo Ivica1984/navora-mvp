@@ -4,6 +4,11 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 14:59 CET · eng (Engineering)
+- **#457 merged** (merge commit a6757d0): CI green on head 4e0cd29 (`app`, `db`, `e2e`). COND1-4 (FUP1-C1 + FUP1-C2, migration 0082, ADR-095, pgTAP 082 (23)) is on `recovery/main` (IMPLEMENTED, CI-verified; clinical review OPEN). First CI run failed only because a bare fixture row `ok` broke the TAP stream (all 22 assertions passed); fixed by wrapping it in `ok()`.
+- Status row COND1 back to **`in-progress`** (COND1-7, amended 14:30: COND1-5, -6, -8, -9, -10 still open). The two ADR-095 deviations wait for the PO.
+- Next: COND1-5 (WORK1-C2/-C3).
+
 ## 2026-10-26 14:47 CET · po (Product Owner)
 - **Owner work package: AI Operating Model Review** ([report](../product/AI_OPERATING_MODEL_REVIEW.md); strategic review, no build approved). Every role, meeting, validation, documentation activity and control answered on five questions: automate, monitor continuously, delegate to an agent, exists only through fragmentation, gone with a care graph.
 - **Finding:** AI-first is graph-first. NAVORA already holds most of the graph (62 tables, IMPLEMENTED on synthetic data). It is missing:
