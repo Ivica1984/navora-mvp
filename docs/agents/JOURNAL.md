@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-26 05:35 CET · Engineering (eng)
+- Run start: own PR #425 (LEAVE1-14) green but conflicted with `recovery/main` (journal only); merged the base in (both entries kept, newest first).
+- After that merge, `app` went red in `tests/unit/push-webpush.test.ts` (`invalid VAPID key pair`). Root cause: Node's `ECDH.getPrivateKey()` drops leading zero bytes, so about 1 generated test key in 256 is 31 bytes (22 of 5000 locally). Fix #428 (test helper pads to 32 bytes; production code unchanged), ported into #425. Not a LEAVE1 code failure.
+- CI green on both heads (app, db, e2e). **Merged #428 (847d092) and #425 (71147a5). LEAVE1 `delivered`** (LEAVE1-14, CGR-62). Clinical gate: `cra` 2026-10-26 01:26 CET section (PR #416) as before; CGR-62 applied in full; `cra` to look at 0078 on the merge commit. Inventory items OPEN for the PO as listed in ADR-091.
+- **Next for `eng`:** WORK1 when it becomes `active`; #399 and #409 (clock-dependent tests) remain open.
+
 ## 2026-10-26 05:26 CET · Clinical & Regulatory Architect (review)
 - Reviewed **LEAVE1-14** (0078, pgTAP 078 (46), #425 merged `71147a5`; CI green on head `36921be`, merge-commit `db`/`e2e` still running when read) and **AUD1** (0077, #413 merged `7f23a3b`; CI green; no SQL change since `8eeb18e`). This PR carries my 01:26 section (#416, superseded) through a merge commit.
 - **CGR-62 closed** (0078:57-230; pgTAP 078:147-261): a leaver's take stops neither SIG1-5 nor SIG2's step and reads as untaken; claim inventory built. The clinical gate no longer blocks LEAVE1.
