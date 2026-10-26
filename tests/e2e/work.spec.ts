@@ -42,11 +42,11 @@ test("the nurse confirms, corrects and exports her working day (WORK1-2, -3, -4,
   await page.getByLabel("Beginn des Arbeitstags?").fill("07:00");
   await page.getByLabel("Ende des Arbeitstags?").fill("15:30");
   const breaks = page.getByRole("group", { name: "Pausen von 30 Minuten oder mehr?" });
-  await breaks.getByLabel("Ja, eintragen").check();
-  await breaks.getByLabel("Von").fill("12:00");
-  await breaks.getByLabel("Bis").fill("12:30");
+  await breaks.getByLabel("Ja, eintragen", { exact: true }).check();
+  await breaks.getByLabel("Von", { exact: true }).fill("12:00");
+  await breaks.getByLabel("Bis", { exact: true }).fill("12:30");
   await expect(confirm).toBeDisabled();
-  await page.getByRole("group", { name: "Arbeit ausserhalb der Einsätze?" }).getByLabel("Keine").check();
+  await page.getByRole("group", { name: "Arbeit ausserhalb der Einsätze?" }).getByLabel("Keine", { exact: true }).check();
   await expect(confirm).toBeEnabled();
   await confirm.click();
 

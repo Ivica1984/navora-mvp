@@ -114,10 +114,6 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
           <Link href="/team" className="ml-auto flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-emerald-100 underline underline-offset-4">
             Teamanfragen
           </Link>
-          {/* WORK1: her own working day for this date (only she reads it). */}
-          <Link href={`/work?datum=${day}`} className="flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-emerald-100 underline underline-offset-4">
-            Arbeitstag
-          </Link>
           <form action={signOut}>
             <button type="submit" className="min-h-11 rounded-lg px-3 text-sm font-semibold text-emerald-100 underline-offset-4 hover:underline">
               Abmelden
@@ -143,6 +139,10 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
 
       <main className="mx-auto max-w-xl px-4 py-4">
         <SignalBanner initial={signals} />
+        {/* WORK1: her own working day for this date (only she reads it). In the page, not the header: phone width. */}
+        <Link href={`/work?datum=${day}`} className="mb-4 flex min-h-11 items-center justify-center rounded-lg border border-emerald-800 bg-white px-3 text-sm font-semibold text-emerald-900">
+          Arbeitstag ansehen und bestätigen
+        </Link>
         <section className="mb-4 grid grid-cols-3 gap-2 text-center" aria-label="Tagesübersicht">
           <Stat label="Offen" value={summary.open} />
           <Stat label="Laufend" value={summary.running} />

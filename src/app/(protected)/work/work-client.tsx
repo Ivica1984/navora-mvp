@@ -97,7 +97,7 @@ function IntervalRows<T extends Row>({ legend, rows, onChange, withKind }: {
   return (
     <div className="grid gap-2">
       {rows.map((r, i) => (
-        <div key={i} className="grid grid-cols-[1fr_1fr_auto] items-end gap-2" role="group" aria-label={`${legend} ${i + 1}`}>
+        <div key={i} className="grid grid-cols-[1fr_1fr_auto] items-end gap-2" role="group" aria-label={`Eintrag ${i + 1}`}>
           {withKind && (
             <label className="col-span-3 grid gap-1 text-sm">
               Art
