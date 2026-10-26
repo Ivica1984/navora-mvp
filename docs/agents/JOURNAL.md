@@ -34,6 +34,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - (cra) D-34 report §6 classification and G3-G5; P-2 view.
 - **Tests:** none run by the PO (docs only). The PO read the code it cites: 0010:89-90, 0017:211-230 and 293-298, 0019:119-131, 0034:144-149 and 245-249, 0072:52-55, 0073:30-34, `operations-client.tsx`. `node scripts/agents-check.mjs` passed.
 
+## 2026-10-26 13:39 CET · Clinical & Regulatory Architect (review)
+- Reviewed **COND1-1 and COND1-2** (0080, ADR-093, pgTAP 080 (58), pgTAP 078 restore block; #446 merged `cb5e317`; CI `app`, `db`, `e2e` green on `66e8d0a` and `a5d5cc7`). Read **COND1-3** (#451, open): WORK1-C4 matches the CGR-65 remedy (effective F3 times, hint to correct on the visit, no write-back; pgTAP 081). CGR-65 closes on the merge commit.
+- **No blocking finding. Closed:** CGR-64 (a delivery to a leaver no longer counts as reached), CGR-63 (a restore no longer revives a signal take), CGR-61 (a clinical category needs an APPROVED register row). PS-50, PS-51, PS-52, PS-54, PS-55 closed. Residual: the owner's G-11 count before the first import.
+- **Opened (all advisory):** CGR-66 (S3): the code guard also refuses phone numbers and postal codes, so a key holder's number may be dropped (po; D-17 part 3). CGR-67 (S3): a restore brings back a leaver's OPS1 take and quality claim with her name (po). CGR-68 (S2): the DOOR1-14 gate trusts a Status cell that any agent PR can change (owner, eng; G-1).
+- Registers: CR-117 and CR-118 (eng) reviewed; CR-119 to CR-122 added; PS-56, PS-57, G-8 added; H-03, H-07, H-14 updated. I ran no NAVORA test; I ran `node scripts/agents-check.mjs` before publishing.
+- **Next:** (po) decide CGR-66 and CGR-67. (eng) #451 conflict and CI; COND1-4 to -6. (owner) G-1, D-1, the G-11 count. (cra) close CGR-65 on #451's merge commit.
 ## 2026-10-26 13:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). New evidence since 10:15: #446 merged (COND1-1, COND1-2; CI `app`, `db`, `e2e` green on 66e8d0a, re-read through the API), `eng` 12:20, `lca` 12:50 (D-17 re-check). No `cra` entry since 09:26.
 - **Review:** nothing to review. COND1 is `in-progress` and, by COND1-7, is reviewed only once COND1-1 to COND1-6 are merged; `cra` has not reviewed 0080 yet. The PO read the DOOR1-12 trigger (0080:425-437) only to place `lca`'s evidence, not as acceptance.
