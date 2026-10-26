@@ -1615,6 +1615,32 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"working_day_versions": {
+                  Row: {
+                    "break_minutes": number,"breaks_answer": string,"care_minutes": number,"confirmed_at": string,"day_end": string,"day_start": string,"entries": NonNullable<Json>,"id": string,"note": string | null,"organization_id": string,"outside_answer": string,"paid_minutes": number,"reason_code": string | null,"team_id": string | null,"user_id": string,"version": number,"work_date": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "break_minutes": number,"breaks_answer": string,"care_minutes": number,"confirmed_at"?: string,"day_end": string,"day_start": string,"entries": NonNullable<Json>,"id"?: string,"note"?: string | null,"organization_id": string,"outside_answer": string,"paid_minutes": number,"reason_code"?: string | null,"team_id"?: string | null,"user_id": string,"version": number,"work_date": string
+                  }
+                  Update: {
+                    "break_minutes"?: number,"breaks_answer"?: string,"care_minutes"?: number,"confirmed_at"?: string,"day_end"?: string,"day_start"?: string,"entries"?: NonNullable<Json>,"id"?: string,"note"?: string | null,"organization_id"?: string,"outside_answer"?: string,"paid_minutes"?: number,"reason_code"?: string | null,"team_id"?: string | null,"user_id"?: string,"version"?: number,"work_date"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "working_day_versions_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "working_day_versions_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"working_time": {
                   Row: {
                     "day_end": string,"day_start": string,"id": boolean,"time_zone": string,"weekdays": (number)[]
@@ -1665,6 +1691,26 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "care_visits"
       referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"working_time_notice_acks": {
+                  Row: {
+                    "acknowledged_at": string,"id": string,"organization_id": string,"text_version": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "acknowledged_at"?: string,"id"?: string,"organization_id": string,"text_version": string,"user_id": string
+                  }
+                  Update: {
+                    "acknowledged_at"?: string,"id"?: string,"organization_id"?: string,"text_version"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "working_time_notice_acks_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
     }
                   ]
                 }
