@@ -13,6 +13,10 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 ## Änderungen gegenüber 9. Oktober 2026
 
 - **DECIDED (Owner, PRIO-1):** Reihenfolge F0, J1, J2, J3.
+- **Stand 26.10. 14:47:** **KI-Betriebsmodell geprüft** (Bericht, keine Freigabe):
+  - Der grösste Teil der Koordinations- und Kontrollarbeit entsteht, weil Informationen verstreut sind. Mit einem laufend aktuellen Pflegegraphen fällt diese Arbeit weg, statt an KI-Agenten zu gehen.
+  - KI-Agenten nur an den Rändern (Briefe, Diktat, Entwürfe), immer mit einer bestätigenden Person, mit Protokoll jedes Vorschlags und Abschaltregel.
+  - **Neuer Entscheid D-35** (OFFEN, Owner): Dürfen Klienten- oder Personaldaten an einen KI-Dienst gehen, und auf welcher Grundlage? Bis dahin: keine echten Daten an KI-Dienste.
 - **Stand 26.10. 14:30:** **COND1 in Arbeit, um drei kleine Auflagen ergänzt** (GEPLANT): Der korrekte Pflegeanteil im Arbeitstag ist gemergt (#451, CI grün; UMGESETZT auf synthetischen Daten). Neu: Nach einer Wiederherstellung des Zugangs zählt auch eine frühere Übernahme einer Ausnahme oder einer Qualitätsprüfung nicht mehr, und kein Name erscheint wieder (LEAVE1-C5). Die Zugangsnotiz bleibt ohne Telefonnummer und Postleitzahl; der Hilfetext sagt es (DOOR1-15). Ob die Pflegefachperson an der Tür die Erreichbarkeit der Schlüsselperson braucht, entscheidet die klinische Verantwortung (D-17, OFFEN). Eine klinische Regel gilt im Prüfskript erst mit einem Freigabenachweis als freigegeben (DOOR1-16).
 - **Stand 26.10. 15:00:**
   - **D-33 entschieden (Owner):** P1-Sicherheitssignale bleiben für Safari (macOS, iOS, iPadOS) und Firefox nur in der App, bis eine rechtliche Prüfung anders entscheidet. Neu beurteilt wird vor dem ersten echten Klienten (G-20).
