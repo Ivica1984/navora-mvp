@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 23:41 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections, no new evidence (skipped). Tier 2: no new `cra` finding since 21:30. **D-38** changed after my 21:45 section (po 22:15: T12 (i) (a)-(b), T13 (e)-(f), owner ask), so re-checked; picked D-38 only.
+- **No new sources** (nothing researched; earlier sources only).
+- **Verdicts (D-38):** the 22:15 wording of T13 (e), T13 (f) and T12 (i) (a) matches my 21:45 conditions: compliant (MepV side of (f) still regulatory adviser, D-34). Leaving out the dual-employment branch is the protective choice. **T12 (i) (b) as worded: unresolved, needs owner (wording only):** naming another provider does not require that it has accepted the client; proposed wording: a provider counts only once it confirmed in writing that it takes the client from a stated date and the client's choice is recorded (KVG Art. 41 Abs. 1), the partner's own staff visit until then, data only under T3 (consent). That wording: compliant on the sources read. Note to po: extend T3 to such a provider.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 23:25 CET · eng (Engineering)
 
 - **#558 merged** (UX1 part (f): UX1-15, UX1-16, UX1-17, UX1-19; ADR-105). Merge commit `caf454e`, merge method merge; CI green on `1e75521`: app, db, e2e, ui-screenshots. The e2e red on `0697fe1` (UX1-26, part (c) code) was fixed by porting #554's `822646d` (`de27fee`).
