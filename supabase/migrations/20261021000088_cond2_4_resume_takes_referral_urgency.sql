@@ -16,7 +16,12 @@
 --   * The body is the current one (0034 in the DST1 clock form of ADR-081: private.now(), private.at_zurich) with that
 --     one step added (marked COND2-4) and the diff list extended; nothing else changes.
 -- Team view: public.team_cases returns `return_urgency_source` and `return_referrer_requested_start` for a case only
---   while its `review_after_pause` task is open (the place where the team handles the return), else null. team_cases
+--   while its `review_after_pause` task is open (the place where the team handles the return), else null.
+--   COND2-4a (po 06:10, `cra` CGR-73): `return_referrer_requested_start` is read from THIS return's request (the case's
+--   newest `referral_links` row of kind 'resume' and its `partner_requests` row), not from the case: when the request
+--   carried no date the team reads null ("nicht angegeben"); the case's kept date is not shown as this referrer's
+--   statement. Two resumes of one case are always separate transactions (a pause lies between them), so the newest
+--   link by created_at is this return; id breaks a tie deterministically. team_cases
 --   already returns `urgency`; it keeps its ORDER BY (name) and its LEAVE1-3 guard. No other column, no new grant.
 -- Display only (as IPA1-8): no order, filter, deadline, signal, readiness item or visit reads the new values. A
 --   resumed case has its team and its (closed or decided) matching request, so open_matching_if_ready does not run and
@@ -149,8 +154,13 @@ declare
          -- COND2-4: shown only while the review task of the return is open.
          case when exists (select 1 from public.case_tasks k where k.case_id = c.id and k.kind = ''review_after_pause'' and k.status = ''open'')
               then c.urgency_source end,
+         -- COND2-4a (CGR-73): the date only from THIS return''s request (the newest resume link of the case and its
+         -- partner_requests row); a request without a date reads null ("nicht angegeben"), never a kept earlier date.
          case when exists (select 1 from public.case_tasks k where k.case_id = c.id and k.kind = ''review_after_pause'' and k.status = ''open'')
-              then c.referrer_requested_start end';
+              then (select pr.referrer_requested_start
+                      from public.referral_links l join public.partner_requests pr on pr.id = l.partner_request_id
+                     where l.linked_case_id = c.id and l.kind = ''resume''
+                     order by l.created_at desc, l.id desc limit 1) end';
 begin
   if position('COND2-4' in def) > 0 then
     return;   -- already applied

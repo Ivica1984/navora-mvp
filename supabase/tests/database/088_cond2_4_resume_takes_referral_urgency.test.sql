@@ -1,13 +1,14 @@
 -- COND2-4 = IPA1-C2 (migration 0088, ADR-102; brief `docs/agents/briefs/COND2.md`, added by po 2026-10-27 02:10;
 -- `cra` CGR-71): when a returning referral resumes a paused case, the new referral's urgency, its source and the
 -- referrer's requested start are recorded on the case (audited), and the team reads them where it handles the return.
+-- COND2-4a (po 06:10, `cra` CGR-73): the return task shows the requested start only from THIS return's request.
 -- Users: Operations …904 (intake role, org A …011) · nurse …902 and care assistant …906 (Testteam Nord …101) ·
 -- here a synthetic nurse …908 in Testteam Mitte …102. Case …208 (Testteam Nord, running) is paused as the table owner.
 -- All data synthetic; every other step goes through the real commands.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(31);
+select plan(33);
 
 -- Pinned clock (DST1 pattern): 10:00 Zurich today.
 select set_config('navora.test_now',
@@ -78,6 +79,10 @@ select is(pg_temp.rec('COND2 R1', 'hoch', 'referrer_stated', pg_temp.today() + 4
 select is(pg_temp.link('COND2 R1', 11) ->> 'kind', 'resume', 'linking it to the paused case resumes the case');
 select is(pg_temp.link('COND2 R1', 11) ->> 'result', 'duplicate', 'the same key is a replay');
 reset role;
+-- As the table owner: the first return happened days earlier (in production each resume is its own transaction).
+create function pg_temp.age_link(p_title text) returns void language sql as $$
+  update public.referral_links set created_at = created_at - interval '3 days' where partner_request_id = pg_temp.req(p_title);
+$$;
 
 select is((select urgency || ':' || urgency_source || ':' || (referrer_requested_start - pg_temp.today()) from public.cases where id = pg_temp.c208()),
   'hoch:referrer_stated:4', 'the case now carries the new level, its source and the referrer''s date');
@@ -134,6 +139,7 @@ select is(pg_temp.team_read(), 'hoch:-:-', 'then only the level stays (team_case
 reset role;
 
 -- 2. A second return without a date, assessed at intake: the date is never blanked ------------------------------------------
+select pg_temp.age_link('COND2 R1');
 select pg_temp.pause();
 select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
@@ -147,10 +153,15 @@ select ok((select not (changes ? 'referrer_requested_start') and changes -> 'urg
   'change_log records no date change, and the level change from hoch');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is(pg_temp.team_read(), 'mittel:intake_assessed:4', 'the team reads the new level with its source and the kept date');
+select is(pg_temp.team_read(), 'mittel:intake_assessed:-',
+  'COND2-4a: the team reads the new level with its source and no referrer date (this request carried none)');
 reset role;
+select is((select (changes -> 'referrer_requested_start' ->> 'new')::date - pg_temp.today()
+           from public.change_log where entity_id = pg_temp.c208()::text and idempotency_key = pg_temp.k(11)), 4,
+  'COND2-4a: the first return''s date stays in the trail');
 
 -- 3. A referral recorded before IPA1-7 (no source): shown as "unknown" ---------------------------------------------------------
+select pg_temp.age_link('COND2 R2');
 select pg_temp.pause();
 -- As the table owner: a request as 0010 stored it (urgency_source takes the 0086 default 'unknown').
 insert into public.partner_requests (organization_id, partner_name, partner_type, region, urgency, request_title, need_summary, requested_services, status)
@@ -161,8 +172,11 @@ select is(pg_temp.link('COND2 R3', 31) ->> 'kind', 'resume', 'an older referral 
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select is(pg_temp.team_read(), 'niedrig:unknown:4', 'its level is shown with "unknown" as the source, the date is kept');
+select is(pg_temp.team_read(), 'niedrig:unknown:-',
+  'its level is shown with "unknown" as the source; COND2-4a: no referrer date (the request has none)');
 reset role;
+select is((select referrer_requested_start - pg_temp.today() from public.cases where id = pg_temp.c208()), 4,
+  'COND2-4a: the case''s stored date is unchanged (only the display follows this return)');
 select is((select string_agg((changes -> 'urgency' ->> 'old') || '>' || (changes -> 'urgency' ->> 'new'), ',' order by id)
            from public.change_log where entity_id = pg_temp.c208()::text and changes ? 'urgency'),
   'mittel>hoch,hoch>mittel,mittel>niedrig', 'every earlier level stays in the trail, in order; nothing is rewritten');
