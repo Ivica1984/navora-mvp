@@ -137,3 +137,21 @@ export function navItemsFor(access: NavAccess, demoPages = false): NavItem[] {
 
 /** Nobody signed in, or memberships could not be read: no item (fail closed). */
 export const NO_ACCESS: NavAccess = { roles: [], inTeam: false };
+
+/**
+ * `cra` 2026-10-27 17:35 (UX1-20, UXR-10; ADR-104 addendum): "Meine Einstellungen" is the nurse's only route to the
+ * SIG2 push opt-in for P1 signals outside the app, so it must not disappear when the membership read fails and the
+ * menu fails closed. /settings reads only the caller's own rows (`public.my_push_state`) and admits any signed-in
+ * person, so showing the link without the read widens no access. Every other item stays fail-closed.
+ */
+export const SETTINGS_ITEM: NavItem = (() => {
+  const item = NAV_ITEMS.find((candidate) => candidate.key === "settings");
+  if (!item) throw new Error("nav: the settings item is missing from NAV_ITEMS");
+  return item;
+})();
+
+/** The menu as shown: `navItemsFor`, plus "Meine Einstellungen" when the role table left it out (e.g. a failed read). */
+export function menuItemsFor(access: NavAccess, demoPages = false): NavItem[] {
+  const items = navItemsFor(access, demoPages);
+  return items.some((item) => item.key === "settings") ? items : [...items, SETTINGS_ITEM];
+}
