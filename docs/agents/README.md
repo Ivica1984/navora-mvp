@@ -29,6 +29,7 @@ Supporting files:
 | `cra` | **Clinical & Regulatory Architect** (permanent, mandatory role, owner 2026-10-22) | nothing on its own authority: it identifies risks, controls, findings and recommendations for patient safety, clinical workflows, care quality, billing integrity, regulatory compliance, LTCF, PAG and MQI. It is a **mandatory reviewer** (gate below) and writes recommendations into `clinical` decision rows | present its guidance as authoritative (D-27); answer a decision; invent medical, clinical, tariff or regulatory rules; write code; set PO status; edit `IMPLEMENTATION_STATUS.md` |
 | `clinical` | **Named, qualified human clinical owner**, named by the owner (D-27) | approves clinical rules, care quality rules, patient safety rules and LTCF, PAG and MQI interpretations; decides the `clinical` decisions in `OPEN_DECISIONS.md` | — |
 | `lca` | **Legal & Compliance Agent** (permanent role, owner 2026-10-24) | nothing on its own authority: it writes the *Legal/compliance impact* of decision packages (Swiss health, data-protection, social-insurance, tariff, labour and contract law), with sources, and says whether a recommended default is compliant under every plausible interpretation | present its analysis as legal advice; answer a decision; invent a legal, tariff or regulatory rule; write code; set PO status; edit `IMPLEMENTATION_STATUS.md` |
+| `uxa` | **UX/UI Design Architect** (permanent role, owner 2026-10-27) | nothing on its own authority: it owns the design system (`docs/design/DESIGN_SYSTEM.md`) and the **UX Review Report** (`reports/UX_REVIEW.md`); it reviews CI screenshots, finds UX regressions, rates visual hierarchy, information density, cognitive load, workflow clarity, mobile-first use, accessibility and consistency, benchmarks NAVORA against modern healthcare and SaaS products, proposes testable UX acceptance criteria and opens UX issues routed to the PO | reorder the queue or approve a brief; change a text fixed by `cra` or `lca` in substance; invent clinical, legal or tariff content for a screen; write production code; set PO status; edit `IMPLEMENTATION_STATUS.md` or `NEXT_CAPABILITY.md`; use real personal or health data in screenshots |
 | `legal` | Advisers named by the owner | legal interpretations that stay unresolved after the `lca` review | — |
 
 ### Clinical review gate (owner instruction, 2026-10-22; D-27)
@@ -50,6 +51,15 @@ Supporting files:
 - **No report yet, or none that covers the delivery:** the PO completes its own review but does not set `accepted`. The evidence table says "awaiting clinical review", and the item stays in review.
 - **Already accepted items:** acceptances before 2026-10-22 22:10 stand. A later `blocking` finding on one of them leads the PO to set `changes-requested`.
 - **The PO still owns** what is built and its order. The Clinical Architect reviews; it does not reorder the queue.
+
+### UX review (owner instruction, 2026-10-27)
+
+- **Goal:** turn NAVORA from a rules-focused interface into a workflow-guided one. Every screen answers for its user, in this order: **what needs attention now, what to do next, what can wait** ([design system](../design/DESIGN_SYSTEM.md) §1). Pilot adoption and usability are first-class success criteria ([`CARE_OPERATING_MODEL.md`](../product/CARE_OPERATING_MODEL.md), *Pilot adoption and usability*).
+- **Report:** the UX/UI Design Architect publishes the **UX Review Report** at `reports/UX_REVIEW.md`, newest dated section first. Each finding (`UXR-<n>`) names the screen and role, a severity (`severe`, `high`, `medium`, `low`), the evidence (CI screenshot artifact and commit, file:line), the design-system principle it breaks, and a testable remedy (Playwright or component assertion where possible).
+- **Issues:** `severe` and `high` findings become GitHub issues labelled `agents`, `agent:po`, `ux` (and `ux:severe` for severe), so the PO places them. Lower findings stay in the report until the PO bundles them.
+- **Advisory, with one rule for the PO:** the UX review is not a gate like the clinical one. Before accepting an item that changes a screen, the PO reads the newest UX section and decides each `severe` finding on that item in the brief's evidence table (fixed, condition, or accepted with the reason). A `severe` finding is never left silent.
+- **Boundaries:** wording that `cra` or `lca` fixed keeps its substance; a change to its words goes to `cra` (and `lca` where privacy or legal text is involved) for confirmation. Anything a screen shows to a client, a referrer or outside the app (push text, lock screen) is privacy-relevant and goes to `lca` first. Screenshots use the synthetic seed only.
+- **Escalation:** product trade-offs go to the PO as issues; only a strategic product decision goes to the owner, through the decision-package process.
 
 ## Rules
 
@@ -91,6 +101,7 @@ Multiple values are comma-separated. Use `–` for none. PRs are written as `#23
 | NAVORA Engineering agent (scheduled, hourly) | `eng` | 2026-10-22 |
 | NAVORA Clinical & Regulatory Architect | `cra` (mandatory reviewer) | 2026-10-22 |
 | NAVORA Legal & Compliance Agent (scheduled, hourly) | `lca` (decision-package input) | 2026-10-24 |
+| NAVORA UX/UI Design Architect (scheduled, every 4 hours) | `uxa` (UX review, design system) | 2026-10-27 |
 | Human clinical owner (named, qualified) | `clinical` | OPEN: to be named by the owner (D-27) |
 | agents-coordination watcher (GitHub Action) | – (writes issues only) | 2026-10-22 |
 
