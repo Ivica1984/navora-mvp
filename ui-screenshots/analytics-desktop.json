@@ -1,0 +1,38 @@
+{
+  "name": "analytics-desktop",
+  "user": "coach.test@navora.test",
+  "route": "/analytics",
+  "size": {
+    "width": 1440,
+    "height": 900
+  },
+  "landing": "/operations",
+  "finalUrl": "/analytics",
+  "headings": [
+    "Navora",
+    "Navora MVP",
+    "Kennzahlen Oktober 2026",
+    "Ganze Organisation",
+    "Team Testteam Nord",
+    "Team Testteam Mitte",
+    "Team Testteam West",
+    "Pilot-Hypothesen",
+    "Ganze Organisation",
+    "Team Testteam Nord",
+    "Team Testteam Mitte",
+    "Team Testteam Süd",
+    "Team Testteam West",
+    "Team Testteam Ost"
+  ],
+  "sections": [
+    "Ganze Organisation",
+    "Team Testteam Nord",
+    "Team Testteam Mitte",
+    "Team Testteam West",
+    "Pilot-Hypothesen"
+  ],
+  "buttons": [
+    "Abmelden"
+  ],
+  "height": 37165
+}

@@ -1,0 +1,21 @@
+{
+  "name": "admin-as-nurse-desktop",
+  "user": "pflege.test@navora.test",
+  "route": "/admin",
+  "size": {
+    "width": 1440,
+    "height": 900
+  },
+  "landing": "/field",
+  "finalUrl": "/admin",
+  "headings": [
+    "Navora",
+    "Navora MVP",
+    "Pilotbetrieb verwalten"
+  ],
+  "sections": [],
+  "buttons": [
+    "Abmelden"
+  ],
+  "height": 956
+}

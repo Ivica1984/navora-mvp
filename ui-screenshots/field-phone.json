@@ -1,0 +1,51 @@
+{
+  "name": "field-phone",
+  "user": "pflege.test@navora.test",
+  "route": "/field",
+  "size": {
+    "width": 390,
+    "height": 844
+  },
+  "landing": "/field",
+  "finalUrl": "/field",
+  "headings": [
+    "Heute",
+    "Offen im Team (3)",
+    "Testfall 08",
+    "Qualität",
+    "Testfall 08",
+    "Beobachtungen",
+    "Qualität"
+  ],
+  "sections": [
+    "Sicherheitssignale",
+    "Tagesübersicht",
+    "Abwesenheit",
+    "Offen im Team",
+    "Sicherheitshinweise",
+    "Qualität",
+    "Absage und Nichtantreffen",
+    "Sicherheitshinweise",
+    "Beobachtungen",
+    "Qualität",
+    "Absage und Nichtantreffen"
+  ],
+  "buttons": [
+    "Abmelden",
+    "Ich übernehme",
+    "Ich kann nicht arbeiten",
+    "Übernehmen",
+    "Ändern",
+    "Ereignis melden",
+    "Abrechnungssperre setzen",
+    "Einsatz absagen",
+    "Losfahren",
+    "Einsatz starten",
+    "Beobachtung speichern",
+    "Abschliessen",
+    "Nicht abgeschlossen beenden",
+    "Einsatz abschliessen",
+    "Pause"
+  ],
+  "height": 3294
+}

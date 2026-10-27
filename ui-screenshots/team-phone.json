@@ -1,0 +1,46 @@
+{
+  "name": "team-phone",
+  "user": "pflege.test@navora.test",
+  "route": "/team",
+  "size": {
+    "width": 390,
+    "height": 844
+  },
+  "landing": "/field",
+  "finalUrl": "/team",
+  "headings": [
+    "Dein Team",
+    "Einsätze mit Handlungsbedarf",
+    "Geplante Einsätze ausserhalb der besetzten Zeiten",
+    "Anfragen an dein Team",
+    "Unsere Klientinnen und Klienten",
+    "Testfall 08",
+    "Abrechnungsvorschau 2026-10",
+    "Testteam Nord"
+  ],
+  "sections": [
+    "Sicherheitssignale",
+    "Einsätze mit Handlungsbedarf",
+    "Geplante Einsätze ausserhalb der besetzten Zeiten",
+    "Unsere Klientinnen und Klienten",
+    "Fallstatus",
+    "Kontinuität",
+    "Pflegeplan",
+    "Automatische Planung",
+    "Abrechnungsvorschau"
+  ],
+  "buttons": [
+    "Ich übernehme",
+    "Pausieren",
+    "Fall abschliessen",
+    "Bezugspflege bestimmen",
+    "Leistung hinzufügen",
+    "Jetzt planen",
+    "Serie stoppen",
+    "Verschieben",
+    "Entfernen",
+    "Einsatz planen",
+    "Abrechnungsfakten erzeugen"
+  ],
+  "height": 3349
+}

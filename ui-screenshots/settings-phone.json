@@ -1,0 +1,24 @@
+{
+  "name": "settings-phone",
+  "user": "pflege.test@navora.test",
+  "route": "/settings",
+  "size": {
+    "width": 390,
+    "height": 844
+  },
+  "landing": "/field",
+  "finalUrl": "/settings",
+  "headings": [
+    "Navora",
+    "Navora MVP",
+    "Meine Einstellungen",
+    "Benachrichtigung ausserhalb der App"
+  ],
+  "sections": [
+    "Benachrichtigung ausserhalb der App"
+  ],
+  "buttons": [
+    "Abmelden"
+  ],
+  "height": 1643
+}

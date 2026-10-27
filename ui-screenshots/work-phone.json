@@ -1,0 +1,22 @@
+{
+  "name": "work-phone",
+  "user": "pflege.test@navora.test",
+  "route": "/work",
+  "size": {
+    "width": 390,
+    "height": 844
+  },
+  "landing": "/field",
+  "finalUrl": "/work",
+  "headings": [
+    "Dienstag, 27. Oktober 2026",
+    "Information zu deinem Arbeitstag"
+  ],
+  "sections": [
+    "Information zu deinem Arbeitstag"
+  ],
+  "buttons": [
+    "Gelesen und verstanden"
+  ],
+  "height": 1543
+}

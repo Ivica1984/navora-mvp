@@ -1,0 +1,27 @@
+{
+  "name": "analytics-team-desktop",
+  "user": "pflege.test@navora.test",
+  "route": "/analytics",
+  "size": {
+    "width": 1440,
+    "height": 900
+  },
+  "landing": "/field",
+  "finalUrl": "/analytics",
+  "headings": [
+    "Navora",
+    "Navora MVP",
+    "Kennzahlen Oktober 2026",
+    "Team Testteam Nord",
+    "Pilot-Hypothesen",
+    "Team Testteam Nord"
+  ],
+  "sections": [
+    "Team Testteam Nord",
+    "Pilot-Hypothesen"
+  ],
+  "buttons": [
+    "Abmelden"
+  ],
+  "height": 6366
+}

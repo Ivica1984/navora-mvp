@@ -1,0 +1,50 @@
+{
+  "name": "admin-desktop",
+  "user": "admin.test@navora.test",
+  "route": "/admin",
+  "size": {
+    "width": 1440,
+    "height": 900
+  },
+  "landing": "/operations",
+  "finalUrl": "/admin",
+  "headings": [
+    "Navora",
+    "Navora MVP",
+    "Pilotbetrieb verwalten",
+    "Mitglieder",
+    "Einladungen",
+    "Teams",
+    "Antwortfristen der Teams",
+    "Ausnahmen: Schwellen und Prioritäten",
+    "Benachrichtigung ausserhalb der App und besetzte Zeiten",
+    "Geplante Einsätze ausserhalb der besetzten Zeiten"
+  ],
+  "sections": [
+    "Mitglieder",
+    "Einladungen",
+    "Teams",
+    "Antwortfristen",
+    "Ausnahmeregeln",
+    "Benachrichtigung ausserhalb der App",
+    "Geplante Einsätze ausserhalb der besetzten Zeiten"
+  ],
+  "buttons": [
+    "Abmelden",
+    "Zugang beenden",
+    "Name",
+    "Rolle",
+    "Zu Team hinzufügen",
+    "Qualifikation ändern",
+    "Aus Team entfernen",
+    "Zugang wiederherstellen",
+    "Einladen",
+    "Team erstellen",
+    "Bearbeiten",
+    "Deaktivieren",
+    "Speichern",
+    "Einschalten",
+    "Zeiten speichern"
+  ],
+  "height": 6152
+}

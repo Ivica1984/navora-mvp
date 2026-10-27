@@ -1,0 +1,32 @@
+{
+  "name": "intake-desktop",
+  "user": "ops.test@navora.test",
+  "route": "/intake",
+  "size": {
+    "width": 1440,
+    "height": 900
+  },
+  "landing": "/operations",
+  "finalUrl": "/intake",
+  "headings": [
+    "Navora",
+    "Navora MVP",
+    "Zuweisungen aufnehmen",
+    "Neue Anfrage erfassen",
+    "Fälle in Aufnahme (0)",
+    "Offene Anfragen (3)",
+    "Austritt Testfall",
+    "Übergang Test",
+    "Abklärung Test"
+  ],
+  "sections": [
+    "Fälle in Aufnahme",
+    "Offene Anfragen"
+  ],
+  "buttons": [
+    "Abmelden",
+    "Anfrage speichern",
+    "Prüfen und in Fall überführen"
+  ],
+  "height": 1090
+}

@@ -1,0 +1,54 @@
+{
+  "name": "operations-desktop",
+  "user": "ops.test@navora.test",
+  "route": "/operations",
+  "size": {
+    "width": 1440,
+    "height": 900
+  },
+  "landing": "/operations",
+  "finalUrl": "/operations",
+  "headings": [
+    "Navora",
+    "Navora MVP",
+    "Navora Operations Control Tower",
+    "Ausnahmen",
+    "Abrechnungssperren",
+    "Kontinuität diesen Monat",
+    "Fallstatus",
+    "Abrechnungsvorschau 2026-10",
+    "Testteam Mitte",
+    "Testteam Nord",
+    "Testteam Ost",
+    "Testteam Süd",
+    "Testteam West",
+    "Pflegeteams",
+    "Auslastung je Pflegeteam",
+    "Drilldown"
+  ],
+  "sections": [
+    "Ausnahmen",
+    "Abrechnungssperren",
+    "Kontinuität",
+    "Fallstatus (Operations)",
+    "Fallstatus",
+    "Fallstatus",
+    "Fallstatus",
+    "Fallstatus",
+    "Fallstatus",
+    "Fallstatus",
+    "Fallstatus",
+    "Fallstatus",
+    "Abrechnungsvorschau",
+    "Pflegeteams",
+    "Auslastung je Pflegeteam"
+  ],
+  "buttons": [
+    "Abmelden",
+    "Übernehmen",
+    "Notiz",
+    "Fall abschliessen",
+    "Abrechnungsfakten erzeugen"
+  ],
+  "height": 4248
+}
