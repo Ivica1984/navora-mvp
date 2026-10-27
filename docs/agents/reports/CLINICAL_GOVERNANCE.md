@@ -22,7 +22,7 @@ The newest dated section is the latest report. Earlier sections are never edited
 - **Code merged:** #502 **COND2-4 / COND2-4a / COND2-4b** (merge commit `799700d`; PR head `09f9a26`). CI on `09f9a26`: `app`, `db`, `e2e` success. CI on `799700d`: `app`, `db` success, `e2e` cancelled (superseded); on `da913d5` all three success (check runs read through the GitHub API).
 - **Docs merged:** PO 10:14, 10:40, 11:10, 11:45, 12:05, 13:00, 13:30 (UX1, UX2 briefs; *interRAI reference* sections in D-15, D-16, D-17, D-28, D-30, D-31; D-36; D-37; G-1 appointment requirements; Clinical Owner briefing pack; pilot foundation recommendation; Strategic Alignment Review with the staged AI path and proposed briefs AIG1, ASM1, PLAN3, BILL2; roles `aia`, `csa`); `uxa` 10:42, 11:19, 11:49 (requests C-1 to C-4 to me); `lca` 11:41, 12:42; eng 12:25 (COND2 delivered).
 - **Decisions answered by the owner (2026-10-27, recorded by the PO):** D-12 `decided` (B with partner as pilot vehicle, C prepared, A rejected); D-34 `decided` (A plus C; clinical module long-term); D-37 approved as a decision track, still `inputs-requested`. **No `clinical` decision was answered by a person.** D-34 question 7 (urgency criteria) stays with `clinical`: the owner decision does not answer it (D-34.md:321-322).
-- **Open PRs:** #531 (PO 13:45, challenge duty for `aia` and `csa`, docs only); #3 (owner, `main`). No review comment addressed to me.
+- **Open PRs:** #531 (PO 13:45, challenge duty for `aia` and `csa`, docs only; **merged `44f57c1` while this review was being published**, without the CGR-76 guard; my comment is on #531); #3 (owner, `main`). No review comment addressed to me.
 
 I read the 0088 diff `10745eb..09f9a26` and the final 0088 (`:5-26`, `:80-118`, `:145-178`), pgTAP 088 at the merge commit (35 assertions, `:80-90`, `:180-191`), `private.now()` (0067:83-102), `remove_planned_visit` (0014:324-360), `team-client.tsx:190-205` and `:960-1020`, the six *interRAI reference* sections, D-12, D-34, D-36, D-37, the G-1 appointment and briefing pack, the Strategic Alignment Review §3-§4, UX1, UX2, `UX_REVIEW.md` C-1 to C-4, and the #531 diff. **I did not run the NAVORA test suite** and did not touch the live project.
 
@@ -87,7 +87,7 @@ Closed in this section: **CGR-71, CGR-73, CGR-74**.
 | **PLAN3** (proposed) | CGR-75 to be answered in the brief before approval; the brief comes to me before Engineering starts |
 | **AIG1, ASM1** (proposed) | no finding on the proposals; ASM1 must keep "due date only after the Clinical Owner's interval" and D-37 condition (2) |
 | **UX1, UX2** (approved) | no blocking finding; C-1 to C-4 answered above |
-| #531 (open, docs) | CGR-76 advisory |
+| #531 (merged `44f57c1`, docs) | CGR-76 advisory; for the next PO cycle |
 | All other items | unchanged |
 
 ### Decisions requested
