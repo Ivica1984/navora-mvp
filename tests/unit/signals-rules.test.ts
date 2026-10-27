@@ -89,12 +89,12 @@ describe("safety signals (SIG1)", () => {
   it("says that Operations is informed in the app only while no watched period runs (SIG2-C1 (1))", () => {
     const ca = { taken_by_me: false, taken_by_name: "Assistenz Test", taken_by_qualification: "care_assistant", taken_awaits_rn: true };
     expect(OPERATIONS_FOLLOWS).toBe("Meldung an Operations folgt");
-    expect(OPERATIONS_APP_ONLY).toBe("Operations nur in der App: ausserhalb der überwachten Zeit");
+    expect(OPERATIONS_APP_ONLY).toBe("Operations nur in der App: ausserhalb der besetzten Zeit");
     expect(takenText({ ...ca, watched_now: true })).toBe("übernommen von Assistenz Test (Pflegehilfe), Meldung an Operations folgt");
     expect(takenText({ ...ca, watched_now: false }))
-      .toBe("übernommen von Assistenz Test (Pflegehilfe), Operations nur in der App: ausserhalb der überwachten Zeit");
+      .toBe("übernommen von Assistenz Test (Pflegehilfe), Operations nur in der App: ausserhalb der besetzten Zeit");
     expect(takenText({ ...ca, taken_by_me: true, watched_now: false }))
-      .toBe("von dir übernommen (Pflegehilfe), Operations nur in der App: ausserhalb der überwachten Zeit");
+      .toBe("von dir übernommen (Pflegehilfe), Operations nur in der App: ausserhalb der besetzten Zeit");
     // A reader row without the flag never promises the message to Operations.
     expect(takenText({ ...ca, watched_now: null })).toContain(OPERATIONS_APP_ONLY);
     expect(takenText(ca)).toContain(OPERATIONS_APP_ONLY);
@@ -108,7 +108,7 @@ describe("safety signals (SIG1)", () => {
     const ca = { taken_by_me: false, taken_by_name: "Assistenz Test", taken_by_qualification: "care_assistant", taken_awaits_rn: true };
     // Taken at 19:55 inside the watched period, the step due after it ends: app only although watched_now is true.
     expect(takenText({ ...ca, watched_now: true, operations_outside_app: false }))
-      .toBe("übernommen von Assistenz Test (Pflegehilfe), Operations nur in der App: ausserhalb der überwachten Zeit");
+      .toBe("übernommen von Assistenz Test (Pflegehilfe), Operations nur in der App: ausserhalb der besetzten Zeit");
     // The Operations delivery was already sent outside the app: the message follows, also when read after the period.
     expect(takenText({ ...ca, watched_now: false, operations_outside_app: true }))
       .toBe("übernommen von Assistenz Test (Pflegehilfe), Meldung an Operations folgt");

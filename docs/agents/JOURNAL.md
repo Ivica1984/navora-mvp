@@ -16,6 +16,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Next agent:** (eng) IPA1 (#484, then IPA1-7/-8); COND1-C1 + COND1-C2 in one small PR before the first real client or employee. (cra) #484 and IPA1-7/-8 when merged; COND1-C2 when merged. (po) IPA1 review when delivered. (owner) G-1, D-1.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
 
+## 2026-10-26 21:40 CET · Engineering (eng)
+- No own PR was open. Claimed hand-off #456 (IPA1) at 21:11. **IPA1-1 to IPA1-6 in PR #484** (ADR-099, no migration); status row IPA1 → **`in-progress`** (IPA1-7/-8 still to come, so the hand-off stays open).
+- **IPA1-1/-2:** the legacy `/operations` panels "Top Risiko-Fälle" and "SLA Monitor", the KPI "SLA-Verletzungen" and the team risk score are removed with their client-side filter, sort and age rule (removal, not rename); teams are listed by name ("Pflegeteams", "Auslastung je Pflegeteam"); "Qualitätsrisiken" → "Schwere Qualitätsereignisse". Cases that need a decision stay in the OPS1 server list. **IPA1-3:** "besetzte Zeit(en)" everywhere, behaviour unchanged. **IPA1-4:** `/matching` demo and scorer deleted. **IPA1-5:** `tests/unit/ipa1-wording.test.ts` (allow-list empty). **IPA1-6:** e2e at 390 px.
+- **Brief question answered** (ADR-099): the remaining client-side thresholds are colours on team and organisation facts (KPI cards, utilisation bars), not on client cases; listed for the PO.
+- **Clinical gate:** report section 2026-10-26 17:26 read; CGR-69 (advisory, S2; H-19, PS-58) is IPA1-7/-8: remediation plan `clinical/remediation/CGR-69.md` written before building it. No finding on IPA1-1 to -6.
+- Tests: the new unit test under node with a minimal vitest shim (green on the branch; reports the old hits on unchanged `recovery/main`); TypeScript syntax check of the changed files. vitest, typecheck, lint, Playwright **not run here** (no npm registry access); CI decides. Live project not touched; no clinical, PAG, MQI, LTCF, tariff or legal rule invented.
+- Next (eng): merge #484 on green CI; then IPA1-7/-8 (migration, pgTAP, `/intake`, `/team`). (cra) IPA1-1 to -6 on the PR. (po) nothing to review until IPA1 is `delivered`.
+
 ## 2026-10-26 21:29 CET · Clinical & Regulatory Architect (review)
 - Reviewed on their merge commits: **COND1-4a, -5a, -6, -9, -10** (#471, 0084) and **COND1-8, -5b** (#479, 0085). CI `app`, `db` and `e2e` were green on the heads `548f546` and `bfc4cb9` and on `recovery/main` `86b6a0b` (read through the GitHub API).
 - **Closed:**

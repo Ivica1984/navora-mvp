@@ -35,28 +35,28 @@ test("SIG2-3 / SIG2-6: the administrator sees the vendors as recorded; without a
   await expect(section.getByTestId("push-channel")).toHaveText("Ausgeschaltet");
   await expect(section.getByRole("button", { name: "Einschalten" })).toBeDisabled();
   // SIG2-12: no watched hours recorded in the seed → Operations receives signals in the app only, and /admin says so.
-  await expect(section.getByTestId("no-watched-hours")).toHaveText("Keine überwachten Zeiten erfasst: Operations erhält Signale nur in der App");
+  await expect(section.getByTestId("no-watched-hours")).toHaveText("Keine besetzten Zeiten erfasst: Operations erhält Signale nur in der App");
   // SIG2-11: the evaluator status is always shown to the administrator ("läuft" or the warning "läuft nicht").
   await expect(page.getByTestId("signal-evaluator").first()).toContainText(/Signalprüfung läuft/);
   // Watched hours: refused when invalid, saved when valid, shown again after a reload.
-  await section.getByLabel("Überwachte Zeiten Mo").fill("20:00-07:00");
+  await section.getByLabel("Besetzte Zeiten Mo").fill("20:00-07:00");
   await section.getByRole("button", { name: "Zeiten speichern" }).click();
   await expect(section.getByTestId("command-error")).toContainText("Mo:");
-  await section.getByLabel("Überwachte Zeiten Mo").fill("07:00-20:00");
+  await section.getByLabel("Besetzte Zeiten Mo").fill("07:00-20:00");
   await section.getByRole("button", { name: "Zeiten speichern" }).click();
   await expect(section.getByRole("status")).toHaveText("Gespeichert.");
   await page.reload();
-  await expect(page.getByRole("region", { name: "Benachrichtigung ausserhalb der App" }).getByLabel("Überwachte Zeiten Mo")).toHaveValue("07:00-20:00");
+  await expect(page.getByRole("region", { name: "Benachrichtigung ausserhalb der App" }).getByLabel("Besetzte Zeiten Mo")).toHaveValue("07:00-20:00");
   await expect(page.getByRole("region", { name: "Benachrichtigung ausserhalb der App" }).getByTestId("no-watched-hours")).toHaveCount(0);
   // Leave the seed as it was for other files.
-  await page.getByRole("region", { name: "Benachrichtigung ausserhalb der App" }).getByLabel("Überwachte Zeiten Mo").fill("");
+  await page.getByRole("region", { name: "Benachrichtigung ausserhalb der App" }).getByLabel("Besetzte Zeiten Mo").fill("");
   await page.getByRole("region", { name: "Benachrichtigung ausserhalb der App" }).getByRole("button", { name: "Zeiten speichern" }).click();
   await expect(page.getByRole("region", { name: "Benachrichtigung ausserhalb der App" }).getByRole("status")).toHaveText("Gespeichert.");
 });
 
 test("SIG2-C1 (2): /admin and /team list the planned visits outside the watched hours at 390 px, without horizontal overflow", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  const label = "Geplante Einsätze ausserhalb der überwachten Zeiten";
+  const label = "Geplante Einsätze ausserhalb der besetzten Zeiten";
   const line = /^(Mo|Di|Mi|Do|Fr|Sa|So) \d\d\.\d\d\. (\d\d:\d\d(–\d\d:\d\d)?|ohne Zeit) · .+$/;
   // The seed records no watched hours (SIG2-12), so every planned visit of the next 7 days is listed.
   await signIn(page, "admin.test@navora.test");

@@ -1,20 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import SignalBanner from "@/components/signals/SignalBanner";
 import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
 import type { EvaluatorHealth, SignalRow } from "@/features/signals/rules";
 import Sidebar from "@/components/layout/Sidebar";
-import type {
-  OperationsDashboard,
-  OperationsVisit,
-} from "@/features/operations/types";
-import {
-  getCaseDisplayName,
-  getCaseNeedSummary,
-  getCaseRegion,
-  type CaseSummaryRow,
-} from "@/features/cases/types";
+import type { OperationsDashboard } from "@/features/operations/types";
 import type { TeamRow } from "@/features/teams/types";
 import ExceptionCenter from "./exception-center";
 import HoldsPanel from "./holds-panel";
@@ -26,17 +17,8 @@ import type { BillingPreviewRow } from "@/features/billing/queries";
 import type { ContinuityRow } from "@/features/team/queries";
 import type { OpenHold } from "@/features/quality/queries";
 
-type LocalVisit = OperationsVisit;
-
-type CaseWithRelations = CaseSummaryRow & {
-  care_visits?: LocalVisit[];
-  pflegeteam?: TeamRow | null;
-};
-
-type SelectedEntity =
-  | { type: "case"; id: string }
-  | { type: "team"; id: string }
-  | { type: "visit"; id: string };
+// IPA1-1 (ADR-099): the case drill-down was reachable only from the removed client-ranked case panel.
+type SelectedEntity = { type: "team"; id: string };
 
 type OperationsClientProps = {
   dashboard: OperationsDashboard;
@@ -51,19 +33,6 @@ type OperationsClientProps = {
   evaluator?: EvaluatorHealth[];
 };
 
-function getStatusLabel(status: string | null) {
-  if (status === "neu") return "Neuaufnahme";
-  if (status === "teampruefung") return "Teamentscheid";
-  if (status === "laufend") return "Laufende Versorgung";
-  return "Unbekannt";
-}
-
-function getResponsibleTeam(careCase: CaseWithRelations) {
-  if (careCase.pflegeteam?.name) return careCase.pflegeteam.name;
-  if (careCase.assigned_team) return careCase.assigned_team;
-  return "Noch kein Pflegeteam";
-}
-
 function getAverageUtilization(teams: TeamRow[]) {
   if (teams.length === 0) return 0;
 
@@ -71,128 +40,23 @@ function getAverageUtilization(teams: TeamRow[]) {
   return Math.round(total / teams.length);
 }
 
-function getRiskColor(score: number) {
-  if (score >= 70) {
-    return {
-      label: "Kritisch",
-      bg: "#FEF2F2",
-      text: "#991B1B",
-      border: "#FCA5A5",
-      dot: "🔴",
-    };
-  }
-
-  if (score >= 40) {
-    return {
-      label: "Aufmerksamkeit",
-      bg: "#FFFBEB",
-      text: "#92400E",
-      border: "#FCD34D",
-      dot: "🟠",
-    };
-  }
-
-  return {
-    label: "Normal",
-    bg: "#F0FDF4",
-    text: "#166534",
-    border: "#86EFAC",
-    dot: "🟢",
-  };
-}
-
-function getTeamRiskScore(team: TeamRow) {
-  let score = 0;
-
-  const utilization = team.utilization ?? 0;
-  const openSlots = team.open_slots ?? 0;
-
-  if (utilization >= 95) score += 45;
-  else if (utilization >= 90) score += 35;
-  else if (utilization >= 80) score += 20;
-
-  if (openSlots === 0) score += 25;
-  else if (openSlots <= 2) score += 10;
-
-  if (team.priority) score += 15;
-
-  if (team.status !== "active") score += 10;
-
-  return Math.min(score, 100);
-}
-
-function getCaseAgeHours(careCase: CaseSummaryRow) {
-  const created = new Date(careCase.created_at).getTime();
-  const now = Date.now();
-
-  return Math.max(0, Math.floor((now - created) / (1000 * 60 * 60)));
-}
-
-function getSlaStatus(careCase: CaseSummaryRow) {
-  const age = getCaseAgeHours(careCase);
-  const assignedTeamId = careCase.assigned_team_id;
-
-  if (!assignedTeamId && age > 48) return "violated";
-  if (!assignedTeamId && age > 24) return "risk";
-  return "ok";
-}
-
 export default function OperationsClient({ dashboard, holds, continuity, billing, month, lifecycle, signals = [], evaluator = [] }: OperationsClientProps) {
-  const {
-    cases,
-    teams,
-    visits,
-  } = dashboard;
-
-  const typedVisits: LocalVisit[] = visits;
-
-  const enrichedCases = useMemo<CaseWithRelations[]>(() => {
-    return cases.map((careCase) => {
-      const assignedTeamId = careCase.assigned_team_id;
-
-      return {
-        ...careCase,
-        care_visits: typedVisits.filter((visit) => visit.case_id === careCase.id),
-        pflegeteam: teams.find((team) => team.id === assignedTeamId) ?? null,
-      };
-    });
-  }, [cases, typedVisits, teams]);
+  const { cases, teams } = dashboard;
 
   const [selectedEntity, setSelectedEntity] = useState<SelectedEntity | null>(null);
 
-  const activeCases = enrichedCases.filter((item) => item.status === "laufend");
-  const unassignedCases = enrichedCases.filter(
+  // Counts of organisational facts (status, team assigned); no ranking or risk label (IPA1-1).
+  const activeCases = cases.filter((item) => item.status === "laufend");
+  const unassignedCases = cases.filter(
     (item) => !item.assigned_team_id && item.status !== "laufend"
   );
 
   const openSlots = teams.reduce((sum, team) => sum + (team.open_slots ?? 0), 0);
   const avgUtilization = getAverageUtilization(teams);
 
-  const slaViolatedCases = enrichedCases.filter(
-    (item) => getSlaStatus(item) === "violated"
-  );
-
-  const teamsByRisk = [...teams]
-    .map((team) => ({
-      team,
-      risk: getTeamRiskScore(team),
-    }))
-    .sort((a, b) => b.risk - a.risk);
-
-  const riskCases = enrichedCases
-    .filter((careCase) => {
-      const sla = getSlaStatus(careCase);
-      const assignedTeamId = careCase.assigned_team_id;
-
-      return (
-        sla !== "ok" ||
-        !assignedTeamId ||
-        careCase.status === "teampruefung" ||
-        careCase.urgency === "hoch"
-      );
-    })
-    .sort((a, b) => getCaseAgeHours(b) - getCaseAgeHours(a))
-    .slice(0, 8);
+  // IPA1-1/-2 (ADR-099): no case is filtered or ranked here as a "risk", and no team gets a risk score.
+  // Teams are listed by name; cases needing a decision come from the OPS1 server model (ExceptionCenter).
+  const teamsByName = [...teams].sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "", "de-CH"));
 
   return (
     <div
@@ -220,9 +84,8 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
           avgUtilization={avgUtilization}
           openSlots={openSlots}
           unassignedCases={unassignedCases.length}
-          slaViolations={slaViolatedCases.length}
           /* QG1: Operations sees serious events through the OPS1 exceptions, not the event table. */
-          qualityRisks={dashboard.exceptions.filter((e) => e.exception_type === "quality_serious_open").length}
+          seriousQualityEvents={dashboard.exceptions.filter((e) => e.exception_type === "quality_serious_open").length}
         />
 
         <ExceptionCenter exceptions={dashboard.exceptions} />
@@ -243,34 +106,15 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
             gap: "16px",
           }}
         >
-          <TeamHealthTable
-            teamsByRisk={teamsByRisk}
+          <TeamTable
+            teams={teamsByName}
             onSelectTeam={(id) => setSelectedEntity({ type: "team", id })}
           />
 
-          <CapacityMonitor teamsByRisk={teamsByRisk} />
+          <UtilizationPanel teams={teamsByName} />
         </section>
 
-        <section
-          style={{
-            display: "grid",
-            gridTemplateColumns: "0.9fr 1.1fr 1fr",
-            gap: "16px",
-          }}
-        >
-          <SlaMonitor cases={enrichedCases} />
-
-          <RiskCases
-            cases={riskCases}
-            onSelectCase={(id) => setSelectedEntity({ type: "case", id })}
-          />
-
-          <ContextPanel
-            selectedEntity={selectedEntity}
-            cases={enrichedCases}
-            teams={teams}
-          />
-        </section>
+        <ContextPanel selectedEntity={selectedEntity} teams={teams} />
       </main>
     </div>
   );
@@ -312,21 +156,19 @@ function ExecutiveKpis({
   avgUtilization,
   openSlots,
   unassignedCases,
-  slaViolations,
-  qualityRisks,
+  seriousQualityEvents,
 }: {
   activeCases: number;
   avgUtilization: number;
   openSlots: number;
   unassignedCases: number;
-  slaViolations: number;
-  qualityRisks: number;
+  seriousQualityEvents: number;
 }) {
   return (
     <section
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+        gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
         gap: "16px",
       }}
     >
@@ -349,17 +191,12 @@ function ExecutiveKpis({
         status={unassignedCases > 5 ? "critical" : unassignedCases >= 3 ? "warning" : "normal"}
         context="Klientenfälle ohne Team"
       />
+      {/* IPA1-1 (ADR-099): the client-side "SLA-Verletzungen" age rule was removed; the OPS1 exceptions carry the server's thresholds. */}
       <KpiCard
-        label="SLA-Verletzungen"
-        value={slaViolations}
-        status={slaViolations > 0 ? "critical" : "normal"}
-        context="Intake / Teamzuweisung"
-      />
-      <KpiCard
-        label="Qualitätsrisiken"
-        value={qualityRisks}
-        status={qualityRisks > 2 ? "critical" : qualityRisks > 0 ? "warning" : "normal"}
-        context="offene Ereignisse"
+        label="Schwere Qualitätsereignisse"
+        value={seriousQualityEvents}
+        status={seriousQualityEvents > 0 ? "warning" : "normal"}
+        context="offen, aus den Ausnahmen"
       />
     </section>
   );
@@ -407,32 +244,29 @@ function KpiCard({
   );
 }
 
-function TeamHealthTable({
-  teamsByRisk,
+function TeamTable({
+  teams,
   onSelectTeam,
 }: {
-  teamsByRisk: { team: TeamRow; risk: number }[];
+  teams: TeamRow[];
   onSelectTeam: (id: string) => void;
 }) {
   return (
-    <section style={panelStyle}>
-      <h2 style={sectionTitle}>Team Health</h2>
-      <p style={sectionSubtitle}>Nach Risiko sortiert, nicht alphabetisch.</p>
+    <section style={panelStyle} aria-label="Pflegeteams">
+      <h2 style={sectionTitle}>Pflegeteams</h2>
+      <p style={sectionSubtitle}>Alphabetisch, mit Auslastung und freien Slots.</p>
 
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "12px" }}>
         <thead>
           <tr style={{ color: "#6B7280", fontSize: "12px", textAlign: "left" }}>
             <th style={thStyle}>Pflegeteam</th>
-            <th style={thStyle}>Risk</th>
             <th style={thStyle}>Auslastung</th>
             <th style={thStyle}>Slots</th>
             <th style={thStyle}>Status</th>
           </tr>
         </thead>
         <tbody>
-          {teamsByRisk.map(({ team, risk }) => {
-            const color = getRiskColor(risk);
-
+          {teams.map((team) => {
             return (
               <tr
                 key={team.id}
@@ -444,21 +278,6 @@ function TeamHealthTable({
                 }}
               >
                 <td style={tdStyle}>{team.name}</td>
-                <td style={tdStyle}>
-                  <span
-                    style={{
-                      background: color.bg,
-                      color: color.text,
-                      border: `1px solid ${color.border}`,
-                      borderRadius: "999px",
-                      padding: "4px 8px",
-                      fontWeight: 800,
-                      fontSize: "12px",
-                    }}
-                  >
-                    {color.dot} {risk}
-                  </span>
-                </td>
                 <td style={tdStyle}>{team.utilization ?? 0}%</td>
                 <td style={tdStyle}>{team.open_slots ?? 0}</td>
                 <td style={tdStyle}>{team.status === "active" ? "Aktiv" : "Im Aufbau"}</td>
@@ -471,18 +290,14 @@ function TeamHealthTable({
   );
 }
 
-function CapacityMonitor({
-  teamsByRisk,
-}: {
-  teamsByRisk: { team: TeamRow; risk: number }[];
-}) {
+function UtilizationPanel({ teams }: { teams: TeamRow[] }) {
   return (
-    <section style={panelStyle}>
-      <h2 style={sectionTitle}>Kapazitätsmonitor</h2>
-      <p style={sectionSubtitle}>Auslastung je Pflegeteam.</p>
+    <section style={panelStyle} aria-label="Auslastung je Pflegeteam">
+      <h2 style={sectionTitle}>Auslastung je Pflegeteam</h2>
+      <p style={sectionSubtitle}>Belegte Kapazität und freie Slots.</p>
 
       <div style={{ display: "grid", gap: "12px", marginTop: "14px" }}>
-        {teamsByRisk.map(({ team }) => {
+        {teams.map((team) => {
           const utilization = team.utilization ?? 0;
           const status =
             utilization > 90 ? "critical" : utilization >= 80 ? "warning" : "normal";
@@ -532,165 +347,35 @@ function CapacityMonitor({
   );
 }
 
-function SlaMonitor({ cases }: { cases: CaseWithRelations[] }) {
-  const violated = cases.filter((item) => getSlaStatus(item) === "violated").length;
-  const risk = cases.filter((item) => getSlaStatus(item) === "risk").length;
-  const ok = cases.filter((item) => getSlaStatus(item) === "ok").length;
-
-  return (
-    <section style={panelStyle}>
-      <h2 style={sectionTitle}>SLA Monitor</h2>
-      <p style={sectionSubtitle}>Teamzuweisung / Intake Aging.</p>
-
-      <div style={{ display: "grid", gap: "10px", marginTop: "14px" }}>
-        <SlaRow label=">48h verletzt" value={violated} tone="critical" />
-        <SlaRow label="24–48h gefährdet" value={risk} tone="warning" />
-        <SlaRow label="<24h innerhalb SLA" value={ok} tone="normal" />
-      </div>
-    </section>
-  );
-}
-
-function SlaRow({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: number;
-  tone: "critical" | "warning" | "normal";
-}) {
-  const color =
-    tone === "critical" ? "#DC2626" : tone === "warning" ? "#F59E0B" : "#22C55E";
-
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-        <span>{label}</span>
-        <strong>{value}</strong>
-      </div>
-      <div style={{ height: "10px", background: "#E5E7EB", borderRadius: "999px", marginTop: "5px" }}>
-        <div
-          style={{
-            height: "100%",
-            width: `${Math.min(value * 20, 100)}%`,
-            background: color,
-            borderRadius: "999px",
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function RiskCases({
-  cases,
-  onSelectCase,
-}: {
-  cases: CaseWithRelations[];
-  onSelectCase: (id: string) => void;
-}) {
-  return (
-    <section style={panelStyle}>
-      <h2 style={sectionTitle}>Top Risiko-Fälle</h2>
-      <p style={sectionSubtitle}>Nur Fälle mit Handlungsbedarf.</p>
-
-      <div style={{ display: "grid", gap: "8px", marginTop: "12px" }}>
-        {cases.length === 0 && <p style={{ color: "#166534" }}>Keine Risikofälle.</p>}
-
-        {cases.map((careCase) => {
-          const sla = getSlaStatus(careCase);
-          const age = getCaseAgeHours(careCase);
-
-          return (
-            <button
-              key={careCase.id}
-              type="button"
-              onClick={() => onSelectCase(careCase.id)}
-              style={{
-                textAlign: "left",
-                background: sla === "violated" ? "#FEF2F2" : sla === "risk" ? "#FFFBEB" : "white",
-                border:
-                  sla === "violated"
-                    ? "1px solid #FCA5A5"
-                    : sla === "risk"
-                    ? "1px solid #FCD34D"
-                    : "1px solid #E5E7EB",
-                borderRadius: "12px",
-                padding: "10px",
-                cursor: "pointer",
-                font: "inherit",
-              }}
-            >
-              <strong>{getCaseDisplayName(careCase)}</strong>
-              <p style={{ margin: "4px 0 0", color: "#6B7280" }}>
-                {getStatusLabel(careCase.status)} · {age}h offen · {getResponsibleTeam(careCase)}
-              </p>
-            </button>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
 function ContextPanel({
   selectedEntity,
-  cases,
   teams,
 }: {
   selectedEntity: SelectedEntity | null;
-  cases: CaseWithRelations[];
   teams: TeamRow[];
 }) {
   if (!selectedEntity) {
     return (
       <section style={panelStyle}>
         <h2 style={sectionTitle}>Drilldown</h2>
-        <p style={sectionSubtitle}>Wähle ein Element aus.</p>
+        <p style={sectionSubtitle}>Wähle ein Pflegeteam aus.</p>
       </section>
     );
   }
 
-  if (selectedEntity.type === "case") {
-    const careCase = cases.find((item) => item.id === selectedEntity.id);
+  const team = teams.find((item) => item.id === selectedEntity.id);
 
-    if (!careCase) return null;
-
-    return (
-      <section style={panelStyle}>
-        <h2 style={sectionTitle}>Klientenfall Detail</h2>
-        <StatusPill label="Klient / Fall" tone="info" />
-        <h3>{getCaseDisplayName(careCase)}</h3>
-        <p>{getCaseRegion(careCase)} · {getStatusLabel(careCase.status)}</p>
-        <p><strong>Pflegeteam:</strong> {getResponsibleTeam(careCase)}</p>
-        <p><strong>Bedarf:</strong> {getCaseNeedSummary(careCase)}</p>
-      </section>
-    );
-  }
-
-  if (selectedEntity.type === "team") {
-    const team = teams.find((item) => item.id === selectedEntity.id);
-
-    if (!team) return null;
-
-    return (
-      <section style={panelStyle}>
-        <h2 style={sectionTitle}>Pflegeteam Detail</h2>
-        <StatusPill label="Pflegeteam" tone="info" />
-        <h3>{team.name}</h3>
-        <p>{team.region ?? "Region offen"}</p>
-        <p><strong>Auslastung:</strong> {team.utilization ?? 0}%</p>
-        <p><strong>Freie Slots:</strong> {team.open_slots ?? 0}</p>
-        <p><strong>Coach:</strong> {team.coach_name || "Noch offen"}</p>
-      </section>
-    );
-  }
+  if (!team) return null;
 
   return (
     <section style={panelStyle}>
-      <h2 style={sectionTitle}>Drilldown</h2>
-      <p>Detail für dieses Objekt wird als nächstes erweitert.</p>
+      <h2 style={sectionTitle}>Pflegeteam Detail</h2>
+      <StatusPill label="Pflegeteam" tone="info" />
+      <h3>{team.name}</h3>
+      <p>{team.region ?? "Region offen"}</p>
+      <p><strong>Auslastung:</strong> {team.utilization ?? 0}%</p>
+      <p><strong>Freie Slots:</strong> {team.open_slots ?? 0}</p>
+      <p><strong>Coach:</strong> {team.coach_name || "Noch offen"}</p>
     </section>
   );
 }

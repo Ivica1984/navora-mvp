@@ -7,7 +7,6 @@ type SidebarProps = {
     | "operations"
     | "partners"
     | "teams"
-    | "matching"
     | "visits"
     | "field"
     | "work"
@@ -40,11 +39,6 @@ const allNavItems = [
     href: "/teams",
   },
   {
-    key: "matching",
-    label: "Matching-Übersicht",
-    href: "/matching",
-  },
-  {
     key: "visits",
     label: "Einsätze",
     href: "/visits",
@@ -74,7 +68,8 @@ const allNavItems = [
   },
 ] as const;
 
-const DEMO_PAGE_KEYS: ReadonlyArray<string> = ["partners", "matching"];
+// IPA1-4: the /matching demo and its team-request scorer were removed (ADR-099).
+const DEMO_PAGE_KEYS: ReadonlyArray<string> = ["partners"];
 
 const navItems = allNavItems.filter(
   (item) => demoPagesEnabled || !DEMO_PAGE_KEYS.includes(item.key)
