@@ -4,6 +4,42 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 13:55 CET · Chief Strategy Architect (csa)
+
+- **First `csa` run.** Read the governance files, INDEX, OPEN_DECISIONS, the queue, the week's journal, the mandate and the product strategy documents. Read the recommendation and owner ask of all 15 packages `awaiting-approval: owner` and of G-1.
+- **Strategic fit notes STR-1 to STR-13 and STR-16 (D-36, escalated by PO 13:35)** in [`../product/STRATEGIC_ALIGNMENT_REVIEW.md`](../product/STRATEGIC_ALIGNMENT_REVIEW.md), section *2026-10-27 13:55*. No package, row or queue edited.
+  - **Serves as recommended:** D-22, D-18, D-9, D-2, D-24, D-25, G-1 (route B: the largest single unblocker).
+  - **Serves, with a change proposed:** D-11 (one municipality with a known financing path for a new provider), D-14 (fee agreed per team and portable to C; team-size band variant for `lca`), D-29 (role-level authorisation instead of per person, `lca` to confirm), D-26 (escalate with ADM2's gate, because default A keeps NAVORA in every admission).
+  - **Neutral:** D-4; D-1, SR-26, D-7, D-8 (urgent hygiene).
+- **Challenge STR-14 (high), issue #540:** repeated re-checks of packages that wait for a person show no patient-care benefit. Proposed: freeze those packages, and give the owner one page in three bundles. The PO answers before escalating further.
+- **Strategic finding STR-15 (high), issue #539:** the C transfer has no written terms before the partner's letter of intent. Proposed to the PO: a new owner package on the transfer terms (client consent, the C provider's own tariff contract, municipal financing, fee portability, employment contracts, the partner's gain).
+- **Drift:**
+  - No hierarchy step accepted this week (ADM2 is aligned).
+  - The supplier-role risk sits in the unwritten D-12 transfer terms.
+  - AIG1, ASM1 and PLAN3 approved by PO 13:35, so AI and interRAI are staged in the queue. PLAN3 adds no confirmation burden (the whole proposal can be confirmed at once).
+  - D-36: provide the terms together with who holds the licence (STR-16).
+- **STRATEGY.md:**
+  - §4 roadmap with timing and cost of delay (C file complete by month 7, a `csa` estimate);
+  - §5 business-model hypotheses BM-1 to BM-7;
+  - §6 questions 1 and 4 partly answered, questions 5-7 added;
+  - §7 benchmark: Buurtzorg *Kwaliteitsbeeld 2025* (6.7 % overhead; where NAVORA must exceed it).
+- **For the PO to escalate:** the G-1 and live-hygiene bundle first; include STR-1 to STR-4 when it puts the pilot-foundation bundle to the owner.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 13:52 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections (skipped). Picked the packages with an explicit `po` request or an owner change since 12:42: D-37, D-12, D-35. D-2 (13:00 addendum) checked inside D-35 only; no separate section.
+- **New sources read:** Swiss RDL "Home Care Data" page (HCD is Spitex Switzerland's interRAI data pool; certified vendor modules); Obergericht Zürich page on OR Art. 333 (employment passes automatically on a business-part transfer unless refused); LawMedia summary of BGer 4A_50/2021 (OR Art. 321a: no competing or soliciting clients or colleagues during employment); SAMW/FMH guide quoting KVG Art. 41 Abs. 1 (free choice among admitted providers). fedlex not reached; primary texts still unread.
+- **D-37 (interRAI HC as foundation):** ASM1 (D-13 B record naming interRAI HC, no item, score or CAP) **compliant under every plausible interpretation** on D-36 terms (a)-(c). B (import of reported areas) **unresolved: needs owner** (licence and vendor export terms) **and possibly a legal adviser**; one exact question written. C **unresolved: needs owner** (vendor licence) **and regulatory adviser**. Any rule reading imported areas is clinical content and waits for C (D-34).
+- **D-12 (sunset, transfer preparation):** the plan is compliant as a plan; the transfer itself **unresolved: needs Zurich legal adviser** (OR Art. 333 structure; carry-over of orders and needs assessments; duties when a team leaves). Four partnership terms proposed (partner's written consent to preparation; data export or read-only retention at sunset; no cross-organisation data move without instruction and client consent; one cut-over date per client).
+- **D-35 (staged AI path):** stage 0 compliant; stage 1's order-renewal and insurer letters need client identifiers, so condition 1 holds them until adviser question 1 is answered (**unresolved: needs legal adviser and owner**).
+- **Next for `po`:** take in the notes in D-37, D-12 and D-35. **Owner:** the interRAI licence terms (D-36) and the partner's tool and vendor; the Zurich adviser bundle gains D-12 questions (a)-(c).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 13:50 CET · po (Product Owner)
 
 - **Owner 2026-10-27 (in this session):** approved the governance update and the challenge duty; "proceed autonomously".
@@ -28,6 +64,56 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Recorded in:** README (*Automation review*, *Strategy review*), the role mandates (§2a), and both schedules' instructions (updated by po at the owner's request).
 - **The PO answers each `high` challenge** in the evidence table or the package before accepting or escalating.
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 13:35 CET · po (Product Owner)
+
+- **Merged #531** (po 13:45 docs: challenge duty for `aia` and `csa`; CI green on `7e56f69`).
+- **COND2 accepted** ([brief](briefs/COND2.md), *PO review and acceptance 13:35*): #495 and #502 merged; CI green on both heads and on `recovery/main` `da913d5`. Every criterion met; deviations ADR-101 (1)-(6) and ADR-102 (1)-(4) accepted. Clinical gate clear per `cra` 09:30 (CGR-74 fixed before merge); `cra` to confirm CGR-71, -73, -74 closed on `799700d`. Queue rank 38.
+- **Approved** (owner 13:30 asked for them this cycle): [AIG1](briefs/AIG1.md), [ASM1](briefs/ASM1.md), [PLAN3](briefs/PLAN3.md). *Next up*: 1 UX1, 2 ADM2, 3 AIG1, 4 ASM1, 5 UX2, 6 PLAN3.
+- **D-36** escalated: `lca` 12:42 taken in; option A stays in force with terms (a)-(c); **awaiting approval: owner**. The owner provides the licence terms (a fact). `eng` and `cra` are still requested.
+- **Challenge:** COND2's workflows are already covered by P-13, P-15 and P-16; no new row. PLAN3 is the challenge action for "a person assigns every visit by hand" (scheduling administrator).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+**ENGINEERING BRIEF — AIG1**
+- Capability: AI governance foundation (agent register, append-only suggestion ledger, provenance per value, explicit "not found", no accept-all, correction rate per agent/field/team, stop rule, synthetic evaluation harness, health list).
+- Why: every assistant of the approved staged AI path needs the same controls. Without them each one invents its own, or runs without them.
+- Business outcome: stage 1 becomes a configuration step. AI-assisted work is auditable, value by value, for payers and the canton.
+- Care outcome: no machine value enters a client record without a named person; omissions never read as "none".
+- Expected nurse outcome: she sees who proposed and who confirmed each value, and confirms instead of typing.
+- Expected team outcome: the team sees how often an assistant is right, never a per-person score; a bad assistant stops by itself.
+- Expected patient outcome: indirect. Safer records once assistants arrive.
+- Acceptance criteria: AIG1-1 to AIG1-10 and the negative criterion in the brief.
+- Dependencies: none for the synthetic build. D-35 rule A (no AI service), D-34 levels, D-17 part 3 (field list; until it exists, every field is confirmed one by one), D-4.
+- Priority: *Next up* 3 (after UX1 and ADM2).
+- Implementation recommendation: one ledger with typed payloads and a confirm command per value, proven by pgTAP (append-only, scope inheritance, no person column). Add a synthetic `rule` test agent and a CI evaluation fixture. Reuse AN1 small-team suppression and the OPS1 exception path.
+
+**ENGINEERING BRIEF — ASM1**
+- Capability: assessment record (D-13 B). An append-only, signed record per assessment, with supersede, an identifier reference, minutes only with a reference, and confirmation by the named assessor. An instrument reference list (names only). The care plan shows the assessment it rests on and "Neuere Bedarfsabklärung".
+- Why: the needs assessment is the billing basis and the start of continuity, and today it is a flag. Every D-37 option needs this record.
+- Business outcome: a traceable billing basis per case, with no transcription from a second source of truth.
+- Care outcome: the team sees when its care plan rests on an outdated assessment.
+- Expected nurse outcome: the assessing RN records or confirms once. Nobody re-types minutes without a reference.
+- Expected team outcome: one current assessment per case, its history visible, corrections without overwriting.
+- Expected patient outcome: care planned against her latest assessment (continuity).
+- Acceptance criteria: ASM1-1 to ASM1-10 and the negative criterion in the brief.
+- Dependencies: D-13 B (decided); D-36 A with terms (a)-(c); D-37 (no instrument designated until decided); D-15 (category mapping stays `clinical`); real-data gate D-29, D-11, D-12. Clinical review gate applies.
+- Priority: *Next up* 4.
+- Implementation recommendation: one append-only table plus a supersede command. Pattern-check the reference, and check the column list in pgTAP. Keep J5 billing totals of the seed identical (ASM1-8).
+
+**ENGINEERING BRIEF — PLAN3**
+- Capability: day-plan and continuity proposal. For one team and day, NAVORA proposes who takes each open visit: the primary nurse first, then the deputy, then a member who knows the client, then free capacity. Proposals stay within membership, absence, qualification and overlap limits. The team confirms line by line through AIG1.
+- Why: assigning visits by hand is the largest remaining manual coordination task after PLAN2, and it is the scheduling administrator's job.
+- Business outcome: no scheduling role is needed. Planning time is measured as corrections, not guessed.
+- Care outcome: continuity becomes the default (primary nurse or deputy first).
+- Expected nurse outcome: less evening and phone coordination. She confirms a plan instead of assembling it.
+- Expected team outcome: the team decides with a visible, reasoned proposal and visible load. No planner above it.
+- Expected patient outcome: fewer strangers at the door.
+- Acceptance criteria: PLAN3-1 to PLAN3-9 and the negative criterion in the brief.
+- Dependencies: AIG1 accepted; J3, J6, ABS1, ADM1, LEAVE1; AN2 measure. No location (Q7), no labour-law limit (D-23).
+- Priority: *Next up* 6 (after UX2).
+- Implementation recommendation: a deterministic SQL proposal function run as the asking member, with a stable tie-break. Confirmation goes through the existing J3 command so every J3 check runs again.
 
 ---
 
