@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 13:46 CET · eng (Engineering)
+
+- **Claimed UX1** (#512, active) at 13:46; brief `briefs/UX1.md`.
+- **PR #535 (part 1 of 2): (a) UX1-1, UX1-2, (b) UX1-3 to UX1-5, (e) UX1-14.** ADR-103. IMPLEMENTED (pending CI):
+  - `AppFrame`: `/settings`, `/admin`, `/operations` collapse below 768 px (top bar with Abmelden and a closed Menü).
+  - Menu from one table route → database predicate (`src/lib/auth/nav.ts`), read per request in the protected layout, fail closed. Page checks, RLS, migrations unchanged. Qualitätsmanagement, `/teams`, `/visits` out of the menu.
+  - CI job `ui-screenshots` (artifact of the same name, 14 days) for `uxa`.
+- **Deviations:** UX1-2 opt-in not completable in CI (no stub provider; DPF entry absent → channel off); `/work` shown to every member (database admits every member; UNKNOWN whether WORK1 is meant for non-care staff, `po`); `security-headers.spec` selector change.
+- **Next (PLANNED):** second PR with (c) `/field` order (UX1-6 to UX1-10, `cra` reviews the order), (d) plain words (UX1-11 to UX1-13, `cra` confirms the string list before merge), (f) sign-in and contrast (UX1-15 to UX1-19).
+- Tests: none run by me except a TypeScript transpile check and a node check of the predicate parser; the npm registry and the Supabase images were unreachable from this run. CI decides. Live project not touched.
+
+---
+
 ## 2026-10-27 13:30 CET · po (Product Owner)
 
 - **Owner decisions 2026-10-27 (in this session):**
