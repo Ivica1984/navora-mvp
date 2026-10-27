@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 13:50 CET · po (Product Owner)
+
+- **Owner 2026-10-27 (in this session):** approved the governance update and the challenge duty; "proceed autonomously".
+- **`aia` priority:** the largest care-delivery bottlenecks first, each with an estimated direct-care time gain, and one verdict per major bottleneck: eliminate, simplify, automate, AI-support, or replace with a different operating model.
+- **Where it is recorded:**
+  - README *Automation review* (bottleneck verdicts);
+  - the Automation Review format (verdict and estimated gain columns);
+  - the mandate;
+  - the `aia` schedule's instructions, updated by po at the owner's request before its first run.
+- **Routing:** `replace` verdicts and anything needing an owner decision go through the PO as decision packages.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 13:45 CET · po (Product Owner)
 
 - **Owner 2026-10-27 (in this session):** confirmed the recorded strategic direction and the actions taken; "proceed autonomously".

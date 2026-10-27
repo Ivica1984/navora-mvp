@@ -85,6 +85,11 @@ The PO stays the only Product Owner authority: it decides what is built, why and
 
 **How they report:** key strategic findings, bottlenecks and transformation opportunities go through the normal decision-package process. That means findings and issues to the PO, and packages for owner decisions. There is no direct channel to the owner.
 
+**Owner priority for `aia` (2026-10-27, 13:50):**
+- First, identify the largest care-delivery bottlenecks and estimate the direct-care time each could return.
+- For every major bottleneck, determine whether NAVORA should eliminate, simplify, automate, support it through AI, or replace it entirely with a different operating model.
+- Report through the normal decision-package workflow.
+
 ## 3 PO recommendation
 
 1. **Create `aia` now** with the mandate above, every 6 hours. It fills a real gap (no owner for the AI path and the automation review), and its gate is narrow.
