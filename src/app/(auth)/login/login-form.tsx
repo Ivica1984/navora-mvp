@@ -11,7 +11,7 @@ const inputStyle = {
   border: "1px solid #d8e0db",
   borderRadius: "16px",
   padding: "14px 16px",
-  fontSize: "15px",
+  fontSize: "16px",
   outline: "none",
   boxSizing: "border-box" as const,
 };

@@ -30,7 +30,7 @@ test.describe("without a session", () => {
     test(`${path} redirects to /login`, async ({ page }) => {
       await page.goto(path);
       await expect(page).toHaveURL(/\/login$/);
-      await expect(page.getByRole("heading", { name: "Admin / Coach anmelden" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Bei NAVORA anmelden" })).toBeVisible();
     });
   }
 

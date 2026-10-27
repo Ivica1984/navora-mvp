@@ -23,7 +23,7 @@ const TONE_CLASS: Record<ReturnType<typeof alertValueTone>, string> = {
   unknown: "border-2 border-dashed border-amber-500 bg-amber-50 text-amber-900",
   no: "border border-stone-300 bg-stone-100 text-stone-800",
   yes: "border border-emerald-700 bg-emerald-50 text-emerald-900",
-  none: "border border-dashed border-stone-300 bg-white italic text-emerald-900/50",
+  none: "border border-dashed border-stone-300 bg-white italic text-secondary",
 };
 
 const VALUE_HINT: Record<string, string> = {
@@ -48,7 +48,7 @@ export function SafetyAlertRow({ caseId, category, current }: { caseId: string; 
         </span>
       </div>
       {current?.note && <p data-testid="alert-note" className="text-sm">{current.note}</p>}
-      {meta && <p data-testid="alert-meta" className="text-xs text-emerald-900/60">{meta}</p>}
+      {meta && <p data-testid="alert-meta" className="text-xs text-secondary">{meta}</p>}
       <SafetyAlertForm caseId={caseId} category={category} label="Ändern" defaultSource="team" />
     </div>
   );
@@ -86,7 +86,7 @@ export function AccessRow({
       </div>
       {line.kind === "value" && line.note && <p data-testid="alert-note" className="text-sm">{line.note}</p>}
       {line.kind === "intake" && <p data-testid="alert-note" className="text-sm">{line.note}</p>}
-      {line.kind !== "none" && line.meta && <p data-testid="alert-meta" className="text-xs text-emerald-900/60">{line.meta}</p>}
+      {line.kind !== "none" && line.meta && <p data-testid="alert-meta" className="text-xs text-secondary">{line.meta}</p>}
       {past.length > 0 && (
         <details data-testid="alert-history" className="text-xs">
           <summary className="min-h-11 cursor-pointer py-2 font-semibold">Verlauf ({past.length})</summary>
@@ -95,7 +95,7 @@ export function AccessRow({
               <li key={i} data-testid="alert-history-entry" className="rounded border border-stone-200 bg-white p-2">
                 {h.value && <span className="font-semibold">{h.value}</span>}
                 {h.note && <p className="text-sm">{h.note}</p>}
-                <p className="text-emerald-900/60">{h.meta}</p>
+                <p className="text-secondary">{h.meta}</p>
               </li>
             ))}
           </ol>
@@ -177,7 +177,7 @@ export default function SafetyAlertForm({
         <span className="text-xs font-semibold">Notiz (bei «ja» nötig)</span>
         <textarea id={noteId} name="note" maxLength={ALERT_NOTE_MAX} rows={2} aria-describedby={`${noteId}-help`}
                   className="rounded-lg border border-stone-300 bg-white p-2" />
-        {category.help_text && <span id={`${noteId}-help`} className="text-xs text-emerald-900/70">{category.help_text}</span>}
+        {category.help_text && <span id={`${noteId}-help`} className="text-xs text-secondary">{category.help_text}</span>}
       </label>
       <label className="grid gap-1">
         <span className="text-xs font-semibold">Quelle</span>

@@ -76,3 +76,17 @@ for (const viewport of VIEWPORTS) {
     });
   }
 }
+
+// UX1-19 (ii), UXR-8 (ADR-105): one capture of /field with the browser in dark mode. :root declares
+// `color-scheme: light` until a dark theme is designed, so the page must look like the light capture.
+test.describe("dark browser setting", () => {
+  test.use({ colorScheme: "dark" });
+
+  test("nurse: /field at 390x844 with colorScheme dark", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (err) => errors.push(err.message));
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signIn(page, "pflege.test@navora.test");
+    await capture(page, "/field", fileName("nurse", "/field", "390x844", "_dark"), errors);
+  });
+});

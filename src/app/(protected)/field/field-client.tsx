@@ -167,7 +167,7 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
           </nav>
         )}
         {visits.length === 0 ? (
-          <p className="mb-4 rounded-2xl border border-dashed border-emerald-900/20 bg-white/70 p-6 text-center text-emerald-900/70">
+          <p className="mb-4 rounded-2xl border border-dashed border-emerald-900/20 bg-white/70 p-6 text-center text-secondary">
             Keine Einsätze deiner Teams an diesem Tag.
           </p>
         ) : (
@@ -282,7 +282,7 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
           <Stat label="Laufend" value={summary.running} />
           <Stat label="Erledigt" value={summary.done} />
         </section>
-        <p className="mt-6 text-xs leading-relaxed text-emerald-900/60">
+        <p className="mt-6 text-xs leading-relaxed text-secondary">
           Du siehst die Einsätze deiner Teams. Zeiten entstehen aus deinen Statuswechseln und lassen sich mit Begründung korrigieren. Beobachtungen sieht nur dein Team; Vor jedem Einsatz siehst du, was seit deinem letzten Einsatz bei dieser Person erfasst wurde. Nach dem Einsatz entsteht der Bericht aus diesen Angaben; die ausführende Person unterschreibt ihn.
         </p>
       </main>
@@ -294,7 +294,7 @@ function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-xl bg-white p-3 shadow-sm">
       <p className="text-2xl font-bold">{value}</p>
-      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-900/60">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-secondary">{label}</p>
     </div>
   );
 }
@@ -578,7 +578,7 @@ function Observations({
       )}
       {canRecord && !locked && <ObservationForm visitId={visitId} supersedesId={null} />}
       {canRecord && locked && (
-        <p data-testid="facts-locked" className="text-xs text-emerald-900/70">
+        <p data-testid="facts-locked" className="text-xs text-secondary">
           {lockedHint}
         </p>
       )}
@@ -603,7 +603,7 @@ function ObservationEntry({ visitId, note, locked }: { visitId: string; note: Fi
     <div className="rounded-lg bg-stone-50 p-2">
       <p className="whitespace-pre-wrap">{note.content}</p>
       <div className="mt-1 flex items-center justify-between gap-2">
-        <p className="text-xs text-emerald-900/60">
+        <p className="text-xs text-secondary">
           {formatDateTime(note.recorded_at)} · {note.own ? "von dir" : "aus dem Team"}
           {note.edited ? " · geändert" : ""}
           {note.for_handover ? " · Übergabe" : ""}
@@ -694,7 +694,7 @@ function ObservationForm({
           </button>
         )}
       </div>
-      <p className="text-xs text-emerald-900/60">
+      <p className="text-xs text-secondary">
         Gespeichert wird mit deinem Zugang und der Uhrzeit. Änderungen werden als neue Fassung abgelegt; nur dein Team sieht Beobachtungen.
       </p>
     </form>
@@ -714,7 +714,7 @@ function Timeline({ events, locked, lockedHint = FACTS_LOCKED_HINT, open = false
           </li>
         ))}
       </ol>
-      <p className="mt-2 text-xs text-emerald-900/60">
+      <p className="mt-2 text-xs text-secondary">
         {locked ? lockedHint : "Korrekturen werden mit Begründung gespeichert; die ursprünglich erfasste Zeit bleibt sichtbar."}
       </p>
     </details>
@@ -823,7 +823,7 @@ function TimeCell({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="font-bold tabular-nums">{value}</p>
-      <p className="text-xs text-emerald-900/60">{label}</p>
+      <p className="text-xs text-secondary">{label}</p>
     </div>
   );
 }
@@ -831,8 +831,8 @@ function TimeCell({ label, value }: { label: string; value: string }) {
 function Row({ label, value, muted = false, testId }: { label: string; value: string; muted?: boolean; testId?: string }) {
   return (
     <div className="grid grid-cols-[7.5rem_1fr] gap-2">
-      <dt className="text-emerald-900/60">{label}</dt>
-      <dd data-testid={testId} className={muted ? "text-emerald-900/50 italic" : ""}>{value}</dd>
+      <dt className="text-secondary">{label}</dt>
+      <dd data-testid={testId} className={muted ? "text-secondary italic" : ""}>{value}</dd>
     </div>
   );
 }

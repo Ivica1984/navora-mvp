@@ -32,7 +32,7 @@ const URGENCY_CLASS: Record<string, string> = {
   niedrig: "bg-stone-200 text-stone-800",
 };
 
-const field = "min-h-11 rounded-lg border border-stone-300 bg-white px-3";
+const field = "min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-white px-3";
 
 export default function IntakeClient({
   organizationId,
@@ -49,7 +49,7 @@ export default function IntakeClient({
   alertCategories?: AlertCategory[];
 }) {
   return (
-    <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
+    <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <NewRequestForm organizationId={organizationId} />
       <div className="grid content-start gap-6">
       <section aria-label="Fälle in Aufnahme" className="grid content-start gap-3">
@@ -136,7 +136,7 @@ function NewRequestForm({ organizationId }: { organizationId: string }) {
         <span className="font-semibold">Zuweisende Stelle</span>
         <input name="partnerName" required minLength={2} maxLength={120} className={field} />
       </label>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
         <label className="grid gap-1 text-sm">
           <span className="font-semibold">Art</span>
           <select name="partnerType" className={field} defaultValue="Spital">
@@ -183,7 +183,7 @@ function NewRequestForm({ organizationId }: { organizationId: string }) {
       </label>
       <label className="grid gap-1 text-sm">
         <span className="font-semibold">Bedarf (Zusammenfassung)</span>
-        <textarea name="needSummary" required minLength={3} maxLength={2000} rows={3} className="rounded-lg border border-stone-300 bg-white p-2" />
+        <textarea name="needSummary" required minLength={3} maxLength={2000} rows={3} className="w-full min-w-0 rounded-lg border border-stone-300 bg-white p-2" />
       </label>
       <label className="grid gap-1 text-sm">
         <span className="font-semibold">Leistungen (mit Komma getrennt)</span>
@@ -245,7 +245,7 @@ function RequestCard({ request, linkable }: { request: OpenPartnerRequest; linka
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="font-bold">{request.request_title}</h3>
-          <p className="text-sm text-emerald-900/70">
+          <p className="text-sm text-secondary">
             {request.partner_name}
             {request.partner_type ? ` · ${request.partner_type}` : ""} · {request.region}
             {request.city ? `, ${request.city}` : ""}
@@ -255,19 +255,19 @@ function RequestCard({ request, linkable }: { request: OpenPartnerRequest; linka
           {request.urgency}
         </span>
       </div>
-      <p data-testid="urgency-source" className="mt-1 text-sm text-emerald-900/70">
+      <p data-testid="urgency-source" className="mt-1 text-sm text-secondary">
         {urgencyWithSource(request.urgency, request.urgency_source)}
       </p>
       {request.referrer_requested_start && (
-        <p className="text-sm text-emerald-900/70">
+        <p className="text-sm text-secondary">
           Gewünschter Beginn (laut Zuweiser): {formatDayLabel(request.referrer_requested_start)}
         </p>
       )}
       <p className="mt-2 whitespace-pre-wrap text-sm">{request.need_summary}</p>
       {request.requested_services && request.requested_services.length > 0 && (
-        <p className="mt-1 text-sm text-emerald-900/70">Leistungen: {request.requested_services.join(", ")}</p>
+        <p className="mt-1 text-sm text-secondary">Leistungen: {request.requested_services.join(", ")}</p>
       )}
-      {request.time_info && <p className="text-sm text-emerald-900/70">Zeitpunkt: {request.time_info}</p>}
+      {request.time_info && <p className="text-sm text-secondary">Zeitpunkt: {request.time_info}</p>}
 
       {!open ? (
         <button type="button" onClick={() => setOpen(true)} className="mt-3 min-h-11 w-full rounded-xl border-2 border-emerald-800 font-bold text-emerald-900">
@@ -296,11 +296,11 @@ function RequestCard({ request, linkable }: { request: OpenPartnerRequest; linka
                   </label>
                 </>
               )}
-              <p className="text-xs text-emerald-900/60">NAVORA sucht keine Personen automatisch; nur ihr entscheidet über eine Verknüpfung.</p>
+              <p className="text-xs text-secondary">NAVORA sucht keine Personen automatisch; nur ihr entscheidet über eine Verknüpfung.</p>
             </fieldset>
           )}
           {!resumes && (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
               <label className="grid gap-1 text-sm">
                 <span className="font-semibold">Vorname</span>
                 <input name="firstName" required maxLength={100} className={field} />
@@ -320,7 +320,7 @@ function RequestCard({ request, linkable }: { request: OpenPartnerRequest; linka
             </span>
           </label>
           <ErrorBox message={error} />
-          <div className="grid grid-cols-[2fr_1fr] gap-2">
+          <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-2">
             <button type="submit" disabled={pending} className="min-h-11 rounded-xl bg-emerald-800 font-bold text-white disabled:opacity-60">
               {pending ? "Wird überführt …" : resumes ? "Fall fortsetzen" : "Fall eröffnen"}
             </button>
@@ -328,7 +328,7 @@ function RequestCard({ request, linkable }: { request: OpenPartnerRequest; linka
               Abbrechen
             </button>
           </div>
-          <p className="text-xs text-emerald-900/60">
+          <p className="text-xs text-secondary">
             Die Teamsuche startet erst, wenn Einwilligung, Wohnort, Versicherer und Versicherungsart sowie Bedarf mit
             Beginn vorliegen. Danach entscheiden die Teams der Region selbst über die Übernahme.
           </p>
@@ -340,12 +340,12 @@ function RequestCard({ request, linkable }: { request: OpenPartnerRequest; linka
 
 function FactsFields({ initial }: { initial?: Partial<IntakeCase> }) {
   const helpId = useId();
-  const sel = "min-h-11 rounded-lg border border-stone-300 bg-white px-2";
+  const sel = "min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-white px-2";
   const yn = (v: boolean | null | undefined) => (v === true ? "yes" : v === false ? "no" : "");
   return (
     <fieldset className="grid gap-2 rounded-xl border border-stone-200 bg-white p-3">
       <legend className="px-1 text-sm font-bold">Angaben für Versorgung und Finanzierung</legend>
-      <div className="grid grid-cols-[2fr_1fr] gap-2">
+      <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-2">
         <label className="grid gap-1 text-sm">
           <span className="font-semibold">Wohngemeinde</span>
           <input name="residence_municipality" maxLength={80} defaultValue={initial?.residence_municipality ?? ""} className={sel} />
@@ -429,7 +429,7 @@ function FactsFields({ initial }: { initial?: Partial<IntakeCase> }) {
                aria-describedby={helpId} />
         {/* DOOR1-12 (0080), DOOR1-15 (0084): the same help text as the DOOR1-4 note; a code, a phone number or a postal
             code is refused ("Bitte keinen Code erfassen"). */}
-        <span id={helpId} className="text-xs text-emerald-900/70">{ACCESS_HELP_TEXT}</span>
+        <span id={helpId} className="text-xs text-secondary">{ACCESS_HELP_TEXT}</span>
       </label>
     </fieldset>
   );
@@ -477,7 +477,7 @@ function IntakeCaseCard({ intakeCase, alertCategories }: { intakeCase: IntakeCas
   return (
     <article aria-label={`Fall in Aufnahme ${intakeCase.client_name ?? ""}`} className="rounded-2xl bg-white p-4 shadow-sm">
       <h3 className="font-bold">{intakeCase.client_name ?? "Klient:in"}</h3>
-      <p className="text-sm text-emerald-900/70">
+      <p className="text-sm text-secondary">
         {intakeCase.region} · {intakeCase.urgency}
         {intakeCase.care_needs?.length ? ` · ${intakeCase.care_needs.join(", ")}` : ""}
       </p>
@@ -521,7 +521,7 @@ function IntakeCaseCard({ intakeCase, alertCategories }: { intakeCase: IntakeCas
       ) : (
         <form action={save} aria-label="Angaben ergänzen" className="mt-3 grid gap-2">
           <FactsFields initial={intakeCase} />
-          <div className="grid grid-cols-[2fr_1fr] gap-2">
+          <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-2">
             <button type="submit" disabled={pending} className="min-h-11 rounded-xl bg-emerald-800 font-bold text-white disabled:opacity-60">
               {pending ? "Wird gespeichert …" : "Speichern und prüfen"}
             </button>

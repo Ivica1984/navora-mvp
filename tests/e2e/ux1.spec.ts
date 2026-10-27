@@ -349,3 +349,48 @@ test.describe("UX1 part (c) at 390 × 844", () => {
     }
   });
 });
+
+// UX1 part (f) (ADR-105): the sign-in page for every role at 390 × 844, and inputs that stay inside their form on /intake.
+test.describe("UX1 part (f)", () => {
+  test.describe("at 390 × 844", () => {
+    test.use({ viewport: PHONE });
+
+    test("UX1-15 / UX1-16: /login fits the phone; e-mail, password and Anmelden are in the first viewport", async ({ page }) => {
+      await page.goto("/login");
+      const width = await page.evaluate(() => document.documentElement.scrollWidth);
+      expect(width).toBeLessThanOrEqual(PHONE.width);
+      await expect(page.getByRole("heading", { name: "Bei NAVORA anmelden" })).toBeVisible();
+      for (const el of [page.getByLabel("E-Mail"), page.getByLabel("Passwort"), page.getByRole("button", { name: "Anmelden" })]) {
+        const box = await el.boundingBox();
+        expect(box).not.toBeNull();
+        expect(box!.y + box!.height).toBeLessThanOrEqual(PHONE.height);
+      }
+      for (const input of [page.getByLabel("E-Mail"), page.getByLabel("Passwort")]) {
+        const box = await input.boundingBox();
+        expect(box!.width).toBeGreaterThanOrEqual(300);
+      }
+    });
+  });
+
+  for (const viewport of [PHONE, { width: 1440, height: 900 }]) {
+    test(`UX1-19 (i): every input on /intake stays inside its form at ${viewport.width} px`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await signIn(page, "ops.test@navora.test");
+      await page.goto("/intake");
+      await page.waitForLoadState("networkidle");
+      const outside = await page.evaluate(() => {
+        const found: string[] = [];
+        for (const form of Array.from(document.querySelectorAll("form"))) {
+          const right = form.getBoundingClientRect().right;
+          for (const el of Array.from(form.querySelectorAll("input, select, textarea")) as HTMLElement[]) {
+            if (el.offsetParent === null) continue; // hidden inputs and closed sections
+            const box = el.getBoundingClientRect();
+            if (box.right > right + 0.5) found.push(`${el.getAttribute("name")}: ${Math.round(box.right)} > ${Math.round(right)}`);
+          }
+        }
+        return found;
+      });
+      expect(outside).toEqual([]);
+    });
+  }
+});

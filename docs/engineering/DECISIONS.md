@@ -1591,3 +1591,26 @@ The made-step branch (follows the real delivery, LEAVE1-C2) is unchanged. The st
 2. **UX1-26.** `HeaderMenu` closes on Escape (focus back on "Menü"), on a pointer press outside it and when a link inside is chosen. Items and order unchanged.
 3. **UXR-16.** "Abrechnungssperre setzen" in "Mehr" is a neutral outline (stone), no longer rose (P1 colour family); the consequence sentence is unchanged.
 Tests: Playwright `ux1.spec` UX1-25 (focus inside after the tap, 30 Tabs stay inside, Escape closes, focus back on the trigger, nothing recorded) and UX1-26 (Escape with focus back on "Menü"; outside tap). Not run here (npm registry unreachable); CI decides. No rule, text, command or access check changed.
+
+---
+
+### ADR-105 — UX1 part (f): one sign-in page for every role, readable secondary text, inputs inside their form, light colour scheme
+
+**Date:** 2026-10-27 · **Status:** IMPLEMENTED in the app (in PR, stacked on #554; CI decides) for UX1-15, UX1-16, UX1-17, UX1-19; **PLANNED** for UX1-18 · **Brief:** `docs/agents/briefs/UX1.md` (UX1-15 to UX1-19) · **Issues:** #515, #516, #553
+
+**Context:** `/login` used a fixed two-column inline-styled grid (`1.05fr 0.95fr`) and addressed only "Admin / Coach" (UXR-1, severe); 58 text elements used a colour opacity of 50–70 % (UXR-2, high; the brief counted 57); `/intake` inputs in `grid-cols-2` tracks overflowed their form at 390 px because `1fr` tracks keep the input's intrinsic minimum (UXR-6); `globals.css` flipped `--background`/`--foreground` under `prefers-color-scheme: dark` while every page hard-codes light surfaces (UXR-8).
+
+**Decision:**
+1. `/login`: Tailwind layout, one column below 768 px with the sign-in card first and a short "Geschützter Zugriff" panel below it; from 768 px the panel sits left. One heading "Bei NAVORA anmelden". The role-specific panel ("Admin / Coach Portal", "Attention Center", "Operations-Lage", "Teams Übersicht", "Navora Admins und Coaches") is removed; the security sentence and the card's paragraph are kept word for word. Inputs 16 px (no iOS zoom). `signIn`, the session check, the redirect, the error text and the proxy are unchanged.
+2. One class `text-secondary` (`@utility` in `globals.css`, `stone-700`, the interim value of `DESIGN_SYSTEM.md` §7; UX2-3 turns it into the token) replaces every `text-<colour>-<n>/50|60|70`. stone-700 on white is about 10:1 and stays above 4.5:1 on the light emerald, amber, rose and stone tints used on these pages. Text at `/80` is allowed by UX1-17 and stays. No wording change.
+3. `/intake`: `field` and `sel` input classes get `w-full min-w-0`; the form grids use `minmax(0, …)` tracks, so an input can never be wider than its track.
+4. `:root { color-scheme: light }` and the dark override removed until a dark theme is designed; the screenshot job adds one `/field` capture with `colorScheme: 'dark'`.
+5. **UX1-18 (axe `color-contrast` in the screenshot job, failing on serious/critical) is PLANNED for the next PR.** Reason: it needs a new dev dependency (`@axe-core/playwright`, lockfile change) and its first run will report contrast violations outside the 58 replaced uses (e.g. `/80` tints, badges, first-MVP inline-styled pages) that must be fixed or listed as exceptions with reasons; the npm registry was not reachable from this session, so the dependency and its lockfile could not be generated or checked locally.
+
+**Deviation:** the brief says the explanatory panel goes "below it or removed"; it is kept below, reduced to the one security sentence that applies to every role.
+
+**No rule:** no migration, RLS policy, grant, database function, page access check, signal rule or `cra`/`lca`-fixed text changes.
+
+**Rollback:** revert the PR (no data or schema involved).
+
+**Tests:** vitest `ux1-contrast` (UX1-17 scan of `src/app/(protected)`, `src/app/(auth)`, `src/components`; the class exists; UX1-19 (ii) `color-scheme: light`, no dark override; UX1-16 string scan of `src/app/(auth)/login/*` without comments; one heading). Playwright `ux1.spec` part (f): UX1-15 at 390 × 844 (no sideways scroll, e-mail, password, "Anmelden" in the first viewport, inputs ≥ 300 px), UX1-19 (i) at 390 and 1440 px (every visible input, select and textarea inside its form). `auth.spec` selector change: heading "Admin / Coach anmelden" → "Bei NAVORA anmelden". Screenshot job: `nurse_field_dark_390x844`. Not run locally (no npm registry in this session); CI is the test runner.

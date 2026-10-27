@@ -36,7 +36,7 @@ export default function SinceLastSection({ block, visitStatus }: { block: SinceL
                 {entryLines(entry.kind, entry.detail).map((line, i) => (
                   <p key={i} className={i === 0 && entry.kind === "observation" ? "whitespace-pre-wrap" : ""}>{line}</p>
                 ))}
-                <p className="text-xs text-amber-900/70">
+                <p className="text-xs text-secondary">
                   {authorLabel(entry.author)} · {formatDateTime(entry.at)}
                   {source ? ` · ${source}` : ""}
                 </p>
