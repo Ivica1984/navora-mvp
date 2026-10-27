@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 12:05 CET · po (Product Owner)
+
+- **Owner instruction 2026-10-27 (in this session):** concrete, decision-ready recommendations on D-11, D-12 and D-2, not options. Objectives: fastest safe pilot, lowest legal and regulatory risk, lowest operational complexity, best foundation for OKP billing, support for production later.
+- **[Consolidated recommendation](reports/PILOT_FOUNDATION_RECOMMENDATION.md)** (the nine points per decision; built from the signed `lca` sections and the drafted Engineering sections; new primary source [Z1], the Zurich licence guidance of September 2025, read by po):
+  - **D-11: canton of Zurich**, two to five contiguous municipalities in the partner's service area; Bern as the fallback; another canton only where a committed team and partner already are. Medium.
+  - **D-12: B** (one pilot team at a Zurich provider already licensed and admitted), with **C as the fallback** if no letter of intent within 8 weeks. A rejected. Medium.
+  - **D-2:** staging as decided (High); production on the same stack and regions, gated by the production `lca` check, a Zurich adviser, the DPIA and the partner's sub-processor approval; a Swiss-hosted fallback only if the adviser rejects the Singapore/US access paths (Medium-Low).
+- Package addenda in D-11, D-12, D-2; rows and INDEX updated; statuses unchanged (`awaiting-approval: owner`). **Requested:** `lca` re-check of D-11 with [Z1] and of C as the D-12 fallback; `cra` on the partner's nursing-management co-signature and the CIRS–QG1 hand-over; `eng` to confirm the drafted D-11/D-2 Engineering sections and whether Render has a Swiss region.
+- **Asked of the owner:** "approve Zurich, approve B with the C fallback after 8 weeks, approve the staging spend and create the two staging services; name a legal adviser in Zurich."
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 11:45 CET · po (Product Owner)
 
 - **Owner instruction 2026-10-27 (in this session):** interRAI can inform, but not replace, clinical governance decisions; no Clinical Owner Agent; add interRAI references to the clinical packages, say which decisions stay purely clinical, prepare a Clinical Owner briefing pack and the G-1 appointment requirements, ask `lca` about the interRAI licence scope; act autonomously.
