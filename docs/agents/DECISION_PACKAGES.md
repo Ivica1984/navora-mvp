@@ -67,7 +67,22 @@ An escalated package names exactly what is asked ("approve option B as recommend
 
 - **PO decides:** the row moves to *Decided* with owner `po`, the answer, the date and a link to the package. The journal entry names it. The rule about *Blocked by* rows (README) still applies.
 - **Escalated:** the row stays in *Open* with its owner; its *Recommendation* cell starts with `**Package:** [decisions/<ID>.md](decisions/<ID>.md), awaiting approval: <role>`.
-- **Order:** the PO works the backlog in the order of `decisions/INDEX.md` (tiers under *Priority*), about three packages per run, alongside the review cycle.
+- **Order:** the PO works the backlog in the order of `decisions/INDEX.md` (tiers under *Priority*), about three packages per run that are not frozen (*Frozen packages* below), alongside the review cycle.
+
+## Frozen packages
+
+**PO 2026-10-27 14:45, adopting `csa` STR-14 (issue #540).** Repeated re-checks of packages that wait for a person showed no patient-care benefit: the safe default is already in force, and the question to the person does not change.
+
+- **Frozen:** a package at `awaiting-approval: <role>` is frozen. Runs write nothing about it: no addendum, no INDEX note, no journal line saying "no new evidence".
+- **Unfreeze triggers.** A package is reopened only when one of these holds:
+  1. the person answers;
+  2. new evidence: a source found or published, or a decision it depends on is answered;
+  3. a new or changed `cra` finding (CGR, H, PS) names it;
+  4. a delivery changes its *Engineering impact*;
+  5. an input role or `csa` asks for a re-analysis on the package or its issue.
+- **One page for the owner:** [`decisions/OWNER_AGENDA.md`](decisions/OWNER_AGENDA.md) lists every open ask in three bundles, one line each, linking the package. The PO updates it only when a package enters or leaves `awaiting-approval`, or its ask changes.
+- **INDEX** *Last change* keeps only the newest change; git and the journal keep the history.
+- **Unchanged:** every safe default stays in force; no package is decided or loosened by freezing. "About three packages per run" applies to packages that are not frozen. When none is left, the run does no package work.
 
 ## Limits
 

@@ -4,6 +4,50 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 15:48 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections and frozen (STR-14), no new evidence (skipped). Tier 2: no open CGR finding asks `lca`. Picked D-38 (new, `inputs-requested` from `lca`; blocks the partnership LOI, tier 3). P-20 waits for its brief (asked through D-23 then).
+- **New sources read:** Administrativ-Vertrag Spitex 42.500.2292Q (tarifsuisse; Art. 3, 7, 8, 10, 13, 21, 23); OR Art. 333, 333a as reproduced on law.ch (secondary); law.ch on OR Art. 340 in personal-trust professions (secondary). fedlex not reached; primary texts of KVG Art. 51, KLV Art. 7a/8, OR Art. 340 still unread.
+- **D-38:** T5 **unresolved: needs legal adviser** (advance notice vs solicitation/UWG; intake information can never be consent to a later copy, DSG Art. 6 Abs. 6); informing clients only once C is admitted is compliant. T6 per-provider keying compliant; route **unresolved: needs owner** (accession per ZSR to the admin contract; other insurer contracts UNKNOWN). T9 **unresolved: needs Zurich legal adviser** (Betriebsteil or new contracts; binding non-compete waiver).
+- **Next for `po`:** note (1) is new evidence for T11 / D-12 (b): the new provider files its own Bedarfsmeldung, no retroactive order; protective default "renewed before C's first visit". Adviser bundle gains T5 and T9 questions.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 15:20 CET · po (Product Owner)
+
+- **Review:** nothing delivered since COND2. UX1 (a)(b)(e) PR #535 open, not merged. No PO PR was open; #533 merged 14:53.
+- **Challenge AUT-1 (`aia`, high, #543) answered: adopted with one change** (product authority over AIG1 and PLAN3; neither is started):
+  - **AIG1-5 amended:** every agent field has a class, `schedule` or `record` (default). A ticked-list bulk confirm is accepted only for `schedule` fields of level-L `rule` agents not on the organisation's list; each value stays its own ledger confirmation, and the consuming command's checks run per value. Safety-alert, care-plan, order and assessment fields can never be `schedule`. A field becomes `schedule` only by a migration naming its brief, after `cra` confirms. The Clinical Owner's list (D-17 part 3) overrides any class. Five pgTAP cases (a)-(e).
+  - **PLAN3-5, PLAN3-7 amended:** ticked list = bulk confirm under AIG1-5; measures: confirm actions per day plan, minutes to confirmed plan, corrected share as balance.
+  - **`cra` asked on #543** to confirm `responsible_user_id` as `schedule` (support: `cra` 2026-10-25 02:26 on D-6). Until confirmed it is `record` (one by one).
+  - The `csa` 13:55 remark "whole proposal at once" did not hold for the 13:35 wording; superseded.
+- **Other `aia` findings placed:** AUT-3 → hypothesis P-19 (per-step admin time from existing timestamps; brief after AIG1); AUT-8 → hypothesis P-20 (multi-day working-time confirm; `lca` first); AUT-2 waits for `cra` before ASM1 starts; AUT-4/-5/-6 weigh on D-10, Q7, D-22/D-9/D-3; AUT-7, AUT-9 stay in the review. `aia` PR #544 is not merged; the briefs cite #543.
+- **Decisions:** no package moved. Every `awaiting-approval` row is frozen (STR-14) and no unfreeze trigger holds. D-38 and D-37 wait for their requested inputs (requested today; the two-run drafting rule does not apply yet).
+- **No owner escalation in this run.**
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 14:45 CET · po (Product Owner)
+
+- **PR #533 (po 13:50) continued in this run:** it conflicted with `recovery/main` in `JOURNAL.md` only; merged `recovery/main` in and kept all entries, newest first. No second PO PR opened.
+- **Review:** nothing delivered since COND2 (accepted 13:35). UX1 (a)(b)(e) PR #535 is open, not merged.
+- **STR-14 (`csa`, high, #540) adopted:** packages at `awaiting-approval` are frozen until an unfreeze trigger holds (a person answers; new evidence; a `cra` finding names it; a delivery changes its engineering impact; a re-analysis is asked). Recorded in:
+  - [`DECISION_PACKAGES.md`](DECISION_PACKAGES.md#frozen-packages);
+  - the one-page [`decisions/OWNER_AGENDA.md`](decisions/OWNER_AGENDA.md) (three bundles: now, pilot foundation, once an adviser is named);
+  - the INDEX *Last change* cell, trimmed to the newest change.
+  No safe default, status or decision changed.
+- **STR-15 (`csa`, high, #539) → new package [D-38](decisions/D-38.md):** the transfer terms of the partnership letter of intent (T1-T11). Tier 3, order 16, `inputs-requested` (`eng`, `cra`, `lca`). T1-T4 come from `lca` 13:52 (D-12 note). Preliminary B, Low. Recommended to the owner: sign no letter of intent naming the sunset before D-38 is answered.
+- **`lca` 13:52 taken in:**
+  - D-37: L in; `cra` input is in PR #532 (not merged); E open.
+  - D-12: terms and adviser questions carried into D-38; decision unchanged.
+  - D-35: the note confirms condition 1; nothing changes.
+- **No owner escalation in this run.** Owner asks are unchanged; see the agenda.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 13:55 CET · Chief Strategy Architect (csa)
 
 - **First `csa` run.** Read the governance files, INDEX, OPEN_DECISIONS, the queue, the week's journal, the mandate and the product strategy documents. Read the recommendation and owner ask of all 15 packages `awaiting-approval: owner` and of G-1.
@@ -37,6 +81,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **D-35 (staged AI path):** stage 0 compliant; stage 1's order-renewal and insurer letters need client identifiers, so condition 1 holds them until adviser question 1 is answered (**unresolved: needs legal adviser and owner**).
 - **Next for `po`:** take in the notes in D-37, D-12 and D-35. **Owner:** the interRAI licence terms (D-36) and the partner's tool and vendor; the Zurich adviser bundle gains D-12 questions (a)-(c).
 - Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 13:50 CET · po (Product Owner)
+
+- **Owner 2026-10-27 (in this session):** approved the governance update and the challenge duty; "proceed autonomously".
+- **`aia` priority:** the largest care-delivery bottlenecks first, each with an estimated direct-care time gain, and one verdict per major bottleneck: eliminate, simplify, automate, AI-support, or replace with a different operating model.
+- **Where it is recorded:**
+  - README *Automation review* (bottleneck verdicts);
+  - the Automation Review format (verdict and estimated gain columns);
+  - the mandate;
+  - the `aia` schedule's instructions, updated by po at the owner's request before its first run.
+- **Routing:** `replace` verdicts and anything needing an owner decision go through the PO as decision packages.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
