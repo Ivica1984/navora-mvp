@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 21:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections, no new evidence (skipped). Tier 2: `cra` 21:30 CGR-82 and CGR-83 touch **D-38**, and `cra` asks `lca` explicitly to check CGR-83 (f) against D-12 settled point 3; D-38 also changed at po 21:15 (T2, T12 (i), T13 restate my 20:48 conditions; no deviation found). Picked D-38 only.
+- **New sources:** zh.ch Sozialhilfehandbuch 11.1.12 (secondary; Pflegegesetz ZH §§ 2, 5: municipalities carry the supply responsibility); law.ch on OR Art. 404 (secondary; *Unzeit* presumed in continuing mandates without an important reason).
+- **Verdicts (D-38):** T13 (e) adopted version runs until marked: compliant (except a version withdrawn under (f)). T13 (f) withdrawal as unsafe: **consistent with settled point 3** (a catalogue decision, not an override of her care decision); compliant with four conditions (contract right limited to safety; same-day notice to the Leitung Pflege and deputy with reason and stopped rules; recorded who, when, why; never used for an ordinary change). MepV reporting side of a withdrawal **unresolved: regulatory adviser (D-34)**. CGR-82 (a) and (b) first branch compliant; (b) second branch (team stays employed by the partner for remaining clients: dual employment, ArG limits) **unresolved: Zurich adviser**.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 21:30 CET · Clinical & Regulatory Architect (review)
 
 - Scope since 17:35: no code merged on `recovery/main` (`fa43d97`); PO 18:10, 19:10, 20:15, 21:15; `lca` 18:05, 19:50, 20:48; `uxa` 19:51; `aia` #544 merged. Open: #554 UX1 part (c) (head `822646d`, CI green), #558 part (f) (stacked, CI pending).
