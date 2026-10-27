@@ -154,7 +154,7 @@ export default function QualitySection({
             <textarea name="reason" required minLength={3} maxLength={500} rows={2} className="rounded-lg border border-stone-300 bg-white p-2" />
           </label>
           <FormButtons pending={pending} label="Sperre setzen" onCancel={closeHold} />
-          <p className="text-xs text-emerald-900/60">{HOLD_MEANING} Aufheben: Coach oder Admin, mit Begründung.</p>
+          <p className="text-xs text-secondary">{HOLD_MEANING} Aufheben: Coach oder Admin, mit Begründung.</p>
         </form>
       )}
     </section>

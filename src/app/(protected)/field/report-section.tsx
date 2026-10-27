@@ -82,10 +82,10 @@ export default function ReportSection({
         <p className="whitespace-pre-wrap">{report.summary}</p>
       )}
       {report?.correction_reason && (
-        <p className="text-xs text-emerald-900/70">Korrektur: {report.correction_reason}</p>
+        <p className="text-xs text-secondary">Korrektur: {report.correction_reason}</p>
       )}
       {report?.signed_at && (
-        <p className="text-xs text-emerald-900/70">
+        <p className="text-xs text-secondary">
           Unterschrieben {formatStamp(report.signed_at)}
           {report.i_signed ? " von dir" : report.signed_by_name ? ` von ${report.signed_by_name}` : ""}
           {report.countersigned_at
@@ -93,7 +93,7 @@ export default function ReportSection({
             : ""}
         </p>
       )}
-      {view.hint && <p className="text-xs text-emerald-900/70">{view.hint}</p>}
+      {view.hint && <p className="text-xs text-secondary">{view.hint}</p>}
       {report?.returned && report.return_reason && (
         // F6R-7: the reason is shown only to the performer and the team's registered nurses (the database nulls it otherwise).
         <div data-testid="return-reason" className="grid gap-1 rounded-lg border border-amber-300 bg-white p-2 text-xs">
@@ -129,7 +129,7 @@ export default function ReportSection({
           <button type="submit" disabled={pending} className="min-h-11 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60">
             {pending ? "Wird gespeichert …" : "Berichtsentwurf erstellen"}
           </button>
-          <p className="text-xs text-emerald-900/60">
+          <p className="text-xs text-secondary">
             Zeiten, geplante Minuten, Leistungen und Beobachtungen übernimmt der Entwurf automatisch.
           </p>
         </form>
@@ -181,7 +181,7 @@ export default function ReportSection({
               Abbrechen
             </button>
           </div>
-          <p className="text-xs text-emerald-900/60">
+          <p className="text-xs text-secondary">
             Die abgeschlossene Fassung bleibt unverändert; die neue Fassung wird erneut unterschrieben.
           </p>
         </form>
@@ -207,7 +207,7 @@ export default function ReportSection({
         >
           <ReportFacts snapshot={report.snapshot} />
           <SummaryField initial={report.summary ?? ""} />
-          <p className="text-xs text-emerald-900/70">
+          <p className="text-xs text-secondary">
             Mit der Unterschrift bestätigst du die Angaben. Danach ist der Bericht nicht mehr änderbar. Du kannst auch später unterschreiben.
           </p>
           <button type="submit" disabled={pending} className="min-h-12 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60">

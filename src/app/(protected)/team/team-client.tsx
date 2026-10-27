@@ -129,7 +129,7 @@ export default function TeamClient({
 
         {declined.length > 0 && (
           <section aria-label="Abgelehnt" className="mt-4 grid gap-2">
-            <h2 className="text-sm font-bold uppercase tracking-wide text-emerald-900/60">Von deinem Team abgelehnt</h2>
+            <h2 className="text-sm font-bold uppercase tracking-wide text-secondary">Von deinem Team abgelehnt</h2>
             {declined.map((o) => (
               <p key={`${o.matching_request_id}-${o.team_id}`} className="rounded-xl bg-white/60 p-3 text-sm">
                 {o.request_title} · {o.region}
@@ -166,7 +166,7 @@ export default function TeamClient({
           <BillingPreview rows={billing} month={month} />
         </div>
 
-        <p className="mt-4 text-xs leading-relaxed text-emerald-900/60">
+        <p className="mt-4 text-xs leading-relaxed text-secondary">
           Angeboten werden Anfragen aus der Region deines aktiven Teams. Kompetenzen, Kapazität und
           Sicherheitsvorbehalte werden noch nicht automatisch geprüft (Qualifikation schon) – bitte im Team beurteilen. Namen und Kontaktdaten
           sind erst nach der Zusage sichtbar.
@@ -246,7 +246,7 @@ function OfferCard({ offer }: { offer: TeamOffer }) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="font-bold">{offer.request_title}</h2>
-          <p className="text-sm text-emerald-900/70">
+          <p className="text-sm text-secondary">
             {offer.region} · für {offer.team_name} · seit {hoursSince(offer.created_at)} h offen
           </p>
         </div>
@@ -255,7 +255,7 @@ function OfferCard({ offer }: { offer: TeamOffer }) {
         </span>
       </div>
       {/* IPA1-7: the level is never shown without who set it. */}
-      <p data-testid="urgency-source" className="mt-1 text-sm text-emerald-900/70">
+      <p data-testid="urgency-source" className="mt-1 text-sm text-secondary">
         {urgencyWithSource(offer.urgency, offer.urgency_source)}
       </p>
       {offer.returning_client && (
@@ -268,22 +268,22 @@ function OfferCard({ offer }: { offer: TeamOffer }) {
         Leistungen: {offer.required_services?.length ? offer.required_services.join(", ") : "nicht angegeben"}
       </p>
       <dl className="mt-2 grid grid-cols-[9rem_1fr] gap-x-2 gap-y-0.5 text-sm" aria-label="Eckdaten">
-        <dt className="text-emerald-900/60">Beginn</dt>
+        <dt className="text-secondary">Beginn</dt>
         <dd>{offer.requested_start ? formatDayLabel(offer.requested_start) : "nicht erfasst"}</dd>
         {/* IPA1-8: the referrer's date, shown only (never orders, filters or escalates). */}
-        <dt className="text-emerald-900/60">Gewünschter Beginn (laut Zuweiser)</dt>
+        <dt className="text-secondary">Gewünschter Beginn (laut Zuweiser)</dt>
         <dd data-testid="referrer-start">
           {offer.referrer_requested_start ? formatDayLabel(offer.referrer_requested_start) : "nicht angegeben"}
         </dd>
-        <dt className="text-emerald-900/60">Umfang</dt>
+        <dt className="text-secondary">Umfang</dt>
         <dd>{formatWeeklyHours(offer.expected_hours_per_week)}</dd>
-        <dt className="text-emerald-900/60">Qualifikation</dt>
+        <dt className="text-secondary">Qualifikation</dt>
         <dd>
           {offer.required_qualification
             ? `${QUALIFICATION_LABEL[offer.required_qualification] ?? offer.required_qualification} nötig`
             : "keine besondere"}
         </dd>
-        <dt className="text-emerald-900/60">Antwortfrist</dt>
+        <dt className="text-secondary">Antwortfrist</dt>
         <dd data-testid="response-due">{formatResponseDue(offer.response_due_at)}</dd>
       </dl>
       <ul className="mt-2 grid gap-0.5 text-xs" aria-label="Prüfkriterien">
@@ -448,11 +448,11 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice }: {
   return (
     <article aria-label={`Fall ${teamCase.client_name ?? ""}`} className="rounded-2xl bg-white p-4 shadow-sm">
       <h3 className="font-bold">{teamCase.client_name ?? "Klient:in"}</h3>
-      <p className="text-sm text-emerald-900/70">
+      <p className="text-sm text-secondary">
         {teamCase.region} · {teamCase.team_name}
         {needs.length > 0 ? ` · ${needs.join(", ")}` : ""}
       </p>
-      <p className="mt-1 text-xs text-emerald-900/70">
+      <p className="mt-1 text-xs text-secondary">
         Verordnung: {order ? MEDICAL_ORDER_LABEL[order] ?? order : "nicht erfasst"}
         {teamCase.medical_order_valid_until ? ` (gültig bis ${teamCase.medical_order_valid_until})` : ""}
         {" · "}
@@ -490,9 +490,9 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice }: {
 
       <AutoPlan caseId={teamCase.case_id} status={planStatus} items={plan.map(toScheduled)} />
 
-      <h4 className="mt-3 text-xs font-bold uppercase tracking-wide text-emerald-900/60">Geplante Einsätze</h4>
+      <h4 className="mt-3 text-xs font-bold uppercase tracking-wide text-secondary">Geplante Einsätze</h4>
       {upcoming.length === 0 ? (
-        <p className="text-sm italic text-emerald-900/60">Noch keine Einsätze geplant.</p>
+        <p className="text-sm italic text-secondary">Noch keine Einsätze geplant.</p>
       ) : (
         <ul className="mt-1 grid gap-2" aria-label="Geplante Einsätze">
           {upcoming.map((v) => (
@@ -601,7 +601,7 @@ function GpInformedTask({ caseId }: { caseId: string }) {
               Abbrechen
             </button>
           </div>
-          <p className="text-xs text-emerald-900/70">Nur Datum und Kanal, keine Inhalte. Frist und Inhalt der Information sind offen (D-22).</p>
+          <p className="text-xs text-secondary">Nur Datum und Kanal, keine Inhalte. Frist und Inhalt der Information sind offen (D-22).</p>
         </form>
       )}
       {error && <ErrorText message={error} />}
@@ -640,7 +640,7 @@ function Continuity({ teamCase, members, continuity }: { teamCase: TeamCase; mem
 
   return (
     <section aria-label="Kontinuität" className="mt-3 grid gap-1 rounded-xl bg-stone-50 p-3 text-sm">
-      <h4 className="text-xs font-bold uppercase tracking-wide text-emerald-900/60">Kontinuität</h4>
+      <h4 className="text-xs font-bold uppercase tracking-wide text-secondary">Kontinuität</h4>
       {!hasPrimary && <p className="font-semibold text-amber-800" data-testid="primary-missing">Bezugspflege noch nicht bestimmt.</p>}
       {!hasPrimary && teamCase.proposed_primary_nurse_id && (
         // RET1: the previous primary nurse of a returning client is proposed; the team confirms or changes it.
@@ -654,7 +654,7 @@ function Continuity({ teamCase, members, continuity }: { teamCase: TeamCase; mem
           {" · "}Stellvertretung: {memberLabel(members, teamCase.deputy_nurse_id)}
         </p>
       )}
-      {continuity && <p className="text-xs text-emerald-900/70" data-testid="continuity">Diesen Monat: {formatContinuity(continuity)}</p>}
+      {continuity && <p className="text-xs text-secondary" data-testid="continuity">Diesen Monat: {formatContinuity(continuity)}</p>}
       {error && <ErrorText message={error} />}
       {!editing ? (
         <button type="button" onClick={() => setEditing(true)} className="justify-self-start min-h-11 px-1 font-semibold underline underline-offset-4">
@@ -745,16 +745,16 @@ function CarePlan({ caseId, items }: { caseId: string; items: PlanItem[] }) {
 
   return (
     <section aria-label="Pflegeplan" className="mt-3 rounded-xl bg-stone-50 p-2 text-sm">
-      <h4 className="text-xs font-bold uppercase tracking-wide text-emerald-900/60">Pflegeplan (Leistungen nach KLV)</h4>
+      <h4 className="text-xs font-bold uppercase tracking-wide text-secondary">Pflegeplan (Leistungen nach KLV)</h4>
       {items.length === 0 ? (
-        <p className="italic text-emerald-900/60">Noch keine Leistungen erfasst.</p>
+        <p className="italic text-secondary">Noch keine Leistungen erfasst.</p>
       ) : (
         <ul className="mt-1 grid gap-1">
           {items.map((i) => (
             <li key={i.id} className="flex items-center justify-between gap-2">
               <span>
                 <strong>{i.category}</strong> · {i.service} · {i.minutes} min · {i.frequency} · Überprüfung {i.review_date}
-                {i.goal && <span className="block text-xs text-emerald-900/70">Ziel: {i.goal}</span>}
+                {i.goal && <span className="block text-xs text-secondary">Ziel: {i.goal}</span>}
               </span>
               <button type="button" onClick={() => setRetiring(i.id)} className="min-h-11 px-2 text-xs font-semibold underline">
                 Beenden
@@ -823,7 +823,7 @@ function CarePlan({ caseId, items }: { caseId: string; items: PlanItem[] }) {
               Abbrechen
             </button>
           </div>
-          <p className="text-xs text-emerald-900/60">
+          <p className="text-xs text-secondary">
             Die Zuordnung zur KLV-Kategorie trifft das Team; die fachliche Freigabe der Zuordnung ist offen (D-15).
           </p>
         </form>
@@ -968,9 +968,9 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
             <span className="tabular-nums">
               {hhmm(visit.start)}–{hhmm(visit.end)}
             </span>{" "}
-            <span className="text-emerald-900/60">· {getVisitStatusLabel(visit.status)}</span>
+            <span className="text-secondary">· {getVisitStatusLabel(visit.status)}</span>
           </p>
-          <p className="text-xs text-emerald-900/70">
+          <p className="text-xs text-secondary">
             {visit.generated ? <span data-testid="generated-visit">aus Pflegeplan · </span> : null}
             {visit.needs_assessment ? "Bedarfsabklärung · " : ""}
             {formatMinutesByCategory(visit)} · {visit.responsible_me
@@ -982,7 +982,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
                   : "noch niemand verantwortlich"}
           </p>
           {visit.last_change?.reason && (
-            <p className="text-xs text-emerald-900/60">
+            <p className="text-xs text-secondary">
               {visit.last_change.change === "moved" ? "Verschoben" : "Geändert"} {visit.last_change.own ? "von dir" : "im Team"}: {visit.last_change.reason}
               {/* AN2 / CGR-35: stored by the server on the `moved` row (migration 0056), never chosen here. */}
               {visit.last_change.change === "moved" && visit.last_change.responsible_absent === true && (

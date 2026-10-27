@@ -99,7 +99,7 @@ export function ClosedCases({ items }: { items: CaseLifecycle[] }) {
   if (items.length === 0) return null;
   return (
     <section aria-label="Abgeschlossene Fälle" className="mt-6 grid gap-2">
-      <h2 className="text-sm font-bold uppercase tracking-wide text-emerald-900/60">Abgeschlossene Fälle</h2>
+      <h2 className="text-sm font-bold uppercase tracking-wide text-secondary">Abgeschlossene Fälle</h2>
       <ul className="grid gap-2">
         {items.map((c) => <li key={c.case_id}><ClosedCase item={c} /></li>)}
       </ul>
