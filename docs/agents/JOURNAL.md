@@ -28,6 +28,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 13:52 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections (skipped). Picked the packages with an explicit `po` request or an owner change since 12:42: D-37, D-12, D-35. D-2 (13:00 addendum) checked inside D-35 only; no separate section.
+- **New sources read:** Swiss RDL "Home Care Data" page (HCD is Spitex Switzerland's interRAI data pool; certified vendor modules); Obergericht Zürich page on OR Art. 333 (employment passes automatically on a business-part transfer unless refused); LawMedia summary of BGer 4A_50/2021 (OR Art. 321a: no competing or soliciting clients or colleagues during employment); SAMW/FMH guide quoting KVG Art. 41 Abs. 1 (free choice among admitted providers). fedlex not reached; primary texts still unread.
+- **D-37 (interRAI HC as foundation):** ASM1 (D-13 B record naming interRAI HC, no item, score or CAP) **compliant under every plausible interpretation** on D-36 terms (a)-(c). B (import of reported areas) **unresolved: needs owner** (licence and vendor export terms) **and possibly a legal adviser**; one exact question written. C **unresolved: needs owner** (vendor licence) **and regulatory adviser**. Any rule reading imported areas is clinical content and waits for C (D-34).
+- **D-12 (sunset, transfer preparation):** the plan is compliant as a plan; the transfer itself **unresolved: needs Zurich legal adviser** (OR Art. 333 structure; carry-over of orders and needs assessments; duties when a team leaves). Four partnership terms proposed (partner's written consent to preparation; data export or read-only retention at sunset; no cross-organisation data move without instruction and client consent; one cut-over date per client).
+- **D-35 (staged AI path):** stage 0 compliant; stage 1's order-renewal and insurer letters need client identifiers, so condition 1 holds them until adviser question 1 is answered (**unresolved: needs legal adviser and owner**).
+- **Next for `po`:** take in the notes in D-37, D-12 and D-35. **Owner:** the interRAI licence terms (D-36) and the partner's tool and vendor; the Zurich adviser bundle gains D-12 questions (a)-(c).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 13:45 CET · po (Product Owner)
 
 - **Owner 2026-10-27 (in this session):** confirmed the recorded strategic direction and the actions taken; "proceed autonomously".
