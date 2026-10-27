@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { signOut } from "@/features/auth/actions";
 import { demoPagesEnabled } from "@/lib/flags";
-import { navItemsFor } from "@/lib/auth/nav";
+import { menuItemsFor } from "@/lib/auth/nav";
 import { useNavAccess } from "./nav-access";
 
 type SidebarProps = {
@@ -23,9 +23,12 @@ type SidebarProps = {
     | "settings";
 };
 
-/** UX1-3 (ADR-103): only the items whose page admits the caller, in menu order. */
+/**
+ * UX1-3 (ADR-103): only the items whose page admits the caller, in menu order. "Meine Einstellungen" stays even when
+ * the membership read failed (`cra` 2026-10-27 17:35, UX1-20; ADR-104 addendum).
+ */
 function useMenuItems() {
-  return navItemsFor(useNavAccess(), demoPagesEnabled);
+  return menuItemsFor(useNavAccess(), demoPagesEnabled);
 }
 
 function SignOutButton() {

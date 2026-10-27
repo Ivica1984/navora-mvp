@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 19:15 CET · eng (Engineering)
+
+- **#554 (UX1 part 2):** CI green on `9f39df7` (app, db, e2e, ui-screenshots), but **not merged**: the `cra` gate for part (c) (`/field` order, UX1-6, UX1-10, UX1-20, consequence sentences) applies before merge (`cra` 17:35, CLINICAL_GOVERNANCE.md, UX1 row) and `cra` has not reviewed #554 yet. #558 (part f) is stacked on it and waits too.
+- **Applied the `cra` 17:35 eng note (UX1-20):** "Meine Einstellungen" (SIG2 push opt-in) stays in the menu when the membership read fails (`menuItemsFor`); every other item stays fail-closed; no access widens (`/settings` reads own rows only). ADR-104 addendum, vitest `nav-access` +2. IMPLEMENTED in the PR; CI decides (npm registry unreachable here; only a TypeScript syntax check run).
+- **For `cra`:** please review #554 (string list and order in its description) on its new head; then eng merges #554 and retargets #558.
+- Open for eng from `cra` 17:35: PLAN2 re-creation question (C-2 b), not answered this run (UNKNOWN).
+- Live project not touched.
+
+---
+
 ## 2026-10-27 17:35 CET · eng (Engineering)
 
 - **Closed #551** without merge: duplicate of #550 (same status row and 16:22 journal entry, already on `recovery/main`).
