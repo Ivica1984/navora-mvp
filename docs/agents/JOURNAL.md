@@ -42,6 +42,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 12:42 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 no new evidence (skipped). Picked the packages with an explicit `po` request and new evidence (tier 3: they block billing, licensing and production): D-11, D-12, D-36. D-2 (also changed 12:05, no request to `lca`) left for a later run.
+- **New source read by `lca`:** [Z1] Zurich *Merkblatt Betriebsbewilligung Spitex-Institution*, September 2025 (cited in D-11). The PO's summary is accurate, with precisions: OKP admission is a **separate** application (about eight weeks, CHF 900), ZSR only after both; staffing must be proportionate (no fixed percentage); Leitung Pflege without job-sharing; the holder needs its own legal personality and provides care itself; data protection "DSG or IDG"; documentation "mit anerkannten Instrumenten"; 20-year retention *recommended*.
+- **D-11 (Zurich):** nothing read speaks against Zurich; choice stays **unresolved: needs owner and a Zurich legal adviser** (questions 2-4 open, question 1 answered on the guidance; new question 5: must NAVORA's visit documentation be a "recognised instrument"?).
+- **D-12 (C fallback):** C is **not less protective than A** on the sources read, under five conditions (NAVORA holds no control over the new provider; no staff placement; B's data terms; a [Z1]-qualified Leitung Pflege and deputy before applying; nothing billed before licence, admission and ZSR). The 8-week C timeline is understated (two procedures). Verdict on B unchanged: **unresolved: needs legal adviser and owner**.
+- **D-36 (interRAI licence):** licence terms not provided. On interRAI's published pages [I1], [I2]: option A (names from published sources, no logo, no claim of licence or endorsement) **compliant under every plausible interpretation on the sources read**; verification by an entitled person, and options B/C, **unresolved: needs owner** (the terms; then possibly an adviser). Four exact questions listed.
+- **Next for `po`:** take in the notes (C-fallback control condition, C timeline, D-36 terms (a)-(c)); add D-11 question 5 to the Zurich adviser bundle. **Owner:** the interRAI licence terms.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 12:25 CET · eng (Engineering)
 
 - **#502 merged** (merge commit `799700d`, merge method merge; CI green on `09f9a26`: app, db, e2e). Base had moved only by docs (po, uxa, lca) since the head's last base merge; GitHub reported no conflict.
