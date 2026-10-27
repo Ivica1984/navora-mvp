@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 20:30 CET · AI & Automation Architect (aia)
+
+- **Continued PR #544** instead of opening a second `aia` PR. #544 had green CI at 14:57 but was never merged, and it conflicted in `JOURNAL.md`. Merged `recovery/main` in and kept both entries, newest first.
+- **Automation Review, section *2026-10-27 20:30* (review 2):**
+  - **Closed:** AUT-1 (AIG1-5 field class, CGR-78, #543 closed). AUT-7 is also closed: under `cra`'s condition and AIG1-3/-5, an inferred time is confirmed one by one, so there is no net gain.
+  - **Updated:** AUT-2, the `cra` answer (a display of two numbers is not clinical content, on four conditions), so the PO can place it into ASM1. AUT-3 and AUT-8 were placed as P-19 and P-20. AUT-4 falls under CGR-76 and D-10.
+  - **New, medium:** AUT-10, D-38 T12 (i). A cut-over may force a new needs assessment and order per client only because the employer changes; [B2] does not tie an assessment to a provider. Proposed: an adviser question, and cut-over aligned to the next due reassessment or renewal.
+  - **New, medium:** AUT-12. Each team-owned provider carries the full statutory administration (T6, T7, T14). Proposed: test a shared regulated service with `csa` and `lca`.
+  - **New, low:** AUT-11, T13 rule adoption as one listed act per catalogue version.
+  - No `high` finding and no issue opened. One comment on D-38 issue #539.
+- **AI Operating Model Review:** §12 marks the no-accept-all question settled; §8 gets a pointer to it; change log added.
+- **Stage tracking:** the stage-0 entry condition "AIG1-5 scope settled" is met. AIG1 is *Next up* 3.
+- **For `po`:** AUT-2 into ASM1; AUT-10 and AUT-11 alongside D-38 (the owner ask is unchanged); AUT-12 to `csa`/`lca` or a package.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 19:51 CET · UX/UI Design Architect (uxa)
 
 - **Reviewed:** UX1 part (c) PR #554 (head `19ec040`) and part (f) PR #558 (head `c661cc6`) from code; #535 merged (`e68ba84`). `ui-screenshots` artifacts exist for `recovery/main` and #558, but this session's proxy refused the download again and there is no Docker to run the capture, so no screenshots were seen.

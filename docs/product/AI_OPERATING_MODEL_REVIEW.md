@@ -237,7 +237,7 @@ PLANNED. Nothing here is built; D-35 decides the basis.
 | **Forced attention on uncertainty** | the confirmer must act on each marked item; no "accept all" | confirmation is not a click-through |
 | **Provenance per value** *(po 2026-10-26 18:10, `cra` D-35 2(a))* | an agent value is stored as a proposal (agent, version, input reference) and becomes record content only when a named person confirms it; the record shows "vorgeschlagen von … / bestätigt von … am …"; signing a draft is not confirming every value | the record says who stands behind each fact |
 | **"Not found" is explicit** *(`cra` 2(b))* | "im Dokument nicht gefunden", never an empty or "keine" value; a safety field cannot be confirmed without the source open beside it | an omission never reads as "none" (H-03, H-20) |
-| **No accept-all on safety fields** *(`cra` 2(c))* | fields that feed the safety alerts (D-17), the care plan or a medical order are confirmed one by one; the list is the Clinical Owner's (D-17 part 3) | the fields that hurt when wrong get the attention |
+| **No accept-all on safety fields** *(`cra` 2(c); scoped by field class in AIG1-5, see §12)* | fields that feed the safety alerts (D-17), the care plan or a medical order are confirmed one by one; the list is the Clinical Owner's (D-17 part 3) | the fields that hurt when wrong get the attention |
 | **Correction rate and later errors** | per agent and field, per team; never per person (`cra` 2(e), `lca` term 9) | the agent earns its scope with evidence (P-1) |
 | **Stop rule (P-6)** | an agent stops by itself when its correction rate or later-error count crosses its written threshold, or when its provider, region or model changes without review | no silent drift |
 | **Evaluation on synthetic data first** | every agent is tested on synthetic cases before any real data | consistent with "synthetic only" until the gates |
@@ -299,13 +299,15 @@ PLANNED. Nothing here is built; D-35 decides the basis.
 
 The current state of each entry condition is in the newest section of [`AUTOMATION_REVIEW.md`](../agents/reports/AUTOMATION_REVIEW.md), §3 *Stage tracking*.
 
-**Open control question (`aia` 2026-10-27 14:48, AUT-1, #543):** how far does "no accept-all" (§8) reach before the Clinical Owner's list exists?
-- **Approved AIG1-5:** applies it to every field of every agent.
-- **§8 above:** scopes it to fields that feed the safety alerts, the care plan or a medical order.
-- **`aia` proposal (PLANNED, PO to decide, `cra` on the field class):**
-  - One by one stays for level G and H, and for safety-alert, care-plan, medical-order and assessment fields.
-  - Level-L `rule` agents on visit and schedule facts (PLAN3) may be confirmed as an explicitly ticked list, with one ledger confirmation per line.
-  - Until the PO decides, AIG1-5 as approved stands.
+**Control question settled (AUT-1, #543; `aia` 2026-10-27 20:30):** how far does "no accept-all" (§8) reach?
+- **PLANNED (approved brief, not built):** AIG1-5 as amended by po 2026-10-27 15:20 and 18:10, with `cra` CGR-78. The rule:
+  - every proposed field has a class, `schedule` or `record`, and `record` is the default;
+  - a bulk confirm is allowed only for `schedule` fields of level-L `rule` agents that are not on the Clinical Owner's list;
+  - a bulk confirm is an unticked list with one tap per line, no "select all", and a confirm button that names its count;
+  - each line is its own ledger confirmation, and the consuming command re-checks every line;
+  - safety-alert, care-plan, order and assessment fields, and any field that sets a visit's date, time, team, minutes or category, can never be `schedule`.
+- **First `schedule` field:** PLAN3 `responsible_user_id`.
+- **Consequence for inferred values (AUT-7, closed):** an inferred visit time is a `record` value and is confirmed one by one (AIG1-3, AIG1-5; `cra` 17:35). Removing taps by inference therefore saves nothing at equal safety.
 
 **Delivered rule proposers outside the register (`aia`, AUT-9):**
 - WORK1 proposes the working day. Per-segment provenance (`from_proposal`) is IMPLEMENTED.
@@ -316,3 +318,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | Date (Europe/Zurich) | Who | Change |
 |---|---|---|
 | 2026-10-27 14:48 | `aia` | First `aia` maintenance. Added §12: the stage-tracking pointer, the open "no accept-all" scope question (AUT-1, #543) and WORK1 as a rule proposer outside the register (AUT-9). Sections 1-11 unchanged |
+| 2026-10-27 20:30 | `aia` | §12: the AUT-1 control question is marked settled. It records the AIG1-5 field-class rule as amended, with CGR-78, and its consequence for inferred values (AUT-7). §8: one pointer to §12 in the *No accept-all* row. No agent added or removed |
