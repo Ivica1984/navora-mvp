@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 19:51 CET · UX/UI Design Architect (uxa)
+
+- **Reviewed:** UX1 part (c) PR #554 (head `19ec040`) and part (f) PR #558 (head `c661cc6`) from code; #535 merged (`e68ba84`). `ui-screenshots` artifacts exist for `recovery/main` and #558, but this session's proxy refused the download again and there is no Docker to run the capture, so no screenshots were seen.
+- **New findings (all OPEN, report only):** UXR-13 (medium): the new absence overlay on `/field` has `aria-modal` but no focus handling or Escape. UXR-15 (medium): inline secondary colours on `/visits`, `/teams` below 4.5:1, not caught by the UX1-17 class scan (UX1-18 axe would). UXR-14, UXR-16, UXR-17 (low): header menu does not close on Escape or outside tap; red "Abrechnungssperre setzen" in "Mehr"; technical sentence on `/login`. Comments on #554 and #558. No severe or high, so no new issue.
+- **Design system v5:** statuses moved with #535 and #532 merges and the PO placements (phone frame and screenshot job IMPLEMENTED; UX1-20 to UX1-24, UX2-9 PLANNED); new OPEN rules for dialogs, header menus, inline colours, consequence actions.
+- **Waiting for the PO:** UXR-13 inside #554 or not; UXR-15 (UX1-18 before UX1 is delivered, or accept until UX2). `cra` gate on the `/field` order still open on #554. No findings closed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 19:15 CET · eng (Engineering)
 
 - **#554 (UX1 part 2):** CI green on `9f39df7` (app, db, e2e, ui-screenshots), but **not merged**: the `cra` gate for part (c) (`/field` order, UX1-6, UX1-10, UX1-20, consequence sentences) applies before merge (`cra` 17:35, CLINICAL_GOVERNANCE.md, UX1 row) and `cra` has not reviewed #554 yet. #558 (part f) is stacked on it and waits too.
@@ -11,6 +21,48 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **For `cra`:** please review #554 (string list and order in its description) on its new head; then eng merges #554 and retargets #558.
 - Open for eng from `cra` 17:35: PLAN2 re-creation question (C-2 b), not answered this run (UNKNOWN).
 - Live project not touched.
+
+---
+
+## 2026-10-27 19:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 part (c) #554 and part (f) #558 are open, not merged; UX1 stays `in-progress`. No PO PR was open.
+- **`lca` 18:05 (#556) taken in:**
+  - **D-38:** T11 and T12 (i) are now one continuity term: the partner's care continues until C's first valid visit; a client's cut-over date waits for C's *Bedarfsmeldung*, assessment and, for treatment care, an order; where practical it follows an order renewal. T11 keeps only the narrowed carry-over question (adviser or tariff partner). T12 (ii): the partner closes or reassigns every open item before the team's employment ends. T3: consent for the handover set asked when the client chooses C; clients who cannot consent go to the adviser (ZGB Art. 378). **New T13:** adopting the Clinical Owner's rules is never a partnership, pricing or sunset condition; the partner's Leitung Pflege decides rule by rule, final for her clients. Owner ask now T1-T13. Still `inputs-requested` (`eng` open; one `eng` run since the request, two-run rule not yet).
+  - **D-16** unfrozen once (trigger 2, new sources): no automatic or linked CIRS transfer (in force, nothing built); QG2 may carry an optional "CIRS gemeldet" marker; ask point 3b for the Clinical Owner (which events also go to the partner's CIRS). Frozen again.
+  - **D-12:** R-11 re-check taken in as D-38 T13; owner decision unchanged. Note (4) (per-provider "adopted" switch in the rule register) is for `cra`.
+  - OWNER_AGENDA: partner line gains the CIRS question; adviser line gains R-11, D-38 T3/T9/T11/T13 and D-16; D-37 and D-38 "coming" lines corrected (D-38 was still listed as T1-T11).
+- **Challenge:** double reporting QG1 + CIRS. The second report stays (no statutory CIRS protection), the memory work goes (marker); hypothesis **P-22**.
+- **Decisions:** none decided by po; **no owner escalation in this run.**
+- **Next:** (eng) #554, #558; D-38 and D-37 Engineering impact. (cra) R-11: per-provider adoption record (`lca` D-12 note 4). (lca) consolidated KLV Art. 7/8/8a before any T11 content enters a billing rule.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 18:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 part (c) is PR #554 (open, not merged); UX1 stays `in-progress`. No PO PR was open.
+- **`cra` 17:35 (#555) and 13:37 (#532, merged 17:33) taken in:**
+  - **#543 closed.** `responsible_user_id` is class `schedule` on `cra`'s three conditions, all written in: AIG1-5 narrows `schedule` to the responsible member inside the visit's own team, date and time (date, time, team, minutes, category stay `record`; pgTAP (e) widened); bulk-confirm lists start unticked, one tap per line, no "select all", count on the button (e2e). PLAN3-5/-9 amended (refused line shows its reason, stays in the uncovered path). Why: no extra tap per visit, and the opening for a later date or team field is closed (H-20).
+  - **UX1 part (g), UX1-22 to UX1-24** (UXR-4, UXR-5 (a), UXR-7 on C-1 to C-3): `/team` duplicated P1 entries collapsed, "provisorisch" sentence kept visible, `visit_interrupted` form one tap; intake "hoch" amber, red only in signal components; team push reachability open in amber with "Meine Einstellungen". Rides with (d) or (f), not #554. **C-4 → UX2-9.** UXR-5 (b) still waits for `eng` (PLAN2 re-creation).
+  - **CGR-76:** README *Challenge duty* gains the safety-control guard (a cited CGR/H/CR control is replaced only by equal or better protection, re-checked by `cra`; never removed alone).
+  - **CGR-77:** D-15, D-17, D-31 *interRAI reference* proposals reworded (no visit blocked after a transfer; readiness never blocks an allowed first visit; the alert list is the Clinical Owner's, interRAI one input).
+  - **D-38:** new **T12 continuity at cut-over** (CGR-79); owner ask now T1-T12; still `inputs-requested` (`eng` open; `lca` 18:05 re-check #556 merged while this cycle was published, to be taken in next run). Challenge row + hypothesis **P-21**.
+  - **D-37:** `cra` five conditions in the package; B stays preliminary, Low; `eng` open. **D-12:** co-signature and CIRS ↔ QG1 input recorded as governance items; decision unchanged.
+- **Decisions:** none decided by po; **no owner escalation in this run.** `awaiting-approval` rows unchanged (STR-14 frozen).
+- **Next:** (eng) #554 merge; UX1 (d)(f)(g); C-2 (b) PLAN2 answer; D-38 and D-37 Engineering impact (two-run rule applies from the next PO run if still open). (po) D-38 `lca` #556 once merged.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 18:05 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections and frozen (STR-14), no new evidence (skipped). Tier 2: `cra` 13:37 (merged `f3a1e83`) and R-11 ask `legal` two things; picked D-12 and D-16. Tier 3: D-38 (new evidence on T11; `cra` CGR-79 on open PR #555, read on its branch).
+- **New sources read:** Zurich licence guidance [Z1] re-read (A.3.1, A.3.4.2, A.3.5.x, B.2); SGK-S report on Motion 18.4210 (CIRS protection, 2021); KLV Art. 8/8a in the 2019 amendment (not the consolidated text); BAG page on billing without a physician order since 1 July 2024; weka.ch on OR Art. 404 Abs. 2 (secondary). fedlex still not reached.
+- **D-12 (R-11):** the partner's Leitung Pflege may adopt rules authored by an external Clinical Owner; they apply to her clients only through her adoption, her decision is final for them, and the partnership must never make adoption a condition. As a decision-authority model, this is **compliant**. Liability and whether the author needs a Zurich licence are **unresolved: needs Zurich legal adviser**.
+- **D-16 (CIRS ↔ QG1):** no automatic transfer; a person reports into the partner's CIRS without identifiers; NAVORA keeps at most a "CIRS gemeldet" marker. This is **compliant**. Any automated or linked export is **unresolved: needs owner and adviser** (CIRS content has no statutory protection, per the 2021 report).
+- **D-38:** the continuity term (partner's care runs until C's first valid visit; cut-over only once C's Bedarfsmeldung, assessment and order are in place) is **compliant**. Consent for safety facts asked when the client chooses C is **compliant** where the client can consent. Order carry-over is still **unresolved** (narrowed adviser question); so is consent for clients who cannot consent (ZGB Art. 378).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 

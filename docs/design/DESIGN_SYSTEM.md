@@ -1,6 +1,6 @@
 # NAVORA design system
 
-**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 4 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
+**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 5 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
 
 This file says how NAVORA screens behave and look. It is a contract for Engineering (what to build), for the PO (what to accept) and for `uxa` (what to review against). Code wins where it differs; the difference is then a finding.
 
@@ -36,32 +36,35 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 - Colour is never the only carrier of meaning: every severity has a word or icon too.
 - IMPLEMENTED today: two systems. Nurse screens use Tailwind with emerald-800/900 headers and amber, blue and sky accents (`src/app/(protected)/field/*`); first-MVP screens use inline hex colours (`#f4f7f4`, `#153328`). `src/app/globals.css` switches the page background to dark under `prefers-color-scheme: dark` while pages hard-code light colours: effect on a phone in dark mode UNKNOWN; first `uxa` check.
 - Dark mode (checked by `uxa` 2026-10-27, UXR-8): every protected page root and `/login` set their own background and text colour, so the dark `body` does not show through; no defect found in code. Residual: native form controls follow the system scheme (no `color-scheme: light`). Until a dark theme is designed NAVORA is light only: `color-scheme: light` on `:root` (OPEN, report only).
-- **Safety-signal card** (OPEN; benchmark 2026-10-27; `cra` confirmed with change on 2026-10-27 13:37 in PR #532, not merged; no brief uses it yet): the first line names the situation and its primary action; a visually hidden prefix "Sicherheitssignal:" gives screen readers the level that colour gives sighted users; **one primary action first, and no action a card has today is removed or moved off the card** (e.g. the decision form of an interrupted visit stays); one situation is never shown in two stacked cards; text after a card has its own heading.
-- **A situation shown as a signal card and in a list** (OPEN; `cra` C-1, PR #532): the list shows a pointer line ("Steht oben als Sicherheitssignal") only when its entry adds nothing the card lacks; an entry with its own action, flags or handling state keeps them visible. An explanation of when a signal clears may sit behind "Wann erledigt sich das?", but a sentence saying the rules are provisional stays visible.
-- **Not a safety signal, so not red** (OPEN; `cra` C-2 (a), C-3, PR #532): a referral's urgency at intake (a criteria-free label) is shown as a word in `attention` (amber); a team in which not every member receives P1 signals outside the app is shown open, in `attention`, without expanding, with a link to the setting.
+- **Safety-signal card** (PLANNED: UX2-9; benchmark 2026-10-27; `cra` confirmed with change on 2026-10-27 13:37, merged with #532 as `f3a1e83`): the first line names the situation and its primary action; a visually hidden prefix "Sicherheitssignal:" gives screen readers the level that colour gives sighted users; **one primary action first, and no action a card has today is removed or moved off the card** (e.g. the decision form of an interrupted visit stays); one situation is never shown in two stacked cards; text after a card has its own heading.
+- **A situation shown as a signal card and in a list** (PLANNED: UX1-22; `cra` C-1, merged #532): the list shows a pointer line ("Steht oben als Sicherheitssignal") only when its entry adds nothing the card lacks; an entry with its own action, flags or handling state keeps them visible. An explanation of when a signal clears may sit behind "Wann erledigt sich das?", but a sentence saying the rules are provisional stays visible.
+- **Not a safety signal, so not red** (PLANNED: UX1-23, UX1-24; `cra` C-2 (a), C-3, merged #532): a referral's urgency at intake (a criteria-free label) is shown as a word in `attention` (amber); a team in which not every member receives P1 signals outside the app is shown open, in `attention`, without expanding, with a link to the setting.
+- **Actions with a consequence are not red either** (OPEN, UXR-16): an action inside a "Mehr" menu (e.g. "Abrechnungssperre setzen", "Einsatz absagen") is `action-outline` in neutral colours; its consequence sentence in the confirming step carries the weight, not the colour.
 
 ## 4. Language
 
 - Plain German (Swiss spelling, "ss" not "ß"), the words the team uses. No internal codes (D-…, SIG…, F1–F4, PLAN2, WORK1, CGR-…) in user-facing text; references for reviewers go into a marked reviewer element. PLANNED: UX1-11.
 - One product name: **NAVORA**. No "Control Tower", "Board", "Drilldown", "Swiss Care OS", "MVP". PLANNED: UX1-13, UX2-6.
 - A text that `cra` or `lca` fixed keeps its substance word for word; a wording change goes to them first (README, *UX review*).
-- **Long fixed information texts** (e.g. the `/work` working-time notice): words unchanged and nothing collapsed; one lead line saying what to do and what comes after; a short heading per paragraph that is accurate for the whole paragraph and names every recipient it mentions; lead line and headings are fixed text next to the paragraphs (same versioning) and `lca` confirms them. Never "bestätigen" next to a privacy text (reads as consent). OPEN (UXR-3; `lca` D-23 11:41, PR #520).
+- **Long fixed information texts** (e.g. the `/work` working-time notice): words unchanged and nothing collapsed; one lead line saying what to do and what comes after; a short heading per paragraph that is accurate for the whole paragraph and names every recipient it mentions; lead line and headings are fixed text next to the paragraphs (same versioning) and `lca` confirms them. Never "bestätigen" next to a privacy text (reads as consent). PLANNED: UX1-21 (UXR-3; `lca` D-23 11:41), built in open PR #554.
 - Say what happens, not which rule applies: "Wird nicht abgerechnet, bis die Sperre aufgehoben ist", not "QG1-Hold aktiv".
 
 ## 5. Layout, density, mobile first
 
-- **Phone first:** every protected screen and the sign-in page (`/login`, UXR-1: PLANNED, UX1-15) work at **390 × 844** with no horizontal scroll (PLANNED: UX1-1, UX2-2). Desktop at 1440 px is the second layout, not the first.
+- **Phone first:** every protected screen and the sign-in page (`/login`, UXR-1: PLANNED, UX1-15, built in open PR #558) work at **390 × 844** with no horizontal scroll (PLANNED: UX1-1, UX2-2). Desktop at 1440 px is the second layout, not the first.
 - The next visit on `/field` is inside the first viewport when there is no P1 signal (PLANNED: UX1-6).
 - **Density:** at most one line of explanation under a heading; details behind "Details". A card shows at most four facts before its action.
 - One shell for every role: phone tab bar (Heute, Team, Arbeitstag, Mehr), desktop sidebar (PLANNED: UX2-1).
-- **Every setting a safety signal depends on is reachable from every screen of that role** without typing an address; for a nurse that is "Meine Einstellungen" (push opt-in, SIG2) from `/field`, `/team` and `/work`. IMPLEMENTED today: not reachable (UXR-10). Until UX2-1, an interim route in the header is proposed (OPEN, #548).
-- Phone frame of the first-MVP pages (`AppFrame`: one column below 768 px, menu in a top bar, side column from 768 px; menu items filtered by each page's own check): in open PR #535 (UX1-1, UX1-3; PLANNED until merged). Sign-out belongs inside the menu, not as the most prominent control of the bar (UXR-11).
+- **Every setting a safety signal depends on is reachable from every screen of that role** without typing an address; for a nurse that is "Meine Einstellungen" (push opt-in, SIG2) from `/field`, `/team` and `/work`. IMPLEMENTED today: not reachable (UXR-10). PLANNED: UX1-20, an interim "Menü" in the header of `/field`, `/team`, `/work` (built in open PR #554), replaced by the UX2-1 tab bar.
+- Phone frame of the first-MVP pages (`AppFrame`: one column below 768 px, menu in a top bar, side column from 768 px; menu items filtered by each page's own check): IMPLEMENTED (UX1-1, UX1-3; #535 merged as `e68ba84`). Sign-out belongs inside the menu, not as the most prominent control of the bar (UXR-11; PLANNED: UX1-20, in open PR #554).
+- **Header menus and pop-overs** (OPEN, UXR-14): a menu opened from a header closes on Escape, on a tap outside it and after choosing an item; it never stays open over the content it covers.
 
 ## 6. Accessibility floor
 
 - WCAG 2.2 AA contrast; tap targets at least 44 × 44 px; keyboard reachable navigation with `aria-current`; visible focus; no information only in colour (PLANNED: UX2-8, axe in CI: serious and critical fail).
 - Text resizes to 200 % without loss of function (OPEN).
-- **Secondary text** (meta lines, reasons, times) uses the `text-secondary` token with at least 4.5:1 on every surface; no text under 18 px with a colour opacity below 80 % (PLANNED: UX1-17, UX1-18; today 57 uses below that, UXR-2).
+- **Secondary text** (meta lines, reasons, times) uses the `text-secondary` token with at least 4.5:1 on every surface; no text under 18 px with a colour opacity below 80 % (PLANNED: UX1-17, UX1-18; today 57 uses below that, UXR-2). The rule covers inline `style` colours too, not only Tailwind classes (UXR-15: `#6b8075` on `#f4f7f4` is about 3.9:1); until UX1-18's axe run exists, a class scan alone does not prove it.
+- **Dialogs** (OPEN, UXR-13): an element with `role="dialog"` and `aria-modal="true"` moves focus into itself on open (first field or its heading), keeps Tab inside, closes on Escape and returns focus to the control that opened it; the native `<dialog>` with `showModal()` does all four.
 
 ## 7. Tokens and components
 
@@ -95,7 +98,7 @@ PLANNED in UX2-3: one token set and a small component set. **Proposal by `uxa` (
 
 ## 8. Screenshots and review
 
-- CI produces screenshots of every protected route on the synthetic seed at 390 px and 1440 px, per role, as a CI artifact (PLANNED: UX1-14, extended in UX2-2; axe on page content: UX1-18). `uxa` reviews them against this file and records findings in `docs/agents/reports/UX_REVIEW.md`.
+- CI produces screenshots of every protected route on the synthetic seed at 390 px and 1440 px, per role, as a CI artifact (IMPLEMENTED: UX1-14, #535, artifacts on every push to `recovery/main` since `e68ba84`; extended in UX2-2 PLANNED; axe on page content: UX1-18 PLANNED). `uxa` reviews them against this file and records findings in `docs/agents/reports/UX_REVIEW.md`.
 - Screenshots never contain real personal or health data and are never committed to `recovery/main`.
 
 **Review procedure** (`uxa`, every run; IMPLEMENTED as a process from 2026-10-27):
@@ -107,6 +110,7 @@ PLANNED in UX2-3: one token set and a small component set. **Proposal by `uxa` (
 
 ## Change log
 
+- 2026-10-27 19:51 CET (`uxa`): version 5. Status moved with the merges of #535 and #532 and the placements of 16:25 and 18:10: §3 signal card PLANNED (UX2-9), list pointer and not-red rules PLANNED (UX1-22 to UX1-24); §4 long fixed texts PLANNED (UX1-21); §5 phone frame IMPLEMENTED, settings route PLANNED (UX1-20); §8 screenshot job IMPLEMENTED. New OPEN rules: §3 consequence actions not red (UXR-16), §5 header menus close (UXR-14), §6 dialogs manage focus (UXR-13) and contrast covers inline colours (UXR-15).
 - 2026-10-27 15:50 CET (`uxa`): version 4. §3 safety-signal card updated with `cra`'s C-4 change ("one primary action first; no action removed"), two new rules from C-1, C-2 (a), C-3 (all OPEN; `cra` 13:37, PR #532 not merged); §2 consequence sentence (C-2 (b)) and a proposal-and-confirmation pattern (AIG1, PLAN3: PLANNED parts and OPEN `uxa` proposals); §5 reachability of safety-related settings (UXR-10) and the #535 phone frame (PLANNED until merged).
 - 2026-10-27 11:49 CET (`uxa`): version 3. §4 pattern for long fixed information texts (from `lca`'s answer to L-1); §5 `/login` and §6 secondary text from OPEN to PLANNED (UX1-15, UX1-17/-18, PO 11:10).
 - 2026-10-27 11:19 CET (`uxa`): version 2. §8 review procedure (owner 2026-10-27: continue the design system and the screenshot review); requests C-1 to C-4 to `cra` and L-1 to `lca` recorded in the UX review.
