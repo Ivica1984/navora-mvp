@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 15:50 CET · UX/UI Design Architect (uxa)
+
+- **Reviewed:** UX1 (a)(b)(e) PR #535 (head `bcfb62d`) from code: the first `ui-screenshots` artifact exists (12737585342) but this session's proxy refused the download, so no screenshots were seen. #502 (merged) on `/team`: no finding.
+- **New findings:** UXR-10 (high): a nurse cannot reach `/settings` (push opt-in for P1 signals) from `/field`, `/team` or `/work`; #535's menu is shown only on `/settings`, `/admin`, `/operations`; UX2-1 fixes it but is *Next up* 5 → issue #548 for the PO (interim route vs wait). UXR-11 (low, sign-out most prominent in the #535 phone bar), UXR-12 (low, "Navora" and old labels in the new bar; for UX1 part (d)). One comment on #535.
+- **`cra` answers to C-1 to C-4** (13:37, open PR #532, not merged) recorded; UXR-4, UXR-5 (a), UXR-7 ready for placement once #532 merges; UXR-5 (b) waits for `eng` (does PLAN2 re-create a removed care-plan visit?).
+- **Design system v4:** signal-card rule changed as `cra` asked; rules for duplicates, urgency and reachability (OPEN); proposal-and-confirmation pattern for AIG1/PLAN3 (PLANNED parts, OPEN proposals; ticked-or-unticked default UNKNOWN, `cra`/PO).
+- **Waiting for the PO:** #548; placement of UXR-3 and, after #532, UXR-4/-5 (a)/-7. No findings closed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 15:48 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections and frozen (STR-14), no new evidence (skipped). Tier 2: no open CGR finding asks `lca`. Picked D-38 (new, `inputs-requested` from `lca`; blocks the partnership LOI, tier 3). P-20 waits for its brief (asked through D-23 then).

@@ -1,6 +1,6 @@
 # NAVORA design system
 
-**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 3 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
+**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 4 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
 
 This file says how NAVORA screens behave and look. It is a contract for Engineering (what to build), for the PO (what to accept) and for `uxa` (what to review against). Code wins where it differs; the difference is then a finding.
 
@@ -25,7 +25,8 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 ## 2. Action hierarchy
 
 - **One primary action per card or screen section** (filled button). PLANNED: UX1-7.
-- **Secondary actions** are outline buttons. **Destructive or billing- and planning-changing actions** (cancel a visit, set a billing hold, end access) sit behind "Mehr" and a confirming step that names the consequence in one sentence. PLANNED: UX1-8.
+- **Secondary actions** are outline buttons. **Destructive or billing- and planning-changing actions** (cancel a visit, set a billing hold, end access) sit behind "Mehr" and a confirming step that names the consequence in one sentence. PLANNED: UX1-8. The sentence states what happens to the care, not to the data model, from facts `cra` or `eng` give (e.g. removing a planned visit: the care planned for that time does not take place unless someone plans it again; `cra` C-2 (b), wording OPEN).
+- **Proposals and confirmation** (assistants, rule-based or AI; PLANNED in AIG1-3, AIG1-4, AIG1-5, AIG1-10, PLAN3-9): a proposed value is marked with the word "Vorschlag" and "vorgeschlagen von <Agent>", never by colour alone; a confirmed value shows "bestätigt von <Name> am <Datum>"; a missing value reads "nicht gefunden", never empty, "keine" or a default; there is no "Alle übernehmen": a bulk confirm is an explicit ticked list and only where AIG1-5 allows it. OPEN proposals by `uxa` for the AIG1 and PLAN3 screens: a changed line shows old → new on one line; the confirm button names its count ("3 Einsätze bestätigen"); a line the server refuses stays in the list with its reason. Whether a ticked list starts ticked or unticked affects automation bias (H-20): UNKNOWN, `cra` and the PO decide.
 - **Safety and quality reporting stays one tap** ("Ereignis melden"; PO decision UX1-9). Recording an absence stays at most two taps from the top of `/field` (ABS1, accepted).
 - Never two filled buttons of different colours side by side.
 
@@ -35,7 +36,9 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 - Colour is never the only carrier of meaning: every severity has a word or icon too.
 - IMPLEMENTED today: two systems. Nurse screens use Tailwind with emerald-800/900 headers and amber, blue and sky accents (`src/app/(protected)/field/*`); first-MVP screens use inline hex colours (`#f4f7f4`, `#153328`). `src/app/globals.css` switches the page background to dark under `prefers-color-scheme: dark` while pages hard-code light colours: effect on a phone in dark mode UNKNOWN; first `uxa` check.
 - Dark mode (checked by `uxa` 2026-10-27, UXR-8): every protected page root and `/login` set their own background and text colour, so the dark `body` does not show through; no defect found in code. Residual: native form controls follow the system scheme (no `color-scheme: light`). Until a dark theme is designed NAVORA is light only: `color-scheme: light` on `:root` (OPEN, report only).
-- **Safety-signal card** (OPEN; benchmark 2026-10-27, `cra` must confirm before any brief uses it): the first line names the situation and its one action; a visually hidden prefix ("Sicherheitssignal:") gives screen readers the level that colour gives sighted users; a P1 card has exactly one action; one situation is never shown in two stacked cards; text after a card has its own heading.
+- **Safety-signal card** (OPEN; benchmark 2026-10-27; `cra` confirmed with change on 2026-10-27 13:37 in PR #532, not merged; no brief uses it yet): the first line names the situation and its primary action; a visually hidden prefix "Sicherheitssignal:" gives screen readers the level that colour gives sighted users; **one primary action first, and no action a card has today is removed or moved off the card** (e.g. the decision form of an interrupted visit stays); one situation is never shown in two stacked cards; text after a card has its own heading.
+- **A situation shown as a signal card and in a list** (OPEN; `cra` C-1, PR #532): the list shows a pointer line ("Steht oben als Sicherheitssignal") only when its entry adds nothing the card lacks; an entry with its own action, flags or handling state keeps them visible. An explanation of when a signal clears may sit behind "Wann erledigt sich das?", but a sentence saying the rules are provisional stays visible.
+- **Not a safety signal, so not red** (OPEN; `cra` C-2 (a), C-3, PR #532): a referral's urgency at intake (a criteria-free label) is shown as a word in `attention` (amber); a team in which not every member receives P1 signals outside the app is shown open, in `attention`, without expanding, with a link to the setting.
 
 ## 4. Language
 
@@ -51,6 +54,8 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 - The next visit on `/field` is inside the first viewport when there is no P1 signal (PLANNED: UX1-6).
 - **Density:** at most one line of explanation under a heading; details behind "Details". A card shows at most four facts before its action.
 - One shell for every role: phone tab bar (Heute, Team, Arbeitstag, Mehr), desktop sidebar (PLANNED: UX2-1).
+- **Every setting a safety signal depends on is reachable from every screen of that role** without typing an address; for a nurse that is "Meine Einstellungen" (push opt-in, SIG2) from `/field`, `/team` and `/work`. IMPLEMENTED today: not reachable (UXR-10). Until UX2-1, an interim route in the header is proposed (OPEN, #548).
+- Phone frame of the first-MVP pages (`AppFrame`: one column below 768 px, menu in a top bar, side column from 768 px; menu items filtered by each page's own check): in open PR #535 (UX1-1, UX1-3; PLANNED until merged). Sign-out belongs inside the menu, not as the most prominent control of the bar (UXR-11).
 
 ## 6. Accessibility floor
 
@@ -102,6 +107,7 @@ PLANNED in UX2-3: one token set and a small component set. **Proposal by `uxa` (
 
 ## Change log
 
+- 2026-10-27 15:50 CET (`uxa`): version 4. §3 safety-signal card updated with `cra`'s C-4 change ("one primary action first; no action removed"), two new rules from C-1, C-2 (a), C-3 (all OPEN; `cra` 13:37, PR #532 not merged); §2 consequence sentence (C-2 (b)) and a proposal-and-confirmation pattern (AIG1, PLAN3: PLANNED parts and OPEN `uxa` proposals); §5 reachability of safety-related settings (UXR-10) and the #535 phone frame (PLANNED until merged).
 - 2026-10-27 11:49 CET (`uxa`): version 3. §4 pattern for long fixed information texts (from `lca`'s answer to L-1); §5 `/login` and §6 secondary text from OPEN to PLANNED (UX1-15, UX1-17/-18, PO 11:10).
 - 2026-10-27 11:19 CET (`uxa`): version 2. §8 review procedure (owner 2026-10-27: continue the design system and the screenshot review); requests C-1 to C-4 to `cra` and L-1 to `lca` recorded in the UX review.
 - 2026-10-27 10:42 CET (`uxa`): version 1. §3 dark-mode check answered from code (UXR-8) and the safety-signal card pattern (OPEN, from the benchmark; `cra` to confirm); §5 `/login` in the phone-first scope (UXR-1); §6 secondary-text contrast rule (UXR-2); §7 token and component proposal before UX2.
