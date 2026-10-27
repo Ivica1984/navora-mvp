@@ -4,7 +4,7 @@ import { useState } from "react";
 import SignalBanner from "@/components/signals/SignalBanner";
 import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
 import type { EvaluatorHealth, SignalRow } from "@/features/signals/rules";
-import Sidebar from "@/components/layout/Sidebar";
+import { AppFrame } from "@/components/layout/Sidebar";
 import type { OperationsDashboard } from "@/features/operations/types";
 import type { TeamRow } from "@/features/teams/types";
 import ExceptionCenter from "./exception-center";
@@ -59,19 +59,16 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
   const teamsByName = [...teams].sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "", "de-CH"));
 
   return (
-    <div
+    <AppFrame
+      active="operations"
       style={{
-        minHeight: "100vh",
-        display: "grid",
-        gridTemplateColumns: "240px 1fr",
         background: "#F8FAF9",
         color: "#153328",
         fontFamily: "Inter, Segoe UI, sans-serif",
       }}
     >
-      <Sidebar active="operations" />
-
-      <main style={{ padding: "24px", display: "grid", gap: "16px" }}>
+      {/* UX1-1: one column below 768 px; the side column from 768 px (AppFrame). */}
+      <main className="grid min-w-0 gap-4 p-4 md:p-6">
         <EvaluatorHealthNotice health={evaluator} />
         <SignalBanner initial={signals} />
         <Header
@@ -99,13 +96,7 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
 
         {/* ADM1: the unvalidated prototype hints ("Weitere Hinweise") were removed; the OPS1 exception list above is the validated source. */}
 
-        <section
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "16px",
-          }}
-        >
+        <section className="grid gap-4 lg:grid-cols-2">
           <TeamTable
             teams={teamsByName}
             onSelectTeam={(id) => setSelectedEntity({ type: "team", id })}
@@ -116,7 +107,7 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
 
         <ContextPanel selectedEntity={selectedEntity} teams={teams} />
       </main>
-    </div>
+    </AppFrame>
   );
 }
 
@@ -128,7 +119,7 @@ function Header({
   openSlots: number;
 }) {
   return (
-    <header style={{ height: "64px" }}>
+    <header style={{ minHeight: "64px" }}>
       <p
         style={{
           margin: 0,
@@ -165,13 +156,7 @@ function ExecutiveKpis({
   seriousQualityEvents: number;
 }) {
   return (
-    <section
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-        gap: "16px",
-      }}
-    >
+    <section className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
       <KpiCard label="Aktive Klientenfälle" value={activeCases} status="normal" context="laufende Versorgung" />
       <KpiCard
         label="Kapazitätsauslastung"
@@ -256,6 +241,8 @@ function TeamTable({
       <h2 style={sectionTitle}>Pflegeteams</h2>
       <p style={sectionSubtitle}>Alphabetisch, mit Auslastung und freien Slots.</p>
 
+      {/* UX1-1: a wide table scrolls inside its panel, never the page. */}
+      <div className="overflow-x-auto">
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "12px" }}>
         <thead>
           <tr style={{ color: "#6B7280", fontSize: "12px", textAlign: "left" }}>
@@ -286,6 +273,7 @@ function TeamTable({
           })}
         </tbody>
       </table>
+      </div>
     </section>
   );
 }

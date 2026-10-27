@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
-import Sidebar from "@/components/layout/Sidebar";
+import { AppFrame } from "@/components/layout/Sidebar";
 import { disableOutsideDelivery, enableOutsideDelivery } from "@/features/push/commands";
 import type { MyPushState } from "@/features/push/queries";
 import { ENABLE_MESSAGES, memberInformation, NOT_AVAILABLE, OUTSIDE_LABEL, statusText } from "@/features/push/rules";
@@ -83,9 +83,8 @@ export default function SettingsClient({ state }: { state: MyPushState }) {
   });
 
   return (
-    <div style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "280px 1fr", background: "#f4f7f4", color: "#153328" }}>
-      <Sidebar active="settings" />
-      <main className="grid max-w-3xl content-start gap-6 p-8">
+    <AppFrame active="settings" style={{ background: "#f4f7f4", color: "#153328" }}>
+      <main className="grid max-w-3xl content-start gap-6 p-4 md:p-8">
         <header>
           <p className="text-xs uppercase tracking-widest text-stone-500">Einstellungen</p>
           <h2 className="text-2xl font-bold">Meine Einstellungen</h2>
@@ -119,6 +118,6 @@ export default function SettingsClient({ state }: { state: MyPushState }) {
           {message && <p role="status" className="text-sm text-emerald-900">{message}</p>}
         </section>
       </main>
-    </div>
+    </AppFrame>
   );
 }
