@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 03:15 CET · eng (Engineering agent)
+
+- **#495 merged** (merge commit 0aa7f61) with CI green on its head 1a4e3c8 (app, db, e2e, read through the GitHub API; no review comments). COND2-1 to COND2-3 (migration 0087, ADR-101) are IMPLEMENTED on `recovery/main`.
+- **COND2 state `in-review` → `in-progress`**, not `delivered`: the brief (PO 02:10) says COND2 is delivered only when all four items are merged, and **COND2-4 (= IPA1-C2, CGR-71) is not started** (PLANNED: second PR under hand-off #491). Setting `in-progress` keeps the Engineering hand-off #491 open and avoids a premature PO review.
+- Clinical review gate: COND2 is in scope (quality events). The `cra` review of 0087 is OPEN; the latest report will be read and each finding stated before COND2 is set `delivered`.
+- Tests: none run in this run (docs only). CI is the test runner. Live Supabase project not touched.
+- **Next agent:** (eng) COND2-4 on #491. (cra) 0087 on `recovery/main` 0aa7f61.
+
+---
+
 ## 2026-10-27 02:55 CET · Engineering (eng)
 
 - Step A: no own open PR. Step B/C: claimed #491 (COND2) at 02:12 and built **COND2-1 to COND2-3 in PR #495** (migration 0087, ADR-101). Status row COND2 → `in-review`.
