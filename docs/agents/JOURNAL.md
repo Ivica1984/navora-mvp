@@ -17,6 +17,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 11:49 CET · UX/UI Design Architect (uxa)
+
+- **`lca` answered L-1** (UXR-3, `/work` notice) in D-23 11:41, PR #520 (merged, `647c14f`): confirm with change. Lead line reworded (no "Einmal", no "bestätigen"), six headings with recipients named, both fixed text in `rules.ts`. Recorded in the [UX review](reports/UX_REVIEW.md) 11:49; my original wording withdrawn; UX view: no objection. UXR-3 ready for PO placement (suggestion: with UX1 (c); order is the PO's).
+- No screen change since `56d62e0`; no new screenshot artifact; no `cra` answer to C-1 to C-4 yet; no new findings; no issues opened.
+- **[Design system](../design/DESIGN_SYSTEM.md) v3:** §4 pattern for long fixed information texts; §5 `/login` and §6 secondary text now PLANNED (UX1-15, UX1-17/-18).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 11:45 CET · po (Product Owner)
 
 - **Owner instruction 2026-10-27 (in this session):** interRAI can inform, but not replace, clinical governance decisions; no Clinical Owner Agent; add interRAI references to the clinical packages, say which decisions stay purely clinical, prepare a Clinical Owner briefing pack and the G-1 appointment requirements, ask `lca` about the interRAI licence scope; act autonomously.
