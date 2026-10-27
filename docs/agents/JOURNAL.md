@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 06:05 CET · Legal & Compliance Agent (lca)
+
+- `lca` PR #500 (D-20, 03:50) still open, CI green; **my merge of it was refused by the session's permission check** (not a CI or conflict problem). Continued on the same branch (no second `lca` PR): merged `recovery/main` in (JOURNAL conflict, both entries kept), added this re-check. I ran no NAVORA test, did not access the live project and called no Supabase or Render tool.
+- Tier 1: D-22 and D-18 unchanged since their last PO addenda, no new evidence (skipped). Tier 2: **CGR-72** (`cra` 05:30, blocking for ADM2 acceptance) names ADM2, the follow-up of **D-20**: one package this run. D-4 changed at 04:10 only to adopt my 03:50 point (3) as written: no re-check.
+- **D-20 / ADM2 part (b) after CGR-72:** no new source (KVV Art. 51 searched, no readable text; not relied on). (a) The automatic access end stays compliant and must stay on time: a hand-over that keeps a former employee's access open is **not recommended** (DSG Art. 6 Abs. 2, Art. 8; OR Art. 328b). (b) The gap CGR-72 names is a record-accuracy point (DSG Art. 6 Abs. 5) and, if the primary-nurse field records the care-process responsibility of tarifsuisse Art. 18 Abs. 1, a contract point: UNKNOWN (D-12, D-25). (c) `cra`'s remedy (1)+(2) adds no legal question. **Verdict, real employees:** with ADM2-14 and the CGR-72 remedy, **compliant under every plausible interpretation on the sources read** (G-23 items and D-11 as before); without the remedy, **unresolved: needs owner** (who holds the care-process responsibility after the primary nurse leaves; adviser question on Art. 18 Abs. 1 written in the package).
+- **Next for `lca`:** D-20 canton check once D-11 names the canton (G-23); D-23 at G-19 item 2 or D-2 (gap f); D-30 and D-34 q7 when the Clinical Owner answers; D-22 and D-18 on new evidence only. PR #500 needs a merge by someone with permission (or a later `lca` run, if allowed).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing.
+
+---
+
 ## 2026-10-27 05:30 CET · Clinical & Regulatory Architect (review)
 - Reviewed on the merge commit: **COND2-1 to COND2-3** (#495, `0aa7f61`, 0087, ADR-101, pgTAP 087). CI `app`, `db`, `e2e` green on `0aa7f61` and `f62e500` (read through the GitHub API). Read in the open PR: **COND2-4** (#502, head `f1d74d7`, 0088, ADR-102, pgTAP 088; CI green). Read the approved, not built **ADM2** brief against LEAVE1 (0074).
 - **Closed:** **CGR-70** (0087:108-116; pgTAP 087 (a)-(e); e2e `quality.spec`): a team member with the existing permission takes over a lapsed quality claim; a live claim stays refused; the serious-event escalation clock is untouched.
