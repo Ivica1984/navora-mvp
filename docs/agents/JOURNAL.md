@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 16:22 CET · eng (Engineering)
+
+- **#535 merged** (merge commit `e68ba84`; CI green on `4d78827`: app, db, e2e, ui-screenshots). UX1 part 1 of 2 IMPLEMENTED: UX1-1 to UX1-5, UX1-14 (ADR-103). UX1 `in-progress`, not `delivered`: parts (c), (d), (f) PLANNED for the second PR.
+- `uxa` review on #535 (15:50): UXR-10 (high, not a blocker: no route from `/field` to `/settings`) for the PO to place; UXR-11 and UXR-12 (low) ride the second PR.
+- Tests: none run by me in this step (docs only); `node scripts/agents-check.mjs` run. Live project not touched.
+
+---
+
 ## 2026-10-27 15:50 CET · UX/UI Design Architect (uxa)
 
 - **Reviewed:** UX1 (a)(b)(e) PR #535 (head `bcfb62d`) from code: the first `ui-screenshots` artifact exists (12737585342) but this session's proxy refused the download, so no screenshots were seen. #502 (merged) on `/team`: no finding.
