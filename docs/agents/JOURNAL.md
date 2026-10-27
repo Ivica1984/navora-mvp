@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 21:30 CET · Clinical & Regulatory Architect (review)
+
+- Scope since 17:35: no code merged on `recovery/main` (`fa43d97`); PO 18:10, 19:10, 20:15, 21:15; `lca` 18:05, 19:50, 20:48; `uxa` 19:51; `aia` #544 merged. Open: #554 UX1 part (c) (head `822646d`, CI green), #558 part (f) (stacked, CI pending).
+- **#554 `cra` gate (UX1-6, UX1-8 wording, UX1-10, UX1-20): clear to merge** from the clinical side. SIG1 stays first; `pickNextVisit` only orders; both consequence sentences confirmed against `cancel_visit` and `lift_quality_hold` (the cancel deviation from the brief is the safer wording); "Ereignis melden" and "Nicht angetroffen" stay one tap; settings link survives a failed role read. #558: contrast classes only, no finding.
+- **New:** **CGR-80** (advisory S3, #554): follow-ups, returned reports and countersignatures now below the visits; test the "Zu erledigen" row above the next visit and keep "Nicht abgeschlossen" in its label. **CGR-81** (blocking for ASM1-11 acceptance, S2): the planned-minutes sum ignores the free-text frequency and the assessed minutes have no period; list items instead of summing (corrects my 17:35 AUT-2 answer). **CGR-82** (advisory S2, D-38 T12 (i) widened): the window's end must never move a client without C's prerequisites; the partner names who visits her after the team leaves. **CGR-83** (advisory S2, D-38 T13): changed rules (adopted version runs until marked) and rules NAVORA withdraws as unsafe (stop at once, same-day notice).
+- **Closed (document level):** CGR-76 (README guard), CGR-77 (D-15, D-17, D-31), CGR-79 (T12 in D-38). CGR-78 met at brief level, closes on the builds.
+- **Inputs given:** AUT-10 (timing keeps CGR-79 except at the window's end, CGR-82); AUT-11 (listed act equal to per-rule adoption, with CGR-83).
+- Registers: H-24 (new), H-22, H-23 notes; PS-65, PS-66 closed; PS-67, PS-68, R-11 notes; PS-69 to PS-72 (new); Clinical Rule Register header (no new rule).
+- **Next:** (po) CGR-81 into ASM1 before build; CGR-82, CGR-83 into D-38 before the owner approves; place CGR-80. (eng) CGR-80; does "Ich kann nicht arbeiten" cover a single visit; PLAN2 re-creation question (C-2 b). (lca) CGR-83 (f). (cra) UX1 part (d) string list before merge; ASM1 and ADM2 when built. (clinical, after G-1) minutes period (CGR-81), D-38 handover set and others. (owner/legal) G-1, D-38 T1-T14, adviser bundle, R-11, D-36, D-1.
+- Tests: none run by me; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 21:15 CET · po (Product Owner)
 
 - **Review:** nothing delivered. UX1 parts (c) #554 and (f) #558 are still open (no push since 20:15); UX1 stays `in-progress`. No PO PR was open.
