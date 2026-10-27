@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 02:10 CET · po (Product Owner)
+
+- No open PO PR (open: only #3, the owner's M2 PR). One `agent:po` issue: **#489 IPA1**, claimed 02:12. New evidence: `cra` 01:27 (#492: clinical gate clear for IPA1, CGR-69 closed, CR-126 removed, **CGR-71** opened, advisory S3) and `lca` 01:45 (#493: D-34 re-check on IPA1 as built).
+- **IPA1 `accepted`** (queue rank 37; evidence tables 01:40 and 02:10 in [IPA1](briefs/IPA1.md)). Clinical gate passed: `cra` 01:27 reviewed 0086 on 8e7bb6f, no blocking finding; no commit after 8e7bb6f touches `src/`, `supabase/` or `tests/`. CI `app`, `db`, `e2e` green on 8e7bb6f and `recovery/main` f4f20d3 (read through the GitHub API). The PO read 0034:359-391 to confirm CGR-71 and **ran no test**. #489 closes with the acceptance.
+- **CGR-71 decided as condition IPA1-C2** (product authority; display of two facts already recorded, no threshold or criteria; `lca` 01:45: compliant under every plausible interpretation, data accuracy). Placed in the approved, unstarted COND2 as **COND2-4**: on resume, the new referral's urgency, source and referrer's requested start reach the team, old values stay in the audit trail; pgTAP as `cra`'s remedy. Why: a resumed case is typically a client coming home from hospital (H-19), and IPA1-8 promised the date is carried to the case (values 2, 5). **COND2** is now *Next up* 1 (hand-off #491; one comment there names COND2-4).
+- **Decision packages** (INDEX order): D-22, D-18 (tier 1) no new evidence. **D-34** (tier 2): `lca` 01:45 taken in: objective-capability limb met by removal; question 7 goes to the adviser as worded at 17:55; report F-1 (and F-5) marked resolved by removal in `reports/D34_INTENDED_PURPOSE_ASSESSMENT.md`; CGR-69 closed in code, its residual (question 7, `clinical`) keeps the package in tier 2; status `awaiting-approval: owner` and the ask unchanged. Tier-2 clinical packages wait for G-1; no package changed otherwise, no input re-requested.
+- **Challenge:** "Why does a returning client's referral pass through an intake person at all?" The team already holds her record and paused visits; re-keying and hand-linking is the intake-coordinator layer, and CGR-71 is the fact lost at that hand-over. **Hypothesis P-15** (challenge table): AN2 reads the share of returning referrals, record-to-link time and link-to-team-action time; if returns are at least 1 in 5 referrals or the step is a visible part of time to first visit, propose a REF2 increment that delivers a known client's return notice straight to her team (REF2 already waits on D-9, D-3).
+- ROADMAP: IPA1 line (German). No clinical, PAG, MQI, LTCF, tariff or legal rule invented.
+- **Next agent:** (eng) COND2 (#491), COND2-1 to COND2-4. (cra) COND2 when merged. (po) COND2 review when delivered. (lca) nothing new requested. (owner) G-1, D-1.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
+
+**ENGINEERING BRIEF: COND2-4 (added to the approved COND2)**
+- **Capability:** when `link_returning_referral` resumes a paused case, the new request's urgency, its source and the referrer's requested start reach the team that keeps the client (recorded on the case in an audited update, or in the `review_after_pause` detail; choice in the ADR).
+- **Why:** `cra` CGR-71: the resume path inserts no case, so 0086's insert triggers never carry these facts; the team reads the first referral's values while a newer statement exists.
+- **Business outcome:** IPA1-8's promise ("carried to the case") holds on every path; no phone call from intake to tell the team what the hospital wrote.
+- **Care outcome:** the team that knows a client coming home from hospital reads the referrer's newest urgency and requested start when it reviews the return (H-19).
+- **Expected nurse outcome:** the RN reviewing the return sees whose urgency it is and when the referrer wants the first visit, in the case she already works in.
+- **Expected team outcome:** the team plans the return from the referrer's own statement, without a coordinator relaying it.
+- **Expected patient outcome:** her first visit after hospital is planned from the current referral, not the one from before her stay.
+- **Acceptance criteria:** COND2-4 in [COND2](briefs/COND2.md) (pgTAP: pause, link with `hoch`, `referrer_stated` and a date, the team reads all three; earlier values in the audit trail; `convert_partner_request`, `team_offers` and G3 unchanged; no new reader; display only).
+- **Dependencies:** none open; 0034 (RET1), 0086 (IPA1-7/-8).
+- **Priority:** part of *Next up* 1 COND2; before the first real client (G-13).
+- **Implementation recommendation:** one migration redefining `link_returning_referral`'s resume branch to write the three fields with a `change_log` diff (same pattern as the funding facts at 0034:360-371); the team's case view shows "Dringlichkeit: <Stufe> (<Quelle>)" and the date; may ride a second PR under #491 if COND2-1 to -3 are already in review.
+
 ## 2026-10-27 01:45 CET · Legal & Compliance Agent (lca)
 
 - No `lca` PR was open. Tier 1: D-22 and D-18 unchanged, no new evidence (skipped). No package text changed since my 21:00 run. New evidence: IPA1 merged (#484, #487, 0086) and `cra` 01:27 (CGR-69 closed, CGR-71 opened). **One package this run.** I ran no NAVORA test, did not access the live project and called no Supabase or Render tool.

@@ -3,7 +3,7 @@ id: IPA1
 title: Intended-purpose alignment of the as-built texts
 author: po
 status: approved
-updated: 2026-10-26
+updated: 2026-10-27
 ---
 
 # IPA1 — Intended-purpose alignment of the as-built texts
@@ -84,3 +84,18 @@ Is anything else in the legacy `/operations` client (KPIs, "SLA Monitor") still 
 **Condition IPA1-C1** (before the first real client, G-13; with COND2, see [COND2](COND2.md)): the `/operations` dashboard no longer reads or serialises `care_visits` (`src/features/operations/queries.ts` 38, `OPERATIONS_VISIT_COLUMNS`). A unit test asserts that the `OperationsDashboard` payload has no `visits` key, and the e2e of IPA1-6 still passes. *Why:* the visits are no longer shown, so sending every visit with the nurse's name to every Operations browser serves no purpose (privacy before comfort).
 
 **Clinical gate:** IPA1-7 changes what a team sees before it accepts a client (intake, J1/J2), so it is in scope. `cra` 21:29 read IPA1-1 to -6 (#484) as protective and IPA1-7/-8 only as a plan (PLANNED). **IPA1 is accepted without another PO round once a `cra` section on the merge commit 8e7bb6f (migration 0086) holds no blocking finding**; a blocking finding returns it to `changes-requested` with the gap. CGR-69 (2) (whether intake may assess urgency, and on which criteria) stays with `clinical` (G-1); NAVORA sets no criteria.
+
+## PO acceptance 2026-10-27 02:10 CET: accepted (clinical gate passed)
+
+**Clinical gate:** the `cra` section 2026-10-27 01:27 CET (`reports/CLINICAL_GOVERNANCE.md`, PR #492, merged e442044) reviewed IPA1-1 to IPA1-8 on the merge commits 0db9992 and 8e7bb6f (0086 read in full, pgTAP 086 and 012-019, the `/operations`, `/team` and `/intake` diffs) and holds **no blocking finding**: "clinical gate clear for IPA1". The code reviewed by `cra` is the code on `recovery/main`: no commit after 8e7bb6f touches `src/` or `supabase/` (only docs: #490, #492, #493). **CI** `app`, `db`, `e2e` green on 8e7bb6f and on `recovery/main` f4f20d3 (read through the GitHub API at 02:10). **The PO did not run any test.**
+
+| Finding on this item | Severity | Considered | Decision |
+|---|---|---|---|
+| CGR-69 (intake urgency preset, no source) | advisory (S2) | yes | **closed by `cra` 01:27** (IPA1-7, IPA1-8 IMPLEMENTED). The residual (may intake assess urgency, on which criteria) stays D-34 question 7 with `clinical` after G-1; NAVORA sets none |
+| CR-126 (client-side risk score and "SLA" age rule) | register entry | yes | **DEPRECATED, removed** (IPA1-1, -2, -4); confirmed by `cra` and by `lca` 01:45 (`grep` on `src/`) |
+| CGR-71 (a returning referral that resumes a paused case keeps the new referral's urgency, source and requested start from the team) | advisory (S3) | yes; the PO read 0034:359-391 and confirmed that the resume path inserts no case or matching request, so 0086's insert triggers never fire there | **condition IPA1-C2**, placed in COND2 as **COND2-4** (below) |
+| IPA1-C1 (no unused `care_visits` payload on `/operations`) | PO condition | yes; `cra` and `lca` support it as data minimisation | stays in COND2 as COND2-3 |
+
+**Condition IPA1-C2** (product authority; no threshold, no criteria, no clinical rule; `lca` 01:45: `cra`'s remedy is compliant under every plausible interpretation, data accuracy under DSG Art. 6 Abs. 5 as summarised in [L9]; before the first real client, G-13): when `link_returning_referral` resumes a paused case, the new request's urgency, `urgency_source` and `referrer_requested_start` reach the team that keeps the client, with the source shown beside the level, and the case's earlier values stay readable in the audit trail. **Why:** a resumed case is typically a client coming home from hospital (H-19). IPA1-8 promised that the referrer's statement is "carried to the case", and the resume path is the one path where it is not; the team that already knows her should read the referrer's newest statement without a phone call from intake (values 2 and 5). Acceptance criteria in [COND2](COND2.md) COND2-4.
+
+**Decision: IPA1 `accepted`.** Every acceptance criterion is met (evidence table *PO review 2026-10-27 01:40*), deviations (1)-(8) were decided at 01:40, the clinical gate passed, and the open items are conditions with an approved hand-off (COND2). **Value:** the product's own texts and functions now match the intended-purpose statement v2 before an adviser sees it (`lca` 01:45: the objective-capability limb is met by removal; question 7 now has its fact in the product), and the team sees whose urgency it is when it decides (values 2, 4). D34 report F-1 is marked resolved by removal.
