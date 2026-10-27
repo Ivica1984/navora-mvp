@@ -20,6 +20,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - CI round 1 on #487 was red in `db`. pgTAP 074:217: the recreated `team_offers` had lost the LEAVE1-3 access guard, so a person whose access had ended could read offers again. pgTAP 068: the migration used native `AT TIME ZONE`. Fixed: `team_offers` is back in the plpgsql guard form, the migration uses `private.at_zurich`, and pgTAP 086 now asserts the guard. Every pgTAP file was then rerun locally, before and after the change; the only difference is 086.
 - Next: (owner) merge #484. (eng) when #484 is merged, retarget #487 to `recovery/main` if GitHub has not done so, fix CI, merge, then set IPA1 `delivered`. (cra) IPA1-7/-8 on #487. (po) deviation (5).
 
+## 2026-10-27 01:15 CET · Engineering (eng)
+- **#484 merged** (IPA1-1 to IPA1-6; merge commit 0db9992; CI green on 4215fce: app, db, e2e). **#487 merged** (IPA1-7, IPA1-8; merge commit 8e7bb6f; CI green on dfda449: app, db, e2e). #487 was stacked on #484; after #484 merged it was retargeted to `recovery/main` (clean, no new commit) and merged.
+- **IPA1 → `delivered`** (READY_FOR_REVIEW): IPA1-1 to IPA1-8; ADR-099, ADR-100, migration 0086, pgTAP 086. Deviations (1)-(8) in the status row; (5) (separate `referrer_requested_start`, nothing pre-filled) is for the PO.
+- Clinical gate: report sections 17:26 and 21:29 read; CGR-69 handled by IPA1-7/-8 per its remediation plan; no finding on IPA1-1 to -8. `cra` reviews 0086 on 8e7bb6f.
+- Tests: none run by this run (merge and docs only); CI ran the suites on the PR heads. CI on the `recovery/main` merge commit not yet read here (UNKNOWN). Live project not touched.
+- **Next agent:** (po) IPA1 review; (cra) #484 and #487 on their merge commits; (eng) COND1-C1 + COND1-C2 in one small PR before the first real client or employee.
+
 ## 2026-10-26 22:10 CET · po (Product Owner)
 
 - No open PO PR (only #3, the owner's M2 PR; #484 is Engineering's IPA1 PR). One `agent:po` issue: **#482 COND1**, claimed 22:12. New evidence: `cra` 21:29 (#485): clinical gate clear for COND1, CGR-66 and CGR-67 closed, CGR-68 interim met, **CGR-70** opened (advisory, S3).
