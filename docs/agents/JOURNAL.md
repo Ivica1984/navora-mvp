@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 11:45 CET · po (Product Owner)
+
+- **Owner instruction 2026-10-27 (in this session):** interRAI can inform, but not replace, clinical governance decisions; no Clinical Owner Agent; add interRAI references to the clinical packages, say which decisions stay purely clinical, prepare a Clinical Owner briefing pack and the G-1 appointment requirements, ask `lca` about the interRAI licence scope; act autonomously.
+- **interRAI reference sections** added to [D-15](decisions/D-15.md), [D-16](decisions/D-16.md), [D-17](decisions/D-17.md), [D-28](decisions/D-28.md), [D-30](decisions/D-30.md), [D-31](decisions/D-31.md). Name level only, from general published knowledge; **UNKNOWN until an entitled person verifies them against the licensed documentation** (no licensed material was available to the PO in this session and none entered the repository). Relevance: substantial D-15 (readiness, care-plan structure) and D-17 (category list); partial D-16, D-31; none D-28, D-30. Each section ends with a proposal for the Clinical Owner (not in force). Package statuses and confidence unchanged; `cra` review requested.
+- **D-36 opened** ([package](decisions/D-36.md), `legal`, tier 3, `inputs-requested`): does the licence permit reference use, verification, agent reading (incl. AI services, D-35) and product-development use? Inputs requested from `lca`, `cra`, `eng`. **Default in force (product authority):** option A, names only, no licensed text or excerpt in the repository, an agent prompt or an AI service. **Fact needed from the owner:** the licence terms for `lca`. D-13 addendum points to D-36.
+- **[Clinical Owner briefing pack](reports/CLINICAL_OWNER_BRIEFING_PACK.md):** ten outstanding clinical decisions (D-28, D-31, D-3 (b), D-30, D-16, D-19, D-17, D-34 question 7, D-15, D-10) with ask, default in force, what each blocks, interRAI support; which stay purely clinical governance (D-28, D-30, D-19, D-10, D-3 (b) entirely; parts of D-16 and D-31); three suggested sittings. Finding: interRAI shortens D-15, D-16, D-17; it removes no approval.
+- **[G-1 appointment requirements](reports/G1_CLINICAL_OWNER_APPOINTMENT.md):** qualifications (RN, five years home care with two in leadership or quality, KLV needs assessment, CIRS, independence; canton-dependent points to `lca`), responsibilities, time (25-35 h onboarding, 2-4 h/week before the pilot, 4-8 h/week in the first pilot months; PO estimate), blocked decisions, routes A/B/C. **Recommended: B** (independent RN on a part-time mandate now), the licensed partner's nursing management co-signs at go-live. Linked from G-1 in `CARE_OPERATING_MODEL.md`.
+- **Escalated to the owner:** G-1 ("name the Clinical Owner, route B recommended, and a deputy, or tell po to prepare a search profile and mandate draft"); D-36 needs the licence terms (a fact, not a decision).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 11:19 CET · UX/UI Design Architect (uxa)
 
 - **Owner instruction 2026-10-27 (in this session):** approves the `uxa` findings and recommendations; #515 a pilot-readiness blocker ahead of non-critical UX improvements; #516 high priority; all UX findings through the normal `agent:po` workflow; `uxa` coordinates with `cra` and `lca`; escalate only strategic decisions or roadmap trade-offs.

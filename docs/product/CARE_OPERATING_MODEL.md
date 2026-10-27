@@ -119,7 +119,7 @@ From the [AI Operating Model Review](AI_OPERATING_MODEL_REVIEW.md):
 
 | Gate | What must hold before the first real client | Source | Lifted by | Status |
 |---|---|---|---|---|
-| G-1 | A named, qualified Clinical Owner exists (every `clinical` package waits for this) | D-27, `decisions/INDEX.md` | owner | OPEN |
+| G-1 | A named, qualified Clinical Owner exists (every `clinical` package waits for this) | D-27, `decisions/INDEX.md`; requirements and recommendation (po 2026-10-27): [`G1_CLINICAL_OWNER_APPOINTMENT.md`](../agents/reports/G1_CLINICAL_OWNER_APPOINTMENT.md); briefing: [`CLINICAL_OWNER_BRIEFING_PACK.md`](../agents/reports/CLINICAL_OWNER_BRIEFING_PACK.md) | owner | OPEN |
 | G-2 | Live database facts known; SR-01 (live) and SR-22 closed; leaked-password protection on | D-1, `docs/engineering/SECURITY_RISKS.md` | owner | OPEN |
 | G-3 | Legal entity with licence and OKP admission, pilot canton named | D-12, D-11 | owner | OPEN |
 | G-4 | Production hosting settled and the data-protection impact assessment done | D-12 condition, D-2, D-3 (ii) | owner | OPEN |
