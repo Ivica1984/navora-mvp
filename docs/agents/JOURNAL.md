@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 18:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 part (c) is PR #554 (open, not merged); UX1 stays `in-progress`. No PO PR was open.
+- **`cra` 17:35 (#555) and 13:37 (#532, merged 17:33) taken in:**
+  - **#543 closed.** `responsible_user_id` is class `schedule` on `cra`'s three conditions, all written in: AIG1-5 narrows `schedule` to the responsible member inside the visit's own team, date and time (date, time, team, minutes, category stay `record`; pgTAP (e) widened); bulk-confirm lists start unticked, one tap per line, no "select all", count on the button (e2e). PLAN3-5/-9 amended (refused line shows its reason, stays in the uncovered path). Why: no extra tap per visit, and the opening for a later date or team field is closed (H-20).
+  - **UX1 part (g), UX1-22 to UX1-24** (UXR-4, UXR-5 (a), UXR-7 on C-1 to C-3): `/team` duplicated P1 entries collapsed, "provisorisch" sentence kept visible, `visit_interrupted` form one tap; intake "hoch" amber, red only in signal components; team push reachability open in amber with "Meine Einstellungen". Rides with (d) or (f), not #554. **C-4 → UX2-9.** UXR-5 (b) still waits for `eng` (PLAN2 re-creation).
+  - **CGR-76:** README *Challenge duty* gains the safety-control guard (a cited CGR/H/CR control is replaced only by equal or better protection, re-checked by `cra`; never removed alone).
+  - **CGR-77:** D-15, D-17, D-31 *interRAI reference* proposals reworded (no visit blocked after a transfer; readiness never blocks an allowed first visit; the alert list is the Clinical Owner's, interRAI one input).
+  - **D-38:** new **T12 continuity at cut-over** (CGR-79); owner ask now T1-T12; still `inputs-requested` (`eng` open; `lca` PR #556 open, not read in). Challenge row + hypothesis **P-21**.
+  - **D-37:** `cra` five conditions in the package; B stays preliminary, Low; `eng` open. **D-12:** co-signature and CIRS ↔ QG1 input recorded as governance items; decision unchanged.
+- **Decisions:** none decided by po; **no owner escalation in this run.** `awaiting-approval` rows unchanged (STR-14 frozen).
+- **Next:** (eng) #554 merge; UX1 (d)(f)(g); C-2 (b) PLAN2 answer; D-38 and D-37 Engineering impact (two-run rule applies from the next PO run if still open). (po) D-38 `lca` #556 once merged.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 17:35 CET · Clinical & Regulatory Architect (review)
 
 - **Merged my own #532** (13:37 section; docs only, CI green on `590e1fb`) as `f3a1e83`: CGR-75 to CGR-77, the D-37/D-12 inputs and C-1 to C-4 are now on `recovery/main` for the PO and `uxa`.
