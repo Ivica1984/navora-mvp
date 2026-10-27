@@ -4,6 +4,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 14:48 CET · AI & Automation Architect (aia)
+
+- **First `aia` run.** Read the governance files, the mandate, the AI Operating Model Review, the Strategic Alignment Review §3-§4, the challenge table, the briefs AIG1, ASM1 and PLAN3 (approved 13:35), WORK1, REF2 and ORD1, and migrations 0007, 0014, 0016, 0027 and 0079. Followed the verdict and gain format of open PR #533 (po 13:50).
+- **Bottleneck map v1** in [`reports/AUTOMATION_REVIEW.md`](reports/AUTOMATION_REVIEW.md), section *2026-10-27 14:48*:
+  - Order: travel and day order > documentation and countersignature > GP, hospital and relative coordination > visit assignment > assessment re-typing > working-time confirmation > status taps.
+  - Billing preparation, matching, analytics and the absence chain are already eliminated.
+  - Every gain is an `aia` estimate. Minutes per step are UNKNOWN.
+  - Published evidence: two time studies, read through their abstract pages only.
+- **Findings AUT-1 to AUT-9:**
+  - **AUT-1 `high`, challenge, #543:** the AIG1-5 default ("every field one by one") makes PLAN3's ticked-list confirm impossible. The day plan becomes one confirmation per visit, for a schedule fact that is not a safety field. Proposal: scope the default to G and H, and to safety-alert, care-plan, order and assessment fields.
+  - **Medium:**
+    - AUT-2: ASM1 minutes typed again on the care plan;
+    - AUT-3: no team-level measure of administrative time per step, so derive it from existing timestamps;
+    - AUT-4: documentation and countersignature;
+    - AUT-5: travel and day order (Q7);
+    - AUT-6: GP, referral and relative coordination waits on D-22, D-9 and D-3;
+    - AUT-8: daily WORK1 confirmation form (`lca`).
+  - **Low:** AUT-7 (status taps); AUT-9 (WORK1 outside the AIG1 register).
+- **AI Operating Model Review:** §12 and a change log added; §1-§11 unchanged.
+- **Stage tracking:** stage 0 is reachable without the owner (AIG1 first). Stage 1 is blocked: no pilot months, no provider package, `lca` condition 1.
+- **For `po`:** answer AUT-1 in the AIG1 and PLAN3 evidence tables before Engineering builds the AIG1-5 test (hand-off #536, which carries one `aia` comment).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 13:55 CET · Chief Strategy Architect (csa)
 
 - **First `csa` run.** Read the governance files, INDEX, OPEN_DECISIONS, the queue, the week's journal, the mandate and the product strategy documents. Read the recommendation and owner ask of all 15 packages `awaiting-approval: owner` and of G-1.

@@ -292,3 +292,27 @@ PLANNED. Nothing here is built; D-35 decides the basis.
 | P-7 | **Fragmentation share hypothesis:** in the pilot, classify Operations and coordination minutes (AN2 events, Operations exceptions) by cause. If most are explained by a missing graph node (order, consent, external actor), the next brief completes that node before any agent is built | challenge row |
 | P-8 | **Control-health view:** one list of every scheduled rule, sender and job that is not running, extending SIG2-11 | challenge row; brief when the first hosted environment exists (D-2) |
 | P-9 | **Graph completion before agents:** the next capability briefs are, in order: the consent record (D-9 g4), the structured order (D-22), the D-13 B assessment reference, the external-actor nodes (REF2, ORD1) | `CARE_OPERATING_MODEL.md`; each waits for its decision |
+
+---
+
+## 12. Stage tracking and open control questions (`aia`)
+
+The current state of each entry condition is in the newest section of [`AUTOMATION_REVIEW.md`](../agents/reports/AUTOMATION_REVIEW.md), §3 *Stage tracking*.
+
+**Open control question (`aia` 2026-10-27 14:48, AUT-1, #543):** how far does "no accept-all" (§8) reach before the Clinical Owner's list exists?
+- **Approved AIG1-5:** applies it to every field of every agent.
+- **§8 above:** scopes it to fields that feed the safety alerts, the care plan or a medical order.
+- **`aia` proposal (PLANNED, PO to decide, `cra` on the field class):**
+  - One by one stays for level G and H, and for safety-alert, care-plan, medical-order and assessment fields.
+  - Level-L `rule` agents on visit and schedule facts (PLAN3) may be confirmed as an explicitly ticked list, with one ledger confirmation per line.
+  - Until the PO decides, AIG1-5 as approved stands.
+
+**Delivered rule proposers outside the register (`aia`, AUT-9):**
+- WORK1 proposes the working day. Per-segment provenance (`from_proposal`) is IMPLEMENTED.
+- It has no register entry, no correction-rate read and no stop rule. The PO decides after AIG1 whether to register it or exempt it, with `lca` on D-23 term (b).
+
+## Change log
+
+| Date (Europe/Zurich) | Who | Change |
+|---|---|---|
+| 2026-10-27 14:48 | `aia` | First `aia` maintenance. Added §12: the stage-tracking pointer, the open "no accept-all" scope question (AUT-1, #543) and WORK1 as a rule proposer outside the register (AUT-9). Sections 1-11 unchanged |
