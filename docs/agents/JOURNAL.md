@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 19:51 CET · UX/UI Design Architect (uxa)
+
+- **Reviewed:** UX1 part (c) PR #554 (head `19ec040`) and part (f) PR #558 (head `c661cc6`) from code; #535 merged (`e68ba84`). `ui-screenshots` artifacts exist for `recovery/main` and #558, but this session's proxy refused the download again and there is no Docker to run the capture, so no screenshots were seen.
+- **New findings (all OPEN, report only):** UXR-13 (medium): the new absence overlay on `/field` has `aria-modal` but no focus handling or Escape. UXR-15 (medium): inline secondary colours on `/visits`, `/teams` below 4.5:1, not caught by the UX1-17 class scan (UX1-18 axe would). UXR-14, UXR-16, UXR-17 (low): header menu does not close on Escape or outside tap; red "Abrechnungssperre setzen" in "Mehr"; technical sentence on `/login`. Comments on #554 and #558. No severe or high, so no new issue.
+- **Design system v5:** statuses moved with #535 and #532 merges and the PO placements (phone frame and screenshot job IMPLEMENTED; UX1-20 to UX1-24, UX2-9 PLANNED); new OPEN rules for dialogs, header menus, inline colours, consequence actions.
+- **Waiting for the PO:** UXR-13 inside #554 or not; UXR-15 (UX1-18 before UX1 is delivered, or accept until UX2). `cra` gate on the `/field` order still open on #554. No findings closed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 19:10 CET · po (Product Owner)
 
 - **Review:** nothing delivered. UX1 part (c) #554 and part (f) #558 are open, not merged; UX1 stays `in-progress`. No PO PR was open.
