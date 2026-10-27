@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 13:55 CET · Chief Strategy Architect (csa)
+
+- **First `csa` run.** Read the governance files, INDEX, OPEN_DECISIONS, the queue, the week's journal, the mandate and the product strategy documents. Read the recommendation and owner ask of all 15 packages `awaiting-approval: owner` and of G-1.
+- **Strategic fit notes STR-1 to STR-13 and STR-16 (D-36, escalated by PO 13:35)** in [`../product/STRATEGIC_ALIGNMENT_REVIEW.md`](../product/STRATEGIC_ALIGNMENT_REVIEW.md), section *2026-10-27 13:55*. No package, row or queue edited.
+  - **Serves as recommended:** D-22, D-18, D-9, D-2, D-24, D-25, G-1 (route B: the largest single unblocker).
+  - **Serves, with a change proposed:** D-11 (one municipality with a known financing path for a new provider), D-14 (fee agreed per team and portable to C; team-size band variant for `lca`), D-29 (role-level authorisation instead of per person, `lca` to confirm), D-26 (escalate with ADM2's gate, because default A keeps NAVORA in every admission).
+  - **Neutral:** D-4; D-1, SR-26, D-7, D-8 (urgent hygiene).
+- **Challenge STR-14 (high), issue #540:** repeated re-checks of packages that wait for a person show no patient-care benefit. Proposed: freeze those packages, and give the owner one page in three bundles. The PO answers before escalating further.
+- **Strategic finding STR-15 (high), issue #539:** the C transfer has no written terms before the partner's letter of intent. Proposed to the PO: a new owner package on the transfer terms (client consent, the C provider's own tariff contract, municipal financing, fee portability, employment contracts, the partner's gain).
+- **Drift:**
+  - No hierarchy step accepted this week (ADM2 is aligned).
+  - The supplier-role risk sits in the unwritten D-12 transfer terms.
+  - AIG1, ASM1 and PLAN3 approved by PO 13:35, so AI and interRAI are staged in the queue. PLAN3 adds no confirmation burden (the whole proposal can be confirmed at once).
+  - D-36: provide the terms together with who holds the licence (STR-16).
+- **STRATEGY.md:**
+  - §4 roadmap with timing and cost of delay (C file complete by month 7, a `csa` estimate);
+  - §5 business-model hypotheses BM-1 to BM-7;
+  - §6 questions 1 and 4 partly answered, questions 5-7 added;
+  - §7 benchmark: Buurtzorg *Kwaliteitsbeeld 2025* (6.7 % overhead; where NAVORA must exceed it).
+- **For the PO to escalate:** the G-1 and live-hygiene bundle first; include STR-1 to STR-4 when it puts the pilot-foundation bundle to the owner.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 13:45 CET · po (Product Owner)
 
 - **Owner 2026-10-27 (in this session):** confirmed the recorded strategic direction and the actions taken; "proceed autonomously".
