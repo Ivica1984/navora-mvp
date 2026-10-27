@@ -163,7 +163,9 @@ select ok(
               where n.nspname in ('public', 'private')
                 and p.prosrc ~ 'referrer_requested_start'
                 and p.proname not in ('record_partner_request', 'team_offers', 'case_takes_request_provenance',
-                                      'matching_takes_case_provenance')),
+                                      'matching_takes_case_provenance',
+                                      -- COND2-4 (0088, ADR-102): the resume records it on the case; team_cases shows it.
+                                      'link_returning_referral', 'team_cases')),
   'IPA1-8: no other function reads the referrer''s date (no order, filter, escalation or deadline)');
 
 select * from finish();

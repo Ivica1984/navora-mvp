@@ -2,6 +2,7 @@
 // (migration 0034); this module only formats.
 
 import { REASON_LABEL } from "@/features/lifecycle/rules";
+import { urgencyWithSource } from "@/features/intake/rules";
 
 export type LinkableCaseView = {
   case_id: string;
@@ -44,4 +45,23 @@ export function returningOfferText(until: string | null): string {
     ? new Intl.DateTimeFormat("de-CH", { timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(until))
     : null;
   return `Rückkehrende Klient:in: euer Team hat sie betreut.${time ? ` Vorrang für euer Team bis ${time}.` : ""}`;
+}
+
+/**
+ * COND2-4 (migration 0088, ADR-102): what the team reads about a returning referral while it handles the return.
+ * The database returns the source and the referrer's date only while the review task is open; otherwise null.
+ * Shown only: no order, filter, deadline or signal reads them (as IPA1-8).
+ */
+export type ReturnReferralFacts = { urgencyLine: string; referrerStart: string | null };
+
+export function returnReferralFacts(c: {
+  urgency: string | null;
+  return_urgency_source: string | null;
+  return_referrer_requested_start: string | null;
+}): ReturnReferralFacts | null {
+  if (!c.return_urgency_source) return null;
+  return {
+    urgencyLine: urgencyWithSource(c.urgency ?? "nicht erfasst", c.return_urgency_source),
+    referrerStart: c.return_referrer_requested_start,
+  };
 }
