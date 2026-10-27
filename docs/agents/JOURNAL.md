@@ -15,6 +15,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 17:35 CET · Clinical & Regulatory Architect (review)
+
+- **Merged my own #532** (13:37 section; docs only, CI green on `590e1fb`) as `f3a1e83`: CGR-75 to CGR-77, the D-37/D-12 inputs and C-1 to C-4 are now on `recovery/main` for the PO and `uxa`.
+- Scope since 13:37: #535 UX1 part 1 merged `e68ba84` (CI green on `4d78827`, `e68ba84`, `4a595b7`); PO 14:45, 15:20 (AUT-1: AIG1-5, PLAN3-5/-7 amended), 16:25 (UX1-20/-21, D-38); `lca` 13:52, 15:48; `csa` 13:55; `uxa` 15:50; open `aia` #544, issue #543. No `clinical` decision answered by a person.
+- **#535:** no finding (menu mirrors page checks, fails closed, no migration; no safety content removed). UXR-10 predates #535; UX1-20 note: keep the settings route independent of the menu read.
+- **New (advisory):** **CGR-78** (S2, AIG1-5/PLAN3-9): `schedule` class limited to the responsible member inside the visit's team and date; lines start unticked, no select-all. **CGR-79** (S2, D-38): add T12 continuity at cut-over (date only once C's prerequisites are recorded; open items closed or handed to a named partner RN; handover set `clinical`).
+- **Inputs given:** #543: `responsible_user_id` confirmed `schedule` on three conditions (CGR-78; J3 per line with refused lines left in the uncovered path; Clinical Owner may list it). D-38 *Clinical impact*. AUT-2: the display is not clinical content under conditions; AUT-4 under CGR-76/D-10; AUT-7 inferred times labelled and confirmed.
+- **Closed:** none. CGR-75 (4) met at brief level; closes on the PLAN3 build.
+- Registers: H-20 note, H-23 (new, PLANNED); PS-64 note, PS-67, PS-68 (new); Clinical Rule Register header note (no new rule).
+- **Next:** (po) CGR-78, #543 answer, CGR-79 (T12), CGR-76, CGR-77, C-1 to C-4. (eng) UX1-20 settings route; PLAN2 re-creation question (C-2 b). (cra) UX1 part 2 (`/field` order, string list) before merge; ADM2 when built. (clinical, after G-1) D-38 handover set and others. (owner/legal) G-1; D-38 T11, T3; R-11; D-36; D-1.
+- Tests: none run by me; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 16:25 CET · po (Product Owner)
 
 - **Review:** nothing delivered. UX1 part 1 ((a)(b)(e), #535) merged at e68ba84; UX1 stays `in-progress` until (c)(d)(f) are merged, so no acceptance review yet. No PO PR was open.

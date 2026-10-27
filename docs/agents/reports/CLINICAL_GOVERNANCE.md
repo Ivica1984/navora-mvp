@@ -16,6 +16,83 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-27 17:35 CET: UX1 part 1 (#535, ADR-103) reviewed on its merge commit: no finding; AIG1-5 as amended by AUT-1 read: `responsible_user_id` confirmed as a `schedule` field under conditions (CGR-78, advisory S2); D-38 cut-over: CGR-79 (advisory S2, before the letter of intent); my 13:37 section (#532) merged in this run
+
+**Scope:** `recovery/main` @ `4a595b7`, then `f3a1e83` after I merged my own #532 (docs only, CI `app`, `db`, `e2e` green on `590e1fb`). Changes since my 13:37 CET section:
+- **Code merged:** #535 **UX1 part 1** ((a) UX1-1, UX1-2, (b) UX1-3 to UX1-5, (e) UX1-14; ADR-103), merge commit `e68ba84`. CI `app`, `db`, `e2e`, `ui-screenshots` success on the PR head `4d78827`, on `e68ba84` and on `4a595b7` (check runs read through the GitHub API).
+- **Docs merged:** PO 13:45b/14:45 (#533: STR-14 frozen packages, D-38 opened), 15:20 (#546: AUT-1 answered, AIG1-5 and PLAN3-5/-7 amended, P-19, P-20), 16:25 (#552: UX1-20, UX1-21, D-38 `lca` taken in); `csa` 13:55 (#541); `lca` 13:52 (#542), 15:48 (#547, D-38); `uxa` 15:50 (#549); eng 16:22 (#550).
+- **Open:** `aia` #544 (Automation Review AUT-1 to AUT-9, docs); issue #543 (AUT-1) asks me to classify `responsible_user_id`; D-38 asks `cra` for *Clinical impact*; #3 (owner, `main`). No PR review comment addressed to me.
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read the #535 diff `bb12780..e68ba84` for `src/` (`nav.ts`, `nav-access.ts`, `nav-access.tsx`, the protected `layout.tsx`, `Sidebar.tsx`, `operations-client.tsx`, `team-client.tsx`), the old and new menu tables, AIG1-5 and PLAN3-5/-7/-9 as amended, issue #543 with the PO answer, D-38 in full, `DESIGN_SYSTEM.md` *Proposals and confirmation*, and AUT-1 to AUT-9 on the #544 branch. **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-78 | **AIG1-5** as amended 15:20 (AUT-1, #543) with PLAN3-5, PLAN3-9 (approved, not built) | **advisory (S2); in the briefs before AIG1 or PLAN3 build start** | **The bulk-confirm exception is sound for the responsible member of a visit, but the brief leaves two openings.** (a) AIG1-5 defines `schedule` as "which member, which team, which date". Moving a visit to another date or another team is not a pure schedule fact: it decides whether care planned for a time happens on time (time-critical visits are `clinical`, D-28) and moves the visit out of the team that holds its signals (cover across teams is COVER1, PS-17). PLAN3 never moves a visit (*Negative*), but the class definition would let a later agent's date or team field be classed `schedule`. The per-field `cra` confirmation guards this, the definition should not invite it. (b) Whether the ticked list starts ticked or unticked is open (`DESIGN_SYSTEM.md` *Proposals and confirmation*: "UNKNOWN, `cra` and the PO decide"). A list that starts ticked, or a "select all" control, is "alle übernehmen" by another name: one tap confirms every line, which is the automation bias AIG1-5 exists to stop (H-20) | `briefs/AIG1.md:25-31` (AIG1-5, amended), `:41`; `briefs/PLAN3.md:25`, `:29`, `:30` (*Negative*: no visit moved, re-timed or across teams); `DESIGN_SYSTEM.md:29`; D-28; COVER1; H-20 | **po (wording; no clinical threshold):** (a) AIG1-5: `schedule` = **the responsible member of a visit inside the visit's own team, for its own date and time**; a field that sets a visit's date, time, team, minutes or category is `record`; pgTAP (e) also refuses classing such a field `schedule`. (b) AIG1-5 / PLAN3-9: every line starts **unticked**; each line is ticked by its own tap; no "select all"; the confirm button names its count (`uxa` proposal). Each line shows the visit time, the minute category, the proposed member and, where it applies, "ändert bisherige Zuteilung" or "nicht Bezugspflege/Stellvertretung". e2e at 390 px: the proposal renders with no line ticked; no single control ticks more than one line; three ticked of five confirm exactly three |
+| CGR-79 | **D-38** transfer terms T4 and T11 (`inputs-requested`; letter of intent not signed) | **advisory (S2); in the package before the owner is asked to approve T1-T11** | **The terms protect billing validity at cut-over, but not the client's care across it.** (1) T11's protective default ("C's own *Bedarfsmeldung*, needs assessment and a valid order, all before C's first visit") is right for billing (`lca` 15:48). But if a client's cut-over date (T4) is fixed before these three are in place, the client has a day on which neither provider may visit: a care gap created by the transfer. (2) At cut-over every nurse of the team leaves the partner at once. Every open item that today depends on the performer or the primary nurse being a team member of the partner then becomes the departed-author case of D-30 and the leaver case of H-21 for the whole team at once: unsigned or returned reports (D-30, LEAVE1-11), report corrections (CR-048), open interruption follow-ups (CGR-25), open `review_after_pause`, open SIG1 signals, quality holds (QG1), primary and deputy nurse (ADM2-15, CGR-72). (3) Safety-relevant facts C's nurses need from day 1 (open alerts, D-17; the care plan; the last assessment) move between organisations only on the partner's instruction and the client's consent (T3). Without them C's first visit is done blind | D-38.md:38-51 (T1-T11), :61-62 (*Clinical impact* request), :97 (`lca` note 1), :112-116 (PO 16:25); D-30 (c); CR-048; CGR-25; CGR-72 / H-21; T3; D-17 | **po (a term in the package; no clinical rule):** add **T12, continuity at cut-over**, as the minimum content: (i) a client's cut-over date is set only once C's *Bedarfsmeldung*, C's needs assessment and an order valid for C are recorded; until then the partner keeps the client and her visits (T4 unchanged: each visit has one provider); (ii) before a client's cut-over every report of a partner visit is final, no correction or returned version is open, every SIG1 signal and interruption follow-up of that client is closed by a person, and the partner names a registered nurse who keeps the partner's quality holds and corrections after the team has left; (iii) the partner's records stay with the partner, unchanged (T2); (iv) with the client's consent (T3), C receives before its first visit what the Clinical Owner lists as the handover set; the list is `clinical` (G-1, D-17), UNKNOWN. Checkable in D-38's text. In code later (when a cut-over capability is briefed): pgTAP that a cut-over is refused while any item of (ii) is open for that client |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-75** | **open**, advisory (S2); (1)-(3), (5) met at brief level (14:05 addendum); **(4) met at brief level** by AIG1-5 as amended: a ticked list is accepted only for `schedule` fields of level-L `rule` agents, each line is its own ledger confirmation, J3 runs per line, no "alle übernehmen" (`AIG1.md:27-28`; `PLAN3.md:25`). The tick default moves to CGR-78 (b). Closes on the merged PLAN3 build with its pgTAP and e2e | as cited |
+| **CGR-76** | open, advisory (S3); not taken in yet | #532 merged only in this run (`f3a1e83`); README *Challenge duty* unchanged. Relevant now: AUT-4 (#544) proposes to **replace** the blanket countersignature (CR-011; H-04, H-05) with risk-based review; that is the case the guard exists for |
+| **CGR-77** | open, advisory (S2); not taken in yet | D-15, D-17, D-31 *interRAI reference* unchanged since 11:45 |
+| **CGR-72** | open, blocking for ADM2 acceptance (S2); ADM2-15 PLANNED, not built | no change |
+| **CGR-68** | open, advisory (S2); interim part IMPLEMENTED | no change |
+| CGR-54, CGR-56 | open, advisory (S3, S2); DST1-C4, DST1-C5. PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: none.
+
+### Inputs requested of `cra` (clinical review input; I decide nothing, D-27)
+
+**#543 (AUT-1, po → cra): is `responsible_user_id` a schedule fact, not a field for the Clinical Owner's one-by-one list?** **Yes, confirmed, on three conditions**; without them the confirmation does not hold and the field stays `record`:
+1. CGR-78 (a) and (b) are written into AIG1-5 and PLAN3-9 (class limited to the responsible member inside the visit's team and date; lines start unticked; no "select all").
+2. Every existing J3 check (membership, absence, the registered-nurse qualification for B minutes and needs assessments, overlap, leaver) runs again per line at confirm time, and a refused line is shown with its reason and stays unassigned in the existing uncovered-visit path (PLAN3-2, PLAN3-5; CGR-75 (5)). Assignment safety then does not depend on the click pattern.
+3. The Clinical Owner may put the field on the organisation's list, in general or for visits she names (for example time-critical visits, D-28, or clients with an open safety alert, D-17). Whether she does is `clinical`, UNKNOWN.
+This agrees with my D-6 input of 2026-10-25 02:26 (visit assignment is a workflow, not a clinical rule).
+
+**D-38 *Clinical impact* (po → cra): what must hold for a client on the cut-over date; which of it is a clinical rule?** See CGR-79.
+- **Product or contract terms (no clinical content):** items (i)-(iii) of the CGR-79 remedy.
+- **For the Clinical Owner (G-1), UNKNOWN until she answers:** the handover set from the partner to C (care plan, last assessment, open alerts, medication information); whether C's first visit may come before C's full needs assessment (D-15, CGR-77 (b)); whether C may adopt the partner's care plan as its starting plan or must write its own; and who is C's Clinical Owner and nursing management (R-11).
+- **For `legal` / the Zurich adviser:** whether the partner's order can carry over (T11, UNKNOWN); which records C may receive and on which basis (T3).
+- **Primary nurse:** where the same nurse continues at C, continuity of the person is kept. The partner's case still names her until the cut-over, so the ADM2-15 surfacing (CGR-72) must run for the partner's cases at her access end there.
+
+**AUT-2 (#544, `aia` → cra): is showing the current assessment's minutes per category beside the sum of planned minutes clinical content?** **No, as a display of two recorded numbers**, on these conditions: no colour, warning, "Abweichung" label or icon derived from the difference; the assessment's date and assessor are shown with it, and a newer significant event is shown as such (D-37 condition (2), H-22); nothing (save, readiness, billing) is blocked or changed by the difference. What a difference means clinically is `clinical`, UNKNOWN. Whether planned minutes above the assessed minutes are billable is `legal` with D-18 (KLV Art. 8), UNKNOWN.
+
+**Other #544 notes (not placed; for the PO when it places them):** AUT-4 (replace the blanket countersignature, CR-011) falls under CGR-76 and D-10 (`clinical`): a replacement needs equal or better protection against H-04 and H-05, checked by `cra` and decided by the Clinical Owner. AUT-7 (infer travel and pause): inferred status events change documented times and the stuck clock (CGR-23, D-28) and can change billed minutes; an inferred time must be labelled as inferred and confirmed by the nurse before it reaches the report or a billable fact.
+
+### Other checks (no finding)
+
+- **#535 menu (ADR-103, `nav.ts`):** the menu mirrors each page's server-side check and is not an access boundary; page checks, RLS and migrations are unchanged (diff `bb12780..e68ba84`: no file under `supabase/`). It fails closed (`NO_ACCESS`). No safety content was removed: "Qualitätsmanagement" had no target (open quality holds are on `/operations`, OPS1), `/teams` and `/visits` were never the nurse's route to safety signals (those are on `/field` and `/team`, SIG1-3/-4) and their routes stay. The operations and team diffs change layout only, apart from the COND2-4 display reviewed on #502.
+- **UXR-10 (#548, UX1-20):** a nurse could not reach `/settings` (push opt-in for P1 signals outside the app, SIG2) from `/field`, `/team` or `/work` already before #535 (the old `Sidebar.tsx` was rendered only on `/admin`, `/analytics`, `/intake`, `/operations`, `/settings` and the demo and first-MVP pages, never on `/field`, `/team` or `/work`); not a regression. Placing it in UX1 part (c) rather than UX2 is the safer choice. One point for eng in UX1-20: the settings route should not disappear when the menu fails closed (the `member` check reads the roles; on a read error the nurse would lose her only route to push opt-in); for example, keep a direct "Meine Einstellungen" link in the header independent of `getNavAccess`.
+- **D-38 T5** (clients informed only once C is admitted, no consent at intake): no clinical concern; free choice of provider stays the client's.
+- **No new hard-coded clinical, tariff, LTCF, interRAI, PAG or MQI rule** in code since 13:37. The menu table is an access mirror, not a care rule (no Clinical Rule Register row). AIG1-5's field class is a planned product rule; it gets a row when built.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **UX1** part 1 (#535, merged `e68ba84`) | **no finding.** UX1 stays `in-progress`; the `cra` gates for part (c) (`/field` order, UX1-6, UX1-10, UX1-20) and part (d) (string list, UX1-12) apply to the second PR before merge |
+| **AIG1, PLAN3** (approved, not built) | `responsible_user_id` may be classed `schedule` once CGR-78 is in the briefs; CGR-75 closes on the merged PLAN3 build |
+| **D-38** (`inputs-requested`) | *Clinical impact* given above; CGR-79 should be in the package before the owner is asked |
+| **ADM2** | unchanged: CGR-72 blocking for acceptance until ADM2-15 is built with its pgTAP |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **po:** CGR-78 into AIG1-5 and PLAN3-9; record the #543 answer; CGR-79 (T12) into D-38; CGR-76 (README) and CGR-77 (D-15, D-17, D-31) now that #532 is merged; place C-1 to C-4 (UXR-4, UXR-5 (a), UXR-7) in the UX briefs.
+- **eng:** the settings route independent of the menu read (UX1-20); still open from 13:37: does PLAN2 re-create a hand-removed care-plan visit (C-2 (b))?
+- **clinical (Clinical Owner, after G-1):** the D-38 handover set and C's first visit before its own assessment; whether `responsible_user_id` goes on the one-by-one list for any visits; D-34 question 7, D-10, D-15, D-16, D-17, D-28, D-31; D-37 interval and triggers. All UNKNOWN until answered.
+- **owner / legal:** G-1; D-38 T11 order carry-over and T3 basis (Zurich adviser); R-11 for C; D-36 licence terms; D-1.
+
+---
+
 ## 2026-10-27 13:37 CET: COND2-4 with COND2-4a and -4b (#502, migration 0088) reviewed on the merge commit; CGR-71, CGR-73 and CGR-74 closed; clinical gate clear for COND2; inputs given on D-37, D-12 (co-signature, CIRS ↔ QG1), the six *interRAI reference* sections and UX requests C-1 to C-4; CGR-75 (PLAN3 proposal, advisory S2), CGR-76 (#531, advisory S3), CGR-77 (interRAI proposals as worded, advisory S2)
 
 **Scope:** `recovery/main` @ `da913d5`. Changes since my 09:30 CET section (#505, merged `6e1143f`):
