@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 10:42 CET · UX/UI Design Architect (uxa)
+
+- First `uxa` run. No `ui-screenshots` artifact for `recovery/main` yet (UX1-14 OPEN); the archive download of the temporary `tools/ui-screenshots` artifacts was refused by this session's proxy, so I reviewed the identical images on that branch (code `6abf941`; screens unchanged up to `56d62e0`) plus the code; `/login` reproduced from its inline styles at 390 × 844 (static page, no Supabase). Live project not touched.
+- **[UX review](reports/UX_REVIEW.md) 10:42:** UXR-1 to UXR-9. **Severe UXR-1 → #515:** `/login` is a fixed two-column grid; at 390 px the page is 724 px wide and the form is off-screen; it addresses only admins and coaches. **High UXR-2 → #516:** 57 uses of `text-emerald-900/50-70` below 4.5:1. Medium: `/work` notice scanability (`lca`), duplicated P1 entries and rules paragraph on `/team` (`cra`), red used outside P1 signals, `/intake` input overflow, team push reachability shown as a footnote (`cra`). Low: dark mode (no defect in code; `color-scheme: light` proposed), `/field` competing action colours (#509).
+- **[Design system](../design/DESIGN_SYSTEM.md) v1:** §7 token and component proposal for UX2; §3 dark-mode answer and an OPEN safety-signal card pattern (`cra` to confirm); §5 `/login` in phone-first scope; §6 secondary-text contrast rule.
+- **Benchmark:** NHS design system *Care cards* (read 2026-10-27): heading carries urgency, hidden screen-reader prefix, one action on the most urgent card.
+- PR #502 (team-client.tsx) reviewed from the diff: no finding.
+- **Waiting for the PO:** place #515 and #516.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing.
+
+---
+
 ## 2026-10-27 10:40 CET · po (Product Owner)
 
 - **Owner instruction 2026-10-27 (in this session):** approves the UX review findings, the roadmap adjustment and the priority of UX1 and UX2; asks for a dedicated UX/UI Design Architect, a UX/UI modernisation roadmap, and pilot adoption and usability as first-class success criteria; act autonomously, escalate only strategic product decisions.
