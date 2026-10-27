@@ -16,6 +16,61 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-27 09:30 CET: COND2-4a (#502, head `10745eb`) read: the display fix meets CGR-73, but the pgTAP evidence is non-deterministic: CGR-74 (advisory, S3; fix before merge); ADM2-15 (brief) read: CGR-72 remedy decided as written, stays open until built (PLANNED)
+
+**Scope:** `recovery/main` @ `6abf941`. Changes since my 05:30 CET section (#503, merged `deeb017`):
+- **Code merged:** none.
+- **Open PRs:** #502 **COND2-4** with **COND2-4a** (`feat/cond2-4-resume-urgency`, head `10745eb`; new since my read: `caaa475` COND2-4a, `10745eb` test clock change, merge of `recovery/main`); CI `app`, `db`, `e2e` green on `10745eb` (check runs read through the GitHub API). #3 (owner, `main`). No review comment addressed to me.
+- **Docs merged:** PO 06:10 (#504: **ADM2-15** for CGR-72, **COND2-4a** for CGR-73, P-17); `lca` 03:50, 06:05, 07:41 (#500, D-20 part (b): with ADM2-14 and ADM2-15 compliant on the sources read).
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read the 0088 diff `f1d74d7..10745eb`, pgTAP 088 at `10745eb` in full, the ADR-102 amendment, `referral_links` (0034:64-87) and `private.now()` (0067:83-99), and the ADM2-15 and COND2-4a brief text. **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-74 | COND2-4a (#502, open; 0088, pgTAP 088) | **advisory (S3); fix before merge** | **The pgTAP proof for CGR-73 does not prove it reliably: which return the team reads is decided by a random UUID in the test.** `team_cases` reads the date from the case's newest `resume` link `order by l.created_at desc, l.id desc` (0088:160-163). `referral_links.created_at` defaults to `now()` (0034:74), not to `private.now()`; in PostgreSQL `now()` is the transaction start, and the whole pgTAP file is one transaction. So the three resume links of the test all carry the same `created_at`, and the tie goes to `id`, which is `gen_random_uuid()` (0034:65). `pg_temp.age_link` moves only `navora.test_now` (088:85-87), which `created_at` never reads. The ADR-102 amendment and the test comment say "created_at defaults to private.now()"; that is not what 0034 says. Consequence: the assertion "second return without a date reads no date" (088:158-159) holds only when the random id of R2's link sorts above R1's (about half the runs); the third return's (088:177-178) only when R3's id is the highest of three (about a third). CI green on `10745eb` was one run. Once merged, the `db` job can turn red on unrelated PRs, and a re-run that turns green would hide a real regression of the provenance rule. **Production behaviour is correct as far as I can see:** each resume is its own transaction with a pause between, so `created_at` differs and the newest link is this return. No clinical rule; display only | 0034:65 (`id … default gen_random_uuid()`), 0034:74 (`created_at … default now()`); 0067:83-99 (`private.now()` is a function, not the column default); 0088:160-163; pgTAP 088:85-87, :144, :158-159, :166, :177-178; ADR-102 amendment 2026-10-27 07:40 ("created_at defaults to private.now()") | **eng (no threshold):** make the order deterministic before merge, Engineering's choice, stated in the ADR: (a) in 0088, `alter table public.referral_links alter column created_at set default private.now()` (DST1 pattern; production unchanged since `private.now()` is `now()` there), so `age_link` takes effect; or (b) order by a value that is certain to grow with each resume in one transaction (for example the `change_log` row of the resume, by its sequence id), or (c) in the test, have the earlier links carry an earlier `created_at` through the command path. pgTAP: the existing COND2-4a assertions, plus one that fails if the tie-break decides (e.g. assert the three resume links have distinct `created_at`). Correct the ADR sentence. CGR-73 closes on the merge commit with this |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-73** | **open**, advisory (S3); **remedy implemented in code on the #502 head `10745eb`**, test evidence not yet reliable (CGR-74) | 0088:157-163: `return_referrer_requested_start` is read from the newest `resume` link's `partner_requests` row, only while `review_after_pause` is open; a request without a date reads null, shown as "nicht angegeben" (app unchanged). The case keeps its stored date (0088:82 unchanged; pgTAP 088:180-181). The first return's date stays in `change_log` (088:160-163). The PO chose "show nothing when nothing was asked" over a labelled earlier date (COND2 PO note 06:10); clinically that is the safer of the two options I offered: a stale date, even labelled, could be used to plan the first visit after a hospital stay. Closes with CGR-74 on the merge commit |
+| **CGR-72** | **open**, blocking for ADM2 acceptance (S2); **remedy decided (ADM2-15), PLANNED, not built** | `briefs/ADM2.md` ADM2-15 matches my remedy (1) and (2): (a) from day 14 the team's RNs and administrators see her open cases as primary or deputy nurse and her responsible or covered visits up to and including the end date (reference, role, date only, as LEAVE1-12); (b) at the access end each open case still naming her is shown to its team ("Bezugspflege neu bestimmen" / "Stellvertretung neu bestimmen", resolved by `set_primary_nurse`, 0078 guard unchanged) and as one OPS1 exception to Operations; (c) access still ends on time; a visit in progress keeps the stuck and close path. Its pgTAP list covers day 15 / day 14 / day after, both roles, the reader scope, the resolution by `set_primary_nurse` and by `restore_member_access`, and the unchanged manual refusal `has_cases`. **No automatic promotion of the deputy:** I agree; who holds the care-process responsibility after a primary nurse leaves is UNKNOWN (D-12, D-25, `owner`/`clinical`). ADM2-15 is in G-23. Closes when ADM2 is built and its pgTAP passes in CI |
+| **CGR-71** | **open**, advisory (S3); remedy met on the #502 head (unchanged by COND2-4a apart from the date column); closes when #502 is merged | 0088:74-94 unchanged between `f1d74d7` and `10745eb` (my diff) |
+| **CGR-68** | open, advisory (S2); interim part IMPLEMENTED | no change; the named Clinical Owner's required review (owner, after G-1) |
+| CGR-54, CGR-56 | open, advisory (S3, S2); DST1-C4, DST1-C5. PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: none.
+
+### Other checks (no finding)
+
+- **ADM2-15 privacy reading:** case references and roles of a leaver's cases go only to readers who already have them (the team's RNs) and to the organisation's administrators, as LEAVE1-12 does; `lca` 07:41 finds this compliant. No health content.
+- **P-17** (cases still naming a leaver at the end, days to a successor) is a sound measure for H-21; target 0 at the end is a product target, not a clinical threshold.
+- **No new hard-coded rule** in the #502 diff or in ADM2-15 / COND2-4a (no threshold, priority, clock, recipient or tariff value). CR-129 note only.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| COND2-4 with COND2-4a (#502, open, CI green on `10745eb`) | **no blocking finding.** CGR-74 (advisory) should be fixed before merge so the test is deterministic; if merged as is, CGR-73 stays open and CGR-74 becomes a condition. I re-read the merge commit |
+| **COND2 as a whole** | **clinical gate clear** once #502 is merged with CGR-74 fixed (or CGR-74 recorded as a condition) |
+| **ADM2** (approved, amended with ADM2-15, not built) | **brief: CGR-72 remedy accepted as written; the build may start.** CGR-72 stays blocking for ADM2 *acceptance* until the build shows ADM2-15 with its pgTAP |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **eng:** CGR-74 in #502 before merge (deterministic order; correct the ADR sentence).
+- **po:** COND2 acceptance once #502 is merged with CGR-74 handled; ADM2 build with ADM2-14 and ADM2-15.
+- **clinical (Clinical Owner, after G-1):** D-34 question 7, D-16, D-10/D-25; who holds the care-process responsibility after a primary nurse leaves (with D-12, `owner`); all UNKNOWN until answered.
+- **owner:** G-1 (named Clinical Owner), D-1; unchanged.
+
+---
+
 ## 2026-10-27 05:30 CET: COND2-1 to COND2-3 (#495, migration 0087) reviewed on the merge commit; CGR-70 closed; COND2-4 (#502, open, 0088) read: CGR-71 remedy met on the PR head, CGR-73 (advisory, S3); ADM2 brief (approved, not built) read: CGR-72 (blocking for ADM2 acceptance, S2): the automatic access end skips the LEAVE1-2 guard for a primary or deputy nurse
 
 **Scope:** `recovery/main` @ `f62e500`. Changes since my 01:27 CET section (#492, merged `e442044`):
