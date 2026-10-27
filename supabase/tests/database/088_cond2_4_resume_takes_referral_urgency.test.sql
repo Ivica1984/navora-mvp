@@ -79,9 +79,11 @@ select is(pg_temp.rec('COND2 R1', 'hoch', 'referrer_stated', pg_temp.today() + 4
 select is(pg_temp.link('COND2 R1', 11) ->> 'kind', 'resume', 'linking it to the paused case resumes the case');
 select is(pg_temp.link('COND2 R1', 11) ->> 'result', 'duplicate', 'the same key is a replay');
 reset role;
--- As the table owner: the first return happened days earlier (in production each resume is its own transaction).
+-- The next return happens later (in production each resume is its own transaction, a pause lies between them).
+-- referral_links is append-only (forbid_audit_change), so the pinned clock moves on instead; created_at defaults to
+-- private.now(). The argument names the return just made (for the reader).
 create function pg_temp.age_link(p_title text) returns void language sql as $$
-  update public.referral_links set created_at = created_at - interval '3 days' where partner_request_id = pg_temp.req(p_title);
+  select set_config('navora.test_now', (private.now() + interval '1 minute')::text, true);
 $$;
 
 select is((select urgency || ':' || urgency_source || ':' || (referrer_requested_start - pg_temp.today()) from public.cases where id = pg_temp.c208()),
