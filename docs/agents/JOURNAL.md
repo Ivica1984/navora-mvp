@@ -14,6 +14,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 03:10 CET · po (Product Owner)
+
+- No open PO PR (open: #3, the owner's M2 PR; #495, Engineering's COND2 PR, merged 0aa7f61 while this cycle ran; COND2 stays `in-progress` with COND2-4 to come). No open `agent:po` issue; nothing to claim. Nothing delivered since 02:10 (`recovery/main` b4b2603): no review this cycle; COND2 is reviewed when #495 is merged and the row says `delivered`.
+- **ADM2 approved, *Next up* 2** ([brief](briefs/ADM2.md)). With COND2 started, no approved, unstarted item was left. Biggest unblocked gap by the value order: the team still cannot choose its own colleagues (value 4) and an administrator must remember a leaver's last day (value 5, and a privacy residual `lca` named in D-10 and D-30). D-20 was decided by po on 2026-10-24 (D sharpened, `lca` compliant on federal and ZH sources); the row deferred the brief until D-29 and D-26. **Changed:** neither blocks a build on synthetic data, because ADM2 writes no qualification (the administrator path stays the only one) and sends no invitation (accounts stay manual). New go-live gate **G-23** (`CARE_OPERATING_MODEL.md`): D-29, D-26, D-11 with an `lca` canton check, D-4 period for candidate data, `lca` look at part (b).
+- **Decision packages** (INDEX order): D-22, D-18 (tier 1) no new evidence; tier-2 clinical packages wait for G-1; D-34 unchanged. **D-20** (tier 4, `po-decided`): PO note 03:10 and an `lca` request for ADM2 part (b) only (three questions, not awaited for the build; comment on #89). No status change, no other input re-requested.
+- **Challenge:** "Why does an employer judge whom a team works with?" In the inherited model a manager hires into a team; the team learns who comes on her first day. From scratch the people who share clients choose, and the employer records the contract. And "why must anyone remember a last day the contract already states?" Both answered by ADM2 (challenge rows updated). Pilot measures in the brief (proposal to contract time, objections by code, lapses, days from contract end to access end), with the qualification mix per team as the balancing measure (P-5) for the Clinical Owner.
+- ROADMAP: ADM2 line (German). No clinical, PAG, MQI, LTCF, tariff or legal rule invented; the consent thresholds are an organisational product rule.
+- **Next agent:** (eng) COND2-4 (second PR under #491); then ADM2 after adding a `not-started` row. (cra) COND2 when merged; ADM2 has no clinical scope beyond the unchanged qualification gate. (lca) D-20 part (b) questions. (po) COND2 review when delivered. (owner) G-1, D-1.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
+
+**ENGINEERING BRIEF: ADM2**
+- **Capability:** a team proposes and admits a colleague by consent (two consents, no standing objection, 14-day lapse; reason codes only); the employer records "Vertrag erfasst" (account, start, optional end) as its only step; a recorded contract end releases her later visits to the team at once, shows her open work to the team's RNs from 14 days before and ends her access the next Zurich day without a command.
+- **Why:** admission by an administrator is a hierarchy step per hire in a self-organised model (D-20); a forgotten access end leaves a former employee reading client data (`lca` residual, D-10, D-30).
+- **Business outcome:** no administrator work per hire beyond one recorded fact; no manual leaver step; scales to many teams without a staffing office.
+- **Care outcome:** a leaver's visits and open reports reach her team before she goes, not after someone notices (continuity, LEAVE1-12/-13 earlier).
+- **Expected nurse outcome:** she chooses with whom she shares clients; her objection is recorded as a reason, never as a judgement of a person.
+- **Expected team outcome:** the team owns its composition; it sees a colleague's departure two weeks ahead and re-plans her visits itself.
+- **Expected patient outcome:** her visits after a nurse's last day are already with the team; nobody without a contract reads her record.
+- **Acceptance criteria:** ADM2-1 to ADM2-13 and the negative criterion in [ADM2](briefs/ADM2.md) (pgTAP for switch, schema without free text, reads, consent, contract step, no role or qualification write, deletion, contract-end release and access end across the DST night; e2e at 390 px).
+- **Dependencies:** none open for the build; release gate G-23 (D-29, D-26, D-11, D-4, `lca` on part (b)). Builds on ADM1 (0035), LEAVE1 (0074-0078), 0018 `set_member_qualification`; does not reuse `team_decisions`.
+- **Priority:** *Next up* 2, after COND2.
+- **Implementation recommendation:** one migration and one ADR; a deletable `team_admission_candidates` table and an append-only, nameless decision table; contract facts on the membership or a small contract table; contract end evaluated in `private.access_ended` at read time if one index probe suffices (answer question 1), so no hosted job is needed; reuse the LEAVE1-13 release and LEAVE1-12 list; part (b) may ride a second PR.
+
 ## 2026-10-27 02:55 CET · Engineering (eng)
 
 - Step A: no own open PR. Step B/C: claimed #491 (COND2) at 02:12 and built **COND2-1 to COND2-3 in PR #495** (migration 0087, ADR-101). Status row COND2 → `in-review`.
