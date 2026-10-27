@@ -44,6 +44,8 @@ A **watcher** turns the state of these files into **hand-off issues** on GitHub.
 | PO agent | scheduled cloud task "NAVORA PO agent" (hourly) | reviews `agent:po` issues, answers `po` decisions, publishes the queue — through `po/…` PRs |
 | Engineering agent | scheduled cloud task "NAVORA Engineering agent" (hourly) | implements the `active` `agent:eng` issue, fixes CI, merges when green, updates status — through `feat/…` PRs |
 | UX/UI Design Architect | scheduled cloud task "NAVORA UX/UI Design Architect" (every 4 hours, owner 2026-10-27) | reviews the CI screenshots and changed screens, keeps `docs/design/DESIGN_SYSTEM.md` and `reports/UX_REVIEW.md`, opens `ux` issues for the PO — through `ux/…` PRs (docs only) |
+| AI & Automation Architect | scheduled cloud task "NAVORA AI & Automation Architect" (every 6 hours, owner 2026-10-27) | finds home-care bottlenecks and how to eliminate, simplify or automate them; keeps `reports/AUTOMATION_REVIEW.md`, the agent catalogue and the staged AI path; opens `automation` issues for the PO — through `aia/…` PRs (docs only) |
+| Chief Strategy Architect | scheduled cloud task "NAVORA Chief Strategy Architect" (weekly, owner 2026-10-27) | keeps `../product/STRATEGY.md`; adds *Strategic fit* notes to owner packages; checks drift from the long-term vision — through `csa/…` PRs (docs only) |
 | Validator | `scripts/agents-check.mjs` (CI) | keeps the files machine-readable; the watcher refuses to run on an invalid layer |
 
 ## Rules for agents

@@ -103,7 +103,7 @@ The owner's principles:
 - **interRAI** becomes an important clinical foundation for care planning, continuity, reassessment and governance, within licensing and regulatory limits (D-36, D-37).
 - Every recommendation is judged against the long-term vision, not only against the fastest path to a pilot.
 
-How this is put into practice is in the [Strategic Alignment Review](STRATEGIC_ALIGNMENT_REVIEW.md): a verdict for each of the seven dimensions, decisions re-evaluated, and a staged AI path from synthetic-data foundations (stage 0) to a qualified clinical module (stage 3).
+**Approved by the owner on 2026-10-27**, together with D-12 (the partner is a pilot vehicle; the destination is a team-owned provider), D-34 (A plus C, clinical module as the long-term target) and the staged AI path. The strategy is kept in [`STRATEGY.md`](STRATEGY.md). How this is put into practice is in the [Strategic Alignment Review](STRATEGIC_ALIGNMENT_REVIEW.md): a verdict for each of the seven dimensions, decisions re-evaluated, and a staged AI path from synthetic-data foundations (stage 0) to a qualified clinical module (stage 3).
 
 ## AI-first means graph-first (PO, 2026-10-26)
 
