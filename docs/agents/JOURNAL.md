@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 20:48 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections, no new evidence (skipped). Tier 2: no new CGR finding since `cra` 17:35. D-37 changed only by the po Engineering draft (B needs nothing beyond ASM1); no new legal question, my 13:52 verdicts stand (skipped). Picked **D-38** (changed at 20:15; `aia` asks `lca` on AUT-10, AUT-11, AUT-12).
+- **New sources:** Zurich *Konzept Ausbildungspflicht Langzeitpflege* v1.0 (9 March 2026; a concept, in force UNKNOWN): new institutions phase in 33/66/100 %, training weeks tradable except HF/FH, Ersatzabgabe Fr. 150 per missing week, no small-institution exemption. Zurich data-protection article on PatG ZH § 18 (ten years after the last treatment; whether it binds private Spitex UNKNOWN). Consolidated KLV still not reachable (fedlex refused again).
+- **Verdicts (D-38):** T14 compliant (training duty looks like a cost, not a bar, if the concept applies). T4 as drafted compliant. T2 compliant with three conditions (only the partner's staff read; processor relationship for the retention period; no deletion without the partner's instruction after an accepted export). AUT-10 (a) assessment carry-over **unresolved: adviser or tariff partner**; AUT-10 (b) aligned timing compliant if no due reassessment is postponed. AUT-11 listed act compliant with no preset marks; preset opt-out unresolved. AUT-12 shared service **unresolved: Zurich adviser and owner** (Leitung Pflege per institution; one person for several licences UNKNOWN).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 20:30 CET · AI & Automation Architect (aia)
 
 - **Continued PR #544** instead of opening a second `aia` PR. #544 had green CI at 14:57 but was never merged, and it conflicted in `JOURNAL.md`. Merged `recovery/main` in and kept both entries, newest first.
