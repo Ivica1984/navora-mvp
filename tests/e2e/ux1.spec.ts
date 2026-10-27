@@ -161,7 +161,7 @@ function zurichDay(offset = 0): string {
   const [y, m, d] = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Zurich" }).split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d + offset)).toISOString().slice(0, 10);
 }
-// Visit 508 (Testteam Nord, 09:00, planned) is on the day after today and untouched by other tests (field.spec).
+// Visit 508 (Testteam Nord, 09:00) is planned in the seed for the day after today, so that day has an open visit.
 const NEXT_DAY = zurichDay(1);
 
 test.describe("UX1 part (c) at 390 × 844", () => {
@@ -195,7 +195,8 @@ test.describe("UX1 part (c) at 390 × 844", () => {
       const later = [
         document.querySelector('[data-testid="open-in-team"]'),
         document.querySelector('[data-testid="absence-list"]'),
-        document.querySelector('a[href^="/work"]'),
+        // The workday link in the page (the header menu also links to /work).
+        document.querySelector('main a[href^="/work"]'),
         document.querySelector('[aria-label="Tagesübersicht"]'),
       ].filter(Boolean) as Element[];
       return later.every((el) => n && (n.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0);
@@ -228,8 +229,22 @@ test.describe("UX1 part (c) at 390 × 844", () => {
 
   test("UX1-8 / UX1-9: cancel and hold need two taps and state their consequence; reporting an event stays one tap", async ({ page }) => {
     await signIn(page, "pflege.test@navora.test");
-    await page.goto(`/field?datum=${NEXT_DAY}`);
-    const card = page.getByRole("article", { name: /09:00/ });
+    // A planned visit of its own (six days ahead, 05:00, no other test uses that day), as the ABS1 test plans one:
+    // seed visits on nearby days may be started or cancelled by earlier specs. Nothing is cancelled or held here.
+    const day = zurichDay(6);
+    await page.goto("/team");
+    const caseCard = page.getByRole("article", { name: /Fall Testfall 08/ });
+    await caseCard.getByRole("button", { name: "Einsatz planen" }).click();
+    const planForm = caseCard.getByRole("form", { name: "Einsatz planen" });
+    await planForm.getByLabel("Datum").fill(day);
+    await planForm.getByLabel("Von").fill("05:00");
+    await planForm.getByLabel("Bis").fill("05:30");
+    await planForm.getByLabel("A", { exact: true }).fill("30");
+    await planForm.getByRole("button", { name: "Einsatz speichern" }).click();
+    await expect(caseCard.getByRole("list", { name: "Geplante Einsätze" })).toContainText("05:00–05:30");
+
+    await page.goto(`/field?datum=${day}`);
+    const card = page.getByRole("article", { name: /05:00 – 05:30/ });
     await expect(card).toHaveCount(1);
     // UX1-9: one tap, outline, on the card.
     await expect(card.getByTestId("quality").getByRole("button", { name: "Ereignis melden" })).toBeVisible();
