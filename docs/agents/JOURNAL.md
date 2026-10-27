@@ -107,6 +107,15 @@ ENGINEERING BRIEF — UX1 part (f) (amendment to approved UX1)
 
 ---
 
+## 2026-10-27 10:20 CET · eng (Engineering agent)
+
+- Own open PR #502 (COND2-4 + COND2-4a): CI green on 10745eb, but `cra` 09:30 (#505) raised **CGR-74** (advisory S3, "fix before merge"): `referral_links.created_at` defaults to `now()` (0034), so in pgTAP 088 the three resume links tied and the COND2-4a assertions passed by chance. Not merged this run.
+- **CGR-74 fixed in #502:** 0088 step 1b `alter table public.referral_links alter column created_at set default private.now()` (ADR-081 clock; production unchanged, there it is `now()`). pgTAP 088: 33 → 35 (three different `created_at` on the three resume links; the default contains `private.now()`). ADR-102 amendment corrects the wrong "defaults to private.now()" note and the superseded "aged by three days" sentence.
+- Tests run here: **none** (no local Supabase/pgTAP in this run). CI decides; nothing is claimed as passed.
+- **Next agent:** (eng) #502: CI on the new head, then merge and set COND2 `delivered`; then ADM2. (cra) CGR-73/-74 close on the merge commit.
+
+---
+
 ## 2026-10-27 10:14 CET · po (Product Owner)
 
 - No open PO PR (open: #3, the owner's M2 PR; #502, Engineering's COND2-4/-4a, CI green on `10745eb`, not the PO's to merge). Nothing delivered since 06:10 (COND2 `in-progress`): no review this cycle.
@@ -169,6 +178,16 @@ ENGINEERING BRIEF — UX2
 
 ---
 
+## 2026-10-27 07:40 CET · eng (Engineering agent)
+
+- Own open PR #502 (COND2-4): CI green on f1d74d7, but po 06:10 added **COND2-4a** (CGR-73) "in #502 before merge", so not merged this run.
+- **COND2-4a added to #502** (0088 amended before merge, ADR-102 amendment): `team_cases.return_referrer_requested_start` now comes from this return's request (newest `resume` link of the case and its `partner_requests` row), not from the case; no date on that request → null → "nicht angegeben" on `/team`. The case's stored date stays as it was (unchanged rule). pgTAP 088: 31 → 33. READ_PATHS and the status row updated. App unchanged.
+- Merged `recovery/main` into the branch (JOURNAL conflict: both sides kept, newest first).
+- Tests run here: **none** (installing pgTAP locally was not permitted in this run; no npm). CI decides; nothing is claimed as passed.
+- **Next agent:** (eng) #502: CI on the new head, then merge and set COND2 `delivered`; then ADM2. (cra) 0088 incl. COND2-4a. (po) COND2 review when delivered.
+
+---
+
 ## 2026-10-27 06:10 CET · po (Product Owner)
 
 - No open PO PR (open: #3, the owner's M2 PR; #500, `lca`'s D-20 review, CI green, `lca`'s own merge refused by its session's permission check; #502, Engineering's COND2-4, CI green on `f1d74d7`; neither is the PO's to merge). No open `agent:po` issue; nothing to claim. Nothing delivered since 04:10 (COND2 `in-progress`, COND2-4 in #502): no review this cycle.
@@ -202,6 +221,13 @@ ENGINEERING BRIEF — UX2
 - No `clinical`, `legal` or `owner` decision answered. Waiting: po (CGR-72, CGR-73, COND2 acceptance), clinical (D-34 q7, D-16, D-10/D-25, after G-1), owner (G-1, D-1).
 - **Next agent:** (po) amend ADM2 for CGR-72 or record why not; decide CGR-73. (eng) CGR-73 in #502 if the PO agrees. (cra) re-read #502's merge commit; ADM2 when built.
 - Tests: none run by me (review only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+## 2026-10-27 04:30 CET · eng (Engineering agent)
+
+- No own open PR at start; hand-off #498 (COND2, `active`) had no claim: claimed (comment, label `claimed`).
+- **COND2-4 = IPA1-C2 (CGR-71) in PR #502** (migration 0088, ADR-102): the resume path of `link_returning_referral` records the returning referral's urgency, source and referrer's date on the case (audited in the resume's `change_log` row and `audit_events`; date never blanked; pre-IPA1-7 requests record `unknown`). `team_cases` returns the source and the date only while the return's review task is open; `/team` shows "Dringlichkeit: <Stufe> (<Quelle>)" and "Gewünschter Beginn (laut Zuweiser)" in that task. Display only; `team_offers` (G3) untouched. Four deviations in ADR-102 for the PO.
+- **COND2 state `in-progress` → `in-review`** (#502). It becomes `delivered` when #502 is merged with green CI: then all four COND2 items are merged.
+- Tests run here: migrations 0001-0088 + seed on local PG16 with auth stubs (0088 twice); every pgTAP file under a minimal pgTAP stand-in before and after (only difference: new 088, 31/31; a first run caught the copied body losing the DST1 clock form, pgTAP 068, fixed). Not run here: vitest, typecheck, lint, real pgTAP, Playwright (npm registry unreachable). CI decides. `database.types.ts` edited by hand (two `team_cases` keys). Live Supabase not touched.
+- **Next agent:** (eng) #502: CI, then merge and set COND2 `delivered`; then ADM2 (add a `not-started` row). (cra) 0087 and 0088. (po) COND2 review when delivered.
 
 ---
 

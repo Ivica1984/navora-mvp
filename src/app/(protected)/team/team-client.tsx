@@ -6,7 +6,7 @@ import type { OutsideWatchedVisit, SignalRow } from "@/features/signals/rules";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { addCarePlanItem, completeCaseTask, decideMatchingRequest, planVisit, removePlannedVisit, rescheduleVisit, retireCarePlanItem, setPrimaryNurse } from "@/features/team/commands";
-import { returningOfferText, reviewTaskLabel } from "@/features/returning/rules";
+import { returnReferralFacts, returningOfferText, reviewTaskLabel, type ReturnReferralFacts } from "@/features/returning/rules";
 import {
   DECLINE_REASONS,
   DECLINE_REASON_LABEL,
@@ -459,7 +459,12 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice }: {
         <ul aria-label="Offene Aufgaben" className="mt-2 grid gap-0.5 text-sm">
           {teamCase.open_tasks.map((t) =>
             t === "review_after_pause" ? (
-              <ReviewTask key={t} caseId={teamCase.case_id} reason={teamCase.review_after_pause_reason} />
+              <ReviewTask
+                key={t}
+                caseId={teamCase.case_id}
+                reason={teamCase.review_after_pause_reason}
+                facts={returnReferralFacts(teamCase)}
+              />
             ) : t === "inform_gp" ? (
               <GpInformedTask key={t} caseId={teamCase.case_id} />
             ) : (
@@ -501,7 +506,8 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice }: {
 }
 
 // RET1: non-blocking task after a resumed pause; the team decides and closes it.
-function ReviewTask({ caseId, reason }: { caseId: string; reason: string | null }) {
+// COND2-4 (ADR-102): the returning referral's level with its source and the referrer's date, shown only (no order).
+function ReviewTask({ caseId, reason, facts }: { caseId: string; reason: string | null; facts: ReturnReferralFacts | null }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -516,6 +522,14 @@ function ReviewTask({ caseId, reason }: { caseId: string; reason: string | null 
   return (
     <li data-testid="review-after-pause" className="grid gap-1">
       <span>☐ {reviewTaskLabel(reason)}</span>
+      {facts && (
+        <span className="grid gap-0.5 pl-5 text-xs text-emerald-900/80">
+          <span data-testid="return-urgency">{facts.urgencyLine}</span>
+          <span data-testid="return-referrer-start">
+            Gewünschter Beginn (laut Zuweiser): {facts.referrerStart ? formatDayLabel(facts.referrerStart) : "nicht angegeben"}
+          </span>
+        </span>
+      )}
       <button type="button" onClick={done} disabled={pending} className="justify-self-start min-h-11 px-1 font-semibold underline underline-offset-4 disabled:opacity-60">
         {pending ? "Wird gespeichert …" : "Entschieden – erledigt"}
       </button>

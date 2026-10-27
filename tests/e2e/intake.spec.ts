@@ -127,6 +127,54 @@ test.describe("referral intake (J1)", () => {
     expect(await offer.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
   });
 
+  test("at 390 px a returning referral that resumes a paused case brings its level, source and date to the team (COND2-4)", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    // The team pauses Testfall 08 (Testteam Nord) for a hospital stay.
+    await signIn(page, NURSE, /\/field$/);
+    await page.goto("/team");
+    const lifecycle = page.getByRole("article", { name: /Fall Testfall 08/ }).getByTestId("case-lifecycle");
+    await lifecycle.getByRole("button", { name: "Pausieren" }).click();
+    const pause = lifecycle.getByRole("form", { name: "Fall pausieren" });
+    await pause.locator("select[name=code]").selectOption("hospital_stay");
+    await pause.getByRole("button", { name: "Pausieren" }).click();
+    await expect(lifecycle.getByTestId("case-paused")).toContainText("Spitalaufenthalt");
+    await page.context().clearCookies();   // next person on the same phone
+
+    // Operations records the returning referral (hoch, stated by the referrer, with a date) and links it.
+    await signIn(page, OPS, /\/operations$/);
+    await page.goto("/intake");
+    const form = page.getByRole("form", { name: "Neue Anfrage" });
+    await form.getByLabel("Zuweisende Stelle").fill("Testspital COND2");
+    await form.getByLabel(/^Dringlichkeit/).selectOption("hoch");
+    await form.getByLabel("Quelle der Dringlichkeit").selectOption({ label: "vom Zuweiser angegeben" });
+    await form.getByLabel("Region").fill("Bern West");
+    await form.getByLabel("Titel").fill("COND2 Rückkehr E2E");
+    await form.getByLabel("Bedarf (Zusammenfassung)").fill("Synthetischer Bedarf, COND2-Test.");
+    await form.getByLabel("Leistungen (mit Komma getrennt)").fill("Grundpflege");
+    await form.getByLabel("Gewünschter Beginn (laut Zuweiser)").fill(new Date(Date.now() + 4 * 86_400_000).toISOString().slice(0, 10));
+    await form.getByRole("button", { name: "Anfrage speichern" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Anfrage gespeichert" })).toBeVisible();
+    const card = page.getByRole("article", { name: "Anfrage COND2 Rückkehr E2E" });
+    await card.getByRole("button", { name: "Prüfen und in Fall überführen" }).click();
+    await card.locator("select[name=linkCaseId]").selectOption("00000000-0000-4000-a000-000000000208");
+    await card.getByLabel("Grund der Verknüpfung").fill("Austritt nach Spitalaufenthalt");
+    await card.getByRole("checkbox").check();
+    await card.getByRole("button", { name: "Fall fortsetzen" }).click();
+    await expect(card).toHaveCount(0);
+    await page.context().clearCookies();   // next person on the same phone
+
+    // The team reads them where it handles the return, then closes the review task (seed state for later specs).
+    await signIn(page, NURSE, /\/field$/);
+    await page.goto("/team");
+    const resumed = page.getByRole("article", { name: /Fall Testfall 08/ });
+    const review = resumed.getByTestId("review-after-pause");
+    await expect(review.getByTestId("return-urgency")).toHaveText("Dringlichkeit: hoch (vom Zuweiser angegeben)");
+    await expect(review.getByTestId("return-referrer-start")).not.toContainText("nicht angegeben");
+    expect(await resumed.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
+    await review.getByRole("button", { name: "Entschieden – erledigt" }).click();
+    await expect(resumed.getByTestId("review-after-pause")).toHaveCount(0);
+  });
+
   test("a nurse has no intake access", async ({ page }) => {
     await signIn(page, NURSE, /\/field$/);
     await page.goto("/intake");

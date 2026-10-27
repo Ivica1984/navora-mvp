@@ -2179,7 +2179,7 @@ isOneToOne: false
                            },
 "team_cases":
 { Args: Record<PropertyKey, never>; Returns: {
-              "care_needs": (string)[],"care_plan": Json,"case_id": string,"client_name": string,"deputy_nurse_id": string,"medical_order_status": string,"medical_order_valid_until": string,"members": Json,"needs_assessment_done": boolean,"open_tasks": (string)[],"primary_nurse_id": string,"proposed_primary_nurse_id": string,"region": string,"review_after_pause_reason": string,"team_id": string,"team_name": string,"upcoming": Json,"urgency": string
+              "care_needs": (string)[],"care_plan": Json,"case_id": string,"client_name": string,"deputy_nurse_id": string,"medical_order_status": string,"medical_order_valid_until": string,"members": Json,"needs_assessment_done": boolean,"open_tasks": (string)[],"primary_nurse_id": string,"proposed_primary_nurse_id": string,"region": string,"return_referrer_requested_start": string,"return_urgency_source": string,"review_after_pause_reason": string,"team_id": string,"team_name": string,"upcoming": Json,"urgency": string
             }[]
                            },
 "team_offers":
