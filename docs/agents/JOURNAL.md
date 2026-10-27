@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 13:45 CET · po (Product Owner)
+
+- **Owner 2026-10-27 (in this session):** confirmed the recorded strategic direction and the actions taken; "proceed autonomously".
+- **Challenge duty for `aia` and `csa`:**
+  - They actively challenge any recommendation that adds administration, hierarchy or operational complexity without clear patient-care benefit.
+  - Primary objective: more direct care time, less administration, stronger self-organised teams, AI-assisted operations, interRAI-supported care delivery.
+  - Findings are reported through the decision-package process.
+- **Recorded in:** README (*Automation review*, *Strategy review*), the role mandates (§2a), and both schedules' instructions (updated by po at the owner's request).
+- **The PO answers each `high` challenge** in the evidence table or the package before accepting or escalating.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 13:30 CET · po (Product Owner)
 
 - **Owner decisions 2026-10-27 (in this session):**
