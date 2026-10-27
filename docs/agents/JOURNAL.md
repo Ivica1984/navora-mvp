@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 22:15 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 part (c) #554 is cleared by `cra` 21:30 (CI green) but not merged; part (f) #558 open. UX1 stays `in-progress`. No PO PR was open.
+- **`cra` 21:30 placed:**
+  - **CGR-81 (blocking for ASM1-11) → ASM1 rewritten before build.** ASM1-1 records the period of the assessed minutes as entered (no default, none derived; pgTAP refuses minutes without a period). ASM1-11 lists the care-plan items of each category as written beside the assessed minutes and **computes no sum, total, difference or conversion**; new test: "30 min, 2× täglich" and "60 min, 1× wöchentlich" show both items and no total. Why: per-occurrence minutes summed across frequencies are not comparable with the assessed minutes; a false gap invites a team to trim or expand care (H-24). PO note for `cra`/`eng`: PLAN2 (0025) already has an optional structured frequency, which CGR-81 does not cite; it does not change the decision (optional per item, assessment period UNKNOWN); a total can be briefed later with `cra` review.
+  - **CGR-80 (advisory S3) → UX1-27** in part (d): the "Zu erledigen" row inside the first viewport above the next visit (e2e), label keeps "Nicht abgeschlossen". Required before UX1 is `delivered`; not a merge condition for #554. `cra`'s single-visit sentence for UX2 waits for `eng` (does ABS1 cover one visit).
+- **D-38 (`cra` CGR-82/-83, `lca` 21:45 taken in), still `awaiting-approval: owner`, Medium:** T12 (i) (a) the window's end never moves a client without C's prerequisites; (b) before the sunset date is fixed the partner names who visits each such client after the team leaves (its staff or another admitted provider of the client's choice). **PO decision:** `cra`'s second branch (team members stay employed by the partner) is left out of the term: `lca` finds it unresolved (dual employment, ArG) and the first branch sufficient; it goes to the adviser. T13 (e) a changed rule keeps its adopted version until marked (never a withdrawn one); (f) a rule withdrawn as unsafe stops for every provider at once on `lca`'s four conditions (safety only, same-day notice to Leitung Pflege and deputy, recorded who/when/why, never for an ordinary change). Adviser bundle + dual employment; regulatory adviser + MepV reporting of a withdrawal. OPEN_DECISIONS, INDEX, OWNER_AGENDA updated.
+- **Challenge:** "Why does a team compare assessed minutes with planned minutes by eye at all?" Because the assessment period and the care-plan frequency are not on one basis. From scratch both would carry a period and the comparison would be a fact, not a reading. No new hypothesis: the condition is already the ASM1-11 follow-up (structured frequency on every item + Clinical Owner's period, CGR-81).
+- **Decisions:** none decided by po. Frozen packages untouched (`lca` 21:45: no new evidence for D-22 or D-18).
+- **Waiting for the owner:** D-38, "approve T1-T14 (as amended 22:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred). **Next:** (eng) merge #554 and #558; UX1 (d) with UX1-27; confirm the drafted D-38/D-37 Engineering sections; ABS1 single visit. (cra) ASM1-1/-11 as rewritten.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 21:45 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections, no new evidence (skipped). Tier 2: `cra` 21:30 CGR-82 and CGR-83 touch **D-38**, and `cra` asks `lca` explicitly to check CGR-83 (f) against D-12 settled point 3; D-38 also changed at po 21:15 (T2, T12 (i), T13 restate my 20:48 conditions; no deviation found). Picked D-38 only.
