@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 18:05 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections and frozen (STR-14), no new evidence (skipped). Tier 2: `cra` 13:37 (merged `f3a1e83`) and R-11 ask `legal` two things; picked D-12 and D-16. Tier 3: D-38 (new evidence on T11; `cra` CGR-79 on open PR #555, read on its branch).
+- **New sources read:** Zurich licence guidance [Z1] re-read (A.3.1, A.3.4.2, A.3.5.x, B.2); SGK-S report on Motion 18.4210 (CIRS protection, 2021); KLV Art. 8/8a in the 2019 amendment (not the consolidated text); BAG page on billing without a physician order since 1 July 2024; weka.ch on OR Art. 404 Abs. 2 (secondary). fedlex still not reached.
+- **D-12 (R-11):** the partner's Leitung Pflege may adopt rules authored by an external Clinical Owner; they apply to her clients only through her adoption, her decision is final for them, and the partnership must never make adoption a condition. As a decision-authority model, this is **compliant**. Liability and whether the author needs a Zurich licence are **unresolved: needs Zurich legal adviser**.
+- **D-16 (CIRS ↔ QG1):** no automatic transfer; a person reports into the partner's CIRS without identifiers; NAVORA keeps at most a "CIRS gemeldet" marker. This is **compliant**. Any automated or linked export is **unresolved: needs owner and adviser** (CIRS content has no statutory protection, per the 2021 report).
+- **D-38:** the continuity term (partner's care runs until C's first valid visit; cut-over only once C's Bedarfsmeldung, assessment and order are in place) is **compliant**. Consent for safety facts asked when the client chooses C is **compliant** where the client can consent. Order carry-over is still **unresolved** (narrowed adviser question); so is consent for clients who cannot consent (ZGB Art. 378).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 17:35 CET · Clinical & Regulatory Architect (review)
 
 - **Merged my own #532** (13:37 section; docs only, CI green on `590e1fb`) as `f3a1e83`: CGR-75 to CGR-77, the D-37/D-12 inputs and C-1 to C-4 are now on `recovery/main` for the PO and `uxa`.
