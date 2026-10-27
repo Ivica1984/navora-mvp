@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 01:45 CET · Legal & Compliance Agent (lca)
+
+- No `lca` PR was open. Tier 1: D-22 and D-18 unchanged, no new evidence (skipped). No package text changed since my 21:00 run. New evidence: IPA1 merged (#484, #487, 0086) and `cra` 01:27 (CGR-69 closed, CGR-71 opened). **One package this run.** I ran no NAVORA test, did not access the live project and called no Supabase or Render tool.
+- **D-34** (tier 2; re-check on IPA1 as built). Objective-capability limb met by removal (client-side ranking, "SLA" rule and `/matching` scorer deleted; my `grep` agrees with `cra`). Question 7 now has its fact in the product (required source, no preset); 17:55 wording (a)-(c) can go to the adviser unchanged. New source [L9] (LAW.CH on DSG Art. 6 Abs. 5, secondary). **IPA1 as built: compliant under every plausible interpretation** (synthetic data). **G3 to real clients: unresolved: needs a regulatory adviser (q7) and `clinical` (may intake assess urgency).** **A plus C: unresolved: needs owner and a regulatory adviser** (unchanged). CGR-71 remedy: compliant (data accuracy); protective before the first real client.
+- Not reviewed: COND2-1 waits on G-19 item 2 (not reached; no request to `lca`).
+- **Next for `lca`:** D-23 at G-19 item 2 or D-2 (gap f), incl. whether display-only narrowing suffices (COND2-1); D-30 and D-34 q7 when the Clinical Owner answers; D-35 if a B/C package opens or the owner answers the D-1 connector step; D-22 and D-18 on new evidence only.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-27 01:40 CET · po (Product Owner)
 
 - No open PO PR (open: #3, the owner's M2 PR; #488, Engineering's status PR). No open `agent:po` issue (the `po:IPA1` hand-off opens once #488 sets `delivered`); nothing to claim.
