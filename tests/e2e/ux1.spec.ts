@@ -328,7 +328,9 @@ test.describe("UX1 part (c) at 390 × 844", () => {
     await expect(menu.locator("summary")).toBeFocused();
     await menu.locator("summary").click();
     await expect(item).toBeVisible();
-    await page.getByRole("heading", { level: 1 }).click();
+    // A tap in the page's left gutter: outside the right-aligned menu panel (which covers the header's heading) and on
+    // no control.
+    await page.mouse.click(8, 800);
     await expect(item).toBeHidden();
   });
 
