@@ -249,3 +249,86 @@ jobs:
       - name: Stop
         if: always()
         run: supabase stop --no-backup
+
+  # UX1-14 (ADR-103): screenshots of every protected route at 390 × 844 and 1440 × 900 for each role that may open it,
+  # for the UX/UI Design Architect's review. Uploaded as the artifact `ui-screenshots` (14 days); never committed.
+  # Runs on every push to recovery/main and on every PR that changes src/app or src/components. Fails only on a
+  # render error (HTTP 5xx, uncaught page error, the Next.js error page), never on a visual difference.
+  ui-screenshots:
+    name: ui-screenshots (390 · 1440 · every role)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Does this change touch the UI?
+        id: scope
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$EVENT" != "pull_request" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if git diff --name-only "$BASE_SHA" HEAD | grep -qE '^src/(app|components)/'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=ui-screenshots::no change under src/app or src/components, skipped"
+          fi
+      - uses: actions/setup-node@v5
+        if: steps.scope.outputs.run == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install (lockfile only)
+        if: steps.scope.outputs.run == 'true'
+        run: npm ci --no-fund
+      - uses: supabase/setup-cli@v1
+        if: steps.scope.outputs.run == 'true'
+        with:
+          version: 2.121.0
+      - name: Start local Supabase (applies migrations + synthetic seed)
+        if: steps.scope.outputs.run == 'true'
+        run: supabase start
+      - name: Export local Supabase URL and key (names only are logged)
+        if: steps.scope.outputs.run == 'true'
+        run: |
+          supabase status -o env | grep -E '^[A-Z_]+=' > /tmp/sb.env
+          set -a; . /tmp/sb.env; set +a
+          key="${ANON_KEY:-${PUBLISHABLE_KEY:-}}"
+          if [ -z "${API_URL:-}" ] || [ -z "$key" ]; then
+            echo "::error title=supabase env::API_URL/ANON_KEY missing. Variables present: $(cut -d= -f1 /tmp/sb.env | tr '\n' ' ')"
+            exit 1
+          fi
+          echo "::add-mask::$key"
+          echo "SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "SUPABASE_ANON_KEY=$key" >> "$GITHUB_ENV"
+      - name: Install Playwright browser
+        if: steps.scope.outputs.run == 'true'
+        run: |
+          for attempt in 1 2 3; do
+            npx playwright install --with-deps chromium && exit 0
+            echo "::warning title=playwright-install::attempt $attempt failed, retrying"
+            sleep 15
+          done
+          exit 1
+      - name: Build
+        if: steps.scope.outputs.run == 'true'
+        run: scripts/ci-step.sh screenshots-build npm run build
+      - name: Capture
+        if: steps.scope.outputs.run == 'true'
+        run: scripts/ci-step.sh screenshots npx playwright test --config playwright.screenshots.config.ts
+      - name: Count images
+        if: always() && steps.scope.outputs.run == 'true'
+        run: echo "::notice title=ui-screenshots::$(ls ui-screenshots 2>/dev/null | wc -l) images"
+      - name: Upload screenshots
+        if: always() && steps.scope.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-screenshots
+          path: ui-screenshots/
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Stop
+        if: always() && steps.scope.outputs.run == 'true'
+        run: supabase stop --no-backup
