@@ -84,11 +84,26 @@ Closed in this section: **CGR-71, CGR-73, CGR-74**.
 |---|---|
 | **COND2** (all items merged; #502 `799700d`) | **clinical gate clear.** CGR-71, CGR-73, CGR-74 closed |
 | **ADM2** (approved, not built) | unchanged: build may start; CGR-72 blocking for acceptance until ADM2-15 is built with its pgTAP |
-| **PLAN3** (proposed) | CGR-75 to be answered in the brief before approval; the brief comes to me before Engineering starts |
-| **AIG1, ASM1** (proposed) | no finding on the proposals; ASM1 must keep "due date only after the Clinical Owner's interval" and D-37 condition (2) |
+| **PLAN3** (approved 13:35) | CGR-75 (1)-(3), (5) met in the brief; (4) open (PLAN3-5 "whole proposal" vs AIG1-5); gate on the merged build |
+| **AIG1, ASM1** (approved 13:35) | no finding on the proposals; ASM1 must keep "due date only after the Clinical Owner's interval" and D-37 condition (2) |
 | **UX1, UX2** (approved) | no blocking finding; C-1 to C-4 answered above |
 | #531 (merged `44f57c1`, docs) | CGR-76 advisory; for the next PO cycle |
 | All other items | unchanged |
+
+### Addendum 14:05 CET: PLAN3, ASM1 and AIG1 approved while this review was being published (PO 13:35, #534, merged `4d6cd57`)
+
+I read the approved briefs before merging this section.
+- **PLAN3 meets CGR-75 (1), (2), (3) and (5) at brief level.**
+  - PLAN3-2 makes membership, absence, the J3 qualification (0014:244) and overlap hard limits, with pgTAP for each.
+  - PLAN3-5 confirms through the J3 command path, and every check applies again at confirm time.
+  - *Negative*: no visit is moved, added, cancelled or re-timed.
+  - PLAN3-1: "kein Vorschlag" with its reason.
+- **Still open: CGR-75 (4).** PLAN3-5 says "confirms the whole proposal", but AIG1-5 requires every field of every agent to be confirmed one by one until the Clinical Owner sets the list.
+  - Remedy for po (wording) and eng: in PLAN3-5 and PLAN3-9, confirm per line or by a ticked list, with every changed line visible. There is no "confirm all" while AIG1-5's default holds.
+  - Test: an e2e check that no single control sets more than the ticked lines.
+- **CGR-75 stays open** (advisory, S2), narrowed to (4). It closes on the merged PLAN3 build.
+- **ASM1:** no reassessment due date, interval or import (ASM1 *Negative*, :31, :35); "Neuere Bedarfsabklärung" is shown with no block. This is consistent with D-37 conditions (1) and (4) and with H-22. The clinical gate applies on the merged build.
+- **AIG1:** ships no threshold value (:34). AIG1-5 is the most protective default. No finding.
 
 ### Decisions requested
 
