@@ -13,6 +13,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 00:15 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 part (f) #558 was merged by `eng` at 23:25 (`caf454e`, CI green on `1e75521`); parts (d), (g) and UX1-18 are open, so UX1 stays `in-progress` and is not reviewed yet. No PO PR was open.
+- **`uxa` 23:49 placed (UX1 brief, *PO decisions 2026-10-28 00:15*):**
+  - **UXR-18 (medium) → UX1-28** in part (d), required before `delivered`: while the absence save is pending, "Abbrechen" is disabled and Escape does nothing; Playwright with a delayed request shows a refusal and the CGR-32 past-planned notice inside the open dialog. Why: on a weak connection a nurse could be recorded absent without knowing it, believe she is absent after a refusal, or miss that past planned visits need her team's decision; each leaves a visit uncovered unseen. `cra` confirms the notice display before merge.
+  - **UXR-19 (low) → UX1-29**, same push: visible heading "Ich kann nicht arbeiten" as the dialog's name.
+  - **UXR-17:** `eng` 23:25 waited for wording; none is needed: the `/login` panel text goes and nothing replaces it (rides part (d), string test on "serverseitig").
+- **D-38 (`lca` 23:41, #571, unfreeze trigger 5), still `awaiting-approval: owner`, Medium:** T12 (i) (b) in `lca`'s wording: a provider other than the partner counts only once it confirmed in writing that it takes the client from a stated date and her choice is recorded (KVG Art. 41 Abs. 1); the partner's own staff visit her until then. T3 extended to that provider (her data only with her recorded consent). T12 row cites `lca` and CGR-82. Why: a name on paper met the 22:15 term while nobody had agreed to visit her. `lca` classes the gap as wording, not law; the ask, default and what it blocks are unchanged. OPEN_DECISIONS, INDEX, OWNER_AGENDA updated. #571 is `lca`'s PR (CI green); this PR edits other hunks of D-38.
+- Other packages: every other row is frozen or decided; no unfreeze trigger (no new `cra` finding since 21:30, no person answered). None decided by po.
+- **Challenge:** "Why does a nurse need a dialog to say she cannot work?" From scratch the absence would still need one confirming step, because it changes who visits her clients; what must disappear is not the step but any way of losing its result. UX1-28 is that. No new hypothesis.
+- **Waiting for the owner:** D-38, "approve T1-T14 (as amended 2026-10-28 00:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred). **Next:** (eng) UX1 part (d) with UX1-27 to UX1-29 and the UXR-17 removal, part (g), UX1-18. (cra) confirm the UX1-28 notice display; UX1 part (d) string list. (lca) merge #571.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 23:49 CET · UX/UI Design Architect (uxa)
 
 - **Reviewed** the screen code merged since 19:51: #554 (UX1 part (c), UX1-20/-21/-25/-26, UXR-16 fix) and #558 (part (f)) on `recovery/main` `e5dfad0`, CI green. No open PR changes screens. No screenshots: the `ui-screenshots` artifact download is still refused by this session's proxy; review from code and the CI Playwright results.
@@ -21,6 +36,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Design system v6:** statuses moved to IMPLEMENTED for the merged parts; two new OPEN dialog rules (UXR-18, UXR-19).
 - **For `po`:** placement of UXR-18 (suggest UX1 part (d), before `delivered`); UXR-17 placed but not built yet. UXR-15 still open on `/teams`, `/visits`, `/partners` (plus the sign-in button's pending colour) until UX1-18.
 - Tests: none run by me (docs only); CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 23:41 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections, no new evidence (skipped). Tier 2: no new `cra` finding since 21:30. **D-38** changed after my 21:45 section (po 22:15: T12 (i) (a)-(b), T13 (e)-(f), owner ask), so re-checked; picked D-38 only.
+- **No new sources** (nothing researched; earlier sources only).
+- **Verdicts (D-38):** the 22:15 wording of T13 (e), T13 (f) and T12 (i) (a) matches my 21:45 conditions: compliant (MepV side of (f) still regulatory adviser, D-34). Leaving out the dual-employment branch is the protective choice. **T12 (i) (b) as worded: unresolved, needs owner (wording only):** naming another provider does not require that it has accepted the client; proposed wording: a provider counts only once it confirmed in writing that it takes the client from a stated date and the client's choice is recorded (KVG Art. 41 Abs. 1), the partner's own staff visit until then, data only under T3 (consent). That wording: compliant on the sources read. Note to po: extend T3 to such a provider.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
