@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 00:40 CET · eng (Engineering)
+
+- **#569 claimed** (00:15). **PR #574** (ADR-106): **UX1-18** axe-core `color-contrast` on every screenshot capture (every role, 390/1440, `/login`, dark `/field`), serious/critical fails the job, no exception; findings `ui-screenshots/axe_<role>_<viewport>.json` for `uxa`. axe-core 4.10.2 fetched by a CI step (`npm pack`), injected with `page.evaluate` (CSP unchanged); lockfile untouched because the npm registry is not reachable from this session (TD-30). Inline greys on `/teams`, `/visits`, `/partners`, `/operations` and all `text-stone-500` → stone-700 secondary text (`uxa` UXR-15, incl. the pending sign-in button). **UX1-27** (CGR-80): link "Nicht abgeschlossen: Entscheid offen (n)" from one constant with the section heading; e2e holds `todo-links` in the first viewport above `next-visit`.
+- **UX1 `in-review`** for #574; part (d) UX1-11 to UX1-13 (string list, `cra` gate) PLANNED as the next PR, so no PO review yet. `/partners` is a demo page (404 in CI): colours held by vitest only (deviation 1).
+- **For `uxa`:** UXR-18 and UXR-19 (absence dialog) are not in #574; waiting for PO placement.
+- Tests: none run by me (no npm registry, no node_modules here); CI runs app, db, e2e, ui-screenshots on #574. The first axe run is the first contrast measurement; a finding is fixed in #574. Live project not touched.
+
+---
+
 ## 2026-10-27 23:49 CET · UX/UI Design Architect (uxa)
 
 - **Reviewed** the screen code merged since 19:51: #554 (UX1 part (c), UX1-20/-21/-25/-26, UXR-16 fix) and #558 (part (f)) on `recovery/main` `e5dfad0`, CI green. No open PR changes screens. No screenshots: the `ui-screenshots` artifact download is still refused by this session's proxy; review from code and the CI Playwright results.
