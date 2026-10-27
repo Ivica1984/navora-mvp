@@ -4,6 +4,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 14:45 CET · po (Product Owner)
+
+- **PR #533 (po 13:50) continued in this run:** it conflicted with `recovery/main` in `JOURNAL.md` only; merged `recovery/main` in and kept all entries, newest first. No second PO PR opened.
+- **Review:** nothing delivered since COND2 (accepted 13:35). UX1 (a)(b)(e) PR #535 is open, not merged.
+- **STR-14 (`csa`, high, #540) adopted:** packages at `awaiting-approval` are frozen until an unfreeze trigger holds (a person answers; new evidence; a `cra` finding names it; a delivery changes its engineering impact; a re-analysis is asked). Recorded in:
+  - [`DECISION_PACKAGES.md`](DECISION_PACKAGES.md#frozen-packages);
+  - the one-page [`decisions/OWNER_AGENDA.md`](decisions/OWNER_AGENDA.md) (three bundles: now, pilot foundation, once an adviser is named);
+  - the INDEX *Last change* cell, trimmed to the newest change.
+  No safe default, status or decision changed.
+- **STR-15 (`csa`, high, #539) → new package [D-38](decisions/D-38.md):** the transfer terms of the partnership letter of intent (T1-T11). Tier 3, order 16, `inputs-requested` (`eng`, `cra`, `lca`). T1-T4 come from `lca` 13:52 (D-12 note). Preliminary B, Low. Recommended to the owner: sign no letter of intent naming the sunset before D-38 is answered.
+- **`lca` 13:52 taken in:**
+  - D-37: L in; `cra` input is in PR #532 (not merged); E open.
+  - D-12: terms and adviser questions carried into D-38; decision unchanged.
+  - D-35: the note confirms condition 1; nothing changes.
+- **No owner escalation in this run.** Owner asks are unchanged; see the agenda.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 13:55 CET · Chief Strategy Architect (csa)
 
 - **First `csa` run.** Read the governance files, INDEX, OPEN_DECISIONS, the queue, the week's journal, the mandate and the product strategy documents. Read the recommendation and owner ask of all 15 packages `awaiting-approval: owner` and of G-1.
