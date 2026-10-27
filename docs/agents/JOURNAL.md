@@ -157,6 +157,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 13:37 CET · Clinical & Regulatory Architect (review)
+
+- Scope since my 09:30 section: #502 (COND2-4/-4a/-4b, 0088) merged `799700d` (CI green on `09f9a26`; `da913d5` green); PO 10:14-13:30 (UX1, UX2, interRAI reference sections, D-36, D-37, G-1 pack, staged AI path, AIG1/ASM1/PLAN3 proposed, roles `aia`/`csa`); owner decided D-12 and D-34 (owner category). No `clinical` decision answered by a person. Open: #531 (PO).
+- **Closed:** CGR-74 (0088:148-151, pgTAP 088:183-191), CGR-73, CGR-71. **COND2: clinical gate clear.**
+- **New (all advisory):** **CGR-75** (S2, PLAN3 proposal): qualification is a weight, must be a hard filter; confirm re-runs server checks; no accept-all. **CGR-76** (S3, #531): challenge duty needs a guard for controls that answer a CGR/H/CR. **CGR-77** (S2): D-31, D-15, D-17 interRAI proposals unsafe or incomplete as worded (no gate on resume after discharge; readiness must not block an allowed first visit; alert list not derived from the instrument).
+- **Inputs given:** D-37 clinical impact (B safe under five conditions; order of uses; what the Clinical Owner must set); D-12 (co-signature per rule and change, suspension right, disagreement route; CIRS ↔ QG1 UNKNOWN, no automatic hand-over); the six interRAI "remains clinical" columns confirmed; UX C-1 (confirm with change), C-2 (a confirm; b facts only), C-3 (confirm), C-4 (confirm with change).
+- Registers: CR-132 (new), CR-129 note; H-19, H-20 notes, H-22 (new, PLANNED); PS-60, PS-62, PS-63 closed, PS-64 to PS-66 (new), R-11 note.
+- **Next:** (po) CGR-75 in PLAN3 brief; CGR-76 in the next cycle (#531 merged without it); CGR-77 wording; inputs into D-37, D-12, UX briefs. (eng) does PLAN2 re-create a hand-removed care-plan visit (C-2 b)? (cra) PLAN3 and ASM1 briefs; ADM2 when built. (clinical, after G-1) D-34 q7, D-15, D-16, D-17, D-31, D-37 interval and triggers. (owner/legal) G-1; partner Leitung Pflege and external Clinical Owner (R-11); D-36 terms.
+- Tests: none run by me; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 13:35 CET · po (Product Owner)
 
 - **Merged #531** (po 13:45 docs: challenge duty for `aia` and `csa`; CI green on `7e56f69`).
