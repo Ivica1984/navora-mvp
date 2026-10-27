@@ -4,6 +4,46 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 10:14 CET · po (Product Owner)
+
+- No open PO PR (open: #3, the owner's M2 PR; #502, Engineering's COND2-4/-4a, CI green on `10745eb`, not the PO's to merge). Nothing delivered since 06:10 (COND2 `in-progress`): no review this cycle.
+- **Claimed and placed five `agent:po` issues from the UX review of 2026-10-27** (#506-#510, screenshots on the synthetic seed at `6abf941`). The PO checked the code references on `6e1143f`: fixed `280px 1fr` / `240px 1fr` grids in `settings-client.tsx:86`, `admin-client.tsx:64`, `operations-client.tsx:66`; every menu item for every role and a link-less "Qualitätsmanagement" in `Sidebar.tsx`; "Swiss Care OS" (`Sidebar.tsx:101`), "Navora Operations Control Tower" (`operations-client.tsx:145`); decision codes in `billing-preview.tsx`, `team-client.tsx`, `outside-section.tsx`. All confirmed (IMPLEMENTED defects).
+- **UX1 approved, *Next up* 2** ([brief](briefs/UX1.md), #506-#509). **UX2 approved, *Next up* 4** ([brief](briefs/UX2.md), #510). **ADM2 moves to *Next up* 3** (unstarted, no status row; value 1 and the safety-signal opt-in before value 4; brief unchanged).
+- **Decided on the review's proposals:** (1) "Ereignis melden" stays one tap as an outline button, not in "Mehr" (reporting a safety or quality event must stay as easy as today, QG1); only "Einsatz absagen" and "Abrechnungssperre setzen" move behind a confirming tap. (2) "Ich kann nicht arbeiten" stays in the first viewport (ABS1 accepted criterion "two taps from the top") and taking an open visit stays one tap (ABS1/COVER1), so "Offen im Team" shows its earliest takeable visit while collapsed. (3) `/operations` is headed "Ausnahmen": a "Control Tower" is the dispatcher picture the care model removes.
+- **CGR-74 decided as COND2-4b** ([brief](briefs/COND2.md)): pgTAP 088 must prove COND2-4a in every run (distinct, increasing `created_at` of the resume links, an assertion that fails if the UUID tie-break decides, ADR-102 sentence corrected). In #502 before merge; COND2 is `delivered` only with it. One comment on #502.
+- **Decision packages** (INDEX order): D-22, D-18 (tier 1) no new evidence (`lca` 07:41 the same); tier-2 clinical packages wait for G-1 (no Clinical Owner named); D-20 stays `po-decided` (`lca` 07:41: ADM2-15 as written matches its protective condition; #500 merged). No input requested, no status changed: none of UX1, UX2 or COND2-4b raises a legal or clinical question (presentation and test only; `cra` reviews the `/field` order and the string list under its gate).
+- **Challenge:** "Why does a nurse read signals, counters and her colleagues' open visits before her own next visit, and why is every button equally loud?" Orientation at the door is administration in disguise. Two challenge rows added (Control Tower and one-menu-for-all; `/field` order). **Hypothesis P-18:** AN2, team level, median minutes from "arrived" to "visit started" and the share of cancellations and holds undone within one hour, four weeks before and after UX1; if neither moves, stop investing in `/field` layout and look at the visit's own steps (six status taps). Whether "undone within one hour" is readable from events today: UNKNOWN.
+- **Next:** (eng) COND2-4b in #502, then COND2 delivered; then UX1, ADM2, UX2 in that order. (cra) #502 merge commit; UX1 `/field` order and string list before its merge. (po) COND2 review once #502 merges. (owner) G-1, D-1 unchanged.
+- Tests: none run by me (docs only); CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+ENGINEERING BRIEF — UX1
+- **Capability:** UX1, the nurse's phone shows her next visit first, one clear action per card, a menu that fits her role and words she can read.
+- **Why:** `/field` is the tool at the door; the next visit starts about 1,100 px down and every action is equally loud. `/settings` (push for safety signals) breaks at 390 px. Menu items refuse or do nothing. Internal codes in text read as a prototype.
+- **Business outcome:** a pilot team and a buyer see one finished product; fewer support questions about refused menu items and unreadable notices.
+- **Care outcome:** direct care time not lost to orientation; safety-signal push can be switched on from a phone.
+- **Expected nurse outcome:** her next visit and its one primary action in the first viewport; cancellation and billing hold need a confirming tap that names the consequence; reporting an event stays one tap.
+- **Expected team outcome:** "Offen im Team" stays one tap to take, collapsed with its count; absence still two taps from the top.
+- **Expected patient outcome:** fewer wrongly cancelled or held visits; safety signals reach the nurse outside the app.
+- **Acceptance criteria:** UX1-1 to UX1-13 with UX1-6a in [`briefs/UX1.md`](briefs/UX1.md) (no horizontal scroll at 390 px on `/settings`, `/admin`, `/operations`; push opt-in e2e at 390 px; menu per role from one route → roles map, e2e per role; next visit in the first viewport; at most one filled button per card; two-tap cancel and hold; plain-words unit test; NAVORA and "Ausnahmen"; no migration, rule or access-check change).
+- **Dependencies:** none blocking; `cra` gate on the `/field` order and the changed-string list.
+- **Priority:** *Next up* 2, after COND2.
+- **Implementation recommendation:** two PRs under one hand-off: (a)+(b) phone width and menu, then (c)+(d) `/field` and texts; reuse the `/intake` responsive grid; keep every server check as the boundary.
+
+ENGINEERING BRIEF — UX2
+- **Capability:** UX2, one NAVORA app on phone and desktop: one shell, one navigation, one design language.
+- **Why:** nurse screens and the first-MVP sidebar pages are two products in layout, colour, navigation and vocabulary; from `/field` a nurse cannot reach `/settings`.
+- **Business outcome:** one product to demonstrate and sell; each new screen built once from one component set.
+- **Care outcome:** every screen a role needs is reachable from the navigation, on the phone included.
+- **Expected nurse outcome:** a tab bar Heute, Team, Arbeitstag, Mehr on every screen.
+- **Expected team outcome:** the same patterns on `/team` as on `/field`; no screen to learn twice.
+- **Expected patient outcome:** indirect (fewer orientation errors); none claimed beyond UX1.
+- **Acceptance criteria:** UX2-1 to UX2-8 in [`briefs/UX2.md`](briefs/UX2.md) (one shell on every protected route; CI screenshot job at 390 and 1440 px with no horizontal scroll; tokens and a small component set; lint rule against inline layout styles; `/teams`, `/visits`, `/partners` ported or retired with no function lost; German labels and one name; no data or rule change; accessibility floor with axe).
+- **Dependencies:** UX1 (route → roles map, plain-words test).
+- **Priority:** *Next up* 4, after ADM2.
+- **Implementation recommendation:** port page by page in several PRs under one hand-off; screenshots as CI artifacts only.
+
+---
+
 ## 2026-10-27 09:30 CET · Clinical & Regulatory Architect (review)
 
 - Scope since my 05:30 section: no code merged; #502 (COND2-4) gained COND2-4a (`caaa475`, `10745eb`), CI green on `10745eb`; PO 06:10 (ADM2-15, COND2-4a, P-17); `lca` 03:50/06:05/07:41 (#500). No person answered a `clinical`, `legal` or `owner` decision.
