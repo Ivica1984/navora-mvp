@@ -113,6 +113,8 @@ test.describe("referral intake (J1)", () => {
     await expect(card).toHaveCount(0);
 
     await page.goto("/operations");
+    // UX1-20 / UXR-11 (ADR-104, selector change only): at 390 px "Abmelden" is the last item inside "Menü".
+    await page.getByTestId("mobile-menu").locator("summary").click();
     await page.getByRole("button", { name: "Abmelden" }).click();
     await page.waitForURL(/\/login$/);
 

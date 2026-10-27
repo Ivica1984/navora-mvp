@@ -49,6 +49,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 20:30 CET · eng (Engineering)
+
+- **#554: PO 20:15 merge condition built.** UX1-25 (UXR-13): the absence form is a native modal dialog (focus in, Tab kept inside, Escape closes without sending, focus back on the trigger). UX1-26 (UXR-14): the header menu closes on Escape, an outside tap or an item choice. UXR-16: "Abrechnungssperre setzen" in "Mehr" is a neutral outline. ADR-104 addendum 20:30; Playwright UX1-25 and UX1-26 in `ux1.spec`.
+- **Still not merged:** the `cra` gate for part (c) stays open. #558 (part (f), stacked) needs this head merged in after #554.
+- Tests: TypeScript syntax check only (npm registry unreachable here); vitest, lint, typecheck, build, Playwright not run by me; CI decides. Live project not touched.
+
+---
+
 ## 2026-10-27 20:30 CET · AI & Automation Architect (aia)
 
 - **Continued PR #544** instead of opening a second `aia` PR. #544 had green CI at 14:57 but was never merged, and it conflicted in `JOURNAL.md`. Merged `recovery/main` in and kept both entries, newest first.
@@ -63,6 +71,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Stage tracking:** the stage-0 entry condition "AIG1-5 scope settled" is met. AIG1 is *Next up* 3.
 - **For `po`:** AUT-2 into ASM1; AUT-10 and AUT-11 alongside D-38 (the owner ask is unchanged); AUT-12 to `csa`/`lca` or a package.
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 20:15 CET · eng (Engineering)
+
+- **#554 (UX1 part 2) had a merge conflict** in `JOURNAL.md` only (PO 19:10 and `uxa` 19:51 entries). Merged `recovery/main` into `feat/ux1-part-c`; all entries kept, newest first (my 17:35 entry moved to its time slot). No code change. #558 updated with the same merge.
+- **Still not merged:** the `cra` gate for part (c) (`/field` order, UX1-6, UX1-10, UX1-20, consequence sentences) is open; `cra` has not reviewed #554. #558 contains #554, so it waits too (CI green on `c661cc6`).
+- **`uxa` 19:51:** UXR-13 (absence overlay focus and Escape) and UXR-15 (inline colours) wait for the PO placement; not built here, so the PR is not widened.
+- **Next:** (cra) review #554 on its new head. (eng) then merge #554, then #558; UX1 (d) and (g) follow.
+- Tests: none run by me (merge of docs only); `node scripts/agents-check.mjs` run. CI decides. Live project not touched.
 
 ---
 
@@ -105,6 +123,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 19:15 CET · eng (Engineering)
+
+- **#554 (UX1 part 2):** CI green on `9f39df7` (app, db, e2e, ui-screenshots), but **not merged**: the `cra` gate for part (c) (`/field` order, UX1-6, UX1-10, UX1-20, consequence sentences) applies before merge (`cra` 17:35, CLINICAL_GOVERNANCE.md, UX1 row) and `cra` has not reviewed #554 yet. #558 (part f) is stacked on it and waits too.
+- **Applied the `cra` 17:35 eng note (UX1-20):** "Meine Einstellungen" (SIG2 push opt-in) stays in the menu when the membership read fails (`menuItemsFor`); every other item stays fail-closed; no access widens (`/settings` reads own rows only). ADR-104 addendum, vitest `nav-access` +2. IMPLEMENTED in the PR; CI decides (npm registry unreachable here; only a TypeScript syntax check run).
+- **For `cra`:** please review #554 (string list and order in its description) on its new head; then eng merges #554 and retargets #558.
+- Open for eng from `cra` 17:35: PLAN2 re-creation question (C-2 b), not answered this run (UNKNOWN).
+- Live project not touched.
+
+---
+
 ## 2026-10-27 19:10 CET · po (Product Owner)
 
 - **Review:** nothing delivered. UX1 part (c) #554 and part (f) #558 are open, not merged; UX1 stays `in-progress`. No PO PR was open.
@@ -144,6 +172,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **D-16 (CIRS ↔ QG1):** no automatic transfer; a person reports into the partner's CIRS without identifiers; NAVORA keeps at most a "CIRS gemeldet" marker. This is **compliant**. Any automated or linked export is **unresolved: needs owner and adviser** (CIRS content has no statutory protection, per the 2021 report).
 - **D-38:** the continuity term (partner's care runs until C's first valid visit; cut-over only once C's Bedarfsmeldung, assessment and order are in place) is **compliant**. Consent for safety facts asked when the client chooses C is **compliant** where the client can consent. Order carry-over is still **unresolved** (narrowed adviser question); so is consent for clients who cannot consent (ZGB Art. 378).
 - Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 17:35 CET · eng (Engineering)
+
+- **Closed #551** without merge: duplicate of #550 (same status row and 16:22 journal entry, already on `recovery/main`).
+- **Claimed #553 (UX1)** and opened **#554**: part 2 of 3, (c) UX1-6 to UX1-10, UX1-20 (UXR-10 high, UXR-11), UX1-21 (UXR-3), UX1-2 amended; ADR-104. UX1 `in-review`. IMPLEMENTED in the PR; part (d) and (f) PLANNED for a third PR.
+- **For `cra` (gate before merge):** the `/field` order (CGR-25 "Entscheid offen" now after her visits, linked from a "Zu erledigen" row at the top) and the two consequence sentences. Deviation: the brief's cancellation example ("released to the team") is not what `cancel_visit` does; the sentence says the visit is saved as cancelled and does not take place.
+- **For `uxa`:** CI's `ui-screenshots` artifact on #554 shows the new `/field`, `/team`, `/work` headers and the collapsed sections.
+- Tests: TypeScript syntax check of the changed files only; npm registry unreachable here (ENOTFOUND), so vitest, lint, typecheck, build, Playwright not run by me; CI decides. Live project not touched.
 
 ---
 
