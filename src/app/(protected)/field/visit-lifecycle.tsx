@@ -12,6 +12,7 @@ function formatTime(iso: string): string {
   return new Date(iso).toLocaleString("de-CH", { timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
 import type { VisitStatusNote } from "@/features/lifecycle/queries";
+import { CANCEL_CONSEQUENCE } from "@/features/field/rules";
 import InterruptionFollowupForm from "@/components/lifecycle/InterruptionFollowupForm";
 
 /**
@@ -19,7 +20,11 @@ import InterruptionFollowupForm from "@/components/lifecycle/InterruptionFollowu
  * CSR1 / CGR-20: end a started or paused visit as not completed, with a reason, so "complete" is never the only way out.
  * CSR1 / CGR-25: until someone records the follow-up decision, the card says so and offers it.
  */
-export default function VisitLifecycle({ visitId, status, notes }: { visitId: string; status: string | null; notes: VisitStatusNote[] }) {
+export default function VisitLifecycle({ visitId, status, notes, cancelRequested = false, onCancelClosed }: {
+  visitId: string; status: string | null; notes: VisitStatusNote[];
+  /** UX1-8 (ADR-104): "Einsatz absagen" was chosen in the card's "Mehr" menu (second tap). */
+  cancelRequested?: boolean; onCancelClosed?: () => void;
+}) {
   const router = useRouter();
   const [mode, setMode] = useState<"idle" | "cancel" | "no_show" | "outcome" | "interrupt">("idle");
   const [pending, setPending] = useState(false);
@@ -40,6 +45,7 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
       return;
     }
     setMode("idle");
+    onCancelClosed?.();
     router.refresh();
   }
 
@@ -48,6 +54,8 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
   const needsOutcome = status === "no_show" && !outcome;
   const canInterrupt = canEndNotCompleted(status);
   if (!canCancel && !canInterrupt && !cancelled && !noShow && !interrupted) return null;
+  const showCancel = canCancel && (mode === "cancel" || (cancelRequested && mode === "idle"));
+  const closeCancel = () => { setMode("idle"); onCancelClosed?.(); };
 
   return (
     <section aria-label="Absage und Nichtantreffen" data-testid="visit-lifecycle" className="mt-3 grid gap-2 text-sm">
@@ -105,13 +113,9 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
       {error && (
         <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">{error}</p>
       )}
-      {mode === "idle" && (canCancel || needsOutcome || canInterrupt) && (
+      {/* UX1-8: "Einsatz absagen" is in the card's "Mehr" menu (two taps, consequence stated first); command unchanged. */}
+      {mode === "idle" && !showCancel && (canNoShow || needsOutcome || canInterrupt) && (
         <div className="flex flex-wrap gap-2">
-          {canCancel && (
-            <button type="button" onClick={() => setMode("cancel")} className="min-h-11 rounded-lg border border-stone-400 bg-white px-3 font-semibold">
-              Einsatz absagen
-            </button>
-          )}
           {canNoShow && (
             <button type="button" onClick={() => setMode("no_show")} className="min-h-11 rounded-lg border border-rose-500 bg-white px-3 font-semibold text-rose-900">
               Nicht angetroffen
@@ -129,15 +133,18 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
           )}
         </div>
       )}
-      {mode === "cancel" && (
+      {showCancel && (
+        <div role="group" aria-label="Einsatz absagen" ref={scrollNear} className="grid gap-2">
+        <p data-testid="more-consequence" className="font-semibold">{CANCEL_CONSEQUENCE}</p>
         <ReasonForm
-          title="Grund der Absage" reasons={CANCEL_REASONS} pending={pending} submitLabel="Absage speichern" onCancel={() => setMode("idle")}
+          title="Grund der Absage" reasons={CANCEL_REASONS} pending={pending} submitLabel="Absage speichern" onCancel={closeCancel}
           onSubmit={(code, note) => {
             const problem = reasonError(code, note, CANCEL_REASONS);
             if (problem) return setError(problem);
             run(() => cancelVisit({ visitId, reasonCode: code, note, idempotencyKey: crypto.randomUUID() }));
           }}
         />
+        </div>
       )}
       {mode === "interrupt" && (
         <div role="form" aria-label="Einsatz nicht abgeschlossen beenden" className="grid gap-2">
@@ -192,6 +199,11 @@ export default function VisitLifecycle({ visitId, status, notes }: { visitId: st
       )}
     </section>
   );
+}
+
+/** UX1-8: the form opened from "Mehr" may sit above the menu; bring it into view once (stable ref callback). */
+function scrollNear(el: HTMLElement | null) {
+  el?.scrollIntoView({ block: "nearest" });
 }
 
 /** C1 + DOOR1-6: the outcome of a no-show; "Notfallkontakt informiert" asks for the basis of the disclosure. */

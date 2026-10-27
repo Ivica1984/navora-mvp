@@ -422,6 +422,9 @@ test.describe("field tool (F1)", () => {
 
     const team = page.getByTestId("open-in-team");
     await expect(team.getByRole("heading", { name: /Offen im Team/ })).toBeVisible();
+    // UX1-6a (ADR-104, selector change only): "Offen im Team" is collapsed; the list opens with one tap. A visit of today
+    // she may take is shown in its header and stays one tap (unit test ux1-field-order); this one is three days ahead.
+    await team.getByTestId("open-in-team-toggle").click();
     const visit = team.getByTestId("open-visit").filter({ hasText: "21:00" });
     await visit.getByRole("button", { name: "Übernehmen" }).click();
     await expect(team.getByTestId("open-visit").filter({ hasText: "21:00" })).toHaveCount(0);
@@ -497,6 +500,8 @@ test.describe("field tool (F1)", () => {
     await page.goto(`/field?datum=${yesterday}`);
     const visit = page.getByRole("article", { name: /07:00 – 07:30, Testfall 08/ });
     await expect(visit).toHaveCount(1);
+    // UX1-8 (ADR-104, selector change only): "Einsatz absagen" is in the card's "Mehr" menu (two taps).
+    await visit.getByTestId("visit-more").click();
     await visit.getByRole("button", { name: "Einsatz absagen" }).click();
     await visit.locator("select[name=code]").selectOption("team_cancelled");
     await visit.getByRole("button", { name: "Absage speichern" }).click();

@@ -8,6 +8,7 @@ import {
   NAV_ITEMS,
   admits,
   navItemsFor,
+  menuItemsFor,
   NO_ACCESS,
   type NavAccess,
 } from "@/lib/auth/nav";
@@ -133,5 +134,22 @@ describe("items per role (seed people, UX1-3)", () => {
 
   it("an unknown role admits nothing beyond membership", () => {
     expect(hrefs({ roles: ["guest"], inTeam: false })).toEqual(["/work", "/settings"]);
+  });
+
+  it("cra 2026-10-27 (UX1-20): a failed membership read keeps only \"Meine Einstellungen\" in the menu", () => {
+    expect(menuItemsFor(NO_ACCESS).map((i) => i.href)).toEqual(["/settings"]);
+    expect(menuItemsFor(NO_ACCESS, true).map((i) => i.href)).toEqual(["/settings"]);
+  });
+
+  it("menuItemsFor equals navItemsFor whenever the role table already admits settings (no duplicate)", () => {
+    for (const access of [
+      { roles: ["nurse"], inTeam: true },
+      { roles: ["coach"], inTeam: false },
+      { roles: ["operations"], inTeam: false },
+      { roles: ["admin"], inTeam: true },
+      { roles: ["guest"], inTeam: false },
+    ] satisfies NavAccess[]) {
+      expect(menuItemsFor(access)).toEqual(navItemsFor(access));
+    }
   });
 });

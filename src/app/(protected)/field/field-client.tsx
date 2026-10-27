@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { signOut } from "@/features/auth/actions";
 import { completeVisit, departVisit, pauseVisit, resumeVisit, startVisit } from "@/features/visits/commands";
 import { getVisitStatusLabel } from "@/features/visits/types";
 import {
@@ -11,9 +10,11 @@ import {
   fieldActions,
   formatDayLabel,
   formatTime,
+  orderFieldVisits,
   summarizeDay,
   type FieldAction,
 } from "@/features/field/rules";
+import { HeaderMenu } from "@/components/layout/Sidebar";
 import {
   EVENT_LABEL,
   computeVisitTimes,
@@ -38,7 +39,7 @@ import type { CountersignItem, DoorNote, ReturnedItem, SafetyAlert, SafetyAlertH
 import { AccessRow, SafetyAlertRow } from "@/components/door/SafetyAlertForm";
 import type { CoverOffer, MyCover } from "@/features/cover/queries";
 import CoverSection from "./cover-section";
-import { AbsenceSection, OpenVisitsSection } from "./absence-section";
+import { AbsenceControl, AbsenceList, OpenVisitsSection } from "./absence-section";
 import type { OpenVisit, TeamAbsence, TeamColleague } from "@/features/absence/queries";
 import SinceLastSection from "./since-last-section";
 import { groupSinceLast, type SinceLast } from "@/features/handover/rules";
@@ -110,25 +111,29 @@ const STATUS_CLASS: Record<string, string> = {
 
 export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null }: Props) {
   const summary = summarizeDay(visits);
+  const ordered = orderFieldVisits(visits);
   const sinceLastByVisit = groupSinceLast(sinceLast);
 
   return (
     <div className="min-h-screen bg-stone-100 text-emerald-950">
       <header className="sticky top-0 z-10 bg-emerald-950 px-4 pb-4 pt-3 text-white shadow-md">
-        <div className="mx-auto flex max-w-xl items-center justify-between gap-3">
+        <div className="mx-auto flex max-w-xl flex-wrap items-center justify-between gap-x-2 gap-y-1">
           <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200">NAVORA · Mein Tag</p>
-          <Link href="/team" className="ml-auto flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-emerald-100 underline underline-offset-4">
+          <Link href="/team" className="ml-auto flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-emerald-100 underline underline-offset-4">
             Teamanfragen
           </Link>
-          <form action={signOut}>
-            <button type="submit" className="min-h-11 rounded-lg px-3 text-sm font-semibold text-emerald-100 underline-offset-4 hover:underline">
-              Abmelden
-            </button>
-          </form>
+          {/* UX1-20: the role's menu with "Meine Einstellungen" (SIG2 push opt-in) and, last, "Abmelden" (UXR-11). */}
+          <HeaderMenu active="field" />
         </div>
         <div className="mx-auto mt-1 max-w-xl">
-          <h1 className="text-xl font-bold leading-tight">{isToday ? "Heute" : formatDayLabel(day)}</h1>
-          {isToday && <p className="text-sm text-emerald-100">{formatDayLabel(day)}</p>}
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="text-xl font-bold leading-tight">{isToday ? "Heute" : formatDayLabel(day)}</h1>
+              {isToday && <p className="text-sm text-emerald-100">{formatDayLabel(day)}</p>}
+            </div>
+            {/* UX1-6a / ABS1: "Ich kann nicht arbeiten" stays in the first viewport, two taps from the top. */}
+            {absence && <AbsenceControl today={absence.today} colleagues={absence.colleagues} />}
+          </div>
           <nav aria-label="Tag wechseln" className="mt-3 grid grid-cols-3 gap-2 text-sm font-semibold">
             <Link href={`/field?datum=${previousDay}`} className="flex min-h-11 items-center justify-center rounded-lg bg-emerald-900">
               ← Vortag
@@ -144,25 +149,60 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
       </header>
 
       <main className="mx-auto max-w-xl px-4 py-4">
+        {/* UX1-6 order (ADR-104): (1) SIG1 safety signals, unchanged and above everything; (2) her next visit; (3) her
+            other visits; then open decisions and reports; (4) "Offen im Team", collapsed; (5) workday link and counters. */}
         <SignalBanner initial={signals} />
-        {/* WORK1: her own working day for this date (only she reads it). In the page, not the header: phone width. */}
-        <Link href={`/work?datum=${day}`} className="mb-4 flex min-h-11 items-center justify-center rounded-lg border border-emerald-800 bg-white px-3 text-sm font-semibold text-emerald-900">
-          Arbeitstag ansehen und bestätigen
-        </Link>
-        <section className="mb-4 grid grid-cols-3 gap-2 text-center" aria-label="Tagesübersicht">
-          <Stat label="Offen" value={summary.open} />
-          <Stat label="Laufend" value={summary.running} />
-          <Stat label="Erledigt" value={summary.done} />
-        </section>
-
-        {absence && <AbsenceSection today={absence.today} absences={absence.absences} colleagues={absence.colleagues} />}
-        {absence && <OpenVisitsSection open={absence.open} />}
-
-        <CoverSection offers={cover.offers} mine={cover.mine} />
-
+        {(openFollowups.length > 0 || returned.length > 0 || countersign.length > 0) && (
+          // UX1-6 (ADR-104): the open decisions and reports sit below her visits; one line at the top keeps them in sight.
+          <nav aria-label="Zu erledigen" data-testid="todo-links" className="mb-4 flex flex-wrap gap-2 text-sm font-semibold">
+            {openFollowups.length > 0 && (
+              <a href="#entscheid-offen" className="flex min-h-11 items-center rounded-lg border border-amber-600 bg-white px-3 text-amber-900">Entscheid offen ({openFollowups.length})</a>
+            )}
+            {returned.length > 0 && (
+              <a href="#zurueckgegeben" className="flex min-h-11 items-center rounded-lg border border-amber-500 bg-white px-3 text-amber-900">Zurückgegeben ({returned.length})</a>
+            )}
+            {countersign.length > 0 && (
+              <a href="#gegenzeichnung" className="flex min-h-11 items-center rounded-lg border border-blue-600 bg-white px-3 text-blue-900">Zur Gegenzeichnung ({countersign.length})</a>
+            )}
+          </nav>
+        )}
+        {visits.length === 0 ? (
+          <p className="mb-4 rounded-2xl border border-dashed border-emerald-900/20 bg-white/70 p-6 text-center text-emerald-900/70">
+            Keine Einsätze deiner Teams an diesem Tag.
+          </p>
+        ) : (
+          // UX1-6: (2) her next visit, (3) her other visits of the day; one list, so the day keeps one "Einsätze" region.
+          <ol className="mb-4 grid gap-3" aria-label="Einsätze">
+            {[...(ordered.next ? [ordered.next] : []), ...ordered.rest].map((visit) => (
+              <li key={visit.visit_id} data-testid={visit === ordered.next ? "next-visit" : undefined}>
+                {visit === ordered.next && (
+                  <p data-testid="next-visit-label" className="mb-1 text-xs font-bold uppercase tracking-wide text-emerald-900">
+                    {isToday ? "Als Nächstes" : "Erster offener Einsatz"}
+                  </p>
+                )}
+                {visit === ordered.rest[0] && ordered.next && (
+                  <p className="mb-1 mt-2 text-xs font-bold uppercase tracking-wide text-emerald-900">Weitere Einsätze</p>
+                )}
+                <VisitCard
+                  visit={visit}
+                  notes={notes.filter((n) => n.visit_id === visit.visit_id)}
+                  report={reports.find((r) => r.visit_id === visit.visit_id) ?? null}
+                  quality={quality.filter((q) => q.visit_id === visit.visit_id)}
+                  qualityTypes={qualityTypes}
+                  statusNotes={statusNotes.filter((n) => n.visit_id === visit.visit_id)}
+                  sinceLast={sinceLastByVisit.get(visit.visit_id)}
+                  door={doorNotes.find((d) => d.visit_id === visit.visit_id)}
+                  alerts={safetyAlerts.filter((a) => a.visit_id === visit.visit_id)}
+                  history={alertHistory.filter((h) => h.case_id === visit.case_id)}
+                  focusAt={focusAt}
+                />
+              </li>
+            ))}
+          </ol>
+        )}
         {openFollowups.length > 0 && (
           // CSR1 / CGR-25: an interrupted visit keeps a signal until a person decides about the care still due.
-          <section aria-label="Nicht abgeschlossen: Entscheid offen" data-testid="followup-queue" className="mb-4 rounded-2xl border-l-4 border-amber-600 bg-amber-50 p-3 text-sm">
+          <section aria-label="Nicht abgeschlossen: Entscheid offen" id="entscheid-offen" data-testid="followup-queue" className="mb-4 scroll-mt-56 rounded-2xl border-l-4 border-amber-600 bg-amber-50 p-3 text-sm">
             <h2 className="font-bold text-amber-900">Nicht abgeschlossen: Entscheid offen ({openFollowups.length})</h2>
             <ul className="mt-1 grid gap-2">
               {openFollowups.map((a) => (
@@ -174,10 +214,10 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
             </ul>
           </section>
         )}
-
         {returned.length > 0 && (
-          // F6R-5: a returned report is never stranded: it stays at the top of her day until she signs again.
-          <section aria-label="Zurückgegeben" data-testid="returned-reports" className="mb-4 rounded-2xl border-l-4 border-amber-500 bg-amber-50 p-3 text-sm">
+          // F6R-5: a returned report is never stranded: it stays on her day until she signs again (UX1-6: below her visits,
+          // linked from the "Zu erledigen" line at the top).
+          <section aria-label="Zurückgegeben" id="zurueckgegeben" data-testid="returned-reports" className="mb-4 scroll-mt-56 rounded-2xl border-l-4 border-amber-500 bg-amber-50 p-3 text-sm">
             <h2 className="font-bold text-amber-900">Zurückgegeben: bitte korrigieren und neu unterschreiben ({returned.length})</h2>
             <ul className="mt-1 grid gap-2">
               {returned.map((r) => (
@@ -193,10 +233,9 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
             </ul>
           </section>
         )}
-
         {countersign.length > 0 && (
           // F7: the countersignature request reaches the team at the moment of signing.
-          <section aria-label="Zur Gegenzeichnung" data-testid="countersign-queue" className="mb-4 rounded-2xl border-l-4 border-blue-600 bg-blue-50 p-3 text-sm">
+          <section aria-label="Zur Gegenzeichnung" id="gegenzeichnung" data-testid="countersign-queue" className="mb-4 scroll-mt-56 rounded-2xl border-l-4 border-blue-600 bg-blue-50 p-3 text-sm">
             <h2 className="font-bold text-blue-900">Zur Gegenzeichnung ({countersign.length})</h2>
             <ul className="mt-1 grid gap-1">
               {countersign.map((c) => {
@@ -215,7 +254,9 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
             </ul>
           </section>
         )}
+        {absence && <OpenVisitsSection open={absence.open} today={absence.today} />}
 
+        <CoverSection offers={cover.offers} mine={cover.mine} />
         {teamOpenReports.length > 0 && (
           // LEAVE1-12 (1): open reports of team members, visible before (and after) an access end. Counts only.
           <section aria-label="Offene Berichte im Team" data-testid="team-open-reports" className="mb-4 rounded-2xl border-l-4 border-stone-500 bg-white p-3 text-sm">
@@ -230,33 +271,17 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
             </ul>
           </section>
         )}
+        {absence && <AbsenceList today={absence.today} absences={absence.absences} />}
 
-        {visits.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-emerald-900/20 bg-white/70 p-6 text-center text-emerald-900/70">
-            Keine Einsätze deiner Teams an diesem Tag.
-          </p>
-        ) : (
-          <ol className="grid gap-3" aria-label="Einsätze">
-            {visits.map((visit) => (
-              <li key={visit.visit_id}>
-                <VisitCard
-                  visit={visit}
-                  notes={notes.filter((n) => n.visit_id === visit.visit_id)}
-                  report={reports.find((r) => r.visit_id === visit.visit_id) ?? null}
-                  quality={quality.filter((q) => q.visit_id === visit.visit_id)}
-                  qualityTypes={qualityTypes}
-                  statusNotes={statusNotes.filter((n) => n.visit_id === visit.visit_id)}
-                  sinceLast={sinceLastByVisit.get(visit.visit_id)}
-                  door={doorNotes.find((d) => d.visit_id === visit.visit_id)}
-                  alerts={safetyAlerts.filter((a) => a.visit_id === visit.visit_id)}
-                  history={alertHistory.filter((h) => h.case_id === visit.case_id)}
-                  focusAt={focusAt}
-                />
-              </li>
-            ))}
-          </ol>
-        )}
-
+        {/* WORK1: her own working day for this date (only she reads it). In the page, not the header: phone width. */}
+        <Link href={`/work?datum=${day}`} className="mb-2 flex min-h-11 items-center justify-center rounded-lg border border-emerald-800 bg-white px-3 text-sm font-semibold text-emerald-900">
+          Arbeitstag ansehen und bestätigen
+        </Link>
+        <section className="mb-4 grid grid-cols-3 gap-2 text-center" aria-label="Tagesübersicht">
+          <Stat label="Offen" value={summary.open} />
+          <Stat label="Laufend" value={summary.running} />
+          <Stat label="Erledigt" value={summary.done} />
+        </section>
         <p className="mt-6 text-xs leading-relaxed text-emerald-900/60">
           Du siehst die Einsätze deiner Teams. Zeiten entstehen aus deinen Statuswechseln und lassen sich mit Begründung korrigieren. Beobachtungen sieht nur dein Team; Vor jedem Einsatz siehst du, was seit deinem letzten Einsatz bei dieser Person erfasst wurde. Nach dem Einsatz entsteht der Bericht aus diesen Angaben; die ausführende Person unterschreibt ihn.
         </p>
@@ -302,6 +327,12 @@ function VisitCard({
   const router = useRouter();
   const [pending, setPending] = useState<FieldAction | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // UX1-8: the card's "Mehr" menu (first tap) and the action chosen in it (second tap opens its form with the consequence).
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [moreAction, setMoreAction] = useState<"cancel" | "hold" | null>(null);
+  const canCancel = visit.status === "planned" || visit.status === "on_the_way";
+  const canHold = !quality.some((q) => q.kind === "hold" && q.status === "open");
+  const moreItems = [canCancel && "cancel", canHold && "hold"].filter(Boolean) as ("cancel" | "hold")[];
 
   // C1: a visit suspended by a case pause cannot be started; no buttons, a clear marker instead.
   const actions = visit.suspended ? [] : fieldActions(visit.status);
@@ -437,9 +468,15 @@ function VisitCard({
 
       <ReportSection visitId={visit.visit_id} visitStatus={visit.status} report={report} />
 
-      <QualitySection visitId={visit.visit_id} items={quality} types={qualityTypes} />
+      <QualitySection
+        visitId={visit.visit_id} items={quality} types={qualityTypes}
+        holdRequested={moreAction === "hold"} onHoldClosed={() => setMoreAction(null)}
+      />
 
-      <VisitLifecycle visitId={visit.visit_id} status={visit.status} notes={statusNotes} />
+      <VisitLifecycle
+        visitId={visit.visit_id} status={visit.status} notes={statusNotes}
+        cancelRequested={moreAction === "cancel"} onCancelClosed={() => setMoreAction(null)}
+      />
 
       {error && (
         <p role="alert" data-testid="command-error" className="mt-3 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800">
@@ -466,6 +503,41 @@ function VisitCard({
               {pending === action ? "Wird gespeichert …" : FIELD_ACTION_LABEL[action]}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* UX1-8 (ADR-104): actions with billing or planning consequences need two taps: "Mehr", then the action, whose
+          form states the consequence in one sentence before the existing command runs. Commands, audit and refusals are
+          unchanged; who may run them is decided by the database as before. */}
+      {moreItems.length > 0 && (
+        <div className="mt-3 grid gap-2 text-sm">
+          <button
+            type="button"
+            aria-expanded={moreOpen}
+            aria-controls={`mehr-${visit.visit_id}`}
+            data-testid="visit-more"
+            onClick={() => setMoreOpen((x) => !x)}
+            className="min-h-11 justify-self-end rounded-lg border border-stone-400 bg-white px-4 font-semibold"
+          >
+            Mehr
+          </button>
+          {moreOpen && (
+            <div id={`mehr-${visit.visit_id}`} role="group" aria-label="Weitere Aktionen" className="grid gap-2 rounded-xl border border-stone-200 p-2">
+              {moreItems.includes("cancel") && (
+                <button type="button" onClick={() => { setMoreAction("cancel"); setMoreOpen(false); }}
+                  className="min-h-11 rounded-lg border border-stone-400 bg-white px-3 text-left font-semibold">
+                  Einsatz absagen
+                </button>
+              )}
+              {moreItems.includes("hold") && (
+                <button type="button" onClick={() => { setMoreAction("hold"); setMoreOpen(false); }}
+                  className="min-h-11 rounded-lg border border-stone-400 bg-white px-3 text-left font-semibold">
+                  {/* UXR-16: neutral outline (rose is the P1 colour family); the consequence sentence carries the weight. */}
+                  Abrechnungssperre setzen
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
     </article>
@@ -609,7 +681,11 @@ function ObservationForm({
         </p>
       )}
       <div className={`grid gap-2 ${onDone ? "grid-cols-2" : ""}`}>
-        <button type="submit" disabled={pending} className="min-h-11 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60">
+        {/* UX1-7: the always-open "Neue Beobachtung" form is an outline button, so the card keeps one filled button (its
+            status action); the opened "Beobachtung ändern" form keeps its filled submit. */}
+        <button type="submit" disabled={pending} className={onDone
+          ? "min-h-11 rounded-lg bg-emerald-800 font-bold text-white disabled:opacity-60"
+          : "min-h-11 rounded-lg border-2 border-emerald-800 bg-white font-bold text-emerald-900 disabled:opacity-60"}>
           {pending ? "Wird gespeichert …" : supersedesId ? "Änderung speichern" : "Beobachtung speichern"}
         </button>
         {onDone && (
