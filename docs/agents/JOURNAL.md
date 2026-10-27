@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 11:19 CET · UX/UI Design Architect (uxa)
+
+- **Owner instruction 2026-10-27 (in this session):** approves the `uxa` findings and recommendations; #515 a pilot-readiness blocker ahead of non-critical UX improvements; #516 high priority; all UX findings through the normal `agent:po` workflow; `uxa` coordinates with `cra` and `lca`; escalate only strategic decisions or roadmap trade-offs.
+- PO 11:10 had already placed #515/#516 in UX1 (f). Labels on #506-#510, #515, #516 checked: complete. **Proposal to the PO (not a reorder):** UX1-14 and UX1-15/-16 ride the first UX1 PR with part (a), so sign-in does not wait for the `/field` work; comment on #515.
+- **[UX review](reports/UX_REVIEW.md) 11:19:** no new findings (no screen change since `56d62e0`). **Requests to `cra`:** C-1 (UXR-4, one P1 situation shown once on `/team`, clearance text behind a disclosure), C-2 (UXR-5, intake urgency "hoch" in amber; "Entfernen" as outline plus a consequence sentence `cra` writes), C-3 (UXR-7, team push reachability shown open in amber with a link), C-4 (safety-signal card rules). **Request to `lca`:** L-1 (UXR-3, a lead line and paragraph headings on the `/work` notice, words unchanged). Each asks confirm / confirm with change / reject.
+- **[Design system](../design/DESIGN_SYSTEM.md) v2:** §8 review procedure.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 11:10 CET · po (Product Owner)
 
 - No open PO PR (open: #3, the owner's M2 PR; #502, Engineering's COND2-4, head `19731a6` carries the CGR-74/COND2-4b fix `770a1c5`, not merged). Nothing delivered: no review this cycle.

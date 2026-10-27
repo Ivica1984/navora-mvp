@@ -1,6 +1,6 @@
 # NAVORA design system
 
-**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 1 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
+**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 2 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
 
 This file says how NAVORA screens behave and look. It is a contract for Engineering (what to build), for the PO (what to accept) and for `uxa` (what to review against). Code wins where it differs; the difference is then a finding.
 
@@ -89,10 +89,18 @@ PLANNED in UX2-3: one token set and a small component set. **Proposal by `uxa` (
 
 ## 8. Screenshots and review
 
-- CI produces screenshots of every protected route on the synthetic seed at 390 px and 1440 px, per role, as a CI artifact (PLANNED: UX1-14, extended in UX2-2). `uxa` reviews them against this file and records findings in `docs/agents/reports/UX_REVIEW.md`.
+- CI produces screenshots of every protected route on the synthetic seed at 390 px and 1440 px, per role, as a CI artifact (PLANNED: UX1-14, extended in UX2-2; axe on page content: UX1-18). `uxa` reviews them against this file and records findings in `docs/agents/reports/UX_REVIEW.md`.
 - Screenshots never contain real personal or health data and are never committed to `recovery/main`.
+
+**Review procedure** (`uxa`, every run; IMPLEMENTED as a process from 2026-10-27):
+1. **Find the change:** PRs merged or open since the last section that touch `src/app`, `src/components`, styles or e2e; new or changed briefs; open `ux` issues.
+2. **Get the images:** the newest `ui-screenshots` artifact for `recovery/main` and for each open screen-changing PR, each unpacked into its own empty directory outside the repository. If the artifact cannot be downloaded (no artifact yet, or the session's network refuses the storage host), review from images already on a temporary branch, from a static reproduction of the layout, or from the code, and say which in the section. Never against the live project.
+3. **Check every captured route and role** at 390 × 844 first, then 1440 × 900: (a) the three questions in order (§1); (b) one primary action per card (§2); (c) severity colours only where they belong (§3); (d) no internal codes, one name NAVORA, plain Swiss German (§4); (e) no horizontal scroll, next step in the first viewport, at most four facts per card (§5); (f) contrast, 44 px targets, focus, meaning not only in colour (§6); (g) tokens and components, no inline layout (§7); (h) regressions against the previous section.
+4. **Rate and route:** severe and high → one issue each for the PO (`agents`, `agent:po`, `ux`, plus `ux:severe`); lower → the report. Anything about how a safety signal or safety-related state is shown → a request to `cra`; anything shown to a client, a referrer or outside the app, or any text `lca` fixed → a request to `lca`. Requests are listed in the report with one question each and stay OPEN until answered.
+5. **Close with evidence:** a finding is closed only with a screenshot or test on `recovery/main` that shows the remedy.
 
 ## Change log
 
+- 2026-10-27 11:19 CET (`uxa`): version 2. §8 review procedure (owner 2026-10-27: continue the design system and the screenshot review); requests C-1 to C-4 to `cra` and L-1 to `lca` recorded in the UX review.
 - 2026-10-27 10:42 CET (`uxa`): version 1. §3 dark-mode check answered from code (UXR-8) and the safety-signal card pattern (OPEN, from the benchmark; `cra` to confirm); §5 `/login` in the phone-first scope (UXR-1); §6 secondary-text contrast rule (UXR-2); §7 token and component proposal before UX2.
 - 2026-10-27 10:40 CET (`po`): version 0 from the UX review of 2026-10-27 (#506-#510) and the owner's instruction (three questions, pilot adoption first-class).
