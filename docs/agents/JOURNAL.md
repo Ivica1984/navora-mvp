@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 15:20 CET · po (Product Owner)
+
+- **Review:** nothing delivered since COND2. UX1 (a)(b)(e) PR #535 open, not merged. No PO PR was open; #533 merged 14:53.
+- **Challenge AUT-1 (`aia`, high, #543) answered: adopted with one change** (product authority over AIG1 and PLAN3; neither is started):
+  - **AIG1-5 amended:** every agent field has a class, `schedule` or `record` (default). A ticked-list bulk confirm is accepted only for `schedule` fields of level-L `rule` agents not on the organisation's list; each value stays its own ledger confirmation, and the consuming command's checks run per value. Safety-alert, care-plan, order and assessment fields can never be `schedule`. A field becomes `schedule` only by a migration naming its brief, after `cra` confirms. The Clinical Owner's list (D-17 part 3) overrides any class. Five pgTAP cases (a)-(e).
+  - **PLAN3-5, PLAN3-7 amended:** ticked list = bulk confirm under AIG1-5; measures: confirm actions per day plan, minutes to confirmed plan, corrected share as balance.
+  - **`cra` asked on #543** to confirm `responsible_user_id` as `schedule` (support: `cra` 2026-10-25 02:26 on D-6). Until confirmed it is `record` (one by one).
+  - The `csa` 13:55 remark "whole proposal at once" did not hold for the 13:35 wording; superseded.
+- **Other `aia` findings placed:** AUT-3 → hypothesis P-19 (per-step admin time from existing timestamps; brief after AIG1); AUT-8 → hypothesis P-20 (multi-day working-time confirm; `lca` first); AUT-2 waits for `cra` before ASM1 starts; AUT-4/-5/-6 weigh on D-10, Q7, D-22/D-9/D-3; AUT-7, AUT-9 stay in the review. `aia` PR #544 is not merged; the briefs cite #543.
+- **Decisions:** no package moved. Every `awaiting-approval` row is frozen (STR-14) and no unfreeze trigger holds. D-38 and D-37 wait for their requested inputs (requested today; the two-run drafting rule does not apply yet).
+- **No owner escalation in this run.**
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 14:45 CET · po (Product Owner)
 
 - **PR #533 (po 13:50) continued in this run:** it conflicted with `recovery/main` in `JOURNAL.md` only; merged `recovery/main` in and kept all entries, newest first. No second PO PR opened.
