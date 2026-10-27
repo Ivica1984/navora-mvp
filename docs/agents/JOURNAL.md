@@ -17,6 +17,69 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 13:45 CET · po (Product Owner)
+
+- **Owner 2026-10-27 (in this session):** confirmed the recorded strategic direction and the actions taken; "proceed autonomously".
+- **Challenge duty for `aia` and `csa`:**
+  - They actively challenge any recommendation that adds administration, hierarchy or operational complexity without clear patient-care benefit.
+  - Primary objective: more direct care time, less administration, stronger self-organised teams, AI-assisted operations, interRAI-supported care delivery.
+  - Findings are reported through the decision-package process.
+- **Recorded in:** README (*Automation review*, *Strategy review*), the role mandates (§2a), and both schedules' instructions (updated by po at the owner's request).
+- **The PO answers each `high` challenge** in the evidence table or the package before accepting or escalating.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 13:35 CET · po (Product Owner)
+
+- **Merged #531** (po 13:45 docs: challenge duty for `aia` and `csa`; CI green on `7e56f69`).
+- **COND2 accepted** ([brief](briefs/COND2.md), *PO review and acceptance 13:35*): #495 and #502 merged; CI green on both heads and on `recovery/main` `da913d5`. Every criterion met; deviations ADR-101 (1)-(6) and ADR-102 (1)-(4) accepted. Clinical gate clear per `cra` 09:30 (CGR-74 fixed before merge); `cra` to confirm CGR-71, -73, -74 closed on `799700d`. Queue rank 38.
+- **Approved** (owner 13:30 asked for them this cycle): [AIG1](briefs/AIG1.md), [ASM1](briefs/ASM1.md), [PLAN3](briefs/PLAN3.md). *Next up*: 1 UX1, 2 ADM2, 3 AIG1, 4 ASM1, 5 UX2, 6 PLAN3.
+- **D-36** escalated: `lca` 12:42 taken in; option A stays in force with terms (a)-(c); **awaiting approval: owner**. The owner provides the licence terms (a fact). `eng` and `cra` are still requested.
+- **Challenge:** COND2's workflows are already covered by P-13, P-15 and P-16; no new row. PLAN3 is the challenge action for "a person assigns every visit by hand" (scheduling administrator).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+**ENGINEERING BRIEF — AIG1**
+- Capability: AI governance foundation (agent register, append-only suggestion ledger, provenance per value, explicit "not found", no accept-all, correction rate per agent/field/team, stop rule, synthetic evaluation harness, health list).
+- Why: every assistant of the approved staged AI path needs the same controls. Without them each one invents its own, or runs without them.
+- Business outcome: stage 1 becomes a configuration step. AI-assisted work is auditable, value by value, for payers and the canton.
+- Care outcome: no machine value enters a client record without a named person; omissions never read as "none".
+- Expected nurse outcome: she sees who proposed and who confirmed each value, and confirms instead of typing.
+- Expected team outcome: the team sees how often an assistant is right, never a per-person score; a bad assistant stops by itself.
+- Expected patient outcome: indirect. Safer records once assistants arrive.
+- Acceptance criteria: AIG1-1 to AIG1-10 and the negative criterion in the brief.
+- Dependencies: none for the synthetic build. D-35 rule A (no AI service), D-34 levels, D-17 part 3 (field list; until it exists, every field is confirmed one by one), D-4.
+- Priority: *Next up* 3 (after UX1 and ADM2).
+- Implementation recommendation: one ledger with typed payloads and a confirm command per value, proven by pgTAP (append-only, scope inheritance, no person column). Add a synthetic `rule` test agent and a CI evaluation fixture. Reuse AN1 small-team suppression and the OPS1 exception path.
+
+**ENGINEERING BRIEF — ASM1**
+- Capability: assessment record (D-13 B). An append-only, signed record per assessment, with supersede, an identifier reference, minutes only with a reference, and confirmation by the named assessor. An instrument reference list (names only). The care plan shows the assessment it rests on and "Neuere Bedarfsabklärung".
+- Why: the needs assessment is the billing basis and the start of continuity, and today it is a flag. Every D-37 option needs this record.
+- Business outcome: a traceable billing basis per case, with no transcription from a second source of truth.
+- Care outcome: the team sees when its care plan rests on an outdated assessment.
+- Expected nurse outcome: the assessing RN records or confirms once. Nobody re-types minutes without a reference.
+- Expected team outcome: one current assessment per case, its history visible, corrections without overwriting.
+- Expected patient outcome: care planned against her latest assessment (continuity).
+- Acceptance criteria: ASM1-1 to ASM1-10 and the negative criterion in the brief.
+- Dependencies: D-13 B (decided); D-36 A with terms (a)-(c); D-37 (no instrument designated until decided); D-15 (category mapping stays `clinical`); real-data gate D-29, D-11, D-12. Clinical review gate applies.
+- Priority: *Next up* 4.
+- Implementation recommendation: one append-only table plus a supersede command. Pattern-check the reference, and check the column list in pgTAP. Keep J5 billing totals of the seed identical (ASM1-8).
+
+**ENGINEERING BRIEF — PLAN3**
+- Capability: day-plan and continuity proposal. For one team and day, NAVORA proposes who takes each open visit: the primary nurse first, then the deputy, then a member who knows the client, then free capacity. Proposals stay within membership, absence, qualification and overlap limits. The team confirms line by line through AIG1.
+- Why: assigning visits by hand is the largest remaining manual coordination task after PLAN2, and it is the scheduling administrator's job.
+- Business outcome: no scheduling role is needed. Planning time is measured as corrections, not guessed.
+- Care outcome: continuity becomes the default (primary nurse or deputy first).
+- Expected nurse outcome: less evening and phone coordination. She confirms a plan instead of assembling it.
+- Expected team outcome: the team decides with a visible, reasoned proposal and visible load. No planner above it.
+- Expected patient outcome: fewer strangers at the door.
+- Acceptance criteria: PLAN3-1 to PLAN3-9 and the negative criterion in the brief.
+- Dependencies: AIG1 accepted; J3, J6, ABS1, ADM1, LEAVE1; AN2 measure. No location (Q7), no labour-law limit (D-23).
+- Priority: *Next up* 6 (after UX2).
+- Implementation recommendation: a deterministic SQL proposal function run as the asking member, with a stable tie-break. Confirmation goes through the existing J3 command so every J3 check runs again.
+
+---
+
 ## 2026-10-27 13:30 CET · po (Product Owner)
 
 - **Owner decisions 2026-10-27 (in this session):**
