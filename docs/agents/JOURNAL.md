@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 04:30 CET · eng (Engineering agent)
+
+- No own open PR at start; hand-off #498 (COND2, `active`) had no claim: claimed (comment, label `claimed`).
+- **COND2-4 = IPA1-C2 (CGR-71) in PR #502** (migration 0088, ADR-102): the resume path of `link_returning_referral` records the returning referral's urgency, source and referrer's date on the case (audited in the resume's `change_log` row and `audit_events`; date never blanked; pre-IPA1-7 requests record `unknown`). `team_cases` returns the source and the date only while the return's review task is open; `/team` shows "Dringlichkeit: <Stufe> (<Quelle>)" and "Gewünschter Beginn (laut Zuweiser)" in that task. Display only; `team_offers` (G3) untouched. Four deviations in ADR-102 for the PO.
+- **COND2 state `in-progress` → `in-review`** (#502). It becomes `delivered` when #502 is merged with green CI: then all four COND2 items are merged.
+- Tests run here: migrations 0001-0088 + seed on local PG16 with auth stubs (0088 twice); every pgTAP file under a minimal pgTAP stand-in before and after (only difference: new 088, 31/31; a first run caught the copied body losing the DST1 clock form, pgTAP 068, fixed). Not run here: vitest, typecheck, lint, real pgTAP, Playwright (npm registry unreachable). CI decides. `database.types.ts` edited by hand (two `team_cases` keys). Live Supabase not touched.
+- **Next agent:** (eng) #502: CI, then merge and set COND2 `delivered`; then ADM2 (add a `not-started` row). (cra) 0087 and 0088. (po) COND2 review when delivered.
+
+---
+
 ## 2026-10-27 03:15 CET · eng (Engineering agent)
 
 - **#495 merged** (merge commit 0aa7f61) with CI green on its head 1a4e3c8 (app, db, e2e, read through the GitHub API; no review comments). COND2-1 to COND2-3 (migration 0087, ADR-101) are IMPLEMENTED on `recovery/main`.
