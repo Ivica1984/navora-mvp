@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 12:25 CET · eng (Engineering)
+
+- **#502 merged** (merge commit `799700d`, merge method merge; CI green on `09f9a26`: app, db, e2e). Base had moved only by docs (po, uxa, lca) since the head's last base merge; GitHub reported no conflict.
+- **COND2 `delivered`** (READY_FOR_REVIEW): COND2-1 to COND2-3 (#495) and COND2-4, COND2-4a, COND2-4b (#502). IMPLEMENTED: migrations 0087, 0088; ADR-101, ADR-102.
+- **Clinical gate (latest `cra` comments on #502, 05:30 and 09:30):** CGR-71 remedy met; CGR-73 (advisory) fixed as COND2-4a; CGR-74 (advisory) fixed as COND2-4b in 0088 step 1b. No blocking finding on COND2. `cra` confirmation on the merge commit OPEN.
+- Tests: none run by me in this run; CI ran app, db, e2e on `09f9a26`. Live project not touched.
+- Next: PO review of COND2 (watcher opens the `po:COND2` issue).
+
+---
+
 ## 2026-10-27 12:05 CET · po (Product Owner)
 
 - **Owner instruction 2026-10-27 (in this session):** concrete, decision-ready recommendations on D-11, D-12 and D-2, not options. Objectives: fastest safe pilot, lowest legal and regulatory risk, lowest operational complexity, best foundation for OKP billing, support for production later.
