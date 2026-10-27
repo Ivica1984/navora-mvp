@@ -55,11 +55,11 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 do $$ begin
   perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital OPS1', 'Spital', 'Bern West', null,
-    'mittel', null, 'OPS1 unvollständig', 'Bedarf', array['Grundpflege'], 'a9000000-0000-4000-8000-000000000001');
+    'mittel', null, 'OPS1 unvollständig', 'Bedarf', array['Grundpflege'], 'a9000000-0000-4000-8000-000000000001', 'referrer_stated');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'OPS1 unvollständig'),
     'Klient', 'OPS1U', true, '{}'::jsonb, 'a9000000-0000-4000-8000-000000000002');
   perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital OPS1', 'Spital', 'Region ohne Team OPS1', null,
-    'mittel', null, 'OPS1 ohne Team', 'Bedarf', array['Grundpflege'], 'a9000000-0000-4000-8000-000000000003');
+    'mittel', null, 'OPS1 ohne Team', 'Bedarf', array['Grundpflege'], 'a9000000-0000-4000-8000-000000000003', 'referrer_stated');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'OPS1 ohne Team'),
     'Klient', 'OPS1N', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
       'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (private.now() at time zone 'Europe/Zurich')::date + 2),

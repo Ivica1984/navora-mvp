@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { CANTONS, factsFromForm, intakeOrganization, parseMissing, parseServices } from "@/features/intake/rules";
+import {
+  CANTONS,
+  URGENCY_SOURCES,
+  factsFromForm,
+  intakeOrganization,
+  parseMissing,
+  parseServices,
+  urgencySourceLabel,
+  urgencyWithSource,
+} from "@/features/intake/rules";
 
 describe("intake rules (J1)", () => {
   it("only admin/operations memberships may do intake", () => {
@@ -49,5 +58,16 @@ describe("intake facts (J1, PO brief)", () => {
       { item: "insurer", reason: "Krankenversicherer fehlt" },
     ]);
     expect(parseMissing(undefined)).toEqual([]);
+  });
+
+  it("IPA1-7: only the two recorded sources can be chosen; anything else reads as not recorded", () => {
+    expect(URGENCY_SOURCES).toEqual(["referrer_stated", "intake_assessed"]);
+    expect(urgencySourceLabel("referrer_stated")).toBe("vom Zuweiser angegeben");
+    expect(urgencySourceLabel("intake_assessed")).toBe("bei der Aufnahme eingeschätzt");
+    for (const other of ["unknown", "", null, undefined, "x"]) {
+      expect(urgencySourceLabel(other)).toBe("Quelle nicht erfasst");
+    }
+    expect(urgencyWithSource("hoch", "referrer_stated")).toBe("Dringlichkeit: hoch (vom Zuweiser angegeben)");
+    expect(urgencyWithSource("mittel", "unknown")).toBe("Dringlichkeit: mittel (Quelle nicht erfasst)");
   });
 });

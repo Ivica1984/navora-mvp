@@ -91,7 +91,7 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000904');
 set local role authenticated;
 do $$ begin
   perform public.record_partner_request('00000000-0000-4000-b000-000000000011', 'Spital F0', 'Spital', 'Bern West', null,
-    'mittel', null, 'F0 Anfrage', 'Bedarf F0', array['Grundpflege'], 'a8000000-0000-4000-8000-000000000010');
+    'mittel', null, 'F0 Anfrage', 'Bedarf F0', array['Grundpflege'], 'a8000000-0000-4000-8000-000000000010', 'referrer_stated');
   perform public.convert_partner_request((select id from public.partner_requests where request_title = 'F0 Anfrage'),
     'Klient', 'F0R', true, jsonb_build_object('residence_municipality', 'Teststadt', 'residence_canton', 'BE',
       'insurer_name', 'Testkasse', 'insurance_type', 'KVG', 'requested_start', (private.now() at time zone 'Europe/Zurich')::date + 2),

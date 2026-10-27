@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 00:35 CET · Engineering (eng)
+- Step A only (own PRs). **#484** (IPA1-1 to -6) had a merge conflict with `recovery/main` (JOURNAL.md, PO entry 22:10): merged `recovery/main` in (4215fce), CI green on that head (run 40417996961). **#487** (IPA1-7/-8): `recovery/main` + #484 merged in (this commit), CI re-runs.
+- **#487 db job red once at 00:06** (run 40417456728): pgTAP 079 test 44 (WORK1-5 catalogue, `have: admin,ops`). The previous head (only e2e files differ) passed the db job at 23:56, `feat/ipa1-texts` passed it at 00:11, and the one re-run of the same job on the same commit passed at 00:2x. Recorded as **UNKNOWN cause, nondeterministic**, not root-caused (candidate: an Operations read model in the fingerprint, `operations_exceptions()`, readable only by admin and ops); added to the pgTAP flake issue #399. No test changed or skipped.
+- **Not merged this run:** the merge of #484 was refused by this session's permission check (merge without review), so #484 stays open with green CI and #487 waits on it. IPA1 status row unchanged (`in-review`, #484, #487). Next run (or the owner): merge #484, then #487 once its CI is green, then set IPA1 `delivered`.
+- Clinical gate: unchanged since 23:25 (CGR-69 plan `clinical/remediation/CGR-69.md`). Tests: none run locally (no local database); CI is the runner.
+
+## 2026-10-26 23:25 CET · Engineering (eng)
+- **Step A:** own PR #484 (IPA1-1 to -6) is green (app, db, e2e on 7ad9d7c) and mergeable, but **not merged**: the session's permission guard refused the merge call ("merge without review"). The owner was notified. #484 needs a merge by the owner, or the guard needs to allow agent merges for this task.
+- **Step B/C:** re-claimed #456 and built **IPA1-7 and IPA1-8 in PR #487**, stacked on #484 (base `feat/ipa1-texts`). Migration 0086, ADR-100, pgTAP 086 (29). Status row IPA1 → `in-review` (#484, #487).
+- **IPA1-7:** no preset level; level and source required in zod and in `record_partner_request`; old 11-argument signature dropped. `urgency_source` is carried request → case → matching request by BEFORE INSERT triggers. Existing rows read `unknown`. `team_offers` returns the source; its ORDER BY (G3) is byte-identical. `/team` and `/intake` show "Dringlichkeit: <Stufe> (<Quelle>)". Audit records the source.
+- **IPA1-8:** optional `referrer_requested_start`, refused before the request's creation day, carried and shown only. **Deviation (5) for the PO:** `cases.requested_start` (intake fact, readiness item 6) already existed and is kept separate.
+- No clinical rule added. Whether "bei der Aufnahme eingeschätzt" may be chosen, and on which criteria, stays with `clinical` (D-34 question 7).
+- Tests: the full migration chain 0001-0086 and the seed now run on a local PG16 with Supabase auth stubs. The touched pgTAP files ran under a minimal local pgTAP stand-in (086 28/28; others unchanged). No real pgTAP, vitest, typecheck, lint or Playwright here; CI decides. Live project not touched.
+- CI round 1 on #487 was red in `db`. pgTAP 074:217: the recreated `team_offers` had lost the LEAVE1-3 access guard, so a person whose access had ended could read offers again. pgTAP 068: the migration used native `AT TIME ZONE`. Fixed: `team_offers` is back in the plpgsql guard form, the migration uses `private.at_zurich`, and pgTAP 086 now asserts the guard. Every pgTAP file was then rerun locally, before and after the change; the only difference is 086.
+- Next: (owner) merge #484. (eng) when #484 is merged, retarget #487 to `recovery/main` if GitHub has not done so, fix CI, merge, then set IPA1 `delivered`. (cra) IPA1-7/-8 on #487. (po) deviation (5).
+
 ## 2026-10-26 22:10 CET · po (Product Owner)
 
 - No open PO PR (only #3, the owner's M2 PR; #484 is Engineering's IPA1 PR). One `agent:po` issue: **#482 COND1**, claimed 22:12. New evidence: `cra` 21:29 (#485): clinical gate clear for COND1, CGR-66 and CGR-67 closed, CGR-68 interim met, **CGR-70** opened (advisory, S3).

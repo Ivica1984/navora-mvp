@@ -16,11 +16,15 @@ import {
   PARTNER_TYPES,
   TASK_LABEL,
   URGENCIES,
+  URGENCY_SOURCES,
   factsFromForm,
   parseMissing,
   parseServices,
+  urgencySourceLabel,
+  urgencyWithSource,
   type ReadinessItem,
 } from "@/features/intake/rules";
+import { formatDayLabel, todayInZurich } from "@/features/field/rules";
 
 const URGENCY_CLASS: Record<string, string> = {
   hoch: "bg-rose-100 text-rose-900",
@@ -107,6 +111,8 @@ function NewRequestForm({ organizationId }: { organizationId: string }) {
       region: get("region"),
       city: get("city"),
       urgency: get("urgency"),
+      urgencySource: get("urgencySource"),
+      requestedStart: get("requestedStart"),
       timeInfo: get("timeInfo"),
       requestTitle: get("requestTitle"),
       needSummary: get("needSummary"),
@@ -139,11 +145,26 @@ function NewRequestForm({ organizationId }: { organizationId: string }) {
             ))}
           </select>
         </label>
+        {/* IPA1-7: no preset level; the level is chosen with its source (no criteria in NAVORA). */}
         <label className="grid gap-1 text-sm">
           <span className="font-semibold">Dringlichkeit</span>
-          <select name="urgency" className={field} defaultValue="mittel">
+          <select name="urgency" required className={field} defaultValue="">
+            <option value="" disabled>
+              bitte wählen
+            </option>
             {URGENCIES.map((u) => (
               <option key={u} value={u}>{u}</option>
+            ))}
+          </select>
+        </label>
+        <label className="col-span-2 grid gap-1 text-sm">
+          <span className="font-semibold">Quelle der Dringlichkeit</span>
+          <select name="urgencySource" required className={field} defaultValue="">
+            <option value="" disabled>
+              bitte wählen
+            </option>
+            {URGENCY_SOURCES.map((s) => (
+              <option key={s} value={s}>{urgencySourceLabel(s)}</option>
             ))}
           </select>
         </label>
@@ -171,6 +192,11 @@ function NewRequestForm({ organizationId }: { organizationId: string }) {
       <label className="grid gap-1 text-sm">
         <span className="font-semibold">Zeitpunkt</span>
         <input name="timeInfo" maxLength={120} className={field} placeholder="z. B. ab Montag" />
+      </label>
+      {/* IPA1-8: shown to the team only; never orders, filters, escalates or sets a deadline. */}
+      <label className="grid gap-1 text-sm">
+        <span className="font-semibold">Gewünschter Beginn (laut Zuweiser)</span>
+        <input name="requestedStart" type="date" min={todayInZurich()} className={field} />
       </label>
       <ErrorBox message={error} />
       {saved && <p role="status" className="text-sm font-semibold text-emerald-800">Anfrage gespeichert.</p>}
@@ -229,6 +255,14 @@ function RequestCard({ request, linkable }: { request: OpenPartnerRequest; linka
           {request.urgency}
         </span>
       </div>
+      <p data-testid="urgency-source" className="mt-1 text-sm text-emerald-900/70">
+        {urgencyWithSource(request.urgency, request.urgency_source)}
+      </p>
+      {request.referrer_requested_start && (
+        <p className="text-sm text-emerald-900/70">
+          Gewünschter Beginn (laut Zuweiser): {formatDayLabel(request.referrer_requested_start)}
+        </p>
+      )}
       <p className="mt-2 whitespace-pre-wrap text-sm">{request.need_summary}</p>
       {request.requested_services && request.requested_services.length > 0 && (
         <p className="mt-1 text-sm text-emerald-900/70">Leistungen: {request.requested_services.join(", ")}</p>
