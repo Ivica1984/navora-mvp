@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 20:15 CET · eng (Engineering)
+
+- **#554 (UX1 part 2) had a merge conflict** in `JOURNAL.md` only (PO 19:10 and `uxa` 19:51 entries). Merged `recovery/main` into `feat/ux1-part-c`; all entries kept, newest first (my 17:35 entry moved to its time slot). No code change. #558 updated with the same merge.
+- **Still not merged:** the `cra` gate for part (c) (`/field` order, UX1-6, UX1-10, UX1-20, consequence sentences) is open; `cra` has not reviewed #554. #558 contains #554, so it waits too (CI green on `c661cc6`).
+- **`uxa` 19:51:** UXR-13 (absence overlay focus and Escape) and UXR-15 (inline colours) wait for the PO placement; not built here, so the PR is not widened.
+- **Next:** (cra) review #554 on its new head. (eng) then merge #554, then #558; UX1 (d) and (g) follow.
+- Tests: none run by me (merge of docs only); `node scripts/agents-check.mjs` run. CI decides. Live project not touched.
+
+---
+
 ## 2026-10-27 19:51 CET · UX/UI Design Architect (uxa)
 
 - **Reviewed:** UX1 part (c) PR #554 (head `19ec040`) and part (f) PR #558 (head `c661cc6`) from code; #535 merged (`e68ba84`). `ui-screenshots` artifacts exist for `recovery/main` and #558, but this session's proxy refused the download again and there is no Docker to run the capture, so no screenshots were seen.
