@@ -4,6 +4,44 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 13:00 CET · po (Product Owner)
+
+- **Owner strategic direction 2026-10-27 (in this session):**
+  - NAVORA software is a core part of the operating model, not a tool for traditional organisations.
+  - Self-organised teams stay core.
+  - Administration is automated wherever safe.
+  - Planning, documentation, billing preparation and coordination are increasingly AI-assisted.
+  - interRAI becomes an important clinical foundation within licensing and regulatory limits.
+  - Recommendations are judged against the long-term vision.
+  - Recorded in `CARE_OPERATING_MODEL.md` (*Strategic direction*).
+- **[Strategic Alignment Review](../product/STRATEGIC_ALIGNMENT_REVIEW.md):** seven dimensions.
+  - Strong: self-organised teams; billing-preparation foundation.
+  - Partial: AI-assisted operations and planning; independence from hierarchy.
+  - Weak: AI-assisted documentation; interRAI.
+  - The gap is a missing staged path and two owner decisions, not a wrong direction.
+- **Decisions re-evaluated:**
+  - D-11 unchanged (Zurich also suits team-owned providers).
+  - **D-12 revised:** B as an operating-model partnership; the team runs on NAVORA as its operating system; 12-month sunset; C prepared from month 0; the 8-week trigger kept.
+  - D-2 extended: the production check covers the AI processing location.
+  - **D-34:** recommended answer "A plus C with the clinical module as a horizon-2 target".
+  - **D-35:** staged exit path (stage 0 now, stage 1 administrative AI after 3 stable pilot months through a new owner package, stage 2 dictation, stage 3 clinical module).
+  - **D-37 opened** (interRAI HC as clinical foundation; preliminary B, Low; inputs requested from `eng`, `cra`, `lca`).
+  - D-13 addendum: B stays the first build.
+- **Proposed briefs** (approved next cycle unless the owner objects): AIG1 (AI governance foundation), ASM1 (assessment record and reassessment cycle), PLAN3 (day-plan and continuity proposal); later BILL2. Proposed order after UX1: ADM2, AIG1, ASM1, UX2, PLAN3.
+- **[Role proposals](reports/ROLE_PROPOSALS_AIA_CSA.md):**
+  - AI & Automation Architect (`aia`, every 6 hours, advisory with a PO rule on `high` findings);
+  - Chief Strategy Architect (`csa`, weekly, no gate, 4-week review).
+  - Neither role is created and no schedule is set; awaiting owner approval.
+- **Waiting for the owner:**
+  - confirm the direction;
+  - D-34 strategic answer;
+  - D-37 (after inputs);
+  - D-12 revised;
+  - the two role mandates.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 12:42 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 no new evidence (skipped). Picked the packages with an explicit `po` request and new evidence (tier 3: they block billing, licensing and production): D-11, D-12, D-36. D-2 (also changed 12:05, no request to `lca`) left for a later run.

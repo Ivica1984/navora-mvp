@@ -92,6 +92,19 @@ From the [Transformation Alignment Report](TRANSFORMATION_ALIGNMENT_REPORT.md):
 - **Balancing pairs (P-5):** every efficiency measure is read beside a named safety or quality measure.
 - **Assessment:** NAVORA builds the evidence layer around licensed instruments (complete, sourced, nurse-linked documentation; completeness shown before signature). It does not build the classifier (D-13 B, D-34 module rule).
 
+## Strategic direction (owner, 2026-10-27)
+
+NAVORA software is not a supporting tool for traditional care organisations. **It is a core part of the operating model itself**: the platform is the foundation that makes self-organised nursing teams with minimal hierarchy and much less administration possible.
+
+The owner's principles:
+- Self-organised teams remain a core principle.
+- Administrative work is automated wherever safely possible.
+- Planning, documentation, billing preparation and operational coordination are **increasingly assisted by AI**.
+- **interRAI** becomes an important clinical foundation for care planning, continuity, reassessment and governance, within licensing and regulatory limits (D-36, D-37).
+- Every recommendation is judged against the long-term vision, not only against the fastest path to a pilot.
+
+How this is put into practice is in the [Strategic Alignment Review](STRATEGIC_ALIGNMENT_REVIEW.md): a verdict for each of the seven dimensions, decisions re-evaluated, and a staged AI path from synthetic-data foundations (stage 0) to a qualified clinical module (stage 3).
+
 ## AI-first means graph-first (PO, 2026-10-26)
 
 From the [AI Operating Model Review](AI_OPERATING_MODEL_REVIEW.md):
