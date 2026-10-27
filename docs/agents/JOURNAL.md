@@ -15,6 +15,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 15:48 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections and frozen (STR-14), no new evidence (skipped). Tier 2: no open CGR finding asks `lca`. Picked D-38 (new, `inputs-requested` from `lca`; blocks the partnership LOI, tier 3). P-20 waits for its brief (asked through D-23 then).
+- **New sources read:** Administrativ-Vertrag Spitex 42.500.2292Q (tarifsuisse; Art. 3, 7, 8, 10, 13, 21, 23); OR Art. 333, 333a as reproduced on law.ch (secondary); law.ch on OR Art. 340 in personal-trust professions (secondary). fedlex not reached; primary texts of KVG Art. 51, KLV Art. 7a/8, OR Art. 340 still unread.
+- **D-38:** T5 **unresolved: needs legal adviser** (advance notice vs solicitation/UWG; intake information can never be consent to a later copy, DSG Art. 6 Abs. 6); informing clients only once C is admitted is compliant. T6 per-provider keying compliant; route **unresolved: needs owner** (accession per ZSR to the admin contract; other insurer contracts UNKNOWN). T9 **unresolved: needs Zurich legal adviser** (Betriebsteil or new contracts; binding non-compete waiver).
+- **Next for `po`:** note (1) is new evidence for T11 / D-12 (b): the new provider files its own Bedarfsmeldung, no retroactive order; protective default "renewed before C's first visit". Adviser bundle gains T5 and T9 questions.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 15:20 CET · po (Product Owner)
 
 - **Review:** nothing delivered since COND2. UX1 (a)(b)(e) PR #535 open, not merged. No PO PR was open; #533 merged 14:53.
