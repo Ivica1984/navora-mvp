@@ -19,8 +19,8 @@ Each line is one ask. Answer in one line, for example "D-7: approved". Each pack
 | Ask | What to answer | Unblocks |
 |---|---|---|
 | [D-11](D-11.md) | Approve Zurich as the pilot canton (`csa` STR-1: include one municipality with a known financing path for a new provider). | D-18, D-25, holidays, statistics |
-| Partner (D-12) | Name the partner provider, or say none is in view. | D-38, D-18, D-29, D-4 |
-| Legal adviser | Name one Zurich legal adviser. | questions in D-22, D-18, D-9, D-4, D-12 (a)-(c), D-38 |
+| Partner (D-12) | Name the partner provider, or say none is in view. With the partner, find out its CIRS rules and whether it wants QG1 events at all (D-16, po 2026-10-27 19:10). | D-38, D-18, D-29, D-4, D-16 (CIRS) |
+| Legal adviser | Name one Zurich legal adviser. | questions in D-22, D-18, D-9, D-4, D-12 (a)-(c) and R-11 rule adoption, D-38 (T3, T9, T11, T13), D-16 (CIRS export) |
 | [D-36](D-36.md) | Give `lca` the interRAI licence terms (licensee, licensor, instrument and edition, territory and term, permitted uses incl. contractors, AI processing and software design, confidentiality). A fact, not a decision. | D-37 |
 | [D-2](D-2.md) | Approve the two paid plans (staging, EU/CH), create both and add the staging deploy secrets. | T12 staging |
 | [D-26](D-26.md) | Approve: in production no service-role key on the app host; invitations and the push sender run in Edge Functions. | ADM1 invitations in production |
@@ -44,5 +44,5 @@ Each line is one ask. Answer in one line, for example "D-7: approved". Each pack
 
 ## Coming once the inputs are in (not asked yet)
 
-- [D-37](D-37.md): interRAI HC as the designated target instrument (B), with C as a horizon-2 target. Waits for `eng`, `cra` (PR #532) and D-36.
-- [D-38](D-38.md): transfer terms T1-T11 for the partnership letter of intent. Waits for `eng`, `cra`, `lca`. **Recommended meanwhile: sign no letter of intent that names the sunset before D-38 is answered.**
+- [D-37](D-37.md): interRAI HC as the designated target instrument (B), with C as a horizon-2 target. Waits for `eng` and D-36 (`cra` in, 13:37).
+- [D-38](D-38.md): transfer terms T1-T13 for the partnership letter of intent. Waits for `eng` (`cra` and `lca` in). **Recommended meanwhile: sign no letter of intent that names the sunset before D-38 is answered.**
