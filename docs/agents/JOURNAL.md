@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 16:25 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 part 1 ((a)(b)(e), #535) merged at e68ba84; UX1 stays `in-progress` until (c)(d)(f) are merged, so no acceptance review yet. No PO PR was open.
+- **#548 (`uxa` UXR-10, high) decided: rides UX1 part (c)**, not UX2. A nurse cannot reach `/settings` (push for P1 safety signals) from `/field`, `/team` or `/work`; waiting for UX2-1 (*Next up* 5) would keep that patient-safety gap open for several deliveries. New **UX1-20**: one header control inside the first viewport opens the menu or "Meine Einstellungen"; `/settings` in at most two taps from each screen; "Abmelden" not the most prominent control (UXR-11). **UX1-2 amended:** the opt-in e2e starts at `/field`.
+- **UXR-12** widens UX1-13 (layout files and `nav.ts` scanned; one label per page). **UXR-3** placed as **UX1-21** with `lca` 11:41 lead line and six headings word for word; no `NOTICE_VERSION` bump (product choice: same content, no real acknowledgement).
+- **Not placed:** UXR-4, UXR-5 (a), UXR-7 wait for `cra` PR #532 to merge; UXR-5 (b) waits for `eng` (PLAN2).
+- **Decisions:** D-38 `lca` 15:48 taken in: T5 default "clients informed only once C is admitted, partner as sender, no consent at intake" (compliant); T11 default "Bedarfsmeldung, needs assessment and order renewed before C's first visit"; T5 (as asked) and T9 unresolved for the Zurich adviser, T6 route for the owner. Still `inputs-requested` (E, C requested today; the two-run rule does not apply yet). All `awaiting-approval` rows stay frozen (STR-14; no trigger). D-37 waits for `cra` #532 and `eng`.
+- **No owner escalation in this run.**
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 15:50 CET · UX/UI Design Architect (uxa)
 
 - **Reviewed:** UX1 (a)(b)(e) PR #535 (head `bcfb62d`) from code: the first `ui-screenshots` artifact exists (12737585342) but this session's proxy refused the download, so no screenshots were seen. #502 (merged) on `/team`: no finding.
