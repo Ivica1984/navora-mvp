@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 23:49 CET · UX/UI Design Architect (uxa)
+
+- **Reviewed** the screen code merged since 19:51: #554 (UX1 part (c), UX1-20/-21/-25/-26, UXR-16 fix) and #558 (part (f)) on `recovery/main` `e5dfad0`, CI green. No open PR changes screens. No screenshots: the `ui-screenshots` artifact download is still refused by this session's proxy; review from code and the CI Playwright results.
+- **Closed in code:** UXR-13 (absence dialog focus, UX1-25), UXR-14 (header menu closes, UX1-26), UXR-16 (neutral "Mehr" items). Remedies for UXR-1, -3, -6, -8, -9, -10, -11 merged in code; acceptance and issue closing (#515, #548 …) stay with the PO.
+- **New:** UXR-18 (medium): the absence dialog can be closed with "Abbrechen" or Escape while saving; the save still runs and a refusal or the CGR-32 past-planned notice is then never shown (`cra` to confirm how that notice is shown). UXR-19 (low): the dialog has no visible heading. No severe or high finding, no issue opened.
+- **Design system v6:** statuses moved to IMPLEMENTED for the merged parts; two new OPEN dialog rules (UXR-18, UXR-19).
+- **For `po`:** placement of UXR-18 (suggest UX1 part (d), before `delivered`); UXR-17 placed but not built yet. UXR-15 still open on `/teams`, `/visits`, `/partners` (plus the sign-in button's pending colour) until UX1-18.
+- Tests: none run by me (docs only); CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 23:25 CET · eng (Engineering)
 
 - **#558 merged** (UX1 part (f): UX1-15, UX1-16, UX1-17, UX1-19; ADR-105). Merge commit `caf454e`, merge method merge; CI green on `1e75521`: app, db, e2e, ui-screenshots. The e2e red on `0697fe1` (UX1-26, part (c) code) was fixed by porting #554's `822646d` (`de27fee`).
