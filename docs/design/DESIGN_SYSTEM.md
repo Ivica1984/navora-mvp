@@ -1,6 +1,6 @@
 # NAVORA design system
 
-**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 2 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
+**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 3 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
 
 This file says how NAVORA screens behave and look. It is a contract for Engineering (what to build), for the PO (what to accept) and for `uxa` (what to review against). Code wins where it differs; the difference is then a finding.
 
@@ -42,11 +42,12 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 - Plain German (Swiss spelling, "ss" not "ß"), the words the team uses. No internal codes (D-…, SIG…, F1–F4, PLAN2, WORK1, CGR-…) in user-facing text; references for reviewers go into a marked reviewer element. PLANNED: UX1-11.
 - One product name: **NAVORA**. No "Control Tower", "Board", "Drilldown", "Swiss Care OS", "MVP". PLANNED: UX1-13, UX2-6.
 - A text that `cra` or `lca` fixed keeps its substance word for word; a wording change goes to them first (README, *UX review*).
+- **Long fixed information texts** (e.g. the `/work` working-time notice): words unchanged and nothing collapsed; one lead line saying what to do and what comes after; a short heading per paragraph that is accurate for the whole paragraph and names every recipient it mentions; lead line and headings are fixed text next to the paragraphs (same versioning) and `lca` confirms them. Never "bestätigen" next to a privacy text (reads as consent). OPEN (UXR-3; `lca` D-23 11:41, PR #520).
 - Say what happens, not which rule applies: "Wird nicht abgerechnet, bis die Sperre aufgehoben ist", not "QG1-Hold aktiv".
 
 ## 5. Layout, density, mobile first
 
-- **Phone first:** every protected screen and the sign-in page (`/login`, UXR-1: OPEN, no brief yet) work at **390 × 844** with no horizontal scroll (PLANNED: UX1-1, UX2-2). Desktop at 1440 px is the second layout, not the first.
+- **Phone first:** every protected screen and the sign-in page (`/login`, UXR-1: PLANNED, UX1-15) work at **390 × 844** with no horizontal scroll (PLANNED: UX1-1, UX2-2). Desktop at 1440 px is the second layout, not the first.
 - The next visit on `/field` is inside the first viewport when there is no P1 signal (PLANNED: UX1-6).
 - **Density:** at most one line of explanation under a heading; details behind "Details". A card shows at most four facts before its action.
 - One shell for every role: phone tab bar (Heute, Team, Arbeitstag, Mehr), desktop sidebar (PLANNED: UX2-1).
@@ -55,7 +56,7 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 
 - WCAG 2.2 AA contrast; tap targets at least 44 × 44 px; keyboard reachable navigation with `aria-current`; visible focus; no information only in colour (PLANNED: UX2-8, axe in CI: serious and critical fail).
 - Text resizes to 200 % without loss of function (OPEN).
-- **Secondary text** (meta lines, reasons, times) uses the `text-secondary` token with at least 4.5:1 on every surface; no text under 18 px with a colour opacity below 80 % (OPEN; today 57 uses below that, UXR-2).
+- **Secondary text** (meta lines, reasons, times) uses the `text-secondary` token with at least 4.5:1 on every surface; no text under 18 px with a colour opacity below 80 % (PLANNED: UX1-17, UX1-18; today 57 uses below that, UXR-2).
 
 ## 7. Tokens and components
 
@@ -101,6 +102,7 @@ PLANNED in UX2-3: one token set and a small component set. **Proposal by `uxa` (
 
 ## Change log
 
+- 2026-10-27 11:49 CET (`uxa`): version 3. §4 pattern for long fixed information texts (from `lca`'s answer to L-1); §5 `/login` and §6 secondary text from OPEN to PLANNED (UX1-15, UX1-17/-18, PO 11:10).
 - 2026-10-27 11:19 CET (`uxa`): version 2. §8 review procedure (owner 2026-10-27: continue the design system and the screenshot review); requests C-1 to C-4 to `cra` and L-1 to `lca` recorded in the UX review.
 - 2026-10-27 10:42 CET (`uxa`): version 1. §3 dark-mode check answered from code (UXR-8) and the safety-signal card pattern (OPEN, from the benchmark; `cra` to confirm); §5 `/login` in the phone-first scope (UXR-1); §6 secondary-text contrast rule (UXR-2); §7 token and component proposal before UX2.
 - 2026-10-27 10:40 CET (`po`): version 0 from the UX review of 2026-10-27 (#506-#510) and the owner's instruction (three questions, pilot adoption first-class).

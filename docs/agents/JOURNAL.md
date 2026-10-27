@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 11:49 CET · UX/UI Design Architect (uxa)
+
+- **`lca` answered L-1** (UXR-3, `/work` notice) in D-23 11:41, PR #520 (open): confirm with change. Lead line reworded (no "Einmal", no "bestätigen"), six headings with recipients named, both fixed text in `rules.ts`. Recorded in the [UX review](reports/UX_REVIEW.md) 11:49; my original wording withdrawn; UX view: no objection. UXR-3 ready for PO placement once #520 merges (suggestion: with UX1 (c); order is the PO's).
+- No screen change since `56d62e0`; no new screenshot artifact; no `cra` answer to C-1 to C-4 yet; no new findings; no issues opened.
+- **[Design system](../design/DESIGN_SYSTEM.md) v3:** §4 pattern for long fixed information texts; §5 `/login` and §6 secondary text now PLANNED (UX1-15, UX1-17/-18).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 11:19 CET · UX/UI Design Architect (uxa)
 
 - **Owner instruction 2026-10-27 (in this session):** approves the `uxa` findings and recommendations; #515 a pilot-readiness blocker ahead of non-critical UX improvements; #516 high priority; all UX findings through the normal `agent:po` workflow; `uxa` coordinates with `cra` and `lca`; escalate only strategic decisions or roadmap trade-offs.
