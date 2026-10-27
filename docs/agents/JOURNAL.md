@@ -4,6 +4,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 11:10 CET · po (Product Owner)
+
+- No open PO PR (open: #3, the owner's M2 PR; #502, Engineering's COND2-4, head `19731a6` carries the CGR-74/COND2-4b fix `770a1c5`, not merged). Nothing delivered: no review this cycle.
+- **Claimed and placed the two `agent:po` issues from `uxa` 10:42:** #515 (UXR-1, severe: `/login` is a fixed two-column grid, 724 px wide at 390 px, addressed to "Admin / Coach") and #516 (UXR-2, high: 57 uses of `text-emerald-900/50-70`, below 4.5:1). Both become **UX1 part (f)** ([brief](briefs/UX1.md)): UX1-15 (sign-in at 390 px, form in the first viewport), UX1-16 (one heading for every role, string test, sign-in logic unchanged), UX1-17 (no text opacity below 80 % under 18 px, one secondary-text class), UX1-18 (axe `color-contrast` on page content of every captured route and role in the UX1-14 job), UX1-19 (UXR-6 `/intake` input overflow; UXR-8 `color-scheme: light` plus one dark capture of `/field`). Why UX1 and not UX2: sign-in is the first screen of every shift and readable facts are value 1 and safety-adjacent; both are cheap, presentation only, no gate; waiting for the shell port would leave them through the pilot start. UX2-8 amended: page-content axe starts in UX1. Order unchanged (COND2, UX1, ADM2, UX2).
+- **Not placed:** UXR-3 (WORK1 notice, `lca` must confirm any presentation change), UXR-4 (duplicated P1 entries), UXR-5 (red outside safety signals, urgency badge), UXR-7 (team push reachability) change how a fixed text or a safety-related state is shown: they stay in the UX report until `lca`/`cra` answer (listed under UX1 *Out of scope*). UXR-9 is covered by UX1-7.
+- **Challenge:** "Why is there an 'Admin / Coach Portal' door when nurses come in through it?" One door, the role decides the landing page; row added. No hypothesis: a presentation defect, not a pilot question.
+- **Decision packages** (INDEX order): no new `lca`, `cra` or `eng` input since 10:14; D-22, D-18 unchanged; tier-2 clinical packages wait for G-1; nothing decided or escalated. None of the UX1 (f) criteria raises a legal or clinical question.
+- **Next:** (eng) #502 merge, COND2 `delivered`; then UX1 with (f). (uxa) review UX1 from the UX1-14 artifact; UXR-3/-4/-5/-7 proposals to `lca`/`cra`. (po) COND2 review after #502 merges.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+ENGINEERING BRIEF — UX1 part (f) (amendment to approved UX1)
+- **Capability:** sign-in that works on a phone for every role, and secondary text a nurse can read at the door.
+- **Why:** the sign-in form is off-screen at 390 px and addressed to administrators; 57 secondary-text uses carrying actionable facts sit below WCAG AA.
+- **Business outcome:** the pilot's first screen looks like one finished product; fewer "I can't log in" support calls.
+- **Care outcome:** no shift start lost to finding the form; facts like "noch niemand verantwortlich" are read, not missed.
+- **Expected nurse outcome:** signs in on her phone without scrolling sideways; reads every line on `/field` and `/team` outdoors.
+- **Expected team outcome:** one entry for every member; no "portal" for coordinators.
+- **Expected patient outcome:** indirect: responsibility and timing facts are not overlooked.
+- **Acceptance criteria:** UX1-15 to UX1-19 in [`briefs/UX1.md`](briefs/UX1.md).
+- **Dependencies:** UX1-14 (screenshot job) for UX1-18 and the dark capture.
+- **Priority:** within UX1 (*Next up* 2).
+- **Implementation recommendation:** ride (f) with (a) or (d); replace opacity classes mechanically with one class, then let the scan guard it.
+
+---
+
 ## 2026-10-27 10:42 CET · UX/UI Design Architect (uxa)
 
 - First `uxa` run. No `ui-screenshots` artifact for `recovery/main` yet (UX1-14 OPEN); the archive download of the temporary `tools/ui-screenshots` artifacts was refused by this session's proxy, so I reviewed the identical images on that branch (code `6abf941`; screens unchanged up to `56d62e0`) plus the code; `/login` reproduced from its inline styles at 390 × 844 (static page, no Supabase). Live project not touched.
