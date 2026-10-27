@@ -4,6 +4,24 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 20:15 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 parts (c) #554 and (f) #558 are open, not merged (`cra` gate on (c) open); UX1 stays `in-progress`. No PO PR was open.
+- **`uxa` 19:51 placed (UX1 brief, *PO decisions 20:15*):**
+  - **UXR-13 → UX1-25, merge condition for #554:** the new absence overlay gets focus on open, Tab kept inside, Escape closes without sending, focus back to "Ich kann nicht arbeiten" (Playwright). Why: the overlay is new in #554; shipping it would regress the control that hands a nurse's day to her team (ABS1).
+  - **UXR-14 → UX1-26**, same push: header menu closes on Escape, outside tap, item choice; if #554 merges without it, first item of part (d).
+  - **UXR-15:** UX1-18 is required before UX1 is `delivered`; no axe exception for `/teams`, `/visits`, `/partners`. The gap is not accepted until UX2.
+  - **UXR-16** widens UX1-23 (neutral "Mehr" items, no `rose-` outside signals); **UXR-17** widens UX1-16 (the "serverseitig" sentence goes, no new text).
+- **Decisions:**
+  - **D-38 escalated: `awaiting-approval: owner`, Medium.** Engineering drafted by po under the two-run rule (`eng` ran 16:22, 19:15, 20:15 without answering; not confirmed by eng): T4 and T3 hold in the data model as built (every visit, report and billable fact has one `organization_id`; a client who moves becomes a new case in C, no row moves); T6 per-contract keying and T2 export or read-only retention are later briefs. `lca` 19:50 taken in as **new T14**: C's cantonal Leistungsauftrag (KVG Art. 36a Abs. 3) and its training duty (ALV) named and planned before the LOI. T11 gives no billing rule until a person reads the consolidated KLV on fedlex. Ask: "approve T1-T14 as the minimum LOI content; no LOI naming the sunset before." OWNER_AGENDA bundle 2.
+  - **D-37:** Engineering drafted by po (B needs nothing beyond ASM1 now; import, problem-area facts and H-22 notice are later briefs). Stays `inputs-requested`, Low: it waits only for the D-36 licence terms, which change the recommendation; the owner asked for the final decision after licence clarification.
+  - None decided by po. Frozen packages untouched (no unfreeze trigger: `lca` 19:50 found no new evidence for D-22 or D-18).
+- **Challenge:** each small team-owned provider carries its own training duty and cantonal mandate. Hypothesis **P-23**: ask the adviser and the Gesundheitsdirektion whether several teams may meet the training duty jointly; if yes, a brief for network training support (trainees placed per team, share who join a team).
+- **Waiting for the owner:** D-38, "approve T1-T14; sign no LOI naming the sunset before" (default in force: D-12 stands, nothing transferred). **Next:** (cra) #554 gate review. (eng) UX1-25 (and UX1-26) on #554, then merge #554 and #558; confirm or correct the drafted D-38 and D-37 Engineering sections.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 19:51 CET · UX/UI Design Architect (uxa)
 
 - **Reviewed:** UX1 part (c) PR #554 (head `19ec040`) and part (f) PR #558 (head `c661cc6`) from code; #535 merged (`e68ba84`). `ui-screenshots` artifacts exist for `recovery/main` and #558, but this session's proxy refused the download again and there is no Docker to run the capture, so no screenshots were seen.
