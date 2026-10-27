@@ -4,6 +4,64 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 22:15 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 part (c) #554 was merged by `eng` at 22:12 while this cycle ran (`334682f`, CI green on `822646d`, `cra` gate clear); parts (d) and (f) (#558) are open, so UX1 stays `in-progress` and is not reviewed yet. No PO PR was open.
+- **`cra` 21:30 placed:**
+  - **CGR-81 (blocking for ASM1-11) → ASM1 rewritten before build.** ASM1-1 records the period of the assessed minutes as entered (no default, none derived; pgTAP refuses minutes without a period). ASM1-11 lists the care-plan items of each category as written beside the assessed minutes and **computes no sum, total, difference or conversion**; new test: "30 min, 2× täglich" and "60 min, 1× wöchentlich" show both items and no total. Why: per-occurrence minutes summed across frequencies are not comparable with the assessed minutes; a false gap invites a team to trim or expand care (H-24). PO note for `cra`/`eng`: PLAN2 (0025) already has an optional structured frequency, which CGR-81 does not cite; it does not change the decision (optional per item, assessment period UNKNOWN); a total can be briefed later with `cra` review.
+  - **CGR-80 (advisory S3) → UX1-27** in part (d): the "Zu erledigen" row inside the first viewport above the next visit (e2e), label keeps "Nicht abgeschlossen". Required before UX1 is `delivered`; not a merge condition for #554. `cra`'s single-visit sentence for UX2 waits for `eng` (does ABS1 cover one visit).
+- **D-38 (`cra` CGR-82/-83, `lca` 21:45 taken in), still `awaiting-approval: owner`, Medium:** T12 (i) (a) the window's end never moves a client without C's prerequisites; (b) before the sunset date is fixed the partner names who visits each such client after the team leaves (its staff or another admitted provider of the client's choice). **PO decision:** `cra`'s second branch (team members stay employed by the partner) is left out of the term: `lca` finds it unresolved (dual employment, ArG) and the first branch sufficient; it goes to the adviser. T13 (e) a changed rule keeps its adopted version until marked (never a withdrawn one); (f) a rule withdrawn as unsafe stops for every provider at once on `lca`'s four conditions (safety only, same-day notice to Leitung Pflege and deputy, recorded who/when/why, never for an ordinary change). Adviser bundle + dual employment; regulatory adviser + MepV reporting of a withdrawal. OPEN_DECISIONS, INDEX, OWNER_AGENDA updated.
+- **Challenge:** "Why does a team compare assessed minutes with planned minutes by eye at all?" Because the assessment period and the care-plan frequency are not on one basis. From scratch both would carry a period and the comparison would be a fact, not a reading. No new hypothesis: the condition is already the ASM1-11 follow-up (structured frequency on every item + Clinical Owner's period, CGR-81).
+- **Decisions:** none decided by po. Frozen packages untouched (`lca` 21:45: no new evidence for D-22 or D-18).
+- **Waiting for the owner:** D-38, "approve T1-T14 (as amended 22:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred). **Next:** (eng) merge #558; UX1 (d) with UX1-27; confirm the drafted D-38/D-37 Engineering sections; ABS1 single visit. (cra) ASM1-1/-11 as rewritten.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 22:12 CET · eng (Engineering)
+
+- **#554 merged** (UX1 part 2: (c) UX1-6 to UX1-10, UX1-20, UX1-21, UX1-25, UX1-26; ADR-104). Merge commit `334682f`, merge method merge; CI green on `822646d` (app, db, e2e, ui-screenshots). `cra` gate cleared on #554 (21:30, governance PR #565).
+- **UX1 stays `in-progress`:** parts (d) and (f) are open (#558 for (f), stacked on #554; it needs `recovery/main` merged in). **CGR-80** (advisory S3, before UX1 acceptance) rides part (d): e2e that `todo-links` sits in the first viewport above `next-visit` for a nurse with an open follow-up or returned report, and the link label becomes "Nicht abgeschlossen: Entscheid offen (n)".
+- Tests: none run by me in this step (merge and docs); CI ran app, db, e2e, ui-screenshots on `822646d`. Live project not touched.
+
+---
+
+## 2026-10-27 21:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections, no new evidence (skipped). Tier 2: `cra` 21:30 CGR-82 and CGR-83 touch **D-38**, and `cra` asks `lca` explicitly to check CGR-83 (f) against D-12 settled point 3; D-38 also changed at po 21:15 (T2, T12 (i), T13 restate my 20:48 conditions; no deviation found). Picked D-38 only.
+- **New sources:** zh.ch Sozialhilfehandbuch 11.1.12 (secondary; Pflegegesetz ZH §§ 2, 5: municipalities carry the supply responsibility); law.ch on OR Art. 404 (secondary; *Unzeit* presumed in continuing mandates without an important reason).
+- **Verdicts (D-38):** T13 (e) adopted version runs until marked: compliant (except a version withdrawn under (f)). T13 (f) withdrawal as unsafe: **consistent with settled point 3** (a catalogue decision, not an override of her care decision); compliant with four conditions (contract right limited to safety; same-day notice to the Leitung Pflege and deputy with reason and stopped rules; recorded who, when, why; never used for an ordinary change). MepV reporting side of a withdrawal **unresolved: regulatory adviser (D-34)**. CGR-82 (a) and (b) first branch compliant; (b) second branch (team stays employed by the partner for remaining clients: dual employment, ArG limits) **unresolved: Zurich adviser**.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 21:30 CET · Clinical & Regulatory Architect (review)
+
+- Scope since 17:35: no code merged on `recovery/main` (`fa43d97`); PO 18:10, 19:10, 20:15, 21:15; `lca` 18:05, 19:50, 20:48; `uxa` 19:51; `aia` #544 merged. Open: #554 UX1 part (c) (head `822646d`, CI green), #558 part (f) (stacked, CI pending).
+- **#554 `cra` gate (UX1-6, UX1-8 wording, UX1-10, UX1-20): clear to merge** from the clinical side. SIG1 stays first; `pickNextVisit` only orders; both consequence sentences confirmed against `cancel_visit` and `lift_quality_hold` (the cancel deviation from the brief is the safer wording); "Ereignis melden" and "Nicht angetroffen" stay one tap; settings link survives a failed role read. #558: contrast classes only, no finding.
+- **New:** **CGR-80** (advisory S3, #554): follow-ups, returned reports and countersignatures now below the visits; test the "Zu erledigen" row above the next visit and keep "Nicht abgeschlossen" in its label. **CGR-81** (blocking for ASM1-11 acceptance, S2): the planned-minutes sum ignores the free-text frequency and the assessed minutes have no period; list items instead of summing (corrects my 17:35 AUT-2 answer). **CGR-82** (advisory S2, D-38 T12 (i) widened): the window's end must never move a client without C's prerequisites; the partner names who visits her after the team leaves. **CGR-83** (advisory S2, D-38 T13): changed rules (adopted version runs until marked) and rules NAVORA withdraws as unsafe (stop at once, same-day notice).
+- **Closed (document level):** CGR-76 (README guard), CGR-77 (D-15, D-17, D-31), CGR-79 (T12 in D-38). CGR-78 met at brief level, closes on the builds.
+- **Inputs given:** AUT-10 (timing keeps CGR-79 except at the window's end, CGR-82); AUT-11 (listed act equal to per-rule adoption, with CGR-83).
+- Registers: H-24 (new), H-22, H-23 notes; PS-65, PS-66 closed; PS-67, PS-68, R-11 notes; PS-69 to PS-72 (new); Clinical Rule Register header (no new rule).
+- **Next:** (po) CGR-81 into ASM1 before build; CGR-82, CGR-83 into D-38 before the owner approves; place CGR-80. (eng) CGR-80; does "Ich kann nicht arbeiten" cover a single visit; PLAN2 re-creation question (C-2 b). (lca) CGR-83 (f). (cra) UX1 part (d) string list before merge; ASM1 and ADM2 when built. (clinical, after G-1) minutes period (CGR-81), D-38 handover set and others. (owner/legal) G-1, D-38 T1-T14, adviser bundle, R-11, D-36, D-1.
+- Tests: none run by me; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 21:15 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 parts (c) #554 and (f) #558 are still open (no push since 20:15); UX1 stays `in-progress`. No PO PR was open.
+- **`aia` 20:30 placed:**
+  - **AUT-2 → ASM1-11** (before build): on the care plan, per KLV category, the current assessment's minutes beside the sum of planned minutes, with date, assessor and state. `cra` 17:35's four conditions are the tests: no colour, icon or label from the difference; date and assessor always shown; a younger dated event named in words (Engineering lists which exist; no new event type); nothing blocked or changed (save, readiness, planning, J5 identical). Why: the team sees the basis next to the plan without opening the assessment tool again, and NAVORA does not judge the gap (clinical meaning and billability stay UNKNOWN).
+  - **AUT-10, AUT-11 → D-38**; **AUT-12 → hypothesis P-24** (shared service for team-owned providers; adviser question; the licence-bound roles stay per provider).
+- **D-38 (`lca` 20:48 taken in), still `awaiting-approval: owner`, Medium:** T2 gains three retention conditions (only the partner's staff read; processor relationship for the whole retention period at a price fixed in the LOI; no deletion without the partner's instruction after an accepted export). T12 (i) aligns the cut-over with the next due reassessment or order renewal inside an owner-set window, and **nothing due is postponed for the cut-over**. T13 allows one signed adoption act per catalogue version, every rule marked, no preset. Adviser bundle gains AUT-10 (a), the preset form, AUT-12, PatG ZH § 18. OWNER_AGENDA bundle 2 updated (cut-over window length added).
+- Other packages: D-22, D-18 frozen, no unfreeze trigger (no new evidence). No new CGR finding since `cra` 17:35. D-37 waits for D-36 licence terms. None decided by po.
+- **Challenge:** each team-owned provider repeating the whole administration of a licensed provider is a hierarchy pressure in disguise: either the team's care time pays for it or the team returns to a large organisation. P-24 tests a shared processor service across independent providers, something Buurtzorg's single-organisation back office does not cover.
+- **Waiting for the owner:** D-38, "approve T1-T14 as amended; set the cut-over window; sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred). **Next:** (cra) #554 gate review. (eng) UX1-25/-26 on #554, merge #554 and #558; confirm or correct the drafted D-38 and D-37 Engineering sections; ASM1-11 joins ASM1 when it starts.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 20:48 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections, no new evidence (skipped). Tier 2: no new CGR finding since `cra` 17:35. D-37 changed only by the po Engineering draft (B needs nothing beyond ASM1); no new legal question, my 13:52 verdicts stand (skipped). Picked **D-38** (changed at 20:15; `aia` asks `lca` on AUT-10, AUT-11, AUT-12).
