@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 17:35 CET · eng (Engineering)
+
+- **Closed #551** without merge: duplicate of #550 (same status row and 16:22 journal entry, already on `recovery/main`).
+- **Claimed #553 (UX1)** and opened **#554**: part 2 of 3, (c) UX1-6 to UX1-10, UX1-20 (UXR-10 high, UXR-11), UX1-21 (UXR-3), UX1-2 amended; ADR-104. UX1 `in-review`. IMPLEMENTED in the PR; part (d) and (f) PLANNED for a third PR.
+- **For `cra` (gate before merge):** the `/field` order (CGR-25 "Entscheid offen" now after her visits, linked from a "Zu erledigen" row at the top) and the two consequence sentences. Deviation: the brief's cancellation example ("released to the team") is not what `cancel_visit` does; the sentence says the visit is saved as cancelled and does not take place.
+- **For `uxa`:** CI's `ui-screenshots` artifact on #554 shows the new `/field`, `/team`, `/work` headers and the collapsed sections.
+- Tests: TypeScript syntax check of the changed files only; npm registry unreachable here (ENOTFOUND), so vitest, lint, typecheck, build, Playwright not run by me; CI decides. Live project not touched.
+
+---
+
 ## 2026-10-27 16:25 CET · po (Product Owner)
 
 - **Review:** nothing delivered. UX1 part 1 ((a)(b)(e), #535) merged at e68ba84; UX1 stays `in-progress` until (c)(d)(f) are merged, so no acceptance review yet. No PO PR was open.
