@@ -14,6 +14,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 17:35 CET · Clinical & Regulatory Architect (review)
+
+- **Merged my own #532** (13:37 section; docs only, CI green on `590e1fb`) as `f3a1e83`: CGR-75 to CGR-77, the D-37/D-12 inputs and C-1 to C-4 are now on `recovery/main` for the PO and `uxa`.
+- Scope since 13:37: #535 UX1 part 1 merged `e68ba84` (CI green on `4d78827`, `e68ba84`, `4a595b7`); PO 14:45, 15:20 (AUT-1: AIG1-5, PLAN3-5/-7 amended), 16:25 (UX1-20/-21, D-38); `lca` 13:52, 15:48; `csa` 13:55; `uxa` 15:50; open `aia` #544, issue #543. No `clinical` decision answered by a person.
+- **#535:** no finding (menu mirrors page checks, fails closed, no migration; no safety content removed). UXR-10 predates #535; UX1-20 note: keep the settings route independent of the menu read.
+- **New (advisory):** **CGR-78** (S2, AIG1-5/PLAN3-9): `schedule` class limited to the responsible member inside the visit's team and date; lines start unticked, no select-all. **CGR-79** (S2, D-38): add T12 continuity at cut-over (date only once C's prerequisites are recorded; open items closed or handed to a named partner RN; handover set `clinical`).
+- **Inputs given:** #543: `responsible_user_id` confirmed `schedule` on three conditions (CGR-78; J3 per line with refused lines left in the uncovered path; Clinical Owner may list it). D-38 *Clinical impact*. AUT-2: the display is not clinical content under conditions; AUT-4 under CGR-76/D-10; AUT-7 inferred times labelled and confirmed.
+- **Closed:** none. CGR-75 (4) met at brief level; closes on the PLAN3 build.
+- Registers: H-20 note, H-23 (new, PLANNED); PS-64 note, PS-67, PS-68 (new); Clinical Rule Register header note (no new rule).
+- **Next:** (po) CGR-78, #543 answer, CGR-79 (T12), CGR-76, CGR-77, C-1 to C-4. (eng) UX1-20 settings route; PLAN2 re-creation question (C-2 b). (cra) UX1 part 2 (`/field` order, string list) before merge; ADM2 when built. (clinical, after G-1) D-38 handover set and others. (owner/legal) G-1; D-38 T11, T3; R-11; D-36; D-1.
+- Tests: none run by me; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 16:25 CET · po (Product Owner)
 
 - **Review:** nothing delivered. UX1 part 1 ((a)(b)(e), #535) merged at e68ba84; UX1 stays `in-progress` until (c)(d)(f) are merged, so no acceptance review yet. No PO PR was open.
@@ -164,6 +178,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Recorded in:** README (*Automation review*, *Strategy review*), the role mandates (§2a), and both schedules' instructions (updated by po at the owner's request).
 - **The PO answers each `high` challenge** in the evidence table or the package before accepting or escalating.
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 13:37 CET · Clinical & Regulatory Architect (review)
+
+- Scope since my 09:30 section: #502 (COND2-4/-4a/-4b, 0088) merged `799700d` (CI green on `09f9a26`; `da913d5` green); PO 10:14-13:30 (UX1, UX2, interRAI reference sections, D-36, D-37, G-1 pack, staged AI path, AIG1/ASM1/PLAN3 proposed, roles `aia`/`csa`); owner decided D-12 and D-34 (owner category). No `clinical` decision answered by a person. Open: #531 (PO).
+- **Closed:** CGR-74 (0088:148-151, pgTAP 088:183-191), CGR-73, CGR-71. **COND2: clinical gate clear.**
+- **New (all advisory):** **CGR-75** (S2, PLAN3 proposal): qualification is a weight, must be a hard filter; confirm re-runs server checks; no accept-all. **CGR-76** (S3, #531): challenge duty needs a guard for controls that answer a CGR/H/CR. **CGR-77** (S2): D-31, D-15, D-17 interRAI proposals unsafe or incomplete as worded (no gate on resume after discharge; readiness must not block an allowed first visit; alert list not derived from the instrument).
+- **Inputs given:** D-37 clinical impact (B safe under five conditions; order of uses; what the Clinical Owner must set); D-12 (co-signature per rule and change, suspension right, disagreement route; CIRS ↔ QG1 UNKNOWN, no automatic hand-over); the six interRAI "remains clinical" columns confirmed; UX C-1 (confirm with change), C-2 (a confirm; b facts only), C-3 (confirm), C-4 (confirm with change).
+- Registers: CR-132 (new), CR-129 note; H-19, H-20 notes, H-22 (new, PLANNED); PS-60, PS-62, PS-63 closed, PS-64 to PS-66 (new), R-11 note.
+- **Next:** (po) CGR-75 in PLAN3 brief; CGR-76 in the next cycle (#531 merged without it); CGR-77 wording; inputs into D-37, D-12, UX briefs. (eng) does PLAN2 re-create a hand-removed care-plan visit (C-2 b)? (cra) PLAN3 and ASM1 briefs; ADM2 when built. (clinical, after G-1) D-34 q7, D-15, D-16, D-17, D-31, D-37 interval and triggers. (owner/legal) G-1; partner Leitung Pflege and external Clinical Owner (R-11); D-36 terms.
+- Tests: none run by me; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
