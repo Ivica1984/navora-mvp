@@ -4,11 +4,37 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 20:48 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections, no new evidence (skipped). Tier 2: no new CGR finding since `cra` 17:35. D-37 changed only by the po Engineering draft (B needs nothing beyond ASM1); no new legal question, my 13:52 verdicts stand (skipped). Picked **D-38** (changed at 20:15; `aia` asks `lca` on AUT-10, AUT-11, AUT-12).
+- **New sources:** Zurich *Konzept Ausbildungspflicht Langzeitpflege* v1.0 (9 March 2026; a concept, in force UNKNOWN): new institutions phase in 33/66/100 %, training weeks tradable except HF/FH, Ersatzabgabe Fr. 150 per missing week, no small-institution exemption. Zurich data-protection article on PatG ZH § 18 (ten years after the last treatment; whether it binds private Spitex UNKNOWN). Consolidated KLV still not reachable (fedlex refused again).
+- **Verdicts (D-38):** T14 compliant (training duty looks like a cost, not a bar, if the concept applies). T4 as drafted compliant. T2 compliant with three conditions (only the partner's staff read; processor relationship for the retention period; no deletion without the partner's instruction after an accepted export). AUT-10 (a) assessment carry-over **unresolved: adviser or tariff partner**; AUT-10 (b) aligned timing compliant if no due reassessment is postponed. AUT-11 listed act compliant with no preset marks; preset opt-out unresolved. AUT-12 shared service **unresolved: Zurich adviser and owner** (Leitung Pflege per institution; one person for several licences UNKNOWN).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 20:30 CET · eng (Engineering)
 
 - **#554: PO 20:15 merge condition built.** UX1-25 (UXR-13): the absence form is a native modal dialog (focus in, Tab kept inside, Escape closes without sending, focus back on the trigger). UX1-26 (UXR-14): the header menu closes on Escape, an outside tap or an item choice. UXR-16: "Abrechnungssperre setzen" in "Mehr" is a neutral outline. ADR-104 addendum 20:30; Playwright UX1-25 and UX1-26 in `ux1.spec`.
 - **Still not merged:** the `cra` gate for part (c) stays open. #558 (part (f), stacked) needs this head merged in after #554.
 - Tests: TypeScript syntax check only (npm registry unreachable here); vitest, lint, typecheck, build, Playwright not run by me; CI decides. Live project not touched.
+
+---
+
+## 2026-10-27 20:30 CET · AI & Automation Architect (aia)
+
+- **Continued PR #544** instead of opening a second `aia` PR. #544 had green CI at 14:57 but was never merged, and it conflicted in `JOURNAL.md`. Merged `recovery/main` in and kept both entries, newest first.
+- **Automation Review, section *2026-10-27 20:30* (review 2):**
+  - **Closed:** AUT-1 (AIG1-5 field class, CGR-78, #543 closed). AUT-7 is also closed: under `cra`'s condition and AIG1-3/-5, an inferred time is confirmed one by one, so there is no net gain.
+  - **Updated:** AUT-2, the `cra` answer (a display of two numbers is not clinical content, on four conditions), so the PO can place it into ASM1. AUT-3 and AUT-8 were placed as P-19 and P-20. AUT-4 falls under CGR-76 and D-10.
+  - **New, medium:** AUT-10, D-38 T12 (i). A cut-over may force a new needs assessment and order per client only because the employer changes; [B2] does not tie an assessment to a provider. Proposed: an adviser question, and cut-over aligned to the next due reassessment or renewal.
+  - **New, medium:** AUT-12. Each team-owned provider carries the full statutory administration (T6, T7, T14). Proposed: test a shared regulated service with `csa` and `lca`.
+  - **New, low:** AUT-11, T13 rule adoption as one listed act per catalogue version.
+  - No `high` finding and no issue opened. One comment on D-38 issue #539.
+- **AI Operating Model Review:** §12 marks the no-accept-all question settled; §8 gets a pointer to it; change log added.
+- **Stage tracking:** the stage-0 entry condition "AIG1-5 scope settled" is met. AIG1 is *Next up* 3.
+- **For `po`:** AUT-2 into ASM1; AUT-10 and AUT-11 alongside D-38 (the owner ask is unchanged); AUT-12 to `csa`/`lca` or a package.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
@@ -19,6 +45,24 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **`uxa` 19:51:** UXR-13 (absence overlay focus and Escape) and UXR-15 (inline colours) wait for the PO placement; not built here, so the PR is not widened.
 - **Next:** (cra) review #554 on its new head. (eng) then merge #554, then #558; UX1 (d) and (g) follow.
 - Tests: none run by me (merge of docs only); `node scripts/agents-check.mjs` run. CI decides. Live project not touched.
+
+---
+
+## 2026-10-27 20:15 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 parts (c) #554 and (f) #558 are open, not merged (`cra` gate on (c) open); UX1 stays `in-progress`. No PO PR was open.
+- **`uxa` 19:51 placed (UX1 brief, *PO decisions 20:15*):**
+  - **UXR-13 → UX1-25, merge condition for #554:** the new absence overlay gets focus on open, Tab kept inside, Escape closes without sending, focus back to "Ich kann nicht arbeiten" (Playwright). Why: the overlay is new in #554; shipping it would regress the control that hands a nurse's day to her team (ABS1).
+  - **UXR-14 → UX1-26**, same push: header menu closes on Escape, outside tap, item choice; if #554 merges without it, first item of part (d).
+  - **UXR-15:** UX1-18 is required before UX1 is `delivered`; no axe exception for `/teams`, `/visits`, `/partners`. The gap is not accepted until UX2.
+  - **UXR-16** widens UX1-23 (neutral "Mehr" items, no `rose-` outside signals); **UXR-17** widens UX1-16 (the "serverseitig" sentence goes, no new text).
+- **Decisions:**
+  - **D-38 escalated: `awaiting-approval: owner`, Medium.** Engineering drafted by po under the two-run rule (`eng` ran 16:22, 19:15, 20:15 without answering; not confirmed by eng): T4 and T3 hold in the data model as built (every visit, report and billable fact has one `organization_id`; a client who moves becomes a new case in C, no row moves); T6 per-contract keying and T2 export or read-only retention are later briefs. `lca` 19:50 taken in as **new T14**: C's cantonal Leistungsauftrag (KVG Art. 36a Abs. 3) and its training duty (ALV) named and planned before the LOI. T11 gives no billing rule until a person reads the consolidated KLV on fedlex. Ask: "approve T1-T14 as the minimum LOI content; no LOI naming the sunset before." OWNER_AGENDA bundle 2.
+  - **D-37:** Engineering drafted by po (B needs nothing beyond ASM1 now; import, problem-area facts and H-22 notice are later briefs). Stays `inputs-requested`, Low: it waits only for the D-36 licence terms, which change the recommendation; the owner asked for the final decision after licence clarification.
+  - None decided by po. Frozen packages untouched (no unfreeze trigger: `lca` 19:50 found no new evidence for D-22 or D-18).
+- **Challenge:** each small team-owned provider carries its own training duty and cantonal mandate. Hypothesis **P-23**: ask the adviser and the Gesundheitsdirektion whether several teams may meet the training duty jointly; if yes, a brief for network training support (trainees placed per team, share who join a team).
+- **Waiting for the owner:** D-38, "approve T1-T14; sign no LOI naming the sunset before" (default in force: D-12 stands, nothing transferred). **Next:** (cra) #554 gate review. (eng) UX1-25 (and UX1-26) on #554, then merge #554 and #558; confirm or correct the drafted D-38 and D-37 Engineering sections.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
@@ -173,6 +217,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Other `aia` findings placed:** AUT-3 → hypothesis P-19 (per-step admin time from existing timestamps; brief after AIG1); AUT-8 → hypothesis P-20 (multi-day working-time confirm; `lca` first); AUT-2 waits for `cra` before ASM1 starts; AUT-4/-5/-6 weigh on D-10, Q7, D-22/D-9/D-3; AUT-7, AUT-9 stay in the review. `aia` PR #544 is not merged; the briefs cite #543.
 - **Decisions:** no package moved. Every `awaiting-approval` row is frozen (STR-14) and no unfreeze trigger holds. D-38 and D-37 wait for their requested inputs (requested today; the two-run drafting rule does not apply yet).
 - **No owner escalation in this run.**
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 14:48 CET · AI & Automation Architect (aia)
+
+- **First `aia` run.** Read the governance files, the mandate, the AI Operating Model Review, the Strategic Alignment Review §3-§4, the challenge table, the briefs AIG1, ASM1 and PLAN3 (approved 13:35), WORK1, REF2 and ORD1, and migrations 0007, 0014, 0016, 0027 and 0079. Followed the verdict and gain format of open PR #533 (po 13:50).
+- **Bottleneck map v1** in [`reports/AUTOMATION_REVIEW.md`](reports/AUTOMATION_REVIEW.md), section *2026-10-27 14:48*:
+  - Order: travel and day order > documentation and countersignature > GP, hospital and relative coordination > visit assignment > assessment re-typing > working-time confirmation > status taps.
+  - Billing preparation, matching, analytics and the absence chain are already eliminated.
+  - Every gain is an `aia` estimate. Minutes per step are UNKNOWN.
+  - Published evidence: two time studies, read through their abstract pages only.
+- **Findings AUT-1 to AUT-9:**
+  - **AUT-1 `high`, challenge, #543:** the AIG1-5 default ("every field one by one") makes PLAN3's ticked-list confirm impossible. The day plan becomes one confirmation per visit, for a schedule fact that is not a safety field. Proposal: scope the default to G and H, and to safety-alert, care-plan, order and assessment fields.
+  - **Medium:**
+    - AUT-2: ASM1 minutes typed again on the care plan;
+    - AUT-3: no team-level measure of administrative time per step, so derive it from existing timestamps;
+    - AUT-4: documentation and countersignature;
+    - AUT-5: travel and day order (Q7);
+    - AUT-6: GP, referral and relative coordination waits on D-22, D-9 and D-3;
+    - AUT-8: daily WORK1 confirmation form (`lca`).
+  - **Low:** AUT-7 (status taps); AUT-9 (WORK1 outside the AIG1 register).
+- **AI Operating Model Review:** §12 and a change log added; §1-§11 unchanged.
+- **Stage tracking:** stage 0 is reachable without the owner (AIG1 first). Stage 1 is blocked: no pilot months, no provider package, `lca` condition 1.
+- **For `po`:** answer AUT-1 in the AIG1 and PLAN3 evidence tables before Engineering builds the AIG1-5 test (hand-off #536, which carries one `aia` comment).
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
