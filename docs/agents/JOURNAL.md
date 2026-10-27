@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 10:40 CET · po (Product Owner)
+
+- **Owner instruction 2026-10-27 (in this session):** approves the UX review findings, the roadmap adjustment and the priority of UX1 and UX2; asks for a dedicated UX/UI Design Architect, a UX/UI modernisation roadmap, and pilot adoption and usability as first-class success criteria; act autonomously, escalate only strategic product decisions.
+- Issues #506-#510 already carry `agents`, `agent:po`, `ux` (+ `ux:severe`); placed in UX1/UX2 at 10:14 and stay open until those are accepted.
+- **New role `uxa` (UX/UI Design Architect)** in README *Roles*, *Participants* and a new *UX review* section; COORDINATION components. It owns `docs/design/DESIGN_SYSTEM.md` (version 0 seeded here: the three questions *what needs attention now, what to do next, what can wait*; action hierarchy; reserved severity colours; plain German; phone first; accessibility floor) and `docs/agents/reports/UX_REVIEW.md` (baseline mapping U1-U7 to #506-#510; findings continue as UXR-n). Advisory, not a gate: before accepting a screen-changing item the PO decides each `severe` UX finding on it. Wording fixed by `cra`/`lca` keeps its substance; anything shown outside the app or to a client goes to `lca` first. Scheduled as "NAVORA UX/UI Design Architect", every 4 hours (owner request in this session).
+- **UX1-14 added** (CI screenshots of every protected route per role at 390 and 1440 px as an artifact, never committed; built first so `uxa` reviews UX1 from it); UX2-2 now extends UX1-14 with shell and overflow assertions.
+- **[UX modernisation roadmap](../product/UX_MODERNISATION_ROADMAP.md)**: quick wins (UX1, dark-mode check), medium term (UX2, the three zones on `/team`, `/operations`, `/work` as UX3 once `uxa` proposes criteria, states, notification experience, a first usability test), longer term (a role-based "Heute" inbox, rules shown only as the reason for a refusal, poor-connectivity tolerance, referrer screens, AI drafting, FR/IT, nursing-home variant, WCAG statement). `CARE_OPERATING_MODEL.md` gains *Pilot adoption and usability* (measures OPEN, targets are PO hypotheses).
+- No decision package changed; nothing escalated.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 10:14 CET · po (Product Owner)
 
 - No open PO PR (open: #3, the owner's M2 PR; #502, Engineering's COND2-4/-4a, CI green on `10745eb`, not the PO's to merge). Nothing delivered since 06:10 (COND2 `in-progress`): no review this cycle.

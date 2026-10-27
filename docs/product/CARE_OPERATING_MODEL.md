@@ -109,6 +109,10 @@ From the [AI Operating Model Review](AI_OPERATING_MODEL_REVIEW.md):
   - a source for secondary use beyond anonymised aggregates (D-12).
 - **AI basis:** D-35 (`owner`). Until it is decided, no client or staff data reaches any AI service.
 
+## Pilot adoption and usability (owner, 2026-10-27)
+
+**First-class success criteria, next to the North Star.** A capability that nurses do not use raises no direct care share. From 2026-10-27 the PO judges every screen-changing item also by adoption and usability, and the pilot reports them per team (never per person): share of visits run in `/field`, minutes from arrival to visit start, wrong taps undone, push opt-in for safety signals, a short anonymous usability survey (SUS). Measures, hypotheses and the plan: [`UX_MODERNISATION_ROADMAP.md`](UX_MODERNISATION_ROADMAP.md). Design principle: every screen answers *what needs attention now, what to do next, what can wait* ([`../design/DESIGN_SYSTEM.md`](../design/DESIGN_SYSTEM.md)). Reviewer: the UX/UI Design Architect (`uxa`). Status: PLANNED (UX1, UX2); the measures are OPEN.
+
 ## Go-live gates: one list
 
 **PO, 2026-10-25 22:10 CET.** The go-live conditions above, and the real-data gates written in briefs and decision packages, in one place, so nobody has to collect them from twenty files before the first real client. This list is an index: the linked source holds the rule, and a gate is lifted only by the role named there. Status labels: IMPLEMENTED (built and accepted), PLANNED (approved, not yet delivered), OPEN (waits on a decision). Engineering and the other agents add a line by asking the PO; the PO updates the status when the source changes. **No real client, and no real employee data, while any line is not IMPLEMENTED.** Switching on cover (COVER1) has its own list in `docs/agents/briefs/COVER1.md`; it is not needed for go-live because cover stays off.

@@ -48,6 +48,9 @@ On a phone a nurse sees her next visit without scrolling, knows which one button
 - [ ] **UX1-12** Every replaced text keeps its meaning. Texts fixed by `cra` or `lca` (hold meaning, IPA1 wordings, WORK1 notice, SIG1-8 condition, billing-estimate limits) keep their substance word for word; only the code is removed or moved to the reviewer reference. The PR lists each changed string old → new; `cra` confirms the list before merge (clinical gate).
 - [ ] **UX1-13** One product name "NAVORA" in user-facing headings; "Swiss Care OS", "Navora MVP" and "Control Tower" are gone. `/operations` is headed "Ausnahmen" (it is the OPS1 exception center; the care model has no dispatcher, so the page is not named as one). English UI labels on the touched pages ("Drilldown", "KPI / Analytics") become German.
 
+**(e) Screenshots in CI (owner 2026-10-27: the UX/UI Design Architect reviews CI screenshots; added by po 10:40)**
+- [ ] **UX1-14** A CI job renders every protected route on the synthetic seed at 390 × 844 and 1440 × 900, signed in with each role that may open it (nurse, coach, operations, admin), and uploads the images as a GitHub Actions artifact named `ui-screenshots` on every push to `recovery/main` and on every PR that changes `src/app` or `src/components`. Images are never committed to `recovery/main`; the job fails only on a render error, not on a visual difference (visual diffs are `uxa`'s review). The artifact is listed in the PR and kept at least 14 days.
+
 ## Rules and their input class
 None. UX1 adds and changes no signal, threshold, gate, priority or read scope; it orders, styles and words what exists. The order in UX1-6 keeps every SIG1 safety signal above everything else, as today. Moving two actions behind a confirmation (UX1-8) does not change who may run them or what they do.
 
@@ -57,9 +60,9 @@ None. UX1 adds and changes no signal, threshold, gate, priority or read scope; i
 - New features on any screen.
 
 ## Constraints and references
-Issues #506, #507, #508, #509 (UX review 2026-10-27). SIG1, SIG2 (push opt-in), QG1 ("Abrechnungssperre", CGR-13), IPA1 (wordings), WORK1, DOOR1, OPS1. `cra` clinical gate (README): `cra` reviews the `/field` order (UX1-6) and the string list (UX1-12) before merge. Patient safety: a safety signal must not move below anything (UX1-6). Synthetic seed only; no personal data in screenshots or tests.
+`uxa` (UX/UI Design Architect, owner 2026-10-27) reviews the UX1 screens from the UX1-14 screenshots against `docs/design/DESIGN_SYSTEM.md`; before acceptance the PO decides each `severe` finding on UX1 (README, *UX review*). Issues #506, #507, #508, #509 (UX review 2026-10-27). SIG1, SIG2 (push opt-in), QG1 ("Abrechnungssperre", CGR-13), IPA1 (wordings), WORK1, DOOR1, OPS1. `cra` clinical gate (README): `cra` reviews the `/field` order (UX1-6) and the string list (UX1-12) before merge. Patient safety: a safety signal must not move below anything (UX1-6). Synthetic seed only; no personal data in screenshots or tests.
 
 ## Open questions for engineering
-- One PR or two? (a)+(b) and (c)+(d) may ride separate PRs under one hand-off; UX1 is `delivered` when all four parts are merged.
+- One PR or two? (a)+(b)+(e) and (c)+(d) may ride separate PRs under one hand-off; build (e) first so `uxa` can review the rest from its screenshots. UX1 is `delivered` when all five parts are merged.
 - If a page's server-side check cannot be expressed as a role list (e.g. it depends on team membership), state how the menu decides and keep the server check as the boundary.
 - Name the seed nurse and the viewport used by UX1-6 in the e2e, so the "first viewport" claim is reproducible.

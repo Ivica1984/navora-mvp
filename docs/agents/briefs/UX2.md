@@ -26,7 +26,7 @@ Every protected screen is part of one NAVORA app: on a phone a tab bar (Heute, T
 
 ## Acceptance criteria
 - [ ] **UX2-1** One shell in `src/app/(protected)/layout.tsx` (or a shared component it renders) wraps every protected route. Phone (< 768 px): bottom tab bar Heute (`/field`), Team (`/team`), Arbeitstag (`/work`), Mehr (the rest the role may open, `/settings` among them). Desktop: a sidebar with the same items. Items per role from the UX1-3 route → roles map (one source).
-- [ ] **UX2-2** A CI screenshot job renders every protected route on the synthetic seed at 390 px and 1440 px with the role that may open it, asserts the shell is present and no horizontal scroll (`scrollWidth <= viewport`), and keeps the images as a CI artifact (not committed to `recovery/main`).
+- [ ] **UX2-2** The UX1-14 screenshot job additionally asserts, for every protected route and role, that the shell is present and there is no horizontal scroll (`scrollWidth <= viewport`); images stay a CI artifact (not committed to `recovery/main`).
 - [ ] **UX2-3** Design tokens (colour, spacing, type scale, radius) in one place, used through a small component set (button primary/outline/destructive, card, section header, badge, list row). Status and severity colours keep their meaning; the P1 signal colour is used for nothing else.
 - [ ] **UX2-4** No inline `style={{…}}` layout under `src/app/(protected)`: a lint rule (ESLint `react/forbid-dom-props` for `style`, or an equivalent check in CI) fails on it; documented exceptions only for computed values (e.g. a bar width), each with a comment.
 - [ ] **UX2-5** First-MVP pages decided one by one in the PR and the ADR: `/teams`, `/visits`, `/partners`. For each, either (i) ported into the shell because it holds a function no newer screen has (name the function), or (ii) retired (route removed or redirected to its successor), with the successor named. No function a role uses today is lost; the PR lists each removed function and where it now lives.
@@ -43,9 +43,8 @@ None. UX2 adds and changes no signal, threshold, gate, priority or read scope. T
 - Marketing site and login page design beyond using the same tokens.
 
 ## Constraints and references
-Issue #510 (U1, U16, U18). Depends on **UX1** (route → roles map, UX1-3; plain words, UX1-11). `cra` clinical gate: `cra` looks at the `/field` and `/team` screens in the new shell (signal position, hold wording) before merge. Synthetic seed only; no personal data in screenshots. `docs/product/CARE_OPERATING_MODEL.md`: no dispatcher, so no screen is named or styled as a control room.
+Tokens and components follow `uxa`'s proposal in `docs/design/DESIGN_SYSTEM.md` §7 (recorded before UX2 starts; if none is recorded when Engineering claims UX2, Engineering proposes them in the ADR and `uxa` reviews). Before acceptance the PO decides each `severe` `uxa` finding on UX2. Issue #510 (U1, U16, U18). Depends on **UX1** (route → roles map, UX1-3; plain words, UX1-11). `cra` clinical gate: `cra` looks at the `/field` and `/team` screens in the new shell (signal position, hold wording) before merge. Synthetic seed only; no personal data in screenshots. `docs/product/CARE_OPERATING_MODEL.md`: no dispatcher, so no screen is named or styled as a control room.
 
 ## Open questions for engineering
 - Route groups: does one `(protected)/layout.tsx` fit, or do the nurse screens need their own group for the phone shell? State it in the ADR.
-- The screenshot job: reuse the temporary screenshot workflow of 2026-10-27 (`6e80177`), or Playwright's own screenshot assertions? Images must not be committed to `recovery/main`.
 - Size: port page by page in several PRs under one hand-off; UX2 is `delivered` when UX2-1 to UX2-8 hold on `recovery/main`.
