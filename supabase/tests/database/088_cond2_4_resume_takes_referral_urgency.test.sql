@@ -8,7 +8,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(33);
+select plan(35);
 
 -- Pinned clock (DST1 pattern): 10:00 Zurich today.
 select set_config('navora.test_now',
@@ -81,7 +81,8 @@ select is(pg_temp.link('COND2 R1', 11) ->> 'result', 'duplicate', 'the same key 
 reset role;
 -- The next return happens later (in production each resume is its own transaction, a pause lies between them).
 -- referral_links is append-only (forbid_audit_change), so the pinned clock moves on instead; created_at defaults to
--- private.now(). The argument names the return just made (for the reader).
+-- private.now() since 0088 step 1b (CGR-74; 0034 had now(), fixed for the whole test transaction). The argument names
+-- the return just made (for the reader).
 create function pg_temp.age_link(p_title text) returns void language sql as $$
   select set_config('navora.test_now', (private.now() + interval '1 minute')::text, true);
 $$;
@@ -179,6 +180,15 @@ select is(pg_temp.team_read(), 'niedrig:unknown:-',
 reset role;
 select is((select referrer_requested_start - pg_temp.today() from public.cases where id = pg_temp.c208()), 4,
   'COND2-4a: the case''s stored date is unchanged (only the display follows this return)');
+-- CGR-74: the three resume links are ordered by the clock, not by a random id.
+select is((select count(distinct l.created_at)::int from public.referral_links l
+           where l.linked_case_id = pg_temp.c208() and l.kind = 'resume'
+             and l.partner_request_id in (pg_temp.req('COND2 R1'), pg_temp.req('COND2 R2'), pg_temp.req('COND2 R3'))), 3,
+  'CGR-74: the three resume links carry three different created_at values');
+select ok((select pg_get_expr(d.adbin, d.adrelid) like '%private.now()%'
+           from pg_attrdef d join pg_attribute a on a.attrelid = d.adrelid and a.attnum = d.adnum
+           where d.adrelid = 'public.referral_links'::regclass and a.attname = 'created_at'),
+  'CGR-74: referral_links.created_at defaults to private.now()');
 select is((select string_agg((changes -> 'urgency' ->> 'old') || '>' || (changes -> 'urgency' ->> 'new'), ',' order by id)
            from public.change_log where entity_id = pg_temp.c208()::text and changes ? 'urgency'),
   'mittel>hoch,hoch>mittel,mittel>niedrig', 'every earlier level stays in the trail, in order; nothing is rewritten');

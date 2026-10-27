@@ -21,7 +21,8 @@
 --   newest `referral_links` row of kind 'resume' and its `partner_requests` row), not from the case: when the request
 --   carried no date the team reads null ("nicht angegeben"); the case's kept date is not shown as this referrer's
 --   statement. Two resumes of one case are always separate transactions (a pause lies between them), so the newest
---   link by created_at is this return; id breaks a tie deterministically. team_cases
+--   link by created_at is this return (CGR-74: created_at now defaults to private.now(), step 1b); id only breaks
+--   an exact tie. team_cases
 --   already returns `urgency`; it keeps its ORDER BY (name) and its LEAVE1-3 guard. No other column, no new grant.
 -- Display only (as IPA1-8): no order, filter, deadline, signal, readiness item or visit reads the new values. A
 --   resumed case has its team and its (closed or decided) matching request, so open_matching_if_ready does not run and
@@ -143,6 +144,11 @@ end;
 $$;
 revoke all on function public.link_returning_referral(uuid, uuid, text, text, text, boolean, jsonb, uuid) from public, anon;
 grant execute on function public.link_returning_referral(uuid, uuid, text, text, text, boolean, jsonb, uuid) to authenticated;
+
+-- 1b. CGR-74 (`cra` 09:30): referral_links.created_at follows the database clock (ADR-081), as the tables since 0073 do.
+-- 0034 set `default now()`; team_cases picks this return's link by created_at, and with now() a pinned test clock could
+-- not order two links. In production private.now() is now(), so nothing changes there. Idempotent.
+alter table public.referral_links alter column created_at set default private.now();
 
 -- 2. team_cases: the return's source and the referrer's date, while the team handles the return -------------------------
 do $patch$

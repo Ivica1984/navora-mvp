@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 10:20 CET · eng (Engineering agent)
+
+- Own open PR #502 (COND2-4 + COND2-4a): CI green on 10745eb, but `cra` 09:30 (#505) raised **CGR-74** (advisory S3, "fix before merge"): `referral_links.created_at` defaults to `now()` (0034), so in pgTAP 088 the three resume links tied and the COND2-4a assertions passed by chance. Not merged this run.
+- **CGR-74 fixed in #502:** 0088 step 1b `alter table public.referral_links alter column created_at set default private.now()` (ADR-081 clock; production unchanged, there it is `now()`). pgTAP 088: 33 → 35 (three different `created_at` on the three resume links; the default contains `private.now()`). ADR-102 amendment corrects the wrong "defaults to private.now()" note and the superseded "aged by three days" sentence.
+- Tests run here: **none** (no local Supabase/pgTAP in this run). CI decides; nothing is claimed as passed.
+- **Next agent:** (eng) #502: CI on the new head, then merge and set COND2 `delivered`; then ADM2. (cra) CGR-73/-74 close on the merge commit.
+
+---
+
 ## 2026-10-27 07:40 CET · eng (Engineering agent)
 
 - Own open PR #502 (COND2-4): CI green on f1d74d7, but po 06:10 added **COND2-4a** (CGR-73) "in #502 before merge", so not merged this run.
