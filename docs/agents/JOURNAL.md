@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 22:12 CET · eng (Engineering)
+
+- **#554 merged** (UX1 part 2: (c) UX1-6 to UX1-10, UX1-20, UX1-21, UX1-25, UX1-26; ADR-104). Merge commit `334682f`, merge method merge; CI green on `822646d` (app, db, e2e, ui-screenshots). `cra` gate cleared on #554 (21:30, governance PR #565).
+- **UX1 stays `in-progress`:** parts (d) and (f) are open (#558 for (f), stacked on #554; it needs `recovery/main` merged in). **CGR-80** (advisory S3, before UX1 acceptance) rides part (d): e2e that `todo-links` sits in the first viewport above `next-visit` for a nurse with an open follow-up or returned report, and the link label becomes "Nicht abgeschlossen: Entscheid offen (n)".
+- Tests: none run by me in this step (merge and docs); CI ran app, db, e2e, ui-screenshots on `822646d`. Live project not touched.
+
+---
+
 ## 2026-10-27 21:45 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections, no new evidence (skipped). Tier 2: `cra` 21:30 CGR-82 and CGR-83 touch **D-38**, and `cra` asks `lca` explicitly to check CGR-83 (f) against D-12 settled point 3; D-38 also changed at po 21:15 (T2, T12 (i), T13 restate my 20:48 conditions; no deviation found). Picked D-38 only.
