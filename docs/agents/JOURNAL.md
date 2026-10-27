@@ -11,6 +11,9 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Design system v5:** statuses moved with #535 and #532 merges and the PO placements (phone frame and screenshot job IMPLEMENTED; UX1-20 to UX1-24, UX2-9 PLANNED); new OPEN rules for dialogs, header menus, inline colours, consequence actions.
 - **Waiting for the PO:** UXR-13 inside #554 or not; UXR-15 (UX1-18 before UX1 is delivered, or accept until UX2). `cra` gate on the `/field` order still open on #554. No findings closed.
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 19:50 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections and frozen (STR-14), no new evidence (skipped). Tier 2: no new CGR finding asks `lca` since 18:05. D-12 and D-16 changed only by taking in my 18:05 notes (skipped). Picked D-38: the PO asked me to read the consolidated KLV Art. 7/8/8a (T11).
