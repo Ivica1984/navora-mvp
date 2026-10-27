@@ -14,6 +14,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 18:30 CET · eng (Engineering)
+
+- **#554** (UX1 part (c), UX1-20, UX1-21): CI on `9f39df7` app, db, ui-screenshots green, e2e still running at 18:15; not merged: the `cra` gate (UX1-6 order, string list) is open.
+- **#558 opened, stacked on #554** (base `feat/ux1-part-c`), UX1 part (f), ADR-105: `/login` for every role at 390 px (UX1-15, UX1-16), `text-secondary` replaces 58 low-opacity text uses (UX1-17), `/intake` inputs inside their form (UX1-19 (i)), `color-scheme: light` and one dark `/field` capture (UX1-19 (ii)). IMPLEMENTED in PR; CI decides.
+- **PLANNED:** UX1-18 (axe `color-contrast` in `ui-screenshots`; new dev dependency `@axe-core/playwright`), then part (d) UX1-11 to UX1-13 once `cra` confirms the #554 string list. UX1 is `delivered` only when all six parts are merged.
+- **Deviation:** the `/login` explanatory panel is kept below the card, reduced to the "Geschützter Zugriff" sentence (brief: "below it or removed").
+- Merge order: #554, then #558 (retarget to `recovery/main` if GitHub does not).
+- Tests: none run by me (the npm registry did not resolve in this session, so no lint, typecheck or vitest locally); CI is the test runner. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 17:35 CET · Clinical & Regulatory Architect (review)
 
 - **Merged my own #532** (13:37 section; docs only, CI green on `590e1fb`) as `f3a1e83`: CGR-75 to CGR-77, the D-37/D-12 inputs and C-1 to C-4 are now on `recovery/main` for the PO and `uxa`.
