@@ -5,6 +5,7 @@ import { useState } from "react";
 import { recordQualityEvent, setQualityEventStatus, setQualityHold } from "@/features/quality/commands";
 import { HOLD_MEANING, NO_TYPES_NOTICE, SEVERITIES, SEVERITY_LABEL, canTakeOver, eventStatusText, isSerious } from "@/features/quality/rules";
 import type { FieldQuality, QualityEventType } from "@/features/quality/queries";
+import { HOLD_CONSEQUENCE } from "@/features/field/rules";
 
 /**
  * QG1 on the /field card: events and holds of this visit, report an event (clinically approved
@@ -15,10 +16,15 @@ export default function QualitySection({
   visitId,
   items,
   types,
+  holdRequested = false,
+  onHoldClosed,
 }: {
   visitId: string;
   items: FieldQuality[];
   types: QualityEventType[];
+  /** UX1-8 (ADR-104): "Abrechnungssperre setzen" was chosen in the card's "Mehr" menu (second tap). */
+  holdRequested?: boolean;
+  onHoldClosed?: () => void;
 }) {
   const router = useRouter();
   const [mode, setMode] = useState<"idle" | "event" | "hold">("idle");
@@ -37,8 +43,11 @@ export default function QualitySection({
       return;
     }
     setMode("idle");
+    onHoldClosed?.();
     router.refresh();
   }
+  const showHold = (mode === "hold" || (holdRequested && mode === "idle")) && !openHold;
+  const closeHold = () => { setMode("idle"); onHoldClosed?.(); };
 
   return (
     <section aria-label="Qualität" data-testid="quality" className="mt-3 grid gap-2 rounded-xl border border-stone-200 p-3 text-sm">
@@ -73,16 +82,13 @@ export default function QualitySection({
         </p>
       )}
 
-      {mode === "idle" && (
+      {/* UX1-9 (PO decision): "Ereignis melden" stays one tap, an outline button on the card (QG1). UX1-8: the hold is set
+          from the card's "Mehr" menu (two taps, consequence stated first); command, audit and refusals unchanged. */}
+      {mode === "idle" && !showHold && (
         <div className="grid grid-cols-2 gap-2">
           <button type="button" onClick={() => setMode("event")} className="min-h-11 rounded-lg border-2 border-emerald-800 bg-white font-semibold">
             Ereignis melden
           </button>
-          {!openHold && (
-            <button type="button" onClick={() => setMode("hold")} className="min-h-11 rounded-lg border border-rose-400 bg-white font-semibold text-rose-900">
-              Abrechnungssperre setzen
-            </button>
-          )}
         </div>
       )}
 
@@ -133,23 +139,31 @@ export default function QualitySection({
           </form>
         ))}
 
-      {mode === "hold" && (
+      {showHold && (
         <form
+          aria-label="Abrechnungssperre setzen"
+          ref={scrollNear}
           action={(form) =>
             run(() => setQualityHold({ visitId, reason: String(form.get("reason") ?? ""), idempotencyKey: crypto.randomUUID() }))
           }
           className="grid gap-2"
         >
+          <p data-testid="more-consequence" className="font-semibold">{HOLD_CONSEQUENCE}</p>
           <label className="grid gap-1">
             <span className="text-xs font-semibold">Begründung für die Abrechnungssperre</span>
             <textarea name="reason" required minLength={3} maxLength={500} rows={2} className="rounded-lg border border-stone-300 bg-white p-2" />
           </label>
-          <FormButtons pending={pending} label="Sperre setzen" onCancel={() => setMode("idle")} />
+          <FormButtons pending={pending} label="Sperre setzen" onCancel={closeHold} />
           <p className="text-xs text-emerald-900/60">{HOLD_MEANING} Aufheben: Coach oder Admin, mit Begründung.</p>
         </form>
       )}
     </section>
   );
+}
+
+/** UX1-8: the form opened from "Mehr" may sit above the menu; bring it into view once (stable ref callback). */
+function scrollNear(el: HTMLElement | null) {
+  el?.scrollIntoView({ block: "nearest" });
 }
 
 function EventRow({

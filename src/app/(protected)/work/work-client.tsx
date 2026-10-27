@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { formatDayLabel } from "@/features/field/rules";
+import { HeaderMenu } from "@/components/layout/Sidebar";
 import { acknowledgeWorkingTimeNotice, confirmWorkingDay, exportWorkingMonth } from "@/features/work/commands";
 import type { DayVersion } from "@/features/work/queries";
 import {
-  CORRECTED_MARK, KIND_LABEL, NOTICE_DRAFT_HINT, NOTICE_PARAGRAPHS, NOTICE_TITLE, OUTSIDE_KINDS, REASON_CODES, REASON_LABEL,
+  CORRECTED_MARK, KIND_LABEL, NOTICE_DRAFT_HINT, NOTICE_HEADINGS, NOTICE_LEAD, NOTICE_PARAGRAPHS, NOTICE_TITLE, OUTSIDE_KINDS, REASON_CODES, REASON_LABEL,
   VISIT_TIME_HINT, VISIT_TIME_LINK, buildPayload, monthOf, nextDate, openQuestions, proposalSegments, unexportedText,
   visitCorrectionHref, visitSegmentChanged, zurichInstant, zurichTime,
   type DayDraft, type OutsideKind, type ProposalRow, type ReasonCode, type VisitKind,
@@ -36,11 +37,13 @@ function hhmm(iso: string | null): string {
 function Header({ day, today, previousDay, nextDay }: Pick<Props, "day" | "today" | "previousDay" | "nextDay">) {
   return (
     <header className="sticky top-0 z-10 bg-emerald-950 px-4 pb-4 pt-3 text-white shadow-md">
-      <div className="mx-auto flex max-w-xl items-center justify-between gap-3">
+      <div className="mx-auto flex max-w-xl flex-wrap items-center justify-between gap-x-2 gap-y-1">
         <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200">NAVORA · Mein Arbeitstag</p>
         <Link href={`/field?datum=${day}`} className="ml-auto flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-emerald-100 underline underline-offset-4">
           Mein Tag
         </Link>
+        {/* UX1-20: the role's menu (and "Meine Einstellungen") from the nurse's screens, inside the first viewport. */}
+        <HeaderMenu active="work" />
       </div>
       <div className="mx-auto mt-1 max-w-xl">
         <h1 className="text-xl font-bold leading-tight">{formatDayLabel(day)}</h1>
@@ -63,7 +66,14 @@ function Notice() {
   return (
     <section aria-label={NOTICE_TITLE} className="grid gap-3 rounded-2xl border border-stone-300 bg-white p-4">
       <h2 className="text-lg font-bold">{NOTICE_TITLE}</h2>
-      {NOTICE_PARAGRAPHS.map((p) => <p key={p} className="text-sm leading-relaxed">{p}</p>)}
+      {/* UX1-21: lead line and one heading per paragraph (lca 11:41); every paragraph word for word, nothing collapsed. */}
+      <p data-testid="notice-lead" className="text-sm leading-relaxed">{NOTICE_LEAD}</p>
+      {NOTICE_PARAGRAPHS.map((p, i) => (
+        <div key={p} className="grid gap-1">
+          <h3 data-testid="notice-heading" className="text-base font-bold">{NOTICE_HEADINGS[i]}</h3>
+          <p className="text-sm leading-relaxed">{p}</p>
+        </div>
+      ))}
       <p className="text-xs text-stone-600">{NOTICE_DRAFT_HINT}</p>
       {error && <p role="alert" className="text-sm font-semibold text-red-800">{error}</p>}
       <button type="button" disabled={pending} className={primary} onClick={() => start(async () => {

@@ -24,20 +24,24 @@ async function signIn(page: Page, email: string, landing: RegExp) {
 test("the team sets a quality hold; only coach or admin lift it, with a reason (QG1)", async ({ page }) => {
   await signIn(page, NURSE, /\/field$/);
   await page.goto(`/field?datum=${SEED_DAY}`);
-  const quality = page.getByRole("article", { name: /08:00 – 08:45/ }).getByTestId("quality");
+  const card = page.getByRole("article", { name: /08:00 – 08:45/ });
+  const quality = card.getByTestId("quality");
 
   await quality.getByRole("button", { name: "Ereignis melden" }).click();
   await expect(quality.getByTestId("no-types")).toContainText("D-16");
   await quality.getByRole("button", { name: "Schliessen" }).click();
 
-  await quality.getByRole("button", { name: "Abrechnungssperre setzen" }).click();
+  // UX1-8 (ADR-104, selector change only): the hold is set from the card's "Mehr" menu (two taps); "Ereignis melden"
+  // above stays one tap on the card (UX1-9).
+  await card.getByTestId("visit-more").click();
+  await card.getByRole("button", { name: "Abrechnungssperre setzen" }).click();
   await quality.getByLabel("Begründung für die Abrechnungssperre").fill("E2E: Leistung strittig");
   await quality.getByRole("button", { name: "Sperre setzen" }).click();
   await expect(quality.getByTestId("quality-hold")).toHaveText("Abrechnungssperre");
   // CSR1 / CGR-13: the hold reads as a billing hold, not as a stop of care.
   await expect(quality.getByTestId("quality-hold-meaning")).toContainText("nur die Abrechnung");
   await expect(quality).not.toContainText("Stopp");
-  await expect(quality.getByRole("button", { name: "Abrechnungssperre setzen" })).toHaveCount(0);
+  await expect(card.getByRole("button", { name: "Abrechnungssperre setzen" })).toHaveCount(0);
 
   // Operations sees the hold but may not lift it (provisional role rule, D-16).
   await page.context().clearCookies();

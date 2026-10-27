@@ -25,6 +25,23 @@ export const NOTICE_PARAGRAPHS: readonly string[] = [
   "Dein Team sieht pro Monat nur einen Anteil für das ganze Team: wie viel der bestätigten bezahlten Arbeitszeit auf direkte Pflege entfällt. Er dient der Planung im Team und der Auswertung des Pilotbetriebs. Er wird erst ab drei Personen und fünf bestätigten Arbeitstagen gezeigt, nie mit Zahlen einer einzelnen Person.",
   "NAVORA prüft keine Pausen-, Ruhe- oder Höchstarbeitszeiten.",
 ];
+/**
+ * UX1-21 (`uxa` UXR-3; `lca` 2026-10-27 11:41 on D-23, L-1 "confirm with change"; PO 16:25): a lead line and one heading
+ * per paragraph, word for word as `lca` gave them, so the six paragraphs can be scanned. No paragraph changes and
+ * nothing is collapsed. PO decision: NOTICE_VERSION stays "work1-notice-v3" (same information content). Any other
+ * wording of these lines needs one `lca` look before merge.
+ */
+export const NOTICE_LEAD =
+  "Bitte lies diese Information und tippe dann auf «Gelesen und verstanden». Danach siehst du deinen Arbeitstag. Ändert sich die Information, zeigen wir sie dir noch einmal.";
+/** UX1-21: in paragraph order, one per entry of NOTICE_PARAGRAPHS. */
+export const NOTICE_HEADINGS: readonly string[] = [
+  "Wer deine Einsatzzeiten sieht",
+  "Was nur du siehst",
+  "Was NAVORA protokolliert und was die Administration sieht",
+  "Was du tust (auch vor dem Ende deines Zugangs)",
+  "Der Anteil für das ganze Team",
+  "Was NAVORA nicht prüft",
+];
 /** Shown with the text: it is a draft for the employer (go-live gate G-19), not the employer's adopted information. */
 export const NOTICE_DRAFT_HINT = "Entwurf für die Arbeitgeberin (Testbetrieb mit synthetischen Daten).";
 

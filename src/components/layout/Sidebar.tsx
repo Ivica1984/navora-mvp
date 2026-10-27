@@ -15,6 +15,7 @@ type SidebarProps = {
     | "teams"
     | "visits"
     | "field"
+    | "team"
     | "work"
     | "intake"
     | "analytics"
@@ -136,8 +137,10 @@ export default function Sidebar({ active }: SidebarProps) {
 }
 
 /**
- * UX1-1 (ADR-103): below 768 px the side column collapses into a bar at the top of the page: the menu (closed by
- * default) and "Abmelden", so the content keeps the full width. From 768 px the side column is shown as before.
+ * UX1-1 (ADR-103): below 768 px the side column collapses into a bar at the top of the page, so the content keeps the
+ * full width. From 768 px the side column is shown as before.
+ * UX1-20 / UXR-11 (ADR-104): "Abmelden" is the last item inside "Menü" (at least 44 px high), not the bar's most
+ * prominent control.
  */
 export function MobileMenu({ active }: SidebarProps) {
   return (
@@ -146,17 +149,43 @@ export function MobileMenu({ active }: SidebarProps) {
       className="grid gap-2 md:hidden"
       style={{ background: "#16392d", color: "white", padding: "8px 16px" }}
     >
-      <div className="flex items-center justify-between gap-3">
-        <span className="font-bold">Navora</span>
-        <SignOutButton />
-      </div>
       <details data-testid="mobile-menu">
-        <summary className="flex min-h-11 cursor-pointer items-center font-bold">Menü</summary>
+        <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 font-bold">
+          <span>Navora</span>
+          <span>Menü</span>
+        </summary>
         <div style={{ paddingBottom: "8px" }}>
           <MenuLinks active={active} />
+          <div style={{ marginTop: "10px" }}>
+            <SignOutButton />
+          </div>
         </div>
       </details>
     </div>
+  );
+}
+
+/**
+ * UX1-20 (`uxa` UXR-10, #548; ADR-104): the nurse's screens (/field, /team, /work) have their own header. One control
+ * "Menü" (at least 44 px high) in that header opens the same items as the side column (the role table of UX1-3), with
+ * "Abmelden" as the last item (UXR-11). Interim until UX2-1 replaces it with the tab bar. Not an access boundary.
+ */
+export function HeaderMenu({ active }: SidebarProps) {
+  return (
+    <details data-testid="header-menu" className="relative">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-lg border border-emerald-200/70 px-3 text-sm font-bold text-white [&::-webkit-details-marker]:hidden">
+        Menü
+      </summary>
+      <div
+        className="absolute right-0 top-full z-30 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-2xl p-3 shadow-lg"
+        style={{ background: "#16392d", color: "white" }}
+      >
+        <MenuLinks active={active} />
+        <div style={{ marginTop: "10px" }}>
+          <SignOutButton />
+        </div>
+      </div>
+    </details>
   );
 }
 

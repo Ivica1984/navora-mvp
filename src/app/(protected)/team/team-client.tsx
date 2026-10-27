@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HeaderMenu } from "@/components/layout/Sidebar";
 import SignalBanner from "@/components/signals/SignalBanner";
 import type { OutsideWatchedVisit, SignalRow } from "@/features/signals/rules";
 import { useRouter } from "next/navigation";
@@ -89,14 +90,16 @@ export default function TeamClient({
   return (
     <div className="min-h-screen bg-stone-100 text-emerald-950">
       <header className="bg-emerald-950 px-4 pb-4 pt-3 text-white">
-        <div className="mx-auto flex max-w-xl items-center justify-between">
+        <div className="mx-auto flex max-w-xl flex-wrap items-center justify-between gap-1">
           <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200">NAVORA · Team</p>
-          <Link href="/analytics" className="ml-auto flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold underline underline-offset-4">
+          <Link href="/analytics" className="ml-auto flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
             Teamzahlen
           </Link>
-          <Link href="/field" className="flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold underline underline-offset-4">
+          <Link href="/field" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
             Mein Tag
           </Link>
+          {/* UX1-20: the role's menu (and "Meine Einstellungen") from the nurse's screens, inside the first viewport. */}
+          <HeaderMenu active="team" />
         </div>
         <h1 className="mx-auto mt-1 max-w-xl text-xl font-bold">Dein Team</h1>
         <p className="mx-auto max-w-xl text-sm text-emerald-100">
