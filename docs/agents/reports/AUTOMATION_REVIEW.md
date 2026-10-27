@@ -7,7 +7,8 @@
 - Each finding is a row `AUT-<n>` with:
   - workflow step and role;
   - today's effort and its evidence (events, code, report, source);
-  - proposal (eliminate, rule, monitor, agent);
+  - verdict (eliminate, simplify, automate, AI-support, replace with a different operating model);
+  - estimated direct-care time gain, at team level, labelled as an estimate;
   - device level (L, G, H);
   - gate;
   - measure;
@@ -18,6 +19,15 @@
 1. more direct care time;
 2. less administrative burden;
 3. stronger self-organised teams.
+
+---
+
+**Owner priority (2026-10-27, 13:50):** the largest care-delivery bottlenecks first, each with an estimate of the direct-care time it could return. For every major bottleneck, one verdict:
+- **eliminate**;
+- **simplify**;
+- **automate**;
+- **support it through AI**;
+- **replace it entirely with a different operating model**.
 
 ---
 
