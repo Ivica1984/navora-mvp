@@ -1,0 +1,50 @@
+name: ui-screenshots
+
+# Temporary: screenshots of the current UI on the synthetic seed for the UI feature inventory.
+# Runs only on the branch tools/ui-screenshots; the branch is deleted after the run.
+on:
+  push:
+    branches: [tools/ui-screenshots]
+
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-fund
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.121.0
+      - name: Start local Supabase (migrations + synthetic seed)
+        run: supabase start
+      - name: Export local Supabase URL and key
+        run: |
+          supabase status -o env | grep -E '^[A-Z_]+=' > /tmp/sb.env
+          set -a; . /tmp/sb.env; set +a
+          key="${ANON_KEY:-${PUBLISHABLE_KEY:-}}"
+          echo "::add-mask::$key"
+          echo "SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "SUPABASE_ANON_KEY=$key" >> "$GITHUB_ENV"
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - name: Capture
+        run: npx playwright test -c tools/ui-screenshots/playwright.config.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-screenshots
+          path: ui-screenshots/
+          retention-days: 3
+      - if: always()
+        run: supabase stop --no-backup
