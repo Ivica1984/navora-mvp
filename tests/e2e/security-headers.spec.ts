@@ -62,9 +62,10 @@ test("the app works under the CSP: no violations while signing in and navigating
     await page.waitForLoadState("networkidle");
   }
   // Client-side navigation and hydration work (sidebar link → client router).
-  await page.getByRole("link", { name: "Einsätze" }).click();
-  await expect(page).toHaveURL(/\/visits$/);
-  await expect(page.getByRole("heading", { name: "Online-Einsatzübersicht" })).toBeVisible();
+  // UX1-4 (selector change only): /visits is no longer a menu item, so the check follows a nurse's menu item instead.
+  await page.getByRole("navigation", { name: "Hauptmenü" }).getByRole("link", { name: "Meine Einstellungen" }).click();
+  await expect(page).toHaveURL(/\/settings$/);
+  await expect(page.getByRole("heading", { name: "Meine Einstellungen" })).toBeVisible();
 
   expect(violations, violations.join("\n")).toEqual([]);
 });

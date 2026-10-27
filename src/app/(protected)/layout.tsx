@@ -2,6 +2,8 @@ import { requireUser } from "@/lib/auth/session";
 import { signOut } from "@/features/auth/actions";
 import { ACCESS_ENDED_MESSAGE, parseAccessState } from "@/features/auth/access-state";
 import { errorFields, logEvent } from "@/lib/log";
+import { getNavAccess } from "@/lib/auth/nav-access";
+import { NavAccessProvider } from "@/components/layout/nav-access";
 
 // Second guard after the proxy: no protected route renders without a valid
 // session. Queries and commands check again themselves (ADR-017).
@@ -35,5 +37,7 @@ export default async function ProtectedLayout({
     );
   }
 
-  return children;
+  // UX1-3 (ADR-103): the menu shows only items whose page admits her; the pages keep their own checks.
+  const access = await getNavAccess();
+  return <NavAccessProvider access={access}>{children}</NavAccessProvider>;
 }

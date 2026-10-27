@@ -49,3 +49,6 @@ supabase/.temp
 /test-results/
 /playwright-report/
 /blob-report/
+
+# UX1-14: CI screenshots (uploaded as an artifact, never committed)
+/ui-screenshots/
