@@ -292,6 +292,46 @@ test.describe("UX1 part (c) at 390 × 844", () => {
     });
   }
 
+  // UX1-25 (uxa UXR-13, PO 2026-10-27 20:15: merge condition of #554): the absence form is a modal dialog.
+  test("UX1-25: the absence dialog takes focus, keeps Tab inside, closes on Escape without sending and returns focus", async ({ page }) => {
+    await signIn(page, "pflege.test@navora.test");
+    await page.goto("/field");
+    const trigger = page.getByTestId("absence-open");
+    await trigger.click();
+    const dialog = page.getByRole("dialog", { name: "Abwesenheit" });
+    await expect(dialog.getByRole("form", { name: "Abwesenheit erfassen" })).toBeVisible();
+    const focusInside = () => page.evaluate(() => !!document.activeElement?.closest("dialog[open]"));
+    expect(await focusInside(), "focus moved into the dialog").toBe(true);
+    // More Tabs than the form has stops (date and time inputs have one per segment), so focus must wrap at least once.
+    for (let i = 0; i < 30; i += 1) {
+      await page.keyboard.press("Tab");
+      expect(await focusInside(), `Tab ${i + 1} stays inside the dialog`).toBe(true);
+    }
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByRole("form", { name: "Abwesenheit erfassen" })).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+    // Nothing was sent: she is not recorded absent.
+    await expect(page.getByTestId("my-absence")).toHaveCount(0);
+  });
+
+  // UX1-26 (uxa UXR-14): the header menu closes on Escape, on a tap outside and when an item is chosen.
+  test("UX1-26: the header menu closes on Escape and on a tap outside", async ({ page }) => {
+    await signIn(page, "pflege.test@navora.test");
+    await page.goto("/field");
+    const menu = page.getByTestId("header-menu");
+    const item = menu.getByRole("link", { name: "Meine Einstellungen" });
+    await menu.locator("summary").click();
+    await expect(item).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(item).toBeHidden();
+    await expect(menu.locator("summary")).toBeFocused();
+    await menu.locator("summary").click();
+    await expect(item).toBeVisible();
+    await page.getByRole("heading", { level: 1 }).click();
+    await expect(item).toBeHidden();
+  });
+
   test("UX1-21: the WORK1 notice shows the lead line and one heading per paragraph; lead and first heading in the first viewport", async ({ page }) => {
     // pflege.test has not acknowledged the notice in the seed (only assist.test has, work.spec).
     await signIn(page, "pflege.test@navora.test");

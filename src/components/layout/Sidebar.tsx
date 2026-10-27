@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { signOut } from "@/features/auth/actions";
 import { demoPagesEnabled } from "@/lib/flags";
 import { menuItemsFor } from "@/lib/auth/nav";
@@ -174,14 +174,39 @@ export function MobileMenu({ active }: SidebarProps) {
  * "Abmelden" as the last item (UXR-11). Interim until UX2-1 replaces it with the tab bar. Not an access boundary.
  */
 export function HeaderMenu({ active }: SidebarProps) {
+  // UX1-26 (uxa UXR-14): the open menu closes on Escape (focus back on "Menü"), on a tap outside it and when an item is
+  // chosen. Interim until UX2-1.
+  const ref = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = ref.current;
+      if (e.key !== "Escape" || !el?.open) return;
+      el.open = false;
+      el.querySelector("summary")?.focus();
+    };
+    const onDown = (e: PointerEvent) => {
+      const el = ref.current;
+      if (el?.open && e.target instanceof Node && !el.contains(e.target)) el.open = false;
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onDown);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onDown);
+    };
+  }, []);
+  const onChoose = (e: MouseEvent<HTMLDivElement>) => {
+    if (ref.current && e.target instanceof Element && e.target.closest("a")) ref.current.open = false;
+  };
   return (
-    <details data-testid="header-menu" className="relative">
+    <details ref={ref} data-testid="header-menu" className="relative">
       <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-lg border border-emerald-200/70 px-3 text-sm font-bold text-white [&::-webkit-details-marker]:hidden">
         Menü
       </summary>
       <div
         className="absolute right-0 top-full z-30 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-2xl p-3 shadow-lg"
         style={{ background: "#16392d", color: "white" }}
+        onClick={onChoose}
       >
         <MenuLinks active={active} />
         <div style={{ marginTop: "10px" }}>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState, type KeyboardEvent } from "react";
 import { changeAbsence, recordAbsence, takeOpenVisit } from "@/features/absence/commands";
 import type { OpenVisit, TeamAbsence, TeamColleague } from "@/features/absence/queries";
 import { absenceMemberLabel, earliestAbsenceStart, formatAbsencePeriod, knownByLabel, pastPlannedNotice } from "@/features/absence/rules";
@@ -32,25 +32,43 @@ function useAbsenceRun() {
  * absence covers planned visits before today (`past_planned`, CGR-32), the confirmation names their number and links
  * to /team, where the team decides; they are not released.
  * UX1-6a (ADR-104): a compact outline control in the /field header (first viewport, two taps from the top); the form
- * opens over the page, so the next visit stays first on the page.
+ * opens over the page, so the next visit stays first on the page. UX1-25: as a native modal <dialog>.
  */
 export function AbsenceControl({ today, colleagues }: { today: string; colleagues: TeamColleague[] }) {
   const [open, setOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const { pending, error, run } = useAbsenceRun();
   const earliest = earliestAbsenceStart(today);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   if (colleagues.length === 0) return null;
-  const close = () => { setOpen(false); setNotice(null); };
+  // UX1-25 (uxa UXR-13): a native modal dialog. showModal() keeps Tab inside and makes the page inert; Escape closes it
+  // without sending (the "cancel" event); every close returns focus to the trigger.
+  const openDialog = () => { setNotice(null); setOpen(true); dialogRef.current?.showModal(); };
+  const close = () => dialogRef.current?.close();
+  const onClosed = () => { setOpen(false); setNotice(null); triggerRef.current?.focus(); };
+  // The modal already makes the page inert; wrapping Tab at the ends keeps focus in the dialog instead of the browser UI.
+  const keepTab = (e: KeyboardEvent<HTMLDialogElement>) => {
+    if (e.key !== "Tab") return;
+    const items = Array.from(e.currentTarget.querySelectorAll<HTMLElement>("a[href], button, input, select, textarea"))
+      .filter((el) => !el.hasAttribute("disabled"));
+    if (items.length === 0) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  };
 
   return (
     <div data-testid="absence">
-      <button type="button" onClick={() => { setNotice(null); setOpen(true); }} data-testid="absence-open"
+      <button type="button" ref={triggerRef} onClick={openDialog} data-testid="absence-open"
         className="min-h-11 shrink-0 rounded-lg border border-white/80 px-3 text-sm font-semibold text-white">
         Ich kann nicht arbeiten
       </button>
-      {open && (
-        <div role="dialog" aria-modal="true" aria-label="Abwesenheit" className="fixed inset-0 z-40 overflow-y-auto bg-black/50 p-4">
-          <div className="mx-auto mt-16 grid max-w-xl gap-2 rounded-2xl border-l-4 border-sky-700 bg-sky-50 p-3 text-sm text-stone-900">
+      <dialog ref={dialogRef} aria-label="Abwesenheit" onClose={onClosed} onKeyDown={keepTab}
+        className="w-[calc(100%-2rem)] max-w-xl rounded-2xl bg-transparent p-0 backdrop:bg-black/50">
+        {open && (
+          <div className="grid gap-2 rounded-2xl border-l-4 border-sky-700 bg-sky-50 p-3 text-sm text-stone-900">
             {notice === null ? (
               <form aria-label="Abwesenheit erfassen" className="grid gap-2" onSubmit={(e) => {
                 e.preventDefault();
@@ -70,7 +88,7 @@ export function AbsenceControl({ today, colleagues }: { today: string; colleague
               }}>
                 <label className="grid gap-1">
                   <span className="font-semibold">Wer</span>
-                  <select name="who" className="min-h-11 rounded-lg border border-stone-300 bg-white px-2" defaultValue={colleagues[0] ? `${colleagues[0].teamId}|${colleagues[0].userId}` : ""}>
+                  <select name="who" autoFocus className="min-h-11 rounded-lg border border-stone-300 bg-white px-2" defaultValue={colleagues[0] ? `${colleagues[0].teamId}|${colleagues[0].userId}` : ""}>
                     {colleagues.map((c) => (
                       <option key={`${c.teamId}|${c.userId}`} value={`${c.teamId}|${c.userId}`}>{c.name} · {c.teamName}</option>
                     ))}
@@ -104,8 +122,8 @@ export function AbsenceControl({ today, colleagues }: { today: string; colleague
             )}
             {error && <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">{error}</p>}
           </div>
-        </div>
-      )}
+        )}
+      </dialog>
     </div>
   );
 }

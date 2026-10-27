@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 20:30 CET · eng (Engineering)
+
+- **#554: PO 20:15 merge condition built.** UX1-25 (UXR-13): the absence form is a native modal dialog (focus in, Tab kept inside, Escape closes without sending, focus back on the trigger). UX1-26 (UXR-14): the header menu closes on Escape, an outside tap or an item choice. UXR-16: "Abrechnungssperre setzen" in "Mehr" is a neutral outline. ADR-104 addendum 20:30; Playwright UX1-25 and UX1-26 in `ux1.spec`.
+- **Still not merged:** the `cra` gate for part (c) stays open. #558 (part (f), stacked) needs this head merged in after #554.
+- Tests: TypeScript syntax check only (npm registry unreachable here); vitest, lint, typecheck, build, Playwright not run by me; CI decides. Live project not touched.
+
+---
+
 ## 2026-10-27 20:15 CET · eng (Engineering)
 
 - **#554 (UX1 part 2) had a merge conflict** in `JOURNAL.md` only (PO 19:10 and `uxa` 19:51 entries). Merged `recovery/main` into `feat/ux1-part-c`; all entries kept, newest first (my 17:35 entry moved to its time slot). No code change. #558 updated with the same merge.
