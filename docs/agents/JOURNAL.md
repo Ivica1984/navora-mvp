@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 01:40 CET · po (Product Owner)
+
+- No open PO PR (open: #3, the owner's M2 PR; #488, Engineering's status PR). No open `agent:po` issue (the `po:IPA1` hand-off opens once #488 sets `delivered`); nothing to claim.
+- **IPA1 reviewed: every criterion met in code and CI, awaiting clinical review** ([IPA1](briefs/IPA1.md) *PO review 2026-10-27 01:40*). #484 (0db9992) and #487 (8e7bb6f) merged 01:12; CI `app`, `db`, `e2e` green on 8e7bb6f (read through the GitHub API). The PO read the diff, 0086, pgTAP 086, the unit and e2e specs and **ran no test**. Deviations (1)-(8) decided: (5) both requested-start dates stay separate, **no pre-fill**; (3) accepted for synthetic data with **condition IPA1-C1** (`/operations` stops loading and serialising the unused `care_visits` list with nurse names). IPA1-7 is in clinical scope (intake, what a team sees before it accepts): accepted without another PO round once a `cra` section on 8e7bb6f holds no blocking finding.
+- **COND2 approved, *Next up* 2** ([brief](briefs/COND2.md)): COND1-C1, COND1-C2 and IPA1-C1 under one hand-off, so Engineering has an approved item after IPA1 and the conditions do not wait for go-live.
+- **Decision packages:** no new `cra` or `lca` section since 22:10; D-22, D-18 (tier 1) no new evidence; tier-2 clinical packages wait for G-1; no package changed, no input re-requested.
+- **Challenge:** "Why does one referral carry two requested-start dates?" IPA1-8 adds the referrer's date beside the intake person's `cases.requested_start`: duplicate documentation with two sources for one fact. **Hypothesis P-14** (challenge table): the pilot reads how often they differ; if they mostly agree, readiness item 6 reads the referrer's date and the intake field goes (through D-15, `clinical`).
+- ROADMAP: IPA1 and COND2 line (German). No clinical, PAG, MQI, LTCF, tariff or legal rule invented.
+- **Next agent:** (eng) merge #488; then COND2. (cra) IPA1 on 8e7bb6f (0086), CGR-69 (1); COND2 when merged. (po) IPA1 acceptance after `cra`; COND2 review when delivered. (owner) G-1, D-1.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
+
+**ENGINEERING BRIEF: COND2**
+- **Capability:** pre-pilot conditions under one hand-off: COND2-1 (= COND1-C1) the unexported-days count is readable only in the access-end path; COND2-2 (= COND1-C2) a lapsed `in_review` quality claim can be taken over by a team member with the existing permission; COND2-3 (= IPA1-C1) `/operations` no longer reads or serialises `care_visits`.
+- **Why:** each condition is due before the first real client or employee (G-13, G-19); a UI-only promise, a dead-end quality claim and an unused personal-data payload are each a gap a nurse or an adviser can point to.
+- **Business outcome:** go-live conditions closed early, not in a release rush; one small PR, no new rule.
+- **Care outcome:** no quality event is closed unreviewed because its reviewer left (PS-59, CGR-70).
+- **Expected nurse outcome:** her export habits are not a standing per-person view for administrators; her schedule and name are not sent to browsers that do not show them.
+- **Expected team outcome:** the team continues its own quality review without waiting on a leaver or an administrator.
+- **Expected patient outcome:** quality events affecting her care keep being reviewed after a staff change.
+- **Acceptance criteria:** COND2-1 to COND2-3 and the negative criterion in [COND2](briefs/COND2.md) (pgTAP for COND2-1 and COND2-2 (a)-(e); unit test for COND2-3; e2e at 390 px for "Übernehmen" and the IPA1-6 spec).
+- **Dependencies:** none open; 0085 (`quality_claim_lapsed`, `access_seq`), 0083 (`member_unexported_working_days`). COND2-1 may be withdrawn by the PO if `lca` at G-19 item 2 finds display-only narrowing sufficient.
+- **Priority:** *Next up* 2, after IPA1.
+- **Implementation recommendation:** one migration and one ADR; COND2-2 reuses the `open` → `in_review` permission check and the 0085 log trigger; COND2-3 is a query and type removal with a payload-shape unit test.
+
 ## 2026-10-27 00:35 CET · Engineering (eng)
 - Step A only (own PRs). **#484** (IPA1-1 to -6) had a merge conflict with `recovery/main` (JOURNAL.md, PO entry 22:10): merged `recovery/main` in (4215fce), CI green on that head (run 40417996961). **#487** (IPA1-7/-8): `recovery/main` + #484 merged in (this commit), CI re-runs.
 - **#487 db job red once at 00:06** (run 40417456728): pgTAP 079 test 44 (WORK1-5 catalogue, `have: admin,ops`). The previous head (only e2e files differ) passed the db job at 23:56, `feat/ipa1-texts` passed it at 00:11, and the one re-run of the same job on the same commit passed at 00:2x. Recorded as **UNKNOWN cause, nondeterministic**, not root-caused (candidate: an Operations read model in the fingerprint, `operations_exceptions()`, readable only by admin and ops); added to the pgTAP flake issue #399. No test changed or skipped.
