@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { recordQualityEvent, setQualityEventStatus, setQualityHold } from "@/features/quality/commands";
-import { HOLD_MEANING, NO_TYPES_NOTICE, SEVERITIES, SEVERITY_LABEL, eventStatusText, isSerious } from "@/features/quality/rules";
+import { HOLD_MEANING, NO_TYPES_NOTICE, SEVERITIES, SEVERITY_LABEL, canTakeOver, eventStatusText, isSerious } from "@/features/quality/rules";
 import type { FieldQuality, QualityEventType } from "@/features/quality/queries";
 
 /**
@@ -163,7 +163,7 @@ function EventRow({
 }) {
   const [closing, setClosing] = useState(false);
   return (
-    <div className={`rounded-lg p-2 ${isSerious(event.severity) ? "bg-rose-50" : "bg-stone-50"}`}>
+    <div data-testid="quality-event" className={`rounded-lg p-2 ${isSerious(event.severity) ? "bg-rose-50" : "bg-stone-50"}`}>
       <p>
         <span className="font-semibold">{event.label}</span> · {SEVERITY_LABEL[event.severity as keyof typeof SEVERITY_LABEL] ?? event.severity} ·{" "}
         <span data-testid="event-status">{eventStatusText(event)}</span>
@@ -175,6 +175,12 @@ function EventRow({
             <button type="button" disabled={pending} className="min-h-10 px-2 font-semibold underline underline-offset-4"
               onClick={() => onRun(() => setQualityEventStatus({ eventId: event.id, status: "in_review", note: "", idempotencyKey: crypto.randomUUID() }))}>
               In Prüfung nehmen
+            </button>
+          )}
+          {canTakeOver(event) && (
+            <button type="button" disabled={pending} data-testid="event-take-over" className="min-h-10 px-2 font-semibold underline underline-offset-4"
+              onClick={() => onRun(() => setQualityEventStatus({ eventId: event.id, status: "in_review", note: "", idempotencyKey: crypto.randomUUID() }))}>
+              Übernehmen
             </button>
           )}
           <button type="button" onClick={() => setClosing(true)} className="min-h-10 px-2 font-semibold underline underline-offset-4">

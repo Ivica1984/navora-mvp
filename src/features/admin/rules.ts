@@ -172,9 +172,19 @@ export function unexportedDaysText(n: number | null | undefined): string | null 
   return typeof n === "number" && Number.isInteger(n) && n >= 0 ? `${UNEXPORTED_DAYS_LABEL}: ${n}` : null;
 }
 
-/** COND1-5a: the count as read from member_unexported_working_days (a non-negative integer), else null. */
+/** COND1-5a: the count as a non-negative integer, else null. */
 export function readUnexportedCount(v: unknown): number | null {
   return typeof v === "number" && Number.isInteger(v) && v >= 0 ? v : null;
+}
+
+/**
+ * COND2-1 (migration 0087, ADR-101): the prepare_member_access_end result. The count is read only on `ok` (an
+ * administrator of her organisation, her access still open); every other code carries none.
+ */
+export function readPreparedEndCount(data: unknown): number | null {
+  if (!data || typeof data !== "object") return null;
+  const d = data as { result?: unknown; unexported_days?: unknown };
+  return d.result === "ok" ? readUnexportedCount(d.unexported_days) : null;
 }
 
 /** G-19 item (4): before an access end, ask her to export first (nothing is exported on her behalf). */

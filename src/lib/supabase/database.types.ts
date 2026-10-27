@@ -1946,9 +1946,6 @@ isOneToOne: false
               "kind": string,"team_name": string,"visit_date": string
             }[]
                            },
-"member_unexported_working_days":
-{ Args: { "p_user_id": string }; Returns: number
-                           },
 "my_access_state":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -2017,6 +2014,9 @@ isOneToOne: false
                            },
 "plan_visit":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
+                           },
+"prepare_member_access_end":
+{ Args: { "p_idempotency_key": string,"p_user_id": string }; Returns: Json
                            },
 "push_dispatch_claim":
 { Args: { "p_limit"?: number }; Returns: {

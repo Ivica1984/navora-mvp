@@ -179,7 +179,9 @@ select throws_ok($$ select pg_temp.end_('admin', 'l1', 'moved_away', 106) $$, '2
 select ok(position('last_admin' in (select prosrc from pg_proc where oid = 'public.end_member_access(uuid, text, uuid)'::regprocedure)) > 0
           and position('not private.access_ended(m.user_id)' in (select prosrc from pg_proc where oid = 'public.end_member_access(uuid, text, uuid)'::regprocedure)) > 0,
   'ADM1 rule: the last administrator with access is never ended (the caller is always another administrator with access, so the guard is defence in depth)');
-select is((select count(*)::int from public.member_access_events), 0, 'no refused attempt left a record');
+-- COND2 (ADR-101): the seed holds one access end (austritt.test …907); only records of other people count here.
+select is((select count(*)::int from public.member_access_events where user_id <> '00000000-0000-4000-a000-000000000907'), 0,
+  'no refused attempt left a record');
 
 -- LEAVE1-2: refused while someone else can clear it, and succeeds once cleared ------------------------------------------
 select is(pg_temp.end_('admin', 'l2', 'employment_ended', 201), 'has_cases', 'primary nurse of an open case: has_cases');
@@ -280,7 +282,8 @@ select throws_ok($$ update public.member_access_events set reason_code = 'access
   'the record is append-only, also for the owner');
 
 -- LEAVE1-8: who sees the record ------------------------------------------------------------------------------------------
-select is(pg_temp.seen('admin', 'select 1 from public.member_access_events'), 3, 'the administrator reads every record of her organisation');
+select is(pg_temp.seen('admin', 'select 1 from public.member_access_events'), 4,
+  'the administrator reads every record of her organisation (3 here and the seed''s austritt.test end, COND2)');
 select is(pg_temp.seen('rn', 'select 1 from public.member_access_events'), 0, 'a colleague reads no record (the team marker is part b)');
 select is(pg_temp.seen('ops', 'select 1 from public.member_access_events'), 0, 'operations reads no record');
 select is(pg_temp.seen('admin_b', 'select 1 from public.member_access_events'), 0, 'another organisation reads nothing');

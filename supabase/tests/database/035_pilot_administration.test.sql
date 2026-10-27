@@ -75,7 +75,8 @@ select is(public.set_display_name('00000000-0000-4000-b000-000000000011', '00000
           'a2500000-0000-4000-8000-000000000010'), 'ok', 'the administrator names a member');
 select is(public.set_display_name('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000902', 'Anna Muster',
           'a2500000-0000-4000-8000-000000000010'), 'duplicate', 'resend is a duplicate');
-select is((select count(*)::int from public.admin_members('00000000-0000-4000-b000-000000000011')), 5,
+-- COND2 (ADR-101): the seed holds a sixth member of org A, austritt.test (…907), whose access has ended.
+select is((select count(*)::int from public.admin_members('00000000-0000-4000-b000-000000000011')), 6,
   'the administrator lists the organisation''s members');
 reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');

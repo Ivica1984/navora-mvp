@@ -3,12 +3,7 @@ import "server-only";
 import { requireUser } from "@/lib/auth/session";
 import { CASE_SUMMARY_COLUMNS, type CaseSummaryRow } from "@/features/cases/types";
 import type { TeamRow } from "@/features/teams/types";
-import {
-  OPERATIONS_VISIT_COLUMNS,
-  type OperationsDashboard,
-  type OperationsException,
-  type OperationsVisit,
-} from "./types";
+import type { OperationsDashboard, OperationsException } from "./types";
 import { errorFields, logEvent } from "@/lib/log";
 
 const TEAM_COLUMNS =
@@ -20,6 +15,8 @@ const TEAM_COLUMNS =
  * - ADM1: the unvalidated prototype hints (and the partner-request and quality-event reads that fed only
  *   them) were removed; OPS1 exceptions are the validated source;
  * - OPS1 exceptions are derived in the database (operations_exceptions, migration 0019);
+ * - COND2-3 (IPA1-C1, ADR-101): no care_visits read. Nothing on the page shows a visit list since IPA1
+ *   (ADR-099), so the visit rows with the nurse's name are neither loaded nor sent to the browser;
  * - the returned object is exactly what is serialised to the browser.
  * RLS (T9) limits all rows to the user's organisation.
  */
@@ -31,11 +28,10 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
   const sync = await supabase.rpc("sync_exceptions");
   if (sync.error) logEvent("warn", "operations.sync_failed", errorFields(sync.error));
 
-  const [casesResult, teamsResult, visitsResult, exceptionsResult] =
+  const [casesResult, teamsResult, exceptionsResult] =
     await Promise.all([
       supabase.from("cases").select(CASE_SUMMARY_COLUMNS).order("created_at", { ascending: false }),
       supabase.from("teams").select(TEAM_COLUMNS).order("created_at", { ascending: true }),
-      supabase.from("care_visits").select(OPERATIONS_VISIT_COLUMNS).order("visit_date", { ascending: true }),
       // OPS1: derived exceptions with handling state (coordination roles only; empty for others).
       supabase.rpc("operations_exceptions"),
     ]);
@@ -43,7 +39,6 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
   const firstError = [
     casesResult,
     teamsResult,
-    visitsResult,
     exceptionsResult,
   ].find((result) => result.error)?.error;
 
@@ -56,8 +51,7 @@ export async function getOperationsDashboard(): Promise<OperationsDashboard> {
   // the shape the rules and the view expect.
   const cases: CaseSummaryRow[] = casesResult.data ?? [];
   const teams: TeamRow[] = teamsResult.data ?? [];
-  const visits: OperationsVisit[] = visitsResult.data ?? [];
   const exceptions: OperationsException[] = exceptionsResult.data ?? [];
 
-  return { cases, teams, visits, exceptions };
+  return { cases, teams, exceptions };
 }
