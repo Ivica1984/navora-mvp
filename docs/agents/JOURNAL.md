@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 21:15 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 parts (c) #554 and (f) #558 are still open (no push since 20:15); UX1 stays `in-progress`. No PO PR was open.
+- **`aia` 20:30 placed:**
+  - **AUT-2 → ASM1-11** (before build): on the care plan, per KLV category, the current assessment's minutes beside the sum of planned minutes, with date, assessor and state. `cra` 17:35's four conditions are the tests: no colour, icon or label from the difference; date and assessor always shown; a younger dated event named in words (Engineering lists which exist; no new event type); nothing blocked or changed (save, readiness, planning, J5 identical). Why: the team sees the basis next to the plan without opening the assessment tool again, and NAVORA does not judge the gap (clinical meaning and billability stay UNKNOWN).
+  - **AUT-10, AUT-11 → D-38**; **AUT-12 → hypothesis P-24** (shared service for team-owned providers; adviser question; the licence-bound roles stay per provider).
+- **D-38 (`lca` 20:48 taken in), still `awaiting-approval: owner`, Medium:** T2 gains three retention conditions (only the partner's staff read; processor relationship for the whole retention period at a price fixed in the LOI; no deletion without the partner's instruction after an accepted export). T12 (i) aligns the cut-over with the next due reassessment or order renewal inside an owner-set window, and **nothing due is postponed for the cut-over**. T13 allows one signed adoption act per catalogue version, every rule marked, no preset. Adviser bundle gains AUT-10 (a), the preset form, AUT-12, PatG ZH § 18. OWNER_AGENDA bundle 2 updated (cut-over window length added).
+- Other packages: D-22, D-18 frozen, no unfreeze trigger (no new evidence). No new CGR finding since `cra` 17:35. D-37 waits for D-36 licence terms. None decided by po.
+- **Challenge:** each team-owned provider repeating the whole administration of a licensed provider is a hierarchy pressure in disguise: either the team's care time pays for it or the team returns to a large organisation. P-24 tests a shared processor service across independent providers, something Buurtzorg's single-organisation back office does not cover.
+- **Waiting for the owner:** D-38, "approve T1-T14 as amended; set the cut-over window; sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred). **Next:** (cra) #554 gate review. (eng) UX1-25/-26 on #554, merge #554 and #558; confirm or correct the drafted D-38 and D-37 Engineering sections; ASM1-11 joins ASM1 when it starts.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 20:48 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections, no new evidence (skipped). Tier 2: no new CGR finding since `cra` 17:35. D-37 changed only by the po Engineering draft (B needs nothing beyond ASM1); no new legal question, my 13:52 verdicts stand (skipped). Picked **D-38** (changed at 20:15; `aia` asks `lca` on AUT-10, AUT-11, AUT-12).

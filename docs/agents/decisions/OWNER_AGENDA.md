@@ -1,6 +1,6 @@
 # Owner agenda: every open ask on one page
 
-**Owner:** `po` · **Since:** 2026-10-27 14:45 CET (STR-14 adopted, [rule](../DECISION_PACKAGES.md#frozen-packages)) · **Last update:** 2026-10-27 20:15 CET (D-38 entered bundle 2) · **Updated** only when a package enters or leaves `awaiting-approval`, or its ask changes.
+**Owner:** `po` · **Since:** 2026-10-27 14:45 CET (STR-14 adopted, [rule](../DECISION_PACKAGES.md#frozen-packages)) · **Last update:** 2026-10-27 21:15 CET (D-38 ask amended: terms as amended, cut-over window length; adviser questions added). Earlier 2026-10-27 20:15 CET (D-38 entered bundle 2) · **Updated** only when a package enters or leaves `awaiting-approval`, or its ask changes.
 
 Each line is one ask. Answer in one line, for example "D-7: approved". Each package holds the reasoning. Until you answer, the safe default written in the package stays in force.
 
@@ -20,12 +20,12 @@ Each line is one ask. Answer in one line, for example "D-7: approved". Each pack
 |---|---|---|
 | [D-11](D-11.md) | Approve Zurich as the pilot canton (`csa` STR-1: include one municipality with a known financing path for a new provider). | D-18, D-25, holidays, statistics |
 | Partner (D-12) | Name the partner provider, or say none is in view. With the partner, find out its CIRS rules and whether it wants QG1 events at all (D-16, po 2026-10-27 19:10). | D-38, D-18, D-29, D-4, D-16 (CIRS) |
-| Legal adviser | Name one Zurich legal adviser. | questions in D-22, D-18, D-9, D-4, D-12 (a)-(c) and R-11 rule adoption, D-38 (T3, T5, T9, T11, T13, T14), D-16 (CIRS export) |
+| Legal adviser | Name one Zurich legal adviser. | questions in D-22, D-18, D-9, D-4, D-12 (a)-(c) and R-11 rule adoption, D-38 (T3, T5, T9, T11, T13, T14; AUT-10 (a), AUT-11 preset form, AUT-12 shared service, PatG ZH § 18 period), D-16 (CIRS export) |
 | [D-36](D-36.md) | Give `lca` the interRAI licence terms (licensee, licensor, instrument and edition, territory and term, permitted uses incl. contractors, AI processing and software design, confidentiality). A fact, not a decision. | D-37 |
 | [D-2](D-2.md) | Approve the two paid plans (staging, EU/CH), create both and add the staging deploy secrets. | T12 staging |
 | [D-26](D-26.md) | Approve: in production no service-role key on the app host; invitations and the push sender run in Edge Functions. | ADM1 invitations in production |
 | [D-29](D-29.md) | Approve option B (evidence, second-person confirmation, re-check date, expiry downgrades) as the real-data gate; the licence holder stays responsible. | real clients |
-| [D-38](D-38.md) | Approve terms T1-T14 as the minimum content of the partnership letter of intent; sign no LOI naming the 12-month sunset before. Also ask the Gesundheitsdirektion who issues a new provider's Leistungsauftrag and what training duty applies to it (T14). (po 2026-10-27 20:15) | the partner's LOI; the C transfer |
+| [D-38](D-38.md) | Approve terms T1-T14 (T2, T12 (i), T13 amended 21:15) as the minimum content of the partnership letter of intent; sign no LOI naming the 12-month sunset before. Also: set the cut-over window length (T12 (i)); ask the Gesundheitsdirektion who issues a new provider's Leistungsauftrag and what training duty applies to it (T14). (po 2026-10-27 20:15, amended 21:15) | the partner's LOI; the C transfer |
 | [D-14](D-14.md) | Approve F3 (fee per active team member per month) or F4 (per client); no per-hour or revenue-share fee. | J7 |
 
 ## Bundle 3: once a legal adviser is named or a trigger holds
