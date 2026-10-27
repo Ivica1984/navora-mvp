@@ -4,6 +4,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 06:10 CET · po (Product Owner)
+
+- No open PO PR (open: #3, the owner's M2 PR; #500, `lca`'s D-20 review, CI green, `lca`'s own merge refused by its session's permission check; #502, Engineering's COND2-4, CI green on `f1d74d7`; neither is the PO's to merge). No open `agent:po` issue; nothing to claim. Nothing delivered since 04:10 (COND2 `in-progress`, COND2-4 in #502): no review this cycle.
+- **New evidence:** `cra` 05:30 (merged #503): COND2-1 to -3 clinical gate clear, CGR-70 closed, **CGR-72** (blocking for ADM2 acceptance, S2), **CGR-73** (advisory, S3, #502). `lca` 06:05 (read on PR #500's branch): ADM2 part (b) with ADM2-14 and the CGR-72 remedy compliant for real employees under every plausible interpretation on the sources read; without the remedy unresolved: needs owner; a hand-over that keeps a former employee's access open is not recommended.
+- **CGR-72 decided: ADM2 amended before start, ADM2-15** ([brief](briefs/ADM2.md)): from day 14 the ADM2-12 list also shows her open cases as primary or deputy nurse and her visits up to the end date (references, role, date only); at the automatic end each open case still naming her goes to its team on `/team` ("Bezugspflege neu bestimmen", resolved by `set_primary_nurse`) and to Operations as one OPS1 exception; no threshold, no automatic successor, access still ends on time. Why: value 2 (the person who holds the care plan must not lapse silently), value 4 (the team settles it). G-23 gains "ADM2-15 accepted". No status row existed, so no work in progress changes; one comment on hand-off #499.
+- **CGR-73 decided as COND2-4a** ([brief](briefs/COND2.md)): the return task shows only this return's requested start, else "nicht angegeben"; the case keeps its stored date. Chosen over a labelled earlier date (a labelled stale date still invites planning from it; CGR-69, P-14). One comment on #502: add it before merge; COND2 is `delivered` only with it.
+- **Decision packages** (INDEX order): D-22, D-18 (tier 1) no new evidence; tier-2 clinical packages wait for G-1. **D-20** (tier 4, `po-decided`): `lca` 06:05 taken in; stays decided with ADM2-15; tier unchanged (CGR-72 names the brief, no open question of the package). No input re-requested; no status changed. D-20.md not edited here (`lca`'s open #500 changes it).
+- **Challenge:** "Why must a person notice a leaving primary nurse and chase a successor case by case?" The named primary nurse stays (continuity); the hunt goes: the team sees it two weeks ahead. Whether the deputy should simply take over is a care-responsibility question (UNKNOWN, D-12, D-25). **Hypothesis P-17** (challenge table): cases still naming a leaver at the end and days to a successor, over all leavers.
+- ROADMAP: line 27.10. 06:10 (German). No clinical, PAG, MQI, LTCF, tariff, labour-law or legal rule invented; ADM2-15 and COND2-4a only show existing facts to readers who already have them, and use existing commands.
+- **Next agent:** (eng) COND2-4a in #502, merge, then `delivered`; then ADM2 with ADM2-14 and ADM2-15 after adding a `not-started` row. (cra) #502 merge commit; ADM2 when built (CGR-72 closes against ADM2-15). (lca) #500 needs a merge by a session allowed to merge it. (po) COND2 review when delivered. (owner) G-1, D-1.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
+
+---
+
+## 2026-10-27 05:30 CET · Clinical & Regulatory Architect (review)
+- Reviewed on the merge commit: **COND2-1 to COND2-3** (#495, `0aa7f61`, 0087, ADR-101, pgTAP 087). CI `app`, `db`, `e2e` green on `0aa7f61` and `f62e500` (read through the GitHub API). Read in the open PR: **COND2-4** (#502, head `f1d74d7`, 0088, ADR-102, pgTAP 088; CI green). Read the approved, not built **ADM2** brief against LEAVE1 (0074).
+- **Closed:** **CGR-70** (0087:108-116; pgTAP 087 (a)-(e); e2e `quality.spec`): a team member with the existing permission takes over a lapsed quality claim; a live claim stays refused; the serious-event escalation clock is untouched.
+- **CGR-71:** remedy met on the #502 head; closes when #502 is merged.
+- **Opened:** **CGR-72** (blocking for ADM2 acceptance, S2): the automatic access end at a recorded contract end (ADM2-13) has no command, so the LEAVE1-2 refusals for a primary or deputy nurse, a visit in progress and her planned or covered visits from today never apply; ADM2-12 lists only her open reports. **CGR-73** (advisory, S3, #502): a return without a requested start shows an earlier referral's date as this referrer's request (pgTAP 088:140-150).
+- Clinical gate: COND2-1 to -3 clear; COND2-4 no blocking finding; COND2 clear once #502 merges. ADM2: amend the brief before the build (CGR-72). Registers: CR-130, CR-131 added (neither clinical), notes on CR-124, CR-127, CR-129; H-21 added, H-07 and H-19 notes; PS-59 closed, PS-61 and PS-62 added.
+- No `clinical`, `legal` or `owner` decision answered. Waiting: po (CGR-72, CGR-73, COND2 acceptance), clinical (D-34 q7, D-16, D-10/D-25, after G-1), owner (G-1, D-1).
+- **Next agent:** (po) amend ADM2 for CGR-72 or record why not; decide CGR-73. (eng) CGR-73 in #502 if the PO agrees. (cra) re-read #502's merge commit; ADM2 when built.
+- Tests: none run by me (review only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 ## 2026-10-27 04:30 CET · eng (Engineering agent)
 
 - No own open PR at start; hand-off #498 (COND2, `active`) had no claim: claimed (comment, label `claimed`).
