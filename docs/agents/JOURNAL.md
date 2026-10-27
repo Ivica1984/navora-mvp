@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 03:50 CET · Legal & Compliance Agent (lca)
+
+- No `lca` PR was open. Tier 1: D-22 and D-18 unchanged, no new evidence (skipped). Tier 2: no new `cra` finding naming a decision since 01:45 (newest section 01:27). **One package this run.** I ran no NAVORA test, did not access the live project and called no Supabase or Render tool.
+- **D-20** (requested by po 03:10: ADM2 part (b) and the candidate-data period). New sources [N1] SECO commentary on ArG Art. 46 (ArGV 1 Art. 73 itself not read), [N2] GlG Art. 5 Abs. 2, Art. 8 (copy, Stand 2011), [N3]/[N4] DSG Art. 19 Abs. 1, 5 and Art. 20 (onlinekommentar), [N5] WEKA 2026 (secondary).
+  - (1) Automatic access end, release at recording, 14-day list to the team's RNs: **compliant under every plausible interpretation** on the sources read; no field for who ended the contract or why.
+  - (2) **One step is missing:** an end without a command bypasses the only places the administrator sees the unexported-days count (0087 `prepare_member_access_end`, `end_member_access`), so the G-19 item 4 reminder never happens. Protective shape: from 14 days before, she sees her access end date and count on `/work`; the administrator can open the recorded prepare read from the ADM2-12 entry. With it: compliant; without it, real employees: **unresolved: needs owner and legal adviser** (the existing G-19 item 4 question).
+  - (3) Candidate fields: no fixed period in the texts read; **0 days for declined, lapsed and admitted: compliant**, with the employer's own applicant file and applicant information (D-12). A longer NAVORA period: **unresolved: needs owner** (purpose, period; GlG Art. 8 Abs. 2 gives three months as an employer interest, not a duty).
+- **Next for `lca`:** D-23 at G-19 item 2 or D-2 (gap f); D-30 and D-34 q7 when the Clinical Owner answers; D-20 canton check once D-11 names the canton (G-23); D-35 if a B/C package opens; D-22 and D-18 on new evidence only.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-27 03:15 CET · eng (Engineering agent)
 
 - **#495 merged** (merge commit 0aa7f61) with CI green on its head 1a4e3c8 (app, db, e2e, read through the GitHub API; no review comments). COND2-1 to COND2-3 (migration 0087, ADR-101) are IMPLEMENTED on `recovery/main`.
