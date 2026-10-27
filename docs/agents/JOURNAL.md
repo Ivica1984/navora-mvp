@@ -4,6 +4,42 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 13:55 CET · Chief Strategy Architect (csa)
+
+- **First `csa` run.** Read the governance files, INDEX, OPEN_DECISIONS, the queue, the week's journal, the mandate and the product strategy documents. Read the recommendation and owner ask of all 15 packages `awaiting-approval: owner` and of G-1.
+- **Strategic fit notes STR-1 to STR-13 and STR-16 (D-36, escalated by PO 13:35)** in [`../product/STRATEGIC_ALIGNMENT_REVIEW.md`](../product/STRATEGIC_ALIGNMENT_REVIEW.md), section *2026-10-27 13:55*. No package, row or queue edited.
+  - **Serves as recommended:** D-22, D-18, D-9, D-2, D-24, D-25, G-1 (route B: the largest single unblocker).
+  - **Serves, with a change proposed:** D-11 (one municipality with a known financing path for a new provider), D-14 (fee agreed per team and portable to C; team-size band variant for `lca`), D-29 (role-level authorisation instead of per person, `lca` to confirm), D-26 (escalate with ADM2's gate, because default A keeps NAVORA in every admission).
+  - **Neutral:** D-4; D-1, SR-26, D-7, D-8 (urgent hygiene).
+- **Challenge STR-14 (high), issue #540:** repeated re-checks of packages that wait for a person show no patient-care benefit. Proposed: freeze those packages, and give the owner one page in three bundles. The PO answers before escalating further.
+- **Strategic finding STR-15 (high), issue #539:** the C transfer has no written terms before the partner's letter of intent. Proposed to the PO: a new owner package on the transfer terms (client consent, the C provider's own tariff contract, municipal financing, fee portability, employment contracts, the partner's gain).
+- **Drift:**
+  - No hierarchy step accepted this week (ADM2 is aligned).
+  - The supplier-role risk sits in the unwritten D-12 transfer terms.
+  - AIG1, ASM1 and PLAN3 approved by PO 13:35, so AI and interRAI are staged in the queue. PLAN3 adds no confirmation burden (the whole proposal can be confirmed at once).
+  - D-36: provide the terms together with who holds the licence (STR-16).
+- **STRATEGY.md:**
+  - §4 roadmap with timing and cost of delay (C file complete by month 7, a `csa` estimate);
+  - §5 business-model hypotheses BM-1 to BM-7;
+  - §6 questions 1 and 4 partly answered, questions 5-7 added;
+  - §7 benchmark: Buurtzorg *Kwaliteitsbeeld 2025* (6.7 % overhead; where NAVORA must exceed it).
+- **For the PO to escalate:** the G-1 and live-hygiene bundle first; include STR-1 to STR-4 when it puts the pilot-foundation bundle to the owner.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 13:52 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections (skipped). Picked the packages with an explicit `po` request or an owner change since 12:42: D-37, D-12, D-35. D-2 (13:00 addendum) checked inside D-35 only; no separate section.
+- **New sources read:** Swiss RDL "Home Care Data" page (HCD is Spitex Switzerland's interRAI data pool; certified vendor modules); Obergericht Zürich page on OR Art. 333 (employment passes automatically on a business-part transfer unless refused); LawMedia summary of BGer 4A_50/2021 (OR Art. 321a: no competing or soliciting clients or colleagues during employment); SAMW/FMH guide quoting KVG Art. 41 Abs. 1 (free choice among admitted providers). fedlex not reached; primary texts still unread.
+- **D-37 (interRAI HC as foundation):** ASM1 (D-13 B record naming interRAI HC, no item, score or CAP) **compliant under every plausible interpretation** on D-36 terms (a)-(c). B (import of reported areas) **unresolved: needs owner** (licence and vendor export terms) **and possibly a legal adviser**; one exact question written. C **unresolved: needs owner** (vendor licence) **and regulatory adviser**. Any rule reading imported areas is clinical content and waits for C (D-34).
+- **D-12 (sunset, transfer preparation):** the plan is compliant as a plan; the transfer itself **unresolved: needs Zurich legal adviser** (OR Art. 333 structure; carry-over of orders and needs assessments; duties when a team leaves). Four partnership terms proposed (partner's written consent to preparation; data export or read-only retention at sunset; no cross-organisation data move without instruction and client consent; one cut-over date per client).
+- **D-35 (staged AI path):** stage 0 compliant; stage 1's order-renewal and insurer letters need client identifiers, so condition 1 holds them until adviser question 1 is answered (**unresolved: needs legal adviser and owner**).
+- **Next for `po`:** take in the notes in D-37, D-12 and D-35. **Owner:** the interRAI licence terms (D-36) and the partner's tool and vendor; the Zurich adviser bundle gains D-12 questions (a)-(c).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 13:46 CET · eng (Engineering)
 
 - **Claimed UX1** (#512, active) at 13:46; brief `briefs/UX1.md`.
