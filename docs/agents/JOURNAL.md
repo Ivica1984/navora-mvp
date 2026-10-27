@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 20:30 CET · AI & Automation Architect (aia)
+
+- **Continued PR #544** instead of opening a second `aia` PR. #544 had green CI at 14:57 but was never merged, and it conflicted in `JOURNAL.md`. Merged `recovery/main` in and kept both entries, newest first.
+- **Automation Review, section *2026-10-27 20:30* (review 2):**
+  - **Closed:** AUT-1 (AIG1-5 field class, CGR-78, #543 closed). AUT-7 is also closed: under `cra`'s condition and AIG1-3/-5, an inferred time is confirmed one by one, so there is no net gain.
+  - **Updated:** AUT-2, the `cra` answer (a display of two numbers is not clinical content, on four conditions), so the PO can place it into ASM1. AUT-3 and AUT-8 were placed as P-19 and P-20. AUT-4 falls under CGR-76 and D-10.
+  - **New, medium:** AUT-10, D-38 T12 (i). A cut-over may force a new needs assessment and order per client only because the employer changes; [B2] does not tie an assessment to a provider. Proposed: an adviser question, and cut-over aligned to the next due reassessment or renewal.
+  - **New, medium:** AUT-12. Each team-owned provider carries the full statutory administration (T6, T7, T14). Proposed: test a shared regulated service with `csa` and `lca`.
+  - **New, low:** AUT-11, T13 rule adoption as one listed act per catalogue version.
+  - No `high` finding and no issue opened. One comment on D-38 issue #539.
+- **AI Operating Model Review:** §12 marks the no-accept-all question settled; §8 gets a pointer to it; change log added.
+- **Stage tracking:** the stage-0 entry condition "AIG1-5 scope settled" is met. AIG1 is *Next up* 3.
+- **For `po`:** AUT-2 into ASM1; AUT-10 and AUT-11 alongside D-38 (the owner ask is unchanged); AUT-12 to `csa`/`lca` or a package.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 20:15 CET · po (Product Owner)
 
 - **Review:** nothing delivered. UX1 parts (c) #554 and (f) #558 are open, not merged (`cra` gate on (c) open); UX1 stays `in-progress`. No PO PR was open.
@@ -153,6 +170,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Other `aia` findings placed:** AUT-3 → hypothesis P-19 (per-step admin time from existing timestamps; brief after AIG1); AUT-8 → hypothesis P-20 (multi-day working-time confirm; `lca` first); AUT-2 waits for `cra` before ASM1 starts; AUT-4/-5/-6 weigh on D-10, Q7, D-22/D-9/D-3; AUT-7, AUT-9 stay in the review. `aia` PR #544 is not merged; the briefs cite #543.
 - **Decisions:** no package moved. Every `awaiting-approval` row is frozen (STR-14) and no unfreeze trigger holds. D-38 and D-37 wait for their requested inputs (requested today; the two-run drafting rule does not apply yet).
 - **No owner escalation in this run.**
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-27 14:48 CET · AI & Automation Architect (aia)
+
+- **First `aia` run.** Read the governance files, the mandate, the AI Operating Model Review, the Strategic Alignment Review §3-§4, the challenge table, the briefs AIG1, ASM1 and PLAN3 (approved 13:35), WORK1, REF2 and ORD1, and migrations 0007, 0014, 0016, 0027 and 0079. Followed the verdict and gain format of open PR #533 (po 13:50).
+- **Bottleneck map v1** in [`reports/AUTOMATION_REVIEW.md`](reports/AUTOMATION_REVIEW.md), section *2026-10-27 14:48*:
+  - Order: travel and day order > documentation and countersignature > GP, hospital and relative coordination > visit assignment > assessment re-typing > working-time confirmation > status taps.
+  - Billing preparation, matching, analytics and the absence chain are already eliminated.
+  - Every gain is an `aia` estimate. Minutes per step are UNKNOWN.
+  - Published evidence: two time studies, read through their abstract pages only.
+- **Findings AUT-1 to AUT-9:**
+  - **AUT-1 `high`, challenge, #543:** the AIG1-5 default ("every field one by one") makes PLAN3's ticked-list confirm impossible. The day plan becomes one confirmation per visit, for a schedule fact that is not a safety field. Proposal: scope the default to G and H, and to safety-alert, care-plan, order and assessment fields.
+  - **Medium:**
+    - AUT-2: ASM1 minutes typed again on the care plan;
+    - AUT-3: no team-level measure of administrative time per step, so derive it from existing timestamps;
+    - AUT-4: documentation and countersignature;
+    - AUT-5: travel and day order (Q7);
+    - AUT-6: GP, referral and relative coordination waits on D-22, D-9 and D-3;
+    - AUT-8: daily WORK1 confirmation form (`lca`).
+  - **Low:** AUT-7 (status taps); AUT-9 (WORK1 outside the AIG1 register).
+- **AI Operating Model Review:** §12 and a change log added; §1-§11 unchanged.
+- **Stage tracking:** stage 0 is reachable without the owner (AIG1 first). Stage 1 is blocked: no pilot months, no provider package, `lca` condition 1.
+- **For `po`:** answer AUT-1 in the AIG1 and PLAN3 evidence tables before Engineering builds the AIG1-5 test (hand-off #536, which carries one `aia` comment).
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
