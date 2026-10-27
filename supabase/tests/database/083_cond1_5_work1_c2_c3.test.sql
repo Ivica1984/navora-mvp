@@ -44,9 +44,11 @@ create function pg_temp.confirm(p_date text, k int, p_at text, p_extra jsonb def
                               'breaks', 'none', 'outside_work', 'none') || p_extra, pg_temp.k(k)), p_at) ->> 'result' $$;
 create function pg_temp.export(p_month text, k int, p_at text) returns text language sql as $$
   select pg_temp.cmd('x1', format('select public.export_working_month(%L::date, %L::uuid)', p_month, pg_temp.k(k)), p_at) ->> 'result' $$;
--- The administrator's count of x1 as seen by p_user ('null' when none).
+-- The administrator's count of x1 as seen by p_user ('null' when none). COND2-1 (0087, ADR-101): the count is read
+-- through the recorded access-end step prepare_member_access_end (member_unexported_working_days was dropped).
 create function pg_temp.member_count(p_user text) returns text language sql as $$
-  select coalesce(pg_temp.cmd(p_user, format('select to_jsonb(public.member_unexported_working_days(%L::uuid))', pg_temp.u('x1'))) #>> '{}', 'null') $$;
+  select coalesce(pg_temp.cmd(p_user, format('select public.prepare_member_access_end(%L::uuid, %L::uuid)', pg_temp.u('x1'),
+                                             gen_random_uuid())) ->> 'unexported_days', 'null') $$;
 create function pg_temp.own_count(p_user text) returns text language sql as $$
   select coalesce(pg_temp.cmd(p_user, 'select to_jsonb(public.my_unexported_working_days())') #>> '{}', 'null') $$;
 
@@ -140,8 +142,8 @@ select is((select count(*)::int from public.change_log where entity_id = pg_temp
           + (select count(*)::int from public.audit_events where entity_id = pg_temp.u('x1')::uuid and command = 'end_member_access'
                and changed ? 'unexported_days'), 0,
   'WORK1-C3 (b): the count is in the result only, never in the change log or audit row (no stored per-person figure)');
-select is(pg_temp.own_count('x1') || '/' || pg_temp.member_count('x4'), 'null/1',
-  'WORK1-C3 (d): after the end she sees no count (LEAVE1-3); the administrator still sees the one number');
+select is(pg_temp.own_count('x1') || '/' || pg_temp.member_count('x4'), 'null/null',
+  'WORK1-C3 (d): after the end she sees no count (LEAVE1-3); COND2-1: the administrator had it in the end result only');
 
 select * from finish();
 rollback;

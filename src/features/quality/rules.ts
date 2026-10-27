@@ -27,6 +27,15 @@ export function eventStatusText(event: { status: string; claim_ended?: boolean |
   return EVENT_STATUS_LABEL[event.status] ?? event.status;
 }
 
+/**
+ * COND2-2 (migration 0087, ADR-101): an event in review whose claim has lapsed (its owner's access ended, 0085) can be
+ * taken over by the team ("Übernehmen"). The database decides; this only says when to offer the button. A live claim
+ * is not offered (and the database refuses it).
+ */
+export function canTakeOver(event: { status: string; claim_ended?: boolean | null }): boolean {
+  return event.status === "in_review" && event.claim_ended === true;
+}
+
 /** Serious = high or critical (same rule as OPS1 and the database). */
 export function isSerious(severity: string | null | undefined): boolean {
   return severity === "high" || severity === "critical";

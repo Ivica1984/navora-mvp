@@ -4,7 +4,7 @@ import { useState, useTransition, type ReactNode } from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import type { AdminData, AdminExceptionRule, AdminMember, AdminTeam } from "@/features/admin/queries";
 import {
-  addTeamMember, createTeam, deactivateTeam, endMemberAccess, inviteMember, memberUnexportedDays, removeTeamMember, resetExceptionRule,
+  addTeamMember, createTeam, deactivateTeam, endMemberAccess, inviteMember, prepareMemberAccessEnd, removeTeamMember, resetExceptionRule,
   restoreMemberAccess, revokeInvitation, setDisplayName, setExceptionRule, setMemberQualification, setMemberRole,
   setResponseDeadline, updateTeam,
 } from "@/features/admin/commands";
@@ -207,12 +207,13 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
   const [ended, setEnded] = useState<string | null>(null);
   const state = data.access[member.user_id];
   const open = data.openReports[member.user_id] ?? [];
-  // COND1-5a (PO 16:20): her unexported-days count is read when the end step opens, never shown in the row itself.
+  // COND1-5a (PO 16:20), COND2-1 (ADR-101): her unexported-days count is read when the end step opens, through the
+  // recorded prepare_member_access_end command, never shown in the row itself.
   const [unexported, setUnexported] = useState<number | null>(null);
   const openEnd = () => {
     setMode("end");
     setUnexported(null);
-    memberUnexportedDays({ userId: member.user_id }).then(setUnexported, () => setUnexported(null));
+    prepareMemberAccessEnd({ userId: member.user_id, idempotencyKey: crypto.randomUUID() }).then(setUnexported, () => setUnexported(null));
   };
   return (
     <div className="grid gap-1 text-sm" aria-label="Zugang">

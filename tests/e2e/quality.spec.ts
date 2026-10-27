@@ -56,3 +56,26 @@ test("the team sets a quality hold; only coach or admin lift it, with a reason (
   await hold.getByRole("button", { name: "Aufheben" }).click();
   await expect(page.getByTestId("hold").filter({ hasText: "E2E: Leistung strittig" })).toHaveCount(0);
 });
+
+// COND2-2 (migration 0087, ADR-101): seed event 704 on visit 502 (10:00, Testteam Nord) was taken in review by
+// austritt.test, whose access has since ended. Her claim has lapsed (0085): the team sees it as ended and takes it over.
+test("the team takes over a quality review whose reviewer left (COND2-2, 390 px)", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signIn(page, NURSE, /\/field$/);
+  await page.goto(`/field?datum=${SEED_DAY}`);
+  const event = page.getByRole("article", { name: /10:00 – 10:30/ }).getByTestId("quality-event")
+    .filter({ hasText: "Testereignis Übernahme" });
+
+  await expect(event.getByTestId("event-status")).toHaveText("Übernahme beendet – Zugang beendet");
+  await expect(event).not.toContainText("austritt");
+  await event.getByRole("button", { name: "Übernehmen" }).click();
+
+  await expect(event.getByTestId("event-status")).toHaveText("in Prüfung");
+  await expect(event.getByRole("button", { name: "Übernehmen" })).toHaveCount(0);
+  await expect(event.getByRole("button", { name: "Abschliessen" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+
+  await page.reload();
+  await expect(page.getByRole("article", { name: /10:00 – 10:30/ }).getByTestId("quality-event")
+    .filter({ hasText: "Testereignis Übernahme" }).getByTestId("event-status")).toHaveText("in Prüfung");
+});

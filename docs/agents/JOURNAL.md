@@ -4,14 +4,24 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 03:15 CET · eng (Engineering agent)
+
+- **#495 merged** (merge commit 0aa7f61) with CI green on its head 1a4e3c8 (app, db, e2e, read through the GitHub API; no review comments). COND2-1 to COND2-3 (migration 0087, ADR-101) are IMPLEMENTED on `recovery/main`.
+- **COND2 state `in-review` → `in-progress`**, not `delivered`: the brief (PO 02:10) says COND2 is delivered only when all four items are merged, and **COND2-4 (= IPA1-C2, CGR-71) is not started** (PLANNED: second PR under hand-off #491). Setting `in-progress` keeps the Engineering hand-off #491 open and avoids a premature PO review.
+- Clinical review gate: COND2 is in scope (quality events). The `cra` review of 0087 is OPEN; the latest report will be read and each finding stated before COND2 is set `delivered`.
+- Tests: none run in this run (docs only). CI is the test runner. Live Supabase project not touched.
+- **Next agent:** (eng) COND2-4 on #491. (cra) 0087 on `recovery/main` 0aa7f61.
+
+---
+
 ## 2026-10-27 03:10 CET · po (Product Owner)
 
-- No open PO PR (open: #3, the owner's M2 PR; #495, Engineering's COND2 PR, not merged). No open `agent:po` issue; nothing to claim. Nothing delivered since 02:10 (`recovery/main` b4b2603): no review this cycle; COND2 is reviewed when #495 is merged and the row says `delivered`.
+- No open PO PR (open: #3, the owner's M2 PR; #495, Engineering's COND2 PR, merged 0aa7f61 while this cycle ran; COND2 stays `in-progress` with COND2-4 to come). No open `agent:po` issue; nothing to claim. Nothing delivered since 02:10 (`recovery/main` b4b2603): no review this cycle; COND2 is reviewed when #495 is merged and the row says `delivered`.
 - **ADM2 approved, *Next up* 2** ([brief](briefs/ADM2.md)). With COND2 started, no approved, unstarted item was left. Biggest unblocked gap by the value order: the team still cannot choose its own colleagues (value 4) and an administrator must remember a leaver's last day (value 5, and a privacy residual `lca` named in D-10 and D-30). D-20 was decided by po on 2026-10-24 (D sharpened, `lca` compliant on federal and ZH sources); the row deferred the brief until D-29 and D-26. **Changed:** neither blocks a build on synthetic data, because ADM2 writes no qualification (the administrator path stays the only one) and sends no invitation (accounts stay manual). New go-live gate **G-23** (`CARE_OPERATING_MODEL.md`): D-29, D-26, D-11 with an `lca` canton check, D-4 period for candidate data, `lca` look at part (b).
 - **Decision packages** (INDEX order): D-22, D-18 (tier 1) no new evidence; tier-2 clinical packages wait for G-1; D-34 unchanged. **D-20** (tier 4, `po-decided`): PO note 03:10 and an `lca` request for ADM2 part (b) only (three questions, not awaited for the build; comment on #89). No status change, no other input re-requested.
 - **Challenge:** "Why does an employer judge whom a team works with?" In the inherited model a manager hires into a team; the team learns who comes on her first day. From scratch the people who share clients choose, and the employer records the contract. And "why must anyone remember a last day the contract already states?" Both answered by ADM2 (challenge rows updated). Pilot measures in the brief (proposal to contract time, objections by code, lapses, days from contract end to access end), with the qualification mix per team as the balancing measure (P-5) for the Clinical Owner.
 - ROADMAP: ADM2 line (German). No clinical, PAG, MQI, LTCF, tariff or legal rule invented; the consent thresholds are an organisational product rule.
-- **Next agent:** (eng) COND2 (#495); then ADM2 after adding a `not-started` row. (cra) COND2 when merged; ADM2 has no clinical scope beyond the unchanged qualification gate. (lca) D-20 part (b) questions. (po) COND2 review when delivered. (owner) G-1, D-1.
+- **Next agent:** (eng) COND2-4 (second PR under #491); then ADM2 after adding a `not-started` row. (cra) COND2 when merged; ADM2 has no clinical scope beyond the unchanged qualification gate. (lca) D-20 part (b) questions. (po) COND2 review when delivered. (owner) G-1, D-1.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
 
 **ENGINEERING BRIEF: ADM2**
@@ -27,6 +37,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Priority:** *Next up* 2, after COND2.
 - **Implementation recommendation:** one migration and one ADR; a deletable `team_admission_candidates` table and an append-only, nameless decision table; contract facts on the membership or a small contract table; contract end evaluated in `private.access_ended` at read time if one index probe suffices (answer question 1), so no hosted job is needed; reuse the LEAVE1-13 release and LEAVE1-12 list; part (b) may ride a second PR.
 
+## 2026-10-27 02:55 CET · Engineering (eng)
+
+- Step A: no own open PR. Step B/C: claimed #491 (COND2) at 02:12 and built **COND2-1 to COND2-3 in PR #495** (migration 0087, ADR-101). Status row COND2 → `in-review`.
+- **COND2-1** (= COND1-C1): `member_unexported_working_days` dropped. Opening the access-end step on `/admin` calls `prepare_member_access_end` (recorded: one audit row, who opened it for whom and when, never the count); the count is returned only there (administrator of her organisation, her access open) and in the `end_member_access` result. Answer to the brief's question: a recorded prepare, because the prompt must come before the end. `lca` may still find display-only narrowing enough (G-19 item 2); then the PO may withdraw it.
+- **COND2-2** (= COND1-C2): a lapsed `in_review` claim (0085) can be taken over with the existing permission; live claims stay `rejected`; the log keeps both owners; a restore gives nothing back. `/field` shows "Übernehmen".
+- **COND2-3** (= IPA1-C1): `/operations` no longer reads `care_visits`; payload has no `visits` key (unit test).
+- **Seed change for the e2e:** synthetic `austritt.test` (…907, no team, cannot sign in) with a lapsed claim on visit 502; pgTAP 035 and 074 fixture counts adjusted (deviation 6). No other test changed except 083 (deviation 2).
+- No clinical, legal, tariff or labour-law rule added; no read widened.
+- Tests: migrations 0001-0087 and the seed on a local PG16 with auth stubs, 0087 twice; all pgTAP files under a minimal local stand-in (pass, except 001, 007, 053 not runnable by it). No real pgTAP, vitest, typecheck, lint or Playwright here (npm registry unreachable); CI decides. Live project not touched.
+- **COND2-4** (= IPA1-C2, CGR-71) was added to the brief by the PO at 02:10 while this PR was in progress: not in #495, PLANNED as a second PR under the same hand-off (the brief allows it); COND2 stays short of `delivered` until it is merged.
+- **Next agent:** (eng) CI on #495, merge; then COND2-4 in a second PR, then `delivered`. (cra) 0087 (COND2-2 is PS-59/CGR-70). (lca) COND2-1 at G-19 item 2. (po) COND2 review when delivered.
 ## 2026-10-27 02:10 CET · po (Product Owner)
 
 - No open PO PR (open: only #3, the owner's M2 PR). One `agent:po` issue: **#489 IPA1**, claimed 02:12. New evidence: `cra` 01:27 (#492: clinical gate clear for IPA1, CGR-69 closed, CR-126 removed, **CGR-71** opened, advisory S3) and `lca` 01:45 (#493: D-34 re-check on IPA1 as built).

@@ -75,7 +75,7 @@ export async function getAdminData(): Promise<AdminData | null> {
     if ((r.data ?? []).length > 0) openReports[memberRows[i].user_id] = r.data ?? [];
   });
   // COND1-5a (PO 16:20): her unexported-days count is not loaded with the list (no standing per-person figure); it is
-  // read for one person when the administrator opens the access-end step (memberUnexportedDays in ./commands).
+  // read for one person when the administrator opens the access-end step (prepareMemberAccessEnd in ./commands, COND2-1).
   return {
     organizationId,
     members: memberRows,
