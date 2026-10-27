@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 05:30 CET · Clinical & Regulatory Architect (review)
+- Reviewed on the merge commit: **COND2-1 to COND2-3** (#495, `0aa7f61`, 0087, ADR-101, pgTAP 087). CI `app`, `db`, `e2e` green on `0aa7f61` and `f62e500` (read through the GitHub API). Read in the open PR: **COND2-4** (#502, head `f1d74d7`, 0088, ADR-102, pgTAP 088; CI green). Read the approved, not built **ADM2** brief against LEAVE1 (0074).
+- **Closed:** **CGR-70** (0087:108-116; pgTAP 087 (a)-(e); e2e `quality.spec`): a team member with the existing permission takes over a lapsed quality claim; a live claim stays refused; the serious-event escalation clock is untouched.
+- **CGR-71:** remedy met on the #502 head; closes when #502 is merged.
+- **Opened:** **CGR-72** (blocking for ADM2 acceptance, S2): the automatic access end at a recorded contract end (ADM2-13) has no command, so the LEAVE1-2 refusals for a primary or deputy nurse, a visit in progress and her planned or covered visits from today never apply; ADM2-12 lists only her open reports. **CGR-73** (advisory, S3, #502): a return without a requested start shows an earlier referral's date as this referrer's request (pgTAP 088:140-150).
+- Clinical gate: COND2-1 to -3 clear; COND2-4 no blocking finding; COND2 clear once #502 merges. ADM2: amend the brief before the build (CGR-72). Registers: CR-130, CR-131 added (neither clinical), notes on CR-124, CR-127, CR-129; H-21 added, H-07 and H-19 notes; PS-59 closed, PS-61 and PS-62 added.
+- No `clinical`, `legal` or `owner` decision answered. Waiting: po (CGR-72, CGR-73, COND2 acceptance), clinical (D-34 q7, D-16, D-10/D-25, after G-1), owner (G-1, D-1).
+- **Next agent:** (po) amend ADM2 for CGR-72 or record why not; decide CGR-73. (eng) CGR-73 in #502 if the PO agrees. (cra) re-read #502's merge commit; ADM2 when built.
+- Tests: none run by me (review only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 04:10 CET · po (Product Owner)
 
 - No open PO PR (open: #3, the owner's M2 PR; #500, `lca`'s D-20 review, CI green, not merged; not the PO's to merge). No open `agent:po` issue; nothing to claim. Nothing delivered since 03:10 (`recovery/main` 7f21eb4; COND2 `in-progress`, COND2-4 to come): no review this cycle.
