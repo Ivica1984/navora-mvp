@@ -16,6 +16,71 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-27 05:30 CET: COND2-1 to COND2-3 (#495, migration 0087) reviewed on the merge commit; CGR-70 closed; COND2-4 (#502, open, 0088) read: CGR-71 remedy met on the PR head, CGR-73 (advisory, S3); ADM2 brief (approved, not built) read: CGR-72 (blocking for ADM2 acceptance, S2): the automatic access end skips the LEAVE1-2 guard for a primary or deputy nurse
+
+**Scope:** `recovery/main` @ `f62e500`. Changes since my 01:27 CET section (#492, merged `e442044`):
+- **Code merged:** #495 **COND2-1 to COND2-3** (0087, ADR-101, pgTAP 087 (36), pgTAP 035, 074, 083 adjusted, unit `cond2-rules`, `cond2-operations-payload`, e2e `quality.spec`) as `0aa7f61`. **CI** (check runs read through the GitHub API): `app`, `db`, `e2e` green on `0aa7f61` and on `f62e500`.
+- **Open PRs:** #502 **COND2-4** (`feat/cond2-4-resume-urgency`, head `f1d74d7`, 0088, ADR-102, pgTAP 088 (31)); CI `app`, `db`, `e2e` green on `f1d74d7`. #500 (`lca` D-20 part (b), docs). #3 (owner, `main`). No review comment addressed to me.
+- **Docs merged:** PO 02:10 (IPA1 accepted; CGR-71 as IPA1-C2 = COND2-4), PO 03:10 (**ADM2 approved**, *Next up* 2), PO 04:10 (ADM2-14 added after `lca` 03:50; D-4 item (5)); `lca` 01:45 (D-34 re-check); `eng` 03:15.
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read 0087 and pgTAP 087 in full, the patched `set_quality_event_status` against 0020:214-250, `can_handle_quality_event` (0020:204-211), the `quality_serious_open` derivation (0039:58-64), the app diffs (`quality-section.tsx`, `quality/rules.ts`, `operations/queries.ts`, `operations/types.ts`, `admin/*`), the e2e `quality.spec` addition; on #502: 0088 in full (diffed against 0034's body), the pgTAP 088 assertions, ADR-102 and the `/team` diff; the ADM2 brief against `end_member_access` (0074:290-381). **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-72 | ADM2-11 to ADM2-13 (brief, approved, not built) with LEAVE1-2 (0074) | **blocking for ADM2 acceptance (S2)** | **The automatic access end at a recorded contract end skips the one guard that makes a team name a new primary nurse before a leaver goes.** `end_member_access` refuses while she is primary or deputy nurse of an open case (`has_cases`), has a visit on the way, started or paused (`has_visit_in_progress`), or is responsible for or covers a planned visit from today on. LEAVE1-2 made these refusals on purpose: "someone else can clear those". ADM2-13 ends access "exactly as `end_member_access` ends it" but without a command, so no refusal can happen. ADM2-11 releases only her visits **after** the end date. ADM2-12 shows the team only her open **reports**. Nothing in ADM2 lists or hands over her primary or deputy role, her visits on the last day, or her covers. The day after, an open case can name a primary nurse who can no longer read it. Bounded today: PLAN2 skips her, `set_primary_nurse` refuses her (0078), and visits left without a responsible member raise J3, OPS1 and SIG1 alerts (accepted as protective for a reopened case, LEAVE1 deviation 15). The gap is the responsibility, not the visit: nobody is asked to name the new primary nurse, who holds the care plan and the review after a pause (H-08). This weakens an existing safety control. PLANNED; no clinical rule involved; synthetic data only | 0074:345-356 (the three refusals), 0074:380-381 (comment); `briefs/ADM2.md` ADM2-11 ("visits after the end date"), ADM2-12 ("open reports"), ADM2-13 ("exactly as `end_member_access` ends it … without a command"); `grep -i "primary\|deputy" briefs/ADM2.md` finds only ADM2-7 (no role change by an ADM2 command); `briefs/LEAVE1.md:26`, :151 | **po (product authority; no threshold):** amend ADM2 before the build: (1) the ADM2-12 list from day 14 also shows the open cases where she is primary or deputy nurse, and her responsible or covered visits up to and including the end date (case reference, role and visit date only, as LEAVE1-12); (2) at the ADM2-13 end, every open case that still names her as primary or deputy nurse is shown to its team and to Operations through an existing path (for example a case task "Bezugspflege neu bestimmen" or an OPS1 exception, PO's choice; no new threshold or priority). Her access still ends on time (privacy is not traded for this). A visit in progress at the boundary keeps the existing stuck and close path. pgTAP: end date recorded; she is primary nurse of case X and responsible for a visit on the end date; day 15 not listed, day 14 listed; the day after, access ended and case X surfaced to its team (and Operations); the manual `end_member_access` still refuses with `has_cases` (LEAVE1 suite unchanged). Or record why not |
+| CGR-73 | COND2-4 (#502, open; 0088) | **advisory (S3)** | **A returning referral without a requested start shows an earlier referral's date as this referrer's request.** The brief keeps the case's date when the new request has none ("never blanked"; 0088:82 `coalesce(req.date, c.date)`). `team_cases` then returns the case's stored date as `return_referrer_requested_start`, and `/team` shows it inside the new return's review task as "Gewünschter Beginn (laut Zuweiser)". pgTAP 088:140-150 asserts this: after a second return with no date, the team reads `mittel:intake_assessed:4`, where 4 is the first return's date. The same happens for a pre-IPA1-7 request (088:164, `niedrig:unknown:4`). The date can lie weeks back and belongs to another referrer's statement; this is the provenance point of CGR-69 and P-14. Bounded: display only, nothing orders or plans by it (pgTAP 086 allowlist), and the visits resume as planned. IMPLEMENTED in the PR as described; no clinical rule | 0088:82, 0088:150-153; `src/features/returning/rules.ts` `returnReferralFacts`; `team-client.tsx` "Gewünschter Beginn (laut Zuweiser)"; pgTAP 088:140-150, :160-164 | **eng, po (no threshold):** inside the return task show the referrer's date only when **this** return's request carried one (for example read it from the resume's `referral_links` row and its `partner_requests` row in `team_cases`), else "nicht angegeben"; the case may keep its stored date. Or label a kept date with its origin ("aus früherer Zuweisung vom …"). pgTAP: second return without a date → the task reads no referrer date (or the labelled earlier one); the first return unchanged. Fits #502 before merge or a COND2 follow-up |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-70** | **closed**, IMPLEMENTED (COND2-2); CI green on `0aa7f61` | 0087:108-116: `set_quality_event_status(…, 'in_review')` is accepted from `in_review` only when `owner_id is not null and private.quality_claim_lapsed(q.id, q.owner_id)`; the caller still needs `can_handle_quality_event` (0020:204-211; no new role). The 0020 update sets the new owner (audited by the 0020 trigger); one `quality_event_log` row `in_review > in_review` with actor, key and `access_seq` (0085 trigger). pgTAP 087: (a) take-over by a team member, owner changes, `claim_ended` false (:133-135); (b) live claim `rejected`, nothing changed (:114-116, :137); (c) Operations, a coach, another team's nurse and an administrator on a low-severity event refused (:126-130); (d) log holds both owners in order, first row unchanged, `access_seq` of the new owner, owner change audited (:140-152); (e) after a restore the claim stays with the new owner and the former owner's take-back is refused (:155-158); the lapsed claim on event 2 is taken over after the restore (:159-161). e2e `quality.spec` (390 px): "Übernehmen" on the lapsed claim, then "in Prüfung" after reload; the leaver's name is not shown. **The escalation clock is unchanged:** `quality_serious_open` is derived from `created_at` while `open` or `in_review` (0039:58-64); a take-over touches neither. **Small gap, not a finding:** no assertion that the *restored former owner* can take over her own still-lapsed claim; the code allows it (0087:111-113 with 0020:204-211) |
+| **CGR-71** | **open**, advisory (S3); **remedy met on the #502 head `f1d74d7`** (CI green); closes when #502 is merged | 0088:74-94: on resume, `urgency`, `urgency_source` (`unknown` for an old request) and `referrer_requested_start` (kept when the request has none) are written to the case and added to the resume's `change_log` diff (old and new, actor, reason, key; 088:84-95), `audit_events` via `audit_cases`; the "return" branch is byte-identical to 0034 except the DST1 clock form (my diff of the two bodies). `team_cases` returns source and date only while `review_after_pause` is open (0088:142-169); ORDER BY and LEAVE1-3 guard kept. pgTAP 088: the team's RN and care assistant read `hoch:referrer_stated:4` (:114, :118); another team's nurse and Operations read nothing (:122, :126); no new case, matching request and visits unchanged (:101-104); earlier levels stay in the trail (:166); `convert_partner_request` unchanged (:173-179). No order reads `cases.urgency` (the three ORDER BYs in 0011, 0017, 0034 read `matching_requests.urgency`). Residual: **CGR-73** |
+| **CGR-68** | open, advisory (S2); interim part IMPLEMENTED | no change; the named Clinical Owner's required review (owner, after G-1) |
+| CGR-54, CGR-56 | open, advisory (S3, S2); DST1-C4, DST1-C5. PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-70**.
+
+### COND2 checks (no finding beyond CGR-73)
+
+- **COND2-1 (0087:55-105): IMPLEMENTED, protective (privacy).** The standing reader `member_unexported_working_days` is dropped (pgTAP 087:88). The count is returned only by `prepare_member_access_end`, to an administrator of her organisation while her access is open, never for herself; each read writes one audit row without the count (087:94-107); the team's nurse, Operations, a coach and another organisation's administrator get none (087:101-104). `my_unexported_working_days` on `/work` is unchanged (087:108). Labour-law and privacy content; `lca`'s, not clinical. No care path waits on it.
+- **COND2-3: IMPLEMENTED, protective (data minimisation).** `/operations` no longer reads `care_visits` with the nurse's name (`operations/queries.ts`; unit `cond2-operations-payload`: no `visits` key, `care_visits` not read). OPS1 exceptions and their sync are unchanged, so no safety exception is lost.
+- **COND2-2 clinical reading:** who may review a quality event is unchanged (same permission as `open` → `in_review`). Which qualification should review which severity stays D-16 (`clinical`), UNKNOWN; the take-over adds no rule there.
+
+### ADM2 brief checks (not built; beyond CGR-72)
+
+- **ADM2-5 consent thresholds** (two consents, a standing objection blocks, 14-day lapse): organisational, product authority (D-20). They admit a colleague, not a client; I see no clinical objection. **ADM2-6** keeps the qualification gate: no ADM2 command writes a qualification, and planning, take and cover refuse a member without one. That is the protective point; how a qualification is verified stays D-29 (`owner`) and CGR-16.
+- **ADM2-11** releases her visits after the end date through the LEAVE1-13 rule, so they appear as uncovered and alert (J3, OPS1, SIG1). Protective.
+- **The balancing measure** (qualification mix per team before and after admissions, read by the Clinical Owner) is the right place for a skill-mix concern. NAVORA sets no mix rule; that is D-10, D-25 (`clinical`), UNKNOWN.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| COND2-1 to COND2-3 (merged `0aa7f61`) | **clear**: no blocking finding. CGR-70 closed |
+| COND2-4 (#502, open, CI green on `f1d74d7`) | **no blocking finding.** CGR-71 remedy met on the head; CGR-73 advisory, can be fixed in #502 or taken as a condition. I re-read the merge commit |
+| **COND2 as a whole** | **clinical gate clear** once #502 is merged unchanged in substance |
+| **ADM2** (approved, not built) | **CGR-72 is blocking for ADM2 acceptance.** Amending the brief before the build costs least; the build may start once the PO has amended it or recorded why not |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **po:**
+  1. CGR-72: amend ADM2 (the leaver's primary and deputy roles and last-day visits in the ADM2-12 list; open cases still naming her surfaced at the ADM2-13 end), or record why not.
+  2. CGR-73: show only this return's referrer date in the return task, or label a kept date with its origin; or record why not.
+  3. COND2: accept once #502 is merged.
+- **eng:** CGR-73 in #502 if the PO agrees; CGR-72 in the ADM2 build once the brief is amended.
+- **clinical (Clinical Owner, after G-1):** D-34 question 7, D-16 (who reviews which severity), D-10/D-25 (team skill mix); all UNKNOWN until answered.
+- **owner:** G-1 (named Clinical Owner), D-1; unchanged.
+
+---
+
 ## 2026-10-27 01:27 CET: IPA1-1 to IPA1-8 (#484, #487, migration 0086) reviewed on their merge commits; CGR-69 closed (the criteria stay with `clinical`, D-34 question 7); CR-126 removed; CGR-71 (advisory, S3): a returning referral that resumes a paused case keeps the new referral's urgency, source and requested start from the team; clinical gate clear for IPA1
 
 **Scope:** `recovery/main` @ `5f8efd1`. Changes since my 21:29 CET section (#485, merged `6b19b84`):
