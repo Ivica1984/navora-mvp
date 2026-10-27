@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 07:41 CET · Legal & Compliance Agent (lca)
+
+- Continued my open PR #500 (no second `lca` PR): it was in conflict with `recovery/main` on JOURNAL; merged `recovery/main` in, both entries kept, newest first.
+- Tier 1: D-22 and D-18 no new evidence (skipped). Tier 2: CGR-72 decided by the PO (ADM2-15); CGR-73 is a display fix in COND2 with no package and no legal question. No other package has a `requested` legal section that is eligible (D-28 not requested; D-6 not needed).
+- **D-20 / ADM2-15 re-check:** ADM2-15 (a) to (c) as written match the bound and the protective condition of my 06:05 section (readers, reference/role/date only, no new recipient, no automatic successor, access ends on time). Verdict for real employees with ADM2-14 and ADM2-15: compliant under every plausible interpretation on the sources read; G-23 organisational items and the D-11 canton check remain. No new source read.
+- Unresolved, unchanged: G-19 item 4 (export on a former employee's behalf; legal adviser); who holds the care-process responsibility after a primary nurse leaves (owner, D-12 with D-25; not needed for ADM2).
+- **Next for `lca`:** merge #500 when CI is green (earlier merge refused by a session permission check); D-20 canton check once D-11 names the canton.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 06:10 CET · po (Product Owner)
 
 - No open PO PR (open: #3, the owner's M2 PR; #500, `lca`'s D-20 review, CI green, `lca`'s own merge refused by its session's permission check; #502, Engineering's COND2-4, CI green on `f1d74d7`; neither is the PO's to merge). No open `agent:po` issue; nothing to claim. Nothing delivered since 04:10 (COND2 `in-progress`, COND2-4 in #502): no review this cycle.
@@ -15,6 +26,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - ROADMAP: line 27.10. 06:10 (German). No clinical, PAG, MQI, LTCF, tariff, labour-law or legal rule invented; ADM2-15 and COND2-4a only show existing facts to readers who already have them, and use existing commands.
 - **Next agent:** (eng) COND2-4a in #502, merge, then `delivered`; then ADM2 with ADM2-14 and ADM2-15 after adding a `not-started` row. (cra) #502 merge commit; ADM2 when built (CGR-72 closes against ADM2-15). (lca) #500 needs a merge by a session allowed to merge it. (po) COND2 review when delivered. (owner) G-1, D-1.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
+
+---
+
+## 2026-10-27 06:05 CET · Legal & Compliance Agent (lca)
+
+- `lca` PR #500 (D-20, 03:50) still open, CI green; **my merge of it was refused by the session's permission check** (not a CI or conflict problem). Continued on the same branch (no second `lca` PR): merged `recovery/main` in (JOURNAL conflict, both entries kept), added this re-check. I ran no NAVORA test, did not access the live project and called no Supabase or Render tool.
+- Tier 1: D-22 and D-18 unchanged since their last PO addenda, no new evidence (skipped). Tier 2: **CGR-72** (`cra` 05:30, blocking for ADM2 acceptance) names ADM2, the follow-up of **D-20**: one package this run. D-4 changed at 04:10 only to adopt my 03:50 point (3) as written: no re-check.
+- **D-20 / ADM2 part (b) after CGR-72:** no new source (KVV Art. 51 searched, no readable text; not relied on). (a) The automatic access end stays compliant and must stay on time: a hand-over that keeps a former employee's access open is **not recommended** (DSG Art. 6 Abs. 2, Art. 8; OR Art. 328b). (b) The gap CGR-72 names is a record-accuracy point (DSG Art. 6 Abs. 5) and, if the primary-nurse field records the care-process responsibility of tarifsuisse Art. 18 Abs. 1, a contract point: UNKNOWN (D-12, D-25). (c) `cra`'s remedy (1)+(2) adds no legal question. **Verdict, real employees:** with ADM2-14 and the CGR-72 remedy, **compliant under every plausible interpretation on the sources read** (G-23 items and D-11 as before); without the remedy, **unresolved: needs owner** (who holds the care-process responsibility after the primary nurse leaves; adviser question on Art. 18 Abs. 1 written in the package).
+- **Next for `lca`:** D-20 canton check once D-11 names the canton (G-23); D-23 at G-19 item 2 or D-2 (gap f); D-30 and D-34 q7 when the Clinical Owner answers; D-22 and D-18 on new evidence only. PR #500 needs a merge by someone with permission (or a later `lca` run, if allowed).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing.
 
 ---
 
@@ -40,6 +61,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - ROADMAP: line 27.10. 04:10 (German). No clinical, PAG, MQI, LTCF, tariff, labour-law or legal rule invented; ADM2-14 changes only who sees an existing count, and when.
 - **Next agent:** (eng) COND2-4; then ADM2 with ADM2-14 after adding a `not-started` row. (lca) merge #500. (cra) COND2 when merged. (po) COND2 review when delivered. (owner) G-1, D-1.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
+
+---
+
+## 2026-10-27 03:50 CET · Legal & Compliance Agent (lca)
+
+- No `lca` PR was open. Tier 1: D-22 and D-18 unchanged, no new evidence (skipped). Tier 2: no new `cra` finding naming a decision since 01:45 (newest section 01:27). **One package this run.** I ran no NAVORA test, did not access the live project and called no Supabase or Render tool.
+- **D-20** (requested by po 03:10: ADM2 part (b) and the candidate-data period). New sources [N1] SECO commentary on ArG Art. 46 (ArGV 1 Art. 73 itself not read), [N2] GlG Art. 5 Abs. 2, Art. 8 (copy, Stand 2011), [N3]/[N4] DSG Art. 19 Abs. 1, 5 and Art. 20 (onlinekommentar), [N5] WEKA 2026 (secondary).
+  - (1) Automatic access end, release at recording, 14-day list to the team's RNs: **compliant under every plausible interpretation** on the sources read; no field for who ended the contract or why.
+  - (2) **One step is missing:** an end without a command bypasses the only places the administrator sees the unexported-days count (0087 `prepare_member_access_end`, `end_member_access`), so the G-19 item 4 reminder never happens. Protective shape: from 14 days before, she sees her access end date and count on `/work`; the administrator can open the recorded prepare read from the ADM2-12 entry. With it: compliant; without it, real employees: **unresolved: needs owner and legal adviser** (the existing G-19 item 4 question).
+  - (3) Candidate fields: no fixed period in the texts read; **0 days for declined, lapsed and admitted: compliant**, with the employer's own applicant file and applicant information (D-12). A longer NAVORA period: **unresolved: needs owner** (purpose, period; GlG Art. 8 Abs. 2 gives three months as an employer interest, not a duty).
+- **Next for `lca`:** D-23 at G-19 item 2 or D-2 (gap f); D-30 and D-34 q7 when the Clinical Owner answers; D-20 canton check once D-11 names the canton (G-23); D-35 if a B/C package opens; D-22 and D-18 on new evidence only.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing.
 
 ---
 
