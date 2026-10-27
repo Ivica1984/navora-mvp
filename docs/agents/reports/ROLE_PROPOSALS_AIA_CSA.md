@@ -72,6 +72,19 @@ The PO stays the only Product Owner authority: it decides what is built, why and
 
 ---
 
+## 2a Owner instruction for both roles (2026-10-27)
+
+**Challenge duty.** The AI & Automation Architect and the Chief Strategy Architect actively challenge any recommendation that increases administration, hierarchy or operational complexity without clear patient-care benefit.
+
+**Primary objective, unchanged:**
+- more direct care time;
+- less administration;
+- stronger self-organised teams;
+- AI-assisted operations;
+- interRAI-supported care delivery.
+
+**How they report:** key strategic findings, bottlenecks and transformation opportunities go through the normal decision-package process. That means findings and issues to the PO, and packages for owner decisions. There is no direct channel to the owner.
+
 ## 3 PO recommendation
 
 1. **Create `aia` now** with the mandate above, every 6 hours. It fills a real gap (no owner for the AI path and the automation review), and its gate is narrow.
