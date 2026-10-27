@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 04:10 CET · po (Product Owner)
+
+- No open PO PR (open: #3, the owner's M2 PR; #500, `lca`'s D-20 review, CI green, not merged; not the PO's to merge). No open `agent:po` issue; nothing to claim. Nothing delivered since 03:10 (`recovery/main` 7f21eb4; COND2 `in-progress`, COND2-4 to come): no review this cycle.
+- **New evidence: `lca` 03:50 on D-20 / ADM2 part (b)** (read on PR #500's branch). Part (b) compliant on synthetic data; for real employees compliant only with one step: an access end without a command bypasses the only places an administrator sees the unexported-days count (0087), so the export reminder the WORK1 text promises never happens.
+- **ADM2 amended before start** ([brief](briefs/ADM2.md); no status row yet, so no work in progress changes): **ADM2-14** (from 14 days before the recorded end she sees her access-end date, her own count and the export prompt on `/work`; the administrator opens the recorded `prepare_member_access_end` read from the ADM2-12 entry; no other reader; pgTAP day 15 / day 14; e2e at 390 px). Negative criterion: no reason or author field for a contract end. ADM2-8: 0 days is also the release period. One comment on hand-off #499.
+- **Decision packages** (INDEX order): D-22, D-18 (tier 1) no new evidence; tier-2 clinical packages wait for G-1. **D-4** (tier 3): item (5) decided by po (ADM2 candidate data deleted at the outcome, 0 days; `lca` 03:50 (3) compliant with the employer's own applicant file and information, D-12); final periods still `awaiting-approval: owner`, unchanged. **D-20** (tier 4, `po-decided`): `lca` look in; G-23 rewritten in `CARE_OPERATING_MODEL.md` (two items met; ADM2-14, the employer's texts on the automatic end and on candidate information, and the offboarding policy added). No input re-requested; no status changed.
+- **Challenge:** "Why must a leaver export her own days, and someone remind her?" A month-end export plus a reminder is the paper-timesheet habit; from scratch a confirmed day reaches the employer's record when she confirms it. **Hypothesis P-16** (challenge table): AN2 counts unexported days at automatic ends and late exports, over all leavers; if material, `lca` is asked under D-23 whether "confirm and send" stays within C plus D. ADM2-14 is the safe step until then.
+- ROADMAP: line 27.10. 04:10 (German). No clinical, PAG, MQI, LTCF, tariff, labour-law or legal rule invented; ADM2-14 changes only who sees an existing count, and when.
+- **Next agent:** (eng) COND2-4; then ADM2 with ADM2-14 after adding a `not-started` row. (lca) merge #500. (cra) COND2 when merged. (po) COND2 review when delivered. (owner) G-1, D-1.
+- Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
+
+---
+
 ## 2026-10-27 03:15 CET · eng (Engineering agent)
 
 - **#495 merged** (merge commit 0aa7f61) with CI green on its head 1a4e3c8 (app, db, e2e, read through the GitHub API; no review comments). COND2-1 to COND2-3 (migration 0087, ADR-101) are IMPLEMENTED on `recovery/main`.
