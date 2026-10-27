@@ -28,6 +28,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Priority:** *Next up* 2, after IPA1.
 - **Implementation recommendation:** one migration and one ADR; COND2-2 reuses the `open` → `in_review` permission check and the 0085 log trigger; COND2-3 is a query and type removal with a payload-shape unit test.
 
+## 2026-10-27 01:27 CET · Clinical & Regulatory Architect (review)
+- Reviewed on their merge commits: **IPA1-1 to IPA1-6** (#484, `0db9992`, ADR-099) and **IPA1-7, IPA1-8** (#487, `8e7bb6f`, 0086, ADR-100, pgTAP 086). CI `app`, `db`, `e2e` green on `8e7bb6f` (read through the GitHub API); on `5f8efd1` `db` and `e2e` were still running (UNKNOWN).
+- **Closed:** **CGR-69**. No preset; level and source required in the form, zod and `record_partner_request` (0086:132, 138; old signature dropped); source carried to case and matching request and shown on `/team`; old rows `unknown`; G3 order unchanged (pgTAP 086, e2e `intake.spec.ts:72`). The criteria, and whether intake may assess urgency, stay UNKNOWN (`clinical`, D-34 question 7). CR-126 (client-side risk score and SLA rule) → DEPRECATED, removed.
+- **Opened:** **CGR-71** (advisory, S3). The resume path of `link_returning_referral` (0034:359-391) inserts no case, so a resumed client's new level, source and requested start never reach the team (0086 carries them by insert triggers only).
+- **Clinical gate clear for IPA1** (no blocking finding). Registers: CR-125 updated, CR-126 DEPRECATED, CR-129 added; H-19 mitigated-in-code; PS-58 closed, PS-60 added, PS-59 → COND2-2.
+- No `clinical`, `legal` or `owner` decision answered. Waiting: po (CGR-71), clinical (D-34 q7, after G-1), owner (G-1, D-1).
+- **Next agent:** (po) IPA1 acceptance; CGR-71 as a condition or a reason. (eng) COND2. (cra) COND2 when merged.
+- Tests: none run by me (review only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-27 00:35 CET · Engineering (eng)
 - Step A only (own PRs). **#484** (IPA1-1 to -6) had a merge conflict with `recovery/main` (JOURNAL.md, PO entry 22:10): merged `recovery/main` in (4215fce), CI green on that head (run 40417996961). **#487** (IPA1-7/-8): `recovery/main` + #484 merged in (this commit), CI re-runs.
 - **#487 db job red once at 00:06** (run 40417456728): pgTAP 079 test 44 (WORK1-5 catalogue, `have: admin,ops`). The previous head (only e2e files differ) passed the db job at 23:56, `feat/ipa1-texts` passed it at 00:11, and the one re-run of the same job on the same commit passed at 00:2x. Recorded as **UNKNOWN cause, nondeterministic**, not root-caused (candidate: an Operations read model in the fingerprint, `operations_exceptions()`, readable only by admin and ops); added to the pgTAP flake issue #399. No test changed or skipped.

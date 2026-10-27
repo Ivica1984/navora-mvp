@@ -16,6 +16,60 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-27 01:27 CET: IPA1-1 to IPA1-8 (#484, #487, migration 0086) reviewed on their merge commits; CGR-69 closed (the criteria stay with `clinical`, D-34 question 7); CR-126 removed; CGR-71 (advisory, S3): a returning referral that resumes a paused case keeps the new referral's urgency, source and requested start from the team; clinical gate clear for IPA1
+
+**Scope:** `recovery/main` @ `5f8efd1`. Changes since my 21:29 CET section (#485, merged `6b19b84`):
+- **Code merged:** #484 **IPA1-1 to IPA1-6** (ADR-099, no migration; `/operations` legacy panels and `/matching` demo removed, wording, unit `ipa1-wording`, e2e 390 px) as `0db9992`; #487 **IPA1-7 and IPA1-8** (0086, ADR-100, pgTAP 086 (29), updated pgTAP 012-019, e2e `intake.spec`, `operations.spec`, `push.spec`) as `8e7bb6f`. **CI** (check runs read through the GitHub API): `app`, `db`, `e2e` green on `8e7bb6f`. On `5f8efd1` (PO docs only) `app` green, `db` and `e2e` still running at my read (UNKNOWN).
+- **Docs merged:** PO 22:10 (COND1 accepted; CGR-70 decided as COND1-C2), PO 01:40 (#490: IPA1 reviewed, awaiting clinical review; COND2 approved as *Next up* 2; hypothesis P-14); `eng` 21:40, 23:25, 00:35, 01:15; `remediation/CGR-69.md`.
+- **Open PRs:** only #3 (owner, `main`). No review comment addressed to me.
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read 0086 in full, pgTAP 086, the changed pgTAP files 012-019, `link_returning_referral` and `convert_partner_request` (0034, 0013), every writer of `urgency` in `supabase/migrations`, the audit trigger history (0010, 0013), the `/operations`, `/team` and `/intake` diffs, `src/features/intake/{rules,commands}.ts` and the e2e spec `intake.spec.ts:72-128`. **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-71 | IPA1-7, IPA1-8 (0086) with RET1 (0034) | **advisory (S3)** | **When a returning referral resumes a paused case, the team never sees the new referral's urgency, its source or the referrer's requested start.** 0086 carries both facts only by BEFORE INSERT triggers on `cases` and `matching_requests`. The resume path of `link_returning_referral` inserts neither: it resumes the existing case with its team, un-suspends its planned visits, opens `review_after_pause` and marks the request `converted` onto the old case. The new request's level, source and date stay on `partner_requests`, which teams cannot read. The case keeps the urgency (and, for rows before IPA1-7, the source `unknown`) of the first referral. A resumed case is typically a client coming home from hospital, the H-19 situation; the referrer may now ask for an earlier start than the old schedule gives. Bounded: the team keeps the client, the planned visits resume at once and the review task is open, so no offer is delayed; the gap is a referrer's statement that does not reach the team. Pre-existing for the level (no writer ever updates `cases.urgency`), new for the source and the date, which IPA1-8 says are "carried to the case". pgTAP 086 tests only `convert_partner_request`. IMPLEMENTED as described; no clinical rule involved; synthetic data only | 0086:61-98 (insert triggers only); 0034:359-391 (resume path: no insert, `converted_case_id = prev.id` at :387, task at :384); `link_returning_referral` not redefined after 0034; pgTAP 086:86 (`conv`, the new-case path only) | **po (product authority; no threshold):** on resume, show the team the new referral's level with its source and the referrer's requested start (for example in the `review_after_pause` task detail, or by recording them on the case in an audited update with the old values kept in `change_log`). Or record why not. pgTAP: pause a case, link a returning referral with `hoch`, `referrer_stated` and a date → the team reads all three for that case; the case's earlier values stay in the audit trail; `team_offers` unchanged. Fits COND2 or a small IPA1 follow-up |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-69** | **closed**, IMPLEMENTED (IPA1-7, IPA1-8); CI green on `8e7bb6f` | Remedy (1), no preset: `intake-client.tsx:151, 162` (`required`, `defaultValue=""` for level and source); zod `urgencySource: z.enum(URGENCY_SOURCES)` (`commands.ts`); 0086:132 `urgency_required`, 0086:138 `urgency_source_required` (also refuses `unknown`); the old 11-argument signature dropped (0086:105), so no caller records a level without a source. Remedy (2), source recorded and shown: `urgency_source` NOT NULL on request, case and matching request, old rows `unknown`, never back-filled (pgTAP 086:40-47); carried by insert triggers (0086:61-98); `team_offers` returns it (0086:202) with the LEAVE1-3 guard kept (0086:193, pgTAP 086:159); `/team` shows "Dringlichkeit: <Stufe> (<Quelle>)" (`team-client.tsx:256`; e2e `intake.spec.ts:72`); refusals pgTAP 086:56-70. The ORDER BY is byte-identical to 0034 (0086:214, pgTAP 086). Audit: the three triggers keep every earlier key and add the two new ones (0086:222-237 vs 0010:41-47, 0013:78-82); value classes `code` (AUD1-1). The requested date is never read by an order, filter or escalation (pgTAP 086:155-165). **Residual (not a finding, OPEN):** whether an intake person may choose "bei der Aufnahme eingeschätzt" at all, and on which criteria, is D-34 question 7 (`clinical`, Clinical Owner after G-1). NAVORA sets none; until answered both values are offered. The resume path is CGR-71 |
+| **CGR-70** | open, advisory (S3); decided by the PO 22:10 as COND1-C2, now COND2-2 (*Next up* 2). PLANNED | The brief's pgTAP (a)-(e) matches my remedy. I review the build when it is merged |
+| **CGR-68** | open, advisory (S2); interim part IMPLEMENTED | no change; the named Clinical Owner's required review (owner, after G-1) |
+| CGR-54, CGR-56 | open, advisory (S3, S2); DST1-C4, DST1-C5. PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-69**.
+
+### IPA1 checks (no finding beyond CGR-71)
+
+- **IPA1-1, -2, -4: IMPLEMENTED, protective.** The client-side team "risk score" (utilisation bands 80/90/95 %) and the case "SLA" age rule (24 h / 48 h without a team) are removed with "Top Risiko-Fälle", "SLA Monitor" and the `/matching` scorer; `grep` finds no `getTeamRiskScore`, `getSlaStatus` or `calculateMatchScore` in `src/`. These were invented thresholds (CR-126). Nothing safety-relevant is lost: the same cases reach Operations through the server model (`offer_overdue`, `deadline_missing`, `case_not_ready`, `visit_uncovered_hospital`; 0019, 0024, 0035). "Schwere Qualitätsereignisse" counts the same `quality_serious_open` exceptions as before. CR-126 → DEPRECATED (removed).
+- **IPA1-3, -5, -6:** wording only; unit `ipa1-wording.test.ts` (allow-list empty) and e2e at 390 px. No clinical path.
+- **IPA1-8:** the date check (not before the request's Zurich creation day; 0086:39-41, :141) is a data-validity rule, not a clinical one. The team's offer now shows two start dates: the intake person's `cases.requested_start` and the referrer's. **On the PO's P-14** (01:40): clinically I see no objection to keeping both separate and unfilled during the pilot. A referrer's date and the date the service can actually offer are different facts, and a pre-fill would erase whose statement it is (the same provenance point as CGR-69). If the pilot shows they mostly agree, the decision which one readiness item 6 reads goes through D-15 (`clinical`), as the PO wrote.
+- **No new clinical rule, threshold, recipient, step or tariff value** in 0086 or ADR-099. G3's ordering (CR-125) is unchanged and still UNVALIDATED.
+- **Small observation (not a finding):** the coordinator's case list on `/intake` (`intake-client.tsx:481`) shows the level without its source. That list is the intake person's own record, not a team decision point, so the brief's "wherever a team sees the urgency before it decides" is met.
+- **PO condition IPA1-C1** (`/operations` stops loading `care_visits` with nurse names): privacy, not clinical. I support it as data minimisation.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| IPA1 (IPA1-1 to IPA1-8; 0086 on `8e7bb6f`) | **clear**: no blocking finding. CGR-71 is advisory (S3) and needs no change before acceptance; the PO may take it as a condition |
+| COND2 (approved, not built) | not reviewed; I review it when merged |
+
+### Decisions requested
+
+- **po:** CGR-71 (show the resumed client's new referral facts to the team, or record why not).
+- **clinical (Clinical Owner, after G-1):** D-34 question 7, unchanged: may intake assess urgency, and on which criteria. UNKNOWN until answered.
+- **owner:** G-1 (named Clinical Owner), D-1; unchanged.
+
+---
+
 ## 2026-10-26 21:29 CET: COND1-4a, -5a, -5b, -6, -8, -9, -10 (0084, 0085) reviewed on their merge commits; CGR-66 and CGR-67 closed; CGR-68 interim part met (stays open for the G-1 review); CGR-70 (advisory, S3): a lapsed quality claim cannot be taken over, only closed; clinical gate clear for COND1; IPA1-1 to -6 (#484, open) read
 
 **Scope:** `recovery/main` @ `86b6a0b`. Changes since my 17:26 CET section (#472, merged `6de8543`):
