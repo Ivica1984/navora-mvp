@@ -531,7 +531,8 @@ function VisitCard({
               )}
               {moreItems.includes("hold") && (
                 <button type="button" onClick={() => { setMoreAction("hold"); setMoreOpen(false); }}
-                  className="min-h-11 rounded-lg border border-rose-400 bg-white px-3 text-left font-semibold text-rose-900">
+                  className="min-h-11 rounded-lg border border-stone-400 bg-white px-3 text-left font-semibold">
+                  {/* UXR-16: neutral outline (rose is the P1 colour family); the consequence sentence carries the weight. */}
                   Abrechnungssperre setzen
                 </button>
               )}

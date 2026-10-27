@@ -1,6 +1,6 @@
 # Owner agenda: every open ask on one page
 
-**Owner:** `po` · **Since:** 2026-10-27 14:45 CET (STR-14 adopted, [rule](../DECISION_PACKAGES.md#frozen-packages)) · **Updated** only when a package enters or leaves `awaiting-approval`, or its ask changes.
+**Owner:** `po` · **Since:** 2026-10-27 14:45 CET (STR-14 adopted, [rule](../DECISION_PACKAGES.md#frozen-packages)) · **Last update:** 2026-10-27 20:15 CET (D-38 entered bundle 2) · **Updated** only when a package enters or leaves `awaiting-approval`, or its ask changes.
 
 Each line is one ask. Answer in one line, for example "D-7: approved". Each package holds the reasoning. Until you answer, the safe default written in the package stays in force.
 
@@ -20,11 +20,12 @@ Each line is one ask. Answer in one line, for example "D-7: approved". Each pack
 |---|---|---|
 | [D-11](D-11.md) | Approve Zurich as the pilot canton (`csa` STR-1: include one municipality with a known financing path for a new provider). | D-18, D-25, holidays, statistics |
 | Partner (D-12) | Name the partner provider, or say none is in view. With the partner, find out its CIRS rules and whether it wants QG1 events at all (D-16, po 2026-10-27 19:10). | D-38, D-18, D-29, D-4, D-16 (CIRS) |
-| Legal adviser | Name one Zurich legal adviser. | questions in D-22, D-18, D-9, D-4, D-12 (a)-(c) and R-11 rule adoption, D-38 (T3, T9, T11, T13), D-16 (CIRS export) |
+| Legal adviser | Name one Zurich legal adviser. | questions in D-22, D-18, D-9, D-4, D-12 (a)-(c) and R-11 rule adoption, D-38 (T3, T5, T9, T11, T13, T14), D-16 (CIRS export) |
 | [D-36](D-36.md) | Give `lca` the interRAI licence terms (licensee, licensor, instrument and edition, territory and term, permitted uses incl. contractors, AI processing and software design, confidentiality). A fact, not a decision. | D-37 |
 | [D-2](D-2.md) | Approve the two paid plans (staging, EU/CH), create both and add the staging deploy secrets. | T12 staging |
 | [D-26](D-26.md) | Approve: in production no service-role key on the app host; invitations and the push sender run in Edge Functions. | ADM1 invitations in production |
 | [D-29](D-29.md) | Approve option B (evidence, second-person confirmation, re-check date, expiry downgrades) as the real-data gate; the licence holder stays responsible. | real clients |
+| [D-38](D-38.md) | Approve terms T1-T14 as the minimum content of the partnership letter of intent; sign no LOI naming the 12-month sunset before. Also ask the Gesundheitsdirektion who issues a new provider's Leistungsauftrag and what training duty applies to it (T14). (po 2026-10-27 20:15) | the partner's LOI; the C transfer |
 | [D-14](D-14.md) | Approve F3 (fee per active team member per month) or F4 (per client); no per-hour or revenue-share fee. | J7 |
 
 ## Bundle 3: once a legal adviser is named or a trigger holds
@@ -44,5 +45,4 @@ Each line is one ask. Answer in one line, for example "D-7: approved". Each pack
 
 ## Coming once the inputs are in (not asked yet)
 
-- [D-37](D-37.md): interRAI HC as the designated target instrument (B), with C as a horizon-2 target. Waits for `eng` and D-36 (`cra` in, 13:37).
-- [D-38](D-38.md): transfer terms T1-T13 for the partnership letter of intent. Waits for `eng` (`cra` and `lca` in). **Recommended meanwhile: sign no letter of intent that names the sunset before D-38 is answered.**
+- [D-37](D-37.md): interRAI HC as the designated target instrument (B), with C as a horizon-2 target. Waits only for the D-36 licence terms (bundle 2); `cra`, `lca` in, Engineering drafted by po (2026-10-27 20:15).

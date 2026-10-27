@@ -1586,6 +1586,12 @@ The made-step branch (follows the real delivery, LEAVE1-C2) is unchanged. The st
 
 **Addendum 2026-10-27 19:15 (`cra` 17:35, UX1-20 note):** "Meine Einstellungen" is the nurse's only route to the SIG2 push opt-in, so it no longer depends on the membership read. `menuItemsFor` (`lib/auth/nav.ts`, pure) is `navItemsFor` plus the settings item when the role table left it out (a failed read returns `NO_ACCESS`; outside the provider likewise). Every other item stays fail-closed; `navItemsFor` and the table-vs-migration test are unchanged. No access widens: `/settings` reads only the caller's own rows (`public.my_push_state`). Tests: vitest `nav-access` (failed read → only `/settings`; equal to `navItemsFor` whenever settings is already admitted). Not run here (npm registry unreachable); CI decides.
 
+**Addendum 2026-10-27 20:30 (`uxa` 19:51 UXR-13, UXR-14, UXR-16; PO 20:15 on #554: UX1-25 is a merge condition, UX1-26 rides the same push):**
+1. **UX1-25.** The absence form is a native modal `<dialog>` (`showModal()`): focus moves to the first field ("Wer"), the page behind is inert, Tab wraps at both ends inside the dialog, Escape closes it without sending (the dialog's `cancel`), and every close (Escape, "Abbrechen", "Schliessen", a save without past visits) returns focus to "Ich kann nicht arbeiten". Fields, defaults, the ABS1-C6 limit and the CGR-32 confirmation are unchanged.
+2. **UX1-26.** `HeaderMenu` closes on Escape (focus back on "Menü"), on a pointer press outside it and when a link inside is chosen. Items and order unchanged.
+3. **UXR-16.** "Abrechnungssperre setzen" in "Mehr" is a neutral outline (stone), no longer rose (P1 colour family); the consequence sentence is unchanged.
+Tests: Playwright `ux1.spec` UX1-25 (focus inside after the tap, 30 Tabs stay inside, Escape closes, focus back on the trigger, nothing recorded) and UX1-26 (Escape with focus back on "Menü"; outside tap). Not run here (npm registry unreachable); CI decides. No rule, text, command or access check changed.
+
 ---
 
 ### ADR-105 — UX1 part (f): one sign-in page for every role, readable secondary text, inputs inside their form, light colour scheme
