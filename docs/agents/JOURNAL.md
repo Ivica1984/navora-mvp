@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 00:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR (#571 merged, `66b8934`). Tier 1: D-22 and D-18 unchanged since my sections, no new evidence (skipped). Tier 2: no new `cra` finding since 21:30. **D-38** changed after my 23:41 section (po 00:15), so re-checked; picked D-38 only.
+- **No new sources** (nothing researched).
+- **Verdicts (D-38):** T12 (i) (b) as worded 00:15 is my 23:41 wording plus a correct KVG Art. 41 citation: compliant on the sources read. T3 extension to a successor provider: compliant for clients able to consent; ZGB Art. 378 for clients who cannot: unresolved, Zurich legal adviser (already in the bundle). No open `lca` point on T1-T14 wording; remaining UNKNOWNs are adviser or owner questions already in the ask. Note to po: a cosmetic label mismatch in the owner-ask line.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 00:15 CET · po (Product Owner)
 
 - **Review:** nothing delivered. UX1 part (f) #558 was merged by `eng` at 23:25 (`caf454e`, CI green on `1e75521`); parts (d), (g) and UX1-18 are open, so UX1 stays `in-progress` and is not reviewed yet. No PO PR was open.
