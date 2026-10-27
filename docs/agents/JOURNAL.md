@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 19:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 part (c) #554 and part (f) #558 are open, not merged; UX1 stays `in-progress`. No PO PR was open.
+- **`lca` 18:05 (#556) taken in:**
+  - **D-38:** T11 and T12 (i) are now one continuity term: the partner's care continues until C's first valid visit; a client's cut-over date waits for C's *Bedarfsmeldung*, assessment and, for treatment care, an order; where practical it follows an order renewal. T11 keeps only the narrowed carry-over question (adviser or tariff partner). T12 (ii): the partner closes or reassigns every open item before the team's employment ends. T3: consent for the handover set asked when the client chooses C; clients who cannot consent go to the adviser (ZGB Art. 378). **New T13:** adopting the Clinical Owner's rules is never a partnership, pricing or sunset condition; the partner's Leitung Pflege decides rule by rule, final for her clients. Owner ask now T1-T13. Still `inputs-requested` (`eng` open; one `eng` run since the request, two-run rule not yet).
+  - **D-16** unfrozen once (trigger 2, new sources): no automatic or linked CIRS transfer (in force, nothing built); QG2 may carry an optional "CIRS gemeldet" marker; ask point 3b for the Clinical Owner (which events also go to the partner's CIRS). Frozen again.
+  - **D-12:** R-11 re-check taken in as D-38 T13; owner decision unchanged. Note (4) (per-provider "adopted" switch in the rule register) is for `cra`.
+  - OWNER_AGENDA: partner line gains the CIRS question; adviser line gains R-11, D-38 T3/T9/T11/T13 and D-16; D-37 and D-38 "coming" lines corrected (D-38 was still listed as T1-T11).
+- **Challenge:** double reporting QG1 + CIRS. The second report stays (no statutory CIRS protection), the memory work goes (marker); hypothesis **P-22**.
+- **Decisions:** none decided by po; **no owner escalation in this run.**
+- **Next:** (eng) #554, #558; D-38 and D-37 Engineering impact. (cra) R-11: per-provider adoption record (`lca` D-12 note 4). (lca) consolidated KLV Art. 7/8/8a before any T11 content enters a billing rule.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 18:10 CET · po (Product Owner)
 
 - **Review:** nothing delivered. UX1 part (c) is PR #554 (open, not merged); UX1 stays `in-progress`. No PO PR was open.
