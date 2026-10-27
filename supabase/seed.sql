@@ -174,3 +174,27 @@ insert into public.care_visits (organization_id, id, created_at, case_id, team_i
 -- acknowledge_working_time_notice accepts only the current version.
 insert into public.working_time_notice_acks (organization_id, user_id, text_version, acknowledged_at) values
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000906', 'work1-notice-v1', private.now() - interval '2 days');
+
+-- COND2-2 (e2e quality.spec, ADR-101): a quality claim whose owner left. austritt.test (…907) is a synthetic nurse of
+-- org A in no team who once took event 704 (Testteam Nord, visit 502 today) in review; her access was then ended by
+-- the administrator. Her claim has lapsed (0085), so the team sees "Übernahme beendet – Zugang beendet" and can take
+-- it over ("Übernehmen", 0087). She never signs in (no password, e-mail unconfirmed, no identity row). Written as the
+-- table owner, in the order the commands would write it: the claim, then the access end.
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000907', 'authenticated', 'authenticated',
+   'austritt.test@navora.test', '', null,
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
+insert into public.organization_memberships (organization_id, user_id, role) values
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000907', 'nurse');
+insert into public.quality_events (organization_id, id, created_at, case_id, visit_id, team_id, event_type, severity, title, description, status, owner_id) values
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000704', private.now() - interval '3 hours', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000502', '00000000-0000-4000-a000-000000000101', 'process', 'low', 'Testereignis Übernahme', null, 'in_review', '00000000-0000-4000-a000-000000000907');
+insert into public.quality_event_log (organization_id, event_id, from_status, to_status, note, actor_id, idempotency_key, created_at) values
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000704', 'open', 'in_review', null,
+   '00000000-0000-4000-a000-000000000907', '00000000-0000-4000-a000-000000000781', private.now() - interval '2 hours');
+insert into public.member_access_events (organization_id, user_id, kind, reason_code, actor_id, created_at) values
+  ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000907', 'ended', 'employment_ended',
+   '00000000-0000-4000-a000-000000000905', private.now() - interval '1 hour');

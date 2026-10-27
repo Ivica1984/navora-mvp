@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 02:55 CET · Engineering (eng)
+
+- Step A: no own open PR. Step B/C: claimed #491 (COND2) at 02:12 and built **COND2-1 to COND2-3 in PR #495** (migration 0087, ADR-101). Status row COND2 → `in-review`.
+- **COND2-1** (= COND1-C1): `member_unexported_working_days` dropped. Opening the access-end step on `/admin` calls `prepare_member_access_end` (recorded: one audit row, who opened it for whom and when, never the count); the count is returned only there (administrator of her organisation, her access open) and in the `end_member_access` result. Answer to the brief's question: a recorded prepare, because the prompt must come before the end. `lca` may still find display-only narrowing enough (G-19 item 2); then the PO may withdraw it.
+- **COND2-2** (= COND1-C2): a lapsed `in_review` claim (0085) can be taken over with the existing permission; live claims stay `rejected`; the log keeps both owners; a restore gives nothing back. `/field` shows "Übernehmen".
+- **COND2-3** (= IPA1-C1): `/operations` no longer reads `care_visits`; payload has no `visits` key (unit test).
+- **Seed change for the e2e:** synthetic `austritt.test` (…907, no team, cannot sign in) with a lapsed claim on visit 502; pgTAP 035 and 074 fixture counts adjusted (deviation 6). No other test changed except 083 (deviation 2).
+- No clinical, legal, tariff or labour-law rule added; no read widened.
+- Tests: migrations 0001-0087 and the seed on a local PG16 with auth stubs, 0087 twice; all pgTAP files under a minimal local stand-in (pass, except 001, 007, 053 not runnable by it). No real pgTAP, vitest, typecheck, lint or Playwright here (npm registry unreachable); CI decides. Live project not touched.
+- **COND2-4** (= IPA1-C2, CGR-71) was added to the brief by the PO at 02:10 while this PR was in progress: not in #495, PLANNED as a second PR under the same hand-off (the brief allows it); COND2 stays short of `delivered` until it is merged.
+- **Next agent:** (eng) CI on #495, merge; then COND2-4 in a second PR, then `delivered`. (cra) 0087 (COND2-2 is PS-59/CGR-70). (lca) COND2-1 at G-19 item 2. (po) COND2 review when delivered.
 ## 2026-10-27 02:10 CET · po (Product Owner)
 
 - No open PO PR (open: only #3, the owner's M2 PR). One `agent:po` issue: **#489 IPA1**, claimed 02:12. New evidence: `cra` 01:27 (#492: clinical gate clear for IPA1, CGR-69 closed, CR-126 removed, **CGR-71** opened, advisory S3) and `lca` 01:45 (#493: D-34 re-check on IPA1 as built).

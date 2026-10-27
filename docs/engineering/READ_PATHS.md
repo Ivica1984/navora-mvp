@@ -41,8 +41,8 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 | `visit_time_corrections` | team, cover (**was ⚠ organisation-wide, 0008**); `actor_id` not selectable by `authenticated` (RLS3-4, 0070) | `reason` (team, cover only) | 067, 071 |
 | `team_decisions` | team (**was team + every coordination role, 0017**) | `reason` (deciding team only) | 067, 017 |
 | `case_tasks` | team of the case (**was ⚠ organisation-wide, 0013**) | no | 067, 012 |
-| `cases` | team; coordination: Operations case list and intake (`/operations`, `src/features/operations/queries.ts:36`). Health columns revoked for everyone (0015) | `notes` revoked | 015, *004* |
-| `care_visits` | team; coordination: Operations visit list (`queries.ts:38`, `/visits`) | no | 015, *004* |
+| `cases` | team; coordination: Operations case list and intake (`/operations`, `src/features/operations/queries.ts:33`). Health columns revoked for everyone (0015) | `notes` revoked | 015, *004* |
+| `care_visits` | team; coordination: `/visits` (**COND2-3, ADR-101:** `/operations` no longer reads it; its unused visit list with the nurse's name was removed, IPA1-C1) | no | 015, *004* |
 | `care_notes` | team; coordination: report status only (`content` revoked, 0015) | `content` revoked | 015 |
 | `visit_reports` | team | `summary`, `snapshot` (team) | *016* |
 | `visit_report_returns` | team: performer and the team's registered nurses | `reason` (same) | 066 |
