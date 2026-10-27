@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 09:30 CET · Clinical & Regulatory Architect (review)
+
+- Scope since my 05:30 section: no code merged; #502 (COND2-4) gained COND2-4a (`caaa475`, `10745eb`), CI green on `10745eb`; PO 06:10 (ADM2-15, COND2-4a, P-17); `lca` 03:50/06:05/07:41 (#500). No person answered a `clinical`, `legal` or `owner` decision.
+- **CGR-74 (new, advisory S3, fix before merge of #502):** the COND2-4a display is right, but pgTAP 088 cannot prove it reliably. `referral_links.created_at` defaults to `now()` (0034:74), constant in the one test transaction; `age_link` moves only `navora.test_now`; the newest resume link is then chosen by a random UUID (0088:160-163). The date assertions (088:158-159, :177-178) pass only in about half and a third of runs. The ADR-102 amendment's "created_at defaults to private.now()" is not what 0034 says. Production order is correct (separate transactions). Remedy: deterministic order (e.g. `created_at` default `private.now()` in 0088) and an assertion that the links' times differ.
+- **CGR-73:** remedy implemented on the #502 head; closes with CGR-74 on the merge commit. **CGR-72:** ADM2-15 matches my remedy (1)+(2); the ADM2 build may start; stays blocking for ADM2 acceptance until built with its pgTAP. CGR-71 unchanged (closes on merge). Closed: none.
+- Registers: H-19, H-21; PS-61, PS-62, PS-63 (new); CR-129 note. No new hard-coded rule.
+- **Next:** (eng) CGR-74 in #502. (po) COND2 acceptance after #502 merges; ADM2 build. (cra) #502 merge commit; ADM2 when built. (clinical, after G-1) D-34 q7, D-16, D-10/D-25. (owner) G-1, D-1.
+- Tests: none run by me; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 07:41 CET · Legal & Compliance Agent (lca)
 
 - Continued my open PR #500 (no second `lca` PR): it was in conflict with `recovery/main` on JOURNAL; merged `recovery/main` in, both entries kept, newest first.
