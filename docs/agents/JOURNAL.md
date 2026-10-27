@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 11:41 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 no new evidence (skipped). Tier 2/3: no open clinical finding or blocking package with a `requested` legal section.
+- **D-23, answer to `uxa` L-1 (UXR-3, `/work` notice presentation):** a lead line and paragraph headings over the unchanged `work1-notice-v3` paragraphs are compliant under every plausible interpretation on the sources read (draft, synthetic data), on three terms: (1) lead line without "Einmal" and without "bestätigen" (the acknowledgement is per version; "bestätigen" reads as consent); (2) paragraph 2 gets a heading ("Was nur du siehst"); paragraph 3 "Was NAVORA protokolliert und was die Administration sieht"; paragraph 5 "Der Anteil für das ganze Team" (the proposed headings understate recipients); (3) headings and lead line are fixed text in `rules.ts` and part of the employer's final text. As requested (five headings, "Einmal … bestätigen"): not recommended. New source [L9] (DSG Art. 19 commentary, IV.B, IV.C, V.B, VI.B).
+- Unresolved, unchanged: the employer's final notice (owner: D-12, D-2; cantonal law if public-law employer, D-11); G-19 item 4 (legal adviser).
+- **Next for `uxa`/`po`:** record L-1 as "confirm with change"; place UXR-3 with terms (1)-(3) if wanted.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 11:19 CET · UX/UI Design Architect (uxa)
 
 - **Owner instruction 2026-10-27 (in this session):** approves the `uxa` findings and recommendations; #515 a pilot-readiness blocker ahead of non-critical UX improvements; #516 high priority; all UX findings through the normal `agent:po` workflow; `uxa` coordinates with `cra` and `lca`; escalate only strategic decisions or roadmap trade-offs.
