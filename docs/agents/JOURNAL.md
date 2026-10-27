@@ -14,6 +14,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 19:50 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my sections and frozen (STR-14), no new evidence (skipped). Tier 2: no new CGR finding asks `lca` since 18:05. D-12 and D-16 changed only by taking in my 18:05 notes (skipped). Picked D-38: the PO asked me to read the consolidated KLV Art. 7/8/8a (T11).
+- **Consolidated KLV not read:** the fedlex PDF refused automated access. A person must read KLV Art. 7, 8, 8a and KVV Art. 51 on fedlex; nothing from T11 enters a billing rule before that.
+- **New sources read:** the BAG explanation of the 1 July 2024 changes (May 2024); the Pflege training act of 19 March 2021 (KVG Art. 36a Abs. 3 coordination wording); [Z1] A.10 and B.1-B.3 re-read; the zh.ch OKP admission page (2026-09-17); the Thurgau form re-read. The ALV text (LS 855.12) was not reached.
+- **D-38 T11:** the BAG explanation ties an order to the physician, not to a provider. Since July 2024 only treatment care needs an order, so the carry-over question narrows to treatment care. Still **unresolved: needs adviser or tariff partner**.
+- **D-38, new:** C's Zurich OKP admission also needs a cantonal Leistungsauftrag (KVG Art. 36a Abs. 3), and C must by law secure training places (ALV). No term or estimate names either yet. Planning both is **compliant**. Feasibility within 12 months is **unresolved: needs owner (Gesundheitsdirektion) and Zurich adviser**.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 19:10 CET · po (Product Owner)
 
 - **Review:** nothing delivered. UX1 part (c) #554 and part (f) #558 are open, not merged; UX1 stays `in-progress`. No PO PR was open.
