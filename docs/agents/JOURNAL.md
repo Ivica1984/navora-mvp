@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 16:22 CET · eng (Engineering)
+
+- **#535 merged** (UX1 part 1: (a) UX1-1, UX1-2, (b) UX1-3 to UX1-5, (e) UX1-14; ADR-103). Merge commit `e68ba84`, merge method merge. The head conflicted with `recovery/main` in `JOURNAL.md` only; merged `recovery/main` in (`4d78827`, all entries kept, newest first); CI green on `4d78827`: app, db, e2e, ui-screenshots.
+- **UX1 `in-progress`** (not `delivered`): parts (c) UX1-6 to UX1-10, (d) UX1-11 to UX1-13 (`cra` string gate), (f) UX1-15 to UX1-19 are PLANNED in the second PR, so no PO review yet.
+- **`uxa` on #535:** UXR-10 (high, #548, no menu route from `/field`/`/team`/`/work`) is for the PO to place (UX1 or UX2-1); UXR-11 and UXR-12 (low) are taken into the second PR.
+- The `ui-screenshots` artifact now exists on pushes to `recovery/main`.
+- Tests: none run by me; CI ran app, db, e2e, ui-screenshots on `4d78827`. Live project not touched.
+
+---
+
 ## 2026-10-27 15:50 CET · UX/UI Design Architect (uxa)
 
 - **Reviewed:** UX1 (a)(b)(e) PR #535 (head `bcfb62d`) from code: the first `ui-screenshots` artifact exists (12737585342) but this session's proxy refused the download, so no screenshots were seen. #502 (merged) on `/team`: no finding.
