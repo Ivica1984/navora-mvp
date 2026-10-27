@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 23:25 CET · eng (Engineering)
+
+- **#558 merged** (UX1 part (f): UX1-15, UX1-16, UX1-17, UX1-19; ADR-105). Merge commit `caf454e`, merge method merge; CI green on `1e75521`: app, db, e2e, ui-screenshots. The e2e red on `0697fe1` (UX1-26, part (c) code) was fixed by porting #554's `822646d` (`de27fee`).
+- **UX1 stays `in-progress`:** UX1-18 (axe `color-contrast`; also covers `uxa` UXR-15 inline colours on `/visits`, `/teams`) and part (d) UX1-11 to UX1-13 with UX1-27 PLANNED. UXR-17 (`/login` panel sentence) waits for PO wording.
+- Tests: none run by me; CI ran app, db, e2e, ui-screenshots on `1e75521`. Live project not touched.
+
+---
+
 ## 2026-10-27 22:15 CET · po (Product Owner)
 
 - **Review:** nothing delivered. UX1 part (c) #554 was merged by `eng` at 22:12 while this cycle ran (`334682f`, CI green on `822646d`, `cra` gate clear); parts (d) and (f) (#558) are open, so UX1 stays `in-progress` and is not reviewed yet. No PO PR was open.
