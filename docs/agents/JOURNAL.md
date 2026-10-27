@@ -4,6 +4,38 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 13:30 CET · po (Product Owner)
+
+- **Owner decisions 2026-10-27 (in this session):**
+  - **Approved:**
+    - the strategic direction as recorded;
+    - **D-12** as revised: decided. The partner is a pilot vehicle; the destination is a team-owned, self-organised provider.
+    - **D-34**: A plus C, with the clinical module as the long-term target; decided.
+    - the **staged AI roadmap** (D-35 stages 0-3);
+    - **D-37** as a strategic decision track, with expert review and licence clarification (D-36) before the final decision;
+    - **interRAI as a core clinical foundation**;
+    - both role mandates, and the creation of both roles.
+  - **Owner addition for `aia`:**
+    - First responsibility: the largest bottlenecks in home care, and how NAVORA eliminates, simplifies or automates them.
+    - Success measures: direct care time, less administrative burden, stronger self-organised teams.
+- **Governance integrated:**
+  - README *Roles* (`aia`, `csa`), new sections *Automation review* and *Strategy review*, *Participants*; COORDINATION components.
+  - Seeded [`reports/AUTOMATION_REVIEW.md`](reports/AUTOMATION_REVIEW.md) (baseline and first task) and [`../product/STRATEGY.md`](../product/STRATEGY.md) (vision, owner decisions, horizons, regulatory roadmap, open questions).
+  - `AI_OPERATING_MODEL_REVIEW.md` is now maintained by `aia`.
+  - Role mandates marked approved.
+- **Schedules created** by po at the owner's explicit request in this session: "NAVORA AI & Automation Architect" (every 6 hours) and "NAVORA Chief Strategy Architect" (weekly, Monday evening Zurich time; role review 2026-11-24).
+- D-12 and D-34 moved to *Decided*; INDEX updated; D-35 and D-37 rows note the owner's approvals.
+- **Next PO cycle:** write and approve AIG1, ASM1, PLAN3 (order after UX1: ADM2, AIG1, ASM1, UX2, PLAN3); review COND2 (delivered 12:25).
+- **Still with the owner:**
+  - the pilot partner;
+  - a Zurich legal adviser and a regulatory adviser;
+  - the Clinical Owner (G-1);
+  - the interRAI licence terms (D-36);
+  - D-11 (Zurich) and the D-2 staging setup.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 13:00 CET · po (Product Owner)
 
 - **Owner strategic direction 2026-10-27 (in this session):**

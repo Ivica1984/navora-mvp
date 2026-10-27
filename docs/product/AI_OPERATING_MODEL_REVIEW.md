@@ -1,5 +1,7 @@
 # NAVORA AI Operating Model Review
 
+**Maintained by:** AI & Automation Architect (`aia`) from 2026-10-27 (owner). The staged AI path approved by the owner on 2026-10-27 is in [`STRATEGIC_ALIGNMENT_REVIEW.md`](STRATEGIC_ALIGNMENT_REVIEW.md) §3; findings go to [`../agents/reports/AUTOMATION_REVIEW.md`](../agents/reports/AUTOMATION_REVIEW.md).
+
 **Author:** Product Owner (`po`) · **Date:** 2026-10-26 (Europe/Zurich) · **Requested by:** the owner ("Follow-up Review", after the [Transformation Alignment Report](TRANSFORMATION_ALIGNMENT_REPORT.md)) · **Status:** strategic review. It approves no build. It opens one decision (D-35, §9). **Repository state read:** `recovery/main` after #458.
 
 **Question:** what does a care operating system look like when it is designed AI-first? The aim is not a better LTCF or interRAI workflow, but a superior operating system for self-organised care.

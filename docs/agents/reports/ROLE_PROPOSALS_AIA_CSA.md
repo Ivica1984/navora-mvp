@@ -1,6 +1,6 @@
 # Proposed roles: AI & Automation Architect (`aia`) and Chief Strategy Architect (`csa`)
 
-**Prepared by:** Product Owner (`po`), 2026-10-27 13:00 CET, on owner instruction 2026-10-27 ("provide recommended mandates for both roles before implementation"). **Status:** proposal. Neither role exists, no schedule is created, and README *Roles* is unchanged until the owner approves. The repository holds no earlier proposal for these roles (UNKNOWN where the earlier request was made); this is the first written version.
+**Prepared by:** Product Owner (`po`), 2026-10-27 13:00 CET, on owner instruction 2026-10-27 ("provide recommended mandates for both roles before implementation"). **Status: approved by the owner 2026-10-27; both roles created** (README *Roles*, *Automation review*, *Strategy review*; schedules created by po at the owner's request in this session). Was: proposal. The repository holds no earlier proposal for these roles (UNKNOWN where the earlier request was made); this is the first written version.
 
 **Context:** [Strategic Alignment Review](../../product/STRATEGIC_ALIGNMENT_REVIEW.md) (owner direction 2026-10-27).
 
@@ -32,6 +32,13 @@ The PO stays the only Product Owner authority: it decides what is built, why and
 | **Measures it is judged by** | Administrative minutes removed per visit (from events, team level); share of plans, invoices and reports that start from a proposal; correction rate per agent and field (never per person); zero unconfirmed record entries; stage entry conditions met on time. |
 | **Cadence (recommended)** | Every 6 hours, scheduled cloud task "NAVORA AI & Automation Architect"; through `aia/…` PRs (docs only), merged when CI is green, like `uxa`. |
 | **Review of the role** | After 4 weeks: the PO reports to the owner how many `aia` proposals became briefs and what they removed. |
+
+**Owner addition (2026-10-27).**
+- **First responsibility:** identify the largest bottlenecks in home care and determine how NAVORA can eliminate, simplify or automate them.
+- **Success is measured primarily by:**
+  - increased direct care time;
+  - reduced administrative burden;
+  - stronger self-organised teams.
 
 **Why now.** The queue has no item for AI-assisted operations, planning or documentation (Review §1, dimensions 2-4). The AI governance layer (AIG1) and the staged path need one owner who keeps them coherent across briefs. Today that falls between `po`, `eng` and `cra`, and nobody does it.
 

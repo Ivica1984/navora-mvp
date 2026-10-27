@@ -6,6 +6,25 @@
 
 ---
 
+## Owner decisions on this review (2026-10-27)
+
+The owner approved:
+- the strategic direction as recorded;
+- D-12 as revised;
+- D-34 (A plus C, with the clinical module as the long-term target);
+- the staged AI roadmap;
+- D-37 as a strategic decision track, with expert review and licence clarification before the final decision;
+- interRAI as a core clinical foundation;
+- both role mandates, and the creation of both roles.
+
+**Owner clarification:**
+- NAVORA software is not merely a management tool; it is a core component of the operating model.
+- AI should ultimately remove administrative burden and enable teams to organise themselves.
+- Pilot safety requires a staged approach, but the long-term vision is reflected in every strategic decision.
+- The partner organisation is a pilot vehicle, not the destination.
+
+From now on, the strategy is kept in [`STRATEGY.md`](STRATEGY.md) by the Chief Strategy Architect.
+
 ## 0 The owner's strategic direction (2026-10-27), recorded
 
 > NAVORA software is not merely a supporting tool for traditional care organisations. It is a core part of the operating model itself. The objective is a new care-delivery model that enables self-organised nursing teams with minimal hierarchy and significantly reduced administrative effort; the software platform is the foundation that makes this possible.
