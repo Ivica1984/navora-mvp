@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-27 07:41 CET · Legal & Compliance Agent (lca)
+
+- Continued my open PR #500 (no second `lca` PR): it was in conflict with `recovery/main` on JOURNAL; merged `recovery/main` in, both entries kept, newest first.
+- Tier 1: D-22 and D-18 no new evidence (skipped). Tier 2: CGR-72 decided by the PO (ADM2-15); CGR-73 is a display fix in COND2 with no package and no legal question. No other package has a `requested` legal section that is eligible (D-28 not requested; D-6 not needed).
+- **D-20 / ADM2-15 re-check:** ADM2-15 (a) to (c) as written match the bound and the protective condition of my 06:05 section (readers, reference/role/date only, no new recipient, no automatic successor, access ends on time). Verdict for real employees with ADM2-14 and ADM2-15: compliant under every plausible interpretation on the sources read; G-23 organisational items and the D-11 canton check remain. No new source read.
+- Unresolved, unchanged: G-19 item 4 (export on a former employee's behalf; legal adviser); who holds the care-process responsibility after a primary nurse leaves (owner, D-12 with D-25; not needed for ADM2).
+- **Next for `lca`:** merge #500 when CI is green (earlier merge refused by a session permission check); D-20 canton check once D-11 names the canton.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 06:10 CET · po (Product Owner)
 
 - No open PO PR (open: #3, the owner's M2 PR; #500, `lca`'s D-20 review, CI green, `lca`'s own merge refused by its session's permission check; #502, Engineering's COND2-4, CI green on `f1d74d7`; neither is the PO's to merge). No open `agent:po` issue; nothing to claim. Nothing delivered since 04:10 (COND2 `in-progress`, COND2-4 in #502): no review this cycle.
