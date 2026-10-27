@@ -5,6 +5,7 @@ import CommandError from "@/components/feedback/CommandError";
 import { useMemo, useState } from "react";
 import type { TeamRow } from "@/features/teams/types";
 import { assignTeamCoach, setTeamPriority } from "@/features/teams/commands";
+import { SECONDARY_TEXT } from "@/lib/ui/colors";
 
 type Team = TeamRow;
 
@@ -125,7 +126,7 @@ setCoachInput("");
         }}
       >
         <strong>{team.name}</strong>
-        <div style={{ color: "#5f766d", marginTop: "6px" }}>
+        <div style={{ color: SECONDARY_TEXT, marginTop: "6px" }}>
           {team.open_slots === 0
             ? `Auslastung ${team.utilization}%`
             : `${team.open_slots} offener Slot`}
@@ -154,14 +155,14 @@ setCoachInput("");
               fontSize: "12px",
               textTransform: "uppercase",
               letterSpacing: "0.08em",
-              color: "#6d857c",
+              color: SECONDARY_TEXT,
               marginBottom: "10px",
             }}
           >
             Teams Übersicht
           </div>
           <h2 style={{ margin: 0, fontSize: "24px" }}>Teams Übersicht</h2>
-          <p style={{ color: "#5f766d", marginTop: "10px" }}>
+          <p style={{ color: SECONDARY_TEXT, marginTop: "10px" }}>
             Regionale Übersicht über Teamstatus, offene Slots und Koordinationsbedarf.
           </p>
         </div>
@@ -175,7 +176,7 @@ setCoachInput("");
             flexWrap: "wrap",
           }}
         >
-          <div style={{ fontSize: "14px", color: "#5f766d" }}>Region filtern:</div>
+          <div style={{ fontSize: "14px", color: SECONDARY_TEXT }}>Region filtern:</div>
           {regions.map((region) => {
             const isActive = selectedRegion === region;
             return (
@@ -206,17 +207,17 @@ setCoachInput("");
           }}
         >
           <div style={{ background: "white", borderRadius: "18px", padding: "18px" }}>
-            <div style={{ color: "#6d857c", fontSize: "14px" }}>Aktive Teams</div>
+            <div style={{ color: SECONDARY_TEXT, fontSize: "14px" }}>Aktive Teams</div>
             <div style={{ fontSize: "36px", marginTop: "8px" }}>{activeTeams}</div>
           </div>
 
           <div style={{ background: "white", borderRadius: "18px", padding: "18px" }}>
-            <div style={{ color: "#6d857c", fontSize: "14px" }}>Offene Slots</div>
+            <div style={{ color: SECONDARY_TEXT, fontSize: "14px" }}>Offene Slots</div>
             <div style={{ fontSize: "36px", marginTop: "8px" }}>{totalOpenSlots}</div>
           </div>
 
           <div style={{ background: "white", borderRadius: "18px", padding: "18px" }}>
-            <div style={{ color: "#6d857c", fontSize: "14px" }}>Ø Auslastung</div>
+            <div style={{ color: SECONDARY_TEXT, fontSize: "14px" }}>Ø Auslastung</div>
             <div style={{ fontSize: "36px", marginTop: "8px" }}>{avgUtilization}%</div>
           </div>
         </div>
@@ -243,7 +244,7 @@ setCoachInput("");
             ))}
 
             {filteredTeams.length === 0 && (
-              <div style={{ color: "#5f766d" }}>Keine Teams in dieser Region gefunden.</div>
+              <div style={{ color: SECONDARY_TEXT }}>Keine Teams in dieser Region gefunden.</div>
             )}
           </div>
 

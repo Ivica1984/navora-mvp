@@ -35,3 +35,4 @@
 | TD-27 | `audit_events` grows without retention or archival | DB | M | after Q6 (legal) | OPEN |
 | TD-28 | Visit state machine only knew planned→started→completed | DB, visits | M | F2 (migration 0007): linear field path incl. on_the_way and paused. Still open: `assigned/accepted/cancelled/no_show` (D-6) | PARTLY DONE |
 | TD-29 | Supabase CLI pinned to 2.121.0 in CI; upgrades are manual and regenerate `database.types.ts` | CI | S | review quarterly or on security advisories | OPEN |
+| TD-30 | axe-core for the UX1-18 contrast check is fetched by a CI step (`npm pack axe-core@4.10.2`, ADR-106), not a devDependency in `package-lock.json` | CI | S | when the npm registry is reachable from the engineering session: add `axe-core` as an exact devDependency, regenerate the lockfile, drop the CI step | OPEN |

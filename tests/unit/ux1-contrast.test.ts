@@ -24,6 +24,21 @@ describe("UX1-17: secondary text is readable", () => {
     expect(hits).toEqual([]);
   });
 
+  // UX1-18 (ADR-106, `uxa` UXR-15): the inline greys of the first-MVP pages and stone-500 were below 4.5:1 on their
+  // backgrounds (#f4f7f4, stone-100). Secondary text is `text-secondary` or SECONDARY_TEXT (src/lib/ui/colors.ts).
+  it("UX1-18: no inline grey below 4.5:1 and no text-stone-500 in the scanned folders", () => {
+    const LOW_CONTRAST = /#(6b8075|5f766d|6d857c|6b7280)\b|text-stone-500\b/gi;
+    const hits = ROOTS.flatMap(files).flatMap((file) =>
+      (readFileSync(file, "utf8").match(LOW_CONTRAST) ?? []).map((m) => `${file}: ${m}`),
+    );
+    expect(hits).toEqual([]);
+  });
+
+  it("UX1-18: SECONDARY_TEXT is the stone-700 token of the secondary-text class", () => {
+    const source = readFileSync("src/lib/ui/colors.ts", "utf8");
+    expect(source).toMatch(/export const SECONDARY_TEXT = "var\(--color-stone-700, #44403b\)";/);
+  });
+
   it("the secondary-text class exists and uses stone-700 (DESIGN_SYSTEM.md §7 interim value)", () => {
     const css = readFileSync("src/app/globals.css", "utf8");
     expect(css).toMatch(/@utility text-secondary\s*\{\s*color:\s*var\(--color-stone-700\);/);

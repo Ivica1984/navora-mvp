@@ -62,7 +62,7 @@ export default function LoginForm() {
         disabled={isPending}
         style={{
           marginTop: "8px",
-          background: isPending ? "#6b8075" : "#16392d",
+          background: isPending ? "#37554a" : "#16392d",
           color: "white",
           border: "none",
           borderRadius: "999px",

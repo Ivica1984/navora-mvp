@@ -45,7 +45,7 @@ export default function PilotHypotheses({ rows, periodLabel }: { rows: Hypothesi
             return (
               <article key={g.no} data-hypothesis={g.no} className="grid min-w-0 gap-2 border-t border-stone-100 pt-3">
                 <p className="font-semibold break-words">H{g.no} · {g.hypothesis}</p>
-                <p className="text-xs text-stone-500 break-words">Prüft: «{g.challenge}» (Challenge-Tabelle) · Quelle: {g.source}</p>
+                <p className="text-xs text-secondary break-words">Prüft: «{g.challenge}» (Challenge-Tabelle) · Quelle: {g.source}</p>
                 <ul className="grid gap-2">
                   {groupRows.map((r, i) => (
                     <li
