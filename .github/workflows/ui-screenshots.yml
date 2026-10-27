@@ -7,7 +7,7 @@ on:
     branches: [tools/ui-screenshots]
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   NEXT_TELEMETRY_DISABLED: "1"
@@ -46,5 +46,13 @@ jobs:
           name: ui-screenshots
           path: ui-screenshots/
           retention-days: 3
+      - name: Commit the screenshots to this temporary branch (GITHUB_TOKEN pushes trigger no workflow)
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f ui-screenshots
+          git commit -m "ui screenshots (synthetic seed)" || exit 0
+          git push origin HEAD:tools/ui-screenshots
       - if: always()
         run: supabase stop --no-backup
