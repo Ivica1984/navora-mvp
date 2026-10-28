@@ -93,6 +93,8 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 
 Commands (`correct_visit_time`, `complete_case_task`, `decide_matching_request`, …) return a result code, not rows. 067 checks that a nurse of another team cannot act on Nord's event or case task (RLS2-7).
 
+**VIS1-8 (0090, ADR-112):** `visit_move_leaves_other_visit(visit)` returns one boolean (no rows, no `case_id`/`visit_id` column), to a team member of the visit only (null otherwise): whether another visit of the same case, of any team and not cancelled, is on the visit's date. It shows no time, team, name or count of that visit; no new read permission. Care task: the "Heute machen" confirmation states what the move leaves behind (`cra` CGR-89).
+
 ## Findings (RLS2-5)
 
 No further **organisation-wide** client-linked path remains (catalogue and sweep). The findings below are coordination-role paths; narrowing them would change a screen or needs a product answer, so they were proposals (eng-proposal **RLS3**, decision **Q13** decided by `po` 2026-10-25 08:10). State after RLS3 (0070): F-2, F-4, F-5 closed. F-1 closed by DOOR1-11 (0072); F-3 closed by AUD1 (0077):

@@ -2,16 +2,25 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { completeVisit, departVisit, pauseVisit, resumeVisit, startVisit } from "@/features/visits/commands";
 import { rescheduleVisit } from "@/features/team/commands";
+import { getMoveLeavesFact } from "@/features/field/commands";
+import { PLAN_FLAG_LABEL } from "@/features/team/rules";
 import { getVisitStatusLabel } from "@/features/visits/types";
 import {
   FIELD_ACTION_LABEL,
   MOVE_TO_TODAY_CONFIRM,
   MOVE_TO_TODAY_HINT,
   MOVE_TO_TODAY_LABEL,
+  MOVED_TO_TODAY_STATUS,
+  RELEASED_ON_MOVE,
+  type MovedNotice,
   canMoveToToday,
+  moveLeavesNote,
+  movedNoticeHref,
+  prefillMoveTimes,
+  zurichMinutesNow,
   fieldActionsOn,
   formatDayLabel,
   formatShortDate,
@@ -69,6 +78,8 @@ type Props = {
   isToday: boolean;
   /** Today in Europe/Zurich (DAY-1); VIS1: a day after it shows no field action. */
   today?: string;
+  /** VIS1-3d / VIS1-3e: the result of a "Heute machen" move, shown once above the moved card. */
+  moved?: MovedNotice | null;
   previousDay: string;
   nextDay: string;
   visits: FieldVisit[];
@@ -123,13 +134,15 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null }: Props) {
+export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null }: Props) {
   const summary = summarizeDay(visits);
   const ordered = orderFieldVisits(visits);
   const sinceLastByVisit = groupSinceLast(sinceLast);
   // VIS1 (ADR-111): the page passes today (Europe/Zurich); without it the view is today's.
   const today = todayProp ?? (isToday ? day : todayInZurich());
   const futureDay = isAfterToday(day, today);
+  // VIS1-3d / VIS1-3e (ADR-112): the visit just moved to today, if any.
+  const movedId = moved?.visitId ?? null;
 
   return (
     <div className="min-h-screen bg-stone-100 text-emerald-950">
@@ -173,9 +186,11 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
             state, not a warning); the cards then show no field action, only the move of VIS1-3b. */}
         {futureDay && visits.length > 0 && (
           <p data-testid="future-day-note" data-tone="info" className="mb-4 rounded-xl border border-stone-300 bg-stone-50 p-3 text-sm text-stone-700">
-            {futureDayNote(day)}
+            {futureDayNote(day, visits.length)}
           </p>
         )}
+        {/* VIS1-3d / VIS1-3e: when the moved visit is not among her cards of this day, the notice stands above the list. */}
+        {moved && !visits.some((v) => v.visit_id === movedId) && <MovedNoticeBlock moved={moved} />}
         {(openFollowups.length > 0 || returned.length > 0 || countersign.length > 0) && (
           // UX1-6 (ADR-104): the open decisions and reports sit below her visits; one line at the top keeps them in sight.
           // UX1-27 (CGR-80, ADR-106): inside the first viewport, above the next visit; the follow-up link carries the
@@ -209,9 +224,11 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
                 {visit === ordered.rest[0] && ordered.next && (
                   <p className="mb-1 mt-2 text-xs font-bold uppercase tracking-wide text-emerald-900">Weitere Einsätze</p>
                 )}
+                {moved && movedId === visit.visit_id && <MovedNoticeBlock moved={moved} />}
                 <VisitCard
                   visit={visit}
                   today={today}
+                  focusOnMount={movedId === visit.visit_id}
                   notes={notes.filter((n) => n.visit_id === visit.visit_id)}
                   report={reports.find((r) => r.visit_id === visit.visit_id) ?? null}
                   quality={quality.filter((q) => q.visit_id === visit.visit_id)}
@@ -332,6 +349,7 @@ function Stat({ label, value }: { label: string; value: number }) {
 function VisitCard({
   visit,
   today,
+  focusOnMount = false,
   notes,
   report,
   quality,
@@ -346,6 +364,7 @@ function VisitCard({
   focusAt?: string | null;
   visit: FieldVisit;
   today: string;
+  focusOnMount?: boolean;
   notes: FieldNote[];
   report: FieldReport | null;
   quality: FieldQuality[];
@@ -385,6 +404,11 @@ function VisitCard({
   const locked = visitFactsLocked(report);
   // F6R-3: a returned report is open for its performer only; everyone else sees why the facts are fixed.
   const lockedHint = report?.status === "draft" && report.returned ? RETURNED_LOCKED_HINT : FACTS_LOCKED_HINT;
+  // VIS1-3e (1): after "Heute machen" focus lands on the moved card (once, on mount).
+  const articleRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (focusOnMount) articleRef.current?.focus();
+  }, [focusOnMount]);
 
   async function run(action: FieldAction) {
     setPending(action);
@@ -406,6 +430,9 @@ function VisitCard({
 
   return (
     <article
+      ref={articleRef}
+      tabIndex={focusOnMount ? -1 : undefined}
+      data-testid={focusOnMount ? "moved-visit" : undefined}
       id={focused ? "einsatz-korrektur" : undefined}
       aria-label={`Einsatz ${time}, ${visit.client_name ?? "Klient:in"}`}
       className="scroll-mt-4 rounded-2xl bg-white p-4 shadow-sm"
@@ -876,16 +903,49 @@ function Row({ label, value, muted = false, testId }: { label: string; value: st
 
 /**
  * VIS1-3b (po 2026-10-28 20:15 from `aia` AUT-16; ADR-111): "Heute machen" on a card dated after today. One
- * confirmation: today's date (Europe/Zurich), the card's planned times (editable) and an empty, required reason (J3
- * rule, 3-300 characters; not prefilled until `cra` decides, VIS1-7). It calls the existing `reschedule_visit` with all
- * its checks (ABS1-C4, ABS1-C5, CGR-35, audit, `moved` row); no new command, no new permission. The move never starts
- * the visit: afterwards she is on today's view, where "Einsatz starten" is its own tap.
+ * confirmation: today's date (Europe/Zurich), times (editable) and an empty, required reason (J3 rule, 3-300
+ * characters). It calls the existing `reschedule_visit` with all its checks (ABS1-C4, ABS1-C5, CGR-35, audit, `moved`
+ * row); no new command, no new permission. The move never starts the visit: afterwards she is on today's view, where
+ * "Einsatz starten" is its own tap.
+ * Follow-up (ADR-112): VIS1-3c prefills the next full 5 minutes after now and the card's duration (empty across
+ * midnight); VIS1-8 states whether the client still has a visit on the planned date (server yes/no); VIS1-3e moves
+ * focus into the form and back; VIS1-3d hands the release and the planning flags to today's view.
  */
 function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [times, setTimes] = useState<{ start: string; end: string }>({ start: "", end: "" });
+  // VIS1-8: undefined while the answer is loading, null when there is none (no sentence then).
+  const [leaves, setLeaves] = useState<boolean | null | undefined>(undefined);
+  const openRef = useRef<HTMLButtonElement>(null);
+  const startRef = useRef<HTMLInputElement>(null);
+  const returnFocus = useRef(false);
+
+  // VIS1-3e (1): focus into the form ("Von") on open; back to "Heute machen" after "Abbrechen".
+  useEffect(() => {
+    if (open) startRef.current?.focus();
+    else if (returnFocus.current) {
+      returnFocus.current = false;
+      openRef.current?.focus();
+    }
+  }, [open]);
+
+  function openForm() {
+    // VIS1-3c: computed when she opens the form, from the Zurich wall clock.
+    setTimes(prefillMoveTimes(zurichMinutesNow(), visit.time_start, visit.time_end));
+    setLeaves(undefined);
+    setError(null);
+    setOpen(true);
+    void getMoveLeavesFact(visit.visit_id).then(setLeaves, () => setLeaves(null));
+  }
+
+  function cancel() {
+    returnFocus.current = true;
+    setOpen(false);
+    setError(null);
+  }
 
   async function submit(form: FormData) {
     setPending(true);
@@ -904,22 +964,26 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
       return;
     }
     setOpen(false);
-    router.push("/field");
+    // VIS1-3d / VIS1-3e: today's view shows "Einsatz auf heute verschoben", the release and the flags above the card.
+    router.push(movedNoticeHref(visit.visit_id, result.released, result.flags));
     router.refresh();
   }
 
   if (!open) {
     return (
       <button
+        ref={openRef}
         type="button"
         data-testid="move-to-today"
-        onClick={() => setOpen(true)}
+        onClick={openForm}
         className="mt-4 min-h-11 w-full rounded-xl border border-stone-300 bg-white px-3 text-base font-semibold text-emerald-950"
       >
         {MOVE_TO_TODAY_LABEL}
       </button>
     );
   }
+
+  const leavesNote = leaves === undefined ? null : moveLeavesNote(visit.visit_date, leaves);
 
   return (
     <form
@@ -931,15 +995,22 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
       <p>
         Heute, <span data-testid="move-to-today-date">{formatShortDate(today)}</span> (geplant war der {formatShortDate(visit.visit_date)}).
       </p>
+      {leavesNote && (
+        // VIS1-8: a fact from the plan, `info`; no block, no extra tap. Never "kein Einsatz" while another team's visit
+        // exists that day (the server counts it without showing it).
+        <p data-testid="move-leaves-note" data-tone="info" className="rounded-lg border border-stone-300 bg-white p-2 text-stone-700">
+          {leavesNote}
+        </p>
+      )}
       <div className="grid grid-cols-2 gap-2">
         <label className="grid min-w-0 gap-1 font-semibold">
           Von
-          <input name="start" type="time" required defaultValue={formatTime(visit.time_start) ?? ""}
+          <input ref={startRef} name="start" type="time" required defaultValue={times.start}
             className="min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-white px-2 text-base font-normal" />
         </label>
         <label className="grid min-w-0 gap-1 font-semibold">
           Bis
-          <input name="end" type="time" required defaultValue={formatTime(visit.time_end) ?? ""}
+          <input name="end" type="time" required defaultValue={times.end}
             className="min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-white px-2 text-base font-normal" />
         </label>
       </div>
@@ -958,10 +1029,37 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
         <button type="submit" disabled={pending} className="min-h-11 rounded-xl bg-emerald-800 font-bold text-white disabled:opacity-60">
           {pending ? "Wird gespeichert …" : MOVE_TO_TODAY_CONFIRM}
         </button>
-        <button type="button" onClick={() => { setOpen(false); setError(null); }} className="min-h-11 rounded-xl border border-stone-300 font-semibold">
+        <button type="button" onClick={cancel} className="min-h-11 rounded-xl border border-stone-300 font-semibold">
           Abbrechen
         </button>
       </div>
     </form>
+  );
+}
+
+/**
+ * VIS1-3e (1) and VIS1-3d (ADR-112): above the moved card on today's view, one status line "Einsatz auf heute
+ * verschoben"; when the move released the visit (ABS1-C4: the responsible member is absent at the new time), the same
+ * fixed text as /team, tone `attention`; returned planning flags as on /team. Position and tone: `cra` in VIS1-7.
+ */
+function MovedNoticeBlock({ moved }: { moved: MovedNotice }) {
+  return (
+    <div className="mb-2 grid gap-1">
+      <p role="status" data-testid="moved-to-today" className="text-sm font-semibold text-emerald-900">
+        {MOVED_TO_TODAY_STATUS}
+      </p>
+      {moved.released && (
+        <p role="status" data-testid="moved-released" data-tone="attention" className="rounded-xl border border-amber-800 bg-amber-50 p-3 text-sm font-semibold text-amber-900">
+          {RELEASED_ON_MOVE}
+        </p>
+      )}
+      {moved.flags.length > 0 && (
+        <ul aria-label="Hinweise" data-testid="moved-flags" className="grid gap-0.5 text-xs font-semibold text-amber-800">
+          {moved.flags.map((f) => (
+            <li key={f}>⚠ {PLAN_FLAG_LABEL[f] ?? f}</li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

@@ -93,3 +93,20 @@ export async function recordObservation(input: unknown): Promise<CommandResult> 
   revalidatePath("/field");
   return { ok: true };
 }
+
+/**
+ * VIS1-8 (ADR-112, `cra` CGR-89): whether another visit of this client is still on the date the visit would leave.
+ * One server-side yes/no (`visit_move_leaves_other_visit`, migration 0090), team members of the visit only; it counts
+ * another team's visit without showing it. Null when there is no answer (then the confirmation shows no sentence).
+ */
+export async function getMoveLeavesFact(visitId: unknown): Promise<boolean | null> {
+  const parsed = z.uuid().safeParse(visitId);
+  if (!parsed.success) return null;
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("visit_move_leaves_other_visit", { p_visit_id: parsed.data });
+  if (error) {
+    logEvent("warn", "query.failed", { op: "visit_move_leaves_other_visit", ...errorFields(error) });
+    return null;
+  }
+  return typeof data === "boolean" ? data : null;
+}

@@ -120,7 +120,8 @@ test.describe("field tool (F1)", () => {
     await move.getByLabel("Bis").fill("11:45");
     await move.getByLabel("Grund der Verschiebung").fill(MOVE_REASON);
     await move.getByRole("button", { name: "Auf heute verschieben" }).click();
-    await page.waitForURL(/\/field$/);
+    // VIS1-3d / VIS1-3e (ADR-112): today's view opens with the move's result (?verschoben=<visit>).
+    await page.waitForURL(/\/field\?verschoben=/);
 
     const card = page.getByRole("article", { name: F2_CARD });
     await expect(card).toContainText("Geplant");
@@ -326,15 +327,18 @@ test.describe("field tool (F1)", () => {
     const DAY_AFTER = zurichDay(2);
 
     // Visit 509 (18:00, Testfall 08) is run by the seeded care assistant of Testteam Nord. VIS1: it is dated the day
-    // after tomorrow, so she first moves it to today (a team member may, J3), keeping its times.
+    // after tomorrow, so she first moves it to today (a team member may, J3), keeping its times (typed: the form
+    // prefills the next full 5 minutes after now since VIS1-3c, ADR-112).
     await signIn(page, ASSISTANT, /\/field$/);
     await page.goto(`/field?datum=${DAY_AFTER}`);
     const planned = page.getByRole("article", { name: /18:00 – 18:30/ });
     await planned.getByRole("button", { name: "Heute machen" }).click();
     const move = planned.getByRole("form", { name: "Einsatz auf heute verschieben" });
+    await move.getByLabel("Von").fill("18:00");
+    await move.getByLabel("Bis").fill("18:30");
     await move.getByLabel("Grund der Verschiebung").fill(MOVE_REASON);
     await move.getByRole("button", { name: "Auf heute verschieben" }).click();
-    await page.waitForURL(/\/field$/);
+    await page.waitForURL(/\/field\?verschoben=/);
     const card = page.getByRole("article", { name: /18:00 – 18:30/ });
     await card.getByRole("button", { name: "Losfahren" }).click();
     await card.getByRole("button", { name: "Einsatz starten" }).click();
