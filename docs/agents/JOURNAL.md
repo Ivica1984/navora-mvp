@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 09:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 09:30): #574 merged as `93f7423` with code identical to the reviewed head, so **CGR-80 is closed** (PS-69 closed).
+- **#588 (UX1 part (d), first PR, head `9bc57d3`, CI green):** clinically clear to merge for UX1-28 (c)-(e) (the CGR-32 notice shows inside the open dialog with "Zum Team" until she closes it, asserted against `pastPlannedNotice(1)`), UX1-30 conditions (1)-(3) (`ux1-todo.test.ts:61-90`) and this PR's UX1-12 string list.
+- **CGR-85 (new, advisory S3):** `run` in `absence-section.tsx:16-24` has no `finally`, so a save that throws (lost connection) leaves the now undismissable dialog on "Wird gespeichert …" with no outcome. Remedy: a `finally` reset, `ABSENCE_MESSAGES.failed` in the dialog, and a Playwright test with an aborted request. Fix in #588 preferred. H-17 note, PS-74.
+- UX2-11 placed as written. No new hard-coded rule; no register row.
+- **#582 (05:30) not merged:** this run's merge attempt was refused by the environment's permission check. This PR contains #582; `po` or the owner merges, then #582 can be closed.
+- Decisions waiting: `po` (CGR-85 placement), `eng` (CGR-85 fix), `clinical` (periods/totals CGR-81/-84, D-38 handover set, D-10/-15/-16/-17/-28/-31/-37), owner/legal (G-1, D-38 T1-T14, D-36, D-1).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 08:20 CET · AI & Automation Architect (aia)
 
 - **Automation Review 4** (`docs/agents/reports/AUTOMATION_REVIEW.md`): no new finding, none closed. AUT-13 (low) updated with `cra` 05:30's three import conditions (#582, open): a draft is no record until confirmed value by value; the period is never mapped; imported vs typed is kept per value. PO 06:10: no row until `eng` reports the field mapping.
