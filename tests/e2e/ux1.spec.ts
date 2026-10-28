@@ -510,6 +510,8 @@ test.describe("UX1 part (d) at 390 × 844", () => {
     // (b) the refusal is shown inside the open dialog.
     await expect(dialog.getByTestId("command-error")).toHaveText(ABSENCE_MESSAGES.rejected);
     await expect(dialog).toBeVisible();
+    // UX1-33 (b) (uxa UXR-25): after the refusal, focus is back on "Speichern".
+    await expect(form.getByTestId("absence-save")).toBeFocused();
     // (e) a refused save never shows the past-visit notice.
     await expect(page.getByTestId("absence-past-planned")).toHaveCount(0);
     await page.unroute("**/field**");
@@ -536,6 +538,8 @@ test.describe("UX1 part (d) at 390 × 844", () => {
     await expect(page.getByTestId("absence-past-planned")).toHaveCount(0);
     await expect(form.getByTestId("absence-save")).toHaveText("Speichern");
     await expect(form.getByRole("button", { name: "Abbrechen" })).toBeEnabled();
+    // UX1-33 (b): a save routed to fail also returns focus to "Speichern".
+    await expect(form.getByTestId("absence-save")).toBeFocused();
     await page.unroute("**/field**");
     // Escape closes the dialog again; nothing was recorded (the request never left the browser).
     await page.keyboard.press("Escape");

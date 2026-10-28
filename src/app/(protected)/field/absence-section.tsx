@@ -45,7 +45,8 @@ function useAbsenceRun() {
  * opens over the page, so the next visit stays first on the page. UX1-25: as a native modal <dialog>.
  * UX1-28 (uxa UXR-18, ADR-107): while the save is pending the dialog cannot be dismissed (Escape and "Abbrechen" do
  * nothing), so the outcome (refusal or the CGR-32 notice) is always shown in the open dialog. UX1-29 (UXR-19): the
- * dialog is named by its visible heading, the words of the control that opened it.
+ * dialog is named by its visible heading, the words of the control that opened it. UX1-33 (UXR-25): focus follows
+ * the result ("Schliessen" after the CGR-32 notice, "Speichern" after a refusal).
  */
 export function AbsenceControl({ today, colleagues }: { today: string; colleagues: TeamColleague[] }) {
   const [open, setOpen] = useState(false);
@@ -54,6 +55,9 @@ export function AbsenceControl({ today, colleagues }: { today: string; colleague
   const earliest = earliestAbsenceStart(today);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const saveRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const wasPending = useRef(false);
   const headingId = useId();
   // UX1-28: while sending, Escape must not close the dialog. Cancelling the keydown stops the close request before
   // it starts (also where the browser would skip a repeated, cancelable "cancel" event); onCancel below is the
@@ -64,6 +68,19 @@ export function AbsenceControl({ today, colleagues }: { today: string; colleague
     window.addEventListener("keydown", holdEscape, true);
     return () => window.removeEventListener("keydown", holdEscape, true);
   }, [pending]);
+  // UX1-33 (uxa UXR-25, ADR-109 addendum): focus follows the result. When the CGR-32 notice replaces the form, focus
+  // moves to "Schliessen" in the open dialog, so a keyboard or screen-reader user lands on the notice, not the page.
+  useEffect(() => {
+    if (notice !== null) closeRef.current?.focus();
+  }, [notice]);
+  // After a refused (or failed, CGR-85) save, focus returns to "Speichern", which was disabled while sending. `pending`
+  // and `error` change in one render (useAbsenceRun), so the refusal is known when the save ends.
+  useEffect(() => {
+    if (pending) { wasPending.current = true; return; }
+    if (!wasPending.current) return;
+    wasPending.current = false;
+    if (error) saveRef.current?.focus();
+  }, [pending, error]);
   if (colleagues.length === 0) return null;
   // UX1-25 (uxa UXR-13): a native modal dialog. showModal() keeps Tab inside and makes the page inert; Escape closes it
   // without sending (the "cancel" event); every close returns focus to the trigger.
@@ -131,7 +148,7 @@ export function AbsenceControl({ today, colleagues }: { today: string; colleague
                 </div>
                 <p className="text-xs text-sky-950/80">Kein Grund nötig. Gilt für alle Teams der Person. Die Einsätze in dieser Zeit sind sofort im jeweiligen Team offen; Einsätze, die schon laufen, bleiben, wo sie sind.</p>
                 <div className="flex gap-2">
-                  <button type="submit" disabled={pending} data-testid="absence-save" className="min-h-11 flex-1 rounded-lg bg-sky-800 font-bold text-white disabled:opacity-60">
+                  <button type="submit" ref={saveRef} disabled={pending} data-testid="absence-save" className="min-h-11 flex-1 rounded-lg bg-sky-800 font-bold text-white disabled:opacity-60">
                     {pending ? "Wird gespeichert …" : "Speichern"}
                   </button>
                   <button type="button" onClick={close} disabled={pending} className="min-h-11 rounded-lg border border-sky-800 px-3 font-semibold disabled:opacity-60">Abbrechen</button>
@@ -142,7 +159,7 @@ export function AbsenceControl({ today, colleagues }: { today: string; colleague
                 <p role="status" data-testid="absence-past-planned" className="rounded-lg border border-amber-300 bg-amber-50 p-2 font-semibold text-amber-950">
                   {notice} · <Link href="/team" className="underline">Zum Team</Link>
                 </p>
-                <button type="button" onClick={close} className="min-h-11 rounded-lg border border-sky-800 px-3 font-semibold">Schliessen</button>
+                <button type="button" ref={closeRef} onClick={close} className="min-h-11 rounded-lg border border-sky-800 px-3 font-semibold">Schliessen</button>
               </>
             )}
             {error && <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">{error}</p>}

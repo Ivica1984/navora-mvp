@@ -488,6 +488,8 @@ test.describe("field tool (F1)", () => {
     expect(expected).not.toBeNull();
     await expect(notice).toHaveText(`${expected} · Zum Team`);
     await expect(dialog.getByRole("link", { name: "Zum Team" })).toBeVisible();
+    // UX1-33 (a) (uxa UXR-25, assertion added): focus moves to "Schliessen" when the notice replaces the form.
+    await expect(dialog.getByRole("button", { name: "Schliessen" })).toBeFocused();
     // Not cleared by the refresh that follows the save: still there once the page is idle.
     await page.waitForLoadState("networkidle");
     await expect(dialog.getByTestId("absence-past-planned")).toBeVisible();

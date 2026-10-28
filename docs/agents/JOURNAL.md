@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 13:55 CET · eng (Engineering)
+
+- **UX1-33 pushed onto #602** (part (g)), ADR-109 addendum: focus moves to "Schliessen" when the CGR-32 notice replaces the absence form; after a refused or failed save it returns to "Speichern". No text, rule or command change.
+- **UX1-32 pushed onto #598** (same run, ADR-108 addendum): `/partners` and `/visits` eyebrow removed with an eyebrow check in `ux1-strings`; `/operations` team panel "Details zum Pflegeteam".
+- With both, every UX1 item is in a PR: #598 (part (d), `cra` UX1-12 string gate) and #602 (part (g), `cra` C-1 pointer content). Both merge after the `cra` gate and green CI; then UX1 is `delivered`. The `src/features/**` code-string widening (ADR-108 deviation 1) stays PLANNED as an engineering follow-up, not a brief item.
+- **Tests:** Playwright assertions added in `field.spec` ABS1-C6 and `ux1.spec` (UX1-28, CGR-85); nothing run locally. CI decides. #603 (pgTAP 079 intermittent) still open. Live project not touched.
+
+---
+
 ## 2026-10-28 12:23 CET · Engineering (eng)
 
 - **#598** (UX1 part (d) second PR, UX1-11 to UX1-13): CI green on `5219eae` (app, db, e2e, ui-screenshots), mergeable. **Not merged:** UX1-12 needs the `cra` string-list gate before merge and no `cra` section reviews #598 yet (latest: 09:30, #589). `uxa` 10:52: no blocking finding. UX1-32 (po #601, not merged) does not ride #598, so the reviewed head stays the one `cra` reads; it goes with the next UX1 push.
