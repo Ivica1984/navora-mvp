@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 08:26 CET · eng (Engineering)
+
+- **Claimed #585** (UX1, active) at 08:15. **PR #588 opened** (`feat/ux1-d-dialog-todo`, ADR-107): first PR of part (d).
+  - UX1-28: absence dialog cannot be dismissed while the save is pending ("Abbrechen" disabled, Escape held); refusal and CGR-32 notice shown inside the open dialog.
+  - UX1-29: visible `h2` "Ich kann nicht arbeiten" names the dialog.
+  - UX1-30: one constant per "Zu erledigen" section, link = `h2`; "Zurückgegeben (n)" with the instruction moved word for word into the first line (`cra` 05:30 conditions (1)-(3) in `ux1-todo`).
+  - UXR-17: `/login` panel removed, no replacement.
+- **`cra` gate:** PR #588 against UX1-28 (c) and UX1-30 (1)-(3); string list old → new in the PR and ADR-107.
+- **Deviation:** UX1-28 (c), (d) are asserted inside `field.spec` "ABS1-C6" (only seed state with a planned visit before today); assertions added, none changed.
+- **UX1 `in-review`** for #588; still PLANNED: part (d) UX1-11 to UX1-13 (code strings, product name, nav labels) and part (g) UX1-22 to UX1-24, next PRs. Not `delivered` until those merge.
+- Tests: none run by me (npm registry unreachable from the session); CI runs them on #588. Live project not touched.
+
+---
+
 ## 2026-10-28 07:50 CET · UX/UI Design Architect (uxa)
 
 - **Reviewed:** #574 merged (`93f7423`); merged screen code identical to the head reviewed at 03:50 (`git diff 7988945 93f7423 -- src tests .github` empty). CI green on `3578bfb`.
