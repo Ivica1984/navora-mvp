@@ -4,6 +4,64 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 18:15 CET · po (Product Owner)
+
+- No open PO PR; no delivery to review (COORD6 #612 open, CI decides). Read `cra` 17:30 (PR #614, not yet merged) and `lca` 17:41.
+- **VIS1 approved as *Next up* 2** (`cra` CGR-87, S1 before a pilot with real clients): depart, start, no-show and "not completed" refuse a visit dated after today (Europe/Zurich); `/field` shows no field action on a future visit and says to move it first. No tolerance and no rule for past visits coded (Clinical Owner, UNKNOWN). ADM2, AIG1, ASM1, UX2, PLAN3 move down one. **UX1-C1** closes only with a visit dated today (note in `briefs/UX1.md`); UX1 stays `accepted`.
+- **UX2:** `cra` 17:30 confirmed UX2-14 (hold badge to `attention`, "Abrechnungssperre" and its meaning line kept) and UX2-15 (with the condition: sentence before any member list, gap state amber); **UX2-16** added from UXR-28 (frame red only while a P1 entry is shown in full, amber otherwise, never neutral while listed).
+- **D-38 (Unfreeze: 3 CGR-88, with `lca` 17:41), still `awaiting-approval: owner`, Medium:** the T16 stop fall-back period is set by the Clinical Owner, or by the owner only with her recorded agreement, fixed in the LOI and changed only by the same route; none before G-1. T15 (b) is not met while no Clinical Owner has set the levels. Owner ask item (3) changed (two owner periods); adviser question (c) replaces the 14:56 one; risks row updated; *Pending wording* stays empty. OWNER_AGENDA line marked "changed since you last looked". Other packages frozen; none decided by po.
+- **Challenge:** "Why can a nurse start next week's visit?" Because the state machine knew status, not time; a correction after the fact is administration and a signal that never fired cannot be recovered. And on D-38: "Why should NAVORA time the appointment that gates a team-owned provider's start?" Product view in the package: a transition Clinical Owner filled or confirmed jointly by both Leitungen Pflege; owner and clinical-governance choice, after the adviser's answer (c).
+- Not merged by me: `cra` PR #614 (contains #604, #589, #582; outside the PO's merge scope; owner agenda operational line (b) stands).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+ENGINEERING BRIEF
+- **Capability:** VIS1, field actions happen on the visit's day ([`briefs/VIS1.md`](briefs/VIS1.md)).
+- **Why:** nothing ties `start_visit`, `depart_visit`, `complete_visit`, `end_visit_not_completed`, `record_no_show` to the visit date (0007:120-170); a future visit worked today masks a missed visit on its real date (CGR-87).
+- **Business outcome:** billable facts carry the date care was given; no service billed for a day without care.
+- **Care outcome:** overdue and missed signals (CSR1, SIG1) fire on the visit's real date; the record names the right day (H-01, H-05).
+- **Expected nurse outcome:** no accidental start of a wrong-day visit; one clear sentence and the move as the way forward.
+- **Expected team outcome:** a visit done early is one audited move the team already owns; no coordinator, no correction afterwards.
+- **Expected patient outcome:** a visit that did not happen is noticed on its day.
+- **Acceptance criteria:** VIS1-1 to VIS1-7 (database refusal `not_today` with audit row; pgTAP tomorrow refused / moved-to-today ok / today and yesterday unchanged; `/field` no action plus sentence; Playwright at 390 × 844; tests use visits dated today, no guard weakened; past-dated behaviour unchanged; `cra` gate before merge).
+- **Dependencies:** none blocking; J3 `reschedule_visit` (0056), DAY-1. Clinical Owner later for any tolerance or late-documentation rule (not built).
+- **Priority:** *Next up* 2, after COORD6; patient-safety precondition, value 2 and 3.
+- **Implementation recommendation:** one migration adding the date guard inside the existing commands (or `private.transition_visit` with the date passed), `fieldActions` taking the visit date, one ADR; fix UX1-27 test data in the same PR so UX1-C1 closes with it.
+
+## 2026-10-28 17:41 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 frozen, no trigger (nothing written about them). Tier 2: CGR-87 names no decision; **CGR-88 (`cra` 17:30, PR #614, not yet merged) names D-38 T16** → unfreeze trigger 3; D-38 picked only.
+- **D-38 T16 fall-back period:** CGR-88 is right that an owner-set period lets the owner's interest in the date reach the lift (my 14:56 form). CGR-88 form (Clinical Owner sets it, or owner only with her recorded agreement; none before G-1) **compliant under every plausible interpretation** with condition (a) the period is written into the LOI and changed only by the same route. **Unresolved: needs Zurich legal adviser:** one widened control question (C's start depends on a NAVORA-appointed role for T15 (b) levels, T16 lift and period, and NAVORA decides when G-1 happens) replaces my 14:56 T16 question. Protective reading added: T15 (b) is not met while no Clinical Owner has set levels.
+- **For `po`:** two pending wordings marked compliance-relevant (STR-17 F4): T16 period per CGR-88 with condition (a), owner ask (3) reworded; T15 (b) not met before levels are set. Replace the adviser question; update the "indefinite veto" risks row.
+- No sources newly read; nothing run; live project not accessed. `node scripts/agents-check.mjs` run before publishing.
+
+## 2026-10-28 16:15 CET · po (Product Owner)
+
+- Continues PO PR #611 (UX1 accepted, D-38 escalated; green but conflicted): `recovery/main` merged in (JOURNAL: both entries kept, newest first); this cycle rides the same PR.
+- **UX1-G1 met:** `uxa` 15:48 code-only review of part (g) found no `severe` or `high` finding; UX1 stays `accepted`. UX1-C1 to UX1-C3 unchanged.
+- **Placed in UX2:** UXR-26 → **UX2-14** (one `ErrorLine` component on every screen; the quality hold badge's colour waits for `cra`); UXR-27 → **UX2-15** (reach-gap sentence and link cannot be folded away; `summary` ≥ 44 px; position for `cra`); UXR-28 → question for `cra` (frame follows the highest open priority?). UX2 is `delivered` at UX2-1 to UX2-15.
+- No new delivery (COORD6 #612 open). Packages: none worked (D-38 waits for the owner; all others frozen). None decided by po.
+- **Challenge:** "Why does a nurse read two error languages on one screen?" Colour was decided per file, not per meaning; one component ends that review work for every future page.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing.
+
+## 2026-10-28 15:48 CET · UX/UI Design Architect (uxa)
+
+- **UX1-G1 review** of part (g) (#602) and UX1-32/UX1-33 on `recovery/main` `72a2697`, code-only (screenshot download refused again, 403 at the storage host). **No `severe` or `high` finding.** Closed in code: UXR-4, UXR-5 (a), UXR-7, UXR-12, UXR-22, UXR-23, UXR-25.
+- **New:** UXR-26 (medium: error lines and the quality hold on `/field` still red outside `field-client.tsx`; one error component, fits UX2-3), UXR-27 (low: `/team` reach-gap sentence can be folded away, `summary` under 44 px), UXR-28 (low: red frame of "Einsätze mit Handlungsbedarf" when only pointers remain). Four requests to `cra` in the report. ADR-109 deviation 1: agree with UX2-13.
+- Design system version 10 (status moves from #598, #602; two new OPEN rules). No issue opened (no severe or high). No benchmark (made at 03:50).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-28 15:15 CET · po (Product Owner)
+
+- **UX1 accepted** (queue rank 39; #535, #554, #558, #574, #588, #598, #602; ADR-103 to ADR-109; no migration; CI `app`, `db`, `e2e`, `ui-screenshots` green on the #602 head `b606560` and on `72a2697`). Clinical gate passed (`cra` 21:30, 01:30, 09:30, 13:40 on PR #604's head; merged code = reviewed heads plus docs merges). Evidence table, 15 deviation decisions and the reasons in `briefs/UX1.md`. Issue #609 closes with it.
+- **Conditions:** **UX1-C1** the UX1-27 e2e failed on the push runs of `a70f490` and `f6277ab` (timeout on "Einsatz starten" for the visit planned 8 days ahead) while the parallel PR runs passed: cause named, fixed without retry or skip, `--repeat-each=20` green; next Engineering PR, at the latest before UX2; an app cause returns UX1 to `changes-requested`. **UX1-C2** the 33 code-bearing strings in `src/features/**` (`eng` deviation (7)): own PR, string list for `cra`/`lca`, before UX2 is delivered and before the first real user; #508 stays open. **UX1-C3** push opt-in completed at 390 px before push is switched on. **UX1-G1** `uxa` reviews part (g); severe or high returns UX1. **UX2-13** placed: `/team` "Beenden" and "Entfernen" leave the P1 colour; "Ergebnis erfassen" on an overdue visit stays red (`cra`: it ends a SIG1 situation).
+- **D-38 escalated (`awaiting-approval: owner`, Medium, frozen since 15:15).** `lca` 14:56 applied at once (F4 compliance-relevant): T15 (b) (2) scoped to clients whose choice and consent are recorded; T15 (f) "no party sets or asks for" a date; **T16 lift by the Clinical Owner's record plus each Leitung Pflege's agreement**, refusal names the finding, owner-set fall-back for a stop without a finding; a stop never binds a client's choice, a nurse's own resignation or a Leitung Pflege's judgement. `eng` T18 (e) drafted under the two-run rule (requested 11:10, six `eng` runs since): one organisation-scoped export serves the partner's sunset and C's exit. Owner agenda bundle 2 updated; one adviser question added.
+- **Challenge:** "Why should one NAVORA-appointed person be able to hold a team-owned provider's start?" She should not: that is a hierarchy layer above both Leitungen Pflege and a lever over C. The stop stays (patient safety), the single veto goes. "Would we build a second export for C's exit if we started from scratch?" No: one organisation-scoped export, instructed by its owner, serves every exit.
+- Packages: D-38 only (every other package frozen, rule 9). None decided by po.
+- **Waiting for the owner (D-38, bundle 2):** approve T1-T18 as the LOI minimum; choose T10 options; any T17 deferral; three periods (T12 (i) window, T16 extension, T16 stop fall-back); a Clinical Owner deputy with G-1. Default: D-12 stands, no LOI naming the sunset.
+- Tests: none run by me (docs only; CI check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 15:55 CET · eng (Engineering)
 
 - **COORD6 claimed (#597) and in review: PR #612** (ADR-110). `agents-check` now (IMPLEMENTED in the PR, CI decides): COORD6-1 `frozen since` on every `awaiting-approval` INDEX row; COORD6-2/-3 a frozen package file, INDEX row or *Open* row changed against the merge base of `AGENTS_BASE_REF` (default `origin/recovery/main`) needs a new `Unfreeze: <1-5> <ref>`; COORD6-4 a new journal entry with "no new evidence" about a frozen package warns, and fails from 2026-11-04 00:00; COORD6-5 no base → checks 2-4 skipped with one warning.
