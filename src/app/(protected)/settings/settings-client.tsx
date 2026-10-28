@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
 import { AppFrame } from "@/components/layout/Sidebar";
+import { PAGE_LABEL } from "@/lib/auth/nav";
 import { disableOutsideDelivery, enableOutsideDelivery } from "@/features/push/commands";
 import type { MyPushState } from "@/features/push/queries";
 import { ENABLE_MESSAGES, memberInformation, NOT_AVAILABLE, OUTSIDE_LABEL, statusText } from "@/features/push/rules";
@@ -86,8 +87,7 @@ export default function SettingsClient({ state }: { state: MyPushState }) {
     <AppFrame active="settings" style={{ background: "#f4f7f4", color: "#153328" }}>
       <main className="grid max-w-3xl content-start gap-6 p-4 md:p-8">
         <header>
-          <p className="text-xs uppercase tracking-widest text-secondary">Einstellungen</p>
-          <h2 className="text-2xl font-bold">Meine Einstellungen</h2>
+          <h2 className="text-2xl font-bold">{PAGE_LABEL.settings}</h2>
         </header>
         <section aria-label={OUTSIDE_LABEL} className="grid gap-3 rounded-2xl border border-stone-200 bg-white p-5">
           <h3 className="text-lg font-bold">{OUTSIDE_LABEL}</h3>

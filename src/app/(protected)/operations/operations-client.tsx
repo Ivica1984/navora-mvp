@@ -5,6 +5,8 @@ import SignalBanner from "@/components/signals/SignalBanner";
 import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
 import type { EvaluatorHealth, SignalRow } from "@/features/signals/rules";
 import { AppFrame } from "@/components/layout/Sidebar";
+import { PAGE_LABEL } from "@/lib/auth/nav";
+import { TEAM_PANEL_HEADING } from "@/features/operations/labels";
 import type { OperationsDashboard } from "@/features/operations/types";
 import type { TeamRow } from "@/features/teams/types";
 import ExceptionCenter from "./exception-center";
@@ -121,21 +123,8 @@ function Header({
 }) {
   return (
     <header style={{ minHeight: "64px" }}>
-      <p
-        style={{
-          margin: 0,
-          fontSize: "12px",
-          fontWeight: 800,
-          letterSpacing: "0.08em",
-          color: SECONDARY_TEXT,
-          textTransform: "uppercase",
-        }}
-      >
-        Operations
-      </p>
-      <h1 style={{ margin: "6px 0 0", fontSize: "32px", lineHeight: 1 }}>
-        Navora Operations Control Tower
-      </h1>
+      {/* UX1-13: the OPS1 exception center is named for what it is; the care model has no dispatcher. */}
+      <h1 style={{ margin: "6px 0 0", fontSize: "32px", lineHeight: 1 }}>{PAGE_LABEL.operations}</h1>
       <p style={{ margin: "8px 0 0", color: SECONDARY_TEXT }}>
         Stand: jetzt · {activeCases} laufende Klientenfälle · {openSlots} freie Pflegeslots
       </p>
@@ -346,7 +335,7 @@ function ContextPanel({
   if (!selectedEntity) {
     return (
       <section style={panelStyle}>
-        <h2 style={sectionTitle}>Drilldown</h2>
+        <h2 style={sectionTitle}>{TEAM_PANEL_HEADING}</h2>
         <p style={sectionSubtitle}>Wähle ein Pflegeteam aus.</p>
       </section>
     );
@@ -358,7 +347,7 @@ function ContextPanel({
 
   return (
     <section style={panelStyle}>
-      <h2 style={sectionTitle}>Pflegeteam Detail</h2>
+      <h2 style={sectionTitle}>{TEAM_PANEL_HEADING}</h2>
       <StatusPill label="Pflegeteam" tone="info" />
       <h3>{team.name}</h3>
       <p>{team.region ?? "Region offen"}</p>

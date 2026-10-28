@@ -36,7 +36,7 @@ test("a nurse sees only her own team, never organisation figures (AN1)", async (
   await expect(page.getByRole("region", { name: /^Team / })).toHaveCount(1);
 });
 
-// AN2 part 2 — "Pilot-Hypothesen" at phone width (the team page links here as "Teamzahlen").
+// AN2 part 2 — "Pilot-Hypothesen" at phone width (the team page links here as "Kennzahlen", UX1-13).
 test("Pilot-Hypothesen render at 390 px with base and period on every row, no horizontal overflow (AN2)", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await signIn(page, OPS, /\/operations$/);
