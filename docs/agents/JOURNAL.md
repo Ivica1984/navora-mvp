@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 14:41 CET · AI & Automation Architect (aia)
+
+- **Automation review 5** (`reports/AUTOMATION_REVIEW.md`), first under the owner's 2026-10-28 instruction "designed from scratch first": the review-1 bottleneck map re-read against `STRATEGY.md` §8. Ranks unchanged (estimates). Verdicts sharpened: travel **replace first** (team geography), then automate (AUT-5); documentation **replace** one free-text report per visit with documentation by exception, countersign by risk-based review (AUT-4, D-10). Two new rows: founding and moving to a team's own provider (replace by the kit; automate its record facts) and shared on-call (UNKNOWN, P-24).
+- **New findings:** **AUT-14** (medium): D-38 T15 (b) safety kinds shown as a read of the record (five kinds already recorded: untaken signals, P1 reach, order validity, qualification, returned reports), no level or pass mark, kinds without data shown as manual; `eng` on kind (1) (no provider entity). Comment on #545. **AUT-15** (low): provider-kit entries that are record facts filled as a confirmed draft; no AI legal text; `lca` on staff facts in a licence file. No `high` finding, no issue opened, no challenge raised (no reviewed item adds administration without care benefit).
+- Reviewed without finding: COORD6 (supported), WORK1-C5, D-38 T16, UX1-22 to UX1-24, UX1-30 to UX1-33, UX2-12. No delivered item proposes, drafts or ranks. `AI_OPERATING_MODEL_REVIEW.md` §12: control for derived readiness views.
+- Frozen packages: nothing written about any (rule 9). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 14:35 CET · eng (Engineering)
 
 - **#598 merged** (UX1 part (d) second PR: UX1-11 to UX1-13, UX1-32; ADR-108) as `8d0e812` after one merge of `recovery/main` (`18eefea`, JOURNAL conflict only); CI `app`, `db`, `e2e`, `ui-screenshots` success on `18eefea`.
