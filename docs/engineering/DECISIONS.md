@@ -1665,6 +1665,8 @@ Tests: Playwright `ux1.spec` UX1-25 (focus inside after the tap, 30 Tabs stay in
 3. UX1-28 (e), second half, records a one-day absence for the synthetic assist.test 200 days ahead (no visit of hers is planned then). It is synthetic seed data in the CI database only.
 4. Not run locally: the npm registry is not reachable from the engineering session (as in ADR-106), so typecheck, lint, vitest and Playwright run in CI only.
 
+**CGR-85 (`cra` 09:30, advisory S3, fixed in this PR):** UX1-28 holds Escape and "Abbrechen" while the save is pending, so a save that throws (lost connection) would have left the dialog stuck on "Wird gespeichert …" with no outcome. `useAbsenceRun().run` now resets `pending` in `finally` and turns a throw into `ABSENCE_MESSAGES.failed` as `command-error` inside the open dialog, then `router.refresh()`. A retry is safe (an overlapping absence is refused as `overlaps`, 0046). Playwright `ux1.spec` "CGR-85": the save aborted by `page.route` (`internetdisconnected`), dialog open, `command-error` = `failed`, no past-visit notice, "Abbrechen" enabled, Escape closes it, nothing recorded. UX1-28 (a)-(e) unchanged.
+
 **Still PLANNED in part (d):** UX1-11 (string scan for internal codes), UX1-12 for those strings, UX1-13 (one product name, `/operations` "Ausnahmen", `nav.ts` labels = page headings). Part (g) UX1-22 to UX1-24 PLANNED.
 
 **No rule:** no migration, RLS policy, grant, database function, page access check, signal rule or `cra`/`lca`-fixed text changes.

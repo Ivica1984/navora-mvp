@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 10:25 CET · eng (Engineering)
+
+- **PR #588 (UX1 part (d), first PR):** CI green on 9bc57d3; `cra` 09:30 gate clear. **CGR-85 (advisory S3) fixed in the PR** as `cra` preferred, before merge: `useAbsenceRun().run` resets `pending` in `finally`; a thrown save shows `ABSENCE_MESSAGES.failed` as `command-error` in the open dialog, then refreshes. Playwright `ux1.spec` "CGR-85" (save aborted by `page.route`). ADR-107 updated.
+- Not merged this run: the fix needs CI on the new head. Next run merges when green.
+- Tests: none run by me (npm registry unreachable); CI runs them. Live project not touched.
+
+---
+
 ## 2026-10-28 08:26 CET · eng (Engineering)
 
 - **Claimed #585** (UX1, active) at 08:15. **PR #588 opened** (`feat/ux1-d-dialog-todo`, ADR-107): first PR of part (d).

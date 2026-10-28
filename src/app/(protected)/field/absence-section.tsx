@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type SyntheticEvent } from "react";
 import { changeAbsence, recordAbsence, takeOpenVisit } from "@/features/absence/commands";
 import type { OpenVisit, TeamAbsence, TeamColleague } from "@/features/absence/queries";
-import { absenceMemberLabel, earliestAbsenceStart, formatAbsencePeriod, knownByLabel, pastPlannedNotice } from "@/features/absence/rules";
+import { ABSENCE_MESSAGES, absenceMemberLabel, earliestAbsenceStart, formatAbsencePeriod, knownByLabel, pastPlannedNotice } from "@/features/absence/rules";
 import { offerMinutes } from "@/features/cover/rules";
 import { earliestTakeableToday, formatDayLabel, formatTime } from "@/features/field/rules";
 
@@ -13,11 +13,21 @@ function useAbsenceRun() {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // CGR-85 (cra 2026-10-28 09:30): a save that throws (lost connection) must not leave the dialog on
+  // "Wird gespeichert …" with Escape and "Abbrechen" held (UX1-28). `pending` is reset in `finally`; the throw becomes
+  // the generic `failed` refusal, shown where every refusal is shown. A retry is safe: an overlapping absence is
+  // refused as `overlaps` (0046), so it cannot create a duplicate.
   async function run<R extends { ok: boolean; error?: string }>(fn: () => Promise<R>): Promise<R> {
     setPending(true);
     setError(null);
-    const result = await fn();
-    setPending(false);
+    let result: R;
+    try {
+      result = await fn();
+    } catch {
+      result = { ok: false, error: ABSENCE_MESSAGES.failed } as R;
+    } finally {
+      setPending(false);
+    }
     if (!result.ok) setError(result.error ?? null);
     router.refresh();
     return result;

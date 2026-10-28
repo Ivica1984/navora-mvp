@@ -433,7 +433,7 @@ test.describe("UX1-27 at 390 × 844", () => {
  * UX1-28: holds the next server-action POST (the absence save) until `release()`, so the test can act while it is
  * pending. `sent` resolves once the request has left the page.
  */
-async function holdNextSave(page: Page) {
+async function holdNextSave(page: Page, outcome: "continue" | "abort" = "continue") {
   let release!: () => void;
   let markSent!: () => void;
   const gate = new Promise<void>((r) => { release = r; });
@@ -443,6 +443,8 @@ async function holdNextSave(page: Page) {
     if (req.method() === "POST" && req.headers()["next-action"]) {
       markSent();
       await gate;
+      // CGR-85: "abort" drops the save as a lost connection would; it never reaches the server.
+      if (outcome === "abort") return route.abort("internetdisconnected");
     }
     await route.continue();
   });
@@ -513,6 +515,30 @@ test.describe("UX1 part (d) at 390 × 844", () => {
     await page.unroute("**/field**");
     await expect(cancel).toBeEnabled();
     await cancel.click();
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByTestId("my-absence")).toHaveCount(0);
+  });
+
+  test("CGR-85: a save lost in transit ends the pending state; the dialog shows the failure and can be closed", async ({ page }) => {
+    await signIn(page, "pflege.test@navora.test");
+    await page.goto("/field");
+    await page.getByTestId("absence-open").click();
+    const dialog = page.getByRole("dialog", { name: "Ich kann nicht arbeiten" });
+    const form = dialog.getByRole("form", { name: "Abwesenheit erfassen" });
+    const hold = await holdNextSave(page, "abort");
+    await form.getByTestId("absence-save").click();
+    await hold.sent;
+    await expect(form.getByTestId("absence-save")).toHaveText("Wird gespeichert …");
+    hold.release();
+    // The dialog stays open with the generic failure; no past-visit notice; the save button is usable again.
+    await expect(dialog.getByTestId("command-error")).toHaveText(ABSENCE_MESSAGES.failed);
+    await expect(dialog).toBeVisible();
+    await expect(page.getByTestId("absence-past-planned")).toHaveCount(0);
+    await expect(form.getByTestId("absence-save")).toHaveText("Speichern");
+    await expect(form.getByRole("button", { name: "Abbrechen" })).toBeEnabled();
+    await page.unroute("**/field**");
+    // Escape closes the dialog again; nothing was recorded (the request never left the browser).
+    await page.keyboard.press("Escape");
     await expect(dialog).toHaveCount(0);
     await expect(page.getByTestId("my-absence")).toHaveCount(0);
   });
