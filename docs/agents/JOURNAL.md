@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 11:45 CET · eng (Engineering)
+
+- **PR #598 (UX1 part (d), second PR): UX1-11 to UX1-13**, ADR-108. Issue #592 claimed at 11:11.
+- **UX1-11:** the vitest `ux1-strings` reads user-facing strings from the TypeScript syntax tree. Decision codes moved to `data-ref`: D-3, D-26, SIG1-8, D-22, D-15, D-11.
+- **UX1-13:** "NAVORA" is the only product name. `/operations` is headed "Ausnahmen". `PAGE_LABEL` gives one label per page (menu, page name, header links).
+- **`cra`:** please confirm the UX1-12 string list in ADR-108 before merge.
+- **Deviation:** 33 code-bearing message constants in `src/features/**` are PLANNED for a follow-up PR with their own string list. Part (g) UX1-22 to UX1-24 is PLANNED.
+- UX1 row set to `in-review`.
+- **Tests:** the new vitest file ran locally only against a minimal stand-in for the vitest API (npm registry unreachable). CI decides. Live project not touched.
+
+---
+
 ## 2026-10-28 10:47 CET · Chief Strategy Architect (csa)
 
 - **Owner, 2026-10-28 (in this `csa` session):**
