@@ -4,6 +4,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 18:15 CET · po (Product Owner)
+
+- No open PO PR; no delivery to review (COORD6 #612 open, CI decides). Read `cra` 17:30 (PR #614, not yet merged) and `lca` 17:41.
+- **VIS1 approved as *Next up* 2** (`cra` CGR-87, S1 before a pilot with real clients): depart, start, no-show and "not completed" refuse a visit dated after today (Europe/Zurich); `/field` shows no field action on a future visit and says to move it first. No tolerance and no rule for past visits coded (Clinical Owner, UNKNOWN). ADM2, AIG1, ASM1, UX2, PLAN3 move down one. **UX1-C1** closes only with a visit dated today (note in `briefs/UX1.md`); UX1 stays `accepted`.
+- **UX2:** `cra` 17:30 confirmed UX2-14 (hold badge to `attention`, "Abrechnungssperre" and its meaning line kept) and UX2-15 (with the condition: sentence before any member list, gap state amber); **UX2-16** added from UXR-28 (frame red only while a P1 entry is shown in full, amber otherwise, never neutral while listed).
+- **D-38 (Unfreeze: 3 CGR-88, with `lca` 17:41), still `awaiting-approval: owner`, Medium:** the T16 stop fall-back period is set by the Clinical Owner, or by the owner only with her recorded agreement, fixed in the LOI and changed only by the same route; none before G-1. T15 (b) is not met while no Clinical Owner has set the levels. Owner ask item (3) changed (two owner periods); adviser question (c) replaces the 14:56 one; risks row updated; *Pending wording* stays empty. OWNER_AGENDA line marked "changed since you last looked". Other packages frozen; none decided by po.
+- **Challenge:** "Why can a nurse start next week's visit?" Because the state machine knew status, not time; a correction after the fact is administration and a signal that never fired cannot be recovered. And on D-38: "Why should NAVORA time the appointment that gates a team-owned provider's start?" Product view in the package: a transition Clinical Owner filled or confirmed jointly by both Leitungen Pflege; owner and clinical-governance choice, after the adviser's answer (c).
+- Not merged by me: `cra` PR #614 (contains #604, #589, #582; outside the PO's merge scope; owner agenda operational line (b) stands).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+ENGINEERING BRIEF
+- **Capability:** VIS1, field actions happen on the visit's day ([`briefs/VIS1.md`](briefs/VIS1.md)).
+- **Why:** nothing ties `start_visit`, `depart_visit`, `complete_visit`, `end_visit_not_completed`, `record_no_show` to the visit date (0007:120-170); a future visit worked today masks a missed visit on its real date (CGR-87).
+- **Business outcome:** billable facts carry the date care was given; no service billed for a day without care.
+- **Care outcome:** overdue and missed signals (CSR1, SIG1) fire on the visit's real date; the record names the right day (H-01, H-05).
+- **Expected nurse outcome:** no accidental start of a wrong-day visit; one clear sentence and the move as the way forward.
+- **Expected team outcome:** a visit done early is one audited move the team already owns; no coordinator, no correction afterwards.
+- **Expected patient outcome:** a visit that did not happen is noticed on its day.
+- **Acceptance criteria:** VIS1-1 to VIS1-7 (database refusal `not_today` with audit row; pgTAP tomorrow refused / moved-to-today ok / today and yesterday unchanged; `/field` no action plus sentence; Playwright at 390 × 844; tests use visits dated today, no guard weakened; past-dated behaviour unchanged; `cra` gate before merge).
+- **Dependencies:** none blocking; J3 `reschedule_visit` (0056), DAY-1. Clinical Owner later for any tolerance or late-documentation rule (not built).
+- **Priority:** *Next up* 2, after COORD6; patient-safety precondition, value 2 and 3.
+- **Implementation recommendation:** one migration adding the date guard inside the existing commands (or `private.transition_visit` with the date passed), `fieldActions` taking the visit date, one ADR; fix UX1-27 test data in the same PR so UX1-C1 closes with it.
+
 ## 2026-10-28 17:41 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 frozen, no trigger (nothing written about them). Tier 2: CGR-87 names no decision; **CGR-88 (`cra` 17:30, PR #614, not yet merged) names D-38 T16** → unfreeze trigger 3; D-38 picked only.
