@@ -6,6 +6,56 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-10-28 11:49 CET · `uxa`: #588 merged (UXR-17 to UXR-20 closed in code); PR #598 reviewed; UXR-22 to UXR-25 (all low or medium)
+
+**What changed since 07:50.** **#588 merged** (UX1 part (d), first PR: UX1-28, UX1-29, UX1-30, UX1-31 / `cra` CGR-85, UXR-17 removal; merge commit `566dc8b`). CI green on its last head `522f34b` (app, db, e2e, ui-screenshots, per `eng` 10:27) and on `recovery/main` `a47f3fa` (ci and agents-coordination runs 40671985986, 40671986092). **Open PR with screen changes: #598** (UX1-11 to UX1-13: internal codes out of page text, one product name, one label per page; head `5219eae`; CI green on that head: app, db, e2e, ui-screenshots). Docs only otherwise (`csa` 10:47, PO 11:10). Open `ux` issues unchanged: #506 to #510, #515, #516, #548.
+
+**Sources.** `ui-screenshots` artifact for #598 (12809591431, run 40672635418) exists; **download refused again** (proxy `CONNECT tunnel failed, response 403`), so **no screenshots and no `axe_*.json` were available to me**. Review from code (`git diff 3578bfb 566dc8b`, `git diff recovery/main...origin/feat/ux1-d-strings`) and from CI results. The live project was not touched. No benchmark (one was made today at 03:50).
+
+### Review of #588 (merged, `566dc8b`)
+
+- **UX1-28 / UXR-18:** while the save is pending, "Abbrechen" is `disabled`, Escape is held twice (capture `keydown` and `onCancel`), so refusal (`role="alert"`) or the CGR-32 notice (`role="status"`) is shown in the open dialog (`field/absence-section.tsx`). Matches §6. IMPLEMENTED.
+- **UX1-31 / CGR-85:** `run` resets `pending` in `finally`; a thrown save becomes `ABSENCE_MESSAGES.failed`. She always learns whether she is recorded absent. IMPLEMENTED (Playwright "CGR-85" green in CI per `eng`).
+- **UX1-29 / UXR-19:** visible `h2` "Ich kann nicht arbeiten", `aria-labelledby`. IMPLEMENTED.
+- **UX1-30 / UXR-20:** all three "Zu erledigen" links equal their section `h2` through one constant each (`features/field/todo.ts`); "Bitte korrigieren und neu unterschreiben" is the returned section's first line, always rendered (`cra` conditions (1)-(3)). IMPLEMENTED.
+- **UXR-17:** `/login` panel removed, one column, nothing replaces it. IMPLEMENTED.
+- One new low finding on focus (UXR-25).
+
+### Review of #598 (open, head `5219eae`)
+
+- **UX1-11:** every code I listed (D-3, D-11, D-15, D-22, D-26, SIG1-8) leaves the visible text and moves to `data-ref` (not read aloud). Substance of the sentences unchanged; whether `cra`/`lca` saw the string list is theirs to record (ADR-108 lists old → new). Matches §4.
+- **UX1-13 / UXR-12:** `PAGE_LABEL` gives each page one name for menu, heading and header links ("Mein Tag", "Dein Team", "Kennzahlen", "Ausnahmen"); `/field` now links to "Dein Team" (was "Teamanfragen"), `/team` to "Kennzahlen" (was "Teamzahlen"); "Swiss Care OS", "Navora MVP", "Control Tower", "Operations Board", "KPI / Analytics", "Mein Tag (mobil)" are gone; phone bar reads "NAVORA". Remedy of UXR-12 complete in code; closes when merged.
+- No blocking finding. Three small findings (UXR-22 to UXR-24); none needs to hold the merge. One short PR comment left.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-22 | `/partners`, intake roles, desktop and phone | low | UX1-13 removes the small uppercase line above the page heading on `/admin`, `/analytics`, `/intake`, `/settings`, `/operations`, `/team`, but `/partners` keeps "Partner" above "Partneranfragen": one page still carries two names for itself. | `partners/page.tsx` ~lines 32-44 on `5219eae` | §4 one label per page; §5 density | Remove the eyebrow `p`; extend `tests/unit/ux1-strings.test.ts` so no page renders text above its `h1` other than the shell. Presentation only. Can ride #598 or the next part (d) push. | report |
+| UXR-23 | `/operations` team panel, coordinator, desktop | low | "Drilldown" becomes "Pflegeteam Detail" (empty and selected state). That is not a German compound or phrase; it reads as a translated code label. | `operations/operations-client.tsx:337`, `:349` on `5219eae`; ADR-108 string table | §4 plain Swiss German | "Details zum Pflegeteam" (or "Pflegeteam-Details") in both states via one constant; unit test asserts the string. Not `cra`/`lca` text (no clinical or privacy content). | report |
+| UXR-24 | every page with the desktop side column, every role (screen reader) | medium | The side column renders `<h1>NAVORA</h1>` (`Sidebar.tsx:100`). `/intake`, `/operations`, `/partners` then have two `h1`; `/admin`, `/analytics`, `/settings` have the product name as their only `h1` and the page name as `h2`. A screen-reader user jumping to the first heading hears "NAVORA", not where she is. Present before #598 (then "Navora"); #598 does not change the level. | `components/layout/Sidebar.tsx:100`; `admin/admin-client.tsx` header `h2`; `settings/settings-client.tsx` header `h2`; `analytics/analytics-client.tsx` header `h2` (`5219eae`) | §6 (WCAG 1.3.1, 2.4.6); §4 one label per page | Product name in the shell as a non-heading element (link or `p`); each page's `PAGE_LABEL` heading is its single `h1`. Playwright per role: `getByRole("heading", { level: 1 })` has count 1 and the page's label. Fits UX2-1 (one shell) if not done in part (d). | report |
+| UXR-25 | `/field` "Ich kann nicht arbeiten" dialog, nurse, keyboard and screen reader | low | When the save succeeds with past planned visits, the form (holding the focused "Speichern") is replaced by the CGR-32 notice; the focused element is removed, so focus can fall to the page body (browser-dependent; UNKNOWN until measured). The notice is announced (`role="status"`), but a keyboard user must find "Schliessen" from nowhere. The same applies while "Speichern" is disabled during the save. | `field/absence-section.tsx` notice branch (`role="status"`, "Schliessen") and `disabled={pending}` on `566dc8b` | §6 dialogs (focus) | After the notice renders, focus moves to "Schliessen" (or the notice with `tabIndex=-1`); after a refusal, focus returns to "Speichern". Playwright: after the ABS1-C6 save, `expect(page.getByRole("button", { name: "Schliessen" })).toBeFocused()`. Notice wording and position unchanged (`cra` CGR-32 text). | report |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-17 | **Closed in code** in this report: panel removed (#588, `566dc8b`), CI green. Not seen in a screenshot. | `(auth)/login/page.tsx` |
+| UXR-18, UXR-19 | **Closed in code**: UX1-28, UX1-31, UX1-29 (#588, `566dc8b`), Playwright in `ux1.spec`/`field.spec` green in CI per `eng`. | `field/absence-section.tsx` |
+| UXR-20 | **Closed in code**: UX1-30 (#588, `566dc8b`); `tests/unit/ux1-todo.test.ts` asserts link = heading for all three. | `features/field/todo.ts` |
+| UXR-12 | Remedy in open PR #598 (CI green on `5219eae`); closes when merged. | `src/lib/auth/nav.ts` `PAGE_LABEL` |
+| UXR-22 to UXR-25 | OPEN, new (three low, one medium). | above |
+| UXR-15, UXR-2 (#516) | Closed (07:50); unchanged. | |
+| UXR-21 | PLANNED as UX2-10. | |
+| UXR-13, UXR-14, UXR-16 | Closed in code (23:49); unchanged. | |
+| UXR-1, -3, -6, -8, -9, -10, -11 | Remedy IMPLEMENTED; unchanged; still not seen in a screenshot. | |
+| UXR-4, UXR-5 (a), UXR-7 | PLANNED (part (g)). | |
+| UXR-5 (b) | OPEN, waits for `eng` (PLAN2), then `cra`. | |
+
+**For the PO.** No new issue (no severe or high finding). (1) UXR-22, UXR-23 are one-line string fixes that can ride #598 or the next part (d) push; your call. (2) UXR-24 (medium) is a heading-structure fix in the shell; I propose placing it in UX2-1 (one shell) unless part (d) has room. (3) UXR-25 (low) is a focus fix in the absence dialog; could ride part (g) or UX2. (4) Screenshot download is still refused to this role (403 at the proxy); every review is code-only. I propose only.
+
+---
+
 ## 2026-10-28 07:50 CET · `uxa`: #574 merged; UXR-15 and UXR-2 closed on CI evidence; no new finding
 
 **What changed since 03:50.** **#574 merged** (UX1-18 axe `color-contrast`, UX1-27; merge commit `93f7423`, then docs `3578bfb`). Its branch got one merge of `recovery/main` (`e759825`, JOURNAL conflict only): `git diff 7988945 93f7423 -- src tests .github` is empty, so the merged screen code is exactly the head I reviewed at 03:50. CI green on `e759825` and on `recovery/main` `93f7423` and `3578bfb`: app, db, e2e, ui-screenshots (the last includes the axe check). Docs only otherwise: PO 04:10 (UXR-20 → **UX1-30**, part (d); UXR-21 → **UX2-10**) and 06:10 (`cra` 05:30 conditions (1)-(3) on UX1-30; new **UX2-11**: a returned report stays on her day until she signs again). No open PR changes screens. Open `ux` issues unchanged: #506 to #510, #515, #516, #548.
