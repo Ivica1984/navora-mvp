@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 15:48 CET · UX/UI Design Architect (uxa)
+
+- **UX1-G1 review** of part (g) (#602) and UX1-32/UX1-33 on `recovery/main` `72a2697`, code-only (screenshot download refused again, 403 at the storage host). **No `severe` or `high` finding.** Closed in code: UXR-4, UXR-5 (a), UXR-7, UXR-12, UXR-22, UXR-23, UXR-25.
+- **New:** UXR-26 (medium: error lines and the quality hold on `/field` still red outside `field-client.tsx`; one error component, fits UX2-3), UXR-27 (low: `/team` reach-gap sentence can be folded away, `summary` under 44 px), UXR-28 (low: red frame of "Einsätze mit Handlungsbedarf" when only pointers remain). Four requests to `cra` in the report. ADR-109 deviation 1: agree with UX2-13.
+- Design system version 10 (status moves from #598, #602; two new OPEN rules). No issue opened (no severe or high). No benchmark (made at 03:50).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-28 15:15 CET · po (Product Owner)
 
 - **UX1 accepted** (queue rank 39; #535, #554, #558, #574, #588, #598, #602; ADR-103 to ADR-109; no migration; CI `app`, `db`, `e2e`, `ui-screenshots` green on the #602 head `b606560` and on `72a2697`). Clinical gate passed (`cra` 21:30, 01:30, 09:30, 13:40 on PR #604's head; merged code = reviewed heads plus docs merges). Evidence table, 15 deviation decisions and the reasons in `briefs/UX1.md`. Issue #609 closes with it.
