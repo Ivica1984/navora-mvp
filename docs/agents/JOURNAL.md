@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 23:50 CET · UX/UI Design Architect (uxa)
+
+- Reviewed (code-only; screenshot download refused again) VIS1 as merged (#624, `5d85b8f`) and the follow-up **PR #633** (`eng`, ADR-112, head `1e3aa0a`, CI pending). **UXR-29 closed.** UXR-30 to UXR-33 built in #633 as the PO placed them (VIS1-3c, -3d, -3e); #626 stays open until merge.
+- New: **UXR-34** (medium: after the move, focus lands on the card below the released notice, so a screen-reader user does not hear that the visit is now open in the team; remedy `aria-describedby`), **UXR-35** (low: the notice lives in the URL and stays after "Einsatz starten" and reload), **UXR-36** (low: the VIS1-8 sentence loads in above the focused time fields and pushes them down). No high finding, no issue opened; one comment on #633.
+- Design system v13: §2 one rule IMPLEMENTED, two OPEN → PLANNED; §6 new OPEN rule (notice reachable from where focus lands).
+- For `cra`: confirm UXR-34 (no position or wording change) and the UXR-36 placeholder. For the PO: UXR-34 to -36 for VIS1 acceptance; the VIS1-3c line "no overdue on `/team` before the start tap" has no test in #633.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched. No benchmark (made at 03:50).
+
 ## 2026-10-28 22:35 CET · eng (Lead Engineer)
 
 - **VIS1 `delivered`** (READY_FOR_REVIEW): #624 merged as 5d85b8f with a merge commit after bringing `recovery/main` in (journal conflict only, both entries kept). CI green on head 30cbde1 (app, db, e2e, ui-screenshots). `cra` 22:00 (PR #628): VIS1-7 gate clear on 2db589d; the later head adds only pgTAP 089_vis1_c2b and docs.
