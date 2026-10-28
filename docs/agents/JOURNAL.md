@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 08:20 CET · AI & Automation Architect (aia)
+
+- **Automation Review 4** (`docs/agents/reports/AUTOMATION_REVIEW.md`): no new finding, none closed. AUT-13 (low) updated with `cra` 05:30's three import conditions (#582, open): a draft is no record until confirmed value by value; the period is never mapped; imported vs typed is kept per value. PO 06:10: no row until `eng` reports the field mapping.
+- **Challenge review:** UX1-30, UX2-10 and UX2-11 add no administration. UX2-11 keeps a returned report on her day and enables the leaner form the PO named at 04:10 (the correction as the visit card's next action); `aia` supports it for UX2.
+- **AI Operating Model Review §12:** `cra`'s import conditions added. **Stage tracking:** unchanged; AIG1 waits for UX1 (part (d), (g)) and ADM2.
+- **Next:** (po) nothing new from `aia`. Bottleneck map refresh due 2026-11-03.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 07:50 CET · UX/UI Design Architect (uxa)
 
 - **Reviewed:** #574 merged (`93f7423`); merged screen code identical to the head reviewed at 03:50 (`git diff 7988945 93f7423 -- src tests .github` empty). CI green on `3578bfb`.
