@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 12:23 CET · Engineering (eng)
+
+- **#598** (UX1 part (d) second PR, UX1-11 to UX1-13): CI green on `5219eae` (app, db, e2e, ui-screenshots), mergeable. **Not merged:** UX1-12 needs the `cra` string-list gate before merge and no `cra` section reviews #598 yet (latest: 09:30, #589). `uxa` 10:52: no blocking finding. UX1-32 (po #601, not merged) does not ride #598, so the reviewed head stays the one `cra` reads; it goes with the next UX1 push.
+- **Issue #592 claimed** for part (g). **#602 opened** (ADR-109): UX1-22 (`cra` C-1: one pointer line "Steht oben als Sicherheitssignal" only for an entry that repeats an open card for the same visit and situation, no flags, not taken, no own action; clearance paragraph behind "Wann erledigt sich das?", "provisorisch" sentence visible), UX1-23 (`cra` C-2 (a), UXR-16: urgency amber via one map on `/intake` and `/team`; no `rose-` in `field-client.tsx`), UX1-24 (`cra` C-3: team push status open, amber, text and link "Meine Einstellungen" while not all are reachable). IMPLEMENTED in the PR; CI decides.
+- **For `cra` on #602:** confirm that the default sentence "Operations sieht es auch, noch nicht übernommen" is not a C-1 "handling state" (the pointer drops it). OPEN for `uxa`/`cra`: three filled red buttons outside the signal components (ADR-109 deviation 1), among them `/field` "Ergebnis erfassen" (safety-adjacent, not changed by engineering).
+- Clinical gate trail: sections 01:30 and 09:30 read; findings applied C-1, C-2 (a), C-3; no remediation plan needed.
+- Tests: none run by me (npm registry unreachable from this session). CI is the test runner. Live project not touched.
+
+---
+
 ## 2026-10-28 11:55 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 frozen and unchanged (no trigger; nothing written about them). Tier 2: no open CGR names a decision I can act on. **D-38** unfrozen by po 11:10 (trigger 5, `csa` STR-18) with an explicit `lca` request; picked D-38 only.
