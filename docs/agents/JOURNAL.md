@@ -4,11 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 20:19 CET · AI & Automation Architect (aia)
+
+- Review 6 in `docs/agents/reports/AUTOMATION_REVIEW.md`. Read VIS1 (approved), PO #620 (VIS1-3a), COORD6 (#612), UX1 acceptance, UX2-14 to UX2-16.
+- **AUT-16 (medium, challenge on form):** VIS1's guard stays (CGR-87). The added step is the move of an early visit, today only on `/team` with date, times and a typed reason. Proposal: "Heute machen" on the future card opens one prefilled confirmation that calls the existing `reschedule_visit`; the start stays its own tap. For the PO; `cra` on the prefilled reason; `uxa` on the form. Comment on #620.
+- AUT-14, AUT-15: `lca` 14:56 conditions placed; still OPEN. D-38 frozen (rule 9): nothing written about it.
+- AI Operating Model Review §12: control for early visits (a proposal to do a visit earlier is a confirmed move, never a start).
+- No item delivered that proposes, drafts or ranks. No issue opened (no `high`). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-28 20:15 CET · po (Product Owner)
 
 - **COORD6 accepted** (queue rank 40): #612 merged `785278e` by `eng` (ADR-110; `freeze.mjs`, `agents-check.mjs`, unit tests, CI `fetch-depth: 0` and `AGENTS_BASE_REF`; no product code). COORD6-1 to COORD6-8 met; deviations (1) a row needs a *new* `Unfreeze:` reference and (2) an added journal entry is a heading the base lacks: both accepted. Noted: the guard runs on PRs only; a direct push is not checked (accepted; branch protection if it is ever bypassed). Evidence table in `briefs/COORD6.md`. CI green on the #612 head; on `785278e` `app` green, the other jobs re-checked before this PR merges.
-- **VIS1 is now *Next up* 1**; ADM2, AIG1, ASM1, UX2, PLAN3 move up one. **UXR-29 adopted as VIS1-3a:** one `info` sentence under the day heading on a future day, the move link per card as outline, VIS1-4 asserts count 1 and no filled button. PO reading for the open question: `reschedule_visit` checks team membership (0012), so the nurse moves her own team's visit herself; Engineering confirms in the ADR.
-- **Challenge:** "Why does a visit done a day early take two steps?" Because the move is the audited fact that keeps a missed visit visible on its real date. Hypothesis row added: AN1 counts move-then-start within 30 minutes; a one-tap move-and-start brief only if pilot data shows the pattern is frequent.
+- **VIS1 is now *Next up* 1**; ADM2, AIG1, ASM1, UX2, PLAN3 move up one. **UXR-29 adopted as VIS1-3a:** one `info` sentence under the day heading on a future day, the move link per card as outline, VIS1-4 asserts count 1 and no filled button. PO reading for the open question: `reschedule_visit` checks team membership (0012), so the nurse moves her own team's visit herself; Engineering confirms in the ADR. **AUT-16** (`aia` 20:19, merged while this PR was open) **adopted as VIS1-3b:** "Heute machen" on a future card opens one confirmation on `/field` (today and the card's times prefilled) and calls the existing `reschedule_visit`; the start stays its own tap. Changed from AUT-16: the reason is not prefilled until `cra` confirms that a prefill meets the J3 reason duty (VIS1-7 gate).
+- **Challenge:** "Why does a visit done a day early send the nurse to another screen?" It need not: the move is the audited fact that keeps a missed visit visible on its real date, but it can be entered at the door (VIS1-3b). Challenge row added; AN1 counts move-then-start within 30 minutes before anything more is removed.
 - Packages: no unfreeze trigger; none worked (all `awaiting-approval` packages frozen; D-37 waits for D-36); none decided by po.
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
