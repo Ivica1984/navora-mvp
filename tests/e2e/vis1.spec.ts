@@ -17,7 +17,7 @@ import {
 // Follow-up (ADR-112): VIS1-3c the prefill is the next full 5 minutes after the (pinned) browser clock plus the card's
 //          duration; VIS1-3e focus into the form, back on cancel, onto the moved card after success, and the
 //          count-aware day line; VIS1-8 the fact about the date the visit leaves; VIS1-3d the release notice on /field.
-// The visit is planned here, nine days ahead at 22:00 (no other test uses that day or, on today, that slot).
+// The visit is planned here, 45 days ahead at 22:00 (no other test uses that day).
 const PHONE = { width: 390, height: 844 };
 const PASSWORD = "navora-local-only";
 
@@ -38,7 +38,9 @@ test.describe("VIS1 at 390 × 844", () => {
   test.use({ viewport: PHONE });
 
   test("VIS1-4 / VIS1-3a / VIS1-3b: a future visit offers only the move to today, which never starts it", async ({ page }) => {
-    const day = zurichDay(9);
+    // 45 days ahead: beyond the PLAN2 window and every other spec's day (doctor.spec plans Testfall 08 nine days ahead),
+    // so this client has no other visit that day (VIS1-8 "kein Einsatz").
+    const day = zurichDay(45);
     const today = zurichDay(0);
     const reason = "Synthetisch: Klientin bittet um heute";
     // VIS1-3c: the browser clock is pinned for the test (real now, so the server's day and the database agree).
@@ -96,7 +98,7 @@ test.describe("VIS1 at 390 × 844", () => {
     await expect(move.getByLabel("Bis")).toHaveValue(expected.end);
     await expect(move.getByLabel("Von")).toHaveAttribute("required", "");
     await expect(move.getByLabel("Bis")).toHaveAttribute("required", "");
-    // VIS1-8: the client has no other visit on that day (this test owns the day).
+    // VIS1-8: the client has no other visit on that day (this test owns the day, 45 days ahead).
     await expect(move.getByTestId("move-leaves-note")).toHaveText(moveLeavesNote(day, false)!);
     await expect(move.getByTestId("move-leaves-note")).toHaveAttribute("data-tone", "info");
     const reasonField = move.getByLabel("Grund der Verschiebung");
