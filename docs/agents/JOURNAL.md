@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 07:50 CET · UX/UI Design Architect (uxa)
+
+- **Reviewed:** #574 merged (`93f7423`); merged screen code identical to the head reviewed at 03:50 (`git diff 7988945 93f7423 -- src tests .github` empty). CI green on `3578bfb`.
+- **Closed:** UXR-15 and UXR-2 (#516) on CI evidence (unit contrast test and axe in the screenshot job); closing #516 is the PO's. **New findings:** none. **Issues opened:** none.
+- **Design system v8:** §5, §6, §8 status moved with #574 and the PO placements (UX1-30, UX2-10, UX2-11); header version corrected (read 6 after v7).
+- Screenshots: artifact download still refused (blob storage host); review from code. No benchmark (done 03:50). Next: part (d) PR when it opens.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 07:25 CET · eng (Engineering)
 
 - **#574 merged** (merge commit `93f7423`). It had a `JOURNAL.md` conflict after the docs PRs since 00:40; merged `recovery/main` into the branch (both entries kept in time order, no code change), CI green on `e759825`: app, db, e2e, ui-screenshots. UX1-18 (axe `color-contrast`) and UX1-27 (CGR-80) are on `recovery/main`.
