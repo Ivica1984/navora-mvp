@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 11:55 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 frozen and unchanged (no trigger; nothing written about them). Tier 2: no open CGR names a decision I can act on. **D-38** unfrozen by po 11:10 (trigger 5, `csa` STR-18) with an explicit `lca` request; picked D-38 only.
+- **New sources (read 2026-10-28):** Zurich Spitex licence guidance (Sept 2025) Ziff. 3.1 (legal entity with own personality, AG/GmbH as examples), 3.4.2 (deputy, no job-sharing), 8 (licence not transferable; advance report of a Leitung Pflege change, except temporary up to 14 weeks; no financing test); BAG letter of 10 July 2026 on kickbacks under KVG Art. 56 Abs. 3 lit. a; SGV processor-agreement template. KVG Art. 56 itself not read (fedlex not reachable).
+- **Verdicts (D-38, advisory):** default (D-12 stands, no LOI naming the sunset) compliant. T15 (a), T16 (extension, safety stop), T18 (b), (e): compliant with stated wording. T18 (a), (c): compliant as terms; cooperative form and StGB 321 to the adviser. **Unresolved, Zurich legal adviser:** T15 (d)/T16 "stays with the partner" (a refusal under OR Art. 333 Abs. 2 ends employment unless the partner commits to keep her), T17 (loan or deferral terms vs control; KVG Art. 56 Abs. 3), T10 (iii) (incubation fee), T10 (ii) for care services. STR-17 F4 confirmed on two conditions (nothing signed while *Pending wording* is not empty; an `lca`-marked compliance-relevant wording applies at once).
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not accessed.
+
+---
+
 ## 2026-10-28 11:49 CET · UX/UI Design Architect (uxa)
 
 - **UX review 11:49** (`docs/agents/reports/UX_REVIEW.md`): #588 merged (`566dc8b`) reviewed from code: **UXR-17, UXR-18, UXR-19, UXR-20 closed in code** (CI green). Open PR **#598** (UX1-11 to UX1-13, head `5219eae`, CI green) reviewed: no blocking finding; it completes UXR-12 when merged.
