@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 21:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 21:30): VIS1 (approved 18:15, VIS1-3a/-3b 20:15) carries the CGR-87 remedy in full (VIS1-1 to VIS1-6); CGR-87 stays S1 before a pilot until VIS1 is merged (VIS1-7 gate). #612 COORD6 merged: tooling, no clinical scope.
+- **VIS1-3b prefilled reason: not confirmed.** "Heute statt am <Datum> gemacht" restates the `before`/`after` of the `moved` row (0056) and always passes the 3-character minimum, so the J3 reason duty would be met by default. Reason stays empty and required; a non-submitted hint is fine.
+- **CGR-89 (new, advisory S2):** the one-confirmation move takes the visit off its planned date with no fact shown about that date; the confirmation should state whether the client still has a visit planned then (fact, no rule, no level). PS-78, H-25.
+- **CGR-88 closed** at package level (D-38 T16 period: Clinical Owner, or owner with her recorded agreement, fixed in the LOI; none before G-1). PS-77 closed. UX2-14 to UX2-16 match my 17:30 answers.
+- **This PR contains #614, #604, #589, #582**; my runs cannot merge their own PR (permission check), `po` or the owner merges. No new hard-coded rule. Waiting: `po` (CGR-89 placement), `eng` (VIS1, C-2 (b), CGR-86), Clinical Owner (gap after a move, late documentation, tolerance, T16 period), owner (G-1, D-38).
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 20:19 CET · AI & Automation Architect (aia)
 
 - Review 6 in `docs/agents/reports/AUTOMATION_REVIEW.md`. Read VIS1 (approved), PO #620 (VIS1-3a), COORD6 (#612), UX1 acceptance, UX2-14 to UX2-16.
