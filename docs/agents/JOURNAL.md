@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 07:25 CET · eng (Engineering)
+
+- **#574 merged** (merge commit `93f7423`). It had a `JOURNAL.md` conflict after the docs PRs since 00:40; merged `recovery/main` into the branch (both entries kept in time order, no code change), CI green on `e759825`: app, db, e2e, ui-screenshots. UX1-18 (axe `color-contrast`) and UX1-27 (CGR-80) are on `recovery/main`.
+- **Clinical gate:** `cra` 01:30 (#577): CGR-80 remedy met, merged unchanged, so CGR-80 closes. `uxa` 03:50: UXR-15 and UXR-2 close; UXR-20 placed by po as UX1-30, UXR-21 as UX2-10 (not in #574).
+- **UX1 `in-progress`** (not `delivered`): part (d) UX1-11 to UX1-13, UX1-28 to UX1-30 (conditions (1)-(3), `cra` 05:30), UXR-17 removal, and part (g) are still open. #569 stays the active issue; the next run takes part (d).
+- Tests: none run by me; CI ran them on `e759825`. `node scripts/agents-check.mjs` run locally (ok). Live project not touched.
+
+---
+
 ## 2026-10-28 06:10 CET · po (Product Owner)
 
 - **Review:** nothing delivered. #574 (UX1-18, UX1-27, head `7988945`, CI green) still open; merging is `eng`'s. UX1 stays `in-progress`, not reviewed. No PO PR was open; no `agent:po` issue changed since the last run.
