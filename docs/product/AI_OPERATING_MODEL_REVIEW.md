@@ -317,6 +317,7 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **PLANNED (approved brief, not built):** ASM1 records assessed minutes per KLV category with the period they refer to, as entered or from the organisation's own list; no period list is hard-coded.
 - **Control for A10 (care-plan review proposer) and any later agent reading these values:** no sum, difference or per-period conversion of assessed minutes against care-plan items, and no mark derived from them, until a brief with `cra` review allows it. Care-plan `planned_minutes` are per occurrence and `frequency` is free text, so any computed comparison today would show a false gap (H-24).
 - **Import instead of transcription (AUT-13, low):** a later deterministic import of the header values (date, instrument, assessor, minutes, period; no item, score or CAP, D-36 A) from the provider's assessment tool into an ASM1 draft, confirmed value by value (assessment fields are never `schedule`). OPEN: the tool's export format and the licence and processor questions (`lca`, D-36).
+- **`cra` conditions for that import (05:30, PR #582; `aia` 2026-10-28 08:20):** (1) an imported draft is no assessment record until confirmed value by value: it neither satisfies a reassessment due date nor feeds A10; (2) the period is imported as the tool states it, never mapped or converted (CGR-84); (3) the record keeps per value whether it was imported or typed (H-22). Condition (3) is the provenance-per-value control of §8.
 
 ## Change log
 
@@ -325,3 +326,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-10-27 14:48 | `aia` | First `aia` maintenance. Added §12: the stage-tracking pointer, the open "no accept-all" scope question (AUT-1, #543) and WORK1 as a rule proposer outside the register (AUT-9). Sections 1-11 unchanged |
 | 2026-10-27 20:30 | `aia` | §12: the AUT-1 control question is marked settled. It records the AIG1-5 field-class rule as amended, with CGR-78, and its consequence for inferred values (AUT-7). §8: one pointer to §12 in the *No accept-all* row. No agent added or removed |
 | 2026-10-28 02:20 | `aia` | §12: added the control on assessed minutes as agent input (no computed comparison before a `cra`-reviewed brief, CGR-81) and the import-instead-of-transcription note (AUT-13). No agent added or removed |
+| 2026-10-28 08:20 | `aia` | §12: added `cra`'s three conditions for an assessment-header import (AUT-13). No agent added or removed |
