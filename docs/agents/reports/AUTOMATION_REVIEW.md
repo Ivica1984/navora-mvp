@@ -31,6 +31,57 @@
 
 ---
 
+## 2026-10-28 20:19 CET · aia review 6: VIS1 reviewed (AUT-16, the early visit as one confirmed move on `/field`); COORD6 and UX1 accepted; no item proposes, drafts or ranks
+
+**Read:** `recovery/main` at `785278e`:
+- merged since review 5: #607 (`eng` UX1 status), #608 (mine), #610 and #615 (`lca` 14:56, 17:41), #611 and #616 (PO 15:15, 16:15, 18:15), #613 and #618 (`uxa` 15:48, 19:48), #612 (COORD6, `eng`, ADR-110);
+- open: PO #620 (`po/cycle-2026-10-28-2015`: COORD6 accepted, VIS1 *Next up* 1, VIS1-3a from UXR-29; read at its head), `cra` #614 (CGR-87, CGR-88), #604, #589, #582;
+- briefs: VIS1 (new, approved 18:15, with VIS1-3a in #620), UX1 (accepted 15:15, conditions UX1-C1 to UX1-C3), UX2-14 to UX2-16;
+- code: `reschedule_visit` (0012:133-134 team membership check; 0052 and 0056 patches), `src/features/team/commands.ts` (`rescheduleSchema`: date, start, end, free-text reason 3 to 300 characters), `src/app/(protected)/team/team-client.tsx` (the only screen that calls the move), `src/features/field/rules.ts` (`todayInZurich`, `fieldActions` without a date).
+- No open issue is labelled `automation`.
+
+**Changed since review 5:** VIS1 is a new approved brief (`cra` CGR-87, S1 before a pilot with real clients). COORD6 merged and is accepted in #620. UX1 accepted. D-38 is `awaiting-approval: owner` and frozen since 15:15 (rule 9): nothing below is written about the package itself.
+
+**Nothing below is a measurement.**
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-16 | Visit: a nurse does a visit earlier than planned (nurse at the door, `/field`) | **Challenge (form, not existence).** VIS1 (approved; *Next up* 1 in #620) refuses depart, start, no-show and "not completed" on a visit dated after today, and asks the nurse to move it first. The patient-care benefit is shown and the guard stays: a future visit worked today masks a missed visit on its real date (CGR-87; H-01, H-05) and moves billable facts to a day without care. **Added step:** the move. Today the move exists only on `/team` (`team-client.tsx` → `rescheduleVisit`), where she enters a date, a start and an end time and a free-text reason of at least 3 characters (`commands.ts` `rescheduleSchema`), then returns to `/field` and starts. VIS1-3 / VIS1-3a give a link to that route; PO 20:15 reads `reschedule_visit` as open to any member of the visit's team (0012:134, Engineering confirms in the ADR), so no coordinator is needed. What remains is a screen change and three typed values per early visit, at the door. How often visits are done early: UNKNOWN (no event records it today; it will be countable once VIS1 lands, as moves to today) | **simplify (deterministic, no agent):** on the future-dated card the outline action is "Heute machen". It opens one confirmation on `/field` with the values prefilled: date today (Europe/Zurich, DAY-1), the planned start and end times as on the card (editable), and a reason text prefilled as "Heute statt am <Datum> gemacht" that she may edit. Confirm calls the **existing** `reschedule_visit` with its existing checks (ABS1-C4, ABS1-C5, CGR-35, audit and `moved` log row) and returns her to today's card, where "Einsatz starten" is now offered. No new command, no new permission, no combined "move and start" (the start stays its own tap, so the VIS1 guard is never bypassed). Equal safety: the same audited move, the same reason field, the same refusal paths. CGR-76 check: the control cited by CGR-87 (move first, with audit) is kept in full; only where it is entered changes. Whether a prefilled, editable reason meets the J3 reason duty: `cra` (UNKNOWN to `aia`). Gain: one screen change and two typed times per early visit; minutes UNKNOWN (estimate) | L (schedule fact; no clinical content) | stage 0; PO (whether VIS1-3a's link becomes this action, now or as a follow-up), `uxa` (form of the confirmation at 390 px), `cra` (prefilled reason text; VIS1-7 gate), `eng` (ADR: same command, no bypass) | number of visits moved to today from `/field` versus from `/team`, per team and month; share of those moves started the same day; overdue or missed signals on the original date of a moved visit (target: 0) | medium | – (comment on #620) |
+
+**Briefs and items reviewed without a new finding:**
+- **VIS1 guard itself:** a deterministic rule on a visit/schedule fact; no level, no tolerance coded (any tolerance is a Clinical Owner level, UNKNOWN). Supported: it removes a later correction (administration) and protects the signal chain. VIS1-6 keeps past-dated visits as they are, so a forgotten tap is still recordable; no new administration there.
+- **VIS1-3a (UXR-29):** one sentence per future day instead of one per card; less reading, no step added. Supported.
+- **COORD6 (merged #612, accepted in #620):** a check replaces a rule every agent had to remember. No step for any person. Consequence for `aia`: every later `aia` PR is checked against frozen packages by `agents-check`; this review writes nothing about D-38 for that reason.
+- **UX2-14 to UX2-16:** colour, one error component, frame rule. Less to learn per screen; no workflow step added or removed.
+- **UX1-C1 to UX1-C3:** test and string conditions; no nurse step.
+
+**Answers placed on earlier findings (no change of severity):**
+- **AUT-14, AUT-15:** `lca` 14:56: AUT-14 compliant with per-provider scoping (C's person sees an item only for clients whose choice and consent are recorded); AUT-15 compliant only if staff entries leave NAVORA on the person's own action (DSG Art. 28, OR Art. 328b, as cited by `lca`). Both conditions are now part of the proposals. Both stay OPEN; the package they relate to is frozen awaiting the owner.
+
+### 2 AI readiness of delivered items
+- Nothing merged since review 5 proposes, drafts or ranks (#612 is a repository check; UX1 parts are labels and states). Nothing to check against §8.
+- **Forward control for PLAN3 and AUT-5 (added to AI Operating Model Review §12):** after VIS1, a proposal that a visit be done earlier is a proposed `reschedule_visit` (its date is a `record`-class field under AIG1-5, confirmed one by one), never a start; no agent and no shortcut starts a visit dated after today.
+
+### 3 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1 built | PLANNED. *Next up* 3 in #620 (after VIS1 and ADM2); COORD6 and UX1 no longer ahead of it |
+| 0 | ASM1 built | PLANNED (*Next up* 4), not started |
+| 1-3 | unchanged from review 1 | OPEN |
+
+### 4 Findings closed
+- None.
+
+### 5 Waiting for the PO
+- AUT-16 (medium): whether the VIS1-3 / VIS1-3a move link becomes a one-confirmation "Heute machen" on `/field` (same command), in VIS1 or as a follow-up; `cra` on the prefilled reason. Comment left on #620.
+- AUT-14 (medium), AUT-15 (low): unchanged, with the `lca` conditions above.
+- Bottleneck map refresh: due 2026-11-03 (weekly).
+
+---
+
 ## 2026-10-28 14:41 CET · aia review 5: "designed from scratch" applied to the bottleneck map; D-38 T15 (b) readiness derived from the record (AUT-14); provider kit (AUT-15)
 
 **Read:** `recovery/main` at `f6277ab`:

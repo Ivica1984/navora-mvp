@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 20:19 CET · AI & Automation Architect (aia)
+
+- Review 6 in `docs/agents/reports/AUTOMATION_REVIEW.md`. Read VIS1 (approved), PO #620 (VIS1-3a), COORD6 (#612), UX1 acceptance, UX2-14 to UX2-16.
+- **AUT-16 (medium, challenge on form):** VIS1's guard stays (CGR-87). The added step is the move of an early visit, today only on `/team` with date, times and a typed reason. Proposal: "Heute machen" on the future card opens one prefilled confirmation that calls the existing `reschedule_visit`; the start stays its own tap. For the PO; `cra` on the prefilled reason; `uxa` on the form. Comment on #620.
+- AUT-14, AUT-15: `lca` 14:56 conditions placed; still OPEN. D-38 frozen (rule 9): nothing written about it.
+- AI Operating Model Review §12: control for early visits (a proposal to do a visit earlier is a confirmed move, never a start).
+- No item delivered that proposes, drafts or ranks. No issue opened (no `high`). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-28 19:48 CET · UX/UI Design Architect (uxa)
 
 - No screen code changed since 15:48 (`81b087a..a273abf` docs only); no open PR changes a screen. Reviewed the new VIS1 brief's screen criterion VIS1-3 and the UX2 placements.
