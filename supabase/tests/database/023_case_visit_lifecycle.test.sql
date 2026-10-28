@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(38);
+select plan(39);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -14,7 +14,12 @@ $$;
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status)
 select '00000000-0000-4000-b000-000000000011', x.id, '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
        ((private.now() + interval '3 hours') at time zone 'Europe/Zurich')::date, ((private.now() + interval '3 hours') at time zone 'Europe/Zurich')::time, null, false, 'planned'
-from (values ('ad000000-0000-4000-8000-0000000000aa'::uuid), ('ad000000-0000-4000-8000-0000000000bb'::uuid)) x(id);
+from (values ('ad000000-0000-4000-8000-0000000000aa'::uuid)) x(id);
+-- VIS1-5: the no-show fixture is departed below, so it is dated today (a visit dated after today cannot be departed,
+-- CGR-87); before VIS1 it was dated three hours ahead, i.e. tomorrow after 21:00 Zurich.
+insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status)
+values ('00000000-0000-4000-b000-000000000011', 'ad000000-0000-4000-8000-0000000000bb', '00000000-0000-4000-a000-000000000208',
+        '00000000-0000-4000-a000-000000000101', (private.now() at time zone 'Europe/Zurich')::date, '23:59', null, false, 'planned');
 
 select ok(not has_table_privilege('authenticated', 'public.visit_status_notes', 'insert'), 'status notes only through commands');
 select ok(not has_table_privilege('authenticated', 'public.case_lifecycle_events', 'insert'), 'lifecycle only through commands');
@@ -37,7 +42,10 @@ select is(public.pause_case('00000000-0000-4000-a000-000000000208', 'hospital_st
   'duplicate', 'resend is a duplicate');
 select ok((select suspended_at is not null and status = 'planned' from public.care_visits where id = '00000000-0000-4000-a000-000000000508'),
   'planned visits inside the pause are suspended, not deleted');
-select throws_ok($$ select public.depart_visit('00000000-0000-4000-a000-000000000508', 'ad000000-0000-4000-8000-000000000005') $$,
+-- VIS1-5: today's visit 501 (inside the pause) instead of tomorrow's 508, which VIS1 refuses before the suspension check.
+select ok((select suspended_at is not null from public.care_visits where id = '00000000-0000-4000-a000-000000000501'),
+  'today''s planned visit inside the pause is suspended too');
+select throws_ok($$ select public.depart_visit('00000000-0000-4000-a000-000000000501', 'ad000000-0000-4000-8000-000000000005') $$,
   '23514', null, 'a suspended visit cannot start');
 reset role;
 select ok(not ('uncovered' = any (private.visit_flags('00000000-0000-4000-a000-000000000208', (private.now() at time zone 'Europe/Zurich')::date + 1, 0, null, 'planned', '09:00'))),

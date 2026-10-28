@@ -45,6 +45,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
     <FieldClient
       day={day}
       isToday={day === today}
+      today={today}
       previousDay={shiftDay(day, -1)}
       nextDay={shiftDay(day, 1)}
       visits={visits}

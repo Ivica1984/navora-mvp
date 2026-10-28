@@ -12,6 +12,11 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(34);
 
+-- VIS1-5: pinned clock (DST1 pattern), 10:00 Zurich today. The uncovered visit 'unc' (in 3 hours) is started below;
+-- without the pin it was dated tomorrow after 21:00 Zurich, and VIS1 refuses to start a visit dated after today.
+select set_config('navora.test_now',
+  (((private.now() at time zone 'Europe/Zurich')::date + time '10:00') at time zone 'Europe/Zurich')::text, true);
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
@@ -90,7 +95,7 @@ select is((select count(*)::int from public.exception_events
 -- It ends with its cause: a start, a cancellation, a responsible member --------------------------------------------
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
-select lives_ok($$ select public.start_visit(pg_temp.vid('unc'), 'a4400000-0000-4000-8000-000000000010') $$,
+select is(public.start_visit(pg_temp.vid('unc'), 'a4400000-0000-4000-8000-000000000010'), 'ok',
   'a team member starts the uncovered visit');
 select is(public.cancel_visit(pg_temp.vid('unc2'), 'team_cancelled', null, 'a4400000-0000-4000-8000-000000000011'), 'ok',
   'a team member cancels the other uncovered visit');

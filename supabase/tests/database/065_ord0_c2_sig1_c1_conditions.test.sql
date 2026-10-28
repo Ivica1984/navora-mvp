@@ -126,11 +126,13 @@ select is((select string_agg(column_name, ',' order by column_name) from informa
   'a take holds who, her qualification, when, and the access sequence she took under (LEAVE1-C3, 0080); no free text');
 
 -- Fixtures: P1 no-show signals for visits 11-14 (responsible: the registered nurse); one P1 overdue visit 15.
+-- VIS1-5: the no-show fixture is dated today, 23:59 (still ahead, so no overdue signal of its own); a visit dated
+-- after today cannot be departed or recorded as a no-show (CGR-87). Before VIS1 it was tomorrow 09:00.
 create function pg_temp.no_show(p_n integer) returns void language plpgsql as $$
 begin
   insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, billable, status, responsible_user_id)
   values ('00000000-0000-4000-b000-000000000011', pg_temp.v(p_n), '00000000-0000-4000-a000-000000000208',
-          '00000000-0000-4000-a000-000000000101', pg_temp.today() + 1, '09:00', false, 'planned', '00000000-0000-4000-a000-000000000902');
+          '00000000-0000-4000-a000-000000000101', pg_temp.today(), '23:59', false, 'planned', '00000000-0000-4000-a000-000000000902');
   perform pg_temp.act_as('00000000-0000-4000-a000-000000000902');
   set local role authenticated;
   perform public.depart_visit(pg_temp.v(p_n), pg_temp.k(100 + p_n));
