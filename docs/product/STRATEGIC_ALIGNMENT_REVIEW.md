@@ -8,6 +8,93 @@
 
 ---
 
+## 2026-10-28 10:47 CET · csa · Owner instructions of 2026-10-28: freeze implementation, D-38 completeness, provider kit
+
+**Owner, 2026-10-28 (in this `csa` session):**
+- approved the review of 2026-10-27 and the priority on G-1;
+- **STR-14 approved**, with a proposal for how to implement it;
+- **STR-15 approved as high priority**: the transition must be defined before a pilot partnership, covering nine named topics;
+- new instruction for `csa` and `aia`: start from "home care designed from scratch", then compare (STRATEGY §1, §8).
+
+Recorded in STRATEGY §1, §2, §8.
+
+**What was already in place when the owner wrote** (evidence: JOURNAL 2026-10-27 14:45 onwards):
+- the PO adopted STR-14 on 2026-10-27 14:45 as a rule in `DECISION_PACKAGES.md` (*Frozen packages*: five unfreeze triggers, one-page `decisions/OWNER_AGENDA.md`, short INDEX cell);
+- the PO opened STR-15 as package **D-38**, which has been `awaiting-approval: owner` (Medium) since 2026-10-27 20:15, with terms T1-T14 and `lca` and `cra` input.
+
+So this section does not start either from zero. It measures the freeze (STR-17) and checks D-38 against the owner's nine topics (STR-18).
+
+### STR-17 · Freezing packages: what the first day shows, and the proposed implementation
+
+**Effect of the rule since 2026-10-27 14:45 (evidence):**
+
+| Measure | Before (2026-10-20 to 2026-10-27 14:45) | Since the rule (about 20 hours) |
+|---|---|---|
+| Journal lines "no new evidence" | 83 | **10 more** (7 from `lca` "Tier 1: D-22 and D-18 … no new evidence (skipped)", 3 from `po`) |
+| Commits touching `decisions/` | 141 since 2026-10-20 | 18 of 117 commits |
+| Amendments to a package already `awaiting-approval: owner` | – | **D-38: four amendment rounds after escalation** (21:15, 22:15, 00:15, 01:10), each answered by an `lca` re-check (20:48, 21:45, 23:41, 00:45). The owner ask stayed the same throughout ("approve T1-T14") |
+| Owner-facing page | 15 packages, no summary | `OWNER_AGENDA.md`, one page, three bundles: **works** |
+
+**Reading:**
+- The one-page agenda works.
+- The freeze works for the PO's re-checks of untouched packages.
+- **Two gaps remain:**
+  1. **The rule binds only the PO's package work.** `lca`, `cra`, `aia`, `uxa` and `csa` follow their own "no repeat reviews" wording, and `lca` still writes a skip line every run.
+  2. **A ping-pong loop:** the PO amends wording, which counts as "the package changed" under `lca`'s rule, which triggers a re-check, which the PO takes in again. The D-38 amendments did close real care gaps (CGR-82: a client could be left without a visiting provider), so this is not waste in itself. The cost is that **the owner's version of D-38 changed four times while it waited for the owner**, and `lca` itself classed the last round as wording, not law.
+
+**Proposed implementation approach** (for the PO and Engineering to adopt or change; `csa` builds nothing):
+
+| # | Step | What changes | Owner of the step | Effort | Measure of success |
+|---|---|---|---|---|---|
+| F1 | **One rule for every role.** Move *Frozen packages* from the PO's process into README *Rules* (rule 9) so it binds `po`, `lca`, `cra`, `aia`, `uxa`, `csa` alike. A run that has no unfrozen package to work on writes **nothing** about packages: no "skipped" or "no new evidence" line | README, `DECISION_PACKAGES.md` (cross-reference) | `po` | one docs PR | journal lines "no new evidence" or "skipped" about packages: 0 per week |
+| F2 | **Frozen is visible, unfreezing is named.** INDEX *Package status* gains `frozen since <date>` for every `awaiting-approval` row. Any later edit to that package starts with one line `Unfreeze: <trigger 1-5> <reference>` (the answer, source, CGR, PR or issue comment) | INDEX, package addenda | `po` (format), every role (use) | small | every post-escalation edit carries an `Unfreeze:` line |
+| F3 | **CI enforces F2.** `scripts/agents-check.mjs` fails when a package at `awaiting-approval` changes in a PR without a new `Unfreeze:` line, and when a journal entry contains "no new evidence" (warning first, error after one week) | validator plus unit test (`tests/unit/agents-coordination.test.ts`) | `eng`, on a PO brief | about one small item | CI green; the rule holds without anyone checking by hand |
+| F4 | **Close the amendment loop.** Once a package is escalated, wording-only changes that do not change the owner's answer, the default in force or what it blocks are **collected, not published**. They go into a short *Pending wording* list in the package and are applied in one batch when the owner answers or a substantive trigger holds. A finding that closes a safety gap (a `cra` S1/S2, or `lca` "non-compliant") is substantive and is applied at once. `lca`'s "package changed since my section" rule then counts only substantive changes | `DECISION_PACKAGES.md` (PO rule), `lca` section rules | `po`; `lca` confirms | docs | rounds per escalated package between escalation and answer: at most one, unless a safety or compliance trigger holds |
+| F5 | **Owner agenda is the only owner surface.** The agenda line says the date of the version the owner is asked to approve. A change to the ask moves that date and adds one line "changed since you last looked: …" | `OWNER_AGENDA.md` | `po` | docs | the owner never approves a version that changed unseen |
+| F6 | **Weekly measure.** `csa` reports the F1-F5 measures each week in this file. The PO reports them in the 2026-11-24 role review | this file | `csa` | none | trend to zero repeat work |
+| F7 | **Scheduled-task prompts.** Each role's scheduled task points to README rule 9 instead of its own repeat-review wording | the scheduled tasks | **owner** (or `po` at the owner's request); `csa` never edits scheduled tasks | minutes | prompts and README say the same |
+
+**Safety is unchanged:**
+- every safe default stays in force;
+- a safety or compliance finding is always a trigger (F4);
+- nothing is decided by freezing.
+
+**Order:** F1, F4 and F5 together (one PO docs PR); F2 next; F3 as a small engineering item after UX1 (the PO places it; `csa` does not reorder); F7 by the owner. **Raised as issue #593 to `po`, with `eng` named for F3.**
+
+### STR-18 · D-38 against the owner's nine topics
+
+| Owner topic (2026-10-28) | Where D-38 covers it | Verdict | `csa` proposal |
+|---|---|---|---|
+| Transition criteria | per client: T12 (i) (C's *Bedarfsmeldung*, assessment, order before a cut-over); per filing: T14. **No team-level criteria:** D-12 (iii) says "when the pilot measures are met" and nobody defines them | **gap** | **T15** below |
+| Client consent and transfer process | T3, T4, T5, T12 | covered (adviser questions open: ZGB Art. 378, T5 as asked) | none |
+| Staff transfer process | T1 (no approach before admission), T9 (OR Art. 333 or new contracts; no restriction beyond the duty of loyalty) | covered as terms; the process is open (adviser) | T15 (d) adds the team's own decision; nobody is moved who does not choose to |
+| Tariff-contract transition | T6, T11 | covered (route: owner with the partner or association) | none |
+| Financing implications | T7 (municipal path), T14 (Leistungsauftrag, training duty), T2 price (owner) | **partial:** C's start-up financing (fees, insurance, working capital until the first insurer payment) is not covered | **T17** below |
+| Fee portability | T8 | covered | none |
+| Partner incentives | T10 "what the partner receives", owner, with no options | **open, no proposal** | **T10 options** below |
+| Governance after transition | T13 covers rule adoption by the *partner's* Leitung Pflege only; C's own governance and its relation to NAVORA are not written | **gap** | **T18** below |
+| Conditions under which a team becomes independent | implied by `lca` C condition 5 (nothing billed before licence, admission and ZSR); no fallback if C is not ready at month 12, or if the team decides not to go | **gap** | **T16** below |
+
+**Proposed additional terms** (`csa`, 2026-10-28; advisory; for the PO to take into D-38 under unfreeze trigger 5, with `lca`, `cra` and `eng` input). None sets a clinical, legal or tariff rule. Each names who answers what is UNKNOWN.
+
+| # | Term (proposed) | Why (vision and safety) | Who answers |
+|---|---|---|---|
+| **T15** | **Team-level transition criteria.** The team, not the partner and not NAVORA, decides to file C's applications, and only when all of these are recorded: (a) **regulatory:** a Leitung Pflege and deputy meeting [Z1] are named inside the team (`lca` C condition 4); the T14 items are planned; a liability-insurance offer meeting [Z1] is in hand; (b) **safety:** the pilot's safety measures meet the levels the **Clinical Owner** sets for a transition (for example open S1/S2 findings, signal response, missed or uncovered visits per team, AN2). The levels are the Clinical Owner's, not `csa`'s, and are UNKNOWN until G-1; (c) **economic:** a written C budget that covers T17 (below) at the team's current client volume (figures UNKNOWN until the pilot; BM-4, BM-5); (d) **team consent:** the members who will join C decide by the team's own consent decision. A member who does not join stays with the partner under her contract; nobody is moved who does not choose to (T9); (e) **timing:** the decision is due by month 6, so the file can be complete by month 7 (STRATEGY §4) | makes "when the pilot measures are met" (D-12 (iii)) testable; keeps the decision with the team (vision 1, 3); the safety gate stays with the Clinical Owner | (a) `lca`; (b) Clinical Owner (G-1); (c) owner and the team; (d) `lca` (does a team decision touch the duty of loyalty before admission? T1); (e) `csa` estimate |
+| **T16** | **When a team is independent, and the fallbacks.** (a) The team is independent for a client only when C holds its licence, OKP admission, ZSR, Leistungsauftrag (T14) and a tariff-contract route (T6) **and** that client's T12 (i) prerequisites are recorded. Before that, no client moves and nothing is billed by C (`lca` condition 5). (b) **If C is not admitted by the sunset date:** the LOI holds an **extension option** the team can call once, for a length the owner sets. The partner's care continues for every client meanwhile (T12 (i) (a)). (c) **If the team decides not to transition (T15 (d)):** the team stays with the partner, NAVORA's per-team fee continues (T8), and nothing else changes. (d) **If the pilot is stopped for safety** (the Clinical Owner's stop rule): no transition; the partner keeps every client | no client is ever between providers; the team is never forced to choose between leaving its clients and giving up its own provider; the sunset cannot become a cliff | (b) length: owner; whether an extension needs anything from the canton: `lca` (UNKNOWN); (d) Clinical Owner |
+| **T17** | **Financing the transition.** C's plan names what must be paid before C's first insurer payment, and who pays it: the licence and admission fees (CHF 1,500 and CHF 900 as `lca`/`po` read [Z1]), the liability insurance [Z1] requires, working capital until the first insurer payment (payment terms UNKNOWN, D-18), and the T14 training duty. **Sources** the plan may use: the members' own capital, loans, foundation or public start-up support (UNKNOWN which exist in Zurich), the municipal path (T7). **NAVORA may defer or reduce its fee for C's first months** (pricing: owner), but **holds no ownership majority, board seat or instruction right** in C (`lca` C condition 1). Whether a loan from NAVORA, or a fee deferral, conflicts with condition 1 is UNKNOWN (`lca`) | a team without starting capital cannot become its own provider, so the vision needs this answered before the LOI; NAVORA must not buy the control that condition 1 forbids | `lca` (condition 1 limits); owner (fee deferral, pricing); Zurich adviser or the Gesundheitsdirektion (start-up support) |
+| **T18** | **Governance after the transition.** (a) C has its own legal personality ([Z1]); the legal form is the team's choice (cooperative, GmbH, association: which fits is for the adviser, UNKNOWN). (b) Inside C, the Leitung Pflege and deputy are **named accountable roles that no team decision can vacate** (as D-24 boundary 2). Everything else (admission, planning, cover, surplus rule within D-14) is the team's own consent decision. (c) NAVORA is C's processor and software supplier only, under a processor agreement; C adopts the Clinical Owner's rules by the T13 act through **its own** Leitung Pflege. (d) **C can leave NAVORA** at any time with a usable export of its data (the mirror of T2), so NAVORA never becomes the new hierarchy by lock-in. (e) Cooperation between several team-owned providers (cover, shared services, P-24) runs by contract between providers, never through NAVORA instructions. Whether cover between two providers needs anything beyond a contract: UNKNOWN (`lca`) | it writes down what "team-owned, NAVORA no control" means in practice (`lca` condition 1; vision 1-3); it makes the exit right explicit, which keeps NAVORA honest as a supplier the teams choose | (a), (e) `lca`, Zurich adviser; (b) `lca` with [Z1]; (c), (d) `eng` (whether the T2 export also serves C's exit) and owner |
+| **T10** (options for the owner) | **What the partner receives**, options the owner can combine (pricing and partnership stay the owner's): (i) the partner keeps NAVORA for its **other** teams on the same per-team terms, with no exclusivity either way (T8); (ii) the partner sells C contracted services it already runs (night on-call, a regulated back office, training places for T14), at prices agreed between them; (iii) a one-off **incubation fee** per team that transitions, paid by NAVORA (owner: pricing); (iv) capacity: clients the partner cannot serve go to a team on its own provider rather than a competitor (UNKNOWN whether the partner sees this as a gain). **Never** part of an offer: a claim on C's clients, a share in C, an instruction right, or a condition on rule adoption (T13) | without a gain for the partner there is no LOI and no pilot; (i)-(ii) keep the relationship after the sunset; (iii) is the only option that costs NAVORA money | owner; `lca` on (ii) (services between two providers) and (iii) (does a fee for releasing staff touch AVG staff hiring? UNKNOWN) |
+
+**Raised as one comment on the D-38 issue (#545)** asking the PO to take T15-T18 and the T10 options into the package (unfreeze trigger 5). **Recommended to the owner meanwhile:** the D-38 default stands (sign no LOI naming the sunset before D-38 is answered). The owner's answer to D-38 is better given **once**, after T15-T18 are in, than twice.
+
+### STR-19 · The partner route should be needed once (first-principles finding)
+
+| Finding | Evidence | Proposal | Severity | Route |
+|---|---|---|---|---|
+| Designed from scratch (STRATEGY §8), a new team would found its own provider directly from a ready kit. D-12 B is a bridge only because no such kit exists. If the first transition is worked out case by case inside one partner's LOI, every later team needs a partner again, and NAVORA scales as a supplier to incumbents | D-12 (B, sunset); D-38 T6, T7, T14, T17 (all first-time work); `aia` AUT-12 and hypothesis P-24 (shared regulated services); `lca` 20:48 (licence-bound roles stay per provider) | (1) Every output of the first transition (C's licence file, Leistungsauftrag request, tariff route, training-place arrangement, insurance, budget, legal-form templates, processor agreement, NAVORA set-up) is written as a **reusable provider kit**, with partner-specific parts marked. (2) A later owner package (not now): "may the second team found its provider directly from the kit, without a partner?", once the first C is admitted and P-24 has the adviser's answer. (3) Nothing is built now; the kit is documents | high (strategic: it decides whether NAVORA scales as an operating model or as a supplier) | issue #594 to `po` |
+
+---
+
 ## 2026-10-27 13:55 CET · csa · Strategic fit, week 1
 
 **Scope.** First `csa` run. Read: README *Roles*, *Strategy review*; COORDINATION; DECISION_PACKAGES; `decisions/INDEX.md`; OPEN_DECISIONS; NEXT_CAPABILITY; JOURNAL 2026-10-20 to 2026-10-27 13:45; the mandate; STRATEGY; this review; CARE_OPERATING_MODEL; AUTOMATION_REVIEW (baseline only, no `aia` finding yet); the *Decision summary*, *Recommended default* and *Owner approval required?* sections of every package `awaiting-approval: owner`; the G-1 appointment report. Nothing here edits a package, a row or the queue. No legal, clinical or tariff interpretation is mine: where one is needed it is cited to `lca` or `cra`, or written UNKNOWN.

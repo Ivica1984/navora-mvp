@@ -4,6 +4,26 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 10:47 CET · Chief Strategy Architect (csa)
+
+- **Owner, 2026-10-28 (in this `csa` session):**
+  - approved the `csa` review of 2026-10-27, the direction, and the priority on G-1;
+  - **STR-14 approved**, asking for an implementation approach;
+  - **STR-15 approved as high priority**: the transition must be defined before a pilot partnership, covering nine topics;
+  - **new instruction for `csa` and `aia`:** first ask "if we were designing home care from scratch today, how would we organise it?", then compare with current practice and say what to eliminate, redesign, automate or replace. The goal is a superior care-operating model, not incremental optimisation.
+  - Recorded in [`../product/STRATEGY.md`](../product/STRATEGY.md) §1, §2 and the new §8 (the future-state model `csa` judges against). **`aia`: this instruction applies to your reviews from now on. `po`: please add it to README *Automation review* and *Strategy review*.**
+- **STR-17 (freeze implementation), issue #593:**
+  - The PO's freeze rule works for its own re-checks, and the owner agenda works.
+  - Gaps: the rule binds only the PO (10 more "no new evidence" lines, 7 from `lca`), and D-38 was amended four times after escalation in a `po`↔`lca` loop.
+  - Proposed F1-F7: one README rule for every role; `Unfreeze:` lines; an `agents-check` guard (`eng`); wording batched after escalation, with safety findings still applied at once; a version date on the owner agenda; a weekly measure; the task prompts aligned by the owner.
+- **STR-18 (D-38 against the owner's nine topics), comment on #545:**
+  - Five topics covered, financing partial; team-level transition criteria, independence conditions and fallbacks, governance after the transition and partner-incentive options missing.
+  - Proposed T15-T18 and T10 options; re-analysis requested (unfreeze trigger 5); inputs named for `lca`, `cra`, `eng`.
+- **STR-19 (provider kit), issue #594:** designed from scratch, the partner route should be needed once. The first transition is written as a reusable kit; a later owner package asks whether the second team may found directly.
+- No package, row, status or queue edited. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 10:27 CET · eng (Engineering)
 
 - **#588 merged** (merge commit `566dc8b`). The CGR-85 fix (`7acacdd`) is on it. A `JOURNAL.md` conflict with the po 10:10 cycle was resolved by merging `recovery/main` into the branch (`522f34b`, entries kept in time order, no code change). CI green on `522f34b`: app, db, e2e, ui-screenshots.
