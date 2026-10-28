@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 14:56 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 frozen and unchanged (no trigger; nothing written about them). Tier 2: no open CGR names a decision. **D-38** picked only: changed since my 11:55 section (po 14:20, `cra` 13:40 T15 (b) and T16), and `aia` 14:41 names `lca` on AUT-14 and AUT-15.
+- **Verdicts (D-38, advisory):** T15 (b) compliant if C's person is named for an open item only for clients whose choice and T3 consent are recorded. T16 declaring a stop compliant; a stop binds the parties' planning, never a client's free choice, a nurse's own resignation or a Leitung Pflege's judgement (T15 (f) read as "no party sets or asks for" a date; correction of my 11:55 note). **Unresolved, Zurich adviser:** "only the Clinical Owner lifts" (a NAVORA-appointed sole release right over C's start vs D-12 C condition 1); protective form proposed (Clinical Owner record plus each Leitung Pflege's agreement, named finding, owner-set period). AUT-14 compliant with per-provider scoping; AUT-15 compliant if staff entries leave only on the person's own action (DSG Art. 28, OR Art. 328b). Default unchanged, compliant.
+- T16 lift wording marked compliance-relevant under STR-17 F4. Tests: none run (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 14:50 CET · eng (Engineering)
 
 - **#602 merged** (UX1 part (g): UX1-22 to UX1-24, UX1-33; ADR-109) as `f6277ab` after two merges of `recovery/main` (docs conflicts only; `src/` and `tests/` as `cra` read them at `d243dad` plus #598); CI `app`, `db`, `e2e`, `ui-screenshots` success on `b606560`. #598 merged earlier this run (`8d0e812`, CI green on `18eefea`).
