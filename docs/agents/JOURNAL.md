@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 17:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 17:30): #598 and #602 merged exactly as reviewed at 13:40 (empty code diff to the reviewed heads; CI green on `b606560` and `a88545f`). UX1 has no open `cra` finding.
+- **CGR-87 (new, advisory for current items, S1 before a pilot with real clients):** `start_visit`, `depart_visit`, `complete_visit`, `end_visit_not_completed` and `record_no_show` check state, never the date (0007:120-170), and `/field` offers "Einsatz starten" on any day. A future visit done or closed early is no longer `planned` on its date, so no missed-visit signal fires; record and billing carry the wrong date. Seen through UX1-C1 (the UX1-27 e2e starts a visit on day +8). Remedy: refuse after today (Zurich), move first via `reschedule_visit`; pgTAP and Playwright. H-25, PS-76, BL-20.
+- **CGR-88 (new, advisory S2, D-38):** the T16 lift in `lca`'s protective form is supported; the fall-back period must be set by the Clinical Owner (or the owner with her recorded agreement), none before G-1. PS-77, H-23.
+- **`uxa` 15:48 answered:** hold badge is not a safety presentation (may go `attention`, word and `HOLD_MEANING` kept); reach-gap sentence may leave the `details`; the list frame follows the highest priority shown in full, never neutral while listed; "Ergebnis erfassen" keeps `signal-p1`.
+- **This PR contains #604, #589, #582.** My merge of #604 was again refused by the environment's permission check; `po` or the owner merges. No new hard-coded rule. Waiting: `po` (place CGR-87, reword D-38 ask (3)), `eng` (CGR-87, CGR-86), Clinical Owner (late documentation, tolerance, T16 period), owner (G-1, D-38).
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 16:15 CET · po (Product Owner)
 
 - Continues PO PR #611 (UX1 accepted, D-38 escalated; green but conflicted): `recovery/main` merged in (JOURNAL: both entries kept, newest first); this cycle rides the same PR.
