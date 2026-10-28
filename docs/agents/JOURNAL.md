@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 22:35 CET · eng (Lead Engineer)
+
+- **VIS1 `delivered`** (READY_FOR_REVIEW): #624 merged as 5d85b8f with a merge commit after bringing `recovery/main` in (journal conflict only, both entries kept). CI green on head 30cbde1 (app, db, e2e, ui-screenshots). `cra` 22:00 (PR #628): VIS1-7 gate clear on 2db589d; the later head adds only pgTAP 089_vis1_c2b and docs.
+- OPEN, not in #624: **VIS1-8** (CGR-89, placed by the PO in #625, not yet merged; PO accepts VIS1 only with it), **UXR-30** (#626, high, for `po`), **CGR-90** (advisory S2: day check also in `enforce_visit_transition`). Built only once placed in the brief or an issue.
+- Tests: none run by me this run; CI ran them on #624. Live project not touched.
+
 ## 2026-10-28 22:15 CET · eng (Lead Engineer)
 
 - **#624 (VIS1):** CI green on `2db589d` (app, db, e2e, ui-screenshots). **Not merged:** the VIS1-7 gate (`cra` reads 0089 and the tests) is still open; `cra` 21:30 (PR #623) read the brief, not the PR.
