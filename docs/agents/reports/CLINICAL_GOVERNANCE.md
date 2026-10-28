@@ -16,6 +16,74 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-28 05:30 CET: no code merged; #574 unchanged (head `7988945`, still clear, CGR-80 closes on merge); CGR-84 remedy in the ASM1 brief (met at brief level, closes on the build); UX1-30 instruction move confirmed with three test conditions; AUT-13 import and AI §12 control read; no new finding
+
+**Scope:** `recovery/main` @ `c1c090f`. Changes since my 01:30 CET section (`9f2533f`, merged by #577):
+- **Code merged:** none. No file under `src/`, `supabase/` or `tests/` changed on `recovery/main` since `d12a7a7`. No migration.
+- **Docs merged:** PO 02:10 (#578: ASM1-1 period storage from CGR-84; UX1-28 (d), (e)), 04:10 (#581: UX1-30 from UXR-20; UX2-10 from UXR-21); `lca` 00:45 (#575, D-38 re-check); `aia` 02:20 (#579: AUT-13, AI Operating Model Review §12); `uxa` 03:50 (#580: UXR-20, UXR-21, design system v7).
+- **Open:** #574 `eng` UX1-18 and UX1-27, head still `7988945` (CI `app`, `db`, `e2e`, `ui-screenshots` success, check runs read through the GitHub API; no new commit since my 01:30 read). #3 (M2 to `main`) unchanged.
+- **Asked of `cra`:** PO 04:10, UX1-30: confirm moving the instruction "bitte korrigieren und neu unterschreiben" from the returned-reports heading into the section's first line.
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read: the diffs of `briefs/ASM1.md` (ASM1-1 as amended 02:10), `briefs/UX1.md` (UX1-28 (d)-(e), UX1-30), `briefs/UX2.md` (UX2-10), `decisions/D-38.md` (`lca` 00:45), `reports/AUTOMATION_REVIEW.md` (02:20), `docs/product/AI_OPERATING_MODEL_REVIEW.md` §12, `docs/design/DESIGN_SYSTEM.md` v7; for UX1-30 the returned-reports section and link on `recovery/main` (`field-client.tsx:154-166`, `:217-235`), the visit-card report state (`features/field/report.ts:40-62`) and `field_returned_reports` (0065:509, the caller's own returned reports). **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+No new finding.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-84** | open, advisory (S3); **remedy met at brief level (PLANNED)**; closes on the merged ASM1 build with the pgTAP | `briefs/ASM1.md:21` (po 02:10): the period is stored "as the text entered, or as a value from the organisation's own reference list maintained like the instrument list (ASM1-6); no list of periods in a migration, constant or seed beyond synthetic test data"; pgTAP: no `check` or enum on its values beyond non-empty and a length limit; a proposed fixed list is first a Clinical Rule Register row, owner `clinical`/`legal`, PROVISIONAL, before build. This is my remedy word for word |
+| **CGR-80** | open, advisory (S3); remedy met on the #574 head `7988945` (unchanged since 01:30, CI green); closes when #574 is merged unchanged | as 01:30 |
+| **CGR-81** | open, advisory (S2); remedy in the brief (PLANNED); closes on the ASM1 build | unchanged. AI Operating Model Review §12 (`aia` 02:20) now carries the same control for agents: no sum, difference or per-period conversion of assessed against planned minutes, and no mark derived from them, before a `cra`-reviewed brief. Consistent with CGR-81; I agree |
+| **CGR-78** | open, advisory (S2); (a) and (b) met at brief level | no change |
+| **CGR-75** | open, advisory (S2); (1)-(5) met at brief level | no change |
+| **CGR-72** | open, blocking for ADM2 acceptance (S2); ADM2-15 PLANNED, not built | no change |
+| **CGR-68** | open, advisory (S2); interim part IMPLEMENTED | no change |
+| CGR-54, CGR-56 | open, advisory (S3, S2); DST1-C4, DST1-C5. PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: none.
+
+### Inputs requested of `cra` (clinical review input; I decide nothing, D-27)
+
+- **UX1-30 (PO 04:10): may the instruction move from the returned-reports heading into the section's first line?** **Yes, with three conditions for the same unit test.** What F6R-5 needs from this section: a nurse whose signed report a registered nurse returned sees, on her day, that she must correct it and sign again, which report, and why. Today the section heading carries the instruction (`field-client.tsx:221`) and each item carries the returner's name and the reason (`:229-231`); the visit card itself shows "Zurückgegeben: bitte korrigieren und neu unterschreiben" where she acts (`report.ts:53`). The section lists only her own returned reports (`field_returned_reports`, 0065:509), so the instruction addressed to her is correct for every row. A heading "Zurückgegeben (n)" with the instruction as the section's first line keeps all three facts in sight. Conditions: (1) the instruction is rendered whenever the section is rendered, inside `returned-reports`, after the `h2` and before the first list item, never collapsed or behind a toggle; the test asserts its presence and its position before the first `li`; (2) its text comes from one constant equal to the existing wording (capital first letter only), asserted against the constant, not a literal; (3) negative: each item's returner name and reason, and the visit-card label in `report.ts` (performer and non-performer forms, `RETURNED_UNAVAILABLE_LABEL`), are unchanged. If (1)-(3) are not in the part (d) PR, the PO's fallback (link = full existing heading) applies and needs nothing from me. I re-check on the part (d) PR. Not a new finding.
+- **PO challenge 04:10 (correction as the next action on the visit card, not a second list):** clinically acceptable later, provided a returned report never drops off her day while unsigned (F6R-5: it stays "until she signs again", any date). That is the property a UX2 or F6 redesign must keep, with a test that a returned report dated in the past still appears on today's view. Recorded for the UX2 / F6 brief; nothing to do now.
+
+### Other checks (no finding)
+
+- **AUT-13 (`aia` 02:20, import of assessment header values instead of transcription; not briefed):** clinically acceptable as described (deterministic, header values only, confirmed value by value by the assessing RN, assessment fields never `schedule`). For the later brief, in addition: an imported draft counts as no assessment record until confirmed (it neither satisfies a reassessment due date nor feeds A10); the period is imported as the tool states it and never mapped or converted (CGR-84); the record keeps whether each value was imported or typed. Recorded under H-22; `cra` reviews that brief.
+- **UX1-28 (d), (e) (PO 02:10):** my two additions placed as written. Gate for part (d) as 01:30.
+- **UX2-10 (axe on working states):** CI coverage only; no text, rule or field. No clinical effect.
+- **D-38 (`lca` 00:45):** no change to the package text; no new clinical point. Handover set (T12 (iv)) and window length remain `clinical` and `owner`, UNKNOWN.
+- **Design system v7:** jump-link and dialog rules restate UX1-27 to UX1-30; nothing clinical added.
+- **No new hard-coded clinical, tariff, LTCF, interRAI, PAG or MQI rule** on `recovery/main` since 01:30 or in #574. No Clinical Rule Register row.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **UX1-18, UX1-27** (#574, open, head `7988945`) | **clear to merge** (clinical side), unchanged; CGR-80 closes on merge |
+| **UX1** part (d) (UX1-11 to UX1-13, UX1-27 to UX1-30; not opened) | `cra` reads the string list, UX1-28 (a)-(e) and UX1-30 with conditions (1)-(3) above before merge |
+| **ASM1** (approved, not built) | CGR-81 and CGR-84 remedies in the brief; both close on the build with their tests |
+| **UX2** (UX2-10 added) | no clinical finding |
+| **D-38** (`owner`, escalated, frozen) | unchanged: no open clinical finding on the text; H-23 and R-11 code controls PLANNED |
+| **ADM2** | unchanged: CGR-72 blocking for acceptance until ADM2-15 is built with its pgTAP |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **po:** UX1-30 conditions (1)-(3) into the brief, or keep the fallback; record the F6R-5 property (a returned report never leaves her day while unsigned) for the UX2 / F6 redesign the 04:10 challenge names.
+- **eng:** merge #574 when ready (CGR-80); part (d) as above; still open: does "Ich kann nicht arbeiten" cover a single visit (UX2 suggestion, 21:30); does PLAN2 re-create a hand-removed care-plan visit (C-2 (b), 13:37)?
+- **clinical (Clinical Owner, after G-1):** which periods assessed minutes refer to and when a total may be shown (CGR-81, CGR-84); the D-38 handover set; D-34 question 7, D-10, D-15, D-16 (with 3b), D-17, D-28, D-31; D-37 interval and triggers. All UNKNOWN until answered.
+- **owner / legal / regulatory adviser:** G-1; D-38 T1-T14 (with the window length) and the Zurich adviser bundle; MepV reporting for a rule withdrawal (D-34); R-11 for C; D-36 licence terms (also for an AUT-13 import); D-1.
+
+---
+
 ## 2026-10-28 01:30 CET: #554 and #558 merged as reviewed; #574 (UX1-27, head `7988945`) meets CGR-80, closes on merge; CGR-81 remedy in the ASM1 brief (no longer blocking ASM1-11 acceptance, closes on the build); CGR-82 and CGR-83 closed at package level (D-38 T12 (i) (a)-(b), T13 (e)-(f)); CGR-84 (advisory S3, ASM1-1 period values); UX1-28 (c) notice display confirmed
 
 **Scope:** `recovery/main` @ `07261f1`. Changes since my 21:30 CET section (`c20106f`, merged by #565):
