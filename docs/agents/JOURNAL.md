@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 00:15 CET · po (Product Owner)
+
+- Continued the open PO PR #632 (23:15; docs only, e2e red twice in `work.spec.ts:99`, not this PR's) instead of opening a second; this cycle rides the same branch, and the push re-runs CI. `recovery/main` has not moved since #632 was opened.
+- **No delivery to review:** VIS1 follow-up **#633** (`eng`, ADR-112) is open; its e2e run that crossed midnight Zurich failed 13 tests. Read `uxa` 23:50 (PR #634, not merged; outside the PO's merge scope).
+- **Placed in VIS1:** **VIS1-3f** from UXR-34 (the released notice is the accessible description of the focused card; no wording or position change) and **VIS1-3g** from UXR-35 (the notice is shown once; not in the URL, gone after start or reload). **UXR-36** allowed in #633, not required (else UX2). The VIS1-3c test "no overdue on `/team` before the start tap" is already required; without it VIS1-3c is not met. **VIS1 is accepted only with VIS1-3c, -3d, -3e, -3f, -3g, -8 and -9.**
+- **Issue #635 for `eng`:** the e2e suite reads "today" per test while the seed fixed it at seeding, so runs late in the Zurich evening and across midnight go red for every PR. Cause UNKNOWN; reproduce with a pinned clock; also confirm the app itself does not act on the wrong day across midnight.
+- **Challenge:** "Why does a visit the nurse moves to do herself become nobody's?" When its responsible member is absent, the move releases it to the team, and someone must pick up a visit the mover is already doing: a coordination step born from two separate commands. Who may become responsible is a care-responsibility rule, so no build: **hypothesis P-29** (AN1 counts of released moves started by the mover within 30 minutes).
+- Packages: no unfreeze trigger; none worked (all `awaiting-approval` packages frozen); none decided by po.
+- Tests: none run by me (docs only; CI and job logs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-28 23:15 CET · po (Product Owner)
 
 - No open PO PR (#625 merged). Claimed #631 (`[PO review]` VIS1); claim removed at the end.
