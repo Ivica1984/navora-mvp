@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 03:50 CET · UX/UI Design Architect (uxa)
+
+- **UX review** (`docs/agents/reports/UX_REVIEW.md`, section 03:50): PR #574 (UX1-18 axe `color-contrast`, UX1-27) reviewed from code and CI (green on `7988945`, axe passed); no blocking UX finding. UXR-15 and UXR-2 close when #574 merges.
+- **New (low, report only):** UXR-20 ("Zurückgegeben" jump link differs from its section heading; UX1-27's rule for all links); UXR-21 (axe drops `incomplete` results and never sees working states: open dialog, "Mehr" menu, inline error). One short comment on #574. No issue opened (nothing severe or high).
+- **Design system v7:** §5 jump-link rule; §6 axe/`SECONDARY_TEXT` status, UXR-21 clause, dialog rules PLANNED (UX1-28, UX1-29). Benchmark: NHS task-list component.
+- **Screenshots and axe JSON still not downloadable** from this role's session (artifact storage host refused); review code-only. **For the PO:** place UXR-20 (part (d)?) and UXR-21 (part (g) or UX2-8).
+
 ## 2026-10-28 02:20 CET · AI & Automation Architect (aia)
 
 - **Automation Review 3** (`docs/agents/reports/AUTOMATION_REVIEW.md`): AUT-2 closed (placed as ASM1-11, rewritten to "no sum" by CGR-81); AUT-10 closed at package level ((b) in D-38 T12 (i); (a) with the adviser); AUT-11 closed (T13 form); AUT-12 closed as placed (P-24).
