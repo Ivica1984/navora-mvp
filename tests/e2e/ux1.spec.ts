@@ -112,19 +112,19 @@ test.describe("UX1-1 / UX1-2: no horizontal scroll at 390 px", () => {
 const MENU: Record<string, { email: string; items: string[] }> = {
   nurse: {
     email: "pflege.test@navora.test",
-    items: ["Mein Tag (mobil)", "Mein Arbeitstag", "KPI / Analytics", "Meine Einstellungen"],
+    items: ["Mein Tag", "Mein Arbeitstag", "Kennzahlen", "Meine Einstellungen"],
   },
   coach: {
     email: "coach.test@navora.test",
-    items: ["Operations Board", "Mein Arbeitstag", "KPI / Analytics", "Meine Einstellungen"],
+    items: ["Ausnahmen", "Mein Arbeitstag", "Kennzahlen", "Meine Einstellungen"],
   },
   operations: {
     email: "ops.test@navora.test",
-    items: ["Operations Board", "Aufnahme", "Mein Arbeitstag", "KPI / Analytics", "Meine Einstellungen"],
+    items: ["Ausnahmen", "Aufnahme", "Mein Arbeitstag", "Kennzahlen", "Meine Einstellungen"],
   },
   admin: {
     email: "admin.test@navora.test",
-    items: ["Operations Board", "Aufnahme", "Mein Arbeitstag", "KPI / Analytics", "Meine Einstellungen", "Administration"],
+    items: ["Ausnahmen", "Aufnahme", "Mein Arbeitstag", "Kennzahlen", "Meine Einstellungen", "Administration"],
   },
 };
 

@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 14:35 CET · eng (Engineering)
+
+- **#598 merged** (UX1 part (d) second PR: UX1-11 to UX1-13, UX1-32; ADR-108) as `8d0e812` after one merge of `recovery/main` (`18eefea`, JOURNAL conflict only); CI `app`, `db`, `e2e`, `ui-screenshots` success on `18eefea`.
+- Clinical gate trail: `cra` 13:40 section (PR #604, not yet merged) read: #598 and #602 clear on the clinical side at heads `961a936` and `d243dad`; the merges since changed only docs. CGR-86 (advisory S3, pgTAP 079 test 44) tracked on #399/#603, not part of UX1.
+- **#602** (part (g): UX1-22 to UX1-24, UX1-33; ADR-109) merged with `recovery/main` again (JOURNAL, IMPLEMENTATION_STATUS, DECISIONS conflicts: both sides kept, ADR-108 before ADR-109). UX1 row `in-review` until #602 is merged with green CI, then `delivered`.
+- Tests: none run by me (docs merges only); `node scripts/agents-check.mjs` run. CI is the test runner. Live project not touched.
+
+---
+
 ## 2026-10-28 13:55 CET · eng (Engineering)
 
 - **UX1-33 pushed onto #602** (part (g)), ADR-109 addendum: focus moves to "Schliessen" when the CGR-32 notice replaces the absence form; after a refused or failed save it returns to "Speichern". No text, rule or command change.
@@ -20,6 +29,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **For `cra` on #602:** confirm that the default sentence "Operations sieht es auch, noch nicht übernommen" is not a C-1 "handling state" (the pointer drops it). OPEN for `uxa`/`cra`: three filled red buttons outside the signal components (ADR-109 deviation 1), among them `/field` "Ergebnis erfassen" (safety-adjacent, not changed by engineering).
 - Clinical gate trail: sections 01:30 and 09:30 read; findings applied C-1, C-2 (a), C-3; no remediation plan needed.
 - Tests: none run by me (npm registry unreachable from this session). CI is the test runner. Live project not touched.
+
+---
+
+## 2026-10-28 13:45 CET · eng (Engineering)
+
+- **UX1-32 pushed onto #598** (the brief lets it ride #598), ADR-108 addendum. Issue #592 claimed at 13:30.
+- (a) `/partners` eyebrow "Partner" removed; new eyebrow check in `ux1-strings` (text-only element directly before an `h1` on any protected page). **Deviation:** `/visits` had the same eyebrow ("Einsätze") and the check covers every protected page, so it went too.
+- (b) `/operations` team panel heading "Details zum Pflegeteam" from `TEAM_PANEL_HEADING`, both states.
+- #598 and #602 both waited CI green for the `cra` gate (UX1-12 string list; part (g) C-1 pointer line). This push re-runs #598's CI; the `cra` gate still applies. UX1-33 (part (g)) is next, onto #602.
+- **Tests:** `ux1-strings` ran locally only against a stand-in for the vitest API (11 of 11; the new check fails on the old `/partners`). CI decides. #603 (pgTAP 079 intermittent) still open. Live project not touched.
 
 ---
 
@@ -64,6 +83,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Design system v9:** §5 jump links and §6 dialog rules IMPLEMENTED (#588); §4 "one label per page" PLANNED (#598) with OPEN parts; §6 new OPEN focus rule.
 - **For the PO:** placement of UXR-22 to UXR-25 (proposal: UXR-22/-23 ride part (d), UXR-24 in UX2-1, UXR-25 part (g) or UX2).
 - Screenshot download still refused (proxy 403); review from code. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 11:28 CET · eng (Engineering)
+
+- **PR #598 (UX1 part (d), second PR): UX1-11 to UX1-13**, ADR-108. Issue #592 claimed at 11:11.
+- **UX1-11:** the vitest `ux1-strings` reads user-facing strings from the TypeScript syntax tree. Decision codes moved to `data-ref`: D-3, D-26, SIG1-8, D-22, D-15, D-11.
+- **UX1-13:** "NAVORA" is the only product name. `/operations` is headed "Ausnahmen". `PAGE_LABEL` gives one label per page (menu, page name, header links).
+- **`cra`:** please confirm the UX1-12 string list in ADR-108 before merge.
+- **Deviation:** 33 code-bearing message constants in `src/features/**` are PLANNED for a follow-up PR with their own string list. Part (g) UX1-22 to UX1-24 is PLANNED.
+- UX1 row set to `in-review`.
+- **Tests:** the new vitest file ran locally only against a minimal stand-in for the vitest API (npm registry unreachable). CI decides. Live project not touched.
 
 ---
 

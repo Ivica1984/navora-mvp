@@ -1675,6 +1675,62 @@ Tests: Playwright `ux1.spec` UX1-25 (focus inside after the tap, 30 Tabs stay in
 
 **Tests:** vitest `ux1-todo` (all three links = section `h2` via one constant each; `cra` (1) position and unconditional rendering, (2) constant equals the existing wording, sentence case only, (3) returner/reason line and `report.ts` labels unchanged), `ux1-contrast` (UX1-16 "serverseitig"; panel gone). Playwright `ux1.spec` "UX1 part (d) at 390 × 844": UX1-29 (named by the visible `h2`, first element, no `aria-label`); UX1-28 (a) Escape and disabled "Abbrechen" with the save held by `page.route`, (b) refusal inside the open dialog, (e) no past-visit notice on refusal, and a save without a past visit closes the dialog. `field.spec` "ABS1-C6" (assertions added): (a) while held, (c) notice and "Zum Team" inside the open dialog, still there after the refresh, (d) text equals `pastPlannedNotice(1)`; "F6R" returned-report test (assertions added): link text = `h2` "Zurückgegeben (n)", instruction line visible.
 
+### ADR-108 — UX1 part (d), second PR: no internal codes in page text, one product name, one label per page
+
+**Date:** 2026-10-28 · **Status:** IMPLEMENTED in PR (CI decides; `cra` string gate UX1-12 before merge) · **Brief:** `docs/agents/briefs/UX1.md` (UX1-11, UX1-12, UX1-13 as widened by po 2026-10-27 16:25 for `uxa` UXR-12) · **Issue:** #592
+
+**Context:** page text showed decision codes ("(D-3)", "Entscheid D-26 offen", "Bedingung SIG1-8", "(D-22)", "(D-15)", "D-11") that no nurse can act on, three product names ("Navora", "Swiss Care OS", "Navora MVP") and English labels ("Operations Board", "Control Tower", "KPI / Analytics", "Drilldown"). Pages had several names: menu "Mein Tag (mobil)", header "NAVORA · Mein Tag"; link "Teamanfragen" to a page headed "Dein Team"; link "Teamzahlen" to "KPI / Analytics".
+
+**Decision:**
+1. **Scan from the syntax tree (UX1-11).** `tests/unit/support/user-facing-strings.ts` parses each `.ts`/`.tsx` file with the TypeScript compiler API (already a devDependency) and returns its string literals, template literal parts and JSX text. Comments are not literals, so they are exempt without a regex. Skipped as not user-facing: module specifiers, directives, and the values of attributes that never reach the reader (`className`, `style`, `data-testid`, `href`, `id`, `key`, `type`, `name`, `htmlFor`, `role`, form attributes, `aria-labelledby`/`-describedby`/`-controls`). `aria-label`, `title`, `placeholder` and `alt` are scanned. Scope: `src/app/(protected)`, `src/app/(auth)`, `src/components` (with `components/layout`) and `src/lib/auth/nav.ts`.
+2. **Reviewer reference = `data-ref`.** A code that reviewers need goes into the `data-ref` attribute of the element whose text it qualifies. It is in the DOM and the screenshots' HTML, not on screen. No tooltip, because a visible tooltip with a code would be user-facing again. The scan exempts the `data-ref` value only. An element marked `data-ref` keeps its visible text scanned.
+3. **One product name (UX1-13).** The side column reads "NAVORA". "Swiss Care OS" and the "Pilot Schweiz / Navora MVP" box are removed. The phone bar reads "NAVORA". `/operations` is headed "Ausnahmen". The OPS1 panel heading "Drilldown" becomes "Pflegeteam Detail", the label that panel already shows once a team is selected.
+4. **One label per page.** `PAGE_LABEL` in `src/lib/auth/nav.ts` is the only source. It holds the eight menu pages plus `/team`, which is not in the menu but is linked from `/field`. The menu item, the page's name and every header link to it from another page use the constant. The page's name is its `h1`/`h2`, or on the day pages (`/field`, `/work`) the line above the date, because there the `h1` is the date. An eyebrow line that was a second name for the page is removed: "Operations", "Aufnahme", "Einstellungen", "Administration", "Pilot-Wirkung", "NAVORA · Team". Its own day and month navigation ("Heute", "← Vortag", "Folgemonat →") is not a link from another page. Two inline action links are named exceptions, because they name an action, not the page: "Zum Team" (the CGR-32 notice confirmed by `cra`, kept word for word) and "Arbeitstag ansehen und bestätigen" (WORK1).
+
+**String list (UX1-12, for `cra`):**
+| Where | Old | New |
+|---|---|---|
+| `/field` "Offen im Team" note (cover) | "… wenn der Zugriff für Übernahmen geklärt ist (D-3); bis dahin …" | "… wenn der Zugriff für Übernahmen geklärt ist; bis dahin …" (`data-ref="D-3"`) |
+| `/field` taken-over visit note (cover) | "… bis du ihn in NAVORA durchführen kannst (D-3). Das Team stimmt sich mit dir ab." | "… bis du ihn in NAVORA durchführen kannst. Das Team stimmt sich mit dir ab." (`data-ref="D-3"`) |
+| `/admin` invitations | "… richtet vorerst die NAVORA-Betriebsverantwortung ein (Entscheid D-26 offen)." | "… (Entscheid offen)." (`data-ref="D-26"`) |
+| `/admin` outside-app delivery | "Bis zur Freigabe durch die Clinical Owner bleibt die Bedingung SIG1-8 bestehen: jemand beobachtet die Signale in jeder geplanten Stunde." | "… bleibt diese Bedingung bestehen: jemand beobachtet die Signale in jeder geplanten Stunde." (`data-ref="SIG1-8"`) |
+| `/team` information form | "… Frist und Inhalt der Information sind offen (D-22)." | "… sind offen." (`data-ref="D-22"`) |
+| `/team` KLV category form | "… die fachliche Freigabe der Zuordnung ist offen (D-15)." | "… ist offen." (`data-ref="D-15"`) |
+| billing preview | "nicht hinterlegt (Pilotkanton offen, D-11)" | "nicht hinterlegt (Pilotkanton offen)" (`data-ref="D-11"`) |
+| side column | "Swiss Care OS" / "Navora" / "Pilot Schweiz" / "Navora MVP" | "NAVORA"; the rest removed |
+| phone bar | "Navora" | "NAVORA" |
+| menu | "Operations Board" / "Mein Tag (mobil)" / "KPI / Analytics" | "Ausnahmen" / "Mein Tag" / "Kennzahlen" |
+| `/operations` | eyebrow "Operations", `h1` "Navora Operations Control Tower" | `h1` "Ausnahmen" |
+| `/operations` team panel | "Drilldown" | "Pflegeteam Detail" |
+| `/intake` | eyebrow "Aufnahme", `h1` "Zuweisungen aufnehmen" | `h1` "Aufnahme" (the description line is unchanged) |
+| `/field` header | "NAVORA · Mein Tag"; link "Teamanfragen" | "Mein Tag"; link "Dein Team" |
+| `/work` header | "NAVORA · Mein Arbeitstag" | "Mein Arbeitstag" |
+| `/team` header | eyebrow "NAVORA · Team"; link "Teamzahlen" | removed; link "Kennzahlen" |
+| `/analytics` | eyebrow "Pilot-Wirkung", `h2` "Kennzahlen {Monat}" | `h2` "Kennzahlen {Monat}" |
+| `/settings` | eyebrow "Einstellungen", `h2` "Meine Einstellungen" | `h2` "Meine Einstellungen" |
+| `/admin` | eyebrow "Administration", `h2` "Pilotbetrieb verwalten" | `h2` "Administration" (the description line is unchanged) |
+
+The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1 wordings, WORK1 notice, hold meaning) is unchanged. Only the code moved. The SIG1-8 note shown below it on `/admin` (`OUTSIDE_WATCHED_NOTE`) still carries its code; see deviation 1.
+
+**Deviations:**
+1. **Scope of the scan.** UX1-11 names TSX under `src/app/(protected)` and `src/components`. Message constants under `src/features/**` that pages render still carry codes: 33 strings in 9 modules (`analytics/hypotheses.ts` 14, `analytics/rules.ts` 8, `lifecycle/rules.ts` 3, `push/rules.ts` 3, one each in `billing/rules.ts`, `cover/rules.ts`, `quality/rules.ts`, `quality/commands.ts`, `signals/rules.ts`). Several are `cra`/`lca`-fixed (SIG1-8 note, billing limits "D-11, D-18", lifecycle D-19) and are pinned by unit tests word for word. PLANNED: a follow-up PR in part (d) widens the scan to `src/features/**` with its own string list for `cra`. It is not in this PR so that this list stays reviewable.
+2. `/operations` keeps the exception center's own `h2` "Ausnahmen" below the page's `h1` "Ausnahmen". The page is that center, so one label names one thing. `auth.spec` asserts the `h1` by level.
+3. Not run locally: vitest (`ux1-strings`, 8 tests) was exercised against a minimal local stand-in for the vitest API with the global TypeScript, because the npm registry is not reachable from the engineering session. Typecheck, lint, the real vitest and Playwright run in CI only.
+
+**No rule:** no migration, RLS policy, grant, database function, page access check, signal rule or `cra`/`lca`-fixed substance changes. The menu's role table is unchanged; only labels moved into `PAGE_LABEL`.
+
+**Rollback:** revert the PR (no data or schema involved).
+
+**Tests:** vitest `ux1-strings`: UX1-11 no code in user-facing strings, a guard against an empty scan, and the moved codes present as `data-ref`; UX1-13 no forbidden product or English word and no old second name; menu labels = `PAGE_LABEL`, all different; each page names itself with `{PAGE_LABEL.<key>}`; every link to a labelled page from another page uses its label, except the two named action links. Playwright selectors updated: `auth.spec` (`h1` "Ausnahmen"), `ux1.spec` UX1-3 menu lists, `journey.spec` (link "Dein Team").
+
+**Still PLANNED:** the UX1-11 widening to `src/features/**` (deviation 1); part (g) UX1-22 to UX1-24.
+
+**Addendum 2026-10-28 13:45 (UX1-32, `uxa` UXR-22, UXR-23; rides #598 as the brief allows):**
+- (a) `/partners` loses its eyebrow "Partner" above the `h1`. The `ux1-strings` scan gains an eyebrow check: a text-only element (literal text, no link, button, input or component inside) placed directly before an `h1` in the same parent, on any `.tsx` under `src/app/(protected)`. The header rows of `/field`, `/team`, `/work` carry links and the menu, so they are shell, not eyebrows; the day pages' label line is in that header row, not next to the date `h1`. A synthetic self-test proves the detector catches the removed `/partners` line.
+- (b) The `/operations` team panel heading reads "Details zum Pflegeteam" (`uxa` wording) from `TEAM_PANEL_HEADING` in `src/features/operations/labels.ts`, in both the empty and the selected state; "Pflegeteam Detail" appears nowhere in user-facing text.
+- **Deviation:** `/visits` (protected, not in the menu) had the same eyebrow "Einsätze" above its `h1`; the check "no protected page" fails on it, so it is removed too. No other text changes.
+- **No rule:** no data, filter, rule, link, migration, RLS or access check changes. Not run locally beyond the vitest stand-in (11 of 11 in `ux1-strings`, and the new check fails on the old `/partners` file); CI decides.
+
 ### ADR-109 — UX1 part (g): one pointer line for an entry that repeats a signal card, red only for safety signals, team push reachability in sight
 
 **Date:** 2026-10-28 · **Status:** IMPLEMENTED in PR (CI decides) · **Brief:** `docs/agents/briefs/UX1.md` (UX1-22 on `cra` C-1, UX1-23 on `cra` C-2 (a) and as widened by po 2026-10-27 20:15 for `uxa` UXR-16, UX1-24 on `cra` C-3) · **Issue:** #592

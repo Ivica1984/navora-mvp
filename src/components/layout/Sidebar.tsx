@@ -95,46 +95,16 @@ export default function Sidebar({ active }: SidebarProps) {
         minHeight: "100vh",
       }}
     >
+      {/* UX1-13: one product name, "NAVORA"; "Swiss Care OS" and the "Navora MVP" box are gone. */}
       <div>
-        <p
-          style={{
-            fontSize: "12px",
-            textTransform: "uppercase",
-            letterSpacing: "0.08em",
-            color: "rgba(255,255,255,0.7)",
-            marginBottom: "8px",
-          }}
-        >
-          Swiss Care OS
-        </p>
-        <h1 style={{ margin: 0, fontSize: "28px" }}>Navora</h1>
+        <h1 style={{ margin: 0, fontSize: "28px" }}>NAVORA</h1>
       </div>
 
       <MenuLinks active={active} />
 
-      <div
-        style={{
-          marginTop: "auto",
-          background: "rgba(255,255,255,0.08)",
-          borderRadius: "18px",
-          padding: "16px",
-        }}
-      >
-        <p
-          style={{
-            margin: 0,
-            color: "rgba(255,255,255,0.72)",
-            fontSize: "12px",
-          }}
-        >
-          Pilot Schweiz
-        </p>
-        <h3 style={{ margin: "8px 0 0", fontSize: "20px" }}>
-          Navora MVP
-        </h3>
+      <div style={{ marginTop: "auto" }}>
+        <SignOutButton />
       </div>
-
-      <SignOutButton />
     </aside>
   );
 }
@@ -154,7 +124,7 @@ export function MobileMenu({ active }: SidebarProps) {
     >
       <details data-testid="mobile-menu">
         <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 font-bold">
-          <span>Navora</span>
+          <span>NAVORA</span>
           <span>Menü</span>
         </summary>
         <div style={{ paddingBottom: "8px" }}>

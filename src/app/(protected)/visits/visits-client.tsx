@@ -112,19 +112,7 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
 
       <main style={{ padding: "32px" }}>
         <section style={{ marginBottom: "24px" }}>
-          <p
-            style={{
-              fontSize: "12px",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              color: SECONDARY_TEXT,
-              marginBottom: "8px",
-            }}
-          >
-            Einsätze
-          </p>
-
+          {/* UX1-32: no eyebrow line above the h1 on any protected page (ADR-108 addendum). */}
           <h1 style={{ fontSize: "32px", margin: 0 }}>
             Online-Einsatzübersicht
           </h1>
