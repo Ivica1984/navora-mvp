@@ -31,6 +31,49 @@
 
 ---
 
+## 2026-10-28 08:20 CET · aia review 4: AUT-13 import conditions from `cra`; UX1-30, UX2-10, UX2-11 reviewed; no new finding
+
+**Read:** `recovery/main` at `221d4ae`:
+- PO 02:10 (#578), 04:10 (#581), 06:10 (#583): ASM1-1 period storage; UX1-28 (d)-(e); UX1-30; UX2-10; UX2-11; the PO challenges on returned reports (04:10) and on AUT-13 (06:10);
+- `eng` #574 merged (`93f7423`, ADR-106: UX1-18 axe `color-contrast`, UX1-27 `FOLLOWUP_HEADING` in `src/features/field/todo.ts`);
+- `uxa` 03:50 and 07:50 (#580, #586);
+- `cra` 05:30 on the open PR #582 (`gov/review-2026-10-28-0530`, not merged): the AUT-13 import conditions and agreement with AI Operating Model Review §12;
+- the JOURNAL from 02:10 to 07:50. No open issue is labelled `automation`.
+
+**Changed since review 3:** no item that proposes, drafts or ranks was delivered (#574 is a contrast check and a label constant). `cra` 05:30 and the PO 06:10 answered AUT-13. Three acceptance criteria were added (UX1-30, UX2-10, UX2-11).
+
+**Not re-done:** the bottleneck map v1 (review 1, 2026-10-27 14:48) stands; its weekly refresh is due 2026-11-03. **Nothing below is a measurement.**
+
+### 1 Findings: changes
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-13 | Needs assessment: transcription into ASM1 (assessing RN) | **Answered, still not actionable.** `cra` 05:30 (#582, open): the import is clinically acceptable as described, with three conditions for the later brief: (1) an imported draft is no assessment record until the assessing RN confirms it value by value (it neither satisfies a reassessment due date nor feeds A10); (2) the period is imported as the tool states it, never mapped or converted (CGR-84); (3) the record keeps per value whether it was imported or typed (H-22). PO 06:10: no hypothesis row until `eng` reports the field mapping; depends on D-36 licence terms and the ASM1 build. ASM1 not started (IMPLEMENTED: nothing) | unchanged: **eliminate later through the care graph (import)**. The three `cra` conditions are now part of the proposal and of AI Operating Model Review §12. Condition (3) is the provenance-per-value control of §8, so a later import needs no new control type. Next trigger: the ASM1 PR (`eng` notes the field mapping) or a D-36 licence answer | L (header values only, D-36 A) | stage 0; `lca` (D-36), `cra` (reviews the brief), PO | as review 3; after an import exists, the share of imported values confirmed unchanged, per team | low | – |
+
+**Briefs and packages reviewed without a new finding:**
+- **UX1-30 (PO 04:10, `cra` conditions 06:10):** one label per "Zu erledigen" link and its section. The instruction to correct and sign again keeps its words and its place in the section. The nurse reads one label instead of two; no step, field or approval is added.
+- **UX2-11 (PO 06:10 from `cra` 05:30):** a returned report stays on her day until she signs it again. This is a continuity control with a shown patient-care benefit (F6R-5: no unsigned report drops out of sight). It also makes the leaner form possible that the PO named in the 04:10 challenge: the correction as the visit card's next action instead of a second list. `aia` supports that direction for UX2. Gain estimated as one fewer place to look per returned report; minutes UNKNOWN until F6R-9 (return share) has pilot data.
+- **UX2-10:** CI coverage only (axe on working states); no effect on care time.
+- **ASM1-1 period storage (CGR-84):** already reviewed in review 3; no change.
+
+### 2 AI readiness of delivered items
+- #574 does not propose, draft or rank: nothing to check against §8.
+- WORK1 stays outside the register (AUT-9, low, unchanged).
+
+### 3 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1 built | PLANNED. UX1 is still `in-progress`: part (d) (UX1-11 to UX1-13, UX1-28 to UX1-30) and part (g) are open; UX1-18 and UX1-27 merged (#574). AIG1 is *Next up* after UX1 and ADM2 (#499 open) |
+| 0 | ASM1 built | PLANNED; approved, not started |
+| 1-3 | unchanged from review 1 | OPEN |
+
+### 4 Waiting for the PO
+- Nothing new from `aia`: no `high` finding, no challenge, no issue opened.
+- Bottleneck map refresh: due 2026-11-03 (weekly).
+
+---
+
 ## 2026-10-28 02:20 CET · aia review 3: AUT-2, AUT-10, AUT-11, AUT-12 taken in by the PO; ASM1 transcription (AUT-13); A10 input control
 
 **Read:** `recovery/main` at `7eae8d0`:
