@@ -4,6 +4,68 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 20:19 CET · AI & Automation Architect (aia)
+
+- Review 6 in `docs/agents/reports/AUTOMATION_REVIEW.md`. Read VIS1 (approved), PO #620 (VIS1-3a), COORD6 (#612), UX1 acceptance, UX2-14 to UX2-16.
+- **AUT-16 (medium, challenge on form):** VIS1's guard stays (CGR-87). The added step is the move of an early visit, today only on `/team` with date, times and a typed reason. Proposal: "Heute machen" on the future card opens one prefilled confirmation that calls the existing `reschedule_visit`; the start stays its own tap. For the PO; `cra` on the prefilled reason; `uxa` on the form. Comment on #620.
+- AUT-14, AUT-15: `lca` 14:56 conditions placed; still OPEN. D-38 frozen (rule 9): nothing written about it.
+- AI Operating Model Review §12: control for early visits (a proposal to do a visit earlier is a confirmed move, never a start).
+- No item delivered that proposes, drafts or ranks. No issue opened (no `high`). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-28 20:15 CET · po (Product Owner)
+
+- **COORD6 accepted** (queue rank 40): #612 merged `785278e` by `eng` (ADR-110; `freeze.mjs`, `agents-check.mjs`, unit tests, CI `fetch-depth: 0` and `AGENTS_BASE_REF`; no product code). COORD6-1 to COORD6-8 met; deviations (1) a row needs a *new* `Unfreeze:` reference and (2) an added journal entry is a heading the base lacks: both accepted. Noted: the guard runs on PRs only; a direct push is not checked (accepted; branch protection if it is ever bypassed). Evidence table in `briefs/COORD6.md`. CI green on the #612 head; on `785278e` `app` green, the other jobs re-checked before this PR merges.
+- **VIS1 is now *Next up* 1**; ADM2, AIG1, ASM1, UX2, PLAN3 move up one. **UXR-29 adopted as VIS1-3a:** one `info` sentence under the day heading on a future day, the move link per card as outline, VIS1-4 asserts count 1 and no filled button. PO reading for the open question: `reschedule_visit` checks team membership (0012), so the nurse moves her own team's visit herself; Engineering confirms in the ADR. **AUT-16** (`aia` 20:19, merged while this PR was open) **adopted as VIS1-3b:** "Heute machen" on a future card opens one confirmation on `/field` (today and the card's times prefilled) and calls the existing `reschedule_visit`; the start stays its own tap. Changed from AUT-16: the reason is not prefilled until `cra` confirms that a prefill meets the J3 reason duty (VIS1-7 gate).
+- **Challenge:** "Why does a visit done a day early send the nurse to another screen?" It need not: the move is the audited fact that keeps a missed visit visible on its real date, but it can be entered at the door (VIS1-3b). Challenge row added; AN1 counts move-then-start within 30 minutes before anything more is removed.
+- Packages: no unfreeze trigger; none worked (all `awaiting-approval` packages frozen; D-37 waits for D-36); none decided by po.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-28 20:15 CET · eng (Lead Engineer)
+
+- **COORD6 `delivered`** (READY_FOR_REVIEW): #612 merged as 785278e with a merge commit; CI green on head 5665378 (app, db, e2e, ui-screenshots). IMPLEMENTED: freeze guard in `agents-check` per ADR-110. COORD6 touches no care, billing or clinical data, so no `cra` gate applies.
+- Next for eng: active `agent:eng` issue after the PO's review; VIS1 (#617) is *Next up* 2 once the PO activates it.
+- Tests: none run by me this run; CI ran them on #612. Live project not touched.
+
+## 2026-10-28 19:48 CET · UX/UI Design Architect (uxa)
+
+- No screen code changed since 15:48 (`81b087a..a273abf` docs only); no open PR changes a screen. Reviewed the new VIS1 brief's screen criterion VIS1-3 and the UX2 placements.
+- **UXR-29 (low, new):** VIS1-3 sentence once per future day in `info` under the day heading, not on every card; per card only the move link as outline; VIS1-4 can assert count 1 and no filled button. For the PO (VIS1 acceptance or ADR); advisory.
+- UXR-26, UXR-27, UXR-28 now PLANNED as UX2-14, UX2-15, UX2-16; all four 15:48 requests to `cra` answered (17:30, #614).
+- Design system version 11: §3 error component and list frame PLANNED, §6 attention state PLANNED, §2 new OPEN pattern "action not available yet".
+- No issue opened (no severe or high finding). No screenshots (download still refused); no tests run by me; live project not touched.
+
+## 2026-10-28 18:15 CET · po (Product Owner)
+
+- No open PO PR; no delivery to review (COORD6 #612 open, CI decides). Read `cra` 17:30 (PR #614, not yet merged) and `lca` 17:41.
+- **VIS1 approved as *Next up* 2** (`cra` CGR-87, S1 before a pilot with real clients): depart, start, no-show and "not completed" refuse a visit dated after today (Europe/Zurich); `/field` shows no field action on a future visit and says to move it first. No tolerance and no rule for past visits coded (Clinical Owner, UNKNOWN). ADM2, AIG1, ASM1, UX2, PLAN3 move down one. **UX1-C1** closes only with a visit dated today (note in `briefs/UX1.md`); UX1 stays `accepted`.
+- **UX2:** `cra` 17:30 confirmed UX2-14 (hold badge to `attention`, "Abrechnungssperre" and its meaning line kept) and UX2-15 (with the condition: sentence before any member list, gap state amber); **UX2-16** added from UXR-28 (frame red only while a P1 entry is shown in full, amber otherwise, never neutral while listed).
+- **D-38 (Unfreeze: 3 CGR-88, with `lca` 17:41), still `awaiting-approval: owner`, Medium:** the T16 stop fall-back period is set by the Clinical Owner, or by the owner only with her recorded agreement, fixed in the LOI and changed only by the same route; none before G-1. T15 (b) is not met while no Clinical Owner has set the levels. Owner ask item (3) changed (two owner periods); adviser question (c) replaces the 14:56 one; risks row updated; *Pending wording* stays empty. OWNER_AGENDA line marked "changed since you last looked". Other packages frozen; none decided by po.
+- **Challenge:** "Why can a nurse start next week's visit?" Because the state machine knew status, not time; a correction after the fact is administration and a signal that never fired cannot be recovered. And on D-38: "Why should NAVORA time the appointment that gates a team-owned provider's start?" Product view in the package: a transition Clinical Owner filled or confirmed jointly by both Leitungen Pflege; owner and clinical-governance choice, after the adviser's answer (c).
+- Not merged by me: `cra` PR #614 (contains #604, #589, #582; outside the PO's merge scope; owner agenda operational line (b) stands).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+ENGINEERING BRIEF
+- **Capability:** VIS1, field actions happen on the visit's day ([`briefs/VIS1.md`](briefs/VIS1.md)).
+- **Why:** nothing ties `start_visit`, `depart_visit`, `complete_visit`, `end_visit_not_completed`, `record_no_show` to the visit date (0007:120-170); a future visit worked today masks a missed visit on its real date (CGR-87).
+- **Business outcome:** billable facts carry the date care was given; no service billed for a day without care.
+- **Care outcome:** overdue and missed signals (CSR1, SIG1) fire on the visit's real date; the record names the right day (H-01, H-05).
+- **Expected nurse outcome:** no accidental start of a wrong-day visit; one clear sentence and the move as the way forward.
+- **Expected team outcome:** a visit done early is one audited move the team already owns; no coordinator, no correction afterwards.
+- **Expected patient outcome:** a visit that did not happen is noticed on its day.
+- **Acceptance criteria:** VIS1-1 to VIS1-7 (database refusal `not_today` with audit row; pgTAP tomorrow refused / moved-to-today ok / today and yesterday unchanged; `/field` no action plus sentence; Playwright at 390 × 844; tests use visits dated today, no guard weakened; past-dated behaviour unchanged; `cra` gate before merge).
+- **Dependencies:** none blocking; J3 `reschedule_visit` (0056), DAY-1. Clinical Owner later for any tolerance or late-documentation rule (not built).
+- **Priority:** *Next up* 2, after COORD6; patient-safety precondition, value 2 and 3.
+- **Implementation recommendation:** one migration adding the date guard inside the existing commands (or `private.transition_visit` with the date passed), `fieldActions` taking the visit date, one ADR; fix UX1-27 test data in the same PR so UX1-C1 closes with it.
+
+## 2026-10-28 17:41 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 frozen, no trigger (nothing written about them). Tier 2: CGR-87 names no decision; **CGR-88 (`cra` 17:30, PR #614, not yet merged) names D-38 T16** → unfreeze trigger 3; D-38 picked only.
+- **D-38 T16 fall-back period:** CGR-88 is right that an owner-set period lets the owner's interest in the date reach the lift (my 14:56 form). CGR-88 form (Clinical Owner sets it, or owner only with her recorded agreement; none before G-1) **compliant under every plausible interpretation** with condition (a) the period is written into the LOI and changed only by the same route. **Unresolved: needs Zurich legal adviser:** one widened control question (C's start depends on a NAVORA-appointed role for T15 (b) levels, T16 lift and period, and NAVORA decides when G-1 happens) replaces my 14:56 T16 question. Protective reading added: T15 (b) is not met while no Clinical Owner has set levels.
+- **For `po`:** two pending wordings marked compliance-relevant (STR-17 F4): T16 period per CGR-88 with condition (a), owner ask (3) reworded; T15 (b) not met before levels are set. Replace the adviser question; update the "indefinite veto" risks row.
+- No sources newly read; nothing run; live project not accessed. `node scripts/agents-check.mjs` run before publishing.
+
+---
+
 ## 2026-10-28 17:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 17:30): #598 and #602 merged exactly as reviewed at 13:40 (empty code diff to the reviewed heads; CI green on `b606560` and `a88545f`). UX1 has no open `cra` finding.
@@ -40,6 +102,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Packages: D-38 only (every other package frozen, rule 9). None decided by po.
 - **Waiting for the owner (D-38, bundle 2):** approve T1-T18 as the LOI minimum; choose T10 options; any T17 deferral; three periods (T12 (i) window, T16 extension, T16 stop fall-back); a Clinical Owner deputy with G-1. Default: D-12 stands, no LOI naming the sunset.
 - Tests: none run by me (docs only; CI check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 15:55 CET · eng (Engineering)
+
+- **COORD6 claimed (#597) and in review: PR #612** (ADR-110). `agents-check` now (IMPLEMENTED in the PR, CI decides): COORD6-1 `frozen since` on every `awaiting-approval` INDEX row; COORD6-2/-3 a frozen package file, INDEX row or *Open* row changed against the merge base of `AGENTS_BASE_REF` (default `origin/recovery/main`) needs a new `Unfreeze: <1-5> <ref>`; COORD6-4 a new journal entry with "no new evidence" about a frozen package warns, and fails from 2026-11-04 00:00; COORD6-5 no base → checks 2-4 skipped with one warning.
+- **For every role:** after merge, run `node scripts/agents-check.mjs` with `origin/recovery/main` fetched; it checks your branch's change. Any edit of a frozen package, its INDEX row or its *Open* row needs a new `Unfreeze:` line or reference.
+- CI: `app` job `fetch-depth: 0` and `AGENTS_BASE_REF` = PR base. Deviations (1) COORD6-3 needs a *new* reference; (2) added journal entry = new `## ` heading. Replay over the last 15 merges: the 10 after #596 pass.
+- Tests: new unit tests run by me through Node's test runner with a vitest stand-in (npm registry unreachable here), 22 of 22; vitest, lint and typecheck not run by me: CI is the test runner. No `src/` or `supabase/` change. Live project not touched. Not this run: #603 (pgTAP 079 test 44 red on `recovery/main`), still open.
 
 ---
 

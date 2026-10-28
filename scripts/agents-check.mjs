@@ -5,12 +5,15 @@
 // Reads the first Markdown table under a given heading. No dependencies, so it also runs
 // in agent sandboxes without `npm ci` (it imports only the sibling parse.mjs). Protocol and table formats: docs/agents/README.md
 //   node scripts/agents-check.mjs     (AGENTS_DIR overrides the folder, for tests)
+//   COORD6 freeze guard: AGENTS_BASE_REF (default origin/recovery/main) is the base revision the change is compared
+//   with; AGENTS_NOW (ISO time, tests) replaces the clock.
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AWAITING, PACKAGE_STATUS, readPackageIndex } from "./agents-coordination/parse.mjs";
 import { approvalRecordErrors, clinicalCategoryErrors } from "./agents-coordination/clinical-categories.mjs";
+import { freezeFindings, frozenMarkerErrors, readBase } from "./agents-coordination/freeze.mjs";
 
 const DIR = process.env.AGENTS_DIR ?? join(dirname(fileURLToPath(import.meta.url)), "..", "docs", "agents");
 
@@ -176,6 +179,33 @@ for (const p of pkgs) {
 for (const d of open) {
   const id = bare(d.ID);
   if (HUMAN.includes(bare(d.Owner)) && !pkgById.has(id)) errors.push(`decisions/INDEX.md: ${id} (owner ${bare(d.Owner)}) is open but has no INDEX row`);
+}
+
+// COORD6 (ADR-110, README rule 9): frozen packages stay frozen. COORD6-1 on the files as they are; COORD6-2 to -4
+// on the change from the base revision (merge base of AGENTS_BASE_REF and HEAD). Reads docs/agents only.
+if (existsSync(indexPath)) errors.push(...frozenMarkerErrors(readFileSync(indexPath, "utf8")));
+{
+  const ref = process.env.AGENTS_BASE_REF || "origin/recovery/main";
+  const now = process.env.AGENTS_NOW ? new Date(process.env.AGENTS_NOW) : new Date();
+  const base = readBase(DIR, ref);
+  if (Number.isNaN(now.getTime())) {
+    errors.push(`AGENTS_NOW "${process.env.AGENTS_NOW}" is not a valid time`);
+  } else if (base.skip) {
+    console.warn(`agents: COORD6 freeze checks (2 to 4) skipped: ${base.skip}`);
+  } else {
+    const headText = (file) => (existsSync(join(DIR, file)) ? readFileSync(join(DIR, file), "utf8") : null);
+    const baseIndex = base.show("decisions/INDEX.md") ?? "";
+    const ids = readPackageIndex(baseIndex).filter((p) => AWAITING.test(p.status)).map((p) => p.id);
+    const side = (get) => ({
+      index: get("decisions/INDEX.md") ?? "",
+      decisions: get("OPEN_DECISIONS.md") ?? "",
+      journal: get("JOURNAL.md") ?? "",
+      packages: Object.fromEntries(ids.map((id) => [id, get(`decisions/${id}.md`)])),
+    });
+    const f = freezeFindings({ base: side(base.show), head: side(headText), now });
+    errors.push(...f.errors);
+    warnings.push(...f.warnings);
+  }
 }
 
 // DOOR1-14 (CGR-61, ADR-093): a clinical safety-alert category needs an APPROVED Clinical Rule Register row.

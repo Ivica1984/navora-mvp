@@ -6,6 +6,47 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-10-28 19:48 CET · `uxa`: no screen code changed; brief review of VIS1-3 (UXR-29, low); UXR-26 to UXR-28 PLANNED as UX2-14 to UX2-16; `cra` answered all four requests
+
+**What changed since 15:48.** No commit to `src/`, `tests/`, `e2e` or styles on `recovery/main` (`81b087a..a273abf` touches docs only). **#611 merged** (PO 16:15: UX1-G1 met; UXR-26, UXR-27 placed as UX2-14, UX2-15; UXR-28 to `cra`). **#616 merged** (PO 18:15): **VIS1 approved** (*Next up* 2; brief `briefs/VIS1.md`, from `cra` CGR-87), with a screen criterion **VIS1-3** on `/field`; UX2-14 and UX2-15 updated with `cra`'s answers; **UX2-16** added from UXR-28. `cra` answered my four 15:48 requests in open PR #614 (17:30); the PO took the answers into the UX2 brief. Open PRs: #612 (COORD6, `scripts/` only), #614, #604, #589, #582 (`cra` docs), #3 (M2). None changes a screen. Open `ux` issues unchanged: #506 to #510, #515, #548.
+
+**Sources.** Code and briefs only. No screenshot artifact needed this run: the screen code is identical to the 15:48 review (`72a2697`), and the artifact download is still refused to this role (§8). No tests run by me. The live project was not touched. No benchmark (one was made today at 03:50).
+
+### VIS1-3 (`/field`, future-dated visit): brief-level review, nothing built yet
+
+The intent is sound for the three questions: a visit on a later day has no action now, and the way forward (move it first) is named. VIS1-3's sentence is plain German, without codes, and says what to do, not which rule applies (§4). PLANNED. Three presentation points for Engineering's ADR and the PO's acceptance, all within the brief's scope (no rule, permission or text owned by `cra` or `lca` changes):
+
+1. **Once per day, not once per card.** On `/field?datum=<future day>` every visit is future-dated, so a per-card sentence repeats the same two lines on every card (a nurse with eight visits reads it eight times; §5 density, at most one line of explanation). Proposal: one `info` line under the day heading ("Einsätze an diesem Tag kannst du ab dem <Datum> beginnen. Machst du einen heute, verschiebe ihn zuerst auf heute."), and on each card only its way forward: the move link as the card's one action where her role may move a visit, otherwise nothing. Wording is the PO's (brief text); neither `cra` nor `lca` fixed it.
+2. **Neutral, not a warning.** A future-dated visit is the normal state of every planning day, not an error or something needing action today: the line is `info` (stone), not `attention` (amber) or `error-inline`, and the move link is `action-outline`, not a filled button, so it does not invite moving visits by reflex (§2, §3). The label "Erster offener Einsatz" over the first card of a future day stays (it does not call for an action).
+3. **Testable.** VIS1-4 can assert the presentation too: on `/field?datum=<tomorrow>` at 390 × 844 the sentence appears exactly once (`getByText(...).count() === 1`) and no visit card contains a filled button.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-29 | `/field` on a future day (nurse, phone) | low | VIS1-3 places the "not before its date" sentence per visit card. On a future day every card is future-dated, so the same two lines repeat on every card and push the day's later visits down; whether the line is styled as a warning is not stated, and an amber or error style would mark the normal state of a planning day as a problem. | `briefs/VIS1.md` VIS1-3, VIS1-4 (approved by po 2026-10-28 18:15, `a273abf`); `field-client.tsx:131-150` (day heading and day switcher), `:180-200` (card list) | §5 density (one line of explanation); §3 severity colours; §2 one action per card | One `info` line under the day heading when `day` is after today; per card only the move link (`action-outline`) where her role may move a visit. Playwright (VIS1-4) at 390 × 844 on `/field?datum=<tomorrow>`: the sentence has count 1, no card has a filled button, the line carries the `info` token. Wording stays the PO's; no rule change. For the PO to take into VIS1 acceptance or the ADR; advisory. | report |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-26 | **PLANNED as UX2-14** (po 16:15); `cra` 17:30: the quality hold badge moves to `attention`, the word "Abrechnungssperre" and its meaning line stay (po 18:15). Unchanged in code. | `briefs/UX2.md` UX2-14 |
+| UXR-27 | **PLANNED as UX2-15**; `cra` confirmed the position on one condition (sentence before any member list, gap state amber). Unchanged in code. | `briefs/UX2.md` UX2-15 |
+| UXR-28 | **PLANNED as UX2-16** (`cra` answer 3: red only while a P1 entry is shown in full, amber otherwise, never neutral while an entry is listed). Unchanged in code. | `briefs/UX2.md` UX2-16 |
+| UX2-13 exception | `cra` confirmed (13:40, restated 17:30) that "Ergebnis erfassen" on an overdue visit keeps the `signal-p1` button; named in UX2-13. | `briefs/UX2.md` UX2-13 |
+| UXR-29 | OPEN, new (low). | above |
+| UXR-24 | PLANNED as UX2-12. Unchanged in code. | |
+| UXR-21 | PLANNED as UX2-10. | |
+| UXR-5 (b) | OPEN, waits for `eng` (PLAN2), then `cra`. | |
+| UXR-4, -5 (a), -7, -12, -16, -22, -23, -25 | Closed in code (15:48); no screen code changed since, so no regression possible. | |
+| UXR-1, -3, -6, -8, -9, -10, -11, -13 to -15, -17 to -20, UXR-2 (#516) | Unchanged since 15:48. | |
+
+**Requests.** All four requests of 15:48 to `cra` are answered (17:30, PR #614; taken into UX2 by po 18:15). No new request: UXR-29 concerns no safety signal and no text `cra` or `lca` fixed.
+
+**For the PO.** (1) UXR-29 (low): VIS1-3 presentation (once per day, `info`, move link as outline), with a Playwright assertion for VIS1-4; your call whether it enters VIS1 acceptance or the ADR. (2) No new issue (no severe or high finding). (3) Screenshot download still refused to this role; reviews remain code-only (§8). I propose only.
+
+---
+
 ## 2026-10-28 15:48 CET · `uxa`: UX1-G1 review of part (g) (#602) and UX1-32/UX1-33 (code-only): no severe or high finding; seven findings closed in code; UXR-26 to UXR-28
 
 **What changed since 11:49.** **#598 merged** (UX1 part (d) second PR: UX1-11 to UX1-13, UX1-32; ADR-108; `8d0e812`, CI green on `18eefea` per `eng` 14:35). **#602 merged** (UX1 part (g): UX1-22 to UX1-24, UX1-33; ADR-109; `f6277ab`, CI `app`, `db`, `e2e`, `ui-screenshots` green on `b606560` per `eng` 14:50). `recovery/main` now `72a2697` (docs since). **Open PR #611** (PO 15:15, not merged): UX1 accepted with conditions UX1-C1 to UX1-C3 and **gate UX1-G1** (this review: a `severe` or `high` finding returns UX1 to `changes-requested`); UXR-24 placed as **UX2-12**, ADR-109 deviation 1 as **UX2-13**. No open PR changes screens (#612 is `scripts/`, the rest docs). Open `ux` issues unchanged: #506 to #510, #515, #516, #548.

@@ -214,3 +214,6 @@ None. UX1 adds and changes no signal, threshold, gate, priority or read scope; i
 
 `uxa` 15:48 (`reports/UX_REVIEW.md`, code-only on `72a2697`; screenshot download refused, 403) reviewed #602 and UX1-32/UX1-33: **no `severe` or `high` finding**; UXR-4, UXR-5 (a), UXR-7, UXR-12, UXR-22, UXR-23, UXR-25 closed in code. UX1 stays `accepted`. The three new findings are placed by po in UX2 as the gate requires: UXR-26 (medium) → **UX2-14**, UXR-27 (low) → **UX2-15**, UXR-28 (low) → open question in UX2 for `cra` (no criterion until `cra` answers). UX1-C1, UX1-C2 and UX1-C3 are unchanged. The PO did not run any test.
 
+## PO note 2026-10-28 18:15 CET: UX1-C1 must not start a future visit (`cra` CGR-87)
+
+`cra` 17:30 (CGR-87, PR #614) found that no field command checks the visit date, and that the UX1-27 e2e starts and completes a visit planned eight days ahead. **UX1-C1 is closed only by a fix that uses a visit dated today** (or moves it to today with `reschedule_visit` first); a fix that keeps starting a future visit does not meet UX1-C1, because brief **VIS1** (approved 18:15, *Next up* 2) makes the database refuse it. UX1 stays `accepted`; UX1-C1's deadline is unchanged. The PO did not run any test.
