@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 15:15 CET · po (Product Owner)
+
+- **UX1 accepted** (queue rank 39; #535, #554, #558, #574, #588, #598, #602; ADR-103 to ADR-109; no migration; CI `app`, `db`, `e2e`, `ui-screenshots` green on the #602 head `b606560` and on `72a2697`). Clinical gate passed (`cra` 21:30, 01:30, 09:30, 13:40 on PR #604's head; merged code = reviewed heads plus docs merges). Evidence table, 15 deviation decisions and the reasons in `briefs/UX1.md`. Issue #609 closes with it.
+- **Conditions:** **UX1-C1** the UX1-27 e2e failed on the push runs of `a70f490` and `f6277ab` (timeout on "Einsatz starten" for the visit planned 8 days ahead) while the parallel PR runs passed: cause named, fixed without retry or skip, `--repeat-each=20` green; next Engineering PR, at the latest before UX2; an app cause returns UX1 to `changes-requested`. **UX1-C2** the 33 code-bearing strings in `src/features/**` (`eng` deviation (7)): own PR, string list for `cra`/`lca`, before UX2 is delivered and before the first real user; #508 stays open. **UX1-C3** push opt-in completed at 390 px before push is switched on. **UX1-G1** `uxa` reviews part (g); severe or high returns UX1. **UX2-13** placed: `/team` "Beenden" and "Entfernen" leave the P1 colour; "Ergebnis erfassen" on an overdue visit stays red (`cra`: it ends a SIG1 situation).
+- **D-38 escalated (`awaiting-approval: owner`, Medium, frozen since 15:15).** `lca` 14:56 applied at once (F4 compliance-relevant): T15 (b) (2) scoped to clients whose choice and consent are recorded; T15 (f) "no party sets or asks for" a date; **T16 lift by the Clinical Owner's record plus each Leitung Pflege's agreement**, refusal names the finding, owner-set fall-back for a stop without a finding; a stop never binds a client's choice, a nurse's own resignation or a Leitung Pflege's judgement. `eng` T18 (e) drafted under the two-run rule (requested 11:10, six `eng` runs since): one organisation-scoped export serves the partner's sunset and C's exit. Owner agenda bundle 2 updated; one adviser question added.
+- **Challenge:** "Why should one NAVORA-appointed person be able to hold a team-owned provider's start?" She should not: that is a hierarchy layer above both Leitungen Pflege and a lever over C. The stop stays (patient safety), the single veto goes. "Would we build a second export for C's exit if we started from scratch?" No: one organisation-scoped export, instructed by its owner, serves every exit.
+- Packages: D-38 only (every other package frozen, rule 9). None decided by po.
+- **Waiting for the owner (D-38, bundle 2):** approve T1-T18 as the LOI minimum; choose T10 options; any T17 deferral; three periods (T12 (i) window, T16 extension, T16 stop fall-back); a Clinical Owner deputy with G-1. Default: D-12 stands, no LOI naming the sunset.
+- Tests: none run by me (docs only; CI check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 14:56 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 frozen and unchanged (no trigger; nothing written about them). Tier 2: no open CGR names a decision. **D-38** picked only: changed since my 11:55 section (po 14:20, `cra` 13:40 T15 (b) and T16), and `aia` 14:41 names `lca` on AUT-14 and AUT-15.
