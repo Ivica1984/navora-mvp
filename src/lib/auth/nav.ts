@@ -37,6 +37,23 @@ export type NavKey =
   | "settings"
   | "admin";
 
+/**
+ * UX1-13 (ADR-108, `uxa` UXR-12): one label per page, used in the menu, as the page's name (its heading, or on the
+ * day pages the line above the date) and in every header link to it from another page. `/team` is not a menu item
+ * but has a label because /field and its own header name it. tests/unit/ux1-strings.test.ts checks the uses.
+ */
+export const PAGE_LABEL = {
+  operations: "Ausnahmen",
+  intake: "Aufnahme",
+  partners: "Partneranfragen",
+  field: "Mein Tag",
+  work: "Mein Arbeitstag",
+  analytics: "Kennzahlen",
+  settings: "Meine Einstellungen",
+  admin: "Administration",
+  team: "Dein Team",
+} as const satisfies Record<NavKey | "team", string>;
+
 export type NavItem = {
   key: NavKey;
   label: string;
@@ -49,27 +66,27 @@ export type NavItem = {
   demo?: true;
 };
 
-// Labels are unchanged here; plain-word labels are UX1 part (d) (UX1-11 to UX1-13, `cra` string gate).
+// Labels come from PAGE_LABEL (UX1-13, part (d)).
 // UX1-4: "Qualitätsmanagement" had no target and is removed (open quality holds are on /operations, serious events in
 // the OPS1 exceptions there); the first-MVP pages /teams and /visits are no longer in the menu (routes stay until UX2).
 export const NAV_ITEMS: ReadonlyArray<NavItem> = [
   {
     key: "operations",
-    label: "Operations Board",
+    label: PAGE_LABEL.operations,
     href: "/operations",
     check: { kind: "role", predicate: "is_coordinator", roles: COORDINATOR_ROLES },
     source: "public.operations_exceptions: private.is_coordinator",
   },
   {
     key: "intake",
-    label: "Aufnahme",
+    label: PAGE_LABEL.intake,
     href: "/intake",
     check: { kind: "role", predicate: "is_intake_role", roles: INTAKE_PAGE_ROLES },
     source: "getIntakeData: intakeOrganization (INTAKE_ROLES); partner_requests policies: private.is_intake_role",
   },
   {
     key: "partners",
-    label: "Partneranfragen",
+    label: PAGE_LABEL.partners,
     href: "/partners",
     check: { kind: "role", predicate: "is_intake_role", roles: INTAKE_PAGE_ROLES },
     source: "static demo page (ADR-006), shown to the intake roles only",
@@ -77,7 +94,7 @@ export const NAV_ITEMS: ReadonlyArray<NavItem> = [
   },
   {
     key: "field",
-    label: "Mein Tag (mobil)",
+    label: PAGE_LABEL.field,
     href: "/field",
     check: { kind: "team_member" },
     source: "public.field_visits: own team_memberships",
@@ -85,14 +102,14 @@ export const NAV_ITEMS: ReadonlyArray<NavItem> = [
   {
     // WORK1: the person's own working day (only she reads it); the database admits every member to her own day.
     key: "work",
-    label: "Mein Arbeitstag",
+    label: PAGE_LABEL.work,
     href: "/work",
     check: { kind: "member" },
     source: "public.my_working_time_notice / public.my_working_day: own rows",
   },
   {
     key: "analytics",
-    label: "KPI / Analytics",
+    label: PAGE_LABEL.analytics,
     href: "/analytics",
     check: { kind: "team_member_or_role", predicate: "is_coordinator", roles: COORDINATOR_ROLES },
     source: "public.pilot_kpis: private.is_coordinator or private.is_team_member",
@@ -100,14 +117,14 @@ export const NAV_ITEMS: ReadonlyArray<NavItem> = [
   {
     // SIG2-1: the member's own settings (delivery outside the app).
     key: "settings",
-    label: "Meine Einstellungen",
+    label: PAGE_LABEL.settings,
     href: "/settings",
     check: { kind: "member" },
     source: "public.my_push_state: own rows",
   },
   {
     key: "admin",
-    label: "Administration",
+    label: PAGE_LABEL.admin,
     href: "/admin",
     check: { kind: "role", predicate: "is_org_admin", roles: ADMIN_ROLES },
     source: "getAdminData: own admin membership; public.admin_members: private.is_org_admin",

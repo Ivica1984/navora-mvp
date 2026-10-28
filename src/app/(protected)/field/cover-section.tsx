@@ -48,8 +48,8 @@ export default function CoverSection({ offers, mine }: { offers: CoverOffer[]; m
               </li>
             ))}
           </ul>
-          <p className="text-xs text-violet-900/80">
-            Wer zuerst übernimmt, hat den Einsatz. Name, Adresse und Pflegeplan zeigt NAVORA erst, wenn der Zugriff für Übernahmen geklärt ist (D-3);
+          <p className="text-xs text-violet-900/80" data-ref="D-3">
+            Wer zuerst übernimmt, hat den Einsatz. Name, Adresse und Pflegeplan zeigt NAVORA erst, wenn der Zugriff für Übernahmen geklärt ist;
             bis dahin klärt das Team des Falls die Details mit dir.
           </p>
         </>
@@ -82,8 +82,8 @@ export default function CoverSection({ offers, mine }: { offers: CoverOffer[]; m
               </li>
             ))}
           </ul>
-          <p className="text-xs text-violet-900/80">
-            Der Einsatz bleibt beim Team des Falls als «ohne Verantwortliche» markiert, bis du ihn in NAVORA durchführen kannst (D-3). Das Team stimmt sich mit dir ab.
+          <p className="text-xs text-violet-900/80" data-ref="D-3">
+            Der Einsatz bleibt beim Team des Falls als «ohne Verantwortliche» markiert, bis du ihn in NAVORA durchführen kannst. Das Team stimmt sich mit dir ab.
           </p>
         </>
       )}

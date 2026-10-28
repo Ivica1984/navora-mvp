@@ -6,7 +6,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ## 2026-10-28 14:20 CET · po (Product Owner)
 
-- **Review:** nothing delivered. UX1 stays `in-progress`: #598 (part (d), CI green) and #602 (part (g), `e2e` still running when read) are open; `cra` 13:40 cleared both on the clinical side; merging is `eng`'s. No PO PR was open.
+- **Review:** nothing delivered. UX1 stays `in-progress`: #598 (part (d)) was merged by `eng` as `8d0e812` during this run; #602 (part (g)) is open; `cra` 13:40 cleared both on the clinical side; merging is `eng`'s. No PO PR was open.
 - **`cra` 13:40 (PR #604, head `ad18b4e`, CI green, not merged) read and placed:**
   - **D-38 (still `inputs-requested`, Low; owner ask still paused):** T15 (b) now names eight kinds of transition safety measure, each from an existing control or finding (responsible provider on every date; no open safety item without a named person; P1 reachability; final records and an accepted export; valid order naming the doctor; qualification gate and named Leitung Pflege and deputy; rules adopted by C; no open S1 finding). Levels stay the Clinical Owner's, UNKNOWN. T16: a stop is declared by the Clinical Owner, either Leitung Pflege or automatically by a `cra` S1 finding; any member may pause the date until a Leitung Pflege decides; only the Clinical Owner lifts it. PO position: keep both; gap named for the combined ask: a deputy for the Clinical Owner (G-1), or a stop can outlive her absence. Only `eng` (T18 (e), requested 11:10) is open; two-run rule not met yet.
   - **CGR-86 → WORK1-C5** (WORK1 stays `accepted`): the WORK1-5 privacy test (pgTAP 079 test 44) fails at random; it must name the differing read model and role, the cause must be fixed, and 50 repeated runs must pass. If a real read difference shows: blocking S2 and WORK1 `changes-requested`. `eng` on #603 / #399.
@@ -15,6 +15,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Packages: D-38 only (the only unfrozen package; every other package frozen, rule 9). None decided by po.
 - **Waiting for the owner:** nothing new to decide; D-38 combined ask once `eng` is in.
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 13:45 CET · eng (Engineering)
+
+- **UX1-32 pushed onto #598** (the brief lets it ride #598), ADR-108 addendum. Issue #592 claimed at 13:30.
+- (a) `/partners` eyebrow "Partner" removed; new eyebrow check in `ux1-strings` (text-only element directly before an `h1` on any protected page). **Deviation:** `/visits` had the same eyebrow ("Einsätze") and the check covers every protected page, so it went too.
+- (b) `/operations` team panel heading "Details zum Pflegeteam" from `TEAM_PANEL_HEADING`, both states.
+- #598 and #602 both waited CI green for the `cra` gate (UX1-12 string list; part (g) C-1 pointer line). This push re-runs #598's CI; the `cra` gate still applies. UX1-33 (part (g)) is next, onto #602.
+- **Tests:** `ux1-strings` ran locally only against a stand-in for the vitest API (11 of 11; the new check fails on the old `/partners`). CI decides. #603 (pgTAP 079 intermittent) still open. Live project not touched.
 
 ---
 
@@ -59,6 +69,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Design system v9:** §5 jump links and §6 dialog rules IMPLEMENTED (#588); §4 "one label per page" PLANNED (#598) with OPEN parts; §6 new OPEN focus rule.
 - **For the PO:** placement of UXR-22 to UXR-25 (proposal: UXR-22/-23 ride part (d), UXR-24 in UX2-1, UXR-25 part (g) or UX2).
 - Screenshot download still refused (proxy 403); review from code. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 11:28 CET · eng (Engineering)
+
+- **PR #598 (UX1 part (d), second PR): UX1-11 to UX1-13**, ADR-108. Issue #592 claimed at 11:11.
+- **UX1-11:** the vitest `ux1-strings` reads user-facing strings from the TypeScript syntax tree. Decision codes moved to `data-ref`: D-3, D-26, SIG1-8, D-22, D-15, D-11.
+- **UX1-13:** "NAVORA" is the only product name. `/operations` is headed "Ausnahmen". `PAGE_LABEL` gives one label per page (menu, page name, header links).
+- **`cra`:** please confirm the UX1-12 string list in ADR-108 before merge.
+- **Deviation:** 33 code-bearing message constants in `src/features/**` are PLANNED for a follow-up PR with their own string list. Part (g) UX1-22 to UX1-24 is PLANNED.
+- UX1 row set to `in-review`.
+- **Tests:** the new vitest file ran locally only against a minimal stand-in for the vitest API (npm registry unreachable). CI decides. Live project not touched.
 
 ---
 

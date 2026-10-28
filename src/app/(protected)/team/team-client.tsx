@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { HeaderMenu } from "@/components/layout/Sidebar";
+import { PAGE_LABEL } from "@/lib/auth/nav";
 import SignalBanner from "@/components/signals/SignalBanner";
 import type { OutsideWatchedVisit, SignalRow } from "@/features/signals/rules";
 import { useRouter } from "next/navigation";
@@ -91,17 +92,16 @@ export default function TeamClient({
     <div className="min-h-screen bg-stone-100 text-emerald-950">
       <header className="bg-emerald-950 px-4 pb-4 pt-3 text-white">
         <div className="mx-auto flex max-w-xl flex-wrap items-center justify-between gap-1">
-          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200">NAVORA · Team</p>
           <Link href="/analytics" className="ml-auto flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
-            Teamzahlen
+            {PAGE_LABEL.analytics}
           </Link>
           <Link href="/field" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
-            Mein Tag
+            {PAGE_LABEL.field}
           </Link>
           {/* UX1-20: the role's menu (and "Meine Einstellungen") from the nurse's screens, inside the first viewport. */}
           <HeaderMenu active="team" />
         </div>
-        <h1 className="mx-auto mt-1 max-w-xl text-xl font-bold">Dein Team</h1>
+        <h1 className="mx-auto mt-1 max-w-xl text-xl font-bold">{PAGE_LABEL.team}</h1>
         <p className="mx-auto max-w-xl text-sm text-emerald-100">
           Ihr entscheidet selbst, welche Klientinnen und Klienten ihr übernehmt. Der erste Zusage-Entscheid eines Teams gilt.
         </p>
@@ -601,7 +601,7 @@ function GpInformedTask({ caseId }: { caseId: string }) {
               Abbrechen
             </button>
           </div>
-          <p className="text-xs text-secondary">Nur Datum und Kanal, keine Inhalte. Frist und Inhalt der Information sind offen (D-22).</p>
+          <p className="text-xs text-secondary" data-ref="D-22">Nur Datum und Kanal, keine Inhalte. Frist und Inhalt der Information sind offen.</p>
         </form>
       )}
       {error && <ErrorText message={error} />}
@@ -823,8 +823,8 @@ function CarePlan({ caseId, items }: { caseId: string; items: PlanItem[] }) {
               Abbrechen
             </button>
           </div>
-          <p className="text-xs text-secondary">
-            Die Zuordnung zur KLV-Kategorie trifft das Team; die fachliche Freigabe der Zuordnung ist offen (D-15).
+          <p className="text-xs text-secondary" data-ref="D-15">
+            Die Zuordnung zur KLV-Kategorie trifft das Team; die fachliche Freigabe der Zuordnung ist offen.
           </p>
         </form>
       )}

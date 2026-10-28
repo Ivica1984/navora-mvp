@@ -50,7 +50,7 @@ test.describe("without a session", () => {
 test.describe("with a session", () => {
   test("sign in, use the app, sign out", async ({ page }) => {
     await signInOk(page);
-    await expect(page.getByRole("heading", { name: "Navora Operations Control Tower" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Ausnahmen", exact: true })).toBeVisible();
 
     // Signed-in users skip the login page.
     await page.goto("/login");
@@ -118,7 +118,7 @@ test.describe("with a session", () => {
 
   test("/operations sends no health fields to the browser (T10, SR-06)", async ({ page }) => {
     await signInOk(page, COACH);
-    await expect(page.getByRole("heading", { name: "Navora Operations Control Tower" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Ausnahmen", exact: true })).toBeVisible();
 
     const html = await page.content();
     for (const field of [

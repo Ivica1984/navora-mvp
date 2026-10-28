@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
+import { PAGE_LABEL } from "@/lib/auth/nav";
 import { demoPagesEnabled } from "@/lib/flags";
 import { SECONDARY_TEXT } from "@/lib/ui/colors";
 
@@ -28,19 +29,8 @@ export default function PartnersPage() {
         }}
       >
         <section style={{ marginBottom: "24px" }}>
-          <p
-            style={{
-              fontSize: "12px",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              color: SECONDARY_TEXT,
-              marginBottom: "8px",
-            }}
-          >
-            Partner
-          </p>
-          <h1 style={{ fontSize: "32px", margin: 0 }}>Partneranfragen</h1>
+          {/* UX1-32 (uxa UXR-22): the page names itself once; no eyebrow line above the h1. */}
+          <h1 style={{ fontSize: "32px", margin: 0 }}>{PAGE_LABEL.partners}</h1>
           <p style={{ color: SECONDARY_TEXT, marginTop: "8px" }}>
             Übersicht über eingehende Partnerbedarfe und Umwandlung in neue Fälle.
           </p>
