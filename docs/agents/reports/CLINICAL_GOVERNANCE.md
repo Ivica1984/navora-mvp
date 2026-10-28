@@ -16,6 +16,87 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-28 01:30 CET: #554 and #558 merged as reviewed; #574 (UX1-27, head `7988945`) meets CGR-80, closes on merge; CGR-81 remedy in the ASM1 brief (no longer blocking ASM1-11 acceptance, closes on the build); CGR-82 and CGR-83 closed at package level (D-38 T12 (i) (a)-(b), T13 (e)-(f)); CGR-84 (advisory S3, ASM1-1 period values); UX1-28 (c) notice display confirmed
+
+**Scope:** `recovery/main` @ `07261f1`. Changes since my 21:30 CET section (`c20106f`, merged by #565):
+- **Code merged:** #554 UX1 part (c) as `334682f`; its second parent is `822646d`, the head I reviewed at 21:30 (no `src/`, `supabase/` or `tests/` difference). #558 UX1 part (f) as `caf454e`; between `de27fee` (read at 21:30) and its merged head `1e75521` no `src/`, `supabase/` or `tests/` file changed. No migration since my last section.
+- **Docs merged:** PO 22:15 (#568), 00:15 (#573), 01:10 (#576); `lca` 21:45 (#566), 23:41 (#571); `uxa` 23:49 (#572); `eng` status (#567, #570).
+- **Open:** #574 `eng` UX1-18 and UX1-27 (ADR-106; head `7988945`; CI `app`, `db`, `e2e`, `ui-screenshots` success, check runs read through the GitHub API); #575 `lca` 00:45 D-38 re-check (docs). #3 (M2 to `main`) unchanged.
+- **Asked of `cra`:** PO 00:15 / 01:10: confirm that UX1-28 (c) shows the CGR-32 notice correctly (where, until when, the link).
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read: the `src/` and `tests/` diff of #558 against `334682f` (`login/page.tsx`, `field-client.tsx`, `report-section.tsx`, `SafetyAlertForm.tsx`, `intake-client.tsx`, `team-client.tsx`, `ux1-contrast.test.ts`, `ux1.spec.ts`); the #574 diff (`field-client.tsx`, `features/field/todo.ts`, `ux1-todo.test.ts`, `ux1.spec.ts:354-428`, colour-only changes in `holds-panel.tsx`, `billing-preview.tsx` and the coordination pages); `absence-section.tsx:37-128` and `features/absence/rules.ts:69-74` (`pastPlannedNotice`) for UX1-28; ASM1-1, ASM1-11 and the 22:15 amendment (`briefs/ASM1.md:21`, `:31`, `:56`) with `care_plan_items` frequency columns (0025:26-37); D-38 T3, T12, T13 (`decisions/D-38.md:52-53`) with `lca` 21:45, 23:41 and the PO notes 22:15, 00:15, 01:10; UX1-27 to UX1-29 (`briefs/UX1.md`). **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-84 | **ASM1-1** as amended 22:15 (period with the assessed minutes; ASM1 approved, not built) | **advisory (S3); before ASM1 build** | The brief requires a period for each assessed minutes value ("as entered from the assessment"; NAVORA offers no default and derives none) but does not say **how the period is stored**. If Engineering writes the allowed periods into a migration (a `check` list or enum such as "Tag / Woche / Monat / Quartal"), NAVORA would hard-code which periods an assessment uses: the question the brief itself marks `clinical`/`legal` (KLV Art. 8), UNKNOWN. PLAN2's `freq_period in ('day','week')` (0025:33) is a planning field and does not answer it either | `briefs/ASM1.md:21` (ASM1-1 period, "NAVORA offers no default period and derives none"), `:31` (out of scope: "which periods an assessment uses (`clinical`/`legal`, UNKNOWN)"); 0025:26-37 | **po (brief wording; no clinical rule) / eng (build):** ASM1-1: the period is stored as the text entered, or as a value from the organisation's own reference list maintained like the instrument list (ASM1-6); no list of periods in a migration, constant or seed beyond synthetic test data. pgTAP: the period column has no `check` constraint or enum restricting its values beyond non-empty and a length limit; minutes without a period are refused (as written). If Engineering proposes a fixed list, it is a Clinical Rule Register row with owner `clinical`/`legal` and status PROVISIONAL, raised before build |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-80** | open, advisory (S3); **remedy met on the #574 head `7988945`** (CI green); closes when #574 is merged unchanged | (a) `ux1.spec.ts:354-428` (#574): a seed nurse with an open interruption follow-up (`client_transferred`, created through the product, decided again at the end); at 390 × 844 `todo-links` is rendered, its bottom inside the first viewport (plus a SIG1 banner's own height, PR deviation 2, which I accept: SIG1 above it is the intended order), above `next-visit` by `boundingBox().y` and by DOM order, and SIG1 still before it. (b) `features/field/todo.ts` one constant `FOLLOWUP_HEADING` "Nicht abgeschlossen: Entscheid offen" for the link, the section's `aria-label` and its heading (`field-client.tsx:162`, `:208-209`); `ux1-todo.test.ts` pins all three and forbids the short wording; the e2e compares the link's text with the rendered heading. The returned-report case of (a) is not seeded; the row is one element for all three links, so the position test covers it |
+| **CGR-81** | open, advisory (S2); **no longer blocking ASM1-11 acceptance: remedy (1) and (2) in the brief (PLANNED)**; closes on the merged ASM1 build with the tests | `briefs/ASM1.md:21` (ASM1-1: each minutes value with its period as entered, no default, none derived, pgTAP refuses minutes without a period); `:31` (ASM1-11 rewritten: items listed as written, PLAN2's structured frequency shown as recorded where present, "No total, sum, average, difference or per-period conversion is computed or shown", acceptance (1) the no-sum test with "30 min, 2× täglich" and "60 min, 1× wöchentlich"; a total only by a later brief with `cra` review); `:56`. PO note on PLAN2 (0025): checked; the structured frequency is optional per item (0025:32) and the assessment's period is still UNKNOWN, so the PO's conclusion holds. How the period is stored: CGR-84 |
+| **CGR-82** | **closed** (package text); the code part continues in H-23 | `decisions/D-38.md:52` T12 (i) (a) "the window's end never moves a client whose C prerequisites are not recorded; the first sentence of (i) always applies"; (b) the partner names who visits each such client after the team has left, and (00:15, `lca` 23:41) another provider counts only once it has confirmed in writing that it takes her from a stated date and her choice is recorded; until then the partner's own staff visit her; data only under T3 (extended to that provider). This is stronger than my remedy: a name on paper no longer meets the term. The second branch I offered (continued employment) was left out by the PO because it depends on an unresolved legal question; the first branch alone closes the care gap, so I accept it. The later pgTAP (a cut-over is refused while C's three prerequisites are missing, whatever the date) stays a required control of H-23 |
+| **CGR-83** | **closed** (package text); the code part continues in R-11 | `decisions/D-38.md:53` T13 (e) the adopted version keeps running until she marks the new one, side by side, except a version withdrawn under (f); (f) a rule withdrawn as unsafe stops for every provider at once, limited to safety withdrawals, same-day notice to the Leitung Pflege and her deputy with the reason and the stopped rules (so she can put substitute measures in place), recorded with who, when, why; an ordinary change is never made as a withdrawal. `lca` 21:45 found (f) consistent with D-12 settled point 3. The later pgTAP (an unmarked new version does not replace the adopted one; a withdrawn rule is evaluated for no provider) stays required in the brief that builds rule adoption. MepV reporting for a withdrawal: regulatory adviser (D-34), UNKNOWN |
+| **CGR-78** | open, advisory (S2); (a) and (b) met at brief level | no change; closes on the merged AIG1 and PLAN3 builds |
+| **CGR-75** | open, advisory (S2); (1)-(5) met at brief level | no change |
+| **CGR-72** | open, blocking for ADM2 acceptance (S2); ADM2-15 PLANNED, not built | no change |
+| **CGR-68** | open, advisory (S2); interim part IMPLEMENTED | no change |
+| CGR-54, CGR-56 | open, advisory (S3, S2); DST1-C4, DST1-C5. PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-82, CGR-83** (package level, evidence above).
+
+### Merged code (#554, #558): no clinical finding
+
+- **#554** merged as reviewed (`822646d`); my 21:30 gate stands. CGR-80 is placed as UX1-27 (PO 22:15) and built in #574.
+- **#558** (part (f)): `/login` becomes one page for every role; the text "Admin / Coach Portal" and the info cards go; sign-in logic, session check and redirect are unchanged (no `src/lib/auth` or middleware file in the diff). Low-opacity secondary text on `/field`, `/team`, `/intake`, the report section and `SafetyAlertForm` becomes `text-secondary` (more readable); `/intake` inputs gain `min-w-0`; no text, rule, order or field changes on a clinical screen. UXR-17 (removing "Die Sitzung wird serverseitig geprüft") removes no protection: the check is server-side whether or not the page says so.
+
+### #574 (UX1-18, UX1-27; open, head `7988945`): clear from the clinical side
+
+- UX1-27 meets CGR-80 (status above).
+- UX1-18: colour classes only. `HOLD_MEANING` (CGR-13) and "Aufheben: Coach oder Admin, mit Begründung" on `/operations` keep their text (`holds-panel.tsx`); billing preview text unchanged. No migration, RLS, grant, function, page access check or signal rule in the diff. The axe job adds a check and removes none.
+
+### Inputs requested of `cra` (clinical review input; I decide nothing, D-27)
+
+- **UX1-28 (c), PO 00:15 / 01:10: is the CGR-32 notice shown correctly?** **Yes, as (c) states, with two additions for the same Playwright test.** What CGR-32 needs from this notice: the person who records the absence learns, at the moment she records it, that planned visits before today inside it are still open and need her team's decision; the lasting control is the computed flag "Zuständige Person abwesend gemeldet" on the `visit_overdue` rows of `/team` and OPS1 (0053, closed 2026-10-23), so a transient notice is acceptable (ABS1-C6). Today the notice can be lost when the dialog is closed during the save (`absence-section.tsx:84-87` sets it only while the dialog is open; `onClosed` clears it): UXR-18 is real, and UX1-28 closes it. (c) as written, shown inside the open dialog with "Zum Team", kept until she closes the dialog herself, is the right display. Additions: (1) the text is exactly `pastPlannedNotice(n)` (`features/absence/rules.ts:69-74`, fixed text, count only, no name, no reason), asserted against the function, not a literal; (2) negative: a refused save (b) never shows `absence-past-planned`, and a save with no past planned visit closes the dialog as now. Neither needs new text. Not a new finding; I re-check on the part (d) PR.
+- **Part (d) string list (UX1-11 to UX1-13):** gate stands as in 21:30; I read it on the PR.
+
+### Other checks (no finding)
+
+- **D-38 T3 extension (00:15):** a successor provider receives her data only with her recorded consent, the partner as sender; clinically this keeps the handover set (T12 (iv), `clinical`, UNKNOWN) as the only content and adds no data path. Who consents for a client who cannot (ZGB Art. 378) stays with the Zurich adviser.
+- **D-38 frozen (PO 01:10):** I agree that no clinical gap remains in T1-T14 as text; the remaining protections are code controls for a later cut-over brief (H-23: pgTAP refusing a cut-over with open items or missing prerequisites; R-11: rule-adoption pgTAP). The handover set (T12 (iv)) and the cut-over window length remain `clinical` and `owner`, UNKNOWN.
+- **UX1-28 / UX1-29:** "Abbrechen" disabled while saving does not slow an absence: the save still runs and the visits are still released at once (ABS1 unchanged).
+- **No new hard-coded clinical, tariff, LTCF, interRAI, PAG or MQI rule** on `recovery/main` since 21:30 or in #574. `FOLLOWUP_HEADING` is a label of an existing section; no Clinical Rule Register row.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **UX1** part (c) (#554, merged `334682f`) | merged as cleared at 21:30 |
+| **UX1** part (f) (#558, merged `caf454e`) | no clinical finding |
+| **UX1-18, UX1-27** (#574, open, head `7988945`) | **clear to merge** (clinical side); CGR-80 closes on merge |
+| **UX1** part (d) (UX1-11 to UX1-13, UX1-28, UX1-29; not opened) | `cra` reads the string list and the UX1-28 test with the two additions above before merge |
+| **ASM1** (approved, not built) | ASM1-11 acceptable as rewritten (CGR-81 no longer blocking); CGR-84 (advisory S3) before build |
+| **D-38** (`owner`, escalated, frozen) | no open clinical finding on the package text; H-23 and R-11 code controls PLANNED |
+| **AIG1, PLAN3** | unchanged: CGR-75 and CGR-78 close on the builds |
+| **ADM2** | unchanged: CGR-72 blocking for acceptance until ADM2-15 is built with its pgTAP |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **po:** CGR-84 into ASM1-1 before build; the two additions to UX1-28 (c) (notice text from `pastPlannedNotice`; negative cases).
+- **eng:** merge #574 when ready (CGR-80); part (d) with UX1-28 as above; still open: does "Ich kann nicht arbeiten" cover a single visit (UX2 suggestion, 21:30); does PLAN2 re-create a hand-removed care-plan visit (C-2 (b), 13:37)?
+- **clinical (Clinical Owner, after G-1):** which periods assessed minutes refer to and when a total may be shown (CGR-81, CGR-84); the D-38 handover set; D-34 question 7, D-10, D-15, D-16 (with 3b), D-17, D-28, D-31; D-37 interval and triggers. All UNKNOWN until answered.
+- **owner / legal / regulatory adviser:** G-1; D-38 T1-T14 (with the window length) and the Zurich adviser bundle; MepV reporting for a rule withdrawal (D-34); R-11 for C; D-36 licence terms; D-1.
+
+---
+
 ## 2026-10-27 21:30 CET: UX1 part (c) (#554, head `822646d`) reviewed on the PR head: `cra` gate for part (c) clear, CGR-80 (advisory S3); ASM1-11 (added 21:15) read: CGR-81 (blocking for ASM1-11 acceptance, S2: the planned-minutes sum ignores frequency); D-38 T12 (i) widened and T13 form read: CGR-82, CGR-83 (advisory S2); CGR-76, CGR-77, CGR-79 closed at document level
 
 **Scope:** `recovery/main` @ `fa43d97`. Changes since my 17:35 CET section:

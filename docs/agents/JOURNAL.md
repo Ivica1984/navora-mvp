@@ -4,6 +4,96 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 06:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. #574 (UX1-18, UX1-27, head `7988945`, CI green) still open; merging is `eng`'s. UX1 stays `in-progress`, not reviewed. No PO PR was open; no `agent:po` issue changed since the last run.
+- **`cra` 05:30 (#582, CI green, not yet merged) placed:**
+  - **UX1-30:** the instruction "bitte korrigieren und neu unterschreiben" moves into the returned-reports section's first line, with three conditions asserted in the same unit test: (1) always rendered inside `returned-reports`, after the `h2`, before the first item, never collapsed; (2) text from one constant equal to the existing wording; (3) returner's name, reason and the visit-card label in `report.ts` unchanged. Fallback (link = full heading) kept if a condition cannot be met. Why: once the instruction leaves the heading, only these assertions keep the "correct and sign again" message on her screen (F6R-5).
+  - **UX2-11 (new):** whatever form the rebuilt `/field` takes, a returned report stays on her day until she signs again, any visit date; test with a past-dated returned report. Why: this is the condition `cra` sets for the 04:10 challenge (correction as the visit card's next action instead of a second list); UX2 is where that redesign can happen. UX2 `delivered` now reads UX2-1 to UX2-11.
+- Packages: no unfreeze trigger (the 05:30 review names no decision change; no person answered; no new `lca` evidence). None decided by po.
+- **Challenge:** "Why does a nurse copy assessment minutes from the provider's tool by hand (AUT-13)?" From scratch, a confirmed import would remove the double entry; `cra` 05:30 sets its conditions (draft until confirmed value by value, period never mapped, imported vs typed kept, H-22). Not now: depends on D-36 licence terms and ASM1 being built; no new row until `eng` reports the field mapping.
+- **Waiting for the owner:** unchanged, D-38 "approve T1-T14 (as amended 2026-10-28 00:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred). **Next:** (eng) merge #574; part (d) with UX1-27 to UX1-30 (conditions (1)-(3)) and the UXR-17 removal; part (g). (cra) part (d) PR against UX1-28 and UX1-30 (1)-(3).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 04:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. #574 (UX1-18, UX1-27, head `7988945`, CI green) still open; `cra` 01:30 clear to merge, `uxa` 03:50 no blocking finding; merging is `eng`'s. UX1 stays `in-progress` and is not reviewed. No PO PR was open; no unclaimed `agent:po` issue changed since the last run.
+- **`uxa` 03:50 placed:**
+  - **UXR-20 (low) → UX1-30, part (d):** each "Zu erledigen" link and its section `h2` share one constant; "Zurückgegeben (n)" as heading, the instruction "bitte korrigieren und neu unterschreiben" moved word for word into the section's first line; unit test link = `h2` for all three links. `cra` confirms the move on the part (d) PR; fallback without confirmation: link = full existing heading. Why: one label per thing on the row that shows a nurse the care work she still owes; same file and test as UX1-27, no extra delivery.
+  - **UXR-21 (low) → UX2-10:** axe `incomplete` for `color-contrast` recorded (no fail); open absence dialog and the UX2 "Mehr" item axe-checked at 390 × 844. Why not UX1: a CI coverage gap, not a defect a nurse meets; the "Mehr" menu is replaced by the UX2 shell. UX2 `delivered` now reads UX2-1 to UX2-10.
+- Packages: no unfreeze trigger (UXR-20/-21 name no decision; no person answered; no new `lca` evidence). None decided by po. D-37 still waits only for D-36 licence terms.
+- **Challenge:** "Why does a returned report need its own link and its own instruction at all?" From scratch the correction would be the next action on the visit card itself, not a second list. Not now: the visit card is rebuilt by UX2 and the return flow is F6 (PROVISIONAL, D-30 with `clinical`); a hypothesis waits for pilot data on how often reports are returned. No new row.
+- **Waiting for the owner:** unchanged, D-38 "approve T1-T14 (as amended 2026-10-28 00:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred). **Next:** (eng) merge #574; part (d) with UX1-27 to UX1-30 and the UXR-17 removal; part (g). (cra) UX1-28 and the UX1-30 instruction move on the part (d) PR.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 03:50 CET · UX/UI Design Architect (uxa)
+
+- **UX review** (`docs/agents/reports/UX_REVIEW.md`, section 03:50): PR #574 (UX1-18 axe `color-contrast`, UX1-27) reviewed from code and CI (green on `7988945`, axe passed); no blocking UX finding. UXR-15 and UXR-2 close when #574 merges.
+- **New (low, report only):** UXR-20 ("Zurückgegeben" jump link differs from its section heading; UX1-27's rule for all links); UXR-21 (axe drops `incomplete` results and never sees working states: open dialog, "Mehr" menu, inline error). One short comment on #574. No issue opened (nothing severe or high).
+- **Design system v7:** §5 jump-link rule; §6 axe/`SECONDARY_TEXT` status, UXR-21 clause, dialog rules PLANNED (UX1-28, UX1-29). Benchmark: NHS task-list component.
+- **Screenshots and axe JSON still not downloadable** from this role's session (artifact storage host refused); review code-only. **For the PO:** place UXR-20 (part (d)?) and UXR-21 (part (g) or UX2-8).
+
+## 2026-10-28 02:20 CET · AI & Automation Architect (aia)
+
+- **Automation Review 3** (`docs/agents/reports/AUTOMATION_REVIEW.md`): AUT-2 closed (placed as ASM1-11, rewritten to "no sum" by CGR-81); AUT-10 closed at package level ((b) in D-38 T12 (i); (a) with the adviser); AUT-11 closed (T13 form); AUT-12 closed as placed (P-24).
+- **New:** AUT-13 (low): ASM1 has the assessing RN copy minutes and period per category from the provider's tool by hand; the period field is not challenged (CGR-81 benefit shown); the double entry could later become a confirmed deterministic import (D-36 A, header values only). No issue (not `high`).
+- **Challenge review:** ASM1-1 period storage (#578), UX1-25 to UX1-29, D-38 T12 (i) (a)-(b) and T13 (e)-(f): each shows a patient-care benefit; no leaner form at equal safety; no challenge raised.
+- **AI Operating Model Review §12:** control added: no computed comparison of assessed and planned minutes by A10 or any agent before a `cra`-reviewed brief.
+- **Stage tracking:** unchanged; stage 0 entry conditions wait for the AIG1 build. Bottleneck map refresh due 2026-11-03.
+- **Next:** (po) nothing new from `aia`; (eng) when ASM1 is built, note whether the period and minutes fields map one-to-one to a tool export (AUT-13).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 02:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. #574 (UX1-18, UX1-27, head `7988945`, CI green) is open; `cra` 01:30 finds it clear to merge and meeting CGR-80; merging is `eng`'s. UX1 stays `in-progress` ((d), (g), UX1-18 open) and is not reviewed. No PO PR was open.
+- **`cra` 01:30 placed:**
+  - **UX1-28 (d), (e)** (`cra` confirmed (c)): the past-planned notice text is asserted against `pastPlannedNotice(n)`, not a literal; a refused save never shows `absence-past-planned`, and a save without a past planned visit closes the dialog as today. Why: a notice after a refusal would tell her an absence exists that was never recorded; a literal-only test would miss a drifted text (CGR-32). No new text.
+  - **CGR-84 (advisory S3) → ASM1-1:** the period is stored as entered or from the organisation's reference list (like ASM1-6); no list of periods in a migration, constant or seed; pgTAP: no `check`/enum on its values; a proposed fixed list is a Clinical Rule Register row (`clinical`/`legal`, PROVISIONAL) before build. Why: a fixed list would decide which periods an assessment uses (KLV Art. 8, UNKNOWN).
+- Packages: no unfreeze trigger (CGR-84 names no decision; no person answered; no new `lca` evidence). None decided by po. D-38 unchanged and frozen.
+- **Challenge:** "Why would NAVORA keep a list of assessment periods at all?" From scratch the assessing nurse's tool already states the period; a second list in NAVORA would be duplicate administration and an invented rule. NAVORA records, it does not define. No new hypothesis.
+- **Waiting for the owner:** D-38, "approve T1-T14 (as amended 2026-10-28 00:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred). **Next:** (eng) merge #574; UX1 part (d) with UX1-27 to UX1-29 (UX1-28 (d), (e) included) and the UXR-17 removal, part (g). (cra) re-check UX1-28 on the part (d) PR.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 01:30 CET · Clinical & Regulatory Architect (review)
+
+- **Reviewed** since 21:30: #554 merged as reviewed (`822646d`), #558 merged (no code change since `de27fee`): no clinical finding. Open #574 (UX1-18, UX1-27, head `7988945`, CI green): **clear to merge**; it meets CGR-80, which closes on merge.
+- **Closed:** CGR-82 and CGR-83 at package level (D-38 T12 (i) (a)-(b) with written acceptance by a successor provider; T13 (e)-(f)); code controls stay in H-23 and R-11.
+- **CGR-81:** remedy in the ASM1 brief (period recorded, items listed as written, no total of any kind); no longer blocking ASM1-11 acceptance; closes on the build.
+- **New:** CGR-84 (advisory S3, before ASM1 build): the ASM1-1 period must be stored as entered or from the organisation's reference list, never as a hard-coded list of periods (PS-73).
+- **UX1-28 (c) confirmed** (PO ask): the CGR-32 notice inside the open dialog with "Zum Team" until she closes it is right; add to the test: text from `pastPlannedNotice`, and no notice on a refused save.
+- **Next:** (po) CGR-84 into ASM1-1; UX1-28 test additions. (eng) merge #574; part (d). (cra) part (d) string list and UX1-28 on its PR.
+- Tests: none run by me (docs only); CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 01:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 parts (d), (g) and UX1-18 are still open (`eng` #574, UX1-18 and UX1-27, open, not merged), so UX1 stays `in-progress` and is not reviewed. No PO PR was open.
+- **D-38 (`lca` 00:45, #575, still `awaiting-approval: owner`, Medium):** `lca` finds the 00:15 wording of T12 (i) (b) and the T3 extension compliant on the sources read and has no open point on T1-T14. Taken in: (1) the "Asked" label in the package now reads "terms amended 21:15, 22:15 and 2026-10-28 00:15" (`lca` note, cosmetic); (2) the ZGB Art. 378 adviser question names the successor provider too, so the adviser answers it once for C and any successor. Confidence stays Medium because the Engineering section is drafted by po (two-run rule). Ask, default and what it blocks unchanged. OPEN_DECISIONS and INDEX updated. #575 is `lca`'s PR; this PR edits other hunks of D-38.
+- Other packages: no unfreeze trigger (no new `cra` finding since 21:30, no person answered). None decided by po.
+- **Challenge:** "Why is the partner LOI still a document the agents keep amending?" Because every amendment so far closed a path in which a client could be left without a visiting provider; `lca` now has no open point, so further wording churn without new evidence would be administration, not safety. From scratch: freeze the terms until the owner or the adviser answers. D-38 is frozen from this run (unfreeze only on an owner or adviser answer, a new `cra` finding, or new legal evidence). No new hypothesis.
+- **Waiting for the owner:** D-38, "approve T1-T14 (as amended 2026-10-28 00:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred). **Next:** (eng) merge #574; UX1 part (d) with UX1-28/-29 and the UXR-17 removal, part (g). (cra) confirm the UX1-28 notice display. (lca) merge #575.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 00:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR (#571 merged, `66b8934`). Tier 1: D-22 and D-18 unchanged since my sections, no new evidence (skipped). Tier 2: no new `cra` finding since 21:30. **D-38** changed after my 23:41 section (po 00:15), so re-checked; picked D-38 only.
+- **No new sources** (nothing researched).
+- **Verdicts (D-38):** T12 (i) (b) as worded 00:15 is my 23:41 wording plus a correct KVG Art. 41 citation: compliant on the sources read. T3 extension to a successor provider: compliant for clients able to consent; ZGB Art. 378 for clients who cannot: unresolved, Zurich legal adviser (already in the bundle). No open `lca` point on T1-T14 wording; remaining UNKNOWNs are adviser or owner questions already in the ask. Note to po: a cosmetic label mismatch in the owner-ask line.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 00:40 CET · eng (Engineering)
 
 - **#569 claimed** (00:15). **PR #574** (ADR-106): **UX1-18** axe-core `color-contrast` on every screenshot capture (every role, 390/1440, `/login`, dark `/field`), serious/critical fails the job, no exception; findings `ui-screenshots/axe_<role>_<viewport>.json` for `uxa`. axe-core 4.10.2 fetched by a CI step (`npm pack`), injected with `page.evaluate` (CSP unchanged); lockfile untouched because the npm registry is not reachable from this session (TD-30). Inline greys on `/teams`, `/visits`, `/partners`, `/operations` and all `text-stone-500` → stone-700 secondary text (`uxa` UXR-15, incl. the pending sign-in button). **UX1-27** (CGR-80): link "Nicht abgeschlossen: Entscheid offen (n)" from one constant with the section heading; e2e holds `todo-links` in the first viewport above `next-visit`.
