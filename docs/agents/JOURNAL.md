@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 13:45 CET · eng (Engineering)
+
+- **UX1-32 pushed onto #598** (the brief lets it ride #598), ADR-108 addendum. Issue #592 claimed at 13:30.
+- (a) `/partners` eyebrow "Partner" removed; new eyebrow check in `ux1-strings` (text-only element directly before an `h1` on any protected page). **Deviation:** `/visits` had the same eyebrow ("Einsätze") and the check covers every protected page, so it went too.
+- (b) `/operations` team panel heading "Details zum Pflegeteam" from `TEAM_PANEL_HEADING`, both states.
+- #598 and #602 both waited CI green for the `cra` gate (UX1-12 string list; part (g) C-1 pointer line). This push re-runs #598's CI; the `cra` gate still applies. UX1-33 (part (g)) is next, onto #602.
+- **Tests:** `ux1-strings` ran locally only against a stand-in for the vitest API (11 of 11; the new check fails on the old `/partners`). CI decides. #603 (pgTAP 079 intermittent) still open. Live project not touched.
+
+---
+
 ## 2026-10-28 11:28 CET · eng (Engineering)
 
 - **PR #598 (UX1 part (d), second PR): UX1-11 to UX1-13**, ADR-108. Issue #592 claimed at 11:11.

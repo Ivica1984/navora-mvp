@@ -3,6 +3,7 @@ import { join, sep } from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import { NAV_ITEMS, PAGE_LABEL } from "@/lib/auth/nav";
+import { TEAM_PANEL_HEADING } from "@/features/operations/labels";
 import { sourceFiles, userFacingStrings } from "./support/user-facing-strings";
 
 // UX1 part (d), ADR-108. The user-facing strings are read from the syntax tree of every source file under the scanned
@@ -133,5 +134,80 @@ describe("UX1-13 / UXR-12: each page has one label", () => {
       return use.usesLabel !== key;
     });
     expect(wrong.map((w) => `${w.file}: ${w.route} "${w.text}"`)).toEqual([]);
+  });
+});
+
+// UX1-32 (`uxa` UXR-22, UXR-23; ADR-108 addendum). An eyebrow is a text-only element (literal text, no link, button or
+// component inside) placed directly before a page's h1 in the same parent. The shell (side column, header row with
+// links and menu) is not text-only, so it is not an eyebrow; the day pages' label line sits in the header row, not
+// next to their date h1.
+const PROTECTED_TSX = sourceFiles("src/app/(protected)").filter((f) => f.endsWith(".tsx"));
+
+function hasLiteralText(node: ts.Node): boolean {
+  if (ts.isJsxText(node) && node.text.trim()) return true;
+  return node.getChildren().some(hasLiteralText);
+}
+
+function isTextOnly(node: ts.JsxChild): boolean {
+  if (!ts.isJsxElement(node)) return false;
+  let interactive = false;
+  const visit = (n: ts.Node) => {
+    if (ts.isJsxOpeningElement(n) || ts.isJsxSelfClosingElement(n)) {
+      const tag = n.tagName.getText();
+      if (/^[A-Z]/.test(tag) || ["a", "button", "input", "select", "form"].includes(tag)) interactive = true;
+    }
+    ts.forEachChild(n, visit);
+  };
+  node.children.forEach(visit);
+  return !interactive && hasLiteralText(node);
+}
+
+function eyebrows(file: string): { headings: number; found: string[] } {
+  const found: string[] = [];
+  let headings = 0;
+  const visit = (node: ts.Node) => {
+    if (ts.isJsxElement(node) && node.openingElement.tagName.getText() === "h1") {
+      headings += 1;
+      const parent = node.parent;
+      if (ts.isJsxElement(parent) || ts.isJsxFragment(parent)) {
+        const siblings = parent.children.filter((c) => !(ts.isJsxText(c) && !c.text.trim()));
+        for (const before of siblings.slice(0, siblings.indexOf(node))) {
+          if (isTextOnly(before)) found.push(`${file}: "${before.getText().replace(/\s+/g, " ").slice(0, 80)}"`);
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(tree(file));
+  return { headings, found };
+}
+
+describe("UX1-32: one name per page", () => {
+  it("(a) no protected page renders an eyebrow line above its h1", () => {
+    const results = PROTECTED_TSX.map(eyebrows);
+    expect(results.reduce((n, r) => n + r.headings, 0)).toBeGreaterThanOrEqual(7); // guard against an empty scan
+    expect(results.flatMap((r) => r.found)).toEqual([]);
+  });
+
+  it("(a) the eyebrow detector catches the removed /partners line (self-test on a synthetic source)", () => {
+    const src = `export default () => (<section><p style={{}}>Partner</p><h1>{PAGE_LABEL.partners}</h1></section>);`;
+    const node = ts.createSourceFile("x.tsx", src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    let hit = false;
+    const visit = (n: ts.Node) => {
+      if (ts.isJsxElement(n) && n.openingElement.tagName.getText() === "h1" && ts.isJsxElement(n.parent)) {
+        const sibs = n.parent.children.filter((c) => !(ts.isJsxText(c) && !c.text.trim()));
+        hit = sibs.slice(0, sibs.indexOf(n)).some(isTextOnly);
+      }
+      ts.forEachChild(n, visit);
+    };
+    visit(node);
+    expect(hit).toBe(true);
+  });
+
+  it('(b) the /operations team panel is headed "Details zum Pflegeteam" from one constant, in both states', () => {
+    expect(TEAM_PANEL_HEADING).toBe("Details zum Pflegeteam");
+    const ops = readFileSync("src/app/(protected)/operations/operations-client.tsx", "utf8");
+    expect(ops.match(/<h2 style=\{sectionTitle\}>\{TEAM_PANEL_HEADING\}<\/h2>/g)?.length).toBe(2);
+    expect(STRINGS.filter((s) => s.text.includes("Pflegeteam Detail")).map(where)).toEqual([]);
   });
 });

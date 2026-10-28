@@ -6,6 +6,7 @@ import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
 import type { EvaluatorHealth, SignalRow } from "@/features/signals/rules";
 import { AppFrame } from "@/components/layout/Sidebar";
 import { PAGE_LABEL } from "@/lib/auth/nav";
+import { TEAM_PANEL_HEADING } from "@/features/operations/labels";
 import type { OperationsDashboard } from "@/features/operations/types";
 import type { TeamRow } from "@/features/teams/types";
 import ExceptionCenter from "./exception-center";
@@ -334,7 +335,7 @@ function ContextPanel({
   if (!selectedEntity) {
     return (
       <section style={panelStyle}>
-        <h2 style={sectionTitle}>Pflegeteam Detail</h2>
+        <h2 style={sectionTitle}>{TEAM_PANEL_HEADING}</h2>
         <p style={sectionSubtitle}>Wähle ein Pflegeteam aus.</p>
       </section>
     );
@@ -346,7 +347,7 @@ function ContextPanel({
 
   return (
     <section style={panelStyle}>
-      <h2 style={sectionTitle}>Pflegeteam Detail</h2>
+      <h2 style={sectionTitle}>{TEAM_PANEL_HEADING}</h2>
       <StatusPill label="Pflegeteam" tone="info" />
       <h3>{team.name}</h3>
       <p>{team.region ?? "Region offen"}</p>
