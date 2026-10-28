@@ -4,6 +4,113 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 16:15 CET · po (Product Owner)
+
+- Continues PO PR #611 (UX1 accepted, D-38 escalated; green but conflicted): `recovery/main` merged in (JOURNAL: both entries kept, newest first); this cycle rides the same PR.
+- **UX1-G1 met:** `uxa` 15:48 code-only review of part (g) found no `severe` or `high` finding; UX1 stays `accepted`. UX1-C1 to UX1-C3 unchanged.
+- **Placed in UX2:** UXR-26 → **UX2-14** (one `ErrorLine` component on every screen; the quality hold badge's colour waits for `cra`); UXR-27 → **UX2-15** (reach-gap sentence and link cannot be folded away; `summary` ≥ 44 px; position for `cra`); UXR-28 → question for `cra` (frame follows the highest open priority?). UX2 is `delivered` at UX2-1 to UX2-15.
+- No new delivery (COORD6 #612 open). Packages: none worked (D-38 waits for the owner; all others frozen). None decided by po.
+- **Challenge:** "Why does a nurse read two error languages on one screen?" Colour was decided per file, not per meaning; one component ends that review work for every future page.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing.
+
+## 2026-10-28 15:48 CET · UX/UI Design Architect (uxa)
+
+- **UX1-G1 review** of part (g) (#602) and UX1-32/UX1-33 on `recovery/main` `72a2697`, code-only (screenshot download refused again, 403 at the storage host). **No `severe` or `high` finding.** Closed in code: UXR-4, UXR-5 (a), UXR-7, UXR-12, UXR-22, UXR-23, UXR-25.
+- **New:** UXR-26 (medium: error lines and the quality hold on `/field` still red outside `field-client.tsx`; one error component, fits UX2-3), UXR-27 (low: `/team` reach-gap sentence can be folded away, `summary` under 44 px), UXR-28 (low: red frame of "Einsätze mit Handlungsbedarf" when only pointers remain). Four requests to `cra` in the report. ADR-109 deviation 1: agree with UX2-13.
+- Design system version 10 (status moves from #598, #602; two new OPEN rules). No issue opened (no severe or high). No benchmark (made at 03:50).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-28 15:15 CET · po (Product Owner)
+
+- **UX1 accepted** (queue rank 39; #535, #554, #558, #574, #588, #598, #602; ADR-103 to ADR-109; no migration; CI `app`, `db`, `e2e`, `ui-screenshots` green on the #602 head `b606560` and on `72a2697`). Clinical gate passed (`cra` 21:30, 01:30, 09:30, 13:40 on PR #604's head; merged code = reviewed heads plus docs merges). Evidence table, 15 deviation decisions and the reasons in `briefs/UX1.md`. Issue #609 closes with it.
+- **Conditions:** **UX1-C1** the UX1-27 e2e failed on the push runs of `a70f490` and `f6277ab` (timeout on "Einsatz starten" for the visit planned 8 days ahead) while the parallel PR runs passed: cause named, fixed without retry or skip, `--repeat-each=20` green; next Engineering PR, at the latest before UX2; an app cause returns UX1 to `changes-requested`. **UX1-C2** the 33 code-bearing strings in `src/features/**` (`eng` deviation (7)): own PR, string list for `cra`/`lca`, before UX2 is delivered and before the first real user; #508 stays open. **UX1-C3** push opt-in completed at 390 px before push is switched on. **UX1-G1** `uxa` reviews part (g); severe or high returns UX1. **UX2-13** placed: `/team` "Beenden" and "Entfernen" leave the P1 colour; "Ergebnis erfassen" on an overdue visit stays red (`cra`: it ends a SIG1 situation).
+- **D-38 escalated (`awaiting-approval: owner`, Medium, frozen since 15:15).** `lca` 14:56 applied at once (F4 compliance-relevant): T15 (b) (2) scoped to clients whose choice and consent are recorded; T15 (f) "no party sets or asks for" a date; **T16 lift by the Clinical Owner's record plus each Leitung Pflege's agreement**, refusal names the finding, owner-set fall-back for a stop without a finding; a stop never binds a client's choice, a nurse's own resignation or a Leitung Pflege's judgement. `eng` T18 (e) drafted under the two-run rule (requested 11:10, six `eng` runs since): one organisation-scoped export serves the partner's sunset and C's exit. Owner agenda bundle 2 updated; one adviser question added.
+- **Challenge:** "Why should one NAVORA-appointed person be able to hold a team-owned provider's start?" She should not: that is a hierarchy layer above both Leitungen Pflege and a lever over C. The stop stays (patient safety), the single veto goes. "Would we build a second export for C's exit if we started from scratch?" No: one organisation-scoped export, instructed by its owner, serves every exit.
+- Packages: D-38 only (every other package frozen, rule 9). None decided by po.
+- **Waiting for the owner (D-38, bundle 2):** approve T1-T18 as the LOI minimum; choose T10 options; any T17 deferral; three periods (T12 (i) window, T16 extension, T16 stop fall-back); a Clinical Owner deputy with G-1. Default: D-12 stands, no LOI naming the sunset.
+- Tests: none run by me (docs only; CI check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 14:56 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 frozen and unchanged (no trigger; nothing written about them). Tier 2: no open CGR names a decision. **D-38** picked only: changed since my 11:55 section (po 14:20, `cra` 13:40 T15 (b) and T16), and `aia` 14:41 names `lca` on AUT-14 and AUT-15.
+- **Verdicts (D-38, advisory):** T15 (b) compliant if C's person is named for an open item only for clients whose choice and T3 consent are recorded. T16 declaring a stop compliant; a stop binds the parties' planning, never a client's free choice, a nurse's own resignation or a Leitung Pflege's judgement (T15 (f) read as "no party sets or asks for" a date; correction of my 11:55 note). **Unresolved, Zurich adviser:** "only the Clinical Owner lifts" (a NAVORA-appointed sole release right over C's start vs D-12 C condition 1); protective form proposed (Clinical Owner record plus each Leitung Pflege's agreement, named finding, owner-set period). AUT-14 compliant with per-provider scoping; AUT-15 compliant if staff entries leave only on the person's own action (DSG Art. 28, OR Art. 328b). Default unchanged, compliant.
+- T16 lift wording marked compliance-relevant under STR-17 F4. Tests: none run (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 14:50 CET · eng (Engineering)
+
+- **#602 merged** (UX1 part (g): UX1-22 to UX1-24, UX1-33; ADR-109) as `f6277ab` after two merges of `recovery/main` (docs conflicts only; `src/` and `tests/` as `cra` read them at `d243dad` plus #598); CI `app`, `db`, `e2e`, `ui-screenshots` success on `b606560`. #598 merged earlier this run (`8d0e812`, CI green on `18eefea`).
+- **UX1 `delivered`** (READY_FOR_REVIEW): parts (a) to (g), UX1-18 and UX1-27 to UX1-33 merged in #535, #554, #558, #574, #588, #598, #602; ADR-103 to ADR-109.
+- Clinical gate trail: `cra` 13:40 section read (PR #604): #598 and #602 clear; no open `cra` finding on UX1. CGR-86 (advisory S3) is WORK1's (placed by po 14:20 as WORK1-C5), not UX1's.
+- **For the PO:** deviation (7): the UX1-11 scan meets the brief's scope; widening it to `src/features/**` (33 strings, several `cra`/`lca`-fixed) is an Engineering follow-up, PLANNED; your call whether it is a UX1 condition. Deviations (8), (9) in the status row.
+- Tests: none run by me (status and journal only); `node scripts/agents-check.mjs` run. CI is the test runner. Live project not touched.
+
+---
+
+## 2026-10-28 14:41 CET · AI & Automation Architect (aia)
+
+- **Automation review 5** (`reports/AUTOMATION_REVIEW.md`), first under the owner's 2026-10-28 instruction "designed from scratch first": the review-1 bottleneck map re-read against `STRATEGY.md` §8. Ranks unchanged (estimates). Verdicts sharpened: travel **replace first** (team geography), then automate (AUT-5); documentation **replace** one free-text report per visit with documentation by exception, countersign by risk-based review (AUT-4, D-10). Two new rows: founding and moving to a team's own provider (replace by the kit; automate its record facts) and shared on-call (UNKNOWN, P-24).
+- **New findings:** **AUT-14** (medium): D-38 T15 (b) safety kinds shown as a read of the record (five kinds already recorded: untaken signals, P1 reach, order validity, qualification, returned reports), no level or pass mark, kinds without data shown as manual; `eng` on kind (1) (no provider entity). Comment on #545. **AUT-15** (low): provider-kit entries that are record facts filled as a confirmed draft; no AI legal text; `lca` on staff facts in a licence file. No `high` finding, no issue opened, no challenge raised (no reviewed item adds administration without care benefit).
+- Reviewed without finding: COORD6 (supported), WORK1-C5, D-38 T16, UX1-22 to UX1-24, UX1-30 to UX1-33, UX2-12. No delivered item proposes, drafts or ranks. `AI_OPERATING_MODEL_REVIEW.md` §12: control for derived readiness views.
+- Frozen packages: nothing written about any (rule 9). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 14:35 CET · eng (Engineering)
+
+- **#598 merged** (UX1 part (d) second PR: UX1-11 to UX1-13, UX1-32; ADR-108) as `8d0e812` after one merge of `recovery/main` (`18eefea`, JOURNAL conflict only); CI `app`, `db`, `e2e`, `ui-screenshots` success on `18eefea`.
+- Clinical gate trail: `cra` 13:40 section (PR #604, not yet merged) read: #598 and #602 clear on the clinical side at heads `961a936` and `d243dad`; the merges since changed only docs. CGR-86 (advisory S3, pgTAP 079 test 44) tracked on #399/#603, not part of UX1.
+- **#602** (part (g): UX1-22 to UX1-24, UX1-33; ADR-109) merged with `recovery/main` again (JOURNAL, IMPLEMENTATION_STATUS, DECISIONS conflicts: both sides kept, ADR-108 before ADR-109). UX1 row `in-review` until #602 is merged with green CI, then `delivered`.
+- Tests: none run by me (docs merges only); `node scripts/agents-check.mjs` run. CI is the test runner. Live project not touched.
+
+---
+
+## 2026-10-28 13:55 CET · eng (Engineering)
+
+- **UX1-33 pushed onto #602** (part (g)), ADR-109 addendum: focus moves to "Schliessen" when the CGR-32 notice replaces the absence form; after a refused or failed save it returns to "Speichern". No text, rule or command change.
+- **UX1-32 pushed onto #598** (same run, ADR-108 addendum): `/partners` and `/visits` eyebrow removed with an eyebrow check in `ux1-strings`; `/operations` team panel "Details zum Pflegeteam".
+- With both, every UX1 item is in a PR: #598 (part (d), `cra` UX1-12 string gate) and #602 (part (g), `cra` C-1 pointer content). Both merge after the `cra` gate and green CI; then UX1 is `delivered`. The `src/features/**` code-string widening (ADR-108 deviation 1) stays PLANNED as an engineering follow-up, not a brief item.
+- **Tests:** Playwright assertions added in `field.spec` ABS1-C6 and `ux1.spec` (UX1-28, CGR-85); nothing run locally. CI decides. #603 (pgTAP 079 intermittent) still open. Live project not touched.
+
+---
+
+## 2026-10-28 12:23 CET · Engineering (eng)
+
+- **#598** (UX1 part (d) second PR, UX1-11 to UX1-13): CI green on `5219eae` (app, db, e2e, ui-screenshots), mergeable. **Not merged:** UX1-12 needs the `cra` string-list gate before merge and no `cra` section reviews #598 yet (latest: 09:30, #589). `uxa` 10:52: no blocking finding. UX1-32 (po #601, not merged) does not ride #598, so the reviewed head stays the one `cra` reads; it goes with the next UX1 push.
+- **Issue #592 claimed** for part (g). **#602 opened** (ADR-109): UX1-22 (`cra` C-1: one pointer line "Steht oben als Sicherheitssignal" only for an entry that repeats an open card for the same visit and situation, no flags, not taken, no own action; clearance paragraph behind "Wann erledigt sich das?", "provisorisch" sentence visible), UX1-23 (`cra` C-2 (a), UXR-16: urgency amber via one map on `/intake` and `/team`; no `rose-` in `field-client.tsx`), UX1-24 (`cra` C-3: team push status open, amber, text and link "Meine Einstellungen" while not all are reachable). IMPLEMENTED in the PR; CI decides.
+- **For `cra` on #602:** confirm that the default sentence "Operations sieht es auch, noch nicht übernommen" is not a C-1 "handling state" (the pointer drops it). OPEN for `uxa`/`cra`: three filled red buttons outside the signal components (ADR-109 deviation 1), among them `/field` "Ergebnis erfassen" (safety-adjacent, not changed by engineering).
+- Clinical gate trail: sections 01:30 and 09:30 read; findings applied C-1, C-2 (a), C-3; no remediation plan needed.
+- Tests: none run by me (npm registry unreachable from this session). CI is the test runner. Live project not touched.
+
+---
+
+## 2026-10-28 14:20 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 stays `in-progress`: #598 (part (d)) was merged by `eng` as `8d0e812` during this run; #602 (part (g)) is open; `cra` 13:40 cleared both on the clinical side; merging is `eng`'s. No PO PR was open.
+- **`cra` 13:40 (PR #604, head `ad18b4e`, CI green, not merged) read and placed:**
+  - **D-38 (still `inputs-requested`, Low; owner ask still paused):** T15 (b) now names eight kinds of transition safety measure, each from an existing control or finding (responsible provider on every date; no open safety item without a named person; P1 reachability; final records and an accepted export; valid order naming the doctor; qualification gate and named Leitung Pflege and deputy; rules adopted by C; no open S1 finding). Levels stay the Clinical Owner's, UNKNOWN. T16: a stop is declared by the Clinical Owner, either Leitung Pflege or automatically by a `cra` S1 finding; any member may pause the date until a Leitung Pflege decides; only the Clinical Owner lifts it. PO position: keep both; gap named for the combined ask: a deputy for the Clinical Owner (G-1), or a stop can outlive her absence. Only `eng` (T18 (e), requested 11:10) is open; two-run rule not met yet.
+  - **CGR-86 → WORK1-C5** (WORK1 stays `accepted`): the WORK1-5 privacy test (pgTAP 079 test 44) fails at random; it must name the differing read model and role, the cause must be fixed, and 50 repeated runs must pass. If a real read difference shows: blocking S2 and WORK1 `changes-requested`. `eng` on #603 / #399.
+- **#604 not merged by po:** COORDINATION rule 4 (each role merges only its own PRs). `cra` reports its environment refused its own merges since 05:30 (#582, #589, #604 open). The input is taken in from the PR head; the owner or `cra` merges.
+- **Challenge:** "Why should a nurse need a manager's permission to stop a risky move?" She does not: any member may pause the date. "Why may only one person lift it?" Because everyone else has a stake in the date; but one person without a deputy is a single point of failure, now on the owner's list.
+- Packages: D-38 only (the only unfrozen package; every other package frozen, rule 9). None decided by po.
+- **Waiting for the owner:** nothing new to decide; D-38 combined ask once `eng` is in.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 13:45 CET · eng (Engineering)
+
+- **UX1-32 pushed onto #598** (the brief lets it ride #598), ADR-108 addendum. Issue #592 claimed at 13:30.
+- (a) `/partners` eyebrow "Partner" removed; new eyebrow check in `ux1-strings` (text-only element directly before an `h1` on any protected page). **Deviation:** `/visits` had the same eyebrow ("Einsätze") and the check covers every protected page, so it went too.
+- (b) `/operations` team panel heading "Details zum Pflegeteam" from `TEAM_PANEL_HEADING`, both states.
+- #598 and #602 both waited CI green for the `cra` gate (UX1-12 string list; part (g) C-1 pointer line). This push re-runs #598's CI; the `cra` gate still applies. UX1-33 (part (g)) is next, onto #602.
+- **Tests:** `ux1-strings` ran locally only against a stand-in for the vitest API (11 of 11; the new check fails on the old `/partners`). CI decides. #603 (pgTAP 079 intermittent) still open. Live project not touched.
+
+---
+
 ## 2026-10-28 13:40 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 13:40): #588 merged as `566dc8b` with the CGR-85 fix `7acacdd` (`try`/`catch`/`finally`, `ABSENCE_MESSAGES.failed` in the open dialog, Playwright `ux1.spec.ts:522` with an aborted save), CI green: **CGR-85 closed** (PS-74 closed, H-17 note).
@@ -12,6 +119,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **CGR-86 (new, advisory S3):** pgTAP 079 test 44 (WORK1-5) red twice today on unrelated code (`have: ca,rn`, `have: admin`), four recorded occurrences; cause UNKNOWN (#399). Remedy: the failure names the differing read model and role, cause fixed, repeated runs clean; blocking (S2) if it is a real read difference. PS-75.
 - **This PR contains #589 and #582** (my 09:30 and 05:30 sections; earlier merge attempts refused by the environment's permission check). They can be closed once this one merges.
 - No new hard-coded rule; no Clinical Rule Register row. Decisions waiting: `po` (D-38 input, CGR-86 placement), `eng` (CGR-86; PLAN2 re-creation question), `clinical` (T15 (b) levels, periods/totals CGR-81/-84, D-38 handover set, D-10/-15/-16/-17/-28/-31/-37), owner/legal (G-1, D-38 T1-T18, D-36, D-1).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 13:35 CET · po (Product Owner)
+
+- **Roadmap sync (owner request via `/roadmap-update`, option "sync statuses"):** `ROADMAP.md` gate tables brought in line with `NEXT_CAPABILITY.md` and `IMPLEMENTATION_STATUS.md`. No reprioritisation, no review, no status change in any register.
+  - Added to Gate 2: SIG1, ORD0, SIG2, F6R, SIGC, DOOR1, LEAVE1, WORK1 (accepted, with PRs and dates) and UX1 (in progress), ADM2, UX2, PLAN3 (approved, *Next up* order).
+  - New section *Querschnitt* (security, privacy, pre-pilot conditions, agent operations): COORD5, RLS2, DST1, RLS3, FUP1, AUD1, COND1, IPA1, COND2 (accepted) and COORD6 (*Next up* 2).
+  - AIG1 under Gate 4, ASM1 under Gate 6. AN2 shown as accepted (24.10. 08:18), CSR1 as complete (23.10. 23:15), J5-C2 as met; the Gate 2 "open items" order now follows *Next up*; header date 28.10.
+  - The priority column of new rows names the queue rank or *Next up* position instead of a High/Medium label the briefs do not carry.
+- Nothing delivered since 12:15 (UX1 parts (d) #598 and (g) #602 open); D-38 still waits for `cra` and `eng`. Packages: none touched.
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
@@ -45,6 +164,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Design system v9:** §5 jump links and §6 dialog rules IMPLEMENTED (#588); §4 "one label per page" PLANNED (#598) with OPEN parts; §6 new OPEN focus rule.
 - **For the PO:** placement of UXR-22 to UXR-25 (proposal: UXR-22/-23 ride part (d), UXR-24 in UX2-1, UXR-25 part (g) or UX2).
 - Screenshot download still refused (proxy 403); review from code. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 11:28 CET · eng (Engineering)
+
+- **PR #598 (UX1 part (d), second PR): UX1-11 to UX1-13**, ADR-108. Issue #592 claimed at 11:11.
+- **UX1-11:** the vitest `ux1-strings` reads user-facing strings from the TypeScript syntax tree. Decision codes moved to `data-ref`: D-3, D-26, SIG1-8, D-22, D-15, D-11.
+- **UX1-13:** "NAVORA" is the only product name. `/operations` is headed "Ausnahmen". `PAGE_LABEL` gives one label per page (menu, page name, header links).
+- **`cra`:** please confirm the UX1-12 string list in ADR-108 before merge.
+- **Deviation:** 33 code-bearing message constants in `src/features/**` are PLANNED for a follow-up PR with their own string list. Part (g) UX1-22 to UX1-24 is PLANNED.
+- UX1 row set to `in-review`.
+- **Tests:** the new vitest file ran locally only against a minimal stand-in for the vitest API (npm registry unreachable). CI decides. Live project not touched.
 
 ---
 

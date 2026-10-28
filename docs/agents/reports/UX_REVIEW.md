@@ -6,6 +6,54 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-10-28 15:48 CET · `uxa`: UX1-G1 review of part (g) (#602) and UX1-32/UX1-33 (code-only): no severe or high finding; seven findings closed in code; UXR-26 to UXR-28
+
+**What changed since 11:49.** **#598 merged** (UX1 part (d) second PR: UX1-11 to UX1-13, UX1-32; ADR-108; `8d0e812`, CI green on `18eefea` per `eng` 14:35). **#602 merged** (UX1 part (g): UX1-22 to UX1-24, UX1-33; ADR-109; `f6277ab`, CI `app`, `db`, `e2e`, `ui-screenshots` green on `b606560` per `eng` 14:50). `recovery/main` now `72a2697` (docs since). **Open PR #611** (PO 15:15, not merged): UX1 accepted with conditions UX1-C1 to UX1-C3 and **gate UX1-G1** (this review: a `severe` or `high` finding returns UX1 to `changes-requested`); UXR-24 placed as **UX2-12**, ADR-109 deviation 1 as **UX2-13**. No open PR changes screens (#612 is `scripts/`, the rest docs). Open `ux` issues unchanged: #506 to #510, #515, #516, #548.
+
+**Sources.** `ui-screenshots` artifact for `recovery/main` `72a2697` (12823100620) exists; **download refused again** (storage host `productionresultssa1.blob.core.windows.net`, empty archive), so **no screenshots and no `axe_*.json` were available to me**. Review from code (`git diff 566dc8b 72a2697 -- src tests`) and from CI results as reported by `eng` and the PO; I did not run tests. The live project was not touched. No benchmark (one was made today at 03:50).
+
+### UX1-G1: review of part (g) and UX1-32, UX1-33 (merged code on `72a2697`)
+
+- **UX1-22 (UXR-4):** on `/team` an entry that only repeats an open signal card shrinks to one line (label · client · "Steht oben als Sicherheitssignal"); entries with flags, a handling state or their own action (`visit_interrupted`) stay in full (`alertRepeatsSignal`, fail-safe); the banner reports its polled rows, so the pointer never points at a card that is gone. Clearance paragraph behind "Wann erledigt sich das?" (`summary` 44 px), "provisorisch" sentence visible. Matches §3 and `cra` C-1. IMPLEMENTED. "Anfragen an dein Team" moves up by the shortened list (not asserted as a position; ADR-109 deviation 3).
+- **UX1-23 (UXR-5 (a), UXR-16):** one urgency map for `/intake` and `/team` ("hoch" amber with a ring, word kept); `/field` status badges "abgesagt"/"nicht angetroffen" neutral; `field-client.tsx` error lines amber. IMPLEMENTED for those files; see UXR-26 for the rest of the same screens.
+- **UX1-24 (UXR-7):** with a reach gap the team status is open, amber, with `cra` C-3's sentence word for word and a link "Meine Einstellungen"; collapsed and neutral when all are on; an empty list is not "all reachable". IMPLEMENTED; see UXR-27.
+- **UX1-32 (UXR-22, UXR-23):** `/partners` and `/visits` without eyebrow, eyebrow check in `ux1-strings`; `/operations` team panel "Details zum Pflegeteam" from one constant. IMPLEMENTED.
+- **UX1-33 (UXR-25):** focus moves to "Schliessen" when the CGR-32 notice replaces the form, back to "Speichern" after a refused or failed save (effect runs after "Speichern" is enabled again). IMPLEMENTED (Playwright `field.spec` ABS1-C6 green in CI per `eng`).
+- **ADR-109 deviation 1 (asked of `uxa`):** `/team` "Beenden" (care-plan item, `team-client.tsx:790`) and "Entfernen" (planned visit, `:1032`) are consequence actions, so by §3 and §7 `destructive-confirm` (outline first, consequence sentence), not the P1 colour; already placed as UX2-13, I agree. `/field` "Ergebnis erfassen" on an overdue visit (`visit-lifecycle.tsx:130`) closes a P1 situation from its own card, so it may keep the `signal-p1` button; that is `cra`'s to confirm (named as the exception in UX2-13).
+- **Verdict for UX1-G1: no `severe` or `high` finding.** Three new findings (one medium, two low) for the PO to place in UX2 or later.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-26 | `/field` (nurse) and `/team`, `/admin`, `/settings`, `/operations`, `/intake`, every role | medium | UX1-23 made error lines amber per file, not per screen: on `/field` a refused "Einsatz starten" now shows an amber line (`field-client.tsx`), while a refused save in the absence dialog, cover, report, quality and visit-outcome sections of the same screen still shows the red P1 family; the quality hold badge and its meaning line on `/field` are red too, though a hold is a billing state, not a P1 signal. The nurse sees two error languages on one screen, and red stays diluted next to real signals. | `field/absence-section.tsx:165,189,250`; `field/cover-section.tsx:57`; `field/report-section.tsx:118`; `field/quality-section.tsx:57,64,80`; `field/visit-lifecycle.tsx:114`; same pattern in `team-client.tsx:313,450`, `admin-client.tsx`, `settings-client.tsx:117` (`72a2697`) | §3 severity colours reserved; §7 one component (`error-inline`) | One `ErrorLine` component (`role="alert"`, `error-inline` token) used for every `command-error`; quality hold badge in `attention` with its word kept. Unit test: no `rose-` class in any file under `src/app/(protected)/field/` except the `signal-p1` button UX2-13 names; no `command-error` element outside the component. Error texts unchanged. Fits UX2-3 (tokens). Whether the hold badge's colour is a safety presentation: `cra` to confirm. | report |
+| UXR-27 | `/team` "Benachrichtigung ausserhalb der App", team member, phone | low | With a reach gap the `details` opens and shows "Nicht alle erhalten Sicherheitssignale ausserhalb der App" below the `summary`; one tap on the `summary` (a natural tap to "read more") folds the sentence and the settings link away again, leaving only "1 von 2 aktiv" in amber. The `summary` itself is about 20 px high (`text-sm`, no `min-h-11`), below the 44 px target. | `team/team-client.tsx:1067` (`summary`), `:1071` (gap line inside the `details`) (`72a2697`) | §6 44 px targets; §6 new rule (attention state cannot be folded away); `cra` C-3 "open without expanding" | Gap sentence and link rendered outside the `details` (or in its `summary`), so they stay visible whatever its state; `summary` `min-h-11`. Playwright `ux1-team.spec` "UX1-24": after a click on the `summary`, `push-team-gap` is still visible; `summary` bounding box height ≥ 44. Wording unchanged (`cra` C-3); position change is `cra`'s to confirm. | report |
+| UXR-28 | `/team` "Einsätze mit Handlungsbedarf", team member | low | The whole list keeps the red frame and heading (`border-rose-300 bg-rose-50`, `text-rose-950`) even when every entry is now a one-line pointer to a card above or a P2 entry (amber priority word). After UX1-22 the red frame can repeat the banner's red for content that adds nothing new, which is the doubling UXR-4 removed. | `team/team-client.tsx:187-188,222,226` (`72a2697`) | §3 severity colours reserved | Question for `cra` (how a safety list is shown is theirs): should the frame follow the highest open priority in the list (red only with a P1 entry shown in full, otherwise neutral or amber)? If yes, a unit test for the frame class per priority mix. No rule or text change. Fits UX2-3/UX2-9. | report |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-4 | **Closed in code** in this report: UX1-22 (#602, `f6277ab`); vitest `ux1-team` (`alertRepeatsSignal`), `lifecycle.spec` "CGR-25" green in CI per `eng`. Not seen in a screenshot. | `features/team/rules.ts`; `team-client.tsx` `VisitAlerts` |
+| UXR-5 (a) | **Closed in code**: UX1-23 (#602); vitest `ux1-colour` (urgency map, shared use). | `features/intake/rules.ts` `URGENCY_BADGE_CLASS` |
+| UXR-7 | **Closed in code**: UX1-24 (#602); Playwright `ux1-team.spec` "UX1-24". Follow-up UXR-27 (low). | `features/push/rules.ts` `allReachable`, `REACH_GAP_TEXT` |
+| UXR-12 | **Closed in code**: UX1-13 merged (#598, `8d0e812`); vitest `ux1-strings` "UX1-13", `auth.spec` `h1` "Ausnahmen". | `src/lib/auth/nav.ts` `PAGE_LABEL` |
+| UXR-22, UXR-23 | **Closed in code**: UX1-32 (#598); eyebrow check and constant test in `ux1-strings`. | `partners/page.tsx`; `features/operations/labels.ts` |
+| UXR-25 | **Closed in code**: UX1-33 (#602); `field.spec` ABS1-C6 focus assertions. | `field/absence-section.tsx` |
+| UXR-24 | PLANNED as UX2-12 (PO, #611 not merged). Unchanged in code: `/operations` now has two `h1` (shell "NAVORA" and "Ausnahmen"). | `components/layout/Sidebar.tsx:100` |
+| UXR-16 | Closed in code (23:49); remainder on other files of the same screens is UXR-26. | |
+| UXR-26 to UXR-28 | OPEN, new (one medium, two low). | above |
+| UXR-5 (b) | OPEN, waits for `eng` (PLAN2), then `cra`. UX2-13 covers the button colour of "Entfernen". | |
+| UXR-21 | PLANNED as UX2-10. | |
+| UXR-17 to UXR-20, UXR-15, UXR-2 (#516), UXR-13, UXR-14 | Closed (earlier sections); unchanged, no regression seen in code. | |
+| UXR-1, -3, -6, -8, -9, -10, -11 | Remedy IMPLEMENTED; unchanged; still not seen in a screenshot. | |
+
+**Requests.** To `cra`: (1) UXR-27, may the reach-gap sentence move out of the `details` (same words)? (2) UXR-28, should the frame of "Einsätze mit Handlungsbedarf" follow its highest open priority? (3) UX2-13, confirm "Ergebnis erfassen" on an overdue visit keeps the `signal-p1` button. (4) UXR-26, is the quality hold badge a safety presentation? All OPEN.
+
+**For the PO.** (1) **UX1-G1: no `severe` or `high` finding on part (g), UX1-32 or UX1-33** (code-only review; no screenshot seen). (2) UXR-26 (medium) fits UX2-3 (tokens, one error component); UXR-27, UXR-28 (low) wait on `cra` and fit UX2-9 or a later item; your placement. (3) No new issue (no severe or high finding). (4) Screenshot download is still refused to this role (403 at the proxy's storage host); every review so far is code-only, so no finding has been closed on a screenshot as §8.5 asks. I propose only.
+
+---
+
 ## 2026-10-28 11:49 CET · `uxa`: #588 merged (UXR-17 to UXR-20 closed in code); PR #598 reviewed; UXR-22 to UXR-25 (all low or medium)
 
 **What changed since 07:50.** **#588 merged** (UX1 part (d), first PR: UX1-28, UX1-29, UX1-30, UX1-31 / `cra` CGR-85, UXR-17 removal; merge commit `566dc8b`). CI green on its last head `522f34b` (app, db, e2e, ui-screenshots, per `eng` 10:27) and on `recovery/main` `a47f3fa` (ci and agents-coordination runs 40671985986, 40671986092). **Open PR with screen changes: #598** (UX1-11 to UX1-13: internal codes out of page text, one product name, one label per page; head `5219eae`; CI green on that head: app, db, e2e, ui-screenshots). Docs only otherwise (`csa` 10:47, PO 11:10). Open `ux` issues unchanged: #506 to #510, #515, #516, #548.

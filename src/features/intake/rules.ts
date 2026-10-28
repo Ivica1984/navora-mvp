@@ -27,6 +27,22 @@ export type Urgency = (typeof URGENCIES)[number];
  * IPA1-7 (migration 0086, ADR-100): who set the urgency. Only the two recorded values can be chosen; rows from
  * before IPA1-7 read "unknown". NAVORA sets no criteria for a level or a source (D-34 question 7 stays with clinical).
  */
+/**
+ * UX1-23 (`uxa` UXR-5 (a), `cra` C-2 (a) "confirm"; CR-125, CR-129): the referral's urgency is a criteria-free label,
+ * not a SIG1 safety signal. "hoch" is shown in amber (`attention`) with the word kept, never in the P1 signal colour.
+ * One map for every badge that shows it (`/intake`, `/team`); tests/unit/ux1-colour.test.ts.
+ */
+export const URGENCY_BADGE_CLASS: Record<Urgency, string> = {
+  hoch: "bg-amber-100 text-amber-900 ring-1 ring-amber-800",
+  mittel: "bg-amber-50 text-amber-900",
+  niedrig: "bg-stone-200 text-stone-800",
+};
+
+/** The badge class for a stored urgency; an unknown value is neutral. */
+export function urgencyBadgeClass(urgency: string): string {
+  return (URGENCY_BADGE_CLASS as Record<string, string>)[urgency] ?? "bg-stone-200 text-stone-800";
+}
+
 export const URGENCY_SOURCES = ["referrer_stated", "intake_assessed"] as const;
 export type UrgencySource = (typeof URGENCY_SOURCES)[number];
 

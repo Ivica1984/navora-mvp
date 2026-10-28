@@ -112,19 +112,19 @@ test.describe("UX1-1 / UX1-2: no horizontal scroll at 390 px", () => {
 const MENU: Record<string, { email: string; items: string[] }> = {
   nurse: {
     email: "pflege.test@navora.test",
-    items: ["Mein Tag (mobil)", "Mein Arbeitstag", "KPI / Analytics", "Meine Einstellungen"],
+    items: ["Mein Tag", "Mein Arbeitstag", "Kennzahlen", "Meine Einstellungen"],
   },
   coach: {
     email: "coach.test@navora.test",
-    items: ["Operations Board", "Mein Arbeitstag", "KPI / Analytics", "Meine Einstellungen"],
+    items: ["Ausnahmen", "Mein Arbeitstag", "Kennzahlen", "Meine Einstellungen"],
   },
   operations: {
     email: "ops.test@navora.test",
-    items: ["Operations Board", "Aufnahme", "Mein Arbeitstag", "KPI / Analytics", "Meine Einstellungen"],
+    items: ["Ausnahmen", "Aufnahme", "Mein Arbeitstag", "Kennzahlen", "Meine Einstellungen"],
   },
   admin: {
     email: "admin.test@navora.test",
-    items: ["Operations Board", "Aufnahme", "Mein Arbeitstag", "KPI / Analytics", "Meine Einstellungen", "Administration"],
+    items: ["Ausnahmen", "Aufnahme", "Mein Arbeitstag", "Kennzahlen", "Meine Einstellungen", "Administration"],
   },
 };
 
@@ -510,6 +510,8 @@ test.describe("UX1 part (d) at 390 × 844", () => {
     // (b) the refusal is shown inside the open dialog.
     await expect(dialog.getByTestId("command-error")).toHaveText(ABSENCE_MESSAGES.rejected);
     await expect(dialog).toBeVisible();
+    // UX1-33 (b) (uxa UXR-25): after the refusal, focus is back on "Speichern".
+    await expect(form.getByTestId("absence-save")).toBeFocused();
     // (e) a refused save never shows the past-visit notice.
     await expect(page.getByTestId("absence-past-planned")).toHaveCount(0);
     await page.unroute("**/field**");
@@ -536,6 +538,8 @@ test.describe("UX1 part (d) at 390 × 844", () => {
     await expect(page.getByTestId("absence-past-planned")).toHaveCount(0);
     await expect(form.getByTestId("absence-save")).toHaveText("Speichern");
     await expect(form.getByRole("button", { name: "Abbrechen" })).toBeEnabled();
+    // UX1-33 (b): a save routed to fail also returns focus to "Speichern".
+    await expect(form.getByTestId("absence-save")).toBeFocused();
     await page.unroute("**/field**");
     // Escape closes the dialog again; nothing was recorded (the request never left the browser).
     await page.keyboard.press("Escape");

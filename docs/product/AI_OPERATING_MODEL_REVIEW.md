@@ -319,6 +319,10 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Import instead of transcription (AUT-13, low):** a later deterministic import of the header values (date, instrument, assessor, minutes, period; no item, score or CAP, D-36 A) from the provider's assessment tool into an ASM1 draft, confirmed value by value (assessment fields are never `schedule`). OPEN: the tool's export format and the licence and processor questions (`lca`, D-36).
 - **`cra` conditions for that import (05:30, PR #582; `aia` 2026-10-28 08:20):** (1) an imported draft is no assessment record until confirmed value by value: it neither satisfies a reassessment due date nor feeds A10; (2) the period is imported as the tool states it, never mapped or converted (CGR-84); (3) the record keeps per value whether it was imported or typed (H-22). Condition (3) is the provenance-per-value control of §8.
 
+**Derived readiness views are rules, not agents (AUT-14, AUT-15; `aia` 2026-10-28 14:41):**
+- **OPEN (proposal, not briefed):** a provider transition's safety kinds (D-38 T15 (b)) shown as a read of the record (open signals without a taker, P1 reach, order validity, qualification), and kit entries that are record facts filled as a draft confirmed entry by entry.
+- **Control:** such a view never sets or shows a level, threshold or pass mark (Clinical Owner, G-1); a kind without data is shown as manual, never as met; it proposes nothing and needs no ledger entry. Any AI drafting of kit text waits for a D-35 stage that allows it and `lca`.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -327,3 +331,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-10-27 20:30 | `aia` | §12: the AUT-1 control question is marked settled. It records the AIG1-5 field-class rule as amended, with CGR-78, and its consequence for inferred values (AUT-7). §8: one pointer to §12 in the *No accept-all* row. No agent added or removed |
 | 2026-10-28 02:20 | `aia` | §12: added the control on assessed minutes as agent input (no computed comparison before a `cra`-reviewed brief, CGR-81) and the import-instead-of-transcription note (AUT-13). No agent added or removed |
 | 2026-10-28 08:20 | `aia` | §12: added `cra`'s three conditions for an assessment-header import (AUT-13). No agent added or removed |
+| 2026-10-28 14:41 | `aia` | §12: added the control for derived readiness views (AUT-14, AUT-15): rules, no level or pass mark, no unmet kind shown as met. No agent added or removed |

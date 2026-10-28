@@ -15,6 +15,7 @@ import {
   type FieldAction,
 } from "@/features/field/rules";
 import { HeaderMenu } from "@/components/layout/Sidebar";
+import { PAGE_LABEL } from "@/lib/auth/nav";
 import {
   EVENT_LABEL,
   computeVisitTimes,
@@ -105,8 +106,9 @@ const STATUS_CLASS: Record<string, string> = {
   on_the_way: "bg-blue-100 text-blue-900",
   paused: "bg-blue-100 text-blue-900",
   completed: "bg-emerald-100 text-emerald-900",
-  cancelled: "bg-rose-100 text-rose-900",
-  no_show: "bg-rose-100 text-rose-900",
+  // UX1-23 (UXR-16): a visit status is a label, not a safety signal, so never the P1 colour.
+  cancelled: "bg-stone-200 text-stone-800",
+  no_show: "bg-stone-200 text-stone-800",
   interrupted: "bg-amber-100 text-amber-900",
 };
 
@@ -119,9 +121,9 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
     <div className="min-h-screen bg-stone-100 text-emerald-950">
       <header className="sticky top-0 z-10 bg-emerald-950 px-4 pb-4 pt-3 text-white shadow-md">
         <div className="mx-auto flex max-w-xl flex-wrap items-center justify-between gap-x-2 gap-y-1">
-          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200">NAVORA · Mein Tag</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200">{PAGE_LABEL.field}</p>
           <Link href="/team" className="ml-auto flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-emerald-100 underline underline-offset-4">
-            Teamanfragen
+            {PAGE_LABEL.team}
           </Link>
           {/* UX1-20: the role's menu with "Meine Einstellungen" (SIG2 push opt-in) and, last, "Abmelden" (UXR-11). */}
           <HeaderMenu active="field" />
@@ -485,7 +487,7 @@ function VisitCard({
       />
 
       {error && (
-        <p role="alert" data-testid="command-error" className="mt-3 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800">
+        <p role="alert" data-testid="command-error" className="mt-3 rounded-lg border border-amber-800 bg-amber-50 p-3 text-sm font-semibold text-stone-900">
           {error}
         </p>
       )}
@@ -682,7 +684,7 @@ function ObservationForm({
         <span>Für die Übergabe markieren</span>
       </label>
       {error && (
-        <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">
+        <p role="alert" data-testid="command-error" className="rounded-lg border border-amber-800 bg-amber-50 p-2 font-semibold text-stone-900">
           {error}
         </p>
       )}
@@ -807,7 +809,7 @@ function TimelineEntry({ event, locked }: { event: VisitEvent; locked: boolean }
             />
           </label>
           {error && (
-            <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">
+            <p role="alert" data-testid="command-error" className="rounded-lg border border-amber-800 bg-amber-50 p-2 font-semibold text-stone-900">
               {error}
             </p>
           )}

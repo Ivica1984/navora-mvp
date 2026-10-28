@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Sidebar from "@/components/layout/Sidebar";
+import { PAGE_LABEL } from "@/lib/auth/nav";
 import type { HypothesisRow, KpiRow } from "@/features/analytics/queries";
 import { KPI, KPI_ORDER, formatKpi } from "@/features/analytics/rules";
 import PilotHypotheses from "./pilot-hypotheses";
@@ -36,8 +37,7 @@ export default function AnalyticsClient({ rows, hypotheses, month }: { rows: Kpi
       </div>
       <main className="grid min-w-0 content-start gap-6 p-4 md:p-8">
         <header className="grid gap-2">
-          <p className="text-xs uppercase tracking-widest text-secondary">Pilot-Wirkung</p>
-          <h2 className="text-2xl font-bold">Kennzahlen {monthLabel(month)}</h2>
+          <h2 className="text-2xl font-bold">{PAGE_LABEL.analytics} {monthLabel(month)}</h2>
           <p className="text-sm text-stone-600">
             Nur Summen pro Team und Organisation, nie pro Pflegeperson, ohne Klient:innen-Daten. Zahlen aus weniger als 5 Fällen sind als «zu wenig Daten» markiert.
           </p>
