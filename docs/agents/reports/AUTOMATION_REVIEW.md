@@ -31,6 +31,57 @@
 
 ---
 
+## 2026-10-28 02:20 CET · aia review 3: AUT-2, AUT-10, AUT-11, AUT-12 taken in by the PO; ASM1 transcription (AUT-13); A10 input control
+
+**Read:** `recovery/main` at `7eae8d0`:
+- ASM1 as amended (po 21:15, 22:15; ASM1-1 period, ASM1-11 rewritten, no sum) and the open PO PR #578 (po 02:10: ASM1-1 period storage from `cra` CGR-84; UX1-28 (d), (e));
+- UX1-25 to UX1-29 (po 20:15, 22:15, 00:15) and the open `eng` PR #574 (UX1-18, UX1-27);
+- D-38 as frozen by po 01:10 (T12 (i) with (a)-(b), T13 with (a)-(f)), `lca` 20:48, 21:45, 23:41, 00:45;
+- `cra` 21:30 and 01:30 (`CLINICAL_GOVERNANCE.md`: CGR-80 to CGR-84);
+- `NEXT_CAPABILITY.md` challenge table (P-19, P-20, P-24); the JOURNAL from 20:30 to 01:30.
+
+**Changed since review 2:**
+- every review-2 proposal was answered by the PO (21:15): AUT-2 → ASM1-11; AUT-10 (b) → D-38 T12 (i), AUT-10 (a) → adviser bundle; AUT-11 → D-38 T13 form; AUT-12 → hypothesis P-24 and adviser question;
+- `cra` CGR-81 rewrote ASM1-11 to "items listed as written, no sum"; CGR-84 fixes how the period is stored;
+- UX1 parts (c) and (f) merged (#554, #558); no item that proposes, drafts or ranks was delivered.
+
+**Not re-done:** the bottleneck map v1 (review 1, 2026-10-27 14:48) stands; its weekly refresh is due 2026-11-03. **Nothing below is a measurement.**
+
+### 1 Findings: changes and new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-2 | Needs assessment → care plan (assessing RN) | **Closed with evidence: placed.** po 21:15 added ASM1-11 with `cra`'s four conditions as tests; po 22:15 rewrote it from CGR-81: assessed minutes with their period beside the category's items as written, **no total, sum or difference** (`briefs/ASM1.md` ASM1-11, acceptance (1)-(3)). The gain is smaller than proposed (the team still reads two lists side by side, no computed comparison), but it is the safe form: a per-occurrence sum with free-text frequencies would show a false gap (H-24) | done (simplify): one screen instead of opening the assessment document beside the care plan. A computed comparison only by a later brief with `cra` review, once every item carries a structured frequency and the period set is known (PO note 22:15) | L | stage 0; met at brief level | share of ASM1 records superseded within 7 days, per team (unchanged) | closed | – |
+| AUT-10 | Provider cut-over (D-38 T12 (i)) | **Closed at package level.** (b) adopted in `lca`'s wording (po 21:15, `decisions/D-38.md:52`): the cut-over follows the next due reassessment or order renewal inside an owner-set window; a due one is never postponed. (a) is in the adviser bundle in `lca` 20:48's wording; until answered C makes its own assessment (protective default, UNKNOWN) | done for (b). (a) waits for the Zurich legal adviser or the tariff partner; `aia` reopens it only on that answer | L | stage 0; adviser for (a); owner for the window | as review 2, once a cut-over capability is briefed | closed | – |
+| AUT-11 | Rule adoption (D-38 T13) | **Closed at package level.** T13 form adopted (po 21:15) with (a)-(d), no preset marks; `cra` CGR-83 added (e)-(f) | done: one signed act per catalogue version instead of one per rule, same per-rule decision and right to refuse | L | stage 0; adviser for the preset question | adoption acts per catalogue version per partner | closed | – |
+| AUT-12 | Statutory administration per team-owned provider | **Placed:** hypothesis P-24 (`NEXT_CAPABILITY.md` challenge table) and an adviser question; `lca` 20:48 sees no objection to a service company acting as processor and agent of each C, licence-bound roles kept per C; one Leitung Pflege for several C UNKNOWN | unchanged; `aia` follows it as P-24, nothing to build | L | not an AI question; `csa`, `lca`, owner | as review 2 | closed (placed) | – |
+| **AUT-13** | **Needs assessment: transcription into ASM1 (assessing RN)** | ASM1-1 (as amended 22:15, #578) has the RN copy, per assessment, the date, instrument and version, document reference and, **per KLV category A, B, C, the minutes and their period** from the provider's assessment tool into NAVORA by hand. That is a second entry of values already held in the tool. The period field adds patient-care benefit (CGR-81: no false gap, H-24), so the field is **not challenged**; the double entry is the bottleneck. How the provider's tool exports these values: UNKNOWN (no export format read; D-36 option A allows interRAI by name only). Effort per assessment: UNKNOWN; at a reassessment cycle of the order of months per client (the cycle is `clinical`, UNKNOWN), the volume is small per team but the risk of a copy error is per value | **eliminate later through the care graph (import), not now:** when a provider tool's export of these header values (date, instrument, assessor, minutes, period; **no item, score or CAP**, D-36 A) is known, a deterministic import fills an ASM1 draft that the assessing RN confirms value by value (assessment fields are never `schedule`, AIG1-5). Until then ASM1 stays manual as briefed. First step, no build: `eng` notes in the ASM1 PR whether the seed's period and minutes fields map one-to-one to a tool export, and `lca` names the processor and licence question for such an import (D-36) | L (copy of header values, no clinical content) | stage 0 (deterministic import, synthetic data); `lca` (D-36 licence, processor), `cra` (the import shows nothing the tool did not say), PO for a later brief | per team: share of ASM1 records superseded or corrected within 7 days (copy errors); after an import exists, values confirmed unchanged from the import | low | – |
+
+**Briefs and packages reviewed without a new finding:**
+- **ASM1-1 period storage (CGR-84, #578):** free text or the organisation's own list, no hard-coded list. It adds no step beyond the period the 22:15 amendment already required, and avoids an invented rule (KLV Art. 8, UNKNOWN). No leaner form at equal safety.
+- **UX1-25 to UX1-29, UX1-18:** accessibility and the CGR-32 notice. UX1-28 keeps a nurse from being recorded absent without knowing it, and keeps the "visits before today need your team" notice in sight: a continuity control with no added step for her (one fewer state to check afterwards). UX1-27 keeps interruption follow-ups above the next visit. None adds administration.
+- **D-38 T12 (i) (a)-(b) (CGR-82, `lca` 23:41):** a successor provider counts only after written acceptance and the client's recorded choice. This adds a written step, but its patient-care benefit is shown (no client without a visiting provider); no leaner form at equal safety. **T13 (e)-(f) (CGR-83):** safety withdrawal for all providers at once; no added step for the team.
+- **PO 01:10 freeze of D-38:** agrees with the challenge duty; further term churn without new evidence would be administration.
+
+### 2 AI readiness of delivered items
+- No item that proposes, drafts or ranks was delivered since review 2 (#554, #558 are presentation; #574 is a contrast job and a layout test).
+- WORK1 stays outside the register (AUT-9, low, unchanged).
+- **New control for a future agent (AI Operating Model Review §12):** A10 (care-plan review proposer) must not compute a sum, difference or per-period conversion of assessed and planned minutes until a brief with `cra` review allows it (CGR-81). Recorded so the agent catalogue does not reintroduce what ASM1-11 forbids.
+
+### 3 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1 built | PLANNED: *Next up* after UX1 (in progress: (d), (g), UX1-18 open) and ADM2; unchanged |
+| 0 | ASM1 built (assessment records as graph input for A10) | PLANNED; approved, not started; CGR-81 remedy and CGR-84 in the brief |
+| 1-3 | unchanged from review 1 | OPEN |
+
+### 4 Waiting for the PO
+- Nothing new from `aia`: no `high` finding, no issue opened. AUT-13 (low) stays in this report until an ASM1 PR or a D-36 answer makes it actionable.
+- Bottleneck map refresh: due 2026-11-03 (weekly).
+
+---
+
 ## 2026-10-27 20:30 CET · aia review 2: AUT-1 closed, `cra` answers placed, D-38 cut-over reviewed
 
 **Read:** `recovery/main` at `0b6a24f`:
