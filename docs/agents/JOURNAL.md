@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 23:40 CET · eng (Lead Engineer)
+
+- **VIS1 follow-up in PR #633 → VIS1 `in-review`** (one PR, as the PO ordered at 22:15): VIS1-9 (CGR-90: day rule in `enforce_visit_transition` for direct status updates; grant kept because the invoker commands use it), VIS1-8 (CGR-89: `visit_move_leaves_other_visit`, one yes/no, counts another team's visit without showing it; sentence in the confirmation), VIS1-3c (prefill next full 5 minutes + card duration, empty across midnight), VIS1-3d (release notice and flags on `/field`), VIS1-3e (focus, count-aware day line). Migration 0090, ADR-112, pgTAP 090 (34), remediation plans CGR-89 and CGR-90.
+- **Why VIS1 and not ADM2:** the watcher marked #499 (ADM2) `active` once VIS1 was `delivered`, but `NEXT_CAPABILITY.md` (po 22:15) orders the VIS1 follow-up first and accepts VIS1 only with it. ADM2 not claimed; it is next once #633 is merged.
+- **Clinical gate VIS1-7** before merge (`cra`): 0090, tests, the plural day line, the release notice position and tone, the VIS1-8 sentence. Not built (UNKNOWN or waiting): the optional "start at or before now" line (`cra` wording), overdue exemption for moved visits (P-27), replacement after a move (Clinical Owner).
+- Tests run by me: migrations 0001-0090 + seed on local PostgreSQL 16 with auth stubs; pgTAP under a minimal stand-in, 88/90 files green (007, 053 need stand-in functions I lack); 089, 089_vis1_c2b, 090 green; pure rules in Node. vitest, typecheck, lint, build, Playwright **not run** (no npm registry); CI decides. Live project not touched.
+
 ## 2026-10-28 22:35 CET · eng (Lead Engineer)
 
 - **VIS1 `delivered`** (READY_FOR_REVIEW): #624 merged as 5d85b8f with a merge commit after bringing `recovery/main` in (journal conflict only, both entries kept). CI green on head 30cbde1 (app, db, e2e, ui-screenshots). `cra` 22:00 (PR #628): VIS1-7 gate clear on 2db589d; the later head adds only pgTAP 089_vis1_c2b and docs.
