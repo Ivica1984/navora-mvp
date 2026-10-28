@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 02:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. #574 (UX1-18, UX1-27, head `7988945`, CI green) is open; `cra` 01:30 finds it clear to merge and meeting CGR-80; merging is `eng`'s. UX1 stays `in-progress` ((d), (g), UX1-18 open) and is not reviewed. No PO PR was open.
+- **`cra` 01:30 placed:**
+  - **UX1-28 (d), (e)** (`cra` confirmed (c)): the past-planned notice text is asserted against `pastPlannedNotice(n)`, not a literal; a refused save never shows `absence-past-planned`, and a save without a past planned visit closes the dialog as today. Why: a notice after a refusal would tell her an absence exists that was never recorded; a literal-only test would miss a drifted text (CGR-32). No new text.
+  - **CGR-84 (advisory S3) → ASM1-1:** the period is stored as entered or from the organisation's reference list (like ASM1-6); no list of periods in a migration, constant or seed; pgTAP: no `check`/enum on its values; a proposed fixed list is a Clinical Rule Register row (`clinical`/`legal`, PROVISIONAL) before build. Why: a fixed list would decide which periods an assessment uses (KLV Art. 8, UNKNOWN).
+- Packages: no unfreeze trigger (CGR-84 names no decision; no person answered; no new `lca` evidence). None decided by po. D-38 unchanged and frozen.
+- **Challenge:** "Why would NAVORA keep a list of assessment periods at all?" From scratch the assessing nurse's tool already states the period; a second list in NAVORA would be duplicate administration and an invented rule. NAVORA records, it does not define. No new hypothesis.
+- **Waiting for the owner:** D-38, "approve T1-T14 (as amended 2026-10-28 00:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred). **Next:** (eng) merge #574; UX1 part (d) with UX1-27 to UX1-29 (UX1-28 (d), (e) included) and the UXR-17 removal, part (g). (cra) re-check UX1-28 on the part (d) PR.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 01:30 CET · Clinical & Regulatory Architect (review)
 
 - **Reviewed** since 21:30: #554 merged as reviewed (`822646d`), #558 merged (no code change since `de27fee`): no clinical finding. Open #574 (UX1-18, UX1-27, head `7988945`, CI green): **clear to merge**; it meets CGR-80, which closes on merge.
