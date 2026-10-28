@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { formatDayLabel } from "@/features/field/rules";
 import { HeaderMenu } from "@/components/layout/Sidebar";
+import { PAGE_LABEL } from "@/lib/auth/nav";
 import { acknowledgeWorkingTimeNotice, confirmWorkingDay, exportWorkingMonth } from "@/features/work/commands";
 import type { DayVersion } from "@/features/work/queries";
 import {
@@ -38,9 +39,9 @@ function Header({ day, today, previousDay, nextDay }: Pick<Props, "day" | "today
   return (
     <header className="sticky top-0 z-10 bg-emerald-950 px-4 pb-4 pt-3 text-white shadow-md">
       <div className="mx-auto flex max-w-xl flex-wrap items-center justify-between gap-x-2 gap-y-1">
-        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200">NAVORA · Mein Arbeitstag</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200">{PAGE_LABEL.work}</p>
         <Link href={`/field?datum=${day}`} className="ml-auto flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-emerald-100 underline underline-offset-4">
-          Mein Tag
+          {PAGE_LABEL.field}
         </Link>
         {/* UX1-20: the role's menu (and "Meine Einstellungen") from the nurse's screens, inside the first viewport. */}
         <HeaderMenu active="work" />

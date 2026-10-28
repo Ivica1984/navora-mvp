@@ -26,9 +26,9 @@ export default function OutsideDelivery({ organizationId, push }: { organization
   return (
     <section aria-label={OUTSIDE_LABEL} className="grid gap-3 rounded-2xl border border-stone-200 bg-white p-5">
       <h3 className="text-lg font-bold">{OUTSIDE_LABEL} und besetzte Zeiten</h3>
-      <p className="text-xs text-stone-600">
+      <p className="text-xs text-stone-600" data-ref="SIG1-8">
         Eine feste Nachricht ohne Klientendaten an Mitglieder, die eingeschaltet haben (Web-Push über Google oder Microsoft).
-        Bis zur Freigabe durch die Clinical Owner bleibt die Bedingung SIG1-8 bestehen: jemand beobachtet die Signale in jeder geplanten Stunde.
+        Bis zur Freigabe durch die Clinical Owner bleibt diese Bedingung bestehen: jemand beobachtet die Signale in jeder geplanten Stunde.
       </p>
       <ul className="grid gap-1 text-sm" aria-label="Anbieter">
         {push.vendors.map((v) => (

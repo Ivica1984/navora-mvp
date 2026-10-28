@@ -62,9 +62,9 @@ export default function BillingPreview({ rows, month }: { rows: BillingPreviewRo
                       {REFERENCE_NOT_VALIDATED}
                     </p>
                   )}
-                  <p className="text-xs text-stone-600">
+                  <p className="text-xs text-stone-600" data-ref={r.residual_on_file ? undefined : "D-11"}>
                     Patientenbeteiligung: {r.patient_on_file ? "hinterlegt" : "nicht hinterlegt"} · Restfinanzierung:{" "}
-                    {r.residual_on_file ? "hinterlegt" : "nicht hinterlegt (Pilotkanton offen, D-11)"}
+                    {r.residual_on_file ? "hinterlegt" : "nicht hinterlegt (Pilotkanton offen)"}
                   </p>
                   {missing.length > 0 && (
                     <details>

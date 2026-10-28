@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
+import { PAGE_LABEL } from "@/lib/auth/nav";
 import { demoPagesEnabled } from "@/lib/flags";
 import { SECONDARY_TEXT } from "@/lib/ui/colors";
 
@@ -40,7 +41,7 @@ export default function PartnersPage() {
           >
             Partner
           </p>
-          <h1 style={{ fontSize: "32px", margin: 0 }}>Partneranfragen</h1>
+          <h1 style={{ fontSize: "32px", margin: 0 }}>{PAGE_LABEL.partners}</h1>
           <p style={{ color: SECONDARY_TEXT, marginTop: "8px" }}>
             Übersicht über eingehende Partnerbedarfe und Umwandlung in neue Fälle.
           </p>

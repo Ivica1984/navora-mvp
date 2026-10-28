@@ -2,6 +2,7 @@
 
 import { useState, useTransition, type ReactNode } from "react";
 import { AppFrame } from "@/components/layout/Sidebar";
+import { PAGE_LABEL } from "@/lib/auth/nav";
 import type { AdminData, AdminExceptionRule, AdminMember, AdminTeam } from "@/features/admin/queries";
 import {
   addTeamMember, createTeam, deactivateTeam, endMemberAccess, inviteMember, prepareMemberAccessEnd, removeTeamMember, resetExceptionRule,
@@ -64,8 +65,7 @@ export default function AdminClient({ data, push = null, evaluator = [], outside
     <AppFrame active="admin" style={{ background: "#f4f7f4", color: "#153328" }}>
       <main className="grid content-start gap-6 break-words p-4 md:p-8">
         <header>
-          <p className="text-xs uppercase tracking-widest text-secondary">Administration</p>
-          <h2 className="text-2xl font-bold">Pilotbetrieb verwalten</h2>
+          <h2 className="text-2xl font-bold">{PAGE_LABEL.admin}</h2>
           <p className="text-sm text-stone-600">Mitglieder, Teams und Betriebsregeln. Tarife und Referenzdaten ändern sich nur über eine geprüfte Migration mit Quelle.</p>
         </header>
         {!data ? (
@@ -361,9 +361,9 @@ function Invitations({ data }: { data: AdminData }) {
         </label>
         <div className="flex items-end"><button type="submit" disabled={pending} className={button}>Einladen</button></div>
       </form>
-      <p className="text-xs text-stone-600">
+      <p className="text-xs text-stone-600" data-ref="D-26">
         Die Einladung gilt 14 Tage. Meldet sich die Person mit dieser E-Mail an, wird sie Mitglied mit Rolle, Team und Qualifikation.
-        Das Benutzerkonto und die Einladungs-E-Mail richtet vorerst die NAVORA-Betriebsverantwortung ein (Entscheid D-26 offen).
+        Das Benutzerkonto und die Einladungs-E-Mail richtet vorerst die NAVORA-Betriebsverantwortung ein (Entscheid offen).
       </p>
       <Feedback error={localError ?? error} notice={notice} />
       <ul className="grid gap-1 text-sm" aria-label="Offene Einladungen">

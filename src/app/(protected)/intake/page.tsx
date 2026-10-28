@@ -1,5 +1,6 @@
 import { connection } from "next/server";
 import Sidebar from "@/components/layout/Sidebar";
+import { PAGE_LABEL } from "@/lib/auth/nav";
 import { getActiveAlertCategories } from "@/features/door/queries";
 import { getIntakeData } from "@/features/intake/queries";
 import IntakeClient from "./intake-client";
@@ -16,8 +17,7 @@ export default async function IntakePage() {
         <Sidebar active="intake" />
       </div>
       <main className="mx-auto w-full max-w-4xl p-4 md:p-8">
-        <p className="text-xs font-bold uppercase tracking-widest text-secondary">Aufnahme</p>
-        <h1 className="text-2xl font-bold md:text-3xl">Zuweisungen aufnehmen</h1>
+        <h1 className="text-2xl font-bold md:text-3xl">{PAGE_LABEL.intake}</h1>
         <p className="mt-1 max-w-2xl text-sm text-secondary">
           Anfrage von Spital, Heim, Hausarzt oder Angehörigen erfassen, prüfen und in einen Klientenfall überführen.
           Danach entscheiden die Teams der Region selbst, wer den Fall übernimmt.
