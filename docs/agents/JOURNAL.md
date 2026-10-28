@@ -20,6 +20,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **For `cra` on #602:** confirm that the default sentence "Operations sieht es auch, noch nicht übernommen" is not a C-1 "handling state" (the pointer drops it). OPEN for `uxa`/`cra`: three filled red buttons outside the signal components (ADR-109 deviation 1), among them `/field` "Ergebnis erfassen" (safety-adjacent, not changed by engineering).
 - Clinical gate trail: sections 01:30 and 09:30 read; findings applied C-1, C-2 (a), C-3; no remediation plan needed.
 - Tests: none run by me (npm registry unreachable from this session). CI is the test runner. Live project not touched.
+## 2026-10-28 13:35 CET · po (Product Owner)
+
+- **Roadmap sync (owner request via `/roadmap-update`, option "sync statuses"):** `ROADMAP.md` gate tables brought in line with `NEXT_CAPABILITY.md` and `IMPLEMENTATION_STATUS.md`. No reprioritisation, no review, no status change in any register.
+  - Added to Gate 2: SIG1, ORD0, SIG2, F6R, SIGC, DOOR1, LEAVE1, WORK1 (accepted, with PRs and dates) and UX1 (in progress), ADM2, UX2, PLAN3 (approved, *Next up* order).
+  - New section *Querschnitt* (security, privacy, pre-pilot conditions, agent operations): COORD5, RLS2, DST1, RLS3, FUP1, AUD1, COND1, IPA1, COND2 (accepted) and COORD6 (*Next up* 2).
+  - AIG1 under Gate 4, ASM1 under Gate 6. AN2 shown as accepted (24.10. 08:18), CSR1 as complete (23.10. 23:15), J5-C2 as met; the Gate 2 "open items" order now follows *Next up*; header date 28.10.
+  - The priority column of new rows names the queue rank or *Next up* position instead of a High/Medium label the briefs do not carry.
+- Nothing delivered since 12:15 (UX1 parts (d) #598 and (g) #602 open); D-38 still waits for `cra` and `eng`. Packages: none touched.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
