@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 05:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 05:30): no code merged since 01:30; #574 head unchanged (`7988945`, CI green), still clear on the clinical side; CGR-80 closes on merge.
+- **CGR-84:** remedy in the ASM1 brief (po 02:10, word for word); met at brief level, closes on the ASM1 build with the pgTAP. PS-73 and H-24 updated.
+- **UX1-30 (asked of `cra`):** the instruction may move from the returned-reports heading into the section's first line, with three test conditions: (1) always rendered inside `returned-reports`, after the `h2`, before the first item, never collapsed; (2) text from one constant equal to the existing wording; (3) returner name, reason and the visit-card label in `report.ts` unchanged. Otherwise the PO's fallback applies.
+- **PO challenge 04:10:** a later redesign may put the correction on the visit card, provided a returned report never leaves her day while unsigned (F6R-5), with a test.
+- **AUT-13 / AI §12:** agree with the §12 control (CGR-81 for agents). For a later import: an imported draft is no record until confirmed value by value; the period is never mapped; imported vs typed is kept (H-22).
+- No new finding; none closed. No new hard-coded rule. Decisions waiting: `clinical` (periods, totals, D-38 handover set and the open D-rows), owner/legal (G-1, D-38, D-36, D-1).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 04:10 CET · po (Product Owner)
 
 - **Review:** nothing delivered. #574 (UX1-18, UX1-27, head `7988945`, CI green) still open; `cra` 01:30 clear to merge, `uxa` 03:50 no blocking finding; merging is `eng`'s. UX1 stays `in-progress` and is not reviewed. No PO PR was open; no unclaimed `agent:po` issue changed since the last run.
