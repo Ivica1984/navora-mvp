@@ -31,6 +31,49 @@
 
 ---
 
+## 2026-10-28 22:00 CET · aia review 7: AUT-16 adopted as VIS1-3b and built in #624 (open); `cra` keeps the reason typed; CGR-89 supported as a fact line; AUT-17 (low)
+
+**Read:** `recovery/main` at `013b733`:
+- merged since review 6: #622 (mine), #620 (PO 20:15: COORD6 accepted; VIS1 *Next up* 1 with VIS1-3a from UXR-29 and VIS1-3b from AUT-16, reason not prefilled until `cra`);
+- open: #624 (`eng`, VIS1, ADR-111, migration 0089; read at head `2db589d`: `field-client.tsx` move dialog, `features/field/rules.ts`, ADR-111), #623 (`cra` 21:30: VIS1-3b prefill not confirmed, CGR-89; read at head `f6cafc6`), #614, #604, #589, #582 (contained in #623);
+- No open issue is labelled `automation`.
+
+**Nothing below is a measurement.** CI on #624 not read as passed; ADR-111 says vitest, typecheck, lint, build and Playwright were not run locally (CI decides).
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-17 | Visit: the reason for moving an early visit (nurse at the door, `/field`, VIS1-3b) | **IMPLEMENTED in open PR #624:** the dialog shows an empty, required `reason` textarea (3-300 characters, `field-client.tsx` at head `2db589d`) and a hint `MOVE_TO_TODAY_HINT` that explains the move ("… im Verlauf festgehalten …"), not what to write. `cra` 21:30 (#623) named a non-submitted placeholder ("Warum heute? z. B. Wunsch der Klientin") as an acceptable aid that keeps the J3 duty. Effort: one typed sentence per early visit, at the door; thinking about what is expected is the part a placeholder removes. Size UNKNOWN (no AN1 count of early moves yet) | **simplify:** a `placeholder` on the reason field asking *why today*, never submitted, never prefilled (`cra` answer kept). Rides #624 if `eng` touches the dialog again, otherwise UX2. Wording `uxa`; no reason list (that would be a reason catalogue, PO documentation rule with a Clinical Rule Register row first, `cra`) | L | stage 0; gate PO, `uxa` (wording) | AN1: per team and week, number of VIS1-3b moves and median time from opening the dialog to confirm (team level only, never per person) | low | none (low) |
+
+### 2 Reviewed without a new finding
+- **AUT-16 → VIS1-3b (PO 20:15) and `cra` 21:30:** adopted with one change: the reason is typed, not prefilled. **Accepted by `aia`, no challenge:** `cra` shows that the prefill ("Heute statt am <Datum> gemacht") only restates the `before`/`after` of the `moved` row (0056) and always passes the 3-character minimum, so the duty would be met by default and the only fact NAVORA does not already know (why) would be lost. A prefill there would have removed a step in form only. The rest of AUT-16 is built in #624 as proposed: one confirmation on `/field`, today fixed, card times prefilled and editable, the existing `reschedule_visit` with its checks, the start its own tap. **AUT-16 stays OPEN** until #624 merges with CI green and the `cra` VIS1-7 gate is clear.
+- **CGR-89 (`cra` 21:30, advisory S2; for the PO to place):** the confirmation states, as a fact read from the plan, whether the client still has a visit planned on the date the visit leaves. **Supported from the automation side:** it is a deterministic read (no field, no tap, no rule, no level), and it puts at the door the one fact that otherwise someone would have to look up on `/team` afterwards. It is the eliminate-through-the-care-graph pattern. Whether a gap needs a replacement visit is the Clinical Owner's (UNKNOWN); `aia` proposes no signal or rule for it.
+- **#624 otherwise:** no step added for a nurse beyond the brief. The refusal audit row (ADR-111 decision 2) is written by the database, not by a person. ADR-111 decision 4 confirms that a member of the visit's team moves it herself (no coordinator), as AUT-16 assumed.
+
+### 3 AI readiness of delivered items
+- #624 prefills today's date and the card's own planned times. These are copies of existing values, not a proposal, draft or ranking; no ledger entry is needed. Nothing merged since review 6 proposes, drafts or ranks.
+- **Forward control (AI Operating Model Review §12, extended):** any proposed earlier move from PLAN3 or the day-order agent (AUT-5) shows the CGR-89 fact line too, so a confirmer never moves a visit off a date blind.
+
+### 4 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1 built | PLANNED, *Next up* behind VIS1 and ADM2; not started |
+| 0 | ASM1 built | PLANNED, not started |
+| 1-3 | unchanged from review 1 | OPEN |
+
+### 5 Findings closed
+- None (AUT-16 closes on the #624 merge).
+
+### 6 Waiting for the PO
+- CGR-89 placement (`cra`); `aia` supports it (§2).
+- AUT-17 (low): placeholder on the reason field.
+- AUT-14 (medium), AUT-15 (low): unchanged; D-38 frozen (rule 9), nothing written about it.
+- Bottleneck map refresh: due 2026-11-03 (weekly).
+
+---
+
 ## 2026-10-28 20:19 CET · aia review 6: VIS1 reviewed (AUT-16, the early visit as one confirmed move on `/field`); COORD6 and UX1 accepted; no item proposes, drafts or ranks
 
 **Read:** `recovery/main` at `785278e`:

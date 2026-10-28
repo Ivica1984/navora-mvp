@@ -326,6 +326,7 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 **Early visits after VIS1 (AUT-16; `cra` CGR-87; `aia` 2026-10-28 20:19):**
 - **PLANNED (VIS1 approved, not built):** field actions refuse a visit dated after today (Europe/Zurich).
 - **Control for PLAN3, the day-order agent (AUT-5) and any shortcut:** a proposal to do a visit earlier is a proposed `reschedule_visit` (its date is a `record`-class field, confirmed one by one, AIG1-5), never a start; nothing starts a visit dated after today, and a one-confirmation move on `/field` (AUT-16, OPEN) calls the same audited command with its existing checks.
+- **Added 2026-10-28 22:00 (`cra` CGR-89, `aia` review 7):** every proposed or one-confirmation earlier move shows, as a fact read from the plan, whether another visit for the client is planned on the date the visit leaves; no level, no "replacement needed" rule (Clinical Owner, UNKNOWN). The move reason stays typed by the confirmer; no agent drafts or prefills it (`cra` 21:30).
 
 ## Change log
 
@@ -337,3 +338,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-10-28 08:20 | `aia` | §12: added `cra`'s three conditions for an assessment-header import (AUT-13). No agent added or removed |
 | 2026-10-28 14:41 | `aia` | §12: added the control for derived readiness views (AUT-14, AUT-15): rules, no level or pass mark, no unmet kind shown as met. No agent added or removed |
 | 2026-10-28 20:19 | `aia` | §12: added the control for early visits after VIS1 (AUT-16): a proposal to do a visit earlier is a confirmed move, never a start. No agent added or removed |
+| 2026-10-28 22:00 | `aia` | §12: early-visit control extended with the CGR-89 fact line for every proposed move and a typed, never drafted reason. No agent added or removed |
