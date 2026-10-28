@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 12:15 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 stays `in-progress` (#598, part (d), open with green CI and no blocking `uxa` finding; part (g) not built); not reviewed. No PO PR was open.
+- **`uxa` 11:49 placed:** UXR-22 and UXR-23 (low) as **UX1-32** (one name per page on `/partners`; "Details zum Pflegeteam"), riding #598 if Engineering chooses, otherwise part (g); **not a merge condition for #598**. UXR-25 (low) as **UX1-33** in part (g): focus moves to "Schliessen" when the CGR-32 notice replaces the absence form, back to "Speichern" after a refusal (a keyboard user must reach the notice that her absence leaves planned visits for her team to decide; value 2). UXR-24 (medium) as **UX2-12**: one `h1` per page, the product name not a heading; in UX2 because the side column is the shell UX2-1 replaces.
+- **D-38 (unfrozen since 11:10, trigger 5): `lca` 11:55 taken in; still `inputs-requested`, Low; owner ask still paused.** Protective forms applied to the terms table: T15 (a) "granted, not applied for"; T15 (d) the partner commits in the LOI that a member who does not move keeps her employment on her existing terms (without it, a refusal under OR Art. 333 Abs. 2 would end it); **new T15 (f)** no notice, resignation or transfer date before C is admitted or while a safety stop holds; T16 extension not usable by one party to delay C, T12 continuity during it; **T17 no NAVORA loan, at most a fee deferral at the agreed price** with no security, conversion, approval right, client-number tie, exclusivity or exit penalty; T18 (a)-(c), (e) worded to the Zurich licence guidance (advance report of a Leitung Pflege change, deputy, no job-sharing; processor agreement; export like T2); T10 (ii) non-care services only, (iii) protective form only. Five questions added to the Zurich adviser list (owner agenda; the adviser ask itself is unchanged). Waiting: `cra` (T15 (b), T16 safety stop) and `eng` (T18 (e)), both requested 11:10.
+- **STR-17 F4 now in force** (`DECISION_PACKAGES.md` *Frozen packages*) on `lca`'s two conditions: nothing external is signed or sent while a *Pending wording* list is not empty; a wording change `lca` marks compliance-relevant applies at once.
+- Packages: D-38 only (the only unfrozen package). D-37 waits only for the D-36 fact. Every other package frozen and not written about (rule 9); none decided by po.
+- **Challenge:** "Why must a nurse's job depend on a vote about a provider?" It must not: T15 (d)/(f) now make each nurse's own employment independent of the team's decision and of the timing of C's licence. And "if NAVORA were designed from scratch, would it lend money to a team's provider?" No: credit is a lever over a provider that must stay independent (D-12 C condition 1); the kit (STR-19) should make a team's start-up costs small enough that a deferral at full price, or none, suffices. Hypothesis for pilot data, not a brief yet.
+- **Waiting for the owner:** nothing new to decide. D-38 still nothing to answer (one combined ask once `cra` and `eng` are in). Bundle 1 and 2 unchanged.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 11:55 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 frozen and unchanged (no trigger; nothing written about them). Tier 2: no open CGR names a decision I can act on. **D-38** unfrozen by po 11:10 (trigger 5, `csa` STR-18) with an explicit `lca` request; picked D-38 only.
