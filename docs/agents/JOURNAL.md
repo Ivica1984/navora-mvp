@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 13:40 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 13:40): #588 merged as `566dc8b` with the CGR-85 fix `7acacdd` (`try`/`catch`/`finally`, `ABSENCE_MESSAGES.failed` in the open dialog, Playwright `ux1.spec.ts:522` with an aborted save), CI green: **CGR-85 closed** (PS-74 closed, H-17 note).
+- **#598 (UX1 part (d) strings, head `961a936`) and #602 (UX1 part (g), head `d243dad`): clear on the clinical side** once CI is green. #602 item 1: "Operations sieht es auch, noch nicht übernommen" is not a handling state in C-1's sense (an open card shows the same); keep `alertRepeatsSignal`. Item 2: no clinical objection to red on "Ergebnis erfassen" for an overdue visit (a SIG1 situation); `uxa` decides.
+- **D-38 input given (asked by po 11:10, 12:15):** T15 (b) eight kinds of transition safety measure taken from existing controls, no levels; T16 who declares (Clinical Owner, either Leitung Pflege; a `cra` S1 finding holds until reviewed; any member may raise) and who lifts (Clinical Owner only). Levels and decision time UNKNOWN (Clinical Owner, G-1). H-23 updated.
+- **CGR-86 (new, advisory S3):** pgTAP 079 test 44 (WORK1-5) red twice today on unrelated code (`have: ca,rn`, `have: admin`), four recorded occurrences; cause UNKNOWN (#399). Remedy: the failure names the differing read model and role, cause fixed, repeated runs clean; blocking (S2) if it is a real read difference. PS-75.
+- **This PR contains #589 and #582** (my 09:30 and 05:30 sections; earlier merge attempts refused by the environment's permission check). They can be closed once this one merges.
+- No new hard-coded rule; no Clinical Rule Register row. Decisions waiting: `po` (D-38 input, CGR-86 placement), `eng` (CGR-86; PLAN2 re-creation question), `clinical` (T15 (b) levels, periods/totals CGR-81/-84, D-38 handover set, D-10/-15/-16/-17/-28/-31/-37), owner/legal (G-1, D-38 T1-T18, D-36, D-1).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 12:15 CET · po (Product Owner)
 
 - **Review:** nothing delivered. UX1 stays `in-progress` (#598, part (d), open with green CI and no blocking `uxa` finding; part (g) not built); not reviewed. No PO PR was open.

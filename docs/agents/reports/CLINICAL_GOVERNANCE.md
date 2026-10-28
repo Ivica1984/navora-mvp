@@ -16,6 +16,103 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-28 13:40 CET: #588 merged with the CGR-85 fix, CGR-85 closed; #598 (UX1 part (d) strings, head `961a936`) and #602 (UX1 part (g), head `d243dad`) clear on the clinical side; C-1 pointer question answered; D-38 T15 (b) and T16 safety-stop input given; CGR-86 (advisory S3: WORK1-5 pgTAP test nondeterministic, red twice today)
+
+**Scope:** `recovery/main` @ `16c81b7`. Changes since my 09:30 CET section (`16dafb5`, PR #589, **still open**; it contains #582, my 05:30 section; both could not be merged by the previous runs, see *Decisions requested*). This PR carries both and supersedes them.
+- **Code merged:** #588 (UX1 part (d), first PR) as `566dc8b`. Since the head I read at 09:30 (`9bc57d3`) one code commit was added: `7acacdd` "UX1-28: CGR-85" (`absence-section.tsx`, `tests/e2e/ux1.spec.ts`); the second merge `522f34b` changed only `JOURNAL.md`. CI `app`, `db`, `e2e`, `ui-screenshots` success on `566dc8b` (check runs read through the GitHub API). No migration.
+- **Docs merged:** PO 10:10 (#590: CGR-85 placed as UX1-31), 11:10 (#596: STR-17, COORD6 brief, D-38 reopened with T15-T18 and T10 options), 12:15 (#601: `lca` 11:55 taken in; UX1-32, UX1-33, UX2-12); `csa` 10:47 (#595); `uxa` 11:49 (#599); `lca` 11:55 (#600); `eng` status (#591).
+- **Open:** #598 `eng` UX1 part (d) strings (UX1-11 to UX1-13, UX1-32; ADR-108), head `961a936`; #602 `eng` UX1 part (g) (UX1-22 to UX1-24, UX1-33; ADR-109), head `d243dad`. CI on both heads was still running when I read them (`app` success on both). #589, #582 (mine); #3 (M2 to `main`) unchanged.
+- **Asked of `cra`:** #602 body item 1 (is "Operations sieht es auch, noch nicht übernommen" a handling state in C-1's sense?) and item 2 (the red "Ergebnis erfassen" on an overdue visit); D-38 T15 (b) (which kinds of safety measure, no levels) and T16 (who may declare a safety stop), requested by the PO 11:10 and 12:15.
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read: `7acacdd` (`absence-section.tsx:13-35`, `ux1.spec.ts:436-450`, `:522-544`); the #598 diff of `src/` (17 files) and `tests/unit/ux1-strings.test.ts`, `tests/unit/support/user-facing-strings.ts`; the #602 diff of `src/` (`team-client.tsx`, `SignalBanner.tsx`, `features/team/rules.ts`, `features/push/rules.ts`, `features/intake/rules.ts`, `field-client.tsx`, `intake-client.tsx`, `absence-section.tsx`) and its tests (`ux1-team.test.ts`, `ux1-colour.test.ts`, `ux1-team.spec.ts`, `lifecycle.spec.ts`), `features/signals/rules.ts` (`splitSignals`) on its head; `briefs/UX1.md` UX1-22 to UX1-24, UX1-31 to UX1-33; `briefs/UX2.md` UX2-12; `decisions/D-38.md` T10, T15-T18 and `lca` 11:55; the annotations of the failed `db` jobs 122787176524, 122789338604, 122647083342 and issue #399. **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-86 | **WORK1-5** control test (pgTAP 079 test 44), issue #399 | **advisory (S3)** | The test that proves a nurse's working-time acknowledgement changes nothing her teammates, her RN, a coach, Operations or an administrator can read has failed **twice today** on code that does not touch it, with a different role set each time: run 40679763184 (#601, docs only, 11:24 UTC) `have: ca,rn`, run 40680388064 (#602 first head, 11:29 UTC) `have: admin`; it passed on the same commits in parallel runs. With 2026-10-27 00:06 (`have: admin,ops`) and 04:20 (`have: ca,rn`) that is four recorded occurrences; a fifth `db` failure today (run 40637292260, push of `4fbcfbb`, 05:19 UTC) failed in *Database tests* with the failing test not readable here (UNKNOWN). The cause is still UNKNOWN (#399: candidate a read model that depends on the clock). Two readings are possible and the test cannot tell them apart: a test artefact, or a real, intermittent difference in what other roles read after a nurse acts (a privacy or independence leak, WORK1-5). While it is red at random, a real regression of this control would look like the known flake and would be re-run to green | `supabase/tests/database/079_work1_working_day.test.sql:52-` (fingerprint), test 44; check-run annotations of jobs 122787176524 and 122789338604 ("Failed test 44: WORK1-5 catalogue …", `have` as quoted, `want: NULL`); #399 comments 2026-10-26 23:20 and 2026-10-27 03:25 UTC; job 122647083342 step *Database tests* failure | **eng:** (1) the test reports **which** table or read model differs and for which role (its name in the failure message), so each occurrence is diagnosable from the annotation alone; (2) the cause is found and fixed (if a read model depends on the real clock, the fingerprint pins `navora.test_now` for both snapshots or excludes only that column with the reason written next to it); (3) the fix is shown by running pgTAP 079 repeatedly (for example 50 times in one CI job) with no failure. Until then each occurrence is recorded on #399 with its `have` value. Never skipped, never weakened. If (1) shows a real difference in what another role reads, the finding becomes blocking for WORK1 (S2) |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-85** | **closed** | `7acacdd`, merged in `566dc8b`, CI green. `absence-section.tsx:20-33`: `run` wraps the server action in `try`/`catch`/`finally`; a throw becomes `{ ok: false, error: ABSENCE_MESSAGES.failed }` ("Konnte nicht gespeichert werden. Bitte erneut versuchen.", existing text, `features/absence/rules.ts:5`), `pending` is reset in `finally`, `router.refresh()` still follows. Test `ux1.spec.ts:522` "CGR-85: a save lost in transit …": the held save is aborted with `internetdisconnected`; the open dialog shows `command-error` = `ABSENCE_MESSAGES.failed`, `absence-past-planned` has count 0, "Speichern" is back and "Abbrechen" enabled, Escape closes the dialog, nothing recorded. Remedy (1)-(3) met. The lost-response case (saved on the server, response lost) is not tested; a retry is then refused as `overlaps` (0046) and the past-visit flag (0053) is set, as stated at 09:30; I accept that |
+| **CGR-84** | open, advisory (S3); remedy met at brief level (PLANNED) | no change; closes on the ASM1 build with the pgTAP |
+| **CGR-81** | open, advisory (S2); remedy in the brief (PLANNED) | no change |
+| **CGR-78** | open, advisory (S2); (a) and (b) met at brief level | no change |
+| **CGR-75** | open, advisory (S2); (1)-(5) met at brief level | no change |
+| **CGR-72** | open, blocking for ADM2 acceptance (S2); ADM2-15 PLANNED, not built | no change |
+| **CGR-68** | open, advisory (S2); interim part IMPLEMENTED | no change |
+| CGR-54, CGR-56 | open, advisory (S3, S2); DST1-C4, DST1-C5. PLANNED | no change |
+| CGR-31 | open, advisory (S3; S1 before invoicing) | no change |
+| CGR-28, CGR-21 | open (S2 if cover is enabled) | no change |
+| CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-85**.
+
+### #602 (UX1 part (g)): clinical gate items
+
+- **UX1-22 / C-1, the pointer line: confirmed (IMPLEMENTED on the PR head; CI decides).** `alertRepeatsSignal` (`features/team/rules.ts:140-145`) returns `true` only when an **open** card in the banner is for the same visit and the same situation (`signal_kind` = `exception_type`), the entry has no flags, Operations has not taken it, and the type is not `visit_interrupted`; otherwise the entry is in full. The open cards come from the banner's own polled rows (`SignalBanner.tsx:37-39` `onRows`; `team-client.tsx:114`, `splitSignals(...).open`), and the banner renders every open row (`SignalBanner.tsx:61`, no limit), so a pointer only appears while its card is on the same screen. A taken card (also a card taken by a care assistant that still awaits an RN, which `splitSignals` keeps open) leaves the pointer rule or keeps the card visible. The banner shows the signed-in person's signals only, so a member who has no card sees the entry in full. The "provisorisch" sentence is a separate, always-rendered line (`team-client.tsx:226`), asserted in `lifecycle.spec.ts`; the follow-up form stays one tap away (same test).
+- **#602 item 1 (asked of `cra`): "Operations sieht es auch, noch nicht übernommen" is not a handling state in C-1's sense.** It is the default text for "nobody at Operations has taken it" (`visitAlertHandling(false)`, `rules.ts:110-112`). C-1 protects information the card lacks; that nobody has taken the situation yet is exactly what an **open** card shows (it is in the open list with "Ich übernehme"). Once Operations takes it, `taken` is true and the entry is in full again with "Operations ist informiert und kümmert sich mit". The pointer may drop the default sentence, the detail line and the age. **Keep `alertRepeatsSignal` as written.**
+- **#602 item 2: the red "Ergebnis erfassen" on an overdue visit.** No clinical objection to keeping red there: `visit_overdue` is itself a SIG1 situation, so the colour marks the action that ends a safety signal, which is consistent with C-2 (a) ("red only for safety signals"). Whether to keep it is `uxa`'s design call.
+- **UX1-23 / C-2 (a): confirmed.** One urgency map (`features/intake/rules.ts`, `URGENCY_BADGE_CLASS`), "hoch" amber with the word kept, an unknown value neutral; `ux1-colour.test.ts`. The visit status badges "abgesagt" and "nicht angetroffen" on `/field` become neutral: they are status labels; a no-show that needs action is carried by its SIG1 card and its CSR1 entry, not by the badge. No text changed.
+- **UX1-24 / C-3: confirmed.** `allReachable` is true only when the list is not empty and every listed member is active (`features/push/rules.ts`); while not, the team status is open, amber, with `REACH_GAP_TEXT` = my C-3 wording and the link "Meine Einstellungen" (`ux1-team.spec.ts`, seed team 0 of 2). No per-member detail beyond active / not active.
+- **UX1-33 (focus):** presentation only; the CGR-32 notice text, position and link are unchanged; the CGR-85 path also returns focus to "Speichern".
+- **PR deviation 3 (pointer path not seeded in e2e):** accepted. The rule's fail-safe direction is the full entry, and every input of the rule is unit-tested. A seed state with an open SIG1 card and its CSR1 entry at once, asserted at 390 px, is a useful UX2 addition, not a condition.
+
+### #598 (UX1 part (d), strings): clinical gate items
+
+- **UX1-11 (no codes in page text): confirmed.** Every removed code moves into a `data-ref` attribute on the same element (`D-3`, `D-11`, `D-15`, `D-22`, `D-26`, `SIG1-8`), and the sentence keeps its meaning: "… die fachliche Freigabe der Zuordnung ist offen", "Frist und Inhalt der Information sind offen", "nicht hinterlegt (Pilotkanton offen)", "Bis zur Freigabe durch die Clinical Owner bleibt diese Bedingung bestehen: jemand beobachtet die Signale in jeder geplanten Stunde." The SIG1-8 condition is still stated in full, the open decisions still read as open. `ux1-strings.test.ts` guards that the scan reads pages, that no code survives outside `data-ref`, and that the removed codes stay as `data-ref`.
+- **UX1-13 (one product name, one label per page) and UX1-32: confirmed.** Labels only ("Ausnahmen" for the OPS1 exception centre, "Kennzahlen", "Dein Team", "Details zum Pflegeteam"). No text fixed by `cra` or `lca` (hold meaning, IPA1, WORK1, SIG1-8 wording beyond the code, billing limits, the provisional notes) is changed in substance; no route, rule, filter or read scope changes.
+
+### D-38: `cra` input on T15 (b) and T16 (asked by the PO 11:10 and 12:15; input, not a decision)
+
+**T15 (b): kinds of safety measure for a transition (no levels).** I name kinds that existing controls or open findings already define; every level, count, deadline or threshold is the Clinical Owner's (D-27, G-1), UNKNOWN until set:
+1. **No client without a named responsible provider on any date:** for every client of the team, either the partner or C (or a provider that confirmed in writing, T12 (i) (b)) is responsible on each day of the window, and C's three prerequisites are recorded before a client moves (T12 (i) (a); H-23).
+2. **No open safety item without a responsible person at cut-over:** open SIG1 signals, open CSR1 entries (visit not done or stuck, interrupted visit without a follow-up decision, report not final, order without end date) and returned reports not yet signed again are either closed or handed to a named person of the provider that will act on them (CGR-04, CGR-24, CGR-25, F6R).
+3. **Reachability for safety signals:** every member who will visit under C receives P1 signals outside the app, or the SIG1-8 watch condition holds for C (UX1-24, SIG2).
+4. **Documentation integrity:** every record that moves is final and signed, its authorship and changes after `final` are kept, and C has accepted a usable export (T2 (ii)-(iii), T18 (e)).
+5. **Medical orders:** each moving client's order is valid on the cut-over date and names the issuing doctor (D-22, CR-003), so that care under C does not start without an order.
+6. **Qualification and delegation:** C's staff for each care category meet the qualification gate already enforced (CR-007), and C's Leitung Pflege and deputy are named (T18 (b)).
+7. **Rules adopted:** C has adopted, through its own Leitung Pflege, the clinical rules it will use (T13, T18 (d)); none is assumed from the partner.
+8. **No open S1 finding** in the governance report for the functions C will use.
+Whether each kind is required, and at which level, is the Clinical Owner's decision. I do not add an interRAI, PAG or MQI criterion: none is defined for this.
+
+**T16: who may declare and lift a safety stop (proposal, for the owner and the Clinical Owner).**
+- **Declare:** the Clinical Owner (once named, G-1); the partner's Leitung Pflege for her clients; C's Leitung Pflege for C's side. A `cra` S1 finding on a function C will use holds the transition automatically until a qualified person has reviewed it (I am not a decision owner, D-27). Any team member may raise a safety concern that pauses the date until a Leitung Pflege has decided; the time she has to decide is a level (Clinical Owner, UNKNOWN).
+- **Lift:** only the Clinical Owner, recorded with who, when and why. Neither the owner nor the partner's management nor C's commercial side can lift a stop alone, because they have a commercial interest in the date.
+- **During a stop:** T15 (f) and T12 continuity apply (no notice, no transfer date, the current provider keeps visiting).
+
+### Other checks (no finding)
+
+- **UX1-31, UX1-32, UX1-33, UX2-12 (PO 10:10, 12:15):** UX1-31 is my CGR-85 remedy word for word. UX1-32, UX1-33, UX2-12 are presentation; no clinical effect.
+- **COORD6 brief, STR-17 F4 (*Pending wording*):** F4 applies `cra` S1/S2 findings at once; the S3 batching does not delay a safety finding. Agreed.
+- **No new hard-coded clinical, tariff, LTCF, interRAI, PAG or MQI rule** on `recovery/main` since 09:30 or in #598 or #602 (new constants are labels, colours and the C-1 presentation rule). No Clinical Rule Register row.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#588** UX1-28 to UX1-31 | merged; CGR-85 closed |
+| **#598** UX1-11 to UX1-13, UX1-32 (head `961a936`) | **clear to merge on the clinical side** once CI is green; the UX1-12 string list for part (d) is complete |
+| **#602** UX1-22 to UX1-24, UX1-33 (head `d243dad`) | **clear to merge on the clinical side** once CI is green; item 1 answered (keep the rule), item 2 no objection |
+| **UX1** | no open `cra` finding; `delivered` per the PO's list when #598 and #602 are merged with green CI |
+| **WORK1** (accepted) | CGR-86 advisory; becomes blocking only if the cause is a real read difference |
+| **ASM1** (approved, not built) | CGR-81 and CGR-84 remedies in the brief; both close on the build with their tests |
+| **D-38** (`owner`, inputs requested) | `cra` input on T15 (b) and T16 given above; no open CGR on D-38 |
+| **ADM2** | unchanged: CGR-72 blocking for acceptance until ADM2-15 is built with its pgTAP |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **po:** take the T15 (b) and T16 input into D-38; place CGR-86. **This PR contains #589 and #582; they can be closed once it is merged.** The previous runs could not merge their own PR (environment permission check); if this run cannot either, `po` or the owner merges it. That is the only reason, not CI.
+- **eng:** CGR-86 (1)-(3) on #399. Still open: does "Ich kann nicht arbeiten" cover a single visit (UX2 suggestion, 21:30)? Does PLAN2 re-create a hand-removed care-plan visit (C-2 (b), 13:37)?
+- **clinical (Clinical Owner, after G-1):** the levels for the T15 (b) kinds and the decision time in T16; which periods assessed minutes refer to and when a total may be shown (CGR-81, CGR-84); the D-38 handover set; D-34 question 7, D-10, D-15, D-16 (with 3b), D-17, D-28, D-31; D-37 interval and triggers. All UNKNOWN until answered.
+- **owner / legal / regulatory adviser:** G-1; D-38 T1-T18 and T10 with the Zurich adviser bundle; MepV reporting for a rule withdrawal (D-34); R-11 for C; D-36 licence terms; D-1.
+
+---
+
 ## 2026-10-28 09:30 CET: #574 merged unchanged, CGR-80 closed; UX1 part (d) first PR #588 (head `9bc57d3`) read: UX1-28 (c) notice display confirmed, UX1-30 conditions (1)-(3) met, string list confirmed; CGR-85 (advisory S3: a thrown save locks the absence dialog with no outcome); UX2-11 placed as written
 
 **Scope:** `recovery/main` @ `18b4ba9`. Changes since my 05:30 CET section (`b47545e`, PR #582, **still open**: this run could not merge it; this PR carries it, see *Decisions requested*):
