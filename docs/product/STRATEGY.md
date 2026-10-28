@@ -27,6 +27,8 @@ NAVORA software is not a management tool. **It is a core component of the operat
 
 **How the vision is applied:** pilot safety requires a staged approach, but every strategic decision reflects the long-term vision.
 
+**How opportunities are judged (owner, 2026-10-28, for `csa` and `aia`):** do not start from "how can we improve the current way of working?". First ask: **"If we were designing home care from scratch today, how would we organise it?"** Then compare that future-state model with current practice, and say what NAVORA should **eliminate, redesign, automate or replace entirely**. The goal is a superior care-operating model, not incremental optimisation. The model `csa` uses is in §8.
+
 ## 2 Owner decisions of 2026-10-27
 
 | Topic | Decision | Status |
@@ -37,6 +39,15 @@ NAVORA software is not a management tool. **It is a core component of the operat
 | D-35 AI services | Staged path approved: stage 0 now (governance layer and rules, synthetic data); stage 1 administrative AI after 3 stable pilot months, through a new owner package; stage 2 dictation; stage 3 clinical module | decided (stage 0 in force) |
 | D-37 interRAI | Strategic decision track approved; expert review and licence clarification (D-36) before the final decision | OPEN |
 | Roles | AI & Automation Architect (`aia`) and Chief Strategy Architect (`csa`) created | IMPLEMENTED (schedules) |
+
+**Owner decisions of 2026-10-28** (in the `csa` session):
+
+| Topic | Decision | Status |
+|---|---|---|
+| `csa` strategic review of 2026-10-27 | Approved, with the overall direction and the priority on G-1 and on removing blockers to the long-term model | decided |
+| STR-14 (freeze packages that wait for a person) | Approved; `csa` to propose an implementation approach (STRATEGIC_ALIGNMENT_REVIEW, STR-17) | decided; implementation PLANNED |
+| STR-15 (C-transfer terms before the partner's letter of intent) | Approved as high priority: the transition must be defined before entering a pilot partnership. The package (D-38) must cover transition criteria, client consent and transfer, staff transfer, tariff-contract transition, financing, fee portability, partner incentives, governance after transition, and the conditions under which a team becomes independent | decided; D-38 already exists (PO, from STR-15); `csa` proposes the missing terms T15-T18 and a T10 proposal (STR-18) |
+| How opportunities are judged | "Designed from scratch" first, then compare (§1, §8) | decided |
 
 ## 3 Horizons
 
@@ -98,3 +109,38 @@ Each hypothesis names the evidence it needs. `csa` sets no price and no amount.
 - **Direct care share from events.** The report gives overhead and satisfaction. NAVORA's North Star is direct care share, computed from events (AN1, IMPLEMENTED on synthetic data), with the 60 % Buurtzorg reference already in `CARE_OPERATING_MODEL.md` and a 75 % hypothesis.
 - **Assessment instrument.** Buurtzorg plans with Omaha. NAVORA's direction is interRAI HC (D-37, OPEN), integrated through the provider's licensed tool (D-37 option B), for reassessment, continuity and governance. NAVORA must turn the assessment into reassessment prompts and continuity (ASM1, PLANNED) without computing scales before the clinical module and the licence allow it.
 - **Ownership.** Buurtzorg's teams are employees of one foundation. NAVORA's destination is **team-owned providers** (D-12 C). That is a step beyond Buurtzorg and is only credible once STR-15's transfer terms exist.
+
+## 8 Home care designed from scratch (future-state model, `csa` 2026-10-28)
+
+Owner instruction 2026-10-28 (§1). This is the reference `csa` judges packages, briefs and roadmap changes against. It is a strategic model, not a rule: no clinical, legal or tariff rule follows from it, and every regulated role it names stays (Clinical Owner, Leitung Pflege, licence holder). Status of every element: PLANNED or hypothesis unless marked.
+
+### 8.1 If we designed home care today
+
+1. **The unit is a neighbourhood team that owns its provider.** About 8-12 nurses of mixed qualification serve a few contiguous municipalities. The team is the licensed, admitted provider, legally and economically. It holds the licence-bound roles (Leitung Pflege and deputy) inside itself. Nobody above it plans, admits or disposes.
+2. **Coordination is a property of the shared record, not a job.** Intake, planning, cover, handover, absence, quality signals and billing facts are states and events in one care graph. A role that exists only to move information between people (dispatcher, scheduler, intake coordinator, billing clerk) does not exist.
+3. **One clinical language.** A standardised assessment (interRAI HC is the owner's direction, D-37) is the source of the care plan, the reassessment cycle, continuity and the billing basis. Nothing is typed twice.
+4. **Machines propose, people decide.** Rules do rule-shaped work. AI drafts from unstructured input. A named person confirms every entry. Safety signals stay deterministic (D-35 path; never-list unchanged).
+5. **Shared services without a headquarters.** What a small provider cannot carry alone is bought as a contracted service shared by many team-owned providers: a regulated back office (tariff contracts, invoicing submission, quality reporting), night and weekend on-call, training places, and the Clinical Owner's rule catalogue. Each provider adopts rules and buys services; none takes instructions (`aia` AUT-12, hypothesis P-24; `lca`: licence-bound roles stay per provider).
+6. **Starting a provider is a product.** A team founds its provider from a ready kit: legal-form templates, a licence file, insurance, a tariff-contract route, its training-place arrangement and its NAVORA set-up. An incumbent's licence is not needed as a bridge.
+7. **Income follows care.** The team keeps the provider margin. NAVORA's fee is volume-neutral (D-14). Surplus rules reward care delivered with quality held, never hours or categories.
+
+### 8.2 Compared with current practice and with NAVORA today
+
+| Element | Current practice (typical Spitex organisation; general description, not a sourced survey) | NAVORA today | Verdict |
+|---|---|---|---|
+| Who plans and assigns | Einsatzplanung or dispatcher above the teams | team plans from the care plan (PLAN2), proposal + team confirmation (PLAN3, PLANNED) | **eliminate** the scheduling role (in progress) |
+| Who admits colleagues | management or HR | team consent (ADM2, PLANNED); account creation still manual (D-26 default) | **redesign**, then automate the account step (D-26) |
+| Handover | team meeting, phone | record shows "since you were last here" (HAND1, IMPLEMENTED) | **eliminate** the meeting (done) |
+| Working time | timesheet | proposed from visits, confirmed (WORK1, IMPLEMENTED) | **automate** (done) |
+| Assessment | separate tool; re-typed into the plan | instrument-neutral record (ASM1, PLANNED) | **redesign**: one clinical language (D-37) |
+| Documentation | free text after the visit | structured lifecycle; report text by hand | **automate** in stages (stage 2 dictation, stage 3 module) |
+| Billing preparation | back office checks minutes and orders | billable facts derived from signed visits (J5, IMPLEMENTED) | **automate**; invoice draft later (BILL2) |
+| Who holds the licence | the organisation; teams are employees | partner holds it during the pilot (D-12 B) | **replace**: team-owned providers (D-12 C, D-38) |
+| How a provider starts | founding project, years | not defined beyond D-38 | **replace** with a provider kit (STR-19) |
+| Shared functions | headquarters | none; hypothesis P-24 | **redesign** as contracted shared services |
+
+### 8.3 What follows for current decisions
+
+- **The partner route should be needed once, not per team.** From scratch, nobody would incubate each new team inside an incumbent. D-12 B is a bridge for the first team because no provider kit and no shared regulated service exist yet. Every term in D-38 that the first team works out (licence file, Leistungsauftrag, tariff route, training places, financing) should be written so that the **second team can found its provider directly**. This is STR-19.
+- **Judge each package by the end state it leaves behind.** A term that is safe but only works inside the partner (for example a per-person authorisation kept by the partner, STR-3) is a cost the second team pays again.
+- **Shared services are the scale path, not a central management.** P-24 needs the adviser's answer (one Leitung Pflege for several providers: UNKNOWN; `lca`). Until then each provider carries its own licence-bound roles.
