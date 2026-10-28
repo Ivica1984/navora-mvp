@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { CANCEL_CONSEQUENCE, HOLD_CONSEQUENCE } from "@/features/field/rules";
 import { NOTICE_HEADINGS, NOTICE_LEAD } from "@/features/work/rules";
 import { FOLLOWUP_HEADING } from "@/features/field/todo";
+import { ABSENCE_MESSAGES } from "@/features/absence/rules";
 
 // UX1 parts (a) and (b) (ADR-103): phone width of /settings, /admin and /operations, and the menu by role.
 // UX1 part (c) (ADR-104): the /field order and action hierarchy, the header menu on /field, /team and /work (UX1-20),
@@ -299,7 +300,8 @@ test.describe("UX1 part (c) at 390 × 844", () => {
     await page.goto("/field");
     const trigger = page.getByTestId("absence-open");
     await trigger.click();
-    const dialog = page.getByRole("dialog", { name: "Abwesenheit" });
+    // UX1-29 (selector change only): the dialog is named by its visible heading.
+    const dialog = page.getByRole("dialog", { name: "Ich kann nicht arbeiten" });
     await expect(dialog.getByRole("form", { name: "Abwesenheit erfassen" })).toBeVisible();
     const focusInside = () => page.evaluate(() => !!document.activeElement?.closest("dialog[open]"));
     expect(await focusInside(), "focus moved into the dialog").toBe(true);
@@ -424,6 +426,113 @@ test.describe("UX1-27 at 390 × 844", () => {
     await decision.getByLabel(/Notiz/).fill("Synthetisch: UX1-27");
     await decision.getByRole("button", { name: "Entscheid speichern" }).click();
     await expect(page.getByRole("article", { name: /20:00 – 20:30, Testfall 08/ }).getByTestId("interrupt-followup-open")).toHaveCount(0);
+  });
+});
+
+/**
+ * UX1-28: holds the next server-action POST (the absence save) until `release()`, so the test can act while it is
+ * pending. `sent` resolves once the request has left the page.
+ */
+async function holdNextSave(page: Page) {
+  let release!: () => void;
+  let markSent!: () => void;
+  const gate = new Promise<void>((r) => { release = r; });
+  const sent = new Promise<void>((r) => { markSent = r; });
+  await page.route("**/field**", async (route) => {
+    const req = route.request();
+    if (req.method() === "POST" && req.headers()["next-action"]) {
+      markSent();
+      await gate;
+    }
+    await route.continue();
+  });
+  return { sent, release };
+}
+
+// Synthetic seed ids: Testteam Nord and assist.test (care assistant in it).
+const NORD = "00000000-0000-4000-a000-000000000101";
+const ASSIST = "00000000-0000-4000-a000-000000000906";
+
+// UX1 part (d) (ADR-107): the absence dialog while it sends (UX1-28, uxa UXR-18) and its visible heading (UX1-29,
+// UXR-19). The CGR-32 notice inside the open dialog (UX1-28 (c), (d)) is asserted in field.spec.ts "ABS1-C6", the
+// one test whose seed state has a planned visit before today.
+test.describe("UX1 part (d) at 390 × 844", () => {
+  test.use({ viewport: PHONE });
+
+  test("UX1-29: the absence dialog has a visible heading that names it", async ({ page }) => {
+    await signIn(page, "pflege.test@navora.test");
+    await page.goto("/field");
+    await page.getByTestId("absence-open").click();
+    const dialog = page.getByRole("dialog", { name: "Ich kann nicht arbeiten" });
+    await expect(dialog).toBeVisible();
+    const heading = dialog.getByRole("heading", { level: 2, name: "Ich kann nicht arbeiten" });
+    await expect(heading).toBeVisible();
+    // The heading is the dialog's first element and its accessible name.
+    const first = await dialog.evaluate((d) => {
+      const h = d.querySelector("h2");
+      const firstEl = d.querySelector("*");
+      return { isFirst: !!h && !!firstEl && (firstEl === h || firstEl.firstElementChild === h), labelledBy: d.getAttribute("aria-labelledby") === h?.id, ariaLabel: d.getAttribute("aria-label") };
+    });
+    expect(first.isFirst, "h2 is the dialog's first element").toBe(true);
+    expect(first.labelledBy, "aria-labelledby points at the h2").toBe(true);
+    expect(first.ariaLabel, "the former name is gone").toBeNull();
+    await expect(page.getByRole("dialog", { name: "Abwesenheit", exact: true })).toHaveCount(0);
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+  });
+
+  test("UX1-28 (a), (b), (e): while the save is pending the dialog stays; a refusal shows inside it and never the past-visit notice", async ({ page }) => {
+    await signIn(page, "pflege.test@navora.test");
+    await page.goto("/field");
+    await page.getByTestId("absence-open").click();
+    const dialog = page.getByRole("dialog", { name: "Ich kann nicht arbeiten" });
+    const form = dialog.getByRole("form", { name: "Abwesenheit erfassen" });
+    // A member id that belongs to no team: the database refuses ("rejected"); nothing is recorded.
+    await form.locator("select[name=who]").evaluate((el, value) => {
+      const select = el as HTMLSelectElement;
+      select.options[select.selectedIndex].value = value;
+    }, `${NORD}|00000000-0000-4000-a000-0000000009ff`);
+    const hold = await holdNextSave(page);
+    await form.getByTestId("absence-save").click();
+    await hold.sent;
+    // (a) Escape and "Abbrechen" leave the dialog open while the save is pending.
+    await expect(form.getByTestId("absence-save")).toHaveText("Wird gespeichert …");
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeVisible();
+    const cancel = form.getByRole("button", { name: "Abbrechen" });
+    await expect(cancel).toBeDisabled();
+    await cancel.click({ force: true });
+    await expect(dialog).toBeVisible();
+    await expect(form).toBeVisible();
+    hold.release();
+    // (b) the refusal is shown inside the open dialog.
+    await expect(dialog.getByTestId("command-error")).toHaveText(ABSENCE_MESSAGES.rejected);
+    await expect(dialog).toBeVisible();
+    // (e) a refused save never shows the past-visit notice.
+    await expect(page.getByTestId("absence-past-planned")).toHaveCount(0);
+    await page.unroute("**/field**");
+    await expect(cancel).toBeEnabled();
+    await cancel.click();
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByTestId("my-absence")).toHaveCount(0);
+  });
+
+  test("UX1-28 (e): a save with no planned visit before today closes the dialog as before", async ({ page }) => {
+    // A single day far ahead for the care assistant: no visit of hers is planned then, none before today is covered.
+    const day = zurichDay(200);
+    await signIn(page, "pflege.test@navora.test");
+    await page.goto("/field");
+    await page.getByTestId("absence-open").click();
+    const dialog = page.getByRole("dialog", { name: "Ich kann nicht arbeiten" });
+    const form = dialog.getByRole("form", { name: "Abwesenheit erfassen" });
+    await form.locator("select[name=who]").selectOption(`${NORD}|${ASSIST}`);
+    await form.locator("input[name=from]").fill(day);
+    await form.locator("input[name=until]").fill(day);
+    await form.getByTestId("absence-save").click();
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByTestId("absence-past-planned")).toHaveCount(0);
+    await expect(page.getByTestId("command-error")).toHaveCount(0);
+    await expect(page.getByTestId("absence-open")).toBeFocused();
   });
 });
 

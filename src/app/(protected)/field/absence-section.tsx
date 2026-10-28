@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type SyntheticEvent } from "react";
 import { changeAbsence, recordAbsence, takeOpenVisit } from "@/features/absence/commands";
 import type { OpenVisit, TeamAbsence, TeamColleague } from "@/features/absence/queries";
 import { absenceMemberLabel, earliestAbsenceStart, formatAbsencePeriod, knownByLabel, pastPlannedNotice } from "@/features/absence/rules";
@@ -33,6 +33,9 @@ function useAbsenceRun() {
  * to /team, where the team decides; they are not released.
  * UX1-6a (ADR-104): a compact outline control in the /field header (first viewport, two taps from the top); the form
  * opens over the page, so the next visit stays first on the page. UX1-25: as a native modal <dialog>.
+ * UX1-28 (uxa UXR-18, ADR-107): while the save is pending the dialog cannot be dismissed (Escape and "Abbrechen" do
+ * nothing), so the outcome (refusal or the CGR-32 notice) is always shown in the open dialog. UX1-29 (UXR-19): the
+ * dialog is named by its visible heading, the words of the control that opened it.
  */
 export function AbsenceControl({ today, colleagues }: { today: string; colleagues: TeamColleague[] }) {
   const [open, setOpen] = useState(false);
@@ -41,11 +44,22 @@ export function AbsenceControl({ today, colleagues }: { today: string; colleague
   const earliest = earliestAbsenceStart(today);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const headingId = useId();
+  // UX1-28: while sending, Escape must not close the dialog. Cancelling the keydown stops the close request before
+  // it starts (also where the browser would skip a repeated, cancelable "cancel" event); onCancel below is the
+  // second guard.
+  useEffect(() => {
+    if (!pending) return;
+    const holdEscape = (e: globalThis.KeyboardEvent) => { if (e.key === "Escape") e.preventDefault(); };
+    window.addEventListener("keydown", holdEscape, true);
+    return () => window.removeEventListener("keydown", holdEscape, true);
+  }, [pending]);
   if (colleagues.length === 0) return null;
   // UX1-25 (uxa UXR-13): a native modal dialog. showModal() keeps Tab inside and makes the page inert; Escape closes it
   // without sending (the "cancel" event); every close returns focus to the trigger.
   const openDialog = () => { setNotice(null); setOpen(true); dialogRef.current?.showModal(); };
   const close = () => dialogRef.current?.close();
+  const holdWhileSending = (e: SyntheticEvent<HTMLDialogElement>) => { if (pending) e.preventDefault(); };
   const onClosed = () => { setOpen(false); setNotice(null); triggerRef.current?.focus(); };
   // The modal already makes the page inert; wrapping Tab at the ends keeps focus in the dialog instead of the browser UI.
   const keepTab = (e: KeyboardEvent<HTMLDialogElement>) => {
@@ -65,10 +79,11 @@ export function AbsenceControl({ today, colleagues }: { today: string; colleague
         className="min-h-11 shrink-0 rounded-lg border border-white/80 px-3 text-sm font-semibold text-white">
         Ich kann nicht arbeiten
       </button>
-      <dialog ref={dialogRef} aria-label="Abwesenheit" onClose={onClosed} onKeyDown={keepTab}
+      <dialog ref={dialogRef} aria-labelledby={headingId} onClose={onClosed} onCancel={holdWhileSending} onKeyDown={keepTab}
         className="w-[calc(100%-2rem)] max-w-xl rounded-2xl bg-transparent p-0 backdrop:bg-black/50">
         {open && (
           <div className="grid gap-2 rounded-2xl border-l-4 border-sky-700 bg-sky-50 p-3 text-sm text-stone-900">
+            <h2 id={headingId} className="text-base font-bold text-sky-950">Ich kann nicht arbeiten</h2>
             {notice === null ? (
               <form aria-label="Abwesenheit erfassen" className="grid gap-2" onSubmit={(e) => {
                 e.preventDefault();
@@ -109,7 +124,7 @@ export function AbsenceControl({ today, colleagues }: { today: string; colleague
                   <button type="submit" disabled={pending} data-testid="absence-save" className="min-h-11 flex-1 rounded-lg bg-sky-800 font-bold text-white disabled:opacity-60">
                     {pending ? "Wird gespeichert …" : "Speichern"}
                   </button>
-                  <button type="button" onClick={close} className="min-h-11 rounded-lg border border-sky-800 px-3 font-semibold">Abbrechen</button>
+                  <button type="button" onClick={close} disabled={pending} className="min-h-11 rounded-lg border border-sky-800 px-3 font-semibold disabled:opacity-60">Abbrechen</button>
                 </div>
               </form>
             ) : (

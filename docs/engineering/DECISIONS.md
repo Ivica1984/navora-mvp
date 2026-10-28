@@ -1637,3 +1637,38 @@ Tests: Playwright `ux1.spec` UX1-25 (focus inside after the tap, 30 Tabs stay in
 **Rollback:** revert the PR (no data or schema involved).
 
 **Tests:** vitest `ux1-contrast` (UX1-18 scan; `SECONDARY_TEXT` value), `ux1-todo` (UX1-27 (b): the constant's wording; link, `aria-label` and heading use it; no shorter link text). Playwright `ux1.spec` "UX1-27 at 390 × 844": a seed nurse ends a visit on day +8 at 20:00 as not completed, then on the day with seed visit 508 the `todo-links` row is rendered, inside 390 × 844 (plus a SIG1 banner's height), above `next-visit` by DOM order and `boundingBox().y`, after the SIG1 signals, and the link text equals the section heading; the follow-up is then decided through the product. Screenshot job: axe `color-contrast` on every capture. Not run locally (no npm registry in this session); CI is the test runner.
+
+### ADR-107 — UX1 part (d), first PR: the absence dialog while it sends, its heading, "Zu erledigen" link = section heading, `/login` panel removed
+
+**Date:** 2026-10-28 · **Status:** IMPLEMENTED in PR (CI decides) · **Brief:** `docs/agents/briefs/UX1.md` (UX1-28 with (d), (e) of po 02:10; UX1-29; UX1-30 with `cra` 05:30 conditions (1)-(3), po 06:10; UX1-16 as widened by po 02:10 for `uxa` UXR-17) · **Issue:** #585
+
+**Context:** `uxa` UXR-18: "Abbrechen" and Escape could close the "Ich kann nicht arbeiten" dialog while the save was still running, so a nurse could miss the refusal or the CGR-32 notice that her absence covers planned visits before today. UXR-19: the dialog had no visible heading and was named "Abwesenheit", a second label for the control "Ich kann nicht arbeiten". UXR-20: the "Zu erledigen" links "Zurückgegeben (n)" and "Zur Gegenzeichnung (n)" were literals separate from their section headings, and the returned-reports heading read "Zurückgegeben: bitte korrigieren und neu unterschreiben (n)", so the link and the heading named one thing twice. UXR-17: `/login` carried a panel "Geschützter Zugriff / Alle Seiten erfordern eine Anmeldung. Die Sitzung wird serverseitig geprüft." that no user can act on.
+
+**Decision:**
+1. **UX1-28.** While `recordAbsence` is pending: "Abbrechen" is `disabled`; the dialog's `cancel` event is prevented (`onCancel`); and a window keydown listener (capture phase, only while pending) cancels Escape, so the close request never starts. The second guard covers browsers that skip a repeated `cancel` event without user activation (close-watcher rule). The outcome is shown in the still-open dialog: `command-error` on a refusal; on success with `past_planned > 0` the existing `absence-past-planned` notice with "Zum Team", kept until she closes the dialog; on success with 0 the dialog closes as before. No text, command, field or ABS1 rule changes.
+2. **UX1-29.** A visible `h2` "Ich kann nicht arbeiten" is the first element inside the dialog and its accessible name (`aria-labelledby` with `useId`); the dialog's `aria-label="Abwesenheit"` is gone. The form keeps its name "Abwesenheit erfassen" (selectors of the ABS1 e2e unchanged).
+3. **UX1-30.** `src/features/field/todo.ts` holds one constant per section (`FOLLOWUP_HEADING`, `RETURNED_HEADING = "Zurückgegeben"`, `COUNTERSIGN_HEADING = "Zur Gegenzeichnung"`) and one label function per section (heading + " (n)"); the link, the section's `aria-label` and its `h2` use them. The returned-reports heading becomes "Zurückgegeben (n)"; the instruction moves word for word into `RETURNED_INSTRUCTION = "bitte korrigieren und neu unterschreiben"`, rendered in sentence case only ("Bitte korrigieren und neu unterschreiben") as the section's first line, unconditionally, directly after the `h2` and before the list (`cra` (1), (2)). The returner's name, the reason on each item and the visit-card labels in `features/field/report.ts` are unchanged (`cra` (3)). The fallback (link = full old heading) is not needed.
+4. **UXR-17.** The `/login` panel is removed and nothing replaces it; the page is one column with the sign-in card at every width. The UX1-16 string test also fails on "serverseitig". Sign-in logic, session check, proxy, error texts and the development banner are unchanged.
+
+**String list (UX1-12, for `cra`):**
+| Where | Old | New |
+|---|---|---|
+| `/field` returned-reports `h2` | "Zurückgegeben: bitte korrigieren und neu unterschreiben (n)" | "Zurückgegeben (n)" |
+| `/field` returned-reports, first line (new position, same words) | — | "Bitte korrigieren und neu unterschreiben" |
+| `/field` returned-reports `aria-label` | "Zurückgegeben" | "Zurückgegeben" (from the constant) |
+| `/field` absence dialog accessible name | "Abwesenheit" | "Ich kann nicht arbeiten" (visible `h2`) |
+| `/login` side panel | "Geschützter Zugriff" / "Alle Seiten erfordern eine Anmeldung. Die Sitzung wird serverseitig geprüft." | removed, no replacement |
+
+**Deviations:**
+1. UX1-28 (c) and (d) need a planned visit before today in the seed. The one such state is created by `field.spec.ts` "ABS1-C6" (assist.test absent from yesterday, visit 532); the UX1-28 (c), (d) assertions are added to that test (no existing assertion changed) instead of a second test, which would find the state already consumed by CGR-32/CGR-34. (a), (b), (e) and UX1-29 are in `ux1.spec.ts` "UX1 part (d)".
+2. UX1-28 (b) provokes a refusal by sending a member id that belongs to no team (the database answers `rejected`, nothing is recorded); the UI offers no refusable choice that leaves no data behind.
+3. UX1-28 (e), second half, records a one-day absence for the synthetic assist.test 200 days ahead (no visit of hers is planned then). It is synthetic seed data in the CI database only.
+4. Not run locally: the npm registry is not reachable from the engineering session (as in ADR-106), so typecheck, lint, vitest and Playwright run in CI only.
+
+**Still PLANNED in part (d):** UX1-11 (string scan for internal codes), UX1-12 for those strings, UX1-13 (one product name, `/operations` "Ausnahmen", `nav.ts` labels = page headings). Part (g) UX1-22 to UX1-24 PLANNED.
+
+**No rule:** no migration, RLS policy, grant, database function, page access check, signal rule or `cra`/`lca`-fixed text changes.
+
+**Rollback:** revert the PR (no data or schema involved).
+
+**Tests:** vitest `ux1-todo` (all three links = section `h2` via one constant each; `cra` (1) position and unconditional rendering, (2) constant equals the existing wording, sentence case only, (3) returner/reason line and `report.ts` labels unchanged), `ux1-contrast` (UX1-16 "serverseitig"; panel gone). Playwright `ux1.spec` "UX1 part (d) at 390 × 844": UX1-29 (named by the visible `h2`, first element, no `aria-label`); UX1-28 (a) Escape and disabled "Abbrechen" with the save held by `page.route`, (b) refusal inside the open dialog, (e) no past-visit notice on refusal, and a save without a past visit closes the dialog. `field.spec` "ABS1-C6" (assertions added): (a) while held, (c) notice and "Zum Team" inside the open dialog, still there after the refresh, (d) text equals `pastPlannedNotice(1)`; "F6R" returned-report test (assertions added): link text = `h2` "Zurückgegeben (n)", instruction line visible.

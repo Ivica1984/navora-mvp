@@ -52,7 +52,7 @@ import type { FieldQuality, QualityEventType } from "@/features/quality/queries"
 import type { TeamVisitAlert } from "@/features/team/queries";
 import SignalBanner from "@/components/signals/SignalBanner";
 import type { SignalRow } from "@/features/signals/rules";
-import { FOLLOWUP_HEADING, followupLabel } from "@/features/field/todo";
+import { COUNTERSIGN_HEADING, FOLLOWUP_HEADING, RETURNED_HEADING, countersignLabel, followupLabel, returnedInstructionLine, returnedLabel } from "@/features/field/todo";
 
 type Props = {
   day: string;
@@ -162,10 +162,10 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
               <a href="#entscheid-offen" className="flex min-h-11 items-center rounded-lg border border-amber-600 bg-white px-3 text-amber-900">{followupLabel(openFollowups.length)}</a>
             )}
             {returned.length > 0 && (
-              <a href="#zurueckgegeben" className="flex min-h-11 items-center rounded-lg border border-amber-500 bg-white px-3 text-amber-900">Zurückgegeben ({returned.length})</a>
+              <a href="#zurueckgegeben" className="flex min-h-11 items-center rounded-lg border border-amber-500 bg-white px-3 text-amber-900">{returnedLabel(returned.length)}</a>
             )}
             {countersign.length > 0 && (
-              <a href="#gegenzeichnung" className="flex min-h-11 items-center rounded-lg border border-blue-600 bg-white px-3 text-blue-900">Zur Gegenzeichnung ({countersign.length})</a>
+              <a href="#gegenzeichnung" className="flex min-h-11 items-center rounded-lg border border-blue-600 bg-white px-3 text-blue-900">{countersignLabel(countersign.length)}</a>
             )}
           </nav>
         )}
@@ -220,8 +220,11 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
         {returned.length > 0 && (
           // F6R-5: a returned report is never stranded: it stays on her day until she signs again (UX1-6: below her visits,
           // linked from the "Zu erledigen" line at the top).
-          <section aria-label="Zurückgegeben" id="zurueckgegeben" data-testid="returned-reports" className="mb-4 scroll-mt-56 rounded-2xl border-l-4 border-amber-500 bg-amber-50 p-3 text-sm">
-            <h2 className="font-bold text-amber-900">Zurückgegeben: bitte korrigieren und neu unterschreiben ({returned.length})</h2>
+          // UX1-30 (uxa UXR-20, cra 05:30, ADR-107): heading = link text; the instruction is the section's first line,
+          // always rendered, after the h2 and before the first item, never collapsed.
+          <section aria-label={RETURNED_HEADING} id="zurueckgegeben" data-testid="returned-reports" className="mb-4 scroll-mt-56 rounded-2xl border-l-4 border-amber-500 bg-amber-50 p-3 text-sm">
+            <h2 className="font-bold text-amber-900">{returnedLabel(returned.length)}</h2>
+            <p data-testid="returned-instruction" className="mt-1 font-semibold text-amber-900">{returnedInstructionLine()}</p>
             <ul className="mt-1 grid gap-2">
               {returned.map((r) => (
                 <li key={r.report_id}>
@@ -238,8 +241,8 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
         )}
         {countersign.length > 0 && (
           // F7: the countersignature request reaches the team at the moment of signing.
-          <section aria-label="Zur Gegenzeichnung" id="gegenzeichnung" data-testid="countersign-queue" className="mb-4 scroll-mt-56 rounded-2xl border-l-4 border-blue-600 bg-blue-50 p-3 text-sm">
-            <h2 className="font-bold text-blue-900">Zur Gegenzeichnung ({countersign.length})</h2>
+          <section aria-label={COUNTERSIGN_HEADING} id="gegenzeichnung" data-testid="countersign-queue" className="mb-4 scroll-mt-56 rounded-2xl border-l-4 border-blue-600 bg-blue-50 p-3 text-sm">
+            <h2 className="font-bold text-blue-900">{countersignLabel(countersign.length)}</h2>
             <ul className="mt-1 grid gap-1">
               {countersign.map((c) => {
                 // F6R-5: returned to its performer; LEAVE1-5 / LEAVE1-11 (migration 0075): the open work of a
