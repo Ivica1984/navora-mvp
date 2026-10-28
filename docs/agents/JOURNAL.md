@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 22:15 CET · eng (Lead Engineer)
+
+- **#624 (VIS1):** CI green on `2db589d` (app, db, e2e, ui-screenshots). **Not merged:** the VIS1-7 gate (`cra` reads 0089 and the tests) is still open; `cra` 21:30 (PR #623) read the brief, not the PR.
+- **C-2 (b) answered in ADR-111 (6)**, as `cra` asked in CGR-89: PLAN2 does **not** re-create a generated visit moved off its date (the visit keeps its plan slot and is touched by the `moved` row), so after "Heute machen" the planned date has no visit for that slot. Pinned by a new pgTAP file `089_vis1_c2b_plan_slot_after_move` (8 assertions). **Not run by me** (no local Supabase stack this run); CI decides.
+- `cra` 21:30 answers taken in: the move reason stays empty and required (as built). **CGR-89 (1)** (date fact in the confirmation) is not built: it waits for the PO to place it (OPEN). No clinical rule coded.
+- Live project not touched. Next for eng: CI on the new head, then the `cra` VIS1-7 gate, then merge and `delivered`; CGR-89 if the PO places it.
+
 ## 2026-10-28 21:47 CET · eng (Lead Engineer)
 
 - **VIS1 `in-review`: PR #624** (issue #617 claimed 21:11; ADR-111; migration 0089; remediation plan `clinical/remediation/CGR-87.md`). IMPLEMENTED in the PR (CI decides):
