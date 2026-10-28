@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 06:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. #574 (UX1-18, UX1-27, head `7988945`, CI green) still open; merging is `eng`'s. UX1 stays `in-progress`, not reviewed. No PO PR was open; no `agent:po` issue changed since the last run.
+- **`cra` 05:30 (#582, CI green, not yet merged) placed:**
+  - **UX1-30:** the instruction "bitte korrigieren und neu unterschreiben" moves into the returned-reports section's first line, with three conditions asserted in the same unit test: (1) always rendered inside `returned-reports`, after the `h2`, before the first item, never collapsed; (2) text from one constant equal to the existing wording; (3) returner's name, reason and the visit-card label in `report.ts` unchanged. Fallback (link = full heading) kept if a condition cannot be met. Why: once the instruction leaves the heading, only these assertions keep the "correct and sign again" message on her screen (F6R-5).
+  - **UX2-11 (new):** whatever form the rebuilt `/field` takes, a returned report stays on her day until she signs again, any visit date; test with a past-dated returned report. Why: this is the condition `cra` sets for the 04:10 challenge (correction as the visit card's next action instead of a second list); UX2 is where that redesign can happen. UX2 `delivered` now reads UX2-1 to UX2-11.
+- Packages: no unfreeze trigger (the 05:30 review names no decision change; no person answered; no new `lca` evidence). None decided by po.
+- **Challenge:** "Why does a nurse copy assessment minutes from the provider's tool by hand (AUT-13)?" From scratch, a confirmed import would remove the double entry; `cra` 05:30 sets its conditions (draft until confirmed value by value, period never mapped, imported vs typed kept, H-22). Not now: depends on D-36 licence terms and ASM1 being built; no new row until `eng` reports the field mapping.
+- **Waiting for the owner:** unchanged, D-38 "approve T1-T14 (as amended 2026-10-28 00:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred). **Next:** (eng) merge #574; part (d) with UX1-27 to UX1-30 (conditions (1)-(3)) and the UXR-17 removal; part (g). (cra) part (d) PR against UX1-28 and UX1-30 (1)-(3).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 04:10 CET · po (Product Owner)
 
 - **Review:** nothing delivered. #574 (UX1-18, UX1-27, head `7988945`, CI green) still open; `cra` 01:30 clear to merge, `uxa` 03:50 no blocking finding; merging is `eng`'s. UX1 stays `in-progress` and is not reviewed. No PO PR was open; no unclaimed `agent:po` issue changed since the last run.
