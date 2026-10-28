@@ -106,8 +106,9 @@ const STATUS_CLASS: Record<string, string> = {
   on_the_way: "bg-blue-100 text-blue-900",
   paused: "bg-blue-100 text-blue-900",
   completed: "bg-emerald-100 text-emerald-900",
-  cancelled: "bg-rose-100 text-rose-900",
-  no_show: "bg-rose-100 text-rose-900",
+  // UX1-23 (UXR-16): a visit status is a label, not a safety signal, so never the P1 colour.
+  cancelled: "bg-stone-200 text-stone-800",
+  no_show: "bg-stone-200 text-stone-800",
   interrupted: "bg-amber-100 text-amber-900",
 };
 
@@ -486,7 +487,7 @@ function VisitCard({
       />
 
       {error && (
-        <p role="alert" data-testid="command-error" className="mt-3 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800">
+        <p role="alert" data-testid="command-error" className="mt-3 rounded-lg border border-amber-800 bg-amber-50 p-3 text-sm font-semibold text-stone-900">
           {error}
         </p>
       )}
@@ -683,7 +684,7 @@ function ObservationForm({
         <span>Für die Übergabe markieren</span>
       </label>
       {error && (
-        <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">
+        <p role="alert" data-testid="command-error" className="rounded-lg border border-amber-800 bg-amber-50 p-2 font-semibold text-stone-900">
           {error}
         </p>
       )}
@@ -808,7 +809,7 @@ function TimelineEntry({ event, locked }: { event: VisitEvent; locked: boolean }
             />
           </label>
           {error && (
-            <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">
+            <p role="alert" data-testid="command-error" className="rounded-lg border border-amber-800 bg-amber-50 p-2 font-semibold text-stone-900">
               {error}
             </p>
           )}

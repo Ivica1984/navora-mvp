@@ -79,6 +79,14 @@ export const TEAM_STATUS_NOTE =
   "Ausserhalb der App erhalten nur Mitglieder mit aktiver Benachrichtigung ein Signal, innerhalb ihrer geplanten Arbeitszeit. " +
   "Nicht übernommene Signale gehen an Operations; es gibt keine Benachrichtigung an das ganze Team ausserhalb der App.";
 
+/** UX1-24 (`cra` C-3, word for word): shown, open and in amber, while not every active member has push on. */
+export const REACH_GAP_TEXT = "Nicht alle erhalten Sicherheitssignale ausserhalb der App";
+
+/** UX1-24: every listed (active) member has delivery outside the app on. An empty list is not "all reachable". */
+export function allReachable(rows: ReadonlyArray<{ active: boolean }>): boolean {
+  return rows.length > 0 && rows.every((r) => r.active);
+}
+
 export function statusText(active: boolean): string {
   return `${OUTSIDE_LABEL}: ${active ? "aktiv" : "nicht aktiv"}`;
 }

@@ -151,6 +151,18 @@ test("an interrupted visit keeps a signal until the team decides about the care 
   const alert = page.getByTestId("visit-alert").filter({ hasText: "Einsatz nicht abgeschlossen: Entscheid offen" })
     .filter({ hasText: "19:00" });
   await expect(alert).toHaveCount(1);
+  // UX1-22 / `cra` C-1 (ADR-109): an entry with its own action stays in full, never a pointer line; the follow-up form
+  // is one tap away; the clearance text is behind "Wann erledigt sich das?" but its "provisorisch" sentence is visible.
+  await expect(alert).not.toHaveAttribute("data-pointer", "signal");
+  await expect(alert.getByRole("button", { name: "Entscheid erfassen" })).toBeVisible();
+  await expect(page.getByTestId("visit-alert-provisional")).toBeVisible();
+  await expect(page.getByTestId("visit-alert-provisional")).toHaveText("Schwellen und Regeln provisorisch (klinische Entscheidungen offen).");
+  const clearance = page.getByTestId("visit-alert-clearance");
+  await expect(clearance.getByText(/^Erledigt sich, sobald/)).toBeHidden();
+  await clearance.getByText("Wann erledigt sich das?").click();
+  await expect(clearance.getByText(/^Erledigt sich, sobald/)).toBeVisible();
+  await alert.getByRole("button", { name: "Entscheid erfassen" }).click();
+  await expect(alert.getByRole("form", { name: "Entscheid zur noch fälligen Pflege" })).toBeVisible();
 
   // One decision from the short list ends it; a decision needs a choice.
   await page.goto(`/field?datum=${day}`);

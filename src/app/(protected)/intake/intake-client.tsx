@@ -20,17 +20,12 @@ import {
   factsFromForm,
   parseMissing,
   parseServices,
+  urgencyBadgeClass,
   urgencySourceLabel,
   urgencyWithSource,
   type ReadinessItem,
 } from "@/features/intake/rules";
 import { formatDayLabel, todayInZurich } from "@/features/field/rules";
-
-const URGENCY_CLASS: Record<string, string> = {
-  hoch: "bg-rose-100 text-rose-900",
-  mittel: "bg-amber-100 text-amber-900",
-  niedrig: "bg-stone-200 text-stone-800",
-};
 
 const field = "min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-white px-3";
 
@@ -251,7 +246,7 @@ function RequestCard({ request, linkable }: { request: OpenPartnerRequest; linka
             {request.city ? `, ${request.city}` : ""}
           </p>
         </div>
-        <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${URGENCY_CLASS[request.urgency] ?? "bg-stone-200"}`}>
+        <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${urgencyBadgeClass(request.urgency)}`}>
           {request.urgency}
         </span>
       </div>

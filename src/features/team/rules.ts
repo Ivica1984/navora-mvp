@@ -110,3 +110,36 @@ export function sortVisitAlerts<T extends VisitAlertLike>(alerts: T[]): T[] {
 export function visitAlertHandling(taken: boolean): string {
   return taken ? "Operations ist informiert und kümmert sich mit" : "Operations sieht es auch, noch nicht übernommen";
 }
+
+/**
+ * UX1-22 (`uxa` UXR-4; `cra` C-1 "confirm with change"; ADR-109): texts of the "Einsätze mit Handlungsbedarf" list.
+ * The clearance explanation is the former single paragraph, word for word, split before its last sentence; the last
+ * sentence stays visible (C-1), the rest goes behind "Wann erledigt sich das?".
+ */
+export const SIGNAL_POINTER = "Steht oben als Sicherheitssignal";
+export const CLEARANCE_SUMMARY = "Wann erledigt sich das?";
+export const CLEARANCE_TEXT =
+  "Erledigt sich, sobald der Einsatz weitergeht, abgesagt oder als «nicht angetroffen» erfasst ist; ein nicht abgeschlossener Einsatz, sobald jemand über die noch fällige Pflege entschieden hat; eine offene Berichtskorrektur, sobald sie unterschrieben und, falls nötig, gegengezeichnet ist; eine Verordnung ohne Enddatum, sobald ein Enddatum erfasst ist.";
+export const PROVISIONAL_NOTE = "Schwellen und Regeln provisorisch (klinische Entscheidungen offen).";
+
+/** Alert types whose list entry carries its own action, so they are always shown in full (C-1). */
+const ALERTS_WITH_OWN_ACTION: ReadonlySet<string> = new Set(["visit_interrupted"]);
+
+export type PointerAlert = { visit_id: string; exception_type: string; flags?: readonly string[] | null; taken: boolean };
+export type PointerSignal = { visit_id: string; signal_kind: string };
+
+/**
+ * UX1-22 / C-1: whether a list entry only repeats a P1 signal card shown above it, and may shrink to one pointer line.
+ * True only when all hold, otherwise the entry stays in full (fail-safe):
+ * - an OPEN signal card (`openSignals`: the banner's open cards, not taken ones) is for the same visit and the same
+ *   situation (`signal_kind` equals `exception_type`);
+ * - the entry has no flags (e.g. CGR-32 "Zuständige Person abwesend gemeldet");
+ * - Operations has not taken it (`taken` is a handling state the card lacks);
+ * - the entry carries no action of its own (`visit_interrupted`: the follow-up decision form).
+ */
+export function alertRepeatsSignal(alert: PointerAlert, openSignals: readonly PointerSignal[]): boolean {
+  if (ALERTS_WITH_OWN_ACTION.has(alert.exception_type)) return false;
+  if ((alert.flags ?? []).length > 0) return false;
+  if (alert.taken) return false;
+  return openSignals.some((s) => s.visit_id === alert.visit_id && s.signal_kind === alert.exception_type);
+}
