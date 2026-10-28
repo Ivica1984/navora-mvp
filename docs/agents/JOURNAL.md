@@ -16,6 +16,38 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 11:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. #588 merged (`566dc8b`, CI green) with UX1-28 to UX1-31; UX1 stays `in-progress` (part (d) UX1-11 to UX1-13 and part (g) open) and is not reviewed. No PO PR was open.
+- **STR-17 (#593) adopted; owner approved STR-14 on 2026-10-28 and asked for an implementation.** Why: the freeze rule worked for the PO but broke ten times on its first day elsewhere, and D-38 looped `po` ↔ `lca` four times after escalation; every such run returns nothing to a nurse or a client.
+  - **F1:** README rule 9, the freeze binds every role; a run with no unfrozen package writes nothing about packages.
+  - **F2:** each `awaiting-approval` INDEX row shows `frozen since <date>` (the later of 2026-10-27 14:45 and the package's last merged change, read from git); later edits start with `Unfreeze: <trigger 1-5> <reference>`.
+  - **F4 (provisional until `lca` confirms):** wording-only changes after escalation are batched in a *Pending wording* list; `cra` S1/S2, `lca` non-compliant or unresolved on the default, and any change of ask, default or blocks apply at once.
+  - **F5:** every owner-agenda line names its ask version; a changed ask says "changed since you last looked".
+  - **F3 → COORD6** (brief approved, *Next up* 2, details below). **F6** is `csa`'s. **F7** is the owner's setting: added to the owner agenda as an optional operational line (agents never edit scheduled tasks).
+  - README *Automation review* and *Strategy review* gain the owner's 2026-10-28 instruction "designed from scratch first, then compare" (at `csa`'s request).
+- **D-38 unfrozen (trigger 5, `csa` STR-18 on #545) and back to `inputs-requested`, Low.** The owner approved STR-15 with nine topics; T1-T14 cover five. **T15-T18** (team-level transition criteria, independence and fallbacks, C's financing before the first insurer payment, governance after the transition) and **T10 options (i)-(iv)** are added as *proposed*. PO position before inputs: no team member is moved by a partnership term (T15 (d), T16 stay in any case); no safety level is set by po (T15 (b) is the Clinical Owner's); no amount or NAVORA funding in T17. **The 00:15 owner ask is paused** so the owner answers once on T1-T18. Inputs requested (one comment on #545): `lca` (T15 (a), (d); T16 extension; T17 condition-1 limits; T18 (a), (b), (c), (e); T10 (ii), (iii); and F4), `cra` (T15 (b) kinds of safety measure, T16 safety stop), `eng` (T18 (e): does the T2 export serve C's exit). Default unchanged: D-12 stands, nothing transferred, no LOI naming the sunset.
+- **STR-19 (#594) adopted as a drafting rule:** every first-transition document is written as a reusable provider kit, partner-specific parts marked; nothing built. `CARE_OPERATING_MODEL.md` *Provider kit*; hypothesis **P-25** (second team at most half the time from consent to admission). The owner package "may a second team found directly without a partner?" is noted under *Coming* on the owner agenda, due once the first C is admitted and P-24 is answered.
+- Packages: D-38 only (unfrozen). D-37 waits only for the D-36 fact. Every other package frozen; none decided by po.
+- **Challenge:** "Why does a new team need an incumbent provider to start at all?" From scratch it would not: it founds its own provider from a kit (STR-19, P-25). And "why do agents re-read unchanged packages?" Because the rule lived only in text: COORD6 moves it into CI.
+- **Waiting for the owner:** nothing new to decide. D-38's ask is paused (one combined ask follows); bundle 1 and 2 unchanged; optional: the task-prompt pointer to rule 9 (F7) and merging #589 (then closing #582).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+ENGINEERING BRIEF
+- **Capability:** COORD6, frozen packages stay frozen without anyone watching (`agents-check` guard, STR-17 F3).
+- **Why:** the owner approved STR-14 and asked that agent time go to new value, not to re-reading unchanged material; the rule broke ten times on its first day because nothing checks it.
+- **Business outcome:** the owner's one-page agenda changes only when something real changed; fewer wasted agent runs per day.
+- **Care outcome:** none directly; more agent capacity for care-journey items; safety findings still reopen a package at once (trigger 3, F4).
+- **Expected nurse outcome:** none directly.
+- **Expected team outcome:** none directly; decisions affecting teams (D-38) reach the owner as one stable ask instead of a moving one.
+- **Expected patient outcome:** none directly; no safe default changes.
+- **Acceptance criteria:** COORD6-1 to COORD6-8 in `briefs/COORD6.md` (marker on every `awaiting-approval` row; `Unfreeze: [1-5]` line required for changes to a package frozen on the base, its INDEX and OPEN_DECISIONS rows; journal "no new evidence" warns until 2026-11-04, then errors, injectable clock; skip with a warning when no base resolves; unit tests for each).
+- **Dependencies:** none; COORD5 parser (`scripts/agents-coordination/parse.mjs`).
+- **Priority:** *Next up* 2, after UX1 and before ADM2 (one small PR, no app or database change).
+- **Implementation recommendation:** extend `parse.mjs` and `agents-check.mjs`; base via `AGENTS_BASE_REF` (default `origin/recovery/main`) and `git diff`; tests beside the existing coordination tests; CI fetch depth if needed.
+
+---
+
 ## 2026-10-28 10:47 CET · Chief Strategy Architect (csa)
 
 - **Owner, 2026-10-28 (in this `csa` session):**
