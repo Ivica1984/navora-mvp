@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import { demoPagesEnabled } from "@/lib/flags";
+import { SECONDARY_TEXT } from "@/lib/ui/colors";
 
 // Static mock with invented data (ADR-006). Hidden until Partner Intake is built.
 export default function PartnersPage() {
@@ -33,14 +34,14 @@ export default function PartnersPage() {
               fontWeight: 700,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
-              color: "#6b8075",
+              color: SECONDARY_TEXT,
               marginBottom: "8px",
             }}
           >
             Partner
           </p>
           <h1 style={{ fontSize: "32px", margin: 0 }}>Partneranfragen</h1>
-          <p style={{ color: "#6b8075", marginTop: "8px" }}>
+          <p style={{ color: SECONDARY_TEXT, marginTop: "8px" }}>
             Übersicht über eingehende Partnerbedarfe und Umwandlung in neue Fälle.
           </p>
         </section>
@@ -61,7 +62,7 @@ export default function PartnersPage() {
               boxShadow: "0 10px 30px rgba(21,51,40,0.06)",
             }}
           >
-            <p style={{ margin: 0, color: "#6b8075", fontSize: "14px" }}>Offen</p>
+            <p style={{ margin: 0, color: SECONDARY_TEXT, fontSize: "14px" }}>Offen</p>
             <h2 style={{ margin: "8px 0 0", fontSize: "28px" }}>2</h2>
           </div>
 
@@ -73,7 +74,7 @@ export default function PartnersPage() {
               boxShadow: "0 10px 30px rgba(21,51,40,0.06)",
             }}
           >
-            <p style={{ margin: 0, color: "#6b8075", fontSize: "14px" }}>Heute dringend</p>
+            <p style={{ margin: 0, color: SECONDARY_TEXT, fontSize: "14px" }}>Heute dringend</p>
             <h2 style={{ margin: "8px 0 0", fontSize: "28px" }}>1</h2>
           </div>
 
@@ -85,7 +86,7 @@ export default function PartnersPage() {
               boxShadow: "0 10px 30px rgba(21,51,40,0.06)",
             }}
           >
-            <p style={{ margin: 0, color: "#6b8075", fontSize: "14px" }}>Umwandelbar</p>
+            <p style={{ margin: 0, color: SECONDARY_TEXT, fontSize: "14px" }}>Umwandelbar</p>
             <h2 style={{ margin: "8px 0 0", fontSize: "28px" }}>2</h2>
           </div>
         </section>
@@ -116,7 +117,7 @@ export default function PartnersPage() {
               }}
             >
               <strong>Pflegezentrum Aareblick</strong>
-              <p style={{ color: "#6b8075" }}>Seeland · Heute</p>
+              <p style={{ color: SECONDARY_TEXT }}>Seeland · Heute</p>
               <p>Ausfall Wohnbereich 2 · 2 Abendfenster offen</p>
             </div>
 
@@ -128,7 +129,7 @@ export default function PartnersPage() {
               }}
             >
               <strong>Spital Region West</strong>
-              <p style={{ color: "#6b8075" }}>Bern West · 48h</p>
+              <p style={{ color: SECONDARY_TEXT }}>Bern West · 48h</p>
               <p>2 Austritte mit Übergangspflege</p>
             </div>
           </div>

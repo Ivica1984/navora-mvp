@@ -252,8 +252,9 @@ jobs:
 
   # UX1-14 (ADR-103): screenshots of every protected route at 390 × 844 and 1440 × 900 for each role that may open it,
   # for the UX/UI Design Architect's review. Uploaded as the artifact `ui-screenshots` (14 days); never committed.
-  # Runs on every push to recovery/main and on every PR that changes src/app or src/components. Fails only on a
-  # render error (HTTP 5xx, uncaught page error, the Next.js error page), never on a visual difference.
+  # Runs on every push to recovery/main and on every PR that changes src/app or src/components. Fails on a render
+  # error (HTTP 5xx, uncaught page error, the Next.js error page) and, since UX1-18, on an axe color-contrast
+  # violation of impact serious or critical; never on a visual difference.
   ui-screenshots:
     name: ui-screenshots (390 · 1440 · every role)
     runs-on: ubuntu-latest
@@ -315,6 +316,17 @@ jobs:
       - name: Build
         if: steps.scope.outputs.run == 'true'
         run: scripts/ci-step.sh screenshots-build npm run build
+      # UX1-18 (ADR-106): axe-core for the color-contrast check, exact version from the npm registry (npm verifies the
+      # tarball against the registry's integrity hash). Kept outside node_modules and the lockfile until it can be
+      # added as a devDependency with a regenerated package-lock.json (TECH_DEBT TD-UX1-18).
+      - name: Fetch axe-core (exact version)
+        if: steps.scope.outputs.run == 'true'
+        run: |
+          mkdir -p /tmp/axe && cd /tmp/axe
+          npm pack axe-core@4.10.2 --silent
+          tar -xzf axe-core-4.10.2.tgz
+          test -s package/axe.min.js
+          echo "AXE_CORE_PATH=/tmp/axe/package/axe.min.js" >> "$GITHUB_ENV"
       - name: Capture
         if: steps.scope.outputs.run == 'true'
         run: scripts/ci-step.sh screenshots npx playwright test --config playwright.screenshots.config.ts

@@ -52,6 +52,7 @@ import type { FieldQuality, QualityEventType } from "@/features/quality/queries"
 import type { TeamVisitAlert } from "@/features/team/queries";
 import SignalBanner from "@/components/signals/SignalBanner";
 import type { SignalRow } from "@/features/signals/rules";
+import { FOLLOWUP_HEADING, followupLabel } from "@/features/field/todo";
 
 type Props = {
   day: string;
@@ -154,9 +155,11 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
         <SignalBanner initial={signals} />
         {(openFollowups.length > 0 || returned.length > 0 || countersign.length > 0) && (
           // UX1-6 (ADR-104): the open decisions and reports sit below her visits; one line at the top keeps them in sight.
+          // UX1-27 (CGR-80, ADR-106): inside the first viewport, above the next visit; the follow-up link carries the
+          // section's own heading.
           <nav aria-label="Zu erledigen" data-testid="todo-links" className="mb-4 flex flex-wrap gap-2 text-sm font-semibold">
             {openFollowups.length > 0 && (
-              <a href="#entscheid-offen" className="flex min-h-11 items-center rounded-lg border border-amber-600 bg-white px-3 text-amber-900">Entscheid offen ({openFollowups.length})</a>
+              <a href="#entscheid-offen" className="flex min-h-11 items-center rounded-lg border border-amber-600 bg-white px-3 text-amber-900">{followupLabel(openFollowups.length)}</a>
             )}
             {returned.length > 0 && (
               <a href="#zurueckgegeben" className="flex min-h-11 items-center rounded-lg border border-amber-500 bg-white px-3 text-amber-900">Zurückgegeben ({returned.length})</a>
@@ -202,8 +205,8 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
         )}
         {openFollowups.length > 0 && (
           // CSR1 / CGR-25: an interrupted visit keeps a signal until a person decides about the care still due.
-          <section aria-label="Nicht abgeschlossen: Entscheid offen" id="entscheid-offen" data-testid="followup-queue" className="mb-4 scroll-mt-56 rounded-2xl border-l-4 border-amber-600 bg-amber-50 p-3 text-sm">
-            <h2 className="font-bold text-amber-900">Nicht abgeschlossen: Entscheid offen ({openFollowups.length})</h2>
+          <section aria-label={FOLLOWUP_HEADING} id="entscheid-offen" data-testid="followup-queue" className="mb-4 scroll-mt-56 rounded-2xl border-l-4 border-amber-600 bg-amber-50 p-3 text-sm">
+            <h2 className="font-bold text-amber-900">{followupLabel(openFollowups.length)}</h2>
             <ul className="mt-1 grid gap-2">
               {openFollowups.map((a) => (
                 <li key={a.exception_key} data-testid="followup-item" className="grid gap-1 rounded-xl bg-white p-2">

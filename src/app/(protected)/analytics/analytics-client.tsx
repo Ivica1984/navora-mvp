@@ -36,7 +36,7 @@ export default function AnalyticsClient({ rows, hypotheses, month }: { rows: Kpi
       </div>
       <main className="grid min-w-0 content-start gap-6 p-4 md:p-8">
         <header className="grid gap-2">
-          <p className="text-xs uppercase tracking-widest text-stone-500">Pilot-Wirkung</p>
+          <p className="text-xs uppercase tracking-widest text-secondary">Pilot-Wirkung</p>
           <h2 className="text-2xl font-bold">Kennzahlen {monthLabel(month)}</h2>
           <p className="text-sm text-stone-600">
             Nur Summen pro Team und Organisation, nie pro Pflegeperson, ohne Klient:innen-Daten. Zahlen aus weniger als 5 Fällen sind als «zu wenig Daten» markiert.
@@ -55,7 +55,7 @@ export default function AnalyticsClient({ rows, hypotheses, month }: { rows: Kpi
             <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm">
               <thead>
-                <tr className="text-left text-xs uppercase text-stone-500">
+                <tr className="text-left text-xs uppercase text-secondary">
                   <th className="py-1">Kennzahl</th><th>Wert</th><th>Basis</th><th>Zeitraum</th><th>Definition · Quelle</th>
                 </tr>
               </thead>
@@ -69,7 +69,7 @@ export default function AnalyticsClient({ rows, hypotheses, month }: { rows: Kpi
                       <td className="py-2 pr-3 tabular-nums" data-testid={`kpi-${k}`}>
                         {formatKpi(k, r.value)}
                         {r.too_few && <span className="ml-1 rounded bg-amber-100 px-1 text-xs text-amber-900">zu wenig Daten</span>}
-                        {def.reference && <span className="block text-xs text-stone-500">{def.reference}</span>}
+                        {def.reference && <span className="block text-xs text-secondary">{def.reference}</span>}
                       </td>
                       <td className="py-2 pr-3 tabular-nums text-stone-600">{r.base ?? "–"}</td>
                       <td className="py-2 pr-3 text-xs text-stone-600" data-testid={`period-${k}`}>{k === "open_p1_exceptions" ? "Stand jetzt" : monthLabel(month)}</td>

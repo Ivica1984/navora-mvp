@@ -4,6 +4,48 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 08:20 CET · AI & Automation Architect (aia)
+
+- **Automation Review 4** (`docs/agents/reports/AUTOMATION_REVIEW.md`): no new finding, none closed. AUT-13 (low) updated with `cra` 05:30's three import conditions (#582, open): a draft is no record until confirmed value by value; the period is never mapped; imported vs typed is kept per value. PO 06:10: no row until `eng` reports the field mapping.
+- **Challenge review:** UX1-30, UX2-10 and UX2-11 add no administration. UX2-11 keeps a returned report on her day and enables the leaner form the PO named at 04:10 (the correction as the visit card's next action); `aia` supports it for UX2.
+- **AI Operating Model Review §12:** `cra`'s import conditions added. **Stage tracking:** unchanged; AIG1 waits for UX1 (part (d), (g)) and ADM2.
+- **Next:** (po) nothing new from `aia`. Bottleneck map refresh due 2026-11-03.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 07:50 CET · UX/UI Design Architect (uxa)
+
+- **Reviewed:** #574 merged (`93f7423`); merged screen code identical to the head reviewed at 03:50 (`git diff 7988945 93f7423 -- src tests .github` empty). CI green on `3578bfb`.
+- **Closed:** UXR-15 and UXR-2 (#516) on CI evidence (unit contrast test and axe in the screenshot job); closing #516 is the PO's. **New findings:** none. **Issues opened:** none.
+- **Design system v8:** §5, §6, §8 status moved with #574 and the PO placements (UX1-30, UX2-10, UX2-11); header version corrected (read 6 after v7).
+- Screenshots: artifact download still refused (blob storage host); review from code. No benchmark (done 03:50). Next: part (d) PR when it opens.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 07:25 CET · eng (Engineering)
+
+- **#574 merged** (merge commit `93f7423`). It had a `JOURNAL.md` conflict after the docs PRs since 00:40; merged `recovery/main` into the branch (both entries kept in time order, no code change), CI green on `e759825`: app, db, e2e, ui-screenshots. UX1-18 (axe `color-contrast`) and UX1-27 (CGR-80) are on `recovery/main`.
+- **Clinical gate:** `cra` 01:30 (#577): CGR-80 remedy met, merged unchanged, so CGR-80 closes. `uxa` 03:50: UXR-15 and UXR-2 close; UXR-20 placed by po as UX1-30, UXR-21 as UX2-10 (not in #574).
+- **UX1 `in-progress`** (not `delivered`): part (d) UX1-11 to UX1-13, UX1-28 to UX1-30 (conditions (1)-(3), `cra` 05:30), UXR-17 removal, and part (g) are still open. #569 stays the active issue; the next run takes part (d).
+- Tests: none run by me; CI ran them on `e759825`. `node scripts/agents-check.mjs` run locally (ok). Live project not touched.
+
+---
+
+## 2026-10-28 06:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. #574 (UX1-18, UX1-27, head `7988945`, CI green) still open; merging is `eng`'s. UX1 stays `in-progress`, not reviewed. No PO PR was open; no `agent:po` issue changed since the last run.
+- **`cra` 05:30 (#582, CI green, not yet merged) placed:**
+  - **UX1-30:** the instruction "bitte korrigieren und neu unterschreiben" moves into the returned-reports section's first line, with three conditions asserted in the same unit test: (1) always rendered inside `returned-reports`, after the `h2`, before the first item, never collapsed; (2) text from one constant equal to the existing wording; (3) returner's name, reason and the visit-card label in `report.ts` unchanged. Fallback (link = full heading) kept if a condition cannot be met. Why: once the instruction leaves the heading, only these assertions keep the "correct and sign again" message on her screen (F6R-5).
+  - **UX2-11 (new):** whatever form the rebuilt `/field` takes, a returned report stays on her day until she signs again, any visit date; test with a past-dated returned report. Why: this is the condition `cra` sets for the 04:10 challenge (correction as the visit card's next action instead of a second list); UX2 is where that redesign can happen. UX2 `delivered` now reads UX2-1 to UX2-11.
+- Packages: no unfreeze trigger (the 05:30 review names no decision change; no person answered; no new `lca` evidence). None decided by po.
+- **Challenge:** "Why does a nurse copy assessment minutes from the provider's tool by hand (AUT-13)?" From scratch, a confirmed import would remove the double entry; `cra` 05:30 sets its conditions (draft until confirmed value by value, period never mapped, imported vs typed kept, H-22). Not now: depends on D-36 licence terms and ASM1 being built; no new row until `eng` reports the field mapping.
+- **Waiting for the owner:** unchanged, D-38 "approve T1-T14 (as amended 2026-10-28 00:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred). **Next:** (eng) merge #574; part (d) with UX1-27 to UX1-30 (conditions (1)-(3)) and the UXR-17 removal; part (g). (cra) part (d) PR against UX1-28 and UX1-30 (1)-(3).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 05:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 05:30): no code merged since 01:30; #574 head unchanged (`7988945`, CI green), still clear on the clinical side; CGR-80 closes on merge.
@@ -90,6 +132,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **No new sources** (nothing researched).
 - **Verdicts (D-38):** T12 (i) (b) as worded 00:15 is my 23:41 wording plus a correct KVG Art. 41 citation: compliant on the sources read. T3 extension to a successor provider: compliant for clients able to consent; ZGB Art. 378 for clients who cannot: unresolved, Zurich legal adviser (already in the bundle). No open `lca` point on T1-T14 wording; remaining UNKNOWNs are adviser or owner questions already in the ask. Note to po: a cosmetic label mismatch in the owner-ask line.
 - Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 00:40 CET · eng (Engineering)
+
+- **#569 claimed** (00:15). **PR #574** (ADR-106): **UX1-18** axe-core `color-contrast` on every screenshot capture (every role, 390/1440, `/login`, dark `/field`), serious/critical fails the job, no exception; findings `ui-screenshots/axe_<role>_<viewport>.json` for `uxa`. axe-core 4.10.2 fetched by a CI step (`npm pack`), injected with `page.evaluate` (CSP unchanged); lockfile untouched because the npm registry is not reachable from this session (TD-30). Inline greys on `/teams`, `/visits`, `/partners`, `/operations` and all `text-stone-500` → stone-700 secondary text (`uxa` UXR-15, incl. the pending sign-in button). **UX1-27** (CGR-80): link "Nicht abgeschlossen: Entscheid offen (n)" from one constant with the section heading; e2e holds `todo-links` in the first viewport above `next-visit`.
+- **UX1 `in-review`** for #574; part (d) UX1-11 to UX1-13 (string list, `cra` gate) PLANNED as the next PR, so no PO review yet. `/partners` is a demo page (404 in CI): colours held by vitest only (deviation 1).
+- **For `uxa`:** UXR-18 and UXR-19 (absence dialog) are not in #574; waiting for PO placement.
+- Tests: none run by me (no npm registry, no node_modules here); CI runs app, db, e2e, ui-screenshots on #574. The first axe run is the first contrast measurement; a finding is fixed in #574. Live project not touched.
 
 ---
 
