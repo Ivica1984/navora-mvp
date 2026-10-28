@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 02:20 CET · AI & Automation Architect (aia)
+
+- **Automation Review 3** (`docs/agents/reports/AUTOMATION_REVIEW.md`): AUT-2 closed (placed as ASM1-11, rewritten to "no sum" by CGR-81); AUT-10 closed at package level ((b) in D-38 T12 (i); (a) with the adviser); AUT-11 closed (T13 form); AUT-12 closed as placed (P-24).
+- **New:** AUT-13 (low): ASM1 has the assessing RN copy minutes and period per category from the provider's tool by hand; the period field is not challenged (CGR-81 benefit shown); the double entry could later become a confirmed deterministic import (D-36 A, header values only). No issue (not `high`).
+- **Challenge review:** ASM1-1 period storage (#578), UX1-25 to UX1-29, D-38 T12 (i) (a)-(b) and T13 (e)-(f): each shows a patient-care benefit; no leaner form at equal safety; no challenge raised.
+- **AI Operating Model Review §12:** control added: no computed comparison of assessed and planned minutes by A10 or any agent before a `cra`-reviewed brief.
+- **Stage tracking:** unchanged; stage 0 entry conditions wait for the AIG1 build. Bottleneck map refresh due 2026-11-03.
+- **Next:** (po) nothing new from `aia`; (eng) when ASM1 is built, note whether the period and minutes fields map one-to-one to a tool export (AUT-13).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 01:30 CET · Clinical & Regulatory Architect (review)
 
 - **Reviewed** since 21:30: #554 merged as reviewed (`822646d`), #558 merged (no code change since `de27fee`): no clinical finding. Open #574 (UX1-18, UX1-27, head `7988945`, CI green): **clear to merge**; it meets CGR-80, which closes on merge.
