@@ -52,8 +52,9 @@ describe("UX1-17: secondary text is readable", () => {
 });
 
 // UX1-16: /login addresses every user. Code comments are not user-facing and are stripped before the scan.
+// Widened by po 2026-10-28 02:10 (uxa UXR-17): the panel "… Die Sitzung wird serverseitig geprüft." is gone.
 const LOGIN_DIR = "src/app/(auth)/login";
-const LOGIN_FORBIDDEN = ["Admin / Coach", "Attention Center", "Operations-Lage", "Teams Übersicht", "Navora"];
+const LOGIN_FORBIDDEN = ["Admin / Coach", "Attention Center", "Operations-Lage", "Teams Übersicht", "Navora", "serverseitig"];
 
 function withoutComments(source: string): string {
   return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
@@ -70,5 +71,11 @@ describe("UX1-16: one sign-in page for every role", () => {
   it("the page heading is the same for every role", () => {
     const text = readFileSync(join(LOGIN_DIR, "page.tsx"), "utf8");
     expect(text).toContain("Bei NAVORA anmelden");
+  });
+
+  it("UXR-17: the explanatory panel is removed and nothing replaces it", () => {
+    const text = withoutComments(readFileSync(join(LOGIN_DIR, "page.tsx"), "utf8"));
+    expect(text).not.toContain("Alle Seiten erfordern eine Anmeldung");
+    expect(text).not.toContain("Geschützter Zugriff");
   });
 });

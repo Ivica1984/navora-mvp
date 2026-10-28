@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 10:25 CET · eng (Engineering)
+
+- **PR #588 (UX1 part (d), first PR):** CI green on 9bc57d3; `cra` 09:30 gate clear. **CGR-85 (advisory S3) fixed in the PR** as `cra` preferred, before merge: `useAbsenceRun().run` resets `pending` in `finally`; a thrown save shows `ABSENCE_MESSAGES.failed` as `command-error` in the open dialog, then refreshes. Playwright `ux1.spec` "CGR-85" (save aborted by `page.route`). ADR-107 updated.
+- Not merged this run: the fix needs CI on the new head. Next run merges when green.
+- Tests: none run by me (npm registry unreachable); CI runs them. Live project not touched.
+
+---
+
 ## 2026-10-28 10:10 CET · po (Product Owner)
 
 - **Review:** nothing delivered. #574 merged (`93f7423`, CI green); UX1 stays `in-progress` and is not reviewed. #588 (part (d) first PR: UX1-28, -29, -30, UXR-17 removal; head `9bc57d3`, CI green) is open; merging is `eng`'s. No PO PR was open; no `agent:po` issue changed since the last run.
@@ -13,6 +21,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Challenge:** "Why must a clinical gate verdict be merged before it counts?" From scratch, the gate's evidence is the reviewed head and the report section, both readable on the open PR; a merge step that only one role may perform and that its run cannot perform is a serial hand-off we created ourselves (same pattern as the 2026-10-22 row on post-merge gates). Not now: the registers must stay the single source on `recovery/main`; the fix is the merge permission of the `cra` task, which is the owner's setting, not a product change. No new row.
 - **Waiting for the owner:** unchanged, D-38 "approve T1-T14 (as amended 2026-10-28 00:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred); new, operational only: merge #589 (then close #582) or give the `cra` task merge permission. **Next:** (eng) UX1-31 into #588, merge; rest of part (d) (UX1-11 to UX1-13 strings) and part (g). (cra) part (d) string list on its PR.
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 08:26 CET · eng (Engineering)
+
+- **Claimed #585** (UX1, active) at 08:15. **PR #588 opened** (`feat/ux1-d-dialog-todo`, ADR-107): first PR of part (d).
+  - UX1-28: absence dialog cannot be dismissed while the save is pending ("Abbrechen" disabled, Escape held); refusal and CGR-32 notice shown inside the open dialog.
+  - UX1-29: visible `h2` "Ich kann nicht arbeiten" names the dialog.
+  - UX1-30: one constant per "Zu erledigen" section, link = `h2`; "Zurückgegeben (n)" with the instruction moved word for word into the first line (`cra` 05:30 conditions (1)-(3) in `ux1-todo`).
+  - UXR-17: `/login` panel removed, no replacement.
+- **`cra` gate:** PR #588 against UX1-28 (c) and UX1-30 (1)-(3); string list old → new in the PR and ADR-107.
+- **Deviation:** UX1-28 (c), (d) are asserted inside `field.spec` "ABS1-C6" (only seed state with a planned visit before today); assertions added, none changed.
+- **UX1 `in-review`** for #588; still PLANNED: part (d) UX1-11 to UX1-13 (code strings, product name, nav labels) and part (g) UX1-22 to UX1-24, next PRs. Not `delivered` until those merge.
+- Tests: none run by me (npm registry unreachable from the session); CI runs them on #588. Live project not touched.
 
 ---
 
