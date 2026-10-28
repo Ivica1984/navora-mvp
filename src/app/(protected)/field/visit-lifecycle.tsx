@@ -20,8 +20,10 @@ import InterruptionFollowupForm from "@/components/lifecycle/InterruptionFollowu
  * CSR1 / CGR-20: end a started or paused visit as not completed, with a reason, so "complete" is never the only way out.
  * CSR1 / CGR-25: until someone records the follow-up decision, the card says so and offers it.
  */
-export default function VisitLifecycle({ visitId, status, notes, cancelRequested = false, onCancelClosed }: {
+export default function VisitLifecycle({ visitId, status, notes, afterToday = false, cancelRequested = false, onCancelClosed }: {
   visitId: string; status: string | null; notes: VisitStatusNote[];
+  /** VIS1-3 (ADR-111): a visit dated after today offers no no-show and no not-completed end (migration 0089). */
+  afterToday?: boolean;
   /** UX1-8 (ADR-104): "Einsatz absagen" was chosen in the card's "Mehr" menu (second tap). */
   cancelRequested?: boolean; onCancelClosed?: () => void;
 }) {
@@ -50,9 +52,9 @@ export default function VisitLifecycle({ visitId, status, notes, cancelRequested
   }
 
   const canCancel = status === "planned" || status === "on_the_way";
-  const canNoShow = status === "on_the_way";
+  const canNoShow = status === "on_the_way" && !afterToday;
   const needsOutcome = status === "no_show" && !outcome;
-  const canInterrupt = canEndNotCompleted(status);
+  const canInterrupt = canEndNotCompleted(status) && !afterToday;
   if (!canCancel && !canInterrupt && !cancelled && !noShow && !interrupted) return null;
   const showCancel = canCancel && (mode === "cancel" || (cancelRequested && mode === "idle"));
   const closeCancel = () => { setMode("idle"); onCancelClosed?.(); };

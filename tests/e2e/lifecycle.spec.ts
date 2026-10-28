@@ -4,6 +4,11 @@ import { expect, test, type Page } from "@playwright/test";
 const NURSE = "pflege.test@navora.test"; // Testteam Nord (case Testfall 08)
 const PASSWORD = "navora-local-only";
 
+// Today in the Europe/Zurich calendar (the app and the database use it; CI's clock runs in UTC).
+function zurichToday(): string {
+  return new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Zurich" });
+}
+
 async function signIn(page: Page, email: string, landing: RegExp) {
   await page.goto("/login");
   await page.getByLabel("E-Mail").fill(email);
@@ -58,6 +63,8 @@ test("a visit suspended by a pause is marked on /field and has no depart button,
   const visit = page.getByRole("article", { name: /16:00 – 16:30, Testfall 08/ });
   await expect(visit.getByTestId("visit-status")).toHaveText(/^pausiert · Spital/);
   await expect(visit.getByRole("button", { name: "Losfahren" })).toHaveCount(0);
+  // VIS1: a future visit offers only the move to today ("Heute machen"); not while it is suspended.
+  await expect(visit.getByRole("button", { name: "Heute machen" })).toHaveCount(0);
 
   // Resume restores the plan. C1 flake (failed on bdb0d1d): navigating away right after the click could abort
   // the resume command in flight; wait until the team view shows the case as running again.
@@ -67,7 +74,9 @@ test("a visit suspended by a pause is marked on /field and has no depart button,
   await expect(resumed.getByTestId("case-paused")).toHaveCount(0);
   await expect(resumed.getByRole("button", { name: "Pausieren" })).toBeVisible();
   await page.goto(`/field?datum=${day}`);
-  await expect(page.getByRole("article", { name: /16:00 – 16:30, Testfall 08/ }).getByRole("button", { name: "Losfahren" })).toBeVisible();
+  // VIS1 (ADR-111): three days ahead, so the plan is back as the move to today, not as "Losfahren".
+  await expect(page.getByRole("article", { name: /16:00 – 16:30, Testfall 08/ }).getByRole("button", { name: "Heute machen" })).toBeVisible();
+  await expect(page.getByRole("article", { name: /16:00 – 16:30, Testfall 08/ }).getByRole("button", { name: "Losfahren" })).toHaveCount(0);
 });
 
 test("a started visit ends as not completed with a reason, never only as complete, at phone width (CSR1 / CGR-20)", async ({ page }) => {
@@ -76,8 +85,9 @@ test("a started visit ends as not completed with a reason, never only as complet
   await page.goto("/team");
   const card = page.getByRole("article", { name: /Fall Testfall 08/ });
 
-  // A visit five days ahead (no other test uses that slot).
-  const day = new Date(Date.now() + 5 * 86_400_000).toISOString().slice(0, 10);
+  // A visit today at 17:00 (no other test uses that slot). VIS1-5: a visit that is started is dated today (CGR-87);
+  // before VIS1 it was five days ahead.
+  const day = zurichToday();
   await card.getByRole("button", { name: "Einsatz planen" }).click();
   const planForm = card.getByRole("form", { name: "Einsatz planen" });
   await planForm.getByLabel("Datum").fill(day);
@@ -123,8 +133,8 @@ test("an interrupted visit keeps a signal until the team decides about the care 
   await page.goto("/team");
   const card = page.getByRole("article", { name: /Fall Testfall 08/ });
 
-  // A visit six days ahead at 19:00 (no other test uses that slot).
-  const day = new Date(Date.now() + 6 * 86_400_000).toISOString().slice(0, 10);
+  // A visit today at 19:00 (no other test uses that slot). VIS1-5: started, so dated today (was six days ahead).
+  const day = zurichToday();
   await card.getByRole("button", { name: "Einsatz planen" }).click();
   const planForm = card.getByRole("form", { name: "Einsatz planen" });
   await planForm.getByLabel("Datum").fill(day);
@@ -191,8 +201,9 @@ test("the performer sees who ended her visit and why, at phone width (CSR1 / CGR
   await page.goto("/team");
   const card = page.getByRole("article", { name: /Fall Testfall 08/ });
 
-  // A visit seven days ahead at 20:00 (no other test uses that slot); the registered nurse starts it.
-  const day = new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10);
+  // A visit today at 20:00 (no other test uses that slot); the registered nurse starts it. VIS1-5: started, so dated
+  // today (was seven days ahead).
+  const day = zurichToday();
   await card.getByRole("button", { name: "Einsatz planen" }).click();
   const planForm = card.getByRole("form", { name: "Einsatz planen" });
   await planForm.getByLabel("Datum").fill(day);
