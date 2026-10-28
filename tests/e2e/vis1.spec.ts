@@ -217,5 +217,16 @@ test.describe("VIS1 at 390 × 844", () => {
 
     const width = await page.evaluate(() => document.documentElement.scrollWidth);
     expect(width).toBeLessThanOrEqual(PHONE.width);
+
+    // Clean up: the released visit would stay open in the team today (uncovered, possibly overdue) and reach the later
+    // specs' screens as a signal; the team removes it with a reason (existing J3 route).
+    await page.goto("/team");
+    const upcoming = page.getByRole("article", { name: /Fall Testfall 08/ }).getByRole("list", { name: "Geplante Einsätze" });
+    const item = upcoming.getByRole("listitem").filter({ hasText: "23:30–23:45" });
+    await item.getByRole("button", { name: "Entfernen" }).click();
+    const remove = item.getByRole("form", { name: "Einsatz entfernen" });
+    await remove.getByLabel("Grund").fill("Synthetisch: Testeinsatz entfernt");
+    await remove.getByRole("button", { name: "Entfernen" }).click();
+    await expect(upcoming.getByRole("listitem").filter({ hasText: "23:30–23:45" })).toHaveCount(0);
   });
 });
