@@ -1,4 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
+import { pastPlannedNotice } from "@/features/absence/rules";
+import { returnedInstructionLine } from "@/features/field/todo";
 
 // F1 — the nurse's day (/field). Synthetic local-only accounts from supabase/seed.sql.
 // Runs after auth.spec.ts (serial, one worker): by then visit 501 (08:00, Testteam Nord)
@@ -350,6 +352,13 @@ test.describe("field tool (F1)", () => {
     await signIn(page, ASSISTANT, /\/field$/);
     const returned = page.getByTestId("returned-reports");
     await expect(returned).toContainText("Abfahrtszeit stimmt nicht, bitte korrigieren.");
+    // UX1-30 (ADR-107, assertions added): the "Zu erledigen" link reads like the section heading; the instruction is
+    // the section's first line, visible without expanding.
+    const heading = returned.getByRole("heading", { level: 2 });
+    await expect(heading).toHaveText(/^Zurückgegeben \(\d+\)$/);
+    await expect(page.getByTestId("todo-links").getByRole("link", { name: /^Zurückgegeben/ })).toHaveText((await heading.textContent()) ?? "");
+    await expect(returned.getByTestId("returned-instruction")).toBeVisible();
+    await expect(returned.getByTestId("returned-instruction")).toHaveText(returnedInstructionLine());
     await returned.getByRole("link", { name: /Testfall 08/ }).click();
     await page.waitForURL(new RegExp(`datum=${DAY_AFTER}`));
     const mine = page.getByRole("article", { name: /18:00 – 18:30/ });
@@ -452,9 +461,37 @@ test.describe("field tool (F1)", () => {
     await expect(form.locator("input[name=until]")).toHaveAttribute("min", today);
     await form.locator("select[name=who]").selectOption("00000000-0000-4000-a000-000000000101|00000000-0000-4000-a000-000000000906");
     await from.fill(yesterday);
+    // UX1-28 (a), (c), (d) (ADR-107, assertions added): the save is held while pending; Escape and "Abbrechen" leave
+    // the dialog open, and the CGR-32 notice then shows inside the open dialog, with "Zum Team", until she closes it.
+    let release!: () => void;
+    let markSent!: () => void;
+    const gate = new Promise<void>((r) => { release = r; });
+    const sent = new Promise<void>((r) => { markSent = r; });
+    await page.route("**/field**", async (route) => {
+      if (route.request().method() === "POST" && route.request().headers()["next-action"]) { markSent(); await gate; }
+      await route.continue();
+    });
     await form.getByTestId("absence-save").click();
+    await sent;
+    const dialog = page.getByRole("dialog", { name: "Ich kann nicht arbeiten" });
+    await page.keyboard.press("Escape");
+    await expect(form).toBeVisible();
+    await expect(form.getByRole("button", { name: "Abbrechen" })).toBeDisabled();
+    await form.getByRole("button", { name: "Abbrechen" }).click({ force: true });
+    await expect(form).toBeVisible();
+    release();
     const notice = absence.getByTestId("absence-past-planned");
     await expect(notice).toHaveCount(1);
+    await expect(dialog.getByTestId("absence-past-planned")).toBeVisible();
+    // (d) the text is the function's return value for the seeded count, not a literal.
+    const expected = pastPlannedNotice(1);
+    expect(expected).not.toBeNull();
+    await expect(notice).toHaveText(`${expected} · Zum Team`);
+    await expect(dialog.getByRole("link", { name: "Zum Team" })).toBeVisible();
+    // Not cleared by the refresh that follows the save: still there once the page is idle.
+    await page.waitForLoadState("networkidle");
+    await expect(dialog.getByTestId("absence-past-planned")).toBeVisible();
+    await page.unroute("**/field**");
     // ABS1-C7: singular at n = 1.
     await expect(notice).toContainText("1 vergangener Einsatz ist noch offen: bitte im Team entscheiden");
     await expect(page.getByText("vergangener Einsatz ist noch offen")).toHaveCount(1);

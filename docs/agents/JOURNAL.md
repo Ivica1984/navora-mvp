@@ -4,6 +4,119 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 12:15 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 stays `in-progress` (#598, part (d), open with green CI and no blocking `uxa` finding; part (g) not built); not reviewed. No PO PR was open.
+- **`uxa` 11:49 placed:** UXR-22 and UXR-23 (low) as **UX1-32** (one name per page on `/partners`; "Details zum Pflegeteam"), riding #598 if Engineering chooses, otherwise part (g); **not a merge condition for #598**. UXR-25 (low) as **UX1-33** in part (g): focus moves to "Schliessen" when the CGR-32 notice replaces the absence form, back to "Speichern" after a refusal (a keyboard user must reach the notice that her absence leaves planned visits for her team to decide; value 2). UXR-24 (medium) as **UX2-12**: one `h1` per page, the product name not a heading; in UX2 because the side column is the shell UX2-1 replaces.
+- **D-38 (unfrozen since 11:10, trigger 5): `lca` 11:55 taken in; still `inputs-requested`, Low; owner ask still paused.** Protective forms applied to the terms table: T15 (a) "granted, not applied for"; T15 (d) the partner commits in the LOI that a member who does not move keeps her employment on her existing terms (without it, a refusal under OR Art. 333 Abs. 2 would end it); **new T15 (f)** no notice, resignation or transfer date before C is admitted or while a safety stop holds; T16 extension not usable by one party to delay C, T12 continuity during it; **T17 no NAVORA loan, at most a fee deferral at the agreed price** with no security, conversion, approval right, client-number tie, exclusivity or exit penalty; T18 (a)-(c), (e) worded to the Zurich licence guidance (advance report of a Leitung Pflege change, deputy, no job-sharing; processor agreement; export like T2); T10 (ii) non-care services only, (iii) protective form only. Five questions added to the Zurich adviser list (owner agenda; the adviser ask itself is unchanged). Waiting: `cra` (T15 (b), T16 safety stop) and `eng` (T18 (e)), both requested 11:10.
+- **STR-17 F4 now in force** (`DECISION_PACKAGES.md` *Frozen packages*) on `lca`'s two conditions: nothing external is signed or sent while a *Pending wording* list is not empty; a wording change `lca` marks compliance-relevant applies at once.
+- Packages: D-38 only (the only unfrozen package). D-37 waits only for the D-36 fact. Every other package frozen and not written about (rule 9); none decided by po.
+- **Challenge:** "Why must a nurse's job depend on a vote about a provider?" It must not: T15 (d)/(f) now make each nurse's own employment independent of the team's decision and of the timing of C's licence. And "if NAVORA were designed from scratch, would it lend money to a team's provider?" No: credit is a lever over a provider that must stay independent (D-12 C condition 1); the kit (STR-19) should make a team's start-up costs small enough that a deferral at full price, or none, suffices. Hypothesis for pilot data, not a brief yet.
+- **Waiting for the owner:** nothing new to decide. D-38 still nothing to answer (one combined ask once `cra` and `eng` are in). Bundle 1 and 2 unchanged.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 11:55 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 frozen and unchanged (no trigger; nothing written about them). Tier 2: no open CGR names a decision I can act on. **D-38** unfrozen by po 11:10 (trigger 5, `csa` STR-18) with an explicit `lca` request; picked D-38 only.
+- **New sources (read 2026-10-28):** Zurich Spitex licence guidance (Sept 2025) Ziff. 3.1 (legal entity with own personality, AG/GmbH as examples), 3.4.2 (deputy, no job-sharing), 8 (licence not transferable; advance report of a Leitung Pflege change, except temporary up to 14 weeks; no financing test); BAG letter of 10 July 2026 on kickbacks under KVG Art. 56 Abs. 3 lit. a; SGV processor-agreement template. KVG Art. 56 itself not read (fedlex not reachable).
+- **Verdicts (D-38, advisory):** default (D-12 stands, no LOI naming the sunset) compliant. T15 (a), T16 (extension, safety stop), T18 (b), (e): compliant with stated wording. T18 (a), (c): compliant as terms; cooperative form and StGB 321 to the adviser. **Unresolved, Zurich legal adviser:** T15 (d)/T16 "stays with the partner" (a refusal under OR Art. 333 Abs. 2 ends employment unless the partner commits to keep her), T17 (loan or deferral terms vs control; KVG Art. 56 Abs. 3), T10 (iii) (incubation fee), T10 (ii) for care services. STR-17 F4 confirmed on two conditions (nothing signed while *Pending wording* is not empty; an `lca`-marked compliance-relevant wording applies at once).
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not accessed.
+
+---
+
+## 2026-10-28 11:49 CET · UX/UI Design Architect (uxa)
+
+- **UX review 11:49** (`docs/agents/reports/UX_REVIEW.md`): #588 merged (`566dc8b`) reviewed from code: **UXR-17, UXR-18, UXR-19, UXR-20 closed in code** (CI green). Open PR **#598** (UX1-11 to UX1-13, head `5219eae`, CI green) reviewed: no blocking finding; it completes UXR-12 when merged.
+- **New findings:** UXR-22 (low, `/partners` eyebrow left), UXR-23 (low, "Pflegeteam Detail" wording), UXR-24 (medium, side-column `<h1>NAVORA</h1>` makes the product name the page's first heading; pre-existing), UXR-25 (low, focus after the absence dialog's notice replaces the form). No issue opened (none severe or high); one comment on #598.
+- **Design system v9:** §5 jump links and §6 dialog rules IMPLEMENTED (#588); §4 "one label per page" PLANNED (#598) with OPEN parts; §6 new OPEN focus rule.
+- **For the PO:** placement of UXR-22 to UXR-25 (proposal: UXR-22/-23 ride part (d), UXR-24 in UX2-1, UXR-25 part (g) or UX2).
+- Screenshot download still refused (proxy 403); review from code. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 11:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. #588 merged (`566dc8b`, CI green) with UX1-28 to UX1-31; UX1 stays `in-progress` (part (d) UX1-11 to UX1-13 and part (g) open) and is not reviewed. No PO PR was open.
+- **STR-17 (#593) adopted; owner approved STR-14 on 2026-10-28 and asked for an implementation.** Why: the freeze rule worked for the PO but broke ten times on its first day elsewhere, and D-38 looped `po` ↔ `lca` four times after escalation; every such run returns nothing to a nurse or a client.
+  - **F1:** README rule 9, the freeze binds every role; a run with no unfrozen package writes nothing about packages.
+  - **F2:** each `awaiting-approval` INDEX row shows `frozen since <date>` (the later of 2026-10-27 14:45 and the package's last merged change, read from git); later edits start with `Unfreeze: <trigger 1-5> <reference>`.
+  - **F4 (provisional until `lca` confirms):** wording-only changes after escalation are batched in a *Pending wording* list; `cra` S1/S2, `lca` non-compliant or unresolved on the default, and any change of ask, default or blocks apply at once.
+  - **F5:** every owner-agenda line names its ask version; a changed ask says "changed since you last looked".
+  - **F3 → COORD6** (brief approved, *Next up* 2, details below). **F6** is `csa`'s. **F7** is the owner's setting: added to the owner agenda as an optional operational line (agents never edit scheduled tasks).
+  - README *Automation review* and *Strategy review* gain the owner's 2026-10-28 instruction "designed from scratch first, then compare" (at `csa`'s request).
+- **D-38 unfrozen (trigger 5, `csa` STR-18 on #545) and back to `inputs-requested`, Low.** The owner approved STR-15 with nine topics; T1-T14 cover five. **T15-T18** (team-level transition criteria, independence and fallbacks, C's financing before the first insurer payment, governance after the transition) and **T10 options (i)-(iv)** are added as *proposed*. PO position before inputs: no team member is moved by a partnership term (T15 (d), T16 stay in any case); no safety level is set by po (T15 (b) is the Clinical Owner's); no amount or NAVORA funding in T17. **The 00:15 owner ask is paused** so the owner answers once on T1-T18. Inputs requested (one comment on #545): `lca` (T15 (a), (d); T16 extension; T17 condition-1 limits; T18 (a), (b), (c), (e); T10 (ii), (iii); and F4), `cra` (T15 (b) kinds of safety measure, T16 safety stop), `eng` (T18 (e): does the T2 export serve C's exit). Default unchanged: D-12 stands, nothing transferred, no LOI naming the sunset.
+- **STR-19 (#594) adopted as a drafting rule:** every first-transition document is written as a reusable provider kit, partner-specific parts marked; nothing built. `CARE_OPERATING_MODEL.md` *Provider kit*; hypothesis **P-25** (second team at most half the time from consent to admission). The owner package "may a second team found directly without a partner?" is noted under *Coming* on the owner agenda, due once the first C is admitted and P-24 is answered.
+- Packages: D-38 only (unfrozen). D-37 waits only for the D-36 fact. Every other package frozen; none decided by po.
+- **Challenge:** "Why does a new team need an incumbent provider to start at all?" From scratch it would not: it founds its own provider from a kit (STR-19, P-25). And "why do agents re-read unchanged packages?" Because the rule lived only in text: COORD6 moves it into CI.
+- **Waiting for the owner:** nothing new to decide. D-38's ask is paused (one combined ask follows); bundle 1 and 2 unchanged; optional: the task-prompt pointer to rule 9 (F7) and merging #589 (then closing #582).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+ENGINEERING BRIEF
+- **Capability:** COORD6, frozen packages stay frozen without anyone watching (`agents-check` guard, STR-17 F3).
+- **Why:** the owner approved STR-14 and asked that agent time go to new value, not to re-reading unchanged material; the rule broke ten times on its first day because nothing checks it.
+- **Business outcome:** the owner's one-page agenda changes only when something real changed; fewer wasted agent runs per day.
+- **Care outcome:** none directly; more agent capacity for care-journey items; safety findings still reopen a package at once (trigger 3, F4).
+- **Expected nurse outcome:** none directly.
+- **Expected team outcome:** none directly; decisions affecting teams (D-38) reach the owner as one stable ask instead of a moving one.
+- **Expected patient outcome:** none directly; no safe default changes.
+- **Acceptance criteria:** COORD6-1 to COORD6-8 in `briefs/COORD6.md` (marker on every `awaiting-approval` row; `Unfreeze: [1-5]` line required for changes to a package frozen on the base, its INDEX and OPEN_DECISIONS rows; journal "no new evidence" warns until 2026-11-04, then errors, injectable clock; skip with a warning when no base resolves; unit tests for each).
+- **Dependencies:** none; COORD5 parser (`scripts/agents-coordination/parse.mjs`).
+- **Priority:** *Next up* 2, after UX1 and before ADM2 (one small PR, no app or database change).
+- **Implementation recommendation:** extend `parse.mjs` and `agents-check.mjs`; base via `AGENTS_BASE_REF` (default `origin/recovery/main`) and `git diff`; tests beside the existing coordination tests; CI fetch depth if needed.
+
+---
+
+## 2026-10-28 10:47 CET · Chief Strategy Architect (csa)
+
+- **Owner, 2026-10-28 (in this `csa` session):**
+  - approved the `csa` review of 2026-10-27, the direction, and the priority on G-1;
+  - **STR-14 approved**, asking for an implementation approach;
+  - **STR-15 approved as high priority**: the transition must be defined before a pilot partnership, covering nine topics;
+  - **new instruction for `csa` and `aia`:** first ask "if we were designing home care from scratch today, how would we organise it?", then compare with current practice and say what to eliminate, redesign, automate or replace. The goal is a superior care-operating model, not incremental optimisation.
+  - Recorded in [`../product/STRATEGY.md`](../product/STRATEGY.md) §1, §2 and the new §8 (the future-state model `csa` judges against). **`aia`: this instruction applies to your reviews from now on. `po`: please add it to README *Automation review* and *Strategy review*.**
+- **STR-17 (freeze implementation), issue #593:**
+  - The PO's freeze rule works for its own re-checks, and the owner agenda works.
+  - Gaps: the rule binds only the PO (10 more "no new evidence" lines, 7 from `lca`), and D-38 was amended four times after escalation in a `po`↔`lca` loop.
+  - Proposed F1-F7: one README rule for every role; `Unfreeze:` lines; an `agents-check` guard (`eng`); wording batched after escalation, with safety findings still applied at once; a version date on the owner agenda; a weekly measure; the task prompts aligned by the owner.
+- **STR-18 (D-38 against the owner's nine topics), comment on #545:**
+  - Five topics covered, financing partial; team-level transition criteria, independence conditions and fallbacks, governance after the transition and partner-incentive options missing.
+  - Proposed T15-T18 and T10 options; re-analysis requested (unfreeze trigger 5); inputs named for `lca`, `cra`, `eng`.
+- **STR-19 (provider kit), issue #594:** designed from scratch, the partner route should be needed once. The first transition is written as a reusable kit; a later owner package asks whether the second team may found directly.
+- No package, row, status or queue edited. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 10:27 CET · eng (Engineering)
+
+- **#588 merged** (merge commit `566dc8b`). The CGR-85 fix (`7acacdd`) is on it. A `JOURNAL.md` conflict with the po 10:10 cycle was resolved by merging `recovery/main` into the branch (`522f34b`, entries kept in time order, no code change). CI green on `522f34b`: app, db, e2e, ui-screenshots.
+- **Merged:** UX1-28, UX1-29, UX1-30 (`cra` 09:30 gate clear), UX1-31 (CGR-85) and the UXR-17 removal.
+- **UX1 `in-progress`** (not `delivered`): part (d) UX1-11 to UX1-13 and part (g) UX1-22 to UX1-24 are still PLANNED. The next run takes UX1-11 to UX1-13.
+- Tests: none run by me; CI ran them on `522f34b`. Live project not touched.
+
+---
+
+## 2026-10-28 10:25 CET · eng (Engineering)
+
+- **PR #588 (UX1 part (d), first PR):** CI green on 9bc57d3; `cra` 09:30 gate clear. **CGR-85 (advisory S3) fixed in the PR** as `cra` preferred, before merge: `useAbsenceRun().run` resets `pending` in `finally`; a thrown save shows `ABSENCE_MESSAGES.failed` as `command-error` in the open dialog, then refreshes. Playwright `ux1.spec` "CGR-85" (save aborted by `page.route`). ADR-107 updated.
+- Not merged this run: the fix needs CI on the new head. Next run merges when green.
+- Tests: none run by me (npm registry unreachable); CI runs them. Live project not touched.
+
+---
+
+## 2026-10-28 10:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. #574 merged (`93f7423`, CI green); UX1 stays `in-progress` and is not reviewed. #588 (part (d) first PR: UX1-28, -29, -30, UXR-17 removal; head `9bc57d3`, CI green) is open; merging is `eng`'s. No PO PR was open; no `agent:po` issue changed since the last run.
+- **`cra` 09:30 (#589, CI green, includes #582) placed:** **CGR-85 (advisory S3) → UX1-31**, in #588 before it merges, else before UX1 is `delivered`: `run` resets `pending` in `finally`, a thrown save shows `ABSENCE_MESSAGES.failed` in the open dialog and refreshes; Playwright holds the save and `route.abort()`s it (dialog open, error shown, no CGR-32 notice, "Abbrechen" enabled, Escape closes); UX1-28 (a)-(e) unchanged. Why: UX1-28 exists so a nurse on a weak connection always learns whether she is recorded absent; without `finally` that exact case leaves her locked behind "Wird gespeichert …". `cra` gate on #588 otherwise clear (UX1-28 (c)-(e), UX1-30 (1)-(3), string list).
+- **Governance PRs #582 and #589 are open and green but unmerged:** `cra`'s run reports its merge was refused by its environment's permission check. COORDINATION rule 4 lets each role merge only its own PRs, so po does not merge them; the owner (or a `cra` run with merge permission) merges #589, then closes #582. Nothing waits on it: the gate verdict is readable on the PR and placed here.
+- Packages: no unfreeze trigger (CGR-85 names no decision; the `eng` questions in `cra` 09:30 are not package inputs; no person answered; no new `lca` evidence). None decided by po.
+- **Challenge:** "Why must a clinical gate verdict be merged before it counts?" From scratch, the gate's evidence is the reviewed head and the report section, both readable on the open PR; a merge step that only one role may perform and that its run cannot perform is a serial hand-off we created ourselves (same pattern as the 2026-10-22 row on post-merge gates). Not now: the registers must stay the single source on `recovery/main`; the fix is the merge permission of the `cra` task, which is the owner's setting, not a product change. No new row.
+- **Waiting for the owner:** unchanged, D-38 "approve T1-T14 (as amended 2026-10-28 00:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred); new, operational only: merge #589 (then close #582) or give the `cra` task merge permission. **Next:** (eng) UX1-31 into #588, merge; rest of part (d) (UX1-11 to UX1-13 strings) and part (g). (cra) part (d) string list on its PR.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 09:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 09:30): #574 merged as `93f7423` with code identical to the reviewed head, so **CGR-80 is closed** (PS-69 closed).
@@ -13,6 +126,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **#582 (05:30) not merged:** this run's merge attempt was refused by the environment's permission check. This PR contains #582; `po` or the owner merges, then #582 can be closed.
 - Decisions waiting: `po` (CGR-85 placement), `eng` (CGR-85 fix), `clinical` (periods/totals CGR-81/-84, D-38 handover set, D-10/-15/-16/-17/-28/-31/-37), owner/legal (G-1, D-38 T1-T14, D-36, D-1).
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-28 08:26 CET · eng (Engineering)
+
+- **Claimed #585** (UX1, active) at 08:15. **PR #588 opened** (`feat/ux1-d-dialog-todo`, ADR-107): first PR of part (d).
+  - UX1-28: absence dialog cannot be dismissed while the save is pending ("Abbrechen" disabled, Escape held); refusal and CGR-32 notice shown inside the open dialog.
+  - UX1-29: visible `h2` "Ich kann nicht arbeiten" names the dialog.
+  - UX1-30: one constant per "Zu erledigen" section, link = `h2`; "Zurückgegeben (n)" with the instruction moved word for word into the first line (`cra` 05:30 conditions (1)-(3) in `ux1-todo`).
+  - UXR-17: `/login` panel removed, no replacement.
+- **`cra` gate:** PR #588 against UX1-28 (c) and UX1-30 (1)-(3); string list old → new in the PR and ADR-107.
+- **Deviation:** UX1-28 (c), (d) are asserted inside `field.spec` "ABS1-C6" (only seed state with a planned visit before today); assertions added, none changed.
+- **UX1 `in-review`** for #588; still PLANNED: part (d) UX1-11 to UX1-13 (code strings, product name, nav labels) and part (g) UX1-22 to UX1-24, next PRs. Not `delivered` until those merge.
+- Tests: none run by me (npm registry unreachable from the session); CI runs them on #588. Live project not touched.
 
 ---
 

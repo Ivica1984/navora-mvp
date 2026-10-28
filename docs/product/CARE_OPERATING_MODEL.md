@@ -105,6 +105,15 @@ The owner's principles:
 
 **Approved by the owner on 2026-10-27**, together with D-12 (the partner is a pilot vehicle; the destination is a team-owned provider), D-34 (A plus C, clinical module as the long-term target) and the staged AI path. The strategy is kept in [`STRATEGY.md`](STRATEGY.md). How this is put into practice is in the [Strategic Alignment Review](STRATEGIC_ALIGNMENT_REVIEW.md): a verdict for each of the seven dimensions, decisions re-evaluated, and a staged AI path from synthetic-data foundations (stage 0) to a qualified clinical module (stage 3).
 
+### Provider kit: the partner route is needed once (PO, 2026-10-28, `csa` STR-19)
+
+**Why does a new team need an incumbent provider to start at all?** Designed from scratch, a team that wants to care for clients under its own name would found its own licensed, admitted provider from a ready kit. D-12 B (incubation inside an incumbent for up to 12 months) is a bridge only because no such kit exists yet. If the first transition is worked out case by case inside one partner's letter of intent, every later team needs a partner again, and NAVORA scales as a supplier to incumbents, the drift the strategy names.
+
+- **Decided by po (within product authority):** every document the first transition produces is written as part of a reusable **provider kit**, with partner-specific parts marked: C's licence file; the Leistungsauftrag request and the tariff route (D-38 T14, T6); the training-place arrangement; insurance and the pre-revenue budget (D-38 T17); legal-form templates; the processor agreement; the NAVORA set-up. Nothing is built; the kit is documents, and no template states a legal or tariff rule that `lca` and the adviser have not confirmed.
+- **Not decided, not asked yet:** whether a second team may found its provider directly from the kit, without a partner. That is a partnership and regulatory question for the owner, put as a package once the first C is admitted and P-24 (shared regulated services) has the adviser's answer (OWNER_AGENDA, *Coming*).
+- **Measure:** time from a team's consent decision (D-38 T15 (d)) to C's admission, first team versus second; hypothesis: the second is at least half as long. UNKNOWN until two teams have gone through it.
+- **Beyond Buurtzorg:** Buurtzorg scaled teams inside one organisation, with its back office as the single legal provider. The kit aims at many small providers that each hold their own licence and share only processors and contracts (P-24), so no single organisation becomes the hierarchy again.
+
 ## AI-first means graph-first (PO, 2026-10-26)
 
 From the [AI Operating Model Review](AI_OPERATING_MODEL_REVIEW.md):
