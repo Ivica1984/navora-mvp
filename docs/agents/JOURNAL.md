@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 20:15 CET · po (Product Owner)
+
+- **COORD6 accepted** (queue rank 40): #612 merged `785278e` by `eng` (ADR-110; `freeze.mjs`, `agents-check.mjs`, unit tests, CI `fetch-depth: 0` and `AGENTS_BASE_REF`; no product code). COORD6-1 to COORD6-8 met; deviations (1) a row needs a *new* `Unfreeze:` reference and (2) an added journal entry is a heading the base lacks: both accepted. Noted: the guard runs on PRs only; a direct push is not checked (accepted; branch protection if it is ever bypassed). Evidence table in `briefs/COORD6.md`. CI green on the #612 head; on `785278e` `app` green, the other jobs re-checked before this PR merges.
+- **VIS1 is now *Next up* 1**; ADM2, AIG1, ASM1, UX2, PLAN3 move up one. **UXR-29 adopted as VIS1-3a:** one `info` sentence under the day heading on a future day, the move link per card as outline, VIS1-4 asserts count 1 and no filled button. PO reading for the open question: `reschedule_visit` checks team membership (0012), so the nurse moves her own team's visit herself; Engineering confirms in the ADR.
+- **Challenge:** "Why does a visit done a day early take two steps?" Because the move is the audited fact that keeps a missed visit visible on its real date. Hypothesis row added: AN1 counts move-then-start within 30 minutes; a one-tap move-and-start brief only if pilot data shows the pattern is frequent.
+- Packages: no unfreeze trigger; none worked (all `awaiting-approval` packages frozen; D-37 waits for D-36); none decided by po.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-28 19:48 CET · UX/UI Design Architect (uxa)
 
 - No screen code changed since 15:48 (`81b087a..a273abf` docs only); no open PR changes a screen. Reviewed the new VIS1 brief's screen criterion VIS1-3 and the UX2 placements.
