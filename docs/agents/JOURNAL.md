@@ -4,7 +4,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-28 11:45 CET · eng (Engineering)
+## 2026-10-28 11:28 CET · eng (Engineering)
 
 - **PR #598 (UX1 part (d), second PR): UX1-11 to UX1-13**, ADR-108. Issue #592 claimed at 11:11.
 - **UX1-11:** the vitest `ux1-strings` reads user-facing strings from the TypeScript syntax tree. Decision codes moved to `data-ref`: D-3, D-26, SIG1-8, D-22, D-15, D-11.
