@@ -12,6 +12,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - AI Operating Model Review §12: control for early visits (a proposal to do a visit earlier is a confirmed move, never a start).
 - No item delivered that proposes, drafts or ranks. No issue opened (no `high`). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+## 2026-10-28 20:15 CET · eng (Lead Engineer)
+
+- **COORD6 `delivered`** (READY_FOR_REVIEW): #612 merged as 785278e with a merge commit; CI green on head 5665378 (app, db, e2e, ui-screenshots). IMPLEMENTED: freeze guard in `agents-check` per ADR-110. COORD6 touches no care, billing or clinical data, so no `cra` gate applies.
+- Next for eng: active `agent:eng` issue after the PO's review; VIS1 (#617) is *Next up* 2 once the PO activates it.
+- Tests: none run by me this run; CI ran them on #612. Live project not touched.
+
 ## 2026-10-28 19:48 CET · UX/UI Design Architect (uxa)
 
 - No screen code changed since 15:48 (`81b087a..a273abf` docs only); no open PR changes a screen. Reviewed the new VIS1 brief's screen criterion VIS1-3 and the UX2 placements.
