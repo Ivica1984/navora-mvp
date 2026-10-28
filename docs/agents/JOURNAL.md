@@ -4,12 +4,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 16:15 CET · po (Product Owner)
+
+- Continues PO PR #611 (UX1 accepted, D-38 escalated; green but conflicted): `recovery/main` merged in (JOURNAL: both entries kept, newest first); this cycle rides the same PR.
+- **UX1-G1 met:** `uxa` 15:48 code-only review of part (g) found no `severe` or `high` finding; UX1 stays `accepted`. UX1-C1 to UX1-C3 unchanged.
+- **Placed in UX2:** UXR-26 → **UX2-14** (one `ErrorLine` component on every screen; the quality hold badge's colour waits for `cra`); UXR-27 → **UX2-15** (reach-gap sentence and link cannot be folded away; `summary` ≥ 44 px; position for `cra`); UXR-28 → question for `cra` (frame follows the highest open priority?). UX2 is `delivered` at UX2-1 to UX2-15.
+- No new delivery (COORD6 #612 open). Packages: none worked (D-38 waits for the owner; all others frozen). None decided by po.
+- **Challenge:** "Why does a nurse read two error languages on one screen?" Colour was decided per file, not per meaning; one component ends that review work for every future page.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-28 15:48 CET · UX/UI Design Architect (uxa)
 
 - **UX1-G1 review** of part (g) (#602) and UX1-32/UX1-33 on `recovery/main` `72a2697`, code-only (screenshot download refused again, 403 at the storage host). **No `severe` or `high` finding.** Closed in code: UXR-4, UXR-5 (a), UXR-7, UXR-12, UXR-22, UXR-23, UXR-25.
 - **New:** UXR-26 (medium: error lines and the quality hold on `/field` still red outside `field-client.tsx`; one error component, fits UX2-3), UXR-27 (low: `/team` reach-gap sentence can be folded away, `summary` under 44 px), UXR-28 (low: red frame of "Einsätze mit Handlungsbedarf" when only pointers remain). Four requests to `cra` in the report. ADR-109 deviation 1: agree with UX2-13.
 - Design system version 10 (status moves from #598, #602; two new OPEN rules). No issue opened (no severe or high). No benchmark (made at 03:50).
 - Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-28 15:15 CET · po (Product Owner)
+
+- **UX1 accepted** (queue rank 39; #535, #554, #558, #574, #588, #598, #602; ADR-103 to ADR-109; no migration; CI `app`, `db`, `e2e`, `ui-screenshots` green on the #602 head `b606560` and on `72a2697`). Clinical gate passed (`cra` 21:30, 01:30, 09:30, 13:40 on PR #604's head; merged code = reviewed heads plus docs merges). Evidence table, 15 deviation decisions and the reasons in `briefs/UX1.md`. Issue #609 closes with it.
+- **Conditions:** **UX1-C1** the UX1-27 e2e failed on the push runs of `a70f490` and `f6277ab` (timeout on "Einsatz starten" for the visit planned 8 days ahead) while the parallel PR runs passed: cause named, fixed without retry or skip, `--repeat-each=20` green; next Engineering PR, at the latest before UX2; an app cause returns UX1 to `changes-requested`. **UX1-C2** the 33 code-bearing strings in `src/features/**` (`eng` deviation (7)): own PR, string list for `cra`/`lca`, before UX2 is delivered and before the first real user; #508 stays open. **UX1-C3** push opt-in completed at 390 px before push is switched on. **UX1-G1** `uxa` reviews part (g); severe or high returns UX1. **UX2-13** placed: `/team` "Beenden" and "Entfernen" leave the P1 colour; "Ergebnis erfassen" on an overdue visit stays red (`cra`: it ends a SIG1 situation).
+- **D-38 escalated (`awaiting-approval: owner`, Medium, frozen since 15:15).** `lca` 14:56 applied at once (F4 compliance-relevant): T15 (b) (2) scoped to clients whose choice and consent are recorded; T15 (f) "no party sets or asks for" a date; **T16 lift by the Clinical Owner's record plus each Leitung Pflege's agreement**, refusal names the finding, owner-set fall-back for a stop without a finding; a stop never binds a client's choice, a nurse's own resignation or a Leitung Pflege's judgement. `eng` T18 (e) drafted under the two-run rule (requested 11:10, six `eng` runs since): one organisation-scoped export serves the partner's sunset and C's exit. Owner agenda bundle 2 updated; one adviser question added.
+- **Challenge:** "Why should one NAVORA-appointed person be able to hold a team-owned provider's start?" She should not: that is a hierarchy layer above both Leitungen Pflege and a lever over C. The stop stays (patient safety), the single veto goes. "Would we build a second export for C's exit if we started from scratch?" No: one organisation-scoped export, instructed by its owner, serves every exit.
+- Packages: D-38 only (every other package frozen, rule 9). None decided by po.
+- **Waiting for the owner (D-38, bundle 2):** approve T1-T18 as the LOI minimum; choose T10 options; any T17 deferral; three periods (T12 (i) window, T16 extension, T16 stop fall-back); a Clinical Owner deputy with G-1. Default: D-12 stands, no LOI naming the sunset.
+- Tests: none run by me (docs only; CI check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
