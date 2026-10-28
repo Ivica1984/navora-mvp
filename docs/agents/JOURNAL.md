@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 01:30 CET · Clinical & Regulatory Architect (review)
+
+- **Reviewed** since 21:30: #554 merged as reviewed (`822646d`), #558 merged (no code change since `de27fee`): no clinical finding. Open #574 (UX1-18, UX1-27, head `7988945`, CI green): **clear to merge**; it meets CGR-80, which closes on merge.
+- **Closed:** CGR-82 and CGR-83 at package level (D-38 T12 (i) (a)-(b) with written acceptance by a successor provider; T13 (e)-(f)); code controls stay in H-23 and R-11.
+- **CGR-81:** remedy in the ASM1 brief (period recorded, items listed as written, no total of any kind); no longer blocking ASM1-11 acceptance; closes on the build.
+- **New:** CGR-84 (advisory S3, before ASM1 build): the ASM1-1 period must be stored as entered or from the organisation's reference list, never as a hard-coded list of periods (PS-73).
+- **UX1-28 (c) confirmed** (PO ask): the CGR-32 notice inside the open dialog with "Zum Team" until she closes it is right; add to the test: text from `pastPlannedNotice`, and no notice on a refused save.
+- **Next:** (po) CGR-84 into ASM1-1; UX1-28 test additions. (eng) merge #574; part (d). (cra) part (d) string list and UX1-28 on its PR.
+- Tests: none run by me (docs only); CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 01:10 CET · po (Product Owner)
 
 - **Review:** nothing delivered. UX1 parts (d), (g) and UX1-18 are still open (`eng` #574, UX1-18 and UX1-27, open, not merged), so UX1 stays `in-progress` and is not reviewed. No PO PR was open.
