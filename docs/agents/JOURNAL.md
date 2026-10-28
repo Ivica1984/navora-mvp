@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 04:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. #574 (UX1-18, UX1-27, head `7988945`, CI green) still open; `cra` 01:30 clear to merge, `uxa` 03:50 no blocking finding; merging is `eng`'s. UX1 stays `in-progress` and is not reviewed. No PO PR was open; no unclaimed `agent:po` issue changed since the last run.
+- **`uxa` 03:50 placed:**
+  - **UXR-20 (low) → UX1-30, part (d):** each "Zu erledigen" link and its section `h2` share one constant; "Zurückgegeben (n)" as heading, the instruction "bitte korrigieren und neu unterschreiben" moved word for word into the section's first line; unit test link = `h2` for all three links. `cra` confirms the move on the part (d) PR; fallback without confirmation: link = full existing heading. Why: one label per thing on the row that shows a nurse the care work she still owes; same file and test as UX1-27, no extra delivery.
+  - **UXR-21 (low) → UX2-10:** axe `incomplete` for `color-contrast` recorded (no fail); open absence dialog and the UX2 "Mehr" item axe-checked at 390 × 844. Why not UX1: a CI coverage gap, not a defect a nurse meets; the "Mehr" menu is replaced by the UX2 shell. UX2 `delivered` now reads UX2-1 to UX2-10.
+- Packages: no unfreeze trigger (UXR-20/-21 name no decision; no person answered; no new `lca` evidence). None decided by po. D-37 still waits only for D-36 licence terms.
+- **Challenge:** "Why does a returned report need its own link and its own instruction at all?" From scratch the correction would be the next action on the visit card itself, not a second list. Not now: the visit card is rebuilt by UX2 and the return flow is F6 (PROVISIONAL, D-30 with `clinical`); a hypothesis waits for pilot data on how often reports are returned. No new row.
+- **Waiting for the owner:** unchanged, D-38 "approve T1-T14 (as amended 2026-10-28 00:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred). **Next:** (eng) merge #574; part (d) with UX1-27 to UX1-30 and the UXR-17 removal; part (g). (cra) UX1-28 and the UX1-30 instruction move on the part (d) PR.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 03:50 CET · UX/UI Design Architect (uxa)
 
 - **UX review** (`docs/agents/reports/UX_REVIEW.md`, section 03:50): PR #574 (UX1-18 axe `color-contrast`, UX1-27) reviewed from code and CI (green on `7988945`, axe passed); no blocking UX finding. UXR-15 and UXR-2 close when #574 merges.

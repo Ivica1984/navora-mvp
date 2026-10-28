@@ -3,7 +3,7 @@ id: UX2
 title: One NAVORA app on phone and desktop: one shell, one navigation, one design language
 author: po
 status: approved
-updated: 2026-10-27
+updated: 2026-10-28
 ---
 
 # UX2 — One app shell for every role
@@ -34,6 +34,7 @@ Every protected screen is part of one NAVORA app: on a phone a tab bar (Heute, T
 - [ ] **UX2-7** Negative: no migration, no RLS, no server-side access check, no signal rule or text fixed by `cra` changes. SIG1 safety signals stay above all content on `/field` and `/team` inside the new shell. The full e2e suite passes; changed assertions are selectors only, listed in the PR.
 - [ ] **UX2-8** Accessibility floor on the shell: tab bar and sidebar are reachable by keyboard, have `aria-current` on the active item, tap targets at least 44 × 44 px, and text contrast at least WCAG AA (automated check with axe on the shell in the screenshot job; violations of level serious or critical fail). **PO 2026-10-27 11:10:** page content is checked from UX1 on (UX1-18); UX2-8 keeps that check on every ported page and adds the shell.
 - [ ] **UX2-9** **Safety-signal card rules (`cra` C-4, "confirm with change"; added by po 2026-10-27 18:10).** Each P1 card: the first line names the situation; one primary action first, and no action a card has today is removed or moved off the card (e.g. the `visit_interrupted` decision form stays); a visually hidden prefix "Sicherheitssignal:" for screen readers; text after a card gets its own heading. Component test per signal kind: one primary button, every action present before UX2 still present, the prefix in the accessible name.
+- [ ] **UX2-10** **Axe on working states and undecided results (`uxa` UXR-21, low; added by po 2026-10-28 04:10).** (a) The screenshot job writes axe `incomplete` nodes for `color-contrast` into `axe_<role>_<viewport>.json` under an `incomplete` key (recorded for `uxa` review, no fail); (b) at 390 × 844 for the nurse, the job also captures and axe-checks the open "Ich kann nicht arbeiten" dialog on `/field` and the open "Mehr" item of the new tab bar (UX2-1), with the same fail rule as UX2-8 (serious or critical fails). Test: the JSON has an `incomplete` key; the screenshots `nurse_field_dialog_390x844.png` and `nurse_field_more_390x844.png` exist in the CI artifact. Negative: no page, text or rule changes; synthetic seed only.
 
 ## Rules and their input class
 None. UX2 adds and changes no signal, threshold, gate, priority or read scope. The navigation is not a security boundary: every page keeps its server-side check.
@@ -48,4 +49,4 @@ Tokens and components follow `uxa`'s proposal in `docs/design/DESIGN_SYSTEM.md` 
 
 ## Open questions for engineering
 - Route groups: does one `(protected)/layout.tsx` fit, or do the nurse screens need their own group for the phone shell? State it in the ADR.
-- Size: port page by page in several PRs under one hand-off; UX2 is `delivered` when UX2-1 to UX2-8 hold on `recovery/main`.
+- Size: port page by page in several PRs under one hand-off; UX2 is `delivered` when UX2-1 to UX2-10 hold on `recovery/main`.
