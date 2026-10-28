@@ -25,14 +25,14 @@ export default function ExceptionCenter({ exceptions }: { exceptions: Operations
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
           <h2 className="text-xl font-bold">Ausnahmen</h2>
-          <p className="text-sm text-stone-500">Aus dem aktuellen Stand abgeleitet. Teams entscheiden selbst; Operations greift nur bei Ausnahmen ein.</p>
+          <p className="text-sm text-secondary">Aus dem aktuellen Stand abgeleitet. Teams entscheiden selbst; Operations greift nur bei Ausnahmen ein.</p>
         </div>
         <p className="text-sm font-semibold" data-testid="exception-counts">
           P1 {counts.P1} · P2 {counts.P2} · P3 {counts.P3}
         </p>
       </div>
       {exceptions.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-stone-300 p-4 text-center text-stone-500">Keine offenen Ausnahmen.</p>
+        <p className="rounded-lg border border-dashed border-stone-300 p-4 text-center text-secondary">Keine offenen Ausnahmen.</p>
       ) : (
         <ol className="grid gap-2" aria-label="Offene Ausnahmen">
           {exceptions.map((e) => (
@@ -102,7 +102,7 @@ function ExceptionCard({ exception: e }: { exception: OperationsException }) {
         <ul className="grid gap-0.5 text-xs" aria-label="Notizen">
           {comments.map((c, i) => (
             <li key={i}>
-              {c.text} <span className="text-stone-500">({c.mine ? "du" : "Operations"})</span>
+              {c.text} <span className="text-secondary">({c.mine ? "du" : "Operations"})</span>
             </li>
           ))}
         </ul>

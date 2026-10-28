@@ -86,7 +86,7 @@ export default function SettingsClient({ state }: { state: MyPushState }) {
     <AppFrame active="settings" style={{ background: "#f4f7f4", color: "#153328" }}>
       <main className="grid max-w-3xl content-start gap-6 p-4 md:p-8">
         <header>
-          <p className="text-xs uppercase tracking-widest text-stone-500">Einstellungen</p>
+          <p className="text-xs uppercase tracking-widest text-secondary">Einstellungen</p>
           <h2 className="text-2xl font-bold">Meine Einstellungen</h2>
         </header>
         <section aria-label={OUTSIDE_LABEL} className="grid gap-3 rounded-2xl border border-stone-200 bg-white p-5">

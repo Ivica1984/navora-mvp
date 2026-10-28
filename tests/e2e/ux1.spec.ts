@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { CANCEL_CONSEQUENCE, HOLD_CONSEQUENCE } from "@/features/field/rules";
 import { NOTICE_HEADINGS, NOTICE_LEAD } from "@/features/work/rules";
+import { FOLLOWUP_HEADING } from "@/features/field/todo";
 
 // UX1 parts (a) and (b) (ADR-103): phone width of /settings, /admin and /operations, and the menu by role.
 // UX1 part (c) (ADR-104): the /field order and action hierarchy, the header menu on /field, /team and /work (UX1-20),
@@ -347,6 +348,82 @@ test.describe("UX1 part (c) at 390 × 844", () => {
       expect(box).not.toBeNull();
       expect(box!.y + box!.height).toBeLessThanOrEqual(PHONE.height);
     }
+  });
+});
+
+// UX1-27 (`cra` CGR-80, ADR-106): the open decisions sit below her visits (UX1-6), so the "Zu erledigen" row is what
+// keeps them in sight. A nurse with an open interruption follow-up: the row is rendered, inside the first viewport and
+// above the next visit; the follow-up link reads like the section's own heading. Visit on day +8 at 20:00 (no other test
+// uses that slot); the follow-up is decided at the end, so later tests see the seed state again.
+test.describe("UX1-27 at 390 × 844", () => {
+  test.use({ viewport: PHONE });
+
+  test("UX1-27: open work stays in sight above the next visit", async ({ page }) => {
+    await signIn(page, "pflege.test@navora.test");
+    await page.goto("/team");
+    const card = page.getByRole("article", { name: /Fall Testfall 08/ });
+    const day = zurichDay(8);
+    await card.getByRole("button", { name: "Einsatz planen" }).click();
+    const planForm = card.getByRole("form", { name: "Einsatz planen" });
+    await planForm.getByLabel("Datum").fill(day);
+    await planForm.getByLabel("Von").fill("20:00");
+    await planForm.getByLabel("Bis").fill("20:30");
+    await planForm.getByLabel("A", { exact: true }).fill("30");
+    await planForm.getByRole("button", { name: "Einsatz speichern" }).click();
+    await expect(card.getByRole("list", { name: "Geplante Einsätze" })).toContainText("20:00–20:30");
+
+    await page.goto(`/field?datum=${day}`);
+    const visit = page.getByRole("article", { name: /20:00 – 20:30, Testfall 08/ });
+    await visit.getByRole("button", { name: "Einsatz starten" }).click();
+    await expect(visit.getByTestId("visit-status")).toHaveText("Gestartet");
+    await visit.getByRole("button", { name: "Nicht abgeschlossen beenden" }).click();
+    const endForm = visit.getByRole("form", { name: "Einsatz nicht abgeschlossen beenden" });
+    await endForm.locator("select[name=code]").selectOption("client_transferred");
+    await endForm.getByRole("button", { name: "Nicht abgeschlossen speichern" }).click();
+    await expect(visit.getByTestId("visit-status")).toHaveText("Nicht abgeschlossen");
+
+    // The day with the seed's open visit 508: her next visit and the open follow-up from another day.
+    await page.goto(`/field?datum=${NEXT_DAY}`);
+    await page.waitForLoadState("networkidle");
+    const todo = page.getByTestId("todo-links");
+    const next = page.getByTestId("next-visit");
+    await expect(todo).toHaveCount(1);
+    await expect(next).toHaveCount(1);
+    // (b) the link reads like the section heading, count included.
+    const link = todo.getByRole("link", { name: new RegExp(`^${FOLLOWUP_HEADING} \\(\\d+\\)$`) });
+    await expect(link).toHaveCount(1);
+    const heading = page.getByTestId("followup-queue").getByRole("heading", { level: 2 });
+    expect(await link.textContent()).toBe(await heading.textContent());
+    // (a) inside the first viewport (a SIG1 signal, time-dependent in the seed, may only push it down by its own
+    // height) and above the next visit, by DOM order and by position.
+    const signals = page.getByTestId("safety-signals");
+    const signalHeight = (await signals.count()) > 0 ? ((await signals.boundingBox())?.height ?? 0) : 0;
+    const todoBox = await todo.boundingBox();
+    const nextBox = await next.boundingBox();
+    expect(todoBox).not.toBeNull();
+    expect(nextBox).not.toBeNull();
+    expect(todoBox!.y + todoBox!.height, "todo-links inside 390 × 844").toBeLessThanOrEqual(PHONE.height + signalHeight);
+    expect(todoBox!.y, "todo-links above next-visit").toBeLessThan(nextBox!.y);
+    const order = await page.evaluate(() => {
+      const t = document.querySelector('[data-testid="todo-links"]');
+      const n = document.querySelector('[data-testid="next-visit"]');
+      const s = document.querySelector('[data-testid="safety-signals"]');
+      const follows = (a: Element | null, b: Element | null) => !!a && !!b && (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+      return { todoBeforeNext: follows(t, n), signalsFirst: s ? follows(s, t) : true };
+    });
+    expect(order.todoBeforeNext, "todo-links before next-visit in the DOM").toBe(true);
+    // Negative: SIG1 stays first.
+    expect(order.signalsFirst, "safety signals above todo-links").toBe(true);
+
+    // Clean-up through the product: decide the follow-up (synthetic note).
+    await page.goto(`/field?datum=${day}`);
+    const open = page.getByRole("article", { name: /20:00 – 20:30, Testfall 08/ }).getByTestId("interrupt-followup-open");
+    await open.getByRole("button", { name: "Entscheid erfassen" }).click();
+    const decision = open.getByRole("form", { name: "Entscheid zur noch fälligen Pflege" });
+    await decision.locator("select[name=decision]").selectOption("follow_up_planned");
+    await decision.getByLabel(/Notiz/).fill("Synthetisch: UX1-27");
+    await decision.getByRole("button", { name: "Entscheid speichern" }).click();
+    await expect(page.getByRole("article", { name: /20:00 – 20:30, Testfall 08/ }).getByTestId("interrupt-followup-open")).toHaveCount(0);
   });
 });
 

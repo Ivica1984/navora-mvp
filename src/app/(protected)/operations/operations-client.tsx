@@ -16,6 +16,7 @@ import BillingPreview from "@/components/billing/billing-preview";
 import type { BillingPreviewRow } from "@/features/billing/queries";
 import type { ContinuityRow } from "@/features/team/queries";
 import type { OpenHold } from "@/features/quality/queries";
+import { SECONDARY_TEXT } from "@/lib/ui/colors";
 
 // IPA1-1 (ADR-099): the case drill-down was reachable only from the removed client-ranked case panel.
 type SelectedEntity = { type: "team"; id: string };
@@ -126,7 +127,7 @@ function Header({
           fontSize: "12px",
           fontWeight: 800,
           letterSpacing: "0.08em",
-          color: "#6B7280",
+          color: SECONDARY_TEXT,
           textTransform: "uppercase",
         }}
       >
@@ -135,7 +136,7 @@ function Header({
       <h1 style={{ margin: "6px 0 0", fontSize: "32px", lineHeight: 1 }}>
         Navora Operations Control Tower
       </h1>
-      <p style={{ margin: "8px 0 0", color: "#6B7280" }}>
+      <p style={{ margin: "8px 0 0", color: SECONDARY_TEXT }}>
         Stand: jetzt · {activeCases} laufende Klientenfälle · {openSlots} freie Pflegeslots
       </p>
     </header>
@@ -217,7 +218,7 @@ function KpiCard({
     >
       <div style={{ height: "4px", background: color.top }} />
       <div style={{ padding: "16px" }}>
-        <p style={{ margin: 0, color: "#6B7280", fontSize: "13px" }}>{label}</p>
+        <p style={{ margin: 0, color: SECONDARY_TEXT, fontSize: "13px" }}>{label}</p>
         <div style={{ marginTop: "8px", fontSize: "32px", fontWeight: 800 }}>
           {value}
         </div>
@@ -245,7 +246,7 @@ function TeamTable({
       <div className="overflow-x-auto">
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "12px" }}>
         <thead>
-          <tr style={{ color: "#6B7280", fontSize: "12px", textAlign: "left" }}>
+          <tr style={{ color: SECONDARY_TEXT, fontSize: "12px", textAlign: "left" }}>
             <th style={thStyle}>Pflegeteam</th>
             <th style={thStyle}>Auslastung</th>
             <th style={thStyle}>Slots</th>
@@ -419,7 +420,7 @@ const sectionTitle = {
 
 const sectionSubtitle = {
   margin: "6px 0 0",
-  color: "#6B7280",
+  color: SECONDARY_TEXT,
   fontSize: "14px",
 };
 

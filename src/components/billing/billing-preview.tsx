@@ -41,7 +41,7 @@ export default function BillingPreview({ rows, month }: { rows: BillingPreviewRo
       </div>
       {message && <p role="status" className="text-sm">{message}</p>}
       {rows.length === 0 ? (
-        <p className="text-sm text-stone-500">Keine Teams.</p>
+        <p className="text-sm text-secondary">Keine Teams.</p>
       ) : (
         <ul className="grid gap-3">
           {rows.map((r) => {

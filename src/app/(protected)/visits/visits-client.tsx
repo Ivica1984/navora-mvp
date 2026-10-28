@@ -11,6 +11,7 @@ import {
   getVisitTimeRange,
   type CareVisitRow,
 } from "@/features/visits/types";
+import { SECONDARY_TEXT } from "@/lib/ui/colors";
 
 type VisitsClientProps = {
   visits: CareVisitRow[];
@@ -117,7 +118,7 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
               fontWeight: 700,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
-              color: "#6b8075",
+              color: SECONDARY_TEXT,
               marginBottom: "8px",
             }}
           >
@@ -128,7 +129,7 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
             Online-Einsatzübersicht
           </h1>
 
-          <p style={{ color: "#6b8075", marginTop: "8px" }}>
+          <p style={{ color: SECONDARY_TEXT, marginTop: "8px" }}>
             Echte Übersicht über geplante, laufende und abgeschlossene Einsätze.
           </p>
         </section>
@@ -199,7 +200,7 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
                         {getVisitTimeRange(visit)}
                       </strong>
 
-                      <p style={{ margin: "8px 0 0", color: "#6b8075" }}>
+                      <p style={{ margin: "8px 0 0", color: SECONDARY_TEXT }}>
                         Pflegekraft: {visit.team_member_name || "Noch offen"}
                       </p>
 
@@ -208,7 +209,7 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
                       </p>
 
                       {visit.notes && (
-                        <p style={{ margin: "8px 0 0", color: "#6b8075" }}>
+                        <p style={{ margin: "8px 0 0", color: SECONDARY_TEXT }}>
                           Notiz: {visit.notes}
                         </p>
                       )}
@@ -237,7 +238,7 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
                     borderRadius: "18px",
                     padding: "16px",
                     border: "1px dashed rgba(21,51,40,0.18)",
-                    color: "#6b8075",
+                    color: SECONDARY_TEXT,
                   }}
                 >
                   Noch keine Einsätze vorhanden.
@@ -369,7 +370,7 @@ function MetricCard({ label, value }: { label: string; value: number }) {
         boxShadow: "0 10px 30px rgba(21,51,40,0.06)",
       }}
     >
-      <p style={{ margin: 0, color: "#6b8075", fontSize: "14px" }}>
+      <p style={{ margin: 0, color: SECONDARY_TEXT, fontSize: "14px" }}>
         {label}
       </p>
       <h2 style={{ margin: "8px 0 0", fontSize: "28px" }}>{value}</h2>

@@ -11,9 +11,9 @@ export default function HoldsPanel({ holds }: { holds: OpenHold[] }) {
   return (
     <section aria-label="Abrechnungssperren" className="grid gap-2 rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
       <h2 className="text-lg font-bold">Abrechnungssperren</h2>
-      <p className="text-sm text-stone-500">{HOLD_MEANING} Aufheben: Coach oder Admin, mit Begründung.</p>
+      <p className="text-sm text-secondary">{HOLD_MEANING} Aufheben: Coach oder Admin, mit Begründung.</p>
       {holds.length === 0 ? (
-        <p className="text-sm text-stone-500">Keine offenen Abrechnungssperren.</p>
+        <p className="text-sm text-secondary">Keine offenen Abrechnungssperren.</p>
       ) : (
         <ul className="grid gap-2">
           {holds.map((h) => (

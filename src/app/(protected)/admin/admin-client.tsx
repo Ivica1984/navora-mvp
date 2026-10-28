@@ -64,7 +64,7 @@ export default function AdminClient({ data, push = null, evaluator = [], outside
     <AppFrame active="admin" style={{ background: "#f4f7f4", color: "#153328" }}>
       <main className="grid content-start gap-6 break-words p-4 md:p-8">
         <header>
-          <p className="text-xs uppercase tracking-widest text-stone-500">Administration</p>
+          <p className="text-xs uppercase tracking-widest text-secondary">Administration</p>
           <h2 className="text-2xl font-bold">Pilotbetrieb verwalten</h2>
           <p className="text-sm text-stone-600">Mitglieder, Teams und Betriebsregeln. Tarife und Referenzdaten ändern sich nur über eine geprüfte Migration mit Quelle.</p>
         </header>
@@ -130,7 +130,7 @@ function MemberRow({ member, data }: { member: AdminMember; data: AdminData }) {
         {teamsOf(member).map((t) => (
           <TeamMembership key={t.team_id} entry={t} userId={member.user_id} onReleased={setReleased} />
         ))}
-        {teamsOf(member).length === 0 && <li className="text-stone-500">in keinem Team</li>}
+        {teamsOf(member).length === 0 && <li className="text-secondary">in keinem Team</li>}
       </ul>
       {released && <p role="status" data-testid="released-visits" className="text-sm font-semibold text-amber-900">{released}</p>}
       <MemberAccess member={member} data={data} />
@@ -374,7 +374,7 @@ function Invitations({ data }: { data: AdminData }) {
             <button type="button" disabled={pending} className="underline" onClick={() => run(() => revokeInvitation({ invitationId: i.id, idempotencyKey: newKey() }))}>Zurückziehen</button>
           </li>
         ))}
-        {data.invitations.length === 0 && <li className="text-stone-500">keine offenen Einladungen</li>}
+        {data.invitations.length === 0 && <li className="text-secondary">keine offenen Einladungen</li>}
       </ul>
     </Section>
   );
