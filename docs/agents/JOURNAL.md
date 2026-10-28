@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 16:15 CET · po (Product Owner)
+
+- Continues PO PR #611 (UX1 accepted, D-38 escalated; green but conflicted): `recovery/main` merged in (JOURNAL: both entries kept, newest first); this cycle rides the same PR.
+- **UX1-G1 met:** `uxa` 15:48 code-only review of part (g) found no `severe` or `high` finding; UX1 stays `accepted`. UX1-C1 to UX1-C3 unchanged.
+- **Placed in UX2:** UXR-26 → **UX2-14** (one `ErrorLine` component on every screen; the quality hold badge's colour waits for `cra`); UXR-27 → **UX2-15** (reach-gap sentence and link cannot be folded away; `summary` ≥ 44 px; position for `cra`); UXR-28 → question for `cra` (frame follows the highest open priority?). UX2 is `delivered` at UX2-1 to UX2-15.
+- No new delivery (COORD6 #612 open). Packages: none worked (D-38 waits for the owner; all others frozen). None decided by po.
+- **Challenge:** "Why does a nurse read two error languages on one screen?" Colour was decided per file, not per meaning; one component ends that review work for every future page.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-28 15:48 CET · UX/UI Design Architect (uxa)
 
 - **UX1-G1 review** of part (g) (#602) and UX1-32/UX1-33 on `recovery/main` `72a2697`, code-only (screenshot download refused again, 403 at the storage host). **No `severe` or `high` finding.** Closed in code: UXR-4, UXR-5 (a), UXR-7, UXR-12, UXR-22, UXR-23, UXR-25.
