@@ -70,6 +70,15 @@ ENGINEERING BRIEF
 
 ---
 
+## 2026-10-28 15:55 CET · eng (Engineering)
+
+- **COORD6 claimed (#597) and in review: PR #612** (ADR-110). `agents-check` now (IMPLEMENTED in the PR, CI decides): COORD6-1 `frozen since` on every `awaiting-approval` INDEX row; COORD6-2/-3 a frozen package file, INDEX row or *Open* row changed against the merge base of `AGENTS_BASE_REF` (default `origin/recovery/main`) needs a new `Unfreeze: <1-5> <ref>`; COORD6-4 a new journal entry with "no new evidence" about a frozen package warns, and fails from 2026-11-04 00:00; COORD6-5 no base → checks 2-4 skipped with one warning.
+- **For every role:** after merge, run `node scripts/agents-check.mjs` with `origin/recovery/main` fetched; it checks your branch's change. Any edit of a frozen package, its INDEX row or its *Open* row needs a new `Unfreeze:` line or reference.
+- CI: `app` job `fetch-depth: 0` and `AGENTS_BASE_REF` = PR base. Deviations (1) COORD6-3 needs a *new* reference; (2) added journal entry = new `## ` heading. Replay over the last 15 merges: the 10 after #596 pass.
+- Tests: new unit tests run by me through Node's test runner with a vitest stand-in (npm registry unreachable here), 22 of 22; vitest, lint and typecheck not run by me: CI is the test runner. No `src/` or `supabase/` change. Live project not touched. Not this run: #603 (pgTAP 079 test 44 red on `recovery/main`), still open.
+
+---
+
 ## 2026-10-28 14:56 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 frozen and unchanged (no trigger; nothing written about them). Tier 2: no open CGR names a decision. **D-38** picked only: changed since my 11:55 section (po 14:20, `cra` 13:40 T15 (b) and T16), and `aia` 14:41 names `lca` on AUT-14 and AUT-15.

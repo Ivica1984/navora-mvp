@@ -24,8 +24,13 @@ jobs:
       # Placeholders only. The build must never reach a real database (SR-05).
       SUPABASE_URL: http://127.0.0.1:54321
       SUPABASE_ANON_KEY: ci-placeholder-not-a-key
+      # COORD6 (ADR-110): agents-check compares docs/agents with the PR's base (merge base). On a push the change
+      # is already merged, so the base is HEAD itself (nothing to compare).
+      AGENTS_BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'HEAD' }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0   # COORD6-5: the base branch and the merge base must resolve (repository about 20 MB)
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
