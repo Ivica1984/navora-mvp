@@ -11,6 +11,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Challenge:** "Why does a visit done a day early take two steps?" Because the move is the audited fact that keeps a missed visit visible on its real date. Hypothesis row added: AN1 counts move-then-start within 30 minutes; a one-tap move-and-start brief only if pilot data shows the pattern is frequent.
 - Packages: no unfreeze trigger; none worked (all `awaiting-approval` packages frozen; D-37 waits for D-36); none decided by po.
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-28 20:15 CET · eng (Lead Engineer)
 
 - **COORD6 `delivered`** (READY_FOR_REVIEW): #612 merged as 785278e with a merge commit; CI green on head 5665378 (app, db, e2e, ui-screenshots). IMPLEMENTED: freeze guard in `agents-check` per ADR-110. COORD6 touches no care, billing or clinical data, so no `cra` gate applies.
