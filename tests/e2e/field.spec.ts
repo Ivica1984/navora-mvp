@@ -16,10 +16,14 @@ function zurichDay(offset = 0): string {
   return new Date(Date.UTC(y, m - 1, d + offset)).toISOString().slice(0, 10);
 }
 const SEED_DAY = zurichDay();
-// Visit 508 (Testteam Nord, 09:00) is planned for the day after and untouched by other tests.
+// Visit 508 (Testteam Nord, 09:00) is planned for the day after and untouched by other tests. VIS1 (ADR-111): a visit
+// dated after today cannot be worked, so the F2 test moves it to today at 11:00 with "Heute machen" (VIS1-3b) and every
+// later test finds it on today's view (after 502 at 10:00, as before).
 const NEXT_DAY = zurichDay(1);
-// Visit 509 (Testteam Nord, 18:00) two days ahead: the care assistant runs it in the F7 test below.
+const F2_CARD = /11:00 – 11:45/;
+// Visit 509 (Testteam Nord, 18:00) two days ahead: the care assistant moves it to today and runs it in the F7 test.
 const DAY_AFTER_NEXT = zurichDay(2);
+const MOVE_REASON = "Synthetisch: heute statt später gemacht";
 // DST1 (ADR-081): corrections are typed as Swiss wall time, and a wall time in the autumn repeated hour reads back
 // as its EARLIER instant (CEST). In the second pass of that hour "N minutes ago" therefore cannot be typed; pick the
 // first number of minutes back whose wall time reads back to the same instant (an hour more, the same check).
@@ -106,7 +110,19 @@ test.describe("field tool (F1)", () => {
     await signIn(page, NURSE, /\/field$/);
     await page.goto(`/field?datum=${NEXT_DAY}`);
 
-    const card = page.getByRole("article", { name: /09:00 – 09:45/ });
+    // VIS1: tomorrow's visit offers no field action, only the move to today (with other times, editable).
+    const planned = page.getByRole("article", { name: /09:00 – 09:45/ });
+    await expect(planned).toContainText("Geplant");
+    await expect(planned.getByRole("button", { name: TRANSITION })).toHaveCount(0);
+    await planned.getByRole("button", { name: "Heute machen" }).click();
+    const move = planned.getByRole("form", { name: "Einsatz auf heute verschieben" });
+    await move.getByLabel("Von").fill("11:00");
+    await move.getByLabel("Bis").fill("11:45");
+    await move.getByLabel("Grund der Verschiebung").fill(MOVE_REASON);
+    await move.getByRole("button", { name: "Auf heute verschieben" }).click();
+    await page.waitForURL(/\/field$/);
+
+    const card = page.getByRole("article", { name: F2_CARD });
     await expect(card).toContainText("Geplant");
     await expect(card.getByRole("region", { name: "Erfasste Zeit" })).toHaveCount(0);
 
@@ -130,8 +146,8 @@ test.describe("field tool (F1)", () => {
     await expect(times).not.toContainText("unstimmig");
 
     await page.reload();
-    await expect(page.getByRole("article", { name: /09:00 – 09:45/ })).toContainText("Abgeschlossen");
-    await expect(page.getByRole("article", { name: /09:00 – 09:45/ }).getByRole("region", { name: "Erfasste Zeit" })).toBeVisible();
+    await expect(page.getByRole("article", { name: F2_CARD })).toContainText("Abgeschlossen");
+    await expect(page.getByRole("article", { name: F2_CARD }).getByRole("region", { name: "Erfasste Zeit" })).toBeVisible();
   });
 
   test("time corrections need a reason, keep the original and refuse impossible orders (F3)", async ({ page }) => {
@@ -142,8 +158,8 @@ test.describe("field tool (F1)", () => {
     test.skip(zurich(0) < "00:30", "too close to midnight in Zurich for a same-day correction");
 
     await signIn(page, NURSE, /\/field$/);
-    await page.goto(`/field?datum=${NEXT_DAY}`);
-    const card = page.getByRole("article", { name: /09:00 – 09:45/ });
+    await page.goto(`/field?datum=${SEED_DAY}`);
+    const card = page.getByRole("article", { name: F2_CARD });
     await card.getByText("Zeiten ansehen und korrigieren").click();
     const timeline = card.getByRole("list", { name: "Zeitverlauf" });
 
@@ -170,7 +186,7 @@ test.describe("field tool (F1)", () => {
       .toContainText(back === 20 ? /(19|20|21) min/ : /1 h (19|20|21) min/);
 
     await page.reload();
-    const again = page.getByRole("article", { name: /09:00 – 09:45/ });
+    const again = page.getByRole("article", { name: F2_CARD });
     await again.getByText("Zeiten ansehen und korrigieren").click();
     await expect(again.getByRole("listitem").filter({ hasText: "Losgefahren" })).toContainText("korrigiert");
   });
@@ -198,10 +214,10 @@ test.describe("field tool (F1)", () => {
     await expect(observations.getByRole("listitem").filter({ hasText: "ca. 0.5 l" })).toContainText("geändert");
     await expect(observations.getByText("trinkt wenig. Bitte", { exact: false })).toHaveCount(0);
 
-    // HAND1: "since you were last here" on the same client's next visits. Visit 508 (tomorrow) is already
-    // completed, so the section is collapsed there; it opens with one tap.
-    await page.goto(`/field?datum=${NEXT_DAY}`);
-    const done = page.getByRole("article", { name: /09:00 – 09:45/ }).getByTestId("since-last");
+    // HAND1: "since you were last here" on the same client's next visits. Visit 508 (moved to today 11:00 by the F2
+    // test, VIS1) is already completed, so the section is collapsed there; it opens with one tap.
+    await page.goto(`/field?datum=${SEED_DAY}`);
+    const done = page.getByRole("article", { name: F2_CARD }).getByTestId("since-last");
     await done.locator("summary").click();
     await expect(done.getByRole("listitem").filter({ hasText: "ca. 0.5 l bis Mittag" })).toContainText("Ich");
 
@@ -220,11 +236,11 @@ test.describe("field tool (F1)", () => {
   test("sign at completion: the draft from the visit data waits at completion and is signed with one confirmation; corrections are new versions (F6, F7)", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await signIn(page, NURSE, /\/field$/);
-    await page.goto(`/field?datum=${NEXT_DAY}`);
+    await page.goto(`/field?datum=${SEED_DAY}`);
 
-    // Visit 508 was run end to end by this nurse (F2 test above), a registered nurse → no countersignature.
-    // F7: completing it already opened the draft; the nurse checks the facts and signs once.
-    const card = page.getByRole("article", { name: /09:00 – 09:45/ });
+    // Visit 508 was run end to end by this nurse (F2 test above, moved to today first), a registered nurse → no
+    // countersignature. F7: completing it already opened the draft; the nurse checks the facts and signs once.
+    const card = page.getByRole("article", { name: F2_CARD });
     const report = card.getByTestId("visit-report");
     await expect(report.getByTestId("report-status")).toHaveText("Entwurf");
     const review = report.getByRole("form", { name: "Bericht prüfen und unterschreiben" });
@@ -256,19 +272,19 @@ test.describe("field tool (F1)", () => {
     await expect(card.getByTestId("facts-locked")).toHaveCount(0);
 
     await page.reload();
-    await expect(page.getByRole("article", { name: /09:00 – 09:45/ }).getByTestId("report-status")).toHaveText("Entwurf (Fassung 2)");
+    await expect(page.getByRole("article", { name: F2_CARD }).getByTestId("report-status")).toHaveText("Entwurf (Fassung 2)");
 
     // CSR1 / CGR-02: she signs what she saw. An observation recorded in a second window after she opened the report
     // is not signed unseen: the signature is refused, the card reloads with it, and she signs the version she now sees.
-    const shownCard = page.getByRole("article", { name: /09:00 – 09:45/ });
+    const shownCard = page.getByRole("article", { name: F2_CARD });
     const shownReport = shownCard.getByTestId("visit-report");
     const shownReview = shownReport.getByRole("form", { name: "Bericht prüfen und unterschreiben" });
     await expect(shownReview.getByTestId("report-facts")).not.toContainText("zweiten Fenster");
 
     const other = await page.context().newPage();
     await other.setViewportSize({ width: 390, height: 844 });
-    await other.goto(`/field?datum=${NEXT_DAY}`);
-    const otherObservations = other.getByRole("article", { name: /09:00 – 09:45/ }).getByRole("region", { name: "Beobachtungen" });
+    await other.goto(`/field?datum=${SEED_DAY}`);
+    const otherObservations = other.getByRole("article", { name: F2_CARD }).getByRole("region", { name: "Beobachtungen" });
     await otherObservations.getByLabel("Neue Beobachtung").fill("Synthetisch: nachgetragen im zweiten Fenster.");
     await otherObservations.getByRole("button", { name: "Beobachtung speichern" }).click();
     await expect(otherObservations).toContainText("nachgetragen im zweiten Fenster");
@@ -309,9 +325,16 @@ test.describe("field tool (F1)", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     const DAY_AFTER = zurichDay(2);
 
-    // Visit 509 (18:00, Testfall 08) is run by the seeded care assistant of Testteam Nord.
+    // Visit 509 (18:00, Testfall 08) is run by the seeded care assistant of Testteam Nord. VIS1: it is dated the day
+    // after tomorrow, so she first moves it to today (a team member may, J3), keeping its times.
     await signIn(page, ASSISTANT, /\/field$/);
     await page.goto(`/field?datum=${DAY_AFTER}`);
+    const planned = page.getByRole("article", { name: /18:00 – 18:30/ });
+    await planned.getByRole("button", { name: "Heute machen" }).click();
+    const move = planned.getByRole("form", { name: "Einsatz auf heute verschieben" });
+    await move.getByLabel("Grund der Verschiebung").fill(MOVE_REASON);
+    await move.getByRole("button", { name: "Auf heute verschieben" }).click();
+    await page.waitForURL(/\/field$/);
     const card = page.getByRole("article", { name: /18:00 – 18:30/ });
     await card.getByRole("button", { name: "Losfahren" }).click();
     await card.getByRole("button", { name: "Einsatz starten" }).click();
@@ -333,7 +356,7 @@ test.describe("field tool (F1)", () => {
     const queue = page.getByTestId("countersign-queue");
     await expect(queue).toContainText("Testfall 08");
     await queue.getByRole("link", { name: /Testfall 08/ }).click();
-    await page.waitForURL(new RegExp(`datum=${DAY_AFTER}`));
+    await page.waitForURL(new RegExp(`datum=${SEED_DAY}`));
     const report = page.getByRole("article", { name: /18:00 – 18:30/ }).getByTestId("visit-report");
 
     // F6R (migration 0065): she sees a wrong time and returns the report with a reason instead of countersigning it.
@@ -360,7 +383,7 @@ test.describe("field tool (F1)", () => {
     await expect(returned.getByTestId("returned-instruction")).toBeVisible();
     await expect(returned.getByTestId("returned-instruction")).toHaveText(returnedInstructionLine());
     await returned.getByRole("link", { name: /Testfall 08/ }).click();
-    await page.waitForURL(new RegExp(`datum=${DAY_AFTER}`));
+    await page.waitForURL(new RegExp(`datum=${SEED_DAY}`));
     const mine = page.getByRole("article", { name: /18:00 – 18:30/ });
     await expect(mine.getByTestId("report-status")).toHaveText("Zurückgegeben: bitte korrigieren und neu unterschreiben (Fassung 2)");
     const zurich = (offsetMin: number) =>
@@ -382,7 +405,7 @@ test.describe("field tool (F1)", () => {
     // The registered nurse countersigns the corrected version: only now is the report final.
     await page.context().clearCookies();
     await signIn(page, NURSE, /\/field$/);
-    await page.goto(`/field?datum=${DAY_AFTER}`);
+    await page.goto(`/field?datum=${SEED_DAY}`);
     const again = page.getByRole("article", { name: /18:00 – 18:30/ }).getByTestId("visit-report");
     await again.getByRole("button", { name: "Gegenzeichnen" }).click();
     await expect(again.getByTestId("report-status")).toHaveText("Bericht abgeschlossen (Fassung 2)");

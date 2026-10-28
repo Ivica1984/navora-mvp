@@ -10,7 +10,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(39);
+select plan(40);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -186,6 +186,10 @@ select ok((select qualification = 'registered_nurse' from public.team_membership
 select is(pg_temp.resp('rn'), '00000000-0000-4000-a000-000000000902'::uuid, 'her future visit stays assigned to her');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
+-- VIS1-5: the visit is dated tomorrow; a visit done early is first moved to today (J3), then started (CGR-87).
+select is(public.reschedule_visit((select id from fx where name = 'rn'), (private.now() at time zone 'Europe/Zurich')::date,
+          '10:00', '10:30', 'Heute statt morgen', 'a3600000-0000-4000-8000-000000000012') ->> 'result', 'ok',
+  'she moves her future visit to today');
 select is(public.start_visit((select id from fx where name = 'rn'), 'a3600000-0000-4000-8000-000000000011'), 'ok',
   'and she can still start it');
 reset role;

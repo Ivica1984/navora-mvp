@@ -101,12 +101,14 @@ begin
   reset role;
   return n;
 end $$;
--- A P1 no-show of visit n tomorrow 09:00 (Testteam Nord, case …208); p_user is responsible, departs and records it.
+-- A P1 no-show of visit n today 23:59 (Testteam Nord, case …208); p_user is responsible, departs and records it.
+-- VIS1-5: the no-show fixture is dated today, 23:59 (still ahead, so no overdue signal of its own); a visit dated
+-- after today cannot be departed or recorded as a no-show (CGR-87). Before VIS1 it was tomorrow 09:00.
 create function pg_temp.no_show(p_n integer, p_user integer) returns void language plpgsql as $$
 begin
   insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, billable, status, responsible_user_id)
   values ('00000000-0000-4000-b000-000000000011', pg_temp.v(p_n), '00000000-0000-4000-a000-000000000208',
-          '00000000-0000-4000-a000-000000000101', pg_temp.today() + 1, '09:00', false, 'planned', pg_temp.u(p_user));
+          '00000000-0000-4000-a000-000000000101', pg_temp.today(), '23:59', false, 'planned', pg_temp.u(p_user));
   perform pg_temp.act_as(pg_temp.u(p_user));
   set local role authenticated;
   perform public.depart_visit(pg_temp.v(p_n), pg_temp.k(100 + p_n));

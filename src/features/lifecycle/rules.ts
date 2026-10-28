@@ -67,6 +67,8 @@ export function reasonError(code: string, note: string, allowed: readonly string
 export const LIFECYCLE_MESSAGES: Record<string, string> = {
   rejected: "Nicht gespeichert: fehlende Berechtigung (zuständiges Team bzw. Operations).",
   wrong_state: "Nicht möglich im aktuellen Zustand (z. B. bereits pausiert, abgesagt oder begonnen).",
+  // VIS1 (migration 0089): no-show and "not completed" refuse a visit dated after today.
+  not_today: "Dieser Einsatz ist für einen späteren Tag geplant. Wenn du ihn heute machst, verschiebe ihn zuerst auf heute.",
   already_decided: "Schon entschieden: Eine Kollegin oder Operations hat den Entscheid bereits erfasst.",
   invalid: "Bitte die Eingaben prüfen (Grund wählen; Begründung bzw. Notiz mindestens 3 Zeichen).",
   failed: "Konnte nicht gespeichert werden.",

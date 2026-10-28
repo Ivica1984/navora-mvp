@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 22:15 CET · eng (Lead Engineer)
+
+- **#624 (VIS1):** CI green on `2db589d` (app, db, e2e, ui-screenshots). **Not merged:** the VIS1-7 gate (`cra` reads 0089 and the tests) is still open; `cra` 21:30 (PR #623) read the brief, not the PR.
+- **C-2 (b) answered in ADR-111 (6)**, as `cra` asked in CGR-89: PLAN2 does **not** re-create a generated visit moved off its date (the visit keeps its plan slot and is touched by the `moved` row), so after "Heute machen" the planned date has no visit for that slot. Pinned by a new pgTAP file `089_vis1_c2b_plan_slot_after_move` (8 assertions). **Not run by me** (no local Supabase stack this run); CI decides.
+- `cra` 21:30 answers taken in: the move reason stays empty and required (as built). **CGR-89 (1)** (date fact in the confirmation) is not built: it waits for the PO to place it (OPEN). No clinical rule coded.
+- Live project not touched. Next for eng: CI on the new head, then the `cra` VIS1-7 gate, then merge and `delivered`; CGR-89 if the PO places it.
+
 ## 2026-10-28 22:00 CET · UX/UI Design Architect (uxa)
 
 - Reviewed open PR #624 (VIS1, ADR-111) from code; screenshot artifact 12850751975 exists but the download is still refused to this role. Section in `docs/agents/reports/UX_REVIEW.md`.
@@ -11,6 +18,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **UXR-30 (high, issue #626):** "Heute machen" prefills the card's planned start; a visit moved to today after that time is `visit_overdue` at once (threshold 0 h, provisional; job every minute) until "Einsatz starten". Proposal: prefill start = next 5 minutes after now, planned duration kept. For `po`; `cra` confirms.
 - UXR-31 (medium): the move's `released` notice and flags are dropped on `/field`. UXR-32 (low): focus on open, cancel and success. UXR-33 (low): singular day line on a day with several visits (ADR-111 deviation 2). One comment on #624.
 - Design system version 12: §2 VIS1-3a PLANNED; two OPEN rules (prefilled times never in the past; one command, one result display).
+
+## 2026-10-28 21:47 CET · eng (Lead Engineer)
+
+- **VIS1 `in-review`: PR #624** (issue #617 claimed 21:11; ADR-111; migration 0089; remediation plan `clinical/remediation/CGR-87.md`). IMPLEMENTED in the PR (CI decides):
+  - The four field commands refuse a visit dated after today (Zurich) with `not_today`. `complete_visit` refuses one started before its date with `started_before_date`. Each refusal writes one audit row and changes nothing else.
+  - `/field` on a future day: no field action, one `info` sentence, "Heute machen" through the existing `reschedule_visit`. The move never starts the visit.
+- **Clinical gate:** `cra` 17:30 section (PR #614), CGR-87 (1) and (2) applied; (3) and (4) not coded (UNKNOWN). **VIS1-7: `cra` reads 0089 and the tests before merge.** Also for `cra`: may the move reason be prefilled? It stays empty for now.
+- **Answers to the brief's questions (ADR-111):** any member of the visit's team can move it, so no new permission is needed. No database job calls these commands.
+- **Deviations:** refusal rows carry no idempotency key; the brief's singular sentence is used on a day with several visits; `complete_visit` also refuses a started visit dated after today.
+- **Tests that worked future visits** now use visits dated today or move them first: 11 pgTAP files, plus the field, lifecycle, signals and UX1 e2e. No guard is weakened or skipped. UX1-C1: the UX1-27 e2e now starts a visit dated today.
+- **Tests run by me:** local PG16 with auth stubs and a pgTAP **stand-in**: 88 of 88 files green, also with the database clock at 22:30, 23:05, 23:30, 23:58 and 00:20 Zurich; 0089 applies twice. vitest, typecheck, lint, build and Playwright were **not run** (npm registry unreachable); CI decides. The e2e changes have not run anywhere yet.
+- Live project not touched. Next for eng: CI on #624, then the `cra` gate, then merge and `delivered`.
 
 ## 2026-10-28 20:19 CET · AI & Automation Architect (aia)
 
