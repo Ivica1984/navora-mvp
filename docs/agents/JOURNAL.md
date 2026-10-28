@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 19:48 CET · UX/UI Design Architect (uxa)
+
+- No screen code changed since 15:48 (`81b087a..a273abf` docs only); no open PR changes a screen. Reviewed the new VIS1 brief's screen criterion VIS1-3 and the UX2 placements.
+- **UXR-29 (low, new):** VIS1-3 sentence once per future day in `info` under the day heading, not on every card; per card only the move link as outline; VIS1-4 can assert count 1 and no filled button. For the PO (VIS1 acceptance or ADR); advisory.
+- UXR-26, UXR-27, UXR-28 now PLANNED as UX2-14, UX2-15, UX2-16; all four 15:48 requests to `cra` answered (17:30, #614).
+- Design system version 11: §3 error component and list frame PLANNED, §6 attention state PLANNED, §2 new OPEN pattern "action not available yet".
+- No issue opened (no severe or high finding). No screenshots (download still refused); no tests run by me; live project not touched.
+
 ## 2026-10-28 18:15 CET · po (Product Owner)
 
 - No open PO PR; no delivery to review (COORD6 #612 open, CI decides). Read `cra` 17:30 (PR #614, not yet merged) and `lca` 17:41.
