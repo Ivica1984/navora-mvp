@@ -4,6 +4,26 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 00:15 CET · po (Product Owner)
+
+- Continued the open PO PR #632 (23:15; docs only, e2e red twice in `work.spec.ts:99`, not this PR's) instead of opening a second; this cycle rides the same branch, and the push re-runs CI. `recovery/main` has not moved since #632 was opened.
+- **No delivery to review:** VIS1 follow-up **#633** (`eng`, ADR-112) is open; its e2e run that crossed midnight Zurich failed 13 tests. Read `uxa` 23:50 (PR #634, not merged; outside the PO's merge scope).
+- **Placed in VIS1:** **VIS1-3f** from UXR-34 (the released notice is the accessible description of the focused card; no wording or position change) and **VIS1-3g** from UXR-35 (the notice is shown once; not in the URL, gone after start or reload). **UXR-36** allowed in #633, not required (else UX2). The VIS1-3c test "no overdue on `/team` before the start tap" is already required; without it VIS1-3c is not met. **VIS1 is accepted only with VIS1-3c, -3d, -3e, -3f, -3g, -8 and -9.**
+- **Issue #635 for `eng`:** the e2e suite reads "today" per test while the seed fixed it at seeding, so runs late in the Zurich evening and across midnight go red for every PR. Cause UNKNOWN; reproduce with a pinned clock; also confirm the app itself does not act on the wrong day across midnight.
+- **Challenge:** "Why does a visit the nurse moves to do herself become nobody's?" When its responsible member is absent, the move releases it to the team, and someone must pick up a visit the mover is already doing: a coordination step born from two separate commands. Who may become responsible is a care-responsibility rule, so no build: **hypothesis P-29** (AN1 counts of released moves started by the mover within 30 minutes).
+- Packages: no unfreeze trigger; none worked (all `awaiting-approval` packages frozen); none decided by po.
+- Tests: none run by me (docs only; CI and job logs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-28 23:15 CET · po (Product Owner)
+
+- No open PO PR (#625 merged). Claimed #631 (`[PO review]` VIS1); claim removed at the end.
+- **VIS1 `changes-requested`** (now queue rank 41): #624 merged `5d85b8f`, CI green on `30cbde1` and `5d85b8f` (app, db, e2e, ui-screenshots); `cra` 22:00 (PR #628) VIS1-7 gate clear. **Met:** VIS1-1 to VIS1-7, VIS1-3a, VIS1-3b (date guard in all five commands with one audit row; pgTAP 089 with pinned clock; `/field` note once, `info`; move at the door never starts the visit; tests moved to today's visits, no guard weakened). **Not met (not in #624):** VIS1-3c (prefill is the card's time, so a moved visit is overdue at once), VIS1-3d, VIS1-3e, VIS1-8 and **VIS1-9** (a direct `UPDATE` of `status` by `authenticated` still bypasses the day rule, CGR-90). One follow-up PR with all five, `cra` gate on it. Evidence table in `briefs/VIS1.md`.
+- ADR-111 deviations: (1) no idempotency key on refusal rows **accepted**; (2) singular day line **not accepted**, fixed by VIS1-3e; (3) `complete_visit` refuses a started visit dated after today **accepted**.
+- **ADM2 now *Next up* 1**; AIG1, ASM1, UX2, PLAN3 move up one. UXR-30 (#626) stays open until VIS1-3c ships.
+- **Challenge:** "Why does a weekly visit have a fixed date at all?" A fixed day for a once-a-week service is a dispatcher's calendar habit, and every "Heute machen" move is the audit cost of it. A window instead needs a missed-visit rule (`cra`, Clinical Owner, D-28). **Hypothesis P-28** (AN1 counts of moves from weekly care-plan items); no build.
+- Packages: no unfreeze trigger (CGR-90 names no decision); none worked; none decided by po.
+- Tests: none run by me (docs only; code and test files read, CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-28 22:35 CET · eng (Lead Engineer)
 
 - **VIS1 `delivered`** (READY_FOR_REVIEW): #624 merged as 5d85b8f with a merge commit after bringing `recovery/main` in (journal conflict only, both entries kept). CI green on head 30cbde1 (app, db, e2e, ui-screenshots). `cra` 22:00 (PR #628): VIS1-7 gate clear on 2db589d; the later head adds only pgTAP 089_vis1_c2b and docs.
