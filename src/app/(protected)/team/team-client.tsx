@@ -22,9 +22,16 @@ import {
   minutesFromForm,
   sortVisitAlerts,
   visitAlertHandling,
+  CLEARANCE_SUMMARY,
+  CLEARANCE_TEXT,
+  PROVISIONAL_NOTE,
+  SIGNAL_POINTER,
+  alertRepeatsSignal,
 } from "@/features/team/rules";
+import { splitSignals } from "@/features/signals/rules";
+import { SETTINGS_ITEM } from "@/lib/auth/nav";
 import { PRIORITY_LABEL, alertFlagLabels, formatAge } from "@/features/operations/exceptions";
-import { MEDICAL_ORDER_LABEL, TASK_LABEL, urgencyWithSource } from "@/features/intake/rules";
+import { MEDICAL_ORDER_LABEL, TASK_LABEL, urgencyBadgeClass, urgencyWithSource } from "@/features/intake/rules";
 import type { ContinuityRow, TeamCase, TeamOffer, TeamVisitAlert } from "@/features/team/queries";
 import type { BillingPreviewRow } from "@/features/billing/queries";
 import BillingPreview from "@/components/billing/billing-preview";
@@ -37,16 +44,10 @@ import { RESPONSIBLE_ABSENT_NOTE } from "@/features/lifecycle/rules";
 import { formatDayLabel, shiftDay, todayInZurich } from "@/features/field/rules";
 import { getVisitStatusLabel } from "@/features/visits/types";
 import { recordGpInformed } from "@/features/gp/commands";
-import { OUTSIDE_LABEL, TEAM_STATUS_NOTE, statusText } from "@/features/push/rules";
+import { OUTSIDE_LABEL, REACH_GAP_TEXT, TEAM_STATUS_NOTE, allReachable, statusText } from "@/features/push/rules";
 import type { TeamPushRow } from "@/features/push/queries";
 import OutsideWatchedVisits from "@/components/signals/OutsideWatchedVisits";
 import { GP_CHANNELS, GP_CHANNEL_LABEL, GP_MESSAGES, gpInformedText, informedOnProblem, latestNoticeByCase, type GpNotice } from "@/features/gp/rules";
-
-const URGENCY_CLASS: Record<string, string> = {
-  hoch: "bg-rose-100 text-rose-900",
-  mittel: "bg-amber-100 text-amber-900",
-  niedrig: "bg-stone-200 text-stone-800",
-};
 
 function hoursSince(iso: string) {
   return Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / 3_600_000));
@@ -86,6 +87,8 @@ export default function TeamClient({
   const gpByCase = latestNoticeByCase(gpNotices);
   const open = offers.filter((o) => !o.my_team_declined);
   const declined = offers.filter((o) => o.my_team_declined);
+  // UX1-22: the cards the banner shows now (polled), so a pointer line never points at a card that is gone.
+  const [liveSignals, setLiveSignals] = useState<SignalRow[]>(signals);
 
   return (
     <div className="min-h-screen bg-stone-100 text-emerald-950">
@@ -108,8 +111,8 @@ export default function TeamClient({
       </header>
 
       <main className="mx-auto grid max-w-xl gap-3 px-4 py-4">
-        <SignalBanner initial={signals} />
-        <VisitAlerts alerts={visitAlerts} />
+        <SignalBanner initial={signals} onRows={setLiveSignals} />
+        <VisitAlerts alerts={visitAlerts} openSignals={splitSignals(liveSignals).open} />
         <OutsideDeliveryStatus rows={pushStatus} />
         <OutsideWatchedVisits rows={outsideWatched} />
 
@@ -178,34 +181,49 @@ export default function TeamClient({
 
 // CSR1 / CGR-04: a visit that did not happen, or is stuck, stays visible to the whole team until it moves on or a
 // person closes it. CSR1 / CGR-25: a visit ended as not completed stays until someone records the follow-up decision. CSR1 / CGR-24: a report correction not final after the report_not_final threshold stays until it is final. Thresholds are PROVISIONAL (D-28, clinical); no clinical instruction is given here.
-function VisitAlerts({ alerts }: { alerts: TeamVisitAlert[] }) {
+function VisitAlerts({ alerts, openSignals }: { alerts: TeamVisitAlert[]; openSignals: SignalRow[] }) {
   if (alerts.length === 0) return null;
   return (
     <section aria-label="Einsätze mit Handlungsbedarf" className="grid gap-2 rounded-2xl border border-rose-300 bg-rose-50 p-3">
       <h2 className="text-lg font-bold text-rose-950">Einsätze mit Handlungsbedarf</h2>
       <ul className="grid gap-2">
-        {sortVisitAlerts(alerts).map((a) => (
-          <li key={a.exception_key} data-testid="visit-alert" className="rounded-xl bg-white p-3 text-sm shadow-sm">
-            <p className="font-semibold">
-              <span className={a.priority === "P1" ? "text-rose-800" : "text-amber-800"}>{a.priority} {PRIORITY_LABEL[a.priority] ?? ""}</span>
-              {" · "}{a.label}
-            </p>
-            <p>{a.client_name ?? "Klient:in"} · {a.detail}</p>
-            {alertFlagLabels(a.flags).map((label) => (
-              // CSR1 / CGR-32: computed from the absence (fixed label, no reason); the visit keeps its responsible member.
-              <p key={label} data-testid="visit-alert-flag" className="font-semibold text-rose-900">{label}</p>
-            ))}
-            <p className="text-xs text-stone-600">{formatAge(a.since)} · {a.team_name} · {visitAlertHandling(a.taken)}</p>
-            {a.exception_type === "visit_interrupted" && (
-              // CSR1 / CGR-25: ends only with this decision (PROVISIONAL, D-31).
-              <div className="mt-2"><InterruptionFollowupForm visitId={a.visit_id} /></div>
-            )}
-          </li>
-        ))}
+        {sortVisitAlerts(alerts).map((a) =>
+          // UX1-22 / `cra` C-1: an entry that only repeats an open signal card above shows one pointer line; an entry with
+          // its own action, flags or handling state stays in full (`alertRepeatsSignal`, fail-safe).
+          alertRepeatsSignal(a, openSignals) ? (
+            <li key={a.exception_key} data-testid="visit-alert" data-pointer="signal" className="rounded-xl bg-white px-3 py-2 text-sm shadow-sm">
+              <p>
+                <span className="font-semibold">{a.label}</span>
+                {" · "}{a.client_name ?? "Klient:in"}
+                {" · "}<span data-testid="visit-alert-pointer">{SIGNAL_POINTER}</span>
+              </p>
+            </li>
+          ) : (
+            <li key={a.exception_key} data-testid="visit-alert" className="rounded-xl bg-white p-3 text-sm shadow-sm">
+              <p className="font-semibold">
+                <span className={a.priority === "P1" ? "text-rose-800" : "text-amber-800"}>{a.priority} {PRIORITY_LABEL[a.priority] ?? ""}</span>
+                {" · "}{a.label}
+              </p>
+              <p>{a.client_name ?? "Klient:in"} · {a.detail}</p>
+              {alertFlagLabels(a.flags).map((label) => (
+                // CSR1 / CGR-32: computed from the absence (fixed label, no reason); the visit keeps its responsible member.
+                <p key={label} data-testid="visit-alert-flag" className="font-semibold text-rose-900">{label}</p>
+              ))}
+              <p className="text-xs text-stone-600">{formatAge(a.since)} · {a.team_name} · {visitAlertHandling(a.taken)}</p>
+              {a.exception_type === "visit_interrupted" && (
+                // CSR1 / CGR-25: ends only with this decision (PROVISIONAL, D-31).
+                <div className="mt-2"><InterruptionFollowupForm visitId={a.visit_id} /></div>
+              )}
+            </li>
+          ),
+        )}
       </ul>
-      <p className="text-xs text-rose-900/80">
-        Erledigt sich, sobald der Einsatz weitergeht, abgesagt oder als «nicht angetroffen» erfasst ist; ein nicht abgeschlossener Einsatz, sobald jemand über die noch fällige Pflege entschieden hat; eine offene Berichtskorrektur, sobald sie unterschrieben und, falls nötig, gegengezeichnet ist; eine Verordnung ohne Enddatum, sobald ein Enddatum erfasst ist. Schwellen und Regeln provisorisch (klinische Entscheidungen offen).
-      </p>
+      {/* UX1-22 / C-1: the clearance explanation behind one tap; its last sentence stays visible. */}
+      <details data-testid="visit-alert-clearance" className="text-xs text-rose-900/80">
+        <summary className="flex min-h-11 cursor-pointer items-center font-semibold">{CLEARANCE_SUMMARY}</summary>
+        <p>{CLEARANCE_TEXT}</p>
+      </details>
+      <p data-testid="visit-alert-provisional" className="text-xs text-rose-900/80">{PROVISIONAL_NOTE}</p>
     </section>
   );
 }
@@ -250,7 +268,7 @@ function OfferCard({ offer }: { offer: TeamOffer }) {
             {offer.region} · für {offer.team_name} · seit {hoursSince(offer.created_at)} h offen
           </p>
         </div>
-        <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${URGENCY_CLASS[offer.urgency] ?? "bg-stone-200"}`}>
+        <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${urgencyBadgeClass(offer.urgency)}`}>
           {offer.urgency}
         </span>
       </div>
@@ -1034,18 +1052,36 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
 function OutsideDeliveryStatus({ rows }: { rows: TeamPushRow[] }) {
   if (rows.length === 0) return null;
   const teams = [...new Set(rows.map((r) => r.team_id))];
+  // UX1-24 (`uxa` UXR-7; `cra` C-3 "confirm with change"): while not every active member receives P1 signals outside
+  // the app, the line is open, in amber (not the P1 colour), with the fixed text and a link to "Meine Einstellungen";
+  // collapsed and neutral when all are on. No per-member detail beyond SIG2-2 (active / not active).
+  const gap = !allReachable(rows);
   return (
-    <details className="rounded-2xl border border-emerald-900/10 bg-white p-4" aria-label={OUTSIDE_LABEL} data-testid="push-team-status">
+    <details
+      open={gap}
+      className={gap ? "rounded-2xl border border-amber-800 bg-amber-50 p-4" : "rounded-2xl border border-emerald-900/10 bg-white p-4"}
+      aria-label={OUTSIDE_LABEL}
+      data-testid="push-team-status"
+      data-reach={gap ? "gap" : "all"}
+    >
       <summary className="cursor-pointer text-sm font-bold">
         {OUTSIDE_LABEL}: {rows.filter((r) => r.active).length} von {rows.length} aktiv
       </summary>
+      {gap && (
+        <p data-testid="push-team-gap" className="mt-2 text-sm font-semibold text-amber-900">
+          {REACH_GAP_TEXT}{" "}
+          <Link href={SETTINGS_ITEM.href} className="inline-flex min-h-11 items-center underline underline-offset-4">
+            {SETTINGS_ITEM.label}
+          </Link>
+        </p>
+      )}
       <p className="mt-2 text-xs text-stone-600">{TEAM_STATUS_NOTE}</p>
       {teams.map((teamId) => (
         <ul key={teamId} className="mt-2 grid gap-1 text-sm" aria-label={rows.find((r) => r.team_id === teamId)?.team_name}>
           {rows.filter((r) => r.team_id === teamId).map((r) => (
             <li key={r.user_id} className="flex justify-between gap-2">
               <span>{r.member_name}</span>
-              <span className={r.active ? "font-semibold text-emerald-800" : "text-stone-600"}>{statusText(r.active).replace(`${OUTSIDE_LABEL}: `, "")}</span>
+              <span className={r.active ? "font-semibold text-emerald-800" : "text-stone-700"}>{statusText(r.active).replace(`${OUTSIDE_LABEL}: `, "")}</span>
             </li>
           ))}
         </ul>

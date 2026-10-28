@@ -7,7 +7,9 @@ import { SIGNAL_POLL_MS, reasonText, signalHref, signalText, signalWhen, splitSi
 
 // SIG1-3 / SIG1-4: P1 safety signals of the signed-in person at the top of /field, /team and OPS1, refreshed every
 // 30 s without a reload. "Ich übernehme" records who takes it; the signal stays open until its cause ends (CR-041).
-export default function SignalBanner({ initial }: { initial: SignalRow[] }) {
+// UX1-22 (ADR-109): `onRows` reports the rows on screen, so a list below that points up to a signal card ("Steht oben
+// als Sicherheitssignal") follows the cards as they are polled, never a card that is gone.
+export default function SignalBanner({ initial, onRows }: { initial: SignalRow[]; onRows?: (rows: SignalRow[]) => void }) {
   const [rows, setRows] = useState<SignalRow[]>(initial);
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +33,10 @@ export default function SignalBanner({ initial }: { initial: SignalRow[] }) {
       clearInterval(id);
     };
   }, []);
+
+  useEffect(() => {
+    onRows?.(rows);
+  }, [rows, onRows]);
 
   async function take(signalId: string) {
     setPending(signalId);
