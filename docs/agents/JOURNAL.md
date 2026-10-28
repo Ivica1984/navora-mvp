@@ -20,6 +20,9 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **For `cra` on #602:** confirm that the default sentence "Operations sieht es auch, noch nicht übernommen" is not a C-1 "handling state" (the pointer drops it). OPEN for `uxa`/`cra`: three filled red buttons outside the signal components (ADR-109 deviation 1), among them `/field` "Ergebnis erfassen" (safety-adjacent, not changed by engineering).
 - Clinical gate trail: sections 01:30 and 09:30 read; findings applied C-1, C-2 (a), C-3; no remediation plan needed.
 - Tests: none run by me (npm registry unreachable from this session). CI is the test runner. Live project not touched.
+
+---
+
 ## 2026-10-28 13:35 CET · po (Product Owner)
 
 - **Roadmap sync (owner request via `/roadmap-update`, option "sync statuses"):** `ROADMAP.md` gate tables brought in line with `NEXT_CAPABILITY.md` and `IMPLEMENTATION_STATUS.md`. No reprioritisation, no review, no status change in any register.
