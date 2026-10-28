@@ -323,6 +323,10 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **OPEN (proposal, not briefed):** a provider transition's safety kinds (D-38 T15 (b)) shown as a read of the record (open signals without a taker, P1 reach, order validity, qualification), and kit entries that are record facts filled as a draft confirmed entry by entry.
 - **Control:** such a view never sets or shows a level, threshold or pass mark (Clinical Owner, G-1); a kind without data is shown as manual, never as met; it proposes nothing and needs no ledger entry. Any AI drafting of kit text waits for a D-35 stage that allows it and `lca`.
 
+**Early visits after VIS1 (AUT-16; `cra` CGR-87; `aia` 2026-10-28 20:19):**
+- **PLANNED (VIS1 approved, not built):** field actions refuse a visit dated after today (Europe/Zurich).
+- **Control for PLAN3, the day-order agent (AUT-5) and any shortcut:** a proposal to do a visit earlier is a proposed `reschedule_visit` (its date is a `record`-class field, confirmed one by one, AIG1-5), never a start; nothing starts a visit dated after today, and a one-confirmation move on `/field` (AUT-16, OPEN) calls the same audited command with its existing checks.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -332,3 +336,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-10-28 02:20 | `aia` | §12: added the control on assessed minutes as agent input (no computed comparison before a `cra`-reviewed brief, CGR-81) and the import-instead-of-transcription note (AUT-13). No agent added or removed |
 | 2026-10-28 08:20 | `aia` | §12: added `cra`'s three conditions for an assessment-header import (AUT-13). No agent added or removed |
 | 2026-10-28 14:41 | `aia` | §12: added the control for derived readiness views (AUT-14, AUT-15): rules, no level or pass mark, no unmet kind shown as met. No agent added or removed |
+| 2026-10-28 20:19 | `aia` | §12: added the control for early visits after VIS1 (AUT-16): a proposal to do a visit earlier is a confirmed move, never a start. No agent added or removed |
