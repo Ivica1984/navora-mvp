@@ -2,7 +2,7 @@
 id: VIS1
 title: Field actions happen on the visit's day
 author: po
-status: approved
+status: changes-requested
 updated: 2026-10-28
 ---
 
@@ -84,3 +84,42 @@ Patient safety is a precondition: a masked missed visit is the hazard the whole 
 - **CGR-90 placed as VIS1-9.** Reason: a guard that holds only in the commands is not a guard; any client with the `authenticated` grant can still start next week's visit by a direct update, which is the CGR-87 hazard again. No new rule: the same day rule, on every write path.
 - **AUT-17** (`aia`, low: a non-submitted placeholder asking *why today*): already allowed by the 22:00 decision; Engineering may add it with VIS1-3c, not required.
 - **Order of delivery (replaces the 22:00 order where it differs).** PR #624 may still merge as it is once the `cra` VIS1-7 gate is given (`cra` 22:00, PR #628: clear) — the date guard is the S1 remedy. Engineering may add VIS1-3c to #624 before merge if it is ready; otherwise VIS1-3c, VIS1-3d, VIS1-3e, VIS1-8 and VIS1-9 follow in **one** VIS1 follow-up PR. **VIS1 is accepted only when VIS1-3c, VIS1-3d, VIS1-3e, VIS1-8 and VIS1-9 are met**, and before any pilot with real clients. Until VIS1-3c ships, a moved visit can show as overdue at once on synthetic data only (no real clients; D-1).
+
+## PO review 2026-10-28 23:15 CET: `changes-requested`
+
+Delivery reviewed: #624 merged as `5d85b8f` (head `30cbde1`); migration 0089, ADR-111, pgTAP 089 (41) and 089_vis1_c2b (8), vitest `vis1-rules`, Playwright `vis1.spec`, eleven pgTAP files and four e2e specs moved to visits dated today. CI green on `30cbde1` and on the merge commit `5d85b8f` (app, db, e2e, ui-screenshots), read through the GitHub API. **The PO did not run the tests**; the evidence is the merged code, the test files as read and CI. `cra` 22:00 (PR #628): VIS1-7 gate clear.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| VIS1-1 database refusal | met | 0089: `private.visit_day_refusal` and patched `depart_visit`, `start_visit`, `record_no_show`, `end_visit_not_completed` return `not_today` when `visit_date` > today (`private.at_zurich(private.now())`); `complete_visit` returns `started_before_date`; `private.write_visit_refusal` writes one `audit_events` row (outcome class `code`), no status or event change |
+| VIS1-2 pgTAP | met | 089 lines 66-126: tomorrow refused for start and depart, status `planned`, 0 events, audit row present; moved with `reschedule_visit` → `start_visit` `ok`; today and yesterday `ok`; pinned clock (DST1 pattern) |
+| VIS1-3 `/field` sentence and move route | met | `field-client.tsx` 172-173, 370: no field action on a future visit; the sentence under the day heading; the move offered to team members (ADR-111: any member of the visit's team can move, no new permission) |
+| VIS1-3a once per day, `info`, no filled button | met | `vis1.spec` 46-71: note count 1, `data-tone="info"`, no filled button on that day, "Heute machen" visible |
+| VIS1-3b move at the door | met for the brief as it stood at build time | `vis1.spec` 72-106: dialog shows today, the reason is empty and `required`, cancel changes nothing after reload, confirm → visit on today, `Geplant`, "Einsatz starten" its own tap, no recorded time, `moved` entry ("Verschoben von dir"). The refusal path shows `result.error` from the existing `rescheduleVisit` (code read, `field-client.tsx` 900-904); no e2e covers it (accepted: same text source as `/team`). The prefilled times are the card's planned times, which **VIS1-3c replaces** |
+| VIS1-4 Playwright 390 × 844 | met | `vis1.spec` line 10 `PHONE` 390 × 844; no "Einsatz starten" or "Losfahren" on tomorrow; width ≤ 390 |
+| VIS1-5 tests use visits dated today, no guard weakened | met | diff of #624 against its base: 11 pgTAP files and `field`, `lifecycle`, `signals`, `ux1` e2e changed to today's visits or a move first; no `skip`, `fixme`, `only` or disabled trigger added; the only `set_config` additions are the existing `navora.test_now` test clock and JWT claims |
+| VIS1-6 past-dated visits unchanged | met | 089 lines 122-126: yesterday start and complete `ok`; no tolerance coded |
+| VIS1-7 clinical gate | met | `cra` 22:00 section (PR #628): gate clear on `2db589d`; the later head adds only pgTAP 089_vis1_c2b and docs |
+| VIS1-3c prefilled times never in the past | **not met** | not in #624: the dialog prefills the card's start and end (`vis1.spec` 77-78 asserts 22:00 / 22:30) |
+| VIS1-3d released notice on `/field` | **not met** | not in #624: `submit` ignores `released` and `flags` from `rescheduleVisit` (`field-client.tsx` 893-908) |
+| VIS1-3e focus and count-aware day line | **not met** | not in #624: no focus handling; one singular sentence on a day with several visits (ADR-111 deviation 2) |
+| VIS1-8 what the move leaves behind | **not met** | not in #624 (placed 22:00 while #624 was in review) |
+| VIS1-9 day rule on direct status updates | **not met** | not in #624: 0089 patches the commands only; `enforce_visit_transition` and the `authenticated` column grant (0003:184, 0004:135) are unchanged |
+
+**Verdict: `changes-requested`.** The S1 remedy (VIS1-1 to VIS1-7, VIS1-3a, VIS1-3b) is in `recovery/main` and is good work: the date guard holds in every command, the tests that used to work future visits now work today's visits, and no guard was weakened. VIS1 is not accepted because five criteria placed by the PO at 22:00 and 22:15 are not met, and two of them are safety-relevant, not polish:
+- **VIS1-9** (`cra` CGR-90, S2): any `authenticated` session can still set `status = 'in_progress'` on next week's visit with a direct `UPDATE`, which is the CGR-87 hazard on another path. A guard that holds only in the commands is not yet a guard.
+- **VIS1-3c** (UXR-30, high): every early visit moved with the card's times becomes overdue the minute it is moved, so the nurse who follows the CGR-87 route raises a false alarm for her own team. False alarms are what make a team stop trusting the real signal.
+- **VIS1-8** (CGR-89, S2): the move can now silently empty the planned date; the nurse should see that fact when she decides.
+- **VIS1-3d** (UXR-31): a move that releases the visit must say so where she is.
+- **VIS1-3e** (UXR-32, UXR-33): focus and the count-aware day line.
+
+**What Engineering does next (testable, all in one follow-up PR, as ordered 22:15):** VIS1-3c, VIS1-3d, VIS1-3e, VIS1-8 and VIS1-9 exactly as written above, each with the tests its criterion names, and the VIS1-3b and VIS1-4 assertions still green (the VIS1-3b test changes its expected "Von"/"Bis" to the VIS1-3c values). The `cra` VIS1-7 gate applies to that PR (VIS1-3c `info` line, VIS1-3d position and tone, VIS1-3e wording, VIS1-8 sentences, VIS1-9 migration). Then `delivered` again; the PO re-reviews only the five open criteria plus a regression check of VIS1-2 and VIS1-4 in CI.
+
+**Deviations (ADR-111), decided:**
+1. *Refusal rows carry no idempotency key*: **accepted.** A refusal changes nothing, so a retry must be evaluated again (after a move it should succeed, not be answered `duplicate`). The cost is one more audit row per repeated tap, which is honest. If AN1 or `aud1` reading shows refusal rows in volume (more than a few per visit), Engineering raises it; no work now.
+2. *Singular sentence on a day with several visits*: **not accepted as permanent** (decided 22:15); fixed by VIS1-3e.
+3. *`complete_visit` also refuses a started visit dated after today*: **accepted.** Such a visit can only exist from before 0089 or from a direct update (VIS1-9); refusing its completion keeps the record from naming a day care was not given. The visit can still be ended with "not completed" once its date has come, or moved.
+
+**Observation, no criterion:** the confirm button is disabled while the move is pending (`field-client.tsx`, `disabled={pending}`), so a double tap does not send two moves; each submit carries a new idempotency key, as on `/team`. Nothing to do.
+
+**Business and care-model view.** VIS1 keeps three things true at once: a missed visit is noticed on its day, the record names the day of care, and the billing date can be defended. It does this without a coordinator or an approval: the nurse moves her own team's visit at the door, in one confirmation. That is the model working as intended (value 2, value 4). The remaining criteria make sure the rule cannot be bypassed and that obeying it does not cost the team a false alarm.

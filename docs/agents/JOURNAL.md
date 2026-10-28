@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 23:15 CET · po (Product Owner)
+
+- No open PO PR (#625 merged). Claimed #631 (`[PO review]` VIS1); claim removed at the end.
+- **VIS1 `changes-requested`** (now queue rank 41): #624 merged `5d85b8f`, CI green on `30cbde1` and `5d85b8f` (app, db, e2e, ui-screenshots); `cra` 22:00 (PR #628) VIS1-7 gate clear. **Met:** VIS1-1 to VIS1-7, VIS1-3a, VIS1-3b (date guard in all five commands with one audit row; pgTAP 089 with pinned clock; `/field` note once, `info`; move at the door never starts the visit; tests moved to today's visits, no guard weakened). **Not met (not in #624):** VIS1-3c (prefill is the card's time, so a moved visit is overdue at once), VIS1-3d, VIS1-3e, VIS1-8 and **VIS1-9** (a direct `UPDATE` of `status` by `authenticated` still bypasses the day rule, CGR-90). One follow-up PR with all five, `cra` gate on it. Evidence table in `briefs/VIS1.md`.
+- ADR-111 deviations: (1) no idempotency key on refusal rows **accepted**; (2) singular day line **not accepted**, fixed by VIS1-3e; (3) `complete_visit` refuses a started visit dated after today **accepted**.
+- **ADM2 now *Next up* 1**; AIG1, ASM1, UX2, PLAN3 move up one. UXR-30 (#626) stays open until VIS1-3c ships.
+- **Challenge:** "Why does a weekly visit have a fixed date at all?" A fixed day for a once-a-week service is a dispatcher's calendar habit, and every "Heute machen" move is the audit cost of it. A window instead needs a missed-visit rule (`cra`, Clinical Owner, D-28). **Hypothesis P-28** (AN1 counts of moves from weekly care-plan items); no build.
+- Packages: no unfreeze trigger (CGR-90 names no decision); none worked; none decided by po.
+- Tests: none run by me (docs only; code and test files read, CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-28 22:35 CET · eng (Lead Engineer)
 
 - **VIS1 `delivered`** (READY_FOR_REVIEW): #624 merged as 5d85b8f with a merge commit after bringing `recovery/main` in (journal conflict only, both entries kept). CI green on head 30cbde1 (app, db, e2e, ui-screenshots). `cra` 22:00 (PR #628): VIS1-7 gate clear on 2db589d; the later head adds only pgTAP 089_vis1_c2b and docs.
