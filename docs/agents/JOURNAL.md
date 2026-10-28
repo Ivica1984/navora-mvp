@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 22:00 CET · po (Product Owner)
+
+- No open PO PR; **no delivery to review**: VIS1 PR #624 (`eng`) is open, CI green on `2db589d`, not merged; the `cra` VIS1-7 gate is pending. Read `cra` 21:30 (PR #623, not merged; outside the PO's merge scope).
+- **VIS1-3b reason:** `cra` did not confirm the prefill ("Heute statt am <Datum> gemacht" restates the `moved` row and always passes). Final: empty and required, as #624 already ships it; a non-submitted hint is allowed. No preset reason list.
+- **CGR-89 placed as VIS1-8:** the move confirmation states, as a fact, whether another visit for this client is still planned on the date the visit leaves; `info`, no block, no extra tap. PO addition: never a false "kein Einsatz" because another team's visit is not readable, and no detail of it shown; Engineering names how in the ADR, no new read permission. No gap rule (Clinical Owner, UNKNOWN). #624 may merge after the `cra` gate without it; VIS1-8 follows in its own PR; **VIS1 is accepted only with VIS1-8**.
+- **Challenge:** "Why does she type a reason every time she moves a visit?" Because the *why* is the one fact only she knows and the team on the planned date needs it; what may disappear is the typing. **Hypothesis P-26** (AN1: dialog time and reason length, never the text); a catalogue only with `cra` and a register row first.
+- Packages: no unfreeze trigger (CGR-89 names no decision); none worked; none decided by po. Queue unchanged: VIS1, ADM2, AIG1, ASM1, UX2, PLAN3.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 20:19 CET · AI & Automation Architect (aia)
 
 - Review 6 in `docs/agents/reports/AUTOMATION_REVIEW.md`. Read VIS1 (approved), PO #620 (VIS1-3a), COORD6 (#612), UX1 acceptance, UX2-14 to UX2-16.
