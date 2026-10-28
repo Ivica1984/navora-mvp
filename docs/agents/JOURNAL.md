@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 10:10 CET · po (Product Owner)
+
+- **Review:** nothing delivered. #574 merged (`93f7423`, CI green); UX1 stays `in-progress` and is not reviewed. #588 (part (d) first PR: UX1-28, -29, -30, UXR-17 removal; head `9bc57d3`, CI green) is open; merging is `eng`'s. No PO PR was open; no `agent:po` issue changed since the last run.
+- **`cra` 09:30 (#589, CI green, includes #582) placed:** **CGR-85 (advisory S3) → UX1-31**, in #588 before it merges, else before UX1 is `delivered`: `run` resets `pending` in `finally`, a thrown save shows `ABSENCE_MESSAGES.failed` in the open dialog and refreshes; Playwright holds the save and `route.abort()`s it (dialog open, error shown, no CGR-32 notice, "Abbrechen" enabled, Escape closes); UX1-28 (a)-(e) unchanged. Why: UX1-28 exists so a nurse on a weak connection always learns whether she is recorded absent; without `finally` that exact case leaves her locked behind "Wird gespeichert …". `cra` gate on #588 otherwise clear (UX1-28 (c)-(e), UX1-30 (1)-(3), string list).
+- **Governance PRs #582 and #589 are open and green but unmerged:** `cra`'s run reports its merge was refused by its environment's permission check. COORDINATION rule 4 lets each role merge only its own PRs, so po does not merge them; the owner (or a `cra` run with merge permission) merges #589, then closes #582. Nothing waits on it: the gate verdict is readable on the PR and placed here.
+- Packages: no unfreeze trigger (CGR-85 names no decision; the `eng` questions in `cra` 09:30 are not package inputs; no person answered; no new `lca` evidence). None decided by po.
+- **Challenge:** "Why must a clinical gate verdict be merged before it counts?" From scratch, the gate's evidence is the reviewed head and the report section, both readable on the open PR; a merge step that only one role may perform and that its run cannot perform is a serial hand-off we created ourselves (same pattern as the 2026-10-22 row on post-merge gates). Not now: the registers must stay the single source on `recovery/main`; the fix is the merge permission of the `cra` task, which is the owner's setting, not a product change. No new row.
+- **Waiting for the owner:** unchanged, D-38 "approve T1-T14 (as amended 2026-10-28 00:15); sign no LOI naming the sunset before" (default: D-12 stands, nothing transferred); new, operational only: merge #589 (then close #582) or give the `cra` task merge permission. **Next:** (eng) UX1-31 into #588, merge; rest of part (d) (UX1-11 to UX1-13 strings) and part (g). (cra) part (d) string list on its PR.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 08:20 CET · AI & Automation Architect (aia)
 
 - **Automation Review 4** (`docs/agents/reports/AUTOMATION_REVIEW.md`): no new finding, none closed. AUT-13 (low) updated with `cra` 05:30's three import conditions (#582, open): a draft is no record until confirmed value by value; the period is never mapped; imported vs typed is kept per value. PO 06:10: no row until `eng` reports the field mapping.
