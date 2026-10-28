@@ -16,6 +16,66 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-28 22:00 CET: VIS1 build (#624, head `2db589d`) read for the VIS1-7 gate: **clinical gate clear to merge**; CGR-87 and BL-20 close when #624 is merged unchanged; CGR-90 (new, advisory S2: the date rule lives only in the commands, a direct `UPDATE … status` by a team member still bypasses it); CGR-89 not in the build (stays open, PLANNED)
+
+**Scope:** `recovery/main` @ `013b733` (unchanged since my 21:30 section, PR #623, still open; it contains #614, #604, #589, #582). New since then:
+- **Open:** #624 `eng` VIS1 (issue #617, ADR-111; head `2db589d`, opened 21:47 CET; CI `app`, `db`, `e2e`, `ui-screenshots` success, check runs read through the GitHub API). PR body: "**VIS1-7:** `cra` reads the migration and the tests before merge."
+- **Code merged, docs merged:** none.
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read: migration `20261021000089_vis1_field_actions_on_visit_day.sql` in full; `private.transition_visit` (0007:120-131, security invoker), `private.visit_for_team` (0024), the `team_members_update_visits` policy and the column grant (0003:175-184, 0004:134-135), `private.enforce_visit_transition` (0038, latest in 0046); pgTAP `089` (contract, tomorrow / next week refused with no event and one audit row, outsider `rejected`, move-then-start `ok`, today and yesterday unchanged, Zurich midnight, no tolerance in `prosrc`); `features/field/rules.ts` (`isAfterToday`, `fieldActionsOn`, `canMoveToToday`, `futureDayNote`), `lib/commands/result.ts`, `field/page.tsx` (`todayInZurich`), the VIS1-3b form in `field-client.tsx`; the file list of the changed pgTAP and Playwright tests. **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-90 | **VIS1-1** (#624, migration 0089) | **advisory (S2); before go-live; not blocking #624** | The day rule is in the commands only (`transition_visit`, `record_no_show`, `end_visit_not_completed`). `authenticated` still holds `UPDATE (status)` on `care_visits` with an RLS policy for team members, and `transition_visit` is security invoker and relies on it. A team member who sends `PATCH /care_visits?id=eq.<visit dated next week>` with `status = on_the_way` or `started` (then `completed`) passes `enforce_visit_transition`, which checks the pair of states, suspension and the registered nurse (CGR-12) but not the date. The CGR-87 masking (H-01, H-05, BL-20) is then still possible outside the app. This takes a deliberate call outside the UI and is audited (`audit_events` trigger, `visit_events`), so it does not block VIS1. But CGR-12 was put into the trigger for exactly this path, and the same protection should hold here | 0003:175-178, 184; 0004:134-135; 0007:120-131 (`security invoker`); 0038/0046 `enforce_visit_transition` (no `visit_date`); 0089 §4 (commands only); pgTAP 089 has no direct-update case | **eng (no clinical rule; same visit/schedule fact as CR-133):** (1) `enforce_visit_transition` raises (own errcode) for `authenticated` when the new status is `on_the_way`, `started` or `completed` (the transitions open to it) and `visit_date` is after today (Europe/Zurich); `completed` also when the latest `started` event lies before `visit_date`. Alternatively, revoke the direct grant and make the commands security definer. (2) pgTAP: as the team nurse, `update public.care_visits set status = 'on_the_way'` on a visit dated tomorrow throws and leaves the status `planned`. The same update on today's visit passes. (3) The command outcomes `not_today` / `started_before_date` and their audit row stay as built |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-87** | open, S1 before a pilot; **remedy met on the #624 head `2db589d`** (CI green); **closes when #624 is merged unchanged**. The residual direct-update path goes on as CGR-90 (S2) | (1) 0089 §3-4: `depart_visit`, `start_visit` (via `transition_visit`), `record_no_show`, `end_visit_not_completed` return `not_today` for `visit_date` > `private.at_zurich(private.now())::date`; `complete_visit` returns `started_before_date` for a visit dated after today or whose latest `started` event (Zurich day) precedes its date; a refusal writes no status, event or note, only one `audit_events` row with the outcome. pgTAP 089:69-91 (tomorrow, next week, no-show, not completed, complete; status, events, notes, audit). (2) `fieldActionsOn` returns no action after today; `futureDayNote` `info`; Playwright `vis1.spec` (VIS1-3, -3a, -3b at 390 × 844). Move-then-start: pgTAP 089:106-112 (`reschedule_visit` then `start_visit` `ok`, one `moved` row). (3) Past days unchanged: 089:119-123. (4) No tolerance: 089:142-152 (23:50 refused, 00:05 `ok`), 089:156 (`prosrc` has no interval). Existing pgTAP moved to visits dated today, none skipped (PR file list; VIS1-5) |
+| **CGR-89** | open, advisory (S2); **not in #624** (the PO has not placed it yet) | the VIS1-3b dialog shows today's date, the planned date, the times and the reason (`field-client.tsx` VIS1-3b form). It shows no fact about other visits on the planned date. Not a merge condition for #624; it can ride a follow-up |
+| **CGR-86** | open, advisory (S3); #603 | no change |
+| CGR-84, CGR-81 | open (S3, S2); ASM1 brief (PLANNED) | no change |
+| CGR-78, CGR-75 | open, advisory (S2); brief level | no change |
+| **CGR-72** | open, blocking for ADM2 acceptance (S2) | no change |
+| CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-16, CGR-23 | open | no change |
+
+Closed in this section: none. CGR-87 (PS-76) and BL-20 close on the merge of #624; the PO's acceptance records that.
+
+### #624 otherwise: no further clinical finding
+
+- **VIS1-3b reason:** the textarea has `required`, `minLength={3}`, no `defaultValue` and is sent unchanged to `reschedule_visit`. This keeps my 21:30 answer (reason empty and required).
+- **Order of checks:** a person outside the team gets `rejected` and no date outcome, and no refusal row is written for her (089:99-101). The visit date does not leak outside the team.
+- **Deviation 1** (refusal rows without an idempotency key): accepted from the clinical side. A retry after the move is evaluated again instead of being answered as `duplicate` (a false success). The worst case is more audit rows, not a hidden action.
+- **Deviation 3** (`complete_visit` also refuses a started visit dated after today): stricter, accepted.
+- **A visit started before its date by older data** cannot be completed and can only be ended as not completed from its date on (089:124-126). The care given is then recorded as "not completed". How to document it late is CGR-87 (3): UNKNOWN, Clinical Owner and PO. No real clients exist yet, so there is no case to fix now.
+- **Night visits:** a visit planned for 00:10 cannot be started at 23:50 the evening before (089:142-146). This is the deliberate "no tolerance" of CGR-87 (4). Whether night services need one is for the Clinical Owner (UNKNOWN). "Heute machen" must not be used to work around it, because that would record the wrong date. The note text ("verschiebe ihn zuerst auf heute") is correct for a day visit. I ask the PO to watch for this in the pilot rather than to change the text now.
+- **Billing:** the billing facts read `visit_date`. A completed visit can no longer carry a date on which no care was given (BL-20 remedy), apart from the CGR-90 path.
+
+### Clinical Rule Register
+
+- **CR-133 (new):** no field action (depart, start, no-show, not completed) on a visit dated after today (Europe/Zurich), and no completion of a visit started before its date; no tolerance (0089). Input class: visit/schedule fact; owner PO; PROVISIONAL. A tolerance or a rule for past days needs its own row with a named owner first.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **VIS1** (#624, open, head `2db589d`) | **VIS1-7 met: clear to merge** (clinical side). CGR-87 and BL-20 close on merge; CGR-90 (S2) and CGR-89 (S2) follow after merge |
+| **Visit lifecycle / CSR1 / billing facts** | CGR-87 S1 lifts when #624 is merged; CGR-90 S2 before go-live |
+| All other items | unchanged from 21:30 |
+
+### Decisions requested
+
+- **po:** accept VIS1 with CGR-90 as a condition or follow-up (S2, before go-live). Place CGR-89 (1)-(3) (21:30). **Merge my governance PR** (this one contains #623, #614, #604, #589, #582; my runs cannot merge their own PR).
+- **eng:** CGR-90 (trigger-level date check with the direct-update pgTAP); CGR-86 (#603); C-2 (b).
+- **clinical (Clinical Owner, after G-1):** a tolerance for night visits, and late documentation of a visit started early (CGR-87 (3), (4)); whether a moved visit leaves a gap (CGR-89 (3)); earlier asks of 21:30. All UNKNOWN.
+- **owner / legal / regulatory adviser:** unchanged from 21:30 (G-1; D-38; R-11; D-36; D-1).
+
+---
+
 ## 2026-10-28 21:30 CET: VIS1 brief (CGR-87 placement) read: remedy decided, PLANNED; VIS1-3b reason prefill **not confirmed** (reason stays empty and required); CGR-89 (new, advisory S2: the one-confirmation move takes a visit off its planned date with no fact shown about that date); CGR-88 closed at package level (D-38 T16); UX2-14 to UX2-16 match my 17:30 answers
 
 **Scope:** `recovery/main` @ `013b733`. Changes since my 17:30 CET section (PR #614, head `e50afa0`, **still open**; it contains #604, #589, #582). This PR carries all four and supersedes them.

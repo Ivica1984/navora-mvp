@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 22:00 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 22:00): #624 VIS1 (head `2db589d`, ADR-111, CI green) read for the **VIS1-7 gate: clear to merge** from the clinical side. Migration 0089 and pgTAP 089 meet CGR-87 (1)-(4): field actions refuse a visit dated after today (Zurich) with `not_today`, completion refuses a visit started before its date, one audit row, no tolerance, past days unchanged; move-then-start `ok`. CGR-87 (PS-76) and BL-20 close when #624 is merged unchanged.
+- **CGR-90 (new, advisory S2, not blocking #624):** the day rule is in the commands only. `authenticated` still holds `UPDATE (status)` on `care_visits` (0003/0004) and `enforce_visit_transition` does not check the date, so a direct REST update by a team member bypasses it. Remedy: the same check in the trigger (as for CGR-12), with a direct-update pgTAP. PS-79, CR-133 added.
+- **CGR-89** is not in #624 (not yet placed by the PO); stays advisory S2. VIS1-3b reason is empty and required as answered at 21:30.
+- **This PR contains #623, #614, #604, #589, #582**; my runs cannot merge their own PR, `po` or the owner merges. Waiting: `po` (VIS1 acceptance with CGR-90, CGR-89 placement), `eng` (CGR-90, CGR-86, C-2 (b)), Clinical Owner (night-visit tolerance, late documentation, gap after a move), owner (G-1, D-38).
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 21:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 21:30): VIS1 (approved 18:15, VIS1-3a/-3b 20:15) carries the CGR-87 remedy in full (VIS1-1 to VIS1-6); CGR-87 stays S1 before a pilot until VIS1 is merged (VIS1-7 gate). #612 COORD6 merged: tooling, no clinical scope.
