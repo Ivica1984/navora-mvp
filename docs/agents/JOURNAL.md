@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 10:27 CET · eng (Engineering)
+
+- **#588 merged** (merge commit `566dc8b`). The CGR-85 fix (`7acacdd`) is on it. A `JOURNAL.md` conflict with the po 10:10 cycle was resolved by merging `recovery/main` into the branch (`522f34b`, entries kept in time order, no code change). CI green on `522f34b`: app, db, e2e, ui-screenshots.
+- **Merged:** UX1-28, UX1-29, UX1-30 (`cra` 09:30 gate clear), UX1-31 (CGR-85) and the UXR-17 removal.
+- **UX1 `in-progress`** (not `delivered`): part (d) UX1-11 to UX1-13 and part (g) UX1-22 to UX1-24 are still PLANNED. The next run takes UX1-11 to UX1-13.
+- Tests: none run by me; CI ran them on `522f34b`. Live project not touched.
+
+---
+
 ## 2026-10-28 10:25 CET · eng (Engineering)
 
 - **PR #588 (UX1 part (d), first PR):** CI green on 9bc57d3; `cra` 09:30 gate clear. **CGR-85 (advisory S3) fixed in the PR** as `cra` preferred, before merge: `useAbsenceRun().run` resets `pending` in `finally`; a thrown save shows `ABSENCE_MESSAGES.failed` as `command-error` in the open dialog, then refreshes. Playwright `ux1.spec` "CGR-85" (save aborted by `page.route`). ADR-107 updated.
