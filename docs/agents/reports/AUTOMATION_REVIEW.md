@@ -31,6 +31,76 @@
 
 ---
 
+## 2026-10-28 14:41 CET · aia review 5: "designed from scratch" applied to the bottleneck map; D-38 T15 (b) readiness derived from the record (AUT-14); provider kit (AUT-15)
+
+**Read:** `recovery/main` at `f6277ab`:
+- merged since review 4: #587 (mine), #588, #591, #598, #602 (UX1 parts (d) and (g)), the PO cycles #590, #596, #601, #605, #606, `csa` #595, `uxa` #599, `lca` #600;
+- open: `eng` #607 (UX1 delivered), `cra` #582, #589, #604 (not merged; read at head `ad18b4e` through the D-38 text that quotes it);
+- README *Automation review* (new owner instruction "designed from scratch first", added by po 11:10), rule 9 (frozen packages bind every role); `STRATEGY.md` §8 (future-state model, `csa` 10:47); `CARE_OPERATING_MODEL.md` *Provider kit* (STR-19, P-25);
+- briefs: COORD6 (new, approved), UX1-31 to UX1-33, UX2-12, WORK1-C5 (CGR-86); D-38 T15-T18 as of po 14:20 (unfrozen, `inputs-requested`);
+- code: `src/features/team/rules.ts` (UX1-22 pointer), `src/features/push/rules.ts` (UX1-24 `allReachable`), `src/features/intake/rules.ts` (UX1-23), `src/features/field/todo.ts` (UX1-30).
+- No open issue is labelled `automation`.
+
+**Changed since review 4:** the owner's instruction (2026-10-28) now binds this review: start from "if we designed home care today", compare with current practice, then say eliminate, redesign, automate or replace. UX1 is fully merged (#598 `8d0e812`, #602 `f6277ab`; the register change is in #607, open). D-38 gained T15-T18. No delivered item proposes, drafts or ranks.
+
+**Frozen packages (rule 9):** nothing written about any `awaiting-approval` package. D-38 is unfrozen (`inputs-requested`, po 11:10), so AUT-14 may address it.
+
+**Nothing below is a measurement.**
+
+### 1 The bottleneck map read from scratch (owner instruction 2026-10-28)
+
+Reference: `STRATEGY.md` §8.1 (team owns its provider; coordination is a property of the record; one clinical language; machines propose, people decide; shared services without a headquarters; starting a provider is a product). The ranks of review 1 stand (estimate, ordinal); what changes is the verdict where the from-scratch model asks for more than an improvement.
+
+| Rank (review 1) | Step | Improvement view (review 1) | From scratch (§8.1) | Changed verdict | Status |
+|---|---|---|---|---|---|
+| 1 | Travel and day order | day-order rule agent (AUT-5) + team geography | a neighbourhood team serving contiguous municipalities makes travel short by design; a route proposal only optimises the remainder | **replace first** (team geography through J2 matching and D-11), **automate second** (AUT-5). The team-level AN1 travel share is the test of both | PLANNED (AUT-5); geography OPEN (`csa`, D-11) |
+| 2 | Documentation per visit | simplify, risk-based countersign, dictation later (AUT-4) | the record is written by doing: the care-plan items performed are the proof of delivery, and prose is needed only for what deviated or what the next nurse must know | **replace** "one free-text report per visit" with documentation by exception (P-2 in AUT-4), then dictation (A7, stage 2) only for the exceptions. Blanket countersign: **replace** with risk-based review (D-10, `clinical`). What a report must contain is the Clinical Owner's (UNKNOWN); this changes the form, not the duty | OPEN (D-10, G-1); A7 PLANNED stage 2 |
+| 3 | Orders, referrals, relatives | eliminate by structured order and referral (AUT-6) | external actors are nodes of the record; nothing is phoned to be re-typed | unchanged: **eliminate** (AUT-6); waits on owner decisions D-22, D-9, D-3, not on build | OPEN |
+| 4 | Who takes which visit | PLAN3 proposal (AUT-1) | no scheduling role exists | unchanged: **eliminate** the role; PLAN3 is the means | PLANNED (*Next up* 7) |
+| 5 | Assessment → care plan | side-by-side view, import later (AUT-2, AUT-13) | one clinical language: the assessment is the source of the plan; nothing is typed twice | unchanged: **redesign** (ASM1, D-37); import (AUT-13) | PLANNED |
+| 6-7 | Working time, status taps | simplify (AUT-8, AUT-7) | working time is a by-product of visits, confirmed | unchanged (WORK1 IMPLEMENTED; AUT-8 open with `lca`) | IMPLEMENTED / OPEN |
+| 8-11 | Billing prep, referral pull, quality, self-organisation | eliminated or in progress | coordination is a state of the record | unchanged | IMPLEMENTED / PLANNED |
+| **new** | **Founding a team's provider and moving to it** (team, its future Leitung Pflege; one-off per team, but months of work) | not in the map (D-38 was a partnership question) | **starting a provider is a product** (§8.1.6): a kit, with the readiness facts read from the record | **replace** a founding project with the provider kit (STR-19, po 11:10); **automate** the parts that are facts NAVORA already holds (AUT-14, AUT-15) | PLANNED (kit as documents); OPEN (AUT-14, AUT-15) |
+| **new** | **Night and weekend on-call across teams** | not in the map | a contracted service shared by team-owned providers (§8.1.5) | no proposal: depends on P-24 (one Leitung Pflege or on-call service for several providers: UNKNOWN, `lca`, Zurich adviser) and D-3 (COVER1 off) | UNKNOWN |
+
+**Why the new row matters for direct care time:** every hour a nurse spends assembling a licence file, a readiness list or a transfer checklist is taken from visits or from her own time; under D-38 it would be repeated per team unless the kit makes it a one-time product (P-25: second team at most half the time). Minutes: UNKNOWN until a first transition (estimate only).
+
+### 2 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-14 | Provider transition: proving the eight T15 (b) safety kinds before a client moves (team, both Leitungen Pflege, Clinical Owner) | D-38 T15 (b) (po 14:20 from `cra` 13:40) names eight kinds of safety measure; how they are shown to be met is not stated, so by default it becomes a compiled checklist per team and per cut-over date. Five kinds already exist as states NAVORA records: (2) an open safety signal without a named taker (`safety_signals.taken_by`, 0060/0063); (3) P1 reach outside the app (`allReachable`, `src/features/push/rules.ts`, UX1-24, IMPLEMENTED); (5) order validity on a date (`cases.medical_order_valid_until`, order alerts, 0024:426, :495); (6) qualification (`private.required_qualification`, 0017:301; `set_member_qualification`, 0018); the returned-report part of (2) (F6R). Not in the record: (1) a responsible provider per client and date (no provider entity; UNKNOWN for `eng`); (4) export (T2, T18 (e), not built); (7) rule adoption (T13, not built); (8) open `cra` S1 findings (a report fact, not data). Challenge duty: no administration is added yet; this finding keeps it that way. The control itself is a patient-safety precondition and stays | **automate (deterministic, no agent):** when the transition is briefed, the readiness for each kind is a read of the record for the moving clients and the cut-over date: a team-level list of the items that still block, each with the existing link to act on it, and the same list for every later team (kit, STR-19). No level, threshold or pass mark is set by the view: levels are the Clinical Owner's (G-1, UNKNOWN); the view shows counts and items, the Clinical Owner or a Leitung Pflege states that the level is met. Kinds (1), (4), (7), (8) stay manual until their data exist; each is named as manual in the view, never shown as met. Gain: one compiled checklist per team transition (and re-checks per postponed date) becomes a read; minutes UNKNOWN (estimate) | L (shows recorded states; no clinical content of its own) | stage 0; PO (whether to brief), `cra` (that the view shows kinds without a level and that no kind is shown as met without data), `eng` (kind (1): how a provider per client and date is recorded), `lca` (the partner's Leitung Pflege reads C-side items only within the D-12 processor scope) | hours from "Clinical Owner's levels set" to "readiness confirmed" per transition; number of kinds checked by hand per transition (target: four, falling as (1), (4), (7) gain data) | medium | – (comment on #545) |
+| AUT-15 | Provider kit: C's licence file and set-up (future Leitung Pflege, team) | STR-19 (po 11:10): every transition document is written as a reusable kit; nothing built; no template states a legal or tariff rule not confirmed by `lca` and the adviser. Several entries a licence file and a processor agreement need are facts NAVORA already holds or will hold: the team roster with qualifications (0018), the named Leitung Pflege and deputy (T18 (b)), the rule-adoption record (T13, T18 (d)), the processor-agreement parties and data categories (T18 (c)). Which entries the Zurich licence file requires: [Z1] as read by `lca` 11:55; the full list is UNKNOWN to `aia` | **automate later (deterministic assembly):** the kit's templates mark each entry as (a) a fact read from the record, (b) a team decision, or (c) text `lca` or the adviser confirmed; only (a) is filled from the record, as a draft the future Leitung Pflege confirms entry by entry. No AI drafting of legal text; an AI draft of any part waits for a D-35 stage that allows it and `lca`. Staff data in a licence file is personal data: `lca` first. Gain: the team does not re-type its own roster and roles into each document; minutes UNKNOWN (estimate) | L | stage 0 (deterministic); PO (only when the kit is built), `lca` (which staff facts may leave NAVORA into a licence file, to whom) | P-25 (consent decision → C's admission, first versus second team) | low | – |
+
+**Briefs and items reviewed without a new finding:**
+- **COORD6 (approved, *Next up* 2):** a deterministic check replaces a rule that every agent had to remember. It removes coordination work (value 5) without adding a step for any person; it is the pattern §8.1.2 asks for, applied to the agents. Supported.
+- **WORK1-C5 (CGR-86):** a privacy control (WORK1-5 keeps the working day the nurse's own). Not administration; no challenge. It does matter for AUT-9: a team-level correction share for WORK1 must not be read while the test that guards D-23 term (b) is red at random.
+- **D-38 T16 (stop and lift):** any member may pause a date without asking anyone, and the current provider keeps visiting: team autonomy at no care cost. The single person who lifts is already named as a gap by the PO (deputy for the Clinical Owner, G-1); `aia` agrees and adds nothing.
+- **D-38 T15 (a), (d), (f), T17, T18:** legal and financing terms; no workflow step for a nurse beyond what AUT-14 and AUT-15 cover.
+- **UX1-22 (merged):** a list entry that only repeats an open P1 card shrinks to one pointer line, fail-safe to the full entry. Less reading per safety situation, deterministic, no ranking. **UX1-23, UX1-24, UX1-30 to UX1-33, UX2-12:** wording, colour, focus and headings; no workflow step added or removed.
+
+### 3 AI readiness of delivered items
+- Nothing merged since review 4 proposes, drafts or ranks (UX1 parts (d), (g) are labels, focus, a fail-safe dedupe and a reach status). Nothing to check against §8.
+- WORK1 stays outside the register (AUT-9, low); see WORK1-C5 above.
+
+### 4 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1 built | PLANNED. UX1 merged in full (#598, #602; register update in #607, open). AIG1 is *Next up* 4, after COORD6 and ADM2 |
+| 0 | ASM1 built | PLANNED (*Next up* 5), not started |
+| 1-3 | unchanged from review 1 | OPEN |
+
+### 5 Findings closed
+- None.
+
+### 6 Waiting for the PO
+- AUT-14 (medium): whether D-38 T15 (b) is shown by a read of the record when the transition is briefed; `eng` on kind (1). Comment left on #545.
+- AUT-15 (low): for when the provider kit is built; `lca` on staff facts in a licence file.
+- Bottleneck map refresh: due 2026-11-03 (weekly); the from-scratch reading above is part of it.
+
+---
+
 ## 2026-10-28 08:20 CET · aia review 4: AUT-13 import conditions from `cra`; UX1-30, UX2-10, UX2-11 reviewed; no new finding
 
 **Read:** `recovery/main` at `221d4ae`:
