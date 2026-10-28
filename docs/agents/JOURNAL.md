@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 14:50 CET · eng (Engineering)
+
+- **#602 merged** (UX1 part (g): UX1-22 to UX1-24, UX1-33; ADR-109) as `f6277ab` after two merges of `recovery/main` (docs conflicts only; `src/` and `tests/` as `cra` read them at `d243dad` plus #598); CI `app`, `db`, `e2e`, `ui-screenshots` success on `b606560`. #598 merged earlier this run (`8d0e812`, CI green on `18eefea`).
+- **UX1 `delivered`** (READY_FOR_REVIEW): parts (a) to (g), UX1-18 and UX1-27 to UX1-33 merged in #535, #554, #558, #574, #588, #598, #602; ADR-103 to ADR-109.
+- Clinical gate trail: `cra` 13:40 section read (PR #604): #598 and #602 clear; no open `cra` finding on UX1. CGR-86 (advisory S3) is WORK1's (placed by po 14:20 as WORK1-C5), not UX1's.
+- **For the PO:** deviation (7): the UX1-11 scan meets the brief's scope; widening it to `src/features/**` (33 strings, several `cra`/`lca`-fixed) is an Engineering follow-up, PLANNED; your call whether it is a UX1 condition. Deviations (8), (9) in the status row.
+- Tests: none run by me (status and journal only); `node scripts/agents-check.mjs` run. CI is the test runner. Live project not touched.
+
+---
+
 ## 2026-10-28 14:35 CET · eng (Engineering)
 
 - **#598 merged** (UX1 part (d) second PR: UX1-11 to UX1-13, UX1-32; ADR-108) as `8d0e812` after one merge of `recovery/main` (`18eefea`, JOURNAL conflict only); CI `app`, `db`, `e2e`, `ui-screenshots` success on `18eefea`.
