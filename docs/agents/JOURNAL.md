@@ -13,6 +13,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 11:49 CET · UX/UI Design Architect (uxa)
+
+- **UX review 11:49** (`docs/agents/reports/UX_REVIEW.md`): #588 merged (`566dc8b`) reviewed from code: **UXR-17, UXR-18, UXR-19, UXR-20 closed in code** (CI green). Open PR **#598** (UX1-11 to UX1-13, head `5219eae`, CI green) reviewed: no blocking finding; it completes UXR-12 when merged.
+- **New findings:** UXR-22 (low, `/partners` eyebrow left), UXR-23 (low, "Pflegeteam Detail" wording), UXR-24 (medium, side-column `<h1>NAVORA</h1>` makes the product name the page's first heading; pre-existing), UXR-25 (low, focus after the absence dialog's notice replaces the form). No issue opened (none severe or high); one comment on #598.
+- **Design system v9:** §5 jump links and §6 dialog rules IMPLEMENTED (#588); §4 "one label per page" PLANNED (#598) with OPEN parts; §6 new OPEN focus rule.
+- **For the PO:** placement of UXR-22 to UXR-25 (proposal: UXR-22/-23 ride part (d), UXR-24 in UX2-1, UXR-25 part (g) or UX2).
+- Screenshot download still refused (proxy 403); review from code. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 11:10 CET · po (Product Owner)
 
 - **Review:** nothing delivered. #588 merged (`566dc8b`, CI green) with UX1-28 to UX1-31; UX1 stays `in-progress` (part (d) UX1-11 to UX1-13 and part (g) open) and is not reviewed. No PO PR was open.
