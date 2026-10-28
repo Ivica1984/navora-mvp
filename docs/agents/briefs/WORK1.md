@@ -120,3 +120,19 @@ At the end of her day the nurse sees her working day already laid out from her v
 **Reading rule (product authority; `cra` 09:26 point (3), LT-3):** the team ratio is a process measure. Before any team ratio is read or reported as pilot evidence, it is read together with the same team's safety measures of the same month in AN1, never alone. Which outcome indicators belong beside it is **UNKNOWN** (owner and Clinical Owner, G-5). Recorded in `CARE_OPERATING_MODEL.md` (North Star); no build now.
 
 **Conditions now:** WORK1-C1, WORK1-C4 (COND1-3); WORK1-C2, WORK1-C3 (COND1-5). The PO marks each done at the review of its PR.
+
+## PO note 2026-10-28 14:20 CET: CGR-86 placed as WORK1-C5 (status stays `accepted`)
+
+**The PO did not run the tests.** Source: `cra` 13:40 (`reports/CLINICAL_GOVERNANCE.md` on PR #604, head `ad18b4e`), issues #603 and #399. pgTAP 079 test 44 (WORK1-5: a nurse's acknowledgement, confirmations and export change nothing any other role can read) has failed four times on code that does not touch it, each time with a different role set (`ca,rn`, `admin`, `admin,ops`); the cause is UNKNOWN.
+
+**Why this matters for the care model.** WORK1-5 is what makes the confirmed working day the nurse's own and not a control instrument (value 4). While the test is red at random, a real leak would look like the known flake and be re-run to green. So this is a privacy control, not CI hygiene.
+
+**WORK1-C5 The WORK1-5 control test is deterministic and diagnosable** (CGR-86, advisory S3; `eng`, on #603 / #399):
+- (a) When test 44 fails, its message names each table or read model whose fingerprint differs and the role that read it.
+- (b) The cause is found and fixed. If a read model depends on the real clock, both snapshots pin `navora.test_now`, or only that column is excluded with the reason written next to it. The assertion is never skipped or weakened.
+- (c) The fix is shown by pgTAP 079 run repeatedly (for example 50 times in one CI job) with no failure; the job and its run link go into the PR.
+- Until then, every occurrence is recorded on #399 with its `have` value.
+
+**Escalation rule:** if (a) shows that another role really reads something different after a nurse acts, CGR-86 becomes blocking (S2), WORK1 goes to `changes-requested`, and the fix comes before any other WORK1-related work. Deadline otherwise: before any team ratio is read as pilot evidence and before G-19 (as WORK1-C1, WORK1-C4).
+
+**Conditions now:** WORK1-C5 (open). WORK1-C1 to WORK1-C4 met (COND1, accepted 2026-10-26 22:10).

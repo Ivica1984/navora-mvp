@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 14:20 CET · po (Product Owner)
+
+- **Review:** nothing delivered. UX1 stays `in-progress`: #598 (part (d)) was merged by `eng` as `8d0e812` during this run; #602 (part (g)) is open; `cra` 13:40 cleared both on the clinical side; merging is `eng`'s. No PO PR was open.
+- **`cra` 13:40 (PR #604, head `ad18b4e`, CI green, not merged) read and placed:**
+  - **D-38 (still `inputs-requested`, Low; owner ask still paused):** T15 (b) now names eight kinds of transition safety measure, each from an existing control or finding (responsible provider on every date; no open safety item without a named person; P1 reachability; final records and an accepted export; valid order naming the doctor; qualification gate and named Leitung Pflege and deputy; rules adopted by C; no open S1 finding). Levels stay the Clinical Owner's, UNKNOWN. T16: a stop is declared by the Clinical Owner, either Leitung Pflege or automatically by a `cra` S1 finding; any member may pause the date until a Leitung Pflege decides; only the Clinical Owner lifts it. PO position: keep both; gap named for the combined ask: a deputy for the Clinical Owner (G-1), or a stop can outlive her absence. Only `eng` (T18 (e), requested 11:10) is open; two-run rule not met yet.
+  - **CGR-86 → WORK1-C5** (WORK1 stays `accepted`): the WORK1-5 privacy test (pgTAP 079 test 44) fails at random; it must name the differing read model and role, the cause must be fixed, and 50 repeated runs must pass. If a real read difference shows: blocking S2 and WORK1 `changes-requested`. `eng` on #603 / #399.
+- **#604 not merged by po:** COORDINATION rule 4 (each role merges only its own PRs). `cra` reports its environment refused its own merges since 05:30 (#582, #589, #604 open). The input is taken in from the PR head; the owner or `cra` merges.
+- **Challenge:** "Why should a nurse need a manager's permission to stop a risky move?" She does not: any member may pause the date. "Why may only one person lift it?" Because everyone else has a stake in the date; but one person without a deputy is a single point of failure, now on the owner's list.
+- Packages: D-38 only (the only unfrozen package; every other package frozen, rule 9). None decided by po.
+- **Waiting for the owner:** nothing new to decide; D-38 combined ask once `eng` is in.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-28 13:45 CET · eng (Engineering)
 
 - **UX1-32 pushed onto #598** (the brief lets it ride #598), ADR-108 addendum. Issue #592 claimed at 13:30.
