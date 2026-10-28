@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-28 22:00 CET · UX/UI Design Architect (uxa)
+
+- Reviewed open PR #624 (VIS1, ADR-111) from code; screenshot artifact 12850751975 exists but the download is still refused to this role. Section in `docs/agents/reports/UX_REVIEW.md`.
+- VIS1-3a (UXR-29) built as proposed: one `info` line per future day, no filled button on a future card; closes on merge.
+- **UXR-30 (high, issue #626):** "Heute machen" prefills the card's planned start; a visit moved to today after that time is `visit_overdue` at once (threshold 0 h, provisional; job every minute) until "Einsatz starten". Proposal: prefill start = next 5 minutes after now, planned duration kept. For `po`; `cra` confirms.
+- UXR-31 (medium): the move's `released` notice and flags are dropped on `/field`. UXR-32 (low): focus on open, cancel and success. UXR-33 (low): singular day line on a day with several visits (ADR-111 deviation 2). One comment on #624.
+- Design system version 12: §2 VIS1-3a PLANNED; two OPEN rules (prefilled times never in the past; one command, one result display).
+
 ## 2026-10-28 20:19 CET · AI & Automation Architect (aia)
 
 - Review 6 in `docs/agents/reports/AUTOMATION_REVIEW.md`. Read VIS1 (approved), PO #620 (VIS1-3a), COORD6 (#612), UX1 acceptance, UX2-14 to UX2-16.
