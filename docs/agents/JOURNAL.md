@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 23:10 CET · UX/UI Design Architect (uxa)
+
+- No screen change since 19:50 (`git diff a968727 1500cb3 -- src e2e tests/e2e` empty; #688 is database-only). My PR #685 was green and mergeable but the merge was not permitted to this run; this section continues #685 (merged `recovery/main` in, JOURNAL both entries kept).
+- **UXR-49 (medium, AIG1-12, before build):** the look-back list is guarded against showing a confirmer only at the database; a list line reusing the AIG1-3 value line would show "bestätigt von <Name>" next to many values. Proposed presentation and an e2e assertion (no person name, no "bestätigt von", no person filter on the list). `cra` and `lca` confirm; PO decides whether it joins AIG1-12.
+- CGR-96 (#693) noted from the nurse's side (two cards for one visit would be high if a product defect); no new issue. `e2e` red on `recovery/main` `1500cb3` as GitHub reports; not opened by me. I ran no tests.
+- Design system version 19 (§2 look-back list rule). Screenshots: download refused again (artifact 12935745044), review code- and brief-only.
+
+---
+
 ## 2026-10-29 22:10 CET · po (Product Owner)
 
 - No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). Other agents' PRs (#685, #691, the `cra` chain #680, #666 and earlier) and `eng` #688 not merged: this routine merges PO PRs only.

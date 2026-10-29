@@ -6,6 +6,52 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-10-29 23:10 CET · `uxa`: no screen change since 19:50 (#688 is database-only); AIG1-12 look-back list reviewed before build (UXR-49, medium); CGR-96 noted from the nurse's side
+
+**What changed since 19:50.** My PR #685 (19:50 section) is **still open**: CI green on its head `d53d0b4` as GitHub reports, mergeable; the merge was **not permitted to this run** (tool permission refused), so this section continues #685 instead of opening a second `ux/…` PR. Merged since: **#688** (OBS1-C1, ADM2-C1, migration 0096, ADR-119) changes `supabase/` and `docs/` only; **#689** (`lca` D-32, D-35), **#690** and **#692** (PO: AUT-22 → **AIG1-11**, CGR-95 → **AIG1-12**, `lca` D-32 → **ADM2-C2**), **#694** (eng). `git diff a968727 1500cb3 -- src e2e tests/e2e` is **empty**: no screen changed. CI on `recovery/main` `1500cb3` as GitHub reports: `app`, `db`, `ui-screenshots` green, `e2e` **red** (two runs, 21:31 and 21:32 UTC); I did not open the log and did not run tests. Open PRs that change screens: none (#691, #680, #666, #662, #646, #639, #628, #623 `cra`; #3 M2). New `ux` issues since 19:50: none; open `ux` issues unchanged (#506 to #510, #515, #548).
+
+**Sources.** `ui-screenshots` artifact 12935745044 (`recovery/main` `1500cb3`) exists; the download is **refused again** (storage host `productionresultssa18.blob.core.windows.net`, empty archive), so **no screenshots were available**. Review from `briefs/AIG1.md` (AIG1-3, AIG1-6, AIG1-8, AIG1-10, AIG1-11, AIG1-12 at `1500cb3`), issue #693 (CGR-96) and JOURNAL po 22:10, eng 22:25. The live project was not touched. No benchmark (one was made today at 03:51).
+
+### AIG1-12 look-back list, before build (PLANNED, not built)
+
+AIG1-12 adds a new screen: from the OPS1 exception "Assistent gestoppt: <Name>" Operations opens one list of the records holding a value from that agent that was confirmed unchanged in the window that crossed the threshold; each line opens its record; a line leaves once the value is confirmed again or corrected. Terms (i) to (iv) (`lca` 21:45) forbid a confirmer, an outcome per person and a person filter on the list. The brief tests that at the database (catalogue check) and tests the screen only for "the exception opens the list and a line opens its record" (e2e, desktop). Finding UXR-49 below.
+
+Presentation proposal for the list (OPEN; for `eng`'s AIG1 ADR; nothing here sets a clinical rule):
+- **Heading** names what the list is and its period, nothing else: "Unverändert bestätigte Werte von <Agent>" with the window or "seit dem Einschalten am <Datum>" as a second line, and the number of lines. The words a nurse or Operations reads must not suggest a duty, a deadline or an owner: no "offen", "überfällig", "zu prüfen bis", no assignee, no tick box (the list writes nothing; AIG1-12 (iv)). Whether a re-check is required is the Clinical Owner's (D-17, G-1): UNKNOWN; if a rule is set later, its wording comes from `cra`.
+- **Each line**: the record it opens (the same identification the record's own read path shows to that reader), the field and the value as confirmed, and "vorgeschlagen von <Agent>". **Never** "bestätigt von <Name>", a date of confirmation per person, or any grouping or sorting by person; the per-value "bestätigt von" stays on the record itself (AIG1-3, AIG1-11 (2a)), one value at a time. One action per line: the line itself opens the record (44 px row, keyboard reachable, visible focus); no second button.
+- **Colour**: `info` for the list; the look of the OPS1 exception "Assistent gestoppt" itself is unchanged and is `cra`'s. Empty state: "Keine Einträge mehr in dieser Liste." (says the list is empty, says nothing about whether values were right).
+- **Order**: by record time, never by person; no filter control (term (i)).
+`cra` confirms the heading and line wording (safety-related display of AI-confirmed values); `lca` confirms the "no person on the line" point (terms (i), (iii)).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-49 | AIG1-12 look-back list (OPS1 exception → list), Operations, desktop; PLANNED, not built | medium | The brief guards terms (i) to (iii) only at the database (the list's result has no person or outcome column), but each line "opens its record" through the record's read path, which by AIG1-11 (2a) returns "bestätigt von <Name>" per value. A screen that renders each line's value with the record's own value line (the natural reuse of the AIG1-3 component) would show one confirmer next to many values on one screen: the per-person view term (i) forbids, rebuilt in the browser. The brief's only screen test (e2e: exception opens the list, a line opens its record) would pass. | `briefs/AIG1.md` AIG1-12 (tests: pgTAP catalogue check; e2e at desktop width only "opens the list and a line opens its record"), AIG1-11 (2a), AIG1-3 at `1500cb3`; `lca` D-35 terms (i), (iii) | §2 proposals and confirmation; §4 who wrote a record entry (a person's name appears only where that one entry is read); data minimisation | Presentation only: the list line uses its own component without the confirmer part (proposal above). e2e at desktop width, synthetic seed with one stopped agent and at least two values confirmed by the same seeded person: the list contains no seeded person's name, no "bestätigt von", no filter or sort control by person; opening a line shows "bestätigt von <Name>" on that one record only. `lca` and `cra` confirm. | none (medium; PO decides whether it joins AIG1-12) |
+
+### Noted, not a new finding
+
+- **CGR-96 (#693, `cra` advisory S3, tracked by `eng`):** e2e once showed two `/field` cards "20:45 – 21:15, Testfall 08" for one moved visit; root cause UNKNOWN. From the nurse's side: if it is a product defect, two cards for one visit on her day is a high-severity screen problem (§1, which visit is real; risk of a double or missed visit). I open no issue: #693 tracks it and `cra` owns the safety rating. If the trace shows one `care_visits.id` rendered twice, the screen remedy is a unit or e2e assertion that `/field` renders at most one article per visit id.
+- The red `e2e` on `recovery/main` `1500cb3` (a docs-only merge commit): failing test not opened by me; `eng` owns it.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-49 | **New**, OPEN (above). | `briefs/AIG1.md` AIG1-12 |
+| UXR-48 | PLANNED as UX2-27. Unchanged in code (`src/features/field/authorship.ts` unchanged since 19:50). | |
+| UXR-47 | Closed in code (19:50). | |
+| UXR-43, -44, -45, -46 | PLANNED as UX2-23, UX2-24, UX2-22, UX2-25. Unchanged in code; UX2-23 off-sentence fact still OPEN (`eng`). | |
+| UXR-40, -41, -36, -37, -38, -26, -27, -28, -24, -21 | PLANNED as before. Unchanged in code. | |
+| UXR-5 (b) | OPEN, waits for `eng` (PLAN2), then `cra`. | |
+| Others | Unchanged since 19:50. | |
+
+**Requests.** To `cra`: (1) OBS1-C2 line wording (19:50) still open; (2) the AIG1-12 heading and line wording above. To `lca`: confirm that a line of the look-back list may show "vorgeschlagen von <Agent>" but no person (terms (i), (iii)). To `eng`: when AIG1 is built, the list line is a separate component from the AIG1-3 value line.
+
+**For the PO.** (1) UXR-49: whether the screen assertion joins AIG1-12's tests before build (it is presentation only and cheap now, costly after the AIG1-3 component is reused). (2) Unchanged: OBS1-C2 wording, UX2-27 riding the next `authorship.ts` change, screenshot download still refused to this role (§8). I propose only.
+
+---
+
 ## 2026-10-29 19:50 CET · `uxa`: OBS1 #673 merged and accepted (UXR-47 closed in code); UXR-48 PLANNED as UX2-27; wording answer for OBS1-C2 ("not known" line); no new finding
 
 **What changed since 16:10.** My PR for the 16:10 section **merged**. PO 16:24: UXR-47 wording taken into OBS1-4, UXR-48 → **UX2-27**. **#673 merged** as `1fa6f26` (head `4a46be2`); `git diff d93e894 4a46be2 -- src tests e2e` changes one line, `QUALIFICATION_NOT_RECORDED_TEXT` → "Qualifikation war beim Schreiben nicht erfasst" (`src/features/field/authorship.ts:9`), so the screens are the ones I reviewed at 16:10 with my wording. PO 19:40: **OBS1 accepted** with OBS1-C1 (per-visit read paths, no screen change) and **OBS1-C2** (`cra` CGR-94, `lca` 18:40), which introduces a new on-screen line whose wording `uxa` may reword (answer below). CI on `recovery/main` `a968727` as GitHub reports: `app`, `db`, `e2e`, `ui-screenshots` green. I did not run tests. Open PRs (#680, #666, #662, #646, #639, #628, #623, #614, #604, #589, #582 `cra`; #3 M2) change no screen. Open `ux` issues unchanged: #506 to #510, #515, #548.
