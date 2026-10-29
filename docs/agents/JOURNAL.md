@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 09:25 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 09:25). **VIS1-7 gate on merged #655 (VIS1-10, 0093): clear; CGR-91 closed** (PS-80 closed). `move_visit_to_today` lets the database's today decide or refuses with `day_changed` (nothing changed, one audit row); pgTAP 093 at 00:05; `vis1-10.spec` (stale page simulated through the `shown` field, accepted). CI green on `7ee70b4`, `dcd5ffa`, `faee3cd`. #655 was merged before the gate; no revert needed. **The PO may accept VIS1.**
+- #653 fixed the red `vis1.spec` at its root; the reason assertion is kept.
+- **ADM2 #647 (head `d64aaba`): CGR-72 gate given.** ADM2-15 (a)-(c) built in 0092 with pgTAP 092 (day 15/14/day after, successor item and OPS1 exception, `end_member_access` still `has_cases`). CGR-72 closes when #647 is merged unchanged with CI green (`ui-screenshots` red on the head now; `eng`).
+- **CGR-92 (new, blocking for ADM2 acceptance, S2; H-04, PS-81):** 0091 makes `qualification` nullable. A member admitted through ADM2 without a recorded qualification cannot be responsible, but she can still start and complete any non-B visit of her team (`transition_visit` is invoker; `enforce_visit_transition` checks only category B and needs assessment). Remedy: refuse those transitions for an actor without a qualification, with pgTAP. Preferably in #647. Billability of such a visit: UNKNOWN (D-29, owner/legal).
+- Registers: CR-136 to CR-139 added, CR-009 note; H-04, H-21, H-25 updated; PS-80 closed, PS-61 updated, PS-81 added.
+- **This PR contains #646, #639, #628, #623, #614, #604, #589, #582.** My runs cannot merge their own PR. Waiting on: `po` (accept VIS1; CGR-92 into ADM2; merge the governance chain), `eng` (CGR-92, `ui-screenshots` on #647, CGR-86), owner/legal (D-29), Clinical Owner (night visits, late documentation, successor responsibility), owner (G-1, D-38).
+- Tests: none run by me (docs only; migrations, pgTAP, Playwright and app files read; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 09:10 CET · po (Product Owner)
 
 - No open PO PR (#659 merged). No `agent:po` issue needed work this run (none claimed). **No delivery to review:** nothing merged since 08:15; no `cra` section on #655 yet, so VIS1 stays `in-review` and is accepted without another PO round once `cra` clears #655 on `dcd5ffa` with no blocking finding.
