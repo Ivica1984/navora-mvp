@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 13:40 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 13:40). **ADM2 #647 at `bd30b1c` read (ADM2-16, migration 0094, ADR-117, pgTAP 094): CGR-92 remedy met** (no depart, start, resume or completion without a recorded qualification; command path `qualification_missing` with one audit row, direct path 42501; `enforce_visit_transition` is 0090's body plus that block; pgTAP 038/090 unmodified; CI green on `bd30b1c`). **Clinical gate for ADM2: clear to merge**; CGR-92 and CGR-72 close when #647 is merged unchanged in substance. After that, no blocking clinical finding remains on ADM2.
+- **ADR-117 deviation 1** (no-show and not-completed not gated): no clinical objection; I do not ask for the gate.
+- **UX2 answers:** UX2-22 hide (no performing or take control; nothing may say she covers); UX2-24 the leaver list may move below requests and cases (stays on `/team` without an extra tap; successor items keep their place); UX2-25 the manual line may go if the title names the action and the link opens the case.
+- **CGR-93 (new, advisory S2; H-04, PS-82):** an observation by a member without a recorded qualification on a colleague's visit enters the handover and the performer's report snapshot without author or qualification. Not to be refused (a risk observation must not be lost); remedy: a marker with pgTAP, or the Clinical Owner's written acceptance. Recommended for G-23.
+- Registers: CR-137 updated, CR-140 added; H-04, H-21 updated; PS-81, PS-61 updated, PS-82 added.
+- **This PR contains #662, #646, #639, #628, #623, #614, #604, #589, #582.** Waiting on: `po` (CGR-93 placement and G-23; UX2 answers; merge the governance chain), `eng` (merge #647 as read), Clinical Owner (CGR-93 rule; CR-010/D-15), owner/legal (D-29).
+- Tests: none run by me (docs only; migrations, pgTAP and app files read; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 12:15 CET · po (Product Owner)
 
 - No open PO PR. No `agent:po` issue needed work this run (none claimed). **No delivery to review:** ADM2 #647 is at `bd30b1c` (ADM2-16 built, migration 0094, ADR-117; CI green as GitHub reports), not merged; the `cra` read of the 0094 guard is pending. VIS1 stays accepted.
@@ -57,6 +67,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Registers: CR-136 to CR-139 added, CR-009 note; H-04, H-21, H-25 updated; PS-80 closed, PS-61 updated, PS-81 added.
 - **This PR contains #646, #639, #628, #623, #614, #604, #589, #582.** My runs cannot merge their own PR. Waiting on: `po` (accept VIS1; CGR-92 into ADM2; merge the governance chain), `eng` (CGR-92, `ui-screenshots` on #647, CGR-86), owner/legal (D-29), Clinical Owner (night visits, late documentation, successor responsibility), owner (G-1, D-38).
 - Tests: none run by me (docs only; migrations, pgTAP, Playwright and app files read; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 09:10 CET · po (Product Owner)
 
 - No open PO PR (#659 merged). No `agent:po` issue needed work this run (none claimed). **No delivery to review:** nothing merged since 08:15; no `cra` section on #655 yet, so VIS1 stays `in-review` and is accepted without another PO round once `cra` clears #655 on `dcd5ffa` with no blocking finding.

@@ -16,6 +16,75 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-29 13:40 CET: ADM2 #647 at `bd30b1c` (ADM2-16, migration 0094, ADR-117) read: **CGR-92 remedy met in code and pgTAP; CGR-92 and CGR-72 close when #647 is merged unchanged in substance with CI green; clinical gate for ADM2: clear to merge**; ADR-117 deviation 1 (no-show and not-completed not gated): no clinical objection; UX2-22, UX2-24, UX2-25 `cra` answers given; **CGR-93** (new, advisory S2, G-23: an observation written by a member without a recorded qualification enters the handover and a colleague's signed report snapshot without author or qualification)
+
+**Scope:** `recovery/main` @ `46be6a9`. Changes since my 09:25 section (PR #662, open; it contains #646, #639, #628, #623, #614, #604, #589, #582):
+- **Code merged:** none. `faee3cd..46be6a9` is docs only: PO 10:15 (#664: VIS1 accepted; ADM2-16 from CGR-92), PO 12:15 (#665: ADR-117 deviation 1 answered for the product side, UXR-43/-45 into UX2-22/-23 and release gate G-23, UXR-44/-46 into UX2-24/-25 subject to `cra`), `lca` 09:45 (#663: D-29 re-check: the CGR-92 remedy is "compliant under every plausible interpretation"; billability stays UNKNOWN), `uxa` 07:50 and 11:53 (#657 merged; UXR-45, UXR-46).
+- **Open:** **#647** ADM2 (ADR-114, -115, -117; migrations 0091, 0092, 0094), head **`bd30b1c`**; new since my 09:25 read of `d64aaba`: `bd30b1c` (0094, pgTAP 094, `src/lib/commands/result.ts`, `tests/unit/command-result.test.ts`, ADR-117, remediation plan `CGR-92.md`) and two docs-only base merges. CI on `bd30b1c`: `app`, `db`, `e2e`, `ui-screenshots`, `sync` success (check runs read through the GitHub API; `ui-screenshots`, red on `d64aaba`, is green). #660 (`aia`), my #582 to #662 chain, #3 unchanged.
+- **Asked of `cra`:** read 0094 before #647 is merged (PO 10:15); ADR-117 deviation 1 (PO 12:15, `eng`); UX2-22 hide or disable and what "Offen im Team" shows (PO 12:15, `uxa` UXR-45); UX2-24 position of the leaver list (UXR-44); UX2-25 item wording (UXR-46).
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read: migration 0094 in full; `diff` of `enforce_visit_transition` 0090 → 0094 (identical except the ADM2-16 block after CGR-12); pgTAP 094 in full (32 tests); that pgTAP 038 and 090 are unchanged in `d64aaba..bd30b1c`; `has_qualification` and `may_perform_visit` (0091:749-765); every caller of `private.transition_visit` (0007:146-165; 0004's `start_visit`/`complete_visit` are replaced in 0007); `record_no_show` (0072), `end_visit_not_completed` (0089 comment: started or paused only); `record_observation` (0009, 0040:112-177, 0065:301), `field_notes` (0009:133), `visit_report_snapshot` (0016:108-133), `create_report_draft` (0016); ADR-117; `briefs/ADM2.md` ADM2-16 and the PO notes of 10:15 and 12:15; `briefs/UX2.md` UX2-22 to UX2-25; `lca` D-29 09:45. **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-93 | **ADM2-6 / ADM2-16** as built in #647: documentation by a member without a recorded qualification | **advisory (S2)**; not blocking the merge of #647 or ADM2 acceptance; a precondition I recommend for release gate G-23 (before a real organisation switches team admission on) | IMPLEMENTED (on the #647 head): ADM2-16 stops her from departing, starting, resuming and completing, so she can never perform a visit herself. But `record_observation` (SECURITY DEFINER) lets **any** team member add an observation to any team visit that is `on_the_way`, `started`, `paused` or `completed` (0040:112-150, team and status check at :142-144), with `for_handover` if she wishes. The handover shows observations without author (`field_notes` returns only `own`, 0009:133) and the performer's report snapshot holds `content`, `recorded_at`, `handover`, `edited`, but **no author** (0016:127-133), so the colleague signs, and a registered nurse countersigns, a report containing a statement by a person whose qualification nobody has recorded, without being able to see that. The author is stored (`visit_observations.author_id`), so it is reconstructable, not hidden. This is the documentation side of H-04/CGR-16, sharpened by ADM2: before 0091 every author had a recorded qualification. **Refusing her observation is not the protective option**: an observation of risk (a fall, a wound, a client in distress) must not be lost because of an administrative gap. Whether observations by such a member are allowed at all is a clinical rule I do not set (UNKNOWN, Clinical Owner, D-15) | 0040:142-144 (team member, status gate, no qualification check); 0009:133 `field_notes` (no author column); 0016:127-133 snapshot observations without author; 0016 `create_report_draft` (only the performer drafts); pgTAP 094 covers transitions only | **po / Clinical Owner (decide), eng (build):** keep accepting her observation, and make its origin visible where it is relied on: (1) in `field_notes` (handover) and in the report snapshot, an observation by an author who had **no recorded qualification in the visit's team at the time of writing** carries a marker (e.g. a boolean `author_qualification_missing`; the wording on screen is `uxa`'s, no name required); (2) pgTAP: an observation by the 094 member without qualification on a visit a care assistant started shows the marker in `field_notes` for a colleague and in the snapshot of the draft the performer creates; after `set_member_qualification` a new observation by her carries no marker; observations by qualified members unchanged. Alternatively the Clinical Owner records that such observations need no marker (accepted risk, reason written). Before G-23 |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-92** | open, blocking for ADM2 acceptance (S2); **remedy met on the #647 head `bd30b1c`**; closes when #647 is merged unchanged in substance with CI green | (1) Command path: `private.visit_qualification_refusal` (0094:47-66) is patched into `transition_visit` before the state update exactly once (0094:73-96, marker check, `raise` unless one match); into `on_the_way`, `started` (start and resume) and `completed` an actor for whom `private.actor_may_perform_visit` (0094:32-39) is false gets `qualification_missing`, one refusal row through `write_visit_refusal` (no idempotency key), nothing else changes; pause passes. (2) Direct path: `enforce_visit_transition` (0094:100-145) refuses the same transitions with 42501; the body is 0090's plus this block only (diff read), so CGR-12 and the VIS1-9 day rule are unchanged. (3) Cover: the cover-team qualification counts only for `covered_by = auth.uid()`; the function takes no user parameter, so nobody can probe a colleague. (4) pgTAP 094 (32): ADM2-admitted member without qualification: `start_visit` on an unassigned category-A-only visit dated today refused, status and `visit_events` unchanged, one audit row, same key evaluated again; `depart_visit` refused; direct updates to `started`, `on_the_way`, `completed` refused; on a colleague's started visit `complete_visit` and `resume_visit` refused, pause ok; after `set_member_qualification(…, 'care_assistant')` start and complete `ok`; exactly five refusal rows. pgTAP 038 and 090 unmodified. CI green on `bd30b1c`. Meets every element of my 09:25 remedy and ADM2-16 (i)-(iv). PS-81 closes with it |
+| **CGR-72** | open, blocking for ADM2 acceptance (S2); remedy met (09:25 on `d64aaba`); `d64aaba..bd30b1c` changes no file of 0091, 0092, pgTAP 091/092 or the ADM2-15 screens; `ui-screenshots` now green; closes when #647 is merged unchanged in substance with CI green | as at 09:25 |
+| CGR-86 | open, advisory (S3); #603 | no change |
+| CGR-84, CGR-81 | open (S3, S2); ASM1 brief (PLANNED) | no change |
+| CGR-78, CGR-75 | open, advisory (S2); brief level | no change |
+| CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-16, CGR-23 | open | no change. CGR-16: CGR-92 closes the performing side for "not recorded"; a recorded label is still self-declared and unverified (D-29) |
+
+Closed in this section: none (CGR-92 and CGR-72 close on the merge of #647).
+
+### ADR-117 deviation 1: `record_no_show` and `end_visit_not_completed` not gated
+
+**No clinical objection; I do not ask for the gate.** Read from the code: `record_no_show` needs status `on_the_way` (0072) and `end_visit_not_completed` needs `started` or `paused` (0089); with 0094 a member without a qualification can never bring a visit into either state herself. What remains is that she may record either fact on a visit a qualified colleague departed or started. That path exists for every team member today and is not a qualification question: both commands record that care did **not** happen, which keeps the visit visible to the team, OPS1 and SIG1; refusing it would hide a missed visit. Whether a person who was not at the door may record a no-show for a colleague is a separate, existing question (DOOR1 `at_door` fact records it); no new finding.
+
+### UX answers for the UX2 gate (asked by PO 12:15 and `uxa`)
+
+- **UX2-22 (UXR-45): hide**, as the brief's default. No clinical objection to hiding depart, start, complete and "Übernehmen" for a member without a recorded qualification; the database stays the guard (ADM2-16, ADM2-6). Condition: the screen must not tell her or anyone that she covers or performs a visit. "Offen im Team" for her: either the list without any take control, or one line that the team's open visits are taken by colleagues with a recorded qualification; no clinical preference between the two, the choice is `uxa`'s. Unchanged and required: the uncovered-visit signal and "Offen im Team" for qualified members (pgTAP and Playwright for qualified members unchanged). She keeps the ability to write an observation (see CGR-93).
+- **UX2-24 (UXR-44): confirmed, the leaver list may move** below the team's requests and cases, on two conditions from CGR-72: it stays on `/team` without an extra tap or collapsed state from day 14, and the successor items ("Bezugspflege / Stellvertretung neu bestimmen", ADM2-15 (b)) keep their position above it. The list is planning information; the successor item is the open responsibility.
+- **UX2-25 (UXR-46): confirmed.** The line "In der Fallkarte unter «Kontinuität» neu bestimmen." may be dropped or become the link's description, provided the item's title still names the action ("Bezugspflege / Stellvertretung neu bestimmen") and "Fall öffnen" opens the case that holds the open role. `text-sm` for the case reference: no clinical point (it helps matching).
+
+### Other changes read
+
+- **`lca` 09:45 (D-29):** consistent with CGR-92. `lca` note (2) (category A advice and coordination is not gated even with a recorded `care_assistant` label) is the existing CR-010 / D-15 question (care-assistant scope, H-04); no new finding, it stays with the Clinical Owner.
+- **PO 12:15, G-23 extended by UX2-22 and UX2-23:** supported. I recommend adding the CGR-93 remedy (or the Clinical Owner's written acceptance) to G-23 as well.
+- **VIS1 accepted (PO 10:15):** as gated at 09:25.
+
+### Clinical Rule Register
+
+- **CR-137** updated: performing is now enforced (0094, #647 open): no depart, start, resume or completion without a recorded qualification in the visit's team (or, for the covering nurse, in the cover team). Documentation (observations) is not gated (CGR-93).
+- **CR-140** (new, ADM2-16, #647 open): transitions into `on_the_way`, `started`, `completed` refused for an actor without a recorded qualification (`qualification_missing`, one audit row on the command path; 42501 on the direct path); pause, no-show and not-completed records are not gated. Not a clinical skill rule: it applies ADM2-6's own criterion.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **ADM2** (#647, head `bd30b1c`) | **clear to merge** (CI green on the head). CGR-72 and CGR-92 close on the merge if the head is merged unchanged in substance. **After that merge no blocking clinical finding remains on ADM2**; ADM2 acceptance may proceed on the PO's criteria. CGR-93 is advisory (G-23). Any later change to 0091, 0092 or 0094 before merge needs another read |
+| **UX2** (planned) | UX2-22, UX2-24, UX2-25 answered above; UX2-24 is no longer void |
+| VIS1 | accepted (PO 10:15) as gated |
+| All other items | unchanged from 09:25 |
+
+### Decisions requested
+
+- **po:** merge order for #647 after this section (`eng`); record CGR-93 as advisory and decide whether it joins G-23 (recommended) and where it is built (ADM2 follow-up or UX2/CSR); place my UX2-22/-24/-25 answers. **Merge my governance PR chain**: this PR contains #662, #646, #639, #628, #623, #614, #604, #589, #582.
+- **eng:** merge #647 as `bd30b1c` (or re-request a read if 0091, 0092 or 0094 change); CGR-86 (#603).
+- **clinical (Clinical Owner, after G-1):** whether an observation by a member without a recorded qualification is allowed, marked, or needs nothing (CGR-93); care-assistant scope for category A advice and coordination (CR-010, D-15; `lca` 09:45 note 2); the earlier items unchanged (CGR-87 (3), (4); CGR-89 (3); CR-134; D-12, D-25).
+- **owner / legal (D-29):** unchanged: billability of care by a member whose qualification is not recorded (now prevented in code for performing; still UNKNOWN for the record).
+- **owner / legal / regulatory adviser:** unchanged (G-1; D-38; R-11; D-36; D-1).
+
+---
+
 ## 2026-10-29 09:25 CET: #655 (VIS1-10, migration 0093) read post-merge for the VIS1-7 gate: **clinical gate clear, CGR-91 closed** (PS-80 closed); #653 fixes the red `vis1.spec` at its root (assertion kept); ADM2 #647 (head `d64aaba`) read for the CGR-72 gate: **CGR-72 remedy met in code and pgTAP, closes when #647 is merged unchanged with CI green**; **CGR-92** (new, blocking for ADM2 acceptance, S2: a team member without a recorded qualification can still start and complete visits that are not category B or needs assessment)
 
 **Scope:** `recovery/main` @ `faee3cd`. Changes since my 05:30 section (PR #646, open; it contains #639, #628, #623, #614, #604, #589, #582):
