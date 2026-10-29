@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 15:40 CET · po (Product Owner)
+
+- No open PO PR. No `agent:po` issue needed work this run (none claimed). Governance chain #666 (contains #662 … #582) not merged: this routine merges PO PRs only; left for the owner, as at 14:35.
+- **No delivery to review:** since the 14:35 cycle only `aia` #660 (review 10) merged; ADM2 stays accepted, OBS1 not started.
+- **`aia` AUT-21 placed as UX2-26** (`briefs/UX2.md`): after "Vertrag erfassen" the same `/admin` card offers the existing `set_member_qualification`; claimed value shown as text, choice not preselected, no accept-all, reason rule unchanged, "Später" allowed; the member stays listed under "Qualifikation fehlt" until set. Same actor, command, check and audit row; D-29 unchanged. May ride in the small UX2-22/UX2-23 PR; **not** a G-23 precondition (G-23 gates safety and compliance; this removes a navigation step, and adding it to a gate would repeat the criterion creep challenged on VIS1).
+- **Challenge:** "Why are contract and qualification two sittings in two places?" A leftover of ADM1. Kept the gate, moved the act. New challenge row with hypothesis **P-33** (median days contract → qualification; `qualification_missing` refusals in the first 14 days; per organisation, never per person).
+- AUT-19 (UX2-17) and AUT-20 (P-30) unchanged; OBS1 support from `aia` noted, no change to OBS1.
+- Packages: no unfreeze trigger (AUT-21 names D-29 but changes neither who verifies nor any ask, default or blocker); D-37 still waits for D-36. None worked, none decided by po.
+- Tests: none run by me (docs only; `aia` report, UX2 brief and ADM2 references read through git). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 14:55 CET · AI & Automation Architect (aia)
 
 - Continued my open PR #660 (review 9, not merged; it had a `JOURNAL.md` conflict) instead of a second `aia/` PR: merged `recovery/main` in, both entries kept, newest first. Review 10 in `docs/agents/reports/AUTOMATION_REVIEW.md`.
