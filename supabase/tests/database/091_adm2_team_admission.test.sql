@@ -79,9 +79,9 @@ select is(pg_temp.res('fremd', format('select public.set_team_admission(%L, fals
           'rejected', 'ADM2-1: an administrator of another organisation cannot switch it');
 
 -- ADM2-2 Proposal ------------------------------------------------------------------------------------------------------------
-select results_eq(
-  $$select column_name::text from information_schema.columns where table_schema = 'public' and table_name = 'team_candidates' order by 1$$,
-  array['claimed_qualification', 'display_name', 'id', 'organization_id', 'pensum_band', 'proposal_id', 'team_id']::text[],
+select is((select string_agg(column_name::text, ',' order by column_name::text collate "C") from information_schema.columns
+           where table_schema = 'public' and table_name = 'team_candidates'),
+  'claimed_qualification,display_name,id,organization_id,pensum_band,proposal_id,team_id',
   'ADM2-2: the candidate record has exactly the three fields plus its keys (no e-mail, phone, address, birth date, pay, health, free text)');
 select is(pg_temp.propose('mitte', 'Kandidatin X', 10) ->> 'result', 'rejected', 'ADM2-2: a member of another team cannot propose');
 select is(pg_temp.propose('coach', 'Kandidatin X', 11) ->> 'result', 'rejected', 'ADM2-2: a coach cannot propose');
@@ -122,7 +122,7 @@ select throws_ok($$select pg_temp.cmd('ca', 'select count(*)::text::jsonb from p
                  'ADM2-4: no direct read of the candidate table');
 select throws_ok($$select pg_temp.cmd('admin', 'select count(*)::text::jsonb from public.team_admission_events')$$, '42501', null,
                  'ADM2-4: no direct read of the decision record');
-select is((select coalesce(array_agg(p.oid::regprocedure::text order by 1), '{}') from pg_proc p
+select is((select coalesce(array_agg(p.oid::regprocedure::text order by p.oid::regprocedure::text collate "C"), '{}') from pg_proc p
            join pg_namespace n on n.oid = p.pronamespace
            where n.nspname in ('public', 'private')
              and (p.prosrc ~ 'team_candidates' or p.prosrc ~ 'team_admission_')

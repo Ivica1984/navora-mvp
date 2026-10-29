@@ -247,17 +247,13 @@ drop trigger if exists audit_team_candidates on public.team_candidates;
 create trigger audit_team_candidates after insert on public.team_candidates
   for each row execute function private.write_audit_event('proposal_id');
 
--- Deletion is audited too (who deleted which candidate reference, never the content).
+-- Deletion is audited too (who deleted which candidate reference, never the content), through the shared writer.
 create or replace function private.audit_team_candidate_delete()
 returns trigger language plpgsql security definer set search_path = ''
 as $$
 begin
-  insert into public.audit_events (organization_id, actor_id, actor_role, table_name, entity_id, command, idempotency_key, changed)
-  values (old.organization_id, (select auth.uid()),
-          coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role', session_user::text),
-          'team_candidates', old.id, nullif(current_setting('navora.command', true), ''),
-          nullif(current_setting('navora.idempotency_key', true), '')::uuid,
-          jsonb_build_object('proposal_id', old.proposal_id, 'deleted', true));
+  perform private.audit_command(old.organization_id, 'team_candidates', old.id,
+                                jsonb_build_object('proposal_id', old.proposal_id, 'deleted', true));
   return old;
 end;
 $$;
@@ -824,5 +820,26 @@ drop trigger if exists care_visits_adm2_qualification on public.care_visits;
 create trigger care_visits_adm2_qualification
   before insert or update of responsible_user_id, covered_by on public.care_visits
   for each row execute function private.adm2_guard_responsible();
+
+-- 9. AUD1-1 value catalogue: every audited key of ADM2 is a code (ids, dates, booleans, enum values; the candidate's
+-- name is never audited) -------------------------------------------------------------------------------------------------
+insert into private.audit_value_classes (table_name, key, class) values
+  ('team_admission_settings',  'enabled',     'code'),
+  ('team_admission_settings',  'updated_by',  'code'),
+  ('team_admission_proposals', 'team_id',     'code'),
+  ('team_admission_proposals', 'proposed_by', 'code'),
+  ('team_admission_events',    'proposal_id', 'code'),
+  ('team_admission_events',    'kind',        'code'),
+  ('team_admission_events',    'reason',      'code'),
+  ('team_admission_events',    'actor_id',    'code'),
+  ('team_candidates',          'proposal_id', 'code'),
+  ('team_candidates',          'deleted',     'code'),
+  ('member_contract_events',   'user_id',     'code'),
+  ('member_contract_events',   'start_date',  'code'),
+  ('member_contract_events',   'end_date',    'code'),
+  ('member_contract_events',   'actor_id',    'code'),
+  ('team_memberships',         'via',         'code'),
+  ('team_memberships',         'proposal_id', 'code')
+on conflict (table_name, key) do nothing;
 
 drop function private.adm2_patch(text, text[], text);
