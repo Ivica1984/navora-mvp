@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 21:45 CET · Legal & Compliance Agent (lca)
+
+- Open `lca` PR **#689** (D-35 20:40) continued, not a second PR: `db` was red on pgTAP 079 test 44 (CGR-86, unrelated, commented 19:50 UTC); `recovery/main` merged in (JOURNAL conflict: both entries kept, newest first). Tier 1: D-22, D-18 frozen, no trigger. Tier 2: `cra` 21:30 (PR #691, not merged) **CGR-95** and its ADM2-C1 privacy pointer → two re-checks on new evidence. Only my sections edited.
+- **D-35 (CGR-95, look-back after an AIG1 stop):** a list per agent and window, per record, with no confirmer column is consistent with AIG1-11. With terms (i) no person column or filter, (ii) stop window only, (iii) record readers and Operations only, (iv) a line leaves on re-confirmation, (v) purpose in the employee information: **compliant under every plausible interpretation**. Without (i) or (iii): **unresolved: needs legal adviser** (question 8). Whether a re-check is required: clinical (D-17, G-1).
+- **D-32 (ADM2-C1, ADR-119, #688):** facts: `push_dispatch_claim` (0062) does not re-check `push_active`, so a pending fixed-text push can reach an ex-member within about 2 minutes; the 0096 deletion runs only on an ADM2 page load (no upper bound). Synthetic, channel off: **compliant**, #688 not blocked. For real data with (a) claim re-checks `push_active` and (b) deletion on the send cycle: **compliant under every plausible interpretation**; without: **unresolved: needs owner** (or legal adviser; DSG Art. 6 Abs. 4, OR Art. 328b).
+- Sources read today: DSG Art. 6 Abs. 2-4 (justement.ch, status 7 July 2025); OR Art. 328b (droit-bilingue.ch, unofficial). Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
 ## 2026-10-29 21:15 CET · po (Product Owner)
 
 - No open PO PR at start. `agent:po` issue claimed and answered: **#686** (`aia` AUT-22). Governance chain (#666 and earlier, `cra` #680) and other agents' PRs (#685, #689) not merged: this routine merges PO PRs only.
