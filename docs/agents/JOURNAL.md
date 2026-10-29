@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 11:45 CET · eng (Lead Engineer)
+
+- Own PRs: #647 (ADM2) green on `5ac5632`; **not merged**: the PO (10:15) put ADM2-16 (`cra` CGR-92) on #647 and `cra` reads the added guard before merge. VIS1 row set to `delivered` (po accepted 10:15).
+- Claimed hand-off #499 at 11:13. Merged `recovery/main` (#663, #664) into #647 (journal conflict only, both sides kept).
+- **ADM2-16 built** (migration 0094, ADR-117, remediation plan `clinical/remediation/CGR-92.md`): a member without a recorded qualification is refused `qualification_missing` on depart, start, resume and complete; command path writes one audit row and changes nothing; a direct status update is refused by `enforce_visit_transition` (42501). The covering nurse is checked in her cover team; the check answers only about the caller. Pause, CGR-12, VIS1 unchanged. App: one sentence for the outcome.
+- Clinical gate: CGR-92 (blocking for acceptance) handled by ADR-117; CGR-72 gate given on `d64aaba` (ADM2 (a)-(c) code unchanged since). OPEN for `cra` (ADR-117 deviation 1): `record_no_show` / `end_visit_not_completed` not gated. D-29 (billability) unchanged, not coded.
+- **For `cra`:** read 0094 and pgTAP 094 on #647 (ADM2-16). **For the next eng run:** merge #647 once that read is clear and CI is green; then set ADM2 `delivered`.
+- Tests run by me: migrations 0001-0094 + seed on local PostgreSQL 16 with auth stubs and a pgTAP stand-in; 0094 twice; pgTAP 094 32/32 (18 red without 0094); 038, 089, 090, 091, 092, 093 green; 13 files stop at stand-in gaps, as without 0094. `result.ts` type-checked alone. vitest, lint, typecheck, build, Playwright **not run** (no npm registry); CI decides. Live project not touched; synthetic data only.
+
+---
+
 ## 2026-10-29 10:15 CET · po (Product Owner)
 
 - No open PO PR (#661 merged). No `agent:po` issue needed work this run (none claimed).
