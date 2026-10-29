@@ -3,7 +3,7 @@ id: AIG1
 title: AI governance foundation — every proposal is recorded, confirmed value by value, measured per agent and stoppable
 author: po
 status: approved
-updated: 2026-10-27
+updated: 2026-10-29
 ---
 
 # AIG1 — AI governance foundation
@@ -35,6 +35,7 @@ Any NAVORA assistant, rule-based or AI, can propose values; a named person confi
 - [ ] **AIG1-8 Stop rule (P-6).** Each agent carries a written threshold: the correction share above which it stops, over a stated minimum number of proposals, and a window. An agent cannot be switched on without one (refused). When a closed window crosses the threshold, or when its version, provider or region changes without a new switch-on, the agent's state becomes `stopped`, it proposes nothing more, and one OPS1 exception "Assistent gestoppt: <Name>" reaches Operations (existing exception path; no new signal class). Restarting is a new audited switch-on. pgTAP: threshold crossed → `stopped` and no new ledger row; version changed → `stopped`.
 - [ ] **AIG1-9 Evaluation harness on synthetic cases.** A test fixture of synthetic cases per agent with expected values; CI runs every switched-on-capable agent against it and fails when the share of matching values falls below the agent's stated evaluation bar. An agent without a fixture cannot be switched on. A synthetic test agent of kind `rule` (for example: propose the case's existing primary nurse for an unassigned visit) proves AIG1-1 to AIG1-9 end to end.
 - [ ] **AIG1-10 Agent health list.** Operations and administrators see one list: agent, state, last proposal, last window's correction share, and why it stopped. e2e at 390 px for the confirm screen (one proposed value, "vorgeschlagen von", confirm, change, "nicht gefunden") and at desktop width for the health list.
+- [ ] **AIG1-11 Confirmer read per value only (D-35 term 9; RLS3-4 pattern)** (added by po 2026-10-29 21:15 before build start, `aia` AUT-22 #686, `lca` 20:40 PR #689). (1) On the ledger and confirmation tables, the confirmer, the outcome (`confirmed`, `corrected`, `rejected`, and a confirmed `not_found`) and the confirmation time are **not selectable by `authenticated`** (and nothing by `anon`) through the table API; Engineering chooses the mechanism (for example column grants as in 0070) and names it in the ADR. (2) The confirmer is read only (a) per value, on the record line "vorgeschlagen von <Agent> / bestätigt von <Name> am <Datum>" (AIG1-3), through the record's own read function, for the people who may read that record, and (b) through the existing per-record AUD1 reader `read_audit_record(entity_type, entity_id, purpose)`, one entity per call. No function, view or export returns one confirmer together with the outcomes of more than one value, for any role, administrators included. (3) AIG1-7 stays the only aggregate and has no person key. (4) `READ_PATHS.md` lists the new columns under RLS3-4; the pgTAP 071 catalogue list includes the new readers and the AUD1 readers and fails on an unlisted function that returns a confirmer. **Tests (synthetic seed only):** pgTAP: a team member selecting each closed column directly gets 42501; `select *` and a count grouped by confirmer are refused; the record's read function still shows "bestätigt von" per value to the team; `read_audit_record` returns it with a stated purpose; pgTAP 071 fails on an unlisted reader.
 - [ ] **Negative.** No AI service is called in any test or environment; no client or staff data leaves the database; no person gets a read she did not have; no measure per person; nothing changes an existing record without a confirm command.
 
 ## Rules and their input class
@@ -55,6 +56,8 @@ Any NAVORA assistant, rule-based or AI, can propose values; a named person confi
 - Ledger shape: one generic table with typed value payloads, or one table per consuming record type? State the choice in the ADR; whatever is chosen must keep AIG1-2 (append-only) and AIG1-3 (one confirmation per value) testable in pgTAP.
 - Where does the evaluation harness live (pgTAP fixtures, vitest, or both)? It must run in CI on every PR that changes an agent.
 - Is the AN1 small-team suppression reusable as is for AIG1-7?
+
+- AIG1-7 suppression: reuse AN1's rule (a team with fewer than three confirmers in the month is suppressed). Whether three is enough to stop one person being inferred from a monthly share per agent and field (`lca` 20:40, UNKNOWN) is a design question: state in the ADR whether any AIG1-7 cell can be computed for a team with exactly three confirmers where one field had a single confirmer, and suppress that cell if so.
 
 **Clinical review gate:** applies (assisted values may later reach documentation and billing). `cra` reviews the merged build; AIG1 itself carries no clinical content.
 
@@ -78,3 +81,11 @@ The PO did not run any test; AIG1 is not built. This answer is recorded here bec
   3. The Clinical Owner may put the field on the one-by-one list, in general or for visits she names: AIG1-5 already allows this (list overrides class). Whether she does is `clinical`, UNKNOWN.
 - **Why the PO takes all three without change:** they cost no extra tap per visit (the ticked list stays one action) and close the opening that a later agent's date or team field could be bulk-confirmed. A pre-ticked list would bring back the automation bias AIG1-5 exists to stop (H-20). Value 1 and 4 are kept; patient safety is not traded.
 - Issue #543 closed by this cycle.
+
+## PO answer to challenge AUT-22 (`aia`, high, #686) — 2026-10-29 21:15 CET
+- **Adopted as AIG1-11, before build start**, with the `lca` 20:40 wording point (PR #689, read before merge; advisory, not legal advice): the AUD1 reader is the existing per-record `read_audit_record`, never a new reader across values. The PO adds a confirmed `not_found` (AIG1-4) to the closed outcomes: it is also a confirmation by a named person.
+- **Why:** *Why does the confirmer column exist?* For accountability on the record: who stood behind this value. That purpose is met per value. A list per person serves no product purpose (AIG1-7 measures per agent, field and team) and would turn the team's shared record into a tool for watching each other, which is the opposite of team autonomy (value 4). A nurse who knows her accept/correct pattern can be listed has a reason to accept unchanged, the automation bias AIG1-5 exists to stop (H-20, patient safety). The fix costs one criterion and one pgTAP block now; afterwards it would repeat OBS1-C1 (column revokes and rewritten tests).
+- `lca` verdict: AIG1-11 as worded **compliant under every plausible interpretation**; AIG1 without it **unresolved: needs legal adviser**. A per-person confirmation list for an investigation of one named person: **unresolved: needs legal adviser and owner** (adviser question 8 in D-35). Nobody proposes such a list; the default in force is that none exists for any role. Not escalated, because no decision is pending on it.
+- **Pilot precondition (not a build criterion):** the employee information for the pilot (D-9) names the confirmation records and states that confirmations are kept per value for the record and are never evaluated per person (`lca` 20:40 note 2). Tracked with D-9, owner.
+- No clinical content; `cra` not required for AIG1-11. AIG1's own clinical gate unchanged.
+

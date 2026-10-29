@@ -1,5 +1,6 @@
 "use client";
 
+import { QUALIFICATION_NOT_RECORDED_TEXT, snapshotAuthor, type SnapshotObservation } from "@/features/field/authorship";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
@@ -278,6 +279,10 @@ export default function ReportSection({
         </form>
       )}
 
+      {mode === "idle" && report && view.actions.includes("countersign") && (
+        // OBS1-4: the registered nurse sees the facts she countersigns, with the author of each observation.
+        <ReportFacts snapshot={report.snapshot} />
+      )}
       {mode === "idle" && report && view.actions.some((a) => a === "countersign" || a === "correct") && (
         <div className="grid grid-cols-2 gap-2">
           {view.actions.includes("countersign") && (
@@ -316,7 +321,7 @@ function ReportFacts({ snapshot }: { snapshot: unknown }) {
     planned?: { start?: string | null; end?: string | null; a?: number | null; b?: number | null; c?: number | null };
     services?: string[];
     events?: { type: string; at: string }[];
-    observations?: { content: string; recorded_at: string; handover?: boolean; edited?: boolean }[];
+    observations?: SnapshotObservation[];
   };
   const at = (type: string) => snap.events?.find((e) => e.type === type)?.at ?? null;
   const time = (iso: string | null) =>
@@ -332,11 +337,19 @@ function ReportFacts({ snapshot }: { snapshot: unknown }) {
       <dd>
         {snap.observations?.length ? (
           <ul className="grid gap-1" aria-label="Beobachtungen im Bericht">
-            {snap.observations.map((o, i) => (
-              <li key={i} className="whitespace-pre-wrap">
-                <span className="font-semibold">{time(o.recorded_at)}{o.handover ? " · Übergabe" : " · Beobachtung"}{o.edited ? " · geändert" : ""}:</span> {o.content}
-              </li>
-            ))}
+            {snap.observations.map((o, i) => {
+              // OBS1-3/-4: who wrote it, as this version stored it; an older version says so, never a guessed name.
+              const author = snapshotAuthor(o);
+              return (
+                <li key={i} className="whitespace-pre-wrap" data-testid="report-observation">
+                  <span className="font-semibold">{time(o.recorded_at)}{o.handover ? " · Übergabe" : " · Beobachtung"}{o.edited ? " · geändert" : ""}:</span> {o.content}
+                  <span className="block text-secondary" data-testid="report-observation-author">{author.stored ? `von ${author.text}` : author.text}</span>
+                  {author.marker && (
+                    <span className="block text-stone-700" data-testid="report-observation-marker">{QUALIFICATION_NOT_RECORDED_TEXT}</span>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         ) : "keine"}
       </dd>

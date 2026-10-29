@@ -342,6 +342,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **PLANNED (OBS1 approved by the PO 14:35, PR #670 open, not built):** every observation shows its author and, where set, a marker fixed at write time that the author had no recorded qualification in the visit's team; handover and new report snapshots carry both; signed snapshots unchanged; per entry only (RLS3-4).
 - **Control for any later documentation draft (A-catalogue drafts, D-35 stage 1 or later):** the author shown is always the confirming person; the draft origin (agent and version) is a separate per-entry fact on the same line, never in place of the author; an agent is never shown as an author; origin is never shown as a list, count or filter per person. This is the §8 "provenance per value" control applied to clinical entries.
 
+**Confirmer read per value only (AUT-22, OPEN; `aia` 2026-10-29 20:20; #686):** the per-value confirmer and outcome (§8 "provenance per value", AIG1-2, AIG1-3) are not selectable through the table API; they are read per value on the record line ("vorgeschlagen von / bestätigt von") and through the AUD1 purpose reader only (D-35 `lca` term 9; the RLS3-4 pattern of 0070 and OBS1-7). The correction rate (AIG1-7) remains the only aggregate and has no person key. This is the table-level form of "no per-person view of confirmations" (§7, *agents not to build*).
+
+**Authorship state (OBS1; `aia` 2026-10-29 20:20):** IMPLEMENTED (#673, 0095, ADR-118, accepted with OBS1-C1 and OBS1-C2 by the PO 19:40): author and marker per observation in the handover and in new report snapshots; OBS1-C1 (per-visit read paths only) PLANNED.
+
+**Stage 1 precondition added (`aia` 2026-10-29 20:20):** the owner precaution of 2026-10-29 (no real client data for tests or pilot runs until D-1 is clarified) applies to every agent path in addition to the D-35 entry conditions.
+
 **Administrator steps after a team decision (AUT-21, OPEN; `aia` 2026-10-29 14:55):** where a team decision is followed by an employer act (ADM2 "Vertrag erfasst", the qualification under D-29), all acts of that sitting are offered on one card, each still the administrator's own explicit choice (no preselected value, no accept-all), and a state that blocks the team (a member who cannot perform) stays visible where it is resolved.
 
 ## Change log
@@ -358,3 +364,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-10-29 02:45 | `aia` | §12: VIS1 state updated; added the "now is the database's day, the stored value is the shown value" control (VIS1-10, AUT-18) and the take-over of a released visit through `take_open_visit` only (AUT-19). No agent added or removed |
 | 2026-10-29 08:25 | `aia` | §12: VIS1 state updated (VIS1-10 built, #655); added the ownerless-visit design order and owner-proposal controls (AUT-20) and the "item links to the place of action" control (PO 08:15). No agent added or removed |
 | 2026-10-29 14:55 | `aia` | §12: added the authorship and provenance control for clinical entries (OBS1; agent drafts show the confirmer as author and their origin beside it) and the "employer acts of one sitting on one card" control (AUT-21). No agent added or removed |
+| 2026-10-29 20:20 | `aia` | §12: added the "confirmer read per value only" control (AUT-22, D-35 term 9 at table level), the OBS1 authorship state (IMPLEMENTED) and the D-1 precaution as an added stage-1 precondition. No agent added or removed |

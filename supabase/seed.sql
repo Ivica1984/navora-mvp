@@ -268,3 +268,57 @@ insert into public.member_contract_events (organization_id, user_id, start_date,
   ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000961',
    (private.now() at time zone 'Europe/Zurich')::date - 60, (private.now() at time zone 'Europe/Zurich')::date + 10,
    '00000000-0000-0000-0000-000000000000', private.now() - interval '30 days');
+
+-- OBS1 (e2e obs1.spec, migration 0095, ADR-118): an observation written before the author's qualification was recorded.
+--   notiz.test (…962): a member of Testteam C admitted by her team; she wrote an observation on today's completed visit of
+--                    Testfall C1 while her qualification was not yet recorded, then the administrator path recorded it.
+--                    The OBS1-1 marker stays on that observation (fixed when written). She never signs in (no password,
+--                    e-mail unconfirmed, no identity row), so the counts of pgTAP 002 stay.
+--   teamc.test performed the visit (started and completed it) and wrote an observation too; she drafts and signs the report.
+-- Written as the table owner, in the order the commands would write it: membership without qualification, the visit and
+-- its events, the observations (the 0095 trigger records the marker), then the qualification (as set_member_qualification
+-- would; no member stays without one, pgTAP 018).
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000962', 'authenticated', 'authenticated',
+   'notiz.test@navora.test', '', null,
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
+insert into public.organization_memberships (organization_id, user_id, role) values
+  ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000962', 'nurse');
+insert into public.team_memberships (team_id, user_id, qualification) values
+  ('00000000-0000-4000-a000-000000000161', '00000000-0000-4000-a000-000000000962', null);
+insert into public.member_profiles (organization_id, user_id, display_name, updated_by) values
+  ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000962', 'Neues Teammitglied C', '00000000-0000-4000-a000-000000000962');
+insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end,
+                                services_provided, billable, status, planned_minutes_a, responsible_user_id) values
+  ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000562', private.now() - interval '2 days',
+   '00000000-0000-4000-a000-000000000261', '00000000-0000-4000-a000-000000000161',
+   (private.now() at time zone 'Europe/Zurich')::date, '07:00', '07:30', array['Grundpflege'], false, 'completed', 30,
+   '00000000-0000-4000-a000-000000000960');
+insert into public.visit_events (organization_id, visit_id, team_id, event_type, from_status, to_status, occurred_at, actor_id, command) values
+  ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000562', '00000000-0000-4000-a000-000000000161',
+   'started', 'planned', 'started', ((private.now() at time zone 'Europe/Zurich')::date + time '07:02') at time zone 'Europe/Zurich',
+   '00000000-0000-4000-a000-000000000960', 'start_visit'),
+  ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000562', '00000000-0000-4000-a000-000000000161',
+   'completed', 'started', 'completed', ((private.now() at time zone 'Europe/Zurich')::date + time '07:31') at time zone 'Europe/Zurich',
+   '00000000-0000-4000-a000-000000000960', 'complete_visit');
+insert into public.visit_observations (organization_id, visit_id, case_id, team_id, author_id, recorded_at, content, for_handover, idempotency_key) values
+  ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000562', '00000000-0000-4000-a000-000000000261',
+   '00000000-0000-4000-a000-000000000161', '00000000-0000-4000-a000-000000000962',
+   ((private.now() at time zone 'Europe/Zurich')::date + time '07:10') at time zone 'Europe/Zurich',
+   'Synthetisch: Klientin am Morgen müde, trinkt wenig', true, '00000000-0000-4000-a000-000000000963'),
+  ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000562', '00000000-0000-4000-a000-000000000261',
+   '00000000-0000-4000-a000-000000000161', '00000000-0000-4000-a000-000000000960',
+   ((private.now() at time zone 'Europe/Zurich')::date + time '07:20') at time zone 'Europe/Zurich',
+   'Synthetisch: Haut an den Fersen intakt', false, '00000000-0000-4000-a000-000000000964');
+update public.team_memberships set qualification = 'care_assistant'
+where team_id = '00000000-0000-4000-a000-000000000161' and user_id = '00000000-0000-4000-a000-000000000962';
+-- F7: completion opened the draft (as complete_visit does); the draft shows the facts fresh until she signs.
+insert into public.visit_reports (organization_id, visit_id, case_id, team_id, version, status, snapshot, summary,
+                                  performer_id, countersign_required, created_by) values
+  ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000562', '00000000-0000-4000-a000-000000000261',
+   '00000000-0000-4000-a000-000000000161', 1, 'draft', private.visit_report_snapshot('00000000-0000-4000-a000-000000000562'), null,
+   '00000000-0000-4000-a000-000000000960', false, '00000000-0000-4000-a000-000000000960');

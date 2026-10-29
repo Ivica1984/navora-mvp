@@ -75,6 +75,21 @@ export function authorLabel(code: string): string {
   return "Person ausserhalb des Teams";
 }
 
+/**
+ * OBS1-2 (ADR-118): an observation names its author by her ADM1 display name (the database adds it to `detail`); every
+ * other entry keeps the member code. The caller's own entry stays "Ich".
+ */
+export function entryAuthorLabel(entry: Pick<SinceLastEntry, "kind" | "author" | "detail">): string {
+  const name = entry.detail?.author_name;
+  if (entry.kind === "observation" && entry.author !== "me" && typeof name === "string" && name.trim()) return name.trim();
+  return authorLabel(entry.author);
+}
+
+/** OBS1-1: the recorded "no qualification when written" fact of an observation entry (display only). */
+export function entryQualificationMissing(entry: Pick<SinceLastEntry, "kind" | "detail">): boolean {
+  return entry.kind === "observation" && entry.detail?.author_qualification_missing === true;
+}
+
 /** Which rule set the window; the card says it (brief: "The card says which rule applied"). */
 export function ruleText(rule: string, sinceDate: string | null, lookback: number): string {
   if (rule === "since_own_visit") return `Seit deinem letzten Einsatz am ${formatDate(sinceDate)}`;

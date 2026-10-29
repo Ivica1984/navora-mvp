@@ -53,6 +53,7 @@ import {
 import { correctVisitTime, recordObservation } from "@/features/field/commands";
 import { formatMinutesByCategory } from "@/features/team/rules";
 import type { FieldNote, FieldVisit } from "@/features/field/types";
+import { QUALIFICATION_NOT_RECORDED_TEXT, observationAuthor, showsQualificationMarker } from "@/features/field/authorship";
 import { FACTS_LOCKED_HINT, RETURNED_LOCKED_HINT, countersignItemNote, visitFactsLocked, type FieldReport } from "@/features/field/report";
 import ReportSection from "./report-section";
 import { openReportsText } from "@/features/admin/rules";
@@ -685,9 +686,13 @@ function ObservationEntry({ visitId, note, locked }: { visitId: string; note: Fi
   return (
     <div className="rounded-lg bg-stone-50 p-2">
       <p className="whitespace-pre-wrap">{note.content}</p>
+      {/* OBS1-1/-4: a recorded fact in `info` tone; the observation is never hidden or reordered by it. */}
+      {showsQualificationMarker(note.author_qualification_missing) && (
+        <p data-testid="observation-qualification-marker" className="mt-1 text-xs text-stone-700">{QUALIFICATION_NOT_RECORDED_TEXT}</p>
+      )}
       <div className="mt-1 flex items-center justify-between gap-2">
         <p className="text-xs text-secondary">
-          {formatDateTime(note.recorded_at)} · {note.own ? "von dir" : "aus dem Team"}
+          {formatDateTime(note.recorded_at)} · <span data-testid="observation-author">{observationAuthor(note)}</span>
           {note.edited ? " · geändert" : ""}
           {note.for_handover ? " · Übergabe" : ""}
         </p>
