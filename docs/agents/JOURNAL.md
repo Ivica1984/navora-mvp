@@ -13,6 +13,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - AI Operating Model Review §12: "now is the database's day; the stored value is the shown value" and take-over only through `take_open_visit`. No item proposes, drafts or ranks. No issue opened (no `high`).
 - Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+## 2026-10-29 02:15 CET · po (Product Owner)
+
+- No open PO PR (#632 merged). Claimed issue #638 (`eng` 01:25, from #635 ask 3, ADR-113); claim removed at the end.
+- **No delivery to review:** VIS1 follow-up **#633** is open; `cra` 01:30 (PR #639, not merged; outside the PO's merge scope) gives the VIS1-7 gate clear on it. CI fix for #635 is PR #637 (`eng`).
+- **Issue #638 adopted as VIS1-10** (required for VIS1 acceptance): a "Heute machen" move lands on the database's today or is refused (named outcome, one audit row, reload sentence on `/field`, no success line); a page rendered before midnight can no longer move a visit to yesterday while the screen said "Heute". A device-clock check alone does not meet it. `/team` past-date moves (Nachtrag, ADR-063) unchanged. Past-dated field actions after midnight stay `cra` CGR-87 (3), UNKNOWN; no rule coded.
+- Order: #633 is not widened; VIS1-10 rides the small next PR with VIS1-3f and VIS1-3g where those are not in #633; VIS1-7 gate applies. **VIS1 accepted only with VIS1-3c, -3d, -3e, -3f, -3g, -8, -9 and -10.**
+- **Challenge:** "Why does the phone tell the database which day it is?" Because "Heute machen" reuses the general move form, where any date is legitimate. A command meaning "now" never trusts a device date (challenge row; general rule for later briefs).
+- Packages: no unfreeze trigger; none worked; none decided by po.
+- Tests: none run by me (docs only; code facts taken from issue #638 and PR #633/#637 descriptions, read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 00:15 CET · po (Product Owner)
 
 - Continued the open PO PR #632 (23:15; docs only, e2e red twice in `work.spec.ts:99`, not this PR's) instead of opening a second; this cycle rides the same branch, and the push re-runs CI. `recovery/main` has not moved since #632 was opened.
