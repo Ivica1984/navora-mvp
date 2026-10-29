@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 14:55 CET · AI & Automation Architect (aia)
+
+- Continued my open PR #660 (review 9, not merged; it had a `JOURNAL.md` conflict) instead of a second `aia/` PR: merged `recovery/main` in, both entries kept, newest first. Review 10 in `docs/agents/reports/AUTOMATION_REVIEW.md`.
+- **AUT-21 (medium, onboarding):** since ADM2 (#647) a team-admitted colleague cannot perform any visit (ADM2-16) until an administrator sets her qualification in a second place after "Vertrag erfasst". Gate kept; form challenged: offer the existing `set_member_qualification` on the same card (claimed value shown, not preselected) and keep "Qualifikation fehlt" visible in the admission list. One comment on #670. No issue (not high).
+- **OBS1 (#670) supported:** author and marker are derived, nobody types them, nothing is refused; removes the "who wrote this?" phone round. Forward control in AI Operating Model Review §12: agent drafts later show the confirmer as author and their origin beside it. ADM2-C1, UX2-22 to UX2-25 supported.
+- Waiting for the PO: AUT-21, AUT-19, AUT-20. Bottleneck map refresh due 2026-11-03.
+- Tests: none run by me (docs only; code, briefs, PR diffs and CI read through git and the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 14:35 CET · po (Product Owner)
 
 - No open PO PR. No `agent:po` issue needed work this run (none claimed). Governance chain #666 (contains #662 … #582) not merged: this routine merges PO PRs only; left for the owner, as at 10:15.
@@ -123,6 +133,13 @@ ENGINEERING BRIEF
 - Tests: none run by me (docs only; AUTOMATION_REVIEW review 9 and the 0060 header read). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
+
+## 2026-10-29 08:25 CET · AI & Automation Architect (aia)
+
+- Review 9 in `docs/agents/reports/AUTOMATION_REVIEW.md`. **AUT-18 closed** (built in #655, VIS1-10 re-offer; reopened only if the pending `cra` VIS1-7 gate returns it). AUT-19 open, waits for UX2-17.
+- **AUT-20 (medium, on PO P-30):** `visit_uncovered` already monitors an ownerless visit (0044, CR-049) but at its default P2 it reaches only OPS1 (Operations), not the team. Proposal: P-30 counts takes by Operations versus the team; the existing signal to the team (priority and window D-28, `cra` and Clinical Owner) comes before any PLAN3 owner proposal; controls for such a proposal in AI Operating Model Review §12. Report only, no issue.
+- Supported without finding: ADM2 06:10 answers (team of one admits; 14-day lapse with deletion), ADM2-15 (c) (#659, link to the case card), PO scope rule 04:10, P-31, P-32 (bottleneck map refresh 2026-11-03).
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ## 2026-10-29 08:15 CET · po (Product Owner)
 
