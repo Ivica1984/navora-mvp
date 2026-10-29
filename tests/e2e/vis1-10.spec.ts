@@ -70,11 +70,14 @@ test.describe("VIS1-10 at 390 × 844", () => {
     const atEvening = prefillMoveTimes(zurichMinutesNow(evening), "21:15", "21:45");
     await expect(move.getByLabel("Von")).toHaveValue(atEvening.start);
     await expect(move.getByLabel("Bis")).toHaveValue(atEvening.end);
-    // The page was rendered yesterday: the date it shows as "Heute" is yesterday's.
-    await move.locator('input[name="shown"]').evaluate((el, d) => { (el as HTMLInputElement).value = d; }, yesterday);
     await move.getByLabel("Von").fill("23:00");
     await move.getByLabel("Bis").fill("23:30");
     await move.getByLabel("Grund der Verschiebung").fill(reason);
+    // The page was rendered yesterday: the date it shows as "Heute" is yesterday's. Set last, after the typing: every
+    // re-render writes the field's default again (React sets a hidden input's value from defaultValue on update).
+    const shown = move.locator('input[name="shown"]');
+    await shown.evaluate((el, d) => { (el as HTMLInputElement).value = d; }, yesterday);
+    await expect(shown).toHaveValue(yesterday);
 
     // Midnight passes; she confirms. The database's day decides: refused, nothing stored.
     const now = new Date();
