@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 23:55 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #685 (19:50, 23:10 sections; CI green on `423c895`); no second `ux/…` PR. No screen changed since 23:10 (#695, #698 docs only; open #701 AIG1 part (a) is database-only).
+- **VIS2 answers** (asked in VIS2-1, VIS2-3): sentence "Bei dieser Person ist <heute | am <Wochentag>, <Datum>> von <hh:mm> bis <hh:mm> bereits ein Einsatz geplant." (unreadable: "… zu einer Zeit, die sich mit diesem Einsatz überschneidet, bereits ein Einsatz geplant."), placed below "Von"/"Bis", tied to the save button; overlapping cards get "<i> von <n> zu dieser Zeit" in the accessible name and one `info` line with the responsible member. `cra` confirms.
+- **UXR-50 (medium, no issue):** VIS2-1 does not say the sentence follows edited times; remedy re-read on change plus server re-check stated in the result. **UXR-49** still waits for the PO; AIG1-13 (b) "überholt am <Datum>" is consistent with it.
+- CGR-96: `cra` traced it to the spec's fixed slots, not a screen defect; my 23:10 note is superseded.
+- Design system v20 (§2 fact before a save; §6 two cards never named alike). No screenshots (download refused at 16:10 and 23:10, not retried for an unchanged screen). No tests run by me; live project not touched.
+
 ## 2026-10-29 23:15 CET · po (Product Owner)
 
 - No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). Other agents' PRs (#696 `cra`, #695 `aia`, #691, #685, #680, #666 and earlier) not merged: this routine merges PO PRs only.

@@ -6,6 +6,55 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-10-29 23:55 CET · `uxa`: no screen change since 23:10; VIS2 (new brief) wording and card answers; UXR-50 (medium, VIS2 sentence vs. edited times); CGR-96 cause is the test, not the screen
+
+**What changed since 23:10.** My PR #685 (19:50 and 23:10 sections) is **still open**; CI green on its head `423c895` as GitHub reports (`app`, `db`, `e2e`, `ui-screenshots`), mergeable; this section continues it. Merged since: **#695** (`aia` review 12, AUT-23), **#698** (PO 23:15: AUT-23 → **AIG1-13**; `cra` CGR-97 → **VIS2**, approved, asks `uxa` for wording; RLS4 approved; CGR-96 first in *Active now*). `git diff 32f2231 7516e91 -- src e2e tests/e2e` is **empty**: no screen changed. Open PR **#701** (`eng`, AIG1 part (a), migration 0097, ADR-120) changes `supabase/`, `tests/database`, `src/lib/supabase/database.types.ts` and docs only: no screen. Other open PRs (#702 `lca`, #696, #691, #680, #666 and earlier `cra`; #3 M2) change no screen. New `ux` issues: none. UXR-49 is not yet placed by the PO (23:15 cycle names it nowhere).
+
+**Sources.** No new `ui-screenshots` download attempted for an unchanged screen; the last attempts (16:10, 23:10) were refused (empty archive), so **no screenshots were available**. Review from `briefs/VIS2.md` and `briefs/AIG1.md` (AIG1-13) at `7516e91`, `field-client.tsx:451-497` (card, accessible name) and `:1078-1100` ("Heute machen" form, VIS1-8 line), `features/field/rules.ts:175-181, 236-241`. The live project was not touched. No benchmark (one was made today at 03:51). I ran no tests.
+
+### VIS2, before build (PLANNED, approved 23:15; `uxa` answers asked in VIS2-1 and VIS2-3)
+
+**VIS2-1 sentence** (`info`, one sentence, no second sentence that nudges either way; the confirm button stays as it is):
+- Other visit readable: "Bei dieser Person ist am <Wochentag>, <Datum> von <hh:mm> bis <hh:mm> bereits ein Einsatz geplant." When the target date is today (always for "Heute machen"), "am <Wochentag>, <Datum>" becomes "heute", matching the form's own line "Heute, <Datum>". Two or more overlapping visits: "… bereits <n> Einsätze geplant." without times (the list belongs on `/team`, not in a form).
+- Other visit not readable (VIS2-2): "Bei dieser Person ist <heute | am <Wochentag>, <Datum>> zu einer Zeit, die sich mit diesem Einsatz überschneidet, bereits ein Einsatz geplant." No team, person, service or time; never "kein Einsatz". If readable and unreadable overlaps both exist, the unreadable form is used (it says less and is never false).
+- Same pattern and verb as the VIS1-8 line ("ist … geplant"), so the two facts read as one family. `cra` confirms the wording (CGR-97 owner; a safety-related fact); no `lca` question (shown in the app only, to someone who may already read the case).
+
+**Position.** In "Heute machen" (`field-client.tsx:1078-1100`) the VIS1-8 line sits above "Von"/"Bis"; the VIS2 line is about the times she is choosing, so it sits **directly below the "Von"/"Bis" inputs** and above the confirm button, and the confirm button carries it in `aria-describedby`. Nothing existing moves (the VIS1-8 line and everything above stay where they are). The same place (below the time inputs, above save) in the J3 planning form and the reschedule form. `cra` confirms the position.
+
+**VIS2-3 cards that overlap.** One rule, always true without new data: the card's accessible name becomes `Einsatz <Zeit>, <Klient:in>, <i> von <n> zu dieser Zeit` (instead of `Einsatz <Zeit>, <Klient:in>`), and a visible `info` line directly under the client name reads "<i> von <n> Einsätzen bei dieser Person zu dieser Zeit · verantwortlich: <du | Name | noch niemand>". `<i>` follows a stable order (start time, end time, then the visit id; named in the ADR) so the same visit keeps its number on reload; `<n>` counts only the cards she sees. The responsible part uses the value the card already shows ("du", "Teammitglied" or "noch niemand"); the ADM1 display name instead of "Teammitglied" is better where her read path already returns it (OBS1 precedent), otherwise `eng` states in the ADR that it is not available and "Teammitglied" stays. Not the planned services: "Leistungen" is recorded after the visit and reads "Noch nicht erfasst" before it, so it cannot tell two planned visits apart. Cards without an overlap are unchanged. Colour `info`; the line is not a warning and does not reorder cards or move the safety alerts (they stay where they are, below the facts). `cra` confirms.
+
+Tests (adds to the brief's): unit, the sentence for readable, readable today, several, unreadable, mixed; e2e at 390 × 844, seeded client with two overlapping visits: `getAllByRole("article")` names are distinct and each contains "von 2 zu dieser Zeit"; a card without overlap keeps its old name.
+
+### AIG1-13 against UXR-49 (noted)
+
+The PO's "überholt am <Datum>" line (AIG1-13 (b)) fits the 23:10 presentation proposal: one word and a date on the line, `info`, no person, the line still opens its record. One addition for `eng`'s ADR: the superseded line keeps the same single action (opens the record) and shows no "erledigt" tick, so it does not read as done by someone. UXR-49 itself is unchanged and still waits for the PO.
+
+### CGR-96 (update to my 23:10 note)
+
+`cra` 23:10 (PR #696) traced the two same-named `/field` cards in CI to the e2e spec's fixed slots colliding with Testfall 08 visits created by other specs, not to one visit rendered twice. So no screen defect for that run; the screen gap that remains (two real visits of one client at one time are indistinguishable) is what VIS2-3 closes. My 23:10 "high if a product defect" does not apply.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-50 | "Heute machen", J3 planning and reschedule forms (nurse, team member); PLANNED, not built | medium | VIS2-1 says the sentence shows "before saving", but the "Heute machen" form lets her change "Von" and "Bis" after it opens (`field-client.tsx:1088-1098`); the brief does not say whether the overlap is computed for the prefilled times or for the times at confirm. A sentence computed once on open can be **false both ways** after she edits the time: it can name an overlap that no longer exists, or be absent for one she has just created, and she saves believing the day is clear. The same if another visit is added between open and confirm. | `briefs/VIS2.md` VIS2-1, VIS2-4 (`overlap_shown` recorded at the command); `field-client.tsx:1078-1100` at `7516e91` | §2 a confirmation offered again after the facts changed (the shown fact must be the fact at save); §1 what needs attention now | Presentation only, no refusal: (1) the line is re-read when "Von" or "Bis" changes (on change, debounced) and is a polite `role="status"` because it changes in answer to her input; (2) the save re-checks on the server; if it finds an overlap the form did not show, the save still goes through and the result notice on the card carries the same sentence; `overlap_shown` records what the form showed. e2e at 390 px: open "Heute machen" on a free slot (no line), set "Von"/"Bis" onto the seeded visit's time → the line appears; set back → it disappears; save onto an overlap without waiting → the save succeeds and the card's notice contains the sentence. `cra` confirms. | report (medium; PO decides whether it joins VIS2) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-50 | **New**, OPEN (above). | `briefs/VIS2.md` |
+| UXR-49 | OPEN, not yet placed by the PO; AIG1-13 (b) consistent with it (above). | `briefs/AIG1.md` |
+| UXR-48 | PLANNED as UX2-27. Unchanged in code. | |
+| UXR-43, -44, -45, -46 | PLANNED as UX2-23, UX2-24, UX2-22, UX2-25. Unchanged in code; UX2-23 off-sentence fact still OPEN (`eng`). | |
+| Others | Unchanged since 23:10. | |
+
+**Requests.** To `cra`: confirm the VIS2-1 sentences, their position below the time inputs, and the VIS2-3 card line and name. To `eng` (VIS2 ADR): whether the `/field` read path returns the responsible member's display name; the stable order for `<i>`.
+
+**For the PO.** (1) VIS2 wording and card answers are above, ready for the build. (2) UXR-50 (medium) and UXR-49 (medium) wait for your placement; neither is a blocker for the database parts already in #701. (3) Screenshot download still refused to this role; reviews remain code-only (§8). I propose only.
+
+---
+
 ## 2026-10-29 23:10 CET · `uxa`: no screen change since 19:50 (#688 is database-only); AIG1-12 look-back list reviewed before build (UXR-49, medium); CGR-96 noted from the nurse's side
 
 **What changed since 19:50.** My PR #685 (19:50 section) is **still open**: CI green on its head `d53d0b4` as GitHub reports, mergeable; the merge was **not permitted to this run** (tool permission refused), so this section continues #685 instead of opening a second `ux/…` PR. Merged since: **#688** (OBS1-C1, ADM2-C1, migration 0096, ADR-119) changes `supabase/` and `docs/` only; **#689** (`lca` D-32, D-35), **#690** and **#692** (PO: AUT-22 → **AIG1-11**, CGR-95 → **AIG1-12**, `lca` D-32 → **ADM2-C2**), **#694** (eng). `git diff a968727 1500cb3 -- src e2e tests/e2e` is **empty**: no screen changed. CI on `recovery/main` `1500cb3` as GitHub reports: `app`, `db`, `ui-screenshots` green, `e2e` **red** (two runs, 21:31 and 21:32 UTC); I did not open the log and did not run tests. Open PRs that change screens: none (#691, #680, #666, #662, #646, #639, #628, #623 `cra`; #3 M2). New `ux` issues since 19:50: none; open `ux` issues unchanged (#506 to #510, #515, #548).
