@@ -7,14 +7,14 @@ import { expect, test, type Page } from "@playwright/test";
 //   (ADM2-5: all other active members when fewer than two exist); the two-consent path is proven in pgTAP 091.
 // - coach.test (org A, in no team) stands for "not a member of this team": she does not see the proposal. The seed
 //   has no nurse of another team with a password; pgTAP 091 covers that refusal.
-// - neu.test is the hand-made account (D-26 default A; no membership, never signs in).
+// - aufnahme.test is the hand-made account (D-26 default A; no membership, never signs in).
 // Clean-up (also in afterAll if a step failed): the new member is removed from Nord by the ADM1 path and the switch is
 // turned off, so the specs that run later see the seed's teams (workers: 1).
 const ADMIN = "admin.test@navora.test";
 const PROPOSER = "pflege.test@navora.test";
 const COLLEAGUE = "assist.test@navora.test";
 const OUTSIDER = "coach.test@navora.test";
-const NEW_ACCOUNT = "neu.test@navora.test";
+const NEW_ACCOUNT = "aufnahme.test@navora.test";
 const PASSWORD = "navora-local-only";
 const CANDIDATE = "Kandidatin E2E Test";
 

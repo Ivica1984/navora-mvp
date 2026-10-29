@@ -197,8 +197,8 @@ insert into auth.users (
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
   confirmation_token, recovery_token, email_change_token_new, email_change
 ) values
-  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000908', 'authenticated', 'authenticated',
-   'neu.test@navora.test', '', null,
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000958', 'authenticated', 'authenticated',
+   'aufnahme.test@navora.test', '', null,
    '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
 insert into public.quality_events (organization_id, id, created_at, case_id, visit_id, team_id, event_type, severity, title, description, status, owner_id) values
   ('00000000-0000-4000-b000-000000000011', '00000000-0000-4000-a000-000000000704', private.now() - interval '3 hours', '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000502', '00000000-0000-4000-a000-000000000101', 'process', 'low', 'Testereignis Übernahme', null, 'in_review', '00000000-0000-4000-a000-000000000907');
