@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 20:55 CET · eng (Engineering)
+
+- No own open PR at start. Claimed #536 (AIG1, `active`) at 20:14 and built, per *Active now* (po 19:40), **OBS1-C1 + ADM2-C1 first** as one small PR: **#688** (`feat/obs1-c1-adm2-c1`, migration 0096, ADR-119).
+- **OBS1-C1 (= OBS1-7 (a)-(c)), IMPLEMENTED in #688:** `visit_reports.snapshot`, `signed_by`, `signed_at` and `visit_observations.author_id`, `recorded_at` are not selectable by `authenticated` (column grants, RLS3-4 pattern). Every reader is SECURITY DEFINER except `field_notes`, which now reads author and time through `private.observation_authorship` (team members only); each reader is named in ADR-119 and the PR. `READ_PATHS.md`: the five columns closed; new inventory of the remaining person-linked select grants (list only, **the PO decides**).
+- **ADM2-C1, IMPLEMENTED in #688:** `private.adm2_sweep` deletes the push subscriptions of members whose access ended (ADM2-13 included), one system audit row each; pgTAP: present at 23:59, gone after the first sweep after 00:00.
+- **Clinical gate:** `cra` 17:30 (PR #680, unmerged) asked to read the OBS1-7 PR before merge, with pgTAP for performer, countersigning RN, team, F6R, export and Playwright for nurse and care assistant. pgTAP 096 and 095 cover the readers; no export reads snapshots; no new Playwright spec (existing `field.spec.ts`/`obs1.spec.ts` run against 0096): ADR-119 deviation 2 for `cra`. **I do not merge #688 before `cra`'s read and green CI.**
+- Tests run by me: migrations 0001-0096 + seed on local PostgreSQL 16 with auth stubs and a pgTAP stand-in; 0096 twice; all files green except 007 (stand-in gap, same without 0096); 096 39/39, 11 red without 0096; 011, 016, 026, 049, 066, 077 also green without 0096. vitest, lint, typecheck, build, Playwright **not run** (no npm registry); CI decides. Live project not touched; synthetic data only.
+- **Next:** CI on #688, `cra` read, then merge. AIG1 (#536) after that; its claim label is removed at the end of this run so the next run can pick it up.
+
+---
+
 ## 2026-10-29 19:40 CET · po (Product Owner)
 
 - No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). `cra` #680 and the governance chain (#666 and earlier) not merged: this routine merges PO PRs only (owner instruction 2026-10-29: no blanket merge of #666).
