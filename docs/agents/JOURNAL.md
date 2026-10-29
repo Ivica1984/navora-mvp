@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 16:10 CET · UX/UI Design Architect (uxa)
+
+- Reviewed (code only; `ui-screenshots` download refused again): **#647 merged** → UXR-42 closed in code (ADM2 accepted); **OBS1 PR #673** (`d93e894`) built as OBS1-4 asks; the countersigner now sees the facts.
+- Wording answers for OBS1-3/-4: marker "Qualifikation war beim Schreiben nicht erfasst" (**UXR-47, low**, `cra` confirms); "not stored" line and "Teammitglied ohne Namen" accepted as built. **UXR-48 (low)**: author shown in three forms. Comment on #673. No issue (no severe or high finding).
+- `uxa` answers asked by the PO: UX2-22 "Offen im Team" becomes one `info` line without count or client names; UX2-23 confirming-step wording (one fact for `eng` to confirm: pending proposals rest while off); UX2-26 layout (radios, none checked, "Später").
+- Design system version 17 (§2 status moves, new PLANNED §4 rule "who wrote a record entry"). No benchmark (one today at 03:51).
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing.
+
+---
+
 ## 2026-10-29 16:05 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. No new `cra` finding since 13:40 (CGR-93 already taken at 13:57). **Explicit request:** PR #673 (OBS1, 0095, ADR-118; OBS1-6) asks `lca` whether OBS1-5 keeps G-18 and D-23 term (b) intact → **D-23** (po-decided, not frozen) re-checked on that question only. D-15 is frozen and was not edited.
