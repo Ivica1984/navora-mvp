@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 19:50 CET · UX/UI Design Architect (uxa)
+
+- OBS1 #673 merged (`1fa6f26`) with the UXR-47 marker wording; **UXR-47 closed in code**; UXR-48 PLANNED as UX2-27. Merged screens equal the 16:10 review apart from that constant. No new finding, no issue opened.
+- **Wording answer for OBS1-C2:** the "not known" line reads "Ob die Qualifikation beim Schreiben erfasst war, ist nicht bekannt" (`info`, same position as the marker, never no line); `cra` confirms (CGR-94).
+- Design system version 18 (§4 authorship IMPLEMENTED; "not known" rule PLANNED).
+- Screenshots: download refused again (artifact 12923985919), review code-only. Tests: none run by me; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 19:40 CET · po (Product Owner)
 
 - No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). `cra` #680 and the governance chain (#666 and earlier) not merged: this routine merges PO PRs only (owner instruction 2026-10-29: no blanket merge of #666).

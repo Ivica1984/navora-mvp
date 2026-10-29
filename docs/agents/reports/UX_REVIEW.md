@@ -6,6 +6,37 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-10-29 19:50 CET · `uxa`: OBS1 #673 merged and accepted (UXR-47 closed in code); UXR-48 PLANNED as UX2-27; wording answer for OBS1-C2 ("not known" line); no new finding
+
+**What changed since 16:10.** My PR for the 16:10 section **merged**. PO 16:24: UXR-47 wording taken into OBS1-4, UXR-48 → **UX2-27**. **#673 merged** as `1fa6f26` (head `4a46be2`); `git diff d93e894 4a46be2 -- src tests e2e` changes one line, `QUALIFICATION_NOT_RECORDED_TEXT` → "Qualifikation war beim Schreiben nicht erfasst" (`src/features/field/authorship.ts:9`), so the screens are the ones I reviewed at 16:10 with my wording. PO 19:40: **OBS1 accepted** with OBS1-C1 (per-visit read paths, no screen change) and **OBS1-C2** (`cra` CGR-94, `lca` 18:40), which introduces a new on-screen line whose wording `uxa` may reword (answer below). CI on `recovery/main` `a968727` as GitHub reports: `app`, `db`, `e2e`, `ui-screenshots` green. I did not run tests. Open PRs (#680, #666, #662, #646, #639, #628, #623, #614, #604, #589, #582 `cra`; #3 M2) change no screen. Open `ux` issues unchanged: #506 to #510, #515, #548.
+
+**Sources.** `ui-screenshots` artifact 12923985919 (`recovery/main` `a968727`) exists; the download is **refused again** (storage host `productionresultssa31.blob.core.windows.net`, empty archive), so **no screenshots were available**. Review from the diff above, `briefs/OBS1.md` (OBS1-4, conditions), `briefs/UX2.md` UX2-27, JOURNAL po 19:40 and eng 19:20. The live project was not touched. No benchmark (one was made today at 03:51).
+
+### Wording answer for OBS1-C2 (the "not known" line)
+
+The condition proposes "Qualifikation beim Schreiben nicht bekannt" for an observation written before 0095 whose marker cannot be derived. Next to the merged "Qualifikation war beim Schreiben nicht erfasst" this reads almost the same, and both can be read as a statement about the person. They mean different things: the merged line says *her qualification was not recorded*; the new one says *we do not know whether it was*. Proposed: **"Ob die Qualifikation beim Schreiben erfasst war, ist nicht bekannt"**. It names the open question rather than a fact about her, it is still one line, and it never reads as "qualified". Display as the merged marker: `info` token, inside the entry directly above the meta line, not red, no icon-only meaning, changes no order; one constant in `authorship.ts` beside `QUALIFICATION_NOT_RECORDED_TEXT`. Test: pgTAP as in OBS1-C2 plus a unit test that an observation with a null marker before 0095 maps to this constant, never to no line. **`cra` confirms** wording and position (CGR-94, safety-related display); shown in the app only to readers who already read the observation, so no `lca` question. This is an answer, not a finding: whether the line is ever needed depends on the deploy-record path of OBS1-C2 (UNKNOWN; `eng`).
+
+### Findings
+
+No new finding. The merged screen code is the code reviewed at 16:10 apart from the UXR-47 constant.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-47 | **Closed in code**: #673 merged as `1fa6f26`, constant at `src/features/field/authorship.ts:9`; `obs1.spec.ts` reads the constant; CI green on `a968727` as GitHub reports; OBS1 accepted by the PO 19:40; no screenshot seen. | `briefs/OBS1.md` OBS1-4, evidence table |
+| UXR-48 | PLANNED as **UX2-27** (po 16:24); not in #673 (eng 19:20). Unchanged in code: `observationAuthor` still returns the bare name for a colleague (`authorship.ts:24`). | `briefs/UX2.md` UX2-27 |
+| UXR-43, -44, -45, -46 | PLANNED as UX2-23, UX2-24, UX2-22, UX2-25. Unchanged in code. The `eng` confirmation for the second off-sentence of UX2-23 is still OPEN. | `briefs/UX2.md` |
+| UXR-40, -41, -36, -37, -38, -26, -27, -28, -24, -21 | PLANNED as before. Unchanged in code. | |
+| UXR-5 (b) | OPEN, waits for `eng` (PLAN2), then `cra`. | |
+| Others | Unchanged since 16:10. | |
+
+**Requests.** To `cra`: confirm the OBS1-C2 line wording and position above. To `eng`: (1) when OBS1-C2 takes the derived-marker path, use the constant above; (2) the stale "PROVISIONAL" comments in `authorship.ts` (PO: remove with the next change to that file); (3) UX2-23 off-sentence fact still open.
+
+**For the PO.** (1) Take the OBS1-C2 wording into the condition if `cra` agrees. (2) UX2-27 is small and touches the same file as OBS1-C2; it may ride whichever PR changes `authorship.ts` next. (3) Screenshot download still refused to this role; reviews remain code-only (§8). I propose only.
+
+---
+
 ## 2026-10-29 16:10 CET · `uxa`: #647 merged (UXR-42 closed in code); OBS1 PR #673 reviewed, wording answers for OBS1-3/-4 (UXR-47, UXR-48, both low); `uxa` answers asked in UX2-22, UX2-23, UX2-26
 
 **What changed since 11:53.** My PR #657 (07:50 and 11:53 sections) **merged**. **#647 merged** (`1cc31d4`, head `eccf343`; `git diff bd30b1c eccf343 -- src tests` empty, so the screen code is the one I reviewed). PO #665 (12:15): UXR-45 → **UX2-22**, UXR-43 → **UX2-23**, UXR-44 → **UX2-24**, UXR-46 → **UX2-25** (UX2-22, -23 are G-23 preconditions). PO #670 (14:35): **ADM2 accepted**, **OBS1 approved** (from `cra` CGR-93 and `lca` 13:57), `cra` 13:40 answers taken in (UX2-22 hide; UX2-24, UX2-25 confirmed). PO #672 (15:40): `aia` AUT-21 → **UX2-26**. **Open PR #673** (`eng`, OBS1, ADR-118, migration 0095, head `d93e894`) changes `/field` (`field-client.tsx`, `report-section.tsx`, `since-last-section.tsx`, new `features/field/authorship.ts`). CI on `a318723` as GitHub reports: `app`, `e2e`, `ui-screenshots` green, `db` red (seed e-mail clash; `d93e894` fixes it per its message, no check run on `d93e894` yet). I did not run tests. Other open PRs (#674 `lca`, #666, #662, #646, #639, #628, #623, #614, #604, #589, #582 `cra`; #3 M2) change no screen. Open `ux` issues: #506 to #510, #515, #548.
