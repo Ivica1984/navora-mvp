@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 16:05 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. No new `cra` finding since 13:40 (CGR-93 already taken at 13:57). **Explicit request:** PR #673 (OBS1, 0095, ADR-118; OBS1-6) asks `lca` whether OBS1-5 keeps G-18 and D-23 term (b) intact → **D-23** (po-decided, not frozen) re-checked on that question only. D-15 is frozen and was not edited.
+- **Verdicts:** OBS1 against G-18 and term (b) as worded: **compliant under every plausible interpretation** (no per-person screen, export or count; no visit-event performer returned; marker column closed). Residual: `visit_reports.snapshot` stays table-selectable by the team (0016), so the new `author_id` and marker in snapshots can be filtered per person by a direct query. `visit_observations.author_id`/`recorded_at` and `visit_reports.signed_by`/`signed_at` are row-readable too (pre-existing). Closing these like RLS3-4: **compliant**. As built: **unresolved: needs owner** (proportionality, DSG Art. 6/7, OR Art. 328b).
+- Note to po: not blocking for merging #673 on synthetic data; close the raw path or put the question to the owner before G-18/G-24; OBS1-5/READ_PATHS wording accurate only for the column; G-19 item 2 gains the author name and marker for the employer's text.
+- Sources read today: OR Art. 328b (non-official copy), onlinekommentar DSG Art. 7. Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
 ## 2026-10-29 15:52 CET · eng (Lead Engineer)
 
 - Own PRs: none open at start. Claimed **OBS1** (#671) at 15:25.
@@ -12,6 +21,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - OPEN: **`lca`** reads the PR (OBS1-6: G-18, D-23 term b); **`cra`** reads it as its CGR-93 gate; **`uxa`**: the three PROVISIONAL texts (marker, "not stored" line, member without name). Engineering merges only after the `lca` and `cra` reads with CI green.
 - Seed: `notiz.test` (…962, Testteam C, never signs in) wrote an observation on today's 07:00 visit of Testfall C1 before her qualification was recorded (then recorded, so pgTAP 018 stays); teamc.test's draft for that visit.
 - Tests run by me: migrations 0001-0095 + seed on local PostgreSQL 16 with auth stubs and a pgTAP stand-in; 0095 twice; pgTAP 095 47/47 (stops without 0095); every other file the same with and without 0095 (91 green, 3 stand-in gaps). `authorship.ts` type-checked alone and run in Node. vitest, lint, typecheck, build, Playwright **not run** (no npm registry); CI decides. Live project not touched; synthetic data only.
+
+---
+
+## 2026-10-29 15:40 CET · po (Product Owner)
+
+- No open PO PR. No `agent:po` issue needed work this run (none claimed). Governance chain #666 (contains #662 … #582) not merged: this routine merges PO PRs only; left for the owner, as at 14:35.
+- **No delivery to review:** since the 14:35 cycle only `aia` #660 (review 10) merged; ADM2 stays accepted, OBS1 not started.
+- **`aia` AUT-21 placed as UX2-26** (`briefs/UX2.md`): after "Vertrag erfassen" the same `/admin` card offers the existing `set_member_qualification`; claimed value shown as text, choice not preselected, no accept-all, reason rule unchanged, "Später" allowed; the member stays listed under "Qualifikation fehlt" until set. Same actor, command, check and audit row; D-29 unchanged. May ride in the small UX2-22/UX2-23 PR; **not** a G-23 precondition (G-23 gates safety and compliance; this removes a navigation step, and adding it to a gate would repeat the criterion creep challenged on VIS1).
+- **Challenge:** "Why are contract and qualification two sittings in two places?" A leftover of ADM1. Kept the gate, moved the act. New challenge row with hypothesis **P-33** (median days contract → qualification; `qualification_missing` refusals in the first 14 days; per organisation, never per person).
+- AUT-19 (UX2-17) and AUT-20 (P-30) unchanged; OBS1 support from `aia` noted, no change to OBS1.
+- Packages: no unfreeze trigger (AUT-21 names D-29 but changes neither who verifies nor any ask, default or blocker); D-37 still waits for D-36. None worked, none decided by po.
+- Tests: none run by me (docs only; `aia` report, UX2 brief and ADM2 references read through git). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
