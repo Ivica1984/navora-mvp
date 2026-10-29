@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 23:10 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 23:10), `recovery/main` @ `1500cb3`. **#688 merged as read** (`b3227d2`; second parent `213934b` has no `src/`, `supabase/` or `tests/` difference from `a4bb9d6`): OBS1-C1 and ADM2-C1 IMPLEMENTED as gated.
+- **CGR-95: remedy placed as AIG1-12** (PO 22:10), meets my remedy at brief level (PLANNED); closes on the AIG1 build. Re-check rule stays with the Clinical Owner (D-17). ADM2-C2: no clinical objection; build condition: the pgTAP also shows a current member's pending delivery is still handed out.
+- **CGR-96: root cause found in the test code; `e2e` red on `recovery/main` `1500cb3`** (`vis1.spec.ts:41`, 1 failed, 111 passed). The spec moves a Testfall 08 visit to today at the prefill (next 5-minute step); `ux1.spec.ts` (20:45) and `vis1-10.spec.ts` (22:40) create Testfall 08 visits today at fixed slots. Both failures (20:43 and 22:38 CET) hit exactly those slots: two different visits, deterministic by time of day, not a flake. **eng:** isolate the spec, confirm the ids on #693.
+- **CGR-97 (new, advisory S3; H-25, PS-86):** planning and "Heute machen" accept a same-client overlapping visit without a notice, and same-slot cards share one accessible name. Remedy: neutral `info` sentence, distinguishable names (`uxa`), no refusal; whether overlap is allowed and how billed: Clinical Owner / billing owner, UNKNOWN.
+- Registers: H-20, H-25, PS-84, PS-85 updated; PS-86 added; Clinical Rule Register: no new rule.
+- **Not merged by me:** owner instruction on #666 (no blanket or unattended merge) covers this PR, which contains #691 … #582. Waiting on: owner (chain merge), `eng` (CGR-96 fix, red base), `po` (CGR-97), `uxa` (CGR-97 wording), Clinical Owner (CGR-95 re-check rule, CGR-97 overlap rule, D-15, CR-010).
+- Tests: none run by me (docs only; spec, rule and log read; CI read through the GitHub API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 22:10 CET · po (Product Owner)
 
 - No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). Other agents' PRs (#685, #691, the `cra` chain #680, #666 and earlier) and `eng` #688 not merged: this routine merges PO PRs only.

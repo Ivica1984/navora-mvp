@@ -16,6 +16,69 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-29 23:10 CET: #688 (OBS1-C1 + ADM2-C1) merged as read (`b3227d2`, second parent `213934b`, no `src/`, `supabase/` or `tests/` difference from `a4bb9d6`); **CGR-95 remedy placed as AIG1-12** (PLANNED, meets my remedy at brief level; closes on the AIG1 build); ADM2-C2: no clinical objection; **CGR-96 root cause found in the test code (fixture collision, deterministic by time of day, not a flake), and `e2e` is now red on `recovery/main` @ `1500cb3`**; **CGR-97** (new, advisory S3: a second visit of the same client at the same time is accepted without a notice and its `/field` card cannot be told apart)
+
+**Scope:** `recovery/main` @ `1500cb3`. Changes since my 21:30 section (PR #691, open; it contains #680, #666 … #582):
+- **Code merged:** **#688** as `b3227d2` (22:23). Second parent `213934b` = `a4bb9d6` plus one base merge (JOURNAL only); `git diff a4bb9d6 213934b -- src supabase tests` is empty, so 0096, pgTAP 096 and `field_notes` are as I read them at 21:30. CI on `b3227d2`: `app`, `db`, `ui-screenshots` success, `e2e` cancelled (superseded). **CI on `1500cb3` (push and pull_request runs): `app`, `db`, `ui-screenshots` success, `e2e` failure** (job 123745062699: `vis1.spec.ts:41`, 1 failed, 111 passed).
+- **Docs merged:** `lca` 20:40 and 21:45 (#689: D-35 term 9 and the CGR-95 look-back; D-32 queued push); PO 22:10 (#692: **AIG1-12** from CGR-95; **ADM2-C2** from D-32); `eng` 22:25 (#694: OBS1-C1, ADM2-C1 `delivered`; CGR-96 tracked in **#693**).
+- **Open:** `uxa` #685; my chain #582 … #691; #3 unchanged. No open `eng` PR.
+- **Asked of `cra`:** none new (PO 22:10 names CGR-96 root cause as still wanted).
+- **Answered by a person:** none since 21:30. **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read: the #688 merge parents; `briefs/AIG1.md` AIG1-12 and the PO 22:10 answer; `briefs/ADM2.md` ADM2-C2; `briefs/OBS1.md` 22:10 note; issue #693; the failing `e2e` log of `1500cb3` (through the GitHub MCP job-log reader); `tests/e2e/vis1.spec.ts:41-135`, `tests/e2e/vis1-10.spec.ts:46-116`, `tests/e2e/ux1.spec.ts:170-185`, `:380-450`; `prefillMoveTimes` (`src/features/field/rules.ts:158-168`); a search of `supabase/migrations` for any same-client overlap check (none; the only overlap rules are ABS1 absence and WORK1 working-time). **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-97 | **Planning and VIS1 "Heute machen"** (IMPLEMENTED): a second visit of the same client at an overlapping time on the same day | **advisory (S3)**; not blocking any item | IMPLEMENTED fact: neither planning nor `move_visit_to_today` checks whether the client already has a visit at an overlapping time on the target day; I found no same-client overlap check in `supabase/migrations`. Two visits with the same client and the same times then render as two `/field` cards with the **same accessible name** ("22:40 – 23:10, Testfall 08"), which CGR-96 shows happens. Two visits at once can be intended (e.g. two persons for one transfer), so a refusal would be an invented rule. But an unintended duplicate (planned twice, or moved onto an existing visit) gives a nurse two indistinguishable cards: one can be documented on the wrong visit, or both performed and recorded, a second billable fact for one service (H-25, H-14). Whether same-client overlapping visits are allowed, and how they are billed: Clinical Owner / billing owner, **UNKNOWN**; NAVORA sets no rule | e2e log `1500cb3` job 123745062699 (`toHaveCount(1)` received 2 for one name); `vis1-10.spec.ts:105-108` and `vis1.spec.ts:122-132` create two Testfall 08 visits today at the same slot; no overlap check found (search above) | **po (brief), uxa (wording), eng:** (1) on planning and on "Heute machen", when the client already has a visit overlapping the chosen time on that day, a neutral `info` sentence says so before saving (no refusal, no colour of a warning; wording `uxa`'s); (2) two cards of the same client and time are distinguishable by name (e.g. the responsible member or the service in the accessible name; `uxa`'s). Tests: pgTAP or unit for the overlap fact (team boundary: a visit she cannot read is reported as yes/no only, as VIS1-8); e2e: two same-slot cards have different accessible names. Whether overlap needs a reason or a second person's confirmation: Clinical Owner (UNKNOWN), no rule until answered |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-95** | open, advisory (S2); **remedy placed as AIG1-12 (PLANNED), meets my remedy at brief level**; closes on the merged AIG1 build with its tests | `briefs/AIG1.md` AIG1-12: on `stopped`, the OPS1 exception links to the records holding a value from that agent confirmed unchanged in the closed window (or since the audited switch-on for a version, provider or region change); (i) no confirmer, outcome per person or person filter; (ii) that window only; (iii) existing record readers only, no role gains a read; (iv) a line leaves on re-confirmation or correction through the normal command; pgTAP for the window, the absence of a person column (catalogue check), the team boundary and removal; e2e. The PO placed it before build start, earlier than I asked; agreed. The re-check rule stays with the Clinical Owner (D-17), not set |
+| **CGR-96** | open, advisory (S3); **root cause found in the test code; now red on `recovery/main`** | **Two occurrences, both explained by the same mechanism.** `vis1.spec.ts:41` moves its Testfall 08 visit to today at the prefill, the next 5-minute step after now with 30 minutes (`prefillMoveTimes`, `rules.ts:158-167`), and asserts exactly one card of that name (`:132`). Other specs create Testfall 08 visits on **today** at fixed slots: `ux1.spec.ts:390-393` 20:45–21:15, `vis1-10.spec.ts:105-108` 22:40–23:10 (also `ux1.spec.ts:183` 06:00–06:30 and `:443` 20:00–20:30). Occurrence 1: run at ~20:43 CET, prefill 20:45–21:15, two cards "20:45 – 21:15" (#688 attempt 1). Occurrence 2: `1500cb3`, run at 22:38 CET (21:38 UTC), prefill 22:40–23:10, two cards "22:40 – 23:10". So the two cards are two **different** visits (the spec's moved one and the other spec's fixed one), not one visit shown or created twice; I infer this from the code and the times, the rows themselves are not in the log, so step 2 of my remedy (name the two ids) is still to be confirmed by `eng` from the trace. It is **deterministic by time of day** (any run of `vis1.spec` started in the 5 minutes before such a slot fails), so "flake" and a re-run are not a fix. Remedy narrowed: **eng:** make `vis1.spec.ts:41` independent of the other specs' today slots (e.g. its own client, or assert on the moved visit's id or a slot the spec owns), and record the root cause on #693; no product change needed for CGR-96 itself. The product side is CGR-97. **`recovery/main` `e2e` red is `eng`'s to fix now** (it masks real regressions) |
+| CGR-94 | open, advisory (S3); OBS1-C2 (PLANNED) | no change |
+| CGR-86 | open, advisory (S3) | no change |
+| CGR-84, CGR-81 | open (S3, S2); ASM1 brief (PLANNED) | no change |
+| CGR-78, CGR-75 | open, advisory (S2); brief level | no change |
+| CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-16, CGR-23 | open | no change |
+
+Closed in this section: none.
+
+### Other changes read
+
+- **#688 merged as read** (above): the 21:30 gate stands; OBS1-C1 (OBS1-7 (a)) is IMPLEMENTED on `recovery/main`. ADM2-C1 IMPLEMENTED.
+- **ADM2-C2 (PO 22:10, from `lca` D-32): no clinical objection.** It removes an ex-member's device from push delivery; SIG1 receiver sets already exclude an ended access (LEAVE1-3), so no current team member loses a safety alert. Clinical condition for the build (not a new finding): the pgTAP of (a) also shows that a pending delivery to a **current** `push_active` member of the same signal is still handed out, so the `not_active` settling never drops an alert for someone who should get it.
+- **D-35 term 9 and the look-back terms (`lca` 20:40, 21:45):** consistent with AIG1-11 and AIG1-12; no clinical finding.
+- **#693** opened by `eng` as asked; the hypothesis there (re-used synthetic visit in the same slot) is confirmed in direction by the analysis above.
+
+### Clinical Rule Register
+
+No new or changed hard-coded rule on `recovery/main` (0096: grants and access-end clean-up, as at 21:30). AIG1-12 sets no threshold or deadline (re-check rule: Clinical Owner, UNKNOWN). CGR-97 asks for a fact display, not a rule; if a same-client overlap is ever refused or needs a reason, that is a register row with owner `clinical`, PROVISIONAL, raised before build.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **OBS1-C1 + ADM2-C1** (#688, merged `b3227d2`) | merged as gated; no condition open |
+| **AIG1** (planned) | build may start; CGR-95 placed as AIG1-12; CGR-78 unchanged |
+| **ADM2-C2** (planned) | no objection; build condition above |
+| **`recovery/main` CI** | `e2e` red (`vis1.spec.ts:41`, CGR-96); not a product defect, but no further code PR should be read as green against a red base until fixed |
+| All other items | unchanged from 21:30 |
+
+### Decisions requested
+
+- **owner:** unchanged: my governance chain is not merged by me (owner instruction on #666); this PR contains #691 and the chain before it and can be merged alone or after them, oldest first.
+- **eng:** fix `vis1.spec.ts:41` isolation now (red on `recovery/main`); confirm the two visit ids from the trace on #693.
+- **po:** place CGR-97 (brief text, `uxa` wording) or record why not; place the CGR-96 fix ahead of the next code PR.
+- **uxa:** CGR-97 (1) sentence and (2) distinguishing name.
+- **clinical (Clinical Owner, after G-1):** new: whether overlapping visits of the same client are allowed without a reason, and how they are billed (CGR-97, with the billing owner). Unchanged: CGR-95 re-check rule (D-17), D-15, CR-010, CGR-87 (3), (4), CGR-89 (3), CR-134, D-12, D-25.
+- **owner / legal:** unchanged (D-29, G-1, D-38, R-11, D-36, D-1, D-35 adviser question 8).
+
+---
+
 ## 2026-10-29 21:30 CET: #673 (OBS1) merged as read (`1fa6f26`, second parent `4a46be2`, no `src/`, `supabase/` or `tests/` difference from `f837fc0`): **CGR-93 closed** (PS-82 closed); OBS1 accepted with OBS1-C2 = my CGR-94 remedy (PLANNED); **#688 (OBS1-C1 + ADM2-C1, head `a4bb9d6`, migration 0096, ADR-119) read as my 17:30 OBS1-7 (a) condition: met; clinical gate clear to merge** (CI green on the head); ADR-119 deviation 2 (no browser test of the care assistant's handover) accepted; AIG1-11 (AUT-22): no clinical objection; **CGR-95** (new, advisory S2: the AIG1 stop rule has no look-back on values already confirmed from a stopped agent); **CGR-96** (new, advisory S3: the first `e2e` run on #688 showed one moved visit as two `/field` cards; root cause UNKNOWN)
 
 **Scope:** `recovery/main` @ `0eced9a`. Changes since my 17:30 section (PR #680, open; it contains #666 … #582):
