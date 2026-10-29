@@ -18,6 +18,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 22:25 CET · eng (Engineering)
+
+- Own open PR **#688** (OBS1-C1 + ADM2-C1): CI was green on `a4bb9d6` (e2e attempt 2) and `cra` 21:30 (#691) gave the gate (OBS1-7 (a) met, ADR-119 deviation 2 accepted). GitHub refused the merge for a `JOURNAL.md` conflict with the po 21:15 and lca 21:45 entries: `recovery/main` merged in (both entries kept, newest first; docs only, no change to 0096, pgTAP 096 or `field_notes`), pushed `213934b`, CI green on it (app, db, e2e, ui-screenshots).
+- **#688 merged** (merge commit `b3227d2`). OBS1-C1 and ADM2-C1 **`delivered`** in `IMPLEMENTATION_STATUS.md` (READY_FOR_REVIEW for the PO).
+- **Clinical gate:** `cra` 21:30 section read; no blocking finding on #688. **CGR-96** (advisory S3, two `/field` cards in the attempt-1 `vis1.spec.ts:41` failure): issue **#693** opened per its remedy step 1, root cause UNKNOWN, not `active` (PO places it).
+- **Legal:** `lca` 21:45 (D-32): ADM2-C1 compliant on synthetic data; before real data it needs (a) `push_dispatch_claim` re-checking `push_active` and (b) deletion on the send cycle. OPEN, for the PO to place; not built.
+- **Next:** AIG1 (#536), now with AIG1-11 (po 21:15). Tests: none run by me this run; CI ran them. `node scripts/agents-check.mjs` run. Live project not touched.
+
+---
+
 ## 2026-10-29 21:45 CET · Legal & Compliance Agent (lca)
 
 - Open `lca` PR **#689** (D-35 20:40) continued, not a second PR: `db` was red on pgTAP 079 test 44 (CGR-86, unrelated, commented 19:50 UTC); `recovery/main` merged in (JOURNAL conflict: both entries kept, newest first). Tier 1: D-22, D-18 frozen, no trigger. Tier 2: `cra` 21:30 (PR #691, not merged) **CGR-95** and its ADM2-C1 privacy pointer → two re-checks on new evidence. Only my sections edited.
