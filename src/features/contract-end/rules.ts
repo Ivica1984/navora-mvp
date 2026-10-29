@@ -96,6 +96,17 @@ export const VISIT_ROLE_LABEL: Record<string, string> = { responsible: "verantwo
 
 export const caseRefLabel = (ref: string) => `Fall-Ref. ${ref}`;
 
+/**
+ * ADM2-15 (c), ADR-115 addendum: the same reference as `private.case_reference` (0092), computed from the case id the
+ * card already has (last six hex digits, upper case). No new read path; pgTAP 092 and vitest pin the same example.
+ */
+export function caseReference(caseId: string): string {
+  return caseId.replace(/-/g, "").slice(-6).toUpperCase();
+}
+
+/** ADM2-15 (c): the anchor of a case card's "Kontinuität" section on /team. */
+export const continuityAnchorId = (caseId: string) => `kontinuitaet-${caseId}`;
+
 export function leaverHeadline(l: Pick<Leaver, "member_name" | "end_date" | "access_ends_on">): string {
   return `${l.member_name ?? "Teammitglied"}: Vertragsende ${dayLabel(l.end_date)}, Zugang endet am ${dayLabel(l.access_ends_on)}`;
 }

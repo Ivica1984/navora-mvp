@@ -56,6 +56,30 @@ test("the day after a contract end the team sees whose responsibility to give ag
   await expect(item).not.toContainText("Testfall");
   expect(await open.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
 
+  // ADM2-15 (c) (po 08:15, `uxa` UXR-42): every case card shows exactly one "Fall-Ref." line, equal to its reference.
+  const cards = page.getByRole("region", { name: "Unsere Klientinnen und Klienten" }).getByRole("article");
+  const cardCount = await cards.count();
+  expect(cardCount).toBeGreaterThan(0);
+  for (let n = 0; n < cardCount; n++) {
+    await expect(cards.nth(n).getByTestId("case-ref")).toHaveCount(1);
+    await expect(cards.nth(n).getByTestId("case-ref")).toHaveText(/^Fall-Ref\. [0-9A-F]{6}$/);
+    expect(await cards.nth(n).getByText(/Fall-Ref\./).count()).toBe(1);
+  }
+  const card = cards.filter({ has: page.getByTestId("case-ref").filter({ hasText: "Fall-Ref. 000261" }) });
+  await expect(card).toHaveCount(1);
+
+  // The item carries one action, "Fall öffnen" (at least 44 px), which lands on that card's "Kontinuität", focused and in view.
+  const openCase = item.getByRole("link", { name: "Fall öffnen" });
+  await expect(openCase).toHaveCount(1);
+  const box = await openCase.boundingBox();
+  expect(box && box.height >= 44 && box.width >= 44).toBeTruthy();
+  await openCase.click();
+  const continuity = card.getByRole("region", { name: "Kontinuität" });
+  await expect(continuity).toBeFocused();
+  await expect(continuity).toBeInViewport();
+  await expect(card.getByTestId("case-ref")).toHaveText("Fall-Ref. 000261");
+  await expect(item).not.toContainText("Testfall");
+
   // ADM2-12 / ADM2-15 (a): the colleague who leaves in 10 days, with case reference and role only.
   const leavers = page.getByRole("region", { name: "Austritte in den nächsten 14 Tagen" });
   const leaver = leavers.getByTestId("leaver");

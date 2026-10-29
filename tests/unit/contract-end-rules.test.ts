@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  CONTRACT_END_MESSAGES, accessStartsText, caseRefLabel, contractEndLine, contractEndNotice, currentContracts, dayAfter,
+  CONTRACT_END_MESSAGES, accessStartsText, caseRefLabel, caseReference, continuityAnchorId, contractEndLine, contractEndNotice, currentContracts, dayAfter,
   dayLabel, leaverHeadline, myContractEndText, readHandover, readMyContractEnd, readSuccessorItems, successorLine,
   successorTitle, withContractEnds, zurichDay,
 } from "@/features/contract-end/rules";
@@ -124,5 +124,16 @@ describe("her own notice (ADM2-14 a) and the start date (ADM2-6)", () => {
       .toEqual({ ended: true, endedAt: null, startsOn: "2026-11-02" });
     expect(parseAccessState({ ended: false, ended_at: null, starts_on: null })).toEqual({ ended: false, endedAt: null });
     expect(accessStartsText("2026-11-02")).toBe("Ihr Zugang beginnt am 02.11.2026, mit Ihrem Vertragsbeginn.");
+  });
+});
+
+describe("ADM2-15 (c): the card's case reference equals private.case_reference (pgTAP 092 pins the same ids)", () => {
+  it("takes the last six hex digits of the id, upper case", () => {
+    expect(caseReference("00000000-0000-4000-a000-000000000261")).toBe("000261");
+    expect(caseReference("3f2504e0-4f89-11d3-9a0c-0305e82c3301")).toBe("2C3301");
+    expect(caseRefLabel(caseReference("3f2504e0-4f89-11d3-9a0c-0305e82c3301"))).toBe("Fall-Ref. 2C3301");
+  });
+  it("anchors the case card's Kontinuität section by case id", () => {
+    expect(continuityAnchorId("00000000-0000-4000-a000-000000000261")).toBe("kontinuitaet-00000000-0000-4000-a000-000000000261");
   });
 });

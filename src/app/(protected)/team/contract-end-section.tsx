@@ -7,11 +7,22 @@
 //   cases and visits (case reference, date, role only) and her open reports by kind (LEAVE1-12). No client name.
 import { OPEN_REPORT_LABEL, countOpenReports, openReportsText } from "@/features/admin/rules";
 import {
-  CASE_ROLE_LABEL, VISIT_ROLE_LABEL, caseRefLabel, dayLabel, leaverHeadline, successorLine, successorTitle,
+  CASE_ROLE_LABEL, VISIT_ROLE_LABEL, caseRefLabel, continuityAnchorId, dayLabel, leaverHeadline, successorLine, successorTitle,
   type Leaver, type SuccessorItem,
 } from "@/features/contract-end/rules";
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import type { LeaverOpenReport } from "@/features/contract-end/queries";
+
+// ADM2-15 (c) (po 08:15 from `uxa` UXR-42): "Fall öffnen" lands on the case card's "Kontinuität" section, in view and
+// focused. Without JavaScript the plain #anchor still scrolls there.
+function openCase(e: MouseEvent<HTMLAnchorElement>, caseId: string) {
+  const target = document.getElementById(continuityAnchorId(caseId));
+  if (!target) return;
+  e.preventDefault();
+  target.scrollIntoView({ block: "start" });
+  target.focus({ preventScroll: true });
+  history.replaceState(null, "", `#${continuityAnchorId(caseId)}`);
+}
 
 export function SuccessorItems({ items }: { items: SuccessorItem[] }) {
   if (items.length === 0) return null;
@@ -24,6 +35,13 @@ export function SuccessorItems({ items }: { items: SuccessorItem[] }) {
             <p className="font-semibold">{successorTitle(i.role)}</p>
             <p className="text-sm">{successorLine(i)}</p>
             <p className="text-secondary text-xs">In der Fallkarte unter «Kontinuität» neu bestimmen.</p>
+            <a
+              href={`#${continuityAnchorId(i.case_id)}`}
+              onClick={(e) => openCase(e, i.case_id)}
+              className="justify-self-start inline-flex min-h-11 min-w-11 items-center rounded-lg border border-stone-400 bg-white px-3 font-semibold"
+            >
+              Fall öffnen
+            </a>
           </li>
         ))}
       </ul>

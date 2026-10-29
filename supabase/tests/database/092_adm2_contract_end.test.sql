@@ -7,7 +7,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(100);
+select plan(102);
 
 -- Pinned clock (DST1 pattern): 10:00 Zurich today = day T.
 select set_config('navora.test_now',
@@ -312,6 +312,13 @@ select is(pg_temp.res('admin', format('select public.record_member_contract(%L, 
 select is(private.adm2_outcome((select id from fx8))::text, 'lapsed', 'ADM2-8: the outcome is lapsed');
 select is((select count(*)::int from public.team_candidates where proposal_id = (select id from fx8)), 0,
           'ADM2-8: her candidate data are deleted in the same transaction');
+
+-- ADM2-15 (c) (po 08:15, `uxa` UXR-42): the card's "Fall-Ref." is computed in the app from the case id; it must equal this
+-- function. vitest `contract-end-rules` pins the same two ids.
+select is(private.case_reference('00000000-0000-4000-a000-000000000261'), '000261',
+          'ADM2-15 (c): case reference of the seeded Testfall C1');
+select is(private.case_reference('3f2504e0-4f89-11d3-9a0c-0305e82c3301'), '2C3301',
+          'ADM2-15 (c): last six hex digits, upper case (same example as vitest)');
 
 select * from finish();
 rollback;
