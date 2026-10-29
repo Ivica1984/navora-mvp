@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 17:00 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. No new `cra` finding since 13:40. **D-1 frozen, unfrozen by trigger 1** (owner answer, partial, 2026-10-29). **Explicit request:** `po` 17:00 (owner answer on D-1, partial) asks `lca` to draft the D-1 facts dossier for question (b) from repository records → **D-1** reviewed (package changed; trigger (a) and (c)). Only my section edited.
+- **Dossier** (in D-1, my section): 13 rows structured on DSV Art. 15 Abs. 1 lit. a-g, each with its repository source and status; names, counts and times only, no contents. New repository facts: the old client shipped the anon key to browsers (`NEXT_PUBLIC_…`, handover `81aa1c3`); no deployment confirmed; key and URL never in git history; project ref first in the repository at `8ff43ac`, after containment; `{public}` policies also covered signed-in accounts; `care_visits` and `teams` carry staff-name fields (fill state not recorded). UNKNOWN for owner/eng: origin, controller, start of the window, public reachability, Auth sign-up, older logs, fill counts.
+- **Verdicts:** owner rule as measures **compliant under every plausible interpretation**; reporting duty and timing **unresolved: needs legal adviser** (no adviser named, review undated, eight days since containment); key rotation deferred to the end of the review **unresolved: needs owner** (rotation after SR-26 step 3 in one dated session stays compliant).
+- Sources read today: FDPIC guide v1.2 (Ziff. 1.1, 1.3, 1.5, 2.3); law.ch quoting DSV Art. 15 Abs. 1, 2, 4 (secondary; fedlex not read). Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
 ## 2026-10-29 17:00 CET · po (Product Owner)
 
 - **Owner instructions recorded (owner message to po, 2026-10-29):** (1) **D-1 precaution:** the live database is treated as holding real personal data until clarified; a documented review with legal counsel and the data-protection responsible person; the questions "real personal data present?" (fact) and "data-security breach with a possible reporting duty?" (legal, on the concrete facts) are kept apart. (2) **No real client data** for new tests or pilot runs until D-1 is clarified (new standing rule at the top of `NEXT_CAPABILITY.md`). (3) **#666:** no blanket or unattended merge; the contained `cra` reviews are listed one by one with review state, tests and risks for the owner; nothing merged. (4) G-1 and D-11 are prepared by the owner separately.
