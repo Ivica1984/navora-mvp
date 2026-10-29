@@ -111,14 +111,15 @@ select throws_ok($$update public.visit_observations set author_qualification_rec
 -- OBS1-5: the marker is not selectable through the table API ----------------------------------------------------------------
 select ok(not has_column_privilege('authenticated', 'public.visit_observations', 'author_qualification_recorded', 'select'),
           'OBS1-5: authenticated cannot select the marker column');
-select ok(has_column_privilege('authenticated', 'public.visit_observations', 'author_id', 'select')
+-- OBS1-7 (0096, OBS1-C1): author_id and recorded_at are closed too; the other ten columns stay selectable.
+select ok(not has_column_privilege('authenticated', 'public.visit_observations', 'author_id', 'select')
           and has_column_privilege('authenticated', 'public.visit_observations', 'content', 'select')
           and not has_table_privilege('authenticated', 'public.visit_observations', 'select'),
-          'OBS1-5: the twelve existing columns stay selectable through column grants, no table-wide grant');
+          'OBS1-5 / OBS1-7: the other columns stay selectable through column grants (not author_id), no table-wide grant');
 select ok(not has_any_column_privilege('anon', 'public.visit_observations', 'select'), 'OBS1-5: anon selects no column');
 select throws_ok($$select pg_temp.rows('p', 'select author_qualification_recorded from public.visit_observations')$$,
           '42501', null, 'OBS1-5: a teammate''s table-API select of the marker is refused');
-select ok(jsonb_array_length(pg_temp.rows('p', format('select id, author_id from public.visit_observations where visit_id = %L', pg_temp.id('v1')))) = 3,
+select ok(jsonb_array_length(pg_temp.rows('p', format('select id, content from public.visit_observations where visit_id = %L', pg_temp.id('v1')))) = 3,
           'OBS1-5: the team still reads its observations through the table API');
 
 -- OBS1-2: the handover (field_notes) names the author and shows the marker ---------------------------------------------------

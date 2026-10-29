@@ -48,8 +48,12 @@ create function pg_temp.latest_report(n text) returns uuid language sql as $$
   select r.id from public.visit_reports r
   where r.visit_id = pg_temp.vid(n) and r.status <> 'withdrawn'
     and not exists (select 1 from public.visit_reports s where s.supersedes_id = r.id and s.status <> 'withdrawn') $$;
-create function pg_temp.report_v(n text, v int) returns public.visit_reports language sql as $$
-  select r.* from public.visit_reports r where r.visit_id = pg_temp.vid(n) and r.version = v $$;
+-- OBS1-7 (0096): snapshot, signed_by and signed_at are not selectable through the table API, so the helper names the
+-- columns it reads (it runs as the nurse too); signed_by is read as the table owner where a test asserts it.
+create type pg_temp.report_row as (id uuid, version int, status text, supersedes_id uuid, withdrawn_by uuid, withdrawn_at timestamptz);
+create function pg_temp.report_v(n text, v int) returns pg_temp.report_row language sql as $$
+  select row(r.id, r.version, r.status, r.supersedes_id, r.withdrawn_by, r.withdrawn_at)::pg_temp.report_row
+  from public.visit_reports r where r.visit_id = pg_temp.vid(n) and r.version = v $$;
 create function pg_temp.shown_hash(n text) returns text language sql as $$
   select f.snapshot_hash from public.field_reports((private.now() at time zone 'Europe/Zurich')::date) f where f.visit_id = pg_temp.vid(n) $$;
 create function pg_temp.started_event(n text) returns bigint language sql as $$
@@ -123,7 +127,8 @@ select is(public.withdraw_report_correction((pg_temp.report_v('w1', 2)).id, pg_t
   'the performer withdraws her untouched draft');
 reset role;
 select ok((select status = 'withdrawn' and withdrawn_by = '00000000-0000-4000-a000-000000000902' and withdrawn_at is not null
-                  and signed_by is null from pg_temp.report_v('w1', 2)),
+                  and (select r.signed_by from public.visit_reports r where r.id = x.id) is null
+           from pg_temp.report_v('w1', 2) x),
   'the row is kept: status withdrawn, who and when');
 select is((select r.version || '/' || r.status from public.visit_reports r where r.id = pg_temp.latest_report('w1')), '1/final',
   'the last final version (1) stays in force');

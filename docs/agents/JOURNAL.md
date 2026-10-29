@@ -4,6 +4,84 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 22:10 CET · po (Product Owner)
+
+- No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). Other agents' PRs (#685, #691, the `cra` chain #680, #666 and earlier) and `eng` #688 not merged: this routine merges PO PRs only.
+- **No delivery to review:** OBS1-C1 + ADM2-C1 PR #688 (`a4bb9d6`) open; `cra` 21:30 gate clear, `lca` 21:45 not blocking; merging is `eng`'s.
+- **`cra` CGR-95 (advisory S2, PR #691, read before merge) adopted as AIG1-12 before build start**, with `lca` 21:45 terms (i)-(iv) (PR #689, merged): after an AIG1-8 stop, the OPS1 exception links to a list of the records holding a value from that agent confirmed unchanged in the stop window (or since the switch-on, for a version change); no person column or filter, existing record readers and Operations only, a line leaves on re-confirmation or correction; pgTAP pins the window, the absence of a person column and the team boundary. Why: a stop that only ends future proposals leaves the most suspect confirmed values unreviewed (H-20, H-01), and finding them by hand is administration (value 5). Whether a re-check is required, by whom and when: Clinical Owner (D-17), **no rule set**. Term (v) joins the D-9 employee information (owner).
+- **`lca` 21:45 D-32 taken in as ADM2-C2** (`briefs/ADM2.md`): (a) the push claim hands nothing to a recipient no longer `push_active`; (b) the ADM2-C1 deletion also runs on the send cycle. With both, `lca`: compliant under every plausible interpretation; without, the owner would have to accept a residual. The PO takes the protective form; before any real push subscription, added to G-23. Not blocking #688.
+- CGR-93 closed (`cra` 21:30), noted in OBS1. CGR-96 (S3, one moved visit shown as two `/field` cards in one e2e attempt on #688): `cra` asks `eng` for an issue with the trace; no product change; a duplicate visit would be a safety and billing defect, so the root cause stays wanted.
+- **Challenge:** "Why does an agent's stop leave its last outputs in place?" Because AIG1-8 was written as a switch, not as a recovery. From scratch, stopping a faulty producer always comes with the list of what it produced since the fault; that is AIG1-12. And: "Why does a former employee's push endpoint wait for an administrator to open a page?" Because there is no hosted job (D-2); the send cycle that already exists is the natural trigger, so the dependency on a person disappears (ADM2-C2). No hypothesis row (design rules, not pilot questions).
+- Packages: D-35 and D-32 rows updated (both still `po-decided`); no unfreeze trigger for D-22, D-18 or tier 2; D-37 waits for D-36. None decided anew by po.
+- Queue order unchanged: OBS1-C1, AIG1, ASM1, UX2, PLAN3. No new capability approved, so no ENGINEERING BRIEF.
+- Tests: none run by me (docs only; `cra` section read on branch `gov/review-2026-10-29-2130`). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-29 22:25 CET · eng (Engineering)
+
+- Own open PR **#688** (OBS1-C1 + ADM2-C1): CI was green on `a4bb9d6` (e2e attempt 2) and `cra` 21:30 (#691) gave the gate (OBS1-7 (a) met, ADR-119 deviation 2 accepted). GitHub refused the merge for a `JOURNAL.md` conflict with the po 21:15 and lca 21:45 entries: `recovery/main` merged in (both entries kept, newest first; docs only, no change to 0096, pgTAP 096 or `field_notes`), pushed `213934b`, CI green on it (app, db, e2e, ui-screenshots).
+- **#688 merged** (merge commit `b3227d2`). OBS1-C1 and ADM2-C1 **`delivered`** in `IMPLEMENTATION_STATUS.md` (READY_FOR_REVIEW for the PO).
+- **Clinical gate:** `cra` 21:30 section read; no blocking finding on #688. **CGR-96** (advisory S3, two `/field` cards in the attempt-1 `vis1.spec.ts:41` failure): issue **#693** opened per its remedy step 1, root cause UNKNOWN, not `active` (PO places it).
+- **Legal:** `lca` 21:45 (D-32): ADM2-C1 compliant on synthetic data; before real data it needs (a) `push_dispatch_claim` re-checking `push_active` and (b) deletion on the send cycle. OPEN, for the PO to place; not built.
+- **Next:** AIG1 (#536), now with AIG1-11 (po 21:15). Tests: none run by me this run; CI ran them. `node scripts/agents-check.mjs` run. Live project not touched.
+
+---
+
+## 2026-10-29 21:45 CET · Legal & Compliance Agent (lca)
+
+- Open `lca` PR **#689** (D-35 20:40) continued, not a second PR: `db` was red on pgTAP 079 test 44 (CGR-86, unrelated, commented 19:50 UTC); `recovery/main` merged in (JOURNAL conflict: both entries kept, newest first). Tier 1: D-22, D-18 frozen, no trigger. Tier 2: `cra` 21:30 (PR #691, not merged) **CGR-95** and its ADM2-C1 privacy pointer → two re-checks on new evidence. Only my sections edited.
+- **D-35 (CGR-95, look-back after an AIG1 stop):** a list per agent and window, per record, with no confirmer column is consistent with AIG1-11. With terms (i) no person column or filter, (ii) stop window only, (iii) record readers and Operations only, (iv) a line leaves on re-confirmation, (v) purpose in the employee information: **compliant under every plausible interpretation**. Without (i) or (iii): **unresolved: needs legal adviser** (question 8). Whether a re-check is required: clinical (D-17, G-1).
+- **D-32 (ADM2-C1, ADR-119, #688):** facts: `push_dispatch_claim` (0062) does not re-check `push_active`, so a pending fixed-text push can reach an ex-member within about 2 minutes; the 0096 deletion runs only on an ADM2 page load (no upper bound). Synthetic, channel off: **compliant**, #688 not blocked. For real data with (a) claim re-checks `push_active` and (b) deletion on the send cycle: **compliant under every plausible interpretation**; without: **unresolved: needs owner** (or legal adviser; DSG Art. 6 Abs. 4, OR Art. 328b).
+- Sources read today: DSG Art. 6 Abs. 2-4 (justement.ch, status 7 July 2025); OR Art. 328b (droit-bilingue.ch, unofficial). Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
+## 2026-10-29 21:15 CET · po (Product Owner)
+
+- No open PO PR at start. `agent:po` issue claimed and answered: **#686** (`aia` AUT-22). Governance chain (#666 and earlier, `cra` #680) and other agents' PRs (#685, #689) not merged: this routine merges PO PRs only.
+- **No delivery to review:** OBS1-C1 + ADM2-C1 PR #688 (`a4bb9d6`) is open, not merged; nothing delivered since OBS1 was accepted at 19:40.
+- **AUT-22 adopted as AIG1-11, before build start** (`briefs/AIG1.md`), with the `lca` 20:40 reading (PR #689, read before merge; advisory): confirmer, outcome and confirmation time not selectable by `authenticated` through the table API; read per value through the record's read function and per record through `read_audit_record`; no reader returns one confirmer with outcomes of more than one value, for any role; a confirmed `not_found` closed too; pgTAP 071 list extended. AIG1-7 small-team rule: AN1's three, and the ADR states whether a single-confirmer field cell can leak in a team of three. Why: accountability needs the confirmer per value; no product purpose needs it per person; a listable accept/correct pattern pushes nurses to accept unchanged (H-20, automation bias) and turns the shared record into mutual watching (value 4). Cost now: one criterion; later: a repeat of OBS1-C1.
+- **D-35:** `lca` 20:40 taken in (INDEX row). A per-person confirmation list for an investigation stays unresolved (adviser question 8); nobody proposes one, default: none exists for any role; not escalated. Employee information naming the confirmation records is a pilot precondition under D-9 (owner).
+- **Challenge:** "Why does a confirmer column exist at all?" Accountability on the record. From scratch, accountability is per value and never becomes a performance view; the measure the team needs is per agent and field (AIG1-7). Acted on through AIG1-11, no hypothesis row.
+- Packages: no other unfreeze trigger (D-22, D-18 and tier 2 frozen; D-37 waits for D-36). None decided by po.
+- Queue order unchanged: OBS1-C1, AIG1, ASM1, UX2, PLAN3. No new capability approved, so no ENGINEERING BRIEF.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-29 20:55 CET · eng (Engineering)
+
+- No own open PR at start. Claimed #536 (AIG1, `active`) at 20:14 and built, per *Active now* (po 19:40), **OBS1-C1 + ADM2-C1 first** as one small PR: **#688** (`feat/obs1-c1-adm2-c1`, migration 0096, ADR-119).
+- **OBS1-C1 (= OBS1-7 (a)-(c)), IMPLEMENTED in #688:** `visit_reports.snapshot`, `signed_by`, `signed_at` and `visit_observations.author_id`, `recorded_at` are not selectable by `authenticated` (column grants, RLS3-4 pattern). Every reader is SECURITY DEFINER except `field_notes`, which now reads author and time through `private.observation_authorship` (team members only); each reader is named in ADR-119 and the PR. `READ_PATHS.md`: the five columns closed; new inventory of the remaining person-linked select grants (list only, **the PO decides**).
+- **ADM2-C1, IMPLEMENTED in #688:** `private.adm2_sweep` deletes the push subscriptions of members whose access ended (ADM2-13 included), one system audit row each; pgTAP: present at 23:59, gone after the first sweep after 00:00.
+- **Clinical gate:** `cra` 17:30 (PR #680, unmerged) asked to read the OBS1-7 PR before merge, with pgTAP for performer, countersigning RN, team, F6R, export and Playwright for nurse and care assistant. pgTAP 096 and 095 cover the readers; no export reads snapshots; no new Playwright spec (existing `field.spec.ts`/`obs1.spec.ts` run against 0096): ADR-119 deviation 2 for `cra`. **I do not merge #688 before `cra`'s read and green CI.**
+- Tests run by me: migrations 0001-0096 + seed on local PostgreSQL 16 with auth stubs and a pgTAP stand-in; 0096 twice; all files green except 007 (stand-in gap, same without 0096); 096 39/39, 11 red without 0096; 011, 016, 026, 049, 066, 077 also green without 0096. vitest, lint, typecheck, build, Playwright **not run** (no npm registry); CI decides. Live project not touched; synthetic data only.
+- **Next:** CI on #688, `cra` read, then merge. AIG1 (#536) after that; its claim label is removed at the end of this run so the next run can pick it up.
+
+---
+
+## 2026-10-29 20:40 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start. **Explicit request:** `aia` AUT-22 (#686) names `lca` as a gate on D-35 term 9 for AIG1 (next after OBS1-C1), so **D-35** was re-checked on that point only. Only my section was edited.
+- **Reading:** term 9 applies to AIG1 at stage 0 (`rule` agents produce the same per-value confirmer rows). A function-only ban is not enough while the columns can be selected through the table API (same gap as OBS1-7).
+- **Verdicts:**
+  - `aia` AIG1-11 (confirmer and outcome not selectable by `authenticated`; per value and through AUD1 `read_audit_record` per record only; AIG1-7 the only aggregate): **compliant under every plausible interpretation**.
+  - AIG1 without the criterion: **unresolved: needs legal adviser**.
+  - A per-person confirmation list for an investigation: **unresolved: needs legal adviser and owner** (adviser question 8 added).
+- Note to po: take term 9 into AIG1 before the build. Name the confirmation tables in the pilot employee information (never evaluated per person). Not blocking #688.
+- Sources read today: BGE 130 II 425 E. 3.1, 3.3, 4.2-4.4, 6.2 (servat.unibe.ch); Prinz/Dehmelt, personalSCHWEIZ 03/2026 pp. 12-13; OK-Klaus on DSG Art. 7 (onlinekommentar.ch; fedlex not read). I ran nothing except `node scripts/agents-check.mjs` before publishing. Live project not accessed.
+
+---
+
+## 2026-10-29 20:20 CET · AI & Automation Architect (aia)
+
+- Review 11 in `docs/agents/reports/AUTOMATION_REVIEW.md` (read `recovery/main` at `a968727`). No open `aia` PR at start (#660 merged).
+- **AUT-22 (high), issue #686, one comment on #536:** AIG1 (next after OBS1-C1) stores the per-value confirmer and outcome but has no criterion that keeps them out of direct table selects; D-35 `lca` term 9 is not in an AIG1 criterion. Proposal: one criterion (column grants as RLS3-4, "bestätigt von" per value through the record function and the AUD1 purpose reader, pgTAP 42501 and the 071 list). Needs the PO's answer before AIG1 build starts.
+- OBS1 as built, OBS1-C1, OBS1-C2, UX2-23 wording, UX2-26, UX2-27, D-1 precaution: reviewed, supported, no new step for a nurse. AUT-21 adopted as UX2-26 (stays open until delivered).
+- AI Operating Model Review §12 updated (AUT-22 control, OBS1 state, D-1 as stage-1 precondition). I ran no tests.
+- Next: bottleneck map refresh due 2026-11-03.
+
 ## 2026-10-29 19:50 CET · UX/UI Design Architect (uxa)
 
 - OBS1 #673 merged (`1fa6f26`) with the UXR-47 marker wording; **UXR-47 closed in code**; UXR-48 PLANNED as UX2-27. Merged screens equal the 16:10 review apart from that constant. No new finding, no issue opened.
