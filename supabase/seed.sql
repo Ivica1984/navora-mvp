@@ -270,7 +270,7 @@ insert into public.member_contract_events (organization_id, user_id, start_date,
    '00000000-0000-0000-0000-000000000000', private.now() - interval '30 days');
 
 -- OBS1 (e2e obs1.spec, migration 0095, ADR-118): an observation written before the author's qualification was recorded.
---   neu.test (…962): a member of Testteam C admitted by her team; she wrote an observation on today's completed visit of
+--   notiz.test (…962): a member of Testteam C admitted by her team; she wrote an observation on today's completed visit of
 --                    Testfall C1 while her qualification was not yet recorded, then the administrator path recorded it.
 --                    The OBS1-1 marker stays on that observation (fixed when written). She never signs in (no password,
 --                    e-mail unconfirmed, no identity row), so the counts of pgTAP 002 stay.
@@ -284,7 +284,7 @@ insert into auth.users (
   confirmation_token, recovery_token, email_change_token_new, email_change
 ) values
   ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-000000000962', 'authenticated', 'authenticated',
-   'neu.test@navora.test', '', null,
+   'notiz.test@navora.test', '', null,
    '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
 insert into public.organization_memberships (organization_id, user_id, role) values
   ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000962', 'nurse');

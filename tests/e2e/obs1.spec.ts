@@ -5,7 +5,7 @@ import { QUALIFICATION_NOT_RECORDED_TEXT } from "@/features/field/authorship";
 // Testorganisation C from supabase/seed.sql:
 // - teamc.test ("Pflegekraft Team C", registered nurse) performed today's 07:00 visit of Testfall C1 and wrote one
 //   observation; she signs in, drafts and signs the report.
-// - neu.test ("Neues Teammitglied C") wrote one observation on that visit before her qualification was recorded, so it
+// - notiz.test ("Neues Teammitglied C") wrote one observation on that visit before her qualification was recorded, so it
 //   carries the OBS1-1 marker; she never signs in.
 // The pinned-clock and permission paths (marker fixed at write time, no read widened, old snapshots unchanged) are in
 // pgTAP 095. This test writes one signature, on that visit's seeded draft only.
