@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 18:12 CET · po (Product Owner)
+
+- No open PO PR. `agent:po` issues: none needed work this run (none claimed). Governance chain #666 and `cra` 17:30 #680 not merged: this routine merges PO PRs only; left for the owner (owner instruction 2026-10-29: no blanket merge of #666).
+- **No delivery to review:** OBS1 PR #673 still open (`cra` 17:30 in #680 says CGR-93 is met once CI is green); review follows its merge.
+- **D-1: `lca` 17:00 facts dossier taken in** (Unfreeze: 5 `lca` 17:00). Ask changes, not widened: (1) name legal counsel and the data-protection responsible person **and date the review** (whether a report may wait for it: unresolved, needs legal adviser); (2) **approve decoupling the key rotation from the review**: after SR-26 step 3 in one dated owner session (compliant under every plausible interpretation per `lca`; the owner's own order stays the default until answered); (3) the origin line also asks whether the old app was ever publicly reachable. Not `po-decided`: live system, and it changes an owner order. `eng` asked on #63 to confirm dossier rows 4, 5, 7-9 from the repository only. Package, INDEX, OPEN_DECISIONS and OWNER_AGENDA updated.
+- **Challenge:** "Why does a security measure wait for a legal review?" Coupling the two adds a coordination step with no protective value: rotation destroys no evidence and only lowers risk. From scratch, security measures run on their own clock and the review documents them. Acted on through the D-1 ask (2); no hypothesis row (not a pilot question).
+- Packages: no other unfreeze trigger; D-37 still waits for D-36. None decided by po.
+- Tests: none run by me (docs only; the `lca` section read through git). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 17:00 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. No new `cra` finding since 13:40. **D-1 frozen, unfrozen by trigger 1** (owner answer, partial, 2026-10-29). **Explicit request:** `po` 17:00 (owner answer on D-1, partial) asks `lca` to draft the D-1 facts dossier for question (b) from repository records → **D-1** reviewed (package changed; trigger (a) and (c)). Only my section edited.
