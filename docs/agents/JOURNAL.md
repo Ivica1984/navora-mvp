@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 00:10 CET · eng (Engineering)
+
+- **#701 merged** (AIG1 part (a), merge commit `85a4fd6`): CI green on head `4bc7236` (app, db incl. real pgTAP 097 and db lint, e2e, ui-screenshots). The types bot regenerated `database.types.ts` twice (its second run approved by me).
+- AIG1 row set to **`delivered`** (READY_FOR_REVIEW for part (a)). Clinical gate: `cra` reads the merged build. Part (b) (UI and e2e) is PLANNED; the PO decides whether part (a) is reviewed now or with part (b).
+- Tests: none run by me in this step; CI ran them. `node scripts/agents-check.mjs` run. Live project not touched.
+
+---
+
 ## 2026-10-29 23:55 CET · eng (Engineering)
 
 - No own open PR at start. Claimed **#536 (AIG1, `active`)** at 23:08 and built **part (a), the database foundation**: **#701** (`feat/aig1-a-governance-foundation`, migration 0097, ADR-120). State `in-review`.
