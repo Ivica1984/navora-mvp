@@ -279,7 +279,8 @@ insert into public.care_visits (organization_id, id, case_id, team_id, visit_dat
   ('00000000-0000-4000-b000-000000000011', pg_temp.v(4), '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
    ((private.now() - interval '3 hours') at time zone 'Europe/Zurich')::date, ((private.now() - interval '3 hours') at time zone 'Europe/Zurich')::time(0), null, false, 'planned', pg_temp.u('rn')),
   ('00000000-0000-4000-b000-000000000011', pg_temp.v(5), '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-   ((private.now() + interval '1 day') at time zone 'Europe/Zurich')::date, '09:30', '10:00', false, 'planned', pg_temp.u('rn'));
+   -- VIS1-5: dated today (was tomorrow 09:30); a visit dated after today cannot be departed (CGR-87).
+   (private.now() at time zone 'Europe/Zurich')::date, '23:58', '23:59', false, 'planned', pg_temp.u('rn'));
 select is(pg_temp.as_user('rn', format($$ select public.depart_visit(%L, %L) $$, pg_temp.v(5), pg_temp.k(600))), 'ok', 'fixture: on the way');
 select is(pg_temp.as_user('rn', format($$ select public.record_no_show(%L, 'Synthetisch: niemand öffnet', %L, true) $$, pg_temp.v(5), pg_temp.k(601))), 'ok',
   'fixture: no-show recorded');

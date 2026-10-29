@@ -163,14 +163,32 @@ function zurichDay(offset = 0): string {
   const [y, m, d] = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Zurich" }).split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d + offset)).toISOString().slice(0, 10);
 }
-// Visit 508 (Testteam Nord, 09:00) is planned in the seed for the day after today, so that day has an open visit.
-const NEXT_DAY = zurichDay(1);
+// A day after today with an open visit of her own. Before VIS1 it was the seed's visit 508 tomorrow; since VIS1
+// (ADR-111) the field spec moves 508 to today, so the tests below plan one here, ten days ahead at 06:00 (no other test
+// uses that day). Planned only: a visit dated after today is never worked (CGR-87).
+const NEXT_DAY = zurichDay(10);
+
+async function planOpenVisit(page: Page, day: string) {
+  await page.goto("/team");
+  const card = page.getByRole("article", { name: /Fall Testfall 08/ });
+  await card.getByRole("button", { name: "Einsatz planen" }).click();
+  const planForm = card.getByRole("form", { name: "Einsatz planen" });
+  await planForm.getByLabel("Datum").fill(day);
+  await planForm.getByLabel("Von").fill("06:00");
+  await planForm.getByLabel("Bis").fill("06:30");
+  await planForm.getByLabel("A", { exact: true }).fill("30");
+  await planForm.getByRole("button", { name: "Einsatz speichern" }).click();
+  await expect(planForm).toHaveCount(0);   // saved: the form closes (an error keeps it open)
+  await page.goto(`/field?datum=${day}`);
+  await expect(page.getByRole("article", { name: /06:00 – 06:30, Testfall 08/ })).toHaveCount(1);
+}
 
 test.describe("UX1 part (c) at 390 × 844", () => {
   test.use({ viewport: PHONE });
 
   test("UX1-6: the next visit comes first, inside the first viewport; safety signals stay above it", async ({ page }) => {
     await signIn(page, "pflege.test@navora.test");
+    await planOpenVisit(page, NEXT_DAY);
     await page.goto(`/field?datum=${NEXT_DAY}`);
     const next = page.getByTestId("next-visit");
     await expect(next).toHaveCount(1);
@@ -364,18 +382,20 @@ test.describe("UX1-27 at 390 × 844", () => {
     await signIn(page, "pflege.test@navora.test");
     await page.goto("/team");
     const card = page.getByRole("article", { name: /Fall Testfall 08/ });
-    const day = zurichDay(8);
+    // VIS1-5 (and the UX1-C1 note): the visit is started, so it is dated today (CGR-87); before VIS1 it was eight days
+    // ahead. 20:45 is a slot no other test uses on today.
+    const day = zurichDay(0);
     await card.getByRole("button", { name: "Einsatz planen" }).click();
     const planForm = card.getByRole("form", { name: "Einsatz planen" });
     await planForm.getByLabel("Datum").fill(day);
-    await planForm.getByLabel("Von").fill("20:00");
-    await planForm.getByLabel("Bis").fill("20:30");
+    await planForm.getByLabel("Von").fill("20:45");
+    await planForm.getByLabel("Bis").fill("21:15");
     await planForm.getByLabel("A", { exact: true }).fill("30");
     await planForm.getByRole("button", { name: "Einsatz speichern" }).click();
-    await expect(card.getByRole("list", { name: "Geplante Einsätze" })).toContainText("20:00–20:30");
+    await expect(card.getByRole("list", { name: "Geplante Einsätze" })).toContainText("20:45–21:15");
 
     await page.goto(`/field?datum=${day}`);
-    const visit = page.getByRole("article", { name: /20:00 – 20:30, Testfall 08/ });
+    const visit = page.getByRole("article", { name: /20:45 – 21:15, Testfall 08/ });
     await visit.getByRole("button", { name: "Einsatz starten" }).click();
     await expect(visit.getByTestId("visit-status")).toHaveText("Gestartet");
     await visit.getByRole("button", { name: "Nicht abgeschlossen beenden" }).click();
@@ -384,7 +404,8 @@ test.describe("UX1-27 at 390 × 844", () => {
     await endForm.getByRole("button", { name: "Nicht abgeschlossen speichern" }).click();
     await expect(visit.getByTestId("visit-status")).toHaveText("Nicht abgeschlossen");
 
-    // The day with the seed's open visit 508: her next visit and the open follow-up from another day.
+    // The day with the open visit planned by the UX1-6 test above (same file, one worker, declared order): her next visit
+    // and the open follow-up from another day.
     await page.goto(`/field?datum=${NEXT_DAY}`);
     await page.waitForLoadState("networkidle");
     const todo = page.getByTestId("todo-links");

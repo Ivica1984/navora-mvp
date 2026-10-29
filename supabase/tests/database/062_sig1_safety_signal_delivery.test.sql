@@ -6,6 +6,11 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(54);
 
+-- VIS1-5: pinned clock (DST1 pattern), 12:00 Zurich today, so the no-show fixture below can be dated today and still
+-- lie ahead (no overdue signal of its own) whatever the hour CI runs. A visit dated after today cannot be departed (CGR-87).
+select set_config('navora.test_now',
+  (((private.now() at time zone 'Europe/Zurich')::date + time '12:00') at time zone 'Europe/Zurich')::text, true);
+
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', uid, true);
@@ -154,7 +159,7 @@ select is((select count(*)::int from public.signal_deliveries d join public.safe
            where s.visit_id = pg_temp.v(2) and d.reason = 'untaken'), 1, 'SIG1-5: once');
 
 -- No-show maps to its kind ----------------------------------------------------------------------------------------------
-select pg_temp.visit(3, '00000000-0000-4000-a000-000000000101', interval '-1 day', '00000000-0000-4000-a000-000000000902');
+select pg_temp.visit(3, '00000000-0000-4000-a000-000000000101', interval '-1 hour', '00000000-0000-4000-a000-000000000902');  -- VIS1-5: today 13:00, was tomorrow
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select is(public.depart_visit(pg_temp.v(3), pg_temp.k(20)), 'ok', 'fixture: on the way');

@@ -4,11 +4,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { completeVisit, departVisit, pauseVisit, resumeVisit, startVisit } from "@/features/visits/commands";
+import { rescheduleVisit } from "@/features/team/commands";
 import { getVisitStatusLabel } from "@/features/visits/types";
 import {
   FIELD_ACTION_LABEL,
-  fieldActions,
+  MOVE_TO_TODAY_CONFIRM,
+  MOVE_TO_TODAY_HINT,
+  MOVE_TO_TODAY_LABEL,
+  canMoveToToday,
+  fieldActionsOn,
   formatDayLabel,
+  formatShortDate,
+  futureDayNote,
+  isAfterToday,
+  todayInZurich,
   formatTime,
   orderFieldVisits,
   summarizeDay,
@@ -58,6 +67,8 @@ import { COUNTERSIGN_HEADING, FOLLOWUP_HEADING, RETURNED_HEADING, countersignLab
 type Props = {
   day: string;
   isToday: boolean;
+  /** Today in Europe/Zurich (DAY-1); VIS1: a day after it shows no field action. */
+  today?: string;
   previousDay: string;
   nextDay: string;
   visits: FieldVisit[];
@@ -112,10 +123,13 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null }: Props) {
+export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null }: Props) {
   const summary = summarizeDay(visits);
   const ordered = orderFieldVisits(visits);
   const sinceLastByVisit = groupSinceLast(sinceLast);
+  // VIS1 (ADR-111): the page passes today (Europe/Zurich); without it the view is today's.
+  const today = todayProp ?? (isToday ? day : todayInZurich());
+  const futureDay = isAfterToday(day, today);
 
   return (
     <div className="min-h-screen bg-stone-100 text-emerald-950">
@@ -155,6 +169,13 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
         {/* UX1-6 order (ADR-104): (1) SIG1 safety signals, unchanged and above everything; (2) her next visit; (3) her
             other visits; then open decisions and reports; (4) "Offen im Team", collapsed; (5) workday link and counters. */}
         <SignalBanner initial={signals} />
+        {/* VIS1-3 / VIS1-3a (UXR-29): once per future day, under the day heading, `info` (a planned day is the normal
+            state, not a warning); the cards then show no field action, only the move of VIS1-3b. */}
+        {futureDay && visits.length > 0 && (
+          <p data-testid="future-day-note" data-tone="info" className="mb-4 rounded-xl border border-stone-300 bg-stone-50 p-3 text-sm text-stone-700">
+            {futureDayNote(day)}
+          </p>
+        )}
         {(openFollowups.length > 0 || returned.length > 0 || countersign.length > 0) && (
           // UX1-6 (ADR-104): the open decisions and reports sit below her visits; one line at the top keeps them in sight.
           // UX1-27 (CGR-80, ADR-106): inside the first viewport, above the next visit; the follow-up link carries the
@@ -190,6 +211,7 @@ export default function FieldClient({ day, isToday, previousDay, nextDay, visits
                 )}
                 <VisitCard
                   visit={visit}
+                  today={today}
                   notes={notes.filter((n) => n.visit_id === visit.visit_id)}
                   report={reports.find((r) => r.visit_id === visit.visit_id) ?? null}
                   quality={quality.filter((q) => q.visit_id === visit.visit_id)}
@@ -309,6 +331,7 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 function VisitCard({
   visit,
+  today,
   notes,
   report,
   quality,
@@ -322,6 +345,7 @@ function VisitCard({
 }: {
   focusAt?: string | null;
   visit: FieldVisit;
+  today: string;
   notes: FieldNote[];
   report: FieldReport | null;
   quality: FieldQuality[];
@@ -343,7 +367,10 @@ function VisitCard({
   const moreItems = [canCancel && "cancel", canHold && "hold"].filter(Boolean) as ("cancel" | "hold")[];
 
   // C1: a visit suspended by a case pause cannot be started; no buttons, a clear marker instead.
-  const actions = visit.suspended ? [] : fieldActions(visit.status);
+  // VIS1-3: a visit dated after today shows no field action (the database refuses them, migration 0089).
+  const afterToday = isAfterToday(visit.visit_date, today);
+  const actions = visit.suspended ? [] : fieldActionsOn(visit.status, visit.visit_date, today);
+  const canMove = canMoveToToday(visit.status, visit.suspended, visit.visit_date, today);
   const start = formatTime(visit.time_start);
   const end = formatTime(visit.time_end);
   const time = start ? (end ? `${start} – ${end}` : `ab ${start}`) : "Zeit offen";
@@ -482,7 +509,7 @@ function VisitCard({
       />
 
       <VisitLifecycle
-        visitId={visit.visit_id} status={visit.status} notes={statusNotes}
+        visitId={visit.visit_id} status={visit.status} notes={statusNotes} afterToday={afterToday}
         cancelRequested={moreAction === "cancel"} onCancelClosed={() => setMoreAction(null)}
       />
 
@@ -491,6 +518,8 @@ function VisitCard({
           {error}
         </p>
       )}
+
+      {canMove && <MoveToToday visit={visit} today={today} />}
 
       {actions.length > 0 && (
         <div className={`mt-4 grid gap-2 ${actions.length > 1 ? "grid-cols-[2fr_1fr]" : ""}`}>
@@ -842,5 +871,97 @@ function Row({ label, value, muted = false, testId }: { label: string; value: st
       <dt className="text-secondary">{label}</dt>
       <dd data-testid={testId} className={muted ? "text-secondary italic" : ""}>{value}</dd>
     </div>
+  );
+}
+
+/**
+ * VIS1-3b (po 2026-10-28 20:15 from `aia` AUT-16; ADR-111): "Heute machen" on a card dated after today. One
+ * confirmation: today's date (Europe/Zurich), the card's planned times (editable) and an empty, required reason (J3
+ * rule, 3-300 characters; not prefilled until `cra` decides, VIS1-7). It calls the existing `reschedule_visit` with all
+ * its checks (ABS1-C4, ABS1-C5, CGR-35, audit, `moved` row); no new command, no new permission. The move never starts
+ * the visit: afterwards she is on today's view, where "Einsatz starten" is its own tap.
+ */
+function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit(form: FormData) {
+    setPending(true);
+    setError(null);
+    const result = await rescheduleVisit({
+      visitId: visit.visit_id,
+      date: today,
+      start: String(form.get("start") ?? ""),
+      end: String(form.get("end") ?? ""),
+      reason: String(form.get("reason") ?? ""),
+      idempotencyKey: crypto.randomUUID(),
+    });
+    setPending(false);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setOpen(false);
+    router.push("/field");
+    router.refresh();
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        data-testid="move-to-today"
+        onClick={() => setOpen(true)}
+        className="mt-4 min-h-11 w-full rounded-xl border border-stone-300 bg-white px-3 text-base font-semibold text-emerald-950"
+      >
+        {MOVE_TO_TODAY_LABEL}
+      </button>
+    );
+  }
+
+  return (
+    <form
+      action={submit}
+      aria-label="Einsatz auf heute verschieben"
+      data-testid="move-to-today-form"
+      className="mt-4 grid gap-3 rounded-xl border border-stone-300 bg-stone-50 p-3 text-sm"
+    >
+      <p>
+        Heute, <span data-testid="move-to-today-date">{formatShortDate(today)}</span> (geplant war der {formatShortDate(visit.visit_date)}).
+      </p>
+      <div className="grid grid-cols-2 gap-2">
+        <label className="grid min-w-0 gap-1 font-semibold">
+          Von
+          <input name="start" type="time" required defaultValue={formatTime(visit.time_start) ?? ""}
+            className="min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-white px-2 text-base font-normal" />
+        </label>
+        <label className="grid min-w-0 gap-1 font-semibold">
+          Bis
+          <input name="end" type="time" required defaultValue={formatTime(visit.time_end) ?? ""}
+            className="min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-white px-2 text-base font-normal" />
+        </label>
+      </div>
+      <label className="grid gap-1 font-semibold">
+        Grund der Verschiebung
+        <textarea name="reason" required minLength={3} maxLength={300} rows={2}
+          className="w-full min-w-0 rounded-lg border border-stone-300 bg-white p-2 text-base font-normal" />
+      </label>
+      <p className="text-secondary">{MOVE_TO_TODAY_HINT}</p>
+      {error && (
+        <p role="alert" data-testid="move-to-today-error" className="rounded-lg border border-amber-800 bg-amber-50 p-3 font-semibold text-stone-900">
+          {error}
+        </p>
+      )}
+      <div className="grid grid-cols-[2fr_1fr] gap-2">
+        <button type="submit" disabled={pending} className="min-h-11 rounded-xl bg-emerald-800 font-bold text-white disabled:opacity-60">
+          {pending ? "Wird gespeichert …" : MOVE_TO_TODAY_CONFIRM}
+        </button>
+        <button type="button" onClick={() => { setOpen(false); setError(null); }} className="min-h-11 rounded-xl border border-stone-300 font-semibold">
+          Abbrechen
+        </button>
+      </div>
+    </form>
   );
 }

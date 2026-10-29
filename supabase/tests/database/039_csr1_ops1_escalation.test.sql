@@ -16,12 +16,17 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
 $$;
 
 -- Fixtures: a visit for a no-show (in 1 h, Nord) and a missed planned visit (2 h ago, Nord, responsible …902).
+-- VIS1-5: the no-show fixture is departed below, so it stays on today (at most 23:59): a visit dated after today cannot
+-- be departed (CGR-87); before VIS1 it was dated tomorrow after 23:00 Zurich.
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, billable, status,
                                 responsible_user_id, planned_minutes_a)
 select '00000000-0000-4000-b000-000000000011', x.id, '00000000-0000-4000-a000-000000000208', '00000000-0000-4000-a000-000000000101',
-       ((private.now() + x.shift) at time zone 'Europe/Zurich')::date, ((private.now() + x.shift) at time zone 'Europe/Zurich')::time, null, false, 'planned',
+       ((private.now() + x.shift) at time zone 'Europe/Zurich')::date,
+       ((private.now() + x.shift) at time zone 'Europe/Zurich')::time, null, false, 'planned',
        '00000000-0000-4000-a000-000000000902', 30
-from (values ('a3900000-0000-4000-8000-0000000000a1'::uuid, interval '1 hour'),
+from (values ('a3900000-0000-4000-8000-0000000000a1'::uuid,
+               least(interval '1 hour', ((private.now() at time zone 'Europe/Zurich')::date + time '23:59')
+                                        - (private.now() at time zone 'Europe/Zurich'))),
              ('a3900000-0000-4000-8000-0000000000a2'::uuid, interval '-2 hours')) x(id, shift);
 -- A close written before 0039 for the missed visit (the old command allowed it).
 insert into public.exception_events (organization_id, exception_key, kind, text, actor_id)

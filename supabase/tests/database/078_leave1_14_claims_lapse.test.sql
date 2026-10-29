@@ -41,11 +41,13 @@ insert into public.member_profiles (organization_id, user_id, display_name) valu
 on conflict (organization_id, user_id) do update set display_name = excluded.display_name;
 
 -- A P1 no-show signal for visit n (responsible: the registered nurse …902, who departs and records the no-show).
+-- VIS1-5: the no-show fixture is dated today, 23:59 (still ahead, so no overdue signal of its own); a visit dated
+-- after today cannot be departed or recorded as a no-show (CGR-87). Before VIS1 it was tomorrow 09:00.
 create function pg_temp.no_show(p_n integer) returns void language plpgsql as $$
 begin
   insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, billable, status, responsible_user_id)
   values ('00000000-0000-4000-b000-000000000011', pg_temp.v(p_n), '00000000-0000-4000-a000-000000000208',
-          '00000000-0000-4000-a000-000000000101', pg_temp.today() + 1, '09:00', false, 'planned', '00000000-0000-4000-a000-000000000902');
+          '00000000-0000-4000-a000-000000000101', pg_temp.today(), '23:59', false, 'planned', '00000000-0000-4000-a000-000000000902');
   perform pg_temp.act_as('00000000-0000-4000-a000-000000000902');
   set local role authenticated;
   perform public.depart_visit(pg_temp.v(p_n), pg_temp.k(100 + p_n));

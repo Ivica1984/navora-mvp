@@ -20,8 +20,9 @@ async function signIn(page: Page, email: string) {
 
 test("a no-show reaches an open /field without navigation; one tap takes it, the other open page shows it taken (SIG1-3, SIG1-4)", async ({ browser }) => {
   test.setTimeout(240_000);
-  // A visit four days ahead at 06:15 (no other test uses that day).
-  const day = new Date(Date.now() + 4 * 86_400_000).toISOString().slice(0, 10);
+  // A visit today at 06:15 (no other test uses that slot). VIS1-5: it is departed and recorded as a no-show, so it is
+  // dated today (CGR-87); before VIS1 it was four days ahead. The signal is selected by kind and date below.
+  const day = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Zurich" });
   const signal = (page: Page, testId: string) =>
     page.locator(`[data-testid="${testId}"][data-kind="no_show"][data-visit-date="${day}"]`);
 

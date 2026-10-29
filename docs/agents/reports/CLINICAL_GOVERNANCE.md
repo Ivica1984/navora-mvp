@@ -16,6 +16,73 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-29 01:30 CET: #624 VIS1 merged as reviewed: **CGR-87 closed** (PS-76, BL-20 closed; H-25 S1 lifted); VIS1 follow-up #633 (head `1e3aa0a`, migration 0090) read for the VIS1-7 gate: **clinical gate clear to merge**; CGR-89 and CGR-90 remedies met, close when #633 is merged unchanged; wording of VIS1-3d, VIS1-3e (2) and VIS1-8 confirmed; no new finding
+
+**Scope:** `recovery/main` @ `6d3eb34`. Changes since my 22:00 section (PR #628, open; it contains #623, #614, #604, #589, #582):
+- **Code merged:** #624 VIS1 as `5d85b8f` (merged head `30cbde1`). Between the head I reviewed (`2db589d`) and `30cbde1` the only `src/`, `supabase/` or `tests/` change is the new pgTAP `089_vis1_c2b_plan_slot_after_move.test.sql` (C-2 (b) answered in ADR-111) plus a merge of `recovery/main` (journal).
+- **Docs merged:** PO 22:15 (#625), 23:15 (VIS1 `changes-requested`: VIS1-3c, -3d, -3e, -8, -9 not met), 00:15 (#632: VIS1-3f, VIS1-3g from UXR-34, UXR-35; CI issue #635); `uxa` 22:00 (#629); `eng` VIS1 delivered (#630).
+- **Open:** #633 `eng` VIS1 follow-up (ADR-112; head `1e3aa0a`; CI `app`, `db`, `e2e`, `ui-screenshots` success, check runs read through the GitHub API); #637 `eng` e2e run-day guard (#635, ADR-113); #634 `uxa` 23:50; #627 `aia` 22:00; my #582 to #628 (unmerged chain); #3 unchanged.
+- **Asked of `cra`:** VIS1-7 gate on #633: the plural day line (VIS1-3e (2)), position and tone of the release notice (VIS1-3d), the VIS1-8 sentences, migration 0090 (VIS1-9).
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read: migration `20261021000090_vis1_follow_up_day_rule_every_path_and_move_fact.sql` in full, against the previous `enforce_visit_transition` (0038) and the column grants (0003:184, 0004:135); pgTAP `090_vis1_follow_up_…` (34 assertions, pinned clock 14:02 Zurich) and `089_vis1_c2b_plan_slot_after_move` (8); `features/field/rules.ts` (`prefillMoveTimes`, `moveLeavesNote`, `futureDayNote(day, count)`, `RELEASED_ON_MOVE`, `parseMovedNotice`), `features/field/commands.ts` (`getMoveLeavesFact`), the `field-client.tsx` diff (dialog, `MovedNoticeBlock`, focus), `team-client.tsx` (shared constant), `tests/unit/vis1-follow-up.test.ts`; the #637 diff (CI script, `work.spec.ts` date arithmetic). **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+No new finding in this section.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-87** | **closed** (S1 lifted) | #624 merged as `5d85b8f`; reviewed head `2db589d` → merged head `30cbde1` adds only pgTAP 089_vis1_c2b and docs. Remedy (1)-(4) as in my 22:00 section: 0089 §3-4; pgTAP 089:69-91, 106-112, 119-126, 142-156; `vis1.spec`. PO 23:15 table confirms VIS1-1 to VIS1-7 met. PS-76 and BL-20 closed. (3) late documentation and (4) night tolerance stay Clinical Owner questions (UNKNOWN) in H-25 |
+| **CGR-90** | open, advisory (S2); **remedy met on #633 head `1e3aa0a`** (CI green); **closes when #633 is merged unchanged** | (1) 0090 §1: `private.visit_status_day_refusal` (security definer, reads only the visit's own `started` events) is called by `enforce_visit_transition` in its `authenticated` branch, after the transition list and the suspension check and before CGR-12; it raises SQLSTATE 23514 `not_today` for `planned`/`on_the_way` → `on_the_way`/`started` on a visit dated after today (Zurich), `started_before_date` for `completed`; the date checked is `greatest(old.visit_date, new.visit_date)`, so a combined write cannot move and start at once. The 0038 checks are carried over unchanged (compared line by line). The grant stays because `transition_visit` is security invoker (my alternative was not needed). (2) pgTAP 090: as the team nurse, direct `update … status = 'started'` / `'on_the_way'` on tomorrow's visit, `'started'` on tomorrow's `on_the_way` visit and `'completed'` on tomorrow's started visit all throw 23514 with the outcome; statuses unchanged, 0 `visit_events`; today's start and yesterday's depart pass; pause unchanged; `prosrc` has no interval or tolerance. (3) `start_visit` still returns `not_today` with its one audit row (pgTAP 090) |
+| **CGR-89** | open, advisory (S2); **remedy met on #633 head `1e3aa0a`**; **closes when #633 is merged unchanged** | (1) 0090 §2 `public.visit_move_leaves_other_visit`: one boolean (pgTAP: `boolean:false` return type, no set), team members of the visit only (outsider → null); `moveLeavesNote` "Am <Datum> ist danach kein / noch ein Einsatz bei dieser Person geplant.", `data-tone="info"`, no block, no extra tap; no answer → no sentence (unit test). (2) another team's visit counts as "noch ein" and stays unreadable to her (pgTAP 090: visit 14 → true, visit 15 count 0); a cancelled visit does not count; the sentence carries no time, team or name (unit test). (3) the move itself and its `moved` row unchanged (pgTAP 090). C-2 (b) answered: PLAN2 does **not** re-create the moved slot; the planned date stays empty for that slot (089_vis1_c2b:52-58). That is the fact the sentence now shows; whether an empty date needs a replacement or a signal stays with the Clinical Owner (UNKNOWN, PS-78) |
+| **CGR-86** | open, advisory (S3); #603 | no change |
+| CGR-84, CGR-81 | open (S3, S2); ASM1 brief (PLANNED) | no change |
+| CGR-78, CGR-75 | open, advisory (S2); brief level | no change |
+| **CGR-72** | open, blocking for ADM2 acceptance (S2) | no change |
+| CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-87** (with PS-76 and BL-20).
+
+### #633: VIS1-7 gate answers (clinical side)
+
+- **VIS1-9 migration 0090:** clear (CGR-90 above). Security-definer commands (`record_no_show`, `end_visit_not_completed`) do not pass the `authenticated` branch; they keep their own 0089 check, which pgTAP 089 covers.
+- **VIS1-8 sentences:** confirmed as worded. The fact covers this case's visits in NAVORA (no cross-case identity, D-9; other providers and relatives are not in NAVORA). A second case for the same person can only make the sentence say "kein", which is the cautious direction. A false "noch ein" would need a non-cancelled visit on that date, which is a true fact. The sentence does not say whether the other visit covers the same need. That is deliberate (no rule) and stays with the Clinical Owner.
+- **VIS1-3c:** the prefill (CR-134) is a form default, not a signal rule. pgTAP 090 shows that the visit moved with 14:05 raises no `visit_overdue` (team alerts and signal job) at the pinned 14:02, while the control moved with the card's 06:30 does. The optional "start at or before now" line is not built. If it is built later, I confirm a factual form such as "Diese Zeit liegt nicht nach jetzt. NAVORA zeigt den Einsatz dann sofort als überfällig." (no advice, no level).
+- **VIS1-3d:** position (above the moved card, or above the list if the card is not on that day) and tone `attention` for `RELEASED_ON_MOVE` confirmed. The text is one constant shared with `/team`.
+- **VIS1-3e (2):** the plural line "Diese Einsätze sind für den <Datum> geplant. Machst du einen davon heute, verschiebe ihn zuerst mit «Heute machen»." is confirmed. It sets no rule and names the audited route.
+- **Not in #633: VIS1-3f, VIS1-3g** (placed 00:15, after the PR was built). Clinically VIS1-3g matters: the release notice is carried in the URL (`?offen=1`, `parseMovedNotice`), so a reload, or the same link opened later, still says "Der Einsatz ist jetzt offen im Team" after someone may have taken the visit. That is a stale coverage statement. The display changes nothing, and `/team` and the `moved` row stay correct, so this is not a merge condition for #633. I support the PO's rule that VIS1 is accepted only with VIS1-3f and VIS1-3g met.
+
+### #637 (e2e run-day guard): no clinical finding
+
+CI only: a wait before the seed when Zurich midnight is near, a diagnostic after the run, and calendar-day arithmetic in `work.spec.ts`. No test is skipped, no guard or assertion weakened, and the job still fails on test failures (the `check` step only annotates).
+
+### Clinical Rule Register
+
+- **CR-133:** merged (0089); on #633 also enforced by the trigger (0090 §1).
+- **CR-134 (new):** VIS1-3c prefill. Input class: presentation default; owner PO; PROVISIONAL. Exempting a moved visit from `visit_overdue` would be a signal rule (Clinical Owner, UNKNOWN), with its own row first.
+- **CR-135 (new):** VIS1-8 move fact. Input class: visit/schedule fact; owner PO; PROVISIONAL. Any replacement or count rule is the Clinical Owner's, with its own row first.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **VIS1** (#624 merged; #633 open, head `1e3aa0a`) | **#633: VIS1-7 met, clear to merge** (clinical side). CGR-89 and CGR-90 close on merge. VIS1 acceptance also needs VIS1-3f and VIS1-3g (PO 00:15) |
+| **Visit lifecycle / CSR1 / billing facts** | CGR-87 S1 **lifted** (closed). CGR-90 S2 closes with #633 |
+| #637 | no clinical scope beyond test integrity: clear |
+| All other items | unchanged from 22:00 |
+
+### Decisions requested
+
+- **po:** after #633 merges, record CGR-89 and CGR-90 closed in the VIS1 acceptance; place VIS1-3f and VIS1-3g (already decided). **Merge my governance PR chain** (this PR contains #628, #623, #614, #604, #589, #582; my runs cannot merge their own PR).
+- **eng:** VIS1-3f, VIS1-3g; CGR-86 (#603).
+- **clinical (Clinical Owner, after G-1):** whether a date left empty by a move needs a replacement visit or a signal (CGR-89 (3), PS-78); a tolerance for night visits and late documentation of a visit started early (H-25); whether a moved visit is exempt from `visit_overdue` (CR-134, P-27). All UNKNOWN.
+- **owner / legal / regulatory adviser:** unchanged (G-1; D-38; R-11; D-36; D-1).
+
+---
+
 ## 2026-10-28 22:00 CET: VIS1 build (#624, head `2db589d`) read for the VIS1-7 gate: **clinical gate clear to merge**; CGR-87 and BL-20 close when #624 is merged unchanged; CGR-90 (new, advisory S2: the date rule lives only in the commands, a direct `UPDATE … status` by a team member still bypasses it); CGR-89 not in the build (stays open, PLANNED)
 
 **Scope:** `recovery/main` @ `013b733` (unchanged since my 21:30 section, PR #623, still open; it contains #614, #604, #589, #582). New since then:
