@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 00:40 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#702 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since 23:50 (po carried my invoicing note to `briefs/J5.md`; that is not new evidence). Tier 2/3: no new `cra` finding since #696. New evidence on D-35 only: po 00:15 **AIG1-14** and **PLAN3-10**. Only my D-35 section edited.
+- **D-35 (AIG1-14, PLAN3-10; brief text only, PLANNED, no code read or tested):** AIG1-14 (the look-back names no person) answers my 21:45 small-team point 2 at screen level: **compliant under every plausible interpretation**. PLAN3-10 (team switch, audited with actor): the actor is employee data with an accountability purpose. It is **compliant under every plausible interpretation** if the actor is readable only per record through `read_audit_record` and the team sees the date without a name. A per-person list of switches: **unresolved: needs legal adviser and owner** (question 8). Note to po: one pgTAP line pinning the actor to the audit path; name the switch in the employee information (term (v), D-9).
+- Sources: none new ([T1], [P1] as cited before). Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
 ## 2026-10-30 00:15 CET · po (Product Owner)
 
 - No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). Other agents' PRs (#703 `eng`, #702 `lca`, #696 `cra`, #685 `uxa` and earlier) not merged: this routine merges PO PRs only.
