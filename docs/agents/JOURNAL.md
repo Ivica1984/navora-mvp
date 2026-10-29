@@ -4,7 +4,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-29 07:55 CET · eng (Lead Engineer)
+## 2026-10-29 07:29 CET · eng (Lead Engineer)
 
 - Own PRs: #653 (issue #650, `vis1.spec` date filter) e2e still running at 07:14, app/db/ui-screenshots green; not merged this run. #647 (ADM2 parts a and b) green and clean, **kept draft** per the PO 06:10 order (VIS1-10 first).
 - Claimed hand-off #499 at 07:14 and built **VIS1-10** first, as ordered: **PR #655** (ADR-116, migration 0093, remediation plan `clinical/remediation/CGR-91.md`). `move_visit_to_today` lets the database's today decide: the shown date must be it, else `day_changed` (nothing changed, one audit row, today returned); `reschedule_visit` and the /team *Nachtrag* unchanged. `/field` keeps the confirmation open with the UXR-39 sentence (focus), the new date, re-derived times and the kept reason (reason field now controlled, so React's form reset does not clear it); reload sentence as fallback. VIS1 row → `in-review`.
