@@ -19,6 +19,8 @@ import {
   canMoveToToday,
   moveLeavesNote,
   movedNoticeHref,
+  withoutMovedNotice,
+  MOVED_RELEASED_NOTICE_ID,
   prefillMoveTimes,
   zurichMinutesNow,
   fieldActionsOn,
@@ -143,6 +145,15 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
   const futureDay = isAfterToday(day, today);
   // VIS1-3d / VIS1-3e (ADR-112): the visit just moved to today, if any.
   const movedId = moved?.visitId ?? null;
+  // VIS1-3g (UXR-35): shown once. The notice stays on this render; the address loses the move's parameters at once,
+  // so a reload or the refresh after the next action (e.g. "Einsatz starten") no longer shows it. The `moved` row and
+  // /team stay the lasting record.
+  useEffect(() => {
+    if (!movedId) return;
+    const { pathname, search, hash } = window.location;
+    const rest = withoutMovedNotice(search);
+    if (rest !== search) window.history.replaceState(null, "", `${pathname}${rest}${hash}`);
+  }, [movedId]);
 
   return (
     <div className="min-h-screen bg-stone-100 text-emerald-950">
@@ -229,6 +240,7 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
                   visit={visit}
                   today={today}
                   focusOnMount={movedId === visit.visit_id}
+                  describedBy={moved?.released && movedId === visit.visit_id ? MOVED_RELEASED_NOTICE_ID : undefined}
                   notes={notes.filter((n) => n.visit_id === visit.visit_id)}
                   report={reports.find((r) => r.visit_id === visit.visit_id) ?? null}
                   quality={quality.filter((q) => q.visit_id === visit.visit_id)}
@@ -350,6 +362,7 @@ function VisitCard({
   visit,
   today,
   focusOnMount = false,
+  describedBy,
   notes,
   report,
   quality,
@@ -365,6 +378,8 @@ function VisitCard({
   visit: FieldVisit;
   today: string;
   focusOnMount?: boolean;
+  /** VIS1-3f (UXR-34): the release notice above the moved card, heard where focus lands (VIS1-3e). */
+  describedBy?: string;
   notes: FieldNote[];
   report: FieldReport | null;
   quality: FieldQuality[];
@@ -433,6 +448,7 @@ function VisitCard({
       ref={articleRef}
       tabIndex={focusOnMount ? -1 : undefined}
       data-testid={focusOnMount ? "moved-visit" : undefined}
+      aria-describedby={describedBy}
       id={focused ? "einsatz-korrektur" : undefined}
       aria-label={`Einsatz ${time}, ${visit.client_name ?? "Klient:in"}`}
       className="scroll-mt-4 rounded-2xl bg-white p-4 shadow-sm"
@@ -965,8 +981,9 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
     }
     setOpen(false);
     // VIS1-3d / VIS1-3e: today's view shows "Einsatz auf heute verschoben", the release and the flags above the card.
+    // VIS1-3g: no router.refresh() here. The push loads today's dynamic view fresh; a queued refresh would run after
+    // the notice's parameters left the address and drop the notice before it was seen.
     router.push(movedNoticeHref(visit.visit_id, result.released, result.flags));
-    router.refresh();
   }
 
   if (!open) {
@@ -1049,7 +1066,7 @@ function MovedNoticeBlock({ moved }: { moved: MovedNotice }) {
         {MOVED_TO_TODAY_STATUS}
       </p>
       {moved.released && (
-        <p role="status" data-testid="moved-released" data-tone="attention" className="rounded-xl border border-amber-800 bg-amber-50 p-3 text-sm font-semibold text-amber-900">
+        <p id={MOVED_RELEASED_NOTICE_ID} role="status" data-testid="moved-released" data-tone="attention" className="rounded-xl border border-amber-800 bg-amber-50 p-3 text-sm font-semibold text-amber-900">
           {RELEASED_ON_MOVE}
         </p>
       )}

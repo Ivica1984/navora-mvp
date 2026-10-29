@@ -211,6 +211,25 @@ export function movedNoticeHref(visitId: string, released: boolean, flags: Reado
   return `/field?${params.toString()}`;
 }
 
+/** The query parameters that carry a move's result (VIS1-3d / VIS1-3e). */
+export const MOVED_NOTICE_PARAMS = ["verschoben", "offen", "hinweise"] as const;
+
+/**
+ * VIS1-3g (UXR-35, ADR-112 addendum): the notice belongs to the move that produced it. Once today's view has shown it,
+ * the page drops these parameters from the address (history.replaceState), so a reload, a later refresh (e.g. after
+ * "Einsatz starten") or a copied link no longer shows it. Returns the search string without them ("" when empty);
+ * every other parameter is kept in order.
+ */
+export function withoutMovedNotice(search: string): string {
+  const params = new URLSearchParams(search);
+  for (const key of MOVED_NOTICE_PARAMS) params.delete(key);
+  const rest = params.toString();
+  return rest ? `?${rest}` : "";
+}
+
+/** VIS1-3f (UXR-34): the id of the release notice, the moved card's accessible description. */
+export const MOVED_RELEASED_NOTICE_ID = "verschoben-offen-hinweis";
+
 export const FIELD_ACTION_LABEL: Record<FieldAction, string> = {
   depart: "Losfahren",
   start: "Einsatz starten",

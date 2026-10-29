@@ -123,7 +123,9 @@ test.describe("VIS1 at 390 × 844", () => {
     }
     await confirm.getByLabel("Grund der Verschiebung").fill(reason);
     await confirm.getByRole("button", { name: "Auf heute verschieben" }).click();
-    await page.waitForURL(/\/field\?verschoben=/);
+    // VIS1-3g: the notice is shown once; the address does not keep the move's parameters.
+    await expect(page.getByTestId("moved-to-today")).toBeVisible();
+    await expect(page).not.toHaveURL(/verschoben=/);
     const slot = `${times.start} – ${times.end}, Testfall 08`;
     const moved = page.getByRole("article", { name: slot });
     await expect(moved).toHaveCount(1);
@@ -132,6 +134,8 @@ test.describe("VIS1 at 390 × 844", () => {
     await expect(page.getByTestId("moved-to-today")).toHaveText(MOVED_TO_TODAY_STATUS);
     await expect(page.getByTestId("moved-to-today")).toHaveAttribute("role", "status");
     await expect(moved).toBeFocused();
+    // VIS1-3f: a move without `released` adds no accessible description.
+    await expect(moved).not.toHaveAttribute("aria-describedby", /.+/);
     await expect(moved.getByTestId("visit-status")).toHaveText("Geplant");
     await expect(moved.getByRole("button", { name: "Einsatz starten" })).toBeVisible();
     await expect(moved.getByRole("region", { name: "Erfasste Zeit" })).toHaveCount(0);   // no start recorded
@@ -208,15 +212,25 @@ test.describe("VIS1 at 390 × 844", () => {
     await move.getByLabel("Bis").fill("23:45");
     await move.getByLabel("Grund der Verschiebung").fill("Synthetisch: heute statt später");
     await move.getByRole("button", { name: "Auf heute verschieben" }).click();
-    await page.waitForURL(/\/field\?verschoben=.*offen=1/);
     const notice = page.getByTestId("moved-released");
     await expect(notice).toHaveText(RELEASED_ON_MOVE);
     await expect(notice).toHaveAttribute("role", "status");
     await expect(notice).toHaveAttribute("data-tone", "attention");
-    await expect(page.getByRole("article", { name: /23:30 – 23:45, Testfall 08/ })).toHaveCount(1);
+    const movedCard = page.getByRole("article", { name: /23:30 – 23:45, Testfall 08/ });
+    await expect(movedCard).toHaveCount(1);
+    // VIS1-3f (UXR-34): the element that receives focus (VIS1-3e: the moved card) is described by the release notice.
+    await expect(movedCard).toBeFocused();
+    await expect(movedCard).toHaveAccessibleDescription(/Der Einsatz ist jetzt offen im Team\./);
 
     const width = await page.evaluate(() => document.documentElement.scrollWidth);
     expect(width).toBeLessThanOrEqual(PHONE.width);
+
+    // VIS1-3g (UXR-35): the notice belongs to the move; the address does not carry it, so a reload no longer shows it.
+    await expect(page).not.toHaveURL(/verschoben=|offen=/);
+    await page.reload();
+    await expect(page.getByRole("article", { name: /23:30 – 23:45, Testfall 08/ })).toHaveCount(1);
+    await expect(page.getByTestId("moved-released")).toHaveCount(0);
+    await expect(page.getByTestId("moved-to-today")).toHaveCount(0);
 
     // Clean up: the released visit would stay open in the team today (uncovered, possibly overdue) and reach the later
     // specs' screens as a signal; the team removes it with a reason (existing J3 route).

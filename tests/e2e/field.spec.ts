@@ -120,8 +120,8 @@ test.describe("field tool (F1)", () => {
     await move.getByLabel("Bis").fill("11:45");
     await move.getByLabel("Grund der Verschiebung").fill(MOVE_REASON);
     await move.getByRole("button", { name: "Auf heute verschieben" }).click();
-    // VIS1-3d / VIS1-3e (ADR-112): today's view opens with the move's result (?verschoben=<visit>).
-    await page.waitForURL(/\/field\?verschoben=/);
+    // VIS1-3d / VIS1-3e (ADR-112): today's view opens with the move's result (shown once, VIS1-3g).
+    await expect(page.getByTestId("moved-to-today")).toBeVisible();
 
     const card = page.getByRole("article", { name: F2_CARD });
     await expect(card).toContainText("Geplant");
@@ -338,10 +338,13 @@ test.describe("field tool (F1)", () => {
     await move.getByLabel("Bis").fill("18:30");
     await move.getByLabel("Grund der Verschiebung").fill(MOVE_REASON);
     await move.getByRole("button", { name: "Auf heute verschieben" }).click();
-    await page.waitForURL(/\/field\?verschoben=/);
+    await expect(page.getByTestId("moved-to-today")).toBeVisible();
     const card = page.getByRole("article", { name: /18:00 – 18:30/ });
     await card.getByRole("button", { name: "Losfahren" }).click();
     await card.getByRole("button", { name: "Einsatz starten" }).click();
+    // VIS1-3g (UXR-35): the move's notice belongs to the move; after "Einsatz starten" it is no longer shown.
+    await expect(card.getByTestId("visit-status")).toHaveText("Gestartet");
+    await expect(page.getByTestId("moved-to-today")).toHaveCount(0);
     const observations = card.getByRole("region", { name: "Beobachtungen" });
     await observations.getByLabel("Neue Beobachtung").fill("Haut am Rücken gerötet, Lagerung angepasst.");
     await observations.getByRole("button", { name: "Beobachtung speichern" }).click();

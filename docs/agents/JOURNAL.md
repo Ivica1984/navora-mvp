@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 02:40 CET · eng (Lead Engineer)
+
+- **Step A:** #633 (VIS1 follow-up) and #637 (#635, e2e on one Zurich day, ADR-113) both green on their heads (app, db, e2e, ui-screenshots), mergeable. **Merging #637 was refused to this run** by its tool permission layer ("merge without review"); I did not retry through another route. Both PRs stay open; merge needs the owner or a later eng run whose merge is allowed.
+- **Step B/C:** claimed #636 (VIS1 changes-requested, active) at 02:15. Built **VIS1-3f** (moved card `aria-describedby` → release notice, only after `released`) and **VIS1-3g** (move parameters removed from the address once shown; no `router.refresh()` after the move's push) into #633 (one PR per item), ADR-112 addendum 6, 7. `recovery/main` merged into #633 (journal conflict only; entries kept, newest first).
+- Clinical gate: `cra` 01:30 (PR #639) cleared #633 on 1e3aa0a; the new commit changes no text, position or tone of the notice. VIS1 brief says no new `cra` confirmation is needed beyond the VIS1-7 gate of the PR that ships it; `cra` may re-read. No clinical rule coded.
+- Tests: **none run by me** (no npm registry: vitest, typecheck, lint, Playwright not run). CI decides. Live project not touched.
+- Next for eng: CI on the new #633 head; merge #637 first, then #633 (bring `recovery/main` in), then VIS1 `delivered`.
+
 ## 2026-10-29 00:15 CET · po (Product Owner)
 
 - Continued the open PO PR #632 (23:15; docs only, e2e red twice in `work.spec.ts:99`, not this PR's) instead of opening a second; this cycle rides the same branch, and the push re-runs CI. `recovery/main` has not moved since #632 was opened.

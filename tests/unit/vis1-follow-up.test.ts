@@ -7,6 +7,7 @@ import {
   moveLeavesNote,
   movedNoticeHref,
   parseMovedNotice,
+  withoutMovedNotice,
   prefillMoveTimes,
   zurichMinutesNow,
 } from "@/features/field/rules";
@@ -107,5 +108,22 @@ describe("VIS1-3d / VIS1-3e: the move's result on today's view", () => {
   it("the released text is the /team text, word for word", () => {
     expect(RELEASED_ON_MOVE).toBe("Die verantwortliche Person ist zur neuen Zeit abwesend. Der Einsatz ist jetzt offen im Team.");
     expect(MOVED_TO_TODAY_STATUS).toBe("Einsatz auf heute verschoben");
+  });
+});
+
+describe("VIS1-3g: the move's notice is shown once (not kept in the address)", () => {
+  const id = "00000000-0000-4000-a090-000000000021";
+
+  it("drops the move's parameters and keeps every other one in order", () => {
+    expect(withoutMovedNotice(`?verschoben=${id}&offen=1&hinweise=uncovered`)).toBe("");
+    expect(withoutMovedNotice(`?verschoben=${id}`)).toBe("");
+    expect(withoutMovedNotice(`?datum=2026-10-29&verschoben=${id}&von=push`)).toBe("?datum=2026-10-29&von=push");
+    expect(withoutMovedNotice("")).toBe("");
+    expect(withoutMovedNotice("?datum=2026-10-29")).toBe("?datum=2026-10-29");
+  });
+
+  it("the link a move produces leaves nothing behind once stripped", () => {
+    const href = movedNoticeHref(id, true, ["uncovered"]);
+    expect(withoutMovedNotice(href.slice(href.indexOf("?")))).toBe("");
   });
 });
