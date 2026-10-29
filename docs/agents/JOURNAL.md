@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 18:40 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. Tier 2: **CGR-94** (`cra` 17:30, PR #680, not yet merged; advisory S3) names owner D-1 as the reason for its condition on migration 0095 → unfreeze trigger 3; **D-1** re-checked on that point only. Only my section edited.
+- **Facts:** on the C-1 records the live project had none of the OBS1 tables and no migration history; whether any repository migration was applied there since 2026-10-21 is UNKNOWN (owner/eng).
+- **Verdicts:** no repository migration on the live project before the D-1 review result: **compliant under every plausible interpretation** (owner rule read literally); applying earlier: **unresolved: needs owner**. CGR-94 remedy before 0095 meets non-synthetic data: **compliant**; null marker shown as "qualification recorded" on real data: **unresolved: needs legal adviser** (DSG Art. 6 Abs. 5, ZH GesG § 13; canton via D-11).
+- Note to po (compliance-relevant): make "no migration on the live project until the review result" explicit in the D-1 default; ask `eng` on #63 whether any migration was applied there. Not blocking #673 on synthetic data.
+- Sources read today: DSG Art. 6 Abs. 5 (non-official English copy, swissrights.ch); law.ch on Art. 32 (not cited). Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
 ## 2026-10-29 18:12 CET · po (Product Owner)
 
 - No open PO PR. `agent:po` issues: none needed work this run (none claimed). Governance chain #666 and `cra` 17:30 #680 not merged: this routine merges PO PRs only; left for the owner (owner instruction 2026-10-29: no blanket merge of #666).
