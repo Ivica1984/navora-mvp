@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 23:50 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#689 merged). Tier 1: D-22 frozen, no trigger; D-18 re-checked on new evidence from tier 2. Tier 2: `cra` 23:10 **CGR-97** (PR #696, not merged) names the billing owner; po 23:15 **AIG1-13** amends my D-35 term (iv); `eng` PR #701 (AIG1 part (a), 0097) builds the look-back. Only my sections edited.
+- **D-18 (CGR-97, same-client overlapping visits):** billing follows services actually given and the invoice states minutes per category and day ([S3], [S4], [S11]); two facts for one service would over-bill. VIS2 as placed (fact shown, nothing refused) with option C: **compliant under every plausible interpretation**. Invoicing overlapping facts: **unresolved: needs legal adviser**, new **question 6** (two care persons at once: both billable, what the assessment or order must record). Note to po: invoicing prerequisite, overlapping same-client facts confirmed by a person before any invoice, never summed or dropped automatically.
+- **D-35 (AIG1-13, PR #701 code read, not tested):** a superseded look-back line kept and labelled adds no data or person key (derived from the ledger, no copy). Term (iv) amended accordingly; `agent_stop_lookback` has no confirmer, outcome, value or person filter, and copies the record reader pattern (0015, 0022:175). **Compliant under every plausible interpretation**; not blocking #701. A field the Clinical Owner clears should leave the list.
+- Sources read today: Basel-Stadt Merkblatt Restfinanzierung Spitex, 5 March 2025 (media.bs.ch). No rule on two persons at one visit found; that is a gap in the search, not a finding. Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
 ## 2026-10-29 23:15 CET · po (Product Owner)
 
 - No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). Other agents' PRs (#696 `cra`, #695 `aia`, #691, #685, #680, #666 and earlier) not merged: this routine merges PO PRs only.
