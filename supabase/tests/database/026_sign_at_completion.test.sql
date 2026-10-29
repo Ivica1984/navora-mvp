@@ -35,8 +35,10 @@ do $$ begin
 end $$;
 select is(public.create_report_draft('a7000000-0000-4000-8000-000000000701', null, 'a7000000-0000-4000-8000-000000000003') ->> 'result',
   'ok', 'completion opens the draft (built from the visit data)');
+-- OBS1-7 (0096): the snapshot is read through field_reports, not the table API.
 select ok((select snapshot -> 'planned' ->> 'a' = '30' and jsonb_array_length(snapshot -> 'events') >= 2
-           from public.visit_reports where visit_id = 'a7000000-0000-4000-8000-000000000701'),
+           from public.field_reports((select visit_date from public.care_visits where id = 'a7000000-0000-4000-8000-000000000701'))
+           where visit_id = 'a7000000-0000-4000-8000-000000000701'),
   'the draft carries the visit data, no re-entry');
 select is(public.sign_report((select id from public.visit_reports where visit_id = 'a7000000-0000-4000-8000-000000000701'), pg_temp.shown_hash((select id from public.visit_reports where visit_id = 'a7000000-0000-4000-8000-000000000701')),
           'a7000000-0000-4000-8000-000000000004') ->> 'result', 'ok', 'she signs at completion');

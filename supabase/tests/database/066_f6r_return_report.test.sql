@@ -263,7 +263,8 @@ select is(public.record_observation(pg_temp.vid('r1'), 'Synthetisch: Haut geröt
 select throws_ok($$ update public.visit_observations set content = 'x' where visit_id = 'a0660000-0000-4000-8000-000000000001' $$,
   '42501', null, 'no direct update of an observation');
 select pg_temp.act_as(pg_temp.u('rn'));
-select is((select string_agg(o.content || ':' || (o.supersedes_id is not null)::text, ',' order by (o.supersedes_id is not null), o.recorded_at)
+-- OBS1-7 (0096): recorded_at is not selectable through the table API; the two rows differ in supersedes_id already.
+select is((select string_agg(o.content || ':' || (o.supersedes_id is not null)::text, ',' order by (o.supersedes_id is not null))
            from public.visit_observations o where o.visit_id = pg_temp.vid('r1')),
   'Synthetisch: Haut intakt:false,Synthetisch: Haut gerötet (korrigiert):true',
   'a new row supersedes the earlier one; the earlier row is unchanged and visible to the team');

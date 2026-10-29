@@ -39,9 +39,11 @@ select is(public.record_observation('00000000-0000-4000-a000-000000000501', 'Bit
   'ok', 'nurse marks an observation for handover');
 
 select is(
-  (select count(*)::int from public.visit_observations
-   where visit_id = '00000000-0000-4000-a000-000000000501'
-     and author_id = '00000000-0000-4000-a000-000000000902' and source = 'direct' and recorded_at = private.now()),
+  -- OBS1-7 (0096): author and time through field_notes (own = written by the reader …902), not the table API.
+  (select count(*)::int from public.field_notes((private.now() at time zone 'Europe/Zurich')::date) n
+   join public.visit_observations o on o.id = n.id
+   where n.kind = 'observation' and n.visit_id = '00000000-0000-4000-a000-000000000501'
+     and n.own and o.source = 'direct' and n.recorded_at = private.now()),
   2, 'provenance: author, source and server time are recorded');
 
 -- Versions

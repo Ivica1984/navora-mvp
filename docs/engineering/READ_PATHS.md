@@ -1,6 +1,6 @@
 # Read-path inventory: client-, case- and visit-linked reads (RLS2-1)
 
-**Owner:** Engineering (`eng`) · **Briefs:** [`RLS2`](../agents/briefs/RLS2.md), [`RLS3`](../agents/briefs/RLS3.md) · **ADRs:** ADR-080, ADR-083 · **Migrations:** 0066, 0070 · **Proof:** pgTAP `067_rls2_team_scoped_records` (128 assertions), `071_rls3_task_scoped_reads` (88) · **State:** IMPLEMENTED on synthetic data: 0066 and 0070 merged (RLS3 #373 merged as 3d6e125, CI green); F-2, F-4, F-5 closed; F-1 closed (DOOR1-11, 0072 merged), F-3 **closed** (AUD1, 0077 merged as 7f23a3b, pgTAP 077) · **Last change:** 2026-10-26 17:50 Europe/Zurich (COND1-6, 0084: AUD1-M1, purpose `billing` reads `code` values only, also inside the team; AUD1-M2, the stale F-3 "in PR" lines corrected); earlier 2026-10-26 11:50 (COND1-1/-2, 0080: `field_door_notes` intake date, `field_safety_alert_history` (DOOR1-13), `field_quality.claim_ended`, OPS1 `take_access_ended` (LEAVE1-C4); F-1 row aligned (DOOR1-10)); earlier 2026-10-26 00:40 (AUD1: audit-log section, F-3 closed in PR, 0077). Earlier 2026-10-25 16:40 Europe/Zurich (FUP1-5; FUP1-3 `in_billed_version`, 0071, PR #383)
+**Owner:** Engineering (`eng`) · **Briefs:** [`RLS2`](../agents/briefs/RLS2.md), [`RLS3`](../agents/briefs/RLS3.md) · **ADRs:** ADR-080, ADR-083 · **Migrations:** 0066, 0070 · **Proof:** pgTAP `067_rls2_team_scoped_records` (128 assertions), `071_rls3_task_scoped_reads` (88) · **State:** IMPLEMENTED on synthetic data: 0066 and 0070 merged (RLS3 #373 merged as 3d6e125, CI green); F-2, F-4, F-5 closed; F-1 closed (DOOR1-11, 0072 merged), F-3 **closed** (AUD1, 0077 merged as 7f23a3b, pgTAP 077) · **Last change:** 2026-10-29 20:50 Europe/Zurich (**OBS1-C1 / OBS1-7, 0096, ADR-119:** `visit_reports.snapshot`, `signed_by`, `signed_at` and `visit_observations.author_id`, `recorded_at` closed under RLS3-4; inventory of the remaining person-linked select grants, section *Remaining person-linked column grants*, for the PO to decide); earlier 2026-10-26 17:50 Europe/Zurich (COND1-6, 0084: AUD1-M1, purpose `billing` reads `code` values only, also inside the team; AUD1-M2, the stale F-3 "in PR" lines corrected); earlier 2026-10-26 11:50 (COND1-1/-2, 0080: `field_door_notes` intake date, `field_safety_alert_history` (DOOR1-13), `field_quality.claim_ended`, OPS1 `take_access_ended` (LEAVE1-C4); F-1 row aligned (DOOR1-10)); earlier 2026-10-26 00:40 (AUD1: audit-log section, F-3 closed in PR, 0077). Earlier 2026-10-25 16:40 Europe/Zurich (FUP1-5; FUP1-3 `in_billed_version`, 0071, PR #383)
 
 Every table, view and function in schema `public` that the role `authenticated` can select or execute and that returns rows linked to a client, a case or a visit. In NAVORA the client is the case (`cases`); there is no `client_id` column.
 
@@ -44,9 +44,9 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 | `cases` | team; coordination: Operations case list and intake (`/operations`, `src/features/operations/queries.ts:33`). Health columns revoked for everyone (0015) | `notes` revoked | 015, *004* |
 | `care_visits` | team; coordination: `/visits` (**COND2-3, ADR-101:** `/operations` no longer reads it; its unused visit list with the nurse's name was removed, IPA1-C1) | no | 015, *004* |
 | `care_notes` | team; coordination: report status only (`content` revoked, 0015) | `content` revoked | 015 |
-| `visit_reports` | team | `summary`, `snapshot` (team) | *016* |
+| `visit_reports` | team; `snapshot`, `signed_by`, `signed_at` **not selectable by `authenticated`** (RLS3-4, OBS1-7, 0096: column grants on every other column); read per visit only through `field_reports`, `field_countersign_queue`, `field_returned_reports`, `report_returns` and the commands | `summary` (team); `snapshot` through the functions only | *016* (reads through `field_reports` since 0096), 096 |
 | `visit_report_returns` | team: performer and the team's registered nurses | `reason` (same) | 066 |
-| `visit_observations` | team; `author_qualification_recorded` (OBS1-1 marker) not selectable by `authenticated` (column grants on the other twelve columns, 0095); read per observation only through `field_notes`, HAND1 and the report snapshot | observation text (team) | *011*, *042*, 095 |
+| `visit_observations` | team; `author_qualification_recorded` (OBS1-1 marker, 0095), `author_id` and `recorded_at` (OBS1-7, 0096) not selectable by `authenticated` (column grants on the other ten columns); read per observation only through `field_notes` (via `private.observation_authorship`), HAND1 and the report snapshot | observation text (team) | *011*, *042*, 095, 096 |
 | `visit_plan_changes` | team | `reason` (team) | *030*, *050* |
 | `care_plan_items` | team | `goal` (team) | 071 (F-5 closed) |
 | `billable_facts` | team; coordination: intake role (billing preparation, J5) | no | *022* |
@@ -74,7 +74,7 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 | `field_door_notes(date)` (DOOR1-1, 0072) | team + covering member while the cover runs (`private.reads_visit`) | `cases.access_notes`, `cases.language_notes` of the visit's case; since 0080 (DOOR1-13) also the case's intake date (`intake_on`). The intake note never holds a code (DOOR1-12, write guard on every writer, 0080) | 072 (team A yes; team B, other organisation, no-membership account, Operations, administrator, cover after it ended: nothing; anon: no execute), 067 list |
 | `field_safety_alerts(date)` (DOOR1-3/-4, 0073) | team + covering member while the cover runs (`private.reads_visit`); the table `case_safety_alert_values` has no grant to `anon` or `authenticated` | the latest safety-alert value per active category of the visit's case: value, note (<= 300, no code), source, who, when | 073 (team A yes; team B, other organisation, no-membership account, Operations, administrator, cover after it ended: nothing; anon: no execute; table: permission denied), 067 list |
 | `field_safety_alert_history(date)` (DOOR1-13, 0080) | team + covering member while the cover runs (`private.reads_visit`), the same readers as the card; nothing to a person whose access ended (LEAVE1-3) | every recorded value of the access arrangement of the day's cases (value, note <= 300 without a code, source, who, when; newest first), then the intake note `cases.access_notes` as the earliest entry (`source` `referral`, `from_intake`); shown as the history of the one "Zugang" line once a value exists | 080 (team yes; Operations, leaver: nothing), 067 list, 072/073 catalogue |
-| `field_reports(date)`, `field_countersign_queue()`, `field_returned_reports()`, `report_returns(visit)` | team; return reason only for performer and the team's RNs (F6R) | report text, return reason; since 0095 (**OBS1-3**) a new snapshot names per observation its author (id, display name at the time) and the OBS1-1 marker, task *authorship of a clinical entry (ZH GesG § 13, `lca` 13:57)*; signed snapshots unchanged. **OPEN (`lca` 16:05):** `visit_reports.snapshot` is still selectable by the team through the table API (0016), so author and marker in snapshots can be filtered per person by a direct query; closing it like RLS3-4 is for the PO to place | 066, 067, 095 |
+| `field_reports(date)`, `field_countersign_queue()`, `field_returned_reports()`, `report_returns(visit)` | team; return reason only for performer and the team's RNs (F6R) | report text, return reason; since 0095 (**OBS1-3**) a new snapshot names per observation its author (id, display name at the time) and the OBS1-1 marker, task *authorship of a clinical entry (ZH GesG § 13, `lca` 13:57)*; signed snapshots unchanged. **Closed by OBS1-7 (0096, ADR-119; `lca` 16:05):** `visit_reports.snapshot`, `signed_by`, `signed_at` are no longer selectable through the table API, so author and marker in snapshots, and signer with signing time, are read only per visit through these functions (all SECURITY DEFINER) | 066, 067, 095, 096 |
 | `team_cases()`, `team_case_lifecycle()`, `team_plan_status()`, `team_visit_alerts()`, `team_open_visits(date)` | team | open task **kinds** (no text); `team_cases` since 0088 (**COND2-4, ADR-102**) also the case's urgency source and, since COND2-4a, the requested start of **this return's** request (code, date; null when that request had none), only while the case's `review_after_pause` task is open | 067 sweep, *014*, *038*, 088 (team member and care assistant yes; nurse of another team, Operations: nothing) |
 | `my_covers()`, `cover_offers()` | own cover; offers without identity (COVER1) | no | 067 sweep, *028* |
 | `my_signals()` | own deliveries | no | 067, 062 |
@@ -144,13 +144,43 @@ Writers only (no read): `private.write_audit_event`, `private.write_audit_delete
 
 ## Identity with event or correction times (RLS3-4)
 
-`actor_id` of `visit_events` and `visit_time_corrections` is not selectable through the table API (0070). These are the only functions that return another member's identity together with a visit event or correction time; each returns it **per visit**, never as a list or total per person (D-23 term b). pgTAP 071 derives the list from the catalogue and fails on a new one. The PO accepts each task at review.
+`actor_id` of `visit_events` and `visit_time_corrections` is not selectable through the table API (0070). **Since 0096 (OBS1-7, ADR-119; pgTAP 096) also closed:** `visit_reports.snapshot`, `visit_reports.signed_by`, `visit_reports.signed_at`, `visit_observations.author_id`, `visit_observations.recorded_at` (and since 0095 `visit_observations.author_qualification_recorded`). A member of the visit's team gets `permission denied` (42501) on a direct select of each; `select *` on either table is refused. The OBS1-5 "never as a list, count or filter per person" now holds for the snapshot, the signer and the observation author too, not only for the marker column. These are the only functions that return another member's identity together with a visit event or correction time; each returns it **per visit**, never as a list or total per person (D-23 term b). pgTAP 071 derives the list from the catalogue and fails on a new one. The PO accepts each task at review.
 
 | Function | Identity returned | Care task | Who |
 |---|---|---|---|
 | `field_reports(date)` | signer, countersigner, returner (names), with the report snapshot (event times, correction reason) | J5: sign and countersign the visit report; F6R return | team |
 | `report_returns(visit)` | returner (name), with the returned snapshot | F6R: correct a returned report | performer and the team's registered nurses |
 | `visit_correction_history(visit)` | corrector (name), (a) only | RLS3-4b: the people who sign the visit see who corrected it and why; billing (b) sees values and times only | (a) team, cover, author, countersigner; (b) coordination roles |
+
+## Remaining person-linked column grants (OBS1-7 (c), inventory only, 2026-10-29)
+
+Every remaining **select** grant to `authenticated` (table-wide or column) on a column that names a person (author, actor, signer, corrector, performer, responsible or a `…_by` column), read from a database built from 0001-0096 (`information_schema.columns`, `has_column_privilege`, `pg_policies`). One line each: table, person columns still selectable, table-wide grant (✓) or column grants (cols), the permissive select policy that limits rows (the restrictive `leave1_access_open` applies everywhere). **No change was made by this list**; the PO decides on it in a later run (OBS1-7 (c)). Time columns next to these (`created_at`, `occurred_at`, `…_at`) are selectable wherever the row is.
+
+**Care records (client, case or visit linked):**
+
+| Table | Person columns still selectable | Grant | Rows limited by |
+|---|---|---|---|
+| `visit_reports` | `performer_id`, `created_by`, `countersigned_by`, `withdrawn_by` (with `countersigned_at`, `withdrawn_at`, `created_at`) | cols | `team_members_read`: team |
+| `visit_report_returns` | `performer_id`, `returned_by` | ✓ | `performer_and_team_rn_read`: performer and the team's RNs |
+| `care_visits` | `responsible_user_id`, `covered_by`, `suspended_by` | ✓ | `scoped_read`: team or coordination role |
+| `cover_events` | `nurse_id` | ✓ | `team_scoped_read`: team of the visit, or the nurse herself |
+| `visit_plan_changes` | `actor_id` | ✓ | `team_members_read`: team |
+| `visit_status_notes` | `actor_id` | ✓ | `team_scoped_read`: `reads_visit` |
+| `working_time_facts` | `performer_id` | ✓ | `team_scoped_read`: team |
+| `care_plan_items` | `created_by`, `retired_by` | ✓ | `team_members_read`: team |
+| `case_tasks` | `done_by` | ✓ | `team_scoped_read`: `reads_case` |
+| `case_lifecycle_events` | `actor_id` | ✓ | `scoped_read`: the case is readable |
+| `case_gp_notices` | `recorded_by` | cols | `case_team_and_coordinators_read`: team, case team or coordination role |
+| `cases` | `primary_nurse_id`, `deputy_nurse_id`, `intake_consent_confirmed_by` | cols | `scoped_read`: team or coordination role |
+| `team_decisions` | `actor_id` | ✓ | `team_scoped_read`: team |
+| `quality_events` | `author_id`, `owner_id` | ✓ | `scoped_read`: team, or administrator and coach for serious events |
+| `quality_event_log` | `actor_id` | ✓ | `readable_with_event`: the event is readable |
+| `quality_holds` | `set_by`, `lifted_by` | ✓ | `scoped_read`: team or coordination role |
+| `billable_facts` | `created_by` | ✓ | `scoped_read`: team or intake role |
+| `safety_signals` | `taken_by` | cols | `safety_signals_delivered`: a recipient of the signal |
+| `referral_links` | `actor_id` | ✓ | `intake_read`: intake role |
+
+**Not care records (people, administration, own rows), for completeness:** `audit_events.actor_id` (✓, no permissive policy since AUD1: 0 rows), `change_log.actor_id` (✓, coordination roles), `exception_events.actor_id` (✓, coordination roles), `exception_rule_overrides.updated_by` (✓, coordination roles), `response_deadlines.updated_by` (✓, coordination roles), `member_access_events.actor_id, user_id` (✓, administrator or self), `member_contract_events.actor_id, user_id` (✓, administrator or self), `member_invitations.invited_by` (✓, administrators), `member_profiles.user_id, updated_by` (✓, organisation), `organization_memberships.user_id` (✓, own), `organization_push_settings.updated_by` (cols, organisation), `push_subscriptions.user_id` (cols, own), `team_memberships.user_id` (✓, team, coordination roles, own), `member_absences.user_id, recorded_by` (cols, team), `working_day_versions.user_id` (✓, own), `working_time_notice_acks.user_id` (✓, own).
 
 ## What this inventory does not cover
 
