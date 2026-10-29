@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 19:20 CET · eng (Lead Engineer)
+
+- Own PR **#673 (OBS1)**: CI green on `f837fc0` (app, db, e2e, ui-screenshots). OBS1-6 reads complete: `lca` 16:01 (#674, not blocking on synthetic data), `cra` 17:30 (#680: CGR-93 remedy met, gate clear once CI green on this head). First merge attempt refused: `JOURNAL.md` conflicted with `recovery/main` (po 18:12, lca 18:40 entries). Resolved by a merge commit (both sides kept, no history rewrite); no change to 0095, pgTAP 095 or the three screens, so the `cra` read still applies.
+- `IMPLEMENTATION_STATUS.md`: OBS1 → **`delivered`** in the same merge commit; it is merged only with CI green on that head, so the state and the merge land together (READY_FOR_REVIEW for the PO).
+- Not in #673 (PLANNED): **OBS1-7** (per-visit read paths for `visit_reports.snapshot`/`signed_by`/`signed_at`, `visit_observations.author_id`/`recorded_at`; `lca` 16:05) — own small PR or condition OBS1-C1, before G-18/G-23/G-24; **UX2-27** (UXR-48). **CGR-94** (null marker before 0095) belongs to the D-1 deploy record.
+- Tests: none run by me this run (conflict in docs only). CI decides on the merge head. Live project not touched.
+
+---
+
 ## 2026-10-29 18:40 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. Tier 2: **CGR-94** (`cra` 17:30, PR #680, not yet merged; advisory S3) names owner D-1 as the reason for its condition on migration 0095 → unfreeze trigger 3; **D-1** re-checked on that point only. Only my section edited.
@@ -22,6 +31,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Challenge:** "Why does a security measure wait for a legal review?" Coupling the two adds a coordination step with no protective value: rotation destroys no evidence and only lowers risk. From scratch, security measures run on their own clock and the review documents them. Acted on through the D-1 ask (2); no hypothesis row (not a pilot question).
 - Packages: no other unfreeze trigger; D-37 still waits for D-36. None decided by po.
 - Tests: none run by me (docs only; the `lca` section read through git). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-29 17:30 CET · eng (Lead Engineer)
+
+- Own PR **#673 (OBS1)**: no CI had run on head `2a290d2` (no workflow run recorded for that commit) and the branch was behind `recovery/main` (#677, #678, #679). Merged `recovery/main` in (JOURNAL: both sides kept, newest first) and pushed so CI runs on the current head. No code change. `npm run agents:check` ok locally; build, vitest, pgTAP and Playwright not run locally (CI decides).
+- **Not merged:** OBS1-6 requires the `cra` read of #673; no `cra` review covering #673 exists yet (latest `gov/review` is 13:40, before the PR). `lca` 16:05 residual (`visit_reports.snapshot` table-selectable, ADR-118 deviation 6) stays OPEN for `po`.
+- Next eng run: if CI is green and the `cra` read is in without a blocking finding, merge #673 and set OBS1 to `delivered`.
 
 ---
 
@@ -44,6 +61,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 16:28 CET · eng (Lead Engineer)
+
+- Own PR **#673 (OBS1)** was `dirty` (JOURNAL conflict with #672/#674), so no CI ran on `d93e894`. Merged `recovery/main` in (`b043a48`, both entries kept, newest first): CI run 40900212813 green on all four jobs (db, e2e, app, ui-screenshots).
+- **UXR-47 applied (uxa, low):** `QUALIFICATION_NOT_RECORDED_TEXT` is now "Qualifikation war beim Schreiben nicht erfasst"; ADR-118 and the status row follow. Tests use the constant. Not run locally (no dependencies in this run); CI decides.
+- **UXR-48 (low, not required for OBS1):** not applied in this PR; open for `po` to place.
+- **Not merged:** the status row says merge after the `lca` and `cra` reads. `lca` read done (#674, not blocking; snapshot raw-path residual goes to `owner`). `cra` read (CGR-93 gate) OPEN; next run merges once it is in and CI is green.
+
+---
+
 ## 2026-10-29 16:24 CET · po (Product Owner)
 
 - No open PO PR. No `agent:po` issue needed work this run (none claimed). Governance chain #666 (contains #662 … #582) not merged: this routine merges PO PRs only; left for the owner, as at 15:40.
@@ -63,15 +89,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - `uxa` answers asked by the PO: UX2-22 "Offen im Team" becomes one `info` line without count or client names; UX2-23 confirming-step wording (one fact for `eng` to confirm: pending proposals rest while off); UX2-26 layout (radios, none checked, "Später").
 - Design system version 17 (§2 status moves, new PLANNED §4 rule "who wrote a record entry"). No benchmark (one today at 03:51).
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing.
-
----
-
 ## 2026-10-29 16:05 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. No new `cra` finding since 13:40 (CGR-93 already taken at 13:57). **Explicit request:** PR #673 (OBS1, 0095, ADR-118; OBS1-6) asks `lca` whether OBS1-5 keeps G-18 and D-23 term (b) intact → **D-23** (po-decided, not frozen) re-checked on that question only. D-15 is frozen and was not edited.
 - **Verdicts:** OBS1 against G-18 and term (b) as worded: **compliant under every plausible interpretation** (no per-person screen, export or count; no visit-event performer returned; marker column closed). Residual: `visit_reports.snapshot` stays table-selectable by the team (0016), so the new `author_id` and marker in snapshots can be filtered per person by a direct query. `visit_observations.author_id`/`recorded_at` and `visit_reports.signed_by`/`signed_at` are row-readable too (pre-existing). Closing these like RLS3-4: **compliant**. As built: **unresolved: needs owner** (proportionality, DSG Art. 6/7, OR Art. 328b).
 - Note to po: not blocking for merging #673 on synthetic data; close the raw path or put the question to the owner before G-18/G-24; OBS1-5/READ_PATHS wording accurate only for the column; G-19 item 2 gains the author name and marker for the employer's text.
 - Sources read today: OR Art. 328b (non-official copy), onlinekommentar DSG Art. 7. Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
+## 2026-10-29 15:52 CET · eng (Lead Engineer)
+
+- Own PRs: none open at start. Claimed **OBS1** (#671) at 15:25.
+- **OBS1 built** (migration 0095, ADR-118, remediation plan `clinical/remediation/CGR-93.md`), PR #673: the marker is a column set by an insert trigger from the ADM2-16 rule (fixed at write time, never refuses) and not selectable through the table API; `field_notes` and HAND1 name the author and carry the marker; new report snapshots hold author id, name and marker, signed ones untouched; `/field` card, HAND1 and report facts show them (`info` tone); the countersigning RN now sees the facts. Engineering questions answered in ADR-118 (column; the only snapshot builder is `private.visit_report_snapshot`).
+- Clinical gate: latest report 2026-10-29 13:40 (#666, not yet merged); CGR-93 is this item's origin, handled by ADR-118. Hazard H-04, PS-82 read on that branch. No other finding touches OBS1.
+- OPEN: **`lca`** reads the PR (OBS1-6: G-18, D-23 term b); **`cra`** reads it as its CGR-93 gate; **`uxa`**: the three PROVISIONAL texts (marker, "not stored" line, member without name). Engineering merges only after the `lca` and `cra` reads with CI green.
+- Seed: `notiz.test` (…962, Testteam C, never signs in) wrote an observation on today's 07:00 visit of Testfall C1 before her qualification was recorded (then recorded, so pgTAP 018 stays); teamc.test's draft for that visit.
+- Tests run by me: migrations 0001-0095 + seed on local PostgreSQL 16 with auth stubs and a pgTAP stand-in; 0095 twice; pgTAP 095 47/47 (stops without 0095); every other file the same with and without 0095 (91 green, 3 stand-in gaps). `authorship.ts` type-checked alone and run in Node. vitest, lint, typecheck, build, Playwright **not run** (no npm registry); CI decides. Live project not touched; synthetic data only.
 
 ---
 
