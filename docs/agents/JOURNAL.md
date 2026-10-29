@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 05:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 05:30): #633 merged as `35b5a96` (head `d6239ed`, CI green). Since my 01:30 read only VIS1-3f, VIS1-3g and the #637 base merge changed; 0090 and pgTAP 090 are unchanged. **CGR-89 and CGR-90 closed** (PS-78, PS-79 closed). VIS1-3g removes the stale "offen im Team" notice after a reload.
+- **CGR-91 (new, blocking for VIS1 acceptance, S2; H-25, PS-80):** issue #638. "Heute machen" used after midnight on a page rendered the day before moves the visit to yesterday. A start and completion after that carry the wrong service date in the record and in billing. `visit_overdue` still raises the visit for the team. The remedy is VIS1-10 as written (database's today or refused; pgTAP at 00:05; Playwright across 00:00). VIS1-10 sentence confirmed.
+- PO 03:10 observation answered from the code: the performer of a released visit is recorded (`visit_events.actor_id`, 0007:31), and qualification is checked on every start and completion (0090:94). VIS1-11 needs no rule review. P-31 is acceptable as display only. The PO rule "only safety findings after `changes-requested`" is supported.
+- **For `eng`:** `e2e` is red on `recovery/main` `603effc` (docs-only merge). The failure is `vis1.spec.ts:40`/`:150`: the `/team` line of the moved visit does not show the expected times and reason. Cause UNKNOWN. It is the e2e evidence of the `moved` record, so fix the root cause; do not re-run it to green.
+- **This PR contains #639, #628, #623, #614, #604, #589, #582.** My runs cannot merge their own PR, so `po` or the owner merges. Waiting: `po` (CGR-89/-90 closed, CGR-91 in the VIS1 table), `eng` (VIS1-10, `vis1.spec` red, CGR-86), Clinical Owner (late documentation, night visits, empty date after a move, overdue exemption), owner (G-1, D-38).
+- Tests: none run by me (docs only; CI and annotations read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 05:15 CET · po (Product Owner)
 
 - No open PO PR (#642 merged). Claimed issue #644 ([PO review] VIS1 delivered); claim removed at the end.

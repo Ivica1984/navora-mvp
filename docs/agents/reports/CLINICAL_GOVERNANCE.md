@@ -16,6 +16,88 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-29 05:30 CET: #633 merged with VIS1-3f and VIS1-3g added after my 01:30 read; migration 0090 unchanged: **CGR-89 and CGR-90 closed**; VIS1-3g removes the stale "offen im Team" statement I raised at 01:30; issue #638 / VIS1-10 read: **CGR-91** (blocking for VIS1 acceptance, S2: a "Heute machen" move sent after midnight from a page rendered the day before dates the visit to yesterday); VIS1-10 sentence confirmed; PO observation on the performer of a released visit answered from the code
+
+**Scope:** `recovery/main` @ `603effc`. Changes since my 01:30 section (PR #639, open; it contains #628, #623, #614, #604, #589, #582):
+- **Code merged:** #637 (#635, ADR-113) as `e5969a9`: as read at 01:30 (CI script, `work.spec.ts` calendar-day arithmetic, the guard's unit test, e2e timeout 25 → 50 min). #633 (VIS1 follow-up, ADR-112) as `35b5a96`, merged head `d6239ed`. Between the head I cleared at 01:30 (`1e3aa0a`) and `d6239ed` the `src/`, `supabase/` and `tests/` differences are: VIS1-3f and VIS1-3g (`field-client.tsx`, `features/field/rules.ts` `withoutMovedNotice`, `MOVED_RELEASED_NOTICE_ID`), the e2e and unit tests for them, and the #637 files from the base merge. **No migration and no pgTAP file changed** (0090 and pgTAP 090 are byte-identical to `1e3aa0a`).
+- **CI:** `d6239ed` and `35b5a96` green (`app`, `db`, `e2e`, `ui-screenshots`), check runs read through the GitHub API. `recovery/main` head `603effc` (a docs-only PO merge): **`e2e` red**, one test, `vis1.spec.ts:40` (the `/team` line of the moved visit, `toContainText` at `:150`), 106 passed (annotation of check run 123260793139; the job log download was refused to me). Cause UNKNOWN; see "Test integrity" below.
+- **Docs merged:** PO 02:15 (#640: issue #638 adopted as VIS1-10), 03:10 (#641: AUT-18 into VIS1-10, AUT-19 as VIS1-11 / UX2-17), 04:10 (#642: VIS1-10 wording and focus, UXR-38, P-30), 05:15 (#645: VIS1 `changes-requested` for VIS1-10 only, P-31); `uxa` 03:51 (#634); `aia` review 8 (#627); `eng` VIS1 delivered (#643); remediation files `clinical/remediation/CGR-89.md`, `CGR-90.md` (`eng`).
+- **Issues:** #638 (`eng` 01:25: `/field` fixes "today" at render) adopted as VIS1-10, open until built.
+- **Open:** my #582 to #639 chain; #3 unchanged. No other open PR.
+- **Asked of `cra`:** read the VIS1-10 sentence in the VIS1-7 gate (PO 04:10); whether past-dated field actions after midnight need a rule (#638, stays CGR-87 (3), UNKNOWN); the PO's observation on who is recorded as performer of a released visit (PO 03:10, addressed to `eng`, answered below from the code).
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read: the `1e3aa0a..d6239ed` diff of `field-client.tsx`, `features/field/rules.ts`, `tests/e2e/vis1.spec.ts`, `tests/e2e/field.spec.ts`, `tests/unit/vis1-follow-up.test.ts`, `.github/workflows/ci.yml`; issue #638 with its comments; `briefs/VIS1.md` VIS1-10, VIS1-11 and the PO notes (`:45`, `:46`, `:143-161`); `visit_overdue` (0038:97-111); `enforce_visit_transition` as replaced in 0090 (`:85-100`, CGR-12 at `:94`); `visit_events` (0007:22-35); `take_open_visit` (0046). **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-91 | **VIS1-10** (issue #638; "Heute machen" from a `/field` page rendered before midnight) | **blocking for VIS1 acceptance (S2)**; PO already holds VIS1 `changes-requested` for it | IMPLEMENTED gap: `/field` computes "today" once at render and "Heute machen" sends that date to `reschedule_visit`, which accepts a past date as a *Nachtrag* (ADR-063). Used after midnight, the visit is moved to **yesterday** while the confirmation said "Heute": the `moved` row records a date on which the visit did not happen, the visit leaves today's `/field`, and if she then performs it, its start and completion are recorded under yesterday's `visit_date` (0090 `started_before_date` refuses only a start **before** the date, so a start after it passes). Consequences: the care record and the billable fact carry the wrong service date (H-05, BL-20 class), and the nurse is shown no card for a visit she meant to do now. Mitigation present: the visit, planned and past its start, raises `visit_overdue` for the team at once (0038:97-111), so it is not silently lost. Likelihood UNKNOWN (night visits make it realistic) | #638 (eng 01:25, facts from the code); `briefs/VIS1.md:45`, `:143`; 0038:97-111; 0090:85-100 | As VIS1-10 is written, which I accept as the remedy: (1) the move from "Heute machen" lands on the database's today (`private.now()`, Europe/Zurich) or is refused with a named outcome, visit unchanged (date, times, responsible member), no `moved` row, one audit row; a device-clock check alone does not meet it. (2) pgTAP at a pinned clock 00:05 Zurich: the "Heute machen" path with yesterday's date is refused as in (1); with today's date `ok`; the `/team` past-date move still `ok`. (3) Playwright with a pinned clock across 00:00: no success line after the refusal; a second confirm stores the date shown at that confirm. Closes on the merged build with these tests |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-90** | **closed** | #633 merged as `35b5a96` (merged head `d6239ed`, CI green); 0090 §1 and pgTAP 090 unchanged from `1e3aa0a`, where I found the remedy met (my 01:30 section). PO 05:15 records VIS1-9 met. PS-79 closed |
+| **CGR-89** | **closed** | as CGR-90: 0090 §2 `visit_move_leaves_other_visit`, `moveLeavesNote`, pgTAP 090 and `vis1.spec` merged unchanged; PO 05:15 records VIS1-8 met. PS-78 closed for the confirmation fact. Whether an empty planned date after a move needs a replacement visit or a signal stays with the Clinical Owner (UNKNOWN, kept in H-25) |
+| **CGR-86** | open, advisory (S3); #603 | no change |
+| CGR-84, CGR-81 | open (S3, S2); ASM1 brief (PLANNED) | no change |
+| CGR-78, CGR-75 | open, advisory (S2); brief level | no change |
+| **CGR-72** | open, blocking for ADM2 acceptance (S2) | no change; ADM2 is *Next up* 1 after VIS1 |
+| CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-89, CGR-90** (with PS-78 and PS-79).
+
+### #633 as merged: VIS1-3f and VIS1-3g (no clinical finding)
+
+- **VIS1-3g** meets the concern I raised at 01:30 (a reload or a later link still saying "Der Einsatz ist jetzt offen im Team" after someone may have taken it). The move's parameters are removed from the address once shown (`withoutMovedNotice`, `history.replaceState`), and the `router.refresh()` after the push is removed. Tests: unit `vis1-follow-up.test.ts` (parameters dropped, others kept); `vis1.spec` after the released move: the URL has no `verschoben=` / `offen=`, and after `page.reload()` neither `moved-released` nor `moved-to-today` is shown while the card is; `field.spec`: after "Einsatz starten" the notice is gone. `/team` and the `moved` row remain the lasting record.
+- **VIS1-3f:** the moved card's `aria-describedby` names the release notice only when `released`; Playwright checks focus and the accessible description. No wording, position or tone change.
+- The two e2e lines that waited for `?verschoben=` now wait for the notice itself; no assertion was dropped (each check that read the URL now reads the rendered notice). No test skipped.
+
+### VIS1-10: VIS1-7 gate answers (clinical side; not built)
+
+- **Sentence confirmed:** "Inzwischen ist <Wochentag>, <Datum>. Die Zeiten sind neu gesetzt. Prüfe sie und bestätige noch einmal." It states a fact and asks for a check, with no advice and no level. It makes the confirmed time the time seen, which is what the record needs. The re-offer (AUT-18) is equal in safety to the reload: nothing is stored without a confirm of the shown date and times, and the refusal and its audit row stay.
+- **Condition I check on the build:** the stored date is the date the database reads at the second confirm. If midnight passes again between re-offer and confirm, the same refusal applies again (no loop that stores silently). The VIS1-3c rule may leave both times empty and required near midnight; that is acceptable.
+- **Past-dated field actions after midnight** (#638, second paragraph): no new rule. Starting or completing a visit dated yesterday after midnight is late documentation or a night visit crossing midnight, which are CGR-87 (3) and (4). Both stay with the Clinical Owner (UNKNOWN, H-25). I do not set a tolerance. P-31 (`/field` following the shift instead of the calendar day) is acceptable from the clinical side **only as a display choice**: the stored `visit_date`, the VIS1-1 refusal and the VIS1-10 target must keep using the database's calendar day (CR-133). A start tolerance before the date would be a clinical rule with its own row.
+
+### PO observation (03:10) on the performer of a released visit: answered from the code, no finding
+
+A released visit that the mover starts and completes keeps `responsible_user_id` empty, because the start path does not assign. The performer is still recorded: every `visit_events` row carries `actor_id` (`auth.uid()`, 0007:31), and the qualification check runs on **every** transition into `started` and `completed` (CGR-12, `enforce_visit_transition`, 0090:94). So an unqualified member cannot perform a category B or needs-assessment visit, and who performed it is on record. An empty responsible member on a completed visit is a planning field, not a documentation gap. VIS1-11 / UX2-17 ("Übernehmen" through the existing `take_open_visit`, 0046: membership, `not_open` for a past date, `may_perform_visit`, absence, first wins, one `taken` row) adds an entry point, not a rule. I agree that no `cra` rule review is needed beyond the VIS1-7 gate of the PR that carries it.
+
+### PO rule (04:10): "after `changes-requested`, only patient-safety findings enter a capability"
+
+Supported. VIS1-10 qualifies: it prevents a false care record (wrong service date) and is listed here as CGR-91. Findings that are only display (UX2-18, UX2-19, VIS1-11) belong in UX2.
+
+### Test integrity: `e2e` red on `recovery/main` `603effc` (for `eng`; not a clinical finding)
+
+The failing test is the VIS1-4 / VIS1-3a / VIS1-3b test (`vis1.spec.ts:40`): the `/team` line of the moved visit did not contain the expected `<start>–<end>` with "Verschoben von dir: <reason>" (`:150`). It ran at 05:20 Zurich, on code that was green on `35b5a96` at 04:3x. The cause is UNKNOWN to me (the log download was refused). Possibly the test derives the expected times from its own clock while the app prefilled them from another (VIS1-3c). This test is the e2e evidence that the move is on record with its reason (J3 `moved` row), so it must be fixed, not re-run to green or skipped. CGR-86 shows the pattern of a control test that fails at random being re-run to green.
+
+### Clinical Rule Register
+
+- **CR-133:** merged in both layers (0089 commands, 0090 §1 trigger; #633 merged as `35b5a96`). VIS1-10 (PLANNED) will add the "Heute machen" target to the same day source; any shift-based display (P-31) must not change the stored date or the refusal.
+- **CR-134, CR-135:** merged with #633 (`35b5a96`); otherwise unchanged, PROVISIONAL, owner PO.
+- No new hard-coded rule in the merged code (VIS1-3f, VIS1-3g are presentation; `withoutMovedNotice` only removes URL parameters).
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **VIS1** (`changes-requested`; #624, #633 merged) | **CGR-91 blocking for acceptance** until VIS1-10 is merged with the pgTAP and Playwright evidence above. VIS1-7 gate applies to the PR that carries VIS1-10 (and VIS1-11 if it rides). Everything else in VIS1: clear (CGR-87, CGR-89, CGR-90 closed) |
+| Visit lifecycle / CSR1 / billing facts | CGR-90 closed. Wrong service date via a stale "Heute machen": CGR-91 (S2) |
+| #637 (CI) | merged as read; clear |
+| **ADM2** (*Next up* 1) | CGR-72 still blocking for ADM2 acceptance (ADM2-15) |
+| All other items | unchanged from 01:30 |
+
+### Decisions requested
+
+- **po:** record CGR-89 and CGR-90 closed and CGR-91 opened in the VIS1 evidence table; VIS1 accepted only with VIS1-10 (already your rule). **Merge my governance PR chain**: this PR contains #639, #628, #623, #614, #604, #589, #582; my runs cannot merge their own PR.
+- **eng:** VIS1-10 with the tests above; the red `vis1.spec.ts:40` on `recovery/main` `603effc` (root cause, no re-run to green); CGR-86 (#603).
+- **clinical (Clinical Owner, after G-1):** late documentation and night visits across midnight (CGR-87 (3), (4); #638); whether a date left empty by a move needs a replacement visit or a signal (CGR-89 (3)); whether a moved visit is exempt from `visit_overdue` (CR-134, P-27). All UNKNOWN.
+- **owner / legal / regulatory adviser:** unchanged (G-1; D-38; R-11; D-36; D-1).
+
+---
+
 ## 2026-10-29 01:30 CET: #624 VIS1 merged as reviewed: **CGR-87 closed** (PS-76, BL-20 closed; H-25 S1 lifted); VIS1 follow-up #633 (head `1e3aa0a`, migration 0090) read for the VIS1-7 gate: **clinical gate clear to merge**; CGR-89 and CGR-90 remedies met, close when #633 is merged unchanged; wording of VIS1-3d, VIS1-3e (2) and VIS1-8 confirmed; no new finding
 
 **Scope:** `recovery/main` @ `6d3eb34`. Changes since my 22:00 section (PR #628, open; it contains #623, #614, #604, #589, #582):
