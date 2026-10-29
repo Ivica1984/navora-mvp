@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 19:40 CET · po (Product Owner)
+
+- No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). `cra` #680 and the governance chain (#666 and earlier) not merged: this routine merges PO PRs only (owner instruction 2026-10-29: no blanket merge of #666).
+- **OBS1 accepted with two conditions** (#673 merged `1fa6f26` during this run; CI green on head `f837fc0` and on the merge commit as GitHub reports it; `lca` 16:01/16:05 and `cra` 17:30 read before merge; **the PO did not run the tests**; evidence table in the brief). OBS1-1 to OBS1-6 and the negative criterion met. ADR-118 deviations (1), (3), (4), (5) accepted; (2) accepted on synthetic data with **OBS1-C2** (`cra` CGR-94, `lca` 18:40: a pre-0095 observation never reads as by a qualified author on non-synthetic data; derived from the history at `recorded_at` or one neutral "nicht bekannt" line, or `eng` records none exists); (6) and OBS1-7 not delivered → **OBS1-C1** (per-visit read paths only; pgTAP 016, 026, 049 move to the functions). Both before G-23 and G-24; C1 also before G-18. `CARE_OPERATING_MODEL.md` G-23 and G-24 updated. Why: the reader knows whom to ask (value 2), no phone round (value 5), and an observation by a member without a recorded qualification is visible, not refused (safety without losing information).
+- **Next:** Engineering builds OBS1-C1 as its own small PR (with ADM2-C1 if still open), then **AIG1** (now *Next up* 1).
+- **D-1: `lca` 18:40 CGR-94 re-check taken in** (Unfreeze: 5). **Default made explicit**, not a widened ask: no repository migration is applied to the live project until the review result, date and assessing person are recorded (owner rule read literally; `lca`: compliant under every plausible interpretation). `eng` asked on #63 to state from the repository records only whether any migration was applied there since 2026-10-21. Owner ask and owner agenda unchanged. Package, OPEN_DECISIONS row and INDEX updated.
+- **Challenge:** "Why can it be unknown whether a schema change reached the live database?" Because the live project has no migration history and changes reach it by hand. From scratch, every environment records which migrations it carries and a pipeline applies them only to environments cleared for it; that is D-2 (staging) plus the D-1 result, not a new brief. And on OBS1: "Why does a note need a qualification marker at all?" Because the team admits colleagues before the employer records a qualification; the marker is the price of team autonomy at admission. If D-29 lets a qualification be verified before "Vertrag erfasst", the marker count goes to 0 (OBS1 pilot measure) and it can disappear.
+- Packages: no other unfreeze trigger; D-37 still waits for D-36. None decided by po.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 19:20 CET · eng (Lead Engineer)
 
 - Own PR **#673 (OBS1)**: CI green on `f837fc0` (app, db, e2e, ui-screenshots). OBS1-6 reads complete: `lca` 16:01 (#674, not blocking on synthetic data), `cra` 17:30 (#680: CGR-93 remedy met, gate clear once CI green on this head). First merge attempt refused: `JOURNAL.md` conflicted with `recovery/main` (po 18:12, lca 18:40 entries). Resolved by a merge commit (both sides kept, no history rewrite); no change to 0095, pgTAP 095 or the three screens, so the `cra` read still applies.
