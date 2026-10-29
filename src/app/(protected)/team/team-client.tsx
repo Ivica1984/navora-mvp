@@ -1,6 +1,9 @@
 "use client";
 
 import AdmissionSection from "./admission-section";
+import { SuccessorItems, TeamHandover } from "./contract-end-section";
+import type { Leaver, SuccessorItem } from "@/features/contract-end/rules";
+import type { LeaverOpenReport } from "@/features/contract-end/queries";
 import type { TeamAdmissionView } from "@/features/admission/queries";
 import Link from "next/link";
 import { HeaderMenu } from "@/components/layout/Sidebar";
@@ -70,6 +73,9 @@ export default function TeamClient({
   pushStatus = [],
   outsideWatched = [],
   admissions = [],
+  leavers = [],
+  leaverReports = {},
+  successorItems = [],
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
@@ -89,6 +95,11 @@ export default function TeamClient({
   outsideWatched?: OutsideWatchedVisit[] | null;
   /** ADM2-10: the team's admission proposals (empty when team admission is off). */
   admissions?: TeamAdmissionView[];
+  /** ADM2-12 / ADM2-15 (a): colleagues whose contract ends in the next 14 days (registered nurses only). */
+  leavers?: Leaver[];
+  leaverReports?: Record<string, LeaverOpenReport[]>;
+  /** ADM2-15 (b): open cases still naming a person whose access ended. */
+  successorItems?: SuccessorItem[];
 }) {
   const gpByCase = latestNoticeByCase(gpNotices);
   const open = offers.filter((o) => !o.my_team_declined);
@@ -118,6 +129,8 @@ export default function TeamClient({
       <main className="mx-auto grid max-w-xl gap-3 px-4 py-4">
         <SignalBanner initial={signals} onRows={setLiveSignals} />
         <VisitAlerts alerts={visitAlerts} openSignals={splitSignals(liveSignals).open} />
+        <SuccessorItems items={successorItems} />
+        <TeamHandover leavers={leavers} openReports={leaverReports} />
         <OutsideDeliveryStatus rows={pushStatus} />
         <OutsideWatchedVisits rows={outsideWatched} />
 

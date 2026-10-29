@@ -20,6 +20,8 @@ import type { CommandResult } from "@/lib/commands/result";
 import type { AdminPush } from "@/features/push/queries";
 import OutsideDelivery from "./outside-section";
 import AdmissionAdmin from "./admission-section";
+import { AdminHandover, ContractEndControl } from "./contract-end-section";
+import type { Contract, Leaver } from "@/features/contract-end/rules";
 import type { AdminAdmissions } from "@/features/admission/rules";
 import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
 import type { EvaluatorHealth, OutsideWatchedVisit } from "@/features/signals/rules";
@@ -58,8 +60,14 @@ function Feedback({ error, notice }: { error: string | null; notice: string | nu
 const newKey = () => crypto.randomUUID();
 const text = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 
-export default function AdminClient({ data, push = null, evaluator = [], outsideWatched = [], admissions = null }: {
+export default function AdminClient({ data, push = null, evaluator = [], outsideWatched = [], admissions = null, contracts = {}, leavers = [], today = "" }: {
   data: AdminData | null; push?: AdminPush | null; evaluator?: EvaluatorHealth[];
+  /** ADM2-11: the current contract per member (end date). */
+  contracts?: Record<string, Contract>;
+  /** ADM2-12: leavers of the next 14 days. */
+  leavers?: Leaver[];
+  /** The Zurich calendar day (YYYY-MM-DD). */
+  today?: string;
   /** ADM2-1/-6/-9: team admission (null: not an administrator or not loaded). */
   admissions?: AdminAdmissions | null;
   /** SIG2-C1 (2): planned visits outside the watched hours (null: could not be loaded). */
@@ -78,7 +86,8 @@ export default function AdminClient({ data, push = null, evaluator = [], outside
           </p>
         ) : (
           <>
-            <Members data={data} />
+            <AdminHandover leavers={leavers} openReports={data.openReports} />
+            <Members data={data} contracts={contracts} today={today} admissionOn={admissions?.enabled === true} />
             {admissions && <AdmissionAdmin organizationId={data.organizationId} admissions={admissions} />}
             <Invitations data={data} />
             <Teams data={data} />
@@ -107,17 +116,19 @@ type TeamEntry = { team_id: string; team: string; qualification: string | null }
 const teamsOf = (m: AdminMember): TeamEntry[] => (Array.isArray(m.teams) ? (m.teams as TeamEntry[]) : []);
 
 // Members -------------------------------------------------------------------------------------------------------
-function Members({ data }: { data: AdminData }) {
+type ContractProps = { contracts: Record<string, Contract>; today: string; admissionOn: boolean };
+
+function Members({ data, ...contract }: { data: AdminData } & ContractProps) {
   return (
     <Section title="Mitglieder" label="Mitglieder">
       <ul className="grid gap-3">
-        {data.members.map((m) => <MemberRow key={m.user_id} member={m} data={data} />)}
+        {data.members.map((m) => <MemberRow key={m.user_id} member={m} data={data} {...contract} />)}
       </ul>
     </Section>
   );
 }
 
-function MemberRow({ member, data }: { member: AdminMember; data: AdminData }) {
+function MemberRow({ member, data, contracts, today, admissionOn }: { member: AdminMember; data: AdminData } & ContractProps) {
   const { run, pending, error, notice } = useCommand();
   const [mode, setMode] = useState<"idle" | "name" | "role" | "team">("idle");
   // ADM1 changes: a removal releases her future planned visits to the team; the count stays visible here
@@ -139,6 +150,8 @@ function MemberRow({ member, data }: { member: AdminMember; data: AdminData }) {
       </ul>
       {released && <p role="status" data-testid="released-visits" className="text-sm font-semibold text-amber-900">{released}</p>}
       <MemberAccess member={member} data={data} />
+      <ContractEndControl userId={member.user_id} contract={contracts[member.user_id]} today={today}
+        enabled={admissionOn && !data.access[member.user_id]?.ended} />
       {mode === "idle" && (
         <div className="flex flex-wrap gap-2">
           <button type="button" className={secondary} onClick={() => setMode("name")}>Name</button>

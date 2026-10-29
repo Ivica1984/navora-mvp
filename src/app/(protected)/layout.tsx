@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth/session";
 import { signOut } from "@/features/auth/actions";
 import { ACCESS_ENDED_MESSAGE, parseAccessState } from "@/features/auth/access-state";
+import { accessStartsText } from "@/features/contract-end/rules";
 import { errorFields, logEvent } from "@/lib/log";
 import { getNavAccess } from "@/lib/auth/nav-access";
 import { NavAccessProvider } from "@/components/layout/nav-access";
@@ -18,7 +19,8 @@ export default async function ProtectedLayout({
   // counts. The database already returns her nothing and refuses every command (LEAVE1-3); this only replaces the page.
   const { data, error } = await supabase.rpc("my_access_state");
   if (error) logEvent("warn", "auth.access_state_failed", errorFields(error));
-  if (parseAccessState(error ? null : data).ended) {
+  const state = parseAccessState(error ? null : data);
+  if (state.ended) {
     return (
       <main className="grid min-h-screen place-items-center bg-stone-50 p-4">
         <section
@@ -26,7 +28,8 @@ export default async function ProtectedLayout({
           data-testid="access-ended"
           className="grid max-w-md gap-4 rounded-2xl border border-stone-300 bg-white p-6 text-center"
         >
-          <p className="text-lg font-semibold text-stone-900">{ACCESS_ENDED_MESSAGE}</p>
+          {/* ADM2-6 (ADR-115): before her contract start the same screen names the start date. */}
+          <p className="text-lg font-semibold text-stone-900">{state.startsOn ? accessStartsText(state.startsOn) : ACCESS_ENDED_MESSAGE}</p>
           <form action={signOut}>
             <button type="submit" className="min-h-11 rounded-lg border border-stone-400 px-4 text-sm font-semibold">
               Abmelden

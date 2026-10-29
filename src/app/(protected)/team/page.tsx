@@ -9,6 +9,7 @@ import { getMySignals, getVisitsOutsideWatchedHours } from "@/features/signals/q
 import { getGpNotices } from "@/features/gp/queries";
 import { getTeamPushStatus } from "@/features/push/queries";
 import { getMyTeamAdmissions } from "@/features/admission/queries";
+import { getContractEndHandover, getLeaverOpenReports, getSuccessorItems } from "@/features/contract-end/queries";
 import TeamClient from "./team-client";
 
 // J2: requests offered to the caller's teams — the team decides (Teamautonomie).
@@ -25,7 +26,9 @@ export default async function TeamPage() {
   // SIG2-2: per member, whether delivery outside the app is active.
   // SIG2-C1 (2): planned visits of the team's next 7 days outside the watched hours (own teams only).
   // ADM2-10: the team's admission proposals (only when the organisation switched team admission on).
-  const [offers, cases, continuity, billing, lifecycle, visitAlerts, signals, gpNotices, pushStatus, outsideWatched, admissions] = await Promise.all([
+  // ADM2-12 / ADM2-15: colleagues whose contract ends in the next 14 days (registered nurses) and open responsibilities of
+  // a person whose access ended.
+  const [offers, cases, continuity, billing, lifecycle, visitAlerts, signals, gpNotices, pushStatus, outsideWatched, admissions, leavers, successorItems] = await Promise.all([
     getTeamOffers(),
     getTeamCases(),
     getContinuity(month),
@@ -37,6 +40,9 @@ export default async function TeamPage() {
     getTeamPushStatus(),
     getVisitsOutsideWatchedHours(true),
     getMyTeamAdmissions(),
+    getContractEndHandover(),
+    getSuccessorItems(),
   ]);
-  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} visitAlerts={visitAlerts} signals={signals} gpNotices={gpNotices} pushStatus={pushStatus} outsideWatched={outsideWatched} admissions={admissions} />;
+  const leaverReports = await getLeaverOpenReports(leavers);
+  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} visitAlerts={visitAlerts} signals={signals} gpNotices={gpNotices} pushStatus={pushStatus} outsideWatched={outsideWatched} admissions={admissions} leavers={leavers} leaverReports={leaverReports} successorItems={successorItems} />;
 }

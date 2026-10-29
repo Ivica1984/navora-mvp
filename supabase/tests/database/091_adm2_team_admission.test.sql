@@ -129,7 +129,8 @@ select is((select coalesce(array_agg(p.oid::regprocedure::text order by p.oid::r
              and p.proname not in ('propose_team_candidate', 'decide_team_candidate', 'record_member_contract', 'team_admissions',
                                    'admin_team_admissions', 'set_team_admission', 'team_admission_on', 'adm2_outcome',
                                    'adm2_tally', 'adm2_close', 'adm2_evaluate', 'adm2_sweep', 'audit_team_candidate_delete',
-                                   'guard_team_admission_record', 'guard_team_candidate_update')),
+                                   'guard_team_admission_record', 'guard_team_candidate_update',
+                                   'set_member_contract_end' /* 0092: the switch only */)),
           '{}'::text[], 'ADM2-4: no other function (AN1, AN2, OPS1, AUD1, export) reads the admission records');
 
 -- ADM2-5 Consent decision ----------------------------------------------------------------------------------------------------
@@ -170,7 +171,10 @@ select is(pg_temp.decide('ca', (select id from fx where name = 'C'), 'objection'
           'ADM2-5: no decision after the outcome');
 select throws_ok($$delete from public.team_admission_events$$, '42501', null, 'ADM2-3: consents and objections are append-only');
 
--- Lapse after 14 Zurich days.
+-- Lapse after 14 Zurich days. D is proposed one day earlier (10:00 yesterday), so the admitted proposals A and B (admitted
+-- at 10:00 today) are still inside their own 14 days when D lapses (ADM2-8 clarified by po 2026-10-29, pgTAP 092).
+select set_config('navora.test_now', ((((private.now() at time zone 'Europe/Zurich')::date - 1) + time '10:00')
+                                      at time zone 'Europe/Zurich')::text, true);
 insert into fx select 'D', (pg_temp.propose('p', 'Kandidatin Dora Test', 60) ->> 'proposal_id')::uuid;
 select set_config('navora.test_now', ((private.now() at time zone 'Europe/Zurich' + interval '14 days' - interval '1 minute')
                                       at time zone 'Europe/Zurich')::text, true);
@@ -185,6 +189,9 @@ select is((select actor_id from public.team_admission_events where proposal_id =
           '00000000-0000-0000-0000-000000000000'::uuid, 'ADM2-5: the lapse is the system''s act');
 select is(private.adm2_lapse_at('2026-10-20 10:00 Europe/Zurich'), '2026-11-03 10:00 Europe/Zurich'::timestamptz,
           'ADM2-5 DST1: the lapse keeps the Zurich local time across the night the clocks change');
+-- Back to 10:00 of the first day (D lapsed at 10:00 on day 13): the contract of A and B is recorded below.
+select set_config('navora.test_now', ((((private.now() at time zone 'Europe/Zurich')::date - 13) + time '10:00')
+                                      at time zone 'Europe/Zurich')::text, true);
 
 -- ADM2-8 Withdrawal deletes the candidate -------------------------------------------------------------------------------------
 insert into fx select 'E', (pg_temp.propose('p', 'Kandidatin Emma Test', 70) ->> 'proposal_id')::uuid;

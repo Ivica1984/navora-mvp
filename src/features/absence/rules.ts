@@ -17,6 +17,8 @@ export const TAKE_MESSAGES: Record<string, string> = {
   absent: "Du bist zu dieser Zeit als abwesend erfasst.",
   not_open: "Dieser Einsatz ist nicht mehr offen.",
   rejected: "Dieser Einsatz gehört nicht zu deinem Team.",
+  // ADM2-11 (0092)
+  outside_contract: "Dieser Einsatz liegt nach deinem Vertragsende.",
 };
 
 const ZONE = "Europe/Zurich";

@@ -1919,6 +1919,9 @@ isOneToOne: false
               "case_id": string,"client_label": string,"distinct_nurses": number,"primary_set": boolean,"primary_share_pct": number,"team_name": string,"visits": number
             }[]
                            },
+"contract_end_handover":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "convert_partner_request":
 { Args: { "p_consent_confirmed": boolean,"p_facts": Json,"p_first_name": string,"p_idempotency_key": string,"p_last_name": string,"p_request_id": string }; Returns: Json
                            },
@@ -2059,6 +2062,9 @@ isOneToOne: false
             }[]
                            },
 "my_access_state":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"my_contract_end":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
 "my_covers":
@@ -2235,6 +2241,9 @@ isOneToOne: false
 "set_exception_rule":
 { Args: { "p_amount": number,"p_escalate_to_p1_after_hours": number,"p_exception_type": string,"p_idempotency_key": string,"p_organization_id": string,"p_priority": string }; Returns: string
                            },
+"set_member_contract_end":
+{ Args: { "p_end_date": string,"p_idempotency_key": string,"p_user_id": string }; Returns: Json
+                           },
 "set_member_qualification":
 { Args: { "p_idempotency_key": string,"p_qualification": string,"p_reason": string,"p_team_id": string,"p_user_id": string }; Returns: string
                            },
@@ -2330,6 +2339,9 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "active": boolean,"member_name": string,"team_id": string,"team_name": string,"user_id": string
             }[]
+                           },
+"team_successor_items":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "team_visit_alerts":
 { Args: Record<PropertyKey, never>; Returns: {

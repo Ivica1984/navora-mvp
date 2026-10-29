@@ -3,7 +3,7 @@ import "server-only";
 import type { Database } from "@/lib/supabase/database.types";
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
-import { accessStateByUser, type AccessEvent, type AccessState } from "./rules";
+import { accessStateByUser, lastEventAtByUser, type AccessEvent, type AccessState } from "./rules";
 
 type Fn = Database["public"]["Functions"];
 export type AdminMember = Fn["admin_members"]["Returns"][number];
@@ -33,6 +33,8 @@ export type AdminData = {
   access: Record<string, AccessState>;
   /** LEAVE1-12 (1): her open reports by kind, visit date and team (no content, no reason). */
   openReports: Record<string, OpenReport[]>;
+  /** ADM2-13 (0092): the time of her newest access event (a contract end is restored by an event after it). */
+  lastAccessEventAt: Record<string, string>;
 };
 
 function fail(event: string, error: unknown): never {
@@ -85,5 +87,6 @@ export async function getAdminData(): Promise<AdminData | null> {
     rules: rules.data ?? [],
     access: accessStateByUser((accessEvents.data ?? []) as AccessEvent[]),
     openReports,
+    lastAccessEventAt: lastEventAtByUser((accessEvents.data ?? []) as AccessEvent[]),
   };
 }

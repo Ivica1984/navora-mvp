@@ -7,6 +7,7 @@ import { formatDayLabel } from "@/features/field/rules";
 import { HeaderMenu } from "@/components/layout/Sidebar";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import { acknowledgeWorkingTimeNotice, confirmWorkingDay, exportWorkingMonth } from "@/features/work/commands";
+import { myContractEndText, type MyContractEnd } from "@/features/contract-end/rules";
 import type { DayVersion } from "@/features/work/queries";
 import {
   CORRECTED_MARK, KIND_LABEL, NOTICE_DRAFT_HINT, NOTICE_HEADINGS, NOTICE_LEAD, NOTICE_PARAGRAPHS, NOTICE_TITLE, OUTSIDE_KINDS, REASON_CODES, REASON_LABEL,
@@ -25,6 +26,8 @@ type Props = {
   versions: DayVersion[];
   /** WORK1-C3 (d): her own number of confirmed days not yet exported (null when not available). */
   unexported: number | null;
+  /** ADM2-14 (a): her recorded contract end within the next 14 days (null otherwise). */
+  contractEnd?: MyContractEnd | null;
 };
 
 const primary = "min-h-11 rounded-lg bg-emerald-800 px-4 text-sm font-bold text-white disabled:opacity-60";
@@ -324,6 +327,12 @@ export default function WorkClient(props: Props) {
     <div className="min-h-screen bg-stone-100 text-emerald-950">
       <Header {...props} />
       <main className="mx-auto grid max-w-xl gap-4 px-4 py-4">
+        {props.contractEnd && (
+          // ADM2-14 (a): the date her access ends; the count and the export prompt stay in "Monat exportieren".
+          <p role="status" data-testid="contract-end-notice" className="rounded-2xl border-2 border-amber-500 bg-amber-50 p-4 text-sm font-semibold text-amber-950">
+            {myContractEndText(props.contractEnd)}
+          </p>
+        )}
         {props.acknowledged ? (
           <>
             <DayForm day={props.day} proposal={props.proposal} versions={props.versions} />

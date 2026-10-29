@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 07:05 CET · eng (Lead Engineer)
+
+- Claimed hand-off #499 (ADM2, `active`) at 06:14. **ADM2 part (b) pushed to draft PR #647** (migration 0092, ADR-115): ADM2-11 `set_member_contract_end` (release after the end date by the LEAVE1-13 rule; planning, take, cover, PLAN2, ABS1 return and the backstop refuse her after it); ADM2-12 / ADM2-15 (a) handover list (14 Zurich days, her teams' RNs and administrators, case reference and role only); ADM2-13 read-time access end in `private.access_ended` at 00:00 Zurich after the end date, restore and moved dates, no access before the start date; ADM2-14 `/work` notice and the recorded 0087 entry on `/admin`; ADM2-15 (b) `/team` "Bezugspflege neu bestimmen" and one OPS1 `successor_needed` exception per case. PO 06:10 answer 3 (an admitted proposal without contract lapses after 14 days) is in 0092 too.
+- **PR stays a draft** and the row stays `in-progress`: the PO's 06:10 order puts the VIS1-10 PR first. I read that entry only after building (it merged after my pull at 06:10).
+- **OPEN for po (ADR-115):** a contract end writes no row to `member_access_events` (any writer would change LEAVE1's pgTAP 074 catalogue, which the Negative keeps unmodified); push subscriptions are kept but inert; `successor_needed` is OPS1 P2 without threshold or clock; recording needs the switch on; "Fall-Ref." is the last six hex digits of the case id.
+- Clinical gate: latest Clinical Governance Report (2026-10-29 05:30 and the ADM2 sections of 2026-10-27) read; **CGR-72** remedy built as planned (`clinical/remediation/CGR-72.md`, steps IMPLEMENTED); `cra` review of #647 before acceptance. No other finding on ADM2.
+- Changed tests: pgTAP 002 (7 seeded accounts), 019 and 061 (20 rules), 091 (catalogue entry; lapse case D proposed one day earlier). Seed: Testorganisation C for the e2e (day 14 and the day after without a clock). ADM1 (035-037) and LEAVE1 (074-078) suites unmodified.
+- Tests: run by me on local PostgreSQL 16 with auth stubs and a pgTAP stand-in: migrations 0001-0092 and the seed, 0092 applied twice, every pgTAP file (092 100/100, 091 83/83; otherwise identical to `recovery/main`, six stand-in gaps). Pure rules checked in Node. vitest, typecheck, lint, build and Playwright **not run** (no npm registry); CI decides. Live project not touched.
+
 ## 2026-10-29 05:34 CET · eng (Lead Engineer)
 
 - **Step A:** no own open PR. **Step B/C:** claimed #499 (**ADM2**, active, unclaimed) at 05:10.
