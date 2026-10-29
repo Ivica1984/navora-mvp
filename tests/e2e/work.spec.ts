@@ -12,9 +12,12 @@ const NURSE = "assist.test@navora.test";
 const ADMIN = "admin.test@navora.test"; // org A, role admin
 const PASSWORD = "navora-local-only";
 
+// Calendar days, not 24-hour steps (#635): in the evening of the first days after the autumn change, "now − 4 × 24 h"
+// lands on the Zurich day three days back (the hour repeated at 02:00 shifts it), so both tests used one day and the
+// second could not confirm it. Same arithmetic as field.spec (ADR-068).
 function zurichDay(offsetDays: number): string {
-  const d = new Date(Date.now() + offsetDays * 86_400_000);
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Zurich", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+  const [y, m, d] = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Zurich" }).split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + offsetDays)).toISOString().slice(0, 10);
 }
 
 async function signIn(page: Page, email = NURSE, landing: RegExp = /\/field/) {

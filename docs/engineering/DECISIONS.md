@@ -1809,3 +1809,28 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** the migration chain 0001-0089 and the seed on a local PostgreSQL 16 with Supabase auth stubs; 0089 applies twice; every pgTAP file under a minimal pgTAP stand-in: 88 of 88 green (`fk_ok`, `col_default_is`, `trigger_is` are skipped by the stand-in), also with the database clock set to 22:30, 23:05, 23:30, 23:58 and 00:20 Zurich and the same result as `recovery/main` there. The pure rules were run by me in Node (assertions of `vis1-rules`). vitest, typecheck, lint, build and Playwright **not run** (npm registry unreachable from this sandbox); CI decides.
 
 **Rollback:** revert the PR. The migration only re-creates three functions from their definitions with an added guard and adds two private functions and one catalogue row; no data changes.
+
+### ADR-113 — e2e suite on one Zurich day: run-day guard and calendar-day arithmetic (issue #635)
+
+**Date:** 2026-10-29 · **Status:** IMPLEMENTED in the PR for #635 (CI decides) · **Owner:** `eng`
+
+**Context:** the PO (#635, 2026-10-29 00:15) reported e2e failures at night: PR #632 (docs only) red twice around 23:25 Zurich in `work.spec.ts:99`; PR #633 red with 13 failures in a run from 23:56 to 00:06. The e2e job keeps the real clock (ADR-081): `supabase start` seeds rows dated by the Zurich day at that moment, while the app (`todayInZurich()`) and the specs (`zurichDay()`) read the Zurich day whenever they run.
+
+**Two causes, reproduced by me (Node, pinned `Date.now`):**
+1. **Crossing midnight (13 failures on #633):** a run seeded before 00:00 and tested after it looks for "today's" visits on a day the seed did not fill. No spec-side change can fix this alone: the app itself moves to the new day.
+2. **24-hour steps across the DST change (`work.spec.ts:99`, 23:25):** `work.spec` computed "N days back" as `now − N × 24 h`. At 23:25 CET on 28.10.2026, `−4 × 24 h` lands at 00:25 CEST on 25.10, the same Zurich day as `−3`. The first test had already confirmed that day, so the second could not confirm it and timed out. It happens only in the last hour before midnight during the four days after the autumn change (and the mirror case in spring).
+
+**Decision:**
+- `work.spec.ts` uses calendar-day arithmetic on the Zurich date, as `field.spec.ts` already does (ADR-068). No assertion changed.
+- `scripts/ci-e2e-day-guard.sh wait` runs in the e2e job **before the seed**: if fewer than `E2E_DAY_MARGIN_MIN` (default 20) minutes are left until midnight Europe/Zurich, it waits until 30 s after midnight. A green e2e job runs about 4 minutes from seed to end (run 40782620429: seed 23:12:03 UTC, Playwright done 23:16:40 UTC), so 20 minutes is five times that. Job timeout 25 → 50 minutes (at most 20.5 minutes of waiting).
+- `scripts/ci-e2e-day-guard.sh check` runs after Playwright (`if: always()`) and annotates a run whose Zurich day changed anyway (diagnosis only; it never fails the job).
+
+**Rejected:** pinning the database clock in e2e as the `db` job does (ADR-081): the Next.js server and the browser read the real clock, so database and app would disagree all day instead of only at midnight. A fake clock inside the app is a production code path for tests; not worth it. Re-running at night: forbidden as a root cause.
+
+**Not changed (OPEN, other specs):** `intake`, `planning`, `lifecycle`, `journey` build dates with `toISOString()` (UTC) plus whole days; between 00:00 and 01:00/02:00 Zurich these are one day earlier than meant. All are future dates (+1 to +90 days) entered into forms, so none is known to fail; left as they are to keep this change small.
+
+**App check (PO ask 3), finding for `po`, not a test fix:** the database commands read the day when they run (`private.now()`), so no visit dated after the real today can be worked (VIS1 holds). But `/field` computes "today" once when the page renders. A page opened before midnight on a future day and used after midnight sends "Heute machen" with the **old** date, which is now yesterday: `reschedule_visit` accepts a past date (a documented "Nachtrag", ADR-063/ABS1-C5), so the visit is moved to yesterday while the form said "Heute". The form shows the date, but the outcome is a visit on a past day that no longer appears on today's view. Likewise, field actions on a card dated "today" at render are, after midnight, actions on a past-dated visit (allowed today; late documentation is CGR-87 (3), UNKNOWN). Reported to the PO as an issue; not built here.
+
+**Tests:** `tests/unit/ci-e2e-day-guard.test.ts` (vitest; clock replaced through `E2E_GUARD_NOW`, no sleeping): wait at 23:50 CET and 23:45 CEST, no wait at 23:40, 00:00:30 and 14:00, configurable margin, `check` flags a changed day and stays quiet otherwise. **Run by me:** the same cases through bash on this container; vitest, lint, typecheck and Playwright **not run** by me (no npm registry here); CI decides.
+
+**Rollback:** revert the PR.
