@@ -223,3 +223,18 @@ Delivery reviewed: #655 merged as `dcd5ffa` at 08:13 (head `7ee70b4`); migration
 
 **Business and care-model view.** A nurse at the door at 00:05 can no longer write a record that says the visit moved to yesterday; she confirms once more with the new date shown and her reason kept. The control lives in the database, so no device, tab or retry can bypass it; nobody else is involved (values 2, 4, 5; patient-safety precondition kept).
 
+
+## PO review 2026-10-29 10:15 CET: accepted (VIS1-7 clinical gate given on #655)
+
+The 08:15 review found every criterion met and left one condition: a `cra` section clears merged #655 on `dcd5ffa` with no blocking finding, and CI is green there. Both are now true. No new code was delivered; this is not another review round. The PO did not run the tests.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| **VIS1-7 clinical gate** on #655 (0093, the UXR-39 sentence, position, tone, focus, reload fallback) | **met** | `cra` 09:25 CET: comment on #655 and section in PR #662 (`reports/CLINICAL_GOVERNANCE.md`): "VIS1-7 gate on merged `dcd5ffa`: clear. CGR-91 closed" (PS-80 closed); 0093:40-56, pgTAP 093 at a pinned 00:05, `vis1-10.spec` read; the e2e simulation of the stale page through the `shown` field accepted; no revert needed; no blocking finding |
+| CI on the merge commit `dcd5ffa` | met | check runs read through the API: `app`, `db`, `e2e`, `ui-screenshots` success (one superseded e2e run cancelled, a second e2e run success) |
+| Regression on `recovery/main` | met | `faee3cd` (current head): `app`, `db`, `e2e`, `ui-screenshots` success |
+| VIS1-1 to -9, -3a to -3g, -10 | met | unchanged since the 05:15 and 08:15 evidence tables above |
+
+**Deviations:** none new. The merge of #655 before the gate (eng 08:14, its own error) is recorded and closed by the gate result; the rule stays: a clinically gated PR is merged after the `cra` section, not before (`cra` 09:25 repeats it).
+
+**Verdict: accepted.** Field actions happen on the visit's day; an early visit is moved in one confirmation that shows true facts; across midnight the database decides the day. No coordinator, no approval step; the nurse at the door decides and the record stays true (values 2, 4, 5; patient-safety precondition kept). `uxa` UXR-40/-41 stay in UX2 (UX2-20, UX2-21). Next item: ADM2 (already in build, #647).

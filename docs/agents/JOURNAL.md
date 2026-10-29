@@ -4,6 +4,50 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 12:15 CET · po (Product Owner)
+
+- No open PO PR. No `agent:po` issue needed work this run (none claimed). **No delivery to review:** ADM2 #647 is at `bd30b1c` (ADM2-16 built, migration 0094, ADR-117; CI green as GitHub reports), not merged; the `cra` read of the 0094 guard is pending. VIS1 stays accepted.
+- **`uxa` placements** (11:53 and 07:50; scope rule 04:10, so no ADM2 criterion added): **UXR-45 (medium) → UX2-22** (`/field` offers no depart, start, complete or take control to a member without a recorded qualification and shows the ADM2-16 sentence once; hide by default until `cra` says hide or disable); **UXR-43 (medium) → UX2-23** (one confirming step before switching team admission and before "Vertragsende entfernen"); **UXR-44 (low) → UX2-24** (leaver list position, void without a `cra` answer); **UXR-46 (low) → UX2-25** (`text-sm` reference; the manual line only with `cra`). Reason for UX2 and not ADM2: the server already refuses every action UXR-45 names, and UXR-43's commands are audited and reversible. **UX2-22 and UX2-23 are now G-23 preconditions** (`CARE_OPERATING_MODEL.md`): no real organisation switches on team admission without them; they may ship ahead of UX2 in one small PR after ADM2 is merged.
+- **ADR-117 deviation 1** (`record_no_show`, `end_visit_not_completed` not gated): no product objection; a record that a visit did not happen must not be refused, or the missed visit disappears from the team and OPS1/SIG1. Matches ADM2-16 literally ("when they write through" the trigger). `cra` decides in its 0094 read; if it asks for the gate, it rides #647 or the follow-up before `delivered`.
+- **Challenge:** "Why does a screen offer a control the server will always refuse her?" From scratch the screen and the server read one rule. General rule for later briefs (challenge row): a criterion that adds a refusal tied to the person's own state names what the screen shows instead of the control.
+- **For `cra`:** in the 0094 read, (1) ADR-117 deviation 1, (2) UX2-22 hide vs. disable and what "Offen im Team" shows her, (3) optionally UX2-24 position and UX2-25 item wording. **For `eng`:** nothing new on ADM2; merge #647 after the `cra` read with CI green on the head.
+- Packages: no unfreeze trigger (UXR-43 to -46 name no decision; CGR-92's D-29 question was answered by `lca` 09:45 and stays frozen); none worked; none decided by po.
+- Tests: none run by me (docs only; PR #647 comments and `UX_REVIEW.md` read). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-29 11:53 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #657 (07:50 section, not merged) instead of a second `ux/` PR; merged `recovery/main` in, JOURNAL keeps both sides newest first.
+- Reviewed (code only; `ui-screenshots` download refused again): **#655 merged** → UXR-39 closed in code (VIS1 accepted); **PR #647** `bd30b1c` builds UXR-42 as ADM2-15 (c) ("Fall öffnen", "Fall-Ref." on every case card).
+- New findings: **UXR-45 (medium)** `/field` keeps offering depart/start/take to a member whose qualification is not recorded, so ADM2-16 refuses her only after each tap; **UXR-46 (low)** the successor item still names the manual way beside its link; "Fall-Ref." line 12 px. Comment on #647. No issue (no severe or high finding).
+- Design system version 16 (§2 status moves; new OPEN rule from UXR-45). No benchmark (one today at 03:51).
+- Waiting for the PO: UXR-45 placement (ADM2 or UX2), UXR-43/-44 (07:50), UXR-46. Request to `cra` on UXR-45, UXR-46.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing.
+
+---
+
+## 2026-10-29 10:15 CET · po (Product Owner)
+
+- No open PO PR (#661 merged). No `agent:po` issue needed work this run (none claimed).
+- **VIS1 accepted** (#624, #633, #655; queue rank 41): the 08:15 condition is met. `cra` 09:25 (comment on #655, section in PR #662) gave the VIS1-7 gate on merged `dcd5ffa` with no blocking finding and closed CGR-91; CI green on `dcd5ffa` and on `recovery/main` `faee3cd` (check runs read through the API). Evidence table in `briefs/VIS1.md`. No condition open. **For `eng`:** no VIS1 work; set the VIS1 row as you see fit (your file).
+- **ADM2-16 added from `cra` CGR-92** (blocking for ADM2 acceptance, S2; ADM2 in build, so not scope growth after a review): an admitted member without a recorded qualification could start and complete non-B visits of her team, because `enforce_visit_transition` checks qualification only for B and needs assessments. Remedy as `cra` wrote it: refuse depart, start and complete with `qualification_missing` and one audit row; pgTAP (i)-(iv). **Rides #647** (decided, `cra` recommendation); `cra` reads the added guard before merge; fix `ui-screenshots` on `d64aaba` at its cause. `lca` 09:45 (PR #663): the remedy is compliant under every plausible interpretation; billability of such a visit stays **D-29** (unchanged, `awaiting-approval: owner`; no new ask).
+- **Challenge:** "Why is a clinical gate a sentence an agent must remember?" #655 was merged before `cra` read it. From scratch a gate is a state the merge checks. Challenge row added: on a second such slip the PO writes a COORD brief (label plus a CI check red until a `cra` "gate clear" on that head). No build now.
+- `cra` asks `po` to merge its governance chain (#662 contains #646 … #582). Not done: this routine merges PO PRs only; left for the owner. Until merged, `reports/CLINICAL_GOVERNANCE.md` on `recovery/main` lacks the sections since 2026-10-28 05:30; Engineering reads them on the PR branch.
+- Packages: no package worked; none decided by po. D-29 is tier 2 through CGR-92; `lca` re-check (PR #663) leaves it unresolved (owner, legal adviser).
+- Tests: none run by me (docs only; PR #662 and #663 diffs, `cra` comment on #655 and check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-29 09:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 frozen, no trigger. Tier 2: **CGR-92** (`cra` 09:25, PR #662, not yet merged) names **D-29** and asks `legal`/`owner` whether a visit performed by a member without a recorded qualification is billable → unfreeze trigger 3; D-29 picked only (that question only).
+- **D-29 re-check:** on BGer 9C_839/2018, BGE 150 V 273 (secondary summary) and the Spitex Schweiz 2023 position paper (reporting BGE 145 V 161): Grundpflege (KLV Art. 7 Abs. 2 lit. c) needs no formal training of the performer, but instruction and supervision; advice and coordination (lit. a) need professional skills. Billability of A or C work by a member whose qualification is not recorded: **UNKNOWN** (D-11, D-12, D-18); adviser question 8 added. **Verdict on the `cra` CGR-92 remedy (refuse start/complete without a recorded qualification): compliant under every plausible interpretation**; D-29 itself unchanged: **unresolved: needs owner and legal adviser**.
+- Notes to po: category A work other than the needs assessment is not gated for `care_assistant` today (D-15/CR-010, `cra`, not a legal determination); `cra`'s question on the ADM2 two-table access history (ADR-115 deviation 1) is a D-20 point, not taken this run because it was asked only in the report.
+- Sources read today as cited in the section; KVV Art. 51 and KLV Art. 7 primary texts still not read. Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
 ## 2026-10-29 09:25 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 09:25). **VIS1-7 gate on merged #655 (VIS1-10, 0093): clear; CGR-91 closed** (PS-80 closed). `move_visit_to_today` lets the database's today decide or refuses with `day_changed` (nothing changed, one audit row); pgTAP 093 at 00:05; `vis1-10.spec` (stale page simulated through the `shown` field, accepted). CI green on `7ee70b4`, `dcd5ffa`, `faee3cd`. #655 was merged before the gate; no revert needed. **The PO may accept VIS1.**
@@ -13,7 +57,6 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Registers: CR-136 to CR-139 added, CR-009 note; H-04, H-21, H-25 updated; PS-80 closed, PS-61 updated, PS-81 added.
 - **This PR contains #646, #639, #628, #623, #614, #604, #589, #582.** My runs cannot merge their own PR. Waiting on: `po` (accept VIS1; CGR-92 into ADM2; merge the governance chain), `eng` (CGR-92, `ui-screenshots` on #647, CGR-86), owner/legal (D-29), Clinical Owner (night visits, late documentation, successor responsibility), owner (G-1, D-38).
 - Tests: none run by me (docs only; migrations, pgTAP, Playwright and app files read; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
-
 ## 2026-10-29 09:10 CET · po (Product Owner)
 
 - No open PO PR (#659 merged). No `agent:po` issue needed work this run (none claimed). **No delivery to review:** nothing merged since 08:15; no `cra` section on #655 yet, so VIS1 stays `in-review` and is accepted without another PO round once `cra` clears #655 on `dcd5ffa` with no blocking finding.
@@ -44,6 +87,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **For `cra`:** please read #655 post-merge (migration 0093, pgTAP 093, the UXR-39 sentence, position, tone, focus) as the VIS1-7 gate. A `blocking` finding → eng opens a fix or revert PR in the next run.
 - **For the next eng run:** when `cra` clears the gate, set VIS1 `delivered` (#624, #633, #655). Then mark ADM2 #647 ready (PO 06:10 order: VIS1-10 first, now merged; CGR-72 gate). Lesson applied: before merging an in-scope PR, check the brief's gate row, not only CI.
 - Issue #650 closed by #653.
+
+---
+
+## 2026-10-29 07:50 CET · UX/UI Design Architect (uxa)
+
+- Reviewed (code only; `ui-screenshots` download refused again): **#633 merged** → UXR-30 to UXR-35 closed in code (issue #626 can be closed by the PO); **PR #655** (VIS1-10) builds UXR-39 as the PO fixed it; **PR #647** (ADM2) `/team`, `/admin`, `/work` screens.
+- New findings: **UXR-42 (high, issue #656)** the ADM2-15 (b) item "Bezugspflege neu bestimmen" names the case only by a "Fall-Ref." that no case card shows and has no link, so the team cannot find the case; UXR-43 (medium) `/admin` admission switch and "Vertragsende entfernen" without a confirming step; UXR-40, UXR-41 (low, #655 fallback sentence, double announcement); UXR-44 (low, leaver list above today's work; position is `cra`'s). One comment each on #655 and #647.
+- Design system version 15 (status moves; two new OPEN rules in §2). No benchmark (one today at 03:51).
+- Waiting for the PO: UXR-42 placement (ADM2 or follow-up), UXR-43, UXR-40/-41 (not VIS1-required). Requests to `cra` (UXR-42, -44, -40, -41) and `lca` (UXR-42, -43) in the report.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
