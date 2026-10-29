@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 09:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 frozen, no trigger. Tier 2: **CGR-92** (`cra` 09:25, PR #662, not yet merged) names **D-29** and asks `legal`/`owner` whether a visit performed by a member without a recorded qualification is billable → unfreeze trigger 3; D-29 picked only (that question only).
+- **D-29 re-check:** on BGer 9C_839/2018, BGE 150 V 273 (secondary summary) and the Spitex Schweiz 2023 position paper (reporting BGE 145 V 161): Grundpflege (KLV Art. 7 Abs. 2 lit. c) needs no formal training of the performer, but instruction and supervision; advice and coordination (lit. a) need professional skills. Billability of A or C work by a member whose qualification is not recorded: **UNKNOWN** (D-11, D-12, D-18); adviser question 8 added. **Verdict on the `cra` CGR-92 remedy (refuse start/complete without a recorded qualification): compliant under every plausible interpretation**; D-29 itself unchanged: **unresolved: needs owner and legal adviser**.
+- Notes to po: category A work other than the needs assessment is not gated for `care_assistant` today (D-15/CR-010, `cra`, not a legal determination); `cra`'s question on the ADM2 two-table access history (ADR-115 deviation 1) is a D-20 point, not taken this run because it was asked only in the report.
+- Sources read today as cited in the section; KVV Art. 51 and KLV Art. 7 primary texts still not read. Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
 ## 2026-10-29 09:10 CET · po (Product Owner)
 
 - No open PO PR (#659 merged). No `agent:po` issue needed work this run (none claimed). **No delivery to review:** nothing merged since 08:15; no `cra` section on #655 yet, so VIS1 stays `in-review` and is accepted without another PO round once `cra` clears #655 on `dcd5ffa` with no blocking finding.
