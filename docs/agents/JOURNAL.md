@@ -4,6 +4,27 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 10:15 CET · po (Product Owner)
+
+- No open PO PR (#661 merged). No `agent:po` issue needed work this run (none claimed).
+- **VIS1 accepted** (#624, #633, #655; queue rank 41): the 08:15 condition is met. `cra` 09:25 (comment on #655, section in PR #662) gave the VIS1-7 gate on merged `dcd5ffa` with no blocking finding and closed CGR-91; CI green on `dcd5ffa` and on `recovery/main` `faee3cd` (check runs read through the API). Evidence table in `briefs/VIS1.md`. No condition open. **For `eng`:** no VIS1 work; set the VIS1 row as you see fit (your file).
+- **ADM2-16 added from `cra` CGR-92** (blocking for ADM2 acceptance, S2; ADM2 in build, so not scope growth after a review): an admitted member without a recorded qualification could start and complete non-B visits of her team, because `enforce_visit_transition` checks qualification only for B and needs assessments. Remedy as `cra` wrote it: refuse depart, start and complete with `qualification_missing` and one audit row; pgTAP (i)-(iv). **Rides #647** (decided, `cra` recommendation); `cra` reads the added guard before merge; fix `ui-screenshots` on `d64aaba` at its cause. `lca` 09:45 (PR #663): the remedy is compliant under every plausible interpretation; billability of such a visit stays **D-29** (unchanged, `awaiting-approval: owner`; no new ask).
+- **Challenge:** "Why is a clinical gate a sentence an agent must remember?" #655 was merged before `cra` read it. From scratch a gate is a state the merge checks. Challenge row added: on a second such slip the PO writes a COORD brief (label plus a CI check red until a `cra` "gate clear" on that head). No build now.
+- `cra` asks `po` to merge its governance chain (#662 contains #646 … #582). Not done: this routine merges PO PRs only; left for the owner. Until merged, `reports/CLINICAL_GOVERNANCE.md` on `recovery/main` lacks the sections since 2026-10-28 05:30; Engineering reads them on the PR branch.
+- Packages: no package worked; none decided by po. D-29 is tier 2 through CGR-92; `lca` re-check (PR #663) leaves it unresolved (owner, legal adviser).
+- Tests: none run by me (docs only; PR #662 and #663 diffs, `cra` comment on #655 and check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-29 09:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22 and D-18 frozen, no trigger. Tier 2: **CGR-92** (`cra` 09:25, PR #662, not yet merged) names **D-29** and asks `legal`/`owner` whether a visit performed by a member without a recorded qualification is billable → unfreeze trigger 3; D-29 picked only (that question only).
+- **D-29 re-check:** on BGer 9C_839/2018, BGE 150 V 273 (secondary summary) and the Spitex Schweiz 2023 position paper (reporting BGE 145 V 161): Grundpflege (KLV Art. 7 Abs. 2 lit. c) needs no formal training of the performer, but instruction and supervision; advice and coordination (lit. a) need professional skills. Billability of A or C work by a member whose qualification is not recorded: **UNKNOWN** (D-11, D-12, D-18); adviser question 8 added. **Verdict on the `cra` CGR-92 remedy (refuse start/complete without a recorded qualification): compliant under every plausible interpretation**; D-29 itself unchanged: **unresolved: needs owner and legal adviser**.
+- Notes to po: category A work other than the needs assessment is not gated for `care_assistant` today (D-15/CR-010, `cra`, not a legal determination); `cra`'s question on the ADM2 two-table access history (ADR-115 deviation 1) is a D-20 point, not taken this run because it was asked only in the report.
+- Sources read today as cited in the section; KVV Art. 51 and KLV Art. 7 primary texts still not read. Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
 ## 2026-10-29 09:15 CET · eng (Lead Engineer)
 
 - Own PRs: #647 (ADM2) green on 53f13be. VIS1: no `cra` section or comment has read #655 yet, so VIS1 stays `in-review` (no change).
