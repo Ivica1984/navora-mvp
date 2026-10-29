@@ -253,14 +253,14 @@ select is(pg_temp.as_user('ca', format($$ select count(*)::text from public.fiel
 -- (READ_PATHS.md names the care task of each). A new reader fails here until it is listed.
 select is((select string_agg(p.proname, ',' order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'execute') and p.proretset
-             and p.prosrc ~ '(public\.visit_events|public\.visit_time_corrections|visit_report_snapshot|private\.visit_times|effective_event_time|\.snapshot\M)'
-             and (p.prosrc ~ '(member_name|member_code|display_name)'
+             and p.prosrc ~ '(public\.visit_events|public\.visit_time_corrections|public\.visit_observations|visit_report_snapshot|private\.visit_times|effective_event_time|\.snapshot\M)'
+             and (p.prosrc ~ '(member_name|member_code|display_name|observation_qualification_missing)'
                   or exists (select 1 from unnest(p.proargnames, p.proargmodes) a(nm, md)
-                             where md in ('t', 'o') and nm in ('actor_id', 'performer_id', 'user_id', 'nurse_id', 'member_id')))),
-  'field_reports,report_returns,visit_correction_history',
-  'RLS3-4: identity with event or correction times only through field_reports (J5 signing), report_returns (F6R) and visit_correction_history (RLS3-4b)');
+                             where md in ('t', 'o') and nm in ('actor_id', 'performer_id', 'user_id', 'nurse_id', 'member_id', 'author_name')))),
+  'field_notes,field_reports,report_returns,visit_correction_history',
+  'RLS3-4: identity with event, correction or observation times only through field_notes (OBS1, authorship of a clinical entry), field_reports (J5 signing), report_returns (F6R) and visit_correction_history (RLS3-4b)');
 select is((select string_agg(p.proname, ',' order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-           where n.nspname = 'public' and p.proname in ('field_reports', 'report_returns', 'visit_correction_history')
+           where n.nspname = 'public' and p.proname in ('field_notes', 'field_reports', 'report_returns', 'visit_correction_history')
              and (p.prosrc ~* '(group by|count\(|string_agg|array_agg\(distinct)')), null,
   'RLS3-4 / D-23 (b): none of the listed readers groups or counts per person');
 

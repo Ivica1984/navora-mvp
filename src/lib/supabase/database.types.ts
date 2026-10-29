@@ -1525,14 +1525,14 @@ isOneToOne: false
                   ]
                 },"visit_observations": {
                   Row: {
-                    "author_id": string,"case_id": string | null,"content": string,"for_handover": boolean,"id": string,"idempotency_key": string,"organization_id": string,"recorded_at": string,"source": string,"supersedes_id": string | null,"team_id": string,"visit_id": string
+                    "author_id": string,"author_qualification_recorded": boolean | null,"case_id": string | null,"content": string,"for_handover": boolean,"id": string,"idempotency_key": string,"organization_id": string,"recorded_at": string,"source": string,"supersedes_id": string | null,"team_id": string,"visit_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "author_id": string,"case_id"?: string | null,"content": string,"for_handover"?: boolean,"id"?: string,"idempotency_key": string,"organization_id": string,"recorded_at"?: string,"source"?: string,"supersedes_id"?: string | null,"team_id": string,"visit_id": string
+                    "author_id": string,"author_qualification_recorded"?: boolean | null,"case_id"?: string | null,"content": string,"for_handover"?: boolean,"id"?: string,"idempotency_key": string,"organization_id": string,"recorded_at"?: string,"source"?: string,"supersedes_id"?: string | null,"team_id": string,"visit_id": string
                   }
                   Update: {
-                    "author_id"?: string,"case_id"?: string | null,"content"?: string,"for_handover"?: boolean,"id"?: string,"idempotency_key"?: string,"organization_id"?: string,"recorded_at"?: string,"source"?: string,"supersedes_id"?: string | null,"team_id"?: string,"visit_id"?: string
+                    "author_id"?: string,"author_qualification_recorded"?: boolean | null,"case_id"?: string | null,"content"?: string,"for_handover"?: boolean,"id"?: string,"idempotency_key"?: string,"organization_id"?: string,"recorded_at"?: string,"source"?: string,"supersedes_id"?: string | null,"team_id"?: string,"visit_id"?: string
                   }
                   Relationships: [
                     {
@@ -1978,7 +1978,7 @@ isOneToOne: false
                            },
 "field_notes":
 { Args: { "p_date": string }; Returns: {
-              "content": string,"edited": boolean,"for_handover": boolean,"id": string,"kind": string,"own": boolean,"recorded_at": string,"source_date": string,"visit_id": string
+              "author_name": string,"author_qualification_missing": boolean,"content": string,"edited": boolean,"for_handover": boolean,"id": string,"kind": string,"own": boolean,"recorded_at": string,"source_date": string,"visit_id": string
             }[]
                            },
 "field_quality":
