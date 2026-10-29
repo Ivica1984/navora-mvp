@@ -18,7 +18,7 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
 $$;
 
 -- Configuration ------------------------------------------------------------------------------------------
-select is((select count(*)::int from public.exception_rules), 19, 'nineteen operating rules are configured (10 from OPS1 + C1 no_show_open, team_cancellation_late + COVER1 cover_without_access + CSR1 visit_overdue, visit_stuck, visit_interrupted, report_correction_open + SIG1 signal_untaken, 0060 + ORD0 order_without_end_date, 0061)');
+select is((select count(*)::int from public.exception_rules), 20, 'twenty operating rules are configured (10 from OPS1 + C1 no_show_open, team_cancellation_late + COVER1 cover_without_access + CSR1 visit_overdue, visit_stuck, visit_interrupted, report_correction_open + SIG1 signal_untaken, 0060 + ORD0 order_without_end_date, 0061 + ADM2 successor_needed, 0092)');
 select is((select string_agg(exception_type || '=' || priority, ',' order by exception_type) from public.exception_rules
            where exception_type in ('visit_uncovered_hospital', 'visit_uncovered', 'offer_overdue', 'case_not_ready', 'report_not_final')),
   'case_not_ready=P3,offer_overdue=P2,report_not_final=P3,visit_uncovered=P2,visit_uncovered_hospital=P1',

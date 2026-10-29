@@ -151,6 +151,8 @@ export const ACCESS_REASON_LABEL: Record<string, string> = {
   access_withdrawn: "Zugang entzogen",
   employment_resumed: "Anstellung wieder aufgenommen",
   ended_in_error: "Irrtümlich beendet",
+  // ADM2-13 (0092): ended by the recorded contract end, without a command (no row in the access record).
+  contract_end: "Vertragsende",
 };
 
 /** LEAVE1-12: open report kinds (private.open_reports_of, migration 0075). */
@@ -255,6 +257,13 @@ export function accessEndedNotice(counts: OpenReportCounts | null, released = 0,
 
 export type AccessEvent = { user_id: string; kind: string; reason_code: string; created_at: string; seq: number };
 export type AccessState = { ended: boolean; endedAt: string | null; reasonCode: string | null };
+
+/** ADM2-13 (0092): the time of each person's newest access event. */
+export function lastEventAtByUser(events: AccessEvent[]): Record<string, string> {
+  const latest: Record<string, AccessEvent> = {};
+  for (const e of events) if (!latest[e.user_id] || e.seq > latest[e.user_id].seq) latest[e.user_id] = e;
+  return Object.fromEntries(Object.entries(latest).map(([u, e]) => [u, e.created_at]));
+}
 
 /** Current state per person = her newest access event (0074). */
 export function accessStateByUser(events: AccessEvent[]): Record<string, AccessState> {

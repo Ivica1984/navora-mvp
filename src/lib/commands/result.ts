@@ -4,7 +4,13 @@
 export type CommandResult = { ok: true } | { ok: false; error: string };
 
 /** Codes returned by the Postgres command functions (migration …0004; VIS1 adds the day outcomes, 0089). */
-export type DbCommandCode = "ok" | "duplicate" | "rejected" | "not_today" | "started_before_date";
+export type DbCommandCode =
+  | "ok"
+  | "duplicate"
+  | "rejected"
+  | "not_today"
+  | "started_before_date"
+  | "qualification_missing";
 
 /** VIS1 / CGR-87: a visit dated after today is not departed, started or ended (database outcome `not_today`). */
 export const NOT_TODAY_MESSAGE =
@@ -12,6 +18,13 @@ export const NOT_TODAY_MESSAGE =
 /** VIS1 / CGR-87: a visit started before its day is not completed (database outcome `started_before_date`). */
 export const STARTED_BEFORE_DATE_MESSAGE =
   "Dieser Einsatz wurde vor seinem geplanten Tag begonnen und kann so nicht abgeschlossen werden. Bitte im Team klären.";
+
+/**
+ * ADM2-16 / CGR-92 (migration 0094): a member whose qualification is not yet recorded does not depart, start, resume or
+ * complete a visit (database outcome `qualification_missing`). The administrator records it (ADM2-6).
+ */
+export const QUALIFICATION_MISSING_MESSAGE =
+  "Deine Qualifikation ist noch nicht erfasst. Einsätze führst du durch, sobald die Administration sie eingetragen hat.";
 
 type DbError = { code?: string } | null;
 
@@ -23,6 +36,7 @@ type DbError = { code?: string } | null;
  * - 22023          → invalid input caught by the database
  * - NV001          → registered nurse required to start (J3, migration 0014)
  * - not_today / started_before_date → the visit's day (VIS1, migration 0089)
+ * - qualification_missing → no recorded qualification (ADM2-16, migration 0094)
  */
 export function toCommandResult(
   data: unknown,
@@ -46,5 +60,7 @@ export function toCommandResult(
   // VIS1 (migration 0089): the visit's day.
   if (data === "not_today") return { ok: false, error: NOT_TODAY_MESSAGE };
   if (data === "started_before_date") return { ok: false, error: STARTED_BEFORE_DATE_MESSAGE };
+  // ADM2-16 (migration 0094): no visit without a recorded qualification.
+  if (data === "qualification_missing") return { ok: false, error: QUALIFICATION_MISSING_MESSAGE };
   return { ok: false, error: messages.failed };
 }

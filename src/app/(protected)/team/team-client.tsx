@@ -1,5 +1,10 @@
 "use client";
 
+import AdmissionSection from "./admission-section";
+import { SuccessorItems, TeamHandover } from "./contract-end-section";
+import { caseRefLabel, caseReference, continuityAnchorId, type Leaver, type SuccessorItem } from "@/features/contract-end/rules";
+import type { LeaverOpenReport } from "@/features/contract-end/queries";
+import type { TeamAdmissionView } from "@/features/admission/queries";
 import Link from "next/link";
 import { HeaderMenu } from "@/components/layout/Sidebar";
 import { PAGE_LABEL } from "@/lib/auth/nav";
@@ -67,6 +72,10 @@ export default function TeamClient({
   gpNotices = [],
   pushStatus = [],
   outsideWatched = [],
+  admissions = [],
+  leavers = [],
+  leaverReports = {},
+  successorItems = [],
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
@@ -84,6 +93,13 @@ export default function TeamClient({
   pushStatus?: TeamPushRow[];
   /** SIG2-C1 (2): planned visits of the team's next 7 days outside the watched hours (null: could not be loaded). */
   outsideWatched?: OutsideWatchedVisit[] | null;
+  /** ADM2-10: the team's admission proposals (empty when team admission is off). */
+  admissions?: TeamAdmissionView[];
+  /** ADM2-12 / ADM2-15 (a): colleagues whose contract ends in the next 14 days (registered nurses only). */
+  leavers?: Leaver[];
+  leaverReports?: Record<string, LeaverOpenReport[]>;
+  /** ADM2-15 (b): open cases still naming a person whose access ended. */
+  successorItems?: SuccessorItem[];
 }) {
   const gpByCase = latestNoticeByCase(gpNotices);
   const open = offers.filter((o) => !o.my_team_declined);
@@ -113,6 +129,8 @@ export default function TeamClient({
       <main className="mx-auto grid max-w-xl gap-3 px-4 py-4">
         <SignalBanner initial={signals} onRows={setLiveSignals} />
         <VisitAlerts alerts={visitAlerts} openSignals={splitSignals(liveSignals).open} />
+        <SuccessorItems items={successorItems} />
+        <TeamHandover leavers={leavers} openReports={leaverReports} />
         <OutsideDeliveryStatus rows={pushStatus} />
         <OutsideWatchedVisits rows={outsideWatched} />
 
@@ -162,6 +180,8 @@ export default function TeamClient({
             ))}
           </ul>
         </section>
+
+        <AdmissionSection views={admissions} />
 
         <ClosedCases items={lifecycle.filter((l) => l.lifecycle === "closed")} />
 
@@ -466,6 +486,7 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice }: {
   return (
     <article aria-label={`Fall ${teamCase.client_name ?? ""}`} className="rounded-2xl bg-white p-4 shadow-sm">
       <h3 className="font-bold">{teamCase.client_name ?? "Klient:in"}</h3>
+      <p className="text-xs text-secondary" data-testid="case-ref">{caseRefLabel(caseReference(teamCase.case_id))}</p>
       <p className="text-sm text-secondary">
         {teamCase.region} · {teamCase.team_name}
         {needs.length > 0 ? ` · ${needs.join(", ")}` : ""}
@@ -657,7 +678,12 @@ function Continuity({ teamCase, members, continuity }: { teamCase: TeamCase; mem
   }
 
   return (
-    <section aria-label="Kontinuität" className="mt-3 grid gap-1 rounded-xl bg-stone-50 p-3 text-sm">
+    <section
+      id={continuityAnchorId(teamCase.case_id)}
+      tabIndex={-1}
+      aria-label="Kontinuität"
+      className="mt-3 grid scroll-mt-4 gap-1 rounded-xl bg-stone-50 p-3 text-sm focus:outline-2 focus:outline-offset-2 focus:outline-emerald-700"
+    >
       <h4 className="text-xs font-bold uppercase tracking-wide text-secondary">Kontinuität</h4>
       {!hasPrimary && <p className="font-semibold text-amber-800" data-testid="primary-missing">Bezugspflege noch nicht bestimmt.</p>}
       {!hasPrimary && teamCase.proposed_primary_nurse_id && (

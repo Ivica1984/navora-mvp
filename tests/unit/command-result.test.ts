@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toCommandResult } from "@/lib/commands/result";
+import { QUALIFICATION_MISSING_MESSAGE, toCommandResult } from "@/lib/commands/result";
 
 const M = { rejected: "abgelehnt", failed: "fehlgeschlagen" };
 
@@ -25,6 +25,12 @@ describe("toCommandResult", () => {
       ok: false,
       error: "Diesen Einsatz beginnt eine Pflegefachperson (Kategorie B oder Bedarfsabklärung).",
     });
+  });
+
+  it("maps qualification_missing to its own message (ADM2-16, migration 0094)", () => {
+    expect(toCommandResult("qualification_missing", null, M)).toEqual({ ok: false, error: QUALIFICATION_MISSING_MESSAGE });
+    expect(QUALIFICATION_MISSING_MESSAGE).toContain("Qualifikation");
+    expect(QUALIFICATION_MISSING_MESSAGE).not.toMatch(/Kategorie|Abrechnung/);
   });
 
   it("never reports success for an unknown response", () => {

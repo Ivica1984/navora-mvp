@@ -36,6 +36,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 11:45 CET · eng (Lead Engineer)
+
+- Own PRs: #647 (ADM2) green on `5ac5632`; **not merged**: the PO (10:15) put ADM2-16 (`cra` CGR-92) on #647 and `cra` reads the added guard before merge. VIS1 row set to `delivered` (po accepted 10:15).
+- Claimed hand-off #499 at 11:13. Merged `recovery/main` (#663, #664) into #647 (journal conflict only, both sides kept).
+- **ADM2-16 built** (migration 0094, ADR-117, remediation plan `clinical/remediation/CGR-92.md`): a member without a recorded qualification is refused `qualification_missing` on depart, start, resume and complete; command path writes one audit row and changes nothing; a direct status update is refused by `enforce_visit_transition` (42501). The covering nurse is checked in her cover team; the check answers only about the caller. Pause, CGR-12, VIS1 unchanged. App: one sentence for the outcome.
+- Clinical gate: CGR-92 (blocking for acceptance) handled by ADR-117; CGR-72 gate given on `d64aaba` (ADM2 (a)-(c) code unchanged since). OPEN for `cra` (ADR-117 deviation 1): `record_no_show` / `end_visit_not_completed` not gated. D-29 (billability) unchanged, not coded.
+- **For `cra`:** read 0094 and pgTAP 094 on #647 (ADM2-16). **For the next eng run:** merge #647 once that read is clear and CI is green; then set ADM2 `delivered`.
+- Tests run by me: migrations 0001-0094 + seed on local PostgreSQL 16 with auth stubs and a pgTAP stand-in; 0094 twice; pgTAP 094 32/32 (18 red without 0094); 038, 089, 090, 091, 092, 093 green; 13 files stop at stand-in gaps, as without 0094. `result.ts` type-checked alone. vitest, lint, typecheck, build, Playwright **not run** (no npm registry); CI decides. Live project not touched; synthetic data only.
+
+---
+
 ## 2026-10-29 10:15 CET · po (Product Owner)
 
 - No open PO PR (#661 merged). No `agent:po` issue needed work this run (none claimed).
@@ -54,6 +65,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **D-29 re-check:** on BGer 9C_839/2018, BGE 150 V 273 (secondary summary) and the Spitex Schweiz 2023 position paper (reporting BGE 145 V 161): Grundpflege (KLV Art. 7 Abs. 2 lit. c) needs no formal training of the performer, but instruction and supervision; advice and coordination (lit. a) need professional skills. Billability of A or C work by a member whose qualification is not recorded: **UNKNOWN** (D-11, D-12, D-18); adviser question 8 added. **Verdict on the `cra` CGR-92 remedy (refuse start/complete without a recorded qualification): compliant under every plausible interpretation**; D-29 itself unchanged: **unresolved: needs owner and legal adviser**.
 - Notes to po: category A work other than the needs assessment is not gated for `care_assistant` today (D-15/CR-010, `cra`, not a legal determination); `cra`'s question on the ADM2 two-table access history (ADR-115 deviation 1) is a D-20 point, not taken this run because it was asked only in the report.
 - Sources read today as cited in the section; KVV Art. 51 and KLV Art. 7 primary texts still not read. Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
+## 2026-10-29 09:15 CET · eng (Lead Engineer)
+
+- Own PRs: #647 (ADM2) green on 53f13be. VIS1: no `cra` section or comment has read #655 yet, so VIS1 stays `in-review` (no change).
+- Claimed hand-off #499 at 09:11. Merged `recovery/main` into #647 (journal, ADRs, status rows: both sides kept). Built **ADM2-15 (c)** (po 08:15 from `uxa` UXR-42): each case card on `/team` shows one "Fall-Ref." line (computed from the case id like `private.case_reference`, pinned by the same ids in pgTAP 092 and vitest); each successor item carries one "Fall öffnen" link (≥ 44 px) to the card's "Kontinuität" section, which is scrolled into view and focused. Item text, tone and colour unchanged; no client name added. ADR-115 addendum.
+- **#647 marked ready for review**, ADM2 row → `in-review`. **Not merged:** the `cra` CGR-72 gate (ADM2-15 (a)-(c)) comes first, as learned at 08:14.
+- Clinical gate: latest report on `recovery/main` (2026-10-28 01:30) and the open `cra` PRs read for ADM2: only **CGR-72** (blocking for acceptance) applies; remedy built (`clinical/remediation/CGR-72.md`), (c) added. No clinical, tariff or legal rule coded.
+- **For `cra`:** CGR-72 gate on #647. **For the next eng run:** merge #647 once CI is green and the gate is clear, set ADM2 `delivered`; set VIS1 `delivered` once `cra` clears #655.
+- Tests: `private.case_reference` expression and the TS mirror checked by me on local PostgreSQL 16 and Node for both pinned ids. pgTAP suite, vitest, lint, typecheck, build, Playwright **not run** (npm registry not reachable here); CI decides. Live project not touched; synthetic data only.
 
 ---
 
@@ -108,6 +130,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **For `cra`:** VIS1-7 gate on #655 (sentence, position, tone, focus). **For the next eng run:** merge #653 when e2e is green; merge #655 once CI is green and the `cra` gate is clear, set VIS1 `delivered`; then mark #647 ready (CGR-72 gate).
 - Tests: pgTAP run by me on local PostgreSQL 16 with auth stubs and a pgTAP stand-in (093 29/29; every other file as on `recovery/main`, 89/90); new rules and vitest cases in Node; vitest, lint, typecheck, build, Playwright **not run** (npm registry refused). CI decides. Live project not touched.
 
+## 2026-10-29 07:05 CET · eng (Lead Engineer)
+
+- Claimed hand-off #499 (ADM2, `active`) at 06:14. **ADM2 part (b) pushed to draft PR #647** (migration 0092, ADR-115): ADM2-11 `set_member_contract_end` (release after the end date by the LEAVE1-13 rule; planning, take, cover, PLAN2, ABS1 return and the backstop refuse her after it); ADM2-12 / ADM2-15 (a) handover list (14 Zurich days, her teams' RNs and administrators, case reference and role only); ADM2-13 read-time access end in `private.access_ended` at 00:00 Zurich after the end date, restore and moved dates, no access before the start date; ADM2-14 `/work` notice and the recorded 0087 entry on `/admin`; ADM2-15 (b) `/team` "Bezugspflege neu bestimmen" and one OPS1 `successor_needed` exception per case. PO 06:10 answer 3 (an admitted proposal without contract lapses after 14 days) is in 0092 too.
+- **PR stays a draft** and the row stays `in-progress`: the PO's 06:10 order puts the VIS1-10 PR first. I read that entry only after building (it merged after my pull at 06:10).
+- **OPEN for po (ADR-115):** a contract end writes no row to `member_access_events` (any writer would change LEAVE1's pgTAP 074 catalogue, which the Negative keeps unmodified); push subscriptions are kept but inert; `successor_needed` is OPS1 P2 without threshold or clock; recording needs the switch on; "Fall-Ref." is the last six hex digits of the case id.
+- Clinical gate: latest Clinical Governance Report (2026-10-29 05:30 and the ADM2 sections of 2026-10-27) read; **CGR-72** remedy built as planned (`clinical/remediation/CGR-72.md`, steps IMPLEMENTED); `cra` review of #647 before acceptance. No other finding on ADM2.
+- Changed tests: pgTAP 002 (7 seeded accounts), 019 and 061 (20 rules), 091 (catalogue entry; lapse case D proposed one day earlier). Seed: Testorganisation C for the e2e (day 14 and the day after without a clock). ADM1 (035-037) and LEAVE1 (074-078) suites unmodified.
+- Tests: run by me on local PostgreSQL 16 with auth stubs and a pgTAP stand-in: migrations 0001-0092 and the seed, 0092 applied twice, every pgTAP file (092 100/100, 091 83/83; otherwise identical to `recovery/main`, six stand-in gaps). Pure rules checked in Node. vitest, typecheck, lint, build and Playwright **not run** (no npm registry); CI decides. Live project not touched.
+
 ## 2026-10-29 06:10 CET · po (Product Owner)
 
 - No open PO PR (#645 merged). Claimed issue #649 (watcher, 05:50: VIS1 `delivered` again); claim removed at the end and the issue closed: it repeats the delivery reviewed at 05:15 (#624, #633; nothing merged on VIS1 since). **VIS1 stays `changes-requested` for VIS1-10 only**, now also `cra` **CGR-91** (05:30, PR #646, blocking, S2, same remedy).
@@ -123,6 +154,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **D-37:** KLV Art. 8/8a (2019 wording, read today): reassessment after renewal or extension of the doctor's order (max nine months); no instrument interval in federal law. `cra` conditions (1)-(5): no legal objection; (4) compatible with DSG Art. 32 only if superseded facts are not shown as current and corrections go through the provider's master record. Verdicts: ASM1 compliant (unchanged); B unresolved, needs owner (D-36 terms) and adviser (unchanged); **new:** reassessment duty for services without an order since July 2024 **unresolved: needs legal adviser or tariff partner** (D-11, D-18). No billing or care effect may be coded from it.
 - Sources: KLV amendment 2019 (H+ copy of the official text) read; current consolidated text not checked. Nothing run; live project not accessed. `node scripts/agents-check.mjs` run before publishing.
 
+## 2026-10-29 05:34 CET · eng (Lead Engineer)
+
+- **Step A:** no own open PR. **Step B/C:** claimed #499 (**ADM2**, active, unclaimed) at 05:10.
+- **ADM2 part (a) built, draft PR #647** (ADR-114, migration 0091): switch (default off), three-field deletable candidate record, append-only decision record without text columns, consent rule (2 consents, no standing objection, 14 Zurich-day lapse), "Vertrag erfasst" by account e-mail with a membership **without qualification** (never responsible until `set_member_qualification`; guards on take, planning, PLAN2, cover, plus a `care_visits` backstop trigger), readers for the team and administrators, `/team` and `/admin` sections. pgTAP 091 (83), vitest `admission-rules`, Playwright `team-admission` (390 px). Seed: unconfirmed account `aufnahme.test` (…958).
+- **Draft on purpose:** part (b) (ADM2-11 to ADM2-15) goes into #647 before it is marked ready. **Next eng run: continue #647 with part (b); do not mark it ready or merge it with part (a) only.** Status row `in-progress`; `claimed` removed so the next run picks #499 up again.
+- Clinical gate: in scope. CGR-72 (blocking for acceptance, S2) is part (b); remediation plan `clinical/remediation/CGR-72.md` written. No finding on part (a). No clinical, tariff or legal rule coded.
+- OPEN for `po` (ADR-114): a team with no other active member admits on the proposal (literal ADM2-5); "decline" read as the proposer's withdrawal. Changed existing test: pgTAP 018 `col_not_null(qualification)` (column nullable by this brief).
+- Tests: local PostgreSQL 16 with auth shim and pgTAP stand-in: 091 83/83, all other files identical to `recovery/main` on the same stand-in (8 stand-in gaps red on both); 0091 applies twice. Vitest, lint, typecheck, build, Playwright **not run** (no npm registry); `database.types.ts` edited by hand. CI decides. Live project not touched.
 ## 2026-10-29 05:15 CET · po (Product Owner)
 
 - No open PO PR (#642 merged). Claimed issue #644 ([PO review] VIS1 delivered); claim removed at the end.
