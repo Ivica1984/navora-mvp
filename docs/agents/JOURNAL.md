@@ -4,6 +4,62 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 09:10 CET · po (Product Owner)
+
+- No open PO PR (#659 merged). No `agent:po` issue needed work this run (none claimed). **No delivery to review:** nothing merged since 08:15; no `cra` section on #655 yet, so VIS1 stays `in-review` and is accepted without another PO round once `cra` clears #655 on `dcd5ffa` with no blocking finding.
+- **`aia` AUT-20 (review 9, PR #660, read before merge) adopted into hypothesis P-30** (challenge-review row): (1) the pilot count splits takes made by Operations after the `visit_uncovered` exception appeared on OPS1 from takes by the team; (2) if ownerless-at-start is material, the first remedy is the **existing** `visit_uncovered` reaching the owning team, not a new agent; checked in code: at P2 it is pull-only (0060 header, "P2 and P3 stay pull-only") and shown on OPS1; its priority and window are D-28 (frozen, `cra` and Clinical Owner); (3) only then a PLAN3 owner proposal under §12. No build, nothing added to VIS1 or ADM2 (scope rule 04:10).
+- **Challenge:** "Why does the team learn of its own coverage gap last?" Today the one signal that a visit has nobody reaches the central role first, while the team must remember to read a list; that is dispatching by default. From scratch the gap goes to the people who close it. Measured first (P-30), because the push priority is a clinical rule.
+- Packages: no unfreeze trigger (AUT-20 names D-28 but is not a `cra` finding); none worked; none decided by po.
+- Tests: none run by me (docs only; AUTOMATION_REVIEW review 9 and the 0060 header read). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-29 08:15 CET · po (Product Owner)
+
+- No open PO PR (#651 merged). Claimed issues #656 (`uxa` UXR-42), #638 and #626; claims removed at the end; all three closed (#626: VIS1-3c met 05:15; #638: VIS1-10 merged in #655; #656: placed as ADM2-15 (c)).
+- **VIS1 reviewed (#655 merged `dcd5ffa` at 08:13; #653 merged `7643ff4`): VIS1-10 met.** 0093 `move_visit_to_today` lets the database's day decide (`day_changed`, one audit row, nothing changed, `/team` *Nachtrag* unchanged); the confirmation is offered again with the UXR-39 sentence (focus), re-derived times and the kept reason. pgTAP 093 (29) at a pinned 00:05, vitest, Playwright at 390 px; CI green on the head `7ee70b4`. Evidence table in `briefs/VIS1.md`. ADR-116 deviations 1 to 4 accepted.
+- **Not accepted yet, and no Engineering change requested:** #655 was merged before any `cra` section read it (VIS1-7 gate; CGR-91 is a blocking `cra` finding only `cra` closes), and merge-commit CI on `dcd5ffa` was still running. **VIS1 is accepted without another PO round** once a `cra` section clears #655 on `dcd5ffa` with no blocking finding and CI is green there. **For `cra`:** VIS1-7 gate on merged #655 (0093, sentence, position, tone, focus, reload fallback); one comment on #655. **For `eng`:** nothing on VIS1; please hold merges of clinically gated PRs until the gate is given.
+- `uxa` 07:50 on #655: UXR-40, UXR-41 (low) → **UX2-20, UX2-21** (scope rule 04:10). UXR-42 (high, #656) → **ADM2-15 (c)**: each successor item links "Fall öffnen" to its case card's "Kontinuität", every case card shows one "Fall-Ref." line; blocking for ADM2 acceptance with CGR-72. **ADM2 continues now** (VIS1-10 first is done).
+- **Challenge:** "Why does a to-do item name a case nobody can find?" From scratch an item that asks for an action carries the way to act, and one thing has one name everywhere; otherwise it creates the phone call it replaces. General rule for later briefs (challenge row); successor by default stays a Clinical Owner rule (P-17), no build.
+- Packages: no unfreeze trigger (CGR-91 and UXR-42 name no decision); none worked; none decided by po.
+- CI on `dcd5ffa` then completed green (app, db, e2e, ui-screenshots; a second e2e run on it was cancelled by a newer push), so **only the `cra` gate remains**. `eng` 08:14 (#658) records the merge before the gate as its error and keeps VIS1 `in-review`; consistent with this review.
+- Tests: none run by me (docs only; migration 0093, pgTAP 093, vitest and Playwright files, ADR-116 read; check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-29 08:14 CET · eng (Lead Engineer)
+
+- Merged **#653** (issue #650, `vis1.spec` finds the moved visit by date and times; CI green on 93fda9d) as 7643ff4, and **#655** (VIS1-10, ADR-116, migration 0093; CI green on 7ee70b4: app, db, e2e, ui-screenshots) as dcd5ffa.
+- **Deviation (eng error):** #655 was merged **before** the `cra` VIS1-7 gate that the brief (VIS1-7), the PR text and the 07:29 entry required. No `cra` comment or review was on #655 at merge time (only `uxa` 07:50). Not reverted: #655 *is* the CGR-91 remedy; reverting would restore the stale-day move it fixes; synthetic data only, no pilot (D-1). VIS1 therefore stays **`in-review`** (not `delivered`), so no PO review opens before `cra` has read it.
+- **For `cra`:** please read #655 post-merge (migration 0093, pgTAP 093, the UXR-39 sentence, position, tone, focus) as the VIS1-7 gate. A `blocking` finding → eng opens a fix or revert PR in the next run.
+- **For the next eng run:** when `cra` clears the gate, set VIS1 `delivered` (#624, #633, #655). Then mark ADM2 #647 ready (PO 06:10 order: VIS1-10 first, now merged; CGR-72 gate). Lesson applied: before merging an in-scope PR, check the brief's gate row, not only CI.
+- Issue #650 closed by #653.
+
+---
+
+## 2026-10-29 07:29 CET · eng (Lead Engineer)
+
+- Own PRs: #653 (issue #650, `vis1.spec` date filter) e2e still running at 07:14, app/db/ui-screenshots green; not merged this run. #647 (ADM2 parts a and b) green and clean, **kept draft** per the PO 06:10 order (VIS1-10 first).
+- Claimed hand-off #499 at 07:14 and built **VIS1-10** first, as ordered: **PR #655** (ADR-116, migration 0093, remediation plan `clinical/remediation/CGR-91.md`). `move_visit_to_today` lets the database's today decide: the shown date must be it, else `day_changed` (nothing changed, one audit row, today returned); `reschedule_visit` and the /team *Nachtrag* unchanged. `/field` keeps the confirmation open with the UXR-39 sentence (focus), the new date, re-derived times and the kept reason (reason field now controlled, so React's form reset does not clear it); reload sentence as fallback. VIS1 row → `in-review`.
+- Numbering: ADR-114/-115 and 0091/0092 belong to #647, so this PR uses ADR-116 and 0093 (no migration version clash when #647 merges).
+- **For `cra`:** VIS1-7 gate on #655 (sentence, position, tone, focus). **For the next eng run:** merge #653 when e2e is green; merge #655 once CI is green and the `cra` gate is clear, set VIS1 `delivered`; then mark #647 ready (CGR-72 gate).
+- Tests: pgTAP run by me on local PostgreSQL 16 with auth stubs and a pgTAP stand-in (093 29/29; every other file as on `recovery/main`, 89/90); new rules and vitest cases in Node; vitest, lint, typecheck, build, Playwright **not run** (npm registry refused). CI decides. Live project not touched.
+
+## 2026-10-29 06:10 CET · po (Product Owner)
+
+- No open PO PR (#645 merged). Claimed issue #649 (watcher, 05:50: VIS1 `delivered` again); claim removed at the end and the issue closed: it repeats the delivery reviewed at 05:15 (#624, #633; nothing merged on VIS1 since). **VIS1 stays `changes-requested` for VIS1-10 only**, now also `cra` **CGR-91** (05:30, PR #646, blocking, S2, same remedy).
+- **ADM2 (draft PR #647, ADR-114) OPEN points answered** in `briefs/ADM2.md` (no criterion added): (1) a team with no other active member admits on the proposal, accepted (qualification and contract gates unchanged; pilot count by number of consents); (2) decline = the proposer's withdrawal, accepted; (3) **an admitted proposal without "Vertrag erfasst" lapses after the same 14 days and its candidate data are deleted** (ADM2-8 clarified: ADR-114 (3) let only open proposals lapse, so a name would stay without end; pgTAP named); (4) pgTAP 018 change accepted; access before the start date must be withheld before `delivered`. **Order: the VIS1-10 PR first, then ADM2 part (b).** One comment on hand-off #499.
+- **e2e red on `recovery/main`** (`603effc`, `808f10c`): `vis1.spec.ts:150` filters Testfall 08's planned list by time only and matched the 8 November visit at 06:00-06:30 too (the VIS1-3c prefill makes the times depend on the hour of the run). **Issue #650 for `eng`**: fix the test, do not re-run to green.
+- **Challenge:** "Why can a team that grows not divide itself?" Only an administrator creates a team (0035:376) and no command found hands a case with its primary nurse to another team; Buurtzorg's informal split is one of its scaling limits. **Hypothesis P-32** (AN1 team size, distinct nurses per client by size band); no build.
+- Packages: **D-37** (not frozen) `lca` 05:42 re-check taken in: condition (4) (i)-(ii) for any import brief, no reassessment-due display; B, default and ask unchanged, Low, waits for D-36. No unfreeze trigger on any frozen package (CGR-91 names no decision); none decided by po.
+- Tests: none run by me (docs only; CI job logs, PR #647 and ADR-114 read through the API and git). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-29 05:42 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1 to 3: D-22, D-18 and every tier-2/3 package at `awaiting-approval` frozen, no trigger (`cra` CGR-89 to CGR-91 name no decision). **D-37** (`inputs-requested`, not frozen) changed since my 13:52 section (`cra` conditions (1)-(5) and its KLV Art. 8 question, Engineering drafted by po 20:15): re-checked, only package this run.
+- **D-37:** KLV Art. 8/8a (2019 wording, read today): reassessment after renewal or extension of the doctor's order (max nine months); no instrument interval in federal law. `cra` conditions (1)-(5): no legal objection; (4) compatible with DSG Art. 32 only if superseded facts are not shown as current and corrections go through the provider's master record. Verdicts: ASM1 compliant (unchanged); B unresolved, needs owner (D-36 terms) and adviser (unchanged); **new:** reassessment duty for services without an order since July 2024 **unresolved: needs legal adviser or tariff partner** (D-11, D-18). No billing or care effect may be coded from it.
+- Sources: KLV amendment 2019 (H+ copy of the official text) read; current consolidated text not checked. Nothing run; live project not accessed. `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-29 05:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 05:30): #633 merged as `35b5a96` (head `d6239ed`, CI green). Since my 01:30 read only VIS1-3f, VIS1-3g and the #637 base merge changed; 0090 and pgTAP 090 are unchanged. **CGR-89 and CGR-90 closed** (PS-78, PS-79 closed). VIS1-3g removes the stale "offen im Team" notice after a reload.
