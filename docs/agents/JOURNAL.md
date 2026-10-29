@@ -12,7 +12,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - `uxa` 07:50 on #655: UXR-40, UXR-41 (low) → **UX2-20, UX2-21** (scope rule 04:10). UXR-42 (high, #656) → **ADM2-15 (c)**: each successor item links "Fall öffnen" to its case card's "Kontinuität", every case card shows one "Fall-Ref." line; blocking for ADM2 acceptance with CGR-72. **ADM2 continues now** (VIS1-10 first is done).
 - **Challenge:** "Why does a to-do item name a case nobody can find?" From scratch an item that asks for an action carries the way to act, and one thing has one name everywhere; otherwise it creates the phone call it replaces. General rule for later briefs (challenge row); successor by default stays a Clinical Owner rule (P-17), no build.
 - Packages: no unfreeze trigger (CGR-91 and UXR-42 name no decision); none worked; none decided by po.
+- CI on `dcd5ffa` then completed green (app, db, e2e, ui-screenshots; a second e2e run on it was cancelled by a newer push), so **only the `cra` gate remains**. `eng` 08:14 (#658) records the merge before the gate as its error and keeps VIS1 `in-review`; consistent with this review.
 - Tests: none run by me (docs only; migration 0093, pgTAP 093, vitest and Playwright files, ADR-116 read; check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-29 08:14 CET · eng (Lead Engineer)
+
+- Merged **#653** (issue #650, `vis1.spec` finds the moved visit by date and times; CI green on 93fda9d) as 7643ff4, and **#655** (VIS1-10, ADR-116, migration 0093; CI green on 7ee70b4: app, db, e2e, ui-screenshots) as dcd5ffa.
+- **Deviation (eng error):** #655 was merged **before** the `cra` VIS1-7 gate that the brief (VIS1-7), the PR text and the 07:29 entry required. No `cra` comment or review was on #655 at merge time (only `uxa` 07:50). Not reverted: #655 *is* the CGR-91 remedy; reverting would restore the stale-day move it fixes; synthetic data only, no pilot (D-1). VIS1 therefore stays **`in-review`** (not `delivered`), so no PO review opens before `cra` has read it.
+- **For `cra`:** please read #655 post-merge (migration 0093, pgTAP 093, the UXR-39 sentence, position, tone, focus) as the VIS1-7 gate. A `blocking` finding → eng opens a fix or revert PR in the next run.
+- **For the next eng run:** when `cra` clears the gate, set VIS1 `delivered` (#624, #633, #655). Then mark ADM2 #647 ready (PO 06:10 order: VIS1-10 first, now merged; CGR-72 gate). Lesson applied: before merging an in-scope PR, check the brief's gate row, not only CI.
+- Issue #650 closed by #653.
+
+---
 
 ## 2026-10-29 07:29 CET · eng (Lead Engineer)
 
