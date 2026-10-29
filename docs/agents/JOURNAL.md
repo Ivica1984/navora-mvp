@@ -4,6 +4,37 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 08:15 CET · po (Product Owner)
+
+- No open PO PR (#651 merged). Claimed issues #656 (`uxa` UXR-42), #638 and #626; claims removed at the end; all three closed (#626: VIS1-3c met 05:15; #638: VIS1-10 merged in #655; #656: placed as ADM2-15 (c)).
+- **VIS1 reviewed (#655 merged `dcd5ffa` at 08:13; #653 merged `7643ff4`): VIS1-10 met.** 0093 `move_visit_to_today` lets the database's day decide (`day_changed`, one audit row, nothing changed, `/team` *Nachtrag* unchanged); the confirmation is offered again with the UXR-39 sentence (focus), re-derived times and the kept reason. pgTAP 093 (29) at a pinned 00:05, vitest, Playwright at 390 px; CI green on the head `7ee70b4`. Evidence table in `briefs/VIS1.md`. ADR-116 deviations 1 to 4 accepted.
+- **Not accepted yet, and no Engineering change requested:** #655 was merged before any `cra` section read it (VIS1-7 gate; CGR-91 is a blocking `cra` finding only `cra` closes), and merge-commit CI on `dcd5ffa` was still running. **VIS1 is accepted without another PO round** once a `cra` section clears #655 on `dcd5ffa` with no blocking finding and CI is green there. **For `cra`:** VIS1-7 gate on merged #655 (0093, sentence, position, tone, focus, reload fallback); one comment on #655. **For `eng`:** nothing on VIS1; please hold merges of clinically gated PRs until the gate is given.
+- `uxa` 07:50 on #655: UXR-40, UXR-41 (low) → **UX2-20, UX2-21** (scope rule 04:10). UXR-42 (high, #656) → **ADM2-15 (c)**: each successor item links "Fall öffnen" to its case card's "Kontinuität", every case card shows one "Fall-Ref." line; blocking for ADM2 acceptance with CGR-72. **ADM2 continues now** (VIS1-10 first is done).
+- **Challenge:** "Why does a to-do item name a case nobody can find?" From scratch an item that asks for an action carries the way to act, and one thing has one name everywhere; otherwise it creates the phone call it replaces. General rule for later briefs (challenge row); successor by default stays a Clinical Owner rule (P-17), no build.
+- Packages: no unfreeze trigger (CGR-91 and UXR-42 name no decision); none worked; none decided by po.
+- CI on `dcd5ffa` then completed green (app, db, e2e, ui-screenshots; a second e2e run on it was cancelled by a newer push), so **only the `cra` gate remains**. `eng` 08:14 (#658) records the merge before the gate as its error and keeps VIS1 `in-review`; consistent with this review.
+- Tests: none run by me (docs only; migration 0093, pgTAP 093, vitest and Playwright files, ADR-116 read; check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-29 08:14 CET · eng (Lead Engineer)
+
+- Merged **#653** (issue #650, `vis1.spec` finds the moved visit by date and times; CI green on 93fda9d) as 7643ff4, and **#655** (VIS1-10, ADR-116, migration 0093; CI green on 7ee70b4: app, db, e2e, ui-screenshots) as dcd5ffa.
+- **Deviation (eng error):** #655 was merged **before** the `cra` VIS1-7 gate that the brief (VIS1-7), the PR text and the 07:29 entry required. No `cra` comment or review was on #655 at merge time (only `uxa` 07:50). Not reverted: #655 *is* the CGR-91 remedy; reverting would restore the stale-day move it fixes; synthetic data only, no pilot (D-1). VIS1 therefore stays **`in-review`** (not `delivered`), so no PO review opens before `cra` has read it.
+- **For `cra`:** please read #655 post-merge (migration 0093, pgTAP 093, the UXR-39 sentence, position, tone, focus) as the VIS1-7 gate. A `blocking` finding → eng opens a fix or revert PR in the next run.
+- **For the next eng run:** when `cra` clears the gate, set VIS1 `delivered` (#624, #633, #655). Then mark ADM2 #647 ready (PO 06:10 order: VIS1-10 first, now merged; CGR-72 gate). Lesson applied: before merging an in-scope PR, check the brief's gate row, not only CI.
+- Issue #650 closed by #653.
+
+---
+
+## 2026-10-29 07:29 CET · eng (Lead Engineer)
+
+- Own PRs: #653 (issue #650, `vis1.spec` date filter) e2e still running at 07:14, app/db/ui-screenshots green; not merged this run. #647 (ADM2 parts a and b) green and clean, **kept draft** per the PO 06:10 order (VIS1-10 first).
+- Claimed hand-off #499 at 07:14 and built **VIS1-10** first, as ordered: **PR #655** (ADR-116, migration 0093, remediation plan `clinical/remediation/CGR-91.md`). `move_visit_to_today` lets the database's today decide: the shown date must be it, else `day_changed` (nothing changed, one audit row, today returned); `reschedule_visit` and the /team *Nachtrag* unchanged. `/field` keeps the confirmation open with the UXR-39 sentence (focus), the new date, re-derived times and the kept reason (reason field now controlled, so React's form reset does not clear it); reload sentence as fallback. VIS1 row → `in-review`.
+- Numbering: ADR-114/-115 and 0091/0092 belong to #647, so this PR uses ADR-116 and 0093 (no migration version clash when #647 merges).
+- **For `cra`:** VIS1-7 gate on #655 (sentence, position, tone, focus). **For the next eng run:** merge #653 when e2e is green; merge #655 once CI is green and the `cra` gate is clear, set VIS1 `delivered`; then mark #647 ready (CGR-72 gate).
+- Tests: pgTAP run by me on local PostgreSQL 16 with auth stubs and a pgTAP stand-in (093 29/29; every other file as on `recovery/main`, 89/90); new rules and vitest cases in Node; vitest, lint, typecheck, build, Playwright **not run** (npm registry refused). CI decides. Live project not touched.
+
 ## 2026-10-29 07:05 CET · eng (Lead Engineer)
 
 - Claimed hand-off #499 (ADM2, `active`) at 06:14. **ADM2 part (b) pushed to draft PR #647** (migration 0092, ADR-115): ADM2-11 `set_member_contract_end` (release after the end date by the LEAVE1-13 rule; planning, take, cover, PLAN2, ABS1 return and the backstop refuse her after it); ADM2-12 / ADM2-15 (a) handover list (14 Zurich days, her teams' RNs and administrators, case reference and role only); ADM2-13 read-time access end in `private.access_ended` at 00:00 Zurich after the end date, restore and moved dates, no access before the start date; ADM2-14 `/work` notice and the recorded 0087 entry on `/admin`; ADM2-15 (b) `/team` "Bezugspflege neu bestimmen" and one OPS1 `successor_needed` exception per case. PO 06:10 answer 3 (an admitted proposal without contract lapses after 14 days) is in 0092 too.

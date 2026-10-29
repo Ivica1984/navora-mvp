@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import {
   MOVED_TO_TODAY_STATUS,
   RELEASED_ON_MOVE,
+  formatDayLabel,
   formatShortDate,
   futureDayNote,
   moveLeavesNote,
@@ -147,7 +148,13 @@ test.describe("VIS1 at 390 × 844", () => {
     // The move is on record with its reason (J3 `moved` row; its audit row is asserted in pgTAP 089).
     await page.goto("/team");
     const upcoming = page.getByRole("article", { name: /Fall Testfall 08/ }).getByRole("list", { name: "Geplante Einsätze" });
-    await expect(upcoming.getByRole("listitem").filter({ hasText: `${times.start}–${times.end}` })).toContainText(`Verschoben von dir: ${reason}`);
+    // Issue #650: the prefilled times depend on the hour of the run, so another planned Testfall 08 visit can share them;
+    // the moved visit is the one of today with these times.
+    const movedItem = upcoming.getByRole("listitem")
+      .filter({ hasText: formatDayLabel(zurichDay()) })
+      .filter({ hasText: `${times.start}–${times.end}` });
+    await expect(movedItem).toHaveCount(1);
+    await expect(movedItem).toContainText(`Verschoben von dir: ${reason}`);
 
     const width = await page.evaluate(() => document.documentElement.scrollWidth);
     expect(width).toBeLessThanOrEqual(PHONE.width);

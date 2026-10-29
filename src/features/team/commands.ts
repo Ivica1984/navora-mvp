@@ -175,6 +175,35 @@ export async function rescheduleVisit(input: unknown): Promise<PlanResult> {
   return planResult("reschedule_visit", data, error);
 }
 
+/**
+ * VIS1-10 (ADR-116, `cra` CGR-91): "Heute machen" on /field. `date` is the date she was shown as "Heute"; the database
+ * (`move_visit_to_today`, migration 0093) moves the visit to its own today through `reschedule_visit` when that is the
+ * shown date, and otherwise refuses with `day_changed` (nothing changed, one audit row), returning its today and the
+ * visit's unchanged date so the confirmation can be shown again. Other outcomes as `reschedule_visit`.
+ */
+export type MoveToTodayResult = PlanResult | { ok: false; dayChanged: true; today: string; visitDate: string };
+
+export async function moveVisitToToday(input: unknown): Promise<MoveToTodayResult> {
+  const parsed = rescheduleSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Bitte Zeiten und einen Grund (mind. 3 Zeichen) angeben." };
+  const d = parsed.data;
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("move_visit_to_today", {
+    p_visit_id: d.visitId,
+    p_shown_date: d.date,
+    p_time_start: d.start,
+    p_time_end: d.end,
+    p_reason: d.reason,
+    p_idempotency_key: d.idempotencyKey,
+  });
+  const res = (data ?? {}) as { result?: string; today?: unknown; visit_date?: unknown };
+  if (!error && res.result === "day_changed") {
+    logEvent("info", "command.refused", { op: "move_visit_to_today", code: "day_changed" });
+    return { ok: false, dayChanged: true, today: String(res.today ?? ""), visitDate: String(res.visit_date ?? "") };
+  }
+  return planResult("reschedule_visit", data, error);
+}
+
 export async function removePlannedVisit(input: unknown): Promise<PlanResult> {
   const parsed = removeSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Bitte einen Grund (mind. 3 Zeichen) angeben." };
