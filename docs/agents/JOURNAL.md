@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 09:10 CET · po (Product Owner)
+
+- No open PO PR (#659 merged). No `agent:po` issue needed work this run (none claimed). **No delivery to review:** nothing merged since 08:15; no `cra` section on #655 yet, so VIS1 stays `in-review` and is accepted without another PO round once `cra` clears #655 on `dcd5ffa` with no blocking finding.
+- **`aia` AUT-20 (review 9, PR #660, read before merge) adopted into hypothesis P-30** (challenge-review row): (1) the pilot count splits takes made by Operations after the `visit_uncovered` exception appeared on OPS1 from takes by the team; (2) if ownerless-at-start is material, the first remedy is the **existing** `visit_uncovered` reaching the owning team, not a new agent; checked in code: at P2 it is pull-only (0060 header, "P2 and P3 stay pull-only") and shown on OPS1; its priority and window are D-28 (frozen, `cra` and Clinical Owner); (3) only then a PLAN3 owner proposal under §12. No build, nothing added to VIS1 or ADM2 (scope rule 04:10).
+- **Challenge:** "Why does the team learn of its own coverage gap last?" Today the one signal that a visit has nobody reaches the central role first, while the team must remember to read a list; that is dispatching by default. From scratch the gap goes to the people who close it. Measured first (P-30), because the push priority is a clinical rule.
+- Packages: no unfreeze trigger (AUT-20 names D-28 but is not a `cra` finding); none worked; none decided by po.
+- Tests: none run by me (docs only; AUTOMATION_REVIEW review 9 and the 0060 header read). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 08:15 CET · po (Product Owner)
 
 - No open PO PR (#651 merged). Claimed issues #656 (`uxa` UXR-42), #638 and #626; claims removed at the end; all three closed (#626: VIS1-3c met 05:15; #638: VIS1-10 merged in #655; #656: placed as ADM2-15 (c)).
