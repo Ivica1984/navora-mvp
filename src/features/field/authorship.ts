@@ -6,7 +6,7 @@
  * The OBS1-1 marker as one short neutral text in `info` tone. PROVISIONAL wording (eng): `uxa` owns it (OBS1-4);
  * no internal code, no word that judges the person or the content.
  */
-export const QUALIFICATION_NOT_RECORDED_TEXT = "Qualifikation beim Schreiben nicht erfasst";
+export const QUALIFICATION_NOT_RECORDED_TEXT = "Qualifikation war beim Schreiben nicht erfasst";
 
 /**
  * A report version signed before OBS1 holds no author. PROVISIONAL wording (eng): `uxa` owns it (OBS1-3).
