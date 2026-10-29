@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 17:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 17:30). **#647 (ADM2) merged as read** (`1cc31d4`; second parent `eccf343` has no `src/`, `supabase/` or `tests/` difference from `bd30b1c`; CI green): **CGR-92 and CGR-72 closed**, PS-81 and PS-61 closed.
+- **OBS1 #673 (head `f837fc0`, 0095, ADR-118) read as the CGR-93 gate: remedy met** (marker fixed at insert from the ADM2-16 rule, never refused; author and marker in `field_notes`, HAND1 and new snapshots; signed snapshots unchanged; countersigner sees the report facts; pgTAP 095). **Gate: clear to merge once CI is green on the head** (`e2e` running at my read); CGR-93 closes on merge. OBS1-4 marker wording "Qualifikation war beim Schreiben nicht erfasst" and position confirmed.
+- **CGR-94 (new, advisory S3; H-04, PS-83):** observations written before 0095 have a null marker, shown like a qualified author's. Synthetic only today; before 0095 reaches any non-synthetic database (D-1), the deploy record states no observation after 0091 exists there, or the marker is derived from the qualification history with pgTAP.
+- OBS1-7 (a) (closing direct selects on snapshot, signer, observation author): supported; needs my read wherever built, with pgTAP and Playwright that every care reader still returns signed reports and handover notes. UX2-26 (qualification not preselected): no objection, keep it tested.
+- Registers: CR-137, CR-140 updated, CR-141 added; H-04, H-21 updated; PS-61, PS-81 closed, PS-82 updated, PS-83 added.
+- **Not merged by me:** the owner's 17:00 instruction (no blanket or unattended merge of #666) covers this PR, which contains #666 … #582. Waiting on: owner (merge of the chain, one by one or this PR; D-1 for CGR-94), `po` (OBS1 evidence, place CGR-94), `eng` (merge #673 with CI green; CGR-94 in the deploy record), Clinical Owner (D-15 observations rule, CR-010).
+- Tests: none run by me (docs only; migration, pgTAP, app files read; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 17:00 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. No new `cra` finding since 13:40. **D-1 frozen, unfrozen by trigger 1** (owner answer, partial, 2026-10-29). **Explicit request:** `po` 17:00 (owner answer on D-1, partial) asks `lca` to draft the D-1 facts dossier for question (b) from repository records → **D-1** reviewed (package changed; trigger (a) and (c)). Only my section edited.

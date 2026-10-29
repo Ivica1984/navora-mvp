@@ -16,6 +16,77 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-29 17:30 CET: #647 (ADM2) merged as read (`1cc31d4`, second parent `eccf343`, no `src/`, `supabase/` or `tests/` difference from `bd30b1c`): **CGR-92 and CGR-72 closed** (PS-81, PS-61 closed); OBS1 #673 (head `f837fc0`, migration 0095, ADR-118) read as the CGR-93 gate: **CGR-93 remedy met in code and pgTAP; clinical gate clear to merge once CI is green on the head**; CGR-93 closes on merge; OBS1-4 marker wording and position confirmed; **CGR-94** (new, advisory S3: an observation written before 0095 has no marker value and is shown like one by a qualified author); OBS1-7 (a) needs a `cra` read wherever it is built; owner instruction on #666 respected (no merge by me)
+
+**Scope:** `recovery/main` @ `bba7926`. Changes since my 13:40 section (PR #666, open; it contains #662, #646, #639, #628, #623, #614, #604, #589, #582):
+- **Code merged:** **#647 ADM2** as `1cc31d4` (14:31). Its second parent `eccf343` is `bd30b1c` plus one base merge; `git diff bd30b1c eccf343 -- src supabase tests` is empty, so 0091, 0092, 0094 and pgTAP 091, 092, 094 are as I read them at 13:40. CI on `1cc31d4` and on `bba7926`: `app`, `db`, `e2e`, `ui-screenshots`, `sync` success (check runs read through the GitHub API).
+- **Docs merged:** ADM2 delivered (#668) and **accepted** with ADM2-C1 (PO 14:35, #670); **OBS1 brief** approved (PO 14:35) from CGR-93 and `lca` 13:57 (ZH GesG § 13); OBS1-7 and UX2-27 added (PO 16:24, #678); AUT-21 as UX2-26 (PO 15:40, #672); `aia` review 10 (#660); `lca` 13:57 (#667, D-15), 16:05 (#674, D-23 on #673), 17:00 (#679, D-1 facts dossier); `uxa` 16:10 (#675, UXR-47, UXR-48); **owner instruction on D-1 and on #666** recorded by the PO 17:00 (#677).
+- **Open:** **#673 OBS1** (`eng`, head `f837fc0`; CI at my read: `app`, `db`, `ui-screenshots` success, `e2e` in progress); my chain #582 … #666; #3 unchanged.
+- **Asked of `cra`:** the CGR-93 gate read of #673 (OBS1-6); confirm the OBS1-4 marker wording and position (PO 16:24, `uxa` UXR-47).
+- **Answered by a person:** the owner (via the PO, 17:00): D-1 precaution (the live database is treated as holding real personal data until clarified; no real client data for tests or pilot runs); #666 is not to be merged blanket or unattended. **No `clinical` or `legal` decision was answered by a person.**
+
+I read: migration 0095 in full; pgTAP 095 (47 tests) and the 071 change; `src/features/field/authorship.ts`, `features/handover/rules.ts` and the diffs of `field-client.tsx`, `report-section.tsx`, `since-last-section.tsx`; `tests/e2e/obs1.spec.ts` names; `record_observation` supersede rule (0040:154-160, CGR-01: only the author supersedes); ADR-118 and `clinical/remediation/CGR-93.md`; `briefs/OBS1.md` with the PO notes of 14:35 and 16:24; `briefs/UX2.md` UX2-22, UX2-26, UX2-27; the `lca` and `uxa` sections named above; the ADM2 merge parents. **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-94 | **OBS1-1** as built in #673 (0095): observations recorded before the migration | **advisory (S3)**; not blocking #673 or OBS1 acceptance; before 0095 is applied to any database that is not built fresh from synthetic seed | IMPLEMENTED (#673): the marker column is null for every observation written before 0095 (no backfill, by design: the table is append-only and no history is guessed). Null is then displayed exactly like "qualification recorded": `field_notes` returns `coalesce(…, false)`, HAND1 `coalesce(… = false, false)`, and the snapshot's `author_qualification_missing` is null, which `showsQualificationMarker` treats as no marker. An observation written between 0091 (first members without a recorded qualification) and 0095 by such a member would therefore appear in the handover and in every later snapshot as if her qualification had been recorded. Today this window holds synthetic data only (PR deviation 2), so there is no patient risk now. It becomes one only if 0095 is applied to a database that already holds observations from that window; the owner's D-1 precaution (17:00) treats the live database as possibly holding real data, and whether migrations are applied there is UNKNOWN to me | 0095 §1 (`add column … boolean`, no backfill), §3 `field_notes` `coalesce(private.observation_qualification_missing(r.id), false)`, HAND1 patch `coalesce(o.author_qualification_recorded = false, false)`, §4 snapshot `o.author_qualification_recorded = false`; `authorship.ts` `showsQualificationMarker(value) = value === true`; PR #673 deviation 2 | **eng (record), owner (D-1):** before 0095 is applied to any database other than a fresh synthetic build, Engineering states in the deploy record that the database holds no observation recorded after 0091 was applied there; otherwise those rows' marker is derived once from the recorded qualification history at their `recorded_at` (no guessing; rows whose state cannot be derived stay null and are shown with a neutral "nicht bekannt" line, wording `uxa`'s), with a pgTAP. No change to #673 needed for synthetic use |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-93** | open, advisory (S2); **remedy met on the #673 head `f837fc0`**; closes when #673 is merged unchanged in substance with CI green (`e2e` was still running at my read) | (1) **Marker fixed at write time:** `visit_observations.author_qualification_recorded`, set by a BEFORE INSERT trigger from `private.observation_author_qualified` (0095 §1), the same rule as `private.actor_may_perform_visit` (0094: recorded qualification in the visit's team, or for the covering nurse in the cover team); a passed value is overwritten; the 0009 append-only trigger keeps it unchanged. **Never refused:** pgTAP 095 "the member without a qualification records an observation on a visit a care assistant started (never refused)". (2) **Handover:** `field_notes` adds `author_name` and `author_qualification_missing`; HAND1 entries carry both in `detail`; pgTAP: a colleague reads her name and the marker, the next day's handover and "seit deinem letzten Einsatz" carry it, a qualified colleague's observation carries none. (3) **Snapshot:** `private.visit_report_snapshot` (the only builder) adds `author_id`, `author_name`, marker; pgTAP: the performer's draft names her with the marker, the stored draft holds her identity, the countersigning registered nurse sees author and marker in the signed version; a signed snapshot is byte for byte unchanged after `set_member_qualification` and a later observation; an old snapshot without author is shown as stored. (4) After `set_member_qualification` her new observation carries no marker and the old one keeps it (pgTAP). (5) Screens: author on the visit card, the handover and the report facts; the countersigner now sees the report facts before "Gegenzeichnen" (`report-section.tsx`), which closes the "signs without seeing" part for both signers. Meets every element of my 13:40 remedy (1) and (2). Supersede stays author-only (0040:154-160), so an edited observation keeps its author |
+| **CGR-92** | **closed** | #647 merged as `1cc31d4`; second parent `eccf343` = `bd30b1c` + one docs-only base merge (empty `src/`, `supabase/`, `tests/` diff); 0094 and pgTAP 094 as read at 13:40; CI green on `1cc31d4`. PS-81 closed |
+| **CGR-72** | **closed** | same merge; 0092 and pgTAP 092 unchanged since my 09:25 read; CI green. PS-61 closed |
+| CGR-86 | open, advisory (S3); #603 | no change |
+| CGR-84, CGR-81 | open (S3, S2); ASM1 brief (PLANNED) | no change |
+| CGR-78, CGR-75 | open, advisory (S2); brief level | no change |
+| CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-72, CGR-92** (evidence above). CGR-93 closes on the merge of #673.
+
+### OBS1 (#673): clinical gate
+
+- **OBS1-4 wording and position: confirmed.** "Qualifikation war beim Schreiben nicht erfasst" (`QUALIFICATION_NOT_RECORDED_TEXT`, one constant for the visit card, the handover and the report): it states a recorded fact about the record, not about the person's competence or the content, and is not red (`text-stone-700`). Position directly under the observation and its author line is right: the reader sees it where she reads the content. "Wer dies geschrieben hat, ist in dieser Fassung nicht gespeichert" for a version signed before OBS1: confirmed (never a guessed name). "Teammitglied ohne Namen": no clinical point. UX2-27 (one author label form) gates nothing clinically.
+- **Negative criterion checked in code:** nothing in 0095 or the app reads the marker to refuse, hide, order, rank, route or escalate; no signal, OPS1, quality or billing reader is changed. The marker is display only, so it adds no clinical rule (CR-141 records it as a fact rule).
+- **OBS1-7 (a) (closing direct selects on `visit_reports.snapshot`, `signed_by`, `signed_at`, `visit_observations.author_id`, `recorded_at`)** is not in #673. I support the PO's protective choice. Clinical condition, wherever it is built: it removes reads from clinical records, so a reader that silently loses a signed report or a handover note is a care risk. I read that PR before merge; its pgTAP must show that the performer, the countersigning registered nurse, the team (`field_reports`, `field_notes`, HAND1), F6R corrections and the export still return the snapshot, signer and authors for her team's visit, and Playwright that the report view and handover render for a nurse and a care assistant.
+- **Gate: clear to merge** once CI is green on the head (`e2e` was in progress at my read). Any change to 0095, pgTAP 095 or the three screens before merge needs another read.
+
+### Other changes read
+
+- **ADM2 accepted with ADM2-C1** (PO 14:35): as gated at 13:40; no blocking clinical finding remains on ADM2. ADM2-C1 (push subscriptions after an automatic end) is a privacy condition; no clinical point.
+- **UX2-26 (AUT-21):** offering `set_member_qualification` on the "Vertrag erfasst" card, the claimed value shown as text and **no choice preselected**, the same command, check and audit row: no clinical objection. The "not preselected" part is the safety control (a recorded label is what lets her perform visits, CR-140) and must stay pinned in its test. CGR-16 (the label is self-declared, D-29) is unchanged.
+- **UX2-22 line** "Offene Einsätze übernehmen Teammitglieder mit erfasster Qualifikation." meets my 13:40 condition (nothing says she covers or performs).
+- **Owner D-1 precaution** (17:00): supported from the clinical side: no real client data in tests or pilot runs is the safer default. It is the reason for CGR-94's condition.
+- **`lca` 13:57, 16:05, 17:00, `aia` review 10, `uxa` 16:10:** consistent with CGR-93 and this read; no new clinical finding.
+
+### Clinical Rule Register
+
+- **CR-137** note: CGR-92 closed with the #647 merge; observations are not gated, marked since #673 (CR-141).
+- **CR-140**: #647 merged as `1cc31d4` (no longer "open").
+- **CR-141** (new, OBS1-1, #673 open): an observation stores, at insert, whether its author had a recorded qualification in the visit's team (or, covering, in the cover team) under the ADM2-16 rule; display only, never refuses or routes; null for rows written before 0095 (CGR-94). Not a clinical skill rule; whether such observations are allowed or need review stays the Clinical Owner's (D-15, D-10).
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **OBS1** (#673, head `f837fc0`) | **clear to merge once CI is green on the head**; CGR-93 closes on that merge. OBS1-7 (a) needs my read wherever it is built (see above). CGR-94 advisory (S3), not a condition for synthetic use |
+| **ADM2** | accepted (PO 14:35) as gated; CGR-72, CGR-92 closed |
+| UX2 (planned) | UX2-22, UX2-24, UX2-25 answered at 13:40; UX2-26 no objection (choice not preselected stays tested) |
+| All other items | unchanged from 13:40 |
+
+### Decisions requested
+
+- **owner:** my governance chain is not merged by me: the owner's 17:00 instruction (no blanket or unattended merge of #666) applies to this PR too, since it contains #666. Each PR's section is self-contained; the chain can be merged one PR at a time oldest first (#582 … #666, then this one), or this PR alone (it carries all of them). Before 0095 is applied to the live project (D-1), see CGR-94.
+- **po:** record CGR-93 closing on the #673 merge in the OBS1 evidence table; place CGR-94 (deploy record or a later OBS1 follow-up, before any non-synthetic database receives 0095); OBS1-7 (a) with my read as a condition.
+- **eng:** merge #673 only with CI green on its head; mention CGR-94 in the deploy record for 0095; request my read on the OBS1-7 (a) PR.
+- **clinical (Clinical Owner, after G-1):** unchanged: whether observations by a member without a recorded qualification are allowed or need review (D-15; the marker makes them visible meanwhile); CR-010 care-assistant scope for category A; CGR-87 (3), (4); CGR-89 (3); CR-134; D-12, D-25.
+- **owner / legal:** unchanged (D-29, G-1, D-38, R-11, D-36, D-1).
+
+---
+
 ## 2026-10-29 13:40 CET: ADM2 #647 at `bd30b1c` (ADM2-16, migration 0094, ADR-117) read: **CGR-92 remedy met in code and pgTAP; CGR-92 and CGR-72 close when #647 is merged unchanged in substance with CI green; clinical gate for ADM2: clear to merge**; ADR-117 deviation 1 (no-show and not-completed not gated): no clinical objection; UX2-22, UX2-24, UX2-25 `cra` answers given; **CGR-93** (new, advisory S2, G-23: an observation written by a member without a recorded qualification enters the handover and a colleague's signed report snapshot without author or qualification)
 
 **Scope:** `recovery/main` @ `46be6a9`. Changes since my 09:25 section (PR #662, open; it contains #646, #639, #628, #623, #614, #604, #589, #582):
