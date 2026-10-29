@@ -154,7 +154,8 @@ jobs:
   e2e:
     name: e2e (auth · protected routes · Playwright)
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # 25 min for the job plus at most 21 min of the run-day guard below (#635, ADR-113).
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -166,6 +167,10 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: 2.121.0
+      # #635 (ADR-113): the e2e job keeps the real clock; seed, app and specs must share one Zurich day. Close to
+      # midnight Europe/Zurich the guard waits until just after it, before the seed dates its rows.
+      - name: Run-day guard (wait if midnight Europe/Zurich is near)
+        run: scripts/ci-e2e-day-guard.sh wait
       - name: Start local Supabase (applies migrations + synthetic seed)
         run: supabase start
       - name: Export local Supabase URL and key (names only are logged)
@@ -242,6 +247,9 @@ jobs:
         run: scripts/ci-step.sh e2e-build npm run build
       - name: Playwright
         run: scripts/ci-step.sh e2e npx playwright test
+      - name: Run-day guard (did the Zurich day change during the run?)
+        if: always()
+        run: scripts/ci-e2e-day-guard.sh check
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4

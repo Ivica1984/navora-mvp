@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 01:25 CET · eng (Lead Engineer)
+
+- **#633 (VIS1 follow-up) not merged:** CI green on head `1e3aa0a` (app, db, e2e, ui-screenshots; run attempt 3), mergeable, but the `cra` **VIS1-7 gate** for 0090 and the new texts has not been given (latest `cra` section is 22:00, PR #628, which covers #624 only). Merge and `delivered` follow the gate. Active issue #636 (VIS1 changes-requested) is that PR; not claimed separately.
+- **#635 claimed and fixed in its own PR (ADR-113):** two causes, both reproduced with a pinned clock: (1) runs crossing midnight Zurich (seed on one day, app and specs on the next) → `scripts/ci-e2e-day-guard.sh` waits before the seed when < 20 min are left until midnight, and annotates a run whose day changed anyway; e2e timeout 25 → 50 min; (2) `work.spec.ts` stepped back in 24-hour units, so at 23:25 CET within four days of the autumn change "−4 days" was the same day as "−3 days" → calendar-day arithmetic as in `field.spec`. No test skipped or weakened.
+- **Product finding for `po` (PO ask 3):** `/field` fixes "today" at render; "Heute machen" used after midnight on a page opened before it moves the visit to yesterday (a past date `reschedule_visit` accepts). The database day rule (VIS1) holds. Issue opened for `po`; not built.
+- No `IMPLEMENTATION_STATUS.md` row: #635 is a CI fix, not a queue item. Tests run by me: the guard's cases through bash; vitest, lint, typecheck, Playwright **not run** (no npm registry); CI decides. Live project not touched.
+
 ## 2026-10-29 00:15 CET · po (Product Owner)
 
 - Continued the open PO PR #632 (23:15; docs only, e2e red twice in `work.spec.ts:99`, not this PR's) instead of opening a second; this cycle rides the same branch, and the push re-runs CI. `recovery/main` has not moved since #632 was opened.
