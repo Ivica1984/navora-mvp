@@ -35,7 +35,9 @@
 --      `value_provenance(entity_type, entity_id, field)` and per record through `read_audit_record`.
 --   9. AIG1-12 `agent_stop_lookback(stop)`: the records holding a value of that agent confirmed unchanged in the stop
 --      window (or since the switch-on, for a version change); no person and no outcome column; record readers and
---      coordinators only; a line leaves once the value is confirmed again or corrected after the stop.
+--      coordinators only; a line leaves once the value is confirmed again or corrected after the stop. AIG1-13 (po
+--      23:15, `aia` AUT-23): a value on a look-back list (any decided value) is never confirmed in bulk; a listed value
+--      the record no longer holds stays on the list as superseded with its date and is not counted as open in OPS1.
 --  10. AIG1-9 synthetic test agent `aig1_test_primary_nurse` (kind rule, level L): proposes the case's primary nurse
 --      for an unassigned visit; its pure rule `private.aig1_rule_primary_nurse` is evaluated by the fixture
 --      `private.aig1_eval_aig1_test_primary_nurse()` (pgTAP 097 runs every agent's fixture against its bar).
@@ -808,16 +810,16 @@ begin
     if s.not_found then
       raise exception 'bulk confirm refused: "nicht gefunden" is confirmed one by one (AIG1-4)' using errcode = '42501';
     end if;
+    if exists (select 1 from public.ai_confirmations c where c.suggestion_id = s.id) then
+      raise exception 'bulk confirm refused: a value already decided (a look-back line included) is confirmed one by one (AIG1-13)'
+        using errcode = '42501';
+    end if;
     if private.aig1_check(s.organization_id, s.agent_key) <> 'on' then
       raise exception 'bulk confirm refused: the agent is not on; confirm one by one (ADR-120)' using errcode = '42501';
     end if;
   end loop;
   foreach i in array p_suggestion_ids loop
     select * into s from public.ai_suggestions x where x.id = i;
-    if exists (select 1 from public.ai_confirmations c where c.suggestion_id = s.id) then
-      bad := bad || jsonb_build_array(jsonb_build_object('suggestion_id', s.id, 'reason', 'already_decided'));
-      continue;
-    end if;
     r := private.aig1_apply(s, s.proposed_value, uid);
     if r <> 'ok' then
       bad := bad || jsonb_build_array(jsonb_build_object('suggestion_id', s.id, 'reason', r));
@@ -994,36 +996,77 @@ comment on function public.agent_health(uuid) is
   'AIG1-10: one line per agent for coordinators of the organisation: state, last proposal, last closed window''s '
   'correction share and decided count, and why it stopped. No person column.';
 
--- 9e. AIG1-12: look-back after a stop, per agent and window, never per person.
-create or replace function public.agent_stop_lookback(p_stop_id uuid)
-returns table (entity_type text, entity_id uuid, field text, team_id uuid, team_name text, case_ref text,
-               visit_date date, proposed_at timestamptz)
+-- 9e. AIG1-12 / AIG1-13: look-back after a stop, per agent and window, never per person.
+-- The record's current value of a field (only fields with a consuming command; null otherwise).
+create or replace function private.aig1_current_value(p_entity_type text, p_entity_id uuid, p_field text)
+returns jsonb language sql stable security definer set search_path = ''
+as $$
+  select case when p_entity_type = 'care_visits' and p_field = 'responsible_user_id'
+              then (select to_jsonb(v.responsible_user_id::text) from public.care_visits v where v.id = p_entity_id) end
+$$;
+revoke all on function private.aig1_current_value(text, uuid, text) from public, anon, authenticated;
+
+-- AIG1-13 (b): when the record last took a value other than the listed one (from its audit trail; null if unknown).
+create or replace function private.aig1_superseded_at(p_entity_type text, p_entity_id uuid, p_field text, p_value jsonb)
+returns timestamptz language sql stable security definer set search_path = ''
+as $$
+  select max(a.occurred_at) from public.audit_events a
+  where p_entity_type = 'care_visits' and p_field = 'responsible_user_id'
+    and a.table_name = 'care_visits' and a.entity_id = p_entity_id and a.changed ? 'responsible_user_id'
+    and (a.changed -> 'responsible_user_id' -> 'new') is distinct from p_value
+$$;
+revoke all on function private.aig1_superseded_at(text, uuid, text, jsonb) from public, anon, authenticated;
+
+-- All lines of one stop, without access filter (callers filter). A line: a suggestion of the stopped agent in the stop
+-- window (threshold) or since the switch-on (version change) whose newest confirmation at the stop was `confirmed`
+-- and that was not confirmed again or corrected since (AIG1-12 (iv)). `superseded`: the record no longer holds the
+-- listed value (AIG1-13 (b)); the line stays, labelled, and is not counted as open.
+create or replace function private.aig1_lookback(p_stop_id uuid)
+returns table (suggestion_id uuid, organization_id uuid, entity_type text, entity_id uuid, field text, team_id uuid,
+               case_id uuid, proposed_at timestamptz, superseded boolean, superseded_at timestamptz)
 language sql stable security definer set search_path = ''
 as $$
-  select s.entity_type, s.entity_id, s.field, s.team_id, t.name, private.case_reference(s.case_id), v.visit_date,
-         s.created_at
+  select s.id, s.organization_id, s.entity_type, s.entity_id, s.field, s.team_id, s.case_id, s.created_at,
+         cur.value is distinct from c.final_value,
+         case when cur.value is distinct from c.final_value
+              then private.aig1_superseded_at(s.entity_type, s.entity_id, s.field, c.final_value) end
   from public.ai_agent_stops st
   join public.ai_suggestions s
     on s.organization_id = st.organization_id and s.agent_key = st.agent_key
    and s.created_at >= st.window_from
    and (s.created_at < st.window_to or (st.reason = 'version_changed' and s.seq <= st.suggestion_seq))
-  join public.teams t on t.id = s.team_id
-  left join public.care_visits v on s.entity_type = 'care_visits' and v.id = s.entity_id
-  cross join lateral (select y.outcome, y.seq from public.ai_confirmations y
-                      where y.suggestion_id = s.id order by y.seq desc limit 1) c
+  cross join lateral (select y.outcome, y.final_value from public.ai_confirmations y
+                      where y.suggestion_id = s.id and y.seq <= st.confirmation_seq order by y.seq desc limit 1) c
+  cross join lateral (select private.aig1_current_value(s.entity_type, s.entity_id, s.field) as value) cur
   where st.id = p_stop_id
-    and not private.access_ended((select auth.uid()))                                          -- LEAVE1-3
-    and c.outcome = 'confirmed' and c.seq <= st.confirmation_seq         -- unchanged, not re-checked since the stop
-    and private.is_org_member(st.organization_id)
-    and (private.is_coordinator(st.organization_id) or private.is_team_member(s.team_id))
-  order by v.visit_date nulls last, t.name, s.seq
+    and c.outcome = 'confirmed'                                            -- unchanged at the stop
+    and not exists (select 1 from public.ai_confirmations z                -- not re-checked since the stop
+                    where z.suggestion_id = s.id and z.seq > st.confirmation_seq)
+$$;
+revoke all on function private.aig1_lookback(uuid) from public, anon, authenticated;
+
+create or replace function public.agent_stop_lookback(p_stop_id uuid)
+returns table (entity_type text, entity_id uuid, field text, team_id uuid, team_name text, case_ref text,
+               visit_date date, proposed_at timestamptz, superseded boolean, superseded_at timestamptz)
+language sql stable security definer set search_path = ''
+as $$
+  select l.entity_type, l.entity_id, l.field, l.team_id, t.name, private.case_reference(l.case_id), v.visit_date,
+         l.proposed_at, l.superseded, l.superseded_at
+  from private.aig1_lookback(p_stop_id) l
+  join public.teams t on t.id = l.team_id
+  left join public.care_visits v on l.entity_type = 'care_visits' and v.id = l.entity_id
+  where not private.access_ended((select auth.uid()))                                          -- LEAVE1-3
+    and private.is_org_member(l.organization_id)
+    and (private.is_coordinator(l.organization_id) or private.is_team_member(l.team_id))
+  order by l.superseded, v.visit_date nulls last, t.name, l.proposed_at
 $$;
 revoke all on function public.agent_stop_lookback(uuid) from public, anon;
 grant execute on function public.agent_stop_lookback(uuid) to authenticated;
 comment on function public.agent_stop_lookback(uuid) is
-  'AIG1-12: records holding a value of the stopped agent confirmed unchanged in the stop window (threshold) or since '
-  'the switch-on (version change), not confirmed again or corrected since. No person, no outcome column. Coordinators '
-  'see every line; a member only the lines of her own teams'' records. Writes nothing.';
+  'AIG1-12/-13: records holding a value of the stopped agent confirmed unchanged in the stop window (threshold) or '
+  'since the switch-on (version change), not confirmed again or corrected since; a line whose record no longer holds '
+  'the value stays, marked superseded ("überholt am <Datum>"). No person, no outcome column. Coordinators see every '
+  'line; a member only the lines of her own teams'' records. Writes nothing.';
 
 -- 10. OPS1: "Assistent gestoppt" (AIG1-8), existing exception path, no new signal class ----------------------------------
 insert into public.exception_rules (exception_type, priority, amount, unit, escalate_to_p1_after_hours, label, next_step)
@@ -1039,7 +1082,7 @@ select private.aig1_patch('private.derived_exceptions(uuid)', array[
   || E'  union all\n'
   || E'  -- AIG1-8: an agent stopped by its threshold or a version change (closes when it is switched on again)\n'
   || E'  select ''agent_stopped:'' || st.id, ''agent_stopped'', st.created_at, null::uuid, null::uuid, ''ai_agent_stop'', st.id,\n'
-  || E'         d.name\n'
+  || E'         d.name || '' · '' || (select count(*) from private.aig1_lookback(st.id) l where not l.superseded) || '' offen''\n'
   || E'  from public.ai_agent_settings g\n'
   || E'  join public.ai_agent_stops st on st.id = g.last_stop_id\n'
   || E'  join public.ai_agent_definitions d on d.key = g.agent_key\n'

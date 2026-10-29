@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(106);
+select plan(110);
 
 -- Pinned clock (DST1 pattern): 10:00 Zurich today = day T.
 select set_config('navora.test_now',
@@ -368,8 +368,8 @@ select ok((select state = 'stopped' from public.ai_agent_settings where agent_ke
 create temp table stop1 as select id from public.ai_agent_stops order by seq desc limit 1;
 select is(pg_temp.rows('ops', format('select label, detail from public.operations_exceptions() where exception_key = %L',
                                      'agent_stopped:' || (select id from stop1))),
-  '[{"label": "Assistent gestoppt", "detail": "Testassistent Bezugspflege"}]'::jsonb,
-  'AIG1-8: one OPS1 exception "Assistent gestoppt" names the agent');
+  '[{"label": "Assistent gestoppt", "detail": "Testassistent Bezugspflege · 4 offen"}]'::jsonb,
+  'AIG1-8: one OPS1 exception "Assistent gestoppt" names the agent and the open look-back lines');
 select is((select string_agg(e ->> 'entity_id', ',' order by e ->> 'entity_id')
            from jsonb_array_elements(pg_temp.rows('ops', format('select entity_id from public.agent_stop_lookback(%L)', (select id from stop1)))) e),
   (select string_agg(x::text, ',' order by x::text) from unnest(array[pg_temp.v(1), pg_temp.v(8), pg_temp.v(10), pg_temp.v(11)]) x),
@@ -384,6 +384,15 @@ select ok(not exists (select 1 from jsonb_array_elements(pg_temp.rows('ca', form
                                                                                     (select id from stop1)))) e
                       where e ->> 'entity_id' = pg_temp.v(1)::text),
   'AIG1-12 (iv): the re-checked record leaves the list');
+-- AIG1-13 (b): the record no longer holds a listed value (assigned by hand meanwhile): labelled, not removed
+update public.care_visits set responsible_user_id = pg_temp.u('x1') where id = pg_temp.v(10);
+select is(pg_temp.rows('ops', format('select superseded, superseded_at is not null as dated from public.agent_stop_lookback(%L) '
+                                     'where entity_id = %L', (select id from stop1), pg_temp.v(10))),
+  '[{"dated": true, "superseded": true}]'::jsonb, 'AIG1-13 (b): a superseded listed value stays on the list, "überholt am <Datum>"');
+select is(pg_temp.rows('ops', format('select detail from public.operations_exceptions() where exception_key = %L',
+                                     'agent_stopped:' || (select id from stop1))),
+  '[{"detail": "Testassistent Bezugspflege · 2 offen"}]'::jsonb,
+  'AIG1-13 (b): re-checked and superseded lines are not counted as open');
 
 -- AIG1-8: restart (on T+1), then a closed window over the threshold stops it ------------------------------------------------
 select pg_temp.at((pg_temp.t() + 1) + time '07:00');
@@ -394,6 +403,11 @@ select is((select count(*)::int from private.derived_exceptions('00000000-0000-4
   'AIG1-8: the OPS1 exception closes with its cause');
 select ok(pg_temp.propose('ca', 13, 73) is not null and pg_temp.propose('ca', 14, 74) is not null
           and pg_temp.propose('ca', 15, 75) is not null, 'fixture: three proposals in the new window');
+select is(pg_temp.err('ca', format('select public.confirm_suggestions(%L::uuid[], %L)', array[pg_temp.sug(13), pg_temp.sug(8)], pg_temp.k(81))),
+  '42501', 'AIG1-13 (a): a bulk confirm containing a look-back value is refused');
+select ok(not exists (select 1 from public.ai_confirmations where suggestion_id = pg_temp.sug(13))
+          and (select count(*) = 1 from public.ai_confirmations where suggestion_id = pg_temp.sug(8)),
+  'AIG1-13 (a): the refused bulk writes nothing');
 select ok(pg_temp.confirm('ca', 13, 'rejected', null, 76) = 'ok' and pg_temp.confirm('ca', 14, 'rejected', null, 77) = 'ok'
           and pg_temp.confirm('ca', 15, 'confirmed', null, 78) = 'ok', 'fixture: two rejected, one confirmed (share 66.67)');
 select is(pg_temp.res('ca', format('select public.propose_visit_responsible(%L, %L)', pg_temp.v(16), pg_temp.k(79))), 'ok',

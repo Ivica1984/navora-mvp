@@ -101,7 +101,7 @@ Commands (`correct_visit_time`, `complete_case_task`, `decide_matching_request`,
 | `value_provenance(entity_type, entity_id, field)` | active members of the record's team | the confirmer of **one** value ("bestätigt von <Name> am <Datum>"), with that value's status; at most one row (AIG1-11 (2a)) | 097, 071 |
 | `agent_correction_rates(month)` | team: own rows; coordinators: all teams of the organisation | none; per agent, field, team and month; a cell with fewer than three distinct confirmers is suppressed (AIG1-7) | 097 |
 | `agent_health(org)` | coordinators of the organisation | none (AIG1-10) | 097 |
-| `agent_stop_lookback(stop)` | coordinators: every line; team members: lines of their teams' records | none; no outcome column (AIG1-12 (i)-(iv)) | 097 |
+| `agent_stop_lookback(stop)` | coordinators: every line; team members: lines of their teams' records | none; no outcome column (AIG1-12 (i)-(iv)); `superseded`, `superseded_at` per record (AIG1-13 (b)) | 097 |
 
 Commands (`set_agent_state`, `propose_visit_responsible`, `confirm_suggestion`, `confirm_suggestions`) return result codes. The confirmer is otherwise read only per record through `read_audit_record('ai_confirmations', id, purpose)` (AUD1).
 
