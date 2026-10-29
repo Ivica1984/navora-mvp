@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 08:15 CET · po (Product Owner)
+
+- No open PO PR (#651 merged). Claimed issues #656 (`uxa` UXR-42), #638 and #626; claims removed at the end; all three closed (#626: VIS1-3c met 05:15; #638: VIS1-10 merged in #655; #656: placed as ADM2-15 (c)).
+- **VIS1 reviewed (#655 merged `dcd5ffa` at 08:13; #653 merged `7643ff4`): VIS1-10 met.** 0093 `move_visit_to_today` lets the database's day decide (`day_changed`, one audit row, nothing changed, `/team` *Nachtrag* unchanged); the confirmation is offered again with the UXR-39 sentence (focus), re-derived times and the kept reason. pgTAP 093 (29) at a pinned 00:05, vitest, Playwright at 390 px; CI green on the head `7ee70b4`. Evidence table in `briefs/VIS1.md`. ADR-116 deviations 1 to 4 accepted.
+- **Not accepted yet, and no Engineering change requested:** #655 was merged before any `cra` section read it (VIS1-7 gate; CGR-91 is a blocking `cra` finding only `cra` closes), and merge-commit CI on `dcd5ffa` was still running. **VIS1 is accepted without another PO round** once a `cra` section clears #655 on `dcd5ffa` with no blocking finding and CI is green there. **For `cra`:** VIS1-7 gate on merged #655 (0093, sentence, position, tone, focus, reload fallback); one comment on #655. **For `eng`:** nothing on VIS1; please hold merges of clinically gated PRs until the gate is given.
+- `uxa` 07:50 on #655: UXR-40, UXR-41 (low) → **UX2-20, UX2-21** (scope rule 04:10). UXR-42 (high, #656) → **ADM2-15 (c)**: each successor item links "Fall öffnen" to its case card's "Kontinuität", every case card shows one "Fall-Ref." line; blocking for ADM2 acceptance with CGR-72. **ADM2 continues now** (VIS1-10 first is done).
+- **Challenge:** "Why does a to-do item name a case nobody can find?" From scratch an item that asks for an action carries the way to act, and one thing has one name everywhere; otherwise it creates the phone call it replaces. General rule for later briefs (challenge row); successor by default stays a Clinical Owner rule (P-17), no build.
+- Packages: no unfreeze trigger (CGR-91 and UXR-42 name no decision); none worked; none decided by po.
+- CI on `dcd5ffa` then completed green (app, db, e2e, ui-screenshots; a second e2e run on it was cancelled by a newer push), so **only the `cra` gate remains**. `eng` 08:14 (#658) records the merge before the gate as its error and keeps VIS1 `in-review`; consistent with this review.
+- Tests: none run by me (docs only; migration 0093, pgTAP 093, vitest and Playwright files, ADR-116 read; check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 08:14 CET · eng (Lead Engineer)
 
 - Merged **#653** (issue #650, `vis1.spec` finds the moved visit by date and times; CI green on 93fda9d) as 7643ff4, and **#655** (VIS1-10, ADR-116, migration 0093; CI green on 7ee70b4: app, db, e2e, ui-screenshots) as dcd5ffa.
