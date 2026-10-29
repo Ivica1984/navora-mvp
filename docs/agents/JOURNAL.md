@@ -4,6 +4,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 17:30 CET · eng (Lead Engineer)
+
+- Own PR **#673 (OBS1)**: no CI had run on head `2a290d2` (no workflow run recorded for that commit) and the branch was behind `recovery/main` (#677, #678, #679). Merged `recovery/main` in (JOURNAL: both sides kept, newest first) and pushed so CI runs on the current head. No code change. `npm run agents:check` ok locally; build, vitest, pgTAP and Playwright not run locally (CI decides).
+- **Not merged:** OBS1-6 requires the `cra` read of #673; no `cra` review covering #673 exists yet (latest `gov/review` is 13:40, before the PR). `lca` 16:05 residual (`visit_reports.snapshot` table-selectable, ADR-118 deviation 6) stays OPEN for `po`.
+- Next eng run: if CI is green and the `cra` read is in without a blocking finding, merge #673 and set OBS1 to `delivered`.
+
+## 2026-10-29 17:00 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. No new `cra` finding since 13:40. **D-1 frozen, unfrozen by trigger 1** (owner answer, partial, 2026-10-29). **Explicit request:** `po` 17:00 (owner answer on D-1, partial) asks `lca` to draft the D-1 facts dossier for question (b) from repository records → **D-1** reviewed (package changed; trigger (a) and (c)). Only my section edited.
+- **Dossier** (in D-1, my section): 13 rows structured on DSV Art. 15 Abs. 1 lit. a-g, each with its repository source and status; names, counts and times only, no contents. New repository facts: the old client shipped the anon key to browsers (`NEXT_PUBLIC_…`, handover `81aa1c3`); no deployment confirmed; key and URL never in git history; project ref first in the repository at `8ff43ac`, after containment; `{public}` policies also covered signed-in accounts; `care_visits` and `teams` carry staff-name fields (fill state not recorded). UNKNOWN for owner/eng: origin, controller, start of the window, public reachability, Auth sign-up, older logs, fill counts.
+- **Verdicts:** owner rule as measures **compliant under every plausible interpretation**; reporting duty and timing **unresolved: needs legal adviser** (no adviser named, review undated, eight days since containment); key rotation deferred to the end of the review **unresolved: needs owner** (rotation after SR-26 step 3 in one dated session stays compliant).
+- Sources read today: FDPIC guide v1.2 (Ziff. 1.1, 1.3, 1.5, 2.3); law.ch quoting DSV Art. 15 Abs. 1, 2, 4 (secondary; fedlex not read). Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
+## 2026-10-29 17:00 CET · po (Product Owner)
+
+- **Owner instructions recorded (owner message to po, 2026-10-29):** (1) **D-1 precaution:** the live database is treated as holding real personal data until clarified; a documented review with legal counsel and the data-protection responsible person; the questions "real personal data present?" (fact) and "data-security breach with a possible reporting duty?" (legal, on the concrete facts) are kept apart. (2) **No real client data** for new tests or pilot runs until D-1 is clarified (new standing rule at the top of `NEXT_CAPABILITY.md`). (3) **#666:** no blanket or unattended merge; the contained `cra` reviews are listed one by one with review state, tests and risks for the owner; nothing merged. (4) G-1 and D-11 are prepared by the owner separately.
+- D-1 package, row, INDEX and owner agenda updated (Unfreeze: 1 owner). **D-7** follows (Unfreeze: 2 D-1): its "real or not sure" condition holds, ask is now private on a paid plan (B) with the ruleset.
+- Requested today on issue #63: `lca` drafts the D-1 facts dossier from repository records, `eng` the technical facts from the repository; no agent accesses the live project. The breach and reporting assessment stays with a qualified legal adviser.
+- Owner overview delivered outside the repository (claude.ai doc): all 21 open owner items with recommendation, default, consequence of no decision and deadline (event-based; no pilot date set), and the #666 chain per PR.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 16:28 CET · eng (Lead Engineer)
 
 - Own PR **#673 (OBS1)** was `dirty` (JOURNAL conflict with #672/#674), so no CI ran on `d93e894`. Merged `recovery/main` in (`b043a48`, both entries kept, newest first): CI run 40900212813 green on all four jobs (db, e2e, app, ui-screenshots).
@@ -13,6 +38,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 16:24 CET · po (Product Owner)
+
+- No open PO PR. No `agent:po` issue needed work this run (none claimed). Governance chain #666 (contains #662 … #582) not merged: this routine merges PO PRs only; left for the owner, as at 15:40.
+- **No delivery to review:** OBS1 PR #673 (`b043a48`) is open, not merged; nothing else delivered since 15:40.
+- **`lca` 16:05 (D-23 re-check on #673) taken in as OBS1-7** (`briefs/OBS1.md`): OBS1 keeps G-18 and D-23 term (b); the residual is that the team can select `visit_reports.snapshot` (now with author and marker), `signed_by`/`signed_at` and `visit_observations.author_id`/`recorded_at` row by row by direct query. The PO takes `lca`'s most protective option (reads only through the per-visit functions, RLS3-4 pattern; compliant under every plausible interpretation) instead of putting the as-built path to the owner. OBS1-7 may ride #673 or follow as OBS1-C1; before G-18, G-23 and G-24 either way. `READ_PATHS.md` states the column-only scope until it is closed, and gains an inventory of the remaining direct selects. D-23 item 20 (still `po-decided`, not escalated), INDEX, OPEN_DECISIONS, G-18, G-24 and G-19 item 2 (i) updated.
+- **`uxa` 16:10 taken in:** UX2-22 one line "Offene Einsätze übernehmen Teammitglieder mit erfasster Qualifikation." for a member without a qualification; UX2-23 wording (the off-switch's second sentence only if `eng` confirms in the PR that pending proposals rest); UX2-26 radios, none checked; UXR-47 marker "Qualifikation war beim Schreiben nicht erfasst" into OBS1-4 (`cra` confirms in CGR-93); UXR-48 as **UX2-27** (one author label; may ride #673, gates nothing).
+- **Challenge:** "Why can every team member query whole care tables directly?" An MVP leftover: privacy then depends on someone spotting each new column. From scratch every read is a function built for a task. Acted on through OBS1-7 (c), the inventory; no hypothesis row (a design rule, not a pilot question).
+- Packages: no unfreeze trigger for any frozen package; D-37 still waits for D-36. D-23 (not frozen) updated as above. None decided anew by po.
+- Tests: none run by me (docs only; the `lca` and `uxa` sections, OBS1 and UX2 briefs and the #673 head read through git and the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-29 16:10 CET · UX/UI Design Architect (uxa)
+
+- Reviewed (code only; `ui-screenshots` download refused again): **#647 merged** → UXR-42 closed in code (ADM2 accepted); **OBS1 PR #673** (`d93e894`) built as OBS1-4 asks; the countersigner now sees the facts.
+- Wording answers for OBS1-3/-4: marker "Qualifikation war beim Schreiben nicht erfasst" (**UXR-47, low**, `cra` confirms); "not stored" line and "Teammitglied ohne Namen" accepted as built. **UXR-48 (low)**: author shown in three forms. Comment on #673. No issue (no severe or high finding).
+- `uxa` answers asked by the PO: UX2-22 "Offen im Team" becomes one `info` line without count or client names; UX2-23 confirming-step wording (one fact for `eng` to confirm: pending proposals rest while off); UX2-26 layout (radios, none checked, "Später").
+- Design system version 17 (§2 status moves, new PLANNED §4 rule "who wrote a record entry"). No benchmark (one today at 03:51).
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing.
 ## 2026-10-29 16:05 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. No new `cra` finding since 13:40 (CGR-93 already taken at 13:57). **Explicit request:** PR #673 (OBS1, 0095, ADR-118; OBS1-6) asks `lca` whether OBS1-5 keeps G-18 and D-23 term (b) intact → **D-23** (po-decided, not frozen) re-checked on that question only. D-15 is frozen and was not edited.
