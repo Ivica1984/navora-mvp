@@ -1946,6 +1946,9 @@ isOneToOne: false
               "kind": string,"team_name": string,"visit_date": string
             }[]
                            },
+"move_visit_to_today":
+{ Args: { "p_idempotency_key": string,"p_reason": string,"p_shown_date": string,"p_time_end": string,"p_time_start": string,"p_visit_id": string }; Returns: Json
+                           },
 "my_access_state":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
