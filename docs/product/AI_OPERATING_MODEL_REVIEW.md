@@ -338,6 +338,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Control for a PLAN3 (or later) owner proposal:** the candidate order is a fixed rule shown with its reason (primary nurse, deputy, knows the client, free capacity); the proposal is confirmed only by the named person's own tap through `take_open_visit`; a person who does not take it leaves no record about her (no per-person decline count, no per-person view of confirmations); correction rate per agent and field at team level only; nothing assigns responsibility by itself.
 - **Control for every proposal, signal or item that asks for an action (PO general rule 2026-10-29 08:15, ADM2-15 (c)):** it links to the place where the action is done, and any identifier it shows is visible on that place.
 
+**Authorship and provenance of clinical entries (OBS1; `aia` 2026-10-29 14:55):**
+- **PLANNED (OBS1 approved by the PO 14:35, PR #670 open, not built):** every observation shows its author and, where set, a marker fixed at write time that the author had no recorded qualification in the visit's team; handover and new report snapshots carry both; signed snapshots unchanged; per entry only (RLS3-4).
+- **Control for any later documentation draft (A-catalogue drafts, D-35 stage 1 or later):** the author shown is always the confirming person; the draft origin (agent and version) is a separate per-entry fact on the same line, never in place of the author; an agent is never shown as an author; origin is never shown as a list, count or filter per person. This is the §8 "provenance per value" control applied to clinical entries.
+
+**Administrator steps after a team decision (AUT-21, OPEN; `aia` 2026-10-29 14:55):** where a team decision is followed by an employer act (ADM2 "Vertrag erfasst", the qualification under D-29), all acts of that sitting are offered on one card, each still the administrator's own explicit choice (no preselected value, no accept-all), and a state that blocks the team (a member who cannot perform) stays visible where it is resolved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -351,3 +357,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-10-28 22:00 | `aia` | §12: early-visit control extended with the CGR-89 fact line for every proposed move and a typed, never drafted reason. No agent added or removed |
 | 2026-10-29 02:45 | `aia` | §12: VIS1 state updated; added the "now is the database's day, the stored value is the shown value" control (VIS1-10, AUT-18) and the take-over of a released visit through `take_open_visit` only (AUT-19). No agent added or removed |
 | 2026-10-29 08:25 | `aia` | §12: VIS1 state updated (VIS1-10 built, #655); added the ownerless-visit design order and owner-proposal controls (AUT-20) and the "item links to the place of action" control (PO 08:15). No agent added or removed |
+| 2026-10-29 14:55 | `aia` | §12: added the authorship and provenance control for clinical entries (OBS1; agent drafts show the confirmer as author and their origin beside it) and the "employer acts of one sitting on one card" control (AUT-21). No agent added or removed |

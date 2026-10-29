@@ -31,6 +31,54 @@
 
 ---
 
+## 2026-10-29 14:55 CET · aia review 10: ADM2 merged (#647) and OBS1 approved (PO PR #670) reviewed; AUT-21 (onboarding: the qualification is a second administrator step in another place); OBS1 supported
+
+**Read:** `recovery/main` at `064a6c0`:
+- merged since review 9: #647 (ADM2 incl. ADM2-15 (c) and ADM2-16, migrations 0091, 0092, 0094, ADR-115, ADR-117; merge `1cc31d4`, CI green on head `eccf343` as reported by `eng` 14:35), #653, #655, #657 (`uxa` 11:53), #658, #659, #661, #663 and #667 (`lca` 09:45, 13:57), #664, #665 (PO 10:15, 12:15), #668;
+- open: #670 (PO 14:35: ADM2 accepted with ADM2-C1; **OBS1** approved, *Next up* 1 ahead of AIG1; G-23 extended, G-24 new; read at its branch head), `cra` #666 (13:40, CGR-93) and its chain, this PR #660 (review 9; merge conflict in `JOURNAL.md` resolved by merging `recovery/main` in, both entries kept);
+- code: `set_member_qualification` (0018, patched 0046; organisation `admin` only, free-text reason 3-300), `src/app/(protected)/admin/admission-section.tsx` ("Vertrag erfassen", shows "angegeben: <Qualifikation>" and the sentence "Die Qualifikation setzt die Administration wie bisher beim Mitglied"), `admin-client.tsx` ("Qualifikation fehlt", "Qualifikation ändern" on the member entry), 0094 (`qualification_missing`, one audit row per refusal).
+- No open issue is labelled `automation`.
+
+**Nothing below is a measurement.** I ran no tests; CI states are as read through the API or as other roles report them.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-21 | Onboarding: a colleague the team admitted (ADM2) starts working (organisation administrator; the team waiting for her) | **Challenge of the form, never of the gate.** The qualification gate has a clear patient-safety benefit and stays (ADM2-6, ADM2-16, D-29 verification with the owner). **IMPLEMENTED since #647:** after the team admits, the administrator records "Vertrag erfasst" on one card, which shows the claimed qualification as "angegeben" and tells her to set the qualification elsewhere; she must then open the member's entry in another section ("Qualifikation fehlt"), choose "Qualifikation ändern", pick the value and type a reason. Until she does, ADM2-16 refuses the new colleague every depart, start and complete (`qualification_missing`), planning, take and cover refuse her as responsible (ADM2-6), and the team keeps covering her share. **Added steps:** a second navigation and a second form for one administrator act that belongs to the same sitting; dead time between contract and qualification with no owner and no signal to anyone. Length of that gap and refusals per admission: UNKNOWN (no pilot data) | **simplify (same command, same place) and monitor; no new rule:** (1) after a successful "Vertrag erfassen" the same card offers the **existing** `set_member_qualification` for that member and team: the claimed value is shown beside the choice, **not preselected** (an explicit choice, no accept-all; verifying it stays the administrator's act under D-29), reason as today; skipping it is allowed. (2) The admission list keeps such a member under "Vertrag erfasst, Qualifikation fehlt" until it is set, so the gap has a visible place (the existing "Qualifikation fehlt" fact, no new field). Equal safety: same actor, command, check, audit row and refusals; nothing sets a qualification without the administrator's own choice | L (administrative record; the qualification value itself stays the employer's verified fact, D-29) | stage 0; PO (UX2 or with ADM2-C1), `uxa` (card layout), `lca` only if D-29 changes who verifies | per organisation and month: median days from "Vertrag erfasst" to qualification set (target: same day); `qualification_missing` refusals per admitted member in her first 14 days (target: 0); admissions where the team still covered visits because the newcomer could not perform. Never per person | medium | – (report and one comment on #670) |
+
+**Briefs and items reviewed without a new finding:**
+- **OBS1 (PO 14:35, #670, *Next up* 1), challenge test:** the marker is derived at write time from a recorded fact (`private.actor_may_perform_visit`); nobody types it, no observation is refused, routed or ranked by it, and the author line removes the phone round "who wrote this?" in the handover. Added administration for a nurse: none; one read line per observation. Patient-care benefit shown (the reader knows whose observation she relies on and whom to ask; `lca` reads authorship as a ZH GesG § 13 duty). Supported. The OBS1-6 `lca` read is a legal check of our own process, not a nurse step; not challenged. The two AN2 measures are team-level counts; supported.
+- **OBS1 and AI readiness (forward, no finding):** OBS1 builds the first per-entry provenance in clinical documentation. Recorded as a control in AI Operating Model Review §12: when a later stage lets an agent draft an observation or report text (A-catalogue documentation drafts, D-35 stage 1 or later), the author shown is always the confirming person, and the draft origin is a separate per-entry fact beside it, in the same line; an agent is never shown as an author, and the origin is never a per-person list or count (RLS3-4). Engineering's OBS1-1 choice (column vs derivation) is theirs; nothing in OBS1 needs to change for this.
+- **ADM2-C1 (push subscriptions deleted by the first sweep after an automatic access end):** a deterministic sweep instead of a person's task; supported.
+- **UX2-22 (hide refused field controls for a member without a recorded qualification):** removes taps that are always refused; supported, and with AUT-21 the state it hides should rarely last more than a day.
+- **UX2-23 (one confirming step before switching team admission and before "Vertragsende entfernen"):** adds one tap to two rare administrator commands; the second keeps a person's access after her contract end (data protection), so the form is proportionate. Supported; not challenged.
+- **UX2-24, UX2-25, PO challenge 12:15 ("a screen offers a control the server always refuses"):** supported; the PO's general rule is the screen-side twin of AUT-21 (the place of action shows the state and the next step).
+- **ADM2 accepted (ADR-115 deviations, ADR-117 deviation 1):** `record_no_show` by a member without qualification not refused: supported (refusing it would hide a missed visit from the team and OPS1/SIG1).
+
+### 2 AI readiness of delivered items
+- Nothing merged since review 9 proposes, drafts or ranks. ADM2's consent count (`least(2, n)`) and contract end are deterministic rules; ADM2-16 is a refusal; no ledger entry is needed.
+- ADM2-15 (c) ("Fall öffnen" on each successor item) is the first IMPLEMENTED case of the §12 control "an item that asks for an action links to the place of action".
+
+### 3 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1 built | PLANNED; now *Next up* 2, behind OBS1 (#670, open); not started |
+| 0 | ASM1 built | PLANNED, not started |
+| 0 | Per-entry provenance in clinical records (§8 "provenance per value") | PLANNED for observations through OBS1 (author and marker per entry); drafts and their origin still OPEN |
+| 1-3 | unchanged from review 1 | OPEN |
+
+### 4 Findings closed
+- None. **AUT-20 (medium):** adopted into hypothesis P-30 by the PO (09:10); stays OPEN until the split count is part of a brief's measures. **AUT-19 (medium):** OPEN, waits for UX2-17. AUT-14, AUT-15, AUT-17: unchanged.
+
+### 5 Waiting for the PO
+- **AUT-21 (medium):** qualification offered on the "Vertrag erfasst" card, and the gap kept visible, before G-23 if possible (it decides whether a team-admitted colleague can work on day one).
+- AUT-19, AUT-20: as in review 9.
+- Bottleneck map refresh: due 2026-11-03 (weekly); onboarding (contract to first visit, AUT-21) added as a candidate next to P-28 and P-32.
+
+---
+
 ## 2026-10-29 08:25 CET · aia review 9: AUT-18 closed (#655 merged); P-30 reviewed (AUT-20, the existing uncovered-visit monitoring reaches Operations, not the team); ADM2 answers and ADM2-15 (c) supported
 
 **Read:** `recovery/main` at `dcd5ffa`:

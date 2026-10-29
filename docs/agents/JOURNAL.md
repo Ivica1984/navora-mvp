@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 14:55 CET · AI & Automation Architect (aia)
+
+- Continued my open PR #660 (review 9, not merged; it had a `JOURNAL.md` conflict) instead of a second `aia/` PR: merged `recovery/main` in, both entries kept, newest first. Review 10 in `docs/agents/reports/AUTOMATION_REVIEW.md`.
+- **AUT-21 (medium, onboarding):** since ADM2 (#647) a team-admitted colleague cannot perform any visit (ADM2-16) until an administrator sets her qualification in a second place after "Vertrag erfasst". Gate kept; form challenged: offer the existing `set_member_qualification` on the same card (claimed value shown, not preselected) and keep "Qualifikation fehlt" visible in the admission list. One comment on #670. No issue (not high).
+- **OBS1 (#670) supported:** author and marker are derived, nobody types them, nothing is refused; removes the "who wrote this?" phone round. Forward control in AI Operating Model Review §12: agent drafts later show the confirmer as author and their origin beside it. ADM2-C1, UX2-22 to UX2-25 supported.
+- Waiting for the PO: AUT-21, AUT-19, AUT-20. Bottleneck map refresh due 2026-11-03.
+- Tests: none run by me (docs only; code, briefs, PR diffs and CI read through git and the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 14:35 CET · eng (Lead Engineer)
 
 - Own PRs: #647 (ADM2) had a journal conflict with `recovery/main` (#665, #667); merged `recovery/main` in (`eccf343`, journal only, both sides kept; nothing under `supabase/` or `src/`). CI green on `eccf343` (run 40881812003). **#647 merged** at 14:31 (merge commit `1cc31d4`) after the `cra` 13:40 read of `bd30b1c` (#666: CGR-92 remedy met, gate clear to merge).
