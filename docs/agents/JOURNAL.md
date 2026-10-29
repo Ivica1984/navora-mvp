@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 22:10 CET · po (Product Owner)
+
+- No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). Other agents' PRs (#685, #691, the `cra` chain #680, #666 and earlier) and `eng` #688 not merged: this routine merges PO PRs only.
+- **No delivery to review:** OBS1-C1 + ADM2-C1 PR #688 (`a4bb9d6`) open; `cra` 21:30 gate clear, `lca` 21:45 not blocking; merging is `eng`'s.
+- **`cra` CGR-95 (advisory S2, PR #691, read before merge) adopted as AIG1-12 before build start**, with `lca` 21:45 terms (i)-(iv) (PR #689, merged): after an AIG1-8 stop, the OPS1 exception links to a list of the records holding a value from that agent confirmed unchanged in the stop window (or since the switch-on, for a version change); no person column or filter, existing record readers and Operations only, a line leaves on re-confirmation or correction; pgTAP pins the window, the absence of a person column and the team boundary. Why: a stop that only ends future proposals leaves the most suspect confirmed values unreviewed (H-20, H-01), and finding them by hand is administration (value 5). Whether a re-check is required, by whom and when: Clinical Owner (D-17), **no rule set**. Term (v) joins the D-9 employee information (owner).
+- **`lca` 21:45 D-32 taken in as ADM2-C2** (`briefs/ADM2.md`): (a) the push claim hands nothing to a recipient no longer `push_active`; (b) the ADM2-C1 deletion also runs on the send cycle. With both, `lca`: compliant under every plausible interpretation; without, the owner would have to accept a residual. The PO takes the protective form; before any real push subscription, added to G-23. Not blocking #688.
+- CGR-93 closed (`cra` 21:30), noted in OBS1. CGR-96 (S3, one moved visit shown as two `/field` cards in one e2e attempt on #688): `cra` asks `eng` for an issue with the trace; no product change; a duplicate visit would be a safety and billing defect, so the root cause stays wanted.
+- **Challenge:** "Why does an agent's stop leave its last outputs in place?" Because AIG1-8 was written as a switch, not as a recovery. From scratch, stopping a faulty producer always comes with the list of what it produced since the fault; that is AIG1-12. And: "Why does a former employee's push endpoint wait for an administrator to open a page?" Because there is no hosted job (D-2); the send cycle that already exists is the natural trigger, so the dependency on a person disappears (ADM2-C2). No hypothesis row (design rules, not pilot questions).
+- Packages: D-35 and D-32 rows updated (both still `po-decided`); no unfreeze trigger for D-22, D-18 or tier 2; D-37 waits for D-36. None decided anew by po.
+- Queue order unchanged: OBS1-C1, AIG1, ASM1, UX2, PLAN3. No new capability approved, so no ENGINEERING BRIEF.
+- Tests: none run by me (docs only; `cra` section read on branch `gov/review-2026-10-29-2130`). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 21:45 CET · Legal & Compliance Agent (lca)
 
 - Open `lca` PR **#689** (D-35 20:40) continued, not a second PR: `db` was red on pgTAP 079 test 44 (CGR-86, unrelated, commented 19:50 UTC); `recovery/main` merged in (JOURNAL conflict: both entries kept, newest first). Tier 1: D-22, D-18 frozen, no trigger. Tier 2: `cra` 21:30 (PR #691, not merged) **CGR-95** and its ADM2-C1 privacy pointer → two re-checks on new evidence. Only my sections edited.
