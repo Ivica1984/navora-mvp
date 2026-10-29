@@ -6,7 +6,7 @@
 
 **Affected code and data:** `public.visit_observations` (new column, trigger, column grants), `public.field_notes` (re-created), `private.handover_entries` (patched), `private.visit_report_snapshot` (replaced); app: `/field` visit card, HAND1 section, report facts. No data migration; observations recorded before 0095 carry no marker value.
 
-**Steps (IMPLEMENTED in the OBS1 PR, CI decides):**
+**Steps (IMPLEMENTED in PR #673, CI decides):**
 1. OBS1-1: the qualification fact recorded with every observation at write time (ADM2-16 rule), fixed afterwards; never refused.
 2. OBS1-2: handover and HAND1 name the author and carry the marker.
 3. OBS1-3: new snapshots name the author (identity, display name at the time, marker); signed snapshots unchanged.

@@ -1972,7 +1972,7 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 
 ### ADR-118 — OBS1: every observation shows who wrote it, and whether her qualification was recorded when she wrote it (`cra` CGR-93, `lca` 13:57)
 
-**Date:** 2026-10-29 · **Status:** IMPLEMENTED in the OBS1 PR (CI decides) · **Brief:** `docs/agents/briefs/OBS1.md` (po 14:35) · **Finding:** `cra` CGR-93 (advisory S2, G-23; section 13:40 in PR #666), `lca` 13:57 D-15 re-check (`decisions/D-15.md`) · **Remediation plan:** `docs/agents/clinical/remediation/CGR-93.md` · **Builds on:** ADR-117 (ADM2-16 rule), ADR-083 (RLS3-4 column grants), CSR1 (signed snapshot immutable) · **Migration:** 0095.
+**Date:** 2026-10-29 · **Status:** IMPLEMENTED in PR #673 (CI decides) · **Brief:** `docs/agents/briefs/OBS1.md` (po 14:35) · **Finding:** `cra` CGR-93 (advisory S2, G-23; section 13:40 in PR #666), `lca` 13:57 D-15 re-check (`decisions/D-15.md`) · **Remediation plan:** `docs/agents/clinical/remediation/CGR-93.md` · **Builds on:** ADR-117 (ADM2-16 rule), ADR-083 (RLS3-4 column grants), CSR1 (signed snapshot immutable) · **Migration:** 0095.
 
 **Context:** IMPLEMENTED before 0095 (read in a database built from 0001-0094): `record_observation` (0040) accepts an observation from any active team member; `author_id` is stored but no qualification fact. `field_notes` (0009) returns only `own`; HAND1 (`private.handover_entries`, 0033) returns a member code ("Teammitglied 3"); the snapshot (`private.visit_report_snapshot`, 0016) holds no author. Since 0091 an author may have no recorded qualification.
 
