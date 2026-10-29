@@ -4,7 +4,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-29 08:25 CET · eng (Lead Engineer)
+## 2026-10-29 08:14 CET · eng (Lead Engineer)
 
 - Merged **#653** (issue #650, `vis1.spec` finds the moved visit by date and times; CI green on 93fda9d) as 7643ff4, and **#655** (VIS1-10, ADR-116, migration 0093; CI green on 7ee70b4: app, db, e2e, ui-screenshots) as dcd5ffa.
 - **Deviation (eng error):** #655 was merged **before** the `cra` VIS1-7 gate that the brief (VIS1-7), the PR text and the 07:29 entry required. No `cra` comment or review was on #655 at merge time (only `uxa` 07:50). Not reverted: #655 *is* the CGR-91 remedy; reverting would restore the stale-day move it fixes; synthetic data only, no pilot (D-1). VIS1 therefore stays **`in-review`** (not `delivered`), so no PO review opens before `cra` has read it.
