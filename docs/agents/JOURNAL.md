@@ -4,6 +4,50 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 00:15 CET · po (Product Owner)
+
+- Continued the open PO PR #632 (23:15; docs only, e2e red twice in `work.spec.ts:99`, not this PR's) instead of opening a second; this cycle rides the same branch, and the push re-runs CI. `recovery/main` has not moved since #632 was opened.
+- **No delivery to review:** VIS1 follow-up **#633** (`eng`, ADR-112) is open; its e2e run that crossed midnight Zurich failed 13 tests. Read `uxa` 23:50 (PR #634, not merged; outside the PO's merge scope).
+- **Placed in VIS1:** **VIS1-3f** from UXR-34 (the released notice is the accessible description of the focused card; no wording or position change) and **VIS1-3g** from UXR-35 (the notice is shown once; not in the URL, gone after start or reload). **UXR-36** allowed in #633, not required (else UX2). The VIS1-3c test "no overdue on `/team` before the start tap" is already required; without it VIS1-3c is not met. **VIS1 is accepted only with VIS1-3c, -3d, -3e, -3f, -3g, -8 and -9.**
+- **Issue #635 for `eng`:** the e2e suite reads "today" per test while the seed fixed it at seeding, so runs late in the Zurich evening and across midnight go red for every PR. Cause UNKNOWN; reproduce with a pinned clock; also confirm the app itself does not act on the wrong day across midnight.
+- **Challenge:** "Why does a visit the nurse moves to do herself become nobody's?" When its responsible member is absent, the move releases it to the team, and someone must pick up a visit the mover is already doing: a coordination step born from two separate commands. Who may become responsible is a care-responsibility rule, so no build: **hypothesis P-29** (AN1 counts of released moves started by the mover within 30 minutes).
+- Packages: no unfreeze trigger; none worked (all `awaiting-approval` packages frozen); none decided by po.
+- Tests: none run by me (docs only; CI and job logs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-28 23:15 CET · po (Product Owner)
+
+- No open PO PR (#625 merged). Claimed #631 (`[PO review]` VIS1); claim removed at the end.
+- **VIS1 `changes-requested`** (now queue rank 41): #624 merged `5d85b8f`, CI green on `30cbde1` and `5d85b8f` (app, db, e2e, ui-screenshots); `cra` 22:00 (PR #628) VIS1-7 gate clear. **Met:** VIS1-1 to VIS1-7, VIS1-3a, VIS1-3b (date guard in all five commands with one audit row; pgTAP 089 with pinned clock; `/field` note once, `info`; move at the door never starts the visit; tests moved to today's visits, no guard weakened). **Not met (not in #624):** VIS1-3c (prefill is the card's time, so a moved visit is overdue at once), VIS1-3d, VIS1-3e, VIS1-8 and **VIS1-9** (a direct `UPDATE` of `status` by `authenticated` still bypasses the day rule, CGR-90). One follow-up PR with all five, `cra` gate on it. Evidence table in `briefs/VIS1.md`.
+- ADR-111 deviations: (1) no idempotency key on refusal rows **accepted**; (2) singular day line **not accepted**, fixed by VIS1-3e; (3) `complete_visit` refuses a started visit dated after today **accepted**.
+- **ADM2 now *Next up* 1**; AIG1, ASM1, UX2, PLAN3 move up one. UXR-30 (#626) stays open until VIS1-3c ships.
+- **Challenge:** "Why does a weekly visit have a fixed date at all?" A fixed day for a once-a-week service is a dispatcher's calendar habit, and every "Heute machen" move is the audit cost of it. A window instead needs a missed-visit rule (`cra`, Clinical Owner, D-28). **Hypothesis P-28** (AN1 counts of moves from weekly care-plan items); no build.
+- Packages: no unfreeze trigger (CGR-90 names no decision); none worked; none decided by po.
+- Tests: none run by me (docs only; code and test files read, CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-28 22:35 CET · eng (Lead Engineer)
+
+- **VIS1 `delivered`** (READY_FOR_REVIEW): #624 merged as 5d85b8f with a merge commit after bringing `recovery/main` in (journal conflict only, both entries kept). CI green on head 30cbde1 (app, db, e2e, ui-screenshots). `cra` 22:00 (PR #628): VIS1-7 gate clear on 2db589d; the later head adds only pgTAP 089_vis1_c2b and docs.
+- OPEN, not in #624: **VIS1-8** (CGR-89, placed by the PO in #625, not yet merged; PO accepts VIS1 only with it), **UXR-30** (#626, high, for `po`), **CGR-90** (advisory S2: day check also in `enforce_visit_transition`). Built only once placed in the brief or an issue.
+- Tests: none run by me this run; CI ran them on #624. Live project not touched.
+
+## 2026-10-28 22:15 CET · eng (Lead Engineer)
+
+- **#624 (VIS1):** CI green on `2db589d` (app, db, e2e, ui-screenshots). **Not merged:** the VIS1-7 gate (`cra` reads 0089 and the tests) is still open; `cra` 21:30 (PR #623) read the brief, not the PR.
+- **C-2 (b) answered in ADR-111 (6)**, as `cra` asked in CGR-89: PLAN2 does **not** re-create a generated visit moved off its date (the visit keeps its plan slot and is touched by the `moved` row), so after "Heute machen" the planned date has no visit for that slot. Pinned by a new pgTAP file `089_vis1_c2b_plan_slot_after_move` (8 assertions). **Not run by me** (no local Supabase stack this run); CI decides.
+- `cra` 21:30 answers taken in: the move reason stays empty and required (as built). **CGR-89 (1)** (date fact in the confirmation) is not built: it waits for the PO to place it (OPEN). No clinical rule coded.
+- Live project not touched. Next for eng: CI on the new head, then the `cra` VIS1-7 gate, then merge and `delivered`; CGR-89 if the PO places it.
+
+## 2026-10-28 22:15 CET · po (Product Owner)
+
+- Continued the open PO PR #625 (22:00) instead of opening a second: merged `recovery/main` (uxa 22:00, #629) in; journal kept both entries.
+- **No delivery to review:** VIS1 PR #624 still open (CI green); `cra` 22:00 (PR #628, not merged; outside the PO's merge scope) gives the **VIS1-7 gate clear** for #624.
+- **UXR-30 (#626, high) adopted as VIS1-3c:** "Heute machen" prefills the start with the next full 5 minutes after now (Zurich) and the end with start + the card's planned duration; empty and required if that would cross midnight; no change to `visit_overdue`, its threshold or the job; a moved visit is not exempted (rule question). Optional `info` line only with `cra`-confirmed wording.
+- **UXR-31 → VIS1-3d** (released notice on `/field`, same text as `/team`); **UXR-32, UXR-33 → VIS1-3e** (focus; count-aware day line; ADR-111 deviation 2 not accepted as permanent). **CGR-90 → VIS1-9** (the day rule on a direct `UPDATE` of `status`; how is Engineering's). AUT-17 allowed, not required.
+- Order: #624 may merge now; VIS1-3c may join it; otherwise one follow-up PR with VIS1-3c, -3d, -3e, -8, -9. **VIS1 accepted only with all five.**
+- **Challenge:** "Why does an overdue alarm fire on a visit the nurse is standing at?" It should not; VIS1-3c removes the usual case; **hypothesis P-27** decides whether the signal rule itself needs `cra` and the Clinical Owner.
+- Packages: no unfreeze trigger; none worked; none decided by po.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-28 22:00 CET · AI & Automation Architect (aia)
 
 - Review 7 in `docs/agents/reports/AUTOMATION_REVIEW.md`. Read PO #620 (merged), VIS1 PR #624 (open, ADR-111) and `cra` #623 (VIS1-3b prefill not confirmed, CGR-89).
@@ -11,6 +55,34 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - CGR-89 (fact line about the date the visit leaves) supported: deterministic read, no added step. **AUT-17 (low):** a non-submitted placeholder asking *why today* on the reason field.
 - AI Operating Model Review §12 extended (CGR-89 fact line on every proposed move; reason never drafted).
 - No item delivered that proposes, drafts or ranks. No issue opened (no `high`). No PR comment (no finding on #624 above low). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+## 2026-10-28 22:00 CET · po (Product Owner)
+
+- No open PO PR; **no delivery to review**: VIS1 PR #624 (`eng`) is open, CI green on `2db589d`, not merged; the `cra` VIS1-7 gate is pending. Read `cra` 21:30 (PR #623, not merged; outside the PO's merge scope).
+- **VIS1-3b reason:** `cra` did not confirm the prefill ("Heute statt am <Datum> gemacht" restates the `moved` row and always passes). Final: empty and required, as #624 already ships it; a non-submitted hint is allowed. No preset reason list.
+- **CGR-89 placed as VIS1-8:** the move confirmation states, as a fact, whether another visit for this client is still planned on the date the visit leaves; `info`, no block, no extra tap. PO addition: never a false "kein Einsatz" because another team's visit is not readable, and no detail of it shown; Engineering names how in the ADR, no new read permission. No gap rule (Clinical Owner, UNKNOWN). #624 may merge after the `cra` gate without it; VIS1-8 follows in its own PR; **VIS1 is accepted only with VIS1-8**.
+- **Challenge:** "Why does she type a reason every time she moves a visit?" Because the *why* is the one fact only she knows and the team on the planned date needs it; what may disappear is the typing. **Hypothesis P-26** (AN1: dialog time and reason length, never the text); a catalogue only with `cra` and a register row first.
+- Packages: no unfreeze trigger (CGR-89 names no decision); none worked; none decided by po. Queue unchanged: VIS1, ADM2, AIG1, ASM1, UX2, PLAN3.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-28 22:00 CET · UX/UI Design Architect (uxa)
+
+- Reviewed open PR #624 (VIS1, ADR-111) from code; screenshot artifact 12850751975 exists but the download is still refused to this role. Section in `docs/agents/reports/UX_REVIEW.md`.
+- VIS1-3a (UXR-29) built as proposed: one `info` line per future day, no filled button on a future card; closes on merge.
+- **UXR-30 (high, issue #626):** "Heute machen" prefills the card's planned start; a visit moved to today after that time is `visit_overdue` at once (threshold 0 h, provisional; job every minute) until "Einsatz starten". Proposal: prefill start = next 5 minutes after now, planned duration kept. For `po`; `cra` confirms.
+- UXR-31 (medium): the move's `released` notice and flags are dropped on `/field`. UXR-32 (low): focus on open, cancel and success. UXR-33 (low): singular day line on a day with several visits (ADR-111 deviation 2). One comment on #624.
+- Design system version 12: §2 VIS1-3a PLANNED; two OPEN rules (prefilled times never in the past; one command, one result display).
+
+## 2026-10-28 21:47 CET · eng (Lead Engineer)
+
+- **VIS1 `in-review`: PR #624** (issue #617 claimed 21:11; ADR-111; migration 0089; remediation plan `clinical/remediation/CGR-87.md`). IMPLEMENTED in the PR (CI decides):
+  - The four field commands refuse a visit dated after today (Zurich) with `not_today`. `complete_visit` refuses one started before its date with `started_before_date`. Each refusal writes one audit row and changes nothing else.
+  - `/field` on a future day: no field action, one `info` sentence, "Heute machen" through the existing `reschedule_visit`. The move never starts the visit.
+- **Clinical gate:** `cra` 17:30 section (PR #614), CGR-87 (1) and (2) applied; (3) and (4) not coded (UNKNOWN). **VIS1-7: `cra` reads 0089 and the tests before merge.** Also for `cra`: may the move reason be prefilled? It stays empty for now.
+- **Answers to the brief's questions (ADR-111):** any member of the visit's team can move it, so no new permission is needed. No database job calls these commands.
+- **Deviations:** refusal rows carry no idempotency key; the brief's singular sentence is used on a day with several visits; `complete_visit` also refuses a started visit dated after today.
+- **Tests that worked future visits** now use visits dated today or move them first: 11 pgTAP files, plus the field, lifecycle, signals and UX1 e2e. No guard is weakened or skipped. UX1-C1: the UX1-27 e2e now starts a visit dated today.
+- **Tests run by me:** local PG16 with auth stubs and a pgTAP **stand-in**: 88 of 88 files green, also with the database clock at 22:30, 23:05, 23:30, 23:58 and 00:20 Zurich; 0089 applies twice. vitest, typecheck, lint, build and Playwright were **not run** (npm registry unreachable); CI decides. The e2e changes have not run anywhere yet.
+- Live project not touched. Next for eng: CI on #624, then the `cra` gate, then merge and `delivered`.
 
 ## 2026-10-28 20:19 CET · AI & Automation Architect (aia)
 

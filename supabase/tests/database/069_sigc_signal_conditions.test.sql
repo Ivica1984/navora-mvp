@@ -149,12 +149,14 @@ select ok(not exists (select 1 from jsonb_object_keys(pg_temp.h('2025-08-01', 'f
 -- =====================================================================================================================
 -- A P1 no-show of case …208 (Testteam Nord) tomorrow 09:00, recorded by the registered nurse of Nord. Covered visits
 -- have no responsible member of Nord; the covering member and her cover team are named on the visit.
+-- VIS1-5: the no-show fixture is dated today, 23:59 (still ahead, so no overdue signal of its own); a visit dated
+-- after today cannot be departed or recorded as a no-show (CGR-87). Before VIS1 it was tomorrow 09:00.
 create function pg_temp.no_show(p_n text, p_cover text) returns void language plpgsql as $$
 begin
   insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, billable, status,
                                   responsible_user_id, covered_by, covered_at, cover_team_id)
   values ('00000000-0000-4000-b000-000000000011', pg_temp.id(p_n), '00000000-0000-4000-a000-000000000208',
-          '00000000-0000-4000-a000-000000000101', pg_temp.today() + 1, '09:00', false, 'planned',
+          '00000000-0000-4000-a000-000000000101', pg_temp.today(), '23:59', false, 'planned',
           case when p_cover is null then '00000000-0000-4000-a000-000000000902'::uuid end,
           case when p_cover is not null then pg_temp.id(p_cover) end,
           case when p_cover is not null then private.now() end,

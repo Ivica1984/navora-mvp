@@ -73,6 +73,41 @@ export function fieldActions(status: string | null): FieldAction[] {
   }
 }
 
+/**
+ * VIS1 (ADR-111, `cra` CGR-87): field actions happen on the visit's day. A visit dated after today (Europe/Zurich,
+ * DAY-1) shows no field action; the database refuses them with `not_today` (migration 0089). Today and earlier days
+ * keep `fieldActions` unchanged (VIS1-6). ISO dates compare as strings.
+ */
+export function isAfterToday(visitDate: string | null, today: string): boolean {
+  return visitDate !== null && visitDate > today;
+}
+
+export function fieldActionsOn(status: string | null, visitDate: string | null, today: string): FieldAction[] {
+  return isAfterToday(visitDate, today) ? [] : fieldActions(status);
+}
+
+/** VIS1-3b: a planned, not suspended visit dated after today can be moved to today at the door (existing J3 move). */
+export function canMoveToToday(status: string | null, suspended: boolean | null, visitDate: string | null, today: string): boolean {
+  return status === "planned" && suspended !== true && isAfterToday(visitDate, today);
+}
+
+/** "2026-10-29" → "29.10.2026" (calendar date, no time zone involved). */
+export function formatShortDate(day: string): string {
+  const [y, m, d] = day.split("-");
+  return `${d}.${m}.${y}`;
+}
+
+/** VIS1-3 (wording fixed in the brief): shown once under the day heading of a day after today, styled `info`. */
+export function futureDayNote(day: string): string {
+  return `Der Einsatz ist für den ${formatShortDate(day)} geplant. Wenn du ihn heute machst, verschiebe ihn zuerst auf heute.`;
+}
+
+/** VIS1-3b: the move at the door. */
+export const MOVE_TO_TODAY_LABEL = "Heute machen";
+export const MOVE_TO_TODAY_CONFIRM = "Auf heute verschieben";
+export const MOVE_TO_TODAY_HINT =
+  "Der Einsatz wird auf heute verschoben und im Verlauf festgehalten. Gestartet wird er danach mit «Einsatz starten».";
+
 export const FIELD_ACTION_LABEL: Record<FieldAction, string> = {
   depart: "Losfahren",
   start: "Einsatz starten",

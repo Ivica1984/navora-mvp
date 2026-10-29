@@ -48,7 +48,9 @@ select is(pg_temp.plan((select id from j3), (private.now() at time zone 'Europe/
 select is(pg_temp.plan((select id from j3), (private.now() at time zone 'Europe/Zurich')::date + 1, '09:00', '10:00', 45, 15, 0, true, null,
           'a3000000-0000-4000-8000-000000000002') ->> 'reason',
   'assessment_category_a_only', 'the needs assessment is category A only');
-select is(pg_temp.plan((select id from j3), (private.now() at time zone 'Europe/Zurich')::date + 1, '09:00', '10:00', 60, 0, 0, true,
+-- VIS1-5: the needs assessment is started and completed below, so it is dated today (a visit dated after today
+-- cannot be started, CGR-87).
+select is(pg_temp.plan((select id from j3), (private.now() at time zone 'Europe/Zurich')::date, '09:00', '10:00', 60, 0, 0, true,
           '00000000-0000-4000-a000-000000000902', 'a3000000-0000-4000-8000-000000000003') ->> 'result',
   'ok', 'the team plans the needs assessment (registered nurse responsible)');
 select is(pg_temp.plan((select id from j3), (private.now() at time zone 'Europe/Zurich')::date + 2, '09:00', '10:00', 60, 0, 0, true, null,
@@ -94,7 +96,7 @@ select is(
   (select care_plan -> 1 ->> 'goal' from public.team_cases() where case_id = (select id from j3)),
   'Selbständig waschen am Lavabo', 'a care-plan item keeps its care goal');
 select is(
-  (select care_goals from public.field_visits((private.now() at time zone 'Europe/Zurich')::date + 1) where case_id = (select id from j3) limit 1),
+  (select care_goals from public.field_visits((private.now() at time zone 'Europe/Zurich')::date) where case_id = (select id from j3) limit 1),
   array['Selbständig waschen am Lavabo'], 'the care goal appears on the nurse''s visit card');
 
 -- Visits with minutes per category
