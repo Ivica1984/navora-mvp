@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 21:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 21:30). **#673 (OBS1) merged as read** (`1fa6f26`; second parent `4a46be2` has no `src/`, `supabase/` or `tests/` difference from `f837fc0`; CI green): **CGR-93 closed**, PS-82 closed. CGR-94 placed as OBS1-C2 (PLANNED).
+- **#688 (OBS1-C1 + ADM2-C1, head `a4bb9d6`, 0096, ADR-119) read as my 17:30 OBS1-7 (a) condition: met.** Every other reader of the five columns is SECURITY DEFINER (my scan agrees: `field_notes` is the only INVOKER reader); `observation_authorship` uses the same predicate as the table policy, so no handover note is lost; pgTAP 096 covers performer, countersigning RN, team, F6R. **Gate: clear to merge** (CI green on the head). ADR-119 deviation 2 (no browser test for the care assistant's handover) accepted: no role branch in the changed path. ADM2-C1: no clinical objection.
+- **AIG1-11 (AUT-22): no clinical objection.** **CGR-95 (new, advisory S2; H-20, PS-84):** the AIG1-8 stop rule has no look-back; values confirmed unchanged from a stopped agent in the failing window are not listed for a re-check (list per agent and window, no confirmer column; whether re-check is required: Clinical Owner, UNKNOWN).
+- **CGR-96 (new, advisory S3; H-25, PS-85):** first `e2e` run on #688 showed one moved visit as two `/field` cards (`vis1.spec.ts:41`), green on re-run; not caused by #688, cause UNKNOWN; `eng` to root-cause from the trace. CGR-86 occurred again on #689 (PS-75).
+- Registers: CR-141 updated; H-04, H-20, H-25 updated; PS-82 closed, PS-75, PS-83 updated, PS-84, PS-85 added.
+- **Not merged by me:** owner instruction on #666 (no blanket or unattended merge) covers this PR, which contains #680 … #582. Waiting on: owner (chain merge), `po` (CGR-95 in AIG1, CGR-93 in OBS1 evidence), `eng` (merge #688 with CI green; CGR-96 issue; CGR-86 on #399), Clinical Owner (CGR-95 re-check rule, D-15, CR-010).
+- Tests: none run by me (docs only; migration, pgTAP, app files read; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 21:15 CET · po (Product Owner)
 
 - No open PO PR at start. `agent:po` issue claimed and answered: **#686** (`aia` AUT-22). Governance chain (#666 and earlier, `cra` #680) and other agents' PRs (#685, #689) not merged: this routine merges PO PRs only.

@@ -16,6 +16,79 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-29 21:30 CET: #673 (OBS1) merged as read (`1fa6f26`, second parent `4a46be2`, no `src/`, `supabase/` or `tests/` difference from `f837fc0`): **CGR-93 closed** (PS-82 closed); OBS1 accepted with OBS1-C2 = my CGR-94 remedy (PLANNED); **#688 (OBS1-C1 + ADM2-C1, head `a4bb9d6`, migration 0096, ADR-119) read as my 17:30 OBS1-7 (a) condition: met; clinical gate clear to merge** (CI green on the head); ADR-119 deviation 2 (no browser test of the care assistant's handover) accepted; AIG1-11 (AUT-22): no clinical objection; **CGR-95** (new, advisory S2: the AIG1 stop rule has no look-back on values already confirmed from a stopped agent); **CGR-96** (new, advisory S3: the first `e2e` run on #688 showed one moved visit as two `/field` cards; root cause UNKNOWN)
+
+**Scope:** `recovery/main` @ `0eced9a`. Changes since my 17:30 section (PR #680, open; it contains #666 … #582):
+- **Code merged:** **#673 OBS1** as `1fa6f26` (19:21). Second parent `4a46be2` = `f837fc0` plus one base merge; `git diff f837fc0 4a46be2 -- src supabase tests` is empty, so 0095, pgTAP 095 and the three screens are as I read them at 17:30. CI on `1fa6f26`: `app`, `db`, `e2e`, `ui-screenshots` success (check runs read through the GitHub API).
+- **Docs merged:** OBS1 delivered and **accepted with OBS1-C1 and OBS1-C2** (PO 19:40, #683); D-1 default made explicit (no repository migration on the live project before the review result; PO 19:15, `lca` 18:40, #682); `aia` review 11 with AUT-22 (#687); **AIG1-11** added before build start (PO 21:15, #690).
+- **Open:** **#688** OBS1-C1 + ADM2-C1 (`eng`, head `a4bb9d6`; CI: `app`, `db`, `e2e` (attempt 2), `ui-screenshots` success); `lca` #689 (`db` red on pgTAP 079 test 44, CGR-86); `uxa` #685; my chain #582 … #680; #3 unchanged.
+- **Asked of `cra`:** read #688 before merge (my 17:30 condition; eng on #536 and in the PR); decide ADR-119 deviation 2.
+- **Answered by a person:** none since 17:30. **No `clinical` or `legal` decision was answered by a person.**
+
+I read: migration 0096 in full; pgTAP 096 assertion names; the 011, 016, 026, 049, 066, 077, 095 diffs; the `visit_observations` policy (0009:52-54) and `private.is_team_member` (0074:158-166); ADR-119; `READ_PATHS.md` diff; `src/features/field/queries.ts` and `since-last-section.tsx` (no role branch); `briefs/AIG1.md` AIG1-7, -8, -11; `briefs/OBS1.md` OBS1-C1, OBS1-C2; the PR #688 and #689 comments. I scanned every function and view in `supabase/migrations` (latest definition per name) that reads `visit_reports` or `visit_observations`: `public.field_notes` is the only SECURITY INVOKER reader, as ADR-119 states; `src` has no direct `.from()` on either table. **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-95 | **AIG1-8** stop rule (PLANNED, brief only) | **advisory (S2)**; not blocking AIG1 build start; before AIG1 is accepted | PLANNED: when an agent stops (correction share over its threshold in a closed window, or a version, provider or region change), it proposes nothing more and Operations gets one OPS1 exception. Nothing in AIG1 lets anyone find the values that agent proposed **and a person confirmed unchanged** in that window or since the unannounced change. Those are exactly the values most likely to be wrong (the window that tripped the stop) and they stay in the record unreviewed (H-20, automation bias). For `schedule` fields this is a responsible member or a date and time, so a wrong confirmed value can leave a visit without the right person (H-01). AIG1-11 rightly forbids a list per confirmer; a list per **agent and window** is not a list per person and is not touched by it | `briefs/AIG1.md:35` (AIG1-8: `stopped`, OPS1 exception, nothing else), `:34` (AIG1-7: counts only), `:38` (AIG1-11 per-value confirmer); H-20 | **po (brief), eng:** on `stopped`, the OPS1 exception (or a reader it links to) lists the records holding a value from that agent confirmed unchanged in the closed window (or since the version change), per record, with no confirmer column (AIG1-11 and AIG1-7 hold); each line opens the record. pgTAP: after a stop the list holds exactly those records and has no person column. **Whether such values must be re-checked, by whom and by when: Clinical Owner (D-17), UNKNOWN; NAVORA sets no rule** |
+| CGR-96 | **VIS1-4 / VIS1-3b** "Heute machen" e2e (`vis1.spec.ts:41`), seen on #688 | **advisory (S3)**; not blocking #688 | IMPLEMENTED fact: the first `e2e` run on `a4bb9d6` (20:43 CET) found two `/field` cards "20:45 – 21:15, Testfall 08" where one moved visit is expected; the re-run passed. I agree it is not caused by #688 (0096 touches neither `field_visits` nor `move_visit_to_today`). But the cause is **UNKNOWN**: it may be test data left by an earlier spec, or one visit shown twice (or a second visit created) when the move prefill falls near a slot boundary. A visit shown twice on `/field` can be performed or documented twice, and a duplicated visit is a second billing basis (BL); "flake" is not a root cause. Same pattern as CGR-86 | PR #688 comment 2026-10-29 19:45 UTC (attempt 1 failed, attempt 2 green); `vis1.spec.ts:41`; H-25, H-01 | **eng:** open an issue with the attempt-1 trace; name the two rows behind the cards (same `care_visits.id` twice, or two ids); if two ids or one id twice in `field_visits`, fix with pgTAP (one move never yields two visits or two rows for one visit); if test data, make the spec isolate its fixture. Record each further occurrence on that issue |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-93** | **closed** | #673 merged as `1fa6f26` with no code, migration or test difference from the head I read at 17:30 (`f837fc0`); CI green on `1fa6f26`. PS-82 closed |
+| **CGR-94** | open, advisory (S3); remedy **placed** as OBS1-C2 (`briefs/OBS1.md:91`, PO 19:40), PLANNED | OBS1-C2 matches my remedy and adds the right test (a null marker is never shown as by a qualified author). The D-1 default (PO 19:15) keeps 0095 off the live project until the review result, which removes the near-term path. Closes on the OBS1-C2 build or a deploy record naming the database and stating no observation exists between 0091 and 0095 |
+| **CGR-86** | open, advisory (S3) | another occurrence: pgTAP 079 test 44 failed on #689 (docs only), reported by `lca` 19:50 UTC; to be recorded on #399 (PS-75) |
+| CGR-84, CGR-81 | open (S3, S2); ASM1 brief (PLANNED) | no change |
+| CGR-78, CGR-75 | open, advisory (S2); brief level | no change |
+| CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-93** (evidence above).
+
+### #688 (OBS1-C1 + ADM2-C1, 0096): clinical gate
+
+- **My 17:30 condition** (a reader that silently loses a signed report or a handover note is a care risk): **met.**
+  - **Readers:** every reader of the five columns except `field_notes` is SECURITY DEFINER (ADR-119 list; my scan of the migrations agrees), so report, countersigning, F6R, correction, billing, AN1/AN2, OPS1 and HAND1 paths are unaffected by the revoke.
+  - **`field_notes`:** author and time now come from `private.observation_authorship(id)`, which answers under `is_org_member` and `is_team_member`, the same predicate as the table policy `team_members_read` (0009:52-54, LEAVE1-3 included). The `cross join lateral` drops no row the policy shows, so no note is lost; the 14-day handover filter and the order use the same `recorded_at`. Output and signature unchanged.
+  - **pgTAP 096:** the five columns refused (42501), `select *` and count per author refused; `field_reports` and `field_notes` still return snapshot author, signer and time to the team; the countersigning RN reads author and signing time; after an F6R return the performer and the RN read the returned snapshot with its author. 016, 026, 049, 011, 066, 095 rewritten to read through the functions with the same content asserted.
+- **ADR-119 deviation 2 (no browser test of a care assistant's handover): accepted.** The change is in grants and one SQL function with no role branch; `since-last-section.tsx` and the field client render the handover the same for every role; `field.spec.ts` and `obs1.spec.ts` cover the nurse's view through the changed path, and pgTAP 095/096 cover a teammate's `field_notes`. A browser test per role would test nothing the change touches.
+- **ADM2-C1:** deleting the push subscriptions of a person whose access has ended: no clinical objection. SIG1 receiver sets already exclude an ended access (LEAVE1-3), so no safety alert counted on her device. Whether a queued push checks `access_ended` (ADR-119, UNKNOWN) is a privacy point for `lca`, not a care point.
+- **No clinical rule** is added by 0096 (grants and an access-end clean-up); no Clinical Rule Register row.
+- **Gate: clear to merge** with CI green on the head (it is, on `a4bb9d6`). Any change to 0096, pgTAP 096 or `field_notes` before merge needs another read. CGR-96 is not a condition.
+
+### Other changes read
+
+- **OBS1 acceptance (PO 19:40):** consistent with my 17:30 gate. OBS1-C2 wording "Qualifikation beim Schreiben nicht bekannt", neutral, not red: confirmed from the clinical side (it states what the record does not know, not a judgement of the person).
+- **AIG1-11 (AUT-22, PO 21:15): no clinical objection.** The confirmer stays readable per value on the record, which is what accountability and an incident review of that value need. It does not prevent the look-back in CGR-95, which is per agent and window. A per-person list for investigating one named person stays the `lca`/owner question (D-35 adviser question 8); from the clinical side, a CIRS review of a person's practice is the Clinical Owner's process (D-12), not a product read.
+- **D-1 default (PO 19:15):** supported; it is what keeps CGR-94 synthetic-only.
+- **`aia` review 11, `lca` 18:40 and 20:40, `uxa` 19:50 (#685, open):** no new clinical finding beyond the above.
+
+### Clinical Rule Register
+
+- **CR-141:** #673 merged as `1fa6f26` (no longer "open"); null handling now OBS1-C2 (CGR-94).
+- **AIG1-8 stop threshold** stays per-agent configuration by the person who switches the agent on (no NAVORA value); no new row until built. 0096: no rule (above).
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#688** OBS1-C1 + ADM2-C1 (head `a4bb9d6`) | **clear to merge** (CI green on the head); deviation 2 accepted |
+| **OBS1** | accepted (PO 19:40) as gated; CGR-93 closed; CGR-94 as OBS1-C2 (PLANNED) |
+| **AIG1** (planned) | build may start; CGR-95 (advisory S2) to be placed in the brief before acceptance; CGR-78 unchanged; AIG1-5 field-class confirmations per field stay mine |
+| All other items | unchanged from 17:30 |
+
+### Decisions requested
+
+- **owner:** unchanged from 17:30: my governance chain is not merged by me (owner instruction on #666); this PR contains #680 and the chain before it and can be merged alone or after them, oldest first.
+- **po:** place CGR-95 in the AIG1 brief before acceptance (or record why not); record CGR-93 closed in the OBS1 evidence table; ask `eng` for CGR-96.
+- **eng:** merge #688 only with CI green on its head; CGR-96 issue with the attempt-1 trace; CGR-86 occurrence on #399.
+- **clinical (Clinical Owner, after G-1):** new: whether values confirmed from a stopped agent must be re-checked, by whom and by when (CGR-95, D-17). Unchanged: D-15 (observations by members without a recorded qualification), CR-010, CGR-87 (3), (4), CGR-89 (3), CR-134, D-12, D-25.
+- **owner / legal:** unchanged (D-29, G-1, D-38, R-11, D-36, D-1, D-35 adviser question 8).
+
+---
+
 ## 2026-10-29 17:30 CET: #647 (ADM2) merged as read (`1cc31d4`, second parent `eccf343`, no `src/`, `supabase/` or `tests/` difference from `bd30b1c`): **CGR-92 and CGR-72 closed** (PS-81, PS-61 closed); OBS1 #673 (head `f837fc0`, migration 0095, ADR-118) read as the CGR-93 gate: **CGR-93 remedy met in code and pgTAP; clinical gate clear to merge once CI is green on the head**; CGR-93 closes on merge; OBS1-4 marker wording and position confirmed; **CGR-94** (new, advisory S3: an observation written before 0095 has no marker value and is shown like one by a qualified author); OBS1-7 (a) needs a `cra` read wherever it is built; owner instruction on #666 respected (no merge by me)
 
 **Scope:** `recovery/main` @ `bba7926`. Changes since my 13:40 section (PR #666, open; it contains #662, #646, #639, #628, #623, #614, #604, #589, #582):
