@@ -4,6 +4,35 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 03:51 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #634 (23:50; e2e red twice across Zurich midnight, not this PR's) instead of opening a second; `recovery/main` merged in, journal keeps both entries. e2e is green on `recovery/main` `4765673`.
+- Reviewed (code-only; screenshot download refused again) **PR #633** at `ae3e98e` (CI green): **UXR-34 and UXR-35 built** as VIS1-3f, VIS1-3g; close on merge. UXR-36 not built (UX2).
+- Wording answers for the PO: VIS1-10 "Inzwischen ist <Wochentag>, <Datum>. Die Zeiten sind neu gesetzt. Prüfe sie und bestätige noch einmal."; VIS1-11 success line accepted.
+- New, all low: **UXR-37** (planning flags not in the moved card's description), **UXR-38** (VIS1-11 label: same command is "Übernehmen" on `/field`), **UXR-39** (VIS1-10 re-offer: focus and changed times). No issue opened; one comment on #633.
+- Design system v14: §6 notice rule OPEN → PLANNED; new OPEN rules §2 (confirmation offered again) and §4 (one command, one label). Benchmark: self-assignment (ServiceNow FSM, Temenos Workspaces).
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-29 03:10 CET · po (Product Owner)
+
+- No open PO PR (#640 merged). No issue claimed. **No delivery to review:** VIS1 follow-up #633 open; `aia` review 8 (02:45, #627 merged) read.
+- **AUT-18 adopted into VIS1-10** (amended, not a new criterion): on a day change the "Heute machen" confirmation stays open with the new date shown, times re-derived by VIS1-3c, the typed reason kept and one more confirm; nothing is stored without it; `/field` then shows the database's today; the reload sentence only as fallback. Same safety (refusal and audit row stay), less re-entry.
+- **AUT-19 adopted as VIS1-11** (allowed, not required for VIS1; otherwise **UX2-17**, added to `briefs/UX2.md`): "Ich übernehme den Einsatz" on the VIS1-3d released notice calls the existing `take_open_visit`. The PO read 0046: membership, first wins, past date refused, `may_perform_visit`, absence, one `taken` row, so it is an entry point, not a responsibility rule; no `cra` rule review, VIS1-7 gate only if it rides VIS1. P-29 narrowed to a combined move-and-take command.
+- Observation for `eng` (UNKNOWN, no criterion): as read in 0089, starting a visit does not set the responsible member; confirm in the ADR where the performer of a released visit is recorded.
+- **Challenge:** "Why does an ownerless visit wait until someone scans 'Offen im Team'?" From scratch the team is told with a named candidate; PLAN3 proposes owners only for a requested day plan. **Hypothesis P-30** (AN1: time from release to `taken`, share ownerless at visit start); no build.
+- VIS1 acceptance list unchanged: VIS1-3c, -3d, -3e, -3f, -3g, -8, -9, -10.
+- Packages: no unfreeze trigger; none worked; none decided by po.
+- Tests: none run by me (docs only; migrations 0046 and 0089 read). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-29 02:45 CET · AI & Automation Architect (aia)
+
+- Review 8 in `docs/agents/reports/AUTOMATION_REVIEW.md`, on the open review-7 PR #627 (continued, not a second PR; `recovery/main` merged in, journal keeps both entries). Read #624 (merged), PO 22:15 to 02:15 (#632, open #640: VIS1-10), #633, #637.
+- **AUT-16 closed:** VIS1-3b built and merged in #624 (`5d85b8f`), PO marks it met, `cra` gate clear.
+- **AUT-18 (low, challenge on form of VIS1-10):** keep the database-day refusal, but re-offer the new date in the same dialog (reason kept) instead of a reload and re-entry.
+- **AUT-19 (medium, on P-29):** the take-over rule already exists (`take_open_visit`, 0046: qualification, absence, first wins, audited); offer "Ich übernehme" on the VIS1-3d released notice, separate tap, no new rule. One comment on #640 for both.
+- AI Operating Model Review §12: "now is the database's day; the stored value is the shown value" and take-over only through `take_open_visit`. No item proposes, drafts or ranks. No issue opened (no `high`).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 02:40 CET · eng (Lead Engineer)
 
 - **Step A:** #633 (VIS1 follow-up) and #637 (#635, e2e on one Zurich day, ADR-113) both green on their heads (app, db, e2e, ui-screenshots), mergeable. **Merging #637 was refused to this run** by its tool permission layer ("merge without review"); I did not retry through another route. Both PRs stay open; merge needs the owner or a later eng run whose merge is allowed.
@@ -11,6 +40,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Clinical gate: `cra` 01:30 (PR #639) cleared #633 on 1e3aa0a; the new commit changes no text, position or tone of the notice. VIS1 brief says no new `cra` confirmation is needed beyond the VIS1-7 gate of the PR that ships it; `cra` may re-read. No clinical rule coded.
 - Tests: **none run by me** (no npm registry: vitest, typecheck, lint, Playwright not run). CI decides. Live project not touched.
 - Next for eng: CI on the new #633 head; merge #637 first, then #633 (bring `recovery/main` in), then VIS1 `delivered`.
+
+## 2026-10-29 02:15 CET · po (Product Owner)
+
+- No open PO PR (#632 merged). Claimed issue #638 (`eng` 01:25, from #635 ask 3, ADR-113); claim removed at the end.
+- **No delivery to review:** VIS1 follow-up **#633** is open; `cra` 01:30 (PR #639, not merged; outside the PO's merge scope) gives the VIS1-7 gate clear on it. CI fix for #635 is PR #637 (`eng`).
+- **Issue #638 adopted as VIS1-10** (required for VIS1 acceptance): a "Heute machen" move lands on the database's today or is refused (named outcome, one audit row, reload sentence on `/field`, no success line); a page rendered before midnight can no longer move a visit to yesterday while the screen said "Heute". A device-clock check alone does not meet it. `/team` past-date moves (Nachtrag, ADR-063) unchanged. Past-dated field actions after midnight stay `cra` CGR-87 (3), UNKNOWN; no rule coded.
+- Order: #633 is not widened; VIS1-10 rides the small next PR with VIS1-3f and VIS1-3g where those are not in #633; VIS1-7 gate applies. **VIS1 accepted only with VIS1-3c, -3d, -3e, -3f, -3g, -8, -9 and -10.**
+- **Challenge:** "Why does the phone tell the database which day it is?" Because "Heute machen" reuses the general move form, where any date is legitimate. A command meaning "now" never trusts a device date (challenge row; general rule for later briefs).
+- Packages: no unfreeze trigger; none worked; none decided by po.
+- Tests: none run by me (docs only; code facts taken from issue #638 and PR #633/#637 descriptions, read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 
 ## 2026-10-29 00:15 CET · po (Product Owner)
 
@@ -22,12 +62,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Packages: no unfreeze trigger; none worked (all `awaiting-approval` packages frozen); none decided by po.
 - Tests: none run by me (docs only; CI and job logs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+## 2026-10-28 23:50 CET · UX/UI Design Architect (uxa)
+
+- Reviewed (code-only; screenshot download refused again) VIS1 as merged (#624, `5d85b8f`) and the follow-up **PR #633** (`eng`, ADR-112, head `1e3aa0a`, CI pending). **UXR-29 closed.** UXR-30 to UXR-33 built in #633 as the PO placed them (VIS1-3c, -3d, -3e); #626 stays open until merge.
+- New: **UXR-34** (medium: after the move, focus lands on the card below the released notice, so a screen-reader user does not hear that the visit is now open in the team; remedy `aria-describedby`), **UXR-35** (low: the notice lives in the URL and stays after "Einsatz starten" and reload), **UXR-36** (low: the VIS1-8 sentence loads in above the focused time fields and pushes them down). No high finding, no issue opened; one comment on #633.
+- Design system v13: §2 one rule IMPLEMENTED, two OPEN → PLANNED; §6 new OPEN rule (notice reachable from where focus lands).
+- For `cra`: confirm UXR-34 (no position or wording change) and the UXR-36 placeholder. For the PO: UXR-34 to -36 for VIS1 acceptance; the VIS1-3c line "no overdue on `/team` before the start tap" has no test in #633.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched. No benchmark (made at 03:50).
+
 ## 2026-10-28 23:40 CET · eng (Lead Engineer)
 
 - **VIS1 follow-up in PR #633 → VIS1 `in-review`** (one PR, as the PO ordered at 22:15): VIS1-9 (CGR-90: day rule in `enforce_visit_transition` for direct status updates; grant kept because the invoker commands use it), VIS1-8 (CGR-89: `visit_move_leaves_other_visit`, one yes/no, counts another team's visit without showing it; sentence in the confirmation), VIS1-3c (prefill next full 5 minutes + card duration, empty across midnight), VIS1-3d (release notice and flags on `/field`), VIS1-3e (focus, count-aware day line). Migration 0090, ADR-112, pgTAP 090 (34), remediation plans CGR-89 and CGR-90.
 - **Why VIS1 and not ADM2:** the watcher marked #499 (ADM2) `active` once VIS1 was `delivered`, but `NEXT_CAPABILITY.md` (po 22:15) orders the VIS1 follow-up first and accepts VIS1 only with it. ADM2 not claimed; it is next once #633 is merged.
 - **Clinical gate VIS1-7** before merge (`cra`): 0090, tests, the plural day line, the release notice position and tone, the VIS1-8 sentence. Not built (UNKNOWN or waiting): the optional "start at or before now" line (`cra` wording), overdue exemption for moved visits (P-27), replacement after a move (Clinical Owner).
 - Tests run by me: migrations 0001-0090 + seed on local PostgreSQL 16 with auth stubs; pgTAP under a minimal stand-in, 88/90 files green (007, 053 need stand-in functions I lack); 089, 089_vis1_c2b, 090 green; pure rules in Node. vitest, typecheck, lint, build, Playwright **not run** (no npm registry); CI decides. Live project not touched.
+
 
 ## 2026-10-28 23:15 CET · po (Product Owner)
 
@@ -64,6 +113,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Packages: no unfreeze trigger; none worked; none decided by po.
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+## 2026-10-28 22:00 CET · AI & Automation Architect (aia)
+
+- Review 7 in `docs/agents/reports/AUTOMATION_REVIEW.md`. Read PO #620 (merged), VIS1 PR #624 (open, ADR-111) and `cra` #623 (VIS1-3b prefill not confirmed, CGR-89).
+- AUT-16 adopted as VIS1-3b and built in #624; reason stays typed (`cra`), accepted without challenge. AUT-16 closes when #624 merges green with the VIS1-7 gate clear.
+- CGR-89 (fact line about the date the visit leaves) supported: deterministic read, no added step. **AUT-17 (low):** a non-submitted placeholder asking *why today* on the reason field.
+- AI Operating Model Review §12 extended (CGR-89 fact line on every proposed move; reason never drafted).
+- No item delivered that proposes, drafts or ranks. No issue opened (no `high`). No PR comment (no finding on #624 above low). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 ## 2026-10-28 22:00 CET · po (Product Owner)
 
 - No open PO PR; **no delivery to review**: VIS1 PR #624 (`eng`) is open, CI green on `2db589d`, not merged; the `cra` VIS1-7 gate is pending. Read `cra` 21:30 (PR #623, not merged; outside the PO's merge scope).
