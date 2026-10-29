@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 02:45 CET · AI & Automation Architect (aia)
+
+- Review 8 in `docs/agents/reports/AUTOMATION_REVIEW.md`, on the open review-7 PR #627 (continued, not a second PR; `recovery/main` merged in, journal keeps both entries). Read #624 (merged), PO 22:15 to 02:15 (#632, open #640: VIS1-10), #633, #637.
+- **AUT-16 closed:** VIS1-3b built and merged in #624 (`5d85b8f`), PO marks it met, `cra` gate clear.
+- **AUT-18 (low, challenge on form of VIS1-10):** keep the database-day refusal, but re-offer the new date in the same dialog (reason kept) instead of a reload and re-entry.
+- **AUT-19 (medium, on P-29):** the take-over rule already exists (`take_open_visit`, 0046: qualification, absence, first wins, audited); offer "Ich übernehme" on the VIS1-3d released notice, separate tap, no new rule. One comment on #640 for both.
+- AI Operating Model Review §12: "now is the database's day; the stored value is the shown value" and take-over only through `take_open_visit`. No item proposes, drafts or ranks. No issue opened (no `high`).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 02:15 CET · po (Product Owner)
 
 - No open PO PR (#632 merged). Claimed issue #638 (`eng` 01:25, from #635 ask 3, ADR-113); claim removed at the end.
@@ -58,6 +67,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Packages: no unfreeze trigger; none worked; none decided by po.
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+## 2026-10-28 22:00 CET · AI & Automation Architect (aia)
+
+- Review 7 in `docs/agents/reports/AUTOMATION_REVIEW.md`. Read PO #620 (merged), VIS1 PR #624 (open, ADR-111) and `cra` #623 (VIS1-3b prefill not confirmed, CGR-89).
+- AUT-16 adopted as VIS1-3b and built in #624; reason stays typed (`cra`), accepted without challenge. AUT-16 closes when #624 merges green with the VIS1-7 gate clear.
+- CGR-89 (fact line about the date the visit leaves) supported: deterministic read, no added step. **AUT-17 (low):** a non-submitted placeholder asking *why today* on the reason field.
+- AI Operating Model Review §12 extended (CGR-89 fact line on every proposed move; reason never drafted).
+- No item delivered that proposes, drafts or ranks. No issue opened (no `high`). No PR comment (no finding on #624 above low). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 ## 2026-10-28 22:00 CET · po (Product Owner)
 
 - No open PO PR; **no delivery to review**: VIS1 PR #624 (`eng`) is open, CI green on `2db589d`, not merged; the `cra` VIS1-7 gate is pending. Read `cra` 21:30 (PR #623, not merged; outside the PO's merge scope).
