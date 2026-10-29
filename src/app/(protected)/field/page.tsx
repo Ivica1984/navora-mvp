@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import { getCountersignQueue, getDoorNotes, getSafetyAlertHistory, getSafetyAlerts, getFieldNotes, getFieldReports, getFieldVisits, getReturnedReports, getSinceLast, getTeamOpenReports } from "@/features/field/queries";
-import { parseDayParam, shiftDay, todayInZurich } from "@/features/field/rules";
+import { parseDayParam, parseMovedNotice, shiftDay, todayInZurich } from "@/features/field/rules";
+import { PLAN_FLAG_LABEL } from "@/features/team/rules";
 import { parseFocusInstant } from "@/features/field/time";
 import { getFieldQuality, getQualityEventTypes } from "@/features/quality/queries";
 import { getVisitStatusNotes } from "@/features/lifecycle/queries";
@@ -17,7 +18,9 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
   await connection();
 
   const today = todayInZurich();
-  const { datum, von, zeit } = await searchParams;
+  const { datum, von, zeit, verschoben, offen, hinweise } = await searchParams;
+  // VIS1-3d / VIS1-3e (ADR-112): the result of a "Heute machen" move, shown once on today's view (display only).
+  const moved = parseMovedNotice(verschoben, offen, hinweise, Object.keys(PLAN_FLAG_LABEL));
   // SIG2-8: opened from the push message: record the tap (never display on the device).
   if (von === "push") await recordPushTap();
   const day = parseDayParam(datum, today);
@@ -66,6 +69,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
       alertHistory={alertHistory}
       teamOpenReports={teamOpenReports}
       focusAt={parseFocusInstant(zeit)}
+      moved={moved}
     />
   );
 }

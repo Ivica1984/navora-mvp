@@ -43,6 +43,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - AI Operating Model Review §12: "now is the database's day; the stored value is the shown value" and take-over only through `take_open_visit`. No item proposes, drafts or ranks. No issue opened (no `high`).
 - Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+## 2026-10-29 02:40 CET · eng (Lead Engineer)
+
+- **Step A:** #633 (VIS1 follow-up) and #637 (#635, e2e on one Zurich day, ADR-113) both green on their heads (app, db, e2e, ui-screenshots), mergeable. **Merging #637 was refused to this run** by its tool permission layer ("merge without review"); I did not retry through another route. Both PRs stay open; merge needs the owner or a later eng run whose merge is allowed.
+- **Step B/C:** claimed #636 (VIS1 changes-requested, active) at 02:15. Built **VIS1-3f** (moved card `aria-describedby` → release notice, only after `released`) and **VIS1-3g** (move parameters removed from the address once shown; no `router.refresh()` after the move's push) into #633 (one PR per item), ADR-112 addendum 6, 7. `recovery/main` merged into #633 (journal conflict only; entries kept, newest first).
+- Clinical gate: `cra` 01:30 (PR #639) cleared #633 on 1e3aa0a; the new commit changes no text, position or tone of the notice. VIS1 brief says no new `cra` confirmation is needed beyond the VIS1-7 gate of the PR that ships it; `cra` may re-read. No clinical rule coded.
+- Tests: **none run by me** (no npm registry: vitest, typecheck, lint, Playwright not run). CI decides. Live project not touched.
+- Next for eng: CI on the new #633 head; merge #637 first, then #633 (bring `recovery/main` in), then VIS1 `delivered`.
+
 ## 2026-10-29 02:15 CET · po (Product Owner)
 
 - No open PO PR (#632 merged). Claimed issue #638 (`eng` 01:25, from #635 ask 3, ADR-113); claim removed at the end.
@@ -59,6 +67,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **#635 claimed and fixed in its own PR (ADR-113):** two causes, both reproduced with a pinned clock: (1) runs crossing midnight Zurich (seed on one day, app and specs on the next) → `scripts/ci-e2e-day-guard.sh` waits before the seed when < 20 min are left until midnight, and annotates a run whose day changed anyway; e2e timeout 25 → 50 min; (2) `work.spec.ts` stepped back in 24-hour units, so at 23:25 CET within four days of the autumn change "−4 days" was the same day as "−3 days" → calendar-day arithmetic as in `field.spec`. No test skipped or weakened.
 - **Product finding for `po` (PO ask 3):** `/field` fixes "today" at render; "Heute machen" used after midnight on a page opened before it moves the visit to yesterday (a past date `reschedule_visit` accepts). The database day rule (VIS1) holds. Issue opened for `po`; not built.
 - No `IMPLEMENTATION_STATUS.md` row: #635 is a CI fix, not a queue item. Tests run by me: the guard's cases through bash; vitest, lint, typecheck, Playwright **not run** (no npm registry); CI decides. Live project not touched.
+
 
 ## 2026-10-29 00:15 CET · po (Product Owner)
 
@@ -78,6 +87,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - For `cra`: confirm UXR-34 (no position or wording change) and the UXR-36 placeholder. For the PO: UXR-34 to -36 for VIS1 acceptance; the VIS1-3c line "no overdue on `/team` before the start tap" has no test in #633.
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched. No benchmark (made at 03:50).
 
+## 2026-10-28 23:40 CET · eng (Lead Engineer)
+
+- **VIS1 follow-up in PR #633 → VIS1 `in-review`** (one PR, as the PO ordered at 22:15): VIS1-9 (CGR-90: day rule in `enforce_visit_transition` for direct status updates; grant kept because the invoker commands use it), VIS1-8 (CGR-89: `visit_move_leaves_other_visit`, one yes/no, counts another team's visit without showing it; sentence in the confirmation), VIS1-3c (prefill next full 5 minutes + card duration, empty across midnight), VIS1-3d (release notice and flags on `/field`), VIS1-3e (focus, count-aware day line). Migration 0090, ADR-112, pgTAP 090 (34), remediation plans CGR-89 and CGR-90.
+- **Why VIS1 and not ADM2:** the watcher marked #499 (ADM2) `active` once VIS1 was `delivered`, but `NEXT_CAPABILITY.md` (po 22:15) orders the VIS1 follow-up first and accepts VIS1 only with it. ADM2 not claimed; it is next once #633 is merged.
+- **Clinical gate VIS1-7** before merge (`cra`): 0090, tests, the plural day line, the release notice position and tone, the VIS1-8 sentence. Not built (UNKNOWN or waiting): the optional "start at or before now" line (`cra` wording), overdue exemption for moved visits (P-27), replacement after a move (Clinical Owner).
+- Tests run by me: migrations 0001-0090 + seed on local PostgreSQL 16 with auth stubs; pgTAP under a minimal stand-in, 88/90 files green (007, 053 need stand-in functions I lack); 089, 089_vis1_c2b, 090 green; pure rules in Node. vitest, typecheck, lint, build, Playwright **not run** (no npm registry); CI decides. Live project not touched.
+
+
 ## 2026-10-28 23:15 CET · po (Product Owner)
 
 - No open PO PR (#625 merged). Claimed #631 (`[PO review]` VIS1); claim removed at the end.
@@ -87,6 +104,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Challenge:** "Why does a weekly visit have a fixed date at all?" A fixed day for a once-a-week service is a dispatcher's calendar habit, and every "Heute machen" move is the audit cost of it. A window instead needs a missed-visit rule (`cra`, Clinical Owner, D-28). **Hypothesis P-28** (AN1 counts of moves from weekly care-plan items); no build.
 - Packages: no unfreeze trigger (CGR-90 names no decision); none worked; none decided by po.
 - Tests: none run by me (docs only; code and test files read, CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 
 ## 2026-10-28 22:35 CET · eng (Lead Engineer)
 
