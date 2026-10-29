@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 07:50 CET · UX/UI Design Architect (uxa)
+
+- Reviewed (code only; `ui-screenshots` download refused again): **#633 merged** → UXR-30 to UXR-35 closed in code (issue #626 can be closed by the PO); **PR #655** (VIS1-10) builds UXR-39 as the PO fixed it; **PR #647** (ADM2) `/team`, `/admin`, `/work` screens.
+- New findings: **UXR-42 (high, issue #656)** the ADM2-15 (b) item "Bezugspflege neu bestimmen" names the case only by a "Fall-Ref." that no case card shows and has no link, so the team cannot find the case; UXR-43 (medium) `/admin` admission switch and "Vertragsende entfernen" without a confirming step; UXR-40, UXR-41 (low, #655 fallback sentence, double announcement); UXR-44 (low, leaver list above today's work; position is `cra`'s). One comment each on #655 and #647.
+- Design system version 15 (status moves; two new OPEN rules in §2). No benchmark (one today at 03:51).
+- Waiting for the PO: UXR-42 placement (ADM2 or follow-up), UXR-43, UXR-40/-41 (not VIS1-required). Requests to `cra` (UXR-42, -44, -40, -41) and `lca` (UXR-42, -43) in the report.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 06:10 CET · po (Product Owner)
 
 - No open PO PR (#645 merged). Claimed issue #649 (watcher, 05:50: VIS1 `delivered` again); claim removed at the end and the issue closed: it repeats the delivery reviewed at 05:15 (#624, #633; nothing merged on VIS1 since). **VIS1 stays `changes-requested` for VIS1-10 only**, now also `cra` **CGR-91** (05:30, PR #646, blocking, S2, same remedy).
