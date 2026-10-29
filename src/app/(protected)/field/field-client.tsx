@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import { completeVisit, departVisit, pauseVisit, resumeVisit, startVisit } from "@/features/visits/commands";
 import { moveVisitToToday } from "@/features/team/commands";
 import { getMoveLeavesFact } from "@/features/field/commands";
+import OverlapNote, { useOverlapNote } from "@/components/visits/OverlapNote";
+import { cardAccessibleName, overlapAfterSave, overlapNote, overlapParam, sameSlotInfo, sameSlotPositions, type OverlapFact } from "@/features/visits/overlap-rules";
 import { PLAN_FLAG_LABEL } from "@/features/team/rules";
 import { getVisitStatusLabel } from "@/features/visits/types";
 import {
@@ -86,6 +88,8 @@ type Props = {
   today?: string;
   /** VIS1-3d / VIS1-3e: the result of a "Heute machen" move, shown once above the moved card. */
   moved?: MovedNotice | null;
+  /** VIS2-5 (2): the overlap the server found at that move and the confirmation did not show (display only). */
+  movedOverlap?: OverlapFact;
   previousDay: string;
   nextDay: string;
   visits: FieldVisit[];
@@ -140,15 +144,18 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null }: Props) {
+export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null, movedOverlap = null }: Props) {
   const summary = summarizeDay(visits);
   const ordered = orderFieldVisits(visits);
+  // VIS2-3: cards of the same client whose times overlap get a distinguishing line and accessible name.
+  const sameSlot = sameSlotPositions(visits);
   const sinceLastByVisit = groupSinceLast(sinceLast);
   // VIS1 (ADR-111): the page passes today (Europe/Zurich); without it the view is today's.
   const today = todayProp ?? (isToday ? day : todayInZurich());
   const futureDay = isAfterToday(day, today);
   // VIS1-3d / VIS1-3e (ADR-112): the visit just moved to today, if any.
   const movedId = moved?.visitId ?? null;
+  const movedOverlapText = moved ? overlapNote(day, movedOverlap ?? null, today) : null;
   // VIS1-3g (UXR-35): shown once. The notice stays on this render; the address loses the move's parameters at once,
   // so a reload or the refresh after the next action (e.g. "Einsatz starten") no longer shows it. The `moved` row and
   // /team stay the lasting record.
@@ -205,7 +212,7 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
           </p>
         )}
         {/* VIS1-3d / VIS1-3e: when the moved visit is not among her cards of this day, the notice stands above the list. */}
-        {moved && !visits.some((v) => v.visit_id === movedId) && <MovedNoticeBlock moved={moved} />}
+        {moved && !visits.some((v) => v.visit_id === movedId) && <MovedNoticeBlock moved={moved} overlapText={movedOverlapText} />}
         {(openFollowups.length > 0 || returned.length > 0 || countersign.length > 0) && (
           // UX1-6 (ADR-104): the open decisions and reports sit below her visits; one line at the top keeps them in sight.
           // UX1-27 (CGR-80, ADR-106): inside the first viewport, above the next visit; the follow-up link carries the
@@ -239,7 +246,7 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
                 {visit === ordered.rest[0] && ordered.next && (
                   <p className="mb-1 mt-2 text-xs font-bold uppercase tracking-wide text-emerald-900">Weitere Einsätze</p>
                 )}
-                {moved && movedId === visit.visit_id && <MovedNoticeBlock moved={moved} />}
+                {moved && movedId === visit.visit_id && <MovedNoticeBlock moved={moved} overlapText={movedOverlapText} />}
                 <VisitCard
                   visit={visit}
                   today={today}
@@ -255,6 +262,7 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
                   alerts={safetyAlerts.filter((a) => a.visit_id === visit.visit_id)}
                   history={alertHistory.filter((h) => h.case_id === visit.case_id)}
                   focusAt={focusAt}
+                  sameSlot={sameSlot.get(visit.visit_id)}
                 />
               </li>
             ))}
@@ -377,8 +385,11 @@ function VisitCard({
   alerts,
   history,
   focusAt = null,
+  sameSlot,
 }: {
   focusAt?: string | null;
+  /** VIS2-3: position among this client's cards at an overlapping time, if any. */
+  sameSlot?: { index: number; total: number };
   visit: FieldVisit;
   today: string;
   focusOnMount?: boolean;
@@ -454,13 +465,19 @@ function VisitCard({
       data-testid={focusOnMount ? "moved-visit" : undefined}
       aria-describedby={describedBy}
       id={focused ? "einsatz-korrektur" : undefined}
-      aria-label={`Einsatz ${time}, ${visit.client_name ?? "Klient:in"}`}
+      aria-label={cardAccessibleName(time, visit.client_name ?? "Klient:in", sameSlot)}
       className="scroll-mt-4 rounded-2xl bg-white p-4 shadow-sm"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-lg font-bold tabular-nums">{time}</p>
           <h2 className="text-base font-semibold">{visit.client_name ?? "Klient:in ohne Namen"}</h2>
+          {sameSlot && (
+            // VIS2-3 (ADR-121): tells two cards of one client at one time apart; a fact, `info`, nothing refused.
+            <p data-testid="same-slot-line" data-tone="info" className="mt-1 text-sm text-stone-700">
+              {sameSlotInfo(sameSlot, visit.responsible_me ? "du" : visit.responsible_set ? "Teammitglied" : "noch niemand")}
+            </p>
+          )}
         </div>
         <span data-testid="visit-status" className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${visit.suspended ? "bg-amber-100 text-amber-900" : STATUS_CLASS[visit.status ?? ""] ?? "bg-stone-200 text-stone-800"}`}>
           {visit.suspended ? `pausiert${visit.pause_reason ? ` · ${LIFECYCLE_REASON_LABEL[visit.pause_reason] ?? ""}` : ""}` : getVisitStatusLabel(visit.status)}
@@ -946,6 +963,8 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [times, setTimes] = useState<{ start: string; end: string }>({ start: "", end: "" });
+  // VIS2-1: the slot as she types it (the inputs stay uncontrolled); read by the overlap sentence.
+  const [typed, setTyped] = useState<{ start: string; end: string }>({ start: "", end: "" });
   // VIS1-10: the date shown as "Heute" (the render's today until the database names another one), the sentence after
   // `day_changed`, the reload fallback, and a counter that re-mounts the time inputs with the re-derived values.
   const [shownDay, setShownDay] = useState(today);
@@ -954,6 +973,8 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
   const [timesEpoch, setTimesEpoch] = useState(0);
   const [reasonText, setReasonText] = useState("");
   const dayNoteRef = useRef<HTMLParagraphElement>(null);
+  // VIS2-1 / VIS2-5 (1): the overlap for the times in the form, re-read as they change and when the form is offered again.
+  const overlap = useOverlapNote(null, visit.visit_id, { date: shownDay, start: typed.start, end: typed.end }, shownDay, open);
   // VIS1-8: undefined while the answer is loading, null when there is none (no sentence then).
   const [leaves, setLeaves] = useState<boolean | null | undefined>(undefined);
   const openRef = useRef<HTMLButtonElement>(null);
@@ -976,7 +997,9 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
 
   function openForm() {
     // VIS1-3c: computed when she opens the form, from the Zurich wall clock.
-    setTimes(prefillMoveTimes(zurichMinutesNow(), visit.time_start, visit.time_end));
+    const prefill = prefillMoveTimes(zurichMinutesNow(), visit.time_start, visit.time_end);
+    setTimes(prefill);
+    setTyped(prefill);
     setLeaves(undefined);
     setError(null);
     setDayNote(null);
@@ -1004,6 +1027,7 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
       end: String(form.get("end") ?? ""),
       reason: String(form.get("reason") ?? ""),
       idempotencyKey: crypto.randomUUID(),
+      overlapShown: overlap.shown,
     });
     setPending(false);
     if (!result.ok && "dayChanged" in result) {
@@ -1015,7 +1039,9 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
       }
       // Nothing was stored. The form shows the database's today, times re-derived for the new now, the reason kept.
       setShownDay(next.today);
-      setTimes(prefillMoveTimes(zurichMinutesNow(), visit.time_start, visit.time_end));
+      const prefill = prefillMoveTimes(zurichMinutesNow(), visit.time_start, visit.time_end);
+      setTimes(prefill);
+      setTyped(prefill);
       setTimesEpoch((n) => n + 1);
       setDayNote(dayChangedNote(next.today));
       return;
@@ -1028,7 +1054,10 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
     // VIS1-3d / VIS1-3e: today's view shows "Einsatz auf heute verschoben", the release and the flags above the card.
     // VIS1-3g: no router.refresh() here. The push loads today's dynamic view fresh; a queued refresh would run after
     // the notice's parameters left the address and drop the notice before it was seen.
-    router.push(movedNoticeHref(visit.visit_id, result.released, result.flags));
+    // VIS2-5 (2): an overlap the server found that the form did not show travels to the moved card's notice.
+    const missed = overlapParam(overlapAfterSave(overlap.shown, result.overlap));
+    const href = movedNoticeHref(visit.visit_id, result.released, result.flags);
+    router.push(missed ? `${href}&${new URLSearchParams({ ueberschneidung: missed }).toString()}` : href);
   }
 
   if (!open) {
@@ -1064,6 +1093,10 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
   return (
     <form
       action={submit}
+      onChange={(e) => {
+        const f = new FormData(e.currentTarget);
+        setTyped({ start: String(f.get("start") ?? ""), end: String(f.get("end") ?? "") });
+      }}
       aria-label="Einsatz auf heute verschieben"
       data-testid="move-to-today-form"
       className="mt-4 grid gap-3 rounded-xl border border-stone-300 bg-stone-50 p-3 text-sm"
@@ -1098,6 +1131,8 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
             className="min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-white px-2 text-base font-normal" />
         </label>
       </div>
+      {/* VIS2-1 / VIS2-2 / VIS2-5: below "Von"/"Bis", tied to the confirm button; a fact, `info`, never a block. */}
+      <OverlapNote id={`overlap-today-${visit.visit_id}`} note={overlap.note} />
       <label className="grid gap-1 font-semibold">
         Grund der Verschiebung
         {/* VIS1-10: controlled, so the typed reason survives React's form reset after a refused confirm. */}
@@ -1112,7 +1147,8 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
         </p>
       )}
       <div className="grid grid-cols-[2fr_1fr] gap-2">
-        <button type="submit" disabled={pending} className="min-h-11 rounded-xl bg-emerald-800 font-bold text-white disabled:opacity-60">
+        <button type="submit" disabled={pending} aria-describedby={overlap.note ? `overlap-today-${visit.visit_id}` : undefined}
+          className="min-h-11 rounded-xl bg-emerald-800 font-bold text-white disabled:opacity-60">
           {pending ? "Wird gespeichert …" : MOVE_TO_TODAY_CONFIRM}
         </button>
         <button type="button" onClick={cancel} className="min-h-11 rounded-xl border border-stone-300 font-semibold">
@@ -1128,12 +1164,18 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
  * verschoben"; when the move released the visit (ABS1-C4: the responsible member is absent at the new time), the same
  * fixed text as /team, tone `attention`; returned planning flags as on /team. Position and tone: `cra` in VIS1-7.
  */
-function MovedNoticeBlock({ moved }: { moved: MovedNotice }) {
+function MovedNoticeBlock({ moved, overlapText }: { moved: MovedNotice; overlapText: string | null }) {
   return (
     <div className="mb-2 grid gap-1">
       <p role="status" data-testid="moved-to-today" className="text-sm font-semibold text-emerald-900">
         {MOVED_TO_TODAY_STATUS}
       </p>
+      {overlapText && (
+        // VIS2-5 (2): the server found an overlap the confirmation did not show; the move went through.
+        <p data-testid="overlap-after-save" data-tone="info" className="rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-700">
+          {overlapText}
+        </p>
+      )}
       {moved.released && (
         <p id={MOVED_RELEASED_NOTICE_ID} role="status" data-testid="moved-released" data-tone="attention" className="rounded-xl border border-amber-800 bg-amber-50 p-3 text-sm font-semibold text-amber-900">
           {RELEASED_ON_MOVE}

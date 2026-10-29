@@ -9,6 +9,8 @@ import Link from "next/link";
 import { HeaderMenu } from "@/components/layout/Sidebar";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import SignalBanner from "@/components/signals/SignalBanner";
+import OverlapNote, { OverlapAfterSave, slotFromForm, useOverlapNote, type OverlapSlot } from "@/components/visits/OverlapNote";
+import { overlapAfterSave, overlapNote } from "@/features/visits/overlap-rules";
 import type { OutsideWatchedVisit, SignalRow } from "@/features/signals/rules";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -882,10 +884,20 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [flags, setFlags] = useState<string[]>([]);
+  // VIS2-1: the slot as she types it, for the overlap sentence (the inputs stay uncontrolled).
+  const initialSlot = { date: shiftDay(todayInZurich(), 1), start: "08:00", end: "08:45" };
+  const [slot, setSlot] = useState<OverlapSlot>(initialSlot);
+  const today = todayInZurich();
+  const overlap = useOverlapNote(caseId, null, slot, today, open);
+  // VIS2-5 (2): the server's overlap the form did not show, stated after the save.
+  const [after, setAfter] = useState<string | null>(null);
 
   async function plan(form: FormData) {
     setPending(true);
     setError(null);
+    setAfter(null);
+    const shown = overlap.shown;
+    const savedDay = String(form.get("date") ?? "");
     const m = minutesFromForm((k) => String(form.get(k) ?? ""));
     const responsible = String(form.get("responsible") ?? "");
     const result = await planVisit({
@@ -899,6 +911,7 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
       needsAssessment: !assessmentDone,
       responsibleUserId: responsible || null,
       idempotencyKey: crypto.randomUUID(),
+      overlapShown: shown,
     });
     setPending(false);
     if (!result.ok) {
@@ -906,6 +919,7 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
       return;
     }
     setFlags(result.flags);
+    setAfter(overlapNote(savedDay, overlapAfterSave(shown, result.overlap), today));
     setOpen(false);
     router.refresh();
   }
@@ -914,7 +928,8 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
     return (
       <>
         <Flags flags={flags} />
-        <button type="button" onClick={() => setOpen(true)} className="mt-3 min-h-11 w-full rounded-xl border-2 border-emerald-800 font-bold text-emerald-900">
+        <OverlapAfterSave note={after} />
+        <button type="button" onClick={() => { setSlot(initialSlot); setAfter(null); setOpen(true); }} className="mt-3 min-h-11 w-full rounded-xl border-2 border-emerald-800 font-bold text-emerald-900">
           {assessmentDone ? "Einsatz planen" : "Abklärungsbesuch planen"}
         </button>
       </>
@@ -922,13 +937,15 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
   }
 
   return (
-    <form action={plan} aria-label="Einsatz planen" className="mt-3 grid gap-2 rounded-xl bg-stone-50 p-3">
+    <form action={plan} onChange={(e) => setSlot(slotFromForm(e.currentTarget, slot))} aria-label="Einsatz planen" className="mt-3 grid gap-2 rounded-xl bg-stone-50 p-3">
       {!assessmentDone && (
         <p className="rounded-lg bg-amber-50 p-2 text-xs font-semibold text-amber-900">
           Erster Einsatz = Bedarfsabklärung durch eine Pflegefachperson (Kategorie A). Bis sie erfolgt ist, sind keine anderen Einsätze planbar.
         </p>
       )}
-      <SlotFields date={shiftDay(todayInZurich(), 1)} start="08:00" end="08:45" />
+      <SlotFields date={initialSlot.date} start={initialSlot.start} end={initialSlot.end} />
+      {/* VIS2-1 / VIS2-2 (ADR-121): a fact before saving, `info`; the save is never refused for it. */}
+      <OverlapNote id={`overlap-plan-${caseId}`} note={overlap.note} />
       <fieldset className="grid grid-cols-3 gap-2">
         <legend className="text-xs font-semibold">Geplante Minuten pro KLV-Kategorie</legend>
         <label className="grid gap-1 text-xs font-semibold">
@@ -958,7 +975,7 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
       </label>
       <ErrorText message={error} />
       <div className="grid grid-cols-[2fr_1fr] gap-2">
-        <button type="submit" disabled={pending} className="min-h-11 rounded-xl bg-emerald-800 font-bold text-white disabled:opacity-60">
+        <button type="submit" disabled={pending} aria-describedby={overlap.note ? `overlap-plan-${caseId}` : undefined} className="min-h-11 rounded-xl bg-emerald-800 font-bold text-white disabled:opacity-60">
           {pending ? "Wird gespeichert …" : "Einsatz speichern"}
         </button>
         <button type="button" onClick={() => { setOpen(false); setError(null); }} className="min-h-11 rounded-xl border border-stone-300 font-semibold">
@@ -976,11 +993,21 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
   const [error, setError] = useState<string | null>(null);
   const [released, setReleased] = useState(false);
   const isPlanned = visit.status === "planned";
+  // VIS2-1: the chosen slot of a move, for the overlap sentence.
+  const visitSlot = { date: visit.date, start: hhmm(visit.start), end: hhmm(visit.end) };
+  const [slot, setSlot] = useState<OverlapSlot>(visitSlot);
+  const today = todayInZurich();
+  const overlap = useOverlapNote(null, visit.visit_id, slot, today, mode === "move");
+  // VIS2-5 (2): the server's overlap the form did not show, stated after the move.
+  const [after, setAfter] = useState<string | null>(null);
 
   async function submit(form: FormData) {
     setPending(true);
     setError(null);
     setReleased(false);
+    setAfter(null);
+    const shown = overlap.shown;
+    const savedDay = String(form.get("date") ?? "");
     const reason = String(form.get("reason") ?? "");
     const result =
       mode === "move"
@@ -991,6 +1018,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
             end: String(form.get("end") ?? ""),
             reason,
             idempotencyKey: crypto.randomUUID(),
+            overlapShown: shown,
           })
         : await removePlannedVisit({ visitId: visit.visit_id, reason, idempotencyKey: crypto.randomUUID() });
     setPending(false);
@@ -999,6 +1027,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
       return;
     }
     setReleased(result.released);
+    if (mode === "move") setAfter(overlapNote(savedDay, overlapAfterSave(shown, result.overlap), today));
     setMode("view");
     router.refresh();
   }
@@ -1038,7 +1067,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
         </div>
         {isPlanned && mode === "view" && (
           <div className="flex shrink-0 gap-1">
-            <button type="button" onClick={() => setMode("move")} className="min-h-11 px-2 font-semibold underline underline-offset-4">
+            <button type="button" onClick={() => { setSlot(visitSlot); setAfter(null); setMode("move"); }} className="min-h-11 px-2 font-semibold underline underline-offset-4">
               Verschieben
             </button>
             <button type="button" onClick={() => setMode("remove")} className="min-h-11 px-2 font-semibold text-rose-800 underline underline-offset-4">
@@ -1048,14 +1077,18 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
         )}
       </div>
       {mode !== "view" && (
-        <form action={submit} aria-label={mode === "move" ? "Einsatz verschieben" : "Einsatz entfernen"} className="mt-2 grid gap-2">
+        <form action={submit} onChange={(e) => { if (mode === "move") setSlot(slotFromForm(e.currentTarget, slot)); }}
+          aria-label={mode === "move" ? "Einsatz verschieben" : "Einsatz entfernen"} className="mt-2 grid gap-2">
           {mode === "move" && <SlotFields date={visit.date} start={hhmm(visit.start)} end={hhmm(visit.end)} />}
+          {/* VIS2-1 / VIS2-2 (ADR-121): the moved visit itself is excluded by the database. */}
+          {mode === "move" && <OverlapNote id={`overlap-move-${visit.visit_id}`} note={overlap.note} />}
           <label className="grid gap-1 text-xs font-semibold">
             Grund
             <input name="reason" required minLength={3} maxLength={300} className={field} />
           </label>
           <div className="grid grid-cols-2 gap-2">
-            <button type="submit" disabled={pending} className={`min-h-11 rounded-lg font-bold text-white disabled:opacity-60 ${mode === "move" ? "bg-emerald-800" : "bg-rose-800"}`}>
+            <button type="submit" disabled={pending} aria-describedby={mode === "move" && overlap.note ? `overlap-move-${visit.visit_id}` : undefined}
+              className={`min-h-11 rounded-lg font-bold text-white disabled:opacity-60 ${mode === "move" ? "bg-emerald-800" : "bg-rose-800"}`}>
               {mode === "move" ? "Verschieben" : "Entfernen"}
             </button>
             <button type="button" onClick={() => setMode("view")} className="min-h-11 rounded-lg border border-stone-300 font-semibold">
@@ -1064,6 +1097,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
           </div>
         </form>
       )}
+      <OverlapAfterSave note={after} />
       {released && (
         <p role="status" data-testid="moved-into-absence" className="mt-1 text-xs font-semibold text-amber-900">
           {RELEASED_ON_MOVE}

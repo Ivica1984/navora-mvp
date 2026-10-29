@@ -212,7 +212,8 @@ export function movedNoticeHref(visitId: string, released: boolean, flags: Reado
 }
 
 /** The query parameters that carry a move's result (VIS1-3d / VIS1-3e). */
-export const MOVED_NOTICE_PARAMS = ["verschoben", "offen", "hinweise"] as const;
+// VIS2-5 (2): `ueberschneidung` carries the server's overlap of that move (ADR-121).
+export const MOVED_NOTICE_PARAMS = ["verschoben", "offen", "hinweise", "ueberschneidung"] as const;
 
 /**
  * VIS1-3g (UXR-35, ADR-112 addendum): the notice belongs to the move that produced it. Once today's view has shown it,
