@@ -15,7 +15,10 @@ insert into public.team_memberships (team_id, user_id, qualification)
 values ('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-000000000901', 'care_assistant');
 
 -- Structure ------------------------------------------------------------------------------------------------
-select col_not_null('public', 'team_memberships', 'qualification', 'every member has exactly one qualification');
+-- ADM2-6 (ADR-114, 0091): the column became nullable for a member admitted by her team until an administrator sets her
+-- qualification; one column still means at most one qualification, and no member outside that path is without one.
+select ok(not exists (select 1 from public.team_memberships where qualification is null),
+          'every member has exactly one qualification (null only between ADM2 "Vertrag erfasst" and set_member_qualification)');
 select throws_ok($$ insert into public.team_memberships (team_id, user_id, qualification)
                     values ('00000000-0000-4000-a000-000000000102', '00000000-0000-4000-a000-000000000902', 'doctor') $$,
   '23514', null, 'only registered_nurse or care_assistant');

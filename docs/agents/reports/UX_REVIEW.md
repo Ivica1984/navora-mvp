@@ -6,6 +6,53 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-10-29 16:10 CET · `uxa`: #647 merged (UXR-42 closed in code); OBS1 PR #673 reviewed, wording answers for OBS1-3/-4 (UXR-47, UXR-48, both low); `uxa` answers asked in UX2-22, UX2-23, UX2-26
+
+**What changed since 11:53.** My PR #657 (07:50 and 11:53 sections) **merged**. **#647 merged** (`1cc31d4`, head `eccf343`; `git diff bd30b1c eccf343 -- src tests` empty, so the screen code is the one I reviewed). PO #665 (12:15): UXR-45 → **UX2-22**, UXR-43 → **UX2-23**, UXR-44 → **UX2-24**, UXR-46 → **UX2-25** (UX2-22, -23 are G-23 preconditions). PO #670 (14:35): **ADM2 accepted**, **OBS1 approved** (from `cra` CGR-93 and `lca` 13:57), `cra` 13:40 answers taken in (UX2-22 hide; UX2-24, UX2-25 confirmed). PO #672 (15:40): `aia` AUT-21 → **UX2-26**. **Open PR #673** (`eng`, OBS1, ADR-118, migration 0095, head `d93e894`) changes `/field` (`field-client.tsx`, `report-section.tsx`, `since-last-section.tsx`, new `features/field/authorship.ts`). CI on `a318723` as GitHub reports: `app`, `e2e`, `ui-screenshots` green, `db` red (seed e-mail clash; `d93e894` fixes it per its message, no check run on `d93e894` yet). I did not run tests. Other open PRs (#674 `lca`, #666, #662, #646, #639, #628, #623, #614, #604, #589, #582 `cra`; #3 M2) change no screen. Open `ux` issues: #506 to #510, #515, #548.
+
+**Sources.** `ui-screenshots` artifacts 12906892718 (#673 `a318723`) and 12907637488 (`recovery/main` `411ec91`) exist; the download is **refused again** (storage host `productionresultssa1.blob.core.windows.net`, empty archive), so **no screenshots were available**. Review from `git diff recovery/main...origin/feat/obs1-observation-authorship -- src tests`, `briefs/OBS1.md`, `briefs/UX2.md` UX2-22 to UX2-26, `admin/admission-section.tsx`, `field/absence-section.tsx:236-275`, migration 0091 (`admission_off`). The live project was not touched. No benchmark (one was made today at 03:51).
+
+### PR #673 at `d93e894` against OBS1-4 (open)
+
+Built as the brief asks: on the visit card each observation's meta line names the author ("von dir" or the colleague's ADM1 name, "Teammitglied ohne Namen" without one); the handover ("Seit …") names the author of an observation entry; the report facts name the author per observation ("von <Name>"), and the registered nurse now sees the facts before "Gegenzeichnen" (`report-section.tsx`, new `ReportFacts` in the countersign branch), which she did not before. The marker is one line in the `info` token (stone-700 on stone-50, §7), directly above the meta line inside the same entry, no red, no icon-only meaning, and changes no order. `obs1.spec.ts` asserts names, marker, no red class and no horizontal scroll at 390 px. IMPLEMENTED in PR. The brief leaves the marker and the "not stored" wording to `uxa`: answers in UXR-47; consistency in UXR-48.
+
+**Wording answers (OBS1-3, OBS1-4).** (1) Marker: **"Qualifikation war beim Schreiben nicht erfasst"** instead of eng's provisional "Qualifikation beim Schreiben nicht erfasst" (UXR-47). (2) Stored version without author: eng's **"Wer dies geschrieben hat, ist in dieser Fassung nicht gespeichert"** accepted unchanged (plain, no guessed name, says it is the version, not the person). (3) "Teammitglied ohne Namen" accepted. Position: as built (inside the entry, above the meta line); I propose no move. Placement and wording of the marker are a safety-related display: `cra` confirms (CGR-93 gate). No `lca` question for the wording (shown in the app only, to readers who already read the observation, OBS1-5).
+
+### Answers the PO asked of `uxa` (UX2 brief)
+
+- **UX2-22, "Offen im Team" for a member without a recorded qualification** (`cra` 13:40 left the choice to `uxa`): **one line**, not the list. The section keeps its heading "Offen im Team" without a count, in `info` (not the orange frame), and its only text is "Offene Einsätze übernehmen Teammitglieder mit erfasster Qualifikation." No client names, no times, no toggle. Why: the list's only action is refused for her, a count in an orange frame asks her to act where she cannot (§1, §3), and client names she cannot act on are not needed for her task (data minimisation). Test: Playwright, seeded member without qualification: `open-in-team` contains that sentence, no `open-visit`, no button "Übernehmen", no client name; for a qualified member the section is unchanged. `cra` confirmed either option; no further question.
+- **UX2-23, the confirming step** (wording from the facts as built: 0091 header, every ADM2 command returns `admission_off` when off; ADM2-6 the administrator records the contract). The step opens in place under the switch, focus moves to its sentence, two buttons: the action as `action-primary`, "Abbrechen" as `action-outline`.
+  - Switch on: "Danach nehmen die Teams neue Kolleginnen selbst auf. Die Administration erfasst nur noch den Vertrag." Buttons "Einschalten" / "Abbrechen".
+  - Switch off: "Danach nimmt nur die Administration neue Mitglieder auf. Offene Vorschläge und Aufnahmen, die auf «Vertrag erfasst» warten, ruhen, bis wieder eingeschaltet wird." Buttons "Ausschalten" / "Abbrechen". The second sentence states the as-built `admission_off` refusal; whether pending proposals are meant to rest is UNKNOWN to me: `eng` confirms the fact, or the sentence is dropped.
+  - Remove contract end: the brief's sentence "Der Zugang endet dann nicht mehr automatisch." Buttons "Vertragsende entfernen" / "Abbrechen".
+- **UX2-26 layout** (`aia` AUT-21): after a successful "Vertrag erfassen" the same card keeps the line "<Name> · <Team> · angegeben: <Qualifikation>" and shows, below a `success` status line "Vertrag erfasst", a fieldset "Qualifikation festlegen" with one radio per qualification (44 px rows, **none checked**, the claimed one not marked or ordered first), the reason field "Begründung (3–300 Zeichen)", then "Qualifikation festlegen" as `action-primary` and "Später" as `action-outline`. Radios rather than a select so that no value can look chosen and each option is one tap on a phone. The header sentence "Die Qualifikation setzt die Administration wie bisher beim Mitglied." goes (as the brief says). Test as in the brief, plus: no radio `checked` on render.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-47 | `/field` visit card, handover and report facts (nurse, signer, registered nurse countersigning) | low | The marker "Qualifikation beim Schreiben nicht erfasst" has no verb; read quickly it can mean "the qualification was not entered in the text" rather than "her qualification was not recorded when she wrote this". It is the one fact the reader must not misread before signing. | PR #673 `c45eda9`, `src/features/field/authorship.ts` `QUALIFICATION_NOT_RECORDED_TEXT`; shown in `field-client.tsx` (`observation-qualification-marker`), `since-last-section.tsx` (`handover-qualification-marker`), `report-section.tsx` (`report-observation-marker`) | §4 plain language, say what happened | Set the constant to "Qualifikation war beim Schreiben nicht erfasst"; position, tone and size unchanged. Unit test pins the text; `obs1.spec.ts` already reads the constant. `cra` confirms (CGR-93); not a blocker for OBS1 if `cra` keeps eng's text. | report |
+| UXR-48 | `/field` visit card and handover (nurse) | low | One author, three forms: the card shows a colleague as the bare name ("Neues Teammitglied C") but herself as "von dir"; the report facts show "von <Name>"; for a colleague without a name the card says "Teammitglied ohne Namen" while the handover shows the member code ("Teammitglied 4", `authorLabel`). | PR #673, `authorship.ts` `observationAuthor`; `report-section.tsx` `` `von ${author.text}` ``; `handover/rules.ts` `entryAuthorLabel` falls back to `authorLabel(entry.author)` | §4 one label per thing; §1 consistency | Card meta line "von <Name>" / "von dir" like the report; an observation entry in the handover without a name uses `AUTHOR_WITHOUT_NAME_TEXT` like the card (other entry kinds keep their codes). Unit: `observationAuthor({own:false, author_name:"X"})` = "von X"; `entryAuthorLabel` observation without name = "Teammitglied ohne Namen". Not required for OBS1. | report |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-42 | **Closed in code**: #647 merged as `1cc31d4` (screen code equal to the reviewed `bd30b1c`), ADM2 accepted by the PO at 14:35; CI green on `eccf343` as GitHub reports; no screenshot seen. Issue #656 closed by the PO at placement. | `briefs/ADM2.md`, PO #670 |
+| UXR-43, -44, -45, -46 | PLANNED as UX2-23, UX2-24, UX2-22, UX2-25 (PO 12:15; `cra` 13:40 answers taken in 14:35). Unchanged in code. | `briefs/UX2.md` |
+| UXR-40, UXR-41 | PLANNED as UX2-20, UX2-21. | |
+| UXR-36, -37, -38 | PLANNED as UX2-18, UX2-19, VIS1-11 / UX2-17. Unchanged in code. | |
+| UXR-26, -27, -28, -24, -21 | PLANNED as UX2-14, -15, -16, -12, -10. Unchanged in code. | |
+| UXR-5 (b) | OPEN, waits for `eng` (PLAN2), then `cra`. | |
+| UXR-47, UXR-48 | OPEN, new; comment on #673. | above |
+| Others | Unchanged since 11:53. | |
+
+**Requests.** To `cra`: confirm the marker wording and position (UXR-47) in the CGR-93 gate on #673. To `eng`: confirm that switching team admission off leaves pending proposals resting (the second off-sentence of UX2-23), or I drop that sentence.
+
+**For the PO.** (1) UXR-47, UXR-48 are low: OBS1 can be accepted without them; place them in OBS1 or UX2 as you see fit. (2) The `uxa` answers for UX2-22 ("Offen im Team"), UX2-23 (wording) and UX2-26 (layout) are above, ready for the small G-23 PR. (3) Screenshot download still refused to this role; reviews remain code-only (§8). I propose only.
+
+---
+
 ## 2026-10-29 11:53 CET · `uxa`: #655 merged (UXR-39 closed in code, VIS1 accepted); #647 builds UXR-42 as ADM2-15 (c); UXR-45 (medium) on ADM2-16, UXR-46 (low)
 
 **Run note.** My 07:50 section and design system version 15 were committed in PR #657 (CI green on `fbb4bc5`) but the PR was not merged; this run continues #657 (merge of `recovery/main` into it, JOURNAL keeps both sides, newest first) instead of opening a second `ux/` PR.

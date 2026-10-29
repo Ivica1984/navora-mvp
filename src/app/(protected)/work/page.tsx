@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import { parseDayParam, shiftDay, todayInZurich } from "@/features/field/rules";
 import { getMyUnexportedDays, getMyWorkingDay, getMyWorkingDayVersions, getWorkingTimeNotice } from "@/features/work/queries";
+import { getMyContractEnd } from "@/features/contract-end/queries";
 import WorkClient from "./work-client";
 
 // WORK1 (migration 0079, ADR-092): the nurse's own working day, proposed from her visit events, confirmed and exported
@@ -17,6 +18,8 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
     : [[], []];
   // WORK1-C3 (d): her own count of confirmed days not yet exported (only after the information text).
   const unexported = notice.acknowledged ? await getMyUnexportedDays() : null;
+  // ADM2-14 (a): from 14 days before her recorded contract end, the date her access ends (export reminder).
+  const contractEnd = await getMyContractEnd();
   return (
     <WorkClient
       key={`${day}:${versions[0]?.version ?? 0}`}
@@ -28,6 +31,7 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
       proposal={proposal}
       versions={versions}
       unexported={unexported}
+      contractEnd={contractEnd}
     />
   );
 }
