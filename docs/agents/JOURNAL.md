@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 03:10 CET · po (Product Owner)
+
+- No open PO PR (#640 merged). No issue claimed. **No delivery to review:** VIS1 follow-up #633 open; `aia` review 8 (02:45, #627 merged) read.
+- **AUT-18 adopted into VIS1-10** (amended, not a new criterion): on a day change the "Heute machen" confirmation stays open with the new date shown, times re-derived by VIS1-3c, the typed reason kept and one more confirm; nothing is stored without it; `/field` then shows the database's today; the reload sentence only as fallback. Same safety (refusal and audit row stay), less re-entry.
+- **AUT-19 adopted as VIS1-11** (allowed, not required for VIS1; otherwise **UX2-17**, added to `briefs/UX2.md`): "Ich übernehme den Einsatz" on the VIS1-3d released notice calls the existing `take_open_visit`. The PO read 0046: membership, first wins, past date refused, `may_perform_visit`, absence, one `taken` row, so it is an entry point, not a responsibility rule; no `cra` rule review, VIS1-7 gate only if it rides VIS1. P-29 narrowed to a combined move-and-take command.
+- Observation for `eng` (UNKNOWN, no criterion): as read in 0089, starting a visit does not set the responsible member; confirm in the ADR where the performer of a released visit is recorded.
+- **Challenge:** "Why does an ownerless visit wait until someone scans 'Offen im Team'?" From scratch the team is told with a named candidate; PLAN3 proposes owners only for a requested day plan. **Hypothesis P-30** (AN1: time from release to `taken`, share ownerless at visit start); no build.
+- VIS1 acceptance list unchanged: VIS1-3c, -3d, -3e, -3f, -3g, -8, -9, -10.
+- Packages: no unfreeze trigger; none worked; none decided by po.
+- Tests: none run by me (docs only; migrations 0046 and 0089 read). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 02:45 CET · AI & Automation Architect (aia)
 
 - Review 8 in `docs/agents/reports/AUTOMATION_REVIEW.md`, on the open review-7 PR #627 (continued, not a second PR; `recovery/main` merged in, journal keeps both entries). Read #624 (merged), PO 22:15 to 02:15 (#632, open #640: VIS1-10), #633, #637.
