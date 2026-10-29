@@ -31,6 +31,56 @@
 
 ---
 
+## 2026-10-29 23:15 CET · aia review 12: AUT-22 adopted as AIG1-11 (PO 21:15, #686 closed); AIG1-12 look-back (PO 22:10) reviewed, AUT-23 (medium: the list's only exit is a re-confirmation, and AIG1-5 bulk would reach it); OBS1-C1 and ADM2-C1 delivered (#688); ADM2-C2 supported
+
+**Read:** `recovery/main` at `1500cb3`:
+- merged since review 11: #687 (review 11), #689 (`lca` 20:40, 21:45: D-35 term 9 for AIG1, CGR-95 look-back terms (i)-(v), D-32), #690 (PO 21:15: **AUT-22 adopted as AIG1-11**), #692 (PO 22:10: **CGR-95 adopted as AIG1-12**, `lca` D-32 as **ADM2-C2**), **#688 (OBS1-C1 + ADM2-C1, migration 0096, ADR-119, merge `b3227d2`)**, #694 (`eng` 22:25);
+- open: `cra` #691 (21:30, CGR-95, CGR-96) and its chain, `uxa` #685; issue #693 (CGR-96, root cause UNKNOWN); `eng` claimed AIG1 on #536 at 23:07 (not started in any PR when read);
+- briefs changed: AIG1 (AIG1-11, AIG1-12, AIG1-7 small-team suppression note, two PO answers), ADM2 (ADM2-C2), OBS1 (note: CGR-93 closed);
+- issue #686 (AUT-22) closed by the PO as completed; no other open issue is labelled `automation`.
+
+**Nothing below is a measurement.** I ran no tests; CI states are as `eng` reports them (#688: app, db, e2e, ui-screenshots green on `213934b`).
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-23 | After an assistant is stopped (AIG1-8): the team members who work through the AIG1-12 look-back list; Operations | **Challenge of the form, never of the look-back (its patient-safety benefit is shown: H-20, H-01, CGR-95).** PLANNED (AIG1-12, PO 22:10; AIG1 claimed by `eng` 23:07, not built): a line leaves the list **only** when its value is confirmed again or corrected through the normal confirm command. Two gaps in the text: (1) **AIG1-5 allows a bulk confirm for `schedule` fields of level-L `rule` agents** (the PLAN3-5 ticked list); nothing in AIG1-12 says that re-confirming from the look-back list is one by one, so the values of an agent stopped for too many corrections could be waved through again in one action, the automation bias the stop exists to catch (H-20). (2) A value that the record **no longer holds** (later replaced by a value a person entered or confirmed for the same field) can only leave by a confirm click on a value that is no longer in force: a step with no patient-care benefit shown, and a long list of such clicks is itself a pressure to confirm without looking. Size of the list per stop: UNKNOWN (no agent built; depends on the window and the agent's volume) | **rule, built in from the start; no new step:** (a) re-confirmation from the look-back list is always value by value, whatever the field class (AIG1-5 bulk not offered on this list; pgTAP: a bulk confirm of two look-back values is refused). (b) A line whose value has been superseded in the record by a later value entered or confirmed by a person for the same field leaves the list by itself, with the reason "überholt" shown on the record line and a ledger row (deterministic, written by the existing confirm or edit command, no person types anything); a superseded value is not re-confirmed. **Whether a superseded value still needs a clinical re-check** (e.g. a visit already done by the wrong person, H-01) is the Clinical Owner's, D-17 part 3: UNKNOWN; if she says yes, (b) does not apply to the fields she names, and such cases go to the existing CIRS/incident path, not to a confirm click. Equal safety: no value leaves unseen that the record still holds | L (governance list; the values themselves keep their own level, G or H fields one by one anyway) | stage 0 (part of the AIG1 build); PO (brief amendment before or with the first AIG1 PR), `cra` for (b) (clinical question to the Clinical Owner), `lca` not needed (terms (i)-(iv) unchanged, no person column) | per team and stop: lines at stop; lines left by correction, by re-confirmation and as "überholt"; days until the list is empty; correction share on the look-back lines (high means the stop was right). Never per person | medium | – (report; one comment on #536) |
+
+**Briefs and items reviewed without a new finding:**
+- **AIG1-11 (PO 21:15, from AUT-22), challenge test:** restricts reads only; no step, field or role for anyone; "bestätigt von" stays on the record line. Adopted as proposed plus the `lca` wording point (AUD1 = per-record `read_audit_record`) and a confirmed `not_found` in the closed outcomes. Supported.
+- **AIG1-12 (PO 22:10, from `cra` CGR-95, `lca` terms (i)-(iv)):** the design order is right: the stop itself is monitoring, and the list replaces a hand search through every record with a derived worklist; no assignment, no deadline, no person column; NAVORA sets no clinical rule (re-check duty UNKNOWN, Clinical Owner). Supported, with AUT-23 on its exit.
+- **AIG1-7 small-team note (PO 22:10, from `lca` 20:40):** suppressing a cell that would point to one confirmer is a data-protection precondition; costs no step. Supported.
+- **Pilot precondition (D-9 employee information names confirmations and the look-back purpose):** a legal duty (`lca`, prior information); not administration for a nurse; not challenged.
+- **OBS1-C1 delivered (#688, 0096, ADR-119):** authorship and signer columns read only through the per-visit functions; narrows reads, no step added. Supported, as in review 11.
+- **ADM2-C1 delivered and ADM2-C2 (PO 22:10, from `lca` D-32):** the push claim re-checks `push_active` and the deletion runs on the existing send cycle, so an ex-member's endpoint no longer waits for an administrator to open a page. This removes a person's task from a data-protection duty (eliminate through a rule). Supported.
+- **CGR-96 (#693, two `/field` cards for one moved visit in one e2e attempt):** root cause UNKNOWN; no workflow step to review. If it is a product defect, a duplicate visit would cost the team a phone round and a billing correction; the remedy (pgTAP proof) is Engineering's. Not a finding.
+
+### 2 AI readiness of delivered items
+- Nothing merged since review 11 proposes, drafts or ranks. 0096 is a read restriction and a deterministic sweep; no ledger entry is needed.
+- **AIG1 (claimed, not built), §8 check against the brief as it now stands:** suggestion ledger (AIG1-1, -2) PLANNED; provenance per value (AIG1-3) PLANNED; named confirmer read per value only (AIG1-11) PLANNED; no accept-all on listed fields (AIG1-5) PLANNED, with the look-back gap of AUT-23 (a); correction rate per agent and field (AIG1-7) PLANNED; stop rule (AIG1-8) PLANNED, **now with a recovery path (AIG1-12)**; evaluation on synthetic data PLANNED (pgTAP per criterion, synthetic seed only). Nothing IMPLEMENTED yet.
+
+### 3 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1 built | PLANNED; claimed by `eng` 23:07 on #536 (in progress, no PR read); brief now carries D-35 term 9 at table level (AIG1-11) and a stop look-back (AIG1-12). Open: AUT-23 |
+| 0 | Per-entry provenance in clinical records | **IMPLEMENTED for observations including OBS1-C1** (#673, #688); drafts and their origin still OPEN |
+| 0 | ASM1 built | PLANNED, not started |
+| 1 | Employee information names confirmation records and the look-back purpose (D-9, `lca` 20:40, 21:45) | OPEN, owner (pilot precondition, added) |
+| 1 | Real data may reach any test, pilot or AI path | blocked (owner precaution until D-1 is clarified; owner package required by D-35) |
+| 1-3 | other conditions unchanged from review 1 | OPEN |
+
+### 4 Findings closed
+- None closed with delivery evidence. **AUT-22 (high):** adopted by the PO as **AIG1-11** (21:15), issue #686 closed by the PO; the finding stays OPEN until AIG1 is delivered with the AIG1-11 pgTAP block. AUT-21: adopted as UX2-26, not delivered. AUT-14, AUT-15, AUT-17, AUT-19, AUT-20: unchanged.
+
+### 5 Waiting for the PO
+- **AUT-23 (medium):** (a) one-by-one re-confirmation on the look-back list, best placed before the first AIG1 PR (`eng` claimed 23:07); (b) the "überholt" exit, after the `cra` / Clinical Owner answer on superseded values.
+- AUT-19, AUT-20 as in review 9; AUT-21 delivery of UX2-26; AUT-22 delivery with AIG1.
+- Bottleneck map refresh: due 2026-11-03 (weekly); candidates unchanged (onboarding contract to first visit, P-28, P-32).
+
+---
+
 ## 2026-10-29 20:20 CET · aia review 11: OBS1 delivered and accepted (#673, PO 19:40) reviewed; AUT-21 adopted as UX2-26; AUT-22 (high: AIG1 keeps the per-value confirmer selectable by direct query); D-1 precaution added to stage tracking
 
 **Read:** `recovery/main` at `a968727`:
