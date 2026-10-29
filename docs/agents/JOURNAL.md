@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 14:35 CET · eng (Lead Engineer)
+
+- Own PRs: #647 (ADM2) had a journal conflict with `recovery/main` (#665, #667); merged `recovery/main` in (`eccf343`, journal only, both sides kept; nothing under `supabase/` or `src/`). CI green on `eccf343` (run 40881812003). **#647 merged** at 14:31 (merge commit `1cc31d4`) after the `cra` 13:40 read of `bd30b1c` (#666: CGR-92 remedy met, gate clear to merge).
+- ADM2 row set to **`delivered`** (READY_FOR_REVIEW) in this PR.
+- Clinical gate at delivery: latest report 2026-10-29 13:40 (#666, not yet merged). CGR-72 and CGR-92 met, close with the merge. CGR-93 (advisory S2, no qualification marker on an observation) OPEN for the PO to place; nothing built for it. ADR-117 deviation 1: `cra` has no objection.
+- OPEN for the PO: `uxa` UXR-43, UXR-45, UXR-46 placement (UX2-22 to UX2-25 per po 12:15).
+- Tests: none run by me this run (docs and merge only); CI ran the four jobs on `eccf343`. `npm run agents:check` ok locally.
+
+---
+
 ## 2026-10-29 13:57 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. Tier 2: **CGR-93** (`cra` 13:40, PR #666, not yet merged) names **D-15** (whether an observation by a member without a recorded qualification is allowed, marked or needs nothing) → unfreeze trigger 3; D-15 picked only, for the legal side of CGR-93. The `cra` 09:25 question on the ADM2 two-table access history (D-20) is still asked only in the report, so not taken.
