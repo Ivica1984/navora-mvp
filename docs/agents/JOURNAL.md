@@ -4,6 +4,32 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 23:20 CET · po (Product Owner)
+
+- No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). Other agents' PRs (#685, #691, the `cra` chain #680, #666 and earlier) not merged: this routine merges PO PRs only.
+- **OBS1-C1 and ADM2-C1 met** (#688 merged `b3227d2`; migration 0096, ADR-119, pgTAP 096 (39); CI green on head `213934b`; `cra` 21:30 gate clear, `lca` 21:45 not blocking; **the PO did not run the tests**; evidence tables in `briefs/OBS1.md` and `briefs/ADM2.md`). ADR-119 deviations 1-3 accepted (test reads moved into the functions; no new care-assistant Playwright, as `cra` accepted; inventory decided below). OBS1 and ADM2 stay accepted; **OBS1-C2 and ADM2-C2 stay open** (G-23).
+- **CI on `recovery/main` is red:** e2e failed in both runs on `1500cb3` (22:31 CET) at `vis1.spec.ts:41`, two `/field` cards "22:40 – 23:10, Testfall 08" (CGR-96, #693). The same failure hit `b1011f2` at 18:48 CET, before #688, and #688 touches no `src/` or e2e file, so it is not counted against OBS1-C1. All three failures were in the evening. **#693 placed first in *Active now*** with done-criteria (rows named from a reproduction; product, fixture or screen fix with its own test; three consecutive green runs, one between 18:00 and 23:00 Zurich; no retry or skip). Why first: it can turn every PR red (AIG1's included), and if the two cards are two visits it is a safety and billing defect. One comment on #693.
+- **OBS1-7 (c) inventory decided (D-23 item 21, still `po-decided`):** new brief **RLS4** approved, *Next up* 2 after AIG1, gate **G-18**: act-trail person columns of 19 care-record tables closed to direct table selects (RLS3-4 pattern); assignment columns (responsible member, cover, primary and deputy nurse, quality-event owner, report performer, signal taker) kept; every reader named; `lca` reads before merge. Not escalated: narrows reads only, reversible, synthetic data. `lca` and `eng` inputs requested in the package and on #111.
+- **Challenge:** "Why can a teammate query who closed every task or set every hold?" Because grants were written table by table for the screens, and person columns came along. From scratch, a shared care record answers "who did this" on the entry and never "what did she do"; that rule now lives once (RLS4) instead of being found per brief (RLS3-4, OBS1-7, AIG1-11). No hypothesis row (a design rule, not a pilot question).
+- Packages: D-23 item 21 (above). No unfreeze trigger for D-22, D-18 or tier 2; D-37 waits for D-36. None decided anew by po beyond D-23 item 21.
+- Queue: CGR-96 (#693), AIG1, RLS4, ASM1, UX2, PLAN3. `ROADMAP.md` and G-18/G-23 in `CARE_OPERATING_MODEL.md` updated.
+- Tests: none run by me (docs only; the 0096 diff, ADR-119, pgTAP 096 and CI annotations read). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+**ENGINEERING BRIEF**
+- **Capability:** RLS4, who did what is read per record, never pulled as a list per colleague ([brief](briefs/RLS4.md)).
+- **Why:** the OBS1-7 (c) inventory shows 19 care-record tables whose act-trail person columns a team member can still select and filter per colleague; D-23 term (b) and G-18 exclude that before the first real employee.
+- **Business outcome:** one pilot precondition (G-18) closed by one small migration instead of per-brief fixes; no screen change.
+- **Care outcome:** the shared record keeps showing who did what on each entry, so handovers and follow-ups still find the right person.
+- **Expected nurse outcome:** nothing changes on her screens; nobody can pull a list of her acts.
+- **Expected team outcome:** autonomy without mutual monitoring; the team still sees who is assigned to what.
+- **Expected patient outcome:** none directly; continuity unchanged, and the record stays usable for care rather than scrutiny.
+- **Acceptance criteria:** RLS4-1 to RLS4-7 and the negative criterion in the brief (42501 per closed column, assignment columns kept and asserted, every reader named with one positive test each, no per-person reader, `READ_PATHS.md` and pgTAP 067/071 lists updated, `lca` read before merge).
+- **Dependencies:** OBS1-C1 (met, 0096); after CGR-96 (#693) and AIG1; synthetic data only (D-1).
+- **Priority:** *Next up* 2.
+- **Implementation recommendation:** follow 0096 exactly (column grants, private SECURITY DEFINER per-record helpers for any INVOKER reader); answer RLS4 open questions 1-2 in the ADR first.
+
+---
+
 ## 2026-10-29 22:10 CET · po (Product Owner)
 
 - No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). Other agents' PRs (#685, #691, the `cra` chain #680, #666 and earlier) and `eng` #688 not merged: this routine merges PO PRs only.
