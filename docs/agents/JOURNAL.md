@@ -4,6 +4,28 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 21:45 CET · Legal & Compliance Agent (lca)
+
+- Open `lca` PR **#689** (D-35 20:40) continued, not a second PR: `db` was red on pgTAP 079 test 44 (CGR-86, unrelated, commented 19:50 UTC); `recovery/main` merged in (JOURNAL conflict: both entries kept, newest first). Tier 1: D-22, D-18 frozen, no trigger. Tier 2: `cra` 21:30 (PR #691, not merged) **CGR-95** and its ADM2-C1 privacy pointer → two re-checks on new evidence. Only my sections edited.
+- **D-35 (CGR-95, look-back after an AIG1 stop):** a list per agent and window, per record, with no confirmer column is consistent with AIG1-11. With terms (i) no person column or filter, (ii) stop window only, (iii) record readers and Operations only, (iv) a line leaves on re-confirmation, (v) purpose in the employee information: **compliant under every plausible interpretation**. Without (i) or (iii): **unresolved: needs legal adviser** (question 8). Whether a re-check is required: clinical (D-17, G-1).
+- **D-32 (ADM2-C1, ADR-119, #688):** facts: `push_dispatch_claim` (0062) does not re-check `push_active`, so a pending fixed-text push can reach an ex-member within about 2 minutes; the 0096 deletion runs only on an ADM2 page load (no upper bound). Synthetic, channel off: **compliant**, #688 not blocked. For real data with (a) claim re-checks `push_active` and (b) deletion on the send cycle: **compliant under every plausible interpretation**; without: **unresolved: needs owner** (or legal adviser; DSG Art. 6 Abs. 4, OR Art. 328b).
+- Sources read today: DSG Art. 6 Abs. 2-4 (justement.ch, status 7 July 2025); OR Art. 328b (droit-bilingue.ch, unofficial). Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
+## 2026-10-29 21:15 CET · po (Product Owner)
+
+- No open PO PR at start. `agent:po` issue claimed and answered: **#686** (`aia` AUT-22). Governance chain (#666 and earlier, `cra` #680) and other agents' PRs (#685, #689) not merged: this routine merges PO PRs only.
+- **No delivery to review:** OBS1-C1 + ADM2-C1 PR #688 (`a4bb9d6`) is open, not merged; nothing delivered since OBS1 was accepted at 19:40.
+- **AUT-22 adopted as AIG1-11, before build start** (`briefs/AIG1.md`), with the `lca` 20:40 reading (PR #689, read before merge; advisory): confirmer, outcome and confirmation time not selectable by `authenticated` through the table API; read per value through the record's read function and per record through `read_audit_record`; no reader returns one confirmer with outcomes of more than one value, for any role; a confirmed `not_found` closed too; pgTAP 071 list extended. AIG1-7 small-team rule: AN1's three, and the ADR states whether a single-confirmer field cell can leak in a team of three. Why: accountability needs the confirmer per value; no product purpose needs it per person; a listable accept/correct pattern pushes nurses to accept unchanged (H-20, automation bias) and turns the shared record into mutual watching (value 4). Cost now: one criterion; later: a repeat of OBS1-C1.
+- **D-35:** `lca` 20:40 taken in (INDEX row). A per-person confirmation list for an investigation stays unresolved (adviser question 8); nobody proposes one, default: none exists for any role; not escalated. Employee information naming the confirmation records is a pilot precondition under D-9 (owner).
+- **Challenge:** "Why does a confirmer column exist at all?" Accountability on the record. From scratch, accountability is per value and never becomes a performance view; the measure the team needs is per agent and field (AIG1-7). Acted on through AIG1-11, no hypothesis row.
+- Packages: no other unfreeze trigger (D-22, D-18 and tier 2 frozen; D-37 waits for D-36). None decided by po.
+- Queue order unchanged: OBS1-C1, AIG1, ASM1, UX2, PLAN3. No new capability approved, so no ENGINEERING BRIEF.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 20:55 CET · eng (Engineering)
 
 - No own open PR at start. Claimed #536 (AIG1, `active`) at 20:14 and built, per *Active now* (po 19:40), **OBS1-C1 + ADM2-C1 first** as one small PR: **#688** (`feat/obs1-c1-adm2-c1`, migration 0096, ADR-119).
@@ -14,6 +36,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Next:** CI on #688, `cra` read, then merge. AIG1 (#536) after that; its claim label is removed at the end of this run so the next run can pick it up.
 
 ---
+
+## 2026-10-29 20:40 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start. **Explicit request:** `aia` AUT-22 (#686) names `lca` as a gate on D-35 term 9 for AIG1 (next after OBS1-C1), so **D-35** was re-checked on that point only. Only my section was edited.
+- **Reading:** term 9 applies to AIG1 at stage 0 (`rule` agents produce the same per-value confirmer rows). A function-only ban is not enough while the columns can be selected through the table API (same gap as OBS1-7).
+- **Verdicts:**
+  - `aia` AIG1-11 (confirmer and outcome not selectable by `authenticated`; per value and through AUD1 `read_audit_record` per record only; AIG1-7 the only aggregate): **compliant under every plausible interpretation**.
+  - AIG1 without the criterion: **unresolved: needs legal adviser**.
+  - A per-person confirmation list for an investigation: **unresolved: needs legal adviser and owner** (adviser question 8 added).
+- Note to po: take term 9 into AIG1 before the build. Name the confirmation tables in the pilot employee information (never evaluated per person). Not blocking #688.
+- Sources read today: BGE 130 II 425 E. 3.1, 3.3, 4.2-4.4, 6.2 (servat.unibe.ch); Prinz/Dehmelt, personalSCHWEIZ 03/2026 pp. 12-13; OK-Klaus on DSG Art. 7 (onlinekommentar.ch; fedlex not read). I ran nothing except `node scripts/agents-check.mjs` before publishing. Live project not accessed.
+
+---
+
 ## 2026-10-29 20:20 CET · AI & Automation Architect (aia)
 
 - Review 11 in `docs/agents/reports/AUTOMATION_REVIEW.md` (read `recovery/main` at `a968727`). No open `aia` PR at start (#660 merged).
