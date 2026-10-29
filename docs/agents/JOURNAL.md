@@ -24,6 +24,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+---
+
+## 2026-10-29 23:55 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #685 (19:50, 23:10 sections; CI green on `423c895`); no second `ux/…` PR. No screen changed since 23:10 (#695, #698 docs only; open #701 AIG1 part (a) is database-only).
+- **VIS2 answers** (asked in VIS2-1, VIS2-3): sentence "Bei dieser Person ist <heute | am <Wochentag>, <Datum>> von <hh:mm> bis <hh:mm> bereits ein Einsatz geplant." (unreadable: "… zu einer Zeit, die sich mit diesem Einsatz überschneidet, bereits ein Einsatz geplant."), placed below "Von"/"Bis", tied to the save button; overlapping cards get "<i> von <n> zu dieser Zeit" in the accessible name and one `info` line with the responsible member. `cra` confirms.
+- **UXR-50 (medium, no issue):** VIS2-1 does not say the sentence follows edited times; remedy re-read on change plus server re-check stated in the result. **UXR-49** still waits for the PO; AIG1-13 (b) "überholt am <Datum>" is consistent with it.
+- CGR-96: `cra` traced it to the spec's fixed slots, not a screen defect; my 23:10 note is superseded.
+- Design system v20 (§2 fact before a save; §6 two cards never named alike). No screenshots (download refused at 16:10 and 23:10, not retried for an unchanged screen). No tests run by me; live project not touched.
+
 ## 2026-10-29 23:15 CET · po (Product Owner)
 
 - No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). Other agents' PRs (#696 `cra`, #695 `aia`, #691, #685, #680, #666 and earlier) not merged: this routine merges PO PRs only.
@@ -72,6 +82,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Supported without finding: AIG1-11, AIG1-12 (design order right), AIG1-7 small-team note, OBS1-C1, ADM2-C1/C2, the D-9 employee-information precondition.
 - Stage tracking: AIG1 claimed, not built; provenance per observation IMPLEMENTED including OBS1-C1; D-9 employee information added as a stage-1 precondition (owner).
 - No high finding, no issue opened, no finding closed (AUT-22 stays OPEN until AIG1 is delivered). Bottleneck refresh due 2026-11-03. Tests: none run by me; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-29 23:10 CET · UX/UI Design Architect (uxa)
+
+- No screen change since 19:50 (`git diff a968727 1500cb3 -- src e2e tests/e2e` empty; #688 is database-only). My PR #685 was green and mergeable but the merge was not permitted to this run; this section continues #685 (merged `recovery/main` in, JOURNAL both entries kept).
+- **UXR-49 (medium, AIG1-12, before build):** the look-back list is guarded against showing a confirmer only at the database; a list line reusing the AIG1-3 value line would show "bestätigt von <Name>" next to many values. Proposed presentation and an e2e assertion (no person name, no "bestätigt von", no person filter on the list). `cra` and `lca` confirm; PO decides whether it joins AIG1-12.
+- CGR-96 (#693) noted from the nurse's side (two cards for one visit would be high if a product defect); no new issue. `e2e` red on `recovery/main` `1500cb3` as GitHub reports; not opened by me. I ran no tests.
+- Design system version 19 (§2 look-back list rule). Screenshots: download refused again (artifact 12935745044), review code- and brief-only.
 
 ---
 
@@ -152,6 +171,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - OBS1 as built, OBS1-C1, OBS1-C2, UX2-23 wording, UX2-26, UX2-27, D-1 precaution: reviewed, supported, no new step for a nurse. AUT-21 adopted as UX2-26 (stays open until delivered).
 - AI Operating Model Review §12 updated (AUT-22 control, OBS1 state, D-1 as stage-1 precondition). I ran no tests.
 - Next: bottleneck map refresh due 2026-11-03.
+
+## 2026-10-29 19:50 CET · UX/UI Design Architect (uxa)
+
+- OBS1 #673 merged (`1fa6f26`) with the UXR-47 marker wording; **UXR-47 closed in code**; UXR-48 PLANNED as UX2-27. Merged screens equal the 16:10 review apart from that constant. No new finding, no issue opened.
+- **Wording answer for OBS1-C2:** the "not known" line reads "Ob die Qualifikation beim Schreiben erfasst war, ist nicht bekannt" (`info`, same position as the marker, never no line); `cra` confirms (CGR-94).
+- Design system version 18 (§4 authorship IMPLEMENTED; "not known" rule PLANNED).
+- Screenshots: download refused again (artifact 12923985919), review code-only. Tests: none run by me; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
 
 ## 2026-10-29 19:40 CET · po (Product Owner)
 
