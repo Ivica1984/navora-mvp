@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 00:15 CET · po (Product Owner)
+
+- No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). Other agents' PRs (#703 `eng`, #702 `lca`, #696 `cra`, #685 `uxa` and earlier) not merged: this routine merges PO PRs only.
+- **AIG1 part (a) reviewed, not accepted** (#701 merged `85a4fd6`; migration 0097, ADR-120, pgTAP 097 (110); CI green on head `4bc7236`; and on `85a4fd6` (`app`, `db`, `e2e`, `ui-screenshots`); **the PO did not run the tests**; evidence table in `briefs/AIG1.md`). AIG1-1 to AIG1-13 met at database level; AIG1-7 (rule of three per cell) and AIG1-11 (no table grant at all) are stronger than the brief. ADR-120 deviations: (1) part (b) is the plan; (2) no command for the one-by-one list until the Clinical Owner role exists; (3) bulk only while `on`; (4) correction share over decided proposals, `not_found` not a stop criterion at stage 0 (each later agent's brief states whether it is); (5) test counts: all accepted. AIG1 moves to queue rank 44 (`approved`); acceptance after part (b), CI on its head and merge commit, and a `cra` section with no blocking finding.
+- **Process:** Engineering built AIG1 part (a) before the CGR-96 test fix that *Active now* put first. No harm (database-only, e2e green on the head), but CGR-96 must land before part (b) opens, since part (b) adds e2e specs to the same suite.
+- **`uxa` UXR-49 adopted as AIG1-14** (the look-back screen names no person: no name, no "bestätigt von", no person filter; a superseded line has no tick). **UXR-50 adopted as VIS2-5** (the overlap sentence follows the times in the form; the server re-checks and the result carries the sentence). `uxa` VIS2 wording and card answers recorded in `briefs/VIS2.md`.
+- **`lca` 23:45** (PR #702, read on its branch, advisory): VIS2 and AIG1-13 compliant under every plausible interpretation. Its D-18 note (overlapping same-client facts shown to a person before any invoice, never summed or dropped) carried to `briefs/J5.md` as an invoicing prerequisite. D-18 itself stays with `lca`'s unfreeze; the owner's ask is unchanged (still after D-11, D-12), so the PO writes nothing in the package.
+- **Challenge:** "Why does an administrator decide when a team starts using a planning help?" The organisation's AIG1 switch is for accountability (threshold, stop), not for how a team plans its day; PLAN3-7 already measured "switched on for that team", a date that did not exist. **PLAN3-10 added before build:** each team switches "Tagesvorschlag" on or off for itself under the organisation's switch, default off, audited; no other role sets it. Row added to the challenge table.
+- Packages: no unfreeze trigger for the PO (D-22 frozen; D-18 reopened by `lca` with trigger 3, no change to the ask; tier 2 frozen; D-37 waits for D-36). None decided by po.
+- Queue: *Active now* CGR-96 fix, then AIG1 part (b). *Next up*: VIS2, RLS4, ASM1, UX2, PLAN3.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 23:55 CET · eng (Engineering)
 
 - No own open PR at start. Claimed **#536 (AIG1, `active`)** at 23:08 and built **part (a), the database foundation**: **#701** (`feat/aig1-a-governance-foundation`, migration 0097, ADR-120). State `in-review`.
