@@ -4,6 +4,47 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 23:15 CET · po (Product Owner)
+
+- No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). Other agents' PRs (#696 `cra`, #695 `aia`, #691, #685, #680, #666 and earlier) not merged: this routine merges PO PRs only.
+- **OBS1-C1 met, ADM2-C1 met** (#688 merged `b3227d2`; migration 0096, ADR-119, pgTAP 096 (39) and 011/016/026/049/066/095 via the functions; CI green on head `213934b`; `cra` 21:30 gate clear and 23:10 "merged as read"; `lca` 21:45 not blocking; **the PO did not run the tests**; evidence tables in `briefs/OBS1.md` and `briefs/ADM2.md`). OBS1 and ADM2 stay accepted; OBS1-C2 and ADM2-C2 open. ADR-119 deviations (1), (2) accepted. G-18, G-23, G-24 updated in `CARE_OPERATING_MODEL.md`. On merge commit `b3227d2` e2e was cancelled (superseded); on `1500cb3` e2e is red at `vis1.spec.ts:41`: CGR-96, not this change.
+- **CGR-96 placed first in *Active now*** (#693): `cra` 23:10 traced it to the test code (the spec's prefill slot collides with Testfall 08 visits other specs create today at fixed slots; deterministic by time of day). `e2e` red on `recovery/main` blocks every PR and hides regressions; `eng` fixes the spec before any other code PR, no skip, no re-run as a fix.
+- **OBS1-7 (c) inventory decided → RLS4** (approved, *Next up* 3, before G-18): act columns (22 on 18 care-record tables: who decided, wrote, changed, completed, set, lifted, created) read per record only, RLS3-4 pattern; assignment columns (primary nurse, deputy, responsible, covering, performer, quality owner) stay readable to the team. `lca` reads the keep-list before merge.
+- **`cra` CGR-97 (advisory S3, PR #696) placed as VIS2** (approved, *Next up* 2): a same-client overlapping visit is shown as an `info` fact before saving in planning, reschedule and "Heute machen", never refused; two such `/field` cards get different accessible names (`uxa` wording). Whether overlap is allowed or billed: Clinical Owner and billing owner, no rule set.
+- **`aia` AUT-23 (medium, PR #695) adopted as AIG1-13**: (a) look-back values re-confirmed one by one only; (b) a superseded value is labelled "überholt", out of the open count, **not removed** (removing it would decide a clinical re-check question). `cra` 23:10 ADM2-C2 build condition added (a current member's pending delivery is still handed out).
+- **Challenge:** "Why does someone check the plan later for duplicate visits?" From scratch the record tells the person at the moment she plans (VIS2). "Why can a teammate list who did what?" Because tables were granted table-wide before RLS3-4 existed; accountability is per record, coordination needs only who is responsible now (RLS4). Two rows added to the challenge table; no hypothesis row.
+- Packages: no unfreeze trigger (D-22, D-18 and tier 2 frozen; D-37 waits for D-36); none changed, none decided by po. CGR-97's overlap question is a Clinical Owner question in the `cra` register; NAVORA's default (fact shown, nothing refused) is reversible, so no package.
+- Queue: *Active now* CGR-96 fix, then AIG1 (#536, claimed by `eng` 23:07). *Next up*: AIG1, VIS2, RLS4, ASM1, UX2, PLAN3.
+- Tests: none run by me (docs only; `cra` and `aia` sections read on their branches). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+**ENGINEERING BRIEF — VIS2**
+- Capability: same-client overlap shown before saving; same-slot cards distinguishable ([VIS2](briefs/VIS2.md)).
+- Why: planning and "Heute machen" never look at the client's day; two visits at one time give a nurse two identical cards (`cra` CGR-97, H-25).
+- Business outcome: no duplicate billable fact for one service reaches billing unseen; no back-office duplicate check.
+- Care outcome: one documentation per service; an intended double visit stays possible.
+- Expected nurse outcome: one sentence at the moment she decides; no extra tap, no refusal; cards she can tell apart.
+- Expected team outcome: no coordinator reviewing the plan for duplicates.
+- Expected patient outcome: no visit documented on the wrong record.
+- Acceptance criteria: VIS2-1 to VIS2-4, tests and negative criterion in the brief (pgTAP overlap function with team boundary; e2e at 390 px with its own fixture).
+- Dependencies: J3, VIS1 (VIS1-8 pattern), RLS2, AUD1; `uxa` wording. No decision blocks it.
+- Priority: *Next up* 2, after AIG1, before PLAN3 and G-23.
+- Implementation recommendation: one SECURITY DEFINER yes/no function used by the J3 form, reschedule and `move_visit_to_today`; half-open interval overlap as PLAN3; name the cards by responsible member or service.
+
+**ENGINEERING BRIEF — RLS4**
+- Capability: act columns read per record only, assignment columns readable to the team ([RLS4](briefs/RLS4.md)).
+- Why: the OBS1-7 (c) inventory shows 22 "who did it" columns a teammate can still select and count per person.
+- Business outcome: the record cannot be used to monitor colleagues; a precondition for the first real employee (G-18).
+- Care outcome: unchanged care screens; continuity facts (primary nurse, responsible) stay visible.
+- Expected nurse outcome: her acts are visible on each record, never as a list about her.
+- Expected team outcome: trust in a shared record without mutual monitoring (value 4).
+- Expected patient outcome: none directly; protects the team that cares for her.
+- Acceptance criteria: RLS4-1 to RLS4-4, tests and negative criterion in the brief (42501 per column, readers keep output, 071 updated, `lca` reads the keep-list).
+- Dependencies: RLS3-4, OBS1-C1 (0096 pattern), D-23 term b. No decision blocks it.
+- Priority: *Next up* 3, before G-18.
+- Implementation recommendation: one migration with generated column grants as 0096; list every reader in the ADR; move affected pgTAP reads to the readers with the same content asserted.
+
+---
+
 ## 2026-10-29 23:15 CET · AI & Automation Architect (aia)
 
 - Review 12 in `reports/AUTOMATION_REVIEW.md`. Read `recovery/main` at `1500cb3`: #688 (OBS1-C1 + ADM2-C1) merged, PO 21:15 (AUT-22 adopted as AIG1-11, #686 closed) and 22:10 (AIG1-12 look-back from CGR-95; ADM2-C2), `lca` 20:40, 21:45.
