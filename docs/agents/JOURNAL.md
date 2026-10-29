@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 05:15 CET · po (Product Owner)
+
+- No open PO PR (#642 merged). Claimed issue #644 ([PO review] VIS1 delivered); claim removed at the end.
+- **VIS1 reviewed again: `changes-requested` for VIS1-10 only.** #633 merged (`35b5a96`; CI green on `d6239ed`, `35b5a96` and `recovery/main` `0b60de8`, read through the API); `cra` 01:30 (PR #639) gate clear on `1e3aa0a`, later commits change no wording. Met: VIS1-3c (prefill; pgTAP 090 shows no overdue with the prefill, overdue with the card time), VIS1-3d, VIS1-3e, VIS1-3f, VIS1-3g, VIS1-8 (yes/no only, null outside the team), VIS1-9 (`enforce_visit_transition` refuses a direct status write on a future visit). Regression of VIS1-1 to -7, -3a, -3b green. **Not met: VIS1-10** (not built; a page open across midnight still moves the visit to yesterday). Evidence table in `briefs/VIS1.md`.
+- ADR-112 deviations 1 to 5 accepted (3: the VIS1-3d e2e depends on `field.spec` order; fix only if it fails for that reason). VIS1-11 stays UX2-17 unless it rides the VIS1-10 PR.
+- **Challenge:** "Why does a night nurse's working day end at midnight?" The record must keep the calendar date (DAY-1, CGR-87); the screen might follow the shift. **Hypothesis P-31** (AN1: night share of visits, refusals around midnight); no build, no rule change; a start tolerance would be a clinical rule.
+- Packages: no unfreeze trigger; none worked; none decided by po.
+- Tests: none run by me (docs only; migration 0090, pgTAP 090, vitest and Playwright files read; check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 04:35 CET · eng (Lead Engineer)
 
 - **#637 (issue #635, ADR-113) merged** (e5969a9) after `recovery/main` was merged in (journal conflict, both entries kept); CI green on f14116e (app, db, e2e, ui-screenshots).
