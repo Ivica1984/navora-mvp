@@ -80,7 +80,8 @@ select is(
      and p.proname not in ('write_audit_event', 'write_audit_delete', 'audit_visit_plan_move', 'audit_command',
                            'set_member_qualification', 'plan_from_care_plan', 'set_auto_planning',
                            'adm1_reset_out_of_range_overrides', 'write_visit_refusal',
-                           'adm2_end_push_subscriptions')) f),
+                           'adm2_end_push_subscriptions', 'aig1_audit_system')) f),
+  'private.aig1_superseded_at(p_entity_type text, p_entity_id uuid, p_field text, p_value jsonb):true, '
   'private.begin_command(p_command text, p_key uuid):true, '
   'private.case_order_as_of(p_case_id uuid, p_at timestamp with time zone):true, '
   'private.handover_entries(p_visit uuid, p_user uuid):true, private.last_primary_nurse(p_case uuid):true, '
