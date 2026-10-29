@@ -31,6 +31,52 @@
 
 ---
 
+## 2026-10-29 02:45 CET · aia review 8: AUT-16 closed (#624 merged); VIS1-10 and P-29 reviewed (AUT-18, AUT-19); no item proposes, drafts or ranks
+
+**Read:** `recovery/main` at `6d3eb34`:
+- merged since review 7: #624 (VIS1, `5d85b8f`, CI green on `30cbde1` as read by the PO), #625, #630, #632 (PO 22:15, 23:15 `changes-requested`, 00:15: VIS1-3c to VIS1-3g, VIS1-8, VIS1-9; hypotheses P-27, P-28, P-29), #629 (`uxa` 22:00);
+- open: #633 (`eng`, VIS1 follow-up, read at head `ae3e98e`: `field-client.tsx` released notice, `rules.ts`), #640 (PO 02:15: issue #638 placed as VIS1-10; read at head `307bca3`), #637 (`eng`, e2e run-day guard, #635), #639 and #628 (`cra`), #634 (`uxa`), this PR #627 (my review 7; `db` red on `e0c5208` in pgTAP 079 test 44, the known intermittent failure #399 / CGR-86; continued here, not a second PR);
+- code: `take_open_visit` and `team_open_visits` (0046), `absence-section.tsx` (the only caller of `takeOpenVisit`), `reschedule_visit` release path (0056).
+- No open issue is labelled `automation`.
+
+**Nothing below is a measurement.** I ran no tests; CI states are as read through the API.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-18 | Visit: "Heute machen" on a page opened before midnight (nurse at the door at night, `/field`) | **Challenge (form, not existence) of VIS1-10 (PO PR #640, open).** The benefit is shown and the control stays: the stored date must be the database's today and must not contradict the "Heute, <Datum>" the nurse confirmed (record integrity, value 2). **Added step:** on a refusal she reads a sentence, reloads `/field`, finds the card again, reopens "Heute machen" and re-enters what she had (VIS1-3c times are re-derived; the typed reason, VIS1-3b, is lost). Frequency UNKNOWN (page open across midnight; night visits) | **rule, leaner form at equal safety:** the refusal returns the database's day; the same dialog stays open with the new date shown ("Inzwischen ist der <Datum>"), the times re-derived by the VIS1-3c rule, the typed reason kept, and the confirm button enabled again. One more tap on the visible new value instead of a reload and a re-entry. Equal safety: the database still refuses any date that is not its today, the stored value is always the value shown at the last confirm (no silent replacement), the refusal audit row stays. Wording `uxa`; `cra` VIS1-7 gate as already set for VIS1-10. If not taken into VIS1-10, it fits UX2 | L (schedule fact) | stage 0; PO (VIS1-10 wording "reload" or "re-offer"), `uxa`, `eng` (ADR-113) | per team and month: count of `day_changed` refusals and share followed by a successful move of the same visit within 5 minutes (target: all, without a reload) | low | – (comment on #640) |
+| AUT-19 | Visit: a move releases the visit because its responsible member is absent at the new time (nurse who moved it, `/field`; PO P-29) | **Comment on PO P-29 (no build, 00:15):** the PO reads "who becomes responsible" as a care-responsibility rule still to be set. **Evidence that the rule already exists (IMPLEMENTED):** `take_open_visit` (0046) lets a member of the visit's team take a planned, uncovered visit with nobody responsible, one tap, first wins, with the J3 qualification check `may_perform_visit`, an absence check at the visit's time and a `taken` row in `visit_plan_changes`. Today it is reached only from "Offen im Team" (`absence-section.tsx`), so after a released move the nurse at the door must scroll to that list, find the visit she just moved and tap again; #633 (VIS1-3d) shows the released notice (`attention`) with no action | **eliminate the search, no new rule:** the VIS1-3d released notice carries one outline action "Ich übernehme" that calls the **existing** `take_open_visit` for that visit, with its existing checks and refusals (`not_qualified`, `absent`, `already_taken` shown with the existing texts). Separate tap, never automatic: the move does not assign her, and nothing assigns without her own tap. P-29's AN1 count stays the way to see whether more is needed (e.g. a combined command); `aia` proposes none | L (responsibility under an existing rule; no clinical content) | stage 0; PO (now as part of VIS1-3d / VIS1-3f or UX2), `uxa` (position next to the notice), `cra` only if the action text or tone changes the VIS1-3d notice (VIS1-7 gate) | P-29 count (released moves started by the mover within 30 minutes) split by taken from the notice versus from "Offen im Team"; released moves still without a responsible member at visit start (target: 0) | medium | – (comment on #640) |
+
+**Briefs and items reviewed without a new finding:**
+- **VIS1-3c (UXR-30), VIS1-3d to VIS1-3g, VIS1-8, VIS1-9:** VIS1-3c removes a false `visit_overdue` alarm per early visit (a teammate's call saved; supported). VIS1-8 is a deterministic read, no tap (supported in review 7). VIS1-9 is the same rule on another write path; no person step. VIS1-3f and VIS1-3g are presentation. No administration added.
+- **P-27, P-28 (PO challenges):** both are care-graph eliminations and `aia` supports measuring first. P-28 (a window instead of a fixed day for a weekly service) would remove every early-visit move at its source, which is where AUT-16, AUT-18 and AUT-19 all start; it needs a missed-visit rule for a window (`cra`, Clinical Owner, D-28: UNKNOWN). Taken into the bottleneck map refresh (due 2026-11-03) as a Planning candidate.
+- **#637 (e2e run-day guard):** test infrastructure; no nurse step.
+- **AUT-17 (low, placeholder on the move reason):** not in #633 (no placeholder in the diff). Stays OPEN; allowed, not required.
+
+### 2 AI readiness of delivered items
+- #624 (merged) prefills today's date and the card's times; #633 replaces the times with the VIS1-3c rule (next full 5 minutes, planned duration). These are deterministic defaults, not proposals, drafts or rankings; no ledger entry is needed. Nothing merged since review 7 proposes, drafts or ranks.
+- **Forward control (AI Operating Model Review §12, extended):** "now" is the database's day; a stored value is the shown value, re-shown when the day changed (AUT-18); responsibility after a release only through `take_open_visit` and the person's own tap (AUT-19).
+
+### 3 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1 built | PLANNED, *Next up* after ADM2; not started |
+| 0 | ASM1 built | PLANNED, not started |
+| 1-3 | unchanged from review 1 | OPEN |
+
+### 4 Findings closed
+- **AUT-16 (medium):** closed. Evidence: VIS1-3b IMPLEMENTED in #624, merged `5d85b8f`; the PO's 23:15 review marks VIS1-3b met (`vis1.spec` 72-106: one confirmation on `/field`, existing `reschedule_visit`, the start its own tap); `cra` 22:00 (PR #628) VIS1-7 gate clear. The reason is typed, not prefilled (`cra` 21:30), accepted in review 7. The measure (moves to today from `/field` versus `/team`) becomes countable from the `moved` rows.
+
+### 5 Waiting for the PO
+- AUT-18 (low): VIS1-10 refusal re-offers the new date in the same dialog instead of a reload. Comment on #640.
+- AUT-19 (medium): "Ich übernehme" on the released notice through the existing `take_open_visit`. Comment on #640.
+- AUT-17 (low), AUT-14 (medium), AUT-15 (low): unchanged; D-38 frozen (rule 9), nothing written about it.
+- Bottleneck map refresh: due 2026-11-03 (weekly), with P-28 as a Planning candidate.
+
+---
+
 ## 2026-10-28 22:00 CET · aia review 7: AUT-16 adopted as VIS1-3b and built in #624 (open); `cra` keeps the reason typed; CGR-89 supported as a fact line; AUT-17 (low)
 
 **Read:** `recovery/main` at `013b733`:

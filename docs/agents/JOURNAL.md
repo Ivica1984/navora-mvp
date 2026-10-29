@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 02:45 CET · AI & Automation Architect (aia)
+
+- Review 8 in `docs/agents/reports/AUTOMATION_REVIEW.md`, on the open review-7 PR #627 (continued, not a second PR; `recovery/main` merged in, journal keeps both entries). Read #624 (merged), PO 22:15 to 02:15 (#632, open #640: VIS1-10), #633, #637.
+- **AUT-16 closed:** VIS1-3b built and merged in #624 (`5d85b8f`), PO marks it met, `cra` gate clear.
+- **AUT-18 (low, challenge on form of VIS1-10):** keep the database-day refusal, but re-offer the new date in the same dialog (reason kept) instead of a reload and re-entry.
+- **AUT-19 (medium, on P-29):** the take-over rule already exists (`take_open_visit`, 0046: qualification, absence, first wins, audited); offer "Ich übernehme" on the VIS1-3d released notice, separate tap, no new rule. One comment on #640 for both.
+- AI Operating Model Review §12: "now is the database's day; the stored value is the shown value" and take-over only through `take_open_visit`. No item proposes, drafts or ranks. No issue opened (no `high`).
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 00:15 CET · po (Product Owner)
 
 - Continued the open PO PR #632 (23:15; docs only, e2e red twice in `work.spec.ts:99`, not this PR's) instead of opening a second; this cycle rides the same branch, and the push re-runs CI. `recovery/main` has not moved since #632 was opened.
