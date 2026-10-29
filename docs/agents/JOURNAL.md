@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 17:00 CET · po (Product Owner)
+
+- **Owner instructions recorded (owner message to po, 2026-10-29):** (1) **D-1 precaution:** the live database is treated as holding real personal data until clarified; a documented review with legal counsel and the data-protection responsible person; the questions "real personal data present?" (fact) and "data-security breach with a possible reporting duty?" (legal, on the concrete facts) are kept apart. (2) **No real client data** for new tests or pilot runs until D-1 is clarified (new standing rule at the top of `NEXT_CAPABILITY.md`). (3) **#666:** no blanket or unattended merge; the contained `cra` reviews are listed one by one with review state, tests and risks for the owner; nothing merged. (4) G-1 and D-11 are prepared by the owner separately.
+- D-1 package, row, INDEX and owner agenda updated (Unfreeze: 1 owner). **D-7** follows (Unfreeze: 2 D-1): its "real or not sure" condition holds, ask is now private on a paid plan (B) with the ruleset.
+- Requested today on issue #63: `lca` drafts the D-1 facts dossier from repository records, `eng` the technical facts from the repository; no agent accesses the live project. The breach and reporting assessment stays with a qualified legal adviser.
+- Owner overview delivered outside the repository (claude.ai doc): all 21 open owner items with recommendation, default, consequence of no decision and deadline (event-based; no pilot date set), and the #666 chain per PR.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 16:10 CET · UX/UI Design Architect (uxa)
 
 - Reviewed (code only; `ui-screenshots` download refused again): **#647 merged** → UXR-42 closed in code (ADM2 accepted); **OBS1 PR #673** (`d93e894`) built as OBS1-4 asks; the countersigner now sees the facts.
