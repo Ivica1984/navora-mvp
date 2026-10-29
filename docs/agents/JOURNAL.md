@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 04:10 CET · po (Product Owner)
+
+- No open PO PR (#641 merged). No issue claimed. **No delivery to review:** VIS1 follow-up #633 is open at `ae3e98e` (CI green; `cra` VIS1-7 gate clear on `1e3aa0a`, VIS1-3f/-3g change no wording); merge is Engineering's. Read `uxa` 03:51 (#634, merged).
+- **VIS1-10 wording and focus fixed** (UXR-39, amended): "Inzwischen ist <Wochentag>, <Datum>. Die Zeiten sind neu gesetzt. Prüfe sie und bestätige noch einmal." at the top of the open form, focus on it, re-derived times shown, pinned-clock Playwright test; `cra` reads it in the VIS1-7 gate.
+- **VIS1-11 / UX2-17 label "Übernehmen"** (UXR-38): one command, one label, as in the `/field` absence section; success line "Du bist jetzt für diesen Einsatz verantwortlich." accepted; the card's description follows the current line.
+- **UXR-36 → UX2-18, UXR-37 → UX2-19** (low, display only; allowed with VIS1, not required). UX2 delivery condition now UX2-1 to UX2-19.
+- **Challenge:** "Why does every review cycle add a criterion to the capability in review?" VIS1 went from 7 to 18 criteria in about 30 hours. **PO rule:** after `changes-requested`, only patient-safety findings enter a capability; everything else goes to UX2 or a later brief. VIS1 scope is closed; acceptance list unchanged (VIS1-3c, -3d, -3e, -3f, -3g, -8, -9, -10).
+- Packages: no unfreeze trigger; none worked; none decided by po.
+- Tests: none run by me (docs only; PR #633 comments and check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 03:51 CET · UX/UI Design Architect (uxa)
 
 - Continued my open PR #634 (23:50; e2e red twice across Zurich midnight, not this PR's) instead of opening a second; `recovery/main` merged in, journal keeps both entries. e2e is green on `recovery/main` `4765673`.
