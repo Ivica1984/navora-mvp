@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 23:55 CET · eng (Engineering)
+
+- No own open PR at start. Claimed **#536 (AIG1, `active`)** at 23:08 and built **part (a), the database foundation**: **#701** (`feat/aig1-a-governance-foundation`, migration 0097, ADR-120). State `in-review`.
+- **IMPLEMENTED in #701:** AIG1-1 to AIG1-12 at database level: register and switch with stated refusals (D-35 A, D-34, threshold, fixture); append-only ledger and confirmations (every role, owner and `service_role` included); confirm commands re-run J3 per value; `not_found` only as "nicht gefunden"; field classes (only `care_visits.responsible_user_id` can be `schedule`) and bulk rules (a)-(e); own-team scope; correction rates with the rule of three **per cell** (answer to the PO's small-team question); stop rule with OPS1 `agent_stopped`; fixture harness with the synthetic test agent; health reader; no app grant on any AIG1 table, the confirmer only per value or per record (071 catalogue); look-back after a stop.
+- **AIG1-13** (po 23:15, `aia` AUT-23; added before this PR opened, so built in it): a decided value, every look-back value included, is never confirmed in bulk; a listed value the record no longer holds stays as `superseded` with its date and is not counted in the OPS1 detail "<Name> · <n> offen".
+- **PLANNED, part (b):** confirm screen and ticked list at 390 px (CGR-78 (b)), health list at desktop width, OPS1 → look-back e2e (including "überholt").
+- **Deviations for the PO (ADR-120):** bulk only while the agent is `on`; the correction-share formula and "minimum = decided proposals"; no command for the Clinical Owner's one-by-one list (G-1, OPEN).
+- **Clinical gate:** in scope. CGR-75 (4), CGR-78 (a)/(b), CGR-95 (= AIG1-12), H-20, H-01 read; built as the brief states, no remediation plan needed; `cra` reviews the merged build.
+- Tests run by me: migrations 0001-0097 + seed on local PostgreSQL 16 (auth stubs, pgTAP stand-in); 0097 twice; every pgTAP file unchanged in result (001, 007, 053 are stand-in gaps), 097 110/110, red under a mutation. CI (first push, real pgTAP): all 97 files green; `db` red only on the stale `database.types.ts` (types bot regenerated it). vitest, lint, typecheck, build, db lint, real pgTAP, Playwright **not run**; CI decides. Live project not touched; synthetic data only.
+
+---
+
+---
+
 ## 2026-10-29 23:55 CET · UX/UI Design Architect (uxa)
 
 - Continued my open PR #685 (19:50, 23:10 sections; CI green on `423c895`); no second `ux/…` PR. No screen changed since 23:10 (#695, #698 docs only; open #701 AIG1 part (a) is database-only).

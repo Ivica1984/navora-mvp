@@ -8,7 +8,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(88);
+select plan(90);
 
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
   select (case n when 'rn' then '00000000-0000-4000-a000-000000000902' when 'ca' then '00000000-0000-4000-a000-000000000906'
@@ -263,6 +263,21 @@ select is((select string_agg(p.proname, ',' order by p.proname) from pg_proc p j
            where n.nspname = 'public' and p.proname in ('field_notes', 'field_reports', 'report_returns', 'visit_correction_history')
              and (p.prosrc ~* '(group by|count\(|string_agg|array_agg\(distinct)')), null,
   'RLS3-4 / D-23 (b): none of the listed readers groups or counts per person');
+-- AIG1-11 (4) (0097, ADR-120): the confirmer of an AI or rule proposal is returned only per value by value_provenance
+-- and per record by the AUD1 reader read_audit_record (which reads audit_events, never ai_confirmations). A new reader
+-- that returns a confirmer fails here until it is listed in READ_PATHS.md and here.
+select is((select string_agg(p.proname, ',' order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+           where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'execute')
+             and p.prosrc ~ 'public\.ai_confirmations'
+             and (p.prosrc ~ '(member_name|display_name)\([^;]*confirmed_by'
+                  or exists (select 1 from unnest(p.proargnames, p.proargmodes) a(nm, md)
+                             where md in ('t', 'o') and nm ~ '^(confirmer|confirmed_by|actor)'))),
+  'value_provenance', 'AIG1-11 (4): a confirmer only through value_provenance (one value)');
+select is((select string_agg(p.proname, ',' order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+           where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'execute')
+             and p.prosrc ~ 'public\.audit_events'
+             and exists (select 1 from unnest(p.proargnames, p.proargmodes) a(nm, md) where md in ('t', 'o') and nm = 'actor_id')),
+  'read_audit_record', 'AIG1-11 (4): the AUD1 per-record reader is the only one that returns an audit actor');
 
 -- RLS3-4b: the correction trail, two levels --------------------------------------------------------------------------------
 select function_privs_are('public', 'visit_correction_history', array['uuid'], 'anon', array[]::text[], 'RLS3-4b: anon cannot read a correction trail');
