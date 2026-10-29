@@ -101,6 +101,9 @@ const PLAN_REASONS: Record<string, string> = {
   responsible_absent: "Die verantwortliche Person ist zu dieser Zeit abwesend. Ohne verantwortliche Person planen (offen im Team) oder eine andere Person wählen.",
   minutes_exceed_window: "Die geplanten Minuten sind länger als das Zeitfenster.",
   not_removable: "Nur geplante Einsätze ohne Dokumentation können entfernt werden.",
+  // ADM2-6 (0091) / ADM2-11 (0092)
+  qualification_missing: "Die verantwortliche Person hat noch keine erfasste Qualifikation.",
+  outside_contract: "Der Einsatz liegt ausserhalb des erfassten Vertrags der verantwortlichen Person (nach dem Vertragsende).",
 };
 
 /** ABS1-C5 (0052): a move that would leave a past visit with an absent member is refused, nothing is changed. */
