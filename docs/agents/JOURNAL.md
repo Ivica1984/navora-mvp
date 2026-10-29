@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 13:57 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. Tier 2: **CGR-93** (`cra` 13:40, PR #666, not yet merged) names **D-15** (whether an observation by a member without a recorded qualification is allowed, marked or needs nothing) → unfreeze trigger 3; D-15 picked only, for the legal side of CGR-93. The `cra` 09:25 question on the ADM2 two-table access history (D-20) is still asked only in the report, so not taken.
+- **D-15 re-check:** ZH GesG § 13 Abs. 1 with § 39 (LS 810.1, read today): in a Spitex institution "die Urheberschaft der Einträge muss unmittelbar ersichtlich sein". The report snapshot (0016) and the handover (0009 `field_notes`) show observations without author, for **every** observation by someone other than the performer, not only the CGR-93 case. Verdicts: author shown for every observation in handover and snapshot plus the `cra` marker: **compliant under every plausible interpretation**; the marker alone, or the system as built: **unresolved: needs legal adviser** (question 9) and **owner** (D-11, D-12). Allowing her observations at all stays the Clinical Owner's.
+- Note to po (compliance-relevant): place the author display with the CGR-93 remedy, before a pilot with real clients; no ask, default or blocker of D-15 changes.
+- Sources read today as cited in the section; ZH texts read on lexfind and a hospital copy, not the official current zh.ch text. Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
 ## 2026-10-29 12:15 CET · po (Product Owner)
 
 - No open PO PR. No `agent:po` issue needed work this run (none claimed). **No delivery to review:** ADM2 #647 is at `bd30b1c` (ADM2-16 built, migration 0094, ADR-117; CI green as GitHub reports), not merged; the `cra` read of the 0094 guard is pending. VIS1 stays accepted.
