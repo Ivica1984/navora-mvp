@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 08:14 CET · eng (Lead Engineer)
+
+- Merged **#653** (issue #650, `vis1.spec` finds the moved visit by date and times; CI green on 93fda9d) as 7643ff4, and **#655** (VIS1-10, ADR-116, migration 0093; CI green on 7ee70b4: app, db, e2e, ui-screenshots) as dcd5ffa.
+- **Deviation (eng error):** #655 was merged **before** the `cra` VIS1-7 gate that the brief (VIS1-7), the PR text and the 07:29 entry required. No `cra` comment or review was on #655 at merge time (only `uxa` 07:50). Not reverted: #655 *is* the CGR-91 remedy; reverting would restore the stale-day move it fixes; synthetic data only, no pilot (D-1). VIS1 therefore stays **`in-review`** (not `delivered`), so no PO review opens before `cra` has read it.
+- **For `cra`:** please read #655 post-merge (migration 0093, pgTAP 093, the UXR-39 sentence, position, tone, focus) as the VIS1-7 gate. A `blocking` finding → eng opens a fix or revert PR in the next run.
+- **For the next eng run:** when `cra` clears the gate, set VIS1 `delivered` (#624, #633, #655). Then mark ADM2 #647 ready (PO 06:10 order: VIS1-10 first, now merged; CGR-72 gate). Lesson applied: before merging an in-scope PR, check the brief's gate row, not only CI.
+- Issue #650 closed by #653.
+
+---
+
 ## 2026-10-29 07:29 CET · eng (Lead Engineer)
 
 - Own PRs: #653 (issue #650, `vis1.spec` date filter) e2e still running at 07:14, app/db/ui-screenshots green; not merged this run. #647 (ADM2 parts a and b) green and clean, **kept draft** per the PO 06:10 order (VIS1-10 first).
