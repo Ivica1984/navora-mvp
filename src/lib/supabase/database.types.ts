@@ -1353,14 +1353,14 @@ isOneToOne: false
                   ]
                 },"team_memberships": {
                   Row: {
-                    "created_at": string,"qualification": string,"team_id": string,"user_id": string
+                    "created_at": string,"qualification": string | null,"team_id": string,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"qualification": string,"team_id": string,"user_id": string
+                    "created_at"?: string,"qualification"?: string | null,"team_id": string,"user_id": string
                   }
                   Update: {
-                    "created_at"?: string,"qualification"?: string,"team_id"?: string,"user_id"?: string
+                    "created_at"?: string,"qualification"?: string | null,"team_id"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -1769,6 +1769,9 @@ isOneToOne: false
               "display_name": string,"email": string,"joined_at": string,"role": string,"teams": Json,"user_id": string
             }[]
                            },
+"admin_team_admissions":
+{ Args: { "p_organization_id": string }; Returns: Json
+                           },
 "admin_response_deadlines":
 { Args: { "p_organization_id": string }; Returns: {
               "amount": number,"default_amount": number,"default_unit": string,"is_default": boolean,"referral_type": string,"unit": string,"updated_at": string,"updated_by_name": string
@@ -1835,6 +1838,9 @@ isOneToOne: false
                            },
 "deactivate_team":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_team_id": string }; Returns: string
+                           },
+"decide_team_candidate":
+{ Args: { "p_decision": string,"p_idempotency_key": string,"p_proposal_id": string,"p_reason": string }; Returns: Json
                            },
 "decide_matching_request":
 { Args: { "p_decision": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code"?: string,"p_request_id": string,"p_team_id": string }; Returns: string
@@ -2018,6 +2024,9 @@ isOneToOne: false
 "prepare_member_access_end":
 { Args: { "p_idempotency_key": string,"p_user_id": string }; Returns: Json
                            },
+"propose_team_candidate":
+{ Args: { "p_claimed_qualification": string,"p_display_name": string,"p_idempotency_key": string,"p_pensum_band": string,"p_team_id": string }; Returns: Json
+                           },
 "push_dispatch_claim":
 { Args: { "p_limit"?: number }; Returns: {
               "auth_secret": string,"endpoint": string,"kind": string,"p256dh": string,"ref_id": string,"subscription_id": string
@@ -2033,6 +2042,9 @@ isOneToOne: false
                            },
 "record_absence":
 { Args: { "p_from": string,"p_from_time": string,"p_idempotency_key": string,"p_team_id": string,"p_until": string,"p_until_time": string,"p_user_id": string }; Returns: Json
+                           },
+"record_member_contract":
+{ Args: { "p_email": string,"p_end_date": string,"p_idempotency_key": string,"p_proposal_id": string,"p_start_date": string }; Returns: Json
                            },
 "record_gp_informed":
 { Args: { "p_case_id": string,"p_channel": string,"p_idempotency_key": string,"p_informed_on": string }; Returns: Json
@@ -2138,6 +2150,9 @@ isOneToOne: false
 "set_response_deadline":
 { Args: { "p_amount": number,"p_idempotency_key": string,"p_organization_id": string,"p_referral_type": string,"p_unit": string }; Returns: string
                            },
+"set_team_admission":
+{ Args: { "p_enabled": boolean,"p_idempotency_key": string,"p_organization_id": string }; Returns: string
+                           },
 "set_team_priority":
 { Args: { "p_idempotency_key": string,"p_priority": boolean,"p_team_id": string }; Returns: string
                            },
@@ -2166,6 +2181,9 @@ isOneToOne: false
                            },
 "take_signal":
 { Args: { "p_idempotency_key": string,"p_signal_id": string }; Returns: Json
+                           },
+"team_admissions":
+{ Args: { "p_team_id": string }; Returns: Json
                            },
 "team_absences":
 { Args: Record<PropertyKey, never>; Returns: {

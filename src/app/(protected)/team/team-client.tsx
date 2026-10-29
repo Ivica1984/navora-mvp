@@ -1,5 +1,7 @@
 "use client";
 
+import AdmissionSection from "./admission-section";
+import type { TeamAdmissionView } from "@/features/admission/queries";
 import Link from "next/link";
 import { HeaderMenu } from "@/components/layout/Sidebar";
 import { PAGE_LABEL } from "@/lib/auth/nav";
@@ -67,6 +69,7 @@ export default function TeamClient({
   gpNotices = [],
   pushStatus = [],
   outsideWatched = [],
+  admissions = [],
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
@@ -84,6 +87,8 @@ export default function TeamClient({
   pushStatus?: TeamPushRow[];
   /** SIG2-C1 (2): planned visits of the team's next 7 days outside the watched hours (null: could not be loaded). */
   outsideWatched?: OutsideWatchedVisit[] | null;
+  /** ADM2-10: the team's admission proposals (empty when team admission is off). */
+  admissions?: TeamAdmissionView[];
 }) {
   const gpByCase = latestNoticeByCase(gpNotices);
   const open = offers.filter((o) => !o.my_team_declined);
@@ -162,6 +167,8 @@ export default function TeamClient({
             ))}
           </ul>
         </section>
+
+        <AdmissionSection views={admissions} />
 
         <ClosedCases items={lifecycle.filter((l) => l.lifecycle === "closed")} />
 

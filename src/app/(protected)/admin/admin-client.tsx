@@ -19,6 +19,8 @@ import { QUALIFICATION_LABEL } from "@/features/team/rules";
 import type { CommandResult } from "@/lib/commands/result";
 import type { AdminPush } from "@/features/push/queries";
 import OutsideDelivery from "./outside-section";
+import AdmissionAdmin from "./admission-section";
+import type { AdminAdmissions } from "@/features/admission/rules";
 import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
 import type { EvaluatorHealth, OutsideWatchedVisit } from "@/features/signals/rules";
 import OutsideWatchedVisits from "@/components/signals/OutsideWatchedVisits";
@@ -56,8 +58,10 @@ function Feedback({ error, notice }: { error: string | null; notice: string | nu
 const newKey = () => crypto.randomUUID();
 const text = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 
-export default function AdminClient({ data, push = null, evaluator = [], outsideWatched = [] }: {
+export default function AdminClient({ data, push = null, evaluator = [], outsideWatched = [], admissions = null }: {
   data: AdminData | null; push?: AdminPush | null; evaluator?: EvaluatorHealth[];
+  /** ADM2-1/-6/-9: team admission (null: not an administrator or not loaded). */
+  admissions?: AdminAdmissions | null;
   /** SIG2-C1 (2): planned visits outside the watched hours (null: could not be loaded). */
   outsideWatched?: OutsideWatchedVisit[] | null;
 }) {
@@ -75,6 +79,7 @@ export default function AdminClient({ data, push = null, evaluator = [], outside
         ) : (
           <>
             <Members data={data} />
+            {admissions && <AdmissionAdmin organizationId={data.organizationId} admissions={admissions} />}
             <Invitations data={data} />
             <Teams data={data} />
             <Deadlines data={data} />
@@ -98,7 +103,7 @@ function Section({ title, label, children }: { title: string; label: string; chi
   );
 }
 
-type TeamEntry = { team_id: string; team: string; qualification: string };
+type TeamEntry = { team_id: string; team: string; qualification: string | null };
 const teamsOf = (m: AdminMember): TeamEntry[] => (Array.isArray(m.teams) ? (m.teams as TeamEntry[]) : []);
 
 // Members -------------------------------------------------------------------------------------------------------
@@ -286,7 +291,7 @@ function TeamMembership({ entry, userId, onReleased }: { entry: TeamEntry; userI
   return (
     <li className="grid gap-1">
       <span>
-        {entry.team} · {QUALIFICATION_LABEL[entry.qualification] ?? entry.qualification}{" "}
+        {entry.team} · {entry.qualification ? (QUALIFICATION_LABEL[entry.qualification] ?? entry.qualification) : <span data-testid="qualification-missing" className="font-semibold text-amber-900">Qualifikation fehlt</span>}{" "}
         {mode === "idle" && (
           <>
             <button type="button" className="underline" onClick={() => setMode("qualification")}>Qualifikation ändern</button>{" · "}
@@ -307,7 +312,8 @@ function TeamMembership({ entry, userId, onReleased }: { entry: TeamEntry; userI
         }}>
           {mode === "qualification" && (
             <label className="grid gap-1 text-xs font-semibold">Qualifikation
-              <select name="qualification" defaultValue={entry.qualification} className={field}>
+              <select name="qualification" required defaultValue={entry.qualification ?? ""} className={field}>
+                {!entry.qualification && <option value="" disabled>– bitte wählen –</option>}
                 {QUALIFICATIONS.map((q) => <option key={q} value={q}>{QUALIFICATION_LABEL[q]}</option>)}
               </select>
             </label>
