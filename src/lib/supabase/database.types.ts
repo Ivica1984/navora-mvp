@@ -2077,7 +2077,7 @@ isOneToOne: false
                            },
 "agent_stop_lookback":
 { Args: { "p_stop_id": string }; Returns: {
-              "case_ref": string,"entity_id": string,"entity_type": string,"field": string,"proposed_at": string,"team_id": string,"team_name": string,"visit_date": string
+              "case_ref": string,"entity_id": string,"entity_type": string,"field": string,"proposed_at": string,"superseded": boolean,"superseded_at": string,"team_id": string,"team_name": string,"visit_date": string
             }[]
                            },
 "assign_team_coach":
