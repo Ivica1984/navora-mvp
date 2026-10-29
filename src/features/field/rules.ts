@@ -97,8 +97,15 @@ export function formatShortDate(day: string): string {
   return `${d}.${m}.${y}`;
 }
 
-/** VIS1-3 (wording fixed in the brief): shown once under the day heading of a day after today, styled `info`. */
-export function futureDayNote(day: string): string {
+/**
+ * VIS1-3 (wording fixed in the brief): shown once under the day heading of a day after today, styled `info`.
+ * VIS1-3e (2) (po 2026-10-28 22:15, UXR-33): count-aware; one visit keeps the VIS1-3 wording, several get the PO's
+ * plural wording (`cra` reads it in VIS1-7). Closes ADR-111 deviation 2.
+ */
+export function futureDayNote(day: string, count = 1): string {
+  if (count > 1) {
+    return `Diese Einsätze sind für den ${formatShortDate(day)} geplant. Machst du einen davon heute, verschiebe ihn zuerst mit «Heute machen».`;
+  }
   return `Der Einsatz ist für den ${formatShortDate(day)} geplant. Wenn du ihn heute machst, verschiebe ihn zuerst auf heute.`;
 }
 
@@ -107,6 +114,121 @@ export const MOVE_TO_TODAY_LABEL = "Heute machen";
 export const MOVE_TO_TODAY_CONFIRM = "Auf heute verschieben";
 export const MOVE_TO_TODAY_HINT =
   "Der Einsatz wird auf heute verschoben und im Verlauf festgehalten. Gestartet wird er danach mit «Einsatz starten».";
+
+/** VIS1-3e (1): the one status line after a successful move on /field. */
+export const MOVED_TO_TODAY_STATUS = "Einsatz auf heute verschoben";
+
+/**
+ * VIS1-3d (UXR-31): a move whose responsible member is absent at the new time releases the visit (ABS1-C4). The same
+ * fixed text as on /team; one behaviour per command.
+ */
+export const RELEASED_ON_MOVE = "Die verantwortliche Person ist zur neuen Zeit abwesend. Der Einsatz ist jetzt offen im Team.";
+
+const LAST_MINUTE_OF_DAY = 23 * 60 + 59;
+
+/** Minutes since midnight of an "HH:MM" or "HH:MM:SS" time; null when absent or malformed. */
+export function minutesOf(time: string | null): number | null {
+  const m = /^(\d{2}):(\d{2})/.exec(time ?? "");
+  if (!m) return null;
+  const h = Number(m[1]);
+  const min = Number(m[2]);
+  return h < 24 && min < 60 ? h * 60 + min : null;
+}
+
+function hhmmOf(minutes: number): string {
+  return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+}
+
+/** The wall-clock minute of the day in Europe/Zurich (DAY-1), for the prefill of VIS1-3c. */
+export function zurichMinutesNow(now: Date = new Date()): number {
+  const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Zurich", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+    .formatToParts(now);
+  const h = Number(parts.find((p) => p.type === "hour")?.value ?? 0);
+  const m = Number(parts.find((p) => p.type === "minute")?.value ?? 0);
+  return h * 60 + m;
+}
+
+/**
+ * VIS1-3c (po 2026-10-28 22:15 from `uxa` UXR-30): the times the "Heute machen" confirmation prefills. Start = the next
+ * full 5 minutes after now (Zurich: 14:02 → 14:05, 14:05 → 14:10); end = start + the card's planned duration. If the
+ * start or the end would fall after 23:59 today, both stay empty (and required): no visit is prefilled across
+ * midnight. A card without a valid planned duration gets the start only. Both fields stay editable. No signal, threshold
+ * or permission depends on this; it only keeps the usual move at the door from being overdue the moment it is saved.
+ */
+export function prefillMoveTimes(nowMinutes: number, timeStart: string | null, timeEnd: string | null): { start: string; end: string } {
+  const start = (Math.floor(nowMinutes / 5) + 1) * 5;
+  if (start > LAST_MINUTE_OF_DAY) return { start: "", end: "" };
+  const s = minutesOf(timeStart);
+  const e = minutesOf(timeEnd);
+  const duration = s !== null && e !== null && e > s ? e - s : null;
+  if (duration === null) return { start: hhmmOf(start), end: "" };
+  const end = start + duration;
+  if (end > LAST_MINUTE_OF_DAY) return { start: "", end: "" };
+  return { start: hhmmOf(start), end: hhmmOf(end) };
+}
+
+/**
+ * VIS1-8 (po 2026-10-28 22:00 from `cra` CGR-89): the fact the confirmation states about the date the visit leaves.
+ * `hasOther` is the server's yes/no (`visit_move_leaves_other_visit`, migration 0090): true also when the other visit
+ * belongs to a team she cannot read, so the sentence never says "kein Einsatz" then; no detail of it is shown. Null
+ * (no answer, e.g. not a team member, or the read failed) shows no sentence rather than a guess.
+ */
+export function moveLeavesNote(plannedDay: string, hasOther: boolean | null): string | null {
+  if (hasOther === null) return null;
+  return hasOther
+    ? `Am ${formatShortDate(plannedDay)} ist danach noch ein Einsatz bei dieser Person geplant.`
+    : `Am ${formatShortDate(plannedDay)} ist danach kein Einsatz bei dieser Person geplant.`;
+}
+
+/**
+ * VIS1-3d / VIS1-3e: after a move on /field the page opens today's view with `?verschoben=<visit>` (and `offen=1` when
+ * the move released the visit, `hinweise=<flags>` for the planning flags). Display only: a crafted link can at most show
+ * a notice; it changes nothing. Unknown flags and a malformed id are dropped.
+ */
+export type MovedNotice = { visitId: string; released: boolean; flags: string[] };
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function parseMovedNotice(
+  verschoben: string | string[] | undefined,
+  offen: string | string[] | undefined,
+  hinweise: string | string[] | undefined,
+  knownFlags: ReadonlyArray<string>,
+): MovedNotice | null {
+  const id = Array.isArray(verschoben) ? verschoben[0] : verschoben;
+  if (!id || !UUID_RE.test(id)) return null;
+  const open = Array.isArray(offen) ? offen[0] : offen;
+  const raw = Array.isArray(hinweise) ? hinweise[0] : hinweise;
+  const flags = (raw ?? "").split(",").filter((f) => knownFlags.includes(f));
+  return { visitId: id.toLowerCase(), released: open === "1", flags: [...new Set(flags)] };
+}
+
+/** The /field link after a move (inverse of parseMovedNotice). */
+export function movedNoticeHref(visitId: string, released: boolean, flags: ReadonlyArray<string>): string {
+  const params = new URLSearchParams({ verschoben: visitId });
+  if (released) params.set("offen", "1");
+  if (flags.length > 0) params.set("hinweise", flags.join(","));
+  return `/field?${params.toString()}`;
+}
+
+/** The query parameters that carry a move's result (VIS1-3d / VIS1-3e). */
+export const MOVED_NOTICE_PARAMS = ["verschoben", "offen", "hinweise"] as const;
+
+/**
+ * VIS1-3g (UXR-35, ADR-112 addendum): the notice belongs to the move that produced it. Once today's view has shown it,
+ * the page drops these parameters from the address (history.replaceState), so a reload, a later refresh (e.g. after
+ * "Einsatz starten") or a copied link no longer shows it. Returns the search string without them ("" when empty);
+ * every other parameter is kept in order.
+ */
+export function withoutMovedNotice(search: string): string {
+  const params = new URLSearchParams(search);
+  for (const key of MOVED_NOTICE_PARAMS) params.delete(key);
+  const rest = params.toString();
+  return rest ? `?${rest}` : "";
+}
+
+/** VIS1-3f (UXR-34): the id of the release notice, the moved card's accessible description. */
+export const MOVED_RELEASED_NOTICE_ID = "verschoben-offen-hinweis";
 
 export const FIELD_ACTION_LABEL: Record<FieldAction, string> = {
   depart: "Losfahren",

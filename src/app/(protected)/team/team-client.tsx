@@ -42,7 +42,7 @@ import AutoPlan, { type ScheduledItem } from "./auto-plan";
 import type { PlanStatus } from "@/features/planning/queries";
 import type { CaseLifecycle } from "@/features/lifecycle/queries";
 import { RESPONSIBLE_ABSENT_NOTE } from "@/features/lifecycle/rules";
-import { formatDayLabel, shiftDay, todayInZurich } from "@/features/field/rules";
+import { RELEASED_ON_MOVE, formatDayLabel, shiftDay, todayInZurich } from "@/features/field/rules";
 import { getVisitStatusLabel } from "@/features/visits/types";
 import { recordGpInformed } from "@/features/gp/commands";
 import { OUTSIDE_LABEL, REACH_GAP_TEXT, TEAM_STATUS_NOTE, allReachable, statusText } from "@/features/push/rules";
@@ -1040,7 +1040,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
       )}
       {released && (
         <p role="status" data-testid="moved-into-absence" className="mt-1 text-xs font-semibold text-amber-900">
-          Die verantwortliche Person ist zur neuen Zeit abwesend. Der Einsatz ist jetzt offen im Team.
+          {RELEASED_ON_MOVE}
         </p>
       )}
       <ErrorText message={error} />
