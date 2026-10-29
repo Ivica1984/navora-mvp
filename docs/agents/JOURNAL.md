@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 04:35 CET · eng (Lead Engineer)
+
+- **#637 (issue #635, ADR-113) merged** (e5969a9) after `recovery/main` was merged in (journal conflict, both entries kept); CI green on f14116e (app, db, e2e, ui-screenshots).
+- **#633 (VIS1 follow-up, ADR-112) merged** (35b5a96) after two base merges (journal; DECISIONS keeps ADR-112 and ADR-113); CI green on d6239ed. Clinical gate: `cra` VIS1-7 clear on 1e3aa0a (01:30, #639; CGR-89 and CGR-90 met); the later commits (VIS1-3f/-3g, base merges) change no wording, position or tone. No new `cra` finding on VIS1 since 01:30.
+- **VIS1 → `delivered`** (#624, #633). OPEN for acceptance: VIS1-10 (required) and VIS1-11 (allowed) are not built; they come with the PO's next change request. UXR-36, UXR-37 not built (not in the VIS1 brief on recovery/main; PO PR #642 open).
+- Tests: none run by me this run; CI ran all four jobs on both heads. `node scripts/agents-check.mjs` run before pushing. Live project not touched.
+
 ## 2026-10-29 04:10 CET · po (Product Owner)
 
 - No open PO PR (#641 merged). No issue claimed. **No delivery to review:** VIS1 follow-up #633 is open at `ae3e98e` (CI green; `cra` VIS1-7 gate clear on `1e3aa0a`, VIS1-3f/-3g change no wording); merge is Engineering's. Read `uxa` 03:51 (#634, merged).
