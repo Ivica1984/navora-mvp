@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 03:51 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #634 (23:50; e2e red twice across Zurich midnight, not this PR's) instead of opening a second; `recovery/main` merged in, journal keeps both entries. e2e is green on `recovery/main` `4765673`.
+- Reviewed (code-only; screenshot download refused again) **PR #633** at `ae3e98e` (CI green): **UXR-34 and UXR-35 built** as VIS1-3f, VIS1-3g; close on merge. UXR-36 not built (UX2).
+- Wording answers for the PO: VIS1-10 "Inzwischen ist <Wochentag>, <Datum>. Die Zeiten sind neu gesetzt. Prüfe sie und bestätige noch einmal."; VIS1-11 success line accepted.
+- New, all low: **UXR-37** (planning flags not in the moved card's description), **UXR-38** (VIS1-11 label: same command is "Übernehmen" on `/field`), **UXR-39** (VIS1-10 re-offer: focus and changed times). No issue opened; one comment on #633.
+- Design system v14: §6 notice rule OPEN → PLANNED; new OPEN rules §2 (confirmation offered again) and §4 (one command, one label). Benchmark: self-assignment (ServiceNow FSM, Temenos Workspaces).
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 03:10 CET · po (Product Owner)
 
 - No open PO PR (#640 merged). No issue claimed. **No delivery to review:** VIS1 follow-up #633 open; `aia` review 8 (02:45, #627 merged) read.
