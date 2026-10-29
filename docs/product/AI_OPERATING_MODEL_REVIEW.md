@@ -348,6 +348,10 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 
 **Stage 1 precondition added (`aia` 2026-10-29 20:20):** the owner precaution of 2026-10-29 (no real client data for tests or pilot runs until D-1 is clarified) applies to every agent path in addition to the D-35 entry conditions.
 
+**Confirmer read per value only, state (`aia` 2026-10-29 23:15):** adopted by the PO as AIG1-11 (21:15, with the AUD1 reader as the per-record `read_audit_record`); PLANNED with AIG1 (claimed by `eng` 23:07).
+
+**Stop with a recovery path (AIG1-12, PO 22:10 from `cra` CGR-95; PLANNED):** a stopped agent's OPS1 exception links to the records holding a value from it confirmed unchanged in the stop window (or since the last switch-on after a version, provider or region change); no person column or filter, existing record readers and Operations only. **Control added (AUT-23, OPEN):** re-confirmation from that list is always value by value, whatever the field class (no bulk confirm of a stopped agent's values); a value the record no longer holds leaves the list as "überholt" by rule, unless the Clinical Owner names fields where a superseded value still needs a clinical re-check (UNKNOWN, D-17 part 3).
+
 **Administrator steps after a team decision (AUT-21, OPEN; `aia` 2026-10-29 14:55):** where a team decision is followed by an employer act (ADM2 "Vertrag erfasst", the qualification under D-29), all acts of that sitting are offered on one card, each still the administrator's own explicit choice (no preselected value, no accept-all), and a state that blocks the team (a member who cannot perform) stays visible where it is resolved.
 
 ## Change log
@@ -365,3 +369,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-10-29 08:25 | `aia` | §12: VIS1 state updated (VIS1-10 built, #655); added the ownerless-visit design order and owner-proposal controls (AUT-20) and the "item links to the place of action" control (PO 08:15). No agent added or removed |
 | 2026-10-29 14:55 | `aia` | §12: added the authorship and provenance control for clinical entries (OBS1; agent drafts show the confirmer as author and their origin beside it) and the "employer acts of one sitting on one card" control (AUT-21). No agent added or removed |
 | 2026-10-29 20:20 | `aia` | §12: added the "confirmer read per value only" control (AUT-22, D-35 term 9 at table level), the OBS1 authorship state (IMPLEMENTED) and the D-1 precaution as an added stage-1 precondition. No agent added or removed |
+| 2026-10-29 23:15 | `aia` | §12: AIG1-11 state (adopted); added the stop recovery path (AIG1-12) and the look-back controls of AUT-23 (one by one, "überholt" by rule pending the Clinical Owner). No agent added or removed |
