@@ -757,6 +757,26 @@ isOneToOne: false
       referencedColumns: ["organization_id","user_id"]
     }
                   ]
+                },"member_contract_events": {
+                  Row: {
+                    "actor_id": string,"created_at": string,"end_date": string | null,"id": string,"organization_id": string,"seq": number,"start_date": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id": string,"created_at"?: string,"end_date"?: string | null,"id"?: string,"organization_id": string,"seq"?: never,"start_date"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "actor_id"?: string,"created_at"?: string,"end_date"?: string | null,"id"?: string,"organization_id"?: string,"seq"?: never,"start_date"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "member_contract_events_organization_id_user_id_fkey"
+      columns: ["organization_id","user_id"]
+isOneToOne: false
+      referencedRelation: "organization_memberships"
+      referencedColumns: ["organization_id","user_id"]
+    }
+                  ]
                 },"member_invitations": {
                   Row: {
                     "accepted_at": string | null,"accepted_user": string | null,"created_at": string,"display_name": string,"email": string,"expires_at": string,"id": string,"invited_by": string,"organization_id": string,"qualification": string | null,"revoked_at": string | null,"role": string,"team_id": string | null
@@ -1319,6 +1339,92 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"team_admission_events": {
+                  Row: {
+                    "actor_id": string,"created_at": string,"id": string,"kind": Database["public"]['Enums']["team_admission_event_kind"],"organization_id": string,"proposal_id": string,"reason": Database["public"]['Enums']["team_admission_objection"] | null,"seq": number,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor_id": string,"created_at"?: string,"id"?: string,"kind": Database["public"]['Enums']["team_admission_event_kind"],"organization_id": string,"proposal_id": string,"reason"?: Database["public"]['Enums']["team_admission_objection"] | null,"seq"?: never,"team_id": string
+                  }
+                  Update: {
+                    "actor_id"?: string,"created_at"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["team_admission_event_kind"],"organization_id"?: string,"proposal_id"?: string,"reason"?: Database["public"]['Enums']["team_admission_objection"] | null,"seq"?: never,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "team_admission_events_proposal_id_fkey"
+      columns: ["proposal_id"]
+isOneToOne: false
+      referencedRelation: "team_admission_proposals"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"team_admission_proposals": {
+                  Row: {
+                    "created_at": string,"id": string,"organization_id": string,"proposed_by": string,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"organization_id": string,"proposed_by": string,"team_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"organization_id"?: string,"proposed_by"?: string,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "team_admission_proposals_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "team_admission_proposals_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"team_admission_settings": {
+                  Row: {
+                    "enabled": boolean,"id": string,"organization_id": string,"updated_at": string,"updated_by": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "enabled"?: boolean,"id"?: string,"organization_id": string,"updated_at"?: string,"updated_by": string
+                  }
+                  Update: {
+                    "enabled"?: boolean,"id"?: string,"organization_id"?: string,"updated_at"?: string,"updated_by"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "team_admission_settings_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: true
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"team_candidates": {
+                  Row: {
+                    "claimed_qualification": string,"display_name": string,"id": string,"organization_id": string,"pensum_band": string,"proposal_id": string,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "claimed_qualification": string,"display_name": string,"id"?: string,"organization_id": string,"pensum_band": string,"proposal_id": string,"team_id": string
+                  }
+                  Update: {
+                    "claimed_qualification"?: string,"display_name"?: string,"id"?: string,"organization_id"?: string,"pensum_band"?: string,"proposal_id"?: string,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "team_candidates_proposal_id_fkey"
+      columns: ["proposal_id"]
+isOneToOne: true
+      referencedRelation: "team_admission_proposals"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"team_decisions": {
                   Row: {
                     "actor_id": string,"case_id": string | null,"decided_at": string,"decision": string,"id": string,"idempotency_key": string,"matching_request_id": string,"organization_id": string,"reason": string | null,"reason_code": string | null,"team_id": string
@@ -1769,13 +1875,13 @@ isOneToOne: false
               "display_name": string,"email": string,"joined_at": string,"role": string,"teams": Json,"user_id": string
             }[]
                            },
-"admin_team_admissions":
-{ Args: { "p_organization_id": string }; Returns: Json
-                           },
 "admin_response_deadlines":
 { Args: { "p_organization_id": string }; Returns: {
               "amount": number,"default_amount": number,"default_unit": string,"is_default": boolean,"referral_type": string,"unit": string,"updated_at": string,"updated_by_name": string
             }[]
+                           },
+"admin_team_admissions":
+{ Args: { "p_organization_id": string }; Returns: Json
                            },
 "assign_team_coach":
 { Args: { "p_coach_name": string,"p_idempotency_key": string,"p_team_id": string }; Returns: string
@@ -1839,11 +1945,11 @@ isOneToOne: false
 "deactivate_team":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_team_id": string }; Returns: string
                            },
-"decide_team_candidate":
-{ Args: { "p_decision": string,"p_idempotency_key": string,"p_proposal_id": string,"p_reason": string }; Returns: Json
-                           },
 "decide_matching_request":
 { Args: { "p_decision": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code"?: string,"p_request_id": string,"p_team_id": string }; Returns: string
+                           },
+"decide_team_candidate":
+{ Args: { "p_decision": string,"p_idempotency_key": string,"p_proposal_id": string,"p_reason": string }; Returns: Json
                            },
 "depart_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
@@ -2043,14 +2149,14 @@ isOneToOne: false
 "record_absence":
 { Args: { "p_from": string,"p_from_time": string,"p_idempotency_key": string,"p_team_id": string,"p_until": string,"p_until_time": string,"p_user_id": string }; Returns: Json
                            },
-"record_member_contract":
-{ Args: { "p_email": string,"p_end_date": string,"p_idempotency_key": string,"p_proposal_id": string,"p_start_date": string }; Returns: Json
-                           },
 "record_gp_informed":
 { Args: { "p_case_id": string,"p_channel": string,"p_idempotency_key": string,"p_informed_on": string }; Returns: Json
                            },
 "record_interruption_followup":
 { Args: { "p_decision": string,"p_idempotency_key": string,"p_note": string,"p_visit_id": string }; Returns: string
+                           },
+"record_member_contract":
+{ Args: { "p_email": string,"p_end_date": string,"p_idempotency_key": string,"p_proposal_id": string,"p_start_date": string }; Returns: Json
                            },
 "record_no_show":
 { Args: { "p_at_door"?: boolean,"p_idempotency_key": string,"p_reason": string,"p_visit_id": string }; Returns: string
@@ -2182,13 +2288,13 @@ isOneToOne: false
 "take_signal":
 { Args: { "p_idempotency_key": string,"p_signal_id": string }; Returns: Json
                            },
-"team_admissions":
-{ Args: { "p_team_id": string }; Returns: Json
-                           },
 "team_absences":
 { Args: Record<PropertyKey, never>; Returns: {
               "absence_id": string,"ends_at": string,"is_me": boolean,"may_change": boolean,"member": string,"recorded_by_me": boolean,"starts_at": string,"team_id": string
             }[]
+                           },
+"team_admissions":
+{ Args: { "p_team_id": string }; Returns: Json
                            },
 "team_case_lifecycle":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -2268,7 +2374,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            [_ in never]: never
+            "team_admission_event_kind": "consent"|"objection"|"objection_withdrawn"|"admitted"|"withdrawn"|"lapsed"|"contract_recorded","team_admission_objection": "team_full"|"availability_mismatch"|"qualification_mix"|"wants_to_meet_first"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -2384,7 +2490,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            
+            "team_admission_event_kind": ["consent", "objection", "objection_withdrawn", "admitted", "withdrawn", "lapsed", "contract_recorded"],"team_admission_objection": ["team_full", "availability_mismatch", "qualification_mix", "wants_to_meet_first"]
           }
         }
 } as const
