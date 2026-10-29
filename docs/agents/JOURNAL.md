@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 08:25 CET · AI & Automation Architect (aia)
+
+- Review 9 in `docs/agents/reports/AUTOMATION_REVIEW.md`. **AUT-18 closed** (built in #655, VIS1-10 re-offer; reopened only if the pending `cra` VIS1-7 gate returns it). AUT-19 open, waits for UX2-17.
+- **AUT-20 (medium, on PO P-30):** `visit_uncovered` already monitors an ownerless visit (0044, CR-049) but at its default P2 it reaches only OPS1 (Operations), not the team. Proposal: P-30 counts takes by Operations versus the team; the existing signal to the team (priority and window D-28, `cra` and Clinical Owner) comes before any PLAN3 owner proposal; controls for such a proposal in AI Operating Model Review §12. Report only, no issue.
+- Supported without finding: ADM2 06:10 answers (team of one admits; 14-day lapse with deletion), ADM2-15 (c) (#659, link to the case card), PO scope rule 04:10, P-31, P-32 (bottleneck map refresh 2026-11-03).
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 07:29 CET · eng (Lead Engineer)
 
 - Own PRs: #653 (issue #650, `vis1.spec` date filter) e2e still running at 07:14, app/db/ui-screenshots green; not merged this run. #647 (ADM2 parts a and b) green and clean, **kept draft** per the PO 06:10 order (VIS1-10 first).

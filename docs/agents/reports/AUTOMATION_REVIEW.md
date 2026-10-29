@@ -31,6 +31,54 @@
 
 ---
 
+## 2026-10-29 08:25 CET · aia review 9: AUT-18 closed (#655 merged); P-30 reviewed (AUT-20, the existing uncovered-visit monitoring reaches Operations, not the team); ADM2 answers and ADM2-15 (c) supported
+
+**Read:** `recovery/main` at `dcd5ffa`:
+- merged since review 8: #627 (my review 8), #633 (VIS1 follow-up, `35b5a96`), #637, #640, #641, #642, #643, #645, #648 (`lca` 05:42, D-37), #651 (PO 06:10), #653 (issue #650), #655 (VIS1-10, `eng`, ADR-116, migration 0093);
+- open: #659 (PO 08:15: VIS1-10 met, acceptance waits for the `cra` VIS1-7 gate on #655; ADM2-15 (c) from `uxa` UXR-42), #658 (`eng`, #655 merged before the `cra` gate, deviation recorded), #657 (`uxa` 07:50), #647 (ADM2 draft), `cra` #646, #639 and older;
+- code: `move_visit_to_today` (0093) and `field-client.tsx` (ADR-116 point 3); `visit_uncovered` (0044 header, CR-049) and its delivery rule (SIG1, 0060 header).
+- CI on `dcd5ffa` as read through the API at about 08:22: app, db, ui-screenshots green in both runs; e2e green in one run, in progress in the other. No open issue is labelled `automation`.
+
+**Nothing below is a measurement.** I ran no tests.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-20 | Coverage: a visit released by an absence or a move waits without a responsible member (team; PO hypothesis P-30, 03:10) | **Comment on P-30 (no build).** P-30's next step, if pilot data show ownerless visits at start, is a PLAN3 criterion that **proposes a named owner** (agent at the edge, AIG1 confirm). **Evidence that monitoring already exists (IMPLEMENTED):** the derived exception `visit_uncovered` exists exactly while a visit is planned, nobody is responsible and it is not covered (0019, 0038, 0044, CR-049; P2, 24 h window, PROVISIONAL until D-28) and closes only with its cause. At P2 it is pull-only and shown on OPS1 (`src/features/operations/`), the Operations role's screen; SIG1 (0060) pushes it to every present member of the owning team only when an organisation raises it to P1. So by default the one signal about the team's own coverage gap reaches the central role, while the team has the "Offen im Team" list it must remember to read (P-30's premise). Effort and frequency: UNKNOWN (no pilot data) | **monitor before agent, design order kept:** (1) P-30's count also splits takes made after the exception appeared on OPS1 (Operations acting for the team) from takes by the team (list, VIS1-11 notice, later PLAN3), so the pilot shows whether coverage is being centrally dispatched; (2) if ownerless-at-start is material, the first remedy asked is the **existing** `visit_uncovered` delivered to the owning team (SIG1 recipients, no new rule, no new threshold): its priority and window are a D-28 question for `cra` and the Clinical Owner, never set by `aia` or the PO; (3) only if that is not enough, a PLAN3 owner proposal, with the controls in AI Operating Model Review §12 (fixed candidate order shown with its reason; a person who does not take the visit leaves no trace about her; correction rate per agent and field at team level only; responsibility only through `take_open_visit` and her own tap) | L (responsibility under an existing rule; priority of the signal is H-adjacent and stays with D-28) | stage 0; PO (P-30 measure wording), `cra` and Clinical Owner (D-28 priority and window), `uxa` if the team view changes | per team and month: released visits; median time from release to `taken`; share ownerless at visit start (target: 0); share of takes made by Operations after the OPS1 exception versus by the team | medium | – (report only; no open PR or issue carries P-30) |
+
+**Briefs and items reviewed without a new finding:**
+- **ADM2 PO answers (06:10):** (1) a team with no other active member admits on the proposal: supported; a consent nobody can give would return every founding nurse to an administrator (a hierarchy step) with no safety gain, since qualification (ADM2-6) and the employer's contract record still gate care. (2) decline = withdrawal: one outcome less to model; supported. (3) an admitted proposal without "Vertrag erfasst" lapses after 14 days with its candidate data deleted: a deterministic sweep instead of a person's reminder, and data minimisation; supported. The pilot count by number of consents is team level.
+- **ADM2-15 (c) (PO 08:15 in #659, from `uxa` UXR-42, issue #656):** the successor item links to the case card and the card shows its reference. This removes a search and a phone call ("which case is that?") and adds one secondary line, not a field anyone fills; the benefit is shown (the CGR-72 remedy can be acted on). Same pattern as AUT-19. Supported, and the PO's general rule ("an item that asks for an action links to the place of action") is taken into §12 of the AI Operating Model Review as a control for every agent proposal.
+- **PO scope rule (04:10):** after `changes-requested`, only patient-safety findings enter the capability; the rest go to UX2 or a later brief. This cuts review-driven engineering and `cra` cycles, which is administration of our own process. Supported; `aia` follows it (AUT-20 names no VIS1 criterion).
+- **P-31 (night shift vs calendar day) and P-32 (a team divides itself):** both measure first at team level and keep the record and responsibility rules where they are (DAY-1; `cra` on a responsibility transfer). P-32 is a care-graph elimination candidate (cases move with primary nurse and deputy in one command instead of re-entry); taken into the bottleneck map refresh (due 2026-11-03) under team self-organisation.
+- **#655 (VIS1-10):** see §4. ADR-116 "Not done": a midnight tolerance and past-dated field actions stay UNKNOWN for the Clinical Owner (CGR-87 (3)); `aia` proposes none.
+- **#658, #657:** process and UX notes; no nurse step added.
+
+### 2 AI readiness of delivered items
+- #655 adds no proposal, draft or ranking: the re-derived times are the VIS1-3c deterministic default, and the re-offer shows the database's value for one more confirm. It is the first IMPLEMENTED case of the §12 control "the stored value is the value the confirmer saw" (refusal `day_changed`, one audit row, nothing changed; pgTAP 093 as described in ADR-116, CI as read above).
+- Nothing merged since review 8 proposes, drafts or ranks; no ledger entry is needed.
+
+### 3 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1 built | PLANNED, *Next up* after ADM2 (ADM2 in build, draft #647); not started |
+| 0 | ASM1 built | PLANNED, not started |
+| 1-3 | unchanged from review 1 | OPEN |
+
+### 4 Findings closed
+- **AUT-18 (low):** closed. Evidence: adopted into VIS1-10 (PO 03:10), built in #655 (merged `dcd5ffa`; ADR-116 point 3: on `day_changed` the confirmation stays open with the UXR-39 sentence, the database's today, times re-derived by VIS1-3c and the typed reason kept; reload only as fallback); the PO's 08:15 review (#659, open) marks VIS1-10 met. The `cra` VIS1-7 gate on #655 is still pending; if it returns VIS1-10, `aia` reopens AUT-18 in a new section.
+- **AUT-19 (medium):** stays OPEN. Adopted as VIS1-11 / UX2-17 (label "Übernehmen", UXR-38); not in #655 (ADR-116 deviation 3), so it waits for UX2.
+
+### 5 Waiting for the PO
+- AUT-20 (medium): P-30 measure split by who took the visit (team or Operations), and the existing `visit_uncovered` delivered to the team (D-28 priority, `cra`) before any PLAN3 owner proposal.
+- AUT-19 (medium): built with UX2-17.
+- AUT-17 (low), AUT-14 (medium), AUT-15 (low): unchanged; D-38 frozen, nothing written about it.
+- Bottleneck map refresh: due 2026-11-03 (weekly), with P-28 (window instead of a fixed day) and P-32 (team split) as candidates.
+
+---
+
 ## 2026-10-29 02:45 CET · aia review 8: AUT-16 closed (#624 merged); VIS1-10 and P-29 reviewed (AUT-18, AUT-19); no item proposes, drafts or ranks
 
 **Read:** `recovery/main` at `6d3eb34`:
