@@ -227,6 +227,36 @@ export function withoutMovedNotice(search: string): string {
   return rest ? `?${rest}` : "";
 }
 
+/**
+ * VIS1-10 (po 2026-10-29 02:15, amended 03:10 and 04:10 from `uxa` UXR-39; ADR-116): the database refused "Heute machen"
+ * with `day_changed` because the date she was shown is no longer its today (page left open across midnight). The
+ * confirmation stays open with the new date as a fact, tone `info`, focus on it. Wording fixed by the PO; `cra` reads it
+ * in the VIS1-7 gate. e.g. "Inzwischen ist Donnerstag, 29.10.2026. Die Zeiten sind neu gesetzt. Prüfe sie und bestätige
+ * noch einmal."
+ */
+export function dayChangedNote(day: string): string {
+  const [y, m, d] = day.split("-").map(Number);
+  const weekday = new Intl.DateTimeFormat("de-CH", { timeZone: "UTC", weekday: "long" }).format(new Date(Date.UTC(y, m - 1, d)));
+  return `Inzwischen ist ${weekday}, ${formatShortDate(day)}. Die Zeiten sind neu gesetzt. Prüfe sie und bestätige noch einmal.`;
+}
+
+/**
+ * VIS1-10 fallback (brief wording, po 02:15): where the confirmation can no longer be shown, e.g. the visit is no longer
+ * dated after the new today, so "Heute machen" does not apply to it any more.
+ */
+export const DAY_CHANGED_RELOAD = "Inzwischen ist ein neuer Tag. Lade die Seite neu, dann siehst du die Einsätze von heute.";
+
+/**
+ * VIS1-10: what the confirmation does after `day_changed`. `today` is the database's date from the refusal; the visit
+ * keeps its date. Offered again only while the visit is still dated after that today and both dates are real dates;
+ * otherwise the reload sentence. Display only: the database decides again on the next confirm.
+ */
+export function afterDayChanged(today: unknown, visitDate: unknown): { kind: "confirm_again"; today: string } | { kind: "reload" } {
+  const real = (d: unknown): d is string => typeof d === "string" && d !== "" && parseDayParam(d, "") === d;
+  if (!real(today) || !real(visitDate)) return { kind: "reload" };
+  return visitDate > today ? { kind: "confirm_again", today } : { kind: "reload" };
+}
+
 /** VIS1-3f (UXR-34): the id of the release notice, the moved card's accessible description. */
 export const MOVED_RELEASED_NOTICE_ID = "verschoben-offen-hinweis";
 

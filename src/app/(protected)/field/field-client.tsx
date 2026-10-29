@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { completeVisit, departVisit, pauseVisit, resumeVisit, startVisit } from "@/features/visits/commands";
-import { rescheduleVisit } from "@/features/team/commands";
+import { moveVisitToToday } from "@/features/team/commands";
 import { getMoveLeavesFact } from "@/features/field/commands";
 import { PLAN_FLAG_LABEL } from "@/features/team/rules";
 import { getVisitStatusLabel } from "@/features/visits/types";
@@ -17,6 +17,9 @@ import {
   RELEASED_ON_MOVE,
   type MovedNotice,
   canMoveToToday,
+  DAY_CHANGED_RELOAD,
+  afterDayChanged,
+  dayChangedNote,
   moveLeavesNote,
   movedNoticeHref,
   withoutMovedNotice,
@@ -926,6 +929,11 @@ function Row({ label, value, muted = false, testId }: { label: string; value: st
  * Follow-up (ADR-112): VIS1-3c prefills the next full 5 minutes after now and the card's duration (empty across
  * midnight); VIS1-8 states whether the client still has a visit on the planned date (server yes/no); VIS1-3e moves
  * focus into the form and back; VIS1-3d hands the release and the planning flags to today's view.
+ * VIS1-10 (ADR-116, `cra` CGR-91): the confirm sends the date she was shown; `move_visit_to_today` moves the visit to
+ * the database's today only when that is the shown date. After `day_changed` (page left open across midnight) the form
+ * stays open: the new date as a fact at its top (focus on it), the times re-derived by VIS1-3c for the new now, the
+ * typed reason kept, the VIS1-8 line unchanged; nothing is stored until she confirms again. Where the visit is no
+ * longer dated after the new today, the reload sentence instead.
  */
 function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
   const router = useRouter();
@@ -933,6 +941,14 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [times, setTimes] = useState<{ start: string; end: string }>({ start: "", end: "" });
+  // VIS1-10: the date shown as "Heute" (the render's today until the database names another one), the sentence after
+  // `day_changed`, the reload fallback, and a counter that re-mounts the time inputs with the re-derived values.
+  const [shownDay, setShownDay] = useState(today);
+  const [dayNote, setDayNote] = useState<string | null>(null);
+  const [reload, setReload] = useState(false);
+  const [timesEpoch, setTimesEpoch] = useState(0);
+  const [reasonText, setReasonText] = useState("");
+  const dayNoteRef = useRef<HTMLParagraphElement>(null);
   // VIS1-8: undefined while the answer is loading, null when there is none (no sentence then).
   const [leaves, setLeaves] = useState<boolean | null | undefined>(undefined);
   const openRef = useRef<HTMLButtonElement>(null);
@@ -948,11 +964,20 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
     }
   }, [open]);
 
+  // VIS1-10: the new date is announced where she is looking (focus on the sentence, tabIndex -1).
+  useEffect(() => {
+    if (dayNote || reload) dayNoteRef.current?.focus();
+  }, [dayNote, reload, timesEpoch]);
+
   function openForm() {
     // VIS1-3c: computed when she opens the form, from the Zurich wall clock.
     setTimes(prefillMoveTimes(zurichMinutesNow(), visit.time_start, visit.time_end));
     setLeaves(undefined);
     setError(null);
+    setDayNote(null);
+    setReload(false);
+    setReasonText("");
+    setTimesEpoch((n) => n + 1);
     setOpen(true);
     void getMoveLeavesFact(visit.visit_id).then(setLeaves, () => setLeaves(null));
   }
@@ -966,15 +991,30 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
   async function submit(form: FormData) {
     setPending(true);
     setError(null);
-    const result = await rescheduleVisit({
+    const result = await moveVisitToToday({
       visitId: visit.visit_id,
-      date: today,
+      // VIS1-10: the date shown as "Heute" in this form; the database moves to its today only if it is this one.
+      date: String(form.get("shown") ?? shownDay),
       start: String(form.get("start") ?? ""),
       end: String(form.get("end") ?? ""),
       reason: String(form.get("reason") ?? ""),
       idempotencyKey: crypto.randomUUID(),
     });
     setPending(false);
+    if (!result.ok && "dayChanged" in result) {
+      const next = afterDayChanged(result.today, result.visitDate);
+      if (next.kind === "reload") {
+        setDayNote(null);
+        setReload(true);
+        return;
+      }
+      // Nothing was stored. The form shows the database's today, times re-derived for the new now, the reason kept.
+      setShownDay(next.today);
+      setTimes(prefillMoveTimes(zurichMinutesNow(), visit.time_start, visit.time_end));
+      setTimesEpoch((n) => n + 1);
+      setDayNote(dayChangedNote(next.today));
+      return;
+    }
     if (!result.ok) {
       setError(result.error);
       return;
@@ -1002,6 +1042,20 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
 
   const leavesNote = leaves === undefined ? null : moveLeavesNote(visit.visit_date, leaves);
 
+  if (reload) {
+    // VIS1-10 fallback: the confirmation no longer applies to this visit; nothing was stored.
+    return (
+      <div className="mt-4 grid gap-2 rounded-xl border border-stone-300 bg-stone-50 p-3 text-sm">
+        <p ref={dayNoteRef} tabIndex={-1} role="status" data-testid="move-day-changed" data-tone="info" className="rounded-lg border border-stone-300 bg-white p-2 text-stone-700">
+          {DAY_CHANGED_RELOAD}
+        </p>
+        <Link href="/field" className="flex min-h-11 items-center justify-center rounded-xl border border-stone-300 bg-white px-3 font-semibold text-emerald-950">
+          Einsätze von heute
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <form
       action={submit}
@@ -1009,8 +1063,16 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
       data-testid="move-to-today-form"
       className="mt-4 grid gap-3 rounded-xl border border-stone-300 bg-stone-50 p-3 text-sm"
     >
+      {dayNote && (
+        // VIS1-10 (UXR-39): the new date as a fact, at the top of the open form, tone `info`, focus on it.
+        <p ref={dayNoteRef} tabIndex={-1} role="status" data-testid="move-day-changed" data-tone="info" className="rounded-lg border border-stone-300 bg-white p-2 font-semibold text-stone-700">
+          {dayNote}
+        </p>
+      )}
+      {/* VIS1-10: the date shown as "Heute"; re-mounted with the database's today after `day_changed`. */}
+      <input key={`shown-${timesEpoch}`} type="hidden" name="shown" defaultValue={shownDay} />
       <p>
-        Heute, <span data-testid="move-to-today-date">{formatShortDate(today)}</span> (geplant war der {formatShortDate(visit.visit_date)}).
+        Heute, <span data-testid="move-to-today-date">{formatShortDate(shownDay)}</span> (geplant war der {formatShortDate(visit.visit_date)}).
       </p>
       {leavesNote && (
         // VIS1-8: a fact from the plan, `info`; no block, no extra tap. Never "kein Einsatz" while another team's visit
@@ -1022,18 +1084,20 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
       <div className="grid grid-cols-2 gap-2">
         <label className="grid min-w-0 gap-1 font-semibold">
           Von
-          <input ref={startRef} name="start" type="time" required defaultValue={times.start}
+          <input key={`start-${timesEpoch}`} ref={startRef} name="start" type="time" required defaultValue={times.start}
             className="min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-white px-2 text-base font-normal" />
         </label>
         <label className="grid min-w-0 gap-1 font-semibold">
           Bis
-          <input name="end" type="time" required defaultValue={times.end}
+          <input key={`end-${timesEpoch}`} name="end" type="time" required defaultValue={times.end}
             className="min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-white px-2 text-base font-normal" />
         </label>
       </div>
       <label className="grid gap-1 font-semibold">
         Grund der Verschiebung
-        <textarea name="reason" required minLength={3} maxLength={300} rows={2}
+        {/* VIS1-10: controlled, so the typed reason survives React's form reset after a refused confirm. */}
+        <textarea name="reason" required minLength={3} maxLength={300} rows={2} value={reasonText}
+          onChange={(e) => setReasonText(e.target.value)}
           className="w-full min-w-0 rounded-lg border border-stone-300 bg-white p-2 text-base font-normal" />
       </label>
       <p className="text-secondary">{MOVE_TO_TODAY_HINT}</p>
