@@ -1,4 +1,5 @@
-import { ENTRY_TITLE, authorLabel, emptyText, entryLines, ruleText, sourceText, type SinceLast } from "@/features/handover/rules";
+import { ENTRY_TITLE, emptyText, entryAuthorLabel, entryLines, entryQualificationMissing, ruleText, sourceText, type SinceLast } from "@/features/handover/rules";
+import { QUALIFICATION_NOT_RECORDED_TEXT } from "@/features/field/authorship";
 
 function formatDateTime(iso: string) {
   return new Intl.DateTimeFormat("de-CH", {
@@ -36,8 +37,11 @@ export default function SinceLastSection({ block, visitStatus }: { block: SinceL
                 {entryLines(entry.kind, entry.detail).map((line, i) => (
                   <p key={i} className={i === 0 && entry.kind === "observation" ? "whitespace-pre-wrap" : ""}>{line}</p>
                 ))}
+                {entryQualificationMissing(entry) && (
+                  <p data-testid="handover-qualification-marker" className="text-xs text-stone-700">{QUALIFICATION_NOT_RECORDED_TEXT}</p>
+                )}
                 <p className="text-xs text-secondary">
-                  {authorLabel(entry.author)} · {formatDateTime(entry.at)}
+                  <span data-testid="handover-author">{entryAuthorLabel(entry)}</span> · {formatDateTime(entry.at)}
                   {source ? ` · ${source}` : ""}
                 </p>
               </li>
