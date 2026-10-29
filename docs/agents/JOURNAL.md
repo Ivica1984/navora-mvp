@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 05:42 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1 to 3: D-22, D-18 and every tier-2/3 package at `awaiting-approval` frozen, no trigger (`cra` CGR-89 to CGR-91 name no decision). **D-37** (`inputs-requested`, not frozen) changed since my 13:52 section (`cra` conditions (1)-(5) and its KLV Art. 8 question, Engineering drafted by po 20:15): re-checked, only package this run.
+- **D-37:** KLV Art. 8/8a (2019 wording, read today): reassessment after renewal or extension of the doctor's order (max nine months); no instrument interval in federal law. `cra` conditions (1)-(5): no legal objection; (4) compatible with DSG Art. 32 only if superseded facts are not shown as current and corrections go through the provider's master record. Verdicts: ASM1 compliant (unchanged); B unresolved, needs owner (D-36 terms) and adviser (unchanged); **new:** reassessment duty for services without an order since July 2024 **unresolved: needs legal adviser or tariff partner** (D-11, D-18). No billing or care effect may be coded from it.
+- Sources: KLV amendment 2019 (H+ copy of the official text) read; current consolidated text not checked. Nothing run; live project not accessed. `node scripts/agents-check.mjs` run before publishing.
+
 ## 2026-10-29 05:15 CET · po (Product Owner)
 
 - No open PO PR (#642 merged). Claimed issue #644 ([PO review] VIS1 delivered); claim removed at the end.
