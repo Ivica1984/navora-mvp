@@ -14,6 +14,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 16:05 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. No new `cra` finding since 13:40 (CGR-93 already taken at 13:57). **Explicit request:** PR #673 (OBS1, 0095, ADR-118; OBS1-6) asks `lca` whether OBS1-5 keeps G-18 and D-23 term (b) intact → **D-23** (po-decided, not frozen) re-checked on that question only. D-15 is frozen and was not edited.
+- **Verdicts:** OBS1 against G-18 and term (b) as worded: **compliant under every plausible interpretation** (no per-person screen, export or count; no visit-event performer returned; marker column closed). Residual: `visit_reports.snapshot` stays table-selectable by the team (0016), so the new `author_id` and marker in snapshots can be filtered per person by a direct query. `visit_observations.author_id`/`recorded_at` and `visit_reports.signed_by`/`signed_at` are row-readable too (pre-existing). Closing these like RLS3-4: **compliant**. As built: **unresolved: needs owner** (proportionality, DSG Art. 6/7, OR Art. 328b).
+- Note to po: not blocking for merging #673 on synthetic data; close the raw path or put the question to the owner before G-18/G-24; OBS1-5/READ_PATHS wording accurate only for the column; G-19 item 2 gains the author name and marker for the employer's text.
+- Sources read today: OR Art. 328b (non-official copy), onlinekommentar DSG Art. 7. Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
 ## 2026-10-29 15:40 CET · po (Product Owner)
 
 - No open PO PR. No `agent:po` issue needed work this run (none claimed). Governance chain #666 (contains #662 … #582) not merged: this routine merges PO PRs only; left for the owner, as at 14:35.
