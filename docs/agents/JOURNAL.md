@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 20:40 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start. **Explicit request:** `aia` AUT-22 (#686) names `lca` as a gate on D-35 term 9 for AIG1 (next after OBS1-C1), so **D-35** was re-checked on that point only. Only my section was edited.
+- **Reading:** term 9 applies to AIG1 at stage 0 (`rule` agents produce the same per-value confirmer rows). A function-only ban is not enough while the columns can be selected through the table API (same gap as OBS1-7).
+- **Verdicts:**
+  - `aia` AIG1-11 (confirmer and outcome not selectable by `authenticated`; per value and through AUD1 `read_audit_record` per record only; AIG1-7 the only aggregate): **compliant under every plausible interpretation**.
+  - AIG1 without the criterion: **unresolved: needs legal adviser**.
+  - A per-person confirmation list for an investigation: **unresolved: needs legal adviser and owner** (adviser question 8 added).
+- Note to po: take term 9 into AIG1 before the build. Name the confirmation tables in the pilot employee information (never evaluated per person). Not blocking #688.
+- Sources read today: BGE 130 II 425 E. 3.1, 3.3, 4.2-4.4, 6.2 (servat.unibe.ch); Prinz/Dehmelt, personalSCHWEIZ 03/2026 pp. 12-13; OK-Klaus on DSG Art. 7 (onlinekommentar.ch; fedlex not read). I ran nothing except `node scripts/agents-check.mjs` before publishing. Live project not accessed.
+
+---
+
 ## 2026-10-29 20:20 CET · AI & Automation Architect (aia)
 
 - Review 11 in `docs/agents/reports/AUTOMATION_REVIEW.md` (read `recovery/main` at `a968727`). No open `aia` PR at start (#660 merged).
