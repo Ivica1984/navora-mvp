@@ -4,11 +4,43 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 19:20 CET · eng (Lead Engineer)
+
+- Own PR **#673 (OBS1)**: CI green on `f837fc0` (app, db, e2e, ui-screenshots). OBS1-6 reads complete: `lca` 16:01 (#674, not blocking on synthetic data), `cra` 17:30 (#680: CGR-93 remedy met, gate clear once CI green on this head). First merge attempt refused: `JOURNAL.md` conflicted with `recovery/main` (po 18:12, lca 18:40 entries). Resolved by a merge commit (both sides kept, no history rewrite); no change to 0095, pgTAP 095 or the three screens, so the `cra` read still applies.
+- `IMPLEMENTATION_STATUS.md`: OBS1 → **`delivered`** in the same merge commit; it is merged only with CI green on that head, so the state and the merge land together (READY_FOR_REVIEW for the PO).
+- Not in #673 (PLANNED): **OBS1-7** (per-visit read paths for `visit_reports.snapshot`/`signed_by`/`signed_at`, `visit_observations.author_id`/`recorded_at`; `lca` 16:05) — own small PR or condition OBS1-C1, before G-18/G-23/G-24; **UX2-27** (UXR-48). **CGR-94** (null marker before 0095) belongs to the D-1 deploy record.
+- Tests: none run by me this run (conflict in docs only). CI decides on the merge head. Live project not touched.
+
+---
+
+## 2026-10-29 18:40 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. Tier 2: **CGR-94** (`cra` 17:30, PR #680, not yet merged; advisory S3) names owner D-1 as the reason for its condition on migration 0095 → unfreeze trigger 3; **D-1** re-checked on that point only. Only my section edited.
+- **Facts:** on the C-1 records the live project had none of the OBS1 tables and no migration history; whether any repository migration was applied there since 2026-10-21 is UNKNOWN (owner/eng).
+- **Verdicts:** no repository migration on the live project before the D-1 review result: **compliant under every plausible interpretation** (owner rule read literally); applying earlier: **unresolved: needs owner**. CGR-94 remedy before 0095 meets non-synthetic data: **compliant**; null marker shown as "qualification recorded" on real data: **unresolved: needs legal adviser** (DSG Art. 6 Abs. 5, ZH GesG § 13; canton via D-11).
+- Note to po (compliance-relevant): make "no migration on the live project until the review result" explicit in the D-1 default; ask `eng` on #63 whether any migration was applied there. Not blocking #673 on synthetic data.
+- Sources read today: DSG Art. 6 Abs. 5 (non-official English copy, swissrights.ch); law.ch on Art. 32 (not cited). Nothing run except `node scripts/agents-check.mjs` before publishing; live project not accessed.
+
+---
+
+## 2026-10-29 18:12 CET · po (Product Owner)
+
+- No open PO PR. `agent:po` issues: none needed work this run (none claimed). Governance chain #666 and `cra` 17:30 #680 not merged: this routine merges PO PRs only; left for the owner (owner instruction 2026-10-29: no blanket merge of #666).
+- **No delivery to review:** OBS1 PR #673 still open (`cra` 17:30 in #680 says CGR-93 is met once CI is green); review follows its merge.
+- **D-1: `lca` 17:00 facts dossier taken in** (Unfreeze: 5 `lca` 17:00). Ask changes, not widened: (1) name legal counsel and the data-protection responsible person **and date the review** (whether a report may wait for it: unresolved, needs legal adviser); (2) **approve decoupling the key rotation from the review**: after SR-26 step 3 in one dated owner session (compliant under every plausible interpretation per `lca`; the owner's own order stays the default until answered); (3) the origin line also asks whether the old app was ever publicly reachable. Not `po-decided`: live system, and it changes an owner order. `eng` asked on #63 to confirm dossier rows 4, 5, 7-9 from the repository only. Package, INDEX, OPEN_DECISIONS and OWNER_AGENDA updated.
+- **Challenge:** "Why does a security measure wait for a legal review?" Coupling the two adds a coordination step with no protective value: rotation destroys no evidence and only lowers risk. From scratch, security measures run on their own clock and the review documents them. Acted on through the D-1 ask (2); no hypothesis row (not a pilot question).
+- Packages: no other unfreeze trigger; D-37 still waits for D-36. None decided by po.
+- Tests: none run by me (docs only; the `lca` section read through git). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 17:30 CET · eng (Lead Engineer)
 
 - Own PR **#673 (OBS1)**: no CI had run on head `2a290d2` (no workflow run recorded for that commit) and the branch was behind `recovery/main` (#677, #678, #679). Merged `recovery/main` in (JOURNAL: both sides kept, newest first) and pushed so CI runs on the current head. No code change. `npm run agents:check` ok locally; build, vitest, pgTAP and Playwright not run locally (CI decides).
 - **Not merged:** OBS1-6 requires the `cra` read of #673; no `cra` review covering #673 exists yet (latest `gov/review` is 13:40, before the PR). `lca` 16:05 residual (`visit_reports.snapshot` table-selectable, ADR-118 deviation 6) stays OPEN for `po`.
 - Next eng run: if CI is green and the `cra` read is in without a blocking finding, merge #673 and set OBS1 to `delivered`.
+
+---
 
 ## 2026-10-29 17:00 CET · Legal & Compliance Agent (lca)
 
