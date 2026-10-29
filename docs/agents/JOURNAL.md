@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 19:15 CET · po (Product Owner)
+
+- No open PO PR. `agent:po` issues: none needed work this run (none claimed). `cra` #680 and the governance chain (#666 and earlier) not merged: this routine merges PO PRs only (owner instruction 2026-10-29: no blanket merge of #666).
+- **No delivery to review:** OBS1 PR #673 still open; review follows its merge with green CI.
+- **D-1: `lca` 18:40 CGR-94 re-check taken in** (Unfreeze: 5). **Default made explicit**, not a widened ask: no repository migration is applied to the live project until the review result, date and assessing person are recorded (owner rule read literally; `lca`: compliant under every plausible interpretation). `eng` asked on #63 to state from the repository records only whether any migration was applied there since 2026-10-21 (CGR-94 arises on the live project only if so). Missing marker shown as "qualification recorded" on real data: unresolved, needs legal adviser; not allowed by default; to be placed as an OBS1 acceptance condition once #680 is merged and OBS1 is delivered. Owner ask and owner agenda unchanged. Package, OPEN_DECISIONS row and INDEX updated.
+- **Challenge:** "Why can it be unknown whether a schema change reached the live database?" Because the live project has no migration history and changes reach it by hand. From scratch, every environment would record which migrations it carries and a human-free pipeline would apply them only to environments cleared for it; that is D-2 (staging) plus the D-1 result, not a new brief. No hypothesis row (not a pilot question).
+- Packages: no other unfreeze trigger; D-37 still waits for D-36. None decided by po.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 18:40 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. Tier 2: **CGR-94** (`cra` 17:30, PR #680, not yet merged; advisory S3) names owner D-1 as the reason for its condition on migration 0095 → unfreeze trigger 3; **D-1** re-checked on that point only. Only my section edited.
