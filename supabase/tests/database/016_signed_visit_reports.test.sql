@@ -13,6 +13,13 @@ create function pg_temp.shown_hash(rid uuid) returns text language sql as $f$
   select f.snapshot_hash from public.visit_reports r join public.care_visits v on v.id = r.visit_id
   cross join lateral public.field_reports(v.visit_date) f where r.id = rid and f.report_id = rid
 $f$;
+-- OBS1-7 (0096): snapshot, signed_by and signed_at are read through field_reports, not the table API.
+create function pg_temp.fr(rid uuid) returns setof record language sql as $f$
+  select f.snapshot, f.i_signed, f.signed_at from public.visit_reports r join public.care_visits v on v.id = r.visit_id
+  cross join lateral public.field_reports(v.visit_date) f where r.id = rid and f.report_id = rid
+$f$;
+create function pg_temp.fr_snapshot(rid uuid) returns jsonb language sql as $f$
+  select snapshot from pg_temp.fr(rid) as x(snapshot jsonb, i_signed boolean, signed_at timestamptz) $f$;
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -57,9 +64,9 @@ select is((select count(*)::int from public.visit_reports where visit_id = '0000
 create temp table r1 as select id from public.visit_reports where visit_id = '00000000-0000-4000-a000-000000000501';
 
 select is((select status from public.visit_reports where id = (select id from r1)), 'draft', 'a new report is a draft');
-select is((select jsonb_array_length(snapshot -> 'events') from public.visit_reports where id = (select id from r1)), 2,
+select is(jsonb_array_length(pg_temp.fr_snapshot((select id from r1)) -> 'events'), 2,
   'the draft takes the times from the visit events (no re-entry)');
-select is((select snapshot -> 'services' ->> 0 from public.visit_reports where id = (select id from r1)), 'Grundpflege',
+select is(pg_temp.fr_snapshot((select id from r1)) -> 'services' ->> 0, 'Grundpflege',
   'the draft takes the services from the visit');
 select is((select countersign_required from public.visit_reports where id = (select id from r1)), false,
   'performed by a registered nurse → no countersignature (provisional rule, D-10)');
@@ -83,8 +90,10 @@ select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
 set local role authenticated;
 select is(public.sign_report((select id from r1), pg_temp.shown_hash((select id from r1)), 'a6000000-0000-4000-8000-000000000012') ->> 'result', 'ok', 'the nurse signs');
 select is((select status from public.visit_reports where id = (select id from r1)), 'final', 'signed by a registered nurse → final');
-select ok((select signed_by = '00000000-0000-4000-a000-000000000902' and signed_at is not null
-           from public.visit_reports where id = (select id from r1)), 'the signature records who and when');
+-- As the signer …902 (OBS1-7: i_signed is signed_by = the reader).
+select ok((select i_signed and signed_at is not null
+           from pg_temp.fr((select id from r1)) as x(snapshot jsonb, i_signed boolean, signed_at timestamptz)),
+  'the signature records who and when');
 select is(public.update_report_draft((select id from r1), 'Nachträglich', 'a6000000-0000-4000-8000-000000000013') ->> 'reason',
   'not_draft', 'a signed report cannot be edited');
 reset role;
