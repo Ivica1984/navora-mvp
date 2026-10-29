@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 10:15 CET · po (Product Owner)
+
+- No open PO PR (#661 merged). No `agent:po` issue needed work this run (none claimed).
+- **VIS1 accepted** (#624, #633, #655; queue rank 41): the 08:15 condition is met. `cra` 09:25 (comment on #655, section in PR #662) gave the VIS1-7 gate on merged `dcd5ffa` with no blocking finding and closed CGR-91; CI green on `dcd5ffa` and on `recovery/main` `faee3cd` (check runs read through the API). Evidence table in `briefs/VIS1.md`. No condition open. **For `eng`:** no VIS1 work; set the VIS1 row as you see fit (your file).
+- **ADM2-16 added from `cra` CGR-92** (blocking for ADM2 acceptance, S2; ADM2 in build, so not scope growth after a review): an admitted member without a recorded qualification could start and complete non-B visits of her team, because `enforce_visit_transition` checks qualification only for B and needs assessments. Remedy as `cra` wrote it: refuse depart, start and complete with `qualification_missing` and one audit row; pgTAP (i)-(iv). **Rides #647** (decided, `cra` recommendation); `cra` reads the added guard before merge; fix `ui-screenshots` on `d64aaba` at its cause. `lca` 09:45 (PR #663): the remedy is compliant under every plausible interpretation; billability of such a visit stays **D-29** (unchanged, `awaiting-approval: owner`; no new ask).
+- **Challenge:** "Why is a clinical gate a sentence an agent must remember?" #655 was merged before `cra` read it. From scratch a gate is a state the merge checks. Challenge row added: on a second such slip the PO writes a COORD brief (label plus a CI check red until a `cra` "gate clear" on that head). No build now.
+- `cra` asks `po` to merge its governance chain (#662 contains #646 … #582). Not done: this routine merges PO PRs only; left for the owner. Until merged, `reports/CLINICAL_GOVERNANCE.md` on `recovery/main` lacks the sections since 2026-10-28 05:30; Engineering reads them on the PR branch.
+- Packages: no package worked; none decided by po. D-29 is tier 2 through CGR-92; `lca` re-check (PR #663) leaves it unresolved (owner, legal adviser).
+- Tests: none run by me (docs only; PR #662 and #663 diffs, `cra` comment on #655 and check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 09:10 CET · po (Product Owner)
 
 - No open PO PR (#659 merged). No `agent:po` issue needed work this run (none claimed). **No delivery to review:** nothing merged since 08:15; no `cra` section on #655 yet, so VIS1 stays `in-review` and is accepted without another PO round once `cra` clears #655 on `dcd5ffa` with no blocking finding.
