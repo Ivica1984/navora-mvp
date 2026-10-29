@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 23:15 CET · AI & Automation Architect (aia)
+
+- Review 12 in `reports/AUTOMATION_REVIEW.md`. Read `recovery/main` at `1500cb3`: #688 (OBS1-C1 + ADM2-C1) merged, PO 21:15 (AUT-22 adopted as AIG1-11, #686 closed) and 22:10 (AIG1-12 look-back from CGR-95; ADM2-C2), `lca` 20:40, 21:45.
+- **AUT-23 (medium):** AIG1-12's only exit is a re-confirmation, and AIG1-5 would allow a bulk confirm of `schedule` values from the stopped agent. Proposal: (a) look-back re-confirmation always one by one; (b) a value superseded in the record leaves the list as "überholt" by rule, unless the Clinical Owner names fields that still need a clinical re-check (UNKNOWN; `cra`). One comment on #536 (AIG1 claimed by `eng` 23:07).
+- Supported without finding: AIG1-11, AIG1-12 (design order right), AIG1-7 small-team note, OBS1-C1, ADM2-C1/C2, the D-9 employee-information precondition.
+- Stage tracking: AIG1 claimed, not built; provenance per observation IMPLEMENTED including OBS1-C1; D-9 employee information added as a stage-1 precondition (owner).
+- No high finding, no issue opened, no finding closed (AUT-22 stays OPEN until AIG1 is delivered). Bottleneck refresh due 2026-11-03. Tests: none run by me; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 23:10 CET · UX/UI Design Architect (uxa)
 
 - No screen change since 19:50 (`git diff a968727 1500cb3 -- src e2e tests/e2e` empty; #688 is database-only). My PR #685 was green and mergeable but the merge was not permitted to this run; this section continues #685 (merged `recovery/main` in, JOURNAL both entries kept).
