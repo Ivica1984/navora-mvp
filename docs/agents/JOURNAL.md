@@ -4,6 +4,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 14:35 CET · po (Product Owner)
+
+- No open PO PR. No `agent:po` issue needed work this run (none claimed). Governance chain #666 (contains #662 … #582) not merged: this routine merges PO PRs only; left for the owner, as at 10:15.
+- **ADM2 accepted** with condition **ADM2-C1** (#647 merged `1cc31d4`; CI green on head `eccf343` and, at review time, on `1cc31d4` for app, db, ui-screenshots and one e2e run; head after the `cra` read of `bd30b1c` changed documents only). `cra` 13:40 (PR #666): CGR-92 remedy met, gate clear, CGR-72 and CGR-92 close. Evidence table in `briefs/ADM2.md`. Deviations decided: ADR-115 (1) no access-record row, (3) P2 without clock (clock is D-28), (4) switch, (5) "Fall-Ref." format, ADR-117 (1): accepted. ADR-115 (2) push subscriptions kept after an automatic end: accepted on synthetic data only; **ADM2-C1** deletes them by the first sweep after the access end, as the manual end does (before G-23; rides with OBS1 or UX2-22/-23).
+- **CGR-93 placed as new brief OBS1** (*Next up* 1, approved), together with `lca` 13:57 (ZH GesG § 13: authorship of entries immediately visible): author and qualification marker on every observation in the handover and in new report snapshots; never refused; signed snapshots unchanged; per entry only (RLS3-4, G-18); `lca` and `cra` read the PR before merge. G-23 gains OBS1 and ADM2-C1; new **G-24** (author display before the first real client in any organisation).
+- **`cra` UX2 answers taken in:** UX2-22 hide confirmed; UX2-24 no longer void (leaver list may move below requests and cases); UX2-25 manual line may go.
+- **Challenge:** "Why does a handover note hide who wrote it?" From scratch every clinical entry carries its author where it is read; the protection against surveillance (RLS3-4) is about lists per person, not the name on one entry. Briefed as OBS1, with an AN2 hypothesis row.
+- Packages: D-15 not edited (frozen; `lca` 13:57 used trigger 3 and changed no ask, default or blocker). No other unfreeze trigger; D-37 still waits for D-36. None decided by po.
+- Tests: none run by me (docs only; migrations, ADRs, pgTAP names, PR branches and CI read through git and the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+ENGINEERING BRIEF
+- **Capability:** OBS1, every observation shows who wrote it (`briefs/OBS1.md`).
+- **Why:** the performer signs and a registered nurse countersigns reports whose observations may be a colleague's, without seeing it; since ADM2 that colleague may have no recorded qualification (`cra` CGR-93, S2); `lca` reads ZH law as requiring authorship to be immediately visible.
+- **Business outcome:** removes a compliance gap that gates G-23 (team admission for a real organisation) and G-24 (first real client).
+- **Care outcome:** the reader of a handover knows whose observation she relies on and whom to ask; a statement by an unqualified author is visible as such, not lost.
+- **Expected nurse outcome:** no phone round to find who wrote a note; she signs only what she can see the origin of.
+- **Expected team outcome:** team communication in the handover stays attributable without any per-person list or count.
+- **Expected patient outcome:** risk observations (fall, wound, distress) are never refused, and their source is clear to the people who act on them.
+- **Acceptance criteria:** OBS1-1 to OBS1-6 and the Negative in the brief (marker fixed at write time, never refused; author and marker in `field_notes`; new snapshots carry author and marker, signed ones unchanged; screens at 390 px; no read widened, per entry only, READ_PATHS entry; `lca` and `cra` read before merge).
+- **Dependencies:** ADM2 (accepted), ADM2-16 rule `private.actor_may_perform_visit`, HAND1, F6/F7/CSR1 immutability, RLS2, RLS3-4. No decision blocks the build (D-15 stays with the Clinical Owner).
+- **Priority:** *Next up* 1, ahead of AIG1.
+- **Implementation recommendation:** a marker column on `visit_observations` written by `record_observation` (Engineering's choice, state it in the ADR); extend `field_notes` and the current snapshot builder; add the READ_PATHS entry; carry ADM2-C1 in the same PR if it is first.
+
+---
+
 ## 2026-10-29 14:35 CET · eng (Lead Engineer)
 
 - Own PRs: #647 (ADM2) had a journal conflict with `recovery/main` (#665, #667); merged `recovery/main` in (`eccf343`, journal only, both sides kept; nothing under `supabase/` or `src/`). CI green on `eccf343` (run 40881812003). **#647 merged** at 14:31 (merge commit `1cc31d4`) after the `cra` 13:40 read of `bd30b1c` (#666: CGR-92 remedy met, gate clear to merge).
