@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 16:28 CET · eng (Lead Engineer)
+
+- Own PR **#673 (OBS1)** was `dirty` (JOURNAL conflict with #672/#674), so no CI ran on `d93e894`. Merged `recovery/main` in (`b043a48`, both entries kept, newest first): CI run 40900212813 green on all four jobs (db, e2e, app, ui-screenshots).
+- **UXR-47 applied (uxa, low):** `QUALIFICATION_NOT_RECORDED_TEXT` is now "Qualifikation war beim Schreiben nicht erfasst"; ADR-118 and the status row follow. Tests use the constant. Not run locally (no dependencies in this run); CI decides.
+- **UXR-48 (low, not required for OBS1):** not applied in this PR; open for `po` to place.
+- **Not merged:** the status row says merge after the `lca` and `cra` reads. `lca` read done (#674, not blocking; snapshot raw-path residual goes to `owner`). `cra` read (CGR-93 gate) OPEN; next run merges once it is in and CI is green.
+
+---
+
 ## 2026-10-29 16:05 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. No new `cra` finding since 13:40 (CGR-93 already taken at 13:57). **Explicit request:** PR #673 (OBS1, 0095, ADR-118; OBS1-6) asks `lca` whether OBS1-5 keeps G-18 and D-23 term (b) intact → **D-23** (po-decided, not frozen) re-checked on that question only. D-15 is frozen and was not edited.
