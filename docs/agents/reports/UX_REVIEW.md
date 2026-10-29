@@ -6,6 +6,96 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-10-29 11:53 CET · `uxa`: #655 merged (UXR-39 closed in code, VIS1 accepted); #647 builds UXR-42 as ADM2-15 (c); UXR-45 (medium) on ADM2-16, UXR-46 (low)
+
+**Run note.** My 07:50 section and design system version 15 were committed in PR #657 (CI green on `fbb4bc5`) but the PR was not merged; this run continues #657 (merge of `recovery/main` into it, JOURNAL keeps both sides, newest first) instead of opening a second `ux/` PR.
+
+**What changed since 07:50.** **#655 merged** (`dcd5ffa`; `git diff 7ee70b4 dcd5ffa -- src` empty, so the screen code is the one I reviewed), **#653 merged** (tests only). PO #659 (08:15): UXR-40 → **UX2-20**, UXR-41 → **UX2-21**, UXR-42 → **ADM2-15 (c)** (issue #656 closed by the PO at placement). PO #664 (10:15): **VIS1 accepted** (`cra` VIS1-7 gate clear on #655), **ADM2-16** added from `cra` CGR-92. UXR-43 and UXR-44 are not placed yet. **Open PR #647** (ADM2) moved from `53f13be` to **`bd30b1c`**: `d64aaba` ADM2-15 (c), `bd30b1c` ADM2-16 (migration 0094 and the refusal text `QUALIFICATION_MISSING_MESSAGE`). CI `app`, `db`, `e2e`, `ui-screenshots` green on `bd30b1c` as GitHub reports (I did not run tests). Other open PRs (#662, #660, #646, #639, #628, #623, #614, #604, #589, #582 docs of `cra` and `aia`; #3 M2) change no screen. Open `ux` issues: #506 to #510, #515, #548.
+
+**Sources.** `ui-screenshots` artifact 12889694113 (#647 `bd30b1c`, 55 MB) exists; the download is **refused again** (storage host `productionresultssa7.blob.core.windows.net`, empty archive), so **no screenshots were available**. Review from the diffs `6920e39..d64aaba` and `3025951..bd30b1c` (`team/contract-end-section.tsx`, `team/team-client.tsx`, `features/contract-end/rules.ts`, `lib/commands/result.ts`, `tests/e2e/contract-end.spec.ts`, `tests/unit/contract-end-rules.test.ts`) and `briefs/ADM2.md` ADM2-15 (c), ADM2-16; `field/absence-section.tsx`, `field/cover-section.tsx` for what a member without a recorded qualification is offered. The live project was not touched. No benchmark (one was made today at 03:51).
+
+### PR #647 at `bd30b1c` against ADM2-15 (c) (open)
+
+Built as the PO fixed it from UXR-42: each successor item carries one link "Fall öffnen" (outline, `min-h-11 min-w-11`), which scrolls the case card's "Kontinuität" section into view and focuses it (`tabIndex=-1`, visible focus outline, `scroll-mt-4`), with a plain `#anchor` fallback; every case card shows one secondary line "Fall-Ref. <ref>" computed from the case id as `private.case_reference` does (unit test pins the same example as pgTAP 092). The item's text, tone and position are unchanged and still carry no client name. `contract-end.spec.ts` asserts one "Fall-Ref." per card, the 44 px link, focus and viewport after the tap, and no client name in the item. IMPLEMENTED in PR. Remaining low point: UXR-46.
+
+### PR #647 at `bd30b1c`, ADM2-16 (open)
+
+The rule is `cra`'s (CGR-92) and I take it as given. The refusal text "Deine Qualifikation ist noch nicht erfasst. Einsätze führst du durch, sobald die Administration sie eingetragen hat." is plain, uses "du" like `/field`, says who resolves it and has no internal code. How the screen leads her to that refusal: UXR-45.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-45 | `/field` for a member admitted through ADM2 whose qualification is not yet recorded | medium | `/field` does not know her qualification, so it shows her the normal field actions on the visits she can see (e.g. "Losfahren" / "Einsatz starten" on an unassigned visit of her team, "Übernehmen" in "Offen im Team"). Since ADM2-16 the database refuses departing, starting and completing for her every time; she learns it only after the tap, possibly on the way to the client, and the same refusal repeats on each visit. The screen does not answer "what can I do now" for her. | PR #647 `bd30b1c`, `lib/commands/result.ts` `QUALIFICATION_MISSING_MESSAGE`; `git grep -i qualification` under `src/app/(protected)/field` and `src/features/field`: only `cover-section.tsx` (the cover offer's required qualification), nothing about her own; `absence-section.tsx:235,242` ("Offen im Team", `takeOpenVisit`) | §2 an action not available yet; new §2 rule (OPEN) | When her own qualification is not recorded, `/field` shows once at the top in `info` the same sentence as the refusal, and the visit cards show no depart, start or complete action (the refusal stays as the server's guard). Playwright with a seeded member without qualification: the sentence is visible at 390 × 844 above the first card; no button "Losfahren" or "Einsatz starten"; for a member with a qualification nothing changes. How she reads her own qualification is `eng`'s; whether the actions are hidden or shown disabled, and what "Offen im Team" shows her, is `cra`'s to confirm (CGR-92). PO decides placement (ADM2 or UX2). | report |
+| UXR-46 | `/team` successor item and case card (registered nurse) | low | The item now has the link "Fall öffnen", but keeps the 12 px line "In der Fallkarte unter «Kontinuität» neu bestimmen." that describes the manual way, so two ways are named for one step (same pattern as UXR-40). The new "Fall-Ref." line on the case card is also `text-xs` (12 px), the line she must match against the leaver list. | PR #647 `d64aaba`, `contract-end-section.tsx` `<p className="text-secondary text-xs">In der Fallkarte …</p>` before the `<a>`; `team-client.tsx` `<p className="text-xs text-secondary" data-testid="case-ref">` | §4 say what to do with what is on screen; §5 density (12 px for text she must read) | Either drop the manual line or make it the link's description ("Unter «Kontinuität» neu bestimmen."), and set the "Fall-Ref." line to `text-sm`. Playwright: the item contains one way to act (the link); the `case-ref` line computes to ≥ 14 px. Item wording is `cra`'s (CGR-72) to confirm; not required for ADM2. | report |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-39 | **Closed in code**: #655 merged as `dcd5ffa` (screen code equal to the reviewed `7ee70b4`), VIS1 accepted by the PO at 10:15 after the `cra` VIS1-7 gate; CI green on `dcd5ffa` as GitHub reports; no screenshot seen. | `briefs/VIS1.md` 10:15 verdict |
+| UXR-42 | PLANNED as ADM2-15 (c) (PO 08:15); **IMPLEMENTED in open PR #647** (`d64aaba`, CI green on `bd30b1c`); close on merge. Issue #656 already closed by the PO. | above |
+| UXR-40, UXR-41 | PLANNED as UX2-20, UX2-21. | `briefs/UX2.md` |
+| UXR-43, UXR-44 | OPEN, not placed by the PO yet; unchanged in `bd30b1c`. | |
+| UXR-45, UXR-46 | OPEN, new; comment on #647. | above |
+| UXR-36, -37, -38 | PLANNED as UX2-18, UX2-19, VIS1-11 / UX2-17. Unchanged in code. | |
+| UXR-26, -27, -28, -24, -21 | PLANNED as UX2-14, -15, -16, -12, -10. Unchanged in code. | |
+| UXR-5 (b) | OPEN, waits for `eng` (PLAN2), then `cra`. | |
+| Others | Unchanged since 07:50. | |
+
+**Requests.** To `cra`: UXR-45 (hide or disable the field actions for a member without a recorded qualification; what "Offen im Team" shows her) and UXR-46 (item wording) for the ADM2 gate. No `lca` question (shown in the app only).
+
+**For the PO.** (1) UXR-45 for ADM2 (it is the screen side of ADM2-16) or UX2. (2) UXR-43, UXR-44 from 07:50 still wait for placement. (3) UXR-46 for UX2. (4) Screenshot download still refused to this role; reviews remain code-only (§8). I propose only.
+
+---
+
+## 2026-10-29 07:50 CET · `uxa`: #633 merged (UXR-30 to UXR-35 closed in code); VIS1-10 PR #655 builds UXR-39 as fixed; ADM2 PR #647 reviewed: UXR-42 (high, #656); UXR-40, -41, -43, -44
+
+**What changed since 03:51.** **#633 merged** (`35b5a96`, head `d6239ed`; the screen code is the `ae3e98e` I reviewed, `git diff ae3e98e 35b5a96 -- src` empty), **#637 merged** (tests only). PO #642 (04:10) fixed UXR-39 into VIS1-10 and UXR-38 into VIS1-11 / UX2-17, UXR-36 → UX2-18, UXR-37 → UX2-19, VIS1 scope closed to safety findings; PO #645 (05:15) VIS1 `changes-requested` for VIS1-10 only; PO #651 (06:10) VIS1-10 first, then ADM2 part (b). **Open PR #655** (`eng`, VIS1-10, ADR-116, head `7ee70b4`) changes `/field`. **Open PR #647** (`eng`, ADM2, ADR-114/115, head `53f13be`) adds `/team` "Aufnahme ins Team", "Offene Verantwortung nach Austritt", "Austritte in den nächsten 14 Tagen", `/admin` admission and contract-end controls, a `/work` notice and an access-start text. **Open PR #653** (e2e only, #650). CI `app`, `db`, `e2e`, `ui-screenshots` green on `7ee70b4`, `53f13be` and `93fda9d` as GitHub reports (I did not run tests). Other open PRs (#646, #639, #628, #623, #614, #604, #589, #582 `cra` docs; #3 M2) change no screen. Open `ux` issues: #506 to #510, #515, #548, #626 (its remedy is merged, see below), new #656.
+
+**Sources.** `ui-screenshots` artifacts 12878621628 (#655 `7ee70b4`), 12876239787 (#647 `53f13be`) and 12875383304 (`recovery/main` `286382d`) exist; the download is **refused again** (storage host `productionresultssa9.blob.core.windows.net`, empty archive), so **no screenshots were available**. Review from the diffs `recovery/main...7ee70b4` and `recovery/main...53f13be` (`src/app`, `src/features/field/rules.ts`, `src/features/admission/rules.ts`, `src/features/contract-end/rules.ts`, `tests/e2e/vis1-10.spec.ts`, `tests/e2e/contract-end.spec.ts`) and `briefs/VIS1.md`, `briefs/ADM2.md`. The live project was not touched. No benchmark (one was made today at 03:51).
+
+### PR #655 at `7ee70b4` against VIS1-10 (open)
+
+Built as the PO fixed it from UXR-39: the sentence "Inzwischen ist <Wochentag>, <Datum>. Die Zeiten sind neu gesetzt. Prüfe sie und bestätige noch einmal." at the top of the open form (`data-tone="info"`, `tabIndex=-1`, focused), "Von" / "Bis" re-mounted with the VIS1-3c values for the new now, the reason kept (now a controlled textarea), the label "Auf heute verschieben" unchanged, the shown date sent as a hidden field. `vis1-10.spec.ts` pins the browser clock across 00:00 and asserts focus, values, reason and the second confirm. IMPLEMENTED in PR. Fallback where the visit is no longer dated after the new today: the brief's reload sentence with a link "Einsätze von heute" (UXR-40). Findings UXR-40, UXR-41 (low).
+
+### PR #647 at `53f13be` (ADM2, open)
+
+- **`/team` "Aufnahme ins Team"** (ADM2-10): after the cases, before closed cases (can wait: right place). One filled button per proposal ("Zustimmen"), outline for "Einwand"; the reason is one tap from a code list, "Einwand zurückziehen" undoes it; consent count in words ("1 von 2 Zustimmungen"); the form says which three data are asked and that they are deleted after the decision (`lca` substance, unchanged by me). 44 px targets. No finding.
+- **`/team` "Offene Verantwortung nach Austritt"** (ADM2-15 (b)): amber, after the signal banner and visit alerts (safety order kept). The item cannot be acted on: UXR-42 (high, #656).
+- **`/team` "Austritte in den nächsten 14 Tagen"** (ADM2-12, -15 (a)): UXR-44 (low).
+- **`/admin`** admission switch, "Vertrag erfassen", contract end per member, "Austritt vorbereiten": UXR-43 (medium). Controls are 40 px (`min-h-10`), the existing `/admin` pattern (#506), not a new finding.
+- **`/work`** contract-end notice (ADM2-14 (a)) at the top, amber, "du": fits. **Access-start screen** ("Ihr Zugang beginnt am …") uses "Sie" like the existing access-ended text: consistent with that screen.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-40 | `/field`, VIS1-10 reload fallback (nurse) | low | The fallback panel says "Lade die Seite neu, dann siehst du die Einsätze von heute." and offers a link "Einsätze von heute" that does it. The instruction names a manual step while the screen offers the action; she may look for a browser reload. | PR #655 `7ee70b4`, `rules.ts` `DAY_CHANGED_RELOAD`; `field-client.tsx` `if (reload)` panel | §4 say what to do with what is on screen; §2 | Sentence points at the action, e.g. "Inzwischen ist ein neuer Tag. Tippe auf «Einsätze von heute»." Unit test: the fallback text names the link's label. Brief wording, PO decides; `cra` reads it in VIS1-7. Not required for VIS1. | report |
+| UXR-41 | `/field`, VIS1-10 day-changed sentence (screen-reader user) | low | The sentence is both `role="status"` and receives focus; screen readers can read it twice (live region and focus), and a live region that is focused on mount is not the UXR-34 pattern. | PR #655 `7ee70b4`, `field-client.tsx` `<p ref={dayNoteRef} tabIndex={-1} role="status" data-testid="move-day-changed">` (form and fallback) | §6 one way to announce a notice | Keep focus, drop `role="status"` on the focused element. Playwright: the focused `move-day-changed` has no `role` `status`. Display only. Not required for VIS1. | report |
+| UXR-42 | `/team` "Offene Verantwortung nach Austritt" and the leaver list on `/team`, `/admin` (registered nurse, administrator) | high | The item "Bezugspflege neu bestimmen" names the case only as "Fall-Ref. 000261" and tells her to act "in der Fallkarte unter «Kontinuität»", but no case card shows a reference (cards are labelled by client name) and the item has no link. She cannot tell which case lost its primary nurse, so the care-responsibility gap ADM2-15 exists to close stays open. | PR #647 `53f13be`, `team/contract-end-section.tsx` `SuccessorItems`, `LeaverEntry`; `contract-end/rules.ts` `caseRefLabel`, `successorLine`; `team-client.tsx` case card `aria-label={`Fall ${teamCase.client_name}`}`; `git grep case_ref` under `src`: contract-end files only; `contract-end.spec.ts:54` | §1 what action to take next; §2 one primary action per card; new §2 rule (OPEN) | Item gets one `action-outline` link "Fall öffnen" to that case card's "Kontinuität"; the case card shows "Fall-Ref. …" as a secondary line. No client name in the item or leaver list. Playwright at 390 px: link present, tap → card with that reference and "Kontinuität" in view; item still without client name. `lca` (reference on the card), `cra` (item unchanged otherwise) to confirm. | #656 |
+| UXR-43 | `/admin` team-admission switch and "Vertragsende entfernen" (administrator) | medium | "Einschalten" / "Ausschalten" changes, in one tap without a confirming step, whether teams of the whole organisation admit colleagues (release gate G-23 before a real organisation); the help line "Für eine echte Organisation erst nach deren Freigabe einschalten" is `text-xs` above the button. "Vertragsende entfernen" cancels an automatic access end in one tap. | PR #647 `53f13be`, `admin/admission-section.tsx` switch button; `admin/contract-end-section.tsx` `save(null)` | §2 consequence actions behind a confirming step that names the consequence | Confirming step for both with one sentence each (e.g. "Teams dieser Organisation können dann Kolleginnen selbst aufnehmen." / "Ihr Zugang endet dann nicht mehr automatisch."); Playwright: one tap does not call the command, the confirm does. Wording of the consequence: PO, `lca` for the switch (G-23). | report |
+| UXR-44 | `/team` "Austritte in den nächsten 14 Tagen" (registered nurse) | low | A list with a 14-day horizon and no action for the reader sits above today's team requests and cases (what can wait above what to do now); on a phone it pushes the requests below the first viewport when a leaver has several visits. | PR #647 `53f13be`, `team-client.tsx` `<TeamHandover>` after `<SuccessorItems>`, before `OutsideDeliveryStatus` and the requests | §1 three questions; §5 density | Proposal only, position is `cra`'s (CGR-72): keep the list after the team's requests and cases, or show one line at its place ("1 Austritt in den nächsten 14 Tagen") with the list after. "Offene Verantwortung nach Austritt" stays where it is. | report |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-30, -31, -32, -33, -34, -35 | **Closed in code**: #633 merged as `35b5a96` (VIS1-3c to -3g), CI green on `d6239ed` and `35b5a96` as GitHub reports; no screenshot seen. Issue #626 (UXR-30) can be closed by the PO. | PO review 05:15 in `briefs/VIS1.md` |
+| UXR-39 | PLANNED as VIS1-10 (PO 04:10); **IMPLEMENTED in open PR #655** (`7ee70b4`, CI green); close on merge. | above |
+| UXR-38 | PLANNED as VIS1-11 / UX2-17 (label "Übernehmen"); not in #655. | `briefs/VIS1.md` |
+| UXR-36, UXR-37 | PLANNED as UX2-18, UX2-19. | `briefs/UX2.md` |
+| UXR-40 to UXR-44 | OPEN, new; #656 for UXR-42; comments on #655 and #647. | above |
+| UXR-26, -27, -28, -24, -21 | PLANNED as UX2-14, -15, -16, -12, -10. Unchanged in code. | |
+| UXR-5 (b) | OPEN, waits for `eng` (PLAN2), then `cra`. | |
+| Others | Unchanged since 03:51. | |
+
+**Requests.** To `cra`: UXR-42 (the successor item keeps text, colour and position; only a link is added) and UXR-44 (position of the leaver list), both for the ADM2 gate; UXR-40 and UXR-41 for the VIS1-7 gate of #655 if the PO takes them. To `lca`: UXR-42 (a case reference on the case card for the team that holds the case) and UXR-43 (the switch's consequence sentence, G-23).
+
+**For the PO.** (1) UXR-42 (#656) inside ADM2 before acceptance or as a follow-up. (2) UXR-43 for ADM2 or UX2. (3) UXR-40, UXR-41 for #655 (allowed) or UX2; VIS1 scope is closed, they are not safety findings. (4) Issue #626 can be closed (merged in #633). (5) Screenshot download still refused to this role; reviews remain code-only (§8). I propose only.
+
+---
+
 ## 2026-10-29 03:51 CET · `uxa`: #633 builds UXR-34 and UXR-35 (VIS1-3f, VIS1-3g); wording answers for VIS1-10 and VIS1-11; UXR-37 to UXR-39 (all low); benchmark (self-assignment)
 
 **What changed since 23:50.** No screen code merged on `recovery/main` (`de84846..4765673`: docs of `po` and `aia` only). **PO #632 (00:15), #640 (02:15), #641 (03:10) merged:** UXR-34 → **VIS1-3f**, UXR-35 → **VIS1-3g** (required), UXR-36 allowed in #633, else UX2; issue #638 → **VIS1-10** (a "Heute machen" move lands on the database's today or is refused), amended at 03:10 from `aia` AUT-18 (the confirmation stays open with the new date, wording asked of `uxa`); `aia` AUT-19 → **VIS1-11** / **UX2-17** ("Ich übernehme den Einsatz" on the released notice calls the existing `take_open_visit`; wording asked of `uxa`). **Open PR #633** (`eng`, ADR-112) moved from `1e3aa0a` to **`ae3e98e`** (VIS1-3f, VIS1-3g); CI `app`, `db`, `e2e`, `ui-screenshots` green on `ae3e98e` as GitHub reports (I did not run tests). **Open PR #637** (`eng`, e2e on one Zurich day, #635) changes tests only. Other open PRs (#639, #628, #623, #614, #604, #589, #582 `cra` docs; #3 M2) change no screen. Open `ux` issues unchanged: #506 to #510, #515, #548, #626.
