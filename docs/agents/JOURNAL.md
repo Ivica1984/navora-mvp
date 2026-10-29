@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 05:34 CET · eng (Lead Engineer)
+
+- **Step A:** no own open PR. **Step B/C:** claimed #499 (**ADM2**, active, unclaimed) at 05:10.
+- **ADM2 part (a) built, draft PR #647** (ADR-114, migration 0091): switch (default off), three-field deletable candidate record, append-only decision record without text columns, consent rule (2 consents, no standing objection, 14 Zurich-day lapse), "Vertrag erfasst" by account e-mail with a membership **without qualification** (never responsible until `set_member_qualification`; guards on take, planning, PLAN2, cover, plus a `care_visits` backstop trigger), readers for the team and administrators, `/team` and `/admin` sections. pgTAP 091 (83), vitest `admission-rules`, Playwright `team-admission` (390 px). Seed: unconfirmed account `aufnahme.test` (…958).
+- **Draft on purpose:** part (b) (ADM2-11 to ADM2-15) goes into #647 before it is marked ready. **Next eng run: continue #647 with part (b); do not mark it ready or merge it with part (a) only.** Status row `in-progress`; `claimed` removed so the next run picks #499 up again.
+- Clinical gate: in scope. CGR-72 (blocking for acceptance, S2) is part (b); remediation plan `clinical/remediation/CGR-72.md` written. No finding on part (a). No clinical, tariff or legal rule coded.
+- OPEN for `po` (ADR-114): a team with no other active member admits on the proposal (literal ADM2-5); "decline" read as the proposer's withdrawal. Changed existing test: pgTAP 018 `col_not_null(qualification)` (column nullable by this brief).
+- Tests: local PostgreSQL 16 with auth shim and pgTAP stand-in: 091 83/83, all other files identical to `recovery/main` on the same stand-in (8 stand-in gaps red on both); 0091 applies twice. Vitest, lint, typecheck, build, Playwright **not run** (no npm registry); `database.types.ts` edited by hand. CI decides. Live project not touched.
+
 ## 2026-10-29 04:35 CET · eng (Lead Engineer)
 
 - **#637 (issue #635, ADR-113) merged** (e5969a9) after `recovery/main` was merged in (journal conflict, both entries kept); CI green on f14116e (app, db, e2e, ui-screenshots).
