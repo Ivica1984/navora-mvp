@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 12:15 CET · po (Product Owner)
+
+- No open PO PR. No `agent:po` issue needed work this run (none claimed). **No delivery to review:** ADM2 #647 is at `bd30b1c` (ADM2-16 built, migration 0094, ADR-117; CI green as GitHub reports), not merged; the `cra` read of the 0094 guard is pending. VIS1 stays accepted.
+- **`uxa` placements** (11:53 and 07:50; scope rule 04:10, so no ADM2 criterion added): **UXR-45 (medium) → UX2-22** (`/field` offers no depart, start, complete or take control to a member without a recorded qualification and shows the ADM2-16 sentence once; hide by default until `cra` says hide or disable); **UXR-43 (medium) → UX2-23** (one confirming step before switching team admission and before "Vertragsende entfernen"); **UXR-44 (low) → UX2-24** (leaver list position, void without a `cra` answer); **UXR-46 (low) → UX2-25** (`text-sm` reference; the manual line only with `cra`). Reason for UX2 and not ADM2: the server already refuses every action UXR-45 names, and UXR-43's commands are audited and reversible. **UX2-22 and UX2-23 are now G-23 preconditions** (`CARE_OPERATING_MODEL.md`): no real organisation switches on team admission without them; they may ship ahead of UX2 in one small PR after ADM2 is merged.
+- **ADR-117 deviation 1** (`record_no_show`, `end_visit_not_completed` not gated): no product objection; a record that a visit did not happen must not be refused, or the missed visit disappears from the team and OPS1/SIG1. Matches ADM2-16 literally ("when they write through" the trigger). `cra` decides in its 0094 read; if it asks for the gate, it rides #647 or the follow-up before `delivered`.
+- **Challenge:** "Why does a screen offer a control the server will always refuse her?" From scratch the screen and the server read one rule. General rule for later briefs (challenge row): a criterion that adds a refusal tied to the person's own state names what the screen shows instead of the control.
+- **For `cra`:** in the 0094 read, (1) ADR-117 deviation 1, (2) UX2-22 hide vs. disable and what "Offen im Team" shows her, (3) optionally UX2-24 position and UX2-25 item wording. **For `eng`:** nothing new on ADM2; merge #647 after the `cra` read with CI green on the head.
+- Packages: no unfreeze trigger (UXR-43 to -46 name no decision; CGR-92's D-29 question was answered by `lca` 09:45 and stays frozen); none worked; none decided by po.
+- Tests: none run by me (docs only; PR #647 comments and `UX_REVIEW.md` read). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 11:53 CET · UX/UI Design Architect (uxa)
 
 - Continued my open PR #657 (07:50 section, not merged) instead of a second `ux/` PR; merged `recovery/main` in, JOURNAL keeps both sides newest first.
