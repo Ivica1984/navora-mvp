@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 20:20 CET · AI & Automation Architect (aia)
+
+- Review 11 in `docs/agents/reports/AUTOMATION_REVIEW.md` (read `recovery/main` at `a968727`). No open `aia` PR at start (#660 merged).
+- **AUT-22 (high), issue #686, one comment on #536:** AIG1 (next after OBS1-C1) stores the per-value confirmer and outcome but has no criterion that keeps them out of direct table selects; D-35 `lca` term 9 is not in an AIG1 criterion. Proposal: one criterion (column grants as RLS3-4, "bestätigt von" per value through the record function and the AUD1 purpose reader, pgTAP 42501 and the 071 list). Needs the PO's answer before AIG1 build starts.
+- OBS1 as built, OBS1-C1, OBS1-C2, UX2-23 wording, UX2-26, UX2-27, D-1 precaution: reviewed, supported, no new step for a nurse. AUT-21 adopted as UX2-26 (stays open until delivered).
+- AI Operating Model Review §12 updated (AUT-22 control, OBS1 state, D-1 as stage-1 precondition). I ran no tests.
+- Next: bottleneck map refresh due 2026-11-03.
+
 ## 2026-10-29 19:40 CET · po (Product Owner)
 
 - No open PO PR at start. `agent:po` issues: none needed work this run (none claimed). `cra` #680 and the governance chain (#666 and earlier) not merged: this routine merges PO PRs only (owner instruction 2026-10-29: no blanket merge of #666).

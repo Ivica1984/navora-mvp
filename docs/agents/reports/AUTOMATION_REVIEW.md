@@ -31,6 +31,55 @@
 
 ---
 
+## 2026-10-29 20:20 CET · aia review 11: OBS1 delivered and accepted (#673, PO 19:40) reviewed; AUT-21 adopted as UX2-26; AUT-22 (high: AIG1 keeps the per-value confirmer selectable by direct query); D-1 precaution added to stage tracking
+
+**Read:** `recovery/main` at `a968727`:
+- merged since review 10: #660 (reviews 9 and 10), #670, #672, #678, #681, #683 (PO 14:35 to 19:40), #674, #679, #682 (`lca` 16:05, 17:00, 18:40), #675 (`uxa` 16:10), #677 (PO, owner D-1 precaution), **#673 (OBS1, migration 0095, ADR-118, merge `1fa6f26`)**;
+- open: #685 (`uxa` 19:50), `cra` #680 (17:30, CGR-94) and its chain; `eng` on #536: OBS1-C1 with ADM2-C1 first, **AIG1 in the next run(s)**;
+- briefs changed: OBS1 (OBS1-4 wording, OBS1-7, acceptance with OBS1-C1, OBS1-C2), UX2 (UX2-23 wording, **UX2-26 from AUT-21**, UX2-27); D-1 (owner precaution: no real client data for tests or pilot until D-1 is clarified; no repository migration on the live project before the review result), D-23 (`lca` re-check behind OBS1-7); AIG1 unchanged since 2026-10-27 18:10.
+- No open issue was labelled `automation` before this run.
+
+**Nothing below is a measurement.** I ran no tests; CI states are as the PO reports them.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-22 | Every later assisted step (PLAN3 day plan first): the confirmer of a proposed value, i.e. every nurse who uses an assistant | **AI readiness of an approved item before build, not a challenge of a step.** PLANNED (AIG1 approved 2026-10-27, unchanged since 18:10; next after OBS1-C1): AIG1-2 and AIG1-3 store per value the confirmer and the outcome (`confirmed`, `corrected`, `rejected`) with time; AIG1-7 forbids a per-person **reader**. No criterion says who may **select the rows themselves** through the table API. D-35 `lca` term 9: the per-value confirmer is read per value or through the AUD1 purpose reader only, never aggregated per person (ArGV 3 Art. 26); not in any AIG1 criterion. Today's `lca` 16:05 finding on OBS1 (team-wide table select → per-person filter by direct Data API query; now OBS1-C1, a separate retrofit PR that rewrites pgTAP 016, 026, 049) shows the same shape. Effect on care time: if a nurse's accept/correct pattern can be listed, the safe behaviour is to avoid the assistant or accept unchanged (automation bias, H-20), so the administrative gain of every later agent is at risk. Size: UNKNOWN (no agent built) | **rule, built in from the start:** add one AIG1 criterion (e.g. AIG1-11): confirmer and outcome columns of the ledger and confirmation tables not selectable by `authenticated` (mechanism Engineering's, e.g. column grants as 0070, RLS3-4); "bestätigt von" read per value through the record's own function (AIG1-3 line) and through the AUD1 purpose reader; AIG1-7 stays the only aggregate, without a person key; `READ_PATHS.md` lists the columns under RLS3-4 and the pgTAP 071 list fails on an unlisted reader. No added step for anyone; equal safety (accountability per value is kept) | L | stage 0 (precondition of every later stage); PO (brief amendment before build), `lca` (term 9 reading), `eng` (mechanism); no clinical content | pgTAP: direct select of confirmer/outcome → 42501; the record function still returns "bestätigt von" per value; 071 list extended. After go-live, per team only: AIG1-7 correction share per agent and field (a share drifting only to "confirmed unchanged" is a warning sign, read per team, never per person) | high | #686; one comment on #536 |
+
+**Briefs and items reviewed without a new finding:**
+- **OBS1 as built (#673, 0095, ADR-118), challenge test:** the marker is set by an insert trigger; the nurse types nothing; the screen adds one `info` line per affected observation ("Qualifikation war beim Schreiben nicht erfasst", not red); nothing is refused, routed or counted. The handover now answers "who wrote this?" without a phone round. Added administration: none. Supported, as in review 10.
+- **OBS1-C1 (= OBS1-7, per-visit read paths):** narrows reads only; no step for a nurse or administrator; supported. It is also the template for AUT-22.
+- **OBS1-C2 (`cra` CGR-94):** of the three ways, `eng`'s statement in the deploy record ("no observation between 0091 and 0095") is the leanest and changes no screen; the derived marker or the neutral line "Qualifikation beim Schreiben nicht bekannt" only where that statement cannot be made. Patient-safety and accuracy control (DSG Art. 6 Abs. 5, `lca` 18:40); not administration; not challenged.
+- **UX2-26 (PO 15:40, from AUT-21):** taken in as proposed (same card, existing command, not preselected, "Später", the gap visible in the admission list). Supported.
+- **UX2-23 wording (`uxa` 16:10):** one confirming step on two rare administrator switches, in place, focus moved; supported (review 10).
+- **UX2-27 (one author label):** removes a member code from the handover; supported.
+- **D-1 owner precaution and its explicit default (PO 17:00, 19:15):** no real client data for tests or pilot runs; no migration on the live project before the review result. A data-protection precondition, not administration; recorded in stage tracking below.
+
+### 2 AI readiness of delivered items
+- Nothing merged since review 10 proposes, drafts or ranks. The OBS1 marker is a deterministic fact fixed at write time (no ledger entry needed).
+- **Per-entry provenance in clinical records is now IMPLEMENTED for observations** (author per observation in the handover and in new report snapshots; signed snapshots unchanged; per entry only, residual table read closed by OBS1-C1). The §12 control for later documentation drafts (the confirmer is the author; draft origin a separate per-entry fact) can build on it unchanged.
+
+### 3 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1 built | PLANNED; *Next up* 1 after OBS1-C1 (`eng` #536); not started. **Missing in the brief:** D-35 term 9 at table level (AUT-22, #686) |
+| 0 | Per-entry provenance in clinical records (§8 "provenance per value") | **IMPLEMENTED for observations** (OBS1, #673); OBS1-C1 PLANNED; drafts and their origin still OPEN |
+| 0 | ASM1 built | PLANNED, not started |
+| 1 | Real staff or client data may reach any test, pilot or AI path | **blocked additionally** by the owner precaution of 2026-10-29 until D-1 is clarified (documented review, result recorded); besides the new owner package D-35 requires (provider, region, contract) |
+| 1-3 | other conditions unchanged from review 1 | OPEN |
+
+### 4 Findings closed
+- None. **AUT-21 (medium):** adopted by the PO as **UX2-26** (15:40; may ride with UX2-22/UX2-23); stays OPEN until delivered. AUT-14, AUT-15, AUT-17, AUT-19, AUT-20: unchanged.
+
+### 5 Waiting for the PO
+- **AUT-22 (high, #686):** answer before AIG1 build starts (one criterion and one pgTAP block now instead of a later OBS1-C1-style retrofit).
+- AUT-19, AUT-20: as in review 9. AUT-21: delivery of UX2-26.
+- Bottleneck map refresh: due 2026-11-03 (weekly); candidates unchanged (onboarding contract to first visit, P-28, P-32).
+
+---
+
 ## 2026-10-29 14:55 CET · aia review 10: ADM2 merged (#647) and OBS1 approved (PO PR #670) reviewed; AUT-21 (onboarding: the qualification is a second administrator step in another place); OBS1 supported
 
 **Read:** `recovery/main` at `064a6c0`:
