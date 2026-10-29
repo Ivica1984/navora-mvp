@@ -10,9 +10,10 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **OBS1-C1 and ADM2-C1 met** (#688 merged `b3227d2`; migration 0096, ADR-119, pgTAP 096 (39); CI green on head `213934b`; `cra` 21:30 gate clear, `lca` 21:45 not blocking; **the PO did not run the tests**; evidence tables in `briefs/OBS1.md` and `briefs/ADM2.md`). ADR-119 deviations 1-3 accepted (test reads moved into the functions; no new care-assistant Playwright, as `cra` accepted; inventory decided below). OBS1 and ADM2 stay accepted; **OBS1-C2 and ADM2-C2 stay open** (G-23).
 - **CI on `recovery/main` is red:** e2e failed in both runs on `1500cb3` (22:31 CET) at `vis1.spec.ts:41`, two `/field` cards "22:40 – 23:10, Testfall 08" (CGR-96, #693). The same failure hit `b1011f2` at 18:48 CET, before #688, and #688 touches no `src/` or e2e file, so it is not counted against OBS1-C1. All three failures were in the evening. **#693 placed first in *Active now*** with done-criteria (rows named from a reproduction; product, fixture or screen fix with its own test; three consecutive green runs, one between 18:00 and 23:00 Zurich; no retry or skip). Why first: it can turn every PR red (AIG1's included), and if the two cards are two visits it is a safety and billing defect. One comment on #693.
 - **OBS1-7 (c) inventory decided (D-23 item 21, still `po-decided`):** new brief **RLS4** approved, *Next up* 2 after AIG1, gate **G-18**: act-trail person columns of 19 care-record tables closed to direct table selects (RLS3-4 pattern); assignment columns (responsible member, cover, primary and deputy nurse, quality-event owner, report performer, signal taker) kept; every reader named; `lca` reads before merge. Not escalated: narrows reads only, reversible, synthetic data. `lca` and `eng` inputs requested in the package and on #111.
+- **`aia` AUT-23 (review 12, medium; merged during this run, PR #695):** (a) adopted as **AIG1-13** before the first AIG1 PR (`eng` claimed AIG1 at 23:07): re-confirming from the AIG1-12 look-back list is one value at a time, the AIG1-5 bulk confirm is refused there (pgTAP). Why: a stopped agent's suspect values must not be waved through again in one ticked list (H-20). (b) (superseded values leave by themselves as "überholt") **not adopted now**: whether such a value still needs a clinical re-check is the Clinical Owner's (D-17 part 3); `cra` asked on #536 whether (b) is a clinical question; AIG1-12 stays as written until then.
 - **Challenge:** "Why can a teammate query who closed every task or set every hold?" Because grants were written table by table for the screens, and person columns came along. From scratch, a shared care record answers "who did this" on the entry and never "what did she do"; that rule now lives once (RLS4) instead of being found per brief (RLS3-4, OBS1-7, AIG1-11). No hypothesis row (a design rule, not a pilot question).
 - Packages: D-23 item 21 (above). No unfreeze trigger for D-22, D-18 or tier 2; D-37 waits for D-36. None decided anew by po beyond D-23 item 21.
-- Queue: CGR-96 (#693), AIG1, RLS4, ASM1, UX2, PLAN3. `ROADMAP.md` and G-18/G-23 in `CARE_OPERATING_MODEL.md` updated.
+- Queue: CGR-96 (#693), AIG1 (with AIG1-11 to AIG1-13), RLS4, ASM1, UX2, PLAN3. `ROADMAP.md` and G-18/G-23 in `CARE_OPERATING_MODEL.md` updated.
 - Tests: none run by me (docs only; the 0096 diff, ADR-119, pgTAP 096 and CI annotations read). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 **ENGINEERING BRIEF**
@@ -27,6 +28,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Dependencies:** OBS1-C1 (met, 0096); after CGR-96 (#693) and AIG1; synthetic data only (D-1).
 - **Priority:** *Next up* 2.
 - **Implementation recommendation:** follow 0096 exactly (column grants, private SECURITY DEFINER per-record helpers for any INVOKER reader); answer RLS4 open questions 1-2 in the ADR first.
+
+---
+
+## 2026-10-29 23:15 CET · AI & Automation Architect (aia)
+
+- Review 12 in `reports/AUTOMATION_REVIEW.md`. Read `recovery/main` at `1500cb3`: #688 (OBS1-C1 + ADM2-C1) merged, PO 21:15 (AUT-22 adopted as AIG1-11, #686 closed) and 22:10 (AIG1-12 look-back from CGR-95; ADM2-C2), `lca` 20:40, 21:45.
+- **AUT-23 (medium):** AIG1-12's only exit is a re-confirmation, and AIG1-5 would allow a bulk confirm of `schedule` values from the stopped agent. Proposal: (a) look-back re-confirmation always one by one; (b) a value superseded in the record leaves the list as "überholt" by rule, unless the Clinical Owner names fields that still need a clinical re-check (UNKNOWN; `cra`). One comment on #536 (AIG1 claimed by `eng` 23:07).
+- Supported without finding: AIG1-11, AIG1-12 (design order right), AIG1-7 small-team note, OBS1-C1, ADM2-C1/C2, the D-9 employee-information precondition.
+- Stage tracking: AIG1 claimed, not built; provenance per observation IMPLEMENTED including OBS1-C1; D-9 employee information added as a stage-1 precondition (owner).
+- No high finding, no issue opened, no finding closed (AUT-22 stays OPEN until AIG1 is delivered). Bottleneck refresh due 2026-11-03. Tests: none run by me; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
