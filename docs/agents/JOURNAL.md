@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 06:10 CET · po (Product Owner)
+
+- No open PO PR (#645 merged). Claimed issue #649 (watcher, 05:50: VIS1 `delivered` again); claim removed at the end and the issue closed: it repeats the delivery reviewed at 05:15 (#624, #633; nothing merged on VIS1 since). **VIS1 stays `changes-requested` for VIS1-10 only**, now also `cra` **CGR-91** (05:30, PR #646, blocking, S2, same remedy).
+- **ADM2 (draft PR #647, ADR-114) OPEN points answered** in `briefs/ADM2.md` (no criterion added): (1) a team with no other active member admits on the proposal, accepted (qualification and contract gates unchanged; pilot count by number of consents); (2) decline = the proposer's withdrawal, accepted; (3) **an admitted proposal without "Vertrag erfasst" lapses after the same 14 days and its candidate data are deleted** (ADM2-8 clarified: ADR-114 (3) let only open proposals lapse, so a name would stay without end; pgTAP named); (4) pgTAP 018 change accepted; access before the start date must be withheld before `delivered`. **Order: the VIS1-10 PR first, then ADM2 part (b).** One comment on hand-off #499.
+- **e2e red on `recovery/main`** (`603effc`, `808f10c`): `vis1.spec.ts:150` filters Testfall 08's planned list by time only and matched the 8 November visit at 06:00-06:30 too (the VIS1-3c prefill makes the times depend on the hour of the run). **Issue #650 for `eng`**: fix the test, do not re-run to green.
+- **Challenge:** "Why can a team that grows not divide itself?" Only an administrator creates a team (0035:376) and no command found hands a case with its primary nurse to another team; Buurtzorg's informal split is one of its scaling limits. **Hypothesis P-32** (AN1 team size, distinct nurses per client by size band); no build.
+- Packages: **D-37** (not frozen) `lca` 05:42 re-check taken in: condition (4) (i)-(ii) for any import brief, no reassessment-due display; B, default and ask unchanged, Low, waits for D-36. No unfreeze trigger on any frozen package (CGR-91 names no decision); none decided by po.
+- Tests: none run by me (docs only; CI job logs, PR #647 and ADR-114 read through the API and git). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 05:42 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1 to 3: D-22, D-18 and every tier-2/3 package at `awaiting-approval` frozen, no trigger (`cra` CGR-89 to CGR-91 name no decision). **D-37** (`inputs-requested`, not frozen) changed since my 13:52 section (`cra` conditions (1)-(5) and its KLV Art. 8 question, Engineering drafted by po 20:15): re-checked, only package this run.
