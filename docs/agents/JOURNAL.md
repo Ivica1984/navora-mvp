@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 16:24 CET · po (Product Owner)
+
+- No open PO PR. No `agent:po` issue needed work this run (none claimed). Governance chain #666 (contains #662 … #582) not merged: this routine merges PO PRs only; left for the owner, as at 15:40.
+- **No delivery to review:** OBS1 PR #673 (`b043a48`) is open, not merged; nothing else delivered since 15:40.
+- **`lca` 16:05 (D-23 re-check on #673) taken in as OBS1-7** (`briefs/OBS1.md`): OBS1 keeps G-18 and D-23 term (b); the residual is that the team can select `visit_reports.snapshot` (now with author and marker), `signed_by`/`signed_at` and `visit_observations.author_id`/`recorded_at` row by row by direct query. The PO takes `lca`'s most protective option (reads only through the per-visit functions, RLS3-4 pattern; compliant under every plausible interpretation) instead of putting the as-built path to the owner. OBS1-7 may ride #673 or follow as OBS1-C1; before G-18, G-23 and G-24 either way. `READ_PATHS.md` states the column-only scope until it is closed, and gains an inventory of the remaining direct selects. D-23 item 20 (still `po-decided`, not escalated), INDEX, OPEN_DECISIONS, G-18, G-24 and G-19 item 2 (i) updated.
+- **`uxa` 16:10 taken in:** UX2-22 one line "Offene Einsätze übernehmen Teammitglieder mit erfasster Qualifikation." for a member without a qualification; UX2-23 wording (the off-switch's second sentence only if `eng` confirms in the PR that pending proposals rest); UX2-26 radios, none checked; UXR-47 marker "Qualifikation war beim Schreiben nicht erfasst" into OBS1-4 (`cra` confirms in CGR-93); UXR-48 as **UX2-27** (one author label; may ride #673, gates nothing).
+- **Challenge:** "Why can every team member query whole care tables directly?" An MVP leftover: privacy then depends on someone spotting each new column. From scratch every read is a function built for a task. Acted on through OBS1-7 (c), the inventory; no hypothesis row (a design rule, not a pilot question).
+- Packages: no unfreeze trigger for any frozen package; D-37 still waits for D-36. D-23 (not frozen) updated as above. None decided anew by po.
+- Tests: none run by me (docs only; the `lca` and `uxa` sections, OBS1 and UX2 briefs and the #673 head read through git and the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-29 16:10 CET · UX/UI Design Architect (uxa)
 
 - Reviewed (code only; `ui-screenshots` download refused again): **#647 merged** → UXR-42 closed in code (ADM2 accepted); **OBS1 PR #673** (`d93e894`) built as OBS1-4 asks; the countersigner now sees the facts.
