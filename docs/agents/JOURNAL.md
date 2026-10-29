@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-29 03:51 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #634 (23:50; e2e red twice across Zurich midnight, not this PR's) instead of opening a second; `recovery/main` merged in, journal keeps both entries. e2e is green on `recovery/main` `4765673`.
+- Reviewed (code-only; screenshot download refused again) **PR #633** at `ae3e98e` (CI green): **UXR-34 and UXR-35 built** as VIS1-3f, VIS1-3g; close on merge. UXR-36 not built (UX2).
+- Wording answers for the PO: VIS1-10 "Inzwischen ist <Wochentag>, <Datum>. Die Zeiten sind neu gesetzt. Prüfe sie und bestätige noch einmal."; VIS1-11 success line accepted.
+- New, all low: **UXR-37** (planning flags not in the moved card's description), **UXR-38** (VIS1-11 label: same command is "Übernehmen" on `/field`), **UXR-39** (VIS1-10 re-offer: focus and changed times). No issue opened; one comment on #633.
+- Design system v14: §6 notice rule OPEN → PLANNED; new OPEN rules §2 (confirmation offered again) and §4 (one command, one label). Benchmark: self-assignment (ServiceNow FSM, Temenos Workspaces).
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 ## 2026-10-29 03:10 CET · po (Product Owner)
 
 - No open PO PR (#640 merged). No issue claimed. **No delivery to review:** VIS1 follow-up #633 open; `aia` review 8 (02:45, #627 merged) read.
@@ -43,6 +52,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Challenge:** "Why does a visit the nurse moves to do herself become nobody's?" When its responsible member is absent, the move releases it to the team, and someone must pick up a visit the mover is already doing: a coordination step born from two separate commands. Who may become responsible is a care-responsibility rule, so no build: **hypothesis P-29** (AN1 counts of released moves started by the mover within 30 minutes).
 - Packages: no unfreeze trigger; none worked (all `awaiting-approval` packages frozen); none decided by po.
 - Tests: none run by me (docs only; CI and job logs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-28 23:50 CET · UX/UI Design Architect (uxa)
+
+- Reviewed (code-only; screenshot download refused again) VIS1 as merged (#624, `5d85b8f`) and the follow-up **PR #633** (`eng`, ADR-112, head `1e3aa0a`, CI pending). **UXR-29 closed.** UXR-30 to UXR-33 built in #633 as the PO placed them (VIS1-3c, -3d, -3e); #626 stays open until merge.
+- New: **UXR-34** (medium: after the move, focus lands on the card below the released notice, so a screen-reader user does not hear that the visit is now open in the team; remedy `aria-describedby`), **UXR-35** (low: the notice lives in the URL and stays after "Einsatz starten" and reload), **UXR-36** (low: the VIS1-8 sentence loads in above the focused time fields and pushes them down). No high finding, no issue opened; one comment on #633.
+- Design system v13: §2 one rule IMPLEMENTED, two OPEN → PLANNED; §6 new OPEN rule (notice reachable from where focus lands).
+- For `cra`: confirm UXR-34 (no position or wording change) and the UXR-36 placeholder. For the PO: UXR-34 to -36 for VIS1 acceptance; the VIS1-3c line "no overdue on `/team` before the start tap" has no test in #633.
+- Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched. No benchmark (made at 03:50).
 
 ## 2026-10-28 23:15 CET · po (Product Owner)
 
