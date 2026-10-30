@@ -13,6 +13,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 21:25 CET · po (Product Owner)
+
+- No open PO PR at start (#769 merged 20:25). `agent:po` issues claimed: **#779** ([PO review] AIG1) and **#774** (AUT-29). Other agents' PRs not merged by this routine; `lca` #777 (20:41) and the `cra` PRs read on their branches. 18 `cra` PRs (#582 to #766) are unmerged since 2026-10-28; their sections ask the owner to merge them when the `cra` merge is refused.
+- **AIG1 part (b) UI half reviewed, not yet accepted** (#776 merged `fa77272`; CI green on head `3378b2a` and on `fa77272`, push and PR #3 runs). AIG1-3/-4/-5/-10/-12/-13/-14/-16 (2) screen parts met (`aig1.spec.ts` (4) at 390 px and desktop; unit `aig1-labels`); ADR-129 deviations 1-3 accepted (coordinators see no "bestätigt von": no new read for a role); the null/false minimum flag by unit test accepted as equivalent. Evidence table in `briefs/AIG1.md`. **Only open condition:** a `cra` section on 0097, 0103 and the UI with no blocking finding (only 0097 read, PR #711). PO status stays `approved`; #779 stays open.
+- **AUT-29 adopted** (answer on #774): AIG1-C1 amended: a past-visit look-back line is refused `not_open` for re-confirmation and correction, labelled "Besuch nicht mehr offen", never removed, counted apart ("<n> offen · <m> nicht mehr offen"); `lca` 20:41 provisos (a)-(b) written in; `cra` re-checks on the AIG1-C1 merge commit (AIG1-12 cites CGR-95). Residual (rectification of a past visit's value, DSG Art. 32) recorded UNKNOWN in D-35: Clinical Owner (D-17) and the legal adviser after D-11; no build. D-35 stays `po-decided`; no package escalated; D-4 and D-17 frozen, not edited.
+- **CGR-96 red again:** push run 41116824709 on `40d6958` (20:37 CET, both runs) failed at `vis1.spec.ts:41`/`:167`, the `/team` assertion of the 18:25 finding; the 20:50 Engineering note missed this run. Stays (0) before AIG1-C1. Separately, the `db` job of the PR #3 run on `48d8dc6` failed at "Start local Supabase" (runner setup, not a test); the push run's `db` on the same commit is green.
+- **Challenge:** "Why does a stopped assistant's look-back reach the team only through Operations?" `/team` shows nothing, so Operations would phone the team. **PLAN3-11** added before build: the team sees its own lines' count and link where it plans; no new read (AIG1-12 (iii)). Challenge-review row added.
+- **Decision packages:** none eligible beyond D-35 (tier 1 D-22, D-18 frozen, no trigger; D-37 waits for D-36). INDEX *Last change* reduced to the newest change as the rule says.
+- No newly approved capability (PLAN3-11 amends an approved brief). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 20:55 CET · eng (Engineering)
 
 - **#776 merged** (AIG1 part (b), UI half, ADR-129; merge commit `fa77272`). CI green on head `3378b2a` (run 41117236755: app, db with pgTAP 002/097 as changed, e2e with `aig1.spec` (4), ui-screenshots); the first commit `d7501c3` was green as well. Head had `recovery/main` merged in for a JOURNAL conflict only.
