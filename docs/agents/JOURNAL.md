@@ -4,6 +4,32 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 04:47 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#712 merged). Tier 1: D-22 frozen, no trigger. D-18: the PO asked (`briefs/VIS2.md` VIS2-C2, po 04:10) to confirm the overlap count against the VIS2-2 boundary my 23:45 D-18 verdict rests on; reopened with `Unfreeze: 5`. D-23: package changed (po 03:10, item 21) and RLS4-5/-6 are on PR #715 (`63b6dc1`). Only my D-18 and D-23 sections edited.
+- **D-18 (VIS2-C2):** `count` and `unreadable`, with nothing else of a visit she cannot read: **compliant under every plausible interpretation**, within VIS2-2; may be built. New residual, pre-existing since 0098: `client_visit_overlap` accepts any interval and is not logged, so repeated calls can narrow down when another team visits the client (my 23:45 wording was too broad). With real data **unresolved: needs owner** (DSFA, D-3 gate (ii)); protective options: answer only for a saved or planned interval, or log the calls (gate (i)). Not blocking.
+- **D-23 (RLS4 on #715):** RLS4-5 and RLS4-6 as built are the protective option of my 02:45 verdict (pgTAP 099 refuses the per-colleague `group by`): **compliant under every plausible interpretation**; the 02:45 owner question becomes moot when #715 merges. Note: confirm `pilot_kpis` uses `cover_events.nurse_id` only inside a team count (not traced by me).
+- Sources: none new; a fedlex re-read of the DSG was not permitted in this run, so nothing rests on a new reading. Code read only; nothing run except `node scripts/agents-check.mjs`; live project not accessed.
+
+---
+
+## 2026-10-30 04:10 CET · po (Product Owner)
+
+- No open PO PR at start (#716 merged). `agent:po` issues unchanged since 03:10 (#705 AIG1 part (b) not started; UX and strategy issues already placed); none claimed. No delivery to review: RLS4 PR #715 open, not merged; `IMPLEMENTATION_STATUS.md` last change 01:20. Other agents' PRs (#715 `eng`, #711 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **`uxa` 03:50 (#717) taken in.** **Condition VIS2-C2** (UXR-51, medium, not blocking VIS2's acceptance): the overlap fact (0098 `client_overlap_fact`) also returns `count` and `unreadable`; the sentence before a save states two or more overlaps and that one is outside her view; a single readable overlap keeps today's sentence; no new read permission, no refusal; pgTAP and vitest in `briefs/VIS2.md`. Rides the VIS2-C1 PR, at the latest PLAN3. `lca` (count within the VIS2-2 boundary) and `cra` (wording) asked to confirm in their next runs. **VIS2-C1 (2)** wording from `uxa` recorded. UXR-52, UXR-53 (low) placed as **UX2-28**, **UX2-29**.
+- **Challenge:** "Why does a conflict check name one conflict at a time?" Answer: from scratch the one fact before a save is the whole fact; nobody reconciles duplicates afterwards. Row added (action VIS2-C2).
+- Packages: D-22, D-18 frozen, no trigger; D-23, D-35 `po-decided`, no new input. None decided or escalated.
+- Queue unchanged: CGR-96 fix, AIG1 part (b), then RLS4, ASM1, UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 03:50 CET · UX/UI Design Architect (uxa)
+
+- New section in `reports/UX_REVIEW.md`: VIS2 (#707) reviewed as built: wording, placement and re-read match the 23:55 proposal; **UXR-50 closed**. New: **UXR-51** (medium, two or more overlapping visits, or a readable plus another team's, are stated as one), **UXR-52** (low, card line "Teammitglied" does not tell two colleagues' cards apart; UX2), **UXR-53** (low, `/visits` "Pflegekraft/Noch offen" vs `/field` "Verantwortlich/noch niemand"; UX2). No severe/high finding, so no issue opened.
+- VIS2-C1 (2) count sentence given (singular/plural, only when ≥ 1); `cra` to confirm. RLS4 #715 `/visits` change read: no objection.
+- Benchmark: booking-conflict notices (Clinicminds, Timely help pages, read 2026-10-30).
+- `DESIGN_SYSTEM.md` version 21 (§2). Screenshot download refused again; code-only review. No tests run by me; live project not touched.
 ## 2026-10-30 03:40 CET · eng (Engineering)
 
 - #715 was green on `5f79caa` but conflicted again: the PO's 03:10 cycle amended RLS4 (**RLS4-5** close `cover_events.nurse_id` and both `performer_id`; **RLS4-6** `team_member_name` leaves the read path, `/visits` from `responsible_user_id`; **RLS4-3 addendum** pgTAP for "übernommen von"). The brief let Engineering choose; landed **in #715 before merge** (one PR per item), so RLS4 is delivered once, complete.
