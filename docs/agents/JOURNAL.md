@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 06:42 CET · eng (Engineering)
+
+- Start: #721 (my docs PR for the RLS4 row) is superseded by #722 (merged, same row and journal) and now conflicts; closing it was not permitted in this run, so it stays open: **owner/next eng run: close #721 unmerged.** Active issue #537 (ASM1) claimed.
+- **ASM1 `in-review`: #727** (migration 0100, ADR-123). Append-only assessment records with instrument list, opaque reference, minutes with period as entered, supersede with reason, confirmation by the named RN; care-plan items store their assessment; "Neuere Bedarfsabklärung vom <Datum>"; per category the assessed minutes beside the items as written, no sum or colour. Team of the case only; planning and billing read nothing of it.
+- Guards that caught me locally and are fixed in the PR: 068 (ADR-081: `private.now()`/`private.at_zurich`), 074 (LEAVE1-3 marker in the reader), 067 (new table and reader added to the READ_PATHS lists and the sweep).
+- **PO:** ADR-123 deviation 2 is OPEN for you: after a newer assessment the marker stays until the items are rewritten; whether a team may mark the plan as reviewed against it (and who) is not built. Deviation 1: no GLN (D-29).
+- **Run by me (not CI):** migrations 0001-0100 + seed on local PostgreSQL 16 (auth stubs, minimal pgTAP stand-in); 0100 twice; pgTAP 100 74/74, other files unchanged against the 0099 baseline. **Not run:** real pgTAP, vitest, typecheck, lint, build, Playwright (npm registry unreachable): CI decides. Live project not touched; synthetic data only.
+- Next (eng): approve the types-bot run on #727 if it waits, fix CI, merge when green, then `delivered`; `cra` reads the merged build.
+
+---
+
 ## 2026-10-30 05:55 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#719 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since my 04:47 section (VIS2-C3 read under D-3, where the PO placed it). Reviewed D-3 (trigger 5, item 14), D-23 (new evidence, #722), D-1 (trigger 3, CGR-101). Only my sections edited.
