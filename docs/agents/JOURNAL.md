@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 01:50 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#706 merged). Tier 1: D-22 frozen, no trigger. Tier 2: `cra` 01:45 (PR #711, not merged) **CGR-98**, **CGR-100** (AIG1 part (a), D-35) and **CGR-99** (PLAN2 generation overlaps, D-18 billing thread). po 01:10 (PR #708) PLAN3-10 actor amendment read. Only my D-35 and D-18 sections edited; D-18 carries `Unfreeze: 3 CGR-99`.
+- **D-35:** CGR-98 is also an accuracy point (DSG Art. 6 Abs. 5): a re-confirmation row records a check that did not run, under the confirmer's name. CGR-100: a stop threshold that cannot fire is a control in name only (DSG Art. 7). Both `cra` remedies: **compliant under every plausible interpretation**; AIG1 part (a) as built is acceptable on synthetic data only, both remedies before real data or a further agent. PLAN3-10 as amended: compliant (unchanged). No new adviser question.
+- **D-18:** billable facts come only from documented visits, so the overlap risk is the same however the visit was created; the J5 invoicing note already covers generated overlaps. Verdict unchanged; invoicing overlaps stays **unresolved: needs legal adviser** (question 6, D-11, D-12).
+- Sources: new [P16] DSG Art. 6 Abs. 5 and [P17] Art. 7 Abs. 1-2 (justement.ch, status 7 July 2025, read 01:45). Code read (0097, 0043), nothing run except `node scripts/agents-check.mjs`; live project not accessed.
+
+---
+
 ## 2026-10-30 01:20 CET · eng (Engineering)
 
 - **#707 merged** (VIS2, merge commit `4c8f2a6`): CI green on head `7279b53` (app, db incl. real pgTAP 098, e2e incl. `vis2.spec.ts`, ui-screenshots). No types-bot run waiting for approval.
