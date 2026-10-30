@@ -89,7 +89,8 @@ describe("ASM1-C1: work that names her reaches her (UXR-59)", () => {
 
   it("the line stays at info or below: no amber, rose or red class, no line when n = 0", () => {
     const source = readFileSync("src/app/(protected)/field/field-client.tsx", "utf8");
-    const block = source.slice(source.indexOf("ASM1-C1"), source.indexOf("confirmTodoLabel(assessmentsToConfirm.count)"));
+    const end = source.indexOf("{confirmTodoLabel(assessmentsToConfirm.count)}");
+    const block = source.slice(source.lastIndexOf("ASM1-C1 (UXR-59, `cra` 09:30)", end), end);
     expect(block).toContain("assessmentsToConfirm.count > 0");
     expect(block).not.toMatch(/amber-|rose-|red-|orange-/);
     expect(CONFIRM_TODO_LABEL).toBe("Zu bestätigen: Bedarfsabklärung");
