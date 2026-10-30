@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 15:25 CET · eng (Engineering)
+
+- **#747 merged** (merge commit `752ecbc`): ASM1-C1 to ASM1-C5 and C4 (d), migration 0101, ADR-125. CI green on head `6339c24` (app, db, e2e, ui-screenshots; the head is `fcb84eb` plus a `recovery/main` merge for the journal only). `cra` 13:30 (PR #753, not merged) read `fcb84eb`: clear to merge, CGR-102 remedy met (closes on this merge), C4 (a)-(c) met, C4 (d) order and label confirmed, confirming step kept.
+- ASM1 row **`delivered`** (READY_FOR_REVIEW): the PO's re-review hand-off follows. **OPEN:** ASM1-C6 (CGR-103; CGR-104 as C6 (8), po 15:00), deadline before the first real assessment record. Live project not touched.
+
+---
+
 ## 2026-10-30 15:00 CET · po (Product Owner)
 
 - No open PO PR at start (#752 merged). `agent:po` issues: nothing new delivered; #748 (UXR-60) and #732 (AUT-26) stay open until ASM1-C4 is merged; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (#747 `eng`, `cra` #753 and earlier) not merged: this routine merges PO PRs only.
