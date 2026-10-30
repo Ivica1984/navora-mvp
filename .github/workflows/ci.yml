@@ -60,7 +60,7 @@ jobs:
   db:
     name: db (migrations · seed · pgTAP)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
       - name: Detect Supabase project
@@ -124,6 +124,14 @@ jobs:
       - name: Database tests
         if: steps.detect.outputs.present == 'true'
         run: scripts/ci-step.sh pgtap supabase test db
+      # WORK1-C5 (ADR-126): evidence that pgTAP 079 test 44 holds against the local stack's concurrent pg_cron writes.
+      # Runs on a WORK1-C5 branch only (about 4-6 min: a 65 s probe, then 079 fifty times); the pinned clock is still set.
+      - name: WORK1-C5 probe and pgTAP 079 repeated
+        if: steps.detect.outputs.present == 'true' && github.event_name == 'pull_request' && startsWith(github.head_ref, 'fix/work1-c5')
+        env:
+          DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+          REPEATS: "50"
+        run: scripts/ci-step.sh work1-c5 scripts/db-flaky/work1-c5.sh
       - name: Unpin the database clock
         if: steps.detect.outputs.present == 'true'
         env:
