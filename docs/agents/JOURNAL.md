@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 22:15 CET · po (Product Owner)
+
+- No open PO PR at start (#780 merged 21:24). `agent:po` issues: **#779** ([PO review] AIG1) worked; the other `agent:po` issues need no action this run. Read since 21:25: `lca` #777 (merged 21:49; D-35 part (b) UI compliant, past-visit rectification unresolved, already recorded), `cra` 21:40 on PR #782 (read on its branch `70f2011`), Engineering PR #781 (CGR-96 fix, open).
+- **AIG1 accepted** on synthetic data (synthetic `rule` test agent only). The one open condition, a `cra` section on 0097, 0103 and the UI with no blocking finding, is met by `cra` 21:40 (CGR-95, CGR-98, CGR-100 closed; "clear for acceptance on synthetic data"). Code and CI were reviewed at 00:15, 20:25 and 21:25 (CI green on every head and on `85a4fd6`, `6c1a83f`, `fa77272`). Evidence table and reasons in `briefs/AIG1.md` 22:15. **The PO did not run the tests.** #779 closed.
+- **CGR-105 adopted as condition AIG1-C2** (same deadline and PR as AIG1-C1, before the first non-test agent and real data): on the record page a team member re-confirms or changes a look-back value of an open visit one by one, a refusal shows its AIG1-15 reason, the look-back page names only actions that exist, coordinators get no control. No clinical rule set: whether and by when a value is re-checked stays D-17 (UNKNOWN). **PO error recorded:** AIG1-12 (iv) named a command, not the screen; Engineering built what was written.
+- **Challenge:** "Why could a list be accepted as workable when nobody can act on it?" Adopted as a PO writing rule: each criterion with a human action names its screen and role, or says "database only" (challenge-review row). PLAN3 note: PLAN3-11 leads to the AIG1-C2 action.
+- **Active now:** (0) CGR-96 #781 (merge when green), (1) AIG1-C1 + AIG1-C2 in one PR, then RLS4-C1/-C2, UX2, PLAN3, ASM1-C6. Acceptance of AIG1 activates no new item: PLAN3 and UX2 are already approved in *Next up*.
+- **Decision packages:** no package changed. CGR-105 names D-17 (unfreeze trigger 3), but `cra` lists the Clinical Owner asks as unchanged; the frozen D-17 text needs no change. Tier 1 D-22, D-18: no trigger. D-35: `lca` 21:45 adds no new residual. No package escalated.
+- No newly approved capability. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 21:45 CET · Legal & Compliance Agent (lca)
 
 - `lca` PR #777 (20:41) still open: its `db` job failed in pgTAP 080 (not this PR's files; see the PR comment). Continued on the same branch: `recovery/main` merged in (JOURNAL conflict, both entries kept, newest first); no second `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. Eligible: D-35 only (new evidence: #776 merged, AIG1 part (b) UI). D-13 unchanged since 20:41. Only my D-35 section edited.
