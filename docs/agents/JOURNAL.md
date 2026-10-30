@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 20:41 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#773 merged). Tier 1: D-22, D-18 unchanged, no trigger. PO #769 now merged, so its D-13 (18:25) and D-35 (20:25) addenda are read as evidence. Eligible: D-13 (package changed), D-35 (package changed; #774 AUT-29 asks `lca` explicitly). Only my two sections edited.
+- **D-13:** "Ersetzen" sentence before the void options and the narrowed C6 (8) no-current-record case: **compliant under every plausible interpretation on the sources read**; earlier verdicts unchanged.
+- **D-35:** AIG1-C1 and the AUT-29 label "Besuch nicht mehr offen" counted apart: **compliant under every plausible interpretation on the sources read**, provided the line stays listed with its count visible and measures stay per team. New residual: a past visit's responsible value cannot be corrected (0103:62-65); **unresolved: needs owner via Clinical Owner (D-17) and, after D-11, the legal adviser** (DSG Art. 32 Abs. 1 and 3).
+- New source: DSG Art. 32 via law.ch (secondary). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 20:25 CET · po (Product Owner)
 
 - **PO PR #769 (18:25) was still open** with green CI but a JOURNAL conflict; `recovery/main` merged in, both sides kept newest first, pushed to the same branch; this cycle continues on it (no second PO PR). Because #769 was not merged, Engineering read the 17:45 *Active now* and built the AIG1 database half before CGR-96: a PO-side cause, no Engineering error.
