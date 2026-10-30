@@ -2278,6 +2278,29 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 
 **Rollback:** revert the commit (one spec, one pgTAP file, docs).
 
+**Addendum 2026-10-30 21:30 (PO 18:25 remedy (a)-(d), *Active now* 20:25 order (0)):** the first push run after #764 (`440af82`, run 41093600098) was red at the **`/team`** assertion of the same test (expected 1 item of today with the prefilled times, received 2): same mechanism, second location; my ADR-127 decision 2 fixed only `/field`.
+- (a) **IMPLEMENTED:** the move reason is now unique per run (`Synthetisch: Klientin bittet um heute (Lauf <Date.now() base 36>)`), and the `/team` item is located by the text only the moved visit carries, `Verschoben von dir: <reason>` (rendered by `team-client.tsx`), asserted as exactly one item; day label and prefilled times are then asserted on that item. No retry, skip, `fixme`, wider timeout or loosened count; no product change.
+- (b) **Audit of every assertion in `tests/e2e/` that locates a Testfall 08 visit by day and time** (files run in name order, one worker; the only clock-dependent slots are `vis1.spec` test 1's prefill and `vis2.spec`'s `todaySlots`, which picks free slots from today's `/field` at its start):
+  | Location | Slot / day | Verdict |
+  |---|---|---|
+  | `vis1.spec.ts` test 1, `/field` slot after the move | prefill, today | already count-first (`before + 1`) plus focus (#764) |
+  | `vis1.spec.ts` test 1, `/team` `movedItem` | prefill, today | **fixed here**: by unique reason |
+  | `vis1.spec.ts` test 1, `/field?datum=day` card and day-empty check | 22:00–22:30, today + 45 | owned day; no other spec plans day + 45 |
+  | `vis1.spec.ts` test 2, cards 21:00 / 22:00 | today + 10 | `ux1.spec` plans 06:00 on day + 10 only; distinct name; count asserted `>= 2` |
+  | `vis1.spec.ts` test 3, `/field` 23:30–23:45 and `/team` cleanup `hasText "23:30–23:45"` | fixed, moved to today | no other spec or seed row uses 23:30–23:45 on any day; test 1's prefill always spans 30 minutes and is empty after 23:25, so it never yields 23:30–23:45 |
+  | `vis1-10.spec.ts:108`, `:114` 22:40–23:10 / 23:00–23:30 | fixed, today / yesterday | runs before `vis1.spec`; no earlier spec or seed uses these slots |
+  | `lifecycle.spec.ts:63`, `:78`, `:79` 16:00–16:30 | today + 3 | fixed slot; no clock-dependent spec runs earlier |
+  | `lifecycle.spec.ts:101`, `:125` 17:00; `:148`, `:162`, `:179`, `:188`, `:192` 19:00; `:216`, `:225`, `:236` 20:00 | fixed, today | runs before every clock-dependent spec; slots distinct from seed and other specs |
+  | `ux1.spec.ts:183` 06:00; `:398` 20:45–21:15; `:443`, `:449` 20:00 (the `lifecycle` visit) | fixed, today | runs before `vis1.spec`/`vis2.spec`; no collision |
+  | `signals.spec.ts:53` 06:15–06:45 | fixed, today | distinct from 06:00–06:30 by name |
+  | `vis2.spec.ts:103` 19:07–19:37 | today + 53 | owned day; `:143` counts the free slot it chose itself (`toHaveCount(2)` by design) |
+  | `field.spec.ts:65` 08:00–08:45; `:570` 07:00 | seed, today / yesterday | seed rows; runs before every clock-dependent spec |
+  | `aig1.spec.ts:41`-`:90` hour filters | look-back lines of Testorganisation E/F | not Testfall 08 |
+  Only the `/team` assertion depended on the clock; no other assertion of this kind was changed.
+- (c) Respected: test-only.
+- (d) Done-when (3) restarts from the merge of this fix: three consecutive green push runs on `recovery/main`, one started 18:00–23:00 Zurich, to be named on #693.
+- **Checked by me (not CI):** none; `npm ci` timed out in the agent environment, so neither `tsc`, ESLint nor Playwright ran here. CI is the test runner.
+
 ### ADR-128 — AIG1-15 / AIG1-16: a look-back re-confirmation runs the first confirmation's checks; a threshold that cannot fire is refused and the health list shows the threshold
 
 **Date:** 2026-10-30 · **Status:** IMPLEMENTED in its own PR (AIG1 part (b), database half; CI decides) · PLANNED: the part (b) UI PR (confirm screen and ticked list at 390 px, health list with the AIG1-16 columns, look-back list with AIG1-14, e2e) · **Brief:** `docs/agents/briefs/AIG1.md` (AIG1-15, AIG1-16, added by po 2026-10-30 02:10; PO *Active now* 17:45 order (0)) · **Findings:** `cra` CGR-98 (= AIG1-15), CGR-100 (1)-(2) (= AIG1-16); `lca` D-35 01:50 · **Migration:** 0103 · **Tests:** pgTAP `103_aig1_15_16_recheck_and_threshold` (25).
