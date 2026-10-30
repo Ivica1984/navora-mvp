@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 04:47 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#712 merged). Tier 1: D-22 frozen, no trigger. D-18: the PO asked (`briefs/VIS2.md` VIS2-C2, po 04:10) to confirm the overlap count against the VIS2-2 boundary my 23:45 D-18 verdict rests on; reopened with `Unfreeze: 5`. D-23: package changed (po 03:10, item 21) and RLS4-5/-6 are on PR #715 (`63b6dc1`). Only my D-18 and D-23 sections edited.
+- **D-18 (VIS2-C2):** `count` and `unreadable`, with nothing else of a visit she cannot read: **compliant under every plausible interpretation**, within VIS2-2; may be built. New residual, pre-existing since 0098: `client_visit_overlap` accepts any interval and is not logged, so repeated calls can narrow down when another team visits the client (my 23:45 wording was too broad). With real data **unresolved: needs owner** (DSFA, D-3 gate (ii)); protective options: answer only for a saved or planned interval, or log the calls (gate (i)). Not blocking.
+- **D-23 (RLS4 on #715):** RLS4-5 and RLS4-6 as built are the protective option of my 02:45 verdict (pgTAP 099 refuses the per-colleague `group by`): **compliant under every plausible interpretation**; the 02:45 owner question becomes moot when #715 merges. Note: confirm `pilot_kpis` uses `cover_events.nurse_id` only inside a team count (not traced by me).
+- Sources: none new; a fedlex re-read of the DSG was not permitted in this run, so nothing rests on a new reading. Code read only; nothing run except `node scripts/agents-check.mjs`; live project not accessed.
+
+---
+
 ## 2026-10-30 04:10 CET · po (Product Owner)
 
 - No open PO PR at start (#716 merged). `agent:po` issues unchanged since 03:10 (#705 AIG1 part (b) not started; UX and strategy issues already placed); none claimed. No delivery to review: RLS4 PR #715 open, not merged; `IMPLEMENTATION_STATUS.md` last change 01:20. Other agents' PRs (#715 `eng`, #711 `cra` and earlier) not merged: this routine merges PO PRs only.
