@@ -31,6 +31,188 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"ai_agent_definitions": {
+                  Row: {
+                    "brief": string,"eval_bar": number | null,"fixture": string | null,"key": string,"kind": string,"level": string,"name": string,"provider": string | null,"region": string | null,"version": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "brief": string,"eval_bar"?: number | null,"fixture"?: string | null,"key": string,"kind": string,"level": string,"name": string,"provider"?: string | null,"region"?: string | null,"version": string
+                  }
+                  Update: {
+                    "brief"?: string,"eval_bar"?: number | null,"fixture"?: string | null,"key"?: string,"kind"?: string,"level"?: string,"name"?: string,"provider"?: string | null,"region"?: string | null,"version"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"ai_agent_fields": {
+                  Row: {
+                    "agent_key": string,"class": string,"class_brief": string | null,"class_cra_ref": string | null,"field": string,"target_column": string,"target_table": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "agent_key": string,"class"?: string,"class_brief"?: string | null,"class_cra_ref"?: string | null,"field": string,"target_column": string,"target_table": string
+                  }
+                  Update: {
+                    "agent_key"?: string,"class"?: string,"class_brief"?: string | null,"class_cra_ref"?: string | null,"field"?: string,"target_column"?: string,"target_table"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ai_agent_fields_agent_key_fkey"
+      columns: ["agent_key"]
+isOneToOne: false
+      referencedRelation: "ai_agent_definitions"
+      referencedColumns: ["key"]
+    }
+                  ]
+                },"ai_agent_settings": {
+                  Row: {
+                    "agent_key": string,"id": string,"last_stop_id": string | null,"on_provider": string | null,"on_region": string | null,"on_version": string | null,"organization_id": string,"state": string,"stop_min_proposals": number | null,"stop_share": number | null,"stop_window_days": number | null,"switched_on_at": string | null,"switched_on_by": string | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "agent_key": string,"id"?: string,"last_stop_id"?: string | null,"on_provider"?: string | null,"on_region"?: string | null,"on_version"?: string | null,"organization_id": string,"state"?: string,"stop_min_proposals"?: number | null,"stop_share"?: number | null,"stop_window_days"?: number | null,"switched_on_at"?: string | null,"switched_on_by"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "agent_key"?: string,"id"?: string,"last_stop_id"?: string | null,"on_provider"?: string | null,"on_region"?: string | null,"on_version"?: string | null,"organization_id"?: string,"state"?: string,"stop_min_proposals"?: number | null,"stop_share"?: number | null,"stop_window_days"?: number | null,"switched_on_at"?: string | null,"switched_on_by"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ai_agent_settings_agent_key_fkey"
+      columns: ["agent_key"]
+isOneToOne: false
+      referencedRelation: "ai_agent_definitions"
+      referencedColumns: ["key"]
+    },{
+      foreignKeyName: "ai_agent_settings_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"ai_agent_stops": {
+                  Row: {
+                    "agent_key": string,"confirmation_seq": number,"created_at": string,"decided": number | null,"id": string,"organization_id": string,"reason": string,"seq": number,"share": number | null,"suggestion_seq": number,"window_from": string,"window_to": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "agent_key": string,"confirmation_seq"?: number,"created_at"?: string,"decided"?: number | null,"id"?: string,"organization_id": string,"reason": string,"seq"?: never,"share"?: number | null,"suggestion_seq"?: number,"window_from": string,"window_to": string
+                  }
+                  Update: {
+                    "agent_key"?: string,"confirmation_seq"?: number,"created_at"?: string,"decided"?: number | null,"id"?: string,"organization_id"?: string,"reason"?: string,"seq"?: never,"share"?: number | null,"suggestion_seq"?: number,"window_from"?: string,"window_to"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ai_agent_stops_agent_key_fkey"
+      columns: ["agent_key"]
+isOneToOne: false
+      referencedRelation: "ai_agent_definitions"
+      referencedColumns: ["key"]
+    },{
+      foreignKeyName: "ai_agent_stops_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"ai_confirmations": {
+                  Row: {
+                    "bulk": boolean,"confirmed_at": string,"confirmed_by": string,"final_value": Json | null,"id": string,"organization_id": string,"outcome": string,"seq": number,"suggestion_id": string,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "bulk"?: boolean,"confirmed_at"?: string,"confirmed_by": string,"final_value"?: Json | null,"id"?: string,"organization_id": string,"outcome": string,"seq"?: never,"suggestion_id": string,"team_id": string
+                  }
+                  Update: {
+                    "bulk"?: boolean,"confirmed_at"?: string,"confirmed_by"?: string,"final_value"?: Json | null,"id"?: string,"organization_id"?: string,"outcome"?: string,"seq"?: never,"suggestion_id"?: string,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ai_confirmations_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "ai_confirmations_suggestion_id_fkey"
+      columns: ["suggestion_id"]
+isOneToOne: false
+      referencedRelation: "ai_suggestions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "ai_confirmations_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"ai_one_by_one_fields": {
+                  Row: {
+                    "added_at": string,"agent_key": string,"field": string,"id": string,"organization_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "added_at"?: string,"agent_key": string,"field": string,"id"?: string,"organization_id": string
+                  }
+                  Update: {
+                    "added_at"?: string,"agent_key"?: string,"field"?: string,"id"?: string,"organization_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ai_one_by_one_fields_agent_key_field_fkey"
+      columns: ["agent_key","field"]
+isOneToOne: false
+      referencedRelation: "ai_agent_fields"
+      referencedColumns: ["agent_key","field"]
+    },{
+      foreignKeyName: "ai_one_by_one_fields_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"ai_suggestions": {
+                  Row: {
+                    "agent_key": string,"agent_version": string,"case_id": string | null,"created_at": string,"entity_id": string,"entity_type": string,"field": string,"id": string,"input_refs": NonNullable<Json>,"not_found": boolean,"organization_id": string,"proposal_id": string,"proposed_value": Json | null,"seq": number,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "agent_key": string,"agent_version": string,"case_id"?: string | null,"created_at"?: string,"entity_id": string,"entity_type": string,"field": string,"id"?: string,"input_refs": NonNullable<Json>,"not_found"?: boolean,"organization_id": string,"proposal_id": string,"proposed_value"?: Json | null,"seq"?: never,"team_id": string
+                  }
+                  Update: {
+                    "agent_key"?: string,"agent_version"?: string,"case_id"?: string | null,"created_at"?: string,"entity_id"?: string,"entity_type"?: string,"field"?: string,"id"?: string,"input_refs"?: NonNullable<Json>,"not_found"?: boolean,"organization_id"?: string,"proposal_id"?: string,"proposed_value"?: Json | null,"seq"?: never,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ai_suggestions_agent_key_field_fkey"
+      columns: ["agent_key","field"]
+isOneToOne: false
+      referencedRelation: "ai_agent_fields"
+      referencedColumns: ["agent_key","field"]
+    },{
+      foreignKeyName: "ai_suggestions_case_id_fkey"
+      columns: ["case_id"]
+isOneToOne: false
+      referencedRelation: "cases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "ai_suggestions_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "ai_suggestions_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"audit_events": {
                   Row: {
                     "actor_id": string | null,"actor_role": string,"changed": NonNullable<Json>,"command": string | null,"entity_id": string,"id": number,"idempotency_key": string | null,"occurred_at": string,"organization_id": string,"table_name": string
@@ -1883,6 +2065,21 @@ isOneToOne: false
 "admin_team_admissions":
 { Args: { "p_organization_id": string }; Returns: Json
                            },
+"agent_correction_rates":
+{ Args: { "p_month": string }; Returns: {
+              "agent_key": string,"agent_name": string,"confirmed_unchanged": number,"corrected": number,"field": string,"month": string,"not_found": number,"proposals": number,"rejected": number,"suppressed": boolean,"team_id": string,"team_name": string
+            }[]
+                           },
+"agent_health":
+{ Args: { "p_organization_id": string }; Returns: {
+              "agent_key": string,"agent_name": string,"kind": string,"last_proposal_at": string,"last_window_decided": number,"last_window_share": number,"level": string,"state": string,"stop_id": string,"stop_reason": string,"stopped_at": string,"version": string
+            }[]
+                           },
+"agent_stop_lookback":
+{ Args: { "p_stop_id": string }; Returns: {
+              "case_ref": string,"entity_id": string,"entity_type": string,"field": string,"proposed_at": string,"superseded": boolean,"superseded_at": string,"team_id": string,"team_name": string,"visit_date": string
+            }[]
+                           },
 "assign_team_coach":
 { Args: { "p_coach_name": string,"p_idempotency_key": string,"p_team_id": string }; Returns: string
                            },
@@ -1902,6 +2099,9 @@ isOneToOne: false
 "change_absence":
 { Args: { "p_absence_id": string,"p_idempotency_key": string,"p_until": string,"p_until_time": string,"p_withdraw": boolean }; Returns: Json
                            },
+"client_visit_overlap":
+{ Args: { "p_case_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
+                           },
 "close_case":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code": string }; Returns: string
                            },
@@ -1910,6 +2110,12 @@ isOneToOne: false
                            },
 "complete_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"confirm_suggestion":
+{ Args: { "p_idempotency_key": string,"p_outcome": string,"p_suggestion_id": string,"p_value": Json }; Returns: Json
+                           },
+"confirm_suggestions":
+{ Args: { "p_idempotency_key": string,"p_suggestion_ids": (string)[] }; Returns: Json
                            },
 "confirm_working_day":
 { Args: { "p_date": string,"p_idempotency_key": string,"p_payload": Json }; Returns: Json
@@ -2062,7 +2268,7 @@ isOneToOne: false
             }[]
                            },
 "move_visit_to_today":
-{ Args: { "p_idempotency_key": string,"p_reason": string,"p_shown_date": string,"p_time_end": string,"p_time_start": string,"p_visit_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_overlap_shown"?: boolean,"p_reason": string,"p_shown_date": string,"p_time_end": string,"p_time_start": string,"p_visit_id": string }; Returns: Json
                            },
 "my_access_state":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -2099,6 +2305,11 @@ isOneToOne: false
 "my_working_time_notice":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"open_suggestions":
+{ Args: { "p_team_id": string }; Returns: {
+              "agent_key": string,"agent_name": string,"bulk_allowed": boolean,"created_at": string,"entity_id": string,"entity_type": string,"field": string,"not_found": boolean,"proposed_name": string,"proposed_value": Json,"suggestion_id": string,"time_start": string,"visit_date": string
+            }[]
+                           },
 "operations_exceptions":
 { Args: Record<PropertyKey, never>; Returns: {
               "case_id": string,"case_label": string,"closable": boolean,"comments": Json,"detail": string,"entity_id": string,"entity_type": string,"exception_key": string,"exception_type": string,"flags": (string)[],"label": string,"next_step": string,"owner_name": string,"priority": string,"region": string,"since": string,"taken": boolean,"taken_at": string,"taken_by_me": boolean,"team_name": string
@@ -2134,13 +2345,16 @@ isOneToOne: false
 { Args: { "p_case_id": string,"p_idempotency_key": string }; Returns: Json
                            },
 "plan_visit":
-{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
+{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_overlap_shown"?: boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
                            },
 "prepare_member_access_end":
 { Args: { "p_idempotency_key": string,"p_user_id": string }; Returns: Json
                            },
 "propose_team_candidate":
 { Args: { "p_claimed_qualification": string,"p_display_name": string,"p_idempotency_key": string,"p_pensum_band": string,"p_team_id": string }; Returns: Json
+                           },
+"propose_visit_responsible":
+{ Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: Json
                            },
 "push_dispatch_claim":
 { Args: { "p_limit"?: number }; Returns: {
@@ -2209,7 +2423,7 @@ isOneToOne: false
             }[]
                            },
 "reschedule_visit":
-{ Args: { "p_idempotency_key": string,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_overlap_shown"?: boolean,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
                            },
 "reset_exception_rule":
 { Args: { "p_exception_type": string,"p_idempotency_key": string,"p_organization_id": string }; Returns: string
@@ -2231,6 +2445,9 @@ isOneToOne: false
                            },
 "revoke_invitation":
 { Args: { "p_idempotency_key": string,"p_invitation_id": string }; Returns: string
+                           },
+"set_agent_state":
+{ Args: { "p_agent_key": string,"p_idempotency_key": string,"p_on": boolean,"p_organization_id": string,"p_stop_min_proposals": number,"p_stop_share": number,"p_stop_window_days": number }; Returns: Json
                            },
 "set_auto_planning":
 { Args: { "p_case_id": string,"p_enabled": boolean,"p_idempotency_key": string,"p_reason": string }; Returns: string
@@ -2367,6 +2584,11 @@ isOneToOne: false
                            },
 "update_team":
 { Args: { "p_idempotency_key": string,"p_name": string,"p_region": string,"p_team_id": string }; Returns: string
+                           },
+"value_provenance":
+{ Args: { "p_entity_id": string,"p_entity_type": string,"p_field": string }; Returns: {
+              "agent_name": string,"agent_version": string,"confirmed_at": string,"confirmer_name": string,"not_found": boolean,"proposed_at": string,"status": string
+            }[]
                            },
 "visit_correction_history":
 { Args: { "p_visit_id": string }; Returns: {

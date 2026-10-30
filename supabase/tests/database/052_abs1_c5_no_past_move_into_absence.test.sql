@@ -64,7 +64,7 @@ select is((select count(*)::int from public.visit_plan_changes c where c.visit_i
 select pg_temp.act_as('00000000-0000-4000-a000-000000000906');
 set local role authenticated;
 select is(public.reschedule_visit(pg_temp.vid('past_out'), pg_temp.today() - 1, '05:00', '05:30', 'Synthetisch: Nachtrag',
-          'a5200000-0000-4000-8000-000000000011') - 'visit_id' - 'flags', '{"result": "ok", "released": false}'::jsonb,
+          'a5200000-0000-4000-8000-000000000011') - 'visit_id' - 'flags' - 'overlap' /* VIS2-5 (0098) */, '{"result": "ok", "released": false}'::jsonb,
   'ABS1-C5 (b): a move to yesterday outside her absence is accepted');
 reset role;
 select is(pg_temp.slot('past_out'), (pg_temp.today() - 1) || ' 05:00:00 00000000-0000-4000-a000-000000000902',
@@ -75,7 +75,7 @@ select is(pg_temp.moves('past_out'), 1, '(b) one moved log row');
 select pg_temp.act_as('00000000-0000-4000-a000-000000000906');
 set local role authenticated;
 select is(public.reschedule_visit(pg_temp.vid('future_in'), pg_temp.today() + 3, '07:00', '07:30', 'Wunsch der Klientin',
-          'a5200000-0000-4000-8000-000000000012') - 'visit_id' - 'flags', '{"result": "ok", "released": true}'::jsonb,
+          'a5200000-0000-4000-8000-000000000012') - 'visit_id' - 'flags' - 'overlap' /* VIS2-5 (0098) */, '{"result": "ok", "released": true}'::jsonb,
   'ABS1-C5 (c): a move into her absence on day +3 is accepted and releases the visit');
 reset role;
 select is(pg_temp.slot('future_in'), (pg_temp.today() + 3) || ' 07:00:00 -', '(c) moved and open in the team');

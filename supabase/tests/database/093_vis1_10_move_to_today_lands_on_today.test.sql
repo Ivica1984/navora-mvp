@@ -38,15 +38,15 @@ select '00000000-0000-4000-b000-000000000011', pg_temp.v(x.n), '00000000-0000-40
 from (values (1, 3), (2, 4), (3, 5), (4, 6)) as x(n, d);
 
 -- Contract -------------------------------------------------------------------------------------------------------------
-select ok(not has_function_privilege('anon', 'public.move_visit_to_today(uuid, date, time, time, text, uuid)', 'execute'),
+select ok(not has_function_privilege('anon', 'public.move_visit_to_today(uuid, date, time, time, text, uuid, boolean)', 'execute'),
   'anon cannot call move_visit_to_today');
-select ok(has_function_privilege('authenticated', 'public.move_visit_to_today(uuid, date, time, time, text, uuid)', 'execute'),
+select ok(has_function_privilege('authenticated', 'public.move_visit_to_today(uuid, date, time, time, text, uuid, boolean)', 'execute'),
   'the app (authenticated) can call move_visit_to_today');
-select ok((select prosecdef from pg_proc where oid = 'public.move_visit_to_today(uuid, date, time, time, text, uuid)'::regprocedure),
+select ok((select prosecdef from pg_proc where oid = 'public.move_visit_to_today(uuid, date, time, time, text, uuid, boolean)'::regprocedure),
   'move_visit_to_today is SECURITY DEFINER (search_path pinned)');
-select ok((select prosrc !~ '(interval|tolerance|minutes)' from pg_proc where oid = 'public.move_visit_to_today(uuid, date, time, time, text, uuid)'::regprocedure),
+select ok((select prosrc !~ '(interval|tolerance|minutes)' from pg_proc where oid = 'public.move_visit_to_today(uuid, date, time, time, text, uuid, boolean)'::regprocedure),
   'VIS1-10: the day rule holds no tolerance or interval');
-select ok(has_function_privilege('authenticated', 'public.reschedule_visit(uuid, date, time, time, text, uuid)', 'execute'),
+select ok(has_function_privilege('authenticated', 'public.reschedule_visit(uuid, date, time, time, text, uuid, boolean)', 'execute'),
   'reschedule_visit (the /team move) keeps its signature and grant');
 
 select pg_temp.act_as('00000000-0000-4000-a000-000000000902');
