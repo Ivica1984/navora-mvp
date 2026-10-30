@@ -213,6 +213,96 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"assessment_confirmations": {
+                  Row: {
+                    "confirmed_at": string,"confirmed_by": string,"id": string,"organization_id": string,"record_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "confirmed_at"?: string,"confirmed_by": string,"id"?: string,"organization_id": string,"record_id": string
+                  }
+                  Update: {
+                    "confirmed_at"?: string,"confirmed_by"?: string,"id"?: string,"organization_id"?: string,"record_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "assessment_confirmations_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "assessment_confirmations_record_id_fkey"
+      columns: ["record_id"]
+isOneToOne: true
+      referencedRelation: "assessment_records"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"assessment_instruments": {
+                  Row: {
+                    "created_at": string,"created_by": string,"ended_at": string | null,"ended_by": string | null,"id": string,"name": string,"organization_id": string,"third_party_mark": boolean,"valid_from": string,"valid_to": string | null,"version": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by": string,"ended_at"?: string | null,"ended_by"?: string | null,"id"?: string,"name": string,"organization_id": string,"third_party_mark"?: boolean,"valid_from": string,"valid_to"?: string | null,"version": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string,"ended_at"?: string | null,"ended_by"?: string | null,"id"?: string,"name"?: string,"organization_id"?: string,"third_party_mark"?: boolean,"valid_from"?: string,"valid_to"?: string | null,"version"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "assessment_instruments_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"assessment_records": {
+                  Row: {
+                    "assessment_date": string,"assessor_id": string,"case_id": string,"created_at": string,"document_ref": string | null,"entered_by": string,"id": string,"instrument_id": string,"minutes_a": number | null,"minutes_b": number | null,"minutes_c": number | null,"organization_id": string,"period_a": string | null,"period_b": string | null,"period_c": string | null,"supersede_reason": string | null,"supersedes_id": string | null,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "assessment_date": string,"assessor_id": string,"case_id": string,"created_at"?: string,"document_ref"?: string | null,"entered_by": string,"id"?: string,"instrument_id": string,"minutes_a"?: number | null,"minutes_b"?: number | null,"minutes_c"?: number | null,"organization_id": string,"period_a"?: string | null,"period_b"?: string | null,"period_c"?: string | null,"supersede_reason"?: string | null,"supersedes_id"?: string | null,"team_id": string
+                  }
+                  Update: {
+                    "assessment_date"?: string,"assessor_id"?: string,"case_id"?: string,"created_at"?: string,"document_ref"?: string | null,"entered_by"?: string,"id"?: string,"instrument_id"?: string,"minutes_a"?: number | null,"minutes_b"?: number | null,"minutes_c"?: number | null,"organization_id"?: string,"period_a"?: string | null,"period_b"?: string | null,"period_c"?: string | null,"supersede_reason"?: string | null,"supersedes_id"?: string | null,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "assessment_records_case_id_organization_id_fkey"
+      columns: ["case_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "cases"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "assessment_records_instrument_id_organization_id_fkey"
+      columns: ["instrument_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "assessment_instruments"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "assessment_records_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "assessment_records_supersedes_id_fkey"
+      columns: ["supersedes_id"]
+isOneToOne: true
+      referencedRelation: "assessment_records"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "assessment_records_team_id_organization_id_fkey"
+      columns: ["team_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"audit_events": {
                   Row: {
                     "actor_id": string | null,"actor_role": string,"changed": NonNullable<Json>,"command": string | null,"entity_id": string,"id": number,"idempotency_key": string | null,"occurred_at": string,"organization_id": string,"table_name": string
@@ -369,17 +459,23 @@ isOneToOne: false
                   ]
                 },"care_plan_items": {
                   Row: {
-                    "active": boolean,"case_id": string,"category": string,"created_at": string,"created_by": string,"freq_period": string | null,"freq_times": number | null,"freq_weekdays": (number)[] | null,"frequency": string,"goal": string | null,"id": string,"organization_id": string,"planned_minutes": number,"retire_reason": string | null,"retired_at": string | null,"retired_by": string | null,"review_date": string,"service": string,"team_id": string,"window_end": string | null,"window_start": string | null
+                    "active": boolean,"assessment_id": string | null,"case_id": string,"category": string,"created_at": string,"created_by": string,"freq_period": string | null,"freq_times": number | null,"freq_weekdays": (number)[] | null,"frequency": string,"goal": string | null,"id": string,"organization_id": string,"planned_minutes": number,"retire_reason": string | null,"retired_at": string | null,"retired_by": string | null,"review_date": string,"service": string,"team_id": string,"window_end": string | null,"window_start": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "active"?: boolean,"case_id": string,"category": string,"created_at"?: string,"created_by": string,"freq_period"?: string | null,"freq_times"?: number | null,"freq_weekdays"?: (number)[] | null,"frequency": string,"goal"?: string | null,"id"?: string,"organization_id": string,"planned_minutes": number,"retire_reason"?: string | null,"retired_at"?: string | null,"retired_by"?: string | null,"review_date": string,"service": string,"team_id": string,"window_end"?: string | null,"window_start"?: string | null
+                    "active"?: boolean,"assessment_id"?: string | null,"case_id": string,"category": string,"created_at"?: string,"created_by": string,"freq_period"?: string | null,"freq_times"?: number | null,"freq_weekdays"?: (number)[] | null,"frequency": string,"goal"?: string | null,"id"?: string,"organization_id": string,"planned_minutes": number,"retire_reason"?: string | null,"retired_at"?: string | null,"retired_by"?: string | null,"review_date": string,"service": string,"team_id": string,"window_end"?: string | null,"window_start"?: string | null
                   }
                   Update: {
-                    "active"?: boolean,"case_id"?: string,"category"?: string,"created_at"?: string,"created_by"?: string,"freq_period"?: string | null,"freq_times"?: number | null,"freq_weekdays"?: (number)[] | null,"frequency"?: string,"goal"?: string | null,"id"?: string,"organization_id"?: string,"planned_minutes"?: number,"retire_reason"?: string | null,"retired_at"?: string | null,"retired_by"?: string | null,"review_date"?: string,"service"?: string,"team_id"?: string,"window_end"?: string | null,"window_start"?: string | null
+                    "active"?: boolean,"assessment_id"?: string | null,"case_id"?: string,"category"?: string,"created_at"?: string,"created_by"?: string,"freq_period"?: string | null,"freq_times"?: number | null,"freq_weekdays"?: (number)[] | null,"frequency"?: string,"goal"?: string | null,"id"?: string,"organization_id"?: string,"planned_minutes"?: number,"retire_reason"?: string | null,"retired_at"?: string | null,"retired_by"?: string | null,"review_date"?: string,"service"?: string,"team_id"?: string,"window_end"?: string | null,"window_start"?: string | null
                   }
                   Relationships: [
                     {
+      foreignKeyName: "care_plan_items_assessment_id_fkey"
+      columns: ["assessment_id"]
+isOneToOne: false
+      referencedRelation: "assessment_records"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "care_plan_items_case_id_organization_id_fkey"
       columns: ["case_id","organization_id"]
 isOneToOne: false
@@ -2041,6 +2137,9 @@ isOneToOne: false
               "class": string,"code": string,"help_text": string,"label": string,"refuses_codes": boolean,"version": number
             }[]
                            },
+"add_assessment_instrument":
+{ Args: { "p_idempotency_key": string,"p_name": string,"p_organization_id": string,"p_third_party_mark": boolean,"p_valid_from": string,"p_valid_to": string,"p_version": string }; Returns: Json
+                           },
 "add_care_plan_item":
 { Args: { "p_case_id": string,"p_category": string,"p_frequency": string,"p_goal": string,"p_idempotency_key": string,"p_planned_minutes": number,"p_review_date": string,"p_service": string }; Returns: string
                            },
@@ -2111,6 +2210,9 @@ isOneToOne: false
 "complete_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
                            },
+"confirm_assessment":
+{ Args: { "p_idempotency_key": string,"p_record_id": string }; Returns: Json
+                           },
 "confirm_suggestion":
 { Args: { "p_idempotency_key": string,"p_outcome": string,"p_suggestion_id": string,"p_value": Json }; Returns: Json
                            },
@@ -2162,6 +2264,9 @@ isOneToOne: false
                            },
 "depart_visit":
 { Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: string
+                           },
+"end_assessment_instrument":
+{ Args: { "p_idempotency_key": string,"p_instrument_id": string,"p_valid_to": string }; Returns: Json
                            },
 "end_member_access":
 { Args: { "p_idempotency_key": string,"p_reason_code": string,"p_user_id": string }; Returns: Json
@@ -2372,6 +2477,9 @@ isOneToOne: false
 "record_absence":
 { Args: { "p_from": string,"p_from_time": string,"p_idempotency_key": string,"p_team_id": string,"p_until": string,"p_until_time": string,"p_user_id": string }; Returns: Json
                            },
+"record_assessment":
+{ Args: { "p_assessment_date": string,"p_assessor_id": string,"p_case_id": string,"p_document_ref": string,"p_idempotency_key": string,"p_instrument_id": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_period_a": string,"p_period_b": string,"p_period_c": string,"p_reason": string,"p_supersedes_id": string }; Returns: Json
+                           },
 "record_gp_informed":
 { Args: { "p_case_id": string,"p_channel": string,"p_idempotency_key": string,"p_informed_on": string }; Returns: Json
                            },
@@ -2524,6 +2632,11 @@ isOneToOne: false
                            },
 "team_admissions":
 { Args: { "p_team_id": string }; Returns: Json
+                           },
+"team_case_assessments":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "case_id": string,"current_id": string,"newer_assessment_date": string,"newer_events": Json,"plan_basis_date": string,"plan_without_basis": boolean,"records": Json
+            }[]
                            },
 "team_case_lifecycle":
 { Args: Record<PropertyKey, never>; Returns: {
