@@ -201,10 +201,18 @@ export function reviewOffered(view: CaseAssessments | null | undefined): boolean
   return !!view.newer_assessment_date || view.plan_without_basis || !!view.corrected_basis_date;
 }
 
-/** ASM1-C4: the command's label, naming the current record's date. */
+/** ASM1-C4 (d) (UXR-60): the command's label starts with a verb of confirming and names the current record's date. */
 export function reviewLabel(current: Pick<AssessmentRecord, "assessment_date">): string {
-  return `Pflegeplan gegen Bedarfsabklärung vom ${formatDate(current.assessment_date)} geprüft`;
+  return `Als geprüft bestätigen: Pflegeplan gegen Bedarfsabklärung vom ${formatDate(current.assessment_date)}`;
 }
+
+/** ASM1-C4 (d) (3): the confirming step's sentence: the record date and what disappears for the team. */
+export function reviewConfirmSentence(current: Pick<AssessmentRecord, "assessment_date">): string {
+  return `Pflegeplan gegen die Bedarfsabklärung vom ${formatDate(current.assessment_date)} als geprüft bestätigen? Danach verschwinden für das Team die Hinweise «Neuere Bedarfsabklärung» und «… korrigiert». Die Leistungen bleiben, wie sie sind.`;
+}
+
+/** ASM1-C4 (d) (3): the action button inside the confirming step. */
+export const REVIEW_CONFIRM_ACTION = "Als geprüft bestätigen";
 
 /** ASM1-C4 / `cra` (a): the latest act in words, with the record's state at the act. */
 export function planReviewText(review: PlanReview | null | undefined): string | null {

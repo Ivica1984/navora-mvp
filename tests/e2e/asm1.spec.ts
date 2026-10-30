@@ -151,12 +151,25 @@ test("record, see 'nicht bestätigt', confirm as the named nurse, supersede with
   await expect(basis.getByTestId("plan-category-C")).toContainText("Bedarfsabklärung: 330 min pro Woche");
 
   // 6. ASM1-C4 (AUT-26): one review act re-bases the plan; the items stay as written.
-  await basis.getByRole("button", { name: `Pflegeplan gegen Bedarfsabklärung vom ${swiss(NEWER)} geprüft` }).click();
+  // ASM1-C4 (d) (UXR-60): the command sits below the last category row, labelled as a command, and asks once
+  const command = basis.getByRole("button", { name: `Als geprüft bestätigen: Pflegeplan gegen Bedarfsabklärung vom ${swiss(NEWER)}` });
+  const commandBox = await command.boundingBox();
+  const lastRowBox = await basis.getByTestId("plan-category-C").boundingBox();
+  expect(commandBox!.y).toBeGreaterThanOrEqual(lastRowBox!.y + lastRowBox!.height);
+  await command.click();
+  const step = basis.getByTestId("plan-review-confirm");
+  await expect(step.getByTestId("plan-review-confirm-sentence")).toContainText(swiss(NEWER));
+  // "Abbrechen" records nothing: the marker stays
+  await step.getByRole("button", { name: "Abbrechen" }).click();
+  await expect(basis.getByTestId("plan-newer-assessment")).toHaveText(`Neuere Bedarfsabklärung vom ${swiss(NEWER)}`);
+  await expect(basis.getByTestId("plan-review")).toHaveCount(0);
+  await command.click();
+  await basis.getByTestId("plan-review-confirm").getByRole("button", { name: "Als geprüft bestätigen", exact: true }).click();
   await expect(basis.getByTestId("plan-newer-assessment")).toHaveCount(0);
   await expect(basis.getByTestId("plan-basis")).toContainText(`Bedarfsabklärung vom ${swiss(NEWER)}`);
   await expect(basis.getByTestId("plan-review")).toContainText(`Pflegeplan geprüft gegen die Bedarfsabklärung vom ${swiss(NEWER)}`);
   await expect(plan).toContainText("E2E ASM1 Morgenpflege");
   await expect(plan).toContainText("E2E ASM1 Duschen");
-  await expect(basis.getByRole("button", { name: /geprüft$/ })).toHaveCount(0);
+  await expect(basis.getByRole("button", { name: /^Als geprüft bestätigen/ })).toHaveCount(0);
   await nurse.context().close();
 });

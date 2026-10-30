@@ -50,7 +50,6 @@ export default function PlanAssessmentBasis({
           {corrected}
         </p>
       )}
-      {reviewAction}
       {reviewed && <p data-testid="plan-review">{reviewed}</p>}
       {current && (
         <>
@@ -78,6 +77,8 @@ export default function PlanAssessmentBasis({
           ))}
         </>
       )}
+      {/* ASM1-C4 (d) (`uxa` UXR-60, PO 12:14): the review command comes last, after everything it attests. */}
+      {reviewAction}
     </div>
   );
 }

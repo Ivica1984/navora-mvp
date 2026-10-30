@@ -13,6 +13,7 @@ import {
   planReviewText,
   recordAnchor,
   recordsToConfirm,
+  reviewConfirmSentence,
   reviewLabel,
   reviewOffered,
   toCaseAssessments,
@@ -130,7 +131,11 @@ describe("ASM1-C4: one review act re-bases the plan (AUT-26)", () => {
     expect(reviewOffered(view({ plan_without_basis: true }))).toBe(true);
     expect(reviewOffered(view({ corrected_basis_date: "2026-10-10", corrected_on: "2026-10-30" }))).toBe(true);
     expect(reviewOffered(view({ current_id: null, newer_assessment_date: "2026-10-28" }))).toBe(false);
-    expect(reviewLabel(record({ assessment_date: "2026-10-28" }))).toBe("Pflegeplan gegen Bedarfsabklärung vom 28.10.2026 geprüft");
+    // ASM1-C4 (d) (2): a command that starts with a verb of confirming and names the record date
+    expect(reviewLabel(record({ assessment_date: "2026-10-28" }))).toBe("Als geprüft bestätigen: Pflegeplan gegen Bedarfsabklärung vom 28.10.2026");
+    expect(reviewLabel(record({ assessment_date: "2026-10-28" }))).toMatch(/^Als geprüft bestätigen:.*28\.10\.2026/);
+    // (3): the confirming step names the date and what disappears for the team
+    expect(reviewConfirmSentence(record({ assessment_date: "2026-10-28" }))).toMatch(/28\.10\.2026.*«Neuere Bedarfsabklärung».*«… korrigiert»/);
   });
 
   it("`cra` (a): the act is shown with the record's state at the act; every refusal has a German text", () => {
@@ -144,6 +149,40 @@ describe("ASM1-C4: one review act re-bases the plan (AUT-26)", () => {
     const out = toCaseAssessments([{ case_id: "c-1", records: [], current_id: null, corrected_basis_date: "2026-10-10", corrected_on: "2026-10-30", plan_review: null }]);
     expect(out["c-1"].corrected_basis_date).toBe("2026-10-10");
     expect(out["c-1"].plan_review).toBeNull();
+  });
+});
+
+describe("ASM1-C4 (d): the review command comes after what it attests (UXR-60)", () => {
+  it("in DOM order: marker and C5 sentence before the assessment line; every category row and newer event before the command", () => {
+    const html = renderToStaticMarkup(
+      createElement(PlanAssessmentBasis, {
+        view: view({
+          newer_assessment_date: "2026-10-28",
+          corrected_basis_date: "2026-10-10",
+          corrected_on: "2026-10-30",
+          newer_events: [{ kind: "resume", date: "2026-10-29" }],
+        }),
+        items: [{ id: "i-1", service: "Synthetisch Morgenpflege", category: "C", minutes: 30, frequency: "2× täglich" }],
+        reviewAction: createElement("div", { "data-testid": "plan-review-command" }),
+      }),
+    );
+    const at = (id: string) => html.indexOf(`data-testid="${id}"`);
+    const line = at("plan-assessment-line");
+    const command = at("plan-review-command");
+    expect(at("plan-newer-assessment")).toBeGreaterThan(-1);
+    expect(at("plan-newer-assessment")).toBeLessThan(line);
+    expect(at("plan-corrected-basis")).toBeLessThan(line);
+    for (const id of ["plan-category-A", "plan-category-B", "plan-category-C", "plan-newer-event"]) {
+      expect(at(id), id).toBeGreaterThan(-1);
+      expect(at(id), id).toBeLessThan(command);
+    }
+  });
+
+  it("the button asks once (confirm-step pattern) before the command runs", () => {
+    const source = readFileSync("src/app/(protected)/team/plan-review-button.tsx", "utf8");
+    expect(source).toContain("<ConfirmStep");
+    expect(source).toMatch(/onClick=\{\(\) => setAsking\(true\)\}/);
+    expect(source).toMatch(/onCancel=\{\(\) => setAsking\(false\)\}/);
   });
 });
 
