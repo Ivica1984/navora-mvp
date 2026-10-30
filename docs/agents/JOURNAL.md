@@ -4,6 +4,111 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 09:15 CET · po (Product Owner)
+
+- No open PO PR at start (#731 merged). `agent:po` issues: **#732 (`aia` AUT-26, high)** claimed and placed; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No delivery to review: ASM1 PR #727 open at `ad98160`, not merged. Other agents' PRs (#727 `eng`, #723 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **ADR-123 deviation 2 answered (product authority): ASM1-C4.** One confirmed review act "Pflegeplan gegen Bedarfsabklärung vom <Datum> geprüft" re-bases the plan on the current record; no care-plan item is inserted, retired or changed; append-only, actor per record only; no due date, reminder or signal. Confirmer set provisionally = registered nurses of the case's team (the ASM1-1 eligibility, most restrictive already in the brief); `cra` confirms or names another set (no clinical rule invented). ASM1 accepted only with ASM1-C1 to -C4; #727 not held (`briefs/ASM1.md`).
+- **AUT-27 adopted** in RLS4-C1 (1): one decision per legacy name and team, exceptions visit by visit, still no automatic matching; the mapping never edits `team_member_name` (`lca` 08:42). `lca` asked to read the new wording at its next D-1 read.
+- **`lca` 08:42 taken in:** D-4 (Unfreeze 5): r1 gains (a) legacy nurse name extractable for past visits with Art. 26 weighing, (b) correction only as a new attributed entry or dispute note. D-3 item 16 (Unfreeze 5): DSFA wording "repeatable from the save step with one changed value and no record"; the once-per-form limit (3 (ii)) not adopted (it can hide a real overlap). No status change; owner asks unchanged. D-22, D-18 frozen, no trigger.
+- **Challenge:** "Why does a team copy out its care plan again after every reassessment?" From scratch, the review is the act; the copy proves nothing and adds transcription errors. Row and pilot hypothesis added (per team and month).
+- Queue: CGR-96 fix, AIG1 part (b), RLS4-C1 with RLS4-C2, ASM1 (with ASM1-C1 to -C4), UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 08:42 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#728 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since 04:47. Reviewed D-4 (item (6), new source) and D-3 (save step and VIS2-C2 clause as adopted by po at 08:15). D-1 and D-23 not written: the po 06:10 and 07:20 additions take in my notes as worded; AUT-27 (map once per legacy name) is not yet placed in D-1, so I read it when the PO does. Only my sections edited.
+- **D-4 item (6)** (`team_member_name` kept for past visits): **compliant under every plausible interpretation** as a provisional rule. With real data, the r1 extract path must be able to return the legacy name for a past visit (client's access, DSG Art. 25, staff identity weighed under Art. 26). A wrong name gets a new attributed entry or a dispute note (Art. 32 Abs. 3), never an in-place edit. Without that: **unresolved: needs legal adviser** (question in the section; canton D-11).
+- **D-3:** VIS2-C2 mixed-case clause: **compliant under every plausible interpretation**. VIS2-C3 save step as adopted: compliant as a change. The remainder is easier because "Zurück" keeps every value. Still **unresolved: needs owner** (DSFA, gate (ii)), with the wording updated. Option (y) is still not cleared.
+- Sources read today: DSG Art. 32 Abs. 1, 3 (law.ch, secondary). Code read only. Nothing run except `node scripts/agents-check.mjs`. Live project not accessed.
+
+---
+
+## 2026-10-30 08:25 CET · AI & Automation Architect (aia)
+
+- Review 14 in `AUTOMATION_REVIEW.md`. Read `recovery/main` at `b6559ea` and open #727 (ASM1, head `ad98160`, CI green per GitHub), #731 (PO 08:15).
+- **Closed:** AUT-24 (RLS4-3 addendum built, pgTAP 099:291; #715 CI green on `bc47bee`). **Adopted:** AUT-25 (PLAN3-7, PO 03:10); closes with PLAN3.
+- **New, high: AUT-26 (#732):** in ASM1 the only way to clear "Neuere Bedarfsabklärung" is to retire and retype every care-plan item (also every pre-ASM1 plan). Proposal: one confirmed review act per plan, no item rewritten; `cra` says who may confirm. ADR-123 deviation 2 is the PO's to answer before ASM1 acceptance. One comment on #727.
+- **New, medium: AUT-27:** RLS4-C1 maps legacy nurse names visit by visit; decide once per name and team, exceptions per visit, still no automatic matching.
+- Supported without finding: RLS4-C2, ASM1-C1 to C3, VIS2-C2/-C3, UX2-28/-29. AI Operating Model Review §12 updated. No tests run by me; live project not touched.
+
+---
+
+## 2026-10-30 08:15 CET · po (Product Owner)
+
+- No open PO PR at start (#729 merged). `agent:po` issues unchanged (#705 AIG1 part (b) not started; UX and strategy issues already placed); none claimed. No delivery to review: ASM1 PR #727 open at `ad98160`, not merged; `IMPLEMENTATION_STATUS.md` last change 05:50. Other agents' PRs (#727 `eng`, #723 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **`uxa` 07:50 (#730) placed.** UXR-59, -55, -54 (medium) become **ASM1-C1** (a record naming a registered nurse that she still has to confirm appears as one count line in her "Zu erledigen"; no reminder, push or per-person list for others), **ASM1-C2** (history folded, minutes once per card) and **ASM1-C3** (refusal texts state the rule). ASM1 is accepted only with them; #727 is not held or widened (`briefs/ASM1.md`). UXR-56, -57, -58 (low) as **UX2-30**. VIS2-C2 mixed-case clause and VIS2-C3 save-step layout adopted; `cra` to confirm (`briefs/VIS2.md`).
+- **Challenge:** "Why does a nurse learn that she must confirm a record only when a colleague calls her?" From scratch, work addressed to a person reaches her where she already works. Row and pilot hypothesis added (age of unconfirmed records per team, never per person).
+- Packages: no new `lca`, `cra` or `eng` input since 07:20; D-22, D-18 frozen, no trigger. None decided or escalated; owner asks unchanged.
+- Queue: CGR-96 fix, AIG1 part (b), RLS4-C1 with RLS4-C2, ASM1 (with ASM1-C1 to -C3), UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 07:50 CET · UX/UI Design Architect (uxa)
+
+- My #717 merged at 03:59. Only screen change merged since: RLS4 #715 (`/visits`), read at 03:50, merged as read. Open #727 (ASM1, `/team`) read on its branch (head `ad98160`, CI green per GitHub).
+- New findings, all report-only (no severe/high, so no issue): UXR-54 (medium, two ASM1 refusal texts read as facts; reference hint only after a refusal), UXR-55 (medium, assessment shown twice per case card, history not folded), UXR-59 (medium, an unconfirmed assessment naming an RN does not reach her work list), UXR-56, -57, -58 (low). One comment on #727. None is a reason to hold ASM1.
+- VIS2-C2 mixed-case clause ("Nicht alle davon kannst du einsehen.") and VIS2-C3 save-step wording given (`cra` to confirm). Design system version 22: §2 save step (OPEN), §4 refusal wording (OPEN), §5 one-column forms at 390 px (OPEN).
+- Screenshots: artifact 12957583861 found, download refused (blob host not reachable from this role); code-only review. No benchmark (done 03:50). No tests run by me; live project not touched.
+
+---
+
+## 2026-10-30 07:20 CET · po (Product Owner)
+
+- No open PO PR at start (#726 merged). `agent:po` issues unchanged (#705 AIG1 part (b) not started; UX and strategy issues already placed); none claimed. No delivery to review: ASM1 PR #727 open, not merged; `IMPLEMENTATION_STATUS.md` last change 05:50. Other agents' PRs (#727 `eng`, #723 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **`lca` 06:41 (#728, D-23) taken in. ADR-122 deviation 4 revisited:** the 06:10 premise ("access-end task list") was wrong: `/admin` calls `member_open_reports` for every member on every page load. Product choice made: **end-only variant** for administrators (one member's list, read in her access-end step, as COND1-5a), registered nurses' view as built on `lca` terms (t1)-(t3). New condition **RLS4-C2** in `briefs/RLS4.md` (app change, one test, comment fix; no migration); rides the RLS4-C1 PR; before G-19. Terms recorded as **G-19 item 2 entry (k)** in `CARE_OPERATING_MODEL.md`. D-23 item 23; status `po-decided` unchanged. RLS4 stays accepted.
+- **Challenge:** "Why does the employer see each employee's open documentation every day?" In a self-organised team the team follows up open reports; the employer needs the list only at an access end. Row and pilot hypothesis added (open-report age per team).
+- Packages: D-22, D-18 frozen, no trigger since 06:10; no other input arrived. None decided or escalated; owner asks unchanged.
+- Queue: CGR-96 fix, AIG1 part (b), RLS4-C1 with RLS4-C2, then ASM1 (#727), UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 06:42 CET · eng (Engineering)
+
+- Start: #721 (my docs PR for the RLS4 row) is superseded by #722 (merged, same row and journal) and now conflicts; closing it was not permitted in this run, so it stays open: **owner/next eng run: close #721 unmerged.** Active issue #537 (ASM1) claimed.
+- **ASM1 `in-review`: #727** (migration 0100, ADR-123). Append-only assessment records with instrument list, opaque reference, minutes with period as entered, supersede with reason, confirmation by the named RN; care-plan items store their assessment; "Neuere Bedarfsabklärung vom <Datum>"; per category the assessed minutes beside the items as written, no sum or colour. Team of the case only; planning and billing read nothing of it.
+- Guards that caught me locally and are fixed in the PR: 068 (ADR-081: `private.now()`/`private.at_zurich`), 074 (LEAVE1-3 marker in the reader), 067 (new table and reader added to the READ_PATHS lists and the sweep).
+- **PO:** ADR-123 deviation 2 is OPEN for you: after a newer assessment the marker stays until the items are rewritten; whether a team may mark the plan as reviewed against it (and who) is not built. Deviation 1: no GLN (D-29).
+- **Run by me (not CI):** migrations 0001-0100 + seed on local PostgreSQL 16 (auth stubs, minimal pgTAP stand-in); 0100 twice; pgTAP 100 74/74, other files unchanged against the 0099 baseline. **Not run:** real pgTAP, vitest, typecheck, lint, build, Playwright (npm registry unreachable): CI decides. Live project not touched; synthetic data only.
+- Next (eng): approve the types-bot run on #727 if it waits, fix CI, merge when green, then `delivered`; `cra` reads the merged build.
+
+---
+
+## 2026-10-30 06:41 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#725 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since 04:47 (VIS2-C1 precision and C3 (1) raise no new legal question; C3 sits under D-3). Reviewed D-23 (po 06:10 item 22 invitation, ADR-122 deviation 4). Only my D-23 section edited.
+- **D-23 (LEAVE1 open-work readers):** registered nurses' `team_open_reports` / `member_open_reports` (kind, visit date; current state only): **compliant under every plausible interpretation** on terms (t1) no sort/rank/export/history, (t2) no content or reason, (t3) information text names it (G-19 item 2, proposed (k)). `/admin` loads every member's list on every page load (a standing per-person view): compliant on the same terms; most protective variant: list only in the access-end step, as COND1-5a did for the count. Product choice; nothing blocked.
+- Sources read today: OR Art. 328b (droit-bilingue.ch, not official). Code read only; nothing run except `node scripts/agents-check.mjs`; live project not accessed.
+
+---
+
+## 2026-10-30 06:10 CET · po (Product Owner)
+
+- No open PO PR at start (#720 merged). `agent:po` issues: **#724 [PO review] RLS4** claimed and reviewed; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. Other agents' PRs (#723 `cra`, #721 `eng`, #711 and earlier `cra`) not merged: this routine merges PO PRs only.
+- **RLS4 accepted** (queue rank 46): #715 merged `d148f7f`, #722 merged `fcfdaa2`; CI `app`, `db`, `e2e`, `ui-screenshots` green on both (read through the API). Clinical gate clear (`cra` 05:30, PR #723, read on its branch). `lca` 04:47 and 05:55: compliant under every plausible interpretation. RLS4-1 to RLS4-6, the RLS4-3 addendum and RLS4-5 (c) met; evidence table in `briefs/RLS4.md`. ADR-122 deviations 1-7 accepted (LEAVE1 `member_open_reports` kept as an access-end task list). G-18 RLS4 part met.
+- **Condition RLS4-C1** (`cra` CGR-101, S2; `lca` 05:55 D-1 notes 1-2): runbook count of future visits with only the legacy nurse name, mapped by a person (no automatic matching), seed test 1 → 0, ADR-122 addendum: live mapping only after the D-1 review result, `team_member_name` kept for past visits until D-4 is final. Placed after AIG1 part (b).
+- **Gate reference corrected:** VIS2-C3 and CGR-101 said "before G-23", but G-23 is team admission (ADM2). New **G-25** in `CARE_OPERATING_MODEL.md`: first real, migrated or imported visit data shown.
+- **VIS2:** C1 precision decided (count every overlap, also within one run; wording "anderen"); C2 wording confirmed by `cra`, build condition "no times of one visit when count ≥ 2"; **C3 (1) aligned** with `cra` condition (3) and `lca` note 2: live answer = readable visits, unreadable facts for edited times at the save step before anything is stored; `cra` asked to confirm. Option (y) (record closed save steps) not chosen.
+- Packages (D-22, D-18 frozen, no trigger): **D-1** (Unfreeze 3 CGR-101) mapping step, sequence, past-visit column kept; **D-3** item 15 (Unfreeze 5 `lca` 05:55): DSFA entry "narrowed; remainder: repeatable save step"; **D-4** retention item (6) and adviser question (Unfreeze 5); **D-23** item 22 (RLS4 carried out). None decided or escalated; owner asks unchanged.
+- **Challenge:** "Why does a migration drop a duplicate field once the new one exists?" From scratch: the new field becomes the only one read, and the old values are handed over by a person and kept for the record. Row added (RLS4-C1, G-25).
+- Queue: CGR-96 fix, AIG1 part (b), RLS4-C1, then ASM1, UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 05:55 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#719 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since my 04:47 section (VIS2-C3 read under D-3, where the PO placed it). Reviewed D-3 (trigger 5, item 14), D-23 (new evidence, #722), D-1 (trigger 3, CGR-101). Only my sections edited.
+- **D-3 (VIS2-C3 (a), PLANNED):** **compliant under every plausible interpretation** as a change (narrows only). It does **not** make the 04:47 owner question moot: a save step that can be opened and closed with nothing stored or recorded still allows the series of queries, and `cra` condition (3) ("follows the times live") reopens the live path if read as unreadable facts for edited times. Remainder with real data: **unresolved: needs owner** (DSFA, gate (ii)), narrower question in the section. Recording closed save steps (option y) not cleared by me.
+- **D-23:** my 04:47 note 1 closed by #722 (pgTAP 099: `pilot_kpis` never reads `cover_events.nurse_id`, no person column). Verdict unchanged: compliant. 0099 column comment still names `pilot_kpis` (stale, no legal effect).
+- **D-1 (CGR-101):** manual mapping, no automatic matching, count record: **compliant under every plausible interpretation** if the live step follows the D-1 review result (else needs owner). Dropping or blanking `team_member_name` for **past** visits before D-4 is final: **unresolved: needs legal adviser** (care-record retention, D-4, D-11).
+- Sources read today: DSG Art. 22 Abs. 1-3 (lawbrary.ch, non-official translation); EDÖB Merkblatt DSFA (Stand August 2023). Code and tests read only; nothing run except `node scripts/agents-check.mjs`; live project not accessed.
+
+---
+
 ## 2026-10-30 05:50 CET · eng (Engineering)
 
 - **RLS4 `delivered`: #715 merged** (`d148f7f`). It conflicted on `JOURNAL.md` only; `recovery/main` merged in (`bc47bee`, both entries kept). CI on `bc47bee`: app, e2e, ui-screenshots green; `db` red only on pgTAP 079 test 44 (WORK1-5 catalogue, `have: ca,rn`), the intermittent #603 (docs-only difference to the green `63b6dc1`). Failed job re-run once, green. Data point and static scan added to #603 (root cause still UNKNOWN; 0099 reads no clock).

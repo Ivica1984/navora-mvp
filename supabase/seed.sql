@@ -322,3 +322,15 @@ insert into public.visit_reports (organization_id, visit_id, case_id, team_id, v
   ('00000000-0000-4000-b000-000000000013', '00000000-0000-4000-a000-000000000562', '00000000-0000-4000-a000-000000000261',
    '00000000-0000-4000-a000-000000000161', 1, 'draft', private.visit_report_snapshot('00000000-0000-4000-a000-000000000562'), null,
    '00000000-0000-4000-a000-000000000960', false, '00000000-0000-4000-a000-000000000960');
+
+-- ASM1-6 (migration 0100, ADR-123): the instrument reference list of Testorganisation A. Synthetic names only: no real
+-- instrument is named, none is designated (D-37). "Testmarke HC" stands for a name that is a third party's mark, so the
+-- list shows it as such (D-36 A). "Testinstrument alt" ended before today (an entry valid only in its period).
+-- No assessment record is seeded: the e2e (asm1.spec) and pgTAP 100 write their own through the commands.
+insert into public.assessment_instruments (id, organization_id, name, version, valid_from, valid_to, third_party_mark, created_by) values
+  ('00000000-0000-4000-a000-000000000971', '00000000-0000-4000-b000-000000000011', 'Testinstrument Bedarf', '1.0', date '2020-01-01', null, false,
+   '00000000-0000-4000-a000-000000000905'),
+  ('00000000-0000-4000-a000-000000000972', '00000000-0000-4000-b000-000000000011', 'Testmarke HC', '9.1', date '2020-01-01', null, true,
+   '00000000-0000-4000-a000-000000000905'),
+  ('00000000-0000-4000-a000-000000000973', '00000000-0000-4000-b000-000000000011', 'Testinstrument alt', '0.9', date '2019-01-01', date '2020-12-31', false,
+   '00000000-0000-4000-a000-000000000905');

@@ -361,6 +361,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 
 **Administrator steps after a team decision (AUT-21, OPEN; `aia` 2026-10-29 14:55):** where a team decision is followed by an employer act (ADM2 "Vertrag erfasst", the qualification under D-29), all acts of that sitting are offered on one card, each still the administrator's own explicit choice (no preselected value, no accept-all), and a state that blocks the team (a member who cannot perform) stays visible where it is resolved.
 
+**Care-plan review after a reassessment (AUT-26, OPEN, #732; `aia` 2026-10-30 08:25):** ASM1 (#727, in review) marks a care plan resting on an older assessment. **Control:** the marker is cleared by one confirmed review act per plan (actor per record only), never by retyping unchanged items; who may confirm is `cra`/Clinical Owner (UNKNOWN). A later care-plan review proposer (A10) ends in that act, its proposed item changes confirmed value by value (care-plan fields are never `schedule`, §8); no due date, reminder or signal until the Clinical Owner sets an interval.
+
+**Acts per record only, state (`aia` 2026-10-30 08:25):** IMPLEMENTED for the care records (RLS4, #715, 0099, ADR-122; G-18 met). The SIG1 "übernommen von <Name>" reader stays per signal (AUT-24 closed, pgTAP 099). Any later per-value confirmer display follows the same pattern.
+
+**One decision per name in data reconciliation (AUT-27, medium, OPEN):** where a person must map legacy free text to members (RLS4-C1, G-25), the person decides once per name and team, exceptions per visit; never automatic name matching; count before and after.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -378,3 +384,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-10-29 20:20 | `aia` | §12: added the "confirmer read per value only" control (AUT-22, D-35 term 9 at table level), the OBS1 authorship state (IMPLEMENTED) and the D-1 precaution as an added stage-1 precondition. No agent added or removed |
 | 2026-10-29 23:15 | `aia` | §12: AIG1-11 state (adopted); added the stop recovery path (AIG1-12) and the look-back controls of AUT-23 (one by one, "überholt" by rule pending the Clinical Owner). No agent added or removed |
 | 2026-10-30 02:18 | `aia` | §12: AIG1 part (a) state (IMPLEMENTED at database level, synthetic test agent only); added the controls "a confirmation never stands for a check that did not run" (AIG1-15), "monitor the monitor" (AIG1-16), the usefulness measure for "no proposal" (AUT-25) and the team switch pattern (PLAN3-10). No agent added or removed |
+| 2026-10-30 08:25 | `aia` | §12: added the care-plan review control after a reassessment (AUT-26: one confirmed act, no retype; A10 ends in it), the RLS4 acts-per-record state (IMPLEMENTED, AUT-24 closed) and the one-decision-per-name reconciliation rule (AUT-27). No agent added or removed |

@@ -10,6 +10,7 @@ import { getGpNotices } from "@/features/gp/queries";
 import { getTeamPushStatus } from "@/features/push/queries";
 import { getMyTeamAdmissions } from "@/features/admission/queries";
 import { getContractEndHandover, getLeaverOpenReports, getSuccessorItems } from "@/features/contract-end/queries";
+import { getAssessmentInstruments, getTeamCaseAssessments } from "@/features/assessment/queries";
 import TeamClient from "./team-client";
 
 // J2: requests offered to the caller's teams — the team decides (Teamautonomie).
@@ -28,7 +29,8 @@ export default async function TeamPage() {
   // ADM2-10: the team's admission proposals (only when the organisation switched team admission on).
   // ADM2-12 / ADM2-15: colleagues whose contract ends in the next 14 days (registered nurses) and open responsibilities of
   // a person whose access ended.
-  const [offers, cases, continuity, billing, lifecycle, visitAlerts, signals, gpNotices, pushStatus, outsideWatched, admissions, leavers, successorItems] = await Promise.all([
+  // ASM1 (0100): the assessment records of the team's cases and the organisation's instrument list.
+  const [offers, cases, continuity, billing, lifecycle, visitAlerts, signals, gpNotices, pushStatus, outsideWatched, admissions, leavers, successorItems, assessments, instruments] = await Promise.all([
     getTeamOffers(),
     getTeamCases(),
     getContinuity(month),
@@ -42,7 +44,9 @@ export default async function TeamPage() {
     getMyTeamAdmissions(),
     getContractEndHandover(),
     getSuccessorItems(),
+    getTeamCaseAssessments(),
+    getAssessmentInstruments(),
   ]);
   const leaverReports = await getLeaverOpenReports(leavers);
-  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} visitAlerts={visitAlerts} signals={signals} gpNotices={gpNotices} pushStatus={pushStatus} outsideWatched={outsideWatched} admissions={admissions} leavers={leavers} leaverReports={leaverReports} successorItems={successorItems} />;
+  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} visitAlerts={visitAlerts} signals={signals} gpNotices={gpNotices} pushStatus={pushStatus} outsideWatched={outsideWatched} admissions={admissions} leavers={leavers} leaverReports={leaverReports} successorItems={successorItems} assessments={assessments} instruments={instruments} />;
 }
