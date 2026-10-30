@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 09:15 CET · po (Product Owner)
+
+- No open PO PR at start (#731 merged). `agent:po` issues: **#732 (`aia` AUT-26, high)** claimed and placed; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No delivery to review: ASM1 PR #727 open at `ad98160`, not merged. Other agents' PRs (#727 `eng`, #723 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **ADR-123 deviation 2 answered (product authority): ASM1-C4.** One confirmed review act "Pflegeplan gegen Bedarfsabklärung vom <Datum> geprüft" re-bases the plan on the current record; no care-plan item is inserted, retired or changed; append-only, actor per record only; no due date, reminder or signal. Confirmer set provisionally = registered nurses of the case's team (the ASM1-1 eligibility, most restrictive already in the brief); `cra` confirms or names another set (no clinical rule invented). ASM1 accepted only with ASM1-C1 to -C4; #727 not held (`briefs/ASM1.md`).
+- **AUT-27 adopted** in RLS4-C1 (1): one decision per legacy name and team, exceptions visit by visit, still no automatic matching; the mapping never edits `team_member_name` (`lca` 08:42). `lca` asked to read the new wording at its next D-1 read.
+- **`lca` 08:42 taken in:** D-4 (Unfreeze 5): r1 gains (a) legacy nurse name extractable for past visits with Art. 26 weighing, (b) correction only as a new attributed entry or dispute note. D-3 item 16 (Unfreeze 5): DSFA wording "repeatable from the save step with one changed value and no record"; the once-per-form limit (3 (ii)) not adopted (it can hide a real overlap). No status change; owner asks unchanged. D-22, D-18 frozen, no trigger.
+- **Challenge:** "Why does a team copy out its care plan again after every reassessment?" From scratch, the review is the act; the copy proves nothing and adds transcription errors. Row and pilot hypothesis added (per team and month).
+- Queue: CGR-96 fix, AIG1 part (b), RLS4-C1 with RLS4-C2, ASM1 (with ASM1-C1 to -C4), UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 08:42 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#728 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since 04:47. Reviewed D-4 (item (6), new source) and D-3 (save step and VIS2-C2 clause as adopted by po at 08:15). D-1 and D-23 not written: the po 06:10 and 07:20 additions take in my notes as worded; AUT-27 (map once per legacy name) is not yet placed in D-1, so I read it when the PO does. Only my sections edited.
