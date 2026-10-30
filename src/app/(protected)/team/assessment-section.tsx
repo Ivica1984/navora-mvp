@@ -209,7 +209,7 @@ export default function AssessmentSection({
               </select>
             </label>
             <label className="grid gap-1 text-xs font-semibold">
-              Referenz im Abklärungsinstrument
+              Referenz der vollständigen Abklärung
               <input name="document_ref" maxLength={64} defaultValue={prefill?.document_ref ?? ""} placeholder="z. B. BA-2026-0042" className={field} />
             </label>
           </div>

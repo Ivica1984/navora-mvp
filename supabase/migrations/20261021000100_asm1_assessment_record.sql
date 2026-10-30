@@ -173,7 +173,7 @@ begin
   if not found or c.assigned_team_id is distinct from new.team_id then
     raise exception 'ASM1: the record belongs to the case''s assigned team' using errcode = '23514';
   end if;
-  if new.assessment_date > private.at_zurich(private.now())::date then
+  if new.assessment_date > (private.at_zurich(private.now()))::date then
     raise exception 'ASM1: the assessment date is not in the future' using errcode = '23514';
   end if;
   if not exists (select 1 from public.assessment_instruments i
@@ -371,7 +371,7 @@ begin
   if not found or c.assigned_team_id is null
      or not private.is_org_member(c.organization_id) or not private.is_team_member(c.assigned_team_id) then
     rej := 'not_team_member';
-  elsif p_assessment_date is null or p_assessment_date > private.at_zurich(private.now())::date then
+  elsif p_assessment_date is null or p_assessment_date > (private.at_zurich(private.now()))::date then
     rej := 'date_in_future';
   elsif not exists (select 1 from public.assessment_instruments i
                     where i.id = p_instrument_id and i.organization_id = c.organization_id

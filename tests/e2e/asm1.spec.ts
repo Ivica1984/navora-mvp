@@ -48,10 +48,10 @@ test("record, see 'nicht bestätigt', confirm as the named nurse, supersede with
   await form.getByLabel("Instrument").selectOption(INSTRUMENT_ID);
   await form.getByLabel("Abklärende Pflegefachperson").selectOption(NURSE_ID);
   // ASM1-3: a file name is refused with the reason, nothing is stored
-  await form.getByLabel("Referenz im Abklärungsinstrument").fill("abklaerung.pdf");
+  await form.getByLabel("Referenz der vollständigen Abklärung").fill("abklaerung.pdf");
   await form.getByRole("button", { name: "Bedarfsabklärung speichern" }).click();
   await expect(section.getByTestId("assessment-error")).toContainText("kein Dateiname");
-  await form.getByLabel("Referenz im Abklärungsinstrument").fill("E2E-ASM1-1");
+  await form.getByLabel("Referenz der vollständigen Abklärung").fill("E2E-ASM1-1");
   await form.getByLabel("Minuten A", { exact: true }).fill("60");
   await form.getByLabel("Zeitraum A", { exact: true }).fill("pro Woche");
   await form.getByLabel("Minuten C", { exact: true }).fill("300");
@@ -101,7 +101,7 @@ test("record, see 'nicht bestätigt', confirm as the named nurse, supersede with
   await form.getByLabel("Datum der Abklärung").fill(NEWER);
   await form.getByLabel("Instrument").selectOption(INSTRUMENT_ID);
   await form.getByLabel("Abklärende Pflegefachperson").selectOption(NURSE_ID);
-  await form.getByLabel("Referenz im Abklärungsinstrument").fill("E2E-ASM1-2");
+  await form.getByLabel("Referenz der vollständigen Abklärung").fill("E2E-ASM1-2");
   await form.getByLabel("Minuten C", { exact: true }).fill("360");
   await form.getByLabel("Zeitraum C", { exact: true }).fill("pro Woche");
   await form.getByRole("button", { name: "Bedarfsabklärung speichern" }).click();
