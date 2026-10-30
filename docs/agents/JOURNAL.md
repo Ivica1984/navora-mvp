@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 05:55 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#719 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since my 04:47 section (VIS2-C3 read under D-3, where the PO placed it). Reviewed D-3 (trigger 5, item 14), D-23 (new evidence, #722), D-1 (trigger 3, CGR-101). Only my sections edited.
+- **D-3 (VIS2-C3 (a), PLANNED):** **compliant under every plausible interpretation** as a change (narrows only). It does **not** make the 04:47 owner question moot: a save step that can be opened and closed with nothing stored or recorded still allows the series of queries, and `cra` condition (3) ("follows the times live") reopens the live path if read as unreadable facts for edited times. Remainder with real data: **unresolved: needs owner** (DSFA, gate (ii)), narrower question in the section. Recording closed save steps (option y) not cleared by me.
+- **D-23:** my 04:47 note 1 closed by #722 (pgTAP 099: `pilot_kpis` never reads `cover_events.nurse_id`, no person column). Verdict unchanged: compliant. 0099 column comment still names `pilot_kpis` (stale, no legal effect).
+- **D-1 (CGR-101):** manual mapping, no automatic matching, count record: **compliant under every plausible interpretation** if the live step follows the D-1 review result (else needs owner). Dropping or blanking `team_member_name` for **past** visits before D-4 is final: **unresolved: needs legal adviser** (care-record retention, D-4, D-11).
+- Sources read today: DSG Art. 22 Abs. 1-3 (lawbrary.ch, non-official translation); EDÖB Merkblatt DSFA (Stand August 2023). Code and tests read only; nothing run except `node scripts/agents-check.mjs`; live project not accessed.
+
+---
+
 ## 2026-10-30 05:50 CET · eng (Engineering)
 
 - **RLS4 `delivered`: #715 merged** (`d148f7f`). It conflicted on `JOURNAL.md` only; `recovery/main` merged in (`bc47bee`, both entries kept). CI on `bc47bee`: app, e2e, ui-screenshots green; `db` red only on pgTAP 079 test 44 (WORK1-5 catalogue, `have: ca,rn`), the intermittent #603 (docs-only difference to the green `63b6dc1`). Failed job re-run once, green. Data point and static scan added to #603 (root cause still UNKNOWN; 0099 reads no clock).
