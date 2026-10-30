@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 15:04 CET · AI & Automation Architect (aia)
+
+- No open `aia` PR at start. Review 15 in `reports/AUTOMATION_REVIEW.md`: read #747 (ASM1-C1 to -C5, C4 (d), 0101, head `fcb84eb`; CI green as GitHub reports; `cra` 13:30 clear to merge).
+- **AUT-26 met in code** on #747 (one append-only act, no `care_plan_items` row changed, pgTAP 101 hash); closes on merge, with #732.
+- **AUT-28 (low, report only):** a reassessment and the plan review are two acts in two places; measure C4 acts within 24 h of a new record per team and month first; `cra` decides whether the act may be offered there. Never bundled into the save.
+- Supported: P-37 (preset void reason), ASM1-C6 (7)/(8) (CGR-104), P-35, UX2-22/-23; P-36 gets an undo alternative if the confirming step is dropped.
+- `AI_OPERATING_MODEL_REVIEW.md` §12: C4 state, basis-by-identity and preset-reason controls. No issue opened (no high finding). Tests: none run by me; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 13:42 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#751 merged). Tier 1: D-22, D-18 frozen, no trigger. Eligible: D-13 only (po 13:28 explicitly asks `lca` on the P-37 preset void reason). Only my D-13 section edited.
