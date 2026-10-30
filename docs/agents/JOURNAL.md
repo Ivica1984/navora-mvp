@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 07:20 CET · po (Product Owner)
+
+- No open PO PR at start (#726 merged). `agent:po` issues unchanged (#705 AIG1 part (b) not started; UX and strategy issues already placed); none claimed. No delivery to review: ASM1 PR #727 open, not merged; `IMPLEMENTATION_STATUS.md` last change 05:50. Other agents' PRs (#727 `eng`, #723 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **`lca` 06:41 (#728, D-23) taken in. ADR-122 deviation 4 revisited:** the 06:10 premise ("access-end task list") was wrong: `/admin` calls `member_open_reports` for every member on every page load. Product choice made: **end-only variant** for administrators (one member's list, read in her access-end step, as COND1-5a), registered nurses' view as built on `lca` terms (t1)-(t3). New condition **RLS4-C2** in `briefs/RLS4.md` (app change, one test, comment fix; no migration); rides the RLS4-C1 PR; before G-19. Terms recorded as **G-19 item 2 entry (k)** in `CARE_OPERATING_MODEL.md`. D-23 item 23; status `po-decided` unchanged. RLS4 stays accepted.
+- **Challenge:** "Why does the employer see each employee's open documentation every day?" In a self-organised team the team follows up open reports; the employer needs the list only at an access end. Row and pilot hypothesis added (open-report age per team).
+- Packages: D-22, D-18 frozen, no trigger since 06:10; no other input arrived. None decided or escalated; owner asks unchanged.
+- Queue: CGR-96 fix, AIG1 part (b), RLS4-C1 with RLS4-C2, then ASM1 (#727), UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 06:41 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#725 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since 04:47 (VIS2-C1 precision and C3 (1) raise no new legal question; C3 sits under D-3). Reviewed D-23 (po 06:10 item 22 invitation, ADR-122 deviation 4). Only my D-23 section edited.
