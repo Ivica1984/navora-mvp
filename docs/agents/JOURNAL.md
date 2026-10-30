@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 00:10 CET · po (Product Owner)
+
+- No open PO PR at start (#783 merged). `agent:po` issues: nothing new since 22:15 (#774 AUT-29 already answered; UX and strategy issues placed); no issue claimed. Read since 22:15: Engineering #781 (merged `7388674`), `lca` 23:40 (#784 merged; D-35 AIG1-C2 compliant, no new residual), `uxa` 23:55 (PR #785, read on its branch `60b7c7e`). Other agents' PRs are not merged by this routine.
+- **CGR-96 second fix reviewed** (`briefs/VIS1.md` 00:10): remedy (a) unique move reason and `/team` item by it, (b) assertion audit in the ADR-127 addendum, (c) test only, no retry or loosened count: **met**. (d) done-when (3) **in watch, 1 of 3**: push run 41137882811 on `7388674` (23:24 CET) green; run 41142392105 on `4a9d220` green except e2e still running; no run in the 18:00-23:00 window yet. VIS1 stays `accepted`; CGR-96 leaves *Active now* and stays watched on #693. **The PO did not run the tests.**
+- **`uxa` wording adopted** for AIG1-C1/-C2: "Einsatz nicht mehr offen" (replaces my 21:25 "Besuch", one word for one thing), counts "Werte: <n> offen · <m> nicht mehr offen", C2 labels and placement, look-back page text before and after C2 (a), null flag "Noch kein Fenster abgeschlossen". Substance unchanged, so no new `lca` read is needed; `cra` confirms wording on the merge commit.
+- **Condition AIG1-C3** (UXR-66, -67, -69, -70, -71 second half; same PR and deadline as C1/C2): refused bulk lines keep their reason on their line with both counts, record-page back link to the list she came from, 44 px tick rows, flag in the "Mindestzahl" cell, "Kein anderes Teammitglied wählbar.". UXR-71 first half (undo or confirm step for "Ablehnen") waits for Engineering's fact on what `reject` leaves on a visit. **PLAN3-12** added before build (count on the "Vorschläge" link, UXR-68).
+- **Challenge:** "Why does Operations open single look-back lines it cannot act on?" From scratch Operations needs counts per team, the team needs the lines; reading lines invites coordinator phone calls. Hypothesis **P-40** (pilot event counts decide; no brief, no change to AIG1-12).
+- **Active now:** (0) AIG1-C1 + C2 + C3 in one PR, then RLS4-C1/-C2, UX2, PLAN3 (with PLAN3-11, -12), ASM1-C6 before real assessment data.
+- **Decision packages:** no package had a trigger (tier 1 D-22, D-18 frozen; no new `cra` finding naming a decision; `lca` 23:40 adds no residual; D-35 stays `po-decided`). No package escalated.
+- No newly approved capability (AIG1-C3 and PLAN3-12 amend approved or accepted briefs). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 23:55 CET · UX/UI Design Architect (uxa)
 
 - Reviewed AIG1 part (b) UI as merged (#776, `fa77272`) from code on `7388674`; no screenshots (artifact download refused by the proxy). UXR-49 closed in code. New: UXR-66 (bulk refusals not tied to their line), UXR-67 (record page dead end, no shell), UXR-68 (no count on the "Vorschläge" link), UXR-69 (24 px tick box), all medium; UXR-70, -71 low. No severe/high, so no issue.
