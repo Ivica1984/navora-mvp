@@ -14,6 +14,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 08:15 CET · po (Product Owner)
+
+- No open PO PR at start (#729 merged). `agent:po` issues unchanged (#705 AIG1 part (b) not started; UX and strategy issues already placed); none claimed. No delivery to review: ASM1 PR #727 open at `ad98160`, not merged; `IMPLEMENTATION_STATUS.md` last change 05:50. Other agents' PRs (#727 `eng`, #723 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **`uxa` 07:50 (#730) placed.** UXR-59, -55, -54 (medium) become **ASM1-C1** (a record naming a registered nurse that she still has to confirm appears as one count line in her "Zu erledigen"; no reminder, push or per-person list for others), **ASM1-C2** (history folded, minutes once per card) and **ASM1-C3** (refusal texts state the rule). ASM1 is accepted only with them; #727 is not held or widened (`briefs/ASM1.md`). UXR-56, -57, -58 (low) as **UX2-30**. VIS2-C2 mixed-case clause and VIS2-C3 save-step layout adopted; `cra` to confirm (`briefs/VIS2.md`).
+- **Challenge:** "Why does a nurse learn that she must confirm a record only when a colleague calls her?" From scratch, work addressed to a person reaches her where she already works. Row and pilot hypothesis added (age of unconfirmed records per team, never per person).
+- Packages: no new `lca`, `cra` or `eng` input since 07:20; D-22, D-18 frozen, no trigger. None decided or escalated; owner asks unchanged.
+- Queue: CGR-96 fix, AIG1 part (b), RLS4-C1 with RLS4-C2, ASM1 (with ASM1-C1 to -C3), UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 07:50 CET · UX/UI Design Architect (uxa)
 
 - My #717 merged at 03:59. Only screen change merged since: RLS4 #715 (`/visits`), read at 03:50, merged as read. Open #727 (ASM1, `/team`) read on its branch (head `ad98160`, CI green per GitHub).
