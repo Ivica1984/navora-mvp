@@ -3,7 +3,7 @@ id: ASM1
 title: Assessment record — the needs assessment is recorded once, as a signed fact, and the care plan shows which assessment it rests on
 author: po
 status: approved
-updated: 2026-10-27
+updated: 2026-10-30
 ---
 
 # ASM1 — Assessment record (D-13 B)
@@ -71,3 +71,18 @@ UXR-56 (one-column form at 390 px), UXR-57 (replace form names the record it rep
 
 *Why:* ASM1-5 creates a confirmation step; a step that the confirming nurse cannot see becomes coordination work for someone else (a colleague phoning to ask her to confirm), which is the administration NAVORA is meant to remove. Showing the same record twice on a phone costs scrolling on every case card a team opens. A refusal that reads as a false statement costs a second attempt. The value is direct care time and continuity (value order 1, 2, 5); patient safety is unaffected (presentation only). The PO did not run any test; #727 was not read beyond `uxa`'s findings and the file list.
 
+
+## PO decision — 2026-10-30 09:15 CET: ADR-123 deviation 2 answered; condition ASM1-C4 (`aia` AUT-26, issue #732)
+
+**Question (ADR-123 deviation 2, OPEN for po):** after a newer assessment, may a team mark its care plan as reviewed against it without rewriting the items, and who? As built in #727 (synthetic data, not merged; read on its branch, not tested by the PO): `care_plan_items.assessment_id` is set only by the insert trigger, so "Neuere Bedarfsabklärung vom <Datum>" (and `plan_without_basis` for plans written before any record) clears only when every active item is retired with a reason and typed again: 2n actions for n items, even when the new assessment changes nothing.
+
+**Decision (product authority): yes, one confirmed review act per plan; no item is rewritten.** *Why:* retyping an unchanged plan proves no review and costs care time (value 1, value 5); retyped frequencies, weekdays and windows feed PLAN2 visit generation, so forcing a rewrite adds a transcription hazard (patient safety, the H-24 pattern); a team that does not retype keeps a marker that never clears and turns into noise on every card, which defeats ASM1-7 (value 2). What matters is the team's own review, so the system records that act (value 4). From scratch nobody would build "copy the plan by hand to say you read it". The marker stays a display, not a rule (ASM1 negative unchanged).
+
+**Who may confirm: UNKNOWN clinically; provisional default in force until `cra` / the Clinical Owner says otherwise:** a **registered nurse of the case's team**, i.e. the same eligibility ASM1-1 and ASM1-C3 already use for the assessing person. This is the most restrictive set already in the brief, not a new clinical rule; `cra` confirms or names another set in its ASM1 review (if it widens it, ASM1-C4 (2) follows; if it narrows it, the PO places it). No qualification rule is invented here.
+
+- [ ] **ASM1-C4 One review act re-bases the plan** (AUT-26 acceptance criteria 1-5). A command "Pflegeplan gegen Bedarfsabklärung vom <Datum> geprüft" on the care-plan block, available while the marker shows, sets the plan's basis to the case's current non-superseded record **without inserting, retiring or updating any care-plan item other than its basis reference**. Recorded append-only per act (who, when, which record), the actor readable per record only (RLS4 pattern), not selectable through a table, never counted or listed per person. Items the review finds wrong are changed with the existing commands. No due date, reminder, colour above `info` or signal (ASM1 negative). Tests (synthetic seed): (1) pgTAP: plan against record 1; record 2 recorded → marker returned; the act for record 2 → marker gone, no `care_plan_items` row inserted, retired or changed except the basis; one audit row with actor and time. (2) pgTAP: refused for a member of another team, for a record that is not the case's current non-superseded one, and for a member outside the provisional set above. (3) pgTAP: a plan whose items predate every record → one act clears `plan_without_basis` (and ADR-123 deviation 3 "Teilweise geschrieben gegen …"). (4) pgTAP: the actor column is not selectable through the table; read per record only. (5) e2e at 390 px: marker shown → "geprüft" → marker gone; items unchanged on screen.
+- Owner: `eng` (command, migration, tests; in #727 or the ASM1-C1 to -C3 follow-up PR, Engineering chooses), `cra` (who may confirm, at its ASM1 review), `uxa` (where the act sits; may refine wording). ASM1 is **accepted only with ASM1-C1 to ASM1-C4 merged**; #727 is not held.
+- The AUT-26 measure (6) is a pilot hypothesis in the challenge table, per team and month only.
+- Later (A10, D-35 stage 1+): this act is where an assistant's care-plan draft would end, value by value; nothing of that is approved here.
+
+ADR-123 deviations 1 and 3 to 6 are decided at the acceptance review.
