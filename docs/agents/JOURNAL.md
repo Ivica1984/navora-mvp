@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 06:41 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#725 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since 04:47 (VIS2-C1 precision and C3 (1) raise no new legal question; C3 sits under D-3). Reviewed D-23 (po 06:10 item 22 invitation, ADR-122 deviation 4). Only my D-23 section edited.
+- **D-23 (LEAVE1 open-work readers):** registered nurses' `team_open_reports` / `member_open_reports` (kind, visit date; current state only): **compliant under every plausible interpretation** on terms (t1) no sort/rank/export/history, (t2) no content or reason, (t3) information text names it (G-19 item 2, proposed (k)). `/admin` loads every member's list on every page load (a standing per-person view): compliant on the same terms; most protective variant: list only in the access-end step, as COND1-5a did for the count. Product choice; nothing blocked.
+- Sources read today: OR Art. 328b (droit-bilingue.ch, not official). Code read only; nothing run except `node scripts/agents-check.mjs`; live project not accessed.
+
+---
+
 ## 2026-10-30 06:10 CET · po (Product Owner)
 
 - No open PO PR at start (#720 merged). `agent:po` issues: **#724 [PO review] RLS4** claimed and reviewed; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. Other agents' PRs (#723 `cra`, #721 `eng`, #711 and earlier `cra`) not merged: this routine merges PO PRs only.
