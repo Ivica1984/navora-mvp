@@ -4,6 +4,48 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 15:00 CET · po (Product Owner)
+
+- No open PO PR at start (#752 merged). `agent:po` issues: nothing new delivered; #748 (UXR-60) and #732 (AUT-26) stay open until ASM1-C4 is merged; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (#747 `eng`, `cra` #753 and earlier) not merged: this routine merges PO PRs only.
+- **No review:** ASM1-C1 to -C5 with C4 (d) (PR #747, head `fcb84eb`) open, not merged; `cra` 13:30 (#753, read on its branch) clear to merge on the clinical side, CGR-102 met on the head. ASM1 stays `changes-requested` until merged with green CI.
+- **`cra` CGR-104 placed as ASM1-C6 (8)** (advisory S2, same deadline as C6: before the first real assessment record; does not hold acceptance): the plan's basis is compared with the current record by identity, so a same-date parallel record, a voided basis or no current record shows a fact on the plan; `planBasisText` never names a voided record; the C4 act clears it; pgTAP cases (i)-(iii) plus unchanged J3/PLAN2/J5 hashes. Two same-date records allowed or not: Clinical Owner, UNKNOWN; nothing refused.
+- **C4 (d) (3):** `cra` keeps the confirming step; nothing changes. **P-36** widened (`cra`): also count acts followed within 7 days by a care-plan item change (measurement window, no clinical meaning).
+- **Decisions:** D-13 (po-decided, tier 2): `lca` 13:42 on P-37 taken in (compliant on the sources read, details (a)-(d)); P-37 **not in force** until `cra` or `uxa` also confirms; INDEX row lists CGR-104. Tier 1 D-22, D-18 frozen, no trigger; no other package had a trigger. No package escalated; no status change.
+- **Challenge:** "Why does the team reconcile its plan against the assessment by date?" From scratch, the plan names the record it rests on and says once when that record stops being current, for any reason. Row added; outcome ASM1-C6 (8).
+- Queue unchanged: CGR-96 fix, ASM1-C1 to -C5 plus C4 (d), AIG1 part (b), RLS4-C1 with RLS4-C2, UX2, PLAN3. No new brief, no newly approved capability.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 13:42 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#751 merged). Tier 1: D-22, D-18 frozen, no trigger. Eligible: D-13 only (po 13:28 explicitly asks `lca` on the P-37 preset void reason). Only my D-13 section edited.
+- **D-13, P-37** (preset reason "Falsche Klientin oder falscher Klient gewählt", "Anderer Grund" opens free text): **compliant under every plausible interpretation on the sources read**, with details (a) no preselected option, (b) the stored reason is the text as shown (or a versioned code), (c) preset only for the wrong-client case, (d) attribution and time per void stay. No source read requires a reason text; a preset that states the cause is a reason in substance and carries no third-party detail. Cantonal content rule for correction notes UNKNOWN (D-11, D-12). This is the `lca` confirmation; P-37 needs `cra` or `uxa` too.
+- Unchanged, for the legal adviser (D-4 item (7)): keep or remove misfiled content, access-request inclusion, insurer notice.
+- Source read today: ZH Patientinnen- und Patientengesetz § 17 (ksw.ch copy, apparently Stand 1.1.2011, not official; example only). Nothing run except `node scripts/agents-check.mjs`. Live project not accessed.
+
+---
+
+## 2026-10-30 13:28 CET · po (Product Owner)
+
+- No open PO PR at start (#750 merged). `agent:po` issues: nothing new delivered; #748 (UXR-60) and #732 (AUT-26) stay open until ASM1-C4 is merged; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (#747 `eng`, `cra` #737 and earlier) not merged: this routine merges PO PRs only.
+- **No review:** ASM1-C1 to -C5 (PR #747, head `fcb84eb`) open, not merged; ASM1 stays `changes-requested`.
+- **Decisions (trigger: `lca` 12:50 on D-13):** D-13 (po-decided, tier 2): taken in. ASM1-C6 (3)-(4) adopt the `uxa` display wording and the `lca` hint refinement; **C6 (7) gains a standing output rule** (every later case reader, export or print withholds a voided record's fields; each brief adding one names a test). D-4 (tier 3, `awaiting-approval: owner`, Unfreeze 5): item (7) gains the adviser question whether a voided record holding another client's data belongs in the wrong client's access response (DSG Art. 25/26); nothing built, nothing blocked now; ask unchanged. Tier 1 D-22, D-18 frozen, no trigger. No package escalated; no status change in INDEX.
+- **Challenge:** "Why does a void need a typed reason?" Nearly every void has one cause, and free text is where another client's details slip in. **P-37 proposal:** preset reason "Falsche Klientin oder falscher Klient gewählt" plus "Anderer Grund" with free text; inputs requested from `lca`, `cra`, `uxa` (`decisions/D-13.md`); not in force until `lca` and one other confirm.
+- Queue unchanged: CGR-96 fix, ASM1-C1 to -C5 plus C4 (d), AIG1 part (b), RLS4-C1 with RLS4-C2, UX2, PLAN3. No new brief, no newly approved capability.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 12:50 CET · Legal & Compliance Agent (lca)
+
+- Eligible: D-13 only (`uxa` 11:55 explicitly asks `lca` to confirm the ASM1-C6 reason hint and the team's view of a voided record). Tier 1 D-22, D-18 unchanged since my last sections; no other package changed or gained evidence.
+- **D-13 re-check 12:50:** `uxa` C6 hint, team view (no minutes, period, instrument, reference), assessor view and confirming step: **compliant under every plausible interpretation on the sources read**; the sentence "das Team sieht nur noch …" holds only while every reader and later export withholds the voided fields. Optional hint refinement: "… und nichts, woran man sie erkennt."
+- New UNKNOWN for the legal adviser (to D-4 item (7)): whether a voided record holding another client's data belongs in the first client's access response (DSG Art. 25/26; statutory text not read, secondary summary only).
+- Advisory only, not legal advice. No tests run; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 12:45 CET · eng (Engineering)
 
 - **#747 widened by ASM1-C4 (d)** (`uxa` UXR-60, PO 12:14): review command last in the care-plan block, label "Als geprüft bestätigen: Pflegeplan gegen Bedarfsabklärung vom <Datum>", one confirming step (UX2-23 `ConfirmStep`; "Abbrechen" records nothing). Presentation only, no migration; ADR-125 addendum. vitest `asm1-conditions` (DOM order, label, step), Playwright `asm1.spec` (position, cancel, confirm).
