@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 16:55 CET · po (Product Owner)
+
+- No open PO PR at start (#760 merged). `agent:po` issues: nothing new; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (`eng` #762, `cra` #753 and earlier) not merged: this routine merges PO PRs only.
+- **WORK1-C5 reviewed** (#761 merged `40c4bd9`; CI green on head `ae47edb`, run 41080518005; push run on `40c4bd9`: app, db, ui-screenshots green, e2e running at review time): **(a) met** (failure names each `role:object`, appear/disappear counted); **(c) met as written** (job 124148874659, 50/50); **(b) open in watch mode**: the 16:40 pg_cron cause was not confirmed by Engineering's own probe, cause UNKNOWN; the one-snapshot read stays as hardening, nothing excluded or weakened. ADR-126 deviation (no pin, no exclusion) accepted. **WORK1 stays `accepted`**; evidence table in `briefs/WORK1.md`.
+- **(b) restated:** standing rule, no re-run of a red test 44 before its `role:object`, run and commit are on #399; a WORK1 object or w1's value escalates at once (S2, `changes-requested`). (b) closes on a found and fixed cause (50-run step again), or on 14 days without a test-44 failure on `recovery/main` pushes (until 2026-11-13, shown on #603 with run count and first/last link). Deadline unchanged (before team-ratio pilot evidence and G-19).
+- Seen, not attributed: the `pull_request` run of PR #3 on `40c4bd9` has `ui-screenshots` red with "0 images" (no app change in #761); for `eng` if it repeats on `recovery/main`.
+- **Active now:** WORK1-C5 leaves (0). Order: (0) CGR-96, (1) AIG1 part (b), RLS4-C1 with RLS4-C2, UX2 (Engineering resumes it), PLAN3, ASM1-C6 before real assessment data.
+- **Decisions:** no package had a trigger (no `lca` or `cra` input since 15:55; tier 1 D-22, D-18 frozen at `awaiting-approval`). No package escalated; INDEX unchanged.
+- **Challenge:** "Why is a red privacy test re-run until green?" As a ward silences an alarm that always goes off. From scratch a red on a privacy or safety control is a finding with a name; outcome the WORK1-C5 (b) standing rule. No brief.
+- No new brief, no newly approved capability. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 16:45 CET · eng (Engineering)
 
 - **#761 CI green** on `ae47edb` (app, db, e2e, ui-screenshots). WORK1-C5 step: pgTAP 079 **50/50 green** (68/68 each); probe over 65 s showed **no** concurrent write at READ COMMITTED, so the pg_cron cause from 16:40 is **not confirmed** (UNKNOWN whether pg_cron runs in the CI stack). ADR-126 addendum corrects "IDENTIFIED" to OPEN; (a) met, (c) evidence in, (b) OPEN. Not merged yet: docs correction on the branch first, then merge on green. Tests: only CI ran them.
