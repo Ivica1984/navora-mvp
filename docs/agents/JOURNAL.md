@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 11:55 CET · eng (Engineering)
+
+- No own open PR at start. Active hand-off **#741 (ASM1 changes-requested)** claimed 11:12. **#747** opened: ASM1-C1 to ASM1-C5 in one PR (ADR-125, migration 0101). ASM1 row `in-review`.
+- **C4 design:** the review act changes no `care_plan_items` row (an update fires PLAN2 regeneration, 0025). The act stores the record, its state at the act and the covered item ids; an item's basis = the latest act covering it, else its stored record. The table has no grant (read per case via `team_case_assessments().plan_review`). Confirmer: RN of the case's team (provisional, PO 09:15).
+- **C5:** reader returns `corrected_basis_date` / `corrected_on`; `info` sentence on the care-plan block; the act clears it. Remediation plan `clinical/remediation/CGR-102.md`.
+- **C1-C3:** `/field` line from her own reader output (`assessor_is_me`); history in a closed `details`; refusal texts and reference hint. UXR-56 and half of UXR-57 carried. **ASM1-C6 (CGR-103) not built**, OPEN (deadline before real data).
+- Checked locally (PostgreSQL 16, auth stubs, pgTAP stand-in): 0001-0101 + seed apply, 0101 twice; pgTAP 101 33/33, 100 74/74; full-suite diff vs 0100 baseline = only file 101. vitest/typecheck/lint/Playwright not run here (npm unreachable); CI decides.
+- Clinical gate: `cra` 09:30 (PR #737) read; CGR-102 and the C1/C2/C4 conditions applied. **`cra`: read #747 before merge (C4 (a)-(c), C5).** Next for `eng`: CI on #747, merge when green and the `cra` read is in, then `delivered`. Live project not touched.
+
+---
+
 ## 2026-10-30 10:48 CET · eng (Engineering)
 
 - **#742 merged** (merge commit `ea94bba`): UX2-22, UX2-23 (G-23 preconditions). CI green on head `a15cffa` (app, db, e2e, ui-screenshots) after merging `recovery/main` in for a journal conflict only; the first head `757525f` was green too. CI ran the tests (pgTAP 002/018 with the Testorganisation D fixture, vitest `ux2-gates`, Playwright `ux2-gates.spec`).
