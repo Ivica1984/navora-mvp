@@ -31,6 +31,58 @@
 
 ---
 
+## 2026-10-30 15:04 CET · aia review 15: AUT-26 met in code on #747 (ASM1-C4, 0101; CI green, `cra` clear to merge; closes on merge); P-37 preset void reason supported; CGR-104 / ASM1-C6 (8) and P-35 supported; AUT-28 (low: a reassessment and the plan review are two separate acts on two screens, measure first)
+
+**Read:** `recovery/main` at `29d751e`:
+- merged since review 14 (#733): #735 to #752 PO, `lca`, `uxa` cycles (PO 08:15 to 13:28, `lca` 08:42 to 13:42, `uxa` 11:55), #742 (UX2-22/-23, `ea94bba`), #727 (ASM1, `e42fde6`, PO `changes-requested` 10:15);
+- open: **#747 (ASM1-C1 to -C5 and C4 (d), migration 0101, ADR-125, head `fcb84eb`)**, PO #755 (15:00: CGR-104 as ASM1-C6 (8)), `cra` #753 (13:30) and its chain (#737, #723 and earlier);
+- briefs changed: ASM1 (C4 decided 09:15 = AUT-26, C4 (a)-(c) `cra`, C4 (d) = UXR-60, C5, C6 with (7) output rule, P-37 proposal), UX2 (ADR-124 deviation 1 answered 11:10); D-13 (`lca` 09:40 to 13:42), D-4 item (7);
+- open issues labelled `automation`: #732 (AUT-26) only.
+
+**Nothing below is a measurement.** I ran no tests. CI read by me as GitHub check runs on #747: `app`, `db`, `e2e`, `ui-screenshots` success.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-28 | Reassessment, then plan review (ASM1-1 record, ASM1-C4 act): the team's registered nurse | PLANNED to be IMPLEMENTED with #747. After she records a new assessment on the case card, the plan shows "Neuere Bedarfsabklärung vom <Datum>" and she then opens the care-plan block, scrolls past the categories to the review command (C4 (d): last in the block) and confirms once more (confirming step). Where the same nurse does both on the same visit to the record, that is two places and three taps for one sitting. How often the recorder and the reviewer are the same person and the same day: UNKNOWN (no data; synthetic seed only). The separation itself is a clinical control (the plan review is a distinct judgement, `cra` (a)-(c)) and is not challenged | **measure first, then simplify the path, same control:** count per team and month how many C4 acts follow a new record of the same case within 24 h, without naming who. If most do, propose that the record's saved state offers the same review act as a second, separate, not preselected command ("Pflegeplan jetzt prüfen", jumping to the care-plan block with the marker still shown), never a checkbox inside the assessment save and never an act recorded by the save itself. Whether a plan review may be offered at that moment is `cra`'s; nothing bundled before that | L | stage 0; PO (whether to measure in the ASM1 pilot hypotheses), `cra` (whether offering the act there weakens the review), `uxa` (where) | per team and month: C4 acts within 24 h of a new record of the same case / all C4 acts; median days from record to act (AUT-26 measure). Never per person | low | – (report) |
+
+**Briefs and items reviewed without a new finding:**
+- **ASM1-C4 as built on #747 (AUT-26): met in code.** `review_care_plan_against_assessment` (0101:104) inserts one append-only row into `care_plan_assessment_reviews` (no grant, no policy, 0101:57-58) and changes no `care_plan_items` row: pgTAP 101 compares an md5 over the case's items before and after (101:80), refuses an assistant, another team's nurse, another organisation and a non-current record (101:117-136), clears `plan_without_basis` with one act (101:123), and asserts PLAN2 visits, minutes and billing facts unchanged (101:169). AUT-26 closes when #747 is merged unchanged in substance.
+- **ASM1-C4 (d) one confirming step (UXR-60, PO 12:14, `cra` keeps it):** one extra tap on a rare act (once per reassessment or correction per case) guarding an S2 fact; a patient-care benefit is shown, so no challenge. P-36 (cancellations per team and month) is the right exit test; `aia` adds one lean alternative for when P-36 says drop it: an undo command on the recorded line ("Prüfung zurücknehmen", append-only, restores the marker) instead of the step, equal safety for a mis-tap.
+- **P-37 preset void reason (PO 13:28, `lca` 13:42 compliant):** supported. It removes typing for the expected common cause and keeps another client's details out of free text: less administration and more privacy at once. Measure: share of voids with "Anderer Grund" per team and month (shows whether the preset fits). Nothing preselected (`lca` (a)). `aia` is not one of the confirmers P-37 needs (`cra` or `uxa`).
+- **ASM1-C6 (8) basis by identity (`cra` CGR-104, PO #755):** no step for anyone; it makes the marker true after a same-date record or a void, so the team is not sent to review a plan that needs none, nor left without a marker it needs. Supported.
+- **ASM1-C6 (7) standing output rule (PO 13:28):** a test duty on each later brief, no nurse step. Supported.
+- **ASM1-C1 as built (`/field` "Zu bestätigen: Bedarfsabklärung (<n>)"):** her own read path, `info`, gone on confirm or supersede. Removes chasing between colleagues. Supported (review 14).
+- **P-35 (PO 11:10, organisation-wide admission off-switch):** supported. The off-switch is a hierarchy step over every team's own admission; a team-controlled pause keeps the same safety (qualification and contract checks stay). ADR-124 deviation 1 (no lapse pause while off) is data minimisation, not administration; not challenged.
+- **UX2-22 (`/field` hides acts for a missing qualification) and UX2-23 (one confirming step for the admission switch and "Vertragsende entfernen"):** UX2-22 removes refused attempts at the door. UX2-23 sits on rare administrator acts with organisation-wide or contract effect; not challenged.
+
+### 2 AI readiness of delivered items (§8)
+- **#747 (ASM1-C1 to -C5):** proposes, drafts and ranks nothing; no ledger entry needed. The C4 act is the confirmation end point a later A10 proposer would use: it stores the record and the record's state at the act (`cra` (a)), so a later proposal can be tied to the exact record it was made against (provenance per value, §8). The act's actor is not selectable (pgTAP 101:105-108), consistent with AIG1-11.
+- **UX2-22/-23 (#742):** propose nothing.
+
+### 3 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | ASM1 built | #727 merged; C1 to C5 and C4 (d) on #747 (CI green, `cra` clear to merge, not merged); acceptance by the PO after merge; C6 PLANNED before the first real assessment record |
+| 0 | Plan basis read by record identity (needed before any proposer reads "the plan's assessment") | PLANNED (ASM1-C6 (8), PO #755) |
+| 0 | First real stage-0 agent (PLAN3) | PLANNED, unchanged |
+| 0 | AIG1 part (b) | not started (#705) |
+| 1 | Real data may reach any test, pilot or AI path | blocked (D-1 precaution, G-25), unchanged |
+
+### 4 Findings closed
+- None closed this run. **AUT-26:** met in code on #747 (evidence above); closes on merge. AUT-23 closes with AIG1 part (b) (#705). AUT-25 closes with PLAN3. AUT-27 adopted in RLS4-C1 (1) (PO 09:15); closes when RLS4-C1 is built. AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-21: unchanged.
+
+### 5 Waiting for the PO
+- **#747** merge and the ASM1 review; AUT-26 / #732 closes with it.
+- **AUT-28 (low):** whether the ASM1 pilot hypotheses count C4 acts within 24 h of a new record (team level).
+- **P-36:** the undo alternative above, if the step is dropped.
+- AUT-19, AUT-20, AUT-21 as before.
+- Bottleneck map refresh: due 2026-11-03 (weekly); candidates unchanged (onboarding contract to first visit, P-28, P-32, care-plan maintenance after reassessment).
+
+---
+
 ## 2026-10-30 08:25 CET · aia review 14: AUT-24 closed (RLS4 delivered, #715, 0099); AUT-25 adopted (PLAN3-7); ASM1 #727 read: AUT-26 (high: the only way to clear "Neuere Bedarfsabklärung" is to retire and retype every care-plan item); AUT-27 (medium: RLS4-C1 maps legacy names visit by visit); RLS4-C2, ASM1-C1, VIS2-C3 supported
 
 **Read:** `recovery/main` at `b6559ea`:
