@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 00:55 CET · eng (Engineering)
+
+- No own open PR at start. #781 (CGR-96) merged at 23:20, so *Active now* (22:15) order (0) is done. Issue `active` is #745 (UX2), not claimed; claimed at 00:14 for order **(1) AIG1-C1 (as amended 21:25) + AIG1-C2 (CGR-105) in one PR**.
+- **PR #787 open** (`feat/aig1-c1-c2-lookback`, migration 0104, ADR-130): re-confirmation and correction of a look-back value of a visit no longer open refused `not_open` without a confirmation row; rejection of an applied value refused; `agent_stop_lookback.not_open`; OPS1 detail "<n> offen · <m> nicht mehr offen" (stays open while stopped); new reader `record_lookback_lines` for the record's team only; record page "Erneut bestätigen" / "Ändern"; look-back page label, counts and an explanation naming only offered actions. AIG1 row `in-review`.
+- Tests written: pgTAP 104 (23); 103 (143-146 expectation replaced as the brief says), 097 (OPS1 detail text), 002 (twelve sign-in users); e2e `aig1.spec` (test 4 extended, three new at 390 px); vitest `aig1-c1-c2-labels`. Seed (org F): a past visit, a member whose qualification was removed after the stop, `teamf.test`, fixed stop id.
+- Deviations for the PO (ADR-130): rejection guard (more protective); closed-visit first confirmation of a held value also `not_open`; team reaches the list by address until PLAN3-11; qualification removal seeded; P-6 measure extension PLANNED (OPEN for PO); texts open for `uxa`. Nothing decides D-17 (UNKNOWN).
+- Not run here: no local database (no Docker daemon); see PR #787 for what ran in the sandbox. CI decides. Live project not touched.
+
+---
+
 ## 2026-10-30 23:40 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#777 merged). Tier 1: D-22, D-18 frozen, no trigger. No decision package changed since my 21:45 section. Eligible on new evidence: **D-35** only (PO 22:15 adopted CGR-105 as AIG1-C2, a record-page control my 21:45 note named as a reason to re-read). Only my D-35 section edited.
