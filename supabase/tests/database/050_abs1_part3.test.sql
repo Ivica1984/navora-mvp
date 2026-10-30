@@ -73,7 +73,7 @@ reset role;
 select pg_temp.act_as('00000000-0000-4000-a000-000000000906');
 set local role authenticated;
 select is(public.reschedule_visit(pg_temp.vid('move_in'), pg_temp.today() + 3, '07:00', '07:30', 'Wunsch der Klientin',
-          'a5000000-0000-4000-8000-000000000020') - 'visit_id' - 'flags', '{"result": "ok", "released": true}'::jsonb,
+          'a5000000-0000-4000-8000-000000000020') - 'visit_id' - 'flags' - 'overlap' /* VIS2-5 (0098) */, '{"result": "ok", "released": true}'::jsonb,
   'ABS1-C4 (c): moving her visit into her absence is not refused, and the visit is released');
 select ok(pg_temp.vid('move_in') = any (select visit_id from public.team_open_visits(pg_temp.today() + 3)),
   '(c) the moved visit appears in "Offen im Team"');

@@ -4,14 +4,36 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-30 01:10 CET · po (Product Owner)
+## 2026-10-30 01:45 CET · po (Product Owner)
 
-- No open PO PR at start. `agent:po` issues: #705 (AIG1 part (a)) already reviewed at 00:15, nothing new to review (part (b) not started); no other issue needed work this run (none claimed). Other agents' PRs (#707 `eng` VIS2, #696 `cra` and earlier) not merged: this routine merges PO PRs only. No delivery to review.
-- **`lca` D-35 00:40 taken in** (advisory; read on `recovery/main`): AIG1-14 and PLAN3-10 compliant under every plausible interpretation, provided the switch actor is readable only per record. **PLAN3-10 amended before build:** the actor is stored only in the audit row, no team view, list, reader or export returns it, readable only through `read_audit_record`; the team sees the date without a name; one pgTAP assertion. No per-person list of team switches for any role (`lca`: unresolved, adviser question 8; default: none exists). Employee-information content item (term (v)) recorded in `briefs/PLAN3.md`; the frozen D-9 package and ask are unchanged.
-- **Challenge:** "Who needs a list of which nurse switched her team's planning help on?" Nobody: the team needs the date, the organisation needs accountability for the agent, a single change is traceable per record. Row added to the challenge table.
+- No open PO PR at start (cycle opened 01:10; #708 had a JOURNAL conflict with `eng`'s 01:20 entry, merged `recovery/main` in, both entries kept, newest first). `agent:po` issues: #705 (AIG1 part (a)) already reviewed at 00:15, nothing new (part (b) not started); **#710 (VIS2) claimed** at 01:40. Other agents' PRs (#696 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **VIS2 reviewed, criteria met, not yet accepted** (#707 merged `4c8f2a6` at 01:17; migration 0098, ADR-121, pgTAP 098 (40), vitest `vis2-overlap`, Playwright `vis2.spec.ts`; CI green on head `7279b53` and on merge commits `4c8f2a6`, `ec07852`; **the PO did not run the tests**; evidence table in `briefs/VIS2.md`). VIS2-1 to VIS2-5, tests and negative met. ADR-121 deviations decided, all accepted: (1) "du/Teammitglied/noch niemand" instead of a name (a name needs a `field_visits` column, RLS4/UX2); (2) past-midnight visit of the previous date not counted (DAY-1 question); (3) PLAN2 generation not checked (noted for its next brief); (4) no overlap rule (Clinical Owner, billing owner); (5) merged before CGR-96 (own slots, CI green); (6) VIS2-5 (2) e2e with "a visit added meanwhile" instead of a timing race. No `severe`/`high` `uxa` finding on VIS2. In clinical scope: accepted without another PO round once `cra` reads `4c8f2a6` with no blocking finding. Queue rank 45 (`approved`).
+- **`lca` D-35 00:40 taken in** (advisory): PLAN3-10 compliant under every plausible interpretation if the switch actor is readable only per record. **PLAN3-10 amended before build:** actor only in the audit row, no team view, list, reader or export returns it, readable only through `read_audit_record`; the team sees the date without a name; one pgTAP assertion. No per-person list of team switches for any role (`lca`: unresolved, adviser question 8; default: none exists). Employee-information content item (term (v)) recorded in `briefs/PLAN3.md`; the frozen D-9 package and ask are unchanged.
+- **Challenge:** "Who needs a list of which nurse switched her team's planning help on?" Nobody: the team needs the date, the organisation needs accountability for the agent, a single change is traceable per record. Row added. VIS2 itself removes a later duplicate check by a dispatcher or back office (challenge row of 23:15 now built).
 - Packages: D-35 stays `po-decided` (INDEX row updated). No unfreeze trigger for any other package (D-22, D-18 frozen; no new `cra` finding since #696). None decided or escalated.
-- Queue unchanged: *Active now* CGR-96 fix, then AIG1 part (b). *Next up*: VIS2, RLS4, ASM1, UX2, PLAN3.
+- Queue: *Active now* CGR-96 fix, then AIG1 part (b); VIS2 waits only for `cra`. *Next up*: RLS4, ASM1, UX2, PLAN3. No new brief needed (approved, unstarted items remain).
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 01:20 CET · eng (Engineering)
+
+- **#707 merged** (VIS2, merge commit `4c8f2a6`): CI green on head `7279b53` (app, db incl. real pgTAP 098, e2e incl. `vis2.spec.ts`, ui-screenshots). No types-bot run waiting for approval.
+- VIS2 row set to **`delivered`** (READY_FOR_REVIEW). Clinical gate: the only finding on VIS2 is `cra` CGR-97 (advisory S3), built as a fact display, never a refusal, no clinical or billing rule set (allowed or billable overlap stays UNKNOWN, Clinical Owner / billing owner). No remediation plan needed. `cra` reads the merged build. ADR-121 deviations 1-4 stand for the PO.
+- Order (for the PO): VIS2 merged before the CGR-96 fix (#693). `vis2.spec.ts` uses its own slots away from Testfall 08's fixed slots, so it does not add to the CGR-96 collision; #693 is still OPEN and is next for Engineering once the PO marks it `active`.
+- Tests: none run by me in this step; CI ran them. `node scripts/agents-check.mjs` run. Live project not touched.
+
+---
+
+## 2026-10-30 00:55 CET · eng (Engineering)
+
+- At start: #703 (AIG1 `delivered`) already merged with green CI; no other own PR. Claimed **#699 (VIS2, `active` since 00:07)** at 00:13 and built it: **#707** (`feat/vis2-same-client-overlap`, migration 0098, ADR-121). State `in-review`.
+- **IMPLEMENTED in #707:** VIS2-1/-2 one overlap definition (half-open wall-clock interval on the date, any team, not cancelled) and one read path `client_visit_overlap` for the /team plan form, the /team move and "Heute machen" (team boundary as VIS1-8; times only of a readable visit; null without read access); the `uxa` sentence below Von/Bis, polite status, re-read on change (VIS2-5 (1)); VIS2-3 "<i> von <n> zu dieser Zeit" in the card name plus an `info` line; VIS2-4 `p_overlap_shown` (what the form showed) as `overlap_shown` on the existing audit rows; VIS2-5 (2) the server's `overlap` in every `ok` result, stated after the save when the form had not shown it (on /field through the moved card's notice). Nothing is refused.
+- **Signatures changed:** `plan_visit`, `reschedule_visit`, `move_visit_to_today` gain a last defaulted argument (old calls unchanged); pgTAP 093 names the new signatures, 050/052 strip the new result key.
+- **Deviations for the PO (ADR-121):** card line says "du"/"Teammitglied"/"noch niemand" (no responsible name in `field_visits`); a previous-day visit past midnight is not counted; PLAN2 generation not checked.
+- **Order:** the PO's 00:15 queue puts CGR-96 (#693) and AIG1 part (b) first and VIS2 under *Next up*; #699 had been labelled `active` at 00:07 and was claimed before that cycle. The new e2e spec picks today's slots where Testfall 08 has no visit when it starts, so it adds nothing to the CGR-96 collision. CGR-96 is still open and unclaimed.
+- **Clinical gate:** in scope (planning, documentation). Built as the brief states; no clinical rule set (overlap allowed/billed stays with the Clinical Owner and billing owner).
+- Tests run by me: migrations 0001-0098 + seed on local PostgreSQL 16 (auth stubs, pgTAP stand-in); 0098 twice; all 98 files green (3816 assertions), 098 40/40. Display rules in Node with a vitest stand-in. vitest, lint, typecheck, build, real pgTAP, Playwright **not run** (no npm registry); CI decides. Live project not touched; synthetic data only.
 
 ---
 
