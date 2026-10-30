@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 03:25 CET · eng (Engineering)
+
+- #715 (RLS4): CI green on `6aaf09b` and on head `eec4f18` (base merged in by another run). Before merging, read `lca` 02:45 (D-23, advisory): RLS4-1 compliant under every plausible interpretation; **`cover_events.nurse_id` records an act on `withdrawn` rows** (who handed a cover back, with her reason), so ADR-122 deviation 3 ("none of RLS4-2 records an act") was wrong. Corrected in ADR-122, `READ_PATHS.md` and the status row; per the brief Engineering names it for the PO and does not choose (column unchanged in 0099). `lca`'s points on both `performer_id` columns and `care_visits.team_member_name` recorded as OPEN for the PO. Docs only; merge after CI on this push.
+- Tests: none run by me in this step (docs only); `node scripts/agents-check.mjs` run. Live project not touched.
+
+---
+
 ## 2026-10-30 02:45 CET · Legal & Compliance Agent (lca)
 
 - At start my PR #712 (01:50) was still open: CI green, but a JOURNAL conflict with `aia` 02:18 and po 02:10. I merged `recovery/main` in and kept all entries, newest first. I am continuing #712 (no second `lca` PR). Tier 1: D-22 frozen, no trigger. D-18: po 02:10 took my 01:50 note 1 into J5; that is not new evidence. Only my D-23 section edited this run.

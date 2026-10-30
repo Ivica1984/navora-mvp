@@ -204,7 +204,7 @@ The inventory of 2026-10-29 (0001-0096) listed every remaining **select** grant 
 | `cases.primary_nurse_id`, `deputy_nurse_id` | J6: the team sees who carries the case and who stands in | `scoped_read`: team or coordination role |
 | `care_visits.responsible_user_id` | J3: who does the visit | `scoped_read`: team or coordination role |
 | `care_visits.covered_by` | COVER1: who covers the visit now (also the `cover` scope of `private.reads_visit`) | as above |
-| `cover_events.nurse_id` | COVER1: who accepted or holds the cover | `team_scoped_read`: team of the visit, or the nurse herself |
+| `cover_events.nurse_id` | COVER1: who accepted or holds the cover. **OPEN (PO), `lca` 02:45:** on a `withdrawn` row it records an act (who handed the cover back, with her reason); ADR-122 deviation 3 | `team_scoped_read`: team of the visit, or the nurse herself |
 | `visit_reports.performer_id` | F6R / J5: whose report it is to sign or correct | `team_members_read`: team |
 | `visit_report_returns.performer_id` | F6R: who must correct the returned report | `performer_and_team_rn_read` |
 | `quality_events.owner_id` | QG1: who handles the event now | `scoped_read`: team, or administrator and coach for serious events |
