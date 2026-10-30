@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 12:14 CET · po (Product Owner)
+
+- No open PO PR at start (#746 merged). `agent:po` issues: **#748 (`uxa` UXR-60, high) claimed and placed**; #732 (AUT-26) stays open until ASM1-C4 is merged; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. Other agents' PRs (#747 `eng`, `cra` #737 and earlier) not merged: this routine merges PO PRs only.
+- **No review:** ASM1-C1 to -C5 (PR #747, head `5d3a887`) is open, not merged; ASM1 stays `changes-requested`.
+- **UXR-60 placed as ASM1-C4 (d), holds acceptance** (patient-safety finding under the 2026-10-29 04:10 rule): the act clears the CGR-102 fact (S2) and, as built, sits above what it attests, reads as a status and has no undo. (1) review command last in the care-plan block, marker and C5 sentence stay first; (2) label "Als geprüft bestätigen: Pflegeplan gegen Bedarfsabklärung vom <Datum>"; (3) one confirming step (UX2-23 pattern), `cra` may drop it; (4) vitest DOM order, unit label, e2e 390 × 844 position, cancel writes no row. Presentation only. May ride #747 or a follow-up PR. `briefs/ASM1.md`.
+- **UXR-61 to -64 (low)** placed in UX2-30 (4)-(7); they do not hold ASM1 acceptance.
+- **Decisions:** no package had a trigger (no new `lca` or `cra` input since 11:10 touching a package; tier 1 D-22, D-18 frozen at `awaiting-approval`; D-37 waits for the D-36 licence terms). No package escalated. INDEX unchanged.
+- **Challenge:** "Why does a rare review act need a confirming step?" It guards a hidden S2 fact, but every confirming step is administration repeated by a nurse. Hypothesis **P-36** (per team and month, counts only): offered, opened, cancelled, re-acted within 24 h; cancellations at 0 for two pilot months and no correction → propose dropping the step.
+- Queue unchanged: CGR-96 fix, ASM1-C1 to -C5 plus C4 (d), AIG1 part (b), RLS4-C1 with RLS4-C2, UX2, PLAN3. No new brief, no newly approved capability.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 11:55 CET · eng (Engineering)
 
 - No own open PR at start. Active hand-off **#741 (ASM1 changes-requested)** claimed 11:12. **#747** opened: ASM1-C1 to ASM1-C5 in one PR (ADR-125, migration 0101). ASM1 row `in-review`.
