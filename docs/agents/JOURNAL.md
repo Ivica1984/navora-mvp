@@ -4,6 +4,32 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 19:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#768 merged). Tier 1: D-22, D-18 frozen, no trigger. No package changed since 17:45; PO #769 and `cra` #766 not merged, so not read as evidence. Eligible: D-35 only (new evidence: AIG1-15/-16 merged in #770, migration 0103, the remedies of my 01:50 section). Only my D-35 section edited.
+- **D-35:** 0103 read; AIG1-15 (open-visit re-confirmation runs the first confirmation's checks, no row on refusal) and AIG1-16 (share >= 100 refused; health list shows threshold and minimum reached, no person column): **compliant under every plausible interpretation on the sources read**. Residual **unresolved: needs owner via Clinical Owner (D-17)**: what a re-confirmation of a visit no longer open attests (still `ok` without checks). Note to po for the part (b) UI wording.
+- No new source read. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 18:45 CET · eng (Engineering)
+
+- No own open PR at start. Issue `active` is #745 (UX2); the PO's *Active now* (17:45) puts **AIG1 part (b)** at order (0) and no open `agent:eng` issue exists for it (#536 closed), so the claim on #745 (18:14) covers AIG1 part (b); UX2 resumes after it.
+- **AIG1 part (b), database half, PR #770 open** (`feat/aig1-b-15-16-database`; migration 0103, ADR-128, pgTAP 103 (25)): **AIG1-15** a look-back re-confirmation runs the open-visit, qualification, contract and absence checks of a first confirmation while the visit is open (refusal writes no confirmation, line stays listed); **AIG1-16** share 100 refused `threshold_missing`; `agent_health` returns share, minimum, window and `last_window_min_reached` (null before the first closed window: ADR-128 deviation 1).
+- AIG1 row: `delivered` → `in-review` (the `[PO review]` hand-off for part (a) closes until part (b) is complete; it reopens at the next `delivered`).
+- **Checked by me (not CI):** a local PostgreSQL 16 with Supabase auth stubs and a minimal pgTAP stand-in written in this run: migrations 0001-0103 and seed apply (0103 twice); pgTAP 103 25/25 green, and red on a database without 0103; 097, 019, 061 green. Official pgTAP, 071/077, vitest, lint, typecheck, build, Playwright not run here; CI decides.
+- Next: the part (b) UI PR (confirm screen and ticked list at 390 px, health list with the AIG1-16 values, look-back list AIG1-14, e2e). Live project not touched.
+
+---
+
+## 2026-10-30 19:15 CET · eng (Engineering)
+
+- **#770 merged** (AIG1 part (b), database half: AIG1-15, AIG1-16; migration 0103, ADR-128; merge commit `6c1a83f`). CI green on head `89b0afb` (the types-bot commit): app, db (pgTAP 103 (25)), e2e, ui-screenshots.
+- AIG1 row set to **`delivered`** (READY_FOR_REVIEW for the database half, as for part (a) at 00:10). **PLANNED:** part (b) UI PR (confirm screen and ticked list 390 px, health list with the AIG1-16 values, look-back list AIG1-14, e2e). The PO decides whether to review now or with the UI half. Clinical gate: `cra` reads part (b) on its merge commit (brief); no `cra` section on #770 yet.
+- Tests: none run by me in this run; CI ran them. Live project not touched.
+
+---
+
 ## 2026-10-30 18:25 CET · po (Product Owner)
 
 - No open PO PR at start (#767 merged). `agent:po` issues: nothing new; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (`lca` #768, `cra` #766 and earlier) not merged: this routine merges PO PRs only; read on their branches.
@@ -23,6 +49,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Decisions:** no package had a trigger (no `lca` or `cra` input since 15:55; tier 1 D-22, D-18 frozen at `awaiting-approval`). No package escalated; INDEX unchanged.
 - **Challenge:** "Why do e2e specs share one synthetic client on the real clock?" From scratch a test owns the data it asserts on. Outcome: rule for every new or changed e2e spec that plans or moves a visit for today (own client or slot, or count first); no brief.
 - No new brief, no newly approved capability. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 17:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#754 merged). Tier 1: D-22, D-18 frozen, no trigger. Eligible: D-13 only (changed by po 15:00, CGR-104 as ASM1-C6 (8); new evidence `uxa` 15:50: C6 (8) sentences, P-37 presentation). Only my D-13 section edited.
+- **D-13:** ASM1-C6 (8) with the `uxa` sentences raises no new legal question; the voided-basis sentence shows no field of the voided record (C6 (7), data minimisation): **compliant under every plausible interpretation on the sources read**. P-37 as presented by `uxa` keeps details (a)-(d); 13:42 verdict stands. UNKNOWN for `cra`: what a review act attests with no current record (should not be recordable as "against" a record). D-4 item (7) still needs a legal adviser; cantonal correction rule UNKNOWN (D-11, D-12).
+- No new source read. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
