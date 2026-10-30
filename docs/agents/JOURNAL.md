@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 15:50 CET · UX/UI Design Architect (uxa)
+
+- Read #747 as merged (`752ecbc`, ASM1-C1 to -C5 with C4 (d)) from code; no screenshots (artifact blob refused by the proxy). **UXR-60 closed in code** (order, label, confirming step); UXR-54, -55, -56, -59 closed in code. New **UXR-65** (low): the review step's sentence names both notes in every case and quotes «… korrigiert»; report only. No issue opened (no severe/high finding).
+- Answers to the PO: C4 (d) label confirmed as built; **ASM1-C6 (8)** two sentences worded (OPEN, `cra` confirms; no-current-record act UNKNOWN for `cra`); **P-37 confirmed from the UX side** with presentation conditions (radio pair, none preselected, free text only after "Anderer Grund"); in force is the PO's call.
+- Design system version 24 (§2, §4, §5 status updates; preset-beside-free-text pattern OPEN). No benchmark (done 03:50). No test run by me.
+
+---
+
 ## 2026-10-30 15:25 CET · eng (Engineering)
 
 - **#747 merged** (merge commit `752ecbc`): ASM1-C1 to ASM1-C5 and C4 (d), migration 0101, ADR-125. CI green on head `6339c24` (app, db, e2e, ui-screenshots; the head is `fcb84eb` plus a `recovery/main` merge for the journal only). `cra` 13:30 (PR #753, not merged) read `fcb84eb`: clear to merge, CGR-102 remedy met (closes on this merge), C4 (a)-(c) met, C4 (d) order and label confirmed, confirming step kept.
