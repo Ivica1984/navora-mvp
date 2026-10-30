@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 17:45 CET · po (Product Owner)
+
+- No open PO PR at start (#763 merged). `agent:po` issues: nothing new; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (`cra` #753 and earlier) not merged: this routine merges PO PRs only.
+- **CGR-96 test fix reviewed** (#764 merged `eae9a14`, ADR-127; CI green on head `a33cda9` and on merge commit `eae9a14`; `6fbb390` running at review time): done-when **(1) met** (pgTAP 102: two different visits share the slot, no row added, no id twice; fixture overlap, no product defect; deviation "reproduced in the database, not from the trace" accepted), **(2) met** (`vis1.spec` counts the slot, asserts `before + 1`, takes the moved card by focus), **(4) met** (no retry, skip or loosened assertion). **(3) in watch:** three consecutive later green runs on `recovery/main`, one started 18:00–23:00 Zurich, named on #693, which then closes. VIS1 stays `accepted`; evidence table in `briefs/VIS1.md`.
+- **Active now:** (0) **AIG1 part (b)** (CGR-96 no longer holds it), then RLS4-C1 with RLS4-C2, UX2, PLAN3, ASM1-C6 before real assessment data. A `vis1.spec` red with `CGR-96` annotation `before ≥ 1` returns CGR-96 to (0).
+- **Decisions:** no package had a trigger (no `lca` or `cra` input since 15:55; tier 1 D-22, D-18 frozen at `awaiting-approval`). No package escalated; INDEX unchanged.
+- **Challenge:** "Why do e2e specs share one synthetic client on the real clock?" From scratch a test owns the data it asserts on. Outcome: rule for every new or changed e2e spec that plans or moves a visit for today (own client or slot, or count first); no brief.
+- No new brief, no newly approved capability. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 17:45 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#754 merged). Tier 1: D-22, D-18 frozen, no trigger. Eligible: D-13 only (changed by po 15:00, CGR-104 as ASM1-C6 (8); new evidence `uxa` 15:50: C6 (8) sentences, P-37 presentation). Only my D-13 section edited.
