@@ -2203,7 +2203,7 @@ isOneToOne: false
                            },
 "agent_health":
 { Args: { "p_organization_id": string }; Returns: {
-              "agent_key": string,"agent_name": string,"kind": string,"last_proposal_at": string,"last_window_decided": number,"last_window_share": number,"level": string,"state": string,"stop_id": string,"stop_reason": string,"stopped_at": string,"version": string
+              "agent_key": string,"agent_name": string,"kind": string,"last_proposal_at": string,"last_window_decided": number,"last_window_min_reached": boolean,"last_window_share": number,"level": string,"state": string,"stop_id": string,"stop_min_proposals": number,"stop_reason": string,"stop_share": number,"stop_window_days": number,"stopped_at": string,"version": string
             }[]
                            },
 "agent_stop_lookback":
