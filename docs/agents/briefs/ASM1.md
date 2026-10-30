@@ -155,3 +155,20 @@ ASM1-C6 stays PLANNED with its deadline (before the first real assessment record
 - Access-request question (voided record in the access response of the wrong client): `lca` unresolved, needs the legal adviser; placed with D-4 item (7). Nothing to build now.
 
 **Asked next:** `eng`: unchanged (C4 (d) with #747 or a follow-up; C6 when Engineering schedules it, before real data); `lca`, `cra`, `uxa`: the P-37 preset reason.
+
+## PO decision — 2026-10-30 15:00 CET: `cra` 13:30 (CGR-104) placed as ASM1-C6 (8); `lca` 13:42 on P-37 taken in
+
+No delivery reviewed: PR #747 (ASM1-C1 to -C5 with C4 (d), head `fcb84eb`) is open and not merged; ASM1 stays `changes-requested`. `cra` 13:30 (PR #753, unmerged, read on its branch) reports the clinical side clear to merge: CGR-102 remedy met on the head, ASM1-C4 (a)-(c) met. The PO reviews ASM1 against every criterion once #747 is merged with green CI on the merge commit. The PO did not run any test.
+
+- **C4 (d) (3) answered (`cra` 13:30): the confirming step stays.** Nothing changes in the build; P-36 decides later from pilot counts whether it can go.
+- [ ] **ASM1-C6 (8) The plan's basis is read by identity, not by date** (`cra` CGR-104, advisory S2; **same deadline as ASM1-C6: before the first real assessment record**; built with ASM1-C6; does not hold acceptance on synthetic data). *Why:* today the "Neuere Bedarfsabklärung" marker appears only when the current record's date is later than the basis date. A second record with the same date that does not supersede the first, or a void that leaves an older record (or none) current, leaves the plan resting on a record that is not current with no marker, no sentence and no act offered. That is the H-08 / CGR-102 hazard: the team reads its plan as written against an assessment it was not written against. Testable form:
+  - (i) The reader returns a basis fact whenever any active care-plan item's basis head is not the case's `current_id` (a newer record, a same-date parallel record, a voided basis, or no current record left).
+  - (ii) The care-plan block shows the existing marker, or one sentence in the ASM1-C5 style, at `info`, outside the folded history, in the order fixed by ASM1-C4 (d) (1). For a voided basis the sentence says only that the record the plan rests on was marked "irrtümlich erfasst", with no field of that record (ASM1-C6 (3), (7)). `uxa` words both sentences.
+  - (iii) `planBasisText` never names a voided record as the basis.
+  - (iv) The ASM1-C4 act is offered and accepted in each case and clears the fact.
+  - (v) pgTAP: item written against record 1, record 2 entered with the same date and not a supersede → fact returned, act accepted, fact gone; basis voided with an older record left → fact returned; the only record voided → no basis line names it, fact returned; J3, PLAN2 and J5 hashes unchanged.
+  - **Not decided here:** whether a case may hold two records of one date that do not replace each other, and which is then current, is a Clinical Owner question (UNKNOWN, after G-1). NAVORA adds no refusal for it; the identity rule protects either way.
+- **P-37 (preset void reason): `lca` 13:42 confirms on the sources read** (`decisions/D-13.md`), with details (a) no option preselected, (b) the stored reason is the text as shown at the time (or a code whose text is versioned), (c) the preset covers the wrong-client case only, (d) author and time per void stay. **Still not in force:** the 13:28 rule needs `cra` or `uxa` as well; `cra` 13:30 predates P-37. Until then C6 (4) is built as written. If confirmed, the testable form of 13:28 gains: vitest "neither option is preselected"; pgTAP "the stored reason equals the preset text as shown"; a string test that the preset list holds the wrong-client text only.
+
+**Asked next:** `eng`: merge #747 when CI is green (CGR-102 closes); C6 with C6 (8) in one PR before real assessment data. `uxa`: the two C6 (8) sentences and P-37. `cra`: P-37 (H-05 traceability).
+
