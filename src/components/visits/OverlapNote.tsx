@@ -40,8 +40,9 @@ export function useOverlapNote(caseId: string | null, visitId: string | null, sl
     };
   }, [enabled, key, caseId, visitId, slot.date, slot.start, slot.end]);
 
-  const note = enabled && fact && fact.key === key ? overlapNote(slot.date, fact.value, today) : null;
-  return { note, shown: note !== null };
+  const answered = enabled && fact !== null && fact.key === key;
+  const note = answered ? overlapNote(slot.date, fact.value, today) : null;
+  return { note, shown: note !== null, answered };
 }
 
 /**
@@ -49,9 +50,10 @@ export function useOverlapNote(caseId: string | null, visitId: string | null, sl
  * disappears with the times. It never blocks or delays the save and adds no field or colour above `info`. The save
  * button points at it (`aria-describedby` = `id`).
  */
-export default function OverlapNote({ id, note }: { id: string; note: string | null }) {
+export default function OverlapNote({ id, note, answered }: { id: string; note: string | null; answered: boolean }) {
   return (
-    <p id={id} data-testid="overlap-note" data-tone="info" role="status" aria-live="polite"
+    // data-read: whether the answer for the current times has arrived (tests wait on it; nothing else reads it).
+    <p id={id} data-testid="overlap-note" data-tone="info" data-read={answered ? "yes" : "no"} role="status" aria-live="polite"
       className={note ? "rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-700" : "sr-only"}>
       {note ?? ""}
     </p>

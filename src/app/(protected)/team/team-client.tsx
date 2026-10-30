@@ -945,7 +945,7 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
       )}
       <SlotFields date={initialSlot.date} start={initialSlot.start} end={initialSlot.end} />
       {/* VIS2-1 / VIS2-2 (ADR-121): a fact before saving, `info`; the save is never refused for it. */}
-      <OverlapNote id={`overlap-plan-${caseId}`} note={overlap.note} />
+      <OverlapNote id={`overlap-plan-${caseId}`} note={overlap.note} answered={overlap.answered} />
       <fieldset className="grid grid-cols-3 gap-2">
         <legend className="text-xs font-semibold">Geplante Minuten pro KLV-Kategorie</legend>
         <label className="grid gap-1 text-xs font-semibold">
@@ -1081,7 +1081,7 @@ function PlannedVisit({ visit, members }: { visit: Upcoming; members: Member[] }
           aria-label={mode === "move" ? "Einsatz verschieben" : "Einsatz entfernen"} className="mt-2 grid gap-2">
           {mode === "move" && <SlotFields date={visit.date} start={hhmm(visit.start)} end={hhmm(visit.end)} />}
           {/* VIS2-1 / VIS2-2 (ADR-121): the moved visit itself is excluded by the database. */}
-          {mode === "move" && <OverlapNote id={`overlap-move-${visit.visit_id}`} note={overlap.note} />}
+          {mode === "move" && <OverlapNote id={`overlap-move-${visit.visit_id}`} note={overlap.note} answered={overlap.answered} />}
           <label className="grid gap-1 text-xs font-semibold">
             Grund
             <input name="reason" required minLength={3} maxLength={300} className={field} />

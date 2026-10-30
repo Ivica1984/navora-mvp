@@ -3,7 +3,8 @@ import { overlapNote, sameSlotInfo } from "@/features/visits/overlap-rules";
 
 // VIS2 (ADR-121; brief VIS2 with VIS2-5; `cra` CGR-97; `uxa` wording): a second visit of the same client at an
 // overlapping time is a fact before saving (planning form and "Heute machen"), re-read as the times change, never a
-// refusal; a save the form had not re-read states the server's check after it; two such cards have different names.
+// refusal; a visit added after the form was read is stated after the save (server re-check); two such cards have
+// different accessible names.
 // Phone 390 × 844, synthetic seed account. This spec owns its slots (CGR-96): day +53 at 19:07–19:37 (no other spec
 // plans that day), and today's slots chosen at its start where Testfall 08 has no visit (`todaySlots`).
 const PHONE = { width: 390, height: 844 };
@@ -122,17 +123,24 @@ test.describe("VIS2 at 390 × 844", () => {
     await expect(move.getByRole("button", { name: "Auf heute verschieben" })).toHaveAttribute("aria-describedby", /overlap-today-/);
     await move.getByLabel("Von").fill(slots.free.start);
     await move.getByLabel("Bis").fill(slots.free.end);
+    await expect(note).toHaveAttribute("data-read", "yes");
     await expect(note).toHaveText("");
 
-    // VIS2-5 (2): saved onto the overlap before the form re-read it: the move completes and the notice states it.
+    // VIS2-5 (2): a visit is added at that time meanwhile (another tab); the form, already read, still shows nothing.
+    // The move is saved, goes through, and the moved card's notice states the overlap the server found.
+    const other = await page.context().newPage();
+    await other.setViewportSize(PHONE);
+    await other.goto("/team");
+    await plan(other, today, slots.free.start, slots.free.end, null);
+    await other.close();
+    await expect(note).toHaveText("");
+    const meanwhile = { overlap: true, timeStart: slots.free.start, timeEnd: slots.free.end };
     await move.getByLabel("Grund der Verschiebung").fill("Synthetisch: heute erledigen");
-    await move.getByLabel("Von").fill(slots.target.start);
-    await move.getByLabel("Bis").fill(slots.target.end);
     await move.getByRole("button", { name: "Auf heute verschieben" }).click();
     await expect(page.getByTestId("moved-to-today")).toBeVisible();
-    await expect(page.getByTestId("overlap-after-save")).toHaveText(overlapNote(today, todayVisit, today) ?? "");
-    await expect(page.getByRole("article", { name: `${slots.target.start} – ${slots.target.end}, Testfall 08` })).toHaveCount(1);
-    await expect(page.getByRole("article", { name: `${slots.existing.start} – ${slots.existing.end}, Testfall 08` })).toHaveCount(1);
+    await expect(page.getByTestId("overlap-after-save")).toHaveText(overlapNote(today, meanwhile, today) ?? "");
+    await expect(page.getByTestId("overlap-after-save")).toHaveAttribute("data-tone", "info");
+    await expect(page.getByRole("article", { name: `${slots.free.start} – ${slots.free.end}, Testfall 08` })).toHaveCount(2);
 
     const width = await page.evaluate(() => document.documentElement.scrollWidth);
     expect(width).toBeLessThanOrEqual(PHONE.width);

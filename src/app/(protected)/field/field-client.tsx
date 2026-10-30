@@ -1132,7 +1132,7 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
         </label>
       </div>
       {/* VIS2-1 / VIS2-2 / VIS2-5: below "Von"/"Bis", tied to the confirm button; a fact, `info`, never a block. */}
-      <OverlapNote id={`overlap-today-${visit.visit_id}`} note={overlap.note} />
+      <OverlapNote id={`overlap-today-${visit.visit_id}`} note={overlap.note} answered={overlap.answered} />
       <label className="grid gap-1 font-semibold">
         Grund der Verschiebung
         {/* VIS1-10: controlled, so the typed reason survives React's form reset after a refused confirm. */}
