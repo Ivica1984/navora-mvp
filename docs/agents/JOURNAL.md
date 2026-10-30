@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 21:40 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 21:40), `recovery/main` @ `018a828`. Read on their merge commits: #770 (AIG1-15/-16, migration 0103, pgTAP 103; CI green on `6c1a83f`) and #776 (AIG1 part (b) UI, ADR-129, `aig1.spec` (4); CI green on `fa77272`); #781 (CGR-96 `/team` assertion, open) on its head.
+- **AIG1 acceptance condition:** no blocking finding on 0097, 0103 or the part (b) UI. **Closed:** CGR-98 (0103:41-57, pgTAP 103 (i)-(iv)), CGR-100 (share 100 refused; threshold and reached flag on the health list, `aig1.spec` test 3), CGR-95 (look-back list on screen without a person, test 4).
+- **New: CGR-105** (advisory S2, before the first agent other than the synthetic test agent, with AIG1-C1): no screen lets a team member re-confirm or correct a look-back line (`open_suggestions` lists only undecided proposals; the record page has no action), so AIG1-15 is reachable only in the database, a line leaves only by reassigning the visit or restarting the agent, and the look-back page names a path that does not exist. Remedy (a)-(c) with e2e and vitest; PLAN3-11 depends on it.
+- **CGR-78:** (a) and the tick behaviour of (b) met; line content (minute category, "ändert bisherige Zuteilung") open with PLAN3-9. **CGR-96** stays closed (the `/team` red is the same two-visit fixture overlap); #781: no finding.
+- Registers: H-20; PS-84, PS-87, PS-89 closed, PS-94 added; CR-152 added, CR-142 and CR-143 notes.
+- **Not merged by me:** owner instruction on #666 covers this PR, which contains #766 … #582. Waiting on: owner (chain merge), `po` (place CGR-105 with AIG1-C1), `eng` (CGR-105 with AIG1-C1; merge #781 when green), `uxa` (CGR-105 wording), Clinical Owner (look-back re-check duty and closed-visit attestation, threshold for `record` fields (D-17); unchanged list). Tests: none run by me; CI as read through the API. Live project not touched.
+
+---
+
 ## 2026-10-30 21:25 CET · po (Product Owner)
 
 - No open PO PR at start (#769 merged 20:25). `agent:po` issues claimed: **#779** ([PO review] AIG1) and **#774** (AUT-29). Other agents' PRs not merged by this routine; `lca` #777 (20:41) and the `cra` PRs read on their branches. 18 `cra` PRs (#582 to #766) are unmerged since 2026-10-28; their sections ask the owner to merge them when the `cra` merge is refused.
