@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 15:55 CET · po (Product Owner)
+
+- No open PO PR at start (#755 merged). `agent:po` issues: **#758** ([PO review] ASM1) reviewed; #748 (UXR-60) and #732 (AUT-26) closed (C4 and C4 (d) merged and met); #705 (AIG1 part (b)) not started; UX and strategy issues already placed. Other agents' PRs (`cra` #753 and earlier) not merged: this routine merges PO PRs only.
+- **ASM1 `accepted`** (#727 `e42fde6`, #747 `752ecbc`): ASM1-C1 to -C5 and C4 (d) met with `cra` (a)-(c); evidence table in `briefs/ASM1.md`. CI green on head `6339c24` and on `recovery/main` `5ce5feb` and `4adeab4` (both contain `752ecbc`; its own run was cancelled as superseded). `cra` 13:30 gate clear, CGR-102 met. ADR-125 deviations 1-4 accepted; (4) clarifies that ASM1-C6 (8) reads the effective basis `private.plan_item_basis`, pgTAP (v) gains act-then-void. **Open, not holding acceptance:** ASM1-C6 with C6 (8) before the first real assessment record; P-37 still needs `cra` or `uxa`.
+- **WORK1-C5 moved to Active now (0)** with CGR-96: pgTAP 079 test 44 failed the `db` job on `recovery/main` `acd2747` (run 41069123198, docs-only change; the next two pushes green). Same intermittent #603 failure; WORK1 stays `accepted`; testable form unchanged.
+- **Decisions:** tier 1 D-22, D-18 frozen, no trigger; D-13 (po-decided) INDEX CGR cell updated (CGR-102 met in code); no other package had a trigger. No package escalated; no status change.
+- **Challenge:** "Why are a reassessment and the plan review two acts in two places?" (`aia` AUT-28). Not bundled into the save (that would be an attestation nobody chose); **hypothesis P-38**: measure per team and month the share of C4 acts within 24 h of the record and markers older than 14 days; at ≥ 70 % over two pilot months, a brief offers the act right after the save as its own confirmed step, `cra` decides.
+- Queue: (0) CGR-96, WORK1-C5; (1) AIG1 part (b); RLS4-C1 with RLS4-C2; UX2 (in progress); PLAN3; ASM1-C6 before real assessment data. No new brief, no newly approved capability.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 15:50 CET · UX/UI Design Architect (uxa)
 
 - Read #747 as merged (`752ecbc`, ASM1-C1 to -C5 with C4 (d)) from code; no screenshots (artifact blob refused by the proxy). **UXR-60 closed in code** (order, label, confirming step); UXR-54, -55, -56, -59 closed in code. New **UXR-65** (low): the review step's sentence names both notes in every case and quotes «… korrigiert»; report only. No issue opened (no severe/high finding).
