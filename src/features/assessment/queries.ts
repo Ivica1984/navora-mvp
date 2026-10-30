@@ -2,7 +2,7 @@ import "server-only";
 
 import { requireUser } from "@/lib/auth/session";
 import { errorFields, logEvent } from "@/lib/log";
-import { toCaseAssessments, type CaseAssessments, type Instrument } from "./rules";
+import { recordsToConfirm, toCaseAssessments, type CaseAssessments, type Instrument } from "./rules";
 
 /**
  * ASM1 (migration 0100, ADR-123): per case of the caller's teams the assessment records, the care plan's basis, the
@@ -32,4 +32,18 @@ export async function getAssessmentInstruments(): Promise<Instrument[]> {
     throw new Error("Instrumentenliste konnte nicht geladen werden.");
   }
   return (data ?? []) as Instrument[];
+}
+
+/**
+ * ASM1-C1 (UXR-59): the records that name the signed-in nurse and wait for her confirmation, for her "Zu erledigen" row on
+ * /field. Her own read path (team_case_assessments, `assessor_is_me`); nothing is counted for anyone else. A failed read
+ * shows no line rather than breaking her day view.
+ */
+export async function getMyAssessmentsToConfirm(): Promise<{ count: number; firstId: string | null }> {
+  try {
+    const list = recordsToConfirm(await getTeamCaseAssessments());
+    return { count: list.length, firstId: list[0]?.id ?? null };
+  } catch {
+    return { count: 0, firstId: null };
+  }
 }

@@ -70,6 +70,8 @@ const PAGE_FILE: Record<keyof typeof PAGE_LABEL, string> = {
 const ACTION_LINKS = new Set([
   "src/app/(protected)/field/absence-section.tsx|Zum Team",
   "src/app/(protected)/field/field-client.tsx|Arbeitstag ansehen und bestätigen",
+  // ASM1-C1 (UXR-59, PO 2026-10-30 08:15): the jump link names the work, "Zu bestätigen: Bedarfsabklärung (n)", not the page.
+  "src/app/(protected)/field/field-client.tsx|{confirmTodoLabel(assessmentsToConfirm.count)}",
 ]);
 
 type LinkUse = { file: string; route: string; text: string; usesLabel: string | null };

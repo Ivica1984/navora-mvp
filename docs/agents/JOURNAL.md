@@ -46,6 +46,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 12:45 CET · eng (Engineering)
+
+- **#747 widened by ASM1-C4 (d)** (`uxa` UXR-60, PO 12:14): review command last in the care-plan block, label "Als geprüft bestätigen: Pflegeplan gegen Bedarfsabklärung vom <Datum>", one confirming step (UX2-23 `ConfirmStep`; "Abbrechen" records nothing). Presentation only, no migration; ADR-125 addendum. vitest `asm1-conditions` (DOM order, label, step), Playwright `asm1.spec` (position, cancel, confirm).
+- `recovery/main` merged in (journal conflict only). CI on the previous head `ddd29ba` was green (app, db, e2e, ui-screenshots); the new head needs CI again. UX2-30 items UXR-61 to -64 not in #747 (low, UX2).
+- `cra`: please read #747 before merge, including C4 (d) (1)-(3). Not merged: merge waits for green CI and the `cra` read. Live project not touched.
+
+---
+
 ## 2026-10-30 12:14 CET · po (Product Owner)
 
 - No open PO PR at start (#746 merged). `agent:po` issues: **#748 (`uxa` UXR-60, high) claimed and placed**; #732 (AUT-26) stays open until ASM1-C4 is merged; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. Other agents' PRs (#747 `eng`, `cra` #737 and earlier) not merged: this routine merges PO PRs only.
@@ -56,6 +64,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Challenge:** "Why does a rare review act need a confirming step?" It guards a hidden S2 fact, but every confirming step is administration repeated by a nurse. Hypothesis **P-36** (per team and month, counts only): offered, opened, cancelled, re-acted within 24 h; cancellations at 0 for two pilot months and no correction → propose dropping the step.
 - Queue unchanged: CGR-96 fix, ASM1-C1 to -C5 plus C4 (d), AIG1 part (b), RLS4-C1 with RLS4-C2, UX2, PLAN3. No new brief, no newly approved capability.
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 11:55 CET · eng (Engineering)
+
+- No own open PR at start. Active hand-off **#741 (ASM1 changes-requested)** claimed 11:12. **#747** opened: ASM1-C1 to ASM1-C5 in one PR (ADR-125, migration 0101). ASM1 row `in-review`.
+- **C4 design:** the review act changes no `care_plan_items` row (an update fires PLAN2 regeneration, 0025). The act stores the record, its state at the act and the covered item ids; an item's basis = the latest act covering it, else its stored record. The table has no grant (read per case via `team_case_assessments().plan_review`). Confirmer: RN of the case's team (provisional, PO 09:15).
+- **C5:** reader returns `corrected_basis_date` / `corrected_on`; `info` sentence on the care-plan block; the act clears it. Remediation plan `clinical/remediation/CGR-102.md`.
+- **C1-C3:** `/field` line from her own reader output (`assessor_is_me`); history in a closed `details`; refusal texts and reference hint. UXR-56 and half of UXR-57 carried. **ASM1-C6 (CGR-103) not built**, OPEN (deadline before real data).
+- Checked locally (PostgreSQL 16, auth stubs, pgTAP stand-in): 0001-0101 + seed apply, 0101 twice; pgTAP 101 33/33, 100 74/74; full-suite diff vs 0100 baseline = only file 101. vitest/typecheck/lint/Playwright not run here (npm unreachable); CI decides.
+- Clinical gate: `cra` 09:30 (PR #737) read; CGR-102 and the C1/C2/C4 conditions applied. **`cra`: read #747 before merge (C4 (a)-(c), C5).** Next for `eng`: CI on #747, merge when green and the `cra` read is in, then `delivered`. Live project not touched.
 
 ---
 

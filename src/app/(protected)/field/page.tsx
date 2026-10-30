@@ -11,6 +11,7 @@ import { getTeamVisitAlerts } from "@/features/team/queries";
 import { getAbsenceView } from "@/features/absence/queries";
 import { getMySignals } from "@/features/signals/queries";
 import { recordPushTap } from "@/features/push/queries";
+import { getMyAssessmentsToConfirm } from "@/features/assessment/queries";
 import FieldClient from "./field-client";
 
 // F1: the nurse's day. Mobile-first; visits of her own teams only (public.field_visits).
@@ -27,7 +28,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
   // SIG2-8: opened from the push message: record the tap (never display on the device).
   if (von === "push") await recordPushTap();
   const day = parseDayParam(datum, today);
-  const [visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned, cover, sinceLast, visitAlerts, absence, signals, doorNotes, safetyAlerts, alertHistory, teamOpenReports, unqualifiedTeams] = await Promise.all([
+  const [visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned, cover, sinceLast, visitAlerts, absence, signals, doorNotes, safetyAlerts, alertHistory, teamOpenReports, unqualifiedTeams, assessmentsToConfirm] = await Promise.all([
     getFieldVisits(day),
     getFieldNotes(day),
     getFieldReports(day),
@@ -47,6 +48,8 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
     getTeamOpenReports(),
     // UX2-22 (ADR-124): her own membership rows only; the teams where her qualification is not yet recorded.
     getOwnQualificationGaps(),
+    // ASM1-C1 (UXR-59): the assessment records that name her and wait for her confirmation.
+    getMyAssessmentsToConfirm(),
   ]);
 
   return (
@@ -77,6 +80,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
       moved={moved}
       movedOverlap={movedOverlap}
       unqualifiedTeams={unqualifiedTeams}
+      assessmentsToConfirm={assessmentsToConfirm}
     />
   );
 }

@@ -56,6 +56,9 @@ function view(over: Partial<CaseAssessments> = {}): CaseAssessments {
     plan_without_basis: false,
     newer_assessment_date: null,
     newer_events: [],
+    corrected_basis_date: null,
+    corrected_on: null,
+    plan_review: null,
     ...over,
   };
 }

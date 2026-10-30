@@ -81,6 +81,7 @@ import type { FieldQuality, QualityEventType } from "@/features/quality/queries"
 import type { TeamVisitAlert } from "@/features/team/queries";
 import SignalBanner from "@/components/signals/SignalBanner";
 import type { SignalRow } from "@/features/signals/rules";
+import { confirmTodoLabel, recordAnchor } from "@/features/assessment/rules";
 import { COUNTERSIGN_HEADING, FOLLOWUP_HEADING, RETURNED_HEADING, countersignLabel, followupLabel, returnedInstructionLine, returnedLabel } from "@/features/field/todo";
 
 type Props = {
@@ -123,6 +124,8 @@ type Props = {
   focusAt?: string | null;
   /** UX2-22 (ADR-124): teams in which her own qualification is not yet recorded (ADM2-6); her own rows only. */
   unqualifiedTeams?: string[];
+  /** ASM1-C1 (UXR-59): records that name her and wait for her confirmation (her own read path; count and first record). */
+  assessmentsToConfirm?: { count: number; firstId: string | null };
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -148,7 +151,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null, movedOverlap = null, unqualifiedTeams = [] }: Props) {
+export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null, movedOverlap = null, unqualifiedTeams = [], assessmentsToConfirm = { count: 0, firstId: null } }: Props) {
   const summary = summarizeDay(visits);
   const ordered = orderFieldVisits(visits);
   // VIS2-3: cards of the same client whose times overlap get a distinguishing line and accessible name.
@@ -224,7 +227,7 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
         )}
         {/* VIS1-3d / VIS1-3e: when the moved visit is not among her cards of this day, the notice stands above the list. */}
         {moved && !visits.some((v) => v.visit_id === movedId) && <MovedNoticeBlock moved={moved} overlapText={movedOverlapText} />}
-        {(openFollowups.length > 0 || returned.length > 0 || countersign.length > 0) && (
+        {(openFollowups.length > 0 || returned.length > 0 || countersign.length > 0 || assessmentsToConfirm.count > 0) && (
           // UX1-6 (ADR-104): the open decisions and reports sit below her visits; one line at the top keeps them in sight.
           // UX1-27 (CGR-80, ADR-106): inside the first viewport, above the next visit; the follow-up link carries the
           // section's own heading.
@@ -237,6 +240,18 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
             )}
             {countersign.length > 0 && (
               <a href="#gegenzeichnung" className="flex min-h-11 items-center rounded-lg border border-blue-600 bg-white px-3 text-blue-900">{countersignLabel(countersign.length)}</a>
+            )}
+            {/* ASM1-C1 (UXR-59, `cra` 09:30): a work item, not a safety signal: neutral (no colour above info), only when
+                n >= 1, gone once she confirms or the record is superseded. Jumps to the first such record on /team. */}
+            {assessmentsToConfirm.count > 0 && assessmentsToConfirm.firstId && (
+              <a
+                href={`/team#${recordAnchor(assessmentsToConfirm.firstId)}`}
+                data-testid="todo-assessment-confirm"
+                data-tone="info"
+                className="flex min-h-11 items-center rounded-lg border border-stone-400 bg-white px-3 text-stone-800"
+              >
+                {confirmTodoLabel(assessmentsToConfirm.count)}
+              </a>
             )}
           </nav>
         )}

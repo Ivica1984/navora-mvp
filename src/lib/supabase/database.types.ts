@@ -457,6 +457,38 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"care_plan_assessment_reviews": {
+                  Row: {
+                    "case_id": string,"id": string,"item_ids": (string)[],"organization_id": string,"record_id": string,"record_state": string,"reviewed_at": string,"reviewed_by": string,"seq": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "case_id": string,"id"?: string,"item_ids": (string)[],"organization_id": string,"record_id": string,"record_state": string,"reviewed_at"?: string,"reviewed_by": string,"seq"?: never
+                  }
+                  Update: {
+                    "case_id"?: string,"id"?: string,"item_ids"?: (string)[],"organization_id"?: string,"record_id"?: string,"record_state"?: string,"reviewed_at"?: string,"reviewed_by"?: string,"seq"?: never
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "care_plan_assessment_reviews_case_id_organization_id_fkey"
+      columns: ["case_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "cases"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "care_plan_assessment_reviews_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "care_plan_assessment_reviews_record_id_fkey"
+      columns: ["record_id"]
+isOneToOne: false
+      referencedRelation: "assessment_records"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"care_plan_items": {
                   Row: {
                     "active": boolean,"assessment_id": string | null,"case_id": string,"category": string,"created_at": string,"created_by": string,"freq_period": string | null,"freq_times": number | null,"freq_weekdays": (number)[] | null,"frequency": string,"goal": string | null,"id": string,"organization_id": string,"planned_minutes": number,"retire_reason": string | null,"retired_at": string | null,"retired_by": string | null,"review_date": string,"service": string,"team_id": string,"window_end": string | null,"window_start": string | null
@@ -2551,6 +2583,9 @@ isOneToOne: false
 "return_report":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_report_id": string }; Returns: Json
                            },
+"review_care_plan_against_assessment":
+{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_record_id": string }; Returns: Json
+                           },
 "revoke_invitation":
 { Args: { "p_idempotency_key": string,"p_invitation_id": string }; Returns: string
                            },
@@ -2635,7 +2670,7 @@ isOneToOne: false
                            },
 "team_case_assessments":
 { Args: Record<PropertyKey, never>; Returns: {
-              "case_id": string,"current_id": string,"newer_assessment_date": string,"newer_events": Json,"plan_basis_date": string,"plan_without_basis": boolean,"records": Json
+              "case_id": string,"corrected_basis_date": string,"corrected_on": string,"current_id": string,"newer_assessment_date": string,"newer_events": Json,"plan_basis_date": string,"plan_review": Json,"plan_without_basis": boolean,"records": Json
             }[]
                            },
 "team_case_lifecycle":
