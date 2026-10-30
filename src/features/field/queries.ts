@@ -5,6 +5,7 @@ import { errorFields, logEvent } from "@/lib/log";
 import type { Database } from "@/lib/supabase/database.types";
 import type { FieldReport } from "./report";
 import type { FieldNote, FieldVisit } from "./types";
+import { teamsWithoutQualification } from "./qualification";
 
 /**
  * Visits of the signed-in user's teams on one day (F1).
@@ -171,4 +172,22 @@ export async function getTeamOpenReports(): Promise<TeamOpenReport[]> {
     throw new Error("Offene Berichte im Team konnten nicht geladen werden.");
   }
   return data ?? [];
+}
+
+/**
+ * UX2-22 (ADR-124): the teams in which the signed-in member's qualification is not yet recorded (ADM2-6 state). One
+ * read of her own `team_memberships` rows (RLS `read_own_team_membership`, migration 0003; no new read scope, no
+ * other member's row). The database refusal (ADM2-16, 0094) stays the guard; the screen only stops offering it.
+ */
+export async function getOwnQualificationGaps(): Promise<string[]> {
+  const { supabase, user } = await requireUser();
+
+  const { data, error } = await supabase.from("team_memberships").select("team_id, qualification").eq("user_id", user.id);
+
+  if (error) {
+    logEvent("error", "field.own_membership_load_failed", errorFields(error));
+    throw new Error("Deine Teamzugehörigkeit konnte nicht geladen werden.");
+  }
+
+  return teamsWithoutQualification(data ?? []);
 }

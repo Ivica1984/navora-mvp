@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(25);
+select plan(26);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -17,8 +17,14 @@ values ('00000000-0000-4000-a000-000000000101', '00000000-0000-4000-a000-0000000
 -- Structure ------------------------------------------------------------------------------------------------
 -- ADM2-6 (ADR-114, 0091): the column became nullable for a member admitted by her team until an administrator sets her
 -- qualification; one column still means at most one qualification, and no member outside that path is without one.
-select ok(not exists (select 1 from public.team_memberships where qualification is null),
+-- UX2-22 (ADR-124): the seed holds exactly one member in that ADM2-6 state on purpose (ohnequal.test, Testteam D), so the
+-- e2e can sign her in; every other seeded member has a qualification.
+select ok(not exists (select 1 from public.team_memberships where qualification is null
+                        and user_id <> '00000000-0000-4000-a000-000000000981'),
           'every member has exactly one qualification (null only between ADM2 "Vertrag erfasst" and set_member_qualification)');
+select ok(exists (select 1 from public.team_memberships where qualification is null
+                    and user_id = '00000000-0000-4000-a000-000000000981' and team_id = '00000000-0000-4000-a000-000000000171'),
+          'UX2-22 fixture: ohnequal.test is the one seeded member without a recorded qualification (Testteam D)');
 select throws_ok($$ insert into public.team_memberships (team_id, user_id, qualification)
                     values ('00000000-0000-4000-a000-000000000102', '00000000-0000-4000-a000-000000000902', 'doctor') $$,
   '23514', null, 'only registered_nurse or care_assistant');
