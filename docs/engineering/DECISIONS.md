@@ -2277,3 +2277,28 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** none. `npm ci` failed in the agent environment (npm "Exit handler never called"), so neither `tsc`, ESLint, pgTAP nor Playwright ran here; no local database stack. CI is the test runner.
 
 **Rollback:** revert the commit (one spec, one pgTAP file, docs).
+
+### ADR-128 — AIG1-15 / AIG1-16: a look-back re-confirmation runs the first confirmation's checks; a threshold that cannot fire is refused and the health list shows the threshold
+
+**Date:** 2026-10-30 · **Status:** IMPLEMENTED in its own PR (AIG1 part (b), database half; CI decides) · PLANNED: the part (b) UI PR (confirm screen and ticked list at 390 px, health list with the AIG1-16 columns, look-back list with AIG1-14, e2e) · **Brief:** `docs/agents/briefs/AIG1.md` (AIG1-15, AIG1-16, added by po 2026-10-30 02:10; PO *Active now* 17:45 order (0)) · **Findings:** `cra` CGR-98 (= AIG1-15), CGR-100 (1)-(2) (= AIG1-16); `lca` D-35 01:50 · **Migration:** 0103 · **Tests:** pgTAP `103_aig1_15_16_recheck_and_threshold` (25).
+
+**Context (IMPLEMENTED, 0097 / #701):** `private.aig1_apply_visit_responsible` returned `ok` at once when the visit already held the confirmed member, so a re-confirmation from the AIG1-12 look-back list wrote an `ai_confirmations` row ("bestätigt von <Name>") without any check. `set_agent_state` accepted `stop_share = 100`, which `aig1_check` (`share > stop_share`) can never cross. `agent_health` returned neither the written threshold nor whether the last closed window reached its minimum.
+
+**Decision:**
+1. **AIG1-15:** in the "record already holds the value" branch of the applier, when the visit is still open by the same condition a first confirmation uses (`planned`, not suspended, not covered, `visit_date` not before today Europe/Zurich), the applier runs `may_perform_visit` (→ `not_qualified`), `adm2_in_contract` (→ `outside_contract`) and `member_absent_during` (→ `absent`), in the first confirmation's order, and returns the first failing reason. The callers (`confirm_suggestion`, `confirm_suggestions`) already insert the `ai_confirmations` row only after `ok`, so a refusal writes no confirmation and no ledger change and the line stays on the look-back list. A visit no longer open returns `ok` as built (whether it needs action is the Clinical Owner's, D-17, UNKNOWN). The same branch is also reached by a first confirmation whose member was assigned by hand meanwhile; it now gets the same checks (more protective, no new refusal reason).
+2. **AIG1-16 (1):** `set_agent_state` refuses `stop_share >= 100` (and `< 0`, as before) with the existing `threshold_missing` and its existing text. 99.99 is accepted (`numeric(5,2)`). No threshold value is set by NAVORA.
+3. **AIG1-16 (2):** `agent_health` adds `stop_share`, `stop_min_proposals`, `stop_window_days` (from the organisation's switch-on row; null for an agent never switched on) and `last_window_min_reached` (`last_window_decided >= stop_min_proposals` for the last closed window; **null** before the first closed window, so "no window yet" is not shown as "nein"). Per agent and organisation, no person column, readable by the same coordinators as before. The return type changes, so 0103 drops and re-creates the function with its grants and comment; its only readers are pgTAP 097 and the generated types (types-bot), no app caller yet.
+
+**Mechanism:** the three function bodies are copied from 0097 and changed only at the marked lines (comments in 0103 name the criterion). Idempotent: `create or replace`, `drop function if exists` before the changed return type.
+
+**Trade-offs:** a check only on look-back lines (by joining the stop) was rejected: the "already holds" branch cannot tell a look-back re-check from any other re-confirmation, and the brief's protective intent (a "bestätigt" without a check is worse than none) applies to both. Returning `false` before the first closed window was rejected: it would read "Mindestzahl nicht erreicht" for a window that does not exist yet.
+
+**Deviations / notes for the PO:**
+1. `last_window_min_reached` is null (not `false`) before the first closed window. The UI PR will show it as "noch kein abgeschlossenes Fenster" (wording `uxa`'s, OPEN until the UI PR).
+2. AIG1-15 is delivered ahead of the part (b) UI as the brief allows ("part (b) PR or its own small PR before part (b) is delivered"). AIG1 stays open until the UI PR lands.
+
+**Not done:** no UI (part (b) UI PR next), no seed change, no new read path or grant; the live project is not touched (D-1).
+
+**Checked by me (not CI):** migrations 0001-0103 and the seed applied on a local PostgreSQL 16 with Supabase auth stubs (and Supabase's default grants) and a minimal pgTAP stand-in written in this run (`plan`, `is`, `ok`, `throws_ok`, `lives_ok`, `finish`); 0103 applies twice. pgTAP 103 25/25 green with 0103 and red without it (tests 7-12, 14, 16 and the health block fail on a database built without 0103); 097 (110), 019 (34), 061 (49) green with 0103. 071 and 077 not run here (they use `function_privs_are`, not in the stand-in). The official pgTAP, the vitest suite, lint, typecheck, build and Playwright were **not run** here; CI decides.
+
+**Rollback:** revert the PR; 0097's function bodies are restored by re-running their definitions from 0097 (forward migration, never a down-migration on a shared database).
