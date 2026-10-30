@@ -2551,6 +2551,9 @@ isOneToOne: false
 "return_report":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_report_id": string }; Returns: Json
                            },
+"review_care_plan_against_assessment":
+{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_record_id": string }; Returns: Json
+                           },
 "revoke_invitation":
 { Args: { "p_idempotency_key": string,"p_invitation_id": string }; Returns: string
                            },
@@ -2635,7 +2638,7 @@ isOneToOne: false
                            },
 "team_case_assessments":
 { Args: Record<PropertyKey, never>; Returns: {
-              "case_id": string,"current_id": string,"newer_assessment_date": string,"newer_events": Json,"plan_basis_date": string,"plan_without_basis": boolean,"records": Json
+              "case_id": string,"corrected_basis_date": string,"corrected_on": string,"current_id": string,"newer_assessment_date": string,"newer_events": Json,"plan_basis_date": string,"plan_review": Json,"plan_without_basis": boolean,"records": Json
             }[]
                            },
 "team_case_lifecycle":
