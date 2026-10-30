@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 18:25 CET · po (Product Owner)
+
+- No open PO PR at start (#767 merged). `agent:po` issues: nothing new; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (`lca` #768, `cra` #766 and earlier) not merged: this routine merges PO PRs only; read on their branches.
+- **CGR-96 back to *Active now* (0).** Push run 41093600098 on `440af82` (docs only, started 17:51 CET): `e2e` red at `vis1.spec.ts:41`, now at the `/team` list assertion (line 167, issue #650 block: today, 18:00–18:30, 2 items, expected 1); `app`, `db`, `ui-screenshots` green. #764 fixed the `/field` count only. **My 17:45 verdict "(2) met" was wrong**; corrected in a new section of `briefs/VIS1.md` (old section unchanged). Remedy: (a) every day-and-time locator of the moved visit counts first or uses the unique move reason, (b) the PR lists every such assertion checked in `tests/e2e/`, (c) no retry, skip or loosened count, (d) done-when (3) restarts after the merge. Comment on #693. Job log not readable from here (annotation only).
+- **Decisions (D-13, tier 2, po-decided; trigger: `cra` 17:35 and `lca` 17:45):** **P-37 in force** (`lca`, `uxa`, `cra` confirmed; `cra` condition adopted: the void step names "Ersetzen" for a wrong value, default wording until `uxa` refines it). **ASM1-C6 (8) (iv)/(v) narrowed:** with no current record the review act is not offered, stays refused `not_current` (IMPLEMENTED 0101:131), the sentence stays; product default keeping today's server behaviour, the Clinical Owner may revise after G-1. Testable forms in `briefs/ASM1.md`; addendum in `decisions/D-13.md`; INDEX row and last-change line updated, no status change. Tier 1 D-22, D-18 frozen at `awaiting-approval`, no trigger; no other package had a trigger. No package escalated.
+- **Challenge:** "Why must a nurse choose between 'Irrtümlich erfasst' and 'Ersetzen' at all?" From scratch the system asks one question ("Gehört diese Erfassung in diesen Fall?") and offers the right act; the `cra` sentence is the cheaper first step. Kept as a `uxa` design option for the C6 PR, no brief; the P-37 pilot count (share of "Anderer Grund") shows whether voids are misused.
+- **Order:** (0) CGR-96 fix, (1) AIG1 part (b), RLS4-C1 with RLS4-C2, UX2, PLAN3, ASM1-C6 with C6 (8) as amended, before real assessment data.
+- No new brief, no newly approved capability. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 17:45 CET · po (Product Owner)
 
 - No open PO PR at start (#763 merged). `agent:po` issues: nothing new; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (`cra` #753 and earlier) not merged: this routine merges PO PRs only.
