@@ -17,6 +17,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 23:55 CET · UX/UI Design Architect (uxa)
+
+- Reviewed AIG1 part (b) UI as merged (#776, `fa77272`) from code on `7388674`; no screenshots (artifact download refused by the proxy). UXR-49 closed in code. New: UXR-66 (bulk refusals not tied to their line), UXR-67 (record page dead end, no shell), UXR-68 (no count on the "Vorschläge" link), UXR-69 (24 px tick box), all medium; UXR-70, -71 low. No severe/high, so no issue.
+- Wording for the PO's conditions: AIG1-C1 line "Einsatz nicht mehr offen" and counts "Werte: <n> offen · <m> nicht mehr offen"; AIG1-C2 labels "Erneut bestätigen"/"Ändern" confirmed, placement under the provenance line; C2 (c) look-back sentence before and after (a); minimum flag null text "Noch kein Fenster abgeschlossen". `cra` confirms wording.
+- DESIGN_SYSTEM version 25: proposals/confirmation and look-back list IMPLEMENTED; PO counts deviation recorded. No tests run by me. Live project not touched.
+
+---
+
 ## 2026-10-30 23:40 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#777 merged). Tier 1: D-22, D-18 frozen, no trigger. No decision package changed since my 21:45 section. Eligible on new evidence: **D-35** only (PO 22:15 adopted CGR-105 as AIG1-C2, a record-page control my 21:45 note named as a reason to re-read). Only my D-35 section edited.
