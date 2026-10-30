@@ -8,6 +8,7 @@ import type { OpenVisit, TeamAbsence, TeamColleague } from "@/features/absence/q
 import { ABSENCE_MESSAGES, absenceMemberLabel, earliestAbsenceStart, formatAbsencePeriod, knownByLabel, pastPlannedNotice } from "@/features/absence/rules";
 import { offerMinutes } from "@/features/cover/rules";
 import { earliestTakeableToday, formatDayLabel, formatTime } from "@/features/field/rules";
+import { OPEN_VISITS_UNQUALIFIED_TEXT, splitOpenVisits } from "@/features/field/qualification";
 
 function useAbsenceRun() {
   const router = useRouter();
@@ -220,11 +221,22 @@ export function AbsenceList({ today, absences }: { today: string; absences: Team
  * change, a plan without deputy, planned by hand). One tap to take, first wins. "kennt die Klientin" is a label,
  * not an assignment. A care assistant is not offered category B or needs-assessment visits.
  */
-export function OpenVisitsSection({ open, today }: { open: OpenVisit[]; today: string }) {
+export function OpenVisitsSection({ open: all, today, unqualifiedTeams = [] }: { open: OpenVisit[]; today: string; unqualifiedTeams?: string[] }) {
   const router = useRouter();
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
+  // UX2-22 (uxa 16:10, po 16:24; ADR-124): visits of a team where her qualification is missing are not offered; when
+  // nothing else is open, the section keeps its heading without a count, in `info`, and one line only.
+  const { shown: open, withheld } = splitOpenVisits(all, unqualifiedTeams);
+  if (open.length === 0 && withheld > 0) {
+    return (
+      <section aria-label="Offen im Team" data-testid="open-in-team" data-tone="info" className="mb-4 grid gap-1 rounded-2xl border border-stone-300 bg-stone-50 p-3 text-sm text-stone-700">
+        <h2 className="font-bold text-stone-900">Offen im Team</h2>
+        <p data-testid="open-in-team-unqualified">{OPEN_VISITS_UNQUALIFIED_TEXT}</p>
+      </section>
+    );
+  }
   if (open.length === 0) return null;
   // UX1-6a: while collapsed, the earliest visit of today she may take stays one tap away in the header.
   const first = expanded ? null : earliestTakeableToday(open, today);

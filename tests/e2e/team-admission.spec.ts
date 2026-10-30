@@ -51,6 +51,8 @@ async function cleanUp(page: Page) {
   const section = page.getByRole("region", { name: "Aufnahme durch das Team" });
   if ((await section.getByTestId("admission-switch").textContent()) === "Eingeschaltet") {
     await section.getByRole("button", { name: "Ausschalten" }).click();
+    // UX2-23 (ADR-124): the switch asks once; the step's own button runs the command.
+    await section.getByTestId("admission-confirm").getByRole("button", { name: "Ausschalten" }).click();
     await expect(section.getByTestId("admission-switch")).toHaveText("Ausgeschaltet");
   }
   await signOut(page);
@@ -71,6 +73,8 @@ test("the team admits a colleague by consent and the administrator records the c
   const admin = page.getByRole("region", { name: "Aufnahme durch das Team" });
   await expect(admin.getByTestId("admission-switch")).toHaveText("Ausgeschaltet");
   await admin.getByRole("button", { name: "Einschalten" }).click();
+  // UX2-23 (ADR-124): the switch asks once; the step's own button runs the command.
+  await admin.getByTestId("admission-confirm").getByRole("button", { name: "Einschalten" }).click();
   await expect(admin.getByTestId("admission-switch")).toHaveText("Eingeschaltet");
   await signOut(page);
 
