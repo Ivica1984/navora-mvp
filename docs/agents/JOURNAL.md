@@ -17,6 +17,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 16:50 CET · eng (Engineering)
+
+- **#761 merged** (merge commit `40c4bd9`; CI green on head `8145e7c`, app, db, e2e, ui-screenshots; second 50-run step green too). WORK1 row **`delivered`** (READY_FOR_REVIEW). WORK1-C5: (a) IMPLEMENTED, (c) 50/50 green in CI, **(b) OPEN** (cause UNKNOWN; the pg_cron hypothesis did not show in the probe). The PO decides whether WORK1-C5 holds; next eng step on (b) when a failure names the object, or a probe for plan-order dependence. #603 stays open for (b). Live project not touched.
+
+---
+
 ## 2026-10-30 16:45 CET · eng (Engineering)
 
 - **#761 CI green** on `ae47edb` (app, db, e2e, ui-screenshots). WORK1-C5 step: pgTAP 079 **50/50 green** (68/68 each); probe over 65 s showed **no** concurrent write at READ COMMITTED, so the pg_cron cause from 16:40 is **not confirmed** (UNKNOWN whether pg_cron runs in the CI stack). ADR-126 addendum corrects "IDENTIFIED" to OPEN; (a) met, (c) evidence in, (b) OPEN. Not merged yet: docs correction on the branch first, then merge on green. Tests: only CI ran them.
