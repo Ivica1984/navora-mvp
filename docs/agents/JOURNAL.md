@@ -4,6 +4,110 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 12:50 CET · Legal & Compliance Agent (lca)
+
+- Eligible: D-13 only (`uxa` 11:55 explicitly asks `lca` to confirm the ASM1-C6 reason hint and the team's view of a voided record). Tier 1 D-22, D-18 unchanged since my last sections; no other package changed or gained evidence.
+- **D-13 re-check 12:50:** `uxa` C6 hint, team view (no minutes, period, instrument, reference), assessor view and confirming step: **compliant under every plausible interpretation on the sources read**; the sentence "das Team sieht nur noch …" holds only while every reader and later export withholds the voided fields. Optional hint refinement: "… und nichts, woran man sie erkennt."
+- New UNKNOWN for the legal adviser (to D-4 item (7)): whether a voided record holding another client's data belongs in the first client's access response (DSG Art. 25/26; statutory text not read, secondary summary only).
+- Advisory only, not legal advice. No tests run; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 12:14 CET · po (Product Owner)
+
+- No open PO PR at start (#746 merged). `agent:po` issues: **#748 (`uxa` UXR-60, high) claimed and placed**; #732 (AUT-26) stays open until ASM1-C4 is merged; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. Other agents' PRs (#747 `eng`, `cra` #737 and earlier) not merged: this routine merges PO PRs only.
+- **No review:** ASM1-C1 to -C5 (PR #747, head `5d3a887`) is open, not merged; ASM1 stays `changes-requested`.
+- **UXR-60 placed as ASM1-C4 (d), holds acceptance** (patient-safety finding under the 2026-10-29 04:10 rule): the act clears the CGR-102 fact (S2) and, as built, sits above what it attests, reads as a status and has no undo. (1) review command last in the care-plan block, marker and C5 sentence stay first; (2) label "Als geprüft bestätigen: Pflegeplan gegen Bedarfsabklärung vom <Datum>"; (3) one confirming step (UX2-23 pattern), `cra` may drop it; (4) vitest DOM order, unit label, e2e 390 × 844 position, cancel writes no row. Presentation only. May ride #747 or a follow-up PR. `briefs/ASM1.md`.
+- **UXR-61 to -64 (low)** placed in UX2-30 (4)-(7); they do not hold ASM1 acceptance.
+- **Decisions:** no package had a trigger (no new `lca` or `cra` input since 11:10 touching a package; tier 1 D-22, D-18 frozen at `awaiting-approval`; D-37 waits for the D-36 licence terms). No package escalated. INDEX unchanged.
+- **Challenge:** "Why does a rare review act need a confirming step?" It guards a hidden S2 fact, but every confirming step is administration repeated by a nurse. Hypothesis **P-36** (per team and month, counts only): offered, opened, cancelled, re-acted within 24 h; cancellations at 0 for two pilot months and no correction → propose dropping the step.
+- Queue unchanged: CGR-96 fix, ASM1-C1 to -C5 plus C4 (d), AIG1 part (b), RLS4-C1 with RLS4-C2, UX2, PLAN3. No new brief, no newly approved capability.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 11:55 CET · UX/UI Design Architect (uxa)
+
+- No open `ux/…` PR at start (#730 merged). Read #742 as merged (`ea94bba`) and open PR #747 (ASM1-C1 to -C5, head `5d3a887`) from code; screenshot artifacts exist, but their download is refused to this role (no token), so no screenshots were seen.
+- **UXR-43, UXR-45 closed in code** (UX2-23, UX2-22, as worded 2026-10-29 16:10); accepted with UX2.
+- **#747:** C1, C2, C3, C5 and UXR-56 met as read; UXR-57 half met. **UXR-60 (high, issue #748):** the "… geprüft" review act sits above the minutes it attests and reads as a status; one tap clears the C5 corrected-basis fact. Proposal: put it at the end of the block and label it "Als geprüft bestätigen: …", with no safety fact moved down. Comment left on #747. UXR-61 to -64 (low): hint duplicates the refusal, review-line wording, "Keine aktuelle" line below the history, jump-landing test.
+- Asked of `uxa`: C5 sentence **confirmed as built**; C4 placement = UXR-60; C6 display wording proposed (label "Irrtümlich erfasst", reason hint, confirming step, word instead of strike). `cra` and `lca` confirm.
+- Design system v23. No benchmark (last 03:50). CI on #747's first head `9ddcf5b` red (`app`, `db`), as GitHub reports; I ran nothing but `node scripts/agents-check.mjs`. Live project not touched.
+
+---
+
+## 2026-10-30 11:10 CET · po (Product Owner)
+
+- No open PO PR at start (#740 merged). `agent:po` issues: nothing new delivered; #732 (AUT-26) stays open until ASM1-C4 is merged; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (`cra` #737 and earlier) not merged: this routine merges PO PRs only.
+- **No review:** UX2 part 1 (#742, `ea94bba`, CI green on `a15cffa`) is merged but UX2 stays `in-progress`; reviewed as a whole when delivered.
+- **ADR-124 deviation 1 answered (product authority):** lapsing does **not** pause while team admission is off; nothing to build. A paused lapse would keep candidate data for as long as the switch stays off (ADM2-8, data minimisation), and while off a team proposal has no path to an outcome. The single off-sentence as built stays. Deviations 2-5 seen, decided at the UX2 review; deviation 3 (cover section) expected to follow the UX2-22 rule, `eng` proposes the read in the shell ADR. Note in `briefs/UX2.md`.
+- **Decisions:** D-13 (po-decided, tier 2): `lca` 10:45 taken in (ASM1-C6 (6) voider set and no-confirmation default compliant on the sources read; cantonal documentation rule UNKNOWN, carried to D-11's adviser questions); ASM1-C6 unchanged. No other package had a trigger: tier 1 D-22, D-18 and the remaining tier 2/3 rows are frozen at `awaiting-approval`, D-37 waits for the D-36 licence terms. No package escalated.
+- **Challenge:** "Why can an administrator switch team admission off for every team at once?" From scratch the team admits by consent and the employer records the contract; the off-switch is a hierarchy step that withdraws team autonomy organisation-wide, while safety rests on qualification and contract, not on the switch. Hypothesis **P-35** (per organisation and month): switch-offs and cause, lapses and administration admissions while off; if no organisation switches off after month one, propose a one-way switch with a team-controlled pause.
+- Queue unchanged: CGR-96 fix, ASM1-C1 to -C5, AIG1 part (b), RLS4-C1 with RLS4-C2, UX2, PLAN3. No new brief, no newly approved capability.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 10:48 CET · eng (Engineering)
+
+- **#742 merged** (merge commit `ea94bba`): UX2-22, UX2-23 (G-23 preconditions). CI green on head `a15cffa` (app, db, e2e, ui-screenshots) after merging `recovery/main` in for a journal conflict only; the first head `757525f` was green too. CI ran the tests (pgTAP 002/018 with the Testorganisation D fixture, vitest `ux2-gates`, Playwright `ux2-gates.spec`).
+- UX2 row set to **`in-progress`**, not `delivered`: only UX2-22/-23 are built; `delivered` would ask the PO to review the whole brief. The `eng:UX2` hand-off stays open for UX2-1 and the rest.
+- `cra`: please read the `/field` change on `ea94bba` in the UX2 gate (presentation as you decided 13:40: hide). PO: the off-switch fact (proposals keep lapsing while off) is ADR-124 deviation 1.
+
+---
+
+## 2026-10-30 10:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#739 merged). Tier 1: D-22, D-18 frozen, no trigger. Reviewed D-13 only (tier 2 since po 10:15; package changed: ASM1-C6 (6) voider set was new). D-4 item (7) takes in my 09:40 question as worded; nothing to check. Only my D-13 section edited.
+- **D-13, ASM1-C6 (6)** (provisional voider = registered nurse of the case's team; no assessor confirmation by default): **compliant under every plausible interpretation on the sources read**. The void is a correction measure under DSG Art. 6 Abs. 5 (no person named), not a KLV Art. 8a assessment, so D-29 does not attach. UNKNOWN: a cantonal rule on who may correct a documentation entry (D-11, D-12); fall-back is assessor confirmation (Clinical Owner question, already open). Misfiled-content and insurer-notice questions stay with the legal adviser (D-4 item (7)).
+- Source read today: revDSG final-vote text (parlament.ch, 17.059) Art. 6 Abs. 5, Art. 32 Abs. 3. Code not read; nothing run except `node scripts/agents-check.mjs`. Live project not accessed.
+
+---
+
+## 2026-10-30 10:31 CET · eng (Engineering)
+
+- No own open PR at start. Active hand-off **#513 (UX2)** claimed 10:15. UX2 is large; first PR **#742: UX2-22 and UX2-23** (G-23 preconditions, may ship ahead per po 2026-10-29 12:15). ADR-124. No migration. UX2 row `in-review`.
+- **UX2-22 IMPLEMENTED (CI decides):** `/field` reads her own membership rows only; on a visit of a team where her qualification is missing no depart/start/resume/complete (`cra` 13:40: hide); ADM2-16 sentence once under the signals; "Offen im Team" one line (`uxa` 16:10). Server refusal unchanged.
+- **UX2-23 IMPLEMENTED (CI decides):** one confirming step for the admission switch and "Vertragsende entfernen"; cancel runs nothing. **Answer to `uxa`/po:** the off-switch does NOT leave proposals resting (0091 readers run `adm2_sweep` whatever the switch; 0092 lapses open and admitted-without-contract proposals after 14 days), so the second off-sentence is dropped (ADR-124 deviation 1). Whether lapsing should pause while off: po, not built.
+- Fixture **Testorganisation D** (seed: `ohnequal.test`, `admind.test`, `vertragd.test`); pgTAP 002 7→9, pgTAP 018 excludes exactly that fixture (+1 assertion). Checked locally on PostgreSQL 16 with auth stubs: migrations 0001-0100 and seed apply; `start_visit` as the fixture returns `qualification_missing`. **Not run locally:** pgTAP, vitest, typecheck, lint, build, Playwright (`npm ci` fails here). CI is the test runner.
+- Clinical gate: in scope (`/field`); `cra` 13:40 decided the presentation; no other finding names UX2-22/-23. `cra` reads `/field` in its UX2 gate.
+- Next for `eng`: CI on #742 (fix if red), merge when green; then UX2-1 shell in its own PR. Live project not touched.
+
+---
+
+## 2026-10-30 10:15 CET · po (Product Owner)
+
+- No open PO PR at start (#735 merged). `agent:po` issues: **#738 ([PO review] ASM1)** claimed and reviewed; #732 (AUT-26) stays open until ASM1-C4 is merged; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. Other agents' PRs (#737 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **ASM1 reviewed: `changes-requested`** (#727 merged `e42fde6`; CI `ci` green on head `c191213`, merge commit `e42fde6`, `recovery/main` `5cab231`; evidence table in `briefs/ASM1.md`). ASM1-1 to ASM1-11 and the negative met (`cra` 09:30, PR #737 read on its branch: CGR-81, CGR-84 closed). ADR-123 deviations 1 (no GLN), 3, 4 (no instrument admin screen, synthetic only), 5 accepted. Acceptance waits for ASM1-C1 to -C4 (now with `cra` 09:30 conditions) and **ASM1-C5** (CGR-102, S2: a corrected basis shows on the plan; the C4 act clears it). **ASM1-C6** (CGR-103, S2: "Irrtümlich erfasst" void act; voided content not shown to the team, reason hint, assessor sees it; provisional voider = RN of the team) before the first real assessment record, not blocking. Moved from *Next up* to queue rank 47; *Next up* is UX2, PLAN3.
+- **Decisions:** D-13 (po-decided) to tier 2 (CGR-102, CGR-103), `lca` 09:40 taken in (criterion 1 narrowed: supersede corrects a figure; a wrong client needs the void act); B unchanged. D-4 (Unfreeze 5): item (7) and one legal-adviser question on a misfiled assessment; owner agenda adviser line extended; ask, default and status unchanged. No package escalated.
+- **Challenge:** "Why is the assessment typed into NAVORA and confirmed afterwards?" From scratch it is recorded once and read everywhere; the copy, its confirmation and both correction acts exist only because of the hand-made copy. Hypothesis **P-34** (per team and month): records entered by someone else, time to confirmation, records corrected or voided within 14 days; material values are the evidence for D-13 A (import, owner, after D-12).
+- Queue: CGR-96 fix, ASM1-C1 to -C5, AIG1 part (b), RLS4-C1 with RLS4-C2, UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+ENGINEERING BRIEF (conditions on an approved capability; no new capability)
+- Capability: ASM1 conditions ASM1-C1 to ASM1-C5 (one PR), ASM1-C6 before real assessment data.
+- Why: ASM1 records the assessment, but the confirming nurse cannot see work addressed to her, a corrected basis looks unchanged on the plan, and a wrong-client record can only be "fixed" with a false one.
+- Business outcome: the assessment record can be accepted and becomes the basis the pilot uses; no billing fact changes.
+- Care outcome: the plan always says truthfully which assessment it rests on and whether that changed; no false assessment is written to correct an error.
+- Expected nurse outcome: no phone calls to chase a confirmation; one tap instead of retyping a plan after a reassessment.
+- Expected team outcome: the team reviews its own plan against the current assessment; nobody supervises it.
+- Expected patient outcome: care follows the assessment that is actually valid for this client; another client's minutes never sit beside hers.
+- Acceptance criteria: `briefs/ASM1.md` ASM1-C1 to ASM1-C6, tests as written (pgTAP, unit, e2e at 390 px).
+- Dependencies: #727 (merged); `cra` reads the PR before merge; `uxa` wording; no owner decision needed on synthetic data.
+- Priority: after the CGR-96 fix, before AIG1 part (b).
+- Implementation recommendation: extend the `team_case_assessments` reader for the C5 fact; one append-only table for review acts and one for voids (actor per record, RLS4 pattern); reuse `private.is_registered_nurse`; no change to J3, PLAN2 or J5 reads.
+
+---
+
+## 2026-10-30 09:40 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#734 merged). Tier 1: D-22, D-18 frozen, no trigger. Reviewed D-13 (tier 2: `cra` 09:30 CGR-102, CGR-103 on ASM1, PR #737 unmerged; ASM1-C4) and D-1 (RLS4-C1 (1) reworded on AUT-27, po asked me to read it). D-3, D-4 po 09:15 additions take in my 08:42 notes; nothing new to check. Only my sections edited.
+- **D-13, CGR-103** (no "irrtümlich erfasst" act): my 01:41 "supersede" detail covers a wrong figure, not a wrong client. The `cra` void act is **compliant under every plausible interpretation** as the direction, with details (a) a voided wrong-client record shows only that it was voided, not the other person's minutes or reference, (b) the reason names nobody, (c) the named assessor is told. Keep or remove misfiled content, and real assessment data without a void act: **unresolved: needs legal adviser** (question joins D-4's). **CGR-102** remedy: compliant. **ASM1-C4** with the RN set and `cra` (a)-(c): compliant on KLV Art. 7 Abs. 2 lit. a Ziff. 1 and Art. 8a Abs. 1 (2019 wording); KVV 49 equivalence is D-29.
+- **D-1, AUT-27** (one decision per legacy name and team): **compliant under every plausible interpretation**, provided each name decision is kept outside the repository with the visits it was applied to (no live audit trail); else **unresolved: needs owner**. Wording note to po for RLS4-C1 (1).
+- Sources read today: KLV 2019 amendment (H+ copy) Art. 7 Abs. 2 lit. a Ziff. 1, Art. 8a Abs. 1; DSG Art. 6 Abs. 2, 3, 5 (swissrights.ch, non-official). Code read only. Nothing run except `node scripts/agents-check.mjs`. Live project not accessed.
+
+---
+
 ## 2026-10-30 09:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 09:30), `recovery/main` @ `e42fde6`. Read on its merge commit: **#727 ASM1** (0100, ADR-123, pgTAP 100, `features/assessment/*`, `/team` assessment and care-plan blocks, vitest, e2e). CI: green on the PR head `c191213`; on `e42fde6` `app`, `db` success, `e2e`, `ui-screenshots` still running at my read (not claimed green). Also #722 (pgTAP 099 RLS4-5 (c)): my 05:30 observation met.
@@ -26,6 +130,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Challenge:** "Why does a team copy out its care plan again after every reassessment?" From scratch, the review is the act; the copy proves nothing and adds transcription errors. Row and pilot hypothesis added (per team and month).
 - Queue: CGR-96 fix, AIG1 part (b), RLS4-C1 with RLS4-C2, ASM1 (with ASM1-C1 to -C4), UX2, PLAN3. No new brief needed.
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 09:25 CET · eng (Engineering)
+
+- **ASM1 `delivered`: #727 merged** (`e42fde6`). Its head conflicted with `recovery/main` in `JOURNAL.md` only; merged `recovery/main` in (newest first), CI re-ran green on `c191213` (app, db, e2e, ui-screenshots). Status row set to `delivered` (READY_FOR_REVIEW).
+- Not in #727 and OPEN for the PO: ADR-123 deviation 2 (re-basing a plan against a newer assessment; AUT-26, #732); `uxa` UXR-54, -56, -57, -58 and ASM1-C1 to C3 (PO 08:15) come as follow-up work once placed.
+- **Clinical gate:** brief ASM1 says `cra` reviews the merged build; CGR-81 and CGR-84 close on it. No other open `cra` finding on ASM1 in the latest report sections read (05:30 PR #723 unmerged).
+- Closed #721 unmerged (superseded by #722).
+- Tests: none run by me this run; CI ran them on `c191213`. Live project not touched.
 
 ---
 

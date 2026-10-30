@@ -9,6 +9,8 @@ import { recordContract, setTeamAdmission } from "@/features/admission/commands"
 import { OUTCOME_LABEL, awaitingContract, zurichDate, type AdminAdmissions, type AdminProposal } from "@/features/admission/rules";
 import { QUALIFICATION_LABEL } from "@/features/team/rules";
 import type { CommandResult } from "@/lib/commands/result";
+import { ADMISSION_OFF_CONSEQUENCE, ADMISSION_ON_CONSEQUENCE } from "@/features/admin/confirm-texts";
+import ConfirmStep from "./confirm-step";
 
 const field = "min-h-10 rounded-lg border border-stone-300 bg-white px-2 text-sm";
 const button = "min-h-10 rounded-lg bg-emerald-800 px-3 text-sm font-bold text-white disabled:opacity-60";
@@ -32,6 +34,9 @@ function useRun() {
 
 export default function AdmissionAdmin({ organizationId, admissions }: { organizationId: string; admissions: AdminAdmissions }) {
   const { run, pending, error, notice } = useRun();
+  // UX2-23 (ADR-124): the switch asks once; the first tap only opens the step, "Abbrechen" changes nothing.
+  const [confirming, setConfirming] = useState(false);
+  const switchLabel = admissions.enabled ? "Ausschalten" : "Einschalten";
   const waiting = awaitingContract(admissions.proposals);
   const history = admissions.proposals.filter((p) => p.outcome !== "admitted");
   return (
@@ -44,10 +49,24 @@ export default function AdmissionAdmin({ organizationId, admissions }: { organiz
       </p>
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span data-testid="admission-switch" className="font-semibold">{admissions.enabled ? "Eingeschaltet" : "Ausgeschaltet"}</span>
-        <button type="button" className={secondary} disabled={pending}
-          onClick={() => run(() => setTeamAdmission({ organizationId, enabled: !admissions.enabled, idempotencyKey: crypto.randomUUID() }))}>
-          {admissions.enabled ? "Ausschalten" : "Einschalten"}
-        </button>
+        {!confirming && (
+          <button type="button" className={secondary} disabled={pending} onClick={() => setConfirming(true)}>
+            {switchLabel}
+          </button>
+        )}
+        {confirming && (
+          <ConfirmStep
+            testId="admission-confirm"
+            sentence={admissions.enabled ? ADMISSION_OFF_CONSEQUENCE : ADMISSION_ON_CONSEQUENCE}
+            actionLabel={switchLabel}
+            pending={pending}
+            onCancel={() => setConfirming(false)}
+            onConfirm={() => run(
+              () => setTeamAdmission({ organizationId, enabled: !admissions.enabled, idempotencyKey: crypto.randomUUID() }),
+              () => setConfirming(false),
+            )}
+          />
+        )}
       </div>
       {error && <p role="alert" data-testid="command-error" className="font-semibold text-rose-800">{error}</p>}
       {notice && <p role="status" className="text-sm text-emerald-900">{notice}</p>}
