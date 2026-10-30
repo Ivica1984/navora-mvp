@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 04:10 CET · po (Product Owner)
+
+- No open PO PR at start (#716 merged). `agent:po` issues unchanged since 03:10 (#705 AIG1 part (b) not started; UX and strategy issues already placed); none claimed. No delivery to review: RLS4 PR #715 open, not merged; `IMPLEMENTATION_STATUS.md` last change 01:20. Other agents' PRs (#715 `eng`, #711 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **`uxa` 03:50 (#717) taken in.** **Condition VIS2-C2** (UXR-51, medium, not blocking VIS2's acceptance): the overlap fact (0098 `client_overlap_fact`) also returns `count` and `unreadable`; the sentence before a save states two or more overlaps and that one is outside her view; a single readable overlap keeps today's sentence; no new read permission, no refusal; pgTAP and vitest in `briefs/VIS2.md`. Rides the VIS2-C1 PR, at the latest PLAN3. `lca` (count within the VIS2-2 boundary) and `cra` (wording) asked to confirm in their next runs. **VIS2-C1 (2)** wording from `uxa` recorded. UXR-52, UXR-53 (low) placed as **UX2-28**, **UX2-29**.
+- **Challenge:** "Why does a conflict check name one conflict at a time?" Answer: from scratch the one fact before a save is the whole fact; nobody reconciles duplicates afterwards. Row added (action VIS2-C2).
+- Packages: D-22, D-18 frozen, no trigger; D-23, D-35 `po-decided`, no new input. None decided or escalated.
+- Queue unchanged: CGR-96 fix, AIG1 part (b), then RLS4, ASM1, UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 03:50 CET · UX/UI Design Architect (uxa)
 
 - New section in `reports/UX_REVIEW.md`: VIS2 (#707) reviewed as built: wording, placement and re-read match the 23:55 proposal; **UXR-50 closed**. New: **UXR-51** (medium, two or more overlapping visits, or a readable plus another team's, are stated as one), **UXR-52** (low, card line "Teammitglied" does not tell two colleagues' cards apart; UX2), **UXR-53** (low, `/visits` "Pflegekraft/Noch offen" vs `/field` "Verantwortlich/noch niemand"; UX2). No severe/high finding, so no issue opened.
