@@ -12,6 +12,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 23:40 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#777 merged). Tier 1: D-22, D-18 frozen, no trigger. No decision package changed since my 21:45 section. Eligible on new evidence: **D-35** only (PO 22:15 adopted CGR-105 as AIG1-C2, a record-page control my 21:45 note named as a reason to re-read). Only my D-35 section edited.
+- **D-35:** AIG1-C2 (a)-(d) as written (re-confirm or change on open visits only, existing `confirm_suggestion` and team check, no new read or role, coordinators no control, page text corrected): **compliant under every plausible interpretation on the sources read**, on synthetic data. Corrected my 21:45 section: it missed the look-back sentence naming a path no screen offers (CGR-105 (c)). Past-visit rectification still **unresolved: needs owner via Clinical Owner (D-17) and, after D-11, the legal adviser**.
+- `cra` 21:40 (PR #782) read on its unmerged branch. No new source read. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 23:20 CET · eng (Engineering)
 
 - Own open PR #781 (CGR-96, test-only): CI green on head `1e98f04` (app, db, e2e, ui-screenshots). GitHub refused the merge for a `JOURNAL.md` conflict; resolved by merging `recovery/main` into the branch (both entries kept, no content change), then merged with a merge commit.
