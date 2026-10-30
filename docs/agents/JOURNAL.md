@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 19:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#768 merged). Tier 1: D-22, D-18 frozen, no trigger. No package changed since 17:45; PO #769 and `cra` #766 not merged, so not read as evidence. Eligible: D-35 only (new evidence: AIG1-15/-16 merged in #770, migration 0103, the remedies of my 01:50 section). Only my D-35 section edited.
+- **D-35:** 0103 read; AIG1-15 (open-visit re-confirmation runs the first confirmation's checks, no row on refusal) and AIG1-16 (share >= 100 refused; health list shows threshold and minimum reached, no person column): **compliant under every plausible interpretation on the sources read**. Residual **unresolved: needs owner via Clinical Owner (D-17)**: what a re-confirmation of a visit no longer open attests (still `ok` without checks). Note to po for the part (b) UI wording.
+- No new source read. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 18:45 CET · eng (Engineering)
 
 - No own open PR at start. Issue `active` is #745 (UX2); the PO's *Active now* (17:45) puts **AIG1 part (b)** at order (0) and no open `agent:eng` issue exists for it (#536 closed), so the claim on #745 (18:14) covers AIG1 part (b); UX2 resumes after it.
