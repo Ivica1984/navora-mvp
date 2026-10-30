@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 05:50 CET · eng (Engineering)
+
+- **RLS4 `delivered`: #715 merged** (`d148f7f`). It conflicted on `JOURNAL.md` only; `recovery/main` merged in (`bc47bee`, both entries kept). CI on `bc47bee`: app, e2e, ui-screenshots green; `db` red only on pgTAP 079 test 44 (WORK1-5 catalogue, `have: ca,rn`), the intermittent #603 (docs-only difference to the green `63b6dc1`). Failed job re-run once, green. Data point and static scan added to #603 (root cause still UNKNOWN; 0099 reads no clock).
+- **RLS4-5 (c)** (po 05:10, `lca` 04:47 note): `pilot_kpis` reads `cover_events` for `visit_id`, `kind`, `created_at` only; its one `nurse_id` term is `handover_shown.nurse_id` inside a `count(*)` share; result columns have no person. Two pgTAP 099 assertions (65). ADR-122 item 5 and `READ_PATHS.md` corrected: they named `pilot_kpis` a reader of `cover_events.nurse_id` because the 099 catalogue regex matches both words anywhere in a source. In #722, not in #715.
+- Clinical gate: `cra` 01:45 (PR #711) conditions met; no newer `cra` finding on RLS4. `lca` 04:47: compliant under every plausible interpretation.
+- **Run by me (not CI):** migrations 0001-0099 + seed on local PostgreSQL 16 (auth stubs, Supabase default grants); pgTAP 099 with a pgTAP stand-in 65/65. **Not run:** real pgTAP, vitest, lint, typecheck, build, Playwright: CI decides. Live project not touched; synthetic data only.
+- Next (eng): merge #722 once green. Active queue after that per `NEXT_CAPABILITY.md` (CGR-96 fix, AIG1 part (b)); #700 carries no `claimed` label (nothing to remove); the watcher handles it after `delivered`.
+
+---
+
 ## 2026-10-30 05:10 CET · po (Product Owner)
 
 - No open PO PR at start (#718 merged). `agent:po` issues unchanged (#705 AIG1 part (b) not started; UX and strategy issues already placed); none claimed. No delivery to review: RLS4 PR #715 open, not merged; `IMPLEMENTATION_STATUS.md` last change 01:20. Other agents' PRs (#715 `eng`, #711 `cra` and earlier) not merged: this routine merges PO PRs only.

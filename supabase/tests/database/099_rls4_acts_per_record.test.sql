@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(63);
+select plan(65);
 
 -- Pinned clock (DST1 pattern): 10:00 Zurich today = day T.
 select set_config('navora.test_now',
@@ -235,7 +235,18 @@ select is((select q ->> 'performer_name' from jsonb_array_elements(pg_temp.rows(
 select is((select string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname in ('public', 'private') and p.prosrc ~ 'public\.cover_events' and p.prosrc ~ '\mnurse_id\M'),
           'accept_cover(uuid,uuid),pilot_kpis(date),withdraw_cover(uuid,text,uuid)',
-          'RLS4-5: cover_events.nurse_id is read only by the cover commands and the AN1 team aggregate; no reader returns it');
+          'RLS4-5: only the cover commands and the AN1 team aggregate name cover_events and nurse_id; no reader returns cover_events.nurse_id');
+-- RLS4-5 (c) (po 05:10, lca 04:47 D-23 note 1): pilot_kpis has no per-person key, row or value, and its only nurse_id term
+-- is handover_shown.nurse_id inside a count(*) share; it reads cover_events for visit_id, kind and created_at only.
+select is(pg_get_function_result('public.pilot_kpis(date)'::regprocedure),
+          'TABLE(organization_id uuid, team_id uuid, team_name text, kpi text, value numeric, base integer, too_few boolean, note text)',
+          'RLS4-5 (c): pilot_kpis returns team and organisation rows only; no column names or keys a person');
+select is((select string_agg(distinct coalesce(m[1], '') || 'nurse_id', ',') from pg_proc p, regexp_matches(p.prosrc, '(\w+\.)?\mnurse_id\M', 'g') m
+           where p.oid = 'public.pilot_kpis(date)'::regprocedure)
+          || case when (select prosrc from pg_proc where oid = 'public.pilot_kpis(date)'::regprocedure) ~ 'public\.handover_shown h\M'
+                  then ':handover_shown' else ':other' end,
+          'h.nurse_id:handover_shown',
+          'RLS4-5 (c): pilot_kpis never reads cover_events.nurse_id; its one nurse_id term is handover_shown h inside a team count');
 select is((select string_agg(p.proname, ',' order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname = 'public' and p.prosrc ~ '(public\.cover_events|public\.visit_reports|public\.visit_report_returns|open_reports_of)'
              and exists (select 1 from unnest(p.proargnames, coalesce(p.proargmodes, array_fill('i'::"char", array[p.pronargs]))) a(nm, md)
