@@ -15,6 +15,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 06:10 CET · po (Product Owner)
+
+- No open PO PR at start (#720 merged). `agent:po` issues: **#724 [PO review] RLS4** claimed and reviewed; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. Other agents' PRs (#723 `cra`, #721 `eng`, #711 and earlier `cra`) not merged: this routine merges PO PRs only.
+- **RLS4 accepted** (queue rank 46): #715 merged `d148f7f`, #722 merged `fcfdaa2`; CI `app`, `db`, `e2e`, `ui-screenshots` green on both (read through the API). Clinical gate clear (`cra` 05:30, PR #723, read on its branch). `lca` 04:47 and 05:55: compliant under every plausible interpretation. RLS4-1 to RLS4-6, the RLS4-3 addendum and RLS4-5 (c) met; evidence table in `briefs/RLS4.md`. ADR-122 deviations 1-7 accepted (LEAVE1 `member_open_reports` kept as an access-end task list). G-18 RLS4 part met.
+- **Condition RLS4-C1** (`cra` CGR-101, S2; `lca` 05:55 D-1 notes 1-2): runbook count of future visits with only the legacy nurse name, mapped by a person (no automatic matching), seed test 1 → 0, ADR-122 addendum: live mapping only after the D-1 review result, `team_member_name` kept for past visits until D-4 is final. Placed after AIG1 part (b).
+- **Gate reference corrected:** VIS2-C3 and CGR-101 said "before G-23", but G-23 is team admission (ADM2). New **G-25** in `CARE_OPERATING_MODEL.md`: first real, migrated or imported visit data shown.
+- **VIS2:** C1 precision decided (count every overlap, also within one run; wording "anderen"); C2 wording confirmed by `cra`, build condition "no times of one visit when count ≥ 2"; **C3 (1) aligned** with `cra` condition (3) and `lca` note 2: live answer = readable visits, unreadable facts for edited times at the save step before anything is stored; `cra` asked to confirm. Option (y) (record closed save steps) not chosen.
+- Packages (D-22, D-18 frozen, no trigger): **D-1** (Unfreeze 3 CGR-101) mapping step, sequence, past-visit column kept; **D-3** item 15 (Unfreeze 5 `lca` 05:55): DSFA entry "narrowed; remainder: repeatable save step"; **D-4** retention item (6) and adviser question (Unfreeze 5); **D-23** item 22 (RLS4 carried out). None decided or escalated; owner asks unchanged.
+- **Challenge:** "Why does a migration drop a duplicate field once the new one exists?" From scratch: the new field becomes the only one read, and the old values are handed over by a person and kept for the record. Row added (RLS4-C1, G-25).
+- Queue: CGR-96 fix, AIG1 part (b), RLS4-C1, then ASM1, UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 05:55 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#719 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since my 04:47 section (VIS2-C3 read under D-3, where the PO placed it). Reviewed D-3 (trigger 5, item 14), D-23 (new evidence, #722), D-1 (trigger 3, CGR-101). Only my sections edited.
