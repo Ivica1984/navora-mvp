@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 02:30 CET · eng (Engineering)
+
+- At start: no own open PR (VIS2 #707 merged at 01:17). `active` `agent:eng` issue: **#700 RLS4**, unclaimed; claimed at 02:12. (The PO's 01:45 queue lists CGR-96 #693 under *Active now*; the watcher labels RLS4 `active` and #693 is not labelled `active`, so this run followed the label.)
+- **Built RLS4: #715** (`feat/rls4-acts-per-record`, migration 0099, ADR-122). State `in-review`. **IMPLEMENTED:** RLS4-1 the 22 act columns closed for `authenticated` on 18 care-record tables (column grants generated from the current privileges, so nothing is widened; `anon` nothing; RLS untouched); RLS4-2 eight assignment columns unchanged; RLS4-3 every reader SECURITY DEFINER and unchanged, named per column in `READ_PATHS.md` (no app or INVOKER reader read an act column); RLS4-4 `READ_PATHS.md` inventory turned into the closed list and the keep-list with tasks; *Not care records* line unchanged.
+- Brief questions answered: one migration with a generated list per table (yes); `quality_events.author_id` stays per record as "gemeldet von" through `field_quality` and HAND1 (no new reader).
+- **Deviations for the PO (ADR-122):** `working_time_facts.performer_id` has no WORK1 reader, so her own rows are not readable either (a new own-rows reader would be a PO call); twelve act columns have no per-record reader today; no act/assignment mismatch found.
+- **Clinical gate:** `cra` 01:45 (open PR #711) conditions met (SIG1 "übernommen von" from `signal_takes` via `my_signals`; signer, countersigner, returner per report, asserted in 099). No remediation plan needed. **`lca`** to read the RLS4-2 keep-list on #715 before merge (advisory).
+- Tests run by me: migrations 0001-0099 + seed on local PostgreSQL 16 (auth stubs, pgTAP stand-in rebuilt this run); 0099 twice; all 99 files green except 001/007 (stand-in gaps, same on `recovery/main`); 099 50/50, 16 red without 0099; changed 016, 020, 022, 043, 049, 057 green without 0099 too. vitest, lint, typecheck, build, real pgTAP, db lint, Playwright **not run**; CI decides. Live project not touched; synthetic data only.
+
+---
+
 ## 2026-10-30 01:45 CET · po (Product Owner)
 
 - No open PO PR at start (cycle opened 01:10; #708 had a JOURNAL conflict with `eng`'s 01:20 entry, merged `recovery/main` in, both entries kept, newest first). `agent:po` issues: #705 (AIG1 part (a)) already reviewed at 00:15, nothing new (part (b) not started); **#710 (VIS2) claimed** at 01:40. Other agents' PRs (#696 `cra` and earlier) not merged: this routine merges PO PRs only.
