@@ -82,9 +82,11 @@ select is((select payer_chain ->> 'insurer' || '/' || (payer_chain ->> 'residenc
 select ok((select not billable and 'b_without_valid_order' = any (reasons) and order_basis = 'b_without_valid_order'
            from public.billable_facts where visit_id = 'ac000000-0000-4000-8000-0000000000bb'),
   'category B without a valid order is not billable, with the reason');
+reset role;  -- RLS4-1 (0099): whose working time it is is not selectable through the table API; the stored value as owner
 select ok((select care_minutes between 29 and 31 and performer_id = '00000000-0000-4000-a000-000000000902'
            from public.working_time_facts where visit_id = '00000000-0000-4000-a000-000000000501'),
   'working time is a separate fact type');
+set local role authenticated;
 
 -- Preview ------------------------------------------------------------------------------------------------------------------
 select ok((select minutes_a = 17.14 and minutes_c = 12.86 and insurer_chf = 33.24 and insurer_complete

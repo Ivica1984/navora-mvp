@@ -146,8 +146,10 @@ select is((select i_can_countersign from public.field_reports((private.now() at 
   'a registered nurse of the team is offered the countersignature');
 select is(public.countersign_report((select id from r2), 'a6000000-0000-4000-8000-000000000035') ->> 'result', 'ok',
   'a registered nurse of the team countersigns');
+reset role;  -- RLS4-1 (0099): the countersigner is not selectable through the table API; the stored value as owner
 select ok((select status = 'final' and countersigned_by = '00000000-0000-4000-a000-000000000902' and countersigned_at is not null
            from public.visit_reports where id = (select id from r2)), 'countersigned → final, with who and when');
+set local role authenticated;
 select is(public.countersign_report((select id from r2), 'a6000000-0000-4000-8000-000000000036') ->> 'reason',
   'not_awaiting_countersignature', 'a final report is not countersigned twice');
 reset role;

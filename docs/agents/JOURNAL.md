@@ -4,6 +4,136 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 05:10 CET · po (Product Owner)
+
+- No open PO PR at start (#718 merged). `agent:po` issues unchanged (#705 AIG1 part (b) not started; UX and strategy issues already placed); none claimed. No delivery to review: RLS4 PR #715 open, not merged; `IMPLEMENTATION_STATUS.md` last change 01:20. Other agents' PRs (#715 `eng`, #711 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **`lca` 04:47 (#719) taken in.** D-18: VIS2-C2 (count, `unreadable`) **compliant under every plausible interpretation**; legal input in, `cra` wording still open. New residual (pre-existing since 0098): `client_visit_overlap` answers for any interval, so repeated calls narrow down when another team visits the client; with real data unresolved (DSFA, D-3 gate (ii)). **PO direction VIS2-C3**: protective option (a), the fact about unreadable visits only for a save or an interval of the caller's team's visit; the pre-save sentence stays (patient safety not traded). Option (b) (log every call) not chosen: it would create a per-person record of lookups. Required before G-23, after PLAN3. **Engineering feasibility requested** (issue #65); if not feasible, the item stays on the DSFA list as `lca` worded it.
+- **D-3** item 14 added (`Unfreeze: 5`, `lca` asked for the DSFA list entry); status and clinical ask unchanged.
+- **D-23:** RLS4-1, RLS4-5, RLS4-6 on #715 compliant (`lca`); owner question moot once #715 merges. Acceptance check **RLS4-5 (c)** added to `briefs/RLS4.md`: `pilot_kpis` reads `cover_events.nurse_id` only as a team count (pgTAP preferred).
+- **Challenge:** "Why can a booking check be asked about any time slot?" From scratch it answers only the planner's real question (does the visit I am saving collide). Row added (action VIS2-C3).
+- Packages: D-22, D-18 frozen (D-18 reopened by `lca` under trigger 5, nothing for the owner changes); D-23, D-35 `po-decided`. None decided or escalated.
+- Queue unchanged: CGR-96 fix, AIG1 part (b), then RLS4, ASM1, UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 04:47 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#712 merged). Tier 1: D-22 frozen, no trigger. D-18: the PO asked (`briefs/VIS2.md` VIS2-C2, po 04:10) to confirm the overlap count against the VIS2-2 boundary my 23:45 D-18 verdict rests on; reopened with `Unfreeze: 5`. D-23: package changed (po 03:10, item 21) and RLS4-5/-6 are on PR #715 (`63b6dc1`). Only my D-18 and D-23 sections edited.
+- **D-18 (VIS2-C2):** `count` and `unreadable`, with nothing else of a visit she cannot read: **compliant under every plausible interpretation**, within VIS2-2; may be built. New residual, pre-existing since 0098: `client_visit_overlap` accepts any interval and is not logged, so repeated calls can narrow down when another team visits the client (my 23:45 wording was too broad). With real data **unresolved: needs owner** (DSFA, D-3 gate (ii)); protective options: answer only for a saved or planned interval, or log the calls (gate (i)). Not blocking.
+- **D-23 (RLS4 on #715):** RLS4-5 and RLS4-6 as built are the protective option of my 02:45 verdict (pgTAP 099 refuses the per-colleague `group by`): **compliant under every plausible interpretation**; the 02:45 owner question becomes moot when #715 merges. Note: confirm `pilot_kpis` uses `cover_events.nurse_id` only inside a team count (not traced by me).
+- Sources: none new; a fedlex re-read of the DSG was not permitted in this run, so nothing rests on a new reading. Code read only; nothing run except `node scripts/agents-check.mjs`; live project not accessed.
+
+---
+
+## 2026-10-30 04:10 CET · po (Product Owner)
+
+- No open PO PR at start (#716 merged). `agent:po` issues unchanged since 03:10 (#705 AIG1 part (b) not started; UX and strategy issues already placed); none claimed. No delivery to review: RLS4 PR #715 open, not merged; `IMPLEMENTATION_STATUS.md` last change 01:20. Other agents' PRs (#715 `eng`, #711 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **`uxa` 03:50 (#717) taken in.** **Condition VIS2-C2** (UXR-51, medium, not blocking VIS2's acceptance): the overlap fact (0098 `client_overlap_fact`) also returns `count` and `unreadable`; the sentence before a save states two or more overlaps and that one is outside her view; a single readable overlap keeps today's sentence; no new read permission, no refusal; pgTAP and vitest in `briefs/VIS2.md`. Rides the VIS2-C1 PR, at the latest PLAN3. `lca` (count within the VIS2-2 boundary) and `cra` (wording) asked to confirm in their next runs. **VIS2-C1 (2)** wording from `uxa` recorded. UXR-52, UXR-53 (low) placed as **UX2-28**, **UX2-29**.
+- **Challenge:** "Why does a conflict check name one conflict at a time?" Answer: from scratch the one fact before a save is the whole fact; nobody reconciles duplicates afterwards. Row added (action VIS2-C2).
+- Packages: D-22, D-18 frozen, no trigger; D-23, D-35 `po-decided`, no new input. None decided or escalated.
+- Queue unchanged: CGR-96 fix, AIG1 part (b), then RLS4, ASM1, UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 03:50 CET · UX/UI Design Architect (uxa)
+
+- New section in `reports/UX_REVIEW.md`: VIS2 (#707) reviewed as built: wording, placement and re-read match the 23:55 proposal; **UXR-50 closed**. New: **UXR-51** (medium, two or more overlapping visits, or a readable plus another team's, are stated as one), **UXR-52** (low, card line "Teammitglied" does not tell two colleagues' cards apart; UX2), **UXR-53** (low, `/visits` "Pflegekraft/Noch offen" vs `/field` "Verantwortlich/noch niemand"; UX2). No severe/high finding, so no issue opened.
+- VIS2-C1 (2) count sentence given (singular/plural, only when ≥ 1); `cra` to confirm. RLS4 #715 `/visits` change read: no objection.
+- Benchmark: booking-conflict notices (Clinicminds, Timely help pages, read 2026-10-30).
+- `DESIGN_SYSTEM.md` version 21 (§2). Screenshot download refused again; code-only review. No tests run by me; live project not touched.
+## 2026-10-30 03:40 CET · eng (Engineering)
+
+- #715 was green on `5f79caa` but conflicted again: the PO's 03:10 cycle amended RLS4 (**RLS4-5** close `cover_events.nurse_id` and both `performer_id`; **RLS4-6** `team_member_name` leaves the read path, `/visits` from `responsible_user_id`; **RLS4-3 addendum** pgTAP for "übernommen von"). The brief let Engineering choose; landed **in #715 before merge** (one PR per item), so RLS4 is delivered once, complete.
+- **IMPLEMENTED in #715 (CI decides):** 0099 now closes 25 act columns on 19 tables plus `team_member_name`; `/visits` names the responsible member ("Pflegekraft: <Name>", "Noch offen", "Teammitglied" without a display name); pgTAP 099 63 assertions (RLS4-5 refusals for a team member and an RN, the F6R readers per report, the `cover_events.nurse_id` reader list, the LEAVE1 per-person list pinned, `my_signals` "übernommen von"); 071 and 096 lists updated; vitest `rls4-visits-responsible`; Playwright `access.spec.ts` (F0 now by service; RLS4-6 name and "Noch offen"). ADR-122 rewritten (deviations 1-7), `READ_PATHS.md`, status row.
+- **For the PO (ADR-122):** `working_time_facts.performer_id` own-rows reader (OPEN); LEAVE1 `member_open_reports(user)` lists one leaver's open reports to admins and RNs, unchanged (OPEN under D-23); "Teammitglied" wording on `/visits`.
+- Tests run by me: migrations 0001-0099 + seed on local PostgreSQL 16 (auth stubs, pgTAP stand-in); 0099 twice; all files green except 001/007 (stand-in gaps); 099 63/63, 19 red without 0099. `getVisitResponsibleLabel` checked in Node. vitest, lint, typecheck, build, real pgTAP, Playwright **not run** (no npm registry); CI decides. Live project not touched; synthetic data only.
+
+---
+
+## 2026-10-30 03:25 CET · eng (Engineering)
+
+- #715 (RLS4): CI green on `6aaf09b` and on head `eec4f18` (base merged in by another run). Before merging, read `lca` 02:45 (D-23, advisory): RLS4-1 compliant under every plausible interpretation; **`cover_events.nurse_id` records an act on `withdrawn` rows** (who handed a cover back, with her reason), so ADR-122 deviation 3 ("none of RLS4-2 records an act") was wrong. Corrected in ADR-122, `READ_PATHS.md` and the status row; per the brief Engineering names it for the PO and does not choose (column unchanged in 0099). `lca`'s points on both `performer_id` columns and `care_visits.team_member_name` recorded as OPEN for the PO. Docs only; merge after CI on this push.
+- Tests: none run by me in this step (docs only); `node scripts/agents-check.mjs` run. Live project not touched.
+
+---
+
+## 2026-10-30 03:10 CET · po (Product Owner)
+
+- No open PO PR at start (#713 merged). `agent:po` issues: #705 (AIG1) unchanged, part (b) not started; nothing else new. No delivery to review: RLS4 PR #715 is open, not merged; `IMPLEMENTATION_STATUS.md` last change 01:20 (VIS2, accepted 02:10). Other agents' PRs (#715 `eng`, #711 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **`lca` 02:45 (D-23, RLS4 keep-list on #715) taken in, D-23 item 21:** RLS4-1 and the true assignments compliant; `cover_events.nurse_id` (an act on `withdrawn`/`accepted` rows, with a free-text reason) and both `performer_id` columns unresolved as raw columns. **The PO takes the protective option** (compliant under every plausible interpretation; narrows reads only; synthetic data) instead of escalating: **RLS4-5** closes the three columns, served per visit and per report. **RLS4-6** retires `care_visits.team_member_name` from the read path (`/visits` reads `responsible_user_id`; column kept until D-1). **RLS4-3 addendum** (`aia` AUT-24, `cra` 01:45 (a)): the open-signal reader keeps "übernommen von <Name>", one pgTAP line. **ADR-122 deviation 3 not accepted as worded.** #715 may merge as built; RLS4 is accepted only with all three. G-19 item 2 gains (j).
+- **PLAN3-7 amended before build** (`aia` AUT-25): the "kein Vorschlag" share per team and month, by reason, before and after the PLAN3-10 date; no stop criterion.
+- **Challenge:** "Why does a visit carry a hand-typed nurse name next to its responsible member?" (duplicate documentation, retired: RLS4-6) and "Why can a team list who handed back covers?" (peer monitoring, closed: RLS4-5). Two rows added.
+- Packages: D-22, D-18 frozen, no trigger; D-23 still `po-decided`. None decided or escalated.
+- Queue unchanged: CGR-96 fix, AIG1 part (b), then RLS4, ASM1, UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 02:45 CET · Legal & Compliance Agent (lca)
+
+- At start my PR #712 (01:50) was still open: CI green, but a JOURNAL conflict with `aia` 02:18 and po 02:10. I merged `recovery/main` in and kept all entries, newest first. I am continuing #712 (no second `lca` PR). Tier 1: D-22 frozen, no trigger. D-18: po 02:10 took my 01:50 note 1 into J5; that is not new evidence. Only my D-23 section edited this run.
+- **D-23 (RLS4 keep-list, PR #715, as brief RLS4 asks):** the RLS4-1 closure and the true assignments (`primary_nurse_id`, `deputy_nurse_id`, `responsible_user_id`, `covered_by`, `quality_events.owner_id`) are **compliant under every plausible interpretation**. `cover_events.nurse_id` records an act on `withdrawn` rows, with a free-text reason (0029:223); ADR-122 deviation 3 misses it. The two `performer_id` columns allow per-colleague lists of report times and return reasons. Both are **unresolved: needs owner** as raw columns; the protective option (close them, RLS3-4 pattern) is compliant. `care_visits.team_member_name` is missing from the inventory. **Not blocking #715's merge** on synthetic data; to settle before G-18.
+- Sources: none new (earlier [L10], [L11], [W9] cited, not re-read). Code read on the PR branch; nothing run except `node scripts/agents-check.mjs`; live project not accessed.
+
+---
+
+## 2026-10-30 02:30 CET · eng (Engineering)
+
+- At start: no own open PR (VIS2 #707 merged at 01:17). `active` `agent:eng` issue: **#700 RLS4**, unclaimed; claimed at 02:12. (The PO's 01:45 queue lists CGR-96 #693 under *Active now*; the watcher labels RLS4 `active` and #693 is not labelled `active`, so this run followed the label.)
+- **Built RLS4: #715** (`feat/rls4-acts-per-record`, migration 0099, ADR-122). State `in-review`. **IMPLEMENTED:** RLS4-1 the 22 act columns closed for `authenticated` on 18 care-record tables (column grants generated from the current privileges, so nothing is widened; `anon` nothing; RLS untouched); RLS4-2 eight assignment columns unchanged; RLS4-3 every reader SECURITY DEFINER and unchanged, named per column in `READ_PATHS.md` (no app or INVOKER reader read an act column); RLS4-4 `READ_PATHS.md` inventory turned into the closed list and the keep-list with tasks; *Not care records* line unchanged.
+- Brief questions answered: one migration with a generated list per table (yes); `quality_events.author_id` stays per record as "gemeldet von" through `field_quality` and HAND1 (no new reader).
+- **Deviations for the PO (ADR-122):** `working_time_facts.performer_id` has no WORK1 reader, so her own rows are not readable either (a new own-rows reader would be a PO call); twelve act columns have no per-record reader today; no act/assignment mismatch found.
+- **Clinical gate:** `cra` 01:45 (open PR #711) conditions met (SIG1 "übernommen von" from `signal_takes` via `my_signals`; signer, countersigner, returner per report, asserted in 099). No remediation plan needed. **`lca`** to read the RLS4-2 keep-list on #715 before merge (advisory).
+- Tests run by me: migrations 0001-0099 + seed on local PostgreSQL 16 (auth stubs, pgTAP stand-in rebuilt this run); 0099 twice; all 99 files green except 001/007 (stand-in gaps, same on `recovery/main`); 099 50/50, 16 red without 0099; changed 016, 020, 022, 043, 049, 057 green without 0099 too. vitest, lint, typecheck, build, real pgTAP, db lint, Playwright **not run**; CI decides. Live project not touched; synthetic data only.
+
+---
+
+## 2026-10-30 02:18 CET · AI & Automation Architect (aia)
+
+- Review 13 in `reports/AUTOMATION_REVIEW.md`. Read `recovery/main` `183748f` and open #711 (`cra`), #712 (`lca`), #713 (PO) on their branches.
+- **AIG1 part (a) (#701, 0097) checked against AI Operating Model §8:** ledger, provenance per value, confirmer per value only, no accept-all, correction share per cell, stop rule, synthetic evaluation are IMPLEMENTED at database level (CI green on head `4bc7236`, check runs read). **AUT-22 closed** with that evidence; AUT-23 (a) and (b, PO's form) built, closes with part (b) e2e.
+- Supported without finding: PLAN3-10 (team switches its own planning help; less hierarchy), AIG1-13/-14, AIG1-15/-16 and VIS2-C1 (on #713), VIS2 as delivered, RLS4.
+- **New, low:** AUT-24 (RLS4 must keep "übernommen von <Name>" on open P1 signals; one pgTAP line), AUT-25 (PLAN3-7 lacks the "kein Vorschlag" share per team, the measure of hand assembly left). No high finding, no issue opened, no PR comment needed.
+- AI Operating Model Review §12 and change log updated. Bottleneck map refresh due 2026-11-03.
+- Tests: none run by me. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 02:10 CET · po (Product Owner)
+
+- No open PO PR at start (#708 merged). `agent:po` issues: **#710 (VIS2)** worked (claimed 01:40 by po, under 3 h); #705 (AIG1) gets the new criteria, part (b) not started. Other agents' PRs (#712 `lca`, #711 `cra` and earlier) not merged: this routine merges PO PRs only; both read on their branches.
+- **VIS2 accepted** (queue rank 45): the 01:45 condition is met: `cra` 01:45 (PR #711) read `4c8f2a6`, closed CGR-97, gate clear, no blocking finding on VIS2. Evidence table in `briefs/VIS2.md`; **the PO did not run the tests**. **Condition VIS2-C1** from `cra` CGR-99 (S3): PLAN2-generated same-client overlaps show the VIS2 sentence and the generation result counts them; generation unchanged (any skip rule: Clinical Owner); rides the next PR touching `plan_from_care_plan`, at the latest PLAN3.
+- **AIG1-15** (`cra` CGR-98, S2: a look-back re-confirmation runs the first-confirmation checks; refused with no confirmation row) and **AIG1-16** (`cra` CGR-100 (1)-(2): threshold 100 refused; the health list shows share, minimum, window and the reached flag) added before part (b); both now acceptance conditions. `lca` D-35 01:50 (PR #712): both remedies compliant under every plausible interpretation, needed before real data; note 2 (no confirmation row on refusal) is in the pgTAP.
+- Packages: **D-35** (`po-decided`) INDEX row updated; **D-18** frozen, `lca` 01:50 re-check read (verdict and ask unchanged), only the J5 invoicing note scope widened ("whatever created the visits"); **D-22** frozen, no trigger. None decided or escalated.
+- **Challenge:** "Why does a client's day have two plans, the generated one and the hand-planned one?" Hypothesis **H-PLAN-dup** added (pilot, AN1 counts; VIS2-C1's count is the measurement); no generation rule.
+- Queue: *Active now* CGR-96 fix, then AIG1 part (b) with AIG1-14/-15/-16. *Next up*: RLS4, ASM1, UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 01:50 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#706 merged). Tier 1: D-22 frozen, no trigger. Tier 2: `cra` 01:45 (PR #711, not merged) **CGR-98**, **CGR-100** (AIG1 part (a), D-35) and **CGR-99** (PLAN2 generation overlaps, D-18 billing thread). po 01:10 (PR #708) PLAN3-10 actor amendment read. Only my D-35 and D-18 sections edited; D-18 carries `Unfreeze: 3 CGR-99`.
+- **D-35:** CGR-98 is also an accuracy point (DSG Art. 6 Abs. 5): a re-confirmation row records a check that did not run, under the confirmer's name. CGR-100: a stop threshold that cannot fire is a control in name only (DSG Art. 7). Both `cra` remedies: **compliant under every plausible interpretation**; AIG1 part (a) as built is acceptable on synthetic data only, both remedies before real data or a further agent. PLAN3-10 as amended: compliant (unchanged). No new adviser question.
+- **D-18:** billable facts come only from documented visits, so the overlap risk is the same however the visit was created; the J5 invoicing note already covers generated overlaps. Verdict unchanged; invoicing overlaps stays **unresolved: needs legal adviser** (question 6, D-11, D-12).
+- Sources: new [P16] DSG Art. 6 Abs. 5 and [P17] Art. 7 Abs. 1-2 (justement.ch, status 7 July 2025, read 01:45). Code read (0097, 0043), nothing run except `node scripts/agents-check.mjs`; live project not accessed.
+
+---
+
+## 2026-10-30 01:45 CET · po (Product Owner)
+
+- No open PO PR at start (cycle opened 01:10; #708 had a JOURNAL conflict with `eng`'s 01:20 entry, merged `recovery/main` in, both entries kept, newest first). `agent:po` issues: #705 (AIG1 part (a)) already reviewed at 00:15, nothing new (part (b) not started); **#710 (VIS2) claimed** at 01:40. Other agents' PRs (#696 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **VIS2 reviewed, criteria met, not yet accepted** (#707 merged `4c8f2a6` at 01:17; migration 0098, ADR-121, pgTAP 098 (40), vitest `vis2-overlap`, Playwright `vis2.spec.ts`; CI green on head `7279b53` and on merge commits `4c8f2a6`, `ec07852`; **the PO did not run the tests**; evidence table in `briefs/VIS2.md`). VIS2-1 to VIS2-5, tests and negative met. ADR-121 deviations decided, all accepted: (1) "du/Teammitglied/noch niemand" instead of a name (a name needs a `field_visits` column, RLS4/UX2); (2) past-midnight visit of the previous date not counted (DAY-1 question); (3) PLAN2 generation not checked (noted for its next brief); (4) no overlap rule (Clinical Owner, billing owner); (5) merged before CGR-96 (own slots, CI green); (6) VIS2-5 (2) e2e with "a visit added meanwhile" instead of a timing race. No `severe`/`high` `uxa` finding on VIS2. In clinical scope: accepted without another PO round once `cra` reads `4c8f2a6` with no blocking finding. Queue rank 45 (`approved`).
+- **`lca` D-35 00:40 taken in** (advisory): PLAN3-10 compliant under every plausible interpretation if the switch actor is readable only per record. **PLAN3-10 amended before build:** actor only in the audit row, no team view, list, reader or export returns it, readable only through `read_audit_record`; the team sees the date without a name; one pgTAP assertion. No per-person list of team switches for any role (`lca`: unresolved, adviser question 8; default: none exists). Employee-information content item (term (v)) recorded in `briefs/PLAN3.md`; the frozen D-9 package and ask are unchanged.
+- **Challenge:** "Who needs a list of which nurse switched her team's planning help on?" Nobody: the team needs the date, the organisation needs accountability for the agent, a single change is traceable per record. Row added. VIS2 itself removes a later duplicate check by a dispatcher or back office (challenge row of 23:15 now built).
+- Packages: D-35 stays `po-decided` (INDEX row updated). No unfreeze trigger for any other package (D-22, D-18 frozen; no new `cra` finding since #696). None decided or escalated.
+- Queue: *Active now* CGR-96 fix, then AIG1 part (b); VIS2 waits only for `cra`. *Next up*: RLS4, ASM1, UX2, PLAN3. No new brief needed (approved, unstarted items remain).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 01:45 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 01:45), `recovery/main` @ `ec07852` (CI green). Read on their merge commits: **#701 AIG1 part (a)** (0097, ADR-120) and **#707 VIS2** (0098, ADR-121).

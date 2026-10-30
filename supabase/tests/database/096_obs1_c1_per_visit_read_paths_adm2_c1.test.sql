@@ -99,11 +99,12 @@ select is((select string_agg(c.table_name || '.' || c.column_name, ',' order by 
            where c.table_schema = 'public' and c.table_name in ('visit_reports', 'visit_observations')
              and not has_column_privilege('authenticated', format('public.%I', c.table_name), c.column_name, 'select')),
           'visit_observations.author_id,visit_observations.author_qualification_recorded,visit_observations.recorded_at,'
-          || 'visit_reports.signed_at,visit_reports.signed_by,visit_reports.snapshot',
-          'OBS1-7: exactly these columns are closed (RLS3-4 pattern); every other column stays selectable');
+          || 'visit_reports.countersigned_by,visit_reports.created_by,visit_reports.performer_id,visit_reports.signed_at,'
+          || 'visit_reports.signed_by,visit_reports.snapshot,visit_reports.withdrawn_by',
+          'OBS1-7 and RLS4-1 (0099): exactly these columns are closed (RLS3-4 pattern); every other column stays selectable');
 select ok(not has_any_column_privilege('anon', 'public.visit_reports', 'select')
           and not has_any_column_privilege('anon', 'public.visit_observations', 'select'), 'OBS1-7: anon selects no column');
-select is(jsonb_array_length(pg_temp.rows('ca', format('select id, status, version, countersigned_by from public.visit_reports where id = %L', (select id from r1)))), 1,
+select is(jsonb_array_length(pg_temp.rows('ca', format('select id, status, version, countersigned_at from public.visit_reports where id = %L', (select id from r1)))), 1,
           'OBS1-7: the team still reads the report row''s other columns (RLS unchanged)');
 
 -- The per-visit read paths still give the values to the team ----------------------------------------------------------------
