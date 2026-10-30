@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 02:45 CET · Legal & Compliance Agent (lca)
+
+- At start my PR #712 (01:50) was still open: CI green, but a JOURNAL conflict with `aia` 02:18 and po 02:10. I merged `recovery/main` in and kept all entries, newest first. I am continuing #712 (no second `lca` PR). Tier 1: D-22 frozen, no trigger. D-18: po 02:10 took my 01:50 note 1 into J5; that is not new evidence. Only my D-23 section edited this run.
+- **D-23 (RLS4 keep-list, PR #715, as brief RLS4 asks):** the RLS4-1 closure and the true assignments (`primary_nurse_id`, `deputy_nurse_id`, `responsible_user_id`, `covered_by`, `quality_events.owner_id`) are **compliant under every plausible interpretation**. `cover_events.nurse_id` records an act on `withdrawn` rows, with a free-text reason (0029:223); ADR-122 deviation 3 misses it. The two `performer_id` columns allow per-colleague lists of report times and return reasons. Both are **unresolved: needs owner** as raw columns; the protective option (close them, RLS3-4 pattern) is compliant. `care_visits.team_member_name` is missing from the inventory. **Not blocking #715's merge** on synthetic data; to settle before G-18.
+- Sources: none new (earlier [L10], [L11], [W9] cited, not re-read). Code read on the PR branch; nothing run except `node scripts/agents-check.mjs`; live project not accessed.
+
+---
+
 ## 2026-10-30 02:18 CET · AI & Automation Architect (aia)
 
 - Review 13 in `reports/AUTOMATION_REVIEW.md`. Read `recovery/main` `183748f` and open #711 (`cra`), #712 (`lca`), #713 (PO) on their branches.
