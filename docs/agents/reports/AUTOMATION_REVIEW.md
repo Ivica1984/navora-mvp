@@ -31,6 +31,54 @@
 
 ---
 
+## 2026-10-30 20:18 CET · aia review 16: AUT-26 closed (#747 merged, ASM1 accepted); AUT-28 adopted as P-38; AIG1 part (b) database half (#770, 0103) §8 check: AIG1-15/-16 supported; AIG1-C1 (PO PR #769, not merged) read: AUT-29 (high: a past-visit look-back line can never leave "offen", so the stop exception clears only by switching the agent back on)
+
+**Read:** `recovery/main` at `65fe6e6`:
+- merged since review 15 (#756): #747 (ASM1-C1 to -C5, C4 (d), `752ecbc`), #757, #759, #760 (PO 15:55: ASM1 `accepted`, P-38), #761 to #765 (WORK1-C5, CGR-96 test fixes), #767 (PO 17:45), #768, #773 (`lca` 17:45, 19:45), #770 (AIG1 part (b) database half: AIG1-15, AIG1-16, migration 0103, ADR-128, pgTAP 103), #771;
+- open: PO #769 (18:25 + 20:25: CGR-96 back to (0), P-37 in force, ASM1-C6 (8) (iv)/(v) narrowed, AIG1 part (b) database half reviewed, **AIG1-C1**; read on its branch), `cra` #766, #753 and earlier;
+- open issues labelled `automation`: none at start (#732 closed by the PO 15:55).
+
+**Nothing below is a measurement.** I ran no tests. CI as reported by the PO and `eng` (check runs on #770 head `89b0afb` and merge commit `6c1a83f`: `app`, `db`, `e2e`, `ui-screenshots` green); not re-read by me.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-29 | After an assistant is stopped (AIG1-8): team members and Operations working the AIG1-12 look-back list; the OPS1 exception "Assistent gestoppt" | **Challenge of the form of AIG1-C1, not of what it declines to write** (no "bestätigt" on a past visit: supported). IMPLEMENTED: a **correction** of a visit no longer open is refused `not_open` (0103:66-69); the OPS1 detail counts every non-superseded line as "offen" (0097 `derived_exceptions`), and the exception closes only when the agent is switched on again (0097 comment). PLANNED (AIG1-C1, PO 20:25, #769 not merged): a **re-confirmation** of such a line is refused too, the line stays and **still counts as open**. Result: a past-visit line has no exit at all (not re-confirmable, not correctable, not `superseded` because the record still holds the value), so "<n> offen" can never fall to what can still be acted on, and the only way to make it go away is to restart the stopped assistant (the pressure runs against H-20). No patient-care benefit is shown for counting unactionable lines as open. Share of past-visit lines per stop: UNKNOWN (no agent built); structurally high, since the threshold window is closed and PLAN3 proposes responsibility for visits that are mostly performed by the time a stop is read | **rule, no new step, equal safety:** keep AIG1-C1's action (no confirm control, `not_open`, no `ai_confirmations` row, line not removed, opens its record). Label the line as a visit fact, like `superseded`: "Besuch nicht mehr offen" with the visit date (`uxa` wording); **not counted as open**; OPS1 detail shows "<n> offen · <m> nicht mehr offen". NAVORA sets no re-check rule; if the Clinical Owner names fields after G-1 (D-17, UNKNOWN), those go to the CIRS/incident path, not to a confirm click. Testable criteria on #774 (pgTAP: past-visit line listed, flagged, out of the open count, no person column; re-confirm and correct both refused with no row; `0 offen` reachable while the agent stays `stopped`; e2e: sentence, no confirm control, both counts) | L | stage 0 (AIG1-C1 / part (b) UI); PO (amend AIG1-C1 before the UI PR), `uxa` (wording), `lca` (terms (i)-(iii) unchanged; label is a visit fact, no person), `cra` / Clinical Owner only for re-check duty | per team and stop: lines at stop; left by correction, by re-confirmation; "überholt"; "nicht mehr offen" at stop and **became** "nicht mehr offen" while listed (whether the list is worked in time); days to `0 offen`. Never per person | high | #774 (comment on #769) |
+
+**Briefs and items reviewed without a new finding:**
+- **AIG1-15 as built (0103):** a look-back re-confirmation on an open visit runs `may_perform_visit`, `adm2_in_contract`, `member_absent_during` in the first confirmation's order; refusal writes no row and the line stays (pgTAP 103 per PO 20:25 table). It also covers a first confirmation meeting a hand assignment (ADR-128, accepted). No step for anyone; it makes "bestätigt von" mean a check ran. Supported.
+- **AIG1-16 as built (0103):** share ≥ 100 refused `threshold_missing`; `agent_health` returns share, minimum, window and `last_window_min_reached`, null before the first closed window (ADR-128 deviation 1, accepted). Monitoring of the monitor at no team cost. Supported; the null case needs its own sentence in the UI (`uxa`), as the PO states.
+- **P-37 in force (PO 18:25, #769) with the `cra` "Ersetzen" sentence:** one tap for the common cause, free text only for "Anderer Grund", one sentence that steers a wrong value to "Ersetzen". The sentence is read, not answered: no extra tap; it protects the correction chain (H-05). Supported (review 15).
+- **ASM1-C6 (8) (iv) narrowed (PO 18:25):** no review act "against nothing"; the sentence stays until a new record exists. No step added; it keeps a true fact visible. Supported.
+- **CGR-96 back to (0), WORK1-C5 (b) watch rule, e2e own-data rule (PO 16:55, 17:45, 18:25):** test-only; no nurse or team step. The rule "a red privacy test is a finding with a name, not a re-run" is monitoring done right. Supported.
+- **P-38 (PO 15:55) = AUT-28:** adopted as a pilot hypothesis in the measured form `aia` proposed (C4 acts within 24 h of a record, markers older than 14 days, team level), never bundled into the save. AUT-28 adopted; it closes when P-38 is evaluated.
+
+### 2 AI readiness of delivered items (§8)
+- **#770 (AIG1 part (b), database half):** suggestion ledger, provenance per value, confirmer per value only: unchanged from part (a) (IMPLEMENTED). **Named confirmer:** a re-confirmation now stands for the same checks as a first confirmation on open visits (AIG1-15, IMPLEMENTED); on past visits it still returns `ok` without checks until AIG1-C1 is built (PLANNED, with AUT-29 on its count). **No accept-all on listed fields:** unchanged (AIG1-13 (a), IMPLEMENTED). **Correction rate per agent and field:** unchanged. **Stop rule:** a threshold that cannot fire is refused, and the health read shows threshold and minimum reached (AIG1-16, IMPLEMENTED at database level; screen PLANNED). **Evaluation on synthetic data:** pgTAP 103 on the synthetic test agent only; no real agent. Still no AI service and no real data (D-1 precaution).
+- **#747 (ASM1), #761, #764:** propose, draft and rank nothing.
+
+### 3 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | ASM1 built | **met on synthetic data** (#747 merged `752ecbc`, PO `accepted` 15:55); ASM1-C6 with C6 (8) PLANNED before the first real assessment record |
+| 0 | AIG1 part (b) | database half IMPLEMENTED (#770, `6c1a83f`); UI half PLANNED; AIG1-C1 PLANNED (with AUT-29); `cra` section on 0097/0103 not yet merged |
+| 0 | First real stage-0 agent (PLAN3) | PLANNED, unchanged; AIG1-C1 must hold before any agent other than the synthetic test agent is switched on (PO 20:25) |
+| 1 | Real data may reach any test, pilot or AI path | blocked (D-1 precaution, G-25), unchanged |
+
+### 4 Findings closed
+- **AUT-26 closed:** ASM1-C4 merged unchanged in substance (#747, `752ecbc`; CI green on head `6339c24` and on `recovery/main` `5ce5feb` as the PO reports), ASM1 `accepted` (PO 15:55), #732 closed by the PO.
+- **AUT-28 adopted** as P-38 (PO 15:55); stays open as a hypothesis until evaluated.
+- AUT-23: (a) and (b) IMPLEMENTED at database level; closes with the part (b) UI e2e ("überholt"). AUT-25 closes with PLAN3. AUT-27 closes when RLS4-C1 is built. AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-21: unchanged.
+
+### 5 Waiting for the PO
+- **AUT-29 (high, #774):** answer before the AIG1 part (b) UI PR; amend AIG1-C1 or state the patient-care benefit of counting past-visit lines as open.
+- P-36 undo alternative (review 15), AUT-19, AUT-20, AUT-21 as before.
+- Bottleneck map refresh: due 2026-11-03 (weekly); candidates unchanged (onboarding contract to first visit, P-28, P-32, care-plan maintenance after reassessment, now with the P-38 measure).
+
+---
+
 ## 2026-10-30 15:04 CET · aia review 15: AUT-26 met in code on #747 (ASM1-C4, 0101; CI green, `cra` clear to merge; closes on merge); P-37 preset void reason supported; CGR-104 / ASM1-C6 (8) and P-35 supported; AUT-28 (low: a reassessment and the plan review are two separate acts on two screens, measure first)
 
 **Read:** `recovery/main` at `29d751e`:

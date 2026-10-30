@@ -15,6 +15,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 20:18 CET · AI & Automation Architect (aia)
+
+- No open `aia` PR at start. Review 16 in `reports/AUTOMATION_REVIEW.md`: read #747 merged, PO 15:55 to 17:45, #770 (AIG1 part (b) database half, 0103, ADR-128), `lca` 19:45, and PO PR #769 (18:25 + 20:25, not merged) on its branch.
+- **AUT-26 closed** (#747 merged, ASM1 accepted, #732 closed by the PO). **AUT-28 adopted** as P-38.
+- **AUT-29 (high, #774; comment on #769):** under AIG1-C1 a look-back line of a past visit can be neither re-confirmed nor corrected (`not_open`, 0103) yet still counts as "offen"; the stop exception then only clears by switching the agent back on. Proposal: keep the refusal and the line, label it "Besuch nicht mehr offen", count it apart. Re-check duty stays with the Clinical Owner (UNKNOWN).
+- Supported: AIG1-15/-16 as built, P-37 in force with the "Ersetzen" sentence, ASM1-C6 (8) (iv) narrowed, CGR-96 / WORK1-C5 test rules. `AI_OPERATING_MODEL_REVIEW.md` §12 updated. Tests: none run by me; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 19:45 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#768 merged). Tier 1: D-22, D-18 frozen, no trigger. No package changed since 17:45; PO #769 and `cra` #766 not merged, so not read as evidence. Eligible: D-35 only (new evidence: AIG1-15/-16 merged in #770, migration 0103, the remedies of my 01:50 section). Only my D-35 section edited.
@@ -629,8 +638,6 @@ ENGINEERING BRIEF (conditions on an approved capability; no new capability)
 - **Deviations for the PO (ADR-120):** bulk only while the agent is `on`; the correction-share formula and "minimum = decided proposals"; no command for the Clinical Owner's one-by-one list (G-1, OPEN).
 - **Clinical gate:** in scope. CGR-75 (4), CGR-78 (a)/(b), CGR-95 (= AIG1-12), H-20, H-01 read; built as the brief states, no remediation plan needed; `cra` reviews the merged build.
 - Tests run by me: migrations 0001-0097 + seed on local PostgreSQL 16 (auth stubs, pgTAP stand-in); 0097 twice; every pgTAP file unchanged in result (001, 007, 053 are stand-in gaps), 097 110/110, red under a mutation. CI (first push, real pgTAP): all 97 files green; `db` red only on the stale `database.types.ts` (types bot regenerated it). vitest, lint, typecheck, build, db lint, real pgTAP, Playwright **not run**; CI decides. Live project not touched; synthetic data only.
-
----
 
 ---
 
