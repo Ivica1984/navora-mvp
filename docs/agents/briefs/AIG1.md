@@ -150,3 +150,28 @@ The PO did not run any test; AIG1 is not built. This answer is recorded here bec
 - Both stay database rules with no clinical value set. Clinical Owner questions (performed visit with an invalid member, who writes a `record` agent's threshold) are recorded as UNKNOWN in the criteria, not answered.
 - `lca` note 4: no `lca` read is needed before part (b) is built. `cra` reads part (b) on its merge commit as before.
 
+
+## PO review of part (b), database half — 2026-10-30 20:25 CET (AIG1-15, AIG1-16; AIG1 not accepted, UI half open)
+
+**Delivery read:** #770 merged as `6c1a83f` (merge commit; head `89b0afb` incl. the types-bot regeneration); migration `20261021000103_aig1_15_16_recheck_and_threshold.sql` (221 lines); ADR-128; pgTAP `103_aig1_15_16_recheck_and_threshold` (25). CI on head `89b0afb`: `app`, `db`, `e2e`, `ui-screenshots` green (Engineering journal 19:15). CI push run 41104733033 on the merge commit `6c1a83f`: `app`, `db` (Database tests step green), `e2e` (Playwright step green), `ui-screenshots` green; later push runs on `a8a36e9` and `65fe6e6` green as well. **The PO did not run the tests**; results are read from the migration, the test file, ADR-128 and the GitHub check runs. `lca` 19:45 (D-35, merged #773) read the same code: compliant under every plausible interpretation for the open-visit case and the threshold. No `cra` section on 0103 yet (`cra` PRs #711 onwards are not merged).
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| AIG1-15 open visit: re-confirmation runs qualification, contract, absence checks in the first confirmation's order | met | 0103:42-64 (the "already holds" branch runs `may_perform_visit`, `adm2_in_contract`, `member_absent_during` while the visit meets the open-visit condition); ADR-128 decision 1 |
+| AIG1-15 (i)-(iii) refusal writes no `ai_confirmations` row, line stays listed | met | pgTAP 103:110-135: `not_qualified`, `absent`, `outside_contract`, each with `confs()` unchanged and `listed(n)` true |
+| AIG1-15 (iv) still valid → `ok`, line leaves | met | pgTAP 103:138-140 (count + 1, not listed) |
+| AIG1-15 visit no longer open stays as built | met as written; **condition AIG1-C1 below** | pgTAP 103:143-145; ADR-128 decision 1 |
+| AIG1-16 (1) share 100 refused `threshold_missing`, 99 accepted | met | 0103 `set_agent_state` (:125-142); pgTAP 103:151-154 |
+| AIG1-16 (2) health row carries share, minimum, window, reached flag; no person column | met (database); screen part (b) UI | 0103 `agent_health` drop and re-create with grants; pgTAP 103:156-174 incl. the argument and column check |
+| Negative (no AI service, no new read path or grant, no record changed without a confirm command) | met | ADR-128 "Not done"; 0103 changes three function bodies only |
+
+**Deviations (ADR-128), decided:**
+1. `last_window_min_reached` is **null** before the first closed window, not `false`: **accepted.** *Why would the screen say "nein" for a window that has not ended?* It would read as a failed minimum. The UI shows a distinct sentence (wording `uxa`'s); e2e asserts both the null and the false case.
+2. Database half delivered before the UI: **accepted** (the brief allowed it). AIG1 stays open until the UI PR lands.
+- Not listed as a deviation, decided here: a first confirmation that meets a member already assigned by hand now gets the same checks: **accepted** (more protective, no new reason).
+
+**Process note (PO-side):** *Active now* of 18:25 put CGR-96 back at (0), but PO PR #769 could not merge (JOURNAL conflict), so Engineering read the 17:45 order and built AIG1 first. No Engineering error. Fixed in this run: #769 updated with `recovery/main`.
+
+**Condition AIG1-C1 (new, `lca` D-35 19:45 residual; product default, Medium; before the first agent other than the synthetic test agent is switched on and before any real data, whichever is first; does not hold AIG1 acceptance; may ride in the part (b) UI PR):** a look-back re-confirmation of a value the record already holds, on a visit **no longer open** (performed, past, suspended or covered), returns the existing `not_open`, writes **no** `ai_confirmations` row and no ledger change, and the line stays on the look-back list. On screen such a line offers no confirm action and states that the visit is no longer open (wording `uxa`'s; no internal code). *Why?* A "bestätigt von <Name>" on a closed visit attests a check that did not run; nobody has defined what it would mean (`lca`: unresolved, D-17). Not writing it is the only answer that sets no clinical rule: NAVORA does not decide whether such a value needs a re-check, it only declines to record an attestation without content. The line keeps opening its record (AIG1-12 (iii)) and still counts as open in the OPS1 detail. The Clinical Owner may revise it after G-1 (D-17: what a re-confirmation of a closed visit attests; UNKNOWN). **Tests (synthetic seed only):** pgTAP: after a stop, a re-confirmation of a listed value on a visit dated before today is refused `not_open`, the `ai_confirmations` count is unchanged and the line is still listed (replaces the 103:143-145 expectation); a still-open visit is unchanged (AIG1-15 (iv)). e2e (desktop, with the look-back list): such a line has no confirm control and shows the sentence.
+
+**Acceptance condition (unchanged, all of):** the part (b) UI with AIG1-3/-4/-5/-10/-12/-13/-14/-16 (2) e2e at the stated widths; CI green on its head and merge commit; a `cra` section on 0097, 0103 and the UI with no blocking finding.

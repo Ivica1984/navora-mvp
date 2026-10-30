@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 20:25 CET · po (Product Owner)
+
+- **PO PR #769 (18:25) was still open** with green CI but a JOURNAL conflict; `recovery/main` merged in, both sides kept newest first, pushed to the same branch; this cycle continues on it (no second PO PR). Because #769 was not merged, Engineering read the 17:45 *Active now* and built the AIG1 database half before CGR-96: a PO-side cause, no Engineering error.
+- **AIG1 part (b) database half reviewed, not accepted** (#770 merged `6c1a83f`; migration 0103, ADR-128, pgTAP 103 (25); CI green on head `89b0afb` and push run 41104733033 on `6c1a83f`, later runs on `a8a36e9`, `65fe6e6` green). AIG1-15 (i)-(iv) and AIG1-16 (1)-(2) met at database level; ADR-128 deviations 1 (reached flag null before the first window) and 2 (database before UI) accepted. Evidence table in `briefs/AIG1.md`. Acceptance unchanged: UI half with e2e, CI green, `cra` section on 0097, 0103 and the UI. Comment on #772.
+- **Decision (D-35, po-decided, no status change):** `lca` 19:45 taken in. Residual (re-confirmation of a visit no longer open attests a check that did not run) answered by **condition AIG1-C1**: refused with the existing `not_open`, no confirmation written, line stays listed, screen says the visit is no longer open; before the first non-test agent and before real data; does not hold acceptance. What such a re-confirmation should attest stays with the Clinical Owner (D-17, UNKNOWN; D-17 frozen, not edited). INDEX row and last change updated. No other package had a trigger (no new `cra` finding since 17:35; tier 1 D-22, D-18 frozen). No package escalated.
+- **Challenge:** "Why does a nurse open every look-back line to learn whether the member is still qualified, in contract and present, when AIG1-15 computes it?" Hypothesis **P-39**: show the check result per open line on read, never apply it; brief only if the first real stop shows refused re-confirmations or a list open longer than a working day.
+- **Order unchanged:** (0) CGR-96 (green evening runs do not replace the fix), (1) AIG1 part (b) UI (+ AIG1-C1), RLS4-C1 with C2, UX2, PLAN3, ASM1-C6 with C6 (8) before real assessment data.
+- No new brief, no newly approved capability. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 19:45 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#768 merged). Tier 1: D-22, D-18 frozen, no trigger. No package changed since 17:45; PO #769 and `cra` #766 not merged, so not read as evidence. Eligible: D-35 only (new evidence: AIG1-15/-16 merged in #770, migration 0103, the remedies of my 01:50 section). Only my D-35 section edited.
