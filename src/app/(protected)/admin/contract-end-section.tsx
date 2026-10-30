@@ -13,6 +13,8 @@ import { setMemberContractEnd } from "@/features/contract-end/commands";
 import { contractEndLine, contractEndNotice, type Contract, type Leaver } from "@/features/contract-end/rules";
 import type { LeaverOpenReport } from "@/features/contract-end/queries";
 import { LeaverEntry } from "../team/contract-end-section";
+import { CONTRACT_END_REMOVE_CONSEQUENCE } from "@/features/admin/confirm-texts";
+import ConfirmStep from "./confirm-step";
 
 const field = "min-h-10 rounded-lg border border-stone-300 bg-white px-2 text-sm";
 const button = "min-h-10 rounded-lg bg-emerald-800 px-3 text-sm font-bold text-white disabled:opacity-60";
@@ -22,7 +24,8 @@ const secondary = "min-h-10 rounded-lg border border-stone-400 bg-white px-3 tex
 export function ContractEndControl({ userId, contract, today, enabled }: {
   userId: string; contract: Contract | undefined; today: string; enabled: boolean;
 }) {
-  const [mode, setMode] = useState<"idle" | "edit">("idle");
+  // UX2-23 (ADR-124): "Vertragsende entfernen" asks once ("confirm-remove"); "Abbrechen" changes nothing.
+  const [mode, setMode] = useState<"idle" | "edit" | "confirm-remove">("idle");
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -44,9 +47,19 @@ export function ContractEndControl({ userId, contract, today, enabled }: {
             {contract?.endDate ? "Vertragsende ändern" : "Vertragsende erfassen"}
           </button>
           {contract?.endDate && (
-            <button type="button" className={secondary} disabled={pending} onClick={() => save(null)}>Vertragsende entfernen</button>
+            <button type="button" className={secondary} disabled={pending} onClick={() => setMode("confirm-remove")}>Vertragsende entfernen</button>
           )}
         </div>
+      )}
+      {enabled && mode === "confirm-remove" && contract?.endDate && (
+        <ConfirmStep
+          testId="contract-end-remove-confirm"
+          sentence={CONTRACT_END_REMOVE_CONSEQUENCE}
+          actionLabel="Vertragsende entfernen"
+          pending={pending}
+          onCancel={() => setMode("idle")}
+          onConfirm={() => save(null)}
+        />
       )}
       {mode === "edit" && (
         <form aria-label="Vertragsende erfassen" className="flex flex-wrap items-end gap-2" onSubmit={(e) => {

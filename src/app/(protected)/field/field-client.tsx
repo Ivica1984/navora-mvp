@@ -56,6 +56,8 @@ import { correctVisitTime, recordObservation } from "@/features/field/commands";
 import { formatMinutesByCategory } from "@/features/team/rules";
 import type { FieldNote, FieldVisit } from "@/features/field/types";
 import { QUALIFICATION_NOT_RECORDED_TEXT, observationAuthor, showsQualificationMarker } from "@/features/field/authorship";
+import { actionsForMember } from "@/features/field/qualification";
+import { QUALIFICATION_MISSING_MESSAGE } from "@/lib/commands/result";
 import { FACTS_LOCKED_HINT, RETURNED_LOCKED_HINT, countersignItemNote, visitFactsLocked, type FieldReport } from "@/features/field/report";
 import ReportSection from "./report-section";
 import { openReportsText } from "@/features/admin/rules";
@@ -119,6 +121,8 @@ type Props = {
   teamOpenReports?: TeamOpenReport[];
   /** WORK1-C4 (b): opened from /work to correct a visit time: the instant of one of the visit's events. */
   focusAt?: string | null;
+  /** UX2-22 (ADR-124): teams in which her own qualification is not yet recorded (ADM2-6); her own rows only. */
+  unqualifiedTeams?: string[];
 };
 
 const COMMANDS: Record<FieldAction, typeof startVisit> = {
@@ -144,7 +148,7 @@ const STATUS_CLASS: Record<string, string> = {
   interrupted: "bg-amber-100 text-amber-900",
 };
 
-export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null, movedOverlap = null }: Props) {
+export default function FieldClient({ day, isToday, today: todayProp, previousDay, nextDay, visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned = [], cover, sinceLast, openFollowups = [], absence, signals = [], doorNotes = [], safetyAlerts = [], alertHistory = [], teamOpenReports = [], focusAt = null, moved = null, movedOverlap = null, unqualifiedTeams = [] }: Props) {
   const summary = summarizeDay(visits);
   const ordered = orderFieldVisits(visits);
   // VIS2-3: cards of the same client whose times overlap get a distinguishing line and accessible name.
@@ -204,6 +208,13 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
         {/* UX1-6 order (ADR-104): (1) SIG1 safety signals, unchanged and above everything; (2) her next visit; (3) her
             other visits; then open decisions and reports; (4) "Offen im Team", collapsed; (5) workday link and counters. */}
         <SignalBanner initial={signals} />
+        {unqualifiedTeams.length > 0 && (
+          // UX2-22 (uxa UXR-45, cra 13:40: hide; ADR-124): once, at the top under the safety signals, in `info`; the
+          // ADM2-16 refusal sentence unchanged. Her cards then offer no depart, start, resume or completion control.
+          <p data-testid="qualification-missing-note" data-tone="info" className="mb-4 rounded-xl border border-stone-300 bg-stone-50 p-3 text-sm text-stone-700">
+            {QUALIFICATION_MISSING_MESSAGE}
+          </p>
+        )}
         {/* VIS1-3 / VIS1-3a (UXR-29): once per future day, under the day heading, `info` (a planned day is the normal
             state, not a warning); the cards then show no field action, only the move of VIS1-3b. */}
         {futureDay && visits.length > 0 && (
@@ -263,6 +274,7 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
                   history={alertHistory.filter((h) => h.case_id === visit.case_id)}
                   focusAt={focusAt}
                   sameSlot={sameSlot.get(visit.visit_id)}
+                  unqualifiedTeams={unqualifiedTeams}
                 />
               </li>
             ))}
@@ -325,7 +337,7 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
             </ul>
           </section>
         )}
-        {absence && <OpenVisitsSection open={absence.open} today={absence.today} />}
+        {absence && <OpenVisitsSection open={absence.open} today={absence.today} unqualifiedTeams={unqualifiedTeams} />}
 
         <CoverSection offers={cover.offers} mine={cover.mine} />
         {teamOpenReports.length > 0 && (
@@ -386,8 +398,11 @@ function VisitCard({
   history,
   focusAt = null,
   sameSlot,
+  unqualifiedTeams = [],
 }: {
   focusAt?: string | null;
+  /** UX2-22 (ADR-124): no depart, start, resume or completion control on a visit of a team where hers is missing. */
+  unqualifiedTeams?: string[];
   /** VIS2-3: position among this client's cards at an overlapping time, if any. */
   sameSlot?: { index: number; total: number };
   visit: FieldVisit;
@@ -418,7 +433,8 @@ function VisitCard({
   // C1: a visit suspended by a case pause cannot be started; no buttons, a clear marker instead.
   // VIS1-3: a visit dated after today shows no field action (the database refuses them, migration 0089).
   const afterToday = isAfterToday(visit.visit_date, today);
-  const actions = visit.suspended ? [] : fieldActionsOn(visit.status, visit.visit_date, today);
+  // UX2-22 (ADR-124): no control the database refuses her for a missing qualification (ADM2-16, 0094).
+  const actions = visit.suspended ? [] : actionsForMember(fieldActionsOn(visit.status, visit.visit_date, today), visit.team_id, unqualifiedTeams);
   const canMove = canMoveToToday(visit.status, visit.suspended, visit.visit_date, today);
   const start = formatTime(visit.time_start);
   const end = formatTime(visit.time_end);

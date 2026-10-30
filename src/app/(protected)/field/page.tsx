@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { getCountersignQueue, getDoorNotes, getSafetyAlertHistory, getSafetyAlerts, getFieldNotes, getFieldReports, getFieldVisits, getReturnedReports, getSinceLast, getTeamOpenReports } from "@/features/field/queries";
+import { getCountersignQueue, getDoorNotes, getSafetyAlertHistory, getSafetyAlerts, getFieldNotes, getFieldReports, getFieldVisits, getReturnedReports, getSinceLast, getTeamOpenReports, getOwnQualificationGaps } from "@/features/field/queries";
 import { parseDayParam, parseMovedNotice, shiftDay, todayInZurich } from "@/features/field/rules";
 import { parseOverlapParam } from "@/features/visits/overlap-rules";
 import { PLAN_FLAG_LABEL } from "@/features/team/rules";
@@ -27,7 +27,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
   // SIG2-8: opened from the push message: record the tap (never display on the device).
   if (von === "push") await recordPushTap();
   const day = parseDayParam(datum, today);
-  const [visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned, cover, sinceLast, visitAlerts, absence, signals, doorNotes, safetyAlerts, alertHistory, teamOpenReports] = await Promise.all([
+  const [visits, notes, reports, quality, qualityTypes, statusNotes, countersign, returned, cover, sinceLast, visitAlerts, absence, signals, doorNotes, safetyAlerts, alertHistory, teamOpenReports, unqualifiedTeams] = await Promise.all([
     getFieldVisits(day),
     getFieldNotes(day),
     getFieldReports(day),
@@ -45,6 +45,8 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
     getSafetyAlerts(day),
     getSafetyAlertHistory(day),
     getTeamOpenReports(),
+    // UX2-22 (ADR-124): her own membership rows only; the teams where her qualification is not yet recorded.
+    getOwnQualificationGaps(),
   ]);
 
   return (
@@ -74,6 +76,7 @@ export default async function FieldPage({ searchParams }: PageProps<"/field">) {
       focusAt={parseFocusInstant(zeit)}
       moved={moved}
       movedOverlap={movedOverlap}
+      unqualifiedTeams={unqualifiedTeams}
     />
   );
 }
