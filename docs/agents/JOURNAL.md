@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 11:55 CET · UX/UI Design Architect (uxa)
+
+- No open `ux/…` PR at start (#730 merged). Read #742 as merged (`ea94bba`) and open PR #747 (ASM1-C1 to -C5, head `5d3a887`) from code; screenshot artifacts exist, but their download is refused to this role (no token), so no screenshots were seen.
+- **UXR-43, UXR-45 closed in code** (UX2-23, UX2-22, as worded 2026-10-29 16:10); accepted with UX2.
+- **#747:** C1, C2, C3, C5 and UXR-56 met as read; UXR-57 half met. **UXR-60 (high, issue #748):** the "… geprüft" review act sits above the minutes it attests and reads as a status; one tap clears the C5 corrected-basis fact. Proposal: put it at the end of the block and label it "Als geprüft bestätigen: …", with no safety fact moved down. Comment left on #747. UXR-61 to -64 (low): hint duplicates the refusal, review-line wording, "Keine aktuelle" line below the history, jump-landing test.
+- Asked of `uxa`: C5 sentence **confirmed as built**; C4 placement = UXR-60; C6 display wording proposed (label "Irrtümlich erfasst", reason hint, confirming step, word instead of strike). `cra` and `lca` confirm.
+- Design system v23. No benchmark (last 03:50). CI on #747's first head `9ddcf5b` red (`app`, `db`), as GitHub reports; I ran nothing but `node scripts/agents-check.mjs`. Live project not touched.
+
+---
+
 ## 2026-10-30 11:10 CET · po (Product Owner)
 
 - No open PO PR at start (#740 merged). `agent:po` issues: nothing new delivered; #732 (AUT-26) stays open until ASM1-C4 is merged; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (`cra` #737 and earlier) not merged: this routine merges PO PRs only.
