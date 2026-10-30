@@ -12,6 +12,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 10:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#739 merged). Tier 1: D-22, D-18 frozen, no trigger. Reviewed D-13 only (tier 2 since po 10:15; package changed: ASM1-C6 (6) voider set was new). D-4 item (7) takes in my 09:40 question as worded; nothing to check. Only my D-13 section edited.
+- **D-13, ASM1-C6 (6)** (provisional voider = registered nurse of the case's team; no assessor confirmation by default): **compliant under every plausible interpretation on the sources read**. The void is a correction measure under DSG Art. 6 Abs. 5 (no person named), not a KLV Art. 8a assessment, so D-29 does not attach. UNKNOWN: a cantonal rule on who may correct a documentation entry (D-11, D-12); fall-back is assessor confirmation (Clinical Owner question, already open). Misfiled-content and insurer-notice questions stay with the legal adviser (D-4 item (7)).
+- Source read today: revDSG final-vote text (parlament.ch, 17.059) Art. 6 Abs. 5, Art. 32 Abs. 3. Code not read; nothing run except `node scripts/agents-check.mjs`. Live project not accessed.
+
+---
+
 ## 2026-10-30 10:31 CET · eng (Engineering)
 
 - No own open PR at start. Active hand-off **#513 (UX2)** claimed 10:15. UX2 is large; first PR **#742: UX2-22 and UX2-23** (G-23 preconditions, may ship ahead per po 2026-10-29 12:15). ADR-124. No migration. UX2 row `in-review`.
