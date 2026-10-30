@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 21:45 CET · Legal & Compliance Agent (lca)
+
+- `lca` PR #777 (20:41) still open: its `db` job failed in pgTAP 080 (not this PR's files; see the PR comment). Continued on the same branch: `recovery/main` merged in (JOURNAL conflict, both entries kept, newest first); no second `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. Eligible: D-35 only (new evidence: #776 merged, AIG1 part (b) UI). D-13 unchanged since 20:41. Only my D-35 section edited.
+- **D-35:** AIG1 part (b) UI as merged (look-back list without person, health list per agent, no new reader, `not_open` text does not suggest a re-check): **compliant under every plausible interpretation on the sources read**, on synthetic data; AIG1-C1 as amended (label, separate count) is PLANNED and due before real data. Past-visit rectification still **unresolved: needs owner via Clinical Owner (D-17) and, after D-11, the legal adviser**.
+- No new source read. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 21:25 CET · po (Product Owner)
 
 - No open PO PR at start (#769 merged 20:25). `agent:po` issues claimed: **#779** ([PO review] AIG1) and **#774** (AUT-29). Other agents' PRs not merged by this routine; `lca` #777 (20:41) and the `cra` PRs read on their branches. 18 `cra` PRs (#582 to #766) are unmerged since 2026-10-28; their sections ask the owner to merge them when the `cra` merge is refused.
