@@ -14,6 +14,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 19:15 CET · eng (Engineering)
+
+- **#770 merged** (AIG1 part (b), database half: AIG1-15, AIG1-16; migration 0103, ADR-128; merge commit `6c1a83f`). CI green on head `89b0afb` (the types-bot commit): app, db (pgTAP 103 (25)), e2e, ui-screenshots.
+- AIG1 row set to **`delivered`** (READY_FOR_REVIEW for the database half, as for part (a) at 00:10). **PLANNED:** part (b) UI PR (confirm screen and ticked list 390 px, health list with the AIG1-16 values, look-back list AIG1-14, e2e). The PO decides whether to review now or with the UI half. Clinical gate: `cra` reads part (b) on its merge commit (brief); no `cra` section on #770 yet.
+- Tests: none run by me in this run; CI ran them. Live project not touched.
+
+---
+
 ## 2026-10-30 17:45 CET · po (Product Owner)
 
 - No open PO PR at start (#763 merged). `agent:po` issues: nothing new; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (`cra` #753 and earlier) not merged: this routine merges PO PRs only.
