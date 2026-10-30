@@ -106,7 +106,8 @@ select is((select (a.changed -> 'responsible_absent' ->> 'new')::boolean from pu
   'the audit row of an ordinary move records responsible_absent = false');
 
 -- 6. The caller cannot set or change it; only a moved row can carry it ---------------------------------------------
-select ok(has_table_privilege('authenticated', 'public.visit_plan_changes', 'select')
+-- RLS4-1 (0099): column grants since then (the actor is closed), so the read is checked on the column this test is about
+select ok(has_column_privilege('authenticated', 'public.visit_plan_changes', 'responsible_absent', 'select')
           and not has_table_privilege('authenticated', 'public.visit_plan_changes', 'insert')
           and not has_table_privilege('authenticated', 'public.visit_plan_changes', 'update')
           and not has_table_privilege('authenticated', 'public.visit_plan_changes', 'delete'),

@@ -42,9 +42,9 @@ select is(public.record_quality_event('00000000-0000-4000-a000-000000000501', 't
 select ok((select (r ->> 'hold')::boolean from (select public.record_quality_event('00000000-0000-4000-a000-000000000502', 'test_hold', 'high', private.now(),
           null, 'aa000000-0000-4000-8000-000000000005') r) x), 'a type flagged by the clinical list sets a hold');
 select ok(private.visit_has_open_hold('00000000-0000-4000-a000-000000000502'), 'the visit is on hold (J5 rule)');
+reset role;  -- RLS4-1 (0099): the author is not selectable through the table API; the stored value as owner
 select ok((select author_id = '00000000-0000-4000-a000-000000000902' and occurred_at is not null and case_id is not null
            from public.quality_events where event_type = 'test_info'), 'type, severity, time, case, visit and author are stored');
-reset role;
 
 create temp table ev as select id, event_type from public.quality_events where event_type in ('test_info', 'test_hold');
 grant select on ev to authenticated;

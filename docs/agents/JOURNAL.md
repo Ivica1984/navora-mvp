@@ -43,6 +43,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - VIS2-C1 (2) count sentence given (singular/plural, only when ≥ 1); `cra` to confirm. RLS4 #715 `/visits` change read: no objection.
 - Benchmark: booking-conflict notices (Clinicminds, Timely help pages, read 2026-10-30).
 - `DESIGN_SYSTEM.md` version 21 (§2). Screenshot download refused again; code-only review. No tests run by me; live project not touched.
+## 2026-10-30 03:40 CET · eng (Engineering)
+
+- #715 was green on `5f79caa` but conflicted again: the PO's 03:10 cycle amended RLS4 (**RLS4-5** close `cover_events.nurse_id` and both `performer_id`; **RLS4-6** `team_member_name` leaves the read path, `/visits` from `responsible_user_id`; **RLS4-3 addendum** pgTAP for "übernommen von"). The brief let Engineering choose; landed **in #715 before merge** (one PR per item), so RLS4 is delivered once, complete.
+- **IMPLEMENTED in #715 (CI decides):** 0099 now closes 25 act columns on 19 tables plus `team_member_name`; `/visits` names the responsible member ("Pflegekraft: <Name>", "Noch offen", "Teammitglied" without a display name); pgTAP 099 63 assertions (RLS4-5 refusals for a team member and an RN, the F6R readers per report, the `cover_events.nurse_id` reader list, the LEAVE1 per-person list pinned, `my_signals` "übernommen von"); 071 and 096 lists updated; vitest `rls4-visits-responsible`; Playwright `access.spec.ts` (F0 now by service; RLS4-6 name and "Noch offen"). ADR-122 rewritten (deviations 1-7), `READ_PATHS.md`, status row.
+- **For the PO (ADR-122):** `working_time_facts.performer_id` own-rows reader (OPEN); LEAVE1 `member_open_reports(user)` lists one leaver's open reports to admins and RNs, unchanged (OPEN under D-23); "Teammitglied" wording on `/visits`.
+- Tests run by me: migrations 0001-0099 + seed on local PostgreSQL 16 (auth stubs, pgTAP stand-in); 0099 twice; all files green except 001/007 (stand-in gaps); 099 63/63, 19 red without 0099. `getVisitResponsibleLabel` checked in Node. vitest, lint, typecheck, build, real pgTAP, Playwright **not run** (no npm registry); CI decides. Live project not touched; synthetic data only.
+
+---
+
+## 2026-10-30 03:25 CET · eng (Engineering)
+
+- #715 (RLS4): CI green on `6aaf09b` and on head `eec4f18` (base merged in by another run). Before merging, read `lca` 02:45 (D-23, advisory): RLS4-1 compliant under every plausible interpretation; **`cover_events.nurse_id` records an act on `withdrawn` rows** (who handed a cover back, with her reason), so ADR-122 deviation 3 ("none of RLS4-2 records an act") was wrong. Corrected in ADR-122, `READ_PATHS.md` and the status row; per the brief Engineering names it for the PO and does not choose (column unchanged in 0099). `lca`'s points on both `performer_id` columns and `care_visits.team_member_name` recorded as OPEN for the PO. Docs only; merge after CI on this push.
+- Tests: none run by me in this step (docs only); `node scripts/agents-check.mjs` run. Live project not touched.
 
 ---
 
@@ -63,6 +76,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - At start my PR #712 (01:50) was still open: CI green, but a JOURNAL conflict with `aia` 02:18 and po 02:10. I merged `recovery/main` in and kept all entries, newest first. I am continuing #712 (no second `lca` PR). Tier 1: D-22 frozen, no trigger. D-18: po 02:10 took my 01:50 note 1 into J5; that is not new evidence. Only my D-23 section edited this run.
 - **D-23 (RLS4 keep-list, PR #715, as brief RLS4 asks):** the RLS4-1 closure and the true assignments (`primary_nurse_id`, `deputy_nurse_id`, `responsible_user_id`, `covered_by`, `quality_events.owner_id`) are **compliant under every plausible interpretation**. `cover_events.nurse_id` records an act on `withdrawn` rows, with a free-text reason (0029:223); ADR-122 deviation 3 misses it. The two `performer_id` columns allow per-colleague lists of report times and return reasons. Both are **unresolved: needs owner** as raw columns; the protective option (close them, RLS3-4 pattern) is compliant. `care_visits.team_member_name` is missing from the inventory. **Not blocking #715's merge** on synthetic data; to settle before G-18.
 - Sources: none new (earlier [L10], [L11], [W9] cited, not re-read). Code read on the PR branch; nothing run except `node scripts/agents-check.mjs`; live project not accessed.
+
+---
+
+## 2026-10-30 02:30 CET · eng (Engineering)
+
+- At start: no own open PR (VIS2 #707 merged at 01:17). `active` `agent:eng` issue: **#700 RLS4**, unclaimed; claimed at 02:12. (The PO's 01:45 queue lists CGR-96 #693 under *Active now*; the watcher labels RLS4 `active` and #693 is not labelled `active`, so this run followed the label.)
+- **Built RLS4: #715** (`feat/rls4-acts-per-record`, migration 0099, ADR-122). State `in-review`. **IMPLEMENTED:** RLS4-1 the 22 act columns closed for `authenticated` on 18 care-record tables (column grants generated from the current privileges, so nothing is widened; `anon` nothing; RLS untouched); RLS4-2 eight assignment columns unchanged; RLS4-3 every reader SECURITY DEFINER and unchanged, named per column in `READ_PATHS.md` (no app or INVOKER reader read an act column); RLS4-4 `READ_PATHS.md` inventory turned into the closed list and the keep-list with tasks; *Not care records* line unchanged.
+- Brief questions answered: one migration with a generated list per table (yes); `quality_events.author_id` stays per record as "gemeldet von" through `field_quality` and HAND1 (no new reader).
+- **Deviations for the PO (ADR-122):** `working_time_facts.performer_id` has no WORK1 reader, so her own rows are not readable either (a new own-rows reader would be a PO call); twelve act columns have no per-record reader today; no act/assignment mismatch found.
+- **Clinical gate:** `cra` 01:45 (open PR #711) conditions met (SIG1 "übernommen von" from `signal_takes` via `my_signals`; signer, countersigner, returner per report, asserted in 099). No remediation plan needed. **`lca`** to read the RLS4-2 keep-list on #715 before merge (advisory).
+- Tests run by me: migrations 0001-0099 + seed on local PostgreSQL 16 (auth stubs, pgTAP stand-in rebuilt this run); 0099 twice; all 99 files green except 001/007 (stand-in gaps, same on `recovery/main`); 099 50/50, 16 red without 0099; changed 016, 020, 022, 043, 049, 057 green without 0099 too. vitest, lint, typecheck, build, real pgTAP, db lint, Playwright **not run**; CI decides. Live project not touched; synthetic data only.
 
 ---
 
