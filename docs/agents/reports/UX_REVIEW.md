@@ -6,6 +6,54 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-10-30 03:50 CET · `uxa`: VIS2 built and accepted (#707) — UXR-50 closed; UXR-51 (medium, several overlaps read as one); UXR-52, -53 (low); VIS2-C1 count wording; RLS4 #715 `/visits` label; benchmark (booking-conflict notices)
+
+**What changed since 23:55.** My PR #685 merged at 00:17. Merged since, with screen changes: **#707** (`eng`, VIS2, migration 0098, ADR-121): `components/visits/OverlapNote.tsx` (new), `field/field-client.tsx`, `field/page.tsx`, `team/team-client.tsx`, `features/visits/overlap-rules.ts`, `tests/e2e/vis2.spec.ts`. PO accepted VIS2 at 02:10 with condition VIS2-C1 (`cra` CGR-99), which asks `uxa` for one count sentence. Other merges (#701 AIG1 (a), #702, #704, #706, #708, #709, #712, #713, #714, #716) change no screen. Open PR **#715** (`eng`, RLS4) changes `/visits` (`visits-client.tsx`, `features/visits/types.ts`, `queries.ts`). Other open PRs (#711, #696 and earlier `cra`; #3 M2) change no screen. New `ux` issues: none.
+
+**Sources.** `ui-screenshots` artifact 12949546652 (`recovery/main` `a3e9e74`) listed; the archive download was again refused (empty file, blob host), so **no screenshots were available**; review from code at `a3e9e74` and the #715 branch. Live project not touched. I ran no tests; CI states are as GitHub and the PO record them.
+
+### VIS2 as built (IMPLEMENTED, accepted 02:10)
+
+- **VIS2-1 / -2 sentence** (`overlap-rules.ts:38-45`): strings as proposed 23:55, "heute" for today. Placement: below "Von"/"Bis" in "Heute machen" (`field-client.tsx:1135`), J3 planning (`team-client.tsx` `PlanForm`, after `SlotFields`) and reschedule (after `SlotFields`, above "Grund"); save button `aria-describedby` only while the sentence shows. Tone `info` (`stone` border, no colour above `info`). Meets §2 rule.
+- **VIS2-5** (`OverlapNote.tsx:24-45`): re-read 250 ms after a change, earlier answers discarded by key, polite `role="status"`; after a save the server's overlap the form did not show is shown on the card (`OverlapAfterSave`, `MovedNoticeBlock`). This is UXR-50's remedy: **UXR-50 closed** (evidence: code above; e2e `vis2.spec.ts` free slot → sentence → gone, and visit-added-meanwhile notice, green on `4c8f2a6` as recorded by the PO; ADR-121 deviation 6 accepted the "added meanwhile" variant, which I agree tests the same promise).
+- **VIS2-3 cards** (`overlap-rules.ts:150-162`, `field-client.tsx:468, 476-480`): name "Einsatz <Zeit>, <Klient:in>, <i> von <n> zu dieser Zeit"; visible line "<i> von <n> zu dieser Zeit · Verantwortlich: du | Teammitglied | noch niemand". Cards without overlap unchanged. Meets the 23:55 proposal except the name (deviation 1, see UXR-52).
+- Not as proposed: the "<n> Einsätze" form for two or more overlaps and the "unreadable wins when mixed" rule were not taken into the PO note of 00:15 and are not built (UXR-51).
+
+### VIS2-C1 (2) count sentence (asked of `uxa`; PLANNED with PLAN3 or the next 0025 change)
+
+Shown only when the count is at least 1 (no line for 0, never "keine Überschneidung" as a verdict): n = 1: "1 erstellter Einsatz überschneidet sich zeitlich mit einem bereits geplanten Einsatz derselben Person." n ≥ 2: "<n> erstellte Einsätze überschneiden sich zeitlich mit einem bereits geplanten Einsatz derselben Person." Placed as the last line of the generation result, `info`, after the number of visits created, and linked to nothing (the `/team` lines carry the VIS2 sentence per visit, VIS2-C1 (1)). Names no person, as the condition says. `cra` confirms (CGR-99 owner); no `lca` question (in-app, team only). Unit test: 0 → no line, 1 → singular, 3 → plural.
+
+### RLS4 #715 on `/visits` (open PR, read on branch)
+
+"Pflegekraft:" now reads from `responsible_user_id` with the member's display name, "Teammitglied" without one, "Noch offen" without anybody. A true fact replaces a free-text name: good. Wording differs from `/field` (UXR-53, low; legacy screen, rides UX2).
+
+### Benchmark (2026-10-30, booking-conflict notices)
+
+Read on 2026-10-30: Clinicminds help "Warning in case of existing future bookings" (https://help.clinicminds.com/en/articles/5609995-warning-in-case-of-existing-future-bookings) and Timely "Additional checks and warnings to avoid double bookings" (https://gettimely.com/blog/avoid-double-bookings). Pattern in my words: the notice sits **inside the booking dialog at the moment of decision**, as a heads-up rather than a block, and the newer variant makes **the specific conflicting booking** recognisable and checks across all places the person is booked (Timely extended the check to every location of the staff member). Neither page says whether the save is refused. What NAVORA already matches: in-form, non-blocking, at decision time (VIS2). What to adopt: the conflict check should cover every overlapping visit and say so when there is more than one, so she does not resolve one and miss the other (UXR-51). What not to adopt: the red alert icon; an overlap is a fact, not an alarm (§3, `cra` CGR-97). No design, icon or text copied.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-51 | "Heute machen", J3 planning and reschedule forms (nurse, team member); IMPLEMENTED | medium | When the client has **two or more** overlapping visits, the sentence names one ("bereits ein Einsatz", times of the earliest readable one) and says nothing of the rest. When a readable and an unreadable (other team's) visit both overlap, it shows the readable one's times, so she can check that visit, find it harmless, and save without knowing of the other. The statement is not false, but it reads as complete. | `supabase/migrations/20261021000098_vis2_same_client_overlap_fact.sql:63-70` (`order by o.time_start, o.id limit 1`, readable only); `overlap-rules.ts:38-45` (singular only) at `a3e9e74`; `uxa` 23:55 proposal (plural form, unreadable-wins rule) | §2 a fact shown before a save must be the whole fact; §1 what needs attention now | Presentation plus a count in the existing answer (no new detail of other teams): the fact carries `count` (all overlapping visits, readable or not) and `any_unreadable`. n ≥ 2 → "Bei dieser Person sind <heute | am …> zu einer Zeit, die sich mit diesem Einsatz überschneidet, bereits <n> Einsätze geplant." (no times); n = 1 and unreadable → VIS2-2 sentence; n = 1 readable → VIS2-1 sentence as now. Unit: 2 readable → plural without times; 1 readable + 1 unreadable → plural; 1 unreadable → VIS2-2. pgTAP: count includes other teams' visits; no time of another team returned. `cra` confirms wording; `lca` confirms that a count of another team's visits for the same client discloses nothing beyond VIS2-2 (I believe it does not, UNKNOWN until confirmed). | report (medium; PO decides) |
+| UXR-52 | `/field` cards of one client at one time (nurse); IMPLEMENTED | low | The distinguishing line says "Verantwortlich: Teammitglied" for both cards when two colleagues are responsible, so the line does not tell the cards apart; only "<i> von <n>" and the times do. #715 (`queries.ts`) reads `member_profiles.display_name` within the organisation for `/visits`, so the name may be readable on `/field` too. | `field-client.tsx:476-479` at `a3e9e74`; ADR-121 deviation 1 ("`uxa` may propose it in UX2"); #715 `src/features/visits/queries.ts` | §6 two cards are never named alike; §1 | In UX2: "Verantwortlich: <Anzeigename>" where her read path returns it after RLS4 (`eng` states which path; `lca` confirms against the D-23 keep-list); fallback "Teammitglied". e2e: two overlapping cards with different responsible members show two different names. | report |
+| UXR-53 | `/visits` (legacy list, team member); PLANNED change in #715 | low | Same fact, two wordings: `/visits` "Pflegekraft: <Name> / Noch offen" vs. `/field` "Verantwortlich: … / noch niemand". | #715 `visits-client.tsx:193, 274`; `field-client.tsx:477` | §4 one word per concept | With UX2 (one shell, #510): "Verantwortlich" and "noch niemand" on every screen; string test over both screens. Not a reason to change #715. | report |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-50 | **Closed** (VIS2-5 built and accepted). | `OverlapNote.tsx:24-45`, `vis2.spec.ts`; PO 02:10 |
+| UXR-51, -52, -53 | **New**, OPEN (above). | |
+| UXR-49 | OPEN; AIG1-13 (b) consistent; part (b) not started. | `briefs/AIG1.md` |
+| UXR-48 | PLANNED as UX2-27. Unchanged in code. | |
+| UXR-43, -44, -45, -46 | PLANNED as UX2-23, UX2-24, UX2-22, UX2-25. Unchanged in code. | |
+| Others | Unchanged since 23:55. | |
+
+**For the PO.** (1) VIS2-C1 count sentence above, ready for PLAN3 or the next 0025 change. (2) UXR-51 (medium) waits for your placement (small: one number in an existing answer, presentation plus pgTAP); UXR-49 still waits. (3) UXR-52 and UXR-53 for UX2. (4) Screenshot download still refused to this role; reviews remain code-only (§8). I propose only.
+
+---
+
 ## 2026-10-29 23:55 CET · `uxa`: no screen change since 23:10; VIS2 (new brief) wording and card answers; UXR-50 (medium, VIS2 sentence vs. edited times); CGR-96 cause is the test, not the screen
 
 **What changed since 23:10.** My PR #685 (19:50 and 23:10 sections) is **still open**; CI green on its head `423c895` as GitHub reports (`app`, `db`, `e2e`, `ui-screenshots`), mergeable; this section continues it. Merged since: **#695** (`aia` review 12, AUT-23), **#698** (PO 23:15: AUT-23 → **AIG1-13**; `cra` CGR-97 → **VIS2**, approved, asks `uxa` for wording; RLS4 approved; CGR-96 first in *Active now*). `git diff 32f2231 7516e91 -- src e2e tests/e2e` is **empty**: no screen changed. Open PR **#701** (`eng`, AIG1 part (a), migration 0097, ADR-120) changes `supabase/`, `tests/database`, `src/lib/supabase/database.types.ts` and docs only: no screen. Other open PRs (#702 `lca`, #696, #691, #680, #666 and earlier `cra`; #3 M2) change no screen. New `ux` issues: none. UXR-49 is not yet placed by the PO (23:15 cycle names it nowhere).
