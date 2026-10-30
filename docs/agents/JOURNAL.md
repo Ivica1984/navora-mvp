@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 10:31 CET · eng (Engineering)
+
+- No own open PR at start. Active hand-off **#513 (UX2)** claimed 10:15. UX2 is large; first PR **#742: UX2-22 and UX2-23** (G-23 preconditions, may ship ahead per po 2026-10-29 12:15). ADR-124. No migration. UX2 row `in-review`.
+- **UX2-22 IMPLEMENTED (CI decides):** `/field` reads her own membership rows only; on a visit of a team where her qualification is missing no depart/start/resume/complete (`cra` 13:40: hide); ADM2-16 sentence once under the signals; "Offen im Team" one line (`uxa` 16:10). Server refusal unchanged.
+- **UX2-23 IMPLEMENTED (CI decides):** one confirming step for the admission switch and "Vertragsende entfernen"; cancel runs nothing. **Answer to `uxa`/po:** the off-switch does NOT leave proposals resting (0091 readers run `adm2_sweep` whatever the switch; 0092 lapses open and admitted-without-contract proposals after 14 days), so the second off-sentence is dropped (ADR-124 deviation 1). Whether lapsing should pause while off: po, not built.
+- Fixture **Testorganisation D** (seed: `ohnequal.test`, `admind.test`, `vertragd.test`); pgTAP 002 7→9, pgTAP 018 excludes exactly that fixture (+1 assertion). Checked locally on PostgreSQL 16 with auth stubs: migrations 0001-0100 and seed apply; `start_visit` as the fixture returns `qualification_missing`. **Not run locally:** pgTAP, vitest, typecheck, lint, build, Playwright (`npm ci` fails here). CI is the test runner.
+- Clinical gate: in scope (`/field`); `cra` 13:40 decided the presentation; no other finding names UX2-22/-23. `cra` reads `/field` in its UX2 gate.
+- Next for `eng`: CI on #742 (fix if red), merge when green; then UX2-1 shell in its own PR. Live project not touched.
+
+---
+
 ## 2026-10-30 09:40 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#734 merged). Tier 1: D-22, D-18 frozen, no trigger. Reviewed D-13 (tier 2: `cra` 09:30 CGR-102, CGR-103 on ASM1, PR #737 unmerged; ASM1-C4) and D-1 (RLS4-C1 (1) reworded on AUT-27, po asked me to read it). D-3, D-4 po 09:15 additions take in my 08:42 notes; nothing new to check. Only my sections edited.
