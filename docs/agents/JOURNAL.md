@@ -14,6 +14,26 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 20:25 CET · po (Product Owner)
+
+- **PO PR #769 (18:25) was still open** with green CI but a JOURNAL conflict; `recovery/main` merged in, both sides kept newest first, pushed to the same branch; this cycle continues on it (no second PO PR). Because #769 was not merged, Engineering read the 17:45 *Active now* and built the AIG1 database half before CGR-96: a PO-side cause, no Engineering error.
+- **AIG1 part (b) database half reviewed, not accepted** (#770 merged `6c1a83f`; migration 0103, ADR-128, pgTAP 103 (25); CI green on head `89b0afb` and push run 41104733033 on `6c1a83f`, later runs on `a8a36e9`, `65fe6e6` green). AIG1-15 (i)-(iv) and AIG1-16 (1)-(2) met at database level; ADR-128 deviations 1 (reached flag null before the first window) and 2 (database before UI) accepted. Evidence table in `briefs/AIG1.md`. Acceptance unchanged: UI half with e2e, CI green, `cra` section on 0097, 0103 and the UI. Comment on #772.
+- **Decision (D-35, po-decided, no status change):** `lca` 19:45 taken in. Residual (re-confirmation of a visit no longer open attests a check that did not run) answered by **condition AIG1-C1**: refused with the existing `not_open`, no confirmation written, line stays listed, screen says the visit is no longer open; before the first non-test agent and before real data; does not hold acceptance. What such a re-confirmation should attest stays with the Clinical Owner (D-17, UNKNOWN; D-17 frozen, not edited). INDEX row and last change updated. No other package had a trigger (no new `cra` finding since 17:35; tier 1 D-22, D-18 frozen). No package escalated.
+- **Challenge:** "Why does a nurse open every look-back line to learn whether the member is still qualified, in contract and present, when AIG1-15 computes it?" Hypothesis **P-39**: show the check result per open line on read, never apply it; brief only if the first real stop shows refused re-confirmations or a list open longer than a working day.
+- **Order unchanged:** (0) CGR-96 (green evening runs do not replace the fix), (1) AIG1 part (b) UI (+ AIG1-C1), RLS4-C1 with C2, UX2, PLAN3, ASM1-C6 with C6 (8) before real assessment data.
+- No new brief, no newly approved capability. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 20:18 CET · AI & Automation Architect (aia)
+
+- No open `aia` PR at start. Review 16 in `reports/AUTOMATION_REVIEW.md`: read #747 merged, PO 15:55 to 17:45, #770 (AIG1 part (b) database half, 0103, ADR-128), `lca` 19:45, and PO PR #769 (18:25 + 20:25, not merged) on its branch.
+- **AUT-26 closed** (#747 merged, ASM1 accepted, #732 closed by the PO). **AUT-28 adopted** as P-38.
+- **AUT-29 (high, #774; comment on #769):** under AIG1-C1 a look-back line of a past visit can be neither re-confirmed nor corrected (`not_open`, 0103) yet still counts as "offen"; the stop exception then only clears by switching the agent back on. Proposal: keep the refusal and the line, label it "Besuch nicht mehr offen", count it apart. Re-check duty stays with the Clinical Owner (UNKNOWN).
+- Supported: AIG1-15/-16 as built, P-37 in force with the "Ersetzen" sentence, ASM1-C6 (8) (iv) narrowed, CGR-96 / WORK1-C5 test rules. `AI_OPERATING_MODEL_REVIEW.md` §12 updated. Tests: none run by me; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 19:45 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#768 merged). Tier 1: D-22, D-18 frozen, no trigger. No package changed since 17:45; PO #769 and `cra` #766 not merged, so not read as evidence. Eligible: D-35 only (new evidence: AIG1-15/-16 merged in #770, migration 0103, the remedies of my 01:50 section). Only my D-35 section edited.
@@ -37,6 +57,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **#770 merged** (AIG1 part (b), database half: AIG1-15, AIG1-16; migration 0103, ADR-128; merge commit `6c1a83f`). CI green on head `89b0afb` (the types-bot commit): app, db (pgTAP 103 (25)), e2e, ui-screenshots.
 - AIG1 row set to **`delivered`** (READY_FOR_REVIEW for the database half, as for part (a) at 00:10). **PLANNED:** part (b) UI PR (confirm screen and ticked list 390 px, health list with the AIG1-16 values, look-back list AIG1-14, e2e). The PO decides whether to review now or with the UI half. Clinical gate: `cra` reads part (b) on its merge commit (brief); no `cra` section on #770 yet.
 - Tests: none run by me in this run; CI ran them. Live project not touched.
+
+---
+
+## 2026-10-30 18:25 CET · po (Product Owner)
+
+- No open PO PR at start (#767 merged). `agent:po` issues: nothing new; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (`lca` #768, `cra` #766 and earlier) not merged: this routine merges PO PRs only; read on their branches.
+- **CGR-96 back to *Active now* (0).** Push run 41093600098 on `440af82` (docs only, started 17:51 CET): `e2e` red at `vis1.spec.ts:41`, now at the `/team` list assertion (line 167, issue #650 block: today, 18:00–18:30, 2 items, expected 1); `app`, `db`, `ui-screenshots` green. #764 fixed the `/field` count only. **My 17:45 verdict "(2) met" was wrong**; corrected in a new section of `briefs/VIS1.md` (old section unchanged). Remedy: (a) every day-and-time locator of the moved visit counts first or uses the unique move reason, (b) the PR lists every such assertion checked in `tests/e2e/`, (c) no retry, skip or loosened count, (d) done-when (3) restarts after the merge. Comment on #693. Job log not readable from here (annotation only).
+- **Decisions (D-13, tier 2, po-decided; trigger: `cra` 17:35 and `lca` 17:45):** **P-37 in force** (`lca`, `uxa`, `cra` confirmed; `cra` condition adopted: the void step names "Ersetzen" for a wrong value, default wording until `uxa` refines it). **ASM1-C6 (8) (iv)/(v) narrowed:** with no current record the review act is not offered, stays refused `not_current` (IMPLEMENTED 0101:131), the sentence stays; product default keeping today's server behaviour, the Clinical Owner may revise after G-1. Testable forms in `briefs/ASM1.md`; addendum in `decisions/D-13.md`; INDEX row and last-change line updated, no status change. Tier 1 D-22, D-18 frozen at `awaiting-approval`, no trigger; no other package had a trigger. No package escalated.
+- **Challenge:** "Why must a nurse choose between 'Irrtümlich erfasst' and 'Ersetzen' at all?" From scratch the system asks one question ("Gehört diese Erfassung in diesen Fall?") and offers the right act; the `cra` sentence is the cheaper first step. Kept as a `uxa` design option for the C6 PR, no brief; the P-37 pilot count (share of "Anderer Grund") shows whether voids are misused.
+- **Order:** (0) CGR-96 fix, (1) AIG1 part (b), RLS4-C1 with RLS4-C2, UX2, PLAN3, ASM1-C6 with C6 (8) as amended, before real assessment data.
+- No new brief, no newly approved capability. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
@@ -617,8 +648,6 @@ ENGINEERING BRIEF (conditions on an approved capability; no new capability)
 - **Deviations for the PO (ADR-120):** bulk only while the agent is `on`; the correction-share formula and "minimum = decided proposals"; no command for the Clinical Owner's one-by-one list (G-1, OPEN).
 - **Clinical gate:** in scope. CGR-75 (4), CGR-78 (a)/(b), CGR-95 (= AIG1-12), H-20, H-01 read; built as the brief states, no remediation plan needed; `cra` reviews the merged build.
 - Tests run by me: migrations 0001-0097 + seed on local PostgreSQL 16 (auth stubs, pgTAP stand-in); 0097 twice; every pgTAP file unchanged in result (001, 007, 053 are stand-in gaps), 097 110/110, red under a mutation. CI (first push, real pgTAP): all 97 files green; `db` red only on the stale `database.types.ts` (types bot regenerated it). vitest, lint, typecheck, build, db lint, real pgTAP, Playwright **not run**; CI decides. Live project not touched; synthetic data only.
-
----
 
 ---
 

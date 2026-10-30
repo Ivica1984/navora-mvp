@@ -262,3 +262,24 @@ CGR-96 (#693, `cra` advisory S3) was placed first in *Active now* on 2026-10-29 
 **Order:** the fix is merged, so the reason CGR-96 held AIG1 part (b) back (it could turn every e2e run red in the evening) is removed. **AIG1 part (b) may start now**; (3) is collected alongside it and needs no Engineering work.
 
 **Business and care-model view.** A red test at 20:45 that turns green at 09:00 teaches a team to ignore red. It now says which visits share the slot, and the database proves a move never doubles a visit, which matters for the nurse at the door and for billing. No user-visible change (values 6 and 7; patient safety unaffected).
+
+## PO review 2026-10-30 18:25 CET: CGR-96 back to *Active now* (0); my 17:45 verdict on done-when (2) corrected to **not met**
+
+New evidence after my 17:45 review: the first push run on `recovery/main` after it, **`440af82`** (docs only, the PO merge #767; run [41093600098](https://github.com/Ivica1984/navora-mvp/actions/runs/41093600098), started 17:51 CET), has `e2e` **red** at `tests/e2e/vis1.spec.ts:41` (VIS1-4 / VIS1-3a / VIS1-3b). `app`, `db` and `ui-screenshots` green. The failing assertion is not the one #764 fixed (`/field`, line 141, `before + 1`, passed) but the **`/team` list assertion** further down (line 167, issue #650 block): `listitem` filtered by today ("Freitag, 30. Oktober 2026") and the prefilled times **18:00–18:30**, expected 1, **received 2**. The prefill slot 18:00–18:30 lies inside the range `lifecycle.spec` plans Testfall 08 visits today (16:00 to 20:00, per the spec's own CGR-96 comment), so a second visit of the same client shares day and times in the team's list. Same mechanism as CGR-96 (fixture overlap, two different visits), second location. The PO did not run the tests and could not open the job log (blocked from this environment); evidence is the check-run annotation as GitHub reports it.
+
+| Criterion | Result (17:45) | Result now | Evidence |
+|---|---|---|---|
+| (1) rows named from a reproduction | met | met (unchanged) | pgTAP 102; this failure fits the named mechanism |
+| (2) fix with its own test | met | **not met** | #764 counts the slot on `/field` only; the `/team` assertion (line 167) still finds the moved visit by day and times and asserts exactly 1, so it fails whenever another Testfall 08 visit of today has the prefilled times. My 17:45 table checked the `/field` assertion and missed this one: a PO review error, corrected here |
+| (3) three consecutive later green runs, one 18:00–23:00 | in watch | **failed; count restarts** | run 41093600098 on `440af82` red at `vis1.spec.ts:41` |
+| (4) no retry, skip or loosened assertion | met | met (unchanged) | – |
+
+**Decision: CGR-96 returns to *Active now* (0), ahead of AIG1 part (b).** Remedy, testable:
+- (a) **Every** assertion in `vis1.spec.ts` (and any other spec that moves or plans a Testfall 08 visit for today) that locates the moved visit by day and time either counts first (`before + 1`, as #764 did on `/field`) or finds it by a value only the moved visit has, e.g. the run's unique move reason in "Verschoben von dir: <reason>". The `/team` item is then asserted as exactly one item carrying that reason, with the prefilled times.
+- (b) Engineering lists, in the PR, every assertion of this kind it checked across `tests/e2e/` (file:line), not only the one that failed.
+- (c) Still no retry, skip, `fixme`, wider timeout or loosened count; no product change (VIS2 already states same-slot visits on `/field`).
+- (d) Done-when (3) restarts from the merge of this fix: three consecutive green push runs on `recovery/main`, one started 18:00–23:00 Zurich, named on #693.
+
+**Why first:** this red is on a docs-only commit, so it turns every PR red in the evening hours and teaches the team to read red as noise, the exact cost the PO named at 17:45. AIG1 part (b) adds e2e specs to the same suite; it starts after this fix (or in the same PR if Engineering prefers, as long as the fix is a separate commit).
+
+**Business and care-model view.** No user-visible change. A visit list that holds two visits of one client in one slot is correct product behaviour (VIS2); the test must expect it. Patient safety unaffected.
