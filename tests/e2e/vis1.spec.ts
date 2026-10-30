@@ -112,12 +112,23 @@ test.describe("VIS1 at 390 × 844", () => {
     await page.reload();
     await expect(page.getByRole("article", { name: /22:00 – 22:30, Testfall 08/ })).toHaveCount(1);
 
-    // Confirm with a typed reason: she is on today's view, the visit planned there, "Einsatz starten" its own tap.
-    await page.getByRole("article", { name: /22:00 – 22:30, Testfall 08/ }).getByRole("button", { name: "Heute machen" }).click();
-    const confirm = page.getByRole("form", { name: "Einsatz auf heute verschieben" });
     // After 23:25 Zurich the prefill is empty (no visit across midnight, VIS1-3c); then she types a 30-minute slot of
     // today herself (the card's planned minutes must fit the window).
     const times = expected.start ? expected : { start: "23:00", end: "23:30" };
+    const slot = `${times.start} – ${times.end}, Testfall 08`;
+    // CGR-96 (#693, ADR-127): the prefill follows the clock, and earlier specs plan other Testfall 08 visits today at
+    // fixed slots (ux1.spec 20:45–21:15, vis1-10.spec 22:40–23:10, lifecycle.spec 16:00 to 20:00, …). In an evening run
+    // the moved visit can land on such a slot, so the slot then holds two cards of two different visits (pgTAP 102: one
+    // move never adds a visit). Count the cards already in the slot before the move; the move adds exactly one, and the
+    // moved card is the one that receives focus (VIS1-3e).
+    await page.goto("/field");
+    const before = await page.getByRole("article", { name: slot }).count();
+    test.info().annotations.push({ type: "CGR-96", description: `slot ${slot}: ${before} other card(s) of today before the move` });
+    await page.goto(`/field?datum=${day}`);
+
+    // Confirm with a typed reason: she is on today's view, the visit planned there, "Einsatz starten" its own tap.
+    await page.getByRole("article", { name: /22:00 – 22:30, Testfall 08/ }).getByRole("button", { name: "Heute machen" }).click();
+    const confirm = page.getByRole("form", { name: "Einsatz auf heute verschieben" });
     if (!expected.start) {
       await confirm.getByLabel("Von").fill(times.start);
       await confirm.getByLabel("Bis").fill(times.end);
@@ -127,8 +138,8 @@ test.describe("VIS1 at 390 × 844", () => {
     // VIS1-3g: the notice is shown once; the address does not keep the move's parameters.
     await expect(page.getByTestId("moved-to-today")).toBeVisible();
     await expect(page).not.toHaveURL(/verschoben=/);
-    const slot = `${times.start} – ${times.end}, Testfall 08`;
-    const moved = page.getByRole("article", { name: slot });
+    await expect(page.getByRole("article", { name: slot })).toHaveCount(before + 1);
+    const moved = page.getByRole("article", { name: slot }).and(page.locator(":focus"));
     await expect(moved).toHaveCount(1);
     // VIS1-3e (1): one status line, and focus on the moved card.
     await expect(page.getByTestId("moved-to-today")).toHaveCount(1);
