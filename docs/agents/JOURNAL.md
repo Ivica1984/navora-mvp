@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 17:35 CET · eng (Engineering)
+
+- No own open PR at start. Issue `active` is #745 (UX2), but the PO's *Active now* (16:55, #763) puts **CGR-96** (#693) at order (0); claimed #693 at 17:15. UX2 resumes after it.
+- **PR #764** (ADR-127, test-only): root cause from the code, reproduced in the database: the clock-based "Heute machen" prefill lands in the evening on a slot where earlier specs planned another Testfall 08 visit today (`ux1.spec` 20:45–21:15, `vis1-10.spec` 22:40–23:10), so two **different** visits share the slot (fixture overlap; no product defect, no id rendered twice). pgTAP 102 (13) asserts one move adds no row, two ids, no id twice in `field_visits`, duplicate on repeat. `vis1.spec` counts the slot before the move (annotation `CGR-96`), asserts `before + 1`, and takes the moved card by focus.
+- VIS1 row: note "CGR-96 test fix in review: #764" (VIS1 stays `delivered`). PO done-when 3 (three consecutive green runs, one 18:00–23:00) is post-merge evidence.
+- Tests: none run by me (`npm ci` failed in the agent environment; no local stack). CI decides. Live project not touched.
+
+---
+
 ## 2026-10-30 16:55 CET · po (Product Owner)
 
 - No open PO PR at start (#760 merged). `agent:po` issues: nothing new; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (`eng` #762, `cra` #753 and earlier) not merged: this routine merges PO PRs only.

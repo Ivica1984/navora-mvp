@@ -2252,3 +2252,28 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 4. Correction to *Context* and *Decision 3* above: "IDENTIFIED from the code" is withdrawn; the mechanism is possible from the code but did not show in CI.
 
 **Rollback:** revert the commit (test file, script, CI step).
+
+### ADR-127 — CGR-96: the moved card is the focused one, and one move never yields two visits
+
+**Date:** 2026-10-30 · **Status:** IMPLEMENTED in the PR (CI decides) · **Issue:** #693 (`cra` CGR-96, advisory S3; PO *Active now* 2026-10-30 16:55, order (0)) · **Clinical review gate:** test-only change; no product behaviour, text, rule or read scope changes.
+
+**Context (IMPLEMENTED facts from the code and CI):** `vis1.spec.ts` "VIS1-4 / VIS1-3a / VIS1-3b" moves a visit of Testfall 08 from 45 days ahead to today with "Heute machen". The confirmation prefills the next full five minutes after the (real) clock plus 30 minutes (VIS1-3c, `rules.ts` `prefillMoveTimes`). The test then asserted that exactly one `/field` article is named "<slot>, Testfall 08". Earlier spec files (one worker, name order) plan other Testfall 08 visits **today at fixed slots**: `lifecycle.spec` 16:00, 17:00, 19:00, 20:00; `ux1.spec` 20:00, 20:45–21:15; `vis1-10.spec` 22:40–23:10. All three recorded failures were evening runs, two of them at exactly 20:45–21:15 and 22:40–23:10 (`cra` 23:10, issue #693). Playwright runs with `retries: 0`.
+
+**Root cause (from the code, reproduced in the database by pgTAP 102):** two different visits share the slot: the visit an earlier spec planned there and the moved visit. The move updates the moved row in place (same id) and adds no row. So the two cards are a fixture overlap, not a product defect and not the same id rendered twice. CI e2e runs keep the real clock (ADR-113), so the overlap is deterministic by time of day; a re-run at another hour passes, which is why it looked like a flake.
+
+**Decision:**
+1. **pgTAP 102** (13 tests, pinned clock 10:00): the client has a visit today 20:45–21:15; the nurse moves a visit from 45 days ahead into that slot with `move_visit_to_today`. Asserted: result `ok` (VIS2: an overlap is a fact, not a refusal); `field_visits(today)` returns both ids, two different ids, no id twice; no `care_visits` row added; the slot holds exactly those two rows; the moved row keeps its id and is planned, not started; the other row is unchanged; the old day is empty; the same command with the same key is a `duplicate`; one `moved` row for the moved visit and none for the other.
+2. **`vis1.spec.ts`** (the spec owns its result, not the slot): before confirming, it counts the cards already in the slot on today's `/field` (`before`) and records the count as a test annotation `CGR-96` (visible in the report, so an evening run names its overlap). After the move it asserts `before + 1` cards in the slot and takes the moved card as the one with that name **and** focus (VIS1-3e already requires focus on the moved card). Every other assertion on the moved card is unchanged. No retry, skip or loosened assertion: the count is exact, and focus on the moved card was already asserted.
+
+**Trade-offs:** owning a slot instead (a time no other spec uses) would drop the VIS1-3c prefill from the move, which is part of what the test checks; owning a client would need a new seed case for one test. Counting the slot keeps the prefill and asserts more (exactly one card added).
+
+**Deviations / notes for the PO:**
+1. Done-when 1 (rows named "from a reproduction"): the reproduction is in the database (pgTAP 102), not from the attempt-1 trace; the trace of the 2026-10-29 failures was never opened from the agent environment and the artifacts have expired (7 days retention is not the reason; they were never read). The e2e annotation gives the count for every future run.
+2. Done-when 3 (green on `recovery/main` and three consecutive later runs, one started 18:00–23:00 Zurich): evidence comes after merge; this PR's own CI run is one data point (its start time decides whether it is an evening run).
+3. The product side (same-slot cards share one name) was CGR-97, delivered as VIS2 (#707); not changed here.
+
+**Not done:** no migration, no app code, no seed change; the live project is not touched (D-1).
+
+**Checked by me (not CI):** none. `npm ci` failed in the agent environment (npm "Exit handler never called"), so neither `tsc`, ESLint, pgTAP nor Playwright ran here; no local database stack. CI is the test runner.
+
+**Rollback:** revert the commit (one spec, one pgTAP file, docs).
