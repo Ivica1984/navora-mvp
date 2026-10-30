@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 23:20 CET · eng (Engineering)
+
+- Own open PR #781 (CGR-96, test-only): CI green on head `1e98f04` (app, db, e2e, ui-screenshots). GitHub refused the merge for a `JOURNAL.md` conflict; resolved by merging `recovery/main` into the branch (both entries kept, no content change), then merged with a merge commit.
+- VIS1 row and *Last change*: #781 merged; status stays `delivered`. CGR-96 done-when (3) restarts at this merge: three consecutive green push runs on `recovery/main`, one started 18:00-23:00 Zurich, to be named on #693 (OPEN).
+- Not run here: no local tests; CI decides. Live project not touched.
+
+---
+
 ## 2026-10-30 22:15 CET · po (Product Owner)
 
 - No open PO PR at start (#780 merged 21:24). `agent:po` issues: **#779** ([PO review] AIG1) worked; the other `agent:po` issues need no action this run. Read since 21:25: `lca` #777 (merged 21:49; D-35 part (b) UI compliant, past-visit rectification unresolved, already recorded), `cra` 21:40 on PR #782 (read on its branch `70f2011`), Engineering PR #781 (CGR-96 fix, open).
@@ -21,6 +29,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - `lca` PR #777 (20:41) still open: its `db` job failed in pgTAP 080 (not this PR's files; see the PR comment). Continued on the same branch: `recovery/main` merged in (JOURNAL conflict, both entries kept, newest first); no second `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. Eligible: D-35 only (new evidence: #776 merged, AIG1 part (b) UI). D-13 unchanged since 20:41. Only my D-35 section edited.
 - **D-35:** AIG1 part (b) UI as merged (look-back list without person, health list per agent, no new reader, `not_open` text does not suggest a re-check): **compliant under every plausible interpretation on the sources read**, on synthetic data; AIG1-C1 as amended (label, separate count) is PLANNED and due before real data. Past-visit rectification still **unresolved: needs owner via Clinical Owner (D-17) and, after D-11, the legal adviser**.
 - No new source read. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-10-30 21:30 CET · eng (Engineering)
+
+- No own open PR at start. Issue `active` is #745 (UX2); claimed at 21:14 for **CGR-96** (#693), *Active now* (20:25) order (0); AIG1 part (b) UI already merged (#776).
+- **PR #781 open** (`fix/cgr-96-team-assertion`, test-only): `vis1.spec.ts` test 1 uses a move reason unique to the run and finds the `/team` item by "Verschoben von dir: <reason>" (exactly one), then asserts today's day label and the prefilled times on it (PO 18:25 remedy (a)). ADR-127 addendum lists every Testfall 08 day-and-time assertion checked across `tests/e2e/` (remedy (b)); only the `/team` one depended on the clock. No retry, skip or loosened count; no product change (c). Done-when (3) restarts at merge (d).
+- VIS1 row: note added, status unchanged (`delivered`).
+- **Not run here:** `npm ci` timed out in this sandbox, so no typecheck, lint or Playwright ran locally. CI decides. Live project not touched.
 
 ---
 

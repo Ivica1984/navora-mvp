@@ -43,7 +43,9 @@ test.describe("VIS1 at 390 × 844", () => {
     // so this client has no other visit that day (VIS1-8 "kein Einsatz").
     const day = zurichDay(45);
     const today = zurichDay(0);
-    const reason = "Synthetisch: Klientin bittet um heute";
+    // CGR-96 (b), PO 2026-10-30 18:25 remedy (a): the move reason is unique to this run, so the moved visit is found by
+    // a value only it carries, never by day and times (another Testfall 08 visit of today can share the prefilled slot).
+    const reason = `Synthetisch: Klientin bittet um heute (Lauf ${Date.now().toString(36)})`;
     // VIS1-3c: the browser clock is pinned for the test (real now, so the server's day and the database agree).
     const pinned = new Date();
     await page.clock.setFixedTime(pinned);
@@ -159,13 +161,14 @@ test.describe("VIS1 at 390 × 844", () => {
     // The move is on record with its reason (J3 `moved` row; its audit row is asserted in pgTAP 089).
     await page.goto("/team");
     const upcoming = page.getByRole("article", { name: /Fall Testfall 08/ }).getByRole("list", { name: "Geplante Einsätze" });
-    // Issue #650: the prefilled times depend on the hour of the run, so another planned Testfall 08 visit can share them;
-    // the moved visit is the one of today with these times.
-    const movedItem = upcoming.getByRole("listitem")
-      .filter({ hasText: formatDayLabel(zurichDay()) })
-      .filter({ hasText: `${times.start}–${times.end}` });
+    // Issue #650, CGR-96 (PO 2026-10-30 18:25, remedy (a)): the prefilled times depend on the hour of the run, so another
+    // Testfall 08 visit of today can share day and times (lifecycle.spec plans 16:00 to 20:00, ux1.spec 20:45–21:15, …;
+    // VIS2: two visits in one slot is correct). The moved visit is the one item carrying this run's move reason; it is
+    // then asserted to be today's, with the prefilled times.
+    const movedItem = upcoming.getByRole("listitem").filter({ hasText: `Verschoben von dir: ${reason}` });
     await expect(movedItem).toHaveCount(1);
-    await expect(movedItem).toContainText(`Verschoben von dir: ${reason}`);
+    await expect(movedItem).toContainText(formatDayLabel(zurichDay()));
+    await expect(movedItem).toContainText(`${times.start}–${times.end}`);
 
     const width = await page.evaluate(() => document.documentElement.scrollWidth);
     expect(width).toBeLessThanOrEqual(PHONE.width);
