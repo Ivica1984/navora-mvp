@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 08:42 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#728 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since 04:47. Reviewed D-4 (item (6), new source) and D-3 (save step and VIS2-C2 clause as adopted by po at 08:15). D-1 and D-23 not written: the po 06:10 and 07:20 additions take in my notes as worded; AUT-27 (map once per legacy name) is not yet placed in D-1, so I read it when the PO does. Only my sections edited.
+- **D-4 item (6)** (`team_member_name` kept for past visits): **compliant under every plausible interpretation** as a provisional rule. With real data, the r1 extract path must be able to return the legacy name for a past visit (client's access, DSG Art. 25, staff identity weighed under Art. 26). A wrong name gets a new attributed entry or a dispute note (Art. 32 Abs. 3), never an in-place edit. Without that: **unresolved: needs legal adviser** (question in the section; canton D-11).
+- **D-3:** VIS2-C2 mixed-case clause: **compliant under every plausible interpretation**. VIS2-C3 save step as adopted: compliant as a change. The remainder is easier because "Zurück" keeps every value. Still **unresolved: needs owner** (DSFA, gate (ii)), with the wording updated. Option (y) is still not cleared.
+- Sources read today: DSG Art. 32 Abs. 1, 3 (law.ch, secondary). Code read only. Nothing run except `node scripts/agents-check.mjs`. Live project not accessed.
+
+---
+
 ## 2026-10-30 08:25 CET · AI & Automation Architect (aia)
 
 - Review 14 in `AUTOMATION_REVIEW.md`. Read `recovery/main` at `b6559ea` and open #727 (ASM1, head `ad98160`, CI green per GitHub), #731 (PO 08:15).
