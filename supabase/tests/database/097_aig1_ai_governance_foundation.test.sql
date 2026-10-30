@@ -126,13 +126,14 @@ select is(pg_temp.res('p', format('select public.set_agent_state(%L, %L, true, 5
 select is(pg_temp.res('fremd', format('select public.set_agent_state(%L, %L, true, 50, 2, 7, %L)',
             '00000000-0000-4000-b000-000000000011', 'aig1_test_primary_nurse', pg_temp.k(6))), 'rejected',
   'AIG1-1: an administrator of another organisation is refused');
-select is((select count(*)::int from public.ai_agent_settings), 0, 'AIG1-1: no refused switch wrote a setting');
+-- Scoped to Testorganisation A: the seed holds the AIG1 part (b) fixtures of organisations E and F (ADR-129).
+select is((select count(*)::int from public.ai_agent_settings where organization_id = '00000000-0000-4000-b000-000000000011'), 0, 'AIG1-1: no refused switch wrote a setting');
 select is(pg_temp.res('admin', format('select public.set_agent_state(%L, %L, true, 50, 2, 7, %L)',
             '00000000-0000-4000-b000-000000000011', 'aig1_test_primary_nurse', pg_temp.k(7))), 'ok',
   'AIG1-1: the administrator switches the rule agent on with its threshold');
 select ok((select state = 'on' and switched_on_by = pg_temp.u('admin') and on_version = '1' and stop_share = 50
                   and stop_min_proposals = 2 and stop_window_days = 7
-           from public.ai_agent_settings where agent_key = 'aig1_test_primary_nurse'),
+           from public.ai_agent_settings where agent_key = 'aig1_test_primary_nurse' and organization_id = '00000000-0000-4000-b000-000000000011'),
   'AIG1-1: the register holds state, threshold, version and who switched it on');
 select is((select count(*)::int from public.audit_events where table_name = 'ai_agent_settings' and actor_id = pg_temp.u('admin')
            and command = 'set_agent_state' and changed -> 'state' ->> 'new' = 'on'), 1, 'AIG1-1: the switch-on is audited');
@@ -361,7 +362,7 @@ select is(jsonb_array_length(pg_temp.rows('fremd', format('select * from public.
 update public.ai_agent_definitions set version = '2' where key = 'aig1_test_primary_nurse';
 select is(pg_temp.res('ca', format('select public.propose_visit_responsible(%L, %L)', pg_temp.v(12), pg_temp.k(70))), 'agent_stopped',
   'AIG1-8: a changed version stops the agent');
-select ok((select state = 'stopped' from public.ai_agent_settings where agent_key = 'aig1_test_primary_nurse')
+select ok((select state = 'stopped' from public.ai_agent_settings where agent_key = 'aig1_test_primary_nurse' and organization_id = '00000000-0000-4000-b000-000000000011')
           and not exists (select 1 from public.ai_suggestions where entity_id = pg_temp.v(12))
           and (select reason = 'version_changed' from public.ai_agent_stops order by seq desc limit 1),
   'AIG1-8: state stopped, reason version_changed, and no new ledger row');
