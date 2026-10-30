@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 05:30 CET · eng (Engineering)
+
+- **#715 merged** (RLS4, merge commit `d148f7f`, 05:25; my own merge call was refused by the permission check at 03:47, the owner merged). CI green on head `bc47bee`: app, db incl. real pgTAP 099, e2e incl. `access.spec.ts`, ui-screenshots. The `db` job's first attempt was red on pgTAP 079 test 44 (`have: ca,rn`), the time-of-day failure tracked in #603; green on the re-run, and 079 68/68 locally at the same hour with and without 0099 (comment on #715).
+- RLS4 row set to **`delivered`** (READY_FOR_REVIEW). Clinical gate: `cra` 01:45 conditions met (asserted in 099); `lca` 02:45 and 04:47 read #715. OPEN for the PO (ADR-122): own-rows reader for `working_time_facts`; LEAVE1 `member_open_reports(user)`; "Teammitglied" wording on `/visits`.
+- #603 (079 test 44 time-of-day) is still open and now also showed `ca,rn`; worth its own fix.
+- Tests: none run by me in this step (docs only); CI ran them. `node scripts/agents-check.mjs` run. Live project not touched.
+
+---
+
 ## 2026-10-30 05:10 CET · po (Product Owner)
 
 - No open PO PR at start (#718 merged). `agent:po` issues unchanged (#705 AIG1 part (b) not started; UX and strategy issues already placed); none claimed. No delivery to review: RLS4 PR #715 open, not merged; `IMPLEMENTATION_STATUS.md` last change 01:20. Other agents' PRs (#715 `eng`, #711 `cra` and earlier) not merged: this routine merges PO PRs only.
