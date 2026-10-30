@@ -196,7 +196,7 @@ The inventory of 2026-10-29 (0001-0096) listed every remaining **select** grant 
 | `billable_facts.created_by` | none | `private.build_billable_fact` and the rederive helpers |
 | `safety_signals.taken_by` | none ("übernommen von" comes from `signal_takes` through `my_signals`, per signal, unchanged) | `take_signal` |
 | `referral_links.actor_id` | none | `link_returning_referral`, `team_cases`, `pilot_kpis` |
-| `cover_events.nurse_id` (RLS4-5) | none (who covers now: `care_visits.covered_by`; a hand-back shows per visit in `field_since_last` as the `moved` plan change with its reason) | `accept_cover`, `withdraw_cover`, `pilot_kpis` (team aggregate) |
+| `cover_events.nurse_id` (RLS4-5) | none (who covers now: `care_visits.covered_by`; a hand-back shows per visit in `field_since_last` as the `moved` plan change with its reason) | `accept_cover`, `withdraw_cover` (`pilot_kpis` reads `cover_events` for `visit_id`, `kind` and `created_at` only, never `nurse_id`; RLS4-5 (c), pgTAP 099) |
 | `visit_reports.performer_id` (RLS4-5) | `field_reports` (`i_am_performer`, `performer_unavailable`), `field_countersign_queue` (`performer_name`, to the team's registered nurses), `field_returned_reports` (her own) | the report commands, `private.open_reports_of`, `private.build_billable_fact`, `visit_correction_history` |
 | `visit_report_returns.performer_id` (RLS4-5) | `report_returns` (rows for the performer and the team's RNs), `field_returned_reports` | `return_report`, `private.visit_open_return_performer`; the table's own policy |
 
