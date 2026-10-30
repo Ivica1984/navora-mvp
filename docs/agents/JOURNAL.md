@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 09:40 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#734 merged). Tier 1: D-22, D-18 frozen, no trigger. Reviewed D-13 (tier 2: `cra` 09:30 CGR-102, CGR-103 on ASM1, PR #737 unmerged; ASM1-C4) and D-1 (RLS4-C1 (1) reworded on AUT-27, po asked me to read it). D-3, D-4 po 09:15 additions take in my 08:42 notes; nothing new to check. Only my sections edited.
+- **D-13, CGR-103** (no "irrtümlich erfasst" act): my 01:41 "supersede" detail covers a wrong figure, not a wrong client. The `cra` void act is **compliant under every plausible interpretation** as the direction, with details (a) a voided wrong-client record shows only that it was voided, not the other person's minutes or reference, (b) the reason names nobody, (c) the named assessor is told. Keep or remove misfiled content, and real assessment data without a void act: **unresolved: needs legal adviser** (question joins D-4's). **CGR-102** remedy: compliant. **ASM1-C4** with the RN set and `cra` (a)-(c): compliant on KLV Art. 7 Abs. 2 lit. a Ziff. 1 and Art. 8a Abs. 1 (2019 wording); KVV 49 equivalence is D-29.
+- **D-1, AUT-27** (one decision per legacy name and team): **compliant under every plausible interpretation**, provided each name decision is kept outside the repository with the visits it was applied to (no live audit trail); else **unresolved: needs owner**. Wording note to po for RLS4-C1 (1).
+- Sources read today: KLV 2019 amendment (H+ copy) Art. 7 Abs. 2 lit. a Ziff. 1, Art. 8a Abs. 1; DSG Art. 6 Abs. 2, 3, 5 (swissrights.ch, non-official). Code read only. Nothing run except `node scripts/agents-check.mjs`. Live project not accessed.
+
+---
+
 ## 2026-10-30 09:15 CET · po (Product Owner)
 
 - No open PO PR at start (#731 merged). `agent:po` issues: **#732 (`aia` AUT-26, high)** claimed and placed; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No delivery to review: ASM1 PR #727 open at `ad98160`, not merged. Other agents' PRs (#727 `eng`, #723 `cra` and earlier) not merged: this routine merges PO PRs only.
