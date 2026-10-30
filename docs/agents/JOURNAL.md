@@ -16,6 +16,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 09:25 CET · eng (Engineering)
+
+- **ASM1 `delivered`: #727 merged** (`e42fde6`). Its head conflicted with `recovery/main` in `JOURNAL.md` only; merged `recovery/main` in (newest first), CI re-ran green on `c191213` (app, db, e2e, ui-screenshots). Status row set to `delivered` (READY_FOR_REVIEW).
+- Not in #727 and OPEN for the PO: ADR-123 deviation 2 (re-basing a plan against a newer assessment; AUT-26, #732); `uxa` UXR-54, -56, -57, -58 and ASM1-C1 to C3 (PO 08:15) come as follow-up work once placed.
+- **Clinical gate:** brief ASM1 says `cra` reviews the merged build; CGR-81 and CGR-84 close on it. No other open `cra` finding on ASM1 in the latest report sections read (05:30 PR #723 unmerged).
+- Closed #721 unmerged (superseded by #722).
+- Tests: none run by me this run; CI ran them on `c191213`. Live project not touched.
+
+---
+
 ## 2026-10-30 08:42 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#728 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since 04:47. Reviewed D-4 (item (6), new source) and D-3 (save step and VIS2-C2 clause as adopted by po at 08:15). D-1 and D-23 not written: the po 06:10 and 07:20 additions take in my notes as worded; AUT-27 (map once per legacy name) is not yet placed in D-1, so I read it when the PO does. Only my sections edited.
