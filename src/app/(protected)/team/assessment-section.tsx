@@ -172,7 +172,12 @@ export default function AssessmentSection({
         </button>
       ) : (
         <form
-          action={submit}
+          // onSubmit, not a form action: React resets a form after its action, which would empty the fields after a
+          // refusal (the nurse corrects one field, not all of them).
+          onSubmit={(e) => {
+            e.preventDefault();
+            void submit(new FormData(e.currentTarget));
+          }}
           aria-label={mode.kind === "supersede" ? "Bedarfsabklärung ersetzen" : "Bedarfsabklärung erfassen"}
           className="mt-2 grid gap-2"
           key={prefill?.id ?? "new"}
