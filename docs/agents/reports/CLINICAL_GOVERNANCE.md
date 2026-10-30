@@ -16,6 +16,85 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-30 13:30 CET: UX2-22/-23 (#742, merged `ea94bba`) read: no clinical finding, my 13:40 (29.10) "hide" decision met; ASM1-C1 to -C5 with C4 (d) (open #747, head `fcb84eb`, migration 0101, ADR-125) read: **CGR-102 remedy met on the PR head** (closes on merge); ASM1-C4 conditions (a)-(c) met; **CGR-104** (new, advisory S2, with ASM1-C6 before real assessment data: the plan's basis is compared by date, not by record, so a same-date second record or a void leaves the plan pointing at a record that is not current, with no marker); inputs on UXR-60 (keep the confirming step), UXR-62 and the C6 display
+
+**Scope:** `recovery/main` @ `5ba84b4`. Changes since my 09:30 section (PR #737, unmerged, read from its branch; `recovery/main` was `e42fde6`):
+- **Code merged:** **#742** UX2-22 and UX2-23 as `ea94bba` (head `a15cffa`; ADR-124): `features/field/qualification.ts`, `field-client.tsx`, `absence-section.tsx`, `field/page.tsx`, `features/field/queries.ts` (`getOwnQualificationGaps`), `admin/confirm-step.tsx`, `features/admin/confirm-texts.ts`, admission and contract-end sections; seed (synthetic `admind.test`, `ohnequal.test`, Testteam D); pgTAP 002, 018 adjusted; vitest `ux2-gates`; Playwright `ux2-gates.spec.ts`. No migration.
+- **Docs merged:** PO 10:15 (#740: ASM1 `changes-requested`, ASM1-C5, ASM1-C6), 11:10 (#746), 12:14 (#750: UXR-60 as ASM1-C4 (d)); `lca` 09:40 (#739), 10:45 (#743), 12:50 (#751); `uxa` 11:55 (#749); `eng` status (#736, #744).
+- **Open:** **#747** `eng` ASM1-C1 to -C5 and C4 (d) (head `fcb84eb`; migration `20261021000101_asm1_c4_c5_plan_review_act.sql`; pgTAP 101 (33); vitest `asm1-conditions`; `asm1.spec.ts` extended). CI on `fcb84eb`: `app`, `db`, `e2e`, `ui-screenshots` **success** (check runs read through the GitHub API). CI on `recovery/main` `5ba84b4`: all four jobs success. My governance chain #582 … #737 is still unmerged (owner instruction on #666).
+- **Asked of `cra`:** #747 body and PO 10:15/12:14: read C4 (a)-(c), C5 and C4 (d) before merge, and whether to drop the confirming step (C4 (d) (3)); `eng` 10:48 (#744): read `/field` on `ea94bba` in the UX2 gate; `uxa` 11:55: UXR-60, UXR-62, the C6 display (wording, a word instead of a strike).
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read: the full migration 0101; pgTAP 101; the #747 diff of `features/assessment/rules.ts`, `plan-assessment-basis.tsx`, `plan-review-button.tsx`, `assessment-section.tsx` (history fold), `tests/unit/asm1-conditions.test.ts` (test names), `asm1.spec.ts` (C4 (d) block); 0100 `current_assessment`, `assessment_head`, the record table (no uniqueness per case and date) and the 0100 reader; the #742 `src/` and `tests/` diff in full; 0094 (`visit_qualification_refusal`, pause unchanged).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-104 | **ASM1-7 / ASM1-C5 / ASM1-C6**: how the reader decides that the plan's basis is not the current record (0100, kept in 0101) | **advisory (S2); build with ASM1-C6, before the first real assessment record**; does not block #747 or ASM1 acceptance on synthetic data | IMPLEMENTED fact: the reader shows "Neuere Bedarfsabklärung" only when the current record's **date** is later than the oldest basis head's date, and (0101) the C5 sentence only when an item's basis was **superseded**; the C4 act is refused as `nothing_to_review` otherwise. Two paths leave the plan resting on a record that is **not current** with no marker, no sentence and no act offered: (1) **a second record with the same date that does not supersede the first** (nothing in 0100 forbids it; `current_assessment` then picks the later entry, 0100:258-268). The care-plan block shows the second record's minutes beside the items (`categoryRows(current)`) under "Geschrieben gegen die Bedarfsabklärung vom <same date>", which reads as consistent. With ASM1-C2 the first record now sits folded under "Frühere Erfassungen". (2) **ASM1-C6 as briefed** (PLANNED): after a void the current record falls back to an **older** one, so the date test (`current date > basis date`) is false and no marker appears, although C6 (1) requires one. If the voided record was the only one, `current_id` is null, the reader returns no marker (it needs a current record), and `planBasisText` still says "Geschrieben gegen die Bedarfsabklärung vom <date of the voided record>". Both are the H-08/CGR-102 hazard: the team reads its plan as written against an assessment it was not written against. | 0100:258-268 (`current_assessment`), :94-133 (no unique case/date), :590-594 (date test); 0101 `team_case_assessments` (`newer_assessment_date`, `corrected` CTE: `basis_id <> head_id` only), `review_care_plan_against_assessment` (`nothing_to_review` test); `rules.ts` `planBasisText`, `categoryRows`; `briefs/ASM1.md` ASM1-C6 (1) | (1) Decide "the plan rests on the current record" by **identity**: a fact is returned when any active item's basis head is not `current_id` (this includes a newer record, a same-date parallel record and a voided basis), and when an item's basis head is voided. (2) The care-plan block then shows the existing marker or a sentence in the C5 style (`uxa` words it; `info`, no colour above `info`, outside the folded history); for a voided basis, the sentence says only that the record the plan rests on was marked "irrtümlich erfasst", with no field of that record (`lca` 09:40 (a)). (3) `planBasisText` never names a voided record as the basis. (4) The C4 act is offered and accepted in each case and clears it. (5) pgTAP: (i) item written against record 1; record 2 entered with the same date, not a supersede → fact returned, act accepted, fact gone; (ii) basis voided with an older record left → fact returned; (iii) only record voided → no basis line naming it, fact returned; (iv) J3/PLAN2/J5 hashes unchanged. Owner: `po` (placement with ASM1-C6), `eng`, `uxa` (sentence). Whether two records of one case on one date are allowed at all, and which is current, is the Clinical Owner's (UNKNOWN); the identity rule protects either way. |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-102** | open, advisory (S2); **remedy (1)-(5) met on the #747 head `fcb84eb`** (CI green); closes when #747 is merged unchanged | (1) the reader returns `corrected_basis_date` (the stored basis's date) and `corrected_on` (the head's Zurich entry date) when an active item's basis differs from its head (0101 `corrected` CTE); (2) `correctedBasisText`: "Die Bedarfsabklärung vom <Datum>, gegen die der Pflegeplan geschrieben ist, wurde am <Datum> korrigiert.", `data-tone="info"`, in the care-plan block (`plan-assessment-basis.tsx`), not in the folded history; (3) the C4 act stores the current record, which is a head, so stored = head (`private.plan_item_basis`); (4) pgTAP 101:147-161: same-date correction → no "Neuere" marker but the fact is returned with both dates; the superseded record cannot be the act's basis (`not_current`); the act clears the fact; a correction of a record no active item rests on is not returned; items and planning hashes unchanged (101:166-168); (5) the current record's "Ersetzt eine frühere Erfassung. Grund: …" line is outside `details` (`assessment-section.tsx:153`, `:188-200`). Remaining gap by identity: CGR-104. |
+| **CGR-103** | open, advisory (S2); ASM1-C6 PLANNED with a deadline before the first real assessment record (PO 10:15); `uxa` display proposal confirmed below | `briefs/ASM1.md` ASM1-C6 (1)-(7) |
+| **CGR-101** | open, advisory (S2); RLS4-C1 PLANNED | no change |
+| **CGR-99** | open, advisory (S3); VIS2-C1 PLANNED | no change |
+| **CGR-98**, **CGR-100** | open; AIG1-15, AIG1-16 PLANNED | no change |
+| **CGR-96** | open, advisory (S3); `vis1.spec.ts` unchanged; `ux2-gates.spec.ts` uses its own Testteam D visit (21:00) and `asm1.spec.ts` Testfall 08 without visits, so no new fixed-slot collision; e2e green on `5ba84b4` | `git diff --stat e42fde6 5ba84b4 -- tests/e2e` |
+| **CGR-95**, **CGR-78**, **CGR-75** | open, advisory (S2) | no change |
+| CGR-94, CGR-86 | open | no change |
+| CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-16, CGR-23 | open | no change |
+
+Closed in this section: none (CGR-102 closes on the merge of #747).
+
+### #747 (ASM1-C1 to -C5, C4 (d); open, head `fcb84eb`): clear to merge from the clinical side
+
+- **ASM1-C4 conditions (09:30):** (a) **met**: the act stores the record and its state at the act (`record_state`, 0101 table); after the act the basis is the current record, whose line still carries its current state (`assessmentLine` ends with `STATE_LABEL[r.state]`); pgTAP 101:125-128 asserts `state_at_review` = `unconfirmed` and the record still `unconfirmed`. (b) **met**: the act clears the C5 fact and is offered while it shows (`reviewOffered`; `nothing_to_review` test includes `basis_id <> head_id`). (c) **met**: no `care_plan_items` row is written (no update, so the PLAN2 regeneration trigger 0025 and the GP/order triggers 0061/0063 do not fire); items hash and planning hash unchanged (pgTAP 101:166-168). The act is refused for a care assistant (`not_rn`), another team and another organisation (101:116-120), is idempotent (101:130), append-only (42501 on update, 101:144) and audited with code values only. The table has no grant and no policy; the reviewer's name is read per case only.
+- **Who may record it (provisional set, a registered nurse of the case's team):** no clinical objection, unchanged. Whether the act may rest on an unconfirmed record stays the Clinical Owner's (UNKNOWN); the build keeps that state visible, which is the condition under which I accepted it.
+- **ASM1-C1:** meets my condition: `info`, her own `assessor_is_me` only, gone on confirm or supersede (`recordsToConfirm`; vitest "no amber, rose or red class"). The void case waits for C6.
+- **ASM1-C2:** meets my condition (current record, state, "Ersetzt …" line and the C5 sentence outside the closed `details`).
+- **ASM1-C3:** wording only; the rules are unchanged.
+- **ASM1-C4 (d) (UXR-60):** **order and label confirmed** (marker and C5 sentence first; command last, after the category rows and newer events; "Als geprüft bestätigen: Pflegeplan gegen Bedarfsabklärung vom <Datum>"). **I do not drop the confirming step (3).** The act clears an S2 fact for the whole team and cannot be undone; one extra tap on a rare act is a proportionate control. P-36 may test whether it stays: dropping it needs evidence that no act was recorded in error. That means cancellations alone do not count. A re-act within 24 h (P-36's own measure), or a care-plan item changed soon after an act (window set by the PO, not a clinical rule), must be counted as a possible error.
+
+### #742 (UX2-22, UX2-23; merged `ea94bba`): no clinical finding
+
+- **UX2-22** meets my 29.10 13:40 "hide" decision: on a visit of a team where her qualification is missing, no depart, start, resume or complete (`actionsForMember`); pause stays, as in 0094 (the database never refuses it). The ADM2-16 sentence shows once under the safety signals, which stay first. "Offen im Team" withholds that team's visits and shows one line without a client name. The server refusal (0094, CR-140) stays the guard. A covered visit of another team is left to the server, which checks the cover team. The read is her own membership rows only; on a read error the page throws rather than show controls from a guess. Coordination still sees the open visits, so none is lost to the team. New hard-coded mirror of CR-140 → CR-149.
+- **UX2-23:** confirm steps on admission on/off and "Vertragsende entfernen"; "Abbrechen" runs nothing. The admission-off sentence correctly drops "ruhen" because proposals still lapse (ADR-124 deviation 1). No clinical content.
+
+### Inputs requested of `cra` (clinical review input; I decide nothing, D-27)
+
+- **UXR-62 (recorded review line):** "Geprüft am <D2> von <Name> gegen die Bedarfsabklärung vom <D1>." plus its own sentence "Diese war damals <Status>." when the state was not "bestätigt": **meets condition (a)**. The record's current state must still show on the assessment line, as it does now.
+- **C6 display (`uxa` 11:55):** **wording confirmed**; the word "Irrtümlich erfasst am <Datum> von <Name>. Grund: <Grund>" instead of a strike is **acceptable**: a strike is not required for safety. **No field of the voided record is needed by the team for safety** (agrees with `lca` 09:40 (a) and 12:50). The fact that matters clinically is on the care plan: the plan must say that its basis is gone. That is CGR-104 (2)-(3), and it must not sit only inside the folded history. The confirming step on the void: agreed (it ends the record's role as a basis).
+
+### Other checks (no finding)
+
+- **0101 security:** both new private functions are revoked from every role; the command is SECURITY DEFINER with `search_path = ''`, takes the case row `for update` and checks org, team, access end and RN status before any read of the record. The record is the case's own current record by construction (`private.current_assessment(c.id)`).
+- **No new hard-coded clinical, tariff, LTCF, interRAI, PAG or MQI rule.** The act's set (registered nurse of the team) reuses CR-147's eligibility; it is a provisional product rule → CR-150. The C5 fact → CR-151. Nothing is summed, scored, coloured above `info` or blocked; no due date or reminder (vitest "no due date, reminder or signal wording").
+- **lca 12:50 (D-13):** a voided record holding another client's data in the first client's access response is a legal question; clinically, nothing in the record needs to reach either client's care team (above).
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **UX2-22, UX2-23** (#742, merged `ea94bba`) | no clinical finding; UX2-22 meets the 29.10 13:40 decision |
+| **ASM1-C1 to -C5, C4 (d)** (#747, open, head `fcb84eb`) | **clear to merge** (clinical side); CGR-102 closes on merge; confirming step kept |
+| **ASM1** (acceptance) | with #747 merged: C1 to C5 and C4 (d) met from the clinical side; ASM1-C6 and CGR-104 before the first real assessment record (do not hold acceptance on synthetic data) |
+| **ASM1-C6** (PLANNED) | display wording confirmed; build with CGR-104 (1)-(5) |
+| **RLS4-C1, VIS2, AIG1 part (b), PLAN3** | unchanged |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **po:** place CGR-104 with ASM1-C6 (same deadline); P-36: count a re-act within 24 h and a care-plan item changed soon after an act (your window), not only cancellations.
+- **eng:** merge #747 when ready (CGR-102 closes); CGR-104 (1)-(5) in the ASM1-C6 PR; CGR-96 unchanged.
+- **uxa:** wording of the CGR-104 sentence for a parallel record and for a voided basis.
+- **clinical (Clinical Owner, after G-1):** new: whether a case may hold two assessment records of one date that do not replace each other, and which is current (CGR-104). Unchanged: who may record the ASM1-C4 act and whether it may rest on an unconfirmed record; whether a void needs the named assessor's confirmation; reassessment triggers (CR-148, H-08); CGR-99, CGR-100, CGR-98, CGR-95; same-client overlap allowed or billable; D-15, CR-010, CGR-87 (3), (4), CGR-89 (3), CR-134, D-12, D-25.
+- **owner / legal / regulatory adviser:** chain merge of the governance PRs (#582 … this PR); unchanged items (G-1, D-38, D-34 MepV, D-36, D-1, D-4 adviser list with `lca` 12:50).
+
+---
+
 ## 2026-10-30 09:30 CET: #727 (ASM1, migration 0100, ADR-123) read on its merge commit: **CGR-81 and CGR-84 closed** (no sum, period as entered with no list; pgTAP 100, vitest `asm1-assessment`); ASM1-1 to ASM1-11 met in code; **CGR-102** (new, advisory S2, place with ASM1-C4 before ASM1 acceptance: a correction of the assessment a care plan was written against leaves no marker); **CGR-103** (new, advisory S2, before real assessment data: a record entered on the wrong case or by mistake can only be "corrected" by asserting another assessment); ASM1-C1, -C2, -C4 clinical inputs given; VIS2-C2 mixed clause, VIS2-C3 (1a) and save-step wording confirmed; CGR-101 placed as RLS4-C1 (meets the remedy at brief level)
 
 **Scope:** `recovery/main` @ `e42fde6`. Changes since my 05:30 section (PR #723, open; it contains #711 and the chain before it, not merged under the owner instruction on #666):

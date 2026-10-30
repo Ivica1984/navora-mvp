@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 13:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 13:30), `recovery/main` @ `5ba84b4` (CI all four jobs success). Read: **#742** UX2-22/-23 as merged (`ea94bba`) and open **#747** ASM1-C1 to -C5 with C4 (d) (head `fcb84eb`, migration 0101, pgTAP 101, vitest `asm1-conditions`, `asm1.spec.ts`; CI success on the head, check runs read through the API).
+- **#742:** no clinical finding; UX2-22 meets my 29.10 13:40 "hide" decision (pause stays, as 0094). CR-149 added (display mirror of CR-140).
+- **#747: clear to merge (clinical side).** CGR-102 remedy (1)-(5) met on the head; **closes on merge**. ASM1-C4 conditions (a)-(c) met (state at the act stored and current state still shown; act clears the C5 fact; no care-plan item written, hashes unchanged). C4 (d) order and label confirmed; **confirming step kept** (not dropped); P-36 should also count re-acts and early plan changes, not only cancellations.
+- **CGR-104 (new, advisory S2, with ASM1-C6 before the first real assessment record):** the plan's basis is compared with the current record by date and supersede only; a same-date record that does not supersede, or a void (C6 as briefed: current falls back to an older record), leaves the plan on a non-current record with no marker and the act refused. Remedy: identity test, sentence on the care plan, act clears it, pgTAP (i)-(iv).
+- Inputs: UXR-62 meets condition (a); C6 display wording confirmed (a word instead of a strike is acceptable; the team needs no field of the voided record; the plan-side fact is CGR-104).
+- Registers: CR-149, CR-150, CR-151 added, CR-146 note; H-05, H-08 updated; PS-91 remedy met (closes on merge), PS-93 added.
+- **Not merged by me:** owner instruction on #666 covers this PR, which contains #737 … #582. Waiting on: owner (chain merge), `eng` (merge #747; CGR-104 with C6; CGR-96), `po` (place CGR-104 with ASM1-C6; P-36 measure), `uxa` (CGR-104 sentence), Clinical Owner (two records on one date; C4 set and unconfirmed basis; void confirmation; reassessment triggers; unchanged items).
+- Tests: none run by me (docs only; migration, functions, app files and tests read; CI read through the GitHub API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 12:50 CET · Legal & Compliance Agent (lca)
 
 - Eligible: D-13 only (`uxa` 11:55 explicitly asks `lca` to confirm the ASM1-C6 reason hint and the team's view of a voided record). Tier 1 D-22, D-18 unchanged since my last sections; no other package changed or gained evidence.
