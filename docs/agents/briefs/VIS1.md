@@ -238,3 +238,27 @@ The 08:15 review found every criterion met and left one condition: a `cra` secti
 **Deviations:** none new. The merge of #655 before the gate (eng 08:14, its own error) is recorded and closed by the gate result; the rule stays: a clinically gated PR is merged after the `cra` section, not before (`cra` 09:25 repeats it).
 
 **Verdict: accepted.** Field actions happen on the visit's day; an early visit is moved in one confirmation that shows true facts; across midnight the database decides the day. No coordinator, no approval step; the nurse at the door decides and the record stays true (values 2, 4, 5; patient-safety precondition kept). `uxa` UXR-40/-41 stay in UX2 (UX2-20, UX2-21). Next item: ADM2 (already in build, #647).
+
+
+## PO review 2026-10-30 17:45 CET: CGR-96 test fix (#764), done-when 1, 2 and 4 met; 3 in watch
+
+CGR-96 (#693, `cra` advisory S3) was placed first in *Active now* on 2026-10-29 23:20 with four done-criteria: (1) the rows behind the two cards named from a reproduction; (2) a product, fixture or screen fix with its own test; (3) green on `recovery/main` and three consecutive later runs, one started between 18:00 and 23:00 Zurich; (4) no retry or skip. Delivered as #764 (ADR-127, test-only), merged `eae9a14`. VIS1 stays **`accepted`**; this is a test fix, not a VIS1 change. The PO did not run the tests; evidence is the diff and CI as GitHub reports it.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| (1) rows named from a reproduction | **met, with deviation 1** | pgTAP 102 (13 tests, pinned clock 10:00): a move into a slot where the client already has a visit today leaves two **different** ids in `field_visits`, no id twice, no `care_visits` row added, the moved row keeps its id, repeat = `duplicate`, one `moved` row for the moved visit only. Cause: fixture overlap (`ux1.spec` 20:45–21:15, `vis1-10.spec` 22:40–23:10 plan other Testfall 08 visits today), matching all three recorded failures in evening slots |
+| (2) fix with its own test | met | `tests/e2e/vis1.spec.ts`: counts the slot's cards on today's `/field` before the move, records the count as annotation `CGR-96`, asserts exactly `before + 1` after it, and takes the moved card by name **and** focus (VIS1-3e already requires focus there); every other assertion on the moved card unchanged |
+| (4) no retry, skip or loosened assertion | met | diff of #764: no `retry`, `skip`, `fixme` or `test.slow`; Playwright `retries: 0` unchanged; the count is exact (`toHaveCount(before + 1)`), which asserts more than before (the move adds exactly one card) |
+| (3) green on `recovery/main`, three consecutive later runs, one started 18:00–23:00 | **open (watch)** | PR head `a33cda9`: `app`, `db`, `e2e`, `ui-screenshots` success (started 17:20 CET); merge commit `eae9a14` push run success (17:27 CET); `6fbb390` running at review time. No evening run yet |
+| No product change | met | no migration, no app code, no seed change; CGR-97's product side (same-slot cards, two names) shipped as VIS2 (#707) |
+
+**Deviations (ADR-127), decided:**
+1. *Reproduction in the database, not from the attempt-1 trace (never opened, artifacts expired)*: **accepted.** The trace would have named the rows of one past run; pgTAP 102 proves the mechanism for every run and the annotation names the overlap in every future one. The question CGR-96 asked (one visit twice, or two visits) is answered: two visits, no product defect.
+2. *Done-when 3 is evidence after merge*: **accepted**; it is how (3) was written.
+3. *Product side left to VIS2*: **accepted**; already accepted there.
+
+**Verdict:** CGR-96 (1), (2), (4) **met**. (3) in watch: it closes when `recovery/main` shows three consecutive green runs after `eae9a14`, one of them started 18:00–23:00 Zurich; Engineering or the PO names the runs on #693, which then closes. If an e2e run on `recovery/main` fails at `vis1.spec` with the `CGR-96` annotation showing `before ≥ 1`, CGR-96 returns to *Active now* (0) with that run linked. Other failures are not CGR-96.
+
+**Order:** the fix is merged, so the reason CGR-96 held AIG1 part (b) back (it could turn every e2e run red in the evening) is removed. **AIG1 part (b) may start now**; (3) is collected alongside it and needs no Engineering work.
+
+**Business and care-model view.** A red test at 20:45 that turns green at 09:00 teaches a team to ignore red. It now says which visits share the slot, and the database proves a move never doubles a visit, which matters for the nurse at the door and for billing. No user-visible change (values 6 and 7; patient safety unaffected).
