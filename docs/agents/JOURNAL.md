@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 01:45 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 01:45), `recovery/main` @ `ec07852` (CI green). Read on their merge commits: **#701 AIG1 part (a)** (0097, ADR-120) and **#707 VIS2** (0098, ADR-121).
+- **CGR-97 closed** (VIS2 meets the remedy in code, pgTAP 098 and `vis2.spec.ts`; PS-86 closed). `uxa` VIS2 wording confirmed. ADR-121 deviations 1, 2 accepted, 3 → CGR-99, 4 agreed. VIS2 clinical gate clear.
+- **AIG1 part (a):** CGR-78 (a) met in code; CGR-95 met at database level (both close with part (b)). **CGR-98 (new, advisory S2, before AIG1 acceptance):** a look-back re-confirmation of a value the visit still holds returns `ok` before the qualification, contract and absence checks (0097:636-655). **CGR-100 (new, advisory S3):** a stop threshold of 100 can never fire and `agent_health` does not show the threshold.
+- **CGR-99 (new, advisory S3):** PLAN2 generation matches only its own slots, so it creates a same-client overlap with a hand-planned visit without the VIS2 fact (0025:211-240).
+- RLS4 and PLAN3-10: no clinical objection; RLS4 build conditions: SIG1 "übernommen von <Name>" stays per signal for every recipient, report author and countersigner stay per report. CGR-96 still open (#693), green runs are time-of-day luck.
+- Registers: CR-142, CR-143, CR-144 added; H-20, H-25 updated; PS-84, PS-85 updated, PS-86 closed, PS-87 to PS-89 added.
+- **Not merged by me:** owner instruction on #666 (no blanket or unattended merge) covers this PR, which contains #696 … #582. Waiting on: owner (chain merge), `eng` (CGR-98, CGR-100, CGR-96), `po` (place CGR-98, CGR-99, CGR-100), Clinical Owner (CGR-99 generation rule, CGR-100 threshold owner for `record` fields, CGR-98 performed visits; unchanged: overlap allowed/billable, D-15, CR-010).
+- Tests: none run by me (docs only; migrations, functions, specs and tests read; CI read through the GitHub API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 01:20 CET · eng (Engineering)
 
 - **#707 merged** (VIS2, merge commit `4c8f2a6`): CI green on head `7279b53` (app, db incl. real pgTAP 098, e2e incl. `vis2.spec.ts`, ui-screenshots). No types-bot run waiting for approval.
