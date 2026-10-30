@@ -8,7 +8,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(90);
+select plan(91);
 
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
   select (case n when 'rn' then '00000000-0000-4000-a000-000000000902' when 'ca' then '00000000-0000-4000-a000-000000000906'
@@ -244,6 +244,22 @@ select ok(pg_temp.refused('ca', format('select actor_id from public.visit_events
   'RLS3-4: a teammate''s table-API select of visit_events.actor_id is refused');
 select ok(pg_temp.refused('ca', format('select actor_id from public.visit_time_corrections where visit_id = %L', pg_temp.v(1))),
   'RLS3-4: a teammate''s table-API select of visit_time_corrections.actor_id is refused');
+-- RLS4 (0099, ADR-122): on the care-record tables of the OBS1-7 (c) inventory the only person columns a member can still
+-- select are the assignments (RLS4-2). A new grant of an act column on these tables fails here.
+select is((select string_agg(c.table_name || '.' || c.column_name, ',' order by c.table_name, c.column_name)
+           from information_schema.columns c
+           where c.table_schema = 'public'
+             and c.table_name in ('visit_reports', 'visit_report_returns', 'care_visits', 'cover_events', 'visit_plan_changes',
+                                  'visit_status_notes', 'working_time_facts', 'care_plan_items', 'case_tasks', 'case_lifecycle_events',
+                                  'case_gp_notices', 'cases', 'team_decisions', 'quality_events', 'quality_event_log', 'quality_holds',
+                                  'billable_facts', 'safety_signals', 'referral_links')
+             and (c.column_name ~ '_by$' or c.column_name in ('actor_id', 'author_id', 'performer_id', 'owner_id', 'nurse_id',
+                                                               'primary_nurse_id', 'deputy_nurse_id', 'responsible_user_id',
+                                                               'proposed_primary_nurse_id'))
+             and has_column_privilege('authenticated', format('public.%I', c.table_name), c.column_name, 'select')),
+  'care_visits.covered_by,care_visits.responsible_user_id,cases.deputy_nurse_id,cases.primary_nurse_id,cover_events.nurse_id,'
+  || 'quality_events.owner_id,visit_report_returns.performer_id,visit_reports.performer_id',
+  'RLS4-1/-2: on these care-record tables only the assignment columns name a person to a member; every act column is closed');
 select ok(pg_temp.refused('rn', 'select * from public.visit_events'), 'RLS3-4: select * through the table API is refused too');
 select is(pg_temp.seen('ca', format('select id, event_type, occurred_at from public.visit_events where visit_id = %L', pg_temp.v(1))), 2,
   'RLS3-4: the team still reads the events of its visit without who recorded them');

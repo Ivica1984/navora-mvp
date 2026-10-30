@@ -36,10 +36,12 @@ create function pg_temp.started_event(n text) returns bigint language sql as $$
 create function pg_temp.latest_report(n text) returns uuid language sql as $$
   select r.id from public.visit_reports r
   where r.visit_id = pg_temp.vid(n) and not exists (select 1 from public.visit_reports s where s.supersedes_id = r.id) $$;
-create function pg_temp.head_fact(n text) returns public.billable_facts language sql as $$
+-- RLS4-1 (0099): `created_by` / `performer_id` are not selectable through the table API, so the two head helpers read
+-- the stored rows as the fixture owner (security definer); the values asserted are unchanged.
+create function pg_temp.head_fact(n text) returns public.billable_facts language sql security definer as $$
   select f.* from public.billable_facts f
   where f.visit_id = pg_temp.vid(n) and not exists (select 1 from public.billable_facts s where s.supersedes_id = f.id) $$;
-create function pg_temp.head_wt(n text) returns public.working_time_facts language sql as $$
+create function pg_temp.head_wt(n text) returns public.working_time_facts language sql security definer as $$
   select w.* from public.working_time_facts w
   where w.visit_id = pg_temp.vid(n) and not exists (select 1 from public.working_time_facts s where s.supersedes_id = w.id) $$;
 -- start, complete, set the start 30 minutes earlier (F3), draft and sign (registered nurse: final)

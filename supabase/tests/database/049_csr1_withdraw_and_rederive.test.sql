@@ -51,14 +51,16 @@ create function pg_temp.latest_report(n text) returns uuid language sql as $$
 -- OBS1-7 (0096): snapshot, signed_by and signed_at are not selectable through the table API, so the helper names the
 -- columns it reads (it runs as the nurse too); signed_by is read as the table owner where a test asserts it.
 create type pg_temp.report_row as (id uuid, version int, status text, supersedes_id uuid, withdrawn_by uuid, withdrawn_at timestamptz);
-create function pg_temp.report_v(n text, v int) returns pg_temp.report_row language sql as $$
+-- RLS4-1 (0099): `withdrawn_by` and `created_by` are not selectable through the table API, so report_v and head_fact
+-- read the stored rows as the fixture owner (security definer); the values asserted are unchanged.
+create function pg_temp.report_v(n text, v int) returns pg_temp.report_row language sql security definer as $$
   select row(r.id, r.version, r.status, r.supersedes_id, r.withdrawn_by, r.withdrawn_at)::pg_temp.report_row
   from public.visit_reports r where r.visit_id = pg_temp.vid(n) and r.version = v $$;
 create function pg_temp.shown_hash(n text) returns text language sql as $$
   select f.snapshot_hash from public.field_reports((private.now() at time zone 'Europe/Zurich')::date) f where f.visit_id = pg_temp.vid(n) $$;
 create function pg_temp.started_event(n text) returns bigint language sql as $$
   select e.id from public.visit_events e where e.visit_id = pg_temp.vid(n) and e.event_type = 'started' $$;
-create function pg_temp.head_fact(n text) returns public.billable_facts language sql as $$
+create function pg_temp.head_fact(n text) returns public.billable_facts language sql security definer as $$
   select f.* from public.billable_facts f
   where f.visit_id = pg_temp.vid(n) and not exists (select 1 from public.billable_facts s where s.supersedes_id = f.id) $$;
 create function pg_temp.k(n int) returns uuid language sql as $$
