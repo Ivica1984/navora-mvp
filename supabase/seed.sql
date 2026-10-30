@@ -476,7 +476,8 @@ order by v.time_start;
 -- four was replaced, so its look-back line reads "überholt am <Datum>" (AIG1-13 (b)).
 -- AIG1-C1 / AIG1-C2 (ADR-130): of the three lines still holding their value, visit …5b1 is dated yesterday (no longer
 -- open: "Besuch nicht mehr offen", counted apart), …5b2 is open with a valid member (re-confirmed in e2e), and …5b3
--- (Testfall F2) holds a member whose qualification was removed after the stop (re-confirmation refused not_qualified).
+-- (Testfall F2, category B minutes) holds a member whose qualification was changed to care assistant after the stop
+-- (re-confirmation refused not_qualified).
 -- The stop has a fixed id so the team member's e2e opens its look-back list directly (her team's entry point is PLAN3-11).
 --   opsf.test (…9c1): operations of Testorganisation F who signs in (health list, OPS1 exception, look-back list).
 --   bestf     (…9c2): registered nurse of Testteam F who confirmed the six values; her name must never appear on the
@@ -484,7 +485,8 @@ order by v.time_start;
 --   bezugf    (…9c3): registered nurse, primary nurse of Testfall F1, the proposed value. Never signs in.
 --   anderf    (…9c4): registered nurse, the corrected value and the later replacement. Never signs in.
 --   teamf.test(…9c5): registered nurse of Testteam F who signs in at 390 px (AIG1-C2: re-confirm on the record page).
---   ohnequalf (…9c6): primary nurse of Testfall F2, the value of …5b3; her qualification was removed after the stop.
+--   assistf   (…9c6): primary nurse of Testfall F2, the value of …5b3; registered nurse at the confirmation, recorded as
+--                     care assistant after the stop (so she may no longer perform …5b3's category B minutes).
 insert into public.organizations (id, name) values ('00000000-0000-4000-b000-000000000016', 'Testorganisation F');
 insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
   ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-000000000191', private.now() - interval '200 days', 'Testteam F', 'Bern Ost', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test F', 'Keine Massnahme', false, null);
@@ -512,7 +514,7 @@ insert into auth.users (
    'teamf.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), private.now(),
    '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009c6', 'authenticated', 'authenticated',
-   'ohnequalf.test@navora.test', '', null,
+   'assistf.test@navora.test', '', null,
    '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
 insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
   ('00000000-0000-4000-a000-0000000009d1', '00000000-0000-4000-a000-0000000009c1', '00000000-0000-4000-a000-0000000009c1',
@@ -538,7 +540,7 @@ insert into public.member_profiles (organization_id, user_id, display_name, upda
   ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c3', 'Pflegekraft Bezug F', '00000000-0000-4000-a000-0000000009c1'),
   ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c4', 'Pflegekraft Andere F', '00000000-0000-4000-a000-0000000009c1'),
   ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c5', 'Pflegekraft Team F', '00000000-0000-4000-a000-0000000009c1'),
-  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c6', 'Pflegekraft Ohne Qualifikation F', '00000000-0000-4000-a000-0000000009c1');
+  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c6', 'Pflegekraft Assistenz F', '00000000-0000-4000-a000-0000000009c1');
 update public.cases set primary_nurse_id = '00000000-0000-4000-a000-0000000009c3'
 where id = '00000000-0000-4000-a000-000000000291';
 update public.cases set primary_nurse_id = '00000000-0000-4000-a000-0000000009c6'
@@ -546,12 +548,14 @@ where id = '00000000-0000-4000-a000-000000000292';
 -- Six visits, …5b1 yesterday and the others in the coming days; each holds the value its confirmation applied (…5b1,
 -- …5b2, …5b4 the proposed primary nurse of Testfall F1, …5b3 that of Testfall F2, …5b5 and …5b6 the corrected one).
 insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end,
-                                services_provided, billable, status, planned_minutes_a, responsible_user_id)
+                                services_provided, billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id)
 select '00000000-0000-4000-b000-000000000016', v.id::uuid, private.now() - interval '9 days',
        case when v.id = '00000000-0000-4000-a000-0000000005b3' then '00000000-0000-4000-a000-000000000292'
             else '00000000-0000-4000-a000-000000000291' end::uuid,
        '00000000-0000-4000-a000-000000000191', (private.now() at time zone 'Europe/Zurich')::date + v.d,
-       time '09:00', time '09:30', array['Grundpflege'], false, 'planned', 30, v.who::uuid
+       time '09:00', time '09:30', array['Grundpflege'], false, 'planned',
+       case when v.id = '00000000-0000-4000-a000-0000000005b3' then 0 else 30 end,
+       case when v.id = '00000000-0000-4000-a000-0000000005b3' then 30 else 0 end, v.who::uuid
 from (values ('00000000-0000-4000-a000-0000000005b1', -1, '00000000-0000-4000-a000-0000000009c3'),
              ('00000000-0000-4000-a000-0000000005b2', 2, '00000000-0000-4000-a000-0000000009c3'),
              ('00000000-0000-4000-a000-0000000005b3', 3, '00000000-0000-4000-a000-0000000009c6'),
@@ -589,6 +593,7 @@ from public.ai_agent_definitions d where d.key = 'aig1_test_primary_nurse';
 -- After the stop the team gave visit …5b4 to another member (audited as a responsible_user_id change, AIG1-13 (b)).
 update public.care_visits set responsible_user_id = '00000000-0000-4000-a000-0000000009c4'
 where id = '00000000-0000-4000-a000-0000000005b4';
--- After the stop the qualification of Pflegekraft Ohne Qualifikation F was removed (AIG1-C2 e2e: not_qualified).
-update public.team_memberships set qualification = null
+-- After the stop Pflegekraft Assistenz F was recorded as care assistant (AIG1-C2 e2e: not_qualified for the
+-- category B visit …5b3). No member is left without a qualification (pgTAP 018: null only on the ADM2 path).
+update public.team_memberships set qualification = 'care_assistant'
 where team_id = '00000000-0000-4000-a000-000000000191' and user_id = '00000000-0000-4000-a000-0000000009c6';

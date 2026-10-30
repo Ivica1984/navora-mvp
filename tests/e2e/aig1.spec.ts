@@ -7,8 +7,8 @@ import { expect, test, type Page } from "@playwright/test";
 // - opsf.test (Testorganisation F, operations): the agent stopped by its threshold; four values confirmed unchanged in the
 //   stop window by "Pflegekraft Bestätigt F", one of them later replaced ("überholt").
 //   AIG1-C1 / AIG1-C2 (ADR-130, migration 0104): of the three lines still holding their value, …5b1 is dated yesterday
-//   ("Besuch nicht mehr offen", counted apart), …5b2 is open with a valid member, …5b3 holds a member whose
-//   qualification was removed after the stop.
+//   ("Besuch nicht mehr offen", counted apart), …5b2 is open with a valid member, …5b3 (category B minutes) holds a
+//   member recorded as care assistant after the stop.
 // - teamf.test (Testorganisation F, registered nurse of Testteam F): re-checks look-back values on the record page at 390 px.
 // The confirm screen runs at 390 px, the health and look-back lists at desktop width (AIG1-10, AIG1-12 to AIG1-16).
 const PASSWORD = "navora-local-only";
@@ -197,7 +197,7 @@ test.describe.serial("AIG1-C1 / AIG1-C2: the team re-checks look-back values on 
     await expect(page.getByTestId("lookback-open-count")).toHaveText("1 offen · 1 nicht mehr offen");
   });
 
-  test("a member whose qualification was removed: the not_qualified text, the count is unchanged (AIG1-C2 (a), AIG1-15)", async ({ page }) => {
+  test("a member no longer qualified for the visit (care assistant, category B): the not_qualified text, the count is unchanged (AIG1-C2 (a), AIG1-15)", async ({ page }) => {
     await page.goto(`/visits/${VISIT_F_UNQUALIFIED}`);
     const section = page.getByTestId("record-lookback");
     await section.getByRole("button", { name: "Erneut bestätigen" }).click();
