@@ -46,6 +46,9 @@ import BillingPreview from "@/components/billing/billing-preview";
 import InterruptionFollowupForm from "@/components/lifecycle/InterruptionFollowupForm";
 import CaseLifecycleControls, { ClosedCases } from "./case-lifecycle";
 import AutoPlan, { type ScheduledItem } from "./auto-plan";
+import AssessmentSection from "./assessment-section";
+import PlanAssessmentBasis from "./plan-assessment-basis";
+import type { CaseAssessments, Instrument } from "@/features/assessment/rules";
 import type { PlanStatus } from "@/features/planning/queries";
 import type { CaseLifecycle } from "@/features/lifecycle/queries";
 import { RESPONSIBLE_ABSENT_NOTE } from "@/features/lifecycle/rules";
@@ -78,6 +81,8 @@ export default function TeamClient({
   leavers = [],
   leaverReports = {},
   successorItems = [],
+  assessments = {},
+  instruments = [],
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
@@ -102,6 +107,10 @@ export default function TeamClient({
   leaverReports?: Record<string, LeaverOpenReport[]>;
   /** ADM2-15 (b): open cases still naming a person whose access ended. */
   successorItems?: SuccessorItem[];
+  /** ASM1 (0100): per case, the assessment records, the care plan's basis and the marker. */
+  assessments?: Record<string, CaseAssessments>;
+  /** ASM1-6: the organisation's instrument entries. */
+  instruments?: Instrument[];
 }) {
   const gpByCase = latestNoticeByCase(gpNotices);
   const open = offers.filter((o) => !o.my_team_declined);
@@ -177,6 +186,8 @@ export default function TeamClient({
                   lifecycle={lifecycle.find((l) => l.case_id === c.case_id) ?? null}
                   planStatus={planStatus.find((p) => p.case_id === c.case_id) ?? null}
                   gpNotice={gpByCase.get(c.case_id) ?? null}
+                  assessment={assessments[c.case_id] ?? null}
+                  instruments={instruments}
                 />
               </li>
             ))}
@@ -475,9 +486,9 @@ function ErrorText({ message }: { message: string | null }) {
   );
 }
 
-function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice }: {
+function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice, assessment = null, instruments = [] }: {
   teamCase: TeamCase; continuity: ContinuityRow | null; lifecycle: CaseLifecycle | null; planStatus: PlanStatus | null;
-  gpNotice: GpNotice | null;
+  gpNotice: GpNotice | null; assessment?: CaseAssessments | null; instruments?: Instrument[];
 }) {
   const upcoming = arr<Upcoming>(teamCase.upcoming, "visit_id");
   const plan = arr<PlanItem>(teamCase.care_plan, "category");
@@ -527,7 +538,9 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice }: {
 
       <Continuity teamCase={teamCase} members={members} continuity={continuity} />
 
-      <CarePlan caseId={teamCase.case_id} items={plan} />
+      <AssessmentSection caseId={teamCase.case_id} view={assessment} instruments={instruments} members={members} />
+
+      <CarePlan caseId={teamCase.case_id} items={plan} assessment={assessment} />
 
       <AutoPlan caseId={teamCase.case_id} status={planStatus} items={plan.map(toScheduled)} />
 
@@ -745,7 +758,7 @@ function Continuity({ teamCase, members, continuity }: { teamCase: TeamCase; mem
   );
 }
 
-function CarePlan({ caseId, items }: { caseId: string; items: PlanItem[] }) {
+function CarePlan({ caseId, items, assessment = null }: { caseId: string; items: PlanItem[]; assessment?: CaseAssessments | null }) {
   const router = useRouter();
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -792,6 +805,7 @@ function CarePlan({ caseId, items }: { caseId: string; items: PlanItem[] }) {
   return (
     <section aria-label="Pflegeplan" className="mt-3 rounded-xl bg-stone-50 p-2 text-sm">
       <h4 className="text-xs font-bold uppercase tracking-wide text-secondary">Pflegeplan (Leistungen nach KLV)</h4>
+      <PlanAssessmentBasis view={assessment} items={items} />
       {items.length === 0 ? (
         <p className="italic text-secondary">Noch keine Leistungen erfasst.</p>
       ) : (

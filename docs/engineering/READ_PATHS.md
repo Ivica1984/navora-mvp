@@ -48,7 +48,10 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 | `visit_report_returns` | team: performer and the team's registered nurses; `returned_by`, `performer_id` not selectable (RLS4, RLS4-5, 0099; the policy still reads `performer_id`) | `reason` (same) | 066 |
 | `visit_observations` | team; `author_qualification_recorded` (OBS1-1 marker, 0095), `author_id` and `recorded_at` (OBS1-7, 0096) not selectable by `authenticated` (column grants on the other ten columns); read per observation only through `field_notes` (via `private.observation_authorship`), HAND1 and the report snapshot | observation text (team) | *011*, *042*, 095, 096 |
 | `visit_plan_changes` | team; `actor_id` not selectable (RLS4, 0099) | `reason` (team) | *030*, *050* |
-| `care_plan_items` | team; `created_by`, `retired_by` not selectable (RLS4, 0099) | `goal` (team) | 071 (F-5 closed) |
+| `care_plan_items` | team; `created_by`, `retired_by` not selectable (RLS4, 0099); `assessment_id` (ASM1-7, 0100) selectable | `goal` (team) | 071 (F-5 closed) |
+| `assessment_records` (ASM1, 0100, ADR-123) | team of the case (`private.reads_case`); no coordination role; `assessor_id`, `entered_by` not selectable (RLS4 pattern; read per record through `team_case_assessments`) | `supersede_reason`, `period_*` as entered (team) | 100, 067 |
+| `assessment_confirmations` (ASM1-5, 0100; no case column) | team of the record's case; `confirmed_by` not selectable | no | 100 |
+| `assessment_instruments` (ASM1-6, 0100; no case column, no personal data) | every member of the organisation; `created_by`, `ended_by` not selectable | instrument name and version | 100 |
 | `billable_facts` | team; coordination: intake role (billing preparation, J5); `created_by` not selectable (RLS4, 0099) | no | *022* |
 | `working_time_facts` | team (**was team + every coordination role, 0022**; RLS3-1, 0070); `performer_id` not selectable (RLS4, 0099) | no | 071 (F-2 closed), *042*, *043* |
 | `quality_events` | team; serious events: admin and coach (quality review, QG1); `author_id` not selectable (RLS4, 0099), `owner_id` stays (RLS4-2) | `description`, `closing_note` (team; admin and coach for serious events) | 015, *020* |
@@ -86,6 +89,7 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 | `team_offers()` | team (offers without client identity) | no | *031*, *034* |
 | `uncovered_visits()` | coordination: Operations; team of the visit (**was ⚠ organisation-wide, 0014**) | no | 067, 014 |
 | `visits_outside_watched_hours(own_teams)` | administrators: their organisation (`/admin`); `/team` (own teams flag) and every other member: her own teams (SIGC, SIG2-C1 (2), 0068); date, times and team only | no | 067 sweep, 069 |
+| `team_case_assessments()` (ASM1, 0100, ADR-123) | members of the case's assigned team (LEAVE1-3 guard); nobody else | per record: instrument, the assessor's display name and `assessor_is_me` (never who entered it), state, reference, minutes with period, supersede reason; per case: plan basis date, marker date, dated facts (kind, date). No list, count or filter per person | 100, 067 sweep |
 | `final_report_visits()`, `continuity_by_case(month)` | team; coordination | no | 067 sweep, *016*, *021* |
 | `pilot_kpis(month)`, `pilot_hypotheses(month)` | team rows for members; organisation rows under AN1 suppression; coordination: pilot review | no; **no per-person column** (asserted, RLS2-4) | 067, 059 |
 | `billing_preview(month)` | team; coordination | no | 067 sweep, *022* |
