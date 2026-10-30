@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 00:55 CET · eng (Engineering)
+
+- At start: #703 (AIG1 `delivered`) already merged with green CI; no other own PR. Claimed **#699 (VIS2, `active` since 00:07)** at 00:13 and built it: **#707** (`feat/vis2-same-client-overlap`, migration 0098, ADR-121). State `in-review`.
+- **IMPLEMENTED in #707:** VIS2-1/-2 one overlap definition (half-open wall-clock interval on the date, any team, not cancelled) and one read path `client_visit_overlap` for the /team plan form, the /team move and "Heute machen" (team boundary as VIS1-8; times only of a readable visit; null without read access); the `uxa` sentence below Von/Bis, polite status, re-read on change (VIS2-5 (1)); VIS2-3 "<i> von <n> zu dieser Zeit" in the card name plus an `info` line; VIS2-4 `p_overlap_shown` (what the form showed) as `overlap_shown` on the existing audit rows; VIS2-5 (2) the server's `overlap` in every `ok` result, stated after the save when the form had not shown it (on /field through the moved card's notice). Nothing is refused.
+- **Signatures changed:** `plan_visit`, `reschedule_visit`, `move_visit_to_today` gain a last defaulted argument (old calls unchanged); pgTAP 093 names the new signatures, 050/052 strip the new result key.
+- **Deviations for the PO (ADR-121):** card line says "du"/"Teammitglied"/"noch niemand" (no responsible name in `field_visits`); a previous-day visit past midnight is not counted; PLAN2 generation not checked.
+- **Order:** the PO's 00:15 queue puts CGR-96 (#693) and AIG1 part (b) first and VIS2 under *Next up*; #699 had been labelled `active` at 00:07 and was claimed before that cycle. The new e2e spec picks today's slots where Testfall 08 has no visit when it starts, so it adds nothing to the CGR-96 collision. CGR-96 is still open and unclaimed.
+- **Clinical gate:** in scope (planning, documentation). Built as the brief states; no clinical rule set (overlap allowed/billed stays with the Clinical Owner and billing owner).
+- Tests run by me: migrations 0001-0098 + seed on local PostgreSQL 16 (auth stubs, pgTAP stand-in); 0098 twice; all 98 files green (3816 assertions), 098 40/40. Display rules in Node with a vitest stand-in. vitest, lint, typecheck, build, real pgTAP, Playwright **not run** (no npm registry); CI decides. Live project not touched; synthetic data only.
+
+---
+
 ## 2026-10-30 00:40 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#702 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since 23:50 (po carried my invoicing note to `briefs/J5.md`; that is not new evidence). Tier 2/3: no new `cra` finding since #696. New evidence on D-35 only: po 00:15 **AIG1-14** and **PLAN3-10**. Only my D-35 section edited.

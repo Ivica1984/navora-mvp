@@ -2099,6 +2099,9 @@ isOneToOne: false
 "change_absence":
 { Args: { "p_absence_id": string,"p_idempotency_key": string,"p_until": string,"p_until_time": string,"p_withdraw": boolean }; Returns: Json
                            },
+"client_visit_overlap":
+{ Args: { "p_case_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
+                           },
 "close_case":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_reason": string,"p_reason_code": string }; Returns: string
                            },
@@ -2265,7 +2268,7 @@ isOneToOne: false
             }[]
                            },
 "move_visit_to_today":
-{ Args: { "p_idempotency_key": string,"p_reason": string,"p_shown_date": string,"p_time_end": string,"p_time_start": string,"p_visit_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_overlap_shown"?: boolean,"p_reason": string,"p_shown_date": string,"p_time_end": string,"p_time_start": string,"p_visit_id": string }; Returns: Json
                            },
 "my_access_state":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -2342,7 +2345,7 @@ isOneToOne: false
 { Args: { "p_case_id": string,"p_idempotency_key": string }; Returns: Json
                            },
 "plan_visit":
-{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
+{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_overlap_shown"?: boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
                            },
 "prepare_member_access_end":
 { Args: { "p_idempotency_key": string,"p_user_id": string }; Returns: Json
@@ -2420,7 +2423,7 @@ isOneToOne: false
             }[]
                            },
 "reschedule_visit":
-{ Args: { "p_idempotency_key": string,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_overlap_shown"?: boolean,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
                            },
 "reset_exception_rule":
 { Args: { "p_exception_type": string,"p_idempotency_key": string,"p_organization_id": string }; Returns: string

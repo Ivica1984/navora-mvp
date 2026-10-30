@@ -8,6 +8,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
+import { parseOverlapFact, type OverlapFact } from "@/features/visits/overlap-rules";
 import { DECLINE_REASONS } from "./rules";
 
 const decisionSchema = z.object({
@@ -73,9 +74,11 @@ const planSchema = z.object({
   needsAssessment: z.boolean(),
   responsibleUserId: z.uuid().nullable(),
   idempotencyKey: z.uuid(),
+  // VIS2-4: whether the form showed the overlap sentence at the save (recorded on the audit row).
+  overlapShown: z.boolean().optional(),
 });
 const reason = z.string().trim().min(3).max(300);
-const rescheduleSchema = z.object({ visitId: z.uuid(), ...slot, reason, idempotencyKey: z.uuid() });
+const rescheduleSchema = z.object({ visitId: z.uuid(), ...slot, reason, idempotencyKey: z.uuid(), overlapShown: z.boolean().optional() });
 const removeSchema = z.object({ visitId: z.uuid(), reason, idempotencyKey: z.uuid() });
 const carePlanSchema = z.object({
   caseId: z.uuid(),
@@ -111,7 +114,8 @@ const MOVE_RESPONSIBLE_ABSENT =
   "Nicht verschoben: Die verantwortliche Person ist zu dieser Zeit abwesend, und ein Einsatz vor heute wird nicht automatisch freigegeben. Bitte einen anderen Zeitpunkt wählen.";
 
 /** `released`: a move put the visit into its responsible member's absence, so it is open in the team (ABS1-C4, 0050). */
-export type PlanResult = { ok: true; flags: string[]; released: boolean } | { ok: false; error: string };
+/** `overlap` (VIS2-5): the server's own overlap check at the save, whatever the form showed; null on a duplicate. */
+export type PlanResult = { ok: true; flags: string[]; released: boolean; overlap: OverlapFact } | { ok: false; error: string };
 
 function planResult(op: string, data: unknown, error: { code?: string } | null): PlanResult {
   if (error) {
@@ -121,7 +125,7 @@ function planResult(op: string, data: unknown, error: { code?: string } | null):
       error: error.code === "22023" ? "Bitte Datum (ab gestern), Zeiten, Minuten pro Kategorie und – bei Änderungen – einen Grund angeben." : "Planung konnte nicht gespeichert werden.",
     };
   }
-  const res = (data ?? {}) as { result?: string; reason?: string; flags?: unknown; released?: unknown };
+  const res = (data ?? {}) as { result?: string; reason?: string; flags?: unknown; released?: unknown; overlap?: unknown };
   if (res.result === "rejected") {
     if (op === "reschedule_visit" && res.reason === "responsible_absent") return { ok: false, error: MOVE_RESPONSIBLE_ABSENT };
     return { ok: false, error: PLAN_REASONS[res.reason ?? ""] ?? "Nicht gespeichert." };
@@ -135,6 +139,7 @@ function planResult(op: string, data: unknown, error: { code?: string } | null):
     ok: true,
     flags: Array.isArray(res.flags) ? res.flags.filter((f): f is string => typeof f === "string") : [],
     released: res.released === true,
+    overlap: parseOverlapFact(res.overlap),
   };
 }
 
@@ -155,6 +160,7 @@ export async function planVisit(input: unknown): Promise<PlanResult> {
     // Generated RPC types mark every argument as required; null = team without a responsible member.
     p_responsible_user_id: d.responsibleUserId as string,
     p_idempotency_key: d.idempotencyKey,
+    p_overlap_shown: d.overlapShown,
   });
   return planResult("plan_visit", data, error);
 }
@@ -171,6 +177,7 @@ export async function rescheduleVisit(input: unknown): Promise<PlanResult> {
     p_time_end: d.end,
     p_reason: d.reason,
     p_idempotency_key: d.idempotencyKey,
+    p_overlap_shown: d.overlapShown,
   });
   return planResult("reschedule_visit", data, error);
 }
@@ -195,6 +202,7 @@ export async function moveVisitToToday(input: unknown): Promise<MoveToTodayResul
     p_time_end: d.end,
     p_reason: d.reason,
     p_idempotency_key: d.idempotencyKey,
+    p_overlap_shown: d.overlapShown,
   });
   const res = (data ?? {}) as { result?: string; today?: unknown; visit_date?: unknown };
   if (!error && res.result === "day_changed") {
