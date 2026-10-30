@@ -31,6 +31,70 @@
 
 ---
 
+## 2026-10-30 02:18 CET · aia review 13: AIG1 part (a) delivered (#701, 0097), §8 readiness checked, AUT-22 closed; VIS2 delivered and (PR #713) accepted; PLAN3-10 supported; AIG1-15/-16, VIS2-C1 supported; AUT-24 (low, RLS4 signal taker), AUT-25 (low, PLAN3 has no "no proposal" measure)
+
+**Read:** `recovery/main` at `183748f`:
+- merged since review 12: #695 (review 12), #698, #704, #708 (PO 23:15, 00:15, 01:10/01:45), #702, #706 (`lca` 23:50, 00:40), #685 (`uxa`), **#701 (AIG1 part (a), migration 0097, ADR-120, merge `85a4fd6`)**, #703, **#707 (VIS2, migration 0098, ADR-121, merge `4c8f2a6`)**, #709;
+- open: PO #713 (02:10: VIS2 accepted with VIS2-C1; AIG1-15, AIG1-16), `lca` #712 (01:50), `cra` #711 (01:45: CGR-98, CGR-99, CGR-100) and its chain (#696 and earlier); issue #693 (CGR-96) open;
+- briefs changed: AIG1 (AIG1-13, AIG1-14, part (a) review; AIG1-15/-16 on #713), PLAN3 (PLAN3-10 and its actor amendment), VIS2 (new, delivered), RLS4 (new, approved), J5 (invoicing note), OBS1, ADM2;
+- no open issue is labelled `automation`.
+
+**Nothing below is a measurement.** I ran no tests. CI on #701 head: `app`, `db` (pgTAP), `e2e`, `ui-screenshots` success (GitHub check runs read by me); merge commits as the PO reports them.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-24 | Taking a P1 safety signal (SIG1) and seeing who took it: every team member on `/field` and Operations | **Not a challenge of RLS4 (it removes a per-person list and adds no step), a guard on its scope.** PLANNED (RLS4 approved 23:15, not built): RLS4-1 closes `safety_signals.taken_by` as an *act*. IMPLEMENTED today: while a signal is open, `taken_by` is how the team knows it is being handled: the signal reader returns `taken_by_me` and `taken_by_name` (0060:365-387) and the card says "übernommen von <Name>" (`src/features/signals/rules.ts:123`); unclaimed signals sort first (0060:387). So while open it works as an *assignment* (who handles it now), and after it ends as an act. If the reader output were lost in RLS4, teammates would phone round to find out whether a P1 signal is handled, or two would respond (H-04, patient safety, and direct care time). RLS4-2 and RLS4-3 already cover this in general wording ("each current reader keeps its output"; a column read as an assignment is named as a deviation); nothing names this column | **rule (test), no new step:** in the RLS4 PR, name `safety_signals.taken_by` in the ADR as act-and-assignment; the raw column may close (RLS4-1), and the open-signal reader keeps "übernommen von <Name>" for the team; add one pgTAP assertion that the reader still returns `taken_by_name` for an open, taken signal to an active member of its team (no per-person list: the reader is per signal, scoped to open signals of the team) | L | stage 0; PO (one line in RLS4-3 or the ADR), `eng`; `cra` aware (H-04, signal handling) | pgTAP as stated; after go-live, per team: share of P1 signals where a take attempt returned `duplicate` with "übernommen von" (0060:411-413), never per person | low | – (report) |
+| AUT-25 | Day plan with PLAN3 (`/team`): the team member who assembles tomorrow | PLANNED (PLAN3 approved, PLAN3-7): measures are the shares confirmed unchanged and corrected, confirm actions per day plan, minutes from proposal to the last confirmed line, and continuity. A line with **"kein Vorschlag"** (PLAN3: the visit stays in the uncovered path, assigned by hand) is in none of them; ADR-120 deviation 4 (accepted 00:15) excludes `not_found` from the correction share and makes it no stop criterion, and AIG1-7 shows it only as a count per cell. Effect: the measure of PLAN3's gain (hand assembly removed) can look good while most visits still get no proposal. Share: UNKNOWN (not built) | **monitor, no new step:** add to PLAN3-7, per team and month, the share of the day plan's open visits that received "kein Vorschlag", by its stated reason (no primary nurse, not qualified, absent, outside contract; the reasons PLAN3 already shows), from the existing ledger (`not_found`) and refusal results; balancing measure as now. Read per team only, small-team suppression as AIG1-7. A high share points to missing care-graph data (primary nurse not set: J6), which the team can fix once, not to the agent | L | stage 0; PO (PLAN3-7 wording before build); no clinical content | the share itself, per team and month, before and after the team's PLAN3-10 switch date; target direction down | low | – (report) |
+
+**Briefs and items reviewed without a new finding:**
+- **PLAN3-10 (PO 00:15, actor amended 01:10), challenge test:** removes a central rollout decision (administrator) and gives it to the team; one audited switch per team, default off, actor per record only. Less hierarchy, no added step for daily work, and it gives PLAN3-7 its "before/after for that team" date. Strongly supported; this is the operating model as the owner describes it.
+- **AIG1-13 as adopted (23:15) and built:** (a) one by one, as proposed; (b) labelled "überholt", out of the open count, not removed. The team gets the relief I sought (nothing to do by default for a superseded value) without NAVORA deciding the clinical re-check question. I accept the PO's form; it is better than my proposal at equal effort.
+- **AIG1-14 (`uxa` UXR-49):** removes names from the look-back screen; no step. Supported.
+- **AIG1-15 (CGR-98, on #713):** a re-confirmation that runs no check would put a nurse's name under a check that did not happen; the fix reuses the first-confirmation checks and adds no step. Patient-safety control; supported.
+- **AIG1-16 (CGR-100, on #713):** refuses an arithmetic threshold that cannot fire, and shows threshold and "Mindestzahl erreicht" on the health list. This is monitoring of the monitor, the right design order; no step for a nurse. Supported.
+- **VIS2 (delivered #707, accepted on #713):** a fact at the moment of planning instead of a later duplicate check by a coordinator (the "eliminate through the care graph" order); no tap, nothing refused. `p_overlap_shown` is recorded by the command, nobody types it. Supported.
+- **VIS2-C1 (CGR-99, on #713):** the generation count is the measure of the hypothesis that hand planning and PLAN2 generation duplicate work (H-PLAN-dup). I propose no rule before the count exists; if the pilot shows a non-zero share, the leaner fix is in the care graph (generation knows the hand-planned visit), and its rule is the Clinical Owner's (UNKNOWN).
+- **RLS4 (approved 23:15):** removes per-person act lists; keeps assignments; no step. Supported, with AUT-24.
+- **J5 invoicing note (`lca` D-18):** a legal duty before invoicing (a person confirms overlapping facts); not administration to remove; not challenged. Its effort is bounded by VIS2 (overlaps seen at planning).
+
+### 2 AI readiness of delivered items (§8)
+**AIG1 part (a) (#701, 0097), checked against §8, database level:**
+- Suggestion ledger: **IMPLEMENTED**, append-only for every role including owner and `service_role` (0097:239-257), input references ids only.
+- Provenance per value: **IMPLEMENTED** (`value_provenance`); the screen line is part (b), PLANNED.
+- Named confirmer: **IMPLEMENTED**, read per value or per record only; no table grant to `authenticated`/`anon` on the seven AIG1 tables, RLS on without policy (0097:228-238), pgTAP 097 AIG1-11 block (direct select, `select *`, `group by` refused).
+- No accept-all on listed fields: **IMPLEMENTED** (field-class trigger, bulk only for `schedule` and while `on`, never a decided or look-back value; `check (not bulk or outcome = 'confirmed')`, 0097:220).
+- Correction rate per agent and field: **IMPLEMENTED**, rule of three per cell. `not_found` excluded from the share (ADR-120 (4)): see AUT-25 for the usefulness side.
+- Stop rule: **IMPLEMENTED**, evaluated lazily at the next proposal, bulk confirm or health read; OPS1 `agent_stopped`; look-back with "superseded". Gap found by `cra` (CGR-98) placed as AIG1-15; unreachable threshold as AIG1-16 (both PLANNED, #713).
+- Evaluation on synthetic data: **IMPLEMENTED** (fixture harness, synthetic test agent, bar checked on every PR; switch-on without fixture refused).
+- Only agent registered: the synthetic test agent. No real agent proposes anything yet; PLAN3 is the first (PLANNED).
+**VIS2 (#707):** proposes, drafts and ranks nothing; a deterministic fact. No ledger entry needed.
+
+### 3 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1 built | **part (a) IMPLEMENTED** (#701, 0097; CI green on head `4bc7236`); part (b) (screens, e2e) and AIG1-15/-16 PLANNED; acceptance also needs a `cra` section on 0097 (CGR-98 is S2 before acceptance) |
+| 0 | First real stage-0 agent (PLAN3) | PLANNED, *Next up*; now team-switched (PLAN3-10). Open: AUT-25 measure |
+| 0 | Per-entry provenance in clinical records | IMPLEMENTED for observations (OBS1, OBS1-C1); drafts OPEN |
+| 0 | ASM1 built | PLANNED, not started |
+| 1 | Employee information names confirmations, look-back purpose **and the team switch** (D-9; `lca` 00:40 term (v)) | OPEN, owner (pilot precondition) |
+| 1 | Real data may reach any test, pilot or AI path | blocked (owner precaution until D-1 is clarified; owner package required by D-35) |
+| 1-3 | other conditions unchanged from review 1 | OPEN |
+
+### 4 Findings closed
+- **AUT-22 (high, #686, closed by the PO 21:15): closed with evidence.** AIG1-11 IMPLEMENTED in 0097 more strictly than proposed (no table grant at all; RLS without policy), pgTAP 097 AIG1-11 block; CI on #701 head `4bc7236` green (check runs `app`, `db`, `e2e`, `ui-screenshots`: success).
+- **AUT-23 (medium):** (a) IMPLEMENTED (bulk of a listed value refused, 42501; pgTAP AIG1-13 block); (b) adopted in the PO's form and IMPLEMENTED at database level (`superseded`, `superseded_at`, out of the OPS1 open count). Stays OPEN only for the part (b) e2e ("überholt" shown); closes with part (b).
+- AUT-21 (UX2-26), AUT-14, AUT-15, AUT-17, AUT-19, AUT-20: unchanged.
+
+### 5 Waiting for the PO
+- **AUT-25 (low):** one PLAN3-7 measure line before PLAN3 build. **AUT-24 (low):** one RLS4 test line before the RLS4 PR.
+- AUT-19, AUT-20, AUT-21 as before; AUT-23 closes with AIG1 part (b).
+- Bottleneck map refresh: due 2026-11-03 (weekly); candidates unchanged (onboarding contract to first visit, P-28, P-32).
+
+---
+
 ## 2026-10-29 23:15 CET · aia review 12: AUT-22 adopted as AIG1-11 (PO 21:15, #686 closed); AIG1-12 look-back (PO 22:10) reviewed, AUT-23 (medium: the list's only exit is a re-confirmation, and AIG1-5 bulk would reach it); OBS1-C1 and ADM2-C1 delivered (#688); ADM2-C2 supported
 
 **Read:** `recovery/main` at `1500cb3`:
