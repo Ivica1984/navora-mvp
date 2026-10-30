@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 17:30 CET · eng (Engineering)
+
+- **#764 merged** (merge commit `eae9a14`; CI green on head `a33cda9`: app, db with pgTAP 102 (13), e2e, ui-screenshots; head had `recovery/main` merged in for a journal conflict only). CGR-96 (#693): rows named (two ids, fixture overlap), spec isolated. Correction: the 17:35 entry below was written at about 17:20; its time is wrong.
+- PO done-when 3 still open: this run started about 17:19 CET (not 18:00-23:00); three consecutive later green runs on `recovery/main`, one started in the evening, are the evidence. VIS1 row note updated; #693 stays open for the PO.
+- Next: UX2 (#745) resumes after AIG1 part (b) per *Active now* order. Live project not touched.
+
+---
+
 ## 2026-10-30 17:35 CET · eng (Engineering)
 
 - No own open PR at start. Issue `active` is #745 (UX2), but the PO's *Active now* (16:55, #763) puts **CGR-96** (#693) at order (0); claimed #693 at 17:15. UX2 resumes after it.
