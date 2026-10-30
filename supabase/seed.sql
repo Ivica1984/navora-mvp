@@ -474,16 +474,23 @@ order by v.time_start;
 -- six proposals were decided: four confirmed unchanged, two corrected (share 33.33 % > 20 %, minimum reached), so the
 -- stop check stopped it at the window's end (as private.aig1_stop would write it). Afterwards the value of one of the
 -- four was replaced, so its look-back line reads "überholt am <Datum>" (AIG1-13 (b)).
+-- AIG1-C1 / AIG1-C2 (ADR-130): of the three lines still holding their value, visit …5b1 is dated yesterday (no longer
+-- open: "Besuch nicht mehr offen", counted apart), …5b2 is open with a valid member (re-confirmed in e2e), and …5b3
+-- (Testfall F2) holds a member whose qualification was removed after the stop (re-confirmation refused not_qualified).
+-- The stop has a fixed id so the team member's e2e opens its look-back list directly (her team's entry point is PLAN3-11).
 --   opsf.test (…9c1): operations of Testorganisation F who signs in (health list, OPS1 exception, look-back list).
 --   bestf     (…9c2): registered nurse of Testteam F who confirmed the six values; her name must never appear on the
 --                     look-back list (AIG1-14). Never signs in.
 --   bezugf    (…9c3): registered nurse, primary nurse of Testfall F1, the proposed value. Never signs in.
 --   anderf    (…9c4): registered nurse, the corrected value and the later replacement. Never signs in.
+--   teamf.test(…9c5): registered nurse of Testteam F who signs in at 390 px (AIG1-C2: re-confirm on the record page).
+--   ohnequalf (…9c6): primary nurse of Testfall F2, the value of …5b3; her qualification was removed after the stop.
 insert into public.organizations (id, name) values ('00000000-0000-4000-b000-000000000016', 'Testorganisation F');
 insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
   ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-000000000191', private.now() - interval '200 days', 'Testteam F', 'Bern Ost', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test F', 'Keine Massnahme', false, null);
 insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
-  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-000000000291', private.now() - interval '100 days', 'Testfall F1', 'Testfall', 'F1', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam F', '00000000-0000-4000-a000-000000000191', private.now() - interval '99 days');
+  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-000000000291', private.now() - interval '100 days', 'Testfall F1', 'Testfall', 'F1', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam F', '00000000-0000-4000-a000-000000000191', private.now() - interval '99 days'),
+  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-000000000292', private.now() - interval '100 days', 'Testfall F2', 'Testfall', 'F2', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam F', '00000000-0000-4000-a000-000000000191', private.now() - interval '99 days');
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
@@ -500,36 +507,54 @@ insert into auth.users (
    '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009c4', 'authenticated', 'authenticated',
    'anderf.test@navora.test', '', null,
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009c5', 'authenticated', 'authenticated',
+   'teamf.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), private.now(),
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009c6', 'authenticated', 'authenticated',
+   'ohnequalf.test@navora.test', '', null,
    '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
 insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
   ('00000000-0000-4000-a000-0000000009d1', '00000000-0000-4000-a000-0000000009c1', '00000000-0000-4000-a000-0000000009c1',
-   '{"sub":"00000000-0000-4000-a000-0000000009c1","email":"opsf.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now());
+   '{"sub":"00000000-0000-4000-a000-0000000009c1","email":"opsf.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now()),
+  ('00000000-0000-4000-a000-0000000009d5', '00000000-0000-4000-a000-0000000009c5', '00000000-0000-4000-a000-0000000009c5',
+   '{"sub":"00000000-0000-4000-a000-0000000009c5","email":"teamf.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now());
 insert into public.organization_memberships (organization_id, user_id, role) values
   ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c1', 'operations'),
   ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c2', 'nurse'),
   ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c3', 'nurse'),
-  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c4', 'nurse');
+  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c4', 'nurse'),
+  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c5', 'nurse'),
+  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c6', 'nurse');
 insert into public.team_memberships (team_id, user_id, qualification) values
   ('00000000-0000-4000-a000-000000000191', '00000000-0000-4000-a000-0000000009c2', 'registered_nurse'),
   ('00000000-0000-4000-a000-000000000191', '00000000-0000-4000-a000-0000000009c3', 'registered_nurse'),
-  ('00000000-0000-4000-a000-000000000191', '00000000-0000-4000-a000-0000000009c4', 'registered_nurse');
+  ('00000000-0000-4000-a000-000000000191', '00000000-0000-4000-a000-0000000009c4', 'registered_nurse'),
+  ('00000000-0000-4000-a000-000000000191', '00000000-0000-4000-a000-0000000009c5', 'registered_nurse'),
+  ('00000000-0000-4000-a000-000000000191', '00000000-0000-4000-a000-0000000009c6', 'registered_nurse');
 insert into public.member_profiles (organization_id, user_id, display_name, updated_by) values
   ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c1', 'Operations Test F', '00000000-0000-4000-a000-0000000009c1'),
   ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c2', 'Pflegekraft Bestätigt F', '00000000-0000-4000-a000-0000000009c1'),
   ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c3', 'Pflegekraft Bezug F', '00000000-0000-4000-a000-0000000009c1'),
-  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c4', 'Pflegekraft Andere F', '00000000-0000-4000-a000-0000000009c1');
+  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c4', 'Pflegekraft Andere F', '00000000-0000-4000-a000-0000000009c1'),
+  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c5', 'Pflegekraft Team F', '00000000-0000-4000-a000-0000000009c1'),
+  ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000009c6', 'Pflegekraft Ohne Qualifikation F', '00000000-0000-4000-a000-0000000009c1');
 update public.cases set primary_nurse_id = '00000000-0000-4000-a000-0000000009c3'
 where id = '00000000-0000-4000-a000-000000000291';
--- Six visits of Testfall F1 in the coming days; each holds the value its confirmation applied (…5b1-…5b4 the proposed
--- primary nurse, …5b5 and …5b6 the corrected one).
+update public.cases set primary_nurse_id = '00000000-0000-4000-a000-0000000009c6'
+where id = '00000000-0000-4000-a000-000000000292';
+-- Six visits, …5b1 yesterday and the others in the coming days; each holds the value its confirmation applied (…5b1,
+-- …5b2, …5b4 the proposed primary nurse of Testfall F1, …5b3 that of Testfall F2, …5b5 and …5b6 the corrected one).
 insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end,
                                 services_provided, billable, status, planned_minutes_a, responsible_user_id)
-select '00000000-0000-4000-b000-000000000016', v.id::uuid, private.now() - interval '9 days', '00000000-0000-4000-a000-000000000291',
+select '00000000-0000-4000-b000-000000000016', v.id::uuid, private.now() - interval '9 days',
+       case when v.id = '00000000-0000-4000-a000-0000000005b3' then '00000000-0000-4000-a000-000000000292'
+            else '00000000-0000-4000-a000-000000000291' end::uuid,
        '00000000-0000-4000-a000-000000000191', (private.now() at time zone 'Europe/Zurich')::date + v.d,
        time '09:00', time '09:30', array['Grundpflege'], false, 'planned', 30, v.who::uuid
-from (values ('00000000-0000-4000-a000-0000000005b1', 1, '00000000-0000-4000-a000-0000000009c3'),
+from (values ('00000000-0000-4000-a000-0000000005b1', -1, '00000000-0000-4000-a000-0000000009c3'),
              ('00000000-0000-4000-a000-0000000005b2', 2, '00000000-0000-4000-a000-0000000009c3'),
-             ('00000000-0000-4000-a000-0000000005b3', 3, '00000000-0000-4000-a000-0000000009c3'),
+             ('00000000-0000-4000-a000-0000000005b3', 3, '00000000-0000-4000-a000-0000000009c6'),
              ('00000000-0000-4000-a000-0000000005b4', 4, '00000000-0000-4000-a000-0000000009c3'),
              ('00000000-0000-4000-a000-0000000005b5', 5, '00000000-0000-4000-a000-0000000009c4'),
              ('00000000-0000-4000-a000-0000000005b6', 6, '00000000-0000-4000-a000-0000000009c4')) v(id, d, who);
@@ -538,20 +563,20 @@ insert into public.ai_suggestions (proposal_id, organization_id, team_id, case_i
 select gen_random_uuid(), v.organization_id, v.team_id, v.case_id, d.key, d.version, 'responsible_user_id',
        'care_visits', v.id,
        jsonb_build_array(jsonb_build_object('table', 'care_visits', 'id', v.id), jsonb_build_object('table', 'cases', 'id', v.case_id)),
-       false, to_jsonb('00000000-0000-4000-a000-0000000009c3'::text), private.now() - interval '9 days'
-from public.care_visits v cross join public.ai_agent_definitions d
+       false, to_jsonb(c.primary_nurse_id::text), private.now() - interval '9 days'
+from public.care_visits v join public.cases c on c.id = v.case_id cross join public.ai_agent_definitions d
 where v.team_id = '00000000-0000-4000-a000-000000000191' and d.key = 'aig1_test_primary_nurse'
 order by v.visit_date;
 insert into public.ai_confirmations (suggestion_id, organization_id, team_id, outcome, final_value, confirmed_by, confirmed_at)
 select s.id, s.organization_id, s.team_id,
-       case when v.responsible_user_id = '00000000-0000-4000-a000-0000000009c3' then 'confirmed' else 'corrected' end,
+       case when to_jsonb(v.responsible_user_id::text) = s.proposed_value then 'confirmed' else 'corrected' end,
        to_jsonb(v.responsible_user_id::text), '00000000-0000-4000-a000-0000000009c2', private.now() - interval '9 days' + interval '1 hour'
 from public.ai_suggestions s join public.care_visits v on v.id = s.entity_id
 where s.team_id = '00000000-0000-4000-a000-000000000191'
 order by s.seq;
-insert into public.ai_agent_stops (organization_id, agent_key, reason, window_from, window_to, decided, share,
+insert into public.ai_agent_stops (id, organization_id, agent_key, reason, window_from, window_to, decided, share,
                                    suggestion_seq, confirmation_seq, created_at)
-values ('00000000-0000-4000-b000-000000000016', 'aig1_test_primary_nurse', 'threshold',
+values ('00000000-0000-4000-a000-0000000006f1', '00000000-0000-4000-b000-000000000016', 'aig1_test_primary_nurse', 'threshold',
         private.now() - interval '10 days', private.now() - interval '3 days', 6, 33.33,
         (select max(seq) from public.ai_suggestions), (select max(seq) from public.ai_confirmations),
         private.now() - interval '3 days' + interval '1 hour');
@@ -564,3 +589,6 @@ from public.ai_agent_definitions d where d.key = 'aig1_test_primary_nurse';
 -- After the stop the team gave visit …5b4 to another member (audited as a responsible_user_id change, AIG1-13 (b)).
 update public.care_visits set responsible_user_id = '00000000-0000-4000-a000-0000000009c4'
 where id = '00000000-0000-4000-a000-0000000005b4';
+-- After the stop the qualification of Pflegekraft Ohne Qualifikation F was removed (AIG1-C2 e2e: not_qualified).
+update public.team_memberships set qualification = null
+where team_id = '00000000-0000-4000-a000-000000000191' and user_id = '00000000-0000-4000-a000-0000000009c6';

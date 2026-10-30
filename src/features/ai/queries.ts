@@ -35,6 +35,21 @@ function arr(raw: unknown): Record<string, unknown>[] {
  */
 export async function getTeamSuggestions(): Promise<TeamSuggestions[]> {
   const { supabase } = await requireUser();
+  const out = await loadTeams();
+  const results = await Promise.all(out.map((t) => supabase.rpc("open_suggestions", { p_team_id: t.team_id })));
+  results.forEach((r, i) => {
+    if (r.error) {
+      logEvent("error", "aig1.open_suggestions_failed", errorFields(r.error));
+      throw new Error("Vorschläge konnten nicht geladen werden.");
+    }
+    out[i].suggestions = r.data ?? [];
+  });
+  return out;
+}
+
+/** The caller's teams with their members and clients (from `team_cases`), without proposals. */
+async function loadTeams(): Promise<TeamSuggestions[]> {
+  const { supabase } = await requireUser();
   const cases = await supabase.rpc("team_cases");
   if (cases.error) {
     logEvent("error", "aig1.team_cases_failed", errorFields(cases.error));
@@ -66,14 +81,6 @@ export async function getTeamSuggestions(): Promise<TeamSuggestions[]> {
     const names = new Map((profiles.data ?? []).map((p) => [p.user_id, p.display_name]));
     for (const t of out) for (const m of t.members) m.name = m.name ?? names.get(m.user_id) ?? null;
   }
-  const results = await Promise.all(out.map((t) => supabase.rpc("open_suggestions", { p_team_id: t.team_id })));
-  results.forEach((r, i) => {
-    if (r.error) {
-      logEvent("error", "aig1.open_suggestions_failed", errorFields(r.error));
-      throw new Error("Vorschläge konnten nicht geladen werden.");
-    }
-    out[i].suggestions = r.data ?? [];
-  });
   return out;
 }
 
@@ -117,6 +124,8 @@ export async function getStopLookback(stopId: string): Promise<LookbackLine[]> {
 
 export type VisitRecord = {
   id: string;
+  team_id: string | null;
+  responsible_user_id: string | null;
   visit_date: string | null;
   time_start: string | null;
   time_end: string | null;
@@ -162,6 +171,8 @@ export async function getVisitRecord(visitId: string): Promise<VisitRecord | nul
   const p = prov.data?.[0] ?? null;
   return {
     id: v.id,
+    team_id: v.team_id,
+    responsible_user_id: v.responsible_user_id,
     visit_date: v.visit_date,
     time_start: v.time_start,
     time_end: v.time_end,
@@ -179,4 +190,33 @@ export async function getVisitRecord(visitId: string): Promise<VisitRecord | nul
         }
       : null,
   };
+}
+
+export type RecordLookbackLine = Fn["record_lookback_lines"]["Returns"][number];
+
+export type RecordLookback = {
+  lines: RecordLookbackLine[];
+  /** Members of the record's team for "Ändern" (from the caller's own case list, `team_cases`). */
+  members: TeamMemberOption[];
+};
+
+/**
+ * AIG1-C2 (a)/(d): the look-back lines of this record, for active members of the record's team only
+ * (`record_lookback_lines`; a coordinator who is not a team member gets none, so the page shows her no control), and,
+ * when there is a line of a visit still open, the team's members for "Ändern" (the confirm screen's source).
+ */
+export async function getRecordLookback(visitId: string, teamId: string | null): Promise<RecordLookback> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("record_lookback_lines", {
+    p_entity_type: "care_visits",
+    p_entity_id: visitId,
+  });
+  if (error) {
+    logEvent("warn", "aig1.record_lookback_failed", errorFields(error));
+    return { lines: [], members: [] };
+  }
+  const lines = data ?? [];
+  if (!teamId || !lines.some((l) => l.record_open)) return { lines, members: [] };
+  const team = (await loadTeams()).find((t) => t.team_id === teamId);
+  return { lines, members: team?.members ?? [] };
 }

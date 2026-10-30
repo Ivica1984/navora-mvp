@@ -119,3 +119,31 @@ export function windowText(days: number | null | undefined): string {
 export function supersededText(at: string | null | undefined): string {
   return at ? `überholt am ${formatDate(at)}` : "überholt";
 }
+
+// --- AIG1-C1 / AIG1-C2 (ADR-130): visits no longer open, and the record page's re-check actions ----------------------
+
+/** AIG1-C1 (2), wording `uxa`'s: a listed value of a visit no longer open is a fact of the visit, with its date. */
+export function notOpenText(visitDate: string | null | undefined): string {
+  return visitDate ? `Besuch nicht mehr offen (Einsatz vom ${formatDate(visitDate)})` : "Besuch nicht mehr offen";
+}
+
+/** AIG1-C1 (2)/(3): both counts, always side by side ("<n> offen · <m> nicht mehr offen"). */
+export function lookbackCountsText(open: number, notOpen: number): string {
+  return `${open} offen · ${notOpen} nicht mehr offen`;
+}
+
+/** AIG1-C2 (a): the two one-by-one actions the record page offers for a listed value of a visit still open. */
+export const RECORD_ACTIONS = { reconfirm: "Erneut bestätigen", change: "Ändern" } as const;
+
+/**
+ * AIG1-C2 (c): the look-back page names only actions the product offers. A value of a visit still open leaves the list
+ * through the record page's "Erneut bestätigen" or "Ändern"; a value of a visit no longer open has no action and stays.
+ */
+export const LOOKBACK_EXPLANATION =
+  "Werte des gestoppten Assistenten, die im Stoppfenster unverändert bestätigt wurden. Ob, von wem und bis wann sie " +
+  "nachgeprüft werden, ist offen (klinische Verantwortung). Ein Wert eines noch offenen Einsatzes verlässt die Liste, " +
+  "sobald ein Teammitglied ihn im Einsatz erneut bestätigt oder ändert. Werte von Einsätzen, die nicht mehr offen sind, " +
+  "bleiben auf der Liste und werden getrennt gezählt.";
+
+/** AIG1-C2 (a): the record page's line for a listed value. */
+export const RECORD_LOOKBACK_TEXT = "Dieser Wert steht auf der Rückblick-Liste eines gestoppten Assistenten.";

@@ -3,19 +3,22 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { AppFrame } from "@/components/layout/Sidebar";
 import { getStopLookback } from "@/features/ai/queries";
-import { fieldLabel, formatDate, supersededText } from "@/features/ai/labels";
+import { LOOKBACK_EXPLANATION, fieldLabel, formatDate, lookbackCountsText, notOpenText, supersededText } from "@/features/ai/labels";
 
 // AIG1-12 / -13 / -14 (ADR-129): after a stop, the records that hold a value of that agent confirmed unchanged in the
 // stop window. Its own line layout: record (case reference, visit date), field and, where it applies, "überholt am
 // <Datum>". No person name, no "bestätigt von", no outcome, no person filter or sort (AIG1-14); agent_stop_lookback
 // returns no such column. Each line has one action: it opens its record. The list writes nothing; whether, by whom and
-// by when a value is re-checked is the Clinical Owner's (D-17, UNKNOWN).
+// by when a value is re-checked is the Clinical Owner's (D-17, UNKNOWN). AIG1-C1 (ADR-130): a line of a visit no longer
+// open stays, labelled "Besuch nicht mehr offen" with the visit date, and is counted apart ("<n> offen · <m> nicht mehr
+// offen"); the explanation names only the record page's actions (AIG1-C2 (c)).
 export default async function LookbackPage({ params }: { params: Promise<{ stopId: string }> }) {
   await connection();
   const { stopId } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(stopId)) notFound();
   const lines = await getStopLookback(stopId);
-  const open = lines.filter((l) => !l.superseded).length;
+  const open = lines.filter((l) => !l.superseded && !l.not_open).length;
+  const notOpen = lines.filter((l) => l.not_open).length;
   return (
     <AppFrame active="operations" className="bg-stone-50 text-emerald-950">
       <main className="grid min-w-0 gap-4 p-4 md:p-6">
@@ -24,13 +27,11 @@ export default async function LookbackPage({ params }: { params: Promise<{ stopI
         </Link>
         <header>
           <h1 className="text-2xl font-bold">Unverändert bestätigte Werte</h1>
-          <p className="text-sm text-secondary">
-            Werte des gestoppten Assistenten, die im Stoppfenster unverändert bestätigt wurden. Ob, von wem und bis wann sie
-            nachgeprüft werden, ist offen (klinische Verantwortung). Ein Wert verlässt die Liste, sobald er im Einsatz erneut
-            bestätigt oder geändert wird.
+          <p className="text-sm text-secondary" data-testid="lookback-explanation">
+            {LOOKBACK_EXPLANATION}
           </p>
           <p className="mt-1 text-sm font-semibold" data-testid="lookback-open-count">
-            {open === 1 ? "1 offen" : `${open} offen`}
+            {lookbackCountsText(open, notOpen)}
           </p>
         </header>
         {lines.length === 0 ? (
@@ -55,6 +56,11 @@ export default async function LookbackPage({ params }: { params: Promise<{ stopI
                   {l.superseded && (
                     <span data-testid="lookback-superseded" className="text-xs font-semibold">
                       {supersededText(l.superseded_at)}
+                    </span>
+                  )}
+                  {l.not_open && (
+                    <span data-testid="lookback-not-open" className="text-xs font-semibold">
+                      {notOpenText(l.visit_date)}
                     </span>
                   )}
                 </Link>
