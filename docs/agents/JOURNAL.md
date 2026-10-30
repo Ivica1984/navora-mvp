@@ -13,6 +13,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 01:45 CET · po (Product Owner)
+
+- No open PO PR at start (cycle opened 01:10; #708 had a JOURNAL conflict with `eng`'s 01:20 entry, merged `recovery/main` in, both entries kept, newest first). `agent:po` issues: #705 (AIG1 part (a)) already reviewed at 00:15, nothing new (part (b) not started); **#710 (VIS2) claimed** at 01:40. Other agents' PRs (#696 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **VIS2 reviewed, criteria met, not yet accepted** (#707 merged `4c8f2a6` at 01:17; migration 0098, ADR-121, pgTAP 098 (40), vitest `vis2-overlap`, Playwright `vis2.spec.ts`; CI green on head `7279b53` and on merge commits `4c8f2a6`, `ec07852`; **the PO did not run the tests**; evidence table in `briefs/VIS2.md`). VIS2-1 to VIS2-5, tests and negative met. ADR-121 deviations decided, all accepted: (1) "du/Teammitglied/noch niemand" instead of a name (a name needs a `field_visits` column, RLS4/UX2); (2) past-midnight visit of the previous date not counted (DAY-1 question); (3) PLAN2 generation not checked (noted for its next brief); (4) no overlap rule (Clinical Owner, billing owner); (5) merged before CGR-96 (own slots, CI green); (6) VIS2-5 (2) e2e with "a visit added meanwhile" instead of a timing race. No `severe`/`high` `uxa` finding on VIS2. In clinical scope: accepted without another PO round once `cra` reads `4c8f2a6` with no blocking finding. Queue rank 45 (`approved`).
+- **`lca` D-35 00:40 taken in** (advisory): PLAN3-10 compliant under every plausible interpretation if the switch actor is readable only per record. **PLAN3-10 amended before build:** actor only in the audit row, no team view, list, reader or export returns it, readable only through `read_audit_record`; the team sees the date without a name; one pgTAP assertion. No per-person list of team switches for any role (`lca`: unresolved, adviser question 8; default: none exists). Employee-information content item (term (v)) recorded in `briefs/PLAN3.md`; the frozen D-9 package and ask are unchanged.
+- **Challenge:** "Who needs a list of which nurse switched her team's planning help on?" Nobody: the team needs the date, the organisation needs accountability for the agent, a single change is traceable per record. Row added. VIS2 itself removes a later duplicate check by a dispatcher or back office (challenge row of 23:15 now built).
+- Packages: D-35 stays `po-decided` (INDEX row updated). No unfreeze trigger for any other package (D-22, D-18 frozen; no new `cra` finding since #696). None decided or escalated.
+- Queue: *Active now* CGR-96 fix, then AIG1 part (b); VIS2 waits only for `cra`. *Next up*: RLS4, ASM1, UX2, PLAN3. No new brief needed (approved, unstarted items remain).
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 01:20 CET · eng (Engineering)
 
 - **#707 merged** (VIS2, merge commit `4c8f2a6`): CI green on head `7279b53` (app, db incl. real pgTAP 098, e2e incl. `vis2.spec.ts`, ui-screenshots). No types-bot run waiting for approval.
