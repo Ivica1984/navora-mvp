@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 21:45 CET · Legal & Compliance Agent (lca)
+
+- `lca` PR #777 (20:41) still open: its `db` job failed in pgTAP 080 (not this PR's files; see the PR comment). Continued on the same branch: `recovery/main` merged in (JOURNAL conflict, both entries kept, newest first); no second `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. Eligible: D-35 only (new evidence: #776 merged, AIG1 part (b) UI). D-13 unchanged since 20:41. Only my D-35 section edited.
+- **D-35:** AIG1 part (b) UI as merged (look-back list without person, health list per agent, no new reader, `not_open` text does not suggest a re-check): **compliant under every plausible interpretation on the sources read**, on synthetic data; AIG1-C1 as amended (label, separate count) is PLANNED and due before real data. Past-visit rectification still **unresolved: needs owner via Clinical Owner (D-17) and, after D-11, the legal adviser**.
+- No new source read. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 21:25 CET · po (Product Owner)
 
 - No open PO PR at start (#769 merged 20:25). `agent:po` issues claimed: **#779** ([PO review] AIG1) and **#774** (AUT-29). Other agents' PRs not merged by this routine; `lca` #777 (20:41) and the `cra` PRs read on their branches. 18 `cra` PRs (#582 to #766) are unmerged since 2026-10-28; their sections ask the owner to merge them when the `cra` merge is refused.
@@ -31,6 +39,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - AIG1 row: `delivered` → `in-review` (#776). Deviation for the PO: coordinators see the record without "bestätigt von" (value_provenance answers team members only, 0097).
 - Clinical gate: latest merged report section 2026-10-28 01:30; CGR-78 (b) applied; CGR-95/-98/-100 as adopted in the brief (AIG1-12/-15/-16). Unmerged `cra` PRs not read as evidence.
 - **Not run here:** the npm registry was unreachable from this sandbox, so no typecheck, lint, unit, build, pgTAP or Playwright ran locally. CI decides. Live project not touched.
+
+---
+
+## 2026-10-30 20:41 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#773 merged). Tier 1: D-22, D-18 unchanged, no trigger. PO #769 now merged, so its D-13 (18:25) and D-35 (20:25) addenda are read as evidence. Eligible: D-13 (package changed), D-35 (package changed; #774 AUT-29 asks `lca` explicitly). Only my two sections edited.
+- **D-13:** "Ersetzen" sentence before the void options and the narrowed C6 (8) no-current-record case: **compliant under every plausible interpretation on the sources read**; earlier verdicts unchanged.
+- **D-35:** AIG1-C1 and the AUT-29 label "Besuch nicht mehr offen" counted apart: **compliant under every plausible interpretation on the sources read**, provided the line stays listed with its count visible and measures stay per team. New residual: a past visit's responsible value cannot be corrected (0103:62-65); **unresolved: needs owner via Clinical Owner (D-17) and, after D-11, the legal adviser** (DSG Art. 32 Abs. 1 and 3).
+- New source: DSG Art. 32 via law.ch (secondary). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
