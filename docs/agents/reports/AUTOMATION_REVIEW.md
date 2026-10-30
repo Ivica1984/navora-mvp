@@ -31,6 +31,60 @@
 
 ---
 
+## 2026-10-30 08:25 CET · aia review 14: AUT-24 closed (RLS4 delivered, #715, 0099); AUT-25 adopted (PLAN3-7); ASM1 #727 read: AUT-26 (high: the only way to clear "Neuere Bedarfsabklärung" is to retire and retype every care-plan item); AUT-27 (medium: RLS4-C1 maps legacy names visit by visit); RLS4-C2, ASM1-C1, VIS2-C3 supported
+
+**Read:** `recovery/main` at `b6559ea`:
+- merged since review 13 (#714): #712, #719, #725, #728 (`lca` 01:50 to 06:41), #716, #718, #720, #726, #729 (PO 03:10 to 07:20), #717, #730 (`uxa`), **#715 (RLS4, migration 0099, ADR-122, merge `d148f7f`)**, #722 (RLS4-5 (c) evidence);
+- open: **#727 (ASM1, migration 0100, ADR-123, head `ad98160`)**, PO #731 (08:15: ASM1-C1 to C3, UX2-30), `cra` #723 (05:30: CGR-101) and its chain (#711 and earlier), #721;
+- briefs changed: RLS4 (RLS4-3 addendum = AUT-24, RLS4-5/-6, accepted 06:10 with RLS4-C1; RLS4-C2 at 07:20), PLAN3 (PLAN3-7 amended = AUT-25), VIS2 (VIS2-C2, VIS2-C3), UX2 (UX2-28, -29; UX2-30 on #731), ASM1 (ASM1-C1 to C3 on #731); gate G-25 added (`CARE_OPERATING_MODEL.md`);
+- no open issue is labelled `automation`.
+
+**Nothing below is a measurement.** I ran no tests. CI read by me as GitHub check runs: #715 head `bc47bee` and #727 head `ad98160`: `app`, `db`, `e2e`, `ui-screenshots` success.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-26 | Care plan after a reassessment (ASM1-7): the team's registered nurse who keeps the care plan current | **Challenge (ADR-123 deviation 2, OPEN; #727 not merged).** As built in 0100: `care_plan_items.assessment_id` is set only by the insert trigger; the plan's basis is the oldest current assessment among active items, and "Neuere Bedarfsabklärung vom <Datum>" shows while any active item rests on an older record **or was written before any record** (`team_case_assessments`, `plan_without_basis`). The only way to clear it is, per item, `retire_care_plan_item` with a typed reason (0014:395-414) and a new item with service, category, minutes per occurrence, frequency text and, where used, PLAN2's structured frequency, weekdays and window (0025). For a plan of n items: 2n actions and n retyped items, even when the assessment changed nothing in the plan. Two costs: (1) **administration without patient-care benefit**: retyping an unchanged plan proves no review; (2) **a new hazard**: a retyped frequency or window feeds PLAN2 visit generation (transcription error, H-24 pattern), and a team that does not retype keeps a marker that never clears, so the marker turns into noise on every case card (all pre-ASM1 plans show it as soon as one record exists). Effort per plan: UNKNOWN (not measured); the pattern is one review act being replaced by n rewrites | **rule (one confirmed act), no rewrite:** a per-plan command "Pflegeplan gegen Bedarfsabklärung vom <Datum> geprüft" by a named team member, audited per record (actor per record only, RLS4 pattern), that sets the plan's basis to the current record without changing any item; items the review finds wrong are changed with the existing commands. Which qualification may confirm (a registered nurse?) is `cra`/Clinical Owner (UNKNOWN; not invented here). No due date, reminder or signal (ASM1 negative unchanged). Later (A10, D-35 stage 1 or later): the review act is the confirmation an assistant's draft would end in, value by value, never accept-all on care-plan fields (§8) | L (the act); the qualification rule G if `cra` says so | stage 0; PO (deviation 2 answer before ASM1 acceptance), `cra` (who confirms), `uxa` (where the act sits on the card) | per team and month: median days from a new assessment record to the plan's basis matching it, and the share of cases with an open marker older than 30 days (display window, no clinical meaning); balancing: care-plan items retired and re-added on the same day per team (should fall). Never per person | high | #732 |
+| AUT-27 | Data reconciliation before G-25 (RLS4-C1 (1)): the person doing the D-1 live reconciliation | PLANNED (RLS4-C1, accepted 06:10; not built). The runbook check returns the **count** of future, non-cancelled visits with `team_member_name` and no `responsible_user_id`; "a person maps **each such visit** to a member or confirms it unassigned". With PLAN2 generating visits ahead, one nurse's name stands on many future visits; visit-by-visit mapping repeats one decision per occurrence (e.g. one team with weeks of generated visits: hundreds of identical decisions; UNKNOWN on real data, D-1). The control itself (a person decides, no automatic matching, count before and after) is a patient-safety control (H-10, H-01) and is not challenged | **simplify, same control:** the runbook groups the remaining visits by team and legacy name (shown only on the live project, never in the repository); the person decides **once per name and team** (member, or unassigned) and that decision is applied to that name's future visits in the group; a name that two members could carry, or that the person is unsure of, is decided visit by visit; the count check still must return 0, and the record keeps count before and after, who and when (no names, no mapping in the repository, as RLS4-C1). Still no automatic name-to-member matching: every name is decided by a person | L | stage 0; PO (RLS4-C1 wording), `eng` (runbook), D-1 owner; `lca` aware (D-1 notes) | the decisions made per reconciliation (one per name, plus exceptions) against the visit count; the check returns 0 | medium | – (report) |
+
+**Briefs and items reviewed without a new finding:**
+- **RLS4-C2 (PO 07:20, `lca` 06:41):** removes a standing per-employee documentation-backlog list held by the employer; the list appears only in the access-end step. Less hierarchy, no step for the team, no open report hidden from anyone who must act. Strongly supported; the same reasoning as COND1-5a and PLAN3-10.
+- **ASM1-C1 (on #731, `uxa` UXR-59):** a confirmation step the confirming nurse cannot see becomes phone calls between colleagues; one count line in her existing "Zu erledigen" removes that coordination. No reminder, no per-person count for anyone else. Supported; this is what makes ASM1-5 cheap.
+- **ASM1-C2, ASM1-C3 (on #731):** less scrolling, fewer second attempts; no step. Supported.
+- **ASM1-5 (named assessor confirms), ASM1-2 (supersede with a reason):** D-13 criteria from `lca` and `cra` (legal and safety duty); not administration to remove; form not challenged (one tap, only when someone else entered the record).
+- **ASM1-11 as built (no sum, items as written, dated facts younger than the assessment):** a display of recorded facts, no signal; the right design order (care graph first). Supported.
+- **UX2-30 / UXR-57 (prefill instrument and assessor on a replacement):** ADR-123 trade-off deliberately does not prefill them. Prefilling the person's own earlier record is not an agent proposal (no ledger needed), but it is a value carried over without a look; `cra` weighs it with UX2-30. No finding from me.
+- **VIS2-C2, VIS2-C3 (save step only when another team's visit overlaps the edited interval):** a patient-safety fact (double booking at the client's door) shown once, nothing refused, and the PO declined a per-person log of look-ups (option (b), (y)). The step appears only in the rare overlap case; not challenged.
+- **UX2-28, UX2-29:** wording; no step. Supported.
+
+### 2 AI readiness of delivered items (§8)
+- **RLS4 (#715):** proposes, drafts and ranks nothing. Its act-closing pattern (actor per record only) is the one AIG1-11 already uses for confirmers; consistent.
+- **ASM1 (#727, not merged):** proposes, drafts and ranks nothing; nothing is computed from the record; no ledger entry needed. Provenance per value for a later import (AUT-13, `cra` condition (3)) is not built and not needed until an import is briefed. AUT-26's review act is the future end point of A10 (care-plan review proposer).
+
+### 3 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | ASM1 built | **in review** (#727, CI green on `ad98160`); acceptance after ASM1-C1 to C3 (#731) and the `cra` read; deviation 2 (AUT-26) OPEN |
+| 0 | Per-record acts readable only per record (prerequisite for any per-value confirmer display) | **IMPLEMENTED** (RLS4, #715, 0099; G-18 met 06:10) |
+| 0 | First real stage-0 agent (PLAN3) | PLANNED; AUT-25 measure now in PLAN3-7 |
+| 1 | Real data may reach any test, pilot or AI path | blocked (D-1 precaution; G-25 added for real visit data) |
+| 0-3 | other conditions unchanged from review 13 | as stated there |
+
+### 4 Findings closed
+- **AUT-24 (low): closed with evidence.** RLS4-3 addendum IMPLEMENTED: pgTAP 099:291-293 asserts `my_signals()` still returns `taken_by_name` for an open, taken signal to a team member; `safety_signals.taken_by` closed as a raw column (0099:55; pgTAP 099:72); CI on #715 head `bc47bee` green (check runs read by me).
+- **AUT-25 (low): adopted** by the PO 03:10 in PLAN3-7 as proposed (share of "kein Vorschlag" per team and month by reason; no stop criterion). Closes when PLAN3 is delivered with that measure.
+- AUT-23 closes with AIG1 part (b) (#705, not started). AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-21: unchanged.
+
+### 5 Waiting for the PO
+- **AUT-26 (high, #732):** answer ADR-123 deviation 2 before ASM1 acceptance: one confirmed review act per plan instead of retire-and-retype; `cra` on who may confirm.
+- **AUT-27 (medium):** one wording change in RLS4-C1 (1): decide once per legacy name and team, exceptions per visit; before the RLS4-C1 PR.
+- AUT-19, AUT-20, AUT-21 as before.
+- Bottleneck map refresh: due 2026-11-03 (weekly); care-plan maintenance after reassessment (AUT-26) added as a candidate next to onboarding contract to first visit, P-28, P-32.
+
+---
+
 ## 2026-10-30 02:18 CET · aia review 13: AIG1 part (a) delivered (#701, 0097), §8 readiness checked, AUT-22 closed; VIS2 delivered and (PR #713) accepted; PLAN3-10 supported; AIG1-15/-16, VIS2-C1 supported; AUT-24 (low, RLS4 signal taker), AUT-25 (low, PLAN3 has no "no proposal" measure)
 
 **Read:** `recovery/main` at `183748f`:
