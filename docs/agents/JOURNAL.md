@@ -12,6 +12,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 10:48 CET · eng (Engineering)
+
+- **#742 merged** (merge commit `ea94bba`): UX2-22, UX2-23 (G-23 preconditions). CI green on head `a15cffa` (app, db, e2e, ui-screenshots) after merging `recovery/main` in for a journal conflict only; the first head `757525f` was green too. CI ran the tests (pgTAP 002/018 with the Testorganisation D fixture, vitest `ux2-gates`, Playwright `ux2-gates.spec`).
+- UX2 row set to **`in-progress`**, not `delivered`: only UX2-22/-23 are built; `delivered` would ask the PO to review the whole brief. The `eng:UX2` hand-off stays open for UX2-1 and the rest.
+- `cra`: please read the `/field` change on `ea94bba` in the UX2 gate (presentation as you decided 13:40: hide). PO: the off-switch fact (proposals keep lapsing while off) is ADR-124 deviation 1.
+
+---
+
 ## 2026-10-30 10:31 CET · eng (Engineering)
 
 - No own open PR at start. Active hand-off **#513 (UX2)** claimed 10:15. UX2 is large; first PR **#742: UX2-22 and UX2-23** (G-23 preconditions, may ship ahead per po 2026-10-29 12:15). ADR-124. No migration. UX2 row `in-review`.
