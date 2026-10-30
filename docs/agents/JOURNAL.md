@@ -4,6 +4,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 10:15 CET · po (Product Owner)
+
+- No open PO PR at start (#735 merged). `agent:po` issues: **#738 ([PO review] ASM1)** claimed and reviewed; #732 (AUT-26) stays open until ASM1-C4 is merged; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. Other agents' PRs (#737 `cra` and earlier) not merged: this routine merges PO PRs only.
+- **ASM1 reviewed: `changes-requested`** (#727 merged `e42fde6`; CI `ci` green on head `c191213`, merge commit `e42fde6`, `recovery/main` `5cab231`; evidence table in `briefs/ASM1.md`). ASM1-1 to ASM1-11 and the negative met (`cra` 09:30, PR #737 read on its branch: CGR-81, CGR-84 closed). ADR-123 deviations 1 (no GLN), 3, 4 (no instrument admin screen, synthetic only), 5 accepted. Acceptance waits for ASM1-C1 to -C4 (now with `cra` 09:30 conditions) and **ASM1-C5** (CGR-102, S2: a corrected basis shows on the plan; the C4 act clears it). **ASM1-C6** (CGR-103, S2: "Irrtümlich erfasst" void act; voided content not shown to the team, reason hint, assessor sees it; provisional voider = RN of the team) before the first real assessment record, not blocking. Moved from *Next up* to queue rank 47; *Next up* is UX2, PLAN3.
+- **Decisions:** D-13 (po-decided) to tier 2 (CGR-102, CGR-103), `lca` 09:40 taken in (criterion 1 narrowed: supersede corrects a figure; a wrong client needs the void act); B unchanged. D-4 (Unfreeze 5): item (7) and one legal-adviser question on a misfiled assessment; owner agenda adviser line extended; ask, default and status unchanged. No package escalated.
+- **Challenge:** "Why is the assessment typed into NAVORA and confirmed afterwards?" From scratch it is recorded once and read everywhere; the copy, its confirmation and both correction acts exist only because of the hand-made copy. Hypothesis **P-34** (per team and month): records entered by someone else, time to confirmation, records corrected or voided within 14 days; material values are the evidence for D-13 A (import, owner, after D-12).
+- Queue: CGR-96 fix, ASM1-C1 to -C5, AIG1 part (b), RLS4-C1 with RLS4-C2, UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+ENGINEERING BRIEF (conditions on an approved capability; no new capability)
+- Capability: ASM1 conditions ASM1-C1 to ASM1-C5 (one PR), ASM1-C6 before real assessment data.
+- Why: ASM1 records the assessment, but the confirming nurse cannot see work addressed to her, a corrected basis looks unchanged on the plan, and a wrong-client record can only be "fixed" with a false one.
+- Business outcome: the assessment record can be accepted and becomes the basis the pilot uses; no billing fact changes.
+- Care outcome: the plan always says truthfully which assessment it rests on and whether that changed; no false assessment is written to correct an error.
+- Expected nurse outcome: no phone calls to chase a confirmation; one tap instead of retyping a plan after a reassessment.
+- Expected team outcome: the team reviews its own plan against the current assessment; nobody supervises it.
+- Expected patient outcome: care follows the assessment that is actually valid for this client; another client's minutes never sit beside hers.
+- Acceptance criteria: `briefs/ASM1.md` ASM1-C1 to ASM1-C6, tests as written (pgTAP, unit, e2e at 390 px).
+- Dependencies: #727 (merged); `cra` reads the PR before merge; `uxa` wording; no owner decision needed on synthetic data.
+- Priority: after the CGR-96 fix, before AIG1 part (b).
+- Implementation recommendation: extend the `team_case_assessments` reader for the C5 fact; one append-only table for review acts and one for voids (actor per record, RLS4 pattern); reuse `private.is_registered_nurse`; no change to J3, PLAN2 or J5 reads.
+
+---
+
 ## 2026-10-30 09:40 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#734 merged). Tier 1: D-22, D-18 frozen, no trigger. Reviewed D-13 (tier 2: `cra` 09:30 CGR-102, CGR-103 on ASM1, PR #737 unmerged; ASM1-C4) and D-1 (RLS4-C1 (1) reworded on AUT-27, po asked me to read it). D-3, D-4 po 09:15 additions take in my 08:42 notes; nothing new to check. Only my sections edited.
