@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { handleException } from "@/features/operations/commands";
@@ -93,6 +94,13 @@ function ExceptionCard({ exception: e }: { exception: OperationsException }) {
         <p className="text-xs text-stone-700" data-testid="exception-closes-with-cause">
           {e.exception_type === "visit_interrupted" ? CLOSES_WITH_FOLLOWUP : CLOSES_WITH_CAUSE}
         </p>
+      )}
+      {e.exception_type === "agent_stopped" && e.entity_id && (
+        // AIG1-12 (ADR-129): the exception opens the look-back list of its stop (no person, no outcome).
+        <Link href={`/operations/assistenten/rueckblick/${e.entity_id}`} data-testid="lookback-link"
+          className="inline-flex min-h-10 items-center font-semibold underline underline-offset-4">
+          Betroffene Werte ansehen
+        </Link>
       )}
       {e.exception_type === "visit_interrupted" && e.entity_id && (
         // CSR1 / CGR-25: closes only with a follow-up decision from the short list (PROVISIONAL, D-31).

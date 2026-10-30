@@ -129,6 +129,10 @@ export default function TeamClient({
           <Link href="/field" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
             {PAGE_LABEL.field}
           </Link>
+          {/* AIG1 part (b) (ADR-129): the team's open proposals, confirmed value by value. */}
+          <Link href="/team/vorschlaege" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
+            Vorschläge
+          </Link>
           {/* UX1-20: the role's menu (and "Meine Einstellungen") from the nurse's screens, inside the first viewport. */}
           <HeaderMenu active="team" />
         </div>
