@@ -16,6 +16,80 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-30 17:35 CET: #747 merged as read (`752ecbc`, no code difference from `fcb84eb`): **CGR-102 closed**; #764 (CGR-96, ADR-127, pgTAP 102) read on its merge commit: **CGR-96 closed** (root cause named, one move never adds a visit; the indistinguishable-cards risk stays CGR-97); #761 (WORK1-C5, pgTAP 079 test only) read: no finding; **P-37 preset void reason confirmed from the clinical side** with one condition; ASM1-C6 (8) sentences (`uxa` 15:50) confirmed; **CGR-104 remedy (4) made precise**: with no current record the act stays refused and the sentence stays; UXR-65 remedy wording confirmed; no new finding
+
+**Scope:** `recovery/main` @ `eae9a14`. Changes since my 13:30 section (PR #753, unmerged, read from its branch; `recovery/main` was `5ba84b4`):
+- **Code merged:** **#747** ASM1-C1 to -C5 with C4 (d) as `752ecbc` (second parent `6339c24`; `git diff fcb84eb 6339c24 -- src supabase tests` is empty, so the code is the head I read at 13:30). **#761** WORK1-C5 as `40c4bd9`: `079_work1_working_day.test.sql` (one snapshot, `role:object` per difference), `ci.yml` (db timeout 30 min, a 50-run step on `fix/work1-c5*` branches only), `scripts/db-flaky/work1-c5.sh`; no migration, no app code. **#764** CGR-96 as `eae9a14` (head `a33cda9`): new pgTAP `102_cgr96_one_move_one_visit.test.sql` (13), `vis1.spec.ts` (count the slot before the move, assert `before + 1`, take the moved card by focus); no migration, no app code.
+- **Docs merged:** PO 13:28 (#752), 15:00 (#755), 15:55 (#757/#760: ASM1 **accepted**), 16:55 (#763: WORK1-C5 reviewed, (b) watch mode); `lca` 13:42 (#754, P-37 compliant); `aia` 15:04 (#756); `uxa` 15:50 (#759); `eng` status (#762, #765 open, docs only).
+- **CI:** `recovery/main` `eae9a14`: `app`, `db`, `e2e`, `ui-screenshots` **success**; #764 head `a33cda9`: all four success (check runs read through the GitHub API). My chain #582 … #753 is still unmerged (owner instruction on #666).
+- **Asked of `cra`:** PO 15:00/15:55: P-37 (H-05 traceability); formally close CGR-102. `uxa` 15:50: the two ASM1-C6 (8) sentences, their position and the no-current-record case; UXR-65 wording.
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read: the full pgTAP 102; the `vis1.spec.ts` diff; the pgTAP 079 diff and the `ci.yml` step; 0101:120-145 (`review_care_plan_against_assessment` refusal order) for the no-current-record case; `briefs/ASM1.md` PO 13:28, 15:00, 15:55; `decisions/D-13.md` `lca` 13:42; `UX_REVIEW.md` 15:50 (C6 (8), P-37, UXR-65); `AUTOMATION_REVIEW.md` 15:04 (P-37); JOURNAL `eng` 16:40 to 17:35, PO 16:55. **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+No new finding.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-102** | **closed** (merged as read) | #747 merged as `752ecbc`; the code equals the head `fcb84eb` on which I found remedy (1)-(5) met at 13:30: 0101 `corrected` CTE, `correctedBasisText` (`rules.ts`), `plan-assessment-basis.tsx`, pgTAP 101:147-161 and the hash block 101:166-168; CI green on `6339c24` and on `recovery/main` `eae9a14` (contains `752ecbc`). Remaining gap by identity: CGR-104 |
+| **CGR-96** | **closed** | Remedy: (1) issue with the trace: #693; (2) rows named: **two different `care_visits.id`**, the moved visit and a visit an earlier spec planned in the same slot today (`ux1.spec` 20:45–21:15, `vis1-10.spec` 22:40–23:10); the 20:43 CET failure matches the 20:45 slot; (3) pgTAP 102 (13), deterministic with a pinned clock: the move into an occupied slot is `ok`, updates the moved visit in place (same id, 102 "keeps its id"), adds no `care_visits` row ("adds no care_visits row"), leaves the other visit unchanged, returns no id twice from `field_visits` ("no visit id is returned twice"), leaves nothing on the old day, writes one `moved` row, and a repeat with the same key is `duplicate`; (4) the spec no longer assumes the slot is empty: it counts the cards before, asserts `before + 1`, and takes the moved card by focus (`vis1.spec.ts` CGR-96 block), so a collision can no longer pass or fail by time of day. My remedy asked for fixture isolation; counting plus the pgTAP proof is equivalent for the question CGR-96 asked (does one move yield two visits: **no**, IMPLEMENTED and tested). CI `db` and `e2e` green on `a33cda9` and `eae9a14`. **Not closed by this:** two different visits of one client in one slot render as cards with the same accessible name: that product risk is **CGR-97** (open, advisory S3; PS-86), unchanged. The PO's VIS1 done-when 3 (three green runs, one 18:00–23:00) is the PO's evidence and does not hold this closure |
+| **CGR-104** | open, advisory (S2); placed as **ASM1-C6 (8)** (PO 15:00, PLANNED, before the first real assessment record); **remedy (4) made precise below**; PO 15:55 clarification ("basis head" = the effective basis `private.plan_item_basis`, so an act followed by a void or a same-date record is caught; extra pgTAP case) **agreed**: it is what the remedy means | `briefs/ASM1.md` PO 15:00 (i)-(v), PO 15:55 deviation 4 |
+| **CGR-103** | open, advisory (S2); ASM1-C6 PLANNED; P-37 input below | `briefs/ASM1.md` ASM1-C6 |
+| **CGR-101** | open, advisory (S2); RLS4-C1 PLANNED (PO *Active now* (1)) | no change |
+| **CGR-97** | open, advisory (S3); see CGR-96 above | no change in product code |
+| **CGR-99** | open, advisory (S3); VIS2-C1 PLANNED | no change |
+| **CGR-98**, **CGR-100** | open; AIG1-15, AIG1-16 PLANNED | no change |
+| **CGR-95**, **CGR-78**, **CGR-75** | open, advisory (S2) | no change |
+| CGR-94, CGR-86 | open | no change |
+| CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-16, CGR-23 | open | no change |
+
+Closed in this section: **CGR-102**, **CGR-96**.
+
+### CGR-104 remedy (4), made precise (my 13:30 wording was too wide)
+
+At 13:30 I wrote "the C4 act is offered and accepted in each case and clears it". That is wrong for one case. **When no record is current** (the only record, or every record, voided), the act must **not** be offered and stays **refused** on the server (IMPLEMENTED: 0101:131 refuses `not_current` when the record passed is not `private.current_assessment`, which then is null). The sentence "Es gibt keine aktuelle Bedarfsabklärung." stays in the care-plan block until a new record is entered; the act against that record then clears it. *Why:* a review "against nothing" would record that the plan was checked and remove the only line saying the plan has no assessment basis. That hides a true, safety-relevant state (H-08). It answers the `uxa` 15:50 UNKNOWN from the clinical side; the Clinical Owner may later decide otherwise (after G-1). Testable addition to ASM1-C6 (8) (v): only record voided → fact returned, act refused `not_current`, no review command rendered (vitest), the sentence present. The other three cases (newer, same-date parallel, voided basis with an older record left) stay as written: offered, accepted, fact cleared.
+
+### Inputs requested of `cra` (clinical review input; I decide nothing, D-27)
+
+- **P-37 (preset void reason "Falsche Klientin oder falscher Klient gewählt", "Anderer Grund" opens the free text): confirmed from the clinical side (H-05 traceability)**, with `lca` 13:42 (a)-(d) and the `uxa` 15:50 presentation conditions. The preset states the cause precisely, the record is kept, and author and time stay per void; that is the traceability H-05 needs. **One condition:** a void is for a record that should not be in this case at all; a wrong **value** of the right client is corrected by "Ersetzen" (supersede, ASM1-2), which keeps the chain. The void step (both options) carries one sentence that says so (`uxa` words it). *Why:* a one-tap reason makes voiding as easy as superseding; without the sentence a wrong-minutes entry can be voided "as the wrong client", which ends the record's role as a basis and loses the correction chain. Test: vitest, the void step contains the supersede sentence before the options. I add **no** count or threshold of voids; `aia`'s measure (share of "Anderer Grund") is the PO's. With `lca` and `uxa` already in, this is a third confirmation; whether P-37 comes into force is the PO's call.
+- **ASM1-C6 (8) sentences (`uxa` 15:50): wording and position confirmed.** First in the block, `info`, outside the folded history; "Neuere" never shown for a same-date record; for a voided basis no date or field of the voided record and no basis line naming it (my 13:30 (2)-(3), `lca` (a)). No-current-record case: above.
+- **UXR-65 (confirming sentence names only the notes shown): wording confirmed.** Naming the note she can see on screen strengthens the one check the step adds; it changes no rule.
+
+### #761 (WORK1-C5; merged `40c4bd9`): no finding
+
+Test only. REPEATABLE READ makes the WORK1-5 before/after catalogue compare one committed state plus w1's own actions in the same transaction, which is what WORK1-5 asserts (nobody else reads her working day); nothing is excluded from the catalogue and every readable table and read model is still compared, now named `role:object` on failure. It does not weaken the privacy test. (b) cause UNKNOWN: I agree with the PO 16:55 standing rule (no re-run of a red test 44 before the `role:object` is recorded; a WORK1 object escalates at once).
+
+### Other checks (no finding)
+
+- **No new hard-coded clinical, tariff, LTCF, interRAI, PAG or MQI rule** in #761 or #764 (tests and CI only). CR-150 and CR-151 are now merged (`752ecbc`); register note.
+- **ASM1 accepted** (PO 15:55) on synthetic data: consistent with my 13:30 gate. Real assessment data still wait for ASM1-C6 with C6 (8), D-29 and the owner rule of 2026-10-29 (no real client data until D-1).
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **ASM1-C1 to -C5, C4 (d)** (#747, merged `752ecbc`) | merged as read; clear; CGR-102 closed |
+| **ASM1** (accepted 15:55, synthetic data) | clear on synthetic data; **real assessment data:** ASM1-C6 with C6 (8) (CGR-103, CGR-104, remedy (4) as made precise above) first |
+| **ASM1-C6** (PLANNED) | wording (C6 (3), (4), (8)) confirmed; P-37 confirmed with the supersede sentence |
+| **CGR-96 fix** (#764, merged `eae9a14`) | clear; CGR-96 closed; CGR-97 open |
+| **WORK1-C5** (#761, merged `40c4bd9`) | no finding |
+| **RLS4-C1, VIS2, AIG1 part (b), PLAN3, UX2** | unchanged |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **po:** P-37: add the supersede sentence to ASM1-C6 (4) if it comes into force; ASM1-C6 (8) (iv)/(v): the no-current-record case refused and the sentence kept (above).
+- **eng:** ASM1-C6 with C6 (8) and the precise (4); nothing else new.
+- **uxa:** the one void-step sentence pointing to "Ersetzen".
+- **clinical (Clinical Owner, after G-1):** unchanged: two assessment records of one date and which is current (CGR-104); the ASM1-C4 set and an unconfirmed basis; void confirmation by the named assessor; whether a plan may be reviewed with no current record (my provisional answer: no); reassessment triggers (CR-148, H-08); CGR-99, CGR-100, CGR-98, CGR-95; same-client overlap allowed or billable (CGR-97); D-15, CR-010, CGR-87 (3), (4), CGR-89 (3), CR-134, D-12, D-25.
+- **owner / legal / regulatory adviser:** chain merge of the governance PRs (#582 … this PR); unchanged items (G-1, D-38, D-34 MepV, D-36, D-1, D-4 adviser list).
+
+---
+
 ## 2026-10-30 13:30 CET: UX2-22/-23 (#742, merged `ea94bba`) read: no clinical finding, my 13:40 (29.10) "hide" decision met; ASM1-C1 to -C5 with C4 (d) (open #747, head `fcb84eb`, migration 0101, ADR-125) read: **CGR-102 remedy met on the PR head** (closes on merge); ASM1-C4 conditions (a)-(c) met; **CGR-104** (new, advisory S2, with ASM1-C6 before real assessment data: the plan's basis is compared by date, not by record, so a same-date second record or a void leaves the plan pointing at a record that is not current, with no marker); inputs on UXR-60 (keep the confirming step), UXR-62 and the C6 display
 
 **Scope:** `recovery/main` @ `5ba84b4`. Changes since my 09:30 section (PR #737, unmerged, read from its branch; `recovery/main` was `e42fde6`):

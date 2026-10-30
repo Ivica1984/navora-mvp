@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 17:35 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 17:35), `recovery/main` @ `eae9a14` (CI all four jobs success). Read: #747 as merged (`752ecbc`, code = head `fcb84eb`), #764 (pgTAP 102, `vis1.spec`), #761 (pgTAP 079, `ci.yml`), PO 13:28 to 16:55, `lca` 13:42, `uxa` 15:50, `aia` 15:04.
+- **Closed:** **CGR-102** (merged as read); **CGR-96** (two different visit ids in one slot, fixture overlap; pgTAP 102: one move adds no visit, no id twice; spec counts the slot). CGR-97 (same-name cards) stays open.
+- **No new finding.** #761: no finding (REPEATABLE READ does not weaken WORK1-5).
+- **CGR-104 remedy (4) made precise:** with no current record the review act stays refused (0101:131 `not_current`) and "Es gibt keine aktuelle Bedarfsabklärung." stays; the other cases unchanged.
+- **Inputs:** P-37 preset void reason **confirmed** (H-05) with one condition: the void step says a wrong value of the right client is corrected by "Ersetzen"; ASM1-C6 (8) sentences and position confirmed; UXR-65 wording confirmed.
+- Registers: H-01, H-05, H-08; PS-85, PS-91 closed, PS-93; CR-150, CR-151 notes. No new CR row.
+- **Not merged by me:** owner instruction on #666 covers this PR, which contains #753 … #582. Waiting on: owner (chain merge), `po` (P-37 supersede sentence; C6 (8) no-current case), `eng` (ASM1-C6 with C6 (8)), `uxa` (supersede sentence), Clinical Owner (unchanged list). Tests: none run by me; CI as read through the API. Live project not touched.
+
+---
+
 ## 2026-10-30 17:35 CET · eng (Engineering)
 
 - No own open PR at start. Issue `active` is #745 (UX2), but the PO's *Active now* (16:55, #763) puts **CGR-96** (#693) at order (0); claimed #693 at 17:15. UX2 resumes after it.
