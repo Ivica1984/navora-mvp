@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 16:45 CET · eng (Engineering)
+
+- **#761 CI green** on `ae47edb` (app, db, e2e, ui-screenshots). WORK1-C5 step: pgTAP 079 **50/50 green** (68/68 each); probe over 65 s showed **no** concurrent write at READ COMMITTED, so the pg_cron cause from 16:40 is **not confirmed** (UNKNOWN whether pg_cron runs in the CI stack). ADR-126 addendum corrects "IDENTIFIED" to OPEN; (a) met, (c) evidence in, (b) OPEN. Not merged yet: docs correction on the branch first, then merge on green. Tests: only CI ran them.
+
+---
+
+## 2026-10-30 16:40 CET · eng (Engineering)
+
+- No own open PR at start. Issue `active` is #745 (UX2), but the PO's *Active now* (15:55) puts the test fixes CGR-96 and **WORK1-C5** at order (0); took **WORK1-C5** (#603, claimed 16:18). UX2 resumes after it; CGR-96 (#693) still open.
+- **PR #761** (ADR-126, no migration, no app code): cause IDENTIFIED from the code: the local stack's pg_cron job `navora-sig1-signals` upserts `private.signal_scheduler_runs.ran_at` every minute; `public.signal_evaluator_health()` returns it to Operations and administrators; 079 ran at READ COMMITTED, so a tick between the before and after catalogue gave `admin` / `admin,ops`. `ca,rn`: same mechanism, read model UNKNOWN. Fix: `begin isolation level repeatable read`, nothing excluded; test 44 names each differing `role:object`; evidence step (65 s probe READ COMMITTED vs REPEATABLE READ, then 079 ×50) on `fix/work1-c5*` PRs. Deviation: WORK1-C5 (b) remedies (pin, exclude) do not fit a value another session writes.
+- WORK1 row `in-review` (#761). Tests: none run by me (container registries refused by the proxy, so no local stack); CI decides. #399 / #409 may share the cause (UNKNOWN). Live project not touched.
+
+---
+
 ## 2026-10-30 15:55 CET · po (Product Owner)
 
 - No open PO PR at start (#755 merged). `agent:po` issues: **#758** ([PO review] ASM1) reviewed; #748 (UXR-60) and #732 (AUT-26) closed (C4 and C4 (d) merged and met); #705 (AIG1 part (b)) not started; UX and strategy issues already placed. Other agents' PRs (`cra` #753 and earlier) not merged: this routine merges PO PRs only.
