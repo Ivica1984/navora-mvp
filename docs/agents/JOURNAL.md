@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 03:40 CET · eng (Engineering)
+
+- #715 was green on `5f79caa` but conflicted again: the PO's 03:10 cycle amended RLS4 (**RLS4-5** close `cover_events.nurse_id` and both `performer_id`; **RLS4-6** `team_member_name` leaves the read path, `/visits` from `responsible_user_id`; **RLS4-3 addendum** pgTAP for "übernommen von"). The brief let Engineering choose; landed **in #715 before merge** (one PR per item), so RLS4 is delivered once, complete.
+- **IMPLEMENTED in #715 (CI decides):** 0099 now closes 25 act columns on 19 tables plus `team_member_name`; `/visits` names the responsible member ("Pflegekraft: <Name>", "Noch offen", "Teammitglied" without a display name); pgTAP 099 63 assertions (RLS4-5 refusals for a team member and an RN, the F6R readers per report, the `cover_events.nurse_id` reader list, the LEAVE1 per-person list pinned, `my_signals` "übernommen von"); 071 and 096 lists updated; vitest `rls4-visits-responsible`; Playwright `access.spec.ts` (F0 now by service; RLS4-6 name and "Noch offen"). ADR-122 rewritten (deviations 1-7), `READ_PATHS.md`, status row.
+- **For the PO (ADR-122):** `working_time_facts.performer_id` own-rows reader (OPEN); LEAVE1 `member_open_reports(user)` lists one leaver's open reports to admins and RNs, unchanged (OPEN under D-23); "Teammitglied" wording on `/visits`.
+- Tests run by me: migrations 0001-0099 + seed on local PostgreSQL 16 (auth stubs, pgTAP stand-in); 0099 twice; all files green except 001/007 (stand-in gaps); 099 63/63, 19 red without 0099. `getVisitResponsibleLabel` checked in Node. vitest, lint, typecheck, build, real pgTAP, Playwright **not run** (no npm registry); CI decides. Live project not touched; synthetic data only.
+
+---
+
 ## 2026-10-30 03:25 CET · eng (Engineering)
 
 - #715 (RLS4): CI green on `6aaf09b` and on head `eec4f18` (base merged in by another run). Before merging, read `lca` 02:45 (D-23, advisory): RLS4-1 compliant under every plausible interpretation; **`cover_events.nurse_id` records an act on `withdrawn` rows** (who handed a cover back, with her reason), so ADR-122 deviation 3 ("none of RLS4-2 records an act") was wrong. Corrected in ADR-122, `READ_PATHS.md` and the status row; per the brief Engineering names it for the PO and does not choose (column unchanged in 0099). `lca`'s points on both `performer_id` columns and `care_visits.team_member_name` recorded as OPEN for the PO. Docs only; merge after CI on this push.

@@ -6,7 +6,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(50);
+select plan(63);
 
 -- Pinned clock (DST1 pattern): 10:00 Zurich today = day T.
 select set_config('navora.test_now',
@@ -47,6 +47,9 @@ begin
   execute 'reset role';
   return r;
 end $$;
+create function pg_temp.fr0(p_user text, n int) returns jsonb language sql as $$
+  select f from jsonb_array_elements(pg_temp.rows(p_user, format('select * from public.field_reports(%L)', (select t from d0)))) f
+  where f ->> 'visit_id' = pg_temp.v(n)::text $$;
 -- True when the query is refused with 42501 for the user.
 create function pg_temp.refused(p_user text, p_sql text) returns boolean language plpgsql as $$
 begin
@@ -67,23 +70,27 @@ insert into acts values
   ('case_gp_notices', 'recorded_by'), ('cases', 'intake_consent_confirmed_by'), ('team_decisions', 'actor_id'),
   ('quality_events', 'author_id'), ('quality_event_log', 'actor_id'), ('quality_holds', 'set_by'),
   ('quality_holds', 'lifted_by'), ('billable_facts', 'created_by'), ('safety_signals', 'taken_by'),
-  ('referral_links', 'actor_id');
+  ('referral_links', 'actor_id'),
+  -- RLS4-5 (po 2026-10-30 03:10): three columns moved from the keep-list
+  ('cover_events', 'nurse_id'), ('visit_reports', 'performer_id'), ('visit_report_returns', 'performer_id');
 -- RLS4-2: the assignment columns that stay readable to the team
 create temp table keeps (t text, c text);
 insert into keeps values
   ('cases', 'primary_nurse_id'), ('cases', 'deputy_nurse_id'), ('care_visits', 'responsible_user_id'),
-  ('care_visits', 'covered_by'), ('cover_events', 'nurse_id'), ('visit_reports', 'performer_id'),
-  ('visit_report_returns', 'performer_id'), ('quality_events', 'owner_id');
+  ('care_visits', 'covered_by'), ('quality_events', 'owner_id');
 grant select on acts, keeps to authenticated;
 
 -- Fixtures: three Nord visits of case 208 today; a display name for the registered nurse ------------------------------------------
 insert into public.member_profiles (organization_id, user_id, display_name, updated_by)
 values ('00000000-0000-4000-b000-000000000011', pg_temp.u('p'), 'Synthetisch RN Nord', pg_temp.u('p'))
 on conflict (organization_id, user_id) do update set display_name = excluded.display_name;
+insert into public.member_profiles (organization_id, user_id, display_name, updated_by)
+values ('00000000-0000-4000-b000-000000000011', pg_temp.u('ca'), 'Synthetisch HP Nord', pg_temp.u('ca'))
+on conflict (organization_id, user_id) do update set display_name = excluded.display_name;
 insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided, billable, status, planned_minutes_a)
 select '00000000-0000-4000-b000-000000000011', pg_temp.v(n), '00000000-0000-4000-a000-000000000208',
        '00000000-0000-4000-a000-000000000101', pg_temp.t(), s, s + interval '20 minutes', array['Grundpflege'], false, 'planned', 20
-from (values (1, time '18:10'), (2, time '18:40'), (3, time '19:10')) x(n, s);
+from (values (1, time '18:10'), (2, time '18:40'), (3, time '19:10'), (5, time '19:40')) x(n, s);
 
 -- The care assistant performs visits 2 and 3 and signs; the registered nurse countersigns 2 and returns 3.
 create function pg_temp.run_and_sign(n int, k int) returns text language plpgsql as $$
@@ -100,6 +107,7 @@ begin
 end $$;
 select is(pg_temp.run_and_sign(2, 10), 'ok', 'fixture: the care assistant signs visit 2');
 select is(pg_temp.run_and_sign(3, 20), 'ok', 'fixture: the care assistant signs visit 3');
+select is(pg_temp.run_and_sign(5, 50), 'ok', 'fixture: the care assistant signs visit 5 (awaits countersignature)');
 select is(pg_temp.res('p', format('select public.countersign_report(%L, %L)',
             (select id from public.visit_reports where visit_id = pg_temp.v(2)), pg_temp.k(30))), 'ok',
           'fixture: the registered nurse countersigns visit 2');
@@ -116,6 +124,17 @@ select is(pg_temp.res('p', format('select public.set_quality_hold(%L, %L, %L)', 
 -- A status note on visit 1 by the registered nurse, written as the table owner (as 071).
 insert into public.visit_status_notes (organization_id, visit_id, kind, note, actor_id, idempotency_key, at_door)
 values ('00000000-0000-4000-b000-000000000011', pg_temp.v(1), 'no_show', 'Synthetisch: RLS4 Notiz', pg_temp.u('p'), pg_temp.k(42), true);
+-- A P1 no-show signal on visit 4 (23:59 today, responsible: the registered nurse), taken by her (fixture as in 078).
+insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, billable, status, responsible_user_id)
+values ('00000000-0000-4000-b000-000000000011', pg_temp.v(4), '00000000-0000-4000-a000-000000000208',
+        '00000000-0000-4000-a000-000000000101', pg_temp.t(), '23:59', false, 'planned', pg_temp.u('p'));
+select is(pg_temp.res('p', format('select public.depart_visit(%L, %L)', pg_temp.v(4), pg_temp.k(43))), 'ok', 'fixture: she departs to visit 4');
+select is(pg_temp.res('p', format('select public.record_no_show(%L, %L, %L, true)', pg_temp.v(4), 'Synthetisch: niemand öffnet', pg_temp.k(44))), 'ok',
+          'fixture: she records a no-show');
+select private.evaluate_signals('00000000-0000-4000-b000-000000000011', true);
+create temp table sig as select id from public.safety_signals where visit_id = pg_temp.v(4) and ended_at is null;
+select is(pg_temp.res('p', format('select public.take_signal(%L, %L)', (select id from sig), pg_temp.k(45))), 'ok',
+          'fixture: she takes the signal');
 
 -- RLS4-1: an active member of the record's team gets 42501 on each act column --------------------------------------------------
 select is((select string_agg(a.t || '.' || a.c, ',' order by a.t, a.c) from acts a
@@ -147,7 +166,7 @@ select is((select string_agg(a.t || '.' || a.c, ',' order by a.t, a.c) from acts
           'RLS4-1: a filter on any act column is refused');
 select is((select string_agg(distinct a.t, ',' order by a.t) from acts a
            where not pg_temp.refused('ca', format('select * from public.%I limit 1', a.t))), null,
-          'RLS4-1: select * on each of the 18 tables is refused');
+          'RLS4-1: select * on each of the 19 tables is refused');
 select ok(pg_temp.refused('ca', 'select count(distinct actor_id) from public.visit_plan_changes'),
           'RLS4-1: no count of distinct actors either');
 -- … the grants themselves
@@ -156,19 +175,20 @@ select is((select string_agg(a.t || '.' || a.c, ',' order by a.t, a.c) from acts
           'RLS4-1: authenticated holds no select on any act column');
 select is((select string_agg(distinct a.t, ',' order by a.t) from acts a
            where has_table_privilege('authenticated', format('public.%I', a.t), 'select')), null,
-          'RLS4-1: no table-wide select grant remains on the 18 tables');
+          'RLS4-1: no table-wide select grant remains on the 19 tables');
 select is((select string_agg(c.table_name || '.' || c.column_name, ',' order by c.table_name, c.column_name)
            from information_schema.columns c
            where c.table_schema = 'public'
-             and c.table_name in ('visit_report_returns', 'care_visits', 'visit_plan_changes', 'visit_status_notes',
+             and c.table_name in ('visit_report_returns', 'care_visits', 'cover_events', 'visit_plan_changes', 'visit_status_notes',
                                   'working_time_facts', 'care_plan_items', 'case_tasks', 'case_lifecycle_events', 'team_decisions',
                                   'quality_events', 'quality_event_log', 'quality_holds', 'billable_facts', 'referral_links')
              and not has_column_privilege('authenticated', format('public.%I', c.table_name), c.column_name, 'select')),
           'billable_facts.created_by,care_plan_items.created_by,care_plan_items.retired_by,care_visits.suspended_by,'
-          || 'case_lifecycle_events.actor_id,case_tasks.done_by,quality_event_log.actor_id,quality_events.author_id,'
-          || 'quality_holds.lifted_by,quality_holds.set_by,referral_links.actor_id,team_decisions.actor_id,'
-          || 'visit_plan_changes.actor_id,visit_report_returns.returned_by,visit_status_notes.actor_id,working_time_facts.performer_id',
-          'RLS4-1: on the 14 tables that had a table-wide grant exactly the act columns are closed; every other column stays selectable');
+          || 'care_visits.team_member_name,case_lifecycle_events.actor_id,case_tasks.done_by,cover_events.nurse_id,'
+          || 'quality_event_log.actor_id,quality_events.author_id,quality_holds.lifted_by,quality_holds.set_by,'
+          || 'referral_links.actor_id,team_decisions.actor_id,visit_plan_changes.actor_id,visit_report_returns.performer_id,'
+          || 'visit_report_returns.returned_by,visit_status_notes.actor_id,working_time_facts.performer_id',
+          'RLS4-1/-5/-6: on the 15 tables that had a table-wide grant exactly the act columns and team_member_name are closed; every other column stays selectable');
 select ok(has_column_privilege('authenticated', 'public.cases', 'assigned_team_id', 'select')
           and has_column_privilege('authenticated', 'public.case_gp_notices', 'informed_on', 'select')
           and has_column_privilege('authenticated', 'public.safety_signals', 'signal_kind', 'select')
@@ -193,10 +213,42 @@ select is(jsonb_array_length(pg_temp.rows('ca', 'select primary_nurse_id, deputy
           'RLS4-2: the team reads the case''s primary and deputy nurse (J6)');
 select is(jsonb_array_length(pg_temp.rows('ca', format('select responsible_user_id, covered_by from public.care_visits where id = %L', pg_temp.v(1)))), 1,
           'RLS4-2: the team reads who is responsible for the visit and who covers it (J3, COVER1)');
-select is(pg_temp.rows('ca', format('select performer_id from public.visit_reports where visit_id = %L', pg_temp.v(2))) #>> '{0,performer_id}',
-          pg_temp.u('ca')::text, 'RLS4-2: the team reads who must act on the report (F6R)');
-select is(pg_temp.rows('ca', format('select performer_id from public.visit_report_returns where visit_id = %L', pg_temp.v(3))) #>> '{0,performer_id}',
-          pg_temp.u('ca')::text, 'RLS4-2: the performer reads that the returned report is hers to correct');
+
+-- RLS4-5: the three moved columns are refused for a team member and a registered nurse; the readers serve them per record
+select is((select string_agg(x.t || '.' || x.c, ',' order by x.t, x.c)
+           from (values ('cover_events', 'nurse_id'), ('visit_reports', 'performer_id'), ('visit_report_returns', 'performer_id')) x(t, c),
+                (values ('ca'), ('p')) w(who)
+           where not pg_temp.refused(w.who, format('select %I, count(*) from public.%I group by 1', x.c, x.t))), null,
+          'RLS4-5: a group by over cover_events.nurse_id or either performer_id is refused for a team member and a registered nurse');
+select ok(pg_temp.refused('ca', format('select performer_id from public.visit_report_returns where visit_id = %L', pg_temp.v(3))),
+          'RLS4-5: the performer herself cannot select performer_id of her returned report through the table API');
+select ok(not pg_temp.refused('ca', format('select id, visit_id, reason, returned_at from public.visit_report_returns where visit_id = %L', pg_temp.v(3)))
+          and jsonb_array_length(pg_temp.rows('ca', format('select id from public.visit_report_returns where visit_id = %L', pg_temp.v(3)))) = 1,
+          'RLS4-5: … she still reads the return row itself (the policy reads performer_id, RLS unchanged)');
+select ok((pg_temp.fr0('ca', 2) ->> 'i_am_performer')::boolean and not (pg_temp.fr0('p', 2) ->> 'i_am_performer')::boolean,
+          'RLS4-5: field_reports tells the performer, per report, that the report is hers (and the nurse that it is not)');
+select is(pg_temp.rows('ca', 'select visit_id from public.field_returned_reports()') #>> '{0,visit_id}', pg_temp.v(3)::text,
+          'RLS4-5: the returned report still shows on the performer''s work list (field_returned_reports)');
+select is((select q ->> 'performer_name' from jsonb_array_elements(pg_temp.rows('p', 'select * from public.field_countersign_queue()')) q
+           where q ->> 'visit_id' = pg_temp.v(5)::text), 'Synthetisch HP Nord',
+          'RLS4-5: field_countersign_queue gives the registered nurse the performer per report awaiting countersignature');
+select is((select string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+           where n.nspname in ('public', 'private') and p.prosrc ~ 'public\.cover_events' and p.prosrc ~ '\mnurse_id\M'),
+          'accept_cover(uuid,uuid),pilot_kpis(date),withdraw_cover(uuid,text,uuid)',
+          'RLS4-5: cover_events.nurse_id is read only by the cover commands and the AN1 team aggregate; no reader returns it');
+select is((select string_agg(p.proname, ',' order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+           where n.nspname = 'public' and p.prosrc ~ '(public\.cover_events|public\.visit_reports|public\.visit_report_returns|open_reports_of)'
+             and exists (select 1 from unnest(p.proargnames, coalesce(p.proargmodes, array_fill('i'::"char", array[p.pronargs]))) a(nm, md)
+                         where md in ('i', 'b') and nm ~ '(user|member|nurse|performer|person|actor)')),
+          'member_open_reports,remove_team_member',
+          'RLS4-5: no new reader takes a person and returns her covers, reports or returns (the two LEAVE1 paths are unchanged, ADR-122)');
+
+-- RLS4-6: the legacy free-text name is not selectable
+select ok(pg_temp.refused('ca', 'select team_member_name from public.care_visits')
+          and not has_column_privilege('authenticated', 'public.care_visits', 'team_member_name', 'select'),
+          'RLS4-6: care_visits.team_member_name is not selectable through the table API');
+select ok(not pg_temp.refused('ca', 'select id, case_id, visit_date, time_start, time_end, responsible_user_id, services_provided, notes, billable, status, created_at from public.care_visits limit 1'),
+          'RLS4-6: the /visits read (with responsible_user_id instead of team_member_name) still works');
 select is(jsonb_array_length(pg_temp.rows('ca', format('select owner_id from public.quality_events where visit_id = %L', pg_temp.v(1)))), 1,
           'RLS4-2: the team reads who handles the quality event now');
 
@@ -225,6 +277,9 @@ select ok((select (f ->> 'own')::boolean from jsonb_array_elements(pg_temp.rows(
 select is((select f ->> 'actor_name' from jsonb_array_elements(pg_temp.rows('ca', format('select * from public.field_visit_status_notes(%L)', pg_temp.t()))) f
            where f ->> 'visit_id' = pg_temp.v(1)::text), 'Synthetisch RN Nord',
           'RLS4-3: field_visit_status_notes gives the team who wrote the status note, per note');
+select is((select m ->> 'taken_by_name' from jsonb_array_elements(pg_temp.rows('ca', 'select * from public.my_signals()')) m
+           where m ->> 'signal_id' = (select id from sig)::text), 'Synthetisch RN Nord',
+          'RLS4-3 addendum (AUT-24, cra (a)): my_signals still says "übernommen von <Name>" for an open, taken signal to a team member');
 select is(jsonb_array_length(pg_temp.rows('ca', format('select * from public.field_reports(%L) where visit_id in (%L, %L)',
                                                         pg_temp.t(), pg_temp.v(2), pg_temp.v(3)))), 2,
           'RLS4-3: the readers give one row per record, not one per person');

@@ -1,4 +1,5 @@
 -- RLS4 (ADR-122): who did an act is read per record, never listed per person; who is responsible stays visible.
+-- Amended before merge by RLS4-5 and RLS4-6 (brief, po 2026-10-30 03:10): 26 columns on 19 tables.
 -- PO brief docs/agents/briefs/RLS4.md (approved 2026-10-29 23:15, the OBS1-7 (c) inventory decided). Access narrowing
 -- only: no clinical, legal or tariff rule; no row read is widened or narrowed (RLS unchanged).
 --
@@ -19,9 +20,14 @@
 --   RLS4-1, the RLS3-4 pattern of 0070 and 0096: on each table `authenticated` loses the table-wide select and the
 --   act columns, and keeps a column grant on exactly the other columns it could select before (a column the table did
 --   not grant before stays closed: nothing is widened). `anon` keeps nothing on these tables.
+--   RLS4-5 (po 2026-10-30 03:10 after `lca` 02:45): `cover_events.nurse_id` (who accepted or handed back a cover, next
+--   to her reason), `visit_reports.performer_id` and `visit_report_returns.performer_id` close the same way. Each has
+--   only SECURITY DEFINER readers (`accept_cover`, `withdraw_cover`, `pilot_kpis`; the F6R/J5 report readers and
+--   commands); the policy of `visit_report_returns` reads its own `performer_id`, which needs no column grant.
+--   RLS4-6: `care_visits.team_member_name` (legacy free-text nurse name) is no longer selectable; /visits shows the
+--   responsible member from `responsible_user_id` instead. The column is not dropped (D-1 live reconciliation first).
 --   RLS4-2 assignment columns are not touched: `cases.primary_nurse_id`, `deputy_nurse_id`; `care_visits.
---   responsible_user_id`, `covered_by`; `cover_events.nurse_id`; `visit_reports.performer_id`; `visit_report_returns.
---   performer_id`; `quality_events.owner_id`.
+--   responsible_user_id`, `covered_by`; `quality_events.owner_id`.
 -- Idempotent: the column list is read from the current privileges each run, so a second run grants the same list.
 -- A column added to one of these tables later is not selectable until a migration grants it (as `visit_events` since
 -- 0070).
@@ -29,9 +35,10 @@
 do $$
 declare
   acts constant jsonb := jsonb_build_object(
-    'visit_reports',         jsonb_build_array('created_by', 'countersigned_by', 'withdrawn_by'),
-    'visit_report_returns',  jsonb_build_array('returned_by'),
-    'care_visits',           jsonb_build_array('suspended_by'),
+    'visit_reports',         jsonb_build_array('created_by', 'countersigned_by', 'withdrawn_by', 'performer_id'),
+    'visit_report_returns',  jsonb_build_array('returned_by', 'performer_id'),
+    'care_visits',           jsonb_build_array('suspended_by', 'team_member_name'),
+    'cover_events',          jsonb_build_array('nurse_id'),
     'visit_plan_changes',    jsonb_build_array('actor_id'),
     'visit_status_notes',    jsonb_build_array('actor_id'),
     'working_time_facts',    jsonb_build_array('performer_id'),
@@ -82,3 +89,9 @@ comment on column public.quality_events.author_id is
 comment on column public.working_time_facts.performer_id is
   'RLS4-1 (ADR-122): whose working time the fact is. Not selectable through the table API; no screen reads this '
   'table (her working day is read through WORK1 my_working_day); billing reads it as owner (build_billable_fact).';
+comment on column public.care_visits.team_member_name is
+  'RLS4-6 (ADR-122): legacy free-text nurse name. Not selectable through the table API, not read or written by the app '
+  '(/visits shows the responsible member from responsible_user_id). Kept until the D-1 live reconciliation.';
+comment on column public.cover_events.nurse_id is
+  'RLS4-5 (ADR-122): who accepted or handed back the cover. Not selectable through the table API; who covers now is '
+  'care_visits.covered_by. Read as owner by accept_cover, withdraw_cover and pilot_kpis (team aggregate).';

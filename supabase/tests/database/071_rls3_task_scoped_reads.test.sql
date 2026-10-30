@@ -245,7 +245,8 @@ select ok(pg_temp.refused('ca', format('select actor_id from public.visit_events
 select ok(pg_temp.refused('ca', format('select actor_id from public.visit_time_corrections where visit_id = %L', pg_temp.v(1))),
   'RLS3-4: a teammate''s table-API select of visit_time_corrections.actor_id is refused');
 -- RLS4 (0099, ADR-122): on the care-record tables of the OBS1-7 (c) inventory the only person columns a member can still
--- select are the assignments (RLS4-2). A new grant of an act column on these tables fails here.
+-- select are the assignments (RLS4-2; RLS4-5 closed cover_events.nurse_id and both performer_id). A new grant of an act
+-- column on these tables fails here.
 select is((select string_agg(c.table_name || '.' || c.column_name, ',' order by c.table_name, c.column_name)
            from information_schema.columns c
            where c.table_schema = 'public'
@@ -257,9 +258,8 @@ select is((select string_agg(c.table_name || '.' || c.column_name, ',' order by 
                                                                'primary_nurse_id', 'deputy_nurse_id', 'responsible_user_id',
                                                                'proposed_primary_nurse_id'))
              and has_column_privilege('authenticated', format('public.%I', c.table_name), c.column_name, 'select')),
-  'care_visits.covered_by,care_visits.responsible_user_id,cases.deputy_nurse_id,cases.primary_nurse_id,cover_events.nurse_id,'
-  || 'quality_events.owner_id,visit_report_returns.performer_id,visit_reports.performer_id',
-  'RLS4-1/-2: on these care-record tables only the assignment columns name a person to a member; every act column is closed');
+  'care_visits.covered_by,care_visits.responsible_user_id,cases.deputy_nurse_id,cases.primary_nurse_id,quality_events.owner_id',
+  'RLS4-1/-2/-5: on these care-record tables only the assignment columns name a person to a member; every act column is closed');
 select ok(pg_temp.refused('rn', 'select * from public.visit_events'), 'RLS3-4: select * through the table API is refused too');
 select is(pg_temp.seen('ca', format('select id, event_type, occurred_at from public.visit_events where visit_id = %L', pg_temp.v(1))), 2,
   'RLS3-4: the team still reads the events of its visit without who recorded them');
