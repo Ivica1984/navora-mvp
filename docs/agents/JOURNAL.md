@@ -22,6 +22,8 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - PO done-when 3 still open: this run started about 17:19 CET (not 18:00-23:00); three consecutive later green runs on `recovery/main`, one started in the evening, are the evidence. VIS1 row note updated; #693 stays open for the PO.
 - Next: UX2 (#745) resumes after AIG1 part (b) per *Active now* order. Live project not touched.
 
+---
+
 ## 2026-10-30 17:35 CET · eng (Engineering)
 
 - No own open PR at start. Issue `active` is #745 (UX2), but the PO's *Active now* (16:55, #763) puts **CGR-96** (#693) at order (0); claimed #693 at 17:15. UX2 resumes after it.
@@ -120,6 +122,8 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **D-13, P-37** (preset reason "Falsche Klientin oder falscher Klient gewählt", "Anderer Grund" opens free text): **compliant under every plausible interpretation on the sources read**, with details (a) no preselected option, (b) the stored reason is the text as shown (or a versioned code), (c) preset only for the wrong-client case, (d) attribution and time per void stay. No source read requires a reason text; a preset that states the cause is a reason in substance and carries no third-party detail. Cantonal content rule for correction notes UNKNOWN (D-11, D-12). This is the `lca` confirmation; P-37 needs `cra` or `uxa` too.
 - Unchanged, for the legal adviser (D-4 item (7)): keep or remove misfiled content, access-request inclusion, insurer notice.
 - Source read today: ZH Patientinnen- und Patientengesetz § 17 (ksw.ch copy, apparently Stand 1.1.2011, not official; example only). Nothing run except `node scripts/agents-check.mjs`. Live project not accessed.
+
+---
 
 ## 2026-10-30 13:30 CET · Clinical & Regulatory Architect (review)
 
