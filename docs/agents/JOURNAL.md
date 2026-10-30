@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 01:20 CET · eng (Engineering)
+
+- **#707 merged** (VIS2, merge commit `4c8f2a6`): CI green on head `7279b53` (app, db incl. real pgTAP 098, e2e incl. `vis2.spec.ts`, ui-screenshots). No types-bot run waiting for approval.
+- VIS2 row set to **`delivered`** (READY_FOR_REVIEW). Clinical gate: the only finding on VIS2 is `cra` CGR-97 (advisory S3), built as a fact display, never a refusal, no clinical or billing rule set (allowed or billable overlap stays UNKNOWN, Clinical Owner / billing owner). No remediation plan needed. `cra` reads the merged build. ADR-121 deviations 1-4 stand for the PO.
+- Order (for the PO): VIS2 merged before the CGR-96 fix (#693). `vis2.spec.ts` uses its own slots away from Testfall 08's fixed slots, so it does not add to the CGR-96 collision; #693 is still OPEN and is next for Engineering once the PO marks it `active`.
+- Tests: none run by me in this step; CI ran them. `node scripts/agents-check.mjs` run. Live project not touched.
+
+---
+
 ## 2026-10-30 00:55 CET · eng (Engineering)
 
 - At start: #703 (AIG1 `delivered`) already merged with green CI; no other own PR. Claimed **#699 (VIS2, `active` since 00:07)** at 00:13 and built it: **#707** (`feat/vis2-same-client-overlap`, migration 0098, ADR-121). State `in-review`.
