@@ -40,6 +40,21 @@ export type CaseAssessments = {
   plan_without_basis: boolean;
   newer_assessment_date: string | null;
   newer_events: NewerEvent[];
+  /** ASM1-C5 (0101, CGR-102): the date of the record the plan rests on, when that record was corrected since. */
+  corrected_basis_date: string | null;
+  /** ASM1-C5: the entry date of that correction. */
+  corrected_on: string | null;
+  /** ASM1-C4 (0101): the case's latest review act, per case only. */
+  plan_review: PlanReview | null;
+};
+
+/** ASM1-C4: "Pflegeplan gegen Bedarfsabklärung vom <Datum> geprüft", as the reader returns the latest act. */
+export type PlanReview = {
+  record_id: string;
+  assessment_date: string;
+  state_at_review: AssessmentRecord["state"];
+  reviewed_on: string;
+  reviewer_name: string | null;
 };
 
 /** The instrument entries a member may name (ASM1-6). */
@@ -78,9 +93,10 @@ export const EVENT_LABEL: Record<string, string> = {
 /** Why the database refused a record or a confirmation (migration 0100). German, shown inline. */
 export const ASSESSMENT_REASONS: Record<string, string> = {
   not_team_member: "Nur Mitglieder des zuständigen Teams erfassen eine Bedarfsabklärung.",
-  date_in_future: "Das Datum der Bedarfsabklärung liegt nicht in der Zukunft.",
+  // ASM1-C3 (UXR-54): a refusal states the rule, not a false fact about what she typed.
+  date_in_future: "Das Datum der Bedarfsabklärung darf nicht in der Zukunft liegen.",
   instrument_not_valid: "Dieses Instrument ist am Datum der Bedarfsabklärung nicht gültig.",
-  assessor_not_rn: "Die abklärende Person ist eine Pflegefachperson des Teams.",
+  assessor_not_rn: "Als abklärende Person kannst du nur eine Pflegefachperson des Teams wählen.",
   reference_invalid:
     "Die Referenz ist eine Kennung aus eurem Abklärungsinstrument: 3 bis 64 Zeichen, Buchstaben, Ziffern und _ : # -, mindestens eine Ziffer, ohne Leerzeichen, Punkt oder Schrägstrich (kein Dateiname, kein Titel).",
   reference_required: "Minuten werden nur mit der Referenz auf die vollständige Abklärung gespeichert.",
@@ -93,6 +109,37 @@ export const ASSESSMENT_REASONS: Record<string, string> = {
   already_confirmed: "Diese Abklärung ist bereits bestätigt.",
   superseded: "Eine ersetzte Abklärung wird nicht mehr bestätigt.",
 };
+
+/** ASM1-C4 (0101): why the database refused the review act. */
+export const REVIEW_REASONS: Record<string, string> = {
+  not_team_member: "Nur Mitglieder des zuständigen Teams prüfen den Pflegeplan.",
+  not_rn: "Den Pflegeplan gegen die Bedarfsabklärung prüft eine Pflegefachperson des Teams.",
+  not_current: "Inzwischen gibt es eine andere aktuelle Bedarfsabklärung. Bitte die Seite neu laden.",
+  no_items: "Der Pflegeplan hat keine aktive Leistung.",
+  nothing_to_review: "Der Pflegeplan ist bereits gegen die aktuelle Bedarfsabklärung geschrieben.",
+};
+
+/** ASM1-C3 (UXR-54): the reference rule, shown as hint text under the field before any refusal. */
+export const REFERENCE_HINT =
+  "Kennung aus eurem Abklärungsinstrument: 3 bis 64 Zeichen, Buchstaben, Ziffern und _ : # -, mindestens eine Ziffer, ohne Leerzeichen, Punkt oder Schrägstrich (kein Dateiname, kein Titel).";
+
+/** ASM1-C1 (UXR-59): the "Zu erledigen" link and the section it jumps to (§5: link name from one constant, plus count). */
+export const CONFIRM_TODO_LABEL = "Zu bestätigen: Bedarfsabklärung";
+export const confirmTodoLabel = (count: number) => `${CONFIRM_TODO_LABEL} (${count})`;
+/** The anchor of one record on /team (the jump target of ASM1-C1). */
+export const recordAnchor = (recordId: string) => `bedarfsabklaerung-${recordId}`;
+
+/**
+ * ASM1-C1: the records that name her and wait for her confirmation: assessor_is_me, "nicht bestätigt", not superseded
+ * (and, once ASM1-C6 is built, not voided). Her own read path only; nothing is counted for anyone else.
+ */
+export function recordsToConfirm(views: Record<string, CaseAssessments> | CaseAssessments[]): AssessmentRecord[] {
+  const list = Array.isArray(views) ? views : Object.values(views);
+  return list
+    .flatMap((v) => v.records)
+    .filter((r) => r.assessor_is_me && r.state === "unconfirmed" && !r.superseded_by)
+    .sort((a, b) => a.assessment_date.localeCompare(b.assessment_date) || a.created_at.localeCompare(b.created_at));
+}
 
 const REF = /^[A-Za-z0-9][A-Za-z0-9_:#-]{2,63}$/;
 /** ASM1-3 (same rule as the database check): an opaque identifier, never a file name, title or free text. */
@@ -142,6 +189,38 @@ export function planBasisText(view: Pick<CaseAssessments, "plan_basis_date" | "p
   return null;
 }
 
+/** ASM1-C5 (CGR-102): the record the plan rests on was corrected since; null when not. */
+export function correctedBasisText(view: Pick<CaseAssessments, "corrected_basis_date" | "corrected_on"> | null | undefined): string | null {
+  if (!view?.corrected_basis_date || !view.corrected_on) return null;
+  return `Die Bedarfsabklärung vom ${formatDate(view.corrected_basis_date)}, gegen die der Pflegeplan geschrieben ist, wurde am ${formatDate(view.corrected_on)} korrigiert.`;
+}
+
+/** ASM1-C4: the act is offered while the marker, "vor jeder erfassten Bedarfsabklärung" or the ASM1-C5 fact shows. */
+export function reviewOffered(view: CaseAssessments | null | undefined): boolean {
+  if (!view?.current_id) return false;
+  return !!view.newer_assessment_date || view.plan_without_basis || !!view.corrected_basis_date;
+}
+
+/** ASM1-C4 (d) (UXR-60): the command's label starts with a verb of confirming and names the current record's date. */
+export function reviewLabel(current: Pick<AssessmentRecord, "assessment_date">): string {
+  return `Als geprüft bestätigen: Pflegeplan gegen Bedarfsabklärung vom ${formatDate(current.assessment_date)}`;
+}
+
+/** ASM1-C4 (d) (3): the confirming step's sentence: the record date and what disappears for the team. */
+export function reviewConfirmSentence(current: Pick<AssessmentRecord, "assessment_date">): string {
+  return `Pflegeplan gegen die Bedarfsabklärung vom ${formatDate(current.assessment_date)} als geprüft bestätigen? Danach verschwinden für das Team die Hinweise «Neuere Bedarfsabklärung» und «… korrigiert». Die Leistungen bleiben, wie sie sind.`;
+}
+
+/** ASM1-C4 (d) (3): the action button inside the confirming step. */
+export const REVIEW_CONFIRM_ACTION = "Als geprüft bestätigen";
+
+/** ASM1-C4 / `cra` (a): the latest act in words, with the record's state at the act. */
+export function planReviewText(review: PlanReview | null | undefined): string | null {
+  if (!review) return null;
+  const who = review.reviewer_name ?? "Pflegefachperson ohne erfassten Namen";
+  return `Pflegeplan geprüft gegen die Bedarfsabklärung vom ${formatDate(review.assessment_date)} am ${formatDate(review.reviewed_on)} von ${who} (Bedarfsabklärung damals ${STATE_LABEL[review.state_at_review]})`;
+}
+
 /** ASM1-11 (4): "Neueres Ereignis seit der Bedarfsabklärung: <Art>, <Datum>". */
 export function newerEventText(e: NewerEvent): string {
   return `Neueres Ereignis seit der Bedarfsabklärung: ${EVENT_LABEL[e.kind] ?? e.kind}, ${formatDate(e.date)}`;
@@ -184,6 +263,9 @@ export function toCaseAssessments(rows: unknown): Record<string, CaseAssessments
       plan_without_basis: r.plan_without_basis === true,
       newer_assessment_date: (r.newer_assessment_date as string | null) ?? null,
       newer_events: Array.isArray(r.newer_events) ? (r.newer_events as NewerEvent[]) : [],
+      corrected_basis_date: (r.corrected_basis_date as string | null) ?? null,
+      corrected_on: (r.corrected_on as string | null) ?? null,
+      plan_review: r.plan_review && typeof r.plan_review === "object" ? (r.plan_review as PlanReview) : null,
     };
   }
   return out;

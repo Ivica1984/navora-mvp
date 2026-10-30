@@ -51,6 +51,7 @@ A change that adds a path updates this file and the lists in 067 in the same PR.
 | `care_plan_items` | team; `created_by`, `retired_by` not selectable (RLS4, 0099); `assessment_id` (ASM1-7, 0100) selectable | `goal` (team) | 071 (F-5 closed) |
 | `assessment_records` (ASM1, 0100, ADR-123) | team of the case (`private.reads_case`); no coordination role; `assessor_id`, `entered_by` not selectable (RLS4 pattern; read per record through `team_case_assessments`) | `supersede_reason`, `period_*` as entered (team) | 100, 067 |
 | `assessment_confirmations` (ASM1-5, 0100; no case column) | team of the record's case; `confirmed_by` not selectable | no | 100 |
+| `care_plan_assessment_reviews` (ASM1-C4, 0101, ADR-125) | **nobody through the table** (no grant, no policy); the case's latest act (record, state at the act, date, reviewer's name) is read per case through `team_case_assessments` (`plan_review`) by the case's assigned team only | no | 101 |
 | `assessment_instruments` (ASM1-6, 0100; no case column, no personal data) | every member of the organisation; `created_by`, `ended_by` not selectable | instrument name and version | 100 |
 | `billable_facts` | team; coordination: intake role (billing preparation, J5); `created_by` not selectable (RLS4, 0099) | no | *022* |
 | `working_time_facts` | team (**was team + every coordination role, 0022**; RLS3-1, 0070); `performer_id` not selectable (RLS4, 0099) | no | 071 (F-2 closed), *042*, *043* |

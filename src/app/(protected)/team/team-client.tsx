@@ -48,7 +48,8 @@ import CaseLifecycleControls, { ClosedCases } from "./case-lifecycle";
 import AutoPlan, { type ScheduledItem } from "./auto-plan";
 import AssessmentSection from "./assessment-section";
 import PlanAssessmentBasis from "./plan-assessment-basis";
-import type { CaseAssessments, Instrument } from "@/features/assessment/rules";
+import PlanReviewButton from "./plan-review-button";
+import { currentRecord, reviewOffered, type CaseAssessments, type Instrument } from "@/features/assessment/rules";
 import type { PlanStatus } from "@/features/planning/queries";
 import type { CaseLifecycle } from "@/features/lifecycle/queries";
 import { RESPONSIBLE_ABSENT_NOTE } from "@/features/lifecycle/rules";
@@ -540,7 +541,13 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice, asses
 
       <AssessmentSection caseId={teamCase.case_id} view={assessment} instruments={instruments} members={members} />
 
-      <CarePlan caseId={teamCase.case_id} items={plan} assessment={assessment} />
+      <CarePlan
+        caseId={teamCase.case_id}
+        items={plan}
+        assessment={assessment}
+        // ASM1-C4: offered to a registered nurse of the team (provisional set; the database decides).
+        canReview={members.some((m) => m.me && m.qualification === "registered_nurse")}
+      />
 
       <AutoPlan caseId={teamCase.case_id} status={planStatus} items={plan.map(toScheduled)} />
 
@@ -758,7 +765,9 @@ function Continuity({ teamCase, members, continuity }: { teamCase: TeamCase; mem
   );
 }
 
-function CarePlan({ caseId, items, assessment = null }: { caseId: string; items: PlanItem[]; assessment?: CaseAssessments | null }) {
+function CarePlan({ caseId, items, assessment = null, canReview = false }: {
+  caseId: string; items: PlanItem[]; assessment?: CaseAssessments | null; canReview?: boolean;
+}) {
   const router = useRouter();
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -805,7 +814,14 @@ function CarePlan({ caseId, items, assessment = null }: { caseId: string; items:
   return (
     <section aria-label="Pflegeplan" className="mt-3 rounded-xl bg-stone-50 p-2 text-sm">
       <h4 className="text-xs font-bold uppercase tracking-wide text-secondary">Pflegeplan (Leistungen nach KLV)</h4>
-      <PlanAssessmentBasis view={assessment} items={items} />
+      <PlanAssessmentBasis
+        view={assessment}
+        items={items}
+        reviewAction={(() => {
+          const current = currentRecord(assessment);
+          return canReview && current && items.length > 0 && reviewOffered(assessment) ? <PlanReviewButton caseId={caseId} current={current} /> : null;
+        })()}
+      />
       {items.length === 0 ? (
         <p className="italic text-secondary">Noch keine Leistungen erfasst.</p>
       ) : (

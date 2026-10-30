@@ -6,6 +6,64 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-10-30 15:50 CET · `uxa`: #747 merged (ASM1-C1 to -C5 with C4 (d)): UXR-60 closed in code, UXR-54, -55, -56, -59 closed; UXR-65 (low); C4 (d) label confirmed; C6 (8) sentences worded; P-37 confirmed from the UX side
+
+**What changed since 11:55.** My PR #749 merged. **#747** merged as `752ecbc` (`eng` 15:25 reports CI green on head `6339c24`: app, db, e2e, ui-screenshots; I did not run any test). Against the head I read at 11:55 (`5d3a887`), the screen code changed in one commit, `fcb84eb` (ASM1-C4 (d), PO 12:14 from UXR-60): `plan-assessment-basis.tsx`, `plan-review-button.tsx`, `rules.ts`. Everything else of C1 to C5 is the code I read at 11:55. Docs-only merges otherwise (#750 to #757: `po`, `lca`, `aia`). No other open PR changes `src/app` or `src/components`; no `ux/…` PR was open.
+
+**Sources.** `ui-screenshots` artifacts exist for `recovery/main` at `4adeab4` (12987045925, 12986377265). The archive redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from code on `recovery/main` `4adeab4`. Synthetic seed only; the live project was not touched.
+
+### ASM1-C4 (d) as merged (`/team` care-plan block, registered nurse of the team)
+
+Met as I read it (IMPLEMENTED):
+- **(1) Order.** Basis line, marker "Neuere Bedarfsabklärung vom …" and the C5 sentence stay first; `{reviewAction}` is now the last child, after the category rows and the newer-event lines (`plan-assessment-basis.tsx`, comment ASM1-C4 (d)). Nothing safety-relevant moved down.
+- **(2) Label.** "Als geprüft bestätigen: Pflegeplan gegen Bedarfsabklärung vom <Datum>" (`rules.ts` `reviewLabel`). **Confirmed as built; no refinement.** The recorded line keeps the participle.
+- **(3) Confirming step.** The UX2-23 `ConfirmStep`: opens in place, focus to the sentence, "Als geprüft bestätigen" (primary) first, "Abbrechen" second, both 44 px; "Abbrechen" runs nothing (`plan-review-button.tsx`). `cra` 13:30 keeps the step.
+- **(4) Tests in the merge** (CI per `eng`, not run by me): unit `reviewLabel` starts "Als geprüft bestätigen:" with the date; component DOM order with `plan-review-command` last (`tests/unit/asm1-conditions.test.ts:135-171`); e2e: command top below `plan-category-C`, step shows the date, confirming clears the command (`tests/e2e/asm1.spec.ts:155-173`).
+
+Where it falls short: UXR-65 (low). The step's sentence says "Danach verschwinden für das Team die Hinweise «Neuere Bedarfsabklärung» und «… korrigiert»." in every case (`rules.ts` `reviewConfirmSentence`). It names both notes even when only one shows, never names the third case that offers the act ("Geschrieben vor jeder erfassten Bedarfsabklärung"), and «… korrigiert» is a placeholder she cannot match to a line on screen. The PO wrote this meaning in C4 (d) (3); the remedy keeps the meaning and names what is shown.
+
+### ASM1-C6 (8) sentences (asked of `uxa`, PO 15:00; PLANNED in the brief, not built; OPEN wording; `cra` confirms wording and position, and the no-current-record case)
+
+Both sit where the marker sits today, at `info`, first in the block, outside the folded history (C4 (d) (1)). They replace the "Neuere Bedarfsabklärung" marker whenever the reason is not a later date, so the word "Neuere" never shows for a same-date record.
+- **Basis not current, not voided** (a newer record of the same date, a parallel record, or any other non-current basis head): "Der Pflegeplan ist gegen eine Bedarfsabklärung geschrieben, die nicht mehr die aktuelle ist. Aktuell ist die Bedarfsabklärung vom <Datum>." When the case has no current record left: second sentence "Es gibt keine aktuelle Bedarfsabklärung."
+- **Basis voided:** "Die Bedarfsabklärung, gegen die der Pflegeplan geschrieben ist, wurde als irrtümlich erfasst markiert." followed by the same second sentence ("Aktuell ist die Bedarfsabklärung vom <Datum>." or "Es gibt keine aktuelle Bedarfsabklärung."). No date, minutes, period, instrument or reference of the voided record (C6 (3), (7)); the date of the current record is not a field of the voided one.
+- **Basis line (C6 (8) (iii)).** For a voided basis, the line "Geschrieben gegen die Bedarfsabklärung vom …" is not shown; the sentence above carries the fact.
+- **The act in these cases.** With a current record, the C4 label and step stay as built, the step naming the note shown (UXR-65). **UNKNOWN:** what the act attests and how it is labelled when **no** record is current (`reviewLabel` needs a date). Whether a plan can be "reviewed against" nothing is `cra`'s, after G-1 the Clinical Owner's. I do not propose a label for it.
+- **Tests.** Component: for each case the one sentence renders before `plan-assessment-line` and the text "Neuere" is absent for a same-date parallel record; for a voided basis no `Kategorie`/`Referenz` text and no voided-record date appear in the block.
+
+### P-37, preset void reason (asked of `uxa`, PO 13:28 and 15:00): **confirmed from the UX side**, with these presentation conditions
+
+The preset fits the commonest case and saves typing on a phone; it keeps the `lca` details (a)-(d).
+- One `fieldset` with visible legend "Grund", two radio rows (≥ 44 px each): "Falsche Klientin oder falscher Klient gewählt" and "Anderer Grund". **Neither preselected** (`lca` (a)).
+- The free-text field and the adopted C6 (4) hint appear only after "Anderer Grund"; the hint stays tied by `aria-describedby`.
+- The submit ("Irrtümlich erfasst markieren", `action-outline`) stays disabled until a choice is made and, for "Anderer Grund", the text meets the minimum; then the C6 confirming step follows unchanged.
+- The team line reads "Irrtümlich erfasst am <Datum> von <Name>. Grund: Falsche Klientin oder falscher Klient gewählt" with the text as shown (`lca` (b)).
+- Tests add: vitest "the free-text field is absent until «Anderer Grund» is chosen" and "submit disabled with no choice".
+This is the second confirmation the 13:28 rule asks for (with `lca`); whether it comes into force is the PO's call. `cra` (H-05 traceability) is still asked.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-65 | `/team` care-plan block, review confirming step (registered nurse of the team); IMPLEMENTED in `752ecbc` | low | The step's sentence always names two notes, «Neuere Bedarfsabklärung» and «… korrigiert», whichever shows, never the "Geschrieben vor jeder erfassten Bedarfsabklärung" case that also offers the act, and quotes a placeholder («…») she cannot find on screen. A confirming sentence that does not match the screen weakens the one check the step adds. | `rules.ts` `reviewConfirmSentence` on `4adeab4`; `rules.ts:198-201` (`reviewOffered`, three cases) | §2 confirming step names the consequence; §4 plain words, no placeholders | Keep the meaning of C4 (d) (3); `reviewConfirmSentence(view, current)` names only the notes shown, quoted from their visible start: «Neuere Bedarfsabklärung vom <D>», «Die Bedarfsabklärung vom <D> … wurde am <D2> korrigiert» (as "der Hinweis zur Korrektur vom <D2>"), «Geschrieben vor jeder erfassten Bedarfsabklärung». Unit: for each of the three cases the sentence contains that note's text and none of the others; no "…" in it. `cra` confirms the wording. | report only (low); for the PO's UX2-30 list |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-60 | **Closed in code** (ASM1-C4 (d)): order, label and confirming step as remedied; tests in the merge. #748 can be closed by the PO. | #747 merged `752ecbc` (`fcb84eb`), `plan-assessment-basis.tsx`, `plan-review-button.tsx`, `asm1-conditions.test.ts:135-171`, `asm1.spec.ts:155-173` |
+| UXR-54 | **Closed in code** (ASM1-C3); hint wording follow-up UXR-61 stays. | #747 merged `752ecbc`, `rules.ts` |
+| UXR-55 | **Closed in code** (ASM1-C2). | #747 merged `752ecbc`, `assessment-section.tsx` |
+| UXR-56 | **Closed in code** for the Bedarfsabklärung form (other forms UX2-30). | #747 merged `752ecbc`, `sm:grid-cols-2` |
+| UXR-59 | **Closed in code** (ASM1-C1); landing test is UXR-64. | #747 merged `752ecbc`, `field-client.tsx` |
+| UXR-57 | Half met (the "Ersetzt:" line); prefill of instrument and assessor PLANNED (UX2-30). | `assessment-section.tsx` on `4adeab4` |
+| UXR-58, -61 to -64 | PLANNED (UX2-30, PO 12:14); unchanged in the merge. | `git diff 5d3a887 752ecbc^2` touches only C4 (d) files |
+| UXR-65 | **New**, OPEN (above). | |
+
+No benchmark this run (made at 03:50 today).
+
+---
+
 ## 2026-10-30 11:55 CET · `uxa`: ASM1-C1 to -C5 read (open PR #747, `/field`, `/team`): UXR-60 (high, #748), UXR-61 to -64 (low); UXR-43, -45 closed in code (#742); C5 sentence confirmed; C6 display wording proposed
 
 **What changed since 07:50.** My PR #730 (07:50 section) merged. **#727** (ASM1) merged as `e42fde6`; `git diff ad98160 c191213 -- src` is empty, so the screen code is the code I read at 07:50. **#742** (UX2-22, UX2-23) merged as `ea94bba` (CI green on head `a15cffa`, as GitHub and `eng` 10:48 report it): `/field` (qualification note, field actions, "Offen im Team"), `/admin` (`confirm-step.tsx`, admission switch, "Vertragsende entfernen"). Open PR **#747** (`eng`, ASM1-C1 to -C5, ADR-125, migration 0101, head `5d3a887`) changes `/field` (`field-client.tsx`, `page.tsx`), `/team` (`assessment-section.tsx`, `plan-assessment-basis.tsx`, new `plan-review-button.tsx`, `team-client.tsx`) and `features/assessment/rules.ts`. CI on its first head `9ddcf5b` was **red** (`app` and `db` jobs failed; `e2e` and `ui-screenshots` green, run 41041230871); no run is reported yet for `5d3a887`. Other merges since 07:50 (#733 to #746) change no screen. Briefs: `ASM1.md` asks `uxa` for the C5 sentence, the C6 display and where the C4 act sits; `UX2.md` gained UX2-30 (UXR-56 to -58). New `ux` issues: none other than mine.

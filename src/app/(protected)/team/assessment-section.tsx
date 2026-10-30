@@ -5,7 +5,7 @@
 // here sums, compares, colours or warns (`cra` CGR-81); nothing blocks saving, planning or billing.
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { confirmAssessment, recordAssessment } from "@/features/assessment/commands";
 import {
   CATEGORIES,
@@ -15,6 +15,8 @@ import {
   currentRecord,
   formatDate,
   instrumentLabel,
+  recordAnchor,
+  REFERENCE_HINT,
   type AssessmentRecord,
   type CaseAssessments,
   type Instrument,
@@ -64,6 +66,18 @@ export default function AssessmentSection({
   const records = view?.records ?? [];
   const current = currentRecord(view);
   const nurses = members.filter((m) => m.qualification === "registered_nurse");
+  const historyRef = useRef<HTMLDetailsElement>(null);
+
+  // ASM1-C1: the "Zu bestätigen" link on /field jumps to a record; when that record sits in the closed history, open it.
+  useEffect(() => {
+    const target = typeof window === "undefined" ? "" : window.location.hash.slice(1);
+    const el = historyRef.current;
+    if (!target || !el) return;
+    if (el.querySelector(`[id="${CSS.escape(target)}"]`)) {
+      el.open = true;
+      document.getElementById(target)?.scrollIntoView();
+    }
+  }, [records.length]);
 
   async function submit(form: FormData) {
     setPending(true);
@@ -107,62 +121,85 @@ export default function AssessmentSection({
 
   const prefill = mode?.kind === "supersede" ? mode.record : null;
 
+  const earlier = records.filter((r) => !r.current);
+
+  // A render function, not a nested component: React would remount a component defined during render.
+  function renderRecord(r: AssessmentRecord, inHistory: boolean) {
+    return (
+      <li
+        key={r.id}
+        id={recordAnchor(r.id)}
+        aria-label={`Bedarfsabklärung vom ${formatDate(r.assessment_date)}${r.superseded_by ? " (ersetzt)" : ""}`}
+        data-testid={r.current ? "assessment-current" : "assessment-history"}
+        className="rounded-lg border border-stone-200 bg-white p-2"
+      >
+        <p className="font-semibold">
+          {r.current ? "Aktuell: " : r.superseded_by ? "Ersetzt: " : "Frühere: "}
+          {assessmentLine(r)}
+        </p>
+        <p data-testid="assessment-state" className="text-xs text-secondary">
+          Status: {STATE_LABEL[r.state]}
+        </p>
+        {/* ASM1-C2 (UXR-55): the minutes with their period are shown once per card, in the care-plan block (ASM1-11);
+            an earlier record keeps them here in short form, inside the closed history. */}
+        {inHistory && (
+          <p className="text-xs">
+            {CATEGORIES.map((c) => `${c}: ${assessedMinutes(r, c) ?? "keine Minuten"}`).join(" · ")}
+          </p>
+        )}
+        {r.document_ref && <p className="text-xs text-secondary">Referenz: {r.document_ref}</p>}
+        {r.supersedes_id && r.supersede_reason && (
+          <p data-testid="assessment-supersede-reason" className="text-xs text-secondary">
+            Ersetzt eine frühere Erfassung. Grund: {r.supersede_reason}
+          </p>
+        )}
+        <div className="mt-1 flex flex-wrap gap-2">
+          {r.assessor_is_me && r.state === "unconfirmed" && !r.superseded_by && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => confirm(r.id)}
+              className="min-h-11 rounded-lg bg-emerald-800 px-3 font-bold text-white disabled:opacity-60"
+            >
+              Als abklärende Pflegefachperson bestätigen
+            </button>
+          )}
+          {!r.superseded_by && (
+            <button
+              type="button"
+              onClick={() => setMode({ kind: "supersede", record: r })}
+              className="min-h-11 px-2 text-xs font-semibold underline"
+            >
+              Korrigieren (ersetzen)
+            </button>
+          )}
+        </div>
+      </li>
+    );
+  }
+
   return (
     <section aria-label="Bedarfsabklärung" data-ref="ASM1" className="mt-3 rounded-xl bg-stone-50 p-2 text-sm">
       <h4 className="text-xs font-bold uppercase tracking-wide text-secondary">Bedarfsabklärung</h4>
       {records.length === 0 ? (
         <p className="italic text-secondary">Noch keine Bedarfsabklärung erfasst.</p>
       ) : (
-        <ul aria-label="Erfasste Bedarfsabklärungen" className="mt-1 grid gap-2">
-          {records.map((r) => (
-            <li
-              key={r.id}
-              aria-label={`Bedarfsabklärung vom ${formatDate(r.assessment_date)}${r.superseded_by ? " (ersetzt)" : ""}`}
-              data-testid={r.current ? "assessment-current" : "assessment-history"}
-              className="rounded-lg border border-stone-200 bg-white p-2"
-            >
-              <p className="font-semibold">
-                {r.current ? "Aktuell: " : r.superseded_by ? "Ersetzt: " : "Frühere: "}
-                {assessmentLine(r)}
-              </p>
-              <p data-testid="assessment-state" className="text-xs text-secondary">
-                Status: {STATE_LABEL[r.state]}
-              </p>
-              <ul className="mt-1 grid gap-0.5 text-xs">
-                {CATEGORIES.map((c) => (
-                  <li key={c}>
-                    Kategorie {c}: {assessedMinutes(r, c) ?? "keine Minuten erfasst"}
-                  </li>
-                ))}
+        <>
+          {/* ASM1-C2 (UXR-55, `cra` 09:30): the current record (line, state, its actions, the "Ersetzt …" line) stays open. */}
+          {current && (
+            <ul aria-label="Aktuelle Bedarfsabklärung" className="mt-1 grid gap-2">
+              {renderRecord(current, false)}
+            </ul>
+          )}
+          {earlier.length > 0 && (
+            <details ref={historyRef} data-testid="assessment-history-details" className="mt-2">
+              <summary className="min-h-11 cursor-pointer py-2 text-xs font-semibold">Frühere Erfassungen ({earlier.length})</summary>
+              <ul aria-label="Frühere Erfassungen" className="grid gap-2">
+                {earlier.map((r) => renderRecord(r, true))}
               </ul>
-              {r.document_ref && <p className="text-xs text-secondary">Referenz: {r.document_ref}</p>}
-              {r.supersedes_id && r.supersede_reason && (
-                <p className="text-xs text-secondary">Ersetzt eine frühere Erfassung. Grund: {r.supersede_reason}</p>
-              )}
-              <div className="mt-1 flex flex-wrap gap-2">
-                {r.assessor_is_me && r.state === "unconfirmed" && !r.superseded_by && (
-                  <button
-                    type="button"
-                    disabled={pending}
-                    onClick={() => confirm(r.id)}
-                    className="min-h-11 rounded-lg bg-emerald-800 px-3 font-bold text-white disabled:opacity-60"
-                  >
-                    Als abklärende Pflegefachperson bestätigen
-                  </button>
-                )}
-                {!r.superseded_by && (
-                  <button
-                    type="button"
-                    onClick={() => setMode({ kind: "supersede", record: r })}
-                    className="min-h-11 px-2 text-xs font-semibold underline"
-                  >
-                    Korrigieren (ersetzen)
-                  </button>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
+            </details>
+          )}
+        </>
       )}
       {current === null && records.length > 0 && <p className="text-xs text-secondary">Keine aktuelle Bedarfsabklärung.</p>}
       <ErrorLine message={error} />
@@ -182,10 +219,15 @@ export default function AssessmentSection({
           className="mt-2 grid gap-2"
           key={prefill?.id ?? "new"}
         >
+          {prefill && (
+            <p data-testid="supersede-target" className="text-xs font-semibold">
+              Ersetzt: {assessmentLine(prefill)}
+            </p>
+          )}
           <p className="text-xs text-secondary">
             Erfasst wird, was in eurem Abklärungsinstrument steht. Die vollständige Abklärung bleibt dort; hier steht nur ihre Referenz.
           </p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid gap-2 sm:grid-cols-2">
             <label className="grid gap-1 text-xs font-semibold">
               Datum der Abklärung
               <input name="assessment_date" type="date" required defaultValue={prefill?.assessment_date ?? ""} className={field} />
@@ -213,10 +255,23 @@ export default function AssessmentSection({
                 ))}
               </select>
             </label>
-            <label className="grid gap-1 text-xs font-semibold">
-              Referenz der vollständigen Abklärung
-              <input name="document_ref" maxLength={64} defaultValue={prefill?.document_ref ?? ""} placeholder="z. B. BA-2026-0042" className={field} />
-            </label>
+            <div className="grid gap-1">
+              <label className="grid gap-1 text-xs font-semibold">
+                Referenz der vollständigen Abklärung
+                <input
+                  name="document_ref"
+                  maxLength={64}
+                  defaultValue={prefill?.document_ref ?? ""}
+                  placeholder="z. B. BA-2026-0042"
+                  aria-describedby={`ref-hint-${caseId}`}
+                  className={field}
+                />
+              </label>
+              {/* ASM1-C3 (UXR-54): the rule is visible before any refusal (outside the label, so the field's name stays short). */}
+              <p id={`ref-hint-${caseId}`} data-testid="reference-hint" className="text-xs text-secondary">
+                {REFERENCE_HINT}
+              </p>
+            </div>
           </div>
           <fieldset className="grid gap-2">
             <legend className="text-xs font-semibold">Minuten pro Kategorie, je mit dem Zeitraum aus der Abklärung (optional)</legend>

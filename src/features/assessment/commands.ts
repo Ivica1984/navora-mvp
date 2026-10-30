@@ -7,7 +7,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
-import { ASSESSMENT_REASONS, isValidReference } from "./rules";
+import { ASSESSMENT_REASONS, REVIEW_REASONS, isValidReference } from "./rules";
 
 const minutes = z.number().int().min(0).max(99999).nullable();
 const period = z.string().trim().max(60).nullable();
@@ -40,7 +40,7 @@ const confirmSchema = z.object({ recordId: z.uuid(), idempotencyKey: z.uuid() })
 
 const FAILED = "Bedarfsabklärung konnte nicht gespeichert werden.";
 
-function result(op: string, data: unknown, error: { code?: string } | null): CommandResult {
+function result(op: string, data: unknown, error: { code?: string } | null, reasons: Record<string, string> = ASSESSMENT_REASONS): CommandResult {
   if (error) {
     logEvent("warn", "command.failed", { op, ...errorFields(error) });
     return { ok: false, error: FAILED };
@@ -48,9 +48,11 @@ function result(op: string, data: unknown, error: { code?: string } | null): Com
   const res = (data ?? {}) as { result?: string; reason?: string };
   if (res.result === "ok" || res.result === "duplicate") {
     revalidatePath("/team");
+    // ASM1-C1: her "Zu bestätigen: Bedarfsabklärung" line on /field follows a record, a confirmation or a supersede.
+    revalidatePath("/field");
     return { ok: true };
   }
-  if (res.result === "rejected") return { ok: false, error: ASSESSMENT_REASONS[res.reason ?? ""] ?? FAILED };
+  if (res.result === "rejected") return { ok: false, error: reasons[res.reason ?? ""] ?? FAILED };
   return { ok: false, error: FAILED };
 }
 
@@ -91,4 +93,22 @@ export async function confirmAssessment(input: unknown): Promise<CommandResult> 
     p_idempotency_key: parsed.data.idempotencyKey,
   });
   return result("confirm_assessment", data, error);
+}
+
+const reviewSchema = z.object({ caseId: z.uuid(), recordId: z.uuid(), idempotencyKey: z.uuid() });
+
+/**
+ * ASM1-C4 (migration 0101, ADR-125): "Pflegeplan gegen Bedarfsabklärung vom <Datum> geprüft". The database decides who
+ * may (a registered nurse of the case's team, provisional) and whether there is anything to review; no item changes.
+ */
+export async function reviewCarePlan(input: unknown): Promise<CommandResult> {
+  const parsed = reviewSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Prüfung konnte nicht gespeichert werden." };
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("review_care_plan_against_assessment", {
+    p_case_id: parsed.data.caseId,
+    p_record_id: parsed.data.recordId,
+    p_idempotency_key: parsed.data.idempotencyKey,
+  });
+  return result("review_care_plan_against_assessment", data, error, REVIEW_REASONS);
 }

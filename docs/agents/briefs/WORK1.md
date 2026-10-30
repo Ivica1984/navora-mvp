@@ -136,3 +136,26 @@ At the end of her day the nurse sees her working day already laid out from her v
 **Escalation rule:** if (a) shows that another role really reads something different after a nurse acts, CGR-86 becomes blocking (S2), WORK1 goes to `changes-requested`, and the fix comes before any other WORK1-related work. Deadline otherwise: before any team ratio is read as pilot evidence and before G-19 (as WORK1-C1, WORK1-C4).
 
 **Conditions now:** WORK1-C5 (open). WORK1-C1 to WORK1-C4 met (COND1, accepted 2026-10-26 22:10).
+
+## PO review 2026-10-30 16:55 CET: WORK1-C5 (#761) — (a) and (c) met, (b) open in watch mode; WORK1 stays `accepted`
+
+**The PO did not run the tests.** Read: PR #761 (merged `40c4bd9` at 16:45 CET; head `ae47edb`), the diff of `supabase/tests/database/079_work1_working_day.test.sql`, `.github/workflows/ci.yml`, `scripts/db-flaky/work1-c5.sh`, ADR-126 and its addendum (`docs/engineering/DECISIONS.md`), Engineering's journal entries 16:40 and 16:45 and the status row. CI as GitHub reports it: head `ae47edb` run 41080518005 green (app, db, e2e, ui-screenshots); merge commit `40c4bd9` push run 41083585225: app, db, ui-screenshots green, e2e still running at review time. The `pull_request` run 41083597857 on the same commit (PR #3, `recovery/main` → `main`) has `ui-screenshots` red with "0 images" (no screenshot produced; the change touches no app code; recorded, not attributed to WORK1-C5).
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| WORK1-C5 (a): a test-44 failure names each differing table or read model and the role that read it | met | 079: `pg_temp.fingerprint` returns one row per object (table name, or read model with argument types); `before_fp` and `after_fp` are full-joined on role and object, so an object that appears or disappears also counts; the failure text is `role:object`, sorted. Read in the diff. |
+| WORK1-C5 (b): the cause is found and fixed; nothing skipped or weakened | **open** | Engineering's own probe (65 s, READ COMMITTED) showed no concurrent write, so the pg_cron hypothesis of 16:40 is **not confirmed**; ADR-126 addendum says cause UNKNOWN. The file now runs `begin isolation level repeatable read` (one snapshot plus w1's own acts); nothing is excluded, no assertion skipped or weakened (read in the diff). This is hardening, not a found cause. |
+| WORK1-C5 (c): 079 run repeatedly (e.g. 50 times in one CI job) with no failure; job and run link in the PR | met as written | Step "WORK1-C5 probe and pgTAP 079 repeated" (runs only on `fix/work1-c5*` PRs), job 124148874659 in run 41080518005: 50/50 green, 68/68 each (Engineering's report; the PO read the job's conclusion, not its log, which the proxy refuses). Limitation: the 50 runs repeat one file in one job; the earlier failures came from full-suite runs on unrelated pushes. |
+| Escalation rule (real read difference → S2, `changes-requested`) | not triggered | No test-44 failure since the change, so (a) has not named any object yet. |
+| Patient safety / privacy | unchanged or better | Test only; no migration, no app code; the assertion is as strict as before and is now diagnosable. |
+
+**Deviation (ADR-126):** the remedies in (b) ("pin `navora.test_now`, or exclude only that column") do not fit a value another session writes, so neither is used and the file reads one snapshot instead. **Accepted:** the brief offered them only "if a read model depends on the real clock"; one snapshot excludes nothing.
+
+**Why (a) is the part that matters for the care model.** WORK1-C5 exists because a random red on the WORK1-5 privacy test would let a real leak pass as "the known flake" and be re-run to green (value 4: the confirmed day is the nurse's own, not a control instrument). With (a) every failure now names who read what, so a leak can no longer look like noise. That removes the risk; the open cause is a diagnosis question.
+
+**WORK1-C5 (b), restated so it can close without inventing a cause** (testable; product authority; the PO changes no assertion):
+1. **Standing rule, effective now:** a `db` job whose test-44 assertion fails is never re-run to green before its `role:object` output, run link and commit are recorded on #399. If any named object belongs to WORK1 (the tables `working_day_versions`, `working_day_exports`, `working_time_notice_acks` of 0079/0083, a `*working_day*` or `*working_time*` read model, or one that reads them) or any differing value is w1's, the escalation rule above applies at once.
+2. **(b) closes** when either (i) a recorded failure names an object, its cause is fixed in a PR and the 50-run step passes again on that PR; or (ii) no test-44 failure occurs in any `db` job on `recovery/main` pushes for **14 calendar days from `40c4bd9` (until 2026-11-13)**, shown by Engineering on #603 with the number of `db` runs counted and the first and last run link.
+3. Deadline unchanged: before any team ratio is read as pilot evidence and before G-19.
+
+**PO status:** WORK1 stays **`accepted`**. WORK1-C5: (a) met, (c) met, (b) open in watch mode (no build now). WORK1-C5 leaves *Active now* (0); CGR-96 stays there.

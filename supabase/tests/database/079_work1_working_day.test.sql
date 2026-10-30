@@ -5,7 +5,12 @@
 -- the synthetic Testteam W (three people), …7905-…7906 members of Testteam Z (two people). All data synthetic; every
 -- step goes through the real commands, except the steps marked "as the table owner". The clock is pinned per step
 -- (DST1 test clock), so the result does not depend on the day CI runs.
-begin;
+-- WORK1-C5 (ADR-126): one snapshot for the whole file. pg_cron jobs of the local stack (`navora-sig1-signals` every
+-- minute, `navora-cover1-events` every 10 minutes) commit writes while the file runs; at READ COMMITTED each statement
+-- saw them, so the WORK1-5 before/after catalogue compared two different database states (for example
+-- `signal_evaluator_health().last_run_at` for Operations and administrators). At REPEATABLE READ the catalogue compares
+-- the same committed state plus w1's own actions only, which is what WORK1-5 asserts.
+begin isolation level repeatable read;
 create extension if not exists pgtap with schema extensions;
 
 select plan(68);
@@ -51,8 +56,9 @@ create function pg_temp.day(p_start text, p_end text, p_segments jsonb, p_breaks
   select jsonb_build_object('day_start', p_start, 'day_end', p_end, 'segments', p_segments, 'breaks', p_breaks, 'outside_work', p_outside) $$;
 -- WORK1-5 catalogue: a fingerprint of everything the user reads through every readable table (selectable columns
 -- only) and every stable set-returning read model (date arguments = her day). Compared before and after her actions.
-create function pg_temp.fingerprint(p_user text) returns text language plpgsql as $$
-declare t record; f record; cols text; arg text; h text; acc text := '';
+-- WORK1-C5: one row per object, so a failure names the role and the differing table or read model.
+create function pg_temp.fingerprint(p_user text) returns table (obj text, hash text) language plpgsql as $$
+declare t record; f record; cols text; arg text; h text;
 begin
   perform pg_temp.pin('2026-10-26 12:00:00+01');
   for t in select c.oid, c.relname from pg_class c join pg_namespace s on s.oid = c.relnamespace
@@ -64,7 +70,7 @@ begin
     execute 'set local role authenticated';
     execute format('select md5(coalesce(string_agg(x, '','' order by x), '''')) from (select md5(row(%s)::text) x from public.%I) y', cols, t.relname) into h;
     execute 'reset role';
-    acc := acc || t.relname || '=' || h || ' ';
+    obj := t.relname; hash := h; return next;
   end loop;
   for f in select p.oid, p.proname, p.proargtypes::regtype[] ty from pg_proc p join pg_namespace s on s.oid = p.pronamespace
            where s.nspname = 'public' and p.prokind = 'f' and p.proretset and p.provolatile in ('s', 'i')
@@ -79,9 +85,8 @@ begin
     exception when others then h := 'error:' || sqlstate;
     end;
     execute 'reset role';
-    acc := acc || f.proname || '=' || h || ' ';
+    obj := f.proname || '(' || array_to_string(f.ty::text[], ',') || ')'; hash := h; return next;
   end loop;
-  return acc;
 end $$;
 
 -- Synthetic accounts and teams (as the table owner) ------------------------------------------------------------------
@@ -132,7 +137,7 @@ from (values
 
 -- WORK1-5: what everyone else reads, before any working-day action of w1.
 create temp table before_fp as
-select p, pg_temp.fingerprint(p) fp from unnest(array['rn', 'ca', 'coach', 'ops', 'admin']) p;
+select r.p, f.obj, f.hash from unnest(array['rn', 'ca', 'coach', 'ops', 'admin']) r(p), pg_temp.fingerprint(r.p) f;
 
 -- WORK1-8: information before first use -------------------------------------------------------------------------------
 select is(pg_temp.cmd('w1', 'select public.my_working_time_notice()') ->> 'acknowledged', 'false', 'WORK1-8: not acknowledged yet');
@@ -248,7 +253,13 @@ select is(pg_temp.cmd('w1', format('select public.export_working_month(%L::date,
 select is((select count(*)::int from public.audit_events where table_name = 'working_day_exports'), 1, '… one audit row');
 
 -- WORK1-5: nobody else reads her working day ---------------------------------------------------------------------------
-select is((select string_agg(b.p, ',' order by b.p) from before_fp b where b.fp <> pg_temp.fingerprint(b.p)), null,
+-- WORK1-C5: the result names each differing role:object (a table, or a read model with its argument types); an
+-- object that appears or disappears counts as a difference too.
+create temp table after_fp as
+select r.p, f.obj, f.hash from unnest(array['rn', 'ca', 'coach', 'ops', 'admin']) r(p), pg_temp.fingerprint(r.p) f;
+select is((select string_agg(coalesce(b.p, a.p) || ':' || coalesce(b.obj, a.obj), ',' order by coalesce(b.p, a.p), coalesce(b.obj, a.obj))
+           from before_fp b full join after_fp a on a.p = b.p and a.obj = b.obj
+           where b.hash is distinct from a.hash), null,
   'WORK1-5 catalogue: every readable table and read model shows a teammate, her RN, a coach, Operations and an administrator exactly what it showed before her acknowledgement, confirmations and export');
 -- 0083: rows of w1 only (the seed gives …906 her own v1 acknowledgement, which she may read).
 select is((select string_agg(x || '=' || pg_temp.seen(x, format('select 1 from public.working_day_versions where user_id = %L', pg_temp.u('w1'))) || '/'
