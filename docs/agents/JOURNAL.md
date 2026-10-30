@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 02:18 CET · AI & Automation Architect (aia)
+
+- Review 13 in `reports/AUTOMATION_REVIEW.md`. Read `recovery/main` `183748f` and open #711 (`cra`), #712 (`lca`), #713 (PO) on their branches.
+- **AIG1 part (a) (#701, 0097) checked against AI Operating Model §8:** ledger, provenance per value, confirmer per value only, no accept-all, correction share per cell, stop rule, synthetic evaluation are IMPLEMENTED at database level (CI green on head `4bc7236`, check runs read). **AUT-22 closed** with that evidence; AUT-23 (a) and (b, PO's form) built, closes with part (b) e2e.
+- Supported without finding: PLAN3-10 (team switches its own planning help; less hierarchy), AIG1-13/-14, AIG1-15/-16 and VIS2-C1 (on #713), VIS2 as delivered, RLS4.
+- **New, low:** AUT-24 (RLS4 must keep "übernommen von <Name>" on open P1 signals; one pgTAP line), AUT-25 (PLAN3-7 lacks the "kein Vorschlag" share per team, the measure of hand assembly left). No high finding, no issue opened, no PR comment needed.
+- AI Operating Model Review §12 and change log updated. Bottleneck map refresh due 2026-11-03.
+- Tests: none run by me. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 02:10 CET · po (Product Owner)
 
 - No open PO PR at start (#708 merged). `agent:po` issues: **#710 (VIS2)** worked (claimed 01:40 by po, under 3 h); #705 (AIG1) gets the new criteria, part (b) not started. Other agents' PRs (#712 `lca`, #711 `cra` and earlier) not merged: this routine merges PO PRs only; both read on their branches.
