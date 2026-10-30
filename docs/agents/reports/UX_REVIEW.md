@@ -6,6 +6,70 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-10-30 11:55 CET · `uxa`: ASM1-C1 to -C5 read (open PR #747, `/field`, `/team`): UXR-60 (high, #748), UXR-61 to -64 (low); UXR-43, -45 closed in code (#742); C5 sentence confirmed; C6 display wording proposed
+
+**What changed since 07:50.** My PR #730 (07:50 section) merged. **#727** (ASM1) merged as `e42fde6`; `git diff ad98160 c191213 -- src` is empty, so the screen code is the code I read at 07:50. **#742** (UX2-22, UX2-23) merged as `ea94bba` (CI green on head `a15cffa`, as GitHub and `eng` 10:48 report it): `/field` (qualification note, field actions, "Offen im Team"), `/admin` (`confirm-step.tsx`, admission switch, "Vertragsende entfernen"). Open PR **#747** (`eng`, ASM1-C1 to -C5, ADR-125, migration 0101, head `5d3a887`) changes `/field` (`field-client.tsx`, `page.tsx`), `/team` (`assessment-section.tsx`, `plan-assessment-basis.tsx`, new `plan-review-button.tsx`, `team-client.tsx`) and `features/assessment/rules.ts`. CI on its first head `9ddcf5b` was **red** (`app` and `db` jobs failed; `e2e` and `ui-screenshots` green, run 41041230871); no run is reported yet for `5d3a887`. Other merges since 07:50 (#733 to #746) change no screen. Briefs: `ASM1.md` asks `uxa` for the C5 sentence, the C6 display and where the C4 act sits; `UX2.md` gained UX2-30 (UXR-56 to -58). New `ux` issues: none other than mine.
+
+**Sources.** `ui-screenshots` artifacts exist (12970323707 for `feat/asm1-c1-c5` at `9ddcf5b`; 12970301599 for `recovery/main` at `59d2538`). Their download needs a token this role does not have (proxy 403), so **no screenshots were available**. I reviewed from code on the #747 branch and `recovery/main` `59d2538`. Live project not touched. I ran no tests; CI states are as GitHub reports them. No benchmark: the last one was today at 03:50.
+
+### UX2-22, UX2-23 as merged (#742, `/field`, `/admin`)
+
+Built as worded at 2026-10-29 16:10: the `info` note sits once under the safety signals (`field-client.tsx` on `ea94bba`, `qualification-missing-note`), and the cards drop depart, start, resume and complete for her (`features/field/qualification.ts`). "Offen im Team" becomes one `info` line with no count, names or "Übernehmen". The confirming step opens in place, moves focus to the sentence (`tabIndex=-1`) and puts the action first, then "Abbrechen", both 44 px. Its buttons are not at the first button's position, so a double tap does not pass it. The off-sentence is a single sentence (ADR-124 deviation 1, PO 11:10: no lapse pause). UXR-43 and UXR-45 are **closed in code** (below). They are accepted with UX2 as a whole. Residual, already PLANNED: `/admin` buttons outside the step stay 40 px (UX2), and the error line there stays rose (UX2-14).
+
+### ASM1-C1 to -C5 on #747 (open PR; read on branch `5d3a887`)
+
+Met as I read it:
+- **C1.** One neutral line "Zu bestätigen: Bedarfsabklärung (<n>)" (stone border, `data-tone="info"`, 44 px) in her "Zu erledigen" row, only when n ≥ 1, from her own reader output.
+- **C2.** The current record stays open with its state and its "Ersetzt …" line. "Frühere Erfassungen (<n>)" is a closed `details` (44 px summary). The minutes with their period appear once per card, in the care-plan block.
+- **C3.** Both refusal texts word for word as the PO fixed them. The reference hint is visible before saving (`aria-describedby`).
+- **UXR-56.** The form is one column below 640 px (`sm:grid-cols-2`).
+- **UXR-57.** Half met: a line "Ersetzt: <record>" now heads the replace form. Instrument and assessor are still not prefilled (`defaultValue=""`, `assessment-section.tsx:237, 249`).
+- **C5.** The sentence sits outside the history, in `info`.
+
+Where it does not meet the design system: below.
+
+**C5 sentence (asked of `uxa`).** "Die Bedarfsabklärung vom <Datum>, gegen die der Pflegeplan geschrieben ist, wurde am <Datum> korrigiert." **Confirmed as built**: it states the fact, names both dates and judges nothing. Its way forward is the C4 act, which the block offers right after it today and at the end of the block once UXR-60 is applied.
+
+**C4, where the act sits (asked of `uxa`).** See UXR-60: at the end of the care-plan basis block, after the material it attests. It is labelled as an action, and the recorded line keeps the participle.
+
+**C6 display (asked of `uxa`; PLANNED in the brief, not built; OPEN wording, `cra` confirms wording and what the team sees, `lca` confirms the hint and that nothing beyond (3) shows).**
+- **Command.** "Irrtümlich erfasst" as a text button (`action-outline`, 44 px) beside "Korrigieren (ersetzen)" on a non-voided record. It opens an in-place form: label "Grund"; hint under the field, tied with `aria-describedby`: "Beschreibe nur, was falsch erfasst wurde, z. B. falsche Klientin gewählt. Nenne keine andere Person." (the `lca` (b) hint; a hint, not enforced). Buttons: primary "Als irrtümlich erfasst markieren", secondary "Abbrechen".
+- **Confirming step.** Primary first, focus to the sentence, the UX2-23 component. Sentence: "Danach gilt diese Bedarfsabklärung nicht mehr. Der Eintrag bleibt gespeichert; das Team sieht nur noch, dass er irrtümlich erfasst wurde." The void ends the record's role as a basis, so it takes the step.
+- **What the team then sees** (inside "Frühere Erfassungen (<n>)", counted there): "Irrtümlich erfasst am <Datum> von <Name>. Grund: <Grund>". No minutes, period, instrument or reference (`lca` (a)). The word carries the state, not a line-through. Struck text is harder to read, and the brief's "shown struck" is met by the label. `cra` decides if the strike is required.
+- **The named assessor** sees the same line on that record. Her C1 line drops it.
+- **Tests.** Component: the voided record renders the line and no `Kategorie`/`Referenz` text. e2e: void → the record is in the history with the line, and the current record falls back.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-60 | `/team` case card, care-plan block (registered nurse of the team); IMPLEMENTED in open #747 | high | The review act is offered **above** the material it attests: basis line, marker, C5 sentence, **button**, then the assessment line and the minutes per category beside the items. Its label "Pflegeplan gegen Bedarfsabklärung vom <Datum> geprüft" is a participle that reads like a status line, in an outline box. One tap records an append-only act and clears both the marker and the C5 fact (CGR-102, S2), with no undo and no step. On a phone the nurse can attest before she has seen the comparison, or tap it by mistake, and the only visible sign of a corrected basis is gone. | #747 `plan-assessment-basis.tsx` (order: `marker`, `corrected`, `{reviewAction}`, then `plan-assessment-line`, `categoryRows`); `plan-review-button.tsx:36-44`; `rules.ts` `reviewLabel` | §1 what action next; §2 an attesting act follows what it attests (new, OPEN); §4 one command, one label | The marker and the C5 sentence stay first, unchanged (no safety-relevant fact moves down). Button and hint move to the end of the block. Label: "Als geprüft bestätigen: Pflegeplan gegen Bedarfsabklärung vom <Datum>". Whether it also takes the UX2-23 confirming step: `cra`/PO. Vitest: DOM order `plan-category-*`, `plan-newer-event` before the button; `reviewLabel` starts "Als geprüft bestätigen:". e2e 390: the button's top is below the last category row. `cra` confirms order and label. | #748 |
+| UXR-61 | Bedarfsabklärung form, reference field; IMPLEMENTED in open #747 | low | The hint under the field is the refusal text word for word: a rule list with the characters "_ : # -" and no example. After a refused save she reads the same long sentence twice, once grey and once in the error box. The example sits only in the placeholder, which disappears as she types. | #747 `rules.ts` `REFERENCE_HINT` = `ASSESSMENT_REASONS.reference_invalid` minus "Die Referenz ist eine"; `assessment-section.tsx` hint `<p>` | §4 a hint says the rule short, the refusal says what to change | Hint: "Kennung aus eurem Abklärungsinstrument, z. B. BA-2026-0042: mindestens eine Ziffer, ohne Leerzeichen, Punkt oder Schrägstrich." Refusal `reference_invalid`: "Diese Referenz ist keine Kennung: 3 bis 64 Zeichen, nur Buchstaben, Ziffern und _ : # -, mindestens eine Ziffer." Unit: hint ≠ refusal text, and the hint contains "z. B.". No `cra`/`lca` question. | report |
+| UXR-62 | Care-plan block, recorded review line; IMPLEMENTED in open #747 | low | "Pflegeplan geprüft gegen die Bedarfsabklärung vom <D1> am <D2> von <Name> (Bedarfsabklärung damals nicht bestätigt)" is one line with two dates side by side ("vom … am …"), no full stop, and the `cra` (a) state in parentheses, where it reads as an aside. | #747 `rules.ts` `planReviewText` | §4 plain German; §5 density | "Geprüft am <D2> von <Name> gegen die Bedarfsabklärung vom <D1>." and, as its own sentence when the state at the act was not "bestätigt": "Diese war damals <Status>." Unit on both forms. `cra` confirms (its condition (a)). | report |
+| UXR-63 | Bedarfsabklärung block, no current record; IMPLEMENTED in open #747 | low | When no record is current (all superseded, and after a C6 void), the only open content is "Keine aktuelle Bedarfsabklärung.", rendered **below** the closed history, so the one fact she needs comes last. The C4 error line is a third copy of the rose box (UXR-58). | #747 `assessment-section.tsx` (`current === null` line after `</details>`); `plan-review-button.tsx:44-46` | §1 what needs attention now first; §3 one error component (UX2-14) | Render the line directly under the block heading when `current` is null. The UX2-14/UX2-30 guard includes `plan-review-button.tsx`. Component: with only superseded records, the line precedes `assessment-history-details`. | report |
+| UXR-64 | `/field` "Zu bestätigen" link → `/team` (RN named as assessor); IMPLEMENTED in open #747 | low | The link jumps to `/team#bedarfsabklaerung-<id>`. Whether she lands on the record when it sits in a case card further down, or in a team other than the one `/team` shows first, is not tested. The brief's tests cover the line, not the landing. UNKNOWN whether `/team` renders every team of hers on one page. | #747 `field-client.tsx` (link), `assessment-section.tsx` `useEffect` (opens the history for a hash target) | §5 jump links land where she acts | e2e (synthetic seed): tap the line → the record with id `bedarfsabklaerung-<id>` is in the viewport and its confirm button is visible. If `/team` shows one team at a time, the link carries the team (`eng`). | report |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-43 | **Closed in code** (UX2-23): confirming step for the admission switch and "Vertragsende entfernen", wording as proposed 2026-10-29 16:10, the off-sentence single per ADR-124 dev. 1 (PO 11:10). Accepted with UX2. | #742 merged `ea94bba`, `admin/confirm-step.tsx`, `features/admin/confirm-texts.ts` |
+| UXR-45 | **Closed in code** (UX2-22): `info` note once, refused actions hidden (`cra` 13:40), "Offen im Team" one line. Accepted with UX2. | #742 merged `ea94bba`, `features/field/qualification.ts`, `field-client.tsx` |
+| UXR-54 | Met in open #747 (ASM1-C3), closes when merged; hint wording follow-up is UXR-61. | #747 `rules.ts` |
+| UXR-55 | Met in open #747 (ASM1-C2), closes when merged. | #747 `assessment-section.tsx` |
+| UXR-56 | Met in open #747 (UX2-30 carried), closes when merged. | #747 `sm:grid-cols-2` |
+| UXR-57 | Half met in open #747 ("Ersetzt:" line); prefill of instrument and assessor still OPEN (UX2-30). | #747 `assessment-section.tsx:237, 249` |
+| UXR-58 | PLANNED (UX2-30); now three rose copies (UXR-63). | |
+| UXR-59 | Met in open #747 (ASM1-C1), closes when merged; landing test is UXR-64. | #747 `field-client.tsx` |
+| UXR-60 to -64 | **New**, OPEN (above). | |
+| Others | Unchanged since 07:50. | |
+
+**Requests.** To `cra`: UXR-60 (order and label of the review act; whether it takes a confirming step), UXR-62 (state sentence), the C6 display above (wording, label instead of strike). To `lca`: the C6 reason hint and the team's view of a voided record (in-app only).
+
+**For the PO.** (1) UXR-60 (high, #748): presentation-only, cheapest on #747 before merge; the PO decides whether it rides #747 or a follow-up. It does not ask to hold ASM1-C5's fact; it keeps that fact from being cleared before the comparison is visible. (2) The C5 sentence is confirmed as built. The C6 display wording is above. (3) UXR-61 to -64 (low) can ride #747 or UX2-30. (4) Screenshot download still refused (token); reviews remain code-only. I propose only.
+
+---
+
 ## 2026-10-30 07:50 CET · `uxa`: ASM1 #727 read (open PR, `/team`): UXR-54, -55, -59 (medium), UXR-56, -57, -58 (low); VIS2-C2 mixed-case wording; VIS2-C3 save-step wording; RLS4 merged as read
 
 **What changed since 03:50.** My PR #717 merged at 03:59 (`bd5263d`). Merged since with a screen change: only **#715** (RLS4, `visits-client.tsx`: "Pflegekraft:" from `getVisitResponsibleLabel`), which I read on its branch at 03:50; it merged as read (UXR-53 stands, placed as UX2-29). Other merges (#718, #719, #720, #722, #725, #726, #728, #729) change no screen. Open PR **#727** (`eng`, ASM1, migration 0100, ADR-123, head `ad98160`) changes `/team`: `team/assessment-section.tsx` (new), `team/plan-assessment-basis.tsx` (new), `team-client.tsx`, `team/page.tsx`, `features/assessment/rules.ts`; CI green on that head as GitHub reports (run 41012685080). Other open PRs (#723, #721, #711 and earlier `cra`/`eng` docs; #3 M2) change no screen. Briefs: VIS2 PO notes 04:10, 05:10, 06:10 ask `uxa` for the VIS2-C2 wording (starting from UXR-51) and for the VIS2-C3 save-step wording; UX2-28, UX2-29 placed from UXR-52, -53. New `ux` issues: none.
