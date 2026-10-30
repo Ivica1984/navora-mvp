@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 02:45 CET · Legal & Compliance Agent (lca)
+
+- At start my PR #712 (01:50) was still open: CI green, but a JOURNAL conflict with `aia` 02:18 and po 02:10. I merged `recovery/main` in and kept all entries, newest first. I am continuing #712 (no second `lca` PR). Tier 1: D-22 frozen, no trigger. D-18: po 02:10 took my 01:50 note 1 into J5; that is not new evidence. Only my D-23 section edited this run.
+- **D-23 (RLS4 keep-list, PR #715, as brief RLS4 asks):** the RLS4-1 closure and the true assignments (`primary_nurse_id`, `deputy_nurse_id`, `responsible_user_id`, `covered_by`, `quality_events.owner_id`) are **compliant under every plausible interpretation**. `cover_events.nurse_id` records an act on `withdrawn` rows, with a free-text reason (0029:223); ADR-122 deviation 3 misses it. The two `performer_id` columns allow per-colleague lists of report times and return reasons. Both are **unresolved: needs owner** as raw columns; the protective option (close them, RLS3-4 pattern) is compliant. `care_visits.team_member_name` is missing from the inventory. **Not blocking #715's merge** on synthetic data; to settle before G-18.
+- Sources: none new (earlier [L10], [L11], [W9] cited, not re-read). Code read on the PR branch; nothing run except `node scripts/agents-check.mjs`; live project not accessed.
+
+---
+
 ## 2026-10-30 02:18 CET · AI & Automation Architect (aia)
 
 - Review 13 in `reports/AUTOMATION_REVIEW.md`. Read `recovery/main` `183748f` and open #711 (`cra`), #712 (`lca`), #713 (PO) on their branches.
@@ -24,6 +32,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Challenge:** "Why does a client's day have two plans, the generated one and the hand-planned one?" Hypothesis **H-PLAN-dup** added (pilot, AN1 counts; VIS2-C1's count is the measurement); no generation rule.
 - Queue: *Active now* CGR-96 fix, then AIG1 part (b) with AIG1-14/-15/-16. *Next up*: RLS4, ASM1, UX2, PLAN3. No new brief needed.
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-30 01:50 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#706 merged). Tier 1: D-22 frozen, no trigger. Tier 2: `cra` 01:45 (PR #711, not merged) **CGR-98**, **CGR-100** (AIG1 part (a), D-35) and **CGR-99** (PLAN2 generation overlaps, D-18 billing thread). po 01:10 (PR #708) PLAN3-10 actor amendment read. Only my D-35 and D-18 sections edited; D-18 carries `Unfreeze: 3 CGR-99`.
+- **D-35:** CGR-98 is also an accuracy point (DSG Art. 6 Abs. 5): a re-confirmation row records a check that did not run, under the confirmer's name. CGR-100: a stop threshold that cannot fire is a control in name only (DSG Art. 7). Both `cra` remedies: **compliant under every plausible interpretation**; AIG1 part (a) as built is acceptable on synthetic data only, both remedies before real data or a further agent. PLAN3-10 as amended: compliant (unchanged). No new adviser question.
+- **D-18:** billable facts come only from documented visits, so the overlap risk is the same however the visit was created; the J5 invoicing note already covers generated overlaps. Verdict unchanged; invoicing overlaps stays **unresolved: needs legal adviser** (question 6, D-11, D-12).
+- Sources: new [P16] DSG Art. 6 Abs. 5 and [P17] Art. 7 Abs. 1-2 (justement.ch, status 7 July 2025, read 01:45). Code read (0097, 0043), nothing run except `node scripts/agents-check.mjs`; live project not accessed.
 
 ---
 
