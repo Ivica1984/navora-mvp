@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 05:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 05:30), `recovery/main` @ `d148f7f`. Read on its merge commit: **#715 RLS4** (0099, ADR-122, pgTAP 099, `/visits`). CI: green on the PR head `bc47bee`; on `d148f7f` `app`, `db` success, `e2e`, `ui-screenshots` still running at my read (not claimed green).
+- **RLS4 clinical gate clear.** My 01:45 conditions met in pgTAP 099: (a) `my_signals` still says "übernommen von <Name>", SIG1-5 escalation untouched; (b) countersigner, returner and performer per report (`field_reports`, `field_returned_reports`, `field_countersign_queue`). No function, policy or write path changed.
+- **CGR-101 (new, advisory S2, before real or imported visit data):** RLS4-6 shows "Noch offen" for every visit without `responsible_user_id`; a visit whose nurse exists only in the legacy free-text name reads as unassigned. Remedy: a person maps those visits in the D-1 reconciliation (no automatic matching), count recorded, runbook check.
+- Placed at brief level: CGR-98 → AIG1-15, CGR-100 → AIG1-16, CGR-99 → VIS2-C1 (close on the builds). **VIS2-C1 (2) wording confirmed** with a precision condition (overlaps among visits created in the same run: "bereits" vs "anderen"); **VIS2-C2 wording confirmed**; **VIS2-C3**: no clinical objection to option (a) on four build conditions (no store before the sentence is seen, server re-check kept, live sentence for her team's visit, e2e).
+- Observation for the PO's RLS4-5 (c): `pilot_kpis` does not read `cover_events.nurse_id` at all (0032:149-153); the 099 assertion naming it matches `handover_shown.nurse_id` by word.
+- Registers: CR-145 added, CR-144 note; H-01, H-10, H-12 updated; PS-87 to PS-89 updated, PS-90 added.
+- **Not merged by me:** owner instruction on #666 covers this PR, which contains #711 … #582. Waiting on: owner (chain merge), `eng` (CGR-101 check, VIS2-C1 precision, VIS2-C3 conditions, CGR-96), `po` (place CGR-101 in D-1/G-23), D-1 owner (mapping), Clinical Owner (overlapping care-plan windows; unchanged: CGR-98/-99/-100 questions, overlap allowed/billable, D-15, CR-010).
+- Tests: none run by me (docs only; migration, functions, specs and tests read; CI read through the GitHub API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 05:10 CET · po (Product Owner)
 
 - No open PO PR at start (#718 merged). `agent:po` issues unchanged (#705 AIG1 part (b) not started; UX and strategy issues already placed); none claimed. No delivery to review: RLS4 PR #715 open, not merged; `IMPLEMENTATION_STATUS.md` last change 01:20. Other agents' PRs (#715 `eng`, #711 `cra` and earlier) not merged: this routine merges PO PRs only.

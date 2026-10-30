@@ -16,6 +16,85 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-10-30 05:30 CET: #715 (RLS4, migration 0099, ADR-122) read on its merge commit: **RLS4 clinical gate clear**; my 01:45 build conditions (a) "übernommen von <Name>" and (b) report author, countersigner and performer per report **met in pgTAP 099**; **CGR-101** (new, advisory S2, before any real or imported visit data: a visit whose only nurse record is the legacy free-text name now reads "Noch offen" on `/visits`); CGR-98 and CGR-100 placed as AIG1-15 and AIG1-16, CGR-99 as VIS2-C1 (met at brief level, close on the builds); VIS2-C1 (2) wording confirmed with one precision condition; VIS2-C2 wording confirmed; VIS2-C3 clinical conditions stated
+
+**Scope:** `recovery/main` @ `d148f7f`. Changes since my 01:45 section (PR #711, open; it contains #696 and the chain before it, not merged under the owner instruction on #666):
+- **Code merged:** **#715** RLS4 as `d148f7f` (04:25 UTC; migration 0099, ADR-122; pgTAP 099 (63 assertions), 016/020/022/043/049/057/071/096 adjusted; `/visits` (`visits-client.tsx`, `features/visits/queries.ts`, `types.ts`); vitest `rls4-visits-responsible`; Playwright `access.spec.ts`). CI read through the GitHub API: `app`, `db`, `e2e`, `ui-screenshots` **success on the PR head `bc47bee`**; on the merge commit `d148f7f` `app` and `db` success, `e2e` and `ui-screenshots` **still running** when I read them (not claimed green).
+- **Docs merged:** PO 02:10 (#713: VIS2 accepted, VIS2-C1, AIG1-15, AIG1-16), 03:10 (#716: RLS4-5, RLS4-6, AUT-24, AUT-25), 04:10 (#718: VIS2-C2, UX2-28, UX2-29), 05:10 (#720: VIS2-C3, RLS4-5 (c), D-3 item 14); `aia` 02:18 (#714); `lca` 01:50 (#712), 04:47 (#719); `uxa` 03:50 (#717).
+- **Open:** #721 `eng` (RLS4 delivered; status and journal only, read, no clinical point); my chain #582 … #711; #3 unchanged.
+- **Asked of `cra`:** PO 02:10/04:10: confirm the VIS2-C1 (2) count wording (CGR-99 owner) and the VIS2-C2 wording; RLS4 brief: conditions (a), (b) from my 01:45 section.
+- **Answered by a person:** none. **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read: 0099 in full; pgTAP 099 in full; the `src/` and `tests/` diff `ec07852..d148f7f` (`visits-client.tsx`, `queries.ts`, `types.ts`, `access.spec.ts`, `rls4-visits-responsible.test.ts`); a grep of `src/` for every closed column (only `features/field/authorship.ts`, which reads the OBS1 snapshot JSON, not the table); a grep of `supabase/migrations` for `team_member_name` (written only by the 0001 baseline, read by no function); `pilot_kpis` as patched (0032:145-170, 0033:318-335); PLAN2 generation (0025:180-240); briefs RLS4, VIS2 (PO notes 01:45-05:10), AIG1-15/-16, PLAN3-7, UX2-28/-29; `uxa` UXR-51 and the VIS2-C1 wording. **I did not run the NAVORA test suite**; the evidence below is read from code, tests and CI results.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-101 | **RLS4-6** (#715, IMPLEMENTED): `/visits` names the responsible member from `responsible_user_id` only | **advisory (S2); before any real, migrated or imported visit data is shown (D-1 live reconciliation, G-23)**; does not block RLS4 acceptance | IMPLEMENTED fact: `getVisitResponsibleLabel` returns "Noch offen" whenever `responsible_user_id` is null (`features/visits/types.ts:37-41`), and `team_member_name` is now unreadable to every role (0099:40; pgTAP 099 RLS4-6). On synthetic data that is correct. But `team_member_name` is the pre-J3 free-text nurse field (0001:124) and nothing ever copied it into `responsible_user_id`: the seed's Testteam Mitte visit had "Pflegekraft Test 3" and now shows "Pflegekraft: Noch offen" (`access.spec.ts`, RLS4-6 test, by design). On a database that holds visits written before J3 or imported (the live project's content is UNKNOWN, D-1), a visit whose nurse is recorded **only** as that name would read as unassigned, and the name would be visible nowhere. Two ways this reaches the client: a second person is assigned and two go (H-10), or the coordinator trusts that the named nurse still has it while no screen says so (H-01). The PO decision to retire the duplicate is right; the gap is the hand-over of the old values. | `features/visits/types.ts:37-41`; `queries.ts:36-56`; 0099:40, :92-94 (comment: "Kept until the D-1 live reconciliation"); `READ_PATHS.md:203`; `access.spec.ts` RLS4-6 test | (1) The D-1 live reconciliation (and any later data import) carries one step: list every non-`cancelled` visit dated today or later with `team_member_name` not null and `responsible_user_id` null; a person maps each to a member or confirms it as unassigned; NAVORA does **no** automatic name-to-member matching. (2) Real or imported visit data is not shown on any screen (G-23) until that list is empty or each row is confirmed, recorded in the reconciliation record (count before and after, who, when; no personal data in the repository). (3) Evidence: a SQL check in the reconciliation runbook (`docs/engineering/`) that returns the count, and a pgTAP or script test on the synthetic seed showing the count for the Testteam Mitte visit (1 before mapping, 0 after). Owner: `eng` (runbook, check), `po` (G-23 checklist), D-1 owner (the reconciliation itself). |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-98** | open, advisory (S2); **remedy placed as AIG1-15** (PLANNED; brief text meets my remedy: the first-confirmation checks in the same order for an open visit, the existing reasons, no `ai_confirmations` row and no ledger change on refusal, the line stays; pgTAP (i)-(iv) with the row count unchanged); closes on the merged build with its pgTAP | `briefs/AIG1.md` AIG1-15 (po 02:10); performed-visit question recorded as UNKNOWN (Clinical Owner, D-17) as I asked |
+| **CGR-99** | open, advisory (S3); **remedy placed as VIS2-C1** (PLANNED; (1) sentence on generated overlapping lines, (2) count in the result, (3) generation unchanged, pgTAP and display test); closes on the merged build. **VIS2-C1 (2) wording (`uxa` 03:50) confirmed** with one precision condition below | `briefs/VIS2.md` PO acceptance 02:10, PO note 04:10 |
+| **CGR-100** | open, advisory (S3); **remedy placed as AIG1-16** ((1) share 100 refused with `threshold_missing`, (2) `agent_health` and the health list show share, minimum, window and "Mindestzahl im letzten Fenster erreicht: ja/nein"; pgTAP and e2e), stronger than "before any further agent" because it rides part (b); closes on the build | `briefs/AIG1.md` AIG1-16 (po 02:10) |
+| **CGR-96** | open, advisory (S3); unchanged in code (`vis1.spec.ts` not changed in `ec07852..d148f7f`; issue #693 open). RLS4 changed `access.spec.ts` only and adds no fixed-slot spec. Still first in the PO's *Active now*, still before AIG1 part (b) | `git diff --stat ec07852 d148f7f -- tests/e2e` |
+| **CGR-95** | open, advisory (S2); met at database level; closes with AIG1 part (b) and CGR-98 | no change |
+| **CGR-78** | open, advisory (S2); (a) met in code, (b) part (b) | no change |
+| **CGR-75** | open, advisory (S2) | no change |
+| CGR-94 | open, advisory (S3); OBS1-C2 (PLANNED) | no change |
+| CGR-86, CGR-84, CGR-81 | open | no change |
+| CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-16, CGR-23 | open | no change |
+
+Closed in this section: none.
+
+### Merged code read: RLS4 (#715)
+
+- **Mechanism:** one `do` block revokes the table-wide select on 19 tables and grants back exactly the columns `authenticated` could select before minus 26 act columns (read from `has_column_privilege`, so nothing is widened); it stops if a listed column is missing; `anon` loses everything on those tables. No function, policy, trigger or view is changed, so every write path, refusal, escalation and billing gate is as before (IMPLEMENTED; no clinical, tariff or care rule in 0099).
+- **My 01:45 build conditions:**
+  - (a) **met**: `my_signals` still returns `taken_by_name` for an open, taken signal to an active member of its team (pgTAP 099:280-282); SIG1-5 escalation reads `taken_by` inside `private.evaluate_signals` (SECURITY DEFINER, 0060:234-304), which 0099 does not touch, and pgTAP 060/063 are unchanged in `ec07852..d148f7f`, so a taken signal still stops escalating and an untaken one still escalates. Nobody stands down wrongly and two people are not sent because the name disappeared.
+  - (b) **met**: `field_reports` gives the team the countersigner (`countersigned_by_name`, 099:259-261) and the returner (099:262-263), per report; `report_returns` and `field_returned_reports` give the returner (099:264-267); the returned report stays on the performer's work list and `field_reports` tells her per report that it is hers (`i_am_performer`, 099:228-231); `field_countersign_queue` gives the registered nurse the performer of each report awaiting countersignature (099:232-234). So H-12 (report stays unsigned) and the J5 countersignature path keep their names per record.
+  - Also per record and unchanged: "gemeldet von" for a quality event and who set a hold (`field_quality`, 099:268-276), who wrote a status note (`field_visit_status_notes`, 099:277-279). `quality_events.owner_id`, `care_visits.responsible_user_id`, `covered_by`, `cases.primary_nurse_id`, `deputy_nurse_id` stay readable (RLS4-2; 099 RLS4-2 assertion). Accountability per entry is kept; only lists per person go.
+- **RLS4-5 (`cover_events.nurse_id`, both `performer_id`):** who covers a visit now stays `care_visits.covered_by`; no care task loses information. **Observation for the PO's RLS4-5 (c) check (not a clinical finding; `eng`/`lca`):** `pilot_kpis` does not read `cover_events.nurse_id` at all. It reads `cover_events` only for `visit_id`, `kind` and `created_at` (0032:149-153); the `nurse_id` token in its source is `handover_shown.nurse_id` compared with the visit's performer inside a team percentage (0033:330-333). The 099 assertion that lists `pilot_kpis` among the readers of `cover_events.nurse_id` (099:235-238) matches on the two words in the source, so it is a weaker proof than its label; the fact itself is more protective than RLS4-5 (c) requires.
+- **RLS4-6:** CGR-101 above. The label rule is CR-145. UX2-29 later changes "Pflegekraft:"/"Noch offen" to "Verantwortlich:"/"noch niemand": no clinical objection; it keeps the same fact.
+- No new per-person reader, list, count or export (099 negative block).
+
+### Briefs read
+
+- **VIS2-C1 (2) wording (`uxa` 03:50): confirmed**, neutral, a number with no instruction or verdict, no line for 0. **Precision condition (for `eng` in the VIS2-C1 PR, not a new finding):** PLAN2 keys a generated visit by its window start (0025:196, :213), so two care-plan windows with different starts that overlap in time produce two generated visits of the same client that overlap each other. The sentence says "mit einem **bereits** geplanten Einsatz", which is true only for a visit that existed before the run. Either the count covers only overlaps with visits that existed before the run and the ADR says so (then the wording stands), or it also counts overlaps among visits created in the same run and the wording reads "mit einem anderen geplanten Einsatz derselben Person". pgTAP: two overlapping care-plan windows of one case, no hand-planned visit → the count (and therefore the sentence) is as the ADR states. Whether two overlapping windows are a valid care plan is the Clinical Owner's (UNKNOWN).
+- **VIS2-C2 wording (`uxa` UXR-51): confirmed.** One readable overlap keeps the VIS2-1 sentence word for word; two or more give "Bei dieser Person sind <heute | am …> zu einer Zeit, die sich mit diesem Einsatz überschneidet, bereits <n> Einsätze geplant." with no times; one unreadable gives the VIS2-2 sentence. None of them reads as complete when it is not, which was the safety point. Condition: whatever the final mixed form, no sentence gives the times of one visit while the count is 2 or more (the 0098 `limit 1` case UXR-51 found); the vitest asks for exactly that.
+- **VIS2-C3 (direction, before G-23): no clinical objection to option (a)**, on these conditions for the build (gate conditions, not findings): (1) on every save path (plan, reschedule, move, "Heute machen") a save that meets an overlap the form has not shown does **not** store the visit until she has seen the VIS2/VIS2-C2 sentence and chosen to save; closing that step stores nothing and says so; nothing is refused; (2) the server re-check in the `ok` result (VIS2-5 (2)) keeps returning the overlap and count after every save; (3) for a visit her team holds, the sentence still follows the times live (VIS2-5 (1)); (4) e2e at 390 px: another team's overlapping visit, plan form → the sentence is shown and the new visit is **not** in the plan before the confirmation, and is after it. If Engineering cannot keep (1)-(3), patient safety is not traded: the item goes to the DSFA as the PO wrote.
+- **AIG1-15, AIG1-16:** meet CGR-98 and CGR-100 at brief level (status table).
+- **PLAN3-7 (AUT-25 "kein Vorschlag" share):** team level, small-team suppression, no stop criterion: no clinical objection.
+- **UX2-28** ("Verantwortlich: <Name>" on overlapping `/field` cards): no clinical objection; it helps tell the two visits apart at the door.
+
+### Clinical Rule Register
+
+One row added: **CR-145** (RLS4-6 `/visits` responsible label; not a clinical rule; PROVISIONAL). CR-144 note extended (VIS2-C1/-C2 planned). No rule APPROVED.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **RLS4** (#715, merged `d148f7f`) | **clear**; conditions (a), (b) met (pgTAP 099); CGR-101 (S2) is a data-reconciliation step before real data, does not block RLS4 acceptance. CI on the merge commit: `e2e`, `ui-screenshots` still running at my read |
+| **VIS2** (accepted) | unchanged; VIS2-C1 wording confirmed with the precision condition; VIS2-C2 wording confirmed; VIS2-C3 conditions (1)-(4) |
+| **AIG1** | acceptance needs part (b) with AIG1-15 (CGR-98) and AIG1-16 (CGR-100), CGR-78 (b), CGR-95 e2e |
+| **PLAN3** | unchanged (CGR-75); VIS2-C1/-C2 ride it at the latest |
+| All other items | unchanged from 01:45 |
+
+### Decisions requested
+
+- **owner:** unchanged: my chain is not merged by me (owner instruction on #666); this PR contains #711 and the chain before it and can be merged alone or after them, oldest first.
+- **eng:** CGR-101 (3) runbook check; the VIS2-C1 count precision; VIS2-C3 conditions in the feasibility answer; CGR-96 before AIG1 part (b); optionally make the 099 `cover_events.nurse_id` assertion exact (column reference, not word match).
+- **po:** place CGR-101 (1)-(2) in the D-1 reconciliation and the G-23 checklist, or record why not.
+- **D-1 owner:** the mapping step of CGR-101 (1) in the live reconciliation.
+- **clinical (Clinical Owner, after G-1):** new: whether two overlapping care-plan windows of one client are a valid plan (VIS2-C1 precision). Unchanged: CGR-99 generation rule, CGR-100 threshold for `record` fields, CGR-98 performed visits, same-client overlap allowed or billable (with the billing owner), CGR-95 (D-17), D-15, CR-010, CGR-87 (3), (4), CGR-89 (3), CR-134, D-12, D-25.
+- **owner / legal:** unchanged (D-29, G-1, D-38, R-11, D-36, D-1, D-35 adviser questions 6 and 8).
+
+---
+
 ## 2026-10-30 01:45 CET: #701 (AIG1 part (a), migration 0097) and #707 (VIS2, migration 0098) read on their merge commits; **CGR-97 closed** (VIS2 meets the remedy in code and tests; PS-86 closed); VIS2 `uxa` wording confirmed; CGR-78 (a) met in code, CGR-95 met at database level (both close with AIG1 part (b)); **CGR-98** (new, advisory S2, before AIG1 acceptance: a look-back re-confirmation of a value the visit still holds skips the qualification, contract and absence checks); **CGR-99** (new, advisory S3: PLAN2 generation creates a same-client overlap with a hand-planned visit without the VIS2 fact); **CGR-100** (new, advisory S3: a stop threshold that can never fire is accepted and the health list does not show the threshold); RLS4 and PLAN3-10: no clinical objection, build conditions stated; CGR-96 still open (#693)
 
 **Scope:** `recovery/main` @ `ec07852`. Changes since my 23:10 section (PR #696, open; it contains #691 and the chain before it):
