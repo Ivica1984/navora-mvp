@@ -80,3 +80,22 @@ Whoever is about to put a second visit of the same client into an overlapping ti
 **Business and care value:** the person who plans or moves a visit sees a duplicate at the moment she decides; nobody checks plans for duplicates afterwards (no dispatcher, no back-office de-duplication) and nothing is refused (value 2 continuity, value 5 less administration; safety precondition: one documentation per service). Consistent with the Handbook principle "the record shows facts, the team decides".
 
 **Decision:** VIS2 is **reviewed and its criteria are met; no Engineering change requested.** VIS2 is in clinical scope (planning, documentation, billing), so acceptance waits for the `cra` section on the merged build (`4c8f2a6`) with no blocking finding on VIS2; then it is accepted without another PO round. PO status stays `approved` until then.
+
+## PO acceptance — 2026-10-30 02:10 CET: accepted; condition VIS2-C1 (`cra` CGR-99)
+
+**Clinical gate:** `cra` review 2026-10-30 01:45 (`reports/CLINICAL_GOVERNANCE.md`, PR #711, not merged under the owner instruction on #666; read on branch `gov/review-2026-10-30-0145`) read #707 on its merge commit `4c8f2a6`: **CGR-97 closed** (remedy met in 0098, pgTAP 098 and `vis2.spec.ts`; PS-86 closed), `uxa` wording confirmed, ADR-121 deviations 1, 2 and 4 agreed, deviation 3 raised as CGR-99 (advisory S3, "does not block VIS2 acceptance"). No blocking finding on VIS2. **The PO did not run the tests**; CI on `4c8f2a6` and `ec07852` green as recorded at 01:45.
+
+| Acceptance condition (01:45) | Result | Evidence |
+|---|---|---|
+| Criteria VIS2-1 to VIS2-5, tests, negative | met | PO review 01:45 above |
+| `cra` section on `4c8f2a6` with no blocking finding on VIS2 | met | `cra` 01:45 gate table: "VIS2 … **clear**; CGR-97 closed; … CGR-99 (S3) separate, does not block VIS2 acceptance" |
+| No `severe`/`high` `uxa` finding open on VIS2 | met | `uxa` 23:55; UXR-50 built as VIS2-5 |
+
+**Decision: VIS2 accepted** (queue rank 45). *Why accept with CGR-99 open?* VIS2 delivered exactly what it promised for the three paths where a person decides; the generation path was outside the brief and creates no false statement, only a missing one. Holding acceptance would add no safety and would block nothing less.
+
+**Condition VIS2-C1 (`cra` CGR-99, advisory S3; not blocking; rides the next PR that touches `plan_from_care_plan` (0025) and at the latest the PLAN3 PR, because PLAN3 proposes members for generated visits):**
+- (1) Every visit PLAN2 generation creates or keeps that overlaps another non-cancelled visit of the same client on its date (definition 0098 §1, `private.client_overlap_visits`) shows the VIS2-1/-2 sentence on its `/team` line (same strings, same team boundary, `info`, no refusal).
+- (2) The generation result states how many such visits it created, as a number ("<n> Einsätze überschneiden sich mit einem bereits geplanten Einsatz derselben Person"; wording `uxa`'s); the result names no person.
+- (3) Generation is **not** changed: it neither skips nor refuses a slot. Whether generation should leave out a window already covered by a hand-planned visit is the Clinical Owner's (UNKNOWN; a register row before any such rule).
+- **Tests (synthetic seed only):** pgTAP: a hand-planned visit inside a care-plan window, then generation → the visit is generated and the overlap function returns true for it; the result's count is 1; without the hand-planned visit the count is 0. vitest or e2e: the `/team` line of the generated visit shows the sentence.
+- **Why:** the count is also the pilot measurement for the challenge row "two plans of one client's day" (hypothesis H-PLAN-dup in `NEXT_CAPABILITY.md`); without it nobody knows whether hand planning and generation duplicate the team's work.

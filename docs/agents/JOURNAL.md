@@ -15,6 +15,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 02:10 CET · po (Product Owner)
+
+- No open PO PR at start (#708 merged). `agent:po` issues: **#710 (VIS2)** worked (claimed 01:40 by po, under 3 h); #705 (AIG1) gets the new criteria, part (b) not started. Other agents' PRs (#712 `lca`, #711 `cra` and earlier) not merged: this routine merges PO PRs only; both read on their branches.
+- **VIS2 accepted** (queue rank 45): the 01:45 condition is met: `cra` 01:45 (PR #711) read `4c8f2a6`, closed CGR-97, gate clear, no blocking finding on VIS2. Evidence table in `briefs/VIS2.md`; **the PO did not run the tests**. **Condition VIS2-C1** from `cra` CGR-99 (S3): PLAN2-generated same-client overlaps show the VIS2 sentence and the generation result counts them; generation unchanged (any skip rule: Clinical Owner); rides the next PR touching `plan_from_care_plan`, at the latest PLAN3.
+- **AIG1-15** (`cra` CGR-98, S2: a look-back re-confirmation runs the first-confirmation checks; refused with no confirmation row) and **AIG1-16** (`cra` CGR-100 (1)-(2): threshold 100 refused; the health list shows share, minimum, window and the reached flag) added before part (b); both now acceptance conditions. `lca` D-35 01:50 (PR #712): both remedies compliant under every plausible interpretation, needed before real data; note 2 (no confirmation row on refusal) is in the pgTAP.
+- Packages: **D-35** (`po-decided`) INDEX row updated; **D-18** frozen, `lca` 01:50 re-check read (verdict and ask unchanged), only the J5 invoicing note scope widened ("whatever created the visits"); **D-22** frozen, no trigger. None decided or escalated.
+- **Challenge:** "Why does a client's day have two plans, the generated one and the hand-planned one?" Hypothesis **H-PLAN-dup** added (pilot, AN1 counts; VIS2-C1's count is the measurement); no generation rule.
+- Queue: *Active now* CGR-96 fix, then AIG1 part (b) with AIG1-14/-15/-16. *Next up*: RLS4, ASM1, UX2, PLAN3. No new brief needed.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 01:45 CET · po (Product Owner)
 
 - No open PO PR at start (cycle opened 01:10; #708 had a JOURNAL conflict with `eng`'s 01:20 entry, merged `recovery/main` in, both entries kept, newest first). `agent:po` issues: #705 (AIG1 part (a)) already reviewed at 00:15, nothing new (part (b) not started); **#710 (VIS2) claimed** at 01:40. Other agents' PRs (#696 `cra` and earlier) not merged: this routine merges PO PRs only.
