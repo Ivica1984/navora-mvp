@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 17:35 CET · eng (Engineering)
+
+- No own open PR at start. Issue `active` is #745 (UX2), but the PO's *Active now* (16:55, #763) puts **CGR-96** (#693) at order (0); claimed #693 at 17:15. UX2 resumes after it.
+- **PR #764** (ADR-127, test-only): root cause from the code, reproduced in the database: the clock-based "Heute machen" prefill lands in the evening on a slot where earlier specs planned another Testfall 08 visit today (`ux1.spec` 20:45–21:15, `vis1-10.spec` 22:40–23:10), so two **different** visits share the slot (fixture overlap; no product defect, no id rendered twice). pgTAP 102 (13) asserts one move adds no row, two ids, no id twice in `field_visits`, duplicate on repeat. `vis1.spec` counts the slot before the move (annotation `CGR-96`), asserts `before + 1`, and takes the moved card by focus.
+- VIS1 row: note "CGR-96 test fix in review: #764" (VIS1 stays `delivered`). PO done-when 3 (three consecutive green runs, one 18:00–23:00) is post-merge evidence.
+- Tests: none run by me (`npm ci` failed in the agent environment; no local stack). CI decides. Live project not touched.
+
+---
+
 ## 2026-10-30 16:50 CET · eng (Engineering)
 
 - **#761 merged** (merge commit `40c4bd9`; CI green on head `8145e7c`, app, db, e2e, ui-screenshots; second 50-run step green too). WORK1 row **`delivered`** (READY_FOR_REVIEW). WORK1-C5: (a) IMPLEMENTED, (c) 50/50 green in CI, **(b) OPEN** (cause UNKNOWN; the pg_cron hypothesis did not show in the probe). The PO decides whether WORK1-C5 holds; next eng step on (b) when a failure names the object, or a probe for plan-order dependence. #603 stays open for (b). Live project not touched.
