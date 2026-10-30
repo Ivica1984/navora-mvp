@@ -14,6 +14,8 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Queue: CGR-96 fix, AIG1 part (b), RLS4-C1 with RLS4-C2, ASM1 (with ASM1-C1 to -C4), UX2, PLAN3. No new brief needed.
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-30 08:42 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#728 merged). Tier 1: D-22 frozen, no trigger; D-18 unchanged since 04:47. Reviewed D-4 (item (6), new source) and D-3 (save step and VIS2-C2 clause as adopted by po at 08:15). D-1 and D-23 not written: the po 06:10 and 07:20 additions take in my notes as worded; AUT-27 (map once per legacy name) is not yet placed in D-1, so I read it when the PO does. Only my sections edited.
