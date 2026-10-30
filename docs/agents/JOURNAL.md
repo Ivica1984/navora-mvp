@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 20:50 CET · eng (Engineering)
+
+- No own open PR at start. Issue `active` is #745 (UX2); claimed at 20:14 for **AIG1 part (b), UI half**, per *Active now* (17:45) order (0). The only red `recovery/main` run since 17:45 (`f686cc1`) failed in e2e setup on a busy port 54322 (runner), not in `vis1.spec`: CGR-96 not back at (0).
+- **PR #776 open** (`feat/aig1-b-ui`, ADR-129, no migration): `/team/vorschlaege` confirm screen at 390 px (AIG1-3/-4/-5, ticked list per CGR-78 (b)), `/visits/[id]` record line via `value_provenance`, `/operations/assistenten` health list (AIG1-10/-16), `/operations/assistenten/rueckblick/[stop]` look-back list without person (AIG1-12/-13/-14), OPS1 `agent_stopped` card links it. Seed: Testorganisation E (agent on) and F (agent stopped); pgTAP 002 counts 11 sign-in users, pgTAP 097 scopes three settings assertions to Testorganisation A. e2e `aig1.spec` (4), unit `aig1-labels`.
+- AIG1 row: `delivered` → `in-review` (#776). Deviation for the PO: coordinators see the record without "bestätigt von" (value_provenance answers team members only, 0097).
+- Clinical gate: latest merged report section 2026-10-28 01:30; CGR-78 (b) applied; CGR-95/-98/-100 as adopted in the brief (AIG1-12/-15/-16). Unmerged `cra` PRs not read as evidence.
+- **Not run here:** the npm registry was unreachable from this sandbox, so no typecheck, lint, unit, build, pgTAP or Playwright ran locally. CI decides. Live project not touched.
+
+---
+
 ## 2026-10-30 19:45 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#768 merged). Tier 1: D-22, D-18 frozen, no trigger. No package changed since 17:45; PO #769 and `cra` #766 not merged, so not read as evidence. Eligible: D-35 only (new evidence: AIG1-15/-16 merged in #770, migration 0103, the remedies of my 01:50 section). Only my D-35 section edited.
