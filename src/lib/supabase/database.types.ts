@@ -457,6 +457,38 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"care_plan_assessment_reviews": {
+                  Row: {
+                    "case_id": string,"id": string,"item_ids": (string)[],"organization_id": string,"record_id": string,"record_state": string,"reviewed_at": string,"reviewed_by": string,"seq": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "case_id": string,"id"?: string,"item_ids": (string)[],"organization_id": string,"record_id": string,"record_state": string,"reviewed_at"?: string,"reviewed_by": string,"seq"?: never
+                  }
+                  Update: {
+                    "case_id"?: string,"id"?: string,"item_ids"?: (string)[],"organization_id"?: string,"record_id"?: string,"record_state"?: string,"reviewed_at"?: string,"reviewed_by"?: string,"seq"?: never
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "care_plan_assessment_reviews_case_id_organization_id_fkey"
+      columns: ["case_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "cases"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "care_plan_assessment_reviews_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "care_plan_assessment_reviews_record_id_fkey"
+      columns: ["record_id"]
+isOneToOne: false
+      referencedRelation: "assessment_records"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"care_plan_items": {
                   Row: {
                     "active": boolean,"assessment_id": string | null,"case_id": string,"category": string,"created_at": string,"created_by": string,"freq_period": string | null,"freq_times": number | null,"freq_weekdays": (number)[] | null,"frequency": string,"goal": string | null,"id": string,"organization_id": string,"planned_minutes": number,"retire_reason": string | null,"retired_at": string | null,"retired_by": string | null,"review_date": string,"service": string,"team_id": string,"window_end": string | null,"window_start": string | null
