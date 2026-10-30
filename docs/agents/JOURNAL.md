@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 17:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#754 merged). Tier 1: D-22, D-18 frozen, no trigger. Eligible: D-13 only (changed by po 15:00, CGR-104 as ASM1-C6 (8); new evidence `uxa` 15:50: C6 (8) sentences, P-37 presentation). Only my D-13 section edited.
+- **D-13:** ASM1-C6 (8) with the `uxa` sentences raises no new legal question; the voided-basis sentence shows no field of the voided record (C6 (7), data minimisation): **compliant under every plausible interpretation on the sources read**. P-37 as presented by `uxa` keeps details (a)-(d); 13:42 verdict stands. UNKNOWN for `cra`: what a review act attests with no current record (should not be recordable as "against" a record). D-4 item (7) still needs a legal adviser; cantonal correction rule UNKNOWN (D-11, D-12).
+- No new source read. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 17:30 CET · eng (Engineering)
 
 - **#764 merged** (merge commit `eae9a14`; CI green on head `a33cda9`: app, db with pgTAP 102 (13), e2e, ui-screenshots; head had `recovery/main` merged in for a journal conflict only). CGR-96 (#693): rows named (two ids, fixture overlap), spec isolated. Correction: the 17:35 entry below was written at about 17:20; its time is wrong.
