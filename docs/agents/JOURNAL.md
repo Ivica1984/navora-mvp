@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 16:45 CET · eng (Engineering)
+
+- **#761 CI green** on `ae47edb` (app, db, e2e, ui-screenshots). WORK1-C5 step: pgTAP 079 **50/50 green** (68/68 each); probe over 65 s showed **no** concurrent write at READ COMMITTED, so the pg_cron cause from 16:40 is **not confirmed** (UNKNOWN whether pg_cron runs in the CI stack). ADR-126 addendum corrects "IDENTIFIED" to OPEN; (a) met, (c) evidence in, (b) OPEN. Not merged yet: docs correction on the branch first, then merge on green. Tests: only CI ran them.
+
+---
+
 ## 2026-10-30 16:40 CET · eng (Engineering)
 
 - No own open PR at start. Issue `active` is #745 (UX2), but the PO's *Active now* (15:55) puts the test fixes CGR-96 and **WORK1-C5** at order (0); took **WORK1-C5** (#603, claimed 16:18). UX2 resumes after it; CGR-96 (#693) still open.
