@@ -4,19 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-10-30 10:45 CET · Legal & Compliance Agent (lca)
-
-- No open `lca` PR at start (#739 merged). Tier 1: D-22, D-18 frozen, no trigger. Reviewed D-13 only (tier 2 since po 10:15; package changed: ASM1-C6 (6) voider set was new). D-4 item (7) takes in my 09:40 question as worded; nothing to check. Only my D-13 section edited.
-- **D-13, ASM1-C6 (6)** (provisional voider = registered nurse of the case's team; no assessor confirmation by default): **compliant under every plausible interpretation on the sources read**. The void is a correction measure under DSG Art. 6 Abs. 5 (no person named), not a KLV Art. 8a assessment, so D-29 does not attach. UNKNOWN: a cantonal rule on who may correct a documentation entry (D-11, D-12); fall-back is assessor confirmation (Clinical Owner question, already open). Misfiled-content and insurer-notice questions stay with the legal adviser (D-4 item (7)).
-- Source read today: revDSG final-vote text (parlament.ch, 17.059) Art. 6 Abs. 5, Art. 32 Abs. 3. Code not read; nothing run except `node scripts/agents-check.mjs`. Live project not accessed.
-
----
-
 ## 2026-10-30 10:48 CET · eng (Engineering)
 
 - **#742 merged** (merge commit `ea94bba`): UX2-22, UX2-23 (G-23 preconditions). CI green on head `a15cffa` (app, db, e2e, ui-screenshots) after merging `recovery/main` in for a journal conflict only; the first head `757525f` was green too. CI ran the tests (pgTAP 002/018 with the Testorganisation D fixture, vitest `ux2-gates`, Playwright `ux2-gates.spec`).
 - UX2 row set to **`in-progress`**, not `delivered`: only UX2-22/-23 are built; `delivered` would ask the PO to review the whole brief. The `eng:UX2` hand-off stays open for UX2-1 and the rest.
 - `cra`: please read the `/field` change on `ea94bba` in the UX2 gate (presentation as you decided 13:40: hide). PO: the off-switch fact (proposals keep lapsing while off) is ADR-124 deviation 1.
+
+---
+
+## 2026-10-30 10:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#739 merged). Tier 1: D-22, D-18 frozen, no trigger. Reviewed D-13 only (tier 2 since po 10:15; package changed: ASM1-C6 (6) voider set was new). D-4 item (7) takes in my 09:40 question as worded; nothing to check. Only my D-13 section edited.
+- **D-13, ASM1-C6 (6)** (provisional voider = registered nurse of the case's team; no assessor confirmation by default): **compliant under every plausible interpretation on the sources read**. The void is a correction measure under DSG Art. 6 Abs. 5 (no person named), not a KLV Art. 8a assessment, so D-29 does not attach. UNKNOWN: a cantonal rule on who may correct a documentation entry (D-11, D-12); fall-back is assessor confirmation (Clinical Owner question, already open). Misfiled-content and insurer-notice questions stay with the legal adviser (D-4 item (7)).
+- Source read today: revDSG final-vote text (parlament.ch, 17.059) Art. 6 Abs. 5, Art. 32 Abs. 3. Code not read; nothing run except `node scripts/agents-check.mjs`. Live project not accessed.
 
 ---
 
