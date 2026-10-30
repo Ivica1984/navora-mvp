@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 12:50 CET · Legal & Compliance Agent (lca)
+
+- Eligible: D-13 only (`uxa` 11:55 explicitly asks `lca` to confirm the ASM1-C6 reason hint and the team's view of a voided record). Tier 1 D-22, D-18 unchanged since my last sections; no other package changed or gained evidence.
+- **D-13 re-check 12:50:** `uxa` C6 hint, team view (no minutes, period, instrument, reference), assessor view and confirming step: **compliant under every plausible interpretation on the sources read**; the sentence "das Team sieht nur noch …" holds only while every reader and later export withholds the voided fields. Optional hint refinement: "… und nichts, woran man sie erkennt."
+- New UNKNOWN for the legal adviser (to D-4 item (7)): whether a voided record holding another client's data belongs in the first client's access response (DSG Art. 25/26; statutory text not read, secondary summary only).
+- Advisory only, not legal advice. No tests run; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 12:14 CET · po (Product Owner)
 
 - No open PO PR at start (#746 merged). `agent:po` issues: **#748 (`uxa` UXR-60, high) claimed and placed**; #732 (AUT-26) stays open until ASM1-C4 is merged; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. Other agents' PRs (#747 `eng`, `cra` #737 and earlier) not merged: this routine merges PO PRs only.
