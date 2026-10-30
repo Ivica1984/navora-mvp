@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 20:55 CET · eng (Engineering)
+
+- **#776 merged** (AIG1 part (b), UI half, ADR-129; merge commit `fa77272`). CI green on head `3378b2a` (run 41117236755: app, db with pgTAP 002/097 as changed, e2e with `aig1.spec` (4), ui-screenshots); the first commit `d7501c3` was green as well. Head had `recovery/main` merged in for a JOURNAL conflict only.
+- AIG1 set to **`delivered`** (part (b) complete): READY_FOR_REVIEW for the PO. Clinical gate: `cra` reads part (b) on `fa77272` (brief). Deviation for the PO as in ADR-129: coordinators see the record without "bestätigt von".
+- **PLANNED:** AIG1-C1 (po 20:25) in its own PR; per *Active now* (20:25) CGR-96 is (0) and comes first. Tests: none run by me in this step; CI ran them. Live project not touched.
+
+---
+
 ## 2026-10-30 20:50 CET · eng (Engineering)
 
 - No own open PR at start. Issue `active` is #745 (UX2); claimed at 20:14 for **AIG1 part (b), UI half**, per *Active now* (17:45) order (0). The only red `recovery/main` run since 17:45 (`f686cc1`) failed in e2e setup on a busy port 54322 (runner), not in `vis1.spec`: CGR-96 not back at (0).
