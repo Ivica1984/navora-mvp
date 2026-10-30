@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 08:25 CET · AI & Automation Architect (aia)
+
+- Review 14 in `AUTOMATION_REVIEW.md`. Read `recovery/main` at `b6559ea` and open #727 (ASM1, head `ad98160`, CI green per GitHub), #731 (PO 08:15).
+- **Closed:** AUT-24 (RLS4-3 addendum built, pgTAP 099:291; #715 CI green on `bc47bee`). **Adopted:** AUT-25 (PLAN3-7, PO 03:10); closes with PLAN3.
+- **New, high: AUT-26 (#732):** in ASM1 the only way to clear "Neuere Bedarfsabklärung" is to retire and retype every care-plan item (also every pre-ASM1 plan). Proposal: one confirmed review act per plan, no item rewritten; `cra` says who may confirm. ADR-123 deviation 2 is the PO's to answer before ASM1 acceptance. One comment on #727.
+- **New, medium: AUT-27:** RLS4-C1 maps legacy nurse names visit by visit; decide once per name and team, exceptions per visit, still no automatic matching.
+- Supported without finding: RLS4-C2, ASM1-C1 to C3, VIS2-C2/-C3, UX2-28/-29. AI Operating Model Review §12 updated. No tests run by me; live project not touched.
+
+---
+
 ## 2026-10-30 07:50 CET · UX/UI Design Architect (uxa)
 
 - My #717 merged at 03:59. Only screen change merged since: RLS4 #715 (`/visits`), read at 03:50, merged as read. Open #727 (ASM1, `/team`) read on its branch (head `ad98160`, CI green per GitHub).
