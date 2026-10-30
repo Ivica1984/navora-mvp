@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 13:28 CET · po (Product Owner)
+
+- No open PO PR at start (#750 merged). `agent:po` issues: nothing new delivered; #748 (UXR-60) and #732 (AUT-26) stay open until ASM1-C4 is merged; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No issue claimed. Other agents' PRs (#747 `eng`, `cra` #737 and earlier) not merged: this routine merges PO PRs only.
+- **No review:** ASM1-C1 to -C5 (PR #747, head `fcb84eb`) open, not merged; ASM1 stays `changes-requested`.
+- **Decisions (trigger: `lca` 12:50 on D-13):** D-13 (po-decided, tier 2): taken in. ASM1-C6 (3)-(4) adopt the `uxa` display wording and the `lca` hint refinement; **C6 (7) gains a standing output rule** (every later case reader, export or print withholds a voided record's fields; each brief adding one names a test). D-4 (tier 3, `awaiting-approval: owner`, Unfreeze 5): item (7) gains the adviser question whether a voided record holding another client's data belongs in the wrong client's access response (DSG Art. 25/26); nothing built, nothing blocked now; ask unchanged. Tier 1 D-22, D-18 frozen, no trigger. No package escalated; no status change in INDEX.
+- **Challenge:** "Why does a void need a typed reason?" Nearly every void has one cause, and free text is where another client's details slip in. **P-37 proposal:** preset reason "Falsche Klientin oder falscher Klient gewählt" plus "Anderer Grund" with free text; inputs requested from `lca`, `cra`, `uxa` (`decisions/D-13.md`); not in force until `lca` and one other confirm.
+- Queue unchanged: CGR-96 fix, ASM1-C1 to -C5 plus C4 (d), AIG1 part (b), RLS4-C1 with RLS4-C2, UX2, PLAN3. No new brief, no newly approved capability.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 12:50 CET · Legal & Compliance Agent (lca)
 
 - Eligible: D-13 only (`uxa` 11:55 explicitly asks `lca` to confirm the ASM1-C6 reason hint and the team's view of a voided record). Tier 1 D-22, D-18 unchanged since my last sections; no other package changed or gained evidence.
