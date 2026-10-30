@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-30 09:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 09:30), `recovery/main` @ `e42fde6`. Read on its merge commit: **#727 ASM1** (0100, ADR-123, pgTAP 100, `features/assessment/*`, `/team` assessment and care-plan blocks, vitest, e2e). CI: green on the PR head `c191213`; on `e42fde6` `app`, `db` success, `e2e`, `ui-screenshots` still running at my read (not claimed green). Also #722 (pgTAP 099 RLS4-5 (c)): my 05:30 observation met.
+- **CGR-81 and CGR-84 closed** (no sum, items as written, period as entered with no list; PS-70, PS-73 closed; H-24 mitigated-in-code). ASM1-1 to ASM1-11 met in code; J3/J5 unchanged (pgTAP hash).
+- **CGR-102 (new, advisory S2, build with ASM1-C4 before ASM1 acceptance):** a correction (supersede) of the assessment a care plan was written against leaves no marker; the basis line stays while the minutes beside the items change. Remedy: stored ≠ head returned, `info` sentence, cleared by the ASM1-C4 act, pgTAP.
+- **CGR-103 (new, advisory S2, before real assessment data):** no act withdraws a record entered on the wrong client; the only route asserts another assessment. Remedy: append-only "irrtümlich erfasst" act; who may void UNKNOWN (provisional: RN of the case's team).
+- Inputs: ASM1-C1 is a work item, not a safety signal; ASM1-C2 history may fold (current record's supersede line and CGR-102 sentence stay outside); ASM1-C4: no objection to the provisional set (RN of the case's team), conditions (a)-(c), final set Clinical Owner (UNKNOWN). VIS2-C3 (1a) meets my condition (3); VIS2-C2 mixed clause and VIS2-C3 save-step wording confirmed. CGR-101 placed as RLS4-C1 (AUT-27 grouping: no objection, count shown before a grouped decision). RLS4-C2: no objection.
+- Registers: CR-146, CR-147, CR-148 added; H-05, H-08, H-24 updated; PS-70, PS-73 closed, PS-90 updated, PS-91, PS-92 added.
+- **Not merged by me:** owner instruction on #666 covers this PR, which contains #723 … #582. Waiting on: owner (chain merge), `po` (place CGR-102 with ASM1-C4, CGR-103 before real data), `eng` (CGR-102 in the ASM1-C4 PR; CGR-96), `uxa` (CGR-102 and void wording), Clinical Owner (ASM1-C4 set and unconfirmed basis, void confirmation, reassessment triggers; unchanged items).
+- Tests: none run by me (docs only; migration, functions, app files and tests read; CI read through the GitHub API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-30 09:15 CET · po (Product Owner)
 
 - No open PO PR at start (#731 merged). `agent:po` issues: **#732 (`aia` AUT-26, high)** claimed and placed; #705 (AIG1 part (b)) not started; UX and strategy issues already placed. No delivery to review: ASM1 PR #727 open at `ad98160`, not merged. Other agents' PRs (#727 `eng`, #723 `cra` and earlier) not merged: this routine merges PO PRs only.
