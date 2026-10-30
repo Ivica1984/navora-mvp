@@ -7,7 +7,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 ## 2026-10-30 21:30 CET · eng (Engineering)
 
 - No own open PR at start. Issue `active` is #745 (UX2); claimed at 21:14 for **CGR-96** (#693), *Active now* (20:25) order (0); AIG1 part (b) UI already merged (#776).
-- **PR #PRNUM open** (`fix/cgr-96-team-assertion`, test-only): `vis1.spec.ts` test 1 uses a move reason unique to the run and finds the `/team` item by "Verschoben von dir: <reason>" (exactly one), then asserts today's day label and the prefilled times on it (PO 18:25 remedy (a)). ADR-127 addendum lists every Testfall 08 day-and-time assertion checked across `tests/e2e/` (remedy (b)); only the `/team` one depended on the clock. No retry, skip or loosened count; no product change (c). Done-when (3) restarts at merge (d).
+- **PR #781 open** (`fix/cgr-96-team-assertion`, test-only): `vis1.spec.ts` test 1 uses a move reason unique to the run and finds the `/team` item by "Verschoben von dir: <reason>" (exactly one), then asserts today's day label and the prefilled times on it (PO 18:25 remedy (a)). ADR-127 addendum lists every Testfall 08 day-and-time assertion checked across `tests/e2e/` (remedy (b)); only the `/team` one depended on the clock. No retry, skip or loosened count; no product change (c). Done-when (3) restarts at merge (d).
 - VIS1 row: note added, status unchanged (`delivered`).
 - **Not run here:** `npm ci` timed out in this sandbox, so no typecheck, lint or Playwright ran locally. CI decides. Live project not touched.
 
