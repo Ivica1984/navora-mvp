@@ -2277,3 +2277,54 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** none. `npm ci` failed in the agent environment (npm "Exit handler never called"), so neither `tsc`, ESLint, pgTAP nor Playwright ran here; no local database stack. CI is the test runner.
 
 **Rollback:** revert the commit (one spec, one pgTAP file, docs).
+
+### ADR-128 — AIG1-15 / AIG1-16: a look-back re-confirmation runs the first confirmation's checks; a threshold that cannot fire is refused and the health list shows the threshold
+
+**Date:** 2026-10-30 · **Status:** IMPLEMENTED in its own PR (AIG1 part (b), database half; CI decides) · PLANNED: the part (b) UI PR (confirm screen and ticked list at 390 px, health list with the AIG1-16 columns, look-back list with AIG1-14, e2e) · **Brief:** `docs/agents/briefs/AIG1.md` (AIG1-15, AIG1-16, added by po 2026-10-30 02:10; PO *Active now* 17:45 order (0)) · **Findings:** `cra` CGR-98 (= AIG1-15), CGR-100 (1)-(2) (= AIG1-16); `lca` D-35 01:50 · **Migration:** 0103 · **Tests:** pgTAP `103_aig1_15_16_recheck_and_threshold` (25).
+
+**Context (IMPLEMENTED, 0097 / #701):** `private.aig1_apply_visit_responsible` returned `ok` at once when the visit already held the confirmed member, so a re-confirmation from the AIG1-12 look-back list wrote an `ai_confirmations` row ("bestätigt von <Name>") without any check. `set_agent_state` accepted `stop_share = 100`, which `aig1_check` (`share > stop_share`) can never cross. `agent_health` returned neither the written threshold nor whether the last closed window reached its minimum.
+
+**Decision:**
+1. **AIG1-15:** in the "record already holds the value" branch of the applier, when the visit is still open by the same condition a first confirmation uses (`planned`, not suspended, not covered, `visit_date` not before today Europe/Zurich), the applier runs `may_perform_visit` (→ `not_qualified`), `adm2_in_contract` (→ `outside_contract`) and `member_absent_during` (→ `absent`), in the first confirmation's order, and returns the first failing reason. The callers (`confirm_suggestion`, `confirm_suggestions`) already insert the `ai_confirmations` row only after `ok`, so a refusal writes no confirmation and no ledger change and the line stays on the look-back list. A visit no longer open returns `ok` as built (whether it needs action is the Clinical Owner's, D-17, UNKNOWN). The same branch is also reached by a first confirmation whose member was assigned by hand meanwhile; it now gets the same checks (more protective, no new refusal reason).
+2. **AIG1-16 (1):** `set_agent_state` refuses `stop_share >= 100` (and `< 0`, as before) with the existing `threshold_missing` and its existing text. 99.99 is accepted (`numeric(5,2)`). No threshold value is set by NAVORA.
+3. **AIG1-16 (2):** `agent_health` adds `stop_share`, `stop_min_proposals`, `stop_window_days` (from the organisation's switch-on row; null for an agent never switched on) and `last_window_min_reached` (`last_window_decided >= stop_min_proposals` for the last closed window; **null** before the first closed window, so "no window yet" is not shown as "nein"). Per agent and organisation, no person column, readable by the same coordinators as before. The return type changes, so 0103 drops and re-creates the function with its grants and comment; its only readers are pgTAP 097 and the generated types (types-bot), no app caller yet.
+
+**Mechanism:** the three function bodies are copied from 0097 and changed only at the marked lines (comments in 0103 name the criterion). Idempotent: `create or replace`, `drop function if exists` before the changed return type.
+
+**Trade-offs:** a check only on look-back lines (by joining the stop) was rejected: the "already holds" branch cannot tell a look-back re-check from any other re-confirmation, and the brief's protective intent (a "bestätigt" without a check is worse than none) applies to both. Returning `false` before the first closed window was rejected: it would read "Mindestzahl nicht erreicht" for a window that does not exist yet.
+
+**Deviations / notes for the PO:**
+1. `last_window_min_reached` is null (not `false`) before the first closed window. The UI PR will show it as "noch kein abgeschlossenes Fenster" (wording `uxa`'s, OPEN until the UI PR).
+2. AIG1-15 is delivered ahead of the part (b) UI as the brief allows ("part (b) PR or its own small PR before part (b) is delivered"). AIG1 stays open until the UI PR lands.
+
+**Not done:** no UI (part (b) UI PR next), no seed change, no new read path or grant; the live project is not touched (D-1).
+
+**Checked by me (not CI):** migrations 0001-0103 and the seed applied on a local PostgreSQL 16 with Supabase auth stubs (and Supabase's default grants) and a minimal pgTAP stand-in written in this run (`plan`, `is`, `ok`, `throws_ok`, `lives_ok`, `finish`); 0103 applies twice. pgTAP 103 25/25 green with 0103 and red without it (tests 7-12, 14, 16 and the health block fail on a database built without 0103); 097 (110), 019 (34), 061 (49) green with 0103. 071 and 077 not run here (they use `function_privs_are`, not in the stand-in). The official pgTAP, the vitest suite, lint, typecheck, build and Playwright were **not run** here; CI decides.
+
+**Rollback:** revert the PR; 0097's function bodies are restored by re-running their definitions from 0097 (forward migration, never a down-migration on a shared database).
+
+### ADR-129 — AIG1 part (b), UI half: confirm screen with the ticked list, health list, look-back list and the record line
+
+**Date:** 2026-10-30 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/AIG1.md` (AIG1-3, -4, -5, -10, -12, -13, -14, -16 screen parts; PO *Active now* 17:45 order (0)) · **Findings:** `cra` CGR-78 (b) (ticked list), CGR-95 (= AIG1-12), CGR-100 (2) (= AIG1-16 (2)); `uxa` UXR-49 (= AIG1-14) · **Migrations:** none (the readers and commands of 0097 and 0103 are used unchanged) · **Tests:** e2e `tests/e2e/aig1.spec.ts` (4), unit `tests/unit/aig1-labels.test.ts`; pgTAP 002 and 097 scoped to the new seed fixtures (below).
+
+**Context (IMPLEMENTED, #701, #770):** the AIG1 database (0097, 0103) has every command and reader the screens need: `open_suggestions(team)`, `confirm_suggestion`, `confirm_suggestions`, `value_provenance(entity, id, field)`, `agent_health(org)`, `agent_stop_lookback(stop)` and the OPS1 exception `agent_stopped` (entity `ai_agent_stop`, id = the stop). No screen called them.
+
+**Decision:**
+1. **Confirm screen `/team/vorschlaege` (390 px first; link "Vorschläge" in the `/team` header).** Per team of the caller (from `team_cases`), one line per value of `open_suggestions`: client and visit time, "Zuständig: <Name>" or "Zuständig: nicht gefunden", "vorgeschlagen von <Agent>". Actions per line: "Bestätigen", "Ändern" (a member of the team; stored as hers, `corrected`), "Ablehnen"; a `not_found` proposal offers only "Als „nicht gefunden“ bestätigen" (AIG1-4). Every call is `confirm_suggestion` for ONE value. Lines with `bulk_allowed` (the database's own AIG1-5 test) carry a tick box that starts unticked, ticks only its own line; no "select all"; the button reads "<n> angekreuzte Werte bestätigen" and calls `confirm_suggestions` with exactly the ticked ids (CGR-78 (b)). A value the consuming command refuses comes back with its reason text (AIG1-15 reasons) and stays open.
+2. **Record line `/visits/[visitId]`.** The visit through its existing read path (`care_visits` RLS: team, coordination; READ_PATHS row unchanged), the responsible member's display name (`member_profiles`), and the AIG1-3 line from `value_provenance` for this one value: "vorgeschlagen von <Agent> / bestätigt von <Name> am <Datum>" ("geändert und bestätigt", "abgelehnt von", "noch nicht bestätigt"). The look-back lines and the confirm screen open this page.
+3. **Health list `/operations/assistenten` (desktop; link "Assistenten" under the `/operations` heading).** One row per agent from `agent_health` for each organisation where the caller holds a coordination role: agent, level, kind, version, state, last proposal, last closed window's share and decided count, "Mindestzahl im letzten Fenster erreicht: ja/nein" (null → "noch kein abgeschlossenes Fenster", ADR-128 deviation 1), the written threshold (share, minimum, window) and why it stopped, with a link to its look-back list.
+4. **Look-back list `/operations/assistenten/rueckblick/[stopId]` (desktop).** Its own line layout (AIG1-14): case reference, visit date, field, team and, where it applies, "überholt am <Datum>"; no person, no "bestätigt von", no outcome, no filter, sort, tick or "erledigt". Each line is one link to its record. The OPS1 card of `agent_stopped` links to it ("Betroffene Werte ansehen"). It writes nothing.
+5. **Seed:** two organisations of their own (E: agent on, seven open proposals; F: agent stopped by its threshold with four unchanged confirmations in the window, one later replaced), so no org-A to org-D count or fixture changes. Written as the table owner in the order the commands would write it; test thresholds only, not NAVORA defaults. pgTAP 002 counts eleven sign-in users (was nine); pgTAP 097 scopes three `ai_agent_settings` assertions to Testorganisation A (they counted every organisation's rows). No assertion is loosened: each still checks Testorganisation A exactly as before.
+
+**Trade-offs:** a section inside the 1,200-line `team-client.tsx` was rejected for a page of its own (UX2 will place it in the one shell); a person-scoped "my proposals" list was rejected (AIG1-11: no list of one confirmer's values). Coordinators see the record page without the AIG1-3 line: `value_provenance` answers only the record's team members (0097, AIG1-11 (2a)); widening it would be a new read for a role and needs the PO.
+
+**Deviations / notes for the PO:**
+1. Coordinators opening a look-back line see the visit (team, time, status, responsible member) but no "bestätigt von" line (database scope as built). The team sees it.
+2. The brief asks for the OPS1 exception to "link to one list"; the card carries a link, and the health list links to the same list for every stopped agent.
+3. No `uxa` wording exists yet for the screen texts other than AIG1-16 (2); the texts are Engineering's and open for `uxa`.
+
+**Not done:** no new database function, grant or read path; no switch-on screen for administrators (not in the brief); the live project is not touched (D-1).
+
+**Checked by me (not CI):** nothing was run in this run: the npm registry was not reachable from the run's sandbox, so no typecheck, lint, unit test, build or Playwright ran locally, and no local database was started. CI decides.
+
+**Rollback:** revert the PR (no migration).

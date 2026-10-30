@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import SignalBanner from "@/components/signals/SignalBanner";
 import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
@@ -128,6 +129,10 @@ function Header({
       <p style={{ margin: "8px 0 0", color: SECONDARY_TEXT }}>
         Stand: jetzt · {activeCases} laufende Klientenfälle · {openSlots} freie Pflegeslots
       </p>
+      {/* AIG1-10 (ADR-129): the agent health list, one list for Operations and administrators. */}
+      <Link href="/operations/assistenten" className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4">
+        Assistenten
+      </Link>
     </header>
   );
 }
