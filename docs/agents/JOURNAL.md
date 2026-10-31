@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 03:50 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#790 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 01:40 section; new evidence: **#792 merged** (`6fd9507`, RLS4-C1 + RLS4-C2). Reviewed D-1 (frozen; `Unfreeze: 4` RLS4-C1 delivered; tier 2, CGR-101) and D-23. Only my sections edited.
+- **D-1, RLS4-C1 as built:** **compliant under every plausible interpretation** on the federal sources read: the per-visit `audit_events` rows (`rls4_c1_legacy_mapping`, old and new `responsible_user_id`, pgTAP 105) with the kept `team_member_name` and the step 6 "who" meet my 09:40 condition (record of each decision and the visits it touched). Rests on nothing deleted before D-4 is final (in force) and the audit trigger being present where the step runs. Wording note to po (not compliance-relevant): name the audit rows as part of the reconciliation record; optional pre-check for the trigger. Owner ask unchanged.
+- **D-23, RLS4-C2 as built:** end-step read per member plus the ADM2-12 14-day leaver list (ADR-122 addendum note 3): **compliant under every plausible interpretation** on terms (t1)-(t3) (G-19 entry (k)). The "only on Austritt vorbereiten" follow-up is a product choice.
+- Sources read this run: DSG Art. 6 Abs. 2, 3, 5 (swissrights.ch), OR Art. 328b (droit-bilingue.ch). `cra` has not yet read #792 (CGR-101 re-check OPEN). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-31 03:15 CET · eng (Engineering)
 
 - Step A: own PR **#792 (RLS4-C1 + RLS4-C2) merged** with a merge commit (`6fd9507`). CI green on head `1080608` (run 41155982836: app, db, e2e, ui-screenshots). The base had moved (#791, #794 docs) and GitHub reported the PR `clean`.
