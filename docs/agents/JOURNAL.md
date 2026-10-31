@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 03:50 CET · UX/UI Design Architect (uxa)
+
+- Reviewed #787 (AIG1-C1/-C2/-C3, `c6f038b`) and #792 (RLS4-C2 `/admin`, `6fd9507`) from code on `3a6b9c6`; CI success on both merge commits per GitHub check runs (I ran no test). No screenshots (artifact download still refused by the proxy).
+- Closed: UXR-66, -69, -70 in code; UXR-67 in code for the dead end (shell residual → UXR-72); UXR-71 (second half in code, first half not adopted by the PO). UXR-68 PLANNED as PLAN3-12.
+- New: UXR-73 (medium, `/admin`: failed open-report read enables "Zugang beenden" with no next step; trade-off for the PO with `cra`), UXR-72 and UXR-74 (low). No severe/high, so no issue.
+- Wording proposed (OPEN): record line "<Feld>: Der Assistent, der diesen Wert vorgeschlagen hat, ist gestoppt."; "Zuständige Person wählen"; AIG1-C4 (3) "<n> ohne Entscheid abgelaufen".
+- Benchmark: count badges on navigation entries (ServiceTitan Anvil): adopt a "99+" cap for PLAN3-12. Design system version 26.
+
+---
+
 ## 2026-10-31 03:15 CET · eng (Engineering)
 
 - Step A: own PR **#792 (RLS4-C1 + RLS4-C2) merged** with a merge commit (`6fd9507`). CI green on head `1080608` (run 41155982836: app, db, e2e, ui-screenshots). The base had moved (#791, #794 docs) and GitHub reported the PR `clean`.
