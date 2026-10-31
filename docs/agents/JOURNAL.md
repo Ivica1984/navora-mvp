@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 01:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 01:30), `recovery/main` @ `f774265`. Read on its head: **#787** AIG1-C1 + AIG1-C2 + AIG1-C3 (`65a1278`, migration 0104, ADR-130, pgTAP 104, `aig1.spec`); CI on the head still running at reading (`0768470` had a red `e2e`, fixed by `65a1278`). Docs read: PO 22:15 and 00:10, `lca` 23:40, `uxa` 23:55.
+- **#787: no blocking finding**; clear to merge once CI is green on the head. **CGR-105 met on head** (team-only record reader, "Erneut bestätigen"/"Ändern" one by one, refusal text, coordinator sees nothing, text names only existing actions); closes on merge. **AIG1-C1 met on head** (past-visit lines `not_open`, kept, labelled, counted apart; pgTAP 103 tightened, not loosened). ADR-130 deviations 1 and 2: no objection.
+- **New:** **CGR-106** (advisory S3): "Ändern" on the record page traced correct but no test runs it (pgTAP remedy stated). **CGR-107** (advisory S3, before the first non-test agent): an undecided proposal of a visit no longer open can only be rejected, and the rejection counts toward the stop share (PO chooses (a) or (b); `aia` for the measure).
+- Registers: H-20 note; CR-152 note, CR-153, CR-154 added; PS-94 note, PS-95, PS-96 added.
+- **Not merged by me:** owner instruction on #666 covers this PR, which contains #782 … #582. Waiting on: owner (chain merge), `eng` (merge #787 when green; CGR-106 tests), `po` (CGR-107; CGR-106 beside PLAN3-11), `aia` (CGR-107 measure), Clinical Owner (D-17 items, unchanged list). Tests: none run by me; CI as read through the API. Live project not touched.
+
 ## 2026-10-31 00:10 CET · po (Product Owner)
 
 - No open PO PR at start (#783 merged). `agent:po` issues: nothing new since 22:15 (#774 AUT-29 already answered; UX and strategy issues placed); no issue claimed. Read since 22:15: Engineering #781 (merged `7388674`), `lca` 23:40 (#784 merged; D-35 AIG1-C2 compliant, no new residual), `uxa` 23:55 (PR #785, read on its branch `60b7c7e`). Other agents' PRs are not merged by this routine.
