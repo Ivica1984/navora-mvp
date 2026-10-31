@@ -1,0 +1,61 @@
+// QG1 — quality events and holds: pure helpers (ADR-002). Rules live in the database (migration 0020).
+
+import { TAKE_ENDED } from "@/features/signals/rules";
+
+export const SEVERITIES = ["low", "medium", "high", "critical"] as const;
+export type Severity = (typeof SEVERITIES)[number];
+
+export const SEVERITY_LABEL: Record<Severity, string> = {
+  low: "gering",
+  medium: "mittel",
+  high: "hoch",
+  critical: "kritisch",
+};
+
+export const EVENT_STATUS_LABEL: Record<string, string> = {
+  open: "offen",
+  in_review: "in Prüfung",
+  closed: "geschlossen",
+};
+
+/**
+ * LEAVE1-C4 (migration 0080): an event in review whose owner's access has ended reads as untaken: "Übernahme beendet –
+ * Zugang beendet" instead of "in Prüfung", no name. Closing stays open to the team (QG1 unchanged).
+ */
+export function eventStatusText(event: { status: string; claim_ended?: boolean | null }): string {
+  if (event.status === "in_review" && event.claim_ended) return TAKE_ENDED;
+  return EVENT_STATUS_LABEL[event.status] ?? event.status;
+}
+
+/**
+ * COND2-2 (migration 0087, ADR-101): an event in review whose claim has lapsed (its owner's access ended, 0085) can be
+ * taken over by the team ("Übernehmen"). The database decides; this only says when to offer the button. A live claim
+ * is not offered (and the database refuses it).
+ */
+export function canTakeOver(event: { status: string; claim_ended?: boolean | null }): boolean {
+  return event.status === "in_review" && event.claim_ended === true;
+}
+
+/** Serious = high or critical (same rule as OPS1 and the database). */
+export function isSerious(severity: string | null | undefined): boolean {
+  return severity === "high" || severity === "critical";
+}
+
+export const QUALITY_REJECTION_MESSAGE: Record<string, string> = {
+  not_team_member: "Nicht gespeichert: Du gehörst nicht zum zuständigen Team.",
+  type_not_approved: "Dieser Ereignistyp ist nicht klinisch freigegeben.",
+};
+
+export function qualityRejectionMessage(reason: unknown): string {
+  return (typeof reason === "string" && QUALITY_REJECTION_MESSAGE[reason]) || "Qualitätsereignis konnte nicht gespeichert werden.";
+}
+
+/** Shown while the clinical list (D-16) is not yet approved. */
+export const NO_TYPES_NOTICE =
+  "Die Liste der Qualitätsereignisse wird klinisch festgelegt (D-16). Bis dahin: Beobachtung erfassen und bei Bedarf eine Abrechnungssperre setzen.";
+
+/**
+ * CSR1 / CGR-13 (QG1, until `clinical` answers D-16): a quality hold is shown as "Abrechnungssperre" (billing hold).
+ * It blocks billing of the visit only; NAVORA gives no care instruction with it.
+ */
+export const HOLD_MEANING = "Gesperrt ist nur die Abrechnung; ob und wie gepflegt wird, regelt die Sperre nicht.";

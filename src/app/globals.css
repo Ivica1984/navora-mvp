@@ -3,6 +3,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* UX1-19 (ii), UXR-8: light only until a dark theme is designed (form controls and scrollbars follow). */
+  color-scheme: light;
+}
+
+/* UX1-17, UXR-2: the one secondary-text class (meta lines, reasons, times). stone-700 is at least 4.5:1 on white,
+   #f4f7f4 and the light emerald, amber, rose and stone tints (DESIGN_SYSTEM.md §7, interim value; UX2-3 makes it the
+   token). Text under 18 px never uses a colour opacity below 80 %; tests/unit/ux1-contrast.test.ts scans for it. */
+@utility text-secondary {
+  color: var(--color-stone-700);
 }
 
 @theme inline {
@@ -10,13 +19,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {

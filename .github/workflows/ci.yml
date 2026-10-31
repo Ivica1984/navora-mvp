@@ -1,0 +1,367 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main, recovery/main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  app:
+    name: app (lint · typecheck · unit · audit · build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Placeholders only. The build must never reach a real database (SR-05).
+      SUPABASE_URL: http://127.0.0.1:54321
+      SUPABASE_ANON_KEY: ci-placeholder-not-a-key
+      # COORD6 (ADR-110): agents-check compares docs/agents with the PR's base (merge base). On a push the change
+      # is already merged, so the base is HEAD itself (nothing to compare).
+      AGENTS_BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'HEAD' }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0   # COORD6-5: the base branch and the merge base must resolve (repository about 20 MB)
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install (lockfile only)
+        run: npm ci --no-fund
+      - name: Agent collaboration layer (docs/agents)
+        run: scripts/ci-step.sh agents node scripts/agents-check.mjs
+      - name: Lint
+        run: scripts/ci-step.sh lint npm run lint
+      - name: Typecheck
+        if: success() || failure()
+        run: scripts/ci-step.sh typecheck npm run typecheck
+      - name: Unit tests
+        if: success() || failure()
+        run: scripts/ci-step.sh unit npm test
+      - name: Supply-chain audit (runtime deps, fail on high/critical)
+        if: success() || failure()
+        run: scripts/ci-step.sh audit npm audit --omit=dev --audit-level=high
+      - name: Build
+        if: success() || failure()
+        run: scripts/ci-step.sh build npm run build
+      - name: Record versions
+        if: always()
+        run: scripts/ci-step.sh versions npm ls next react react-dom @supabase/supabase-js zod --depth=0
+
+  db:
+    name: db (migrations · seed · pgTAP)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - name: Detect Supabase project
+        id: detect
+        run: |
+          if [ -f supabase/config.toml ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; echo "No supabase/ project yet (T4) — skipping DB checks."; fi
+      - uses: supabase/setup-cli@v1
+        if: steps.detect.outputs.present == 'true'
+        with:
+          version: 2.121.0
+      - name: Start local Supabase
+        if: steps.detect.outputs.present == 'true'
+        run: supabase start
+      - name: Apply migrations from scratch
+        if: steps.detect.outputs.present == 'true'
+        run: scripts/ci-step.sh db-reset supabase db reset --no-seed
+      # DST1 / ADR-081: seed and pgTAP run at a pinned clock, 10:00 of the Zurich day of the run, so their result does
+      # not depend on the hour CI runs (repeated or missing hour, midnight). private.now() honours the pin only once the
+      # seed has written the test-clock row (its first statement); 068 pins its own DST instants on top.
+      - name: Pin the database clock
+        if: steps.detect.outputs.present == 'true'
+        env:
+          PGPASSWORD: postgres
+        run: |
+          # ALTER DATABASE … SET of a custom setting needs a superuser (PostgreSQL 15+): the local stack's supabase_admin.
+          scripts/ci-step.sh db-clock psql "postgresql://supabase_admin@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -Atc "
+            do \$\$ begin
+              execute format('alter database %I set navora.test_now = %L', current_database(),
+                             private.at_zurich((private.at_zurich(now()))::date + time '10:00')::text);
+            end \$\$;"
+      # DST1-8 (a) / DST1-C3 (a): a database built from the migrations alone (no seed, as staging and production) reads the
+      # real clock even while navora.test_now is set. Runs in a new session, so the database-level setting applies.
+      - name: Real clock before the seed (DST1-8 a)
+        if: steps.detect.outputs.present == 'true'
+        env:
+          PGPASSWORD: postgres
+        run: |
+          scripts/ci-step.sh db-clock-unseeded psql "postgresql://postgres@127.0.0.1:54322/postgres" -X -v ON_ERROR_STOP=1 -Atc "
+            do \$\$ begin
+              if nullif(current_setting('navora.test_now', true), '') is null then
+                raise exception 'DST1-8 (a): navora.test_now is not set, so this check would prove nothing';
+              end if;
+              if exists (select 1 from private.test_clock) then
+                raise exception 'DST1-8 (a): private.test_clock holds a row before the seed';
+              end if;
+              if private.now() is distinct from now() then
+                raise exception 'DST1-8 (a): private.now() = % follows the pin % without the seed', private.now(),
+                  current_setting('navora.test_now');
+              end if;
+              raise notice 'DST1-8 (a): unseeded database, pin % set, private.now() = now() = %',
+                current_setting('navora.test_now'), now();
+            end \$\$;"
+      - name: Seed
+        if: steps.detect.outputs.present == 'true'
+        env:
+          PGPASSWORD: postgres
+        run: |
+          DB="postgresql://postgres@127.0.0.1:54322/postgres"
+          scripts/ci-step.sh db-seed psql "$DB" -X -q -1 -v ON_ERROR_STOP=1 -f supabase/seed.sql
+          psql "$DB" -Atc "select 'pinned database clock: ' || current_setting('navora.test_now') || ', private.now() = ' || private.now()"
+      - name: Database tests
+        if: steps.detect.outputs.present == 'true'
+        run: scripts/ci-step.sh pgtap supabase test db
+      # WORK1-C5 (ADR-126): evidence that pgTAP 079 test 44 holds against the local stack's concurrent pg_cron writes.
+      # Runs on a WORK1-C5 branch only (about 4-6 min: a 65 s probe, then 079 fifty times); the pinned clock is still set.
+      - name: WORK1-C5 probe and pgTAP 079 repeated
+        if: steps.detect.outputs.present == 'true' && github.event_name == 'pull_request' && startsWith(github.head_ref, 'fix/work1-c5')
+        env:
+          DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+          REPEATS: "50"
+        run: scripts/ci-step.sh work1-c5 scripts/db-flaky/work1-c5.sh
+      - name: Unpin the database clock
+        if: steps.detect.outputs.present == 'true'
+        env:
+          PGPASSWORD: postgres
+        run: psql "postgresql://supabase_admin@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -c "alter database postgres reset navora.test_now"
+      - name: Concurrency checks (two real sessions)
+        if: steps.detect.outputs.present == 'true'
+        run: |
+          scripts/ci-step.sh concurrency scripts/db-concurrency/cover-accept.sh
+          scripts/ci-step.sh concurrency-take scripts/db-concurrency/open-visit-take.sh
+      - name: Generated types match the migrations (T14)
+        if: steps.detect.outputs.present == 'true'
+        run: |
+          supabase gen types typescript --local --schema public > /tmp/database.types.ts
+          if ! diff -q src/lib/supabase/database.types.ts /tmp/database.types.ts >/dev/null; then
+            echo "::error title=db-types drift::src/lib/supabase/database.types.ts is out of date. Push a migration change to let db-types-sync regenerate it."
+            diff -u src/lib/supabase/database.types.ts /tmp/database.types.ts | head -60
+            exit 1
+          fi
+          echo "::notice title=db-types::in sync"
+      - name: Lint database
+        if: steps.detect.outputs.present == 'true'
+        run: scripts/ci-step.sh db-lint supabase db lint --level error
+      - name: Stop
+        if: always() && steps.detect.outputs.present == 'true'
+        run: supabase stop --no-backup
+
+  e2e:
+    name: e2e (auth · protected routes · Playwright)
+    runs-on: ubuntu-latest
+    # 25 min for the job plus at most 21 min of the run-day guard below (#635, ADR-113).
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install (lockfile only)
+        run: npm ci --no-fund
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.121.0
+      # #635 (ADR-113): the e2e job keeps the real clock; seed, app and specs must share one Zurich day. Close to
+      # midnight Europe/Zurich the guard waits until just after it, before the seed dates its rows.
+      - name: Run-day guard (wait if midnight Europe/Zurich is near)
+        run: scripts/ci-e2e-day-guard.sh wait
+      - name: Start local Supabase (applies migrations + synthetic seed)
+        run: supabase start
+      - name: Export local Supabase URL and key (names only are logged)
+        run: |
+          supabase status -o env | grep -E '^[A-Z_]+=' > /tmp/sb.env
+          set -a; . /tmp/sb.env; set +a
+          key="${ANON_KEY:-${PUBLISHABLE_KEY:-}}"
+          if [ -z "${API_URL:-}" ] || [ -z "$key" ]; then
+            echo "::error title=supabase env::API_URL/ANON_KEY missing. Variables present: $(cut -d= -f1 /tmp/sb.env | tr '\n' ' ')"
+            exit 1
+          fi
+          echo "::add-mask::$key"
+          echo "SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "SUPABASE_ANON_KEY=$key" >> "$GITHUB_ENV"
+      - name: Diagnose seeded test login against local Auth (status and error code only)
+        if: success() || failure()
+        run: |
+          body=$(curl -sS -o /tmp/auth.json -w '%{http_code}' \
+            -H "apikey: $SUPABASE_ANON_KEY" -H 'Content-Type: application/json' \
+            -d '{"email":"coach.test@navora.test","password":"navora-local-only"}' \
+            "$SUPABASE_URL/auth/v1/token?grant_type=password")
+          summary=$(jq -c '{error: (.error // .error_code // null), code: (.code // null), msg: (.msg // .error_description // .message // null), has_access_token: (.access_token != null)}' /tmp/auth.json 2>/dev/null || echo '"unparseable"')
+          echo "::notice title=auth-diagnostic::HTTP $body $summary"
+          [ "$body" = "200" ]
+      - name: Self-registration must be disabled
+        run: |
+          code=$(curl -sS -o /tmp/signup.json -w '%{http_code}' \
+            -H "apikey: $SUPABASE_ANON_KEY" -H 'Content-Type: application/json' \
+            -d '{"email":"intruder@navora.test","password":"intruder-password-123"}' \
+            "$SUPABASE_URL/auth/v1/signup")
+          err=$(jq -r '.error_code // .code // .error // "?"' /tmp/signup.json 2>/dev/null)
+          echo "::notice title=signup-check::HTTP $code $err"
+          [ "$code" != "200" ]
+      - name: Anon key must not read or write care data via the REST API (SR-01)
+        run: |
+          fail=0
+          for t in cases teams care_visits care_notes quality_events partner_requests matching_requests match_candidates organizations organization_memberships team_memberships visit_reports team_decisions response_deadlines change_log exception_events quality_holds quality_event_log billable_facts working_time_facts case_lifecycle_events visit_status_notes; do
+            code=$(curl -sS -o /tmp/r.json -w '%{http_code}' -H "apikey: $SUPABASE_ANON_KEY" "$SUPABASE_URL/rest/v1/$t?select=*&limit=1")
+            body=$(head -c 200 /tmp/r.json)
+            if [ "$code" = "200" ] && [ "$body" != "[]" ]; then echo "::error title=anon-rest::$t readable by anon (HTTP $code)"; fail=1; fi
+            echo "anon GET $t -> HTTP $code"
+          done
+          code=$(curl -sS -o /dev/null -w '%{http_code}' -X PATCH -H "apikey: $SUPABASE_ANON_KEY" -H 'Content-Type: application/json' \
+            -d '{"priority":true}' "$SUPABASE_URL/rest/v1/teams?id=eq.00000000-0000-4000-a000-000000000101")
+          echo "anon PATCH teams -> HTTP $code"
+          case "$code" in 2*) echo "::error title=anon-rest::anon PATCH teams accepted (HTTP $code)"; fail=1;; esac
+          for fn in start_visit complete_visit depart_visit pause_visit resume_visit correct_visit_time record_observation record_partner_request convert_partner_request decide_matching_request team_offers team_cases plan_visit reschedule_visit remove_planned_visit add_care_plan_item retire_care_plan_item uncovered_visits set_team_priority assign_team_coach create_report_draft update_report_draft sign_report countersign_report correct_report final_report_visits matching_escalations set_response_deadline set_member_qualification handle_exception sync_exceptions operations_exceptions record_quality_event set_quality_event_status set_quality_hold lift_quality_hold set_primary_nurse continuity_by_case generate_billable_facts billing_preview pause_case resume_case close_case reopen_case cancel_visit record_no_show record_no_show_outcome team_case_lifecycle; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST -H "apikey: $SUPABASE_ANON_KEY" -H 'Content-Type: application/json' \
+              -d '{}' "$SUPABASE_URL/rest/v1/rpc/$fn")
+            echo "anon RPC $fn -> HTTP $code"
+            case "$code" in 2*) echo "::error title=anon-rest::anon RPC $fn accepted (HTTP $code)"; fail=1;; esac
+          done
+          # F1: the field read function with valid arguments (a {} body would only test "function not found").
+          for fn in field_visits field_notes field_reports field_quality field_visit_status_notes; do
+            code=$(curl -sS -o /tmp/r.json -w '%{http_code}' -X POST -H "apikey: $SUPABASE_ANON_KEY" -H 'Content-Type: application/json' \
+              -d "{\"p_date\":\"$(date -u +%F)\"}" "$SUPABASE_URL/rest/v1/rpc/$fn")
+            echo "anon RPC $fn -> HTTP $code"
+            if [ "$code" = "200" ] && [ "$(head -c 2 /tmp/r.json)" != "[]" ]; then echo "::error title=anon-rest::anon RPC $fn returned rows"; fail=1; fi
+          done
+          code=$(curl -sS -o /tmp/r.json -w '%{http_code}' -H "apikey: $SUPABASE_ANON_KEY" "$SUPABASE_URL/rest/v1/audit_events?select=*&limit=1")
+          if [ "$code" = "200" ] && [ "$(head -c 2 /tmp/r.json)" != "[]" ]; then echo "::error title=anon-rest::audit_events readable by anon"; fail=1; fi
+          echo "::notice title=anon-rest::checked 22 tables, audit_events, 1 write, 48 RPCs + 5 field reads; failures=$fail"
+          exit $fail
+      - name: Install Playwright browser
+        # Retried: the apt/CDN download is occasionally flaky (PO note 2026-10-21 23:05).
+        run: |
+          for attempt in 1 2 3; do
+            npx playwright install --with-deps chromium && exit 0
+            echo "::warning title=playwright-install::attempt $attempt failed, retrying"
+            sleep 15
+          done
+          exit 1
+      - name: Build
+        run: scripts/ci-step.sh e2e-build npm run build
+      - name: Playwright
+        run: scripts/ci-step.sh e2e npx playwright test
+      - name: Run-day guard (did the Zurich day change during the run?)
+        if: always()
+        run: scripts/ci-e2e-day-guard.sh check
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+      - name: Stop
+        if: always()
+        run: supabase stop --no-backup
+
+  # UX1-14 (ADR-103): screenshots of every protected route at 390 × 844 and 1440 × 900 for each role that may open it,
+  # for the UX/UI Design Architect's review. Uploaded as the artifact `ui-screenshots` (14 days); never committed.
+  # Runs on every push to recovery/main and on every PR that changes src/app or src/components. Fails on a render
+  # error (HTTP 5xx, uncaught page error, the Next.js error page) and, since UX1-18, on an axe color-contrast
+  # violation of impact serious or critical; never on a visual difference.
+  ui-screenshots:
+    name: ui-screenshots (390 · 1440 · every role)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Does this change touch the UI?
+        id: scope
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$EVENT" != "pull_request" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if git diff --name-only "$BASE_SHA" HEAD | grep -qE '^src/(app|components)/'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=ui-screenshots::no change under src/app or src/components, skipped"
+          fi
+      - uses: actions/setup-node@v5
+        if: steps.scope.outputs.run == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install (lockfile only)
+        if: steps.scope.outputs.run == 'true'
+        run: npm ci --no-fund
+      - uses: supabase/setup-cli@v1
+        if: steps.scope.outputs.run == 'true'
+        with:
+          version: 2.121.0
+      - name: Start local Supabase (applies migrations + synthetic seed)
+        if: steps.scope.outputs.run == 'true'
+        run: supabase start
+      - name: Export local Supabase URL and key (names only are logged)
+        if: steps.scope.outputs.run == 'true'
+        run: |
+          supabase status -o env | grep -E '^[A-Z_]+=' > /tmp/sb.env
+          set -a; . /tmp/sb.env; set +a
+          key="${ANON_KEY:-${PUBLISHABLE_KEY:-}}"
+          if [ -z "${API_URL:-}" ] || [ -z "$key" ]; then
+            echo "::error title=supabase env::API_URL/ANON_KEY missing. Variables present: $(cut -d= -f1 /tmp/sb.env | tr '\n' ' ')"
+            exit 1
+          fi
+          echo "::add-mask::$key"
+          echo "SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "SUPABASE_ANON_KEY=$key" >> "$GITHUB_ENV"
+      - name: Install Playwright browser
+        if: steps.scope.outputs.run == 'true'
+        run: |
+          for attempt in 1 2 3; do
+            npx playwright install --with-deps chromium && exit 0
+            echo "::warning title=playwright-install::attempt $attempt failed, retrying"
+            sleep 15
+          done
+          exit 1
+      - name: Build
+        if: steps.scope.outputs.run == 'true'
+        run: scripts/ci-step.sh screenshots-build npm run build
+      # UX1-18 (ADR-106): axe-core for the color-contrast check, exact version from the npm registry (npm verifies the
+      # tarball against the registry's integrity hash). Kept outside node_modules and the lockfile until it can be
+      # added as a devDependency with a regenerated package-lock.json (TECH_DEBT TD-UX1-18).
+      - name: Fetch axe-core (exact version)
+        if: steps.scope.outputs.run == 'true'
+        run: |
+          mkdir -p /tmp/axe && cd /tmp/axe
+          npm pack axe-core@4.10.2 --silent
+          tar -xzf axe-core-4.10.2.tgz
+          test -s package/axe.min.js
+          echo "AXE_CORE_PATH=/tmp/axe/package/axe.min.js" >> "$GITHUB_ENV"
+      - name: Capture
+        if: steps.scope.outputs.run == 'true'
+        run: scripts/ci-step.sh screenshots npx playwright test --config playwright.screenshots.config.ts
+      - name: Count images
+        if: always() && steps.scope.outputs.run == 'true'
+        run: echo "::notice title=ui-screenshots::$(ls ui-screenshots 2>/dev/null | wc -l) images"
+      - name: Upload screenshots
+        if: always() && steps.scope.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-screenshots
+          path: ui-screenshots/
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Stop
+        if: always() && steps.scope.outputs.run == 'true'
+        run: supabase stop --no-backup
