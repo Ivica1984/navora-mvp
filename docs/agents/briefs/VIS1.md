@@ -283,3 +283,18 @@ New evidence after my 17:45 review: the first push run on `recovery/main` after 
 **Why first:** this red is on a docs-only commit, so it turns every PR red in the evening hours and teaches the team to read red as noise, the exact cost the PO named at 17:45. AIG1 part (b) adds e2e specs to the same suite; it starts after this fix (or in the same PR if Engineering prefers, as long as the fix is a separate commit).
 
 **Business and care-model view.** No user-visible change. A visit list that holds two visits of one client in one slot is correct product behaviour (VIS2); the test must expect it. Patient safety unaffected.
+
+## PO review 2026-10-31 00:10 CET: CGR-96 second test fix (#781); remedy (a)-(c) met, (d) in watch (1 of 3)
+
+#781 merged as `7388674` (2026-10-30 23:24 CET). CI on the PR head `1e98f04` green (Engineering 23:20: app, db, e2e, ui-screenshots); push run 41137882811 on the merge commit `7388674` green. **The PO did not run the tests**; results are read from GitHub. Diff read: `tests/e2e/vis1.spec.ts` (+11/-6) and the ADR-127 addendum in `docs/engineering/DECISIONS.md`; no product file changed.
+
+| Criterion (PO 18:25 remedy) | Result | Evidence |
+|---|---|---|
+| (a) every day-and-time locator of the moved visit counts first or uses the unique move reason | met | `vis1.spec.ts` test 1: reason `Synthetisch: Klientin bittet um heute (Lauf <Date.now() base 36>)`, unique per run; `/team` item located by `Verschoben von dir: <reason>`, `toHaveCount(1)`, then day label and prefilled times asserted on that item; `/field` already count-first since #764 |
+| (b) the PR lists every such assertion checked in `tests/e2e/` | met | ADR-127 addendum 2026-10-30 21:30: table of every Testfall 08 day-and-time assertion (`vis1`, `vis1-10`, `lifecycle`, `ux1`, `signals`, `vis2`, `field`, `aig1`) with a verdict each; only the `/team` assertion depended on the clock. Accepted as Engineering's statement; the PO did not re-derive the slot table |
+| (c) no retry, skip or loosened count; no product change | met | diff: no `retry`, `skip`, `fixme`, timeout change; count stays exactly 1; test file only |
+| (d) done-when (3): three consecutive green push runs on `recovery/main` after the merge, one started 18:00-23:00 Zurich, named on #693 | **in watch: 1 of 3** | run 41137882811 (`7388674`, started 23:24 CET) green; run 41142392105 (`4a9d220`, started 00:06 CET) app, db, ui-screenshots green, e2e still running at review time; no run in the 18:00-23:00 window yet, so (3) cannot close before the evening of 31.10. |
+
+**Verdict.** The fix does what the 18:25 remedy asked: the moved visit is found by a value only it carries, so a second Testfall 08 visit in the same slot can no longer make the test pick the wrong card or count two. VIS1 stays `accepted`; CGR-96 leaves *Active now* (0) and stays in watch on #693. A red `vis1.spec` in a later push run returns it to (0) with the failing line named.
+
+*Why it matters for the care model:* VIS1 protects the rule that a nurse acts on a visit only on its day; a flaky test on that rule trains everyone to ignore red CI, which is the guard for every later change to the field screens.
