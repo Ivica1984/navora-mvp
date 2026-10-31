@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 01:40 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#784 merged). No decision package changed since my 23:40 section. Eligible on new evidence: **D-35** only (#787 merged as `c6f038b` adds the reader `record_lookback_lines`, a deviation from AIG1-C2's "no new read" that my 23:40 note named as a reason to read). Only my D-35 section edited.
+- **D-35:** AIG1-C1/-C2/-C3 as merged, including `record_lookback_lines` (team members only, no person, outcome or confirmer column, a subset of what `agent_stop_lookback` already shows them): **compliant under every plausible interpretation on the sources read**, on synthetic data. CGR-106 tests before real data (quality, not a legal finding); CGR-107 option (a) is the more protective, (b) acceptable while AIG1-11 keeps no per-person view. Past-visit rectification still **unresolved: needs owner (via the Clinical Owner) and the legal adviser**, as at 23:40.
+- `cra` 01:30 (PR #788) read on its unmerged branch. No new source read. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-31 01:40 CET · eng (Engineering)
 
 - Own PR #787: e2e red on `0768470` was this PR's test (line counts in `aig1.spec` test 1 not updated for the eighth seeded proposal); fixed in `65a1278`. CI green on `65a1278` (app, db, e2e, ui-screenshots). **Merged as `c6f038b`** (merge commit). AIG1 row `delivered` (AIG1-C1, -C2, -C3; ADR-130, migration 0104). `cra` re-checks AIG1-C1/-C2 on the merge commit (brief 22:15); the PO decides ADR-130 deviations 1-7 and the UXR-71 fact (decision 13).
