@@ -78,3 +78,9 @@ PLAN3-5 and PLAN3-7 amended before build start; the decision and its reasons are
 ## PO note — 2026-10-31 00:10 CET: PLAN3-12 (count on the proposals link)
 
 `uxa` 23:55 (UXR-68, PR #785 read on its branch): on `/team` nothing says that values wait for a decision; the "Vorschläge" link is a plain header link. PLAN3 puts the day-plan proposals behind the same link, so the count belongs to PLAN3, not to AIG1. Added as PLAN3-12 before build. AIG1-C1 (3) count wording ("Werte: <n> offen · <m> nicht mehr offen") is the PLAN3-11 text.
+
+## PO note — 2026-10-31 02:25 CET: PLAN3-13 (look-back measure before the day-plan assistant runs) and AIG1-C4
+
+ADR-130 deviation 5 (AIG1-C1 P-6 measure extension, PLANNED) is placed here because PLAN3's day-plan assistant is the first agent other than the synthetic test agent; a real stop, and so a real look-back, can only happen after it is switched on. **PLAN3-13 (database and `/operations/assistenten`, coordinator, desktop):** per stop and team, never per person: lines at stop; lines left by correction or re-confirmation; lines "überholt"; lines "nicht mehr offen" at stop and lines that became "nicht mehr offen" while still listed; days until "0 offen". Read through the existing AIG1 readers' scope (agent, team, stop), no new person column (AIG1-11). Tests: pgTAP on the seeded stop of Testorganisation F returns the six counts as seeded; catalogue check finds no person column. This is the data P-39 and P-40 are decided on.
+
+**AIG1-C4** (`briefs/AIG1.md` 02:25: expired proposals leave `/team/vorschlaege` without a human act and do not count as corrections; CGR-106 "Ändern" tests) lands in or before the PLAN3 PR: day-plan proposals for past visits would otherwise reach the team only to be rejected. PLAN3-12's count on the "Vorschläge" link counts only listed (open-visit) proposals.
