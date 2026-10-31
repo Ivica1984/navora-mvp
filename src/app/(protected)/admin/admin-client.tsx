@@ -5,10 +5,11 @@ import { AppFrame } from "@/components/layout/Sidebar";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import type { AdminData, AdminExceptionRule, AdminMember, AdminTeam } from "@/features/admin/queries";
 import {
-  addTeamMember, createTeam, deactivateTeam, endMemberAccess, inviteMember, prepareMemberAccessEnd, removeTeamMember, resetExceptionRule,
-  restoreMemberAccess, revokeInvitation, setDisplayName, setExceptionRule, setMemberQualification, setMemberRole,
+  addTeamMember, createTeam, deactivateTeam, endMemberAccess, inviteMember, prepareMemberAccessEnd, readMemberOpenReports, removeTeamMember,
+  resetExceptionRule, restoreMemberAccess, revokeInvitation, setDisplayName, setExceptionRule, setMemberQualification, setMemberRole,
   setResponseDeadline, updateTeam,
 } from "@/features/admin/commands";
+import type { MemberOpenReport } from "@/features/admin/commands";
 import {
   ROLES, ROLE_LABEL, QUALIFICATIONS, REFERRAL_TYPE_LABEL, UNIT_LABEL, DEADLINE_UNITS,
   allowedPriorities, changedLabel, checkRuleInput, isValidEmail, releasedNotice, RULES_INTRO, stricterHint,
@@ -22,6 +23,7 @@ import OutsideDelivery from "./outside-section";
 import AdmissionAdmin from "./admission-section";
 import { AdminHandover, ContractEndControl } from "./contract-end-section";
 import type { Contract, Leaver } from "@/features/contract-end/rules";
+import type { LeaverOpenReport } from "@/features/contract-end/queries";
 import type { AdminAdmissions } from "@/features/admission/rules";
 import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
 import type { EvaluatorHealth, OutsideWatchedVisit } from "@/features/signals/rules";
@@ -60,12 +62,14 @@ function Feedback({ error, notice }: { error: string | null; notice: string | nu
 const newKey = () => crypto.randomUUID();
 const text = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 
-export default function AdminClient({ data, push = null, evaluator = [], outsideWatched = [], admissions = null, contracts = {}, leavers = [], today = "" }: {
+export default function AdminClient({ data, push = null, evaluator = [], outsideWatched = [], admissions = null, contracts = {}, leavers = [], leaverReports = {}, today = "" }: {
   data: AdminData | null; push?: AdminPush | null; evaluator?: EvaluatorHealth[];
   /** ADM2-11: the current contract per member (end date). */
   contracts?: Record<string, Contract>;
   /** ADM2-12: leavers of the next 14 days. */
   leavers?: Leaver[];
+  /** ADM2-12 with RLS4-C2: the open reports of those leavers only (no other member's list is loaded). */
+  leaverReports?: Record<string, LeaverOpenReport[]>;
   /** The Zurich calendar day (YYYY-MM-DD). */
   today?: string;
   /** ADM2-1/-6/-9: team admission (null: not an administrator or not loaded). */
@@ -86,7 +90,7 @@ export default function AdminClient({ data, push = null, evaluator = [], outside
           </p>
         ) : (
           <>
-            <AdminHandover leavers={leavers} openReports={data.openReports} />
+            <AdminHandover leavers={leavers} openReports={leaverReports} />
             <Members data={data} contracts={contracts} today={today} admissionOn={admissions?.enabled === true} />
             {admissions && <AdmissionAdmin organizationId={data.organizationId} admissions={admissions} />}
             <Invitations data={data} />
@@ -211,7 +215,8 @@ function MemberRow({ member, data, contracts, today, admissionOn }: { member: Ad
   );
 }
 
-// LEAVE1 (migrations 0074, 0075): her open reports (LEAVE1-12 (1)), ending and restoring her access.
+// LEAVE1 (migrations 0074, 0075): her open reports (LEAVE1-12 (1)), ending and restoring her access. RLS4-C2: the open
+// reports are read for this one member when the end step opens, never with the member list.
 const day = (iso: string | null | undefined) => {
   if (!iso) return "";
   const [y, m, d] = iso.slice(0, 10).split("-");
@@ -223,13 +228,16 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
   const [mode, setMode] = useState<"idle" | "end" | "restore">("idle");
   const [ended, setEnded] = useState<string | null>(null);
   const state = data.access[member.user_id];
-  const open = data.openReports[member.user_id] ?? [];
+  // RLS4-C2: "loading" until the end step's read returns; null when it could not be read.
+  const [open, setOpen] = useState<MemberOpenReport[] | null | "loading">("loading");
   // COND1-5a (PO 16:20), COND2-1 (ADR-101): her unexported-days count is read when the end step opens, through the
   // recorded prepare_member_access_end command, never shown in the row itself.
   const [unexported, setUnexported] = useState<number | null>(null);
   const openEnd = () => {
     setMode("end");
     setUnexported(null);
+    setOpen("loading");
+    readMemberOpenReports({ userId: member.user_id }).then(setOpen, () => setOpen(null));
     prepareMemberAccessEnd({ userId: member.user_id, idempotencyKey: crypto.randomUUID() }).then(setUnexported, () => setUnexported(null));
   };
   return (
@@ -239,16 +247,6 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
           Zugang beendet seit {day(state.endedAt)}{state.reasonCode ? ` (${ACCESS_REASON_LABEL[state.reasonCode] ?? state.reasonCode})` : ""}
         </p>
       )}
-      <div data-testid="open-reports">
-        <p className="text-stone-700">Offene Berichte: {openReportsText(countOpenReports(open))}</p>
-        {open.length > 0 && (
-          <ul className="grid gap-0.5 pl-3 text-xs text-stone-700" aria-label="Offene Berichte">
-            {open.map((r, i) => (
-              <li key={`${r.visit_date}:${r.kind}:${i}`}>{day(r.visit_date)} · {r.team_name} · {OPEN_REPORT_LABEL[r.kind] ?? r.kind}</li>
-            ))}
-          </ul>
-        )}
-      </div>
       {ended && <p role="status" data-testid="access-ended-notice" className="font-semibold text-amber-900">{ended}</p>}
       {mode === "idle" && (
         <div className="flex flex-wrap gap-2">
@@ -276,7 +274,24 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
               ))}
             </select>
           </label>
-          <button type="submit" disabled={pending} className={button}>{mode === "end" ? "Zugang beenden" : "Wiederherstellen"}</button>
+          {mode === "end" && (
+            // LEAVE1-12 (1), RLS4-C2: her open reports, shown in the end step before the end can be confirmed.
+            <div data-testid="open-reports" className="w-full">
+              {open === "loading"
+                ? <p className="text-stone-700">Offene Berichte werden geladen …</p>
+                : open === null
+                  ? <p role="alert" className="font-semibold text-rose-800">Offene Berichte konnten nicht geladen werden.</p>
+                  : <p className="text-stone-700">Offene Berichte: {openReportsText(countOpenReports(open))}</p>}
+              {Array.isArray(open) && open.length > 0 && (
+                <ul className="grid gap-0.5 pl-3 text-xs text-stone-700" aria-label="Offene Berichte">
+                  {open.map((r, i) => (
+                    <li key={`${r.visit_date}:${r.kind}:${i}`}>{day(r.visit_date)} · {r.team_name} · {OPEN_REPORT_LABEL[r.kind] ?? r.kind}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+          <button type="submit" disabled={pending || (mode === "end" && open === "loading")} className={button}>{mode === "end" ? "Zugang beenden" : "Wiederherstellen"}</button>
           <button type="button" className={secondary} onClick={() => setMode("idle")}>Abbrechen</button>
           {mode === "end" && unexportedDaysText(unexported) && (
             // WORK1-C3 (a), COND1-5a: one number for this person now, administrators only, in the end step only.

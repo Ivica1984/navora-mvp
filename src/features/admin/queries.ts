@@ -31,8 +31,6 @@ export type AdminData = {
   rules: AdminExceptionRule[];
   /** LEAVE1 (0074): current access state per person (administrators read the record). */
   access: Record<string, AccessState>;
-  /** LEAVE1-12 (1): her open reports by kind, visit date and team (no content, no reason). */
-  openReports: Record<string, OpenReport[]>;
   /** ADM2-13 (0092): the time of her newest access event (a contract end is restored by an event after it). */
   lastAccessEventAt: Record<string, string>;
 };
@@ -68,16 +66,12 @@ export async function getAdminData(): Promise<AdminData | null> {
   for (const [name, r] of Object.entries({ members, invitations, teams, deadlines, rules, accessEvents })) {
     if (r.error) fail(`admin.${name}_failed`, r.error);
   }
-  // LEAVE1-12 (1): the open reports of each member, listed before an access end (pilot scale: one call per member).
   const memberRows = members.data ?? [];
-  const lists = await Promise.all(memberRows.map((m) => supabase.rpc("member_open_reports", { p_user_id: m.user_id })));
-  const openReports: Record<string, OpenReport[]> = {};
-  lists.forEach((r, i) => {
-    if (r.error) fail("admin.open_reports_failed", r.error);
-    if ((r.data ?? []).length > 0) openReports[memberRows[i].user_id] = r.data ?? [];
-  });
-  // COND1-5a (PO 16:20): her unexported-days count is not loaded with the list (no standing per-person figure); it is
-  // read for one person when the administrator opens the access-end step (prepareMemberAccessEnd in ./commands, COND2-1).
+  // RLS4-C2 (po 2026-10-30 07:20, ADR-122 addendum): no member's open reports are loaded with the list (no standing
+  // per-person list of documentation backlog). LEAVE1-12 (1): they are read for one person when the administrator opens
+  // the access-end step for her (readMemberOpenReports in ./commands), as COND1-5a does for her unexported-days count
+  // (prepareMemberAccessEnd, COND2-1). The leavers of the next 14 days (ADM2-12) are read by the page through
+  // getLeaverOpenReports (features/contract-end), for those leavers only.
   return {
     organizationId,
     members: memberRows,
@@ -86,7 +80,6 @@ export async function getAdminData(): Promise<AdminData | null> {
     deadlines: deadlines.data ?? [],
     rules: rules.data ?? [],
     access: accessStateByUser((accessEvents.data ?? []) as AccessEvent[]),
-    openReports,
     lastAccessEventAt: lastEventAtByUser((accessEvents.data ?? []) as AccessEvent[]),
   };
 }

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 // LEAVE1 part (b) (migrations 0074, 0075, ADR-088): the administrator's open-work list and access end on /admin at phone
-// width (LEAVE1-12 (1), LEAVE1-1), and the leaver's screen (LEAVE1-6). Synthetic local-only accounts from
+// width (LEAVE1-12 (1), LEAVE1-1; since RLS4-C2 the list is read in the access-end step only), and the leaver's screen (LEAVE1-6). Synthetic local-only accounts from
 // supabase/seed.sql. The coach account (org A, in no team, no cases) is the leaver here; the access is restored at the
 // end (and in afterAll if a step failed), so the specs that run later are unaffected (workers: 1).
 const ADMIN = "admin.test@navora.test"; // org A, role admin
@@ -51,16 +51,25 @@ test("an administrator sees the open work, ends the access, and the leaver sees 
   await signIn(page, ADMIN, /\/operations$/);
   await page.goto("/admin");
 
-  // LEAVE1-12 (1): before the end, the open reports are listed by kind (none for this account).
+  // RLS4-C2 (1): the member list shows no member's open reports (no standing per-person list on /admin).
   const row = coachRow(page);
-  await expect(row.getByTestId("open-reports")).toContainText("Offene Berichte: keine offenen Berichte");
-  // The nurse's row shows the same block (counts by kind, never content or a reason).
   const nurse = page.getByRole("region", { name: "Mitglieder" }).locator('li[aria-label^="Mitglied "]', { hasText: "pflege.test@navora.test" });
-  await expect(nurse.getByTestId("open-reports")).toContainText("Offene Berichte:");
+  await expect(row.getByRole("button", { name: "Zugang beenden" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Mitglieder" }).getByTestId("open-reports")).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Mitglieder" }).getByText(/Offene Berichte/)).toHaveCount(0);
 
-  // LEAVE1-1: codes only, no free text.
+  // LEAVE1-12 (1) with RLS4-C2: opening her access-end step lists her open reports by kind (counts by kind, never
+  // content or a reason), for her only. Cancelling closes the step and the list.
+  await nurse.getByRole("button", { name: "Zugang beenden" }).click();
+  await expect(nurse.getByRole("form", { name: "Zugang beenden" }).getByTestId("open-reports")).toContainText("Offene Berichte:");
+  await expect(page.getByRole("region", { name: "Mitglieder" }).getByTestId("open-reports")).toHaveCount(1);
+  await nurse.getByRole("button", { name: "Abbrechen" }).click();
+  await expect(page.getByRole("region", { name: "Mitglieder" }).getByTestId("open-reports")).toHaveCount(0);
+
+  // LEAVE1-12 (1): the leaver's step lists her open reports before the end (none for this account). LEAVE1-1: codes only.
   await row.getByRole("button", { name: "Zugang beenden" }).click();
   const form = row.getByRole("form", { name: "Zugang beenden" });
+  await expect(form.getByTestId("open-reports")).toContainText("Offene Berichte: keine offenen Berichte");
   await expect(form.getByRole("textbox")).toHaveCount(0);
   await expect(form).toContainText("Ihre offenen Berichte bleiben für das Team sichtbar");
   await form.getByLabel("Grund").selectOption("employment_ended");
