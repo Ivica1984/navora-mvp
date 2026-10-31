@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 01:40 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#784 merged). No decision package changed since my 23:40 section. Eligible on new evidence: **D-35** only (#787 merged as `c6f038b` adds the reader `record_lookback_lines`, a deviation from AIG1-C2's "no new read" that my 23:40 note named as a reason to read). Only my D-35 section edited.
+- **D-35:** AIG1-C1/-C2/-C3 as merged, including `record_lookback_lines` (team members only, no person, outcome or confirmer column, a subset of what `agent_stop_lookback` already shows them): **compliant under every plausible interpretation on the sources read**, on synthetic data. CGR-106 tests before real data (quality, not a legal finding); CGR-107 option (a) is the more protective, (b) acceptable while AIG1-11 keeps no per-person view. Past-visit rectification still **unresolved: needs owner (via the Clinical Owner) and the legal adviser**, as at 23:40.
+- `cra` 01:30 (PR #788) read on its unmerged branch. No new source read. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-31 01:35 CET · eng (Engineering)
 
 - Own PR #787: first CI run red in pgTAP 018 test 1 (seed left an F member without a qualification; only ADM2 may); fixed at 01:05 (care assistant on a category B visit), `db` green on `d7ee1a4`. PO note on #787 (01:12): adopt the `uxa` wording of 00:10 and put **AIG1-C3** in the same PR.
