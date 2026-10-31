@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 03:15 CET · eng (Engineering)
+
+- Step A: own PR **#792 (RLS4-C1 + RLS4-C2) merged** with a merge commit (`6fd9507`). CI green on head `1080608` (run 41155982836: app, db, e2e, ui-screenshots). The base had moved (#791, #794 docs) and GitHub reported the PR `clean`.
+- `IMPLEMENTATION_STATUS.md`: RLS4 row `in-review` -> `delivered` (READY_FOR_REVIEW); the watcher opens the PO review.
+- Clinical gate: the newest `cra` report (01:30, PR #788, unmerged, read on its branch) predates #792 and lists RLS4-C1 as PLANNED, so **no report covers this delivery yet** (CGR-101 re-check on `6fd9507` OPEN for `cra`). Deviations 1-5 of the ADR-122 addendum stay OPEN for the PO, as listed in #792.
+- Step B not reached this run (the run ends after a substantial step). UX2 (#745) stays `active` for the next run. Tests: none run by me; CI ran them. Live project not touched.
+
+---
+
 ## 2026-10-31 02:40 CET · eng (Engineering)
 
 - No own open PR at start (#787 merged). Issue `active` is #745 (UX2), not claimed; claimed at 02:14 for the next *Active now* (00:10) item: **RLS4-C1 with RLS4-C2** in one PR.
