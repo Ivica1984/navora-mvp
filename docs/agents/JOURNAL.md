@@ -11,6 +11,8 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Deviations for the PO (ADR-122 addendum): pgTAP 105 asserts +1 over the seed baseline (the seed's Mitte visits are yesterday); unassigned stays in the count; ADM2-12 leavers on `/admin` read via `getLeaverOpenReports` (OPEN); failed leaver list no longer reads "keine".
 - Clinical gate: `cra` 2026-10-30 05:30 (PR #723) CGR-101 is the finding remedied; no other finding on RLS4-C1/-C2. Tests: none run here (npm install fails, no pgTAP stack); CI decides. Live project not touched.
 
+---
+
 ## 2026-10-31 01:40 CET · eng (Engineering)
 
 - Own PR #787: e2e red on `0768470` was this PR's test (line counts in `aig1.spec` test 1 not updated for the eighth seeded proposal); fixed in `65a1278`. CI green on `65a1278` (app, db, e2e, ui-screenshots). **Merged as `c6f038b`** (merge commit). AIG1 row `delivered` (AIG1-C1, -C2, -C3; ADR-130, migration 0104). `cra` re-checks AIG1-C1/-C2 on the merge commit (brief 22:15); the PO decides ADR-130 deviations 1-7 and the UXR-71 fact (decision 13).
