@@ -104,7 +104,8 @@ export function formatShare(share: number | null | undefined): string {
 
 /** AIG1-16 (2), wording `uxa`'s: whether the last closed window reached the written minimum. */
 export function minReachedText(flag: boolean | null | undefined): string {
-  if (flag === null || flag === undefined) return "Mindestzahl im letzten Fenster erreicht: noch kein abgeschlossenes Fenster";
+  // AIG1-C3 wording (PO 2026-10-31 00:10, `uxa` 23:55).
+  if (flag === null || flag === undefined) return "Noch kein Fenster abgeschlossen";
   return `Mindestzahl im letzten Fenster erreicht: ${flag ? "ja" : "nein"}`;
 }
 
@@ -119,3 +120,67 @@ export function windowText(days: number | null | undefined): string {
 export function supersededText(at: string | null | undefined): string {
   return at ? `überholt am ${formatDate(at)}` : "überholt";
 }
+
+// --- AIG1-C1 / AIG1-C2 / AIG1-C3 (ADR-130): visits no longer open, the record page's re-check actions, back links --------
+// Wording adopted by the PO 2026-10-31 00:10 CET from `uxa` 23:55 (`briefs/AIG1.md`).
+
+/** AIG1-C1 (2): a listed value of a visit no longer open, as a fact of the visit (the line already shows its date). */
+export const NOT_OPEN_TEXT = "Einsatz nicht mehr offen";
+
+/** AIG1-C1 (2): the same fact where the line carries no date. */
+export function notOpenDatedText(visitDate: string | null | undefined): string {
+  return visitDate ? `Einsatz vom ${formatDate(visitDate)} nicht mehr offen` : NOT_OPEN_TEXT;
+}
+
+/** AIG1-C1 (3): both counts, always side by side, the second also at 0. */
+export function lookbackCountsText(open: number, notOpen: number): string {
+  return `Werte: ${open} offen · ${notOpen} nicht mehr offen`;
+}
+
+/** AIG1-C2 (a): the two one-by-one actions the record page offers for a listed value of a visit still open. */
+export const RECORD_ACTIONS = { reconfirm: "Erneut bestätigen", change: "Ändern" } as const;
+
+/** AIG1-C2 (a): the one status line after a successful action. */
+export const RECORD_ACTION_DONE = {
+  confirmed: "Erneut bestätigt. Der Wert ist nicht mehr auf der Liste.",
+  corrected: "Geändert und bestätigt. Der Wert ist nicht mehr auf der Liste.",
+} as const;
+
+/**
+ * AIG1-C2 (c): the look-back page names only actions the product offers: a value leaves the list through the record
+ * page's "Erneut bestätigen" or "Ändern", by a member of the visit's team.
+ */
+export const LOOKBACK_EXPLANATION =
+  "Werte des gestoppten Assistenten, die im Stoppfenster unverändert bestätigt wurden. Ob, von wem und bis wann sie " +
+  "nachgeprüft werden müssen, ist noch nicht festgelegt. Ein Wert verlässt die Liste, sobald jemand aus dem Team des " +
+  "Einsatzes ihn dort erneut bestätigt oder ändert.";
+
+/** AIG1-C3 (5) / UXR-71: why "Ändern" is unavailable. */
+export const NO_OTHER_MEMBER_TEXT = "Kein anderes Teammitglied wählbar.";
+
+/** AIG1-C3 (2) / UXR-66: the result of a ticked confirm names both counts. */
+export function bulkResultText(confirmed: number, refused: number): string {
+  const done = confirmed === 1 ? "1 Wert bestätigt" : `${confirmed} Werte bestätigt`;
+  return refused > 0 ? `${done}, ${refused} nicht übernommen.` : `${done}.`;
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * AIG1-C3 (1) / UXR-67: where the record page's back link leads. The origin comes from the link that opened the page
+ * (`?von=rueckblick&stopp=<id>` or `?von=vorschlaege`), never from a person; otherwise the role's home.
+ */
+export function recordBackLink(
+  von: string | null | undefined,
+  stopId: string | null | undefined,
+  home: { href: string; label: string },
+): { href: string; label: string } {
+  if (von === "rueckblick" && stopId && UUID.test(stopId)) {
+    return { href: `/operations/assistenten/rueckblick/${stopId}`, label: "Zurück zur Liste" };
+  }
+  if (von === "vorschlaege") return { href: "/team/vorschlaege", label: "Zurück zu den Vorschlägen" };
+  return home;
+}
+
+/** AIG1-C2 (a): the record page's line for a listed value (Engineering's wording, open for `uxa`). */
+export const RECORD_LOOKBACK_TEXT = "Dieser Wert steht auf der Rückblick-Liste eines gestoppten Assistenten.";

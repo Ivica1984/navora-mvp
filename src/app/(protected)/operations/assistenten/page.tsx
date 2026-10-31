@@ -58,10 +58,13 @@ export default async function AgentHealthPage() {
                       {r.last_window_decided !== null && r.last_window_decided !== undefined && (
                         <span className="block text-xs text-secondary">{r.last_window_decided} entschieden</span>
                       )}
-                      <span className="block text-xs" data-testid="agent-min-reached">{minReachedText(r.last_window_min_reached)}</span>
                     </td>
                     <td className="p-2" data-testid="agent-stop-share">{formatShare(r.stop_share)}</td>
-                    <td className="p-2" data-testid="agent-stop-min">{r.stop_min_proposals ?? "–"}</td>
+                    <td className="p-2">
+                      <span className="block" data-testid="agent-stop-min">{r.stop_min_proposals ?? "–"}</span>
+                      {/* AIG1-C3 (4) / UXR-70: the minimum flag sits in the "Mindestzahl" cell. */}
+                      <span className="block text-xs" data-testid="agent-min-reached">{minReachedText(r.last_window_min_reached)}</span>
+                    </td>
                     <td className="p-2" data-testid="agent-stop-window">{windowText(r.stop_window_days)}</td>
                     <td className="p-2" data-testid="agent-stop-reason">
                       {r.state === "stopped" ? (

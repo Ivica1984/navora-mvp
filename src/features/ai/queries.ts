@@ -5,7 +5,8 @@ import "server-only";
 
 import { requireUser } from "@/lib/auth/session";
 import type { Database } from "@/lib/supabase/database.types";
-import { COORDINATOR_ROLES } from "@/lib/auth/nav";
+import { COORDINATOR_ROLES, PAGE_LABEL } from "@/lib/auth/nav";
+import { FIELD_PATH, homePathForRoles } from "@/lib/auth/paths";
 import { errorFields, logEvent } from "@/lib/log";
 import type { Provenance } from "./labels";
 
@@ -34,6 +35,21 @@ function arr(raw: unknown): Record<string, unknown>[] {
  * the undecided proposals of each team (`open_suggestions`: active members only, no confirmer, nothing decided).
  */
 export async function getTeamSuggestions(): Promise<TeamSuggestions[]> {
+  const { supabase } = await requireUser();
+  const out = await loadTeams();
+  const results = await Promise.all(out.map((t) => supabase.rpc("open_suggestions", { p_team_id: t.team_id })));
+  results.forEach((r, i) => {
+    if (r.error) {
+      logEvent("error", "aig1.open_suggestions_failed", errorFields(r.error));
+      throw new Error("Vorschläge konnten nicht geladen werden.");
+    }
+    out[i].suggestions = r.data ?? [];
+  });
+  return out;
+}
+
+/** The caller's teams with their members and clients (from `team_cases`), without proposals. */
+async function loadTeams(): Promise<TeamSuggestions[]> {
   const { supabase } = await requireUser();
   const cases = await supabase.rpc("team_cases");
   if (cases.error) {
@@ -66,14 +82,6 @@ export async function getTeamSuggestions(): Promise<TeamSuggestions[]> {
     const names = new Map((profiles.data ?? []).map((p) => [p.user_id, p.display_name]));
     for (const t of out) for (const m of t.members) m.name = m.name ?? names.get(m.user_id) ?? null;
   }
-  const results = await Promise.all(out.map((t) => supabase.rpc("open_suggestions", { p_team_id: t.team_id })));
-  results.forEach((r, i) => {
-    if (r.error) {
-      logEvent("error", "aig1.open_suggestions_failed", errorFields(r.error));
-      throw new Error("Vorschläge konnten nicht geladen werden.");
-    }
-    out[i].suggestions = r.data ?? [];
-  });
   return out;
 }
 
@@ -117,6 +125,8 @@ export async function getStopLookback(stopId: string): Promise<LookbackLine[]> {
 
 export type VisitRecord = {
   id: string;
+  team_id: string | null;
+  responsible_user_id: string | null;
   visit_date: string | null;
   time_start: string | null;
   time_end: string | null;
@@ -162,6 +172,8 @@ export async function getVisitRecord(visitId: string): Promise<VisitRecord | nul
   const p = prov.data?.[0] ?? null;
   return {
     id: v.id,
+    team_id: v.team_id,
+    responsible_user_id: v.responsible_user_id,
     visit_date: v.visit_date,
     time_start: v.time_start,
     time_end: v.time_end,
@@ -179,4 +191,45 @@ export async function getVisitRecord(visitId: string): Promise<VisitRecord | nul
         }
       : null,
   };
+}
+
+export type RecordLookbackLine = Fn["record_lookback_lines"]["Returns"][number];
+
+export type RecordLookback = {
+  lines: RecordLookbackLine[];
+  /** Members of the record's team for "Ändern" (from the caller's own case list, `team_cases`). */
+  members: TeamMemberOption[];
+};
+
+/**
+ * AIG1-C2 (a)/(d): the look-back lines of this record, for active members of the record's team only
+ * (`record_lookback_lines`; a coordinator who is not a team member gets none, so the page shows her no control), and,
+ * when there is a line of a visit still open, the team's members for "Ändern" (the confirm screen's source).
+ */
+export async function getRecordLookback(visitId: string, teamId: string | null): Promise<RecordLookback> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("record_lookback_lines", {
+    p_entity_type: "care_visits",
+    p_entity_id: visitId,
+  });
+  if (error) {
+    logEvent("warn", "aig1.record_lookback_failed", errorFields(error));
+    return { lines: [], members: [] };
+  }
+  const lines = data ?? [];
+  if (!teamId || !lines.some((l) => l.record_open)) return { lines, members: [] };
+  const team = (await loadTeams()).find((t) => t.team_id === teamId);
+  return { lines, members: team?.members ?? [] };
+}
+
+/**
+ * AIG1-C3 (1): the role's home for the record page's back link when the page was not opened from a list (own
+ * memberships only, RLS; the same rule as the landing page after sign-in).
+ */
+export async function getHomeLink(): Promise<{ href: string; label: string }> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.from("organization_memberships").select("role");
+  if (error) logEvent("warn", "aig1.memberships_failed", errorFields(error));
+  const href = homePathForRoles((data ?? []).map((m) => m.role));
+  return { href, label: href === FIELD_PATH ? PAGE_LABEL.field : PAGE_LABEL.operations };
 }

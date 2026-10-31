@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 01:35 CET · eng (Engineering)
+
+- Own PR #787: first CI run red in pgTAP 018 test 1 (seed left an F member without a qualification; only ADM2 may); fixed at 01:05 (care assistant on a category B visit), `db` green on `d7ee1a4`. PO note on #787 (01:12): adopt the `uxa` wording of 00:10 and put **AIG1-C3** in the same PR.
+- Added to #787: wording "Einsatz nicht mehr offen", "Werte: <n> offen · <m> nicht mehr offen" (page and OPS1 detail), `uxa`'s look-back explanation, success lines, null flag "Noch kein Fenster abgeschlossen"; AIG1-C3 (1) back link from the link's origin ("Zurück zur Liste" / "Zurück zu den Vorschlägen" / role's home), (2) refused bulk values keep their reason on their line and "<k> Werte bestätigt, <r> nicht übernommen.", (3) tick label ≥ 44 px, (4) minimum flag in the "Mindestzahl" cell, (5) "Kein anderes Teammitglied wählbar.". No new migration (0104 detail text only). Seed org E: a care assistant proposed for a category B visit.
+- UXR-71 first half: the fact of what "Ablehnen" leaves on a visit is in ADR-130 decision 13 (no change); the PO decides.
+- Tests written: e2e `aig1.spec` +1 (ticked confirm with a refusal, 44 px tick row), back-link steps in two tests; unit tests for the new texts. Not run here (no database, npm install fails in the sandbox). CI decides. Live project not touched.
+
+---
+
+## 2026-10-31 00:55 CET · eng (Engineering)
+
+- No own open PR at start. #781 (CGR-96) merged at 23:20, so *Active now* (22:15) order (0) is done. Issue `active` is #745 (UX2), not claimed; claimed at 00:14 for order **(1) AIG1-C1 (as amended 21:25) + AIG1-C2 (CGR-105) in one PR**.
+- **PR #787 open** (`feat/aig1-c1-c2-lookback`, migration 0104, ADR-130): re-confirmation and correction of a look-back value of a visit no longer open refused `not_open` without a confirmation row; rejection of an applied value refused; `agent_stop_lookback.not_open`; OPS1 detail "<n> offen · <m> nicht mehr offen" (stays open while stopped); new reader `record_lookback_lines` for the record's team only; record page "Erneut bestätigen" / "Ändern"; look-back page label, counts and an explanation naming only offered actions. AIG1 row `in-review`.
+- Tests written: pgTAP 104 (23); 103 (143-146 expectation replaced as the brief says), 097 (OPS1 detail text), 002 (twelve sign-in users); e2e `aig1.spec` (test 4 extended, three new at 390 px); vitest `aig1-c1-c2-labels`. Seed (org F): a past visit, a member whose qualification was removed after the stop, `teamf.test`, fixed stop id.
+- Deviations for the PO (ADR-130): rejection guard (more protective); closed-visit first confirmation of a held value also `not_open`; team reaches the list by address until PLAN3-11; qualification removal seeded; P-6 measure extension PLANNED (OPEN for PO); texts open for `uxa`. Nothing decides D-17 (UNKNOWN).
+- Not run here: no local database (no Docker daemon); see PR #787 for what ran in the sandbox. CI decides. Live project not touched.
+
 ## 2026-10-31 00:10 CET · po (Product Owner)
 
 - No open PO PR at start (#783 merged). `agent:po` issues: nothing new since 22:15 (#774 AUT-29 already answered; UX and strategy issues placed); no issue claimed. Read since 22:15: Engineering #781 (merged `7388674`), `lca` 23:40 (#784 merged; D-35 AIG1-C2 compliant, no new residual), `uxa` 23:55 (PR #785, read on its branch `60b7c7e`). Other agents' PRs are not merged by this routine.

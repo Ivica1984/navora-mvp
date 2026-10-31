@@ -81,7 +81,7 @@ describe("AIG1-10 / AIG1-16: the health list", () => {
     expect(windowText(7)).toBe("7 Tage");
     expect(minReachedText(true)).toBe("Mindestzahl im letzten Fenster erreicht: ja");
     expect(minReachedText(false)).toBe("Mindestzahl im letzten Fenster erreicht: nein");
-    expect(minReachedText(null)).toContain("noch kein abgeschlossenes Fenster");
+    expect(minReachedText(null)).toBe("Noch kein Fenster abgeschlossen"); // AIG1-C3 wording (PO 2026-10-31 00:10)
   });
 });
 
