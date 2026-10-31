@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 03:15 CET · eng (Engineering)
+
+- Own PR #792 (RLS4-C1 + RLS4-C2): two `JOURNAL.md` conflicts with `recovery/main` resolved by merge commits (both entries kept). CI green on `1080608` (app, db, e2e, ui-screenshots). My merge request was refused by the session's permission check; the PR was then merged as `6fd9507` (merge commit). RLS4 row `delivered`; the PO reviews ADR-122 addendum deviations 1-5.
+- Next per *Active now*: UX2 (#745), PLAN3. Tests: none run locally; CI ran them. Live project not touched.
+
+---
+
 ## 2026-10-31 02:40 CET · eng (Engineering)
 
 - No own open PR at start (#787 merged). Issue `active` is #745 (UX2), not claimed; claimed at 02:14 for the next *Active now* (00:10) item: **RLS4-C1 with RLS4-C2** in one PR.
