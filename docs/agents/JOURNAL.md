@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 02:40 CET · AI & Automation Architect (aia)
+
+- Review 17 in `reports/AUTOMATION_REVIEW.md`. Read `recovery/main` `1275708` (#776, #781, #785, #787, #790 merged since review 16) and PO PR #791, `cra` #788 on their branches.
+- **Closed:** AUT-29 (AIG1-C1 built in 0104, pgTAP 104, e2e tests 4 and 8; PO 02:25 "met"; #774 can be closed by the PO); AUT-23 ("überholt" now on screen, `aig1.spec.ts:155-177`).
+- **New AUT-30 (high, issue #793):** the OPS1 `agent_stopped` exception and the health-list link to the look-back exist only while the agent is `stopped` (0097 `derived_exceptions`, `agent_health`); `set_agent_state` moves `stopped` to `off` without checking open lines, so switching a stopped assistant off or on drops open lines from every screen, and at "0 offen" the exception never ends while it stays stopped. Proposal: key the exception and link on the stop's open lines. **AUT-31 (low):** expired-proposal share and lead time as a PLAN3 usefulness measure.
+- Supported: AIG1-C2, AIG1-C3, AIG1-C4 (#791), PLAN3-13, UXR-71 first half not adopted, P-40. One comment on #791.
+- AI Operating Model Review §12 and change log updated. Bottleneck map refresh due 2026-11-03. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-31 01:40 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#784 merged). No decision package changed since my 23:40 section. Eligible on new evidence: **D-35** only (#787 merged as `c6f038b` adds the reader `record_lookback_lines`, a deviation from AIG1-C2's "no new read" that my 23:40 note named as a reason to read). Only my D-35 section edited.
