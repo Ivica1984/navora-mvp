@@ -26,8 +26,9 @@
 --   4. AIG1-C1 (2): `agent_stop_lookback` also returns `not_open` (the line is not superseded and its visit is no longer
 --      open). The return type changes, so the function is dropped and re-created with its grants (callers: the look-back
 --      page and pgTAP). No person column (AIG1-11 (4), pgTAP 071 unchanged).
---   5. AIG1-C1 (2)/(4): the OPS1 detail reads "<Agent> · <n> offen · <m> nicht mehr offen"; the exception stays open while
---      the agent is `stopped` (unchanged), so with every open-visit line handled it reads "0 offen · <m> nicht mehr offen".
+--   5. AIG1-C1 (2)/(4): the OPS1 detail reads "<Agent> · Werte: <n> offen · <m> nicht mehr offen" (wording adopted by the
+--      PO 2026-10-31 00:10 from `uxa`); the exception stays open while the agent is `stopped` (unchanged), so with every
+--      open-visit line handled it reads "Werte: 0 offen · <m> nicht mehr offen".
 --   6. AIG1-C2 (a)/(d): `record_lookback_lines(entity_type, entity_id)` returns, to active members of the record's team
 --      only (exactly those who may call `confirm_suggestion` for it), the listed suggestion of that record per field:
 --      suggestion id, field, agent name, stop and whether the visit is still open. No person, no outcome, no confirmer;
@@ -173,13 +174,13 @@ comment on function public.agent_stop_lookback(uuid) is
   'AIG1-12/-13/AIG1-C1: records holding a value of the stopped agent confirmed unchanged in the stop window (threshold) '
   'or since the switch-on (version change), not confirmed again or corrected since; a line whose record no longer holds '
   'the value stays, marked superseded ("überholt am <Datum>"); a line whose visit is no longer open stays, marked '
-  'not_open ("Besuch nicht mehr offen"), and is not counted as open. No person, no outcome column. Coordinators see '
+  'not_open ("Einsatz nicht mehr offen"), and is not counted as open. No person, no outcome column. Coordinators see '
   'every line; a member only the lines of her own teams'' records. Writes nothing.';
 
 -- 5. AIG1-C1 (2)/(4): the OPS1 detail shows both counts --------------------------------------------------------------------
 select private.aig1c_patch('private.derived_exceptions(uuid)', array[
   E'(select count(*) from private.aig1_lookback(st.id) l where not l.superseded) || '' offen''',
-  E'(select count(*) from private.aig1_lookback(st.id) l where not l.superseded\n'
+  E'''Werte: '' || (select count(*) from private.aig1_lookback(st.id) l where not l.superseded\n'
   || E'           and private.aig1_record_open(l.entity_type, l.entity_id)) || '' offen · ''\n'
   || E'         || (select count(*) from private.aig1_lookback(st.id) l where not l.superseded\n'
   || E'           and not private.aig1_record_open(l.entity_type, l.entity_id)) || '' nicht mehr offen'' /* AIG1-C1 */',

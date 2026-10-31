@@ -402,17 +402,21 @@ insert into public.care_visits (organization_id, id, created_at, case_id, team_i
 -- migration 0097) is the only agent. Written as the table owner, in the order the commands would write it.
 --
 -- Testorganisation E: the agent is on (as set_agent_state would write it; threshold written by the switch-on, a test
--- value, not a NAVORA default). Seven open proposals of Testteam E for tomorrow, none decided:
+-- value, not a NAVORA default). Eight open proposals of Testteam E for tomorrow, none decided:
 --   teame.test (…9a1): registered nurse of Testteam E who signs in and confirms at 390 px (AIG1-3/-4/-5).
 --   bezuge     (…9a2): registered nurse of Testteam E, primary nurse of Testfall E1, the proposed value; never signs in.
 --   visits …5a1-…5a6 (Testfall E1, nobody responsible): the agent proposes Bezug E (schedule field, bulk-eligible).
 --   visit  …5a7 (Testfall E2, no primary nurse): the agent found no value ("nicht gefunden", AIG1-4).
+--   assiste   (…9a3): care assistant of Testteam E, primary nurse of Testfall E3; never signs in.
+--   visit  …5a8 (Testfall E3, 14:00, category B minutes): the agent proposes Assistenz E; a ticked confirm refuses it
+--                not_qualified and keeps the reason on its line (AIG1-C3 (2), UXR-66).
 insert into public.organizations (id, name) values ('00000000-0000-4000-b000-000000000015', 'Testorganisation E');
 insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
   ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-000000000181', private.now() - interval '200 days', 'Testteam E', 'Bern Ost', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test E', 'Keine Massnahme', false, null);
 insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
   ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-000000000281', private.now() - interval '100 days', 'Testfall E1', 'Testfall', 'E1', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam E', '00000000-0000-4000-a000-000000000181', private.now() - interval '99 days'),
-  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-000000000282', private.now() - interval '100 days', 'Testfall E2', 'Testfall', 'E2', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam E', '00000000-0000-4000-a000-000000000181', private.now() - interval '99 days');
+  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-000000000282', private.now() - interval '100 days', 'Testfall E2', 'Testfall', 'E2', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam E', '00000000-0000-4000-a000-000000000181', private.now() - interval '99 days'),
+  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-000000000283', private.now() - interval '100 days', 'Testfall E3', 'Testfall', 'E3', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam E', '00000000-0000-4000-a000-000000000181', private.now() - interval '99 days');
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
@@ -423,32 +427,42 @@ insert into auth.users (
    '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009a2', 'authenticated', 'authenticated',
    'bezuge.test@navora.test', '', null,
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009a3', 'authenticated', 'authenticated',
+   'assiste.test@navora.test', '', null,
    '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
 insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
   ('00000000-0000-4000-a000-0000000009b1', '00000000-0000-4000-a000-0000000009a1', '00000000-0000-4000-a000-0000000009a1',
    '{"sub":"00000000-0000-4000-a000-0000000009a1","email":"teame.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now());
 insert into public.organization_memberships (organization_id, user_id, role) values
   ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-0000000009a1', 'nurse'),
-  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-0000000009a2', 'nurse');
+  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-0000000009a2', 'nurse'),
+  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-0000000009a3', 'nurse');
 insert into public.team_memberships (team_id, user_id, qualification) values
   ('00000000-0000-4000-a000-000000000181', '00000000-0000-4000-a000-0000000009a1', 'registered_nurse'),
-  ('00000000-0000-4000-a000-000000000181', '00000000-0000-4000-a000-0000000009a2', 'registered_nurse');
+  ('00000000-0000-4000-a000-000000000181', '00000000-0000-4000-a000-0000000009a2', 'registered_nurse'),
+  ('00000000-0000-4000-a000-000000000181', '00000000-0000-4000-a000-0000000009a3', 'care_assistant');
 insert into public.member_profiles (organization_id, user_id, display_name, updated_by) values
   ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-0000000009a1', 'Pflegekraft Team E', '00000000-0000-4000-a000-0000000009a1'),
-  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-0000000009a2', 'Pflegekraft Bezug E', '00000000-0000-4000-a000-0000000009a1');
+  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-0000000009a2', 'Pflegekraft Bezug E', '00000000-0000-4000-a000-0000000009a1'),
+  ('00000000-0000-4000-b000-000000000015', '00000000-0000-4000-a000-0000000009a3', 'Pflegekraft Assistenz E', '00000000-0000-4000-a000-0000000009a1');
 update public.cases set primary_nurse_id = '00000000-0000-4000-a000-0000000009a2'
 where id = '00000000-0000-4000-a000-000000000281';
+update public.cases set primary_nurse_id = '00000000-0000-4000-a000-0000000009a3'
+where id = '00000000-0000-4000-a000-000000000283';
 insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end,
-                                services_provided, billable, status, planned_minutes_a, responsible_user_id)
+                                services_provided, billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id)
 select '00000000-0000-4000-b000-000000000015', v.id::uuid, private.now() - interval '2 days', v.case_id::uuid,
        '00000000-0000-4000-a000-000000000181', (private.now() at time zone 'Europe/Zurich')::date + 1,
-       v.t0::time, v.t0::time + interval '30 minutes', array['Grundpflege'], false, 'planned', 30, null
+       v.t0::time, v.t0::time + interval '30 minutes', array['Grundpflege'], false, 'planned',
+       case when v.t0 = '14:00' then 0 else 30 end, case when v.t0 = '14:00' then 30 else 0 end, null
 from (values ('00000000-0000-4000-a000-0000000005a1', '00000000-0000-4000-a000-000000000281', '08:00'),
              ('00000000-0000-4000-a000-0000000005a2', '00000000-0000-4000-a000-000000000281', '09:00'),
              ('00000000-0000-4000-a000-0000000005a3', '00000000-0000-4000-a000-000000000281', '10:00'),
              ('00000000-0000-4000-a000-0000000005a4', '00000000-0000-4000-a000-000000000281', '11:00'),
              ('00000000-0000-4000-a000-0000000005a5', '00000000-0000-4000-a000-000000000281', '12:00'),
              ('00000000-0000-4000-a000-0000000005a6', '00000000-0000-4000-a000-000000000281', '13:00'),
+             ('00000000-0000-4000-a000-0000000005a8', '00000000-0000-4000-a000-000000000283', '14:00'),
              ('00000000-0000-4000-a000-0000000005a7', '00000000-0000-4000-a000-000000000282', '15:00')) v(id, case_id, t0);
 insert into public.ai_agent_settings (organization_id, agent_key, state, stop_share, stop_min_proposals, stop_window_days,
                                       switched_on_by, switched_on_at, on_version, on_provider, on_region)

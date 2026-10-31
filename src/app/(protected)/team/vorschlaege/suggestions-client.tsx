@@ -5,7 +5,16 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { confirmSuggestion, confirmSuggestions } from "@/features/ai/commands";
 import type { OpenSuggestion, TeamMemberOption, TeamSuggestions } from "@/features/ai/queries";
-import { NOT_FOUND_TEXT, bulkConfirmLabel, fieldLabel, formatDate, hhmm, proposedByText } from "@/features/ai/labels";
+import {
+  NOT_FOUND_TEXT,
+  NO_OTHER_MEMBER_TEXT,
+  bulkConfirmLabel,
+  bulkResultText,
+  fieldLabel,
+  formatDate,
+  hhmm,
+  proposedByText,
+} from "@/features/ai/labels";
 
 const button = "min-h-11 rounded-lg px-3 text-sm font-semibold disabled:opacity-60";
 
@@ -38,6 +47,9 @@ function TeamList({ team }: { team: TeamSuggestions }) {
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // AIG1-C3 (2) / UXR-66: the reason of each value refused in the last ticked confirm, shown on its own line.
+  const [refusals, setRefusals] = useState<Record<string, string>>({});
+  const [refusedCount, setRefusedCount] = useState(0);
   const eligible = team.suggestions.filter((s) => s.bulk_allowed);
 
   function toggle(id: string, on: boolean) {
@@ -49,6 +61,8 @@ function TeamList({ team }: { team: TeamSuggestions }) {
     setPending(true);
     setError(null);
     setMessage(null);
+    setRefusals({});
+    setRefusedCount(0);
     const result = await confirmSuggestions({ suggestionIds: ticked, idempotencyKey: crypto.randomUUID() });
     setPending(false);
     if (!result.ok) {
@@ -56,9 +70,10 @@ function TeamList({ team }: { team: TeamSuggestions }) {
       return;
     }
     setTicked([]);
-    const n = result.confirmed ?? 0;
-    setMessage(n === 1 ? "1 Wert bestätigt." : `${n} Werte bestätigt.`);
-    if (result.refused && result.refused.length > 0) setError(result.refused.join(" "));
+    const refused = result.refused ?? [];
+    setRefusals(Object.fromEntries(refused.map((x) => [x.id, x.text])));
+    setRefusedCount(refused.length);
+    setMessage(bulkResultText(result.confirmed ?? 0, refused.length));
     router.refresh();
   }
 
@@ -75,6 +90,7 @@ function TeamList({ team }: { team: TeamSuggestions }) {
               tickable={s.bulk_allowed}
               ticked={ticked.includes(s.suggestion_id)}
               onTick={(on) => toggle(s.suggestion_id, on)}
+              refusal={refusals[s.suggestion_id] ?? null}
             />
           </li>
         ))}
@@ -94,7 +110,8 @@ function TeamList({ team }: { team: TeamSuggestions }) {
         </div>
       )}
       {message && (
-        <p role="status" data-testid="bulk-result" className="text-sm font-semibold">
+        // Announced once: an alert when values were not taken over (their reasons stay on their lines), else a status.
+        <p role={refusedCount > 0 ? "alert" : "status"} data-testid="bulk-result" className="text-sm font-semibold">
           {message}
         </p>
       )}
@@ -114,6 +131,7 @@ function SuggestionLine({
   tickable,
   ticked,
   onTick,
+  refusal,
 }: {
   suggestion: OpenSuggestion;
   client: string | null;
@@ -121,6 +139,7 @@ function SuggestionLine({
   tickable: boolean;
   ticked: boolean;
   onTick: (on: boolean) => void;
+  refusal: string | null;
 }) {
   const router = useRouter();
   const [mode, setMode] = useState<"idle" | "change">("idle");
@@ -147,8 +166,9 @@ function SuggestionLine({
 
   return (
     <article aria-label={`Vorschlag ${label}`} data-testid="suggestion" className="grid gap-1 rounded-xl border border-stone-200 p-3 text-sm">
-      <div className="flex items-start gap-2">
-        {tickable && (
+      {tickable ? (
+        // AIG1-C3 (3) / UXR-69: box and line text in one label, at least 44 px high; tapping the text ticks this line only.
+        <label data-testid="suggestion-tick-label" className="flex min-h-11 cursor-pointer items-start gap-2">
           <input
             type="checkbox"
             data-testid="suggestion-tick"
@@ -157,17 +177,18 @@ function SuggestionLine({
             onChange={(e) => onTick(e.target.checked)}
             className="mt-1 h-6 w-6 shrink-0"
           />
-        )}
-        <div className="grid gap-0.5">
-          <p className="font-semibold">{label || "Einsatz"}</p>
-          <p data-testid="suggestion-value">
-            {fieldLabel(s.field)}: <span className="font-bold">{proposedValue}</span>
-          </p>
-          <p data-testid="suggestion-agent" className="text-xs text-secondary">
-            {proposedByText(s.agent_name)}
-          </p>
+          <SuggestionText suggestion={s} label={label} proposedValue={proposedValue} />
+        </label>
+      ) : (
+        <div className="flex items-start gap-2">
+          <SuggestionText suggestion={s} label={label} proposedValue={proposedValue} />
         </div>
-      </div>
+      )}
+      {refusal && (
+        <p data-testid="suggestion-refusal" className="rounded border border-rose-300 bg-white p-2 font-semibold text-rose-800">
+          {refusal}
+        </p>
+      )}
       {error && (
         <p role="alert" data-testid="command-error" className="rounded border border-rose-300 bg-white p-2 font-semibold text-rose-800">
           {error}
@@ -187,12 +208,17 @@ function SuggestionLine({
               <button type="button" disabled={pending || others.length === 0} onClick={() => setMode("change")} className={`${button} border border-stone-400 bg-white`}>
                 Ändern
               </button>
+              {others.length === 0 && (
+                <span data-testid="no-other-member" className="flex min-h-11 items-center text-xs text-secondary">
+                  {NO_OTHER_MEMBER_TEXT}
+                </span>
+              )}
               <button type="button" disabled={pending} onClick={() => send("rejected", null)} className={`${button} border border-stone-400 bg-white`}>
                 Ablehnen
               </button>
             </>
           )}
-          <Link href={`/visits/${s.entity_id}`} className="flex min-h-11 items-center px-1 text-sm font-semibold underline underline-offset-4">
+          <Link href={`/visits/${s.entity_id}?von=vorschlaege`} className="flex min-h-11 items-center px-1 text-sm font-semibold underline underline-offset-4">
             Einsatz öffnen
           </Link>
         </div>
@@ -229,5 +255,19 @@ function SuggestionLine({
         </form>
       )}
     </article>
+  );
+}
+
+function SuggestionText({ suggestion: s, label, proposedValue }: { suggestion: OpenSuggestion; label: string; proposedValue: string }) {
+  return (
+    <span className="grid gap-0.5">
+      <span className="block font-semibold">{label || "Einsatz"}</span>
+      <span className="block" data-testid="suggestion-value">
+        {fieldLabel(s.field)}: <span className="font-bold">{proposedValue}</span>
+      </span>
+      <span className="block text-xs text-secondary" data-testid="suggestion-agent">
+        {proposedByText(s.agent_name)}
+      </span>
+    </span>
   );
 }

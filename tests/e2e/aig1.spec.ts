@@ -2,12 +2,13 @@ import { expect, test, type Page } from "@playwright/test";
 
 // AIG1 part (b) (ADR-129, migrations 0097/0103). Synthetic local-only accounts from supabase/seed.sql, in organisations of
 // their own (no org-A to org-D count changes):
-// - teame.test (Testorganisation E, registered nurse of Testteam E): seven open proposals of the synthetic test agent for
-//   tomorrow: 08:00-13:00 propose "Pflegekraft Bezug E" (bulk-eligible schedule field), 15:00 found no value.
+// - teame.test (Testorganisation E, registered nurse of Testteam E): eight open proposals of the synthetic test agent for
+//   tomorrow: 08:00-13:00 propose "Pflegekraft Bezug E" (bulk-eligible schedule field), 14:00 (category B minutes)
+//   proposes "Pflegekraft Assistenz E", a care assistant (refused not_qualified, AIG1-C3 (2)), 15:00 found no value.
 // - opsf.test (Testorganisation F, operations): the agent stopped by its threshold; four values confirmed unchanged in the
 //   stop window by "Pflegekraft Bestätigt F", one of them later replaced ("überholt").
 //   AIG1-C1 / AIG1-C2 (ADR-130, migration 0104): of the three lines still holding their value, …5b1 is dated yesterday
-//   ("Besuch nicht mehr offen", counted apart), …5b2 is open with a valid member, …5b3 (category B minutes) holds a
+//   ("Einsatz nicht mehr offen", counted apart), …5b2 is open with a valid member, …5b3 (category B minutes) holds a
 //   member recorded as care assistant after the stop.
 // - teamf.test (Testorganisation F, registered nurse of Testteam F): re-checks look-back values on the record page at 390 px.
 // The confirm screen runs at 390 px, the health and look-back lists at desktop width (AIG1-10, AIG1-12 to AIG1-16).
@@ -43,7 +44,7 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
 
   test("one value at a time: 'vorgeschlagen von', 'nicht gefunden', confirm and change (AIG1-3, AIG1-4, AIG1-10)", async ({ page }) => {
     const lines = page.getByRole("list", { name: "Offene Vorschläge" }).getByTestId("suggestion");
-    await expect(lines).toHaveCount(7);
+    await expect(lines).toHaveCount(8);
 
     // AIG1-4: the agent found no value; the screen says so, never an empty value, and offers no tick and no plain confirm.
     const notFound = lines.filter({ hasText: "15:00" });
@@ -76,8 +77,8 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
     const lines = page.getByRole("list", { name: "Offene Vorschläge" }).getByTestId("suggestion");
     const ticks = page.getByTestId("suggestion-tick");
     const checked = () => ticks.evaluateAll((els) => els.filter((e) => (e as HTMLInputElement).checked).length);
-    await expect(lines).toHaveCount(5);
-    await expect(ticks).toHaveCount(5);
+    await expect(lines).toHaveCount(6);
+    await expect(ticks).toHaveCount(6);
     expect(await checked()).toBe(0);
     // No "select all" and no "alle übernehmen".
     await expect(page.getByRole("button", { name: /alle/i })).toHaveCount(0);
@@ -93,10 +94,40 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
     await expect(button).toHaveText("3 angekreuzte Werte bestätigen");
     await button.click();
     await expect(page.getByTestId("bulk-result")).toHaveText("3 Werte bestätigt.");
-    await expect(lines).toHaveCount(2);
+    await expect(lines).toHaveCount(3);
     await expect(lines.filter({ hasText: "11:00" })).toHaveCount(1);
     await expect(lines.filter({ hasText: "12:00" })).toHaveCount(1);
+    await expect(lines.filter({ hasText: "14:00" })).toHaveCount(1);
     expect(await checked()).toBe(0);
+  });
+
+  test("a refused value keeps its reason on its line; the result names both counts; tick rows are 44 px and tap by text (AIG1-C3 (2), (3))", async ({ page }) => {
+    const lines = page.getByRole("list", { name: "Offene Vorschläge" }).getByTestId("suggestion");
+    const ticks = page.getByTestId("suggestion-tick");
+    const checked = () => ticks.evaluateAll((els) => els.filter((e) => (e as HTMLInputElement).checked).length);
+    await expect(lines).toHaveCount(3);
+    expect(await checked()).toBe(0);
+
+    // UXR-69: the tick label (box and line text) is at least 44 px high; tapping its text ticks only that line.
+    const label = lines.filter({ hasText: "11:00" }).getByTestId("suggestion-tick-label");
+    const box = await label.boundingBox();
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+    await label.getByTestId("suggestion-value").click();
+    await expect.poll(checked).toBe(1);
+    await expect(lines.filter({ hasText: "11:00" }).getByTestId("suggestion-tick")).toBeChecked();
+
+    await lines.filter({ hasText: "12:00" }).getByTestId("suggestion-tick").check();
+    await lines.filter({ hasText: "14:00" }).getByTestId("suggestion-tick").check();
+    await expect.poll(checked).toBe(3);
+    await page.getByTestId("bulk-confirm").click();
+
+    // UXR-66: both counts; the refused value stays with its own reason, the two others leave.
+    await expect(page.getByTestId("bulk-result")).toHaveText("2 Werte bestätigt, 1 nicht übernommen.");
+    await expect(lines).toHaveCount(1);
+    const refused = lines.filter({ hasText: "14:00" });
+    await expect(refused.getByTestId("suggestion-refusal")).toHaveText(
+      "Nicht übernommen: Diese Person darf den Einsatz nicht durchführen (Mitgliedschaft oder Qualifikation).",
+    );
   });
 });
 
@@ -125,14 +156,14 @@ test.describe("AIG1 health and look-back lists at desktop width (Testorganisatio
     await page.goto("/operations");
     const exception = page.getByRole("article", { name: "Ausnahme Assistent gestoppt" });
     // AIG1-C1 (2): both counts, the past visit's line counted apart.
-    await expect(exception).toContainText(`${AGENT} · 2 offen · 1 nicht mehr offen`);
+    await expect(exception).toContainText(`${AGENT} · Werte: 2 offen · 1 nicht mehr offen`);
     await exception.getByTestId("lookback-link").click();
     await page.waitForURL(/\/operations\/assistenten\/rueckblick\//);
 
     const list = page.getByRole("list", { name: "Betroffene Werte" });
     const lines = list.getByTestId("lookback-line");
     await expect(lines).toHaveCount(4);
-    await expect(page.getByTestId("lookback-open-count")).toHaveText("2 offen · 1 nicht mehr offen");
+    await expect(page.getByTestId("lookback-open-count")).toHaveText("Werte: 2 offen · 1 nicht mehr offen");
     // AIG1-14: no confirmer's name, no "bestätigt von", no outcome, no person filter or sort.
     await expect(list).not.toContainText(CONFIRMER_F);
     await expect(list).not.toContainText("bestätigt von");
@@ -149,18 +180,22 @@ test.describe("AIG1 health and look-back lists at desktop width (Testorganisatio
     // AIG1-C1 (2)/(3): the past visit's line stays, says so with its date, and has no confirm control.
     const notOpen = lines.filter({ has: page.getByTestId("lookback-not-open") });
     await expect(notOpen).toHaveCount(1);
-    await expect(notOpen.getByTestId("lookback-not-open")).toHaveText(/^Besuch nicht mehr offen \(Einsatz vom \d{2}\.\d{2}\.\d{4}\)$/);
+    await expect(notOpen.getByTestId("lookback-not-open")).toHaveText("Einsatz nicht mehr offen");
     await expect(list.getByRole("button")).toHaveCount(0);
     await expect(list).not.toContainText(/bestätigen|ändern/i);
 
     // A line opens its record. AIG1-C2 (d): Operations sees the record without a confirm or change control.
     await lines.filter({ hasNot: page.getByTestId("lookback-superseded") }).filter({ hasNot: page.getByTestId("lookback-not-open") }).first().click();
-    await page.waitForURL(new RegExp(`/visits/${VISIT_F_OPEN}$`));
+    await page.waitForURL(new RegExp(`/visits/${VISIT_F_OPEN}\\?`));
     await expect(page.getByTestId("visit-record")).toBeVisible();
     await expect(page.getByTestId("visit-responsible")).toHaveText("Pflegekraft Bezug F");
     await expect(page.getByRole("button", { name: "Erneut bestätigen" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Ändern" })).toHaveCount(0);
     await expect(page.getByTestId("record-lookback")).toHaveCount(0);
+    // AIG1-C3 (1): back to the same stop's list.
+    await expect(page.getByTestId("record-back")).toHaveText("Zurück zur Liste");
+    await page.getByTestId("record-back").click();
+    await page.waitForURL(new RegExp(`/operations/assistenten/rueckblick/${STOP_F}$`));
   });
 });
 
@@ -174,27 +209,30 @@ test.describe.serial("AIG1-C1 / AIG1-C2: the team re-checks look-back values on 
     await page.goto(`/operations/assistenten/rueckblick/${STOP_F}`);
     const lines = page.getByRole("list", { name: "Betroffene Werte" }).getByTestId("lookback-line");
     await expect(lines).toHaveCount(4);
-    await expect(page.getByTestId("lookback-open-count")).toHaveText("2 offen · 1 nicht mehr offen");
+    await expect(page.getByTestId("lookback-open-count")).toHaveText("Werte: 2 offen · 1 nicht mehr offen");
     // The look-back page names only actions the product offers (AIG1-C2 (c)).
     await expect(page.getByTestId("lookback-explanation")).toContainText("erneut bestätigt oder ändert");
 
-    await page.locator(`a[href="/visits/${VISIT_F_OPEN}"]`).click();
-    await page.waitForURL(new RegExp(`/visits/${VISIT_F_OPEN}$`));
+    await page.locator(`a[href^="/visits/${VISIT_F_OPEN}?"]`).click();
+    await page.waitForURL(new RegExp(`/visits/${VISIT_F_OPEN}\\?`));
     const section = page.getByTestId("record-lookback");
     await expect(section.getByRole("button", { name: "Erneut bestätigen" })).toBeVisible();
     await expect(section.getByRole("button", { name: "Ändern" })).toBeVisible();
     // Never the ticked list (AIG1-13 (a)).
     await expect(page.getByRole("checkbox")).toHaveCount(0);
     await section.getByRole("button", { name: "Erneut bestätigen" }).click();
-    await expect(page.getByTestId("record-lookback-result")).toHaveText("Wert erneut bestätigt.");
+    await expect(page.getByTestId("record-lookback-result")).toHaveText("Erneut bestätigt. Der Wert ist nicht mehr auf der Liste.");
     await expect(page.getByTestId("record-lookback-line")).toHaveCount(0);
     await expect(page.getByTestId("value-provenance")).toHaveText(
       `vorgeschlagen von ${AGENT} / bestätigt von Pflegekraft Team F am ${zurichToday()}`,
     );
 
-    await page.goto(`/operations/assistenten/rueckblick/${STOP_F}`);
+    // AIG1-C3 (1): "Zurück zur Liste" returns to the same stop's list.
+    await expect(page.getByTestId("record-back")).toHaveText("Zurück zur Liste");
+    await page.getByTestId("record-back").click();
+    await page.waitForURL(new RegExp(`/operations/assistenten/rueckblick/${STOP_F}$`));
     await expect(lines).toHaveCount(3);
-    await expect(page.getByTestId("lookback-open-count")).toHaveText("1 offen · 1 nicht mehr offen");
+    await expect(page.getByTestId("lookback-open-count")).toHaveText("Werte: 1 offen · 1 nicht mehr offen");
   });
 
   test("a member no longer qualified for the visit (care assistant, category B): the not_qualified text, the count is unchanged (AIG1-C2 (a), AIG1-15)", async ({ page }) => {
@@ -207,15 +245,13 @@ test.describe.serial("AIG1-C1 / AIG1-C2: the team re-checks look-back values on 
     await expect(page.getByTestId("record-lookback-line")).toHaveCount(1);
 
     await page.goto(`/operations/assistenten/rueckblick/${STOP_F}`);
-    await expect(page.getByTestId("lookback-open-count")).toHaveText("1 offen · 1 nicht mehr offen");
+    await expect(page.getByTestId("lookback-open-count")).toHaveText("Werte: 1 offen · 1 nicht mehr offen");
   });
 
-  test("a line of a visit no longer open: 'Besuch nicht mehr offen', no confirm or change control (AIG1-C1 (2), AIG1-C2 (b))", async ({ page }) => {
+  test("a line of a visit no longer open: 'Einsatz nicht mehr offen', no confirm or change control (AIG1-C1 (2), AIG1-C2 (b))", async ({ page }) => {
     await page.goto(`/visits/${VISIT_F_PAST}`);
     const section = page.getByTestId("record-lookback");
-    await expect(section.getByTestId("record-lookback-not-open")).toHaveText(
-      /^Besuch nicht mehr offen \(Einsatz vom \d{2}\.\d{2}\.\d{4}\)$/,
-    );
+    await expect(section.getByTestId("record-lookback-not-open")).toHaveText("Einsatz nicht mehr offen");
     await expect(section.getByRole("button")).toHaveCount(0);
   });
 });

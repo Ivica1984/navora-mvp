@@ -369,7 +369,7 @@ select ok((select state = 'stopped' from public.ai_agent_settings where agent_ke
 create temp table stop1 as select id from public.ai_agent_stops order by seq desc limit 1;
 select is(pg_temp.rows('ops', format('select label, detail from public.operations_exceptions() where exception_key = %L',
                                      'agent_stopped:' || (select id from stop1))),
-  '[{"label": "Assistent gestoppt", "detail": "Testassistent Bezugspflege · 4 offen · 0 nicht mehr offen"}]'::jsonb,
+  '[{"label": "Assistent gestoppt", "detail": "Testassistent Bezugspflege · Werte: 4 offen · 0 nicht mehr offen"}]'::jsonb,
   'AIG1-8 / AIG1-C1: one OPS1 exception "Assistent gestoppt" names the agent, the open look-back lines and those of visits no longer open');
 select is((select string_agg(e ->> 'entity_id', ',' order by e ->> 'entity_id')
            from jsonb_array_elements(pg_temp.rows('ops', format('select entity_id from public.agent_stop_lookback(%L)', (select id from stop1)))) e),
@@ -392,7 +392,7 @@ select is(pg_temp.rows('ops', format('select superseded, superseded_at is not nu
   '[{"dated": true, "superseded": true}]'::jsonb, 'AIG1-13 (b): a superseded listed value stays on the list, "überholt am <Datum>"');
 select is(pg_temp.rows('ops', format('select detail from public.operations_exceptions() where exception_key = %L',
                                      'agent_stopped:' || (select id from stop1))),
-  '[{"detail": "Testassistent Bezugspflege · 2 offen · 0 nicht mehr offen"}]'::jsonb,
+  '[{"detail": "Testassistent Bezugspflege · Werte: 2 offen · 0 nicht mehr offen"}]'::jsonb,
   'AIG1-13 (b): re-checked and superseded lines are not counted as open');
 
 -- AIG1-8: restart (on T+1), then a closed window over the threshold stops it ------------------------------------------------

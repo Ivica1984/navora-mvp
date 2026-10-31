@@ -3,15 +3,16 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { AppFrame } from "@/components/layout/Sidebar";
 import { getStopLookback } from "@/features/ai/queries";
-import { LOOKBACK_EXPLANATION, fieldLabel, formatDate, lookbackCountsText, notOpenText, supersededText } from "@/features/ai/labels";
+import { LOOKBACK_EXPLANATION, NOT_OPEN_TEXT, fieldLabel, formatDate, lookbackCountsText, supersededText } from "@/features/ai/labels";
 
 // AIG1-12 / -13 / -14 (ADR-129): after a stop, the records that hold a value of that agent confirmed unchanged in the
 // stop window. Its own line layout: record (case reference, visit date), field and, where it applies, "überholt am
 // <Datum>". No person name, no "bestätigt von", no outcome, no person filter or sort (AIG1-14); agent_stop_lookback
 // returns no such column. Each line has one action: it opens its record. The list writes nothing; whether, by whom and
 // by when a value is re-checked is the Clinical Owner's (D-17, UNKNOWN). AIG1-C1 (ADR-130): a line of a visit no longer
-// open stays, labelled "Besuch nicht mehr offen" with the visit date, and is counted apart ("<n> offen · <m> nicht mehr
-// offen"); the explanation names only the record page's actions (AIG1-C2 (c)).
+// open stays, labelled "Einsatz nicht mehr offen" (the line shows its date), and is counted apart ("Werte: <n> offen · <m>
+// nicht mehr offen"); the explanation names only the record page's actions (AIG1-C2 (c)). AIG1-C3 (1): each line passes
+// its origin to the record page, which links back here. Wording adopted by the PO 2026-10-31 00:10 from `uxa`.
 export default async function LookbackPage({ params }: { params: Promise<{ stopId: string }> }) {
   await connection();
   const { stopId } = await params;
@@ -43,7 +44,7 @@ export default async function LookbackPage({ params }: { params: Promise<{ stopI
             {lines.map((l) => (
               <li key={`${l.entity_type}:${l.entity_id}:${l.field}`}>
                 <Link
-                  href={`/visits/${l.entity_id}`}
+                  href={`/visits/${l.entity_id}?von=rueckblick&stopp=${stopId}`}
                   data-testid="lookback-line"
                   className="grid gap-0.5 rounded-lg border border-stone-200 bg-white p-3 text-sm hover:border-emerald-700"
                 >
@@ -60,7 +61,7 @@ export default async function LookbackPage({ params }: { params: Promise<{ stopI
                   )}
                   {l.not_open && (
                     <span data-testid="lookback-not-open" className="text-xs font-semibold">
-                      {notOpenText(l.visit_date)}
+                      {NOT_OPEN_TEXT}
                     </span>
                   )}
                 </Link>

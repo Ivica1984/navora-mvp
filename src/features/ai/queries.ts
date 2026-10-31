@@ -5,7 +5,8 @@ import "server-only";
 
 import { requireUser } from "@/lib/auth/session";
 import type { Database } from "@/lib/supabase/database.types";
-import { COORDINATOR_ROLES } from "@/lib/auth/nav";
+import { COORDINATOR_ROLES, PAGE_LABEL } from "@/lib/auth/nav";
+import { FIELD_PATH, homePathForRoles } from "@/lib/auth/paths";
 import { errorFields, logEvent } from "@/lib/log";
 import type { Provenance } from "./labels";
 
@@ -219,4 +220,16 @@ export async function getRecordLookback(visitId: string, teamId: string | null):
   if (!teamId || !lines.some((l) => l.record_open)) return { lines, members: [] };
   const team = (await loadTeams()).find((t) => t.team_id === teamId);
   return { lines, members: team?.members ?? [] };
+}
+
+/**
+ * AIG1-C3 (1): the role's home for the record page's back link when the page was not opened from a list (own
+ * memberships only, RLS; the same rule as the landing page after sign-in).
+ */
+export async function getHomeLink(): Promise<{ href: string; label: string }> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.from("organization_memberships").select("role");
+  if (error) logEvent("warn", "aig1.memberships_failed", errorFields(error));
+  const href = homePathForRoles((data ?? []).map((m) => m.role));
+  return { href, label: href === FIELD_PATH ? PAGE_LABEL.field : PAGE_LABEL.operations };
 }

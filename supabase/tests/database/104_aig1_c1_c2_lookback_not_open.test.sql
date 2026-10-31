@@ -126,7 +126,7 @@ select is((select string_agg(((e ->> 'entity_id') = pg_temp.v(4)::text)::text ||
                              order by e ->> 'entity_id') from jsonb_array_elements(pg_temp.lookback()) e),
   'false:true,false:true,false:true,true:false',
   'AIG1-C1 (2): all four lines stay listed; the three past visits are returned not_open, the open visit is not');
-select is(pg_temp.detail(), '[{"detail": "Testassistent Bezugspflege · 1 offen · 3 nicht mehr offen"}]'::jsonb,
+select is(pg_temp.detail(), '[{"detail": "Testassistent Bezugspflege · Werte: 1 offen · 3 nicht mehr offen"}]'::jsonb,
   'AIG1-C1 (2): the OPS1 detail shows both counts; the past visits are not counted as open');
 select is((select count(*)::int from unnest((select proargnames from pg_proc where oid = 'public.agent_stop_lookback(uuid)'::regprocedure)
                                           || (select proargnames from pg_proc where oid = 'public.record_lookback_lines(text, uuid)'::regprocedure)) a
@@ -172,8 +172,8 @@ select ok(pg_temp.confs() = (select n from c0) + 1 and pg_temp.line(4) is null
   'AIG1-15 (iv): one ai_confirmations row; the line leaves the list and the record page');
 
 -- AIG1-C1 (4): every open-visit line handled, the agent still stopped: "0 offen · 3 nicht mehr offen" ---------------------
-select is(pg_temp.detail(), '[{"detail": "Testassistent Bezugspflege · 0 offen · 3 nicht mehr offen"}]'::jsonb,
-  'AIG1-C1 (4): the exception stays open while the agent is stopped and reads "0 offen · 3 nicht mehr offen"');
+select is(pg_temp.detail(), '[{"detail": "Testassistent Bezugspflege · Werte: 0 offen · 3 nicht mehr offen"}]'::jsonb,
+  'AIG1-C1 (4): the exception stays open while the agent is stopped and reads "Werte: 0 offen · 3 nicht mehr offen"');
 select is((select state from public.ai_agent_settings where organization_id = '00000000-0000-4000-b000-000000000011'
              and agent_key = 'aig1_test_primary_nurse'), 'stopped',
   'AIG1-C1 (4): the agent stays stopped (closes only on a new audited switch-on)');
