@@ -208,7 +208,7 @@ The inventory of 2026-10-29 (0001-0096) listed every remaining **select** grant 
 
 **Legacy, closed (RLS4-6, 0099):** `care_visits.team_member_name` (free-text nurse name from before J3) is not selectable and not read or written by the app; `/visits` shows "Pflegekraft: <Name>" from `responsible_user_id` and `member_profiles` ("Noch offen" without, "Teammitglied" without a display name). Not dropped until the D-1 live reconciliation.
 
-**Existing per-person paths (LEAVE1, unchanged, pinned by pgTAP 099):** `member_open_reports(user)` and the command `remove_team_member` take a person and read her open reports (kind, visit date, team) for the access-end handover. ADR-122 deviation 4 (OPEN, PO).
+**Existing per-person paths (LEAVE1, unchanged, pinned by pgTAP 099):** `member_open_reports(user)` and the command `remove_team_member` take a person and read her open reports (kind, visit date, team) for the access-end handover. ADR-122 deviation 4 (OPEN, PO). **RLS4-C2 (po 2026-10-30 07:20; ADR-122 addendum):** the app calls `member_open_reports` only for one member when an administrator opens her access-end step on `/admin` (`readMemberOpenReports`), and for the leavers of the next 14 days (ADM2-12, `getLeaverOpenReports`, `/admin` and `/team`); `/admin` no longer loads it for every member. Function, readers and pin unchanged.
 
 **Accepted assignment reads (RLS4-2, unchanged).** `lca` read the keep-list on #715 at 02:45 (D-23, advisory): these five are compliant under every plausible interpretation; the three it flagged moved to RLS4-1 (RLS4-5).
 

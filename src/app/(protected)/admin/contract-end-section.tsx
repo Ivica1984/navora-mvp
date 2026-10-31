@@ -90,7 +90,7 @@ export function AdminHandover({ leavers, openReports }: { leavers: Leaver[]; ope
       <h3 className="text-lg font-bold">Austritte in den nächsten 14 Tagen</h3>
       <ul className="grid gap-3">
         {leavers.map((l) => (
-          <LeaverEntry key={l.user_id} leaver={l} reports={openReports[l.user_id] ?? []}>
+          <LeaverEntry key={l.user_id} leaver={l} reports={openReports[l.user_id]}>
             <PrepareEnd userId={l.user_id} />
           </LeaverEntry>
         ))}
