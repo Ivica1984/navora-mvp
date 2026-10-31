@@ -53,7 +53,7 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
     await expect(notFound.getByTestId("suggestion-tick")).toHaveCount(0);
     await expect(notFound.getByRole("button", { name: "Bestätigen", exact: true })).toHaveCount(0);
     await notFound.getByRole("button", { name: "Als „nicht gefunden“ bestätigen" }).click();
-    await expect(lines).toHaveCount(6);
+    await expect(lines).toHaveCount(7);
 
     // AIG1-3: one proposed value, "vorgeschlagen von", changed to another member; the changed value is hers.
     const change = lines.filter({ hasText: "13:00" });
@@ -63,7 +63,7 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
     await change.getByRole("button", { name: "Ändern" }).click();
     await change.getByRole("combobox").selectOption({ label: "Pflegekraft Team E (du)" });
     await change.getByRole("button", { name: "Geänderten Wert bestätigen" }).click();
-    await expect(lines).toHaveCount(5);
+    await expect(lines).toHaveCount(6);
 
     // The record shows the value and "vorgeschlagen von <Agent> / … bestätigt von <Name> am <Datum>" for this one value.
     await page.goto(`/visits/${VISIT_E_1300}`);
