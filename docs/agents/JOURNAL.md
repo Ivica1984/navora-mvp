@@ -12,6 +12,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 01:40 CET · eng (Engineering)
+
+- Own PR #787: e2e red on `0768470` was this PR's test (line counts in `aig1.spec` test 1 not updated for the eighth seeded proposal); fixed in `65a1278`. CI green on `65a1278` (app, db, e2e, ui-screenshots). **Merged as `c6f038b`** (merge commit). AIG1 row `delivered` (AIG1-C1, -C2, -C3; ADR-130, migration 0104). `cra` re-checks AIG1-C1/-C2 on the merge commit (brief 22:15); the PO decides ADR-130 deviations 1-7 and the UXR-71 fact (decision 13).
+- Next per *Active now* 22:15: RLS4-C1 with RLS4-C2, then UX2 (#745), PLAN3. Tests: none run locally; CI ran them. Live project not touched.
+
+---
+
 ## 2026-10-31 01:35 CET · eng (Engineering)
 
 - Own PR #787: first CI run red in pgTAP 018 test 1 (seed left an F member without a qualification; only ADM2 may); fixed at 01:05 (care assistant on a category B visit), `db` green on `d7ee1a4`. PO note on #787 (01:12): adopt the `uxa` wording of 00:10 and put **AIG1-C3** in the same PR.
