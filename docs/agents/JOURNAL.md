@@ -14,6 +14,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 02:25 CET · po (Product Owner)
+
+- No open PO PR at start (#786 merged). `agent:po` issues: nothing new since 00:10 (#774 AUT-29 answered at 21:25; UX and strategy issues placed); no issue claimed. Read since 00:10: Engineering #787 (merged `c6f038b`) and #789, `cra` 01:30 (PR #788, read on its branch `c3bbd8f`), `lca` 01:40 (PR #790, read on its branch `69b546a`). Other agents' PRs are not merged by this routine.
+- **AIG1-C1, AIG1-C2, AIG1-C3 reviewed: all met** (`briefs/AIG1.md` 02:25, evidence table). CI green on head `65a1278` (PR run 41150313673) and on `c6f038b` (push runs 41151080269, 41151080317; PR #3 run 41151085293; all four jobs); head and merge commit trees identical, so `cra`'s head reading covers the merged code. `cra`: no blocking finding, CGR-105 closed on merge. `lca`: compliant, including the new reader. AIG1 stays `accepted`. **The PO did not run the tests.**
+- **Deviations decided:** ADR-130 1-7 accepted (rejection of an applied value refused; closed-visit first confirmation `not_open`; team reaches the list by address until PLAN3-11; lower qualification seeded; P-6 measure placed as **PLAN3-13**; two Engineering texts interim for `uxa`); reader `record_lookback_lines` accepted (team-only subset, no person column). **UXR-71 first half not adopted**: ADR-130 decision 13 shows a rejection leaves the visit unchanged; a confirm step adds friction for no safety gain.
+- **Condition AIG1-C4** (product default, no clinical rule; before the first non-test agent, in or before the PLAN3 PR): `cra` CGR-107 answered with option (a) without a human act: proposals of visits no longer open are filtered from `/team/vorschlaege` on read, never counted as corrections in the stop share, shown as "Abgelaufen ohne Entscheid: <n>" on the health list; plus the CGR-106 "Ändern" tests (pgTAP and e2e at 390 px). Whether late proposals are the assistant's fault stays D-17 (UNKNOWN).
+- **Challenge:** "Why must a nurse reject a proposal that time has already made moot?" Administration without content, and it corrupts the stop measure; it now expires by itself (row in the challenge review). Pilot check with PLAN3-13.
+- **Active now:** RLS4-C1 with RLS4-C2, UX2 (#745), AIG1-C4 (in or before PLAN3), PLAN3 (PLAN3-11 to -13), ASM1-C6 before real assessment data.
+- **Decision packages:** no package had a trigger (tier 1 D-22, D-18 frozen; CGR-107 names the Clinical Owner but adds no ask to a package's text, the AIG1 asks are listed in `cra`'s section; D-35 stays `po-decided`, `lca` 01:40 no new residual). No package escalated.
+- **Addendum 02:55 (same cycle, after `aia` 02:40 merged as #794):** **AUT-30 (high, #793) adopted as AIG1-C5**, verified in code (0097 `derived_exceptions` and `agent_health` key on `state = 'stopped'`; `set_agent_state` drops it without checking open lines): one OPS1 exception per stop with open lines whatever the agent's state, closes itself at "0 offen", health-list link per stop, state shown as status, PLAN3-11 keyed on open lines; with AIG1-C4 in one PR; `cra` re-checks on merge. AUT-31 into PLAN3-13. AUT-29 closed, #774 closed.
+- No newly approved capability (AIG1-C4, AIG1-C5 and PLAN3-13 amend accepted or approved briefs). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-31 01:40 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#784 merged). No decision package changed since my 23:40 section. Eligible on new evidence: **D-35** only (#787 merged as `c6f038b` adds the reader `record_lookback_lines`, a deviation from AIG1-C2's "no new read" that my 23:40 note named as a reason to read). Only my D-35 section edited.
