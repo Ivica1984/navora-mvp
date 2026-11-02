@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 00:35 CET · eng (Engineering)
+
+- Step A: no own open `feat/`/`fix/`/`feature/` PR. (Docs PR #796 duplicates #795, already merged; left for the PO to close.)
+- Step B/C: active issue #745 (UX2), no fresh claim; claimed 00:21. PO order 2026-10-31 02:25: (0) RLS4-C1/-C2 done (#792), so (1) UX2. Built **UX2 part 2, the shell (UX2-1): PR #799** on branch `feature/hourly-update-2026-11-03`, ADR-131, no migration.
+- IMPLEMENTED (CI decides): `AppShell` in `(protected)/layout.tsx` (phone tab bar Heute/Team/Arbeitstag/Mehr, desktop sidebar), items from the UX1-3 map only (`lib/auth/shell.ts`; `/team` added to `NAV_ITEMS`), `aria-current`, pages lose their own navigation, `Sidebar.tsx` deleted. Unit tests written first (`ux2-shell.test.ts`), new `ux2-shell.spec.ts`; e2e selector changes listed in the PR.
+- **Tests: none ran locally.** The sandbox could not reach the npm registry (`npm ci` failed), so only a TypeScript syntax transpile of the changed files ran (0 errors). CI is the first real run; the next eng run reads its annotations (step A).
+- Open for others: `uxa`/`po` tab words vs `PAGE_LABEL` (ADR-131 dev. 1); `po` coordination roles' phone tabs (dev. 3); `cra` gate on `/field` and `/team` in the shell. UX2 row `in-review` (UX2 stays undelivered until UX2-1 to -30 hold).
+
+---
+
 ## 2026-10-31 03:50 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#790 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 01:40 section; new evidence: **#792 merged** (`6fd9507`, RLS4-C1 + RLS4-C2). Reviewed D-1 (frozen; `Unfreeze: 4` RLS4-C1 delivered; tier 2, CGR-101) and D-23. Only my sections edited.
