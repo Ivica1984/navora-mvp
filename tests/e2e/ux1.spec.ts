@@ -51,16 +51,17 @@ test.describe("UX1-1 / UX1-2: no horizontal scroll at 390 px", () => {
     await signIn(page, "pflege.test@navora.test");
     await noHorizontalScroll(page, "/settings");
     // Below 768 px the side column is not shown; the menu is one closed control at the top.
+    // UX2-1 (ADR-131, selectors only): the closed control is "Mehr" in the shell's tab bar; its list is not rendered.
     await expect(page.getByRole("complementary")).toHaveCount(0);
-    const menu = page.getByTestId("mobile-menu");
-    await expect(menu).toBeVisible();
+    await expect(page.getByTestId("tab-bar")).toBeVisible();
+    const menu = page.getByTestId("tab-more");
     await expect(menu.getByRole("link")).toHaveCount(0);
-    // UX1-20 / UXR-11 (ADR-104): "Abmelden" is not the bar's most prominent control: it is the last item inside "Menü",
+    // UX1-20 / UXR-11 (ADR-104): "Abmelden" is not the bar's most prominent control: it is the last item inside "Mehr",
     // which is at least 44 px high.
     await expect(page.getByRole("button", { name: "Abmelden" })).toHaveCount(0);
-    const summary = await menu.locator("summary").boundingBox();
+    const summary = await page.getByTestId("tab-more-button").boundingBox();
     expect(summary!.height).toBeGreaterThanOrEqual(44);
-    await menu.locator("summary").click();
+    await page.getByTestId("tab-more-button").click();
     await expect(menu.getByRole("link", { name: "Meine Einstellungen" })).toBeVisible();
     await expect(menu.getByRole("button", { name: "Abmelden" })).toBeVisible();
     expect(await lastItemText(menu)).toBe("Abmelden");
@@ -73,8 +74,9 @@ test.describe("UX1-1 / UX1-2: no horizontal scroll at 390 px", () => {
   test("UX1-2: a nurse starting at /field reaches the push settings in two taps", async ({ page }) => {
     await signIn(page, "pflege.test@navora.test");
     await expect(page).toHaveURL(/\/field$/);
-    const menu = page.getByTestId("header-menu");
-    await menu.locator("summary").click();
+    // UX2-1 (ADR-131, selectors only): the two taps are "Mehr" in the tab bar, then the item.
+    const menu = page.getByTestId("tab-more");
+    await page.getByTestId("tab-more-button").click();
     await menu.getByRole("link", { name: "Meine Einstellungen" }).click();
     await page.waitForURL(/\/settings$/);
     const section = page.getByRole("region", { name: "Benachrichtigung ausserhalb der App" });
@@ -99,8 +101,8 @@ test.describe("UX1-1 / UX1-2: no horizontal scroll at 390 px", () => {
     await signIn(page, "ops.test@navora.test");
     await noHorizontalScroll(page, "/operations");
     await page.goto("/settings");
-    // UX1-20 / UXR-11: "Abmelden" is the last item inside "Menü" on the phone.
-    await page.getByTestId("mobile-menu").locator("summary").click();
+    // UX1-20 / UXR-11: "Abmelden" is the last item inside "Mehr" on the phone (UX2-1, selector only).
+    await page.getByTestId("tab-more-button").click();
     await page.getByRole("button", { name: "Abmelden" }).click();
     await page.waitForURL(/\/login$/);
     await signIn(page, "coach.test@navora.test");
@@ -112,7 +114,8 @@ test.describe("UX1-1 / UX1-2: no horizontal scroll at 390 px", () => {
 const MENU: Record<string, { email: string; items: string[] }> = {
   nurse: {
     email: "pflege.test@navora.test",
-    items: ["Mein Tag", "Mein Arbeitstag", "Kennzahlen", "Meine Einstellungen"],
+    // UX2-1 (ADR-131): /team is an item of the map now (the shell's Team tab), so the nurse's menu names it.
+    items: ["Mein Tag", "Dein Team", "Mein Arbeitstag", "Kennzahlen", "Meine Einstellungen"],
   },
   coach: {
     email: "coach.test@navora.test",
@@ -296,8 +299,9 @@ test.describe("UX1 part (c) at 390 × 844", () => {
     test(`UX1-20: from ${path} the nurse reaches /settings in two taps; the menu control is in the first viewport`, async ({ page }) => {
       await signIn(page, "pflege.test@navora.test");
       await page.goto(path);
-      const menu = page.getByTestId("header-menu");
-      const summary = menu.locator("summary");
+      // UX2-1 (ADR-131, selectors only): the menu control is "Mehr" in the shell's tab bar.
+      const menu = page.getByTestId("tab-more");
+      const summary = page.getByTestId("tab-more-button");
       const box = await summary.boundingBox();
       expect(box).not.toBeNull();
       expect(box!.y + box!.height).toBeLessThanOrEqual(PHONE.height);
@@ -340,18 +344,19 @@ test.describe("UX1 part (c) at 390 × 844", () => {
   test("UX1-26: the header menu closes on Escape and on a tap outside", async ({ page }) => {
     await signIn(page, "pflege.test@navora.test");
     await page.goto("/field");
-    const menu = page.getByTestId("header-menu");
+    // UX2-1 (ADR-131, selectors only): the menu is "Mehr" in the shell's tab bar.
+    const menu = page.getByTestId("tab-more");
+    const control = page.getByTestId("tab-more-button");
     const item = menu.getByRole("link", { name: "Meine Einstellungen" });
-    await menu.locator("summary").click();
+    await control.click();
     await expect(item).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(item).toBeHidden();
-    await expect(menu.locator("summary")).toBeFocused();
-    await menu.locator("summary").click();
+    await expect(control).toBeFocused();
+    await control.click();
     await expect(item).toBeVisible();
-    // A tap in the page's left gutter: outside the right-aligned menu panel (which covers the header's heading) and on
-    // no control.
-    await page.mouse.click(8, 800);
+    // A tap in the page's left gutter: outside the "Mehr" list (above the tab bar at the bottom) and on no control.
+    await page.mouse.click(8, 300);
     await expect(item).toBeHidden();
   });
 
