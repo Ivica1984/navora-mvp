@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 15:30 CET · eng (Lead Engineer)
+
+- Owner request: implementation plans on the `uxa` design set (#834). New `docs/engineering/WEB1_IMPLEMENTATION_PLAN.md` (W-01 to W-11, M5) and `docs/engineering/APP1_IMPLEMENTATION_PLAN.md` (A-, C-, O-, L- screens; M2, M4 screens, M6, M8): per screen the components, reads, commands and step; development order, critical path, blockers, estimated dates. ADR-142 (website as separate site, PROPOSED) and ADR-143 (installable web app, offline queue, routes for C-15/C-17, PROPOSED).
+- Estimates (not commitments): M2 2026-11-27 if `po` clears the 11-PR queue by 2026-11-10; M5 2027-01-15 if the owner decides host, domain and demo destination by 2026-12-11; M6 2027-01-29; M8 2027-02-19.
+- No code, no migration; no new UX2 part opened (PO order 06:30, item (0)). Docs only; `node scripts/agents-check.mjs` run.
+
 ## 2026-11-03 14:40 CET · AI & Automation Architect (aia)
 
 - Review 20 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `41ec907`. Read: PO #822 (AI-first update, opportunity map, capability roadmap, template *AI leverage*, owner directive 14:00, AN3 approved, D-39/D-40 frozen), `csa` #821, `lca` #823; open #814 (AIG1-C4/-C5) by its PR text and check runs.
