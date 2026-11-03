@@ -4,7 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 // Team (/team), Arbeitstag (/work) and "Mehr" (every other page the role may open, "Meine Einstellungen" among them,
 // "Abmelden" last). Desktop: a sidebar with the same items. Items per role from the UX1-3 route → roles map.
 // Synthetic local-only accounts from supabase/seed.sql:
-//   pflege.test  nurse, Testteam Nord      ops.test  operations, no team
+//   pflege.test  nurse, Testteam Nord      ops.test  operations, no team      coach.test  coach, no team
 const PASSWORD = "navora-local-only";
 const PHONE = { width: 390, height: 844 };
 const DESKTOP = { width: 1440, height: 900 };
@@ -95,20 +95,89 @@ test.describe("UX2-1 on a phone (390 × 844)", () => {
     await expect(page.getByTestId("tab-more").getByRole("link", { name: "Meine Einstellungen" })).toHaveAttribute("aria-current", "page");
   });
 
-  test("operations without a team: Arbeitstag as the only tab, her pages under Mehr; no Heute, no Team", async ({ page }) => {
+  // UX2-31 (1) (uxa UXR-75): her home (/operations, where sign-in lands) is her first tab.
+  test("UX2-31: operations without a team: Ausnahmen first, then Arbeitstag; the rest under Mehr; no Heute, no Team", async ({ page }) => {
     await signIn(page, "ops.test@navora.test");
-    await page.goto("/operations");
+    await expect(page).toHaveURL(/\/operations$/);
     const bar = page.getByTestId("tab-bar");
-    await expect(bar.getByRole("link")).toHaveText(["Arbeitstag"]);
+    await expect(bar.getByRole("link")).toHaveText(["Ausnahmen", "Arbeitstag"]);
+    await expect(bar.getByRole("link", { name: "Ausnahmen" })).toHaveAttribute("aria-current", "page");
     await page.getByTestId("tab-more-button").click();
-    await expect(page.getByTestId("tab-more").getByRole("link")).toHaveText([
-      "Ausnahmen",
-      "Aufnahme",
-      "Kennzahlen",
-      "Meine Einstellungen",
-    ]);
-    await expect(page.getByTestId("tab-more").getByRole("link", { name: "Ausnahmen" })).toHaveAttribute("aria-current", "page");
+    await expect(page.getByTestId("tab-more").getByRole("link")).toHaveText(["Aufnahme", "Kennzahlen", "Meine Einstellungen"]);
     await noHorizontalScroll(page, PHONE.width);
+  });
+
+  test("UX2-31: a coach without a team: Ausnahmen is the first tab", async ({ page }) => {
+    await signIn(page, "coach.test@navora.test");
+    await page.goto("/operations");
+    await expect(page.getByTestId("tab-bar").getByRole("link").first()).toHaveText("Ausnahmen");
+  });
+
+  // UX2-31 (2) (uxa UXR-78, WCAG 2.2 2.4.11): a control reached by Tab or Shift+Tab is never under the fixed tab bar or
+  // the sticky page header. A spacer makes the page long enough whatever the seed holds today; the controls are the
+  // page's own.
+  const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  async function pageControls(page: Page): Promise<number> {
+    return page.evaluate((selector) => {
+      const content = document.querySelector('[data-testid="shell-content"]')!;
+      const header = Array.from(content.querySelectorAll("header")).find((el) => getComputedStyle(el).position === "sticky");
+      const controls = Array.from(content.querySelectorAll<HTMLElement>(selector)).filter(
+        (el) => el.getClientRects().length > 0 && el.tabIndex >= 0 && !(header && header.contains(el)),
+      );
+      controls.forEach((el, i) => el.setAttribute("data-ux231", String(i)));
+      return controls.length;
+    }, FOCUSABLE);
+  }
+
+  async function addSpacer(page: Page, where: "start" | "end") {
+    await page.evaluate((at) => {
+      const content = document.querySelector('[data-testid="shell-content"]')!;
+      const spacer = document.createElement("div");
+      spacer.style.height = "2000px";
+      spacer.setAttribute("aria-hidden", "true");
+      if (at === "start") content.prepend(spacer);
+      else content.append(spacer);
+    }, where);
+  }
+
+  test("UX2-31: on /field, Tab to the last control leaves it fully above the tab bar", async ({ page }) => {
+    await signIn(page, "pflege.test@navora.test");
+    await page.goto("/field");
+    await page.waitForLoadState("networkidle");
+    await addSpacer(page, "start");
+    const count = await pageControls(page);
+    expect(count, "the page has at least two controls below its header").toBeGreaterThanOrEqual(2);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.locator(`[data-ux231="${count - 2}"]`).evaluate((el: HTMLElement) => el.focus({ preventScroll: true }));
+    await page.keyboard.press("Tab");
+    const last = page.locator(`[data-ux231="${count - 1}"]`);
+    await expect(last).toBeFocused();
+    const box = (await last.boundingBox())!;
+    const barTop = (await page.getByTestId("tab-bar").boundingBox())!.y;
+    expect(box.y, "the control is inside the viewport").toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height, "the control's bottom edge is above the tab bar's top edge").toBeLessThanOrEqual(barTop);
+  });
+
+  test("UX2-31: on /field, Shift+Tab to the first control below the sticky header leaves it fully below the header", async ({ page }) => {
+    await signIn(page, "pflege.test@navora.test");
+    await page.goto("/field");
+    await page.waitForLoadState("networkidle");
+    await addSpacer(page, "end");
+    const count = await pageControls(page);
+    expect(count).toBeGreaterThanOrEqual(2);
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.locator('[data-ux231="1"]').evaluate((el: HTMLElement) => el.focus({ preventScroll: true }));
+    await page.keyboard.press("Shift+Tab");
+    const first = page.locator('[data-ux231="0"]');
+    await expect(first).toBeFocused();
+    const box = (await first.boundingBox())!;
+    const header = page.getByTestId("shell-content").locator("header").first();
+    const headerBox = (await header.boundingBox())!;
+    expect(box.y, "the control's top edge is below the sticky header").toBeGreaterThanOrEqual(headerBox.y + headerBox.height);
+    expect(box.y + box.height, "the control is above the tab bar").toBeLessThanOrEqual(
+      (await page.getByTestId("tab-bar").boundingBox())!.y,
+    );
   });
 
   test("UX2-7 (part): the SIG1 signal area stays above the page content inside the shell on /field and /team", async ({ page }) => {

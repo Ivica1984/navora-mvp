@@ -15,6 +15,8 @@ import { useNavAccess } from "./nav-access";
 // same items. The items come from the UX1-3 route → roles map only (lib/auth/shell.ts); the shell is not an access
 // boundary, every page keeps its own server-side check. Only one of the two navigations is displayed at a time, so
 // assistive technology meets one "Hauptmenü".
+// UX2-31 (ADR-131 addendum): a person in no team whose home is /operations gets "Ausnahmen" as first tab; below 768 px
+// the scroll padding keeps a focused control out from under the tab bar and the page's sticky header.
 
 const FOCUS = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2";
 
@@ -173,9 +175,39 @@ function TabBar({ tabs, more, active }: { tabs: NavItem[]; more: NavItem[]; acti
   );
 }
 
+/**
+ * UX2-31 (2) (`uxa` UXR-78, WCAG 2.2 2.4.11): below 768 px the fixed tab bar and a page's sticky header cover part of
+ * the viewport, so a control reached by Tab or Shift+Tab could scroll in underneath them. globals.css sets the page's
+ * scroll padding from two custom properties; this keeps them equal to the bar's height (safe area included) and the
+ * height of the page's sticky header, whatever their content. Display only.
+ */
+function useShellScrollPadding(pathname: string) {
+  useEffect(() => {
+    const root = document.documentElement;
+    const bar = document.querySelector<HTMLElement>('[data-testid="tab-bar"]');
+    const header = Array.from(document.querySelectorAll<HTMLElement>('[data-testid="shell-content"] header')).find(
+      (el) => getComputedStyle(el).position === "sticky",
+    );
+    const update = () => {
+      root.style.setProperty("--shell-bar-height", `${bar?.getBoundingClientRect().height ?? 0}px`);
+      root.style.setProperty("--shell-header-height", `${header?.getBoundingClientRect().height ?? 0}px`);
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    if (bar) observer.observe(bar);
+    if (header) observer.observe(header);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--shell-bar-height");
+      root.style.removeProperty("--shell-header-height");
+    };
+  }, [pathname]);
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const access = useNavAccess();
   const pathname = usePathname() ?? "";
+  useShellScrollPadding(pathname);
   const items = menuItemsFor(access, demoPagesEnabled);
   const { tabs, more } = shellItemsFor(access, demoPagesEnabled);
   const active = activeNavKey(pathname);
@@ -183,7 +215,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div data-testid="app-shell" className="min-h-screen md:grid md:grid-cols-[280px_minmax(0,1fr)]">
       <Sidebar items={items} active={active} />
       {/* Room for the fixed tab bar below 768 px, so it never covers the end of a page. */}
-      <div className="min-w-0 pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</div>
+      <div data-testid="shell-content" className="min-w-0 pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0">
+        {children}
+      </div>
       <TabBar key={pathname} tabs={tabs} more={more} active={active} />
     </div>
   );

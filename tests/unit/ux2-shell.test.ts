@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { NAV_ITEMS, NO_ACCESS, PAGE_LABEL, menuItemsFor, type NavAccess } from "@/lib/auth/nav";
-import { MORE_LABEL, TAB_KEYS, TAB_LABEL, activeNavKey, shellItemsFor } from "@/lib/auth/shell";
+import { MORE_LABEL, TAB_KEYS, TAB_LABEL, activeNavKey, homeTabFor, shellItemsFor, tabLabel } from "@/lib/auth/shell";
+import { HOME_PATH, homePathForRoles } from "@/lib/auth/paths";
 
 // UX2-1 (ADR-131): one shell for every protected route. On a phone a tab bar Heute (/field), Team (/team),
 // Arbeitstag (/work) and "Mehr" (every other page the role may open, /settings among them); on a desktop a sidebar
@@ -28,11 +29,6 @@ describe("UX2-1: tab bar and Mehr come from the one route → roles map", () => 
     expect(hrefs(more)).toEqual(["/analytics", "/settings"]);
   });
 
-  it("operations without a team: only Arbeitstag as a tab; her pages under Mehr in menu order", () => {
-    const { tabs, more } = shellItemsFor({ roles: ["operations"], inTeam: false });
-    expect(hrefs(tabs)).toEqual(["/work"]);
-    expect(hrefs(more)).toEqual(["/operations", "/intake", "/analytics", "/settings"]);
-  });
 
   it("an administrator in a team: three tabs, administration under Mehr", () => {
     const { tabs, more } = shellItemsFor({ roles: ["admin"], inTeam: true });
@@ -66,6 +62,64 @@ describe("UX2-1: tab bar and Mehr come from the one route → roles map", () => 
   it("Mehr always holds Meine Einstellungen (the nurse's way to the push opt-in, UX1-2)", () => {
     for (const access of [{ roles: ["nurse"], inTeam: true }, NO_ACCESS, { roles: ["admin"], inTeam: true }]) {
       expect(hrefs(shellItemsFor(access).more)).toContain("/settings");
+    }
+  });
+});
+
+// UX2-31 (1) (uxa UXR-75, ADR-131 deviation 3 decided, po 2026-11-03 06:30): for a role whose home is /operations and
+// who is in no team (coordinator, coach, administrator without a team membership) the first tab is "Ausnahmen", then up
+// to two of field, team, work she may open, then "Mehr". A team member's tabs are unchanged.
+describe("UX2-31 (1): the role's home is its first tab", () => {
+  it("operations without a team: Ausnahmen first, then Arbeitstag; the rest under Mehr in menu order", () => {
+    const { tabs, more } = shellItemsFor({ roles: ["operations"], inTeam: false });
+    expect(hrefs(tabs)).toEqual(["/operations", "/work"]);
+    expect(tabs.map(tabLabel)).toEqual(["Ausnahmen", "Arbeitstag"]);
+    expect(hrefs(more)).toEqual(["/intake", "/analytics", "/settings"]);
+  });
+
+  it("a coach without a team: Ausnahmen first, then Arbeitstag", () => {
+    const { tabs, more } = shellItemsFor({ roles: ["coach"], inTeam: false });
+    expect(hrefs(tabs)).toEqual(["/operations", "/work"]);
+    expect(hrefs(more)).toEqual(["/analytics", "/settings"]);
+  });
+
+  it("an administrator without a team: Ausnahmen first, then Arbeitstag; administration under Mehr", () => {
+    const { tabs, more } = shellItemsFor({ roles: ["admin"], inTeam: false });
+    expect(hrefs(tabs)).toEqual(["/operations", "/work"]);
+    expect(hrefs(more)).toEqual(["/intake", "/analytics", "/settings", "/admin"]);
+  });
+
+  it("the home tab is the home path the sign-in lands on (homePathForRoles), never a page she may not open", () => {
+    for (const roles of [["operations"], ["coach"], ["admin"], ["admin", "nurse"]]) {
+      const access = { roles, inTeam: false };
+      expect(homePathForRoles(roles)).toBe(HOME_PATH);
+      expect(homeTabFor(access)?.href).toBe(HOME_PATH);
+      expect(hrefs(shellItemsFor(access).tabs)[0]).toBe(HOME_PATH);
+    }
+  });
+
+  it("a team member's tabs are unchanged, whatever her role", () => {
+    for (const roles of [["nurse"], ["operations"], ["coach"], ["admin"]]) {
+      expect(homeTabFor({ roles, inTeam: true }), roles.join()).toBeNull();
+      expect(hrefs(shellItemsFor({ roles, inTeam: true }).tabs), roles.join()).toEqual(["/field", "/team", "/work"]);
+    }
+  });
+
+  it("no home tab when the role may not open /operations or the read failed (no tab added, fail closed)", () => {
+    expect(homeTabFor({ roles: ["nurse"], inTeam: false })).toBeNull();
+    expect(homeTabFor({ roles: ["guest"], inTeam: false })).toBeNull();
+    expect(homeTabFor(NO_ACCESS)).toBeNull();
+    expect(hrefs(shellItemsFor({ roles: ["guest"], inTeam: false }).tabs)).toEqual(["/work"]);
+    expect(hrefs(shellItemsFor({ roles: ["nurse"], inTeam: false }).tabs)).toEqual(["/work"]);
+  });
+
+  it("at most three tabs plus Mehr for every role (four columns at 390 px)", () => {
+    for (const roles of [["nurse"], ["operations"], ["coach"], ["admin"], ["admin", "operations", "coach"], ["guest"], []]) {
+      for (const inTeam of [false, true]) {
+        for (const demo of [false, true]) {
+          expect(shellItemsFor({ roles, inTeam }, demo).tabs.length).toBeLessThanOrEqual(3);
+        }
+      }
     }
   });
 });

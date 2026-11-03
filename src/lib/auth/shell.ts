@@ -6,6 +6,7 @@
 // boundary: every page keeps its own server-side check.
 
 import { NAV_ITEMS, menuItemsFor, type NavAccess, type NavItem, type NavKey } from "./nav";
+import { HOME_PATH, homePathForRoles } from "./paths";
 
 /** The tabs of the phone tab bar, in the brief's order (UX2-1). Any other item the role may open is under "Mehr". */
 export const TAB_KEYS = ["field", "team", "work"] as const satisfies ReadonlyArray<NavKey>;
@@ -23,18 +24,38 @@ export const MORE_LABEL = "Mehr";
 
 const isTab = (key: NavKey): key is TabKey => (TAB_KEYS as ReadonlyArray<NavKey>).includes(key);
 
+/** UX2-31 (1): how many of TAB_KEYS follow the home tab, so that home, two tabs and "Mehr" share 390 px. */
+const TABS_AFTER_HOME = 2;
+
+/**
+ * UX2-31 (1) (`uxa` UXR-75; ADR-131 deviation 3, decided by po 2026-11-03 06:30): the tab of the role's home page when
+ * it is not one of TAB_KEYS. A person in no team whose sign-in lands on /operations (`homePathForRoles`: coordinator,
+ * coach, administrator without a team membership) gets "Ausnahmen" as her first tab. Only an item her menu already
+ * holds can become the home tab (nothing added); a team member keeps Heute, Team, Arbeitstag. Null otherwise.
+ */
+export function homeTabFor(access: NavAccess, demoPages = false): NavItem | null {
+  if (access.inTeam || homePathForRoles(access.roles) !== HOME_PATH) return null;
+  return menuItemsFor(access, demoPages).find((item) => item.href === HOME_PATH) ?? null;
+}
+
 export type ShellItems = {
-  /** Tab bar items she may open, in TAB_KEYS order (zero to three). */
+  /** Tab bar items she may open: the home tab (UX2-31) if any, then TAB_KEYS order (zero to three in all). */
   tabs: NavItem[];
   /** Every other menu item she may open, in menu order. Never empty: "Meine Einstellungen" always stays (cra UX1-20). */
   more: NavItem[];
 };
 
-/** Splits the menu (UX1-3, with the cra UX1-20 settings rule) into tabs and "Mehr". Nothing added, nothing dropped. */
+/**
+ * Splits the menu (UX1-3, with the cra UX1-20 settings rule) into tabs and "Mehr". Nothing added, nothing dropped: an
+ * item is either a tab or under "Mehr".
+ */
 export function shellItemsFor(access: NavAccess, demoPages = false): ShellItems {
   const items = menuItemsFor(access, demoPages);
-  const tabs = TAB_KEYS.flatMap((key) => items.filter((item) => item.key === key));
-  const more = items.filter((item) => !isTab(item.key));
+  const home = homeTabFor(access, demoPages);
+  const fixed = TAB_KEYS.flatMap((key) => items.filter((item) => item.key === key));
+  const tabs = home ? [home, ...fixed.slice(0, TABS_AFTER_HOME)] : fixed;
+  const inTabs = new Set(tabs.map((item) => item.key));
+  const more = items.filter((item) => !inTabs.has(item.key));
   return { tabs, more };
 }
 
