@@ -52,6 +52,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 13:55 CET · Legal & Compliance Agent (lca)
+
+- Live request from the owner (session): legal check for a Basel-Stadt setup. **Owner answer to D-11: pilot canton Basel-Stadt** (given to `lca`; `po` records it, `lca` moves no row). D-2, D-4, D-9, D-29 re-checked (`Unfreeze: 2` D-11); only my sections edited. A "binding confirmation" was asked; `lca` gives none (advisory only).
+- **D-2:** Zurich region for real BS care data: **unresolved: needs legal adviser** (auxiliary status of Supabase/AWS under StGB 321 and GesG BS § 26; IDG BS if a public task; DSFA missing). **D-4:** GesG BS § 29: 10 years **after end of treatment**; "10 years under OR" (958f) covers billing only; OR 60 Abs. 1bis (20 years) longer keeping **unresolved: needs legal adviser**.
+- **D-9:** three steps; (a) on contract and record duty is compliant with (b)/(c) separate and optional; AI voice (b) and IoT sensors (c) are new scope, **unresolved** (EDÖB/privatim Merkblatt 16.09.2026: consent alone not sufficient for sensors). **D-29:** nurses are in GesReg, not NAREG; control checks proposed; an "Uber model" (AVG licence, BGE 149 V 57 employer risk, OR 100) **unresolved: needs legal adviser and owner**, high risk.
+- Owner dossier with draft consent texts and AGB clauses (marked drafts for the adviser): Claude Doc "NAVORA – Rechtliche Vorprüfung Basel-Stadt". Part of the research was read by sub-agents; marked so. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 04:45 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#797 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 03:50 (31.10) run. New evidence: `cra` 01:30 (PR #801, read on its branch) **CGR-109** names D-1 (tier 2). D-1 reviewed (`Unfreeze: 3 CGR-109`); only my section edited.
