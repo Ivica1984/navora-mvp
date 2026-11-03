@@ -2208,7 +2208,7 @@ isOneToOne: false
                            },
 "agent_stop_lookback":
 { Args: { "p_stop_id": string }; Returns: {
-              "case_ref": string,"entity_id": string,"entity_type": string,"field": string,"proposed_at": string,"superseded": boolean,"superseded_at": string,"team_id": string,"team_name": string,"visit_date": string
+              "case_ref": string,"entity_id": string,"entity_type": string,"field": string,"not_open": boolean,"proposed_at": string,"superseded": boolean,"superseded_at": string,"team_id": string,"team_name": string,"visit_date": string
             }[]
                            },
 "assign_team_coach":
@@ -2517,6 +2517,11 @@ isOneToOne: false
                            },
 "record_interruption_followup":
 { Args: { "p_decision": string,"p_idempotency_key": string,"p_note": string,"p_visit_id": string }; Returns: string
+                           },
+"record_lookback_lines":
+{ Args: { "p_entity_id": string,"p_entity_type": string }; Returns: {
+              "agent_name": string,"field": string,"record_open": boolean,"stop_id": string,"suggestion_id": string
+            }[]
                            },
 "record_member_contract":
 { Args: { "p_email": string,"p_end_date": string,"p_idempotency_key": string,"p_proposal_id": string,"p_start_date": string }; Returns: Json

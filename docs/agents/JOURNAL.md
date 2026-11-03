@@ -4,6 +4,81 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-10-31 03:50 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#790 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 01:40 section; new evidence: **#792 merged** (`6fd9507`, RLS4-C1 + RLS4-C2). Reviewed D-1 (frozen; `Unfreeze: 4` RLS4-C1 delivered; tier 2, CGR-101) and D-23. Only my sections edited.
+- **D-1, RLS4-C1 as built:** **compliant under every plausible interpretation** on the federal sources read: the per-visit `audit_events` rows (`rls4_c1_legacy_mapping`, old and new `responsible_user_id`, pgTAP 105) with the kept `team_member_name` and the step 6 "who" meet my 09:40 condition (record of each decision and the visits it touched). Rests on nothing deleted before D-4 is final (in force) and the audit trigger being present where the step runs. Wording note to po (not compliance-relevant): name the audit rows as part of the reconciliation record; optional pre-check for the trigger. Owner ask unchanged.
+- **D-23, RLS4-C2 as built:** end-step read per member plus the ADM2-12 14-day leaver list (ADR-122 addendum note 3): **compliant under every plausible interpretation** on terms (t1)-(t3) (G-19 entry (k)). The "only on Austritt vorbereiten" follow-up is a product choice.
+- Sources read this run: DSG Art. 6 Abs. 2, 3, 5 (swissrights.ch), OR Art. 328b (droit-bilingue.ch). `cra` has not yet read #792 (CGR-101 re-check OPEN). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-31 03:15 CET · eng (Engineering)
+
+- Step A: own PR **#792 (RLS4-C1 + RLS4-C2) merged** with a merge commit (`6fd9507`). CI green on head `1080608` (run 41155982836: app, db, e2e, ui-screenshots). The base had moved (#791, #794 docs) and GitHub reported the PR `clean`.
+- `IMPLEMENTATION_STATUS.md`: RLS4 row `in-review` -> `delivered` (READY_FOR_REVIEW); the watcher opens the PO review.
+- Clinical gate: the newest `cra` report (01:30, PR #788, unmerged, read on its branch) predates #792 and lists RLS4-C1 as PLANNED, so **no report covers this delivery yet** (CGR-101 re-check on `6fd9507` OPEN for `cra`). Deviations 1-5 of the ADR-122 addendum stay OPEN for the PO, as listed in #792.
+- Step B not reached this run (the run ends after a substantial step). UX2 (#745) stays `active` for the next run. Tests: none run by me; CI ran them. Live project not touched.
+
+---
+
+## 2026-10-31 02:40 CET · eng (Engineering)
+
+- No own open PR at start (#787 merged). Issue `active` is #745 (UX2), not claimed; claimed at 02:14 for the next *Active now* (00:10) item: **RLS4-C1 with RLS4-C2** in one PR.
+- **PR #792 open** (`feat/rls4-c1-c2-legacy-name-admin-open-reports`, no migration, ADR-122 addendum). RLS4-C1: `OWNER_RUNBOOK.md` §5c count check (verbatim in pgTAP 105, vitest keeps both identical), review list on live only, a person decides per name and team, mapping sets `responsible_user_id` only with a membership guard and audit command `rls4_c1_legacy_mapping`; `team_member_name` stays until D-4; live only after the D-1 review result. RLS4-C2: `/admin` no longer loads every member's open reports; `readMemberOpenReports` in the access-end step, confirm waits for the list. RLS4 row `in-review`.
+- Deviations for the PO (ADR-122 addendum): pgTAP 105 asserts +1 over the seed baseline (the seed's Mitte visits are yesterday); unassigned stays in the count; ADM2-12 leavers on `/admin` read via `getLeaverOpenReports` (OPEN); failed leaver list no longer reads "keine".
+- Clinical gate: `cra` 2026-10-30 05:30 (PR #723) CGR-101 is the finding remedied; no other finding on RLS4-C1/-C2. Tests: none run here (npm install fails, no pgTAP stack); CI decides. Live project not touched.
+
+---
+
+## 2026-10-31 02:40 CET · AI & Automation Architect (aia)
+
+- Review 17 in `reports/AUTOMATION_REVIEW.md`. Read `recovery/main` `1275708` (#776, #781, #785, #787, #790 merged since review 16) and PO PR #791, `cra` #788 on their branches.
+- **Closed:** AUT-29 (AIG1-C1 built in 0104, pgTAP 104, e2e tests 4 and 8; PO 02:25 "met"; #774 can be closed by the PO); AUT-23 ("überholt" now on screen, `aig1.spec.ts:155-177`).
+- **New AUT-30 (high, issue #793):** the OPS1 `agent_stopped` exception and the health-list link to the look-back exist only while the agent is `stopped` (0097 `derived_exceptions`, `agent_health`); `set_agent_state` moves `stopped` to `off` without checking open lines, so switching a stopped assistant off or on drops open lines from every screen, and at "0 offen" the exception never ends while it stays stopped. Proposal: key the exception and link on the stop's open lines. **AUT-31 (low):** expired-proposal share and lead time as a PLAN3 usefulness measure.
+- Supported: AIG1-C2, AIG1-C3, AIG1-C4 (#791), PLAN3-13, UXR-71 first half not adopted, P-40. One comment on #791.
+- AI Operating Model Review §12 and change log updated. Bottleneck map refresh due 2026-11-03. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-31 02:25 CET · po (Product Owner)
+
+- No open PO PR at start (#786 merged). `agent:po` issues: nothing new since 00:10 (#774 AUT-29 answered at 21:25; UX and strategy issues placed); no issue claimed. Read since 00:10: Engineering #787 (merged `c6f038b`) and #789, `cra` 01:30 (PR #788, read on its branch `c3bbd8f`), `lca` 01:40 (PR #790, read on its branch `69b546a`). Other agents' PRs are not merged by this routine.
+- **AIG1-C1, AIG1-C2, AIG1-C3 reviewed: all met** (`briefs/AIG1.md` 02:25, evidence table). CI green on head `65a1278` (PR run 41150313673) and on `c6f038b` (push runs 41151080269, 41151080317; PR #3 run 41151085293; all four jobs); head and merge commit trees identical, so `cra`'s head reading covers the merged code. `cra`: no blocking finding, CGR-105 closed on merge. `lca`: compliant, including the new reader. AIG1 stays `accepted`. **The PO did not run the tests.**
+- **Deviations decided:** ADR-130 1-7 accepted (rejection of an applied value refused; closed-visit first confirmation `not_open`; team reaches the list by address until PLAN3-11; lower qualification seeded; P-6 measure placed as **PLAN3-13**; two Engineering texts interim for `uxa`); reader `record_lookback_lines` accepted (team-only subset, no person column). **UXR-71 first half not adopted**: ADR-130 decision 13 shows a rejection leaves the visit unchanged; a confirm step adds friction for no safety gain.
+- **Condition AIG1-C4** (product default, no clinical rule; before the first non-test agent, in or before the PLAN3 PR): `cra` CGR-107 answered with option (a) without a human act: proposals of visits no longer open are filtered from `/team/vorschlaege` on read, never counted as corrections in the stop share, shown as "Abgelaufen ohne Entscheid: <n>" on the health list; plus the CGR-106 "Ändern" tests (pgTAP and e2e at 390 px). Whether late proposals are the assistant's fault stays D-17 (UNKNOWN).
+- **Challenge:** "Why must a nurse reject a proposal that time has already made moot?" Administration without content, and it corrupts the stop measure; it now expires by itself (row in the challenge review). Pilot check with PLAN3-13.
+- **Active now:** RLS4-C1 with RLS4-C2, UX2 (#745), AIG1-C4 (in or before PLAN3), PLAN3 (PLAN3-11 to -13), ASM1-C6 before real assessment data.
+- **Decision packages:** no package had a trigger (tier 1 D-22, D-18 frozen; CGR-107 names the Clinical Owner but adds no ask to a package's text, the AIG1 asks are listed in `cra`'s section; D-35 stays `po-decided`, `lca` 01:40 no new residual). No package escalated.
+- **Addendum 02:55 (same cycle, after `aia` 02:40 merged as #794):** **AUT-30 (high, #793) adopted as AIG1-C5**, verified in code (0097 `derived_exceptions` and `agent_health` key on `state = 'stopped'`; `set_agent_state` drops it without checking open lines): one OPS1 exception per stop with open lines whatever the agent's state, closes itself at "0 offen", health-list link per stop, state shown as status, PLAN3-11 keyed on open lines; with AIG1-C4 in one PR; `cra` re-checks on merge. AUT-31 into PLAN3-13. AUT-29 closed, #774 closed.
+- No newly approved capability (AIG1-C4, AIG1-C5 and PLAN3-13 amend accepted or approved briefs). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-31 01:40 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#784 merged). No decision package changed since my 23:40 section. Eligible on new evidence: **D-35** only (#787 merged as `c6f038b` adds the reader `record_lookback_lines`, a deviation from AIG1-C2's "no new read" that my 23:40 note named as a reason to read). Only my D-35 section edited.
+- **D-35:** AIG1-C1/-C2/-C3 as merged, including `record_lookback_lines` (team members only, no person, outcome or confirmer column, a subset of what `agent_stop_lookback` already shows them): **compliant under every plausible interpretation on the sources read**, on synthetic data. CGR-106 tests before real data (quality, not a legal finding); CGR-107 option (a) is the more protective, (b) acceptable while AIG1-11 keeps no per-person view. Past-visit rectification still **unresolved: needs owner (via the Clinical Owner) and the legal adviser**, as at 23:40.
+- `cra` 01:30 (PR #788) read on its unmerged branch. No new source read. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-31 01:40 CET · eng (Engineering)
+
+- Own PR #787: e2e red on `0768470` was this PR's test (line counts in `aig1.spec` test 1 not updated for the eighth seeded proposal); fixed in `65a1278`. CI green on `65a1278` (app, db, e2e, ui-screenshots). **Merged as `c6f038b`** (merge commit). AIG1 row `delivered` (AIG1-C1, -C2, -C3; ADR-130, migration 0104). `cra` re-checks AIG1-C1/-C2 on the merge commit (brief 22:15); the PO decides ADR-130 deviations 1-7 and the UXR-71 fact (decision 13).
+- Next per *Active now* 22:15: RLS4-C1 with RLS4-C2, then UX2 (#745), PLAN3. Tests: none run locally; CI ran them. Live project not touched.
+
+---
+
+## 2026-10-31 01:35 CET · eng (Engineering)
+
+- Own PR #787: first CI run red in pgTAP 018 test 1 (seed left an F member without a qualification; only ADM2 may); fixed at 01:05 (care assistant on a category B visit), `db` green on `d7ee1a4`. PO note on #787 (01:12): adopt the `uxa` wording of 00:10 and put **AIG1-C3** in the same PR.
+- Added to #787: wording "Einsatz nicht mehr offen", "Werte: <n> offen · <m> nicht mehr offen" (page and OPS1 detail), `uxa`'s look-back explanation, success lines, null flag "Noch kein Fenster abgeschlossen"; AIG1-C3 (1) back link from the link's origin ("Zurück zur Liste" / "Zurück zu den Vorschlägen" / role's home), (2) refused bulk values keep their reason on their line and "<k> Werte bestätigt, <r> nicht übernommen.", (3) tick label ≥ 44 px, (4) minimum flag in the "Mindestzahl" cell, (5) "Kein anderes Teammitglied wählbar.". No new migration (0104 detail text only). Seed org E: a care assistant proposed for a category B visit.
+- UXR-71 first half: the fact of what "Ablehnen" leaves on a visit is in ADR-130 decision 13 (no change); the PO decides.
+- Tests written: e2e `aig1.spec` +1 (ticked confirm with a refusal, 44 px tick row), back-link steps in two tests; unit tests for the new texts. Not run here (no database, npm install fails in the sandbox). CI decides. Live project not touched.
+
+---
+
 ## 2026-10-31 01:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 01:30), `recovery/main` @ `f774265`. Read on its head: **#787** AIG1-C1 + AIG1-C2 + AIG1-C3 (`65a1278`, migration 0104, ADR-130, pgTAP 104, `aig1.spec`); CI on the head still running at reading (`0768470` had a red `e2e`, fixed by `65a1278`). Docs read: PO 22:15 and 00:10, `lca` 23:40, `uxa` 23:55.
@@ -11,6 +86,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **New:** **CGR-106** (advisory S3): "Ändern" on the record page traced correct but no test runs it (pgTAP remedy stated). **CGR-107** (advisory S3, before the first non-test agent): an undecided proposal of a visit no longer open can only be rejected, and the rejection counts toward the stop share (PO chooses (a) or (b); `aia` for the measure).
 - Registers: H-20 note; CR-152 note, CR-153, CR-154 added; PS-94 note, PS-95, PS-96 added.
 - **Not merged by me:** owner instruction on #666 covers this PR, which contains #782 … #582. Waiting on: owner (chain merge), `eng` (merge #787 when green; CGR-106 tests), `po` (CGR-107; CGR-106 beside PLAN3-11), `aia` (CGR-107 measure), Clinical Owner (D-17 items, unchanged list). Tests: none run by me; CI as read through the API. Live project not touched.
+
+---
+
+## 2026-10-31 00:55 CET · eng (Engineering)
+
+- No own open PR at start. #781 (CGR-96) merged at 23:20, so *Active now* (22:15) order (0) is done. Issue `active` is #745 (UX2), not claimed; claimed at 00:14 for order **(1) AIG1-C1 (as amended 21:25) + AIG1-C2 (CGR-105) in one PR**.
+- **PR #787 open** (`feat/aig1-c1-c2-lookback`, migration 0104, ADR-130): re-confirmation and correction of a look-back value of a visit no longer open refused `not_open` without a confirmation row; rejection of an applied value refused; `agent_stop_lookback.not_open`; OPS1 detail "<n> offen · <m> nicht mehr offen" (stays open while stopped); new reader `record_lookback_lines` for the record's team only; record page "Erneut bestätigen" / "Ändern"; look-back page label, counts and an explanation naming only offered actions. AIG1 row `in-review`.
+- Tests written: pgTAP 104 (23); 103 (143-146 expectation replaced as the brief says), 097 (OPS1 detail text), 002 (twelve sign-in users); e2e `aig1.spec` (test 4 extended, three new at 390 px); vitest `aig1-c1-c2-labels`. Seed (org F): a past visit, a member whose qualification was removed after the stop, `teamf.test`, fixed stop id.
+- Deviations for the PO (ADR-130): rejection guard (more protective); closed-visit first confirmation of a held value also `not_open`; team reaches the list by address until PLAN3-11; qualification removal seeded; P-6 measure extension PLANNED (OPEN for PO); texts open for `uxa`. Nothing decides D-17 (UNKNOWN).
+- Not run here: no local database (no Docker daemon); see PR #787 for what ran in the sandbox. CI decides. Live project not touched.
 
 ## 2026-10-31 00:10 CET · po (Product Owner)
 

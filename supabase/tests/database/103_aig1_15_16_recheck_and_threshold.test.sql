@@ -140,10 +140,11 @@ select is(pg_temp.confirm(4, 14) ->> 'result', 'ok', 'AIG1-15 (iv): re-confirmin
 select ok(pg_temp.confs() = (select n from c0) + 1 and not pg_temp.listed(4),
   'AIG1-15 (iv): one ai_confirmations row is written and the line leaves the look-back list');
 
--- A visit no longer open (dated before today) is re-confirmed as built (Clinical Owner, D-17: UNKNOWN)
+-- A visit no longer open (dated before today): AIG1-C1 (0104) replaces "re-confirmed as built" with not_open and no
+-- confirmation row (no attestation without content; the Clinical Owner may revise it after G-1, D-17).
 select pg_temp.at((pg_temp.t() + 4) + time '10:00');
-select is(pg_temp.confirm(3, 15) ->> 'result', 'ok',
-  'AIG1-15: a visit no longer open is re-confirmed as built, without the open-visit checks');
+select is(pg_temp.confirm(3, 15), '{"result": "refused", "reason": "not_open"}'::jsonb,
+  'AIG1-C1 (1): a visit no longer open is not re-confirmed: refused not_open, no confirmation row');
 -- Her contract continues (newest row is current), so the threshold windows below can be confirmed.
 insert into public.member_contract_events (organization_id, user_id, start_date, end_date, actor_id)
 values ('00000000-0000-4000-b000-000000000011', pg_temp.u('r1'), null, null, pg_temp.u('admin'));

@@ -55,13 +55,14 @@ export function TeamHandover({ leavers, openReports }: { leavers: Leaver[]; open
     <section aria-label="Austritte in den nächsten 14 Tagen" className="grid gap-2 rounded-2xl border border-stone-300 bg-white p-4">
       <h2 className="font-bold">Austritte in den nächsten 14 Tagen</h2>
       <ul className="grid gap-3">
-        {leavers.map((l) => <LeaverEntry key={l.user_id} leaver={l} reports={openReports[l.user_id] ?? []} />)}
+        {leavers.map((l) => <LeaverEntry key={l.user_id} leaver={l} reports={openReports[l.user_id]} />)}
       </ul>
     </section>
   );
 }
 
-export function LeaverEntry({ leaver, reports, children }: { leaver: Leaver; reports: LeaverOpenReport[]; children?: ReactNode }) {
+/** `reports` undefined: her list could not be read (getLeaverOpenReports logs it); never shown as "keine". */
+export function LeaverEntry({ leaver, reports, children }: { leaver: Leaver; reports: LeaverOpenReport[] | undefined; children?: ReactNode }) {
   return (
     <li data-testid="leaver" className="grid gap-1 rounded-xl border border-stone-200 p-3 text-sm">
       <p className="font-semibold">{leaverHeadline(leaver)}</p>
@@ -77,8 +78,10 @@ export function LeaverEntry({ leaver, reports, children }: { leaver: Leaver; rep
           ))}
         </ul>
       )}
-      <p className="text-secondary" data-testid="leaver-reports">Offene Berichte: {openReportsText(countOpenReports(reports))}</p>
-      {reports.length > 0 && (
+      {reports === undefined
+        ? <p role="alert" className="font-semibold text-rose-800" data-testid="leaver-reports">Offene Berichte konnten nicht geladen werden.</p>
+        : <p className="text-secondary" data-testid="leaver-reports">Offene Berichte: {openReportsText(countOpenReports(reports))}</p>}
+      {reports !== undefined && reports.length > 0 && (
         <ul className="grid gap-0.5 pl-3 text-xs" aria-label="Offene Berichte">
           {reports.map((r, i) => <li key={`${r.visit_date}:${r.kind}:${i}`}>{dayLabel(r.visit_date)} · {r.team_name} · {OPEN_REPORT_LABEL[r.kind] ?? r.kind}</li>)}
         </ul>

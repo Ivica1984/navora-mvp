@@ -31,6 +31,59 @@
 
 ---
 
+## 2026-10-31 02:40 CET · aia review 17: AUT-29 closed (AIG1-C1 built, #787, 0104); AUT-23 closed; AIG1-C2/-C3 and AIG1-C4 (PO PR #791) supported; AUT-30 (high: the stop's look-back is tied to the agent's state, so switching a stopped assistant off or on drops open lines from every screen, and at "0 offen" the exception never ends while it stays stopped); AUT-31 (low)
+
+**Read:** `recovery/main` at `1275708`:
+- merged since review 16 (#775): #776 (AIG1 part (b) UI, ADR-129), #778, #780, #777, #783, #781 (CGR-96 test fix), #784, #786, #785 (`uxa` 23:55), **#787** (AIG1-C1, -C2, -C3, migration 0104, ADR-130), #789, #790 (`lca` 01:40);
+- open: PO **#791** (02:25: AIG1-C1/-C2/-C3 met, **AIG1-C4**, **PLAN3-13**; read on its branch `b09b395`), `cra` #788 (01:30, CGR-106, CGR-107; read on its branch), #782 and the earlier `cra` chain;
+- open issues labelled `automation`: #774 (AUT-29; met, see §4).
+
+**Nothing below is a measurement.** I ran no tests. CI as the PO reports it on #791 (head `65a1278` and merge commit `c6f038b`: `app`, `db`, `e2e`, `ui-screenshots` green); not re-read by me. Code read: 0097 (`set_agent_state`, `agent_health`, OPS1 `agent_stopped`), 0104, `src/app/(protected)/operations/assistenten/page.tsx`, `tests/e2e/aig1.spec.ts`.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-30 | After a stop: Operations and the organisation administrator deciding what to do with a stopped assistant; team members and Operations working its look-back list (AIG1-12) | **IMPLEMENTED, from code (not run):** the OPS1 exception `agent_stopped` and its "<n> offen · <m> nicht mehr offen" exist only `where g.state = 'stopped'` (0097 `derived_exceptions`, patched by 0104); the health list returns `stop_id`, and so the link "Betroffene Werte ansehen", only for `state = 'stopped'` (0097 `agent_health`: `left join ai_agent_stops st on st.id = s.last_stop_id and s.state = 'stopped'`; `assistenten/page.tsx:69-77`). `set_agent_state(…, p_on => false)` moves a `stopped` agent to `off` with no check of open lines (0097:519-524); a new switch-on also ends `stopped`. **Two effects:** (1) an administrator who switches a stopped assistant **off** ("we no longer use it", the natural act after a stop) or **on** again removes every screen path to the stop's still-open lines; they remain only at the bare address `/operations/assistenten/rueckblick/<stopId>`. PLAN3-11 (team entry) is keyed on `stopped` too. That is the "silent leave" `lca` proviso (a) and CGR-95 exclude; no brief criterion (AIG1-8, -12, -C1) states what happens to open lines on off or on. (2) Conversely, once every open line is handled the exception stays "0 offen · <m> nicht mehr offen" for as long as the agent stays stopped (AIG1-C1 (4), PO 21:25): a P2 to-do with nothing to do, cleared only by the same off/on act. **No patient-care benefit is shown** for an exception that outlives its work, or for losing a path to open lines | **rule, no new step, more safety:** key the stop's follow-up on its **open lines**, not on the agent's state. (a) One OPS1 exception per stop with at least one open line, whatever the agent's state now (`stopped`, `off` or `on`); it closes by itself at "0 offen". (b) The health list shows each stop with open lines and its link, whatever the state; a stop at "0 offen" stays readable from the agent's row as history ("gestoppt am <Datum> · 0 offen · <m> nicht mehr offen"), not as an exception. (c) The agent's state stays shown as status ("Gestoppt seit …", "Aus") on the health list and PLAN3-6 on `/team`, never as a to-do. (d) PLAN3-11 keys on open lines of the team's stops, not on `stopped`. Nothing about re-check duty is set (D-17, UNKNOWN). Testable criteria on the issue | L | stage 0 (before the first agent other than the synthetic test agent, with AIG1-C4); PO (amend AIG1-8/-12 and AIG1-C1 (4)); `cra` (CGR-95, H-20: confirms nothing is lost); `lca` (proviso (a): stronger, no new read or role); `uxa` (status vs exception wording) | per team and stop: stops whose agent was switched off or on with open lines (should be 0 lines lost: the exception stays); days from stop to "0 offen"; days an exception shows "0 offen" (should be 0); switch-ons within 24 h of a stop (restart pressure, H-20). Never per person | high | #793 |
+| AUT-31 | Proposals that expire undecided (AIG1-C4, PLANNED): team members on `/team/vorschlaege`; Operations on `/operations/assistenten` | PLANNED (PO 02:25, #791): an undecided proposal of a visit no longer open leaves the list without a human act, is not a correction, and is counted "Abgelaufen ohne Entscheid: <n>" per agent and window. Supported (eliminate). The open question (AIG1-C4 (4), D-17) is whether expiry is the assistant's fault; from the team side the answer that matters is **lead time**: a proposal that arrives after the team has already planned by hand returns no care time. Share expiring per team: UNKNOWN (no agent built) | **monitor, no step:** PLAN3's usefulness measure (with AUT-25's "no proposal" share) adds, per team and window, the expired share and the median time from proposal to visit start of decided vs expired proposals. Not a stop criterion and not shown to the team as a fault; it tells the PO whether proposals come early enough to be used (PLAN3 generation time) | L | stage 0; PO (PLAN3-13 or PLAN3 measure line) | expired share per team and window; median proposal-to-visit lead time, decided vs expired. Never per person | low | report only |
+
+**Briefs and items reviewed without a new finding:**
+- **AIG1-C1 as built (0104, ADR-130):** see §4 (AUT-29). Deviation 1 (no rejection of an applied value) removes a path that would silently drop a listed line; supported.
+- **AIG1-C2 as built:** the team member re-confirms or changes an open-visit value one by one on the record page, refusals show their reason, coordinators get no control. This is the first team-side exit from a look-back line; it puts the act with the people who plan (no dispatcher). `record_lookback_lines` returns only the record's own team's lines, no person column: supported. CGR-106 tests ("Ändern") go into AIG1-C4 (5): supported.
+- **AIG1-C3 as built:** back link by origin, refusals on their line with both counts, 44 px tick rows, flag in the "Mindestzahl" cell. Fewer dead ends and re-taps on the phone; no step added. Supported.
+- **UXR-71 first half not adopted (PO 02:25):** a rejection changes nothing on the visit (ADR-130 decision 13), so a confirm step after "Ablehnen" would add a tap to every correct rejection for no safety gain. Supported; this is the challenge duty applied by the PO.
+- **AIG1-C4 (1)-(3) (#791):** the PO's question "why must a nurse reject a proposal time has made moot?" is the right one; filtering on read, no write, and a separate expired count keep the stop share honest without anyone's act. Supported, with AUT-31 as the measure addition.
+- **PLAN3-13 (#791):** the P-6 measure extension placed before the first non-test agent, per stop and team, no person column. It is where AUT-30's measures belong. Supported.
+- **P-40 (PO 00:10, hypothesis):** Operations needs counts per team, the team needs the lines. Consistent with AUT-30 (b)-(c); supported as a pilot hypothesis.
+
+### 2 AI readiness of delivered items (§8)
+- **#787 (AIG1-C1/-C2/-C3):** suggestion ledger and provenance per value unchanged (IMPLEMENTED). **Named confirmer:** a re-confirmation or change on the record page is the team member's own `confirm_suggestion`, with the AIG1-15 checks; on a visit no longer open nothing is recorded (`not_open`, IMPLEMENTED). **No accept-all on listed fields:** look-back values one by one only (AIG1-13 (a), IMPLEMENTED); bulk refusals now stay on their line (AIG1-C3 (2)). **Correction rate per agent and field:** unchanged; expired proposals still count as decided only through a rejection until AIG1-C4 (PLANNED). **Stop rule:** IMPLEMENTED; its follow-up depends on the agent's state (AUT-30, OPEN). **Evaluation on synthetic data:** pgTAP 104, `aig1.spec` tests 3-8, seed organisations E and F (CI per the PO).
+
+### 3 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1 governance layer | **met on synthetic data**: AIG1 `accepted` (PO 22:15), AIG1-C1/-C2/-C3 met (PO 02:25, #791 not yet merged); AIG1-C4 and AUT-30 (if adopted) PLANNED before the first agent other than the synthetic test agent |
+| 0 | First real stage-0 agent (PLAN3) | PLANNED: PLAN3 (with PLAN3-11, -12, -13) after RLS4-C1/-C2 and UX2 in *Active now*; AIG1-C4 in or before the PLAN3 PR |
+| 1 | Real data may reach any test, pilot or AI path | blocked (D-1 precaution, G-25), unchanged; past-visit rectification (DSG Art. 32) UNKNOWN in D-35, Clinical Owner (D-17) and legal adviser after D-11 |
+| 1 | Owner releases stage 1 (provider, region, contract) | not decided (owner, D-35), unchanged |
+
+### 4 Findings closed
+- **AUT-29 closed:** built as written in AIG1-C1 as amended (0104 `aig1_apply_visit_responsible` refuses re-confirmation and correction `not_open`, no row; `agent_stop_lookback.not_open`; OPS1 detail "<n> offen · <m> nicht mehr offen"; pgTAP 104 "0 offen · 3 nicht mehr offen" with the agent `stopped`; e2e test 4 and 8), merged as `c6f038b` with CI green as the PO reports; PO 02:25 "met". #774 can be closed by the PO. The part of AUT-29's concern that remains (the exception's life is keyed on state) is new evidence and is AUT-30, not a reopening.
+- **AUT-23 closed:** (a) bulk refused on listed values and (b) "überholt am <Datum>" labelled and out of the open count, now also on screen (`aig1.spec.ts:155-177`).
+- AUT-25 closes with PLAN3 (AUT-31 adds to the same measure). AUT-27 closes when RLS4-C1 is built. AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-21, AUT-28 (P-38): unchanged.
+
+### 5 Waiting for the PO
+- **AUT-30 (high):** answer before the first agent other than the synthetic test agent (same deadline as AIG1-C4); amend AIG1-8/-12 and AIG1-C1 (4), or state the patient-care benefit of keying the stop's follow-up on the agent's state.
+- AUT-31 (low): optional addition to PLAN3-13 or PLAN3's measure line.
+- P-36 undo alternative (review 15), AUT-19, AUT-20, AUT-21 as before.
+- Bottleneck map refresh: due 2026-11-03 (weekly); candidates unchanged (onboarding contract to first visit, P-28, P-32, care-plan maintenance after reassessment with P-38).
+
+### 6 Issues and comments
+- AUT-30: issue #793 opened; one comment on PO PR #791 (AUT-30, AUT-31, AUT-29 closed).
+
+---
+
 ## 2026-10-30 20:18 CET · aia review 16: AUT-26 closed (#747 merged, ASM1 accepted); AUT-28 adopted as P-38; AIG1 part (b) database half (#770, 0103) §8 check: AIG1-15/-16 supported; AIG1-C1 (PO PR #769, not merged) read: AUT-29 (high: a past-visit look-back line can never leave "offen", so the stop exception clears only by switching the agent back on)
 
 **Read:** `recovery/main` at `65fe6e6`:

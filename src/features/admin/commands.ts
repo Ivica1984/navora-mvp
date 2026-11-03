@@ -193,6 +193,27 @@ export async function prepareMemberAccessEnd(input: unknown): Promise<number | n
   return readPreparedEndCount(data);
 }
 
+/** One open report of one member (LEAVE1-12 (1)): kind, visit date and team; no content, no reason. */
+export type MemberOpenReport = { kind: string; visit_date: string; team_name: string };
+
+/**
+ * RLS4-C2 (po 2026-10-30 07:20, ADR-122 addendum) with LEAVE1-12 (1): her open reports, read for this one member when
+ * the administrator opens the access-end step for her; never loaded with the member list. The database function
+ * (`member_open_reports`, 0075) and its readers are unchanged: administrators of her organisation and the registered
+ * nurses of the report's team; anyone else gets no rows. Returns null when the list could not be read.
+ */
+export async function readMemberOpenReports(input: unknown): Promise<MemberOpenReport[] | null> {
+  const p = z.object({ userId: z.uuid() }).safeParse(input);
+  if (!p.success) return null;
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("member_open_reports", { p_user_id: p.data.userId });
+  if (error) {
+    logEvent("warn", "admin.open_reports_failed", errorFields(error));
+    return null;
+  }
+  return ((data ?? []) as MemberOpenReport[]).map((r) => ({ kind: r.kind, visit_date: r.visit_date, team_name: r.team_name }));
+}
+
 /** LEAVE1-7: restores exactly the access she had (memberships were never removed). */
 export async function restoreMemberAccess(input: unknown): Promise<CommandResult> {
   const p = z.object({ userId: z.uuid(), reasonCode: z.enum(ACCESS_RESTORE_REASONS), idempotencyKey: key }).safeParse(input);

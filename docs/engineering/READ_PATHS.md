@@ -106,7 +106,8 @@ Commands (`correct_visit_time`, `complete_case_task`, `decide_matching_request`,
 | `value_provenance(entity_type, entity_id, field)` | active members of the record's team | the confirmer of **one** value ("bestätigt von <Name> am <Datum>"), with that value's status; at most one row (AIG1-11 (2a)) | 097, 071 |
 | `agent_correction_rates(month)` | team: own rows; coordinators: all teams of the organisation | none; per agent, field, team and month; a cell with fewer than three distinct confirmers is suppressed (AIG1-7) | 097 |
 | `agent_health(org)` | coordinators of the organisation | none (AIG1-10; AIG1-16 adds the written threshold and a per-agent "minimum reached" flag, no person column) | 097, 103 |
-| `agent_stop_lookback(stop)` | coordinators: every line; team members: lines of their teams' records | none; no outcome column (AIG1-12 (i)-(iv)); `superseded`, `superseded_at` per record (AIG1-13 (b)) | 097 |
+| `agent_stop_lookback(stop)` | coordinators: every line; team members: lines of their teams' records | none; no outcome column (AIG1-12 (i)-(iv)); `superseded`, `superseded_at` per record (AIG1-13 (b)); `not_open` per record (AIG1-C1, 0104) | 097, 104 |
+| `record_lookback_lines(entity_type, entity_id)` | active members of the record's team only (those who may call `confirm_suggestion` for it); coordinators who are not team members: none | none; the listed suggestion id, field, agent name, stop and `record_open` of one record (AIG1-C2 (a)/(d), 0104, ADR-130) | 104 |
 
 Commands (`set_agent_state`, `propose_visit_responsible`, `confirm_suggestion`, `confirm_suggestions`) return result codes. The confirmer is otherwise read only per record through `read_audit_record('ai_confirmations', id, purpose)` (AUD1).
 
@@ -207,7 +208,7 @@ The inventory of 2026-10-29 (0001-0096) listed every remaining **select** grant 
 
 **Legacy, closed (RLS4-6, 0099):** `care_visits.team_member_name` (free-text nurse name from before J3) is not selectable and not read or written by the app; `/visits` shows "Pflegekraft: <Name>" from `responsible_user_id` and `member_profiles` ("Noch offen" without, "Teammitglied" without a display name). Not dropped until the D-1 live reconciliation.
 
-**Existing per-person paths (LEAVE1, unchanged, pinned by pgTAP 099):** `member_open_reports(user)` and the command `remove_team_member` take a person and read her open reports (kind, visit date, team) for the access-end handover. ADR-122 deviation 4 (OPEN, PO).
+**Existing per-person paths (LEAVE1, unchanged, pinned by pgTAP 099):** `member_open_reports(user)` and the command `remove_team_member` take a person and read her open reports (kind, visit date, team) for the access-end handover. ADR-122 deviation 4 (OPEN, PO). **RLS4-C2 (po 2026-10-30 07:20; ADR-122 addendum):** the app calls `member_open_reports` only for one member when an administrator opens her access-end step on `/admin` (`readMemberOpenReports`), and for the leavers of the next 14 days (ADM2-12, `getLeaverOpenReports`, `/admin` and `/team`); `/admin` no longer loads it for every member. Function, readers and pin unchanged.
 
 **Accepted assignment reads (RLS4-2, unchanged).** `lca` read the keep-list on #715 at 02:45 (D-23, advisory): these five are compliant under every plausible interpretation; the three it flagged moved to RLS4-1 (RLS4-5).
 
