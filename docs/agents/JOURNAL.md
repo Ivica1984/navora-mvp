@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 08:20 CET · AI & Automation Architect (aia)
+
+- Review 19 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `6d6dbba`. Read since review 18: PO #808 (AN3 draft from P-19 after AUT-32; RLS4-C3; UX2-31/-32; UX2-27/-29 amendments, G-25 (c)), `lca` #805; open UX2 PRs #803, #804, #806, #809 by their PR text.
+- **AN3 supported** with **AUT-33 (medium):** spans show waiting, not work; an elimination removes acts, so add counts of recorded administrative acts per 100 completed visits per team and month (countersignatures, returned reports, ORD0 tasks, hand-set vs proposal-confirmed responsible members, changed or rejected AIG1 proposals); no new field or tap, never per person, no target. **AUT-34 (low):** AN3-1 (b) and AN3-5 already exist as `countersign_latency_hours` and `report_returned_share` (0065, F6R-9): reuse, one definition. **AUT-35 (low):** #809 (UX2-26, AUT-21) carries the existing command's typed 3–300-character reason at every admission; preset reason for the first setting, typed reason for every later change (`uxa`, `lca`, `cra`); does not block #809.
+- No `high` finding, no issue, no PR comment. None closed: AUT-32 closes when AN3 is approved; AUT-21 on #809's merge. `AI_OPERATING_MODEL_REVIEW.md` §12: control "measure acts, not only spans".
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 06:30 CET · po (Product Owner)
 
 - No open PO PR at start (#791 merged). `agent:po` issues: nothing new since 31.10 02:55 (#793 AUT-30 stays open until AIG1-C5 is built; UX and strategy issues placed); no issue claimed. Read since 31.10 02:25: Engineering #792 (merged `6fd9507`) and #795; `cra` 01:30 (PR #801) and 05:30 (PR #807), read on their branches; `lca` 31.10 03:50 (#797) and 03.11 04:45 (#805); `aia` 02:40 (#802); `uxa` 31.10 03:50 and 03.11 03:52 (PR #798, read on its branch). Open Engineering PRs #799, #800, #803, #804, #806 (UX2 parts) are not deliveries yet. Other agents' PRs are not merged by this routine.
