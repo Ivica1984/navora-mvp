@@ -4,12 +4,122 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 14:00 CET · po (Product Owner)
+
+- **Owner directive "post-PR #822 alignment"** (given in a Claude session; CSA excluded by the directive) taken into this open PO PR (#822, continued; `recovery/main` merged in, JOURNAL conflict with `csa` 13:33 resolved, both kept).
+- **Human-in-the-loop mandatory:**
+  - sequence Remove → Rules → Monitor → AI prepares → Human reviews → Human decides → Human signs;
+  - AI may prepare, summarise, prioritise, draft, monitor, suggest;
+  - never accountable decisions, signatures, required approvals or clinical judgement;
+  - violating proposals are rejected.
+
+  Written into `AI_FIRST_ARCHITECTURE_UPDATE.md` §0 and §3, `ARCHITECTURE.md`, `CARE_OPERATING_MODEL.md`, `PRODUCT_REQUIREMENTS.md`, `NEXT_CAPABILITY.md` and the brief template (*AI leverage*, seven steps).
+- **D-39 (sensors, #817) and D-40 (Family Layer, Check-In) opened** as packages (`inputs-requested`; E specification impact only, C, L) and **frozen by the owner**: specification only; no implementation, table, migration or production architecture. Provisional default A in both.
+- **Allowed on synthetic data only:** PLAN3, AN3, AIO1, OPS2, HAND2. **AN3 approved** (Next up 3; `lca` D-23 (b) read before real data). AIO1, OPS2, HAND2 briefs: po, next cycles. DOC2 not allowed yet.
+- **For `eng`:** issue opened. Enforce the five prohibitions in code and architecture, flag violations, no work on D-39/D-40. PR #822 is merged by po when CI is green.
+- **For `cra`:** review duty in update §6.2 item 8. Record clinical decision-support risk as a CGR finding. Clinical input requested on D-39, D-40 and D-34.
+- **For `lca`:** D-34 has priority. A detailed AI assessment is requested in the package (EU AI Act, Swiss law, device risk, cross-border processing, provider contract). Decision support only; no determination without the owner. Inputs requested on D-39 and D-40.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 13:45 CET · po (Product Owner)
+
+- **Owner directive "Strategic Architecture Directive: NAVORA is AI-first"** (given in a Claude session 2026-11-03) carried into the handbook. Not a feature request; no build approved by it.
+- **New:** `docs/product/AI_FIRST_ARCHITECTURE_UPDATE.md` contains:
+  - the six-step design method (remove, rule, monitor, prepare with AI, communicate, keep human), replacing "graph-first, agents at the edges";
+  - principles AI-1 to AI-12;
+  - the AI layer architecture and the agent contract;
+  - ten AI domains with level, confirmer and gate;
+  - guidance for `eng`, `cra`, `lca`.
+- **New:** `AI_OPPORTUNITY_MAP.md` (22 human assumptions inventoried; 12 workflows current and future state; ranking) and `AI_CAPABILITY_ROADMAP.md` (stages 0-3, proposed briefs AIO1, OPS2, HAND2, DOC2, owner asks).
+- **Updated:**
+  - `ARCHITECTURE.md`: *KI-Säule*, *AI Layer* context, orchestrator, target structure; a note that a full status revision of the handbook is OPEN;
+  - `CARE_OPERATING_MODEL.md`: *AI-first operating model* supersedes the 2026-10-26 section; P-9 kept;
+  - `PRODUCT_REQUIREMENTS.md` (KI as a core requirement);
+  - `ROADMAP.md` (KI-Schicht track);
+  - `NEXT_CAPABILITY.md`: rule *AI-first review*;
+  - brief template: section *AI leverage*.
+- **Unchanged:** D-35 rule A, D-34 A plus C, owner rule 2026-10-29 (D-1), G-1, P-1; queue order. Proposed packages **D-39** (sensors, #817) and **D-40** (client- and relative-facing AI) are not opened yet: the PO opens them with `lca`/`cra` inputs.
+- **For `eng`:** read the update §6.1 before the PLAN3 ADR. **For `cra`:** §6.2 review checklist. **For `lca`:** §6.3 capability list. **For `aia`:** the opportunity map ranking replaces nothing in your bottleneck map; please challenge it at the next review.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 13:33 CET · Chief Strategy Architect (csa)
+
+- Weekly review: new section in `docs/product/STRATEGIC_ALIGNMENT_REVIEW.md` (STR-20 to STR-25) on the owner directions of 2026-11-03 (#816 Basel, #817 IoT/AI spec, #818 all-in-one with nursing homes), D-36/D-37 and D-38; `STRATEGY.md` §4 update, BM-8/BM-9, §6 questions 8-11, benchmark Spitex Zürich Limmat (2018).
+- Verdicts: STR-20 Basel medium (start in one canton; Zurich durations now UNKNOWN for BS/BL); STR-21 all-in-one now **high** (no patient-care benefit shown; build only with a self-organised design-partner ward after G-1, D-36); STR-22 IoT/AI spec medium (spec without migration until D-34/D-35); STR-23 "fully automated" target **high** (human confirmation and signed report are safety and legal controls; proposed target "automated preparation, one human confirmation"); STR-24 interRAI licence: three uses to name; STR-25 D-38 unchanged, T-terms with Zurich-only evidence to be marked by `lca`.
+- Not done, by role rule: contacting a Basel partner or interRAI (owner only). Written instead: an advisory weekly strategic alignment check for `po` (10 questions). Issue #820 to `po` with a combined owner ask proposal; one comment each on #817 and #818.
+- No code, package, queue or status touched. Ran `node scripts/agents-check.mjs` before publishing; no other test run.
+
+---
+
+## 2026-11-03 11:50 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #798 (CI green on `b6d22ac`, not merged): merged `recovery/main` `547d807` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 07:52. Read from code: #800 amendments (head `748ef3f`: CGR-108, CGR-109, UXR-79) and new #813 (RLS4-C3, head `01dee6c`); #809 only a base merge; #799, #803, #804, #806 unchanged. Screenshot archive still refused (403), so code-only.
+- New: UXR-82 (low: "Erneut laden" unmounts on press, focus to the body, success not announced; comment on #813), UXR-83 (low: unnamed author reads differently on the card and in the handover).
+- Met on PR heads, closing on merge: UXR-79 (#800), UXR-73 (#813, (2) wording with the PO). Wording: CGR-108 "Teammitglied <n> (ohne Namen)" confirmed (`cra` waited on it); RLS4-C3 (2) interim acceptable for merge, my 07:52 sentence stays the proposal; AUT-35 label "Was hast du geprüft? (3–300 Zeichen)" proposed (`cra` confirms; evidence examples UNKNOWN, owner and `clinical`).
+- No severe/high finding, no issue. Design system version 29. I ran no test.
+
+---
+
+## 2026-11-03 08:20 CET · AI & Automation Architect (aia)
+
+- Review 19 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `6d6dbba`. Read since review 18: PO #808 (AN3 draft from P-19 after AUT-32; RLS4-C3; UX2-31/-32; UX2-27/-29 amendments, G-25 (c)), `lca` #805; open UX2 PRs #803, #804, #806, #809 by their PR text.
+- **AN3 supported** with **AUT-33 (medium):** spans show waiting, not work; an elimination removes acts, so add counts of recorded administrative acts per 100 completed visits per team and month (countersignatures, returned reports, ORD0 tasks, hand-set vs proposal-confirmed responsible members, changed or rejected AIG1 proposals); no new field or tap, never per person, no target. **AUT-34 (low):** AN3-1 (b) and AN3-5 already exist as `countersign_latency_hours` and `report_returned_share` (0065, F6R-9): reuse, one definition. **AUT-35 (low):** #809 (UX2-26, AUT-21) carries the existing command's typed 3–300-character reason at every admission; preset reason for the first setting, typed reason for every later change (`uxa`, `lca`, `cra`); does not block #809.
+- No `high` finding, no issue, no PR comment. None closed: AUT-32 closes when AN3 is approved; AUT-21 on #809's merge. `AI_OPERATING_MODEL_REVIEW.md` §12: control "measure acts, not only spans".
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 07:52 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #798 (CI green on `091128e`, not merged): merged `recovery/main` `6d6dbba` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 03:52; read new open PRs #804 (UX2-18 to -21, `9f1511d`), #806 (UX2-30, `a5875e2`), #809 (UX2-26, `d18b60c`) from code; #799, #800, #803 unchanged under `src`. Screenshot archive still refused by the proxy, so code-only.
+- New: UXR-80 (low: "Qualifikation fehlt" rows carry no action; heading accuracy UNKNOWN, `eng`), UXR-81 (low: fallback "Sie steht noch nicht …" assumes a gender and names no step). One comment on #809.
+- Met on PR heads, closing on merge: UXR-36, -37, -40, -41 (#804); UXR-56, -58, -61, -62, -63 (#806; -57 partly, assessor prefill PLANNED). Wording: RLS4-C3 (2) result line answered ("Offene Berichte: nicht bekannt …", `cra` confirms), "Erneut laden" confirmed; UX2-30 (4) confirmed; UX2-30 (5) "Die Bedarfsabklärung war damals nicht bestätigt." proposed (`cra`).
+- No severe/high finding, no issue. Design system version 28. I ran no test.
+
+---
+
+## 2026-11-03 06:30 CET · po (Product Owner)
+
+- No open PO PR at start (#791 merged). `agent:po` issues: nothing new since 31.10 02:55 (#793 AUT-30 stays open until AIG1-C5 is built; UX and strategy issues placed); no issue claimed. Read since 31.10 02:25: Engineering #792 (merged `6fd9507`) and #795; `cra` 01:30 (PR #801) and 05:30 (PR #807), read on their branches; `lca` 31.10 03:50 (#797) and 03.11 04:45 (#805); `aia` 02:40 (#802); `uxa` 31.10 03:50 and 03.11 03:52 (PR #798, read on its branch). Open Engineering PRs #799, #800, #803, #804, #806 (UX2 parts) are not deliveries yet. Other agents' PRs are not merged by this routine.
+- **RLS4-C1 and RLS4-C2 reviewed: all met** (`briefs/RLS4.md` 06:30, evidence table). CI green on head `1080608` (PR run 41155982836, four jobs) and on `6fd9507` (push run 41158798331). `cra` 01:30: CGR-101 closed, RLS4-C2 no finding; `lca` 03:50: compliant. RLS4 stays `accepted`. **The PO did not run the tests.** ADR-122 addendum deviations 1-4 accepted (no "confirmed unassigned" column; ADM2-12 leavers' list kept on page load), 5 a note.
+- **Condition RLS4-C3** (`cra` CGR-111, `uxa` UXR-73; before G-19, now G-19 (l)): "Erneut laden" on a failed read; ending access stays possible (product decision with `cra`); the result never says "Keine offenen Berichte" on a missing count.
+- **Placed:** CGR-109 as a UX2-29 amendment and **G-25 (c)** ("nicht erfasst" on a visit no longer open; past-visit count in the §5c record), as `lca` 04:45 and `cra` ask; CGR-108 as a UX2-27 amendment (member number kept); UXR-75 and UXR-78 as **UX2-31** (ADR-131 deviation 3 decided: the role's home is its first tab), UXR-76 and UXR-77 as **UX2-32**, UXR-79 into UX2-29 (field label and picker only; `cra`-fixed signal texts stay). CGR-110 into *Active now* (1).
+- **Active now:** (0) finish the cleared UX2 PRs before opening more parts, (1) CGR-110 (#399), (2) UX2 remainder, (3) AIG1-C4 with AIG1-C5, (4) PLAN3; ASM1-C6 before real assessment data; RLS4-C3 with the next `/admin` PR.
+- **Challenge:** "Why does a closed visit's record speak in the planning field?" A past visit answers "who cared" from the report, not "who was planned"; now "nicht erfasst" instead of a false absence, proposal (not built) to lead the closed record with the report's performer after G-25. Second row: an access end does not wait for a list.
+- **AN3 drafted** (P-19, `aia` AUT-32): per-step spans per team and month from existing timestamps (report signed, countersign, referral to ready case, ORD0 task age, AIG1 decision), AN1 suppression, never per person, countersign latency never a target (`cra` 05:30). **For `lca`:** read `briefs/AN3.md` against D-23 term (b); the PO approves it after a compliant read, to be built before G-19.
+- **Decision packages:** no package work available to the PO: every row is frozen, decided or waiting (D-37 for the D-36 licence terms). D-1's trigger 3 (CGR-109) was `lca`'s; placing CGR-109 changes no owner ask, so D-1 stays frozen and is not edited. No package decided or escalated.
+- No newly approved capability (AN3 is a draft; RLS4-C3, UX2-31, UX2-32 amend accepted or approved briefs). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 13:55 CET · Legal & Compliance Agent (lca)
+
+- Live request from the owner (session): legal check for a Basel-Stadt setup. **Owner answer to D-11: pilot canton Basel-Stadt** (given to `lca`; `po` records it, `lca` moves no row). D-2, D-4, D-9, D-29 re-checked (`Unfreeze: 2` D-11); only my sections edited. A "binding confirmation" was asked; `lca` gives none (advisory only).
+- **D-2:** Zurich region for real BS care data: **unresolved: needs legal adviser** (auxiliary status of Supabase/AWS under StGB 321 and GesG BS § 26; IDG BS if a public task; DSFA missing). **D-4:** GesG BS § 29: 10 years **after end of treatment**; "10 years under OR" (958f) covers billing only; OR 60 Abs. 1bis (20 years) longer keeping **unresolved: needs legal adviser**.
+- **D-9:** three steps; (a) on contract and record duty is compliant with (b)/(c) separate and optional; AI voice (b) and IoT sensors (c) are new scope, **unresolved** (EDÖB/privatim Merkblatt 16.09.2026: consent alone not sufficient for sensors). **D-29:** nurses are in GesReg, not NAREG; control checks proposed; an "Uber model" (AVG licence, BGE 149 V 57 employer risk, OR 100) **unresolved: needs legal adviser and owner**, high risk.
+- Owner dossier with draft consent texts and AGB clauses (marked drafts for the adviser): Claude Doc "NAVORA – Rechtliche Vorprüfung Basel-Stadt". Part of the research was read by sub-agents; marked so. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 04:45 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#797 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 03:50 (31.10) run. New evidence: `cra` 01:30 (PR #801, read on its branch) **CGR-109** names D-1 (tier 2). D-1 reviewed (`Unfreeze: 3 CGR-109`); only my section edited.
 - **D-1, CGR-109:** past visits whose nurse is only in the hidden legacy name read "Noch offen" (IMPLEMENTED; "noch niemand" on #800, PLANNED). The CGR-109 remedy (neutral past-tense text, legacy name stays hidden, past visits unmapped, past-visit count in the G-25 record): **compliant under every plausible interpretation** on DSG Art. 6 Abs. 5, if in place **before G-25**. Showing "nobody" on past visits with real data: **unresolved: needs owner** (lawyer question in the section). Note to po (compliance-relevant): place CGR-109 as a G-25 precondition.
 - Not reviewed: AUT-32 (P-19 under D-23 term (b)) has no brief and no request in a package; I will read it when P-19 is briefed. CGR-108 names no decision.
 - Sources read this run: DSG Art. 6 Abs. 2, 3, 5 (swissrights.ch), law.ch *Grundsatz der Datenrichtigkeit*. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 03:52 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #798 (CI was green, not merged): merged `recovery/main` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 31.10.; read open PRs #799 (UX2-1 shell, `260dbf6`), #800 (UX2-27/-29, `1640cdc`), #803 (UX2-15/-16/-25, `dd32be6`) from code; CI success on all three heads per GitHub check runs (I ran no test). No screenshots (artifact download still refused by the proxy).
+- New: UXR-75 (medium: coordination roles' home "Ausnahmen" behind "Mehr" on the phone; PO, ADR-131 deviation 3), UXR-76 (medium: two names per destination; wording answered: "Heute", "Team", "Arbeitstag" everywhere), UXR-78 (medium: fixed tab bar can cover the focused control, WCAG 2.4.11; `scroll-padding`), UXR-77 and UXR-79 (low). No severe/high, so no issue; one comment each on #799 and #800.
+- Met on PR heads, closing on merge: UXR-27, -28, -46 (#803), UXR-48, -53 (#800, residual UXR-79), UXR-72 (#799). My 31.10. "Zuständige Person wählen" proposal withdrawn for "Verantwortliche Person wählen".
+- Benchmark: Material 3 navigation bar (SAP Fiori for Android): 2-5 core destinations, short one-line labels. Design system version 27.
 
 ---
 
@@ -41,6 +151,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **AUT-27 closed** (RLS4-C1 built as proposed, #792). AUT-30 adopted as AIG1-C5 and AUT-31 into PLAN3-13 (PO 02:55): close on build. #799 (UX2-1 shell) and #800 (UX2-27/-29) reviewed: no finding, no comment.
 - [E3] Bern Spitex Kennzahlen 2017/2018 read 2026-11-03: no usable Swiss direct-care or documentation share; stays UNKNOWN.
 - No issue opened (no high finding). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-10-31 03:50 CET · UX/UI Design Architect (uxa)
+
+- Reviewed #787 (AIG1-C1/-C2/-C3, `c6f038b`) and #792 (RLS4-C2 `/admin`, `6fd9507`) from code on `3a6b9c6`; CI success on both merge commits per GitHub check runs (I ran no test). No screenshots (artifact download still refused by the proxy).
+- Closed: UXR-66, -69, -70 in code; UXR-67 in code for the dead end (shell residual → UXR-72); UXR-71 (second half in code, first half not adopted by the PO). UXR-68 PLANNED as PLAN3-12.
+- New: UXR-73 (medium, `/admin`: failed open-report read enables "Zugang beenden" with no next step; trade-off for the PO with `cra`), UXR-72 and UXR-74 (low). No severe/high, so no issue.
+- Wording proposed (OPEN): record line "<Feld>: Der Assistent, der diesen Wert vorgeschlagen hat, ist gestoppt."; "Zuständige Person wählen"; AIG1-C4 (3) "<n> ohne Entscheid abgelaufen".
+- Benchmark: count badges on navigation entries (ServiceTitan Anvil): adopt a "99+" cap for PLAN3-12. Design system version 26.
 
 ---
 
