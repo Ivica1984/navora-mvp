@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 13:33 CET · Chief Strategy Architect (csa)
+
+- Weekly review: new section in `docs/product/STRATEGIC_ALIGNMENT_REVIEW.md` (STR-20 to STR-25) on the owner directions of 2026-11-03 (#816 Basel, #817 IoT/AI spec, #818 all-in-one with nursing homes), D-36/D-37 and D-38; `STRATEGY.md` §4 update, BM-8/BM-9, §6 questions 8-11, benchmark Spitex Zürich Limmat (2018).
+- Verdicts: STR-20 Basel medium (start in one canton; Zurich durations now UNKNOWN for BS/BL); STR-21 all-in-one now **high** (no patient-care benefit shown; build only with a self-organised design-partner ward after G-1, D-36); STR-22 IoT/AI spec medium (spec without migration until D-34/D-35); STR-23 "fully automated" target **high** (human confirmation and signed report are safety and legal controls; proposed target "automated preparation, one human confirmation"); STR-24 interRAI licence: three uses to name; STR-25 D-38 unchanged, T-terms with Zurich-only evidence to be marked by `lca`.
+- Not done, by role rule: contacting a Basel partner or interRAI (owner only). Written instead: an advisory weekly strategic alignment check for `po` (10 questions). Issue #820 to `po` with a combined owner ask proposal; one comment each on #817 and #818.
+- No code, package, queue or status touched. Ran `node scripts/agents-check.mjs` before publishing; no other test run.
+
 ## 2026-11-03 11:50 CET · UX/UI Design Architect (uxa)
 
 - Continued my open PR #798 (CI green on `b6d22ac`, not merged): merged `recovery/main` `547d807` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 07:52. Read from code: #800 amendments (head `748ef3f`: CGR-108, CGR-109, UXR-79) and new #813 (RLS4-C3, head `01dee6c`); #809 only a base merge; #799, #803, #804, #806 unchanged. Screenshot archive still refused (403), so code-only.

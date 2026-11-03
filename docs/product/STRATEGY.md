@@ -71,6 +71,16 @@ Updated by `csa` 2026-10-27 13:55 CET. Month 0 = the partner's letter of intent 
 | **interRAI foundation (D-37)** | owner provides the licence terms to `lca` (D-36, `awaiting-approval: owner` since PO 13:35), saying who holds the licence (STR-16); `eng`, `cra`, `lca` inputs; one licence conversation covering HC now and LTCF later (STR-11) | terms before ASM1 is built beyond D-13 B | owner (terms), G-1 (intervals, triggers) | ASM1 stays instrument-neutral; dimension 6 stays *weak* |
 | **AI stages (D-35)** | stage 0 now: AIG1 approved (*Next up* 3, PO 13:35; PLANNED); stage 1 package naming provider, region, contract | stage 1 package written during pilot months 1-3 so it is ready at month 3 of stable operation | 3 stable pilot months; DPIA; partner's sub-processor approval | each month before the pilot starts moves stage 1 by a month |
 
+**Update `csa` 2026-11-03 13:33 CET (owner directions #816, #817, #818; STR-20 to STR-25).** The rows above are kept as written; where they conflict, this update wins.
+
+| Track | Change | When it must happen | Cost of each month of delay |
+|---|---|---|---|
+| **Pilot canton (D-11)** | Owner direction: Basel-Stadt and Basel-Landschaft (#816), replacing the Zurich recommendation. The 8-week licence and admission durations above were read on Zurich sources and are **UNKNOWN for BS and BL**; the month-7 C-file deadline has no source until `lca` re-reads them. `csa` proposes starting in one of the two cantons (STR-20). | `lca` re-read before the partner's LOI | each month without a dated duration leaves the 12-month sunset unprotected |
+| **Partner, legal adviser** | Now a Basel partner and a BS/BL adviser (owner agenda bundle 2). Only the owner may contact them. | before month 0 | the pilot start and every C-file date move by the same month |
+| **Nursing homes (D-24, D-25)** | Owner direction: one platform for both settings (#818). `csa`: user stories with sources now, build only with one self-organised design-partner ward after G-1 and D-36 (STR-21). | stories: any time; build: after G-1, D-36, a partner ward | building earlier fixes the product shape on licence hierarchy, not on a team |
+| **IoT and AI prediction (#817)** | Draft spec; gated by D-34, D-35, a proposed D-39 (sensors in a private home), D-3/D-4, G-1. `csa`: spec without migration until D-34 has a conformity route (STR-22). Billing stays "prepared by AI, signed by a person" (STR-23). | after D-35 stage 1 and D-34 route | none for patients today; earlier build costs rework |
+| **interRAI (D-36)** | Owner's licence conversation should name three uses: automated computation of scales and CAPs, AI-drafted proposals confirmed by a nurse, contractor software use (STR-24). Whether they are licensable: UNKNOWN. | before ASM1 goes beyond D-13 B | dimension 6 stays *weak*; all-in-one LTCF stays blocked too |
+
 ## 5 Business model hypotheses (OPEN)
 
 Each hypothesis names the evidence it needs. `csa` sets no price and no amount.
@@ -84,6 +94,8 @@ Each hypothesis names the evidence it needs. `csa` sets no price and no amount.
 | BM-5 | Nurse income rises in a team-owned provider compared with employment by a traditional provider (value 3) | OPEN, UNKNOWN | a comparison of pay under B and under C, legal form of C, residual financing (STR-1) | the C file; Zurich adviser |
 | BM-6 | Low overhead is NAVORA's margin: a team-owned provider on NAVORA runs below the overhead of a Buurtzorg-like back office (benchmark §7: 6.7 % of total costs) | hypothesis | the C provider's cost structure after its first year | C provider accounts (UNKNOWN) |
 | BM-7 | Revenue (value 9) grows with the number of teams, not with billed hours | follows from BM-1 | as BM-1 | – |
+| BM-8 | (2026-11-03) The F3 fee unit (per active team member) also fits a nursing-home ward team, so all-in-one (#818) needs no second pricing model | hypothesis, `csa` | that a ward team is a stable unit with members, and that nothing in a BS/BL nursing-home licence ties the unit to a hierarchy | `lca` sources (#818); a design-partner ward (UNKNOWN) |
+| BM-9 | (2026-11-03) Sensor and AI functions (#817) are not a revenue line before D-34 and D-35 stage 1; pricing them earlier prices a medical-device risk nobody has assessed | hypothesis, `csa`; no price set | D-34 conformity route; D-35 provider and contract | `cra`, `lca`, regulatory adviser |
 
 ## 6 Open strategic questions for `csa`
 
@@ -95,7 +107,25 @@ Each hypothesis names the evidence it needs. `csa` sets no price and no amount.
 6. **New:** may a team member's employment contract with the partner restrict her from joining the team-owned provider, and with it her clients? UNKNOWN; `lca`, then the Zurich adviser (STR-15).
 7. **New:** does the client information at intake allow the planned change of provider to be named in advance, so the transfer consent is light? UNKNOWN; `lca` (STR-7).
 
+8. **New 2026-11-03:** with two Basel cantons, should the first team and the C provider start in one canton only? *Partial answer:* `csa` recommends one (STR-20); the cantonal difference in licence, residual financing and tariff contract is UNKNOWN until `lca` reads BS and BL sources.
+9. **New 2026-11-03:** does a nursing-home licence in BS or BL leave room for a self-organised ward team (who must be named, which staffing rules)? UNKNOWN; `lca` sources (#818). The answer decides whether all-in-one serves dimension 7 or works against it.
+10. **New 2026-11-03:** can any OKP billable service be prepared from sensor data or an AI output, and what must the nurse still document and sign? UNKNOWN; `lca` (#817 gate 5). `csa` assumes the signed visit report stays the only billing basis (J5).
+11. **New 2026-11-03:** what do Swiss incumbents that adopted Buurtzorg principles still keep centrally, and can NAVORA's software replace it? *Partial answer:* see the Spitex Zürich Limmat benchmark (§7): planning, recruitment and holidays moved to teams; IT, HR, quality, specialist services and insurer and city relations stayed central, and data-entry deadlines were set by payroll and billing.
+
 ## 7 Benchmarks (one per `csa` run, newest first)
+
+### 2026-11-03 · Spitex Zürich Limmat, Buurtzorg-inspired pilot (2018)
+
+**Source:** M. Radtke, interview with Christina Brunnschweiler, CEO Spitex Zürich Limmat, "We stumbled across Buurtzorg", 6 August 2018, PDF on buurtzorg.com (https://www.buurtzorg.com/wp-content/uploads/2018/08/Spitex-We-stumbled-across-Buurtzorg.pdf), read 2026-11-03 through a summarising fetch; statements as reported, not verified. What became of the pilot after 2018: UNKNOWN (not found in this run's search).
+
+**In my words:** a large Swiss Spitex organisation (about 1,000 staff, 6,724 clients in 2017) ran a pilot in Zürich-Schwamendingen with self-organised teams. Interest was so high that seven teams formed instead of two. Teams took over holiday and duty planning, recruited with HR support, and in two teams planned their own visits. Two management levels (centre and team management) were removed. Central services kept IT, HR, quality, specialist care (for example palliative) and the relations with insurers, the city and suppliers. Teams had to use the company's IT system and enter data by a binding deadline set by payroll and billing. Early signals were fewer sick days and lower recruitment costs; the CEO stressed that the aim was satisfied clients and staff, not cost cutting.
+
+**Where NAVORA must exceed it:**
+- **Visit planning in every team, not two.** NAVORA's team-owned day plan (PLAN3, PLANNED) must make visit planning the default for every team, with continuity weighted in.
+- **No data-entry deadline set by the back office.** Documentation should be captured once at the point of care and turned into payroll and billing preparation automatically (WORK1, J5; AI stages per D-35), so the deadline disappears instead of being enforced.
+- **Central functions as software and network services, not a centre.** Quality, cover and insurer communication should be rules and shared services a team uses (STR-13, COVER1, QG1), so removing management levels does not leave a central office in their place.
+- **Ownership.** The Zürich pilot stayed inside one employer. NAVORA's destination is the team-owned provider (D-12 C), which is why D-38's terms matter before any partner LOI, Basel included.
+- **Basel lesson:** an incumbent can adopt self-organisation inside its hierarchy. A Basel partner that does so is a good design partner (B), but only D-38's sunset terms keep it from becoming the destination.
 
 ### 2026-10-27 · Buurtzorg Nederland, *Kwaliteitsbeeld 2025*
 
