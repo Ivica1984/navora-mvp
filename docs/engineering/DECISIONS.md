@@ -2418,3 +2418,24 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** no local database ran (no Docker daemon in the run's sandbox), so neither the migration nor any pgTAP ran locally. See the PR for what ran in the sandbox. CI decides.
 
 **Rollback:** revert the PR; 0104 is forward-only like every migration, a follow-up migration would restore 0103's function bodies and the 0097 `agent_stop_lookback` signature.
+
+### ADR-142 — App delivery form and website separation for the delivery program (M1, #830)
+**Status:** PROPOSED (PR, waits for the PO; the PO accepts the delivery form in M1, `DELIVERY_PROGRAM.md` §3 and §5) · **Context:** owner Executive Delivery Directive 2026-11-03, relayed by `po` on #830: Engineering decides how the caregiver, operations and family apps are delivered and how the public website is built and separated from the app. Full estimate: `docs/engineering/DELIVERY_ESTIMATE.md` §5, §6.
+
+**Facts (IMPLEMENTED):** one Next.js app with the UX2 shell (part 1 merged #742; the shell itself IN REVIEW #799); every write is a Server Action calling an idempotent Postgres command with an idempotency key and the audit in one transaction (ADR-003); `public/sw.js` handles push; no manifest, offline shell or command queue; session cookies set by `@supabase/ssr` with no `Domain` attribute in our code; P1 signals in-app only on Safari/iOS and Firefox (D-33).
+
+**Decision (PROPOSED):**
+1. **Caregiver and operations apps are the one NAVORA app, installable** (web manifest, offline shell, client command queue). The queue resends with the **same** idempotency key, only while the app is in the foreground, and shows every unsent value; it does not rely on background sync. A second client code base is not built.
+2. **Native only on a named requirement** the web app cannot meet (M1 or MOB1). Outside-app P1 delivery on iOS is not such a requirement today: D-33 keeps P1 in-app on Safari/iOS, and a native app's push would be the same outside-app channel. The current iOS behaviour of installed web apps (push permission, storage eviction, background work) is UNKNOWN here and is verified against current platform documentation in MOB1, not assumed.
+3. **Family app: no build** (D-40 frozen); Engineering writes only the *Engineering impact* of D-40 when the PO asks.
+4. **Website: a separate static site with its own deployment and origin**, built from `website/` in this repository (or a separate repository if the owner prefers). A CI check fails if `website/` imports from `src/`, references a Supabase URL or key, or sets a cookie. The app's cookies stay host-only. The demo form posts to the owner-chosen destination (M3), never to a NAVORA Supabase project; the website deployment holds no care-database credential.
+
+**Options considered:** (a) public route group inside the app: rejected, because the site would share the app's origin, cookies, CSP and deployment, and a demo request would sit one import away from the care database; separation would rest on discipline, not on construction. (b) Native apps (iOS/Android) for caregivers: rejected for now, because they double the client code and the review surface without meeting a requirement the web app misses (point 2). (c) A separate operations client: rejected, the readers and RLS are shared.
+
+**Trade-offs:** an installable web app depends on browser behaviour that Engineering does not control (UNKNOWN on iOS until MOB1). A separate site needs a second deployment and a domain decision (owner, M3).
+
+**Not decided here (OPEN):** host and domain of the website, the demo-request destination, its privacy notice and retention (owner, `lca`); directory vs repository for the website (`po`/owner).
+
+**Checked by me (not CI):** read only; nothing built or run. No test applies to this ADR; the build items that follow it (MOB1, WEB1) carry their own tests.
+
+**Rollback:** documentation only; superseded by a later ADR if MOB1 or WEB1 names a requirement that changes it.
