@@ -17,11 +17,15 @@ import {
   instrumentLabel,
   recordAnchor,
   REFERENCE_HINT,
+  VOID_COMMAND_LABEL,
+  voidedLine,
   type AssessmentRecord,
   type CaseAssessments,
   type Instrument,
+  type VoidedRecord,
 } from "@/features/assessment/rules";
 import { memberLabel } from "@/features/team/rules";
+import AssessmentVoidForm from "./assessment-void-form";
 
 type Member = { user_id: string; qualification: string | null; me: boolean; name?: string | null };
 
@@ -53,17 +57,23 @@ export default function AssessmentSection({
   view,
   instruments,
   members,
+  canVoid = false,
 }: {
   caseId: string;
   view: CaseAssessments | null;
   instruments: Instrument[];
   members: Member[];
+  /** ASM1-C6 (6): offered to a registered nurse of the team (provisional set; the database decides). */
+  canVoid?: boolean;
 }) {
   const router = useRouter();
   const [mode, setMode] = useState<{ kind: "new" } | { kind: "supersede"; record: AssessmentRecord } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const records = view?.records ?? [];
+  // ASM1-C6 (3): each voided record as the void only (the reader returns no field of it).
+  const voided = view?.voided_records ?? [];
+  const [voiding, setVoiding] = useState<string | null>(null);
   const current = currentRecord(view);
   const nurses = members.filter((m) => m.qualification === "registered_nurse");
   const historyRef = useRef<HTMLDetailsElement>(null);
@@ -122,6 +132,23 @@ export default function AssessmentSection({
   const prefill = mode?.kind === "supersede" ? mode.record : null;
 
   const earlier = records.filter((r) => !r.current);
+  // "Frühere Erfassungen (<n>)" counts the voided records too (ASM1-C2 as amended by C6 (3)).
+  const earlierCount = earlier.length + voided.length;
+
+  // ASM1-C6 (3), po 13:28 wording: a label, not a strike; no minutes, period, instrument or reference.
+  function renderVoided(v: VoidedRecord) {
+    return (
+      <li
+        key={v.id}
+        id={recordAnchor(v.id)}
+        aria-label="Irrtümlich erfasste Bedarfsabklärung"
+        data-testid="assessment-voided"
+        className="rounded-lg border border-stone-200 bg-white p-2"
+      >
+        <p className="text-sm">{voidedLine(v)}</p>
+      </li>
+    );
+  }
 
   // A render function, not a nested component: React would remount a component defined during render.
   function renderRecord(r: AssessmentRecord, inHistory: boolean) {
@@ -173,7 +200,18 @@ export default function AssessmentSection({
               Korrigieren (ersetzen)
             </button>
           )}
+          {/* ASM1-C6 (`uxa` 15:50): beside "Korrigieren (ersetzen)" on a record that is not superseded. */}
+          {canVoid && !r.superseded_by && voiding !== r.id && (
+            <button
+              type="button"
+              onClick={() => setVoiding(r.id)}
+              className="min-h-11 rounded-lg border border-stone-400 bg-white px-3 text-xs font-semibold"
+            >
+              {VOID_COMMAND_LABEL}
+            </button>
+          )}
         </div>
+        {voiding === r.id && <AssessmentVoidForm recordId={r.id} onClose={() => setVoiding(null)} />}
       </li>
     );
   }
@@ -181,7 +219,7 @@ export default function AssessmentSection({
   return (
     <section aria-label="Bedarfsabklärung" data-ref="ASM1" className="mt-3 rounded-xl bg-stone-50 p-2 text-sm">
       <h4 className="text-xs font-bold uppercase tracking-wide text-secondary">Bedarfsabklärung</h4>
-      {records.length === 0 ? (
+      {records.length === 0 && voided.length === 0 ? (
         <p className="italic text-secondary">Noch keine Bedarfsabklärung erfasst.</p>
       ) : (
         <>
@@ -191,17 +229,18 @@ export default function AssessmentSection({
               {renderRecord(current, false)}
             </ul>
           )}
-          {earlier.length > 0 && (
+          {earlierCount > 0 && (
             <details ref={historyRef} data-testid="assessment-history-details" className="mt-2">
-              <summary className="min-h-11 cursor-pointer py-2 text-xs font-semibold">Frühere Erfassungen ({earlier.length})</summary>
+              <summary className="min-h-11 cursor-pointer py-2 text-xs font-semibold">Frühere Erfassungen ({earlierCount})</summary>
               <ul aria-label="Frühere Erfassungen" className="grid gap-2">
                 {earlier.map((r) => renderRecord(r, true))}
+                {voided.map(renderVoided)}
               </ul>
             </details>
           )}
         </>
       )}
-      {current === null && records.length > 0 && <p className="text-xs text-secondary">Keine aktuelle Bedarfsabklärung.</p>}
+      {current === null && (records.length > 0 || voided.length > 0) && <p className="text-xs text-secondary">Keine aktuelle Bedarfsabklärung.</p>}
       <ErrorLine message={error} />
       {mode === null ? (
         <button type="button" onClick={() => setMode({ kind: "new" })} className="mt-1 min-h-11 px-2 font-semibold underline">
