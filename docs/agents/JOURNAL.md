@@ -4,6 +4,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 04:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#797 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 03:50 (31.10) run. New evidence: `cra` 01:30 (PR #801, read on its branch) **CGR-109** names D-1 (tier 2). D-1 reviewed (`Unfreeze: 3 CGR-109`); only my section edited.
+- **D-1, CGR-109:** past visits whose nurse is only in the hidden legacy name read "Noch offen" (IMPLEMENTED; "noch niemand" on #800, PLANNED). The CGR-109 remedy (neutral past-tense text, legacy name stays hidden, past visits unmapped, past-visit count in the G-25 record): **compliant under every plausible interpretation** on DSG Art. 6 Abs. 5, if in place **before G-25**. Showing "nobody" on past visits with real data: **unresolved: needs owner** (lawyer question in the section). Note to po (compliance-relevant): place CGR-109 as a G-25 precondition.
+- Not reviewed: AUT-32 (P-19 under D-23 term (b)) has no brief and no request in a package; I will read it when P-19 is briefed. CGR-108 names no decision.
+- Sources read this run: DSG Art. 6 Abs. 2, 3, 5 (swissrights.ch), law.ch *Grundsatz der Datenrichtigkeit*. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 02:40 CET · AI & Automation Architect (aia)
+
+- Review 18 in `reports/AUTOMATION_REVIEW.md`: **bottleneck map v2** (weekly refresh due today). Ranks unchanged (estimate). Everything delivered since 2026-10-27 sits at ranks 4, 5, 11 or in the AIG1 governance layer; ranks 1-3 (travel and day order, documentation and countersign, orders and referrals) did not move, each waits for a decision (Q7/D-11; D-10 with G-1; D-22, D-9, D-3) and none has a per-step baseline.
+- **AUT-32 (medium, report only):** brief P-19 now as a read-only AN1 extension (per-step spans from stored timestamps, per team and month, AN1 suppression, never per person, `lca` on D-23 term (b)), placed before G-19 so the pilot's first month is the baseline.
+- **AUT-27 closed** (RLS4-C1 built as proposed, #792). AUT-30 adopted as AIG1-C5 and AUT-31 into PLAN3-13 (PO 02:55): close on build. #799 (UX2-1 shell) and #800 (UX2-27/-29) reviewed: no finding, no comment.
+- [E3] Bern Spitex Kennzahlen 2017/2018 read 2026-11-03: no usable Swiss direct-care or documentation share; stays UNKNOWN.
+- No issue opened (no high finding). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 01:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-03 01:30), `recovery/main` @ `a321e6c`. Read on their merge commits: #787 (`c6f038b`, no difference from the head read at 01:30 on 31.10) and #792 RLS4-C1 + RLS4-C2 (`6fd9507`, pgTAP 105, runbook §5c); open #799 (UX2-1 shell, `a759429`, CI green) and #800 (UX2-27/-29, `b8bef0c`, CI in progress) on their heads; PO 02:25/02:55, `aia` 02:40, `lca` 01:40/03:50.

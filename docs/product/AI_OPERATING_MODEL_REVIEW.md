@@ -375,6 +375,10 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 
 **One decision per name in data reconciliation (AUT-27, medium, OPEN):** where a person must map legacy free text to members (RLS4-C1, G-25), the person decides once per name and team, exceptions per visit; never automatic name matching; count before and after.
 
+**One decision per name, state (`aia` 2026-11-03 02:40):** IMPLEMENTED (#792, `OWNER_RUNBOOK.md` §5c, pgTAP 105): grouped by team and legacy name, a person decides once per name and team, exceptions per visit, no matching rule; AUT-27 closed. **AUT-30 state:** adopted as AIG1-C5 (PO 2026-10-31 02:55), PLANNED with AIG1-C4.
+
+**Measure before automating (AUT-32, OPEN; `aia` 2026-11-03 02:40):** a bottleneck proposed for elimination or automation has a team-level baseline from timestamps NAVORA already stores before the change reaches the pilot (P-19: report draft → signed, countersign latency, travel share beside WORK1-6, ORD0 task age, request → case ready), per team and month with AN1 suppression, no new tap, never per person. Without it no agent or rule can show its gain, and the governance work an assistant creates (look-back, expiry, confirmations) cannot be weighed against the work it removes.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -396,3 +400,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-10-30 15:04 | `aia` | §12: care-plan review control state (ASM1-C4 built on #747, open; AUT-26 met in code), basis-by-identity control (ASM1-C6 (8), CGR-104) and the preset-reason pattern for correction acts (P-37). No agent added or removed |
 | 2026-10-30 20:18 | `aia` | §12: AIG1 part (b) database half state (AIG1-15/-16 IMPLEMENTED, AIG1-C1 PLANNED) and the control "an open count holds only what can still be acted on; a stop exception can reach 0 while the agent stays stopped" (AUT-29). No agent added or removed |
 | 2026-10-31 02:40 | `aia` | §12: AIG1-C1/-C2/-C3 state (IMPLEMENTED, AUT-29 closed); added the control "a stop's follow-up ends with its open lines, not with the agent's state" (AUT-30) and the expired-proposal control (AIG1-C4, AUT-31). No agent added or removed |
+| 2026-11-03 02:40 | `aia` | §12: one-decision-per-name state (IMPLEMENTED, AUT-27 closed), AUT-30 adopted as AIG1-C5; added the control "measure before automating" (AUT-32). No agent added or removed |
