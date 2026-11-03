@@ -16,6 +16,77 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-03 21:30 CET: no code changed since 17:30 (every open code PR moved by `recovery/main` merges only, CI green on each new head); **#799 gate now clear** (`e2e` green on `642edf0`); merged `uxa` #839 and `aia` #844 read: **CGR-113 sentence confirmed** with one wording condition, **UXR-84 sentence confirmed**, **AN3-5 met by the built time-correction share** (brief wording to align), **UXR-88 / UXR-89 confirmed with conditions**; **AUT-40**: no clinical objection to dropping C-15; ADR-142/ADR-143 offline queue read (#835, #837): new advisory findings **CGR-120** (S3, a "what is missing before signing" line must not become an invented completeness rule) and **CGR-121** (S2, pending entries are cleared on sign-out and resent only in the foreground)
+
+**Scope:** `recovery/main` @ `beae88c`. Changes since my 17:30 section (PR #842, unmerged; `recovery/main` was `1b1d151`):
+- **Code merged:** none (`git diff 1b1d151 beae88c` touches no file under `src/`, `supabase/` or `tests/`).
+- **Docs merged:** `uxa` #839 (UX reviews 15:50 and 19:55: UXR-84 to UXR-90, CGR-113 sentence proposed, AN3-5 question to `cra`; DESIGN_SYSTEM v31, v32); `aia` #844 (review 21: **AUT-40** high, issue #843; AUT-34 met on #841; AI Operating Model Review §12).
+- **Open PRs, heads moved:** #841 `aeec158` → `8907913`, #799 `12a44f9` → `642edf0`, #815 → `4474184`, #814 → `3fe219b`, #813 → `8e4ab0b`, #810 → `63440b0`, #809 → `7f74e71`, #806 → `91e7bc9`. Each new head is a merge of `recovery/main` whose diff against its first parent touches nothing under `src/`, `supabase/`, `tests/` or `e2e/` (checked per commit). CI `app`, `db`, `e2e`, `ui-screenshots` **success** on every one of these heads and on #828 `6e3fc0f`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db` (check runs read through the GitHub API).
+- **Open docs PRs read for clinical content this time:** #837 (`APP1_IMPLEMENTATION_PLAN.md` §1 offline queue, C-15, M6 rows; ADR-143), #835 (ADR-142 point 1). #840 (weekly status, owner escalation rule) and #833, #838: no clinical content beyond dates; no finding.
+- **No `clinical`, `legal` or `owner` decision was answered by a person.** My chain #582 … #842 is still unmerged (owner instruction on #666).
+
+I read: the merge commits listed above (diff against first parent, code paths); `features/analytics/step-spans.ts` on `8907913` (labels, definitions, sources, scope order); `briefs/AN3.md:27` (AN3-5) and 0008 `visit_time_corrections` (no open/decided state exists); `reports/UX_REVIEW.md` 15:50 and 19:55 (CGR-113 sentence, UXR-84, UXR-88 to UXR-90, AN3-5 note); `reports/AUTOMATION_REVIEW.md` review 21 (AUT-40); `AI_OPERATING_MODEL_REVIEW.md` §12 addition; on #837 `APP1_IMPLEMENTATION_PLAN.md:30-43`, the A-07, C-01, C-03, C-15 rows and the dependency table; ADR-143 point 1 (#837) and ADR-142 point 1 (#835). **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-120 | **AUT-40 (b)** / C-15 intent "Was fehlt vor dem Unterschreiben?" (M6, MOB1; PLANNED, nothing built) | **advisory (S3)**; before the MOB1 brief is approved (2026-11-27) | Whichever place it takes (C-15 or a line next to "Unterschreiben"), a list of what is "missing" before a report is signed is a **documentation-completeness rule**. No such rule is approved: what a home-care visit report must contain is the Clinical Owner's (with D-10; cantonal documentation duty `lca`, D-11), UNKNOWN. Two risks: (1) Engineering or the PO fills the list with items of its own choice, which would be an invented clinical rule; (2) an empty list reads as "the report is complete", which is false reassurance about content NAVORA cannot judge (H-05, H-20 omission pattern). `aia` correctly left the rule to `cra` and the PO; I set none | `AUTOMATION_REVIEW.md` review 21, AUT-40 (b) "only if `cra` and the PO name a completeness rule (UNKNOWN)"; APP1 plan C-15 row (`field_reports` completeness); H-05, H-20 | **po (MOB1 brief):** the line, if built, lists only the conditions the sign command already refuses today, each taken from that command's refusal codes (one constant shared with the server message), and never adds one; with nothing refused it says "Für die Unterschrift fehlt nichts." and never "vollständig" or "komplett". Any further item is a Clinical Rule Register row, owner `clinical`, PROVISIONAL, raised before build. **eng:** vitest maps every listed item to a refusal code of `sign_report` and fails on an item without one; string test: no "vollständig", "komplett", "alles erfasst" in that line |
+| CGR-121 | **ADR-142 point 1 / ADR-143 point 1** offline command queue (A-07, M6-2; PROPOSED, not built) | **advisory (S2)**; before M6-2 is built (the plan builds the queue only after `lca` and `cra` answer) | Two properties of the design decide whether an entry made offline ever reaches the team, and neither is visible to the nurse in the screens planned so far: (1) **pending commands are cleared on sign-out**: a nurse who signs out at the end of a shift with an unsent observation of a change in condition, a safety-alert value, a no-show or "Ich kann nicht arbeiten" loses it silently, and the team never learns it existed; (2) **resend only while the app is in the foreground**: an entry made offline goes out only when she next opens the app with a connection, not when the connection returns while the phone is in her pocket. Clearing on sign-out is a sound privacy control (care text should not stay on a shared or lost device), so it should be replaced by a safer control, not removed. What happens to pending entries on session expiry or on an access end (ADM2) is not stated (UNKNOWN, `eng`) | `APP1_IMPLEMENTATION_PLAN.md:37` (#837) "cleared on sign-out … resent … only while the app is in the foreground"; ADR-143 point 1 (#837); ADR-142 point 1 (#835); H-26; CGR-118 | **eng (ADR-143) / uxa (words):** (a) sign-out with pending entries is a confirming step that names how many and which kinds are unsent and that they are lost on sign-out; the default action is "Zurück und senden", and sign-out proceeds only by a second, explicit act; (b) the banner and each pending card state the foreground fact (wording `uxa`, e.g. that the entry is sent when the app is open with a connection); (c) ADR-143 states what happens to pending entries on session expiry and on an access end, and an entry of a kind that reaches another person is never discarded without the nurse having been shown it; (d) e2e offline (`context.setOffline`): create a pending observation, attempt sign-out, the step names "1 Beobachtung" and stays on the page; reconnect with the page open sends it. Whether care text may sit on the device at all is `lca`'s (SC-2), unchanged |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-113** | open, advisory (S3); **wording proposed by `uxa` 15:50, substance confirmed with one condition**; not yet placed by the PO | `UX_REVIEW.md` 15:50: "Auch ihre <n> früheren Fassungen sieht das Team dann nicht mehr." shown only when the record replaced at least one version (count from the reader), vitest n = 0, 1, 2. Condition: the sentence must say the earlier versions **no longer apply**, not only that the team no longer sees them, because the risk is a nurse expecting the earlier version to apply again, e.g. "Auch ihre 2 früheren Fassungen gelten dann nicht mehr und sind für das Team nicht mehr sichtbar." (`uxa` may reword; the "gelten nicht mehr" fact is fixed). Closes on the merged build with the vitest |
+| **CGR-112** | open, advisory (S3); remedy met on #841, now head `8907913` (merge only, CI green); closes on merge | unchanged code (`step-spans.ts` (e) definition and the corrected/rejected/expired measures as read at 17:30) |
+| CGR-103, CGR-104 (#815 `4474184`), CGR-106, CGR-107 (#814 `3fe219b`), CGR-108, CGR-109 (#800 `a3be7db`), CGR-110 (#810 `63440b0`), CGR-111 (#813 `8e4ab0b`) | open; remedies met on the heads; close on merge | heads moved by `recovery/main` merges only (no code difference); CI green on each |
+| **CGR-118** | open, advisory (S2); **remedy (3) answered in part by ADR-143**: pending entries live in IndexedDB, so they survive a closed or reloaded app and "bleiben erhalten" is true **except on sign-out**, where they are cleared (CGR-121) | `APP1_IMPLEMENTATION_PLAN.md:37`, ADR-143 point 1 (#837, PROPOSED). Remedies (1), (2) unchanged; (3) is met only together with CGR-121 (a) |
+| CGR-114, CGR-115, CGR-116, CGR-117, CGR-119 | open, advisory | no change (none placed by the PO yet) |
+| **CGR-16** | open (advisory now, **blocking before real data**) | no change |
+| CGR-78, CGR-86, CGR-97, CGR-99, CGR-94, CGR-75, CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-23 | open | no change |
+
+Closed in this section: none.
+
+### Inputs requested from `cra` (given here)
+
+- **AN3-5 "open time corrections" vs. the built "Einsätze mit Zeitkorrektur" (`uxa` 19:55):** a time correction in NAVORA has no open or decided state (0008 `visit_time_corrections`: one row per reasoned correction, effective at once), so "open time corrections" names a state that does not exist; the words were mine (05:30). The built share of completed visits with at least one reasoned correction is the fact I meant: a team whose countersign span is short while corrections are frequent must be read together. **AN3-5 is met by the build.** `po`: align the brief wording to "its share of completed visits with a time correction" (doc only; no rebuild).
+- **UXR-88 (plain-word sources, "(North Star)" dropped):** **confirmed** from the clinical side, with the condition `uxa` already states: the definitions keep their substance word for word, in particular "Eine Tatsache, kein Richtwert …" on (b) and (e) and "Mit dem Fallabschluss geschlossene Aufgaben zählen nicht." on the GP-task span (until CGR-114 adds its measure). Dropping "(North Star)" also removes a target framing from the direct-care share: a goal label on that share invites reading time for documentation, coordination or a GP call as waste.
+- **UXR-89 (definitions behind "Wie gemessen", related figures in one card):** **confirmed with two conditions** so AN3-5 and CGR-112 keep their effect: (1) one card holds (b) "Unterschrift bis Gegenzeichnung", "Berichte mit Rückgabe" and "Einsätze mit Zeitkorrektur", and one card holds (e) with its changed, rejected and expired counts, all values visible without opening anything; (2) on those two cards the short line "Kein Richtwert." stays visible outside the disclosure. Playwright at 390 px: the three (b) values and the "Kein Richtwert." line are visible with every `summary` closed. The order organisation before team is the PO's; no clinical objection either way.
+- **UXR-84 (supersede sentence quotes «Korrigieren (ersetzen)»):** **confirmed**; the substance of my sentence is unchanged and the label now matches the button.
+- **AUT-40 (C-15 assistant at stage 0):** **no clinical objection** to dropping C-15 and keeping the answers where the questions arise (C-01, the visit card, the absence flow): a second route to the same facts adds a place where a safety fact can be shown differently or stale. If C-15 is dropped, my SC-5 confirmation (17:30) has nothing to apply to; if it is kept, the SC-5 condition ("nicht gefunden in …", never "keine …") stands. Item (b): CGR-120. Item (d) (the AIG1 ledger records proposals only): no clinical objection; the ledger is not an access log, and whether reads of client data by an assistant need one is a privacy question (`lca`), not a clinical control.
+
+### Other checks (no finding)
+
+- **#799 UX2-1 + UX2-31** on `642edf0`: `e2e` now **success**, so the 17:30 condition is met; gate clear.
+- **Hard-coded rules:** no code changed, so no new Clinical Rule Register row. CR-162 notes the AN3-5 alignment. CGR-120 makes any future "what is missing" list a register row before build.
+- **Privacy:** ADR-143 keeps care data out of the service-worker cache (app shell only) and clears the pending store on sign-out; CGR-121 keeps that privacy control and adds a safety control in front of it. No personal or health data in the files read.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#799** UX2-1 + UX2-31 (head `642edf0`, CI green) | **no finding; clear to merge** |
+| **#841** AN3 (head `8907913`, CI green) | no blocking finding; clear to merge; CGR-112 met; UXR-88 / UXR-89 may ride before merge under the conditions above; CGR-114 before real data |
+| **#828** AIR1 (`6e3fc0f`) | no blocking finding; clear to merge; CGR-115 before a second register field |
+| #800, #803, #804, #806, #809, #810, #813, #814, #815 | unchanged: clear to merge (CI green on each head) |
+| **MOB1 brief** (M6) | CGR-120 before approval; CGR-118 and CGR-121 before M6-2 build |
+| **ADR-143** (PROPOSED) | not acceptable from the clinical side without CGR-121 (a)-(c) |
+| DOC2, M9, D-39, D-40, level-H AI domains | unchanged (CGR-116, CGR-117, CGR-119; option A for the pilot) |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **eng:** merge order of the green queue (#799 first per the APP1 plan) is yours; CGR-121 (a)-(d) into ADR-143 before M6-2; CGR-120 vitest when the line is built; CGR-114, CGR-115, CGR-118 as before.
+- **po:** place CGR-120 and CGR-121 (MOB1, M6-2), CGR-113 with the "gelten nicht mehr" condition, align AN3-5 wording; CGR-114 to CGR-119 as before; AUT-40 decision (C-15 at stage 0) is yours.
+- **uxa:** CGR-113 sentence with "gelten nicht mehr"; UXR-89 cards with "Kein Richtwert." visible; CGR-121 (b) wording; CGR-118 banner facts.
+- **clinical (Clinical Owner, after G-1):** unchanged list (17:30), plus: whether any documentation-completeness criterion beyond the sign command's refusals applies to a home-care visit report (CGR-120, with D-10).
+- **legal adviser / `lca`:** device storage of pending entries (SC-2) together with CGR-121; whether assistant reads of client data need an access log (AUT-40 (d)).
+- **regulatory adviser (D-34):** unchanged (CGR-119).
+- **owner:** chain merge of the governance PRs (#582 … this PR); otherwise unchanged (17:30).
+
+---
+
 ## 2026-11-03 17:30 CET: open #841 (AN3, migration 0108) and #828 (AIR1, migration 0107) read on their heads: **no blocking finding**; **CGR-112 remedy met on the #841 head** (closes on merge); #799 UX2-31 read (display only, no finding); merged docs read (AI-First update with the owner's human-in-the-loop directive, D-39, D-40, Delivery Program M1-M10, UX/UI baseline #834); `cra` inputs given on D-39, D-40, P-2 (DOC2), SC-2, SC-5, DS1-2 and the J5 flag; new advisory findings **CGR-114** (S3, AN3 hides GP tasks closed with the case unanswered), **CGR-115** (S3, AIR1 list misses signal-timing settings, safety-alert values and billing inputs), **CGR-116** (S2, documentation by exception is not level L), **CGR-117** (S1 gate wording, M9 lets "its owner" waive a clinical gate), **CGR-118** (S2, offline banner promises delivery but not timeliness), **CGR-119** (S2, regulatory finding: AI domains that enter clinical decision-support territory)
 
 **Scope:** `recovery/main` @ `1b1d151`. Changes since my 13:30 section (PR #819, unmerged; `recovery/main` was `adf80a3`):

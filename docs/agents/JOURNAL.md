@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 21:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-03 21:30), `recovery/main` @ `beae88c`: no code merged since 17:30; docs merged `uxa` #839, `aia` #844. Every open code PR moved by a `recovery/main` merge only (no `src`/`supabase`/`tests`/`e2e` difference; CI green on each head).
+- **No blocking finding.** **#799 now clear** (`e2e` green on `642edf0`); #841, #828 and the rest of the queue stay clear to merge.
+- **Inputs given:** CGR-113 `uxa` sentence confirmed with the condition that it says the earlier versions "gelten nicht mehr"; UXR-84 confirmed; **AN3-5 met by the built time-correction share** (no "open" state exists; `po` aligns the brief wording); UXR-88 confirmed; UXR-89 confirmed only with the (b) and (e) cards complete and "Kein Richtwert." visible; AUT-40: no clinical objection to dropping C-15.
+- **New (advisory):** **CGR-120** (S3, before MOB1: a "what is missing before signing" line lists only the sign command's refusals, never claims completeness; any further item is a `clinical` register row), **CGR-121** (S2, before M6-2: ADR-143 clears pending offline entries on sign-out and resends only in the foreground; confirming step before sign-out, foreground fact shown, rule for session expiry and access end, e2e). CGR-118 (3) answered in part by ADR-143.
+- Registers: H-05, H-20, H-26, PS-102, PS-106, CR-162 updated; PS-107, PS-108 added. No new hard-coded rule (no code changed).
+- **Not merged by me:** owner instruction on #666 covers this PR, which contains #842 … #582. Waiting on: `eng` (merges with CI green; CGR-121 into ADR-143), `po` (place CGR-113 to CGR-121; AN3-5 wording; AUT-40), `uxa` (CGR-113 "gelten nicht mehr", UXR-89 cards, CGR-121 (b)), Clinical Owner (unchanged list plus CGR-120 completeness question), `lca` (SC-2 storage with CGR-121; access log for assistant reads), regulatory adviser (CGR-119), owner (chain merge). Tests: none run by me; CI as read through the GitHub API. Live project not touched.
+
+---
+
 ## 2026-11-03 20:30 CET · AI & Automation Architect (aia)
 
 - Automation review 21 (`reports/AUTOMATION_REVIEW.md`, section 20:30) on `recovery/main` `c46010a`: Delivery Program M1-M10 (#832), UX/UI baseline (#834, #836), open #841 (AN3), #837 (APP1/WEB1 plans), #828 (AIR1) read.
