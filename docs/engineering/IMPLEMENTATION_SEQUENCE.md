@@ -46,6 +46,8 @@
 
 ## 1. What is built first (order of work)
 
+**Owner priority 2026-11-03 (Engineering Directive Response), binding for this order:** 1 M2 Web App · 2 M4 PLAN3/AN3 · 3 M6 Caregiver App · 4 M8 Operations App · 5 M5 Website. When work competes, the lower priority yields; the website (M5) takes only slots no other milestone needs. Escalation dates: M2 2026-11-27, M4 2026-12-18, M6 2027-01-29, M8 2027-02-19, M9 2027-03-12.
+
 1. **Merge the queue above (PO).** Order:
    1. #799 first: every other screen PR renders inside the shell.
    2. Then #800, #803, #804, #806, #809, #813 (each needs a journal-only merge after the previous one).
@@ -56,11 +58,10 @@
    Engineering opens no new UX2 part until the queue is merged (PO order 06:30, item (0)).
 2. **M2 remainder:** UX2-31, then the UX2-3 tokens and component port (with UX2-32, -14, -13, -12), then the lint rule and checks (UX2-4, -2, -8, -10), then the remaining screen items.
 3. **M4:** PLAN3 database half, then the PLAN3 screens, then AN3. These can run while the M2 remainder is in review: no shared files except `/team` (see §5).
-4. **M6 and M5 in parallel after M2:**
-   - caregiver app (manifest, offline-safe commands, rule intents);
-   - website, which is a separate deployment and touches no app code.
+4. **M6 after M2 and M4:** caregiver app (manifest, offline-safe commands, rule intents).
 5. **M8 after M4:** AIO1 contract and harness, HAND2, OPS2, then the operations app functions.
 6. **Engineering's share of M7:** the *Engineering impact* section of D-40 only.
+7. **M5 website last (owner priority 5):** a separate deployment that touches no app code (ADR-142), built in slots M2-M8 do not need.
 
 ---
 
@@ -219,7 +220,7 @@ flowchart TB
 
 ---
 
-## 6. Delivery-form choices (Engineering proposal; PO accepts in M1)
+## 6. Delivery-form choices (ADR-142, PR #835, ACCEPTED by the owner 2026-11-03)
 
 - **Caregiver and operations apps:** installable web app on the one NAVORA app (UX2 shell). The reasons are one code base, the existing idempotent commands and `sw.js` push.
   - A native app only if M1 finds a requirement the web app cannot meet.
@@ -241,7 +242,7 @@ flowchart TB
 | WEB1, MOB1, AIO1, OPS2, HAND2 briefs | `po` | M5, M6, M8 | 2026-11-20 (WEB1, AIO1), 2026-11-27 (MOB1), 2026-12-04 (OPS2, HAND2) |
 | `uxa` screen inventory and designs | `uxa` | F-11, F-12, F-16 | 2026-11-20 / 12-04 / 12-11 / 2027-01-08 |
 | B-8 intent logging (ledger or own log) | `po`/`aia` | M6 assistant | before MOB1 is approved |
-| D-2 hosting | owner | T12, M9 | M3 (2026-12-11) |
+| D-2 hosting | owner | T12, M9 | M3 (2026-12-11). Owner planning baseline 2026-11-03 (GitHub, Supabase, Vercel for the website, 99.9 %, PITR, CH/EU data): the **care-app host** is not named, OPEN (`D2_PRODUCTION_HOSTING_ASSESSMENT.md` §12, #838) |
 | D-7/D-8 branch protection, merge to `main` | owner | production deploys from `main` | M3 |
 | D-1, G-1, D-11, D-12, D-29, D-34, D-14 | owner | M9 gates (G-2 to G-6, G-8 …) | M3 |
 | Clinical Owner approvals (G-1, then G-10, G-12, G-14, …) | clinical | M9 | after G-1 is named |
@@ -324,3 +325,4 @@ Engineering does not run the tests itself: CI is the test runner.
 
 ## Change log
 - 2026-11-03 eng: version 1.
+- 2026-11-03 eng: owner accepted this sequence as baseline; owner priority (M5 last) and escalation dates; ADR-142 accepted; D-2 planning baseline noted.
