@@ -2419,15 +2419,28 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 
 **Rollback:** revert the PR; 0104 is forward-only like every migration, a follow-up migration would restore 0103's function bodies and the 0097 `agent_stop_lookback` signature.
 
-### ADR-143 — APP1: details under ADR-142 for the installable app: the pending-command store and C-15/C-17 as routes
-**Status:** PROPOSED (`po` accepts). It refines ADR-142 (PR #835, ACCEPTED by the owner 2026-11-03: one installable web app; website separate; demo requests never in the care database) and does not repeat it.
+### ADR-143 — APP1: details under ADR-142 for the installable app: the pending-command store and C-17 as a route
+**Status:** PROPOSED (`po` accepts; `cra` 21:30: not acceptable from the clinical side without CGR-121 (a)-(c), now written in below). It refines ADR-142 (PR #835, ACCEPTED by the owner 2026-11-03: one installable web app; website separate; demo requests never in the care database) and does not repeat it.
 
-**Context:** M6 and M8 (`DELIVERY_PROGRAM.md` §3); design set merged in #834 (DS1 §3.4-3.5; SC A-06, A-07, C-15, C-16, C-17; IA D-IA-1).
+**Context:** M6 and M8 (`DELIVERY_PROGRAM.md` §3, §0b); design set merged in #834 (DS1 §3.4-3.5; SC A-06, A-07, C-16, C-17; IA D-IA-1). `cra` CGR-118 and CGR-121 (S2, PR #845; placed by the PO 2026-11-03 22:00 as conditions of MOB1 and of any M6-2 build). AUT-40 decided by the PO 2026-11-03 22:00: no C-15 at stage 0.
 
-**Decision:**
-1. Pending commands are held on the device in IndexedDB, keyed by their idempotency key, and cleared on sign-out. As ADR-142 states, they are resent with the same key only while the app is in the foreground, and every unsent value is shown. Nothing is shown as done before the server confirms it, and the service-worker cache holds the app shell only, never care data.
-2. C-15 `/field/assistent` and C-17 `/team/tagesplan` are routes, and a sheet may render on the same URL (D-IA-1).
+**Facts this builds on (IMPLEMENTED):** every write is an idempotent Postgres command with an idempotency key, audited in the same transaction (ADR-003); after an access end (LEAVE1 0074, ADM2 0092) `private.begin_command` refuses her commands with `access_ended` (42501), and her account can still sign in; a command records the server time at which it runs, not the time a value was entered on the device.
 
-**OPEN before the store is built:** `lca` on care text kept on the device until it is sent (SC-2); `cra` on the banner wording.
+**Decision:** all of this is PLANNED; nothing is built.
+1. **Store.** Pending commands are held on the device in IndexedDB, keyed by the signed-in user id and the idempotency key. Each entry keeps its kind (the command), the time it was entered on the device, and whether its kind **reaches another person** (its result is shown to a team member or coordinator). That list is one constant in the client code with a vitest that names every `/field` command; `cra` confirms the list before M6-2 is built. The service-worker cache holds the app shell only, never care data. Nothing is shown as done before the server confirms it.
+2. **Resend (ADR-142, unchanged).** An entry is resent with its original key only while the app is in the foreground and has a session; there is no background sync. The banner and each pending card state this fact (CGR-121 (b); wording `uxa`). A refused resend is never dropped: the entry stays, its refusal is shown on its card, and it is not retried automatically.
+3. **Sign-out with pending entries (CGR-121 (a)).** Sign-out is a confirming step that names how many entries and which kinds are unsent and that they are lost on sign-out. The default action is "Zurück und senden"; sign-out proceeds only by a second, explicit act. Only then are her entries deleted from the device. Clearing on a confirmed sign-out stays, as the privacy control for a shared or lost device. With no pending entries, sign-out is unchanged.
+4. **Session expiry (CGR-121 (c)).** An expired or revoked session is not a sign-out by her: her entries are **kept** and nothing is sent without a session. When the same user signs in again, they are shown and resent under 2. If another user signs in on the device, that user is never shown and never sends them. How long the entries of a user who does not sign in again may stay on the device is OPEN for `lca` (SC-2); Engineering sets no period.
+5. **Access end (CGR-121 (c)).** A resend refused with `access_ended` is kept, marked as not sent, and shown to her with its content and the instruction to pass it on to the team by phone (wording `uxa`). It is deleted only by her explicit act after it was shown, or by a confirmed sign-out under 3. No entry of a kind that reaches another person is deleted without her having seen it.
+6. **Tests (CGR-121 (d)), written before the queue code:** vitest for the store (keying by user, kinds list, delete only under 3 and 5); Playwright with `context.setOffline`: a pending observation, attempted sign-out, the step names "1 Beobachtung" and the page stays; reconnect with the page open sends it, once (same key, `duplicate` on a repeat); an expired session keeps the entry and sends it after sign-in; an `access_ended` refusal shows the entry and keeps it.
+7. **C-17 `/team/tagesplan` is a route**, and a sheet may render on the same URL (D-IA-1). C-15 `/field/assistent` is **withdrawn** (AUT-40, PO 2026-11-03 22:00); it returns only with a brief under AUT-40 decision (5).
+
+**OPEN before the store is built:**
+- `lca` (SC-2): whether care text may sit on the device until it is sent at all, the period in 4, and whether 5 may show the content after an access end.
+- `cra`: the "reaches another person" list in 1; the banner facts (CGR-118).
+- `cra`/`po`: an entry sent late runs at server time, so an observation entered offline at 08:00 and sent at 14:00 is recorded at 14:00. Whether the card or the record must show the device entry time is not decided here (UNKNOWN); Engineering adds no client-supplied time to any command without that decision.
+- `uxa`: wording of 2, 3 and 5.
+
+**Trade-offs:** dropping the clearing on sign-out was rejected: care text would stay on a shared or lost device (privacy control kept, CGR-121). Clearing on session expiry was rejected: an expiry is not her act and would lose entries unseen. Background sync was rejected in ADR-142 (iOS behaviour UNKNOWN, see M1).
 
 Full plan: `docs/engineering/APP1_IMPLEMENTATION_PLAN.md`.

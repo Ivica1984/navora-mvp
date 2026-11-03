@@ -34,13 +34,17 @@
   - an offline command queue;
   - push (SIG2, IMPLEMENTED, D-33).
 - **Native only if M1 shows a requirement the web app cannot meet.** iOS behaviour of installed web apps (push, background retry) is UNKNOWN here and is checked against current platform documentation in M1, not assumed.
-- **Offline queue (A-07):** pending commands live in IndexedDB, keyed by idempotency key, and are cleared on sign-out. They are resent with the same key only while the app is in the foreground (ADR-142; no background sync), and a value is never shown as done before the server confirms it.
-  - Open for `lca` (SC-2): entered care text sits on the device until it is sent.
-  - Open for `cra`: the banner wording.
+- **Offline queue (A-07):** pending commands live in IndexedDB, keyed by user and idempotency key. They are resent with the same key only while the app is in the foreground (ADR-142; no background sync), the banner and each pending card say so, and a value is never shown as done before the server confirms it. With `cra` CGR-121 (ADR-143 points 3-5):
+  - sign-out with pending entries is a confirming step (count and kinds, default "Zurück und senden", sign-out only by a second act); only then are her entries deleted;
+  - an expired session keeps the entries; they are sent after she signs in again, never by another user;
+  - a resend refused with `access_ended` keeps the entry and shows it to her, to pass on by phone;
+  - no refused entry is dropped or retried automatically.
+  - Open for `lca` (SC-2): entered care text sits on the device until it is sent; how long after an expiry.
+  - Open for `cra`: the banner wording (CGR-118) and the list of kinds that reach another person.
 
   The queue is designed now and built only after both answers.
 
-Details recorded as **ADR-143** (PROPOSED): the pending-command store, and C-15/C-17 as routes (a sheet may render on the same URL, D-IA-1).
+Details recorded as **ADR-143** (PROPOSED): the pending-command store, and C-17 as a route (a sheet may render on the same URL, D-IA-1). C-15 is withdrawn (AUT-40, PO 2026-11-03 22:00).
 
 ---
 
@@ -69,7 +73,7 @@ Details recorded as **ADR-143** (PROPOSED): the pending-command store, and C-15/
 | **A-04 Meine Einstellungen** `/settings` | `PageHeader` (h1, UX2-12), `Notice(attention)`, `Button` | `my_push_state` | `register_push_subscription`, `unregister_push_subscription`, `set_outside_push` | M2 port |
 | **A-05 Error, not found, no access** | `PageHeader`, `EmptyState`, `Button` | none | Next `reset` | M2 (after T-2) |
 | **A-06 App installieren** | `InstallPrompt` (`Notice(info)`, dismissible), iOS instruction `BottomSheet` | none (browser `beforeinstallprompt`) | none | M6-1 |
-| **A-07 Verbindung unterbrochen** | `ConnectionBanner`, pending state on each card, `role="status"` "Gesendet." | none | **offline queue** around every `/field` command (§1); needs B-7: every command takes a key and answers `duplicate` | M6-2 (after `lca`/`cra`) |
+| **A-07 Verbindung unterbrochen** | `ConnectionBanner` (foreground fact, CGR-118 facts), pending state on each card ("Noch nicht beim Team" for kinds that reach another person), `ConfirmStep` before sign-out with pending entries, `role="status"` "Gesendet." | none | **offline queue** around every `/field` command (§1, ADR-143); needs B-7: every command takes a key and answers `duplicate` | M6-2 (after `lca`/`cra`); e2e offline per CGR-121 (d) |
 
 ### 3.2 Caregiver app (C): M2 port, M6 app
 
@@ -78,7 +82,7 @@ Details recorded as **ADR-143** (PROPOSED): the pending-command store, and C-15/
 | **C-01 Heute** `/field` | `PageHeader` + `DateNav`, `SignalCard`, `Notice`, `JumpRow`, `VisitCard`, `Section`, `Dialog`, `EmptyState`, `InstallPrompt` (M6) | `my_signals`, `field_visits`, `field_notes`, `field_reports`, `field_returned_reports`, `field_countersign_queue`, `field_since_last`, `field_door_notes`, `field_safety_alerts`, `field_safety_alert_history`, `field_visit_status_notes`, `field_quality`, `quality_event_types`, `team_absences`, `team_open_visits`, `team_memberships`, `member_profiles`, `cover_offers`, `my_covers`, `team_open_reports`, `team_visit_alerts`, own assessments to confirm | `take_signal`; visit lifecycle (see C-03); `record_absence`, `change_absence`, `take_open_visit`; `accept_cover`, `withdraw_cover` | M2: open UX2 PRs (#804, #800) → T-2 port → UX2-9 signal cards (`cra`), UX2-11, UX2-17, UX2-28. M6: A-06, A-07, C-16 |
 | **C-02 Anderer Tag** `/field?datum=` | as C-01 + `Notice(info)` (other day) | as C-01 for the date | `move_visit_to_today` / `reschedule_visit`, `visit_move_leaves_other_visit` | M2 (UX2-18 to -21 on #804) |
 | **C-03 Einsatzkarte** | `VisitCard` (extracted from `field-client.tsx`), `Badge`, `Button` (`target-main`), `MoreMenu` (card), `ConfirmStep`, `Notice`/`SignalCard` for alerts | row of `field_visits` (incl. VIS2 overlap), `field_door_notes`, `field_safety_alerts`, `field_visit_status_notes`, `client_visit_overlap` | `depart_visit`, `start_visit`, `pause_visit`, `resume_visit`, `complete_visit`, `correct_visit_time`, `cancel_visit`, `record_no_show`, `record_no_show_outcome`, `end_visit_not_completed`, `set_quality_hold` | M2: extract `VisitCard` on T-2 tokens. M6: offline-safe lifecycle (A-07), anchors `#einsatz-<id>` (C-16) |
-| **C-04 Dokumentation** | `Section`, `ListRow` (observations with author line, UX2-27), `FormField` textarea, `ConfirmStep` (signing), `details` (returned version) | `field_notes`, `field_reports` (server draft, versions, return reason) | `record_observation`, `create_report_draft`, `update_report_draft`, `sign_report`, `correct_report`, `withdraw_report_correction` | M2 port. M6: a typed observation survives a lost connection (A-07); anchor `#bericht-<id>`. No AI drafting (D-34, D-35) |
+| **C-04 Dokumentation** | `Section`, `ListRow` (observations with author line, UX2-27), `FormField` textarea, `ConfirmStep` (signing), `details` (returned version); if MOB1 asks for it, a line beside "Unterschreiben" listing only `sign_report` refusal codes from one shared constant, never "vollständig" (CGR-120, vitest) | `field_notes`, `field_reports` (server draft, versions, return reason) | `record_observation`, `create_report_draft`, `update_report_draft`, `sign_report`, `correct_report`, `withdraw_report_correction` | M2 port. M6: a typed observation survives a lost connection (A-07); anchor `#bericht-<id>`. No AI drafting (D-34, D-35) |
 | **C-05 Übergabe** | `details` + `ListRow` per entry; M8: grouped headings (wording `cra`) | `field_since_last` | none (read) | M2 (UX2-27 amendment on #800). M8: HAND2 ordering inside the reader (B-10) |
 | **C-06 Ich kann nicht arbeiten** | `Dialog`, `FormField` (period), result `Notice` | `team_absences`, `team_open_visits` | `record_absence`, `change_absence` | M2 port (T-2) |
 | **C-07 Offen im Team / Unterstützung** | `Section` with count, `ListRow` + `Button` outline "Übernehmen" | `team_open_visits`, `cover_offers`, `my_covers` | `take_open_visit`, `accept_cover`, `withdraw_cover` (cover stays off, D-3) | M2: UX2-17 (one command, one label) |
@@ -89,7 +93,7 @@ Details recorded as **ADR-143** (PROPOSED): the pending-command store, and C-15/
 | **C-12 Vorschläge** `/team/vorschlaege` | `BackLink`, `PageHeader`, `Section`, `ProposalLine`, `CheckboxRow`, `BulkConfirmBar`, `EmptyState` | `open_suggestions`, `team_cases`, `member_profiles` | `confirm_suggestion`, `confirm_suggestions` | M2: #814 (AIG1-C4 expired not listed) → T-2 port. M4: PLAN3 lines |
 | **C-13 Einsatz (record)** `/visits/[visitId]` | `BackLink`, `PageHeader`, facts `dl`, `ProvenanceLine`, `Button` | `care_visits`, `teams`, `member_profiles`, `value_provenance`, `record_lookback_lines` | `confirm_suggestion` (re-confirm, AIG1-C2) | M2: UX2-29 amendment (#800) → port |
 | **C-14 Arbeitstag** `/work` | `PageHeader` + `DateNav`, fixed notice (`lca` text), segment list, `Button`, `details` versions | `my_working_time_notice`, `my_working_day`, `my_working_day_versions`, `my_unexported_working_days`, `my_contract_end` | `acknowledge_working_time_notice`, `confirm_working_day`, `export_working_month` | M2 port (texts word for word) |
-| **C-15 Assistent** `/field/assistent` | `BackLink`, `PageHeader`, `IntentList`, answer region (`role="status"`), `ProvenanceLine`, `ErrorLine` + `RetryBlock` | existing readers only: `field_visits` + `my_signals`; `field_since_last`; `team_open_visits` + `member_profiles`; `field_reports` | none that write care data. **Recording of the asked intent: OPEN (B-8)**, AIG1 ledger row or own append-only log, `po`/`aia` | M6-4, after B-8 and MOB1 |
+| ~~C-15 Assistent~~ | **withdrawn** (AUT-40, PO 2026-11-03 22:00): the answers stay on C-01, the visit card and the absence flow; no route, no intent list; the AIG1 ledger records proposals only (B-8 void) | – | – | dropped (was M6-4); returns only with a brief under AUT-40 (5) |
 | **C-16 Schnellzugriff** | no new screen: 44 px rows on `VisitCard` expand Beobachtungen, Bericht, Übergabe; anchors | none | none | M6-3, e2e counts taps at 390 px |
 | **C-17 Tagesvorschlag** `/team/tagesplan?datum=` (M4) | `BackLink`, `PageHeader`, date field, `CheckboxRow` "auch zugewiesene", `Button`, per-member `Section` with minutes before → after, `ProposalLine`, `BulkConfirmBar`, `EmptyState` | PLAN3 tables and readers (B-4a to B-4d, migration 0108 PLANNED) | `request_day_proposal` (PLANNED), team switch command (PLANNED), `confirm_suggestion(s)` | M4 (2026-11-30 → 12-18), after #814 |
 
@@ -124,8 +128,7 @@ M2   #799 shell ─► merge queue (#800 #803 #804 #806 #809 #810 #813 #814)
                                                          then C-02 C-05..C-10 C-12..C-14 A-01 A-04 O-02..O-05
                     ─► A-05 error pages ─► T-3 lint + UX2-2/-8/-10 checks ─► UX2-9/-11/-17/-24/-28 ─► cra gate ─► M2
 M4   #814 merged ─► PLAN3 DB (0108) ─► C-17 + C-11/C-12 changes ─► AN3 (0109) ─► O-05 block ─► M4
-M6   M2 + MOB1 ─► M6-1 manifest + A-06 + session ─► M6-2 offline queue (after lca/cra) ─► M6-3 C-16 two taps
-                ─► M6-4 C-15 assistant (after B-8) ─► M6
+M6   M2 + MOB1 ─► M6-1 manifest + A-06 + session ─► M6-2 offline queue with CGR-121 (after lca/cra) ─► M6-3 C-16 two taps ─► M6
 M8   M4 + briefs ─► B-11 OPS2 ─► O-08 + O-01 grouping ─► B-12 ─► O-07 ─► B-9 AIO1 ─► O-02 ─► B-10 HAND2 ─► C-05 ─► M8
 ```
 
@@ -150,9 +153,9 @@ These are estimates, not commitments; the PO re-baselines them in program v2. Ea
 | **M2 Web app** (`cra` UX2 gate clear) | **2026-11-27** | `cra` gate within 3 days | Medium |
 | C-17 + AN3 (M4) | 2026-12-18 | #814 merged; `cra` PLAN3 gate | Medium |
 | M6-1 installable app | 2026-12-11 | MOB1 by 2026-11-27; app icon (DS1-4) | Medium |
-| M6-2 offline queue | 2026-12-23 | `lca` (device storage) and `cra` (wording) by 2026-12-11 | Low |
-| M6-3 two-tap reach | 2027-01-08 | M6-1 | Medium |
-| M6-4 assistant C-15 | 2027-01-22 | B-8 decided by 2026-12-11; `cra` C-15 line | Low |
+| M6-2 offline queue (with CGR-121: sign-out step, expiry, access end) | 2027-01-08 | `lca` (device storage, expiry period) and `cra` (wording, kinds list) by 2026-12-11 | Low |
+| M6-3 two-tap reach | 2027-01-22 | M6-1 | Medium |
+| ~~M6-4 assistant C-15~~ | dropped (AUT-40); its days went to M6-2 and M6-3 | – | – |
 | **M6 Caregiver app** | **2027-01-29** | above | Low-Medium |
 | OPS2 (O-01 grouping, O-08) | 2027-02-05 | OPS2 brief by 2026-12-04 | Low |
 | O-07 Kapazität | 2027-02-12 | brief (SC-3), `lca` suppression read | Low |
@@ -171,7 +174,7 @@ PO merge queue (#799 first) → T-1/T-2 tokens and components → screen ports �
   → [OPS2/AIO1/HAND2 briefs 12-04] → M8 (02-19)
 ```
 
-On the technical path to Pilot Ready (#833 §7.3), only M2 and the M6 core (M6-1, M6-2) are needed. M4, M6-4 and M8 enter the pilot later as switch-ons (OPEN for `po` and the owner).
+On the technical path to Pilot Ready (#833 §7.3), only M2 and the M6 core (M6-1, M6-2) are needed. M4 and M8 enter the pilot later as switch-ons (OPEN for `po` and the owner).
 
 | Blocker | Owner | Blocks | Needed by |
 |---|---|---|---|
@@ -179,11 +182,12 @@ On the technical path to Pilot Ready (#833 §7.3), only M2 and the M6 core (M6-1
 | PR #834 (design set) merged as baseline | `po` | T-1/T-2 cite it | 2026-11-10 |
 | SC-1 A-05 added to UX2 | `po` | A-05 | 2026-11-13 |
 | UX2-5 decision on L-01 to L-03 | `eng` ADR, `po` accepts | M2 | 2026-11-20 |
-| MOB1 brief (incl. "Passwort vergessen", C-15 intent labels SC-5) | `po` | M6 | 2026-11-27 |
+| MOB1 brief (incl. "Passwort vergessen"; CGR-118, CGR-120, CGR-121 as conditions) | `po` | M6 | 2026-11-27 |
 | App icon and word mark (DS1-4) | `uxa`, `po` | manifest (M6-1) | 2026-12-04 |
-| Device storage of pending entries (SC-2) | `lca` | M6-2 | 2026-12-11 |
-| Offline banner wording; C-15 "keine medizinische Beratung" line | `cra` | M6-2, M6-4 | 2026-12-11 |
-| B-8 intent recording (ledger vs own log) | `po`, `aia` | M6-4 | 2026-12-11 |
+| Device storage of pending entries (SC-2), period after a session expiry, content shown after an access end (ADR-143 4, 5) | `lca` | M6-2 | 2026-12-11 |
+| Offline banner wording (CGR-118); list of kinds that reach another person (ADR-143 1) | `cra` | M6-2 | 2026-12-11 |
+| Sign-out step, foreground fact, access-end card wording (CGR-121 (a), (b)) | `uxa` | M6-2 | 2026-12-11 |
+| Device entry time on a late-sent entry (ADR-143 OPEN) | `cra`, `po` | M6-2 | 2026-12-11 |
 | OPS2, AIO1, HAND2 briefs; O-07 brief (SC-3); O-08 placement (SC-4); M8 tab set (D-IA-2) | `po` | M8 | 2026-12-04 |
 | Small-team suppression for absence counts on O-07 | `lca` | O-07 | 2027-01-08 |
 | Address link to an external maps service (SC-8) | `lca`, `po` | none: not built until decided | – |
@@ -194,9 +198,10 @@ On the technical path to Pilot Ready (#833 §7.3), only M2 and the M6 core (M6-1
 |---|---|---|---|---|
 | M2 (T-1 to T-3, ports, A-05, UX2 remainder) | 7-9 | 10-15 | 12-17 | Medium |
 | M4 screens (C-17, C-11/C-12, O-05 AN3) | 2-3 (UI share) | 5-8 | 6-9 | Medium |
-| M6 (M6-1 to M6-4) | 5-7 | 13-20 | 16-25 | Low-Medium |
+| M6 (M6-1 to M6-3; M6-4 dropped, its days in M6-2 and M6-3) | 4-6 | 13-20 | 16-25 | Low-Medium |
 | M8 (O-01, O-02, O-07, O-08, C-05) | 6-9 | 18-27 | 20-35 | Low |
 
 ## Change log
 - 2026-11-03 eng: version 1 (from #834 design set, #832 program, #833 sequence).
 - 2026-11-03 eng: owner decisions and priority recorded; queue resend aligned with ADR-142 (foreground only); ADR-143 narrowed to what ADR-142 does not say.
+- 2026-11-03 23:15 eng: `cra` CGR-121 (a)-(d) written into ADR-143 (sign-out step, session expiry, access end, e2e); AUT-40 (PO 22:00): C-15 withdrawn, M6-4 dropped, its days to M6-2 and M6-3 (M6 date unchanged); CGR-120 noted on C-04.
