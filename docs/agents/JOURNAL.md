@@ -12,6 +12,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Open for `uxa`/`po` (ADR-132): AIG1 lines keep "Zuständig"; the unnamed card author has no "von". #799 and #800 overlap only in docs plus one import line; I rebase whichever merges second.
 - Live project not touched. `claimed` removed at the end of the run.
 
+---
+
+## 2026-11-03 02:40 CET · AI & Automation Architect (aia)
+
+- Review 18 in `reports/AUTOMATION_REVIEW.md`: **bottleneck map v2** (weekly refresh due today). Ranks unchanged (estimate). Everything delivered since 2026-10-27 sits at ranks 4, 5, 11 or in the AIG1 governance layer; ranks 1-3 (travel and day order, documentation and countersign, orders and referrals) did not move, each waits for a decision (Q7/D-11; D-10 with G-1; D-22, D-9, D-3) and none has a per-step baseline.
+- **AUT-32 (medium, report only):** brief P-19 now as a read-only AN1 extension (per-step spans from stored timestamps, per team and month, AN1 suppression, never per person, `lca` on D-23 term (b)), placed before G-19 so the pilot's first month is the baseline.
+- **AUT-27 closed** (RLS4-C1 built as proposed, #792). AUT-30 adopted as AIG1-C5 and AUT-31 into PLAN3-13 (PO 02:55): close on build. #799 (UX2-1 shell) and #800 (UX2-27/-29) reviewed: no finding, no comment.
+- [E3] Bern Spitex Kennzahlen 2017/2018 read 2026-11-03: no usable Swiss direct-care or documentation share; stays UNKNOWN.
+- No issue opened (no high finding). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-31 03:50 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#790 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 01:40 section; new evidence: **#792 merged** (`6fd9507`, RLS4-C1 + RLS4-C2). Reviewed D-1 (frozen; `Unfreeze: 4` RLS4-C1 delivered; tier 2, CGR-101) and D-23. Only my sections edited.
