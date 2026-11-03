@@ -27,6 +27,62 @@
 
 ---
 
+## 0. Status 2026-11-03 15:30: UX/UI baseline adopted (PR #834)
+
+**Decision (owner request, PO review):** PR #834 is reviewed and merged (`b1cffe9`; CI green on head `d811658`; docs only).
+
+The baseline (status IMPLEMENTED as documents) for the **Website, Web App, Caregiver App and Operations App** is:
+- [`NAVORA_INFORMATION_ARCHITECTURE.md`](../design/NAVORA_INFORMATION_ARCHITECTURE.md): surfaces, roles, website sitemap, tab sets, route map, deep links;
+- [`NAVORA_SCREEN_CATALOG.md`](../design/NAVORA_SCREEN_CATALOG.md): 57 screens W-, A-, C-, O-, L-, F-;
+- [`NAVORA_DESIGN_SYSTEM_V1.md`](../design/NAVORA_DESIGN_SYSTEM_V1.md): tokens, the `globals.css` block for UX2-3, 39 components, the marketing extension, the build order.
+
+Every brief, ADR and PR for these surfaces builds on them. A deviation is stated in the PR and needs `uxa`'s design answer and the PO's acceptance. The family app (F-01 to F-06) is in the set as a **specification frame only**: D-40 stays frozen, and nothing in the set authorises a route, table or text for it.
+
+**Review result: no blocking architectural, clinical, legal or product concern.** What I checked:
+- the AI assistant (C-15) uses existing queries only, in the team's scope, writes to the AIG1 ledger, has no free clinical question and shows "Keine medizinische Beratung" (wording `cra`);
+- PLAN3 (C-17) and capacity (O-07) show load per member only as PLAN3-4 allows, never judged or ranked;
+- AN3 (O-05) has no person figure, no target and no colour scale;
+- every unbuilt or frozen website feature is "in Vorbereitung", with no medical-device claim and no tracking cookie unless the owner decides;
+- the website shares no session with the app;
+- demo requests never enter the care database;
+- clinical, legal and claim content that is missing is marked UNKNOWN with its owner, not invented.
+
+**Non-blocking items, routed (no item changes a decided rule):**
+- **`cra`:** DS1-2 (the `proposal` colour must not read as a severity); SC-2 (offline wording); SC-5 (assistant intent labels and the advice line).
+- **`lca`:**
+  - SC-2 (pending entries stored on the device);
+  - SC-6 (demo response period and destination; privacy notice and imprint content);
+  - DS1-6 (stock imagery);
+  - **SC-8:** an address link on C-03 to an external maps service would send a client's address to a third party. It is OPEN in the catalog and **not built today** (checked in `src/`). PO decision: it is not built until `lca` answers.
+- **`eng`:** DS1-1 (input border contrast), DS1-3 (body font) with UX2-3; D-IA-4 (website hosting) in the M1 estimate; SC-7 / D-IA-6 under UX2-5.
+- **`po` decisions now (product authority):**
+  - **D-IA-1** routes as drawn (`/field/assistent`, `/team/tagesplan`); a sheet may render on the same URL;
+  - **D-IA-3** landing as built;
+  - **D-IA-5** the app stays German only until M10;
+  - **D-IA-7** no link from the app to the website until WEB1 decides it;
+  - **SC-1** becomes **UX2-33** (error, not-found and no-access pages inside the shell; Playwright: an unknown route renders inside the shell);
+  - **D-IA-2**, **SC-3** (O-07 capacity) and **SC-4** go into the OPS2 brief (due 2026-12-04);
+  - **SC-5** into MOB1;
+  - **DS1-4** (app icon and word mark) and **DS1-5** (dark mode after M8) stay open, not on any critical path.
+
+**M1, UX/UI part: met** (issue #831, delivered under the owner's file names; the screen catalog replaces `SCREEN_INVENTORY.md`, the IA replaces `NAVIGATION_MAP.md`, the DS V1 component inventory replaces `COMPONENT_INVENTORY.md`). The M1 Engineering part (estimate, due 2026-11-13) is still open.
+
+### Dependencies after the baseline: what M2-M8 are now unblocked for
+
+| Milestone | Design dependency | Now unblocked | Still blocked by (owner, date) |
+|---|---|---|---|
+| **M2** web app | **met** | UX2-3 (tokens from DS V1 §2.6), UX2-4 (components, build order step 1), UX2-31/-32 (tab sets and labels, IA §4.2), UX2-33 (A-05) | `eng`: merge of the cleared UX2 PRs #799, #800, #803, #804, #806; CGR-110 (#399) |
+| **M3** owner decisions | not applicable | – | owner, 2026-12-11 |
+| **M4** PLAN3, AN3 | **met** (C-17, O-05, build order step 3) | PLAN3 and AN3 build, as soon as M2's shell is in | `eng`: AIG1-C4/-C5 first; M2 |
+| **M5** website | **met for structure and design** (W-01 to W-11, IA §3, DS V1 §6) | page build on the marketing tokens and components | `po`: WEB1 content (2026-11-20); owner: domain, hosting, demo destination (M3); `lca`: privacy notice, imprint, claims (2027-01-08); `eng`: D-IA-4 (M1) |
+| **M6** caregiver app | **met** (C-01 to C-16, A-06, A-07, DS V1 §3.4-3.5, build order step 5) | screens and components of the installable app | `po`: MOB1 (2026-11-27, incl. SC-5); `eng`: delivery form (M1); `cra`/`lca`: SC-2 offline storage and wording |
+| **M7** family specification | **met as frame** (F-01 to F-06) | the PO's family specification can start now (no build) | `lca`/`cra`: D-40 inputs; owner: D-40 (build stays frozen) |
+| **M8** operations app, AIO1, OPS2, HAND2 | **met** (O-01 to O-08, C-05, build order step 6) | operations screens on the shell | `po`: OPS2, HAND2, AIO1 briefs (2026-12-04, incl. D-IA-2, SC-3, SC-4); `lca`: O-07 capacity read |
+
+**Effect on dates:** none moved. The design baseline arrived 17 days before its due date (2026-11-20), so `uxa`'s later dates (§6) now cover page-level content placement and visual review rather than first designs. The critical path is unchanged: the M3 owner decisions, then the Engineering estimate (M1).
+
+---
+
 ## 1. Milestones
 
 | # | Milestone | Target date | Owner (delivers) | Accepts |
@@ -319,13 +375,13 @@ Synthetic data only; D-1, D-34, D-35 apply. The phases are specification, develo
 
 ## 6. UX/UI responsibilities (`uxa`)
 
-**Due Fri 2026-11-20** (one week after M1, so it can use `eng`'s delivery form), implementation-ready, not wireframes only:
+**Delivered 2026-11-03 (PR #834), baseline from 15:30** under the file names `NAVORA_INFORMATION_ARCHITECTURE.md`, `NAVORA_SCREEN_CATALOG.md` and `NAVORA_DESIGN_SYSTEM_V1.md` (see §0). The original request, kept for reference, was due Fri 2026-11-20 (one week after M1, so it could use `eng`'s delivery form), implementation-ready, not wireframes only:
 1. **Screen inventory** (`docs/design/SCREEN_INVENTORY.md`): every screen of the web app, caregiver app, operations app, family-app specification and website. Per screen: route, roles, the three questions (`DESIGN_SYSTEM.md` §1), data read, primary action, components, states, status (IMPLEMENTED or PLANNED).
 2. **Navigation map** (`docs/design/NAVIGATION_MAP.md`): per role, tabs and sidebar (UX2-31, UX2-32), deep links, back paths, the website-to-app entry, and the family app as specification.
 3. **Component inventory** (`docs/design/COMPONENT_INVENTORY.md`): every component with variants, states (default, hover, focus, active, disabled, loading, empty, error), accessibility notes and the screens that use it.
 4. **Design system** (`docs/design/DESIGN_SYSTEM.md`, updated): tokens (colour incl. severity, type, spacing, radius, elevation, motion) as values the build consumes; dark mode if in scope; marketing extension for the website. Every token used by a component is named in the inventory.
 
-**Then:** website page designs (Fri 2026-12-04 and 2026-12-11), caregiver app screens (Fri 2026-12-11), operations app screens (Fri 2027-01-08), family-app screen specification (Fri 2027-01-22).
+**Then (dates unchanged; scope now content placement and visual review on the baseline):** website pages with WEB1 content (Fri 2026-12-04 and 2026-12-11), caregiver app screens with MOB1 (Fri 2026-12-11), operations app screens with OPS2 (Fri 2027-01-08), family-app screen specification within the frame F-01 to F-06 (Fri 2027-01-22).
 
 ---
 
@@ -349,3 +405,4 @@ M5 website (01-15, parallel)   M7 family spec (02-05, parallel, no build)       
 
 ## Change log
 - 2026-11-03 po: version 1, from the owner's Executive Delivery Directive.
+- 2026-11-03 15:30 po: §0 added. The UX/UI baseline (PR #834) is adopted for website, web app, caregiver app and operations app; the M1 UX/UI part is met; the dependencies of M2-M8 are updated; no date moved.
