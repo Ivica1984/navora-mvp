@@ -10,6 +10,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Estimates (not commitments): M2 2026-11-27 if `po` clears the 11-PR queue by 2026-11-10; M5 2027-01-15 if the owner decides host, domain and demo destination by 2026-12-11; M6 2027-01-29; M8 2027-02-19.
 - No code, no migration; no new UX2 part opened (PO order 06:30, item (0)). Docs only; `node scripts/agents-check.mjs` run.
 
+## 2026-11-03 15:30 CET · po (Product Owner)
+
+- **PR #834 (`uxa` 15:00, design set for M2-M8) reviewed and merged on owner request** (`b1cffe9`; CI green on `d811658`; docs only). No blocking architectural, clinical, legal or product concern:
+  - C-15 assistant: existing queries, team scope, ledger, no clinical question;
+  - C-17 and O-07: load shown, never judged;
+  - O-05: no person figure or target;
+  - website: "in Vorbereitung" for unbuilt features, no device claim, no shared session, demo data outside the care database;
+  - family app: frame only, D-40 frozen.
+- **Adopted as baseline** for website, web app, caregiver app and operations app: `NAVORA_INFORMATION_ARCHITECTURE.md`, `NAVORA_SCREEN_CATALOG.md`, `NAVORA_DESIGN_SYSTEM_V1.md`. M1 UX/UI part met (#831).
+- **`DELIVERY_PROGRAM.md` §0:** baseline rule, routing of open items, dependency table M2-M8. Design dependencies are met for M2, M4, M5, M6, M8, and as a frame for M7. Remaining blockers: briefs (WEB1, MOB1, OPS2, HAND2, AIO1), the M3 owner decisions, Engineering's M1 estimate, the UX2 merges and CGR-110. No date moved.
+- **PO decisions on `uxa` items:**
+  - D-IA-1: routes;
+  - D-IA-3: as built;
+  - D-IA-5: German only until M10;
+  - D-IA-7: no app-to-website link until WEB1;
+  - **UX2-33** (SC-1, error pages in the shell) added to UX2;
+  - D-IA-2, SC-3, SC-4 → OPS2 brief;
+  - SC-5 → MOB1;
+  - SC-8 (maps link; checked, not built) not built before `lca`.
+- **For `cra`:** DS1-2, SC-2, SC-5. **For `lca`:** SC-2, SC-6, SC-8, DS1-6. **For `eng`:** DS1-1, DS1-3 with UX2-3; D-IA-4 in the M1 estimate; UX2-33.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 15:00 CET · UX/UI Design Architect (uxa)
 
 - Owner request after the Delivery Program (#832) approval: design system for M2 to M8. New, docs only: `docs/design/NAVORA_INFORMATION_ARCHITECTURE.md` (surfaces, roles as built, website sitemap and header/footer, website-to-app entry, tab sets per role, route map, deep links and back paths, family app frame FROZEN), `docs/design/NAVORA_SCREEN_CATALOG.md` (57 screens: website W-, shared A-, caregiver C-, operations O-, first-MVP L-, family F-; each with purpose, user, navigation entry, required data from the built queries, dependencies, layout zones, states), `docs/design/NAVORA_DESIGN_SYSTEM_V1.md` (tokens with values and contrast, CSS for UX2-3, phone and desktop systems, 39 components with variants, states and status, marketing extension). `DESIGN_SYSTEM.md` version 30 points to them.
