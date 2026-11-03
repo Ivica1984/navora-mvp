@@ -4,6 +4,116 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 15:30 CET · po (Product Owner)
+
+- **PR #834 (`uxa` 15:00, design set for M2-M8) reviewed and merged on owner request** (`b1cffe9`; CI green on `d811658`; docs only). No blocking architectural, clinical, legal or product concern:
+  - C-15 assistant: existing queries, team scope, ledger, no clinical question;
+  - C-17 and O-07: load shown, never judged;
+  - O-05: no person figure or target;
+  - website: "in Vorbereitung" for unbuilt features, no device claim, no shared session, demo data outside the care database;
+  - family app: frame only, D-40 frozen.
+- **Adopted as baseline** for website, web app, caregiver app and operations app: `NAVORA_INFORMATION_ARCHITECTURE.md`, `NAVORA_SCREEN_CATALOG.md`, `NAVORA_DESIGN_SYSTEM_V1.md`. M1 UX/UI part met (#831).
+- **`DELIVERY_PROGRAM.md` §0:** baseline rule, routing of open items, dependency table M2-M8. Design dependencies are met for M2, M4, M5, M6, M8, and as a frame for M7. Remaining blockers: briefs (WEB1, MOB1, OPS2, HAND2, AIO1), the M3 owner decisions, Engineering's M1 estimate, the UX2 merges and CGR-110. No date moved.
+- **PO decisions on `uxa` items:**
+  - D-IA-1: routes;
+  - D-IA-3: as built;
+  - D-IA-5: German only until M10;
+  - D-IA-7: no app-to-website link until WEB1;
+  - **UX2-33** (SC-1, error pages in the shell) added to UX2;
+  - D-IA-2, SC-3, SC-4 → OPS2 brief;
+  - SC-5 → MOB1;
+  - SC-8 (maps link; checked, not built) not built before `lca`.
+- **For `cra`:** DS1-2, SC-2, SC-5. **For `lca`:** SC-2, SC-6, SC-8, DS1-6. **For `eng`:** DS1-1, DS1-3 with UX2-3; D-IA-4 in the M1 estimate; UX2-33.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 15:00 CET · UX/UI Design Architect (uxa)
+
+- Owner request after the Delivery Program (#832) approval: design system for M2 to M8. New, docs only: `docs/design/NAVORA_INFORMATION_ARCHITECTURE.md` (surfaces, roles as built, website sitemap and header/footer, website-to-app entry, tab sets per role, route map, deep links and back paths, family app frame FROZEN), `docs/design/NAVORA_SCREEN_CATALOG.md` (57 screens: website W-, shared A-, caregiver C-, operations O-, first-MVP L-, family F-; each with purpose, user, navigation entry, required data from the built queries, dependencies, layout zones, states), `docs/design/NAVORA_DESIGN_SYSTEM_V1.md` (tokens with values and contrast, CSS for UX2-3, phone and desktop systems, 39 components with variants, states and status, marketing extension). `DESIGN_SYSTEM.md` version 30 points to them.
+- These three files deliver issue #831 under the owner's file names (screen inventory = catalog; navigation map = IA; component inventory and tokens = V1).
+- For the PO: D-IA-1 to D-IA-7 (IA §9), SC-1 to SC-8 (catalog), DS1-1 to DS1-6 (V1 §9); notably A-05 error and not-found pages missing (SC-1), an operations tab set with "Kapazität" for M8 (D-IA-2), O-07 needs a brief (SC-3). `cra`: DS1-2, SC-2, SC-5. `lca`: SC-2, SC-6, SC-8, DS1-6.
+- Nothing invented on clinical, legal or website claim content: marked UNKNOWN with its owner. I ran no test; `node scripts/agents-check.mjs` run before publishing.
+
+---
+
+## 2026-11-03 14:40 CET · AI & Automation Architect (aia)
+
+- Review 20 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `41ec907`. Read: PO #822 (AI-first update, opportunity map, capability roadmap, template *AI leverage*, owner directive 14:00, AN3 approved, D-39/D-40 frozen), `csa` #821, `lca` #823; open #814 (AIG1-C4/-C5) by its PR text and check runs.
+- **Ranking challenged as the PO asked:** **AUT-36 (medium):** the largest estimated bottleneck (travel and day order) is missing from the opportunity ranking, and the five items allowed now touch none of map ranks 1-3. Proposal: a recoverable-time column, and a day-order rule on synthetic geography (AUT-5) for the owner's allowed list (Q7 before real data).
+- **AUT-37 (medium):** AIO1 split: agent contract on the AIG1 register plus CI evaluation harness now; orchestrator pipeline and provider adapter with the D-35 stage-1 package. **AUT-38 (medium):** the seven-step sequence must not add acts: steps 5-6 are one act by the named confirmer; step 7 may be "none"; the method never adds a signature or review that did not exist. **AUT-39 (low):** D-40 Check-In specification to state team-task volume, default off, logistics first (comment on #827).
+- Closed: **AUT-32** (AN3 approved). AUT-30 met on #814 head (closes on merge). AUT-33/-34 not taken into AN3; still with the PO.
+- No `high` finding, no issue. `AI_OPERATING_MODEL_REVIEW.md`: superseded-doctrine note, three §12 controls, stage-0 state.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 14:25 CET · po (Product Owner)
+
+- **Owner Executive Delivery Directive** (Claude session): the AI-First update is accepted; the architecture phase is complete; an execution plan was requested.
+- **New:** `docs/product/DELIVERY_PROGRAM.md` (version 1):
+  - **M1-M10**, each with objective, owner, supporting agents, dependencies, deliverables, acceptance criteria and target date (M1 2026-11-13 … M9 pilot readiness 2027-03-12, M10 production readiness 2027-06-30);
+  - **website track** (seven pages plus demo flow, live 2027-01-15, `lca` claims review);
+  - **mobile track**: caregiver app M6 2027-01-29; operations app M8 2027-02-19; family app specification only, M7, D-40 frozen;
+  - **AI roadmap**: PLAN3, AN3, AIO1, HAND2, OPS2 by specification, development, testing and pilot;
+  - **`eng` and `uxa` responsibilities**;
+  - **pilot-ready path**.
+- **Dates are PO targets** until Engineering's estimate (M1). M3 owner decisions (D-1, G-1, D-11, D-12, D-2, D-29, D-7/D-8, D-34 adviser, D-14) are the critical path.
+- **For `eng`:** issue opened. `docs/engineering/DELIVERY_ESTIMATE.md` is due 2026-11-13 (sequence, effort, pilot and production readiness, app delivery form, website approach).
+- **For `uxa`:** issue opened. Screen inventory, navigation map, component inventory and implementation-ready design system are due 2026-11-20.
+- **For `po` (own):** briefs AIO1 and WEB1 (2026-11-20), MOB1 (2026-11-27), HAND2 and OPS2 (2026-12-04); plan version 2 on 2026-11-17.
+- Queue order unchanged. Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 14:00 CET · po (Product Owner)
+
+- **Owner directive "post-PR #822 alignment"** (given in a Claude session; CSA excluded by the directive) taken into this open PO PR (#822, continued; `recovery/main` merged in, JOURNAL conflict with `csa` 13:33 resolved, both kept).
+- **Human-in-the-loop mandatory:**
+  - sequence Remove → Rules → Monitor → AI prepares → Human reviews → Human decides → Human signs;
+  - AI may prepare, summarise, prioritise, draft, monitor, suggest;
+  - never accountable decisions, signatures, required approvals or clinical judgement;
+  - violating proposals are rejected.
+
+  Written into `AI_FIRST_ARCHITECTURE_UPDATE.md` §0 and §3, `ARCHITECTURE.md`, `CARE_OPERATING_MODEL.md`, `PRODUCT_REQUIREMENTS.md`, `NEXT_CAPABILITY.md` and the brief template (*AI leverage*, seven steps).
+- **D-39 (sensors, #817) and D-40 (Family Layer, Check-In) opened** as packages (`inputs-requested`; E specification impact only, C, L) and **frozen by the owner**: specification only; no implementation, table, migration or production architecture. Provisional default A in both.
+- **Allowed on synthetic data only:** PLAN3, AN3, AIO1, OPS2, HAND2. **AN3 approved** (Next up 3; `lca` D-23 (b) read before real data). AIO1, OPS2, HAND2 briefs: po, next cycles. DOC2 not allowed yet.
+- **For `eng`:** issue opened. Enforce the five prohibitions in code and architecture, flag violations, no work on D-39/D-40. PR #822 is merged by po when CI is green.
+- **For `cra`:** review duty in update §6.2 item 8. Record clinical decision-support risk as a CGR finding. Clinical input requested on D-39, D-40 and D-34.
+- **For `lca`:** D-34 has priority. A detailed AI assessment is requested in the package (EU AI Act, Swiss law, device risk, cross-border processing, provider contract). Decision support only; no determination without the owner. Inputs requested on D-39 and D-40.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 13:45 CET · po (Product Owner)
+
+- **Owner directive "Strategic Architecture Directive: NAVORA is AI-first"** (given in a Claude session 2026-11-03) carried into the handbook. Not a feature request; no build approved by it.
+- **New:** `docs/product/AI_FIRST_ARCHITECTURE_UPDATE.md` contains:
+  - the six-step design method (remove, rule, monitor, prepare with AI, communicate, keep human), replacing "graph-first, agents at the edges";
+  - principles AI-1 to AI-12;
+  - the AI layer architecture and the agent contract;
+  - ten AI domains with level, confirmer and gate;
+  - guidance for `eng`, `cra`, `lca`.
+- **New:** `AI_OPPORTUNITY_MAP.md` (22 human assumptions inventoried; 12 workflows current and future state; ranking) and `AI_CAPABILITY_ROADMAP.md` (stages 0-3, proposed briefs AIO1, OPS2, HAND2, DOC2, owner asks).
+- **Updated:**
+  - `ARCHITECTURE.md`: *KI-Säule*, *AI Layer* context, orchestrator, target structure; a note that a full status revision of the handbook is OPEN;
+  - `CARE_OPERATING_MODEL.md`: *AI-first operating model* supersedes the 2026-10-26 section; P-9 kept;
+  - `PRODUCT_REQUIREMENTS.md` (KI as a core requirement);
+  - `ROADMAP.md` (KI-Schicht track);
+  - `NEXT_CAPABILITY.md`: rule *AI-first review*;
+  - brief template: section *AI leverage*.
+- **Unchanged:** D-35 rule A, D-34 A plus C, owner rule 2026-10-29 (D-1), G-1, P-1; queue order. Proposed packages **D-39** (sensors, #817) and **D-40** (client- and relative-facing AI) are not opened yet: the PO opens them with `lca`/`cra` inputs.
+- **For `eng`:** read the update §6.1 before the PLAN3 ADR. **For `cra`:** §6.2 review checklist. **For `lca`:** §6.3 capability list. **For `aia`:** the opportunity map ranking replaces nothing in your bottleneck map; please challenge it at the next review.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 13:33 CET · Chief Strategy Architect (csa)
+
+- Weekly review: new section in `docs/product/STRATEGIC_ALIGNMENT_REVIEW.md` (STR-20 to STR-25) on the owner directions of 2026-11-03 (#816 Basel, #817 IoT/AI spec, #818 all-in-one with nursing homes), D-36/D-37 and D-38; `STRATEGY.md` §4 update, BM-8/BM-9, §6 questions 8-11, benchmark Spitex Zürich Limmat (2018).
+- Verdicts: STR-20 Basel medium (start in one canton; Zurich durations now UNKNOWN for BS/BL); STR-21 all-in-one now **high** (no patient-care benefit shown; build only with a self-organised design-partner ward after G-1, D-36); STR-22 IoT/AI spec medium (spec without migration until D-34/D-35); STR-23 "fully automated" target **high** (human confirmation and signed report are safety and legal controls; proposed target "automated preparation, one human confirmation"); STR-24 interRAI licence: three uses to name; STR-25 D-38 unchanged, T-terms with Zurich-only evidence to be marked by `lca`.
+- Not done, by role rule: contacting a Basel partner or interRAI (owner only). Written instead: an advisory weekly strategic alignment check for `po` (10 questions). Issue #820 to `po` with a combined owner ask proposal; one comment each on #817 and #818.
+- No code, package, queue or status touched. Ran `node scripts/agents-check.mjs` before publishing; no other test run.
 ## 2026-11-03 13:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-03 13:30), `recovery/main` @ `adf80a3` (no code merged since 09:30; `uxa` #798 merged). Read on their heads: **#815** ASM1-C6 with C6 (8) (`f0a2752`, 0106, pgTAP 107; CI in progress at reading; test-only fix since `f8a31ef`), **#814** AIG1-C4 + AIG1-C5 (`dc1b2b4`, 0105, pgTAP 106; CI green), **#813** RLS4-C3 (`01dee6c`; CI green), **#800** amendments (`748ef3f`; CI green).
@@ -75,6 +185,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Answers to `uxa`:** UXR-73 (ending access stays possible when the open-report list fails, with CGR-111); UXR-79 (no safety objection to "Verantwortlich" in signal texts if only the word changes, string tests); interim text 1 and AIG1-C4 (3) wording confirmed with conditions. `lca` 04:45 supports CGR-109 as a G-25 precondition. AUT-32: countersign latency never a target.
 - Registers: CR-156 added (UX2-16 frame); PS-99, PS-100 added, PS-98 note; H-01, H-05, H-12 notes.
 - **Not merged by me:** owner instruction on #666 covers this PR, which contains #801 … #582. Waiting on: `eng` (CGR-110 on #399, CGR-111), `po` (place CGR-108, CGR-109 at G-25, CGR-111), `uxa` (wording), Clinical Owner (unchanged list), owner (chain merge, D-1 at G-25). Tests: none run by me; CI as read through the API. Live project not touched.
+## 2026-11-03 13:55 CET · Legal & Compliance Agent (lca)
+
+- Live request from the owner (session): legal check for a Basel-Stadt setup. **Owner answer to D-11: pilot canton Basel-Stadt** (given to `lca`; `po` records it, `lca` moves no row). D-2, D-4, D-9, D-29 re-checked (`Unfreeze: 2` D-11); only my sections edited. A "binding confirmation" was asked; `lca` gives none (advisory only).
+- **D-2:** Zurich region for real BS care data: **unresolved: needs legal adviser** (auxiliary status of Supabase/AWS under StGB 321 and GesG BS § 26; IDG BS if a public task; DSFA missing). **D-4:** GesG BS § 29: 10 years **after end of treatment**; "10 years under OR" (958f) covers billing only; OR 60 Abs. 1bis (20 years) longer keeping **unresolved: needs legal adviser**.
+- **D-9:** three steps; (a) on contract and record duty is compliant with (b)/(c) separate and optional; AI voice (b) and IoT sensors (c) are new scope, **unresolved** (EDÖB/privatim Merkblatt 16.09.2026: consent alone not sufficient for sensors). **D-29:** nurses are in GesReg, not NAREG; control checks proposed; an "Uber model" (AVG licence, BGE 149 V 57 employer risk, OR 100) **unresolved: needs legal adviser and owner**, high risk.
+- Owner dossier with draft consent texts and AGB clauses (marked drafts for the adviser): Claude Doc "NAVORA – Rechtliche Vorprüfung Basel-Stadt". Part of the research was read by sub-agents; marked so. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 

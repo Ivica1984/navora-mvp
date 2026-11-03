@@ -1,6 +1,8 @@
 # NAVORA design system
 
-**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 29 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
+**Owner:** UX/UI Design Architect (`uxa`, owner 2026-10-27) · **Version:** 30 (seeded by `po` 2026-10-27 10:40 CET as version 0; maintained by `uxa` from 2026-10-27 10:42 CET) · **Status of each part:** IMPLEMENTED (in code today), PLANNED (in an approved brief), OPEN (no brief yet).
+
+**Companion build specification (2026-11-03, for M2 to M8, #832):** [`NAVORA_DESIGN_SYSTEM_V1.md`](NAVORA_DESIGN_SYSTEM_V1.md) (token values, CSS, components with states, phone and desktop systems, marketing extension), [`NAVORA_SCREEN_CATALOG.md`](NAVORA_SCREEN_CATALOG.md) (every screen), [`NAVORA_INFORMATION_ARCHITECTURE.md`](NAVORA_INFORMATION_ARCHITECTURE.md) (surfaces, roles, navigation, website sitemap). This file keeps the behaviour rules.
 
 This file says how NAVORA screens behave and look. It is a contract for Engineering (what to build), for the PO (what to accept) and for `uxa` (what to review against). Code wins where it differs; the difference is then a finding.
 
@@ -103,7 +105,7 @@ Status: the principle is binding from 2026-10-27. On `/field` it is PLANNED in U
 
 ## 7. Tokens and components
 
-PLANNED in UX2-3: one token set and a small component set. **Proposal by `uxa` (2026-10-27 10:42 CET), for Engineering's UX2 ADR; OPEN until UX2 builds it.** Values build on what the nurse screens already use (Tailwind, emerald, stone), so `/field`, `/team` and `/work` change little and the first-MVP inline hex colours are retired. Tailwind v4 `@theme` variables in `src/app/globals.css` are the one place; components use the token names, never raw palette classes or hex values. Every contrast pair below must be confirmed by axe in CI (calculated values are approximations: UNKNOWN until measured).
+**Superseded for values by [`NAVORA_DESIGN_SYSTEM_V1.md`](NAVORA_DESIGN_SYSTEM_V1.md) §2 and §5 (2026-11-03: exact values, contrast, CSS, `border-control` for inputs); the table below stays as the history of the proposal.** PLANNED in UX2-3: one token set and a small component set. **Proposal by `uxa` (2026-10-27 10:42 CET), for Engineering's UX2 ADR; OPEN until UX2 builds it.** Values build on what the nurse screens already use (Tailwind, emerald, stone), so `/field`, `/team` and `/work` change little and the first-MVP inline hex colours are retired. Tailwind v4 `@theme` variables in `src/app/globals.css` are the one place; components use the token names, never raw palette classes or hex values. Every contrast pair below must be confirmed by axe in CI (calculated values are approximations: UNKNOWN until measured).
 
 **Colour (semantic):**
 
@@ -145,6 +147,7 @@ PLANNED in UX2-3: one token set and a small component set. **Proposal by `uxa` (
 
 ## Change log
 
+- 2026-11-03 15:00 CET (`uxa`): version 30. Companion files added for the Delivery Program (#832, issue #831): `NAVORA_DESIGN_SYSTEM_V1.md`, `NAVORA_SCREEN_CATALOG.md`, `NAVORA_INFORMATION_ARCHITECTURE.md`. §7 token values superseded by V1 §2 (new: `border-control` stone-500 for inputs, 4.80:1 non-text contrast; `proposal` tone; motion, z-index, breakpoints).
 - 2026-11-03 11:50 CET (`uxa`): version 29. §2 AI picker placeholder now "Verantwortliche Person wählen" (built on #800, UXR-79; replaces the 31.10 proposal). §4 responsible-member rule extended: "nicht erfasst" on a visit no longer open (CGR-109), unnamed author "Teammitglied <n> (ohne Namen)" (CGR-108, confirmed), card line OPEN (UXR-83). §6 new OPEN rule: a control that starts a reload keeps focus in its block (UXR-82).
 - 2026-11-03 07:52 CET (`uxa`): version 28. §1 failed-read rule from OPEN to PLANNED (RLS4-C3, po 06:30; UXR-73), extended to later lines that report on the list (result after the act: count not known, never "keine"). §4 new OPEN rule: name the person, never assume a gender (UXR-81). No token change.
 - 2026-11-03 03:52 CET (`uxa`): version 27. §5 shell line notes the build on open PR #799; new OPEN rules: one label per destination (UXR-76), the role's home is its first tab (UXR-75, PO), no header link repeating a shell item (UXR-77). §6 new OPEN rule: fixed or sticky bars never cover the focused control (UXR-78). §4 new rule: one word for the responsible member (PLANNED UX2-29; AI field labels OPEN, UXR-79).
