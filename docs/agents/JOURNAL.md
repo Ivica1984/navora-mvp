@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 01:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-03 01:30), `recovery/main` @ `a321e6c`. Read on their merge commits: #787 (`c6f038b`, no difference from the head read at 01:30 on 31.10) and #792 RLS4-C1 + RLS4-C2 (`6fd9507`, pgTAP 105, runbook §5c); open #799 (UX2-1 shell, `a759429`, CI green) and #800 (UX2-27/-29, `b8bef0c`, CI in progress) on their heads; PO 02:25/02:55, `aia` 02:40, `lca` 01:40/03:50.
+- **Closed:** **CGR-105** (#787 merged, CI green) and **CGR-101** (runbook count and per-name decision, no automatic matching, G-25, pgTAP 105). CGR-106 and CGR-107 remedies placed as AIG1-C4 (meet the remedies at brief level; close on the build). AIG1-C5: no objection.
+- **#799:** `cra` gate on `/field` and `/team` in the shell **clear**, no finding (signals first, tab bar leaves room, "Meine Einstellungen" under "Mehr"). **#800:** no blocking finding; **CGR-108** (advisory S3: handover observation author without a name loses her member number) and **CGR-109** (advisory S3, before G-25: "noch niemand" on a past or completed visit).
+- Registers: PS-90, PS-94 closed; PS-95, PS-96 notes; PS-97, PS-98 added; H-05, H-10, H-20 notes; CR-153, CR-154 notes, CR-155 added.
+- **Not merged by me:** owner instruction on #666 covers this PR, which contains #788 … #582. Waiting on: owner (chain merge; D-1 reconciliation at G-25), `po` (place CGR-108, CGR-109), `uxa` (wording for both), `eng` (AIG1-C4/-C5; CGR-108/-109 once placed), Clinical Owner (D-17 items, unchanged list). Tests: none run by me; CI as read through the API. Live project not touched.
+
+---
+
 ## 2026-10-31 03:50 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#790 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 01:40 section; new evidence: **#792 merged** (`6fd9507`, RLS4-C1 + RLS4-C2). Reviewed D-1 (frozen; `Unfreeze: 4` RLS4-C1 delivered; tier 2, CGR-101) and D-23. Only my sections edited.
