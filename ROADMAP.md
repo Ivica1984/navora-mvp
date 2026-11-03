@@ -16,6 +16,7 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 ## Änderungen gegenüber 9. Oktober 2026
 
 - **DECIDED (Owner, PRIO-1):** Reihenfolge F0, J1, J2, J3.
+- **Stand 03.11. 15:30:** **UX/UI-Basis verbindlich** (PR #834 geprüft und zusammengeführt): Informationsarchitektur, Screen-Katalog (57 Screens) und Design-System V1 gelten für Website, Web-App, Pflege-App und Operations-App. Ohne Design-Abhängigkeit sind jetzt M2 (Tokens, Komponenten, Reiter), M4 (Tagesvorschlag, Kennzahlen), M5 (Seitenstruktur und Marketing-Komponenten), M6 (App-Screens), M7 (Rahmen der Angehörigen-Spezifikation, Bau weiter eingefroren) und M8 (Operations-Screens). Offen bleiben Briefs, Owner-Entscheide aus M3 und die Engineering-Schätzung. Kein Termin verschoben.
 - **Stand 03.11. 14:25:** **Lieferprogramm M1-M10** (Owner-Direktive; Architekturphase abgeschlossen): `docs/product/DELIVERY_PROGRAM.md`.
   - M1 Basisplanung 13.11.;
   - M2 Web-App konsolidiert 27.11.;
