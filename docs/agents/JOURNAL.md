@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 10:40 CET · Engineering (eng)
+
+- Step A: every open Engineering PR is green on its head (#796, #799, #800, #803, #804, #806, #809, #810: app, db, e2e, ui-screenshots); no bot run waits for approval. Not merged by Engineering; the PO reviews and merges.
+- Step B/C: #745 (UX2, `active`) claimed 10:14. Per *Active now* 06:30 item (0) no new UX2 part is opened; this run finishes cleared PR **#800** with the **UX2-27 amendment (`cra` CGR-108)** and the **UX2-29 amendment (`cra` CGR-109, G-25 (c)) with `uxa` UXR-79**, as the brief allows ("on #800 before merge"). Pushed to #800's branch (continuing the open PR, COORDINATION rule 2) after merging `recovery/main` into it (no conflict).
+- IMPLEMENTED in #800 (CI decides): handover observation of an unnamed author "Teammitglied <n> (ohne Namen)"; "noch niemand" only on a visit still open, "Verantwortlich: nicht erfasst" otherwise on `/visits` list, detail and record page; `fieldLabel` "Verantwortlich"; both pickers "Verantwortliche Person wählen". No migration, RLS, audit or `cra`-fixed safety text changed. ADR-132 addendum (one deviation: the handover has no report entry kind, the same-number test uses her other entries).
+- Tests written first (own commit 2e6cc50): vitest `ux2-wording`, `rls4-visits-responsible`, `obs1-authorship`, `aig1-labels`; e2e `access.spec` (…505 "nicht erfasst", …508 "noch niemand"), `aig1.spec`. **None ran locally:** the npm registry was refused by this run's egress proxy, so no lint, typecheck, unit or build ran here. CI on #800 is the only test run.
+- Next for Engineering: after the PO merges the cleared UX2 PRs, UX2-31 and UX2-32 in the next UX2 PR; then AIG1-C4 with AIG1-C5, PLAN3. Live project not touched.
+
+---
+
 ## 2026-11-03 08:20 CET · AI & Automation Architect (aia)
 
 - Review 19 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `6d6dbba`. Read since review 18: PO #808 (AN3 draft from P-19 after AUT-32; RLS4-C3; UX2-31/-32; UX2-27/-29 amendments, G-25 (c)), `lca` #805; open UX2 PRs #803, #804, #806, #809 by their PR text.

@@ -8,7 +8,6 @@ import { REASON_LABEL, RESPONSIBLE_ABSENT_NOTE, atDoorText, basisText } from "@/
 import { EVENT_STATUS_LABEL, SEVERITY_LABEL } from "@/features/quality/rules";
 import { WEEKDAYS } from "@/features/planning/rules";
 import { gpInformedEntryLine } from "@/features/gp/rules";
-import { AUTHOR_WITHOUT_NAME_TEXT } from "@/features/field/authorship";
 import { alertHandoverLines } from "@/features/door/rules";
 
 export type SinceLastRow = {
@@ -78,14 +77,16 @@ export function authorLabel(code: string): string {
 
 /**
  * OBS1-2 (ADR-118): an observation names its author by her ADM1 display name (the database adds it to `detail`); every
- * other entry keeps the member code. The caller's own entry stays "Ich". UX2-27 (ADR-132): a colleague's observation
- * without a name shows `AUTHOR_WITHOUT_NAME_TEXT`, like the visit card, never a member code.
+ * other entry keeps the member code. The caller's own entry stays "Ich". UX2-27 as amended po 2026-11-03 06:30
+ * (`cra` CGR-108, ADR-132 addendum): in the handover a colleague's observation without a name keeps her member number,
+ * "Teammitglied <n> (ohne Namen)", so two unnamed authors stay apart and match their other entries in the same
+ * handover. The visit card meta line keeps `AUTHOR_WITHOUT_NAME_TEXT` (`observationAuthor`).
  */
 export function entryAuthorLabel(entry: Pick<SinceLastEntry, "kind" | "author" | "detail">): string {
   const name = entry.detail?.author_name;
   if (entry.kind === "observation" && entry.author !== "me") {
     if (typeof name === "string" && name.trim()) return name.trim();
-    if (entry.author.startsWith("member:")) return AUTHOR_WITHOUT_NAME_TEXT;
+    if (entry.author.startsWith("member:")) return `${authorLabel(entry.author)} (ohne Namen)`;
   }
   return authorLabel(entry.author);
 }
