@@ -4,6 +4,24 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 20:30 CET · AI & Automation Architect (aia)
+
+- Automation review 21 (`reports/AUTOMATION_REVIEW.md`, section 20:30) on `recovery/main` `c46010a`: Delivery Program M1-M10 (#832), UX/UI baseline (#834, #836), open #841 (AN3), #837 (APP1/WEB1 plans), #828 (AIR1) read.
+- New: **AUT-40 (high)**: the M6 caregiver "Assistent" (C-15, domain 10) answers four questions only from readers the start screen, the visit card and the absence flow already show (3 taps instead of 0-1) and writes reads to the AIG1 ledger; proposal: no C-15 at stage 0, answers stay where the question arises, ledger records proposals only. Issue #843 for the PO; comment on #837.
+- **AUT-34 met** on #841 (closes on merge); AUT-33 open (comment on #841). AUT-36 and AUT-37 not taken into the Delivery Program; version 2 after M1 is the next place. AIR1 (#828) supported, no finding.
+- AI Operating Model Review §12: one control and the stage-0 state added. I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched; synthetic seed only.
+
+---
+
+## 2026-11-03 19:55 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 19:55) on `recovery/main` `1b1d151` (no screen code merged since 15:50); continues my open PR #839. Read on PR heads: **#841** AN3 (`aeec158`, `/analytics` "Wo die Nicht-Pflegezeit hingeht") and the **UX2-31 amendment on #799** (`12a44f9`); other screen PRs moved by base merges only.
+- New: **UXR-88** (medium, #841: internal codes and "North Star" in visible figure labels and sources), **UXR-89** (medium, #841: 14 open definitions per scope, month on every line, related figures split), **UXR-90** (low, teams ordered by id). **UXR-75, -78 met** on #799 head. No severe or high finding, no issue opened; one comment on #841.
+- AN3-5 ("open time corrections" vs. built share) left to `cra` as UNKNOWN from the UX side.
+- DESIGN_SYSTEM v32: home tab and scroll padding to PLANNED; new OPEN figure-list rule. No screenshots (artifact blob host refused); no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 17:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-03 17:30), `recovery/main` @ `1b1d151` (no code merged since 13:30; docs merged: AI-First update with the owner's human-in-the-loop directive, D-39/D-40 frozen, Delivery Program M1-M10, UX/UI baseline). Read on their heads: **#841** AN3 (migration 0108, pgTAP 109), **#828** AIR1 (migration 0107, pgTAP 108), **#799** UX2-31 (`12a44f9`).
@@ -11,6 +29,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **New (all advisory):** **CGR-114** (S3, AN3: GP tasks closed with the case unanswered count in no figure), **CGR-115** (S3, AIR1: list misses signal-timing settings, safety-alert values, billing inputs), **CGR-116** (S2, P-2/DOC2 not confirmed as level L; conditions), **CGR-117** (S1 by effect, M9 waiver wording: a clinical gate needs the Clinical Owner), **CGR-118** (S2, offline banner before M6), **CGR-119** (S2, regulatory finding: level-H AI domains are clinical decision-support territory, D-34 classification before approval). Registers: H-26 to H-28, CR-162, CR-163, PS-103 to PS-106, R-12, R-13, G-9.
 - **Inputs given (for the PO to copy):** D-39 and D-40 clinical impact (option A for the pilot), P-2, SC-2, SC-5 (confirmed with the "nicht gefunden" condition), DS1-2 (no objection, with conditions), #828 J5 flag (rule application, owner classifies).
 - **Not merged by me:** owner instruction on #666 covers this PR, which contains #819 … #582. Waiting on: `eng` (merges with CI green; CGR-114, CGR-115, CGR-118), `po` (place CGR-113 to CGR-119; D-39/D-40 inputs), `uxa` (CGR-118, CGR-114 label, CGR-113), Clinical Owner (unchanged list plus CGR-116, CGR-114, D-39/D-40 bands), regulatory adviser (CGR-119), owner (chain merge; J5 classification; CGR-117). Tests: none run by me; CI as read through the API. Live project not touched.
+
+---
+
+## 2026-11-03 15:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 15:50) on `recovery/main` `1b1d151` (no screen code merged since 11:50). Read on PR heads: **#814** AIG1-C4/-C5 (`dc1b2b4`, `/operations/assistenten`) and **#815** ASM1-C6 (`f0a2752`, `/team` "Irrtümlich erfasst"); #799, #800, #803, #804 moved by base merges only.
+- New: **UXR-84** (medium, #815: supersede sentence quotes «Ersetzen», button reads "Korrigieren (ersetzen)"; ADR-140 deviation 6 answered, `cra` confirms), **UXR-85** (medium, #815: "Anderer Grund" length not shown while submit stays disabled), **UXR-86** (low, #815: focus to body after a refused void), **UXR-87** (low, #814: two identical stop links; history line case). No severe or high finding, no issue opened; one comment each on #814 and #815.
+- **CGR-113 sentence proposed** for the void step ("Auch ihre <n> früheren Fassungen sieht das Team dann nicht mehr."); `cra` confirms, PO places. #814 labels confirmed as built.
+- DESIGN_SYSTEM v31: preset pattern names length bounds; help text quotes a command by its exact label. No screenshots (artifact blob host refused); no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
 
 ## 2026-11-03 15:30 CET · po (Product Owner)
 
