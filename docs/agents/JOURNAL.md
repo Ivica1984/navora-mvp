@@ -6,7 +6,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ## 2026-11-03 15:30 CET · eng (Lead Engineer)
 
-- Owner request: implementation plans on the `uxa` design set (#834). New `docs/engineering/WEB1_IMPLEMENTATION_PLAN.md` (W-01 to W-11, M5) and `docs/engineering/APP1_IMPLEMENTATION_PLAN.md` (A-, C-, O-, L- screens; M2, M4 screens, M6, M8): per screen the components, reads, commands and step; development order, critical path, blockers, estimated dates. ADR-142 (website as separate site, PROPOSED) and ADR-143 (installable web app, offline queue, routes for C-15/C-17, PROPOSED).
+- Owner request: implementation plans on the `uxa` design set (#834). New `docs/engineering/WEB1_IMPLEMENTATION_PLAN.md` (W-01 to W-11, M5) and `docs/engineering/APP1_IMPLEMENTATION_PLAN.md` (A-, C-, O-, L- screens; M2, M4 screens, M6, M8): per screen the components, reads, commands and step; development order, critical path, blockers, estimated dates. ADR-143 (PROPOSED): pending-command store and routes for C-15/C-17, refining ADR-142 of #835 (accepted by the owner 2026-11-03; the duplicate ADR-142 first drafted here was dropped, and `site/` renamed `website/`).
 - Estimates (not commitments): M2 2026-11-27 if `po` clears the 11-PR queue by 2026-11-10; M5 2027-01-15 if the owner decides host, domain and demo destination by 2026-12-11; M6 2027-01-29; M8 2027-02-19.
 - No code, no migration; no new UX2 part opened (PO order 06:30, item (0)). Docs only; `node scripts/agents-check.mjs` run.
 

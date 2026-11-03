@@ -2419,8 +2419,15 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 
 **Rollback:** revert the PR; 0104 is forward-only like every migration, a follow-up migration would restore 0103's function bodies and the 0097 `agent_stop_lookback` signature.
 
-### ADR-142 — WEB1: the public website is a separate site and origin (`site/`), statically generated, with one demo endpoint behind a destination adapter
-**Status:** PROPOSED (M1, D-IA-4; `po` accepts; owner decides domain, host and demo destination in M3). **Context:** M5 requires that the website shares no session, cookie, local-storage key or analytics id with the app and that demo requests never reach the care database (`DELIVERY_PROGRAM.md` M5; IA §3.3 on #834). **Decision:** Next.js site under `site/` (own `package.json`, build and CI job); every page statically generated; one `POST /api/demo` with validation, honeypot, rate limit and an adapter for the owner-chosen destination (e-mail or CRM); tokens copied from the app's `globals.css` by a parity script; no Supabase client or key in `site/` (CI check); no analytics or tracking cookie. Full plan: `docs/engineering/WEB1_IMPLEMENTATION_PLAN.md`. **Trade-offs:** a second build in the repository; the rate-limit store depends on the host (UNKNOWN until M3). **Rejected:** public route group inside the app (same origin, shared cookies).
+### ADR-143 — APP1: details under ADR-142 for the installable app: the pending-command store and C-15/C-17 as routes
+**Status:** PROPOSED (`po` accepts). It refines ADR-142 (PR #835, ACCEPTED by the owner 2026-11-03: one installable web app; website separate; demo requests never in the care database) and does not repeat it.
 
-### ADR-143 — APP1: caregiver and operations apps are one installable web app on the UX2 shell; offline commands queue by idempotency key; C-15 and C-17 are routes
-**Status:** PROPOSED (M1; `po` accepts; native app only if M1 finds a requirement the web app cannot meet). **Context:** M6 and M8 (`DELIVERY_PROGRAM.md` §3), design set on #834 (DS1 §3.4-3.5, SC A-06, A-07, C-15, C-16, C-17, IA D-IA-1). **Decision:** web manifest (DS1 §3.4) and the existing `public/sw.js` extended with an app-shell cache (no care data cached); pending commands stored on the device (IndexedDB) by idempotency key, cleared on sign-out, retried on reconnect, never shown as done before the server confirms; C-15 `/field/assistent` and C-17 `/team/tagesplan` as routes (a sheet may render on the same URL). **OPEN before the queue is built:** `lca` on care text stored on the device until sent (SC-2), `cra` on the banner wording; iOS installed-app behaviour is UNKNOWN here and checked against current platform documentation in M1. Full plan: `docs/engineering/APP1_IMPLEMENTATION_PLAN.md`.
+**Context:** M6 and M8 (`DELIVERY_PROGRAM.md` §3); design set merged in #834 (DS1 §3.4-3.5; SC A-06, A-07, C-15, C-16, C-17; IA D-IA-1).
+
+**Decision:**
+1. Pending commands are held on the device in IndexedDB, keyed by their idempotency key, and cleared on sign-out. As ADR-142 states, they are resent with the same key only while the app is in the foreground, and every unsent value is shown. Nothing is shown as done before the server confirms it, and the service-worker cache holds the app shell only, never care data.
+2. C-15 `/field/assistent` and C-17 `/team/tagesplan` are routes, and a sheet may render on the same URL (D-IA-1).
+
+**OPEN before the store is built:** `lca` on care text kept on the device until it is sent (SC-2); `cra` on the banner wording.
+
+Full plan: `docs/engineering/APP1_IMPLEMENTATION_PLAN.md`.

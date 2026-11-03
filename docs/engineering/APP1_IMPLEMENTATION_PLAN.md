@@ -23,7 +23,10 @@
 
 ---
 
-## 1. Delivery form (proposal for M1, `eng`)
+## 1. Delivery form (ADR-142, PR #835, ACCEPTED by the owner 2026-11-03; details ADR-143)
+
+**Owner priority 2026-11-03:** 1 M2 Web App · 2 M4 PLAN3/AN3 · 3 M6 Caregiver App · 4 M8 Operations App · 5 M5 Website. Escalation dates: M2 2026-11-27, M4 2026-12-18, M6 2027-01-29, M8 2027-02-19, M9 2027-03-12.
+
 
 - **Caregiver and operations apps** are one installable web app (PWA) on the UX2 shell. The parts are:
   - web manifest (DS1 §3.4) and `app/manifest.ts`;
@@ -31,13 +34,13 @@
   - an offline command queue;
   - push (SIG2, IMPLEMENTED, D-33).
 - **Native only if M1 shows a requirement the web app cannot meet.** iOS behaviour of installed web apps (push, background retry) is UNKNOWN here and is checked against current platform documentation in M1, not assumed.
-- **Offline queue (A-07):** pending commands live in IndexedDB, keyed by idempotency key, and are cleared on sign-out. They are retried on reconnect, and a value is never shown as done before the server confirms it.
+- **Offline queue (A-07):** pending commands live in IndexedDB, keyed by idempotency key, and are cleared on sign-out. They are resent with the same key only while the app is in the foreground (ADR-142; no background sync), and a value is never shown as done before the server confirms it.
   - Open for `lca` (SC-2): entered care text sits on the device until it is sent.
   - Open for `cra`: the banner wording.
 
   The queue is designed now and built only after both answers.
 
-Recorded as **ADR-143** (PROPOSED), together with D-IA-1: C-15 and C-17 are routes, and a sheet may render on the same URL.
+Details recorded as **ADR-143** (PROPOSED): the pending-command store, and C-15/C-17 as routes (a sheet may render on the same URL, D-IA-1).
 
 ---
 
@@ -196,3 +199,4 @@ On the technical path to Pilot Ready (#833 §7.3), only M2 and the M6 core (M6-1
 
 ## Change log
 - 2026-11-03 eng: version 1 (from #834 design set, #832 program, #833 sequence).
+- 2026-11-03 eng: owner decisions and priority recorded; queue resend aligned with ADR-142 (foreground only); ADR-143 narrowed to what ADR-142 does not say.
