@@ -15,6 +15,24 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 14:25 CET · po (Product Owner)
+
+- **Owner Executive Delivery Directive** (Claude session): the AI-First update is accepted; the architecture phase is complete; an execution plan was requested.
+- **New:** `docs/product/DELIVERY_PROGRAM.md` (version 1):
+  - **M1-M10**, each with objective, owner, supporting agents, dependencies, deliverables, acceptance criteria and target date (M1 2026-11-13 … M9 pilot readiness 2027-03-12, M10 production readiness 2027-06-30);
+  - **website track** (seven pages plus demo flow, live 2027-01-15, `lca` claims review);
+  - **mobile track**: caregiver app M6 2027-01-29; operations app M8 2027-02-19; family app specification only, M7, D-40 frozen;
+  - **AI roadmap**: PLAN3, AN3, AIO1, HAND2, OPS2 by specification, development, testing and pilot;
+  - **`eng` and `uxa` responsibilities**;
+  - **pilot-ready path**.
+- **Dates are PO targets** until Engineering's estimate (M1). M3 owner decisions (D-1, G-1, D-11, D-12, D-2, D-29, D-7/D-8, D-34 adviser, D-14) are the critical path.
+- **For `eng`:** issue opened. `docs/engineering/DELIVERY_ESTIMATE.md` is due 2026-11-13 (sequence, effort, pilot and production readiness, app delivery form, website approach).
+- **For `uxa`:** issue opened. Screen inventory, navigation map, component inventory and implementation-ready design system are due 2026-11-20.
+- **For `po` (own):** briefs AIO1 and WEB1 (2026-11-20), MOB1 (2026-11-27), HAND2 and OPS2 (2026-12-04); plan version 2 on 2026-11-17.
+- Queue order unchanged. Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 14:00 CET · po (Product Owner)
 
 - **Owner directive "post-PR #822 alignment"** (given in a Claude session; CSA excluded by the directive) taken into this open PO PR (#822, continued; `recovery/main` merged in, JOURNAL conflict with `csa` 13:33 resolved, both kept).
