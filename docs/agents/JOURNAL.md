@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 13:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-03 13:30), `recovery/main` @ `adf80a3` (no code merged since 09:30; `uxa` #798 merged). Read on their heads: **#815** ASM1-C6 with C6 (8) (`f0a2752`, 0106, pgTAP 107; CI in progress at reading; test-only fix since `f8a31ef`), **#814** AIG1-C4 + AIG1-C5 (`dc1b2b4`, 0105, pgTAP 106; CI green), **#813** RLS4-C3 (`01dee6c`; CI green), **#800** amendments (`748ef3f`; CI green).
+- **No blocking finding.** Remedies met on PR heads, each closing on merge with CI green on the merge commit: **CGR-103, CGR-104** (#815), **CGR-106, CGR-107** (#814), **CGR-108, CGR-109** (#800), **CGR-111** (#813). P-37 built as decided (preset stored as shown, enforced by a check; `cra` supersede sentence first). ADR-140 deviations 1-6 accepted.
+- **New:** **CGR-113** (advisory S3, before the first real assessment record; does not hold #815): the void of a corrected record also withdraws its earlier versions and the void step does not say so; remedy: one sentence with the count, vitest.
+- Answered `uxa` 11:50: RLS4-C3 (2) `uxa` sentence confirmed (PO chooses); AUT-35 label "Was hast du geprüft?" confirmed (CGR-16 stays open); UXR-83 member-number form preferred.
+- Registers: PS-92, -93, -95, -96, -97, -98, -100 notes (met on heads); PS-102 added; H-05, H-08, H-12, H-20 notes; CR-157 to CR-161 added; CR-146, CR-150 notes.
+- **Not merged by me:** owner instruction on #666 covers this PR, which contains #812 … #582. Waiting on: `eng` (merge #799 … #815 with CI green; CGR-113 with `uxa`), `po` (place CGR-113; CGR-112 into AN3-5; RLS4-C3 (2) and AUT-35 wording), Clinical Owner (unchanged list; void confirmation), legal adviser (D-4 item 7), owner (chain merge; CGR-16 before G-23). Tests: none run by me; CI as read through the API. Live project not touched.
+
+---
+
 ## 2026-11-03 11:50 CET · UX/UI Design Architect (uxa)
 
 - Continued my open PR #798 (CI green on `b6d22ac`, not merged): merged `recovery/main` `547d807` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 07:52. Read from code: #800 amendments (head `748ef3f`: CGR-108, CGR-109, UXR-79) and new #813 (RLS4-C3, head `01dee6c`); #809 only a base merge; #799, #803, #804, #806 unchanged. Screenshot archive still refused (403), so code-only.
