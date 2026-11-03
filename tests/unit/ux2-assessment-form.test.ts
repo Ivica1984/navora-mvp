@@ -81,7 +81,7 @@ describe("UX2-30 (1): one column at phone width (UXR-56)", () => {
     // a row of inputs never has two columns at phone width (the Speichern/Abbrechen row holds buttons only)
     const inputRows = source.match(/<div key=\{c\} className="[^"]*"/g) ?? [];
     expect(inputRows.length).toBe(1);
-    expect(inputRows[0]).toContain("grid-cols-1 sm:grid-cols-2");
+    expect(inputRows[0]).toMatch(/"grid grid-cols-1 [^"]*sm:grid-cols-2"/);
   });
 });
 
