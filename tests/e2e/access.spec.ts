@@ -34,20 +34,20 @@ test("a nurse sees only her own team's visits; a coach sees the organisation (F0
   await expect(page.getByText("Wundversorgung", { exact: true }).first()).toBeVisible();
 });
 
-// RLS4-6 (ADR-122): /visits names the visit's responsible member from responsible_user_id ("Noch offen" without one).
+// RLS4-6 (ADR-122): /visits names the visit's responsible member from responsible_user_id ("noch niemand" without one, UX2-29).
 // Seed: Testteam C's visit today 07:00 (responsible: teamc.test, "Pflegekraft Team C"); Testteam Mitte's completed
 // visit yesterday 14:00 (case 210, "Wundversorgung", nobody responsible), read by the coach.
-test("/visits shows the responsible member's name, or Noch offen (RLS4-6)", async ({ page }) => {
+test("/visits shows the responsible member's name, or noch niemand (RLS4-6, UX2-29)", async ({ page }) => {
   await signIn(page, TEAM_C, /^(?!.*\/login).*$/);
   await page.goto("/visits");
   await expect(
-    page.getByRole("button").filter({ hasText: /07:00(:00)? – 07:30/ }).filter({ hasText: "Pflegekraft: Pflegekraft Team C" }).first()
+    page.getByRole("button").filter({ hasText: /07:00(:00)? – 07:30/ }).filter({ hasText: "Verantwortlich: Pflegekraft Team C" }).first()
   ).toBeVisible();
 
   await page.context().clearCookies();
   await signIn(page, COACH, /\/operations$/);
   await page.goto("/visits");
   await expect(
-    page.getByRole("button").filter({ hasText: /14:00(:00)? – 14:45/ }).filter({ hasText: "Wundversorgung" }).filter({ hasText: "Pflegekraft: Noch offen" }).first()
+    page.getByRole("button").filter({ hasText: /14:00(:00)? – 14:45/ }).filter({ hasText: "Wundversorgung" }).filter({ hasText: "Verantwortlich: noch niemand" }).first()
   ).toBeVisible();
 });

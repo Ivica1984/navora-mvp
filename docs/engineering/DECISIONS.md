@@ -2418,3 +2418,24 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** no local database ran (no Docker daemon in the run's sandbox), so neither the migration nor any pgTAP ran locally. See the PR for what ran in the sandbox. CI decides.
 
 **Rollback:** revert the PR; 0104 is forward-only like every migration, a follow-up migration would restore 0103's function bodies and the 0097 `agent_stop_lookback` signature.
+
+### ADR-132 — UX2-27 / UX2-29: one author line for an observation; "Verantwortlich" and "noch niemand" for the responsible member
+
+**Date:** 2026-11-03 · **Status:** IMPLEMENTED in its own PR (UX2 part 3; CI decides) · **Brief:** `docs/agents/briefs/UX2.md` UX2-27, UX2-29; issue #745. ADR-131 (UX2 part 2, the shell, PR #799) is a separate PR; this part does not depend on it and touches no shell file.
+
+**Context (IMPLEMENTED before this PR):** an observation's author read three ways: report facts "von <Name>" (`report-section.tsx`, OBS1-3), the visit card "<Name>" without "von" (`observationAuthor`), the handover "<Name>", or the member code "Teammitglied <n>" when the author had no display name (`entryAuthorLabel`). The responsible member read "Verantwortlich" / "noch niemand" on `/field` and `/team`, but "Pflegekraft:" / "Noch offen" on `/visits` (list and detail panel, RLS4-6) and "Zuständig" / "Noch offen" on the record page `/visits/[visitId]`.
+
+**Decision:**
+1. **UX2-27:** `observationAuthor` returns "von <Name>" for a named colleague (the card now reads like the report facts); "von dir" and `AUTHOR_WITHOUT_NAME_TEXT` unchanged. `entryAuthorLabel` returns `AUTHOR_WITHOUT_NAME_TEXT` for a colleague's (`member:<n>`) observation without a name; other entry kinds, "Ich", "Automatisch" and "Person ausserhalb des Teams" keep their labels. The handover keeps the name without "von" (its line is "<Autor> · <Zeit>"; the brief asks for the constant only).
+2. **UX2-29:** two constants in `features/visits/types.ts`, `RESPONSIBLE_LABEL` = "Verantwortlich" and `RESPONSIBLE_NOBODY_TEXT` = "noch niemand", used by `getVisitResponsibleLabel`, the `/visits` list line and detail panel, and the record page's `dt`/`dd`. `/field` already used these words (unchanged).
+
+**Tests (written first; CI decides, none ran locally: the npm registry was not reachable from this run's sandbox):** vitest `tests/unit/ux2-wording.test.ts` (new: the two brief tests, kept labels, and a string test over every file under `(protected)/visits` and `(protected)/field` for "Pflegekraft:", `label="Pflegekraft"`, "Noch offen" and `fieldLabel("responsible_user_id")`); changed expectations in `obs1-authorship.test.ts` (2 lines) and `rls4-visits-responsible.test.ts` ("noch niemand"); e2e `obs1.spec.ts` line 38 ("von Neues Teammitglied C") and `access.spec.ts` RLS4-6 ("Verantwortlich: …"). These are text changes the brief requires, not selector changes.
+
+**Deviations / notes for the PO:**
+1. **"Zuständig" stays in the AIG1 proposal and look-back lines** (`fieldLabel` in `features/ai/labels.ts`: "Zuständig: nicht gefunden", "Zuständig: Pflegekraft Bezug E"), wording adopted by the PO from `uxa` (2026-10-31 00:10). It names the proposed field, not who is responsible today, but the record page now shows "Verantwortlich" above "Zuständig: …". OPEN for `uxa`/`po`: one word there too, or keep the field name.
+2. **The unnamed author on the card stays "Teammitglied ohne Namen"** without "von", while the report facts read "von Teammitglied ohne Namen" (stored author, no name). Built as the brief's tests say; OPEN for `uxa` whether the card should add "von" there too.
+3. **Merge order with #799:** both PRs append to `DECISIONS.md`, the UX2 status row and `JOURNAL.md`, and both touch `visits-client.tsx` (#799 removes its `Sidebar` import, this PR adds one import beside it). Whichever merges second needs a docs-only rebase; Engineering does it in the next run.
+
+**Not set by this:** any route, read scope, RLS, server check, signal rule, audit row or text fixed by `cra`/`lca` (UX2-7 negative: no migration). No new name is read: the names come from the existing read paths (OBS1, RLS4-6).
+
+**Rollback:** revert the PR (no migration, no data).

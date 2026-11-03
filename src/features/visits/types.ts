@@ -29,13 +29,17 @@ export type CareVisitRow = Pick<
   | "created_at"
 > & { responsible_name: string | null };
 
+/** UX2-29 (ADR-132): one word per concept for the responsible member on every screen (as `/field` and `/team`). */
+export const RESPONSIBLE_LABEL = "Verantwortlich";
+export const RESPONSIBLE_NOBODY_TEXT = "noch niemand";
+
 /**
  * RLS4-6 (ADR-122): who is responsible for the visit, from `responsible_user_id` (the legacy free-text
- * `team_member_name` is no longer read). "Noch offen" when nobody is responsible; "Teammitglied" when the
+ * `team_member_name` is no longer read). "noch niemand" when nobody is responsible (UX2-29); "Teammitglied" when the
  * responsible member has no display name recorded.
  */
 export function getVisitResponsibleLabel(visit: Pick<CareVisitRow, "responsible_user_id" | "responsible_name">) {
-  if (!visit.responsible_user_id) return "Noch offen";
+  if (!visit.responsible_user_id) return RESPONSIBLE_NOBODY_TEXT;
   const name = visit.responsible_name?.trim();
   return name ? name : "Teammitglied";
 }

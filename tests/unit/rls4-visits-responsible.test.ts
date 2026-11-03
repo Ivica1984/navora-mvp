@@ -10,8 +10,8 @@ describe("getVisitResponsibleLabel (RLS4-6)", () => {
     );
   });
 
-  it('shows "Noch offen" when nobody is responsible', () => {
-    expect(getVisitResponsibleLabel({ responsible_user_id: null, responsible_name: null })).toBe("Noch offen");
+  it('shows "noch niemand" when nobody is responsible (UX2-29)', () => {
+    expect(getVisitResponsibleLabel({ responsible_user_id: null, responsible_name: null })).toBe("noch niemand");
   });
 
   it('shows "Teammitglied" when the responsible member has no display name', () => {
@@ -20,6 +20,6 @@ describe("getVisitResponsibleLabel (RLS4-6)", () => {
   });
 
   it("never shows a name without a responsible member", () => {
-    expect(getVisitResponsibleLabel({ responsible_user_id: null, responsible_name: "Synthetische Pflegende" })).toBe("Noch offen");
+    expect(getVisitResponsibleLabel({ responsible_user_id: null, responsible_name: "Synthetische Pflegende" })).toBe("noch niemand");
   });
 });

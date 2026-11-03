@@ -6,6 +6,7 @@ import { completeVisit, startVisit } from "@/features/visits/commands";
 import Sidebar from "@/components/layout/Sidebar";
 import CommandError from "@/components/feedback/CommandError";
 import {
+  RESPONSIBLE_LABEL,
   getVisitResponsibleLabel,
   getVisitServices,
   getVisitStatusLabel,
@@ -190,7 +191,7 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
                       </strong>
 
                       <p style={{ margin: "8px 0 0", color: SECONDARY_TEXT }}>
-                        Pflegekraft: {getVisitResponsibleLabel(visit)}
+                        {RESPONSIBLE_LABEL}: {getVisitResponsibleLabel(visit)}
                       </p>
 
                       <p style={{ margin: "8px 0 0", color: "#153328" }}>
@@ -271,7 +272,7 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
                 </p>
 
                 <DetailBox
-                  label="Pflegekraft"
+                  label={RESPONSIBLE_LABEL}
                   value={getVisitResponsibleLabel(selectedVisit)}
                 />
 
