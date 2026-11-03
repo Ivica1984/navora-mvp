@@ -2418,3 +2418,29 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** no local database ran (no Docker daemon in the run's sandbox), so neither the migration nor any pgTAP ran locally. See the PR for what ran in the sandbox. CI decides.
 
 **Rollback:** revert the PR; 0104 is forward-only like every migration, a follow-up migration would restore 0103's function bodies and the 0097 `agent_stop_lookback` signature.
+
+### ADR-137 — CGR-110: pgTAP 062 owns the SIG1 evaluation lock of the organisations it asserts on
+
+**Date:** 2026-11-03 · **Status:** IMPLEMENTED in the PR (CI decides) · **Issue:** #399 (`cra` CGR-110, advisory S3; PO *Active now* 2026-11-03 06:30, order (1)) · **Clinical review gate:** in scope (the evidence for the SIG1 fallback route); test-only change, no product behaviour, rule, text or read scope changes. Remediation plan `docs/agents/clinical/remediation/CGR-110.md`. Numbering: this ADR follows ADR-136 (open PR #809).
+
+**Context (IMPLEMENTED facts from the code and the recorded failures):** pgTAP 062 tests 47 and 50 (org B: no team member, no Operations user, the admin `903=operations_fallback`) failed on #395 (19:17 UTC, 25.10) and on #800 (`1640cdc`, 03:11 CET, 03.11) with *have empty* and *have 0*, and passed on re-runs minutes later. The file pins `navora.test_now` (062:11-12) and every function body reads `private.now()` (0067 rewrote every `now()`; pgTAP 068 guards it). `private.evaluate_signals` (0060:247) starts with `pg_try_advisory_xact_lock(hashtext('navora.sig1'), hashtext(org))` and **returns 0 without evaluating** when another session holds it. The local stack runs pg_cron; `navora-sig1-signals` (0060, 0064) calls `private.evaluate_all_signals()` every minute, which loops over every organisation in **one** transaction, so it holds each organisation's lock until the whole run ends. That session cannot see 062's uncommitted visit 5. 062 evaluates org B exactly once (062:194); org A's first evaluation takes org A's lock for the rest of the file (re-entrant), which is why only the org B tests failed.
+
+**Root cause (IDENTIFIED from the code; mechanism reproduced in CI by the check below, CI decides):** not a clock. When 062's single org B evaluation fell inside a scheduler run, it was skipped. Whether it overlaps depends on the second within the minute at which 062 reaches that line, so it looked like a time-of-day effect. This also explains why the ADR-126 probe saw no change in 65 s: under the database-level pin, the scheduler writes `signal_scheduler_runs.ran_at` = the same pinned instant every minute, so its commits leave the values unchanged (the ADR-126 addendum's "pg_cron not running" alternative is therefore not needed; UNKNOWN until (i) below prints the job).
+
+**Decision:**
+1. **062 takes both locks first**, waiting (`pg_advisory_xact_lock`, not the try form), right after its clock pin, and asserts with `pg_locks` that it holds exactly those two (new test 1; plan 54 → 55, old tests 47 and 50 are now 48 and 51). Every evaluation in the file then runs; the scheduler's try-lock skips org A and org B until the rollback. No assertion is changed, skipped, retried or loosened. No deadlock: the scheduler never waits for a lock.
+2. **Two-session evidence** `scripts/db-concurrency/sig1-evaluation-lock.sh` in the CI step *Concurrency checks* (every PR, a few seconds plus a 6 s hold twice): (i) prints the scheduler job and its last five run times, never fails; (ii) a second session holds org B's lock while this session inserts the 062 visit-5 fixture and calls `evaluate_signals(org B, true)`: must return 0 and no delivery (the 062 failure signature); (iii) the same after waiting for the lock: must deliver `903=operations_fallback`. Everything is rolled back; the evaluating session pins 12:00 Zurich as 062.
+
+**Trade-offs:** changing the product to wait instead of skip would make page polls block behind a scheduler run; the skip is correct in production because the next run (about one minute later) evaluates committed data. Pinning the outer instant twice (CGR-110 remedy (2) example) would not have caught this cause; the lock makes the file independent of the scheduler at any hour.
+
+**Deviations / notes for the PO:**
+1. CGR-110 remedy (1) names a clock; the cause found is a concurrent lock, not a clock. No product path bypasses `private.now()` in what 062 reaches.
+2. Remedy (2) (pass at a real 03:00 and 20:00 Zurich): CI cannot be scheduled to those hours from a PR; the decision removes the dependence on when the file runs. Evidence after merge: green `db` runs recorded on #399, as remedy (3) asks.
+3. Same exposure (OPEN, not changed here): any other pgTAP file whose **first** evaluation of an organisation can meet a scheduler run (064, 065, 067, 068, 069, 078, 080, 090, 099 call `evaluate_signals`, mostly for org A). None of their failures is recorded; the same two lines fix them if one appears.
+4. Product note for `cra` (OPEN, 0060 design unchanged): a command that writes and evaluates in one transaction while a scheduler run is in progress also skips; its signal arrives with the next run.
+
+**Not done:** no migration, no product function, no seed change; the live project is not touched (D-1).
+
+**Checked by me (not CI):** `bash -n` on the script only. The local Supabase stack could not be started (container registries refused by the proxy), so neither pgTAP nor the script ran here. CI is the test runner.
+
+**Rollback:** revert the commit (one test file, one script, one CI line, docs).
