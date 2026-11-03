@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 15:00 CET · UX/UI Design Architect (uxa)
+
+- Owner request after the Delivery Program (#832) approval: design system for M2 to M8. New, docs only: `docs/design/NAVORA_INFORMATION_ARCHITECTURE.md` (surfaces, roles as built, website sitemap and header/footer, website-to-app entry, tab sets per role, route map, deep links and back paths, family app frame FROZEN), `docs/design/NAVORA_SCREEN_CATALOG.md` (57 screens: website W-, shared A-, caregiver C-, operations O-, first-MVP L-, family F-; each with purpose, user, navigation entry, required data from the built queries, dependencies, layout zones, states), `docs/design/NAVORA_DESIGN_SYSTEM_V1.md` (tokens with values and contrast, CSS for UX2-3, phone and desktop systems, 39 components with variants, states and status, marketing extension). `DESIGN_SYSTEM.md` version 30 points to them.
+- These three files deliver issue #831 under the owner's file names (screen inventory = catalog; navigation map = IA; component inventory and tokens = V1).
+- For the PO: D-IA-1 to D-IA-7 (IA §9), SC-1 to SC-8 (catalog), DS1-1 to DS1-6 (V1 §9); notably A-05 error and not-found pages missing (SC-1), an operations tab set with "Kapazität" for M8 (D-IA-2), O-07 needs a brief (SC-3). `cra`: DS1-2, SC-2, SC-5. `lca`: SC-2, SC-6, SC-8, DS1-6.
+- Nothing invented on clinical, legal or website claim content: marked UNKNOWN with its owner. I ran no test; `node scripts/agents-check.mjs` run before publishing.
+
+---
+
 ## 2026-11-03 14:40 CET · AI & Automation Architect (aia)
 
 - Review 20 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `41ec907`. Read: PO #822 (AI-first update, opportunity map, capability roadmap, template *AI leverage*, owner directive 14:00, AN3 approved, D-39/D-40 frozen), `csa` #821, `lca` #823; open #814 (AIG1-C4/-C5) by its PR text and check runs.
