@@ -379,6 +379,8 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 
 **Measure before automating (AUT-32, OPEN; `aia` 2026-11-03 02:40):** a bottleneck proposed for elimination or automation has a team-level baseline from timestamps NAVORA already stores before the change reaches the pilot (P-19: report draft → signed, countersign latency, travel share beside WORK1-6, ORD0 task age, request → case ready), per team and month with AN1 suppression, no new tap, never per person. Without it no agent or rule can show its gain, and the governance work an assistant creates (look-back, expiry, confirmations) cannot be weighed against the work it removes.
 
+**Measure acts, not only spans (AUT-33, OPEN; `aia` 2026-11-03 08:20):** AN3 (P-19, draft, PO 2026-11-03 06:30) answers AUT-32 with per-step spans. An elimination removes acts (a countersignature, an order task, a hand-set responsible member, a changed proposal), so the baseline also counts recorded acts per 100 completed visits per team and month, from rows NAVORA already writes; one definition per measure (AUT-34: the countersign span is `countersign_latency_hours`, F6R-9). Minutes per act stay UNKNOWN until observed.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -401,3 +403,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-10-30 20:18 | `aia` | §12: AIG1 part (b) database half state (AIG1-15/-16 IMPLEMENTED, AIG1-C1 PLANNED) and the control "an open count holds only what can still be acted on; a stop exception can reach 0 while the agent stays stopped" (AUT-29). No agent added or removed |
 | 2026-10-31 02:40 | `aia` | §12: AIG1-C1/-C2/-C3 state (IMPLEMENTED, AUT-29 closed); added the control "a stop's follow-up ends with its open lines, not with the agent's state" (AUT-30) and the expired-proposal control (AIG1-C4, AUT-31). No agent added or removed |
 | 2026-11-03 02:40 | `aia` | §12: one-decision-per-name state (IMPLEMENTED, AUT-27 closed), AUT-30 adopted as AIG1-C5; added the control "measure before automating" (AUT-32). No agent added or removed |
+| 2026-11-03 08:20 | `aia` | §12: AUT-32 answered by the AN3 draft; added the control "measure acts, not only spans" (AUT-33) and one definition per measure (AUT-34). No agent added or removed |
