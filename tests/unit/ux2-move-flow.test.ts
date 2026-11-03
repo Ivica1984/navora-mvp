@@ -80,6 +80,8 @@ describe("UX2-19: the flags list is text-sm and carries its id", () => {
     expect(notice).toMatch(/data-testid="moved-flags"[^>]*text-sm/);
     expect(notice).not.toMatch(/data-testid="moved-flags"[^>]*text-xs/);
     expect(notice).toMatch(/PLAN_FLAG_LABEL\[f\]/);
+    // A name on the referenced list would replace the flags in the card's description (CI run 41572248453).
+    expect(notice).not.toMatch(/<ul[^>]*aria-label[^>]*data-testid="moved-flags"|data-testid="moved-flags"[^>]*aria-label/);
   });
 
   it("the moved card's description comes from movedCardDescribedBy", () => {

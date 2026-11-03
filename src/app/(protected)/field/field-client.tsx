@@ -1227,8 +1227,10 @@ function MovedNoticeBlock({ moved, overlapText }: { moved: MovedNotice; overlapT
         </p>
       )}
       {moved.flags.length > 0 && (
-        // UX2-19 (UXR-37): the moved card's accessible description names this list too (movedCardDescribedBy).
-        <ul id={MOVED_FLAGS_LIST_ID} aria-label="Hinweise" data-testid="moved-flags" className="grid gap-0.5 text-sm font-semibold text-amber-800">
+        // UX2-19 (UXR-37): the moved card's accessible description names this list too (movedCardDescribedBy). No
+        // `aria-label` here: a referenced element's name replaces its content in the description ("Hinweise" instead
+        // of the flags; ADR-134 note 5).
+        <ul id={MOVED_FLAGS_LIST_ID} data-testid="moved-flags" className="grid gap-0.5 text-sm font-semibold text-amber-800">
           {moved.flags.map((f) => (
             <li key={f}>⚠ {PLAN_FLAG_LABEL[f] ?? f}</li>
           ))}

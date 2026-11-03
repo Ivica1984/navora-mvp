@@ -34,6 +34,25 @@ async function signIn(page: Page, email: string) {
   await page.waitForURL((url) => !url.pathname.startsWith("/login"));
 }
 
+/**
+ * Removes this spec's visit wherever it is (planned day or today) through the existing J3 route. Runs in `finally`, so
+ * a failed assertion never leaves an uncovered visit on today's /team list for the later specs (CI run 41572248453:
+ * the leftover pushed vis1/vis2 slots out of "Geplante Einsätze").
+ */
+async function removeVisit(page: Page, slots: string[]) {
+  await page.goto("/team");
+  const upcoming = page.getByRole("article", { name: /Fall Testfall 08/ }).getByRole("list", { name: "Geplante Einsätze" });
+  for (const slot of slots) {
+    const item = upcoming.getByRole("listitem").filter({ hasText: slot });
+    if ((await item.count()) === 0) continue;
+    await item.first().getByRole("button", { name: "Entfernen" }).click();
+    const remove = item.first().getByRole("form", { name: "Einsatz entfernen" });
+    await remove.getByLabel("Grund").fill("Synthetisch: Testeinsatz entfernt");
+    await remove.getByRole("button", { name: "Entfernen" }).click();
+    await expect(upcoming.getByRole("listitem").filter({ hasText: slot })).toHaveCount(0);
+  }
+}
+
 test.describe("UX2 move flow at 390 × 844", () => {
   test.use({ viewport: PHONE });
 
@@ -62,76 +81,72 @@ test.describe("UX2 move flow at 390 × 844", () => {
     await planForm.getByRole("button", { name: "Einsatz speichern" }).click();
     await expect(caseCard.getByRole("list", { name: "Geplante Einsätze" })).toContainText("20:05–20:18");
 
-    // UX2-18: the VIS1-8 answer is held back for a moment, so the form is measured before and after it arrives.
-    let release!: () => void;
-    const held = new Promise<void>((resolve) => { release = resolve; });
-    await page.route("**/field**", async (route) => {
-      if (route.request().method() === "POST" && route.request().headers()["next-action"]) await held;
-      await route.continue();
-    });
-    await page.goto(`/field?datum=${day}`);
-    const card = page.getByRole("article", { name: /20:05 – 20:18, Testfall 08/ });
-    await card.getByRole("button", { name: "Heute machen" }).click();
-    const move = card.getByRole("form", { name: "Einsatz auf heute verschieben" });
-    const von = move.getByLabel("Von");
-    await expect(von).toBeFocused();
-    await expect(move.getByTestId("move-leaves-slot")).toBeVisible();
-    await expect(move.getByTestId("move-leaves-note")).toHaveCount(0);
-    const before = await von.boundingBox();
-    release();
-    await expect(move.getByTestId("move-leaves-note")).toHaveText(moveLeavesNote(day, false)!);
-    const after = await von.boundingBox();
-    expect(before).not.toBeNull();
-    expect(after).toEqual(before);
-    await expect(von).toBeFocused();
-    await page.unroute("**/field**");
-    await move.getByLabel("Von").fill("20:05");
-    await move.getByLabel("Bis").fill("20:18");
-    await move.getByLabel("Grund der Verschiebung").fill("Synthetisch: Seite seit gestern offen");
+    try {
+      // UX2-18: the VIS1-8 answer is held back for a moment, so the form is measured before and after it arrives.
+      let release!: () => void;
+      const held = new Promise<void>((resolve) => { release = resolve; });
+      await page.route("**/field**", async (route) => {
+        if (route.request().method() === "POST" && route.request().headers()["next-action"]) await held;
+        await route.continue();
+      });
+      await page.goto(`/field?datum=${day}`);
+      const card = page.getByRole("article", { name: /20:05 – 20:18, Testfall 08/ });
+      await card.getByRole("button", { name: "Heute machen" }).click();
+      const move = card.getByRole("form", { name: "Einsatz auf heute verschieben" });
+      const von = move.getByLabel("Von");
+      await expect(von).toBeFocused();
+      await expect(move.getByTestId("move-leaves-slot")).toBeVisible();
+      await expect(move.getByTestId("move-leaves-note")).toHaveCount(0);
+      const before = await von.boundingBox();
+      release();
+      await expect(move.getByTestId("move-leaves-note")).toHaveText(moveLeavesNote(day, false)!);
+      const after = await von.boundingBox();
+      expect(before).not.toBeNull();
+      expect(after).toEqual(before);
+      await expect(von).toBeFocused();
+      await page.unroute("**/field**");
+      await move.getByLabel("Von").fill("20:05");
+      await move.getByLabel("Bis").fill("20:18");
+      await move.getByLabel("Grund der Verschiebung").fill("Synthetisch: Seite seit gestern offen");
 
-    // UX2-19: a second tab moves the same visit to today, nobody responsible: "uncovered" is returned and the moved
-    // card, which receives focus, is described by the flags list.
-    const other = await page.context().newPage();
-    await other.goto(`/field?datum=${day}`);
-    const otherCard = other.getByRole("article", { name: /20:05 – 20:18, Testfall 08/ });
-    await otherCard.getByRole("button", { name: "Heute machen" }).click();
-    const otherMove = otherCard.getByRole("form", { name: "Einsatz auf heute verschieben" });
-    await otherMove.getByLabel("Von").fill(start);
-    await otherMove.getByLabel("Bis").fill(end);
-    await otherMove.getByLabel("Grund der Verschiebung").fill("Synthetisch: heute statt später");
-    await otherMove.getByRole("button", { name: "Auf heute verschieben" }).click();
-    await expect(other.getByTestId("moved-to-today")).toHaveText(MOVED_TO_TODAY_STATUS);
-    const flags = other.getByTestId("moved-flags");
-    await expect(flags).toContainText(PLAN_FLAG_LABEL.uncovered);
-    await expect(flags).toHaveClass(/text-sm/);
-    const movedCard = other.getByRole("article", { name: new RegExp(`${start} – ${end}, Testfall 08`) });
-    await expect(movedCard).toBeFocused();
-    await expect(movedCard).toHaveAccessibleDescription(new RegExp(PLAN_FLAG_LABEL.uncovered.replace(/[()]/g, "\\$&")));
-    expect(await other.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(PHONE.width);
-    await other.close();
+      // UX2-19: a second tab moves the same visit to today, nobody responsible: "uncovered" is returned and the moved
+      // card, which receives focus, is described by the flags list.
+      const other = await page.context().newPage();
+      await other.goto(`/field?datum=${day}`);
+      const otherCard = other.getByRole("article", { name: /20:05 – 20:18, Testfall 08/ });
+      await otherCard.getByRole("button", { name: "Heute machen" }).click();
+      const otherMove = otherCard.getByRole("form", { name: "Einsatz auf heute verschieben" });
+      await otherMove.getByLabel("Von").fill(start);
+      await otherMove.getByLabel("Bis").fill(end);
+      await otherMove.getByLabel("Grund der Verschiebung").fill("Synthetisch: heute statt später");
+      await otherMove.getByRole("button", { name: "Auf heute verschieben" }).click();
+      await expect(other.getByTestId("moved-to-today")).toHaveText(MOVED_TO_TODAY_STATUS);
+      const flags = other.getByTestId("moved-flags");
+      await expect(flags).toContainText(PLAN_FLAG_LABEL.uncovered);
+      await expect(flags).toHaveClass(/text-sm/);
+      const movedCard = other.getByRole("article", { name: new RegExp(`${start} – ${end}, Testfall 08`) });
+      await expect(movedCard).toBeFocused();
+      await expect(movedCard).toHaveAccessibleDescription(new RegExp(PLAN_FLAG_LABEL.uncovered.replace(/[()]/g, "\\$&")));
+      expect(await other.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(PHONE.width);
+      await other.close();
 
-    // UX2-20 / UX2-21: the first tab still shows the form from before; it was rendered "yesterday". The database's day
-    // decides (`day_changed`); the visit is no longer after today, so the fallback panel replaces the form.
-    const shown = move.locator('input[name="shown"]');
-    await shown.evaluate((el, d) => { (el as HTMLInputElement).value = d; }, yesterday);
-    await move.getByRole("button", { name: "Auf heute verschieben" }).click();
-    const sentence = card.getByTestId("move-day-changed");
-    await expect(sentence).toHaveText(DAY_CHANGED_RELOAD);
-    await expect(sentence).toBeFocused();
-    await expect(sentence).not.toHaveAttribute("role", /.*/);
-    await expect(sentence).not.toHaveAttribute("aria-live", /.*/);
-    await expect(card.getByRole("link", { name: MOVE_TODAY_LINK_LABEL, exact: true })).toBeVisible();
-    expect(DAY_CHANGED_RELOAD).toContain(MOVE_TODAY_LINK_LABEL);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(PHONE.width);
-
-    // Clean up: an uncovered visit today would reach later specs as a signal; the team removes it (existing J3 route).
-    await page.goto("/team");
-    const upcoming = page.getByRole("article", { name: /Fall Testfall 08/ }).getByRole("list", { name: "Geplante Einsätze" });
-    const item = upcoming.getByRole("listitem").filter({ hasText: `${start}–${end}` });
-    await item.getByRole("button", { name: "Entfernen" }).click();
-    const remove = item.getByRole("form", { name: "Einsatz entfernen" });
-    await remove.getByLabel("Grund").fill("Synthetisch: Testeinsatz entfernt");
-    await remove.getByRole("button", { name: "Entfernen" }).click();
-    await expect(upcoming.getByRole("listitem").filter({ hasText: `${start}–${end}` })).toHaveCount(0);
+      // UX2-20 / UX2-21: the first tab still shows the form from before; it was rendered "yesterday". The database's day
+      // decides (`day_changed`); the visit is no longer after today, so the fallback panel replaces the form.
+      const shown = move.locator('input[name="shown"]');
+      await shown.evaluate((el, d) => { (el as HTMLInputElement).value = d; }, yesterday);
+      await move.getByRole("button", { name: "Auf heute verschieben" }).click();
+      const sentence = card.getByTestId("move-day-changed");
+      await expect(sentence).toHaveText(DAY_CHANGED_RELOAD);
+      await expect(sentence).toBeFocused();
+      await expect(sentence).not.toHaveAttribute("role", /.*/);
+      await expect(sentence).not.toHaveAttribute("aria-live", /.*/);
+      await expect(card.getByRole("link", { name: MOVE_TODAY_LINK_LABEL, exact: true })).toBeVisible();
+      expect(DAY_CHANGED_RELOAD).toContain(MOVE_TODAY_LINK_LABEL);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(PHONE.width);
+    } finally {
+      // Clean up: an uncovered visit today would reach later specs as a signal; removed whatever happened above.
+      await page.unroute("**/field**").catch(() => {});
+      await removeVisit(page, [`${start}–${end}`, "20:05–20:18"]);
+    }
   });
 });
