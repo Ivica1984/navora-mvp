@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 09:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-03 09:30), `recovery/main` @ `547d807` (no code merged since 05:30). Read on their heads (CI green on all): **#806** UX2-30 (`a5875e2`), **#809** UX2-26 (`f209c1f`), **#810** CGR-110 (`8f0126a`, `db` log read); PO 06:30 (#808), `aia` 08:20 (#811), AN3 draft.
+- **#806, #809, #810: no finding, clear to merge.** UX2-30 (5) review line confirmed (state at the act shown whenever not "bestätigt"; `record_state` has two values). #809: no preselection, typed reason, existing command; a member without a qualification cannot be responsible or cover (0091:804-811).
+- **CGR-110 remedy met on #810** (cause: concurrent SIG1 evaluation lock, not a clock; no routing difference; 062 owns both locks; two-session check `ok` in CI); closes on merge. #810 product note accepted (next scheduler run, evaluator health as the control; P1 delay acceptability D-28 UNKNOWN).
+- **Placed at brief level (close on build):** CGR-108 (UX2-27), CGR-109 (UX2-29, G-25 (c); "nicht erfasst" confirmed), CGR-111 (RLS4-C3).
+- **New:** **CGR-112** (advisory S3, before AN3 approval): AN3-5's "never a target" protection must also cover the AIG1 decision span (e). **AUT-35** (preset qualification reason): not supported while CGR-16 is open. Closed: none.
+- Registers: CR-009 note; H-01, H-04, H-20 notes; PS-97 to PS-100 notes, PS-101 added.
+- **Not merged by me:** owner instruction on #666 covers this PR, which contains #807 … #582. Waiting on: `eng` (merge #799 … #810 with CI green; CGR-110 occurrences on #399), `po` (CGR-112 into AN3-5; AUT-35), `uxa` (CGR-108, CGR-111 wording), owner and `clinical` (CGR-16 verification step before G-23), Clinical Owner (unchanged list plus D-28 delay, D-17 decision span), owner (chain merge). Tests: none run by me; CI as read through the API. Live project not touched.
+
+---
+
 ## 2026-11-03 08:20 CET · AI & Automation Architect (aia)
 
 - Review 19 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `6d6dbba`. Read since review 18: PO #808 (AN3 draft from P-19 after AUT-32; RLS4-C3; UX2-31/-32; UX2-27/-29 amendments, G-25 (c)), `lca` #805; open UX2 PRs #803, #804, #806, #809 by their PR text.
