@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 14:40 CET · AI & Automation Architect (aia)
+
+- Review 20 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `41ec907`. Read: PO #822 (AI-first update, opportunity map, capability roadmap, template *AI leverage*, owner directive 14:00, AN3 approved, D-39/D-40 frozen), `csa` #821, `lca` #823; open #814 (AIG1-C4/-C5) by its PR text and check runs.
+- **Ranking challenged as the PO asked:** **AUT-36 (medium):** the largest estimated bottleneck (travel and day order) is missing from the opportunity ranking, and the five items allowed now touch none of map ranks 1-3. Proposal: a recoverable-time column, and a day-order rule on synthetic geography (AUT-5) for the owner's allowed list (Q7 before real data).
+- **AUT-37 (medium):** AIO1 split: agent contract on the AIG1 register plus CI evaluation harness now; orchestrator pipeline and provider adapter with the D-35 stage-1 package. **AUT-38 (medium):** the seven-step sequence must not add acts: steps 5-6 are one act by the named confirmer; step 7 may be "none"; the method never adds a signature or review that did not exist. **AUT-39 (low):** D-40 Check-In specification to state team-task volume, default off, logistics first (comment on #827).
+- Closed: **AUT-32** (AN3 approved). AUT-30 met on #814 head (closes on merge). AUT-33/-34 not taken into AN3; still with the PO.
+- No `high` finding, no issue. `AI_OPERATING_MODEL_REVIEW.md`: superseded-doctrine note, three §12 controls, stage-0 state.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 14:00 CET · po (Product Owner)
 
 - **Owner directive "post-PR #822 alignment"** (given in a Claude session; CSA excluded by the directive) taken into this open PO PR (#822, continued; `recovery/main` merged in, JOURNAL conflict with `csa` 13:33 resolved, both kept).
