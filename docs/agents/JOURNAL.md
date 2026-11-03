@@ -12,12 +12,56 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - OPEN for `po`: whether J5's rule-derived billable fact counts as an "automatic billing decision" (ADR-141 flag); whether a runtime guard on `billable_facts`/`safety_signals` is wanted. D-39/D-40 untouched (frozen, on #822).
 - Migration numbers in flight: 0105 (#814), 0106 (#815), 0107 (this PR). ADR-131 to ADR-141 are on open PRs.
 
+## 2026-11-03 14:00 CET · po (Product Owner)
+
+- **Owner directive "post-PR #822 alignment"** (given in a Claude session; CSA excluded by the directive) taken into this open PO PR (#822, continued; `recovery/main` merged in, JOURNAL conflict with `csa` 13:33 resolved, both kept).
+- **Human-in-the-loop mandatory:**
+  - sequence Remove → Rules → Monitor → AI prepares → Human reviews → Human decides → Human signs;
+  - AI may prepare, summarise, prioritise, draft, monitor, suggest;
+  - never accountable decisions, signatures, required approvals or clinical judgement;
+  - violating proposals are rejected.
+
+  Written into `AI_FIRST_ARCHITECTURE_UPDATE.md` §0 and §3, `ARCHITECTURE.md`, `CARE_OPERATING_MODEL.md`, `PRODUCT_REQUIREMENTS.md`, `NEXT_CAPABILITY.md` and the brief template (*AI leverage*, seven steps).
+- **D-39 (sensors, #817) and D-40 (Family Layer, Check-In) opened** as packages (`inputs-requested`; E specification impact only, C, L) and **frozen by the owner**: specification only; no implementation, table, migration or production architecture. Provisional default A in both.
+- **Allowed on synthetic data only:** PLAN3, AN3, AIO1, OPS2, HAND2. **AN3 approved** (Next up 3; `lca` D-23 (b) read before real data). AIO1, OPS2, HAND2 briefs: po, next cycles. DOC2 not allowed yet.
+- **For `eng`:** issue opened. Enforce the five prohibitions in code and architecture, flag violations, no work on D-39/D-40. PR #822 is merged by po when CI is green.
+- **For `cra`:** review duty in update §6.2 item 8. Record clinical decision-support risk as a CGR finding. Clinical input requested on D-39, D-40 and D-34.
+- **For `lca`:** D-34 has priority. A detailed AI assessment is requested in the package (EU AI Act, Swiss law, device risk, cross-border processing, provider contract). Decision support only; no determination without the owner. Inputs requested on D-39 and D-40.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 13:45 CET · po (Product Owner)
+
+- **Owner directive "Strategic Architecture Directive: NAVORA is AI-first"** (given in a Claude session 2026-11-03) carried into the handbook. Not a feature request; no build approved by it.
+- **New:** `docs/product/AI_FIRST_ARCHITECTURE_UPDATE.md` contains:
+  - the six-step design method (remove, rule, monitor, prepare with AI, communicate, keep human), replacing "graph-first, agents at the edges";
+  - principles AI-1 to AI-12;
+  - the AI layer architecture and the agent contract;
+  - ten AI domains with level, confirmer and gate;
+  - guidance for `eng`, `cra`, `lca`.
+- **New:** `AI_OPPORTUNITY_MAP.md` (22 human assumptions inventoried; 12 workflows current and future state; ranking) and `AI_CAPABILITY_ROADMAP.md` (stages 0-3, proposed briefs AIO1, OPS2, HAND2, DOC2, owner asks).
+- **Updated:**
+  - `ARCHITECTURE.md`: *KI-Säule*, *AI Layer* context, orchestrator, target structure; a note that a full status revision of the handbook is OPEN;
+  - `CARE_OPERATING_MODEL.md`: *AI-first operating model* supersedes the 2026-10-26 section; P-9 kept;
+  - `PRODUCT_REQUIREMENTS.md` (KI as a core requirement);
+  - `ROADMAP.md` (KI-Schicht track);
+  - `NEXT_CAPABILITY.md`: rule *AI-first review*;
+  - brief template: section *AI leverage*.
+- **Unchanged:** D-35 rule A, D-34 A plus C, owner rule 2026-10-29 (D-1), G-1, P-1; queue order. Proposed packages **D-39** (sensors, #817) and **D-40** (client- and relative-facing AI) are not opened yet: the PO opens them with `lca`/`cra` inputs.
+- **For `eng`:** read the update §6.1 before the PLAN3 ADR. **For `cra`:** §6.2 review checklist. **For `lca`:** §6.3 capability list. **For `aia`:** the opportunity map ranking replaces nothing in your bottleneck map; please challenge it at the next review.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 13:33 CET · Chief Strategy Architect (csa)
 
 - Weekly review: new section in `docs/product/STRATEGIC_ALIGNMENT_REVIEW.md` (STR-20 to STR-25) on the owner directions of 2026-11-03 (#816 Basel, #817 IoT/AI spec, #818 all-in-one with nursing homes), D-36/D-37 and D-38; `STRATEGY.md` §4 update, BM-8/BM-9, §6 questions 8-11, benchmark Spitex Zürich Limmat (2018).
 - Verdicts: STR-20 Basel medium (start in one canton; Zurich durations now UNKNOWN for BS/BL); STR-21 all-in-one now **high** (no patient-care benefit shown; build only with a self-organised design-partner ward after G-1, D-36); STR-22 IoT/AI spec medium (spec without migration until D-34/D-35); STR-23 "fully automated" target **high** (human confirmation and signed report are safety and legal controls; proposed target "automated preparation, one human confirmation"); STR-24 interRAI licence: three uses to name; STR-25 D-38 unchanged, T-terms with Zurich-only evidence to be marked by `lca`.
 - Not done, by role rule: contacting a Basel partner or interRAI (owner only). Written instead: an advisory weekly strategic alignment check for `po` (10 questions). Issue #820 to `po` with a combined owner ask proposal; one comment each on #817 and #818.
 - No code, package, queue or status touched. Ran `node scripts/agents-check.mjs` before publishing; no other test run.
+
+---
 
 ## 2026-11-03 11:50 CET · UX/UI Design Architect (uxa)
 
