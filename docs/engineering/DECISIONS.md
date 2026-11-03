@@ -2418,3 +2418,25 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** no local database ran (no Docker daemon in the run's sandbox), so neither the migration nor any pgTAP ran locally. See the PR for what ran in the sandbox. CI decides.
 
 **Rollback:** revert the PR; 0104 is forward-only like every migration, a follow-up migration would restore 0103's function bodies and the 0097 `agent_stop_lookback` signature.
+
+### ADR-133 — UX2-15 / UX2-16 / UX2-25: the reach gap outside the fold, the alert frame follows what it shows, a readable case reference with one way to act
+
+**Date:** 2026-11-03 · **Status:** IMPLEMENTED in its own PR (UX2 part 4; CI decides) · **Brief:** `docs/agents/briefs/UX2.md` UX2-15, UX2-16, UX2-25; issue #745. ADR-131 (#799, shell) and ADR-132 (#800, UX2-27/-29) are separate open PRs; this part does not depend on them and touches no shell or `/visits` file.
+
+**Context (IMPLEMENTED before this PR):** on `/team`, (a) the "Signale ausserhalb der App" block was one `details`; the reach-gap sentence and the "Meine Einstellungen" link (UX1-24, `cra` C-3) were inside it, so folding the `summary` hid them, and the `summary` had no minimum height; (b) the "Einsätze mit Handlungsbedarf" frame was always red (`border-rose-300 bg-rose-50`), also when the list held only pointer lines to a red signal card above (UX1-22) or only P2 entries; (c) the case card's "Fall-Ref." line was `text-xs` (12 px), and each "Offene Verantwortung nach Austritt" item had a manual line "In der Fallkarte unter «Kontinuität» neu bestimmen." beside the "Fall öffnen" link.
+
+**Decision:**
+1. **UX2-15** (`cra` 2026-10-28 17:30 answer 2): the block is a `section` (same `data-testid="push-team-status"`, `aria-label`, `data-reach` and amber/neutral classes). The gap sentence with the link is its first child, outside the `details`; the `details` (`push-team-details`, open while there is a gap, as before) holds the `summary` (now `flex min-h-11 items-center`, ≥ 44 px), the status note and the member lists (`push-team-members`). Wording unchanged (`REACH_GAP_TEXT`, `cra` C-3). The sentence stays in the team status block, before any member list, amber.
+2. **UX2-16** (`cra` 17:30 answer 3): `visitAlertFrame(alerts, openSignals)` in `features/team/rules.ts` returns `red` when at least one P1 entry is shown in full (i.e. `alertRepeatsSignal` is false for it), `amber` while the list has any other entry (pointer lines, P2, unknown priority), `null` for an empty list (section not rendered, as before). `VISIT_ALERT_FRAME_CLASS`: red keeps `border-rose-300 bg-rose-50`; amber is `border-amber-500 bg-amber-50`. Heading and small text follow the frame (rose-950 / rose-900/80 on red, amber-950 / amber-900 on amber). Heading text, list order and entries unchanged. P1/P2 stay PROVISIONAL (D-28).
+3. **UX2-25** (`cra` 2026-10-29 13:40 confirmed, po 14:35): the case card's `case-ref` line is `text-sm` (14 px). The manual line is dropped: the item's title ("Bezugspflege neu bestimmen" / "Stellvertretung neu bestimmen") names the action and "Fall öffnen" opens the case, so the item has exactly one way to act.
+
+**Tests (written first; CI decides, none ran locally: the npm registry was not reachable from this run's sandbox):** vitest `tests/unit/ux2-team.test.ts` (new: frame per mix: P1 in full → red; only pointers → amber; only P2 → amber; empty → null; mixed cases; class tokens). Playwright `ux1-team.spec.ts`: new test "UX2-15" (fold and unfold the `summary`, `push-team-gap` and the link stay visible, `summary` height ≥ 44, gap precedes the first `push-team-members` in document order, amber classes); **changed assertion** in "UX1-24": `open` is now asserted on `push-team-details` instead of on the block (the block is no longer the `details`). `contract-end.spec.ts`: `case-ref` computed font size ≥ 14 px on every card; the successor item no longer contains the manual line and has exactly one control (the link).
+
+**Deviations / notes for the PO:**
+1. **Amber frame shade:** the brief names "amber" without a token; `border-amber-500 bg-amber-50` (the "Offene Verantwortung nach Austritt" block's shade) was chosen. The UX2-3 token set is PLANNED; when it lands this maps to its attention token. OPEN for `uxa` if a different shade is wanted.
+2. **Rose text inside an amber frame:** with an amber frame no P1 entry is shown in full, so no rose priority label appears; a P2 entry shown in full that carries a CGR-32 flag keeps its flag line in `text-rose-900` (unchanged, not named by the brief). OPEN for `uxa` whether that line should follow the frame.
+3. **Merge order with #799 and #800:** all three append to `DECISIONS.md`, the UX2 status row and `JOURNAL.md`; #799 also edits `team-client.tsx` (removes the page's own navigation, 3 lines at the top), this PR edits other parts of it. Whichever merges later needs a docs-only rebase; Engineering does it in its next run.
+
+**Not set by this:** any route, read scope, RLS, server check, signal rule, threshold, audit row or text fixed by `cra`/`lca` (UX2-7 negative: no migration).
+
+**Rollback:** revert the PR (no migration, no data).
