@@ -230,13 +230,13 @@ export function countOpenReports(rows: { kind: string }[]): OpenReportCounts {
 }
 
 /**
- * RLS4-C3 (po 2026-11-03 06:30; `cra` CGR-111, `uxa` UXR-73; wording `uxa` 2026-11-03 07:52; ADR-138). The access-end
- * step's failure line, its one action, and the result-line sentence when her open-report count could not be read.
+ * RLS4-C3 (po 2026-11-03 06:30; `cra` CGR-111, `uxa` UXR-73; ADR-138). The access-end step's failure line, its one
+ * action, and the result-line sentence when her open-report count could not be read. The sentence is the PO's interim
+ * text, confirmed by `cra` 2026-11-03 09:30; `uxa`'s 07:52 proposal replaces it once the PO agrees (ADR-138 dev. 1).
  */
 export const OPEN_REPORTS_UNREAD_MESSAGE = "Offene Berichte konnten nicht geladen werden.";
 export const OPEN_REPORTS_RETRY_LABEL = "Erneut laden";
-export const OPEN_REPORTS_UNKNOWN_SENTENCE =
-  "Offene Berichte: nicht bekannt, die Liste liess sich nicht laden. Falls es welche gibt, sieht das Team sie mit «Zugang beendet».";
+export const OPEN_REPORTS_UNKNOWN_SENTENCE = "Offene Berichte unbekannt: das Team sieht sie mit «Zugang beendet».";
 
 /** "2 nicht unterschrieben · 1 zurückgegeben, offen", or the empty text. */
 export function openReportsText(counts: OpenReportCounts | null): string {

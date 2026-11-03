@@ -8,7 +8,7 @@ import {
 } from "@/features/admin/rules";
 
 /**
- * RLS4-C3 (po 2026-11-03 06:30, `cra` CGR-111, `uxa` UXR-73 and 07:52 wording; ADR-138): when the administrator's
+ * RLS4-C3 (po 2026-11-03 06:30, `cra` CGR-111, `uxa` UXR-73; interim wording confirmed by `cra` 09:30; ADR-138): when the administrator's
  * pre-read of a leaver's open reports fails, the access-end step names one next step ("Erneut laden", which reads the
  * list again for that one member), ending access stays possible without the list, and the result line after the end
  * never claims "Keine offenen Berichte" when the count is missing. Synthetic rows only.
@@ -93,7 +93,7 @@ describe("RLS4-C3 (2): the result line never says 'Keine offenen Berichte' on a 
     expect(line).not.toContain("Keine offenen Berichte");
     expect(line).toBe(`Zugang beendet. ${OPEN_REPORTS_UNKNOWN_SENTENCE}`);
     expect(OPEN_REPORTS_UNKNOWN_SENTENCE)
-      .toBe("Offene Berichte: nicht bekannt, die Liste liess sich nicht laden. Falls es welche gibt, sieht das Team sie mit «Zugang beendet».");
+      .toBe("Offene Berichte unbekannt: das Team sieht sie mit «Zugang beendet».");
   });
 
   it("released visits, taken signals and unexported days keep their sentences around the unknown count", () => {
