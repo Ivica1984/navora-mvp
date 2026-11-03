@@ -20,8 +20,8 @@
 | 2. Effort estimate | M2-M8: `IMPLEMENTATION_SEQUENCE.md` §8 (PR #833). M9-M10 items: §4 below | IN REVIEW (#833) / this PR |
 | 3. Pilot readiness estimate | §2 | this PR |
 | 4. Production readiness estimate | §3 | this PR |
-| 5. App delivery form | §5 and ADR-142 | this PR (PROPOSED) |
-| 6. Website approach | §6 and ADR-142 | this PR (PROPOSED) |
+| 5. App delivery form | §5 and ADR-142 | ACCEPTED by the owner 2026-11-03 |
+| 6. Website approach | §6 and ADR-142 | ACCEPTED by the owner 2026-11-03 |
 
 ---
 
@@ -129,7 +129,7 @@ Together with M2-M8 (`IMPLEMENTATION_SEQUENCE.md` §8: 85-131 pd without T12) th
 
 ---
 
-## 5. Delivery form of the apps (ADR-142, PROPOSED)
+## 5. Delivery form of the apps (ADR-142, ACCEPTED by the owner 2026-11-03)
 
 | App | Form | Reason | Label |
 |---|---|---|---|
@@ -143,7 +143,7 @@ Together with M2-M8 (`IMPLEMENTATION_SEQUENCE.md` §8: 85-131 pd without T12) th
 
 ---
 
-## 6. Website approach (ADR-142, PROPOSED)
+## 6. Website approach (ADR-142, ACCEPTED by the owner 2026-11-03)
 
 | Question | Proposal | Label |
 |---|---|---|
@@ -177,5 +177,15 @@ Together with M2-M8 (`IMPLEMENTATION_SEQUENCE.md` §8: 85-131 pd without T12) th
 4. **owner:** RTO, RPO and the SLA values (R-3, R-5); the security tester (R-4); on-call staffing (R-2).
 5. **`po`/owner:** website in `website/` of this repository, or a separate repository (ADR-142).
 
+
+## Owner response 2026-11-03 (Engineering Directive Response, in a Claude session)
+
+- **Accepted as the engineering baseline:** this estimate, `IMPLEMENTATION_SEQUENCE.md` (#833) and ADR-142 (decisions 1-3 above). Branding validation is not a blocker; the project name and references stay.
+- **Implementation priority (owner):** 1 M2 Web App · 2 M4 PLAN3/AN3 · 3 M6 Caregiver App · 4 M8 Operations App · 5 M5 Website. When work competes, the website yields. Focus: the shortest path to M9.
+- **Escalation dates (owner):** M2 2026-11-27, M4 2026-12-18, M6 2027-01-29, M8 2027-02-19, M9 2027-03-12. Anything that threatens one of them is escalated at once (notification to the owner, journal, `IMPLEMENTATION_STATUS.md`).
+- **D-2 planning baseline (owner, for planning only; D-2 stays `awaiting-approval: owner`):** GitHub; Supabase; website on Vercel; 99.9 % availability; PITR required; health and care data in Switzerland or the EU; website and care platform separated. Engineering reading and the open points: `D2_PRODUCTION_HOSTING_ASSESSMENT.md` (#838) *Owner planning baseline*.
+- **Weekly reporting:** `docs/engineering/WEEKLY_STATUS.md`, every Friday.
+
 ## Change log
 - 2026-11-03 15:14 eng: version 1 (items 3-6 of #830; items 1-2 by reference to `IMPLEMENTATION_SEQUENCE.md`, PR #833).
+- 2026-11-03 eng: owner response recorded; ADR-142 accepted; owner priority and escalation dates.
