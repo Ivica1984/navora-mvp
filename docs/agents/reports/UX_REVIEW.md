@@ -6,6 +6,58 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-03 07:52 CET · `uxa`: open UX2 PRs #804 (UX2-18 to -21), #806 (UX2-30), #809 (UX2-26) read; UXR-80, -81 (low); RLS4-C3 (2) wording answered; UX2-30 (4)/(5) wording confirmed
+
+**What changed since 03:52.** My PR #798 is still open (CI green on `091128e`, not merged); this run continues it and merged `recovery/main` `6d6dbba` in (JOURNAL: both entries kept, newest first). On `recovery/main` only docs merged (#805 `lca`, #808 `po`); **no screen code merged**. The PO (06:30) placed UXR-75/-78 as **UX2-31**, UXR-76/-77 as **UX2-32**, UXR-79 into UX2-29, and set **RLS4-C3** from UXR-73 with the result-line wording asked of `uxa`. #799, #800, #803 only merged `recovery/main` since my read (heads `a8699dd`, `158a8b3`, `7913eac`; no change under `src` or `tests`), so my 03:52 notes on them stand. Three new open Engineering PRs change screens, each with app, db, e2e and ui-screenshots `success` on its head (read from GitHub check runs; I ran no test):
+- **#804** UX2-18 to UX2-21 (head `9f1511d`): `/field` "Heute machen" confirmation and moved-card notices.
+- **#806** UX2-30 (head `a5875e2`): `/team` assessment form and review line.
+- **#809** UX2-26 (head `d18b60c`): `/admin` admission card offers "Qualifikation festlegen" after "Vertrag erfasst".
+
+**Sources.** `ui-screenshots` artifacts exist for `recovery/main` `6d6dbba` (13207521419) and for the PR heads (#806 13209471387, #809 13207451687); the archive still redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from code on the PR heads. Synthetic seed only; the live project was not touched. No benchmark this run (one made today, 03:52).
+
+### What the open PRs do well (built on PR heads, not yet on `recovery/main`)
+- #804: the VIS1-8 slot is reserved from the first render by both wordings laid invisibly in one grid cell (`aria-hidden`), so "Von" and "Bis" keep their place at every width (UX2-18); the moved card's `aria-describedby` names the release notice and then the flags list, the list carries no `aria-label` that would replace its content, flags at `text-sm` with "⚠" plus text (UX2-19); the fallback reads "Inzwischen ist ein neuer Tag. Tippe auf «Einsätze von heute»." from one constant shared with the link (UX2-20); the focused day-changed sentence is no longer a live region (UX2-21). Playwright `ux2-move-flow.spec.ts` asserts the box of "Von" and the description.
+- #806: one column below `sm` also for the minutes rows, e2e at 390 px checks every field ≥ 300 px and no sideways scroll, naming the element that overflows; "Ersetzt die Bedarfsabklärung vom <Datum>" heads the replace form; the instrument is prefilled only when exactly one catalogue entry matches and is valid on that date, otherwise nothing is guessed; one `ErrorText` for `/team`; "Keine aktuelle Bedarfsabklärung." before the closed history. The assessor prefill is held back because the reader has no assessor id and a name match could name the wrong nurse (ADR-135); that is the safe call, PLANNED.
+- #809: the layout as proposed 29.10. 16:10: "angegeben: <Qualifikation>" as text, a fieldset with one 44 px radio row per qualification in a fixed order, none checked, the claimed one neither marked nor first, the reason with its rule in the label, "Qualifikation festlegen" filled and "Später" outline; "Später" sets nothing and the member stays listed; the sentence "Die Qualifikation setzt die Administration wie bisher beim Mitglied" is removed.
+
+### Wording answers (OPEN until built)
+
+**RLS4-C3 (2), result line after an access end whose open-report count is missing** (`openReports === null`; Engineering's interim "Offene Berichte unbekannt: das Team sieht sie mit «Zugang beendet»."). Proposed, in the place of the count sentence of `accessEndedNotice`:
+"Zugang beendet.<Einsätze><Signale> **Offene Berichte: nicht bekannt, die Liste liess sich nicht laden. Falls es welche gibt, sieht das Team sie mit «Zugang beendet».**<Tage>"
+Why: it says what is missing and why, never "keine"; "Falls es welche gibt" avoids claiming that reports exist, which the screen does not know either; the billing clause of the counted line ("sie werden nicht verrechnet") is left out because it states a fact about reports the screen has not read (UNKNOWN whether it holds for every open kind; `cra` may restore it). `cra` confirms the sentence (H-12); no client or outside text, so no `lca` read. **RLS4-C3 (1):** "Erneut laden" confirmed as the label, `action-outline`, directly after the failure line in the same block.
+
+**UX2-30 (4), refusal and hint** (ADR-135 marks mine as PROVISIONAL): confirmed as built: hint "Kennung aus eurem Abklärungsinstrument, z. B. BA-2026-0042: mindestens eine Ziffer, ohne Leerzeichen, Punkt oder Schrägstrich."; refusal "Diese Referenz ist keine Kennung: 3 bis 64 Zeichen, nur Buchstaben, Ziffern und _ : # -, mindestens eine Ziffer." The example is a format sample, not a real record reference.
+
+**UX2-30 (5), second sentence of the review line:** "Diese war damals nicht bestätigt." follows "… gegen die Bedarfsabklärung vom <Datum>.", so "Diese" can be read as the care plan. Proposed: **"Die Bedarfsabklärung war damals nicht bestätigt."** (`STATE_LABEL` value unchanged). The fact is `cra`'s (a); `cra` confirms the wording. Can ride #806 (one string and its e2e regex).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-80 | `/admin`, "Vertrag erfasst, Qualifikation fehlt" list (administrator, desktop); built on open PR #809 | low | The rows show "<Name> · <Team>" and nothing to do; to set the qualification she must find the member in «Mitglieder» herself, and a card closed with "Später" cannot be reopened. The list answers question 1 but not question 2. The list is built from every membership without a qualification (`membersWithoutQualification(data.members)`); `addTeamMember` requires one, so ADM2-6 is probably the only source, but whether seed, legacy or migration rows without a qualification exist is UNKNOWN (`eng`); if they do, the heading "Vertrag erfasst …" states a fact the list does not check. | `admission-section.tsx:116-123`; `admin-client.tsx` (`missing={membersWithoutQualification(data.members)}`); `admin/commands.ts:75` | §1 question 2; §2 an item that asks for an action carries the way there; §4 a heading states what the list holds | Each row carries one link "Qualifikation festlegen" (`min-h-11`) to that member's entry in «Mitglieder» (anchor), or reopens the same offer card; `eng` says whether non-admission memberships without a qualification can exist, and if so the heading reads "Ohne Qualifikation" (PO). e2e (seed, after "Später"): the row has a link whose target is the member's entry, and following it shows the qualification control. | report only (low); PR comment #809 |
+| UXR-81 | `/admin` admission card after "Vertrag erfasst" when the member is not yet in the member list (administrator); built on #809 | low | The fallback reads "Sie steht noch nicht in der Mitgliederliste. Die Qualifikation legst du unter «Mitglieder» fest." "Sie" assumes a woman and can be read as the polite "Sie", and the sentence does not say when she will appear (after reloading?), so the only control, "Später", is a guess. | `admission-section.tsx:200-204` | §4 plain words, no assumed gender; §1 what next | Name the person and the step: "<Name> steht noch nicht in der Mitgliederliste. Lade die Seite neu und lege die Qualifikation unter «Mitglieder» fest." (if a reload is in fact what makes her appear; else `eng` says what does, UNKNOWN). vitest: the fallback text contains the display name and no standalone "Sie". | report only (low); PR comment #809 |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-36, -37, -40, -41 | Met on PR head #804 (UX2-18, -19, -20, -21); close on merge. | `9f1511d`, `field-client.tsx` `MoveToToday`, `MovedNoticeBlock`; `field/rules.ts` `movedCardDescribedBy`, `DAY_CHANGED_RELOAD`; `ux2-move-flow.spec.ts` (CI success on head) |
+| UXR-56, -58, -61, -62, -63 | Met on PR head #806 (UX2-30 (1), (3)-(6)); close on merge; -62 with the wording note above. | `a5875e2`, `assessment-section.tsx`, `error-text.tsx`, `assessment/rules.ts`; `asm1.spec.ts`, `ux2-assessment-form.test.ts` |
+| UXR-57 | Partly met on #806: first line and instrument prefill built; assessor prefill PLANNED (needs the assessor id in the reader, ADR-135). | `a5875e2`, `prefillInstrumentId`, `supersedeFirstLine` |
+| UXR-64 | PLANNED (UX2-30 (7) deferred in ADR-135: seed fixture for a second team). | ADR-135 "Not in this PR" |
+| AUT-21 layout (`uxa` 29.10. 16:10) | Met on PR head #809 (UX2-26); residuals UXR-80, -81. | `d18b60c`, `admission-section.tsx` `RecordedCard`; `team-admission.spec.ts` |
+| UXR-73 | PLANNED as RLS4-C3 (before G-19); wording above. | `briefs/RLS4.md` 06:30 |
+| UXR-75, -78 | PLANNED (UX2-31). | `briefs/UX2.md` |
+| UXR-76, -77 | PLANNED (UX2-32). | `briefs/UX2.md` |
+| UXR-79 | PLANNED (UX2-29 amendment). | `briefs/UX2.md` |
+| UXR-27, -28, -46, -48, -53, -72 | Met on PR heads #803, #800, #799 (03:52); close on merge. | heads unchanged under `src` |
+| UXR-65, -74 | OPEN (low), unchanged. | no screen merge since `3a6b9c6` |
+| UXR-68 | PLANNED (PLAN3-12), unchanged. | — |
+
+**For the PO.** (1) RLS4-C3 (2) wording above (Engineering's interim can be replaced without a round, as with ADR-130 deviation 6, if you agree); `cra` confirms. (2) UX2-30 (5) wording note can ride #806. (3) UXR-80, -81 (low) could ride #809 before merge. (4) Six UX2 PRs are open and green with no blocking UX finding from me (#799, #800, #803, #804, #806, #809); I hold no objection to their merge on UX grounds. (5) No `severe` or `high` finding, so no issue opened; one comment on #809. (6) Screenshot download still refused to this role; reviews remain code-only (§8). I propose only.
+
+---
+
 ## 2026-11-03 03:52 CET · `uxa`: UX2 open PRs read (#799 shell, #800 UX2-27/-29, #803 UX2-15/-16/-25): UXR-75, -76, -78 (medium), UXR-77, -79 (low); tab-label wording answered (ADR-131 deviation 1); benchmark navigation bar
 
 **What changed since 31.10. 03:50.** My PR #798 was left open (CI green on `183264f`, not merged); this run continues it and merged `recovery/main` in (JOURNAL: both entries kept). On `recovery/main` (`b74a9b0`) only docs merged (#797 `lca`, #802 `aia`); **no screen code merged**. Three open Engineering PRs change screens, all with app, db, e2e and ui-screenshots `success` on their current heads (read from GitHub check runs; I ran no test):

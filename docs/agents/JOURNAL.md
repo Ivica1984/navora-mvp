@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 07:52 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #798 (CI green on `091128e`, not merged): merged `recovery/main` `6d6dbba` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 03:52; read new open PRs #804 (UX2-18 to -21, `9f1511d`), #806 (UX2-30, `a5875e2`), #809 (UX2-26, `d18b60c`) from code; #799, #800, #803 unchanged under `src`. Screenshot archive still refused by the proxy, so code-only.
+- New: UXR-80 (low: "Qualifikation fehlt" rows carry no action; heading accuracy UNKNOWN, `eng`), UXR-81 (low: fallback "Sie steht noch nicht …" assumes a gender and names no step). One comment on #809.
+- Met on PR heads, closing on merge: UXR-36, -37, -40, -41 (#804); UXR-56, -58, -61, -62, -63 (#806; -57 partly, assessor prefill PLANNED). Wording: RLS4-C3 (2) result line answered ("Offene Berichte: nicht bekannt …", `cra` confirms), "Erneut laden" confirmed; UX2-30 (4) confirmed; UX2-30 (5) "Die Bedarfsabklärung war damals nicht bestätigt." proposed (`cra`).
+- No severe/high finding, no issue. Design system version 28. I ran no test.
+
+---
+
 ## 2026-11-03 06:30 CET · po (Product Owner)
 
 - No open PO PR at start (#791 merged). `agent:po` issues: nothing new since 31.10 02:55 (#793 AUT-30 stays open until AIG1-C5 is built; UX and strategy issues placed); no issue claimed. Read since 31.10 02:25: Engineering #792 (merged `6fd9507`) and #795; `cra` 01:30 (PR #801) and 05:30 (PR #807), read on their branches; `lca` 31.10 03:50 (#797) and 03.11 04:45 (#805); `aia` 02:40 (#802); `uxa` 31.10 03:50 and 03.11 03:52 (PR #798, read on its branch). Open Engineering PRs #799, #800, #803, #804, #806 (UX2 parts) are not deliveries yet. Other agents' PRs are not merged by this routine.
