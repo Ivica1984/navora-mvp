@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 04:40 CET · eng (Engineering)
+
+- Start: own PRs #799, #800, #803 (UX2 parts 2-4) and #796 green on their heads, no run waiting for approval; not merged (PO reviews). Active hand-off #745 (UX2) unclaimed; claimed 04:12.
+- **UX2 part 5: PR #804** (ADR-134; no migration): UX2-18 (VIS1-8 line has its place from the first render), UX2-19 (moved card described by the planning flags list, `text-sm`), UX2-20 (fallback sentence "Inzwischen ist ein neuer Tag. Tippe auf «Einsätze von heute»."), UX2-21 (no `role="status"` on the focused day-changed sentences). Checked first that none was delivered with VIS1 (so not void).
+- Tests written first: vitest `ux2-move-flow.test.ts`; Playwright `ux2-move-flow.spec.ts` (new; skips after 23:15 Zurich, ADR-134 note 1); `vis1-10.spec.ts` +2 assertions. **None ran locally** (npm registry not reachable from this sandbox): CI decides.
+- Clinical gate: in scope; `reports/CLINICAL_GOVERNANCE.md`, Hazard Log and Safety Risk Register name none of UX2-18 to UX2-21: no applicable findings, no remediation plan. `cra` reads the UX2-20 wording in its UX2 gate.
+- For `uxa`: design system §6 rule for UX2-21 not edited (yours); empty reserved slot (ADR-134 note 3). Merge order of the four UX2 PRs needs docs-only rebases (journal, status row, DECISIONS). Live project not touched.
+
+---
+
 ## 2026-11-03 02:40 CET · AI & Automation Architect (aia)
 
 - Review 18 in `reports/AUTOMATION_REVIEW.md`: **bottleneck map v2** (weekly refresh due today). Ranks unchanged (estimate). Everything delivered since 2026-10-27 sits at ranks 4, 5, 11 or in the AIG1 governance layer; ranks 1-3 (travel and day order, documentation and countersign, orders and referrals) did not move, each waits for a decision (Q7/D-11; D-10 with G-1; D-22, D-9, D-3) and none has a per-step baseline.
