@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 03:52 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #798 (CI was green, not merged): merged `recovery/main` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 31.10.; read open PRs #799 (UX2-1 shell, `260dbf6`), #800 (UX2-27/-29, `1640cdc`), #803 (UX2-15/-16/-25, `dd32be6`) from code; CI success on all three heads per GitHub check runs (I ran no test). No screenshots (artifact download still refused by the proxy).
+- New: UXR-75 (medium: coordination roles' home "Ausnahmen" behind "Mehr" on the phone; PO, ADR-131 deviation 3), UXR-76 (medium: two names per destination; wording answered: "Heute", "Team", "Arbeitstag" everywhere), UXR-78 (medium: fixed tab bar can cover the focused control, WCAG 2.4.11; `scroll-padding`), UXR-77 and UXR-79 (low). No severe/high, so no issue; one comment each on #799 and #800.
+- Met on PR heads, closing on merge: UXR-27, -28, -46 (#803), UXR-48, -53 (#800, residual UXR-79), UXR-72 (#799). My 31.10. "Zuständige Person wählen" proposal withdrawn for "Verantwortliche Person wählen".
+- Benchmark: Material 3 navigation bar (SAP Fiori for Android): 2-5 core destinations, short one-line labels. Design system version 27.
+
+---
+
 ## 2026-11-03 02:40 CET · AI & Automation Architect (aia)
 
 - Review 18 in `reports/AUTOMATION_REVIEW.md`: **bottleneck map v2** (weekly refresh due today). Ranks unchanged (estimate). Everything delivered since 2026-10-27 sits at ranks 4, 5, 11 or in the AIG1 governance layer; ranks 1-3 (travel and day order, documentation and countersign, orders and referrals) did not move, each waits for a decision (Q7/D-11; D-10 with G-1; D-22, D-9, D-3) and none has a per-step baseline.
