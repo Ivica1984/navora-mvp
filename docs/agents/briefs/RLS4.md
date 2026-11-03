@@ -106,3 +106,36 @@ None. Access narrowing only; no clinical, legal or tariff rule.
 - Owner: `eng` (1)-(4); `po` (5, done in this cycle). Priority: rides the RLS4-C1 PR (small app change and one test). `cra` may comment on (1) at its next review; the PO sees no clinical rule involved (who reads, not what is documented).
 
 **Notes (no condition):** (3) `cra` suggests making the 099 `pilot_kpis` assertion exact (a column reference, not a word match); Engineering may do so in the RLS4-C1 PR. (4) RLS4 closes the D-23 item 21 work; the 02:45 owner question is moot (`lca` 04:47).
+
+## PO review — 2026-11-03 06:30 CET: RLS4-C1 and RLS4-C2 met; RLS4 stays accepted; condition RLS4-C3 (`cra` CGR-111, `uxa` UXR-73)
+
+Reviewed on merged evidence: #792 (merge commit `6fd9507`; head `1080608`), `OWNER_RUNBOOK.md` §5c, ADR-122 addendum, pgTAP `105_rls4_c1_legacy_name_check` (12), vitest `rls4-c1-runbook-check` and `rls4-c2-admin-open-reports`, Playwright `leave.spec.ts`, `src/features/admin/queries.ts`, `src/features/admin/commands.ts`, `src/app/(protected)/admin/page.tsx`. CI: PR run 41155982836 on head `1080608` (`app`, `db`, `e2e`, `ui-screenshots` success); push run 41158798331 on `6fd9507` success. `cra` 2026-11-03 01:30 (PR #801, read on its branch): **CGR-101 closed**, RLS4-C2 no finding, gate clear. `lca` 2026-10-31 03:50 (#797, merged): RLS4-C1 and RLS4-C2 as built compliant under every plausible interpretation. **The PO did not run the tests**; results come from reading the diff, the tests and the CI check runs.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| C1 (1) one read-only count: non-`cancelled` visits dated today or later (Zurich) with `team_member_name` and no `responsible_user_id` | met | `OWNER_RUNBOOK.md` §5c step 1 (between `RLS4-C1 check` markers) |
+| C1 (1) a person decides once per legacy name and team, visit by visit when unsure; no automatic matching | met | §5c steps 2-3; step 4 takes the decision as literal values and requires the row count to equal step 2, else `rollback` |
+| C1 (1) mapping sets `responsible_user_id` only, never edits `team_member_name`; membership guard; audited | met | §5c step 4 (`exists` on `team_memberships`, `navora.command = 'rls4_c1_legacy_mapping'`); step 5 "Never"; pgTAP 105 (name unchanged, one audit row, non-member mapped to nothing) |
+| C1 (1) reconciliation record: count before and after, who and when; no names or mapping in the repository | met | §5c step 6 (adds the number confirmed unassigned; "who" in the record because `actor_id` is empty in the SQL editor) |
+| C1 (2) test: check counts the Testteam Mitte visit, falls back after mapping | met with deviation 1 | pgTAP 105: a synthetic Mitte visit dated today raises the count by exactly 1 over the seed baseline and the mapping returns it; cancelled, past and assigned visits not counted; runbook text and test identical (vitest) |
+| C1 (3) live mapping only after the D-1 review result; `team_member_name` kept and unreadable until D-4 is final | met | §5c *When* and step 5; ADR-122 addendum C1 (3); pgTAP 105 pins the column exists and is not selectable to `authenticated` or `anon` |
+| C2 (1) `/admin` loads no member's open reports with the page; one member's list read in her access-end step; confirm waits for the list | met | `getAdminData` no longer calls `member_open_reports`; `readMemberOpenReports({ userId })` (one call, one member); ADR-122 addendum C2 (1) (button disabled until loaded) |
+| C2 (2) function, readers and pgTAP 099 pin unchanged; no migration | met | no file under `supabase/migrations/` in the diff |
+| C2 (3) test: page load issues no call, the step shows hers; LEAVE1 e2e green | met | vitest `rls4-c2-admin-open-reports` (recording fake client); `leave.spec.ts` (no open-report block on the list; nurse's step shows hers; leaver's step "keine offenen Berichte"); `e2e` green |
+| C2 (4) code comment says what the code does | met | `queries.ts` comment replaced |
+| C2 (5) G-19 (k) | met (po 2026-10-30 07:20) | `CARE_OPERATING_MODEL.md` G-19 (k) |
+
+**Deviations (ADR-122 addendum), decided:**
+1. Count asserted as +1 over the seed baseline (the seed's Mitte visits are dated yesterday): **accepted**. Same fact, robust against the rest of the seed; `cra` accepted it too.
+2. "Confirmed unassigned" writes nothing and stays in the count; the record states the number: **accepted**. A column for a one-off reconciliation would be a migration on care records without a care gain: the visit reads "noch niemand" and the team plans it like any open visit. No follow-up.
+3. ADM2-12 leavers of the next 14 days have their open reports read on page load (for those leavers only): **accepted as built**. That list exists for the access-end context ADM2-12 was accepted for, it is narrower than before, and an administrator who must prepare a leaver's hand-over should see it without an extra click. No follow-up.
+4. A failed read shows "Offene Berichte konnten nicht geladen werden.", never "keine" (`/team` and `/admin`): **accepted**, more protective (H-12, PS-15). Its residual on the result line is RLS4-C3 (2).
+5. 099 `pilot_kpis` assertion as a column reference: not a condition; Engineering may do it with its next test-only change (e.g. the CGR-110 work).
+
+**Decision: RLS4-C1 and RLS4-C2 met; RLS4 stays `accepted`.** The live reconciliation itself is the D-1 owner's step at G-25 (not a product deliverable). Past visits with only a legacy name: `cra` CGR-109, placed as **UX2-29 amendment (2026-11-03)** and **G-25 (c)**.
+
+**Condition RLS4-C3 (`cra` CGR-111, advisory S3; `uxa` UXR-73, medium). Not blocking on synthetic data; required before G-19 (the first real employee uses NAVORA).** *Why:* when the administrator's pre-read of a leaver's open reports fails, the step now says so, but names no next step, and the result line after the end would then say "Keine offenen Berichte." when the count is missing. The one remaining count before her access ends would claim an absence it does not know (H-12).
+- (1) The failure line "Offene Berichte konnten nicht geladen werden." carries one action **"Erneut laden"** (re-runs `readMemberOpenReports` for that member; at least 44 px high). **Ending access stays possible without the list** (product decision, with `cra` 05:30 and `lca` 06:05 on #500 (a)): holding a leaver's access open because a read failed trades privacy and security for a list, and the open reports are not lost: the end result returns the counts by kind (LEAVE1-12 (2)), the team's registered nurses keep the list, and each report carries «Zugang beendet» in the handover (LEAVE1-12 (3)).
+- (2) With `openReports === null` in the end result, the result line says the open reports are not known and that the team sees them with «Zugang beendet»; it never says "Keine offenen Berichte". Wording `uxa`'s; until `uxa` answers, Engineering's interim text is "Offene Berichte unbekannt: das Team sieht sie mit «Zugang beendet»."
+- (3) Tests (vitest): with the read rejected, the alert and an "Erneut laden" button are shown and a click makes a second call; `accessEndedNotice(null, …)` does not contain "Keine offenen Berichte".
+- Owner: `eng` (1)-(3), `uxa` (wording). Priority: with the next `/admin` PR, at the latest before G-19 (added there as (l)). No migration, no rule.
