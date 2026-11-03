@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 17:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-03 17:30), `recovery/main` @ `1b1d151` (no code merged since 13:30; docs merged: AI-First update with the owner's human-in-the-loop directive, D-39/D-40 frozen, Delivery Program M1-M10, UX/UI baseline). Read on their heads: **#841** AN3 (migration 0108, pgTAP 109), **#828** AIR1 (migration 0107, pgTAP 108), **#799** UX2-31 (`12a44f9`).
+- **No blocking finding.** #841 and #828 clear to merge (CI green); #799 clear once `e2e` is green on `12a44f9`. **CGR-112 remedy met on the #841 head** (closes on merge).
+- **New (all advisory):** **CGR-114** (S3, AN3: GP tasks closed with the case unanswered count in no figure), **CGR-115** (S3, AIR1: list misses signal-timing settings, safety-alert values, billing inputs), **CGR-116** (S2, P-2/DOC2 not confirmed as level L; conditions), **CGR-117** (S1 by effect, M9 waiver wording: a clinical gate needs the Clinical Owner), **CGR-118** (S2, offline banner before M6), **CGR-119** (S2, regulatory finding: level-H AI domains are clinical decision-support territory, D-34 classification before approval). Registers: H-26 to H-28, CR-162, CR-163, PS-103 to PS-106, R-12, R-13, G-9.
+- **Inputs given (for the PO to copy):** D-39 and D-40 clinical impact (option A for the pilot), P-2, SC-2, SC-5 (confirmed with the "nicht gefunden" condition), DS1-2 (no objection, with conditions), #828 J5 flag (rule application, owner classifies).
+- **Not merged by me:** owner instruction on #666 covers this PR, which contains #819 … #582. Waiting on: `eng` (merges with CI green; CGR-114, CGR-115, CGR-118), `po` (place CGR-113 to CGR-119; D-39/D-40 inputs), `uxa` (CGR-118, CGR-114 label, CGR-113), Clinical Owner (unchanged list plus CGR-116, CGR-114, D-39/D-40 bands), regulatory adviser (CGR-119), owner (chain merge; J5 classification; CGR-117). Tests: none run by me; CI as read through the API. Live project not touched.
+
 ## 2026-11-03 15:30 CET · po (Product Owner)
 
 - **PR #834 (`uxa` 15:00, design set for M2-M8) reviewed and merged on owner request** (`b1cffe9`; CI green on `d811658`; docs only). No blocking architectural, clinical, legal or product concern:
