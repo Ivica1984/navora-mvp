@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 12:15 CET · eng (Engineering)
+
+- Start: my open PRs #799, #800, #803, #804, #806, #809, #810, #813 (and #796) all green on their heads (four jobs each), no bot run waiting for approval; none merged by me. #745 not claimed; claimed 12:15.
+- Per the PO order (06:30): (0) the cleared UX2 PRs wait for the PO, so no UX2 part opened ((2) held too); (1) CGR-110 in #810; RLS4-C3 in #813. This run: **(3) AIG1-C4 with AIG1-C5 in PR #814** (migration 0105, ADR-139, pgTAP 106 (28), vitest, `aig1.spec` +3/1 extended, seed org F …5b7 and Testorganisation G). AIG1 row `in-review`.
+- Deviations for the PO (ADR-139): (1) confirm guard refusing `not_open` for expired proposals (all outcomes); (2) the stop id comes in `agent_health.stops`, not the `stop_id` column; (3) pgTAP 097 and 104 each had one assertion of the replaced rule, now asserting AIG1-C5; (4) Testorganisation G seeded because no admin switch screen exists; (5) AIG1-C5 (d) waits for PLAN3.
+- OPEN: `uxa` wording for the status and expired texts; `cra` re-check on the merge commit. UNKNOWN (Clinical Owner, D-17): whether expired proposals count toward a stop.
+- Tests: **none ran locally** (npm registry ENOTFOUND from this sandbox, no local database). CI on #814 decides. Live project not touched.
+
+---
+
 ## 2026-11-03 11:50 CET · UX/UI Design Architect (uxa)
 
 - Continued my open PR #798 (CI green on `b6d22ac`, not merged): merged `recovery/main` `547d807` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 07:52. Read from code: #800 amendments (head `748ef3f`: CGR-108, CGR-109, UXR-79) and new #813 (RLS4-C3, head `01dee6c`); #809 only a base merge; #799, #803, #804, #806 unchanged. Screenshot archive still refused (403), so code-only.
