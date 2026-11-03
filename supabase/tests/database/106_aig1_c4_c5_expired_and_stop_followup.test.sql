@@ -7,7 +7,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(28);
+select plan(29);
 
 -- Pinned clock (DST1 pattern): day T is today in Zurich; the run starts at T-2 10:00.
 create temp table d0 as select (private.now() at time zone 'Europe/Zurich')::date as t;
@@ -152,8 +152,10 @@ select is(pg_temp.detail(1), '[{"detail": "Testassistent Bezugspflege · Werte: 
   'AIG1-C5 (a): after a new switch-on the exception is still listed with "3 offen"');
 
 -- AIG1-C5: two stops of one agent, each with open lines, give two exceptions with their own counts ---------------------
-select ok(pg_temp.propose(7, 15) ->> 'result' = 'ok' and pg_temp.decide(7, 'confirmed', null, 16) ->> 'result' = 'ok',
-  'fixture: one proposal confirmed unchanged after the new switch-on');
+-- Proposal and decision in separate statements: the decision looks the proposal up by visit, which a single statement's
+-- snapshot would not yet see.
+select is(pg_temp.propose(7, 15) ->> 'result', 'ok', 'fixture: one proposal after the new switch-on');
+select is(pg_temp.decide(7, 'confirmed', null, 16) ->> 'result', 'ok', 'fixture: confirmed unchanged');
 update public.ai_agent_definitions set version = '3' where key = 'aig1_test_primary_nurse';
 select is(pg_temp.propose(8, 17) ->> 'result', 'agent_stopped', 'fixture: a second version change stops the agent again');
 insert into stops select 2, id from public.ai_agent_stops order by seq desc limit 1;
