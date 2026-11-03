@@ -57,7 +57,7 @@ create function pg_temp.decide(n int, p_outcome text, p_value uuid, key int) ret
                                  case when p_value is null then 'null' else quote_literal(to_jsonb(p_value::text)::text) || '::jsonb' end,
                                  pg_temp.k(key))) $$;
 create function pg_temp.switch(p_on boolean, key int) returns text language sql as $$
-  select pg_temp.cmd('admin', format('select public.set_agent_state(%L, %L, %s, 50, 100, 1, %L)',
+  select pg_temp.cmd('admin', format('select public.set_agent_state(%L, %L, %L::boolean, 50, 100, 1, %L)',
                                      '00000000-0000-4000-b000-000000000011', 'aig1_test_primary_nurse', p_on, pg_temp.k(key))) ->> 'result' $$;
 create function pg_temp.confs(n int) returns int language sql stable as $$
   select count(*)::int from public.ai_confirmations c where c.suggestion_id = pg_temp.sug(n) $$;
