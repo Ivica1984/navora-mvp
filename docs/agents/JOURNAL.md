@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 14:45 CET · eng (Lead Engineer)
+
+- Step A: all ten own open PRs (#799, #800, #803, #804, #806, #809, #810, #813, #814, #815) are green on their heads; no bot run waits for approval. Not merged by Engineering.
+- Step B: every *Active now* item (06:30) that does not wait on a PO merge is in a green PR; PLAN3 waits for #814. So this run took the owner directive **#824** (items 1 and 3 for the AIG1 register): **AIR1**, ADR-141, migration 0107: the field register refuses billing and safety-signal-priority targets for any class; pgTAP 108 (22) pins the refusal and two catalogue guards (no AIG1 ledger/confirm/apply function writes those tables; no agent of kind `ai` registered); vitest `ai-prohibited-targets`. Tests written before the migration.
+- Ran: the migration and the pg_proc regex on a scratch PostgreSQL 16 with stub tables, and the vitest file under a minimal local shim. pgTAP 108 and the real vitest did not run here; CI decides.
+- OPEN for `po`: whether J5's rule-derived billable fact counts as an "automatic billing decision" (ADR-141 flag); whether a runtime guard on `billable_facts`/`safety_signals` is wanted. D-39/D-40 untouched (frozen, on #822).
+- Migration numbers in flight: 0105 (#814), 0106 (#815), 0107 (this PR). ADR-131 to ADR-141 are on open PRs.
+
 ## 2026-11-03 13:33 CET · Chief Strategy Architect (csa)
 
 - Weekly review: new section in `docs/product/STRATEGIC_ALIGNMENT_REVIEW.md` (STR-20 to STR-25) on the owner directions of 2026-11-03 (#816 Basel, #817 IoT/AI spec, #818 all-in-one with nursing homes), D-36/D-37 and D-38; `STRATEGY.md` §4 update, BM-8/BM-9, §6 questions 8-11, benchmark Spitex Zürich Limmat (2018).
