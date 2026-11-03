@@ -303,6 +303,32 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"assessment_voids": {
+                  Row: {
+                    "id": string,"organization_id": string,"reason": string,"reason_kind": string,"record_id": string,"voided_at": string,"voided_by": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: string,"organization_id": string,"reason": string,"reason_kind": string,"record_id": string,"voided_at"?: string,"voided_by": string
+                  }
+                  Update: {
+                    "id"?: string,"organization_id"?: string,"reason"?: string,"reason_kind"?: string,"record_id"?: string,"voided_at"?: string,"voided_by"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "assessment_voids_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "assessment_voids_record_id_fkey"
+      columns: ["record_id"]
+isOneToOne: true
+      referencedRelation: "assessment_records"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"audit_events": {
                   Row: {
                     "actor_id": string | null,"actor_role": string,"changed": NonNullable<Json>,"command": string | null,"entity_id": string,"id": number,"idempotency_key": string | null,"occurred_at": string,"organization_id": string,"table_name": string
