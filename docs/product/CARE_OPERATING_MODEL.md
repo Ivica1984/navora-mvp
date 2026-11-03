@@ -1,6 +1,6 @@
 # NAVORA Care Operating Model — beyond Buurtzorg
 
-**Owner:** Product Owner (`po`) · **Stand:** 2026-10-30 07:20 (G-19 item 2 entry (k) added; earlier 06:10 G-25 added, G-18 RLS4 met; earlier 2026-10-25 22:10 go-live gate index added; earlier 2026-10-22 18:20) · **Status:** strategic direction. Approved items appear in `docs/agents/NEXT_CAPABILITY.md`. Targets marked *hypothesis* are validated with pilot data (AN1), not assumed.
+**Owner:** Product Owner (`po`) · **Stand:** 2026-11-03 14:00 (mandatory human-in-the-loop sequence, D-39/D-40 freeze; earlier 13:45 AI-first operating model, owner directive; earlier 06:30 G-25 (c) added, `cra` CGR-109; G-19 item 2 entry (l) added, CGR-111; earlier 2026-10-30 07:20 G-19 item 2 entry (k) added; earlier 06:10 G-25 added, G-18 RLS4 met; earlier 2026-10-25 22:10 go-live gate index added; earlier 2026-10-22 18:20) · **Status:** strategic direction. Approved items appear in `docs/agents/NEXT_CAPABILITY.md`. Targets marked *hypothesis* are validated with pilot data (AN1), not assumed.
 
 ## North Star
 
@@ -114,22 +114,62 @@ The owner's principles:
 - **Measure:** time from a team's consent decision (D-38 T15 (d)) to C's admission, first team versus second; hypothesis: the second is at least half as long. UNKNOWN until two teams have gone through it.
 - **Beyond Buurtzorg:** Buurtzorg scaled teams inside one organisation, with its back office as the single legal provider. The kit aims at many small providers that each hold their own licence and share only processors and contracts (P-24), so no single organisation becomes the hierarchy again.
 
-## AI-first means graph-first (PO, 2026-10-26)
+## AI-first operating model (owner directive, 2026-11-03)
 
-From the [AI Operating Model Review](AI_OPERATING_MODEL_REVIEW.md):
-- **Design order:**
-  1. eliminate the work through a continuously updated **care graph** (provenance, version, scope, consent on every node);
-  2. automate what is rule-shaped;
-  3. monitor continuously (service delivery, completeness, the controls, the agents, access);
-  4. use agents only at the edges of the graph (unstructured input, drafts for people), always with a named confirmer;
-  5. keep people for judgement, accountability and relationship.
-- **Graph completion before agents (P-9):** the consent record (D-9 g4), the structured order (D-22), the D-13 B assessment reference, and the external actors (REF2, ORD1). Each waits for its decision.
-- **In the core the graph is never:**
-  - a clinical inference engine (D-34);
-  - a per-person performance profile;
-  - an identity matcher without an explicit, audited link (RET1);
-  - a source for secondary use beyond anonymised aggregates (D-12).
-- **AI basis:** D-35 (`owner`). Until it is decided, no client or staff data reaches any AI service.
+**NAVORA is an AI-first platform.** AI is a core architectural capability, not a future enhancement. Every existing and future capability is reviewed through an AI-first lens. The aim is not to add AI features. The aim is to redesign coordination, administration and care operations around AI-enabled capabilities.
+
+Full text:
+- [AI-First Architecture Update](AI_FIRST_ARCHITECTURE_UPDATE.md) (principles AI-1 to AI-12, the AI layer, the ten AI domains, guidance for `eng`, `cra`, `lca`);
+- [AI Opportunity Map](AI_OPPORTUNITY_MAP.md) (every workflow, current state and future state);
+- [AI Capability Roadmap](AI_CAPABILITY_ROADMAP.md).
+
+**Four statements for every reader:**
+1. AI is a core architectural pillar.
+2. Every future capability is evaluated for AI leverage (brief section *AI leverage*).
+3. Human-in-the-loop remains mandatory for clinical and accountable decisions.
+4. AI eliminates administrative overhead wherever it is safe, and the removed step is measured (AN3).
+
+**Mandatory sequence (owner, 2026-11-03 14:00; replaces the 2026-10-26 order "graph-first, agents at the edges"):**
+
+> Remove unnecessary work → Apply rules → Monitor continuously → AI prepares → Human reviews → Human decides → Human signs
+
+**AI may:** prepare, summarise, prioritise, draft, monitor, suggest. This includes messages to people outside the team, which a person sends.
+
+**AI may not:**
+- make accountable decisions;
+- replace signatures or required approvals;
+- execute clinical judgement.
+
+Proposals that violate this sequence are rejected.
+
+**Prohibited:**
+- automatic billing decisions;
+- automatic clinical recommendations to patients or relatives;
+- automatic clinical prioritisation of safety signals;
+- unrestricted general-purpose copilots on production data;
+- AI replacing accountable human decisions.
+
+**Frozen (specification only):** D-39 (sensors) and D-40 (Family Layer, Check-In).
+
+**Allowed on synthetic data only:** PLAN3, AN3, AIO1, OPS2, HAND2.
+
+**In the core the graph and the AI layer are never:**
+- a clinical inference engine outside the qualified module (D-34);
+- a per-person performance profile;
+- an identity matcher without an explicit, audited link (RET1);
+- a source for secondary use beyond anonymised aggregates (D-12);
+- a channel that gives clinical advice to clients or relatives.
+
+**Unchanged by the directive:**
+- AI basis D-35 rule A: in the pilot, no client or staff data reaches any AI service until the owner approves a stage-1 package;
+- D-34 A plus C;
+- the owner rule of 2026-10-29 (D-1);
+- G-1;
+- P-1.
+
+**New actors served by the AI layer:** the client and named relatives (Family Companion, Check-In; D-40, frozen, specification only), the GP (order renewal, ORD1) and the hospital discharge planner (REF2).
+
+*History:* the 2026-10-26 section "AI-first means graph-first" (design order, graph completion before agents P-9, core exclusions) is superseded by this section. Its content is kept in the [AI Operating Model Review](AI_OPERATING_MODEL_REVIEW.md) §1-§2. P-9 (consent record, structured order, assessment reference, external actors before agents that need them) stays in force.
 
 ## Pilot adoption and usability (owner, 2026-10-27)
 
@@ -159,13 +199,13 @@ From the [AI Operating Model Review](AI_OPERATING_MODEL_REVIEW.md):
 | G-16 | A no-show or interruption taken by a non-registered nurse still reaches Operations | SIG1-C1 | po | IMPLEMENTED (2026-10-24 21:10) |
 | G-17 | A corrected time in the repeated hour can be entered either way (DST1-C4, due before the first real client or 2027-10-31); the test clock can never reach a shared database (DST1-C5, before staging with real users) | DST1 | po (acceptance) | PLANNED |
 | G-18 | Before the first real **employee**: no teammate reads who performed each visit event row by row; *added 2026-10-29 16:24 (po, `lca` 16:05):* nor, by direct query, who wrote each observation or signed each report (OBS1-7: `visit_reports.snapshot`, `signed_by`, `signed_at`, `visit_observations.author_id`, `recorded_at` read only through the per-visit functions) | D-3 (iv) note, RLS3-4, D-23, OBS1, RLS4 | po | see RLS3 (accepted 2026-10-25 16:11); OBS1-7 = OBS1-C1 **met 2026-10-29 23:15** (#688, 0096); *added 2026-10-29 23:15 (po):* nor who did each act on the other care records (RLS4: act columns per record only, assignments readable to the team), RLS4 **met 2026-10-30 06:10** (RLS4 accepted, #715, #722, 0099) |
-| G-19 | Before the first real **employee** confirms a working day (WORK1): the licence holder adopts the nurse-confirmed export as its way of keeping the working-time record and states whether ArGV 1 Art. 73b applies under its agreements; the employer adopts the information text after an `lca` look at the final wording; D-4 carries a retention criterion for confirmed working days (and their audit rows); *added 2026-10-26 08:15 (po):* (4) before an access end, the administrator sees the leaver's count of unexported confirmed days (WORK1-C3) and asks her to export first; no export on her behalf; *added 2026-10-26 10:15 (po, `lca` 09:55 note 1, CGR-65):* (5) WORK1-C4 is built, so no real day is confirmed against uncorrected visit times, and the licence holder states in its policy how working-time records and billed visit times are reconciled when they differ (D-12 policy term; organisational policy, not a NAVORA feature); *added 2026-10-26 21:10 (po, `lca` 20:55):* item 2's checklist for the employer's final text: gap a (employer, D-12), gap f (hosting state, D-2), **(g)** processors named as a recipient category, **(h)** the coordination-role sentence names the signed report version and its countersigner (or drops "nur"), one term for the covering member; **(6)** COND1-C1: the leaver's unexported-days count is readable only inside the access-end path, not by any administrator at any time (PO 21:10, COND1 deviation 16); *added 2026-10-29 16:24 (po, `lca` 16:05 note 3):* item 2's checklist gains **(i)** the employer's final text names that colleagues and the countersigning registered nurse see her name on each observation she writes and, where it applies, that her qualification was not recorded when she wrote it (OBS1); *added 2026-10-30 03:10 (po, `lca` 02:45 note 4):* **(j)** the text names that colleagues see, per case and per visit, who carries it (primary nurse, deputy, responsible, covering member) and, per visit, who accepted or handed back a cover; never as a list per person (RLS4), **(k)** the text names that the team's registered nurses see each member's open reports by kind and visit date, for follow-up of the care record; that list is never sorted, ranked or filtered by count, never exported, keeps no history across members and shows no content, reason or time beyond the visit date; administrators see a member's open reports only in her access-end step (RLS4-C2, `lca` 06:41 D-23 terms t1-t3) | D-23 items 3b, 4, 7e, 15, 16, 19, 23; briefs WORK1, COND1 | owner (D-12, policy), po (D-4 criterion) | OPEN |
+| G-19 | Before the first real **employee** confirms a working day (WORK1): the licence holder adopts the nurse-confirmed export as its way of keeping the working-time record and states whether ArGV 1 Art. 73b applies under its agreements; the employer adopts the information text after an `lca` look at the final wording; D-4 carries a retention criterion for confirmed working days (and their audit rows); *added 2026-10-26 08:15 (po):* (4) before an access end, the administrator sees the leaver's count of unexported confirmed days (WORK1-C3) and asks her to export first; no export on her behalf; *added 2026-10-26 10:15 (po, `lca` 09:55 note 1, CGR-65):* (5) WORK1-C4 is built, so no real day is confirmed against uncorrected visit times, and the licence holder states in its policy how working-time records and billed visit times are reconciled when they differ (D-12 policy term; organisational policy, not a NAVORA feature); *added 2026-10-26 21:10 (po, `lca` 20:55):* item 2's checklist for the employer's final text: gap a (employer, D-12), gap f (hosting state, D-2), **(g)** processors named as a recipient category, **(h)** the coordination-role sentence names the signed report version and its countersigner (or drops "nur"), one term for the covering member; **(6)** COND1-C1: the leaver's unexported-days count is readable only inside the access-end path, not by any administrator at any time (PO 21:10, COND1 deviation 16); *added 2026-10-29 16:24 (po, `lca` 16:05 note 3):* item 2's checklist gains **(i)** the employer's final text names that colleagues and the countersigning registered nurse see her name on each observation she writes and, where it applies, that her qualification was not recorded when she wrote it (OBS1); *added 2026-10-30 03:10 (po, `lca` 02:45 note 4):* **(j)** the text names that colleagues see, per case and per visit, who carries it (primary nurse, deputy, responsible, covering member) and, per visit, who accepted or handed back a cover; never as a list per person (RLS4), **(k)** the text names that the team's registered nurses see each member's open reports by kind and visit date, for follow-up of the care record; that list is never sorted, ranked or filtered by count, never exported, keeps no history across members and shows no content, reason or time beyond the visit date; administrators see a member's open reports only in her access-end step (RLS4-C2, `lca` 06:41 D-23 terms t1-t3); *added 2026-11-03 06:30 (po, `cra` CGR-111, `uxa` UXR-73):* **(l)** RLS4-C3 is built: a failed read of a leaver's open reports offers "Erneut laden", and the access-end result never says "Keine offenen Berichte" when the count is missing | D-23 items 3b, 4, 7e, 15, 16, 19, 23; briefs WORK1, COND1 | owner (D-12, policy), po (D-4 criterion) | OPEN |
 | G-20 | Before the first real client: reassess whether P1 safety signals may be pushed to Safari (macOS, iOS, iPadOS) and Firefox (legal adviser, `lca` question 1); until then in-app only for those browsers | D-33 (owner, decided 2026-10-26) | owner | OPEN |
 | G-21 | Before the first real client: as-built texts match the intended-purpose statement (no "Risiko" or "überwacht" wording for clients, no client ranking in the UI) | IPA1, D-34 | po | PLANNED |
 | G-22 | Before the first real client or employee: no AI agent session, coding assistant or AI connector holds a credential or connection to an environment with real data; a recorded statement per environment shows it (today: Supabase and Render connectors listed in agent sessions, target UNKNOWN; owner to remove them or confirm, inside the D-1 ask; a confirmation covers the hosting service's logs and environment variables as well as the database, PO 21:10 after `lca` 21:00) | D-35 rule 1 (term 11), D-1 | owner (connectors), po (statement) | OPEN |
 | G-23 | Before a real organisation switches on team admission (ADM2): D-29 answered (how a qualification is verified); D-26 production path or manual accounts confirmed; D-11 names the canton and `lca` checks its admission and staffing rules (only federal and ZH sources read); ADM2-14 accepted (export reminder before an automatic access end, `lca` 03:50 (2)); ADM2-15 accepted (a leaver's primary and deputy roles reach her team before and at an automatic access end; `cra` CGR-72, `lca` 06:05 on PR #500); the employer's final texts (G-19 item 2) state that access ends automatically the day after the recorded contract end, and its applicant information covers a candidate entered by a team member (DSG Art. 19; D-12 with D-26); the employer's offboarding policy says an earlier end than recorded still needs the manual `end_member_access` (D-12); **UX2-22 and UX2-23 delivered** (po 2026-10-29 12:15 from `uxa` UXR-45, UXR-43: no field action offered to a member without a recorded qualification; one confirming step before switching admission or removing a contract end); **OBS1-C1 and OBS1-C2 met** (po 2026-10-29 19:40: authorship readable only through the per-visit functions; a pre-0095 observation never reads as by a qualified author on non-synthetic data, `cra` CGR-94); **ADM2-C1 met** (po 14:35: push subscriptions deleted after an automatic access end, as after the manual one). *Added 2026-10-29 22:10 (po, `lca` 21:45 D-32):* **ADM2-C2 met** (no queued push is handed to a person whose access ended; her subscriptions are deleted on the send cycle, not only at the next ADM2 page load). **Met 2026-10-29 19:40 (po):** OBS1 accepted (`cra` CGR-93: an observation by a member without a recorded qualification carries a marker and its author in the handover and the signed report). **Met 2026-10-29 14:35 (po):** ADM2-14 and ADM2-15 accepted with ADM2. **Met 2026-10-27 04:10 (po):** D-4 candidate-data period (0 days in NAVORA; the employer's own applicant file outside NAVORA); `lca` look at ADM2 part (b) (03:50) | ADM2, UX2-22, UX2-23, OBS1, ADM2-C1 (**met 2026-10-29 23:15**, #688), ADM2-C2, VIS2 (*added 2026-10-29 23:15, `cra` CGR-97*: a same-client overlap is shown before saving), D-20, D-29, D-26, D-11, D-4, D-12 | owner (D-29, D-26, D-11, D-12), `lca`, po | OPEN |
 | G-24 | Before the first real client in any organisation: every observation shows its author where it is relied on (handover, signed report), per entry only, never as a list or count per person (`lca` 2026-10-29 13:57: ZH GesG § 13 Abs. 1, authorship of entries immediately visible; compliant under every plausible interpretation on the sources read, the official current zh.ch text not yet read; D-11 names the canton and `lca` re-checks there) | OBS1 (**accepted 2026-10-29 19:40**, po), OBS1-C1 (= OBS1-7: authorship not selectable row by row by direct query, `lca` 16:05; **met 2026-10-29 23:15**, #688), OBS1-C2 (`cra` CGR-94: no pre-0095 observation read as by a qualified author on real data), D-15, D-11, G-18 | po, `lca` | OPEN |
-| G-25 | Before any real, migrated or imported **visit data** is shown on any screen (added 2026-10-30 06:10, po; earlier texts said "G-23" for this): (a) every future, non-cancelled visit with only the legacy nurse name (`team_member_name`, no `responsible_user_id`) is mapped by a person to a member or confirmed unassigned, never by automatic name matching; count before and after, who and when recorded outside the repository; on the live project only after the D-1 review result; `team_member_name` kept, unreadable, for past visits until D-4 is final (RLS4-C1, `cra` CGR-101, `lca` 05:55); (b) the overlap fact answers about another team's visits only for her team's visit or at the save step (VIS2-C3), remainder weighed in the DSFA (D-3 item 14) | RLS4-C1, VIS2-C3, D-1, D-3 (ii), D-4 | po (acceptance), D-1 owner (mapping), owner (DSFA) | OPEN; RLS4-C1 and VIS2-C3 PLANNED |
+| G-25 | Before any real, migrated or imported **visit data** is shown on any screen (added 2026-10-30 06:10, po; earlier texts said "G-23" for this): (a) every future, non-cancelled visit with only the legacy nurse name (`team_member_name`, no `responsible_user_id`) is mapped by a person to a member or confirmed unassigned, never by automatic name matching; count before and after, who and when recorded outside the repository; on the live project only after the D-1 review result; `team_member_name` kept, unreadable, for past visits until D-4 is final (RLS4-C1, `cra` CGR-101, `lca` 05:55); (b) the overlap fact answers about another team's visits only for her team's visit or at the save step (VIS2-C3), remainder weighed in the DSFA (D-3 item 14); *added 2026-11-03 06:30 (po, `cra` CGR-109, `lca` 04:45 D-1):* (c) a past or closed visit without a responsible member reads "nicht erfasst", never "noch niemand", no legacy name exposed, no past visit mapped (UX2-29 as amended), and the reconciliation record also states the read-only count of past visits with only a legacy name (`OWNER_RUNBOOK.md` §5c step 6) | RLS4-C1, VIS2-C3, UX2-29, D-1, D-3 (ii), D-4 | po (acceptance), D-1 owner (mapping), owner (DSFA) | OPEN; RLS4-C1 IMPLEMENTED (runbook and test, #792; the live mapping OPEN for the D-1 owner); VIS2-C3 and (c) PLANNED |
 
 ## Where NAVORA exceeds Buurtzorg
 
@@ -212,4 +252,5 @@ Every proposed capability answers the same questions. The detail is in each brie
 - **Close the loop in the data flow (PO 2026-10-22 13:30).** The Handbook data flow is linear and ends with billing facts. Measured minutes (J5 "above plan"), observations and quality events should flow back as a **care-plan change proposal** to the team, which decides. Then the care plan follows reality instead of a review calendar.
 - **Name the missing actors.** The Handbook lists nurse, team, Operations, partner and architect. The **client and relatives**, the **GP** and the **hospital discharge planner** do much of today's coordination by phone. They should be first-class actors with minimal, consented access (ORD1, REF2, visit-window hypothesis).
 - **Add a "Workforce network" context.** Cross-team cover (COVER1), returning clients (RET1), nurse-chosen capacity (J4) and verified qualifications are network concerns. Today they are spread over Team Self-Organization and Operations, which invites a central dispatcher to come back.
+- **AI layer as a pillar (owner 2026-11-03).** Principles AI-1 to AI-12 and the *AI Layer* bounded context are written into `ARCHITECTURE.md`; the orchestrator, agent contract and evaluation harness are the next foundation brief (AIO1).
 - **"Teamplanung" is not a manual step.** In the orchestrator chain, team planning should read "plan generated from the care plan; the team handles exceptions" (PLAN2). The team decides; it does not type.
