@@ -391,6 +391,10 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 
 **Stage-0 state (2026-11-03 14:40):** AIG1-C4/-C5 built on #814 (open; AUT-30 met on head); AN3 approved; allowed on synthetic data: PLAN3, AN3, AIO1, OPS2, HAND2 (owner 14:00); D-39, D-40 frozen.
 
+**An answer goes where the question arises; a read is not a proposal (AUT-40, OPEN; `aia` 2026-11-03 20:30):** an assistant screen is added only for an intent no existing screen can answer (at stage 0 none: the four M6 intents of domain 10 read only `field_visits`, `field_since_last`, `team_open_visits` and `field_reports`, which C-01, the visit card and the absence flow already show). The AIG1 ledger records proposals with a target field and a confirmer, never reads, so the correction rate per agent and field stays the stop rule. Domain 10 (A-catalogue row "AI Nurse Assistant", update §5) returns as an entry point with the first language intent (A7 dictation, A9 drafting; D-35 stage 2, D-34 module).
+
+**Stage-0 state (2026-11-03 20:30):** Delivery Program M1-M10 merged (PLAN3, AN3 in M4 2026-12-18; AIO1, OPS2, HAND2 in M8 2027-02-19; PO targets); AN3 built on #841 (AUT-34 met, AUT-33 open); AIR1 guards for the prohibitions on #828; AIG1-C4/-C5 on #814; all open, none merged.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -415,3 +419,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-03 02:40 | `aia` | §12: one-decision-per-name state (IMPLEMENTED, AUT-27 closed), AUT-30 adopted as AIG1-C5; added the control "measure before automating" (AUT-32). No agent added or removed |
 | 2026-11-03 08:20 | `aia` | §12: AUT-32 answered by the AN3 draft; added the control "measure acts, not only spans" (AUT-33) and one definition per measure (AUT-34). No agent added or removed |
 | 2026-11-03 14:40 | `aia` | Header: doctrine of §1/§7 marked superseded by the AI-first update §0/§3 (controls of §8/§12 stay). §12: added "human acts per proposal do not rise" (AUT-38), "contract before switch-on, harness before provider" (AUT-37), "rank by recoverable time" (AUT-36), stage-0 state. No agent added or removed |
+| 2026-11-03 20:30 | `aia` | §12: added the control "an answer goes where the question arises; a read is not a proposal" (AUT-40) and the stage-0 state after the Delivery Program. No agent added or removed |
