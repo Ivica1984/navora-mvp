@@ -83,6 +83,27 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
 
 ---
 
+## 0b. Status 2026-11-03 22:00: AUT-40 decided; `cra` findings placed
+
+**PO decision on AUT-40 (`aia`, issue #843; `cra` 21:30: no clinical objection): no separate assistant screen at stage 0.** Status: PLANNED (nothing is built).
+- **Why:** every one of the four C-15 intents reads only a reader that a screen the nurse already uses shows (C-01 "Heute", the HAND1 line on the visit card, COVER1 and the absence flow, the report section). Through C-15 each answer takes 3 taps instead of 0-1, and a second route to the same safety facts is one more place where they can be shown differently or stale (`cra`). The screen removes no step. Value order: (1) direct care time, (5) less administration; no loss in safety.
+- **Decided:**
+  1. **No C-15 `/field/assistent` and no intent list in M6.** D-IA-1 keeps `/team/tagesplan`; the `/field/assistent` route is withdrawn until (5).
+  2. The answers stay where the question arises: C-01, the visit card, the absence flow.
+  3. **"Was fehlt vor dem Unterschreiben?"** is not a new rule. If MOB1 builds a line next to "Unterschreiben", it lists only the conditions `sign_report` already refuses, each taken from that command's refusal codes (one shared constant), never adds one, and with nothing refused reads "Für die Unterschrift fehlt nichts." (never "vollständig", "komplett", "alles erfasst") (**CGR-120**). Any further item is a Clinical Rule Register row, owner `clinical`, PROVISIONAL, before build. Signing stays one confirmation (F7).
+  4. **The AIG1 ledger records proposals only, never reads.** Whether assistant reads of client data would need an access log is `lca`'s question; it does not arise while no assistant reads exist.
+  5. An assistant entry point comes back only with the first intent no existing screen can answer (dictation A7 or drafting A9; D-35 stage 2, D-34 module). Its brief states the removed step and the human-act count before and after (AUT-38).
+- **For `uxa`:** mark C-15 in the screen catalog as deferred (stage 0) and place the CGR-120 line on the report section (C-01/C-03 placement). **For `eng`:** APP1 plan item M6-4 is dropped; its days go to M6-2 and M6-3.
+
+**`cra` findings placed (CGR-113 to CGR-121; PR #842 and #845, read on their branches; advisory):**
+- **CGR-117 (S1 by effect), M9:** wording changed below: no clinical gate is waived by the PO or by the owner alone.
+- **CGR-118, CGR-121 (S2), M6-2 offline queue:** conditions of MOB1 and of any M6-2 build: the banner states that urgent matters go by phone now and that new safety signals arrive only once the connection is back; each pending entry that reaches another person shows "Noch nicht beim Team" until sent; sign-out with pending entries is a confirming step naming how many and which kinds are unsent, default "Zurück und senden", sign-out only by a second explicit act; the foreground-resend fact is stated; ADR-143 states what happens to pending entries on session expiry and access end, and no entry that reaches another person is discarded unseen. e2e offline (`context.setOffline`) for each. Whether care text may sit on the device at all stays `lca`'s (SC-2).
+- **CGR-120 (S3), MOB1:** as decision 3 above.
+- **CGR-119 (S2, regulatory):** a brief for an AI domain at level H (AI-First §5.2 domains 1, 2, 4, 7, 8, 9; D-39 C/D; D-40 D) carries the line "D-34 classification: <adviser's answer, date>" and is not approved while it reads UNKNOWN. Added to `briefs/_TEMPLATE.md`.
+- **CGR-116 (S2), DOC2:** DOC2 stays not allowed. When it is written, the brief takes `cra`'s five conditions (signed statement per visit with an explicit, never preselected answer on the client's condition; events prove delivery only; visit types set by the Clinical Owner; observations and safety-alert changes as balancing measure; level G, not L).
+- **CGR-113, CGR-114, CGR-115 (S3):** conditions for the reviews of ASM1-C6 (#815), AN3 (#841) and AIR1 (#828), recorded in `NEXT_CAPABILITY.md`. For CGR-115 the PO prefers the allow-list (a register field is accepted only for a column listed with a `cra` row); `eng` decides how.
+- **AN3-5 wording aligned** to what `cra` confirmed is built: "share of visits with a time correction" (corrections have no open state).
+
 ## 1. Milestones
 
 | # | Milestone | Target date | Owner (delivers) | Accepts |
@@ -188,13 +209,16 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
   - M2;
   - brief **MOB1** (`po`, Fri 2026-11-27);
   - `eng` choice of delivery form in M1 (PO recommendation: installable web app on the existing `/field`, so that one code base serves phone and desktop; a native app only if M1 shows a requirement the web app cannot meet).
-- **Deliverables:** login, visits, documentation and handover as one installable app; the AI assistant as rule-based intents on synthetic data (domain 10).
+- **Deliverables:** login, visits, documentation and handover as one installable app. **No separate AI assistant screen at stage 0** (AUT-40, §0b): its four answers stay on the start screen, the visit card, the absence flow and the report section.
 - **Acceptance criteria:**
   - installable on iOS and Android, opening on `/field`;
   - at 390 px each listed function is reachable within two taps from the start screen (e2e);
   - a lost connection never loses an entered value: retry is idempotent, and every command has a key (existing pattern);
   - push opt-in works where the browser allows it (D-33);
-  - the AI assistant offers only listed intents, each mapped to an existing query or command, writes to the ledger and answers no free clinical question (test).
+  - each of the four former assistant answers (what is next, what changed, who can cover, what blocks signing) is reached from the start screen in ≤ 2 taps without an assistant route (e2e at 390 px);
+  - no `ai_suggestions` row exists without a target field and a proposed value: reads never enter the ledger (pgTAP);
+  - if a "before signing" line is built: every listed item maps to a `sign_report` refusal code, and the line contains no "vollständig", "komplett" or "alles erfasst" (vitest, CGR-120);
+  - offline: CGR-118 and CGR-121 conditions met (e2e with `context.setOffline`, §0b).
 
 ### M7 Family app specification and decision (Fri 2027-02-05)
 - **Objective:** a complete, decision-ready specification of the family app. **No build:** D-40 is frozen.
@@ -242,7 +266,8 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
   - training for the pilot team;
   - watched-hours plan (G-15).
 - **Acceptance criteria:**
-  - every gate that applies "before the first real client or employee" is **closed with evidence**, or explicitly waived by its owner in writing;
+  - every gate that applies "before the first real client or employee" is **closed with evidence**, or waived in writing with the reason and the compensating control by the person who carries its accountability. **A clinical gate** (an S1 item in the Hazard Log, the Safety Risk Register or the Clinical Governance Report, a blocking CGR finding, a Clinical Rule Register row in use) **is waived only by the named Clinical Owner (and, for the partner's clients, the partner's Leitung Pflege, D-12) together with the owner**, never by the PO or the owner alone (`cra` CGR-117, D-27);
+  - the readiness file lists every open S1 and S2 `CGR`, `H` and `PS` item with its status;
   - restore test done within the last 30 days;
   - DPIA signed by the licence holder;
   - Clinical Owner approved the clinical rules in use;
@@ -311,7 +336,7 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
 | 2 | **Visits** | IMPLEMENTED (`/field`: own visits, state machine, signals first) | app start on today's visits, two-tap reach, connection-loss handling | Fri 2027-01-08 |
 | 3 | **Documentation** | IMPLEMENTED (F6/F7 report draft from facts, observations OBS1, signing) | value kept on connection loss, idempotent retry, signing at 390 px | Fri 2027-01-15 |
 | 4 | **Handover** | IMPLEMENTED (HAND1 "Seit deinem letzten Einsatz") | HAND2 ordering (M8) prepared; reading at 390 px | Fri 2027-01-22 |
-| 5 | **AI assistant** | PLANNED (domain 10) | fixed intents over existing queries and commands (what is next, what changed, who can cover, what is missing before I sign); rules only, synthetic data; dictation and drafting wait for D-35 stage 2 and the D-34 module | Fri 2027-01-29 (rule intents); language features not dated |
+| 5 | **AI assistant** | **not built at stage 0** (AUT-40, §0b, 2026-11-03 22:00) | none in M6: the answers stay on C-01, the visit card, the absence flow and the report section; an entry point returns with the first intent no screen can answer (dictation A7 or drafting A9; D-35 stage 2, D-34 module) | not dated |
 
 ### 3.2 Family app (M7 specification, Fri 2027-02-05; build FROZEN until D-40)
 | Order | Function | Content | Gate |
@@ -351,7 +376,7 @@ Synthetic data only; D-1, D-34, D-35 apply. The phases are specification, develo
 - dictation (stage 2);
 - clinical drafting and extraction (D-34 module);
 - D-39 and D-40 (frozen);
-- DOC2 (not allowed yet).
+- DOC2 (not allowed yet; when written, its brief takes the five `cra` CGR-116 conditions, §0b).
 
 ---
 
@@ -406,3 +431,4 @@ M5 website (01-15, parallel)   M7 family spec (02-05, parallel, no build)       
 ## Change log
 - 2026-11-03 po: version 1, from the owner's Executive Delivery Directive.
 - 2026-11-03 15:30 po: §0 added. The UX/UI baseline (PR #834) is adopted for website, web app, caregiver app and operations app; the M1 UX/UI part is met; the dependencies of M2-M8 are updated; no date moved.
+- 2026-11-03 22:00 po: §0b added. AUT-40 decided (no C-15 assistant screen at stage 0; M6 deliverable, criteria and §3.1 row 5 changed); M9 waiver wording per CGR-117; CGR-113 to CGR-121 placed. No date moved.

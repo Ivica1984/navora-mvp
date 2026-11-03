@@ -31,6 +31,66 @@
 
 ---
 
+## 2026-11-03 20:30 CET · aia review 21: Delivery Program M1-M10 (#832), UX/UI baseline (#834, #836) and open plans read; AUT-40 (high: the M6 caregiver "Assistent" is a second screen that answers only questions the start screen already answers, so it adds taps and ledger rows without a care benefit); AUT-34 met on #841 (AN3); AUT-33, AUT-36, AUT-37 not taken into the program; AIR1 (#828) supported
+
+**Read:** `recovery/main` at `c46010a`:
+- merged since review 20 (#829): PO **#832** (`DELIVERY_PROGRAM.md` M1-M10, owner *Executive Delivery Directive* 2026-11-03), `uxa` **#834** (`NAVORA_INFORMATION_ARCHITECTURE.md`, `NAVORA_SCREEN_CATALOG.md`, `NAVORA_DESIGN_SYSTEM_V1.md`), PO **#836** (baseline adopted, UX2-33), `uxa` #839;
+- open, read through PR text and file list: `eng` **#841** (AN3, migration 0108, head check runs app, db, ui-screenshots `success`, e2e not finished per GitHub), **#837** (`APP1_IMPLEMENTATION_PLAN.md`, `WEB1_IMPLEMENTATION_PLAN.md`; read `APP1` lines on C-15 on its branch), #835 (`DELIVERY_ESTIMATE.md`), #833 (`IMPLEMENTATION_SEQUENCE.md`), **#828** (AIR1, migration 0107), #840, #838; #814 still open (mergeable `clean`), #815, #813, #810, #809, #806, #804, #803, #800, #799; `cra` #842, #819, #812;
+- open issues labelled `automation`: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database. Docs read: `DELIVERY_PROGRAM.md` header, M4, M6-M8, §3, §4, §7 in full; screen catalog C-01, C-11, C-15 to C-17, O-01 to O-03 (lines); `src/app/(protected)/field/report-section.tsx` and `src/features/field/todo.ts` by search only. Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-40 | M6 caregiver app item 5 "AI assistant" (`DELIVERY_PROGRAM.md` §3.1, M6 criteria; AI-first update §5 domain 10; screen catalog **C-15** `/field/assistent`; `APP1_IMPLEMENTATION_PLAN.md` M6-4 on #837): every nurse on her phone | PLANNED. C-15 is a separate screen with four intents, and per the catalog and the APP1 plan each one reads **only an existing reader**: "Was steht als Nächstes an?" → `field_visits` + `my_signals` (the content of C-01 "Heute", the app's start screen); "Was hat sich geändert?" → `field_since_last` (HAND1, already on each visit card, C-16 tap 2); "Wer kann übernehmen?" → `team_open_visits` (COVER1, already behind "Ich kann nicht arbeiten" and on the team screen); "Was fehlt vor dem Unterschreiben?" → `field_reports` completeness (the report section signs at completion in one confirmation, F7; in my search I found no "what is missing" line on it, so whether one is needed is UNKNOWN). Path via the assistant: tap "Assistent", tap intent, read, tap the link to act = **3 taps** for an answer the start screen shows at 0-1 taps. The M6 criterion also writes **every answer and its intent to the AIG1 ledger**: a read is not a proposal, has no confirmer and no correction, so these rows enter the ledger whose correction rate per agent and field is the stop rule (§8). **Patient-care benefit claimed: none shown** (domain 10 names the intents, not a removed step); engineering cost dated 2027-01-22 (M6-4) | **eliminate the extra screen at stage 0; place each answer where the question arises:** (a) no C-15 and no `IntentList` in M6; (b) "Was fehlt vor dem Unterschreiben?" as a deterministic line on the report section next to "Unterschreiben", only if `cra` and the PO name a completeness rule (UNKNOWN; not `aia`'s to invent); (c) the other three stay on C-01, the visit card (HAND1) and the absence flow (COVER1) as built; (d) the AIG1 ledger records proposals only, never reads; (e) an assistant entry point returns with the first intent no screen can answer (dictation or drafting, D-35 stage 2 and the D-34 module), and then its brief states the step it removes and the act count before and after (AUT-38). Testable: the M6 e2e reaches each of the four answers from the start screen in ≤ 2 taps at 390 px without a separate route; pgTAP: no `ai_suggestions` row exists without a proposed value and a target field | L | stage 0; PO (M6 scope, MOB1 brief), `uxa` (C-01 placement), `cra` (the completeness rule and the "keine medizinische Beratung" line, if anything remains), `eng` (APP1 plan) | taps from start screen to each answer (e2e, before and after); AIG1 ledger rows that are reads (target 0); engineering days not spent on M6-4 (DELIVERY_ESTIMATE) | **high** | #843 |
+
+### 2 Briefs, plans and packages reviewed
+
+- **Delivery Program M1-M10 (#832, merged):** dates are PO targets; the binding rules repeat the mandatory sequence, D-35 A and the D-39/D-40 freeze. Supported in structure. Automation points:
+  - **M4 (PLAN3, AN3, AIG1-C4/-C5):** matches AUT-32/AUT-30. Supported.
+  - **M8 AIO1 deliverable "orchestrator, agent contract, evaluation harness, no provider configured":** **AUT-37 not taken in** (the orchestrator and an adapter without a provider are still in M8). Stays open for the PO.
+  - **§4 AI roadmap:** no day-order rule (map rank 1, travel and day order). **AUT-36 not taken in.** Stays open.
+  - **M6 item 5:** AUT-40.
+  - **§3.2 family app, Communication "messages routed to the team as tasks" and Wellbeing "deviations become team tasks":** two new task streams for the team, frozen (D-40). Covered by **AUT-39** (team tasks per 100 clients and week stated in the D-40 package; default no check-in). No new finding.
+  - **§3.3 Operations "Staffing: team capacity view per week, never per person":** supported (team level, no ranking).
+- **UX/UI baseline (#834, #836):** C-11 "Vorschläge" with `ProposalLine` and a `BulkConfirmBar` "when ≥ 1 tick": consistent with AIG1-5 (ticked list only for `schedule` fields; no accept-all on listed fields). C-17 PLAN3 shows load "never judged"; O-02 has no person column. Supported. The landing text lists all seven steps of the sequence: AUT-38 (one act for steps 5-6) applies to the screens, not only the method text.
+- **AN3 on #841 (open):** **AUT-34 met** ((b) is the AN2 `countersign_latency_hours` beside `report_returned_share`, ADR-144 deviation 1). **AUT-33 not met:** spans only, no act counts per 100 visits; the PO approved AN3 without it. One comment on #841.
+- **AIR1 on #828 (open):** a register trigger refuses billing and safety-signal-priority targets, catalogue checks that no function writes the ledger's targets, no `ai` agent registered. Removes no step and adds none for any nurse; it makes prohibitions 1 and 3 of the owner directive testable. Supported; no finding. I ran none of its tests.
+- **#833, #835, #838, #840:** sequence, estimate, hosting and status documents; read by title and file list only; no automation finding claimed.
+
+### 3 AI readiness of delivered items (§8)
+- **#814 (AIG1-C4 + C5):** unchanged since review 20, still open; AUT-30 closes on merge.
+- **#828 (AIR1):** guards only; no agent proposes. §8 rows "no accept-all", "named confirmer" unaffected.
+- **C-15 (PLANNED):** fails §8 "correction rate per agent and field" as specified, because reads would enter the ledger without a decision (AUT-40 (d)).
+
+### 4 Findings closed
+- **AUT-34:** met on #841 head; closes on merge.
+- AUT-30 (#793): met on #814 head; closes on merge.
+- Open, unchanged: AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-39, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+
+### 5 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | Guards for the five prohibitions (#824) | AIR1 on #828 (open, PLANNED until merged) |
+| 0 | Baseline for ranks 1-3 | AN3 built on #841 (open); act counts (AUT-33) OPEN |
+| 0 | Delivery dates | PLAN3 and AN3 M4 2026-12-18; AIO1, OPS2, HAND2 M8 2027-02-19 (PO targets, not commitments) |
+| 1 | Real data to any AI path | blocked (D-1, G-25), unchanged; M3 owner decisions 2026-12-11 are the critical path (program §7) |
+| 2, 3 | Regulatory adviser (D-34), Clinical Owner (G-1) | not named, unchanged |
+
+### 6 Waiting for the PO
+- **AUT-40 (high):** answer before the MOB1 brief (2026-11-27): drop C-15 at stage 0 or name the patient-care benefit it adds.
+- AUT-36, AUT-37 (medium): not taken into the Delivery Program; version 2 (after M1, 2026-11-13) is the next place.
+- AUT-38 (medium), AUT-33 (medium; #841), AUT-39 (low, D-40 package).
+
+### 7 Issues and comments
+- **#843** opened for AUT-40 (labels `agents`, `agent:po`, `automation`); no duplicate found among open issues.
+- One comment on **#837** (APP1 plan M6-4, AUT-40) and one on **#841** (AUT-33 open, AUT-34 met).
+
+---
+
 ## 2026-11-03 14:40 CET · aia review 20: AI-first architecture update (#822) and owner directive 14:00 reviewed; opportunity-map ranking challenged (AUT-36, medium: the largest bottleneck, travel and day order, is missing from the ranking); AIO1 narrowed (AUT-37, medium); the seven-step sequence must not add acts (AUT-38, medium); D-40 Check-In adds team tasks (AUT-39, low); AUT-32 closed (AN3 approved); AUT-30 met on #814 head
 
 **Read:** `recovery/main` at `41ec907`:
