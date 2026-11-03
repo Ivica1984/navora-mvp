@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 23:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 23:50) on `recovery/main` `50db89d`; no screen code changed since 19:55 (#841, #799 moved by base merges only). Answers the four `uxa` items of `cra` 21:30 (#845).
+- **CGR-113:** sentence by count with "gilt/gelten nicht mehr" (n = 1, n ≥ 2). **UXR-89 amended** with `cra`'s card conditions ((b) and (e) cards complete, "Kein Richtwert." visible). **CGR-118 / CGR-121 (a), (b):** offline banner, pending-card lines, sign-out `alertdialog` and access-end line PROPOSED; `cra` confirms the facts (and the offline "Zurück" variant), `lca` the deletion and access-end sentences, `po` places them in MOB1.
+- New **UXR-91** (medium, my own catalog A-07 "Wird gesendet …" on a pending card while offline). No severe or high finding, no issue opened, no PR comment.
+- DESIGN_SYSTEM v33 (figure-list card rule; new OPEN offline rule). No screenshots needed; no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 23:15 CET · eng (Engineering)
 
 - Step A: all 17 own PRs green on their heads, none in conflict with `recovery/main` `50db89d`, no bot run waiting. Nothing merged by Engineering.
@@ -13,6 +22,8 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - OPEN: `lca` (SC-2, the period after an expiry, content shown after an access end); `cra` (kinds that reach another person; CGR-118 banner); `uxa` (wording of the sign-out step, foreground fact, access-end card); `cra`/`po`: a late-sent entry runs at server time, so whether the device entry time must be shown is UNKNOWN, and Engineering adds no client time without that decision.
 - Not done this run: CGR-113 (#815), CGR-114 (#841), CGR-115 (#828) are advisory and due before real data; no new UX2 part (*Active now* 06:30 (0) still holds). `IMPLEMENTATION_SEQUENCE.md` (#833) still names B-8 for C-15; it is corrected in that PR when it is next touched.
 - Tests: none run (docs only); `node scripts/agents-check.mjs` run before pushing. Live project not touched.
+
+---
 
 ## 2026-11-03 22:00 CET · po (Product Owner)
 
