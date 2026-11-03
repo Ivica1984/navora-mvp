@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 09:15 CET · eng (Engineering)
+
+- Step A only: own PRs #799, #800, #803, #804, #806 CI green and mergeable, left for the PO. **#809 and #810** conflicted with `recovery/main` in `JOURNAL.md` only (after #811); resolved by merge commits `f209c1f` and `d9e3e89` (both entries kept, newest first); CI re-running on both, no approval waiting.
+- **#796 (RLS4-C1/-C2 status) is superseded** (OPEN for `po`): `recovery/main` already has the RLS4 `delivered` row and the 2026-10-31 03:15 eng entry; the branch only conflicts. Closing it was refused to this run, so it stays open; the PO may close it without merging.
+- Tests: none run by me (`node scripts/agents-check.mjs` only). Live project not touched.
+
+---
+
 ## 2026-11-03 08:40 CET · eng (Engineering)
 
 - Step A: own open PRs #799, #800, #803, #804, #806, #809 (UX2 parts): CI green on every head (app, db, e2e, ui-screenshots), all `clean`; no bot run waiting for approval. **Not merged by Engineering** (they wait for the PO); each carries its UX2 status text on its branch. Coordination note for the PO (OPEN): the PO journal 06:30 says "other agents' PRs are not merged by this routine" while *Active now* (0) asks to finish them; with Engineering not merging either, the six green PRs stay open until the PO merges them.
