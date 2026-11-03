@@ -39,6 +39,8 @@
 --   `countersign_latency_hours` with `report_returned_share` (F6R-9, 0065) and AN1 `time_correction_share`; the care
 --   share stays WORK1-6 `direct_care_share` as built (AN3-6). /analytics places them in one block.
 --
+--   Access end (LEAVE1-3, pgTAP 074 catalogue): every scope derives from `my_orgs`, which is empty once the caller's
+--   access ended, so she gets no rows.
 --   Never per person (AN3-3): no person column in the result; every figure is grouped by team or organisation. No WORK1
 --   day or segment table is read (AN3-6, D-23 term (b)). Month boundaries are Europe/Zurich calendar dates
 --   (`private.at_zurich`), "now" is the test clock `private.now()` (DST1, AN3-7). No clinical rule, target, ranking or
@@ -61,6 +63,7 @@ as $$
   ), my_orgs as (
     select o.organization_id, private.is_coordinator(o.organization_id) as coordinator
     from public.organization_memberships o where o.user_id = (select auth.uid())
+      and not private.access_ended((select auth.uid()))  -- LEAVE1-3: no rows once her access ended
   ), my_teams as (
     select t.id, t.organization_id, t.name from public.teams t join my_orgs o on o.organization_id = t.organization_id
     where o.coordinator or private.is_team_member(t.id)
