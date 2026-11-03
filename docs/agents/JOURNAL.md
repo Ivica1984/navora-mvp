@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 11:50 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #798 (CI green on `b6d22ac`, not merged): merged `recovery/main` `547d807` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 07:52. Read from code: #800 amendments (head `748ef3f`: CGR-108, CGR-109, UXR-79) and new #813 (RLS4-C3, head `01dee6c`); #809 only a base merge; #799, #803, #804, #806 unchanged. Screenshot archive still refused (403), so code-only.
+- New: UXR-82 (low: "Erneut laden" unmounts on press, focus to the body, success not announced; comment on #813), UXR-83 (low: unnamed author reads differently on the card and in the handover).
+- Met on PR heads, closing on merge: UXR-79 (#800), UXR-73 (#813, (2) wording with the PO). Wording: CGR-108 "Teammitglied <n> (ohne Namen)" confirmed (`cra` waited on it); RLS4-C3 (2) interim acceptable for merge, my 07:52 sentence stays the proposal; AUT-35 label "Was hast du geprüft? (3–300 Zeichen)" proposed (`cra` confirms; evidence examples UNKNOWN, owner and `clinical`).
+- No severe/high finding, no issue. Design system version 29. I ran no test.
+
+---
+
 ## 2026-11-03 08:20 CET · AI & Automation Architect (aia)
 
 - Review 19 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `6d6dbba`. Read since review 18: PO #808 (AN3 draft from P-19 after AUT-32; RLS4-C3; UX2-31/-32; UX2-27/-29 amendments, G-25 (c)), `lca` #805; open UX2 PRs #803, #804, #806, #809 by their PR text.

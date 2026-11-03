@@ -6,6 +6,52 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-03 11:50 CET · `uxa`: #800 amendments (UX2-27/-29: CGR-108, CGR-109, UXR-79) and new #813 (RLS4-C3) read on PR heads; UXR-82, -83 (low); CGR-108 wording confirmed; AUT-35 label proposed; RLS4-C3 (2) interim noted
+
+**What changed since 07:52.** My PR #798 is still open (CI green on `b6d22ac`, not merged); this run continues it and merged `recovery/main` `547d807` in (JOURNAL: both entries kept, newest first). On `recovery/main` only docs merged (#811 `aia` review 19); **no screen code merged**. Open PRs that change screens, each with app, db, e2e and ui-screenshots `success` on its head (read from GitHub check runs; I ran no test):
+- **#800** UX2-27, UX2-29 (head `748ef3f`, was `158a8b3`): amendments from the PO 06:30 (CGR-108, CGR-109, UXR-79; ADR-132 addendum).
+- **#813** RLS4-C3 (new, head `01dee6c`, ADR-138): `/admin` access-end step offers "Erneut laden" after a failed open-report read; a missing count is never "Keine offenen Berichte".
+- #799, #803, #804, #806: heads unchanged (`a8699dd`, `7913eac`, `9f1511d`, `a5875e2`); #809 (`f209c1f`) only merged `recovery/main`, no change under `src` or `tests`. #810 (CGR-110) is pgTAP and CI only. My 03:52 and 07:52 notes on them stand.
+
+**Sources.** `ui-screenshots` artifacts exist for #813 `01dee6c` (13223065998), #800 `748ef3f` (13219004243) and `recovery/main` `547d807` (13212323610); the archive still redirects to a blob host the proxy refuses to this role (403 again this run), so **no screenshots were available**. Reviewed from code on the PR heads. Synthetic seed only; the live project was not touched. No benchmark this run (one made today, 03:52).
+
+### What the open PRs do well (built on PR heads, not yet on `recovery/main`)
+- #800: an empty responsible member reads "noch niemand" only while the visit is open (dated today or later and status planned, on the way, started or paused) and "nicht erfasst" otherwise, from one function `responsibleEmptyText` used by `/visits` and the record page (`features/visits/types.ts:36-64`; `visits/[visitId]/page.tsx:48`); no legacy name is shown. Both "Ändern" pickers share one placeholder "Verantwortliche Person wählen" and the AI field label is now "Verantwortlich" (`RESPONSIBLE_PICK_TEXT`, `features/ai/labels.ts` `FIELD_LABEL`): UXR-79 met on the head; this supersedes my 31.10 proposal "Zuständige Person wählen" (one word per concept wins, §4). In the handover an unnamed colleague keeps her number: "Teammitglied <n> (ohne Namen)" (`handover/rules.ts:89`).
+- #813: the failure line and "Erneut laden" sit in one block, the button outline and `min-h-11`, directly after the line (`admin/member-open-reports.tsx:26-34`); the retry runs the same read for this one member and nothing else; ending access stays possible without the list (product decision); a null count never yields "Keine offenen Berichte" (`features/admin/rules.ts` `accessEndedNotice`), with unit tests.
+
+### Wording answers (OPEN until built)
+
+**CGR-108 (UX2-27 amendment), handover author without a display name** (`cra` 09:30 waits on `uxa`): built "Teammitglied <n> (ohne Namen)" **confirmed**: the number keeps two unnamed authors apart and matches her other entries in the same handover; the bracket says why there is no name without blaming her. No further change.
+
+**RLS4-C3 (2), result line on a missing count.** #813 ships the PO's interim "Offene Berichte unbekannt: das Team sieht sie mit «Zugang beendet»." (`cra` 09:30 confirmed it claims no absence; ADR-138 deviation 1 keeps my 07:52 sentence OPEN for the PO). From the UX side the interim is acceptable for merge: it never says "keine". My 07:52 sentence stays the proposal because "sieht sie" presumes that reports exist, which the screen does not know. The PO decides; not a reason to hold #813.
+
+**AUT-35 / `cra` 09:30, reason field when the administrator first sets a qualification** (#809, `QUALIFICATION_REASON_LABEL` "Begründung (3–300 Zeichen)"). `cra` keeps a typed reason while CGR-16 is open and asks for a label that asks what was checked. Proposed label: **"Was hast du geprüft? (3–300 Zeichen)"**, with the input's `aria-describedby` hint "Die Angabe wird mit der Qualifikation gespeichert." Examples of evidence (which document or register) are **UNKNOWN**: the verification rule is the owner's and `clinical`'s; I name none. The refusal "Die Begründung braucht 3 bis 300 Zeichen." becomes "Die Angabe braucht 3 bis 300 Zeichen." `cra` confirms; can ride #809 (two strings and their test).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-82 | `/admin`, access-end step after a failed open-report read (administrator, desktop, keyboard or screen reader); built on open PR #813 | low | "Erneut laden" is unmounted as soon as it is pressed (the block shows "Offene Berichte werden geladen …"), so keyboard focus falls to the page body; when the second read succeeds the count line is a plain `p`, so a screen-reader user hears nothing (only a repeated failure is announced, through the `alert`). She must find the step again to learn whether the list came. | `admin/member-open-reports.tsx:24-35` (button only in the `null` branch; success line without `role`); `admin-client.tsx:237-240` (`readOpen` sets "loading") | §6 when content is replaced, focus moves to the new content, never the body; §6 a notice is reachable from where focus lands | Keep "Erneut laden" rendered and `disabled` with the text "Wird geladen …" while the read runs, or move focus to the step's result line (`tabIndex=-1`) when the read returns; the loading and result lines sit in one `role="status"` container. Playwright (desktop, read forced to fail once): press "Erneut laden" with the keyboard → after the read `document.activeElement` is inside `[data-testid=open-reports]`, and the container has `role="status"`. | report only (low); PR comment #813 |
+| UXR-83 | `/field` visit card, observation meta line (nurse, phone) vs. the handover; built on open PR #800 | low | The same colleague without a display name reads "Teammitglied ohne Namen" on the visit card (no "von", no number) and "Teammitglied 3 (ohne Namen)" in the handover. Two words for one person, and the card's line breaks the "von <Name>" / "von dir" pattern beside it. | `features/field/authorship.ts` `observationAuthor` (returns `AUTHOR_WITHOUT_NAME_TEXT`); `field-client.tsx:743`; `handover/rules.ts:89` | §4 one word per concept; §4 one command, one label | If the card's read can carry the member number (UNKNOWN, `eng`): "von Teammitglied <n> (ohne Namen)"; otherwise "von einem Teammitglied ohne Namen". vitest: `observationAuthor` for an unnamed colleague starts with "von ". | report only (low) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-79 | Met on PR head #800 (UX2-29 amendment); close on merge. | `748ef3f`, `RESPONSIBLE_PICK_TEXT`, `FIELD_LABEL`; `ux2-wording.test.ts` (CI success on head) |
+| UXR-73 | Met on PR head #813 (RLS4-C3 (1), (3)); (2) wording OPEN with the PO (above); residual UXR-82; close on merge. | `01dee6c`, `member-open-reports.tsx`, `rls4-c3-admin-open-reports-retry.test.ts` |
+| UXR-80, -81 | OPEN (low) on #809; head changed only by a base merge. | `f209c1f` |
+| UXR-36, -37, -40, -41; -56, -58, -61, -62, -63; -27, -28, -46, -48, -53, -72 | Met on PR heads (#804, #806, #803, #800, #799); close on merge; heads unchanged under `src` except #800 (amendments only). | 07:52 and 03:52 sections |
+| UXR-57 | Partly met on #806 (assessor prefill PLANNED, ADR-135). | `a5875e2` |
+| UXR-64 | PLANNED (UX2-30 (7)). | ADR-135 |
+| UXR-75, -78 / UXR-76, -77 | PLANNED (UX2-31 / UX2-32). | `briefs/UX2.md` |
+| UXR-65, -74 | OPEN (low), unchanged. | no screen merge since `3a6b9c6` |
+| UXR-68 | PLANNED (PLAN3-12). | — |
+
+**For the PO.** (1) RLS4-C3 (2): interim sentence acceptable for merge; my 07:52 sentence remains the proposal (your call, `cra` confirms). (2) AUT-35: label "Was hast du geprüft?" proposed in answer to `cra`; can ride #809 with UXR-80, -81. (3) CGR-108 wording confirmed as built on #800. (4) No `severe` or `high` finding, no issue; one comment on #813. (5) Eight PRs with screen changes are open and green; I hold no UX objection to their merge. (6) Screenshot download still refused to this role; reviews remain code-only (§8). I propose only.
+
+---
+
 ## 2026-11-03 07:52 CET · `uxa`: open UX2 PRs #804 (UX2-18 to -21), #806 (UX2-30), #809 (UX2-26) read; UXR-80, -81 (low); RLS4-C3 (2) wording answered; UX2-30 (4)/(5) wording confirmed
 
 **What changed since 03:52.** My PR #798 is still open (CI green on `091128e`, not merged); this run continues it and merged `recovery/main` `6d6dbba` in (JOURNAL: both entries kept, newest first). On `recovery/main` only docs merged (#805 `lca`, #808 `po`); **no screen code merged**. The PO (06:30) placed UXR-75/-78 as **UX2-31**, UXR-76/-77 as **UX2-32**, UXR-79 into UX2-29, and set **RLS4-C3** from UXR-73 with the result-line wording asked of `uxa`. #799, #800, #803 only merged `recovery/main` since my read (heads `a8699dd`, `158a8b3`, `7913eac`; no change under `src` or `tests`), so my 03:52 notes on them stand. Three new open Engineering PRs change screens, each with app, db, e2e and ui-screenshots `success` on its head (read from GitHub check runs; I ran no test):
