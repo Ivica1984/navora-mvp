@@ -6,6 +6,47 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-03 19:55 CET · `uxa`: new #841 (AN3, `/analytics` "Wo die Nicht-Pflegezeit hingeht") and the UX2-31 amendment on #799 read on PR heads; UXR-88, -89 (medium), UXR-90 (low); UXR-75, -78 met on #799
+
+**What changed since 15:50.** My PR #839 is still open (CI green on `7fe88f6`, clean, not merged); this run continues it. `recovery/main` is unchanged at `1b1d151`; **no screen code merged**. Open PRs that change screens:
+- **#841** AN3 (new, head `aeec158`, ADR-144): a block "Wo die Nicht-Pflegezeit hingeht" on `/analytics` between the AN1 tables and the AN2 hypotheses; per scope (organisation, then each team) 14 figures, each with value, base, period, definition and source.
+- **#799** UX2-1 (head `12a44f9`, was `f394ec5`): UX2-31 amendment (po 06:30, ADR-131 addendum): "Ausnahmen" as first tab for a person in no team whose home is `/operations`; below 768 px `scroll-padding` from the measured tab bar and sticky header heights.
+- #800, #803, #804, #806, #809, #813, #814, #815: heads moved by base merges only (e.g. #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`), **no change under `src` or `tests`**. My 03:52 to 15:50 notes on them stand. #837, #838, #840 (docs), #828 (no screen change), #842 (`cra`) not reviewed for screens.
+
+**Sources.** `ui-screenshots` artifacts exist for these heads, but the archive still redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from the code on the PR heads. No benchmark this run (made at 03:52 today). I ran no test; CI is the test runner. Live project not touched.
+
+### What the PRs do well (built on PR heads, not yet on `recovery/main`)
+- #799: the home tab is chosen only from items her menu already holds, nothing added or dropped (`lib/auth/shell.ts` `homeTabFor`, `shellItemsFor`); a team member keeps Heute, Team, Arbeitstag. The scroll padding follows the real heights through a `ResizeObserver` and adds 0.5rem so the focus outline stays visible (`AppShell.tsx` `useShellScrollPadding`, `globals.css` max-width 767.98px); Playwright covers both (`ux2-shell.spec.ts`, UX2-31 tests). `/field` and `/work` render their sticky header on the server (no `loading.tsx`), so the header is measured at mount.
+- #841: never per person and no target, colour scale or ranking (AN3-3, AN3-5); a suppressed figure shows "–" and "Basis –" rather than a guessed value; cards stack, so 390 px fits without sideways scroll; `role="group"` with "Schritte: <Team>" keeps the AN1 region names unique; "zu wenig Daten" uses the AN1/AN2 chip (one pattern on the page).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-88 | `/analytics` AN3 block (team member, coordinator, coach, administrator; phone and desktop); built on open PR #841 | medium | Every figure's visible source line carries internal codes, and the first label carries an English product term: "(North Star)", "WORK1-6", "F1–F4", "F6/F7 (AN1)", "F6R (AN2)", "F6R-9", "F3 (AN1)", "J1", "ORD0", "AIG1-Protokoll (AIG1-C4)". A nurse or coach reads "Quelle: Aufgaben ORD0" and learns nothing about where the number comes from. AN1's sources on `recovery/main` already carry some codes (`features/analytics/rules.ts:42-92`, in the UX1-C2 scope for `src/features`, PLANNED); AN3 adds new ones in a new block. | `aeec158`, `features/analytics/step-spans.ts:37-117` (`STEP_FIGURES` label, definition line 38, every `source`); shown at `analytics/step-spans.tsx:53` | §4 no internal codes in user text; one product name and plain German | Sources in plain words ("Bestätigte Arbeitstage", "Einsatzzeiten", "Berichte", "Rückgaben", "Zeitkorrekturen", "Partneranfragen", "Aufgaben «Hausärztin/Hausarzt informieren»", "Protokoll der Assistenzvorschläge"); the code moves to `data-ref` on the line (not read aloud); "(North Star)" dropped from the label. Vitest: no `label`, `definition` or `source` in `STEP_FIGURES` (and AN1 `KPI`) matches `/\b(F\d|F6R|J\d|WORK\d|ORD\d|AIG\d|AN\d)\b|North Star/`. Substance of the definitions unchanged; `cra` confirms (AN3-5 wording). | — (medium) |
+| UXR-89 | `/analytics` AN3 block (team member, coach; phone 390 × 844); built on open PR #841 | medium | Each scope lists 14 figures, each with label, value, base, the month (the same month on every line, already chosen at the top of the page) and a definition of up to three sentences plus source, all open. One team is several screens at 390 px; the organisation block comes first, so a team member scrolls past it before her own team. Related figures ("Vorschlag bis Entscheid" and its three "Davon …"/"Abgelaufen" lines; the GP task and its two "offen" lines) are separate cards, so "Davon geändert" reads without its parent in a screen reader's list. What she needs at a glance (where the time goes) is buried in definitions she reads once. | `aeec158`, `analytics/step-spans.tsx:37-56` (every `li` renders `periodLabel` line 50 and `f.definition` line 53); `step-spans.ts` `STEP_FIGURES` | §5 density (one line under a heading; details behind "Details"); §1 what needs attention first | Per figure: label, value and base visible; definition and source behind one `<details>` "Wie gemessen" (`summary` `min-h-11`), text unchanged; the month once in the block header, not per line; related figures as one card with sub-rows (GP task: erledigt / offen am Monatsende / Alter; proposals: bis Entscheid / geändert / abgelehnt / abgelaufen), so AN3-5's "beside" condition still holds. Playwright at 390 px: no definition text visible before a `summary` is opened; `step-period` occurs once per scope. The order org before team is the PO's (AN1 pattern); `cra` confirms the AN3-5 grouping. | — (medium) |
+| UXR-90 | `/analytics` AN3 block, several teams (coordinator, administrator; desktop) | low | Teams are sorted by their internal id (`a.localeCompare(b)` on the scope key), so the order looks random and differs from a team list sorted by name. | `aeec158`, `features/analytics/step-spans.ts:156` | §5 consistency; predictable order | Organisation first, then teams by name with `Intl.Collator("de-CH")` (same in the AN1 tables); vitest on `buildStepScopes` with two teams whose id order and name order differ. | — |
+
+**AN3-5, for `cra` (UNKNOWN from the UX side).** The brief places the countersign latency beside the team's returned share and its *open time corrections*; the block shows "Einsätze mit Zeitkorrektur" (share of completed visits with at least one correction). Whether that meets AN3-5 is `cra`'s to confirm; I make no proposal on the substance.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-75, -78 | Met on PR head #799 (UX2-31 (1), (2)); close on merge. | `12a44f9`, `lib/auth/shell.ts` `homeTabFor`; `AppShell.tsx` `useShellScrollPadding`; `globals.css`; `ux2-shell.spec.ts` UX2-31 tests |
+| UXR-84 to -87 | OPEN on #815 / #814; heads changed by base merges only. | `4474184`, `3fe219b` |
+| UXR-82; UXR-83 | OPEN (low), unchanged. | `8e4ab0b`; 15:50 section |
+| UXR-79; UXR-73 | Met on PR heads (#800; #813 with UXR-82 residual); close on merge. | 11:50 section |
+| UXR-80, -81 | OPEN (low) on #809; head changed by a base merge only. | `7f74e71` |
+| UXR-36, -37, -40, -41; -56, -58, -61, -62, -63; -27, -28, -46, -48, -53, -72 | Met on PR heads; close on merge. | 03:52 to 11:50 sections |
+| UXR-57 | Partly met on #806 (assessor prefill PLANNED, ADR-135). | `91e7bc9` |
+| UXR-64; UXR-76, -77; UXR-68 | PLANNED (UX2-30 (7); UX2-32; PLAN3-12). | briefs |
+| UXR-65, -74 | OPEN (low), unchanged. | no screen merge |
+
+**For the PO.** (1) UXR-88, -89 can ride #841 before merge (strings and presentation only; `cra` confirms wording and grouping). (2) AN3-5 "open time corrections" vs. the built share: `cra`'s call. (3) Nothing severe or high; no issue opened.
+
+---
+
 ## 2026-11-03 15:50 CET · `uxa`: new PRs #814 (AIG1-C4/-C5, `/operations/assistenten`) and #815 (ASM1-C6 "Irrtümlich erfasst", `/team`) read on PR heads; UXR-84, -85 (medium), UXR-86, -87 (low); CGR-113 sentence proposed
 
 **What changed since 11:50.** On `recovery/main` (`1b1d151`) only docs merged: my #798, `csa` #821, `lca` #823, `po` #822, `aia` #829, `po` #832, my design set #834 (15:00, owner request; no report section) and `po` #836 (baseline adopted; UX2-33 error pages added to UX2). **No screen code merged.** Open PRs that change screens:
