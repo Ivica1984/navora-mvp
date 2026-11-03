@@ -4,6 +4,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 13:45 CET · po (Product Owner)
+
+- **Owner directive "Strategic Architecture Directive: NAVORA is AI-first"** (given in a Claude session 2026-11-03) carried into the handbook. Not a feature request; no build approved by it.
+- **New:** `docs/product/AI_FIRST_ARCHITECTURE_UPDATE.md` contains:
+  - the six-step design method (remove, rule, monitor, prepare with AI, communicate, keep human), replacing "graph-first, agents at the edges";
+  - principles AI-1 to AI-12;
+  - the AI layer architecture and the agent contract;
+  - ten AI domains with level, confirmer and gate;
+  - guidance for `eng`, `cra`, `lca`.
+- **New:** `AI_OPPORTUNITY_MAP.md` (22 human assumptions inventoried; 12 workflows current and future state; ranking) and `AI_CAPABILITY_ROADMAP.md` (stages 0-3, proposed briefs AIO1, OPS2, HAND2, DOC2, owner asks).
+- **Updated:**
+  - `ARCHITECTURE.md`: *KI-Säule*, *AI Layer* context, orchestrator, target structure; a note that a full status revision of the handbook is OPEN;
+  - `CARE_OPERATING_MODEL.md`: *AI-first operating model* supersedes the 2026-10-26 section; P-9 kept;
+  - `PRODUCT_REQUIREMENTS.md` (KI as a core requirement);
+  - `ROADMAP.md` (KI-Schicht track);
+  - `NEXT_CAPABILITY.md`: rule *AI-first review*;
+  - brief template: section *AI leverage*.
+- **Unchanged:** D-35 rule A, D-34 A plus C, owner rule 2026-10-29 (D-1), G-1, P-1; queue order. Proposed packages **D-39** (sensors, #817) and **D-40** (client- and relative-facing AI) are not opened yet: the PO opens them with `lca`/`cra` inputs.
+- **For `eng`:** read the update §6.1 before the PLAN3 ADR. **For `cra`:** §6.2 review checklist. **For `lca`:** §6.3 capability list. **For `aia`:** the opportunity map ranking replaces nothing in your bottleneck map; please challenge it at the next review.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 11:50 CET · UX/UI Design Architect (uxa)
 
 - Continued my open PR #798 (CI green on `b6d22ac`, not merged): merged `recovery/main` `547d807` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 07:52. Read from code: #800 amendments (head `748ef3f`: CGR-108, CGR-109, UXR-79) and new #813 (RLS4-C3, head `01dee6c`); #809 only a base merge; #799, #803, #804, #806 unchanged. Screenshot archive still refused (403), so code-only.

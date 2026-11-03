@@ -2,9 +2,44 @@
 
 **Status:** Zielarchitektur **DECIDED/PLANNED**, nicht mit dem aktuellen Produktionsstand gleichsetzen. **VERIFY AGAINST REPOSITORY**. Siehe `MASTER_CONTEXT.md` für Statuskonvention.
 
+**Aktualisierung 2026-11-03 (Owner-Direktive „AI-first“, po):** KI ist eine Kernsäule der Architektur. Details: [`docs/product/AI_FIRST_ARCHITECTURE_UPDATE.md`](docs/product/AI_FIRST_ARCHITECTURE_UPDATE.md), [`AI_OPPORTUNITY_MAP.md`](docs/product/AI_OPPORTUNITY_MAP.md), [`AI_CAPABILITY_ROADMAP.md`](docs/product/AI_CAPABILITY_ROADMAP.md). Hinweis: Mehrere Kontexte unten sind inzwischen weiter umgesetzt, als hier steht (Stand je Item: `docs/agents/IMPLEMENTATION_STATUS.md`); eine vollständige Statusrevision dieses Handbuchs ist **OPEN**.
+
 ## Architekturprinzipien
 
 Supabase/PostgreSQL als gemeinsame Datenwahrheit; Domainlogik unabhängig von React; serverseitige Autorisierung und sensible Regeln; Rollen plus tatsächlicher Versorgungskontext; Human-in-the-loop; idempotente Commands; nachprüfbare Ereignisse/Freigaben; geringe Erfassungslast; Teamautonomie ohne Verletzung gesetzlicher Verantwortung.
+
+### KI-Säule (DECIDED, Owner 2026-11-03)
+
+NAVORA ist eine AI-first-Plattform. KI ist keine spätere Erweiterung, sondern wird mit jeder Fähigkeit entworfen. Ziel ist nicht, KI-Funktionen hinzuzufügen, sondern Koordination, Administration und Versorgungsabläufe um KI-gestützte Fähigkeiten herum neu zu gestalten.
+
+**Entwurfsreihenfolge je Fähigkeit:**
+1. Arbeit entfernen (Care Graph);
+2. per Regel entscheiden;
+3. kontinuierlich überwachen;
+4. mit KI vorbereiten (Entwurf, Zusammenfassung, Vorschlag);
+5. mit Personen ausserhalb des Teams strukturiert kommunizieren;
+6. Mensch für Urteil, Beziehung, Verantwortung und Unterschrift.
+
+**Prinzipien AI-1 bis AI-12** (Wortlaut: `AI_FIRST_ARCHITECTURE_UPDATE.md` §4):
+- (1) jede Fähigkeit wird auf KI-Hebel geprüft, jeder Brief hat den Abschnitt *AI leverage*;
+- (2) zuerst der Datensatz, dann KI; keine Schattenkopien;
+- (3) Human-in-the-loop für klinische und verantwortliche Entscheide: KI überschreibt nie klinische Regeln, ersetzt nie Verantwortung oder vorgeschriebene Unterschriften, trifft keine unkontrollierten klinischen Entscheide;
+- (4) jeder KI-Einfluss steht im unveränderlichen Vorschlagsprotokoll (AIG1, IMPLEMENTED);
+- (5) ein Agent liest nur, was seine bestätigende Person lesen darf;
+- (6) Umfang wird mit gemessener Evidenz verdient (Korrekturquote, Stoppregel, Parallelbetrieb P-1);
+- (7) das Risikoniveau L/G/H bestimmt den Weg, H nur im separat qualifizierten klinischen Modul (D-34 C);
+- (8) Datenminimierung, Anbieter und Region per Owner-Entscheid (D-35), Verarbeitung CH/EU;
+- (9) nie pro Person (keine Leistungsbewertung);
+- (10) P1-Sicherheitssignale bleiben deterministisch;
+- (11) erklärbar und umkehrbar;
+- (12) jede KI-Fähigkeit nennt den entfernten Verwaltungsschritt und seine Basismessung (AN3).
+
+**Unverändert in Kraft:**
+- D-35 Regel A: im Pilot keine Klienten- oder Personaldaten an KI-Dienste;
+- D-34 A plus C;
+- Owner-Regel 2026-10-29: keine echten Daten vor D-1;
+- G-1;
+- P-1.
 
 ```text
 Mobile Pflegekraft / Selbstorganisiertes Team / Operations / Partner / Architect
@@ -32,6 +67,12 @@ Mobile Pflegekraft / Selbstorganisiertes Team / Operations / Partner / Architect
 - **Quality/Clinical Intelligence [PARTIAL IMPLEMENTED]:** `quality_events` existiert; validated risk signals/Reviews **PLANNED**.
 - **Finance/Payroll [PLANNED]:** Leistungen, Tarife, Rechnungen, Lohn-/Teamökonomiefakten separat.
 - **Operations [PARTIAL IMPLEMENTED]:** exception-based Control Tower; Matching nie von hier starten.
+- **AI Layer [PARTIAL IMPLEMENTED] (2026-11-03):** Agentenregister, unveränderliches Vorschlagsprotokoll, Bestätigung pro Wert, Stopp und Rückblick (AIG1, Migrationen 0097, 0103, 0104; IMPLEMENTED auf synthetischen Daten). **PLANNED:**
+  - KI-Orchestrator (Scope-Prüfung → Minimierung → Modell oder Regel → Schema-Validierung → Quellenprüfung → Protokoll → Vorschlag);
+  - Agentenvertrag und Evaluations-Harness (AIO1);
+  - zehn operative KI-Domänen (Dokumentation, Übergabe, Angehörige, Check-in, Personalkoordination, Operations-, Qualitäts-Monitoring, Evidenz für Assessments, Zuweisungsvorbereitung, Assistenz für Pflegende).
+
+  **OPEN:** Anbieter, Region und Vertrag (D-35 Stufe 1); Konformitätsweg des klinischen Moduls (D-34).
 
 ## Frontend
 
@@ -51,7 +92,7 @@ Partner/privat/spital/heim → partner_requests → cases → matching_requests
 → billable_facts → Tarif-/Kostenträgerabgleich
 ```
 
-Parallel: geprüfte Arbeitszeit → Payroll-Fakten; Erlöse/Kosten/Plattformgebühr → Teamökonomie. Abrechnungs- und Lohnfakten niemals verwechseln.
+Parallel: geprüfte Arbeitszeit → Payroll-Fakten; Erlöse/Kosten/Plattformgebühr → Teamökonomie. Abrechnungs- und Lohnfakten niemals verwechseln. Quer zu allen Schritten (2026-11-03): Die KI-Schicht liest aus dem Graphen nur im Lesebereich der bestätigenden Person und schreibt ausschliesslich Vorschläge zurück; jeder Schritt der Kette wird von Monitoren beobachtet (verspätet, unvollständig, nicht zugestellt).
 
 ## Rule Engine und Architect Mode
 
@@ -59,7 +100,10 @@ Quellversion/Seite/Abschnitt → fachliche Regel → versionierte maschinenlesba
 
 ## Geodaten und KI
 
-**IMPLEMENTED in damaliger Datenbank:** PostGIS, `cases.location`, `teams.base_location`, private Distanzfunktion und Geocoding-Queue. **PLANNED:** verifizierte mehrere Teamstandorte, Worker und fachlich validierter Routing-/Radius-Fit; Distanz unbekannt lassen, wenn Lage fehlt. KI-Orchestrator läuft serverseitig: Datenminimierung → Provider → strukturiertes Schema → Validierung → menschliches Review → unveränderlicher freigegebener Stand. Anbieter und Betriebsort **OPEN**.
+**IMPLEMENTED in damaliger Datenbank:** PostGIS, `cases.location`, `teams.base_location`, private Distanzfunktion und Geocoding-Queue. **PLANNED:** verifizierte mehrere Teamstandorte, Worker und fachlich validierter Routing-/Radius-Fit; Distanz unbekannt lassen, wenn Lage fehlt. KI-Orchestrator läuft serverseitig: Datenminimierung → Provider → strukturiertes Schema → Validierung → menschliches Review → unveränderlicher freigegebener Stand. Anbieter und Betriebsort **OPEN**. **Präzisiert 2026-11-03:**
+- Alle KI-Aufrufe laufen über einen Orchestrator. Er schreibt jeden Vorschlag ins AIG1-Protokoll; keine Modellaufrufe aus Seiten oder Clients.
+- Jeder Agent hat einen Vertrag: Zweck und entfernte Arbeit, Auslöser, Lesebereich, typisierte Ausgabe mit Feldklasse, Quelle je Aussage, bestätigende Rolle, Niveau L/G/H, Messgrössen, Stoppregel.
+- Ein Agent wird erst eingeschaltet, wenn seine Version auf synthetischen Fällen evaluiert ist.
 
 ## Security und Production
 
@@ -69,9 +113,10 @@ Quellversion/Seite/Abschnitt → fachliche Regel → versionierte maschinenlesba
 
 ```text
 src/app/{(auth),(protected)}/{field,operations,matching,teams,partners,quality,assessments,architect,finance}
-src/domain/{visits,teams,matching,documentation,assessment,rules,quality,billing,security}
+src/domain/{visits,teams,matching,documentation,assessment,rules,quality,billing,security,ai}
 src/application/{commands,queries,policies,workflows}
 src/infrastructure/{supabase,ai,geocoding,integrations,audit}
+src/ai/{orchestrator,agents,contracts,evaluation}   # 2026-11-03, PLANNED (AIO1); heute: src/features/ai
 src/components/{field,operations,ui}
 supabase/{migrations,functions,seed}
 tests/{unit,integration,security,e2e}

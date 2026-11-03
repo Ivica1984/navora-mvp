@@ -1,6 +1,6 @@
 # NAVORA Care Operating Model — beyond Buurtzorg
 
-**Owner:** Product Owner (`po`) · **Stand:** 2026-11-03 06:30 (G-25 (c) added, `cra` CGR-109; G-19 item 2 entry (l) added, CGR-111; earlier 2026-10-30 07:20 G-19 item 2 entry (k) added; earlier 06:10 G-25 added, G-18 RLS4 met; earlier 2026-10-25 22:10 go-live gate index added; earlier 2026-10-22 18:20) · **Status:** strategic direction. Approved items appear in `docs/agents/NEXT_CAPABILITY.md`. Targets marked *hypothesis* are validated with pilot data (AN1), not assumed.
+**Owner:** Product Owner (`po`) · **Stand:** 2026-11-03 13:45 (AI-first operating model, owner directive; earlier 06:30 G-25 (c) added, `cra` CGR-109; G-19 item 2 entry (l) added, CGR-111; earlier 2026-10-30 07:20 G-19 item 2 entry (k) added; earlier 06:10 G-25 added, G-18 RLS4 met; earlier 2026-10-25 22:10 go-live gate index added; earlier 2026-10-22 18:20) · **Status:** strategic direction. Approved items appear in `docs/agents/NEXT_CAPABILITY.md`. Targets marked *hypothesis* are validated with pilot data (AN1), not assumed.
 
 ## North Star
 
@@ -114,22 +114,46 @@ The owner's principles:
 - **Measure:** time from a team's consent decision (D-38 T15 (d)) to C's admission, first team versus second; hypothesis: the second is at least half as long. UNKNOWN until two teams have gone through it.
 - **Beyond Buurtzorg:** Buurtzorg scaled teams inside one organisation, with its back office as the single legal provider. The kit aims at many small providers that each hold their own licence and share only processors and contracts (P-24), so no single organisation becomes the hierarchy again.
 
-## AI-first means graph-first (PO, 2026-10-26)
+## AI-first operating model (owner directive, 2026-11-03)
 
-From the [AI Operating Model Review](AI_OPERATING_MODEL_REVIEW.md):
-- **Design order:**
-  1. eliminate the work through a continuously updated **care graph** (provenance, version, scope, consent on every node);
-  2. automate what is rule-shaped;
-  3. monitor continuously (service delivery, completeness, the controls, the agents, access);
-  4. use agents only at the edges of the graph (unstructured input, drafts for people), always with a named confirmer;
-  5. keep people for judgement, accountability and relationship.
-- **Graph completion before agents (P-9):** the consent record (D-9 g4), the structured order (D-22), the D-13 B assessment reference, and the external actors (REF2, ORD1). Each waits for its decision.
-- **In the core the graph is never:**
-  - a clinical inference engine (D-34);
-  - a per-person performance profile;
-  - an identity matcher without an explicit, audited link (RET1);
-  - a source for secondary use beyond anonymised aggregates (D-12).
-- **AI basis:** D-35 (`owner`). Until it is decided, no client or staff data reaches any AI service.
+**NAVORA is an AI-first platform.** AI is a core architectural capability, not a future enhancement. Every existing and future capability is reviewed through an AI-first lens. The aim is not to add AI features. The aim is to redesign coordination, administration and care operations around AI-enabled capabilities.
+
+Full text:
+- [AI-First Architecture Update](AI_FIRST_ARCHITECTURE_UPDATE.md) (principles AI-1 to AI-12, the AI layer, the ten AI domains, guidance for `eng`, `cra`, `lca`);
+- [AI Opportunity Map](AI_OPPORTUNITY_MAP.md) (every workflow, current state and future state);
+- [AI Capability Roadmap](AI_CAPABILITY_ROADMAP.md).
+
+**Four statements for every reader:**
+1. AI is a core architectural pillar.
+2. Every future capability is evaluated for AI leverage (brief section *AI leverage*).
+3. Human-in-the-loop remains mandatory for clinical and accountable decisions.
+4. AI eliminates administrative overhead wherever it is safe, and the removed step is measured (AN3).
+
+**Design order** (replaces the 2026-10-26 order "graph-first, agents at the edges"):
+1. **remove** the work through the continuously updated care graph;
+2. **decide by rule** what is rule-shaped;
+3. **watch continuously** what can drift;
+4. **prepare with AI** every decision that needs reading, connecting or drafting, inside the graph as well as at its edges, always as a proposal with sources and a named confirmer;
+5. **communicate** with people outside the team through structured, consented channels in which AI drafts and routes;
+6. **keep people** for judgement, relationship, accountability and signature.
+
+**In the core the graph and the AI layer are never:**
+- a clinical inference engine outside the qualified module (D-34);
+- a per-person performance profile;
+- an identity matcher without an explicit, audited link (RET1);
+- a source for secondary use beyond anonymised aggregates (D-12);
+- a channel that gives clinical advice to clients or relatives.
+
+**Unchanged by the directive:**
+- AI basis D-35 rule A: in the pilot, no client or staff data reaches any AI service until the owner approves a stage-1 package;
+- D-34 A plus C;
+- the owner rule of 2026-10-29 (D-1);
+- G-1;
+- P-1.
+
+**New actors served by the AI layer:** the client and named relatives (Family Companion, Check-In; D-40 proposed), the GP (order renewal, ORD1) and the hospital discharge planner (REF2).
+
+*History:* the 2026-10-26 section "AI-first means graph-first" (design order, graph completion before agents P-9, core exclusions) is superseded by this section. Its content is kept in the [AI Operating Model Review](AI_OPERATING_MODEL_REVIEW.md) §1-§2. P-9 (consent record, structured order, assessment reference, external actors before agents that need them) stays in force.
 
 ## Pilot adoption and usability (owner, 2026-10-27)
 
@@ -212,4 +236,5 @@ Every proposed capability answers the same questions. The detail is in each brie
 - **Close the loop in the data flow (PO 2026-10-22 13:30).** The Handbook data flow is linear and ends with billing facts. Measured minutes (J5 "above plan"), observations and quality events should flow back as a **care-plan change proposal** to the team, which decides. Then the care plan follows reality instead of a review calendar.
 - **Name the missing actors.** The Handbook lists nurse, team, Operations, partner and architect. The **client and relatives**, the **GP** and the **hospital discharge planner** do much of today's coordination by phone. They should be first-class actors with minimal, consented access (ORD1, REF2, visit-window hypothesis).
 - **Add a "Workforce network" context.** Cross-team cover (COVER1), returning clients (RET1), nurse-chosen capacity (J4) and verified qualifications are network concerns. Today they are spread over Team Self-Organization and Operations, which invites a central dispatcher to come back.
+- **AI layer as a pillar (owner 2026-11-03).** Principles AI-1 to AI-12 and the *AI Layer* bounded context are written into `ARCHITECTURE.md`; the orchestrator, agent contract and evaluation harness are the next foundation brief (AIO1).
 - **"Teamplanung" is not a manual step.** In the orchestrator chain, team planning should read "plan generated from the care plan; the team handles exceptions" (PLAN2). The team decides; it does not type.
