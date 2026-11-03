@@ -4,6 +4,12 @@
 
 ---
 
+## 0. Owner directive 2026-11-03 14:00 (post-PR #822)
+- **Allowed now, synthetic data only:** PLAN3, AN3, AIO1, OPS2, HAND2. No real patient, employee or production data; compliant with D-1, D-34 and D-35. The PO writes the missing briefs (AIO1, OPS2, HAND2).
+- **Frozen, specification only:** D-39 (sensors, IoT) and D-40 (Family Layer, Check-In Services). No implementation, table, migration or production architecture until owner approval. Packages opened 2026-11-03 for decision support.
+- **Not in the allowed list:** DOC2. It stays a proposal until the owner adds it.
+- **Mandatory sequence** for every item: Remove → Rules → Monitor → AI prepares → Human reviews → Human decides → Human signs (update §0).
+
 ## 1. Principle of the sequence
 
 1. **Foundation before agents.**
@@ -34,7 +40,7 @@
    - A provider adapter interface with **no provider configured** (D-35 A). An `ai` agent still refuses to switch on.
    - Level L, synthetic data.
 3. **AN3** (draft): approve after `lca`'s read; build before G-19.
-4. **New briefs OPS2, HAND2, DOC2** (stage 0, rules only):
+4. **New briefs OPS2, HAND2 (owner-approved for synthetic development 2026-11-03), DOC2 (proposal only)** (stage 0, rules only):
    - **OPS2:** control health A6 and exception grouping by rule.
    - **HAND2:** handover entries ordered by rule, unread-before-start fact.
    - **DOC2:** a visit that went as planned produces its proof of delivery from events, and the report asks for text only on deviations. `cra` must confirm P-2 first, with D-10 and documentation duties; `lca` on the canton's documentation rules, after D-11 (#816).
@@ -46,8 +52,8 @@
 | **D-35 stage 1 (new package)** | provider, model region (CH/EU), contract, DPIA, sub-processors for L agents on staff and administrative data | owner (`lca` conditions 1-10) | without it no language model runs on real data; it is the main blocker of an AI-first pilot |
 | **D-34 adviser** | name the regulatory adviser; answer the adviser questions incl. 7 and 8 (EU AI Act) | owner | needed before stage 2 and before the clinical module's design |
 | **G-1** | name the Clinical Owner | owner | gates every clinical AI rule, every one-by-one list and nine clinical packages |
-| **D-39 (proposed, #817)** | sensors in a client's home: legal basis, household consent, retention, device law | owner, `lca`, `cra` | prerequisite for domain 4 with sensors |
-| **D-40 (proposed)** | client- and relative-facing AI (Family Companion, Check-In): transparency, consent per relative, representation, liability, which answers may be automated | owner, `lca`, `cra` | prerequisite for domains 3 and 4 |
+| **D-39 (opened 2026-11-03; frozen, specification only)** | sensors in a client's home: legal basis, household consent, retention, device law | owner, `lca`, `cra` | prerequisite for domain 4 with sensors |
+| **D-40 (opened 2026-11-03; frozen, specification only)** | client- and relative-facing AI (Family Companion, Check-In): transparency, consent per relative, representation, liability, which answers may be routed or drafted (never clinical advice) | owner, `lca`, `cra` | prerequisite for domains 3 and 4 |
 
 ### 3.3 Handbook and documents
 - `ARCHITECTURE.md`: new principle block *KI-Säule* (AI-1 to AI-12), an *AI Layer* bounded context, the data flow with the orchestrator, and the target structure with `ai/`.
@@ -59,7 +65,7 @@
 1. **Open the D-35 stage-1 package:** "approve that the PO prepares a provider package (processing in CH/EU) for level-L agents on staff and administrative data."
 2. **D-34:** name the regulatory adviser.
 3. **G-1:** name the Clinical Owner.
-4. **Objection window:** AIO1, OPS2 and HAND2 are approved by the PO in its next cycle unless the owner objects. DOC2 waits for `cra` and `lca`.
+4. **Done 2026-11-03 14:00:** the owner allowed PLAN3, AN3, AIO1, OPS2 and HAND2 on synthetic data. DOC2 is not in that list and waits.
 
 ## 5. How progress is measured
 - **Administration removed per step:** AN3 spans before and after each capability (per team and month, never per person).
@@ -73,3 +79,4 @@
 
 ## Change log
 - 2026-11-03 po: created from the owner's Strategic Architecture Directive.
+- 2026-11-03 14:00 po: owner directive *post-PR #822 alignment* taken in (§0; D-39, D-40 opened and frozen; allowed list).

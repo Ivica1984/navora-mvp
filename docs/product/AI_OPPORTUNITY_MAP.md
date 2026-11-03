@@ -165,7 +165,7 @@ Each row answers the directive's questions:
   - **Admin:** fewer calls.
   - **Continuity:** the relative becomes a first-class actor (handbook proposal).
   - **Hierarchy:** none.
-- **Gate:** D-9, D-3, new D-40.
+- **Gate:** D-9, D-3, D-40 (opened 2026-11-03; frozen, specification only).
 
 ### 2.8 Workforce coordination
 - **Current:**
@@ -238,11 +238,12 @@ Each row answers the directive's questions:
 | 5 | Handover digest ordered by rule (domain 2) | 2, 1 | L | **yes** | brief **HAND2** |
 | 6 | Referral completeness (A1, domain 9) | 5, 1 | L | **yes** (rule) | with REF2 after D-9 |
 | 7 | Proof of delivery from events, documentation by exception (domain 1) | 1, 5 | L | **yes** | brief **DOC2** (`cra` on P-2) |
-| 8 | Family Companion, logistics only (domain 3) | 2, 5 | L | rules yes | D-40 package, D-9 |
+| 8 | Family Companion, logistics only (domain 3) | 2, 5 | L | **frozen** (D-40, specification only, owner 2026-11-03) | D-40 package, D-9 |
 | 9 | Order renewal request (A2) | 5, 2 | L | needs D-22 | after D-22 |
 | 10 | Dictation (A7, domains 1 and 10) | 1 | G | no | D-35 stage 2, adviser |
-| 11 | Check-In Services (domain 4) | 6, 2 | L/H | no | Clinical Owner, D-40, D-39 |
+| 11 | Check-In Services (domain 4) | 6, 2 | L/H | **frozen** (D-39, D-40, specification only, owner 2026-11-03) | Clinical Owner, D-40, D-39 |
 | 12 | Report and handover drafting, intake extraction, review proposals, evidence layer (A8-A11) | 1, 2, 6 | H | no | D-34 clinical module (stage 3) |
 
 ## Change log
 - 2026-11-03 po: created from the owner's Strategic Architecture Directive.
+- 2026-11-03 14:00 po: D-39/D-40 freeze marked in the ranking.

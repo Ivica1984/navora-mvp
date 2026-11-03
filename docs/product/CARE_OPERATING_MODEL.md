@@ -1,6 +1,6 @@
 # NAVORA Care Operating Model — beyond Buurtzorg
 
-**Owner:** Product Owner (`po`) · **Stand:** 2026-11-03 13:45 (AI-first operating model, owner directive; earlier 06:30 G-25 (c) added, `cra` CGR-109; G-19 item 2 entry (l) added, CGR-111; earlier 2026-10-30 07:20 G-19 item 2 entry (k) added; earlier 06:10 G-25 added, G-18 RLS4 met; earlier 2026-10-25 22:10 go-live gate index added; earlier 2026-10-22 18:20) · **Status:** strategic direction. Approved items appear in `docs/agents/NEXT_CAPABILITY.md`. Targets marked *hypothesis* are validated with pilot data (AN1), not assumed.
+**Owner:** Product Owner (`po`) · **Stand:** 2026-11-03 14:00 (mandatory human-in-the-loop sequence, D-39/D-40 freeze; earlier 13:45 AI-first operating model, owner directive; earlier 06:30 G-25 (c) added, `cra` CGR-109; G-19 item 2 entry (l) added, CGR-111; earlier 2026-10-30 07:20 G-19 item 2 entry (k) added; earlier 06:10 G-25 added, G-18 RLS4 met; earlier 2026-10-25 22:10 go-live gate index added; earlier 2026-10-22 18:20) · **Status:** strategic direction. Approved items appear in `docs/agents/NEXT_CAPABILITY.md`. Targets marked *hypothesis* are validated with pilot data (AN1), not assumed.
 
 ## North Star
 
@@ -129,13 +129,29 @@ Full text:
 3. Human-in-the-loop remains mandatory for clinical and accountable decisions.
 4. AI eliminates administrative overhead wherever it is safe, and the removed step is measured (AN3).
 
-**Design order** (replaces the 2026-10-26 order "graph-first, agents at the edges"):
-1. **remove** the work through the continuously updated care graph;
-2. **decide by rule** what is rule-shaped;
-3. **watch continuously** what can drift;
-4. **prepare with AI** every decision that needs reading, connecting or drafting, inside the graph as well as at its edges, always as a proposal with sources and a named confirmer;
-5. **communicate** with people outside the team through structured, consented channels in which AI drafts and routes;
-6. **keep people** for judgement, relationship, accountability and signature.
+**Mandatory sequence (owner, 2026-11-03 14:00; replaces the 2026-10-26 order "graph-first, agents at the edges"):**
+
+> Remove unnecessary work → Apply rules → Monitor continuously → AI prepares → Human reviews → Human decides → Human signs
+
+**AI may:** prepare, summarise, prioritise, draft, monitor, suggest. This includes messages to people outside the team, which a person sends.
+
+**AI may not:**
+- make accountable decisions;
+- replace signatures or required approvals;
+- execute clinical judgement.
+
+Proposals that violate this sequence are rejected.
+
+**Prohibited:**
+- automatic billing decisions;
+- automatic clinical recommendations to patients or relatives;
+- automatic clinical prioritisation of safety signals;
+- unrestricted general-purpose copilots on production data;
+- AI replacing accountable human decisions.
+
+**Frozen (specification only):** D-39 (sensors) and D-40 (Family Layer, Check-In).
+
+**Allowed on synthetic data only:** PLAN3, AN3, AIO1, OPS2, HAND2.
 
 **In the core the graph and the AI layer are never:**
 - a clinical inference engine outside the qualified module (D-34);
@@ -151,7 +167,7 @@ Full text:
 - G-1;
 - P-1.
 
-**New actors served by the AI layer:** the client and named relatives (Family Companion, Check-In; D-40 proposed), the GP (order renewal, ORD1) and the hospital discharge planner (REF2).
+**New actors served by the AI layer:** the client and named relatives (Family Companion, Check-In; D-40, frozen, specification only), the GP (order renewal, ORD1) and the hospital discharge planner (REF2).
 
 *History:* the 2026-10-26 section "AI-first means graph-first" (design order, graph completion before agents P-9, core exclusions) is superseded by this section. Its content is kept in the [AI Operating Model Review](AI_OPERATING_MODEL_REVIEW.md) §1-§2. P-9 (consent record, structured order, assessment reference, external actors before agents that need them) stays in force.
 

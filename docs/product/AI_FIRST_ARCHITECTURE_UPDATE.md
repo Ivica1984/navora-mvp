@@ -8,6 +8,46 @@
 
 ---
 
+## 0. Owner directive 2026-11-03 14:00 (post-PR #822): human-in-the-loop is mandatory
+
+The principles of this document are the **default operating model** for every future brief, capability, epic and architecture proposal.
+
+**AI may:** prepare, summarise, prioritise, draft, monitor, suggest.
+
+**AI may not:**
+- make accountable decisions;
+- replace signatures;
+- replace required approvals;
+- execute clinical judgement.
+
+**Mandatory sequence:**
+
+> **Remove unnecessary work → Apply rules → Monitor continuously → AI prepares → Human reviews → Human decides → Human signs**
+
+A proposal that violates this sequence is **rejected** by the PO (`changes-requested` on a brief, a flag on an architecture proposal). "Prioritise" never includes setting, lowering or suppressing the priority of a P1 safety signal (AI-10).
+
+**Prohibited** (owner directive; `eng` enforces in code and architecture, flags violations):
+- automatic billing decisions;
+- automatic clinical recommendations to patients or relatives;
+- automatic clinical prioritisation of safety signals;
+- unrestricted general-purpose copilots on production data;
+- AI replacing accountable human decisions.
+
+**Freeze:** D-39 (sensors, IoT) and D-40 (Family Layer, Check-In Services) are specification only. No implementation, no database table, no migration and no production architecture until owner approval.
+
+**Synthetic-data AI development allowed:** PLAN3, AN3, AIO1, OPS2, HAND2. Synthetic data only; no real patient, employee or production data; compliant with D-1, D-34 and D-35.
+
+**Role duties (no overlapping ownership):**
+
+| Role | Duty |
+|---|---|
+| `po` | decides what is built and in which order; rejects briefs that break the sequence |
+| `eng` | enforces the restrictions in code and architecture and flags violations (§6.1) |
+| `cra` | reviews every AI proposal for patient safety, accountability, clinical governance, auditability and human oversight; records clinical decision-support risk as a regulatory finding (§6.2) |
+| `lca` | prepares the D-34 AI assessment as decision support; makes no regulatory determination without the owner (§6.3, D-34 package) |
+
+---
+
 ## 1. What changes, in one page
 
 1. **AI is a core architectural pillar, not a later feature.** Before this directive the doctrine was *graph-first, agents at the edges* (AI Operating Model Review §1): AI agents only where input is unstructured or a draft is needed. From now on the AI layer is designed together with every capability from its first brief. Every brief states how the work would be done if AI had existed from day one (§5, brief template).
@@ -50,28 +90,30 @@ The [Opportunity Map](AI_OPPORTUNITY_MAP.md) §1 lists every case. In short:
 
 ---
 
-## 3. The AI-first design method (replaces "AI-first means graph-first" as the design order)
+## 3. The AI-first design method (mandatory sequence, owner 2026-11-03)
 
-Every capability is designed in this order. Each step is asked; a later step is used only for what the earlier steps leave.
+Every capability is designed in this order. Each step is asked in turn; a later step handles only what the earlier steps leave.
 
 | Step | Question | Typical form | Device level (D-34) |
 |---|---|---|---|
-| **1 Remove** | Does this work exist only because information is fragmented, late or re-typed? Then it disappears through the care graph. | one record, events, structured facts at the source | L |
-| **2 Decide by rule** | Is the decision rule-shaped and approved (by the Clinical Owner when clinical)? | deterministic, versioned, tested rule; "Warum?" explanation | L, or the clinical rule's owner |
-| **3 Watch continuously** | Can drift, gaps, delays and risk be detected from the record as they happen, instead of by periodic checks? | monitors over the graph (controls, completeness, delivery, agents, access) | L for operational facts; H when interpreting clinical content |
-| **4 Prepare with AI** | Is the input unstructured (letter, speech, free text) or is the output a draft, a summary or a ranked proposal for a person? | agents with a contract (§6): scoped input, typed output, source per claim, named confirmer, ledger | L, G or H by content |
-| **5 Converse** | Must a person outside the team (client, relative, GP, discharge planner) get or give information without a phone call? | structured, consented channel; AI drafts and routes, a person answers what needs a person | L for logistics; H for anything clinical |
-| **6 Keep human** | judgement, relationship, accountability, signature, consent | the record shows who decided, with what evidence | – |
+| **1 Remove unnecessary work** | Does this work exist only because information is fragmented, late or re-typed? Then it disappears through the care graph. | one record, events, structured facts at the source | L |
+| **2 Apply rules** | Is the decision rule-shaped and approved (by the Clinical Owner when clinical)? | deterministic, versioned, tested rule; "Warum?" explanation | L, or the clinical rule's owner |
+| **3 Monitor continuously** | Can drift, gaps, delays and risk be detected from the record as they happen, instead of by periodic checks? | monitors over the graph (controls, completeness, delivery, agents, access) | L for operational facts; H when interpreting clinical content |
+| **4 AI prepares** | Is the input unstructured (letter, speech, free text), or is the output a draft, summary, ranked proposal or message for a person, including people outside the team (client, relative, GP, discharge planner)? | agents with a contract (§5.1): scoped input, typed output, source per claim, ledger | L, G or H by content |
+| **5 Human reviews** | Who reviews the prepared output, with its sources and its "not found" items in view? | confirm list, record page; one by one for listed fields (AIG1-5) | – |
+| **6 Human decides** | Who takes the accountable decision? | a named person confirms, changes or rejects; the record shows "vorgeschlagen von / bestätigt von" (AIG1-3) | – |
+| **7 Human signs** | Which signature or required approval does the law or the Clinical Owner demand? | signed report, countersignature (D-10), hold lift, licence holder's release | – |
 
-**Difference from the earlier order (2026-10-26):** step 4 is no longer restricted to "the edges of the graph". AI may prepare any decision inside the graph (handover synthesis, care-plan review proposals, cover proposals), as long as the output is a proposal with sources and a confirmer. Step 5 is new: communication with people outside the team is designed AI-first instead of being left to phone and e-mail.
-
----
+**Difference from the earlier order (2026-10-26):**
+- Step 4 is no longer restricted to "the edges of the graph". AI may prepare any decision inside the graph, as a proposal with sources.
+- Communication with people outside the team is prepared by AI and sent by a person.
+- Steps 5 to 7 make review, decision and signature explicit and mandatory.
 
 ## 4. Updated architectural principles (AI pillar)
 
 These principles are added to `ARCHITECTURE.md` (§ *Architekturprinzipien*, KI-Säule) and apply to every brief from 2026-11-03.
 
-**AI-1 AI is a core capability.** Every brief contains the section *AI leverage* (brief template). It answers the six questions of §3. "No AI leverage" is a valid answer only with a reason.
+**AI-1 AI is a core capability.** Every brief contains the section *AI leverage* (brief template). It answers the seven steps of §3. "No AI leverage" is a valid answer only with a reason.
 
 **AI-2 Record first, then AI.** AI reads and writes through the care graph. No agent keeps its own copy of client data, its own memory of a person or a parallel record. Output enters the record only as a proposal (AIG1-3).
 
@@ -173,8 +215,8 @@ Each domain is an operational capability built from several agents and monitors 
 |---|---|---|---|---|---|---|---|
 | 1 | **AI Documentation Copilot** | proof of delivery from visit events; documentation only for deviations (P-2); dictation into structured entries in the nurse's words; report draft from the visit's facts with a source per sentence; completeness shown before signature | event-to-report rule; A7 dictation; A9 drafter | performing nurse (signs); countersigner per D-10 | L (events, completeness) · G (dictation) · H (drafting from clinical content) | D-35 stage 2 (A7), D-34 module (A9), Clinical Owner | F6/F7 server-built draft from facts (IMPLEMENTED), OBS1 |
 | 2 | **AI Handover Assistant** | per visit and per shift, what changed since she was last there, ordered by rule (open signals, plan changes, new observations); later a summary of the observations with sources | HAND1 digest (rule); A9 handover summary | the next nurse reads; nothing is applied | L (digest) · H (summary of clinical content) | D-34 module for the summary | HAND1 "Seit deinem letzten Einsatz" (IMPLEMENTED) |
-| 3 | **AI Family Companion Layer** | for a client or a named relative, with consent: visit window, who comes, changes, how to reach the team; routine questions answered from logistics facts; anything else becomes a task for the team with a drafted reply the nurse sends | consented read of logistics facts; message router; reply drafter | a team member sends every non-logistics answer | L (logistics) · H (any health content: never automated) | D-9 (consent), D-3, new package **D-40** (client- and relative-facing AI: transparency, consent, liability) | none; challenge row "relatives phone the team" (HYPOTHESIS) |
-| 4 | **AI Check-In Services** | between visits, a scheduled, structured check-in with the client (app, phone or voice): the RN chooses the questions from a set the Clinical Owner approved; answers are stored as *client-reported facts* with time and channel; an answer outside the approved band becomes a team task (not a P1 signal unless the Clinical Owner makes it one); sensor readings (#817) can feed the same facts | check-in scheduler; question set (clinical rule); answer recorder; deviation rule | primary nurse | L (logistics questions) · H (health questions and any interpretation) | Clinical Owner (question sets, bands), D-34 adviser, D-9, D-40, **D-39** (sensors, #817) | none |
+| 3 | **AI Family Companion Layer** | for a client or a named relative, with consent: visit window, who comes, changes, how to reach the team; routine questions answered from logistics facts; anything else becomes a task for the team with a drafted reply the nurse sends | consented read of logistics facts; message router; reply drafter | a team member sends every non-logistics answer | L (logistics) · H (any health content: never automated) | D-9 (consent), D-3, **D-40** (opened 2026-11-03; **frozen, specification only**) | none; challenge row "relatives phone the team" (HYPOTHESIS) |
+| 4 | **AI Check-In Services** | between visits, a scheduled, structured check-in with the client (app, phone or voice): the RN chooses the questions from a set the Clinical Owner approved; answers are stored as *client-reported facts* with time and channel; an answer outside the approved band becomes a team task (not a P1 signal unless the Clinical Owner makes it one); sensor readings (#817) can feed the same facts | check-in scheduler; question set (clinical rule); answer recorder; deviation rule | primary nurse | L (logistics questions) · H (health questions and any interpretation) | Clinical Owner (question sets, bands), D-34 adviser, D-9, **D-40** and **D-39** (sensors, #817; both **frozen, specification only**) | none |
 | 5 | **AI Workforce Coordination** | proposals for who takes each open visit (continuity first), cover across teams, absence re-assignment, capacity per team and week, team admission paperwork; never per-person scoring | PLAN3 proposer (rule); COVER1/ABS1 proposers; capacity monitor | team (confirms line by line) | L | labour-law rules (`legal`), Q7 for travel, D-3 for cover reads | PLAN3 (approved), ABS1, COVER1, ADM2 (IMPLEMENTED) |
 | 6 | **AI Operations Monitoring** | continuous watch of delivery and controls: late or stuck visits, undelivered signals, failed jobs, stopped agents, expired orders, unanswered referrals; groups and explains exceptions; drafts the next step; Operations sees only what teams did not resolve | OPS1 rules; A6 control health; exception explainer | team first, Operations last | L | none for rules; D-35 for language explanations | OPS1, SIG1, AIG1 health list (IMPLEMENTED) |
 | 7 | **AI Quality Monitoring** | continuous quality indicators from events (documentation completeness, late reports, returns, corrections, holds, continuity); hypotheses with their decision rule (AN2); clusters of quality events for the team's review | AN1/AN2 rules; quality monitor; event clustering | team; Clinical Owner for serious events | L (indicators) · H (clustering clinical narratives) | D-16, Clinical Owner; D-34 module for clinical clustering | QG1, AN1, AN2 (IMPLEMENTED) |
@@ -207,6 +249,15 @@ Each domain is an operational capability built from several agents and monitors 
 - **No new read paths for agents.** An agent uses the confirmer's functions. A reader that aggregates per person is refused in review.
 - **Provider-neutral.** No provider SDK in domain code. The provider is a configuration under D-35.
 - **Ask, in every ADR:** "How would this work if the AI layer did it from day one?", and name the agent or monitor it enables or blocks.
+- **Enforce the owner's prohibitions (2026-11-03) in code and architecture, and flag violations:**
+  - automatic billing decisions;
+  - automatic clinical recommendations to patients or relatives;
+  - automatic clinical prioritisation of safety signals;
+  - unrestricted general-purpose copilots on production data;
+  - AI replacing accountable human decisions.
+
+  Where a guard can be tested (an `ai` agent cannot switch on under D-35 A; no agent writes a record value without a confirmation; no agent changes a signal priority), it gets a pgTAP or unit test.
+- **Frozen:** no code, table, migration or production architecture for D-39 or D-40.
 
 ### 6.2 Clinical & Regulatory Architect (`cra`): how AI opportunities are reviewed
 For each AI capability, before approval:
@@ -217,6 +268,7 @@ For each AI capability, before approval:
 5. **Parallel run:** which human control it relieves, the decision rule and the minimum base before that control is retired (P-1).
 6. **Signals:** confirm that P1 signals stay deterministic and that the agent cannot suppress or delay one.
 7. **Evaluation:** a synthetic case set covering the hazards; correction-rate and later-error thresholds proposed for the stop rule.
+8. **Owner directive 2026-11-03:** review every AI proposal against patient safety, accountability, clinical governance, auditability and human oversight. Verify "AI prepares – Humans decide". Any proposal that risks entering **clinical decision-support territory** is recorded as a regulatory finding (CGR).
 
 ### 6.3 Legal & Compliance (`lca`): capabilities with regulatory implications
 `lca` analysis is advisory; the legal adviser and the owner decide.
@@ -236,9 +288,10 @@ For each AI capability, before approval:
 ## 7. Handbook statements (for every reader)
 
 1. **AI is a core architectural pillar of NAVORA.** It is designed with every capability, not added later.
-2. **Every future capability is evaluated for AI leverage** with the six-step method (§3) and documented in its brief.
+2. **Every future capability is evaluated for AI leverage** with the mandatory seven-step sequence (§3) and documented in its brief.
 3. **Human-in-the-loop remains mandatory** for clinical and accountable decisions. AI proposes, explains, monitors and drafts; people decide, sign and answer for the care.
 4. **AI is used to eliminate administrative overhead wherever it is safe.** "Safe" means: the level, the gate and the controls of §4 and §5 hold, and the removed step is measured.
 
 ## Change log
 - 2026-11-03 po: created from the owner's Strategic Architecture Directive.
+- 2026-11-03 14:00 po: owner directive *post-PR #822 alignment*: §0 added (mandatory sequence, prohibitions, freeze of D-39/D-40, synthetic-data list, role duties); §3 becomes the seven-step sequence.

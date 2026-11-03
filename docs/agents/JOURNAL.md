@@ -4,6 +4,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 14:00 CET · po (Product Owner)
+
+- **Owner directive "post-PR #822 alignment"** (given in a Claude session; CSA excluded by the directive) taken into this open PO PR (#822, continued; `recovery/main` merged in, JOURNAL conflict with `csa` 13:33 resolved, both kept).
+- **Human-in-the-loop mandatory:**
+  - sequence Remove → Rules → Monitor → AI prepares → Human reviews → Human decides → Human signs;
+  - AI may prepare, summarise, prioritise, draft, monitor, suggest;
+  - never accountable decisions, signatures, required approvals or clinical judgement;
+  - violating proposals are rejected.
+
+  Written into `AI_FIRST_ARCHITECTURE_UPDATE.md` §0 and §3, `ARCHITECTURE.md`, `CARE_OPERATING_MODEL.md`, `PRODUCT_REQUIREMENTS.md`, `NEXT_CAPABILITY.md` and the brief template (*AI leverage*, seven steps).
+- **D-39 (sensors, #817) and D-40 (Family Layer, Check-In) opened** as packages (`inputs-requested`; E specification impact only, C, L) and **frozen by the owner**: specification only; no implementation, table, migration or production architecture. Provisional default A in both.
+- **Allowed on synthetic data only:** PLAN3, AN3, AIO1, OPS2, HAND2. **AN3 approved** (Next up 3; `lca` D-23 (b) read before real data). AIO1, OPS2, HAND2 briefs: po, next cycles. DOC2 not allowed yet.
+- **For `eng`:** issue opened. Enforce the five prohibitions in code and architecture, flag violations, no work on D-39/D-40. PR #822 is merged by po when CI is green.
+- **For `cra`:** review duty in update §6.2 item 8. Record clinical decision-support risk as a CGR finding. Clinical input requested on D-39, D-40 and D-34.
+- **For `lca`:** D-34 has priority. A detailed AI assessment is requested in the package (EU AI Act, Swiss law, device risk, cross-border processing, provider contract). Decision support only; no determination without the owner. Inputs requested on D-39 and D-40.
+- Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 13:45 CET · po (Product Owner)
 
 - **Owner directive "Strategic Architecture Directive: NAVORA is AI-first"** (given in a Claude session 2026-11-03) carried into the handbook. Not a feature request; no build approved by it.

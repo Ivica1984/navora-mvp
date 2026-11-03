@@ -53,6 +53,12 @@ NAVORA ist eine AI-first-Plattform. KI ist eine Kernfähigkeit jeder Journey und
 - Risiken früher sichtbar machen;
 - repetitive Arbeit automatisieren.
 
+**Verbindliche Reihenfolge (Owner, 2026-11-03):** Unnötige Arbeit entfernen → Regeln anwenden → kontinuierlich überwachen → KI bereitet vor → Mensch prüft → Mensch entscheidet → Mensch unterschreibt.
+
+KI darf vorbereiten, zusammenfassen, priorisieren, entwerfen, überwachen und vorschlagen. Sie trifft keine verantwortlichen Entscheide, ersetzt keine Unterschriften oder Freigaben und übt kein klinisches Urteil aus.
+
+Sensoren (D-39) sowie Angehörigen-Kanal und Check-in (D-40) sind eingefroren: nur Spezifikation.
+
 **Formen:**
 - Vorschläge (Planung, Vertretung, Zuweisung);
 - Entwürfe (Bericht, Übergabe, Verordnungserneuerung, Antworten);

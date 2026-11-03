@@ -12,13 +12,26 @@ Supabase/PostgreSQL als gemeinsame Datenwahrheit; Domainlogik unabhängig von Re
 
 NAVORA ist eine AI-first-Plattform. KI ist keine spätere Erweiterung, sondern wird mit jeder Fähigkeit entworfen. Ziel ist nicht, KI-Funktionen hinzuzufügen, sondern Koordination, Administration und Versorgungsabläufe um KI-gestützte Fähigkeiten herum neu zu gestalten.
 
-**Entwurfsreihenfolge je Fähigkeit:**
-1. Arbeit entfernen (Care Graph);
-2. per Regel entscheiden;
-3. kontinuierlich überwachen;
-4. mit KI vorbereiten (Entwurf, Zusammenfassung, Vorschlag);
-5. mit Personen ausserhalb des Teams strukturiert kommunizieren;
-6. Mensch für Urteil, Beziehung, Verantwortung und Unterschrift.
+**Verbindliche Reihenfolge (Owner, 2026-11-03):** Unnötige Arbeit entfernen → Regeln anwenden → kontinuierlich überwachen → KI bereitet vor → Mensch prüft → Mensch entscheidet → Mensch unterschreibt.
+
+**KI darf:** vorbereiten, zusammenfassen, priorisieren, entwerfen, überwachen, vorschlagen.
+
+**KI darf nicht:**
+- verantwortliche Entscheide treffen;
+- Unterschriften ersetzen;
+- vorgeschriebene Freigaben ersetzen;
+- klinisches Urteil ausüben.
+
+Vorschläge, die dagegen verstossen, werden abgelehnt.
+
+**Verboten:**
+- automatische Abrechnungsentscheide;
+- automatische klinische Empfehlungen an Klientinnen, Klienten oder Angehörige;
+- automatische klinische Priorisierung von Sicherheitssignalen;
+- uneingeschränkte Allzweck-Copiloten auf Produktivdaten;
+- KI anstelle verantwortlicher menschlicher Entscheide.
+
+**Eingefroren:** D-39 (Sensoren) und D-40 (Angehörige, Check-in) nur als Spezifikation.
 
 **Prinzipien AI-1 bis AI-12** (Wortlaut: `AI_FIRST_ARCHITECTURE_UPDATE.md` §4):
 - (1) jede Fähigkeit wird auf KI-Hebel geprüft, jeder Brief hat den Abschnitt *AI leverage*;
