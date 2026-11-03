@@ -31,6 +31,89 @@
 
 ---
 
+## 2026-11-03 02:40 CET · aia review 18: bottleneck map v2 (weekly refresh); AUT-27 closed (RLS4-C1 built, #792); AUT-30 adopted as AIG1-C5, AUT-31 into PLAN3-13; UX2-1 shell (#799) and UX2-27/-29 (#800) without finding; AUT-32 (medium: the three largest bottlenecks have no build path and no per-step baseline)
+
+**Read:** `recovery/main` at `a321e6c`:
+- merged since review 17 (#794): PO **#791** (02:25 and addendum 02:55: AIG1-C4, **AIG1-C5 from AUT-30**, PLAN3-11 keyed on open lines, PLAN3-13 with AUT-31), **#792** (RLS4-C1 runbook §5c, RLS4-C2 `/admin`; pgTAP 105), #795, `lca` #797;
+- open: `eng` **#799** (UX2-1 shell, ADR-131) and **#800** (UX2-27, UX2-29, ADR-132), `cra` **#801** (01:30: CGR-101, CGR-105 closed; #799 gate clear; CGR-108, CGR-109 on #800), `uxa` #798 (UXR-72 to -74), #796, and the earlier `cra` chain; all read on their branches through their PR text and file lists;
+- open issues labelled `automation`: #793 (AUT-30; adopted, open until built).
+- No repository activity from 2026-10-31 03:51 to 2026-11-03 01:10.
+
+**Nothing below is a measurement.** I ran no tests and read no database. CI states are as the PRs and `cra` #801 report them; not re-read by me. Code and docs read: `docs/engineering/OWNER_RUNBOOK.md` §5c, `briefs/AIG1.md` (02:55), `briefs/PLAN3.md` (PLAN3-7, -11, -13), `briefs/WORK1.md` (WORK1-5, -6), `briefs/AN1.md`, `NEXT_CAPABILITY.md` (challenge rows P-19, P-20, P-28, P-32, P-38), `OPEN_DECISIONS.md` (D-3, D-9, D-10, D-11, D-17, D-22, D-28, D-37, Q7).
+
+### 1 Bottleneck map v2 (weekly refresh; v1 review 1, 2026-10-27; from-scratch reading review 5)
+
+**Published evidence:** [E1] and [E2] as in review 1 (not re-read). **[E3]** read 2026-11-03: *Kennzahlen der Hilfe und Pflege zu Hause SPITEX 2017/2018* (Gesundheits- und Fürsorgedirektion des Kantons Bern, on the BFS Spitex statistics; <https://www.gsi.be.ch/content/dam/gsi/dokumente-bilder/de/themen/statistiken/sozialmedizinische-institutionen/DA_Kennzahlen_SPITEX_2018_bis_2017_d.pdf>). It gives billed hours and full-time positions per year but, by its own scope, the two cannot be combined into a billable or direct-care share (billed hours cover some services only; positions include administration). **A Swiss direct-care or documentation share for home care therefore stays UNKNOWN** to `aia`; no Swiss figure is used below.
+
+**Rank** = estimated direct-care time recoverable at team level, 1 = largest (estimate, ordinal, unchanged from v1 unless stated). **Moved this week** = what changed in the product since 2026-10-27.
+
+| Rank | Step (role) | Moved this week (status) | What still costs a person time | Verdict (from scratch) | What unblocks it | Finding |
+|---|---|---|---|---|---|---|
+| 1 | Travel and day order (nurse) | nothing (OPEN). PLAN3 excludes order and travel (PLAN3 *Negative*, Q7). AN1 travel minutes within visits IMPLEMENTED | she orders her own day and route | **replace first** (team geography, J2 and D-11), **automate second** (AUT-5 day-order rule) | Q7 (location data, Gate 5, `lca`), D-11 (`owner`) | AUT-5, **AUT-32** |
+| 2 | Documentation per visit (nurse; RN countersigner) | OBS1 accepted (author line per observation; no step added). D-10 still awaiting the Clinical Owner (G-1 not named) | one free-text report per visit; RN countersign of every care-assistant report (0016) | **replace** by documentation by exception (P-2) and risk-based review (D-10); dictation (A7) only at stage 2 | D-10 and G-1 (`clinical`); D-35 stage 2 | AUT-4, **AUT-32** |
+| 3 | GP orders, hospital referrals, relatives (primary nurse) | nothing (OPEN). D-22, D-9, D-3 awaiting | phone or fax for order renewal (ORD0 records only the task); referral re-typed at J1 | **eliminate** (structured order and referral, external actors as record nodes) | D-22, D-9 (`legal`/`owner`), D-3 (Clinical Owner) | AUT-6 |
+| 4 | Who takes which visit (team) | AIG1 accepted, AIG1-C1/-C2/-C3 met (#787); AIG1-C4/-C5 then PLAN3 in *Active now* (2), (3). VIS1 (early visit as one confirmed move) and VIS2 (overlap shown) IMPLEMENTED | a member sets the responsible nurse visit by visit (J3); moving a weekly visit before doing it early (VIS1-3b) | **eliminate the role**; PLAN3 is the means (ticked list for `schedule` fields, AUT-1); P-28 (window instead of a fixed day) would remove the early-visit move at its source | build (PLAN3); P-28 needs a missed-visit rule for a window (D-28, Clinical Owner) | AUT-1, AUT-19 |
+| 5 | Assessment → care plan (assessing RN) | ASM1 accepted with ASM1-C4: one confirmed review act re-bases the plan, no retyping (AUT-26 closed, IMPLEMENTED) | minutes per category typed from the provider's tool; planned minutes per service again on the plan | **redesign** (one clinical language); import later (AUT-13, D-37) | `cra` on the AUT-2 display; D-37, D-36 (`owner`, `legal`) | AUT-2, AUT-13; P-38 (measure) |
+| 6 | Working time (nurse) | nothing. WORK1-6 team North Star IMPLEMENTED (care minutes over confirmed paid minutes, per team and month) | one confirmation per day with two questions | **simplify the form**, the duty stays (P-20 measures first; `lca`) | pilot data, `lca` (D-23) | AUT-8 |
+| 7 | Visit status taps (nurse) | nothing | up to six taps per visit | inferred times are `record` values confirmed one by one (AUT-7 closed): **no gain at equal safety** | – | – |
+| 8 | Billing preparation | nothing | none before the invoice (J5 derives facts) | eliminated; invoice later (BILL2) | D-12, D-18 | – |
+| 9 | Referral → case → team decision | nothing | none beyond rank 3's re-typing | eliminated (team pull, J2) | – | – |
+| 10 | Quality and analytics | nothing | the hold lift by coach or admin (D-16) | eliminated (compilation) | D-16 (`clinical`) | – |
+| 11 | Team self-organisation: absence, offboarding, onboarding | ADM2 accepted (team admits by consent; "Vertrag erfasst" once); RLS4-C2 (leaver's open reports at the access-end step only, #792) IMPLEMENTED; UX2-26 (qualification on the same card after "Vertrag erfassen", AUT-21) PLANNED | the administrator's separate qualification step until UX2-26 | eliminated (central admission); **simplify** the remaining employer acts into one sitting (AUT-21) | build (UX2-26) | AUT-21 |
+| 11a | Team self-organisation: a team that divides itself (team) | nothing (P-32, OPEN) | only an organisation administrator creates a team (`create_team`, 0035); no command hands open cases with primary nurse, deputy and planned visits to another team (UNKNOWN whether another path exists) | **eliminate** re-entry: one team decision carries cases with their people; responsibility transfer stays `cra`'s | P-32 brief (PO); `cra` on a responsibility transfer | – (P-32) |
+| 11b | Team self-organisation: night and weekend cover across teams | nothing (COVER1 accepted, switched off, D-3) | cover by phone outside NAVORA | shared on-call service (STRATEGY §8.1.5) | D-3, P-24 (UNKNOWN, `lca`) | – |
+| new (low) | **Governance follow-up of an assistant** (team members, Operations): look-back lines after a stop, expired proposals, threshold health | AIG1-C1/-C2/-C3 IMPLEMENTED; AIG1-C4 (expiry on read) and AIG1-C5 (follow-up keyed on open lines) PLANNED | work that exists only because an assistant exists; kept per value, one by one, where safety requires it | **keep it smaller than the gain**: measured per team in PLAN3-7 and PLAN3-13 (confirm actions per day plan, proposal-to-plan minutes, expired share, stops and switch-ons) | build (AIG1-C4/-C5, PLAN3) | AUT-29, AUT-30, AUT-31 |
+| – | Founding a team's provider (team, future Leitung Pflege) | nothing (D-38) | a founding project per team | provider kit (STR-19), readiness read from the record | D-38 (`owner`) | AUT-14, AUT-15 |
+
+**What the refresh shows (estimate, not a measurement):**
+- Since 2026-10-27 every delivered capability sits at ranks 4, 5 and 11 or in the governance layer that ranks 4-5 need. That order is consistent with the queue: those steps are buildable without an owner, legal or clinical decision.
+- The **three largest estimated bottlenecks (ranks 1-3) did not move**. None has a build path that does not wait for a decision (Q7 and D-11; D-10 with G-1; D-22, D-9, D-3), and none has a **per-step baseline**. The team North Star (WORK1-6) shows the total care share once days are confirmed, but not which step the non-care time goes to. So if ranks 1-3 are unblocked during the pilot, their gain cannot be shown against a before value. This is AUT-32.
+- Minutes per step, the share of a working day in any one step, and the number of calls with GPs, hospitals and relatives stay **UNKNOWN**. The synthetic seed cannot answer them (its timestamps are generated, not worked).
+- Next refresh: 2026-11-10.
+
+### 2 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-32 | All of ranks 1-3 (travel and day order; documentation and countersign; orders and referrals): the team, measured; the PO deciding what to unblock first | **IMPLEMENTED:** AN1 travel and care minutes within visits (0027, 0032); WORK1-6 care share of confirmed paid time per team and month (0079). **PLANNED:** PLAN3-7 and -13 (planning only). **OPEN:** P-19 (PO 2026-10-27 15:20, "brief later, no build now", challenge table in `NEXT_CAPABILITY.md`) proposes per-step spans from timestamps NAVORA already stores (report draft created → signed; countersign latency; partner request → case ready; ORD0 task age); no brief exists after a week (grep of `briefs/`). Ranks 1-3 have no build path without a decision (map §1). Without a pilot baseline, the gain of D-10, Q7 or D-22 cannot be shown, and the owner's success measure 2 (less administration) has no team-level number per step | **monitor, no new tap:** brief P-19 now as a read-only AN1 extension, so the pilot's first month is the baseline: per team and month, with AN1 small-team suppression and never per person: (a) median report draft → signed span and countersign latency (rank 2); (b) travel share of visit time already in AN1, shown beside the WORK1-6 care share (rank 1); (c) ORD0 open-task age and J1 request → case-ready span (rank 3). No new field, no stopwatch, no reading of the WORK1 tables beyond WORK1-6 (D-23 term (b)). Testable criteria: pgTAP on the synthetic seed returns each span per team; a team below the suppression rule returns nothing; the catalogue check finds no person key in any new read | L | stage 0; PO (brief, place before G-19); `lca` (staff timestamps aggregated per team, D-23 term (b)); `eng` (read model) | the spans themselves, before and after each of D-10, Q7, D-22 is decided | medium | report only |
+
+**Briefs and items reviewed without a new finding:**
+- **AIG1-C5 (PO 02:55):** adopted as AUT-30 proposed, with its tests and measure; `cra` #801 states no objection. Supported. AUT-30 stays open until built (*Active now* (2), with AIG1-C4).
+- **PLAN3-11 amended, PLAN3-13 with AUT-31:** supported; the expired share and lead time are measured per team and never as a stop criterion.
+- **RLS4-C1 as built (#792, runbook §5c):** see §4 (AUT-27). **RLS4-C2 as built:** a leaver's open reports are read at the access-end step only, so administrators no longer see a standing per-person list; a task list for that moment, not an act history. No step added. Supported.
+- **UX2-1 shell (#799, open):** the nurse's three tabs are "Heute", "Team" and "Arbeitstag"; `/team` (the team's own planning, proposals and look-back count under PLAN3-11) is one tap from every screen instead of a menu entry. No step, field or role added; nothing removed from any role (one source, `menuItemsFor`). Deviation 3 (coordination roles on a phone have one tab, "Ausnahmen" under "Mehr"): from the team-autonomy side this is right, since the phone is the team's tool and exceptions work happens at a desk (P-40); a product call for the PO and `uxa`. Supported.
+- **UX2-27, UX2-29 (#800, open):** display text only ("von <Name>", "Verantwortlich", "noch niemand"); one word set across `/field` and `/visits` removes a translation step for the reader. No step added. CGR-108 and CGR-109 are `cra`'s wording questions; `aia` adds nothing. ADR-132 note 1 (AIG1 lines still say "Zuständig") is `uxa`'s.
+- **UXR-73, UXR-74 (#798):** `uxa`'s; UXR-74's count cap on the proposals link adds no step.
+
+### 3 AI readiness of delivered items (§8)
+- **Nothing merged since review 17 proposes, drafts or ranks.** #792 is a runbook in which a person decides each legacy name; NAVORA does no name-to-member matching and the runbook forbids writing a matching rule (§5c step 3). That is the "no automatic coding" boundary applied to data reconciliation. No §8 check due.
+
+### 4 Findings closed
+- **AUT-27 closed:** built as proposed in RLS4-C1 (#792 merged `6fd9507`; CI green as Engineering and `cra` #801 report): the review list is grouped by team and legacy name on the live project only; a person decides **once per name and team**, a doubtful name visit by visit; the mapping applies in one transaction with a membership guard and a row-count check; count before and after, who and when in the reconciliation record; no names or mapping in the repository; pgTAP 105 on a synthetic fixture. The live reconciliation itself stays OPEN for the D-1 owner (G-25).
+- **AUT-30:** adopted as AIG1-C5 (PO 02:55); closes when built. **AUT-31:** adopted into PLAN3-13; closes with PLAN3.
+- AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-21, AUT-25, AUT-28 (P-38): unchanged.
+
+### 5 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1 governance layer | met on synthetic data (unchanged); AIG1-C4 and **AIG1-C5** PLANNED (*Active now* (2)) before the first agent other than the synthetic test agent |
+| 0 | First real stage-0 agent (PLAN3) | PLANNED, *Active now* (3), after RLS4-C1/-C2 (**delivered**, #792) and UX2 (#799, #800 open) |
+| 0 | Baseline for ranks 1-3 (AUT-32) | OPEN (P-19 not briefed) |
+| 1 | Real data may reach any test, pilot or AI path | blocked (D-1 precaution, G-25), unchanged |
+| 1 | Owner releases stage 1 (provider, region, contract) | not decided (owner, D-35), unchanged |
+
+### 6 Waiting for the PO
+- **AUT-32 (medium):** whether P-19 is briefed now as a read-only AN1 extension, placed before G-19, so the pilot's first month is the baseline for ranks 1-3.
+- AUT-30 / AIG1-C5 and AIG1-C4: build (in *Active now*). #793 can be closed by the PO when built.
+- P-36 undo alternative (review 15), AUT-19, AUT-20, AUT-21 as before.
+- Bottleneck map refresh: next due 2026-11-10.
+
+### 7 Issues and comments
+- No `high` finding: no issue opened. No comment on an open PR (#799, #800 have no `aia` finding).
+
+---
+
 ## 2026-10-31 02:40 CET · aia review 17: AUT-29 closed (AIG1-C1 built, #787, 0104); AUT-23 closed; AIG1-C2/-C3 and AIG1-C4 (PO PR #791) supported; AUT-30 (high: the stop's look-back is tied to the agent's state, so switching a stopped assistant off or on drops open lines from every screen, and at "0 offen" the exception never ends while it stays stopped); AUT-31 (low)
 
 **Read:** `recovery/main` at `1275708`:

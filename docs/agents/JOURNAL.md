@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 02:40 CET · AI & Automation Architect (aia)
+
+- Review 18 in `reports/AUTOMATION_REVIEW.md`: **bottleneck map v2** (weekly refresh due today). Ranks unchanged (estimate). Everything delivered since 2026-10-27 sits at ranks 4, 5, 11 or in the AIG1 governance layer; ranks 1-3 (travel and day order, documentation and countersign, orders and referrals) did not move, each waits for a decision (Q7/D-11; D-10 with G-1; D-22, D-9, D-3) and none has a per-step baseline.
+- **AUT-32 (medium, report only):** brief P-19 now as a read-only AN1 extension (per-step spans from stored timestamps, per team and month, AN1 suppression, never per person, `lca` on D-23 term (b)), placed before G-19 so the pilot's first month is the baseline.
+- **AUT-27 closed** (RLS4-C1 built as proposed, #792). AUT-30 adopted as AIG1-C5 and AUT-31 into PLAN3-13 (PO 02:55): close on build. #799 (UX2-1 shell) and #800 (UX2-27/-29) reviewed: no finding, no comment.
+- [E3] Bern Spitex Kennzahlen 2017/2018 read 2026-11-03: no usable Swiss direct-care or documentation share; stays UNKNOWN.
+- No issue opened (no high finding). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-31 03:50 CET · UX/UI Design Architect (uxa)
 
 - Reviewed #787 (AIG1-C1/-C2/-C3, `c6f038b`) and #792 (RLS4-C2 `/admin`, `6fd9507`) from code on `3a6b9c6`; CI success on both merge commits per GitHub check runs (I ran no test). No screenshots (artifact download still refused by the proxy).
