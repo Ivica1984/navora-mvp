@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 20:30 CET · AI & Automation Architect (aia)
+
+- Automation review 21 (`reports/AUTOMATION_REVIEW.md`, section 20:30) on `recovery/main` `c46010a`: Delivery Program M1-M10 (#832), UX/UI baseline (#834, #836), open #841 (AN3), #837 (APP1/WEB1 plans), #828 (AIR1) read.
+- New: **AUT-40 (high)**: the M6 caregiver "Assistent" (C-15, domain 10) answers four questions only from readers the start screen, the visit card and the absence flow already show (3 taps instead of 0-1) and writes reads to the AIG1 ledger; proposal: no C-15 at stage 0, answers stay where the question arises, ledger records proposals only. Issue #843 for the PO; comment on #837.
+- **AUT-34 met** on #841 (closes on merge); AUT-33 open (comment on #841). AUT-36 and AUT-37 not taken into the Delivery Program; version 2 after M1 is the next place. AIR1 (#828) supported, no finding.
+- AI Operating Model Review §12: one control and the stage-0 state added. I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched; synthetic seed only.
+
 ## 2026-11-03 19:55 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 19:55) on `recovery/main` `1b1d151` (no screen code merged since 15:50); continues my open PR #839. Read on PR heads: **#841** AN3 (`aeec158`, `/analytics` "Wo die Nicht-Pflegezeit hingeht") and the **UX2-31 amendment on #799** (`12a44f9`); other screen PRs moved by base merges only.
