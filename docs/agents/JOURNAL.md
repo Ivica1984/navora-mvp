@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 11:50 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #798 (CI green on `b6d22ac`, not merged): merged `recovery/main` `547d807` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 07:52. Read from code: #800 amendments (head `748ef3f`: CGR-108, CGR-109, UXR-79) and new #813 (RLS4-C3, head `01dee6c`); #809 only a base merge; #799, #803, #804, #806 unchanged. Screenshot archive still refused (403), so code-only.
+- New: UXR-82 (low: "Erneut laden" unmounts on press, focus to the body, success not announced; comment on #813), UXR-83 (low: unnamed author reads differently on the card and in the handover).
+- Met on PR heads, closing on merge: UXR-79 (#800), UXR-73 (#813, (2) wording with the PO). Wording: CGR-108 "Teammitglied <n> (ohne Namen)" confirmed (`cra` waited on it); RLS4-C3 (2) interim acceptable for merge, my 07:52 sentence stays the proposal; AUT-35 label "Was hast du geprüft? (3–300 Zeichen)" proposed (`cra` confirms; evidence examples UNKNOWN, owner and `clinical`).
+- No severe/high finding, no issue. Design system version 29. I ran no test.
+
+---
+
 ## 2026-11-03 09:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-03 09:30), `recovery/main` @ `547d807` (no code merged since 05:30). Read on their heads (CI green on all): **#806** UX2-30 (`a5875e2`), **#809** UX2-26 (`f209c1f`), **#810** CGR-110 (`8f0126a`, `db` log read); PO 06:30 (#808), `aia` 08:20 (#811), AN3 draft.
@@ -22,6 +31,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **AN3 supported** with **AUT-33 (medium):** spans show waiting, not work; an elimination removes acts, so add counts of recorded administrative acts per 100 completed visits per team and month (countersignatures, returned reports, ORD0 tasks, hand-set vs proposal-confirmed responsible members, changed or rejected AIG1 proposals); no new field or tap, never per person, no target. **AUT-34 (low):** AN3-1 (b) and AN3-5 already exist as `countersign_latency_hours` and `report_returned_share` (0065, F6R-9): reuse, one definition. **AUT-35 (low):** #809 (UX2-26, AUT-21) carries the existing command's typed 3–300-character reason at every admission; preset reason for the first setting, typed reason for every later change (`uxa`, `lca`, `cra`); does not block #809.
 - No `high` finding, no issue, no PR comment. None closed: AUT-32 closes when AN3 is approved; AUT-21 on #809's merge. `AI_OPERATING_MODEL_REVIEW.md` §12: control "measure acts, not only spans".
 - Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 07:52 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #798 (CI green on `091128e`, not merged): merged `recovery/main` `6d6dbba` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 03:52; read new open PRs #804 (UX2-18 to -21, `9f1511d`), #806 (UX2-30, `a5875e2`), #809 (UX2-26, `d18b60c`) from code; #799, #800, #803 unchanged under `src`. Screenshot archive still refused by the proxy, so code-only.
+- New: UXR-80 (low: "Qualifikation fehlt" rows carry no action; heading accuracy UNKNOWN, `eng`), UXR-81 (low: fallback "Sie steht noch nicht …" assumes a gender and names no step). One comment on #809.
+- Met on PR heads, closing on merge: UXR-36, -37, -40, -41 (#804); UXR-56, -58, -61, -62, -63 (#806; -57 partly, assessor prefill PLANNED). Wording: RLS4-C3 (2) result line answered ("Offene Berichte: nicht bekannt …", `cra` confirms), "Erneut laden" confirmed; UX2-30 (4) confirmed; UX2-30 (5) "Die Bedarfsabklärung war damals nicht bestätigt." proposed (`cra`).
+- No severe/high finding, no issue. Design system version 28. I ran no test.
 
 ---
 
@@ -58,6 +76,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 03:52 CET · UX/UI Design Architect (uxa)
+
+- Continued my open PR #798 (CI was green, not merged): merged `recovery/main` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 31.10.; read open PRs #799 (UX2-1 shell, `260dbf6`), #800 (UX2-27/-29, `1640cdc`), #803 (UX2-15/-16/-25, `dd32be6`) from code; CI success on all three heads per GitHub check runs (I ran no test). No screenshots (artifact download still refused by the proxy).
+- New: UXR-75 (medium: coordination roles' home "Ausnahmen" behind "Mehr" on the phone; PO, ADR-131 deviation 3), UXR-76 (medium: two names per destination; wording answered: "Heute", "Team", "Arbeitstag" everywhere), UXR-78 (medium: fixed tab bar can cover the focused control, WCAG 2.4.11; `scroll-padding`), UXR-77 and UXR-79 (low). No severe/high, so no issue; one comment each on #799 and #800.
+- Met on PR heads, closing on merge: UXR-27, -28, -46 (#803), UXR-48, -53 (#800, residual UXR-79), UXR-72 (#799). My 31.10. "Zuständige Person wählen" proposal withdrawn for "Verantwortliche Person wählen".
+- Benchmark: Material 3 navigation bar (SAP Fiori for Android): 2-5 core destinations, short one-line labels. Design system version 27.
+
+---
+
 ## 2026-11-03 02:40 CET · AI & Automation Architect (aia)
 
 - Review 18 in `reports/AUTOMATION_REVIEW.md`: **bottleneck map v2** (weekly refresh due today). Ranks unchanged (estimate). Everything delivered since 2026-10-27 sits at ranks 4, 5, 11 or in the AIG1 governance layer; ranks 1-3 (travel and day order, documentation and countersign, orders and referrals) did not move, each waits for a decision (Q7/D-11; D-10 with G-1; D-22, D-9, D-3) and none has a per-step baseline.
@@ -75,6 +102,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **#799:** `cra` gate on `/field` and `/team` in the shell **clear**, no finding (signals first, tab bar leaves room, "Meine Einstellungen" under "Mehr"). **#800:** no blocking finding; **CGR-108** (advisory S3: handover observation author without a name loses her member number) and **CGR-109** (advisory S3, before G-25: "noch niemand" on a past or completed visit).
 - Registers: PS-90, PS-94 closed; PS-95, PS-96 notes; PS-97, PS-98 added; H-05, H-10, H-20 notes; CR-153, CR-154 notes, CR-155 added.
 - **Not merged by me:** owner instruction on #666 covers this PR, which contains #788 … #582. Waiting on: owner (chain merge; D-1 reconciliation at G-25), `po` (place CGR-108, CGR-109), `uxa` (wording for both), `eng` (AIG1-C4/-C5; CGR-108/-109 once placed), Clinical Owner (D-17 items, unchanged list). Tests: none run by me; CI as read through the API. Live project not touched.
+
+---
+
+## 2026-10-31 03:50 CET · UX/UI Design Architect (uxa)
+
+- Reviewed #787 (AIG1-C1/-C2/-C3, `c6f038b`) and #792 (RLS4-C2 `/admin`, `6fd9507`) from code on `3a6b9c6`; CI success on both merge commits per GitHub check runs (I ran no test). No screenshots (artifact download still refused by the proxy).
+- Closed: UXR-66, -69, -70 in code; UXR-67 in code for the dead end (shell residual → UXR-72); UXR-71 (second half in code, first half not adopted by the PO). UXR-68 PLANNED as PLAN3-12.
+- New: UXR-73 (medium, `/admin`: failed open-report read enables "Zugang beenden" with no next step; trade-off for the PO with `cra`), UXR-72 and UXR-74 (low). No severe/high, so no issue.
+- Wording proposed (OPEN): record line "<Feld>: Der Assistent, der diesen Wert vorgeschlagen hat, ist gestoppt."; "Zuständige Person wählen"; AIG1-C4 (3) "<n> ohne Entscheid abgelaufen".
+- Benchmark: count badges on navigation entries (ServiceTitan Anvil): adopt a "99+" cap for PLAN3-12. Design system version 26.
 
 ---
 
