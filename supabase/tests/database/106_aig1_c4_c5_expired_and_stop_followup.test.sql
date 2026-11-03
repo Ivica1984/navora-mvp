@@ -7,7 +7,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(29);
+select plan(30);
 
 -- Pinned clock (DST1 pattern): day T is today in Zurich; the run starts at T-2 10:00.
 create temp table d0 as select (private.now() at time zone 'Europe/Zurich')::date as t;
@@ -188,8 +188,8 @@ select ok(pg_temp.decide(2, 'confirmed', null, 21) ->> 'result' = 'ok'
           and pg_temp.detail(1) = '[]'::jsonb
           and pg_temp.detail(2) = '[{"detail": "Testassistent Bezugspflege · Werte: 1 offen · 0 nicht mehr offen"}]'::jsonb,
   'AIG1-C5 (a): with its last open line handled the first stop''s exception is gone; the second stays');
-select ok(pg_temp.decide(7, 'confirmed', null, 22) ->> 'result' = 'ok'
-          and (select count(*) = 0 from private.derived_exceptions('00000000-0000-4000-b000-000000000011')
+select is(pg_temp.decide(7, 'confirmed', null, 22) ->> 'result', 'ok', 'fixture: the second stop''s last open line re-confirmed');
+select ok((select count(*) = 0 from private.derived_exceptions('00000000-0000-4000-b000-000000000011')
                where exception_type = 'agent_stopped')
           and (select state = 'stopped' from public.ai_agent_settings
                where organization_id = '00000000-0000-4000-b000-000000000011' and agent_key = 'aig1_test_primary_nurse'),
