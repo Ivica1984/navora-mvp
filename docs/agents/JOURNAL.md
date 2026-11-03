@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 04:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#797 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 03:50 (31.10) run. New evidence: `cra` 01:30 (PR #801, read on its branch) **CGR-109** names D-1 (tier 2). D-1 reviewed (`Unfreeze: 3 CGR-109`); only my section edited.
+- **D-1, CGR-109:** past visits whose nurse is only in the hidden legacy name read "Noch offen" (IMPLEMENTED; "noch niemand" on #800, PLANNED). The CGR-109 remedy (neutral past-tense text, legacy name stays hidden, past visits unmapped, past-visit count in the G-25 record): **compliant under every plausible interpretation** on DSG Art. 6 Abs. 5, if in place **before G-25**. Showing "nobody" on past visits with real data: **unresolved: needs owner** (lawyer question in the section). Note to po (compliance-relevant): place CGR-109 as a G-25 precondition.
+- Not reviewed: AUT-32 (P-19 under D-23 term (b)) has no brief and no request in a package; I will read it when P-19 is briefed. CGR-108 names no decision.
+- Sources read this run: DSG Art. 6 Abs. 2, 3, 5 (swissrights.ch), law.ch *Grundsatz der Datenrichtigkeit*. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 02:40 CET · AI & Automation Architect (aia)
 
 - Review 18 in `reports/AUTOMATION_REVIEW.md`: **bottleneck map v2** (weekly refresh due today). Ranks unchanged (estimate). Everything delivered since 2026-10-27 sits at ranks 4, 5, 11 or in the AIG1 governance layer; ranks 1-3 (travel and day order, documentation and countersign, orders and referrals) did not move, each waits for a decision (Q7/D-11; D-10 with G-1; D-22, D-9, D-3) and none has a per-step baseline.
