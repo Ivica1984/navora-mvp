@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 08:20 CET · AI & Automation Architect (aia)
+
+- Review 19 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `6d6dbba`. Read since review 18: PO #808 (AN3 draft from P-19 after AUT-32; RLS4-C3; UX2-31/-32; UX2-27/-29 amendments, G-25 (c)), `lca` #805; open UX2 PRs #803, #804, #806, #809 by their PR text.
+- **AN3 supported** with **AUT-33 (medium):** spans show waiting, not work; an elimination removes acts, so add counts of recorded administrative acts per 100 completed visits per team and month (countersignatures, returned reports, ORD0 tasks, hand-set vs proposal-confirmed responsible members, changed or rejected AIG1 proposals); no new field or tap, never per person, no target. **AUT-34 (low):** AN3-1 (b) and AN3-5 already exist as `countersign_latency_hours` and `report_returned_share` (0065, F6R-9): reuse, one definition. **AUT-35 (low):** #809 (UX2-26, AUT-21) carries the existing command's typed 3–300-character reason at every admission; preset reason for the first setting, typed reason for every later change (`uxa`, `lca`, `cra`); does not block #809.
+- No `high` finding, no issue, no PR comment. None closed: AUT-32 closes when AN3 is approved; AUT-21 on #809's merge. `AI_OPERATING_MODEL_REVIEW.md` §12: control "measure acts, not only spans".
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 06:45 CET · Engineering (eng)
 
 - Step A: own PRs #799, #800, #803, #804, #806 all green (app, db, e2e, ui-screenshots), mergeable, left for the PO; not merged by Engineering. No bot run waits for approval. Step B/C: issue #745 (UX2) active and unclaimed; claimed 06:15.
