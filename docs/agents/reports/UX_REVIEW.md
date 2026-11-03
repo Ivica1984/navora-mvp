@@ -6,6 +6,53 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-03 15:50 CET · `uxa`: new PRs #814 (AIG1-C4/-C5, `/operations/assistenten`) and #815 (ASM1-C6 "Irrtümlich erfasst", `/team`) read on PR heads; UXR-84, -85 (medium), UXR-86, -87 (low); CGR-113 sentence proposed
+
+**What changed since 11:50.** On `recovery/main` (`1b1d151`) only docs merged: my #798, `csa` #821, `lca` #823, `po` #822, `aia` #829, `po` #832, my design set #834 (15:00, owner request; no report section) and `po` #836 (baseline adopted; UX2-33 error pages added to UX2). **No screen code merged.** Open PRs that change screens:
+- **#814** AIG1-C4 + AIG1-C5 (new, head `dc1b2b4`, ADR-139): `/operations/assistenten` shows "Abgelaufen ohne Entscheid: <n>" under the decided count, the state as a status ("Gestoppt seit <Datum>", "Aus", "Ein") and every stop as a list (open stops with "Betroffene Werte ansehen", stops at 0 offen as history).
+- **#815** ASM1-C6 with C6 (8) (new, head `f0a2752`, ADR-140): "Irrtümlich erfasst" beside "Korrigieren (ersetzen)" on `/team`; P-37 form (`cra` sentence, two radios, free text after "Anderer Grund"), UX2-23 confirming step, void line in the history, C6 (8) basis sentence at `info`.
+- #799 (`f394ec5`), #800 (`a3be7db`), #803 (`f93fc81`), #804 (`12d0923`): heads moved by base merges only, **no change under `src` or `tests`**; #806, #809, #813 unchanged. My 03:52 to 11:50 notes on them stand.
+
+**Sources.** `ui-screenshots` artifacts exist (e.g. `recovery/main` `1b1d151`: 13239537813; #815 `f0a2752`: 13230647751; #814 `dc1b2b4`: 13227258635); the archive still redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from the code on the PR heads. No benchmark this run (made at 03:52 today). I ran no test; CI is the test runner. Live project not touched.
+
+### What the new PRs do well (built on PR heads, not yet on `recovery/main`)
+- #815 follows the preset pattern (§2): `fieldset` with visible legend "Grund", neither radio preselected, rows `min-h-11`, free text and hint only after "Anderer Grund", the `cra` sentence before the options (`team/assessment-void-fields.tsx:47-63`); the void act sits behind the shared confirming step whose sentence names the consequence ("Danach gilt diese Bedarfsabklärung nicht mehr. Der Eintrag bleibt gespeichert …", `features/assessment/rules.ts:344`); the void line is a label, not a strike (deviation 4); no field of a voided record is rendered (`renderVoided`, `assessment-section.tsx:139-150`); the basis sentence sits where the marker sits, outside the folded history, at `info` (`plan-assessment-basis.tsx:51-55`).
+- #814 states the agent as a status, not a to-do, and keeps a stop with open lines actionable whatever the state; history lines are muted and carry no link (`operations/assistenten/page.tsx:95-113`). No person column.
+
+### Wording answers (OPEN until built)
+
+**CGR-113 (`cra` 13:30, "with `uxa`"), void of a corrected record.** ADR-140 deviation 1: a void also withholds the record's earlier versions in its supersede chain. Proposed second sentence of the confirming step, shown only when the record replaced at least one earlier version (count from the reader): "Auch <ihre frühere Fassung | ihre <n> früheren Fassungen> sieht das Team dann nicht mehr." Full step: "Danach gilt diese Bedarfsabklärung nicht mehr. Auch ihre 2 früheren Fassungen sieht das Team dann nicht mehr. Der Eintrag bleibt gespeichert; das Team sieht nur noch, dass er irrtümlich erfasst wurde." Testable: vitest on the sentence for n = 0 (absent), 1, 2. `cra` confirms the substance; placement by the PO with CGR-113.
+
+**ADR-140 deviation 6, supersede sentence** (see UXR-84): keep the `cra` substance, change only the quoted command name to the label on screen: "Ist nur ein Wert falsch, nutze «Korrigieren (ersetzen)». «Irrtümlich erfasst» ist nur für eine Erfassung, die nicht in diesen Fall gehört." `cra` confirms.
+
+**#814 labels (Engineering's from the brief, "`uxa` may replace").** "Abgelaufen ohne Entscheid: <n>", "Gestoppt seit <Datum>", "Aus", "Ein": **confirmed** as built. Stop lines: see UXR-87.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-84 | `/team` case card, void form (registered nurse, phone); built on open PR #815 | medium | The sentence that steers a nurse away from the void tells her to use «Ersetzen», but the button beside it reads "Korrigieren (ersetzen)". In the one moment where the choice matters (wrong value of the right client vs. wrong client), the help names a command she cannot find by that word. ADR-140 deviation 6 left this to `uxa`. | `f0a2752`, `features/assessment/rules.ts:339-340` (`VOID_SUPERSEDE_SENTENCE`) vs. `team/assessment-section.tsx` button "Korrigieren (ersetzen)" | §4 one command, one label; §2 one primary action | `VOID_SUPERSEDE_SENTENCE` quotes «Korrigieren (ersetzen)» (wording above); vitest asserts the sentence contains the exact label of the supersede button (one constant). `cra` confirms. | — (medium; PR comment) |
+| UXR-85 | `/team` void form, "Anderer Grund" (registered nurse, phone); built on open PR #815 | medium | "Irrtümlich erfasst markieren" stays disabled until the free text has 10 characters, but neither the label ("Grund (eigener Text)") nor the hint says so. A nurse who types a short reason sees a button that does not work and no reason why (a disabled button is not focusable and gives no message). | `f0a2752`, `team/assessment-void-fields.tsx:65-82`, `rules.ts:336-337` and `voidSubmitEnabled` (10 to 500) | §2 a short preset beside free text (submit disabled until valid); §4 a refusal says what to change; §6 | Label "Grund (10–500 Zeichen)", as on `/admin` "Begründung (3–300 Zeichen)"; vitest asserts the label names the bounds that `voidSubmitEnabled` checks. Hint words unchanged (`lca` refinement, po 13:28). | — (medium; PR comment) |
+| UXR-86 | `/team` void, refused by the database (registered nurse, keyboard or screen reader); built on open PR #815 | low | After a refusal the confirming step unmounts (`setAsking(false)`) while its focused button is pressed; focus falls to the page body. The error is announced (`role="alert"`) but a keyboard user starts again from the top of a long `/team` page. | `f0a2752`, `team/assessment-void-form.tsx:33-37` | §6 when a dialog's content is replaced, focus moves to the new content | After a refusal focus moves to the submit "Irrtümlich erfasst markieren" (or the error line, `tabIndex=-1`); Playwright: refuse, assert `document.activeElement` is inside `assessment-void`. | — |
+| UXR-87 | `/operations/assistenten`, stop column (Operations, administrator; desktop, screen reader); built on open PR #814 | low | With two stops that still have open lines, the cell holds two links both named "Betroffene Werte ansehen"; in a screen reader's link list they cannot be told apart. The history line starts in lower case ("gestoppt am …") while the open line starts "Gestoppt am …" and has "Werte:" before the counts. | `dc1b2b4`, `operations/assistenten/page.tsx:96-108`; `features/ai/labels.ts` `stopOpenText`, `stopHistoryText` | §6 link purpose; §4 one wording | Link keeps its visible text and gets `aria-label="Betroffene Werte ansehen, Stopp vom <Datum>"`; `stopHistoryText` starts "Gestoppt am" and uses `lookbackCountsText`; vitest on both strings. | — |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-83 | OPEN (low); `cra` 13:30 prefers the member-number form ("Teammitglied <n> (ohne Namen)") on the visit card too. | `cra` 13:30 journal |
+| UXR-82 | OPEN (low) on #813; head unchanged. | `01dee6c` |
+| UXR-79; UXR-73 | Met on PR heads (#800; #813 with UXR-82 residual); close on merge. | 11:50 section |
+| UXR-80, -81 | OPEN (low) on #809; AUT-35 label confirmed by `cra` 13:30. | `f209c1f` |
+| UXR-36, -37, -40, -41; -56, -58, -61, -62, -63; -27, -28, -46, -48, -53, -72 | Met on PR heads; heads changed by base merges only; close on merge. | 03:52 to 11:50 sections |
+| UXR-57 | Partly met on #806 (assessor prefill PLANNED, ADR-135). | `a5875e2` |
+| UXR-64; UXR-75, -78 / -76, -77; UXR-68 | PLANNED (UX2-30 (7); UX2-31 / UX2-32; PLAN3-12). | briefs |
+| UXR-65, -74 | OPEN (low), unchanged. | no screen merge |
+
+**For the PO.** (1) CGR-113 sentence proposed above (`cra` confirms). (2) UXR-84, -85 can ride #815 before merge (string changes only). (3) Nothing severe or high; no issue opened.
+
+---
+
 ## 2026-11-03 11:50 CET · `uxa`: #800 amendments (UX2-27/-29: CGR-108, CGR-109, UXR-79) and new #813 (RLS4-C3) read on PR heads; UXR-82, -83 (low); CGR-108 wording confirmed; AUT-35 label proposed; RLS4-C3 (2) interim noted
 
 **What changed since 07:52.** My PR #798 is still open (CI green on `b6d22ac`, not merged); this run continues it and merged `recovery/main` `547d807` in (JOURNAL: both entries kept, newest first). On `recovery/main` only docs merged (#811 `aia` review 19); **no screen code merged**. Open PRs that change screens, each with app, db, e2e and ui-screenshots `success` on its head (read from GitHub check runs; I ran no test):

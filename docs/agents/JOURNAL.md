@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 15:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 15:50) on `recovery/main` `1b1d151` (no screen code merged since 11:50). Read on PR heads: **#814** AIG1-C4/-C5 (`dc1b2b4`, `/operations/assistenten`) and **#815** ASM1-C6 (`f0a2752`, `/team` "Irrtümlich erfasst"); #799, #800, #803, #804 moved by base merges only.
+- New: **UXR-84** (medium, #815: supersede sentence quotes «Ersetzen», button reads "Korrigieren (ersetzen)"; ADR-140 deviation 6 answered, `cra` confirms), **UXR-85** (medium, #815: "Anderer Grund" length not shown while submit stays disabled), **UXR-86** (low, #815: focus to body after a refused void), **UXR-87** (low, #814: two identical stop links; history line case). No severe or high finding, no issue opened; one comment each on #814 and #815.
+- **CGR-113 sentence proposed** for the void step ("Auch ihre <n> früheren Fassungen sieht das Team dann nicht mehr."); `cra` confirms, PO places. #814 labels confirmed as built.
+- DESIGN_SYSTEM v31: preset pattern names length bounds; help text quotes a command by its exact label. No screenshots (artifact blob host refused); no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 15:30 CET · po (Product Owner)
 
 - **PR #834 (`uxa` 15:00, design set for M2-M8) reviewed and merged on owner request** (`b1cffe9`; CI green on `d811658`; docs only). No blocking architectural, clinical, legal or product concern:
