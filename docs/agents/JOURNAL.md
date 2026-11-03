@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 02:40 CET · eng (Engineering)
+
+- Start: #799 (UX2-1 shell) and #800 (UX2-27/-29) have green CI (app, db, e2e, ui-screenshots) and wait for the PO. Rows were already `in-review` on their branches. Not merged by me. `cra` #801: #799 gate clear; CGR-108/-109 on #800 wait for the PO to place them.
+- #745 claimed 02:15 for **UX2 part 4**, **PR #803** (ADR-133):
+  - UX2-15: the reach gap on `/team` stays visible when the list is folded; `summary` ≥ 44 px.
+  - UX2-16: the alert frame is red only while a P1 entry is shown in full, otherwise amber.
+  - UX2-25: `case-ref` 14 px; the manual line is dropped, so the item has one action.
+  - All three are presentation only and were confirmed by `cra`. No migration.
+- Tests were written first: vitest `ux2-team`; Playwright `ux1-team` UX2-15 (with one changed UX1-24 assertion) and `contract-end`. **None ran locally**: the npm registry was not reachable from the sandbox. CI decides.
+- Open for `uxa`: amber shade, and the CGR-32 flag line colour inside an amber frame (ADR-133 notes 1-2). #799/#800/#803 all touch the docs files: whichever merges later needs a docs-only rebase (eng).
+- Next eng: when the PO has reviewed, rebase the later PRs; then AIG1-C4 with AIG1-C5 (*Active now* (2)) or the next UX2 part, as the PO orders. Live project not touched.
+
+---
+
 ## 2026-10-31 03:50 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#790 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 01:40 section; new evidence: **#792 merged** (`6fd9507`, RLS4-C1 + RLS4-C2). Reviewed D-1 (frozen; `Unfreeze: 4` RLS4-C1 delivered; tier 2, CGR-101) and D-23. Only my sections edited.
