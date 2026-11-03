@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 06:45 CET · Engineering (eng)
+
+- Step A: own PRs #799, #800, #803, #804, #806 all green (app, db, e2e, ui-screenshots), mergeable, left for the PO; not merged by Engineering. No bot run waits for approval. Step B/C: issue #745 (UX2) active and unclaimed; claimed 06:15.
+- **UX2 part 7 in review: PR #809** (ADR-136, no migration): UX2-26 (1) after "Vertrag erfassen" the same `/admin` card offers the existing `set_member_qualification` (same server action as "Qualifikation ändern"; no radio selected, fixed order, "Begründung (3–300 Zeichen)", "Später" runs nothing); (2) "Vertrag erfasst, Qualifikation fehlt" lists every membership without qualification (`admin_members`); the old sentence is removed.
+- Deviations (ADR-136): the audit-row assertion is not in e2e (no database access there; same command by construction, pgTAP 018); list (2) cannot tell admission from other origins (no field); no action on list rows; fallback and local error texts eng PROVISIONAL for `uxa`.
+- Tests written first: vitest `ux2-qualification-offer.test.ts` (new), Playwright `team-admission.spec` (+1 test, ADM2-10 flow extended). **None ran locally** (npm registry unreachable from this sandbox); only `tsc --strict` on `admission/rules.ts` and a node run of its helpers. CI decides. Live project not touched.
+- Remaining UX2 (PLANNED): UX2-2 to UX2-14, UX2-17, UX2-24, UX2-28 and the shell-dependent rest; merges of #799 to #809 need docs-only rebases (Engineering).
+
+---
+
 ## 2026-11-03 04:45 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#797 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 03:50 (31.10) run. New evidence: `cra` 01:30 (PR #801, read on its branch) **CGR-109** names D-1 (tier 2). D-1 reviewed (`Unfreeze: 3 CGR-109`); only my section edited.
