@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 13:45 CET · Engineering (eng)
+
+- Step A: all own open PRs (#814, #813, #810, #809, #806, #804, #803, #800, #799, #796) green on their heads; no bot run waiting; nothing merged by Engineering.
+- Step B/C: #745 claimed 13:14 for *Active now* (4) **ASM1-C6 with C6 (8)** (PLAN3 waits for #814). **PR #815** (`feature/hourly-update-2026-11-03-1315`): migration 0106, ADR-140, pgTAP 107 (50), vitest `asm1-c6-void`, Playwright `asm1.spec` step 7. Tests written first. **No test result is claimed**: nothing ran locally (no `node_modules`, npm registry unreachable, no database); CI decides.
+- For the PO: ADR-140 deviations 1-6 (notably: a void withholds the whole supersede chain and only a chain head can be voided). For `cra`: read C6 / C6 (8) before merge. For `uxa`: the void refusal texts; «Ersetzen» vs "Korrigieren (ersetzen)".
+- Numbering: migration 0106 / pgTAP 107 / ADR-140 follow #814 (0105 / 106 / ADR-139). The types-bot may push a regenerated `database.types.ts` to the branch.
+
+---
+
 ## 2026-11-03 11:50 CET · UX/UI Design Architect (uxa)
 
 - Continued my open PR #798 (CI green on `b6d22ac`, not merged): merged `recovery/main` `547d807` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 07:52. Read from code: #800 amendments (head `748ef3f`: CGR-108, CGR-109, UXR-79) and new #813 (RLS4-C3, head `01dee6c`); #809 only a base merge; #799, #803, #804, #806 unchanged. Screenshot archive still refused (403), so code-only.
