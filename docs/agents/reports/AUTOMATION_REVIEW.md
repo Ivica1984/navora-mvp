@@ -31,6 +31,54 @@
 
 ---
 
+## 2026-11-03 08:20 CET · aia review 19: AN3 draft (P-19, answer to AUT-32) supported with AUT-33 (medium: spans measure waiting, not work; add act counts per 100 visits) and AUT-34 (low: AN3-1 (b) and AN3-5 already IMPLEMENTED as `countersign_latency_hours` beside `report_returned_share`, reuse); AUT-35 (low: a typed reason on the first qualification at admission, #809); RLS4-C3, UX2-31/-32, #803/#804/#806 without finding
+
+**Read:** `recovery/main` at `6d6dbba`:
+- merged since review 18 (#802): PO **#808** (06:30: RLS4-C1/-C2 met, RLS4-C3; CGR-108/-109 into UX2-27/-29 and G-25 (c); UX2-31, UX2-32; **AN3 drafted** from P-19 after AUT-32), `lca` #805 (D-1 re-check on CGR-109);
+- open: `eng` #803 (UX2-15/-16/-25), #804 (UX2-18 to -21), #806 (UX2-30), **#809 (UX2-26, from AUT-21)**, #799, #800; `cra` #807, #801; `uxa` #798; read through their PR text;
+- open issues labelled `automation`: #793 (AUT-30; adopted as AIG1-C5, open until built).
+
+**Nothing below is a measurement.** I ran no tests and read no database. Code read: `supabase/migrations/20261021000027_pilot_impact.sql`, `…0032_an1_changes.sql` (`pilot_kpis(p_month)`), `…0065_f6r_return_report.sql` (F6R-9 measures), `…0018_reasons_and_qualification.sql` (`set_member_qualification`), `briefs/AN3.md` (06:30), `briefs/RLS4.md` (06:30), `briefs/UX2.md` (06:30). The bottleneck map is v2 (review 18); next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-33 | AN3 (P-19, draft): the team and the PO, measuring ranks 1-4 of the map | AN3-1 measures five **spans** (elapsed calendar time between two timestamps). A span shows waiting, not work: a report signed 4 h after the visit may cost 3 minutes; a countersign done in 10 minutes still costs a registered nurse one act per report. When a step is **eliminated** (rank 2: countersign scope under D-10; rank 3: structured orders under D-22; rank 4: PLAN3 proposals instead of setting the responsible nurse visit by visit) the span disappears or changes meaning, so it cannot show the gain. What an elimination removes is **acts**, and NAVORA already records each act: `countersign_report` per report (0016, 0065), ORD0 tasks per order (0061), `take_open_visit` (0046) and the `care_visits` audit trigger (0012) for responsible-member changes, the AIG1 ledger per proposal (0097, 0103, 0104), time corrections (`time_correction_share`, AN1). IMPLEMENTED: the acts and their timestamps. OPEN: whether the audit rows distinguish a manual responsible-member change from a confirmed AIG1 proposal (UNKNOWN until Engineering names the column) | **automate the measure** (deterministic, read-only): add to AN3-1, per team and month with AN1 suppression, the **count of administrative acts per 100 completed visits** for each step AN3 already lists: (i) countersignatures, (ii) returned reports (exists as share, F6R-9), (iii) ORD0 tasks opened, (iv) responsible-member changes made by hand vs through a confirmed proposal, (v) AIG1 proposals changed or rejected (the §8 correction rate per agent and field, team level). No new column, table, field or tap; same "never per person" (AN3-3) and "no target" (AN3-5) rules; where a source cannot separate (iv), Engineering says so in the ADR and leaves it out | L (team counts of recorded acts; no clinical content) | stage 0; gate `lca` (D-23 term (b), as AN3 already names), PO | for each later elimination: acts per 100 visits for that step before and after, beside the WORK1-6 care share (estimate of time freed = acts removed × minutes per act, minutes per act stays UNKNOWN until observed in the pilot) | medium | – (report) |
+| AUT-34 | AN3-1 (b) and AN3-5 (countersign span, shown beside returned reports) | **IMPLEMENTED** since F6R (0065, F6R-9): `pilot_kpis` returns `countersign_latency_hours` (median, first signature to countersignature, returns included) and `report_returned_share`, per team and organisation, with AN1 suppression and the note "Evidenz für D-10 …" (no target word). AN3-1 (a) says "reuse, do not duplicate" for the report span; (b) does not. A second definition of the same span would let two figures for one step disagree (e.g. returns counted in one, not in the other) | **eliminate the duplicate**: AN3-1 (b) and AN3-5 reuse `countersign_latency_hours` and `report_returned_share` as built (F6R-9), adding only what AN3-5 adds (open time corrections beside them); the AN3-5 string test runs over the existing note | L | stage 0; PO (brief text), `cra` (AN3-5 wording, already given 05:30) | one definition per span: the AN3 ADR maps each AN3-1 figure to one `pilot_kpis` measure name | low | – |
+| AUT-35 | Admission: administrator sets the qualification in the same sitting as the contract (UX2-26, #809, from AUT-21) | #809 (open) puts the qualification on the "Vertrag erfasst" card, as AUT-21 proposed (one sitting instead of two). The existing command `set_member_qualification(…, p_reason, …)` (0018, IMPLEMENTED) needs a typed reason of 3–300 characters, so every admission carries one free-text field whose content at a **first** setting is predictable. The qualification is a safety control (it decides the countersign duty, 0016): its existence, actor, time and audit row are not in question; its **form** is | **simplify**: for the first setting in the admission sitting, a preset reason (as P-37 does for correction acts), e.g. "Bei Vertragserfassung festgelegt", the administrator may overwrite it; every **later change** keeps a typed reason. Wording `uxa`; whether a preset reason meets the audit purpose `lca`/`cra` | L | stage 0; gate `uxa`, `lca`, `cra` (qualification gates countersign) | free-text fields per admission (team level, from the audit rows of the admission sitting) | low | – (does not block #809) |
+
+**Briefs and items reviewed without a new finding:**
+- **AN3 as a whole (draft):** answers AUT-32 as proposed: read-only, no new tap or field, never per person, AN1 suppression, `lca` before approval, built before G-19 so the first pilot month is the baseline. AN3-2 (travel beside the care share, labelled as within-visit travel only) is the honest limit for rank 1. Supported with AUT-33 and AUT-34.
+- **RLS4-C3:** "Erneut laden" on a failed read and an honest result line; access end stays possible without the list. That is the leaner choice at equal safety (no hold on a leaver's access for a read). No step added. Supported.
+- **UX2-31, UX2-32:** the role's home as first tab and one name per destination remove navigation and a translation step. Supported.
+- **UX2-27/-29 amendments (CGR-108, CGR-109), G-25 (c):** display text; "nicht erfasst" claims no absence. No step added. The PO's challenge (06:30: a closed visit's record should answer "who cared" from the report, not "who was planned") is the care-graph answer: the fact exists in the signed report, so nobody has to fill the planning field afterwards. Supported.
+- **#803, #804, #806 (UX2 parts 4 to 6, open):** presentation only. #806 prefills the instrument on the replace form only when exactly one catalogue entry is valid: less typing, no guess. No step added.
+
+### 2 AI readiness of delivered items (§8)
+- Nothing merged since review 18 proposes, drafts or ranks. No §8 check due. AUT-33 (v) would give the §8 correction rate per agent and field a team-level home on `/analytics` once PLAN3 runs.
+
+### 3 Findings closed
+- None. **AUT-32:** answered by the AN3 draft; closes when AN3 is approved (after `lca`). **AUT-21:** built on #809 (open); closes on merge. AUT-30 (AIG1-C5) and AUT-31 (PLAN3-13) close when built. AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38): unchanged.
+
+### 4 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | Baseline for ranks 1-3 (AUT-32) | **PLANNED as draft** (AN3, PO 06:30); waits for `lca` (D-23 term (b)), then *Next up* after PLAN3, before G-19 |
+| 0, 1 | all other rows | unchanged from review 18 |
+
+### 5 Waiting for the PO
+- **AUT-33 (medium):** whether AN3-1 adds act counts per 100 visits (i)-(v) before `lca` reads the draft, so `lca` reads one version.
+- **AUT-34 (low):** AN3-1 (b) and AN3-5 reuse the F6R-9 measures.
+- **AUT-35 (low):** preset reason on the first qualification at admission (with `uxa`, `lca`, `cra`); not a reason to hold #809.
+- AUT-30 / AIG1-C5 and AIG1-C4 to build; P-36 undo alternative (review 15), AUT-19, AUT-20 as before.
+
+### 6 Issues and comments
+- No `high` finding: no issue opened. AUT-35 is low and does not block #809, so no PR comment; AN3 has no open PR or decision issue.
+
+---
+
 ## 2026-11-03 02:40 CET · aia review 18: bottleneck map v2 (weekly refresh); AUT-27 closed (RLS4-C1 built, #792); AUT-30 adopted as AIG1-C5, AUT-31 into PLAN3-13; UX2-1 shell (#799) and UX2-27/-29 (#800) without finding; AUT-32 (medium: the three largest bottlenecks have no build path and no per-step baseline)
 
 **Read:** `recovery/main` at `a321e6c`:
