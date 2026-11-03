@@ -12,6 +12,35 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - OPEN for `po`: whether J5's rule-derived billable fact counts as an "automatic billing decision" (ADR-141 flag); whether a runtime guard on `billable_facts`/`safety_signals` is wanted. D-39/D-40 untouched (frozen, on #822).
 - Migration numbers in flight: 0105 (#814), 0106 (#815), 0107 (this PR). ADR-131 to ADR-141 are on open PRs.
 
+## 2026-11-03 14:40 CET · AI & Automation Architect (aia)
+
+- Review 20 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `41ec907`. Read: PO #822 (AI-first update, opportunity map, capability roadmap, template *AI leverage*, owner directive 14:00, AN3 approved, D-39/D-40 frozen), `csa` #821, `lca` #823; open #814 (AIG1-C4/-C5) by its PR text and check runs.
+- **Ranking challenged as the PO asked:** **AUT-36 (medium):** the largest estimated bottleneck (travel and day order) is missing from the opportunity ranking, and the five items allowed now touch none of map ranks 1-3. Proposal: a recoverable-time column, and a day-order rule on synthetic geography (AUT-5) for the owner's allowed list (Q7 before real data).
+- **AUT-37 (medium):** AIO1 split: agent contract on the AIG1 register plus CI evaluation harness now; orchestrator pipeline and provider adapter with the D-35 stage-1 package. **AUT-38 (medium):** the seven-step sequence must not add acts: steps 5-6 are one act by the named confirmer; step 7 may be "none"; the method never adds a signature or review that did not exist. **AUT-39 (low):** D-40 Check-In specification to state team-task volume, default off, logistics first (comment on #827).
+- Closed: **AUT-32** (AN3 approved). AUT-30 met on #814 head (closes on merge). AUT-33/-34 not taken into AN3; still with the PO.
+- No `high` finding, no issue. `AI_OPERATING_MODEL_REVIEW.md`: superseded-doctrine note, three §12 controls, stage-0 state.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 14:25 CET · po (Product Owner)
+
+- **Owner Executive Delivery Directive** (Claude session): the AI-First update is accepted; the architecture phase is complete; an execution plan was requested.
+- **New:** `docs/product/DELIVERY_PROGRAM.md` (version 1):
+  - **M1-M10**, each with objective, owner, supporting agents, dependencies, deliverables, acceptance criteria and target date (M1 2026-11-13 … M9 pilot readiness 2027-03-12, M10 production readiness 2027-06-30);
+  - **website track** (seven pages plus demo flow, live 2027-01-15, `lca` claims review);
+  - **mobile track**: caregiver app M6 2027-01-29; operations app M8 2027-02-19; family app specification only, M7, D-40 frozen;
+  - **AI roadmap**: PLAN3, AN3, AIO1, HAND2, OPS2 by specification, development, testing and pilot;
+  - **`eng` and `uxa` responsibilities**;
+  - **pilot-ready path**.
+- **Dates are PO targets** until Engineering's estimate (M1). M3 owner decisions (D-1, G-1, D-11, D-12, D-2, D-29, D-7/D-8, D-34 adviser, D-14) are the critical path.
+- **For `eng`:** issue opened. `docs/engineering/DELIVERY_ESTIMATE.md` is due 2026-11-13 (sequence, effort, pilot and production readiness, app delivery form, website approach).
+- **For `uxa`:** issue opened. Screen inventory, navigation map, component inventory and implementation-ready design system are due 2026-11-20.
+- **For `po` (own):** briefs AIO1 and WEB1 (2026-11-20), MOB1 (2026-11-27), HAND2 and OPS2 (2026-12-04); plan version 2 on 2026-11-17.
+- Queue order unchanged. Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 14:00 CET · po (Product Owner)
 
 - **Owner directive "post-PR #822 alignment"** (given in a Claude session; CSA excluded by the directive) taken into this open PO PR (#822, continued; `recovery/main` merged in, JOURNAL conflict with `csa` 13:33 resolved, both kept).
