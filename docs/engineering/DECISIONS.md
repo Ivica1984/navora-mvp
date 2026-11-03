@@ -2418,3 +2418,29 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** no local database ran (no Docker daemon in the run's sandbox), so neither the migration nor any pgTAP ran locally. See the PR for what ran in the sandbox. CI decides.
 
 **Rollback:** revert the PR; 0104 is forward-only like every migration, a follow-up migration would restore 0103's function bodies and the 0097 `agent_stop_lookback` signature.
+
+### ADR-134 — UX2-18 / UX2-19 / UX2-20 / UX2-21: the "Heute machen" fact has its place from the first render, the moved card names its planning flags, the fallback points at its link, a focused sentence is read once
+
+**Date:** 2026-11-03 · **Status:** IMPLEMENTED in its own PR (UX2 part 5; CI decides) · **Brief:** `docs/agents/briefs/UX2.md` UX2-18 to UX2-21 (`uxa` UXR-36, -37, -40, -41); issue #745. ADR-131 (#799), ADR-132 (#800) and ADR-133 (#803) are separate open PRs; this part touches only the `/field` move flow (`MoveToToday`, `MovedNoticeBlock`, the moved card's `describedBy`) and `features/field/rules.ts`, no shell, `/team` or `/visits` file.
+
+**Context (IMPLEMENTED before this PR, VIS1/VIS1-10, ADR-112, ADR-116):** the brief marks each item "void if delivered with VIS1"; none was (code read at `b74a9b0`): (a) the VIS1-8 sentence (`move-leaves-note`) was rendered only once `getMoveLeavesFact` answered, so it pushed "Von"/"Bis" down while "Von" had focus (VIS1-3e); (b) the moved card's `aria-describedby` named only the release notice; the planning flags list had no id and was `text-xs`; (c) `DAY_CHANGED_RELOAD` asked for a manual reload; (d) both day-changed sentences had `tabIndex={-1}`, received focus **and** carried `role="status"`, so a screen reader could read them twice.
+
+**Decision:**
+1. **UX2-18:** the confirmation renders a slot `move-leaves-slot` (a one-cell CSS grid) from the first render. Both VIS1-8 wordings (`moveLeavesNote(date, true|false)`) sit in that cell `invisible` and `aria-hidden`, so the slot is the height of the taller wording at any width; the visible sentence (`move-leaves-note`, same classes as before, `info`) appears in the same cell. Wording unchanged. When there is no answer (`null`), the slot stays reserved and empty (no shift either way).
+2. **UX2-19:** `MOVED_FLAGS_LIST_ID = "verschoben-hinweise"` on the `moved-flags` list, now `text-sm`; `movedCardDescribedBy({ released, flags })` returns the release notice id, then the flags id, or nothing. Flag wording (`PLAN_FLAG_LABEL`) unchanged.
+3. **UX2-20:** `DAY_CHANGED_RELOAD` = "Inzwischen ist ein neuer Tag. Tippe auf «Einsätze von heute»." (PO wording, 2026-10-29 08:15); the link label is one constant `MOVE_TODAY_LINK_LABEL` ("Einsätze von heute", unchanged) used by the sentence and the link. `cra` reads the wording in the UX2 gate.
+4. **UX2-21:** `role="status"` is removed from both day-changed sentences (the fallback and the confirm-again note); focus, `tabIndex={-1}` and `data-tone="info"` stay. No other element changes.
+
+**Tests (written first; CI decides, none ran locally: the npm registry was not reachable from this run's sandbox, so no lint, typecheck, vitest or Playwright ran here):** vitest `tests/unit/ux2-move-flow.test.ts` (new: the sentence and link label; `movedCardDescribedBy` for none / release / flags / both; source guards for the two focused sentences without `role`/`aria-live`, the flags list id and `text-sm`, the unconditional slot). Playwright `tests/e2e/ux2-move-flow.spec.ts` (new, 390 × 844): one Testfall 08 visit 49 days ahead, nobody responsible; (UX2-18) the VIS1-8 server action is held back, "Von" bounding box equal before and after the sentence, focus kept; (UX2-19) a second tab moves it to today, the flag "niemand verantwortlich (nächste 24 h)" is shown at `text-sm` and is in the focused moved card's accessible description; (UX2-20, UX2-21) the first tab, its shown date set to yesterday, confirms: the database answers `day_changed` with the visit no longer after today, the fallback sentence is the new text, focused, without `role` or `aria-live`, beside the link; the visit is removed at the end. `vis1-10.spec.ts`: one added assertion pair (the confirm-again note has no `role`/`aria-live`).
+
+**Deviations / notes for the PO:**
+1. **Test skip window:** the UX2-19 case needs the "uncovered" flag, which the database sets only for a slot in the next 24 hours; the spec moves the visit 20 minutes ahead and therefore skips itself after 23:15 Europe/Zurich (a CI run at that hour reports it as skipped, not passed).
+2. **Design system §6:** UX2-21 says the design system records the notice rule; `docs/design/DESIGN_SYSTEM.md` is owned by `uxa`, so Engineering does not edit it. OPEN for `uxa`.
+3. **Reserved empty slot:** with no VIS1-8 answer (read failed) the slot stays as blank space of one sentence; the alternative (collapse) would move "Von" again, which UX2-18 forbids. OPEN for `uxa` if a different empty state is wanted.
+4. **Merge order with #799, #800, #803:** all four append to `DECISIONS.md`, the UX2 status row and `JOURNAL.md`; #799 also edits `field-client.tsx` (shell navigation, top of the page), this PR edits the move-flow functions. Whichever merges later needs a docs-only rebase; Engineering does it in its next run.
+
+**Clinical gate:** in scope (when unsure, in scope: `/field` visit flow). No finding in `reports/CLINICAL_GOVERNANCE.md` names UX2-18 to UX2-21 or UXR-36, -37, -40, -41; no clinical rule, signal, threshold or refusal changes; no remediation plan needed. `cra` reads the UX2-20 wording in its UX2 gate (brief).
+
+**Not set by this:** any route, read scope, RLS, server check, signal rule, flag rule, audit row or text fixed by `cra`/`lca` (UX2-7 negative: no migration).
+
+**Rollback:** revert the PR (no migration, no data).

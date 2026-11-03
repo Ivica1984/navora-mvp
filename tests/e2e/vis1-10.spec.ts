@@ -89,6 +89,9 @@ test.describe("VIS1-10 at 390 × 844", () => {
     await expect(note).toHaveAttribute("data-tone", "info");
     await expect(note).toHaveAttribute("tabindex", "-1");
     await expect(note).toBeFocused();
+    // UX2-21 (UXR-41, ADR-134): the focused sentence is read once, so it is not also a live region.
+    await expect(note).not.toHaveAttribute("role", /.*/);
+    await expect(note).not.toHaveAttribute("aria-live", /.*/);
     expect(await page.evaluate(() => document.activeElement?.getAttribute("data-testid"))).toBe("move-day-changed");
     // The form stays open: the new date, the times re-derived for the new now, the reason kept, confirm label unchanged.
     await expect(move.getByTestId("move-to-today-date")).toHaveText(formatShortDate(today));
