@@ -4,15 +4,6 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-11-03 15:14 CET · Engineering (eng)
-
-- **#830 (M1 delivery baseline), claimed 15:14.** Why not #745: every *Active now* (06:30) item that does not wait on a PO merge is in an open, green PR (#799, #800, #803, #804, #806, #809, #810, #813, #814, #815); (2) is held by (0); PLAN3 needs #814 merged. #824 is in #828 (green). Step A: all open Engineering PRs green on their heads; the one waiting `ci` run (41635678419) is for a superseded types-bot commit on #815's branch, not approved (head `f0a2752` is green).
-- **New:** `docs/engineering/DELIVERY_ESTIMATE.md` v1 (items 3-6 of #830; items 1-2 by reference to `IMPLEMENTATION_SEQUENCE.md`, PR #833) and **ADR-142** (PROPOSED: installable web app on the one NAVORA app with a same-key command queue; native only on a named requirement; family app not built; website a separate static site and origin, demo requests never in the care database).
-- **Estimates (Low confidence):** technical M9 earliest 2027-01-15, planning value 2027-01-29, assuming D-2 (staging and production) by 2026-12-11; M10 technical criteria about 2027-03-31 (security tester lead time UNKNOWN); program M10 2027-06-30 feasible for Engineering. M9-M10 Engineering effort 37-58 pd.
-- **Deviation found, not changed (PO-owned):** the go-live gate index in `CARE_OPERATING_MODEL.md` shows G-11, G-13 and the FUP1 part of G-15 as PLANNED while COND1 is delivered (`IMPLEMENTATION_STATUS.md`).
-- **OPEN for `po`:** move the outside alert for the P1 signal path into M9; website directory or repository. **OPEN for owner:** production hosting with D-2; RTO/RPO/SLA values; security tester; on-call staffing.
-- Tests: none applicable (docs only; no core logic changed, so no unit test first). No local run beyond `node scripts/agents-check.mjs`. CI decides. Live project not touched.
-
 ## 2026-11-03 15:30 CET · po (Product Owner)
 
 - **PR #834 (`uxa` 15:00, design set for M2-M8) reviewed and merged on owner request** (`b1cffe9`; CI green on `d811658`; docs only). No blocking architectural, clinical, legal or product concern:
@@ -34,6 +25,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - SC-8 (maps link; checked, not built) not built before `lca`.
 - **For `cra`:** DS1-2, SC-2, SC-5. **For `lca`:** SC-2, SC-6, SC-8, DS1-6. **For `eng`:** DS1-1, DS1-3 with UX2-3; D-IA-4 in the M1 estimate; UX2-33.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-11-03 15:14 CET · Engineering (eng)
+
+- **#830 (M1 delivery baseline), claimed 15:14.** Why not #745: every *Active now* (06:30) item that does not wait on a PO merge is in an open, green PR (#799, #800, #803, #804, #806, #809, #810, #813, #814, #815); (2) is held by (0); PLAN3 needs #814 merged. #824 is in #828 (green). Step A: all open Engineering PRs green on their heads; the one waiting `ci` run (41635678419) is for a superseded types-bot commit on #815's branch, not approved (head `f0a2752` is green).
+- **New:** `docs/engineering/DELIVERY_ESTIMATE.md` v1 (items 3-6 of #830; items 1-2 by reference to `IMPLEMENTATION_SEQUENCE.md`, PR #833) and **ADR-142** (PROPOSED: installable web app on the one NAVORA app with a same-key command queue; native only on a named requirement; family app not built; website a separate static site and origin, demo requests never in the care database).
+- **Estimates (Low confidence):** technical M9 earliest 2027-01-15, planning value 2027-01-29, assuming D-2 (staging and production) by 2026-12-11; M10 technical criteria about 2027-03-31 (security tester lead time UNKNOWN); program M10 2027-06-30 feasible for Engineering. M9-M10 Engineering effort 37-58 pd.
+- **Deviation found, not changed (PO-owned):** the go-live gate index in `CARE_OPERATING_MODEL.md` shows G-11, G-13 and the FUP1 part of G-15 as PLANNED while COND1 is delivered (`IMPLEMENTATION_STATUS.md`).
+- **OPEN for `po`:** move the outside alert for the P1 signal path into M9; website directory or repository. **OPEN for owner:** production hosting with D-2; RTO/RPO/SLA values; security tester; on-call staffing.
+- Tests: none applicable (docs only; no core logic changed, so no unit test first). No local run beyond `node scripts/agents-check.mjs`. CI decides. Live project not touched.
 
 ---
 
