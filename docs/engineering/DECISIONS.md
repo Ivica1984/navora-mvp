@@ -2418,3 +2418,32 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** no local database ran (no Docker daemon in the run's sandbox), so neither the migration nor any pgTAP ran locally. See the PR for what ran in the sandbox. CI decides.
 
 **Rollback:** revert the PR; 0104 is forward-only like every migration, a follow-up migration would restore 0103's function bodies and the 0097 `agent_stop_lookback` signature.
+
+### ADR-139 — AIG1-C4 / AIG1-C5: a proposal whose visit passed undecided expires (not listed, never decided, counted apart); a stop is followed up by its open lines, not by the agent's state
+
+**Date:** 2026-11-03 · **Status:** PLANNED until merged (PR from `feature/hourly-update-2026-11-03-1215`); CI is the test runner · **Brief:** `docs/agents/briefs/AIG1.md` 2026-10-31 02:25 (AIG1-C4, CGR-107 with CGR-106) and 02:55 (AIG1-C5, AUT-30) · **Migration:** 0105 · **Tests:** pgTAP 106 (28, new), 097 and 104 one assertion each updated (the rule AIG1-C5 replaces), vitest `aig1-c4-c5-labels`, Playwright `aig1.spec.ts` (+3 tests, 1 extended).
+
+**Context.** IMPLEMENTED before this ADR (0097/0103/0104): `open_suggestions` listed every undecided proposal, so a nurse had to "Ablehnen" a proposal time had already made moot, and that rejection counted as a correction in `aig1_window_stats`, the stop measure. The OPS1 `agent_stopped` exception and the health list's look-back link existed only while `state = 'stopped'` (0097 `derived_exceptions`, `agent_health`), so switching the agent off or on dropped every entry to open lines, and a worked-down stop kept a "0 offen" exception alive until a restart (AUT-30).
+
+**Decisions.**
+1. **Expired = undecided and the record no longer open.** The condition is the existing `private.aig1_record_open` (0104: `planned`, not suspended or covered, not dated before today, Europe/Zurich). No new rule, no new column, no write: the ledger row stays undecided (append-only).
+2. **AIG1-C4 (1):** `open_suggestions` adds that condition (filter on read). Same signature and columns.
+3. **AIG1-C4 (1)/(2) guard:** `confirm_suggestion` refuses `{result: refused, reason: not_open}` for an undecided proposal whose record is no longer open, for every outcome. Confirm and correct were already refused `not_open` by the consuming command; reject and `not_found` are new refusals. Without the guard a direct call could still write a `rejected` row and turn an expiry into a correction, which is exactly what CGR-107 excludes. The refusal text is the existing `REFUSAL_TEXT.not_open`.
+4. **AIG1-C4 (2):** `aig1_window_stats` is unchanged: it counts only proposals with a decision, so with (3) an expired proposal is never decided and never a correction.
+5. **AIG1-C4 (3):** new `private.aig1_window_expired(org, agent, from, to)`; `agent_health` returns `last_window_expired` for the same last closed window as `last_window_decided` (null before the first). Health list: "Abgelaufen ohne Entscheid: <n>" under "<k> entschieden" (brief wording; `uxa` may replace it). Per agent and organisation, never per person.
+6. **AIG1-C5 (a):** `derived_exceptions` derives `agent_stopped:<stop id>` from `ai_agent_stops` of the organisation having at least one look-back line not superseded on an open record, whatever the agent's state; detail text unchanged. It closes by itself at "0 offen". The exception key is unchanged, so OPS1 take, comment and close keep working.
+7. **AIG1-C5 (b)/(c):** `agent_health` returns `stops` (jsonb, newest first): `stop_id`, `reason`, `stopped_at`, `open`, `not_open`, via `private.aig1_stop_counts` (the same split as `agent_stop_lookback` and the OPS1 detail). The page shows each stop with open lines with its reason, "Gestoppt am <Datum> · Werte: <n> offen · <m> nicht mehr offen" and "Betroffene Werte ansehen"; each stop at 0 offen as history "gestoppt am <Datum> · 0 offen · <m> nicht mehr offen". The state column reads "Gestoppt seit <Datum>" / "Aus" / "Ein" (brief wording). The existing columns `stop_id`, `stop_reason`, `stopped_at` keep their meaning (filled only while `stopped`) and feed the status.
+8. **AIG1-C5 (e):** no new reader, role or person column (pgTAP 106 catalogue check); `agent_stop_lookback` and its access rule are unchanged, so the people who read a line are the same; they only keep reaching it longer.
+
+**Deviations from the brief.**
+1. The confirm guard (decision 3) is not named in AIG1-C4; it is the server side of "offers no action" and of (2). **For the PO** to accept or reject.
+2. AIG1-C5 asks the health reader to "return the stop id" whatever the state; it is returned inside `stops`, not in the `stop_id` column, so that column keeps meaning "the stop the agent is in now" for the status. Same data, no new reader.
+3. Two existing assertions changed because AIG1-C5 replaces the rule they tested: pgTAP 097 (after a restart the exception now stays with "2 offen" instead of closing) and pgTAP 104 (at "0 offen · 3 nicht mehr offen" the exception now closes instead of staying). Neither is loosened: each now asserts the stricter follow-up rule of the brief.
+4. The "switched off after a stop" e2e uses a seeded organisation (Testorganisation G, state `off` as `set_agent_state` writes it) because no administrator switch screen exists (AIG1-1 UI: PLANNED). pgTAP 106 runs the real `set_agent_state` off and on.
+5. **PLAN3-11** (AIG1-C5 (d)) is not built here: PLAN3 is not built. PLANNED with PLAN3.
+
+**Not decided here (UNKNOWN, Clinical Owner, D-17):** whether late proposals are the assistant's fault, whether expired proposals count toward a stop, and any re-check duty, deadline or reminder for listed values. The measures in AIG1-C5 (switch-ons with open lines, "0 offen" days, switch-ons within 24 h) belong to PLAN3-13 and are not built here (PLANNED).
+
+**Trade-offs.** `derived_exceptions` and `agent_health` now evaluate `aig1_lookback` for every stop of the organisation instead of only the current one; at pilot scale (one synthetic agent, few stops) that is negligible; if stops accumulate, a stop can later be marked closed when its open count reaches 0 (not needed now, not built). Filtering expired proposals on read rather than writing an "expired" row keeps the ledger append-only and needs no job or clock-driven write.
+
+**Gates.** `cra` re-checks on the merge commit (CGR-95, H-20: nothing is lost); `lca` may read the PR (no new read); `uxa` wording for status versus exception and the expired count.
