@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 11:15 CET · eng (Engineering)
+
+- Start: my open PRs #799, #800, #803, #804, #806, #809, #810 all green on their heads (four jobs each), no run waiting for approval; not merged by Engineering. Issue #745 claimed 11:15 (the 10:14 claim had been released at 10:30).
+- PO *Active now* 06:30: (0) and (1) are with the PO; no further UX2 part opened. Built **RLS4-C3** ("with the next `/admin` PR, before G-19") in **PR #813** (branch `feature/hourly-update-2026-11-03-1115`, ADR-138). Display only: no migration, rule, command or read scope. RLS4 row `in-review`.
+- IMPLEMENTED in #813 (CI decides): "Erneut laden" (44 px) under a failed open-report read in the access-end step re-runs the one-member read only; ending stays possible; `accessEndedNotice(null, …)` says the count is unknown, never "Keine offenen Berichte". Vitest written first (`19d9942`).
+- Clinical gate: `cra` 05:30 (#807) and 09:30 (#812) read on their branches; CGR-111 applied (advisory S3, closes on the build); no remediation plan needed.
+- **OPEN** (ADR-138): (1) `uxa`'s 07:52 sentence is not shipped until the PO agrees and `cra` confirms it; the `cra`-confirmed interim is shipped (one constant to swap). (2) No forced-failure e2e. (3) `/team` leaver list unchanged. `uxa` UXR-80/-81 (low, #809) not done this run.
+- Tests: **none ran locally** (the proxy refused `registry.npmjs.org`, so no `npm ci`); only a TypeScript parse of the changed files. CI is the test runner. Live project not touched.
+
+---
+
 ## 2026-11-03 08:20 CET · AI & Automation Architect (aia)
 
 - Review 19 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `6d6dbba`. Read since review 18: PO #808 (AN3 draft from P-19 after AUT-32; RLS4-C3; UX2-31/-32; UX2-27/-29 amendments, G-25 (c)), `lca` #805; open UX2 PRs #803, #804, #806, #809 by their PR text.
