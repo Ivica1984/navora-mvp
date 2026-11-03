@@ -2478,6 +2478,11 @@ isOneToOne: false
               "base": number,"kpi": string,"note": string,"organization_id": string,"team_id": string,"team_name": string,"too_few": boolean,"value": number
             }[]
                            },
+"pilot_step_spans":
+{ Args: { "p_month": string }; Returns: {
+              "base": number,"measure": string,"note": string,"organization_id": string,"suppressed": boolean,"team_id": string,"team_name": string,"too_few": boolean,"value": number
+            }[]
+                           },
 "plan_from_care_plan":
 { Args: { "p_case_id": string,"p_idempotency_key": string }; Returns: Json
                            },
