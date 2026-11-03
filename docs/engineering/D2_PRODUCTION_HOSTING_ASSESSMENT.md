@@ -195,6 +195,23 @@ Effort: 4-6 pd (`DELIVERY_ESTIMATE.md` R-1) plus 2-3 pd for P-5.
 
 T12 and P-2 as in `DELIVERY_ESTIMATE.md`, plus L2 (2-3 pd), L3/L5 runbooks (in P-3/P-4), the outside monitors (§4) and the dispatch-only role replacing the service-role key on the app host (1-2 pd, ADR to follow).
 
+## 12. Owner planning baseline (2026-11-03, Engineering Directive Response)
+
+The owner set a **planning baseline**. D-2 itself stays `awaiting-approval: owner`, and this section changes no package or decision. Engineering plans T12, P-2 and the M9 runbooks on it. It is read item by item against §1-§9; **no material technical blocker** is found, but there are three gaps the baseline does not close.
+
+| Baseline item (owner) | Engineering reading | What it means for the plan | Label |
+|---|---|---|---|
+| Source control: GitHub | as today | D-7/D-8 (branch protection, merge to `main`) still needed before production deploys | IMPLEMENTED / OPEN (D-7, D-8) |
+| Application backend: Supabase | Supabase in Zurich `eu-central-2` (§2), Team plan for the SOC 2 and ISO documents | no migration; production and staging projects created explicitly in `eu-central-2` | PLANNED |
+| **Website hosting: Vercel** | Vercel is named for the **website**. The website holds no health data (ADR-142), so the CH/EU rule does not bind it. Region `fra1`; no cookies or analytics. | fits WEB1 (`WEB1_IMPLEMENTATION_PLAN.md`); no conflict with RQ-3 | PLANNED |
+| *(not named)* **care-app hosting** | the baseline does not name the host of the care app (Next.js server: Server Actions, rendered pages with health data in transit). Staging was decided on Render Frankfurt (§8). | **Gap 1, OPEN (owner):** app host for staging and production. Engineering plans with option A (Vercel `fra1` for the app too) **only if** the owner extends "Vercel" to the app and `lca` accepts §6. Otherwise it plans option B (Swiss region container, +8-12 pd). Until then T12 proceeds on Render Frankfurt staging, as decided. | OPEN |
+| Availability target 99.9 % | measured end to end (§1 RQ-1) unless the owner buys Enterprise for a contractual SLA | outside monitors and a monthly availability report (§4) are planned for M9 | PLANNED / OPEN (contractual or measured) |
+| Point-in-Time Recovery required | PITR 28 days on production (§3 L1); requires the Small compute add-on; replaces daily backups | in T12; plus the L2 off-platform dump and L3 drills (M9 needs one restore drill within 30 days) | PLANNED |
+| Health and care data in CH or EU | DB, Auth and backups in Zurich; app compute per gap 1; Supabase support and access paths outside CH/EU stay an `lca`/adviser question (§6) | **Gap 2, OPEN (`lca`, adviser):** vendor access paths; DR restore into an EU region | OPEN |
+| Website and care platform separated | ADR-142 (accepted): separate origin, no Supabase key or import in the website (CI check), demo requests to the owner-chosen destination, never the care database | in WEB1 | PLANNED |
+
+**Gap 3, OPEN (owner):** "effectively zero data loss" against PITR's RPO of about 2 minutes (§3.2, question 2 of §10). The baseline asks for PITR, which Engineering reads as accepting RPO ≤ 2 minutes with tested restores. The owner confirms or corrects that reading.
+
 ## Sources (read 2026-11-03)
 
 - Supabase, Database Backups: https://supabase.com/docs/guides/platform/backups
@@ -219,3 +236,4 @@ T12 and P-2 as in `DELIVERY_ESTIMATE.md`, plus L2 (2-3 pd), L3/L5 runbooks (in P
 
 ## Change log
 - 2026-11-03 15:31 eng: version 1 (owner brief "D-2 Hosting Decision Package").
+- 2026-11-03 eng: §12 owner planning baseline (Engineering Directive Response) read against the assessment; gaps 1-3 OPEN.
