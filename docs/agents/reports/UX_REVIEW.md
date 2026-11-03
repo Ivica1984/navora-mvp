@@ -6,6 +6,207 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-03 11:50 CET · `uxa`: #800 amendments (UX2-27/-29: CGR-108, CGR-109, UXR-79) and new #813 (RLS4-C3) read on PR heads; UXR-82, -83 (low); CGR-108 wording confirmed; AUT-35 label proposed; RLS4-C3 (2) interim noted
+
+**What changed since 07:52.** My PR #798 is still open (CI green on `b6d22ac`, not merged); this run continues it and merged `recovery/main` `547d807` in (JOURNAL: both entries kept, newest first). On `recovery/main` only docs merged (#811 `aia` review 19); **no screen code merged**. Open PRs that change screens, each with app, db, e2e and ui-screenshots `success` on its head (read from GitHub check runs; I ran no test):
+- **#800** UX2-27, UX2-29 (head `748ef3f`, was `158a8b3`): amendments from the PO 06:30 (CGR-108, CGR-109, UXR-79; ADR-132 addendum).
+- **#813** RLS4-C3 (new, head `01dee6c`, ADR-138): `/admin` access-end step offers "Erneut laden" after a failed open-report read; a missing count is never "Keine offenen Berichte".
+- #799, #803, #804, #806: heads unchanged (`a8699dd`, `7913eac`, `9f1511d`, `a5875e2`); #809 (`f209c1f`) only merged `recovery/main`, no change under `src` or `tests`. #810 (CGR-110) is pgTAP and CI only. My 03:52 and 07:52 notes on them stand.
+
+**Sources.** `ui-screenshots` artifacts exist for #813 `01dee6c` (13223065998), #800 `748ef3f` (13219004243) and `recovery/main` `547d807` (13212323610); the archive still redirects to a blob host the proxy refuses to this role (403 again this run), so **no screenshots were available**. Reviewed from code on the PR heads. Synthetic seed only; the live project was not touched. No benchmark this run (one made today, 03:52).
+
+### What the open PRs do well (built on PR heads, not yet on `recovery/main`)
+- #800: an empty responsible member reads "noch niemand" only while the visit is open (dated today or later and status planned, on the way, started or paused) and "nicht erfasst" otherwise, from one function `responsibleEmptyText` used by `/visits` and the record page (`features/visits/types.ts:36-64`; `visits/[visitId]/page.tsx:48`); no legacy name is shown. Both "Ändern" pickers share one placeholder "Verantwortliche Person wählen" and the AI field label is now "Verantwortlich" (`RESPONSIBLE_PICK_TEXT`, `features/ai/labels.ts` `FIELD_LABEL`): UXR-79 met on the head; this supersedes my 31.10 proposal "Zuständige Person wählen" (one word per concept wins, §4). In the handover an unnamed colleague keeps her number: "Teammitglied <n> (ohne Namen)" (`handover/rules.ts:89`).
+- #813: the failure line and "Erneut laden" sit in one block, the button outline and `min-h-11`, directly after the line (`admin/member-open-reports.tsx:26-34`); the retry runs the same read for this one member and nothing else; ending access stays possible without the list (product decision); a null count never yields "Keine offenen Berichte" (`features/admin/rules.ts` `accessEndedNotice`), with unit tests.
+
+### Wording answers (OPEN until built)
+
+**CGR-108 (UX2-27 amendment), handover author without a display name** (`cra` 09:30 waits on `uxa`): built "Teammitglied <n> (ohne Namen)" **confirmed**: the number keeps two unnamed authors apart and matches her other entries in the same handover; the bracket says why there is no name without blaming her. No further change.
+
+**RLS4-C3 (2), result line on a missing count.** #813 ships the PO's interim "Offene Berichte unbekannt: das Team sieht sie mit «Zugang beendet»." (`cra` 09:30 confirmed it claims no absence; ADR-138 deviation 1 keeps my 07:52 sentence OPEN for the PO). From the UX side the interim is acceptable for merge: it never says "keine". My 07:52 sentence stays the proposal because "sieht sie" presumes that reports exist, which the screen does not know. The PO decides; not a reason to hold #813.
+
+**AUT-35 / `cra` 09:30, reason field when the administrator first sets a qualification** (#809, `QUALIFICATION_REASON_LABEL` "Begründung (3–300 Zeichen)"). `cra` keeps a typed reason while CGR-16 is open and asks for a label that asks what was checked. Proposed label: **"Was hast du geprüft? (3–300 Zeichen)"**, with the input's `aria-describedby` hint "Die Angabe wird mit der Qualifikation gespeichert." Examples of evidence (which document or register) are **UNKNOWN**: the verification rule is the owner's and `clinical`'s; I name none. The refusal "Die Begründung braucht 3 bis 300 Zeichen." becomes "Die Angabe braucht 3 bis 300 Zeichen." `cra` confirms; can ride #809 (two strings and their test).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-82 | `/admin`, access-end step after a failed open-report read (administrator, desktop, keyboard or screen reader); built on open PR #813 | low | "Erneut laden" is unmounted as soon as it is pressed (the block shows "Offene Berichte werden geladen …"), so keyboard focus falls to the page body; when the second read succeeds the count line is a plain `p`, so a screen-reader user hears nothing (only a repeated failure is announced, through the `alert`). She must find the step again to learn whether the list came. | `admin/member-open-reports.tsx:24-35` (button only in the `null` branch; success line without `role`); `admin-client.tsx:237-240` (`readOpen` sets "loading") | §6 when content is replaced, focus moves to the new content, never the body; §6 a notice is reachable from where focus lands | Keep "Erneut laden" rendered and `disabled` with the text "Wird geladen …" while the read runs, or move focus to the step's result line (`tabIndex=-1`) when the read returns; the loading and result lines sit in one `role="status"` container. Playwright (desktop, read forced to fail once): press "Erneut laden" with the keyboard → after the read `document.activeElement` is inside `[data-testid=open-reports]`, and the container has `role="status"`. | report only (low); PR comment #813 |
+| UXR-83 | `/field` visit card, observation meta line (nurse, phone) vs. the handover; built on open PR #800 | low | The same colleague without a display name reads "Teammitglied ohne Namen" on the visit card (no "von", no number) and "Teammitglied 3 (ohne Namen)" in the handover. Two words for one person, and the card's line breaks the "von <Name>" / "von dir" pattern beside it. | `features/field/authorship.ts` `observationAuthor` (returns `AUTHOR_WITHOUT_NAME_TEXT`); `field-client.tsx:743`; `handover/rules.ts:89` | §4 one word per concept; §4 one command, one label | If the card's read can carry the member number (UNKNOWN, `eng`): "von Teammitglied <n> (ohne Namen)"; otherwise "von einem Teammitglied ohne Namen". vitest: `observationAuthor` for an unnamed colleague starts with "von ". | report only (low) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-79 | Met on PR head #800 (UX2-29 amendment); close on merge. | `748ef3f`, `RESPONSIBLE_PICK_TEXT`, `FIELD_LABEL`; `ux2-wording.test.ts` (CI success on head) |
+| UXR-73 | Met on PR head #813 (RLS4-C3 (1), (3)); (2) wording OPEN with the PO (above); residual UXR-82; close on merge. | `01dee6c`, `member-open-reports.tsx`, `rls4-c3-admin-open-reports-retry.test.ts` |
+| UXR-80, -81 | OPEN (low) on #809; head changed only by a base merge. | `f209c1f` |
+| UXR-36, -37, -40, -41; -56, -58, -61, -62, -63; -27, -28, -46, -48, -53, -72 | Met on PR heads (#804, #806, #803, #800, #799); close on merge; heads unchanged under `src` except #800 (amendments only). | 07:52 and 03:52 sections |
+| UXR-57 | Partly met on #806 (assessor prefill PLANNED, ADR-135). | `a5875e2` |
+| UXR-64 | PLANNED (UX2-30 (7)). | ADR-135 |
+| UXR-75, -78 / UXR-76, -77 | PLANNED (UX2-31 / UX2-32). | `briefs/UX2.md` |
+| UXR-65, -74 | OPEN (low), unchanged. | no screen merge since `3a6b9c6` |
+| UXR-68 | PLANNED (PLAN3-12). | — |
+
+**For the PO.** (1) RLS4-C3 (2): interim sentence acceptable for merge; my 07:52 sentence remains the proposal (your call, `cra` confirms). (2) AUT-35: label "Was hast du geprüft?" proposed in answer to `cra`; can ride #809 with UXR-80, -81. (3) CGR-108 wording confirmed as built on #800. (4) No `severe` or `high` finding, no issue; one comment on #813. (5) Eight PRs with screen changes are open and green; I hold no UX objection to their merge. (6) Screenshot download still refused to this role; reviews remain code-only (§8). I propose only.
+
+---
+
+## 2026-11-03 07:52 CET · `uxa`: open UX2 PRs #804 (UX2-18 to -21), #806 (UX2-30), #809 (UX2-26) read; UXR-80, -81 (low); RLS4-C3 (2) wording answered; UX2-30 (4)/(5) wording confirmed
+
+**What changed since 03:52.** My PR #798 is still open (CI green on `091128e`, not merged); this run continues it and merged `recovery/main` `6d6dbba` in (JOURNAL: both entries kept, newest first). On `recovery/main` only docs merged (#805 `lca`, #808 `po`); **no screen code merged**. The PO (06:30) placed UXR-75/-78 as **UX2-31**, UXR-76/-77 as **UX2-32**, UXR-79 into UX2-29, and set **RLS4-C3** from UXR-73 with the result-line wording asked of `uxa`. #799, #800, #803 only merged `recovery/main` since my read (heads `a8699dd`, `158a8b3`, `7913eac`; no change under `src` or `tests`), so my 03:52 notes on them stand. Three new open Engineering PRs change screens, each with app, db, e2e and ui-screenshots `success` on its head (read from GitHub check runs; I ran no test):
+- **#804** UX2-18 to UX2-21 (head `9f1511d`): `/field` "Heute machen" confirmation and moved-card notices.
+- **#806** UX2-30 (head `a5875e2`): `/team` assessment form and review line.
+- **#809** UX2-26 (head `d18b60c`): `/admin` admission card offers "Qualifikation festlegen" after "Vertrag erfasst".
+
+**Sources.** `ui-screenshots` artifacts exist for `recovery/main` `6d6dbba` (13207521419) and for the PR heads (#806 13209471387, #809 13207451687); the archive still redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from code on the PR heads. Synthetic seed only; the live project was not touched. No benchmark this run (one made today, 03:52).
+
+### What the open PRs do well (built on PR heads, not yet on `recovery/main`)
+- #804: the VIS1-8 slot is reserved from the first render by both wordings laid invisibly in one grid cell (`aria-hidden`), so "Von" and "Bis" keep their place at every width (UX2-18); the moved card's `aria-describedby` names the release notice and then the flags list, the list carries no `aria-label` that would replace its content, flags at `text-sm` with "⚠" plus text (UX2-19); the fallback reads "Inzwischen ist ein neuer Tag. Tippe auf «Einsätze von heute»." from one constant shared with the link (UX2-20); the focused day-changed sentence is no longer a live region (UX2-21). Playwright `ux2-move-flow.spec.ts` asserts the box of "Von" and the description.
+- #806: one column below `sm` also for the minutes rows, e2e at 390 px checks every field ≥ 300 px and no sideways scroll, naming the element that overflows; "Ersetzt die Bedarfsabklärung vom <Datum>" heads the replace form; the instrument is prefilled only when exactly one catalogue entry matches and is valid on that date, otherwise nothing is guessed; one `ErrorText` for `/team`; "Keine aktuelle Bedarfsabklärung." before the closed history. The assessor prefill is held back because the reader has no assessor id and a name match could name the wrong nurse (ADR-135); that is the safe call, PLANNED.
+- #809: the layout as proposed 29.10. 16:10: "angegeben: <Qualifikation>" as text, a fieldset with one 44 px radio row per qualification in a fixed order, none checked, the claimed one neither marked nor first, the reason with its rule in the label, "Qualifikation festlegen" filled and "Später" outline; "Später" sets nothing and the member stays listed; the sentence "Die Qualifikation setzt die Administration wie bisher beim Mitglied" is removed.
+
+### Wording answers (OPEN until built)
+
+**RLS4-C3 (2), result line after an access end whose open-report count is missing** (`openReports === null`; Engineering's interim "Offene Berichte unbekannt: das Team sieht sie mit «Zugang beendet»."). Proposed, in the place of the count sentence of `accessEndedNotice`:
+"Zugang beendet.<Einsätze><Signale> **Offene Berichte: nicht bekannt, die Liste liess sich nicht laden. Falls es welche gibt, sieht das Team sie mit «Zugang beendet».**<Tage>"
+Why: it says what is missing and why, never "keine"; "Falls es welche gibt" avoids claiming that reports exist, which the screen does not know either; the billing clause of the counted line ("sie werden nicht verrechnet") is left out because it states a fact about reports the screen has not read (UNKNOWN whether it holds for every open kind; `cra` may restore it). `cra` confirms the sentence (H-12); no client or outside text, so no `lca` read. **RLS4-C3 (1):** "Erneut laden" confirmed as the label, `action-outline`, directly after the failure line in the same block.
+
+**UX2-30 (4), refusal and hint** (ADR-135 marks mine as PROVISIONAL): confirmed as built: hint "Kennung aus eurem Abklärungsinstrument, z. B. BA-2026-0042: mindestens eine Ziffer, ohne Leerzeichen, Punkt oder Schrägstrich."; refusal "Diese Referenz ist keine Kennung: 3 bis 64 Zeichen, nur Buchstaben, Ziffern und _ : # -, mindestens eine Ziffer." The example is a format sample, not a real record reference.
+
+**UX2-30 (5), second sentence of the review line:** "Diese war damals nicht bestätigt." follows "… gegen die Bedarfsabklärung vom <Datum>.", so "Diese" can be read as the care plan. Proposed: **"Die Bedarfsabklärung war damals nicht bestätigt."** (`STATE_LABEL` value unchanged). The fact is `cra`'s (a); `cra` confirms the wording. Can ride #806 (one string and its e2e regex).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-80 | `/admin`, "Vertrag erfasst, Qualifikation fehlt" list (administrator, desktop); built on open PR #809 | low | The rows show "<Name> · <Team>" and nothing to do; to set the qualification she must find the member in «Mitglieder» herself, and a card closed with "Später" cannot be reopened. The list answers question 1 but not question 2. The list is built from every membership without a qualification (`membersWithoutQualification(data.members)`); `addTeamMember` requires one, so ADM2-6 is probably the only source, but whether seed, legacy or migration rows without a qualification exist is UNKNOWN (`eng`); if they do, the heading "Vertrag erfasst …" states a fact the list does not check. | `admission-section.tsx:116-123`; `admin-client.tsx` (`missing={membersWithoutQualification(data.members)}`); `admin/commands.ts:75` | §1 question 2; §2 an item that asks for an action carries the way there; §4 a heading states what the list holds | Each row carries one link "Qualifikation festlegen" (`min-h-11`) to that member's entry in «Mitglieder» (anchor), or reopens the same offer card; `eng` says whether non-admission memberships without a qualification can exist, and if so the heading reads "Ohne Qualifikation" (PO). e2e (seed, after "Später"): the row has a link whose target is the member's entry, and following it shows the qualification control. | report only (low); PR comment #809 |
+| UXR-81 | `/admin` admission card after "Vertrag erfasst" when the member is not yet in the member list (administrator); built on #809 | low | The fallback reads "Sie steht noch nicht in der Mitgliederliste. Die Qualifikation legst du unter «Mitglieder» fest." "Sie" assumes a woman and can be read as the polite "Sie", and the sentence does not say when she will appear (after reloading?), so the only control, "Später", is a guess. | `admission-section.tsx:200-204` | §4 plain words, no assumed gender; §1 what next | Name the person and the step: "<Name> steht noch nicht in der Mitgliederliste. Lade die Seite neu und lege die Qualifikation unter «Mitglieder» fest." (if a reload is in fact what makes her appear; else `eng` says what does, UNKNOWN). vitest: the fallback text contains the display name and no standalone "Sie". | report only (low); PR comment #809 |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-36, -37, -40, -41 | Met on PR head #804 (UX2-18, -19, -20, -21); close on merge. | `9f1511d`, `field-client.tsx` `MoveToToday`, `MovedNoticeBlock`; `field/rules.ts` `movedCardDescribedBy`, `DAY_CHANGED_RELOAD`; `ux2-move-flow.spec.ts` (CI success on head) |
+| UXR-56, -58, -61, -62, -63 | Met on PR head #806 (UX2-30 (1), (3)-(6)); close on merge; -62 with the wording note above. | `a5875e2`, `assessment-section.tsx`, `error-text.tsx`, `assessment/rules.ts`; `asm1.spec.ts`, `ux2-assessment-form.test.ts` |
+| UXR-57 | Partly met on #806: first line and instrument prefill built; assessor prefill PLANNED (needs the assessor id in the reader, ADR-135). | `a5875e2`, `prefillInstrumentId`, `supersedeFirstLine` |
+| UXR-64 | PLANNED (UX2-30 (7) deferred in ADR-135: seed fixture for a second team). | ADR-135 "Not in this PR" |
+| AUT-21 layout (`uxa` 29.10. 16:10) | Met on PR head #809 (UX2-26); residuals UXR-80, -81. | `d18b60c`, `admission-section.tsx` `RecordedCard`; `team-admission.spec.ts` |
+| UXR-73 | PLANNED as RLS4-C3 (before G-19); wording above. | `briefs/RLS4.md` 06:30 |
+| UXR-75, -78 | PLANNED (UX2-31). | `briefs/UX2.md` |
+| UXR-76, -77 | PLANNED (UX2-32). | `briefs/UX2.md` |
+| UXR-79 | PLANNED (UX2-29 amendment). | `briefs/UX2.md` |
+| UXR-27, -28, -46, -48, -53, -72 | Met on PR heads #803, #800, #799 (03:52); close on merge. | heads unchanged under `src` |
+| UXR-65, -74 | OPEN (low), unchanged. | no screen merge since `3a6b9c6` |
+| UXR-68 | PLANNED (PLAN3-12), unchanged. | — |
+
+**For the PO.** (1) RLS4-C3 (2) wording above (Engineering's interim can be replaced without a round, as with ADR-130 deviation 6, if you agree); `cra` confirms. (2) UX2-30 (5) wording note can ride #806. (3) UXR-80, -81 (low) could ride #809 before merge. (4) Six UX2 PRs are open and green with no blocking UX finding from me (#799, #800, #803, #804, #806, #809); I hold no objection to their merge on UX grounds. (5) No `severe` or `high` finding, so no issue opened; one comment on #809. (6) Screenshot download still refused to this role; reviews remain code-only (§8). I propose only.
+
+---
+
+## 2026-11-03 03:52 CET · `uxa`: UX2 open PRs read (#799 shell, #800 UX2-27/-29, #803 UX2-15/-16/-25): UXR-75, -76, -78 (medium), UXR-77, -79 (low); tab-label wording answered (ADR-131 deviation 1); benchmark navigation bar
+
+**What changed since 31.10. 03:50.** My PR #798 was left open (CI green on `183264f`, not merged); this run continues it and merged `recovery/main` in (JOURNAL: both entries kept). On `recovery/main` (`b74a9b0`) only docs merged (#797 `lca`, #802 `aia`); **no screen code merged**. Three open Engineering PRs change screens, all with app, db, e2e and ui-screenshots `success` on their current heads (read from GitHub check runs; I ran no test):
+- **#799** UX2-1 one shell (head `260dbf6`): `AppShell.tsx`, `lib/auth/shell.ts`, `PageFrame.tsx`; `Sidebar.tsx` and every `HeaderMenu` removed; `/team` joins the UX1-3 map. `cra` gate clear (comment 00:31).
+- **#800** UX2-27, UX2-29 (head `1640cdc`): "von <Name>" on the visit card; "Teammitglied ohne Namen" in the handover; "Verantwortlich" / "noch niemand" on `/visits` and the record page.
+- **#803** UX2-15, UX2-16, UX2-25 (head `dd32be6`): reach-gap line outside the `details`, 44 px `summary`; "Einsätze mit Handlungsbedarf" frame red only while a P1 entry is shown in full, otherwise amber; case reference `text-sm`; manual line beside "Fall öffnen" dropped (`cra` 29.10. 13:40).
+
+**Sources.** `ui-screenshots` artifacts exist for all three heads (13199045159, 13197264604, 13197759077) and for `recovery/main` `b74a9b0` (13196069001); the archive still redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from code on the PR heads. Synthetic seed only; the live project was not touched.
+
+### What the open PRs do well (built on PR heads, not yet on `recovery/main`)
+- #799: one `nav` "Hauptmenü" at a time (`hidden md:flex` / `md:hidden`); tabs `min-h-14`, current tab marked by a 4 px bar **and** bold text plus `aria-current` (not colour only); "Mehr" keeps the UX1-26 behaviour (Escape returns focus, outside tap, closes on choice); "Abmelden" last; content column reserves the bar's height; product name as text, not a heading; the absence `<dialog>` uses `showModal()` and so sits above the bar (`AppShell.tsx:76-160`). The record page `/visits/[visitId]` gets the shell from the layout, which closes UXR-72 on merge.
+- #803: the gap sentence and "Meine Einstellungen" can no longer be folded away, still before any member list and amber (`team-client.tsx` `OutsideDeliveryStatus`); the alert frame now says what it holds, never neutral while an entry is listed, unknown priority falls to amber (`team/rules.ts` `visitAlertFrame`); one way to act on a successor item.
+- #800: one constant each (`RESPONSIBLE_LABEL`, `RESPONSIBLE_NOBODY_TEXT`, `AUTHOR_WITHOUT_NAME_TEXT`), a member code no longer appears as an author.
+
+### Answer to ADR-131 deviation 1 (tab words vs page labels; wording, `uxa`/`po`)
+Built: tabs "Heute", "Team", "Arbeitstag"; sidebar, menu and page headers "Mein Tag", "Dein Team", "Mein Arbeitstag" (`shell.ts` `TAB_LABEL`; `nav.ts` `PAGE_LABEL`). The same destination is named differently at 390 px and at 1440 px, and "Mein Tag" next to "Mein Arbeitstag" reads as one thing twice. Proposed: **one label per destination, the short one, in tab bar, sidebar and menu**: "Heute" (`/field`), "Team" (`/team`), "Arbeitstag" (`/work`); `PAGE_LABEL.team` → "Team", `PAGE_LABEL.work` → "Arbeitstag", `PAGE_LABEL.field` → "Heute". `/field` already heads today with "Heute" and another day with its date plus the "Heute" link back, so "Heute" is the right name for the destination; the small header line above the `h1` on `/field` and `/work` is then dropped where it only repeats the tab (UX1-32 spirit: no eyebrow above the `h1`). `TAB_LABEL` then disappears (one source). No safety or legal text involved; `cra` need not confirm. OPEN until built.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-75 | Shell at 390 px (coordinator, coach, administrator without team membership); built on open PR #799 | medium | Their only tab is "Arbeitstag"; their home "Ausnahmen" (signals, OPS1 exceptions), "Aufnahme" and "Administration" sit behind "Mehr". The bar then holds one real destination plus a menu, and the page that answers question 1 for these roles is two taps away from any other page. ADR-131 deviation 3 names it as a PO question. | `shell.ts` `TAB_KEYS` (fixed `field`, `team`, `work`); `AppShell.tsx` `TabBar`; `docs/engineering/DECISIONS.md` ADR-131 deviation 3 | §1 question 1 on every screen; §5 one shell per role; benchmark below (a bar holds 2-5 core destinations) | The role's home is always the first tab: for a role whose home is `/operations`, the first tab is "Ausnahmen" (then up to two of `field`, `team`, `work` she may open, then "Mehr"). Unit `ux2-shell.test.ts`: operations-only access → tabs `["operations","work"]`; nurse unchanged. Playwright 390 px, coordinator: the first tab's `href` is `/operations`. Safety signals stay in page content, nothing moves above or below them. PO decides. | report only (medium); PR comment #799 |
+| UXR-76 | Shell, all roles, phone vs desktop; built on #799 | medium | Two names per destination (see answer above): tab "Heute"/"Team"/"Arbeitstag", sidebar and headers "Mein Tag"/"Dein Team"/"Mein Arbeitstag". A nurse who learns "Team" on her phone finds "Dein Team" on the office PC; "Mein Tag" and "Mein Arbeitstag" are hard to tell apart. | `shell.ts:20` `TAB_LABEL`; `nav.ts:45-55` `PAGE_LABEL`; `field-client.tsx:180`, `work-client.tsx:45` | §4 one word per concept; §5 one shell | One label set (above) in `PAGE_LABEL`; `tabLabel` returns `item.label`. Unit: for every tab key the tab text equals the sidebar text. Playwright: at 390 px and 1440 px the nurse's first three menu names are identical. | report only (medium); PR comment #799 |
+| UXR-77 | `/field`, `/team`, `/work` headers (team member, phone); built on #799 | low | The header links "Dein Team" (`/field`) and "Mein Tag" and "Kennzahlen" (`/team`) now repeat shell items a thumb away; two ways to the same place in one viewport add reading load in the header that also carries the day and the signals' context. ADR-131 deviation 2 leaves them for the port. "Vorschläge" is not a shell item and stays; the `/work` link "Mein Tag" opens that day's `/field?datum=…`, so it is day navigation and stays. | `field-client.tsx:180-182`; `team-client.tsx:125-130` (PR #799 head) | §2 one way to act; §5 density | In the UX2-3 port, drop header links whose target is a tab or a sidebar item; keep page-specific links ("Vorschläge", day navigation). Playwright 390 px: no header link `href` equals a tab `href`. | report only (low) |
+| UXR-78 | Shell at 390 px, every protected page (keyboard and switch users, screen-reader users with a phone keyboard); built on #799 | medium | The tab bar is `fixed` at the bottom (`z-40`, 57 px). When focus moves by Tab to a control further down, the browser scrolls it just into the viewport, i.e. under the bar; a 44 px button can then be hidden entirely. The bottom padding of the content column helps only at the end of the page. Same for jump links that land a section at the bottom; at the top, the `sticky` headers of `/field` and `/work` can cover a control reached by Shift+Tab. | `AppShell.tsx:111` (`fixed inset-x-0 bottom-0 z-40`), `:186` (padding only); `field-client.tsx:177`, `work-client.tsx:42` (`sticky top-0`); no `scroll-padding` in `globals.css` | §6 accessibility floor; WCAG 2.2 2.4.11 Focus Not Obscured (Minimum, AA) | Below 768 px, `html { scroll-padding-bottom: calc(3.5rem + env(safe-area-inset-bottom) + 8px) }` (one rule beside the shell), and on `/field` and `/work` a matching `scroll-padding-top` for the sticky header. Playwright 390 × 844 on `/team` (long page), nurse: press Tab until a control below the first viewport is focused; its bounding box bottom ≤ the `tab-bar` top. | report only (medium); PR comment #799 |
+| UXR-79 | Record page `/visits/[visitId]` and `/team/vorschlaege` (team member, phone); on #800 | low | Residual of UXR-53 / UX2-29: the record page now labels the field "Verantwortlich", but the AI lines on the same page and on the confirm screen still say "Zuständig" (`fieldLabel("responsible_user_id")`), so one page shows both words for one value. This also withdraws my 31.10. proposal "Zuständige Person wählen": it should read **"Verantwortliche Person wählen"**. Signal and exception texts ("Einsatz ohne Zuständige", "Zuständige Person abwesend gemeldet") are `cra`-fixed safety wording; whether they align is `cra`'s (UNKNOWN), I propose no change to them. | `features/ai/labels.ts:10`; `visits/[visitId]/page.tsx` (PR #800 head) `RESPONSIBLE_LABEL`; `signals/rules.ts:8`, `operations/exceptions.ts:77` | §4 one word per concept | `fieldLabel("responsible_user_id")` returns `RESPONSIBLE_LABEL`; picker placeholder "Verantwortliche Person wählen" (one constant). Unit (extend `ux2-wording.test.ts`): `fieldLabel("responsible_user_id") === RESPONSIBLE_LABEL`. | report only (low); PR comment #800 |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-27 | Met on PR head #803 (UX2-15); closes on merge. | `dd32be6`, `team-client.tsx` `OutsideDeliveryStatus`; `ux1-team.spec.ts` (CI success on head) |
+| UXR-28 | Met on PR head #803 (UX2-16); closes on merge. | `dd32be6`, `team/rules.ts` `visitAlertFrame`; `ux2-team.test.ts` |
+| UXR-46 | Met on PR head #803 (UX2-25); closes on merge. | `dd32be6`, `case-ref` `text-sm`; `contract-end-section.tsx` |
+| UXR-48 | Met on PR head #800 (UX2-27); closes on merge. | `1640cdc`, `authorship.ts`, `handover/rules.ts` `entryAuthorLabel` |
+| UXR-53 | Met on PR head #800 for `/visits` and the record field; residual UXR-79. | `1640cdc`, `visits/types.ts` |
+| UXR-72 | Met on PR head #799 (record page inside the shell); closes on merge. | `260dbf6`, `(protected)/layout.tsx` |
+| #510 (two shells, UXR S1) | Met on PR head #799 for navigation; page tokens remain UX2-3. Issue stays open until merge and PO acceptance. | `260dbf6` |
+| UXR-73, -74, -65 | OPEN, unchanged. | no change on `recovery/main` since `3a6b9c6` |
+| UXR-68 | PLANNED (PLAN3-12), unchanged. | — |
+| UXR-57, -58, -61 to -64 | PLANNED (UX2-30), unchanged. | — |
+
+### Benchmark (2026-11-03): a bottom navigation bar
+
+Read: SAP Fiori for Android, *Navigation Bar* usage (Material 3 standard component), https://www.sap.com/design-system/fiori-design-android/v25-8/components/m3-standard-components/navigation-bar/usage, 2026-11-03. An enterprise field app uses a bottom bar for two to five core destinations; with only one destination, it uses a drawer instead; labels stay short and never wrap, truncate or shrink; the selected item is shown by a highlight plus a changed icon; on larger screens the bar is replaced by a rail or drawer with the same destinations.
+
+What NAVORA should adopt: (1) a role's bar carries its **core** destinations, and a bar with one real destination plus "Mehr" is a sign the set is wrong for that role (UXR-75); (2) short labels that fit one line at 390 px in four columns, the same words in the sidebar (UXR-76: "Arbeitstag" fits, "Mein Arbeitstag" would wrap); (3) already built: the current item marked by more than colour, and sidebar on desktop with the same items. Not adopted: icons for now (no icon set in §7; a text label alone meets the need and avoids icon-only meaning). No design, logo or text copied.
+
+**For the PO.** (1) UXR-75: should a coordination role's home be its first tab (ADR-131 deviation 3)? Yours; I recommend yes. (2) Tab wording answered above (deviation 1), for #799 or the UX2-3 PR. (3) UXR-78 is a one-rule fix and could ride #799 before merge. (4) UXR-77, -79 (low) can ride UX2-3 / #800. (5) No `severe` or `high` finding, so no issue opened; one comment each on #799 and #800. (6) Screenshot download still refused to this role; reviews remain code-only (§8). I propose only.
+
+---
+
+## 2026-10-31 03:50 CET · `uxa`: AIG1-C1/-C2/-C3 (#787) and RLS4-C2 (#792) as merged: UXR-66, -67, -69, -70, -71 closed; UXR-72 (low), UXR-73 (medium), UXR-74 (low); interim texts and AIG1-C4 (3) worded; benchmark count badges
+
+**What changed since 30.10. 23:55.** My PR #785 merged. Screen code changed in two merges: **#787** (AIG1-C1, -C2, -C3) as `c6f038b` and **#792** (RLS4-C1, -C2) as `6fd9507`. CI on both merge commits and on `recovery/main` `3a6b9c6`: app, db, e2e, ui-screenshots all `success` (read from the GitHub check runs; I ran no test). The PO accepted AIG1-C1 to -C3 as met (02:25) and set AIG1-C4 and AIG1-C5; Engineering's two interim texts are mine to replace without a PO round (ADR-130 deviation 6). Open PRs (#753 … #797) are `cra`, `lca` and status docs; none changes `src/app` or `src/components`, so no PR comment. No `ux/…` PR was open.
+
+**Sources.** `ui-screenshots` artifacts exist for `recovery/main` `3a6b9c6` (13026397715) and `6fd9507` (13026660686, 13026545938); the archive redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from code on `3a6b9c6`. Synthetic seed only; the live project was not touched.
+
+### What the merged changes do well (IMPLEMENTED)
+- Record page `/visits/[visitId]`: the back link returns to the list that opened it ("Zurück zur Liste", "Zurück zu den Vorschlägen"), otherwise the role's home; origin from the link, never from a person (`labels.ts` `recordBackLink`). The two actions sit directly under the provenance line, filled "Erneut bestätigen", outline "Ändern", one `role="status"` result, a refusal on its line (`lookback-actions.tsx`). A coordinator gets no control and no sentence about it.
+- Look-back list: "Werte: <n> offen · <m> nicht mehr offen", second part also at 0; "Einsatz nicht mehr offen" as text in the same weight as "überholt am"; the header names only actions the product offers (`rueckblick/[stopId]/page.tsx`, `LOOKBACK_EXPLANATION`). Wording as proposed 23:55.
+- `/team/vorschlaege`: box and line text in one `label`, `min-h-11`; a refused value keeps its reason on its own line; the result reads "2 Werte bestätigt, 1 nicht übernommen." and is an alert only when something was refused (`suggestions-client.tsx`).
+- `/admin` (RLS4-C2): a member's open reports are read only when the access-end step opens; "Zugang beenden" waits until the list is there; a list that could not be read says so instead of "keine" (`admin-client.tsx` `MemberAccess`; `team/contract-end-section.tsx` `LeaverEntry`). Less personal data on the member list, and no false all-clear.
+
+### Wording (OPEN until built; `cra` confirms substance, `lca` the no-person rule)
+
+**Interim text 1, record page line of a listed value** (`labels.ts` `RECORD_LOOKBACK_TEXT`). Built: "Zuständig: Dieser Wert steht auf der Rückblick-Liste eines gestoppten Assistenten." "Rückblick-Liste" names a coordinator screen the nurse does not use, and the line repeats nothing she can act on. The provenance line right above already says who proposed and who confirmed. Proposed, adding only the new fact: **"<Feld>: Der Assistent, der diesen Wert vorgeschlagen hat, ist gestoppt."** No obligation word ("bitte prüfen", "muss"): who must re-check, and by when, is the Clinical Owner's (D-17, UNKNOWN). The buttons below are the next step. `cra` confirms.
+
+**Interim text 2, picker placeholder** ("Person wählen", `suggestions-client.tsx:238`, `lookback-actions.tsx:142`). Proposed: **"Zuständige Person wählen"**, matching the field label "Zuständig" above it, one constant used by both forms (see UXR-74).
+
+**AIG1-C4 (3), health list count** (PO 02:25: "Abgelaufen ohne Entscheid: <n>", `uxa` may replace). Proposed: **"<n> ohne Entscheid abgelaufen"**, in the same cell and form as the existing "<n> entschieden" line (number first, one pattern), shown also at 0 so a missing line never reads as "none". Per agent and window, never per person (AIG1-11). No colour above `info`. Unit: the text for 0 is "0 ohne Entscheid abgelaufen".
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-72 | `/visits/[visitId]` record page (team member, phone; coordinator, desktop); IMPLEMENTED in `c6f038b` | low | Residual of UXR-67: the dead end is gone (back link), but the page still renders a bare `main` without `AppFrame` or `HeaderMenu`, so it is the only protected page without the role's menu and looks different from every page that links to it. | `visits/[visitId]/page.tsx:33-58` (no `AppFrame`/`HeaderMenu`) | §5 one shell | The page renders inside the shell the role sees on its home (one shell is UX2 / #510). Playwright at 390 px and 1440 px: the role's menu is present on the record page. | report only (low); belongs with #510 / UX2 |
+| UXR-73 | `/admin` member row, "Zugang beenden" step (administrator, desktop); IMPLEMENTED in `6fd9507` | medium | When her open reports cannot be read, the step shows "Offene Berichte konnten nicht geladen werden." and "Zugang beenden" becomes available; the line names no next step (try again, or where else to look). The step exists so that no unsigned report is orphaned (LEAVE1-12 (1)); an administrator in a hurry can end access without having seen the list. While loading, the button is correctly held. | `admin-client.tsx:276-294` (`open === null` enables submit; alert without action) | §1 what next; §2 a refused or failed read says what to do | The failure line carries one action "Erneut laden" (re-runs `readMemberOpenReports`, `min-h-11`). Whether ending stays possible without the list is a product and care trade-off for the PO with `cra` (UNKNOWN; I do not propose blocking a leaver's access end, which can be urgent). vitest: with the read rejected, the alert and an "Erneut laden" button are shown and a second call is made on click. | report only (medium); for the PO |
+| UXR-74 | change forms on `/team/vorschlaege` and on the record page (team member, phone) | low | The same "Ändern" step is built twice and behaves differently: on the list the confirm button is enabled and an empty pick triggers the browser's own validation bubble; on the record page the button stays disabled until a person is chosen, with no text why. Two behaviours for one command. | `suggestions-client.tsx:226-250` (`required`, form `action`); `lookback-actions.tsx:125-160` (`disabled={!chosen}`) | §2 one command, one result display; §7 one component each | One shared picker component used by both pages; the confirm button is enabled, and an empty pick shows one inline line "Bitte eine Person wählen." tied with `aria-describedby`. vitest: both pages render the same component; submit without a pick shows the line and sends nothing. | report only (low) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-66 | **Closed in code** (AIG1-C3 (2)). | `c6f038b`, `suggestions-client.tsx` `refusals`, `labels.ts` `bulkResultText`; `aig1.spec.ts` test 3 (CI success on `c6f038b`) |
+| UXR-67 | **Closed in code** for the dead end (AIG1-C3 (1)); the missing shell continues as UXR-72. | `c6f038b`, `recordBackLink`; e2e per PO 02:25 |
+| UXR-69 | **Closed in code** (AIG1-C3 (3)). | `suggestions-client.tsx` `suggestion-tick-label` `min-h-11`; `aig1.spec.ts:113` bounding box |
+| UXR-70 | **Closed in code** (AIG1-C3 (4)). | `assistenten/page.tsx` flag in the "Mindestzahl" cell; `minReachedText(null)` |
+| UXR-71 | **Closed**: second half in code ("Kein anderes Teammitglied wählbar."); first half not adopted by the PO (ADR-130 decision 13: a rejection leaves the visit unchanged). | `NO_OTHER_MEMBER_TEXT`; `briefs/AIG1.md` PO 02:25 |
+| UXR-68 | PLANNED (PLAN3-12). Benchmark below adds one detail: cap the count ("99+"). | `briefs/PLAN3.md:32` |
+| UXR-65 | OPEN (low), unchanged. | `rules.ts` on `3a6b9c6` |
+| UXR-57, -58, -61 to -64 | PLANNED (UX2-30); unchanged. | no screen change outside AIG1 and RLS4 since `7388674` |
+
+### Benchmark (2026-10-31): a count on a navigation entry
+
+Read: ServiceTitan Anvil design system, *Badge* (web), https://anvil.servicetitan.com/docs/components/badge/web, 2026-10-31. A field-service product puts a number badge on an interactive entry (a nav item or icon button) to say how many items need attention; it caps the number (99, shown as "99+"); the accessible name carries the context ("with 6 unread"), not the number alone; the badge keeps one default colour; it is not used to label or organise content, and only ever holds a number.
+
+What NAVORA should adopt (PLAN3-12, UXR-68): the count lives on the entry, not as a banner; one neutral colour (already: no colour above `info`, H-20); the `aria-label` says what is counted ("5 offene Vorschläge", already in PLAN3-12); **new: cap the visible number at "99+"** so the link stays one line at 390 px, with the `aria-label` keeping the exact number. What NAVORA should not adopt: a dot without a number (it says "something" but not how much, and invites opening to check). No design, logo or text copied.
+
+**For the PO.** (1) UXR-73 (medium): whether "Zugang beenden" stays possible when the open-report list cannot be read is yours with `cra`; the "Erneut laden" action is presentation-only. (2) Interim texts and AIG1-C4 (3) worded above, for the PLAN3 / AIG1-C4 PR. (3) UXR-72, -74 (low) can ride with UX2. (4) No `severe` or `high` finding, so no issue opened. (5) Screenshot download still refused to this role; reviews remain code-only (§8). I propose only.
+
+---
+
 ## 2026-10-30 23:55 CET · `uxa`: AIG1 part (b) UI as merged (#776): UXR-49 closed in code; UXR-66, -67, -68, -69 (medium), UXR-70, -71 (low); AIG1-C1 and AIG1-C2 wording proposed; minimum-flag sentence worded
 
 **What changed since 15:50.** My PR #759 merged. Screen code changed in one merge: **#776** (AIG1 part (b) UI) as `fa77272` (head `3378b2a`; CI green on head and merge commit as the PO 21:25 reports from GitHub; I ran no test). New screens: `/team/vorschlaege` (confirm screen, team member, 390 px first), `/visits/[visitId]` (record page), `/operations/assistenten` (health list, desktop), `/operations/assistenten/rueckblick/[stopId]` (look-back list); links from the OPS1 card, the `/operations` header and the `/team` header. AIG1 **accepted** on synthetic data (PO 22:15) with conditions AIG1-C1 (as amended by AUT-29) and AIG1-C2 (CGR-105), both PLANNED, both asking `uxa` for wording. #781 (CGR-96) changes only `tests/e2e/vis1.spec.ts` (no screen). Other merges are docs only. Open PRs (#753 … #784) are `cra` and `lca` docs; none changes `src/app` or `src/components`, so no PR comment. No `ux/…` PR was open.
