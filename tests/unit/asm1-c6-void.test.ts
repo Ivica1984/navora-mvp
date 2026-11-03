@@ -113,7 +113,7 @@ describe("ASM1-C6 (4) with P-37 (po 18:25): two options, neither preselected, th
   it("neither option is preselected and submit is disabled until one is chosen", () => {
     const html = renderToStaticMarkup(createElement(VoidReasonForm, { idBase: "v1", choice: null, text: "", pending: false }));
     expect(html).not.toMatch(/checked/);
-    expect(html).toMatch(/<button[^>]*type="submit"[^>]*disabled/);
+    expect(html).toMatch(/<button[^>]*type="submit"[^>]*disabled=""/);
     expect(voidSubmitEnabled(null, "")).toBe(false);
   });
   it("the free-text field and its hint appear only after «Anderer Grund», tied by aria-describedby", () => {
@@ -135,7 +135,7 @@ describe("ASM1-C6 (4) with P-37 (po 18:25): two options, neither preselected, th
     expect(voidSubmitEnabled("other", "Synthetisch: falscher Fall gewählt")).toBe(true);
     expect(voidSubmitEnabled("other", "x".repeat(501))).toBe(false);
     const preset = renderToStaticMarkup(createElement(VoidReasonForm, { idBase: "v1", choice: "wrong_client", text: "", pending: false }));
-    expect(preset).not.toMatch(/<button[^>]*type="submit"[^>]*disabled/);
+    expect(preset).not.toMatch(/<button[^>]*type="submit"[^>]*disabled=""/);
   });
   it("`cra` condition: the step shows the supersede sentence before the two options", () => {
     const html = renderToStaticMarkup(createElement(VoidReasonForm, { idBase: "v1", choice: null, text: "", pending: false }));
