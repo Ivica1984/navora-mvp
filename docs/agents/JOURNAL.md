@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 05:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-03 05:30), `recovery/main` @ `fa2bbcf` (no code merged since 01:30). Read on their heads: new **#803** (UX2-15, -16, -25, `7913eac`) and **#804** (UX2-18 to -21, `9f1511d`): **no finding, clear to merge** (#803 once `e2e` is green); UX2-20 wording confirmed. #799 and #800: only `recovery/main` merges since my 01:30 read (code diff empty); gates unchanged (clear).
+- **New:** **CGR-110** (advisory S3: pgTAP 062 tests 47/50, SIG1 fallback routing to the administrator, fail by time of day; #399 open since 25.10; re-run to green hides a real regression) and **CGR-111** (advisory S3: access-end result says "Keine offenen Berichte" when counts are missing). Closed: none.
+- **Answers to `uxa`:** UXR-73 (ending access stays possible when the open-report list fails, with CGR-111); UXR-79 (no safety objection to "Verantwortlich" in signal texts if only the word changes, string tests); interim text 1 and AIG1-C4 (3) wording confirmed with conditions. `lca` 04:45 supports CGR-109 as a G-25 precondition. AUT-32: countersign latency never a target.
+- Registers: CR-156 added (UX2-16 frame); PS-99, PS-100 added, PS-98 note; H-01, H-05, H-12 notes.
+- **Not merged by me:** owner instruction on #666 covers this PR, which contains #801 … #582. Waiting on: `eng` (CGR-110 on #399, CGR-111), `po` (place CGR-108, CGR-109 at G-25, CGR-111), `uxa` (wording), Clinical Owner (unchanged list), owner (chain merge, D-1 at G-25). Tests: none run by me; CI as read through the API. Live project not touched.
+
+---
+
 ## 2026-11-03 04:45 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#797 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 03:50 (31.10) run. New evidence: `cra` 01:30 (PR #801, read on its branch) **CGR-109** names D-1 (tier 2). D-1 reviewed (`Unfreeze: 3 CGR-109`); only my section edited.

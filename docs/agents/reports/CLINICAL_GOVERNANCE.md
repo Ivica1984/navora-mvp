@@ -16,6 +16,81 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-03 05:30 CET: open #803 (UX2-15, UX2-16, UX2-25) and #804 (UX2-18 to UX2-21) read on their heads: **no finding**, both match my earlier answers (17:30 answers 2 and 3 on 28.10, 13:40 on 29.10); UX2-20 wording confirmed; #799 and #800 unchanged in code since my 01:30 read; `lca` D-1 (#805) supports CGR-109 as a G-25 precondition; answers to `uxa` (#798): UXR-73, UXR-79, interim text 1, AIG1-C4 (3) wording; **CGR-110** (advisory S3: the SIG1 fallback-routing test, pgTAP 062 tests 47 and 50, still fails by time of day, #399 open since 25.10); **CGR-111** (advisory S3: the access-end result says "Keine offenen Berichte" when the counts are missing); no blocking finding
+
+**Scope:** `recovery/main` @ `fa2bbcf`. Changes since my 01:30 section (PR #801, unmerged; `recovery/main` was `a321e6c`):
+- **Code merged:** none.
+- **Docs merged:** `aia` 02:40 (#802: bottleneck map v2, AUT-27 closed, **AUT-32**), `lca` 04:45 (#805: D-1 re-check on **CGR-109**).
+- **Open:** #799 (head now `a8699dd`) and #800 (head now `158a8b3`): only merges of `recovery/main`; `git diff a759429 a8699dd` and `git diff b8bef0c 158a8b3` outside `docs/` are **empty**, so my 01:30 reading holds. **New:** **#803** `eng` UX2-15, UX2-16, UX2-25 (head `7913eac`, ADR-133, no migration); **#804** `eng` UX2-18 to UX2-21 (head `9f1511d`, ADR-134, no migration). `uxa` #798 (03:52 section: UXR-75 to UXR-79, questions to `cra`). My chain #582 … #801 is still unmerged (owner instruction on #666). #3 unchanged.
+- **CI (check runs read through the GitHub API):** `fa2bbcf`: all four success. #800 `158a8b3`: all four success (the earlier red `db` on `1640cdc` was pgTAP 062 tests 47 and 50; a re-run passed: CGR-110). #804 `9f1511d`: all four success. #799 `a8699dd` and #803 `7913eac`: `app`, `db`, `ui-screenshots` success, `e2e` **in progress** at reading.
+- **No `clinical`, `legal` or `owner` decision was answered by a person.** `OPEN_DECISIONS.md`, `NEXT_CAPABILITY.md` and the briefs did not change; CGR-108 and CGR-109 are not placed yet.
+
+I read: the #803 diff in full under `src/` and `tests/` (`team-client.tsx` `VisitAlerts`, `OutsideDeliveryStatus`, `CaseCard`; `contract-end-section.tsx`; `features/team/rules.ts` `visitAlertFrame`; `ux2-team.test.ts`; `ux1-team.spec.ts`; `contract-end.spec.ts`) and ADR-133; the #804 diff in full (`field-client.tsx` `MoveToToday`, `MovedNoticeBlock`; `features/field/rules.ts`; `ux2-move-flow.test.ts`; `vis1-10.spec.ts`) and ADR-134; `briefs/UX2.md` UX2-15 to UX2-25; `decisions/D-1.md` `lca` 04:45; `AUTOMATION_REVIEW.md` review 18 (AUT-32); `UX_REVIEW.md` 03:52 and 31.10 03:50 (#798); PR comments on #799, #800 since 00:00 UTC; issue #399 and its comments; pgTAP 062:11-12, :185-199; `features/admin/rules.ts` `readAccessEndResult`, `accessEndedNotice`; `admin-client.tsx:265-286`; 0078:229. **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-110 | **SIG1 fallback routing test** (pgTAP 062 tests 47 and 50; issue #399, `eng`) | **advisory (S3)**; blocking (S2) if a real routing difference is shown; does not hold any open PR | IMPLEMENTED fact: the only tests that prove a safety signal of an organisation with no team member and no Operations user reaches its administrator (test 47 `903=operations_fallback`, test 50 "org B's admin sees her own") failed again on #800 `1640cdc` (docs-only merge; job 03:11-03:14 CET) and passed on a re-run (03:31-03:35 CET). Same two tests as on #395 (25.10, 19:17 UTC). The file pins `navora.test_now` to 12:00 Zurich of the day it runs (062:11-12), yet the result depends on when it runs; so some path reads a clock other than `private.now()`, or a time-of-day rule (watched hours, 0064) applies against the pinned clock. Cause **UNKNOWN** (eng 02:35 UTC on #399). The issue is open since 25.10 without a fix. Consequence: a real regression in fallback routing (a P1 signal with nobody to receive it, H-01, H-02 routes) would look like the known flake and be re-run to green. In production `private.now()` is the real clock, so I do not assume a product defect; it is not excluded either | #399 (body and eng comment 2026-11-03 02:35 UTC); pgTAP 062:11-12, :185-199; #800 run 41564568997 | **eng (test or product, whichever the cause is; never skip or quarantine):** (1) find the clock the failing path reads; if it is a product path that bypasses `private.now()`, fix it there; (2) pgTAP 062 passes when run with `navora.test_now` pinned and the job's real clock at 03:00 and at 20:00 Zurich (e.g. run the file twice in one job with two pinned outer instants, or assert the recipient with an explicit `test_now`); (3) every occurrence until then recorded on #399 (as CGR-86) |
+| CGR-111 | **Access-end result without counts** (`/admin` "Zugang beenden", LEAVE1-12 (2); IMPLEMENTED) | **advisory (S3)**; with UXR-73 or any later `/admin` PR | IMPLEMENTED: `readAccessEndResult` sets `openReports` to `null` when the command's answer has no `open_reports` object, and `accessEndedNotice(null, …)` counts 0 and says "Keine offenen Berichte." The server returns `open_reports` on every successful end today (0078:229), so this does not happen with the current database; but it is the same pattern RLS4-C2 removed from the pre-read (a missing value shown as "keine", H-12). It matters now because of UXR-73: when the pre-read fails ("Offene Berichte konnten nicht geladen werden."), the result line is the administrator's only remaining count before her access ends | `features/admin/rules.ts:205-223`, `:244-256`; `admin-client.tsx:265`, `:283`; 0078:229 | **eng (display only):** with `openReports === null` the result says that the open reports are unknown and that the team sees them with «Zugang beendet» (wording `uxa`'s), never "Keine offenen Berichte". **Unit:** `accessEndedNotice(null)` does not contain "Keine offenen Berichte" |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-109** | open, advisory (S3), **before G-25**; not placed yet | `lca` 04:45 (D-1, #805): my remedy (neutral past-tense text, legacy name hidden, past visits unmapped, count in the §5c step 6 record) **compliant under every plausible interpretation** (DSG Art. 6 Abs. 5) if in place before G-25; showing "nobody" on past visits with real data **unresolved: needs owner**. `lca` asks `po` to place it as a G-25 precondition; I support that placement. #800 code unchanged |
+| **CGR-108** | open, advisory (S3); not placed yet | #800 code unchanged; `lca`: names no decision |
+| CGR-106, CGR-107 | open, advisory (S3); remedies placed as AIG1-C4 (PLANNED) | no change |
+| **CGR-86** | open, advisory (S3) | no new occurrence of pgTAP 079 test 44 seen in this window; CGR-110 is the same pattern on another file |
+| CGR-78 | open, advisory (S2) | no change |
+| CGR-104, CGR-103 | open, advisory (S2) | no change |
+| CGR-97, CGR-99 | open, advisory (S3) | no change |
+| CGR-94, CGR-75 | open | no change |
+| CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-16, CGR-23 | open | no change |
+
+Closed in this section: none.
+
+### Other checks (no finding)
+
+- **#803 UX2-15:** the reach-gap sentence and "Meine Einstellungen" are now outside the `details`, first in the team status block, amber (`border-amber-800`, `text-amber-900`), before the member lists; wording `REACH_GAP_TEXT` unchanged. Meets my 17:30 (28.10) answer 2 and its condition; the e2e checks fold and unfold, document order and the amber classes. The UX1-24 test change (`open` asserted on `push-team-details`, not on the block) follows the moved element, it does not loosen the check.
+- **#803 UX2-16:** `visitAlertFrame` is red while any P1 entry is shown in full (taken, flagged, or with an action of its own, i.e. `alertRepeatsSignal` false), amber for pointer lines, P2 and an unknown priority, never neutral while an entry is listed, no frame for an empty list. That is my 17:30 answer 3. A P1 entry shown only as a pointer has its red signal card directly above, so no P1 loses red. Unknown priority falls to amber, not to neutral: right. Entries, order, clearance text and the PROVISIONAL note are unchanged. ADR-133 deviation 2 (a CGR-32 flag line stays rose in an amber frame): no objection; a flag is a safety fact and may keep its colour (`uxa`'s if it should change).
+- **#803 UX2-25:** "Fall-Ref." at `text-sm`; the manual line dropped, the title names the action and "Fall öffnen" is the one control. As I confirmed 29.10 13:40 (CGR-72 wording). The ADM2-15 (b) item, its position and its resolution path are unchanged.
+- **#804 UX2-18:** the VIS1-8 slot is reserved from the first render (both wordings stacked invisibly, `aria-hidden`); the fact itself and its wording are unchanged; a failed read leaves the slot empty, as before it showed nothing. No objection to ADR-134 deviation 3.
+- **#804 UX2-19:** the moved card's description names the release notice, then the planning flags; the flags list is `text-sm` and loses its `aria-label` so the flags themselves are read (deviation 5). Makes the uncovered flag ("niemand verantwortlich (nächste 24 h)") reach a screen-reader user who lands on the card: supports H-01. Deviation 1 (the e2e skips itself after 23:15 Zurich): acceptable; a skipped run is reported as skipped, and the unit tests still pin `movedCardDescribedBy`.
+- **#804 UX2-20, wording read in the UX2 gate:** "Inzwischen ist ein neuer Tag. Tippe auf «Einsätze von heute»." **Confirmed.** The fallback appears when the visit is no longer dated after the new day, so nothing was stored and the visit is among today's visits behind the link; the sentence does not claim a move happened. No internal code (unit test).
+- **#804 UX2-21:** `role="status"` dropped from the two focused day-changed sentences; focus still lands on them, so they are read once. No objection.
+- **Hard-coded rules.** #803 adds **CR-156** (the frame colour of the visit-alert list from the existing PROVISIONAL P1/P2 priority; display of a D-28 value, no new threshold). #804 adds no rule (layout, accessible description, wording). No threshold, deadline, tariff, KLV, LTCF, interRAI, PAG or MQI logic.
+- **Privacy:** #803 and #804 add no read; the e2e in #804 creates and removes one synthetic visit (`finally`). Test data synthetic. No finding.
+- **Answers to `uxa` (#798, 03:52 and 31.10 03:50 sections):**
+  - **UXR-73** ("Zugang beenden" when the open-report list cannot be read; PO with `cra`): from the clinical side ending access **stays possible**. Holding a leaver's access open because a read failed trades privacy and security for a list (`lca` 06:05 on #500 (a)); and the open reports are not lost: the command result returns the counts by kind (LEAVE1-12 (2), 0078:229), the team's registered nurses keep the list, and each report carries «Zugang beendet» in the handover (LEAVE1-12 (3)). The "Erneut laden" action is welcome. Condition: CGR-111 (a missing count is never shown as "keine").
+  - **UXR-79** ("Zuständig" on AI lines vs "Verantwortlich"): no objection to `fieldLabel("responsible_user_id")` = `RESPONSIBLE_LABEL` and "Verantwortliche Person wählen". For the `cra`-fixed signal and exception texts ("Einsatz ohne Zuständige", "Zuständige Person abwesend gemeldet"): **no safety objection** to the same word change, provided only that word changes (signal kind, priority, the rest of each text and their tests unchanged) and a string test pins each new text; `uxa` proposes, `po` places. Until then they stay as built.
+  - **Interim text 1** (record page line of a listed value), proposed "<Feld>: Der Assistent, der diesen Wert vorgeschlagen hat, ist gestoppt.": **substance confirmed.** It states the one new fact without an obligation nobody has set (D-17, UNKNOWN); the provenance line above it and the two actions below stay. Conditions: the line stays until the value is re-confirmed or changed (as built, AIG1-C2), and on a visit no longer open it is followed by "Einsatz nicht mehr offen" with no control (as built, CGR-105 (b)).
+  - **AIG1-C4 (3)** "<n> ohne Entscheid abgelaufen", shown also at 0, per agent and window, never per person: **confirmed**; it keeps the CGR-107 fact visible apart from decided proposals.
+- **`aia` AUT-32** (per-step baseline from stored timestamps, per team and month, never per person): no clinical objection to measuring. One caution for the brief, if the PO writes it: countersign latency (CR-011, D-10) is reported as a process fact, **never as a target** (a shorter countersign time is not a quality gain by itself; G-5, LT-3), and always beside the open-correction and return counts of the same team.
+- **#799 UXR-78** (`uxa`: the fixed tab bar can cover a control reached by Tab): supports it; a signal's action under the bar would be a control she cannot see. No separate finding; `uxa`'s remedy and test are sufficient.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#799** UX2-1 shell (head `a8699dd`) | **clear to merge** (unchanged in code since `a759429`); merge with CI green on the head |
+| **#800** UX2-27, UX2-29 (head `158a8b3`, CI green) | **no blocking finding**; CGR-108, CGR-109 advisory (S3); clear to merge |
+| **#803** UX2-15, UX2-16, UX2-25 (head `7913eac`) | **no finding; clear to merge** once `e2e` is green on the head |
+| **#804** UX2-18 to UX2-21 (head `9f1511d`, CI green) | **no finding; clear to merge**; UX2-20 wording confirmed |
+| **G-25** (first real, migrated or imported visit data shown) | CGR-109 before it (with `lca` 04:45) |
+| **AIG1** (accepted) | unchanged: AIG1-C4, AIG1-C5, CGR-78 line content, D-17 before the first agent other than the synthetic test agent |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **eng:** CGR-110 (#399: cause, fix, a test that passes at any hour; no skip); CGR-111 (display, one unit test; may ride with UXR-73); CGR-108 and CGR-109 once the PO places them; AIG1-C4 and AIG1-C5 (PO order).
+- **po:** place CGR-109 as a **G-25 precondition** (as `lca` 04:45 asks) and CGR-108; place CGR-111 with UXR-73; the UXR-79 signal-text alignment (optional, conditions above); AUT-32 caution if P-19 is briefed.
+- **uxa:** wording for CGR-108, CGR-109 and CGR-111; UXR-79 signal texts if `po` places them.
+- **clinical (Clinical Owner, after G-1):** unchanged: re-check of look-back values, re-confirmation meaning, whether expired proposals count against an agent, `record` threshold (D-17); CGR-104; ASM1-C4 set; void confirmation; reassessment triggers (CR-148, H-08); CGR-99; CGR-97; D-15, CR-010, CGR-87 (3), (4), CGR-89 (3), CR-134, D-12, D-25; D-10 (countersign scope, relevant to AUT-32).
+- **owner / legal / regulatory adviser:** chain merge of the governance PRs (#582 … this PR); the D-1 live reconciliation (G-25); unchanged items (G-1, D-38, D-34 MepV, D-36, D-1, D-4 adviser list).
+
+---
+
 ## 2026-11-03 01:30 CET: #787 merged as read (`c6f038b`, no code difference from `65a1278`, CI green): **CGR-105 closed**; #792 (RLS4-C1 + RLS4-C2, `6fd9507`, pgTAP 105) read on its merge commit: **CGR-101 closed**; CGR-106 and CGR-107 remedies placed as AIG1-C4 (meet my remedies at brief level, close on the build); AIG1-C5 (AUT-30): no objection, strengthens CGR-95; open #799 (UX2-1 shell): **`cra` gate on `/field` and `/team` clear**, no finding; open #800 (UX2-27, UX2-29): **CGR-108** (advisory S3: the handover's observation author without a name loses the member number the same person keeps on her other entries) and **CGR-109** (advisory S3, before G-25: "noch niemand" on a visit that is no longer open states an absence the record does not show); no blocking finding
 
 **Scope:** `recovery/main` @ `a321e6c`. Changes since my 01:30 (31.10) section (PR #788, unmerged; `recovery/main` was `f774265`):
