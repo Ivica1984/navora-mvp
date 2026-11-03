@@ -32,7 +32,7 @@ describe("OBS1 observation author on the visit card and in the handover (OBS1-2)
     const detail = { content: "x", author_name: "Kandidatin Olga Test", author_qualification_missing: true };
     expect(entryAuthorLabel({ kind: "observation", author: "member:4", detail })).toBe("Kandidatin Olga Test");
     expect(entryAuthorLabel({ kind: "observation", author: "me", detail })).toBe("Ich");
-    expect(entryAuthorLabel({ kind: "observation", author: "member:4", detail: { content: "x" } })).toBe(AUTHOR_WITHOUT_NAME_TEXT); // UX2-27
+    expect(entryAuthorLabel({ kind: "observation", author: "member:4", detail: { content: "x" } })).toBe("Teammitglied 4 (ohne Namen)"); // UX2-27 (CGR-108)
     expect(entryAuthorLabel({ kind: "care_plan_added", author: "member:4", detail })).toBe("Teammitglied 4");
     expect(entryQualificationMissing({ kind: "observation", detail })).toBe(true);
     expect(entryQualificationMissing({ kind: "observation", detail: { author_qualification_missing: false } })).toBe(false);
