@@ -53,7 +53,15 @@ test("record, see 'nicht bestätigt', confirm as the named nurse, supersede with
     const box = await control.boundingBox();
     expect(box!.width, (await control.getAttribute("name")) ?? "field").toBeGreaterThanOrEqual(300);
   }
-  expect(await assist.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  // names what sticks out, so a failure says which element widens the page
+  const overflow = await assist.evaluate(() => {
+    if (document.documentElement.scrollWidth <= window.innerWidth) return [];
+    return [...document.querySelectorAll("body *")]
+      .filter((el) => el.getBoundingClientRect().right > window.innerWidth + 0.5)
+      .slice(0, 5)
+      .map((el) => `${el.tagName.toLowerCase()}${el.getAttribute("name") ? `[name=${el.getAttribute("name")}]` : ""}${el.getAttribute("data-testid") ? `[data-testid=${el.getAttribute("data-testid")}]` : ""}`);
+  });
+  expect(overflow, "elements wider than the 390 px viewport").toEqual([]);
   await form.getByLabel("Datum der Abklärung").fill(FIRST);
   await form.getByLabel("Instrument").selectOption(INSTRUMENT_ID);
   await form.getByLabel("Abklärende Pflegefachperson").selectOption(NURSE_ID);

@@ -28,7 +28,9 @@ import { ErrorText } from "./error-text";
 
 type Member = { user_id: string; qualification: string | null; me: boolean; name?: string | null };
 
-const field = "min-h-11 rounded-lg border border-stone-300 bg-white px-2";
+// UX2-30 (1): w-full min-w-0, so a select with a long option ("… (gültig ab …)") never widens the column past the card
+// (an auto grid track takes the select's min-content width otherwise and the page scrolls sideways at 390 px).
+const field = "min-h-11 w-full min-w-0 rounded-lg border border-stone-300 bg-white px-2";
 
 function intOrNull(v: FormDataEntryValue | null): number | null {
   const s = String(v ?? "").trim();
