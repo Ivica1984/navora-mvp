@@ -15,26 +15,20 @@ import {
   currentRecord,
   formatDate,
   instrumentLabel,
+  prefillInstrumentId,
   recordAnchor,
   REFERENCE_HINT,
+  supersedeFirstLine,
   type AssessmentRecord,
   type CaseAssessments,
   type Instrument,
 } from "@/features/assessment/rules";
 import { memberLabel } from "@/features/team/rules";
+import { ErrorText } from "./error-text";
 
 type Member = { user_id: string; qualification: string | null; me: boolean; name?: string | null };
 
 const field = "min-h-11 rounded-lg border border-stone-300 bg-white px-2";
-
-function ErrorLine({ message }: { message: string | null }) {
-  if (!message) return null;
-  return (
-    <p role="alert" data-testid="assessment-error" className="mt-2 rounded-lg border border-rose-300 bg-rose-50 p-2 text-sm font-semibold text-rose-800">
-      {message}
-    </p>
-  );
-}
 
 function intOrNull(v: FormDataEntryValue | null): number | null {
   const s = String(v ?? "").trim();
@@ -181,6 +175,8 @@ export default function AssessmentSection({
   return (
     <section aria-label="Bedarfsabklärung" data-ref="ASM1" className="mt-3 rounded-xl bg-stone-50 p-2 text-sm">
       <h4 className="text-xs font-bold uppercase tracking-wide text-secondary">Bedarfsabklärung</h4>
+      {/* UX2-30 (6) (uxa UXR-63): with no current record, the one fact she needs comes first, before the closed history. */}
+      {current === null && records.length > 0 && <p className="text-xs text-secondary">Keine aktuelle Bedarfsabklärung.</p>}
       {records.length === 0 ? (
         <p className="italic text-secondary">Noch keine Bedarfsabklärung erfasst.</p>
       ) : (
@@ -201,8 +197,8 @@ export default function AssessmentSection({
           )}
         </>
       )}
-      {current === null && records.length > 0 && <p className="text-xs text-secondary">Keine aktuelle Bedarfsabklärung.</p>}
-      <ErrorLine message={error} />
+      {/* UX2-30 (3) (UXR-58): the screen's one error line (UX2-14 changes it in one place). */}
+      <ErrorText message={error} testId="assessment-error" />
       {mode === null ? (
         <button type="button" onClick={() => setMode({ kind: "new" })} className="mt-1 min-h-11 px-2 font-semibold underline">
           Bedarfsabklärung erfassen
@@ -221,20 +217,22 @@ export default function AssessmentSection({
         >
           {prefill && (
             <p data-testid="supersede-target" className="text-xs font-semibold">
-              Ersetzt: {assessmentLine(prefill)}
+              {supersedeFirstLine(prefill)}
             </p>
           )}
           <p className="text-xs text-secondary">
             Erfasst wird, was in eurem Abklärungsinstrument steht. Die vollständige Abklärung bleibt dort; hier steht nur ihre Referenz.
           </p>
-          <div className="grid gap-2 sm:grid-cols-2">
+          {/* UX2-30 (1) (UXR-56): one column below sm, so every field is full width on a phone. */}
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <label className="grid gap-1 text-xs font-semibold">
               Datum der Abklärung
               <input name="assessment_date" type="date" required defaultValue={prefill?.assessment_date ?? ""} className={field} />
             </label>
             <label className="grid gap-1 text-xs font-semibold">
               Instrument
-              <select name="instrument" required defaultValue="" className={field}>
+              {/* UX2-30 (2) (UXR-57): the replaced record's instrument when exactly one valid entry matches; still editable. */}
+              <select name="instrument" required defaultValue={prefill ? prefillInstrumentId(prefill, instruments) : ""} className={field}>
                 <option value="" disabled>–</option>
                 {instruments.map((i) => (
                   <option key={i.id} value={i.id}>
@@ -278,7 +276,7 @@ export default function AssessmentSection({
             {CATEGORIES.map((c) => {
               const key = c.toLowerCase() as "a" | "b" | "c";
               return (
-                <div key={c} className="grid grid-cols-2 gap-2">
+                <div key={c} className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <label className="grid gap-1 text-xs font-semibold">
                     Minuten {c}
                     <input name={`minutes_${key}`} type="number" min={0} max={99999} defaultValue={prefill?.[`minutes_${key}`] ?? ""} className={field} />
