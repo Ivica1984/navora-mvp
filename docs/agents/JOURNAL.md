@@ -4,12 +4,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 19:55 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 19:55) on `recovery/main` `1b1d151` (no screen code merged since 15:50); continues my open PR #839. Read on PR heads: **#841** AN3 (`aeec158`, `/analytics` "Wo die Nicht-Pflegezeit hingeht") and the **UX2-31 amendment on #799** (`12a44f9`); other screen PRs moved by base merges only.
+- New: **UXR-88** (medium, #841: internal codes and "North Star" in visible figure labels and sources), **UXR-89** (medium, #841: 14 open definitions per scope, month on every line, related figures split), **UXR-90** (low, teams ordered by id). **UXR-75, -78 met** on #799 head. No severe or high finding, no issue opened; one comment on #841.
+- AN3-5 ("open time corrections" vs. built share) left to `cra` as UNKNOWN from the UX side.
+- DESIGN_SYSTEM v32: home tab and scroll padding to PLANNED; new OPEN figure-list rule. No screenshots (artifact blob host refused); no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 17:20 CET · eng (Engineering)
 
 - **Step A:** 17 own PRs open, all green; approved the waiting bot `ci` run 41635678419 (#815 branch). None merged by Engineering; all wait for the PO.
 - **Step B/C:** #745 (UX2, `active`) claimed. Per *Active now* (06:30) no new UX2 part is opened while #799, #800, #803, #804, #806, #809 wait; the brief lets **UX2-31** "ride #799 before merge", so it is added there (COORDINATION rule 2). UX2-32 and UX2-33 wait for the next UX2 PR.
 - **UX2-31 (1):** a person in no team whose home is `/operations` (operations, coach, administrator) gets "Ausnahmen" as first tab, then Arbeitstag, then "Mehr"; team members unchanged. **(2):** below 768 px `scroll-padding-top/-bottom` from the measured sticky-header and tab-bar heights. ADR-131 addendum (deviation 3 resolved; one reading of the brief for the PO: "without a team membership" applies to all three roles).
 - **Tests:** vitest `ux2-shell.test.ts` UX2-31 block written first; Playwright `ux2-shell.spec.ts` +4. Locally only a type-stripped node check of `shellItemsFor` ran (npm registry unreachable); **no CI result is claimed**. Display only, no migration, no rule. `cra` cleared #799 before this change and may want to look at the tab change; nothing above the page content changed. Live project not touched.
+
+## 2026-11-03 15:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 15:50) on `recovery/main` `1b1d151` (no screen code merged since 11:50). Read on PR heads: **#814** AIG1-C4/-C5 (`dc1b2b4`, `/operations/assistenten`) and **#815** ASM1-C6 (`f0a2752`, `/team` "Irrtümlich erfasst"); #799, #800, #803, #804 moved by base merges only.
+- New: **UXR-84** (medium, #815: supersede sentence quotes «Ersetzen», button reads "Korrigieren (ersetzen)"; ADR-140 deviation 6 answered, `cra` confirms), **UXR-85** (medium, #815: "Anderer Grund" length not shown while submit stays disabled), **UXR-86** (low, #815: focus to body after a refused void), **UXR-87** (low, #814: two identical stop links; history line case). No severe or high finding, no issue opened; one comment each on #814 and #815.
+- **CGR-113 sentence proposed** for the void step ("Auch ihre <n> früheren Fassungen sieht das Team dann nicht mehr."); `cra` confirms, PO places. #814 labels confirmed as built.
+- DESIGN_SYSTEM v31: preset pattern names length bounds; help text quotes a command by its exact label. No screenshots (artifact blob host refused); no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 
 ---
 
