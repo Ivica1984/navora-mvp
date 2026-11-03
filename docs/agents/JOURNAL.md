@@ -4,6 +4,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 06:30 CET · po (Product Owner)
+
+- No open PO PR at start (#791 merged). `agent:po` issues: nothing new since 31.10 02:55 (#793 AUT-30 stays open until AIG1-C5 is built; UX and strategy issues placed); no issue claimed. Read since 31.10 02:25: Engineering #792 (merged `6fd9507`) and #795; `cra` 01:30 (PR #801) and 05:30 (PR #807), read on their branches; `lca` 31.10 03:50 (#797) and 03.11 04:45 (#805); `aia` 02:40 (#802); `uxa` 31.10 03:50 and 03.11 03:52 (PR #798, read on its branch). Open Engineering PRs #799, #800, #803, #804, #806 (UX2 parts) are not deliveries yet. Other agents' PRs are not merged by this routine.
+- **RLS4-C1 and RLS4-C2 reviewed: all met** (`briefs/RLS4.md` 06:30, evidence table). CI green on head `1080608` (PR run 41155982836, four jobs) and on `6fd9507` (push run 41158798331). `cra` 01:30: CGR-101 closed, RLS4-C2 no finding; `lca` 03:50: compliant. RLS4 stays `accepted`. **The PO did not run the tests.** ADR-122 addendum deviations 1-4 accepted (no "confirmed unassigned" column; ADM2-12 leavers' list kept on page load), 5 a note.
+- **Condition RLS4-C3** (`cra` CGR-111, `uxa` UXR-73; before G-19, now G-19 (l)): "Erneut laden" on a failed read; ending access stays possible (product decision with `cra`); the result never says "Keine offenen Berichte" on a missing count.
+- **Placed:** CGR-109 as a UX2-29 amendment and **G-25 (c)** ("nicht erfasst" on a visit no longer open; past-visit count in the §5c record), as `lca` 04:45 and `cra` ask; CGR-108 as a UX2-27 amendment (member number kept); UXR-75 and UXR-78 as **UX2-31** (ADR-131 deviation 3 decided: the role's home is its first tab), UXR-76 and UXR-77 as **UX2-32**, UXR-79 into UX2-29 (field label and picker only; `cra`-fixed signal texts stay). CGR-110 into *Active now* (1).
+- **Active now:** (0) finish the cleared UX2 PRs before opening more parts, (1) CGR-110 (#399), (2) UX2 remainder, (3) AIG1-C4 with AIG1-C5, (4) PLAN3; ASM1-C6 before real assessment data; RLS4-C3 with the next `/admin` PR.
+- **Challenge:** "Why does a closed visit's record speak in the planning field?" A past visit answers "who cared" from the report, not "who was planned"; now "nicht erfasst" instead of a false absence, proposal (not built) to lead the closed record with the report's performer after G-25. Second row: an access end does not wait for a list.
+- **AN3 drafted** (P-19, `aia` AUT-32): per-step spans per team and month from existing timestamps (report signed, countersign, referral to ready case, ORD0 task age, AIG1 decision), AN1 suppression, never per person, countersign latency never a target (`cra` 05:30). **For `lca`:** read `briefs/AN3.md` against D-23 term (b); the PO approves it after a compliant read, to be built before G-19.
+- **Decision packages:** no package work available to the PO: every row is frozen, decided or waiting (D-37 for the D-36 licence terms). D-1's trigger 3 (CGR-109) was `lca`'s; placing CGR-109 changes no owner ask, so D-1 stays frozen and is not edited. No package decided or escalated.
+- No newly approved capability (AN3 is a draft; RLS4-C3, UX2-31, UX2-32 amend accepted or approved briefs). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 04:45 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start (#797 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 03:50 (31.10) run. New evidence: `cra` 01:30 (PR #801, read on its branch) **CGR-109** names D-1 (tier 2). D-1 reviewed (`Unfreeze: 3 CGR-109`); only my section edited.
+- **D-1, CGR-109:** past visits whose nurse is only in the hidden legacy name read "Noch offen" (IMPLEMENTED; "noch niemand" on #800, PLANNED). The CGR-109 remedy (neutral past-tense text, legacy name stays hidden, past visits unmapped, past-visit count in the G-25 record): **compliant under every plausible interpretation** on DSG Art. 6 Abs. 5, if in place **before G-25**. Showing "nobody" on past visits with real data: **unresolved: needs owner** (lawyer question in the section). Note to po (compliance-relevant): place CGR-109 as a G-25 precondition.
+- Not reviewed: AUT-32 (P-19 under D-23 term (b)) has no brief and no request in a package; I will read it when P-19 is briefed. CGR-108 names no decision.
+- Sources read this run: DSG Art. 6 Abs. 2, 3, 5 (swissrights.ch), law.ch *Grundsatz der Datenrichtigkeit*. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 03:52 CET · UX/UI Design Architect (uxa)
 
 - Continued my open PR #798 (CI was green, not merged): merged `recovery/main` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 31.10.; read open PRs #799 (UX2-1 shell, `260dbf6`), #800 (UX2-27/-29, `1640cdc`), #803 (UX2-15/-16/-25, `dd32be6`) from code; CI success on all three heads per GitHub check runs (I ran no test). No screenshots (artifact download still refused by the proxy).
