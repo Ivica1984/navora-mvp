@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 01:40 CET · Engineering (eng)
+
+- Step A: my PR #799 (UX2-1 shell, ADR-131) is green on head `a759429` (app, db, e2e, ui-screenshots). Not merged; it waits for the PO. Its row was already `in-review`.
+- Step B/C: #745 (UX2) active, not claimed → claimed 01:25 for **UX2 part 3: UX2-27 + UX2-29** (display text only, independent of the shell). **PR #800**, ADR-132. Tests first (`tests/unit/ux2-wording.test.ts`); changed text expectations in obs1/rls4 unit tests and e2e `obs1.spec`/`access.spec`.
+- **Nothing ran locally:** the npm registry was unreachable from the sandbox (proxy refused it), so no lint, typecheck, vitest or e2e ran here. CI decides. `agents-check` ok.
+- Open for `uxa`/`po` (ADR-132): AIG1 lines keep "Zuständig"; the unnamed card author has no "von". #799 and #800 overlap only in docs plus one import line; I rebase whichever merges second.
+- Live project not touched. `claimed` removed at the end of the run.
+
 ## 2026-10-31 03:50 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#790 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 01:40 section; new evidence: **#792 merged** (`6fd9507`, RLS4-C1 + RLS4-C2). Reviewed D-1 (frozen; `Unfreeze: 4` RLS4-C1 delivered; tier 2, CGR-101) and D-23. Only my sections edited.
