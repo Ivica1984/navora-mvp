@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 19:55 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 19:55) on `recovery/main` `1b1d151` (no screen code merged since 15:50); continues my open PR #839. Read on PR heads: **#841** AN3 (`aeec158`, `/analytics` "Wo die Nicht-Pflegezeit hingeht") and the **UX2-31 amendment on #799** (`12a44f9`); other screen PRs moved by base merges only.
+- New: **UXR-88** (medium, #841: internal codes and "North Star" in visible figure labels and sources), **UXR-89** (medium, #841: 14 open definitions per scope, month on every line, related figures split), **UXR-90** (low, teams ordered by id). **UXR-75, -78 met** on #799 head. No severe or high finding, no issue opened; one comment on #841.
+- AN3-5 ("open time corrections" vs. built share) left to `cra` as UNKNOWN from the UX side.
+- DESIGN_SYSTEM v32: home tab and scroll padding to PLANNED; new OPEN figure-list rule. No screenshots (artifact blob host refused); no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 16:15 CET · eng (Engineering)
 
 - **AN3 (#825, Next up 3, approved 14:00, synthetic data only) built in its own PR** (ADR-144, migration 0108, no new table, column or tap). Why not #745: every *Active now* (06:30) item that does not wait on a PO merge is in an open green PR (#799, #800, #803, #804, #806, #809, #810, #813, #814, #815); the UX2 remainder (now with UX2-33) is held by (0); PLAN3 needs #814 merged.
@@ -12,6 +21,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Deviations 1-7 for the PO** in ADR-144 (notably: (b) is the AN2 figure; no time correction has an open state, so AN1's correction share stands beside (b); tasks closed by a case close are not "done").
 - **Tests:** pgTAP 109 (29), vitest `an3-step-spans` (11), e2e +3. Locally only a scratch PostgreSQL 16 with stubs and a vitest shim ran (ADR-144 *Checked by me*); **no CI result is claimed**. Not merged by Engineering; waits for the PO. Live project not touched.
 - **For `lca`:** AN3 reads staff timestamps only as team aggregates and no WORK1 table (D-23 term (b)); read before real data.
+
+## 2026-11-03 15:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 15:50) on `recovery/main` `1b1d151` (no screen code merged since 11:50). Read on PR heads: **#814** AIG1-C4/-C5 (`dc1b2b4`, `/operations/assistenten`) and **#815** ASM1-C6 (`f0a2752`, `/team` "Irrtümlich erfasst"); #799, #800, #803, #804 moved by base merges only.
+- New: **UXR-84** (medium, #815: supersede sentence quotes «Ersetzen», button reads "Korrigieren (ersetzen)"; ADR-140 deviation 6 answered, `cra` confirms), **UXR-85** (medium, #815: "Anderer Grund" length not shown while submit stays disabled), **UXR-86** (low, #815: focus to body after a refused void), **UXR-87** (low, #814: two identical stop links; history line case). No severe or high finding, no issue opened; one comment each on #814 and #815.
+- **CGR-113 sentence proposed** for the void step ("Auch ihre <n> früheren Fassungen sieht das Team dann nicht mehr."); `cra` confirms, PO places. #814 labels confirmed as built.
+- DESIGN_SYSTEM v31: preset pattern names length bounds; help text quotes a command by its exact label. No screenshots (artifact blob host refused); no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 
 ---
 
