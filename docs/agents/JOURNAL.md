@@ -4,12 +4,41 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 06:10 CET · po (Product Owner)
+
+- No PO PR was open; no Engineering delivery since 2026-11-03 15:30 (`IMPLEMENTATION_STATUS.md` unchanged since 2026-10-31), so no acceptance review this cycle. Read: `lca` #851, `aia` #849 (merged); `cra` #848 and #852, `uxa` #850 (open, read on their branches).
+- **D-39 (sensors) and D-40 (relative-facing channel) escalated: `awaiting-approval: owner`, Medium, frozen from now.** L in (`lca` 05:20); E drafted by po (requested 2026-11-03 14:00, unanswered over more than two `eng` runs; not confirmed by `eng`). Both recommend **A** (nothing in the pilot), compliant under every plausible interpretation.
+  - D-39 ask: "approve A; #817 stays specification". Rules in every option: no billable service on sensor data or a prediction without a signed record; no per-person staff output from a home sensor; predictions only in the AIG1 ledger, never on a P1 signal.
+  - D-40 ask: "approve A, and send `lca` questions 1-2 (consent per relative, representation) to the legal adviser with D-9". B (relatives see visit time and who comes, no AI, no call to the team) is the expected next step; it removes phone coordination without a clinical rule.
+  - Both added to `OWNER_AGENDA.md` bundle 3.
+- **D-34:** `lca`'s detailed AI assessment taken in; decision unchanged. D-35 stage 1 (when opened) copies the eleven provider terms and the contents list; a future domain-10 brief tests "no open clinical Q&A" as a technical limit.
+- **Offline rules for ADR-143 / M6-2 (`DELIVERY_PROGRAM.md` §0c):**
+  - CGR-122 (1) in force: no timeline command or `correct_visit_time` queued; device time only a labelled claim, never billed.
+  - CGR-123 in force: no-show, not-completed and absence commands never queued; one shared list with a vitest; e2e offline per command.
+  - AUT-41 is the target (confirm the device time through the audited correction path instead of retyping), gated on the Clinical Owner's documented-time decision with `lca`; challenge row with a pilot hypothesis.
+  - MOB1 must name the offline "telefonisch melden" number (Clinical Owner; UNKNOWN until G-1). UXR-92 placed in MOB1. M6 offline criterion extended.
+- `ROADMAP.md` updated. No queue change; no new brief approved. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-04 05:20 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start. Tier 1: D-22, D-18 frozen, no trigger. Tier 2 picked: **D-34** (owner directive 2026-11-03: detailed AI assessment, priority), **D-39** and **D-40** (L requested since 2026-11-03 14:00; CGR-119). Only my sections edited; no status, row or decision changed.
+- **D-34 AI assessment** (EU AI Act scope and roles, risk class per AI domain, Swiss DSG Art. 21/19, StGB 321 in BS, labour law, device reading per domain, cross-border, 11 minimum AI-provider terms, D-35 stage-1 contents): safe default and level-L rules on synthetic data **compliant under every plausible interpretation**; any G/H part on real data, domain 5 on staff data, EU-AI-Act engagement for a Basel pilot (cross-border nurses, EU-resident relatives) and D-35 stage 1 **unresolved: needs regulatory/legal adviser and owner**. New adviser questions 8 (d), 8 (e), 10-12. Domain 10: "no open clinical Q&A" must be a tested technical limit (objective capability).
+- **D-39:** A **compliant**; B, C, D **unresolved** (EDÖB/privatim 16.09.2026: consent neither required nor sufficient, organisational purpose weak; C/D contradict statement v2; door sensors record staff presence, ArGV 3 Art. 26). The rule "no billable service on sensor data or a prediction without a signed record" **compliant**.
+- **D-40:** A **compliant**; B **unresolved: needs legal adviser** (consent form per relative, representation under ZGB 378); protective variant written; C needs D-35; D needs the regulatory adviser and Clinical Owner. Owner prohibition (no AI clinical advice, team member sends) **compliant**.
+- Sources read this run: AI Act Art. 2 (Commission service desk, consolidated 27.07.2026), Commission Art. 50 FAQ (24.07.2026), BJ KI page, DSG Art. 16 and 21 (justement.ch), EDÖB cross-border page, BS Schweigepflicht guide (03.2023), EDÖB/privatim release 16.09.2026, ZGB 378 (droit-bilingue), two secondary sources. The EUR-Lex PDF, DSV Annex 1 list and the EDÖB/privatim Merkblatt PDF could not be opened: marked UNKNOWN. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 03:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 03:50) on `recovery/main` `5fc0d61`; no screen code changed since 23:50 (only `aia` #849 docs merged; every open screen PR head unchanged). No screenshots needed.
 - Answers to `cra` 01:30 (#848, CGR-122) and `aia` 02:20 (AUT-41), all PROPOSED: one pending-card line for every care entry; one offline line per card under the visit-timeline and claim buttons; the two-line device-time label ("Beim Team eingegangen" / "Auf dem Gerät eingegeben"); device-clock refusal line; preset reason "Ohne Verbindung erfasst (Gerätezeit)" for the PO option.
 - New **UXR-92** (medium): "visible but disabled" must be `aria-disabled` with a described reason, not the `disabled` attribute. No issue (no high finding); one comment on #837.
 - Benchmark: Google Open Health Stack offline and sync guidelines (read 2026-11-04). DESIGN_SYSTEM version 34 (§5 offline rules). Waiting on: `cra` (confirm wording, benchmark point 3), `lca` (record texts), `po` (CGR-122 (1) or option; place UXR-92). I ran no test; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
+---
 
 ## 2026-11-04 02:20 CET · AI & Automation Architect (aia)
 
