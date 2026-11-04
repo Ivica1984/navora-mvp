@@ -40,6 +40,7 @@
   - a resend refused with `access_ended` keeps the entry and shows it to her, to pass on by phone;
   - no refused entry is dropped or retried automatically.
   - With `cra` CGR-122 (ADR-143 points 1, 1a, 1b, 8): the visit timeline, `correct_visit_time` and the claim commands are **never queued**; offline their buttons are `aria-disabled` with a card line (UXR-92) and create no entry; every other pending care entry shows one line "Noch nicht beim Team." (no kinds list); a device entry time travels only as a labelled claim beside the server time and never into billed minutes; queueing timeline taps as reasoned corrections (AUT-41) waits for the PO, the Clinical Owner and `lca`.
+  - With `cra` CGR-123 (ADR-143 points 1c, 1d, 5, 6, 9; PO §0c (2) in force): `record_no_show`, `record_no_show_outcome`, `end_visit_not_completed`, `record_absence`, `change_absence` are **never queued** either; offline their buttons are `aria-disabled` with a line to call the team now (no number until MOB1 names one); membership is decided by the `FIELD_COMMAND_EFFECTS` rule (signal source: `private.evaluate_signals` via `private.signal_kind_of`, 0060), checked by a vitest and pinned by a pgTAP of the signal kinds; a resend refused for a wrong device clock can be sent once by "Ohne Gerätezeit senden".
   - Open for `lca` (SC-2): entered care text sits on the device until it is sent; how long after an expiry.
   - Open for `cra`: the banner wording (CGR-118) and the split of the queueable and never-queued commands.
 
@@ -186,7 +187,7 @@ On the technical path to Pilot Ready (#833 §7.3), only M2 and the M6 core (M6-1
 | MOB1 brief (incl. "Passwort vergessen"; CGR-118, CGR-120, CGR-121 as conditions) | `po` | M6 | 2026-11-27 |
 | App icon and word mark (DS1-4) | `uxa`, `po` | manifest (M6-1) | 2026-12-04 |
 | Device storage of pending entries (SC-2), period after a session expiry, content shown after an access end (ADR-143 4, 5) | `lca` | M6-2 | 2026-12-11 |
-| Offline banner wording (CGR-118); split of queueable and never-queued commands (ADR-143 1, 1a) | `cra` | M6-2 | 2026-12-11 |
+| Offline banner wording (CGR-118); split of queueable and never-queued commands (ADR-143 1, 1a, 1c) and the `FIELD_COMMAND_EFFECTS` mapping (1d); the act of 9 | `cra` | M6-2 | 2026-12-11 |
 | Sign-out step, foreground fact, access-end card wording (CGR-121 (a), (b)) | `uxa` | M6-2 | 2026-12-11 |
 | Place CGR-122; 1a alone or the AUT-41 correction option 1b (ADR-143) | `po` | ADR-143 acceptance, M6-2 | 2026-12-11 |
 | Whether a device entry time may be the documented time (needed for 1b only) | Clinical Owner, `lca` | 1b | – |
@@ -208,3 +209,4 @@ On the technical path to Pilot Ready (#833 §7.3), only M2 and the M6 core (M6-1
 - 2026-11-03 eng: owner decisions and priority recorded; queue resend aligned with ADR-142 (foreground only); ADR-143 narrowed to what ADR-142 does not say.
 - 2026-11-03 23:15 eng: `cra` CGR-121 (a)-(d) written into ADR-143 (sign-out step, session expiry, access end, e2e); AUT-40 (PO 22:00): C-15 withdrawn, M6-4 dropped, its days to M6-2 and M6-3 (M6 date unchanged); CGR-120 noted on C-04.
 - 2026-11-04 06:10 eng: `cra` CGR-122 (01:30, blocking for ADR-143), `aia` AUT-41 (02:20) and `uxa` UXR-92 (03:50) written into ADR-143 points 1, 1a, 1b, 6, 8: no kinds list; timeline, `correct_visit_time` and claim commands never queued; `aria-disabled` offline buttons; device entry time as a claim, never billed; AUT-41 option waits for the PO, Clinical Owner and `lca`. Dates unchanged.
+- 2026-11-04 07:15 eng: `cra` CGR-123 (05:30, #852, blocking for ADR-143; PO §0c (2) 06:10 in force) written into ADR-143 points 1c, 1d, 5, 6, 9: no-show, no-show outcome, not completed and absence commands never queued; membership by a mapping rule with the migrations as source of truth (vitest + pgTAP of the signal kinds); point 5 wording; e2e per command; "Ohne Gerätezeit senden" for a device-clock refusal. Dates unchanged.

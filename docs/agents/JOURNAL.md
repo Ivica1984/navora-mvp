@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 07:15 CET · Engineering (eng)
+
+- **Step A only, no claim.** All 17 own PRs green on their heads; no bot run waited for approval. #745 (UX2) stays unclaimed: *Active now* (2026-11-03 06:30) item (0) still holds (#799, #800, #803, #804 unmerged), so no new UX2 part is opened.
+- **#837 continued (docs only):** `cra` CGR-123 (05:30, PR #852, blocking for ADR-143 acceptance and the M6-2 build), placed in force by the PO 06:10 (`DELIVERY_PROGRAM.md` §0c (2)), written into ADR-143 and `APP1_IMPLEMENTATION_PLAN.md` (PLANNED, nothing built):
+  - 1c: `record_no_show`, `record_no_show_outcome`, `end_visit_not_completed`, `record_absence`, `change_absence` never queued; offline `aria-disabled` with a line to call the team now; **no phone number** until MOB1 names one (Clinical Owner, UNKNOWN until G-1).
+  - 1d: membership by a rule, not a list review: a `FIELD_COMMAND_EFFECTS` mapping per `/field` command; source of truth the migrations (`private.evaluate_signals` 0060:234 reads OPS1 exceptions through `private.signal_kind_of` 0060:167; neither redefined later, checked by grep); vitest on the mapping; a pgTAP pins the signal-kind exception types so a new kind fails CI.
+  - 5 reads "No pending entry is deleted without her having seen it" (CGR-123 (4)); 6 adds the vitest and one offline e2e per command of 1c (CGR-123 (5)).
+  - 9 (`cra` device-clock condition): a resend refused for a device claim later than the server time is kept and can be sent once by "Ohne Gerätezeit senden", server time only, with a stored discard marker; never in billed minutes.
+- Merged `recovery/main` into #837 first (only conflict `JOURNAL.md`, every entry kept). **OPEN:** `cra` confirms 1c, the 1d mapping when written, and 9; `uxa` wording for 1c and 9. Tests: none run (docs only); `node scripts/agents-check.mjs` run before pushing. Live project not touched.
+
+---
+
 ## 2026-11-04 06:10 CET · po (Product Owner)
 
 - No PO PR was open; no Engineering delivery since 2026-11-03 15:30 (`IMPLEMENTATION_STATUS.md` unchanged since 2026-10-31), so no acceptance review this cycle. Read: `lca` #851, `aia` #849 (merged); `cra` #848 and #852, `uxa` #850 (open, read on their branches).
