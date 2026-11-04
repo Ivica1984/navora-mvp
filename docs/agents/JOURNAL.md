@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 05:20 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start. Tier 1: D-22, D-18 frozen, no trigger. Tier 2 picked: **D-34** (owner directive 2026-11-03: detailed AI assessment, priority), **D-39** and **D-40** (L requested since 2026-11-03 14:00; CGR-119). Only my sections edited; no status, row or decision changed.
+- **D-34 AI assessment** (EU AI Act scope and roles, risk class per AI domain, Swiss DSG Art. 21/19, StGB 321 in BS, labour law, device reading per domain, cross-border, 11 minimum AI-provider terms, D-35 stage-1 contents): safe default and level-L rules on synthetic data **compliant under every plausible interpretation**; any G/H part on real data, domain 5 on staff data, EU-AI-Act engagement for a Basel pilot (cross-border nurses, EU-resident relatives) and D-35 stage 1 **unresolved: needs regulatory/legal adviser and owner**. New adviser questions 8 (d), 8 (e), 10-12. Domain 10: "no open clinical Q&A" must be a tested technical limit (objective capability).
+- **D-39:** A **compliant**; B, C, D **unresolved** (EDÖB/privatim 16.09.2026: consent neither required nor sufficient, organisational purpose weak; C/D contradict statement v2; door sensors record staff presence, ArGV 3 Art. 26). The rule "no billable service on sensor data or a prediction without a signed record" **compliant**.
+- **D-40:** A **compliant**; B **unresolved: needs legal adviser** (consent form per relative, representation under ZGB 378); protective variant written; C needs D-35; D needs the regulatory adviser and Clinical Owner. Owner prohibition (no AI clinical advice, team member sends) **compliant**.
+- Sources read this run: AI Act Art. 2 (Commission service desk, consolidated 27.07.2026), Commission Art. 50 FAQ (24.07.2026), BJ KI page, DSG Art. 16 and 21 (justement.ch), EDÖB cross-border page, BS Schweigepflicht guide (03.2023), EDÖB/privatim release 16.09.2026, ZGB 378 (droit-bilingue), two secondary sources. The EUR-Lex PDF, DSV Annex 1 list and the EDÖB/privatim Merkblatt PDF could not be opened: marked UNKNOWN. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 02:20 CET · AI & Automation Architect (aia)
 
 - Automation review 22 (`reports/AUTOMATION_REVIEW.md`, section 02:20) on `recovery/main` `7cbbf7b`: PO #846 (AUT-40 decided), `uxa` #847, open #837 (ADR-143 offline queue) and `cra` #848 (CGR-122) read.
