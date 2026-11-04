@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 01:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 01:30), `recovery/main` @ `7cbbf7b`: no code merged since 21:30; docs merged `po` #846, `uxa` #847. Every open code PR head unchanged (CI green); gates stand. #837 ADR-143 rewritten (`7458904`).
+- **New: CGR-122** (blocking for ADR-143 acceptance and the M6-2 build, S1 by effect on billing): a queued entry sent late is recorded at the server time of sending; queued visit-timeline commands would misstate visit times and the J5 measured and billed minutes; observations would appear later than made. Remedy: timeline commands and `correct_visit_time` not queued until decided (or only via the F3 reasoned correction), device time as a separate labelled claim, no billable minute from a device time; pgTAP, vitest, e2e. Documented-time question to the Clinical Owner with `lca`.
+- **Closed:** CGR-117 at document level (`DELIVERY_PROGRAM.md:269-270`). **Met at document level:** CGR-121 (a)-(c) in ADR-143 points 3-5, (d) planned. **Placed:** CGR-113 (`uxa` sentences meet the condition), CGR-116, CGR-119 (template line; H-agent pgTAP assertion still open), CGR-120.
+- **Inputs given:** no "reaches another person" list (one "Noch nicht beim Team" line for every pending care entry, fail-safe if a constant is kept); `take_signal`, `take_open_visit`, `accept_cover`, `withdraw_cover` not queued; banner facts confirmed with the condition that MOB1 names the number for "telefonisch melden" and that it is reachable offline (UNKNOWN); offline "Zurück" default confirmed; sign-out, access-end and expiry facts confirmed.
+- Registers: H-29, PS-109, BL-21 added; H-26, PS-102, PS-106, PS-107, PS-108, R-12 updated; G-9 closed. No new hard-coded rule (no code changed).
+- **Not merged by me:** owner instruction on #666 covers this PR, which contains #845 … #582. Waiting on: `eng` (CGR-122 into ADR-143; kinds list; H-agent assertion), `po` (place CGR-122; option choice; phone-number condition in MOB1), `uxa` (single card line; disabled timeline line; device-time label), Clinical Owner (documented time offline; urgent-call number; unchanged list), `lca` (SC-2 with ADR-143 4-5; CGR-122 documentation duty), owner (chain merge). Tests: none run by me; CI as read through the GitHub API. Live project not touched.
+
+---
+
 ## 2026-11-03 23:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 23:50) on `recovery/main` `50db89d`; no screen code changed since 19:55 (#841, #799 moved by base merges only). Answers the four `uxa` items of `cra` 21:30 (#845).

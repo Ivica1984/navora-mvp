@@ -16,6 +16,81 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-04 01:30 CET: no code changed since 21:30 (every open code PR head unchanged, CI green); merged `po` #846 and `uxa` #847 read; #837 ADR-143 rewritten (`7458904`): **CGR-121 (a)-(c) met at document level**, (d) planned; **CGR-117 closed at document level** (M9 waiver wording); CGR-113, CGR-116, CGR-119 (template line), CGR-120 placed; `cra` inputs on the "reaches another person" list, the offline banner, card and sign-out words; new **CGR-122** (blocking for ADR-143 acceptance and the M6-2 build, S1 by effect on billing: an entry sent late from the offline queue is recorded at the server time of sending)
+
+**Scope:** `recovery/main` @ `7cbbf7b`. Changes since my 21:30 section (PR #845, unmerged; `recovery/main` was `beae88c`):
+- **Code merged:** none (`git diff beae88c 7cbbf7b` touches no file under `src/`, `supabase/`, `tests/` or `e2e/`).
+- **Docs merged:** `po` #846 (22:00: AUT-40 decided, no C-15 assistant screen at stage 0; `DELIVERY_PROGRAM.md` §0b and M9 wording; CGR-113 to CGR-121 placed; AN3-5 wording aligned in `briefs/AN3.md`; CGR-119 line in `briefs/_TEMPLATE.md`; D-39/D-40 `cra` inputs copied; `INDEX.md` tier 2 for D-39, D-40); `uxa` #847 (23:50: CGR-113 sentences, UXR-89 amended, offline banner, pending-card and sign-out words PROPOSED for `cra`; UXR-91; DESIGN_SYSTEM v33).
+- **Open PRs:** every code PR head is unchanged since 21:30 (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #810 `63440b0`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); gates stand. **#837** (docs) new commit `7458904` (ADR-143 rewritten with CGR-121; C-15 withdrawn; M6-4 dropped) and a base merge `c84296a`. #833, #835, #838, #840 unchanged. My chain #582 … #845 is still unmerged (owner instruction on #666). #3 unchanged.
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read: the diff `beae88c..7cbbf7b` (all files); `DELIVERY_PROGRAM.md:85-110, 260-275`; `NEXT_CAPABILITY.md` 22:00 notes; `UX_REVIEW.md` 23:50; `DESIGN_SYSTEM.md` §5 changes; on #837 `git show 7458904` (`APP1_IMPLEMENTATION_PLAN.md` offline queue, A-07, C-04, C-15 rows, dependency table; ADR-143 in `DECISIONS.md`); code facts: 0007:22-34 (`visit_events.occurred_at default now()`), 0009:28 (`recorded_at default now()`), 0023:1-30 (`visit_care_minutes_exact`, J5 measured minutes from effective event times), `features/visits/commands.ts:20` (the five visit-timeline commands), the `/field` commands in `features/field`, `visits`, `door`, `absence`, `cover`, `signals`; 0097:528-535 and pgTAP 097:110-116 (switch-on refusal for level G/H). **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-122 | **ADR-143** offline queue (#837 `7458904`, PROPOSED; M6-2, PLANNED; nothing built) | **blocking for ADR-143 acceptance and the M6-2 build; S1 by effect** (billing validity, J5) | ADR-143 states the fact itself ("an entry sent late runs at server time") and leaves it UNKNOWN, but the queue is planned "around every `/field` command", which includes `depart_visit`, `start_visit`, `pause_visit`, `resume_visit`, `complete_visit` and `correct_visit_time`. Their events take `now()` at the server. A visit started and completed offline and sent together on reconnect gets a care time of seconds; a completion sent hours later gets inflated minutes up to the plan cap. Measured minutes are the basis of the billed minutes (J5), so the invoice states minutes that were not given, or omits minutes that were. The same applies, without the billing effect, to an observation or a safety-alert value: the record says it was made when it was sent, and a team reading the course of a deterioration reads it as later than it was. Device time cannot simply replace server time either: a device clock is not a trusted source, and an unaudited client-supplied time on a billing fact is a weaker control than today's. Today every command runs online, so no record is wrong (IMPLEMENTED: none affected) | 0007:30 `occurred_at default now()`; 0009:28 `recorded_at default now()`; 0023 `visit_care_minutes_exact` (effective times incl. F3 corrections); `features/visits/commands.ts:20`; ADR-143 OPEN item 3 and A-07 row "offline queue around every `/field` command" (#837); H-29, PS-109, BL-21 | **eng (ADR-143), before acceptance:** (1) until the entry-time decision is taken, the visit-timeline commands and `correct_visit_time` are **not queued**: offline, their buttons stay visible but disabled with one line that the time is recorded only with a connection and can afterwards be corrected with a reason (existing F3 correction; words `uxa`); vitest: the queued-kinds constant excludes these six; e2e offline: "Einsatz starten" creates no pending entry. **Option for `po`** instead of (1): a timeline entry made offline is sent as a reasoned F3 time correction (0008) carrying the device time as the claimed time, so it enters billing only through the audited correction path. (2) Every other queued entry carries its device entry time as a **separate, labelled claim** beside the server time, never in its place; the card and the record show both whenever they differ; pgTAP: the server-time column is never set from the client, and a device time later than the server time is refused. (3) pgTAP: no billable minute is derived from a device-supplied time except through a reasoned correction. **Whether the device time is the documented time** (documentation duty): Clinical Owner with `lca` (D-10, D-11), UNKNOWN; I set no rule |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-117** | **closed at document level** | `DELIVERY_PROGRAM.md:269` (po 22:00): a clinical gate (S1 item in the Hazard Log, Safety Risk Register or this report, a blocking CGR finding, a Clinical Rule Register row in use) is waived only by the named Clinical Owner (and, for the partner's clients, the partner's Leitung Pflege, D-12) together with the owner, in writing with reason and compensating control, never by the PO or the owner alone; `:270` the readiness file lists every open S1/S2 `CGR`, `H`, `PS` item. The readiness file is an M9 acceptance item (PLANNED); G-9 closed |
+| **CGR-121** | open, advisory (S2); **(a)-(c) met at document level**, (d) planned | ADR-143 points 3 (confirming sign-out step, default "Zurück und senden", deletion only after the second act), 4 (session expiry keeps entries, never sent or shown to another user; period OPEN for `lca`), 5 (an `access_ended` refusal keeps and shows the entry; deleted only by her act after it was shown), 6 (vitest and Playwright written before the queue code). **ADR-143 is now acceptable from the clinical side for points 2-7, subject to CGR-122 and the kinds-list answer below.** Closes on the built queue with the e2e |
+| **CGR-118** | open, advisory (S2); (1), (2) wording proposed by `uxa` 23:50 and confirmed below with one condition; **(3) met in ADR-143** points 1, 3, 4 (entries survive a closed app and an expiry; deleted only after a confirmed sign-out) | `UX_REVIEW.md` 23:50; ADR-143 (#837 `7458904`). Closes on the build with the e2e |
+| **CGR-120** | open, advisory (S3); **placed** | `DELIVERY_PROGRAM.md:93` (§0b decision 3); APP1 plan C-04 row (#837). Closes with the MOB1 brief and, if the line is built, the vitest |
+| **CGR-119** | open, advisory (S2); **po part met** | `briefs/_TEMPLATE.md:45` (level-H line "D-34 classification: …"). Engineering part: switch-on of a level G or H agent is refused today (0097:532-535; 0103:130) and pgTAP 097:114-116 asserts it for G; closes when one assertion for an H agent is added. Classification itself UNKNOWN (regulatory adviser, D-34; R-12) |
+| **CGR-116** | open, advisory (S2); **placed** as DOC2 brief conditions | `DELIVERY_PROGRAM.md` §0b; DOC2 still not allowed. Closes with the DOC2 brief |
+| **CGR-113** | open, advisory (S3); **`uxa` sentences meet the condition** (n = 1 "gilt … nicht mehr", n ≥ 2 "gelten … nicht mehr"); placed by po (`NEXT_CAPABILITY.md` 22:00 note, own variant also with "gelten … nicht mehr"; either meets it, the `uxa` text covers n = 1) | `UX_REVIEW.md` 23:50. Closes on the merged build with the vitest |
+| CGR-114, CGR-115 | open, advisory (S3); **placed** as review conditions for #841, #828 | `NEXT_CAPABILITY.md` 22:00 note |
+| CGR-112, CGR-103, CGR-104, CGR-106 to CGR-111 | open; remedies met on unchanged heads; close on merge | heads as listed above, CI green |
+| **CGR-16** | open (advisory now, **blocking before real data**) | no change |
+| CGR-78, CGR-86, CGR-97, CGR-99, CGR-94, CGR-75, CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-23 | open | no change |
+
+Closed in this section: **CGR-117** (document level).
+
+### Inputs requested from `cra` (given here)
+
+- **ADR-143 point 1, the "reaches another person" list (`eng`, `uxa`):** my recommendation is **no list**. Every `/field` care command I found (`record_observation`, `record_safety_alert_value`, `record_absence`, `change_absence`, the report commands, the visit-timeline commands, the door commands) produces a fact that a team member, coordinator, countersigner or the billing run reads. A constant that sorts commands into two lines can drift: a new command missing from it gets the weaker line, which is a silent safety loss. So: one line, "Noch nicht beim Team. …", on every pending care entry. If `eng` keeps a constant, it defaults to "reaches another person" for any command not listed, and the vitest fails on a `/field` command absent from it. **Condition:** `take_signal`, `take_open_visit`, `accept_cover` and `withdraw_cover` are **not queued**: their value is the server's answer that she, and nobody else, now holds the item; a queued claim lets her act on a signal or visit another nurse may hold, or lets the team think nobody has it. Offline they are disabled with the banner's phone line. The visit-timeline commands: CGR-122.
+- **Banner (`uxa` 23:50, CGR-118 (1)):** the three facts are **confirmed**: line 2 is true under ADR-143 points 1, 3, 4 (with the `uxa` iOS caveat, which I share); line 3 holds both CGR-118 facts. **Condition:** "Dringendes jetzt telefonisch melden" is a control only if she can reach the right number without a connection. Which number (team, on-call, Leitung Pflege) is an operating decision of the provider (Clinical Owner with D-12), UNKNOWN; MOB1 names it and where she finds it offline (organisation contact data, not care data, so the app shell may hold it: `eng`, `lca`). Until it is named, the line may not show or imply a number the app does not hold.
+- **Pending card lines:** confirmed, with the single-line recommendation above; "Wird gesendet …" only while a request is in flight (UXR-91) confirmed; "Gesendet." or the server's refusal on the card confirmed.
+- **Sign-out `alertdialog` (CGR-121 (a)):** the facts are **confirmed** ("werden … gelöscht. Das Team erfährt nichts davon. Dringendes jetzt telefonisch melden."). **The offline default "Zurück" is confirmed:** "Zurück und senden" while offline would announce a send that cannot happen. The deletion sentence stays `lca`'s.
+- **Access-end card:** the fact is confirmed (the entry stays, is shown, is passed on by phone); whether its content may stay visible after the access end is `lca`'s (ADR-143 OPEN).
+- **Session-expiry line** ("<n> Eingaben von dir werden jetzt gesendet."): confirmed; each such entry shows its device entry time under CGR-122 (2).
+- **D-39, D-40 copies (po 22:00):** they match my 17:30 inputs; no correction.
+
+### Other checks (no finding)
+
+- **AUT-40 decision (po 22:00):** the M6 criteria (≤ 2 taps to each former assistant answer, e2e; no read rows in `ai_suggestions`, pgTAP; CGR-120 vitest; offline e2e) are testable and keep the safety facts on one route. No clinical objection.
+- **AN3-5 wording** (`briefs/AN3.md`): matches what I confirmed at 21:30.
+- **UXR-89 amended / DESIGN_SYSTEM v33 figure-list rule:** contains both of my conditions ((b) and (e) cards complete, "Kein Richtwert." outside the disclosure). Met at document level; #841 may take it before merge.
+- **Hard-coded rules:** no code changed, so no new Clinical Rule Register row. ADR-143 point 1 plans a hard-coded kinds constant; if kept, it becomes a register row before M6-2.
+- **Privacy:** ADR-143 keys pending entries by user id and never shows them to another user on the same device; device storage stays `lca`'s (SC-2). No personal or health data in the files read.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **ADR-143** (PROPOSED, #837) | **not acceptable until CGR-122 (1)-(3) are written in** (or the PO's correction-path option); points 2-7 otherwise clear (CGR-121 (a)-(c) met at document level) |
+| **M6-2** offline queue | blocked by CGR-122; CGR-118, CGR-121 tests before merge; `lca` SC-2 |
+| **MOB1 brief** (M6, due 2026-11-27) | CGR-118 (phone-number condition), CGR-120, CGR-121, CGR-122 as conditions |
+| #799, #841, #828, #800, #803, #804, #806, #809, #810, #813, #814, #815 | unchanged: clear to merge (CI green on each head) |
+| **M9** | CGR-117 wording in place; readiness file PLANNED |
+| DOC2, D-39, D-40, level-H AI domains | unchanged (CGR-116, CGR-119; option A for the pilot) |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **eng:** CGR-122 (1)-(3) into ADR-143 before it is accepted; the kinds list as recommended (or a fail-safe constant); `take_signal`, `take_open_visit`, `accept_cover`, `withdraw_cover` online only; the H-agent pgTAP assertion (CGR-119); merge order of the green queue is yours.
+- **po:** place CGR-122 in MOB1 and M6-2; choose between CGR-122 (1) and the correction-path option; the phone-number condition in MOB1 (with the Clinical Owner).
+- **uxa:** one pending-card line; the disabled-button line for timeline commands offline (CGR-122 (1)); the device-time label on a late-sent entry (CGR-122 (2)).
+- **clinical (Clinical Owner, after G-1):** unchanged list (17:30, 21:30), plus: whether the documented time of an entry made offline is the device time or the time received (CGR-122, with `lca`); which number a nurse calls for urgent matters while offline (CGR-118, with D-12).
+- **legal adviser / `lca`:** SC-2 device storage with ADR-143 points 4-5; documentation-duty side of CGR-122 (D-11).
+- **owner:** chain merge of the governance PRs (#582 … this PR); otherwise unchanged.
+
+---
+
 ## 2026-11-03 21:30 CET: no code changed since 17:30 (every open code PR moved by `recovery/main` merges only, CI green on each new head); **#799 gate now clear** (`e2e` green on `642edf0`); merged `uxa` #839 and `aia` #844 read: **CGR-113 sentence confirmed** with one wording condition, **UXR-84 sentence confirmed**, **AN3-5 met by the built time-correction share** (brief wording to align), **UXR-88 / UXR-89 confirmed with conditions**; **AUT-40**: no clinical objection to dropping C-15; ADR-142/ADR-143 offline queue read (#835, #837): new advisory findings **CGR-120** (S3, a "what is missing before signing" line must not become an invented completeness rule) and **CGR-121** (S2, pending entries are cleared on sign-out and resent only in the foreground)
 
 **Scope:** `recovery/main` @ `beae88c`. Changes since my 17:30 section (PR #842, unmerged; `recovery/main` was `1b1d151`):
