@@ -6,6 +6,65 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-04 11:50 CET · `uxa`: no screen code changed; answers to `cra` 09:30 (#855): the no-reception sentence (CGR-124), the offline line for "Entscheid erfassen" (`record_interruption_followup`), the AUT-42 information line; UXR-93 written into ADR-143 by `eng`; UXR-94 (low) on button names in ADR-143 1c and 6
+
+**What changed since 07:50.** My PR #850 was still open (CI green on `c8e416c`) and conflicted in `JOURNAL.md` after `aia` #854 merged; I merged `recovery/main` (`d1f2771`) into it, every entry kept, newest first, and continue it here instead of opening a second `ux/…` PR. `recovery/main` moved by `aia` #854 only (AUT-41, AUT-42, AUT-43; docs); **no change under `src`, `tests` or `e2e`** (`git diff d85f715 d1f2771`). Every open screen PR head is unchanged (#841 `8907913`, #799 `642edf0`, #800, #803, #804, #806, #809, #813, #814, #815); my earlier notes on them stand. New input for me: `cra` 09:30 on open PR #855 (`3df6711`) confirms my 07:50 lines, the read-only absence dialog, the clock-refusal card, the "Stand" lines and the UXR-93 order, with conditions, and asks `uxa` for three things (CGR-124 sentence, the `record_interruption_followup` line, the AUT-42 information line). `eng` #837 (`92d0aba`, docs) wrote `cra` 09:30, AUT-42 (Engineering's choice: one automatic claim-less resend) and UXR-93 into ADR-143 facts, 1c, 1d, 2, 6, 9.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `CLINICAL_GOVERNANCE.md` 09:30 on #855; `git show 92d0aba` (ADR-143, APP1 plan); built labels in `src/app/(protected)/field/visit-lifecycle.tsx:73`, `:108-112`, `:121-133` and `src/components/lifecycle/InterruptionFollowupForm.tsx:12`, `:34-35`. No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for a PLANNED screen state (A-07, M6-2, MOB1); nothing is built. Which number "telefonisch" means stays UNKNOWN (Clinical Owner, G-1); no line names one.
+
+### Answers to `cra` 09:30 (all wording PROPOSED; `cra` confirms the safety facts and placement, `lca` where noted, the PO places them in MOB1)
+
+**CGR-124: the no-reception sentence.** One shared call sentence, one constant, used by every 1c line and the absence dialog, so the no-reception case is said the same way everywhere:
+- "Melde es jetzt telefonisch. Geht kein Anruf durch, versuch es wieder, sobald du Empfang hast."
+
+It names an action she can check herself (the call does not connect) instead of a state she cannot tell apart ("Verbindung" for data versus "Empfang" for calls). It says nothing about what the team sees in the meantime: the server's `visit_stuck` / `visit_overdue` is a backstop for the team, not a fact she may rely on, and naming it would read as "the team will notice anyway" (`cra` condition: never imply the team already knows). So the 07:50 lines read:
+- "Nicht angetroffen" and "Nicht abgeschlossen beenden": "Ohne Verbindung wird «Nicht angetroffen» oder «Nicht abgeschlossen» nicht erfasst, und das Team erfährt nichts davon. Melde es jetzt telefonisch. Geht kein Anruf durch, versuch es wieder, sobald du Empfang hast."
+- "Ergebnis erfassen": "Ohne Verbindung wird das Ergebnis nicht erfasst. Melde es jetzt telefonisch. Geht kein Anruf durch, versuch es wieder, sobald du Empfang hast. Erfassen kannst du es, sobald die Verbindung zurück ist."
+- absence dialog: "Ohne Verbindung wird deine Abwesenheit nicht erfasst. Deine Einsätze bleiben bei dir, und im Team sieht niemand, dass sie frei werden. Melde dich jetzt telefonisch ab. Geht kein Anruf durch, versuch es wieder, sobald du Empfang hast."
+- banner line 3 stays "Neue Sicherheitssignale kommen erst danach an. Dringendes jetzt telefonisch melden." (three lines at 390 px; the card line is where she acts).
+
+When MOB1 names the number, "telefonisch" becomes a `tel:` link of at least 44 px in the same sentence. Vitest: the 1c lines and the dialog text each contain the shared constant exactly once.
+
+**`record_interruption_followup` offline (ADR-143 1d by rule; button "Entscheid erfassen", `InterruptionFollowupForm.tsx:34-35`).** The button follows 1a (`aria-disabled`, in the tab order). Its line, in the line block of the interrupted card under the existing "Entscheid offen: … Bis dahin bleibt der Einsatz im Team und bei Operations sichtbar." (`visit-lifecycle.tsx:110`, IMPLEMENTED, unchanged):
+- "Ohne Verbindung wird der Entscheid nicht erfasst. Erfasse ihn, sobald die Verbindung zurück ist. Muss die Pflege früher geklärt werden, melde es jetzt telefonisch."
+
+The fact the team needs (broken off, decision open) was recorded online, so this line does not say "das Team erfährt nichts davon"; it is true because the `visit_interrupted` signal stays open until the decision (0045:61-72, `cra` 09:30). Whether a decision can be urgent enough to require a call is a clinical question; the last sentence leaves it to her judgement and sets no rule (`cra` confirms or removes it). If the form is already open when the connection drops, "Entscheid speichern" follows 1a with the same line; the text she typed stays in the form and is not queued. Playwright offline on an interrupted visit: "Entscheid erfassen" is reached by Tab, is `aria-disabled`, is described by this line only, and a tap creates no pending entry and no request.
+
+**AUT-42 information line (ADR-143 9 as written by `eng`; PO choice still open).** On her card after the automatic resend, never green, `info` tone:
+- once, `role="status"`: "Gesendet."
+- then the card's information line: "Gerätezeit verworfen: es gilt die Zeit, zu der es beim Team einging (15:20). Ist die Uhrzeit für das Beobachtete wichtig, ergänze eine Beobachtung."
+- under it, while the device clock is still wrong (the next refusal would show it again): "Bitte Geräteuhr prüfen."
+
+No button (ADR-143 9 (c)). The first sentence is `cra`'s, with the server time added so she sees which time counts. The second sentence is the reason `cra` gave for condition (c); `cra` confirms it as a hint and not a rule. On the record the two-line display stays "Beim Team eingegangen 15:20" / "Gerätezeit verworfen". If the automatic resend is refused, the card shows that refusal under ADR-143 2 with the existing lines ("Nicht gesendet: …"), plus "Dringendes telefonisch melden."; it never shows "Gesendet.". If the PO keeps the explicit act instead, my 07:50 four-line card stands. `lca` confirms "verworfen" on a care record (open since 07:50).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-94 | A-07 offline, `/field` visit card (nurse; phone), M6-2, PLANNED | low | ADR-143 1c and its tests in point 6 name the no-show button "Klient nicht angetroffen". The built button is "Nicht angetroffen" (`visit-lifecycle.tsx:123`) and the recorded state reads "Klient:in nicht angetroffen" (`:73`). A Playwright test written to the ADR will look for a name that does not exist, and a fix "to the ADR" would bring a non-inclusive label into the product (§4 wording, UXR-81 pattern). | `92d0aba` `DECISIONS.md` ADR-143 1c line block and 6; `visit-lifecycle.tsx:73`, `:123` on `d1f2771` | §4 one wording per thing; §6 accessible name stable | ADR-143 1c and 6 use the built labels ("Nicht angetroffen", "Nicht abgeschlossen beenden", "Ergebnis erfassen", "Entscheid erfassen"); the M6-2 tests take the names from the same constants as the buttons; any rename goes through `uxa` and keeps "Klient:in". | none (low); one comment on #837 |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-93 | OPEN; **`cra` confirmed** (09:30); **written into ADR-143 1c and 6 by `eng`** (`92d0aba`); closes on the built queue. | `DECISIONS.md` ADR-143 1c "Line block per card" |
+| UXR-92 | OPEN; unchanged (confirmed, placed in MOB1, in ADR-143 1a, 6). | 07:50 section |
+| UXR-91 | OPEN; catalog A-07 line still to be corrected in my next catalog change. | `NAVORA_SCREEN_CATALOG.md:191` unchanged |
+| UXR-88, -89, -90 | OPEN on #841 (head unchanged `8907913`). | 23:50 section |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section |
+
+Closed in this section: none (no screen code merged).
+
+### Requests (OPEN)
+
+- `cra`: confirm the shared call sentence (CGR-124), the "Entscheid erfassen" line including whether its last sentence stays, and the AUT-42 information line with its hint sentence.
+- `eng` (#837): the built button names in ADR-143 1c and 6 (UXR-94); the shared call constant; "Entscheid speichern" in an open form follows 1a.
+- `lca`: "Gerätezeit verworfen" on a care record (unchanged).
+- `po`: the explicit act or AUT-42 for point 9; which of my two clock-refusal texts MOB1 carries follows from that.
+
+---
+
 ## 2026-11-04 07:50 CET · `uxa`: no screen code changed; answers to `cra` 05:30 (#852, CGR-123) and `eng` ADR-143 1c / 9 (#837 `8142bba`): the offline call lines for no-show, broken-off visit, outcome and absence, the device-clock refusal card with "Ohne Gerätezeit senden", the offline "Stand" line for safety signals; UXR-93 (medium); one correction to my 23:50 example
 
 **What changed since 03:50.** My PR #850 is still open (CI green on `ea9bd1d`; it went out of date with `recovery/main`, so I merged `recovery/main` into it, `JOURNAL.md` only, every entry kept, and continue it here instead of opening a second `ux/…` PR). `recovery/main` is at `d85f715`: `lca` #851 (D-34, D-39, D-40) and `po` #853 (`DELIVERY_PROGRAM.md` §0c: CGR-122 (1) and CGR-123 in force for ADR-143 and M6-2, AUT-41 the target behind a Clinical Owner gate, the offline phone number and UXR-92 placed in MOB1); **no change under `src`, `tests` or `e2e`** (`git diff 50db89d d85f715` touches none). Every open screen PR head is unchanged (#841 `8907913`, #799 `642edf0`, #800, #803, #804, #806, #809, #813, #814, #815); my earlier notes on them stand. New input for me: `cra` 05:30 on open PR #852 (`e787be2`) confirms my 03:50 wording with conditions and asks `uxa` for the no-show and interruption line, the clock-refusal line with an in-app step, and the "Stand" wording; `eng` #837 (`8142bba`) writes CGR-123 into ADR-143 (1c never queued: `record_no_show`, `record_no_show_outcome`, `end_visit_not_completed`, `record_absence`, `change_absence`; 9: "Ohne Gerätezeit senden", "Gerätezeit verworfen") and asks `uxa` for the 1c and 9 wording. No new UX brief; no `ux` issue changed.

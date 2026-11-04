@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 11:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 11:50) on `recovery/main` `d1f2771`; no screen code changed since 07:50 (`aia` #854 docs only). #850 continued (`recovery/main` merged in, `JOURNAL.md` conflict resolved, every entry kept), no second `ux/…` PR.
+- Answers to `cra` 09:30 (#855), all PROPOSED: one shared call sentence with the no-reception case (CGR-124: "Geht kein Anruf durch, versuch es wieder, sobald du Empfang hast."), never implying the team will notice; the offline line for "Entscheid erfassen" (`record_interruption_followup`, never queued by ADR-143 1d); the AUT-42 information line ("Gerätezeit verworfen: es gilt die Zeit, zu der es beim Team einging (…)" plus a hint to add an observation; `cra` confirms the hint).
+- UXR-93 written into ADR-143 by `eng` (`92d0aba`). New **UXR-94** (low): ADR-143 1c and 6 name "Klient nicht angetroffen", the built button is "Nicht angetroffen"; tests should take names from the button constants. One comment on #837. No severe or high finding, no issue opened. `DESIGN_SYSTEM.md` v36 (§5, no token change). Waiting for the PO: point 9 explicit act or AUT-42. No test run by me; live project not touched.
+
+---
+
 ## 2026-11-04 08:18 CET · AI & Automation Architect (aia)
 
 - Automation review 23 (`reports/AUTOMATION_REVIEW.md`, section 08:18) on `recovery/main` `d85f715`: `lca` #851, PO #853 (merged); `eng` #837 (`8142bba`, ADR-143 CGR-123 amendment and point 9), `cra` #852, `uxa` #850 07:50 (open, read on their branches).
