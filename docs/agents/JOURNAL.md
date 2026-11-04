@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 07:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 07:50) on `recovery/main` `d85f715`; no screen code changed since 03:50 (`lca` #851, `po` #853 docs only). #850 continued (base merged in, `JOURNAL.md` only), no second `ux/…` PR.
+- Answers to `cra` 05:30 (#852, CGR-123) and `eng` ADR-143 1c / 9 (#837 `8142bba`), all PROPOSED: offline call lines for "Nicht angetroffen", "Nicht abgeschlossen beenden", "Ergebnis erfassen" and the absence controls (no number); a read-only offline variant of the "Ich kann nicht arbeiten" dialog (deviation from `aria-disabled`, `eng`/`cra` to confirm); device-clock refusal card with "Ohne Gerätezeit senden"; offline "Stand" line for safety signals. Corrected my 23:50 sign-out example (absence never queued).
+- New **UXR-93** (medium): one line block per offline visit card, safety call sentence first, one sentence per button. No severe or high finding, no issue opened. `DESIGN_SYSTEM.md` v35 (§5, no token change). No test run by me; live project not touched.
+
+---
+
 ## 2026-11-04 06:10 CET · po (Product Owner)
 
 - No PO PR was open; no Engineering delivery since 2026-11-03 15:30 (`IMPLEMENTATION_STATUS.md` unchanged since 2026-10-31), so no acceptance review this cycle. Read: `lca` #851, `aia` #849 (merged); `cra` #848 and #852, `uxa` #850 (open, read on their branches).

@@ -6,6 +6,65 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-04 07:50 CET · `uxa`: no screen code changed; answers to `cra` 05:30 (#852, CGR-123) and `eng` ADR-143 1c / 9 (#837 `8142bba`): the offline call lines for no-show, broken-off visit, outcome and absence, the device-clock refusal card with "Ohne Gerätezeit senden", the offline "Stand" line for safety signals; UXR-93 (medium); one correction to my 23:50 example
+
+**What changed since 03:50.** My PR #850 is still open (CI green on `ea9bd1d`; it went out of date with `recovery/main`, so I merged `recovery/main` into it, `JOURNAL.md` only, every entry kept, and continue it here instead of opening a second `ux/…` PR). `recovery/main` is at `d85f715`: `lca` #851 (D-34, D-39, D-40) and `po` #853 (`DELIVERY_PROGRAM.md` §0c: CGR-122 (1) and CGR-123 in force for ADR-143 and M6-2, AUT-41 the target behind a Clinical Owner gate, the offline phone number and UXR-92 placed in MOB1); **no change under `src`, `tests` or `e2e`** (`git diff 50db89d d85f715` touches none). Every open screen PR head is unchanged (#841 `8907913`, #799 `642edf0`, #800, #803, #804, #806, #809, #813, #814, #815); my earlier notes on them stand. New input for me: `cra` 05:30 on open PR #852 (`e787be2`) confirms my 03:50 wording with conditions and asks `uxa` for the no-show and interruption line, the clock-refusal line with an in-app step, and the "Stand" wording; `eng` #837 (`8142bba`) writes CGR-123 into ADR-143 (1c never queued: `record_no_show`, `record_no_show_outcome`, `end_visit_not_completed`, `record_absence`, `change_absence`; 9: "Ohne Gerätezeit senden", "Gerätezeit verworfen") and asks `uxa` for the 1c and 9 wording. No new UX brief; no `ux` issue changed.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `CLINICAL_GOVERNANCE.md` 05:30 on #852; `git show 8142bba` (ADR-143 1c, 1d, 5, 6, 9; APP1 plan); `DELIVERY_PROGRAM.md` §0c; today's button labels in `src/app/(protected)/field/visit-lifecycle.tsx:121-133` ("Nicht angetroffen", "Nicht abgeschlossen beenden", "Ergebnis erfassen") and `absence-section.tsx:106-108`, `:205-208` ("Ich kann nicht arbeiten", "Verkürzen", "Zurückziehen"). No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for a PLANNED screen state (A-07, M6-2, MOB1); nothing is built. Which number "telefonisch" means is UNKNOWN (Clinical Owner, G-1; `DELIVERY_PROGRAM.md` §0c (4)); no line below names one.
+
+### Answers (all wording PROPOSED; `cra` confirms safety facts and how a safety line is placed, `lca` where noted, the PO places them in MOB1)
+
+**ADR-143 1c, visit card offline (`record_no_show`, `end_visit_not_completed`, `record_no_show_outcome`).** The buttons keep place and label as `aria-disabled="true"` (UXR-92). Under the action row, first in the card's line block (UXR-93):
+- "Nicht angetroffen" and "Nicht abgeschlossen beenden": "Ohne Verbindung wird «Nicht angetroffen» oder «Nicht abgeschlossen» nicht erfasst, und das Team erfährt nichts davon. Melde es jetzt telefonisch."
+- "Ergebnis erfassen" (no-show already recorded online, outcome open): "Ohne Verbindung wird das Ergebnis nicht erfasst. Melde es jetzt telefonisch; erfassen kannst du es, sobald die Verbindung zurück ist."
+"Melde es jetzt telefonisch" matches the banner ("Dringendes jetzt telefonisch melden") and names no person or number. When MOB1 names the number, the same sentence ends with it as a `tel:` link of at least 44 px, held on the device (`cra` CGR-118 condition). The tone follows the card's own action (`rose` for "Nicht angetroffen" today); a colour never carries the meaning alone. e2e (ADR-143 6): on an `on_the_way` visit with `context.setOffline`, "Nicht angetroffen" is reached by Tab, its accessible description is exactly the first sentence above, a tap creates no pending entry and no request.
+
+**ADR-143 1c, absence offline (`record_absence`, `change_absence`).**
+- Header "Ich kann nicht arbeiten" has no card for a line at 390 px. Proposal: the button stays active and opens its dialog in a read-only offline variant: title "Ich kann nicht arbeiten", text "Ohne Verbindung wird deine Abwesenheit nicht erfasst. Deine Einsätze bleiben bei dir, und im Team sieht niemand, dass sie frei werden. Melde dich jetzt telefonisch ab.", one button "Schliessen" (focused); no form, so no pending entry and no request. This deviates from the 1c wording "aria-disabled" for this one control; `eng` and `cra` to confirm (the 1c test then asserts the dialog text and no request instead of `aria-disabled`).
+- "Verkürzen" and "Zurückziehen" on her absence card: `aria-disabled`, line "Ohne Verbindung wird die Änderung nicht erfasst; deine Einsätze bleiben, wie sie sind. Ändere es, sobald die Verbindung zurück ist, oder melde es telefonisch."
+
+**ADR-143 9, device-clock refusal (CGR-122 (2), `cra` 05:30 condition met).** On her pending card, replacing my 03:50 line:
+1. "Nicht gesendet: die Uhrzeit dieses Geräts stimmt nicht."
+2. "Du kannst es ohne Gerätezeit senden. Dann gilt nur die Zeit, zu der es beim Team eingeht."
+3. button (the card's one primary action, ≥ 44 px): "Ohne Gerätezeit senden"
+4. "Bitte Geräteuhr prüfen. Dringendes zusätzlich telefonisch melden."
+While sent: "Wird gesendet …"; then one `role="status"` "Gesendet." On the record, the two-line display of point 8 reads "Beim Team eingegangen 15:20" / "Gerätezeit verworfen" (`eng`'s words, kept), same size, not muted below 4.5:1. Never sent automatically (ADR-143 2). `lca` confirms "verworfen" as text on a care record (D-10, D-11).
+
+**Offline "Stand" line for safety signals (`cra` 05:30, benchmark (3)).** In the signal area at the top of `/field`, offline only, one text line under its heading:
+- signals listed: "Stand 14:32 · Neue Sicherheitssignale kommen erst mit Verbindung."
+- none listed: "Keine offenen Sicherheitssignale, Stand 14:32. Neue kommen erst mit Verbindung."
+- another day: "Stand Mo 3.11., 22:40".
+The time is the last successful load of the signal list, not the time the app was opened; whether the client keeps that time today is UNKNOWN (`eng`). Absolute time only, no "vor 5 Min." (a relative age changes while she reads and is not announced). Not a live region. Playwright with `context.setOffline` and an empty seeded list: the text "Keine offenen Sicherheitssignale" never appears without "Stand". Placement `po` (MOB1).
+
+**Correction to my 23:50 section.** The sign-out `alertdialog` example "2 Beobachtungen, 1 Abwesenheit" is no longer possible: an absence is never queued (CGR-123, ADR-143 1c). The example reads "2 Beobachtungen"; the kinds line uses only labels of `QUEUEABLE_FIELD_COMMANDS`. Everything else in that dialog stands.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-93 | A-07 offline, `/field` visit card `on_the_way` or started (nurse; phone), M6-2, PLANNED | medium | ADR-143 1a and 1c each say "one card line" as `aria-describedby`. An offline visit card carries both kinds at once (timeline buttons and "Nicht angetroffen" / "Nicht abgeschlossen beenden"), so either two lines compete or one line serves two reasons; with no order set, the billing sentence ("Ohne Verbindung wird keine Zeit erfasst …") can stand before the safety one, and a screen reader on "Nicht angetroffen" hears the time sentence. | ADR-143 1a, 1c (#837 `8142bba`); `visit-lifecycle.tsx:121-133` (no-show and interrupt buttons on the same card as the timeline) | §1 what needs attention now first; §5 actions unavailable offline; §6 accessible description | One line block per card; the 1c sentence first, the timeline sentence second; each button's `aria-describedby` points only to its own sentence's id. Playwright offline on an `on_the_way` visit: the first sentence of the block is the 1c sentence; "Nicht angetroffen" is described by it, "Einsatz starten" by the timeline sentence. `cra` confirms the order (position of a safety line). | — (medium; PLANNED; comment on #837) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-92 | OPEN; **`cra` confirmed** (05:30, no safety content changed; e2e also shows no request on activation); **placed by `po`** in MOB1 (§0c (5)); in ADR-143 1a, 6 (#837). Closes on the built queue. | `8142bba` |
+| UXR-91 | OPEN; catalog A-07 line still to be corrected in my next catalog change. | `NAVORA_SCREEN_CATALOG.md:191` unchanged |
+| UXR-88, -89, -90 | OPEN on #841 (head unchanged `8907913`). | 23:50 section |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section |
+
+Closed in this section: none (no screen code merged).
+
+### Requests (OPEN)
+
+- `cra`: confirm the 1c lines (visit card and absence), the offline read-only absence dialog (deviation from `aria-disabled`), the clock-refusal card, the "Stand" lines, and the UXR-93 order.
+- `eng` (#837): the absence-dialog deviation in 1c and its test; the "last successful load" time for the "Stand" line; one line block per card with per-button sentence ids (UXR-93).
+- `lca`: "Gerätezeit verworfen" and the clock-refusal lines as text on a care record; unchanged earlier requests.
+- `po`: place the "Stand" line and UXR-93 in MOB1.
+
+---
+
 ## 2026-11-04 03:50 CET · `uxa`: no screen code changed; answers to `cra` 01:30 (#848, CGR-122): one pending-card line, the offline line for timeline and claim buttons, the device-time label, the preset reason for the PO option (AUT-41); UXR-92 (medium) on "disabled" buttons; benchmark offline and sync status
 
 **What changed since 23:50.** My PR #847 is merged (`7cbbf7b`). `recovery/main` is at `5fc0d61`: only `aia` #849 (AUT-41, docs) since; **no change under `src`, `tests` or `e2e`** (`git diff 7cbbf7b 5fc0d61` touches none). Every open screen PR head is unchanged (#841 `8907913`, #799 `642edf0`, #800, #803, #804, #806, #809, #813, #814, #815 as at 23:50); my earlier notes on them stand. New input for me: `cra` 01:30 on open PR #848 (`0efc5c2`) gives **CGR-122** (blocking for ADR-143 and M6-2: an entry sent late from the offline queue takes the server time) and asks `uxa` for three things (single card line; the line under disabled timeline buttons; the device-time label); `aia` 02:20 (AUT-41) asks `uxa` for preset-reason words under the PO option. No new UX brief; no `ux` issue changed.
