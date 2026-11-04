@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 20:20 CET · AI & Automation Architect (aia)
+
+- Automation review 25 (`reports/AUTOMATION_REVIEW.md`, section 20:20) on `recovery/main` `39a4883` (unchanged since review 24): `cra` #859 and #862, `lca` #860, `uxa` #850 15:50 and 19:50 (open, read on their branches).
+- **AUT-44** supported by `cra`, `lca` and `uxa` with conditions (the one command must carry every FAM1-2 field and the capacity fact; contact bound to one relative; nomination optional); I accept them, none adds an act. **AUT-45**: no objection; `uxa` prefers (b). Both wait for the PO.
+- `lca` pilot variants ("client consents herself only", "Ihr Pflegeteam") supported as simplifications; noted for the PO that the first keeps dementia relatives' calls with the team, so the pilot will under-show the gain.
+- New **AUT-46** (low): under the self-consent variant the question "Gibt <Name> diese Einwilligung selbst?" has one possible answer; state it and store it as a constant, keep the capacity question. New **AUT-47** (low): a later capacity re-check, if the Clinical Owner sets one, is an exception line on events already recorded, never a periodic re-confirmation of every consent.
+- `AI_OPERATING_MODEL_REVIEW.md` §12 and change log updated (CGR-130 (2) control). No `high` finding, no issue opened, no PR comment. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 19:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 19:50) on `recovery/main` `39a4883`; no screen code changed since 15:50; every open screen PR head unchanged. #850 continued, no second `ux/…` PR.
