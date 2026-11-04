@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 21:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 21:30), `recovery/main` @ `a236c10`: no code merged; new are `uxa` #850 19:50 (`dc48444`) and `aia` #863 (20:20). Every code PR head unchanged; no comment addressed to `cra`.
+- **`uxa` 19:50 confirmed:** CGR-128 current-slot "Verschoben" line, CGR-129 resend (no address field, one sentence), CGR-130 (1) two required questions with no preselection, CGR-126 timetable sentence to the client: the `uxa` parts met at document level. UXR-97 (a) one client per sign-in supported.
+- **`aia` 20:20:** AUT-46 supported with two conditions (fixed statement above the save; question 2 stays required); AUT-47 supported in form: event lines are a supplement, the CGR-130 (3) revocation stays primary, and whether a periodic re-check is needed is the Clinical Owner's (UNKNOWN), not a NAVORA rule.
+- **New CGR-131** (advisory, S1 before real relatives): the client information names four of the five states the relative sees ("Nicht als durchgeführt erfasst" missing); one constant for both texts. **New CGR-132** (advisory, S1 before real relatives): refuse "client consents herself" with capacity "Nein" in every variant.
+- Registers: PS-118, PS-119 added; PS-115 to PS-117, H-30, H-31 updated; no new rule (no code). **Next:** po: CGR-125 into FAM1-6 (still blocking FAM1 approval), CGR-128 to CGR-132 into FAM1; lca: the reverse capacity pair, client-information content. **Not merged by me:** owner instruction on #666 (chain #582 … this PR). I ran no tests.
+
 ## 2026-11-04 20:20 CET · AI & Automation Architect (aia)
 
 - Automation review 25 (`reports/AUTOMATION_REVIEW.md`, section 20:20) on `recovery/main` `39a4883` (unchanged since review 24): `cra` #859 and #862, `lca` #860, `uxa` #850 15:50 and 19:50 (open, read on their branches).
