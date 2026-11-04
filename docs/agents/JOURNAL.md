@@ -4,6 +4,36 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 15:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 15:50) on `recovery/main` `39a4883`; no screen code changed since 11:50 (`po` #856, `aia` #858 docs only). #850 continued (`recovery/main` merged in, `JOURNAL.md` conflict resolved, every entry kept), no second `ux/…` PR.
+- New brief FAM1 (draft, owner D-40) read for the relative page F-02. Answers to `cra` 13:30 (#857), all PROPOSED: neutral status "Nicht als durchgeführt erfasst" (CGR-125; five status texts, one neutral tone); one access-end sentence for every cause (CGR-127 (1), `lca` confirms its second sentence); the FAM1-10 block above the list on `cra`'s four facts with 144 as a call link and a "Stand" time; label "Zugeteilt", never "Es kommt" (CGR-127 (3)). AUT-44 one-act consent supported from the screen side; AUT-45 option (b) adds no nurse control.
+- New **UXR-95** (medium): FAM1 has no criterion on a returning relative's sign-in effort; proposed for FAM1-16 and the measure. **UXR-96** (low): my own catalog/IA lines F-01 to F-06 still FROZEN and list excluded screens. No severe or high finding, no issue opened, no PR comment. `DESIGN_SYSTEM.md` v37 (§4, no token change). Waiting for the PO: FAM1 status mapping and UXR-95; point 9 (unchanged). No test run by me; live project not touched.
+
+---
+
+## 2026-11-04 14:20 CET · AI & Automation Architect (aia)
+
+- Automation review 24 (`reports/AUTOMATION_REVIEW.md`, section 14:20) on `recovery/main` `d31669a`: PO #856 (merged; D-39 A, D-40 minimal B, brief FAM1 draft); `cra` #857 and #855, `eng` #837 (`92d0aba`), `uxa` #850 11:50 (open, read on their branches).
+- **FAM1 supported in substance:** it removes relatives' schedule calls with facts the team already records, no AI, no new task stream. `cra` CGR-125, -126, -127 supported (safety controls; the RN restriction on consent recording is a capacity control and is not challenged).
+- New **AUT-44** (medium): consent record and relative invitation as one command; relatives nominated in the admission conversation. New **AUT-45** (medium): the FAM1 measure asks teams to count calls for the whole pilot; proposed two tally weeks or a retrospective answer.
+- **AUT-39 closed** (owner D-40 excludes messaging and check-ins). **AUT-42** supported by `cra` and written into ADR-143 point 9 as an option; waiting for the PO.
+- `AI_OPERATING_MODEL_REVIEW.md` §12 and change log updated. No `high` finding, no issue opened, no PR comment. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-04 12:45 CET · po (Product Owner)
+
+- **Owner answered D-39 and D-40** (owner message in the PO session, 2026-11-04; recorded with `Unfreeze: 1`).
+  - **D-39: A, decided.** No sensors, device data intake, IoT integrations, predictive monitoring or AI risk predictions in the pilot; specification-only until further owner approval. Issue #826 closed.
+  - **D-40: A rejected, decided as a minimal option B for the pilot.** Consented relatives may view visit status, planned time and the assigned caregiver, read-only. Excluded: AI, chat or messaging, direct communication with care teams, clinical information, assessments, documentation, medical recommendations.
+- **Brief [FAM1](briefs/FAM1.md) written as a draft** (the owner asked `po` for the option-B specification): separate relative principal; consent record per relative and client, recorded by a registered nurse of the team; revocation and case pause/close end access; allow-list of four status words, planned window and the responsible member's display name ("Ihr Pflegeteam" when none); changes only after the team records them; no write path, AI, notifications; reads audited; synthetic data only, real relatives refused until the legal adviser and D-1.
+- **Inputs requested** (packages and issue #827): `lca`: consent handling, representation of clients unable to consent, staff display name to relatives (FAM1-2, -8). `cra`: visibility rules, information boundaries, safety (FAM1-6, -7, -10; a visit whose window passed without a recorded outcome). FAM1 is approved into *Next up* once both are in; Engineering does not start before.
+- `DELIVERY_PROGRAM.md` §0d: M7 objective changed to FAM1; date follows Engineering's estimate. `ROADMAP.md`, owner agenda (D-39, D-40 removed), INDEX and `OPEN_DECISIONS.md` updated.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 11:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 11:50) on `recovery/main` `d1f2771`; no screen code changed since 07:50 (`aia` #854 docs only). #850 continued (`recovery/main` merged in, `JOURNAL.md` conflict resolved, every entry kept), no second `ux/…` PR.

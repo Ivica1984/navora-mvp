@@ -115,6 +115,12 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
 5. **UXR-92 (`uxa`, medium) placed in MOB1:** "visible but disabled" is `aria-disabled` with a described reason, never the `disabled` attribute (a screen reader must reach the button and hear why).
 - **For `eng`:** ADR-143 takes (1), (2) and (5) before acceptance; CGR-122 and CGR-123 block the M6-2 merge until their tests are green. **For `uxa`:** the wording proposals of 03:50 stand; `cra` confirms them. **For `lca`:** the CGR-122 documentation question is asked together with the Clinical Owner's documented-time question (no package; a clinical rule).
 
+
+## 0d. Status 2026-11-04 12:45: owner decisions D-39 and D-40
+
+- **D-39 (owner): A.** No sensors, device data intake, IoT integrations, predictive monitoring or AI risk predictions in the pilot; specification-only. No milestone changes.
+- **D-40 (owner): option A rejected; a minimal, read-only relative view is in the pilot.** Consented relatives see visit status, planned time and the assigned caregiver. Excluded: AI, messaging, direct communication with care teams, clinical information, assessments, documentation, recommendations. **M7 changes** (below): its decision part is done; its deliverable is now brief **FAM1** (draft 2026-11-04), approved once `lca` (consent; representation; staff display name) and `cra` (visibility, information boundaries, safety) have answered, then built on synthetic data. Real relatives only after the legal adviser's answer (with D-9) and D-1. Screens in scope: F-01 and F-02 of the design set; F-03 to F-06 stay frozen. New M7 date follows Engineering's FAM1 estimate (plan version 2, 2026-11-17).
+
 ## 1. Milestones
 
 | # | Milestone | Target date | Owner (delivers) | Accepts |
@@ -232,7 +238,7 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
   - offline: CGR-118, CGR-121, CGR-122 and CGR-123 conditions met (e2e with `context.setOffline`, §0b and §0c); UXR-92 for every disabled control.
 
 ### M7 Family app specification and decision (Fri 2027-02-05)
-- **Objective:** a complete, decision-ready specification of the family app. **No build:** D-40 is frozen.
+- **Objective:** a complete, decision-ready specification of the family app. **No build:** D-40 is frozen. **Changed 2026-11-04 (owner D-40, §0d):** the decision is made; the objective is brief FAM1 approved and built on synthetic data (read-only relative view, F-01 and F-02 only); date to be re-set with the FAM1 estimate.
 - **Owner:** `po`; owner decides D-40.
 - **Supporting:** `uxa` (screen specification), `lca` and `cra` (D-40 inputs), `eng` (specification impact only).
 - **Dependencies:** D-40 package inputs; D-9; D-3.
@@ -444,3 +450,4 @@ M5 website (01-15, parallel)   M7 family spec (02-05, parallel, no build)       
 - 2026-11-03 15:30 po: §0 added. The UX/UI baseline (PR #834) is adopted for website, web app, caregiver app and operations app; the M1 UX/UI part is met; the dependencies of M2-M8 are updated; no date moved.
 - 2026-11-03 22:00 po: §0b added. AUT-40 decided (no C-15 assistant screen at stage 0; M6 deliverable, criteria and §3.1 row 5 changed); M9 waiver wording per CGR-117; CGR-113 to CGR-121 placed. No date moved.
 - 2026-11-04 06:10 po: §0c added. CGR-122 (1) and CGR-123 in force for ADR-143 and M6-2; AUT-41 the target design behind a Clinical Owner gate; offline phone number and UXR-92 placed in MOB1; M6 offline criterion extended. No date moved.
+- 2026-11-04 12:45 po: §0d added. Owner decisions D-39 (A) and D-40 (minimal read-only relative view in the pilot); M7 objective changed to FAM1; date follows the estimate.
