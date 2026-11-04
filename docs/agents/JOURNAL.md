@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 12:45 CET · po (Product Owner)
+
+- **Owner answered D-39 and D-40** (owner message in the PO session, 2026-11-04; recorded with `Unfreeze: 1`).
+  - **D-39: A, decided.** No sensors, device data intake, IoT integrations, predictive monitoring or AI risk predictions in the pilot; specification-only until further owner approval. Issue #826 closed.
+  - **D-40: A rejected, decided as a minimal option B for the pilot.** Consented relatives may view visit status, planned time and the assigned caregiver, read-only. Excluded: AI, chat or messaging, direct communication with care teams, clinical information, assessments, documentation, medical recommendations.
+- **Brief [FAM1](briefs/FAM1.md) written as a draft** (the owner asked `po` for the option-B specification): separate relative principal; consent record per relative and client, recorded by a registered nurse of the team; revocation and case pause/close end access; allow-list of four status words, planned window and the responsible member's display name ("Ihr Pflegeteam" when none); changes only after the team records them; no write path, AI, notifications; reads audited; synthetic data only, real relatives refused until the legal adviser and D-1.
+- **Inputs requested** (packages and issue #827): `lca`: consent handling, representation of clients unable to consent, staff display name to relatives (FAM1-2, -8). `cra`: visibility rules, information boundaries, safety (FAM1-6, -7, -10; a visit whose window passed without a recorded outcome). FAM1 is approved into *Next up* once both are in; Engineering does not start before.
+- `DELIVERY_PROGRAM.md` §0d: M7 objective changed to FAM1; date follows Engineering's estimate. `ROADMAP.md`, owner agenda (D-39, D-40 removed), INDEX and `OPEN_DECISIONS.md` updated.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 11:15 CET · Engineering (eng)
 
 - Step A only, no claim: all 17 own PRs green on their heads and `clean`; no bot run waiting for approval. #745 (UX2) unclaimed, but the PO order (0) holds further UX2 parts while #799, #800, #803, #804, #806, #809 wait for the PO; PLAN3 still needs #814 merged.
@@ -147,7 +159,6 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Owner request: implementation plans on the `uxa` design set (#834). New `docs/engineering/WEB1_IMPLEMENTATION_PLAN.md` (W-01 to W-11, M5) and `docs/engineering/APP1_IMPLEMENTATION_PLAN.md` (A-, C-, O-, L- screens; M2, M4 screens, M6, M8): per screen the components, reads, commands and step; development order, critical path, blockers, estimated dates. ADR-143 (PROPOSED): pending-command store and routes for C-15/C-17, refining ADR-142 of #835 (accepted by the owner 2026-11-03; the duplicate ADR-142 first drafted here was dropped, and `site/` renamed `website/`).
 - Estimates (not commitments): M2 2026-11-27 if `po` clears the 11-PR queue by 2026-11-10; M5 2027-01-15 if the owner decides host, domain and demo destination by 2026-12-11; M6 2027-01-29; M8 2027-02-19.
 - No code, no migration; no new UX2 part opened (PO order 06:30, item (0)). Docs only; `node scripts/agents-check.mjs` run.
-
 
 ## 2026-11-03 15:30 CET · po (Product Owner)
 
@@ -1758,7 +1769,6 @@ ENGINEERING BRIEF
 - **Product finding for `po` (PO ask 3):** `/field` fixes "today" at render; "Heute machen" used after midnight on a page opened before it moves the visit to yesterday (a past date `reschedule_visit` accepts). The database day rule (VIS1) holds. Issue opened for `po`; not built.
 - No `IMPLEMENTATION_STATUS.md` row: #635 is a CI fix, not a queue item. Tests run by me: the guard's cases through bash; vitest, lint, typecheck, Playwright **not run** (no npm registry); CI decides. Live project not touched.
 
-
 ## 2026-10-29 00:15 CET · po (Product Owner)
 
 - Continued the open PO PR #632 (23:15; docs only, e2e red twice in `work.spec.ts:99`, not this PR's) instead of opening a second; this cycle rides the same branch, and the push re-runs CI. `recovery/main` has not moved since #632 was opened.
@@ -1784,7 +1794,6 @@ ENGINEERING BRIEF
 - **Clinical gate VIS1-7** before merge (`cra`): 0090, tests, the plural day line, the release notice position and tone, the VIS1-8 sentence. Not built (UNKNOWN or waiting): the optional "start at or before now" line (`cra` wording), overdue exemption for moved visits (P-27), replacement after a move (Clinical Owner).
 - Tests run by me: migrations 0001-0090 + seed on local PostgreSQL 16 with auth stubs; pgTAP under a minimal stand-in, 88/90 files green (007, 053 need stand-in functions I lack); 089, 089_vis1_c2b, 090 green; pure rules in Node. vitest, typecheck, lint, build, Playwright **not run** (no npm registry); CI decides. Live project not touched.
 
-
 ## 2026-10-28 23:15 CET · po (Product Owner)
 
 - No open PO PR (#625 merged). Claimed #631 (`[PO review]` VIS1); claim removed at the end.
@@ -1794,7 +1803,6 @@ ENGINEERING BRIEF
 - **Challenge:** "Why does a weekly visit have a fixed date at all?" A fixed day for a once-a-week service is a dispatcher's calendar habit, and every "Heute machen" move is the audit cost of it. A window instead needs a missed-visit rule (`cra`, Clinical Owner, D-28). **Hypothesis P-28** (AN1 counts of moves from weekly care-plan items); no build.
 - Packages: no unfreeze trigger (CGR-90 names no decision); none worked; none decided by po.
 - Tests: none run by me (docs only; code and test files read, CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
-
 
 ## 2026-10-28 22:35 CET · eng (Lead Engineer)
 
@@ -3349,7 +3357,6 @@ ENGINEERING BRIEF — UX2
 - **Next agent:** (cra) review 0084 and 0085 (COND1-4a, -5a, -5b, -6, -8, -9, -10; CGR-66, -67, -68 remedies). (eng) IPA1 incl. IPA1-7/-8; COND1-C1 in a small PR before G-19 (no hand-off needed yet). (po) accept COND1 once `cra` finds no blocking finding, and mark the parent condition lines done. (lca) nothing new requested.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
 
-
 ## 2026-10-26 21:00 CET · Legal & Compliance Agent (lca)
 
 - No `lca` PR was open. Tier 1: D-22 and D-18 unchanged, no new evidence (skipped). No new `cra` section since 17:26. D-1 and D-12 changed only by PO text adopting my 19:42 notes (no re-review). **Two packages this run.** I ran no NAVORA test, did not access the live project and called no Supabase or Render tool.
@@ -3729,7 +3736,6 @@ ENGINEERING BRIEF
 - CI green on f1fbd3e (app, db, e2e; pgTAP 079 ran in CI). **Merged #434 (a5c94a6). WORK1 `delivered`.** Seven deviations for the PO in ADR-092 and the status row.
 - **Next for `eng`:** DOOR1-12/-13/-14 with CGR-64, FUP1-C1/C2, AUD1-M1/-M2, LEAVE1 conditions as the PO places them; #399, #409.
 
-
 ## 2026-10-26 06:40 CET · Engineering (eng)
 - Run start: no own open PR. Active hand-off #412 (WORK1) claimed 06:11.
 - **WORK1 in review: #434** (migration 0079, ADR-092, pgTAP 079 (68), unit `work-rules`, e2e `work.spec`, `/work` page). IMPLEMENTED: proposal from her own visit events only (no person argument, no identifier, after the information text); confirm with both questions required (`questions_open`), versions with reason code and private note, audited without note or times; month export (CSV in the app, unconfirmed dates by date, audited); own-rows-only tables with the LEAVE1 policy; AN1 North Star per team from confirmed days under the AN1 suppression (value and base hidden). No labour-law check.
@@ -3794,7 +3800,6 @@ ENGINEERING BRIEF
 - **Challenge:** "Why does a billing read return a care reason?" The purpose reader checks who reads, not what the purpose needs, so an administrator who also works in a team reads hold reasons under `billing`. From scratch, the purpose decides the content: billing needs that a hold existed, never why. AUD1-M1 plus a hypothesis row (billing reads of hold records should be 0 once J5 marks held visits not billable; each one shows a missing billing fact).
 - **Next agent:** (eng) LEAVE1-14 (CGR-62); WORK1; DOOR1-12/-13/-14, FUP1-C1/C2, AUD1-M1/-M2; #399, #409. (cra) merge #416; 0077 on 7f23a3b (a finding reopens AUD1); the two open hypotheses. (lca) amended DSV Art. 4 on fedlex, then D-3 gate (i) and D-4 question 3; D-17 when DOOR1-12 is merged.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
-
 
 ## 2026-10-26 03:42 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22, D-18 unchanged since my last sections, no new evidence (skipped). Eligible on new evidence: **D-3** (gate iv, AUD1 delivered: #413 merged 7f23a3b, Engineering 03:20 request) and **D-4** (gate r3). Tier 2 D-30: the PO 03:13 changes are on open PR #421, not merged (not used). `cra` 17:26 section used; #416 not merged, not used. I ran no NAVORA test; CI conclusions read from check runs (app, db, e2e green on 8eeb18e, 7f23a3b, 91bc826).
