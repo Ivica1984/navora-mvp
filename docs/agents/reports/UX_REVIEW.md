@@ -6,6 +6,60 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-04 23:50 CET · `uxa`: no screen code changed; answers to `cra` 21:30 (#864): CGR-131 (the client information names all five states, from the page's own list), CGR-132 (one refusal for "gives it herself" with "cannot decide"), AUT-46 form under the pilot variant with `cra`'s two conditions; no new finding
+
+**What changed since 19:50.** My PR #850 (`dc48444`, CI green on all four checks) had a JOURNAL conflict with `recovery/main`; I merged `recovery/main` in (`ca8b67e`, every entry kept, newest first) and continue it, no second `ux/…` PR. `recovery/main` is at `a236c10`: only `aia` #863 (20:20, docs: AUT-44 conditions accepted, AUT-45 inputs, new AUT-46, AUT-47); **no change under `src`, `tests` or `e2e`**. Every open screen PR head is unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); my earlier notes on them stand. New input for me: `cra` 21:30 (#864, open, read on `gov/review-2026-11-04-2130`): my 19:50 wordings confirmed, CGR-131 and CGR-132 new, AUT-46 supported with two conditions. FAM1 is still a draft brief. No `ux` issue changed.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `AUTOMATION_REVIEW.md` 20:20 (AUT-46, AUT-47) on `recovery/main`; `CLINICAL_GOVERNANCE.md` 21:30 on #864. No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for PLANNED screens (FAM1 draft); nothing may be built before the PO approves FAM1. What the client must be told is `lca`'s; how capacity is judged is the Clinical Owner's (UNKNOWN); I only word what they set.
+
+### Answers (all wording PROPOSED; `cra` confirms facts and placement, `lca` where noted, the PO places them in FAM1)
+
+**CGR-131: the client information names every state the relative will see.** `cra` is right: my 19:50 sentence 1 listed four states and left out "Nicht als durchgeführt erfasst", the one most likely to worry a relative. My error. Sentence 1 is replaced by two sentences, and the states are no longer written into the sentence by hand:
+- "Wenn Sie einverstanden sind, kann <Anzeigename der angehörigen Person> in NAVORA Ihre Einsätze der nächsten 7 Tage sehen: das Zeitfenster, «Ihr Pflegeteam» als Zugeteilt und den Stand: <Liste der Statustexte>."
+- "«Nicht als durchgeführt erfasst» heisst: Das Team hat für diesen Einsatz noch keinen Abschluss eingetragen."
+`<Liste der Statustexte>` is rendered from the **same constant** that F-02 uses for its five status strings (today: «Geplant», «Verschoben», «Abgesagt», «Durchgeführt», «Nicht als durchgeführt erfasst»), joined "a, b, c, d oder e". So a change to FAM1-6 changes both places at once and the two lists cannot drift. The second sentence repeats the meaning of the neutral state in the client's own words (polite form) and adds nothing the page does not say; with sentence 2 of 19:50 ("…wann jemand vom Pflegeteam zu Ihnen kommt und wann nicht") it also tells the client that the relative will see when nothing has been recorded yet. Vitest: the information block contains every string of the F-02 status constant and no other status word; the test imports the constant, never a copied list. The other three 19:50 sentences are unchanged. `lca` confirms the substance (*informed*), `cra` that the list is complete. If the PO takes the display-name variant, only "«Ihr Pflegeteam» als Zugeteilt" changes ("wer zugeteilt ist").
+
+**CGR-132: "gives it herself" together with "cannot decide it" is refused in every variant.** The form already refuses a missing answer under its question (§4). One more refusal, checked on "Einwilligung speichern" and shown as one `info` line under question 2, with focus moved there; nothing is saved:
+- "So kann die Einwilligung nicht gespeichert werden: <Name> gibt sie selbst, kann aber nach deiner Antwort nicht selbst darüber entscheiden. Bitte prüfe beide Antworten."
+The line names the two answers, not the client: it makes no judgement about her, suggests neither answer and has no button that changes an answer. Under the pilot variant this pair already ends in the confirmed pilot line; to keep one wording per situation (§4), the variant shows **only** the pilot line ("Im Pilot ist die Angehörigen-Ansicht nur möglich, …"), and the line above is used outside the variant. The reverse pair ("Nein", "Ja": a representative consents for a client the RN considers able to decide) is a legal question (`lca`, UNKNOWN); I word nothing for it until `lca` and the PO set a rule. The form refusal is presentation; the rule itself must also be refused by the command (pgTAP: `consent_given_by = client` with capacity `false` raises, `eng`), so the screen is never the only guard. `cra` confirms the facts, `lca` the sentence.
+
+**AUT-46: under the pilot variant the first question becomes a stated fact.** With `cra`'s conditions (i) and (ii), the consent step reads, top to bottom:
+1. the client information (four fixed sentences, CGR-131 above);
+2. question 2 only: "Hältst du <Name> für fähig, über diese Einwilligung selbst zu entscheiden?" ("Ja" / "Nein", required, no preselection; "Nein" shows the confirmed pilot line and no save);
+3. directly above the save button, fixed text, not collapsed: "Mit dem Speichern bestätigst du: <Name> gibt diese Einwilligung selbst."
+4. "Einwilligung speichern".
+I place the statement above the button, not above the information block as `aia` 20:20 wrote, because `cra` (i) makes the save the RN's attestation and the sentence must be read at the moment of the act. The stored record is unchanged (`consent_given_by = client`, recording RN, time; FAM1-2). The button keeps its name; no checkbox is added (that would be the one-answer question again). Vitest: under the variant question 1 is not rendered and the statement is the last text before the button; e2e: "Nein" on question 2 refuses the save. Applies only if the owner takes the variant; otherwise the 19:50 two-question form with CGR-132 stands. `cra` and `lca` confirm the sentence.
+
+**AUT-47.** No screen wording now: NAVORA sets no re-check until the Clinical Owner decides (`cra` 21:30 condition; UNKNOWN). The primary control on screen stays the revocation reason "Kann diese Einwilligung nicht mehr selbst geben", recordable by any RN at any time. If a rule is set later, its line belongs on the team's existing exception list (§2, one action per line), never as a new screen or a periodic prompt.
+
+### Findings
+
+No new finding. CGR-131 is a defect in my own 19:50 wording, corrected above rather than numbered again.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-97 | OPEN; (a) one client per sign-in **supported by `cra`** 21:30; `lca` and the PO to choose. | `CLINICAL_GOVERNANCE.md` 21:30 (#864) |
+| UXR-95 | OPEN; (b) as amended 19:50 (CGR-129) **confirmed by `cra`** 21:30; (c) `lca` with `eng` (UNKNOWN). | as above |
+| UXR-96 | OPEN; catalog change still pending (outside this PR's files). | unchanged |
+| UXR-94 | OPEN; `eng` to change ADR-143 1c and 6 (#837 head `9c2ecc4` unchanged). | 15:50 section |
+| UXR-93, -92, -91 | OPEN; unchanged. | 15:50 section |
+| UXR-88, -89, -90 | OPEN on #841 (head unchanged `8907913`). | 23:50 section of 2026-11-03 |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section of 2026-11-03 |
+
+Closed in this section: none (no screen code merged). **Confirmed by `cra` 21:30:** the CGR-128 "Verschoben" line, the CGR-129 resend sentence, the two CGR-130 (1) questions with no preselection, the pilot "Nein" line, the timetable sentence. They stay PROPOSED until the PO places them in FAM1.
+
+### Requests (OPEN)
+
+- `cra`: confirm the amended client information (CGR-131), the CGR-132 refusal line and the AUT-46 statement and its position above the save button.
+- `lca`: the two CGR-131 sentences (*informed*); the CGR-132 sentence and a rule for the reverse pair; the AUT-46 statement; the 19:50 items (resend sentence, controller and contact in the information, UXR-97).
+- `eng`: once FAM1 is approved, the CGR-132 refusal also in the command (pgTAP), and one status constant shared by F-02 and the consent step.
+- `po` (FAM1): CGR-131 (one status constant), CGR-132 in every variant, AUT-46 form if the owner takes the variant; the 19:50 items.
+
+---
+
 ## 2026-11-04 19:50 CET · `uxa`: no screen code changed; `cra` 16:45 (#859) confirms my FAM1 wordings; answers to CGR-128 (current-slot "Verschoben" line), CGR-129 (one resend answer, no address field), CGR-130 (capacity fact with no preselection) and the client information before consent (`lca` 16:55 (1), `cra` 17:30); UXR-97 (low) on F-02 without a client name
 
 **What changed since 15:50.** My PR #850 is still open (`2853655`, CI green on all four checks, mergeable); I continue it, no second `ux/…` PR. `recovery/main` is unchanged at `39a4883`; **no change under `src`, `tests` or `e2e`**. Every open screen PR head is unchanged (#841 `8907913`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`, #828 `6e3fc0f`); my earlier notes on them stand. New input for me, all on open, unmerged PRs read on their branches: `cra` 16:45 (#859 `230d6a3`: my 15:50 wordings confirmed; CGR-128, CGR-129), `lca` 16:55 (#860 `68a0a09`, `decisions/D-40.md` re-check: consent requirements, information to the client, pilot variants), `cra` 17:30 (#862 `e041079`: CGR-130; client information wording named as `uxa`'s). FAM1 is still a draft brief. No `ux` issue changed since 14:00.

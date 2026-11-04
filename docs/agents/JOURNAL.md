@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 23:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 23:50) on `recovery/main` `a236c10`; no screen code changed since 19:50; every open screen PR head unchanged. #850 continued (JOURNAL conflict resolved by merging `recovery/main` in), no second `ux/…` PR.
+- Answers to `cra` 21:30 (#864), all PROPOSED for the draft FAM1: CGR-131 client information names all five states, rendered from the F-02 status constant, plus one sentence on the neutral state (my 19:50 list was incomplete); CGR-132 one refusal line for "gives it herself" with "cannot decide", in every variant, also refused by the command; AUT-46 form under the pilot variant (statement directly above the save button, question 2 only). AUT-47: no screen wording until the Clinical Owner sets a rule.
+- No new finding, no issue, no PR comment. `DESIGN_SYSTEM.md` v39 (§4, no token change). Waiting: `cra` and `lca` confirmation; PO to place CGR-131, CGR-132, AUT-46 in FAM1.
+
+---
+
 ## 2026-11-04 20:20 CET · AI & Automation Architect (aia)
 
 - Automation review 25 (`reports/AUTOMATION_REVIEW.md`, section 20:20) on `recovery/main` `39a4883` (unchanged since review 24): `cra` #859 and #862, `lca` #860, `uxa` #850 15:50 and 19:50 (open, read on their branches).
