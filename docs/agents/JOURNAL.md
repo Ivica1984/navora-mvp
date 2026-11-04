@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 13:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 13:30), `recovery/main` @ `d31669a`: no code merged since 09:30; PO #856 read (owner decisions **D-39 = A**, **D-40 = minimal read-only relative view in the pilot**; brief FAM1 draft); open #837 (`92d0aba`, ADR-143 with my 09:30 asks) and #850 (`uxa` 11:50) read; FAM1 checked against the visit, case, cover and absence migrations.
+- **FAM1 (asked by the PO): new CGR-125** (blocking for FAM1 approval, S1 for real relatives): four status words for eight status values with no rule for the rest; an interrupted visit, a no-show or a passed window could read "geplant" or "durchgeführt". Remedy: exhaustive mapping with one neutral word, pgTAP over status × window × suspended. **CGR-126** (advisory, S1 before real relatives): the schedule tells a relative when the client is alone; protective revocation preset, capacity and safeguarding questions to `lca` / Clinical Owner (UNKNOWN). **CGR-127** (advisory S2): one access-end sentence for every cause (no hospital stay or death inferred), no cancellation reason, name only when set and not covered (never `team_member_name`), "Stand" time and no cached schedule.
+- **Inputs:** FAM1-7 confirmed; FAM1-10 facts given (schedule only; not watched; emergency number; existing contact; general number is an owner question); `uxa` 11:50 lines confirmed; ADR-143 stays clear for acceptance. **CGR-124:** eng and uxa parts met at document level; new condition: signal evaluation scheduled on the production host independent of any open page (D-2).
+- Registers: H-30, H-31, PS-112, PS-113, PS-114 added; H-28, PS-111 updated; no new rule (no code). **Not merged by me:** owner instruction on #666 (chain #582 … this PR). I ran no tests; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 12:45 CET · po (Product Owner)
 
 - **Owner answered D-39 and D-40** (owner message in the PO session, 2026-11-04; recorded with `Unfreeze: 1`).
