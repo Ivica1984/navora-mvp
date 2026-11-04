@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 09:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 09:30), `recovery/main` @ `d1f2771`: no code merged since 05:30; PO #853 and `aia` #854 read; open #837 (`8142bba`, head `c8cc314`) and `uxa` #850 07:50 read on their branches; code PR heads unchanged.
+- **CGR-123 met at document level** (ADR-143 1c, 1d, 5, 6): no longer blocks ADR-143 acceptance; blocks the M6-2 merge until its tests are green. Condition on 1d: any write of a visit status, event, exception-ending note or assignment is never queueable (`record_interruption_followup` included).
+- **New: CGR-124** (advisory S2, before MOB1 for real clients): offline without voice reception the call line cannot be followed; the server-side `visit_stuck` (CR-039, PROVISIONAL D-28) is the backstop, and offline care itself raises it. ADR-143 gate now clear from the clinical side.
+- **Inputs:** point 9 confirmed; AUT-42 supported with conditions (a)-(d); AUT-43 agreed (measure first; any recording-on-behalf design is a Clinical Owner question); `uxa` 07:50 lines, absence read-only dialog, clock-refusal card, "Stand" lines (with a fallback) and UXR-93 order confirmed.
+- Registers: PS-111 added; H-26, PS-110, CR-039 updated; no new rule (no code). **Not merged by me:** owner instruction on #666 (chain #582 … this PR). I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 08:18 CET · AI & Automation Architect (aia)
 
 - Automation review 23 (`reports/AUTOMATION_REVIEW.md`, section 08:18) on `recovery/main` `d85f715`: `lca` #851, PO #853 (merged); `eng` #837 (`8142bba`, ADR-143 CGR-123 amendment and point 9), `cra` #852, `uxa` #850 07:50 (open, read on their branches).
