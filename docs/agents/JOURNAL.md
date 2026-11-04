@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 16:45 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 16:45), `recovery/main` @ `39a4883`: no code merged since 13:30; `aia` #858 (AUT-44, AUT-45) read; open `uxa` #850 `2853655` (15:50 FAM1 wordings) read on its branch; every code PR head unchanged.
+- **`uxa` FAM1 wordings confirmed:** five status strings with the neutral "Nicht als durchgeführt erfasst", one neutral tone, the single access-end sentence, the FAM1-10 block, "Zugeteilt", "Stand" time, no cached list. `uxa` parts of CGR-125 and CGR-127 (1), (4) met at document level; CGR-125 stays **blocking for FAM1 approval** until the PO writes the mapping into FAM1-6.
+- **New CGR-128** (advisory, S1 for real relatives, before FAM1 acceptance): "verschoben" has no defined source; a visit moved twice would name a stale date, one moved beyond today + 7 would vanish without a word. Remedy: current slot from `care_visits`, one card per visit, pgTAP cases.
+- **New CGR-129** (advisory, S1 before real relatives): a self-service code resend (UXR-95) or consent = invitation (AUT-44) must issue codes only to the contact of an active record, answer identically for every state, never re-open access after an end, and refuse without every FAM1-2 field; nomination at admission optional. AUT-44 supported with these conditions; AUT-45 no clinical objection; neutral-text share measure supported (team level).
+- Registers: H-30, H-31 updated; PS-115, PS-116 added; PS-112, PS-114 updated; no new rule (no code). **Not merged by me:** owner instruction on #666 (chain #582 … this PR). I ran no tests; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 14:20 CET · AI & Automation Architect (aia)
 
 - Automation review 24 (`reports/AUTOMATION_REVIEW.md`, section 14:20) on `recovery/main` `d31669a`: PO #856 (merged; D-39 A, D-40 minimal B, brief FAM1 draft); `cra` #857 and #855, `eng` #837 (`92d0aba`), `uxa` #850 11:50 (open, read on their branches).

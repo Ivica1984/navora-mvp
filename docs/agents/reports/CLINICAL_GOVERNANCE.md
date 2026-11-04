@@ -16,6 +16,76 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-04 16:45 CET: no code changed since 13:30; `uxa` #850 15:50 FAM1 wordings (CGR-125 neutral status, CGR-127 (1) access-end sentence, FAM1-10 block) **confirmed**, which meets the `uxa` parts of CGR-125 and CGR-127 (1), (4) at document level; `aia` #858 (AUT-44, AUT-45) read: AUT-44 supported with conditions, AUT-45 no clinical objection; new **CGR-128** (advisory, S1 for real relatives, before FAM1 acceptance: how "verschoben" is derived is not defined, so a visit moved twice points to a date that no longer holds and a visit moved beyond today + 7 vanishes without a word) and **CGR-129** (advisory, S1 before real relatives: a self-service code resend (UXR-95) or a one-act invitation (AUT-44) must never re-open access after a revocation or reveal its cause)
+
+**Scope:** `recovery/main` @ `39a4883`. Changes since my 13:30 section (PR #857, unmerged; `recovery/main` was `d31669a`):
+- **Code merged:** none (`git diff d31669a 39a4883` touches only `JOURNAL.md`, `reports/AUTOMATION_REVIEW.md`, `docs/product/AI_OPERATING_MODEL_REVIEW.md`).
+- **Docs merged:** `aia` #858 (14:20): FAM1 supported in substance; AUT-44 (consent record and invitation as one command, nomination in the admission conversation), AUT-45 (pilot measure without a running call count); AUT-39 closed (owner D-40).
+- **Open PRs:** `uxa` **#850** new commit `2853655` (15:50, docs: `UX_REVIEW.md`, `DESIGN_SYSTEM.md` v37) answers my 13:30 requests. Every code PR head unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #810 `63440b0`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); #837 (`9c2ecc4`), #838 (`6aff772`), #833, #835, #840 unchanged. My chain #582 … #857 still unmerged (owner instruction on #666). #3 unchanged.
+- **Briefs:** none created or changed (FAM1 unchanged since #856). **Decisions answered by a person:** none since D-39 and D-40.
+
+I read: `git show 927c08e` (AUT-44, AUT-45, §12) and `git show 2853655` (UX_REVIEW 15:50 in full, DESIGN_SYSTEM §4 v37); `briefs/FAM1.md` FAM1-2 to FAM1-16 and *Open questions for engineering* again; `reschedule_visit` (0014:279-320: the visit row itself is moved and one `visit_plan_changes` row `moved` stores `before` and `after`). **I did not run the NAVORA test suite** and did not touch the live project. Everything below about FAM1 is PLANNED (draft brief, nothing built).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-128 | **FAM1-6** "verschoben (with the new date and window)" (draft, PLANNED); `uxa` 15:50 card "Verschoben" with "Neuer Termin: …" | **advisory (S1 for real relatives); before FAM1 acceptance, best placed in FAM1-6 at approval** | IMPLEMENTED fact: a move updates the `care_visits` row in place and writes a `moved` row with `before` and `after` (0014:312-316); a second move writes a second row. FAM1-6 lists visits by their date (today to today + 7) but does not say where a "verschoben" card comes from or which date its line names. Three readings are each untrue for one case: (a) taken from the change row's `after`, a visit moved twice (Wed → Thu → Sat) shows "Neuer Termin: Do" on the Wednesday card, so the relative expects the nurse on Thursday and may not look in that day (the same false reassurance as H-30); (b) taken from the visit row only, a visit moved from Wednesday to a day after today + 7 drops off the page with no word, so the relative still expects Wednesday's visit and reads its absence as a page error, or not at all; (c) a visit moved back to its first slot shows both a "Verschoben" card and the visit on the same slot. This is the moved-visit counterpart of CGR-125: every word on the page must be true at the time of load | 0014:279-320 (`reschedule_visit`); 0093 (move to today); FAM1-6; `UX_REVIEW.md` 15:50 *CGR-125* list; H-30 | **po (FAM1-6):** (1) a "Verschoben" card is shown for an original slot inside the window only while the visit's **current** slot (from `care_visits`) differs from it; (2) its line names the visit's **current** date and window from `care_visits`, never a stored `after` value, **also when the current date lies beyond today + 7** (the date is named, the visit's own card is not shown); (3) one "Verschoben" card per visit (the slot the relative last saw is not knowable, so the earliest original slot inside the window); (4) a moved visit that is now `cancelled` shows "Abgesagt" at its current slot and the "Verschoben" line points there unchanged (both facts true). **Testable:** pgTAP on the read function: move twice → the line names the second target; move beyond + 7 → one "Verschoben" card naming that date; move back → no "Verschoben" card; moved then cancelled → lines as in (4). No reason, actor or free text from `visit_plan_changes` (CGR-127 (2) stands) |
+| CGR-129 | **UXR-95 (b)** self-service "Neuen Anmeldecode senden" and **AUT-44 (1)** consent record = invitation (PROPOSED for FAM1-2, -3, -16) | **advisory (S1 before real relatives; not blocking the synthetic build)** | Both proposals lower effort and I do not object to either. Each opens a path that FAM1-3 and CGR-126 / CGR-127 (1) do not yet close: (1) a resend asked from the page could re-issue a sign-in after a revocation, a withdrawal, a pause or a close, or to an address typed by the person asking, which defeats a protective revocation (H-31); (2) a different answer to the request ("Ihr Zugang wurde beendet", "kein Konto", "Code gesendet") tells the person whether and that access ended, which CGR-127 (1) removed from the page; (3) under AUT-44 the invitation goes out in the same act as the consent, so the act must carry everything the consent needs (who consented, the representation, the RN's confirmation of the client's capacity if `lca` / the Clinical Owner require it, CGR-126); merging must not drop a check that two acts would have had. Nomination in the admission conversation is a good place to ask, but admission (often after a hospital stay) is when a client's capacity for this decision is most often in doubt: the question is optional and never a default | FAM1-2, -3, -16; *Open questions for engineering* 2; `UX_REVIEW.md` 15:50 UXR-95; `AUTOMATION_REVIEW.md` 14:20 AUT-44; CGR-126, CGR-127 (1); H-31 | **po (FAM1-2, -3, -16), with `lca` on identity:** (1) a code or link is issued only to the contact stored in an **active** consent record, never to one entered on the page; (2) the page's answer to a resend request is the same sentence whether or not a record is active and whatever the cause of an end (pgTAP over active, revoked, protective-revoked, withdrawn, paused, closed, unknown: identical response, nothing sent unless active); (3) no relative act and no lapse of time re-opens access after any end; only a new consent record by an RN does (pgTAP); (4) AUT-44: the one command refuses unless every FAM1-2 field and any capacity confirmation `lca` / the Clinical Owner require are present (pgTAP), and the admission step offers the nomination as optional with no preselected answer (e2e). Session length and "remember this device" stay `lca` with `eng` (UNKNOWN) |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-125** | open, **blocking for FAM1 approval** (unchanged: the mapping must be in FAM1-6, which only the PO can write); **`uxa` part met at document level**: five strings, neutral "Nicht als durchgeführt erfasst" with the one allowed fact, no "offen" / "unbekannt" / "läuft", window labelled "Zeitfenster" so "geplant" never stands beside the neutral text, one neutral tone, text plus icon; vitest of the five strings named | `UX_REVIEW.md` 15:50, `DESIGN_SYSTEM.md` §4 v37 (#850 `2853655`) |
+| **CGR-127** | open, advisory (S2); **(1) wording met at document level** (one sentence, byte-identical, no date, name, reason or layout change; pgTAP and e2e as I wrote; second sentence `lca`); **(4) met at document level** ("Stand: heute, 15:42", absolute time; no cached list; failure shows the statement block and "Erneut laden" only); **(3)** label "Zugeteilt" adopted (true for the assigned person; the `covered_by` rule is still the PO's and `eng`'s); (2) unchanged (read-function sources, `eng` ADR) | as above |
+| **CGR-126** | open, advisory (S1 before real relatives); unchanged; now also a condition on AUT-44 and UXR-95 (CGR-129) | FAM1-2, -3 |
+| CGR-124, CGR-123, CGR-122, CGR-121, CGR-118 | open; unchanged | #837 `9c2ecc4`, #838 `6aff772` |
+| CGR-119 | open; unchanged (does not arise for FAM1 as drafted) | FAM1-9, -12 |
+| CGR-120, CGR-116, CGR-113, CGR-114, CGR-115 | open; unchanged | as at 13:30 |
+| CGR-112, CGR-103, CGR-104, CGR-106 to CGR-111 | open; remedies met on unchanged heads; close on merge | heads as above |
+| CGR-101 | open, advisory (S2); unchanged (FAM1 condition via CGR-127 (3)) | 0001 `team_member_name` |
+| **CGR-16** | open (advisory now, **blocking before real data**) | no change |
+| CGR-78, CGR-86, CGR-97, CGR-99, CGR-94, CGR-75, CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-23 | open | no change |
+
+Closed in this section: none (no code merged; the FAM1 items are document level on a draft brief).
+
+### Inputs (answers to `uxa` 15:50 and `aia` 14:20)
+
+- **`uxa` requests to `cra` — confirmed:** (i) the neutral status text "Nicht als durchgeführt erfasst" and its explanation ("… Ob er läuft, stattgefunden hat oder ausgefallen ist, zeigt diese Seite nicht."): it claims neither care nor its absence; (ii) one neutral tone for all five statuses (no all-clear green, no alarm red); (iii) the access-end sentence; (iv) the FAM1-10 block, four lines always visible above the list, 144 as a call link; line 2 is true and does not deny the read audit (FAM1-14); the explanation of the neutral text may fold behind "Was die Angaben bedeuten" because it is not one of the four safety facts; (v) the label "Zugeteilt" (never "Es kommt"); (vi) "Keine Einsätze eingetragen." for an empty day. The example line "Neuer Termin: Do 6.11., 14:00–15:00" is subject to **CGR-128** (current date from the visit, not the stored target).
+- **`uxa` neutral-text share (measure):** **supported.** The share of past-window visits still shown as "Nicht als durchgeführt erfasst" is a team-level fact, never per person. It is also a documentation-timeliness signal for the team; NAVORA sets no time by which a completion must be recorded (no such rule exists in the register; any target is the Clinical Owner's, UNKNOWN). If the share is high in the pilot, the remedy is in the team's recording, not in a softer word on the page.
+- **AUT-44:** supported with the conditions in **CGR-129 (3)-(4)**. The RN restriction stays (aia does not challenge it).
+- **AUT-45:** no clinical objection to (a) or (b); the measure has no clinical effect. (b) adds no act; the choice is the PO's.
+- **UXR-95:** (a) two steps for a returning relative and (d) counting failed sign-ins per team: no objection; (b) self-service only under **CGR-129 (1)-(3)**; (c) `lca` with `eng`.
+- **Client's name on F-02 (`uxa` → `lca`):** no clinical objection to "Nächste Einsätze" without a name until `lca` answers; note for `lca` that a relative of two consented clients must be able to tell the two schedules apart without a name (for example two separate sign-ins, FAM1-2 one record per client), or she may read one client's visit as the other's.
+
+### Other checks (no finding)
+
+- **Hard-coded rules:** no code changed, so no new Clinical Rule Register row. The FAM1-6 mapping (with CGR-128 for moves) becomes one row (display class, owner `clinical`, PROVISIONAL) when FAM1 is approved.
+- **Invented logic:** none in the read documents. `uxa` names 144 only as the medical emergency number (fact; further numbers left UNKNOWN to the PO with the Clinical Owner); no threshold, tariff, LTCF, interRAI, PAG or MQI content.
+- **Privacy:** the polite-form rule and the wording add no data. The client name, session length and second access-end sentence stay with `lca` (UNKNOWN).
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **FAM1** (brief draft) | **not approvable from the clinical side until CGR-125 is in FAM1-6** (unchanged); `uxa` wordings confirmed; CGR-128 into FAM1-6 at approval or before acceptance; CGR-126 and CGR-129 before real relatives; CGR-127 before acceptance of the build |
+| **ADR-143** (PROPOSED, #837 `9c2ecc4`) | clear for acceptance from the clinical side (unchanged) |
+| **M6-2** offline queue | CGR-121, CGR-122, CGR-123 tests green before merge (unchanged) |
+| **MOB1 brief**, **D-2** (#838) | as at 13:30 (CGR-124 scheduled-evaluation condition) |
+| #799, #841, #828, #800, #803, #804, #806, #809, #810, #813, #814, #815 | unchanged: clear to merge (heads unchanged, CI green) |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **po (FAM1):** CGR-125 mapping into FAM1-6 with the `uxa` five strings (blocking for approval); CGR-128 (1)-(4) into FAM1-6; CGR-129 (1)-(4) into FAM1-2, -3, -16 if UXR-95 (b) or AUT-44 is taken; CGR-126, CGR-127 (unchanged); AUT-45 choice; point 9 act or AUT-42 (unchanged).
+- **eng:** the FAM1 ADR (principal model) to cover the read function's sources (CGR-127 (2)), the current-slot derivation of "verschoben" (CGR-128) and the identical resend response (CGR-129 (2)).
+- **lca / legal adviser:** identity verification of the invitation and of a self-service resend (CGR-129 (1)); session length; the client name on F-02; the second access-end sentence; plus the CGR-126 questions (unchanged).
+- **owner:** the organisation's general number on the relative page (FAM1-10, unchanged); chain merge of the governance PRs (#582 … this PR).
+- **clinical (Clinical Owner, after G-1):** whether any target for recording a visit's completion is set (neutral-text share; none exists, UNKNOWN); capacity confirmation for a relative's consent at admission (CGR-126, CGR-129 (4)); a no-show or broken-off visit shown distinctly to a relative (CGR-125, unchanged).
+
+---
+
 ## 2026-11-04 13:30 CET: owner decided D-39 (A) and D-40 (minimal read-only relative view in the pilot); brief **FAM1** (draft) reviewed as asked (visibility, information boundaries, safety): **CGR-125** (blocking for FAM1 approval, S1 for real relatives: the status mapping is not exhaustive, so an interrupted visit, a no-show or a past window can read as "geplant" or "durchgeführt"), **CGR-126** (advisory, S1 before real relatives: the schedule tells a relative when the client is alone and when staff arrive; protective revocation and capacity questions), **CGR-127** (advisory S2, before FAM1 acceptance: access-end cause, cancellation reason, named person, stale page); FAM1-7 confirmed; FAM1-10 facts given; ADR-143 `92d0aba` meets my 09:30 asks at document level; CGR-124 one condition added (scheduled evaluation on the production host); `uxa` 11:50 lines confirmed
 
 **Scope:** `recovery/main` @ `d31669a`. Changes since my 09:30 section (PR #855, unmerged; `recovery/main` was `d1f2771`):
