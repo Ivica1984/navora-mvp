@@ -403,6 +403,8 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 
 **Nothing that raises a safety signal waits in a queue; no act with one possible outcome (CGR-123, AUT-42, AUT-43; `aia` 2026-11-04 08:18):** no-show, broken-off visit and absence are never queued (PO §0c (2)); the escalation is a phone call now, and membership of the never-queued list is derived from the migrations by a failing test, not reviewed by hand (ADR-143 1d). An entry refused only for a device clock ahead of the server is resent once automatically without the device time, with "Gerätezeit verworfen" recorded and shown (AUT-42, OPEN, `cra` and `eng` to confirm); a mandatory tap with a single outcome is not a control. The double report of an offline no-show (call, then the entry) is measured from stored spans before any design (AUT-43, low).
 
+**A relative's view is rule-based and costs the team one act (D-40, FAM1; AUT-44, AUT-45; `aia` 2026-11-04 14:20):** the owner excluded AI from the relative path; no agent, suggestion row or AIG1 path may reference the relative principal (FAM1-12, AIR1 pattern). Recording a relative's consent is proposed as the same act that invites her (AUT-44, OPEN), and the pilot gain is measured without a running count of calls by nurses (AUT-45, OPEN). D-39 decided A: no sensor or prediction agent at any stage of the pilot.
+
 **Stage-1 checklist (D-34, `lca` 2026-11-04 05:20; PO 06:10):** the eleven minimum AI-provider terms and the stage-1 contents list are the checklist for D-35 stage 1 when the owner opens it; domain 10 "no open clinical Q&A" is a tested technical limit. Stage 1 not opened; D-39 and D-40 escalated with recommendation A.
 
 ## Change log
@@ -432,3 +434,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-03 20:30 | `aia` | §12: added the control "an answer goes where the question arises; a read is not a proposal" (AUT-40) and the stage-0 state after the Delivery Program. No agent added or removed |
 | 2026-11-04 02:20 | `aia` | §12: AUT-40 marked decided (PO 22:00); added the control "an offline time enters billing only through the audited correction path, without an extra act" (AUT-41). No agent added or removed |
 | 2026-11-04 08:18 | `aia` | §12: AUT-41 state (target behind the Clinical Owner gate); added the control "nothing that raises a safety signal waits in a queue; no act with one possible outcome" (CGR-123, AUT-42, AUT-43) and the D-34 stage-1 checklist. No agent added or removed |
+| 2026-11-04 14:20 | `aia` | §12: added the control "a relative's view is rule-based and costs the team one act" (D-40 owner decision, FAM1, AUT-44, AUT-45); D-39 A recorded (no sensor or prediction agent in the pilot). No agent added or removed |
