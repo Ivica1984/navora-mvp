@@ -405,6 +405,8 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 
 **A relative's view is rule-based and costs the team one act (D-40, FAM1; AUT-44, AUT-45; `aia` 2026-11-04 14:20):** the owner excluded AI from the relative path; no agent, suggestion row or AIG1 path may reference the relative principal (FAM1-12, AIR1 pattern). Recording a relative's consent is proposed as the same act that invites her (AUT-44, OPEN), and the pilot gain is measured without a running count of calls by nurses (AUT-45, OPEN). D-39 decided A: no sensor or prediction agent at any stage of the pilot.
 
+**No derived consent, no periodic re-confirmation (CGR-130, AUT-46, AUT-47; `aia` 2026-11-04 20:20):** a relative consent's capacity fact is an explicit act of the recording RN; no AIG1 path writes the consent record, and no function reads assessment, diagnosis or AI output to set, pre-fill, check or revoke it (CGR-130 (2), AIR1 pattern). A consent question with one possible answer is stated, not asked (AUT-46, OPEN). A later capacity re-check, if the Clinical Owner sets one, appears as an exception line on events already recorded, never as a calendar re-confirmation of every consent (AUT-47, OPEN).
+
 **Stage-1 checklist (D-34, `lca` 2026-11-04 05:20; PO 06:10):** the eleven minimum AI-provider terms and the stage-1 contents list are the checklist for D-35 stage 1 when the owner opens it; domain 10 "no open clinical Q&A" is a tested technical limit. Stage 1 not opened; D-39 and D-40 escalated with recommendation A.
 
 ## Change log
@@ -435,3 +437,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-04 02:20 | `aia` | §12: AUT-40 marked decided (PO 22:00); added the control "an offline time enters billing only through the audited correction path, without an extra act" (AUT-41). No agent added or removed |
 | 2026-11-04 08:18 | `aia` | §12: AUT-41 state (target behind the Clinical Owner gate); added the control "nothing that raises a safety signal waits in a queue; no act with one possible outcome" (CGR-123, AUT-42, AUT-43) and the D-34 stage-1 checklist. No agent added or removed |
 | 2026-11-04 14:20 | `aia` | §12: added the control "a relative's view is rule-based and costs the team one act" (D-40 owner decision, FAM1, AUT-44, AUT-45); D-39 A recorded (no sensor or prediction agent in the pilot). No agent added or removed |
+| 2026-11-04 20:20 | `aia` | §12: added the control "no derived consent, no periodic re-confirmation" (CGR-130 (2), AUT-46, AUT-47). No agent added or removed |
