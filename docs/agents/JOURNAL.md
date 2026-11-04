@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 16:55 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start. Tier 1: D-22, D-18 unchanged since my last sections, no trigger. Tier 2 picked: **D-40** (owner decision 2026-11-04: minimal read-only relative view; po requested consent, representation and staff name; CGR-125 to CGR-127 open on FAM1). D-39 (owner: A) needs no re-check. Only my section of D-40 edited; no status, row, brief or decision changed.
+- **D-40 / FAM1:** synthetic build **compliant under every plausible interpretation**. Real relatives, client with capacity: **unresolved: needs legal adviser**, narrowed to one confirmation question; the requirements found (express, specific, informed, free, documented, revocable at once; information to relative and staff) are listed and fit FAM1. Client without capacity: **unresolved** (ZGB 19c, which representative, self-nomination, consent surviving loss of capacity); "not offered in the pilot" is compliant. Staff display name: "Ihr Pflegeteam" compliant; name with staff information and a self-set switch unresolved (OR 328b). CGR-126 protective refusal and CGR-127 (1), (2), (4) supported. Adviser questions 1-2 rewritten, 6-8 new.
+- Sources read this run: EDÖB Merkblatt on patient forms (consent), DSG as adopted (BBl 2020 7639, copy on hslu.ch: Art. 6 Abs. 6-7, 19, 30, 31), KESB Bern PriMa guides 121 and 123 (2023), Pro Infirmis on capacity. The consolidated fedlex DSG could not be opened (robots refusal): marked unverified. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 14:20 CET · AI & Automation Architect (aia)
 
 - Automation review 24 (`reports/AUTOMATION_REVIEW.md`, section 14:20) on `recovery/main` `d31669a`: PO #856 (merged; D-39 A, D-40 minimal B, brief FAM1 draft); `cra` #857 and #855, `eng` #837 (`92d0aba`), `uxa` #850 11:50 (open, read on their branches).
