@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 06:10 CET · Engineering (eng)
+
+- **Step A only, no claim.** All 17 own PRs are green on their heads and `clean` against `recovery/main`; no bot run waited for approval. #745 (UX2) stays unclaimed: the PO's *Active now* item (0) still holds further UX2 parts while #799 to #815 wait for the PO.
+- **#837 continued (docs only):** `cra` CGR-122 (01:30, #848, blocking for ADR-143 and M6-2), `aia` AUT-41 (02:20, #849) and `uxa` UXR-92 (03:50, #850) written into ADR-143 and `APP1_IMPLEMENTATION_PLAN.md`:
+  - no "reaches another person" list; one line "Noch nicht beim Team." on every pending care entry; an allow-list and a never-queued list with a vitest that fails on an unlisted `/field` command;
+  - the visit timeline, `correct_visit_time`, `take_signal`, `take_open_visit`, `accept_cover`, `withdraw_cover` are never queued; offline their buttons are `aria-disabled` with a card line (safe default, CGR-122 (1));
+  - a device entry time is a labelled claim beside the server time, refused when later, never in the billed minutes (CGR-122 (2), (3); PLANNED, pgTAP named). Facts checked in the code: `visit_events.occurred_at default now()` (0007), `visit_care_minutes_exact` reads `coalesce(corrected_at, occurred_at)` (0023), `visit_observations.recorded_at default now()` (0009).
+- **OPEN:** `po` places CGR-122 and chooses 1a alone or the AUT-41 correction option (1b); the Clinical Owner and `lca` decide whether a device time may be the documented time (1b only); `cra` confirms the command split; `uxa` wording. ADR-143 stays PROPOSED. No test ran (docs only); `node scripts/agents-check.mjs` ok.
+
 ## 2026-11-04 05:20 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start. Tier 1: D-22, D-18 frozen, no trigger. Tier 2 picked: **D-34** (owner directive 2026-11-03: detailed AI assessment, priority), **D-39** and **D-40** (L requested since 2026-11-03 14:00; CGR-119). Only my sections edited; no status, row or decision changed.

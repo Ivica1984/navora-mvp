@@ -39,8 +39,9 @@
   - an expired session keeps the entries; they are sent after she signs in again, never by another user;
   - a resend refused with `access_ended` keeps the entry and shows it to her, to pass on by phone;
   - no refused entry is dropped or retried automatically.
+  - With `cra` CGR-122 (ADR-143 points 1, 1a, 1b, 8): the visit timeline, `correct_visit_time` and the claim commands are **never queued**; offline their buttons are `aria-disabled` with a card line (UXR-92) and create no entry; every other pending care entry shows one line "Noch nicht beim Team." (no kinds list); a device entry time travels only as a labelled claim beside the server time and never into billed minutes; queueing timeline taps as reasoned corrections (AUT-41) waits for the PO, the Clinical Owner and `lca`.
   - Open for `lca` (SC-2): entered care text sits on the device until it is sent; how long after an expiry.
-  - Open for `cra`: the banner wording (CGR-118) and the list of kinds that reach another person.
+  - Open for `cra`: the banner wording (CGR-118) and the split of the queueable and never-queued commands.
 
   The queue is designed now and built only after both answers.
 
@@ -73,7 +74,7 @@ Details recorded as **ADR-143** (PROPOSED): the pending-command store, and C-17 
 | **A-04 Meine Einstellungen** `/settings` | `PageHeader` (h1, UX2-12), `Notice(attention)`, `Button` | `my_push_state` | `register_push_subscription`, `unregister_push_subscription`, `set_outside_push` | M2 port |
 | **A-05 Error, not found, no access** | `PageHeader`, `EmptyState`, `Button` | none | Next `reset` | M2 (after T-2) |
 | **A-06 App installieren** | `InstallPrompt` (`Notice(info)`, dismissible), iOS instruction `BottomSheet` | none (browser `beforeinstallprompt`) | none | M6-1 |
-| **A-07 Verbindung unterbrochen** | `ConnectionBanner` (foreground fact, CGR-118 facts), pending state on each card ("Noch nicht beim Team" for kinds that reach another person), `ConfirmStep` before sign-out with pending entries, `role="status"` "Gesendet." | none | **offline queue** around every `/field` command (§1, ADR-143); needs B-7: every command takes a key and answers `duplicate` | M6-2 (after `lca`/`cra`); e2e offline per CGR-121 (d) |
+| **A-07 Verbindung unterbrochen** | `ConnectionBanner` (foreground fact, CGR-118 facts), pending state on each queued care entry (one line "Noch nicht beim Team.", no kinds list), timeline and claim buttons `aria-disabled` with a card line (CGR-122, UXR-92), `ConfirmStep` before sign-out with pending entries, `role="status"` "Gesendet." | none | **offline queue** around the queueable `/field` commands only (§1, ADR-143 1, 1a); device entry time as a claim (ADR-143 8, new migration at M6-2); needs B-7: every command takes a key and answers `duplicate` | M6-2 (after `lca`/`cra`); e2e offline per CGR-121 (d) and CGR-122 (1); pgTAP for CGR-122 (2), (3) |
 
 ### 3.2 Caregiver app (C): M2 port, M6 app
 
@@ -185,9 +186,10 @@ On the technical path to Pilot Ready (#833 §7.3), only M2 and the M6 core (M6-1
 | MOB1 brief (incl. "Passwort vergessen"; CGR-118, CGR-120, CGR-121 as conditions) | `po` | M6 | 2026-11-27 |
 | App icon and word mark (DS1-4) | `uxa`, `po` | manifest (M6-1) | 2026-12-04 |
 | Device storage of pending entries (SC-2), period after a session expiry, content shown after an access end (ADR-143 4, 5) | `lca` | M6-2 | 2026-12-11 |
-| Offline banner wording (CGR-118); list of kinds that reach another person (ADR-143 1) | `cra` | M6-2 | 2026-12-11 |
+| Offline banner wording (CGR-118); split of queueable and never-queued commands (ADR-143 1, 1a) | `cra` | M6-2 | 2026-12-11 |
 | Sign-out step, foreground fact, access-end card wording (CGR-121 (a), (b)) | `uxa` | M6-2 | 2026-12-11 |
-| Device entry time on a late-sent entry (ADR-143 OPEN) | `cra`, `po` | M6-2 | 2026-12-11 |
+| Place CGR-122; 1a alone or the AUT-41 correction option 1b (ADR-143) | `po` | ADR-143 acceptance, M6-2 | 2026-12-11 |
+| Whether a device entry time may be the documented time (needed for 1b only) | Clinical Owner, `lca` | 1b | – |
 | OPS2, AIO1, HAND2 briefs; O-07 brief (SC-3); O-08 placement (SC-4); M8 tab set (D-IA-2) | `po` | M8 | 2026-12-04 |
 | Small-team suppression for absence counts on O-07 | `lca` | O-07 | 2027-01-08 |
 | Address link to an external maps service (SC-8) | `lca`, `po` | none: not built until decided | – |
@@ -205,3 +207,4 @@ On the technical path to Pilot Ready (#833 §7.3), only M2 and the M6 core (M6-1
 - 2026-11-03 eng: version 1 (from #834 design set, #832 program, #833 sequence).
 - 2026-11-03 eng: owner decisions and priority recorded; queue resend aligned with ADR-142 (foreground only); ADR-143 narrowed to what ADR-142 does not say.
 - 2026-11-03 23:15 eng: `cra` CGR-121 (a)-(d) written into ADR-143 (sign-out step, session expiry, access end, e2e); AUT-40 (PO 22:00): C-15 withdrawn, M6-4 dropped, its days to M6-2 and M6-3 (M6 date unchanged); CGR-120 noted on C-04.
+- 2026-11-04 06:10 eng: `cra` CGR-122 (01:30, blocking for ADR-143), `aia` AUT-41 (02:20) and `uxa` UXR-92 (03:50) written into ADR-143 points 1, 1a, 1b, 6, 8: no kinds list; timeline, `correct_visit_time` and claim commands never queued; `aria-disabled` offline buttons; device entry time as a claim, never billed; AUT-41 option waits for the PO, Clinical Owner and `lca`. Dates unchanged.
