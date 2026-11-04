@@ -6,6 +6,74 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-04 15:50 CET · `uxa`: no screen code changed; new brief FAM1 (draft, owner D-40 minimal option B) read for the relative page F-02; answers to `cra` 13:30 (#857): the neutral status wording (CGR-125), one access-end sentence for every cause (CGR-127 (1)), the FAM1-10 statement on `cra`'s four facts; UXR-95 (medium) on relatives' sign-in effort; UXR-96 (low) on my own F-01 to F-06 catalog lines
+
+**What changed since 11:50.** My PR #850 was still open (CI green on `2f46d28`) and conflicted in `JOURNAL.md` after `po` #856 and `aia` #858 merged; I merged `recovery/main` (`39a4883`) into it, every entry kept, newest first, and continue it here instead of opening a second `ux/…` PR. `recovery/main` moved by `po` #856 (owner decisions D-39 = A and D-40 = minimal option B; new brief **FAM1**, status draft; M7 objective changed to FAM1) and `aia` #858 (AUT-44, AUT-45; FAM1 supported in substance); **no change under `src`, `tests` or `e2e`** (`git diff d1f2771 39a4883`). Every open screen PR head is unchanged (#841 `8907913`, #799 `642edf0`, #800, #803, #804, #806, #809, #813, #814, #815); my earlier notes on them stand. New input for me: `cra` 13:30 on open PR #857 (`0fe2a3b`) confirms my 11:50 lines (shared call sentence, "Entscheid erfassen" line with its last sentence, the AUT-42 hint) and UXR-94, and asks `uxa` for three FAM1 wordings (CGR-125 neutral status, the single access-end sentence, FAM1-10). AUT-44 names `uxa` for the admission step. No `ux` issue changed.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `briefs/FAM1.md` in full; `CLINICAL_GOVERNANCE.md` 13:30 on #857 (CGR-125, -126, -127; FAM1-10 facts); `AUTOMATION_REVIEW.md` 14:20 (AUT-44, AUT-45); my `NAVORA_SCREEN_CATALOG.md:69`, `:435-440` and `NAVORA_INFORMATION_ARCHITECTURE.md:220-225`, `:260`. No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. FAM1 is a **draft** brief: everything below is PROPOSED wording and layout for a PLANNED screen; nothing is built and nothing may be built before the PO approves FAM1. The status mapping itself is the PO's (CGR-125) and becomes a Clinical Rule Register row; I only word it. Which numbers the page names beyond 144, whether the organisation's general number may appear (owner), and every consent, identity and staff-name question (`lca`, legal adviser) stay UNKNOWN; no line below answers them.
+
+### Answers to `cra` 13:30 (all wording PROPOSED; `cra` confirms the facts and placement, `lca` where noted, the PO places them in FAM1)
+
+**Register.** The relative page is the first NAVORA surface for people outside the team. It uses the polite form ("Sie", "Ihr"), as FAM1-8 already does with "Ihr Pflegeteam"; staff screens keep "du" (§4, new rule below). Swiss spelling ("ss").
+
+**CGR-125: the neutral status wording (F-02).** Five status texts, each as text with an icon of its own shape, never colour alone, all in the same neutral tone (no green for done, no red for cancelled: on this page colour must not read as an alarm or an all-clear; `cra` confirms):
+- "Geplant" (only as `cra` defines it: `planned`, not suspended, window end not passed)
+- "Verschoben", with the line "Neuer Termin: Do 6.11., 14:00–15:00" (the moved-to date and window only, CGR-127 (2))
+- "Abgesagt" (no reason, no second line, CGR-127 (2))
+- "Durchgeführt"
+- **neutral:** "Nicht als durchgeführt erfasst"
+
+The neutral text states the one fact `cra` allows (no completion is shown) and nothing else: it does not say the visit took place, is under way, failed or is still to come. I rejected "offen" (reads as "still to come"), "unbekannt" (reads as "something is wrong") and "läuft" (a live state the brief excludes). The page explains it once, in the statement block below, never per card: "«Nicht als durchgeführt erfasst» heisst: Das Team hat für diesen Einsatz keinen Abschluss eingetragen. Ob er läuft, stattgefunden hat oder ausgefallen ist, zeigt diese Seite nicht." The planned window stays on the card under its label "Zeitfenster" (not "geplant", so the word "geplant" never appears beside the neutral text). Vitest: the client renders only these five status strings (as `cra` asks); a test per status that the card has no second line except for "Verschoben".
+
+UX risk for the PO (no rule, a measure): how often a relative sees the neutral text depends on how soon after a visit the team records its completion. If completion is usually recorded hours later, a correct page will show "Nicht als durchgeführt erfasst" for most of today's past visits and may cause the calls FAM1 wants to remove. How soon completion is recorded in practice is UNKNOWN (no pilot data yet; never measured per person). I propose the FAM1 measure also counts, per team and month, the share of past-window visits shown with the neutral text.
+
+**CGR-127 (1): one access-end sentence.** Byte-identical for revocation, withdrawal, pause, close and the FAM1-15 refusal, on the page and after sign-in, with nothing else on the page except the sign-out button:
+- "Diese Seite steht Ihnen nicht mehr zur Verfügung. Bei Fragen wenden Sie sich an Ihren bisherigen Kontakt bei der Organisation."
+
+No date, no time, no team or staff name, no "beendet am", no reason, no change in title or layout by cause; the second sentence is the same for every cause, including a protective revocation (CGR-126). `lca` confirms the second sentence, because for a protective revocation it directs the relative to the organisation (whether the organisation answers her is a safeguarding question, Clinical Owner and `lca`, UNKNOWN). Testable as `cra` wrote: pgTAP over the causes returns the same response; e2e compares the rendered page text and the document title across causes.
+
+**FAM1-10: the statement on `cra`'s four facts.** One block directly under the page title, above the list, always visible (not collapsed, not a dismissible banner), `info` tone, 4 short lines at 390 px:
+1. "Diese Seite zeigt nur die Einsätze, wie das Pflegeteam sie eingetragen hat. Sie können sich ändern." (fact (i))
+2. "Niemand überwacht diese Seite. Über sie erreichen Sie das Team nicht." (fact (ii); it does not say "the team does not see that you opened it", which would be false, reads are audited, FAM1-14)
+3. "Im Notfall: 144" with 144 as a `tel:` link of at least 44 px (fact (iii); further numbers UNKNOWN, PO with the Clinical Owner)
+4. "Fragen zur Pflege oder zu einem Einsatz: über Ihren bisherigen Kontakt bei der Organisation." (fact (iv); no number until the owner answers)
+
+The explanation of the neutral text sits behind one "Was die Angaben bedeuten" disclosure under line 4 (it is not a safety fact, so it may fold; `cra` confirms). Under the block, before the list, the load time: "Stand: heute, 15:42" (CGR-127 (4)); another day "Stand: Mo 3.11., 22:40"; never a relative age. Without a successful load the page shows the statement block and "Die Einsätze können gerade nicht angezeigt werden." with one button "Erneut laden" and no visit list (no cached list, CGR-127 (4)). Nothing on the page says or suggests that the team will notice a problem because of the page.
+
+**F-02 layout (for the PO's FAM1-16 and the catalog).** The three questions for a relative: now = today's visits first, under "Heute"; next = nothing to do here, except calling 144 in an emergency, so the page has **no primary action** (read-only; "Erneut laden" only when loading failed); can wait = "Morgen" and the following days by date ("Fr 6.11."). Each visit is one card with at most three lines: "Zeitfenster 08:00–09:00", the status, and "Zugeteilt: <Anzeigename>" or "Zugeteilt: Ihr Pflegeteam". The label is "Zugeteilt", never "Es kommt" or "Ihre Pflegefachperson": FAM1-8 shows who is assigned, and `cra` CGR-127 (3) shows that the assigned person is not always the one who comes. A day without visits says "Keine Einsätze eingetragen." (never "kein Besuch", which reads as a fact about the client). Sign-out sits in the page header, 44 px. Whether the client's name appears (a relative with two consented clients needs to tell them apart; a shared phone shows it) is `lca`'s (UNKNOWN); until then the page title is "Nächste Einsätze" with no name.
+
+**AUT-44 (admission step, `aia` names `uxa`).** From the screen side I support one act: the consent form on the admission screen stores the record and issues the sign-in in one confirming step, and its confirmation shows the scope sentence "Einsätze: Zeit, Stand, zugeteilte Person" and who consented, so the RN sees what the relative will see before she confirms. No design before FAM1 is approved and `lca` has answered identity verification. **AUT-45:** option (b) (retrospective answer plus page views) adds no control to any nurse screen; a tap tally (a) would add a counter to `/field` for two weeks. If the PO picks (a), I propose paper, not a screen control.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-95 | F-01 sign-in and F-02 (relative; phone), FAM1 draft, PLANNED | medium | FAM1 sets no criterion on how much effort it takes a relative to get back to the page. A relative opens it occasionally (to check one visit), often on a phone she does not use for work. If every visit needs a new e-mail code or a new link from the team, the call stays cheaper than the page and the FAM1 outcome (fewer schedule calls) is not reached; the team also gets "my link does not work" calls instead. Engineering question 2 (invitation and sign-in) is open, and its answer decides adoption as much as safety. Session length on a possibly shared phone is a privacy trade-off, not mine to set. | `briefs/FAM1.md` FAM1-16, *Open questions for engineering* 2, *AI leverage* measure (`39a4883`) | §1 the three questions (reach the answer at once); §5 phone first; DESIGN_SYSTEM §4 say what happens | PO adds to FAM1-16: (a) a returning relative reaches F-02 from her saved link in at most two steps, measured in e2e at 390 px; (b) when a sign-in link or code has expired, the page says so in one sentence and offers one action to get a new one herself, without calling the team ("Neuen Anmeldecode senden"), unless `lca` rules self-service out; (c) the session length and "remember this device" are decided by `lca` with `eng` (UNKNOWN); (d) the FAM1 measure counts failed or expired sign-ins per team and month (never per person). | none (medium; draft brief) |
+| UXR-96 | Design set, F-01 to F-06 (relative, client), my own catalog and IA lines | low | My catalog and information architecture still mark F-01 to F-06 FROZEN and describe F-06 "Team erreichen" (team phone, always visible) and F-03 "Mitteilungen" (push) as part of the family frame. Owner D-40 now puts F-01 and F-02 into the pilot (FAM1, PLANNED once approved) and excludes notifications, messages, check-ins and team contact. F-02 also says "who comes", which CGR-127 (3) shows is not what FAM1-8 shows. A reader of the design set would plan screens the owner excluded. | `NAVORA_SCREEN_CATALOG.md:69`, `:435-440`; `NAVORA_INFORMATION_ARCHITECTURE.md:220-225`, `:260` (on `39a4883`); D-40 | §4 one wording per thing; design set must match the decided scope | In my next catalog change (outside this PR's three files): F-01, F-02 PLANNED (FAM1, draft until approved); F-03 to F-06 "excluded in the pilot (owner D-40)"; F-02 "who is assigned (display name or «Ihr Pflegeteam»)"; layout as in *F-02 layout* above. | none (low) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-94 | OPEN; **`cra` supported** (13:30: tests take names from the button constants); `eng` to change ADR-143 1c and 6. | #837 head `9c2ecc4` |
+| UXR-93 | OPEN; `cra` confirmed, in ADR-143; closes on the built queue. | 11:50 section |
+| UXR-92 | OPEN; unchanged. | 07:50 section |
+| UXR-91 | OPEN; catalog A-07 line still to be corrected with UXR-96 in my next catalog change. | `NAVORA_SCREEN_CATALOG.md:191` unchanged |
+| UXR-88, -89, -90 | OPEN on #841 (head unchanged `8907913`). | 23:50 section |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section |
+
+Closed in this section: none (no screen code merged). `cra` 13:30 confirmed my 11:50 wordings (CGR-124 call sentence, "Entscheid erfassen" line, AUT-42 hint); they stay PROPOSED until MOB1 places them.
+
+### Requests (OPEN)
+
+- `cra`: confirm the neutral status text "Nicht als durchgeführt erfasst" and its explanation, the neutral tone for all five statuses, the access-end sentence, the FAM1-10 block (four lines above the list, the explanation behind a disclosure), and the label "Zugeteilt".
+- `lca`: the second sentence of the access-end text (protective revocation); whether the client's name may appear on F-02; session length and self-service for an expired sign-in (UXR-95).
+- `po` (FAM1): the five status texts and the exhaustive mapping (CGR-125); UXR-95 (a)-(d) into FAM1-16 and the measure; the neutral-text share in the measure; the AUT-45 choice; point 9 explicit act or AUT-42 (unchanged).
+- owner (through the PO): whether the organisation's general number may appear on the page (`cra` FAM1-10 (iv)).
+
+---
+
 ## 2026-11-04 11:50 CET · `uxa`: no screen code changed; answers to `cra` 09:30 (#855): the no-reception sentence (CGR-124), the offline line for "Entscheid erfassen" (`record_interruption_followup`), the AUT-42 information line; UXR-93 written into ADR-143 by `eng`; UXR-94 (low) on button names in ADR-143 1c and 6
 
 **What changed since 07:50.** My PR #850 was still open (CI green on `c8e416c`) and conflicted in `JOURNAL.md` after `aia` #854 merged; I merged `recovery/main` (`d1f2771`) into it, every entry kept, newest first, and continue it here instead of opening a second `ux/…` PR. `recovery/main` moved by `aia` #854 only (AUT-41, AUT-42, AUT-43; docs); **no change under `src`, `tests` or `e2e`** (`git diff d85f715 d1f2771`). Every open screen PR head is unchanged (#841 `8907913`, #799 `642edf0`, #800, #803, #804, #806, #809, #813, #814, #815); my earlier notes on them stand. New input for me: `cra` 09:30 on open PR #855 (`3df6711`) confirms my 07:50 lines, the read-only absence dialog, the clock-refusal card, the "Stand" lines and the UXR-93 order, with conditions, and asks `uxa` for three things (CGR-124 sentence, the `record_interruption_followup` line, the AUT-42 information line). `eng` #837 (`92d0aba`, docs) wrote `cra` 09:30, AUT-42 (Engineering's choice: one automatic claim-less resend) and UXR-93 into ADR-143 facts, 1c, 1d, 2, 6, 9.
