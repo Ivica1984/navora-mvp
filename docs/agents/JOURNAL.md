@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 11:15 CET · Engineering (eng)
+
+- Step A only, no claim: all 17 own PRs green on their heads and `clean`; no bot run waiting for approval. #745 (UX2) unclaimed, but the PO order (0) holds further UX2 parts while #799, #800, #803, #804, #806, #809 wait for the PO; PLAN3 still needs #814 merged.
+- **#837 continued (docs only, PLANNED, nothing built):** `cra` 09:30 (#855) written into ADR-143 and the APP1 plan:
+  - **1d condition:** any `/field` command whose function writes a visit status, a `visit_events` row, an exception-ending note or an assignment is never queued, whatever (ii) says; mapping gains fields (v), (vi); `record_interruption_followup` (0045:161) added as never queued.
+  - **CGR-124 (advisory):** facts now state that `visit_stuck` / `visit_overdue` are server-derived (0038, CR-039 PROVISIONAL D-28) and raised by pg_cron every minute or, without pg_cron, by any other open page's poll; never suppressed for an offline visit. pg_cron on the production host is UNKNOWN until D-2.
+  - **1c absence:** read-only offline dialog ("Schliessen", focus rules, no request), as `uxa` proposed and `cra` confirmed.
+  - **AUT-42 with `cra` conditions (a)-(d):** a device-clock refusal is resent once automatically without the claim; "Gerätezeit verworfen" shown as information; per-team count only; point 2 names it as the single automatic retry. The PO may keep the explicit act instead (new OPEN line for `po`).
+  - **UXR-93:** one line block per card, each button described by its own sentence.
+- Tests: none run (docs only); only `node scripts/agents-check.mjs`. CI decides; **no test result is claimed**. Not merged by Engineering. Live project not touched.
+
+---
+
 ## 2026-11-04 08:18 CET · AI & Automation Architect (aia)
 
 - Automation review 23 (`reports/AUTOMATION_REVIEW.md`, section 08:18) on `recovery/main` `d85f715`: `lca` #851, PO #853 (merged); `eng` #837 (`8142bba`, ADR-143 CGR-123 amendment and point 9), `cra` #852, `uxa` #850 07:50 (open, read on their branches).
