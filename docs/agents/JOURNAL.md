@@ -4,6 +4,32 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 08:18 CET · AI & Automation Architect (aia)
+
+- Automation review 23 (`reports/AUTOMATION_REVIEW.md`, section 08:18) on `recovery/main` `d85f715`: `lca` #851, PO #853 (merged); `eng` #837 (`8142bba`, ADR-143 CGR-123 amendment and point 9), `cra` #852, `uxa` #850 07:50 (open, read on their branches).
+- **AUT-41** adopted by the PO as the target behind the Clinical Owner gate (§0c (3)); stays open. CGR-123 and the ADR-143 1d mapping rule supported (safety control; a derived test instead of a reviewed list).
+- New **AUT-42** (medium): ADR-143 9 makes a clock-refused observation wait for an "Ohne Gerätezeit senden" tap with only one possible outcome; proposed: one automatic claim-less resend with "Gerätezeit verworfen" recorded and shown (`cra`, `eng` to confirm). New **AUT-43** (low): an offline no-show is reported by phone and recorded again later; measure the depart-to-no-show span per team before designing anything.
+- D-34 stage-1 checklist and D-39/D-40 escalation recorded in stage tracking; D-40 B noted as the option that removes phone coordination with relatives. `AI_OPERATING_MODEL_REVIEW.md` §12 and change log updated. No `high` finding, no issue opened; one comment on #837. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-04 06:10 CET · po (Product Owner)
+
+- No PO PR was open; no Engineering delivery since 2026-11-03 15:30 (`IMPLEMENTATION_STATUS.md` unchanged since 2026-10-31), so no acceptance review this cycle. Read: `lca` #851, `aia` #849 (merged); `cra` #848 and #852, `uxa` #850 (open, read on their branches).
+- **D-39 (sensors) and D-40 (relative-facing channel) escalated: `awaiting-approval: owner`, Medium, frozen from now.** L in (`lca` 05:20); E drafted by po (requested 2026-11-03 14:00, unanswered over more than two `eng` runs; not confirmed by `eng`). Both recommend **A** (nothing in the pilot), compliant under every plausible interpretation.
+  - D-39 ask: "approve A; #817 stays specification". Rules in every option: no billable service on sensor data or a prediction without a signed record; no per-person staff output from a home sensor; predictions only in the AIG1 ledger, never on a P1 signal.
+  - D-40 ask: "approve A, and send `lca` questions 1-2 (consent per relative, representation) to the legal adviser with D-9". B (relatives see visit time and who comes, no AI, no call to the team) is the expected next step; it removes phone coordination without a clinical rule.
+  - Both added to `OWNER_AGENDA.md` bundle 3.
+- **D-34:** `lca`'s detailed AI assessment taken in; decision unchanged. D-35 stage 1 (when opened) copies the eleven provider terms and the contents list; a future domain-10 brief tests "no open clinical Q&A" as a technical limit.
+- **Offline rules for ADR-143 / M6-2 (`DELIVERY_PROGRAM.md` §0c):**
+  - CGR-122 (1) in force: no timeline command or `correct_visit_time` queued; device time only a labelled claim, never billed.
+  - CGR-123 in force: no-show, not-completed and absence commands never queued; one shared list with a vitest; e2e offline per command.
+  - AUT-41 is the target (confirm the device time through the audited correction path instead of retyping), gated on the Clinical Owner's documented-time decision with `lca`; challenge row with a pilot hypothesis.
+  - MOB1 must name the offline "telefonisch melden" number (Clinical Owner; UNKNOWN until G-1). UXR-92 placed in MOB1. M6 offline criterion extended.
+- `ROADMAP.md` updated. No queue change; no new brief approved. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 05:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 05:30), `recovery/main` @ `1753a55`: no code merged since 01:30; docs merged `aia` #849 (AUT-41), `lca` #851 (D-34, D-39, D-40). Every open code PR head unchanged; gates stand.

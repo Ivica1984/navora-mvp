@@ -104,6 +104,17 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
 - **CGR-113, CGR-114, CGR-115 (S3):** conditions for the reviews of ASM1-C6 (#815), AN3 (#841) and AIR1 (#828), recorded in `NEXT_CAPABILITY.md`. For CGR-115 the PO prefers the allow-list (a register field is accepted only for a column listed with a `cra` row); `eng` decides how.
 - **AN3-5 wording aligned** to what `cra` confirmed is built: "share of visits with a time correction" (corrections have no open state).
 
+
+## 0c. Status 2026-11-04 06:10: what may wait offline (CGR-122, CGR-123, AUT-41, UXR-92)
+
+**PO decisions for ADR-143 (#837, proposed by `eng`, not merged) and any M6-2 build.** Status: PLANNED (nothing is built). Sources: `cra` 01:30 (PR #848) and 05:30 (PR #852), `aia` 02:20 (AUT-41, merged #849), `uxa` 03:50 (PR #850); open PRs read on their branches.
+1. **CGR-122 (1) is in force: visit-timeline commands and `correct_visit_time` are never queued.** Offline the buttons stay visible and say why they do not work (point 5); a time typed on the device is shown only as a separately labelled claim ("Auf dem Gerät eingegeben") and never becomes a measured or billed minute. **Why:** a queued entry is recorded at the server time of sending, so a queued start or end would misstate the visit's time and the J5 measured and billed minutes. Patient safety and billing accuracy are preconditions, not traded for speed.
+2. **CGR-123 is in force: nothing that raises a safety signal or releases a visit waits in a queue.** Also never queued: `record_no_show`, `record_no_show_outcome`, `end_visit_not_completed`, `record_absence`, `change_absence`. Criteria for M6-2: one shared list of non-queueable commands in code; a vitest fails when a command that raises a SIG1 signal or releases a visit is missing from it; one e2e per command with `context.setOffline` showing the refusal and the phone route (point 4). **Why:** a P1 signal or an uncovered visit that waits for the nurse's next online session is the exact delay SIG1 exists to remove.
+3. **AUT-41 (`aia`) is the target design, not built yet.** With (1) a visit given entirely without a connection costs the nurse up to three time corrections typed from memory afterwards: administration that takes care time (value order 1 and 5). Target: offline visit times enter afterwards through the existing audited correction path with a preset reason (`uxa` wording proposed: "Ohne Verbindung erfasst (Gerätezeit)"), so she confirms instead of retyping. **Gate (`cra` 05:30):** the Clinical Owner, with `lca`, decides which time is the documented time of an offline visit, and correction rows are told apart by reason kind. Until then (1) holds. Whether the gate is worth pursuing is a pilot question (challenge-review row in `NEXT_CAPABILITY.md`).
+4. **"Telefonisch melden" must name a number that works offline.** MOB1 states which number the banner and the refused commands of (2) show, held on the device so it shows without a connection (`cra` 01:30). Which number is the right one for urgent matters (the team's phone or a round-the-clock line) is the Clinical Owner's (UNKNOWN until G-1). MOB1 is not accepted for real clients while it reads UNKNOWN.
+5. **UXR-92 (`uxa`, medium) placed in MOB1:** "visible but disabled" is `aria-disabled` with a described reason, never the `disabled` attribute (a screen reader must reach the button and hear why).
+- **For `eng`:** ADR-143 takes (1), (2) and (5) before acceptance; CGR-122 and CGR-123 block the M6-2 merge until their tests are green. **For `uxa`:** the wording proposals of 03:50 stand; `cra` confirms them. **For `lca`:** the CGR-122 documentation question is asked together with the Clinical Owner's documented-time question (no package; a clinical rule).
+
 ## 1. Milestones
 
 | # | Milestone | Target date | Owner (delivers) | Accepts |
@@ -218,7 +229,7 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
   - each of the four former assistant answers (what is next, what changed, who can cover, what blocks signing) is reached from the start screen in ≤ 2 taps without an assistant route (e2e at 390 px);
   - no `ai_suggestions` row exists without a target field and a proposed value: reads never enter the ledger (pgTAP);
   - if a "before signing" line is built: every listed item maps to a `sign_report` refusal code, and the line contains no "vollständig", "komplett" or "alles erfasst" (vitest, CGR-120);
-  - offline: CGR-118 and CGR-121 conditions met (e2e with `context.setOffline`, §0b).
+  - offline: CGR-118, CGR-121, CGR-122 and CGR-123 conditions met (e2e with `context.setOffline`, §0b and §0c); UXR-92 for every disabled control.
 
 ### M7 Family app specification and decision (Fri 2027-02-05)
 - **Objective:** a complete, decision-ready specification of the family app. **No build:** D-40 is frozen.
@@ -432,3 +443,4 @@ M5 website (01-15, parallel)   M7 family spec (02-05, parallel, no build)       
 - 2026-11-03 po: version 1, from the owner's Executive Delivery Directive.
 - 2026-11-03 15:30 po: §0 added. The UX/UI baseline (PR #834) is adopted for website, web app, caregiver app and operations app; the M1 UX/UI part is met; the dependencies of M2-M8 are updated; no date moved.
 - 2026-11-03 22:00 po: §0b added. AUT-40 decided (no C-15 assistant screen at stage 0; M6 deliverable, criteria and §3.1 row 5 changed); M9 waiver wording per CGR-117; CGR-113 to CGR-121 placed. No date moved.
+- 2026-11-04 06:10 po: §0c added. CGR-122 (1) and CGR-123 in force for ADR-143 and M6-2; AUT-41 the target design behind a Clinical Owner gate; offline phone number and UXR-92 placed in MOB1; M6 offline criterion extended. No date moved.
