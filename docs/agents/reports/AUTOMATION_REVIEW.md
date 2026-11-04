@@ -31,6 +31,58 @@
 
 ---
 
+## 2026-11-04 20:20 CET · aia review 25: `cra` #859 (16:45) and #862 (17:30), `lca` #860 (16:55, D-40 / FAM1 re-check) and `uxa` #850 (15:50, 19:50) read; AUT-44 supported by all three gates with conditions (one act stands; the act must carry every consent field); AUT-45 no objection, `uxa` prefers (b); the two `lca` pilot variants supported as simplifications; AUT-46 (low: under "client consents herself only" the first consent question has one possible answer); AUT-47 (low: a later capacity re-check, if the Clinical Owner sets one, follows named events, never a periodic re-confirmation of every consent)
+
+**Read:** `recovery/main` at `39a4883` (unchanged since my review 24, #858; no code, brief or decision merged since). Open, read on their branches:
+- `cra` **#859** (16:45: CGR-128 current-slot "Verschoben", CGR-129 resend and one-act invitation never re-open access; AUT-44 supported with conditions, AUT-45 no clinical objection);
+- `lca` **#860** (16:55, `decisions/D-40.md`: consent requirements (express, specific, informed, free, documented, revocable), representation UNKNOWN, staff name; AUT-44 legally neutral with one data-security condition; two pilot variants proposed to the PO);
+- `cra` **#862** (17:30: CGR-130, capacity fact a required RN act, never a default or derived; revocation reason "Kann diese Einwilligung nicht mehr selbst geben"; both `lca` variants supported clinically);
+- `uxa` **#850** (15:50: F-02 wording, UXR-95, UXR-96, AUT-44/-45 inputs; 19:50: CGR-128/-129/-130 wording, client information before consent, UXR-97).
+- Open issues labelled `automation`: #793 (AUT-30) only. No new or changed brief (FAM1 unchanged since #856).
+
+**Nothing below is a measurement.** I ran no tests and read no database. How often relatives phone a team about the schedule is still **UNKNOWN** (NAVORA records no calls; no study read this run). Bottleneck map v2 (review 18) stands; next refresh 2026-11-10. Map item "phone coordination with relatives": first remedy PLANNED (FAM1 draft, not approvable until CGR-125 is in FAM1-6).
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-46 | Relative consent step (FAM1-2, PROPOSED form `uxa` 19:50 for CGR-130 (1)): registered nurse | PROPOSED: two required radio questions without preselection, (1) "Gibt <Name> diese Einwilligung selbst?" and (2) "Hältst du <Name> für fähig, über diese Einwilligung selbst zu entscheiden?"; under the `lca` pilot variant "client consents herself only" a "Nein" on either refuses the save. Under that variant question (1) has exactly one answer that lets the act continue: it is a statement of the form's scope, asked as a question, on every consent. Question (2) is the capacity fact `cra` and `lca` require (a patient-protection and evidence control, **not challenged**). Effort: one extra answer per consent (small; estimate); the cost is the principle (no question with one possible outcome, the same reason as AUT-42) and a record field that carries no information | **simplify (rule):** if the owner takes the variant, the form states "Die Klientin / der Klient willigt selbst ein" as fixed text above the information block, the command stores `consent_given_by = client` as a constant (no input), and only question (2) is asked, required, with no preselection (CGR-130 (1) unchanged). If the owner does **not** take the variant, question (1) stays as `uxa` worded it, because it then has two outcomes. Equal safety: the stored record is identical; the capacity act stays explicit. Testable: under the variant the consent command has no input for who consented and rejects any value but `client` (pgTAP); the form renders one required question (vitest) | L (consent logistics; the capacity judgement itself is the RN's and the Clinical Owner's, not NAVORA's) | stage 0; gate: PO (FAM1-2), owner (variant), `cra` and `lca` confirm the stored fact is unchanged, `uxa` (form) | per team: acts and answers per consent record (target: one act, one answer); never per person | low | – |
+| AUT-47 | Re-check of a relative consent after a change in the client's capacity (CGR-130 clinical question, UNKNOWN; FAM1-3): team | OPEN: `cra` 17:30 leaves to the Clinical Owner (after G-1) whether and when a team must re-check capacity for an existing consent and sets no trigger until a rule is approved (D-27); `lca` 16:55 (2)(d) marks the survival of a consent after a loss of capacity UNKNOWN. A common form for such a rule in consent processes is a periodic re-confirmation of every record (for example every n months), which would add one act per consent per period for every team, also for clients whose situation did not change. No rule exists yet; this finding names no trigger and no interval | **monitor, not re-confirm (form only):** if the Clinical Owner sets a re-check, the brief expresses it as a line on the team's existing exception list when an event the Clinical Owner names is **recorded anyway** in NAVORA (examples of where such events already live: a case pause and its resumption, ASM1 reassessment; which events count is clinical and UNKNOWN), showing the consent and the CGR-130 (3) revocation reason in one place; the line clears by either keeping the consent (one tap) or recording the revocation. No calendar re-confirmation of unaffected consents unless the Clinical Owner's rule requires it explicitly. NAVORA never ends or flags a consent from a score or diagnosis (CGR-130 (2), unchanged) | G if the trigger events are clinical (the Clinical Owner's rule decides); the line itself carries no clinical content | stage 0 (deterministic, on recorded events); gate: Clinical Owner after G-1 (rule), `cra`, PO | per team and month: re-check lines raised and cleared, median days open; acts per consent per year; never per person | low | – |
+
+### 2 Briefs, plans and packages reviewed
+
+- **`lca` 16:55 consent requirements (FAM1-2):** express, specific, informed, free, documented, revocable through any team member. Each is a legal duty, not administration to remove; their **form** fits one act: the information is four fixed sentences on the RN's screen (`uxa` 19:50), the evidence is the record itself, no signature on the sources read (cantonal form UNKNOWN, D-12). No challenge. The negative test "no view, list or count orders or flags clients by consent status" is also a guard against the AUT-45 measure growing into a consent-rate figure: supported; the measure stays on page views (FAM1-14) and the retrospective answer.
+- **`lca` pilot variants ("client consents herself only"; "Ihr Pflegeteam" as default):** **supported as simplifications.** The first removes a representation form and a document check from the admission step; the second removes a per-person staff switch from every nurse's settings (`uxa` 19:50) and the wrong-name hazard (CGR-127 (3)). Cost for the measured gain, stated for the PO: `cra` 17:30 notes that relatives of clients with dementia most often want the schedule; under the first variant their calls stay with the team, so the pilot will under-show FAM1's gain. Reported, not a finding (legal reason; the owner decides through the PO).
+- **Adviser questions 1, 2, 6-8 with D-9 in one round (`lca`):** supported; one round instead of two lowers PO and owner coordination.
+- **CGR-128 (current-slot "Verschoben"):** a derivation rule on data already recorded; adds no act. Supported.
+- **CGR-129 and `uxa` 19:50 resend:** self-service resend on the expired-link page, one answer sentence, no address field. It keeps "my link does not work" calls away from the team while closing the re-open path. Supported; identity verification with `lca` (UNKNOWN).
+- **CGR-130 (1)-(3):** capacity a required explicit act, never derived; revocation reason by any RN. Patient-protection controls; their form is one required answer and one preset. Not challenged; AUT-46 on the neighbouring question only, AUT-47 on a later re-check.
+- **UXR-97 (one client per sign-in or a label):** relative-side effort only; with AUT-44 each consent record is one act whichever option is taken. No finding.
+- **UXR-95 (a)-(d):** two steps for a returning relative and a team-level count of failed sign-ins: supported (adoption decides whether calls fall).
+
+### 3 AI readiness of delivered items (§8)
+- Nothing proposing, drafting or ranking was delivered since review 24. #814 (AIG1-C4/-C5) and #828 (AIR1) unchanged and open. **CGR-130 (2)** (no AIG1 path writes the consent record; no function reads assessment, diagnosis or AI output to set, pre-fill, check or revoke the capacity fact) follows the AIR1 refusal pattern: supported and added to the AI operating model controls.
+
+### 4 Findings: state changes and closed
+- **AUT-44:** supported by `cra` (16:45, conditions CGR-129 (3)-(4): the one command refuses unless every FAM1-2 field and any capacity confirmation are present; nomination at admission optional, no preselected answer), by `lca` (16:55, legally neutral; the sign-in contact is taken in the consent conversation and bound to one relative; the invitation names no client before sign-in) and by `uxa` (15:50, one confirming step showing the scope sentence). I accept every condition: none adds an act. Waiting for the PO. Stays open.
+- **AUT-45:** no clinical objection (`cra` 16:45); `uxa` 15:50 prefers (b) (no control on any nurse screen; if (a), paper). Waiting for the PO. Stays open.
+- AUT-30 (#793), AUT-34: met on #814 and #841 heads; close on merge (unchanged).
+- Open, unchanged: AUT-42, AUT-43, AUT-41, AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+- Closed in this section: none.
+
+### 5 Stage tracking (D-35 stages; changes only)
+- No change. Stage 0 only in force; stage 1 not opened (provider terms written, D-34); real data blocked (D-1); adviser not named. D-39 A and D-40 (no AI on the relative path) as in review 24.
+
+### 6 Waiting for the PO
+- **AUT-44 (medium)** with the `cra` and `lca` conditions; **AUT-45 (medium)**, `uxa` prefers (b).
+- **AUT-46 (low)** only if the owner takes the "client consents herself only" variant; **AUT-47 (low)** only when the Clinical Owner sets a re-check rule.
+- AUT-42 (ADR-143 point 9 choice), AUT-43, AUT-41 (Clinical Owner gate after G-1), AUT-36, AUT-37, AUT-38, AUT-33 (unchanged).
+
+### 7 Issues and comments
+- No issue opened (no `high` finding). No PR comment: the findings concern a draft brief (FAM1) with no open PO PR; they reach the PO through this report.
+
+---
+
 ## 2026-11-04 14:20 CET · aia review 24: owner decisions D-39 (A) and D-40 (minimal read-only relative view) and brief FAM1 draft (#856) read; FAM1 supported in substance (it removes relatives' schedule calls by rules alone); AUT-44 (medium: relative consent and invitation as one act, nominated in the intake consent conversation); AUT-45 (medium: the pilot measure asks teams to count relatives' calls); AUT-39 closed (owner decision); AUT-42 supported by `cra` and written into ADR-143 as an option
 
 **Read:** `recovery/main` at `d31669a`:
