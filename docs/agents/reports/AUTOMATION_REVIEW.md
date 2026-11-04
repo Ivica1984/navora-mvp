@@ -31,6 +31,56 @@
 
 ---
 
+## 2026-11-04 02:20 CET · aia review 22: AUT-40 decided by the PO (closed); ADR-143 offline queue (#837) and `cra` CGR-122 (#848) read; AUT-41 (medium: CGR-122 option (1) makes every visit done without a connection cost up to three typed time corrections from memory; the PO's correction-path option gives the same billing control with no extra act)
+
+**Read:** `recovery/main` at `7cbbf7b`:
+- merged since review 21 (#844): PO **#846** (22:00: AUT-40 decided, `DELIVERY_PROGRAM.md` §0b, M6 criteria changed, CGR-113 to CGR-121 placed, `briefs/_TEMPLATE.md` CGR-119 line), `uxa` #847;
+- open, read on their branches: `eng` **#837** (`7458904`, ADR-143 rewritten with CGR-121 (a)-(d), C-15 withdrawn; `APP1_IMPLEMENTATION_PLAN.md` A-07, C-03 rows), `cra` **#848** (CGR-122, inputs on ADR-143 point 1); heads of #841, #828, #814 and the UX2 PRs unchanged since review 21;
+- open issues labelled `automation`: #793 (AUT-30) only; #843 closed by the PO.
+
+**Nothing below is a measurement.** I ran no tests and read no database. Code read: `supabase/migrations/20261021000008_visit_time_corrections.sql` and `…000040…` (signature of `correct_visit_time(event, time, reason, key)`: one call per timeline event) by search only. How often a nurse works without a connection is **UNKNOWN** (no NAVORA event records it today; no study read this run). Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-41 | Visit timeline without a connection (ADR-143, M6-2, PLANNED; `cra` CGR-122 (1) and the PO option, #848): every nurse at a door without signal | IMPLEMENTED today: every command runs online; the timeline events take server `now()`. PLANNED under **CGR-122 (1)**: offline, "Losfahren", "Einsatz starten", "Pause", "Weiter", "Einsatz beenden" and the time correction are disabled; the time is recorded "only with a connection and can afterwards be corrected with a reason". So a visit given entirely without a connection costs, after reconnecting, the timeline taps at the wrong time **plus one `correct_visit_time` per event (up to three: depart, start, complete), each with a time typed from memory and a reason** (0008: one event per call). Estimate, not a measurement: about 3 extra acts and 3 typed times per offline visit, done later in the car or at home, i.e. administration moved out of the visit and a time from memory instead of a device time. The patient-care and billing benefit of CGR-122 is real (no invoice minutes from an unaudited client time; J5); **what is challenged is the form, not the control.** `cra` itself offers the leaner form as an option for the PO | **rule, not manual re-entry: take the PO option of CGR-122, with no act added for the nurse.** (a) Offline, the timeline buttons stay active; each tap is queued as a **reasoned F3 correction** carrying the device time as the claimed time and a **preset reason** set by the command kind (P-37 pattern; e.g. "Ohne Verbindung erfasst", words `uxa`), so it enters billing only through the audited correction path, exactly as CGR-122 (3) requires; (b) the server time stays the server time (CGR-122 (2)); a device time later than the server receipt time is refused (as `cra` wrote) and the entry stays on her card with its refusal, never dropped (ADR-143 2); (c) the card and the record show both times when they differ (CGR-122 (2)); (d) no new review list: an offline-claimed time is reviewed where every F3 correction already is (countersign or quality, as built; nothing added by `aia`); (e) whether the device time is the documented time stays with the Clinical Owner and `lca` (D-10, D-11, UNKNOWN); `aia` sets no rule and no tolerance. Testable: e2e with `context.setOffline`: "Einsatz starten" and "Einsatz beenden" offline, reconnect, the visit carries two F3 corrections with the preset reason and the device times, and **the nurse performed no act after reconnecting other than keeping the app open** (act count 2, same as online); pgTAP: CGR-122 (2), (3) unchanged | L (billing fact; `cra` S1 by effect) | stage 0 (no AI); gate: PO (choice between CGR-122 (1) and the option, MOB1/M6-2), `cra` (confirms the option meets CGR-122), `lca` (D-10/D-11 documentation duty, SC-2), `uxa` (preset reason words) | per team and month: share of visits with an offline-claimed time (separate from other F3 corrections in AN3-5, so the offline rate becomes visible for the first time); human acts per offline visit after reconnecting (target 0 with the option; about 3 under (1), estimate); never per person | medium | – |
+
+### 2 Briefs, plans and packages reviewed
+
+- **AUT-40 decision (PO 22:00, `DELIVERY_PROGRAM.md` §0b):** takes (a)-(e) of the proposal in full; M6 criteria now test ≤ 2 taps from the start screen and "reads never enter the ledger" (pgTAP). **Closed** (below).
+- **ADR-143 (#837, PROPOSED):** sign-out step with "Zurück und senden" as default, entries kept on session expiry, `access_ended` entry shown with content: each prevents a lost entry that someone would otherwise have to re-collect by phone. Supported. Point 1 ("reaches another person" constant): **`cra`'s recommendation on #848 (no list, one line "Noch nicht beim Team." on every pending care entry) is the leaner form**: one line instead of a constant, its vitest and two wordings, and no drift. Supported. `take_signal`, `take_open_visit`, `accept_cover`, `withdraw_cover` online only (`cra`): a claim's value is the server's answer; supported, no finding.
+- **CGR-122 (#848):** AUT-41.
+- **CGR-119 (`briefs/_TEMPLATE.md`, level-H line "D-34 classification"):** one line per level-H brief, no act for any nurse or team. Supported.
+- **CGR-117 (M9 waiver wording):** governance, no team act. No finding.
+- **CGR-120 ("before signing" line lists only `sign_report` refusals, never "vollständig"):** consistent with AUT-40 (b); no new rule. Supported.
+
+### 3 AI readiness of delivered items (§8)
+- Nothing proposing, drafting or ranking was delivered since review 21. #814 (AIG1-C4/-C5) and #828 (AIR1) unchanged and open. The M6 pgTAP "no `ai_suggestions` row without a target field and a proposed value" is now a program criterion (AUT-40 (d)).
+
+### 4 Findings closed
+- **AUT-40 (#843):** closed with evidence: PO decision 2026-11-03 22:00 (`DELIVERY_PROGRAM.md` §0b items 1-5; M6 deliverable and criteria; §3.1 row 5), ADR-143 point 7 on #837 (C-15 withdrawn), APP1 M6-4 dropped. Issue closed by the PO.
+- AUT-30 (#793), AUT-34: met on #814 and #841 heads; close on merge (unchanged).
+- Open, unchanged: AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-39, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+
+### 5 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | "A read is not a proposal" | in the M6 criteria (pgTAP), PLANNED |
+| 0 | Guards for the five prohibitions | AIR1 on #828 (open), unchanged |
+| 2 | Regulatory adviser (D-34) | the brief template now refuses a level-H brief while "D-34 classification" reads UNKNOWN (CGR-119); adviser still not named |
+| 1 | Real data to any AI path | blocked (D-1, G-25), unchanged |
+
+### 6 Waiting for the PO
+- **AUT-41 (medium):** choose between CGR-122 (1) and the correction-path option before the MOB1 brief (2026-11-27); `aia` proposes the option with a preset reason and no act after reconnecting.
+- AUT-36, AUT-37 (medium): Delivery Program version 2 (after M1, 2026-11-13). AUT-38 (medium), AUT-33 (medium; #841), AUT-39 (low, D-40).
+
+### 7 Issues and comments
+- No issue opened (no `high` finding). One comment on **#837** (ADR-143: AUT-41, and support for `cra`'s "no list" on point 1).
+
+---
+
 ## 2026-11-03 20:30 CET · aia review 21: Delivery Program M1-M10 (#832), UX/UI baseline (#834, #836) and open plans read; AUT-40 (high: the M6 caregiver "Assistent" is a second screen that answers only questions the start screen already answers, so it adds taps and ledger rows without a care benefit); AUT-34 met on #841 (AN3); AUT-33, AUT-36, AUT-37 not taken into the program; AIR1 (#828) supported
 
 **Read:** `recovery/main` at `c46010a`:

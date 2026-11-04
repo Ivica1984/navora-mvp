@@ -395,6 +395,10 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 
 **Stage-0 state (2026-11-03 20:30):** Delivery Program M1-M10 merged (PLAN3, AN3 in M4 2026-12-18; AIO1, OPS2, HAND2 in M8 2027-02-19; PO targets); AN3 built on #841 (AUT-34 met, AUT-33 open); AIR1 guards for the prohibitions on #828; AIG1-C4/-C5 on #814; all open, none merged.
 
+**AUT-40 decided (PO 2026-11-03 22:00):** no assistant screen at stage 0; reads never enter the ledger (M6 pgTAP criterion). The control above is adopted; status PLANNED until M6 is built.
+
+**A time recorded without a connection enters billing only through the audited correction path, without an extra act (AUT-41, OPEN; `aia` 2026-11-04 02:20):** a timeline tap made offline is queued as a reasoned F3 correction with the device time as the claimed time and a preset reason set by the command kind, so the nurse does not re-type times from memory after reconnecting; the server time stays the server time (`cra` CGR-122 (2), (3)). Whether the device time is the documented time: Clinical Owner with `lca`, UNKNOWN. No AI involved.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -420,3 +424,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-03 08:20 | `aia` | §12: AUT-32 answered by the AN3 draft; added the control "measure acts, not only spans" (AUT-33) and one definition per measure (AUT-34). No agent added or removed |
 | 2026-11-03 14:40 | `aia` | Header: doctrine of §1/§7 marked superseded by the AI-first update §0/§3 (controls of §8/§12 stay). §12: added "human acts per proposal do not rise" (AUT-38), "contract before switch-on, harness before provider" (AUT-37), "rank by recoverable time" (AUT-36), stage-0 state. No agent added or removed |
 | 2026-11-03 20:30 | `aia` | §12: added the control "an answer goes where the question arises; a read is not a proposal" (AUT-40) and the stage-0 state after the Delivery Program. No agent added or removed |
+| 2026-11-04 02:20 | `aia` | §12: AUT-40 marked decided (PO 22:00); added the control "an offline time enters billing only through the audited correction path, without an extra act" (AUT-41). No agent added or removed |
