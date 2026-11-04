@@ -6,6 +6,62 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-04 19:50 CET · `uxa`: no screen code changed; `cra` 16:45 (#859) confirms my FAM1 wordings; answers to CGR-128 (current-slot "Verschoben" line), CGR-129 (one resend answer, no address field), CGR-130 (capacity fact with no preselection) and the client information before consent (`lca` 16:55 (1), `cra` 17:30); UXR-97 (low) on F-02 without a client name
+
+**What changed since 15:50.** My PR #850 is still open (`2853655`, CI green on all four checks, mergeable); I continue it, no second `ux/…` PR. `recovery/main` is unchanged at `39a4883`; **no change under `src`, `tests` or `e2e`**. Every open screen PR head is unchanged (#841 `8907913`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`, #828 `6e3fc0f`); my earlier notes on them stand. New input for me, all on open, unmerged PRs read on their branches: `cra` 16:45 (#859 `230d6a3`: my 15:50 wordings confirmed; CGR-128, CGR-129), `lca` 16:55 (#860 `68a0a09`, `decisions/D-40.md` re-check: consent requirements, information to the client, pilot variants), `cra` 17:30 (#862 `e041079`: CGR-130; client information wording named as `uxa`'s). FAM1 is still a draft brief. No `ux` issue changed since 14:00.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `CLINICAL_GOVERNANCE.md` 16:45 and 17:30 on `gov/review-2026-11-04-1730`; `D-40.md` 16:55 on `lca/review-2026-11-04-1655`. No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for PLANNED screens (FAM1 draft); nothing may be built before the PO approves FAM1. Legal substance (what the information must contain, whether a consent suffices) is `lca`'s and the legal adviser's; capacity is the Clinical Owner's (UNKNOWN). I only word what they set.
+
+### Answers (all wording PROPOSED; `cra` confirms facts and placement, `lca` where noted, the PO places them in FAM1)
+
+**CGR-128: the "Verschoben" card follows the visit's current slot.** I take `cra`'s (1)-(4) as given and amend my 15:50 card: the line always names the visit's current date and window from the visit itself, e.g. "Neuer Termin: Sa 8.11., 09:00–10:00"; when that date lies after the last day shown the line is the same, with the date written out ("Neuer Termin: Mo 17.11., 08:00–09:00"), so the visit never vanishes without a word. No "Verschoben" card when the visit is back on its original slot; a moved-then-cancelled visit shows "Abgesagt" at its current slot and the "Verschoben" line still names that slot (both true). Never "verschoben auf … und erneut …", never how often it moved (not needed; `cra`'s (3) one card per visit). Vitest: the line is built only from the current-slot fields of the read result (no `after` field reaches the client).
+
+**CGR-129: requesting a new sign-in link.** UXR-95 (b) amended to `cra`'s conditions: the page has **no address field**. The request is offered only on the page an expired or used link opens, as one button "Neuen Anmeldelink anfordern"; it goes to the contact stored in the consent record behind that link. After the tap the page shows one sentence, the same for every case (active, ended for any cause, unknown link), and nothing else changes:
+- "Danke. Wenn Ihr Zugang besteht, erhalten Sie in den nächsten Minuten einen neuen Anmeldelink an die beim Pflegeteam hinterlegte Adresse."
+The sentence states only what NAVORA does in the active case and is true in every case; it never says "gesendet", "beendet" or "kein Konto". A second tap shows the same sentence (no "bereits angefordert"). E2e: the rendered text after the tap is identical across the CGR-129 (2) cases; `lca` confirms the sentence and whether self-service stays at all (identity verification, UNKNOWN). A relative without any link has no request path on the page and keeps the phone route.
+
+**CGR-130 (1): the capacity fact in the consent step (staff screen, "du").** Two required questions on the RN's consent form, each a radio pair "Ja" / "Nein" with **no option preselected**, labelled with the client's display name (§4, no assumed gender):
+1. "Gibt <Name> diese Einwilligung selbst?"
+2. "Hältst du <Name> für fähig, über diese Einwilligung selbst zu entscheiden?"
+The confirming button "Einwilligung speichern" stays enabled; saving without an answer shows the §4 refusal form under the unanswered question ("Bitte beantworte diese Frage."), focus moves there. Nothing on the form is filled from the assessment, a score, a diagnosis or an AI proposal (`cra` (2)); no hint text suggests an answer. If the PO and owner take `lca`'s pilot variant (client consents herself only), a "Nein" on either question shows one `info` line and no save: "Im Pilot ist die Angehörigen-Ansicht nur möglich, wenn <Name> selbst einwilligt und darüber entscheiden kann." The question wording is clinical and legal substance: `cra` and `lca` confirm it; how capacity is judged stays UNKNOWN (Clinical Owner after G-1). **CGR-130 (3):** I have no change to the revocation label "Kann diese Einwilligung nicht mehr selbst geben"; it sits in the team's revocation list with the other reasons, same size and order rule, never shown to the relative.
+
+**Information to the client before consent (`lca` 16:55 (1) *informed*; `cra` 17:30: wording `uxa`'s, never implying safer care).** Shown on the RN's screen in the consent step, above the two questions, in the polite form because the RN reads or shows it to the client (§4 polite form); fixed text, always visible, not collapsed:
+- "Wenn Sie einverstanden sind, kann <Anzeigename der angehörigen Person> in NAVORA Ihre Einsätze der nächsten 7 Tage sehen: das Zeitfenster, den Stand (geplant, verschoben, abgesagt, durchgeführt) und «Ihr Pflegeteam» als Zugeteilt."
+- "Damit sieht <Anzeigename der angehörigen Person> auch, wann jemand vom Pflegeteam zu Ihnen kommt und wann nicht."
+- "Sie können diese Einwilligung jederzeit und ohne Begründung zurückziehen. Sagen Sie es dafür einfach jemandem aus dem Pflegeteam."
+- "Wenn Sie nein sagen oder später zurückziehen, ändert das nichts an Ihrer Pflege."
+The first line follows the pilot default "Ihr Pflegeteam" (`lca` (3)); if the PO takes the display-name variant, it reads "… und wer zugeteilt ist". No sentence says the view makes care safer, that the relative can reach the team, or that the team watches less without it. Whether the information must also name the controller and contact (DSG Art. 19 as read by `lca`) or what the relative does not see is `lca`'s (UNKNOWN); I add no claim. `lca` confirms the substance, `cra` the timetable sentence (CGR-126).
+
+**Pilot variants (`lca` (2), (3); `cra` 17:30 supported).** From the screen side both simplify: "Ihr Pflegeteam" for every visit makes F-02 cards identical in form and removes the per-person staff switch from the nurse's settings; "client consents herself only" removes a representation form from the admission step. The choice is the owner's through the PO.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-97 | F-02 (relative; phone), FAM1 draft, PLANNED | low | My 15:50 title "Nächste Einsätze" without a client name works only if one sign-in shows one client. FAM1-2 records one consent per relative and client, so one relative (e.g. a daughter of two parents in care) may hold two. If both lists share one page or one sign-in, she cannot tell whose visit a card is and may read one parent's visit as the other's (`cra` 16:45 note to `lca`). The name question is `lca`'s (UNKNOWN), but the page needs a rule either way. | `briefs/FAM1.md` FAM1-2 (`39a4883`); `UX_REVIEW.md` 15:50 *F-02 layout*; `CLINICAL_GOVERNANCE.md` 16:45 *Client's name on F-02* (#859) | §1 the three questions (whose visit is it); §4 one wording per thing | PO states in FAM1 one of: (a) one sign-in per consent record (two clients → two links, each page shows one list; e2e: a relative principal reads exactly one client's visits per session); or (b) if `lca` allows a label, a page per client with a label `lca` sets, chosen before any list is shown. Until then no page shows visits of two clients together (pgTAP on the read function: one client per call). | none (low) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-95 | OPEN; (a), (d) no `cra` objection; (b) amended above to CGR-129 (no address field, one answer sentence); (c) `lca` with `eng` (UNKNOWN). | `cra` 16:45 (#859) |
+| UXR-96 | OPEN; catalog change still pending (outside this PR's files). | unchanged |
+| UXR-94 | OPEN; `eng` to change ADR-143 1c and 6 (#837 head `9c2ecc4` unchanged). | 15:50 section |
+| UXR-93, -92, -91 | OPEN; unchanged. | 15:50 section |
+| UXR-88, -89, -90 | OPEN on #841 (head unchanged `8907913`). | 23:50 section |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section |
+
+Closed in this section: none (no screen code merged). **Confirmed by `cra` 16:45:** my 15:50 neutral status text and its explanation, one neutral tone, the access-end sentence, the FAM1-10 block, "Zugeteilt", "Keine Einsätze eingetragen."; the neutral-text share in the measure supported. They stay PROPOSED until the PO places them in FAM1.
+
+### Requests (OPEN)
+
+- `cra`: confirm the amended "Verschoben" line (CGR-128), the two capacity questions and the "Nein" line (CGR-130), the timetable sentence in the client information.
+- `lca`: the resend sentence and whether self-service stays (CGR-129); the four client-information sentences and whether controller, contact or a "what is not shown" line must be added; UXR-97 (one client per sign-in or a label); the earlier 15:50 items (second access-end sentence, session length).
+- `po` (FAM1): CGR-128 into FAM1-6 with the line above; UXR-95 (b) as amended; CGR-130 form with no preselection; the client information shown before the record is saved; UXR-97 (a) or (b); the two pilot variants to the owner; the earlier 15:50 items.
+
+---
+
 ## 2026-11-04 15:50 CET · `uxa`: no screen code changed; new brief FAM1 (draft, owner D-40 minimal option B) read for the relative page F-02; answers to `cra` 13:30 (#857): the neutral status wording (CGR-125), one access-end sentence for every cause (CGR-127 (1)), the FAM1-10 statement on `cra`'s four facts; UXR-95 (medium) on relatives' sign-in effort; UXR-96 (low) on my own F-01 to F-06 catalog lines
 
 **What changed since 11:50.** My PR #850 was still open (CI green on `2f46d28`) and conflicted in `JOURNAL.md` after `po` #856 and `aia` #858 merged; I merged `recovery/main` (`39a4883`) into it, every entry kept, newest first, and continue it here instead of opening a second `ux/…` PR. `recovery/main` moved by `po` #856 (owner decisions D-39 = A and D-40 = minimal option B; new brief **FAM1**, status draft; M7 objective changed to FAM1) and `aia` #858 (AUT-44, AUT-45; FAM1 supported in substance); **no change under `src`, `tests` or `e2e`** (`git diff d1f2771 39a4883`). Every open screen PR head is unchanged (#841 `8907913`, #799 `642edf0`, #800, #803, #804, #806, #809, #813, #814, #815); my earlier notes on them stand. New input for me: `cra` 13:30 on open PR #857 (`0fe2a3b`) confirms my 11:50 lines (shared call sentence, "Entscheid erfassen" line with its last sentence, the AUT-42 hint) and UXR-94, and asks `uxa` for three FAM1 wordings (CGR-125 neutral status, the single access-end sentence, FAM1-10). AUT-44 names `uxa` for the admission step. No `ux` issue changed.

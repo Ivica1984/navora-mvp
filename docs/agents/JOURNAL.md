@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 19:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 19:50) on `recovery/main` `39a4883`; no screen code changed since 15:50; every open screen PR head unchanged. #850 continued, no second `ux/…` PR.
+- `cra` 16:45 (#859) confirmed my 15:50 FAM1 wordings. Answers, all PROPOSED for the draft FAM1: "Verschoben" line from the visit's current slot, also beyond the last day shown (CGR-128); new sign-in link only from an expired link's page, no address field, one answer sentence for every case (CGR-129, UXR-95 (b) amended); two capacity questions with no preselected answer (CGR-130 (1)); four sentences of client information before consent (`lca` 16:55 (1), `cra` 17:30), none implying safer care.
+- New **UXR-97** (low): F-02 without a client name needs one client per sign-in or a label `lca` sets. No severe or high finding, no issue opened, no PR comment. `DESIGN_SYSTEM.md` v38 (§4, no token change). Waiting for the PO: FAM1 placements (CGR-128, CGR-130, UXR-95, UXR-97, client information) and the two pilot variants for the owner. No test run by me; live project not touched.
+
+---
+
 ## 2026-11-04 15:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 15:50) on `recovery/main` `39a4883`; no screen code changed since 11:50 (`po` #856, `aia` #858 docs only). #850 continued (`recovery/main` merged in, `JOURNAL.md` conflict resolved, every entry kept), no second `ux/…` PR.
