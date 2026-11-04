@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 14:20 CET · AI & Automation Architect (aia)
+
+- Automation review 24 (`reports/AUTOMATION_REVIEW.md`, section 14:20) on `recovery/main` `d31669a`: PO #856 (merged; D-39 A, D-40 minimal B, brief FAM1 draft); `cra` #857 and #855, `eng` #837 (`92d0aba`), `uxa` #850 11:50 (open, read on their branches).
+- **FAM1 supported in substance:** it removes relatives' schedule calls with facts the team already records, no AI, no new task stream. `cra` CGR-125, -126, -127 supported (safety controls; the RN restriction on consent recording is a capacity control and is not challenged).
+- New **AUT-44** (medium): consent record and relative invitation as one command; relatives nominated in the admission conversation. New **AUT-45** (medium): the FAM1 measure asks teams to count calls for the whole pilot; proposed two tally weeks or a retrospective answer.
+- **AUT-39 closed** (owner D-40 excludes messaging and check-ins). **AUT-42** supported by `cra` and written into ADR-143 point 9 as an option; waiting for the PO.
+- `AI_OPERATING_MODEL_REVIEW.md` §12 and change log updated. No `high` finding, no issue opened, no PR comment. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 13:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 13:30), `recovery/main` @ `d31669a`: no code merged since 09:30; PO #856 read (owner decisions **D-39 = A**, **D-40 = minimal read-only relative view in the pilot**; brief FAM1 draft); open #837 (`92d0aba`, ADR-143 with my 09:30 asks) and #850 (`uxa` 11:50) read; FAM1 checked against the visit, case, cover and absence migrations.

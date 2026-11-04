@@ -31,6 +31,58 @@
 
 ---
 
+## 2026-11-04 14:20 CET · aia review 24: owner decisions D-39 (A) and D-40 (minimal read-only relative view) and brief FAM1 draft (#856) read; FAM1 supported in substance (it removes relatives' schedule calls by rules alone); AUT-44 (medium: relative consent and invitation as one act, nominated in the intake consent conversation); AUT-45 (medium: the pilot measure asks teams to count relatives' calls); AUT-39 closed (owner decision); AUT-42 supported by `cra` and written into ADR-143 as an option
+
+**Read:** `recovery/main` at `d31669a`:
+- merged since review 23 (#854): PO **#856** (12:45: D-39 decided A; D-40 decided as a minimal option B; brief **FAM1** draft; `DELIVERY_PROGRAM.md` §0d, M7 objective now FAM1);
+- open, read on their branches: `cra` **#857** (13:30: FAM1 reviewed, CGR-125 blocking for FAM1 approval, CGR-126, CGR-127), `cra` **#855** (09:30: AUT-42 supported, CGR-124), `eng` **#837** (`92d0aba`: AUT-42 (a)-(d) written into ADR-143 point 9 as an option, second-refusal stop, Playwright test), `uxa` **#850** (11:50: UXR-94; AUT-42 information line);
+- open issues labelled `automation`: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database. How often relatives phone a team about the schedule is **UNKNOWN** (NAVORA records no calls; FAM1 says the same; no study read this run). Bottleneck map v2 (review 18) stands; next refresh 2026-11-10. Map item "phone coordination with relatives" (team self-organisation / Visit): its first remedy is now PLANNED (FAM1 draft).
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-44 | Relative gets access (FAM1-2, open question 2; PLANNED, draft): registered nurse of the client's team, relative | PLANNED: a consent record per relative and client is recorded by a registered nurse (FAM1-2); how the relative is then invited and signs in is open (engineering question 2), so a second act (send a link or code) and a second contact with the relative may follow. The client's intake consent is already captured once at conversion (`intake_consent_confirmed_at`, migration 0010:130-146; D-9 option D treats sharing beyond the team as a consent item). Without a rule, the nomination is a separate conversation after intake. Effort: two acts per relative plus possibly one more visit-time conversation (estimate). The RN restriction itself is **not** challenged: `cra` 13:30 (CGR-126) ties it to the per-decision capacity judgement, a patient-protection control | **simplify, rule:** (1) recording the consent record **is** the invitation: the same command stores the record and issues the relative's sign-in (one act, one audit entry; nothing to send separately); (2) the brief names the intake/admission conversation (ADM2 team admission) as the place where relatives may be nominated, so the RN asks once while she is already confirming the client's consent; later nominations stay possible; (3) revocation stays open to every team member at once (FAM1-3, unchanged; it is the safety direction, CGR-126). Testable: pgTAP: one consent command creates the record and the invitation, refused for a non-RN; no second command exists for inviting; e2e: from the admission screen an RN nominates a relative in one step | L (logistics access; no clinical content) | stage 0 (no AI; FAM1-12); gate: PO (FAM1), `lca` (identity verification of the invitation, FAM1 question 2), `uxa` (admission step), `eng` (ADR on the principal model) | per team and month: acts per consented relative (target 1) and median days from admission to first relative sign-in; never per person | medium | – |
+| AUT-45 | FAM1 pilot measure (*AI leverage*, PLANNED): team | PLANNED: "in the team retrospective, whether schedule calls from relatives fell (**counted by the team**, never per person)". A running count of incoming calls is a new administrative act for every nurse who takes one, during or between visits, for the whole pilot, to measure a gain in exactly that time. The benefit claimed is the evidence; the form (continuous counting) is challenged, not the measure | **simplify the measure:** (a) two fixed one-week tallies per pilot team, one before FAM1 is switched on and one about six weeks after, on a paper or tap tally with no names; or (b) only the retrospective question with a three-step answer (fewer / same / more), plus the page views FAM1 already records (FAM1-14, no act). Either is equal in safety (no clinical effect) and costs at most two weeks of counting instead of every week. The choice between (a) and (b) is the PO's | L | stage 0; gate: PO (FAM1 measure), `uxa` if a tally is built | per team: calls per week in the two tally weeks or the retrospective answer; relative page views per month; never per person | medium | – |
+
+### 2 Briefs, plans and packages reviewed
+
+- **D-39 (owner: A):** nothing added for teams. Stage-3 sensor row decided (§5).
+- **D-40 (owner: minimal B) and brief FAM1 (draft):** **supported in substance.** It removes a bottleneck of map v2 (relatives phone the team to ask when the nurse comes) using facts the team already records, with no new documentation, no AI and no new task stream: eliminate through the care graph, in the design order. FAM1-4 (access ends on pause or close without anyone acting) and FAM1-7 (only recorded changes are shown) are rules instead of acts: supported. FAM1-14 audit of reads is a control without a team act: supported. Challenges on form: AUT-44, AUT-45. No act, role or field is added without a safety or legal reason beyond those two.
+- **`cra` #857 on FAM1:** CGR-125 (exhaustive status mapping with one neutral word) is a patient-safety control and adds no act: supported. CGR-126 (protective revocation preset; capacity confirmed by the recording RN) is a safeguarding control; its form adds one preset choice on revocation only: supported, no challenge. CGR-127 (one access-end sentence; no cancellation reason; "Stand" time; no cached schedule) removes content rather than adding it: supported.
+- **ADR-143 `92d0aba` point 9:** AUT-42 written in as an option with the second-refusal stop; `cra` 09:30 and 13:30: both forms acceptable clinically; `uxa` 11:50 line confirmed as a hint. State change in §4.
+- **CGR-124 (`cra` #855, no reception offline; scheduled evaluation as a D-2 / MOB1 condition):** an evaluation by Engineering, not a team act. No finding.
+
+### 3 AI readiness of delivered items (§8)
+- Nothing proposing, drafting or ranking was delivered since review 23. #814 (AIG1-C4/-C5) and #828 (AIR1) unchanged and open. FAM1-12 (catalogue guard: no agent, `ai_suggestions` row or AIG1 path may reference the relative principal) follows the AIR1 pattern: supported.
+
+### 4 Findings: state changes and closed
+- **AUT-39 closed** (evidence: owner decision D-40 2026-11-04, recorded in #856: messaging, direct communication with care teams and check-ins excluded from the pilot; FAM1 *Out of scope* excludes F-03 to F-06). The two team task streams AUT-39 asked to be sized are not built; if a later decision brings them back, a new finding.
+- **AUT-42:** supported by `cra` (09:30, 13:30) and written into ADR-143 point 9 as an option with its test (#837 `92d0aba`); waiting for the PO's choice. Stays open.
+- AUT-30 (#793), AUT-34: met on #814 and #841 heads; close on merge (unchanged).
+- Open, unchanged: AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-41, AUT-43, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+
+### 5 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 3 | Sensor inputs (D-39) | **decided A by the owner** (none in the pilot; specification only) |
+| 3 | Relative channel with AI (D-40) | **AI excluded by the owner**; the relative view is rule-based (FAM1, stage 0) |
+| 1, 2 | unchanged | provider terms written (D-34), stage 1 not opened; real data blocked (D-1); adviser not named |
+
+### 6 Waiting for the PO
+- **AUT-44 (medium):** FAM1: one command for consent and invitation; nomination at admission (with `lca` on identity verification).
+- **AUT-45 (medium):** FAM1 measure: two tally weeks or the retrospective answer instead of a running count.
+- **AUT-42 (medium):** ADR-143 point 9 choice (both forms clinically acceptable).
+- AUT-43 (low), AUT-41 (Clinical Owner gate after G-1), AUT-36, AUT-37, AUT-38, AUT-33 (unchanged).
+
+### 7 Issues and comments
+- No issue opened (no `high` finding). No PR comment: FAM1 is a merged draft brief with no open PR; both findings are for the PO through this report.
+
+---
+
 ## 2026-11-04 08:18 CET · aia review 23: AUT-41 placed by the PO as the target behind a Clinical Owner gate (open, state changed); ADR-143 CGR-123 amendment (#837 `8142bba`), `cra` #852, `uxa` #850 07:50, `lca` D-34 assessment and D-39/D-40 escalation read; AUT-42 (medium: a clock-refused observation waits for a tap before it reaches the team); AUT-43 (low: a no-show reported by phone offline is recorded again later; measure before designing)
 
 **Read:** `recovery/main` at `d85f715`:
