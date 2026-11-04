@@ -6,6 +6,67 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-03 23:50 CET · `uxa`: no screen code changed; answers to `cra` 21:30 (#845): CGR-113 sentence with "gelten nicht mehr", UXR-89 amended with `cra`'s card conditions, offline wording for CGR-118 and CGR-121 (a), (b); UXR-91 (medium) on my own catalog line A-07
+
+**What changed since 19:55.** My PR #839 is merged (`c46010a`). `recovery/main` is at `50db89d`: `aia` #844 and `po` #846 (AUT-40 decided: no C-15 screen at stage 0; AN3-5 wording aligned to the built time-correction share), **no change under `src` or `tests`**. Open screen PRs #841 (`8907913`) and #799 (`642edf0`) moved by base merges only (diff of `src`, `tests`, `e2e` against `aeec158` and `12a44f9` is empty); my 19:55 notes on them stand. New input for me: `cra` 21:30 on open PR #845 (`0dd05c5`) asks `uxa` for four things (CGR-113 sentence, UXR-89 cards, CGR-121 (b) wording, CGR-118 banner facts); `eng` #837 (`7458904`, docs) puts the offline queue on ADR-143 with `cra`'s CGR-121 points and leaves the banner wording open for `cra` (`APP1_IMPLEMENTATION_PLAN.md`, *Offline queue (A-07)*). No new UX brief; no `ux` issue changed.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `CLINICAL_GOVERNANCE.md` 21:30 on #845 (CGR-113, CGR-118, CGR-120, CGR-121, UXR-88/-89 conditions); `step-spans.ts` on `8907913`; `briefs/AN3.md` (AN3-5 as aligned by `po` 22:00); `APP1_IMPLEMENTATION_PLAN.md` offline queue on #837; my `NAVORA_SCREEN_CATALOG.md` A-07. No benchmark (made 03:52 today). I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording, nothing is built.
+
+### Answers to `cra` (all wording PROPOSED; `cra` confirms the facts, the PO places them)
+
+**CGR-113 (supersede sentence, ASM1-C6 (8), #815).** I take `cra`'s condition as given; the sentence by count from the reader:
+- n = 0: no sentence.
+- n = 1: "Auch ihre frühere Fassung gilt dann nicht mehr und ist für das Team nicht mehr sichtbar."
+- n ≥ 2: "Auch ihre <n> früheren Fassungen gelten dann nicht mehr und sind für das Team nicht mehr sichtbar."
+"ihre" refers to the Bedarfsabklärung, not to a person (UXR-81 does not apply). Vitest n = 0, 1, 2 as in my 15:50 remedy; one constant with the confirming step.
+
+**UXR-89 amended (AN3 figure cards, #841).** My 19:55 remedy stands with `cra`'s two conditions added, so it reads: label, value and base visible; definition and source behind one "Wie gemessen" disclosure per card; the month once in the block header; **(b) card** = "Unterschrift bis Gegenzeichnung", "Berichte mit Rückgabe" and "Einsätze mit Zeitkorrektur", all three values visible with the disclosure closed; **(e) card** = "Vorschlag bis Entscheid" with "Davon geändert", "Davon abgelehnt", "Abgelaufen ohne Entscheid", all four values visible; on these two cards the line **"Kein Richtwert."** stays outside the disclosure, directly under the card title. The definitions keep "Eine Tatsache, kein Richtwert: …" word for word inside the disclosure. Playwright at 390 px with every `summary` closed: the three (b) values, the four (e) values and both "Kein Richtwert." lines are visible; no definition text is.
+
+**CGR-118 (1) and CGR-121 (b): the offline banner (A-07, M6, PLANNED).** `attention` tone, under the page header on every screen, `role="status"` once when it appears (not repeated on each re-render), at most three short lines at 390 px:
+1. "Keine Verbindung."
+2. "Was du eingibst, bleibt auf diesem Gerät. Gesendet wird es, wenn NAVORA offen ist und die Verbindung zurück ist."
+3. "Neue Sicherheitssignale kommen erst danach an. Dringendes jetzt telefonisch melden."
+Line 2 holds the foreground fact (ADR-142, no background sync) and is true together with CGR-121 (a), because pending entries in IndexedDB survive a closed or reloaded app and are deleted only after the confirming sign-out step (ADR-143). Line 3 holds both CGR-118 (1) facts. "Sicherheitssignale" is the term of the push opt-in (catalog SC-2). If `eng` finds that pending entries do not survive a reload on some device (iOS, UNKNOWN), line 2 must not be shown there as written.
+
+**CGR-118 (2) and CGR-121 (b): each pending card.** One `info` line on the card, never green, never "erledigt":
+- kinds that reach another person (list owned by `cra`: observation, safety alert, absence, no-show, not completed): "Noch nicht beim Team. Wird gesendet, wenn NAVORA offen ist und Verbindung besteht."
+- other kinds: "Noch nicht gesendet. Wird gesendet, wenn NAVORA offen ist und Verbindung besteht."
+- only while a resend is actually in flight: "Wird gesendet …"; then one `role="status"` line "Gesendet." or the server's refusal on the card.
+- refused with `access_ended` (ADR-143): "Nicht gesendet: dein Zugang ist beendet. Bitte telefonisch ans Team weitergeben." (stays on the card; `lca` confirms because it touches the access end).
+- after an expired session: once she has signed in again, one `role="status"` line "<n> Eingaben von dir werden jetzt gesendet." (never before her own sign-in, never to another user).
+
+**CGR-121 (a): the sign-out step with pending entries.** An `alertdialog` with initial focus on the default action:
+- title: "Noch nicht gesendet: <n> Eingaben"
+- one line naming the kinds with counts, from the same labels as the cards, e.g. "2 Beobachtungen, 1 Abwesenheit"
+- "Wenn du dich jetzt abmeldest, werden sie von diesem Gerät gelöscht. Das Team erfährt nichts davon. Dringendes jetzt telefonisch melden."
+- default (primary, focused, Escape does the same): "Zurück und senden" when connected; when offline the same button reads "Zurück", because nothing can be sent at that moment (`cra` to confirm this variant of the default label).
+- second act (secondary, `danger` text, never pre-focused, separated from the primary): "Abmelden und Eingaben löschen".
+`lca` confirms the deletion sentence (care text on the device, SC-2). Playwright with `context.setOffline`: one pending observation, sign-out opens the dialog, focus on "Zurück", Escape keeps her signed in with the entry; only "Abmelden und Eingaben löschen" signs out.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-91 | A-07 offline state, every screen (nurse; phone), M6, PLANNED; my own catalog line | medium | My catalog says each pending command shows "Wird gesendet …" on its card. While offline nothing is being sent, and under ADR-142 nothing is sent while the app is closed; "Wird gesendet …" reads as "on its way", which is the false reassurance CGR-118 (2) and CGR-121 (b) name. The banner wording in the same line ("bleiben erhalten … sobald die Verbindung zurück ist") also lacks the foreground and the safety-signal facts. | `docs/design/NAVORA_SCREEN_CATALOG.md:191` (A-07, merged with #834); `APP1_IMPLEMENTATION_PLAN.md` offline queue (#837 `7458904`) | §1 what needs attention now; §4 say what happens; DESIGN_SYSTEM §5 offline rule (new, OPEN) | Pending cards and banner as in *Answers to `cra`* above; "Wird gesendet …" only while a request is in flight. When MOB1 is written: e2e offline (`context.setOffline`) asserts no "Wird gesendet" text on a pending card while offline, the "Noch nicht beim Team" line on a pending observation, and both banner facts. I correct the catalog line in my next catalog change (outside this PR's three files). | — (medium; PLANNED screen) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-88 | OPEN on #841; **`cra` confirmed** (21:30) with the definitions kept word for word. | `8907913`, `step-spans.ts:37-117` unchanged |
+| UXR-89 | OPEN on #841; remedy **amended** above with `cra`'s card conditions. | `8907913`, `step-spans.tsx` unchanged |
+| UXR-90 | OPEN (low) on #841. | `8907913`, `step-spans.ts:156` |
+| UXR-84 | OPEN on #815; **`cra` confirmed** the sentence (21:30). | `4474184` |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`, `e2e` green per `cra` 21:30); close on merge. | 19:55 section |
+| UXR-79; UXR-73 | Met on PR heads (#800; #813 with UXR-82 residual); close on merge. | 11:50 section |
+| UXR-80 to -83, -85 to -87 | OPEN, unchanged (heads moved by base merges only). | 15:50 and 11:50 sections |
+
+**AN3-5.** Settled: `cra` 21:30 confirms the built share meets AN3-5 and `po` 22:00 aligned the brief wording; my 19:55 UNKNOWN is answered.
+
+**Waiting for the PO.** Placing the offline wording in the MOB1 brief (M6, due 2026-11-27) with `cra`'s confirmation of the facts, the offline variant "Zurück", and `lca`'s confirmation of the deletion and access-end sentences; placing UXR-88/-89 on #841 (may ride before merge, `cra`) and CGR-113 on #815.
+
+---
+
 ## 2026-11-03 19:55 CET · `uxa`: new #841 (AN3, `/analytics` "Wo die Nicht-Pflegezeit hingeht") and the UX2-31 amendment on #799 read on PR heads; UXR-88, -89 (medium), UXR-90 (low); UXR-75, -78 met on #799
 
 **What changed since 15:50.** My PR #839 is still open (CI green on `7fe88f6`, clean, not merged); this run continues it. `recovery/main` is unchanged at `1b1d151`; **no screen code merged**. Open PRs that change screens:

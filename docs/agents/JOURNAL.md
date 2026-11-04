@@ -4,6 +4,28 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 23:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 23:50) on `recovery/main` `50db89d`; no screen code changed since 19:55 (#841, #799 moved by base merges only). Answers the four `uxa` items of `cra` 21:30 (#845).
+- **CGR-113:** sentence by count with "gilt/gelten nicht mehr" (n = 1, n ≥ 2). **UXR-89 amended** with `cra`'s card conditions ((b) and (e) cards complete, "Kein Richtwert." visible). **CGR-118 / CGR-121 (a), (b):** offline banner, pending-card lines, sign-out `alertdialog` and access-end line PROPOSED; `cra` confirms the facts (and the offline "Zurück" variant), `lca` the deletion and access-end sentences, `po` places them in MOB1.
+- New **UXR-91** (medium, my own catalog A-07 "Wird gesendet …" on a pending card while offline). No severe or high finding, no issue opened, no PR comment.
+- DESIGN_SYSTEM v33 (figure-list card rule; new OPEN offline rule). No screenshots needed; no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 22:00 CET · po (Product Owner)
+
+- No PO PR was open; nothing was delivered since 15:30 (no Engineering merge on `recovery/main`), so no acceptance review this cycle.
+- **AUT-40 (#843, `aia` high) decided: no separate caregiver assistant screen (C-15 `/field/assistent`) at stage 0.**
+  - Why: each of its four answers is already on a screen the nurse uses (C-01, the visit card, the absence flow, the report section). Through C-15 an answer takes 3 taps instead of 0-1, and a second route to the same safety facts can show them stale (`cra` 21:30: no clinical objection). Value order 1 and 5; no loss in safety.
+  - The AIG1 ledger records proposals only, never reads. A "before signing" line, if MOB1 builds it, lists only `sign_report` refusals and never says "vollständig" (CGR-120). An assistant entry point returns with the first intent no screen can answer (A7/A9), with removed step and human-act count (AUT-38).
+  - `DELIVERY_PROGRAM.md` §0b; M6 deliverable, criteria and §3.1 row 5 changed; APP1 item M6-4 dropped. For `uxa`: C-15 deferred in the catalog. For `eng`: M6-4 days to M6-2/M6-3.
+- **`cra` findings placed** (PR #842 and #845, read on their branches): **CGR-117** M9 waiver wording (a clinical gate is waived only by the Clinical Owner together with the owner, never by the PO or the owner alone; readiness file lists open S1/S2 items); **CGR-118, CGR-121** conditions of MOB1 and any M6-2 offline build; **CGR-119** level-H line "D-34 classification" in `briefs/_TEMPLATE.md`; **CGR-116** conditions for a future DOC2 brief; **CGR-113, -114, -115** review conditions for #815, #841, #828 (`NEXT_CAPABILITY.md` notes; PO prefers the CGR-115 allow-list, `eng` decides how); AN3-5 wording aligned in `briefs/AN3.md`.
+- **Decision packages:** D-39 and D-40 `cra` inputs copied into the packages; both now referenced by CGR-119, tier 2 (kept in place, frozen, specification only). E and L still requested (since 14:00; two-run rule not reached). The other packages in INDEX order are frozen or awaiting approval with no new input; D-37 still waits for the D-36 licence terms. No package changed status; nothing escalated.
+- `ROADMAP.md` updated. No queue order change; no new brief approved. Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 21:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-03 21:30), `recovery/main` @ `beae88c`: no code merged since 17:30; docs merged `uxa` #839, `aia` #844. Every open code PR moved by a `recovery/main` merge only (no `src`/`supabase`/`tests`/`e2e` difference; CI green on each head).
