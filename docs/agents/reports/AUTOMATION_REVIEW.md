@@ -31,6 +31,59 @@
 
 ---
 
+## 2026-11-04 08:18 CET · aia review 23: AUT-41 placed by the PO as the target behind a Clinical Owner gate (open, state changed); ADR-143 CGR-123 amendment (#837 `8142bba`), `cra` #852, `uxa` #850 07:50, `lca` D-34 assessment and D-39/D-40 escalation read; AUT-42 (medium: a clock-refused observation waits for a tap before it reaches the team); AUT-43 (low: a no-show reported by phone offline is recorded again later; measure before designing)
+
+**Read:** `recovery/main` at `d85f715`:
+- merged since review 22 (#849): `lca` **#851** (D-34 detailed AI assessment; D-39, D-40 legal inputs), PO **#853** (06:10: D-39, D-40 escalated, both "approve A"; `DELIVERY_PROGRAM.md` §0c: CGR-122 (1) and CGR-123 in force, AUT-41 the target behind a gate, challenge row with a pilot hypothesis in `NEXT_CAPABILITY.md`);
+- open, read on their branches: `eng` **#837** (`8142bba`: ADR-143 1c never-queued commands, 1d `FIELD_COMMAND_EFFECTS` mapping rule, 5, 6, **9 "Ohne Gerätezeit senden"**), `cra` **#852** (`e787be2`, CGR-123; AUT-41 assessed with conditions (a), (b)), `uxa` **#850** (07:50: call lines, clock-refusal card, UXR-93); code PR heads unchanged since review 22;
+- open issues labelled `automation`: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database. How often a nurse works without a connection, and how often a phone clock runs ahead of the server, is **UNKNOWN** (no NAVORA event records either today; no study read this run). Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-42 | Pending observation refused on resend because its device time is later than the server time (ADR-143 9, PLANNED, #837 `8142bba`; `cra` 05:30 condition, `uxa` 07:50 card): nurse, phone | PLANNED: the refused entry is kept on her card; it reaches the team only after she sees the card and taps **"Ohne Gerätezeit senden"** (one act). Until then the observation, which may carry clinical content, is in nobody's view but hers (H-26 is the hazard `cra` named). The act decides nothing: there is only one possible outcome (send without the claim; the server time is the record's time either way, CGR-122 (2), and billed minutes are untouched, ADR-143 9). The claimed benefit (she knows the device time was discarded) is real but needs no act. Effort: one act per refusal; frequency UNKNOWN, probably rare (estimate). What is challenged is the form (a mandatory tap with one outcome), not the refusal of a late device claim | **rule instead of an act:** on a device-clock refusal, the client resends the same entry **once, automatically, without the claim**, under its original key (as ADR-143 9 already specifies for the manual act; no loop: a second refusal of any kind stops and shows the card as today). The record keeps the marker "Gerätezeit verworfen" (9) and her card shows the same line as information, with no button. The refusal itself stays: a device claim later than the server time is never stored (CGR-122, 8). Whether an automatic resend is acceptable for an entry of clinical content: `cra` (it removes the delay `cra` named; nothing changes in what is recorded). Testable: Playwright with a device clock set ahead: a pending observation is sent after reconnect with no tap, the record has only the server time and the marker, the card shows "Gerätezeit verworfen" without a button; pgTAP 9 unchanged (the refusal rolled back, no idempotency row before the resend) | L (transport of an entry; the content is the nurse's) | stage 0 (no AI); gate: `eng` (ADR-143 9 and point 2 "never retried automatically": one claim-less resend is not a retry loop), `cra` (confirms for clinical content), `uxa` (line without button), PO (MOB1) | per team and month: count of clock refusals and median time from refusal to the entry reaching the server (target: same as a normal resend); never per person | medium | – (comment on #837) |
+| AUT-43 | No-show or broken-off visit offline (CGR-123, PO §0c (2), ADR-143 1c; PLANNED): nurse at the door, the teammate who takes her call | PLANNED and right in substance: these commands are never queued, so the escalation is a phone call now. After reconnecting she still records "Nicht angetroffen" or "Nicht abgeschlossen" (the visit status needs it), which creates the P1 `no_show` / `visit_interrupted` at that later server time (SIG1-C2), for a situation the team has already handled by phone. Effort (estimate, not a measurement): the fact is reported twice (call, then the entry), and a teammate may take a P1 that is already being dealt with (one more act, possibly a call back to check). Frequency UNKNOWN | **monitor first, design nothing yet.** The P1 must stay (no suppression, no AI triage of P1; hard rule). Measure from timestamps NAVORA already stores: span from `depart_visit` to `record_no_show`, and from start to `end_visit_not_completed`, per team and month (AN3 pattern, AN1 suppression, no new tap). Only if long spans are frequent in the pilot: a brief with `cra` on how a call-reported no-show is recorded once (for example the teammate who took the call records it on the visit, if the Clinical Owner allows; UNKNOWN, not proposed as a rule by `aia`) | L | stage 0; gate: PO (whether AN3 gains the two spans), `cra` (any later recording design) | the two spans above per team and month; share of `no_show` P1 signals taken within minutes of creation (already handled), per team; never per person | low | – |
+
+### 2 Briefs, plans and packages reviewed
+
+- **PO §0c (06:10):** CGR-122 (1) in force; AUT-41 recorded as the target with the Clinical Owner and `lca` documented-time gate and `cra` condition (b) (offline corrections distinguishable by reason kind), and a challenge row whose measure is the offline share per team and month. This is the measure-before-automating order (AUT-32) applied: **supported.** AUT-41 stays open with a new state (§4).
+- **CGR-123 (`cra` #852; ADR-143 1c, 1d):** no-show, not-completed, outcome and absence never queued. A P1 waiting for the next foreground session is exactly the delay SIG1 removes; this is a safety control, not administration. **Supported.** The 1d mapping rule (a vitest derived from the migrations instead of a reviewed list) removes a recurring review act and cannot drift: **supported** as the leaner form. Follow-on cost: AUT-43 (low).
+- **ADR-143 9 (clock refusal):** the in-app path `cra` asked for is right (otherwise only the phone); its form as a mandatory tap: AUT-42.
+- **UXR-93 (`uxa`):** one line block per card, safety sentence first; no act added. Supported.
+- **D-34 (`lca` 05:20, taken in by the PO):** the eleven provider terms and the stage-1 contents list become the D-35 stage-1 checklist; domain 10 "no open clinical Q&A" as a tested technical limit. No team act; consistent with AUT-37 (contract before switch-on). Recorded in stage tracking (§5).
+- **D-39, D-40 (escalated, "approve A"):** A adds nothing for teams in the pilot. For the record of the bottleneck map: **D-40 B** (relatives see the visit time and who comes, rule-based, no AI) is the option that removes phone coordination with relatives, a team-level administration item of map v2; `aia` supports the PO's "B as the expected next step" and sets no rule. No finding.
+
+### 3 AI readiness of delivered items (§8)
+- Nothing proposing, drafting or ranking was delivered since review 22. #814 (AIG1-C4/-C5) and #828 (AIR1) unchanged and open.
+
+### 4 Findings: state changes and closed
+- **AUT-41:** **adopted by the PO as the target design** (`DELIVERY_PROGRAM.md` §0c (3); ADR-143 1b), gated on the Clinical Owner with `lca` (documented time, UNKNOWN until G-1) and `cra` (b); CGR-122 (1) in force until then. Stays open; closes when 1b is decided either way with its measure in AN3.
+- Closed this run: none.
+- AUT-30 (#793), AUT-34: met on #814 and #841 heads; close on merge (unchanged).
+- Open, unchanged: AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-39, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+
+### 5 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 1 | Provider terms and stage-1 contents list | written by `lca` (D-34 assessment, 11 terms); recorded by the PO as the stage-1 checklist; stage 1 itself not opened (owner) |
+| 1 | Real data to any AI path | blocked (D-1, G-25), unchanged |
+| 2 | Regulatory adviser (D-34) | not named; `lca` adds adviser questions 8 (d), 8 (e), 10-12 |
+| 3 | Sensor inputs (D-39), relative channel (D-40) | escalated, recommendation A (none in the pilot) |
+
+### 6 Waiting for the PO
+- **AUT-42 (medium):** one automatic claim-less resend instead of the "Ohne Gerätezeit senden" act, before ADR-143 acceptance or in MOB1 (with `cra`, `eng`).
+- **AUT-43 (low):** whether AN3 gains the two no-show / interruption spans.
+- AUT-41: the Clinical Owner gate (after G-1). AUT-36, AUT-37 (medium): Delivery Program version 2. AUT-38 (medium), AUT-33 (medium; #841), AUT-39 (low, D-40).
+
+### 7 Issues and comments
+- No issue opened (no `high` finding). One comment on **#837** (AUT-42; AUT-43 noted).
+
+---
+
 ## 2026-11-04 02:20 CET · aia review 22: AUT-40 decided by the PO (closed); ADR-143 offline queue (#837) and `cra` CGR-122 (#848) read; AUT-41 (medium: CGR-122 option (1) makes every visit done without a connection cost up to three typed time corrections from memory; the PO's correction-path option gives the same billing control with no extra act)
 
 **Read:** `recovery/main` at `7cbbf7b`:
