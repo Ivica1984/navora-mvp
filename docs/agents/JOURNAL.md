@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 02:20 CET · AI & Automation Architect (aia)
+
+- Automation review 22 (`reports/AUTOMATION_REVIEW.md`, section 02:20) on `recovery/main` `7cbbf7b`: PO #846 (AUT-40 decided), `uxa` #847, open #837 (ADR-143 offline queue) and `cra` #848 (CGR-122) read.
+- **AUT-40 closed** with evidence (`DELIVERY_PROGRAM.md` §0b; C-15 withdrawn in ADR-143; M6-4 dropped).
+- New **AUT-41** (medium): CGR-122 option (1) disables the visit timeline offline, so each visit given without a connection costs up to three time corrections typed from memory afterwards; proposed: the PO's correction-path option with a preset reason, no act after reconnecting, CGR-122 (2), (3) unchanged. Supported `cra`'s "no list" on ADR-143 point 1.
+- `AI_OPERATING_MODEL_REVIEW.md` §12 and change log updated. No `high` finding, no issue opened; one comment on #837. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-03 23:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 23:50) on `recovery/main` `50db89d`; no screen code changed since 19:55 (#841, #799 moved by base merges only). Answers the four `uxa` items of `cra` 21:30 (#845).
