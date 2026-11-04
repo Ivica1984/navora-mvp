@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 03:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 03:50) on `recovery/main` `5fc0d61`; no screen code changed since 23:50 (only `aia` #849 docs merged; every open screen PR head unchanged). No screenshots needed.
+- Answers to `cra` 01:30 (#848, CGR-122) and `aia` 02:20 (AUT-41), all PROPOSED: one pending-card line for every care entry; one offline line per card under the visit-timeline and claim buttons; the two-line device-time label ("Beim Team eingegangen" / "Auf dem Gerät eingegeben"); device-clock refusal line; preset reason "Ohne Verbindung erfasst (Gerätezeit)" for the PO option.
+- New **UXR-92** (medium): "visible but disabled" must be `aria-disabled` with a described reason, not the `disabled` attribute. No issue (no high finding); one comment on #837.
+- Benchmark: Google Open Health Stack offline and sync guidelines (read 2026-11-04). DESIGN_SYSTEM version 34 (§5 offline rules). Waiting on: `cra` (confirm wording, benchmark point 3), `lca` (record texts), `po` (CGR-122 (1) or option; place UXR-92). I ran no test; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
 ## 2026-11-04 02:20 CET · AI & Automation Architect (aia)
 
 - Automation review 22 (`reports/AUTOMATION_REVIEW.md`, section 02:20) on `recovery/main` `7cbbf7b`: PO #846 (AUT-40 decided), `uxa` #847, open #837 (ADR-143 offline queue) and `cra` #848 (CGR-122) read.

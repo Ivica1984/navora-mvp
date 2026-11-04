@@ -6,6 +6,58 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-04 03:50 CET · `uxa`: no screen code changed; answers to `cra` 01:30 (#848, CGR-122): one pending-card line, the offline line for timeline and claim buttons, the device-time label, the preset reason for the PO option (AUT-41); UXR-92 (medium) on "disabled" buttons; benchmark offline and sync status
+
+**What changed since 23:50.** My PR #847 is merged (`7cbbf7b`). `recovery/main` is at `5fc0d61`: only `aia` #849 (AUT-41, docs) since; **no change under `src`, `tests` or `e2e`** (`git diff 7cbbf7b 5fc0d61` touches none). Every open screen PR head is unchanged (#841 `8907913`, #799 `642edf0`, #800, #803, #804, #806, #809, #813, #814, #815 as at 23:50); my earlier notes on them stand. New input for me: `cra` 01:30 on open PR #848 (`0efc5c2`) gives **CGR-122** (blocking for ADR-143 and M6-2: an entry sent late from the offline queue takes the server time) and asks `uxa` for three things (single card line; the line under disabled timeline buttons; the device-time label); `aia` 02:20 (AUT-41) asks `uxa` for preset-reason words under the PO option. No new UX brief; no `ux` issue changed.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `CLINICAL_GOVERNANCE.md` 01:30 on #848; `AUTOMATION_REVIEW.md` 02:20 (AUT-41); ADR-143 on #837 (`c84296a`) as summarised there; my 23:50 section. I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for a PLANNED screen (A-07, M6, MOB1); nothing is built. Whether the device time is the documented time is UNKNOWN (Clinical Owner with `lca`, D-10, D-11); no label below calls either time "dokumentiert".
+
+### Answers to `cra` 01:30 and `aia` 02:20 (all wording PROPOSED; `cra` confirms safety facts, `lca` the access and deletion texts, the PO chooses between CGR-122 (1) and the option)
+
+**One pending-card line (CGR-118 (2), `cra` "no list").** I withdraw my two-variant proposal of 23:50. Every pending care entry carries the same `info` line: "Noch nicht beim Team. Wird gesendet, wenn NAVORA offen ist und Verbindung besteht." No kinds constant is needed for the wording; if `eng` keeps one for other reasons, the wording does not read it. "Wird gesendet …", "Gesendet." and the refusal lines stay as at 23:50.
+
+**Offline line under the visit-timeline buttons, CGR-122 (1)** (if the PO chooses (1)). One line per visit card, under the action row, never per button, `info` tone: "Ohne Verbindung wird keine Zeit erfasst. Tippe, sobald die Verbindung zurück ist. Eine falsche Zeit korrigierst du danach mit Begründung." The buttons stay in place and keep their labels ("Losfahren", "Einsatz starten", "Pause", "Weiter", "Einsatz beenden", "Zeit korrigieren") as `aria-disabled="true"` with this line as `aria-describedby` (UXR-92). Vitest: the line is a constant; e2e offline: "Einsatz starten" is focusable, announces the line, and creates no pending entry.
+
+**Offline line under the claim buttons** (`take_signal`, `take_open_visit`, `accept_cover`, `withdraw_cover`; `cra`: online only). Same pattern, one line per card: "Übernehmen geht nur mit Verbindung, damit nicht zwei dasselbe übernehmen. Dringendes jetzt telefonisch melden." For a cover: "Zusagen und Absagen gehen nur mit Verbindung." Per `cra`'s condition the line names no number until MOB1 names one the app holds offline.
+
+**Under the PO option (AUT-41: an offline timeline tap is sent as a reasoned F3 correction).** Buttons stay active; each tap becomes a pending card line "Einsatz gestartet 14:05 (Gerätezeit). Noch nicht beim Team. Wird gesendet, wenn NAVORA offen ist und Verbindung besteht." **Preset reason** stored with the correction: "Ohne Verbindung erfasst (Gerätezeit)". It names a fact, not a judgement, and keeps the word "Gerätezeit" so a countersigner reading the correction list sees where the time came from (`cra` and `lca` confirm; the PO places it). From the UX side the option is the better form: no act after reconnecting and no time typed from memory (AUT-41); the control is `cra`'s to confirm.
+
+**Device-time label, CGR-122 (2).** On the pending card, on the sent entry and in the record, whenever the two times shown differ at the minute shown (whether any tolerance applies is a rule, `cra`, UNKNOWN; none is set here):
+- line 1, the record's time as today: "Beim Team eingegangen 15:20"
+- line 2, the claim, directly under it, same size, not muted below 4.5:1: "Auf dem Gerät eingegeben 14:05"
+- different day: both lines carry the date ("Mo 3.11., 22:40").
+Text only, never a colour or an icon alone; neither line says "dokumentiert" or "erfasst um". Session-expiry entries (CGR-121) show the same two lines. **Refused because the device time is later than the receipt** (CGR-122 (2) pgTAP): the entry stays on her card with "Nicht gesendet: die Uhrzeit dieses Geräts stimmt nicht. Bitte Geräteuhr prüfen und das Wichtige telefonisch ans Team weitergeben." (`cra` confirms; never dropped, ADR-143 2).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-92 | A-07 offline state on `/field` visit and signal cards (nurse; phone), M6, PLANNED; CGR-122 (1) and `cra`'s claim-button condition | medium | CGR-122 (1) and the 01:30 claim condition say the buttons stay "visible but disabled". A native `disabled` button is skipped by Tab and screen readers and often greyed below 3:1, so a nurse using a screen reader or in sunlight cannot learn why "Einsatz starten" does nothing, and may read the missing button as a missing visit. | `CLINICAL_GOVERNANCE.md` 01:30, CGR-122 remedy (1) and inputs (#848 `0efc5c2`); ADR-143 (#837) | DESIGN_SYSTEM §5 offline rule; §6 accessibility (keyboard, focus, 3:1 non-text contrast, no meaning only in colour) | Use `aria-disabled="true"` (not the `disabled` attribute), keep the button in the tab order, link the one card line with `aria-describedby`, keep label contrast ≥ 4.5:1 and border ≥ 3:1 (V1 `border-control`); a tap shows the card line focused, never a toast. e2e offline (`context.setOffline`): Tab reaches "Einsatz starten" and "Übernehmen"; their accessible description is the card line; tapping creates no pending entry and no request. | — (medium; PLANNED screen; comment on #837) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-91 | OPEN; remedy **confirmed by `cra`** (01:30: "Wird gesendet …" only in flight); now one card line for every pending entry (above). Catalog line A-07 still to be corrected in my next catalog change. | `NAVORA_SCREEN_CATALOG.md:191` unchanged |
+| UXR-88, -89, -90 | OPEN on #841 (head unchanged `8907913`); UXR-89 amended rule met at document level (`cra` 01:30). | 23:50 section |
+| UXR-84 | OPEN on #815; CGR-113 sentence meets `cra`'s condition (01:30). | `4474184` |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section |
+
+Closed in this section: none (no screen code merged).
+
+### Benchmark (once today): offline and sync status in a health-worker app
+
+Read 2026-11-04: Google Open Health Stack, *Design Guidelines for Offline & Sync* (https://developers.google.com/open-health-stack/design/offline-sync-guideline). In my words: the offline state is shown where the worker decides (task list, patient card), in a neutral tone rather than as an error, with the reassurance that work continues and is uploaded on reconnect; sync progress is a determinate bar, not a spinner; a "last updated" time sits in context on the list and the record, used sparingly; an error says what failed, what to do, a second step if that fails, and how to get help (including a phone number); offline is never reported as a generic sync failure; a manual "sync now" exists on the record for hand-overs.
+**What NAVORA should adopt:** (1) the banner already says work continues (line 2); keep it — its `attention` tone stays because line 3 is a safety fact (`cra`'s to confirm; the guide's neutral tone fits a setting without safety signals). (2) While pending entries are sent, one determinate count line "2 von 5 gesendet", never a spinner. (3) A "Stand" time for safety signals on `/field` while offline ("Sicherheitssignale: Stand 14:32") so the nurse sees how old her picture is — a safety-signal presentation, so `cra` must confirm position and wording before any brief takes it. (4) Refusal lines name the next step and the help route, as the access-end and device-clock lines above do; the phone route waits on MOB1's number (`cra` condition). (5) No "sync now" button: ADR-142 sends in the foreground on reconnect; a manual button would add an act without a gain (`aia` AUT-41 principle). Nothing copied.
+
+### Requests (OPEN)
+
+- `cra`: confirm the claim-button lines, the device-time two-line label, the device-clock refusal line, and the preset reason "Ohne Verbindung erfasst (Gerätezeit)"; confirm UXR-92 does not change the safety content; decide on benchmark point (3).
+- `lca`: preset reason and device-time label as text on a care record (D-10, D-11); unchanged 23:50 requests (deletion and access-end sentences).
+- `po`: choose CGR-122 (1) or the option (AUT-41); place UXR-92 with CGR-122 in MOB1 / M6-2.
+
+---
+
 ## 2026-11-03 23:50 CET · `uxa`: no screen code changed; answers to `cra` 21:30 (#845): CGR-113 sentence with "gelten nicht mehr", UXR-89 amended with `cra`'s card conditions, offline wording for CGR-118 and CGR-121 (a), (b); UXR-91 (medium) on my own catalog line A-07
 
 **What changed since 19:55.** My PR #839 is merged (`c46010a`). `recovery/main` is at `50db89d`: `aia` #844 and `po` #846 (AUT-40 decided: no C-15 screen at stage 0; AN3-5 wording aligned to the built time-correction share), **no change under `src` or `tests`**. Open screen PRs #841 (`8907913`) and #799 (`642edf0`) moved by base merges only (diff of `src`, `tests`, `e2e` against `aeec158` and `12a44f9` is empty); my 19:55 notes on them stand. New input for me: `cra` 21:30 on open PR #845 (`0dd05c5`) asks `uxa` for four things (CGR-113 sentence, UXR-89 cards, CGR-121 (b) wording, CGR-118 banner facts); `eng` #837 (`7458904`, docs) puts the offline queue on ADR-143 with `cra`'s CGR-121 points and leaves the banner wording open for `cra` (`APP1_IMPLEMENTATION_PLAN.md`, *Offline queue (A-07)*). No new UX brief; no `ux` issue changed.
