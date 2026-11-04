@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 06:10 CET · po (Product Owner)
+
+- No PO PR was open; no Engineering delivery since 2026-11-03 15:30 (`IMPLEMENTATION_STATUS.md` unchanged since 2026-10-31), so no acceptance review this cycle. Read: `lca` #851, `aia` #849 (merged); `cra` #848 and #852, `uxa` #850 (open, read on their branches).
+- **D-39 (sensors) and D-40 (relative-facing channel) escalated: `awaiting-approval: owner`, Medium, frozen from now.** L in (`lca` 05:20); E drafted by po (requested 2026-11-03 14:00, unanswered over more than two `eng` runs; not confirmed by `eng`). Both recommend **A** (nothing in the pilot), compliant under every plausible interpretation.
+  - D-39 ask: "approve A; #817 stays specification". Rules in every option: no billable service on sensor data or a prediction without a signed record; no per-person staff output from a home sensor; predictions only in the AIG1 ledger, never on a P1 signal.
+  - D-40 ask: "approve A, and send `lca` questions 1-2 (consent per relative, representation) to the legal adviser with D-9". B (relatives see visit time and who comes, no AI, no call to the team) is the expected next step; it removes phone coordination without a clinical rule.
+  - Both added to `OWNER_AGENDA.md` bundle 3.
+- **D-34:** `lca`'s detailed AI assessment taken in; decision unchanged. D-35 stage 1 (when opened) copies the eleven provider terms and the contents list; a future domain-10 brief tests "no open clinical Q&A" as a technical limit.
+- **Offline rules for ADR-143 / M6-2 (`DELIVERY_PROGRAM.md` §0c):**
+  - CGR-122 (1) in force: no timeline command or `correct_visit_time` queued; device time only a labelled claim, never billed.
+  - CGR-123 in force: no-show, not-completed and absence commands never queued; one shared list with a vitest; e2e offline per command.
+  - AUT-41 is the target (confirm the device time through the audited correction path instead of retyping), gated on the Clinical Owner's documented-time decision with `lca`; challenge row with a pilot hypothesis.
+  - MOB1 must name the offline "telefonisch melden" number (Clinical Owner; UNKNOWN until G-1). UXR-92 placed in MOB1. M6 offline criterion extended.
+- `ROADMAP.md` updated. No queue change; no new brief approved. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 05:20 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start. Tier 1: D-22, D-18 frozen, no trigger. Tier 2 picked: **D-34** (owner directive 2026-11-03: detailed AI assessment, priority), **D-39** and **D-40** (L requested since 2026-11-03 14:00; CGR-119). Only my sections edited; no status, row or decision changed.
