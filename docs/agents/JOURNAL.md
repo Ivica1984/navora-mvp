@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 08:18 CET · AI & Automation Architect (aia)
+
+- Automation review 23 (`reports/AUTOMATION_REVIEW.md`, section 08:18) on `recovery/main` `d85f715`: `lca` #851, PO #853 (merged); `eng` #837 (`8142bba`, ADR-143 CGR-123 amendment and point 9), `cra` #852, `uxa` #850 07:50 (open, read on their branches).
+- **AUT-41** adopted by the PO as the target behind the Clinical Owner gate (§0c (3)); stays open. CGR-123 and the ADR-143 1d mapping rule supported (safety control; a derived test instead of a reviewed list).
+- New **AUT-42** (medium): ADR-143 9 makes a clock-refused observation wait for an "Ohne Gerätezeit senden" tap with only one possible outcome; proposed: one automatic claim-less resend with "Gerätezeit verworfen" recorded and shown (`cra`, `eng` to confirm). New **AUT-43** (low): an offline no-show is reported by phone and recorded again later; measure the depart-to-no-show span per team before designing anything.
+- D-34 stage-1 checklist and D-39/D-40 escalation recorded in stage tracking; D-40 B noted as the option that removes phone coordination with relatives. `AI_OPERATING_MODEL_REVIEW.md` §12 and change log updated. No `high` finding, no issue opened; one comment on #837. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 07:15 CET · Engineering (eng)
 
 - **Step A only, no claim.** All 17 own PRs green on their heads; no bot run waited for approval. #745 (UX2) stays unclaimed: *Active now* (2026-11-03 06:30) item (0) still holds (#799, #800, #803, #804 unmerged), so no new UX2 part is opened.

@@ -399,6 +399,12 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 
 **A time recorded without a connection enters billing only through the audited correction path, without an extra act (AUT-41, OPEN; `aia` 2026-11-04 02:20):** a timeline tap made offline is queued as a reasoned F3 correction with the device time as the claimed time and a preset reason set by the command kind, so the nurse does not re-type times from memory after reconnecting; the server time stays the server time (`cra` CGR-122 (2), (3)). Whether the device time is the documented time: Clinical Owner with `lca`, UNKNOWN. No AI involved.
 
+**AUT-41 state (PO 2026-11-04 06:10):** adopted as the target design (`DELIVERY_PROGRAM.md` §0c (3), ADR-143 1b), gated on the Clinical Owner with `lca` (which time is the documented time of an offline visit) and `cra` (offline corrections told apart by reason kind); until then CGR-122 (1): timeline commands are never queued. The offline share per team and month is measured first (pilot hypothesis).
+
+**Nothing that raises a safety signal waits in a queue; no act with one possible outcome (CGR-123, AUT-42, AUT-43; `aia` 2026-11-04 08:18):** no-show, broken-off visit and absence are never queued (PO §0c (2)); the escalation is a phone call now, and membership of the never-queued list is derived from the migrations by a failing test, not reviewed by hand (ADR-143 1d). An entry refused only for a device clock ahead of the server is resent once automatically without the device time, with "Gerätezeit verworfen" recorded and shown (AUT-42, OPEN, `cra` and `eng` to confirm); a mandatory tap with a single outcome is not a control. The double report of an offline no-show (call, then the entry) is measured from stored spans before any design (AUT-43, low).
+
+**Stage-1 checklist (D-34, `lca` 2026-11-04 05:20; PO 06:10):** the eleven minimum AI-provider terms and the stage-1 contents list are the checklist for D-35 stage 1 when the owner opens it; domain 10 "no open clinical Q&A" is a tested technical limit. Stage 1 not opened; D-39 and D-40 escalated with recommendation A.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -425,3 +431,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-03 14:40 | `aia` | Header: doctrine of §1/§7 marked superseded by the AI-first update §0/§3 (controls of §8/§12 stay). §12: added "human acts per proposal do not rise" (AUT-38), "contract before switch-on, harness before provider" (AUT-37), "rank by recoverable time" (AUT-36), stage-0 state. No agent added or removed |
 | 2026-11-03 20:30 | `aia` | §12: added the control "an answer goes where the question arises; a read is not a proposal" (AUT-40) and the stage-0 state after the Delivery Program. No agent added or removed |
 | 2026-11-04 02:20 | `aia` | §12: AUT-40 marked decided (PO 22:00); added the control "an offline time enters billing only through the audited correction path, without an extra act" (AUT-41). No agent added or removed |
+| 2026-11-04 08:18 | `aia` | §12: AUT-41 state (target behind the Clinical Owner gate); added the control "nothing that raises a safety signal waits in a queue; no act with one possible outcome" (CGR-123, AUT-42, AUT-43) and the D-34 stage-1 checklist. No agent added or removed |
