@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 12:45 CET · po (Product Owner)
+
+- **Owner answered D-39 and D-40** (owner message in the PO session, 2026-11-04; recorded with `Unfreeze: 1`).
+  - **D-39: A, decided.** No sensors, device data intake, IoT integrations, predictive monitoring or AI risk predictions in the pilot; specification-only until further owner approval. Issue #826 closed.
+  - **D-40: A rejected, decided as a minimal option B for the pilot.** Consented relatives may view visit status, planned time and the assigned caregiver, read-only. Excluded: AI, chat or messaging, direct communication with care teams, clinical information, assessments, documentation, medical recommendations.
+- **Brief [FAM1](briefs/FAM1.md) written as a draft** (the owner asked `po` for the option-B specification): separate relative principal; consent record per relative and client, recorded by a registered nurse of the team; revocation and case pause/close end access; allow-list of four status words, planned window and the responsible member's display name ("Ihr Pflegeteam" when none); changes only after the team records them; no write path, AI, notifications; reads audited; synthetic data only, real relatives refused until the legal adviser and D-1.
+- **Inputs requested** (packages and issue #827): `lca`: consent handling, representation of clients unable to consent, staff display name to relatives (FAM1-2, -8). `cra`: visibility rules, information boundaries, safety (FAM1-6, -7, -10; a visit whose window passed without a recorded outcome). FAM1 is approved into *Next up* once both are in; Engineering does not start before.
+- `DELIVERY_PROGRAM.md` §0d: M7 objective changed to FAM1; date follows Engineering's estimate. `ROADMAP.md`, owner agenda (D-39, D-40 removed), INDEX and `OPEN_DECISIONS.md` updated.
+- Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 08:18 CET · AI & Automation Architect (aia)
 
 - Automation review 23 (`reports/AUTOMATION_REVIEW.md`, section 08:18) on `recovery/main` `d85f715`: `lca` #851, PO #853 (merged); `eng` #837 (`8142bba`, ADR-143 CGR-123 amendment and point 9), `cra` #852, `uxa` #850 07:50 (open, read on their branches).
