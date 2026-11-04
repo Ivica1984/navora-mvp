@@ -16,6 +16,71 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-04 17:30 CET: `lca` #860 (16:55, D-40 / FAM1 re-check) read: CGR-125, CGR-126 protective refusal, CGR-127 (1), (2), (4) supported by `lca`; `lca` pilot variants ("client consents herself only", "Ihr Pflegeteam" as default) **supported from the clinical side**; new **CGR-130** (advisory, S1 before real relatives: the RN's capacity fact for a FAM1 consent must be a recorded act, never a default and never derived from assessment data; a later loss of capacity has no automatic effect and no path at all yet); no code changed
+
+**Scope:** `recovery/main` @ `39a4883` (unchanged since my 16:45 section, PR #859, unmerged).
+- **Code merged:** none. **Docs merged:** none.
+- **Open PRs:** new `lca` **#860** (`68a0a09`, docs: `decisions/D-40.md` *Legal/compliance impact* re-check 16:55, `JOURNAL.md`). `uxa` #850 unchanged (`2853655`). Every code PR head unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #810 `63440b0`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); #833, #835, #837 `9c2ecc4`, #838 `6aff772`, #840 unchanged. My chain #582 … #859 still unmerged (owner instruction on #666). No new review comment addressed to `cra`.
+- **Briefs:** none created or changed (FAM1 unchanged since #856). **Decisions answered by a person:** none since D-39 and D-40.
+
+I read: `git diff origin/recovery/main...origin/lca/review-2026-11-04-1655` (D-40 16:55 section in full) and `briefs/FAM1.md` FAM1-2 again. **I did not run the NAVORA test suite** and did not touch the live project. Everything about FAM1 below is PLANNED (draft brief, nothing built). I do not assess the legal reading itself (`lca` and the legal adviser own it); I check it against the clinical findings and for invented clinical logic.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-130 | **FAM1-2** consent record: the RN's capacity fact (`lca` 16:55 note to po (1); CGR-126); later loss of capacity (`lca` 16:55 (2)(d)) (PLANNED) | **advisory (S1 before real relatives; not blocking the synthetic build)** | `lca` proposes that FAM1-2 records that the client gave the consent herself and that the recording RN considered her able to decide **this** consent, "a fact with author and time, no score". I agree, and two clinical gaps remain. (1) **Source of the fact.** NAVORA holds assessment data (ASM1) and diagnoses. A build that pre-fills, defaults or checks the capacity fact from an assessment item, a cognitive score or a diagnosis would invent a capacity rule: no such rule exists in the Clinical Rule Register, capacity is judged per decision in a conversation (`lca` [N16]), and a score can be stale (CGR-104 basis by identity, not date). A pre-ticked or derived "yes" also removes the act that the evidence purpose of a documented consent relies on. (2) **Later loss of capacity.** The realistic course in home care is progressive (dementia) or sudden (delirium after a hospital stay, a stroke). FAM1 has no path for "the client can no longer decide": the view simply continues under a consent whose survival `lca` marks UNKNOWN (question 2). Nothing may end it automatically from a score either (same invented-rule problem), so the only safe path is a team act | `lca` D-40 16:55 (1) *Who decides capacity*, (2)(d), note to po (1); FAM1-2; CGR-126; CGR-104; Clinical Rule Register (no capacity rule) | **po (FAM1-2, -3):** (1) the capacity fact is a required explicit answer of the recording RN, with no default and no pre-selection; the consent command refuses without it (pgTAP: null refused; no default in the column or the form, vitest); (2) no function reads assessment, diagnosis or AI output to set, pre-fill, check or revoke it (pgTAP on the command's source tables; catalogue guard that no AIG1 path writes the consent record, as ADR-141 does for billing targets); (3) FAM1-3 gets a recorded revocation reason "Kann diese Einwilligung nicht mehr selbst geben" that any RN of the team may record; it ends the view with the byte-identical CGR-127 (1) sentence and is never shown to the relative (pgTAP), and a new view after it needs a new consent under whatever `lca` question 2 answers. **clinical (Clinical Owner, after G-1, UNKNOWN):** whether and when the team must re-check capacity for an existing relative consent (for example after a hospital stay); NAVORA sets no trigger until that rule is approved (D-27) |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-125** | open, **blocking for FAM1 approval** (unchanged; PO must write the mapping into FAM1-6). `lca` 16:55: neutral word "the more protective option; no legal objection" | D-40 16:55 (4) (#860) |
+| **CGR-126** | open, advisory (S1 before real relatives); **`lca` part answered at reading level:** refusing or ending the view on a protective concern, also against a representative's consent, discloses nothing and breaches no duty on the sources read; the protective reason preset is compatible (team and `admin` only); adviser question 7 confirms. Capacity and safeguarding procedure stay with the Clinical Owner (UNKNOWN); the capacity fact is now CGR-130 | D-40 16:55 (4), questions 7 (#860) |
+| **CGR-127** | open, advisory (S2); `lca` supports (1), (2), (4); on (3) cover is within one organisation (0028 header), so "Ihr Pflegeteam" when `covered_by` is set needs no legal answer; the name in any other case is adviser question 6 | D-40 16:55 (3), (4) |
+| **CGR-129** | open, advisory (S1 before real relatives); **`lca` adds a condition consistent with (1):** the contact receiving the sign-in is taken in the consent conversation and bound to one relative; the invitation names no client and no health fact before sign-in. Identity verification still open (`lca` will check the engineering proposal) | D-40 16:55 (1) *AUT-44* |
+| CGR-128 | open, advisory (S1 for real relatives); unchanged | FAM1-6 |
+| CGR-124, CGR-123, CGR-122, CGR-121, CGR-118, CGR-119, CGR-120, CGR-116, CGR-113, CGR-114, CGR-115 | open; unchanged | as at 16:45 |
+| CGR-112, CGR-103, CGR-104, CGR-106 to CGR-111 | open; remedies met on unchanged heads; close on merge | heads as above |
+| CGR-101 | open, advisory (S2); unchanged | 0001 `team_member_name` |
+| **CGR-16** | open (advisory now, **blocking before real data**) | no change |
+| CGR-78, CGR-86, CGR-97, CGR-99, CGR-94, CGR-75, CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-23 | open | no change |
+
+Closed in this section: none (no code merged).
+
+### Inputs (on `lca` 16:55)
+
+- **"FAM1 only for clients who give the consent themselves" in the pilot (`lca` (2), note to po (2)):** **supported from the clinical side.** It lowers nothing below today: the relative of a client without capacity keeps the phone route and the representative's own information rights. It is the owner's call because it narrows D-40 (the PO proposes it). Clinical cost, stated so the owner can weigh it: clients with dementia are the group whose relatives most often want the schedule; that need stays with the team by phone until `lca` question 2 is answered.
+- **"Ihr Pflegeteam" as the pilot default for every visit (`lca` (3), note to po (3)):** **supported from the clinical side.** It removes the CGR-127 (3) wrong-name hazard (a client prepared for one nurse and met by another) and the staff-timetable part of H-31 at once. Cost: a relative cannot prepare a client for a named person, which matters mostly for clients with cognitive impairment, who the capacity variant above largely excludes. The name with a staff switch can follow after adviser question 6.
+- **Negative test "no view, list or count orders or flags clients by consent status" (`lca` (1) *free*, note to po (1)):** supported; it is also a care-equality guard (a client's care must not depend on whether a relative can watch it). Pair it with the AN3 rule that no figure is per person.
+- **Information to the client before consent (`lca` (1) *informed*):** supported; it carries the CGR-126 timetable effect to the client herself. The wording is `uxa`'s; it must not say or imply that the view makes care safer or that the team watches less closely without it.
+- **Invented logic in #860:** none found. `lca` sets no capacity test, no representative order of its own (it cites the statutory order and leaves the application UNKNOWN), and no clinical rule.
+
+### Other checks (no finding)
+
+- **Hard-coded rules:** no code changed; no new Clinical Rule Register row. CGR-130 adds none (it forbids a derived capacity rule); a re-check trigger, if the Clinical Owner sets one, becomes a row then.
+- **Privacy:** #860 adds no data to the repository; canton read as Basel-Stadt (D-11 recording pending, PO).
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **FAM1** (brief draft) | **not approvable from the clinical side until CGR-125 is in FAM1-6** (unchanged); CGR-128 into FAM1-6 at approval or before acceptance; CGR-126, CGR-129, **CGR-130** before real relatives; CGR-127 before acceptance of the build |
+| **ADR-143** (#837 `9c2ecc4`) | clear for acceptance from the clinical side (unchanged) |
+| **M6-2** offline queue | CGR-121, CGR-122, CGR-123 tests green before merge (unchanged) |
+| **MOB1**, **D-2** (#838) | as at 13:30 (CGR-124 condition) |
+| #799, #841, #828, #800, #803, #804, #806, #809, #810, #813, #814, #815 | unchanged: clear to merge (heads unchanged, CI green) |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **po (FAM1):** CGR-125 into FAM1-6 (blocking for approval); CGR-128, CGR-129 (unchanged); **CGR-130 (1)-(3) into FAM1-2 and FAM1-3**; the `lca` notes (1)-(4); whether to propose the two pilot variants ("client consents herself", "Ihr Pflegeteam") to the owner.
+- **owner:** the two pilot variants if the PO proposes them (they narrow D-40); the organisation's general number (FAM1-10); chain merge of the governance PRs (#582 … this PR).
+- **lca / legal adviser:** questions 1, 2, 6, 7, 8 of D-40 16:55 (with D-9 in one round, as `lca` suggests); identity verification (CGR-129).
+- **clinical (Clinical Owner, after G-1):** how capacity for a relative consent is judged and recorded, and whether and when it is re-checked (CGR-126, CGR-130); a no-show or broken-off visit shown distinctly (CGR-125); any target for recording a completion (unchanged).
+
+---
+
 ## 2026-11-04 16:45 CET: no code changed since 13:30; `uxa` #850 15:50 FAM1 wordings (CGR-125 neutral status, CGR-127 (1) access-end sentence, FAM1-10 block) **confirmed**, which meets the `uxa` parts of CGR-125 and CGR-127 (1), (4) at document level; `aia` #858 (AUT-44, AUT-45) read: AUT-44 supported with conditions, AUT-45 no clinical objection; new **CGR-128** (advisory, S1 for real relatives, before FAM1 acceptance: how "verschoben" is derived is not defined, so a visit moved twice points to a date that no longer holds and a visit moved beyond today + 7 vanishes without a word) and **CGR-129** (advisory, S1 before real relatives: a self-service code resend (UXR-95) or a one-act invitation (AUT-44) must never re-open access after a revocation or reveal its cause)
 
 **Scope:** `recovery/main` @ `39a4883`. Changes since my 13:30 section (PR #857, unmerged; `recovery/main` was `d31669a`):

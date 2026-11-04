@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 17:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 17:30), `recovery/main` @ `39a4883` (unchanged): only `lca` #860 (D-40 / FAM1 re-check 16:55) is new; every code PR head unchanged; no comment addressed to `cra`.
+- **`lca` 16:55 read against the clinical findings:** supports CGR-125 (neutral word), CGR-126 protective refusal (also against a representative), CGR-127 (1), (2), (4); adds a consistent condition to CGR-129 (contact bound to one relative, invitation names no client). No invented clinical logic.
+- **Pilot variants supported from the clinical side:** "FAM1 only for clients who consent themselves" and "Ihr Pflegeteam" as the default name (removes the wrong-name hazard). Both narrow D-40: PO proposes, owner decides.
+- **New CGR-130** (advisory, S1 before real relatives): the RN's capacity fact in FAM1-2 is a required explicit act, never defaulted or derived from assessment, diagnosis or AI data; FAM1-3 needs a recorded reason for a later loss of capacity that ends the view with the one access-end sentence; any re-check rule is the Clinical Owner's (UNKNOWN). PS-117 added; H-30, H-31, R-13 updated.
+- **Next:** po: CGR-125 into FAM1-6 (still blocking FAM1 approval), CGR-128 to CGR-130 into FAM1-2/-3/-6; owner: chain merge #582 … this PR.
+- **Not merged by me:** owner instruction on #666 (chain #582 … this PR). I ran no tests; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
 ## 2026-11-04 16:45 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 16:45), `recovery/main` @ `39a4883`: no code merged since 13:30; `aia` #858 (AUT-44, AUT-45) read; open `uxa` #850 `2853655` (15:50 FAM1 wordings) read on its branch; every code PR head unchanged.
