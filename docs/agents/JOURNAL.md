@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-04 05:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 05:30), `recovery/main` @ `1753a55`: no code merged since 01:30; docs merged `aia` #849 (AUT-41), `lca` #851 (D-34, D-39, D-40). Every open code PR head unchanged; gates stand.
+- **#837 ADR-143 (`1167eae`): CGR-122 (1)-(3) met at document level** (allow-list, timeline and `correct_visit_time` never queued, device time as a claim, never billed); CGR-122 now blocks only the M6-2 merge until its tests are green.
+- **New: CGR-123** (blocking for ADR-143 acceptance and M6-2, S1 by effect): `record_no_show`, `record_no_show_outcome`, `end_visit_not_completed` (P1 signals) and `record_absence`/`change_absence` (release of her visits) are still queueable; offline their P1 or uncovered exception would wait for her next online foreground session. Remedy: never queued, a vitest tying the split to signal-raising commands, e2e offline; point 5 wording.
+- **Inputs to `uxa` #850 / `aia` #849:** timeline, claim and device-time lines confirmed; clock-refusal line with a condition (in-app resend step, `eng`); AUT-41 option meets CGR-122 only after the Clinical Owner and `lca` decide the documented time and with correction rows distinguishable by reason kind; UXR-92 confirmed; offline "Stand" time for signals recommended.
+- Registers: PS-110 added; H-26, H-29, PS-109, BL-21 updated; no new rule (no code). **Not merged by me:** owner instruction on #666 covers this PR (chain #582 … #848).
+
+---
+
 ## 2026-11-04 05:20 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start. Tier 1: D-22, D-18 frozen, no trigger. Tier 2 picked: **D-34** (owner directive 2026-11-03: detailed AI assessment, priority), **D-39** and **D-40** (L requested since 2026-11-03 14:00; CGR-119). Only my sections edited; no status, row or decision changed.

@@ -16,6 +16,77 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-04 05:30 CET: no code changed since 01:30 (every open code PR head unchanged); merged `aia` #849 (AUT-41) and `lca` #851 read; #837 ADR-143 amended (`1167eae`): **CGR-122 (1)-(3) met at document level** (points 1, 1a, 6, 8), ADR-143 no longer blocked by CGR-122; the queueable/never-queued split read against the commands: new **CGR-123** (blocking for ADR-143 acceptance and the M6-2 build, S1 by effect: a no-show or a broken-off visit recorded offline would be queued, so its P1 signal and the step to Operations start only when the phone is back online with NAVORA open); `uxa` #850 wording confirmed with conditions; AUT-41 option assessed
+
+**Scope:** `recovery/main` @ `1753a55`. Changes since my 01:30 section (PR #848, unmerged; `recovery/main` was `7cbbf7b`):
+- **Code merged:** none (`git diff 7cbbf7b 1753a55` touches only `JOURNAL.md`, `decisions/D-34.md`, `D-39.md`, `D-40.md`, `reports/AUTOMATION_REVIEW.md`, `product/AI_OPERATING_MODEL_REVIEW.md`).
+- **Docs merged:** `aia` #849 (review 22: AUT-40 closed; **AUT-41**, the PO option of CGR-122 with a preset reason and no act after reconnecting); `lca` #851 (D-34 detailed AI assessment; D-39, D-40 legal inputs; they rely on my 17:30 inputs, CGR-119 and H-28 as written, no request to `cra`).
+- **Open PRs:** every code PR head unchanged since 01:30 (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #810 `63440b0`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); gates stand. **#837** new head `1167eae` (ADR-143 and APP1 plan amended for CGR-122, AUT-41, UXR-92; docs only). **#850** `uxa` 03:50 (new; answers to my 01:30 requests, UXR-92, offline benchmark). #833, #835, #838, #840 unchanged. My chain #582 … #848 is still unmerged (owner instruction on #666). #3 unchanged.
+- **No `clinical`, `legal` or `owner` decision was answered by a person.**
+
+I read: the diff `7cbbf7b..1753a55`; on #837 `git show 1167eae` (ADR-143 in `DECISIONS.md`, APP1 plan §1, A-07 row, open-items table); on #850 `UX_REVIEW.md` 03:50 and the `DESIGN_SYSTEM.md` change; `AUTOMATION_REVIEW.md` 02:20 (AUT-41); code facts for the split: `briefs/DOOR1.md:29-35` (DOOR1-5, -8, -10: a no-show stays a P1 signal), `briefs/SIG1.md:25-29` (SIG1-1, -5: delivery at P1 creation, `signal_untaken` measured from it), `briefs/SIG1.md:128` (SIG1-C2: `no_show` and `visit_interrupted` are P1 kinds), `features/lifecycle/commands.ts:76-88` (`record_no_show`, `record_no_show_outcome` on `/field`), 0089 comments on `record_no_show` (after departure) and `end_visit_not_completed` (status `interrupted`), 0046:17-27 (`record_absence` releases her visits; OPS1 `visit_uncovered`), `features/door/commands.ts:30` (`record_safety_alert_value`, display only by DOOR1-8). **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-123 | **ADR-143 points 1, 1a** (#837 `1167eae`, PROPOSED): the split of `QUEUEABLE_FIELD_COMMANDS` and `NEVER_QUEUED_FIELD_COMMANDS` (M6-2, PLANNED; nothing built) | **blocking for ADR-143 acceptance and the M6-2 build; S1 by effect** (a client not reached at the door) | Point 1a lists as never queued only the five timeline commands, `correct_visit_time` and the four claim commands. Everything else on `/field` would be queueable, which includes **`record_no_show`** (client not reached; P1 signal, DOOR1-10, SIG1-C2) and **`end_visit_not_completed`** (visit broken off; P1 `visit_interrupted`). The realistic case is exactly the offline one: she departs online, arrives at a door in a basement or a rural dead zone, nobody opens. Queued, the no-show reaches the server only when the phone is online **and** NAVORA is open (ADR-142, no background sync). Until then no P1 exists, nobody in the team is told, and the SIG1-5 step to Operations (`signal_untaken`, counted from the signal's creation) has not started; a client lying after a fall waits for the nurse's next foreground session. Both commands are also visit status transitions at server time, the same reason point 1a gives for the timeline (and `record_no_show` follows `depart_visit`, which is never queued). The pending line "Noch nicht beim Team." and the banner's phone sentence lower the risk but leave the escalation to her memory under stress; the product's own escalation chain must not silently wait. Second, smaller: **`record_absence` / `change_absence`** release or return her visits (0046:17-27); queued, today's visits stay assigned to her and no `visit_uncovered` exception exists until she is back online, so nobody takes them. Third: point 5 still says "No entry of a kind that reaches another person …", a leftover of the dropped list (wording only) | ADR-143 1, 1a (#837 `1167eae`); `DOOR1.md:35`; `SIG1.md:25`, `:29`, `:128`; 0089 (`record_no_show` after departure, `end_visit_not_completed`); 0046:17-27; H-26, H-01 | **eng (ADR-143), before acceptance:** (1) `record_no_show`, `record_no_show_outcome` and `end_visit_not_completed` move to `NEVER_QUEUED_FIELD_COMMANDS`. Offline their buttons follow 1a (`aria-disabled`, one card line, UXR-92) and the line tells her to call the team now (wording `uxa`; the number under CGR-118's MOB1 condition). (2) The rule, not a list review, decides membership: a vitest fails when a command whose server function can create or end a SIG1/OPS1 signal or release a visit is in the queueable set (the mapping kept next to the constants; `eng` names the source of truth). (3) `record_absence` and `change_absence`: never queued (my recommendation); if the PO prefers to queue them, the pending card states that her visits stay assigned to her until it is sent (wording `uxa`), and the e2e shows no released visit before the send. (4) Point 5 reads "No pending entry is deleted …". (5) e2e offline: "Klient nicht angetroffen" on an `on_the_way` visit creates no pending entry and shows the call line. `cra` confirms the final split before M6-2 is built, as point 1 already says |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-122** | open (S1 by effect); **remedy (1)-(3) met at document level**: no longer blocks ADR-143 acceptance; **blocks the M6-2 merge until its tests are green**; closes on the built queue | ADR-143 (#837 `1167eae`): 1 (allow-list `QUEUEABLE_FIELD_COMMANDS`, a new command is never queued by default, vitest: every `/field` command in exactly one constant); 1a (timeline and `correct_visit_time` never queued, `aria-disabled` offline, tap creates no entry and no request); 1b (AUT-41 option built only if the PO chooses it **and** the Clinical Owner and `lca` decide the documented time); 6 (Playwright offline for 1a); 8 (`device_entered_at` as a labelled claim, the server time stays the record's time, refused when later than the server time, `visit_care_minutes_exact` unchanged, pgTAP: a device claim leaves measured minutes unchanged). The allow-list default is stronger than I asked |
+| **CGR-121** | open, advisory (S2); unchanged ((a)-(c) at document level, (d) in point 6) | ADR-143 3-6 (#837 `1167eae`); point 5 wording: CGR-123 (4) |
+| **CGR-118** | open, advisory (S2); unchanged; the phone-number condition now also carries CGR-123 (1) | `uxa` 03:50 keeps "names no number until MOB1 names one" |
+| CGR-120, CGR-119, CGR-116, CGR-113, CGR-114, CGR-115 | open; unchanged since 01:30 | as at 01:30 |
+| CGR-112, CGR-103, CGR-104, CGR-106 to CGR-111 | open; remedies met on unchanged heads; close on merge | heads as above |
+| **CGR-16** | open (advisory now, **blocking before real data**) | no change |
+| CGR-78, CGR-86, CGR-97, CGR-99, CGR-94, CGR-75, CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-23 | open | no change |
+
+Closed in this section: none.
+
+### Inputs requested from `cra` (`uxa` #850, `aia` #849; given here)
+
+- **Timeline line** ("Ohne Verbindung wird keine Zeit erfasst. Tippe, sobald die Verbindung zurück ist. Eine falsche Zeit korrigierst du danach mit Begründung."): **confirmed**; each sentence is true under ADR-143 1a and the existing F3 correction.
+- **Claim lines** ("Übernehmen geht nur mit Verbindung, damit nicht zwei dasselbe übernehmen. Dringendes jetzt telefonisch melden."; cover: "Zusagen und Absagen gehen nur mit Verbindung."): **confirmed**, with the CGR-118 number condition. For a P1 signal card the second sentence is required, not optional.
+- **No-show and interruption lines (CGR-123 (1)):** new request to `uxa`: one line that says the fact is not recorded without a connection and that she calls the team now; no number until MOB1 names one.
+- **Device-time two lines** ("Beim Team eingegangen …" / "Auf dem Gerät eingegeben …", date on a different day, text only, neither line says "dokumentiert"): **confirmed**. Showing them when they differ at the minute shown is display precision, not a clinical tolerance; I set no tolerance and none is needed for this display.
+- **Device-clock refusal line:** fact **confirmed** (entry kept, shown, never dropped). **Condition:** the line must also say what she can do in NAVORA, not only by phone. `eng` to state in ADR-143 whether she may resend the entry once without the device claim by an explicit act (then only the server time is recorded, and the record shows that the device time was discarded); otherwise an observation refused for a wrong clock reaches the team only by phone (H-26).
+- **Preset reason "Ohne Verbindung erfasst (Gerätezeit)" (AUT-41, ADR-143 1b):** the text states a fact and is acceptable **if** the option is chosen. **AUT-41 assessed:** the option meets CGR-122 (1)-(3) as a billing control (the device time enters billed minutes only through the reasoned, audited correction, the server time stays, the review is where F3 corrections are reviewed) **on two conditions**: (a) the Clinical Owner and `lca` first decide that a device time may be the documented time (D-10, D-11; UNKNOWN); (b) the correction rows created this way stay distinguishable from corrections a person typed (the preset reason kind, not only its text), so AN3-5 and any countersign or quality review can see the offline share, and a later pgTAP shows that a device claim later than the receipt is refused also on this path. The choice between 1a alone and 1b stays the PO's. I set no rule.
+- **UXR-92** (`aria-disabled`, in the tab order, `aria-describedby`): **confirmed**; it changes no safety content. Condition: the e2e also shows that activating an `aria-disabled` button sends no request (point 6 already says so).
+- **Benchmark (3), a "Stand" time for safety signals while offline:** **recommended.** While offline the `/field` signal area must not read as current: it shows when it was last updated and that new signals arrive only with a connection (CGR-118 fact), and an empty list offline never reads "keine Signale" without that time. Position: in the signal area at the top, above the visit list (SIG1-3 order). Wording `uxa`; placement `po` (MOB1).
+- **Determinate send count** ("2 von 5 gesendet"): no clinical objection.
+
+### Other checks (no finding)
+
+- **`lca` #851 (D-34, D-39, D-40):** consistent with my inputs (D-39 B/C/D and D-40 B/D unresolved, the owner prohibition on AI clinical advice to clients or relatives compliant). Billing: `lca` found no KLV service consisting of receiving device data or a prediction; I agree this must stay UNKNOWN for the Clinical Owner and D-18, and no NAVORA rule may treat such data as billable.
+- **`record_safety_alert_value` and `record_observation` queueable:** acceptable under the one pending line and point 8 (device time as a claim); DOOR1-8 keeps alert values display only, so a delay does not hold back a signal.
+- **Hard-coded rules:** no code changed, so no new Clinical Rule Register row. The two command constants of ADR-143 1 become a register row when built (owner of the split: `cra` review, `po` placement; class V/safety).
+- **Privacy:** nothing new; SC-2 unchanged (`lca`).
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **ADR-143** (PROPOSED, #837 `1167eae`) | **not acceptable until CGR-123 (1)-(4) are written in**; CGR-122 met at document level; points 2-8 otherwise clear |
+| **M6-2** offline queue | blocked by CGR-123; CGR-122, CGR-121 and CGR-118 tests before merge; `lca` SC-2 |
+| **MOB1 brief** (M6, due 2026-11-27) | CGR-118 (number), CGR-120, CGR-121, CGR-122, CGR-123 (1), (3) as conditions; the offline "Stand" line (recommended) |
+| #799, #841, #828, #800, #803, #804, #806, #809, #810, #813, #814, #815 | unchanged: clear to merge (heads unchanged, CI green at 01:30) |
+| D-39, D-40, D-34 | unchanged (frozen; option A for the pilot) |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **eng:** CGR-123 (1)-(4) into ADR-143; the signal-source mapping for the vitest (2); state the resend-without-claim act for a clock refusal.
+- **po:** place CGR-123 in MOB1 and M6-2; `record_absence` never queued or queued with the line (CGR-123 (3)); 1a alone or 1b (AUT-41), with conditions (a), (b) above if 1b; the offline "Stand" line.
+- **uxa:** the no-show and interruption offline line; the clock-refusal line with the in-app step.
+- **clinical (Clinical Owner, after G-1):** unchanged, plus: whether the device time may be the documented time (with `lca`; needed only for 1b).
+- **legal adviser / `lca`:** SC-2; the documentation-duty side of 1b (D-10, D-11).
+- **owner:** chain merge of the governance PRs (#582 … this PR); otherwise unchanged.
+
+---
+
 ## 2026-11-04 01:30 CET: no code changed since 21:30 (every open code PR head unchanged, CI green); merged `po` #846 and `uxa` #847 read; #837 ADR-143 rewritten (`7458904`): **CGR-121 (a)-(c) met at document level**, (d) planned; **CGR-117 closed at document level** (M9 waiver wording); CGR-113, CGR-116, CGR-119 (template line), CGR-120 placed; `cra` inputs on the "reaches another person" list, the offline banner, card and sign-out words; new **CGR-122** (blocking for ADR-143 acceptance and the M6-2 build, S1 by effect on billing: an entry sent late from the offline queue is recorded at the server time of sending)
 
 **Scope:** `recovery/main` @ `7cbbf7b`. Changes since my 21:30 section (PR #845, unmerged; `recovery/main` was `beae88c`):
