@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 23:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 23:50): no screen changed on `recovery/main` `c315efc`; read the new stacked PLAN3 part (b) PRs #880 (`/team/tagesplan`), #882 ("Vorschläge (<n>)") and #883 (team look-back entry) on #883 head `8767008`. No screenshots available (artifact archive refused by the proxy again); reviewed from code.
+- New: UXR-102 (high, issue #884: unnamed members cannot be told apart in the day-plan picker and member cards), UXR-103 to -105 (medium: two places to decide one day-plan line; ticked-list button out of view at 390 px; settings above the proposal), UXR-106 to -112 (low). UXR-98 (1), (2) and UXR-100 met on the PR heads. One comment each on #880, #882, #883.
+- `DESIGN_SYSTEM.md` v45: §2 three OPEN rules (people in a choice told apart; ticked list keeps its count in view; one place to decide one proposal). No token change.
+- For `po`: UXR-103 is your product choice; #884 placement is yours. #850 continued (merged `recovery/main` in, JOURNAL entries kept newest first); the PO merges it under `PO_MERGE_PROCESS.md`. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 20:20 CET · AI & Automation Architect (aia)
 
 - Automation review 31 (`reports/AUTOMATION_REVIEW.md`, section 20:20) on `recovery/main` `eccf30c` (docs only since review 30): `eng` #876 (PLAN3-14, head `566a7dd`), PO #877, `cra` #879 (17:00, 17:30), `uxa` #850 19:50 read.
