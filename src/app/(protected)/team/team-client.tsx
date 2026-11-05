@@ -132,6 +132,10 @@ export default function TeamClient({
           <Link href="/team/vorschlaege" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
             Vorschläge
           </Link>
+          {/* PLAN3 part (b) (ADR-147): the team asks for a day plan and confirms it line by line. */}
+          <Link href="/team/tagesplan" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
+            Tagesvorschlag
+          </Link>
         </div>
         <h1 className="mx-auto mt-1 max-w-xl text-xl font-bold">{PAGE_LABEL.team}</h1>
         <p className="mx-auto max-w-xl text-sm text-emerald-100">

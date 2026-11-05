@@ -26,7 +26,7 @@ const REFUSALS: Readonly<Record<string, string>> = {
   agent_off: UNAVAILABLE,
   agent_stopped: UNAVAILABLE,
   team_off: "Der Tagesvorschlag ist für euer Team ausgeschaltet.",
-  date_out_of_range: "Ein Vorschlag ist für heute bis in 14 Tage möglich.",
+  date_out_of_range: "Ein Vorschlag ist nur für heute und die nächsten 14 Tage möglich.", // UXR-100
   open_proposal: "Für diesen Tag liegt schon ein Vorschlag vor. Entscheidet zuerst seine offenen Zeilen.",
   nothing_open: "An diesem Tag ist kein Einsatz offen.",
 };
@@ -69,8 +69,9 @@ export function switchedOnLine(isoDate: string | null): string | null {
 /**
  * PLAN3-14 (ADR-146, `cra` CGR-136): on the day-load line of a member who also has visits that day in
  * another team (cover or a second membership). Only that they exist: no count, no client, no time.
- * Wording proposed by the PO (#874), open for `uxa`.
+ * Wording `uxa` UXR-98 (1) (2026-11-05 19:50): the minutes on the same line count this team only, so the fact says
+ * that it is not counted there.
  */
 export function otherTeamVisitsLine(hasOtherTeamVisits: boolean | null): string | null {
-  return hasOtherTeamVisits === true ? "weitere Einsätze in anderen Teams" : null;
+  return hasOtherTeamVisits === true ? "Dazu Einsätze in anderen Teams, hier nicht mitgezählt." : null;
 }

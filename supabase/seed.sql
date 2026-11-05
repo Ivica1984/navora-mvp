@@ -611,3 +611,67 @@ where id = '00000000-0000-4000-a000-0000000005b4';
 -- category B visit …5b3). No member is left without a qualification (pgTAP 018: null only on the ADM2 path).
 update public.team_memberships set qualification = 'care_assistant'
 where team_id = '00000000-0000-4000-a000-000000000191' and user_id = '00000000-0000-4000-a000-0000000009c6';
+
+-- PLAN3 part (b) (e2e plan3.spec, ADR-147): the day-plan screen on synthetic data only, in an organisation of its own (no
+-- org-A to org-F fixture or count changes). The organisation's administrator has switched `plan3_day_proposal` on (as
+-- set_agent_state would write it; threshold written by the switch-on, a test value, not a NAVORA default). The team's
+-- own switch (PLAN3-10) is off, as by default: the e2e switches it on. No proposal is seeded; the e2e asks for one.
+--   teamg.test (…9e1): registered nurse of Testteam G who signs in at 390 px.
+--   bezugg     (…9e2): registered nurse of Testteam G, primary nurse of Testfall G1; never signs in.
+--   assistg    (…9e3): care assistant of Testteam G; never signs in.
+--   tomorrow, nobody responsible: …5c1 08:00, …5c2 09:00, …5c3 10:00 (Testfall G1, category A, primary nurse first);
+--   …5c4 08:15-08:45 (Testfall G2, no primary nurse; overlaps …5c1, so a correction to Bezug G after …5c1 is
+--   confirmed is refused `overlap`, PLAN3-14 (2)); …5c5 12:00 (Testfall G2, category B minutes: registered nurse only).
+insert into public.organizations (id, name) values ('00000000-0000-4000-b000-000000000017', 'Testorganisation G');
+insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000001a1', private.now() - interval '200 days', 'Testteam G', 'Bern West', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test G', 'Keine Massnahme', false, null);
+insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000002a1', private.now() - interval '100 days', 'Testfall G1', 'Testfall', 'G1', 'Bern West', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam G', '00000000-0000-4000-a000-0000000001a1', private.now() - interval '99 days'),
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000002a2', private.now() - interval '100 days', 'Testfall G2', 'Testfall', 'G2', 'Bern West', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam G', '00000000-0000-4000-a000-0000000001a1', private.now() - interval '99 days');
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009e1', 'authenticated', 'authenticated',
+   'teamg.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), private.now(),
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009e2', 'authenticated', 'authenticated',
+   'bezugg.test@navora.test', '', null,
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009e3', 'authenticated', 'authenticated',
+   'assistg.test@navora.test', '', null,
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
+  ('00000000-0000-4000-a000-0000000009f1', '00000000-0000-4000-a000-0000000009e1', '00000000-0000-4000-a000-0000000009e1',
+   '{"sub":"00000000-0000-4000-a000-0000000009e1","email":"teamg.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now());
+insert into public.organization_memberships (organization_id, user_id, role) values
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000009e1', 'nurse'),
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000009e2', 'nurse'),
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000009e3', 'nurse');
+insert into public.team_memberships (team_id, user_id, qualification) values
+  ('00000000-0000-4000-a000-0000000001a1', '00000000-0000-4000-a000-0000000009e1', 'registered_nurse'),
+  ('00000000-0000-4000-a000-0000000001a1', '00000000-0000-4000-a000-0000000009e2', 'registered_nurse'),
+  ('00000000-0000-4000-a000-0000000001a1', '00000000-0000-4000-a000-0000000009e3', 'care_assistant');
+insert into public.member_profiles (organization_id, user_id, display_name, updated_by) values
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000009e1', 'Pflegekraft Team G', '00000000-0000-4000-a000-0000000009e1'),
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000009e2', 'Pflegekraft Bezug G', '00000000-0000-4000-a000-0000000009e1'),
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000009e3', 'Pflegekraft Assistenz G', '00000000-0000-4000-a000-0000000009e1');
+update public.cases set primary_nurse_id = '00000000-0000-4000-a000-0000000009e2'
+where id = '00000000-0000-4000-a000-0000000002a1';
+insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end,
+                                services_provided, billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id)
+select '00000000-0000-4000-b000-000000000017', v.id::uuid, private.now() - interval '2 days', v.case_id::uuid,
+       '00000000-0000-4000-a000-0000000001a1', (private.now() at time zone 'Europe/Zurich')::date + 1,
+       v.t0::time, v.t0::time + interval '30 minutes', array['Grundpflege'], false, 'planned',
+       case when v.t0 = '12:00' then 0 else 30 end, case when v.t0 = '12:00' then 30 else 0 end, null
+from (values ('00000000-0000-4000-a000-0000000005c1', '00000000-0000-4000-a000-0000000002a1', '08:00'),
+             ('00000000-0000-4000-a000-0000000005c2', '00000000-0000-4000-a000-0000000002a1', '09:00'),
+             ('00000000-0000-4000-a000-0000000005c3', '00000000-0000-4000-a000-0000000002a1', '10:00'),
+             ('00000000-0000-4000-a000-0000000005c4', '00000000-0000-4000-a000-0000000002a2', '08:15'),
+             ('00000000-0000-4000-a000-0000000005c5', '00000000-0000-4000-a000-0000000002a2', '12:00')) v(id, case_id, t0);
+insert into public.ai_agent_settings (organization_id, agent_key, state, stop_share, stop_min_proposals, stop_window_days,
+                                      switched_on_by, switched_on_at, on_version, on_provider, on_region)
+select '00000000-0000-4000-b000-000000000017', d.key, 'on', 50, 10, 30, '00000000-0000-4000-a000-0000000009e1',
+       private.now() - interval '1 day', d.version, d.provider, d.region
+from public.ai_agent_definitions d where d.key = 'plan3_day_proposal';
