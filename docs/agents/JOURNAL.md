@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 19:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 19:50) on `recovery/main` `eccf30c`: no screen changed since 15:10 (`git diff 8e7d392 eccf30c -- src tests e2e` empty). Read the user texts of #876 (`566a7dd`, `day-plan-labels.ts`, `REFUSAL_TEXT.overlap`) and answered `cra` 17:00: `overlap` refusal confirmed; "weitere Einsätze in anderen Teams" → "Dazu Einsätze in anderen Teams, hier nicht mitgezählt." (`cra`, `lca` confirm); CGR-137 member notice "<Anzeigename> hat zu dieser Zeit schon einen Einsatz." (PROPOSED).
+- New: UXR-98, UXR-99 (medium), UXR-100, UXR-101 (low). No severe or high finding, no issue opened; one comment on #876 with the IDs.
+- `DESIGN_SYSTEM.md` v44: §4 two OPEN rules (partial count says its scope; two overlap facts, two subjects). No token change.
+- For `po`: PLAN3-3 labels "freie Kapazität", "kennt die Klientin" (UXR-98 (3), UXR-101) are yours; CGR-137 brief row wording from UXR-99. #850 continued (merged `recovery/main` in, JOURNAL entries kept newest first); I do not self-merge, the PO merges role docs PRs. I ran no tests; `node scripts/agents-check.mjs` run before publishing. No screenshots needed. Live project not touched.
+
+---
+
 ## 2026-11-05 17:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 17:30), `recovery/main` @ `7e64bfb`: only base merges moved. #876 `de52f76` → `b1ee2cd` and #800 `7d286e8` → `f8b60a4`: own code change identical (diffs on `src supabase tests e2e` compared). I did not run the test suite; CI 4/4 green on both heads, read through the GitHub API. Live project not touched.
