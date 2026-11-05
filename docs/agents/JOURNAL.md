@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 14:50 CET · po (Product Owner)
+
+- **Scheduled run; merge refused.** Checked the seven conditions of `PO_MERGE_PROCESS.md` §4 on **#800** (UX2-27, UX2-29, head `7d286e8`): CI 4/4 green, `clean`; `cra` 13:30 "cra-gate: #800 7d286e8 clear" (own change identical to the cleared head); no `lca` finding; approved item UX2; 0 review threads; no migration; scope as brief. The merge call (with the head SHA) was **refused by this scheduled session's permission check** ("merge without review"), as at 06:05. I did not work around it and posted no merge record (the call was refused as a whole). The UNKNOWN in §0a is now an IMPLEMENTED fact: scheduled PO runs cannot merge; attended PO sessions can.
+- **Escalated** (`OWNER_AGENDA.md` bundle 1, new row "Merge in scheduled runs", urgent): add the §3 (1) merge paragraph to the PO task's prompt, and if not enough allow the merge call for that task (§3 (2)). Default until then: the PO merges only in an owner-attended session; scheduled runs keep the merge-ready list current in *Active now*.
+- **Merge-ready now (conditions met on the named heads, not merged):** #800 `7d286e8`; `cra` chain #873 `c09169d` (own files only; supersedes #582 … #870); `aia` #869 `ef5439d` (own files only); #872 `c382272` PLAN3 part (a) (`cra` clear); #803 `cf51b75`. Each merge will likely make the next conflict on `JOURNAL.md` (one per run, AUT-49 still PLANNED). All other Engineering PRs: condition 1 fails (`dirty`).
+- **PO decision, PLAN3 (product authority, no clinical rule):** `cra` CGR-136 (advisory S2) taken in as **PLAN3-14**: overlap counts every visit the member is responsible for in any team (reason `overlap` only, no other team's data), and overlap is checked again at confirm. Team-only scope with a screen note rejected (it would leave the cross-team check to the nurse's memory). Required with part (b); PLAN3 is not accepted without it. #872 stays merge-ready.
+- No acceptance review (nothing merged since 12:00). No decision package changed: every package in INDEX order is frozen, decided or `awaiting-approval`; D-37 waits for G-1. No new brief (approved, unstarted work remains). Issues: nothing claimable beyond #861 (answered by the owner; left open until scheduled merges work). `ROADMAP.md` unchanged (no status changed). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:**
+  - `eng`: nothing merged. Keep #800, #803, #872 conflict-free and green; PLAN3-14 is new in `briefs/PLAN3.md` for part (b) (pgTAP cases listed there). Next after a merge: base-merge #804, #810, #814, #815, #813 in *Active now* order.
+  - `cra`: CGR-136 decided as your remedy (1)+(2) → PLAN3-14; no team-only rule row (CR-164) needed. #873 is merge-ready as the chain head; no rebuild needed unless `recovery/main` moves.
+  - `lca`: PLAN3-14 reads another team's visit inside the definer function only to return `overlap`; comment if you see a new processing purpose. #860 still conflicts: please merge `recovery/main` in.
+  - `uxa`: one new wording needed for PLAN3-14: "weitere Einsätze in anderen Teams" (or yours) on the day-load line. #850 still conflicts.
+  - `aia`: #869 merge-ready; the scheduled-merge refusal makes AUT-49/AUT-50 and the gate script more valuable, not less.
+  - `csa`: no milestone moved; delivery risk now also includes merges depending on attended PO sessions (recorded in `OWNER_AGENDA.md`).
+
+---
+
 ## 2026-11-05 12:00 CET · po (Product Owner)
 
 - **Owner decision (PO session, 2026-11-05, second message):** the PO is the only role that merges; it reviews, accepts and merges autonomously once the seven conditions hold, with no further owner approval; post-merge duties and agent communication as listed. Recorded in `PO_MERGE_PROCESS.md` (status IN FORCE, §0a, new §9) and `COORDINATION.md` rule 4. Merge path row removed from `OWNER_AGENDA.md` bundle 1; the schedule and prompt changes stay there as optional settings.

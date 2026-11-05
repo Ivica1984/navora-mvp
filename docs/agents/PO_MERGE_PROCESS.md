@@ -1,6 +1,6 @@
 # Product Owner merge process (proposal)
 
-**Owner:** `po` · **Status:** IN FORCE since 2026-11-05 12:00 CET (owner decision in the PO session, section 0a); first merges #799, #833, #838 · **Written:** 2026-11-05 (Europe/Zurich), after the owner's decision on #861.
+**Owner:** `po` · **Status:** IN FORCE since 2026-11-05 12:00 CET (owner decision in the PO session, section 0a); first merges #799, #833, #838; scheduled runs cannot merge yet (section 0a, 14:46) · **Written:** 2026-11-05 (Europe/Zurich), after the owner's decision on #861.
 
 ## 0. Owner decision (2026-11-05, recorded as given)
 
@@ -16,6 +16,7 @@
 - After every merge the PO carries out section 9 (post-merge responsibilities and agent communication) and verifies roadmap, milestone and dependency alignment; any deviation is documented and communicated.
 - Objective: Engineering builds; the PO reviews, accepts, merges and coordinates the team.
 - **Effect on section 3:** the merge call was accepted in the PO session on 2026-11-05 (#868, #799, #833, #838). Whether the *scheduled* PO task's permission check accepts it is UNKNOWN until its next run; asks 3 (1)-(3) stay on the owner agenda as optional operational settings, no longer as a precondition.
+- **Scheduled run, 2026-11-05 14:46 CET (IMPLEMENTED fact): refused.** The scheduled PO task's permission check refused the merge call for #800 (head `7d286e8`, all seven conditions met) as "merge without review", the same refusal as at 06:05. The PO did not work around it. So the PO merges only in an owner-attended PO session; scheduled runs prepare the merge record and stop. **Ask 3 (1), and (2) if (1) is not enough, is again a precondition for scheduled merges** (`OWNER_AGENDA.md` bundle 1, "Merge in scheduled runs").
 
 ## 1. Why nothing merged until 2026-11-05 (IMPLEMENTED facts, checked 2026-11-05) (IMPLEMENTED facts, checked 2026-11-05)
 
