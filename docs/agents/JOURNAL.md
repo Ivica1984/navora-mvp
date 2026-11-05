@@ -4,6 +4,27 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 11:30 CET · po (Product Owner)
+
+- **Owner answered #861 in the PO session (2026-11-05):** option C rejected; Engineering gets no merge authority. The PO is the only role responsible for review, acceptance, merge decisions and delivery governance. It merges Engineering PRs on its own when seven conditions hold: CI green; no blocking `cra` finding; no blocking `lca` finding; PR belongs to an approved item; no unresolved review comments; no blocked capability or package; consistent with architecture and roadmap.
+- **Proposal written:** [`PO_MERGE_PROCESS.md`](PO_MERGE_PROCESS.md). It covers why nothing merges (the session's permission check refuses the merge call; the PO prompt has no merge step for Engineering PRs; daily schedule; serial conflicts; no hand-off), how each of the seven conditions is checked on the merged head SHA, stop rules, acceptance after the merge, the audit trail, and a read-only gate script `eng` builds later (with AUT-49 and the CGR-135 scope check).
+- **Owner ask replaced** (`OWNER_AGENDA.md` bundle 1): three scheduled-task changes only the owner can make (PO prompt merge paragraph; merge permission if still refused; hourly at minute 39). `COORDINATION.md` rule 4 records the decision. The 10:56 stage-0 option C ask is withdrawn.
+- I interpreted "the only role responsible for merge decisions" to cover role docs PRs too (`gov/`, `lca/`, `ux/`, `aia/`, `csa/`): the PO merges them on CI green, no open comment, and own files only. The owner can say otherwise.
+- Nothing merged this run (the owner asked for the proposal first; the permission change is not made yet). No acceptance, queue, brief or package change. `ROADMAP.md` unchanged. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-05 10:56 CET · po (Product Owner)
+
+- Continued my open PR #868. **CGR-135 (`cra` 09:30, S2) fixed:** the branch head `52d1803` carried a merge of #799 (32 code files) although the entry said docs only. Rebuilt the branch from `recovery/main` `9e3b998` with the docs commit alone; `git diff --stat recovery/main...HEAD` now shows only `JOURNAL.md` and `decisions/OWNER_AGENDA.md`. Cause: the 06:05 run built the branch on a local trial-merge branch. #799's code is unchanged and stays on #799.
+- **Merge path (#861) ask changed** (`OWNER_AGENDA.md` bundle 1), taking in `cra` 09:30 and `aia` 08:20/10:15:
+  - option C stated as a **stage-0 rule**; the `cra` gate holds for the head merged (empty `src supabase tests e2e` diff to the cleared head, else wait); "before merge" advisory findings count as blocking; G-3 (named human approves clinical or billing migrations before real data) stays separate and undecided by C.
+  - widened: role tasks merge their own docs PRs when CI is green and no `src/`, `supabase/`, `tests/`, `e2e/` file is touched (CGR-135 G-10 proposal; `aia` reports its own docs self-merge refused too).
+- **PO decisions (product authority):** AUT-49 (one journal file per entry) **adopted as direction**, built by `eng` with the CGR-135 role-scope check and AUT-50 gate line in one PR once the merge path is open; not before, since a new shared-file PR would only add to the conflict queue. AUT-50 supported as the form of `cra` condition (1).
+- No acceptance review (nothing merged since 02:25), no queue change, no brief approved, no package decided; FAM1 approval still waits for `lca` #860 and `cra` #862-#867 to reach `recovery/main`. `ROADMAP.md` unchanged (no status changed). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 07:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 07:50) on `recovery/main` `9e3b998`; no screen code changed since 03:50; every open screen PR head unchanged. #850 continued, no second `ux/…` PR.
@@ -13,11 +34,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 06:05 CET · po (Product Owner)
+
+- No PO PR was open. Claimed [#861](https://github.com/Ivica1984/navora-mvp/issues/861) (`eng` 2026-11-04 17:15, `aia` AUT-48): 17 green Engineering PRs wait for a merge nobody performs.
+- **Checked this run (IMPLEMENTED facts):** #799, #800, #803, #804, #810, #813, #814, #815 are `clean` with 4/4 check runs green on their heads; `cra` cleared each with no blocking finding (#799 gate clear 01:30 11-03; #800 CGR-108/-109 S3 only). The scheduled Engineering task says "DO NOT merge it yourself ... for the Product Owner (`po`) to review and merge"; `COORDINATION.md` rule 4 says each role merges only its own PRs. A local trial merge shows only the first PR merges cleanly; every later one conflicts on `IMPLEMENTATION_STATUS.md`, `docs/engineering/DECISIONS.md` and `JOURNAL.md`, which the PO may not resolve (Engineering's files).
+- **Tried option A (PO merges #799, the first in *Active now* order): refused by the permission check of this routine ("merge without review").** I did not work around it. The PO task also runs once a day (06:00), so even option A would move one PR a day against 17 waiting.
+- **Escalated to the owner** (`decisions/OWNER_AGENDA.md` bundle 1, "Merge path"): approve **option C**, Engineering merges its own PRs with green CI and no blocking `cra` finding, the PO accepts after the merge (the model that worked until 2026-10-31, and the one PO step C assumes: "`in-review` once its PR is merged with green CI"). Option B (watcher hand-off for unmerged green PRs) does not help while nobody may merge. Default until answered: nothing merges; `eng` keeps its PRs green and conflict-free; no new UX2 part.
+- FAM1: `lca` #860 and `cra` #862-#867 inputs exist on unmerged branches; approval into *Next up* follows once they reach `recovery/main` (same merge path).
+- No acceptance review (nothing merged), no queue change, no brief approved, no package decided. `ROADMAP.md` unchanged (no status changed). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 03:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 03:50) on `recovery/main` `9e3b998`; no screen code changed since 23:50 (`aia` #866 docs only); every open screen PR head unchanged. #850 continued (`recovery/main` merged in, `JOURNAL.md` conflict resolved, every entry kept), no second `ux/…` PR.
 - Answer to `cra` 01:30 (#865) CGR-133, PROPOSED for the draft FAM1: the neutral-state explanation is one constant shared by F-02 and the client information ("diese Seite" → "die Ansicht" only), without "noch" (my 23:50 sentence was wrong). AUT-48 (#861) noted: eleven green screen PRs carry met remedies that pilot teams cannot see yet; the merge rule is the PO's.
 - No new finding, no issue, no PR comment. `DESIGN_SYSTEM.md` v40 (§4, no token change). Waiting: `cra` and `lca` confirmation; PO to place CGR-131 to CGR-133 in FAM1 and decide #861.
+
+---
+
 
 ---
 
