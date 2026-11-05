@@ -2593,7 +2593,7 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 
 **Deviations / notes for the PO (and `uxa`):**
 1. *Every agent, not only `plan3_day_proposal`:* the brief's first sentence names the day-plan agent; the 02:55 amendment keys the entry on "every stop of its records with at least one open line". Built as amended: any agent's stop with an open line of the team's records shows. Today the seed's only stop is the synthetic test agent's (Testorganisation F), which the e2e uses; a real `plan3_day_proposal` stop shows the same way.
-2. *"Next to 'Vorschlag zurzeit nicht verfügbar'":* `/team` shows that text only inside `/team/tagesplan` (PLAN3-6 refusal); the entry is placed on `/team` itself under the alerts. Placement and the heading "Rückblick nach einem Stopp" accepted by `uxa`; the link reads "Werte prüfen" (`uxa` UXR-112, 2026-11-05 23:50, adopted in this PR).
+2. *"Next to 'Vorschlag zurzeit nicht verfügbar'":* `/team` shows that text only inside `/team/tagesplan` (PLAN3-6 refusal); the entry is placed on `/team` itself under the alerts. Placement and the count-only line accepted by `uxa`; the heading "Rückblick nach einem Stopp" stays Engineering's, OPEN; the link reads "Werte prüfen" (`uxa` UXR-112, 2026-11-05 23:50, adopted in this PR).
 3. *A stop at "0 offen" with lines "nicht mehr offen":* no entry (AIG1-C5 (d)); the list opened by URL then shows "Keine offenen Werte eures Teams auf der Liste." because the narrowing takes the team ids from the same function.
 4. *e2e count:* the test runs after the AIG1-C2 block in the same file (one worker), so the open count reads 1; it accepts 1 or 2 so it also holds when run alone.
 
