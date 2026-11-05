@@ -86,24 +86,6 @@ create function pg_temp.record_lines(p_user text, n int) returns jsonb language 
   select pg_temp.rows(p_user, format('select suggestion_id, field, record_open from public.record_lookback_lines(%L, %L)',
                                      'care_visits', pg_temp.v(n))) $$;
 
--- Fixtures (as the table owner): r4, the primary nurse of case 208; o, a nurse of team 102 only; unassigned Nord visits
--- of case 208: 1-3 on T+1 (past once the clock moves to T+2), 4 on T+2 (still open then), 5 on T+2 (proposed after the stop).
-insert into auth.users (id, email) values (pg_temp.u('r4'), 'aig1-c1-r4@navora.test'), (pg_temp.u('o'), 'aig1-c1-o@navora.test');
-insert into public.organization_memberships (organization_id, user_id, role)
-values ('00000000-0000-4000-b000-000000000011', pg_temp.u('r4'), 'nurse'),
-       ('00000000-0000-4000-b000-000000000011', pg_temp.u('o'), 'nurse');
-insert into public.team_memberships (team_id, user_id, qualification)
-values ('00000000-0000-4000-a000-000000000101', pg_temp.u('r4'), 'registered_nurse'),
-       ('00000000-0000-4000-a000-000000000102', pg_temp.u('o'), 'registered_nurse');
-update public.cases set primary_nurse_id = pg_temp.u('r4') where id = '00000000-0000-4000-a000-000000000208';
-insert into public.care_visits (organization_id, id, case_id, team_id, visit_date, time_start, time_end, services_provided,
-                                billable, status, planned_minutes_a)
-select '00000000-0000-4000-b000-000000000011', pg_temp.v(n), '00000000-0000-4000-a000-000000000208',
-       '00000000-0000-4000-a000-000000000101', pg_temp.t() + d, s, s + interval '15 minutes', array['Grundpflege'], false,
-       'planned', 15
-from (values (1, 1, time '08:00'), (2, 1, time '09:00'), (3, 1, time '10:00'), (4, 2, time '08:00'),
-             (5, 2, time '09:00')) f(n, d, s);
-
 create function pg_temp.stops(p_user text) returns jsonb language sql as $$
   select pg_temp.rows(p_user, 'select stop_id, team_id, open_count, not_open_count from public.team_lookback_stops()') $$;
 create function pg_temp.mine(p_user text) returns jsonb language sql as $$
