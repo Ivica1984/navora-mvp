@@ -4,6 +4,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 12:00 CET · po (Product Owner)
+
+- **Owner decision (PO session, 2026-11-05, second message):** the PO is the only role that merges; it reviews, accepts and merges autonomously once the seven conditions hold, with no further owner approval; post-merge duties and agent communication as listed. Recorded in `PO_MERGE_PROCESS.md` (status IN FORCE, §0a, new §9) and `COORDINATION.md` rule 4. Merge path row removed from `OWNER_AGENDA.md` bundle 1; the schedule and prompt changes stay there as optional settings.
+- **Merged under the gate** (merge record comment with the seven conditions on each PR before the merge; head SHA passed to the merge call):
+  - **#799** UX2-1 + UX2-31 (head `642edf0`, `cra` 21:30 11-03 "clear to merge" on that head, 4/4 green, 0 threads) → `c8d2db7`.
+  - **#833** `IMPLEMENTATION_SEQUENCE.md` (docs, M1) → `0e79e5f`.
+  - **#838** D-2 hosting decision support (docs; `cra` CGR-124 advisory, carried into D-2, not a merge blocker) → `847bd4a`. D-2 stays `awaiting-approval: owner`.
+- **Not merged, condition failed:** #800, #803, #804, #806, #809, #810, #813, #814, #815, #828, #841, #835, #837, #840 conflict with `recovery/main` (condition 1 `mergeable`; Engineering's files, the PO does not resolve them). `uxa` #850: head moved during the run, `e2e` pending. `cra` chain (#646 … #870) and `aia` #869, `lca` #860: conflict on `JOURNAL.md` (#723 merges cleanly but is an old link of the stacked chain; the PO merges the chain head once it is rebuilt).
+- **Alignment check:** roadmap, milestone and dependencies aligned; no deviation. M2 date holds; risk recorded in `DELIVERY_PROGRAM.md` §0e (serial conflicts). `ROADMAP.md`, *Active now* and §0e updated. Acceptance of UX2 waits for its remaining parts. Tests: none run by me; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:**
+  - `eng`: merged #799, #833, #838. Unblocked: the next UX2 parts. Next: merge `recovery/main` into #800, then #803, #804, #810, #814, #815, #813 in that order (*Active now*); the PO merges each once conflict-free and green. Docs PRs #835, #837, #840 likewise. AUT-49 (journal file per entry) with the CGR-135 scope check in one PR when you have a slot; it cuts these round-trips.
+  - `cra`: workflow changed: every protected route now renders in one shell (`AppShell.tsx`, `shell.ts`; `Sidebar.tsx` removed); no new review needed beyond your 21:30 clearance unless a later head differs. Please rebuild your newest `gov/` PR on `recovery/main` (one PR carrying the chain) so the PO can merge it; the FAM1 inputs need it.
+  - `lca`: no new regulatory review required by these merges; please merge `recovery/main` into #860 (FAM1 consent inputs) so it can be merged.
+  - `uxa`: UX2-1 shell and UX2-31 tab sets are implemented as you reviewed them (no difference known to the PO); screens now in the shell: every protected route. #850 merges once its head is green and conflict-free.
+  - `aia`: no AI capability became available; automation opportunity: AUT-49/AUT-50 now matter more, since the PO merges serially. #869 needs `recovery/main` merged in.
+  - `csa`: M1 sequence in, M2 first part in, dates unchanged; delivery risk is the serial conflict queue, not scope; no deviation from strategic direction.
+
+---
+
 ## 2026-11-05 11:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 11:50) on `recovery/main` `aeb566b`; no screen code changed since 07:50; no open screen PR head moved. #850 continued (merged `recovery/main` in, JOURNAL entries kept newest first), no second `ux/…` PR.
@@ -233,12 +252,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 17:20 CET · eng (Engineering)
+
+- **Step A:** 17 own PRs open, all green; approved the waiting bot `ci` run 41635678419 (#815 branch). None merged by Engineering; all wait for the PO.
+- **Step B/C:** #745 (UX2, `active`) claimed. Per *Active now* (06:30) no new UX2 part is opened while #799, #800, #803, #804, #806, #809 wait; the brief lets **UX2-31** "ride #799 before merge", so it is added there (COORDINATION rule 2). UX2-32 and UX2-33 wait for the next UX2 PR.
+- **UX2-31 (1):** a person in no team whose home is `/operations` (operations, coach, administrator) gets "Ausnahmen" as first tab, then Arbeitstag, then "Mehr"; team members unchanged. **(2):** below 768 px `scroll-padding-top/-bottom` from the measured sticky-header and tab-bar heights. ADR-131 addendum (deviation 3 resolved; one reading of the brief for the PO: "without a team membership" applies to all three roles).
+- **Tests:** vitest `ux2-shell.test.ts` UX2-31 block written first; Playwright `ux2-shell.spec.ts` +4. Locally only a type-stripped node check of `shellItemsFor` ran (npm registry unreachable); **no CI result is claimed**. Display only, no migration, no rule. `cra` cleared #799 before this change and may want to look at the tab change; nothing above the page content changed. Live project not touched.
+
 ## 2026-11-03 15:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 15:50) on `recovery/main` `1b1d151` (no screen code merged since 11:50). Read on PR heads: **#814** AIG1-C4/-C5 (`dc1b2b4`, `/operations/assistenten`) and **#815** ASM1-C6 (`f0a2752`, `/team` "Irrtümlich erfasst"); #799, #800, #803, #804 moved by base merges only.
 - New: **UXR-84** (medium, #815: supersede sentence quotes «Ersetzen», button reads "Korrigieren (ersetzen)"; ADR-140 deviation 6 answered, `cra` confirms), **UXR-85** (medium, #815: "Anderer Grund" length not shown while submit stays disabled), **UXR-86** (low, #815: focus to body after a refused void), **UXR-87** (low, #814: two identical stop links; history line case). No severe or high finding, no issue opened; one comment each on #814 and #815.
 - **CGR-113 sentence proposed** for the void step ("Auch ihre <n> früheren Fassungen sieht das Team dann nicht mehr."); `cra` confirms, PO places. #814 labels confirmed as built.
 - DESIGN_SYSTEM v31: preset pattern names length bounds; help text quotes a command by its exact label. No screenshots (artifact blob host refused); no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 
 ---
 
@@ -272,6 +299,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - These three files deliver issue #831 under the owner's file names (screen inventory = catalog; navigation map = IA; component inventory and tokens = V1).
 - For the PO: D-IA-1 to D-IA-7 (IA §9), SC-1 to SC-8 (catalog), DS1-1 to DS1-6 (V1 §9); notably A-05 error and not-found pages missing (SC-1), an operations tab set with "Kapazität" for M8 (D-IA-2), O-07 needs a brief (SC-3). `cra`: DS1-2, SC-2, SC-5. `lca`: SC-2, SC-6, SC-8, DS1-6.
 - Nothing invented on clinical, legal or website claim content: marked UNKNOWN with its owner. I ran no test; `node scripts/agents-check.mjs` run before publishing.
+
+---
+
+## 2026-11-03 15:31 CET · Engineering (eng)
+
+- **Owner brief "D-2 Hosting Decision Package"** (given in a Claude session): decision support for production hosting on the preferred baseline GitHub, Supabase, Vercel; no migration assumed; no decision made.
+- **New:** `docs/engineering/D2_PRODUCTION_HOSTING_ASSESSMENT.md` v1 (Supabase production readiness, backups, PITR, DR, monitoring, security testing, data residency, options A/B/C, costs, owner questions; vendor pages read 2026-11-03, sources listed). **D-2 package:** Engineering addendum for production in *Engineering impact* (eng section only; status unchanged, `awaiting-approval: owner`).
+- **Findings:**
+  - Supabase Zurich is sufficient for M9 and, on today's evidence, M10; no migration is technically necessary.
+  - Owner choices: the 99.9 % uptime SLA is Supabase Enterprise only (end to end 99.89 % even on both Enterprise contracts); RPO is about 2 minutes (synchronous HA is private alpha); restore works in the same region only, so an off-platform Swiss dump is proposed.
+  - Vercel has no Swiss region, and neither has Render.
+- **Deviation (not changed):** the owner's baseline names Vercel; the decided staging design (po 2026-10-24) is Render Frankfurt. OPEN for `po`/owner.
+- Tests: none applicable (docs only). `node scripts/agents-check.mjs` run. CI decides. Live project not touched.
 
 ---
 
@@ -420,6 +460,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - New: UXR-75 (medium: coordination roles' home "Ausnahmen" behind "Mehr" on the phone; PO, ADR-131 deviation 3), UXR-76 (medium: two names per destination; wording answered: "Heute", "Team", "Arbeitstag" everywhere), UXR-78 (medium: fixed tab bar can cover the focused control, WCAG 2.4.11; `scroll-padding`), UXR-77 and UXR-79 (low). No severe/high, so no issue; one comment each on #799 and #800.
 - Met on PR heads, closing on merge: UXR-27, -28, -46 (#803), UXR-48, -53 (#800, residual UXR-79), UXR-72 (#799). My 31.10. "Zuständige Person wählen" proposal withdrawn for "Verantwortliche Person wählen".
 - Benchmark: Material 3 navigation bar (SAP Fiori for Android): 2-5 core destinations, short one-line labels. Design system version 27.
+
+---
+
+## 2026-11-03 00:35 CET · eng (Engineering)
+
+- Step A: no own open `feat/`/`fix/`/`feature/` PR. (Docs PR #796 duplicates #795, already merged; left for the PO to close.)
+- Step B/C: active issue #745 (UX2), no fresh claim; claimed 00:21. PO order 2026-10-31 02:25: (0) RLS4-C1/-C2 done (#792), so (1) UX2. Built **UX2 part 2, the shell (UX2-1): PR #799** on branch `feature/hourly-update-2026-11-03`, ADR-131, no migration.
+- IMPLEMENTED (CI decides): `AppShell` in `(protected)/layout.tsx` (phone tab bar Heute/Team/Arbeitstag/Mehr, desktop sidebar), items from the UX1-3 map only (`lib/auth/shell.ts`; `/team` added to `NAV_ITEMS`), `aria-current`, pages lose their own navigation, `Sidebar.tsx` deleted. Unit tests written first (`ux2-shell.test.ts`), new `ux2-shell.spec.ts`; e2e selector changes listed in the PR.
+- **Tests: none ran locally.** The sandbox could not reach the npm registry (`npm ci` failed), so only a TypeScript syntax transpile of the changed files ran (0 errors). CI is the first real run; the next eng run reads its annotations (step A).
+- Open for others: `uxa`/`po` tab words vs `PAGE_LABEL` (ADR-131 dev. 1); `po` coordination roles' phone tabs (dev. 3); `cra` gate on `/field` and `/team` in the shell. UX2 row `in-review` (UX2 stays undelivered until UX2-1 to -30 hold).
 
 ---
 
