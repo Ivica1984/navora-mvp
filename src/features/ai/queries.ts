@@ -8,7 +8,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import { COORDINATOR_ROLES, PAGE_LABEL } from "@/lib/auth/nav";
 import { FIELD_PATH, homePathForRoles } from "@/lib/auth/paths";
 import { errorFields, logEvent } from "@/lib/log";
-import { countOpenSuggestions, type Provenance, type TeamLookbackStop } from "./labels";
+import { countOpenSuggestions, type Provenance, type StopMeasure, type TeamLookbackStop } from "./labels";
 
 type Fn = Database["public"]["Functions"];
 export type OpenSuggestion = Fn["open_suggestions"]["Returns"][number];
@@ -140,6 +140,20 @@ export async function getStopLookback(stopId: string): Promise<LookbackLine[]> {
     throw new Error("Die Liste konnte nicht geladen werden.");
   }
   return data ?? [];
+}
+
+/**
+ * PLAN3-13 (ADR-150): the look-back measure of one stop per team (`agent_stop_measures`, migration 0112), in the scope
+ * of `agent_stop_lookback`. Null when the read failed: the page then says so rather than showing zeros.
+ */
+export async function getStopMeasures(stopId: string): Promise<StopMeasure[] | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("agent_stop_measures", { p_stop_id: stopId });
+  if (error) {
+    logEvent("warn", "plan3.stop_measures_failed", errorFields(error));
+    return null;
+  }
+  return (data ?? []).map((r) => ({ ...r, lead_time_median_hours: r.lead_time_median_hours === null ? null : Number(r.lead_time_median_hours) }));
 }
 
 export type TeamLookbackStopRow = Fn["team_lookback_stops"]["Returns"][number];

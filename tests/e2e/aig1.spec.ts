@@ -164,6 +164,15 @@ test.describe("AIG1 health and look-back lists at desktop width (Testorganisatio
     const lines = list.getByTestId("lookback-line");
     await expect(lines).toHaveCount(4);
     await expect(page.getByTestId("lookback-open-count")).toHaveText("Werte: 2 offen · 1 nicht mehr offen");
+    // PLAN3-13 (ADR-150): the measure per team above the list, counts only (pgTAP 113 owns every count).
+    const measure = page.getByTestId("stop-measure-row");
+    await expect(measure).toHaveCount(1);
+    await expect(measure.getByRole("rowheader")).toHaveText("Testteam F");
+    await expect(measure.getByTestId("stop-measure-lines_at_stop")).toHaveText("4");
+    await expect(measure.getByTestId("stop-measure-superseded")).toHaveText("1");
+    await expect(measure.getByTestId("stop-measure-not_open_at_stop")).toHaveText("0");
+    await expect(measure.getByTestId("stop-measure-became_not_open")).toHaveText("1");
+    await expect(measure.getByTestId("stop-measure-days_to_zero_open")).toHaveText(/^noch \d offen$/);
     // AIG1-14: no confirmer's name, no "bestätigt von", no outcome, no person filter or sort.
     await expect(list).not.toContainText(CONFIRMER_F);
     await expect(list).not.toContainText("bestätigt von");

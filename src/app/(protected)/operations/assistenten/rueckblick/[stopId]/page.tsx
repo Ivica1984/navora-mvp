@@ -2,8 +2,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { PageFrame } from "@/components/layout/PageFrame";
-import { getStopLookback } from "@/features/ai/queries";
-import { LOOKBACK_EXPLANATION, NOT_OPEN_TEXT, fieldLabel, formatDate, lookbackCountsText, supersededText } from "@/features/ai/labels";
+import { getStopLookback, getStopMeasures } from "@/features/ai/queries";
+import {
+  LOOKBACK_EXPLANATION,
+  NOT_OPEN_TEXT,
+  fieldLabel,
+  formatDate,
+  lookbackCountsText,
+  stopMeasureCells,
+  supersededText,
+} from "@/features/ai/labels";
 
 // AIG1-12 / -13 / -14 (ADR-129): after a stop, the records that hold a value of that agent confirmed unchanged in the
 // stop window. Its own line layout: record (case reference, visit date), field and, where it applies, "überholt am
@@ -13,11 +21,13 @@ import { LOOKBACK_EXPLANATION, NOT_OPEN_TEXT, fieldLabel, formatDate, lookbackCo
 // open stays, labelled "Einsatz nicht mehr offen" (the line shows its date), and is counted apart ("Werte: <n> offen · <m>
 // nicht mehr offen"); the explanation names only the record page's actions (AIG1-C2 (c)). AIG1-C3 (1): each line passes
 // its origin to the record page, which links back here. Wording adopted by the PO 2026-10-31 00:10 from `uxa`.
+// PLAN3-13 (ADR-150): above the list, the look-back measure per team (agent_stop_measures, 0112): counts of lines only,
+// never per person, no target; a failed read says so instead of showing zeros.
 export default async function LookbackPage({ params }: { params: Promise<{ stopId: string }> }) {
   await connection();
   const { stopId } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(stopId)) notFound();
-  const lines = await getStopLookback(stopId);
+  const [lines, measures] = await Promise.all([getStopLookback(stopId), getStopMeasures(stopId)]);
   const open = lines.filter((l) => !l.superseded && !l.not_open).length;
   const notOpen = lines.filter((l) => l.not_open).length;
   return (
@@ -35,6 +45,47 @@ export default async function LookbackPage({ params }: { params: Promise<{ stopI
             {lookbackCountsText(open, notOpen)}
           </p>
         </header>
+        <section aria-labelledby="stop-measures-title" data-testid="stop-measures" className="grid gap-2">
+          <h2 id="stop-measures-title" className="text-lg font-semibold">
+            Rückblick in Zahlen
+          </h2>
+          {measures === null ? (
+            <p data-testid="stop-measures-error" className="text-sm">
+              Die Zahlen konnten nicht geladen werden.
+            </p>
+          ) : measures.length === 0 ? (
+            <p className="text-sm text-secondary">Keine Zahlen für dieses Team.</p>
+          ) : (
+            <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white">
+              <table aria-label="Rückblick in Zahlen pro Team" className="w-full text-left text-sm">
+                <thead className="bg-stone-100 text-xs uppercase tracking-wide">
+                  <tr>
+                    <th className="p-2">Team</th>
+                    {stopMeasureCells(measures[0]).map((c) => (
+                      <th key={c.key} className="p-2">
+                        {c.label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {measures.map((m) => (
+                    <tr key={m.team_id} data-testid="stop-measure-row" className="border-t border-stone-200 align-top">
+                      <th scope="row" className="p-2 font-semibold">
+                        {m.team_name}
+                      </th>
+                      {stopMeasureCells(m).map((c) => (
+                        <td key={c.key} className="p-2" data-testid={`stop-measure-${c.key}`}>
+                          {c.value}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
         {lines.length === 0 ? (
           <p data-testid="lookback-empty" className="rounded-lg border border-dashed border-stone-300 p-4 text-center text-secondary">
             Keine Werte auf der Liste.

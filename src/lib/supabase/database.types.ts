@@ -2275,6 +2275,11 @@ isOneToOne: false
               "case_ref": string,"entity_id": string,"entity_type": string,"field": string,"not_open": boolean,"proposed_at": string,"superseded": boolean,"superseded_at": string,"team_id": string,"team_name": string,"visit_date": string
             }[]
                            },
+"agent_stop_measures":
+{ Args: { "p_stop_id": string }; Returns: {
+              "became_not_open": number,"days_to_zero_open": number | null,"lead_time_median_hours": number | null,"left_by_recheck": number,"lines_at_stop": number,"not_open_at_stop": number,"open_now": number,"proposals_in_window": number,"superseded": number,"team_id": string,"team_name": string
+            }[]
+                           },
 "assign_team_coach":
 { Args: { "p_coach_name": string,"p_idempotency_key": string,"p_team_id": string }; Returns: string
                            },

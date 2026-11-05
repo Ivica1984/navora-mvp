@@ -2604,3 +2604,35 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** `npm ci` failed in this session (registry unreachable, npm "Exit handler never called"), so vitest, typecheck, lint, build, pgTAP and e2e were **not** run with the project's toolchain. The three pure functions were run once under Node type stripping with a minimal script (8 assertions, passed) and the wiring checks of the vitest file as plain string checks (passed). CI is the test runner.
 
 **Rollback:** revert the PR; `drop function if exists public.team_lookback_stops();` (no table, no data).
+
+
+### ADR-150 — PLAN3-13: the look-back measure per stop and team, never per person
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/PLAN3.md` note 2026-10-31 02:25 (PLAN3-13, ADR-130 deviation 5) and note 02:55 (AUT-31) · **Migration:** 0112 · **Stacked on:** #883 (ADR-149) · **Proof:** vitest `plan3-13-stop-measures` (written first), pgTAP 113 (14 assertions, on the seeded stop of Testorganisation F), e2e `aig1.spec` (assertions added to the look-back test).
+
+**Context (IMPLEMENTED before):** `agent_stop_lookback(stop)` (0097/0104) lists the lines still on a stop's list now, each marked superseded or no longer open; `team_lookback_stops()` (0111) counts open and no-longer-open lines per team. Lines that left by re-check drop out of `private.aig1_lookback`, so nobody could tell how many lines a stop listed at first or how long the team took to "0 offen" — the data P-39 and P-40 are decided on.
+
+**Decision:**
+1. **The open-visit condition at a past instant (`private.plan3_visit_open_at`):** the AIG1-C1 condition of 0104 (`planned`, not suspended, not covered, not dated before that day, Europe/Zurich) evaluated at an instant: `status` and `visit_date` read back from `audit_events` (every UPDATE of `care_visits` records the old value, 0014), suspension and cover from `suspended_at` / `covered_at`. No new table or column.
+2. **Every line of the stop as listed at the stop (`private.plan3_stop_lines`):** `aig1_lookback`'s join without its "not re-checked since" condition, with the time of the first re-check after the stop, superseded (as 0097), open now (`aig1_record_open`) and the first instant after the stop at which the visit was no longer open. No person, outcome or confirmer column. Not granted to app roles.
+3. **`public.agent_stop_measures(stop)`:** per team of the stop, the six counts of the brief: *lines at stop*; *left by correction or re-confirmation*; *überholt* (not re-checked, value replaced); *nicht mehr offen at the stop*; *became nicht mehr offen while still listed*; *days until "0 offen"* (Zurich calendar days from the stop to the moment the last line stopped counting as open — re-check, supersession or the visit closing, never before the stop; null while a line is open). Plus `open_now` (same rule as 0111) and, AUT-31, the agent's proposals of that team in the stop window with their **median lead time from proposal to visit start in hours** (`percentile_cont(0.5)`, one decimal). Access exactly as `agent_stop_lookback`: coordinators every team, a member her own teams; LEAVE1-3; other organisations nothing. Writes nothing.
+4. **Screen:** on the stop's look-back page under `/operations/assistenten` (reached from the health list and the OPS1 exception), a section "Rückblick in Zahlen": one row per team, seven cells (`stopMeasureCells`, pure). "Tage bis 0 offen" reads "noch <n> offen" while lines are open, "am Tag des Stopps" at 0; a missing lead time is "–", never 0. A failed read says "Die Zahlen konnten nicht geladen werden." instead of zeros (`warn` event `plan3.stop_measures_failed`). Desktop table with horizontal scroll at phone width, as the health list.
+
+**Trade-offs:** the reconstruction scans the visit's audit rows per line; stops are rare and lines few, acceptable for the pilot. A materialised snapshot at the stop would be exact but adds a table and a write path at stop time (AIG1 core); not chosen without a need.
+
+**Deviations / notes for the PO (and `cra`, `aia`, `uxa`):**
+1. *Lifted suspension or cover:* when a suspension or cover was lifted again, `suspended_at` / `covered_at` no longer show it, so the visit counts as open for that span; the "not open at the stop" count can then be too low by those lines. UNKNOWN how often this happens; an exact answer needs those columns in the `care_visits` audit allowlist (PLANNED only if the PO asks).
+2. *AUT-31 expired share:* "the share of day-plan proposals that expired without a decision" needs AIG1-C4 (expiry), which is in #814 (migration 0105) and not on this stack. **PLANNED**: one more column once #814 is merged. The lead time is built.
+3. *"Per team and window" (AUT-31):* read as the stop's window (`window_from` … `window_to`, or up to the stop's ledger row for a version change), the same proposals the stop decided on. A calendar window is not built.
+4. *Lead time uses the visit's current date and start*, so a visit moved after the proposal counts with its new time. Documented, not corrected.
+5. *No small-team suppression:* the counts are of values on records, not of persons; AIG1-7's suppression applies to PLAN3-7's shares and is not added here. OPEN for `po` if wanted.
+6. *Labels are Engineering's* ("Rückblick in Zahlen", "Werte beim Stopp", "Erneut bestätigt oder geändert", "Überholt", "Beim Stopp nicht mehr offen", "Seither nicht mehr offen", "Tage bis 0 offen", "Vorlauf Vorschlag bis Einsatz (Median)"), OPEN for `uxa`.
+7. *The test clock:* `audit_events.occurred_at` takes `now()`, not `private.now()`, so in pgTAP a status change can sit on the other side of a pinned stop. pgTAP 113 therefore proves the closing by date (visit …5b1) and by re-check only; a status-change case is not asserted (UNKNOWN in CI, sound on the real clock).
+
+**Clinical gate:** PLAN3 is in scope (README *Clinical review gate*); the latest Clinical Governance Report has no finding on PLAN3-13. The measure adds no clinical rule, threshold or stop criterion; it never decides whether, by whom or by when a value is re-checked (D-17, UNKNOWN). `aia` supported PLAN3-13 with AUT-31 (review 2026-10-31). `lca` not needed (no new read, no person data).
+
+**Not set by this:** P-39, P-40 (the PO decides on these counts). No AI service. The live project is not touched (D-1).
+
+**Checked by me (not CI):** `npm ci` failed in this session (npm "Exit handler never called"), so vitest, typecheck, lint, build, pgTAP and e2e were **not** run with the project's toolchain. The three pure functions were run once under Node type stripping with a minimal script (11 assertions, passed) and the wiring checks of the vitest file as plain string checks (passed). The SQL was not executed locally. CI is the test runner.
+
+**Rollback:** revert the PR; `drop function if exists public.agent_stop_measures(uuid); drop function if exists private.plan3_stop_lines(uuid); drop function if exists private.plan3_visit_open_at(uuid, timestamptz);` (no table, no data).

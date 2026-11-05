@@ -244,3 +244,51 @@ export function linesOfTeams<T extends { team_id: string }>(lines: T[], teamIds:
   const ids = new Set(teamIds);
   return lines.filter((l) => ids.has(l.team_id));
 }
+
+/**
+ * PLAN3-13 (ADR-150): one row of `public.agent_stop_measures(stop)`: the look-back measure of one team for one stop.
+ * Counts of lines only; no person, outcome or confirmer (AIG1-11). A usefulness measure, never a stop criterion.
+ */
+export type StopMeasure = {
+  team_id: string;
+  team_name: string;
+  lines_at_stop: number;
+  left_by_recheck: number;
+  superseded: number;
+  not_open_at_stop: number;
+  became_not_open: number;
+  open_now: number;
+  days_to_zero_open: number | null;
+  proposals_in_window: number;
+  lead_time_median_hours: number | null;
+};
+
+/** PLAN3-13: "Tage bis 0 offen" only once nothing is open; while lines are open, how many. */
+export function daysToZeroText(days: number | null, openNow: number): string {
+  if (openNow > 0 || days === null) return `noch ${openNow} offen`;
+  if (days === 0) return "am Tag des Stopps";
+  return days === 1 ? "1 Tag" : `${days} Tage`;
+}
+
+/** PLAN3-13 (AUT-31): the median lead time from proposal to visit; a missing value is "–", never 0. */
+export function leadTimeText(hours: number | null, proposals: number): string {
+  if (hours === null || hours === undefined) return "–";
+  return `${hours} Std. · ${proposals} ${proposals === 1 ? "Vorschlag" : "Vorschläge"}`;
+}
+
+/** PLAN3-13: the cells of one team's measure in a fixed order (labels are Engineering's, open for `uxa`). */
+export function stopMeasureCells(m: StopMeasure): { key: string; label: string; value: string }[] {
+  return [
+    { key: "lines_at_stop", label: "Werte beim Stopp", value: String(m.lines_at_stop) },
+    { key: "left_by_recheck", label: "Erneut bestätigt oder geändert", value: String(m.left_by_recheck) },
+    { key: "superseded", label: "Überholt", value: String(m.superseded) },
+    { key: "not_open_at_stop", label: "Beim Stopp nicht mehr offen", value: String(m.not_open_at_stop) },
+    { key: "became_not_open", label: "Seither nicht mehr offen", value: String(m.became_not_open) },
+    { key: "days_to_zero_open", label: "Tage bis 0 offen", value: daysToZeroText(m.days_to_zero_open, m.open_now) },
+    {
+      key: "lead_time",
+      label: "Vorlauf Vorschlag bis Einsatz (Median)",
+      value: leadTimeText(m.lead_time_median_hours, m.proposals_in_window),
+    },
+  ];
+}
