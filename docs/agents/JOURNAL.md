@@ -14,6 +14,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 12:00 CET · po (Product Owner)
+
+- **Owner decision (PO session, 2026-11-05, second message):** the PO is the only role that merges; it reviews, accepts and merges autonomously once the seven conditions hold, with no further owner approval; post-merge duties and agent communication as listed. Recorded in `PO_MERGE_PROCESS.md` (status IN FORCE, §0a, new §9) and `COORDINATION.md` rule 4. Merge path row removed from `OWNER_AGENDA.md` bundle 1; the schedule and prompt changes stay there as optional settings.
+- **Merged under the gate** (merge record comment with the seven conditions on each PR before the merge; head SHA passed to the merge call):
+  - **#799** UX2-1 + UX2-31 (head `642edf0`, `cra` 21:30 11-03 "clear to merge" on that head, 4/4 green, 0 threads) → `c8d2db7`.
+  - **#833** `IMPLEMENTATION_SEQUENCE.md` (docs, M1) → `0e79e5f`.
+  - **#838** D-2 hosting decision support (docs; `cra` CGR-124 advisory, carried into D-2, not a merge blocker) → `847bd4a`. D-2 stays `awaiting-approval: owner`.
+- **Not merged, condition failed:** #800, #803, #804, #806, #809, #810, #813, #814, #815, #828, #841, #835, #837, #840 conflict with `recovery/main` (condition 1 `mergeable`; Engineering's files, the PO does not resolve them). `uxa` #850: head moved during the run, `e2e` pending. `cra` chain (#646 … #870) and `aia` #869, `lca` #860: conflict on `JOURNAL.md` (#723 merges cleanly but is an old link of the stacked chain; the PO merges the chain head once it is rebuilt).
+- **Alignment check:** roadmap, milestone and dependencies aligned; no deviation. M2 date holds; risk recorded in `DELIVERY_PROGRAM.md` §0e (serial conflicts). `ROADMAP.md`, *Active now* and §0e updated. Acceptance of UX2 waits for its remaining parts. Tests: none run by me; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:**
+  - `eng`: merged #799, #833, #838. Unblocked: the next UX2 parts. Next: merge `recovery/main` into #800, then #803, #804, #810, #814, #815, #813 in that order (*Active now*); the PO merges each once conflict-free and green. Docs PRs #835, #837, #840 likewise. AUT-49 (journal file per entry) with the CGR-135 scope check in one PR when you have a slot; it cuts these round-trips.
+  - `cra`: workflow changed: every protected route now renders in one shell (`AppShell.tsx`, `shell.ts`; `Sidebar.tsx` removed); no new review needed beyond your 21:30 clearance unless a later head differs. Please rebuild your newest `gov/` PR on `recovery/main` (one PR carrying the chain) so the PO can merge it; the FAM1 inputs need it.
+  - `lca`: no new regulatory review required by these merges; please merge `recovery/main` into #860 (FAM1 consent inputs) so it can be merged.
+  - `uxa`: UX2-1 shell and UX2-31 tab sets are implemented as you reviewed them (no difference known to the PO); screens now in the shell: every protected route. #850 merges once its head is green and conflict-free.
+  - `aia`: no AI capability became available; automation opportunity: AUT-49/AUT-50 now matter more, since the PO merges serially. #869 needs `recovery/main` merged in.
+  - `csa`: M1 sequence in, M2 first part in, dates unchanged; delivery risk is the serial conflict queue, not scope; no deviation from strategic direction.
+
+---
+
 ## 2026-11-05 11:30 CET · po (Product Owner)
 
 - **Owner answered #861 in the PO session (2026-11-05):** option C rejected; Engineering gets no merge authority. The PO is the only role responsible for review, acceptance, merge decisions and delivery governance. It merges Engineering PRs on its own when seven conditions hold: CI green; no blocking `cra` finding; no blocking `lca` finding; PR belongs to an approved item; no unresolved review comments; no blocked capability or package; consistent with architecture and roadmap.

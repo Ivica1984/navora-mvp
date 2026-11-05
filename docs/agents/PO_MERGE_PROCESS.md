@@ -1,6 +1,6 @@
 # Product Owner merge process (proposal)
 
-**Owner:** `po` · **Status:** PROPOSAL, waiting for the owner's permission change (section 3) · **Written:** 2026-11-05 (Europe/Zurich), after the owner's decision on #861.
+**Owner:** `po` · **Status:** IN FORCE since 2026-11-05 12:00 CET (owner decision in the PO session, section 0a); first merges #799, #833, #838 · **Written:** 2026-11-05 (Europe/Zurich), after the owner's decision on #861.
 
 ## 0. Owner decision (2026-11-05, recorded as given)
 
@@ -9,7 +9,15 @@
 - The PO merges Engineering PRs on its own, with no further owner approval, when **all seven conditions** in section 4 hold. It then reviews, accepts, merges and updates the milestone status.
 - Engineering keeps implementing. Merge authority stays with the PO.
 
-## 1. Why nothing merges today (IMPLEMENTED facts, checked 2026-11-05)
+## 0a. Owner decision (2026-11-05, second message, recorded as given)
+
+- The PO remains the only role authorized to merge pull requests; Engineering gets no merge authority.
+- The PO may autonomously review, accept and merge completed sprint work once the seven conditions of section 4 hold (the owner's wording: CI green; no blocking Clinical & Regulatory finding; no blocking Legal & Compliance finding; belongs to an approved brief, milestone or roadmap item; no unresolved review comments; matches the approved architecture; matches the approved roadmap and current milestone plan). **No further owner approval is required.**
+- After every merge the PO carries out section 9 (post-merge responsibilities and agent communication) and verifies roadmap, milestone and dependency alignment; any deviation is documented and communicated.
+- Objective: Engineering builds; the PO reviews, accepts, merges and coordinates the team.
+- **Effect on section 3:** the merge call was accepted in the PO session on 2026-11-05 (#868, #799, #833, #838). Whether the *scheduled* PO task's permission check accepts it is UNKNOWN until its next run; asks 3 (1)-(3) stay on the owner agenda as optional operational settings, no longer as a precondition.
+
+## 1. Why nothing merged until 2026-11-05 (IMPLEMENTED facts, checked 2026-11-05) (IMPLEMENTED facts, checked 2026-11-05)
 
 | # | Cause | Evidence | Effect |
 |---|---|---|---|
@@ -91,3 +99,23 @@ All seven conditions must hold **for the head commit being merged**. The PO writ
 ## 8. What happens first once A-C are in place
 
 The first runs merge in *Active now* order: #799, #800, #803, #804 (UX2), then #810 (CGR-110; `cra` widened the remedy to pgTAP 064, so a follow-up stays open), #814, #815, #813, then the remaining green PRs, including the role docs PRs and the FAM1 inputs (`lca` #860, `cra` #862-#867). At one Engineering PR per hour, the 17 waiting PRs take about a day.
+
+## 9. Post-merge responsibilities and agent communication (owner, 2026-11-05)
+
+After every merge, in the same run, the PO:
+
+1. updates the roadmap status (`ROADMAP.md`, German);
+2. updates milestone progress (`docs/product/DELIVERY_PROGRAM.md`, newest status section);
+3. updates sprint status (*Active now* in `NEXT_CAPABILITY.md`);
+4. records completed deliverables (journal entry; brief evidence table on acceptance);
+5. records dependency changes (what is unblocked, which PRs now conflict);
+6. records new blockers;
+7. notifies every relevant agent in the journal entry, one line each:
+   - `eng`: what was merged, what is unblocked, what starts next (including which open PRs must merge `recovery/main` in);
+   - `cra`: which workflows changed, whether a new review is required;
+   - `lca`: whether a new regulatory review is required;
+   - `uxa`: whether the build differs from the approved design, which screens are now implemented;
+   - `aia`: whether AI-related capabilities became available, new automation opportunities;
+   - `csa`: milestone progress, roadmap changes, delivery risks, deviations from strategic direction.
+
+For every merged sprint the PO checks roadmap alignment, milestone alignment and dependency alignment and writes any deviation into the journal entry and the milestone status.
