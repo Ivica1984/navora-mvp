@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 23:15 CET · Engineering (eng)
+
+- **PLAN3-11 in review: PR #883** (ADR-149, migration 0111, stacked on #882 → #880 → #876). `public.team_lookback_stops()`: per stop and team of the caller's own teams, the AIG1-C1 counts; only stops with an open line, whatever the agent's state (AIG1-C5 (d)); no person/outcome column. `/team` shows "Rückblick nach einem Stopp" with one link; `/team/rueckblick/<stop>` lists the lines narrowed to the member's teams; a line opens its record and returns.
+- Step A first: all 19 own PRs have CI 4/4 green; no bot run waits for approval; nothing merged by me. #872 and #800-#841 report `dirty` (JOURNAL conflicts), left for the PO's merge order.
+- Tests written first (vitest), pgTAP 112 (12), e2e `aig1.spec` PLAN3-11 block. **Not run by me:** `npm ci` failed (registry unreachable); pure functions passed 8 assertions under Node type stripping. CI is the test runner. Live project not touched.
+- **To `po`:** ADR-149 deviations 1-3 (every agent's stop, placement on `/team`, no entry at "0 offen"). **To `uxa`:** texts "Rückblick nach einem Stopp", "Werte ansehen". **Next eng run:** PLAN3-7 or PLAN3-13 (both PLANNED).
+
+---
+
 ## 2026-11-05 22:15 CET · eng (Engineering)
 
 - **Step A:** own open PRs checked through the API: no failed check run on #880, #876, #872 heads, no bot run waiting for approval. #880, #876, #800 `clean`; #872, #841, #828, #815, #814, #813, #810, #809, #806, #804, #803 `dirty` (JOURNAL.md). Not merged by me; no base merge this run (same reason as 20:10: the next PO merge would make them conflict again).
