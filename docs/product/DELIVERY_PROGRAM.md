@@ -121,6 +121,15 @@ Every brief, ADR and PR for these surfaces builds on them. A deviation is stated
 - **D-39 (owner): A.** No sensors, device data intake, IoT integrations, predictive monitoring or AI risk predictions in the pilot; specification-only. No milestone changes.
 - **D-40 (owner): option A rejected; a minimal, read-only relative view is in the pilot.** Consented relatives see visit status, planned time and the assigned caregiver. Excluded: AI, messaging, direct communication with care teams, clinical information, assessments, documentation, recommendations. **M7 changes** (below): its decision part is done; its deliverable is now brief **FAM1** (draft 2026-11-04), approved once `lca` (consent; representation; staff display name) and `cra` (visibility, information boundaries, safety) have answered, then built on synthetic data. Real relatives only after the legal adviser's answer (with D-9) and D-1. Screens in scope: F-01 and F-02 of the design set; F-03 to F-06 stay frozen. New M7 date follows Engineering's FAM1 estimate (plan version 2, 2026-11-17).
 
+## 0e. Status 2026-11-05 12:00: PO merges in force; first merges
+
+- **Owner decision (2026-11-05):** the PO alone merges, autonomously, under the seven conditions of `docs/agents/PO_MERGE_PROCESS.md` §4, with post-merge duties in §9. Option C (Engineering merges) rejected.
+- **Merged** (merge commits, CI green on each head, PO did not run the tests): **#799** UX2-1 + UX2-31, one shell for every protected route (`c8d2db7`); **#833** `IMPLEMENTATION_SEQUENCE.md` M2-M8 (`0e79e5f`); **#838** D-2 hosting decision support (`847bd4a`).
+- **M2 (web app consolidated, 2026-11-27):** first of the four cleared UX2 parts is in; #800, #803, #804 now conflict with `recovery/main` and wait for Engineering to merge it in. Date holds; at risk only if the conflict round-trip stays one PR a day.
+- **M1 (delivery baseline, 2026-11-13):** the implementation sequence is on `recovery/main`; #835 (`DELIVERY_ESTIMATE.md` v1) and #837 (WEB1/APP1 plans) conflict and wait for `eng`. Dates are not changed by the sequence until the PO adopts them.
+- **New blocker / risk:** every Engineering PR edits `IMPLEMENTATION_STATUS.md`, `docs/engineering/DECISIONS.md` and `JOURNAL.md`, so each merge makes the rest conflict (AUT-49 adopted as direction). Role docs PRs (`cra` chain, `uxa` #850, `aia` #869, `lca` #860) conflict on `JOURNAL.md` too; FAM1 approval waits for the `lca` and `cra` inputs to reach `recovery/main`.
+- **Deviation:** none from architecture or strategic direction.
+
 ## 1. Milestones
 
 | # | Milestone | Target date | Owner (delivers) | Accepts |
@@ -446,6 +455,7 @@ M5 website (01-15, parallel)   M7 family spec (02-05, parallel, no build)       
 - A milestone at risk is reported to the owner as soon as it is known, with the cause and the new date.
 
 ## Change log
+- 2026-11-05 12:00 po: §0e added. PO merges in force (owner); #799, #833, #838 merged; M1/M2 progress and the conflict risk recorded.
 - 2026-11-03 po: version 1, from the owner's Executive Delivery Directive.
 - 2026-11-03 15:30 po: §0 added. The UX/UI baseline (PR #834) is adopted for website, web app, caregiver app and operations app; the M1 UX/UI part is met; the dependencies of M2-M8 are updated; no date moved.
 - 2026-11-03 22:00 po: §0b added. AUT-40 decided (no C-15 assistant screen at stage 0; M6 deliverable, criteria and §3.1 row 5 changed); M9 waiver wording per CGR-117; CGR-113 to CGR-121 placed. No date moved.
