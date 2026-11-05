@@ -2577,3 +2577,30 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 
 **Rollback:** revert the PR (no migration, no seed change).
 
+
+### ADR-149 — PLAN3-11: after a stop, the team finds its own look-back lines on `/team`
+
+**Date:** 2026-11-05 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/PLAN3.md` PLAN3-11 (as amended 2026-10-30 22:15 and 2026-10-31 02:55, AIG1-C5 (d)) · **Migration:** 0111 · **Stacked on:** #882 (ADR-148) · **Proof:** vitest `plan3-11-team-lookback` (written first), pgTAP 112 (12 assertions), e2e `aig1.spec` (+1 test, 390 px).
+
+**Context (IMPLEMENTED before):** `agent_stop_lookback(stop)` (0097/0104) already returns to a team member only the lines of her own teams' records, coordinators every line. The record page offers the AIG1-C2 actions ("Erneut bestätigen", "Ändern") to the record's team (0104). But a member could not learn that a stop exists: `ai_agent_stops` has no app grant (AIG1-11) and a stop reaches the screen only as the OPS1 exception under `/operations`.
+
+**Decision:**
+1. **One read-only function, narrowed, no new read (0111):** `public.team_lookback_stops()` returns per stop and team, for the caller's own active teams only (`private.is_team_member(l.team_id)`, never a role), the agent's name, the stop time and the two AIG1-C1 counts over the same `private.aig1_lookback` lines `agent_stop_lookback` returns. Only stops with at least one open line (AIG1-C5 (d): no entry at "0 offen"). It enumerates stops, not the agent's setting, so an agent switched off after its stop keeps the team's entry while lines are open (AIG1-C5 (d)) without depending on #814. No person, outcome or confirmer column; writes nothing; no table, so no policy, grant on a table or audit trigger.
+2. **Entry on `/team`:** a section "Rückblick nach einem Stopp" under the visit alerts, one line per stop and team: "<Agent> gestoppt · Werte: <n> offen · <m> nicht mehr offen · <Team>" and one link "Werte ansehen" (`teamLookbackEntry`, pure). Nothing when there is no such stop; on a failed read nothing either (`warn` event `plan3.team_lookback_failed`), never a wrong "0 offen". No colour above `info` (H-20).
+3. **List `/team/rueckblick/<stop>`:** the Operations list's reader and line layout, narrowed in the page to the caller's teams on that stop (`linesOfTeams`), so a coordinator who is also a team member sees only her teams' lines here; Operations keeps the full list (OPS1). Each line opens its record with `von=team-rueckblick`, and the record's "Zurück zur Liste" leads back to this list (`recordBackLink`).
+
+**Trade-offs:** `team_lookback_stops` evaluates `aig1_lookback` for every stop of the caller's organisation on each `/team` load; stops are rare (threshold or version change), so acceptable for the pilot. An index or a stop-closed filter is PLANNED if stops accumulate.
+
+**Deviations / notes for the PO (and `uxa`):**
+1. *Every agent, not only `plan3_day_proposal`:* the brief's first sentence names the day-plan agent; the 02:55 amendment keys the entry on "every stop of its records with at least one open line". Built as amended: any agent's stop with an open line of the team's records shows. Today the seed's only stop is the synthetic test agent's (Testorganisation F), which the e2e uses; a real `plan3_day_proposal` stop shows the same way.
+2. *"Next to 'Vorschlag zurzeit nicht verfügbar'":* `/team` shows that text only inside `/team/tagesplan` (PLAN3-6 refusal); the entry is placed on `/team` itself under the alerts. Placement and the texts "Rückblick nach einem Stopp" and "Werte ansehen" are Engineering's, OPEN for `uxa`.
+3. *A stop at "0 offen" with lines "nicht mehr offen":* no entry (AIG1-C5 (d)); the list opened by URL then shows "Keine offenen Werte eures Teams auf der Liste." because the narrowing takes the team ids from the same function.
+4. *e2e count:* the test runs after the AIG1-C2 block in the same file (one worker), so the open count reads 1; it accepts 1 or 2 so it also holds when run alone.
+
+**Clinical gate:** PLAN3 is in scope; PLAN3-11 adds no clinical rule. `cra` 2026-10-30 21:40 (CGR-105) asked that the link lead to lines a member can act on; the e2e opens a listed line and finds "Erneut bestätigen". `lca` not needed (no new read, no person data, PO note 21:25).
+
+**Not set by this:** whether, by whom and by when a look-back value is re-checked (D-17, UNKNOWN). No AI service. The live project is not touched (D-1).
+
+**Checked by me (not CI):** `npm ci` failed in this session (registry unreachable, npm "Exit handler never called"), so vitest, typecheck, lint, build, pgTAP and e2e were **not** run with the project's toolchain. The three pure functions were run once under Node type stripping with a minimal script (8 assertions, passed) and the wiring checks of the vitest file as plain string checks (passed). CI is the test runner.
+
+**Rollback:** revert the PR; `drop function if exists public.team_lookback_stops();` (no table, no data).

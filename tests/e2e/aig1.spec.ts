@@ -255,3 +255,37 @@ test.describe.serial("AIG1-C1 / AIG1-C2: the team re-checks look-back values on 
     await expect(section.getByRole("button")).toHaveCount(0);
   });
 });
+
+// PLAN3-11 (ADR-149, migration 0111): after a stop, the team finds its own look-back lines on `/team`. Runs after the
+// AIG1-C2 block above (one worker, file order), so the open count is 1 there and 2 when this block runs alone.
+test.describe.serial("PLAN3-11: the team finds its own look-back lines on /team at 390 px (Testorganisation F)", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signIn(page, "teamf.test@navora.test");
+  });
+
+  test("/team shows the stop with both counts and one link; the list names no person and a line opens its record with 'Erneut bestätigen'", async ({ page }) => {
+    await page.goto("/team");
+    const entry = page.getByTestId("team-lookback-entry");
+    await expect(entry).toHaveCount(1);
+    await expect(entry).toContainText(new RegExp(`${AGENT} gestoppt · Werte: [12] offen · 1 nicht mehr offen`));
+    await entry.getByRole("link", { name: "Werte ansehen" }).click();
+    await page.waitForURL(new RegExp(`/team/rueckblick/${STOP_F}$`));
+
+    const list = page.getByRole("list", { name: "Betroffene Werte" });
+    await expect(list.getByTestId("lookback-line").first()).toBeVisible();
+    // AIG1-14: no confirmer's name, no "bestätigt von" on the list.
+    await expect(page.getByText(CONFIRMER_F)).toHaveCount(0);
+    await expect(page.getByText(/bestätigt von/)).toHaveCount(0);
+    // No horizontal scroll at 390 px.
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+
+    // AIG1-C2: the line opens its record, which offers the team's action and links back to this list.
+    await page.locator(`a[href^="/visits/${VISIT_F_UNQUALIFIED}?von=team-rueckblick"]`).click();
+    await page.waitForURL(new RegExp(`/visits/${VISIT_F_UNQUALIFIED}\\?`));
+    await expect(page.getByTestId("record-lookback").getByRole("button", { name: "Erneut bestätigen" })).toBeVisible();
+    await expect(page.getByTestId("record-back")).toHaveText("Zurück zur Liste");
+    await page.getByTestId("record-back").click();
+    await page.waitForURL(new RegExp(`/team/rueckblick/${STOP_F}$`));
+  });
+});

@@ -180,6 +180,10 @@ export function recordBackLink(
   if (von === "rueckblick" && stopId && UUID.test(stopId)) {
     return { href: `/operations/assistenten/rueckblick/${stopId}`, label: "Zurück zur Liste" };
   }
+  // PLAN3-11 (ADR-149): opened from the team's own look-back list on `/team`.
+  if (von === "team-rueckblick" && stopId && UUID.test(stopId)) {
+    return { href: `/team/rueckblick/${stopId}`, label: "Zurück zur Liste" };
+  }
   if (von === "vorschlaege") return { href: "/team/vorschlaege", label: "Zurück zu den Vorschlägen" };
   return home;
 }
@@ -205,4 +209,38 @@ export function countOpenSuggestions(perTeam: (number | null)[]): number | null 
     sum += n;
   }
   return sum;
+}
+
+/**
+ * PLAN3-11 (ADR-149): one row of `public.team_lookback_stops()`: a stop of an agent with at least one open look-back line
+ * of one of the caller's own teams. Counts only; no person, outcome or confirmer (AIG1-11, AIG1-14).
+ */
+export type TeamLookbackStop = {
+  stop_id: string;
+  agent_name: string;
+  team_name: string;
+  open_count: number;
+  not_open_count: number;
+};
+
+/**
+ * PLAN3-11: the entry on `/team` ("<Agent> gestoppt · Werte: <n> offen · <m> nicht mehr offen", AIG1-C1 count wording)
+ * and its one link. No entry at "0 offen" (AIG1-C5 (d)). Link text is Engineering's, open for `uxa`.
+ */
+export function teamLookbackEntry(s: TeamLookbackStop): { text: string; href: string; linkText: string } | null {
+  if (!UUID.test(s.stop_id) || !Number.isInteger(s.open_count) || s.open_count <= 0) return null;
+  return {
+    text: `${s.agent_name} gestoppt · ${lookbackCountsText(s.open_count, s.not_open_count)}`,
+    href: `/team/rueckblick/${s.stop_id}`,
+    linkText: "Werte ansehen",
+  };
+}
+
+/**
+ * PLAN3-11: the stop's look-back lines narrowed to the caller's own teams (AIG1-12 (iii)): a coordinator who is also a
+ * team member sees on `/team` only her teams' lines; the full list stays on Operations. Never widens; keeps the order.
+ */
+export function linesOfTeams<T extends { team_id: string }>(lines: T[], teamIds: string[]): T[] {
+  const ids = new Set(teamIds);
+  return lines.filter((l) => ids.has(l.team_id));
 }

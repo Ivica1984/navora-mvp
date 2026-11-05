@@ -11,7 +11,7 @@ import { getTeamPushStatus } from "@/features/push/queries";
 import { getMyTeamAdmissions } from "@/features/admission/queries";
 import { getContractEndHandover, getLeaverOpenReports, getSuccessorItems } from "@/features/contract-end/queries";
 import { getAssessmentInstruments, getTeamCaseAssessments } from "@/features/assessment/queries";
-import { getOpenSuggestionCount } from "@/features/ai/queries";
+import { getOpenSuggestionCount, getTeamLookbackStops, toTeamLookbackStops } from "@/features/ai/queries";
 import TeamClient from "./team-client";
 
 // J2: requests offered to the caller's teams — the team decides (Teamautonomie).
@@ -49,9 +49,11 @@ export default async function TeamPage() {
     getAssessmentInstruments(),
   ]);
   // PLAN3-12 (ADR-148): the count on the "Vorschläge" link, from the proposals of the teams in the caller's own case list.
-  const [leaverReports, openSuggestions] = await Promise.all([
+  // PLAN3-11 (ADR-149): the stops with open look-back lines of the caller's own teams.
+  const [leaverReports, openSuggestions, lookbackStops] = await Promise.all([
     getLeaverOpenReports(leavers),
     getOpenSuggestionCount(cases.map((c) => c.team_id)),
+    getTeamLookbackStops(),
   ]);
-  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} visitAlerts={visitAlerts} signals={signals} gpNotices={gpNotices} pushStatus={pushStatus} outsideWatched={outsideWatched} admissions={admissions} leavers={leavers} leaverReports={leaverReports} successorItems={successorItems} assessments={assessments} instruments={instruments} openSuggestions={openSuggestions} />;
+  return <TeamClient offers={offers} cases={cases} continuity={continuity} billing={billing} month={month} lifecycle={lifecycle} planStatus={planStatus} visitAlerts={visitAlerts} signals={signals} gpNotices={gpNotices} pushStatus={pushStatus} outsideWatched={outsideWatched} admissions={admissions} leavers={leavers} leaverReports={leaverReports} successorItems={successorItems} assessments={assessments} instruments={instruments} openSuggestions={openSuggestions} lookbackStops={toTeamLookbackStops(lookbackStops)} />;
 }

@@ -8,7 +8,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import { COORDINATOR_ROLES, PAGE_LABEL } from "@/lib/auth/nav";
 import { FIELD_PATH, homePathForRoles } from "@/lib/auth/paths";
 import { errorFields, logEvent } from "@/lib/log";
-import { countOpenSuggestions, type Provenance } from "./labels";
+import { countOpenSuggestions, type Provenance, type TeamLookbackStop } from "./labels";
 
 type Fn = Database["public"]["Functions"];
 export type OpenSuggestion = Fn["open_suggestions"]["Returns"][number];
@@ -140,6 +140,33 @@ export async function getStopLookback(stopId: string): Promise<LookbackLine[]> {
     throw new Error("Die Liste konnte nicht geladen werden.");
   }
   return data ?? [];
+}
+
+export type TeamLookbackStopRow = Fn["team_lookback_stops"]["Returns"][number];
+
+/**
+ * PLAN3-11 (ADR-149): the stops with at least one open look-back line of the caller's own teams (`team_lookback_stops`,
+ * migration 0111). Null when the read failed: `/team` then shows no entry rather than a wrong "0 offen".
+ */
+export async function getTeamLookbackStops(): Promise<TeamLookbackStopRow[] | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("team_lookback_stops");
+  if (error) {
+    logEvent("warn", "plan3.team_lookback_failed", errorFields(error));
+    return null;
+  }
+  return data ?? [];
+}
+
+/** PLAN3-11: the entries for `/team`, one per stop and team (type kept narrow for the client component). */
+export function toTeamLookbackStops(rows: TeamLookbackStopRow[] | null): TeamLookbackStop[] {
+  return (rows ?? []).map((r) => ({
+    stop_id: r.stop_id,
+    agent_name: r.agent_name,
+    team_name: r.team_name,
+    open_count: r.open_count,
+    not_open_count: r.not_open_count,
+  }));
 }
 
 export type VisitRecord = {

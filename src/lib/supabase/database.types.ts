@@ -2773,6 +2773,11 @@ isOneToOne: false
               "agent_state": string,"enabled_since": string,"team_enabled": boolean
             }[]
                            },
+"team_lookback_stops":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "agent_name": string,"not_open_count": number,"open_count": number,"stop_id": string,"stopped_at": string,"team_id": string,"team_name": string
+            }[]
+                           },
 "team_offers":
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"expected_hours_per_week": number,"first_refusal_until": string,"matching_request_id": string,"my_team_declined": boolean,"referrer_requested_start": string,"region": string,"request_title": string,"requested_start": string,"required_qualification": string,"required_services": (string)[],"response_due_at": string,"returning_client": boolean,"team_id": string,"team_name": string,"urgency": string,"urgency_source": string
