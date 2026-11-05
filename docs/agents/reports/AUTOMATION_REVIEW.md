@@ -31,6 +31,52 @@
 
 ---
 
+## 2026-11-05 10:15 CET · aia review 28: `cra` #870 (09:30) read: option C supported by `cra` at stage 0 with three conditions; condition (2) and (3) supported (safety controls, not challenged); condition (1) supported in substance, new AUT-50 (low: make the head-diff check a rule instead of a note written before each merge); CGR-135 role-scope check supported (it turns "touches only my files" from a claim into a rule); AUT-48 widened: my own self-merge (#869) is refused by the same permission check, so docs PRs of every role queue too
+
+**Read:** `recovery/main` at `9e3b998` (unchanged since review 27; nothing merged, no code, brief or decision). Continued on my open PR #869 (self-merge refused at 08:20 by the session's permission check "merge without review"; not worked around). Read on its branch: `cra` **#870** (09:30, `9fc0636`: CGR-134 sentence 5 met at document level, CGR-132 reverse line confirmed, option C input with three conditions, new CGR-135 on PO #868 carrying the #799 code) and the `cra` comments on #861, #868 and #850 (08:32 UTC). `uxa` #850, `lca` #860 and PO #868 heads unchanged since review 27. No new or changed brief (FAM1 draft unchanged). Open `automation` issues: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database. Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-50 | Merge of a code PR under option C (`eng`), gate validity (`cra`) | PLANNED (`cra` 09:30, #870, condition 1, only if the owner adopts C): before each merge `eng` writes in the PR that `git diff <head cra cleared> <merge head> -- src supabase tests e2e` is empty; otherwise the merge waits for the next `cra` run. The cleared head is today only a SHA in a markdown table (`CLINICAL_GOVERNANCE.md` *Gate status*). With 17 queued PRs and a base merge before almost every merge (AUT-49), that is one hand-written note per merge, and a note can be skipped or copied wrong. The control itself (the gate covers the code being merged) has a safety benefit and is not challenged; its form adds a manual step | **Rule (same control, no note):** `cra` records each cleared head in one machine-readable line per PR (e.g. `cra-gate: #<PR> <sha> clear`) in its gate file; a small check (in `scripts/agents-check.mjs` or a CI job, `eng` decides how) computes the same path-scoped diff against the merge head and fails when it is non-empty or when the PR has no `clear` line. Condition (2) folds into the same line: a finding `cra` wants before merge is written as `blocking` there, so the check reads one field, not two categories. No new role, approval or field for a person; the `cra` judgement and the waiting rule on a code change stay | L (repository process, no product change) | Stage 0; gate `cra` (line format), `eng` (check), PO (places it); owner only as part of option C | merges whose code differs from the cleared head (target 0); hand-written gate notes per merge (target 0) | low | — (report) |
+
+Severity `low`: the step has a stated safety benefit; only its form is leaner, and it exists only if the owner adopts C.
+
+### 2 Briefs, plans and packages reviewed
+
+- **Option C, `cra` conditions (#870, #861):** (2) "before merge" findings count as blocking: a safety control, supported (AUT-50 only proposes one label for it). (3) C is a stage-0 merge rule; before real data a named human approves each migration touching clinical or billing logic (G-3): a legal and safety duty before gate C, not administration; supported, and it is scoped to those migrations only, which is the lean form. (1) supported in substance, form in AUT-50.
+- **CGR-135 (PO #868 carries the #799 code; role-scope check):** supported. The remedy (a check that fails a `po/`, `gov/`, `aia/`, `lca/`, `ux/` PR whose diff touches `src/`, `supabase/`, `tests/` or `e2e/`) replaces a trust claim with a deterministic rule and adds no act. It is also the precondition for letting role docs PRs merge without a human look at all: the permission check refused my self-merge as "merge without review", and a verified docs-only scope is the review such a merge needs. Recorded under AUT-48 below; the decision stays with the PO and the owner.
+- **CGR-134 sentence 5, CGR-132 reverse line (`cra` confirmed):** wording; no act added; no finding.
+- **AUT-49:** `cra` no objection, condition that entries stay never edited and the check covers the governance review files' names. I accept it; it adds no act.
+
+### 3 AI readiness of delivered items (§8)
+- Nothing proposing, drafting or ranking delivered since review 27. #814 (AIG1-C4/-C5) and #828 (AIR1) unchanged, open, held by the merge path (AUT-48).
+
+### 4 Findings: state changes and closed
+- **AUT-48:** widened (IMPLEMENTED facts, GitHub): the permission check that refused the PO's option A also refused my own docs-only self-merge (#869, 08:20). Role docs PRs therefore queue as well (`aia` #869, `cra` #855 … #870, `lca` #860, `uxa` #850, PO #868 open), each later conflicting on `JOURNAL.md` (AUT-49). Option C as escalated covers Engineering PRs only; the role docs PRs need the same answer (a merge rule for PRs whose diff a check proves is the role's own files, CGR-135). With the owner via the PO; stays open.
+- AUT-49: `cra` no objection (condition accepted); waiting for the PO.
+- AUT-46, AUT-47, AUT-44, AUT-45: unchanged.
+- AUT-30 (#793), AUT-34: met on #814 and #841 heads; close on merge.
+- Open, unchanged: AUT-42, AUT-43, AUT-41, AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+- Closed in this section: none.
+
+### 5 Stage tracking (D-35 stages; changes only)
+- No change. Stage 0 only in force; stage 1 not opened; real data blocked (D-1); adviser not named. `cra` condition (3) restates that G-3 (human approval of clinical and billing migrations) is an entry condition before real data; already listed for gate C.
+
+### 6 Waiting for the PO
+- **AUT-48 (widened):** the merge path for role docs PRs as well as Engineering PRs; CGR-135 check as its precondition.
+- **AUT-50 (low):** the gate line and check, if the owner adopts C.
+- AUT-49; AUT-44, AUT-45; AUT-46 only under the owner's variant; CGR-131 to CGR-135.
+- AUT-42, AUT-43, AUT-41, AUT-36, AUT-37, AUT-38, AUT-33 (unchanged).
+
+### 7 Issues and comments
+- No issue opened (no `high` finding). One comment on #861 (AUT-50, AUT-48 widened to role docs PRs, CGR-135 supported). No comment on #870, #868 or #850.
+
+---
+
 ## 2026-11-05 08:20 CET · aia review 27: PO #868 (06:05, #861 escalated to the owner as option C), `cra` #867 (05:30, CGR-134, CGR-132 both pairs, CGR-110 recurred), `lca` #860 (04:45) and `uxa` #850 (03:50, 07:50) read; AUT-48 supported in the PO's option C form; CGR-132 (both pairs), CGR-134 and the `lca` AUT-46 addition supported (no added act); new AUT-49 (medium: the single shared `JOURNAL.md` forced 109 conflict merges on agent branches in seven days)
 
 **Read:** `recovery/main` at `9e3b998` (my #866 only since review 26; no code, brief or decision merged). Open, read on their branches:

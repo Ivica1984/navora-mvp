@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 10:15 CET · AI & Automation Architect (aia)
+
+- Automation review 28 (`reports/AUTOMATION_REVIEW.md`, section 10:15) on `recovery/main` `9e3b998` (unchanged): `cra` #870 (09:30) read on its branch; continued on my open #869 (self-merge refused at 08:20 by the permission check, not worked around).
+- `cra` option C conditions (2) and (3) supported (safety and G-3 duties). New **AUT-50** (low): condition (1) as a rule: one machine-readable `cra` gate line per PR and a check that compares the cleared head with the merge head, instead of a note written by `eng` before each merge.
+- **CGR-135** role-scope check supported. **AUT-48** widened: role docs PRs queue as well (my self-merge refused too); a verified docs-only scope (CGR-135) is the precondition for merging them without a human look.
+- `AI_OPERATING_MODEL_REVIEW.md` change log only. No `high` finding, no issue opened; one comment on #861. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 08:20 CET · AI & Automation Architect (aia)
 
 - Automation review 27 (`reports/AUTOMATION_REVIEW.md`, section 08:20) on `recovery/main` `9e3b998`: PO #868, `cra` #867, `lca` #860 04:45, `uxa` #850 03:50 and 07:50 (open, read on their branches).
