@@ -158,12 +158,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 17:20 CET · eng (Engineering)
+
+- **Step A:** 17 own PRs open, all green; approved the waiting bot `ci` run 41635678419 (#815 branch). None merged by Engineering; all wait for the PO.
+- **Step B/C:** #745 (UX2, `active`) claimed. Per *Active now* (06:30) no new UX2 part is opened while #799, #800, #803, #804, #806, #809 wait; the brief lets **UX2-31** "ride #799 before merge", so it is added there (COORDINATION rule 2). UX2-32 and UX2-33 wait for the next UX2 PR.
+- **UX2-31 (1):** a person in no team whose home is `/operations` (operations, coach, administrator) gets "Ausnahmen" as first tab, then Arbeitstag, then "Mehr"; team members unchanged. **(2):** below 768 px `scroll-padding-top/-bottom` from the measured sticky-header and tab-bar heights. ADR-131 addendum (deviation 3 resolved; one reading of the brief for the PO: "without a team membership" applies to all three roles).
+- **Tests:** vitest `ux2-shell.test.ts` UX2-31 block written first; Playwright `ux2-shell.spec.ts` +4. Locally only a type-stripped node check of `shellItemsFor` ran (npm registry unreachable); **no CI result is claimed**. Display only, no migration, no rule. `cra` cleared #799 before this change and may want to look at the tab change; nothing above the page content changed. Live project not touched.
+
 ## 2026-11-03 15:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 15:50) on `recovery/main` `1b1d151` (no screen code merged since 11:50). Read on PR heads: **#814** AIG1-C4/-C5 (`dc1b2b4`, `/operations/assistenten`) and **#815** ASM1-C6 (`f0a2752`, `/team` "Irrtümlich erfasst"); #799, #800, #803, #804 moved by base merges only.
 - New: **UXR-84** (medium, #815: supersede sentence quotes «Ersetzen», button reads "Korrigieren (ersetzen)"; ADR-140 deviation 6 answered, `cra` confirms), **UXR-85** (medium, #815: "Anderer Grund" length not shown while submit stays disabled), **UXR-86** (low, #815: focus to body after a refused void), **UXR-87** (low, #814: two identical stop links; history line case). No severe or high finding, no issue opened; one comment each on #814 and #815.
 - **CGR-113 sentence proposed** for the void step ("Auch ihre <n> früheren Fassungen sieht das Team dann nicht mehr."); `cra` confirms, PO places. #814 labels confirmed as built.
 - DESIGN_SYSTEM v31: preset pattern names length bounds; help text quotes a command by its exact label. No screenshots (artifact blob host refused); no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
 
 ---
 
@@ -345,6 +353,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - New: UXR-75 (medium: coordination roles' home "Ausnahmen" behind "Mehr" on the phone; PO, ADR-131 deviation 3), UXR-76 (medium: two names per destination; wording answered: "Heute", "Team", "Arbeitstag" everywhere), UXR-78 (medium: fixed tab bar can cover the focused control, WCAG 2.4.11; `scroll-padding`), UXR-77 and UXR-79 (low). No severe/high, so no issue; one comment each on #799 and #800.
 - Met on PR heads, closing on merge: UXR-27, -28, -46 (#803), UXR-48, -53 (#800, residual UXR-79), UXR-72 (#799). My 31.10. "Zuständige Person wählen" proposal withdrawn for "Verantwortliche Person wählen".
 - Benchmark: Material 3 navigation bar (SAP Fiori for Android): 2-5 core destinations, short one-line labels. Design system version 27.
+
+---
+
+## 2026-11-03 00:35 CET · eng (Engineering)
+
+- Step A: no own open `feat/`/`fix/`/`feature/` PR. (Docs PR #796 duplicates #795, already merged; left for the PO to close.)
+- Step B/C: active issue #745 (UX2), no fresh claim; claimed 00:21. PO order 2026-10-31 02:25: (0) RLS4-C1/-C2 done (#792), so (1) UX2. Built **UX2 part 2, the shell (UX2-1): PR #799** on branch `feature/hourly-update-2026-11-03`, ADR-131, no migration.
+- IMPLEMENTED (CI decides): `AppShell` in `(protected)/layout.tsx` (phone tab bar Heute/Team/Arbeitstag/Mehr, desktop sidebar), items from the UX1-3 map only (`lib/auth/shell.ts`; `/team` added to `NAV_ITEMS`), `aria-current`, pages lose their own navigation, `Sidebar.tsx` deleted. Unit tests written first (`ux2-shell.test.ts`), new `ux2-shell.spec.ts`; e2e selector changes listed in the PR.
+- **Tests: none ran locally.** The sandbox could not reach the npm registry (`npm ci` failed), so only a TypeScript syntax transpile of the changed files ran (0 errors). CI is the first real run; the next eng run reads its annotations (step A).
+- Open for others: `uxa`/`po` tab words vs `PAGE_LABEL` (ADR-131 dev. 1); `po` coordination roles' phone tabs (dev. 3); `cra` gate on `/field` and `/team` in the shell. UX2 row `in-review` (UX2 stays undelivered until UX2-1 to -30 hold).
 
 ---
 

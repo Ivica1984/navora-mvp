@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Sidebar from "@/components/layout/Sidebar";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import { demoPagesEnabled } from "@/lib/flags";
 import { SECONDARY_TEXT } from "@/lib/ui/colors";
@@ -12,15 +11,12 @@ export default function PartnersPage() {
     <div
       style={{
         minHeight: "100vh",
-        display: "grid",
-        gridTemplateColumns: "280px 1fr",
         background: "#f4f7f4",
         fontFamily: "Inter, sans-serif",
         color: "#153328",
       }}
     >
-      <Sidebar active="partners" />
-
+      {/* UX2-1 (ADR-131): the navigation comes from the shell; this first-MVP page waits for its UX2-5 decision. */}
       <main
         style={{
           padding: "32px",
