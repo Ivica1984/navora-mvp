@@ -31,6 +31,47 @@
 
 ---
 
+## 2026-11-05 15:05 CET · aia review 30: PO #874 (14:50) read: PLAN3-14 (`cra` CGR-136 decided by the PO: overlap across teams and again at confirm) supported, no added act; it makes AUT-51 more likely to bite (a confirm-time `overlap` refusal is exactly when a team needs a fresh proposal); scheduled PO merge refused at 14:46, escalated by the PO to the owner, supported; no new finding
+
+**Read:** `recovery/main` at `8e7d392` (unchanged since review 29). Open, read on its branch: PO **#874** (head `ccac0f4`: `briefs/PLAN3.md` PLAN3-14 and PO note, `PO_MERGE_PROCESS.md` §0a, `OWNER_AGENDA.md` bundle 1 "Merge in scheduled runs", `NEXT_CAPABILITY.md` *Active now*, `JOURNAL.md`). Heads of #872 (`c382272`) and #873 (`c09169d`) unchanged since review 29. No other new or changed brief; open `automation` issues: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database. Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+None.
+
+### 2 Briefs, plans and packages reviewed
+
+- **PLAN3-14 (PO 14:50, brief changed, PLANNED for part (b)):** supported. Both parts are deterministic rules inside the definer function: (1) the overlap limit counts every visit the member is responsible for in any team and returns only `overlap`; (2) confirm re-runs the test and refuses the line. No step, approval, field or role is added for a nurse; the day-load line "weitere Einsätze in anderen Teams" is information, not an act, and carries no count, client or time (as the PO wrote; keep it so, also for `uxa`'s wording). It removes a double booking that would otherwise be found on the road (H-01, H-20). Patient-care benefit shown; nothing to challenge.
+- **Scheduled PO merge refused (`PO_MERGE_PROCESS.md` §0a 14:46, IMPLEMENTED fact as stated by the PO):** the PO's ask to the owner (bundle 1 "Merge in scheduled runs") is supported; it is a setting only the owner can change, not a new control. Until answered, merges happen only in attended PO sessions, so every merge-ready PR waits on the owner's time: the AUT-48 pattern in a narrower form. Not a new finding (the PO has escalated it; no duplicate). AUT-49 and AUT-50 matter more under it: each attended session can then merge the whole merge-ready list without a `JOURNAL.md` conflict after each merge.
+
+### 3 AI readiness of delivered items (§8)
+
+No delivered item changed since review 29. PLAN3-14 adds one control to the PLAN3 agent at confirm (re-check), consistent with §8 "every line re-checked at confirm"; no change to the §8 table of review 29.
+
+### 4 Findings: state changes and closed
+
+- **AUT-51 (medium), strengthened, not decided:** PLAN3-14 (2) refuses a confirm as `overlap` and returns the visit to the uncovered list. That is the moment a team most needs a new proposal for that visit; under ADR-145 deviation 3 the new request is refused while other lines of the earlier proposal stay undecided. The proposal of review 29 (a new request closes the earlier undecided lines with a recorded outcome) covers this case too; decide it together with PLAN3-14 for part (b). Test to add then: a line refused at confirm for `overlap`, then a fresh request for the same team and day succeeds and lists the visit once.
+- AUT-48 stays closed (the owner decided the path; the remaining block is a setting the PO escalated).
+- Open, unchanged: AUT-49, AUT-50, AUT-46, AUT-47, AUT-44, AUT-45, AUT-42, AUT-43, AUT-41, AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-30 (#793), AUT-34, AUT-25, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-28 (P-38), AUT-31 (PLAN3-13).
+- Closed in this section: none.
+
+### 5 Stage tracking (D-35 stages; changes only)
+
+No change. Stage 0 in force; stage 1 entry conditions unchanged (real data blocked, D-1; adviser not named; G-3 open).
+
+### 6 Waiting for the PO
+
+- **AUT-51 (medium):** decide ADR-145 deviation 3 together with PLAN3-14 before part (b).
+- AUT-49 and AUT-50 (changes D and E); AUT-44, AUT-45; AUT-46 only under the owner's variant; AUT-42, AUT-43, AUT-41, AUT-36, AUT-37, AUT-38, AUT-33 (unchanged).
+
+### 7 Issues and comments
+
+- No issue opened (no `high` finding). No new comment: AUT-51 is already on #872 (review 29); the PLAN3-14 interplay is recorded here for the PO.
+
+---
+
 ## 2026-11-05 14:20 CET · aia review 29: owner merge decision read (the PO merges, seven conditions, `PO_MERGE_PROCESS.md` IN FORCE; #799, #833, #838 merged): AUT-48 closed; AUT-49 and AUT-50 adopted into the PO's plan (PLANNED); PLAN3 part (a) (#872, first agent beyond the synthetic test agent) checked against §8: every stage-0 control present in the database; `cra` #873 CGR-136 supported; new AUT-51 (medium: a sick call in the morning cannot get a fresh day proposal until every undecided line of the earlier one is decided by hand)
 
 **Read:** `recovery/main` at `8e7d392` (since review 28: PO #868 and #871 merged, carrying the owner's merge decision, `PO_MERGE_PROCESS.md`, `COORDINATION.md` rule 4; PO merges of #799 UX2-1/UX2-31 shell `c8d2db7`, #833 `IMPLEMENTATION_SEQUENCE.md` `0e79e5f`, #838 D-2 hosting support `847bd4a`). Open, read on their branches: Engineering **#872** (PLAN3 part (a), head `c382272`, ADR-145, migration 0109, pgTAP 110; the four check runs on that head show `success` on GitHub, I ran nothing) and `cra` **#873** (13:30: #872 clinical gate clear, CGR-136, CGR-135 closed, governance chain rebuilt). My #869 continued (base merged in, journal conflict resolved keeping every entry). No new or changed brief (PLAN3 approved and unchanged; FAM1 draft unchanged). Open `automation` issues: #793 (AUT-30) only.

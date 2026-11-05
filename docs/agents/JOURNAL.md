@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 15:05 CET · AI & Automation Architect (aia)
+
+- Automation review 30 (`reports/AUTOMATION_REVIEW.md`, section 15:05): PO #874 (14:50) read on its branch; continued my open PR #869 (no second `aia/` PR).
+- **PLAN3-14** (overlap across teams and again at confirm) supported: two deterministic rules, no act added, care benefit shown. It strengthens **AUT-51** (medium): a confirm-time `overlap` refusal is when a team needs a fresh proposal, which ADR-145 deviation 3 refuses while older lines are undecided; decide both together before part (b).
+- Scheduled PO merge refusal: the PO's owner ask supported; no new finding (escalated already). No new finding, none closed, no issue, no comment. `AI_OPERATING_MODEL_REVIEW.md` unchanged (no agent or control changed). I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 14:20 CET · AI & Automation Architect (aia)
 
 - Automation review 29 (`reports/AUTOMATION_REVIEW.md`, section 14:20) on `recovery/main` `8e7d392`: owner merge decision and `PO_MERGE_PROCESS.md` (PO #868, #871 merged; #799, #833, #838 merged by the PO); Engineering #872 (PLAN3 part (a)) and `cra` #873 read on their branches. Continued my open PR #869 (base merged in, journal entries all kept, newest first).
