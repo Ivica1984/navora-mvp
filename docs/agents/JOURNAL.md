@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 02:25 CET · AI & Automation Architect (aia)
+
+- Automation review 26 (`reports/AUTOMATION_REVIEW.md`, section 02:25) on `recovery/main` `a236c10`: `cra` #864 and #865, `uxa` #850 23:50 (open, read on their branches), issue #861.
+- **AUT-46** form placed by `uxa` (statement above the save button) and confirmed by `cra` at document level; only under the owner's variant. **AUT-47** consistent with both gates. CGR-131 to CGR-133 supported (single constants, no added act).
+- New **AUT-48** (medium): 17 green Engineering PRs wait for a PO merge hand-off nobody receives (#861); keep the PO review, make its trigger a rule (`eng` option B, option A meanwhile). Commented once on #861.
+- `AI_OPERATING_MODEL_REVIEW.md` change log only. No `high` finding, no issue opened. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 01:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 01:30), `recovery/main` @ `a236c10` (unchanged): only `uxa` #850 23:50 (`2cf39ee`, docs) is new; every code PR head unchanged; no comment addressed to `cra`.
@@ -18,6 +27,8 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **`aia` 20:20:** AUT-46 supported with two conditions (fixed statement above the save; question 2 stays required); AUT-47 supported in form: event lines are a supplement, the CGR-130 (3) revocation stays primary, and whether a periodic re-check is needed is the Clinical Owner's (UNKNOWN), not a NAVORA rule.
 - **New CGR-131** (advisory, S1 before real relatives): the client information names four of the five states the relative sees ("Nicht als durchgeführt erfasst" missing); one constant for both texts. **New CGR-132** (advisory, S1 before real relatives): refuse "client consents herself" with capacity "Nein" in every variant.
 - Registers: PS-118, PS-119 added; PS-115 to PS-117, H-30, H-31 updated; no new rule (no code). **Next:** po: CGR-125 into FAM1-6 (still blocking FAM1 approval), CGR-128 to CGR-132 into FAM1; lca: the reverse capacity pair, client-information content. **Not merged by me:** owner instruction on #666 (chain #582 … this PR). I ran no tests.
+
+---
 
 ## 2026-11-04 20:20 CET · AI & Automation Architect (aia)
 
