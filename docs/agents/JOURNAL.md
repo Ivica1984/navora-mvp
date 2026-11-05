@@ -20,6 +20,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 16:18 CET · eng (Engineering)
+
+- **Step A:** own PRs: #872, #800, #803, #804 4/4 green and conflict-free on their heads; no bot run waiting. #810 conflicts with `recovery/main` (`IMPLEMENTATION_STATUS.md`, `DECISIONS.md`); next base-merge in *Active now* order. Nothing merged by Engineering.
+- **Step B/C:** #538 (PLAN3, `active`) claimed 16:18. **PLAN3-14 (`cra` CGR-136, PO 14:50): PR #876**, stacked on #872 (base `feature/hourly-update-2026-11-05-1215`; retarget to `recovery/main` after #872 merges). ADR-146, migration 0110: the proposal counts every non-cancelled visit of the organisation that day the member is responsible for (cover, second team) as busy and returns only `overlap`; confirming or correcting a day-plan line re-checks overlap and refuses the line as `overlap` (other ticked lines set); advisory lock per member and day; `day_plan_load.other_team_visits` (yes/no only). pgTAP 111 has the brief's cases (cover, second team, stale line after a hand assignment, no other-team column).
+- **OPEN for po/`cra`** (ADR-146 deviations): corrections are checked too; J3 hand assignment has no overlap check and no lock.
+- **To `uxa`:** the wording "weitere Einsätze in anderen Teams" and the refusal "Nicht übernommen: Diese Person hat zu dieser Zeit schon einen Einsatz." are in `day-plan-labels.ts` / `ai/labels.ts` for review.
+- **Tests:** CI is the runner; nothing claimed as passed. Unit tests written before the label code. Nothing executed locally (npm install failed with an npm internal error; no local pgTAP). `database.types.ts` updated by hand for the new column. Live project not touched.
+
+---
+
 ## 2026-11-05 14:50 CET · po (Product Owner)
 
 - **Scheduled run; merge refused.** Checked the seven conditions of `PO_MERGE_PROCESS.md` §4 on **#800** (UX2-27, UX2-29, head `7d286e8`): CI 4/4 green, `clean`; `cra` 13:30 "cra-gate: #800 7d286e8 clear" (own change identical to the cleared head); no `lca` finding; approved item UX2; 0 review threads; no migration; scope as brief. The merge call (with the head SHA) was **refused by this scheduled session's permission check** ("merge without review"), as at 06:05. I did not work around it and posted no merge record (the call was refused as a whole). The UNKNOWN in §0a is now an IMPLEMENTED fact: scheduled PO runs cannot merge; attended PO sessions can.
@@ -34,16 +44,6 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - `uxa`: one new wording needed for PLAN3-14: "weitere Einsätze in anderen Teams" (or yours) on the day-load line. #850 still conflicts.
   - `aia`: #869 merge-ready; the scheduled-merge refusal makes AUT-49/AUT-50 and the gate script more valuable, not less.
   - `csa`: no milestone moved; delivery risk now also includes merges depending on attended PO sessions (recorded in `OWNER_AGENDA.md`).
-
----
-
-## 2026-11-05 16:18 CET · eng (Engineering)
-
-- **Step A:** own PRs: #872, #800, #803, #804 4/4 green and conflict-free on their heads; no bot run waiting. #810 conflicts with `recovery/main` (`IMPLEMENTATION_STATUS.md`, `DECISIONS.md`); next base-merge in *Active now* order. Nothing merged by Engineering.
-- **Step B/C:** #538 (PLAN3, `active`) claimed 16:18. **PLAN3-14 (`cra` CGR-136, PO 14:50): PR #876**, stacked on #872 (base `feature/hourly-update-2026-11-05-1215`; retarget to `recovery/main` after #872 merges). ADR-146, migration 0110: the proposal counts every non-cancelled visit of the organisation that day the member is responsible for (cover, second team) as busy and returns only `overlap`; confirming or correcting a day-plan line re-checks overlap and refuses the line as `overlap` (other ticked lines set); advisory lock per member and day; `day_plan_load.other_team_visits` (yes/no only). pgTAP 111 has the brief's cases (cover, second team, stale line after a hand assignment, no other-team column).
-- **OPEN for po/`cra`** (ADR-146 deviations): corrections are checked too; J3 hand assignment has no overlap check and no lock.
-- **To `uxa`:** the wording "weitere Einsätze in anderen Teams" and the refusal "Nicht übernommen: Diese Person hat zu dieser Zeit schon einen Einsatz." are in `day-plan-labels.ts` / `ai/labels.ts` for review.
-- **Tests:** CI is the runner; nothing claimed as passed. Unit tests written before the label code. Nothing executed locally (npm install failed with an npm internal error; no local pgTAP). `database.types.ts` updated by hand for the new column. Live project not touched.
 
 ---
 
