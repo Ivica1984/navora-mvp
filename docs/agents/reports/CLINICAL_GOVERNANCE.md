@@ -16,6 +16,78 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-05 21:30 CET: PLAN3 part (b) slice 1 (#880, head `12f0b0d`, `/team/tagesplan`, no migration) reviewed on the PR head: **clinical gate clear to merge** (after #876); **CGR-78 (b) remedy met on the head** (closes on merge); **CGR-75 (4) met on the head**, (5) partly; new **CGR-138** (advisory S3: a rejected or "kein Vorschlag" line no longer says that its visit is still without a responsible member and loses its visit link); ADR-147 deviation 1 answered; base merges of #876, #800, #803, #804 checked (own code identical)
+
+**Scope:** `recovery/main` @ `c315efc` (was `eccf30c` at my 17:30 section, PR #879, merged). Changes since 17:30:
+- **Code merged:** none. No migration merged. **Docs merged:** `aia` **#869** (`c315efc`: `AUTOMATION_REVIEW.md`, `AI_OPERATING_MODEL_REVIEW.md`, `JOURNAL.md`; AUT-51 shown in code, CGR-137 supported without a confirmation tap). No clinical objection.
+- **Open PRs, new or moved:** `eng` **#880** (new, head `12f0b0d`: PLAN3 part (b) slice 1, ADR-147, stacked on #876; own commit `600b769`); `eng` **#876** new head `b5ddc86`, **#800** `797029c`, **#803** `703d7d9`, **#804** `d550124` (each a merge of `recovery/main`, journal conflict only); `uxa` **#850** `652422b` (19:50, docs: UXR-98 (1), UXR-100, UXR-101; taken into #880 as ADR-147 point 7). CI `app`, `db`, `e2e`, `ui-screenshots` success on `12f0b0d`, `b5ddc86`, `797029c`, `703d7d9`, `d550124` (read through the GitHub API).
+- **Addressed to `cra`:** ADR-147 deviation 1 ("OPEN for `po` / `cra`: overlap-at-confirm e2e shown on a correction; plain confirm after hand assignment is pgTAP 111").
+- **Briefs:** none changed. **Decisions answered by a person:** none. No `clinical`, `legal` or `owner` decision.
+
+I read: the whole of `600b769` (`page.tsx`, `day-plan-client.tsx`, `day-plan-view.ts`, `day-plan-commands.ts`, `day-plan-queries.ts`, `day-plan-labels.ts`, `team-client.tsx` link, seed block Testorganisation G, pgTAP 002 and 110 edits, `plan3.spec.ts`, both vitest files, ADR-147); `public.day_plan` (0109:481-516, its return columns); `git diff b5ddc86 12f0b0d -- src supabase tests e2e` against `git show 600b769` on the same paths (identical `+`/`-` lines, so #880 adds nothing to #876 except its own commit); for #876, #800, #804, #803 their code before and after the base merge (`git diff <previous head> <new head> -- src supabase tests e2e`: empty for all four; `recovery/main` changed no code since `7e64bfb`). **I did not run the NAVORA test suite** and did not touch the live project. Statements about #880 are IMPLEMENTED **on the PR head**, not on `recovery/main`.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-138 | **#880 `/team/tagesplan`: decided lines whose visit stays without a responsible member** (PLAN3-9, CGR-75 (5)) | **advisory (S3); during the pilot; before PLAN3 is accepted for a team with real clients** | After "Ablehnen" or "Als „kein Vorschlag“ bestätigen" the line shows only "abgelehnt" or "als „kein Vorschlag“ bestätigt", and every control of the line disappears, **"Einsatz öffnen" included** (it is rendered only while the line is open). The visit itself is unchanged and, for a visit asked without "auch zugewiesene", still has **no responsible member** (IMPLEMENTED fact: `confirm_suggestion` with `rejected` / `not_found` writes nothing to `care_visits`). On the screen where the team plans its day, a page of decided lines reading "bestätigt" (the `not_found` text ends in "bestätigt") can be taken for a covered day, and the team cannot reach the uncovered visit from there to assign it by hand. Existing controls remain: the J3 open-visit list on `/team` and the SIG1 uncovered alert 24 h ahead and after the start (H-01), so this is not a gap in detection, but it is the "never drops it" part of CGR-75 (5) on the new screen. `day_plan` returns no fact about the visit's current responsible member, so the screen cannot say it today. No clinical rule involved | `day-plan-client.tsx` (`Line`: controls and `Link href=/visits/…` inside `open && mode === "idle"`; decided text from `lineDecisionText`); `day-plan-view.ts` `DECISIONS` (`not_found`: "als „kein Vorschlag“ bestätigt"); 0097:719-735 (`confirm_suggestion`: `not_found` and `rejected` write a confirmation row and return without `aig1_apply`); 0109:481-516 (`day_plan` columns: no responsible-member fact); ADR-147 point 5 ("stays unassigned ('Noch offen', the uncovered path)": the words "Noch offen" appear only on `/visits/<id>`, not on the line) | **eng (build) / uxa (wording) / po (brief line in PLAN3-9; no clinical rule):** (1) `day_plan` returns one boolean per line, whether the visit has a responsible member now (no name, no other column; the team already reads it on `/visits/<id>`); (2) a decided line whose visit has none shows "Noch offen" (existing wording of `/visits`) next to its decision, and every line keeps "Einsatz öffnen"; (3) the `not_found` decision text does not end in "bestätigt" (e.g. "kein Vorschlag, entschieden", wording `uxa`). Tests: e2e at 390 px: reject one line → it shows "abgelehnt", "Noch offen" and the "Einsatz öffnen" link, and the visit page says "Noch offen"; a `not_found` line decided likewise (this is also the "kein Vorschlag" e2e ADR-147 deviation 2 leaves PLANNED); pgTAP: the new `day_plan` column is false for a rejected unassigned line and true after a confirmed one, and the reader adds no other column |
+
+### ADR-147 deviation 1 (asked of `cra`): overlap at confirm shown on a correction
+
+**Sufficient for the gate.** The safety property is in the database: a line confirmed after a hand assignment of an overlapping visit is refused `overlap` and its visit stays unassigned (pgTAP 111, CGR-136 evidence at 17:00). The e2e shows the screen side of that refusal on the single-line path (refusal text on the line, "Bestätigen" still offered, `/visits` "Noch offen"). Not covered by any test: the **ticked-list** path that writes `result.refused` onto each line (`confirmTicked` → `refusals`). I ask for one vitest or e2e case in a later slice (a ticked list of two where one is refused shows the reason on that line only and the button count resets); recorded under CGR-75 (5), not a new finding.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-78** | open, advisory (S2); **(b) remedy met on the #880 head `12f0b0d`** (CI 4/4 green); (a) met earlier in AIG1-5. Every line starts unticked (`useState<string[]>([])`; e2e `checked` = 0); a box is offered only for an open, bulk-eligible line with a member (`tickableLineIds`); each box ticks its own line (e2e: the count rises by one per tap); no "alle" control (e2e `getByRole("button", { name: /alle/i })` count 0); the button names its count ("3 Zuteilungen bestätigen"); each line shows time, minute categories, proposed member (block heading), "ändert bisherige Zuteilung" / "nicht Bezugspflege/Stellvertretung"; three ticked of five confirm exactly three ("3 Werte bestätigt.", three "bestätigt" decisions, `/visits` responsible set). **Closes when #880 is merged with this code** | `day-plan-client.tsx` `Proposal`, `Line`; `day-plan-view.ts` `tickableLineIds`, `lineFlags`; `plan3.spec.ts` test 2 |
+| **CGR-75** | open, advisory (S2). (1)-(3) met (carried in #876, unchanged by #880: no migration, pgTAP 110 edit only scopes "off by default" to its own organisation, which still proves PLAN3-6). **(4) met on the #880 head** (no accept-all; every line and its change flag shown before a tick; same evidence as CGR-78 (b)). **(5) partly:** an unstaffable visit is listed under "Ohne Vorschlag" with its limit text and is never dropped (`groupDayPlan` keeps every line without a member), and a line refused `overlap` keeps its reason and its visit stays "Noch offen" (e2e test 3); **open:** the e2e of a "kein Vorschlag" line (ADR-147 deviation 2, PLANNED), the ticked-list refusal display (above) and CGR-138 | `day-plan-view.ts` `groupDayPlan`; `plan3.spec.ts` test 3 |
+| **CGR-136** | open, advisory (S2); remedy met on the #876 head, now **`b5ddc86`** (code identical to `de52f76`); closes when #876 is merged with this code | `git diff b1ee2cd b5ddc86 -- src supabase tests e2e` empty |
+| **CGR-137** | open, advisory (S3); unchanged (#880 adds no hand-assignment path; "Einsatz öffnen" leads to the existing `/visits` page) | as at 17:00 |
+| All other CGR findings | unchanged | as at 17:30 |
+
+Closed in this section: none.
+
+### Notes (no finding)
+
+- **Privacy:** client names come from `team_cases` of the selected team (the member's own teams only); `day_plan_load` adds only the yes/no other-team fact, worded UXR-98 (1) "Dazu Einsätze in anderen Teams, hier nicht mitgezählt." with no count, client or time (PLAN3-14 (1)); the team switch shows a date, no actor (PLAN3-10; e2e). No new reader or grant (no migration).
+- **Load display:** "<now> → <with proposal> Minuten in eurem Team", no maximum, no judgement (PLAN3-4, D-23). No load rule.
+- **"Ablehnen"** on a day-plan line (ADR-147 deviation 3): no clinical objection; it leaves the visit as it was, which is safe provided CGR-138 makes the result visible.
+- **AUT-51** (`aia`): a line refused `overlap` keeps the day's proposal open, so a new "Tag vorschlagen" for that day opens the existing proposal (`open_proposal`), where the team decides the line by hand. Fail-safe (no visit is assigned by it); my AUT-51 conditions of 15:00 stand.
+- **Seed:** Testorganisation G is synthetic (`*.test` users, invented names); the agent row is local test data only.
+
+### New or changed hard-coded rules
+
+None. The date bounds in `day-plan-view.ts` (today … today + 14, Europe/Zurich) repeat CR-165 on the client; the database checks again (`date_out_of_range`). Note added to CR-165. No clinical, tariff, KLV, LTCF, interRAI, PAG or MQI logic in #880; minute categories A/B/C are displayed as stored.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#880** (PLAN3 part (b) slice 1, head `12f0b0d`) | **clear to merge after #876** (CGR-138 advisory S3); CI 4/4 green |
+| **#876** (PLAN3 part (a) + PLAN3-14, head `b5ddc86`) | **clear to merge** (code as `de52f76`); CI 4/4 green |
+| **#800** (UX2-27, UX2-29, head `797029c`) | **clear to merge** (own change as `7d286e8`); CI 4/4 green |
+| **#803** (UX2-15, UX2-16, UX2-25, head `703d7d9`) | **clear to merge** (own change as `cf51b75`); CI 4/4 green |
+| **#804** (UX2-18 to UX2-21, head `d550124`) | **clear to merge** (own change as `33a97e5`); CI 4/4 green |
+| **PLAN3 acceptance** | waits for the remaining part (b) slices with CGR-75 (5) (the "kein Vorschlag" e2e and the ticked-list refusal display) and CGR-138; CGR-137 is not a PLAN3 condition |
+| All other items | as at 17:00 |
+
+```
+cra-gate: #880 12f0b0d clear
+cra-gate: #876 b5ddc86 clear
+cra-gate: #800 797029c clear
+cra-gate: #803 703d7d9 clear
+cra-gate: #804 d550124 clear
+```
+
+### Decisions requested
+
+- **po:** CGR-138 into PLAN3-9 (one brief line; no clinical rule), and CGR-137 as at 17:00.
+- **uxa:** wording of the decided `not_found` line (CGR-138 (3)).
+- Unchanged from 17:00: lca `other_team_visits`; owner G-3, G-1.
+
+---
+
 ## 2026-11-05 17:30 CET: base merges of #876 (head `b1ee2cd`) and #800 (head `f8b60a4`) checked: **own code change identical**, gates carried to the new heads; no new finding; nothing closed
 
 **Scope:** `recovery/main` @ `7e64bfb` (unchanged since my 17:00 section, PR #878, unmerged). Changes since 17:00:

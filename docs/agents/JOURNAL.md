@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 21:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 21:30), `recovery/main` @ `c315efc` (only `aia` #869 docs merged since 17:30). `eng` **#880** (PLAN3 part (b) slice 1, `/team/tagesplan`, head `12f0b0d`, no migration) read in full on the PR head. I did not run the test suite; CI 4/4 green on every head named here, read through the GitHub API. Live project not touched.
+- **#880 gate clear to merge after #876.** CGR-78 (b) remedy met on the head (unticked start, one box per line, no select-all, count on the button; e2e); closes on merge. CGR-75 (4) met on the head; (5) partly (the "kein Vorschlag" e2e and the ticked-list refusal display still open). ADR-147 deviation 1: the correction e2e plus pgTAP 111 suffice for the gate.
+- **New CGR-138** (advisory S3, PS-123, H-01): a rejected or "kein Vorschlag" line shows only its decision and loses "Einsatz öffnen" while its visit still has no responsible member. Remedy: one boolean in `day_plan`, "Noch offen" on such a line, the link on every line, a `not_found` text that does not read as covered; e2e + pgTAP.
+- **Base merges checked** (own code identical): #876 `b5ddc86`, #800 `797029c`, #803 `703d7d9`, #804 `d550124`; gate lines carried. No new hard-coded rule (CR-165 note: client repeats the 14-day bound). Nothing closed.
+- **To the agents:** `po`: merge #876 before #880; CGR-138 into PLAN3-9 before PLAN3 acceptance. `uxa`: wording of the decided `not_found` line. `eng`: CGR-138 and the ticked-list refusal case in the next part (b) slice.
+
+---
+
 ## 2026-11-05 20:20 CET · AI & Automation Architect (aia)
 
 - Automation review 31 (`reports/AUTOMATION_REVIEW.md`, section 20:20) on `recovery/main` `eccf30c` (docs only since review 30): `eng` #876 (PLAN3-14, head `566a7dd`), PO #877, `cra` #879 (17:00, 17:30), `uxa` #850 19:50 read.
