@@ -31,6 +31,73 @@
 
 ---
 
+## 2026-11-05 14:20 CET · aia review 29: owner merge decision read (the PO merges, seven conditions, `PO_MERGE_PROCESS.md` IN FORCE; #799, #833, #838 merged): AUT-48 closed; AUT-49 and AUT-50 adopted into the PO's plan (PLANNED); PLAN3 part (a) (#872, first agent beyond the synthetic test agent) checked against §8: every stage-0 control present in the database; `cra` #873 CGR-136 supported; new AUT-51 (medium: a sick call in the morning cannot get a fresh day proposal until every undecided line of the earlier one is decided by hand)
+
+**Read:** `recovery/main` at `8e7d392` (since review 28: PO #868 and #871 merged, carrying the owner's merge decision, `PO_MERGE_PROCESS.md`, `COORDINATION.md` rule 4; PO merges of #799 UX2-1/UX2-31 shell `c8d2db7`, #833 `IMPLEMENTATION_SEQUENCE.md` `0e79e5f`, #838 D-2 hosting support `847bd4a`). Open, read on their branches: Engineering **#872** (PLAN3 part (a), head `c382272`, ADR-145, migration 0109, pgTAP 110; the four check runs on that head show `success` on GitHub, I ran nothing) and `cra` **#873** (13:30: #872 clinical gate clear, CGR-136, CGR-135 closed, governance chain rebuilt). My #869 continued (base merged in, journal conflict resolved keeping every entry). No new or changed brief (PLAN3 approved and unchanged; FAM1 draft unchanged). Open `automation` issues: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database. Bottleneck map v2 (review 18) stands; next refresh 2026-11-10. Absence and short-notice cover stays among its top bottlenecks (estimate, review 18), which is why AUT-51 is rated `medium`.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-51 | Planning after a short-notice change (sick call, new absence, a visit added): team member re-asks for the day proposal (PLAN3, team) | IMPLEMENTED on #872, not merged (ADR-145 decision 6, deviation 3): `propose_day_plan` refuses with `open_proposal` while an earlier proposal of the same team and day still has undecided lines of open visits. A member who records a colleague's absence at 06:30 and wants a fresh proposal must first decide or reject each undecided line by hand, although the earlier lines were computed before the absence and are partly invalid. The refusal is not in the brief. Benefit stated by `eng`: `open_suggestions` and the PLAN3-12 count would otherwise list two proposals for one visit. That benefit is real (H-20: no double list that invites a bulk confirm), but the form makes the busiest moment of the day the one with the most taps. The safety does not depend on it: every line is re-checked at confirm (J3, ABS1), so a stale line is refused anyway, only later | **Rule (same single list, no manual clean-up):** a new request for the same team and day closes the earlier proposal's undecided lines with a recorded ledger outcome before writing the new lines (they leave `/team/vorschlaege` and the count; nothing is deleted; lines already confirmed stay). Whether AIG1-C4's expiry outcome (#814) can carry this or a new outcome is needed: UNKNOWN, `eng` decides how. Until built, the refusal text names the earlier proposal and offers "Ältere offene Zeilen verwerfen und neu vorschlagen" as one act (the act exists already as reject; this only bundles it with the request). No new role, approval or field; the per-line confirmation and the J3 re-check stay | L | Stage 0; gate PO (deviation 3 is its call), `uxa` (refusal wording), `cra` only if the new outcome is read by a safety path (UNKNOWN; none known) | per team and month: share of day-plan requests refused `open_proposal`; median minutes from a recorded absence to the last confirmed line of that day (PLAN3-7 already counts confirm actions per day plan) | medium | — (report; comment on #872) |
+
+Severity `medium`, not `high`: a care-side benefit (one list per visit) is shown; the finding is the form, and it only matters once part (b) exposes it to teams.
+
+### 2 Briefs, plans and packages reviewed
+
+- **Owner merge decision and `PO_MERGE_PROCESS.md` (IN FORCE):** the seven conditions are the owner's controls and are not challenged. Their form: §4 condition 2 takes in AUT-50 as a hand check, and §7 specifies `scripts/po-merge-gate.mjs` with the fixture "a cleared head followed by a code push"; together with change E (AUT-49) that is the deterministic form I proposed. The §6 merge record comment is today written by hand per PR; once §7 exists it should be the script's output pasted, not a second write-up (folded into AUT-50, no new finding). Role docs PRs: merged by the PO on conditions 1 and 5 plus the CGR-135 scope rule; I therefore no longer self-merge, my task text notwithstanding (owner decision governs; the PO merges #869).
+- **PLAN3 part (a), #872:** removes the daily hand assignment of open visits for teams that switch it on, using facts the graph already holds (primary nurse, deputy, visits known, absences, qualification). Supported in substance. Two observations without a finding: (i) "visits known" counts performed visits (first `started` event), which is the continuity measure J6 already uses; consistent. (ii) `day_plan_load` shows minutes per member for the team's own planning, with no maximum; it is a load view for the day, not a person's performance, and is readable only by the team's members; no per-person history or ranking is built. Keep it that way in part (b) (no month view per person).
+- **CGR-136 (`cra` 13:30, advisory S2):** supported. Checking the overlap against the member's own visits of every team (output stays "überschneidet", no detail) and again at confirm time is a deterministic rule with no act; it removes a double booking a nurse would otherwise discover on the road.
+- **#799 shell merged:** one navigation for every protected route; no act added for a nurse; no finding.
+- **D-2 hosting support (#838):** no AI provider, no automation step; no finding.
+
+### 3 AI readiness of delivered items (§8)
+
+PLAN3 part (a) (#872, head `c382272`, not merged), level-L rule agent `plan3_day_proposal`:
+
+| Control (§8) | State on the head | Evidence |
+|---|---|---|
+| Suggestion ledger | present | one `ai_suggestions` row per line, one proposal id, input references visit, case, team (ADR-145 6) |
+| Provenance per value | present | `responsible_user_id` becomes record content only through `confirm_suggestion(s)`; reason and limit kept on `day_plan_lines` |
+| Named confirmer | present | AIG1 confirmation rows; `day_plan` returns no confirmer (no per-person view of confirmations) |
+| No accept-all on listed fields | present | ticked-list bulk confirm only for class `schedule` (CGR-78, AIG1-5); no "alle übernehmen" without the list (PLAN3-5) |
+| "Not found" explicit | present | `not_found` with the limit the closest candidate failed |
+| Correction rate per agent and field, per team | generic only | AIG1-7 readers; the PLAN3-7 measures are PLANNED (part b) |
+| Stop rule | present | refusal `agent_stopped` after `aig1_check`, no ledger row |
+| Evaluation on synthetic data | present | fixture `aig1_eval_plan3_day_proposal`, bar 100, pure ranking `private.plan3_choose` |
+| Team decides use | present | `set_team_day_proposal`, actor only in the audit row (PLAN3-10) |
+| Writes nothing to the record | present | pgTAP hash of `care_visits` before and after |
+
+Readiness at stage 0: met at database level (PLANNED for teams until part (b) and the merge). Gaps: the PLAN3-7/-13 measures (part b) and AIG1-C4/-C5 (#814) before part (b), as ADR-145 says.
+
+### 4 Findings: state changes and closed
+
+- **AUT-48 closed** with evidence: the owner decided the merge path (PO merges under seven conditions, `PO_MERGE_PROCESS.md` §0, §0a); the PO merged #799 (`c8d2db7`), #833 (`0e79e5f`) and #838 (`847bd4a`) on 2026-11-05 12:00; role docs PRs are covered (§4 stop rules). The remaining delay is the serial conflict queue (AUT-49), not a missing hand-off.
+- **AUT-49:** adopted as direction (PO 10:56) and placed as change E of `PO_MERGE_PROCESS.md`, built with D; PLANNED. Stays open until built. The PO's 12:00 run found 14 Engineering PRs conflicting with `recovery/main` after three merges: the same pattern.
+- **AUT-50:** adopted in substance (§4 condition 2, §7 fixture), PLANNED; `cra` 13:30 clarifies the comparison after a base merge (the PR's own change, not the plain head diff), which the script must implement. Stays open until §7 is built.
+- AUT-30 (#793), AUT-34: met on #814 and #841 heads; close on merge (both now conflict, PO 12:00).
+- AUT-25: PLAN3-7 carries the "kein Vorschlag" share (part b); unchanged until built.
+- Open, unchanged: AUT-46, AUT-47, AUT-44, AUT-45, AUT-42, AUT-43, AUT-41, AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-28 (P-38), AUT-31 (PLAN3-13).
+- Closed in this section: AUT-48.
+
+### 5 Stage tracking (D-35 stages; changes only)
+
+- Stage 0 entry evidence widened: the first agent beyond the synthetic test agent exists at database level (PLAN3, rule, L) with every §8 control (table above), not merged. Stage 1 still not opened; real data blocked (D-1); adviser not named; G-3 (named human approves clinical or billing migrations before real data) still open, restated by `cra` 13:30.
+
+### 6 Waiting for the PO
+
+- **AUT-51 (medium):** decide ADR-145 deviation 3 (refuse vs. close the earlier undecided lines) before part (b).
+- AUT-49 and AUT-50 in D/E; AUT-44, AUT-45; AUT-46 only under the owner's variant; CGR-136 into PLAN3 part (b).
+- AUT-42, AUT-43, AUT-41, AUT-36, AUT-37, AUT-38, AUT-33 (unchanged).
+
+### 7 Issues and comments
+
+- No issue opened (no `high` finding). One comment on #872 (AUT-51, §8 readiness, CGR-136 supported). Comment on #861 not needed (closed by the owner's decision).
+
+---
+
 ## 2026-11-05 10:15 CET · aia review 28: `cra` #870 (09:30) read: option C supported by `cra` at stage 0 with three conditions; condition (2) and (3) supported (safety controls, not challenged); condition (1) supported in substance, new AUT-50 (low: make the head-diff check a rule instead of a note written before each merge); CGR-135 role-scope check supported (it turns "touches only my files" from a claim into a rule); AUT-48 widened: my own self-merge (#869) is refused by the same permission check, so docs PRs of every role queue too
 
 **Read:** `recovery/main` at `9e3b998` (unchanged since review 27; nothing merged, no code, brief or decision). Continued on my open PR #869 (self-merge refused at 08:20 by the session's permission check "merge without review"; not worked around). Read on its branch: `cra` **#870** (09:30, `9fc0636`: CGR-134 sentence 5 met at document level, CGR-132 reverse line confirmed, option C input with three conditions, new CGR-135 on PO #868 carrying the #799 code) and the `cra` comments on #861, #868 and #850 (08:32 UTC). `uxa` #850, `lca` #860 and PO #868 heads unchanged since review 27. No new or changed brief (FAM1 draft unchanged). Open `automation` issues: #793 (AUT-30) only.

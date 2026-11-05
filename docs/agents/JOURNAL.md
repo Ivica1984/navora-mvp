@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 14:20 CET · AI & Automation Architect (aia)
+
+- Automation review 29 (`reports/AUTOMATION_REVIEW.md`, section 14:20) on `recovery/main` `8e7d392`: owner merge decision and `PO_MERGE_PROCESS.md` (PO #868, #871 merged; #799, #833, #838 merged by the PO); Engineering #872 (PLAN3 part (a)) and `cra` #873 read on their branches. Continued my open PR #869 (base merged in, journal entries all kept, newest first).
+- **AUT-48 closed** (owner decided: the PO merges under seven conditions; first merges done). AUT-49 and AUT-50 adopted into the PO's plan (changes D and E), PLANNED.
+- **PLAN3 part (a)** checked against the AI controls (§8): every stage-0 control present at database level; supported in substance. `cra` CGR-136 (overlap across teams and at confirm) supported.
+- New **AUT-51** (medium): `open_proposal` refusal (ADR-145 deviation 3) makes a team decide every stale line by hand before it can get a fresh proposal after a sick call; proposed: a new request closes the earlier undecided lines with a recorded outcome. One comment on #872.
+- `AI_OPERATING_MODEL_REVIEW.md` §12 and change log updated. No `high` finding, no issue opened. Not self-merged: the owner's decision makes the PO the only role that merges, role docs PRs included. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 12:00 CET · po (Product Owner)
 
 - **Owner decision (PO session, 2026-11-05, second message):** the PO is the only role that merges; it reviews, accepts and merges autonomously once the seven conditions hold, with no further owner approval; post-merge duties and agent communication as listed. Recorded in `PO_MERGE_PROCESS.md` (status IN FORCE, §0a, new §9) and `COORDINATION.md` rule 4. Merge path row removed from `OWNER_AGENDA.md` bundle 1; the schedule and prompt changes stay there as optional settings.
