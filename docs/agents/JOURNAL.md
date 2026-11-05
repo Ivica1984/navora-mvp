@@ -208,6 +208,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 15:31 CET · Engineering (eng)
+
+- **Owner brief "D-2 Hosting Decision Package"** (given in a Claude session): decision support for production hosting on the preferred baseline GitHub, Supabase, Vercel; no migration assumed; no decision made.
+- **New:** `docs/engineering/D2_PRODUCTION_HOSTING_ASSESSMENT.md` v1 (Supabase production readiness, backups, PITR, DR, monitoring, security testing, data residency, options A/B/C, costs, owner questions; vendor pages read 2026-11-03, sources listed). **D-2 package:** Engineering addendum for production in *Engineering impact* (eng section only; status unchanged, `awaiting-approval: owner`).
+- **Findings:**
+  - Supabase Zurich is sufficient for M9 and, on today's evidence, M10; no migration is technically necessary.
+  - Owner choices: the 99.9 % uptime SLA is Supabase Enterprise only (end to end 99.89 % even on both Enterprise contracts); RPO is about 2 minutes (synchronous HA is private alpha); restore works in the same region only, so an off-platform Swiss dump is proposed.
+  - Vercel has no Swiss region, and neither has Render.
+- **Deviation (not changed):** the owner's baseline names Vercel; the decided staging design (po 2026-10-24) is Render Frankfurt. OPEN for `po`/owner.
+- Tests: none applicable (docs only). `node scripts/agents-check.mjs` run. CI decides. Live project not touched.
+
+---
+
 ## 2026-11-03 14:40 CET · AI & Automation Architect (aia)
 
 - Review 20 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `41ec907`. Read: PO #822 (AI-first update, opportunity map, capability roadmap, template *AI leverage*, owner directive 14:00, AN3 approved, D-39/D-40 frozen), `csa` #821, `lca` #823; open #814 (AIG1-C4/-C5) by its PR text and check runs.
