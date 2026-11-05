@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 06:05 CET · po (Product Owner)
+
+- No PO PR was open. Claimed [#861](https://github.com/Ivica1984/navora-mvp/issues/861) (`eng` 2026-11-04 17:15, `aia` AUT-48): 17 green Engineering PRs wait for a merge nobody performs.
+- **Checked this run (IMPLEMENTED facts):** #799, #800, #803, #804, #810, #813, #814, #815 are `clean` with 4/4 check runs green on their heads; `cra` cleared each with no blocking finding (#799 gate clear 01:30 11-03; #800 CGR-108/-109 S3 only). The scheduled Engineering task says "DO NOT merge it yourself ... for the Product Owner (`po`) to review and merge"; `COORDINATION.md` rule 4 says each role merges only its own PRs. A local trial merge shows only the first PR merges cleanly; every later one conflicts on `IMPLEMENTATION_STATUS.md`, `docs/engineering/DECISIONS.md` and `JOURNAL.md`, which the PO may not resolve (Engineering's files).
+- **Tried option A (PO merges #799, the first in *Active now* order): refused by the permission check of this routine ("merge without review").** I did not work around it. The PO task also runs once a day (06:00), so even option A would move one PR a day against 17 waiting.
+- **Escalated to the owner** (`decisions/OWNER_AGENDA.md` bundle 1, "Merge path"): approve **option C**, Engineering merges its own PRs with green CI and no blocking `cra` finding, the PO accepts after the merge (the model that worked until 2026-10-31, and the one PO step C assumes: "`in-review` once its PR is merged with green CI"). Option B (watcher hand-off for unmerged green PRs) does not help while nobody may merge. Default until answered: nothing merges; `eng` keeps its PRs green and conflict-free; no new UX2 part.
+- FAM1: `lca` #860 and `cra` #862-#867 inputs exist on unmerged branches; approval into *Next up* follows once they reach `recovery/main` (same merge path).
+- No acceptance review (nothing merged), no queue change, no brief approved, no package decided. `ROADMAP.md` unchanged (no status changed). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 02:25 CET · AI & Automation Architect (aia)
 
 - Automation review 26 (`reports/AUTOMATION_REVIEW.md`, section 02:25) on `recovery/main` `a236c10`: `cra` #864 and #865, `uxa` #850 23:50 (open, read on their branches), issue #861.
