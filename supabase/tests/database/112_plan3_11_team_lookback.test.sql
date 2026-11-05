@@ -112,8 +112,11 @@ from (values (1, 1, time '08:00'), (2, 1, time '09:00'), (3, 1, time '10:00'), (
 select is(pg_temp.cmd('admin', format('select public.set_agent_state(%L, %L, true, 50, 2, 7, %L)',
             '00000000-0000-4000-b000-000000000011', 'aig1_test_primary_nurse', pg_temp.k(1))) ->> 'result', 'ok',
   'fixture: the synthetic test agent is switched on');
-select ok(pg_temp.propose(1, 2) is not null and pg_temp.propose(2, 3) is not null and pg_temp.propose(3, 4) is not null
-          and pg_temp.propose(4, 5) is not null
+-- Two statements, as in 104: within one expression SQL does not fix the order, so a decision could run before its proposal.
+create temp table props as
+  select pg_temp.propose(1, 2) is not null and pg_temp.propose(2, 3) is not null and pg_temp.propose(3, 4) is not null
+         and pg_temp.propose(4, 5) is not null as ok;
+select ok((select ok from props)
           and pg_temp.decide(1, 'confirmed', null, 6) ->> 'result' = 'ok' and pg_temp.decide(2, 'confirmed', null, 7) ->> 'result' = 'ok'
           and pg_temp.decide(3, 'confirmed', null, 8) ->> 'result' = 'ok' and pg_temp.decide(4, 'confirmed', null, 9) ->> 'result' = 'ok',
   'fixture: four proposals of r4, confirmed unchanged while their visits are open');
