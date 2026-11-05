@@ -31,6 +31,60 @@
 
 ---
 
+## 2026-11-05 08:20 CET · aia review 27: PO #868 (06:05, #861 escalated to the owner as option C), `cra` #867 (05:30, CGR-134, CGR-132 both pairs, CGR-110 recurred), `lca` #860 (04:45) and `uxa` #850 (03:50, 07:50) read; AUT-48 supported in the PO's option C form; CGR-132 (both pairs), CGR-134 and the `lca` AUT-46 addition supported (no added act); new AUT-49 (medium: the single shared `JOURNAL.md` forced 109 conflict merges on agent branches in seven days)
+
+**Read:** `recovery/main` at `9e3b998` (my #866 only since review 26; no code, brief or decision merged). Open, read on their branches:
+- PO **#868** (06:05, `52d1803`: option A tried and refused by the PO routine's permission check; #861 escalated to the owner in `OWNER_AGENDA.md` bundle 1 as **option C**: Engineering merges its own PRs once CI is green and `cra` has no blocking finding, the PO accepts after the merge);
+- `cra` **#867** (05:30: CGR-133 met at document level, CGR-132 widened to the reverse pair, new CGR-134, CGR-110 recurred in pgTAP 064, AUT-48 supported with one condition: the hand-off shows the `cra` gate status);
+- `lca` **#860** (04:45: client information confirmed against *informed*, reverse pair to be refused (ZGB Art. 19c), AUT-46 addition "hat die Information oben erhalten", real relatives still need the legal adviser);
+- `uxa` **#850** (03:50, 07:50: CGR-133 constant, CGR-134 end-cause sentence, reverse-pair refusal line; noted that #868 carries the #799 shell code, `819c5c6`).
+
+No new or changed brief (FAM1 draft unchanged). Open `automation` issues: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database. The counts in AUT-49 are from `git log --all --merges` on the clone (IMPLEMENTED facts about the repository, not about care). Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-49 | Coordination record of every role: the one shared `docs/agents/JOURNAL.md` (all roles; `eng` also on `IMPLEMENTATION_STATUS.md` and `docs/engineering/DECISIONS.md`) | IMPLEMENTED (repository history, 2026-10-29 to 2026-11-05): 112 merge commits "Merge recovery/main into <agent branch>", 109 of them naming a journal conflict ("every entry kept, newest first"). Every merge into `recovery/main` puts every other open branch in conflict on the same top lines; PO #868 found the same for Engineering PRs (only the first of 17 merges cleanly). Each resolution is a run spent on rework with no change in content, and it delays every delivery, FAM1's inputs included (PO 06:05: FAM1 approval waits for `lca`/`cra` inputs to reach `recovery/main`). No care benefit: the journal's value is the record, not its being one file | **Eliminate the conflict (keep the record):** one file per entry, `docs/agents/journal/<YYYY-MM-DD-HHMM>-<role>.md`, never edited after merge; "newest first" becomes the sort of the file names; `scripts/agents-check.mjs` checks name, role and date format. `JOURNAL.md` keeps the history up to the cut-over and a pointer. Same pattern for the `eng` status and decision rows if `eng` agrees (UNKNOWN; `eng` decides how). No new role, approval or field; the PO acceptance and the `cra` gate are unchanged | L (repository process, no product change) | Stage 0; gate PO (README *Journal* rule), `eng` (check script); owner only if the scheduled task texts must change (they name `JOURNAL.md`) | base-merges naming a journal conflict per week across agent branches (target 0); share of green PRs that merge without a base-merge | medium | — (report; noted on #861) |
+
+Severity `medium`, not `high`: the cost is delivery latency and repeated rework, not an added care-side step, and nobody recommended the single file as a control.
+
+### 2 Briefs, plans and packages reviewed
+
+- **#861 merge path, PO option C (owner agenda bundle 1):** supported; it is the AUT-48 proposal in a leaner form. It removes the waiting step (a pre-merge PO look nobody can trigger or perform) and keeps both controls that carry a safety benefit: the `cra` gate stays before the merge (as merge condition, which also meets the `cra` 05:30 condition), the PO acceptance stays after it. At stage 0 nothing reaches a real client (D-1), so acceptance after merge loses no patient protection. My option B (a watcher hand-off) is not needed under C; the existing PO step C hand-off on `in-review` covers acceptance. Not challenged; the decision is the owner's. Without AUT-49, option C still means 17 sequential merges each followed by a conflict resolution by `eng`.
+- **CGR-132 widened (refuse the reverse pair, `lca` ZGB Art. 19c):** a second deterministic refusal on the same two answers; no question or act added. Supported.
+- **CGR-134 (`uxa` 07:50 end-cause sentence):** one informing sentence, read by the client; no act for the RN or the relative. Supported. It also states that the view does not restart by itself after a pause, which spares the team a later "why can I see nothing" call.
+- **`lca` AUT-46 addition ("hat die Information oben erhalten"):** extends the one statement above the save button; still no checkbox and no extra act. Supported.
+- **`lca` "Datenschutz" link on F-01/F-02, session length as a DSV Art. 3 measure:** no team act. The session length affects relatives' re-sign-ins, not nurse time; no finding.
+- **CGR-110 recurrence (pgTAP lock missing in ten files):** a red re-run costs a cycle under any merge path; supported as stated by `cra` (lock in every file calling `evaluate_signals`).
+
+### 3 AI readiness of delivered items (§8)
+- Nothing proposing, drafting or ranking delivered since review 26. #814 (AIG1-C4/-C5) and #828 (AIR1) unchanged, open, held by the merge path (AUT-48).
+
+### 4 Findings: state changes and closed
+- **AUT-48:** escalated by the PO to the owner as option C (IMPLEMENTED escalation, #868 open); I support C. Stays open until the merge path works; then closes with the first merged Engineering PR.
+- **AUT-46:** form widened by the `lca` addition, confirmed by `cra`; still only under the owner's variant; stays open until FAM1 carries it.
+- AUT-47, AUT-44, AUT-45: unchanged.
+- AUT-30 (#793), AUT-34: met on #814 and #841 heads; close on merge.
+- Open, unchanged: AUT-42, AUT-43, AUT-41, AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+- Closed in this section: none.
+
+### 5 Stage tracking (D-35 stages; changes only)
+- No change. Stage 0 only in force; stage 1 not opened; real data blocked (D-1); adviser not named.
+
+### 6 Waiting for the PO
+- **AUT-49 (medium):** one journal file per entry; ask `eng` about the status and decision rows.
+- **AUT-48:** with the owner (option C); nothing for me until answered.
+- AUT-44, AUT-45; AUT-46 (form with the `lca` addition) only under the owner's variant; CGR-131 to CGR-134 into FAM1.
+- AUT-42, AUT-43, AUT-41, AUT-36, AUT-37, AUT-38, AUT-33 (unchanged).
+
+### 7 Issues and comments
+- No issue opened (no `high` finding). One comment on #861 (AUT-48 supports option C; AUT-49 as the cause of the serial conflicts). No PR comment on #867, #860, #850 or #868.
+
+---
+
 ## 2026-11-05 02:25 CET · aia review 26: `cra` #864 (21:30) and #865 (01:30), `uxa` #850 (23:50) read; AUT-46 form placed by `uxa` and confirmed by `cra` at document level (PLANNED, only under the owner's variant); AUT-47 consistent across both gates; CGR-131 to CGR-133 supported (one constant, no added act); new AUT-48 (medium: 17 green Engineering PRs wait for a merge hand-off nobody receives, issue #861)
 
 **Read:** `recovery/main` at `a236c10` (my #863 only since review 25; no code, brief or decision merged). Open, read on their branches:

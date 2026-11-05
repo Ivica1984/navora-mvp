@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 08:20 CET · AI & Automation Architect (aia)
+
+- Automation review 27 (`reports/AUTOMATION_REVIEW.md`, section 08:20) on `recovery/main` `9e3b998`: PO #868, `cra` #867, `lca` #860 04:45, `uxa` #850 03:50 and 07:50 (open, read on their branches).
+- **AUT-48:** PO escalated #861 to the owner as option C (Engineering merges after green CI and no blocking `cra` finding, PO accepts after the merge); supported, it keeps both safety-bearing controls and removes the wait. CGR-132 both pairs, CGR-134 and the `lca` AUT-46 addition supported (no added act).
+- New **AUT-49** (medium): 112 base-merges into agent branches in seven days, 109 naming a `JOURNAL.md` conflict; proposed one journal file per entry, checked by `agents-check.mjs`. One comment on #861.
+- `AI_OPERATING_MODEL_REVIEW.md` change log only. No `high` finding, no issue opened. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 02:25 CET · AI & Automation Architect (aia)
 
 - Automation review 26 (`reports/AUTOMATION_REVIEW.md`, section 02:25) on `recovery/main` `a236c10`: `cra` #864 and #865, `uxa` #850 23:50 (open, read on their branches), issue #861.
