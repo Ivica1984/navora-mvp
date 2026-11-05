@@ -1,5 +1,4 @@
 import { connection } from "next/server";
-import Sidebar from "@/components/layout/Sidebar";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import { getActiveAlertCategories } from "@/features/door/queries";
 import { getIntakeData } from "@/features/intake/queries";
@@ -12,10 +11,8 @@ export default async function IntakePage() {
   const alertCategories = organizationId ? await getActiveAlertCategories() : [];
 
   return (
-    <div className="grid min-h-screen bg-stone-100 text-emerald-950 md:grid-cols-[280px_1fr]">
-      <div className="hidden md:block">
-        <Sidebar active="intake" />
-      </div>
+    // UX2-1 (ADR-131): the navigation comes from the shell.
+    <div className="min-h-screen bg-stone-100 text-emerald-950">
       <main className="mx-auto w-full max-w-4xl p-4 md:p-8">
         <h1 className="text-2xl font-bold md:text-3xl">{PAGE_LABEL.intake}</h1>
         <p className="mt-1 max-w-2xl text-sm text-secondary">

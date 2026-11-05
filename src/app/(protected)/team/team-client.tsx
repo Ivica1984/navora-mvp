@@ -6,7 +6,6 @@ import { caseRefLabel, caseReference, continuityAnchorId, type Leaver, type Succ
 import type { LeaverOpenReport } from "@/features/contract-end/queries";
 import type { TeamAdmissionView } from "@/features/admission/queries";
 import Link from "next/link";
-import { HeaderMenu } from "@/components/layout/Sidebar";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import SignalBanner from "@/components/signals/SignalBanner";
 import OverlapNote, { OverlapAfterSave, slotFromForm, useOverlapNote, type OverlapSlot } from "@/components/visits/OverlapNote";
@@ -135,8 +134,6 @@ export default function TeamClient({
           <Link href="/team/vorschlaege" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
             Vorschläge
           </Link>
-          {/* UX1-20: the role's menu (and "Meine Einstellungen") from the nurse's screens, inside the first viewport. */}
-          <HeaderMenu active="team" />
         </div>
         <h1 className="mx-auto mt-1 max-w-xl text-xl font-bold">{PAGE_LABEL.team}</h1>
         <p className="mx-auto max-w-xl text-sm text-emerald-100">

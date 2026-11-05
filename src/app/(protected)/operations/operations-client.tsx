@@ -5,7 +5,7 @@ import { useState } from "react";
 import SignalBanner from "@/components/signals/SignalBanner";
 import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
 import type { EvaluatorHealth, SignalRow } from "@/features/signals/rules";
-import { AppFrame } from "@/components/layout/Sidebar";
+import { PageFrame } from "@/components/layout/PageFrame";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import { TEAM_PANEL_HEADING } from "@/features/operations/labels";
 import type { OperationsDashboard } from "@/features/operations/types";
@@ -63,15 +63,14 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
   const teamsByName = [...teams].sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "", "de-CH"));
 
   return (
-    <AppFrame
-      active="operations"
+    <PageFrame
       style={{
         background: "#F8FAF9",
         color: "#153328",
         fontFamily: "Inter, Segoe UI, sans-serif",
       }}
     >
-      {/* UX1-1: one column below 768 px; the side column from 768 px (AppFrame). */}
+      {/* UX1-1 / UX2-1: the shell gives the navigation (tab bar below 768 px, sidebar from 768 px). */}
       <main className="grid min-w-0 gap-4 p-4 md:p-6">
         <EvaluatorHealthNotice health={evaluator} />
         <SignalBanner initial={signals} />
@@ -111,7 +110,7 @@ export default function OperationsClient({ dashboard, holds, continuity, billing
 
         <ContextPanel selectedEntity={selectedEntity} teams={teams} />
       </main>
-    </AppFrame>
+    </PageFrame>
   );
 }
 

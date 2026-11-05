@@ -31,6 +31,384 @@
 
 ---
 
+## 2026-11-05 02:25 CET · aia review 26: `cra` #864 (21:30) and #865 (01:30), `uxa` #850 (23:50) read; AUT-46 form placed by `uxa` and confirmed by `cra` at document level (PLANNED, only under the owner's variant); AUT-47 consistent across both gates; CGR-131 to CGR-133 supported (one constant, no added act); new AUT-48 (medium: 17 green Engineering PRs wait for a merge hand-off nobody receives, issue #861)
+
+**Read:** `recovery/main` at `a236c10` (my #863 only since review 25; no code, brief or decision merged). Open, read on their branches:
+- `cra` **#864** (21:30: CGR-131, CGR-132; AUT-46 supported with conditions (i) save is the RN's attestation, (ii) capacity question required, unpreselected, "Nein" refuses; AUT-47 supported in form);
+- `uxa` **#850** (23:50, `2cf39ee`: CGR-131 status list from the F-02 constant, CGR-132 refusal line, AUT-46 form with the statement directly above the save button, AUT-47 no screen);
+- `cra` **#865** (01:30: `uxa` parts of CGR-131/-132 met at document level, AUT-46 placement meets (i) and (ii); new CGR-133, one explanation constant for the neutral state without "noch");
+- issue **#861** (`eng` 17:15, for `po`: 17 green Engineering PRs open, no merge hand-off; not read in review 25, read now). No new or changed brief (FAM1 draft unchanged since #856). Open `automation` issues: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database. Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-48 | Delivery of built items to teams: hand-off from a green Engineering PR to the PO merge (`eng`, `po`) | IMPLEMENTED (issue #861, `eng` 17:15): 17 Engineering PRs are green and mergeable, the oldest (#799) since 2026-11-03 00:21; the engineering task forbids self-merge, the `in-review` row lives only on the PR branch, and the watcher (`plan.mjs`) opens a `po:<ID>` hand-off only for `ready-for-review`/`delivered` on `recovery/main`. So the acceptance step exists but no one is told it is due. Held items include AUT-30 (#814) and AUT-34 (#841), each returning nurse time once teams use them (estimates in reviews 18-21, not measured). Each merge elsewhere re-opens `JOURNAL.md` conflicts on all 17 branches: repeated rework with no care benefit | **Rule (eliminate the waiting, keep the review):** the PO acceptance review is a quality control and is not challenged; its trigger is. A deterministic rule creates the hand-off from facts already in GitHub: every open Engineering PR that is green and sets a row to `in-review` gets one `po:<ID>` merge-review hand-off (`eng` option B, unit test first), reviewed in *Active now* order. Until it is built, the PO run lists green `feature/`/`feat/`/`fix/` PRs itself (option A). No new role, approval or field; `COORDINATION.md` rule 4 made to match whichever instruction stands (owner/PO, not me) | L | Stage 0; gate PO (rule 4 and option); owner only if the task instruction is changed | days from green CI to merge per Engineering PR (median over the pilot repository, never per person); count of green PRs older than 24 h, target 0 | medium | #861 (comment) |
+
+Severity `medium`, not `high`: the step that blocks (PO acceptance) has a stated benefit (review before delivery); the finding is the missing trigger, a leaner equal-safety form exists, and `eng` already proposed it.
+
+### 2 Briefs, plans and packages reviewed
+
+- **CGR-131 (one status constant for F-02 and the client information) and CGR-133 (one explanation constant, without "noch"):** supported. Both are single sources rendered in two places; they remove a future double maintenance and add no act for the RN or the client. CGR-133 is a safety wording control (H-30) and not challenged.
+- **CGR-132 (refuse "gives it herself" with "cannot decide"):** a deterministic refusal on two answers already given, in the command (pgTAP) and on screen; adds no question and no act. Supported.
+- **AUT-46 form (`uxa` 23:50, `cra` 01:30):** the first question disappears under the variant and is replaced by one fixed statement above the save button; no checkbox. That is the proposal, placed where `cra` (i) needs it. I accept the placement above the button instead of above the information block (review 25 wording); no act added.
+- **AUT-47:** `uxa` sets no screen and no periodic prompt; a later rule goes to the team's existing exception list. Matches the proposal.
+- **UXR-97, UXR-95, UXR-96:** unchanged; no finding.
+
+### 3 AI readiness of delivered items (§8)
+- Nothing proposing, drafting or ranking delivered since review 25. #814 (AIG1-C4/-C5) and #828 (AIR1) unchanged and open, both among the 17 waiting PRs (AUT-48). No change to the AI operating model controls beyond the change-log note.
+
+### 4 Findings: state changes and closed
+- **AUT-46:** form PLANNED and confirmed at document level by `uxa` and `cra`; applies only if the owner takes the "client consents herself only" variant; `lca` to confirm the sentence. Stays open until FAM1 carries it.
+- **AUT-47:** consistent with both gates; waits for the Clinical Owner (after G-1) to decide whether any re-check exists (UNKNOWN). Stays open.
+- **AUT-44, AUT-45:** unchanged; waiting for the PO.
+- AUT-30 (#793), AUT-34: met on #814 and #841 heads; close on merge (now tracked under AUT-48).
+- Open, unchanged: AUT-42, AUT-43, AUT-41, AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+- Closed in this section: none.
+
+### 5 Stage tracking (D-35 stages; changes only)
+- No change. Stage 0 only in force; stage 1 not opened; real data blocked (D-1); adviser not named.
+
+### 6 Waiting for the PO
+- **AUT-48 (medium):** choose option A now and B as the lasting rule (#861); align `COORDINATION.md` rule 4.
+- AUT-44, AUT-45 (medium); AUT-46 (form as `uxa` 23:50) only under the owner's variant; CGR-131 to CGR-133 into FAM1-2/-6.
+- AUT-42, AUT-43, AUT-41, AUT-36, AUT-37, AUT-38, AUT-33 (unchanged).
+
+### 7 Issues and comments
+- No issue opened (no `high` finding). One comment on #861 (AUT-48). No PR comment on #864, #865 or #850: they adopt my findings and need nothing from me.
+
+---
+
+## 2026-11-04 20:20 CET · aia review 25: `cra` #859 (16:45) and #862 (17:30), `lca` #860 (16:55, D-40 / FAM1 re-check) and `uxa` #850 (15:50, 19:50) read; AUT-44 supported by all three gates with conditions (one act stands; the act must carry every consent field); AUT-45 no objection, `uxa` prefers (b); the two `lca` pilot variants supported as simplifications; AUT-46 (low: under "client consents herself only" the first consent question has one possible answer); AUT-47 (low: a later capacity re-check, if the Clinical Owner sets one, follows named events, never a periodic re-confirmation of every consent)
+
+**Read:** `recovery/main` at `39a4883` (unchanged since my review 24, #858; no code, brief or decision merged since). Open, read on their branches:
+- `cra` **#859** (16:45: CGR-128 current-slot "Verschoben", CGR-129 resend and one-act invitation never re-open access; AUT-44 supported with conditions, AUT-45 no clinical objection);
+- `lca` **#860** (16:55, `decisions/D-40.md`: consent requirements (express, specific, informed, free, documented, revocable), representation UNKNOWN, staff name; AUT-44 legally neutral with one data-security condition; two pilot variants proposed to the PO);
+- `cra` **#862** (17:30: CGR-130, capacity fact a required RN act, never a default or derived; revocation reason "Kann diese Einwilligung nicht mehr selbst geben"; both `lca` variants supported clinically);
+- `uxa` **#850** (15:50: F-02 wording, UXR-95, UXR-96, AUT-44/-45 inputs; 19:50: CGR-128/-129/-130 wording, client information before consent, UXR-97).
+- Open issues labelled `automation`: #793 (AUT-30) only. No new or changed brief (FAM1 unchanged since #856).
+
+**Nothing below is a measurement.** I ran no tests and read no database. How often relatives phone a team about the schedule is still **UNKNOWN** (NAVORA records no calls; no study read this run). Bottleneck map v2 (review 18) stands; next refresh 2026-11-10. Map item "phone coordination with relatives": first remedy PLANNED (FAM1 draft, not approvable until CGR-125 is in FAM1-6).
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-46 | Relative consent step (FAM1-2, PROPOSED form `uxa` 19:50 for CGR-130 (1)): registered nurse | PROPOSED: two required radio questions without preselection, (1) "Gibt <Name> diese Einwilligung selbst?" and (2) "Hältst du <Name> für fähig, über diese Einwilligung selbst zu entscheiden?"; under the `lca` pilot variant "client consents herself only" a "Nein" on either refuses the save. Under that variant question (1) has exactly one answer that lets the act continue: it is a statement of the form's scope, asked as a question, on every consent. Question (2) is the capacity fact `cra` and `lca` require (a patient-protection and evidence control, **not challenged**). Effort: one extra answer per consent (small; estimate); the cost is the principle (no question with one possible outcome, the same reason as AUT-42) and a record field that carries no information | **simplify (rule):** if the owner takes the variant, the form states "Die Klientin / der Klient willigt selbst ein" as fixed text above the information block, the command stores `consent_given_by = client` as a constant (no input), and only question (2) is asked, required, with no preselection (CGR-130 (1) unchanged). If the owner does **not** take the variant, question (1) stays as `uxa` worded it, because it then has two outcomes. Equal safety: the stored record is identical; the capacity act stays explicit. Testable: under the variant the consent command has no input for who consented and rejects any value but `client` (pgTAP); the form renders one required question (vitest) | L (consent logistics; the capacity judgement itself is the RN's and the Clinical Owner's, not NAVORA's) | stage 0; gate: PO (FAM1-2), owner (variant), `cra` and `lca` confirm the stored fact is unchanged, `uxa` (form) | per team: acts and answers per consent record (target: one act, one answer); never per person | low | – |
+| AUT-47 | Re-check of a relative consent after a change in the client's capacity (CGR-130 clinical question, UNKNOWN; FAM1-3): team | OPEN: `cra` 17:30 leaves to the Clinical Owner (after G-1) whether and when a team must re-check capacity for an existing consent and sets no trigger until a rule is approved (D-27); `lca` 16:55 (2)(d) marks the survival of a consent after a loss of capacity UNKNOWN. A common form for such a rule in consent processes is a periodic re-confirmation of every record (for example every n months), which would add one act per consent per period for every team, also for clients whose situation did not change. No rule exists yet; this finding names no trigger and no interval | **monitor, not re-confirm (form only):** if the Clinical Owner sets a re-check, the brief expresses it as a line on the team's existing exception list when an event the Clinical Owner names is **recorded anyway** in NAVORA (examples of where such events already live: a case pause and its resumption, ASM1 reassessment; which events count is clinical and UNKNOWN), showing the consent and the CGR-130 (3) revocation reason in one place; the line clears by either keeping the consent (one tap) or recording the revocation. No calendar re-confirmation of unaffected consents unless the Clinical Owner's rule requires it explicitly. NAVORA never ends or flags a consent from a score or diagnosis (CGR-130 (2), unchanged) | G if the trigger events are clinical (the Clinical Owner's rule decides); the line itself carries no clinical content | stage 0 (deterministic, on recorded events); gate: Clinical Owner after G-1 (rule), `cra`, PO | per team and month: re-check lines raised and cleared, median days open; acts per consent per year; never per person | low | – |
+
+### 2 Briefs, plans and packages reviewed
+
+- **`lca` 16:55 consent requirements (FAM1-2):** express, specific, informed, free, documented, revocable through any team member. Each is a legal duty, not administration to remove; their **form** fits one act: the information is four fixed sentences on the RN's screen (`uxa` 19:50), the evidence is the record itself, no signature on the sources read (cantonal form UNKNOWN, D-12). No challenge. The negative test "no view, list or count orders or flags clients by consent status" is also a guard against the AUT-45 measure growing into a consent-rate figure: supported; the measure stays on page views (FAM1-14) and the retrospective answer.
+- **`lca` pilot variants ("client consents herself only"; "Ihr Pflegeteam" as default):** **supported as simplifications.** The first removes a representation form and a document check from the admission step; the second removes a per-person staff switch from every nurse's settings (`uxa` 19:50) and the wrong-name hazard (CGR-127 (3)). Cost for the measured gain, stated for the PO: `cra` 17:30 notes that relatives of clients with dementia most often want the schedule; under the first variant their calls stay with the team, so the pilot will under-show FAM1's gain. Reported, not a finding (legal reason; the owner decides through the PO).
+- **Adviser questions 1, 2, 6-8 with D-9 in one round (`lca`):** supported; one round instead of two lowers PO and owner coordination.
+- **CGR-128 (current-slot "Verschoben"):** a derivation rule on data already recorded; adds no act. Supported.
+- **CGR-129 and `uxa` 19:50 resend:** self-service resend on the expired-link page, one answer sentence, no address field. It keeps "my link does not work" calls away from the team while closing the re-open path. Supported; identity verification with `lca` (UNKNOWN).
+- **CGR-130 (1)-(3):** capacity a required explicit act, never derived; revocation reason by any RN. Patient-protection controls; their form is one required answer and one preset. Not challenged; AUT-46 on the neighbouring question only, AUT-47 on a later re-check.
+- **UXR-97 (one client per sign-in or a label):** relative-side effort only; with AUT-44 each consent record is one act whichever option is taken. No finding.
+- **UXR-95 (a)-(d):** two steps for a returning relative and a team-level count of failed sign-ins: supported (adoption decides whether calls fall).
+
+### 3 AI readiness of delivered items (§8)
+- Nothing proposing, drafting or ranking was delivered since review 24. #814 (AIG1-C4/-C5) and #828 (AIR1) unchanged and open. **CGR-130 (2)** (no AIG1 path writes the consent record; no function reads assessment, diagnosis or AI output to set, pre-fill, check or revoke the capacity fact) follows the AIR1 refusal pattern: supported and added to the AI operating model controls.
+
+### 4 Findings: state changes and closed
+- **AUT-44:** supported by `cra` (16:45, conditions CGR-129 (3)-(4): the one command refuses unless every FAM1-2 field and any capacity confirmation are present; nomination at admission optional, no preselected answer), by `lca` (16:55, legally neutral; the sign-in contact is taken in the consent conversation and bound to one relative; the invitation names no client before sign-in) and by `uxa` (15:50, one confirming step showing the scope sentence). I accept every condition: none adds an act. Waiting for the PO. Stays open.
+- **AUT-45:** no clinical objection (`cra` 16:45); `uxa` 15:50 prefers (b) (no control on any nurse screen; if (a), paper). Waiting for the PO. Stays open.
+- AUT-30 (#793), AUT-34: met on #814 and #841 heads; close on merge (unchanged).
+- Open, unchanged: AUT-42, AUT-43, AUT-41, AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+- Closed in this section: none.
+
+### 5 Stage tracking (D-35 stages; changes only)
+- No change. Stage 0 only in force; stage 1 not opened (provider terms written, D-34); real data blocked (D-1); adviser not named. D-39 A and D-40 (no AI on the relative path) as in review 24.
+
+### 6 Waiting for the PO
+- **AUT-44 (medium)** with the `cra` and `lca` conditions; **AUT-45 (medium)**, `uxa` prefers (b).
+- **AUT-46 (low)** only if the owner takes the "client consents herself only" variant; **AUT-47 (low)** only when the Clinical Owner sets a re-check rule.
+- AUT-42 (ADR-143 point 9 choice), AUT-43, AUT-41 (Clinical Owner gate after G-1), AUT-36, AUT-37, AUT-38, AUT-33 (unchanged).
+
+### 7 Issues and comments
+- No issue opened (no `high` finding). No PR comment: the findings concern a draft brief (FAM1) with no open PO PR; they reach the PO through this report.
+
+---
+
+## 2026-11-04 14:20 CET · aia review 24: owner decisions D-39 (A) and D-40 (minimal read-only relative view) and brief FAM1 draft (#856) read; FAM1 supported in substance (it removes relatives' schedule calls by rules alone); AUT-44 (medium: relative consent and invitation as one act, nominated in the intake consent conversation); AUT-45 (medium: the pilot measure asks teams to count relatives' calls); AUT-39 closed (owner decision); AUT-42 supported by `cra` and written into ADR-143 as an option
+
+**Read:** `recovery/main` at `d31669a`:
+- merged since review 23 (#854): PO **#856** (12:45: D-39 decided A; D-40 decided as a minimal option B; brief **FAM1** draft; `DELIVERY_PROGRAM.md` §0d, M7 objective now FAM1);
+- open, read on their branches: `cra` **#857** (13:30: FAM1 reviewed, CGR-125 blocking for FAM1 approval, CGR-126, CGR-127), `cra` **#855** (09:30: AUT-42 supported, CGR-124), `eng` **#837** (`92d0aba`: AUT-42 (a)-(d) written into ADR-143 point 9 as an option, second-refusal stop, Playwright test), `uxa` **#850** (11:50: UXR-94; AUT-42 information line);
+- open issues labelled `automation`: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database. How often relatives phone a team about the schedule is **UNKNOWN** (NAVORA records no calls; FAM1 says the same; no study read this run). Bottleneck map v2 (review 18) stands; next refresh 2026-11-10. Map item "phone coordination with relatives" (team self-organisation / Visit): its first remedy is now PLANNED (FAM1 draft).
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-44 | Relative gets access (FAM1-2, open question 2; PLANNED, draft): registered nurse of the client's team, relative | PLANNED: a consent record per relative and client is recorded by a registered nurse (FAM1-2); how the relative is then invited and signs in is open (engineering question 2), so a second act (send a link or code) and a second contact with the relative may follow. The client's intake consent is already captured once at conversion (`intake_consent_confirmed_at`, migration 0010:130-146; D-9 option D treats sharing beyond the team as a consent item). Without a rule, the nomination is a separate conversation after intake. Effort: two acts per relative plus possibly one more visit-time conversation (estimate). The RN restriction itself is **not** challenged: `cra` 13:30 (CGR-126) ties it to the per-decision capacity judgement, a patient-protection control | **simplify, rule:** (1) recording the consent record **is** the invitation: the same command stores the record and issues the relative's sign-in (one act, one audit entry; nothing to send separately); (2) the brief names the intake/admission conversation (ADM2 team admission) as the place where relatives may be nominated, so the RN asks once while she is already confirming the client's consent; later nominations stay possible; (3) revocation stays open to every team member at once (FAM1-3, unchanged; it is the safety direction, CGR-126). Testable: pgTAP: one consent command creates the record and the invitation, refused for a non-RN; no second command exists for inviting; e2e: from the admission screen an RN nominates a relative in one step | L (logistics access; no clinical content) | stage 0 (no AI; FAM1-12); gate: PO (FAM1), `lca` (identity verification of the invitation, FAM1 question 2), `uxa` (admission step), `eng` (ADR on the principal model) | per team and month: acts per consented relative (target 1) and median days from admission to first relative sign-in; never per person | medium | – |
+| AUT-45 | FAM1 pilot measure (*AI leverage*, PLANNED): team | PLANNED: "in the team retrospective, whether schedule calls from relatives fell (**counted by the team**, never per person)". A running count of incoming calls is a new administrative act for every nurse who takes one, during or between visits, for the whole pilot, to measure a gain in exactly that time. The benefit claimed is the evidence; the form (continuous counting) is challenged, not the measure | **simplify the measure:** (a) two fixed one-week tallies per pilot team, one before FAM1 is switched on and one about six weeks after, on a paper or tap tally with no names; or (b) only the retrospective question with a three-step answer (fewer / same / more), plus the page views FAM1 already records (FAM1-14, no act). Either is equal in safety (no clinical effect) and costs at most two weeks of counting instead of every week. The choice between (a) and (b) is the PO's | L | stage 0; gate: PO (FAM1 measure), `uxa` if a tally is built | per team: calls per week in the two tally weeks or the retrospective answer; relative page views per month; never per person | medium | – |
+
+### 2 Briefs, plans and packages reviewed
+
+- **D-39 (owner: A):** nothing added for teams. Stage-3 sensor row decided (§5).
+- **D-40 (owner: minimal B) and brief FAM1 (draft):** **supported in substance.** It removes a bottleneck of map v2 (relatives phone the team to ask when the nurse comes) using facts the team already records, with no new documentation, no AI and no new task stream: eliminate through the care graph, in the design order. FAM1-4 (access ends on pause or close without anyone acting) and FAM1-7 (only recorded changes are shown) are rules instead of acts: supported. FAM1-14 audit of reads is a control without a team act: supported. Challenges on form: AUT-44, AUT-45. No act, role or field is added without a safety or legal reason beyond those two.
+- **`cra` #857 on FAM1:** CGR-125 (exhaustive status mapping with one neutral word) is a patient-safety control and adds no act: supported. CGR-126 (protective revocation preset; capacity confirmed by the recording RN) is a safeguarding control; its form adds one preset choice on revocation only: supported, no challenge. CGR-127 (one access-end sentence; no cancellation reason; "Stand" time; no cached schedule) removes content rather than adding it: supported.
+- **ADR-143 `92d0aba` point 9:** AUT-42 written in as an option with the second-refusal stop; `cra` 09:30 and 13:30: both forms acceptable clinically; `uxa` 11:50 line confirmed as a hint. State change in §4.
+- **CGR-124 (`cra` #855, no reception offline; scheduled evaluation as a D-2 / MOB1 condition):** an evaluation by Engineering, not a team act. No finding.
+
+### 3 AI readiness of delivered items (§8)
+- Nothing proposing, drafting or ranking was delivered since review 23. #814 (AIG1-C4/-C5) and #828 (AIR1) unchanged and open. FAM1-12 (catalogue guard: no agent, `ai_suggestions` row or AIG1 path may reference the relative principal) follows the AIR1 pattern: supported.
+
+### 4 Findings: state changes and closed
+- **AUT-39 closed** (evidence: owner decision D-40 2026-11-04, recorded in #856: messaging, direct communication with care teams and check-ins excluded from the pilot; FAM1 *Out of scope* excludes F-03 to F-06). The two team task streams AUT-39 asked to be sized are not built; if a later decision brings them back, a new finding.
+- **AUT-42:** supported by `cra` (09:30, 13:30) and written into ADR-143 point 9 as an option with its test (#837 `92d0aba`); waiting for the PO's choice. Stays open.
+- AUT-30 (#793), AUT-34: met on #814 and #841 heads; close on merge (unchanged).
+- Open, unchanged: AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-41, AUT-43, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+
+### 5 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 3 | Sensor inputs (D-39) | **decided A by the owner** (none in the pilot; specification only) |
+| 3 | Relative channel with AI (D-40) | **AI excluded by the owner**; the relative view is rule-based (FAM1, stage 0) |
+| 1, 2 | unchanged | provider terms written (D-34), stage 1 not opened; real data blocked (D-1); adviser not named |
+
+### 6 Waiting for the PO
+- **AUT-44 (medium):** FAM1: one command for consent and invitation; nomination at admission (with `lca` on identity verification).
+- **AUT-45 (medium):** FAM1 measure: two tally weeks or the retrospective answer instead of a running count.
+- **AUT-42 (medium):** ADR-143 point 9 choice (both forms clinically acceptable).
+- AUT-43 (low), AUT-41 (Clinical Owner gate after G-1), AUT-36, AUT-37, AUT-38, AUT-33 (unchanged).
+
+### 7 Issues and comments
+- No issue opened (no `high` finding). No PR comment: FAM1 is a merged draft brief with no open PR; both findings are for the PO through this report.
+
+---
+
+## 2026-11-04 08:18 CET · aia review 23: AUT-41 placed by the PO as the target behind a Clinical Owner gate (open, state changed); ADR-143 CGR-123 amendment (#837 `8142bba`), `cra` #852, `uxa` #850 07:50, `lca` D-34 assessment and D-39/D-40 escalation read; AUT-42 (medium: a clock-refused observation waits for a tap before it reaches the team); AUT-43 (low: a no-show reported by phone offline is recorded again later; measure before designing)
+
+**Read:** `recovery/main` at `d85f715`:
+- merged since review 22 (#849): `lca` **#851** (D-34 detailed AI assessment; D-39, D-40 legal inputs), PO **#853** (06:10: D-39, D-40 escalated, both "approve A"; `DELIVERY_PROGRAM.md` §0c: CGR-122 (1) and CGR-123 in force, AUT-41 the target behind a gate, challenge row with a pilot hypothesis in `NEXT_CAPABILITY.md`);
+- open, read on their branches: `eng` **#837** (`8142bba`: ADR-143 1c never-queued commands, 1d `FIELD_COMMAND_EFFECTS` mapping rule, 5, 6, **9 "Ohne Gerätezeit senden"**), `cra` **#852** (`e787be2`, CGR-123; AUT-41 assessed with conditions (a), (b)), `uxa` **#850** (07:50: call lines, clock-refusal card, UXR-93); code PR heads unchanged since review 22;
+- open issues labelled `automation`: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database. How often a nurse works without a connection, and how often a phone clock runs ahead of the server, is **UNKNOWN** (no NAVORA event records either today; no study read this run). Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-42 | Pending observation refused on resend because its device time is later than the server time (ADR-143 9, PLANNED, #837 `8142bba`; `cra` 05:30 condition, `uxa` 07:50 card): nurse, phone | PLANNED: the refused entry is kept on her card; it reaches the team only after she sees the card and taps **"Ohne Gerätezeit senden"** (one act). Until then the observation, which may carry clinical content, is in nobody's view but hers (H-26 is the hazard `cra` named). The act decides nothing: there is only one possible outcome (send without the claim; the server time is the record's time either way, CGR-122 (2), and billed minutes are untouched, ADR-143 9). The claimed benefit (she knows the device time was discarded) is real but needs no act. Effort: one act per refusal; frequency UNKNOWN, probably rare (estimate). What is challenged is the form (a mandatory tap with one outcome), not the refusal of a late device claim | **rule instead of an act:** on a device-clock refusal, the client resends the same entry **once, automatically, without the claim**, under its original key (as ADR-143 9 already specifies for the manual act; no loop: a second refusal of any kind stops and shows the card as today). The record keeps the marker "Gerätezeit verworfen" (9) and her card shows the same line as information, with no button. The refusal itself stays: a device claim later than the server time is never stored (CGR-122, 8). Whether an automatic resend is acceptable for an entry of clinical content: `cra` (it removes the delay `cra` named; nothing changes in what is recorded). Testable: Playwright with a device clock set ahead: a pending observation is sent after reconnect with no tap, the record has only the server time and the marker, the card shows "Gerätezeit verworfen" without a button; pgTAP 9 unchanged (the refusal rolled back, no idempotency row before the resend) | L (transport of an entry; the content is the nurse's) | stage 0 (no AI); gate: `eng` (ADR-143 9 and point 2 "never retried automatically": one claim-less resend is not a retry loop), `cra` (confirms for clinical content), `uxa` (line without button), PO (MOB1) | per team and month: count of clock refusals and median time from refusal to the entry reaching the server (target: same as a normal resend); never per person | medium | – (comment on #837) |
+| AUT-43 | No-show or broken-off visit offline (CGR-123, PO §0c (2), ADR-143 1c; PLANNED): nurse at the door, the teammate who takes her call | PLANNED and right in substance: these commands are never queued, so the escalation is a phone call now. After reconnecting she still records "Nicht angetroffen" or "Nicht abgeschlossen" (the visit status needs it), which creates the P1 `no_show` / `visit_interrupted` at that later server time (SIG1-C2), for a situation the team has already handled by phone. Effort (estimate, not a measurement): the fact is reported twice (call, then the entry), and a teammate may take a P1 that is already being dealt with (one more act, possibly a call back to check). Frequency UNKNOWN | **monitor first, design nothing yet.** The P1 must stay (no suppression, no AI triage of P1; hard rule). Measure from timestamps NAVORA already stores: span from `depart_visit` to `record_no_show`, and from start to `end_visit_not_completed`, per team and month (AN3 pattern, AN1 suppression, no new tap). Only if long spans are frequent in the pilot: a brief with `cra` on how a call-reported no-show is recorded once (for example the teammate who took the call records it on the visit, if the Clinical Owner allows; UNKNOWN, not proposed as a rule by `aia`) | L | stage 0; gate: PO (whether AN3 gains the two spans), `cra` (any later recording design) | the two spans above per team and month; share of `no_show` P1 signals taken within minutes of creation (already handled), per team; never per person | low | – |
+
+### 2 Briefs, plans and packages reviewed
+
+- **PO §0c (06:10):** CGR-122 (1) in force; AUT-41 recorded as the target with the Clinical Owner and `lca` documented-time gate and `cra` condition (b) (offline corrections distinguishable by reason kind), and a challenge row whose measure is the offline share per team and month. This is the measure-before-automating order (AUT-32) applied: **supported.** AUT-41 stays open with a new state (§4).
+- **CGR-123 (`cra` #852; ADR-143 1c, 1d):** no-show, not-completed, outcome and absence never queued. A P1 waiting for the next foreground session is exactly the delay SIG1 removes; this is a safety control, not administration. **Supported.** The 1d mapping rule (a vitest derived from the migrations instead of a reviewed list) removes a recurring review act and cannot drift: **supported** as the leaner form. Follow-on cost: AUT-43 (low).
+- **ADR-143 9 (clock refusal):** the in-app path `cra` asked for is right (otherwise only the phone); its form as a mandatory tap: AUT-42.
+- **UXR-93 (`uxa`):** one line block per card, safety sentence first; no act added. Supported.
+- **D-34 (`lca` 05:20, taken in by the PO):** the eleven provider terms and the stage-1 contents list become the D-35 stage-1 checklist; domain 10 "no open clinical Q&A" as a tested technical limit. No team act; consistent with AUT-37 (contract before switch-on). Recorded in stage tracking (§5).
+- **D-39, D-40 (escalated, "approve A"):** A adds nothing for teams in the pilot. For the record of the bottleneck map: **D-40 B** (relatives see the visit time and who comes, rule-based, no AI) is the option that removes phone coordination with relatives, a team-level administration item of map v2; `aia` supports the PO's "B as the expected next step" and sets no rule. No finding.
+
+### 3 AI readiness of delivered items (§8)
+- Nothing proposing, drafting or ranking was delivered since review 22. #814 (AIG1-C4/-C5) and #828 (AIR1) unchanged and open.
+
+### 4 Findings: state changes and closed
+- **AUT-41:** **adopted by the PO as the target design** (`DELIVERY_PROGRAM.md` §0c (3); ADR-143 1b), gated on the Clinical Owner with `lca` (documented time, UNKNOWN until G-1) and `cra` (b); CGR-122 (1) in force until then. Stays open; closes when 1b is decided either way with its measure in AN3.
+- Closed this run: none.
+- AUT-30 (#793), AUT-34: met on #814 and #841 heads; close on merge (unchanged).
+- Open, unchanged: AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-39, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+
+### 5 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 1 | Provider terms and stage-1 contents list | written by `lca` (D-34 assessment, 11 terms); recorded by the PO as the stage-1 checklist; stage 1 itself not opened (owner) |
+| 1 | Real data to any AI path | blocked (D-1, G-25), unchanged |
+| 2 | Regulatory adviser (D-34) | not named; `lca` adds adviser questions 8 (d), 8 (e), 10-12 |
+| 3 | Sensor inputs (D-39), relative channel (D-40) | escalated, recommendation A (none in the pilot) |
+
+### 6 Waiting for the PO
+- **AUT-42 (medium):** one automatic claim-less resend instead of the "Ohne Gerätezeit senden" act, before ADR-143 acceptance or in MOB1 (with `cra`, `eng`).
+- **AUT-43 (low):** whether AN3 gains the two no-show / interruption spans.
+- AUT-41: the Clinical Owner gate (after G-1). AUT-36, AUT-37 (medium): Delivery Program version 2. AUT-38 (medium), AUT-33 (medium; #841), AUT-39 (low, D-40).
+
+### 7 Issues and comments
+- No issue opened (no `high` finding). One comment on **#837** (AUT-42; AUT-43 noted).
+
+---
+
+## 2026-11-04 02:20 CET · aia review 22: AUT-40 decided by the PO (closed); ADR-143 offline queue (#837) and `cra` CGR-122 (#848) read; AUT-41 (medium: CGR-122 option (1) makes every visit done without a connection cost up to three typed time corrections from memory; the PO's correction-path option gives the same billing control with no extra act)
+
+**Read:** `recovery/main` at `7cbbf7b`:
+- merged since review 21 (#844): PO **#846** (22:00: AUT-40 decided, `DELIVERY_PROGRAM.md` §0b, M6 criteria changed, CGR-113 to CGR-121 placed, `briefs/_TEMPLATE.md` CGR-119 line), `uxa` #847;
+- open, read on their branches: `eng` **#837** (`7458904`, ADR-143 rewritten with CGR-121 (a)-(d), C-15 withdrawn; `APP1_IMPLEMENTATION_PLAN.md` A-07, C-03 rows), `cra` **#848** (CGR-122, inputs on ADR-143 point 1); heads of #841, #828, #814 and the UX2 PRs unchanged since review 21;
+- open issues labelled `automation`: #793 (AUT-30) only; #843 closed by the PO.
+
+**Nothing below is a measurement.** I ran no tests and read no database. Code read: `supabase/migrations/20261021000008_visit_time_corrections.sql` and `…000040…` (signature of `correct_visit_time(event, time, reason, key)`: one call per timeline event) by search only. How often a nurse works without a connection is **UNKNOWN** (no NAVORA event records it today; no study read this run). Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-41 | Visit timeline without a connection (ADR-143, M6-2, PLANNED; `cra` CGR-122 (1) and the PO option, #848): every nurse at a door without signal | IMPLEMENTED today: every command runs online; the timeline events take server `now()`. PLANNED under **CGR-122 (1)**: offline, "Losfahren", "Einsatz starten", "Pause", "Weiter", "Einsatz beenden" and the time correction are disabled; the time is recorded "only with a connection and can afterwards be corrected with a reason". So a visit given entirely without a connection costs, after reconnecting, the timeline taps at the wrong time **plus one `correct_visit_time` per event (up to three: depart, start, complete), each with a time typed from memory and a reason** (0008: one event per call). Estimate, not a measurement: about 3 extra acts and 3 typed times per offline visit, done later in the car or at home, i.e. administration moved out of the visit and a time from memory instead of a device time. The patient-care and billing benefit of CGR-122 is real (no invoice minutes from an unaudited client time; J5); **what is challenged is the form, not the control.** `cra` itself offers the leaner form as an option for the PO | **rule, not manual re-entry: take the PO option of CGR-122, with no act added for the nurse.** (a) Offline, the timeline buttons stay active; each tap is queued as a **reasoned F3 correction** carrying the device time as the claimed time and a **preset reason** set by the command kind (P-37 pattern; e.g. "Ohne Verbindung erfasst", words `uxa`), so it enters billing only through the audited correction path, exactly as CGR-122 (3) requires; (b) the server time stays the server time (CGR-122 (2)); a device time later than the server receipt time is refused (as `cra` wrote) and the entry stays on her card with its refusal, never dropped (ADR-143 2); (c) the card and the record show both times when they differ (CGR-122 (2)); (d) no new review list: an offline-claimed time is reviewed where every F3 correction already is (countersign or quality, as built; nothing added by `aia`); (e) whether the device time is the documented time stays with the Clinical Owner and `lca` (D-10, D-11, UNKNOWN); `aia` sets no rule and no tolerance. Testable: e2e with `context.setOffline`: "Einsatz starten" and "Einsatz beenden" offline, reconnect, the visit carries two F3 corrections with the preset reason and the device times, and **the nurse performed no act after reconnecting other than keeping the app open** (act count 2, same as online); pgTAP: CGR-122 (2), (3) unchanged | L (billing fact; `cra` S1 by effect) | stage 0 (no AI); gate: PO (choice between CGR-122 (1) and the option, MOB1/M6-2), `cra` (confirms the option meets CGR-122), `lca` (D-10/D-11 documentation duty, SC-2), `uxa` (preset reason words) | per team and month: share of visits with an offline-claimed time (separate from other F3 corrections in AN3-5, so the offline rate becomes visible for the first time); human acts per offline visit after reconnecting (target 0 with the option; about 3 under (1), estimate); never per person | medium | – |
+
+### 2 Briefs, plans and packages reviewed
+
+- **AUT-40 decision (PO 22:00, `DELIVERY_PROGRAM.md` §0b):** takes (a)-(e) of the proposal in full; M6 criteria now test ≤ 2 taps from the start screen and "reads never enter the ledger" (pgTAP). **Closed** (below).
+- **ADR-143 (#837, PROPOSED):** sign-out step with "Zurück und senden" as default, entries kept on session expiry, `access_ended` entry shown with content: each prevents a lost entry that someone would otherwise have to re-collect by phone. Supported. Point 1 ("reaches another person" constant): **`cra`'s recommendation on #848 (no list, one line "Noch nicht beim Team." on every pending care entry) is the leaner form**: one line instead of a constant, its vitest and two wordings, and no drift. Supported. `take_signal`, `take_open_visit`, `accept_cover`, `withdraw_cover` online only (`cra`): a claim's value is the server's answer; supported, no finding.
+- **CGR-122 (#848):** AUT-41.
+- **CGR-119 (`briefs/_TEMPLATE.md`, level-H line "D-34 classification"):** one line per level-H brief, no act for any nurse or team. Supported.
+- **CGR-117 (M9 waiver wording):** governance, no team act. No finding.
+- **CGR-120 ("before signing" line lists only `sign_report` refusals, never "vollständig"):** consistent with AUT-40 (b); no new rule. Supported.
+
+### 3 AI readiness of delivered items (§8)
+- Nothing proposing, drafting or ranking was delivered since review 21. #814 (AIG1-C4/-C5) and #828 (AIR1) unchanged and open. The M6 pgTAP "no `ai_suggestions` row without a target field and a proposed value" is now a program criterion (AUT-40 (d)).
+
+### 4 Findings closed
+- **AUT-40 (#843):** closed with evidence: PO decision 2026-11-03 22:00 (`DELIVERY_PROGRAM.md` §0b items 1-5; M6 deliverable and criteria; §3.1 row 5), ADR-143 point 7 on #837 (C-15 withdrawn), APP1 M6-4 dropped. Issue closed by the PO.
+- AUT-30 (#793), AUT-34: met on #814 and #841 heads; close on merge (unchanged).
+- Open, unchanged: AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-39, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+
+### 5 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | "A read is not a proposal" | in the M6 criteria (pgTAP), PLANNED |
+| 0 | Guards for the five prohibitions | AIR1 on #828 (open), unchanged |
+| 2 | Regulatory adviser (D-34) | the brief template now refuses a level-H brief while "D-34 classification" reads UNKNOWN (CGR-119); adviser still not named |
+| 1 | Real data to any AI path | blocked (D-1, G-25), unchanged |
+
+### 6 Waiting for the PO
+- **AUT-41 (medium):** choose between CGR-122 (1) and the correction-path option before the MOB1 brief (2026-11-27); `aia` proposes the option with a preset reason and no act after reconnecting.
+- AUT-36, AUT-37 (medium): Delivery Program version 2 (after M1, 2026-11-13). AUT-38 (medium), AUT-33 (medium; #841), AUT-39 (low, D-40).
+
+### 7 Issues and comments
+- No issue opened (no `high` finding). One comment on **#837** (ADR-143: AUT-41, and support for `cra`'s "no list" on point 1).
+
+---
+
+## 2026-11-03 20:30 CET · aia review 21: Delivery Program M1-M10 (#832), UX/UI baseline (#834, #836) and open plans read; AUT-40 (high: the M6 caregiver "Assistent" is a second screen that answers only questions the start screen already answers, so it adds taps and ledger rows without a care benefit); AUT-34 met on #841 (AN3); AUT-33, AUT-36, AUT-37 not taken into the program; AIR1 (#828) supported
+
+**Read:** `recovery/main` at `c46010a`:
+- merged since review 20 (#829): PO **#832** (`DELIVERY_PROGRAM.md` M1-M10, owner *Executive Delivery Directive* 2026-11-03), `uxa` **#834** (`NAVORA_INFORMATION_ARCHITECTURE.md`, `NAVORA_SCREEN_CATALOG.md`, `NAVORA_DESIGN_SYSTEM_V1.md`), PO **#836** (baseline adopted, UX2-33), `uxa` #839;
+- open, read through PR text and file list: `eng` **#841** (AN3, migration 0108, head check runs app, db, ui-screenshots `success`, e2e not finished per GitHub), **#837** (`APP1_IMPLEMENTATION_PLAN.md`, `WEB1_IMPLEMENTATION_PLAN.md`; read `APP1` lines on C-15 on its branch), #835 (`DELIVERY_ESTIMATE.md`), #833 (`IMPLEMENTATION_SEQUENCE.md`), **#828** (AIR1, migration 0107), #840, #838; #814 still open (mergeable `clean`), #815, #813, #810, #809, #806, #804, #803, #800, #799; `cra` #842, #819, #812;
+- open issues labelled `automation`: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database. Docs read: `DELIVERY_PROGRAM.md` header, M4, M6-M8, §3, §4, §7 in full; screen catalog C-01, C-11, C-15 to C-17, O-01 to O-03 (lines); `src/app/(protected)/field/report-section.tsx` and `src/features/field/todo.ts` by search only. Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-40 | M6 caregiver app item 5 "AI assistant" (`DELIVERY_PROGRAM.md` §3.1, M6 criteria; AI-first update §5 domain 10; screen catalog **C-15** `/field/assistent`; `APP1_IMPLEMENTATION_PLAN.md` M6-4 on #837): every nurse on her phone | PLANNED. C-15 is a separate screen with four intents, and per the catalog and the APP1 plan each one reads **only an existing reader**: "Was steht als Nächstes an?" → `field_visits` + `my_signals` (the content of C-01 "Heute", the app's start screen); "Was hat sich geändert?" → `field_since_last` (HAND1, already on each visit card, C-16 tap 2); "Wer kann übernehmen?" → `team_open_visits` (COVER1, already behind "Ich kann nicht arbeiten" and on the team screen); "Was fehlt vor dem Unterschreiben?" → `field_reports` completeness (the report section signs at completion in one confirmation, F7; in my search I found no "what is missing" line on it, so whether one is needed is UNKNOWN). Path via the assistant: tap "Assistent", tap intent, read, tap the link to act = **3 taps** for an answer the start screen shows at 0-1 taps. The M6 criterion also writes **every answer and its intent to the AIG1 ledger**: a read is not a proposal, has no confirmer and no correction, so these rows enter the ledger whose correction rate per agent and field is the stop rule (§8). **Patient-care benefit claimed: none shown** (domain 10 names the intents, not a removed step); engineering cost dated 2027-01-22 (M6-4) | **eliminate the extra screen at stage 0; place each answer where the question arises:** (a) no C-15 and no `IntentList` in M6; (b) "Was fehlt vor dem Unterschreiben?" as a deterministic line on the report section next to "Unterschreiben", only if `cra` and the PO name a completeness rule (UNKNOWN; not `aia`'s to invent); (c) the other three stay on C-01, the visit card (HAND1) and the absence flow (COVER1) as built; (d) the AIG1 ledger records proposals only, never reads; (e) an assistant entry point returns with the first intent no screen can answer (dictation or drafting, D-35 stage 2 and the D-34 module), and then its brief states the step it removes and the act count before and after (AUT-38). Testable: the M6 e2e reaches each of the four answers from the start screen in ≤ 2 taps at 390 px without a separate route; pgTAP: no `ai_suggestions` row exists without a proposed value and a target field | L | stage 0; PO (M6 scope, MOB1 brief), `uxa` (C-01 placement), `cra` (the completeness rule and the "keine medizinische Beratung" line, if anything remains), `eng` (APP1 plan) | taps from start screen to each answer (e2e, before and after); AIG1 ledger rows that are reads (target 0); engineering days not spent on M6-4 (DELIVERY_ESTIMATE) | **high** | #843 |
+
+### 2 Briefs, plans and packages reviewed
+
+- **Delivery Program M1-M10 (#832, merged):** dates are PO targets; the binding rules repeat the mandatory sequence, D-35 A and the D-39/D-40 freeze. Supported in structure. Automation points:
+  - **M4 (PLAN3, AN3, AIG1-C4/-C5):** matches AUT-32/AUT-30. Supported.
+  - **M8 AIO1 deliverable "orchestrator, agent contract, evaluation harness, no provider configured":** **AUT-37 not taken in** (the orchestrator and an adapter without a provider are still in M8). Stays open for the PO.
+  - **§4 AI roadmap:** no day-order rule (map rank 1, travel and day order). **AUT-36 not taken in.** Stays open.
+  - **M6 item 5:** AUT-40.
+  - **§3.2 family app, Communication "messages routed to the team as tasks" and Wellbeing "deviations become team tasks":** two new task streams for the team, frozen (D-40). Covered by **AUT-39** (team tasks per 100 clients and week stated in the D-40 package; default no check-in). No new finding.
+  - **§3.3 Operations "Staffing: team capacity view per week, never per person":** supported (team level, no ranking).
+- **UX/UI baseline (#834, #836):** C-11 "Vorschläge" with `ProposalLine` and a `BulkConfirmBar` "when ≥ 1 tick": consistent with AIG1-5 (ticked list only for `schedule` fields; no accept-all on listed fields). C-17 PLAN3 shows load "never judged"; O-02 has no person column. Supported. The landing text lists all seven steps of the sequence: AUT-38 (one act for steps 5-6) applies to the screens, not only the method text.
+- **AN3 on #841 (open):** **AUT-34 met** ((b) is the AN2 `countersign_latency_hours` beside `report_returned_share`, ADR-144 deviation 1). **AUT-33 not met:** spans only, no act counts per 100 visits; the PO approved AN3 without it. One comment on #841.
+- **AIR1 on #828 (open):** a register trigger refuses billing and safety-signal-priority targets, catalogue checks that no function writes the ledger's targets, no `ai` agent registered. Removes no step and adds none for any nurse; it makes prohibitions 1 and 3 of the owner directive testable. Supported; no finding. I ran none of its tests.
+- **#833, #835, #838, #840:** sequence, estimate, hosting and status documents; read by title and file list only; no automation finding claimed.
+
+### 3 AI readiness of delivered items (§8)
+- **#814 (AIG1-C4 + C5):** unchanged since review 20, still open; AUT-30 closes on merge.
+- **#828 (AIR1):** guards only; no agent proposes. §8 rows "no accept-all", "named confirmer" unaffected.
+- **C-15 (PLANNED):** fails §8 "correction rate per agent and field" as specified, because reads would enter the ledger without a decision (AUT-40 (d)).
+
+### 4 Findings closed
+- **AUT-34:** met on #841 head; closes on merge.
+- AUT-30 (#793): met on #814 head; closes on merge.
+- Open, unchanged: AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-39, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+
+### 5 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | Guards for the five prohibitions (#824) | AIR1 on #828 (open, PLANNED until merged) |
+| 0 | Baseline for ranks 1-3 | AN3 built on #841 (open); act counts (AUT-33) OPEN |
+| 0 | Delivery dates | PLAN3 and AN3 M4 2026-12-18; AIO1, OPS2, HAND2 M8 2027-02-19 (PO targets, not commitments) |
+| 1 | Real data to any AI path | blocked (D-1, G-25), unchanged; M3 owner decisions 2026-12-11 are the critical path (program §7) |
+| 2, 3 | Regulatory adviser (D-34), Clinical Owner (G-1) | not named, unchanged |
+
+### 6 Waiting for the PO
+- **AUT-40 (high):** answer before the MOB1 brief (2026-11-27): drop C-15 at stage 0 or name the patient-care benefit it adds.
+- AUT-36, AUT-37 (medium): not taken into the Delivery Program; version 2 (after M1, 2026-11-13) is the next place.
+- AUT-38 (medium), AUT-33 (medium; #841), AUT-39 (low, D-40 package).
+
+### 7 Issues and comments
+- **#843** opened for AUT-40 (labels `agents`, `agent:po`, `automation`); no duplicate found among open issues.
+- One comment on **#837** (APP1 plan M6-4, AUT-40) and one on **#841** (AUT-33 open, AUT-34 met).
+
+---
+
+## 2026-11-03 14:40 CET · aia review 20: AI-first architecture update (#822) and owner directive 14:00 reviewed; opportunity-map ranking challenged (AUT-36, medium: the largest bottleneck, travel and day order, is missing from the ranking); AIO1 narrowed (AUT-37, medium); the seven-step sequence must not add acts (AUT-38, medium); D-40 Check-In adds team tasks (AUT-39, low); AUT-32 closed (AN3 approved); AUT-30 met on #814 head
+
+**Read:** `recovery/main` at `41ec907`:
+- merged since review 19 (#811): PO **#822** (13:45 *AI-first* and 14:00 *post-PR #822 alignment*: `AI_FIRST_ARCHITECTURE_UPDATE.md`, `AI_OPPORTUNITY_MAP.md`, `AI_CAPABILITY_ROADMAP.md`, brief template *AI leverage*, `NEXT_CAPABILITY.md` rule *AI-first review*, **AN3 approved**, D-39 and D-40 opened and frozen, allowed list PLAN3, AN3, AIO1, OPS2, HAND2 on synthetic data), `csa` #821 (STR-20 to STR-25), `lca` #823 (Basel-Stadt checks for D-2, D-4, D-9, D-29), `uxa` #798;
+- open: `eng` **#814** (AIG1-C4 + AIG1-C5, migration 0105, head `dc1b2b4`; check runs app, e2e, db, ui-screenshots all `success` per GitHub, I ran none), #815 (ASM1-C6), #813, #810, #809, #806, #804, #803, #800, #799; `cra` #819, #812; read through their PR text;
+- open issues: #793 (AUT-30), **#824** (`eng`: enforce the five prohibitions), **#826** (D-39), **#827** (D-40), #817 (owner spec).
+- The PO asked `aia` (JOURNAL 13:45) to challenge the opportunity-map ranking at this review. Done in AUT-36.
+
+**Nothing below is a measurement.** I ran no tests and read no database. Docs read: the three new product documents in full except the update's §6 and §7, `briefs/AN3.md` (14:00), `briefs/_TEMPLATE.md`, `decisions/D-39.md`, `decisions/D-40.md` (summaries), `NEXT_CAPABILITY.md` lines 1-45. Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-36 | Opportunity-map ranking (`AI_OPPORTUNITY_MAP.md` §3, PO 2026-11-03): the PO choosing what is built next; every nurse (rank 1 of the bottleneck map) | The ranking orders by the owner's value list and "can run before D-35 stage 1", not by direct-care time recoverable. Compared with map v2 (review 18): **map rank 1, travel and day order, does not appear in the ranking at all** (A3 is named only under §2.3 *Assist* and §2.11, with Q7 and D-11 as gate); map rank 2 (documentation) is ranking 7 (DOC2, not in the owner's allowed list); map rank 3 (orders, referrals) is ranking 6 and 9. Ranking places 1-5 are PLAN3 (map rank 4), AIO1 (no step removed by itself), AN3 (measure), OPS2 (exceptions handled by Operations, not by nurses at the bedside) and HAND2 (handover ordering: the digest exists, HAND1). So the five items allowed now touch none of the three largest estimated bottlenecks. Each of those waits for an owner, legal or clinical decision (Q7 still OPEN; D-11 answered by the owner to `lca` as Basel-Stadt, JOURNAL 13:55, the PO records it; D-10 with G-1; D-22, D-9, D-3). IMPLEMENTED: AN1 travel minutes within visits; nothing that orders a day | **re-rank by recoverable time, keep safety as precondition**: (a) add a column "bottleneck-map rank (estimate)" to §3 so the value order and the time order are both visible; (b) add **day order of one nurse's own confirmed visits** (AUT-5) to §3 as a stage-0 deterministic rule on **synthetic geography only** (seed coordinates, no real address or location, no travel tracking), proposal confirmed by the nurse in one act, never per-person comparison; its real-data release waits for Q7 (`lca`) and the Basel geography (D-11); (c) the PO asks the owner, in a package, whether this rule joins the synthetic-data list, since it is not in it today. Testable: on the seed, the rule returns an order for a nurse's day within the visits' windows, never moves a visit outside its window, writes each proposal to the AIG1 ledger with field class `schedule`, and reads no location of a person | L (order of a person's own logistics; no clinical content) | stage 0, synthetic; gates: owner (allowed list), `lca` (Q7 before real data), labour-law rules; `uxa` (one-act confirmation) | AN1 travel share per team and month before and after (AN3 baseline); share of proposals confirmed unchanged (AIG1) | medium | – (report; PO answers in its next cycle) |
+| AUT-37 | AIO1 (proposed brief, roadmap §3.1 item 2; ranking 2): Engineering; later every agent | Proposed scope: a server-side orchestrator pipeline (scope check, minimisation, model or rule, schema validation, source-per-claim check, ledger write), an agent contract table, an evaluation harness in CI, a provider adapter with **no provider configured** (D-35 A). Every agent allowed now is a **rule** (PLAN3, OPS2, HAND2); minimisation and source-per-claim checks are for language output, which D-35 A forbids on real data until the owner's stage-1 package. IMPLEMENTED already: agent register and stop table (AIG1-1), field classes and one-by-one list (AIG1-5), ledger with input reference, version and confirmer (0097), look-back (0103, 0104), expiry (0105 on #814, open). Patient-care benefit claimed: safety of later agents ("7, safety"). No direct-care step is removed by AIO1 itself | **simplify**: split AIO1. Build now (supports §8 readiness): (i) the agent contract as columns or a versioned document per row of the existing AIG1 register (purpose and removed step, trigger, input scope, output schema, level, confirmer, stop rule, never-list), refusing to switch on an agent without one; (ii) the **evaluation harness in CI** for PLAN3 on synthetic cases (correction rate per field, unchanged-confirmation share, expired share), run per agent version. Defer to the D-35 stage-1 package: the model call step, minimisation, source-per-claim validation and the provider adapter, designed when the first language agent, its provider and region are known (an adapter built against no provider fixes an interface before its constraints exist). Testable: an agent without a contract cannot be switched on (pgTAP); the harness fails CI when an agent version's correction rate on its synthetic set rises above its written threshold | L | stage 0; PO (brief scope), `eng` (ADR), `lca` (contract fields that touch D-35 terms) | no added engineering surface without a running consumer; harness run per PLAN3 version | medium | – (report) |
+| AUT-38 | Mandatory sequence "AI prepares → Human reviews → Human decides → Human signs" (update §0, §3; template *AI leverage* steps 5-7): every confirmer, every brief | The owner directive makes review, decision and signature explicit. Read literally as three acts, it would add administration to proposals that today take one: PLAN3 confirms a `schedule` line in one act (AIG1-5 allows a ticked list for `schedule` fields); WORK1 confirms a proposed day once; AN3's own *AI leverage* answers "nothing is signed". §3 step 7 says "which signature or required approval does the law or the Clinical Owner demand?", which allows "none", but neither §3 nor the template says so, and the template asks "which signature or required approval **stays**", which presumes one. No patient-care benefit is shown for a separate review act or a new signature on a logistics proposal; the safety control is that a named person who can reject confirms with the sources in view (AIG1-3), which one act already gives | **keep the control, not the act count**: one sentence in update §3 and the template (PO): "Steps 5 and 6 are one act by the named confirmer, with sources and 'nicht gefunden' in view, unless a law or the Clinical Owner requires a second person; step 7 names an existing or legally required signature and may be 'none'; the AI-first method never adds a signature, an approval or a review step that did not exist before the AI." The never-list (no accept-all on listed fields, AIG1-5) stays. Testable: every brief's *AI leverage* states the number of human acts per proposal before and after; the PO marks `changes-requested` a brief whose count rises without a named safety or legal reason | L (method text) | stage 0; PO (method text), `cra` (whether any clinical field needs two persons; UNKNOWN until the Clinical Owner, D-17 part 3), `uxa` | human acts per 100 proposals per team (AUT-33 act counts) | medium | – (report) |
+| AUT-39 | D-40 Check-In Services (domain 4; frozen, specification only): primary nurse, team | Spec (update §5.2 domain 4): the RN chooses each client's questions from a Clinical Owner set; an answer outside the approved band becomes a **team task**. That is a new per-client selection act and a new task stream for the team, with no estimate of volume and no stated care benefit beyond "between visits nobody knows how the client is" (map §1 row 17). Bands and question sets are clinical (UNKNOWN; Clinical Owner, G-1). Frozen: nothing is built | **challenge the form, not the existence** for the specification: (a) the D-40 package states the expected team tasks per 100 clients per week on synthetic data and who closes them; (b) default is no check-in; a check-in is set only where the care plan names a reason; (c) the first scope is logistics only (visit confirmation, who comes), which needs no band; (d) never a P1 signal unless the Clinical Owner makes it one (as written). No proposal for clinical items, bands or thresholds (not `aia`'s to invent) | L (logistics part) · H (interpreting answers) | frozen (owner); D-40, D-9, D-34 module, Clinical Owner, `lca` | team tasks created and closed per 100 clients and week; calls from relatives before and after (UNKNOWN today: calls are not recorded) | low | – (report; noted for #827) |
+
+### 2 Briefs and items reviewed
+
+- **Owner directive 14:00 (human-in-the-loop, five prohibitions, D-39/D-40 freeze):** consistent with every rule in `aia`'s mandate (no P1 triage, no per-person scoring, no automatic coding or billing, no general copilot, no unconfirmed entry). Supported. AUT-38 concerns only how many acts the sequence costs.
+- **AI-first update §1 point 3 ("an agent that re-types, chases or summarises fragmented information is worse than a record where it is never fragmented"):** this keeps the care graph before the agent and matches the earlier order. Supported. **§3 step 4** widening AI to "any decision inside the graph" is acceptable because steps 5-7 and AI-3 keep the named confirmer; `aia` watches that each agent still names the step it removes (AI-12).
+- **AN3 approved (PO 14:00):** answers AUT-32 (closed below). **AUT-33 and AUT-34 not taken in** (no "per 100", no reuse of `countersign_latency_hours` in the brief). Roadmap §5 measures "administration removed per step" by AN3 **spans**; an elimination removes acts, so the roadmap's own measure needs AUT-33. Both stay open for the PO.
+- **OPS2, HAND2 (proposed briefs, not written):** both are rules over existing data; no step added for nurses. When written, `aia` checks: OPS2 groups exceptions so Operations sees fewer lines, never re-orders P1 signals (AI-10); HAND2's "unread before start" stays a fact on the card, never a blocking gate before a visit (a gate would add a step at the door).
+- **D-39 (sensors):** frozen; no automation finding. Any sensor-derived billing stays out (prohibition 1).
+- **#814 (AIG1-C4 + C5, open):** see §3.
+
+### 3 AI readiness of delivered items (§8)
+- **#814 head `dc1b2b4` (not merged):** answers AUT-30 in code: OPS1 `agent_stopped` per stop with at least one open line whatever the agent's state, closes at "0 offen"; expired proposals filtered on read and refused by `confirm_suggestion` as `not_open`, so an expiry can never be counted as a rejection (correction rate per agent and field stays honest); expired counted apart in `agent_health`. No person column added. Ledger stays append-only. **§8 check: met on the PR head**; AUT-30 closes on merge. CI success on all four check runs per GitHub; I ran no test.
+
+### 4 Findings closed
+- **AUT-32 closed:** AN3 approved (PO 2026-11-03 14:00, *Next up* 3), per-step baseline on synthetic data before G-19; real data waits for `lca`'s D-23 term (b) read.
+- **AUT-30:** met on #814 head; closes on merge (#793 then closable by the PO).
+- AUT-33, AUT-34, AUT-35, AUT-21 (#809 open), AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13): unchanged.
+
+### 5 Stage tracking (D-35 stages; changes only)
+
+| Stage | Entry condition | State |
+|---|---|---|
+| 0 | AIG1-C4/-C5 before the first agent other than the synthetic test agent | built on #814 (open, CI green per GitHub) |
+| 0 | Baseline for ranks 1-3 | AN3 **approved** (PLANNED, *Next up* 3); act counts (AUT-33) OPEN |
+| 0 | Agent contract and evaluation harness (AIO1) | PLANNED; brief not written; scope challenged (AUT-37) |
+| 0 | Synthetic-data allowed list | PLAN3, AN3, AIO1, OPS2, HAND2 (owner 14:00); day order not in it (AUT-36) |
+| 1 | Real data may reach any test, pilot or AI path | blocked (D-1, G-25), unchanged |
+| 1 | Owner releases stage 1 (provider, region CH/EU, contract, DPIA) | not decided; roadmap §4 item 1 asks the owner to open the package |
+| 2 | Regulatory adviser on level G (D-34) | not named; `lca` D-34 AI assessment requested (14:00) |
+| 3 | Clinical Owner (G-1) | not named |
+
+### 6 Waiting for the PO
+- **AUT-36 (medium):** whether the ranking gets a recoverable-time column and whether a day-order rule on synthetic geography goes to the owner for the allowed list.
+- **AUT-37 (medium):** AIO1 scope: contract on the AIG1 register plus evaluation harness now; orchestrator pipeline and provider adapter with the stage-1 package.
+- **AUT-38 (medium):** one sentence in the method and the template: steps 5-6 are one act; step 7 may be "none"; the method never adds an act.
+- **AUT-33, AUT-34:** AN3 approved without them; take in at the ADR or a brief amendment.
+- AUT-39 (low) for the D-40 package (#827); AUT-30 (#793) closable when #814 merges.
+
+### 7 Issues and comments
+- No `high` finding: no issue opened. One comment on decision issue **#827** (D-40, AUT-39). No open PR carries an `aia` finding.
+
+---
+
 ## 2026-11-03 08:20 CET · aia review 19: AN3 draft (P-19, answer to AUT-32) supported with AUT-33 (medium: spans measure waiting, not work; add act counts per 100 visits) and AUT-34 (low: AN3-1 (b) and AN3-5 already IMPLEMENTED as `countersign_latency_hours` beside `report_returned_share`, reuse); AUT-35 (low: a typed reason on the first qualification at admission, #809); RLS4-C3, UX2-31/-32, #803/#804/#806 without finding
 
 **Read:** `recovery/main` at `6d6dbba`:
