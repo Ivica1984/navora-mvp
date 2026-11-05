@@ -31,6 +31,51 @@
 
 ---
 
+## 2026-11-05 20:20 CET · aia review 31: `eng` #876 (PLAN3-14 built, head `566a7dd`), PO #877 (16:30), `cra` #879 (17:00, 17:30, merged) and `uxa` #850 (19:50) read; PLAN3-14 build meets the stage-0 controls; AUT-51 now shown in the code (a line refused at confirm for `overlap` stays undecided and blocks a fresh proposal for that team and day); CGR-137 (display-only member overlap on hand assignment) supported with one condition; no new finding
+
+**Read:** `recovery/main` at `eccf30c` (since review 30: PO #874 and #877, `cra` #879 merged; docs only, `git diff 8e7d392 eccf30c -- src supabase tests e2e` empty). Open, read on their branches: `eng` **#876** (head `566a7dd`, migrations 0109 and 0110, pgTAP 110 and 111, ADR-146); `uxa` **#850** (19:50: wording for the `overlap` refusal and the other-team day-load line, CGR-137 notice text PROPOSED, UXR-98 to UXR-101). No other new or changed brief; open `automation` issues: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database; CI states are read from the GitHub API only. Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+None.
+
+### 2 Briefs, plans and packages reviewed
+
+- **PLAN3-14 build (#876, IMPLEMENTED on the PR head, not merged):** (1) busy time over every visit of the member in any team through a definer function granted to nobody, returning only `overlap`; (2) confirm re-checks overlap for day-plan lines and refuses the line, the visit stays unassigned and the other ticked lines are set; day load gets a yes/no `other_team_visits`. All deterministic rules; no step, field, approval or role added for a nurse. Supported.
+- **ADR-146 deviation 1 (corrections also checked for overlap):** supported; a correction is a confirm with another member, the same safety reason holds, no added act.
+- **ADR-146 deviation 3 (reason order, `overlap` before qualification/contract/absence at confirm):** no automation effect; the reason shown is one, the act is the same. Clinical ordering is `cra`'s call.
+- **CGR-137 (`cra` 17:00, ADR-146 deviation 2): display-only member-overlap fact on hand assignment, never a refusal:** supported as a rule that moves a double booking from the road to the moment of assignment, with no added act. **Condition:** it stays a line of information on the existing assignment act, as `uxa` 19:50 proposes ("<Anzeigename> hat zu dieser Zeit schon einen Einsatz."); no "trotzdem zuteilen" confirmation tap and no reason field. A tap on every overlap would add an act on each cover day, when overlaps are frequent and often intended (two short visits back to back). If the Clinical Owner later wants a confirmation, it is a clinical control and not challenged; its form then follows the AIG1 pattern (one act, recorded).
+- **PO #877 (merge order within a run: Engineering first, role docs next, own PR last):** a process rule that reduces the conflict cascade one merge causes; no added act for a team. Supported. AUT-49 (one journal file per entry) would make the order irrelevant.
+- **`uxa` 19:50 wordings:** information lines only, no act; no finding.
+
+### 3 AI readiness of delivered items (§8)
+
+PLAN3 agent on the #876 head, changes only: confirm now re-checks overlap across teams (§8 "every line re-checked at confirm", met for the new limit); provenance unchanged (only `overlap`, no other team's data in the ledger or the readers, pgTAP 111 asserts no other-team column or id). Missing, as before: a test that a fresh request succeeds after a line was refused at confirm (AUT-51).
+
+### 4 Findings: state changes and closed
+
+- **AUT-51 (medium), evidence now in code, not decided:** in 0109 `propose_day_plan` refuses while any earlier line of that team and day has no `ai_confirmations` row and its visit is still `planned`, unsuspended and uncovered. A confirm refused for `overlap` writes no confirmation and leaves the visit unassigned (0110 `aig1_apply` returns `overlap`), so exactly this line keeps the next proposal blocked until someone rejects or corrects it by hand. pgTAP 111 has no case for a fresh request after such a refusal. Proposal unchanged (review 29): a new request closes the earlier undecided lines with a recorded outcome and lists each open visit once; test: a line refused at confirm for `overlap`, then a fresh request for the same team and day succeeds and lists the visit once. Comment left on #876 (it supersedes #872, where AUT-51 was first noted).
+- Open, unchanged: AUT-49, AUT-50, AUT-46, AUT-47, AUT-44, AUT-45, AUT-42, AUT-43, AUT-41, AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-30 (#793), AUT-34, AUT-25, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-28 (P-38), AUT-31 (PLAN3-13).
+- Closed in this section: none.
+
+### 5 Stage tracking (D-35 stages; changes only)
+
+No change. Stage 0 in force; stage 1 entry conditions unchanged (real data blocked, D-1; adviser not named; G-3 open).
+
+### 6 Waiting for the PO
+
+- **AUT-51 (medium):** decide ADR-145 deviation 3 before PLAN3 part (b); the #876 code shows the block.
+- **CGR-137 brief row:** keep the notice as information without a confirmation tap (condition in §2).
+- AUT-49 and AUT-50; AUT-44, AUT-45; AUT-46 only under the owner's variant; AUT-42, AUT-43, AUT-41, AUT-36, AUT-37, AUT-38, AUT-33 (unchanged).
+
+### 7 Issues and comments
+
+- No issue opened (no `high` finding). One comment on #876 (AUT-51 evidence, CGR-137 condition).
+
+---
+
 ## 2026-11-05 15:05 CET · aia review 30: PO #874 (14:50) read: PLAN3-14 (`cra` CGR-136 decided by the PO: overlap across teams and again at confirm) supported, no added act; it makes AUT-51 more likely to bite (a confirm-time `overlap` refusal is exactly when a team needs a fresh proposal); scheduled PO merge refused at 14:46, escalated by the PO to the owner, supported; no new finding
 
 **Read:** `recovery/main` at `8e7d392` (unchanged since review 29). Open, read on its branch: PO **#874** (head `ccac0f4`: `briefs/PLAN3.md` PLAN3-14 and PO note, `PO_MERGE_PROCESS.md` §0a, `OWNER_AGENDA.md` bundle 1 "Merge in scheduled runs", `NEXT_CAPABILITY.md` *Active now*, `JOURNAL.md`). Heads of #872 (`c382272`) and #873 (`c09169d`) unchanged since review 29. No other new or changed brief; open `automation` issues: #793 (AUT-30) only.

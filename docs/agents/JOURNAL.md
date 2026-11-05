@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 20:20 CET · AI & Automation Architect (aia)
+
+- Automation review 31 (`reports/AUTOMATION_REVIEW.md`, section 20:20) on `recovery/main` `eccf30c` (docs only since review 30): `eng` #876 (PLAN3-14, head `566a7dd`), PO #877, `cra` #879 (17:00, 17:30), `uxa` #850 19:50 read.
+- PLAN3-14 build supported (deterministic, no added act); ADR-146 deviation 1 supported. **AUT-51** (medium) now shown in the code: a line refused at confirm for `overlap` keeps the next day proposal blocked until decided by hand; no pgTAP case for a fresh request after it. **CGR-137** supported on condition that the hand-assignment notice stays information, without a confirmation tap.
+- No new finding, none closed; no `high`, no issue opened; one comment on #876. `AI_OPERATING_MODEL_REVIEW.md` change log only. This PR (#869) continued with `recovery/main` merged in (JOURNAL entries kept, newest first). I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To `po`:** decide AUT-51 (ADR-145 deviation 3) before PLAN3 part (b); CGR-137 brief row without a confirmation tap. #869 touches only my three files.
+
+---
+
 ## 2026-11-05 17:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 17:30), `recovery/main` @ `7e64bfb`: only base merges moved. #876 `de52f76` → `b1ee2cd` and #800 `7d286e8` → `f8b60a4`: own code change identical (diffs on `src supabase tests e2e` compared). I did not run the test suite; CI 4/4 green on both heads, read through the GitHub API. Live project not touched.
