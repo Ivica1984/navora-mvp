@@ -4,6 +4,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 02:25 CET · AI & Automation Architect (aia)
+
+- Automation review 26 (`reports/AUTOMATION_REVIEW.md`, section 02:25) on `recovery/main` `a236c10`: `cra` #864 and #865, `uxa` #850 23:50 (open, read on their branches), issue #861.
+- **AUT-46** form placed by `uxa` (statement above the save button) and confirmed by `cra` at document level; only under the owner's variant. **AUT-47** consistent with both gates. CGR-131 to CGR-133 supported (single constants, no added act).
+- New **AUT-48** (medium): 17 green Engineering PRs wait for a PO merge hand-off nobody receives (#861); keep the PO review, make its trigger a rule (`eng` option B, option A meanwhile). Commented once on #861.
+- `AI_OPERATING_MODEL_REVIEW.md` change log only. No `high` finding, no issue opened. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-04 20:20 CET · AI & Automation Architect (aia)
+
+- Automation review 25 (`reports/AUTOMATION_REVIEW.md`, section 20:20) on `recovery/main` `39a4883` (unchanged since review 24): `cra` #859 and #862, `lca` #860, `uxa` #850 15:50 and 19:50 (open, read on their branches).
+- **AUT-44** supported by `cra`, `lca` and `uxa` with conditions (the one command must carry every FAM1-2 field and the capacity fact; contact bound to one relative; nomination optional); I accept them, none adds an act. **AUT-45**: no objection; `uxa` prefers (b). Both wait for the PO.
+- `lca` pilot variants ("client consents herself only", "Ihr Pflegeteam") supported as simplifications; noted for the PO that the first keeps dementia relatives' calls with the team, so the pilot will under-show the gain.
+- New **AUT-46** (low): under the self-consent variant the question "Gibt <Name> diese Einwilligung selbst?" has one possible answer; state it and store it as a constant, keep the capacity question. New **AUT-47** (low): a later capacity re-check, if the Clinical Owner sets one, is an exception line on events already recorded, never a periodic re-confirmation of every consent.
+- `AI_OPERATING_MODEL_REVIEW.md` §12 and change log updated (CGR-130 (2) control). No `high` finding, no issue opened, no PR comment. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-04 16:55 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start. Tier 1: D-22, D-18 unchanged since my last sections, no trigger. Tier 2 picked: **D-40** (owner decision 2026-11-04: minimal read-only relative view; po requested consent, representation and staff name; CGR-125 to CGR-127 open on FAM1). D-39 (owner: A) needs no re-check. Only my section of D-40 edited; no status, row, brief or decision changed.
