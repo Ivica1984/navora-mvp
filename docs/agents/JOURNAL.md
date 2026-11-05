@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 15:10 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 15:10) on `recovery/main` `8e7d392`: #799 (UX2-1 one shell, UX2-31) merged by the PO as `c8d2db7`, code identical to the head I reviewed (`git diff 642edf0 c8d2db7 -- src tests e2e` empty); CI green on `8e7d392` as GitHub reports. #800 and #803 moved by base merges only (own diffs unchanged). Screenshots still not downloadable (blob host 403); code review only.
+- Closed in code: UXR-75, UXR-78, UXR-72. UXR-76/-77 (UX2-32) now visible on `recovery/main`; proposed to the PO as the next UX2 change. No new finding, no issue opened, no PR comment.
+- `DESIGN_SYSTEM.md` v43: shell, home tab, settings reachability, scroll padding PLANNED → IMPLEMENTED; `AppFrame` line superseded. No token change.
+- #850 continued (merged `recovery/main` in, JOURNAL entries kept newest first); not self-merged, the PO merges role docs PRs (`PO_MERGE_PROCESS.md`). I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 12:00 CET · po (Product Owner)
 
 - **Owner decision (PO session, 2026-11-05, second message):** the PO is the only role that merges; it reviews, accepts and merges autonomously once the seven conditions hold, with no further owner approval; post-merge duties and agent communication as listed. Recorded in `PO_MERGE_PROCESS.md` (status IN FORCE, §0a, new §9) and `COORDINATION.md` rule 4. Merge path row removed from `OWNER_AGENDA.md` bundle 1; the schedule and prompt changes stay there as optional settings.

@@ -6,6 +6,40 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-05 15:10 CET · `uxa`: #799 (UX2-1 one shell, UX2-31) merged as reviewed: UXR-75, -78, -72 closed; UXR-76 now visible on `recovery/main` (stays PLANNED as UX2-32); #800 and #803 moved by base merges only; no new finding
+
+**What changed since 11:50.** `recovery/main` moved from `aeb566b` to `8e7d392`: `po` 12:00 merged **#799** (UX2-1 + UX2-31, head `642edf0`) as `c8d2db7`, plus #833 and #838 (docs). `git diff 642edf0 c8d2db7 -- src tests e2e` is **empty**, so the shell on `recovery/main` is exactly the head I reviewed at 03:52 and 19:55 on 2026-11-03; after it only docs merged (`git diff c8d2db7 8e7d392 -- src tests e2e` empty). CI on `8e7d392` as GitHub reports: `app`, `db`, `e2e`, `ui-screenshots`, `sync` green; I ran no test. Open screen PRs **#800** (`7d286e8`) and **#803** (`cf51b75`) merged `recovery/main` in after #799; their own `src` and `tests` changes against the new base are line for line the ones I reviewed (diff of the two PR diffs empty), so my earlier notes on them stand. #872 (PLAN3 part (a)) changes no file under `src/app` or `src/components`. `po` 14:50 (#874): the scheduled merge of #800 was refused by the session's permission check; my #850 also waits for the PO. No new UX brief; no `ux` issue changed.
+
+**Sources.** `ui-screenshots` artifacts exist for `recovery/main` `8e7d392` (13410007681), #803 `cf51b75` (13418815808) and #800 `7d286e8` (13414595557); the archive still redirects to a blob host the proxy refuses to this role (403 again), so **no screenshots were available**. Reviewed from the code on `recovery/main` (`AppShell.tsx`, `shell.ts`, `PageFrame.tsx`, `tests/e2e/ux2-shell.spec.ts`). No benchmark (made 07:50 today). Live project not touched.
+
+### The shell as merged (IMPLEMENTED on `recovery/main` `c8d2db7`)
+
+- Every protected route, the record page `/visits/[visitId]` included, renders inside `AppShell` from `(protected)/layout.tsx`; the first-MVP `Sidebar.tsx` and the interim header "Menü" are gone.
+- Phone: tab bar Heute, Team, Arbeitstag, Mehr (`min-h-14`, inside the viewport, current tab marked by a 4 px bar, bold text and `aria-current`, not colour alone); a person in no team whose home is `/operations` gets "Ausnahmen" first (UX2-31 (1)). Desktop: sidebar with the same items. One `nav` "Hauptmenü" exposed at a time. "Meine Einstellungen" is always reachable; "Abmelden" is last under "Mehr".
+- Focus never lands under the tab bar or a sticky header (scroll padding from measured heights, UX2-31 (2), WCAG 2.2 2.4.11); e2e in `ux2-shell.spec.ts:144-181`. The SIG1 signal area stays above page content inside the shell (`:183`).
+- Still open on the screen (PLANNED, already placed): two label sets per destination (UXR-76 → UX2-32), header links repeating shell items (UXR-77 → UX2-32), page backgrounds and the dark sidebar against light page frames until the UX2-3 tokens.
+
+### Findings
+
+No new finding.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-75 | **Closed in code** (home tab "Ausnahmen" for coordination roles without a team). Acceptance with UX2 is the PO's. | `c8d2db7`; `shell.ts:36-39`; `ux2-shell.spec.ts:99-114`, `e2e` green on `8e7d392` |
+| UXR-78 | **Closed in code** (focused control never under the bar or sticky header). | `c8d2db7`; `AppShell.tsx:179-205`, `globals.css:30`; `ux2-shell.spec.ts:144-181` |
+| UXR-72 | **Closed in code** (record page now inside the role's shell). | `c8d2db7`; `(protected)/layout.tsx`, `src/app/(protected)/visits/[visitId]/page.tsx` |
+| UXR-76, -77 | PLANNED (UX2-32); now **visible on `recovery/main`**: the nurse reads "Team" on the phone and "Dein Team" on the desktop, "Heute" vs "Mein Tag". Not a regression (before #799 there was no tab bar), but UX2-32 is the next fix that touches every screen. | `shell.ts:20` `TAB_LABEL`; `nav.ts` `PAGE_LABEL` |
+| UXR-97, -95, -96, -94, -93, -92, -91, -88, -89, -90, -84 | OPEN, unchanged since 11:50. | earlier sections |
+| #510 (two shells), #548 (settings from every screen) | Navigation remedy met on `recovery/main`; #510 stays open until UX2 is accepted (`po` 2026-10-27), #548 is the PO's to close. I add no comment (nothing new for the PO beyond this section). | `c8d2db7` |
+
+### For the PO
+
+(1) UX2-1 and UX2-31 are on `recovery/main` as I reviewed them; from the UX side nothing blocks their acceptance with the rest of UX2. (2) UX2-32 (one label per destination) is the cheapest remaining UX2 change with the widest effect now that the tab bar is live; I propose it rides the next UX2 PR, but the order is yours. (3) #850 (this PR) is green-able and conflict-free after this run; it is yours to merge under `PO_MERGE_PROCESS.md`. I propose only.
+
+---
+
 ## 2026-11-05 11:50 CET · `uxa`: no screen code changed; `cra` 09:30 (#870) confirms CGR-134 sentence 5 and the reverse-pair line (no example after "unterbrochen"); #868 rebuilt docs-only (my 07:50 note closed); merge path now with the PO (#861, `PO_MERGE_PROCESS.md`); no new finding
 
 **What changed since 07:50.** `recovery/main` moved from `9e3b998` to `aeb566b` with `po` #868 only (`COORDINATION.md` rule 4, `PO_MERGE_PROCESS.md`, `OWNER_AGENDA.md`, `JOURNAL.md`); **no change under `src`, `tests` or `e2e`** (`git diff --stat 9e3b998 aeb566b -- src tests e2e` is empty). No open screen PR head moved since 07:50 (the newest updates are `gov/` #870 and `aia/` #869, docs only). No new UX brief; no `ux` issue changed. New input for me: `cra` 09:30 on #850 and in #870 (`9fc0636`); `po` 10:56 and 11:30 (merged with #868).
