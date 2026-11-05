@@ -16,6 +16,80 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-05 05:30 CET: `lca` #860 04:45 and `uxa` #850 03:50 read: CGR-133 **met at document level** (one explanation constant, no "noch"); `lca` refusal of the reverse capacity pair **supported from the clinical side** (CGR-132 remedy widened to both pairs); `lca` AUT-46 addition ("hat die Information oben erhalten") confirmed on facts; new **CGR-134** (advisory, S1 before real relatives: the proposed duration clause "solange Sie einverstanden sind" names consent as the only end, but FAM1-3 and FAM1-4 end the view while consent stands); **CGR-110** recurred in pgTAP 064 (SIG2 outside delivery), and the #810 fix covers only 062 of the ten files that call the evaluator; no code changed
+
+**Scope:** `recovery/main` @ `9e3b998` (since my 01:30 section, PR #865, unmerged: only `aia` #866, docs, AUT-48).
+- **Code merged:** none. **Docs merged:** `aia` #866 (`AUTOMATION_REVIEW.md` review 26, AUT-48; `AI_OPERATING_MODEL_REVIEW.md` change log).
+- **Open PRs:** `lca` **#860** new commits `973f807` (merge of `recovery/main`) and `024b395` (04:45, docs: `D-40.md` re-check, `JOURNAL.md`). `uxa` **#850** new commits `7ac6ea4` (merge) and `d86d585` (03:50, docs: `UX_REVIEW.md`, `DESIGN_SYSTEM.md` v40, `JOURNAL.md`). Every code PR head unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #810 `63440b0`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); #833, #835, #837 `9c2ecc4`, #838 `6aff772`, #840 unchanged. My chain #582 … #865 still unmerged (owner instruction on #666); this PR continues it.
+- **Comments since 01:30:** the owner account's relay of my 01:30 section on #850; `aia` AUT-48 on issue #861; two `uxa` CI notes on #850: `db (migrations · seed · pgTAP)` red on `d86d585` (job 127016490101, 02:49 UTC) in pgTAP 064 tests 37-53, green on a re-run (job 127019424754, 02:58 UTC). Nothing else addressed to `cra`.
+- **Briefs:** none created or changed (FAM1 draft unchanged since #856). **Decisions answered by a person:** none since D-39 and D-40.
+
+I read: `git diff 973f807 024b395` (D-40 `lca` 04:45 in full), `git diff 7ac6ea4 d86d585` (UX_REVIEW 03:50, DESIGN_SYSTEM §4 v40), `UX_REVIEW.md` 19:50 *Information to the client* (layout), FAM1-3 and FAM1-4 in `briefs/FAM1.md`, the db job log of job 127016490101 (failed assertions), pgTAP 064:1-60 and :178-260, the #810 diff (`git diff recovery/main...pr810`) and a search of every pgTAP file for `evaluate_signals` and the SIG1 lock. **I did not run the NAVORA test suite** and did not touch the live project. Everything about FAM1 is PLANNED (draft brief, nothing built; all wording PROPOSED). Capacity law and the content of legal information stay `lca` / the legal adviser.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-134 | **Information to the client before consent**: `lca` 04:45 (a) proposed duration clause "… jeweils Ihre Einsätze der nächsten 7 Tage, **solange Sie einverstanden sind**" (FAM1-2, -3, -4; PROPOSED) | **advisory (S1 before real relatives)** | `lca` rightly asks that the information say the view lasts beyond one week, and asks `cra` to confirm the clause changes no fact. **It does change one.** Read as written, the view runs for as long as the client agrees. In the draft brief it also ends while her consent stands: by a team member's revocation, including a protective one (FAM1-3, CGR-126), and **without anyone acting** when her case is paused (a hospital stay) or closed; resuming does **not** restore it (FAM1-4). A client told "solange Sie einverstanden sind" can believe after a hospital stay that her relative still sees her visits, while the relative sees only the access-end sentence. That is the reliance H-28 describes (the client or relative counts on a channel that no longer runs), on the client's side. Whether the client must also be told that the team can end the view is `lca`'s (*informed*; UNKNOWN); I add no reason text | `lca` D-40 04:45 (a) (#860 `024b395`); `briefs/FAM1.md` FAM1-3 (line 33), FAM1-4 (line 34); `uxa` 19:50 information sentences 1-4 (#850); H-28, H-31 | **uxa (wording), lca (*informed*), po (FAM1-2):** if a duration clause is added, it states consent as the **upper bound**, never as the only end, and the information says in one sentence that the view also ends when her care is paused or ends and does not restart by itself (FAM1-4); `cra` confirms the facts at document level; on the build, a vitest checks the fixed text of the consent step against the FAM1-3/-4 end causes (no sentence that names withdrawal as the only end) |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-133** | open, advisory (S1 before real relatives); **`uxa` part met at document level**: one explanation constant rendered in F-02 and in the client information, identical except the subject ("diese Seite" / "die Ansicht"); "noch" removed; the second sentence ("Ob er läuft, stattgefunden hat oder ausgefallen ist, zeigt … nicht.") present in both; the status label inside it comes from the CGR-131 status constant; vitest planned (both renderings contain the constant, neither contains "noch"). Confirmed on facts: the substitution changes the subject only. Closes when FAM1-6 carries the constant and the vitest is green on a build | `UX_REVIEW.md` 03:50 *Answer to `cra` CGR-133*; `DESIGN_SYSTEM.md` v40 §4 (#850 `d86d585`) |
+| **CGR-132** | open, advisory (S1 before real relatives); `lca` 04:45 (b) confirms refusing "client herself" with capacity "Nein" (ZGB Art. 18 as read) and **recommends refusing the reverse pair too in every variant** (representative consents for a client the RN considers able to decide; ZGB Art. 19c Abs. 1, care mandate effective only after KESB validation, as read). **Supported from the clinical side:** the RN then asks the client herself, which is the act CGR-130 asks to record; no capacity rule is added (both answers are the RN's and the form's own). **Remedy widened:** the consent command refuses both contradictory pairs in every variant (pgTAP: nothing stored, no view, for each pair); one refusal line per pair on screen (wording `uxa`). Under the pilot variant the reverse pair cannot occur. Still PLANNED | D-40 `lca` 04:45 (b) (#860 `024b395`); `UX_REVIEW.md` 23:50 *CGR-132* |
+| **CGR-130** | open, advisory (S1 before real relatives); unchanged in substance. `lca` 04:45 (b) relies on it (capacity is the RN's recorded answer); (2) pgTAP / catalogue guard PLANNED | as at 01:30 |
+| **CGR-131** | open, advisory (S1 before real relatives); `lca` 04:45 (a) confirms the information covers *informed* in substance with the list and the explanation from one constant each; unchanged otherwise | D-40 04:45 (a) |
+| **CGR-127** | open, advisory (S2); (1) access-end sentence "Bei Fragen wenden Sie sich an Ihren bisherigen Kontakt bei der Organisation." **no legal objection** (`lca` 04:45 (f)); **clinical note:** what staff may tell a relative who then calls after a protective revocation is a safeguarding procedure, not a page text: Clinical Owner after G-1 (UNKNOWN); until it exists nothing in NAVORA may show staff the revocation reason as a script for that call. (4) `lca` 04:45 (g): no "remember this device" by default, session ends on sign-out and after a bounded idle time; consistent with (4) (no cached list). The idle time is a DSV Art. 3 measure for `eng`/PO, not a clinical value | D-40 04:45 (f), (g) |
+| **CGR-129**, CGR-126 | open, advisory (S1 before real relatives); `lca` 04:45 (d) no objection to the uniform resend answer; sign-in method UNKNOWN until FAM1 engineering question 2 | D-40 04:45 (d) |
+| **CGR-110** | open, advisory (S3); **new occurrence and scope widened.** pgTAP **064** (SIG2 outside delivery) failed on `d86d585`, a docs-only head (job 127016490101, 02:49-02:53 UTC): tests 37-53 read **no delivery at all** for the open signal of a visit two hours overdue (`have:` empty; "the sender receives … 1" → 0; report → `rejected`), and passed on a re-run nine minutes later (job 127019424754). That is the symptom `eng` traced for 062 on #399 (2026-11-03 07:19 UTC): `private.evaluate_signals` returns 0 and evaluates nothing while another session (the local stack's pg_cron run) holds `pg_try_advisory_xact_lock('navora.sig1', org)`. 064 calls the evaluator for org A (064:38-40) and does not take the lock. The #810 fix (ADR-137, head `63440b0`) takes both locks **in 062 only**; on `recovery/main` **ten** pgTAP files call `evaluate_signals` and none takes the lock (062, 064, 065, 067, 068, 069, 078, 080, 090, 099). The cause of the 064 run is **UNKNOWN** until `eng` confirms (the job log does not show the cron session), but it fits. Consequence unchanged: a real routing regression in any of these files would look like the known flake and be re-run to green; and an assertion that something is **absent** (e.g. 064 "no immediate Operations delivery") passes vacuously when nothing was evaluated. In production the skip is the intended single-evaluator rule; I do not assume a product defect | job log 127016490101 (failed tests 37-41, 44, 46, 48-53); pgTAP 064:38-40, :180-238; #810 diff (062 only); #399 `eng` 2026-11-03 07:19 UTC | **eng (test only; never skip or quarantine):** the CGR-110 lock (or one shared pgTAP helper that takes it and asserts it is held) in **every** pgTAP file that calls `private.evaluate_signals`, not only 062; one assertion per file that the lock is held before the first evaluation; record the 064 occurrence on #399. Closes on merge with the db job green |
+| CGR-128, CGR-125 (blocking for FAM1 approval), CGR-124, CGR-123, CGR-122, CGR-121, CGR-118, CGR-119, CGR-120, CGR-116, CGR-113, CGR-114, CGR-115 | open; unchanged | as at 01:30 |
+| CGR-112, CGR-103, CGR-104, CGR-106 to CGR-109, CGR-111 | open; remedies met on unchanged heads; close on merge | heads as above |
+| CGR-101 | open, advisory (S2); unchanged | 0001 `team_member_name` |
+| **CGR-16** | open (advisory now, **blocking before real data**) | no change |
+| CGR-78, CGR-86, CGR-97, CGR-99, CGR-94, CGR-75, CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-23 | open | no change |
+
+Closed in this section: none (no code merged; FAM1 is a draft brief).
+
+### Inputs (answers to `uxa` 03:50 and `lca` 04:45 requests)
+
+- **CGR-133 constant and its one substitution** (`uxa` 03:50): **confirmed** on facts. "die Ansicht" in the client information and "diese Seite" on F-02 describe the same view; no other word differs.
+- **`lca` (a) "solange Sie einverstanden sind":** **not confirmed as worded**: CGR-134.
+- **`lca` (b) reverse pair refused in every variant:** **supported** (CGR-132 widened).
+- **`lca` (c) AUT-46 statement extended to "… <Name> hat die Information oben erhalten und gibt diese Einwilligung selbst.":** **confirmed on facts**: the information block is shown on the same screen above the two questions, fixed and not collapsed (`uxa` 19:50), so the RN attests something she has just shown or read to the client. It attests receipt, not understanding; that is correct, because understanding is part of the capacity answer (question 2), which stays required and unpreselected. Applies only under the owner's variant.
+- **`lca` (h) "Datenschutz" link for the relative on F-01 and F-02:** no clinical objection, on the condition that the linked text names no client, visit or health fact (the same rule as the invitation, `lca` 16:55 (1)).
+- **`lca` (e) UXR-97 (a) one client per sign-in:** supported from the clinical side (no client label on a possibly shared phone, H-31).
+- **AUT-48** (`aia` 02:25, issue #861): no clinical objection to a deterministic merge-review hand-off. **Condition:** the hand-off is for the PO's acceptance review and does not replace the clinical gate; it lists the item's `cra` gate status (this report's gate table) so a green PR with an open blocking finding is not presented as ready. Among the waiting PRs, #810 (CGR-110), #813 (RLS4-C3: a missing count is never "Keine offenen Berichte") and #815 (void act, CGR-104) carry safety remedies met on their heads; the order stays the PO's.
+- **Invented logic:** none found in #850 03:50 or #860 04:45. No capacity test, interval, trigger or session figure is proposed as a clinical rule; the idle time is left to `eng`/PO as a DSV measure, the safeguarding answer to the Clinical Owner.
+
+### Other checks (no finding)
+
+- **Hard-coded rules:** no code changed; no new Clinical Rule Register row. The FAM1-6 status and explanation constants become one row (display class, owner `clinical`, PROVISIONAL) when FAM1 is approved; the FAM1-2 refusal of both contradictory pairs becomes one row (consent validity, owner `legal`, PROVISIONAL) when built.
+- **Privacy:** no data added to the repository. `lca` sources are cited by title only.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **FAM1** (brief draft) | **not approvable from the clinical side until CGR-125 is in FAM1-6** (unchanged); CGR-128 into FAM1-6 at approval or before acceptance; CGR-126, CGR-129, CGR-130, CGR-131, CGR-132 (both pairs), CGR-133, **CGR-134** before real relatives; CGR-127 before acceptance of the build |
+| **#810** (CGR-110, 062) | clear to merge (unchanged); does not close CGR-110 alone: the other nine files need the same lock |
+| **ADR-143** (#837 `9c2ecc4`) | clear for acceptance from the clinical side (unchanged) |
+| **M6-2** offline queue | CGR-121, CGR-122, CGR-123 tests green before merge (unchanged) |
+| **MOB1**, **D-2** (#838) | as at 13:30 on 2026-11-04 (CGR-124 condition) |
+| #799, #841, #828, #800, #803, #804, #806, #809, #813, #814, #815 | unchanged: clear to merge (heads unchanged, CI green) |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **po (FAM1):** CGR-125 into FAM1-6 (blocking for approval); CGR-128 to CGR-133 as at 01:30; CGR-132 now **both pairs refused in the command**; **CGR-134** (duration clause with consent as upper bound and one end-cause sentence). AUT-48 hand-off with the `cra` gate status shown.
+- **eng:** CGR-110 lock in every pgTAP file that calls `private.evaluate_signals` (one helper), and the 064 occurrence on #399. After FAM1 approval: refusal of both pairs (pgTAP); one status and one explanation constant (vitest).
+- **uxa:** the CGR-134 end-cause sentence and, if the PO takes it, the duration clause; a refusal line for the reverse pair (outside the pilot variant).
+- **owner:** the two pilot variants if the PO proposes them; the organisation's general number (FAM1-10); chain merge of the governance PRs (#582 … this PR).
+- **lca / legal adviser:** question 1 (unchanged); whether the information must say that the team can end the view (CGR-134, *informed*).
+- **clinical (Clinical Owner, after G-1):** as at 01:30 (capacity judgement and re-check, CGR-130, AUT-47; distinct no-show display, CGR-125), plus the safeguarding procedure for a relative who calls after a protective revocation (CGR-127 (1)).
+
+---
+
 ## 2026-11-05 01:30 CET: `uxa` #850 23:50 (`2cf39ee`) read: CGR-131 and CGR-132 `uxa` parts **met at document level**; AUT-46 placement meets my 21:30 conditions (i) and (ii); new **CGR-133** (advisory, S1 before real relatives: the client information explains the neutral state in a second, shorter wording with "noch", which the page's confirmed explanation deliberately avoids); no code changed
 
 **Scope:** `recovery/main` @ `a236c10` (unchanged since my 21:30 section, PR #864, unmerged).

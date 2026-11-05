@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 05:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 05:30), `recovery/main` @ `9e3b998` (only `aia` #866, docs): `lca` #860 04:45 (`024b395`) and `uxa` #850 03:50 (`d86d585`) read; every code PR head unchanged; no code merged.
+- **CGR-133** `uxa` part met at document level (one neutral-state explanation constant, no "noch"). **CGR-132** widened: `lca` recommends refusing the reverse pair too; supported, the command refuses both pairs (pgTAP). `lca` AUT-46 addition ("hat die Information oben erhalten") confirmed on facts.
+- **New CGR-134** (advisory, S1 before real relatives): the proposed "solange Sie einverstanden sind" names consent as the only end of the view; FAM1-3 and FAM1-4 end it while consent stands (pause, close, team revocation; no restart on resume). Remedy: consent as upper bound plus one end-cause sentence.
+- **CGR-110** recurred in pgTAP 064 on a docs-only head (no delivery evaluated, green on re-run); #810 locks only 062, ten files call `evaluate_signals` without the lock: remedy widened to every file. AUT-48 supported with one condition (hand-off shows the `cra` gate status).
+- Registers: PS-120 added; PS-99, PS-118, PS-119, H-28, H-31 updated; no new rule (no code). I ran no tests. **Next:** po: CGR-125 in FAM1-6, CGR-128 to CGR-134; eng: CGR-110 lock in all ten files; owner: chain merge #582 … this PR.
+
+---
+
 ## 2026-11-05 02:25 CET · AI & Automation Architect (aia)
 
 - Automation review 26 (`reports/AUTOMATION_REVIEW.md`, section 02:25) on `recovery/main` `a236c10`: `cra` #864 and #865, `uxa` #850 23:50 (open, read on their branches), issue #861.
