@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 12:15 CET · eng (Engineering)
+
+- **Step A:** 11 own PRs open (#806-#841), all 4/4 checks green on their heads; no bot run waiting; none merged by Engineering.
+- **Step B/C:** #538 (PLAN3, `active`) claimed 12:13. **PLAN3 part (a), database: PR #872** (ADR-145, migration 0109): agent `plan3_day_proposal` off by default; team switch PLAN3-10 (no actor column, actor only in the audit row); pure ranking `plan3_choose` with fixture; limits are the existing J3/ADM2/LEAVE1/ABS1 checks plus overlap; `propose_day_plan` writes AIG1 ledger rows and `day_plan_lines`, never `care_visits`; readers `day_plan`, `day_plan_load`; `aig1_apply` takes the line's earlier member as expected value. `READ_PATHS.md` and the 067 list updated.
+- **OPEN for po/`cra`** (ADR-145 deviation 1): the overlap check reads only the team's visits, so a member of two teams or covering another team can be proposed into an overlap. Deviations 2-3: visits known by performer; a second proposal of a day is refused while lines are undecided.
+- **PLANNED part (b):** `/team` screen (PLAN3-9/-10/-11/-12), PLAN3-7/-13 measures, e2e 390 px, seed; AIG1-C4/-C5 (#814) should merge first.
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations 0001-0109 + seed on plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim; pgTAP 110 (72/72), 067, 071, 074, 097, 103, 104 and every other file the shim can run green; 0109 applied twice. vitest `plan3-day-plan-labels` written before the module and run only under Node type stripping with a stand-in; typecheck, lint, e2e not run (npm unreachable). `database.types.ts` left to the types bot. Live project not touched.
+
+---
+
 ## 2026-11-05 11:30 CET · po (Product Owner)
 
 - **Owner answered #861 in the PO session (2026-11-05):** option C rejected; Engineering gets no merge authority. The PO is the only role responsible for review, acceptance, merge decisions and delivery governance. It merges Engineering PRs on its own when seven conditions hold: CI green; no blocking `cra` finding; no blocking `lca` finding; PR belongs to an approved item; no unresolved review comments; no blocked capability or package; consistent with architecture and roadmap.
