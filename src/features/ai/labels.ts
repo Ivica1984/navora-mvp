@@ -76,6 +76,8 @@ export const REFUSAL_TEXT: Record<string, string> = {
   absent: "Nicht übernommen: Diese Person ist zu dieser Zeit abwesend gemeldet.",
   already_taken: "Nicht übernommen: Der Einsatz hat inzwischen jemand anderes.",
   not_open: "Nicht übernommen: Der Einsatz ist nicht mehr offen.",
+  // PLAN3-14 (ADR-146): a day-plan line whose member has an overlapping visit by now, in any team.
+  overlap: "Nicht übernommen: Diese Person hat zu dieser Zeit schon einen Einsatz.",
 };
 
 export function refusalText(reason: string | null | undefined): string {

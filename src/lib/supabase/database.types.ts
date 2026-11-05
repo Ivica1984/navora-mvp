@@ -2356,7 +2356,7 @@ isOneToOne: false
                            },
 "day_plan_load":
 { Args: { "p_date": string,"p_team_id": string }; Returns: {
-              "member_id": string,"member_name": string,"minutes_now": number,"minutes_with_proposal": number
+              "member_id": string,"member_name": string,"minutes_now": number,"minutes_with_proposal": number,"other_team_visits": boolean
             }[]
                            },
 "deactivate_team":

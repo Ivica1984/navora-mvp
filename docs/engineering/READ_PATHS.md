@@ -104,7 +104,7 @@ Commands (`correct_visit_time`, `complete_case_task`, `decide_matching_request`,
 |---|---|---|---|
 | `open_suggestions(team)` | active members of the team | the proposed member's name (the proposal itself), never a confirmer | 097 |
 | `day_plan(team, date)` (PLAN3, 0109, ADR-145) | active members of the team | the proposed member's name and id (the proposal itself), never a confirmer; the decision state only | 110 (another team, Operations: nothing) |
-| `day_plan_load(team, date)`, `team_day_proposal_state(team)` (PLAN3, 0109; no case, visit or client column) | active members of the team | each member's planned minutes of that team and day (PLAN3-4); the switch date, never its actor (PLAN3-10) | 110 |
+| `day_plan_load(team, date)`, `team_day_proposal_state(team)` (PLAN3, 0109, 0110; no case, visit or client column) | active members of the team | each member's planned minutes of that team and day (PLAN3-4) and only whether she has visits that day in another team, no count, client or time (PLAN3-14, 0110); the switch date, never its actor (PLAN3-10) | 110, 111 |
 | `value_provenance(entity_type, entity_id, field)` | active members of the record's team | the confirmer of **one** value ("bestätigt von <Name> am <Datum>"), with that value's status; at most one row (AIG1-11 (2a)) | 097, 071 |
 | `agent_correction_rates(month)` | team: own rows; coordinators: all teams of the organisation | none; per agent, field, team and month; a cell with fewer than three distinct confirmers is suppressed (AIG1-7) | 097 |
 | `agent_health(org)` | coordinators of the organisation | none (AIG1-10; AIG1-16 adds the written threshold and a per-agent "minimum reached" flag, no person column) | 097, 103 |
