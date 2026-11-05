@@ -2277,7 +2277,7 @@ isOneToOne: false
                            },
 "agent_stop_measures":
 { Args: { "p_stop_id": string }; Returns: {
-              "became_not_open": number,"days_to_zero_open": number | null,"lead_time_median_hours": number | null,"left_by_recheck": number,"lines_at_stop": number,"not_open_at_stop": number,"open_now": number,"proposals_in_window": number,"superseded": number,"team_id": string,"team_name": string
+              "became_not_open": number,"days_to_zero_open": number,"lead_time_median_hours": number,"left_by_recheck": number,"lines_at_stop": number,"not_open_at_stop": number,"open_now": number,"proposals_in_window": number,"superseded": number,"team_id": string,"team_name": string
             }[]
                            },
 "assign_team_coach":
