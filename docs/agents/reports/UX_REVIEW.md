@@ -6,6 +6,41 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-05 11:50 CET · `uxa`: no screen code changed; `cra` 09:30 (#870) confirms CGR-134 sentence 5 and the reverse-pair line (no example after "unterbrochen"); #868 rebuilt docs-only (my 07:50 note closed); merge path now with the PO (#861, `PO_MERGE_PROCESS.md`); no new finding
+
+**What changed since 07:50.** `recovery/main` moved from `9e3b998` to `aeb566b` with `po` #868 only (`COORDINATION.md` rule 4, `PO_MERGE_PROCESS.md`, `OWNER_AGENDA.md`, `JOURNAL.md`); **no change under `src`, `tests` or `e2e`** (`git diff --stat 9e3b998 aeb566b -- src tests e2e` is empty). No open screen PR head moved since 07:50 (the newest updates are `gov/` #870 and `aia/` #869, docs only). No new UX brief; no `ux` issue changed. New input for me: `cra` 09:30 on #850 and in #870 (`9fc0636`); `po` 10:56 and 11:30 (merged with #868).
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `cra` 09:30 comment on #850; `JOURNAL.md` `po` 10:56 and 11:30; `PO_MERGE_PROCESS.md` (§4 conditions, role docs PRs). No benchmark (made 07:50 today). I ran no test; CI is the test runner. Live project not touched.
+
+### `cra` 09:30 taken (all wording still PROPOSED for the draft FAM1)
+
+- **CGR-134:** sentence 5 of the client information is confirmed on facts as written at 07:50: "Die Ansicht endet spätestens, wenn Sie Ihre Einwilligung zurückziehen; sie endet auch, wenn Ihre Pflege unterbrochen wird oder endet, und beginnt danach nicht von selbst wieder." "unterbrochen" covers all four pause reasons (`hospital_stay`, `rehabilitation`, `client_absence`, `other`; `cra` cites 0024:212). **No example is added** ("zum Beispiel bei einem Spitalaufenthalt" is withdrawn as an option): one example reads as the only case, which is the same narrowing CGR-134 names. Recorded as a general rule in `DESIGN_SYSTEM.md` §4 (v42). Team revocation (FAM1-3) stays with `lca`; how a client learns of a protective revocation is a Clinical Owner procedure, not page text, so the page carries no sentence for it.
+- **CGR-132:** the reverse-pair refusal line is confirmed. `cra` does not ask for a hint such as "frage sie selbst" (it would steer a capacity judgement); I add none.
+
+### Closed notes
+
+- **#868 carried the #799 shell code (my 07:50 note to the PO):** closed. `po` 10:56 rebuilt the branch docs-only (CGR-135); #868 merged as `aeb566b` with no file under `src`. #799 (`642edf0`) is unchanged.
+
+### Merge of this PR
+
+`po` 11:30 records the owner's answer on #861: the PO is the only role responsible for merge decisions, and `PO_MERGE_PROCESS.md` lists role docs PRs (`ux/` included) among the PRs the PO merges (CI green, no open comment, own files only, no `src/`, `supabase/`, `tests/`, `e2e/` file). The PO notes the owner can say otherwise. I therefore do **not** self-merge #850; it stays open for the PO, and I keep it green and conflict-free. This PR touches only `UX_REVIEW.md`, `DESIGN_SYSTEM.md` and `JOURNAL.md`. UNKNOWN until the owner changes the PO task: when the PO's first merge run happens.
+
+### Findings
+
+No new finding.
+
+### Status of findings
+
+Unchanged from 07:50 (UXR-97, -95, -96, -94, -93, -92, -91, -88, -89, -90, -84 OPEN; UXR-75, -78 met on #799, close on merge). Closed in this section: none (no screen code merged).
+
+### Requests (OPEN)
+
+- `lca`: whether team revocation must be named in sentence 5 (*informed*); the AUT-46 statement as extended.
+- `eng`: once FAM1 is approved, one end-cause constant (no example), and the command refusal for both pairs (pgTAP).
+- `po` (FAM1): CGR-131 to CGR-134 into FAM1-2/-3/-4/-6 with `cra` 09:30; CGR-132 both pairs; UXR-97 (a) per `lca`; merge #850 under `PO_MERGE_PROCESS.md` when it runs.
+
+---
+
 ## 2026-11-05 07:50 CET · `uxa`: no screen code changed; answers to `cra` 05:30 (#867) CGR-134 (consent as the upper bound, one end-cause sentence) and the widened CGR-132 (refusal line for the reverse pair); `lca` 04:45 AUT-46 addition taken; benchmark: how a proxy-access page says when access stops; #868 carries the #799 shell code (noted for the PO); no new finding
 
 **What changed since 03:50.** `recovery/main` is unchanged at `9e3b998`; **no change under `src`, `tests` or `e2e`**. Every open screen PR head is unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); my earlier notes on them stand. My PR #850 (`d86d585`) is green on all four checks after one re-run of the `db` job (pgTAP 064 failed once at 02:49 UTC, not this PR's; `cra` 05:30 traces it to CGR-110); this run continues it. New input for me, all on open PRs read on their branches: `lca` 04:45 (#860 `024b395`, `decisions/D-40.md`: client information confirmed in substance; duration clause proposed; reverse capacity pair refused in every variant; AUT-46 statement extended), `cra` 05:30 (#867 `0c3b3a2`: CGR-133 met at document level; CGR-132 widened to both pairs; new CGR-134), `po` 06:05 (#868 `52d1803`: #861 merge path escalated to the owner, option C).

@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 11:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 11:50) on `recovery/main` `aeb566b`; no screen code changed since 07:50; no open screen PR head moved. #850 continued (merged `recovery/main` in, JOURNAL entries kept newest first), no second `ux/…` PR.
+- `cra` 09:30 (#870) taken: CGR-134 sentence 5 confirmed, no example after "unterbrochen"; CGR-132 reverse-pair line confirmed, no "frage sie selbst". My 07:50 #868 note closed (rebuilt docs-only, CGR-135).
+- Not self-merging #850: owner decision on #861 per `po` 11:30, role docs PRs merged by the PO (`PO_MERGE_PROCESS.md`).
+- No new finding, no issue, no PR comment. `DESIGN_SYSTEM.md` v42 (§4 cover word without example; no token change). No benchmark (made 07:50). Tests: none run by me. Live project not touched.
+
+---
+
 ## 2026-11-05 11:30 CET · po (Product Owner)
 
 - **Owner answered #861 in the PO session (2026-11-05):** option C rejected; Engineering gets no merge authority. The PO is the only role responsible for review, acceptance, merge decisions and delivery governance. It merges Engineering PRs on its own when seven conditions hold: CI green; no blocking `cra` finding; no blocking `lca` finding; PR belongs to an approved item; no unresolved review comments; no blocked capability or package; consistent with architecture and roadmap.
@@ -50,9 +59,6 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - UX review (`reports/UX_REVIEW.md`, section 03:50) on `recovery/main` `9e3b998`; no screen code changed since 23:50 (`aia` #866 docs only); every open screen PR head unchanged. #850 continued (`recovery/main` merged in, `JOURNAL.md` conflict resolved, every entry kept), no second `ux/…` PR.
 - Answer to `cra` 01:30 (#865) CGR-133, PROPOSED for the draft FAM1: the neutral-state explanation is one constant shared by F-02 and the client information ("diese Seite" → "die Ansicht" only), without "noch" (my 23:50 sentence was wrong). AUT-48 (#861) noted: eleven green screen PRs carry met remedies that pilot teams cannot see yet; the merge rule is the PO's.
 - No new finding, no issue, no PR comment. `DESIGN_SYSTEM.md` v40 (§4, no token change). Waiting: `cra` and `lca` confirmation; PO to place CGR-131 to CGR-133 in FAM1 and decide #861.
-
----
-
 
 ---
 
