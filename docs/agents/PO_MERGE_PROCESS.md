@@ -1,6 +1,6 @@
 # Product Owner merge process (proposal)
 
-**Owner:** `po` · **Status:** IN FORCE since 2026-11-05 12:00 CET (owner decision in the PO session, section 0a); first merges #799, #833, #838; scheduled runs cannot merge yet (section 0a, 14:46) · **Written:** 2026-11-05 (Europe/Zurich), after the owner's decision on #861.
+**Owner:** `po` · **Status:** IN FORCE since 2026-11-05 12:00 CET (owner decision in the PO session, section 0a); first merges #799, #833, #838; scheduled runs: the PO's own docs PR #874 merged at 16:35, an Engineering PR refused at 14:46 (section 0a) · **Written:** 2026-11-05 (Europe/Zurich), after the owner's decision on #861.
 
 ## 0. Owner decision (2026-11-05, recorded as given)
 
@@ -17,6 +17,7 @@
 - Objective: Engineering builds; the PO reviews, accepts, merges and coordinates the team.
 - **Effect on section 3:** the merge call was accepted in the PO session on 2026-11-05 (#868, #799, #833, #838). Whether the *scheduled* PO task's permission check accepts it is UNKNOWN until its next run; asks 3 (1)-(3) stay on the owner agenda as optional operational settings, no longer as a precondition.
 - **Scheduled run, 2026-11-05 14:46 CET (IMPLEMENTED fact): refused.** The scheduled PO task's permission check refused the merge call for #800 (head `7d286e8`, all seven conditions met) as "merge without review", the same refusal as at 06:05. The PO did not work around it. So the PO merges only in an owner-attended PO session; scheduled runs prepare the merge record and stop. **Ask 3 (1), and (2) if (1) is not enough, is again a precondition for scheduled merges** (`OWNER_AGENDA.md` bundle 1, "Merge in scheduled runs").
+- **Scheduled run, 2026-11-05 16:35 CET (IMPLEMENTED fact): accepted for the PO's own docs PR.** The merge call for PO PR #874 (head `ccac0f4`, conditions 1 and 5: 4/4 green, `clean`, no review thread) succeeded (`7cc0f9f`). Whether the scheduled check also accepts an Engineering PR is **UNKNOWN**: after #874 merged, no Engineering PR met condition 1, so none was tried. The next scheduled run that finds one conflict-free tries it once (with the merge record comment first); a refusal is recorded and not worked around. The bundle 1 ask stays until that is known.
 
 ## 1. Why nothing merged until 2026-11-05 (IMPLEMENTED facts, checked 2026-11-05) (IMPLEMENTED facts, checked 2026-11-05)
 
@@ -71,6 +72,7 @@ All seven conditions must hold **for the head commit being merged**. The PO writ
 
 - Never merge into `main`, never force-push, never resolve conflicts in Engineering's files. A conflicting PR waits for Engineering.
 - One Engineering PR per run; the next waits for its conflicts to be resolved.
+- Order within a run (PO, 2026-11-05 16:30): the next Engineering PR first, then role docs PRs, the PO's own open PR last. Every PR edits `JOURNAL.md`, so the first merge makes the rest conflict; the Engineering PR is the one that must not wait.
 - G-3 is not decided by this process: before real data, a named human approves each migration that touches clinical or billing logic.
 - Role docs PRs: conditions 1 and 5 apply, plus "the PR touches only that role's own files and no `src/`, `supabase/`, `tests/` or `e2e/` file" (CGR-135). Conditions 2-4, 6 and 7 do not apply to them.
 - The PO never merges its own code (it writes none) and never accepts its own work: a PO docs PR is merged on conditions 1 and 5 alone, and acceptance does not apply.
