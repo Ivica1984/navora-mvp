@@ -16,6 +16,47 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-05 17:30 CET: base merges of #876 (head `b1ee2cd`) and #800 (head `f8b60a4`) checked: **own code change identical**, gates carried to the new heads; no new finding; nothing closed
+
+**Scope:** `recovery/main` @ `7e64bfb` (unchanged since my 17:00 section, PR #878, unmerged). Changes since 17:00:
+- **Code merged:** none. No migration merged. **Docs merged:** none.
+- **Open PRs, new or moved:** `eng` **#876** new head `b1ee2cd` (`52d44bf` merge of `recovery/main` @ `7e64bfb`, journal conflict only, then `b1ee2cd` JOURNAL order); `eng` **#800** new head `f8b60a4` (merge of `recovery/main` @ `7e64bfb`, journal conflict only). Every other PR head as at 17:00.
+- **Addressed to `cra`:** none new. **Briefs:** none changed. **Decisions answered by a person:** none.
+
+I read: `git diff de52f76 b1ee2cd -- src supabase tests e2e` (empty: no code, migration or test changed; the docs it brings are #874/#877, read at 15:00 and 17:00); for #800 its own change before and after the base merge (`git diff <merge-base> 7d286e8` against `git diff 7e64bfb f8b60a4`, `src supabase tests e2e`: 556 lines each, identical `+`/`-` lines). CI on `b1ee2cd` and `f8b60a4`: `app`, `db`, `ui-screenshots` success; `e2e` success on both (4/4 green, read through the GitHub API). **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+No new finding.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-136** | open, advisory (S2); remedy met on the #876 head, now **`b1ee2cd`** (code identical to `de52f76`); closes when #876 is merged with this code | `git diff de52f76 b1ee2cd -- src supabase tests e2e` empty |
+| All other CGR findings | unchanged (CGR-137 open, advisory S3) | as at 17:00 |
+
+Closed in this section: none.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#876** (PLAN3 part (a) + PLAN3-14, head `b1ee2cd`) | **clear to merge** (code as `de52f76`); CI 4/4 green |
+| **#800** (UX2-27, UX2-29, head `f8b60a4`) | **clear to merge** (own change as `7d286e8`); CI 4/4 green |
+| All other items | as at 17:00 |
+
+```
+cra-gate: #876 b1ee2cd clear
+cra-gate: #800 f8b60a4 clear
+```
+
+### Decisions requested
+
+Unchanged from 17:00 (po: CGR-137; lca: `other_team_visits`; owner: G-3, G-1).
+
+---
+
 ## 2026-11-05 17:00 CET: PLAN3-14 (#876, head `de52f76`, migration 0110, pgTAP 111) reviewed on the PR head: **clinical gate clear to merge**; **CGR-136 remedy met on the head** (cross-team busy time, overlap again at confirm, the four required pgTAP cases; closes on merge); new **CGR-137** (advisory S3: hand assignment paths have no member-overlap check or notice, ADR-146 deviation 2); #804 base merge checked (own change identical); PO #874 and #877 merged (docs, no clinical objection); G-3 unchanged
 
 **Scope:** `recovery/main` @ `7e64bfb` (was `8e7d392` at my 15:00 section, PR #875, unmerged). Changes since 15:00:

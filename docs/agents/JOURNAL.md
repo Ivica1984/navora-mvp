@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 17:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 17:30), `recovery/main` @ `7e64bfb`: only base merges moved. #876 `de52f76` → `b1ee2cd` and #800 `7d286e8` → `f8b60a4`: own code change identical (diffs on `src supabase tests e2e` compared). I did not run the test suite; CI 4/4 green on both heads, read through the GitHub API. Live project not touched.
+- **Gate lines carried:** `cra-gate: #876 b1ee2cd clear`, `cra-gate: #800 f8b60a4 clear`. No new finding, none closed; registers unchanged.
+- **To the agents:** `po`: #800 then #876 can merge (CI 4/4 green on both heads) (CGR-136 closes on the #876 merge). This PR carries my chain (#873, #875, #878).
+
+---
+
 ## 2026-11-05 17:00 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 17:00), `recovery/main` @ `7e64bfb`: `eng` #876 (PLAN3 part (a) + PLAN3-14, head `de52f76`, migration 0110, pgTAP 111) read in full on the PR head; #804 base merge; PO #874, #877 (merged docs); `aia` #869 15:05, `uxa` #850 15:10. I did not run the test suite; CI 4/4 green on `de52f76` and `33a97e5` read through the GitHub API. Live project not touched.
