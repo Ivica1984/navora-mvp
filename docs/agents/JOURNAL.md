@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 20:20 CET · AI & Automation Architect (aia)
+
+- Automation review 31 (`reports/AUTOMATION_REVIEW.md`, section 20:20) on `recovery/main` `eccf30c` (docs only since review 30): `eng` #876 (PLAN3-14, head `566a7dd`), PO #877, `cra` #879 (17:00, 17:30), `uxa` #850 19:50 read.
+- PLAN3-14 build supported (deterministic, no added act); ADR-146 deviation 1 supported. **AUT-51** (medium) now shown in the code: a line refused at confirm for `overlap` keeps the next day proposal blocked until decided by hand; no pgTAP case for a fresh request after it. **CGR-137** supported on condition that the hand-assignment notice stays information, without a confirmation tap.
+- No new finding, none closed; no `high`, no issue opened; one comment on #876. `AI_OPERATING_MODEL_REVIEW.md` change log only. This PR (#869) continued with `recovery/main` merged in (JOURNAL entries kept, newest first). I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To `po`:** decide AUT-51 (ADR-145 deviation 3) before PLAN3 part (b); CGR-137 brief row without a confirmation tap. #869 touches only my three files.
+
+---
+
 ## 2026-11-05 17:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 17:30), `recovery/main` @ `7e64bfb`: only base merges moved. #876 `de52f76` → `b1ee2cd` and #800 `7d286e8` → `f8b60a4`: own code change identical (diffs on `src supabase tests e2e` compared). I did not run the test suite; CI 4/4 green on both heads, read through the GitHub API. Live project not touched.
@@ -39,6 +48,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 15:05 CET · AI & Automation Architect (aia)
+
+- Automation review 30 (`reports/AUTOMATION_REVIEW.md`, section 15:05): PO #874 (14:50) read on its branch; continued my open PR #869 (no second `aia/` PR).
+- **PLAN3-14** (overlap across teams and again at confirm) supported: two deterministic rules, no act added, care benefit shown. It strengthens **AUT-51** (medium): a confirm-time `overlap` refusal is when a team needs a fresh proposal, which ADR-145 deviation 3 refuses while older lines are undecided; decide both together before part (b).
+- Scheduled PO merge refusal: the PO's owner ask supported; no new finding (escalated already). No new finding, none closed, no issue, no comment. `AI_OPERATING_MODEL_REVIEW.md` unchanged (no agent or control changed). I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 15:00 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 15:00), `recovery/main` @ `8e7d392` (unchanged): PO #874 (14:50, docs), `aia` #869 (AUT-51), #803 new head `cf51b75` read. No code or migration merged since 13:30.
@@ -67,6 +84,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 14:20 CET · AI & Automation Architect (aia)
+
+- Automation review 29 (`reports/AUTOMATION_REVIEW.md`, section 14:20) on `recovery/main` `8e7d392`: owner merge decision and `PO_MERGE_PROCESS.md` (PO #868, #871 merged; #799, #833, #838 merged by the PO); Engineering #872 (PLAN3 part (a)) and `cra` #873 read on their branches. Continued my open PR #869 (base merged in, journal entries all kept, newest first).
+- **AUT-48 closed** (owner decided: the PO merges under seven conditions; first merges done). AUT-49 and AUT-50 adopted into the PO's plan (changes D and E), PLANNED.
+- **PLAN3 part (a)** checked against the AI controls (§8): every stage-0 control present at database level; supported in substance. `cra` CGR-136 (overlap across teams and at confirm) supported.
+- New **AUT-51** (medium): `open_proposal` refusal (ADR-145 deviation 3) makes a team decide every stale line by hand before it can get a fresh proposal after a sick call; proposed: a new request closes the earlier undecided lines with a recorded outcome. One comment on #872.
+- `AI_OPERATING_MODEL_REVIEW.md` §12 and change log updated. No `high` finding, no issue opened. Not self-merged: the owner's decision makes the PO the only role that merges, role docs PRs included. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 13:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 13:30), `recovery/main` @ `8e7d392`: #799 merged on the head I cleared; PO #868 (docs-only), #833, #838, #871 merged; new `eng` **#872** PLAN3 part (a) (head `c382272`, migration 0109, pgTAP 110; CI 4/4 green) read in full on the PR head; #800 base merge checked.
@@ -76,6 +103,9 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **CGR-124** host condition met at document level in D-2 (pg_cron SIG1 every minute; external missing-heartbeat check before M9; PLANNED).
 - Registers: CR-164, CR-165 added (PLAN3 limits and preference, PROVISIONAL); PS-121 added; G-3, G-10, H-01, H-04, H-20 updated.
 - **Chain rebuilt as the PO asked (12:00):** this PR is based on `recovery/main` and carries #582 … #870 (five files, docs only). **Not merged by me:** owner instruction on #666; the PO merges role docs PRs under `PO_MERGE_PROCESS.md` §4. Earlier `gov/` PRs (#582 … #870) are superseded by this one once it is merged. I ran no tests; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
+---
+
 
 ---
 
@@ -119,6 +149,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 10:15 CET · AI & Automation Architect (aia)
+
+- Automation review 28 (`reports/AUTOMATION_REVIEW.md`, section 10:15) on `recovery/main` `9e3b998` (unchanged): `cra` #870 (09:30) read on its branch; continued on my open #869 (self-merge refused at 08:20 by the permission check, not worked around).
+- `cra` option C conditions (2) and (3) supported (safety and G-3 duties). New **AUT-50** (low): condition (1) as a rule: one machine-readable `cra` gate line per PR and a check that compares the cleared head with the merge head, instead of a note written by `eng` before each merge.
+- **CGR-135** role-scope check supported. **AUT-48** widened: role docs PRs queue as well (my self-merge refused too); a verified docs-only scope (CGR-135) is the precondition for merging them without a human look.
+- `AI_OPERATING_MODEL_REVIEW.md` change log only. No `high` finding, no issue opened; one comment on #861. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 09:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 09:30), `recovery/main` @ `9e3b998` (unchanged): `uxa` #850 07:50 (`0b0a3cf`), PO #868 (`52d1803`), `aia` #869 (`6aec1ba`) read on their branches; every code PR head unchanged; no code merged.
@@ -126,6 +165,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **New CGR-135** (blocking for merging #868 as is, S2): the PO cycle PR carries the whole #799 shell (`819c5c6`); code identical to the head I cleared, but it would land as "docs only". Remedy: #868 docs-only; a check that role branches touch no `src/`/`supabase/`/`tests/`/`e2e/` (G-10).
 - **Option C** (#861, owner): no clinical objection at stage 0 under three conditions (gate read for the merged head; "before merge" findings count as blocking; G-3 stays open, named human approval of clinical/billing migrations before gate C).
 - Registers: G-10 added; G-3, PS-119, PS-120, H-28 updated; no new rule. I ran no tests. **Next:** owner: option C as a stage-0 rule, chain merge; po: CGR-135, FAM1 (CGR-125, CGR-128 to CGR-134); eng: CGR-110 in all ten files.
+
+---
+
+## 2026-11-05 08:20 CET · AI & Automation Architect (aia)
+
+- Automation review 27 (`reports/AUTOMATION_REVIEW.md`, section 08:20) on `recovery/main` `9e3b998`: PO #868, `cra` #867, `lca` #860 04:45, `uxa` #850 03:50 and 07:50 (open, read on their branches).
+- **AUT-48:** PO escalated #861 to the owner as option C (Engineering merges after green CI and no blocking `cra` finding, PO accepts after the merge); supported, it keeps both safety-bearing controls and removes the wait. CGR-132 both pairs, CGR-134 and the `lca` AUT-46 addition supported (no added act).
+- New **AUT-49** (medium): 112 base-merges into agent branches in seven days, 109 naming a `JOURNAL.md` conflict; proposed one journal file per entry, checked by `agents-check.mjs`. One comment on #861.
+- `AI_OPERATING_MODEL_REVIEW.md` change log only. No `high` finding, no issue opened. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
