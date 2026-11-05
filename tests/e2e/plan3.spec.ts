@@ -59,6 +59,15 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
 
     const lines = page.getByTestId("day-plan-line");
     await expect(lines).toHaveCount(5);
+
+    // PLAN3-12: the entry to the proposals on /team names how many wait (count only, no name).
+    const planUrl = page.url();
+    await page.goto("/team");
+    await expect(page.getByTestId("suggestions-link")).toHaveText("Vorschläge (5)");
+    await expect(page.getByTestId("suggestions-link")).toHaveAttribute("aria-label", "5 offene Vorschläge");
+    await expect(page.getByTestId("suggestions-link")).not.toContainText("Pflegekraft");
+    await page.goto(planUrl);
+    await expect(lines).toHaveCount(5);
     const ticks = page.getByTestId("day-plan-tick");
     const checked = () => ticks.evaluateAll((els) => els.filter((e) => (e as HTMLInputElement).checked).length);
     await expect.poll(checked).toBe(0);
@@ -83,6 +92,10 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
 
     await page.goto(`/visits/${VISIT_0800}`);
     await expect(page.getByTestId("visit-responsible")).toHaveText(BEZUG);
+
+    // PLAN3-12: three confirmed of five, two wait.
+    await page.goto("/team");
+    await expect(page.getByTestId("suggestions-link")).toHaveText("Vorschläge (2)");
   });
 
   test("a line changed to a member busy at that time is refused 'overlap' and its visit stays open; another change is confirmed (PLAN3-5, PLAN3-14 (2))", async ({ page }) => {
@@ -105,6 +118,11 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
     await line1200.getByRole("combobox").selectOption({ label: target });
     await line1200.getByRole("button", { name: "Geänderte Zuteilung bestätigen" }).click();
     await expect(line1200.getByTestId("day-plan-decision")).toHaveText("geändert und bestätigt");
+
+    // PLAN3-12: one more confirmed line, one less on the link; the refused 08:15 line still waits.
+    await page.goto("/team");
+    await expect(page.getByTestId("suggestions-link")).toHaveText("Vorschläge (1)");
+    await expect(page.getByTestId("suggestions-link")).toHaveAttribute("aria-label", "1 offene Vorschläge");
   });
 
   test("switched off, the team sees no 'Tag vorschlagen' (PLAN3-10)", async ({ page }) => {
@@ -112,5 +130,15 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
     await page.getByRole("button", { name: "Tagesvorschlag ausschalten" }).click();
     await expect(page.getByTestId("day-plan-switch-state")).toHaveText("Der Tagesvorschlag ist für euer Team ausgeschaltet.");
     await expect(page.getByRole("button", { name: "Tag vorschlagen" })).toHaveCount(0);
+  });
+});
+
+test.describe("PLAN3-12: a member of another team sees no count from Testteam G", () => {
+  test("pflege.test (Testorganisation A, no open proposal) reads plain 'Vorschläge' at 390 px", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signIn(page, "pflege.test@navora.test");
+    await page.goto("/team");
+    await expect(page.getByTestId("suggestions-link")).toHaveText("Vorschläge");
+    await expect(page.getByTestId("suggestions-link")).not.toHaveAttribute("aria-label", /.+/);
   });
 });

@@ -186,3 +186,23 @@ export function recordBackLink(
 
 /** AIG1-C2 (a): the record page's line for a listed value (Engineering's wording, open for `uxa`). */
 export const RECORD_LOOKBACK_TEXT = "Dieser Wert steht auf der Rückblick-Liste eines gestoppten Assistenten.";
+
+/**
+ * PLAN3-12 (ADR-148, `uxa` UXR-68): the entry to `/team/vorschlaege` on `/team`. "Vorschläge (<n>)" with the aria-label
+ * "<n> offene Vorschläge" when at least one proposal is open; plain "Vorschläge" at 0 and when the count is unknown (a
+ * failed read is never shown as a number). Count only: no name, no deadline word, no colour above `info` (H-20).
+ */
+export function suggestionsLink(count: number | null): { text: string; ariaLabel: string | undefined } {
+  if (count === null || !Number.isInteger(count) || count <= 0) return { text: "Vorschläge", ariaLabel: undefined };
+  return { text: `Vorschläge (${count})`, ariaLabel: `${count} offene Vorschläge` };
+}
+
+/** PLAN3-12: the sum over the member's teams; unknown (null) as soon as one team's read failed, never a partial sum. */
+export function countOpenSuggestions(perTeam: (number | null)[]): number | null {
+  let sum = 0;
+  for (const n of perTeam) {
+    if (n === null) return null;
+    sum += n;
+  }
+  return sum;
+}

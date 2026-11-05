@@ -8,7 +8,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import { COORDINATOR_ROLES, PAGE_LABEL } from "@/lib/auth/nav";
 import { FIELD_PATH, homePathForRoles } from "@/lib/auth/paths";
 import { errorFields, logEvent } from "@/lib/log";
-import type { Provenance } from "./labels";
+import { countOpenSuggestions, type Provenance } from "./labels";
 
 type Fn = Database["public"]["Functions"];
 export type OpenSuggestion = Fn["open_suggestions"]["Returns"][number];
@@ -46,6 +46,25 @@ export async function getTeamSuggestions(): Promise<TeamSuggestions[]> {
     out[i].suggestions = r.data ?? [];
   });
   return out;
+}
+
+/**
+ * PLAN3-12 (ADR-148): how many proposals wait for the caller's teams, for the "Vorschläge" link on `/team`. The same
+ * reader as the confirm screen (`open_suggestions`, per team the caller is a member of, as herself); no new read, no
+ * name and no row leaves this function. `null` when a read failed: the link then reads plain "Vorschläge".
+ */
+export async function getOpenSuggestionCount(teamIds: string[]): Promise<number | null> {
+  const { supabase } = await requireUser();
+  const ids = [...new Set(teamIds)];
+  const results = await Promise.all(ids.map((id) => supabase.rpc("open_suggestions", { p_team_id: id })));
+  const perTeam = results.map((r) => {
+    if (r.error) {
+      logEvent("warn", "plan3.suggestion_count_failed", errorFields(r.error));
+      return null;
+    }
+    return (r.data ?? []).length;
+  });
+  return countOpenSuggestions(perTeam);
 }
 
 /** The caller's teams with their members and clients (from `team_cases`), without proposals. */

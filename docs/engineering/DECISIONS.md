@@ -2547,3 +2547,33 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** `npm ci` failed in this session (npm internal error "Exit handler never called", registry unreachable through the proxy), so vitest, typecheck, lint, build and e2e were not run with the project's toolchain. The 11 cases of `plan3-day-plan-view.test.ts` were run once against the module with Node's type stripping and a minimal `describe`/`it`/`expect` shim (11/11), and the two changed label texts were printed; that is not a vitest run. pgTAP and the seed were not run. CI decides.
 
 **Rollback:** revert the PR (no migration). The seed block of Testorganisation G and the two pgTAP edits go with it.
+
+### ADR-148 — PLAN3-12: the entry to the proposals on `/team` shows how many wait
+
+**Date:** 2026-11-05 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/PLAN3.md` PLAN3-12 (`uxa` UXR-68) · **Migration:** none · **Stacked on:** #880 (ADR-147) · **Proof:** vitest `plan3-12-proposal-count` (written first), e2e `plan3.spec` (+3 assertions blocks, +1 test).
+
+**Context (IMPLEMENTED before):** the `/team` header links to `/team/vorschlaege` with the plain text "Vorschläge" (ADR-129). The confirm screen lists each team's undecided proposals through `open_suggestions(p_team_id)` (0097: team members only, active access, nothing confirmed); day-plan lines are `ai_suggestions` rows of `plan3_day_proposal` (0109), so they are listed there too. Nothing on `/team` says that values wait.
+
+**Decision:**
+1. **Count from the same reader, no new read (PLAN3-12 "no new read"):** `getOpenSuggestionCount(teamIds)` in `features/ai/queries.ts` calls `open_suggestions` as the signed-in member for each team of her own case list (`team_cases`, already loaded by `/team`; the confirm screen derives its teams the same way) and keeps only the number of rows. No row, name or visit leaves the function. No migration, no new RPC, no grant.
+2. **Text (pure, `features/ai/labels.ts`):** `suggestionsLink(n)` gives "Vorschläge (<n>)" with `aria-label` "<n> offene Vorschläge" for n ≥ 1 and plain "Vorschläge" without `aria-label` at 0. Same link styling as before: no colour, no badge, no deadline word (H-20: a count must not push a bulk confirm).
+3. **Failed read:** `countOpenSuggestions` returns `null` as soon as one team's read failed (never a partial sum); the link then reads plain "Vorschläge" and a `warn` event `plan3.suggestion_count_failed` is logged. `/team` does not fail because of the count. A missing count is never shown as a number (as RLS4-C3, ADR-138).
+4. **Read in parallel** with `getLeaverOpenReports` after the existing `Promise.all`, because it needs the case list's team ids.
+
+**Trade-offs:** one `open_suggestions` call per team on every `/team` load (members are usually in one or two teams). A dedicated count function would be cheaper but is a new read surface, which the brief rules out.
+
+**Deviations / notes for the PO (and `uxa`):**
+1. *e2e steps:* the brief's "(5) → after one confirm (4)" is shown as "(5)" after the ask, "(2)" after the ticked confirm of three (the `cra`-evidenced CGR-78 (b) case is kept unchanged) and "(1)" after one more confirm (the 12:00 correction). The refused 08:15 line still counts (it stays open). "A member of another team" is `pflege.test` (Testorganisation A, no open proposal): plain "Vorschläge", no `aria-label`.
+2. *Wording:* the brief's `aria-label` "<n> offene Vorschläge" is built as written, also for n = 1 ("1 offene Vorschläge"; grammatical singular would be "1 offener Vorschlag"). OPEN for `uxa`/`po`; a one-line change in `suggestionsLink`.
+3. *"99+" cap* (`uxa` benchmark, UX_REVIEW line 345) is not in the brief and not built. PLANNED only if the PO adds it.
+4. *Expired proposals:* until AIG1-C4 (#814) is merged, `open_suggestions` still lists proposals of past visits, so the count includes them, exactly as the confirm screen lists them. The count follows the screen when #814 lands (no change here).
+5. Whether `/field` carries the count stays OPEN (UX2), as the brief says.
+
+**Clinical gate:** PLAN3 is in scope. Latest `cra` section read (2026-11-05 17:30) and the 2026-10-31 section that reviewed PLAN3-12 as worded: "no objection". No finding applies to this slice; H-20 control (no push towards a bulk confirm) kept by decision 2.
+
+**Not set by this:** any clinical rule, threshold or deadline. No AI service. The live project is not touched (D-1).
+
+**Checked by me (not CI):** `npm ci` failed again in this session (registry unreachable, npm "Exit handler never called"), so vitest, typecheck, lint, build and e2e were **not** run with the project's toolchain. The two pure functions were run once under Node type stripping with a minimal script (7 assertions, all passed) and the wiring checks of the vitest file were run as plain string checks (passed). CI is the test runner.
+
+**Rollback:** revert the PR (no migration, no seed change).
+

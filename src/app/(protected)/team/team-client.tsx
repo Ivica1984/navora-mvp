@@ -7,6 +7,7 @@ import type { LeaverOpenReport } from "@/features/contract-end/queries";
 import type { TeamAdmissionView } from "@/features/admission/queries";
 import Link from "next/link";
 import { PAGE_LABEL } from "@/lib/auth/nav";
+import { suggestionsLink } from "@/features/ai/labels";
 import SignalBanner from "@/components/signals/SignalBanner";
 import OverlapNote, { OverlapAfterSave, slotFromForm, useOverlapNote, type OverlapSlot } from "@/components/visits/OverlapNote";
 import { overlapAfterSave, overlapNote } from "@/features/visits/overlap-rules";
@@ -83,6 +84,7 @@ export default function TeamClient({
   successorItems = [],
   assessments = {},
   instruments = [],
+  openSuggestions = null,
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
@@ -111,7 +113,10 @@ export default function TeamClient({
   assessments?: Record<string, CaseAssessments>;
   /** ASM1-6: the organisation's instrument entries. */
   instruments?: Instrument[];
+  /** PLAN3-12 (ADR-148): open proposals of the caller's teams; null when unknown (the link then reads plain "Vorschläge"). */
+  openSuggestions?: number | null;
 }) {
+  const suggestionsEntry = suggestionsLink(openSuggestions);
   const gpByCase = latestNoticeByCase(gpNotices);
   const open = offers.filter((o) => !o.my_team_declined);
   const declined = offers.filter((o) => o.my_team_declined);
@@ -128,9 +133,9 @@ export default function TeamClient({
           <Link href="/field" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
             {PAGE_LABEL.field}
           </Link>
-          {/* AIG1 part (b) (ADR-129): the team's open proposals, confirmed value by value. */}
-          <Link href="/team/vorschlaege" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
-            Vorschläge
+          {/* AIG1 part (b) (ADR-129): the team's open proposals, confirmed value by value. PLAN3-12 (ADR-148): with their count. */}
+          <Link href="/team/vorschlaege" aria-label={suggestionsEntry.ariaLabel} data-testid="suggestions-link" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
+            {suggestionsEntry.text}
           </Link>
           {/* PLAN3 part (b) (ADR-147): the team asks for a day plan and confirms it line by line. */}
           <Link href="/team/tagesplan" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
