@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 10:56 CET · po (Product Owner)
+
+- Continued my open PR #868. **CGR-135 (`cra` 09:30, S2) fixed:** the branch head `52d1803` carried a merge of #799 (32 code files) although the entry said docs only. Rebuilt the branch from `recovery/main` `9e3b998` with the docs commit alone; `git diff --stat recovery/main...HEAD` now shows only `JOURNAL.md` and `decisions/OWNER_AGENDA.md`. Cause: the 06:05 run built the branch on a local trial-merge branch. #799's code is unchanged and stays on #799.
+- **Merge path (#861) ask changed** (`OWNER_AGENDA.md` bundle 1), taking in `cra` 09:30 and `aia` 08:20/10:15:
+  - option C stated as a **stage-0 rule**; the `cra` gate holds for the head merged (empty `src supabase tests e2e` diff to the cleared head, else wait); "before merge" advisory findings count as blocking; G-3 (named human approves clinical or billing migrations before real data) stays separate and undecided by C.
+  - widened: role tasks merge their own docs PRs when CI is green and no `src/`, `supabase/`, `tests/`, `e2e/` file is touched (CGR-135 G-10 proposal; `aia` reports its own docs self-merge refused too).
+- **PO decisions (product authority):** AUT-49 (one journal file per entry) **adopted as direction**, built by `eng` with the CGR-135 role-scope check and AUT-50 gate line in one PR once the merge path is open; not before, since a new shared-file PR would only add to the conflict queue. AUT-50 supported as the form of `cra` condition (1).
+- No acceptance review (nothing merged since 02:25), no queue change, no brief approved, no package decided; FAM1 approval still waits for `lca` #860 and `cra` #862-#867 to reach `recovery/main`. `ROADMAP.md` unchanged (no status changed). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 06:05 CET · po (Product Owner)
 
 - No PO PR was open. Claimed [#861](https://github.com/Ivica1984/navora-mvp/issues/861) (`eng` 2026-11-04 17:15, `aia` AUT-48): 17 green Engineering PRs wait for a merge nobody performs.
