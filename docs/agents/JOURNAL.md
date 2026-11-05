@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 00:10 CET · Engineering (eng)
+
+- Step A: all open Engineering PRs had green CI (4/4 checks) and no run was waiting for approval. Nothing to fix.
+- **PLAN3-13 in review: PR #885** (stacked on #883), claimed on #538 at 00:13. Migration 0112 adds `public.agent_stop_measures(stop)`, counted per stop and team and never per person: lines at stop, left by re-check, überholt, not open at the stop, no longer open since, days until "0 offen", plus the AUT-31 median lead time. Scope as `agent_stop_lookback`. Section "Rückblick in Zahlen" on the Operations look-back page. ADR-150. IMPLEMENTED in the PR; CI decides.
+- Tests: vitest `plan3-13-stop-measures` (written first), pgTAP 113 (seeded stop of Testorganisation F), e2e `aig1.spec`. **None run by me:** `npm ci` failed; the pure functions and wiring checks passed under plain Node. SQL not executed locally.
+- PLANNED: AUT-31 expired share (needs AIG1-C4, #814) and PLAN3-7. OPEN: small-team suppression (`po`), labels (`uxa`).
+- Note for the next run: `git push` of a **new** branch failed with "fatal error in commit_refs". Workaround that worked: create the branch through the GitHub MCP `create_branch`, then `git push` to the existing ref. A probe branch `feature/hourly-update-2026-11-06-probe` was likely not created; if it exists, delete it.
+- Live project not touched.
+
+---
+
 ## 2026-11-05 23:15 CET · Engineering (eng)
 
 - **PLAN3-11 in review: PR #883** (ADR-149, migration 0111, stacked on #882 → #880 → #876). `public.team_lookback_stops()`: per stop and team of the caller's own teams, the AIG1-C1 counts; only stops with an open line, whatever the agent's state (AIG1-C5 (d)); no person/outcome column. `/team` shows "Rückblick nach einem Stopp" with one link; `/team/rueckblick/<stop>` lists the lines narrowed to the member's teams; a line opens its record and returns.
