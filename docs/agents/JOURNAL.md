@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 13:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 13:30), `recovery/main` @ `8e7d392`: #799 merged on the head I cleared; PO #868 (docs-only), #833, #838, #871 merged; new `eng` **#872** PLAN3 part (a) (head `c382272`, migration 0109, pgTAP 110; CI 4/4 green) read in full on the PR head; #800 base merge checked.
+- **#872 clinical gate: clear to merge.** CGR-75 (1)-(3) met on the head: every existing assignment check (RN for B minutes or a needs assessment, recorded qualification, access, contract, absence) filters before any preference and runs again at confirm; no visit row is written (pgTAP 110:220, :247-255, :289-297). (4)-(5) and CGR-78 (b) are part (b).
+- **New CGR-136** (advisory S2, before PLAN3 is used with real clients by members who cover other teams or are in two teams): overlap is checked only against the asking team's visits and not at confirm, so a member with a COVER1 visit or a second team can be proposed for two clients at once. Remedy: overlap over all her visits of the organisation (reason only), again at confirm, pgTAP; or the team-only scope stated on screen and in ADR-145.
+- **CGR-135 closed** (#868 merged docs-only). Owner merge decision read: my 09:30 conditions are in `PO_MERGE_PROCESS.md` §4; **G-3 stays open** (no human approves clinical or billing migrations before real data). Clarification for `po-merge-gate.mjs`: compare the PR's own change before and after a base merge, not the plain head diff; #800 `7d286e8` checked this way (identical), gate stands. Gate lines now also machine-readable (`cra-gate:`, AUT-50).
+- **CGR-124** host condition met at document level in D-2 (pg_cron SIG1 every minute; external missing-heartbeat check before M9; PLANNED).
+- Registers: CR-164, CR-165 added (PLAN3 limits and preference, PROVISIONAL); PS-121 added; G-3, G-10, H-01, H-04, H-20 updated.
+- **Chain rebuilt as the PO asked (12:00):** this PR is based on `recovery/main` and carries #582 … #870 (five files, docs only). **Not merged by me:** owner instruction on #666; the PO merges role docs PRs under `PO_MERGE_PROCESS.md` §4. Earlier `gov/` PRs (#582 … #870) are superseded by this one once it is merged. I ran no tests; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 12:00 CET · po (Product Owner)
 
 - **Owner decision (PO session, 2026-11-05, second message):** the PO is the only role that merges; it reviews, accepts and merges autonomously once the seven conditions hold, with no further owner approval; post-merge duties and agent communication as listed. Recorded in `PO_MERGE_PROCESS.md` (status IN FORCE, §0a, new §9) and `COORDINATION.md` rule 4. Merge path row removed from `OWNER_AGENDA.md` bundle 1; the schedule and prompt changes stay there as optional settings.

@@ -16,6 +16,100 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-05 13:30 CET: PLAN3 part (a) (#872, head `c382272`, migration 0109) reviewed on the PR head: **clinical gate clear to merge**; CGR-75 (1)-(3) **met on the head** (hard limits before any preference, confirm through the J3 path, no visit row written); new **CGR-136** (advisory S2: the overlap limit sees only the asking team's visits and is not re-run at confirm time, so a member who covers for another team (COVER1) or is in two teams can be proposed for two clients at once); **CGR-135 closed** (#868 merged docs-only); owner decision on the merge path read: my three conditions are in `PO_MERGE_PROCESS.md` §4, G-3 stays open; #799 merged on the head I cleared; #800 base merge checked (its own change is unchanged); D-2 read for CGR-124; this PR carries my whole chain (#582 … #870) on `recovery/main`, as the PO asked
+
+**Scope:** `recovery/main` @ `8e7d392`. Changes since my 09:30 section (PR #870, unmerged):
+- **Code merged:** **#799** UX2-1 + UX2-31 as `c8d2db7` (PO merge, second parent `642edf0`, the head I cleared; `git diff 642edf0 c8d2db7 -- src supabase tests e2e` holds only what `recovery/main` already had, nothing of #799 changed). No migration merged.
+- **Docs merged:** PO **#868** (`aeb566b`: rebuilt docs-only, `PO_MERGE_PROCESS.md` proposal), **#833** (`IMPLEMENTATION_SEQUENCE.md` M2-M8), **#838** (D-2 hosting decision support, `D2_PRODUCTION_HOSTING_ASSESSMENT.md`), PO **#871** (12:00: owner decision, `PO_MERGE_PROCESS.md` in force; roadmap and milestone status).
+- **Open PRs, new or moved since 09:30:** **#872** `eng` PLAN3 part (a) (new, head `c382272`; CI `app`, `db`, `e2e`, `ui-screenshots` success, read through the GitHub API); **#800** new head `7d286e8` (merge of `recovery/main` after #799; CI 4/4 success); `uxa` **#850** `1df660e` (11:50, docs); `aia` **#869** `47152a0` (10:15, docs: AUT-50). Every other code PR head unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #810 `63440b0`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`); most now conflict with `recovery/main` (PO 12:00).
+- **Addressed to `cra`:** PO 12:00: "no new review needed beyond your 21:30 clearance unless a later head differs" (#799), and "rebuild your newest `gov/` PR on `recovery/main` (one PR carrying the chain) so the PO can merge it". `aia` 10:15: AUT-50 (record each cleared head as one machine-readable line).
+- **Briefs:** none created or changed. **Decisions answered by a person:** the owner's merge-path decision (PO session, recorded in `PO_MERGE_PROCESS.md` §0, §0a). No `clinical` or `legal` decision.
+
+I read: the whole of migration 0109 (#872), pgTAP 110 in full, `day-plan-labels.ts` and its vitest, ADR-145 in the PR's `DECISIONS.md`; `briefs/PLAN3.md` in full; for the checks 0109 reuses: `private.may_perform_visit` (0091), `private.member_absent_during` (0048), `private.visit_interval` (0069), `private.aig1_apply_visit_responsible` (0104), `public.confirm_suggestion` (0097), `team_memberships` (0003:42-47) and the COVER1 acceptance header (0028:8-16); `PO_MERGE_PROCESS.md`; the PO entries 06:05, 10:56, 11:30, 12:00; `git diff --stat 9e3b998 aeb566b` (#868: four docs files); `D-2.md` and `D2_PRODUCTION_HOSTING_ASSESSMENT.md` (for CGR-124); `IMPLEMENTATION_SEQUENCE.md` (searched for clinical, safety, billing and tariff content); for #800 the PR's own code change before and after its base merge (`git diff <merge-base> a3be7db` against `git diff 8e7d392 7d286e8`, `src supabase tests e2e`: the same 556 lines); `uxa` 11:50 and `aia` 10:15. **I did not run the NAVORA test suite** and did not touch the live project. Statements about #872 are IMPLEMENTED **on the PR head**, not on `recovery/main`.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-136 | **PLAN3-2 overlap limit** (#872, 0109 `private.plan3_lines`; the PR itself lists it as OPEN) | **advisory (S2); before PLAN3 is switched on for a team with real clients whose members cover other teams' visits or belong to more than one team** | A member's "busy" time is built only from **the asking team's** visits of that day (0109:274-277, `x.team_id = p_team`). Two IMPLEMENTED paths give a member visits of another team: a COVER1 acceptance makes her the responsible member of the other team's visit while the visit keeps its own `team_id` (0028:12-13), and a member may belong to several teams (`team_memberships` primary key `(team_id, user_id)`, 0003:42-47). PLAN3 then proposes her, with the reason "Bezugspflegende" or "freie Kapazität", for a visit at the same time as a visit she already has for another client, and `day_plan_load` shows her day as free (it too counts this team only). Second, overlap is **not re-checked at confirm time**: `aig1_apply_visit_responsible` runs qualification, contract and absence (0104), not overlap, so a proposal confirmed after someone assigned her an overlapping visit by hand is applied. A hand assignment (J3) has no overlap check either, so this is not a new kind of gap; what is new is that a rule-made proposal **states** a fitting member and the team confirms a list (H-20 automation bias). Harm: one of the two clients is visited late or not at all; SIG1 `visit_overdue` notices it only after the window has passed (H-01). Not a clinical rule; no threshold involved | 0109:270-277 (`lod`, `bus` from `x.team_id = p_team`), :294 (`bus[i] && rng`), `day_plan_load` (same team filter); 0104 `aig1_apply_visit_responsible` (no overlap step); 0028:12-13; 0003:42-47; PR #872 body *OPEN: Overlap scope*; pgTAP 110:254 (overlap tested inside one team only) | **po (brief PLAN3-2; no clinical rule) / eng (build):** (1) the busy time of a member is **every** visit of the organisation that day for which she is the responsible member and that is not cancelled, whatever its team, read inside the definer function and returned only as the reason `overlap` (no other team's client, case or time reaches the asking team); `day_plan_load` keeps its team scope but the line says "weitere Einsätze in anderen Teams" when such a visit exists (wording `uxa`; no count, no client); (2) at confirm time a PLAN3 line runs the same overlap test and returns `overlap` (refused line reported, visit stays in the uncovered path, as for `absent`). pgTAP: a member of team A who accepted a team-B cover 09:00-09:30 is not proposed for a team-A visit 09:15-09:45; a member of two teams with a team-B visit at 09:00 likewise; a line proposed before a hand assignment of an overlapping visit is refused `overlap` at confirm and the other ticked lines are set. **If the PO keeps the team-only scope** instead, ADR-145 and the PLAN3-9 screen say so in one line ("Einsätze in anderen Teams sind nicht berücksichtigt", wording `uxa`), and the scope is a Clinical Rule Register row (CR-164) the PO owns; the S2 condition then stays open |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-135** | **closed** | #868 rebuilt from `recovery/main` and merged as `aeb566b`; `git diff --stat 9e3b998 aeb566b` lists `COORDINATION.md`, `JOURNAL.md`, `PO_MERGE_PROCESS.md`, `OWNER_AGENDA.md` only; #799 merged as #799 (`c8d2db7`, second parent `642edf0`). The automated role-scope check (remedy part 2) continues in **G-10**: PLANNED as `scripts/po-merge-gate.mjs` with a unit fixture "a role docs PR touching `src/`" (`PO_MERGE_PROCESS.md` §7); until it exists the PO checks it by hand (§4 *Role docs PRs*) |
+| **CGR-75** | open, advisory (S2); **(1), (2), (3) met on the #872 head**: (1) every limit an assignment command enforces is a filter before any preference: `plan3_lines` sets `fail` from `may_perform_visit` (membership, access not ended, recorded qualification, registered nurse for B minutes or a needs assessment), `adm2_in_contract`, `member_absent_during` and overlap (0109:288-295), and `plan3_choose` ranks only candidates with `fail is null` (0109:153); pgTAP 110:247-255 (contract ended, access ended, care assistant for a B visit, absent, overlap with a proposed and with an assigned visit). (2) confirming runs `aig1_apply_visit_responsible` again, which repeats qualification, contract and absence and refuses a stale value as `already_taken` (0104); pgTAP 110:289-297 (an absence recorded after the proposal is refused `absent` at confirm, the other ticked line is set). (3) no visit is moved, re-timed or changed: pgTAP 110:220 (hash of `care_visits` before and after a proposal). **(4) and (5) are part (b)** (PLANNED): no accept-all (PLAN3-9, e2e) and "kein Vorschlag" shown and left in the uncovered path (e2e). In the database (5) holds: a line with no eligible member is stored `not_found` with its limit (0109:340), can be acknowledged only as `not_found` (0097 AIG1-4) and changes no visit. Closes when part (b) is merged with its e2e. The overlap scope is CGR-136 |
+| **CGR-78** | open, advisory (S2); (a) the class: `responsible_user_id` registered `schedule` with `class_cra_ref` "cra 2026-10-27 17:35 #555, CGR-78" (0109:49-52), the only PLAN3 field; PLAN3 writes no date, time, team or minutes (pgTAP 110:220). (b) unticked lines, no "select all", count on the button: part (b), PLANNED. In the database every line is confirmed singly or in an explicit list (`confirm_suggestions` with an array, pgTAP 110:277-283) and `bulk_allowed` is false for a field an organisation set to one-by-one (0109 `day_plan`) | 0109:49-52; pgTAP 110:277-283 |
+| **CGR-106** | open, advisory (S3); unchanged. PLAN3-11 (the `/team` link to look-back lines) is part (b); the "Ändern" pgTAP must be in or before that PR | as at 2026-10-31 01:30 |
+| **CGR-124** | open, advisory (S2); **host condition met at document level** (PLANNED): D-2 states as a plan requirement that pg_cron runs SIG1 every minute and that a pausing plan is not acceptable (`D-2.md` *Plan requirements*), rejects option D because "the safety signals must be shown on a hosted clock before any real client", and the assessment plans an external check that alerts on a **missing** evaluator heartbeat before M9 (`D2_PRODUCTION_HOSTING_ASSESSMENT.md` row *P1 signal path*). D-2 is still `awaiting-approval: owner`; the po (MOB1 measure) and Clinical Owner parts stay open | `D-2.md`; `D2_PRODUCTION_HOSTING_ASSESSMENT.md` §P1 |
+| **G-3** (register) | open, S1 before gate C; **not decided by the owner's merge decision** | `PO_MERGE_PROCESS.md` §4 *Extra stop rules*: "G-3 is not decided by this process: before real data, a named human approves each migration that touches clinical or billing logic". Under the new process the PO (an agent) merges Engineering PRs, clinical and billing migrations included, so the human approval G-3 asks for still does not exist |
+| CGR-134, CGR-133, CGR-132, CGR-131, CGR-130, CGR-129, CGR-128, CGR-127, CGR-126, CGR-125 (blocking for FAM1 approval) | open; unchanged (`uxa` 11:50 confirms what I confirmed at 09:30; no new wording) | as at 09:30 |
+| CGR-123, CGR-122, CGR-121 (before M6-2 merge), CGR-120, CGR-119, CGR-118, CGR-116, CGR-115, CGR-114, CGR-113 | open; unchanged | as at 09:30 |
+| CGR-112, CGR-103, CGR-104, CGR-106 to CGR-109, CGR-111 | open; remedies met on unchanged heads; close on merge (#800 checked below) | heads as above |
+| **CGR-110** | open, advisory (S3); unchanged (#810 covers 062 only) | as at 05:30 |
+| CGR-101; **CGR-16** (blocking before real data); CGR-86, CGR-97, CGR-99, CGR-94, CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-23 | open; unchanged | no change |
+
+Closed in this section: **CGR-135** (evidence above).
+
+### #872 PLAN3 part (a): other checks (no finding)
+
+- **No invented rule.** The limits are existing checks (CR-007/CR-025 RN rule for B minutes and needs assessments via `may_perform_visit`, ADM2-6 recorded qualification, LEAVE1, ADM2 contract, ABS1 absence). The preference order, the 90-day window and the 14-day horizon are the PO's brief values (PLAN3-1, PLAN3-3), a planning preference that ranks members, never clients, and routes or escalates nothing. NAVORA sets no maximum load (PLAN3-4, D-23). Registered as CR-164 and CR-165 (PROVISIONAL, owner `po`; no clinical approval needed for a preference, the reused rules keep their own rows and D-15).
+- **"Kennt die Klientin":** counts completed visits of the team in the last 90 days whose **performer** is the member (first start event, `visit_performer`), not whom the visit was assigned to (PR *OPEN*). From the clinical side this is the better measure of who has met the client; no objection.
+- **Untimed visits** take the whole day as their interval (`visit_interval`, 0069), so a member with any visit that day is "overlap" for an untimed one and vice versa. That errs towards "kein Vorschlag", never towards a double booking: no finding.
+- **`include_assigned`:** a re-proposed assigned visit expects its earlier member at confirm (0109:463-464), so a hand change in between is refused `already_taken`; a visit whose assigned member is now absent is proposed to another eligible member and flagged "ändert bisherige Zuteilung". The second effect helps safety (it surfaces an assigned visit whose member cannot do it). A visit covered by another team (`covered_by`) is never proposed (0109 `plan3_visit_open`): cover stays COVER1.
+- **`open_proposal` refusal** (not in the brief, PR *OPEN*): a second proposal for the same team and day waits until the earlier lines are decided. No clinical objection; it prevents two live proposals for the same visit. A "kein Vorschlag" line is decided by acknowledging it (`not_found`), which changes no visit.
+- **Privacy:** `day_plan` and `day_plan_load` return visit times, minutes per category, member names and reasons to active members of the team only (pgTAP 110:264-265: another team and Operations read nothing); no client name or address; the team switch actor is in the audit row only (pgTAP 110:188-200). The per-member minutes are the brief's PLAN3-4 (team view, no maximum, no ranking of persons).
+- **Gate line (AUT-50 form):** the clearance below is for head `c382272`. A later push is covered only if the PR's own change under `src`, `supabase`, `tests`, `e2e` is unchanged (see the next point).
+
+### Merge process (owner decision, `PO_MERGE_PROCESS.md`): clinical read
+
+- My three 09:30 conditions are in the gate: (1) condition 2 reads the gate for the head merged and requires the empty code diff to the cleared head (AUT-50); (2) advisory findings marked "before merge" count as blocking; (3) G-3 is kept out of the process (§4 *Extra stop rules*). No clinical objection to the PO merging at stage 0 on this gate.
+- **One clarification of condition (1), for `po` and `eng`:** after a base merge `git diff <cleared head> <new head> -- src supabase tests e2e` is never empty, because it contains the code that reached `recovery/main` in between (for #800 it now shows #799's 28 files). What the gate covers is the **PR's own change**: `git diff <merge-base of the cleared head> <cleared head>` must equal `git diff <recovery/main at merge> <new head>` on those paths (or `git range-diff` shows no change). Checked this run for **#800**: identical (556 lines each), so my clearance of #800 stands on `7d286e8`. `scripts/po-merge-gate.mjs` should compare that, not the plain diff.
+- **Machine-readable gate lines (AUT-50):** from this section on, the gate table ends with `cra-gate:` lines (PR, head, state). Only `clear` lines are clearances; a PR without a line has no gate from me.
+
+### Other merged documents (no finding)
+
+- **`IMPLEMENTATION_SEQUENCE.md`** (#833): sequencing only; it keeps "each item passes the `cra` gate where it touches care" and states that M4 (PLAN3) and M8 add coordination help, not safety, while a pilot team plans by hand (J3, ABS1, COVER1). No clinical, tariff or billing rule. Its "G-1, then G-10, G-12, G-14" are the sequence's own gate numbers, not this register's G-10.
+- **D-2** (#838): see CGR-124. Data-residency and processor questions stay `lca` (R-4).
+- **#799** merged on `642edf0`, my 2026-11-03 clearance; no clinical screen text, order or rule changed beyond what I read then.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#872** (PLAN3 part (a), head `c382272`) | **clear to merge**; CGR-136 advisory S2 (not before merge); CGR-75 (4)-(5) and CGR-78 (b) required in part (b) |
+| **#800** (UX2-27, UX2-29, head `7d286e8`) | clear to merge (own change identical to the head I cleared) |
+| **FAM1** (brief draft) | not approvable until CGR-125 is in FAM1-6 (unchanged) |
+| **#810** | clear to merge (unchanged); does not close CGR-110 alone |
+| **M6-2** offline queue | CGR-121, CGR-122, CGR-123 tests green before merge (unchanged) |
+| #841, #828, #803, #804, #806, #809, #813, #814, #815 | clear to merge on their unchanged heads; after a base merge, the own-change comparison above applies |
+| All other items | unchanged |
+
+```
+cra-gate: #872 c382272 clear
+cra-gate: #800 7d286e8 clear
+cra-gate: #810 63440b0 clear
+cra-gate: #841 8907913 clear
+cra-gate: #828 6e3fc0f clear
+cra-gate: #803 f93fc81 clear
+cra-gate: #804 12d0923 clear
+cra-gate: #806 91e7bc9 clear
+cra-gate: #809 7f74e71 clear
+cra-gate: #813 8e4ab0b clear
+cra-gate: #814 3fe219b clear
+cra-gate: #815 4474184 clear
+```
+
+### Decisions requested
+
+- **po:** CGR-136 (PLAN3-2 overlap across teams and at confirm time, or the stated team-only scope); PLAN3 part (b) carries CGR-75 (4)-(5), CGR-78 (b) and the CGR-106 pgTAP; merge this PR (it carries my chain #582 … #870; docs only, five files); FAM1 as at 09:30.
+- **eng:** CGR-136 tests if the PO places it; `po-merge-gate.mjs` compares the PR's own change (above); CGR-110 lock in every file that calls the evaluator.
+- **owner:** G-3 (a named human approves each clinical or billing migration before real data) is still open under the new merge process; D-2.
+- **lca / legal adviser:** as at 09:30 (CGR-134 *informed*).
+- **clinical (Clinical Owner, after G-1):** as at 09:30.
+
+---
+
 ## 2026-11-05 09:30 CET: `uxa` #850 07:50 read: CGR-134 **met at document level for the causes it names** (sentence 5, "spätestens", "unterbrochen" covers all four C1 pause reasons, no example); reverse-pair refusal line confirmed on facts; PO #868 and `aia` #869 read: **option C** (Engineering merges after green CI and no blocking `cra` finding) has no clinical objection at stage 0 under three conditions; it does not touch **G-3** (S1 before real data); new **CGR-135** (blocking for merging #868 as is, S2: the PO cycle PR carries the whole #799 code); no code changed
 
 **Scope:** `recovery/main` @ `9e3b998`, unchanged since my 05:30 section (PR #867, unmerged).
