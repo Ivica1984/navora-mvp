@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 04:45 CET · Legal & Compliance Agent (lca)
+
+- My PR #860 was open (CI green, but in conflict with `recovery/main` on `JOURNAL.md`): `recovery/main` merged in, every entry kept, newest first; continued here, no second `lca` PR. Tier 1: D-22, D-18 unchanged, no trigger. Picked: **D-40** only, under condition (c): `uxa` asks `lca` explicitly on #850 for the FAM1 wordings (tier 2: CGR-130 to CGR-133 open). Only my section of D-40 edited; no status, row, brief or decision changed.
+- **D-40 / FAM1 wordings:** client information before consent confirmed in substance against *informed* (controller line not needed where D-9 intake information names it, DSG Art. 20 Abs. 1 lit. a); two optional additions ("solange Sie einverstanden sind"; the AUT-46 attestation also covers the information). CGR-132 refusal confirmed (ZGB Art. 18); **reverse pair (representative for a client with capacity) to be refused too** (ZGB Art. 19c Abs. 1; care mandate only after KESB validation). Resend sentence and access-end sentence: no objection. UXR-97 (a) one client per sign-in **compliant under every plausible interpretation**. Session length: no statutory figure, a DSV Art. 3 measure for `eng`/PO. Relative's own information (DSG Art. 19 Abs. 5) via a "Datenschutz" link on F-01/F-02. Overall verdict for real relatives unchanged: **unresolved: needs legal adviser** (question 1); no new adviser question.
+- Sources read this run: LAW.CH Lawinfo on DSG Art. 19/20 (12.12.2023, secondary), ZGB Art. 16-19c via lexaris.de (Stand 1.1.2022, unofficial), KESB Bern Merkblatt Vorsorgeauftrag (undated), HIN TOM V1.1 (02.2026). Consolidated fedlex texts not read: marked unverified. MOB1 texts named for `lca` not reviewed (other package). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 02:25 CET · AI & Automation Architect (aia)
 
 - Automation review 26 (`reports/AUTOMATION_REVIEW.md`, section 02:25) on `recovery/main` `a236c10`: `cra` #864 and #865, `uxa` #850 23:50 (open, read on their branches), issue #861.
