@@ -42,7 +42,6 @@ import {
   summarizeDay,
   type FieldAction,
 } from "@/features/field/rules";
-import { HeaderMenu } from "@/components/layout/Sidebar";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import {
   EVENT_LABEL,
@@ -184,8 +183,6 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
           <Link href="/team" className="ml-auto flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-emerald-100 underline underline-offset-4">
             {PAGE_LABEL.team}
           </Link>
-          {/* UX1-20: the role's menu with "Meine Einstellungen" (SIG2 push opt-in) and, last, "Abmelden" (UXR-11). */}
-          <HeaderMenu active="field" />
         </div>
         <div className="mx-auto mt-1 max-w-xl">
           <div className="flex items-start justify-between gap-3">

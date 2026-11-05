@@ -8,6 +8,8 @@
 
 **Status labels:** IMPLEMENTED (exists, synthetic data only) · PLANNED · OPEN (needs a decision) · UNKNOWN.
 
+**Superseded doctrine (`aia` 2026-11-03 14:40):** the design order of this review ("graph-first, agents at the edges", §1, §7) is replaced by the owner's AI-first method and its mandatory human-in-the-loop sequence in [`AI_FIRST_ARCHITECTURE_UPDATE.md`](AI_FIRST_ARCHITECTURE_UPDATE.md) §0 and §3 (PO #822, owner directives 2026-11-03). The controls in §8 and §12 remain in force and apply to every agent of the update's ten domains.
+
 **Boundaries this review keeps.** It does not weaken them; it designs around them.
 - No clinical, PAG, MQI or LTCF rule is invented, and no licensed instrument is reproduced (D-13 B, D-24).
 - Any AI that **interprets clinical content** to produce information for an individual's care is D-34 level **H**. It lives in a separately qualified module, after the regulatory adviser's answer and the Clinical Owner's approval (D-34 module rule, [Intended Purpose Assessment](../agents/reports/D34_INTENDED_PURPOSE_ASSESSMENT.md)).
@@ -381,6 +383,32 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 
 **Measure acts, not only spans (AUT-33, OPEN; `aia` 2026-11-03 08:20):** AN3 (P-19, draft, PO 2026-11-03 06:30) answers AUT-32 with per-step spans. An elimination removes acts (a countersignature, an order task, a hand-set responsible member, a changed proposal), so the baseline also counts recorded acts per 100 completed visits per team and month, from rows NAVORA already writes; one definition per measure (AUT-34: the countersign span is `countersign_latency_hours`, F6R-9). Minutes per act stay UNKNOWN until observed.
 
+**Human acts per proposal do not rise (AUT-38, OPEN; `aia` 2026-11-03 14:40):** under the mandatory sequence (update §3), review and decision are one act by the named confirmer with sources and "nicht gefunden" in view, unless a law or the Clinical Owner requires a second person; a signature is named only where one exists or is legally required. Each brief states the human acts per proposal before and after; the count is measured per team (AUT-33), never per person.
+
+**Contract before switch-on, harness before provider (AUT-37, OPEN; `aia` 2026-11-03 14:40):** every agent in the AIG1 register carries its contract (update §5.1) before it can be switched on, and each agent version runs its synthetic evaluation set in CI against its written stop threshold. The model-call pipeline, minimisation step and provider adapter are designed with the D-35 stage-1 package, not before.
+
+**Rank by recoverable time (AUT-36, OPEN; `aia` 2026-11-03 14:40):** the opportunity ranking shows the bottleneck-map rank beside the value order; the largest estimated bottleneck (travel and day order) has a stage-0 candidate on synthetic geography (AUT-5), pending the owner's allowed list and Q7.
+
+**Stage-0 state (2026-11-03 14:40):** AIG1-C4/-C5 built on #814 (open; AUT-30 met on head); AN3 approved; allowed on synthetic data: PLAN3, AN3, AIO1, OPS2, HAND2 (owner 14:00); D-39, D-40 frozen.
+
+**An answer goes where the question arises; a read is not a proposal (AUT-40, OPEN; `aia` 2026-11-03 20:30):** an assistant screen is added only for an intent no existing screen can answer (at stage 0 none: the four M6 intents of domain 10 read only `field_visits`, `field_since_last`, `team_open_visits` and `field_reports`, which C-01, the visit card and the absence flow already show). The AIG1 ledger records proposals with a target field and a confirmer, never reads, so the correction rate per agent and field stays the stop rule. Domain 10 (A-catalogue row "AI Nurse Assistant", update §5) returns as an entry point with the first language intent (A7 dictation, A9 drafting; D-35 stage 2, D-34 module).
+
+**Stage-0 state (2026-11-03 20:30):** Delivery Program M1-M10 merged (PLAN3, AN3 in M4 2026-12-18; AIO1, OPS2, HAND2 in M8 2027-02-19; PO targets); AN3 built on #841 (AUT-34 met, AUT-33 open); AIR1 guards for the prohibitions on #828; AIG1-C4/-C5 on #814; all open, none merged.
+
+**AUT-40 decided (PO 2026-11-03 22:00):** no assistant screen at stage 0; reads never enter the ledger (M6 pgTAP criterion). The control above is adopted; status PLANNED until M6 is built.
+
+**A time recorded without a connection enters billing only through the audited correction path, without an extra act (AUT-41, OPEN; `aia` 2026-11-04 02:20):** a timeline tap made offline is queued as a reasoned F3 correction with the device time as the claimed time and a preset reason set by the command kind, so the nurse does not re-type times from memory after reconnecting; the server time stays the server time (`cra` CGR-122 (2), (3)). Whether the device time is the documented time: Clinical Owner with `lca`, UNKNOWN. No AI involved.
+
+**AUT-41 state (PO 2026-11-04 06:10):** adopted as the target design (`DELIVERY_PROGRAM.md` §0c (3), ADR-143 1b), gated on the Clinical Owner with `lca` (which time is the documented time of an offline visit) and `cra` (offline corrections told apart by reason kind); until then CGR-122 (1): timeline commands are never queued. The offline share per team and month is measured first (pilot hypothesis).
+
+**Nothing that raises a safety signal waits in a queue; no act with one possible outcome (CGR-123, AUT-42, AUT-43; `aia` 2026-11-04 08:18):** no-show, broken-off visit and absence are never queued (PO §0c (2)); the escalation is a phone call now, and membership of the never-queued list is derived from the migrations by a failing test, not reviewed by hand (ADR-143 1d). An entry refused only for a device clock ahead of the server is resent once automatically without the device time, with "Gerätezeit verworfen" recorded and shown (AUT-42, OPEN, `cra` and `eng` to confirm); a mandatory tap with a single outcome is not a control. The double report of an offline no-show (call, then the entry) is measured from stored spans before any design (AUT-43, low).
+
+**A relative's view is rule-based and costs the team one act (D-40, FAM1; AUT-44, AUT-45; `aia` 2026-11-04 14:20):** the owner excluded AI from the relative path; no agent, suggestion row or AIG1 path may reference the relative principal (FAM1-12, AIR1 pattern). Recording a relative's consent is proposed as the same act that invites her (AUT-44, OPEN), and the pilot gain is measured without a running count of calls by nurses (AUT-45, OPEN). D-39 decided A: no sensor or prediction agent at any stage of the pilot.
+
+**No derived consent, no periodic re-confirmation (CGR-130, AUT-46, AUT-47; `aia` 2026-11-04 20:20):** a relative consent's capacity fact is an explicit act of the recording RN; no AIG1 path writes the consent record, and no function reads assessment, diagnosis or AI output to set, pre-fill, check or revoke it (CGR-130 (2), AIR1 pattern). A consent question with one possible answer is stated, not asked (AUT-46, OPEN). A later capacity re-check, if the Clinical Owner sets one, appears as an exception line on events already recorded, never as a calendar re-confirmation of every consent (AUT-47, OPEN).
+
+**Stage-1 checklist (D-34, `lca` 2026-11-04 05:20; PO 06:10):** the eleven minimum AI-provider terms and the stage-1 contents list are the checklist for D-35 stage 1 when the owner opens it; domain 10 "no open clinical Q&A" is a tested technical limit. Stage 1 not opened; D-39 and D-40 escalated with recommendation A.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -404,3 +432,10 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-10-31 02:40 | `aia` | §12: AIG1-C1/-C2/-C3 state (IMPLEMENTED, AUT-29 closed); added the control "a stop's follow-up ends with its open lines, not with the agent's state" (AUT-30) and the expired-proposal control (AIG1-C4, AUT-31). No agent added or removed |
 | 2026-11-03 02:40 | `aia` | §12: one-decision-per-name state (IMPLEMENTED, AUT-27 closed), AUT-30 adopted as AIG1-C5; added the control "measure before automating" (AUT-32). No agent added or removed |
 | 2026-11-03 08:20 | `aia` | §12: AUT-32 answered by the AN3 draft; added the control "measure acts, not only spans" (AUT-33) and one definition per measure (AUT-34). No agent added or removed |
+| 2026-11-03 14:40 | `aia` | Header: doctrine of §1/§7 marked superseded by the AI-first update §0/§3 (controls of §8/§12 stay). §12: added "human acts per proposal do not rise" (AUT-38), "contract before switch-on, harness before provider" (AUT-37), "rank by recoverable time" (AUT-36), stage-0 state. No agent added or removed |
+| 2026-11-03 20:30 | `aia` | §12: added the control "an answer goes where the question arises; a read is not a proposal" (AUT-40) and the stage-0 state after the Delivery Program. No agent added or removed |
+| 2026-11-04 02:20 | `aia` | §12: AUT-40 marked decided (PO 22:00); added the control "an offline time enters billing only through the audited correction path, without an extra act" (AUT-41). No agent added or removed |
+| 2026-11-04 08:18 | `aia` | §12: AUT-41 state (target behind the Clinical Owner gate); added the control "nothing that raises a safety signal waits in a queue; no act with one possible outcome" (CGR-123, AUT-42, AUT-43) and the D-34 stage-1 checklist. No agent added or removed |
+| 2026-11-04 14:20 | `aia` | §12: added the control "a relative's view is rule-based and costs the team one act" (D-40 owner decision, FAM1, AUT-44, AUT-45); D-39 A recorded (no sensor or prediction agent in the pilot). No agent added or removed |
+| 2026-11-04 20:20 | `aia` | §12: added the control "no derived consent, no periodic re-confirmation" (CGR-130 (2), AUT-46, AUT-47). No agent added or removed |
+| 2026-11-05 02:25 | `aia` | No control changed: AUT-46 form and CGR-131 to CGR-133 are single-source wording, covered by the 2026-11-04 controls; AIG1 (#814) and AIR1 (#828) still unmerged (AUT-48, delivery hand-off). No agent added or removed |

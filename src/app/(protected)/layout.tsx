@@ -5,6 +5,7 @@ import { accessStartsText } from "@/features/contract-end/rules";
 import { errorFields, logEvent } from "@/lib/log";
 import { getNavAccess } from "@/lib/auth/nav-access";
 import { NavAccessProvider } from "@/components/layout/nav-access";
+import { AppShell } from "@/components/layout/AppShell";
 
 // Second guard after the proxy: no protected route renders without a valid
 // session. Queries and commands check again themselves (ADR-017).
@@ -41,6 +42,12 @@ export default async function ProtectedLayout({
   }
 
   // UX1-3 (ADR-103): the menu shows only items whose page admits her; the pages keep their own checks.
+  // UX2-1 (ADR-131): one shell (phone tab bar, desktop sidebar) around every protected route; the pages render no
+  // navigation of their own. The access-ended notice above stays outside the shell (no item, LEAVE1-6).
   const access = await getNavAccess();
-  return <NavAccessProvider access={access}>{children}</NavAccessProvider>;
+  return (
+    <NavAccessProvider access={access}>
+      <AppShell>{children}</AppShell>
+    </NavAccessProvider>
+  );
 }
