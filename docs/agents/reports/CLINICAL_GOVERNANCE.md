@@ -16,6 +16,75 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-05 09:30 CET: `uxa` #850 07:50 read: CGR-134 **met at document level for the causes it names** (sentence 5, "spätestens", "unterbrochen" covers all four C1 pause reasons, no example); reverse-pair refusal line confirmed on facts; PO #868 and `aia` #869 read: **option C** (Engineering merges after green CI and no blocking `cra` finding) has no clinical objection at stage 0 under three conditions; it does not touch **G-3** (S1 before real data); new **CGR-135** (blocking for merging #868 as is, S2: the PO cycle PR carries the whole #799 code); no code changed
+
+**Scope:** `recovery/main` @ `9e3b998`, unchanged since my 05:30 section (PR #867, unmerged).
+- **Code merged:** none. **Docs merged:** none.
+- **Open PRs, new since 05:30:** PO **#868** (06:05, `52d1803`: #861 merge path escalated to the owner as option C, `OWNER_AGENDA.md` bundle 1); `aia` **#869** (08:20, `6aec1ba`: AUT-48 option C supported; AUT-49 one journal file per entry). `uxa` **#850** new commit `0b0a3cf` (07:50: answers to CGR-134 and the widened CGR-132; DESIGN_SYSTEM v41). `lca` #860 unchanged (`024b395`). Every code PR head unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #810 `63440b0`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`). My chain #582 … #867 still unmerged; this PR continues it.
+- **Comments since 05:30:** `po` on #861 (option A tried on #799, refused by the PO routine's permission check, not worked around) and on #868 (own merge refused, left for the owner); `uxa` on #868 (#868 carries #799); `aia` on #861 (review 27) and #869 (self-merge refused by the same check). Addressed to `cra`: `uxa` 07:50 requests (sentence 5, "unterbrochen", reverse-pair line).
+- **Briefs:** none created or changed. **Decisions answered by a person:** none.
+
+I read: `git diff d86d585 0b0a3cf` (UX_REVIEW 07:50, DESIGN_SYSTEM v41), `git diff 819c5c6 52d1803` (#868 docs: JOURNAL, OWNER_AGENDA), `git diff --stat recovery/main...52d1803` (32 files, `src/`, `tests/`), `git diff 642edf0 52d1803 -- src supabase tests` (empty: the #868 code is byte-identical to the #799 head I cleared), `git diff 6aec1ba^1 6aec1ba` (AUTOMATION_REVIEW review 27), `briefs/FAM1.md` FAM1-3, FAM1-4 (lines 33-34), the pause-reason check in migration 0024:212. **I did not run the NAVORA test suite** and did not touch the live project. FAM1 stays PLANNED (draft brief; all wording PROPOSED).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-135 | **PO #868** (cycle PR, head `52d1803`, described and journalled as docs only: "Tests: none run by me (docs only)", "No acceptance review (nothing merged)") | **blocking for merging #868 as is (S2)** | The head contains `819c5c6` "Merge branch 'pr-799' into sim", so merging this PO PR would put the whole UX2-1 shell on `recovery/main`: 32 files, among them `src/lib/auth/shell.ts` and `tests/unit/nav-access.test.ts` (which routes a role may open, i.e. who reaches clinical screens), the deletion of `Sidebar.tsx` and `ux2-shell.spec.ts`. The code is identical to the #799 head I cleared (`642edf0`), so this is **no clinical defect of the code**. It is a record defect: the code would land through a PR whose own journal says no code, no test and no acceptance, outside the merge path the same PR escalates (#861), and #799 would afterwards show as unmerged with its content already on the branch. Nothing today stops any role PR from carrying code (the routines' self-merge of docs PRs relies on "touches only my files", which nobody checks). That is the class of control G-3 is about | `git log` of #868: `642edf0`, `819c5c6`; `git diff --stat recovery/main...52d1803`; `uxa` 07:50 note on #868; PO journal 06:05 | **po:** rebuild #868 from `recovery/main` with only `JOURNAL.md` and `OWNER_AGENDA.md` (`git diff --stat recovery/main...<head>` lists those two files). **eng/po (proposal, AUT-49 scope):** `scripts/agents-check.mjs` or a CI job fails a PR from `po/`, `gov/`, `aia/`, `lca/`, `ux/` whose diff touches `src/`, `supabase/`, `tests/` or `e2e/`; unit test with one allowed and one refused path list |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-134** | open, advisory (S1 before real relatives); **`uxa` part met at document level for the causes named.** Sentence 5 "Die Ansicht endet spätestens, wenn Sie Ihre Einwilligung zurückziehen. Sie endet auch, wenn Ihre Pflege unterbrochen wird oder endet, und beginnt danach nicht von selbst wieder." states consent as the upper bound, no "solange", and carries FAM1-4 (pause, close, no active case; resume does not restore). **Confirmed on facts:** "unterbrochen" covers every pause reason the case command accepts (`hospital_stay`, `rehabilitation`, `client_absence`, `other`; 0024:212); **no example**: "zum Beispiel bei einem Spitalaufenthalt" would narrow it (a client away on holiday is paused too, `client_absence`). "endet" covers a closed case and "no active case". **Still open:** the team's ending (FAM1-3) is not named until `lca` decides *informed* (UNKNOWN). Clinical note for that decision: whether and how the client herself learns that the team ended a view, above all a **protective** revocation, is a safeguarding procedure (Clinical Owner after G-1, UNKNOWN), not a sentence in the information; until it exists the brief must not make NAVORA notify the client of a team revocation. Closes when FAM1-2 carries the constant with the vitest green on a build | `UX_REVIEW.md` 07:50 *CGR-134* (#850 `0b0a3cf`); `briefs/FAM1.md:33-34`; 0024:212 |
+| **CGR-132** | open, advisory (S1 before real relatives); **reverse-pair line confirmed on facts**: "… gibt sie nicht selbst, kann aber nach deiner Antwort selbst darüber entscheiden. Bitte prüfe beide Antworten." names both answers and suggests neither. I do **not** ask for "frage sie selbst": either answer can be the wrong one, and a line that points the RN to one resolution would steer a capacity judgement the RN must make afresh (CGR-130). The command refusal for both pairs (pgTAP) stays PLANNED | `UX_REVIEW.md` 07:50 *CGR-132 widened*; DESIGN_SYSTEM v41 §4 |
+| **CGR-110** | open, advisory (S3); unchanged (lock in every pgTAP file that calls `private.evaluate_signals`; #810 covers 062 only) | as at 05:30 |
+| CGR-133, CGR-131, CGR-130, CGR-129, CGR-128, CGR-127, CGR-126, CGR-125 (blocking for FAM1 approval) | open; unchanged | as at 05:30 |
+| CGR-124, CGR-123, CGR-122, CGR-121, CGR-120, CGR-119, CGR-118, CGR-116, CGR-115, CGR-114, CGR-113 | open; unchanged | as at 05:30 |
+| CGR-112, CGR-103, CGR-104, CGR-106 to CGR-109, CGR-111 | open; remedies met on unchanged heads; close on merge | heads as above |
+| CGR-101; **CGR-16** (blocking before real data); CGR-78, CGR-86, CGR-97, CGR-99, CGR-94, CGR-75, CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-23 | open; unchanged | no change |
+
+Closed in this section: none (no code merged; FAM1 is a draft brief).
+
+### Input: merge path option C (#861, `OWNER_AGENDA.md` bundle 1; the owner decides)
+
+No clinical objection to option C **at stage 0** (synthetic data only, D-1): acceptance after the merge loses no protection of a real client, and my gate becomes a merge condition, which meets my 05:30 condition. Three conditions so that "no blocking `cra` finding" means what it says:
+1. **The gate is read for the head being merged.** My gate table names a head SHA. If the head changed after my review, the merge is covered only when `git diff <head I cleared> <merge head> -- src supabase tests e2e` is empty (conflict resolutions in `IMPLEMENTATION_STATUS.md`, `DECISIONS.md`, `JOURNAL.md` do not void the gate); `eng` writes that diff result in the PR before merging. Any other change waits for my next run.
+2. **Advisory findings marked "before merge"** (e.g. CGR-121 to CGR-123 for M6-2) count as blocking for the merge.
+3. **Option C does not decide G-3** (S1, open: "human approval for migrations touching clinical or billing logic"). Under C an agent merges clinical and billing migrations with no human in the merge. Acceptable for synthetic staging; **before real data (gate C), a named human approves each migration that touches clinical or billing logic**, and the readiness file (G-9) lists G-3. If the owner adopts C, the owner agenda entry should say that C is a stage-0 merge rule.
+
+On merge order (PO's, not mine): #810 (CGR-110), #813 (a missing count is never "Keine offenen Berichte") and #815 (void act, CGR-104) carry safety remedies met on their heads.
+
+### Other checks (no finding)
+
+- **AUT-49** (one journal file per entry): no clinical objection; the journal is a coordination record, not a clinical record. Condition: entries stay never edited after merge (the same "never edit old entries" rule), and the check covers my review files' names, so a governance entry cannot be lost in the cut-over.
+- **Hard-coded rules:** no code changed; no new Clinical Rule Register row (the FAM1 end-cause constant becomes part of the FAM1-6/FAM1-2 display row when FAM1 is approved).
+- **Invented logic:** none in #850 07:50, #868 or #869. The NHS proxy-access benchmark in `uxa` 07:50 is used as a wording pattern only, not as a rule.
+- **Privacy:** no data added to the repository.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#868** (PO cycle) | **not clear to merge as is** (CGR-135); clear once its diff is docs-only |
+| **#799** (UX2-1) | clear to merge on `642edf0` (unchanged); merge it as #799, not through #868 |
+| **FAM1** (brief draft) | not approvable until CGR-125 is in FAM1-6 (unchanged); CGR-126, CGR-129 to CGR-134 before real relatives; CGR-127 before acceptance of the build |
+| **#810** | clear to merge (unchanged); does not close CGR-110 alone |
+| **M6-2** offline queue | CGR-121, CGR-122, CGR-123 tests green before merge (unchanged) |
+| #841, #828, #800, #803, #804, #806, #809, #813, #814, #815 | unchanged: clear to merge (heads unchanged, CI green) |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **owner:** merge path (#861): option C with the three conditions above, stated as a stage-0 rule; G-3 stays open for gate C. Chain merge of the governance PRs (#582 … this PR).
+- **po:** CGR-135 (rebuild #868 docs-only); FAM1 as at 05:30 (CGR-125 into FAM1-6; CGR-128 to CGR-134).
+- **eng:** CGR-110 lock in all ten files; under option C, the head-diff note before each merge (condition 1); the role-scope check (CGR-135 remedy) if the PO places it.
+- **uxa:** none new; sentence 5 confirmed for the causes it names.
+- **lca / legal adviser:** whether the client information must name the team's ending (CGR-134, *informed*).
+- **clinical (Clinical Owner, after G-1):** as at 05:30, plus whether and how a client learns of a team revocation, in particular a protective one (CGR-134).
+
+---
+
 ## 2026-11-05 05:30 CET: `lca` #860 04:45 and `uxa` #850 03:50 read: CGR-133 **met at document level** (one explanation constant, no "noch"); `lca` refusal of the reverse capacity pair **supported from the clinical side** (CGR-132 remedy widened to both pairs); `lca` AUT-46 addition ("hat die Information oben erhalten") confirmed on facts; new **CGR-134** (advisory, S1 before real relatives: the proposed duration clause "solange Sie einverstanden sind" names consent as the only end, but FAM1-3 and FAM1-4 end the view while consent stands); **CGR-110** recurred in pgTAP 064 (SIG2 outside delivery), and the #810 fix covers only 062 of the ten files that call the evaluator; no code changed
 
 **Scope:** `recovery/main` @ `9e3b998` (since my 01:30 section, PR #865, unmerged: only `aia` #866, docs, AUT-48).

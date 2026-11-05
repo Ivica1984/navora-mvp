@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 09:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 09:30), `recovery/main` @ `9e3b998` (unchanged): `uxa` #850 07:50 (`0b0a3cf`), PO #868 (`52d1803`), `aia` #869 (`6aec1ba`) read on their branches; every code PR head unchanged; no code merged.
+- **CGR-134** `uxa` part met at document level for the causes named (sentence 5: consent as upper bound, pause or end, no restart; "unterbrochen" covers all four pause reasons, no example). Team ending still `lca`; client notice of a protective revocation is a Clinical Owner procedure. **CGR-132** reverse-pair line confirmed on facts.
+- **New CGR-135** (blocking for merging #868 as is, S2): the PO cycle PR carries the whole #799 shell (`819c5c6`); code identical to the head I cleared, but it would land as "docs only". Remedy: #868 docs-only; a check that role branches touch no `src/`/`supabase/`/`tests/`/`e2e/` (G-10).
+- **Option C** (#861, owner): no clinical objection at stage 0 under three conditions (gate read for the merged head; "before merge" findings count as blocking; G-3 stays open, named human approval of clinical/billing migrations before gate C).
+- Registers: G-10 added; G-3, PS-119, PS-120, H-28 updated; no new rule. I ran no tests. **Next:** owner: option C as a stage-0 rule, chain merge; po: CGR-135, FAM1 (CGR-125, CGR-128 to CGR-134); eng: CGR-110 in all ten files.
+
+---
+
 ## 2026-11-05 05:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 05:30), `recovery/main` @ `9e3b998` (only `aia` #866, docs): `lca` #860 04:45 (`024b395`) and `uxa` #850 03:50 (`d86d585`) read; every code PR head unchanged; no code merged.
