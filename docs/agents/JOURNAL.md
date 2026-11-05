@@ -4,6 +4,39 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 16:30 CET · po (Product Owner)
+
+- **Merged my open PO PR #874** (14:50 cycle; head `ccac0f4`, 4/4 green, `clean`, no review thread; conditions 1 and 5 for a PO docs PR) → `7cc0f9f`. **The merge call succeeded in this scheduled run** (IMPLEMENTED fact). It corrects the 14:50 reading only in part: a scheduled Engineering merge is still **UNKNOWN** (refused 14:46 for #800; not tried this run). Recorded in `PO_MERGE_PROCESS.md` §0a; `OWNER_AGENDA.md` bundle 1 "Merge in scheduled runs" no longer urgent, kept until an Engineering merge is proven.
+- **Not merged, condition failed:** after #874 every waiting PR reports `dirty` on `JOURNAL.md` (condition 1): #800, #803, #804, #810, #872 (Engineering); #873/#875 (`cra` chain, #875 contains #873), #869 (`aia`), #860 (`lca`), #850 (`uxa`). **#876** (PLAN3 part (a) + PLAN3-14, `de52f76`, contains #872): mergeable, `e2e` still running, and code after the `cra`-cleared head `c382272` (migration 0110, pgTAP 111), so condition 2 waits for a `cra` gate line on its head (AUT-50).
+- **PO process decision:** within a run the PO merges the next Engineering PR first, role docs PRs next, its own PR last (`PO_MERGE_PROCESS.md` §4 stop rules). This run merged its own PR first as step A reads, which made the queue conflict; from the next run the order above applies.
+- No acceptance review (no Engineering merge since 12:00). No decision package changed (every package in INDEX order frozen, decided or `awaiting-approval`). No new brief (approved, unstarted work remains). No claimable issue (#861 answered; open until scheduled Engineering merges are proven). `ROADMAP.md` unchanged (no status changed). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:**
+  - `eng`: nothing of yours merged. Merge `recovery/main` into #800 first (next merge), then #876; #872 can be closed once #876 carries it (your call). Then #803, #804, #810, #814, #815, #813.
+  - `cra`: #876 needs a gate line on head `de52f76` (PLAN3-14: cross-team busy time, overlap at confirm); #875 needs `recovery/main` merged in.
+  - `lca`: no new regulatory review from #874 (docs). #860 still conflicts: please merge `recovery/main` in.
+  - `uxa`: no screen changed; #850 conflicts on `JOURNAL.md`.
+  - `aia`: #869 conflicts on `JOURNAL.md`; a scheduled docs merge works, which favours AUT-49 (journal file per entry) still more.
+  - `csa`: no milestone moved; delivery risk unchanged (serial `JOURNAL.md` conflicts), slightly lower now that scheduled merges work at least for docs PRs.
+
+---
+
+## 2026-11-05 14:50 CET · po (Product Owner)
+
+- **Scheduled run; merge refused.** Checked the seven conditions of `PO_MERGE_PROCESS.md` §4 on **#800** (UX2-27, UX2-29, head `7d286e8`): CI 4/4 green, `clean`; `cra` 13:30 "cra-gate: #800 7d286e8 clear" (own change identical to the cleared head); no `lca` finding; approved item UX2; 0 review threads; no migration; scope as brief. The merge call (with the head SHA) was **refused by this scheduled session's permission check** ("merge without review"), as at 06:05. I did not work around it and posted no merge record (the call was refused as a whole). The UNKNOWN in §0a is now an IMPLEMENTED fact: scheduled PO runs cannot merge; attended PO sessions can.
+- **Escalated** (`OWNER_AGENDA.md` bundle 1, new row "Merge in scheduled runs", urgent): add the §3 (1) merge paragraph to the PO task's prompt, and if not enough allow the merge call for that task (§3 (2)). Default until then: the PO merges only in an owner-attended session; scheduled runs keep the merge-ready list current in *Active now*.
+- **Merge-ready now (conditions met on the named heads, not merged):** #800 `7d286e8`; `cra` chain #873 `c09169d` (own files only; supersedes #582 … #870); `aia` #869 `ef5439d` (own files only); #872 `c382272` PLAN3 part (a) (`cra` clear); #803 `cf51b75`. Each merge will likely make the next conflict on `JOURNAL.md` (one per run, AUT-49 still PLANNED). All other Engineering PRs: condition 1 fails (`dirty`).
+- **PO decision, PLAN3 (product authority, no clinical rule):** `cra` CGR-136 (advisory S2) taken in as **PLAN3-14**: overlap counts every visit the member is responsible for in any team (reason `overlap` only, no other team's data), and overlap is checked again at confirm. Team-only scope with a screen note rejected (it would leave the cross-team check to the nurse's memory). Required with part (b); PLAN3 is not accepted without it. #872 stays merge-ready.
+- No acceptance review (nothing merged since 12:00). No decision package changed: every package in INDEX order is frozen, decided or `awaiting-approval`; D-37 waits for G-1. No new brief (approved, unstarted work remains). Issues: nothing claimable beyond #861 (answered by the owner; left open until scheduled merges work). `ROADMAP.md` unchanged (no status changed). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:**
+  - `eng`: nothing merged. Keep #800, #803, #872 conflict-free and green; PLAN3-14 is new in `briefs/PLAN3.md` for part (b) (pgTAP cases listed there). Next after a merge: base-merge #804, #810, #814, #815, #813 in *Active now* order.
+  - `cra`: CGR-136 decided as your remedy (1)+(2) → PLAN3-14; no team-only rule row (CR-164) needed. #873 is merge-ready as the chain head; no rebuild needed unless `recovery/main` moves.
+  - `lca`: PLAN3-14 reads another team's visit inside the definer function only to return `overlap`; comment if you see a new processing purpose. #860 still conflicts: please merge `recovery/main` in.
+  - `uxa`: one new wording needed for PLAN3-14: "weitere Einsätze in anderen Teams" (or yours) on the day-load line. #850 still conflicts.
+  - `aia`: #869 merge-ready; the scheduled-merge refusal makes AUT-49/AUT-50 and the gate script more valuable, not less.
+  - `csa`: no milestone moved; delivery risk now also includes merges depending on attended PO sessions (recorded in `OWNER_AGENDA.md`).
+
+---
+
 ## 2026-11-05 16:18 CET · eng (Engineering)
 
 - **Step A:** own PRs: #872, #800, #803, #804 4/4 green and conflict-free on their heads; no bot run waiting. #810 conflicts with `recovery/main` (`IMPLEMENTATION_STATUS.md`, `DECISIONS.md`); next base-merge in *Active now* order. Nothing merged by Engineering.
