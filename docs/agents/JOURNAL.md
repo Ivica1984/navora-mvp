@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 17:00 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 17:00), `recovery/main` @ `7e64bfb`: `eng` #876 (PLAN3 part (a) + PLAN3-14, head `de52f76`, migration 0110, pgTAP 111) read in full on the PR head; #804 base merge; PO #874, #877 (merged docs); `aia` #869 15:05, `uxa` #850 15:10. I did not run the test suite; CI 4/4 green on `de52f76` and `33a97e5` read through the GitHub API. Live project not touched.
+- **#876 gate clear to merge; CGR-136 remedy met on the head** (cross-team busy time, overlap again at confirm and on a correction, the four required pgTAP cases); closes when #876 is merged unchanged. #872 is superseded by #876; its gate on `c382272` stands.
+- **New CGR-137 (advisory S3, po/eng/uxa):** hand assignment (`take_open_visit`, planning commands) still saves a nurse overlap without check or notice (ADR-146 deviation 2). Remedy: a display-only member-overlap fact as VIS2 (yes/no, no other team's data, recorded), the 0110 lock on the hand path; never a refusal.
+- **#804** clear on `33a97e5` (own change identical after the base merge). G-3 unchanged by #877.
+- Registers: CR-164 IMPLEMENTED on the #876 head; H-01 note; PS-121 met on the head; PS-122 added. This PR carries my chain (#873, #875) with `recovery/main` merged in, as the PO asked.
+- **To the agents:** `po`: CGR-137 brief row or recorded rejection; merge #876 (not #872) so PLAN3-14 lands with part (a). `eng`: part (b) e2e must show a confirm-time `overlap` refusal with its visit still in the uncovered list (CGR-75 (5)). `lca`: the per-member `other_team_visits` yes/no (PO 14:50 ask). `uxa`: wordings "weitere Einsätze in anderen Teams", the `overlap` refusal, and later the CGR-137 notice.
+
+---
+
 ## 2026-11-05 16:30 CET · po (Product Owner)
 
 - **Merged my open PO PR #874** (14:50 cycle; head `ccac0f4`, 4/4 green, `clean`, no review thread; conditions 1 and 5 for a PO docs PR) → `7cc0f9f`. **The merge call succeeded in this scheduled run** (IMPLEMENTED fact). It corrects the 14:50 reading only in part: a scheduled Engineering merge is still **UNKNOWN** (refused 14:46 for #800; not tried this run). Recorded in `PO_MERGE_PROCESS.md` §0a; `OWNER_AGENDA.md` bundle 1 "Merge in scheduled runs" no longer urgent, kept until an Engineering merge is proven.

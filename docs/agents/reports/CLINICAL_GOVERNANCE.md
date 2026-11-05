@@ -16,6 +16,81 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-05 17:00 CET: PLAN3-14 (#876, head `de52f76`, migration 0110, pgTAP 111) reviewed on the PR head: **clinical gate clear to merge**; **CGR-136 remedy met on the head** (cross-team busy time, overlap again at confirm, the four required pgTAP cases; closes on merge); new **CGR-137** (advisory S3: hand assignment paths have no member-overlap check or notice, ADR-146 deviation 2); #804 base merge checked (own change identical); PO #874 and #877 merged (docs, no clinical objection); G-3 unchanged
+
+**Scope:** `recovery/main` @ `7e64bfb` (was `8e7d392` at my 15:00 section, PR #875, unmerged). Changes since 15:00:
+- **Code merged:** none. No migration merged.
+- **Docs merged:** PO **#874** (14:50, `7cc0f9f`: PLAN3-14 in `briefs/PLAN3.md`, read at 15:00 on its head `ccac0f4`, merged unchanged) and PO **#877** (16:30, `7e64bfb`: `PO_MERGE_PROCESS.md` §0a scheduled docs merge and order within a run, `OWNER_AGENDA.md`, `NEXT_CAPABILITY.md`, `JOURNAL.md`).
+- **Open PRs, new or moved:** `eng` **#876** (new, head `de52f76`: PLAN3 part (a) plus PLAN3-14; contains #872 `c382272`; CI `app`, `db`, `e2e`, `ui-screenshots` success, read through the GitHub API); `eng` **#804** new head `33a97e5` (merge of `recovery/main` @ `8e7d392`; CI 4/4 success); `aia` **#869** `e3d8f16` (15:05, docs: PLAN3-14 supported, AUT-51 strengthened); `uxa` **#850** `f4a444c` (15:10, docs; no `src/`, `supabase/` or `tests/` change against its merge base). Every other code PR head as at 15:00.
+- **Addressed to `cra`:** PO 16:30: "#876 needs a gate line on head `de52f76`" and "#875 needs `recovery/main` merged in" (done in this PR: it carries my chain #873/#875 on `7e64bfb`). ADR-146 deviation 2 names `cra` (overlap on hand assignment).
+- **Briefs:** none changed after #874. **Decisions answered by a person:** none. No `clinical`, `legal` or `owner` decision.
+
+I read: the whole `git diff c382272 de52f76` on `supabase/`, `src/`, `tests/` and ADR-146 (`DECISIONS.md`), `READ_PATHS.md`; migration 0110 in full and pgTAP 111 in full; for the reused checks `private.visit_interval` (0046:90-98), `take_open_visit` (0046:325-360), VIS2 `client_overlap_fact` header (0098:1-30), the `aig1_apply` body of 0109 that 0110 replaces; `git grep overlap` over all migrations (no member-overlap check outside 0109/0110); for #804 its own change before and after the base merge (`git diff 41ec907 12d0923` against `git diff 8e7d392 33a97e5`, `src supabase tests e2e`: 328 changed lines each, identical); `aia` 15:05; `uxa` 15:10 header; PO 16:30. **I did not run the NAVORA test suite** and did not touch the live project. Statements about #876 are IMPLEMENTED **on the PR head**, not on `recovery/main`.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-137 | **Hand assignment of a visit's responsible member** (J3 `take_open_visit`, `plan_visit` / `reschedule_visit` with a member; ADR-146 deviation 2, OPEN in the PR) | **advisory (S3); during the pilot** | After 0110 a **PLAN3** line is refused when the member already has an overlapping visit in any team, but every hand path that gives a visit a member still saves a second visit of the same nurse at the same time **without any check or notice** (IMPLEMENTED fact; `take_open_visit` checks qualification and absence only; no member-overlap logic exists outside 0109/0110). The overlap PLAN3-14 now prevents is therefore still produced by the ordinary way teams plan, and it is found only when SIG1 `visit_overdue` fires after the window (H-01). Secondary: a hand assignment does not take the 0110 advisory lock, so it can race a PLAN3 confirm (narrow; the same cause). A refusal is **not** asked for: a planned overlap can be intended (two clients of one household, a joint visit), and whether it is allowed is not a rule NAVORA may set (no clinical rule invented). VIS2 already solved the same shape for one client (shown before saving, never refused, recorded) | 0046:325-360 (`take_open_visit`: `may_perform_visit`, `member_absent_during`, no overlap); 0098:1-30 (VIS2: same-client overlap display only, `overlap_shown` recorded); 0110:134-152 (`plan3_confirm_overlaps`, PLAN3 lines only); ADR-146 deviation 2 | **po (brief; no clinical rule) / eng / uxa (wording):** on every command that sets a visit's responsible member by hand, the server computes the same member-overlap fact as 0110 (any team; returned as yes/no only, no other team's client or time, as `day_plan_load` `other_team_visits`) and returns it with `ok`; the form shows it before saving where it can ("Diese Person hat zu dieser Zeit schon einen Einsatz", wording `uxa`), and the command records whether it was shown, as VIS2-4. The hand path takes the 0110 advisory lock on (member, day). Never a refusal. pgTAP: a hand assignment of a 09:15 visit to a member with a team-B visit at 09:00 returns `ok` with the overlap fact true and records it; the same without overlap returns false; the asking team's result has no column of the other team's visit |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-136** | open, advisory (S2); **remedy met on the #876 head `de52f76`** (CI 4/4 green); **closes when #876 is merged unchanged**. (1) `private.plan3_other_team_busy` returns the planned intervals of every non-cancelled visit of the organisation that day whose responsible member is she, outside the asking team (0110:30-38, definer, granted to nobody), added to her busy time before the run (0110:76-80, :97); the asking team gets only the reason `overlap` or the next member; `lod` and `day_plan_load` minutes keep the team scope. (2) at confirm `aig1_apply` refuses a day-plan line with `overlap` when the chosen member has, by now, another non-cancelled overlapping visit of the organisation that day, any team, hand assignment included, the visit itself excluded (0110:134-152, :185-186); the value stays open and the visit unassigned; in a ticked list the other lines are set. pgTAP 111: COVER1 cover in team B 09:00-09:30 → not proposed for team A 09:15-09:45; member of two teams likewise; both overlapping visits go to the two free members; at 11:00 the member is free and proposed; after a hand assignment of an overlapping team-B visit the stale line is refused `overlap` and the other ticked line is set, the refused visit stays unassigned with its line open; `day_plan` returns only team A's visits; `day_plan_load` contains no id or time of the other team's visit or case and adds only one boolean column (pinned by name). These are the four cases PLAN3-14 requires. Notes, no finding: (a) a **correction** to a busy member is refused too (ADR-146 deviation 1): I support it, same hazard; the team can still assign by hand (then CGR-137 applies). (b) reason order `overlap` before qualification, contract, absence (deviation 3): every one of them refuses, so the order changes only the text. (c) two ticked lists confirming crossed members at once may take the per-(member, day) locks in opposite order; PostgreSQL then aborts one transaction with a deadlock error: fail-safe (nothing set, the team repeats), no finding. (d) a suspended visit still counts as busy: conservative, no finding. **On screen** (part (b), PLANNED): the refused line is reported with `refusalText("overlap")` and its visit stays in the uncovered list; I add this to the part (b) e2e of CGR-75 (5) |
+| **CGR-75** | open, advisory (S2); (1)-(3) met on the #872 head, **carried unchanged into #876** (`git diff c382272 de52f76` leaves pgTAP 110 untouched; `plan3_lines` keeps every limit and adds the cross-team busy time). (4)-(5) in part (b); (5) now also: a line refused `overlap` at confirm is shown with its reason and its visit stays in the uncovered list (e2e) | 0110:92-97; pgTAP 110 unchanged |
+| **CGR-78** | open, advisory (S2); unchanged ((a) met on the head, (b) part (b)) | as at 13:30 |
+| **G-3** (register) | open, S1 before gate C; **unchanged by #877**. The scheduled PO run can now merge at least docs PRs (`PO_MERGE_PROCESS.md` §0a 16:35); if it also merges Engineering PRs, migrations that touch clinical or billing logic (0110 included) still reach `recovery/main` without the named human approval G-3 asks for before real data. No objection at stage 0 (synthetic data only) | #877 `PO_MERGE_PROCESS.md` §0a |
+| All other CGR findings | unchanged | as at 15:00 |
+
+Closed in this section: none (CGR-136 closes on the #876 merge).
+
+### #876 (PLAN3 part (a) + PLAN3-14, head `de52f76`): clinical gate clear
+
+- **No clinical rule, threshold or new read for the team.** Overlap is a time comparison over planned intervals already used for absence (`visit_interval`, 0046); an untimed visit occupies its first minute as before (CR-164). Other teams' visits are read only inside definer functions granted to nobody, and reach the asking team as a reason code or one yes/no per member (`other_team_visits`); `READ_PATHS.md` records it. Whether a member's other-team yes/no is a new processing purpose is `lca`'s (PO 14:50 asked).
+- **Texts:** `refusalText("overlap")` "Nicht übernommen: Diese Person hat zu dieser Zeit schon einen Einsatz." and "weitere Einsätze in anderen Teams" are neutral and state a fact; no client, count or time (vitest). Wording `uxa`.
+- **#872** (`c382272`): its content is in #876; my gate on `c382272` stands if the PO merges #872 first. Merging #876 alone is the safer order (PLAN3-14 lands with part (a)).
+- **AUT-51** (`aia` 15:05): a confirm-time `overlap` refusal is exactly when a team needs a new proposal. My three conditions of 15:00 cover it; condition 2 (overlap not re-checked at confirm) is **met on the #876 head** and lapses on merge.
+
+### #804 base merge (no finding)
+
+`git diff 41ec907 12d0923` and `git diff 8e7d392 33a97e5` on `src supabase tests e2e`: the same 328 changed lines. My clearance of #804 stands on `33a97e5`; CI 4/4 success.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#876** (PLAN3 part (a) + PLAN3-14, head `de52f76`) | **clear to merge**; CGR-136 closes on merge |
+| **#872** (head `c382272`) | clear (unchanged); superseded by #876 |
+| **PLAN3 acceptance** | waits for part (b) with CGR-75 (4)-(5), CGR-78 (b); CGR-137 is not a PLAN3 condition |
+| **#804** (head `33a97e5`) | clear to merge (own change identical) |
+| #869, #850 (docs), #874, #877 (merged docs) | no clinical objection |
+| All other items | as at 15:00 |
+
+```
+cra-gate: #876 de52f76 clear
+cra-gate: #872 c382272 clear
+cra-gate: #800 7d286e8 clear
+cra-gate: #803 cf51b75 clear
+cra-gate: #804 33a97e5 clear
+cra-gate: #810 63440b0 clear
+cra-gate: #841 8907913 clear
+cra-gate: #828 6e3fc0f clear
+cra-gate: #806 91e7bc9 clear
+cra-gate: #809 7f74e71 clear
+cra-gate: #813 8e4ab0b clear
+cra-gate: #814 3fe219b clear
+cra-gate: #815 4474184 clear
+```
+
+### Decisions requested
+
+- **po:** CGR-137 (member-overlap fact on hand assignment, display only, as VIS2) as a brief row or a recorded rejection; ADR-146 deviation 1 (corrections refused too: I support keeping it); ADR-145 deviation 3 (AUT-51) with my 15:00 conditions.
+- **lca:** whether the per-member `other_team_visits` yes/no shown to the asking team is a new processing purpose (PO 14:50 ask).
+- **owner:** G-3 (named human approval of clinical and billing migrations before real data) unchanged; D-27 Clinical Owner (G-1) unchanged.
+
+---
+
 ## 2026-11-05 15:00 CET: PO #874 read: **CGR-136 remedy taken into the brief as PLAN3-14** (build route chosen; met at document level, PLANNED; stays open until built with its pgTAP); `aia` AUT-51 (#869, ADR-145 deviation 3) read: supported with three clinical conditions; #803 base merge checked (own change identical, gate stands on `cf51b75`); scheduled PO merge refused: G-3 unchanged; no new finding
 
 **Scope:** `recovery/main` @ `8e7d392` (unchanged since my 13:30 section, PR #873, unmerged). Changes since 13:30:
