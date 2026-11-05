@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 15:00 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 15:00), `recovery/main` @ `8e7d392` (unchanged): PO #874 (14:50, docs), `aia` #869 (AUT-51), #803 new head `cf51b75` read. No code or migration merged since 13:30.
+- **CGR-136 remedy met at document level (PLANNED):** PLAN3-14 takes the build route (overlap over all her visits of the organisation, reason only; re-checked at confirm; four pgTAP cases; PLAN3 not accepted without it). Stays open until built. #872 stays clear to merge.
+- **AUT-51 supported** (PO decides ADR-145 deviation 3) with three conditions: a line closed by a new request leaves its visit in the uncovered path and has its own outcome; overlap is not re-checked at confirm until PLAN3-14 (2), so stale lines are not yet fully safe; confirmed lines stay.
+- **#803** own change identical after the base merge: gate stands on `cf51b75` (CI 4/4 green).
+- **G-3 unchanged:** the scheduled PO merge was refused; an owner-attended merge is not the named approval of clinical or billing migrations.
+- No new finding, none closed. Registers: PS-121, G-3, CR-164, CR-165, H-01 updated. This PR is based on #873 (carries the chain). Not merged by me (owner instruction on #666). I ran no tests; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
+---
+
 ## 2026-11-05 13:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 13:30), `recovery/main` @ `8e7d392`: #799 merged on the head I cleared; PO #868 (docs-only), #833, #838, #871 merged; new `eng` **#872** PLAN3 part (a) (head `c382272`, migration 0109, pgTAP 110; CI 4/4 green) read in full on the PR head; #800 base merge checked.

@@ -16,6 +16,76 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-05 15:00 CET: PO #874 read: **CGR-136 remedy taken into the brief as PLAN3-14** (build route chosen; met at document level, PLANNED; stays open until built with its pgTAP); `aia` AUT-51 (#869, ADR-145 deviation 3) read: supported with three clinical conditions; #803 base merge checked (own change identical, gate stands on `cf51b75`); scheduled PO merge refused: G-3 unchanged; no new finding
+
+**Scope:** `recovery/main` @ `8e7d392` (unchanged since my 13:30 section, PR #873, unmerged). Changes since 13:30:
+- **Code merged:** none. No migration merged.
+- **Docs merged:** none.
+- **Open PRs, new or moved:** PO **#874** (`ccac0f4`, 14:50, docs: `briefs/PLAN3.md` PLAN3-14 and PO note, `PO_MERGE_PROCESS.md` §0a, `OWNER_AGENDA.md`, `NEXT_CAPABILITY.md`, `JOURNAL.md`); `aia` **#869** (`ef5439d`, 14:20: AUT-51, comment on #872); `eng` **#803** new head `cf51b75` (merge of `recovery/main` after #799; CI `app`, `db`, `e2e`, `ui-screenshots` success, read through the GitHub API). **#872** head unchanged (`c382272`). Every other code PR head as at 13:30.
+- **Addressed to `cra`:** none new (AUT-51 names `cra` "only if the new outcome is read by a safety path").
+- **Briefs:** `PLAN3.md` gains PLAN3-14 (on #874, unmerged). **Decisions answered by a person:** none. No `clinical`, `legal` or `owner` decision.
+
+I read: the whole `git diff recovery/main...ccac0f4` (#874, five docs files); AUT-51 and the 14:20 `aia` section in `AUTOMATION_REVIEW.md` (#869) and its comment on #872; for #803 the PR's own change before and after its base merge (`git diff <merge-base> f93fc81` against `git diff 8e7d392 cf51b75`, `src supabase tests e2e`: 299 lines each, identical `+`/`-` lines). **I did not run the NAVORA test suite** and did not touch the live project.
+
+### Findings
+
+No new finding.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-136** | open, advisory (S2); **remedy met at document level (PLANNED)**: PLAN3-14 takes route (1)+(2) as I wrote it: overlap over every non-cancelled visit of the organisation that day for which the member is responsible, any team, COVER1 and several teams included, read in the definer function and returned only as `overlap`; `day_plan_load` keeps its team scope with "weitere Einsätze in anderen Teams" (wording `uxa`, no count, client or time); the same test again at confirm, refused line reported and left in the uncovered path, other ticked lines set; the four pgTAP cases including "the asking team's reader returns no column of the other team's visit"; "PLAN3 is not accepted without it". The team-only alternative is recorded as not chosen. **Closes when PLAN3-14 is merged with those pgTAP cases** (part (b) or a PR before it). Not a merge condition for #872 | `briefs/PLAN3.md` PLAN3-14 and PO note 14:50 (#874 `ccac0f4`) |
+| **CGR-75** | open, advisory (S2); unchanged: (1)-(3) met on the #872 head, (4)-(5) in part (b) | as at 13:30 |
+| **G-3** (register) | open, S1 before gate C; **unchanged by the 14:46 refusal**. The scheduled PO run could not merge #800 (`PO_MERGE_PROCESS.md` §0a, 14:46); the PO now merges only in an owner-attended session. An owner being present at a merge is not the named human approval of the migration's clinical or billing content that G-3 asks for (`PO_MERGE_PROCESS.md` §4 *Extra stop rules* keeps G-3 outside the process). No clinical objection to the operational change itself | #874 `PO_MERGE_PROCESS.md` §0a |
+| All other CGR findings | unchanged | as at 13:30 |
+
+Closed in this section: none.
+
+### Input on `aia` AUT-51 (ADR-145 deviation 3: `open_proposal` refusal)
+
+The decision is the PO's (deviation 3); I add the clinical side only. From the safety side, closing the earlier proposal's undecided lines when the team asks again is **acceptable, and better than the present refusal**, because after a sick call the stale lines are the ones most likely to be wrong and the refusal delays the new day plan at the moment visits are most at risk of being missed (H-01). Three conditions, so that no stale line can hide an open visit:
+1. **A closed line changes no visit and leaves the visit in the uncovered path.** A visit whose line is closed by a new request is listed again in the new proposal (or as "kein Vorschlag" with its limit); it is never counted as decided, acknowledged or `not_found` acknowledged, and no SIG1 signal, uncovered count or OPS1 view reads the closed outcome as "handled". pgTAP: after a second request, every open visit of the earlier proposal has exactly one undecided line in the new proposal or is `not_found` there; the closed lines carry their own outcome, distinct from a person's reject and from AIG1-C4 expiry in the PLAN3-13 measures (or, if `eng` reuses expiry, the measure counts them apart).
+2. **One correction to AUT-51's premise:** "every line is re-checked at confirm (J3, ABS1)" holds for qualification, contract and absence only; **overlap is not re-checked at confirm until PLAN3-14 (2) is built** (CGR-136). Until then a stale line can be confirmed for a member who was given an overlapping visit by hand in between. So the interim refusal text with the one-act "Ältere offene Zeilen verwerfen und neu vorschlagen" is fine, but must not be read as making stale lines safe; PLAN3-14 (2) is what does.
+3. **Lines already confirmed stay**, as AUT-51 says; the new request treats their visits as assigned (overlap and `include_assigned` as built), so a confirmed line is never re-proposed silently to someone else.
+No clinical rule, threshold or new read is involved; the conditions are registered against CR-165 (one undecided proposal per team and day), which changes if the PO adopts AUT-51.
+
+### #803 base merge (no finding)
+
+`git diff 41ec907 f93fc81` and `git diff 8e7d392 cf51b75` on `src supabase tests e2e` contain the same changed lines (299 lines each). My clearance of #803 (2026-11-03) stands on `cf51b75`; CI 4/4 success on that head.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#872** (PLAN3 part (a), head `c382272`) | **clear to merge** (unchanged); CGR-136 remedy is PLAN3-14, due with part (b) |
+| **PLAN3 acceptance** | waits for part (b) with CGR-75 (4)-(5), CGR-78 (b) and PLAN3-14 (CGR-136) |
+| **#803** (UX2-15, UX2-16, UX2-25, head `cf51b75`) | clear to merge (own change identical to the head I cleared) |
+| #874 (PO docs) | no clinical objection |
+| All other items | as at 13:30 |
+
+```
+cra-gate: #872 c382272 clear
+cra-gate: #800 7d286e8 clear
+cra-gate: #803 cf51b75 clear
+cra-gate: #810 63440b0 clear
+cra-gate: #841 8907913 clear
+cra-gate: #828 6e3fc0f clear
+cra-gate: #804 12d0923 clear
+cra-gate: #806 91e7bc9 clear
+cra-gate: #809 7f74e71 clear
+cra-gate: #813 8e4ab0b clear
+cra-gate: #814 3fe219b clear
+cra-gate: #815 4474184 clear
+```
+
+### Decisions requested
+
+- **po:** ADR-145 deviation 3 (AUT-51): refuse, or close the earlier undecided lines on a new request; if closing, the three conditions above.
+- **owner:** G-3 (named human approval of clinical and billing migrations before real data) unchanged; D-27 Clinical Owner (G-1) unchanged.
+
+---
+
 ## 2026-11-05 13:30 CET: PLAN3 part (a) (#872, head `c382272`, migration 0109) reviewed on the PR head: **clinical gate clear to merge**; CGR-75 (1)-(3) **met on the head** (hard limits before any preference, confirm through the J3 path, no visit row written); new **CGR-136** (advisory S2: the overlap limit sees only the asking team's visits and is not re-run at confirm time, so a member who covers for another team (COVER1) or is in two teams can be proposed for two clients at once); **CGR-135 closed** (#868 merged docs-only); owner decision on the merge path read: my three conditions are in `PO_MERGE_PROCESS.md` §4, G-3 stays open; #799 merged on the head I cleared; #800 base merge checked (its own change is unchanged); D-2 read for CGR-124; this PR carries my whole chain (#582 … #870) on `recovery/main`, as the PO asked
 
 **Scope:** `recovery/main` @ `8e7d392`. Changes since my 09:30 section (PR #870, unmerged):
