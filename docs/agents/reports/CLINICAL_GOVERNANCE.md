@@ -16,6 +16,73 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-05 01:30 CET: `uxa` #850 23:50 (`2cf39ee`) read: CGR-131 and CGR-132 `uxa` parts **met at document level**; AUT-46 placement meets my 21:30 conditions (i) and (ii); new **CGR-133** (advisory, S1 before real relatives: the client information explains the neutral state in a second, shorter wording with "noch", which the page's confirmed explanation deliberately avoids); no code changed
+
+**Scope:** `recovery/main` @ `a236c10` (unchanged since my 21:30 section, PR #864, unmerged).
+- **Code merged:** none. **Docs merged:** none.
+- **Open PRs:** `uxa` **#850** new commits `ca8b67e` (merge of `recovery/main`, journal only) and `2cf39ee` (23:50, docs: `UX_REVIEW.md`, `DESIGN_SYSTEM.md` v39, `JOURNAL.md`). `lca` #860 unchanged (`68a0a09`). Every code PR head unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #810 `63440b0`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); #833, #835, #837 `9c2ecc4`, #838 `6aff772`, #840 unchanged. My chain #582 … #864 still unmerged (owner instruction on #666). The only PR comment since 21:30 is the owner account's note on #850 relaying my 21:30 section; nothing new addressed to `cra`.
+- **Briefs:** none created or changed (FAM1 draft unchanged since #856). **Decisions answered by a person:** none since D-39 and D-40.
+
+I read: `git diff ca8b67e 2cf39ee` (UX_REVIEW 23:50 in full, DESIGN_SYSTEM §4 v39) and the 15:50 neutral-state explanation it refers to. **I did not run the NAVORA test suite** and did not touch the live project. Everything about FAM1 is PLANNED (draft brief, nothing built; all wording PROPOSED). Capacity law and the content of legal information stay `lca` / the legal adviser; I check facts, placement and invented clinical logic.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-133 | **Information to the client before consent** (`uxa` 23:50, CGR-131 answer, new sentence 2), FAM1-2, -6 (PROPOSED) | **advisory (S1 before real relatives)** | The status **list** now comes from the F-02 constant, but the **explanation** of the neutral state is written a second time, in different words. The page's explanation (`uxa` 15:50, confirmed by me 16:45) reads: "Das Team hat für diesen Einsatz keinen Abschluss eingetragen. Ob er läuft, stattgefunden hat oder ausgefallen ist, zeigt diese Seite nicht." The client information reads: "Das Team hat für diesen Einsatz **noch** keinen Abschluss eingetragen." and drops the second sentence. "noch" implies the completion will follow, i.e. that the visit took place and only the entry is pending; that is the reassurance the neutral word was chosen to avoid (H-30: a broken-off visit or a no-show also shows this state). The client is told less than the relative will read, and the two explanations will drift as the list did (CGR-131) | `UX_REVIEW.md` 23:50 *CGR-131* sentence 2, 15:50 *neutral* explanation (#850 `2cf39ee`); CGR-125; CGR-131; H-30 | **uxa / po (FAM1-2, -6):** the client information uses the page's explanation without "noch" and with its second sentence (only "diese Seite" may become "die Ansicht"), taken from one FAM1-6 explanation constant shared with F-02. **eng (build):** vitest that the information block and F-02 render the same explanation constant (imported, never copied) and that neither contains "noch" in the neutral-state explanation |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-131** | open, advisory (S1 before real relatives); **`uxa` part met at document level**: the list of status texts is rendered from the F-02 constant ("a, b, c, d oder e"), all five present including "Nicht als durchgeführt erfasst"; vitest imports the constant and checks no other status word. The explanation sentence is **CGR-133**. Closes when FAM1-2/-6 carry it and the vitest is green on a build. What else the information must contain stays `lca` (UNKNOWN) | `UX_REVIEW.md` 23:50 *CGR-131*; `DESIGN_SYSTEM.md` v39 §4 (#850 `2cf39ee`) |
+| **CGR-132** | open, advisory (S1 before real relatives); **`uxa` part met at document level**: "Ja"/"Nein" is refused on save in every variant with one `info` line under question 2 that names both answers, makes no judgement of the client and offers no button that changes an answer; under the pilot variant only the pilot line shows. `uxa` states the command must refuse too (pgTAP, `eng`): **that is the binding part**, still PLANNED. The reverse pair stays `lca` (UNKNOWN); `uxa` words nothing for it: correct | `UX_REVIEW.md` 23:50 *CGR-132*; `DESIGN_SYSTEM.md` v39 §4 |
+| **CGR-130** | open, advisory (S1 before real relatives); (1) form unchanged, now extended by the contradictory-pair rule (CGR-132); (2) pgTAP / catalogue guard PLANNED; (3) revocation reason confirmed again (`uxa` 23:50 *AUT-47*: no periodic prompt, a later rule goes to the team's exception list) | as above |
+| CGR-128, CGR-129, CGR-126 | open, advisory (S1 before real relatives); unchanged since 21:30 (`uxa` parts met at document level) | 21:30 section |
+| **CGR-125** | open, **blocking for FAM1 approval** (unchanged; the mapping must be in FAM1-6) | FAM1-6 |
+| CGR-127 | open, advisory (S2); unchanged | as at 17:30 |
+| CGR-124, CGR-123, CGR-122, CGR-121, CGR-118, CGR-119, CGR-120, CGR-116, CGR-113, CGR-114, CGR-115 | open; unchanged | as at 16:45 |
+| CGR-112, CGR-103, CGR-104, CGR-106 to CGR-111 | open; remedies met on unchanged heads; close on merge | heads as above |
+| CGR-101 | open, advisory (S2); unchanged | 0001 `team_member_name` |
+| **CGR-16** | open (advisory now, **blocking before real data**) | no change |
+| CGR-78, CGR-86, CGR-97, CGR-99, CGR-94, CGR-75, CGR-68, CGR-54, CGR-56, CGR-31, CGR-28, CGR-21, CGR-23 | open | no change |
+
+Closed in this section: none (no code merged; FAM1 is a draft brief).
+
+### Inputs (answers to `uxa` 23:50 requests)
+
+- **CGR-131 amended client information:** the list is **confirmed complete** (five texts, from one constant). The explanation sentence is not yet confirmed: CGR-133.
+- **CGR-132 refusal line** ("So kann die Einwilligung nicht gespeichert werden: <Name> gibt sie selbst, kann aber nach deiner Antwort nicht selbst darüber entscheiden. Bitte prüfe beide Antworten."): **confirmed** on facts and placement. It describes the two recorded answers, attributes the capacity judgement to the RN ("nach deiner Antwort"), and proposes no route. The sentence's legal fit stays `lca`.
+- **AUT-46 statement** ("Mit dem Speichern bestätigst du: <Name> gibt diese Einwilligung selbst.") **directly above the save button, not collapsed:** **confirmed**; it meets my 21:30 condition (i) (the save is the RN's attestation at the moment of the act) and, with question 2 required, unpreselected and "Nein" refusing (e2e), condition (ii). Stored facts unchanged (`consent_given_by = client`, RN, time). Applies only if the owner takes the variant.
+- **AUT-47:** `uxa` sets no screen and no periodic prompt; a later rule goes to the existing exception list. Consistent with my 21:30 condition.
+- **Invented logic:** none found in #850 23:50. No capacity test, interval or trigger; the reverse pair is left to `lca`.
+
+### Other checks (no finding)
+
+- **Hard-coded rules:** no code changed; no new Clinical Rule Register row. The FAM1-6 status and explanation constant becomes one row (display class, owner `clinical`, PROVISIONAL) when FAM1 is approved.
+- **Privacy:** no data added to the repository.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **FAM1** (brief draft) | **not approvable from the clinical side until CGR-125 is in FAM1-6** (unchanged); CGR-128 into FAM1-6 at approval or before acceptance; CGR-126, CGR-129, CGR-130, CGR-131, CGR-132, **CGR-133** before real relatives; CGR-127 before acceptance of the build |
+| **ADR-143** (#837 `9c2ecc4`) | clear for acceptance from the clinical side (unchanged) |
+| **M6-2** offline queue | CGR-121, CGR-122, CGR-123 tests green before merge (unchanged) |
+| **MOB1**, **D-2** (#838) | as at 13:30 (CGR-124 condition) |
+| #799, #841, #828, #800, #803, #804, #806, #809, #810, #813, #814, #815 | unchanged: clear to merge (heads unchanged, CI green) |
+| All other items | unchanged |
+
+### Decisions requested
+
+- **po (FAM1):** CGR-125 into FAM1-6 (blocking for approval); CGR-128 to CGR-132 as at 21:30; **CGR-133** (one explanation constant for the neutral state, without "noch", shared by F-02 and the client information); AUT-46 form as `uxa` 23:50 if the owner takes the variant.
+- **eng (after FAM1 approval):** CGR-132 refusal in the consent command (pgTAP); one status and one explanation constant (CGR-131, CGR-133, vitest).
+- **owner:** the two pilot variants if the PO proposes them; the organisation's general number (FAM1-10); chain merge of the governance PRs (#582 … this PR).
+- **lca / legal adviser:** as at 21:30 (D-40 questions 1, 2, 6, 7, 8; identity verification; the reverse capacity pair; further content of the client information), plus the CGR-132 and AUT-46 sentences.
+- **clinical (Clinical Owner, after G-1):** as at 21:30 (capacity judgement and re-check, CGR-130, AUT-47; distinct no-show display, CGR-125).
+
+---
+
 ## 2026-11-04 21:30 CET: `uxa` #850 19:50 read: CGR-128 line, CGR-129 resend answer, CGR-130 (1) form and the timetable sentence **confirmed** (the `uxa` parts met at document level); `aia` #863 (20:20) read: AUT-46 supported with conditions, AUT-47 supported in form with one condition; UXR-97 (a) supported; new **CGR-131** (advisory, S1 before real relatives: the client information names four of the five states the relative will see) and **CGR-132** (advisory, S1 before real relatives: nothing refuses a consent recorded as the client's own when the RN answers that she cannot decide it); no code changed
 
 **Scope:** `recovery/main` @ `a236c10`. Changes since my 17:30 section (PR #862, unmerged; `recovery/main` was `39a4883`):

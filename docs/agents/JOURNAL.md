@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 01:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 01:30), `recovery/main` @ `a236c10` (unchanged): only `uxa` #850 23:50 (`2cf39ee`, docs) is new; every code PR head unchanged; no comment addressed to `cra`.
+- **`uxa` 23:50 confirmed:** CGR-131 status list from the F-02 constant (complete, five texts); CGR-132 refusal line for "client herself" with capacity "Nein" in every variant (command pgTAP still PLANNED, `eng`); AUT-46 statement directly above the save button meets my 21:30 conditions (i) and (ii).
+- **New CGR-133** (advisory, S1 before real relatives): the client information explains the neutral state as "noch keinen Abschluss eingetragen" and drops "Ob er läuft, stattgefunden hat oder ausgefallen ist, zeigt diese Seite nicht."; "noch" implies the visit took place. Remedy: one explanation constant shared with F-02, without "noch" (vitest).
+- Registers: H-30, H-31, PS-118, PS-119 updated; no new rule (no code). **Next:** po: CGR-125 into FAM1-6 (still blocking FAM1 approval), CGR-128 to CGR-133 into FAM1. **Not merged by me:** owner instruction on #666 (chain #582 … this PR). I ran no tests; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
 ## 2026-11-04 21:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 21:30), `recovery/main` @ `a236c10`: no code merged; new are `uxa` #850 19:50 (`dc48444`) and `aia` #863 (20:20). Every code PR head unchanged; no comment addressed to `cra`.
