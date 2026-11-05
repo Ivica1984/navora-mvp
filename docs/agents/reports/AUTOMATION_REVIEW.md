@@ -31,6 +31,56 @@
 
 ---
 
+## 2026-11-05 02:25 CET · aia review 26: `cra` #864 (21:30) and #865 (01:30), `uxa` #850 (23:50) read; AUT-46 form placed by `uxa` and confirmed by `cra` at document level (PLANNED, only under the owner's variant); AUT-47 consistent across both gates; CGR-131 to CGR-133 supported (one constant, no added act); new AUT-48 (medium: 17 green Engineering PRs wait for a merge hand-off nobody receives, issue #861)
+
+**Read:** `recovery/main` at `a236c10` (my #863 only since review 25; no code, brief or decision merged). Open, read on their branches:
+- `cra` **#864** (21:30: CGR-131, CGR-132; AUT-46 supported with conditions (i) save is the RN's attestation, (ii) capacity question required, unpreselected, "Nein" refuses; AUT-47 supported in form);
+- `uxa` **#850** (23:50, `2cf39ee`: CGR-131 status list from the F-02 constant, CGR-132 refusal line, AUT-46 form with the statement directly above the save button, AUT-47 no screen);
+- `cra` **#865** (01:30: `uxa` parts of CGR-131/-132 met at document level, AUT-46 placement meets (i) and (ii); new CGR-133, one explanation constant for the neutral state without "noch");
+- issue **#861** (`eng` 17:15, for `po`: 17 green Engineering PRs open, no merge hand-off; not read in review 25, read now). No new or changed brief (FAM1 draft unchanged since #856). Open `automation` issues: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database. Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal (verdict) | Device level | AI stage and gate | Measure (team level) | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-48 | Delivery of built items to teams: hand-off from a green Engineering PR to the PO merge (`eng`, `po`) | IMPLEMENTED (issue #861, `eng` 17:15): 17 Engineering PRs are green and mergeable, the oldest (#799) since 2026-11-03 00:21; the engineering task forbids self-merge, the `in-review` row lives only on the PR branch, and the watcher (`plan.mjs`) opens a `po:<ID>` hand-off only for `ready-for-review`/`delivered` on `recovery/main`. So the acceptance step exists but no one is told it is due. Held items include AUT-30 (#814) and AUT-34 (#841), each returning nurse time once teams use them (estimates in reviews 18-21, not measured). Each merge elsewhere re-opens `JOURNAL.md` conflicts on all 17 branches: repeated rework with no care benefit | **Rule (eliminate the waiting, keep the review):** the PO acceptance review is a quality control and is not challenged; its trigger is. A deterministic rule creates the hand-off from facts already in GitHub: every open Engineering PR that is green and sets a row to `in-review` gets one `po:<ID>` merge-review hand-off (`eng` option B, unit test first), reviewed in *Active now* order. Until it is built, the PO run lists green `feature/`/`feat/`/`fix/` PRs itself (option A). No new role, approval or field; `COORDINATION.md` rule 4 made to match whichever instruction stands (owner/PO, not me) | L | Stage 0; gate PO (rule 4 and option); owner only if the task instruction is changed | days from green CI to merge per Engineering PR (median over the pilot repository, never per person); count of green PRs older than 24 h, target 0 | medium | #861 (comment) |
+
+Severity `medium`, not `high`: the step that blocks (PO acceptance) has a stated benefit (review before delivery); the finding is the missing trigger, a leaner equal-safety form exists, and `eng` already proposed it.
+
+### 2 Briefs, plans and packages reviewed
+
+- **CGR-131 (one status constant for F-02 and the client information) and CGR-133 (one explanation constant, without "noch"):** supported. Both are single sources rendered in two places; they remove a future double maintenance and add no act for the RN or the client. CGR-133 is a safety wording control (H-30) and not challenged.
+- **CGR-132 (refuse "gives it herself" with "cannot decide"):** a deterministic refusal on two answers already given, in the command (pgTAP) and on screen; adds no question and no act. Supported.
+- **AUT-46 form (`uxa` 23:50, `cra` 01:30):** the first question disappears under the variant and is replaced by one fixed statement above the save button; no checkbox. That is the proposal, placed where `cra` (i) needs it. I accept the placement above the button instead of above the information block (review 25 wording); no act added.
+- **AUT-47:** `uxa` sets no screen and no periodic prompt; a later rule goes to the team's existing exception list. Matches the proposal.
+- **UXR-97, UXR-95, UXR-96:** unchanged; no finding.
+
+### 3 AI readiness of delivered items (§8)
+- Nothing proposing, drafting or ranking delivered since review 25. #814 (AIG1-C4/-C5) and #828 (AIR1) unchanged and open, both among the 17 waiting PRs (AUT-48). No change to the AI operating model controls beyond the change-log note.
+
+### 4 Findings: state changes and closed
+- **AUT-46:** form PLANNED and confirmed at document level by `uxa` and `cra`; applies only if the owner takes the "client consents herself only" variant; `lca` to confirm the sentence. Stays open until FAM1 carries it.
+- **AUT-47:** consistent with both gates; waits for the Clinical Owner (after G-1) to decide whether any re-check exists (UNKNOWN). Stays open.
+- **AUT-44, AUT-45:** unchanged; waiting for the PO.
+- AUT-30 (#793), AUT-34: met on #814 and #841 heads; close on merge (now tracked under AUT-48).
+- Open, unchanged: AUT-42, AUT-43, AUT-41, AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-25, AUT-28 (P-38), AUT-31 (PLAN3-13).
+- Closed in this section: none.
+
+### 5 Stage tracking (D-35 stages; changes only)
+- No change. Stage 0 only in force; stage 1 not opened; real data blocked (D-1); adviser not named.
+
+### 6 Waiting for the PO
+- **AUT-48 (medium):** choose option A now and B as the lasting rule (#861); align `COORDINATION.md` rule 4.
+- AUT-44, AUT-45 (medium); AUT-46 (form as `uxa` 23:50) only under the owner's variant; CGR-131 to CGR-133 into FAM1-2/-6.
+- AUT-42, AUT-43, AUT-41, AUT-36, AUT-37, AUT-38, AUT-33 (unchanged).
+
+### 7 Issues and comments
+- No issue opened (no `high` finding). One comment on #861 (AUT-48). No PR comment on #864, #865 or #850: they adopt my findings and need nothing from me.
+
+---
+
 ## 2026-11-04 20:20 CET · aia review 25: `cra` #859 (16:45) and #862 (17:30), `lca` #860 (16:55, D-40 / FAM1 re-check) and `uxa` #850 (15:50, 19:50) read; AUT-44 supported by all three gates with conditions (one act stands; the act must carry every consent field); AUT-45 no objection, `uxa` prefers (b); the two `lca` pilot variants supported as simplifications; AUT-46 (low: under "client consents herself only" the first consent question has one possible answer); AUT-47 (low: a later capacity re-check, if the Clinical Owner sets one, follows named events, never a periodic re-confirmation of every consent)
 
 **Read:** `recovery/main` at `39a4883` (unchanged since my review 24, #858; no code, brief or decision merged since). Open, read on their branches:
