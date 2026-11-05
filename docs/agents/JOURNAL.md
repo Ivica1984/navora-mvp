@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 03:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 03:50) on `recovery/main` `9e3b998`; no screen code changed since 23:50 (`aia` #866 docs only); every open screen PR head unchanged. #850 continued (`recovery/main` merged in, `JOURNAL.md` conflict resolved, every entry kept), no second `ux/…` PR.
+- Answer to `cra` 01:30 (#865) CGR-133, PROPOSED for the draft FAM1: the neutral-state explanation is one constant shared by F-02 and the client information ("diese Seite" → "die Ansicht" only), without "noch" (my 23:50 sentence was wrong). AUT-48 (#861) noted: eleven green screen PRs carry met remedies that pilot teams cannot see yet; the merge rule is the PO's.
+- No new finding, no issue, no PR comment. `DESIGN_SYSTEM.md` v40 (§4, no token change). Waiting: `cra` and `lca` confirmation; PO to place CGR-131 to CGR-133 in FAM1 and decide #861.
+
+---
+
 ## 2026-11-05 02:25 CET · AI & Automation Architect (aia)
 
 - Automation review 26 (`reports/AUTOMATION_REVIEW.md`, section 02:25) on `recovery/main` `a236c10`: `cra` #864 and #865, `uxa` #850 23:50 (open, read on their branches), issue #861.

@@ -6,6 +6,53 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-05 03:50 CET · `uxa`: no screen code changed; answer to `cra` 01:30 (#865) CGR-133: the client information takes the page's explanation of the neutral state from one constant, without "noch"; AUT-48 noted from the UX side; no new finding
+
+**What changed since 23:50.** `recovery/main` is at `9e3b998`: only `aia` #866 (02:25, docs: review 26, AUT-48); **no change under `src`, `tests` or `e2e`**. Every open screen PR head is unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); my earlier notes on them stand. My PR #850 (`2cf39ee`) is green on all four checks; this run continues it, no second `ux/…` PR. New input for me: `cra` 01:30 (#865, open) confirms CGR-131, CGR-132 and the AUT-46 placement and raises **CGR-133**.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `cra` 01:30 comment on #850 and its PR #865 (file list); `AUTOMATION_REVIEW.md` 02:25 (AUT-48); issue #861. No benchmark (last made 2026-11-04 03:50; this run is spent on the `cra` answer). I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for a PLANNED screen (FAM1 draft); nothing may be built before the PO approves FAM1.
+
+### Answer to `cra` CGR-133 (wording PROPOSED; `cra` confirms, `lca` for *informed*, the PO places it in FAM1)
+
+`cra` is right. My 23:50 second sentence ("Das Team hat für diesen Einsatz **noch** keinen Abschluss eingetragen.") differs from the page explanation I wrote at 15:50 and `cra` confirmed at 16:45: "noch" suggests the visit happened and only the entry is missing (H-30), and I had written the explanation twice by hand, which is the drift CGR-131 was meant to stop. My error. Replaced by **one explanation constant** (FAM1-6), rendered in both places:
+
+- F-02 statement block: "«Nicht als durchgeführt erfasst» heisst: Das Team hat für diesen Einsatz keinen Abschluss eingetragen. Ob er läuft, stattgefunden hat oder ausgefallen ist, zeigt diese Seite nicht."
+- client information before consent: the same constant with one substitution only, "diese Seite" → "die Ansicht": "… zeigt die Ansicht nicht."
+
+The constant holds the text with one placeholder for the subject ("diese Seite" / "die Ansicht"); nothing else differs. The polite form of the client information is unaffected, because the sentence addresses nobody. Vitest: both renderings contain the imported constant's text with the expected subject; neither contains the word "noch"; the status label in the explanation is the F-02 status constant's neutral entry (CGR-131), not a typed copy.
+
+### AUT-48 from the UX side (no new finding, no issue)
+
+`aia` 02:25 and `eng` (#861) report 17 green Engineering PRs waiting for a merge hand-off. Eleven of them change screens and carry remedies I or `cra` found met on their heads (#799 UX2-1 one shell: UXR-75, -78; #800: UXR-79; #813: UXR-73; #803, #804, #806, #809, #814, #815, #841). For nurses these are not yet real: a pilot team still sees the screens on `recovery/main`. Which option to take is the PO's (#861); I add only that, from the UX side, #799 (one shell) first matches *Active now* (0), because the later UX2 parts are reviewed against it. No proposal on the merge rule.
+
+### Findings
+
+No new finding. CGR-133 is a defect in my own 23:50 wording, corrected above rather than numbered again.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-97 | OPEN; `lca` and the PO to choose. | 19:50 and 23:50 sections of 2026-11-04 |
+| UXR-95 | OPEN; (c) `lca` with `eng` (UNKNOWN). | as above |
+| UXR-96 | OPEN; catalog change still pending (outside this PR's files). | unchanged |
+| UXR-94 | OPEN; `eng` to change ADR-143 1c and 6 (#837 head unchanged). | 15:50 section of 2026-11-04 |
+| UXR-93, -92, -91 | OPEN; unchanged. | as above |
+| UXR-88, -89, -90 | OPEN on #841 (`8907913`). | 23:50 section of 2026-11-03 |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section of 2026-11-04 |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section of 2026-11-03 |
+
+Closed in this section: none (no screen code merged). **Confirmed by `cra` 01:30:** the CGR-131 status list from the F-02 constant, the CGR-132 refusal line, the AUT-46 statement directly above the save button. They stay PROPOSED until the PO places them in FAM1.
+
+### Requests (OPEN)
+
+- `cra`: confirm the CGR-133 constant and its one substitution.
+- `lca`: the client information as a whole (*informed*), now with the shared explanation; the 23:50 items.
+- `eng`: once FAM1 is approved, one explanation constant beside the status constant, used by F-02 and the consent step.
+- `po` (FAM1): CGR-131 to CGR-133 into FAM1-2/-6; AUT-46 only under the owner's variant; #861 (AUT-48).
+
+---
+
 ## 2026-11-04 23:50 CET · `uxa`: no screen code changed; answers to `cra` 21:30 (#864): CGR-131 (the client information names all five states, from the page's own list), CGR-132 (one refusal for "gives it herself" with "cannot decide"), AUT-46 form under the pilot variant with `cra`'s two conditions; no new finding
 
 **What changed since 19:50.** My PR #850 (`dc48444`, CI green on all four checks) had a JOURNAL conflict with `recovery/main`; I merged `recovery/main` in (`ca8b67e`, every entry kept, newest first) and continue it, no second `ux/…` PR. `recovery/main` is at `a236c10`: only `aia` #863 (20:20, docs: AUT-44 conditions accepted, AUT-45 inputs, new AUT-46, AUT-47); **no change under `src`, `tests` or `e2e`**. Every open screen PR head is unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); my earlier notes on them stand. New input for me: `cra` 21:30 (#864, open, read on `gov/review-2026-11-04-2130`): my 19:50 wordings confirmed, CGR-131 and CGR-132 new, AUT-46 supported with two conditions. FAM1 is still a draft brief. No `ux` issue changed.
