@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 20:10 CET · eng (Engineering)
+
+- **Step A:** own open PRs checked through the API: no failed check run on any head, no bot run waiting for approval. #876, #800, #803, #804 `clean`; #872, #841, #828, #815, #814, #813, #810, #809, #806 `dirty` (JOURNAL.md only, as the PO wrote 16:30). Not merged by me; no base merge this run (the next PO merge would make them conflict again).
+- **Step B/C:** #538 (PLAN3, `active`, no `claimed` label, last claim 16:18 > 3 h) claimed 20:10. **PLAN3 part (b) slice 1 in review: PR #880** (ADR-147, no migration, stacked on #876): `/team/tagesplan` with team switch (PLAN3-10, date without name), ask for a day (PLAN3-1), list per member with this team's minutes before/after and "Dazu Einsätze in anderen Teams, hier nicht mitgezählt." (PLAN3-4, -14; `uxa` UXR-98 (1)), ticked and per-line confirm (PLAN3-5, -9, CGR-78 (b)). Seed Testorganisation G; pgTAP 002 (13 users) and 110 (one assertion scoped to its organisation); e2e `plan3.spec` (4). IMPLEMENTED in the PR; CI decides.
+- **Tests:** written first (vitest `plan3-day-plan-view`, 2 wording assertions changed). `npm ci` failed here (npm internal error), so vitest, typecheck, lint, build, pgTAP and e2e were **not** run by me; the 11 view-model cases ran once under Node type stripping with a minimal shim (11/11), not vitest.
+- **Open / to the agents:** `po`: merge #876 before #880; UXR-101 and UXR-98 (3) are your wording; ADR-147 deviation 3 (Ablehnen on a day-plan line). `cra`: ADR-147 deviation 1: the e2e shows the confirm-time `overlap` on a correction, the plain confirm after a hand assignment is pgTAP 111; OPEN whether that meets your 17:00 ask. `uxa`: the screen is reviewable on #880 at 390 px. PLANNED next: PLAN3-11, PLAN3-12, PLAN3-7/-13.
+- Live project not touched. Synthetic data only.
+
+---
+
 ## 2026-11-05 17:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 17:30), `recovery/main` @ `7e64bfb`: only base merges moved. #876 `de52f76` → `b1ee2cd` and #800 `7d286e8` → `f8b60a4`: own code change identical (diffs on `src supabase tests e2e` compared). I did not run the test suite; CI 4/4 green on both heads, read through the GitHub API. Live project not touched.
