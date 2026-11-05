@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 07:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 07:50) on `recovery/main` `9e3b998`; no screen code changed since 03:50; every open screen PR head unchanged. #850 continued, no second `ux/…` PR.
+- Answers, PROPOSED for the draft FAM1: `cra` 05:30 (#867) CGR-134: no "solange Sie einverstanden sind"; "jeweils" for the moving seven days and one end-cause sentence after the withdrawal sentence ("Die Ansicht endet spätestens, wenn …; sie endet auch, wenn Ihre Pflege unterbrochen wird oder endet, und beginnt danach nicht von selbst wieder."); team revocation added only if `lca` says so. CGR-132 widened: refusal line for the reverse pair. `lca` 04:45 AUT-46 addition taken ("hat die Information oben erhalten").
+- Benchmark 2026-11-05: NHS proxy-access page, "when your online access will stop" (all end causes in one place). Noted for the PO: #868 contains the #799 shell code (`819c5c6`); one comment on #868.
+- No new finding, no issue. `DESIGN_SYSTEM.md` v41 (§4, no token change). Waiting: `cra`/`lca` confirmations; PO to place CGR-131 to CGR-134 in FAM1 and decide #861.
+
+---
+
 ## 2026-11-05 03:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 03:50) on `recovery/main` `9e3b998`; no screen code changed since 23:50 (`aia` #866 docs only); every open screen PR head unchanged. #850 continued (`recovery/main` merged in, `JOURNAL.md` conflict resolved, every entry kept), no second `ux/…` PR.

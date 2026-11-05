@@ -6,6 +6,68 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-05 07:50 CET · `uxa`: no screen code changed; answers to `cra` 05:30 (#867) CGR-134 (consent as the upper bound, one end-cause sentence) and the widened CGR-132 (refusal line for the reverse pair); `lca` 04:45 AUT-46 addition taken; benchmark: how a proxy-access page says when access stops; #868 carries the #799 shell code (noted for the PO); no new finding
+
+**What changed since 03:50.** `recovery/main` is unchanged at `9e3b998`; **no change under `src`, `tests` or `e2e`**. Every open screen PR head is unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); my earlier notes on them stand. My PR #850 (`d86d585`) is green on all four checks after one re-run of the `db` job (pgTAP 064 failed once at 02:49 UTC, not this PR's; `cra` 05:30 traces it to CGR-110); this run continues it. New input for me, all on open PRs read on their branches: `lca` 04:45 (#860 `024b395`, `decisions/D-40.md`: client information confirmed in substance; duration clause proposed; reverse capacity pair refused in every variant; AUT-46 statement extended), `cra` 05:30 (#867 `0c3b3a2`: CGR-133 met at document level; CGR-132 widened to both pairs; new CGR-134), `po` 06:05 (#868 `52d1803`: #861 merge path escalated to the owner, option C).
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `CLINICAL_GOVERNANCE.md` 05:30 on `gov/review-2026-11-05-0530`; `D-40.md` 04:45 on `lca/review-2026-11-04-1655`; `briefs/FAM1.md` FAM1-3, FAM1-4 (lines 33-34); PR #868 commit list. I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording for a PLANNED screen (FAM1 draft); nothing may be built before the PO approves FAM1. Whether the client must be told that the team can end the view is `lca`'s (UNKNOWN); I word only what is set.
+
+### Answers (wording PROPOSED; `cra` confirms facts, `lca` *informed*, the PO places them in FAM1-2/-3/-4)
+
+**CGR-134: duration with consent as the upper bound, and the end causes in one sentence.** `cra` is right that "solange Sie einverstanden sind" names withdrawal as the only end, while FAM1-3 and FAM1-4 end the view while consent stands. I do not use that clause. The client information then reads, top to bottom (changes in bold):
+1. "Wenn Sie einverstanden sind, kann <Anzeigename der angehörigen Person> in NAVORA **jeweils** Ihre Einsätze der nächsten 7 Tage sehen: das Zeitfenster, «Ihr Pflegeteam» als Zugeteilt und den Stand: <Liste der Statustexte>." ("jeweils" says the seven days move on; `lca` (a))
+2. the neutral-state explanation constant (CGR-133, "die Ansicht").
+3. the timetable sentence (19:50, unchanged).
+4. "Sie können diese Einwilligung jederzeit und ohne Begründung zurückziehen. Sagen Sie es dafür einfach jemandem aus dem Pflegeteam." (unchanged)
+5. **new:** "Die Ansicht endet spätestens, wenn Sie Ihre Einwilligung zurückziehen. Sie endet auch, wenn Ihre Pflege unterbrochen wird oder endet, und beginnt danach nicht von selbst wieder."
+6. "Wenn Sie nein sagen oder später zurückziehen, ändert das nichts an Ihrer Pflege." (unchanged)
+
+Sentence 5 sits directly after the withdrawal sentence so every end the client is told about is in one place. "spätestens" makes consent the upper bound; "nicht von selbst wieder" carries FAM1-4 (resume does not restore). "unterbrochen" is the plain word for a paused case (C1); `cra` confirms it covers every pause reason and whether an example ("zum Beispiel bei einem Spitalaufenthalt") helps or narrows. **Team revocation (FAM1-3)** is not in sentence 5 until `lca` decides (*informed*, UNKNOWN); if `lca` says it must be named, sentence 5 gains one clause without a reason: "… Sie endet auch, wenn das Pflegeteam sie beendet oder wenn Ihre Pflege …". No sentence says why the team would end it (CGR-126, protective revocation). Vitest on the build: the information contains sentence 5 from one constant; it contains no "solange"; FAM1-3/-4 end causes each map to a phrase in that constant (`cra` remedy).
+
+**CGR-132 widened: the reverse pair.** With `lca` (b) and `cra` 05:30, both contradictory pairs are refused on "Einwilligung speichern", one `info` line under question 2, focus moved there, nothing saved; one constant with two entries of the same form:
+- question 1 "Ja", question 2 "Nein" (unchanged, 23:50): "So kann die Einwilligung nicht gespeichert werden: <Name> gibt sie selbst, kann aber nach deiner Antwort nicht selbst darüber entscheiden. Bitte prüfe beide Antworten."
+- question 1 "Nein", question 2 "Ja" (new): "So kann die Einwilligung nicht gespeichert werden: <Name> gibt sie nicht selbst, kann aber nach deiner Antwort selbst darüber entscheiden. Bitte prüfe beide Antworten."
+Both lines name the two answers, judge nobody and suggest neither answer (no "frage sie selbst"; if `cra` wants the RN pointed to the client, that is a clinical instruction and `cra`'s to add). Under the pilot variant the reverse pair cannot occur (question 1 is not asked, AUT-46). The command refuses both pairs (pgTAP per pair: nothing stored, no view; `eng`); the screen is not the guard. E2e outside the variant: each pair shows its line and no consent record exists afterwards.
+
+**AUT-46 with the `lca` (c) addition (`cra` 05:30 confirmed on facts).** The fixed text directly above the save button becomes: "Mit dem Speichern bestätigst du: <Name> hat die Information oben erhalten und gibt diese Einwilligung selbst." "oben" is true because the information block is on the same screen above the questions, fixed and not collapsed (19:50); at 390 px the block stays above the questions in the one column. No checkbox, button name unchanged. Applies only under the owner's variant.
+
+### #868 carries the shell code (for the PO; not a UX finding)
+
+PO PR #868 (`52d1803`, base `recovery/main`) contains `819c5c6` "Merge branch 'pr-799' into sim" and so the whole of #799 (UX2-1 shell, UX2-31): 32 files, among them `AppShell.tsx`, `shell.ts`, the deletion of `Sidebar.tsx` and `ux2-shell.spec.ts`. Merging #868 as a cycle PR would land the shell on `recovery/main` outside the merge path the PO has just escalated (#861). From the UX side #799 is the right first merge (03:50 note, *Active now* (0)) and its remedies are met on its head, but the route is the owner's and the PO's; I comment once on #868 and propose nothing on the merge rule.
+
+### Benchmark (2026-11-05): telling a person when someone else's access stops
+
+Read the NHS website page on parent and guardian proxy access for GP online services (<https://www.nhs.uk/nhs-services/gps/gp-services-for-someone-else-proxy-access/parent-and-guardian-proxy-access-for-children>, read 2026-11-05). Pattern, in my words: one section titled by the question the reader has ("when your online access will stop") lists each cause that ends access, including the automatic ones, says what restores it, and says what still works afterwards (care at the practice continues as before). What the page does **not** do is mention withdrawal on request, which shows the gap CGR-134 names from the other side: a person told only one end cause assumes the others do not exist.
+**Adopt for NAVORA:** (1) every end cause in one place, directly after the withdrawal sentence (sentence 5 above), including the ones that happen without anyone acting; (2) say that it does not restart by itself, so nobody relies on it after a hospital stay (H-28); (3) the "what still works" fact is already in sentence 6 and the relative's access-end sentence (team by phone), so nothing is added. Not adopted: a separate heading on the RN's consent step (it would add a section to a fixed six-sentence block). No design, logo or text copied.
+
+### Findings
+
+No new finding. CGR-134 and the reverse-pair line are answers to `cra`, not defects of a built screen.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-97 | OPEN; `lca` 04:45 recommends (a) one client per sign-in for the pilot; the PO to choose. | `D-40.md` 04:45 (#860 `024b395`) |
+| UXR-95 | OPEN; (c) `lca` with `eng` (UNKNOWN). | 23:50 section of 2026-11-04 |
+| UXR-96 | OPEN; catalog change still pending (outside this PR's files). | unchanged |
+| UXR-94 | OPEN; `eng` to change ADR-143 1c and 6 (#837 `9c2ecc4` unchanged). | 15:50 section of 2026-11-04 |
+| UXR-93, -92, -91 | OPEN; unchanged. | as above |
+| UXR-88, -89, -90 | OPEN on #841 (`8907913`). | 23:50 section of 2026-11-03 |
+| UXR-84 | OPEN on #815 (`4474184`). | 03:50 section of 2026-11-04 |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`); close on merge. | 19:55 section of 2026-11-03 |
+
+Closed in this section: none (no screen code merged). **Confirmed by `cra` 05:30:** the CGR-133 explanation constant; `lca` 04:45 confirmed the client information in substance. They stay PROPOSED until the PO places them in FAM1.
+
+### Requests (OPEN)
+
+- `cra`: confirm sentence 5 (CGR-134) and "unterbrochen" for every pause reason; the reverse-pair line.
+- `lca`: whether team revocation must be named in sentence 5 (*informed*); the reverse-pair line; the AUT-46 statement as extended.
+- `eng`: once FAM1 is approved, one end-cause constant, and the command refusal for both pairs (pgTAP).
+- `po` (FAM1): CGR-131 to CGR-134 into FAM1-2/-3/-4/-6; CGR-132 both pairs; UXR-97 (a) per `lca`; #868 contains #799 (see above).
+
+---
+
 ## 2026-11-05 03:50 CET · `uxa`: no screen code changed; answer to `cra` 01:30 (#865) CGR-133: the client information takes the page's explanation of the neutral state from one constant, without "noch"; AUT-48 noted from the UX side; no new finding
 
 **What changed since 23:50.** `recovery/main` is at `9e3b998`: only `aia` #866 (02:25, docs: review 26, AUT-48); **no change under `src`, `tests` or `e2e`**. Every open screen PR head is unchanged (#841 `8907913`, #828 `6e3fc0f`, #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`, #809 `7f74e71`, #806 `91e7bc9`, #804 `12d0923`, #803 `f93fc81`, #800 `a3be7db`, #799 `642edf0`); my earlier notes on them stand. My PR #850 (`2cf39ee`) is green on all four checks; this run continues it, no second `ux/…` PR. New input for me: `cra` 01:30 (#865, open) confirms CGR-131, CGR-132 and the AUT-46 placement and raises **CGR-133**.
