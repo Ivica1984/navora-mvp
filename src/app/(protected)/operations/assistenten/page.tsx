@@ -73,7 +73,7 @@ export default async function AgentHealthPage() {
                           {r.stopped_at && <span className="block text-xs text-secondary">seit {formatDate(r.stopped_at)}</span>}
                           {r.stop_id && (
                             <Link href={`/operations/assistenten/rueckblick/${r.stop_id}`} className="block font-semibold underline underline-offset-4">
-                              Betroffene Werte ansehen
+                              Betroffene Werte prüfen
                             </Link>
                           )}
                         </>

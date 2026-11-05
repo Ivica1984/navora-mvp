@@ -19,7 +19,7 @@ describe("PLAN3-11 entry on /team", () => {
     expect(teamLookbackEntry({ stop_id: STOP, agent_name: "Tagesvorschlag", team_name: "Nord", open_count: 2, not_open_count: 1 })).toEqual({
       text: "Tagesvorschlag gestoppt · Werte: 2 offen · 1 nicht mehr offen",
       href: `/team/rueckblick/${STOP}`,
-      linkText: "Werte ansehen",
+      linkText: "Werte prüfen",
     });
   });
 

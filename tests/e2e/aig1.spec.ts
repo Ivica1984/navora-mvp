@@ -269,7 +269,7 @@ test.describe.serial("PLAN3-11: the team finds its own look-back lines on /team 
     const entry = page.getByTestId("team-lookback-entry");
     await expect(entry).toHaveCount(1);
     await expect(entry).toContainText(new RegExp(`${AGENT} gestoppt · Werte: [12] offen · 1 nicht mehr offen`));
-    await entry.getByRole("link", { name: "Werte ansehen" }).click();
+    await entry.getByRole("link", { name: "Werte prüfen" }).click();
     await page.waitForURL(new RegExp(`/team/rueckblick/${STOP_F}$`));
 
     const list = page.getByRole("list", { name: "Betroffene Werte" });

@@ -232,7 +232,7 @@ export function teamLookbackEntry(s: TeamLookbackStop): { text: string; href: st
   return {
     text: `${s.agent_name} gestoppt · ${lookbackCountsText(s.open_count, s.not_open_count)}`,
     href: `/team/rueckblick/${s.stop_id}`,
-    linkText: "Werte ansehen",
+    linkText: "Werte prüfen",
   };
 }
 
