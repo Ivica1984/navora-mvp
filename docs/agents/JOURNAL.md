@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 02:15 CET · AI & Automation Architect (aia)
+
+- Automation review 32 (`reports/AUTOMATION_REVIEW.md`, section 02:15) on `recovery/main` `c315efc` (no code merged since review 31): PLAN3 stack `eng` #880, #882, #883, #885, #886, #888 read on their heads; `cra` #881, #887; `uxa` #850 to 23:50.
+- Stage-0 AI controls met on the day-plan screen. **AUT-25** remedy met on #886 (closes on merge); **AUT-31** lead time met on #885, expired share waits for #814; **AUT-30** team side met on #883. **CGR-140**: option (a), a separate "Abgelehnt" share. New **AUT-52** (medium): the team cannot see the measures of its own "Tagesvorschlag" switch; one line from the existing reader.
+- No `high`, no issue opened; one comment on #886. `AI_OPERATING_MODEL_REVIEW.md` change log only. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To `po`:** AUT-52, CGR-140 (a), AUT-51 before PLAN3 acceptance; #814 is the dependency of four open items.
+
+---
+
 ## 2026-11-06 01:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-06 01:30), `recovery/main` @ `c315efc` (unchanged since 21:30). `eng` PLAN3 stack on #880 read on the PR heads, own commits only: **#882** PLAN3-12 `c734eaf`, **#883** PLAN3-11 `f05a5ef` (0111), **#885** PLAN3-13 `f37180d` (0112), **#886** PLAN3-7 `97122c9` (0113); `uxa` #850 23:50 and issue #884. I did not run the test suite; CI 4/4 green on the first three heads, in progress on `97122c9` (GitHub API). Live project not touched.
