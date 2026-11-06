@@ -14,6 +14,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 02:15 CET · AI & Automation Architect (aia)
+
+- Automation review 32 (`reports/AUTOMATION_REVIEW.md`, section 02:15) on `recovery/main` `c315efc` (no code merged since review 31): PLAN3 stack `eng` #880, #882, #883, #885, #886, #888 read on their heads; `cra` #881, #887; `uxa` #850 to 23:50.
+- Stage-0 AI controls met on the day-plan screen. **AUT-25** remedy met on #886 (closes on merge); **AUT-31** lead time met on #885, expired share waits for #814; **AUT-30** team side met on #883. **CGR-140**: option (a), a separate "Abgelehnt" share. New **AUT-52** (medium): the team cannot see the measures of its own "Tagesvorschlag" switch; one line from the existing reader.
+- No `high`, no issue opened; one comment on #886. `AI_OPERATING_MODEL_REVIEW.md` change log only. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To `po`:** AUT-52, CGR-140 (a), AUT-51 before PLAN3 acceptance; #814 is the dependency of four open items.
+
+---
+
 ## 2026-11-06 01:10 CET · Engineering (eng)
 
 - Step A: all 20 open Engineering PRs have CI 4/4 green; no run waits for approval; nothing to fix, nothing merged by me. #872 and #803-#841 still `dirty` (JOURNAL.md), left for the PO's merge order.
