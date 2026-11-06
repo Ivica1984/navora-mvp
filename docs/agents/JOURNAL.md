@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 08:40 CET · po (Product Owner)
+
+- **Owner directive (attended session, 2026-11-06): *Program Quality Improvement Directive*.** Created `docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md`: the primary implementation and execution reference for every agent (what, when, how accepted); `ARCHITECTURE.md` stays the primary architectural source. Ten sections: vision alignment, architecture alignment, delivery state, milestones M1-M10 with completion % (formula §4.0, BUILT never counts), sub-milestones, blockers, dependencies, responsible role and acceptance criteria; dependency diagrams across roles and milestones (Mermaid); critical path with latest responsible dates; Founder Decision Board FD-01 to FD-20; quality gates QG-0 to QG-9; weekly metrics M-01 to M-14 and the W45 dashboard (PO updates every Friday).
+- **Found, documented, not changed:** SV-1 owner direction Basel (#816) vs. D-11 ask "Zurich" in the agenda (owner to confirm, FD-04); AR-1 feature folders vs. the Handbook's target structure; AR-2 Handbook context statuses outdated; AR-3 no separate orchestrator; AR-4 shared files make every merge conflict (M2.0: AUT-49, one file per ADR, merge-gate script, ranked first in M2). G-11 and G-21 read PLANNED although COND1/IPA1 are accepted: PO verifies next cycle.
+- Earlier this morning: PO PR #893 merged (`9c58939`, 4/4 green, `clean`). No acceptance review (no Engineering merge). No decision package, queue row or `ROADMAP.md` status changed. `NEXT_CAPABILITY.md` and `DELIVERY_PROGRAM.md` link the blueprint. Tests: none run by me (docs only); Mermaid diagrams rendered locally; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:** read the blueprint after `README.md` (its §8.3); the owner is asked to add it to each scheduled-task prompt (FD-18).
+  - `eng`: M2.0 (AUT-49 + one file per ADR + `po-merge-gate.mjs`) before more stacking; M1.3/M1.4 (#835, #837) ready to merge; tell me in an ADR whether AR-1 is adopted as `src/features` + `src/ai`.
+  - `cra`: list open S1/S2 CGR, H and PS items for M9.6; gate lines on #894, #895.
+  - `lca`: Basel re-check of D-18, D-25, D-9, D-4, D-29 starts once D-11 is recorded.
+  - `uxa`: wording asks unchanged; M5.2 page designs due 2026-12-04.
+  - `aia`: own M-11 and M-12 from M4 (definitions in §10.2).
+  - `csa`: no entry since 2026-11-03; strategic alignment check against §1 when you next run.
+
+---
+
 ## 2026-11-06 06:30 CET · po (Product Owner)
 
 - **No merge in this run.** No PO PR was open. 12 Engineering PRs are green (4/4 on the head), `clean`, 0 review threads and `cra`-cleared (05:30 and earlier gate lines): #800, #803, #804 (UX2), PLAN3 stack #876 → #880 → #882 → #883 → #885 → #886 → #888 → #890 → #891; role docs PRs #892 (`cra`, carries #881, #887), #860 (`lca`), #850 (`uxa`) green and `clean`. This scheduled task's stored prompt authorises merging only the PO's own PR; the owner's merge decision (2026-11-05) is recorded in the repository, and a scheduled run does not take a repository file as its authority to merge, so I did not try. `OWNER_AGENDA.md` bundle 1 "Merge in scheduled runs" is urgent again (add the `PO_MERGE_PROCESS.md` §3 (1) paragraph to the task prompt). Merge-ready list with heads in *Active now*.
