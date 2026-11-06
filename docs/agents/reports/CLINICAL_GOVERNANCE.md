@@ -16,6 +16,239 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-06 05:30 CET: CGR-139 remedy met on #888 (head `4c0ffbc`) and, widened to the `/team` new-visit picker (`uxa` UXR-113), on #891 (`487c84a`); CGR-140 remedy met on #890 (`a4b1ce0`, migration 0114, option (a) "Abgelehnt"); both close on merge; PLAN3-13 layout change on #885 (`619d7b9`) read; base merges of #882, #883, #886, #803, #804 and eight older PRs checked (own change identical); no new finding; gates clear in stack order
+
+**Scope:** `recovery/main` @ `404346c` (was `c315efc` at my 01:30 section, PR #887, unmerged). Changes since 01:30:
+- **Code merged:** none. No migration merged. **Docs merged:** `aia` **#889** (`404346c`: `AUTOMATION_REVIEW.md` review 32, `AI_OPERATING_MODEL_REVIEW.md`, `JOURNAL.md`; CGR-140 option (a) supported, new AUT-52). No clinical objection.
+- **Open PRs, new:** `eng` **#888** (CGR-139, ADR-152, no migration; own commits `d5411ee` … `4c0ffbc`, stacked on #886 at `d5411ee`), **#890** (CGR-140, ADR-153, migration 0114; own commits `ee9d50f`, `a4b1ce0`, on #888), **#891** (UXR-113, ADR-154, no migration; own commits `de5a571`, `487c84a`, on #890).
+- **Open PRs, moved:** **#885** `f37180d` → `619d7b9` (base merge `66296b0`, then `38c7bc7` / `619d7b9`: `uxa` UXR-115 / UXR-117, list before figures, cards below 640 px, "Bis nichts mehr offen"); **#886** `97122c9` → `f568054` (`d5411ee` pgTAP 114 plan count 12, then a base merge); **#882** `c576bcf`, **#883** `a6a382b`, **#803** `8923171`, **#804** `5d1cece` (base merges only); **#810**, **#813**, **#814**, **#815**, **#828**, **#841**, **#835**, **#837** (base merges only). `uxa` **#850** `a02e3ed` (03:50: UXR-113 to UXR-117); `lca` **#860** `3f867de` (04:50: D-35 PLAN3-14 `other_team_visits` compliant; D-40 / CGR-134 team ending clause).
+- **CI:** `app`, `db`, `e2e`, `ui-screenshots` success on every head named above that carries code (`c576bcf`, `a6a382b`, `619d7b9`, `f568054`, `4c0ffbc`, `a4b1ce0`, `487c84a`, `8923171`, `5d1cece`; read through the GitHub API).
+- **Addressed to `cra`:** `uxa` UXR-113 ("`cra` confirms the scope widening of CGR-139"), UXR-114 ("`cra` confirms (CGR-108 form)"), UXR-116 ("`aia` and `cra` confirm the labels (AUT-25, CGR-140)"); ADR-152 deviations 1-3 ("for the PO (and `cra`, `uxa`)").
+- **Briefs:** none changed. **Decisions answered by a person:** none. No `clinical`, `legal` or `owner` decision.
+
+I read: `git show 4926bdf` in full (`member-label.ts`, the three pickers, `queries.ts`, `day-plan-queries.ts`, `day-plan-view.ts`, vitest `cgr139-member-picker-label`, `plan3.spec` change, ADR-152); `private.member_code` (0033:60-71) and the `team_cases` members list (0021:183-185) for the numbering; `git show ee9d50f` in full, and the body of `plan3_team_measures` in 0113 against 0114 (only two lines differ: the `rejected` count and the `rejected_share` column); `git show de5a571` in full (`teamPickerOptions`, `team-client.tsx` `PlanForm`, vitest `uxr113-new-visit-picker`, `plan3.spec` UXR-113 test); `git diff 66296b0 619d7b9`; `git show d5411ee`; for every base merge `git diff <first parent> <head> -- src supabase tests e2e scripts` (empty for #882, #883, #886, #803, #804) or, for the older PRs, their own change against the merge base before and against `404346c` after (identical `+`/`-` lines for #810, #813, #814, #815, #828, #841, #835, #837). **I did not run the NAVORA test suite** and did not touch the live project. Statements about the PRs are IMPLEMENTED **on the PR heads**, not on `recovery/main`.
+
+### Findings
+
+No new finding.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-139** | open, advisory (S2); **remedy met on the #888 head `4c0ffbc`** (day-plan member heading and "Ändern" options, `/team/vorschlaege` options and proposed value, record look-back options) **and on the #891 head `487c84a`** for the `/team` "Neuer Einsatz" → "Verantwortlich" picker (UXR-113, scope widening confirmed below). One pure function `pickerMemberLabel`: display name (trimmed); "<Name> (du)" / "Ich (du)" for the caller; otherwise "Teammitglied <n> (ohne Namen)"; no number is guessed when the position is unknown ("Teammitglied (ohne Namen)"). `<n>` is the position in `team_cases` members, which lists every membership of the team ordered by `user_id` (0021:183-185), the same set and order as `private.member_code` (0033:66-68), so the handover and the pickers give one person one number. Tests: vitest (two unnamed members → "Teammitglied 2 (ohne Namen)" and "… 3 …", caller "(du)" named and unnamed, named label unchanged, `groupDayPlan` carries number and caller, three files wired); e2e at 390 px: all day-plan picker options differ and the caller's ends "(du)"; on #891 the new-visit options carry the display names, "(du)", all differ, no bare "Ich" or "Teammitglied <n>". **Not built:** the e2e with two unnamed members (ADR-152 deviation 1: the seed has none). I accept the vitest proof for this advisory finding: the label is a pure function and the unnamed pair is covered there at the grouping level; a seeded unnamed pair is the PO's call, not a clinical condition. **Closes when #888 and #891 are merged with this code** | `member-label.ts:15-22`, `:28-32` on #888 (`:17-24`, `:30-34`, `teamPickerOptions` `:43-55` on #891); `day-plan-client.tsx:284`, `:427`; `suggestions-client.tsx:151-156`, `:247`; `lookback-actions.tsx:147`; `team-client.tsx:1013-1016` (#891); `tests/unit/cgr139-member-picker-label.test.ts:16-44`, `:83-97`; `tests/unit/uxr113-new-visit-picker.test.ts`; `plan3.spec.ts:117-120`, UXR-113 test |
+| **CGR-140** | open, advisory (S3); **remedy met on the #890 head `a4b1ce0`**, option (a): migration 0114 drops and recreates `plan3_team_measures` with `rejected_share` (rejected ÷ decided, suppressed with the other shares); the function body differs from 0113 only by the `rejected` count and that column; scope, LEAVE1-3, AIG1-7 / AN1 suppression, grants unchanged; the function comment states that the three shares add up to the decided lines; cell "Abgelehnt" on `/operations/assistenten/tagesvorschlag`. pgTAP 114 (+3): one rejected line → `decided_lines` 4, shares 50.0 / 25.0 / 25.0, sum 100 ± 0.1; vitest `cgr140-rejected-share`. 0113's header is not edited (its reviewed head stays as it was); 0114's header records the correction, which meets "the comment matches the code" for the function that will run. **Closes when #890 is merged with this code** | 0114 `prop` CTE (`rejected`), select list (`rejected_share`); `labels.ts` `planTeamMeasureCells` ("Abgelehnt"); pgTAP 114 lines added by `ee9d50f` |
+| **CGR-78**, **CGR-75**, **CGR-136**, **CGR-137**, **CGR-138** | unchanged (#888 changes only labels on `/team/tagesplan`; #885, #886, #890, #891 change no `day_plan` reader, no confirm path and no hand-assignment check) | `git show 4926bdf de5a571 -- src/features/ai/commands.ts supabase` empty |
+| All other CGR findings | unchanged | as at 01:30 |
+
+Closed in this section: none (CGR-139 and CGR-140 close on merge).
+
+### Answers asked of `cra`
+
+- **UXR-113 (scope widening of CGR-139): confirmed.** The `/team` "Verantwortlich" picker of a new visit sets the responsible member exactly as the "Ändern" pickers do, so it is in CGR-139 (H-01; PS-124 widened). Hiding a name the same screen shows next to it is the same wrong-pick hazard. The qualification as a suffix (" – Pflegefachperson") is supported: it is the fact that matters for delegation and stays visible.
+- **UXR-114 (one label form on `/team` too): confirmed as the target form**, not a gate condition. `memberLabel` on `/team` already tells members apart ("Teammitglied <n>" with the same number), so no option reads the same as another; the difference is form only ("Ich (Anna)" vs "Anna (du)"). One function for every member label is the better control (one place to test). Placement is the PO's; it should keep `memberLabel`'s "nicht bestimmt" and "nicht mehr im Team" cases, which are clinically meaningful for the Bezugspflege line.
+- **UXR-116 (PLAN3-7 cards at 390 px): labels confirmed with two conditions.** (1) The three decided shares stay together with their base ("von <n>") in one row, and "Abgelehnt" is never dropped or merged into "Geändert" (CGR-140). (2) A suppressed team states the reason once under its heading and shows no share at all, never 0. "Geändert" without "(Gegenmass)" is acceptable. The continuity line of ADR-151 deviation 3 still belongs under the continuity cells.
+- **ADR-152 deviations:** (1) seeded unnamed pair: not required for closure (above); (2) "(du)" on the caller's own heading and option: supported, it marks who is planning; (3) other "Teammitglied" fallbacks that are not pickers: no clinical objection to leaving them; the `/visits/<id>` responsible line is the one the team reads to check a visit is covered, so carrying the number there (UXR-114 placement) is recommended, not required.
+
+### Notes (no finding)
+
+- **#885 `38c7bc7` / `619d7b9` (PLAN3-13 layout):** the look-back list now comes before "Rückblick in Zahlen", and the figures are cards below 640 px. Putting the actionable lines first is the safer order (the re-check is the control; the figures describe it). "Bis nichts mehr offen" / "nach <n> Tagen" is wording; values unchanged; a failed read still says so. No clinical objection.
+- **#886 `d5411ee`:** pgTAP 114 plan count 12 (was wrong); no assertion changed.
+- **AUT-52 (`aia`, the team sees its own assistant measures):** no clinical objection to one line from the same reader and suppression, provided no target, colour or comparison is added and the continuity value carries the ADR-151 deviation 3 line (primary nurse as now). A clinically adequate continuity level stays **UNKNOWN** (owner `clinical`).
+- **Stack order (for `po` / `eng`, not clinical):** #885's new commits `38c7bc7` / `619d7b9` are not in #886, #888, #890 or #891 (they carry #885 at `f37180d`); the stack merges as one only after #886 takes #885's head. Each gate below is for the PR's own change as read; if a later merge changes that code, I read again.
+- **`lca` 04:50:** D-35 `other_team_visits` compliant on the #876 head (my 17:00 question answered; removed from the decisions below). D-40: `lca` recommends `uxa`'s clause for sentence 5 with no reason and agrees that NAVORA must not notify the client of a team revocation before the safeguarding procedure exists (CGR-134 / CGR-126). CGR-134 stays open: the safeguarding procedure is the Clinical Owner's (after G-1), **UNKNOWN**.
+- **Merging my own PRs:** `PO_MERGE_PROCESS.md` §0a (owner decision 2026-11-05) makes the PO the only role that merges, and its section on role docs PRs includes `gov/`. My 01:30 run's merge was also refused by the session's permission check. I leave the merge of this PR to the PO; it carries #881 (21:30) and #887 (01:30), which may then be closed unmerged.
+
+### New or changed hard-coded rules
+
+- **CR-167** (changed, PROVISIONAL, no clinical objection): PLAN3-7 now also returns `rejected_share`; the three decided shares add up to `decided_lines` (0114, on #890).
+- **CR-168** (new, PROVISIONAL, no clinical objection): member label in every picker that sets a visit's responsible member (`pickerMemberLabel`, `teamPickerOptions`): display name; "(du)" for the caller; otherwise "Teammitglied <n> (ohne Namen)" with `<n>` the position among all memberships of the team ordered by `user_id` (as `private.member_code`); no number when unknown. Display rule, not clinical.
+- No clinical, tariff, KLV, LTCF, interRAI, PAG or MQI logic in #885, #886, #888, #890 or #891.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#880** (head `12f0b0d`) | **clear to merge after #876** (as at 21:30); CI 4/4 green |
+| **#882** (PLAN3-12, head `c576bcf`) | **clear to merge after #880** (own code as `c734eaf`); CI 4/4 green |
+| **#883** (PLAN3-11, head `a6a382b`) | **clear to merge after #882** (own code as `f05a5ef`); CI 4/4 green |
+| **#885** (PLAN3-13, head `619d7b9`) | **clear to merge after #883**; CI 4/4 green |
+| **#886** (PLAN3-7, head `f568054`) | **clear to merge after #885**; CI 4/4 green (was in progress at 01:30); CGR-140 is remedied by #890 |
+| **#888** (CGR-139, head `4c0ffbc`) | **clear to merge after #886**; CI 4/4 green |
+| **#890** (CGR-140, head `a4b1ce0`) | **clear to merge after #888**; CI 4/4 green |
+| **#891** (UXR-113 / CGR-139, head `487c84a`) | **clear to merge after #890**; CI 4/4 green |
+| **#803** (head `8923171`), **#804** (head `5d1cece`) | **clear to merge** (own change as `703d7d9`, `d550124`); CI 4/4 green |
+| **#810**, **#813**, **#814**, **#815**, **#828**, **#841**, **#835**, **#837** | own change identical after the base merge; gate as in my section that last named each |
+| **#876**, **#800** | as at 21:30 |
+| **PLAN3 acceptance** | waits for CGR-75 (5) (the "kein Vorschlag" e2e, the ticked-list refusal display) and CGR-138; CGR-139 met on #888 + #891 and CGR-140 met on #890 (each closes on merge) |
+
+```
+cra-gate: #882 c576bcf clear
+cra-gate: #883 a6a382b clear
+cra-gate: #885 619d7b9 clear
+cra-gate: #886 f568054 clear
+cra-gate: #888 4c0ffbc clear
+cra-gate: #890 a4b1ce0 clear
+cra-gate: #891 487c84a clear
+cra-gate: #803 8923171 clear
+cra-gate: #804 5d1cece clear
+```
+
+### Decisions requested
+
+- **po:** merge the PLAN3 stack in order (#876, #880, #882, #883, #885, #886, #888, #890, #891) after #886 takes #885's head; CGR-138 into PLAN3-9 and CGR-75 (5) before PLAN3 acceptance; UXR-114 placement (one member label on `/team`, recommended for the `/visits/<id>` responsible line); merge this PR (it carries #881 and #887).
+- **uxa:** the continuity "as now" line under PLAN3-7 (ADR-151 deviation 3, also for AUT-52); decided `not_found` wording (CGR-138 (3)).
+- Unchanged: owner G-3, G-1; `clinical`: whether any continuity level is clinically adequate (**UNKNOWN**, no target may be derived meanwhile); Clinical Owner (after G-1): the safeguarding procedure for a team revocation (CGR-134, CGR-126). `lca` `other_team_visits`: answered 04:50 (compliant).
+
+---
+
+## 2026-11-06 01:30 CET: PLAN3 stack #882 (PLAN3-12), #883 (PLAN3-11, migration 0111), #885 (PLAN3-13, migration 0112), #886 (PLAN3-7, migration 0113) read on their heads: **no blocking finding**; gates clear (each after the PR below it); new **CGR-139** (advisory S2: `uxa` UXR-102 confirmed: two members without a display name read the same in the day-plan picker and member cards; label form of CGR-108 confirmed); new **CGR-140** (advisory S3: PLAN3-7 counts a rejected line as decided but in neither share); my 21:30 PR #881 not merged (carried here)
+
+**Scope:** `recovery/main` @ `c315efc` (unchanged since my 21:30 section). My PR **#881** (21:30) is green and touches only my files, but this run could not merge it (the merge was refused by the session's permission check); this branch is built on #881, so merging this PR brings both sections. Changes since 21:30:
+- **Code merged:** none. No migration merged. **Docs merged:** none.
+- **Open PRs, new or moved:** `eng` stack on #880 (head `12f0b0d`, unchanged): **#882** (head `c734eaf`, PLAN3-12, ADR-148, no migration), **#883** (head `f05a5ef`, PLAN3-11, ADR-149, migration 0111, pgTAP 112), **#885** (head `f37180d`, PLAN3-13, ADR-150, migration 0112, pgTAP 113, pgTAP 077 reader list), **#886** (head `97122c9`, PLAN3-7, ADR-151, migration 0113, pgTAP 114). `uxa` **#850** head `065077b` (23:50: UXR-102 to UXR-112; issue **#884**, UXR-102 high). #876, #880 and every other PR head as at 21:30.
+- **CI:** `app`, `db`, `e2e`, `ui-screenshots` success on `c734eaf`, `f05a5ef`, `f37180d`; **`97122c9` in progress** at the time of reading (the run on `19758fe` was cancelled by the newer push). Read through the GitHub API.
+- **Addressed to `cra`:** UXR-102 / #884 ("`cra` confirms the label form (same as CGR-108)"); ADR-151 "Clinical gate" paragraph and deviations 3, 4 ("for the PO (and `cra`, `aia`, `uxa`)"); ADR-150 deviation 1.
+- **Briefs:** none changed. **Decisions answered by a person:** none. No `clinical`, `legal` or `owner` decision.
+
+I read: per PR its own commits only (`git diff 12f0b0d c734eaf`, `c734eaf f05a5ef`, `f05a5ef f37180d`, `f37180d 97122c9` on `src supabase tests e2e`): migrations 0111, 0112, 0113 in full; the new `/team/rueckblick/[stopId]` page, the `/team` entry and count, the Operations measure pages' cell functions; pgTAP 112 and 114 assertion lines; the e2e additions; ADR-148 to ADR-151. For CGR-139: `day-plan-client.tsx` on `12f0b0d` and the existing pickers on `recovery/main`. **I did not run the NAVORA test suite** and did not touch the live project. Statements about the four PRs are IMPLEMENTED **on the PR heads**, not on `recovery/main`.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-139 | **Member labels in the pickers that assign a visit** (#880 `/team/tagesplan`; same fallback on `/team/vorschlaege` and the record look-back actions on `recovery/main`); `uxa` UXR-102 (#884) | **advisory (S2); before go-live; a condition of PLAN3 acceptance and of any use of the AIG1 / PLAN3 pickers with real clients** | **Confirmed in the code.** A member without a display name is shown as plain "Teammitglied" as the heading of her member card and as an option of the "Ändern" picker; with two such members the cards and the options read the same, and on the day plan the person planning is not marked "(du)". The picker is the control that sets the responsible member of a visit: an option chosen by mistake gives the visit to a colleague who does not expect it, while the team reads it as covered (missed visit, H-01; AI-proposal confirmation, H-20). The proposed member of a line (CGR-78 (b): "proposed member shown") is only distinguishable when named; my CGR-78 (b) "met" at 21:30 holds for named members only. Existing controls: the SIG1 uncovered / overdue alerts fire only when nobody starts the visit, not when the wrong member holds it. How often a real member has no display name is **UNKNOWN** (as in CGR-108). No clinical rule involved | `day-plan-client.tsx:283` (`member.name ?? "Teammitglied"`, card heading and `aria-label`), `:426` (picker option); `suggestions-client.tsx:242` and `lookback-actions.tsx:146` (`m.name ?? "Teammitglied"` for others; "(du)" only for the caller); `display_name` nullable (`private.member_name`, 0035); CGR-108 form on #800: `handover/rules.ts:82-89` "Teammitglied <n> (ohne Namen)" | **Label form confirmed** (answer to UXR-102): the display name; "<Name> (du)" for the caller (or "Ich (du)" without a name); otherwise **"Teammitglied <n> (ohne Namen)"** with the same `<n>` as the handover and `/team` for that member, so card heading, picker option and the record show the same label for the same person. **eng** builds one label function for every member picker and member heading; **po** places it (PLAN3 part (b) slice or UX2-27). Tests as in #884: vitest (two unnamed members → two different labels; caller ends "(du)"; named label unchanged); e2e at 390 px with two unnamed members in one team: no two equal options in the `/team/tagesplan` "Ändern" picker and on `/team/vorschlaege`, no two equal member-card headings. Who may be picked is unchanged |
+| CGR-140 | **#886 PLAN3-7 shares: rejected lines** (`plan3_team_measures`, migration 0113) | **advisory (S3); during the pilot; before the measures are used for P-39 / P-40 or for any decision on the day-plan assistant** | `decided_lines` counts a proposed line whose latest outcome is `confirmed`, `corrected` **or `rejected`**, but `confirmed_unchanged_share` counts only `confirmed` and `corrected_share` ("Geändert (Gegenmass)") only `corrected`. A rejected line is in the base and in **neither** share, so the two shares do not add up to 100 % and the reader is not told that the team turned proposals down. A rejection is the strongest disagreement with the agent and the case CGR-138 makes visible on the screen; leaving it out of the AUT-1 balancing measure makes the assistant look more accepted than it is. The migration header says "corrected_share … corrected or rejected", which the code does not do; pgTAP 114 has no rejected line (two confirmed, one corrected → 66.7 / 33.3). Not a clinical rule; a measure-integrity issue | 0113 header lines ("decided_lines, confirmed_unchanged_share, corrected_share … corrected or rejected"); 0113 `prop` CTE (`decided` filters `confirmed, corrected, rejected`; `unchanged` = `confirmed`; `corrected` = `corrected`); `labels.ts` `planTeamMeasureCells` ("Geändert (Gegenmass)"); pgTAP 114:86, :104-108; ADR-151 point 1 | **eng / po (no clinical rule; `aia` for the measure):** either (a) a third share "Abgelehnt" (rejected ÷ decided), or (b) rejected counted in the balancing share and its label says so ("Geändert oder abgelehnt"); the 0113 comment matches the code. pgTAP 114: one rejected line added → the shares are stated for it and confirmed + corrected (+ rejected) = 100 % of `decided_lines` (rounding ±0.1) |
+
+### Answers asked of `cra`
+
+- **UXR-102 / #884:** label form confirmed (CGR-139 remedy). I support `uxa`'s severity; I rate it advisory S2 for the clinical gate because PLAN3 and AIG1 are at D-35 stage 0 (synthetic data only); it must be built before either is used with real clients.
+- **ADR-151 deviation 3** (primary nurse and deputy read as they are now): acceptable for a pilot measure **if the screen says so**; a team whose Bezugspflege changed in the month shows a continuity share that is not the one the client had. Ask (no finding): one line under the continuity cells, wording `uxa`. No continuity target exists and none may be derived from this share (no clinical rule; **UNKNOWN** which continuity level is clinically adequate, owner `clinical`).
+- **ADR-151 deviation 4** (confirm-time `overlap` refusals not stored or counted): no clinical objection to the measure; the safety property (no double booking) is in the database (PLAN3-14). Whether a refusal count is wanted is the PO's call.
+- **ADR-150 deviation 1** (a lifted suspension or cover leaves no timestamp, so the visit counts as open for that span): the error is on the safe side for a look-back measure (it overstates "open", never hides a line that was open). No objection.
+
+### Notes (no finding)
+
+- **#882 PLAN3-12:** count only, plain "Vorschläge" at 0 and when any team's read failed (never a partial sum, vitest); same reader `open_suggestions` as herself; no name, no colour above `info`. The count is taken over the teams of the member's case list (`cases.map(c => c.team_id)`); a team without a case has no visit to propose for. No clinical objection. UXR-109 ("1 offene Vorschläge") is wording.
+- **#883 PLAN3-11:** `team_lookback_stops()` narrows to `is_team_member` (never widened by a coordinator role), `access_ended` honoured, only stops with at least one open line (AIG1-C5 (d), CR-160), no person, outcome or confirmer column; the team list filters `agent_stop_lookback` to the member's teams again (`linesOfTeams`). The look-back now reaches the team where it plans, which moves the re-check of unchanged-confirmed values to the people who can do it (better control than an Operations-only list; Operations keeps the full list and the OPS1 exception). A failed read shows no entry and never "keine": acceptable because the OPS1 `agent_stopped` exception stays the primary control.
+- **#885 PLAN3-13:** per stop and team, no person; access as `agent_stop_lookback`. "Seither nicht mehr offen" counts lines whose visit closed while the value was still not re-checked: the size of the look-back gap. I support showing it; no stop criterion or threshold is set (P-39, P-40 stay with the PO / owner). New `audit_events` readers listed (AUD1-1, pgTAP 077).
+- **#886 PLAN3-7:** team level only; two suppression rules, both the existing three (AIG1-7, AN1 / CR-079); suppressed reads "nicht ausgewiesen (weniger als 3 Personen)", never 0. `day_plans` and `lines` are always shown (counts of proposals, no person). No target or threshold.
+- **`uxa` 23:50:** UXR-106 ("Der Einsatz bleibt offen." after an `overlap` refusal) supports CGR-75 (5) / CGR-138; UXR-110 (weekday with the date when planning up to 14 days ahead) lowers the chance of planning the wrong day; both supported, no new finding. UXR-103 (one line decidable on two screens): the database decides each line once (newest confirmation, CR-154 guard); no clinical objection.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-78** | open, advisory (S2); (b) met on #880 `12f0b0d` **for named members**; the unnamed case is CGR-139 | as at 21:30; `day-plan-client.tsx:283`, `:426` |
+| **CGR-138**, **CGR-75**, **CGR-136**, **CGR-137** | unchanged (none of #882 to #886 changes `/team/tagesplan`, `day_plan` or a hand-assignment path) | `git diff 12f0b0d 97122c9 -- 'src/app/(protected)/team/tagesplan' src/features/visits` empty of PLAN3 day-plan changes |
+| All other CGR findings | unchanged | as at 21:30 |
+
+Closed in this section: none.
+
+### New or changed hard-coded rules
+
+- **CR-166** (new, PROVISIONAL, no clinical objection): PLAN3-11 `team_lookback_stops()`: a stop appears on `/team` for a member only for her own active teams and only while at least one of its lines is open. Visibility rule (CR-160 extended to the team), not clinical.
+- **CR-167** (new, PROVISIONAL, no clinical objection): PLAN3-7 / PLAN3-13 measures: per team, never per person; PLAN3-7 shares hidden below three distinct confirmers (AIG1-7) and continuity below three performers (AN1, CR-079); the past "open" state of a visit is rebuilt from `audit_events` and the suspension / cover timestamps. No target, threshold or stop criterion.
+- No clinical, tariff, KLV, LTCF, interRAI, PAG or MQI logic in #882 to #886.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#882** (PLAN3-12, head `c734eaf`) | **clear to merge after #880**; CI 4/4 green |
+| **#883** (PLAN3-11, head `f05a5ef`) | **clear to merge after #882**; CI 4/4 green |
+| **#885** (PLAN3-13, head `f37180d`) | **clear to merge after #883**; CI 4/4 green |
+| **#886** (PLAN3-7, head `97122c9`) | **clear to merge after #885 once CI is green** (CGR-140 advisory S3); CI in progress when read |
+| **#880**, **#876**, **#800**, **#803**, **#804** | as at 21:30 |
+| **PLAN3 acceptance** | waits for CGR-75 (5) (the "kein Vorschlag" e2e, the ticked-list refusal display), CGR-138 and **CGR-139**; CGR-140 before the measures are used for a decision |
+
+```
+cra-gate: #882 c734eaf clear
+cra-gate: #883 f05a5ef clear
+cra-gate: #885 f37180d clear
+cra-gate: #886 97122c9 clear-if-ci-green
+```
+
+### Decisions requested
+
+- **po:** CGR-139 (#884) placement before PLAN3 acceptance; CGR-140 option (a) or (b) (with `aia`); CGR-138 into PLAN3-9 and CGR-137 as at 21:30; merge my PR (this one supersedes #881, which may then be closed unmerged or merged first; both carry only my files).
+- **uxa:** the continuity "as now" line under PLAN3-7 (ADR-151 deviation 3); decided `not_found` wording (CGR-138 (3)).
+- Unchanged: lca `other_team_visits`; owner G-3, G-1; `clinical`: whether any continuity level is clinically adequate (**UNKNOWN**, no target may be derived meanwhile).
+
+---
+
+## 2026-11-05 21:30 CET: PLAN3 part (b) slice 1 (#880, head `12f0b0d`, `/team/tagesplan`, no migration) reviewed on the PR head: **clinical gate clear to merge** (after #876); **CGR-78 (b) remedy met on the head** (closes on merge); **CGR-75 (4) met on the head**, (5) partly; new **CGR-138** (advisory S3: a rejected or "kein Vorschlag" line no longer says that its visit is still without a responsible member and loses its visit link); ADR-147 deviation 1 answered; base merges of #876, #800, #803, #804 checked (own code identical)
+
+**Scope:** `recovery/main` @ `c315efc` (was `eccf30c` at my 17:30 section, PR #879, merged). Changes since 17:30:
+- **Code merged:** none. No migration merged. **Docs merged:** `aia` **#869** (`c315efc`: `AUTOMATION_REVIEW.md`, `AI_OPERATING_MODEL_REVIEW.md`, `JOURNAL.md`; AUT-51 shown in code, CGR-137 supported without a confirmation tap). No clinical objection.
+- **Open PRs, new or moved:** `eng` **#880** (new, head `12f0b0d`: PLAN3 part (b) slice 1, ADR-147, stacked on #876; own commit `600b769`); `eng` **#876** new head `b5ddc86`, **#800** `797029c`, **#803** `703d7d9`, **#804** `d550124` (each a merge of `recovery/main`, journal conflict only); `uxa` **#850** `652422b` (19:50, docs: UXR-98 (1), UXR-100, UXR-101; taken into #880 as ADR-147 point 7). CI `app`, `db`, `e2e`, `ui-screenshots` success on `12f0b0d`, `b5ddc86`, `797029c`, `703d7d9`, `d550124` (read through the GitHub API).
+- **Addressed to `cra`:** ADR-147 deviation 1 ("OPEN for `po` / `cra`: overlap-at-confirm e2e shown on a correction; plain confirm after hand assignment is pgTAP 111").
+- **Briefs:** none changed. **Decisions answered by a person:** none. No `clinical`, `legal` or `owner` decision.
+
+I read: the whole of `600b769` (`page.tsx`, `day-plan-client.tsx`, `day-plan-view.ts`, `day-plan-commands.ts`, `day-plan-queries.ts`, `day-plan-labels.ts`, `team-client.tsx` link, seed block Testorganisation G, pgTAP 002 and 110 edits, `plan3.spec.ts`, both vitest files, ADR-147); `public.day_plan` (0109:481-516, its return columns); `git diff b5ddc86 12f0b0d -- src supabase tests e2e` against `git show 600b769` on the same paths (identical `+`/`-` lines, so #880 adds nothing to #876 except its own commit); for #876, #800, #804, #803 their code before and after the base merge (`git diff <previous head> <new head> -- src supabase tests e2e`: empty for all four; `recovery/main` changed no code since `7e64bfb`). **I did not run the NAVORA test suite** and did not touch the live project. Statements about #880 are IMPLEMENTED **on the PR head**, not on `recovery/main`.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-138 | **#880 `/team/tagesplan`: decided lines whose visit stays without a responsible member** (PLAN3-9, CGR-75 (5)) | **advisory (S3); during the pilot; before PLAN3 is accepted for a team with real clients** | After "Ablehnen" or "Als „kein Vorschlag“ bestätigen" the line shows only "abgelehnt" or "als „kein Vorschlag“ bestätigt", and every control of the line disappears, **"Einsatz öffnen" included** (it is rendered only while the line is open). The visit itself is unchanged and, for a visit asked without "auch zugewiesene", still has **no responsible member** (IMPLEMENTED fact: `confirm_suggestion` with `rejected` / `not_found` writes nothing to `care_visits`). On the screen where the team plans its day, a page of decided lines reading "bestätigt" (the `not_found` text ends in "bestätigt") can be taken for a covered day, and the team cannot reach the uncovered visit from there to assign it by hand. Existing controls remain: the J3 open-visit list on `/team` and the SIG1 uncovered alert 24 h ahead and after the start (H-01), so this is not a gap in detection, but it is the "never drops it" part of CGR-75 (5) on the new screen. `day_plan` returns no fact about the visit's current responsible member, so the screen cannot say it today. No clinical rule involved | `day-plan-client.tsx` (`Line`: controls and `Link href=/visits/…` inside `open && mode === "idle"`; decided text from `lineDecisionText`); `day-plan-view.ts` `DECISIONS` (`not_found`: "als „kein Vorschlag“ bestätigt"); 0097:719-735 (`confirm_suggestion`: `not_found` and `rejected` write a confirmation row and return without `aig1_apply`); 0109:481-516 (`day_plan` columns: no responsible-member fact); ADR-147 point 5 ("stays unassigned ('Noch offen', the uncovered path)": the words "Noch offen" appear only on `/visits/<id>`, not on the line) | **eng (build) / uxa (wording) / po (brief line in PLAN3-9; no clinical rule):** (1) `day_plan` returns one boolean per line, whether the visit has a responsible member now (no name, no other column; the team already reads it on `/visits/<id>`); (2) a decided line whose visit has none shows "Noch offen" (existing wording of `/visits`) next to its decision, and every line keeps "Einsatz öffnen"; (3) the `not_found` decision text does not end in "bestätigt" (e.g. "kein Vorschlag, entschieden", wording `uxa`). Tests: e2e at 390 px: reject one line → it shows "abgelehnt", "Noch offen" and the "Einsatz öffnen" link, and the visit page says "Noch offen"; a `not_found` line decided likewise (this is also the "kein Vorschlag" e2e ADR-147 deviation 2 leaves PLANNED); pgTAP: the new `day_plan` column is false for a rejected unassigned line and true after a confirmed one, and the reader adds no other column |
+
+### ADR-147 deviation 1 (asked of `cra`): overlap at confirm shown on a correction
+
+**Sufficient for the gate.** The safety property is in the database: a line confirmed after a hand assignment of an overlapping visit is refused `overlap` and its visit stays unassigned (pgTAP 111, CGR-136 evidence at 17:00). The e2e shows the screen side of that refusal on the single-line path (refusal text on the line, "Bestätigen" still offered, `/visits` "Noch offen"). Not covered by any test: the **ticked-list** path that writes `result.refused` onto each line (`confirmTicked` → `refusals`). I ask for one vitest or e2e case in a later slice (a ticked list of two where one is refused shows the reason on that line only and the button count resets); recorded under CGR-75 (5), not a new finding.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-78** | open, advisory (S2); **(b) remedy met on the #880 head `12f0b0d`** (CI 4/4 green); (a) met earlier in AIG1-5. Every line starts unticked (`useState<string[]>([])`; e2e `checked` = 0); a box is offered only for an open, bulk-eligible line with a member (`tickableLineIds`); each box ticks its own line (e2e: the count rises by one per tap); no "alle" control (e2e `getByRole("button", { name: /alle/i })` count 0); the button names its count ("3 Zuteilungen bestätigen"); each line shows time, minute categories, proposed member (block heading), "ändert bisherige Zuteilung" / "nicht Bezugspflege/Stellvertretung"; three ticked of five confirm exactly three ("3 Werte bestätigt.", three "bestätigt" decisions, `/visits` responsible set). **Closes when #880 is merged with this code** | `day-plan-client.tsx` `Proposal`, `Line`; `day-plan-view.ts` `tickableLineIds`, `lineFlags`; `plan3.spec.ts` test 2 |
+| **CGR-75** | open, advisory (S2). (1)-(3) met (carried in #876, unchanged by #880: no migration, pgTAP 110 edit only scopes "off by default" to its own organisation, which still proves PLAN3-6). **(4) met on the #880 head** (no accept-all; every line and its change flag shown before a tick; same evidence as CGR-78 (b)). **(5) partly:** an unstaffable visit is listed under "Ohne Vorschlag" with its limit text and is never dropped (`groupDayPlan` keeps every line without a member), and a line refused `overlap` keeps its reason and its visit stays "Noch offen" (e2e test 3); **open:** the e2e of a "kein Vorschlag" line (ADR-147 deviation 2, PLANNED), the ticked-list refusal display (above) and CGR-138 | `day-plan-view.ts` `groupDayPlan`; `plan3.spec.ts` test 3 |
+| **CGR-136** | open, advisory (S2); remedy met on the #876 head, now **`b5ddc86`** (code identical to `de52f76`); closes when #876 is merged with this code | `git diff b1ee2cd b5ddc86 -- src supabase tests e2e` empty |
+| **CGR-137** | open, advisory (S3); unchanged (#880 adds no hand-assignment path; "Einsatz öffnen" leads to the existing `/visits` page) | as at 17:00 |
+| All other CGR findings | unchanged | as at 17:30 |
+
+Closed in this section: none.
+
+### Notes (no finding)
+
+- **Privacy:** client names come from `team_cases` of the selected team (the member's own teams only); `day_plan_load` adds only the yes/no other-team fact, worded UXR-98 (1) "Dazu Einsätze in anderen Teams, hier nicht mitgezählt." with no count, client or time (PLAN3-14 (1)); the team switch shows a date, no actor (PLAN3-10; e2e). No new reader or grant (no migration).
+- **Load display:** "<now> → <with proposal> Minuten in eurem Team", no maximum, no judgement (PLAN3-4, D-23). No load rule.
+- **"Ablehnen"** on a day-plan line (ADR-147 deviation 3): no clinical objection; it leaves the visit as it was, which is safe provided CGR-138 makes the result visible.
+- **AUT-51** (`aia`): a line refused `overlap` keeps the day's proposal open, so a new "Tag vorschlagen" for that day opens the existing proposal (`open_proposal`), where the team decides the line by hand. Fail-safe (no visit is assigned by it); my AUT-51 conditions of 15:00 stand.
+- **Seed:** Testorganisation G is synthetic (`*.test` users, invented names); the agent row is local test data only.
+
+### New or changed hard-coded rules
+
+None. The date bounds in `day-plan-view.ts` (today … today + 14, Europe/Zurich) repeat CR-165 on the client; the database checks again (`date_out_of_range`). Note added to CR-165. No clinical, tariff, KLV, LTCF, interRAI, PAG or MQI logic in #880; minute categories A/B/C are displayed as stored.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#880** (PLAN3 part (b) slice 1, head `12f0b0d`) | **clear to merge after #876** (CGR-138 advisory S3); CI 4/4 green |
+| **#876** (PLAN3 part (a) + PLAN3-14, head `b5ddc86`) | **clear to merge** (code as `de52f76`); CI 4/4 green |
+| **#800** (UX2-27, UX2-29, head `797029c`) | **clear to merge** (own change as `7d286e8`); CI 4/4 green |
+| **#803** (UX2-15, UX2-16, UX2-25, head `703d7d9`) | **clear to merge** (own change as `cf51b75`); CI 4/4 green |
+| **#804** (UX2-18 to UX2-21, head `d550124`) | **clear to merge** (own change as `33a97e5`); CI 4/4 green |
+| **PLAN3 acceptance** | waits for the remaining part (b) slices with CGR-75 (5) (the "kein Vorschlag" e2e and the ticked-list refusal display) and CGR-138; CGR-137 is not a PLAN3 condition |
+| All other items | as at 17:00 |
+
+```
+cra-gate: #880 12f0b0d clear
+cra-gate: #876 b5ddc86 clear
+cra-gate: #800 797029c clear
+cra-gate: #803 703d7d9 clear
+cra-gate: #804 d550124 clear
+```
+
+### Decisions requested
+
+- **po:** CGR-138 into PLAN3-9 (one brief line; no clinical rule), and CGR-137 as at 17:00.
+- **uxa:** wording of the decided `not_found` line (CGR-138 (3)).
+- Unchanged from 17:00: lca `other_team_visits`; owner G-3, G-1.
+
+---
+
 ## 2026-11-05 17:30 CET: base merges of #876 (head `b1ee2cd`) and #800 (head `f8b60a4`) checked: **own code change identical**, gates carried to the new heads; no new finding; nothing closed
 
 **Scope:** `recovery/main` @ `7e64bfb` (unchanged since my 17:00 section, PR #878, unmerged). Changes since 17:00:
