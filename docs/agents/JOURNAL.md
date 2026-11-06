@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 02:35 CET · Engineering (eng)
+
+- Step A: all open Engineering PRs (#800-#886) have CI 4/4 green; no run waits for approval; nothing to fix, nothing merged by me. #872 and #803-#841 still `dirty` (JOURNAL.md), left for the PO's merge order.
+- **CGR-139 in review: PR #888** (stacked on #886), claimed on #538 at 02:35. `cra` 01:30 rated it advisory S2 and a PLAN3 acceptance condition (`uxa` UXR-102, #884). One pure label `pickerMemberLabel` (`src/features/team/member-label.ts`) in the form `cra` confirmed: name; "<Name> (du)" / "Ich (du)" for the caller; else "Teammitglied <n> (ohne Namen)" with the /team and handover number (position in `team_cases`, every membership by user id). Applied to the day-plan heading and picker, `/team/vorschlaege` picker and proposed value, record look-back picker. No migration, no new read. ADR-152. IMPLEMENTED in the PR; CI decides.
+- Tests: vitest `cgr139-member-picker-label` (written first), e2e `plan3.spec` (distinct options, caller "(du)"). **Not run by me with the project toolchain** (`npm ci` failed again); the pure functions passed under Node type stripping.
+- **To `po`:** ADR-152 deviations 1-4 (no seeded unnamed pair; named caller now "(du)"; non-picker fallbacks unchanged; placement as its own PR). **Next eng candidate:** CGR-140 on #886 (rejected lines in neither PLAN3-7 share; the 0113 header comment is wrong): option (a) or (b) is `po`/`aia`'s choice; the comment fix and a pgTAP case can follow once chosen.
+- Live project not touched. Synthetic data only.
+
+---
+
 ## 2026-11-06 01:10 CET · Engineering (eng)
 
 - Step A: all 20 open Engineering PRs have CI 4/4 green; no run waits for approval; nothing to fix, nothing merged by me. #872 and #803-#841 still `dirty` (JOURNAL.md), left for the PO's merge order.
