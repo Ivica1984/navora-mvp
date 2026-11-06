@@ -815,6 +815,38 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"day_plan_line_closures": {
+                  Row: {
+                    "closed_at": string,"closed_by_proposal_id": string,"id": string,"organization_id": string,"plan_date": string,"suggestion_id": string,"team_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "closed_at"?: string,"closed_by_proposal_id": string,"id"?: string,"organization_id": string,"plan_date": string,"suggestion_id": string,"team_id": string
+                  }
+                  Update: {
+                    "closed_at"?: string,"closed_by_proposal_id"?: string,"id"?: string,"organization_id"?: string,"plan_date"?: string,"suggestion_id"?: string,"team_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "day_plan_line_closures_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "day_plan_line_closures_suggestion_id_fkey"
+      columns: ["suggestion_id"]
+isOneToOne: true
+      referencedRelation: "ai_suggestions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "day_plan_line_closures_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"day_plan_lines": {
                   Row: {
                     "assigned_before": string | null,"created_at": string,"include_assigned": boolean,"known_visits": number | null,"not_found_reason": string | null,"organization_id": string,"plan_date": string,"proposal_id": string,"reason": string | null,"suggestion_id": string,"team_id": string,"visit_id": string
@@ -2565,7 +2597,7 @@ isOneToOne: false
                            },
 "plan3_team_measures":
 { Args: { "p_month": string }; Returns: {
-              "confirm_actions_per_plan": number,"confirmed_unchanged_share": number,"continuity_after_base": number,"continuity_after_share": number,"continuity_before_base": number,"continuity_before_share": number,"continuity_suppressed": boolean,"corrected_share": number,"day_plans": number,"decided_lines": number,"enabled_since": string,"lines": number,"minutes_to_last_decision_median": number,"month": string,"no_proposal": number,"no_proposal_absent": number,"no_proposal_needs_rn": number,"no_proposal_not_active": number,"no_proposal_overlap": number,"no_proposal_share": number,"proposal_suppressed": boolean,"rejected_share": number,"team_id": string,"team_name": string
+              "confirm_actions_per_plan": number,"confirmed_unchanged_share": number,"continuity_after_base": number,"continuity_after_share": number,"continuity_before_base": number,"continuity_before_share": number,"continuity_suppressed": boolean,"corrected_share": number,"day_plans": number,"decided_lines": number,"enabled_since": string,"lines": number,"lines_closed": number,"minutes_to_last_decision_median": number,"month": string,"no_proposal": number,"no_proposal_absent": number,"no_proposal_needs_rn": number,"no_proposal_not_active": number,"no_proposal_overlap": number,"no_proposal_share": number,"proposal_suppressed": boolean,"rejected_share": number,"requests_closing": number,"team_id": string,"team_name": string
             }[]
                            },
 "prepare_member_access_end":
