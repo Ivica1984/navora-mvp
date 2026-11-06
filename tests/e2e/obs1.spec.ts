@@ -35,7 +35,7 @@ test("every observation names its author; the one written without a recorded qua
 
   // The colleague's observation: her name and the marker, in `info` tone (no red), the text unchanged.
   const theirs = observations.getByRole("listitem").filter({ hasText: "trinkt wenig" });
-  await expect(theirs.getByTestId("observation-author")).toHaveText("Neues Teammitglied C");
+  await expect(theirs.getByTestId("observation-author")).toHaveText("von Neues Teammitglied C"); // UX2-27
   await expect(theirs.getByTestId("observation-qualification-marker")).toHaveText(QUALIFICATION_NOT_RECORDED_TEXT);
   await expect(theirs.getByTestId("observation-qualification-marker")).not.toHaveClass(/rose|red/);
   await expect(theirs).toContainText("Synthetisch: Klientin am Morgen müde, trinkt wenig");
