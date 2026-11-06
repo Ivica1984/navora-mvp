@@ -111,3 +111,13 @@ Read: `aia` 20:20 and 02:15 (`reports/AUTOMATION_REVIEW.md` on `recovery/main`),
 - **CGR-139, UXR-102, UXR-113, UXR-114 → PLAN3-17.** (1) met on the heads of #888 and #891 per `cra` 05:30 and `uxa` 03:50 (PO reading, not run); it closes with their merge and gates acceptance. (2) UXR-114 next slice.
 - **UXR-101 → PLAN3-3 wording** "kennt Klient:in".
 - **PLAN3 acceptance therefore needs:** PLAN3-1 to -14 as written, CGR-75 (5) (the "kein Vorschlag" e2e and the ticked-list refusal display), PLAN3-7 (1)-(2), PLAN3-9 (1), PLAN3-15, PLAN3-17 (1). Not gating: PLAN3-9 (2), PLAN3-16, PLAN3-17 (2), PLAN3-3 wording.
+
+## PO note — 2026-11-06 21:55 CET: FE-039 (missing or unresolved qualifications)
+
+- **Founder decision FE-039** (Blueprint §1.4): professional authority per activity comes from a verified Qualification and Activity Matrix (QAM, `cra` with `lca`, approval mandate D-43), never from a job title; NAVORA claims no suitability when a required evidence is missing or a rule is unresolved; *KI schlägt vor*, *Team entscheidet* and *Voraussetzung nachgewiesen* stay distinct.
+- **No change to PLAN3's rules now.** The existing gate (CR-164 with CR-007, CR-009: recorded qualification, registered nurse for KLV-B minutes and needs assessments) stays as a **provisional safe default on synthetic data**. No new binding assignment rule is given to `eng` until its QAM row is confirmed and approved (FE-039). The PLAN3 stack under review is not changed by this note.
+- **PLAN3-18 (PLANNED, approved as product transparency, started only after the PLAN3 stack is merged and the FE-037 cleanup ends; no rule invented):**
+  1. A proposal line that relies on a gate whose register status is `UNVALIDATED` or `PROVISIONAL` says so in one fixed line ("Regel vorläufig, nicht fachlich freigegeben"); test: unit test on the label, e2e on `/team/tagesplan` with the synthetic seed.
+  2. No proposal text states "geeignet", "qualifiziert" or "darf" as a verified fact; the reason names only recorded facts (continuity, load, the recorded qualification value as "erfasst, nicht geprüft"); test: unit test over every PLAN3 reason string.
+  3. A "kein Vorschlag" line for a qualification limit keeps the visit open for the team (as today) and names the missing requirement; escalation to a "responsible professional role" waits for D-43 (OPEN).
+  Wording goes to `uxa` and `cra` (substance) before the build.
