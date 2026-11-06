@@ -4,6 +4,40 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 22:40 CET · po (Product Owner)
+
+Scheduled PO run (22:39). PO PR #930 (attended session, FE-040) was open, so this run continues it instead of opening a second PO PR; `recovery/main` merged in (JOURNAL only, every entry kept, newest first).
+
+- **Merges (A):** **#880** (next PLAN3 stack PR) **not merged**: `eng` resolved the seed/pgTAP 002 conflict (22:40, head `f6450bf`), but CI on that head is still running and the `cra` gate (`12f0b0d`) has not been carried to the new head, whose own diff changed (condition 1, condition 2/AUT-50). The 21:39 comment on #880 already names both; no new comment. **#929** (`cra`, QAM v0.2) **merged** (`6e4f21c`; CI 4/4 green on `1f6ea47`, 0 review threads, own files plus its D-43 input section; record on #929). Then this PR, once CI is green.
+- **Take-in of QAM v0.2 (`cra` hand-over 22:35):** QUAL1 had not started, so the PO amended the approved brief instead of opening a second item: **QUAL1-17** (check again at visit start; four CR-183 results; lapsed delegator → "Überprüfung nötig"; CGR-148), **QUAL1-18** (NH-EXT only with a complete *Einsatzvereinbarung*; D and Bst. b E cells `ungeklärt` until L-7; escalation order CR-184; CGR-147), **QUAL1-19** (AK-1..10 / NT-1..10 mapped to tests). Blueprint **v2.11**: §1.6 take-in paragraph, §9.1 detail list (P-1 to P-9 under PB-2/PB-3/PB-5; CGR-147 keeps PB-6/PB-10 open for NH-EXT). `NEXT_CAPABILITY.md` QUAL1 row noted. Every rule stays PROPOSED; nothing released.
+- **Founder letter named by `cra`:** it is the same founder message already recorded as **FE-040** (points 5 and 6); no new founder decision row.
+- **Challenge (E):** the visit-start re-check (CGR-148) is the one that removes a coordination layer instead of adding one: without it, someone would have to re-verify the plan every morning by phone. NH-EXT stays the main open business risk: until L-7 the external-team-in-a-home model cannot be offered with Bst. b work at all, which limits KON-1 to Grundpflege in Phase B unless `lca` settles it; that is D-44's question, not a software gap.
+- **Decisions (F):** no package moved this run (D-43, D-44 inputs requested 2026-11-06, not yet two role runs old).
+- **Not done:** AN3 acceptance (FE-038 (1), waits for a stably green run); `lca` D-22/D-18 take-in (next cycle); #880 merge.
+- **Scheduled-task prompts:** none needs a change.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `cra`: gate line for #880 on `f6450bf`; confirm QUAL1-17/-18 wording on #927. `eng`: QUAL1-17 to -19 on #928 (build still after the PLAN3 stack). `lca`: L-7 first on #924/#926.
+
+---
+
+## 2026-11-06 22:35 CET · Clinical & Regulatory Architect (review)
+
+- **Founder letter (attended session):** develop the qualification matrix for four contexts, six functions, per-row fields, planning use, a cover simulation, and K/L questions as options.
+- **Delivered:** `clinical/QUALIFICATION_MATRIX.md` v0.2.
+  - Contexts: NH-OWN, NH-EXT, HOSP-IN (not this matrix), HOSP-POST incl. AÜP, PRIV.
+  - Functions F1 to F6; responsibility tied to an object with no assignment command; the limit where a licence demands written directive authority.
+  - Per-row fields; status ladder `PROPOSED` → `fachlich geprüft` → `rechtlich geprüft` → `freigegeben`; ? counts as – everywhere.
+  - Planning: data needs, evidence states, one check on every path including swap and visit start.
+  - Cover simulation: AK-1 to AK-10, NT-1 to NT-10, escalation per context.
+  - Pre-pilot list P-1 to P-9; K-1 to K-8 and L-1 to L-10 with options; FD-Q1/FD-Q2 prepared, not asked.
+- **Registers:** CR-179 to CR-184 PROPOSED; PS-132, PS-133; H-33. **Findings:** CGR-147 and CGR-148 (advisory S1). D-43 clinical impact input (rule families confirmed plus five; option B + D supported).
+- **New sources** (web tool summaries; `lca` to check the originals): ARTISET 2024 and BAG Q&A 2024 (KLV Bst. a and c without an order since 2024-07-01), BS Spitex page (§ 22), BL Spitex form 2026, H+ AÜP paper, WEKA on staff hiring.
+- **Own task adjusted (README rule 11):** the founder asked to work "together with Legal". `lca` is a separate scheduled role, so I prepared L-7 to L-10 and the checks, and handed them over on #924. I did not answer them.
+- Tests: none run (no code). `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` (FE-039 consistent; the letter adds context and is recorded here for the PO to record as a founder decision if he sees fit).
+- **To the agents:** `po`: matrix v0.2 into the Blueprint and QUAL1; place CGR-147/-148; record the founder letter. `lca`: L-1 to L-10 on #924, L-7 and L-2 first. `eng`: nothing to build before the PO's brief.
+
+---
+
 ## 2026-11-06 22:30 CET · po (Product Owner)
 
 Attended session: founder message after FE-039, recorded as **FE-040** (`FOUNDER_DECISIONS.md` v7; Blueprint **v2.10**). Task adjusted within the goal (README rule 11): this package before further cleanup merges in this session; the scheduled runs continue the PLAN3 stack.
