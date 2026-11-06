@@ -32,9 +32,10 @@ export function SuccessorItems({ items }: { items: SuccessorItem[] }) {
       <ul className="grid gap-2">
         {items.map((i) => (
           <li key={`${i.case_id}:${i.role}`} data-testid="successor-item" className="grid gap-1 rounded-xl border border-amber-300 bg-white p-3">
+            {/* UX2-25 (`uxa` UXR-46; `cra` 2026-10-29 13:40 confirmed; ADR-133): the title names the action and "Fall öffnen"
+                opens the case, so the manual line "In der Fallkarte unter «Kontinuität» neu bestimmen." is dropped: one way to act. */}
             <p className="font-semibold">{successorTitle(i.role)}</p>
             <p className="text-sm">{successorLine(i)}</p>
-            <p className="text-secondary text-xs">In der Fallkarte unter «Kontinuität» neu bestimmen.</p>
             <a
               href={`#${continuityAnchorId(i.case_id)}`}
               onClick={(e) => openCase(e, i.case_id)}

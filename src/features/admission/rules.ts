@@ -136,3 +136,47 @@ export function zurichDate(iso: string): string {
   const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
   return `${get("day")}.${get("month")}.${get("year")}`;
 }
+
+// UX2-26 (ADR-136, `aia` AUT-21, `uxa` 16:10): the qualification in the same sitting as the contract. The offer calls
+// the EXISTING set_member_qualification (0018, patched 0046); nothing here adds a rule, a read scope or a field. The
+// membership without qualification is the existing fact ADM2-6 creates (team_memberships.qualification is null), read
+// from admin_members.
+
+export const QUALIFICATION_OFFER_TITLE = "Qualifikation festlegen";
+export const QUALIFICATION_REASON_LABEL = "Begründung (3–300 Zeichen)";
+export const MISSING_QUALIFICATION_HEADING = "Vertrag erfasst, Qualifikation fehlt";
+
+/** The qualifications the administrator may set, in one fixed order: it takes no claim, so the claimed one is never
+ * ordered first or marked. */
+const OFFER_ORDER = ["registered_nurse", "care_assistant"] as const;
+export function qualificationOfferOptions(): string[] {
+  return [...OFFER_ORDER];
+}
+
+/** The reason rule of set_member_qualification (3-300 characters after trimming). */
+export function validQualificationReason(reason: string): boolean {
+  const n = reason.trim().length;
+  return n >= 3 && n <= 300;
+}
+
+export type MissingQualification = { userId: string; email: string; displayName: string; teamId: string; team: string };
+
+type MemberLike = { user_id: string; email: string; display_name: string | null; teams: unknown };
+const teamRows = (teams: unknown): { team_id: string; team: string; qualification: string | null }[] =>
+  Array.isArray(teams) ? teams.filter(isObj).map((t) => ({
+    team_id: String(t.team_id ?? ""), team: String(t.team ?? ""), qualification: typeof t.qualification === "string" ? t.qualification : null,
+  })) : [];
+
+/** One entry per member and team whose membership has no qualification yet (input order kept). */
+export function membersWithoutQualification(members: MemberLike[]): MissingQualification[] {
+  return members.flatMap((m) => teamRows(m.teams)
+    .filter((t) => t.qualification === null && t.team_id !== "")
+    .map((t) => ({ userId: m.user_id, email: m.email, displayName: m.display_name ?? "", teamId: t.team_id, team: t.team })));
+}
+
+/** The member the administrator just recorded: the e-mail she typed and the proposal's team. */
+export function findRecordedMember(rows: MissingQualification[], email: string, teamId: string): MissingQualification | null {
+  const e = email.trim().toLowerCase();
+  if (e === "") return null;
+  return rows.find((r) => r.teamId === teamId && r.email.trim().toLowerCase() === e) ?? null;
+}
