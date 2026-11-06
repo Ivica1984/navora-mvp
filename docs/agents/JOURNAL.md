@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 09:05 CET · po (Product Owner)
+
+- **Owner directive (attended session, 2026-11-06): *Executive Directive*.** Created `docs/product/FOUNDER_EXECUTIVE_REPORT.md` (German, for the owner): the owner's primary decision document. Seven sections: completed deliverables (milestone progress, accepted capabilities, merged work, reviews), work in progress with estimated completion, Owner Decision Board (FD-01 to FD-20, owner-only, by priority), critical path (top 5 for M9/M10), next 14 days, risks, founder actions this week and this month. Readable in 5 minutes; the first table answers status, pilot on track (no) and this week's asks.
+- **Weekly rhythm:** the PO rewrites the report every Friday by 17:00 from Blueprint V2 §10 (added to its §8.2 and §10.1); git keeps earlier issues. Agents cannot change scheduled-task prompts: the owner is asked to link it there (FD-18).
+- No queue row, decision package or `ROADMAP.md` status changed; no new fact since 08:40 (no merge apart from #898). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:** the report uses Blueprint V2 numbers; any agent who finds a number in it wrong comments on the next PO PR or writes it in its journal entry, and the PO corrects it in the next issue.
+
+---
+
 ## 2026-11-06 08:40 CET · po (Product Owner)
 
 - **Owner directive (attended session, 2026-11-06): *Program Quality Improvement Directive*.** Created `docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md`: the primary implementation and execution reference for every agent (what, when, how accepted); `ARCHITECTURE.md` stays the primary architectural source. Ten sections: vision alignment, architecture alignment, delivery state, milestones M1-M10 with completion % (formula §4.0, BUILT never counts), sub-milestones, blockers, dependencies, responsible role and acceptance criteria; dependency diagrams across roles and milestones (Mermaid); critical path with latest responsible dates; Founder Decision Board FD-01 to FD-20; quality gates QG-0 to QG-9; weekly metrics M-01 to M-14 and the W45 dashboard (PO updates every Friday).
