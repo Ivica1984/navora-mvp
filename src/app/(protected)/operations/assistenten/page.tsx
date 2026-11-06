@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { connection } from "next/server";
-import { AppFrame } from "@/components/layout/Sidebar";
+import { PageFrame } from "@/components/layout/PageFrame";
 import { getAgentHealth } from "@/features/ai/queries";
 import { formatDate, formatShare, minReachedText, stateLabel, stopReasonText, windowText } from "@/features/ai/labels";
 
@@ -11,7 +11,7 @@ export default async function AgentHealthPage() {
   await connection();
   const rows = await getAgentHealth();
   return (
-    <AppFrame active="operations" className="bg-stone-50 text-emerald-950">
+    <PageFrame className="bg-stone-50 text-emerald-950">
       <main className="grid min-w-0 gap-4 p-4 md:p-6">
         <Link href="/operations" className="text-sm font-semibold underline underline-offset-4">
           Zurück zu den Ausnahmen
@@ -88,6 +88,6 @@ export default async function AgentHealthPage() {
           </div>
         )}
       </main>
-    </AppFrame>
+    </PageFrame>
   );
 }

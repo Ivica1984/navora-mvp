@@ -6,6 +6,155 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-03 23:50 CET · `uxa`: no screen code changed; answers to `cra` 21:30 (#845): CGR-113 sentence with "gelten nicht mehr", UXR-89 amended with `cra`'s card conditions, offline wording for CGR-118 and CGR-121 (a), (b); UXR-91 (medium) on my own catalog line A-07
+
+**What changed since 19:55.** My PR #839 is merged (`c46010a`). `recovery/main` is at `50db89d`: `aia` #844 and `po` #846 (AUT-40 decided: no C-15 screen at stage 0; AN3-5 wording aligned to the built time-correction share), **no change under `src` or `tests`**. Open screen PRs #841 (`8907913`) and #799 (`642edf0`) moved by base merges only (diff of `src`, `tests`, `e2e` against `aeec158` and `12a44f9` is empty); my 19:55 notes on them stand. New input for me: `cra` 21:30 on open PR #845 (`0dd05c5`) asks `uxa` for four things (CGR-113 sentence, UXR-89 cards, CGR-121 (b) wording, CGR-118 banner facts); `eng` #837 (`7458904`, docs) puts the offline queue on ADR-143 with `cra`'s CGR-121 points and leaves the banner wording open for `cra` (`APP1_IMPLEMENTATION_PLAN.md`, *Offline queue (A-07)*). No new UX brief; no `ux` issue changed.
+
+**Sources.** No screen code changed, so no screenshots were needed or downloaded. Read: `CLINICAL_GOVERNANCE.md` 21:30 on #845 (CGR-113, CGR-118, CGR-120, CGR-121, UXR-88/-89 conditions); `step-spans.ts` on `8907913`; `briefs/AN3.md` (AN3-5 as aligned by `po` 22:00); `APP1_IMPLEMENTATION_PLAN.md` offline queue on #837; my `NAVORA_SCREEN_CATALOG.md` A-07. No benchmark (made 03:52 today). I ran no test; CI is the test runner. Live project not touched. Everything below is PROPOSED wording, nothing is built.
+
+### Answers to `cra` (all wording PROPOSED; `cra` confirms the facts, the PO places them)
+
+**CGR-113 (supersede sentence, ASM1-C6 (8), #815).** I take `cra`'s condition as given; the sentence by count from the reader:
+- n = 0: no sentence.
+- n = 1: "Auch ihre frühere Fassung gilt dann nicht mehr und ist für das Team nicht mehr sichtbar."
+- n ≥ 2: "Auch ihre <n> früheren Fassungen gelten dann nicht mehr und sind für das Team nicht mehr sichtbar."
+"ihre" refers to the Bedarfsabklärung, not to a person (UXR-81 does not apply). Vitest n = 0, 1, 2 as in my 15:50 remedy; one constant with the confirming step.
+
+**UXR-89 amended (AN3 figure cards, #841).** My 19:55 remedy stands with `cra`'s two conditions added, so it reads: label, value and base visible; definition and source behind one "Wie gemessen" disclosure per card; the month once in the block header; **(b) card** = "Unterschrift bis Gegenzeichnung", "Berichte mit Rückgabe" and "Einsätze mit Zeitkorrektur", all three values visible with the disclosure closed; **(e) card** = "Vorschlag bis Entscheid" with "Davon geändert", "Davon abgelehnt", "Abgelaufen ohne Entscheid", all four values visible; on these two cards the line **"Kein Richtwert."** stays outside the disclosure, directly under the card title. The definitions keep "Eine Tatsache, kein Richtwert: …" word for word inside the disclosure. Playwright at 390 px with every `summary` closed: the three (b) values, the four (e) values and both "Kein Richtwert." lines are visible; no definition text is.
+
+**CGR-118 (1) and CGR-121 (b): the offline banner (A-07, M6, PLANNED).** `attention` tone, under the page header on every screen, `role="status"` once when it appears (not repeated on each re-render), at most three short lines at 390 px:
+1. "Keine Verbindung."
+2. "Was du eingibst, bleibt auf diesem Gerät. Gesendet wird es, wenn NAVORA offen ist und die Verbindung zurück ist."
+3. "Neue Sicherheitssignale kommen erst danach an. Dringendes jetzt telefonisch melden."
+Line 2 holds the foreground fact (ADR-142, no background sync) and is true together with CGR-121 (a), because pending entries in IndexedDB survive a closed or reloaded app and are deleted only after the confirming sign-out step (ADR-143). Line 3 holds both CGR-118 (1) facts. "Sicherheitssignale" is the term of the push opt-in (catalog SC-2). If `eng` finds that pending entries do not survive a reload on some device (iOS, UNKNOWN), line 2 must not be shown there as written.
+
+**CGR-118 (2) and CGR-121 (b): each pending card.** One `info` line on the card, never green, never "erledigt":
+- kinds that reach another person (list owned by `cra`: observation, safety alert, absence, no-show, not completed): "Noch nicht beim Team. Wird gesendet, wenn NAVORA offen ist und Verbindung besteht."
+- other kinds: "Noch nicht gesendet. Wird gesendet, wenn NAVORA offen ist und Verbindung besteht."
+- only while a resend is actually in flight: "Wird gesendet …"; then one `role="status"` line "Gesendet." or the server's refusal on the card.
+- refused with `access_ended` (ADR-143): "Nicht gesendet: dein Zugang ist beendet. Bitte telefonisch ans Team weitergeben." (stays on the card; `lca` confirms because it touches the access end).
+- after an expired session: once she has signed in again, one `role="status"` line "<n> Eingaben von dir werden jetzt gesendet." (never before her own sign-in, never to another user).
+
+**CGR-121 (a): the sign-out step with pending entries.** An `alertdialog` with initial focus on the default action:
+- title: "Noch nicht gesendet: <n> Eingaben"
+- one line naming the kinds with counts, from the same labels as the cards, e.g. "2 Beobachtungen, 1 Abwesenheit"
+- "Wenn du dich jetzt abmeldest, werden sie von diesem Gerät gelöscht. Das Team erfährt nichts davon. Dringendes jetzt telefonisch melden."
+- default (primary, focused, Escape does the same): "Zurück und senden" when connected; when offline the same button reads "Zurück", because nothing can be sent at that moment (`cra` to confirm this variant of the default label).
+- second act (secondary, `danger` text, never pre-focused, separated from the primary): "Abmelden und Eingaben löschen".
+`lca` confirms the deletion sentence (care text on the device, SC-2). Playwright with `context.setOffline`: one pending observation, sign-out opens the dialog, focus on "Zurück", Escape keeps her signed in with the entry; only "Abmelden und Eingaben löschen" signs out.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-91 | A-07 offline state, every screen (nurse; phone), M6, PLANNED; my own catalog line | medium | My catalog says each pending command shows "Wird gesendet …" on its card. While offline nothing is being sent, and under ADR-142 nothing is sent while the app is closed; "Wird gesendet …" reads as "on its way", which is the false reassurance CGR-118 (2) and CGR-121 (b) name. The banner wording in the same line ("bleiben erhalten … sobald die Verbindung zurück ist") also lacks the foreground and the safety-signal facts. | `docs/design/NAVORA_SCREEN_CATALOG.md:191` (A-07, merged with #834); `APP1_IMPLEMENTATION_PLAN.md` offline queue (#837 `7458904`) | §1 what needs attention now; §4 say what happens; DESIGN_SYSTEM §5 offline rule (new, OPEN) | Pending cards and banner as in *Answers to `cra`* above; "Wird gesendet …" only while a request is in flight. When MOB1 is written: e2e offline (`context.setOffline`) asserts no "Wird gesendet" text on a pending card while offline, the "Noch nicht beim Team" line on a pending observation, and both banner facts. I correct the catalog line in my next catalog change (outside this PR's three files). | — (medium; PLANNED screen) |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-88 | OPEN on #841; **`cra` confirmed** (21:30) with the definitions kept word for word. | `8907913`, `step-spans.ts:37-117` unchanged |
+| UXR-89 | OPEN on #841; remedy **amended** above with `cra`'s card conditions. | `8907913`, `step-spans.tsx` unchanged |
+| UXR-90 | OPEN (low) on #841. | `8907913`, `step-spans.ts:156` |
+| UXR-84 | OPEN on #815; **`cra` confirmed** the sentence (21:30). | `4474184` |
+| UXR-75, -78 | Met on PR head #799 (`642edf0`, `e2e` green per `cra` 21:30); close on merge. | 19:55 section |
+| UXR-79; UXR-73 | Met on PR heads (#800; #813 with UXR-82 residual); close on merge. | 11:50 section |
+| UXR-80 to -83, -85 to -87 | OPEN, unchanged (heads moved by base merges only). | 15:50 and 11:50 sections |
+
+**AN3-5.** Settled: `cra` 21:30 confirms the built share meets AN3-5 and `po` 22:00 aligned the brief wording; my 19:55 UNKNOWN is answered.
+
+**Waiting for the PO.** Placing the offline wording in the MOB1 brief (M6, due 2026-11-27) with `cra`'s confirmation of the facts, the offline variant "Zurück", and `lca`'s confirmation of the deletion and access-end sentences; placing UXR-88/-89 on #841 (may ride before merge, `cra`) and CGR-113 on #815.
+
+---
+
+## 2026-11-03 19:55 CET · `uxa`: new #841 (AN3, `/analytics` "Wo die Nicht-Pflegezeit hingeht") and the UX2-31 amendment on #799 read on PR heads; UXR-88, -89 (medium), UXR-90 (low); UXR-75, -78 met on #799
+
+**What changed since 15:50.** My PR #839 is still open (CI green on `7fe88f6`, clean, not merged); this run continues it. `recovery/main` is unchanged at `1b1d151`; **no screen code merged**. Open PRs that change screens:
+- **#841** AN3 (new, head `aeec158`, ADR-144): a block "Wo die Nicht-Pflegezeit hingeht" on `/analytics` between the AN1 tables and the AN2 hypotheses; per scope (organisation, then each team) 14 figures, each with value, base, period, definition and source.
+- **#799** UX2-1 (head `12a44f9`, was `f394ec5`): UX2-31 amendment (po 06:30, ADR-131 addendum): "Ausnahmen" as first tab for a person in no team whose home is `/operations`; below 768 px `scroll-padding` from the measured tab bar and sticky header heights.
+- #800, #803, #804, #806, #809, #813, #814, #815: heads moved by base merges only (e.g. #815 `4474184`, #814 `3fe219b`, #813 `8e4ab0b`), **no change under `src` or `tests`**. My 03:52 to 15:50 notes on them stand. #837, #838, #840 (docs), #828 (no screen change), #842 (`cra`) not reviewed for screens.
+
+**Sources.** `ui-screenshots` artifacts exist for these heads, but the archive still redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from the code on the PR heads. No benchmark this run (made at 03:52 today). I ran no test; CI is the test runner. Live project not touched.
+
+### What the PRs do well (built on PR heads, not yet on `recovery/main`)
+- #799: the home tab is chosen only from items her menu already holds, nothing added or dropped (`lib/auth/shell.ts` `homeTabFor`, `shellItemsFor`); a team member keeps Heute, Team, Arbeitstag. The scroll padding follows the real heights through a `ResizeObserver` and adds 0.5rem so the focus outline stays visible (`AppShell.tsx` `useShellScrollPadding`, `globals.css` max-width 767.98px); Playwright covers both (`ux2-shell.spec.ts`, UX2-31 tests). `/field` and `/work` render their sticky header on the server (no `loading.tsx`), so the header is measured at mount.
+- #841: never per person and no target, colour scale or ranking (AN3-3, AN3-5); a suppressed figure shows "–" and "Basis –" rather than a guessed value; cards stack, so 390 px fits without sideways scroll; `role="group"` with "Schritte: <Team>" keeps the AN1 region names unique; "zu wenig Daten" uses the AN1/AN2 chip (one pattern on the page).
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-88 | `/analytics` AN3 block (team member, coordinator, coach, administrator; phone and desktop); built on open PR #841 | medium | Every figure's visible source line carries internal codes, and the first label carries an English product term: "(North Star)", "WORK1-6", "F1–F4", "F6/F7 (AN1)", "F6R (AN2)", "F6R-9", "F3 (AN1)", "J1", "ORD0", "AIG1-Protokoll (AIG1-C4)". A nurse or coach reads "Quelle: Aufgaben ORD0" and learns nothing about where the number comes from. AN1's sources on `recovery/main` already carry some codes (`features/analytics/rules.ts:42-92`, in the UX1-C2 scope for `src/features`, PLANNED); AN3 adds new ones in a new block. | `aeec158`, `features/analytics/step-spans.ts:37-117` (`STEP_FIGURES` label, definition line 38, every `source`); shown at `analytics/step-spans.tsx:53` | §4 no internal codes in user text; one product name and plain German | Sources in plain words ("Bestätigte Arbeitstage", "Einsatzzeiten", "Berichte", "Rückgaben", "Zeitkorrekturen", "Partneranfragen", "Aufgaben «Hausärztin/Hausarzt informieren»", "Protokoll der Assistenzvorschläge"); the code moves to `data-ref` on the line (not read aloud); "(North Star)" dropped from the label. Vitest: no `label`, `definition` or `source` in `STEP_FIGURES` (and AN1 `KPI`) matches `/\b(F\d|F6R|J\d|WORK\d|ORD\d|AIG\d|AN\d)\b|North Star/`. Substance of the definitions unchanged; `cra` confirms (AN3-5 wording). | — (medium) |
+| UXR-89 | `/analytics` AN3 block (team member, coach; phone 390 × 844); built on open PR #841 | medium | Each scope lists 14 figures, each with label, value, base, the month (the same month on every line, already chosen at the top of the page) and a definition of up to three sentences plus source, all open. One team is several screens at 390 px; the organisation block comes first, so a team member scrolls past it before her own team. Related figures ("Vorschlag bis Entscheid" and its three "Davon …"/"Abgelaufen" lines; the GP task and its two "offen" lines) are separate cards, so "Davon geändert" reads without its parent in a screen reader's list. What she needs at a glance (where the time goes) is buried in definitions she reads once. | `aeec158`, `analytics/step-spans.tsx:37-56` (every `li` renders `periodLabel` line 50 and `f.definition` line 53); `step-spans.ts` `STEP_FIGURES` | §5 density (one line under a heading; details behind "Details"); §1 what needs attention first | Per figure: label, value and base visible; definition and source behind one `<details>` "Wie gemessen" (`summary` `min-h-11`), text unchanged; the month once in the block header, not per line; related figures as one card with sub-rows (GP task: erledigt / offen am Monatsende / Alter; proposals: bis Entscheid / geändert / abgelehnt / abgelaufen), so AN3-5's "beside" condition still holds. Playwright at 390 px: no definition text visible before a `summary` is opened; `step-period` occurs once per scope. The order org before team is the PO's (AN1 pattern); `cra` confirms the AN3-5 grouping. | — (medium) |
+| UXR-90 | `/analytics` AN3 block, several teams (coordinator, administrator; desktop) | low | Teams are sorted by their internal id (`a.localeCompare(b)` on the scope key), so the order looks random and differs from a team list sorted by name. | `aeec158`, `features/analytics/step-spans.ts:156` | §5 consistency; predictable order | Organisation first, then teams by name with `Intl.Collator("de-CH")` (same in the AN1 tables); vitest on `buildStepScopes` with two teams whose id order and name order differ. | — |
+
+**AN3-5, for `cra` (UNKNOWN from the UX side).** The brief places the countersign latency beside the team's returned share and its *open time corrections*; the block shows "Einsätze mit Zeitkorrektur" (share of completed visits with at least one correction). Whether that meets AN3-5 is `cra`'s to confirm; I make no proposal on the substance.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-75, -78 | Met on PR head #799 (UX2-31 (1), (2)); close on merge. | `12a44f9`, `lib/auth/shell.ts` `homeTabFor`; `AppShell.tsx` `useShellScrollPadding`; `globals.css`; `ux2-shell.spec.ts` UX2-31 tests |
+| UXR-84 to -87 | OPEN on #815 / #814; heads changed by base merges only. | `4474184`, `3fe219b` |
+| UXR-82; UXR-83 | OPEN (low), unchanged. | `8e4ab0b`; 15:50 section |
+| UXR-79; UXR-73 | Met on PR heads (#800; #813 with UXR-82 residual); close on merge. | 11:50 section |
+| UXR-80, -81 | OPEN (low) on #809; head changed by a base merge only. | `7f74e71` |
+| UXR-36, -37, -40, -41; -56, -58, -61, -62, -63; -27, -28, -46, -48, -53, -72 | Met on PR heads; close on merge. | 03:52 to 11:50 sections |
+| UXR-57 | Partly met on #806 (assessor prefill PLANNED, ADR-135). | `91e7bc9` |
+| UXR-64; UXR-76, -77; UXR-68 | PLANNED (UX2-30 (7); UX2-32; PLAN3-12). | briefs |
+| UXR-65, -74 | OPEN (low), unchanged. | no screen merge |
+
+**For the PO.** (1) UXR-88, -89 can ride #841 before merge (strings and presentation only; `cra` confirms wording and grouping). (2) AN3-5 "open time corrections" vs. the built share: `cra`'s call. (3) Nothing severe or high; no issue opened.
+
+---
+
+## 2026-11-03 15:50 CET · `uxa`: new PRs #814 (AIG1-C4/-C5, `/operations/assistenten`) and #815 (ASM1-C6 "Irrtümlich erfasst", `/team`) read on PR heads; UXR-84, -85 (medium), UXR-86, -87 (low); CGR-113 sentence proposed
+
+**What changed since 11:50.** On `recovery/main` (`1b1d151`) only docs merged: my #798, `csa` #821, `lca` #823, `po` #822, `aia` #829, `po` #832, my design set #834 (15:00, owner request; no report section) and `po` #836 (baseline adopted; UX2-33 error pages added to UX2). **No screen code merged.** Open PRs that change screens:
+- **#814** AIG1-C4 + AIG1-C5 (new, head `dc1b2b4`, ADR-139): `/operations/assistenten` shows "Abgelaufen ohne Entscheid: <n>" under the decided count, the state as a status ("Gestoppt seit <Datum>", "Aus", "Ein") and every stop as a list (open stops with "Betroffene Werte ansehen", stops at 0 offen as history).
+- **#815** ASM1-C6 with C6 (8) (new, head `f0a2752`, ADR-140): "Irrtümlich erfasst" beside "Korrigieren (ersetzen)" on `/team`; P-37 form (`cra` sentence, two radios, free text after "Anderer Grund"), UX2-23 confirming step, void line in the history, C6 (8) basis sentence at `info`.
+- #799 (`f394ec5`), #800 (`a3be7db`), #803 (`f93fc81`), #804 (`12d0923`): heads moved by base merges only, **no change under `src` or `tests`**; #806, #809, #813 unchanged. My 03:52 to 11:50 notes on them stand.
+
+**Sources.** `ui-screenshots` artifacts exist (e.g. `recovery/main` `1b1d151`: 13239537813; #815 `f0a2752`: 13230647751; #814 `dc1b2b4`: 13227258635); the archive still redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from the code on the PR heads. No benchmark this run (made at 03:52 today). I ran no test; CI is the test runner. Live project not touched.
+
+### What the new PRs do well (built on PR heads, not yet on `recovery/main`)
+- #815 follows the preset pattern (§2): `fieldset` with visible legend "Grund", neither radio preselected, rows `min-h-11`, free text and hint only after "Anderer Grund", the `cra` sentence before the options (`team/assessment-void-fields.tsx:47-63`); the void act sits behind the shared confirming step whose sentence names the consequence ("Danach gilt diese Bedarfsabklärung nicht mehr. Der Eintrag bleibt gespeichert …", `features/assessment/rules.ts:344`); the void line is a label, not a strike (deviation 4); no field of a voided record is rendered (`renderVoided`, `assessment-section.tsx:139-150`); the basis sentence sits where the marker sits, outside the folded history, at `info` (`plan-assessment-basis.tsx:51-55`).
+- #814 states the agent as a status, not a to-do, and keeps a stop with open lines actionable whatever the state; history lines are muted and carry no link (`operations/assistenten/page.tsx:95-113`). No person column.
+
+### Wording answers (OPEN until built)
+
+**CGR-113 (`cra` 13:30, "with `uxa`"), void of a corrected record.** ADR-140 deviation 1: a void also withholds the record's earlier versions in its supersede chain. Proposed second sentence of the confirming step, shown only when the record replaced at least one earlier version (count from the reader): "Auch <ihre frühere Fassung | ihre <n> früheren Fassungen> sieht das Team dann nicht mehr." Full step: "Danach gilt diese Bedarfsabklärung nicht mehr. Auch ihre 2 früheren Fassungen sieht das Team dann nicht mehr. Der Eintrag bleibt gespeichert; das Team sieht nur noch, dass er irrtümlich erfasst wurde." Testable: vitest on the sentence for n = 0 (absent), 1, 2. `cra` confirms the substance; placement by the PO with CGR-113.
+
+**ADR-140 deviation 6, supersede sentence** (see UXR-84): keep the `cra` substance, change only the quoted command name to the label on screen: "Ist nur ein Wert falsch, nutze «Korrigieren (ersetzen)». «Irrtümlich erfasst» ist nur für eine Erfassung, die nicht in diesen Fall gehört." `cra` confirms.
+
+**#814 labels (Engineering's from the brief, "`uxa` may replace").** "Abgelaufen ohne Entscheid: <n>", "Gestoppt seit <Datum>", "Aus", "Ein": **confirmed** as built. Stop lines: see UXR-87.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-84 | `/team` case card, void form (registered nurse, phone); built on open PR #815 | medium | The sentence that steers a nurse away from the void tells her to use «Ersetzen», but the button beside it reads "Korrigieren (ersetzen)". In the one moment where the choice matters (wrong value of the right client vs. wrong client), the help names a command she cannot find by that word. ADR-140 deviation 6 left this to `uxa`. | `f0a2752`, `features/assessment/rules.ts:339-340` (`VOID_SUPERSEDE_SENTENCE`) vs. `team/assessment-section.tsx` button "Korrigieren (ersetzen)" | §4 one command, one label; §2 one primary action | `VOID_SUPERSEDE_SENTENCE` quotes «Korrigieren (ersetzen)» (wording above); vitest asserts the sentence contains the exact label of the supersede button (one constant). `cra` confirms. | — (medium; PR comment) |
+| UXR-85 | `/team` void form, "Anderer Grund" (registered nurse, phone); built on open PR #815 | medium | "Irrtümlich erfasst markieren" stays disabled until the free text has 10 characters, but neither the label ("Grund (eigener Text)") nor the hint says so. A nurse who types a short reason sees a button that does not work and no reason why (a disabled button is not focusable and gives no message). | `f0a2752`, `team/assessment-void-fields.tsx:65-82`, `rules.ts:336-337` and `voidSubmitEnabled` (10 to 500) | §2 a short preset beside free text (submit disabled until valid); §4 a refusal says what to change; §6 | Label "Grund (10–500 Zeichen)", as on `/admin` "Begründung (3–300 Zeichen)"; vitest asserts the label names the bounds that `voidSubmitEnabled` checks. Hint words unchanged (`lca` refinement, po 13:28). | — (medium; PR comment) |
+| UXR-86 | `/team` void, refused by the database (registered nurse, keyboard or screen reader); built on open PR #815 | low | After a refusal the confirming step unmounts (`setAsking(false)`) while its focused button is pressed; focus falls to the page body. The error is announced (`role="alert"`) but a keyboard user starts again from the top of a long `/team` page. | `f0a2752`, `team/assessment-void-form.tsx:33-37` | §6 when a dialog's content is replaced, focus moves to the new content | After a refusal focus moves to the submit "Irrtümlich erfasst markieren" (or the error line, `tabIndex=-1`); Playwright: refuse, assert `document.activeElement` is inside `assessment-void`. | — |
+| UXR-87 | `/operations/assistenten`, stop column (Operations, administrator; desktop, screen reader); built on open PR #814 | low | With two stops that still have open lines, the cell holds two links both named "Betroffene Werte ansehen"; in a screen reader's link list they cannot be told apart. The history line starts in lower case ("gestoppt am …") while the open line starts "Gestoppt am …" and has "Werte:" before the counts. | `dc1b2b4`, `operations/assistenten/page.tsx:96-108`; `features/ai/labels.ts` `stopOpenText`, `stopHistoryText` | §6 link purpose; §4 one wording | Link keeps its visible text and gets `aria-label="Betroffene Werte ansehen, Stopp vom <Datum>"`; `stopHistoryText` starts "Gestoppt am" and uses `lookbackCountsText`; vitest on both strings. | — |
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-83 | OPEN (low); `cra` 13:30 prefers the member-number form ("Teammitglied <n> (ohne Namen)") on the visit card too. | `cra` 13:30 journal |
+| UXR-82 | OPEN (low) on #813; head unchanged. | `01dee6c` |
+| UXR-79; UXR-73 | Met on PR heads (#800; #813 with UXR-82 residual); close on merge. | 11:50 section |
+| UXR-80, -81 | OPEN (low) on #809; AUT-35 label confirmed by `cra` 13:30. | `f209c1f` |
+| UXR-36, -37, -40, -41; -56, -58, -61, -62, -63; -27, -28, -46, -48, -53, -72 | Met on PR heads; heads changed by base merges only; close on merge. | 03:52 to 11:50 sections |
+| UXR-57 | Partly met on #806 (assessor prefill PLANNED, ADR-135). | `a5875e2` |
+| UXR-64; UXR-75, -78 / -76, -77; UXR-68 | PLANNED (UX2-30 (7); UX2-31 / UX2-32; PLAN3-12). | briefs |
+| UXR-65, -74 | OPEN (low), unchanged. | no screen merge |
+
+**For the PO.** (1) CGR-113 sentence proposed above (`cra` confirms). (2) UXR-84, -85 can ride #815 before merge (string changes only). (3) Nothing severe or high; no issue opened.
+
+---
+
 ## 2026-11-03 11:50 CET · `uxa`: #800 amendments (UX2-27/-29: CGR-108, CGR-109, UXR-79) and new #813 (RLS4-C3) read on PR heads; UXR-82, -83 (low); CGR-108 wording confirmed; AUT-35 label proposed; RLS4-C3 (2) interim noted
 
 **What changed since 07:52.** My PR #798 is still open (CI green on `b6d22ac`, not merged); this run continues it and merged `recovery/main` `547d807` in (JOURNAL: both entries kept, newest first). On `recovery/main` only docs merged (#811 `aia` review 19); **no screen code merged**. Open PRs that change screens, each with app, db, e2e and ui-screenshots `success` on its head (read from GitHub check runs; I ran no test):

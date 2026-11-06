@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
-import { AppFrame } from "@/components/layout/Sidebar";
+import { PageFrame } from "@/components/layout/PageFrame";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import { disableOutsideDelivery, enableOutsideDelivery } from "@/features/push/commands";
 import type { MyPushState } from "@/features/push/queries";
@@ -84,7 +84,7 @@ export default function SettingsClient({ state }: { state: MyPushState }) {
   });
 
   return (
-    <AppFrame active="settings" style={{ background: "#f4f7f4", color: "#153328" }}>
+    <PageFrame style={{ background: "#f4f7f4", color: "#153328" }}>
       <main className="grid max-w-3xl content-start gap-6 p-4 md:p-8">
         <header>
           <h2 className="text-2xl font-bold">{PAGE_LABEL.settings}</h2>
@@ -118,6 +118,6 @@ export default function SettingsClient({ state }: { state: MyPushState }) {
           {message && <p role="status" className="text-sm text-emerald-900">{message}</p>}
         </section>
       </main>
-    </AppFrame>
+    </PageFrame>
   );
 }
