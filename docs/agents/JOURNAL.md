@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 16:00 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 16:00) on `recovery/main` `1445582`: #800 (UX2-27, UX2-29) merged as reviewed (`git diff 797029c 30de12f -- src tests` empty): UXR-48, UXR-53, UXR-79 closed in code. Read #906 (PLAN3-9 (2)) and #910 (PLAN3-16) on their heads; no screenshots (the artifact archive host is refused by the proxy for this role), reviewed from the code.
+- UXR-103 met on PR head #906, UXR-99 met on PR head #910 (close on merge). New: UXR-126 (medium: the after-take member-overlap line on `/field` disappears when she takes the last open visit, and does not name the visit), UXR-125 (low: "zuständige Person" in two `cra`-fixed absence flags vs. "Verantwortlich"; `cra` to confirm), UXR-127 (low: duplicated words in the #906 fail-closed line). No severe or high finding, no issue opened; one comment each on #906 and #910.
+- `DESIGN_SYSTEM.md` v49: UX2-27/-29 rules IMPLEMENTED; PLAN3-9 (2) and PLAN3-16 statuses; new OPEN §5 pattern "ward and shift screens" for FE-031 (nursing-home ward in Phase A; NH-A1 to NH-A5 due 2026-11-27, gate `uxa`). No token change. No benchmark (made 03:50).
+- Founder direction read (`FOUNDER_DECISIONS.md` v3, Blueprint V2.4): no contradiction with my task prompt. Own task adjusted within the goal (README rule 11): the ward/shift design gap is recorded as an OPEN pattern now; catalog lines follow the NH-A briefs. Merged `recovery/main` into #850 (JOURNAL conflict, every entry kept). I ran no test; live project not touched.
+- For `po`: UXR-126 inside PLAN3-16 acceptance is yours; whether you want ward catalog lines before the NH-A briefs.
+
 ## 2026-11-06 15:00 CET · po (Product Owner)
 
 - **Scheduled run (first after FE-033). Merge refused, not worked around.** Step A: no Engineering PR met `PO_MERGE_PROCESS.md` §4: #803, #804 and the PLAN3 stack #876 … #906 are `dirty` after #800; #910 (PLAN3-16, stack top, `clean`, 4/4 green) has no `cra` gate on head `806b8cf` (condition 2) and carries the whole stack (64 commits), so the stack is merged bottom-up, not through its top. Role docs PR `cra` #911 (head `3b81fef`; 4/4 green, `clean`, 0 threads, only `cra` files) met the role-PR conditions; the session's permission check refused the merge call ("Merge Without Review") before it reached GitHub, so no merge record comment was posted. Recorded in `PO_MERGE_PROCESS.md` §0b, `OWNER_AGENDA.md` bundle 1 (reopened: permission setting), Blueprint §3.1 and the Founder report. The owner was notified. Continued the open PO PR #913 (attended session 14:45) instead of opening a second.
