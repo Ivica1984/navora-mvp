@@ -2,12 +2,15 @@
 // (tests/unit/aig1-labels.test.ts). The database decides every rule (migrations 0097, 0103); this only words its answers.
 // No clinical rule, threshold or default lives here: the threshold values are read from `agent_health`.
 
+import { RESPONSIBLE_LABEL } from "@/features/visits/types";
+
 /** AIG1-4: a field the agent did not find is shown as exactly this, never empty, "keine" or a default. */
 export const NOT_FOUND_TEXT = "nicht gefunden";
 
 /** Field names as the screen shows them (only fields with a consuming command; ADR-120). */
 const FIELD_LABEL: Record<string, string> = {
-  responsible_user_id: "Zuständig",
+  // UXR-79 with UX2-29: the responsible member reads "Verantwortlich" here too (`RESPONSIBLE_LABEL`).
+  responsible_user_id: RESPONSIBLE_LABEL,
 };
 
 export function fieldLabel(field: string): string {

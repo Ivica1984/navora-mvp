@@ -12,7 +12,7 @@ import { entryAuthorLabel, entryQualificationMissing } from "@/features/handover
 // OBS1 (ADR-118, migration 0095): display of the author and the OBS1-1 marker. Synthetic names only.
 describe("OBS1 observation author on the visit card and in the handover (OBS1-2)", () => {
   it("names a colleague by her display name, the reader herself as 'von dir'", () => {
-    expect(observationAuthor({ own: false, author_name: "Kandidatin Olga Test" })).toBe("Kandidatin Olga Test");
+    expect(observationAuthor({ own: false, author_name: "Kandidatin Olga Test" })).toBe("von Kandidatin Olga Test"); // UX2-27
     expect(observationAuthor({ own: true, author_name: "Kandidatin Olga Test" })).toBe("von dir");
   });
   it("never guesses a name for a member without one", () => {
@@ -32,7 +32,7 @@ describe("OBS1 observation author on the visit card and in the handover (OBS1-2)
     const detail = { content: "x", author_name: "Kandidatin Olga Test", author_qualification_missing: true };
     expect(entryAuthorLabel({ kind: "observation", author: "member:4", detail })).toBe("Kandidatin Olga Test");
     expect(entryAuthorLabel({ kind: "observation", author: "me", detail })).toBe("Ich");
-    expect(entryAuthorLabel({ kind: "observation", author: "member:4", detail: { content: "x" } })).toBe("Teammitglied 4");
+    expect(entryAuthorLabel({ kind: "observation", author: "member:4", detail: { content: "x" } })).toBe("Teammitglied 4 (ohne Namen)"); // UX2-27 (CGR-108)
     expect(entryAuthorLabel({ kind: "care_plan_added", author: "member:4", detail })).toBe("Teammitglied 4");
     expect(entryQualificationMissing({ kind: "observation", detail })).toBe(true);
     expect(entryQualificationMissing({ kind: "observation", detail: { author_qualification_missing: false } })).toBe(false);

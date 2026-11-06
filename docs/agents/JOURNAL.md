@@ -4,6 +4,83 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 15:00 CET · po (Product Owner)
+
+- **Scheduled run (first after FE-033). Merge refused, not worked around.** Step A: no Engineering PR met `PO_MERGE_PROCESS.md` §4: #803, #804 and the PLAN3 stack #876 … #906 are `dirty` after #800; #910 (PLAN3-16, stack top, `clean`, 4/4 green) has no `cra` gate on head `806b8cf` (condition 2) and carries the whole stack (64 commits), so the stack is merged bottom-up, not through its top. Role docs PR `cra` #911 (head `3b81fef`; 4/4 green, `clean`, 0 threads, only `cra` files) met the role-PR conditions; the session's permission check refused the merge call ("Merge Without Review") before it reached GitHub, so no merge record comment was posted. Recorded in `PO_MERGE_PROCESS.md` §0b, `OWNER_AGENDA.md` bundle 1 (reopened: permission setting), Blueprint §3.1 and the Founder report. The owner was notified. Continued the open PO PR #913 (attended session 14:45) instead of opening a second.
+- **Acceptance review, UX2 part 3 (#800, merged 13:59 as `30de12f`, CI green on the merge commit):** UX2-27 (with CGR-108) and UX2-29 (with CGR-109, UXR-79) met; evidence table in `briefs/UX2.md`; the PO did not run the tests. UX2 stays in progress (one brief; #803, #804, #806, #809, UX2-32 open). No deviation listed; no severe UXR on these screens.
+- **AUT-54 (#912, `aia` high) adopted (PO, product scope of a draft brief):** DOC-AI no longer re-drafts the structured report (it is already the F6/F7 snapshot, rule, no AI). DOC-AI = the nurse's own unstructured note → proposed observations with source span, confirmed one by one (A7); no new act for a visit without a note; M-16 and acts per report measured on the synthetic seed before the build; AUT-54's six criteria go into the DOC-AI brief (due 2026-11-27). FD-22 restated: a provider would test only the A7 note flow (and any BILL1 free text). FE-028 unchanged; consistent with FE-013 (rules before AI). Challenge-review row added; confirmation point 6 has a traceable addendum.
+- **`cra` 13:30 (#911, read on its branch):** CGR-142 conditions (1)-(5) written into Blueprint M9.0a as conditions on every NH-A brief; CGR-143 (1)-(4) met at document level: M-21 "> 7 days" marked PROPOSED (owner `clinical`), indicator set and margin set by the Clinical Owner before the Phase B baseline, Phase A results not evidence of "no safety loss", M-15/M-16 read only beside M-21 and the correction rate, hypotheses renamed **HYP-1 to HYP-6** (confirmation §1.1; FE-032 keeps its wording, same hypotheses).
+- **Decision packages (INDEX order):** tier 1 D-22, D-18 and D-25 wait for the `lca` Basel re-analysis requested 12:30 (not in; no edit, frozen rule). **D-41**: `cra` clinical section taken in (levels, hazards, controls, order, option D); **D-42**: `cra`'s eight clinical-governance clauses taken in. Both stay `inputs-requested` (E and L outstanding, requested today, within the two-run window); confidence Low. Nothing decided, nothing escalated.
+- **Blueprint v2.4** (version table row). Scheduled-task prompts: **no prompt needs a change**; the PO task needs a **permission setting** (owner), not a prompt edit. Issues synchronised: #912 (decision comment), #905 (D-41 scope note).
+- Tests: none run by me (docs only); CI states read through the GitHub API; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- **To the agents:**
+  - `eng`: nothing merged by this run. Please merge `recovery/main` into #803 and #804 first (next in order), then the stack bottom-up (#876 …); #910 waits for its `cra` gate and for the PRs under it. D-41 and D-42 Engineering sections still requested.
+  - `cra`: #911 not merged (permission refusal, not a finding); gate line for #910 `806b8cf` requested; CGR-142/-143 placed as above, please confirm "met at document level" for CGR-143; device level of the narrowed DOC-AI scope (A7) requested (AUT-54 criterion 6).
+  - `lca`: D-41 and D-42 legal sections still requested; the DOC-AI scope change narrows what D-34 statement v2 must cover (A7 dictation, not a report draft).
+  - `uxa`: UX2 part 3 is on `recovery/main`; screens `/visits`, `/visits/<id>`, handover now carry the "Verantwortlich"/"nicht erfasst" and author wordings.
+  - `aia`: AUT-54 adopted as proposed; your #896 was merged into `recovery/main` outside this run (`4ad4f5e`), after this entry's merge check. AUT-55 to AUT-58 are read next cycle.
+  - `csa`: M2/M4/M6 risk is again the merge path (permission), not build progress; DOC-AI narrowed toward rules first.
+
+---
+
+## 2026-11-06 14:45 CET · po (Product Owner)
+
+- **Owner message 2026-11-06 14:00 (attended session): approvals recorded as FE-033 to FE-036** in `docs/product/FOUNDER_DECISIONS.md` v3.
+- **Merge process test run (FE-033 condition): passed.** PR #800 (UX2-27 + UX2-29, head `797029c`, no migration): merge record comment with the seven conditions, merge with the head SHA (`30de12f`), CI on the merge commit green (`app`, `db`, `e2e`, `ui-screenshots`). Recorded in `PO_MERGE_PROCESS.md` §0b. UX2 acceptance waits for its remaining parts.
+- **Scheduled-task prompts updated (owner approval, confirmation §5.3), all eight:** PO (founder block, contexts, merge step A, living-Blueprint duty, Friday founder report; schedule now hourly at :39 Europe/Zurich), Engineering, weekly Engineering status, Clinical & Regulatory (runs every 4 h), Legal & Compliance (runs daily; FE-026 commission), AI & Automation, UX/UI, Chief Strategy (O-5 open; H-1 to H-6). **Beyond §5.3, aligned with FE-018:** the four role prompts that told roles to merge their own docs PRs now leave them for the PO (the PO is the only role that merges). **Not possible from here:** removing the Supabase and Render connectors from the tasks (owner, task settings).
+- **SR-26 decided by the owner (FE-034): delete `orders` completely.** Repository checked: no copies (counts and column names only). **Execution blocked:** the old live project `jwmfxrmougneeceldhsa` (and the second project) is paused (INACTIVE); SQL not possible. Restoring a paused live project is a production change, so it is asked as **FD-27** (restore for one session and drop, or delete the whole old project, which also removes backups). SR-26 moved to *Decided* with the execution record in the package.
+- **Blueprint v2.3:** version table at the top and living-document rule (FE-035, the Blueprint is the official working book); M9 re-framing confirmed (FE-036); FD-01, FD-17, FD-23, FD-26 closed, FD-27 added; M2 21 %. Founder report updated (11 owner decisions). Owner agenda updated.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not modified (paused; read attempt only).
+- **To the agents:** your prompts now carry the founder block; read `FOUNDER_DECISIONS.md` and the Blueprint after README. Role docs PRs are merged by the PO; keep them conflict-free. `eng`: the PO now merges one Engineering PR per hourly run in *Active now* order; please merge `recovery/main` into conflicting PRs promptly.
+
+---
+
+## 2026-11-06 14:40 CET · AI & Automation Architect (aia)
+
+- Automation review 34 (`reports/AUTOMATION_REVIEW.md`, section 14:40) on `recovery/main` `30de12f`: founder direction 2026-11-06 (FE-023 to FE-032), Blueprint V2/V2.1 (AI work flows, SV-4 to SV-7, M8.1b, FD-22, M-11 to M-21), D-41, D-42, confirmation §1.1 (H-1 to H-6) read; `eng` #897 read on its head, #902, #903, #906, #910 at title and CI level (all 4/4 green, GitHub API).
+- New **AUT-54 (high, issue #912):** DOC-AI as framed re-drafts the structured report that F6/F7 already build from the facts and adds a review per visit; keep the structure as the F7 rule, scope the agent to the nurse's own unstructured note, measure M-16 first, restate FD-22. **AUT-55** (medium): M-15 counts travel, meetings and training as administration; compute it from recorded admin segments. **AUT-56** (medium): no per-resident time tap in the nursing-home ward to make M-15 computable. **AUT-57** (medium): Phase A values test the measurement, not the effect; Phase B "before" from the partner's existing records, no diary. **AUT-58** (low): one source for open owner asks.
+- PLAN4 supported as a rule with seven controls (now in `AI_OPERATING_MODEL_REVIEW.md` §12). **AUT-51** remedy met on #897 (closes on merge).
+- This PR continues #896 (08:25); `recovery/main` merged in, JOURNAL conflict resolved with every entry kept. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To `po`:** #912 before the DOC-AI brief (2026-11-27); AUT-55 to AUT-57 into M-15 and NH-A1 to NH-A5; #897 deviation 3 (count one visit-day once).
+
+---
+
+## 2026-11-06 12:30 CET · po (Product Owner)
+
+- **Owner answers in the attended session:** Phase A simulates **home care and a simulated nursing-home ward** (O-1 option b; FE-031). The owner re-sent a revised version of the letter: point 5 adds the explicit goal of reducing avoidable Spitex administration and placement overhead, enabling self-organised teams and better earnings for nurses (FE-032; hypotheses H-1 to H-6 with their measurement in the confirmation §1.1); point 8 asks for the PO's own responsibility and confirms that team self-organisation is preserved; points 13 and 16 ask the PO to commission `lca`. The prompt-change question (FD-01) was **not answered**: no scheduled task changed.
+- **`lca` commissioned** (founder points 13, 16): PO notes with `Unfreeze: 2` in D-22, D-18, D-9, D-4, D-29 (Basel-Stadt, Basel-Landschaft, nursing home), D-36 (licence terms needed for nursing-home assessment), and a re-analysis request in D-34 (intended purpose vs. nursing homes, DOC-AI, assessment, PLAN4). **D-42** opened (Phase B pilot agreement with a nursing home; `lca`, `cra`, `eng` inputs). One comment on each package issue.
+- Updated: `FOUNDER_DECISIONS.md` v2, Blueprint V2.1 (O-1 decided, FD-21 removed, M3 30 %), Founder report (14 owner decisions), confirmation document.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:** `lca`: the requests above are explicit re-analysis asks (your prompt's condition (c)). `eng`: nursing-home addendum to `IMPLEMENTATION_SEQUENCE.md` can start (FE-031); D-42 technical annex requested. `cra`: D-42 clinical-governance clauses requested.
+
+---
+
+## 2026-11-06 12:00 CET · po (Product Owner)
+
+- **Founder letter 2026-11-06 (attended session): direction confirmed point by point** in `docs/product/FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md` (German): business model in own words, points 1-22 each with interpretation, place of implementation and open questions, 17 contradictions (W-1 to W-17) with corrections, GitHub reconciliation (issues, PRs, branches, ADRs, task prompts, plans), seven genuine founder questions O-1 to O-7, work plan.
+- **Recorded as owner decisions:** **D-11** Basel-Stadt and Basel-Landschaft; **D-1** fact: no real personal data in the old system (key rotation and leaked-password protection stay owner security actions; SR-26 scope question open); **D-24** nursing homes in scope, real pilot partner a nursing home (Phase B), simulated nursing home in Phase A. Each package and row starts with `Unfreeze: 1 owner 2026-11-06`. **D-25** reopened for `lca` (BS/BL; Unfreeze 2). **D-41** opened (approved NAVORA AI path for real data; D-35 rule A stays in force; `eng`, `cra`, `lca` inputs requested).
+- **New files:** `docs/product/FOUNDER_DECISIONS.md` (versioned FE-001 to FE-030; newest founder decision overrides), `docs/product/PRICING_MODEL_COMPARISON.md` (F1-F7, no invented prices; D-14 not asked now). README rules 10 (founder decisions override) and 11 (autonomy inside the brief). Blueprint **V2.1** (vision, business model, AI work flows as core, care-context matrix, SV-4 to SV-7, M3, M8.1b, M9 re-framed by phases, critical path, decision board FD-21 to FD-26, metrics M-15 to M-21 with hypotheses marked). Founder report rewritten (15 owner decisions). `OWNER_AGENDA.md`, `ROADMAP.md` (Phase A/B, KPIs) updated.
+- **Not done, needs the owner:** scheduled-task prompts read (all eight), contradictions listed in the confirmation §5.3, **not changed** (agents never edit scheduled tasks). The Chief Strategy task's last run (2026-11-02) failed on a usage limit; next run 2026-11-09.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- **To the agents:** read `FOUNDER_DECISIONS.md` and Blueprint V2.1 after README (rule 10).
+  - `eng`: nothing in your queue changes; PLAN4 (team-mandated routine assignment) will need an ADR after `cra`/`lca`; please draft a nursing-home addendum to `IMPLEMENTATION_SEQUENCE.md` once O-1 is answered; D-41 Engineering section requested.
+  - `cra`: D-41 clinical section requested (AI documentation drafts); clinical plausibility of the simulated nursing home (M9.0a) will be asked with NH-A1 to NH-A5.
+  - `lca`: D-41 legal section; D-25 for BS/BL; Basel re-check of D-18, D-9, D-4, D-29; intended-purpose statement v2 against nursing homes and DOC-AI (SV-5); external adviser only for questions you cannot settle (FE-026).
+  - `aia`: PLAN4 and DOC-AI will come to you for automation review; M-15 to M-17 are yours to define with AN3.
+  - `uxa`: nursing-home ward screens will be needed after O-1.
+  - `csa`: STR-21 is answered by the Phase A design (Blueprint SV-2); please re-assess; STR-20 (one canton first) is superseded by FE-019.
+
+---
+
+## 2026-11-06 09:05 CET · po (Product Owner)
+
+- **Owner directive (attended session, 2026-11-06): *Executive Directive*.** Created `docs/product/FOUNDER_EXECUTIVE_REPORT.md` (German, for the owner): the owner's primary decision document. Seven sections: completed deliverables (milestone progress, accepted capabilities, merged work, reviews), work in progress with estimated completion, Owner Decision Board (FD-01 to FD-20, owner-only, by priority), critical path (top 5 for M9/M10), next 14 days, risks, founder actions this week and this month. Readable in 5 minutes; the first table answers status, pilot on track (no) and this week's asks.
+- **Weekly rhythm:** the PO rewrites the report every Friday by 17:00 from Blueprint V2 §10 (added to its §8.2 and §10.1); git keeps earlier issues. Agents cannot change scheduled-task prompts: the owner is asked to link it there (FD-18).
+- No queue row, decision package or `ROADMAP.md` status changed; no new fact since 08:40 (no merge apart from #898). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:** the report uses Blueprint V2 numbers; any agent who finds a number in it wrong comments on the next PO PR or writes it in its journal entry, and the PO corrects it in the next issue.
+
+---
+
 ## 2026-11-06 08:40 CET · po (Product Owner)
 
 - **Owner directive (attended session, 2026-11-06): *Program Quality Improvement Directive*.** Created `docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md`: the primary implementation and execution reference for every agent (what, when, how accepted); `ARCHITECTURE.md` stays the primary architectural source. Ten sections: vision alignment, architecture alignment, delivery state, milestones M1-M10 with completion % (formula §4.0, BUILT never counts), sub-milestones, blockers, dependencies, responsible role and acceptance criteria; dependency diagrams across roles and milestones (Mermaid); critical path with latest responsible dates; Founder Decision Board FD-01 to FD-20; quality gates QG-0 to QG-9; weekly metrics M-01 to M-14 and the W45 dashboard (PO updates every Friday).
@@ -16,6 +93,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - `uxa`: wording asks unchanged; M5.2 page designs due 2026-12-04.
   - `aia`: own M-11 and M-12 from M4 (definitions in §10.2).
   - `csa`: no entry since 2026-11-03; strategic alignment check against §1 when you next run.
+
+---
+
+## 2026-11-06 08:25 CET · AI & Automation Architect (aia)
+
+- Automation review 33 (`reports/AUTOMATION_REVIEW.md`, section 08:25) on `recovery/main` `9c58939`: PO #893 (06:30), `eng` #890, #891, #894, #895 and `cra` #892 read on their heads; CI 4/4 green on the four `eng` PRs (GitHub API).
+- AUT-51 → PLAN3-15 and AUT-52 → PLAN3-7 (2) adopted as proposed; **AUT-52 met on #894**. PLAN3-15, PLAN3-16, PLAN3-17, PLAN3-9 (1)-(2) supported in the challenge review.
+- New **AUT-53** (low), a correction of my own AUT-52: a missing primary nurse never produces "kein Vorschlag" (PLAN3-3 falls back to capacity); drop that clause from PLAN3-7 (2) and accept #894 deviations 2 and 3 as built.
+- No `high`, no issue opened; one comment on #894. `AI_OPERATING_MODEL_REVIEW.md` change log only. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To `po`:** AUT-53 wording fix; PLAN3-15 is the remaining `aia` acceptance item not built.
 
 ---
 
@@ -153,11 +240,31 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 18:13 CET · eng (Engineering)
+
+- Step A: every open Engineering PR is green on its head (app, db, e2e, ui-screenshots; read through the GitHub API); no bot run waits for approval. Not merged by Engineering.
+- **#800** (UX2-27, UX2-29) was `dirty` again after #879 (`cra` 17:30) merged: merged `recovery/main` (`eccf30c`) in. Conflict `JOURNAL.md` only, every entry kept, newest first; no code changed by the merge (own change identical to `f8b60a4`). **#876** is `clean` (no action).
+- **Nothing ran locally**; CI decides on the new #800 head. `cra` gate needs carrying to the new #800 head (docs-only merge).
+- Next (`eng`): after the PO merges #800 and #876, PLAN3 part (b) (UI, e2e with a confirm-time `overlap` refusal, CGR-75 (5)) on #538; then base merges of #803, #804, #810, #814, #815, #813, one per merge.
+- No issue claimed (step A did the run's work). Live project not touched.
+
+---
+
 ## 2026-11-05 17:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 17:30), `recovery/main` @ `7e64bfb`: only base merges moved. #876 `de52f76` → `b1ee2cd` and #800 `7d286e8` → `f8b60a4`: own code change identical (diffs on `src supabase tests e2e` compared). I did not run the test suite; CI 4/4 green on both heads, read through the GitHub API. Live project not touched.
 - **Gate lines carried:** `cra-gate: #876 b1ee2cd clear`, `cra-gate: #800 f8b60a4 clear`. No new finding, none closed; registers unchanged.
 - **To the agents:** `po`: #800 then #876 can merge (CI 4/4 green on both heads) (CGR-136 closes on the #876 merge). This PR carries my chain (#873, #875, #878).
+
+---
+
+## 2026-11-05 17:15 CET · eng (Engineering)
+
+- Step A, PO order (16:30): merged `recovery/main` (`7e64bfb`) into **#800** (UX2-27, UX2-29). Conflict was `JOURNAL.md` only (entries ordered newest first, none dropped). No code changed by the merge.
+- **#876** (PLAN3 part (a) + PLAN3-14): `recovery/main` merged in as well (journal only); `cra` gate line on its head still open (#878 says "gate clear" on `de52f76`; the merge commit is docs-only on top of it). #872 stays open until #876 is merged (it is the `cra`-cleared fallback); then I close it.
+- **Nothing ran locally** (no `npm ci` in this sandbox run); CI decides on the new heads.
+- Next (`eng`): after the PO merges #800, merge `recovery/main` into #803, #804, #810 (#810 conflicts on `IMPLEMENTATION_STATUS.md` and `DECISIONS.md`, not only the journal), #814, #815, #813, one per merge.
+- No issue claimed (step A did the run's work; #538 stays mine via #876). Live project not touched.
 
 ---
 
@@ -253,6 +360,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **CGR-124** host condition met at document level in D-2 (pg_cron SIG1 every minute; external missing-heartbeat check before M9; PLANNED).
 - Registers: CR-164, CR-165 added (PLAN3 limits and preference, PROVISIONAL); PS-121 added; G-3, G-10, H-01, H-04, H-20 updated.
 - **Chain rebuilt as the PO asked (12:00):** this PR is based on `recovery/main` and carries #582 … #870 (five files, docs only). **Not merged by me:** owner instruction on #666; the PO merges role docs PRs under `PO_MERGE_PROCESS.md` §4. Earlier `gov/` PRs (#582 … #870) are superseded by this one once it is merged. I ran no tests; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
+---
+
+## 2026-11-05 13:20 CET · eng (Engineering)
+
+- Step A: PLAN3 part (a) PR #872 green on head `c382272` (app, db, e2e, ui-screenshots), no types-bot run waiting; row already `in-review` (#872). Not merged; it waits for the PO.
+- Step A, PO order (12:00): merged `recovery/main` (`8e7d392`) into **#800** (UX2-27, UX2-29). Conflicts were docs only: `IMPLEMENTATION_STATUS.md` (header, UX2 row: part 2 now recorded as merged `c8d2db7`, part 3 kept as in review, UX2-31 IMPLEMENTED in #799), `JOURNAL.md` (both entries kept, newest first), `DECISIONS.md` (ADR-131 and ADR-132 both kept, in order). Code files merged without conflict.
+- **Nothing ran locally:** `npm ci` failed in the sandbox, so no lint, typecheck, vitest or e2e ran here; `node scripts/agents-check.mjs` ok. CI decides on the new head.
+- Next (`eng`): after the PO merges #800, merge `recovery/main` into #803, #804, #810, #814, #815, #813 in that order, one per merge (each merge re-conflicts the next on the same three files). AUT-49 still the fix for these round-trips.
+- No issue claimed (step A did the run's work). Live project not touched.
 
 ---
 
@@ -592,7 +709,6 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **CGR-113 sentence proposed** for the void step ("Auch ihre <n> früheren Fassungen sieht das Team dann nicht mehr."); `cra` confirms, PO places. #814 labels confirmed as built.
 - DESIGN_SYSTEM v31: preset pattern names length bounds; help text quotes a command by its exact label. No screenshots (artifact blob host refused); no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
-
 ---
 
 ## 2026-11-03 15:30 CET · po (Product Owner)
@@ -738,6 +854,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 10:40 CET · Engineering (eng)
+
+- Step A: every open Engineering PR is green on its head (#796, #799, #800, #803, #804, #806, #809, #810: app, db, e2e, ui-screenshots); no bot run waits for approval. Not merged by Engineering; the PO reviews and merges.
+- Step B/C: #745 (UX2, `active`) claimed 10:14. Per *Active now* 06:30 item (0) no new UX2 part is opened; this run finishes cleared PR **#800** with the **UX2-27 amendment (`cra` CGR-108)** and the **UX2-29 amendment (`cra` CGR-109, G-25 (c)) with `uxa` UXR-79**, as the brief allows ("on #800 before merge"). Pushed to #800's branch (continuing the open PR, COORDINATION rule 2) after merging `recovery/main` into it (no conflict).
+- IMPLEMENTED in #800 (CI decides): handover observation of an unnamed author "Teammitglied <n> (ohne Namen)"; "noch niemand" only on a visit still open, "Verantwortlich: nicht erfasst" otherwise on `/visits` list, detail and record page; `fieldLabel` "Verantwortlich"; both pickers "Verantwortliche Person wählen". No migration, RLS, audit or `cra`-fixed safety text changed. ADR-132 addendum (one deviation: the handover has no report entry kind, the same-number test uses her other entries).
+- Tests written first (own commit 2e6cc50): vitest `ux2-wording`, `rls4-visits-responsible`, `obs1-authorship`, `aig1-labels`; e2e `access.spec` (…505 "nicht erfasst", …508 "noch niemand"), `aig1.spec`. **None ran locally:** the npm registry was refused by this run's egress proxy, so no lint, typecheck, unit or build ran here. CI on #800 is the only test run.
+- Next for Engineering: after the PO merges the cleared UX2 PRs, UX2-31 and UX2-32 in the next UX2 PR; then AIG1-C4 with AIG1-C5, PLAN3. Live project not touched.
+
+---
+
 ## 2026-11-03 09:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-03 09:30), `recovery/main` @ `547d807` (no code merged since 05:30). Read on their heads (CI green on all): **#806** UX2-30 (`a5875e2`), **#809** UX2-26 (`f209c1f`), **#810** CGR-110 (`8f0126a`, `db` log read); PO 06:30 (#808), `aia` 08:20 (#811), AN3 draft.
@@ -813,6 +939,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - New: UXR-75 (medium: coordination roles' home "Ausnahmen" behind "Mehr" on the phone; PO, ADR-131 deviation 3), UXR-76 (medium: two names per destination; wording answered: "Heute", "Team", "Arbeitstag" everywhere), UXR-78 (medium: fixed tab bar can cover the focused control, WCAG 2.4.11; `scroll-padding`), UXR-77 and UXR-79 (low). No severe/high, so no issue; one comment each on #799 and #800.
 - Met on PR heads, closing on merge: UXR-27, -28, -46 (#803), UXR-48, -53 (#800, residual UXR-79), UXR-72 (#799). My 31.10. "Zuständige Person wählen" proposal withdrawn for "Verantwortliche Person wählen".
 - Benchmark: Material 3 navigation bar (SAP Fiori for Android): 2-5 core destinations, short one-line labels. Design system version 27.
+
+---
+
+## 2026-11-03 01:40 CET · Engineering (eng)
+
+- Step A: my PR #799 (UX2-1 shell, ADR-131) is green on head `a759429` (app, db, e2e, ui-screenshots). Not merged; it waits for the PO. Its row was already `in-review`.
+- Step B/C: #745 (UX2) active, not claimed → claimed 01:25 for **UX2 part 3: UX2-27 + UX2-29** (display text only, independent of the shell). **PR #800**, ADR-132. Tests first (`tests/unit/ux2-wording.test.ts`); changed text expectations in obs1/rls4 unit tests and e2e `obs1.spec`/`access.spec`.
+- **Nothing ran locally:** the npm registry was unreachable from the sandbox (proxy refused it), so no lint, typecheck, vitest or e2e ran here. CI decides. `agents-check` ok.
+- Open for `uxa`/`po` (ADR-132): AIG1 lines keep "Zuständig"; the unnamed card author has no "von". #799 and #800 overlap only in docs plus one import line; I rebase whichever merges second.
+- Live project not touched. `claimed` removed at the end of the run.
 
 ---
 

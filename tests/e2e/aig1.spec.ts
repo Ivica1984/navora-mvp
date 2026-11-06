@@ -48,7 +48,7 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
 
     // AIG1-4: the agent found no value; the screen says so, never an empty value, and offers no tick and no plain confirm.
     const notFound = lines.filter({ hasText: "15:00" });
-    await expect(notFound.getByTestId("suggestion-value")).toHaveText("Zuständig: nicht gefunden");
+    await expect(notFound.getByTestId("suggestion-value")).toHaveText("Verantwortlich: nicht gefunden");
     await expect(notFound.getByTestId("suggestion-agent")).toHaveText(`vorgeschlagen von ${AGENT}`);
     await expect(notFound.getByTestId("suggestion-tick")).toHaveCount(0);
     await expect(notFound.getByRole("button", { name: "Bestätigen", exact: true })).toHaveCount(0);
@@ -57,7 +57,7 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
 
     // AIG1-3: one proposed value, "vorgeschlagen von", changed to another member; the changed value is hers.
     const change = lines.filter({ hasText: "13:00" });
-    await expect(change.getByTestId("suggestion-value")).toHaveText("Zuständig: Pflegekraft Bezug E");
+    await expect(change.getByTestId("suggestion-value")).toHaveText("Verantwortlich: Pflegekraft Bezug E");
     await expect(change.getByTestId("suggestion-agent")).toHaveText(`vorgeschlagen von ${AGENT}`);
     await expect(change.getByRole("button", { name: "Bestätigen", exact: true })).toBeVisible();
     await change.getByRole("button", { name: "Ändern" }).click();
