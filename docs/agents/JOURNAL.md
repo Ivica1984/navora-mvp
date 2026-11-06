@@ -35,6 +35,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Registers:** PS-99 updated; H-01/H-07 and CR register header notes; no new or changed rule.
 - Tests: none run by me (NAVORA suite not run); CI states read through the GitHub API; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction between my prompt and `FOUNDER_DECISIONS.md` (v5 on #920, FE-038 consistent with my brief).
 - **To the agents:** `po`: merge this PR; merge #922 after CI, keep #919 open for three clean runs. `eng`: guard widening (`my_signals()`), test-only.
+## 2026-11-06 21:10 CET · eng (Engineering)
+
+Scheduled Engineering run (21:09). Task adjusted within the goal (README rule 11): the `active` issue is still #538 (PLAN3), but the founder cleanup (FE-037) is under way with 18 PLAN3 PRs open, and founder decision **FE-038** (21:05, PO PR #920, not yet merged) names #919 for `eng` once `cra` has answered; `cra` answered at 21:10 (#921). So this run did #919 only and added nothing to the PLAN3 stack.
+
+- **A (own PRs):** all 22 open Engineering PRs read through the API: CI green on every head. #815 still has the code conflict on `assessment-section.tsx` (UX2-30); not touched this run (one substantial step per run). No bot run waiting for approval.
+- **#919 (claimed 21:10), PR #922:** CGR-110 remainder, **ADR-162**: pgTAP 064, 065, 067, 068, 069, 078, 080, 090, 099 take org A's SIG1 evaluation lock (waiting) right after `plan(…)` and assert it with `pg_locks` (one new test each, plans +1). **No assertion changed, skipped, loosened or retried.** New vitest guard `cgr110-sig1-lock-every-evaluator-file.test.ts` (written first) makes any pgTAP file that calls the evaluator take and assert the lock before its first call. Remediation plan `CGR-110.md` addendum.
+- **Clinical gate:** read `cra` 21:10 on PR #921 (#919 answer, rules 1-4); applied rule 1 (the remedy); rule 2 (reading rule for other failure shapes) stays the PO's. Deviation: identical block per file plus a guard instead of one SQL helper (a helper would need a product-schema migration); OPEN for `cra`.
+- **Tests:** CI decides. Not run here: pgTAP (no local Supabase stack) and vitest (npm registry unreachable from this session); the guard's logic ran under Node 22 with a minimal stand-in for vitest: 21 pass with the change, 18 fail without it. Live project not touched. No personal or health data.
+- **Contradictions noted (rule 10):** FE-037 says the owner pauses the Engineering task during the cleanup, yet this scheduled run fired; and the task prompt still names `active` #538 first. Followed FE-038 (newest): #919 only, in isolation. For the PO: merge order is yours; this PR touches test files and docs only. Of its nine files only 067 is also changed by the PLAN3 stack (#872 to #910, a different hunk at line 347); `git merge-tree` against the stack top `806b8cf` conflicts in `IMPLEMENTATION_STATUS.md` and `JOURNAL.md` only.
 
 ---
 
@@ -131,15 +140,6 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
-## 2026-11-06 16:00 CET · UX/UI Design Architect (uxa)
-
-- UX review (`reports/UX_REVIEW.md`, section 16:00) on `recovery/main` `1445582`: #800 (UX2-27, UX2-29) merged as reviewed (`git diff 797029c 30de12f -- src tests` empty): UXR-48, UXR-53, UXR-79 closed in code. Read #906 (PLAN3-9 (2)) and #910 (PLAN3-16) on their heads; no screenshots (the artifact archive host is refused by the proxy for this role), reviewed from the code.
-- UXR-103 met on PR head #906, UXR-99 met on PR head #910 (close on merge). New: UXR-126 (medium: the after-take member-overlap line on `/field` disappears when she takes the last open visit, and does not name the visit), UXR-125 (low: "zuständige Person" in two `cra`-fixed absence flags vs. "Verantwortlich"; `cra` to confirm), UXR-127 (low: duplicated words in the #906 fail-closed line). No severe or high finding, no issue opened; one comment each on #906 and #910.
-- `DESIGN_SYSTEM.md` v49: UX2-27/-29 rules IMPLEMENTED; PLAN3-9 (2) and PLAN3-16 statuses; new OPEN §5 pattern "ward and shift screens" for FE-031 (nursing-home ward in Phase A; NH-A1 to NH-A5 due 2026-11-27, gate `uxa`). No token change. No benchmark (made 03:50).
-- Founder direction read (`FOUNDER_DECISIONS.md` v3, Blueprint V2.4): no contradiction with my task prompt. Own task adjusted within the goal (README rule 11): the ward/shift design gap is recorded as an OPEN pattern now; catalog lines follow the NH-A briefs. Merged `recovery/main` into #850 (JOURNAL conflict, every entry kept). I ran no test; live project not touched.
-- For `po`: UXR-126 inside PLAN3-16 acceptance is yours; whether you want ward catalog lines before the NH-A briefs.
-
----
 ## 2026-11-06 16:10 CET · Legal & Compliance Agent (lca)
 
 - My PR #860 was still open (JOURNAL conflict after #913): `recovery/main` merged in, every entry kept, newest first; continued there, no second `lca` PR. Not merged by me (the PO merges).
@@ -148,6 +148,16 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - **D-41 (approved AI path):** first `lca` section. Rule A compliant; B unresolved (adviser and owner) on D-35 conditions 1-8 plus (9) the AI provider bound to StGB 321 and § 26 GesG BS (BS secrecy guide 2023 covers all health professionals and their Hilfspersonen; no word on IT providers), (10) IDG if the partner is public-law; G (A7) has no compliant earlier entry; the prohibition of unapproved external tools (D) compliant; synthetic-only provider use in Phase A (O-4) compliant on four conditions. One concrete adviser question named (FE-026), needed only before Phase B.
 - **Not done this run (limit three packages):** D-42 (pilot agreement) `lca` section, D-25 BS/BL re-analysis, D-9, D-4, D-29 BS/BL re-check, D-36. Next `lca` run: D-42 and D-25 first (FE-026). No contradiction with `FOUNDER_DECISIONS.md` found in this prompt or the packages read.
 - Sources read this run (2026-11-06, text-extraction tool): BS Merkblatt elektronische Abrechnung Spitex 2026; BS Pflegeheim Tagestaxen 2026; BS Merkblatt ausserkantonaler Heimeintritt 2026; BS Leitfaden Schweigepflicht (März 2023); BL Merkblatt Pflegefinanzierung (Mai 2025); BL RRB 2025-1490 (consultation draft); BL Pflegeheimtarifvertrag 2007 (status UNKNOWN); KLV amendment 2.7.2019 (H+); ARTISET Merkblatt 2024. fedlex not readable (JavaScript page). No test run; live project not accessed.
+
+---
+
+## 2026-11-06 16:00 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 16:00) on `recovery/main` `1445582`: #800 (UX2-27, UX2-29) merged as reviewed (`git diff 797029c 30de12f -- src tests` empty): UXR-48, UXR-53, UXR-79 closed in code. Read #906 (PLAN3-9 (2)) and #910 (PLAN3-16) on their heads; no screenshots (the artifact archive host is refused by the proxy for this role), reviewed from the code.
+- UXR-103 met on PR head #906, UXR-99 met on PR head #910 (close on merge). New: UXR-126 (medium: the after-take member-overlap line on `/field` disappears when she takes the last open visit, and does not name the visit), UXR-125 (low: "zuständige Person" in two `cra`-fixed absence flags vs. "Verantwortlich"; `cra` to confirm), UXR-127 (low: duplicated words in the #906 fail-closed line). No severe or high finding, no issue opened; one comment each on #906 and #910.
+- `DESIGN_SYSTEM.md` v49: UX2-27/-29 rules IMPLEMENTED; PLAN3-9 (2) and PLAN3-16 statuses; new OPEN §5 pattern "ward and shift screens" for FE-031 (nursing-home ward in Phase A; NH-A1 to NH-A5 due 2026-11-27, gate `uxa`). No token change. No benchmark (made 03:50).
+- Founder direction read (`FOUNDER_DECISIONS.md` v3, Blueprint V2.4): no contradiction with my task prompt. Own task adjusted within the goal (README rule 11): the ward/shift design gap is recorded as an OPEN pattern now; catalog lines follow the NH-A briefs. Merged `recovery/main` into #850 (JOURNAL conflict, every entry kept). I ran no test; live project not touched.
+- For `po`: UXR-126 inside PLAN3-16 acceptance is yours; whether you want ward catalog lines before the NH-A briefs.
 
 ---
 
@@ -210,6 +220,15 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
+## 2026-11-06 14:20 CET · eng (Engineering)
+
+- Step A: all 31 open Engineering PRs are green on their heads (4/4 or 5/5 checks: app, db, e2e, ui-screenshots; read through the GitHub API); no bot run waits for approval. Not merged by Engineering.
+- 30 of them were `dirty` against `recovery/main` after the PO merges of #904, #908 and #800 (shared files: `JOURNAL.md`, `IMPLEMENTATION_STATUS.md`, `DECISIONS.md`; AR-4 / M2.0). **#872** (PLAN3 part (a), bottom of the PLAN3 stack, merged first by the PO's order) is fixed: `recovery/main` (`30de12f`) merged in. Conflicts docs only: status header (both "Last change" fragments kept, newest first), ADR-132 addendum before ADR-145, journal 13:20 before 12:15. No code, migration or test changed by the merge; `node scripts/agents-check.mjs` ok. Nothing else ran locally; CI decides on the new head. The `cra` gate (13:30, 2026-11-05) needs carrying to the new head (docs-only merge).
+- Next (`eng`): one base merge per run up the PLAN3 stack after the PO merges #872 (#876 → #880 → …), then #803, #804, #810, #813, #814, #815. The stack keeps re-conflicting on the three shared files until M2.0 (one file per ADR, AUT-49) lands.
+- No issue claimed (step A did the run's work). Live project not touched.
+
+---
+
 ## 2026-11-06 13:30 CET · Clinical & Regulatory Architect (review)
 
 - Review section 13:30 in `reports/CLINICAL_GOVERNANCE.md` on `recovery/main` `f8255ec` (docs only since 09:30: PO #904, #908). Read on their heads: `eng` #902 (CGR-75 (5), seed day, pgTAP 117, e2e), #903 (PLAN3-17 (2), "kennt Klient:in"), #906 (PLAN3-9 (2), migration 0117, pgTAP 118); #888 `31e9d6c` (revert of the second UXR-113 build: own code as cleared at 05:30). CI 4/4 green on every head named.
@@ -247,6 +266,7 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
   - `csa`: STR-21 is answered by the Phase A design (Blueprint SV-2); please re-assess; STR-20 (one canton first) is superseded by FE-019.
 
 ---
+
 ## 2026-11-06 11:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 11:50): no screen changed on `recovery/main` `e97e786`; read #897, #902, #903 and the #888 revert on their heads (no screenshots: the artifact archive host is refused by the proxy; reviewed from the code).
@@ -300,15 +320,6 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
-## 2026-11-06 07:50 CET · UX/UI Design Architect (uxa)
-
-- UX review (`reports/UX_REVIEW.md`, section 07:50): no screen changed on `recovery/main` `404346c`; read #891, #894, #895 on their heads (no screenshots: the artifact archive host is refused by the proxy); PO 06:30 (#893) and `cra` 05:30 (#892) read.
-- UXR-113 met on PR head #891 (close on merge). UXR-101, -103, -114 PLANNED by the PO (PLAN3-3, PLAN3-9 (2), PLAN3-17 (2)). New: UXR-118 (medium: the team's own measures reuse the Operations cells with "Gegenmass" and shares without bases), UXR-120 (medium: "Noch offen" on a decided line is small plain text, no day count), UXR-119, UXR-121 (low; wording for the `not_found` decision). Wording proposed for PLAN3-16 (`cra`, `lca` to confirm).
-- `DESIGN_SYSTEM.md` v47: §2 statuses moved to PLANNED; new OPEN rule "a decided item that leaves work open says so at a glance"; §5 one row function per measure. No benchmark (made 03:50). I ran no test.
-- For `po`: UXR-120 inside PLAN3-9 (1), gating is yours. #850 continued; yours to merge.
-
----
-
 ## 2026-11-06 08:25 CET · AI & Automation Architect (aia)
 
 - Automation review 33 (`reports/AUTOMATION_REVIEW.md`, section 08:25) on `recovery/main` `9c58939`: PO #893 (06:30), `eng` #890, #891, #894, #895 and `cra` #892 read on their heads; CI 4/4 green on the four `eng` PRs (GitHub API).
@@ -316,6 +327,15 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - New **AUT-53** (low), a correction of my own AUT-52: a missing primary nurse never produces "kein Vorschlag" (PLAN3-3 falls back to capacity); drop that clause from PLAN3-7 (2) and accept #894 deviations 2 and 3 as built.
 - No `high`, no issue opened; one comment on #894. `AI_OPERATING_MODEL_REVIEW.md` change log only. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 - **To `po`:** AUT-53 wording fix; PLAN3-15 is the remaining `aia` acceptance item not built.
+
+---
+
+## 2026-11-06 07:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 07:50): no screen changed on `recovery/main` `404346c`; read #891, #894, #895 on their heads (no screenshots: the artifact archive host is refused by the proxy); PO 06:30 (#893) and `cra` 05:30 (#892) read.
+- UXR-113 met on PR head #891 (close on merge). UXR-101, -103, -114 PLANNED by the PO (PLAN3-3, PLAN3-9 (2), PLAN3-17 (2)). New: UXR-118 (medium: the team's own measures reuse the Operations cells with "Gegenmass" and shares without bases), UXR-120 (medium: "Noch offen" on a decided line is small plain text, no day count), UXR-119, UXR-121 (low; wording for the `not_found` decision). Wording proposed for PLAN3-16 (`cra`, `lca` to confirm).
+- `DESIGN_SYSTEM.md` v47: §2 statuses moved to PLANNED; new OPEN rule "a decided item that leaves work open says so at a glance"; §5 one row function per measure. No benchmark (made 03:50). I ran no test.
+- For `po`: UXR-120 inside PLAN3-9 (1), gating is yours. #850 continued; yours to merge.
 
 ---
 
@@ -342,6 +362,17 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
+## 2026-11-06 05:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-06 05:30), `recovery/main` @ `404346c` (`aia` #889 docs merged since 01:30; no code). Read on the PR heads, own commits only: `eng` **#888** (CGR-139, ADR-152), **#890** (CGR-140, ADR-153, migration 0114), **#891** (UXR-113, ADR-154), #885 layout commits, #886 pgTAP plan count; base merges of #882, #883, #886, #803, #804, #810, #813, #814, #815, #828, #841, #835, #837 (own change identical). CI 4/4 green on every code head. I ran no test and did not touch the live project.
+- **No new finding.** **CGR-139** remedy met on #888 `4c0ffbc` and, widened to the `/team` new-visit picker (UXR-113 scope confirmed), on #891 `487c84a`; the two-unnamed e2e is not seeded, vitest accepted. **CGR-140** remedy met on #890 `a4b1ce0` (option (a) "Abgelehnt", shares sum to 100 %). Both close on merge.
+- **Gates:** #882, #883, #885, #886, #888, #890, #891 clear in stack order; #803, #804 clear. PLAN3 acceptance still waits for CGR-75 (5) and CGR-138.
+- **Registers:** PS-124 widened and remedy met on heads, PS-125 remedy met on head; CR-167 changed (0114), CR-168 added (member label, PROVISIONAL, no clinical objection).
+- **Not merged by me:** `PO_MERGE_PROCESS.md` §0a makes the PO the only role that merges (including `gov/`); this PR carries #881 and #887.
+- **To the agents:** `po`: stack order (#886 to take #885's head), CGR-138 / CGR-75 (5) before PLAN3 acceptance, UXR-114 placement, merge this PR. `uxa`: continuity "as now" line (also AUT-52), `not_found` wording. `lca`: thanks, `other_team_visits` answered. Owner: G-3, G-1.
+
+---
+
 ## 2026-11-06 04:50 CET · Legal & Compliance Agent (lca)
 
 - My PR #860 was open (CI green, conflict on `JOURNAL.md`): `recovery/main` merged in, every entry kept, newest first; continued here, no second `lca` PR. Not merged by me: the owner's 2026-11-05 decision recorded in `PO_MERGE_PROCESS.md` §0a ("the PO remains the only role authorized to merge pull requests") is newer than my task's merge step, so in doubt I leave the merge to the PO (§4, role docs PR: own files only). Tier 1: D-22, D-18 frozen, no trigger. Picked on explicit asks (condition (c)): **D-40** (`cra` CGR-134, `uxa` #850 sentence 5) and **D-35** (PO 14:50 and `cra` 17:00: PLAN3-14 `other_team_visits`). Only my sections edited; no status, row or decision changed.
@@ -357,17 +388,6 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - UXR-102 met on PR head #888 (close on merge). New: UXR-113 (high: the `/team` "Verantwortlich" picker of a new visit shows no names, outside #888; added to #884 by comment), UXR-114 (medium: two label forms for one person), UXR-115, UXR-116 (medium: Operations measure tables at 390 px, figures above the work), UXR-117 (low).
 - Benchmark: responsive measure tables (Chrome for Developers). `DESIGN_SYSTEM.md` v46: §2 one label function for a member; §5 measure tables at phone width (both OPEN). I ran no test.
 - For `po`: UXR-113 placement (fits #888 before PLAN3 acceptance); UXR-115/-116 order. #850 continued (merged `recovery/main` in, JOURNAL conflict only); yours to merge.
-
----
-
-## 2026-11-06 05:30 CET · Clinical & Regulatory Architect (review)
-
-- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-06 05:30), `recovery/main` @ `404346c` (`aia` #889 docs merged since 01:30; no code). Read on the PR heads, own commits only: `eng` **#888** (CGR-139, ADR-152), **#890** (CGR-140, ADR-153, migration 0114), **#891** (UXR-113, ADR-154), #885 layout commits, #886 pgTAP plan count; base merges of #882, #883, #886, #803, #804, #810, #813, #814, #815, #828, #841, #835, #837 (own change identical). CI 4/4 green on every code head. I ran no test and did not touch the live project.
-- **No new finding.** **CGR-139** remedy met on #888 `4c0ffbc` and, widened to the `/team` new-visit picker (UXR-113 scope confirmed), on #891 `487c84a`; the two-unnamed e2e is not seeded, vitest accepted. **CGR-140** remedy met on #890 `a4b1ce0` (option (a) "Abgelehnt", shares sum to 100 %). Both close on merge.
-- **Gates:** #882, #883, #885, #886, #888, #890, #891 clear in stack order; #803, #804 clear. PLAN3 acceptance still waits for CGR-75 (5) and CGR-138.
-- **Registers:** PS-124 widened and remedy met on heads, PS-125 remedy met on head; CR-167 changed (0114), CR-168 added (member label, PROVISIONAL, no clinical objection).
-- **Not merged by me:** `PO_MERGE_PROCESS.md` §0a makes the PO the only role that merges (including `gov/`); this PR carries #881 and #887.
-- **To the agents:** `po`: stack order (#886 to take #885's head), CGR-138 / CGR-75 (5) before PLAN3 acceptance, UXR-114 placement, merge this PR. `uxa`: continuity "as now" line (also AUT-52), `not_found` wording. `lca`: thanks, `other_team_visits` answered. Owner: G-3, G-1.
 
 ---
 
@@ -483,6 +503,16 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
+## 2026-11-05 16:18 CET · eng (Engineering)
+
+- **Step A:** own PRs: #872, #800, #803, #804 4/4 green and conflict-free on their heads; no bot run waiting. #810 conflicts with `recovery/main` (`IMPLEMENTATION_STATUS.md`, `DECISIONS.md`); next base-merge in *Active now* order. Nothing merged by Engineering.
+- **Step B/C:** #538 (PLAN3, `active`) claimed 16:18. **PLAN3-14 (`cra` CGR-136, PO 14:50): PR #876**, stacked on #872 (base `feature/hourly-update-2026-11-05-1215`; retarget to `recovery/main` after #872 merges). ADR-146, migration 0110: the proposal counts every non-cancelled visit of the organisation that day the member is responsible for (cover, second team) as busy and returns only `overlap`; confirming or correcting a day-plan line re-checks overlap and refuses the line as `overlap` (other ticked lines set); advisory lock per member and day; `day_plan_load.other_team_visits` (yes/no only). pgTAP 111 has the brief's cases (cover, second team, stale line after a hand assignment, no other-team column).
+- **OPEN for po/`cra`** (ADR-146 deviations): corrections are checked too; J3 hand assignment has no overlap check and no lock.
+- **To `uxa`:** the wording "weitere Einsätze in anderen Teams" and the refusal "Nicht übernommen: Diese Person hat zu dieser Zeit schon einen Einsatz." are in `day-plan-labels.ts` / `ai/labels.ts` for review.
+- **Tests:** CI is the runner; nothing claimed as passed. Unit tests written before the label code. Nothing executed locally (npm install failed with an npm internal error; no local pgTAP). `database.types.ts` updated by hand for the new column. Live project not touched.
+
+---
+
 ## 2026-11-05 15:30 CET · eng (Engineering)
 
 - Step A: own open PRs #800, #803, #804, #806, #809, #810, #813, #814, #815, #828, #835, #837, #840, #841, #872 all 4/4 green on their heads; no run waiting for approval. Not merged (the PO merges).
@@ -575,6 +605,16 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - **Nothing ran locally:** `npm ci` failed in the sandbox, so no lint, typecheck, vitest or e2e ran here; `node scripts/agents-check.mjs` ok. CI decides on the new head.
 - Next (`eng`): after the PO merges #800, merge `recovery/main` into #803, #804, #810, #814, #815, #813 in that order, one per merge (each merge re-conflicts the next on the same three files). AUT-49 still the fix for these round-trips.
 - No issue claimed (step A did the run's work). Live project not touched.
+
+---
+
+## 2026-11-05 12:15 CET · eng (Engineering)
+
+- **Step A:** 11 own PRs open (#806-#841), all 4/4 checks green on their heads; no bot run waiting; none merged by Engineering.
+- **Step B/C:** #538 (PLAN3, `active`) claimed 12:13. **PLAN3 part (a), database: PR #872** (ADR-145, migration 0109): agent `plan3_day_proposal` off by default; team switch PLAN3-10 (no actor column, actor only in the audit row); pure ranking `plan3_choose` with fixture; limits are the existing J3/ADM2/LEAVE1/ABS1 checks plus overlap; `propose_day_plan` writes AIG1 ledger rows and `day_plan_lines`, never `care_visits`; readers `day_plan`, `day_plan_load`; `aig1_apply` takes the line's earlier member as expected value. `READ_PATHS.md` and the 067 list updated.
+- **OPEN for po/`cra`** (ADR-145 deviation 1): the overlap check reads only the team's visits, so a member of two teams or covering another team can be proposed into an overlap. Deviations 2-3: visits known by performer; a second proposal of a day is refused while lines are undecided.
+- **PLANNED part (b):** `/team` screen (PLAN3-9/-10/-11/-12), PLAN3-7/-13 measures, e2e 390 px, seed; AIG1-C4/-C5 (#814) should merge first.
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations 0001-0109 + seed on plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim; pgTAP 110 (72/72), 067, 071, 074, 097, 103, 104 and every other file the shim can run green; 0109 applied twice. vitest `plan3-day-plan-labels` written before the module and run only under Node type stripping with a stand-in; typecheck, lint, e2e not run (npm unreachable). `database.types.ts` left to the types bot. Live project not touched.
 
 ---
 

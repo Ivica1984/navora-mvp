@@ -815,6 +815,44 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"day_plan_lines": {
+                  Row: {
+                    "assigned_before": string | null,"created_at": string,"include_assigned": boolean,"known_visits": number | null,"not_found_reason": string | null,"organization_id": string,"plan_date": string,"proposal_id": string,"reason": string | null,"suggestion_id": string,"team_id": string,"visit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "assigned_before"?: string | null,"created_at"?: string,"include_assigned": boolean,"known_visits"?: number | null,"not_found_reason"?: string | null,"organization_id": string,"plan_date": string,"proposal_id": string,"reason"?: string | null,"suggestion_id": string,"team_id": string,"visit_id": string
+                  }
+                  Update: {
+                    "assigned_before"?: string | null,"created_at"?: string,"include_assigned"?: boolean,"known_visits"?: number | null,"not_found_reason"?: string | null,"organization_id"?: string,"plan_date"?: string,"proposal_id"?: string,"reason"?: string | null,"suggestion_id"?: string,"team_id"?: string,"visit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "day_plan_lines_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "day_plan_lines_suggestion_id_fkey"
+      columns: ["suggestion_id"]
+isOneToOne: true
+      referencedRelation: "ai_suggestions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "day_plan_lines_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: false
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "day_plan_lines_visit_id_fkey"
+      columns: ["visit_id"]
+isOneToOne: false
+      referencedRelation: "care_visits"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"exception_events": {
                   Row: {
                     "access_seq": number | null,"actor_id": string | null,"created_at": string,"exception_key": string,"id": number,"idempotency_key": string | null,"kind": string,"organization_id": string,"text": string | null
@@ -1735,6 +1773,32 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"team_day_proposal_settings": {
+                  Row: {
+                    "enabled": boolean,"id": string,"organization_id": string,"switched_on_at": string | null,"team_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "enabled"?: boolean,"id"?: string,"organization_id": string,"switched_on_at"?: string | null,"team_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "enabled"?: boolean,"id"?: string,"organization_id"?: string,"switched_on_at"?: string | null,"team_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "team_day_proposal_settings_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "team_day_proposal_settings_team_id_fkey"
+      columns: ["team_id"]
+isOneToOne: true
+      referencedRelation: "teams"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"team_decisions": {
                   Row: {
                     "actor_id": string,"case_id": string | null,"decided_at": string,"decision": string,"id": string,"idempotency_key": string,"matching_request_id": string,"organization_id": string,"reason": string | null,"reason_code": string | null,"team_id": string
@@ -2285,6 +2349,16 @@ isOneToOne: false
 "create_team":
 { Args: { "p_idempotency_key": string,"p_name": string,"p_organization_id": string,"p_region": string }; Returns: string
                            },
+"day_plan":
+{ Args: { "p_date": string,"p_team_id": string }; Returns: {
+              "bulk_allowed": boolean,"case_id": string,"changes_assignment": boolean,"decision": string,"is_needs_assessment": boolean,"known_visits": number,"member_id": string,"member_name": string,"minutes_a": number,"minutes_b": number,"minutes_c": number,"not_continuity": boolean,"not_found_reason": string,"proposal_id": string,"proposed_at": string,"reason": string,"suggestion_id": string,"time_end": string,"time_start": string,"visit_id": string
+            }[]
+                           },
+"day_plan_load":
+{ Args: { "p_date": string,"p_team_id": string }; Returns: {
+              "member_id": string,"member_name": string,"minutes_now": number,"minutes_with_proposal": number,"other_team_visits": boolean
+            }[]
+                           },
 "deactivate_team":
 { Args: { "p_idempotency_key": string,"p_reason": string,"p_team_id": string }; Returns: string
                            },
@@ -2492,6 +2566,9 @@ isOneToOne: false
 "prepare_member_access_end":
 { Args: { "p_idempotency_key": string,"p_user_id": string }; Returns: Json
                            },
+"propose_day_plan":
+{ Args: { "p_date": string,"p_idempotency_key": string,"p_include_assigned": boolean,"p_team_id": string }; Returns: Json
+                           },
 "propose_team_candidate":
 { Args: { "p_claimed_qualification": string,"p_display_name": string,"p_idempotency_key": string,"p_pensum_band": string,"p_team_id": string }; Returns: Json
                            },
@@ -2641,6 +2718,9 @@ isOneToOne: false
 "set_team_admission":
 { Args: { "p_enabled": boolean,"p_idempotency_key": string,"p_organization_id": string }; Returns: string
                            },
+"set_team_day_proposal":
+{ Args: { "p_idempotency_key": string,"p_on": boolean,"p_team_id": string }; Returns: string
+                           },
 "set_team_priority":
 { Args: { "p_idempotency_key": string,"p_priority": boolean,"p_team_id": string }; Returns: string
                            },
@@ -2691,6 +2771,11 @@ isOneToOne: false
 "team_cases":
 { Args: Record<PropertyKey, never>; Returns: {
               "care_needs": (string)[],"care_plan": Json,"case_id": string,"client_name": string,"deputy_nurse_id": string,"medical_order_status": string,"medical_order_valid_until": string,"members": Json,"needs_assessment_done": boolean,"open_tasks": (string)[],"primary_nurse_id": string,"proposed_primary_nurse_id": string,"region": string,"return_referrer_requested_start": string,"return_urgency_source": string,"review_after_pause_reason": string,"team_id": string,"team_name": string,"upcoming": Json,"urgency": string
+            }[]
+                           },
+"team_day_proposal_state":
+{ Args: { "p_team_id": string }; Returns: {
+              "agent_state": string,"enabled_since": string,"team_enabled": boolean
             }[]
                            },
 "team_offers":
