@@ -2515,8 +2515,11 @@ isOneToOne: false
               "kind": string,"team_name": string,"visit_date": string
             }[]
                            },
+"member_slot_overlap":
+{ Args: { "p_case_id": string,"p_member_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: boolean
+                           },
 "move_visit_to_today":
-{ Args: { "p_idempotency_key": string,"p_overlap_shown"?: boolean,"p_reason": string,"p_shown_date": string,"p_time_end": string,"p_time_start": string,"p_visit_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_member_overlap_shown"?: boolean,"p_overlap_shown"?: boolean,"p_reason": string,"p_shown_date": string,"p_time_end": string,"p_time_start": string,"p_visit_id": string }; Returns: Json
                            },
 "my_access_state":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -2598,7 +2601,7 @@ isOneToOne: false
 { Args: { "p_case_id": string,"p_idempotency_key": string }; Returns: Json
                            },
 "plan_visit":
-{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_overlap_shown"?: boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
+{ Args: { "p_case_id": string,"p_idempotency_key": string,"p_member_overlap_shown"?: boolean,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_overlap_shown"?: boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
                            },
 "plan3_team_measures":
 { Args: { "p_month": string }; Returns: {
@@ -2692,7 +2695,7 @@ isOneToOne: false
             }[]
                            },
 "reschedule_visit":
-{ Args: { "p_idempotency_key": string,"p_overlap_shown"?: boolean,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_member_overlap_shown"?: boolean,"p_overlap_shown"?: boolean,"p_reason": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string,"p_visit_id": string }; Returns: Json
                            },
 "reset_exception_rule":
 { Args: { "p_exception_type": string,"p_idempotency_key": string,"p_organization_id": string }; Returns: string
@@ -2787,7 +2790,7 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: number
                            },
 "take_open_visit":
-{ Args: { "p_idempotency_key": string,"p_visit_id": string }; Returns: Json
+{ Args: { "p_idempotency_key": string,"p_member_overlap_shown"?: boolean,"p_visit_id": string }; Returns: Json
                            },
 "take_signal":
 { Args: { "p_idempotency_key": string,"p_signal_id": string }; Returns: Json
