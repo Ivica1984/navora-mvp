@@ -2356,7 +2356,7 @@ isOneToOne: false
                            },
 "day_plan":
 { Args: { "p_date": string,"p_team_id": string }; Returns: {
-              "bulk_allowed": boolean,"case_id": string,"changes_assignment": boolean,"decision": string,"is_needs_assessment": boolean,"known_visits": number,"member_id": string,"member_name": string,"minutes_a": number,"minutes_b": number,"minutes_c": number,"not_continuity": boolean,"not_found_reason": string,"proposal_id": string,"proposed_at": string,"reason": string,"suggestion_id": string,"time_end": string,"time_start": string,"visit_id": string
+              "bulk_allowed": boolean,"case_id": string,"changes_assignment": boolean,"decision": string,"is_needs_assessment": boolean,"known_visits": number,"member_id": string,"member_name": string,"minutes_a": number,"minutes_b": number,"minutes_c": number,"not_continuity": boolean,"not_found_reason": string,"proposal_id": string,"proposed_at": string,"reason": string,"suggestion_id": string,"time_end": string,"time_start": string,"visit_has_responsible": boolean,"visit_id": string
             }[]
                            },
 "day_plan_load":

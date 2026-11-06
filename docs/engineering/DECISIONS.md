@@ -2767,3 +2767,28 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** `npm ci` and a scratch `npm i vitest` failed or timed out in this session, so vitest, typecheck, lint, build and e2e were **not** run with the project's toolchain. `planTeamOwnLine` ran under Node type stripping with the vitest cases (outputs equal to the expectations). CI is the test runner.
 
 **Rollback:** revert the PR (no migration, no data).
+
+### ADR-156 — PLAN3-9 (1): a decided day-plan line never reads as a covered visit
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Trigger:** PO note 2026-11-06 06:30 in `briefs/PLAN3.md` PLAN3-9 (1) (PO PR #893, **not yet merged** when this was built), `cra` CGR-138 (advisory S3, a PLAN3 acceptance condition): after "Ablehnen" or a decided "kein Vorschlag" the line showed only its decision, every control disappeared ("Einsatz öffnen" included), and the `not_found` text ended in "bestätigt", while the visit still had nobody · **Migration:** `20261021000115_plan3_9_line_visit_covered.sql` · **Stacked on:** #894 · **Proof:** pgTAP 115 (12), vitest `plan3-9-1-decided-line-open-visit` (written first) and `plan3-day-plan-view` (updated), e2e `plan3.spec` +1 at 390 px
+
+**Context (IMPLEMENTED before, on the stack head `0984d3d`):** `confirm_suggestion` with `rejected` or `not_found` writes a confirmation row and nothing to `care_visits` (0097). `day_plan` (0109) returned the decision state of each line but no fact about the visit, so the screen could not say that the visit is still uncovered. "Noch offen" appeared only on `/visits/<id>`.
+
+**Decision (HOW, Engineering):**
+1. **One yes/no, nothing else.** 0115 drops and recreates `public.day_plan(uuid, date)` with the 0109 body and columns unchanged, plus a last column `visit_has_responsible boolean` = `care_visits.responsible_user_id is not null`. No name, no member id, no other column. Same scope (active members of the team, LEAVE1-3), same grants (authenticated only), stable definer, writes nothing. No new read for any role: the team already reads its visits' responsible member on `/visits/<id>`. No table, so no RLS policy, column grant or audit trigger changes. Idempotent (`drop function if exists`). pgTAP 115 pins the result type with exactly the one added column.
+2. **"Noch offen" on a decided line whose visit has nobody**, pure `lineStillOpenText` in `day-plan-view.ts`: null on an open line (its controls are shown) and once the visit has a responsible member; a missing value counts as nobody, never as covered. Shown under the decision text (`data-testid="day-plan-still-open"`). The wording is the existing `/visits` one.
+3. **"Einsatz öffnen" on every line**, open or decided (while the line is not in its "Ändern" form). The decision buttons stay on open lines only.
+4. **The decided "kein Vorschlag" reads "„kein Vorschlag“, entschieden"** (was "als „kein Vorschlag“ bestätigt"), after `cra`'s example; it no longer ends in "bestätigt".
+
+**Deviations / notes for the PO (and `uxa`, `cra`):**
+1. *Built on an unmerged PO note:* PLAN3-9 (1) is in PO PR #893, not on `recovery/main`. If the PO changes it before merge, this PR follows or is closed.
+2. *Wording OPEN `uxa`:* the decided `not_found` text is Engineering's (CGR-138 (3) asks `uxa`). One string in `DECISIONS`.
+3. *e2e covers the rejected line only:* the seed of Testorganisation G yields no "kein Vorschlag" line, so "a `not_found` line decided likewise" (CGR-138 tests, CGR-75 (5) "kein Vorschlag" e2e) is **PLANNED** with the rest of CGR-75 (5); the `not_found` text is pinned in vitest. Adding a "kein Vorschlag" fixture to the seed changes `plan3.spec`'s counts (5 lines, "Vorschläge (5)"), so it belongs to the CGR-75 (5) slice.
+4. *"Noch offen" is also shown on a decided `confirmed`/`corrected` line whose visit has nobody now* (e.g. the member was taken off by hand afterwards): the fact is about the visit now, not about the decision. Not a rule; the screen states the current state.
+5. *e2e order:* the new test rejects the 08:15 line that the previous test left open after its `overlap` refusal; the following tests assert no count that the rejection changes.
+
+**Clinical gate:** no clinical rule, threshold or new figure; a display fact `cra` asked for (CGR-138 (1)-(3)). `lca`: no new processing purpose (yes/no of a fact the team already reads).
+
+**Checked by me (not CI):** `npm ci` failed in this session (registry not reachable), and no local database was available, so pgTAP, vitest, typecheck, lint, build and e2e were **not** run with the project's toolchain. A copy of `lineStillOpenText` and the decision texts ran under Node type stripping with the vitest cases (outputs equal to the expectations). CI is the test runner.
+
+**Rollback:** revert the PR; 0115 is reversed by recreating `day_plan` as in 0109 (no data).

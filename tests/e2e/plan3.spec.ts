@@ -128,6 +128,31 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
     await expect(page.getByTestId("suggestions-link")).toHaveAttribute("aria-label", "1 offene Vorschläge");
   });
 
+  // PLAN3-9 (1) (po 2026-11-06 06:30, `cra` CGR-138; ADR-156, migration 0115): a decided line never reads as a covered
+  // visit. The 08:15 line, refused `overlap` above and still open, is rejected: it says "abgelehnt" and "Noch offen" and
+  // keeps "Einsatz öffnen"; the visit page says "Noch offen". The confirmed lines keep the link and say no "Noch offen".
+  test("a rejected line says 'Noch offen' and keeps 'Einsatz öffnen'; confirmed lines keep the link (PLAN3-9 (1))", async ({ page }) => {
+    await page.goto(`/team/tagesplan?datum=${zurichIso(1)}`);
+    const line0815 = page.getByTestId("day-plan-line").filter({ hasText: "08:15" });
+    await line0815.getByRole("button", { name: "Ablehnen" }).click();
+    await expect(line0815.getByTestId("day-plan-decision")).toHaveText("abgelehnt");
+    await expect(line0815.getByTestId("day-plan-still-open")).toHaveText("Noch offen");
+    await expect(line0815.getByRole("button", { name: "Bestätigen", exact: true })).toHaveCount(0);
+    const link = line0815.getByRole("link", { name: "Einsatz öffnen" });
+    await expect(link).toBeVisible();
+
+    const bezug = page.getByRole("region", { name: `Einsätze ${BEZUG}` });
+    await expect(bezug.getByRole("link", { name: "Einsatz öffnen" })).toHaveCount(3);
+    await expect(bezug.getByTestId("day-plan-still-open")).toHaveCount(0);
+    // Every line of the day keeps the link, open or decided.
+    await expect(page.getByRole("link", { name: "Einsatz öffnen" })).toHaveCount(await page.getByTestId("day-plan-line").count());
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+
+    await link.click();
+    await page.waitForURL(new RegExp(`/visits/${VISIT_0815}`));
+    await expect(page.getByTestId("visit-responsible")).toHaveText("Noch offen");
+  });
+
   // PLAN3-7 (2) (po 2026-11-06 06:30, `aia` AUT-52; ADR-155): the team sees its own numbers under its switch. Only
   // teamg.test has decided lines this month, so the shares are hidden by AIG1-7's three-person rule; the count stays.
   test("the team sees its own day-plan numbers under its switch, no person, no other team (PLAN3-7 (2))", async ({ page }) => {
