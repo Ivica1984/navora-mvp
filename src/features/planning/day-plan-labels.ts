@@ -27,9 +27,14 @@ const REFUSALS: Readonly<Record<string, string>> = {
   agent_stopped: UNAVAILABLE,
   team_off: "Der Tagesvorschlag ist für euer Team ausgeschaltet.",
   date_out_of_range: "Ein Vorschlag ist nur für heute und die nächsten 14 Tage möglich.", // UXR-100
-  open_proposal: "Für diesen Tag liegt schon ein Vorschlag vor. Entscheidet zuerst seine offenen Zeilen.",
   nothing_open: "An diesem Tag ist kein Einsatz offen.",
 };
+
+/**
+ * The refusal codes `propose_day_plan` returns (0109). PLAN3-15 (0116, ADR-157): `open_proposal` is gone; a fresh
+ * request closes the earlier undecided lines instead.
+ */
+export const DAY_PLAN_REFUSAL_CODES: readonly string[] = Object.keys(REFUSALS);
 
 /** The stated reason of a proposed line, or null for a code the database does not return. */
 export function lineReasonText(reason: string, knownVisits: number | null): string | null {

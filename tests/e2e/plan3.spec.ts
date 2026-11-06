@@ -128,6 +128,43 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
     await expect(page.getByTestId("suggestions-link")).toHaveAttribute("aria-label", "1 offene Vorschläge");
   });
 
+  // PLAN3-15 (po 2026-11-06 06:30, `aia` AUT-51; ADR-157, migration 0116): after a sick call the team asks again and
+  // sees one list. The 08:15 line, refused `overlap` above, is still undecided; a colleague records the care assistant
+  // absent tomorrow 08:00-09:00 on /field; a fresh request for tomorrow is not refused, closes the old 08:15 line and
+  // writes a new one. The day plan keeps one line per visit (the lines decided above stay), and the proposals link
+  // counts one open line, not two.
+  test("record an absence, ask again, see one list: the earlier undecided line is replaced (PLAN3-15)", async ({ page }) => {
+    const tomorrow = zurichIso(1);
+    await page.goto("/field");
+    const absence = page.getByTestId("absence");
+    await absence.getByTestId("absence-open").click();
+    const form = absence.getByRole("form", { name: "Abwesenheit erfassen" });
+    await form.locator("select[name=who]").selectOption({ label: "Pflegekraft Assistenz G · Testteam G" });
+    await form.locator("input[name=from]").fill(tomorrow);
+    await form.locator("input[name=until]").fill(tomorrow);
+    await form.locator("input[name=fromTime]").fill("08:00");
+    await form.locator("input[name=untilTime]").fill("09:00");
+    await form.getByTestId("absence-save").click();
+    await expect(form).toHaveCount(0);
+
+    await page.goto("/team/tagesplan");
+    await page.getByLabel("Tag", { exact: true }).fill(tomorrow);
+    await page.getByRole("button", { name: "Tag vorschlagen" }).click();
+    await page.waitForURL(new RegExp(`datum=${tomorrow}`));
+    await expect(page.getByTestId("day-plan-error")).toHaveCount(0);
+
+    const lines = page.getByTestId("day-plan-line");
+    await expect(lines).toHaveCount(5);
+    await expect(lines.filter({ hasText: "08:15" })).toHaveCount(1);
+    await expect(lines.filter({ hasText: "08:15" })).not.toContainText("Pflegekraft Assistenz G");
+    const bezug = page.getByRole("region", { name: `Einsätze ${BEZUG}` });
+    await expect(bezug.getByTestId("day-plan-decision")).toHaveText(["bestätigt", "bestätigt", "bestätigt"]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+
+    await page.goto("/team");
+    await expect(page.getByTestId("suggestions-link")).toHaveText("Vorschläge (1)");
+  });
+
   // PLAN3-9 (1) (po 2026-11-06 06:30, `cra` CGR-138; ADR-156, migration 0115): a decided line never reads as a covered
   // visit. The 08:15 line, refused `overlap` above and still open, is rejected: it says "abgelehnt" and "Noch offen" and
   // keeps "Einsatz öffnen"; the visit page says "Noch offen". The confirmed lines keep the link and say no "Noch offen".

@@ -96,7 +96,9 @@ select is(pg_temp.g('teamg') - 'team_id' - 'month' - 'enabled_since' - 'continui
                      'confirm_actions_per_plan', null,
                      'minutes_to_last_decision_median', null, 'no_proposal', null, 'no_proposal_share', null,
                      'no_proposal_not_active', null, 'no_proposal_needs_rn', null, 'no_proposal_absent', null,
-                     'no_proposal_overlap', null, 'proposal_suppressed', true),
+                     'no_proposal_overlap', null, 'proposal_suppressed', true,
+                     -- PLAN3-15 (0116): the closing counts are request counts, not decisions; never suppressed.
+                     'requests_closing', 0, 'lines_closed', 0),
   'PLAN3-7: with two confirmers in the month the team sees its 2 day plans and 5 lines, every share suppressed');
 
 -- The third confirmer -------------------------------------------------------------------------------------------------

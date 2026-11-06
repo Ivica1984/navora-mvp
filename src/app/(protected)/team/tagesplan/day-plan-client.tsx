@@ -99,7 +99,7 @@ export default function DayPlanClient({ teams, team, state, date, bounds, lines,
       ) : teamOn ? (
         <AskForm teamId={team.team_id} date={date} bounds={bounds} />
       ) : null}
-      {date && <Proposal key={lines[0]?.proposal_id ?? "none"} team={team} date={date} lines={lines} load={load} />}
+      {date && <Proposal key={lines.map((l) => l.suggestion_id).join(",") || "none"} team={team} date={date} lines={lines} load={load} />}
     </>
   );
 }
@@ -207,8 +207,8 @@ function AskForm({ teamId, date, bounds }: { teamId: string; date: string | null
           idempotencyKey: crypto.randomUUID(),
         });
         setPending(false);
-        // An earlier proposal of that day with open lines is shown, so the team decides it first.
-        if (result.ok || result.reason === "open_proposal") router.push(hrefFor(teamId, day));
+        // PLAN3-15 (ADR-157): a fresh request replaces the earlier undecided lines, so there is no refusal to redirect.
+        if (result.ok) router.push(hrefFor(teamId, day));
         if (!result.ok) setError(result.error);
         else router.refresh();
       }}
