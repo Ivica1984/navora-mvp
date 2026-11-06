@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Sidebar from "@/components/layout/Sidebar";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import type { HypothesisRow, KpiRow, StepSpanRow } from "@/features/analytics/queries";
 import { KPI, KPI_ORDER, formatKpi } from "@/features/analytics/rules";
@@ -37,10 +36,8 @@ export default function AnalyticsClient({ rows, hypotheses, spans, month }: {
   const ordered = [...scopes.entries()].sort(([a], [b]) => (a.startsWith("org:") ? -1 : b.startsWith("org:") ? 1 : a.localeCompare(b)));
 
   return (
-    <div className="grid min-h-screen md:grid-cols-[280px_1fr]" style={{ background: "#f4f7f4", color: "#153328" }}>
-      <div className="hidden md:block">
-        <Sidebar active="analytics" />
-      </div>
+    // UX2-1 (ADR-131): the navigation comes from the shell.
+    <div className="min-h-screen" style={{ background: "#f4f7f4", color: "#153328" }}>
       <main className="grid min-w-0 content-start gap-6 p-4 md:p-8">
         <header className="grid gap-2">
           <h2 className="text-2xl font-bold">{PAGE_LABEL.analytics} {monthLabel(month)}</h2>

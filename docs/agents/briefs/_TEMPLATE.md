@@ -42,6 +42,8 @@ Also state:
 - the data used (synthetic only until D-1, D-34 and D-35 allow more);
 - what the AI must never do in this item.
 
+**Level H (clinical decision support territory, `cra` CGR-119, 2026-11-03):** a brief with an agent at level H carries the line "D-34 classification: <regulatory adviser's answer, date>" and is not approved while it reads UNKNOWN.
+
 **A brief in which AI makes an accountable decision, replaces a signature or a required approval, or executes clinical judgement is rejected.** "No AI leverage" is valid only with a reason.
 
 ## Out of scope

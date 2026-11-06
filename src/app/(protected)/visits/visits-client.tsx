@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { completeVisit, startVisit } from "@/features/visits/commands";
-import Sidebar from "@/components/layout/Sidebar";
 import CommandError from "@/components/feedback/CommandError";
 import {
   getVisitResponsibleLabel,
@@ -102,15 +101,12 @@ export default function VisitsClient({ visits }: VisitsClientProps) {
     <div
       style={{
         minHeight: "100vh",
-        display: "grid",
-        gridTemplateColumns: "280px 1fr",
         background: "#f4f7f4",
         fontFamily: "Inter, sans-serif",
         color: "#153328",
       }}
     >
-      <Sidebar active="visits" />
-
+      {/* UX2-1 (ADR-131): the navigation comes from the shell; this first-MVP page waits for its UX2-5 decision. */}
       <main style={{ padding: "32px" }}>
         <section style={{ marginBottom: "24px" }}>
           {/* UX1-32: no eyebrow line above the h1 on any protected page (ADR-108 addendum). */}
