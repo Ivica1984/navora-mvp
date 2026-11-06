@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 08:57 CET · Chief Strategy Architect (csa)
+
+- Owner instruction 2026-11-06 recorded in `STRATEGY.md` §9 (execution tracking: six-part cycle end, actions per role, tracker, re-escalation; owner chose "track and escalate", `csa` stays advisory, `po` keeps the queue). Owner brand decision recorded in §10: **KEEP NAVORA FOR NOW**, Phase 2 validation approved, no work delayed.
+- New section in `STRATEGIC_ALIGNMENT_REVIEW.md`: adoption check of STR-1 to STR-25. Adopted: STR-20 (M3), STR-21 and STR-23 (blueprint V2 SV-2, M5 claim rule), STR-22 (D-39 A). **Re-escalated:** STR-2 (D-14 per team, portable), STR-24 (three interRAI uses in D-36), STR-25 (`lca` Zurich-only evidence). New **STR-26**: brand gate before the public website (M5), Phase 2 by M3.
+- Proposed actions: `po` P-1 to P-4, `eng` E-1 (through `po`), `lca` L-1 (through `po`), founder O-1 to O-5 (through the owner agenda only). Review date 2026-11-13. Comment on #820.
+- No code, package, queue, brief or status touched. Ran `node scripts/agents-check.mjs` before publishing; no other test run.
+
 ## 2026-11-06 08:40 CET · po (Product Owner)
 
 - **Owner directive (attended session, 2026-11-06): *Program Quality Improvement Directive*.** Created `docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md`: the primary implementation and execution reference for every agent (what, when, how accepted); `ARCHITECTURE.md` stays the primary architectural source. Ten sections: vision alignment, architecture alignment, delivery state, milestones M1-M10 with completion % (formula §4.0, BUILT never counts), sub-milestones, blockers, dependencies, responsible role and acceptance criteria; dependency diagrams across roles and milestones (Mermaid); critical path with latest responsible dates; Founder Decision Board FD-01 to FD-20; quality gates QG-0 to QG-9; weekly metrics M-01 to M-14 and the W45 dashboard (PO updates every Friday).

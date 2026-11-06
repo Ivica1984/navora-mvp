@@ -8,6 +8,93 @@
 
 ---
 
+## 2026-11-06 08:57 CET · csa · First execution-tracking cycle: adoption check of STR-1 to STR-25, brand gate (STR-26)
+
+**Why this section has a new shape:** owner instruction of 2026-11-06 (STRATEGY §9). Each cycle now ends with findings, risks, required actions, owners, success criteria and a review date, and keeps an execution tracker. `csa` stays advisory (owner choice: "track and escalate"); the PO alone moves the queue.
+
+**Read (evidence):** `recovery/main` at `9a4ba543`; JOURNAL 2026-11-03 to 2026-11-06; `OWNER_AGENDA.md` (2026-11-06 06:30); `DELIVERY_PROGRAM.md` (M1-M10); `ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md` (SV-2); D-11, D-14, D-24, D-36, D-38, D-39 headers; issues #539, #816, #817, #818, #820.
+
+### 1 Strategic findings
+
+1. **Four of the six STR items of 2026-11-03 were adopted within three days.** STR-20 is an M3 acceptance criterion ("one of BS/BL first"); STR-21 and STR-23 are SV-2 in the architecture blueprint (no nursing-home build, sensors specification only until M9); STR-22 is the owner's D-39 decision (A, frozen as specification); STR-23's target is the M5 website rule "AI prepares – humans decide". IMPLEMENTED in documents; nothing built, as intended.
+2. **Three recommendations did not move and are re-escalated:** STR-2 (the D-14 fee agreed per team and portable, no exclusivity with the partner) is not in the D-14 owner ask; STR-24 (name three uses in the interRAI licence talk) is not in the D-36 ask; STR-25 (`lca` marks which D-38 terms rest on Zurich-only sources) has no `lca` entry. #820 has had no PO reply in three days.
+3. **New, STR-26 (competitor and timing threat to the name):** the public website (M5, 2027-01-15) is the first public use of the name, and its domain is an owner decision in M3 (2026-12-11). The brand Phase 2 (STRATEGY §10) has no date. If it ends after M3, the site goes live on a name that may fail clearance, and every later rename costs more (site, search ranking, consents, partner LOI). Evidence: `DELIVERY_PROGRAM.md` M5 dependencies; the 2026-11-03 desk research (navora.hr and navora.at in use by other Navora businesses; Navora AI LLC selling healthcare AI in Switzerland).
+4. **The owner bottleneck is unchanged and now dated:** G-1 and D-36 have waited 10 days, D-38 9 days, D-14 12 days. M3 (2026-12-11) collects them; each week of delay moves M9 and M10 by a week (`DELIVERY_PROGRAM.md`).
+5. **Transformation check (challenge duty), no new challenge:** the week added the PO merge gate (owner 2026-11-05: PO merges autonomously). It removes an owner step from every merge, which lowers coordination; the PO already escalated that the scheduled task cannot merge yet (owner agenda, 06:30). `csa` supports, no duplicate.
+
+### 2 Strategic risks
+
+| ID | Risk | Likelihood | Impact | Mitigation in this cycle |
+|---|---|---|---|---|
+| R-1 (STR-26) | The website goes public under a name that fails trademark or confusion checks | medium (2 country domains and one Swiss healthcare-AI user already carry the name) | high: rebuild of public material, consents and LOI wording | brand gate before M5; Phase 2 finished by M3 (O-1 to O-4, P-1) |
+| R-2 (STR-2) | The fee is agreed organisation-wide with the partner, so teams cannot take it with them to their own provider | medium | high: locks NAVORA into a supplier role (dimension 7) | P-2 |
+| R-3 (STR-24) | The interRAI licence does not cover software or AI use, found only after ASM1 grows | UNKNOWN | high: dimension 6 blocked, rework | P-3, O-5 |
+| R-4 (STR-25) | The C-provider licence timeline for BS/BL has no source, so the 12-month sunset is unprotected | high (no source exists) | high | L-1 |
+| R-5 | M3 owner decisions slip past 2026-12-11 | medium | high: M9, M10 move day for day | O-5 (dated), unchanged asks |
+
+### 3 Required actions, owners, success criteria
+
+Every action below is a proposal to its owner; actions for `eng`, `cra` and `lca` reach them through `po`. Target dates are `csa` proposals, aligned to the milestones.
+
+**ACTIONS FOR PRODUCT OWNER**
+
+| ID | Action | Priority | Rationale | Success criterion (measurable) | Target |
+|---|---|---|---|---|---|
+| P-1 | Add a **brand gate** to the WEB1 brief and to M3: the product name and the public domain are one configuration value on the site; M5 does not go public until the owner has recorded the Phase 2 result | high | R-1; costs no build time now | WEB1 contains the criterion; M3's list in `DELIVERY_PROGRAM.md` names "brand gate (STRATEGY §10)" | 2026-11-20 (WEB1 due) |
+| P-2 | Add STR-2 to the D-14 owner ask: fee agreed **per team, portable** to the team-owned provider, no organisation-wide licence or exclusivity | high | R-2; re-escalation (not adopted since 2026-10-27) | the D-14 line on `OWNER_AGENDA.md` carries it | 2026-11-13 |
+| P-3 | Add STR-24's three uses to the D-36 ask (automated computation of scales and CAPs; AI-drafted proposals a nurse confirms; contractor software use) | medium | R-3; re-escalation | the D-36 line names the three uses | 2026-11-13 |
+| P-4 | Answer #820 (adopt, adapt or reject each part, with a reason) and record the owner's execution-tracking rule in README *Strategy review* | medium | the tracker needs the PO's answer per item | a PO comment on #820; README names STRATEGY §9 | 2026-11-13 |
+
+**ACTIONS FOR ENGINEERING** (through `po`)
+
+| ID | Action | Priority | Rationale | Success criterion | Target |
+|---|---|---|---|---|---|
+| E-1 | When building WEB1, read the product name and public domain from one configuration value | medium | makes R-1 cheap whatever the brand result; no rename now | WEB1 PR shows a single source for name and domain | with WEB1 (M5 build, 2026-12-18) |
+
+**ACTIONS FOR CLINICAL** (`cra`): none this cycle that create measurable progress; the clinical gates sit with G-1.
+
+**ACTIONS FOR LEGAL** (`lca`, through `po`)
+
+| ID | Action | Priority | Rationale | Success criterion | Target |
+|---|---|---|---|---|---|
+| L-1 | Mark which D-38 terms and which STRATEGY §4 durations rest on Zurich-only sources; once D-11 names the first canton, read its licence and OKP-admission procedure durations | high | R-4; re-escalation of STR-25 | a dated `lca` note listing the Zurich-only items; later, a sourced duration for the first canton | list: 2026-11-20; durations: two weeks after D-11 |
+
+**ACTIONS FOR FOUNDER** (put to the owner only through `po`'s owner agenda; this section reports them, it does not contact anyone)
+
+| ID | Action | Priority | Rationale | Success criterion | Target |
+|---|---|---|---|---|---|
+| O-1 | Look up navora.ch at nic.ch, and WHOIS for navora.de, .care, .health | high | the cheapest Phase 2 check; decides check 3 | result recorded in STRATEGY §10 | 2026-11-13 |
+| O-2 | Commission the trademark search (brief in the Phase 2 tab of the brand document) | high | checks 1 and 2 | attorney opinion received | 2026-12-04 |
+| O-3 | Run the 13-person confusion test (no client data) | medium | check 4 | one line per person recorded; count of confusions | 2026-12-04 |
+| O-4 | Record the brand gate decision: keep NAVORA customer-facing, or rebrand | high | R-1 | decision in STRATEGY §10 and the owner agenda | at M3, 2026-12-11 |
+| O-5 | Answer G-1, D-36, D-38 and D-14 | high | R-3, R-5 | four answered packages | M3, 2026-12-11 (G-1 earlier, it gates nine packages) |
+
+### 4 Execution tracker (every `csa` recommendation still open or changed; checked 2026-11-06)
+
+Columns: adopted (yes / partly / no); where it entered the roadmap or architecture; risk mitigated; next step. Rows for STR-3 to STR-12 are fit notes on frozen packages: they wait for the owner's answer and are not re-escalated until the package moves.
+
+| STR | Recommendation | Owner | Adopted | Roadmap / architecture entry | Risk mitigated | Next |
+|---|---|---|---|---|---|---|
+| STR-1 | D-11: one municipality with a known financing path | owner | partly | owner agenda D-11 line | no (D-11 open) | superseded by STR-20 for Basel |
+| STR-2 | D-14 fee per team, portable, no exclusivity | owner via `po` | **no** | none | no | **re-escalated: P-2** |
+| STR-13 | G-1 Clinical Owner, route B, now | owner | yes (asked) | owner agenda bundle 1; M3 | no (unanswered 10 days) | O-5 |
+| STR-14, STR-17 | freeze waiting packages; enforce in CI | `po` | yes | `DECISION_PACKAGES.md` *Frozen packages*; COORD6 | yes | none |
+| STR-15, STR-18 | C-transfer terms before any LOI (D-38) | owner | yes (package) | D-38 T1-T18; M3 (D-12) | no (unanswered 9 days) | O-5 |
+| STR-19 | provider kit, partner route needed once | `po` | yes | `CARE_OPERATING_MODEL.md` *Provider kit*; P-25 | partly | none |
+| STR-20 | Basel: start in one canton | owner | yes | M3 acceptance criterion | partly (D-11 open) | O-5 |
+| STR-21 | no nursing-home build before a self-organised ward, G-1, D-36 | `po` | yes | blueprint V2 SV-2 | yes, until M9 | none |
+| STR-22 | sensors: specification, no migration | owner | yes | D-39 A (decided) | yes | none |
+| STR-23 | "AI prepares, one human confirmation", not "fully automated" | `po` | yes | M5 claim rule; AI-first mandatory sequence; AUT-38 (OPEN) tracks human acts per proposal | yes | none |
+| STR-24 | three uses named in the interRAI licence talk | `po`, owner | **no** | none | no | **re-escalated: P-3** |
+| STR-25 | `lca` marks Zurich-only evidence in D-38 and §4 | `lca` via `po` | **no** | none | no | **re-escalated: L-1** |
+| STR-26 | brand gate before the public website | `po`, owner | new | – | – | P-1, E-1, O-1 to O-4 |
+
+### 5 Review date
+
+**Next check: Friday 2026-11-13** (the weekly `csa` run and M1). It reads P-2, P-3, P-4 and O-1 first. Any action past its target date without movement is re-escalated per STRATEGY §9 rule 5.
+
+---
+
 ## 2026-11-03 13:33 CET · csa · Week 2: owner directions of 2026-11-03 (Basel, all-in-one, IoT/AI), D-38, owner bottleneck
 
 **Read this week (evidence):** `recovery/main` at `adf80a3`; JOURNAL 2026-10-28 to 2026-11-03; `OPEN_DECISIONS.md` (last change 2026-10-29 19:40), `OWNER_AGENDA.md` (last change 2026-10-29 18:12); D-11, D-24, D-36, D-37, D-38 headers; `NEXT_CAPABILITY.md` (2026-11-03 06:30); issues **#816** (D-11 → Basel-Stadt and Basel-Landschaft), **#817** (draft spec `iot_sensor_streams`, `ki_prediction_audit_logs`, automated KVG billing in phase 2), **#818** (D-24/D-25: one platform for home care and nursing homes, Basel nursing-home licensing as user stories), all three filed by the owner on 2026-11-03 12:32 UTC as owner directions to `po`.
