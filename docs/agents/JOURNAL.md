@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 14:40 CET · AI & Automation Architect (aia)
+
+- Automation review 34 (`reports/AUTOMATION_REVIEW.md`, section 14:40) on `recovery/main` `30de12f`: founder direction 2026-11-06 (FE-023 to FE-032), Blueprint V2/V2.1 (AI work flows, SV-4 to SV-7, M8.1b, FD-22, M-11 to M-21), D-41, D-42, confirmation §1.1 (H-1 to H-6) read; `eng` #897 read on its head, #902, #903, #906, #910 at title and CI level (all 4/4 green, GitHub API).
+- New **AUT-54 (high, issue #912):** DOC-AI as framed re-drafts the structured report that F6/F7 already build from the facts and adds a review per visit; keep the structure as the F7 rule, scope the agent to the nurse's own unstructured note, measure M-16 first, restate FD-22. **AUT-55** (medium): M-15 counts travel, meetings and training as administration; compute it from recorded admin segments. **AUT-56** (medium): no per-resident time tap in the nursing-home ward to make M-15 computable. **AUT-57** (medium): Phase A values test the measurement, not the effect; Phase B "before" from the partner's existing records, no diary. **AUT-58** (low): one source for open owner asks.
+- PLAN4 supported as a rule with seven controls (now in `AI_OPERATING_MODEL_REVIEW.md` §12). **AUT-51** remedy met on #897 (closes on merge).
+- This PR continues #896 (08:25); `recovery/main` merged in, JOURNAL conflict resolved with every entry kept. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To `po`:** #912 before the DOC-AI brief (2026-11-27); AUT-55 to AUT-57 into M-15 and NH-A1 to NH-A5; #897 deviation 3 (count one visit-day once).
+
+---
+
 ## 2026-11-06 12:30 CET · po (Product Owner)
 
 - **Owner answers in the attended session:** Phase A simulates **home care and a simulated nursing-home ward** (O-1 option b; FE-031). The owner re-sent a revised version of the letter: point 5 adds the explicit goal of reducing avoidable Spitex administration and placement overhead, enabling self-organised teams and better earnings for nurses (FE-032; hypotheses H-1 to H-6 with their measurement in the confirmation §1.1); point 8 asks for the PO's own responsibility and confirms that team self-organisation is preserved; points 13 and 16 ask the PO to commission `lca`. The prompt-change question (FD-01) was **not answered**: no scheduled task changed.
@@ -52,6 +62,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - `uxa`: wording asks unchanged; M5.2 page designs due 2026-12-04.
   - `aia`: own M-11 and M-12 from M4 (definitions in §10.2).
   - `csa`: no entry since 2026-11-03; strategic alignment check against §1 when you next run.
+
+---
+
+## 2026-11-06 08:25 CET · AI & Automation Architect (aia)
+
+- Automation review 33 (`reports/AUTOMATION_REVIEW.md`, section 08:25) on `recovery/main` `9c58939`: PO #893 (06:30), `eng` #890, #891, #894, #895 and `cra` #892 read on their heads; CI 4/4 green on the four `eng` PRs (GitHub API).
+- AUT-51 → PLAN3-15 and AUT-52 → PLAN3-7 (2) adopted as proposed; **AUT-52 met on #894**. PLAN3-15, PLAN3-16, PLAN3-17, PLAN3-9 (1)-(2) supported in the challenge review.
+- New **AUT-53** (low), a correction of my own AUT-52: a missing primary nurse never produces "kein Vorschlag" (PLAN3-3 falls back to capacity); drop that clause from PLAN3-7 (2) and accept #894 deviations 2 and 3 as built.
+- No `high`, no issue opened; one comment on #894. `AI_OPERATING_MODEL_REVIEW.md` change log only. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To `po`:** AUT-53 wording fix; PLAN3-15 is the remaining `aia` acceptance item not built.
 
 ---
 
