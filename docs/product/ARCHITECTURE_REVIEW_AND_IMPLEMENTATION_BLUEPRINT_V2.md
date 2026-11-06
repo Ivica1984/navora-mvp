@@ -1,6 +1,21 @@
 # NAVORA Architecture Review and Implementation Blueprint V2
 
-**Owner of this file:** Product Owner (`po`) · **Written:** 2026-11-06 08:40 (Europe/Zurich), by the owner's *Program Quality Improvement Directive* (2026-11-06) · **Version:** 2.1, 2026-11-06 12:00, after the founder letter of 2026-11-06 (decisions FE-019 to FE-030 in [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md); answer in [`FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md`](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md)). Version 2 was 2026-11-06 08:40; version 1 is [`DELIVERY_PROGRAM.md`](DELIVERY_PROGRAM.md), 2026-11-03 · **Repository state read:** `recovery/main` @ `9c58939`, open PRs and role branches read through the GitHub API on 2026-11-06 08:20-08:40.
+**Owner of this file:** Product Owner (`po`) · **Written:** 2026-11-06 08:40 (Europe/Zurich), by the owner's *Program Quality Improvement Directive* (2026-11-06) · **Version:** 2.3, 2026-11-06 14:45 (see the version table below). Version 2.1 was written after the founder letter of 2026-11-06 (decisions FE-019 to FE-030 in [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md); answer in [`FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md`](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md)). Version 2 was 2026-11-06 08:40; version 1 is [`DELIVERY_PROGRAM.md`](DELIVERY_PROGRAM.md), 2026-11-03 · **Repository state read:** `recovery/main` @ `9c58939`, open PRs and role branches read through the GitHub API on 2026-11-06 08:20-08:40.
+
+
+**Status (FE-035, owner 2026-11-06):** this Blueprint is NAVORA's **official, leading working book** (Arbeitsbuch). It is a living document: every content change, new founder decision and milestone progress is recorded in the version table below; substantial changes stay traceable in the text (struck through or marked as replaced, never silently overwritten); with every update the PO synchronises the affected GitHub issues and PRs, and names any scheduled-task prompt that needs a change.
+
+### Version table
+
+| Date (Europe/Zurich) | Version | What changed | Why | Sections affected |
+|---|---|---|---|---|
+| 2026-11-06 14:45 | **v2.3** | Version table and living-document rule added; M9 re-framing **confirmed** by the owner (no longer PROVISIONAL); merge process test run on #800 recorded (passed); scheduled-task prompts of all eight agent tasks updated by the owner's approval (FD-01 closed); SR-26 decided by the owner (delete the foreign `orders` table), execution blocked because the old live project is paused; Decision Board and dashboard updated; M2 progress (#800 merged) | founder message 2026-11-06 (FE-033 to FE-036) | header, §3.1, §4 M2 and M9, §6, §7, §10.3 |
+| 2026-11-06 12:30 | v2.2 | Phase A = home care and a simulated nursing-home ward (O-1 decided); FD-21 removed; M3 30 %; nursing-home briefs no longer provisional; `lca` commissioned; D-42 opened | owner answer in the session (FE-031, FE-032) | §1.3, §4 M3, M9.0a, §6, §7 |
+| 2026-11-06 12:00 | v2.1 | vision and business model, AI work flows as core, care-context matrix, SV-4 to SV-7, M3 rows, M8.1b, M9 re-framed (provisional), critical path, Decision Board FD-21 to FD-26, metrics M-15 to M-21 | founder letter 2026-11-06 (FE-019 to FE-030) | §1, §4, §6, §7, §10 |
+| 2026-11-06 08:40 | v2.0 | first version: measured completion, sub-milestones, dependency maps, critical path, Founder Decision Board, quality gates, weekly metrics | owner *Program Quality Improvement Directive* | all |
+| 2026-11-03 | v1 | `DELIVERY_PROGRAM.md` M1-M10 | owner *Executive Delivery Directive* | – |
+
+The *Change log* at the end of this file is kept for history; from v2.3 on, the version table is the record.
 
 **Purpose.** This blueprint turns the delivery program M1-M10 into an execution system you can measure. Every milestone has a completion percentage, sub-milestones, blockers, dependencies, a responsible agent and testable acceptance criteria. Weekly metrics show whether we are on course.
 
@@ -171,7 +186,7 @@ Rule for reuse: a sector difference is configuration or a sector module on the s
 - **Dependencies:** none outside the merge path.
 - **Acceptance criteria:** (1) every M2-M10 item has an estimate in person-days with confidence, predecessor and moving risk; (2) technical and pilot readiness stated as dates with assumptions; (3) every screen of the catalog has route, role, data read and components; (4) every component has its six states and token references; (5) no item needs real data or a frozen package; (6) this blueprint's §6 dates are re-computed from M1.3 and dated.
 
-### M2 Web application consolidated · target Fri 2026-11-27 · **completion 20 %** (built 75 %)
+### M2 Web application consolidated · target Fri 2026-11-27 · **completion 21 %** (built 75 %; v2.2: 20 %)
 
 - **Responsible:** `eng`; accepts `po`; gate `cra` (UX2 on `/field`, `/team`); review `uxa`.
 - **Sub-milestones:**
@@ -179,7 +194,7 @@ Rule for reuse: a sector difference is configuration or a sector module on the s
   | ID | Sub-milestone | Owner | Due | Weight | Status |
   |---|---|---|---|---|---|
   | M2.0 | Merge mechanics: AUT-49 (journal file per entry), one file per ADR, `po-merge-gate.mjs` with unit tests | `eng` | 2026-11-13 | 2 | PLANNED |
-  | M2.1 | Merge queue: #800, #803, #804, #806 (UX2), #813 (RLS4-C3), #810 (CGR-110) | `po` | 2026-11-13 | 2 | BUILT |
+  | M2.1 | Merge queue: ~~#800~~ (merged 2026-11-06, merge-process test run), #803, #804, #806 (UX2), #813 (RLS4-C3), #810 (CGR-110) | `po` | 2026-11-13 | 2 | 1 of 6 IMPLEMENTED, rest BUILT |
   | M2.2 | UX2 shell part (#799) | `eng` | done | 2 | IMPLEMENTED |
   | M2.3 | UX2 remainder (F-3…F-7, UX2-33 error pages in the shell) | `eng` | 2026-11-20 | 4 | PLANNED |
   | M2.4 | D-7 ruleset and D-8 merge of `recovery/main` into `main` | owner, then `eng` | 2026-11-27 | 1 | OPEN |
@@ -281,7 +296,7 @@ Rule for reuse: a sector difference is configuration or a sector module on the s
 
 ### M9 Pilot readiness · target Fri 2027-03-12 · **completion 8 %** (2 of 25 gates met)
 
-**Re-framed by the pilot phases (FE-021; PO proposal, founder question O-7):** M9 on 2027-03-12 = **Phase A passed** (M9.0: the simulated pilot, home care and a simulated nursing-home ward (FE-031), run end to end on synthetic data and measured on §10.2) **plus a complete Phase B readiness file** in which every gate that does not need the real partner is closed. The Phase B start date follows the partner and is UNKNOWN; partner-bound gates (licence holder, DPIA signature, watched hours, staffing, D-29 for real nurses) close in Phase B.
+**Re-framed by the pilot phases (FE-021; ~~PO proposal, founder question O-7~~ **confirmed by the owner 2026-11-06, FE-036**):** M9 on 2027-03-12 = **Phase A passed** (M9.0: the simulated pilot, home care and a simulated nursing-home ward (FE-031), run end to end on synthetic data and measured on §10.2) **plus a complete Phase B readiness file** in which every gate that does not need the real partner is closed. The Phase B start date follows the partner and is UNKNOWN; partner-bound gates (licence holder, DPIA signature, watched hours, staffing, D-29 for real nurses) close in Phase B.
 
 - **M9.0a Nursing-home sector layer, briefs (PO; O-1 answered, FE-031):** NH-A1 ward and 24-hour shift model on the shared team records; NH-A2 resident record and care plan without interRAI content (D-36); NH-A3 shift handover reuse of HAND1; NH-A4 absence and cover across shifts (ABS1/COVER1 reuse); NH-A5 billing facts per resident-day as versioned rules marked UNKNOWN until `lca`/`cra` (no invented tariff). Owner `po`, due 2026-11-27; gates `cra`, `lca`, `uxa`.
 - **M9.0b Nursing-home sector layer, build on synthetic data:** owner `eng`, due 2027-01-29.
@@ -445,21 +460,22 @@ Updated 2026-11-06 12:00 after the founder letter. Decided items (D-1, D-11, D-2
 
 | FD | Priority | Decision | Ask (exact) | Latest date | Blocks | Default until answered |
 |---|---|---|---|---|---|---|
-| FD-01 | Critical | PO task merge step and prompt updates | Approve the prompt changes in the confirmation §5.3 (merge step, founder decisions, Blueprint, phases) for the scheduled tasks | now | merges; consistent agent work | merges only in attended sessions |
+| ~~FD-01~~ | – | ~~PO task merge step and prompt updates~~ | **closed 2026-11-06 (FE-033):** approved; test run on #800 passed; all eight prompts updated; PO task hourly at :39 | – | – | – |
+| FD-27 | High | SR-26 execution path | The old live project is **paused** (INACTIVE), so the table cannot be dropped. Choose: (a) restore the project for one dated session, drop `orders`, pause again (backups keep copies until their retention ends, UNKNOWN); (b) delete the whole old project (no NAVORA use; removes the table and its backups; irreversible) | 2026-11-13 | your SR-26 instruction | table stays contained in the paused project |
 | FD-22 | High | O-4 AI provider for synthetic data | Approve one contracted CH/EU provider for synthetic data only in Phase A (no real data; D-35 rule A unchanged), or decide that Phase A tests AI flows with rule-based stand-ins | 2026-11-27 | real test of DOC-AI and billing checks | rule-based stand-ins |
-| FD-23 | High | O-7 M9 re-framed | Confirm M9 = Phase A passed + Phase B readiness file (partner-bound gates in Phase B) | 2026-11-13 | milestone plan | PO uses the re-framing as PROVISIONAL |
+| ~~FD-23~~ | – | ~~O-7 M9 re-framed~~ | **confirmed 2026-11-06 (FE-036)** | – | – | – |
 | FD-02 | High | G-1 / O-6 | Name a Clinical Owner (and deputy) for Phase B, and decide whether a clinical expert reviews the simulated nursing home in Phase A | 2027-01-15 | clinical plausibility of M9.0; Phase B | no clinical rule approved |
 | FD-07 | High | D-7 | Apply the ruleset and secret scanning; repository visibility is now your choice (D-1 answered) | 2026-11-20 | D-8, M2 | no backstop |
 | FD-08 | High | D-8 | Approve B (two `preserve-*` tags, merge PR #3 after D-7) | after FD-07 | M2 | `main` stale |
 | FD-09 | High | D-2 | Approve the two paid plans (EU/CH), create them, add staging secrets | 2026-12-11 | T12, M9 | no staging |
 | FD-24 | Medium | O-2 "Privatpersonen" | Choose which meaning(s) the vision includes (variants in the confirmation §2, point 4) | 2026-12-11 | private-person sector layer | not built |
 | FD-25 | Medium | O-5 team-owned provider in a nursing home | Does the D-12 goal (team-owned provider after a sunset) apply to the nursing-home pilot, or does a nursing home keep its licence with self-organised wards? | before Phase B | D-38, partner contract | D-38 not asked |
-| FD-26 | Medium | O-3 Arbeitsbuch | Give the path of the "NAVORA-Arbeitsbuch", or confirm that this blueprint is the Arbeitsbuch | 2026-11-13 | single working reference | blueprint leads |
+| ~~FD-26~~ | – | ~~O-3 Arbeitsbuch~~ | **decided 2026-11-06 (FE-035):** this Blueprint is the official working book | – | – | – |
 | FD-14 | Medium | Website | Domain, host, demo destination | 2026-12-11 | M5 | M5 build waits |
 | FD-16 | Medium | D-36 | Give `lca` the interRAI licence terms (a fact) | 2026-12-11 | D-37, assessment content | no interRAI content |
 | FD-15 | Low | D-26 | No service-role key on the app host in production | before Phase B | invitations in production | Edge Functions path |
-| FD-17 | Low | SR-26 | Approve A; say whether your D-1 statement covers the `orders` table | 2026-11-27 | live DB hygiene | untouched |
-| – | – | Security actions (no decision) | Rotate the anon/JWT key; switch on leaked-password protection | 2026-11-20 | – | – |
+| ~~FD-17~~ | – | ~~SR-26~~ | **decided 2026-11-06 (FE-034):** delete the foreign `orders` table entirely; your D-1 statement covers NAVORA care and client data only; execution: FD-27 | – | – | – |
+| – | – | Security actions (no decision) | Rotate the anon/JWT key; switch on leaked-password protection (moot if FD-27 (b) deletes the old project) | with FD-27 | – | – |
 
 Not asked now (FE-021, FE-023, FE-026): partner (D-12), legal adviser, D-14 price, D-29, D-38, D-22/D-18/D-9/D-4 to an adviser. They return in Phase B or after Phase A with a package.
 

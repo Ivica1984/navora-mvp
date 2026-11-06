@@ -19,6 +19,12 @@
 - **Scheduled run, 2026-11-05 14:46 CET (IMPLEMENTED fact): refused.** The scheduled PO task's permission check refused the merge call for #800 (head `7d286e8`, all seven conditions met) as "merge without review", the same refusal as at 06:05. The PO did not work around it. So the PO merges only in an owner-attended PO session; scheduled runs prepare the merge record and stop. **Ask 3 (1), and (2) if (1) is not enough, is again a precondition for scheduled merges** (`OWNER_AGENDA.md` bundle 1, "Merge in scheduled runs").
 - **Scheduled run, 2026-11-05 16:35 CET (IMPLEMENTED fact): accepted for the PO's own docs PR.** The merge call for PO PR #874 (head `ccac0f4`, conditions 1 and 5: 4/4 green, `clean`, no review thread) succeeded (`7cc0f9f`). Whether the scheduled check also accepts an Engineering PR is **UNKNOWN**: after #874 merged, no Engineering PR met condition 1, so none was tried. The next scheduled run that finds one conflict-free tries it once (with the merge record comment first); a refusal is recorded and not worked around. The bundle 1 ask stays until that is known.
 
+## 0b. Owner approval and merge test run (2026-11-06, IMPLEMENTED facts)
+
+- **Owner approval (FE-033):** the merge paragraph of section 3 (1) is now in the scheduled PO task's prompt, together with the founder block for all agent tasks; the PO task runs hourly at minute 39 (Europe/Zurich). **Condition set by the owner:** run the merge process once as a complete test on exactly one suitable change, document it, and only then apply it to further PRs.
+- **Test run, attended session 2026-11-06:** PR **#800** (UX2-27 + UX2-29, head `797029c`, no migration). Section 4: all seven conditions met (merge record comment on #800 with evidence). Merge commit `30de12f` with the head SHA passed to the merge call. Section 5: CI on the merge commit (push run) green: `app`, `db`, `e2e`, `ui-screenshots`. Acceptance of UX2 waits for the remaining UX2 parts (UX2 is one brief). **Result: passed.**
+- **From now on:** the scheduled PO task merges one Engineering PR per run under section 4, then role docs PRs, then its own PR. The stop rule "one Engineering PR per run" stays in force (conflicts).
+
 ## 1. Why nothing merged until 2026-11-05 (IMPLEMENTED facts, checked 2026-11-05) (IMPLEMENTED facts, checked 2026-11-05)
 
 | # | Cause | Evidence | Effect |

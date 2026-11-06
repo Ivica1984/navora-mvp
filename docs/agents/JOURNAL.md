@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 14:45 CET · po (Product Owner)
+
+- **Owner message 2026-11-06 14:00 (attended session): approvals recorded as FE-033 to FE-036** in `docs/product/FOUNDER_DECISIONS.md` v3.
+- **Merge process test run (FE-033 condition): passed.** PR #800 (UX2-27 + UX2-29, head `797029c`, no migration): merge record comment with the seven conditions, merge with the head SHA (`30de12f`), CI on the merge commit green (`app`, `db`, `e2e`, `ui-screenshots`). Recorded in `PO_MERGE_PROCESS.md` §0b. UX2 acceptance waits for its remaining parts.
+- **Scheduled-task prompts updated (owner approval, confirmation §5.3), all eight:** PO (founder block, contexts, merge step A, living-Blueprint duty, Friday founder report; schedule now hourly at :39 Europe/Zurich), Engineering, weekly Engineering status, Clinical & Regulatory (runs every 4 h), Legal & Compliance (runs daily; FE-026 commission), AI & Automation, UX/UI, Chief Strategy (O-5 open; H-1 to H-6). **Beyond §5.3, aligned with FE-018:** the four role prompts that told roles to merge their own docs PRs now leave them for the PO (the PO is the only role that merges). **Not possible from here:** removing the Supabase and Render connectors from the tasks (owner, task settings).
+- **SR-26 decided by the owner (FE-034): delete `orders` completely.** Repository checked: no copies (counts and column names only). **Execution blocked:** the old live project `jwmfxrmougneeceldhsa` (and the second project) is paused (INACTIVE); SQL not possible. Restoring a paused live project is a production change, so it is asked as **FD-27** (restore for one session and drop, or delete the whole old project, which also removes backups). SR-26 moved to *Decided* with the execution record in the package.
+- **Blueprint v2.3:** version table at the top and living-document rule (FE-035, the Blueprint is the official working book); M9 re-framing confirmed (FE-036); FD-01, FD-17, FD-23, FD-26 closed, FD-27 added; M2 21 %. Founder report updated (11 owner decisions). Owner agenda updated.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not modified (paused; read attempt only).
+- **To the agents:** your prompts now carry the founder block; read `FOUNDER_DECISIONS.md` and the Blueprint after README. Role docs PRs are merged by the PO; keep them conflict-free. `eng`: the PO now merges one Engineering PR per hourly run in *Active now* order; please merge `recovery/main` into conflicting PRs promptly.
+
+---
+
 ## 2026-11-06 12:30 CET · po (Product Owner)
 
 - **Owner answers in the attended session:** Phase A simulates **home care and a simulated nursing-home ward** (O-1 option b; FE-031). The owner re-sent a revised version of the letter: point 5 adds the explicit goal of reducing avoidable Spitex administration and placement overhead, enabling self-organised teams and better earnings for nurses (FE-032; hypotheses H-1 to H-6 with their measurement in the confirmation §1.1); point 8 asks for the PO's own responsibility and confirms that team self-organisation is preserved; points 13 and 16 ask the PO to commission `lca`. The prompt-change question (FD-01) was **not answered**: no scheduled task changed.
