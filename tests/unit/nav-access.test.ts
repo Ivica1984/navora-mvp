@@ -81,11 +81,13 @@ describe("menu role lists = the database predicates (UX1-3, no drift)", () => {
     expect(kpis).toMatch(/private\.is_team_member\(/);
     // /field: visits of the caller's own teams.
     expect(newestDefinition("public.field_visits")).toMatch(/team_memberships/);
+    // /team (UX2-1, ADR-131): the offers of the caller's own teams.
+    expect(newestDefinition("public.team_offers")).toMatch(/team_memberships/);
   });
 
   it("covers exactly the menu routes (no item without a target, no first-MVP page)", () => {
     expect(NAV_ITEMS.map((i) => i.href).sort()).toEqual(
-      ["/admin", "/analytics", "/field", "/intake", "/operations", "/partners", "/settings", "/work"].sort(),
+      ["/admin", "/analytics", "/field", "/intake", "/operations", "/partners", "/settings", "/team", "/work"].sort(),
     );
     // UX1-4: /teams and /visits (first MVP) are not menu items; "Qualitätsmanagement" (no target) is gone.
     expect(NAV_ITEMS.some((i) => i.href === "/teams" || i.href === "/visits")).toBe(false);
@@ -97,8 +99,8 @@ describe("menu role lists = the database predicates (UX1-3, no drift)", () => {
 describe("items per role (seed people, UX1-3)", () => {
   const hrefs = (access: NavAccess, demo = false) => navItemsFor(access, demo).map((i) => i.href);
 
-  it("a nurse in a team: her day, her working day, figures and settings; no coordination page", () => {
-    expect(hrefs({ roles: ["nurse"], inTeam: true })).toEqual(["/field", "/work", "/analytics", "/settings"]);
+  it("a nurse in a team: her day, her team (UX2-1), her working day, figures and settings; no coordination page", () => {
+    expect(hrefs({ roles: ["nurse"], inTeam: true })).toEqual(["/field", "/team", "/work", "/analytics", "/settings"]);
   });
 
   it("a coach without a team: operations, figures, working day, settings", () => {
@@ -117,7 +119,7 @@ describe("items per role (seed people, UX1-3)", () => {
     ]);
   });
 
-  it("a nurse without a team sees no /field and no figures", () => {
+  it("a nurse without a team sees no /field, no /team and no figures", () => {
     expect(hrefs({ roles: ["nurse"], inTeam: false })).toEqual(["/work", "/settings"]);
   });
 
