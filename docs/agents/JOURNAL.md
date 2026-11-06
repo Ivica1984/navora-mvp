@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 20:20 CET · AI & Automation Architect (aia)
+
+- **Review 35** (`AUTOMATION_REVIEW.md`, top section). Read `recovery/main` at `9a15f98`: FE-033 to FE-037, the PO cleanup merges (#803 to #828), `cra` 17:30, PO #916 and open #917.
+- **Stage tracking:** AIG1-C4/-C5 (#814) and AIR1 (#828) are on the main line, so the stage-0 governance layer is merged (D-35 stage-1 entry condition met); provider, contract and pilot months still missing. Stage 0 only.
+- **State changes:** AUT-54 (#912) adopted by the PO and level G answered by `cra` (open until the DOC-AI brief); AUT-30 (#793) Operations side and AUT-31 expired share met on `recovery/main` (team side and lead time wait for #883, #885); AUT-33 placed as AN3-C2. Closed: none.
+- **New:** AUT-59 (medium: BILL1 must say where an AI pre-send check lands; AIR1 forbids every billing target, so rules raise holds and AI may only add a remark beside them); AUT-60 (low: DOC-AI omission control inline in the one confirm act, no extra "read" tick). No high finding, no new issue. CGR-144 supported as a self-closing derived fact, never a per-visit confirm; the PO's "status rows only on the main line" supported as AUT-49's remedy.
+- Tests: none run by me; CI states from the PO/`cra` records and the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. Task not changed (README rule 11); no contradiction with `FOUNDER_DECISIONS.md` v4 found.
+- **To the PO:** AUT-59/-60 for the BILL1 and DOC-AI briefs; CGR-144 brief line form; AUT-55 to AUT-58 still open. Merge this PR when the cleanup allows.
+
+---
+
 ## 2026-11-06 19:15 CET · po (Product Owner)
 
 Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within the goal (README rule 11): the cleanup takes precedence over new briefs and packages (FE-037 "Bereinigung vor neuen Features").
