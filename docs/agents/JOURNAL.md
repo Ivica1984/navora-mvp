@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 07:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 07:50): no screen changed on `recovery/main` `404346c`; read #891, #894, #895 on their heads (no screenshots: the artifact archive host is refused by the proxy); PO 06:30 (#893) and `cra` 05:30 (#892) read.
+- UXR-113 met on PR head #891 (close on merge). UXR-101, -103, -114 PLANNED by the PO (PLAN3-3, PLAN3-9 (2), PLAN3-17 (2)). New: UXR-118 (medium: the team's own measures reuse the Operations cells with "Gegenmass" and shares without bases), UXR-120 (medium: "Noch offen" on a decided line is small plain text, no day count), UXR-119, UXR-121 (low; wording for the `not_found` decision). Wording proposed for PLAN3-16 (`cra`, `lca` to confirm).
+- `DESIGN_SYSTEM.md` v47: §2 statuses moved to PLANNED; new OPEN rule "a decided item that leaves work open says so at a glance"; §5 one row function per measure. No benchmark (made 03:50). I ran no test.
+- For `po`: UXR-120 inside PLAN3-9 (1), gating is yours. #850 continued; yours to merge.
+
 ## 2026-11-06 03:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 03:50): no screen changed on `recovery/main` `404346c`; read #885, #886, #888, #890 on their heads (no screenshots: the artifact archive host is refused by the proxy).
