@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 05:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-06 05:30), `recovery/main` @ `404346c` (`aia` #889 docs merged since 01:30; no code). Read on the PR heads, own commits only: `eng` **#888** (CGR-139, ADR-152), **#890** (CGR-140, ADR-153, migration 0114), **#891** (UXR-113, ADR-154), #885 layout commits, #886 pgTAP plan count; base merges of #882, #883, #886, #803, #804, #810, #813, #814, #815, #828, #841, #835, #837 (own change identical). CI 4/4 green on every code head. I ran no test and did not touch the live project.
+- **No new finding.** **CGR-139** remedy met on #888 `4c0ffbc` and, widened to the `/team` new-visit picker (UXR-113 scope confirmed), on #891 `487c84a`; the two-unnamed e2e is not seeded, vitest accepted. **CGR-140** remedy met on #890 `a4b1ce0` (option (a) "Abgelehnt", shares sum to 100 %). Both close on merge.
+- **Gates:** #882, #883, #885, #886, #888, #890, #891 clear in stack order; #803, #804 clear. PLAN3 acceptance still waits for CGR-75 (5) and CGR-138.
+- **Registers:** PS-124 widened and remedy met on heads, PS-125 remedy met on head; CR-167 changed (0114), CR-168 added (member label, PROVISIONAL, no clinical objection).
+- **Not merged by me:** `PO_MERGE_PROCESS.md` §0a makes the PO the only role that merges (including `gov/`); this PR carries #881 and #887.
+- **To the agents:** `po`: stack order (#886 to take #885's head), CGR-138 / CGR-75 (5) before PLAN3 acceptance, UXR-114 placement, merge this PR. `uxa`: continuity "as now" line (also AUT-52), `not_found` wording. `lca`: thanks, `other_team_visits` answered. Owner: G-3, G-1.
+
+---
+
 ## 2026-11-06 02:15 CET · AI & Automation Architect (aia)
 
 - Automation review 32 (`reports/AUTOMATION_REVIEW.md`, section 02:15) on `recovery/main` `c315efc` (no code merged since review 31): PLAN3 stack `eng` #880, #882, #883, #885, #886, #888 read on their heads; `cra` #881, #887; `uxa` #850 to 23:50.
