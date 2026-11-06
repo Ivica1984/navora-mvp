@@ -4,6 +4,27 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 00:39 CET · po (Product Owner)
+
+Scheduled PO run (00:39). No PO PR was open; this is `po/cycle-2026-11-07-0039`.
+
+- **Merges (A):** **#934** (PLAN3 consolidation, FE-041) checked on head `f9e189d`: CI 4/4 green, `clean`; `cra-gate: #934 66885bf clear` (#937, 00:10) and `git diff 66885bf f9e189d -- src supabase tests e2e` empty (the new head only merges `recovery/main` `120a881`, docs), which is `cra`'s stated condition; 0 reviews and threads; `uxa` (#936) nothing blocking; PLAN3 brief approved; no open "Blocked by"; the one new table (`day_plan_line_closures`, 0116) has RLS, append-only and audit triggers. Merge record comment posted on #934. **The merge call was refused by the scheduled session's permission check ("Merge Without Review") before it reached GitHub, so #934 is not merged**; the PO did not work around it (as on 2026-11-06 14:45, `PO_MERGE_PROCESS.md` §0b). Role PRs #936 (`uxa`) and #937 (`cra`) not attempted (same check; they also must follow #934). The record stays valid while the head does not move.
+- **Decisions (F), three packages in INDEX order:**
+  - **D-22** (tier 1): `lca` 16:10 Basel re-analysis taken in. a1/b2/c2 now also on the BS department's own leaflet; BS order-free facts recorded for a later invoicing brief (flag per line, 9-month reassessment, twice without consent, 27-month report); nursing homes: every level needs a doctor's order, so NH-A5 enters a level only with an order reference, never computed (product default, `lca` compliant). Adviser questions now 1-8, none before Phase A. Ask changed, re-frozen.
+  - **D-18** (tier 1): D-11 and D-12 answered, so the precondition is met. **Decided by po (product authority; `lca`: compliant under every plausible interpretation): BILL1 on synthetic data uses option A**, BS and BL rules as sourced, versioned rows with `validated = false`, residence as of the service date. A NAVORA-computed level for billing is not adopted (`lca`: not compliant). Ask changed: payer contracts and questions 1-6, 9, 10 before Phase B shadow mode. Re-frozen.
+  - **D-41** (tier 3): Engineering section **drafted by po, not confirmed by eng** (requested 2026-11-06; four `eng` runs since). All inputs in; Medium; **escalated: awaiting approval: owner** (see below).
+- **Prioritisation (D):** the largest gap left in the chain for Phase A is **Billing**: J5 is only a preview, and M9.0 needs "billing preparation in shadow mode against an independent reference set", but no BILL1 brief exists. With D-18 settled for synthetic data, the BILL1 brief is the next PO brief, written with NH-A5 by 2026-11-27 (M9.0a). QUAL1 (approved, not started) stays *Next up* 4, so no new brief is approved this run (G).
+- **Challenge (E):** *Why does a Spitex office prepare invoices at all?* In BS the canton's residual invoice needs only per-line flags and two documents "spätestens zusammen mit der Abrechnung"; every fact is already in NAVORA (visit events, order record, assessment). If BILL1 builds the invoice from confirmed facts and holds only the unclear lines, the billing clerk disappears and only a release by a person stays. The open risk is not the software but the payer contract rules (question 9): one wrong unit rule repeats on every line, so the reference rows stay unvalidated until the partner's billing staff confirm them. Buurtzorg limit: its billing still runs through central back-office staff; NAVORA's target is a team release without a back office.
+- **Blueprint v2.13** (version row; §1 BILL1 and SV rows, §5.3, §9.1 PB-8). `OPEN_DECISIONS.md`, `decisions/INDEX.md`, `OWNER_AGENDA.md`, `NEXT_CAPABILITY.md` *Active now* updated. `ROADMAP.md` unchanged (no status changed). Not Friday any more (Saturday 00:39), so no Executive Report rewrite.
+- **GitHub:** merge record and refusal comment on #934; comments on #905 (D-41), #104 (D-22, one question to `cra` on CR-004's source), #80 (D-18).
+- **Scheduled-task prompts:** the PO task's permission settings still block the merge call intermittently (#929 went through at 22:40, #934 refused at 00:39); owner agenda bundle 1 row updated. The PO does not edit scheduled tasks.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found (FE-041 replaces the prompt's "one by one, bottom-up" line for PLAN3, already reported at 23:10).
+- **To the agents:** `eng`: do not push to #934 unless `recovery/main` moves; QUAL1 starts after #934. `cra`: #934 merge pending only on the permission check; CR-004 source question on #104; D-42 and D-25 next. `lca`: D-42 and D-25 next, as planned. `uxa`: #936 waits behind #934. `aia`/`csa`: D-41 asks the owner for option B as the target path; any challenge welcome on #905.
+
+**Waiting for the owner (escalated this run):** **D-41**: answer "approve option B as the target AI path (orchestrator only, conditions 1-10, entry gate per agent, L before G, no unapproved external tools)"; default in force: rule A (FE-024); needed before Phase B, not Phase A. Plus the merge permission for the scheduled PO task (bundle 1), which keeps #934 from merging.
+
+---
+
 ## 2026-11-06 23:10 CET · po (Product Owner)
 
 Attended session. The founder asked how the merge path can be sped up; the one-Engineering-PR-per-run rule would have taken the PLAN3 stack until about Saturday noon.
