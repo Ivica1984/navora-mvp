@@ -1,6 +1,6 @@
 # NAVORA Founder Executive Report
 
-**Für:** den Owner (Founder) · **Verfasst von:** Product Owner (`po`) · **Ausgabe:** KW 45, Stand Freitag, 6. November 2026, 12:00 (Europe/Zurich), nachgeführt nach Ihrem Schreiben vom 6. November · **Nächste Ausgabe:** Freitag, 13. November 2026 · **Rhythmus:** jeden Freitag bis 17:00 neu geschrieben (die Vorwoche bleibt in der Git-Historie).
+**Für:** den Owner (Founder) · **Verfasst von:** Product Owner (`po`) · **Ausgabe:** KW 45, Stand Freitag, 6. November 2026, 12:30 (Europe/Zurich), nachgeführt nach Ihrem Schreiben vom 6. November und Ihrer Wahl für Phase A · **Nächste Ausgabe:** Freitag, 13. November 2026 · **Rhythmus:** jeden Freitag bis 17:00 neu geschrieben (die Vorwoche bleibt in der Git-Historie).
 
 **Dieses Dokument ist das primäre Entscheidungsdokument des Owners.** Es zeigt nur, was fertig ist, was gebaut wird und was Sie entscheiden müssen. Detailquellen: [Blueprint V2](ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md) (Meilensteine, Gates, Kennzahlen), [Owner-Agenda](../agents/decisions/OWNER_AGENDA.md) (jede Frage mit Paket). Der PO hat für diesen Bericht keine Tests ausgeführt; CI-Ergebnisse sind über die GitHub-API gelesen.
 
@@ -12,9 +12,9 @@
 |---|---|
 | **Gesamtstatus** | 🟡 At Risk |
 | **Lieferung** | 🔴 Blocked: 12 fertige, grüne, klinisch freigegebene Engineering-PRs warten auf den Merge |
-| **Pilot M9 (12.03.2027) auf Kurs?** | **NEIN, aber näher:** D-1, D-11 und die Pilotphasen sind entschieden; Phase A (simulierter Pflegeheim-Partner, synthetische Daten) braucht noch Ihre Wahl des Umfangs (FD-21) und den Merge-Schritt |
-| **Wichtigste Antwort diese Woche** | Prompt-Änderungen inkl. Merge-Schritt freigeben (FD-01); Umfang von Phase A wählen (FD-21); M9-Neufassung bestätigen (FD-23) |
-| **Wie viele Entscheide warten auf Sie?** | 15 (2 kritisch, 6 hoch, 5 mittel, 2 niedrig) plus 2 Sicherheitshandlungen im Live-System |
+| **Pilot M9 (12.03.2027) auf Kurs?** | **NEIN, aber näher:** D-1, D-11 und die Pilotphasen sind entschieden; Phase A (ambulante Pflege und simulierte Pflegeheim-Abteilung, synthetische Daten) ist festgelegt; es fehlt vor allem der Merge-Schritt |
+| **Wichtigste Antwort diese Woche** | Prompt-Änderungen inkl. Merge-Schritt freigeben (FD-01); M9-Neufassung bestätigen (FD-23) |
+| **Wie viele Entscheide warten auf Sie?** | 14 (1 kritisch, 6 hoch, 5 mittel, 2 niedrig) plus 2 Sicherheitshandlungen im Live-System |
 
 **In einem Satz:** Das fachliche Fundament steht, Engineering baut schneller als geplant, und Ihre Richtung vom 6.11. nimmt Partner, Rechtsberater und D-1 vom kritischen Pfad. Neu ist die grösste Bauaufgabe: das simulierte Pflegeheim für Phase A.
 
@@ -85,14 +85,13 @@ Gezählt wird nur Arbeit auf `recovery/main`. „Gebaut“ meint offene PRs mit 
 
 ## 3. Owner Decision Board
 
-Nur Entscheide, die **Sie** treffen müssen. Entschieden am 6.11. und nicht mehr gefragt: D-1 (keine echten Personendaten), D-11 (Basel-Stadt und Basel-Landschaft), D-24 (Pflegeheim im Umfang), Pilotphasen A/B ([Entscheidungsliste](FOUNDER_DECISIONS.md)). Nicht jetzt gefragt: Partner, Rechtsberater, Preis (D-14), D-29, D-38. Herleitung jeder Frage: [Bestätigung vom 6.11.](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md) §4.
+Nur Entscheide, die **Sie** treffen müssen. Entschieden am 6.11. und nicht mehr gefragt: D-1 (keine echten Personendaten), D-11 (Basel-Stadt und Basel-Landschaft), D-24 (Pflegeheim im Umfang), Pilotphasen A/B, Umfang Phase A (ambulant + Pflegeheim) ([Entscheidungsliste](FOUNDER_DECISIONS.md)). Nicht jetzt gefragt: Partner, Rechtsberater, Preis (D-14), D-29, D-38. Herleitung jeder Frage: [Bestätigung vom 6.11.](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md) §4.
 
 ### Critical
 
 | ID | Entscheid | Warum es zählt | Frist | Was es blockiert | Empfehlung | Risiko bei Verzug |
 |---|---|---|---|---|---|---|
 | FD-01 | **Prompt-Änderungen der geplanten Agenten-Aufgaben freigeben** (inkl. Merge-Schritt für den PO) | Agenten arbeiten sonst mit veralteten Vorgaben (z. B. „Pflegeheime später“, Zürich) und fertige Arbeit wird nicht gemergt | sofort | Merges, konsistente Agentenarbeit | Änderungen gemäss Bestätigung §5.3 freigeben | Widersprüchliche Arbeit; 12 PRs warten weiter |
-| FD-21 | **Umfang von Phase A** | Das gebaute Produkt ist auf ambulante Pflege zugeschnitten; das Pflegeheim ist neu | 13.11.2026 | Pflegeheim-Briefs, M9.0 | (b) ambulante Pflege (gebaut) **und** eine simulierte Pflegeheim-Abteilung | Pflegeheim-Teil kommt nicht bis 12.03.2027 |
 
 ### High
 
@@ -130,9 +129,9 @@ Nur Entscheide, die **Sie** treffen müssen. Entschieden am 6.11. und nicht mehr
 
 | Rang | Entscheid oder Handlung | Wirkung auf M9 (Phase A bestanden) | Wirkung auf M10 / Phase B | Spätestens |
 |---|---|---|---|---|
-| 1 | **Umfang von Phase A (FD-21)** | Das simulierte Pflegeheim ist die grösste neue Bauaufgabe | bestimmt, womit der reale Pilot startet | 13.11.2026 |
+| 1 | **Clinical Owner und Fachprüfung (FD-02)** | Plausibilität der simulierten Pflegeheim-Abteilung | ohne sie kein realer Pilot | Fachprüfung 15.01.2027 |
 | 2 | **Prompt-Änderungen und Merge-Schritt (FD-01)** | hält M2, M4 und M6 auf Kurs; Agenten arbeiten nach Ihrer Richtung | jede Woche Rückstand frisst Puffer | sofort |
-| 3 | **Clinical Owner und Fachprüfung (FD-02)** | Plausibilität des simulierten Pflegeheims | ohne sie kein realer Pilot | Fachprüfung 15.01.2027 |
+| 3 | **M9-Neufassung (FD-23)** | misst, was Phase A tatsächlich liefern soll | trennt Phase-B-Gates sauber ab | 13.11.2026 |
 | 4 | **Hosting D-2 (FD-09)** | Simulationsumgebung, Restore-Test | Produktion, Monitoring, Sicherheitstest | 11.12.2026 |
 | 5 | **KI-Anbieter für synthetische Daten (FD-22)** | echter Test der KI-Dokumentation und Abrechnungsprüfung | Grundlage für D-41 (reale Daten) | 27.11.2026 |
 
@@ -154,8 +153,8 @@ Alles unter der Annahme, dass FD-01 diese Woche umgesetzt ist. Ohne FD-01 wird n
 | **Umsetzung** | Konfliktfreie Zusammenarbeit (ein Journal-Eintrag pro Datei, Merge-Gate-Skript) | 13.11.2026 |
 | **Umsetzung** | Tagesvorschlag: neue Anfrage schliesst alte Zeilen (PLAN3-15) | 20.11.2026 |
 | **Umsetzung** | Briefs WEB1 und AIO1 | 20.11.2026 |
-| **Umsetzung (neu)** | Pflegeheim-Briefs (Entwurf, unter Vorbehalt FD-21) und KI-Arbeitsablauf-Briefs DOC-AI, PLAN4, QUAL1, BILL1 als Entwürfe | 20.–27.11.2026 |
-| **Ihre Fristen in diesem Zeitraum** | FD-01 sofort; FD-21 und FD-23 bis 13.11.; FD-07 (D-7) und die Sicherheitshandlungen bis 20.11. | – |
+| **Umsetzung (neu)** | Pflegeheim-Briefs NH-A1 bis NH-A5 (Phase A ambulant + Pflegeheim) und KI-Arbeitsablauf-Briefs DOC-AI, PLAN4, QUAL1, BILL1 als Entwürfe | 20.–27.11.2026 |
+| **Ihre Fristen in diesem Zeitraum** | FD-01 sofort; FD-23 bis 13.11.; FD-07 (D-7) und die Sicherheitshandlungen bis 20.11. | – |
 
 ---
 
@@ -182,7 +181,7 @@ Alles unter der Annahme, dass FD-01 diese Woche umgesetzt ist. Ohne FD-01 wird n
 **Diese Woche (bis 13.11.2026):**
 
 1. **Prompt-Änderungen freigeben (FD-01)**, damit alle Agenten nach Ihrer Richtung vom 6.11. arbeiten und der PO in geplanten Läufen mergen kann.
-2. **Umfang von Phase A wählen (FD-21)** und **M9-Neufassung bestätigen (FD-23).**
+2. **M9-Neufassung bestätigen (FD-23).** (Umfang von Phase A ist mit Ihrer Wahl entschieden.)
 3. **Sicherheitshandlungen im Live-Projekt:** Schlüssel rotieren, Leaked-Password-Schutz einschalten.
 
 **Diesen Monat (bis 30.11.2026):**
