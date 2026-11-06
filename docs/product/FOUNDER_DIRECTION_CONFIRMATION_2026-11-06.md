@@ -35,12 +35,14 @@ Diese Wirkung ist **noch nicht nachgewiesen**. Die Annahmen dahinter und ihre Me
 
 | # | Annahme (Hypothese) | Wie wir sie prüfen | Wann |
 |---|---|---|---|
-| H-1 | Ein relevanter Anteil der bezahlten Pflegezeit geht heute an vermeidbare Administration und Koordination | Basismessung der administrativen Minuten pro Einsatz bzw. Bewohnertag (M-15) im simulierten Betrieb; in Phase B beim realen Partner **vor** und nach der Einführung | Phase A (Simulation), Phase B (real) |
-| H-2 | Disposition und Vermittlung lassen sich ohne Sicherheitsverlust durch Teamregeln und Software ersetzen | Anteil der Zuteilungen und Vertretungen im Team ohne Operations (M-20), Sicherheitsindikatoren unverändert oder besser (M-21) | Phase A, Phase B |
-| H-3 | Weniger Overhead senkt die Kosten pro Pflegestunde der Organisation | Kostenvergleich mit dem Partner in Phase B (Daten des Partners; UNKNOWN) | Phase B |
-| H-4 | Eingesparte Kosten können rechtlich und wirtschaftlich als höherer Verdienst an Pflegekräfte gehen | Teamüberschuss-Modelle S1 bis S4 (D-14), `lca` zur Zulässigkeit, Lohnvergleich pro Arbeitsstunde (Gate-8-Kennzahl) | nach Phase A (Modell), Phase B (Messung) |
-| H-5 | Die Plattformgebühr ist kleiner als der eingesparte Overhead | Preisvergleich (`PRICING_MODEL_COMPARISON.md`) gegen gemessene Einsparung | nach Phase A |
-| H-6 | Selbstorganisierte Teams bleiben stabil (keine neue informelle Hierarchie, keine Überlastung einzelner) | Kontinuität (M-19), Ausfallkoordination (M-17), Teamzufriedenheit (Gate 8) | Phase B |
+| HYP-1 | Ein relevanter Anteil der bezahlten Pflegezeit geht heute an vermeidbare Administration und Koordination | Basismessung der administrativen Minuten pro Einsatz bzw. Bewohnertag (M-15) im simulierten Betrieb; in Phase B beim realen Partner **vor** und nach der Einführung | Phase A (Simulation), Phase B (real) |
+| HYP-2 | Disposition und Vermittlung lassen sich ohne Sicherheitsverlust durch Teamregeln und Software ersetzen | Anteil der Zuteilungen und Vertretungen im Team ohne Operations (M-20), Sicherheitsindikatoren unverändert oder besser (M-21) | Phase A, Phase B |
+| HYP-3 | Weniger Overhead senkt die Kosten pro Pflegestunde der Organisation | Kostenvergleich mit dem Partner in Phase B (Daten des Partners; UNKNOWN) | Phase B |
+| HYP-4 | Eingesparte Kosten können rechtlich und wirtschaftlich als höherer Verdienst an Pflegekräfte gehen | Teamüberschuss-Modelle S1 bis S4 (D-14), `lca` zur Zulässigkeit, Lohnvergleich pro Arbeitsstunde (Gate-8-Kennzahl) | nach Phase A (Modell), Phase B (Messung) |
+| HYP-5 | Die Plattformgebühr ist kleiner als der eingesparte Overhead | Preisvergleich (`PRICING_MODEL_COMPARISON.md`) gegen gemessene Einsparung | nach Phase A |
+| HYP-6 | Selbstorganisierte Teams bleiben stabil (keine neue informelle Hierarchie, keine Überlastung einzelner) | Kontinuität (M-19), Ausfallkoordination (M-17), Teamzufriedenheit (Gate 8) | Phase B |
+
+*Nachtrag `po` 2026-11-06 15:00 (`cra` CGR-143):* Die Hypothesen hiessen bis 15:00 **H-1 bis H-6**; sie heissen jetzt **HYP-1 bis HYP-6**, weil H-01 bis H-31 die Gefahren im Hazard Log sind (FE-032 nennt die alte Nummerierung, gemeint sind dieselben Annahmen). Für HYP-2 gilt: welche Sicherheitsindikatoren (M-21) und welche Abweichung als „schlechter“ zählt, legt der Clinical Owner **vor** der Basismessung in Phase B fest; Ergebnisse aus der Simulation (Phase A) sind kein Beleg für „kein Sicherheitsverlust“. M-15 und M-16 werden nur zusammen mit M-21 und der Korrekturquote gelesen.
 
 Keine dieser Annahmen wird im Produkt oder in Texten als Tatsache dargestellt, bevor sie gemessen ist. Insbesondere behauptet NAVORA gegenüber Partnern keine Einsparung und keinen Verdienstzuwachs ohne Messung.
 
@@ -102,6 +104,7 @@ Format je Punkt: **verstanden** · Interpretation · Umsetzung (Datei, Abschnitt
   5. Korrekturquote je Agent und Feld im AIG1-Protokoll, Stopp-Regel greift (nie pro Person);
   6. auf realen Daten erst nach D-41; vorher nur synthetisch.
 - *Klärungsbedarf:* Echter KI-Test in Phase A braucht O-4. `cra` prüft die Gefahren (weggelassene oder erfundene Beobachtung); `lca` prüft, ob der Entwurf die Zweckbestimmung berührt (Punkt 13).
+- *Nachtrag `po` 2026-11-06 15:00 (`aia` AUT-54, vom PO übernommen; FE-028 und FE-013 bleiben unverändert):* Der **strukturierte** Bericht (Zeiten, Leistungen, Beobachtungen) entsteht schon heute ohne KI aus den erfassten Fakten (F6/F7). Ein zweiter, KI-erstellter Entwurf derselben Fakten spart keine Minute und fügt jeder Pflegekraft pro Einsatz eine Prüfung hinzu. Deshalb gilt für DOC-AI: Der strukturierte Bericht bleibt der regelbasierte F7-Bericht (Regel statt KI, Reihenfolge FE-013). DOC-AI arbeitet nur auf der **eigenen, unstrukturierten Notiz** der Pflegekraft (diktiert oder getippt) und macht daraus vorgeschlagene Beobachtungen, jede mit Quellstelle, einzeln bestätigt. Ein Einsatz ohne Notiz bekommt keinen zusätzlichen Schritt. Die Kriterien 1-6 oben gelten für diese Vorschläge. Vor dem Bau wird M-16 auf den synthetischen Daten gemessen.
 
 **7. KI-gestützte Einsatzplanung und Ausfälle** · verstanden: **ja**
 - *Interpretation:* Fünf Dinge werden getrennt:

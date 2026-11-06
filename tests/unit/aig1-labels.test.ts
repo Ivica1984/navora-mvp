@@ -20,7 +20,7 @@ describe("AIG1-3 / AIG1-4: proposed values and their provenance", () => {
   it("names the agent on every proposed value and shows a missing value only as 'nicht gefunden'", () => {
     expect(proposedByText("Testassistent Bezugspflege")).toBe("vorgeschlagen von Testassistent Bezugspflege");
     expect(NOT_FOUND_TEXT).toBe("nicht gefunden");
-    expect(fieldLabel("responsible_user_id")).toBe("Zuständig");
+    expect(fieldLabel("responsible_user_id")).toBe("Verantwortlich"); // UXR-79 with UX2-29
   });
 
   it("writes 'vorgeschlagen von <Agent> / bestätigt von <Name> am <Datum>'", () => {
