@@ -142,6 +142,8 @@ jobs:
         run: |
           scripts/ci-step.sh concurrency scripts/db-concurrency/cover-accept.sh
           scripts/ci-step.sh concurrency-take scripts/db-concurrency/open-visit-take.sh
+          # CGR-110 (ADR-137): a concurrent SIG1 evaluation lock makes evaluate_signals skip; 062 now waits for it.
+          scripts/ci-step.sh concurrency-sig1-lock scripts/db-concurrency/sig1-evaluation-lock.sh
       - name: Generated types match the migrations (T14)
         if: steps.detect.outputs.present == 'true'
         run: |
