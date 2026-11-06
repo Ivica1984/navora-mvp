@@ -75,8 +75,10 @@ select is(jsonb_array_length(pg_temp.rows('teamf', format('select team_id from p
 
 -- AUT-31: proposals of the window and their lead time -----------------------------------------------------------------
 select is((pg_temp.rows('opsf', format('select proposals_in_window from public.agent_stop_measures(%L)', pg_temp.stop())) -> 0
-           ->> 'proposals_in_window')::int, 6,
-  'PLAN3-13 (AUT-31): the six proposals of the stop window are counted for Testteam F');
+           ->> 'proposals_in_window')::int, 7,
+  -- Six as PLAN3-13 seeded them, plus the undecided (expired) proposal for …5b7 that #814 (AIG1-C4, seed.sql) adds to
+  -- the same stop window; an expired proposal is still a proposal of the window (ADR-150: proposals, not decisions).
+  'PLAN3-13 (AUT-31): the seven proposals of the stop window are counted for Testteam F (six + #814''s expired one)');
 select ok((pg_temp.rows('opsf', format('select lead_time_median_hours from public.agent_stop_measures(%L)', pg_temp.stop())) -> 0
            ->> 'lead_time_median_hours')::numeric > 0,
   'PLAN3-13 (AUT-31): the median lead time from proposal to visit is given in hours');
