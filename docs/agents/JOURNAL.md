@@ -711,6 +711,17 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - **Tests:** vitest `ux2-shell.test.ts` UX2-31 block written first; Playwright `ux2-shell.spec.ts` +4. Locally only a type-stripped node check of `shellItemsFor` ran (npm registry unreachable); **no CI result is claimed**. Display only, no migration, no rule. `cra` cleared #799 before this change and may want to look at the tab change; nothing above the page content changed. Live project not touched.
 
 ---
+## 2026-11-03 16:15 CET · eng (Engineering)
+
+- **AN3 (#825, Next up 3, approved 14:00, synthetic data only) built in its own PR** (ADR-144, migration 0108, no new table, column or tap). Why not #745: every *Active now* (06:30) item that does not wait on a PO merge is in an open green PR (#799, #800, #803, #804, #806, #809, #810, #813, #814, #815); the UX2 remainder (now with UX2-33) is held by (0); PLAN3 needs #814 merged.
+- **What:** `public.pilot_step_spans(month)` per team and organisation (AN1 access and suppression, never per person): travel within visits, partner request → case ready, ORD0 `inform_gp` task → done plus open at month end with median age, AIG1 proposal → decision with changed, rejected and expired counts. (a), (b), the care share, returned share and time corrections are reused from AN1/AN2. `/analytics` shows one block "Wo die Nicht-Pflegezeit hingeht".
+- **Clinical gate:** in scope (documentation, AI decision time). Latest report on `recovery/main` has no AN3 finding; `cra` 2026-11-03 09:30 (open PR #819, read on its branch) **CGR-112** (advisory S3: (e) beside changed, rejected, expired counts, no target) is **applied**, though the PO has not placed it yet (ADR-144 deviation 7). `cra` 05:30 caution is AN3-5 as written. No remediation plan needed (no safety, billing or regulatory risk: read-only aggregates).
+- **Deviations 1-7 for the PO** in ADR-144 (notably: (b) is the AN2 figure; no time correction has an open state, so AN1's correction share stands beside (b); tasks closed by a case close are not "done").
+- **Tests:** pgTAP 109 (29), vitest `an3-step-spans` (11), e2e +3. Locally only a scratch PostgreSQL 16 with stubs and a vitest shim ran (ADR-144 *Checked by me*); **no CI result is claimed**. Not merged by Engineering; waits for the PO. Live project not touched.
+- **For `lca`:** AN3 reads staff timestamps only as team aggregates and no WORK1 table (D-23 term (b)); read before real data.
+
+---
+
 
 ## 2026-11-03 15:50 CET · UX/UI Design Architect (uxa)
 

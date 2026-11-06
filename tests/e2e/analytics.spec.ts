@@ -76,3 +76,43 @@ test("a nurse sees Pilot-Hypothesen of her own team only (AN2)", async ({ page }
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+// AN3 — "Wo die Nicht-Pflegezeit hingeht" at 390 px and 1440 px (AN3-7). The seed's teams are small, so values are
+// shown, "zu wenig Daten" or hidden ("zu wenig Personen"); pgTAP 109 proves the exact medians and the suppression.
+const AN3_STEPS = [
+  "direct_care_share", "travel_share_in_visits", "report_final_minutes", "countersign_latency_hours", "report_returned_share",
+  "time_correction_share", "referral_to_case_ready_hours", "inform_gp_done_hours", "inform_gp_open_at_month_end",
+  "inform_gp_open_age_days", "proposal_decided_hours", "proposals_corrected", "proposals_rejected", "proposals_expired_undecided",
+];
+for (const width of [390, 1440]) {
+  test(`AN3 step spans at ${width} px: every figure with base and period, no target, no overflow`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await signIn(page, OPS, /\/operations$/);
+    await page.goto("/analytics");
+    const section = page.getByRole("region", { name: "Wo die Nicht-Pflegezeit hingeht" });
+    await expect(section).toBeVisible();
+    const org = section.getByRole("group", { name: "Schritte: Ganze Organisation" });
+    await expect(org).toBeVisible();
+    await expect(org.locator("li[data-step]")).toHaveCount(AN3_STEPS.length);
+    for (const key of AN3_STEPS) {
+      const row = org.locator(`li[data-step="${key}"]`);
+      await expect(row.getByTestId("step-base")).toContainText("Basis");
+      await expect(row.getByTestId("step-period")).not.toBeEmpty();
+      await expect(row.getByTestId("step-value")).toHaveText(/^(–|\d)/);
+    }
+    // AN3-2: travel is labelled as travel within visits only.
+    await expect(org.locator('li[data-step="travel_share_in_visits"]')).toContainText("Rückweg");
+    // AN3-5: no target word anywhere in the block.
+    await expect(section).not.toContainText(/\b(Ziel|Soll|besser|zu langsam)\b/);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+}
+
+test("a nurse sees the step spans of her own team only (AN3-3)", async ({ page }) => {
+  await signIn(page, NURSE, /\/field$/);
+  await page.goto("/analytics");
+  const section = page.getByRole("region", { name: "Wo die Nicht-Pflegezeit hingeht" });
+  await expect(section.getByRole("group", { name: "Schritte: Ganze Organisation" })).toHaveCount(0);
+  await expect(section.getByRole("group", { name: /^Schritte: Team / })).toHaveCount(1);
+});
