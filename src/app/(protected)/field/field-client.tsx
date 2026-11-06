@@ -26,6 +26,9 @@ import {
   movedNoticeHref,
   withoutMovedNotice,
   MOVED_RELEASED_NOTICE_ID,
+  MOVED_FLAGS_LIST_ID,
+  MOVE_TODAY_LINK_LABEL,
+  movedCardDescribedBy,
   prefillMoveTimes,
   zurichMinutesNow,
   fieldActionsOn,
@@ -274,7 +277,7 @@ export default function FieldClient({ day, isToday, today: todayProp, previousDa
                   visit={visit}
                   today={today}
                   focusOnMount={movedId === visit.visit_id}
-                  describedBy={moved?.released && movedId === visit.visit_id ? MOVED_RELEASED_NOTICE_ID : undefined}
+                  describedBy={moved && movedId === visit.visit_id ? movedCardDescribedBy(moved) : undefined}
                   notes={notes.filter((n) => n.visit_id === visit.visit_id)}
                   report={reports.find((r) => r.visit_id === visit.visit_id) ?? null}
                   quality={quality.filter((q) => q.visit_id === visit.visit_id)}
@@ -1105,14 +1108,15 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
   const leavesNote = leaves === undefined ? null : moveLeavesNote(visit.visit_date, leaves);
 
   if (reload) {
-    // VIS1-10 fallback: the confirmation no longer applies to this visit; nothing was stored.
+    // VIS1-10 fallback: the confirmation no longer applies to this visit; nothing was stored. UX2-20: the sentence names
+    // the link beside it. UX2-21 (UXR-41): focus lands on the sentence, so it is not also a live region (read once).
     return (
       <div className="mt-4 grid gap-2 rounded-xl border border-stone-300 bg-stone-50 p-3 text-sm">
-        <p ref={dayNoteRef} tabIndex={-1} role="status" data-testid="move-day-changed" data-tone="info" className="rounded-lg border border-stone-300 bg-white p-2 text-stone-700">
+        <p ref={dayNoteRef} tabIndex={-1} data-testid="move-day-changed" data-tone="info" className="rounded-lg border border-stone-300 bg-white p-2 text-stone-700">
           {DAY_CHANGED_RELOAD}
         </p>
         <Link href="/field" className="flex min-h-11 items-center justify-center rounded-xl border border-stone-300 bg-white px-3 font-semibold text-emerald-950">
-          Einsätze von heute
+          {MOVE_TODAY_LINK_LABEL}
         </Link>
       </div>
     );
@@ -1130,8 +1134,9 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
       className="mt-4 grid gap-3 rounded-xl border border-stone-300 bg-stone-50 p-3 text-sm"
     >
       {dayNote && (
-        // VIS1-10 (UXR-39): the new date as a fact, at the top of the open form, tone `info`, focus on it.
-        <p ref={dayNoteRef} tabIndex={-1} role="status" data-testid="move-day-changed" data-tone="info" className="rounded-lg border border-stone-300 bg-white p-2 font-semibold text-stone-700">
+        // VIS1-10 (UXR-39): the new date as a fact, at the top of the open form, tone `info`, focus on it. UX2-21: no
+        // `role="status"`, the focus already reads it.
+        <p ref={dayNoteRef} tabIndex={-1} data-testid="move-day-changed" data-tone="info" className="rounded-lg border border-stone-300 bg-white p-2 font-semibold text-stone-700">
           {dayNote}
         </p>
       )}
@@ -1140,13 +1145,22 @@ function MoveToToday({ visit, today }: { visit: FieldVisit; today: string }) {
       <p>
         Heute, <span data-testid="move-to-today-date">{formatShortDate(shownDay)}</span> (geplant war der {formatShortDate(visit.visit_date)}).
       </p>
-      {leavesNote && (
-        // VIS1-8: a fact from the plan, `info`; no block, no extra tap. Never "kein Einsatz" while another team's visit
-        // exists that day (the server counts it without showing it).
-        <p data-testid="move-leaves-note" data-tone="info" className="rounded-lg border border-stone-300 bg-white p-2 text-stone-700">
-          {leavesNote}
-        </p>
-      )}
+      {/* VIS1-8: a fact from the plan, `info`; no block, no extra tap. Never "kein Einsatz" while another team's visit
+          exists that day (the server counts it without showing it). UX2-18 (UXR-36; ADR-134): the slot is there from
+          the first render. Both wordings sit invisibly in one grid cell, so the slot has the height of the taller one at
+          any width, and the answer arriving does not move "Von" and "Bis" while "Von" has focus. */}
+      <div data-testid="move-leaves-slot" className="grid">
+        {[true, false].map((other) => (
+          <p key={String(other)} aria-hidden="true" className="invisible col-start-1 row-start-1 rounded-lg border p-2">
+            {moveLeavesNote(visit.visit_date, other)}
+          </p>
+        ))}
+        {leavesNote && (
+          <p data-testid="move-leaves-note" data-tone="info" className="col-start-1 row-start-1 rounded-lg border border-stone-300 bg-white p-2 text-stone-700">
+            {leavesNote}
+          </p>
+        )}
+      </div>
       <div className="grid grid-cols-2 gap-2">
         <label className="grid min-w-0 gap-1 font-semibold">
           Von
@@ -1210,7 +1224,10 @@ function MovedNoticeBlock({ moved, overlapText }: { moved: MovedNotice; overlapT
         </p>
       )}
       {moved.flags.length > 0 && (
-        <ul aria-label="Hinweise" data-testid="moved-flags" className="grid gap-0.5 text-xs font-semibold text-amber-800">
+        // UX2-19 (UXR-37): the moved card's accessible description names this list too (movedCardDescribedBy). No
+        // `aria-label` here: a referenced element's name replaces its content in the description ("Hinweise" instead
+        // of the flags; ADR-134 note 5).
+        <ul id={MOVED_FLAGS_LIST_ID} data-testid="moved-flags" className="grid gap-0.5 text-sm font-semibold text-amber-800">
           {moved.flags.map((f) => (
             <li key={f}>⚠ {PLAN_FLAG_LABEL[f] ?? f}</li>
           ))}

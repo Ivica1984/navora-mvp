@@ -22,8 +22,9 @@ test.describe("UX1 part (g) at 390 × 844", () => {
     await page.goto("/team");
     const status = page.getByTestId("push-team-status");
     await expect(status).toHaveAttribute("data-reach", "gap");
-    // Shown without expanding: the details element is open and the text and link are visible.
-    await expect(status).toHaveAttribute("open", "");
+    // Shown without expanding: the member list starts open and the text and link are visible. UX2-15 (ADR-133): the
+    // `details` moved inside the status block (changed assertion: `open` is on `push-team-details`, not on the block).
+    await expect(status.getByTestId("push-team-details")).toHaveAttribute("open", "");
     const gap = status.getByTestId("push-team-gap");
     await expect(gap).toBeVisible();
     await expect(gap).toContainText(REACH_GAP_TEXT);
@@ -35,5 +36,38 @@ test.describe("UX1 part (g) at 390 × 844", () => {
     await expect(status).not.toHaveClass(/rose-/);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);
+  });
+
+  test("UX2-15: folding the member list never hides the reach gap; summary at least 44 px; gap before any member list, amber", async ({ page }) => {
+    await signIn(page, "pflege.test@navora.test");
+    await page.goto("/team");
+    const status = page.getByTestId("push-team-status");
+    await expect(status).toHaveAttribute("data-reach", "gap");
+    const details = status.getByTestId("push-team-details");
+    const summary = status.getByTestId("push-team-summary");
+    const gap = status.getByTestId("push-team-gap");
+    await expect(details).toHaveAttribute("open", "");
+    // Fold: the sentence and the link stay visible.
+    await summary.click();
+    await expect(details).not.toHaveAttribute("open", "");
+    await expect(gap).toBeVisible();
+    await expect(gap).toContainText(REACH_GAP_TEXT);
+    await expect(gap.getByRole("link", { name: "Meine Einstellungen" })).toBeVisible();
+    // Unfold again: still there.
+    await summary.click();
+    await expect(details).toHaveAttribute("open", "");
+    await expect(gap).toBeVisible();
+    const box = await summary.boundingBox();
+    expect(box && box.height >= 44).toBeTruthy();
+    // `cra` 17:30 answer 2: in the team status block, before any member list, amber.
+    const gapBeforeMembers = await page.evaluate(() => {
+      const g = document.querySelector('[data-testid="push-team-gap"]');
+      const firstList = document.querySelector('[data-testid="push-team-members"]');
+      return !!g && !!firstList && (g.compareDocumentPosition(firstList) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+    });
+    expect(gapBeforeMembers).toBe(true);
+    await expect(gap).toHaveClass(/text-amber-900/);
+    await expect(status).toHaveClass(/border-amber-800/);
+    await expect(status).not.toHaveClass(/rose-/);
   });
 });
