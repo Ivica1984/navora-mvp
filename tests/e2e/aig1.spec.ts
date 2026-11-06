@@ -67,7 +67,8 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
 
     // The record shows the value and "vorgeschlagen von <Agent> / … bestätigt von <Name> am <Datum>" for this one value.
     await page.goto(`/visits/${VISIT_E_1300}`);
-    await expect(page.getByTestId("visit-responsible")).toHaveText("Pflegekraft Team E");
+    // PLAN3-17 (2) (ADR-159): the responsible line uses the picker label, so the caller's own name ends "(du)".
+    await expect(page.getByTestId("visit-responsible")).toHaveText("Pflegekraft Team E (du)");
     await expect(page.getByTestId("value-provenance")).toHaveText(
       `vorgeschlagen von ${AGENT} / geändert und bestätigt von Pflegekraft Team E am ${zurichToday()}`,
     );

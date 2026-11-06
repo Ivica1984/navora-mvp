@@ -3,7 +3,7 @@ import "server-only";
 // AIG1 part (b) (ADR-129): readers for the proposal screens. Every read goes through the AIG1 functions of migrations
 // 0097/0103 as the signed-in person (no app grant exists on the AIG1 tables, AIG1-11 (1)); nothing here widens a read.
 
-import { memberNumbers } from "@/features/team/member-label";
+import { memberNumbers, responsibleMemberLabel } from "@/features/team/member-label";
 import { requireUser } from "@/lib/auth/session";
 import type { Database } from "@/lib/supabase/database.types";
 import { COORDINATOR_ROLES, PAGE_LABEL } from "@/lib/auth/nav";
@@ -198,6 +198,8 @@ export type VisitRecord = {
   status: string | null;
   team_name: string | null;
   responsible_name: string | null;
+  /** PLAN3-17 (2) (ADR-159): the picker label of the responsible member; null when nobody is responsible. */
+  responsible_label: string | null;
   responsible_set: boolean;
   provenance: Provenance | null;
 };
@@ -235,6 +237,16 @@ export async function getVisitRecord(visitId: string): Promise<VisitRecord | nul
   ]);
   if (prov.error) logEvent("warn", "aig1.provenance_failed", errorFields(prov.error));
   const p = prov.data?.[0] ?? null;
+  // PLAN3-17 (2) (ADR-159): the caller's own roster of the visit's team (`team_cases`, her own teams only) gives the
+  // "(du)" mark and the /team number; a failed read or no membership falls back to the name (never a guessed number).
+  let roster: TeamMemberOption[] | null = null;
+  if (v.team_id && v.responsible_user_id) {
+    try {
+      roster = (await loadTeams()).find((t) => t.team_id === v.team_id)?.members ?? null;
+    } catch {
+      roster = null;
+    }
+  }
   return {
     id: v.id,
     team_id: v.team_id,
@@ -245,6 +257,7 @@ export async function getVisitRecord(visitId: string): Promise<VisitRecord | nul
     status: v.status,
     team_name: team.data?.name ?? null,
     responsible_name: profile.data?.display_name ?? null,
+    responsible_label: responsibleMemberLabel(v.responsible_user_id, profile.data?.display_name ?? null, roster),
     responsible_set: Boolean(v.responsible_user_id),
     provenance: p
       ? {

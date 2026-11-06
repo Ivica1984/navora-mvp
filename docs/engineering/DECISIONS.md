@@ -2843,3 +2843,26 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** on a local PostgreSQL 16 with Supabase stubs and a minimal pgTAP stand-in (built in this run, not in the repo): migrations 0001-0116 and the seed apply; pgTAP 110-117 green (117 14/14); 94 of 113 files green overall, the others stop on stand-in gaps (missing pgTAP functions such as `has_table`, `function_privs_are`, or the stand-in's own result table seen by catalogue tests), none in an org-G test. vitest `cgr75-5-unstaffable-and-refusal` 7/7 under Node type stripping with a vitest stand-in. Real pgTAP, vitest, typecheck, lint, build and Playwright **not** run (npm registry unreachable): CI decides.
 
 **Rollback:** revert the PR (seed rows, one pgTAP file, one vitest file, two e2e tests; no migration).
+
+### ADR-159 — PLAN3-17 (2) and PLAN3-3 wording: one member label on `/team` and `/visits/<id>`; "kennt Klient:in"
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Trigger:** `briefs/PLAN3.md` PLAN3-17 (2) (`uxa` UXR-114: "one person, two labels") and PLAN3-3 amendment (`uxa` UXR-101: "kennt Klient:in (<n> Besuche)", "1 Besuch"), both PO 2026-11-06 06:30, both *not gating* PLAN3 acceptance (brief line 113) · **Migration:** none · **Stacked on:** #902 · **Proof:** vitest `plan3-17-2-one-label` (9, written first), `team-rules` and `plan3-day-plan-labels` updated; e2e `journey.spec`, `aig1.spec` updated
+
+**Context (IMPLEMENTED before, on the stack head `278d3c4`):** `pickerMemberLabel` (ADR-152, CGR-139) named a person in every visit-assigning picker as "<Name> (du)" / "Ich (du)" for the caller and "Teammitglied <n> (ohne Namen)" otherwise; `memberLabel` on `/team` (continuity lines and pickers, assessment section) still read "Ich (Anna)" and "Teammitglied 2"; `/visits/<id>` showed the display name or a bare "Teammitglied". The day-plan reason read "kennt die Klientin".
+
+**Decision (HOW, Engineering):**
+1. **`memberLabel` delegates** its name part to `pickerMemberLabel` with the member's `memberNumbers` position (the same number as before for a list without repeats; first place for a repeated id, as `memberNumbers` does). It keeps "nicht bestimmt" (no id), "nicht mehr im Team" (not in the list) and " – <Qualifikation>".
+2. **`/visits/<id>`**: new pure `responsibleMemberLabel(userId, profileName, roster)` in `member-label.ts`; `getVisitRecord` passes the caller's own `team_cases` roster of the visit's team (her own teams only, no new read path, RLS unchanged). Without a roster entry (a coordinator, a failed read) the label is the display name or "Teammitglied (ohne Namen)": a number is never guessed. "Noch offen" for no member is unchanged.
+3. **`QUALIFICATION_LABEL` moves** to `features/team/qualification.ts` and is re-exported from `rules.ts`, so `rules.ts` and `member-label.ts` no longer import each other. No caller changes.
+4. **Wording:** `DAY_PLAN_REASONS.knows_client` = "kennt Klient:in"; `lineReasonText` keeps "(1 Besuch)" / "(<n> Besuche)".
+
+**Deviations / notes for the PO (and `uxa`, `cra`):**
+1. *Visible change on `/team`:* the caller's own line reads "Ich (du) – Pflegefachperson" or "Anna Muster (du) – …" instead of "Ich – …" / "Ich (Anna Muster) – …"; an unnamed member "Teammitglied 2 (ohne Namen)". This is the CGR-108 form `cra` confirmed for CGR-139; two e2e assertions follow it.
+2. *`/visits/<id>` reads `team_cases` once more* when a member is responsible (the look-back read may read it too): one extra RPC on that page, no new data exposed. Accepted for the pilot; a shared per-request cache is PLANNED only if the page measures slow.
+3. *Out of scope, unchanged:* the ABS1 cover label "kennt die Klientin" on `/field` (`absence/rules.ts`, not a PLAN3 reason) and the lifecycle author labels ("Ich", `lifecycle/rules.ts`). OPEN for `uxa` whether UXR-101/-114 should reach them.
+
+**Clinical gate:** wording and labels only; no clinical rule, threshold, figure or data. `lca`: no new processing (the roster is the caller's own existing read).
+
+**Checked by me (not CI):** the three pure modules under Node type stripping with a minimal vitest stand-in: `plan3-17-2-one-label` 9/9; the changed `memberLabel` and `lineReasonText` expectations checked directly. Real vitest, typecheck, lint, build and Playwright **not** run (npm registry unreachable): CI decides.
+
+**Rollback:** revert the PR (no migration, no data).

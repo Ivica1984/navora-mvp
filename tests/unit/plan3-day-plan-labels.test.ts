@@ -30,8 +30,10 @@ describe("PLAN3-3 reasons", () => {
   });
 
   it("names the number of visits for a member who knows the client", () => {
-    expect(lineReasonText("knows_client", 3)).toBe("kennt die Klientin (3 Besuche)");
-    expect(lineReasonText("knows_client", 1)).toBe("kennt die Klientin (1 Besuch)");
+    expect(lineReasonText("knows_client", 3)).toBe("kennt Klient:in (3 Besuche)"); // UXR-101, PO 2026-11-06 06:30
+    expect(lineReasonText("knows_client", 1)).toBe("kennt Klient:in (1 Besuch)");
+    // UXR-101: no gendered client noun on any reason.
+    for (const t of Object.values(DAY_PLAN_REASONS)) expect(t).not.toMatch(/Klientin|Klient\b(?!:)/);
   });
 
   it("never invents a reason for an unknown code", () => {

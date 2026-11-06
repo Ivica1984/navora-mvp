@@ -8,7 +8,7 @@
 //     as the handover (`private.member_code`, migration 0033) and /team (`memberLabel`, from `team_cases` members).
 // When the position is not known the label says so without a number; a number is never guessed.
 
-import { QUALIFICATION_LABEL } from "./rules";
+import { QUALIFICATION_LABEL } from "./qualification";
 
 export const MEMBER_WITHOUT_NUMBER_TEXT = "Teammitglied (ohne Namen)";
 
@@ -52,4 +52,22 @@ export function teamPickerOptions(roster: readonly RosterMember[]): { value: str
     out.push({ value: m.user_id, label: base + q });
   }
   return out;
+}
+
+/**
+ * PLAN3-17 (2) (ADR-159): the responsible line of `/visits/<id>`. `roster` is the caller's own `team_cases` members of
+ * the visit's team (null when she is not a member, e.g. a coordinator); `profileName` the responsible member's display
+ * name (`member_profiles`). Null when nobody is responsible (the page then says "Noch offen"). Without a roster entry
+ * the label is the name, or "Teammitglied (ohne Namen)": a number is never guessed.
+ */
+export function responsibleMemberLabel(
+  userId: string | null | undefined,
+  profileName: string | null | undefined,
+  roster: readonly { user_id: string; me: boolean; name?: string | null }[] | null | undefined,
+): string | null {
+  if (!userId) return null;
+  const m = roster?.find((x) => x.user_id === userId);
+  if (!m || !roster) return pickerMemberLabel({ name: profileName });
+  const own = typeof m.name === "string" && m.name.trim() ? m.name : profileName;
+  return pickerMemberLabel({ name: own, me: m.me, no: memberNumbers(roster).get(userId) ?? null });
 }

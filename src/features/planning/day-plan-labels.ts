@@ -9,7 +9,7 @@
 export const DAY_PLAN_REASONS: Readonly<Record<string, string>> = {
   primary_nurse: "Bezugspflegende",
   deputy: "Stellvertretung",
-  knows_client: "kennt die Klientin",
+  knows_client: "kennt Klient:in", // UXR-101 (PO 2026-11-06 06:30): no gendered client noun
   free_capacity: "freie Kapazität",
 };
 

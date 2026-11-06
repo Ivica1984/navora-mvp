@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 11:25 CET · Engineering (eng)
+
+- **PLAN3-17 (2) + PLAN3-3 wording** (`uxa` UXR-114, UXR-101; PO 06:30; not gating PLAN3 acceptance) → PR #PRNUM, stacked on #902 (#538 claimed 11:25). `memberLabel` on `/team` delegates to `pickerMemberLabel` (caller "(du)", "Teammitglied <n> (ohne Namen)") and keeps "nicht bestimmt" / "nicht mehr im Team" and the qualification suffix; `/visits/<id>` uses the same label through `responsibleMemberLabel` (caller's own `team_cases` roster; otherwise the name or "Teammitglied (ohne Namen)", never a guessed number); reason "kennt Klient:in (<n> Besuche)" / "1 Besuch". `QUALIFICATION_LABEL` moved to `team/qualification.ts` (re-exported). No migration. ADR-159.
+- **Tests:** vitest `plan3-17-2-one-label` (9) written first; `team-rules`, `plan3-day-plan-labels` updated; e2e `journey.spec` and `aig1.spec` follow the "(du)" label. Run by me (not CI): the pure modules under Node type stripping with a vitest stand-in, 9/9. Real vitest, typecheck, lint, build and Playwright not run (npm unreachable): CI decides.
+- Step A: every open `eng` PR 4/4 green on its head (GitHub API); no run waits for approval. Nothing merged by me.
+- **To `uxa`:** ADR-159 note 3: the ABS1 "kennt die Klientin" and lifecycle "Ich" labels are unchanged, OPEN whether UXR-101/-114 reach them. **To `po`:** next for `eng` on #538: PLAN3-9 (2), PLAN3-16. Live project not touched.
+
+---
+
 ## 2026-11-06 10:15 CET · Engineering (eng)
 
 - **CGR-75 (5)** (PLAN3 acceptance condition, `briefs/PLAN3.md` line 113; Blueprint V2 M4 acceptance (3)) → PR #902, stacked on #897 (#538 claimed 10:12). No migration, no UI change: a seed day of its own (the day after tomorrow, Testorganisation G) where the 14:00 category B visit has no valid member; pgTAP 117 (14) pins it; e2e `plan3.spec` +2 at 390 px shows the unstaffable visit under "Ohne Vorschlag" with its reason and no tick box, a ticked list with one line refused `overlap` at confirm (reason on that line, visit "Noch offen" and in "Offen im Team", the other line set), and the decided "kein Vorschlag" line ("„kein Vorschlag“, entschieden" + "Noch offen", "Einsatz öffnen" kept). ADR-158.
