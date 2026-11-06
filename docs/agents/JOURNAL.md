@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 21:55 CET · po (Product Owner)
+
+Scheduled PO run (21:39). Continued the open PO PR #920 (attended session, FE-038) instead of opening a second one. The founder sent a new message during this run: recorded as **FE-039**. (Clock note: the attended session's entries below carry times up to 22:10 while its commits are dated 21:15-21:38; this entry uses the real run time and is placed on top.)
+
+- **Merges (A):** **#880** (next PLAN3 stack PR after #876) **not merged**: merging `recovery/main` in conflicts in `supabase/seed.sql` and pgTAP 002 (code and test), so it waits for `eng` (§4 stop rule; FE-037 lifts it for docs only); one comment on #880. **#922** (CGR-110 remainder for #919, ADR-162; `cra` gate `15ec4c0` clear in #923): conflicted on `IMPLEMENTATION_STATUS.md` header and the ADR list after #876; the PO merged `recovery/main` in (head `3aecec3`, every entry kept; own code against `recovery/main` = the ten test files `cra` cleared). Merged in this run only if CI on `3aecec3` turns green in time, otherwise next run. Role PR #923 (`cra`) and this PR follow.
+- **FE-039 (founder, new):** team organisation, professional authority per activity and formal responsibility kept apart; *Pflegeleitung*, *klinische Fachverantwortung* and *Freigabe einer Produktregel* not interchangeable; QAM by `cra` with `lca` (issue **#924**); product flow with *KI schlägt vor* / *Team entscheidet* / *Voraussetzung nachgewiesen*; no suitability claim without the required evidence. Written into `FOUNDER_DECISIONS.md` v6, **Blueprint v2.9 §1.4** (new), §1 QUAL1 row (~~no automatic exclusion~~ replaced), §7 FD-02 replaced by D-43; `ROADMAP.md`; `briefs/PLAN3.md` note (PLAN3-18 PLANNED, transparency only, after the stack; **no new binding rule to `eng`**).
+- **Decisions (F):** new package **D-43** (mandate for clinical rule approval: options A named person, B review board, C external service, D split by phase and party; preliminary B + D, confidence Low; E, C, L requested 2026-11-06; owner approval required once complete; target 2026-11-20). Placed in tier 2 of INDEX (it gates every `clinical` package). No package decided; frozen packages untouched (D-29 named only as a link).
+- **Challenge (E):** the old request "name a Clinical Owner" mixed three roles and could have reintroduced a hierarchy through the back door; FE-039 separates the approval of product rules (a mandate, possibly a board) from any partner function and from daily planning. PLAN3's gate is category-based (KLV B, needs assessment) and reads a recorded, unverified value: acceptable only as a provisional Phase A default.
+- **Not done this run:** AN3 acceptance (waits for a stably green run including #922, FE-038 (1)); the `lca` D-22/D-18 take-in (next cycle); Friday Executive Report already rewritten at 15:00, PDFs after the batch (FE-038 (5)).
+- **For the owner:** nothing to decide now; D-43 comes as a complete package. No scheduled-task prompt needs a change (the `cra` and `lca` prompts already cover register and package work; the QAM is an issue).
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. Contradiction noted: Blueprint §1 QUAL1 "no automatic exclusion" vs FE-039: corrected in v2.9 (struck, not deleted).
+- **To the agents:** `eng`: #880 seed/pgTAP 002 conflict; D-43 Engineering section. `cra`: QAM (#924), D-43 clinical section, wording for PLAN3-18. `lca`: #924 and D-43 legal section (BS/BL formal functions, link D-25). `uxa`: PLAN3-18 wording. `csa`/`aia`: strategic fit and challenge on D-43 welcome.
+
+---
+
 ## 2026-11-06 21:10 CET · po (Product Owner)
 
 Attended session: founder message 21:05, recorded as **FE-038** (`FOUNDER_DECISIONS.md` v5; Blueprint v2.8).
