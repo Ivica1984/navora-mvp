@@ -145,3 +145,28 @@ test.describe("PLAN3-12: a member of another team sees no count from Testteam G"
     await expect(page.getByTestId("suggestions-link")).not.toHaveAttribute("aria-label", /.+/);
   });
 });
+
+// UXR-113 (`uxa` 2026-11-06 03:50, #884) within CGR-139 (ADR-154): the /team "Neuer Einsatz" → "Verantwortlich" picker
+// sets the responsible member of a new visit, so it names members like the other visit-assigning pickers. Read only:
+// the form is opened and closed without saving. Testteam G's three members are named in the seed.
+test.describe("UXR-113: the /team new-visit picker names every member (Testteam G, 390 px)", () => {
+  test("options carry the display names, the caller ends '(du)', all differ, no bare 'Ich' or 'Teammitglied <n>'", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signIn(page, "teamg.test@navora.test");
+    await page.goto("/team");
+    const card = page.getByRole("article", { name: /Fall Testfall G1/ });
+    await card.getByRole("button", { name: /^(Einsatz planen|Abklärungsbesuch planen)$/ }).click();
+    const planForm = card.getByRole("form", { name: "Einsatz planen" });
+    const options = (await planForm.getByLabel("Verantwortlich").locator("option").allTextContents()).map((o) => o.trim());
+    expect(options).toContain("Pflegekraft Team G (du) – Pflegefachperson");
+    expect(options).toContain(`${BEZUG} – Pflegefachperson`);
+    expect(options).toContain("Pflegekraft Assistenz G – Pflegeassistenz");
+    expect(new Set(options).size).toBe(options.length);
+    for (const o of options) {
+      expect(o.startsWith("Ich –") || o === "Ich").toBe(false);
+      expect(o).not.toMatch(/^Teammitglied \d+( –|$)/);
+    }
+    await planForm.getByRole("button", { name: "Abbrechen" }).click();
+    await expect(planForm).toHaveCount(0);
+  });
+});

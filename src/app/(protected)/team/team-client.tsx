@@ -7,6 +7,7 @@ import type { LeaverOpenReport } from "@/features/contract-end/queries";
 import type { TeamAdmissionView } from "@/features/admission/queries";
 import Link from "next/link";
 import { PAGE_LABEL } from "@/lib/auth/nav";
+import { teamPickerOptions } from "@/features/team/member-label";
 import { suggestionsLink, teamLookbackEntry, type TeamLookbackStop } from "@/features/ai/labels";
 import SignalBanner from "@/components/signals/SignalBanner";
 import OverlapNote, { OverlapAfterSave, slotFromForm, useOverlapNote, type OverlapSlot } from "@/components/visits/OverlapNote";
@@ -1009,11 +1010,9 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
         Verantwortlich
         <select name="responsible" defaultValue={members.find((m) => m.me)?.user_id ?? ""} className={field}>
           <option value="">Team (noch niemand)</option>
-          {members.map((m, i) => (
-            <option key={m.user_id} value={m.user_id}>
-              {m.me ? "Ich" : `Teammitglied ${i + 1}`}
-              {m.qualification ? ` – ${QUALIFICATION_LABEL[m.qualification] ?? m.qualification}` : ""}
-            </option>
+          {/* UXR-113 / CGR-139 (ADR-154): the same label as every other picker that assigns a visit. */}
+          {teamPickerOptions(members).map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </select>
       </label>

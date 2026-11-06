@@ -2721,3 +2721,25 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** `npm ci` failed in this session again, so vitest, typecheck, lint, build, pgTAP and e2e were **not** run with the project's toolchain. `planTeamMeasureCells` ran once under Node type stripping (order, "Abgelehnt", "–", suppression: as the vitest expects). 0113 then 0114 (twice, idempotent) were applied once to a throwaway PostgreSQL 16 with stub tables and the pgTAP 114 fixture: before the rejection 66.7 / 33.3 / 0.0, 1.5 actions, 20 min (the existing assertions unchanged); after it 4 decided, 50.0 / 25.0 / 25.0. Not the real schema. CI is the test runner.
 
 **Rollback:** revert the PR; 0113's function returns without `rejected_share` (a later migration would recreate it from 0113).
+
+### ADR-154 — UXR-113: the /team new-visit "Verantwortlich" picker takes the CGR-139 member label
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Trigger:** `uxa` UXR-113 (2026-11-06 03:50, high, added to #884): the `/team` "Neuer Einsatz" → "Verantwortlich" picker shows "Ich" and "Teammitglied <n>" even for named members · **Scope basis:** ADR-152 already reads "every picker that assigns a visit"; this picker sets `responsible_user_id` of a new visit and was missed by #888 · **Migration:** none · **Stacked on:** #890 (ADR-153; label from #888, ADR-152) · **Proof:** vitest `uxr113-new-visit-picker` (written first), e2e `plan3.spec` (UXR-113 test at 390 px, read only)
+
+**Context (IMPLEMENTED before, `recovery/main` `404346c`):** `team-client.tsx` `PlanForm` labelled each option `m.me ? "Ich" : \`Teammitglied ${i + 1}\`` plus the qualification, so a named colleague read as a number while the visit line on the same card names her (H-01, PS-124: a visit can go to a colleague who does not expect it).
+
+**Decision (HOW, Engineering):**
+1. **One more pure function `teamPickerOptions(roster)`** in `src/features/team/member-label.ts`: `pickerMemberLabel` with the member's /team position from `memberNumbers` (the `team_cases` order, the same `<n>` as `memberLabel` and the handover), then " – <Qualifikation>" when recorded (unknown code shown as given). A repeated id is listed once at its first place.
+2. **`PlanForm` uses it.** Values, default (the caller), "Team (noch niemand)" and who may be picked are unchanged; no new read, grant or migration.
+
+**Deviations / notes for the PO (and `cra`, `uxa`):**
+1. *Placement:* `uxa` left it to `po` ("fits #888 before PLAN3 acceptance"). Built as its own small PR on the PLAN3 stack because it completes ADR-152's stated scope; the PO may close it and place it elsewhere.
+2. *`cra` scope confirmation OPEN:* `uxa` asks `cra` to confirm the widening of CGR-139 / PS-124 to this picker. The label form is the one `cra` already confirmed for CGR-139; nothing else changes.
+3. *UXR-114 not built:* `memberLabel` on `/team` (continuity pickers and lines) keeps "Ich (<Name>)" / "Teammitglied <n>"; aligning it changes `/team` wording that `cra` fixed under CGR-108 and that `journey.spec` pins ("Ich – Pflegefachperson"). OPEN for `po`/`uxa`/`cra`.
+4. *Visible change:* the caller's option now reads "<Name> (du) – <Qualifikation>" (or "Ich (du) – …") instead of "Ich – …"; no e2e selects this picker by label (they select by value or "").
+
+**Clinical gate:** remedy form of CGR-139 as `cra` confirmed it; no clinical rule, threshold or stop criterion. `lca` not needed (display names already shown on the same card).
+
+**Checked by me (not CI):** `npm ci` failed in this session again ("Exit handler never called"), so vitest, typecheck of the project, lint, build and e2e were **not** run with the project's toolchain. `teamPickerOptions` ran once under Node type stripping with the vitest roster (output equal to the expectations) and `member-label.ts` type-checked alone under `tsc --strict`. CI is the test runner.
+
+**Rollback:** revert the PR (no migration, no data).

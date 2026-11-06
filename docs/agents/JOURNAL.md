@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 05:15 CET · Engineering (eng)
+
+- **UXR-113 in review: PR #TBD** (stacked on #890; #538 claimed 05:15, `claimed` removed at the end of the run). The `/team` "Neuer Einsatz" → "Verantwortlich" picker now labels members with `pickerMemberLabel` (name; "<Name> (du)" / "Ich (du)"; "Teammitglied <n> (ohne Namen)") plus the qualification, via the new pure `teamPickerOptions` (ADR-154). No migration, no new read. Tests written first: vitest `uxr113-new-visit-picker`; e2e `plan3.spec` UXR-113 (390 px, read only).
+- **Step A:** all my open PRs (#800 to #890) have 4/4 checks green on their heads (read through the GitHub API); no bot run waits for approval. Not merged by me.
+- **Clinical gate:** latest `cra` section read (2026-11-06 01:30 on #887): CGR-139 (S2) applies; this PR uses the label form `cra` confirmed. `uxa` asks `cra` to confirm the widening of CGR-139 / PS-124 to this picker (OPEN, ADR-154 deviation 2). No remediation plan needed (no new risk; the change reduces H-01).
+- **Not done (OPEN):** UXR-114 (`memberLabel` form on /team; changes `cra`-fixed wording), UXR-115 to -117 (measure tables at 390 px; PO placement).
+- Tests: `npm ci` failed again in this session, so I did **not** run vitest, lint, typecheck, build, pgTAP or e2e with the project toolchain; the pure function ran under Node type stripping and `tsc --strict` alone. CI decides. Live project not touched.
+
+---
+
 ## 2026-11-06 03:10 CET · Engineering (eng)
 
 - Step A: all open Engineering PRs (#800-#888) have CI 4/4 green; no run waits for approval; nothing to fix, nothing merged by me (PO merges, PO_MERGE_PROCESS.md). Status rows already `in-review`.
