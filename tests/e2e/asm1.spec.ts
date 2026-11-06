@@ -46,13 +46,30 @@ test("record, see 'nicht bestätigt', confirm as the named nurse, supersede with
   let form = section.getByRole("form", { name: "Bedarfsabklärung erfassen" });
   // ASM1-C3 (UXR-54): the reference rule is visible on the empty form, before any refusal
   await expect(form.getByTestId("reference-hint")).toContainText("mindestens eine Ziffer");
+  // UX2-30 (4) (UXR-61): the hint gives one example
+  await expect(form.getByTestId("reference-hint")).toContainText("z. B. BA-2026-0042");
+  // UX2-30 (1) (UXR-56): at 390 px every field of the form is at least 300 px wide and the page does not scroll sideways
+  for (const control of await form.locator("input, select").all()) {
+    const box = await control.boundingBox();
+    expect(box!.width, (await control.getAttribute("name")) ?? "field").toBeGreaterThanOrEqual(300);
+  }
+  // names what sticks out, so a failure says which element widens the page
+  const overflow = await assist.evaluate(() => {
+    if (document.documentElement.scrollWidth <= window.innerWidth) return [];
+    return [...document.querySelectorAll("body *")]
+      .filter((el) => el.getBoundingClientRect().right > window.innerWidth + 0.5)
+      .slice(0, 5)
+      .map((el) => `${el.tagName.toLowerCase()}${el.getAttribute("name") ? `[name=${el.getAttribute("name")}]` : ""}${el.getAttribute("data-testid") ? `[data-testid=${el.getAttribute("data-testid")}]` : ""}`);
+  });
+  expect(overflow, "elements wider than the 390 px viewport").toEqual([]);
   await form.getByLabel("Datum der Abklärung").fill(FIRST);
   await form.getByLabel("Instrument").selectOption(INSTRUMENT_ID);
   await form.getByLabel("Abklärende Pflegefachperson").selectOption(NURSE_ID);
   // ASM1-3: a file name is refused with the reason, nothing is stored
   await form.getByLabel("Referenz der vollständigen Abklärung").fill("abklaerung.pdf");
   await form.getByRole("button", { name: "Bedarfsabklärung speichern" }).click();
-  await expect(section.getByTestId("assessment-error")).toContainText("kein Dateiname");
+  // UX2-30 (4) (UXR-61): the refusal says what to change, not the hint word for word
+  await expect(section.getByTestId("assessment-error")).toContainText("Diese Referenz ist keine Kennung");
   await form.getByLabel("Referenz der vollständigen Abklärung").fill("E2E-ASM1-1");
   await form.getByLabel("Minuten A", { exact: true }).fill("60");
   await form.getByLabel("Zeitraum A", { exact: true }).fill("pro Woche");
@@ -133,7 +150,10 @@ test("record, see 'nicht bestätigt', confirm as the named nurse, supersede with
   // 5. She corrects the newer one: a supersede with a reason; the old record stays, marked as replaced.
   await section.getByTestId("assessment-current").getByRole("button", { name: "Korrigieren (ersetzen)" }).click();
   form = section.getByRole("form", { name: "Bedarfsabklärung ersetzen" });
-  await form.getByLabel("Instrument").selectOption(INSTRUMENT_ID);
+  // UX2-30 (2) (UXR-57): the form names the record it replaces and prefills its instrument (still a select she can change)
+  await expect(form.getByTestId("supersede-target")).toHaveText(`Ersetzt die Bedarfsabklärung vom ${swiss(NEWER)}`);
+  await expect(form.getByLabel("Instrument")).toHaveValue(INSTRUMENT_ID);
+  await expect(form.getByLabel("Instrument")).toBeEnabled();
   await form.getByLabel("Abklärende Pflegefachperson").selectOption(NURSE_ID);
   await form.getByLabel("Minuten C", { exact: true }).fill("330");
   await form.getByLabel("Grund für den Ersatz").fill("Synthetisch: Minuten C falsch übertragen");
@@ -167,7 +187,8 @@ test("record, see 'nicht bestätigt', confirm as the named nurse, supersede with
   await basis.getByTestId("plan-review-confirm").getByRole("button", { name: "Als geprüft bestätigen", exact: true }).click();
   await expect(basis.getByTestId("plan-newer-assessment")).toHaveCount(0);
   await expect(basis.getByTestId("plan-basis")).toContainText(`Bedarfsabklärung vom ${swiss(NEWER)}`);
-  await expect(basis.getByTestId("plan-review")).toContainText(`Pflegeplan geprüft gegen die Bedarfsabklärung vom ${swiss(NEWER)}`);
+  // UX2-30 (5) (UXR-62): "Geprüft am <Datum> von <Name> gegen die Bedarfsabklärung vom <Datum>." (record confirmed at the act: one sentence)
+  await expect(basis.getByTestId("plan-review")).toHaveText(new RegExp(`^Geprüft am \\d{2}\\.\\d{2}\\.\\d{4} von .+ gegen die Bedarfsabklärung vom ${swiss(NEWER).replace(/\./g, "\\.")}\\.$`));
   await expect(plan).toContainText("E2E ASM1 Morgenpflege");
   await expect(plan).toContainText("E2E ASM1 Duschen");
   await expect(basis.getByRole("button", { name: /^Als geprüft bestätigen/ })).toHaveCount(0);

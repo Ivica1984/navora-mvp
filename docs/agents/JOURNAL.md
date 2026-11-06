@@ -913,6 +913,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 05:40 CET · Engineering (eng)
+
+- Step A: own PRs #799, #800, #803, #804 all green (app, db, e2e, ui-screenshots), left for the PO; not merged by Engineering. Step B/C: issue #745 (UX2) active and unclaimed; claimed 05:15.
+- **UX2 part 6 in review: PR #806** (ADR-135, no migration): UX2-30 (1) minutes rows one column below `sm`; (2) replace form "Ersetzt die Bedarfsabklärung vom <Datum>" and the instrument prefilled only when exactly one valid catalogue entry matches; (3) one `ErrorText` on `/team`; (4) hint "z. B. BA-2026-0042", new refusal text (`uxa` wording, PROVISIONAL); (5) review line in two sentences, the state at the act its own sentence when not "bestätigt" (`cra` (a) stays visible; `cra` confirms in the UX2 gate); (6) "Keine aktuelle Bedarfsabklärung." first.
+- **Not built (PLANNED):** the assessor prefill (the reader returns no assessor id; a name match could name the wrong nurse, who must confirm; needs a read-path migration, `lca` and `cra`), and the (7) landing e2e (needs a second-team seed fixture).
+- Tests written first: vitest `ux2-assessment-form.test.ts` (new), `asm1-conditions` updated; Playwright `asm1.spec` extended. **None ran locally** (npm registry unreachable from this sandbox): CI decides. Live project not touched.
+- Merge order: #799, #800, #803, #804 and this PR all touch `DECISIONS.md`, the UX2 row and this journal; later merges need a docs-only rebase (Engineering).
+
+---
+
+
+---
+
 ## 2026-11-03 04:45 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#797 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 03:50 (31.10) run. New evidence: `cra` 01:30 (PR #801, read on its branch) **CGR-109** names D-1 (tier 2). D-1 reviewed (`Unfreeze: 3 CGR-109`); only my section edited.

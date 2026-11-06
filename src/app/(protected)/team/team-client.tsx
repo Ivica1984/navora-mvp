@@ -1,6 +1,7 @@
 "use client";
 
 import AdmissionSection from "./admission-section";
+import { ErrorText } from "./error-text";
 import { SuccessorItems, TeamHandover } from "./contract-end-section";
 import { caseRefLabel, caseReference, continuityAnchorId, type Leaver, type SuccessorItem } from "@/features/contract-end/rules";
 import type { LeaverOpenReport } from "@/features/contract-end/queries";
@@ -482,15 +483,6 @@ function Flags({ flags }: { flags: string[] | null | undefined }) {
         <li key={f}>⚠ {PLAN_FLAG_LABEL[f] ?? f}</li>
       ))}
     </ul>
-  );
-}
-
-function ErrorText({ message }: { message: string | null }) {
-  if (!message) return null;
-  return (
-    <p role="alert" data-testid="command-error" className="mt-2 rounded-lg border border-rose-300 bg-rose-50 p-2 text-sm font-semibold text-rose-800">
-      {message}
-    </p>
   );
 }
 

@@ -10,6 +10,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ConfirmStep from "@/app/(protected)/admin/confirm-step";
+import { ErrorText } from "./error-text";
 import { reviewCarePlan } from "@/features/assessment/commands";
 import { REVIEW_CONFIRM_ACTION, reviewConfirmSentence, reviewLabel, type AssessmentRecord } from "@/features/assessment/rules";
 
@@ -53,11 +54,8 @@ export default function PlanReviewButton({ caseId, current }: { caseId: string; 
         </button>
       )}
       <p className="text-xs text-secondary">Leistungen, die nicht mehr passen, änderst du wie bisher einzeln.</p>
-      {error && (
-        <p role="alert" data-testid="plan-review-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 text-xs font-semibold text-rose-800">
-          {error}
-        </p>
-      )}
+      {/* UX2-30 (3) (UXR-58): the screen's one error line (UX2-14 changes it in one place). */}
+      <ErrorText message={error} testId="plan-review-error" />
     </div>
   );
 }
