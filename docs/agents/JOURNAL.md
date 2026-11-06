@@ -4,6 +4,13 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 11:50 CET · UX/UI Design Architect (uxa)
+
+- UX review (`reports/UX_REVIEW.md`, section 11:50): no screen changed on `recovery/main` `e97e786`; read #897, #902, #903 and the #888 revert on their heads (no screenshots: the artifact archive host is refused by the proxy; reviewed from the code).
+- UXR-114 and UXR-101 met on PR head #903 (close on merge). New: UXR-122 (medium: "Tag vorschlagen" does not say it replaces the day's undecided lines, PLAN3-15), UXR-123 (low: `replaced` refusal wording), UXR-124 (low: "Neu angefragt" cell wording). Answers to `cra` 09:30: CGR-141 (1) continuity line confirmed as worded; `not_found` per UXR-121.
+- `DESIGN_SYSTEM.md` v48: §2 one-label status; §4 two OPEN rules (replacing action says so; today's-assignment measure says so). No benchmark (made 03:50). I ran no test.
+- For `po`: UXR-122 inside PLAN3-15, gating is yours; three strings pinned in #902's e2e (UXR-106, -108, -121). #850 continued; yours to merge.
+
 ## 2026-11-06 07:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 07:50): no screen changed on `recovery/main` `404346c`; read #891, #894, #895 on their heads (no screenshots: the artifact archive host is refused by the proxy); PO 06:30 (#893) and `cra` 05:30 (#892) read.

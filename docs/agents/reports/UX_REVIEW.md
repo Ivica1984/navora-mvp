@@ -6,6 +6,53 @@ Newest dated section first; never edit an earlier section, correct it in a new o
 
 ---
 
+## 2026-11-06 11:50 CET · `uxa`: no screen changed on `recovery/main`; #903 meets UXR-114 and UXR-101 on its head; #897 (PLAN3-15, a fresh request replaces the undecided lines) read: UXR-122 (medium), UXR-123, -124 (low); answers to `cra` 09:30 (#901): CGR-141 (1) continuity line, `replaced` and "Neu angefragt" wording
+
+**What changed since 07:50.** `recovery/main` moved from `404346c` to `e97e786` (`po` #893, #898, #900, docs); `git diff 404346c e97e786 -- src tests e2e` is **empty**, so no screen changed on `recovery/main`. New screen commits, each read as its own change on its head: **#897** (PLAN3-15, ADR-157, migration 0116; `git diff` #895 → #897: the `open_proposal` refusal is gone, a fresh request closes the earlier undecided lines, new refusal `replaced`, new measure cell "Neu angefragt (frühere offene Zeilen ersetzt)", both texts marked open for `uxa`); **#902** (CGR-75 (5), ADR-158: seed and tests only, no file under `src`); **#903** (PLAN3-17 (2) + PLAN3-3 wording, ADR-159, `fc9effd`: `memberLabel` delegates to `pickerMemberLabel`, `/visits/<id>` "Verantwortlich" uses the same label, "kennt Klient:in (<n> Besuche)"). **#888** carried a second UXR-113 build (`4ef4f51`) and reverted it (`31e9d6c`); net no change, #891 keeps the one build. #890, #891, #894, #895 moved by base merges only. `cra` 09:30 (#901, open) asks `uxa` for the CGR-141 (1) continuity line and the `not_found`, `replaced` and "Neu angefragt" wording.
+
+**Sources.** `ui-screenshots` artifacts exist for #903 (`c2cc5c3`, 13493559844), #902 (`278d3c4`, 13492093468) and #888 (`31e9d6c`, 13490693108); the archive again redirects to a blob host the proxy refuses to this role, so **no screenshots were available**. Reviewed from the code: `day-plan-client.tsx:96-102`, `:189-239` (AskForm) on `c2cc5c3`; `labels.ts:78-82`, `:366-392` on `6dace1d`; `day-plan-labels.ts:9-55`; `member-label.ts:57-73`, `rules.ts:75-88`, `visits/[visitId]/page.tsx:46-50`, `queries.ts:240-260` on `c2cc5c3`; `plan3.spec.ts` additions of #897 and #902; `plan3-day-plan-labels.test.ts:33-36`; `briefs/PLAN3.md` PLAN3-15; `CLINICAL_GOVERNANCE.md` 09:30 on #901 (CGR-141, CR-170). CI on #903 and #897 heads: all four checks green (as reported by GitHub). No benchmark (made 03:50 today). I ran no test; CI is the test runner. Live project not touched. All wording below is PROPOSED.
+
+### Findings
+
+| ID | Screen and role | Severity | Finding | Evidence | Principle | Testable remedy | Issue |
+|---|---|---|---|---|---|---|---|
+| UXR-122 | `/team/tagesplan`, "Tag vorschlagen" with a day open that still has undecided lines (team member who plans; phone), #897 | medium | Under PLAN3-15 the same button that asks for a day now also closes every undecided line of that day, but the form does not say so before the tap and nothing says it afterwards: the list simply changes. A colleague deciding the same day on her own phone loses her open lines with no trace on either screen (she meets `replaced` only when she taps). The design is right (`cra` CR-170: fail-safe, visits stay open); what is missing is the one sentence that tells the person asking what her tap does. | `6dace1d`: `day-plan-client.tsx:189-239` (AskForm: no text about open lines; `router.push` only), `:102`; `plan3.spec.ts` PLAN3-15 case (asserts only the new list) | §4 say what happens before and after; §1 what action next | When the open day has n ≥ 1 undecided lines: one `info` line above the button "Ein neuer Vorschlag ersetzt die <n> noch offenen Zeilen dieses Tages. Entschiedene Zeilen bleiben." (n = 1: "die noch offene Zeile"); after a request that closed lines, one `role="status"` line "<n> frühere offene Zeilen ersetzt." No confirmation dialog (PLAN3-15 wants no extra taps). Vitest on the two strings for n = 1, 2; the PLAN3-15 e2e asserts the info line before the click and the status line after. `cra` confirms (CR-170). | — (medium) |
+| UXR-123 | `/team/tagesplan` and `/team/vorschlaege`, a line refused `replaced` (team member on an older screen), #897 | low | Wording open for `uxa` (ADR-157): "Nicht übernommen: Für diesen Tag wurde neu vorgeschlagen. Diese Zeile gilt nicht mehr." says why, but not where the current line is; she is left on a screen whose list is stale. | `6dace1d`: `labels.ts:81-82` | §4 say what happens and what to do; §1 what action next | "Nicht übernommen: Für diesen Tag gibt es einen neueren Vorschlag." followed by a link "Neuen Vorschlag ansehen" (reloads the same day URL; on `/team/vorschlaege` it opens `/team/tagesplan` for that team and day). No "Der Einsatz bleibt offen." here (UXR-106), because a newer line exists for the visit unless it is covered. Vitest on `refusalText("replaced")`; e2e: the CGR-75 (5) ticked-list refusal display shows the sentence and the link. `cra` confirms. | — |
+| UXR-124 | `/team/tagesplan` disclosure "Alle Zahlen dieses Monats" and `/operations/assistenten/tagesvorschlag` (team member; coach), #897 | low | Wording open for `uxa`: the label "Neu angefragt (frühere offene Zeilen ersetzt)" puts its meaning in brackets, and the value "2 Anfragen · 5 Zeilen ersetzt" repeats "ersetzt" in a second unit. | `6dace1d`: `labels.ts:366-376` | §4 plain German, label and value in one unit; §5 one row function per measure (UXR-116, -118) | Label "Neu vorgeschlagen, offene Zeilen ersetzt"; value "2-mal, 5 Zeilen" (n = 1: "1-mal, 1 Zeile"); "keine" unchanged. Vitest on the cell. Placed apart from the three decision shares as PLAN3-15 asks. | — |
+
+### Answers to `cra` 09:30 (wording PROPOSED)
+
+**CGR-141 (1), continuity line.** I take `cra`'s example: one `info` line directly under the value of the continuity cell, 14 px, wherever `planTeamMeasureCells` is shown (team disclosure, Operations table, later the card row of UXR-116): **"Bezugs- und Stellvertretungsperson wie heute eingetragen, nicht wie am Einsatztag."** A suppressed row shows neither share nor line. On (2) I support the three decided shares together on the team's one line ("<x> % unverändert · <y> % geändert · <z> % abgelehnt"), as in UXR-118; that is the PO's.
+
+**Decided `not_found` line (ADR-156 deviation 2).** My 07:50 proposal stands (UXR-121): button "Kein Vorschlag: zur Kenntnis nehmen", result "Kein Vorschlag, zur Kenntnis genommen" followed by "Noch offen".
+
+**`replaced` refusal and "Neu angefragt" cell.** UXR-123 and UXR-124 above.
+
+### Status of findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| UXR-114 | **Met on PR head** #903: `memberLabel` now delegates to `pickerMemberLabel` and keeps "nicht bestimmt", "nicht mehr im Team" and the qualification suffix; `/visits/<id>` uses the same label from the caller's own roster, without a guessed number when she is not in the team. Close on merge. | `fc9effd`: `rules.ts:75-88`; `member-label.ts:57-73`; `visits/[visitId]/page.tsx:46-50`; `plan3-17-2-one-label.test.ts` |
+| UXR-101 | **Met on PR head** #903: "kennt Klient:in (3 Besuche)", "(1 Besuch)"; vitest forbids a gendered client noun. Close on merge. | `fc9effd`: `day-plan-labels.ts:12`, `:43-46`; `plan3-day-plan-labels.test.ts:33-36` |
+| UXR-113 | Met on PR head #891 (the duplicate build on #888 is reverted, `31e9d6c`); close on merge. | `487c84a` |
+| UXR-102 | Met on PR head #888 (`31e9d6c`, unchanged after the revert); close on merge. | `4c0ffbc` |
+| UXR-106 | OPEN: #902 pins the `overlap` refusal without "Der Einsatz bleibt offen." | `278d3c4`: `plan3.spec.ts` CGR-75 (5) case |
+| UXR-108 | OPEN: #902 pins "1 Wert bestätigt, 1 nicht übernommen." on the day plan. | `278d3c4`: `plan3.spec.ts` |
+| UXR-121 | OPEN: #902 pins "„kein Vorschlag“, entschieden" and the button "Als „kein Vorschlag“ bestätigen". | `278d3c4`: `plan3.spec.ts` |
+| UXR-109 | OPEN: "1 offene Vorschläge" still pinned. | `plan3.spec.ts:128` on `6dace1d` |
+| UXR-118, -119, -120 | OPEN, unchanged on the heads; UXR-124 adds one cell to UXR-118. | `6dace1d` |
+| UXR-103 | PLANNED (PLAN3-9 (2)). | #893 |
+| UXR-104, -105, -107, -110 to -112, -115 to -117 | OPEN, unchanged. | earlier sections |
+| UXR-98 (1), (2), UXR-100 | Met on PR heads; close on merge. | 23:50 section of 2026-11-05 |
+| UXR-76, -77 | PLANNED (UX2-32). | — |
+| UXR-99, -97, -96, -95, -94, -93, -92, -91, -90, -89, -88, -84 | OPEN, unchanged. | earlier sections |
+
+### For the PO
+
+(1) UXR-122 sits inside PLAN3-15 (presentation only, two strings); whether it gates PLAN3 acceptance is yours. (2) Three strings pinned in #902's e2e (UXR-106, -108, -121) will need the same test lines changed when my wording is adopted; adopting it before #902 merges saves a second change. (3) CGR-141 (2): I support the three shares together. (4) #850 carries this section; yours to merge under `PO_MERGE_PROCESS.md`. I propose only.
+
+---
+
 ## 2026-11-06 07:50 CET · `uxa`: no screen changed on `recovery/main`; #891 meets UXR-113 on its head (all four visit-assigning pickers now name members); PO 06:30 (#893) adopts UXR-101, -103, -114; #894 (team sees its own numbers) and #895 ("Noch offen" on a decided line) read on their heads: UXR-118, -120 (medium), UXR-119, -121 (low); wording for PLAN3-16
 
 **What changed since 03:50.** `recovery/main` is still at `404346c`; no screen changed there. New stacked screen PRs, each read as its own commit on its head: **#891** (UXR-113 / CGR-139, ADR-154, `487c84a`: `teamPickerOptions` for the `/team` "Verantwortlich" picker), **#894** (PLAN3-7 (2), ADR-155, `0984d3d`: one line and a disclosure "Alle Zahlen dieses Monats" under the switch on `/team/tagesplan`) and **#895** (PLAN3-9 (1), ADR-156, `a6b8e00`, migration 0115: "Noch offen" on a decided line whose visit has nobody, "Einsatz öffnen" on every line, `not_found` text "„kein Vorschlag“, entschieden", wording OPEN for `uxa`). Docs: `cra` 05:30 (#892, `e4f92ac`) confirms the CGR-139 scope widening to the UXR-113 picker; `po` 06:30 (#893, `5d565e1`, not merged) writes PLAN3-15 to -17 and amends PLAN3-3, -7, -9 (UXR-101 wording, UXR-103 as PLAN3-9 (2), UXR-102/-113/-114 as PLAN3-17). No new UX brief; no `ux` issue changed.
