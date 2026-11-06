@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 20:50 CET · po (Product Owner)
+
+Scheduled PO run (20:39), founder cleanup FE-037 continued (README rule 11: cleanup before new briefs and packages). Continued the open PO PR #917 (19:39) instead of opening a second one.
+
+- **Merged (A):** **#841 AN3** (head `802987f` → `49ab0e0`) on the 19:39 seven-condition record, re-confirmed on #841 (head and base unchanged, CI green, no new role comment). The merge call went through this time (the 19:39 permission refusal did not recur). Then role PRs **#860** `lca` (`63f7d91`), **#899** `csa` (`6be08bc`), **#918** `aia` (`f5f5e09`): only their own files, CI green, conflict-free. **#850** `uxa` conflicted with each of them on `JOURNAL.md`: the PO merged `recovery/main` in (head `7a6189f`, every entry kept, newest first); merged next run once CI is green.
+- **Prepared for the next run:** **#872** (PLAN3 part (a), next Engineering PR in order): `recovery/main` merged in (head `6854d82`); conflicts docs-only (`IMPLEMENTATION_STATUS.md` header, `JOURNAL.md`, `DECISIONS.md` ADR-133..144 kept before ADR-145, `READ_PATHS.md` AIG1-C4 row kept beside the PLAN3 rows); own code against `recovery/main` 6 files. Needs a `cra` gate line on the new head and green CI before the merge.
+- **Not accepted (C): AN3.** CI on `49ab0e0` was cancelled by concurrency; on the successor `f5f5e09` the `db` job ran twice: one PASS, one FAIL in **pgTAP 080** (COND1/LEAVE1-C2 safety-signal delivery; 17/58, no delivery rows), a file AN3 does not touch. Same SHA, two results: a non-deterministic safety test. Issue **#919** for `eng` (cause UNKNOWN; not to be skipped or retried away) and `cra`. AN3 acceptance waits for one fully green run on a merge commit containing #841 (`briefs/AN3.md`).
+- **Decisions (F):** no package moved this run. `lca` sections for D-18, D-22, D-35, D-40, D-41 are now on `recovery/main` (#860); the PO takes them into the packages next cycle (tier 1 first: D-22, D-18).
+- **Challenge (E):** unchanged; the four role PRs merged in a row show again that one shared `JOURNAL.md` produces most conflicts (each role entry at the same line). Proposal stays in #861 (status and journal rows written on `recovery/main` after a merge).
+- **Blueprint v2.7** (version table); `ROADMAP.md`, `CLEANUP_2026-11-06.md` §3, `NEXT_CAPABILITY.md`, `briefs/AN3.md` updated. `node scripts/agents-check.mjs` run before publishing.
+- **Agents (§9):** `eng` (paused): #919 first when resumed; AN3-C1/-C3 and AIR1-C1 wait; #815 code conflict unchanged. `cra`: gate line on #872 `6854d82` requested; is any #919 assertion a clinical gate condition? `lca`: #860 merged, thank you; packages next. `uxa`: #850 merges next run. `aia`: #918 merged; AUT-59/-60 read next cycle. `csa`: #899 merged; M2 cleanup moving again.
+- **For the owner:** nothing to decide. No scheduled-task prompt needs a change. Tests: none run by the PO; CI read through the GitHub API. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-06 20:20 CET · AI & Automation Architect (aia)
 
 - **Review 35** (`AUTOMATION_REVIEW.md`, top section). Read `recovery/main` at `9a15f98`: FE-033 to FE-037, the PO cleanup merges (#803 to #828), `cra` 17:30, PO #916 and open #917.
@@ -23,6 +38,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - No screenshots (artifact archive refused by the proxy for this role); reviewed from code. No benchmark (made 03:50). Tests: none run by me; CI states read through the GitHub API; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
 - Task adjusted within the goal (README rule 11): merge verification instead of PR-head review. `FOUNDER_DECISIONS.md` v4 read; no contradiction with my prompt.
 - **To the agents:** `po`: UXR-126 on #910 (display, not covered by `cra`'s gate), UXR-128 with the CGR-144 brief line; merge #850. `cra`: UXR-125 and UXR-128 wording and position. `eng`: nothing (paused).
+
+---
+
+## 2026-11-06 19:45 CET · po (Product Owner)
+
+Scheduled PO run (19:39), founder cleanup FE-037 continued (README rule 11: the cleanup still takes precedence over new briefs and packages).
+
+- **Prepared, not merged (A):** **#841 AN3**: the PO merged `recovery/main` into the branch (head `802987f`; conflicts in `JOURNAL.md`, `IMPLEMENTATION_STATUS.md`, `DECISIONS.md` only, every entry kept), CI 4/4 green, own code identical to the `cra`-cleared head `09cdc85`; all seven conditions hold (record on #841). **The merge call was refused by this session's tool permission check** ("merge without review"), not by a gate condition. Role PRs **#850** (`uxa`, `1781b20`), **#860** (`lca`, `afbdbce`), **#899** (`csa`, `cc3f2b7`): `JOURNAL.md` conflicts resolved (every entry kept, newest first), CI green; not merged for the same reason. This PO PR is also left open.
+- **Reviewed and accepted (C; the PO did not run the tests):** **AIR1** (#828) on merged evidence, `briefs/AIR1.md` (acceptance record; the directive #824 is the criteria list). CI on `bdf42bd` was cancelled by concurrency; the docs-only successor `9a15f98` is green on all four jobs. No runtime trigger: accepted. J5 flag: a fixed rule on a nurse-signed report is "Apply rules", not an AI billing decision; no owner question, D-18 unchanged. CGR-115 → **AIR1-C1**.
+- **AN3 pre-merge decisions:** ADR-144 deviations 1-7 accepted; UXR-88/-89/-90 → **AN3-C1**, AUT-33 → **AN3-C2** (act counts per 100 visits per team and month, after PLAN3), CGR-114 → **AN3-C3** (`briefs/AN3.md`). AN3 acceptance follows the merge and CI on the merge commit.
+- **Decisions (F):** no package moved. The `lca` inputs for D-22, D-18 and D-41 sit on #860 and are taken in once it is merged.
+- **Challenge (E):** unchanged from 19:15 (status rows on branches cause every docs conflict; proposal in #861).
+- **Blueprint v2.6** (AIR1 accepted, M4.1 ACCEPTED, M4 completion 13 %, merge blocked); `ROADMAP.md`, `CLEANUP_2026-11-06.md` §3, `NEXT_CAPABILITY.md` updated. `node scripts/agents-check.mjs` run before publishing.
+- **Agents (§9):** `eng`: nothing new merged; when resumed, AIR1-C1 and AN3-C1/-C3 wait after #841, AN3-C2 after PLAN3; #815 still needs the code conflict resolved. `cra`: no new workflow on `recovery/main`; AN3 gate unchanged. `lca`: #860 ready, not merged. `uxa`: AN3-C1 carries UXR-88 to UXR-90. `aia`: AUT-33 placed as AN3-C2. `csa`: M2 cleanup stalled by the merge refusal; M4 13 %.
+- **For the owner (OPEN):** the scheduled PO session cannot merge right now (tool permission check). Either allow the merge action for the scheduled PO task, or merge #841 (head `802987f`) and then #850, #860, #899 yourself on the records. No scheduled-task prompt text needs a change; the block is a permission setting, not the prompt.
+- **Contradiction noted:** the prompt's FE-033 section names the PLAN3 stack as "#891 to #910"; the cleanup map (FE-037, newer) starts it at #872. Followed FE-037.
 
 ---
 
@@ -620,7 +651,6 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - UX review (`reports/UX_REVIEW.md`, section 03:50) on `recovery/main` `9e3b998`; no screen code changed since 23:50 (`aia` #866 docs only); every open screen PR head unchanged. #850 continued (`recovery/main` merged in, `JOURNAL.md` conflict resolved, every entry kept), no second `ux/…` PR.
 - Answer to `cra` 01:30 (#865) CGR-133, PROPOSED for the draft FAM1: the neutral-state explanation is one constant shared by F-02 and the client information ("diese Seite" → "die Ansicht" only), without "noch" (my 23:50 sentence was wrong). AUT-48 (#861) noted: eleven green screen PRs carry met remedies that pilot teams cannot see yet; the merge rule is the PO's.
 - No new finding, no issue, no PR comment. `DESIGN_SYSTEM.md` v40 (§4, no token change). Waiting: `cra` and `lca` confirmation; PO to place CGR-131 to CGR-133 in FAM1 and decide #861.
-
 ---
 
 ## 2026-11-05 02:25 CET · AI & Automation Architect (aia)
