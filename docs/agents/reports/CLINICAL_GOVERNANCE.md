@@ -16,6 +16,63 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-06 22:35 CET: founder letter (attended session): **Qualification and Activity Matrix v0.2** (four contexts, six functions, per-row fields, planning use, cover-simulation acceptance criteria and negative tests, pre-pilot list, K and L questions as options); **CR-179 to CR-184 PROPOSED**; new **CGR-147** (advisory S1 before Phase B: external team in a nursing home, legal form and delegation source unresolved) and **CGR-148** (advisory S1 before real data: the check must also run on swap, NH-EXT acceptance and at visit start); D-43 clinical input
+
+**Scope:** `recovery/main` @ `8bd8315` (PO #920 merged FE-038, FE-039; my #923 merged with QAM v0.1). **Trigger:** the founder's letter of 2026-11-06 (evening, attended session) asking to develop the matrix with `lca` for four contexts, keep six functions apart, complete the per-row fields, make it usable for AI planning on every path, give acceptance criteria and negative tests for a cover simulation, and prepare K-1 to K-6 and L-1 to L-6 as options. **Code changed:** none. **No clinical, legal or owner decision answered** by a person since 21:50.
+
+I read: QAM v0.1; D-43; FE-039; issue #924 and its PO addendum; `lca`'s D-25 sections (ZH leaflet on directive authority and written delegation) and D-12 (staff hiring); the seed's activity words (`Abklärung`, `Medikamentengabe`, `Wundversorgung`, `Grundpflege`, `Mobilisation`). Web sources, read through a summarising tool (quotes as reported, to be checked by `lca`):
+- ARTISET leaflet 2024 (KLV changes 2024-07-01);
+- BAG Q&A 8 May 2024 (direct billing);
+- the BS Spitex licence page (§ 22 Bewilligungsverordnung as cited);
+- the BL Spitex application form 2026;
+- the H+ AÜP position paper 2018 (Art. 25a Abs. 2 KVG as quoted);
+- WEKA on staff hiring (BGer 2C_470/2020).
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-147 | **External self-organised team in a nursing home (NH-EXT), the founder's main use case** | **advisory, S1** (blocks Phase B for NH-EXT; not Phase A) | The home keeps its licence and its staffing duty for its residents; the team brings its members. Who may delegate a Bst. b activity to a team member for a resident, whose matrix version applies, and whether the arrangement is staff hiring (directive authority passes to the home) or a service contract are UNKNOWN. Without a single delegation source and a single escalation addressee per resident activity, each party can assume the other checked competence (H-33). The licensed functions of the home (BS Pflegedienstleitung, BL pflegefachverantwortliche Person) **do not attach to the team** by default, but they do not disappear either | matrix v0.2 §2.1 to §2.3; BS nursing-home page; BL page; WEKA on BGer 2C_470/2020; D-12 (NAVORA does not employ) | **`lca`:** L-7 (and L-8 for HOSP-IN). **owner:** FD-Q1 once L-7 is answered. **po/eng (Phase A):** a structured Einsatzvereinbarung (CR-182); NH-EXT D cells count as ? until L-7 (CR-180); escalation to the home's F5 (CR-184). pgTAP NT-9: a job without a delegation source is not offerable and names the missing field; both delegation variants simulated on synthetic data |
+| CGR-148 | **The qualification check on every path, at the right time** (CR-177 v0.1 named five paths) | **advisory, S1** (blocks real clients or residents) | v0.1 checked at assignment on PLAN3, PLAN2, hand assignment, take and cover. It did not name **swap** (both sides), **NH-EXT acceptance** or **visit start**. Evidence, a delegation or the delegating nurse's own licence can lapse between planning and the visit. A check only at assignment lets the visit start on lapsed grounds. A fifth state is needed: `ungeklärt` must never show as suitable or scored | matrix v0.2 §5, §6.2 to §6.4; CR-183 | **po/eng:** one database function with four results (CR-183) on every path and at start; lapsed evidence releases future visits as open with a coverage fact; delegator lapse sets her delegations to "review needed". pgTAP AK-6, AK-7, NT-2, NT-8, NT-10 (matrix §7) |
+
+### Answers to the founder's letter (summary; the matrix is the full text)
+
+1. **Four contexts:** §2. No rule is assumed to carry over. The commissioning party's and the team's responsibility are split per context (§2.2). Hospital work **inside** a hospital is **not** planned with this matrix (§2.1 HOSP-IN). **After discharge**, the care is the team's as a home-care provider; AÜP is bounded by the hospital physician's order (≤ 2 weeks).
+2. **Six functions:** §3: F1 team coordination, F2 qualification, F3 delegation/instruction/supervision, F4 case responsibility, F5 formal licence function, F6 rule release. F5 applies **only to the licence holder**. Proposal §3.2: responsibility is tied to an object (delegation, case, licence) with a closed command list that contains **no** assignment command. Limit and alternative: §3.3.
+3. **Per-row matrix:** §4. Seed rows first. E / D / – / ? kept; ? counts as – everywhere (CR-179). Not called a "BAG matrix".
+4. **Planning use:** §6, with data needs for `po` (§6.1), evidence states (CR-181), one check on every path including start (CR-183), and the safe flows (§6.4). The AI never grants a delegation or shows `ungeklärt` as suitable.
+5. **Cover case:** §7, AK-1 to AK-10 and NT-1 to NT-10. Escalation addressees per context (CR-184): for a nursing home, the **home's formal function** (Pflegedienstleitung / pflegefachverantwortliche Person and deputy).
+6. **Phase A is not a release:** §10; P-1 to P-9 (§8) must be confirmed before a real pilot. K-1 to K-8 and L-1 to L-10 are prepared as options with consequences (§9); FD-Q1 and FD-Q2 are the only founder questions, and only if `lca` confirms they are needed.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-145** | open, advisory S1; remedy refined by CR-179 to CR-183 (status ladder, context modifiers, evidence states, all paths and start). Placed to QUAL1 (draft) by the PO | matrix v0.2 |
+| **CGR-146** | open, advisory S1; evidence widened: BS Spitex (pflegeverantwortliche Fachperson, Pflegedienstleitung and deputy with a practice licence, § 22 as cited) and BL Spitex (pflegefachverantwortliche Person and deputy, HF/FH, two years) now read. The remedy stands, with the §3.3 limit (written directive authority where a licence demands it; L-2) | matrix v0.2 §1.1, §3 |
+| All other CGR findings | unchanged | as at 21:30 / 21:50 |
+
+Closed in this section: none.
+
+### New or changed hard-coded rules
+
+None in code. Register: CR-179 to CR-184 **PROPOSED** (section *Proposed rules (not in code)*). The refinement of CR-176 and CR-177 is carried by CR-183. No clinical, tariff, KLV, LTCF, interRAI, PAG or MQI logic invented. Thresholds, validity periods, drug lists and shift minimums are left as K questions.
+
+### Gate status
+
+No PR head changed since 21:30. Gates as at 21:30.
+
+### Decisions requested
+
+- **po:** take matrix v0.2 into the Blueprint and QUAL1 (data needs §6.1; simulation §7 as acceptance criteria; P-1 to P-9 as the Phase B gate); place CGR-147 and CGR-148; keep CR-007 for real data.
+- **lca (#924):** L-1 to L-10, with L-7 (NH-EXT form) and L-2 (directive authority in BS/BL) first; check the summarised quotes Q10 to Q15 in the originals.
+- **owner:** nothing now. FD-Q1 and FD-Q2 (matrix §9.3) only after `lca`'s L-7 and L-2. D-43 option choice when the package is complete.
+- **clinical** (the D-43 approval function, once named): K-1 to K-8.
+
+---
+
 ## 2026-11-06 21:50 CET: founder request (attended session): qualification and activity matrix (skill and grade mix) **written as PROPOSED** (`QUALIFICATION_MATRIX.md` v0.1, CR-174 to CR-178); new **CGR-145** (advisory, **S1** before real data: the matrix loosens CR-007 for FaGe) and **CGR-146** (advisory, **S1** before Phase B: the licensed nursing-responsible role); founder principles on overlaps and PROVISIONAL thresholds recorded
 
 **Scope:** a founder message in an attended session (2026-11-06, about 21:40 CET), not a repository change. It sets two principles: self-organisation without a hierarchical Pflegeleitung, and competence limits per qualification (KLV Art. 7). It proposes three grades. It asks `cra`, with `lca`, to write the Swiss qualification and activity matrix for home care and nursing homes and to file it in the clinical register, so that the PO and Engineering can build it into PLAN3's assignment. It confirms two things for Phase A: the provisional thresholds stay (D-28), and the overlap rule stays a fact, never a block (CGR-137, CGR-144). No code was read for this section beyond the qualification model: CR-007, CR-009, CR-164; D-15; D-29; H-04; C-6.
