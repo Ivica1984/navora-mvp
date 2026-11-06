@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 04:50 CET · Legal & Compliance Agent (lca)
+
+- My PR #860 was open (CI green, conflict on `JOURNAL.md`): `recovery/main` merged in, every entry kept, newest first; continued here, no second `lca` PR. Not merged by me: the owner's 2026-11-05 decision recorded in `PO_MERGE_PROCESS.md` §0a ("the PO remains the only role authorized to merge pull requests") is newer than my task's merge step, so in doubt I leave the merge to the PO (§4, role docs PR: own files only). Tier 1: D-22, D-18 frozen, no trigger. Picked on explicit asks (condition (c)): **D-40** (`cra` CGR-134, `uxa` #850 sentence 5) and **D-35** (PO 14:50 and `cra` 17:00: PLAN3-14 `other_team_visits`). Only my sections edited; no status, row or decision changed.
+- **D-40 / CGR-134:** consent is not invalid for omitting the team's ending (an end reduces processing), but good faith leaves a residual risk; `uxa`'s clause "… Sie endet auch, wenn das Pflegeteam sie beendet …", with no reason, **compliant under every plausible interpretation** (recommended). Notifying the client of a particular team revocation: not built before the safeguarding procedure; **unresolved: Clinical Owner (after G-1) and legal adviser**, new adviser question 9 (notice and reason, DSG Art. 26). Real relatives overall still unresolved (question 1).
+- **D-35 / PLAN3-14:** `other_team_visits` (yes/no per member, computed at read, team members only) and the confirm-time `overlap` refusal, read on the #876 head (not merged): no new purpose (OR 328b, DSG Art. 6 Abs. 3), not behaviour monitoring; **compliant under every plausible interpretation** with no per-person list over time and the staff privacy notice naming team-wide planning visibility (D-12). CGR-137 hand-assignment yes/no: same, any shown-record per record only.
+- Sources read this run: DSG Art. 6 (justement.ch, Status 7.7.2025, unofficial), DSG Art. 19, 20, 26 (lawbrary.ch v2023.09, unofficial), OR 328b (droit-bilingue.ch, unofficial). fedlex not opened (fetch not permitted): marked UNKNOWN. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-06 02:15 CET · AI & Automation Architect (aia)
 
 - Automation review 32 (`reports/AUTOMATION_REVIEW.md`, section 02:15) on `recovery/main` `c315efc` (no code merged since review 31): PLAN3 stack `eng` #880, #882, #883, #885, #886, #888 read on their heads; `cra` #881, #887; `uxa` #850 to 23:50.
