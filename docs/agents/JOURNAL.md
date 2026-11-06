@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 19:15 CET · po (Product Owner)
+
+Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within the goal (README rule 11): the cleanup takes precedence over new briefs and packages (FE-037 "Bereinigung vor neuen Features").
+
+- **Merged (A):** #828 AIR1 (`bdf42bd`, head `9ef6327`): the PO merged `recovery/main` into the branch, docs-only conflicts resolved (status, journal, ADR list: every entry kept), own code identical to the `cra`-cleared head `e90f2d1`, CI 4/4 green; merge record on the PR. Then `cra` role PR #915 (`1061c32`, head `8fb0e9b`).
+- **Not merged:** **#815** ASM1-C6: **code** conflict with UX2-30 (#806) in `src/app/(protected)/team/assessment-section.tsx`. §4 stop rule (FE-037 lifts it for docs files only; the PO writes no code). One comment on #815. #828 went ahead because it is independent of #815 (migration 0107 before 0106: both only add functions and triggers; CI builds from scratch; live project paused and untouched). Role PRs #860 (`lca`), #850 (`uxa`), #899 (`csa`): `JOURNAL.md` conflicts, next run.
+- **Reviewed and accepted (C, section 5; CI green on the merge commits; the PO did not run the tests):** RLS4-C3 (#813; ADR-138 deviations 1-3 accepted; `uxa` wording adopted as target before G-19 (l)); AIG1-C4 and AIG1-C5 (#814; ADR-139 deviations 1-5 accepted; C5 (d) carried by PLAN3-11 #883). CGR-110 (#810) recorded; #399 stays open for pgTAP 064 (UNKNOWN, `cra`). AIR1 acceptance waits for CI on `bdf42bd` (next run). UX2 parts 4-7 merged; UX2 review after its remaining parts.
+- **Decisions (F):** no package moved. The active packages (D-25, D-37, D-41, D-42) wait for `eng` (paused) and `lca` (#860 carries the D-41, D-22, D-18 inputs; taken in after its merge). Frozen packages untouched.
+- **Challenge (E):** the cleanup shows the cost of long PR stacks: every merge re-conflicts every other open PR on the three shared docs files (AUT-49/50). Proposal for the next owner-free cycle: status rows written only on `recovery/main` after a merge (not on branches), so docs conflicts disappear; already named in #861, unchanged.
+- **Blueprint v2.5** (version table: M2 cleanup progress); `ROADMAP.md`, `CLEANUP_2026-11-06.md` §3, `NEXT_CAPABILITY.md` updated. Founder Executive Report: already rewritten this Friday (15:00), not repeated.
+- **For the owner (OPEN):** with Engineering paused, a PR with a code conflict cannot move (today #815; likely parts of the PLAN3 stack). Either resume Engineering for conflict resolution only, or accept that those PRs wait. No scheduled-task prompt needs a change.
+- Contradictions with `FOUNDER_DECISIONS.md`: the PO prompt says never edit `IMPLEMENTATION_STATUS.md`; FE-037 (newer) lets the PO resolve its conflicts during the cleanup: followed FE-037.
+
+---
+
 ## 2026-11-06 18:50 CET · Engineering (eng)
 
 - **PR #894 base merge after #814 (AIG1-C4/-C5) merged:** real conflicts, not only docs. #814 seeded its own *Testorganisation G* with the ids and `bezugg.test` e-mail the PLAN3 stack fixture (ADR-147) also used. The PLAN3 fixture moved to **Testorganisation H** (new ids, names, e-mails; same shape); `plan3.spec.ts`, pgTAP 110, 114 and 002 (14 users) follow. `labels.ts`, `READ_PATHS.md`, `aig1.spec.ts`: both sides kept. `/operations/assistenten`: #814's structure and "Betroffene Werte ansehen" kept (OPEN `uxa`: one wording with the exception card's "prüfen"). ADR-155 note.
