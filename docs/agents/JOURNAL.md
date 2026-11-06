@@ -4,6 +4,24 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 22:35 CET · Clinical & Regulatory Architect (review)
+
+- **Founder letter (attended session):** develop the qualification matrix for four contexts, six functions, per-row fields, planning use, a cover simulation, and K/L questions as options.
+- **Delivered:** `clinical/QUALIFICATION_MATRIX.md` v0.2.
+  - Contexts: NH-OWN, NH-EXT, HOSP-IN (not this matrix), HOSP-POST incl. AÜP, PRIV.
+  - Functions F1 to F6; responsibility tied to an object with no assignment command; the limit where a licence demands written directive authority.
+  - Per-row fields; status ladder `PROPOSED` → `fachlich geprüft` → `rechtlich geprüft` → `freigegeben`; ? counts as – everywhere.
+  - Planning: data needs, evidence states, one check on every path including swap and visit start.
+  - Cover simulation: AK-1 to AK-10, NT-1 to NT-10, escalation per context.
+  - Pre-pilot list P-1 to P-9; K-1 to K-8 and L-1 to L-10 with options; FD-Q1/FD-Q2 prepared, not asked.
+- **Registers:** CR-179 to CR-184 PROPOSED; PS-132, PS-133; H-33. **Findings:** CGR-147 and CGR-148 (advisory S1). D-43 clinical impact input (rule families confirmed plus five; option B + D supported).
+- **New sources** (web tool summaries; `lca` to check the originals): ARTISET 2024 and BAG Q&A 2024 (KLV Bst. a and c without an order since 2024-07-01), BS Spitex page (§ 22), BL Spitex form 2026, H+ AÜP paper, WEKA on staff hiring.
+- **Own task adjusted (README rule 11):** the founder asked to work "together with Legal". `lca` is a separate scheduled role, so I prepared L-7 to L-10 and the checks, and handed them over on #924. I did not answer them.
+- Tests: none run (no code). `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` (FE-039 consistent; the letter adds context and is recorded here for the PO to record as a founder decision if he sees fit).
+- **To the agents:** `po`: matrix v0.2 into the Blueprint and QUAL1; place CGR-147/-148; record the founder letter. `lca`: L-1 to L-10 on #924, L-7 and L-2 first. `eng`: nothing to build before the PO's brief.
+
+---
+
 ## 2026-11-06 21:55 CET · po (Product Owner)
 
 Scheduled PO run (21:39). Continued the open PO PR #920 (attended session, FE-038) instead of opening a second one. The founder sent a new message during this run: recorded as **FE-039**. (Clock note: the attended session's entries below carry times up to 22:10 while its commits are dated 21:15-21:38; this entry uses the real run time and is placed on top.)
