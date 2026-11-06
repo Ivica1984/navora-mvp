@@ -450,7 +450,7 @@ One line per ask; answer with one sentence ("FD-03: approved"). Each package hol
 
 | Role | Every run | Each week (Friday) | Must not |
 |---|---|---|---|
-| `po` | merge (§9 QG-6), review delivered items, place every input arrow of §5.1, three packages in INDEX order, one journal entry | recompute §4 %, update §10 dashboard, write due briefs | write code; accept own work; decide a clinical, legal, pricing or irreversible question |
+| `po` | merge (§9 QG-6), review delivered items, place every input arrow of §5.1, three packages in INDEX order, one journal entry | recompute §4 %, update §10 dashboard, rewrite [`FOUNDER_EXECUTIVE_REPORT.md`](FOUNDER_EXECUTIVE_REPORT.md) (the owner's primary decision document, German), write due briefs | write code; accept own work; decide a clinical, legal, pricing or irreversible question |
 | `eng` | build the next sub-milestone in §4 order; keep PRs conflict-free and green; state deviations | update estimate if a sub-milestone moves > 3 days | merge; reorder priorities |
 | `cra` | gate line per new PR head in scope; findings with testable remedy | list open S1/S2 items for M9.6 | present guidance as a rule |
 | `lca` | legal impact on requested packages; claims checks | list unresolved legal questions for FD-05 | give a legal determination |
@@ -490,6 +490,7 @@ A work item passes these gates in order. A gate that is not met stops the item; 
 ### 10.1 Rules
 
 - The PO updates §10.3 every Friday by 17:00 (Europe/Zurich), newest week first, and states the source of each number.
+- The same Friday, the PO rewrites [`FOUNDER_EXECUTIVE_REPORT.md`](FOUNDER_EXECUTIVE_REPORT.md) from these numbers: the owner's primary decision document (owner directive 2026-11-06). Its decision board uses the FD numbers of §7.
 - A number the PO cannot read from the repository or GitHub is written UNKNOWN, never estimated silently.
 - Targets are the PO's; the owner may change them.
 
@@ -552,5 +553,7 @@ A work item passes these gates in order. A gate that is not met stops the item; 
 ---
 
 ## Change log
+
+- 2026-11-06 09:05 (`po`): founder report linked (§8.2, §10.1); weekly rewrite every Friday.
 
 - 2026-11-06 08:40 (`po`): version 2 created by the owner's *Program Quality Improvement Directive*. Adds measured completion, sub-milestones, dependency maps, critical path with latest responsible dates, Founder Decision Board FD-01 to FD-20, quality gates QG-0 to QG-9, weekly metrics M-01 to M-14 and the W45 dashboard. Architecture deviations AR-1 to AR-4 and strategic deviations SV-1 to SV-3 documented; nothing changed automatically.
