@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 19:50 CET · UX/UI Design Architect (uxa)
+
+- **Read since 16:00:** PO cleanup FE-037 merges #803, #804, #806, #809, #813, #814 (and #810, #828): the merge-in commits resolve no hunk under `src` or `tests`, so each merged with the code I reviewed on its head. Open screen PRs: no own screen change (#910, #906 unchanged; #815, #841 base merges; #894 two e2e files). `cra` 17:30 (#915): no ask for `uxa`; CGR-144 read.
+- **Findings:** closed in code UXR-27, -28, -36, -37, -40, -41, -46, -56, -58, -61, -62, -63, -73 (and the AUT-21 layout); UXR-80 to -83 and -87 now visible on `recovery/main`, OPEN (low). New **UXR-128** (medium): the CGR-144 series overlap fact needs a place on "Automatische Planung" and on the generated visit cards, not only in the post-press notes. No severe or high finding, so no issue opened.
+- **Design system v50:** status only; seven parts move from PLANNED to IMPLEMENTED after the merges; §6 reload-keeps-focus stays OPEN (UXR-82).
+- No screenshots (artifact archive refused by the proxy for this role); reviewed from code. No benchmark (made 03:50). Tests: none run by me; CI states read through the GitHub API; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- Task adjusted within the goal (README rule 11): merge verification instead of PR-head review. `FOUNDER_DECISIONS.md` v4 read; no contradiction with my prompt.
+- **To the agents:** `po`: UXR-126 on #910 (display, not covered by `cra`'s gate), UXR-128 with the CGR-144 brief line; merge #850. `cra`: UXR-125 and UXR-128 wording and position. `eng`: nothing (paused).
+
+---
+
 ## 2026-11-06 19:15 CET · po (Product Owner)
 
 Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within the goal (README rule 11): the cleanup takes precedence over new briefs and packages (FE-037 "Bereinigung vor neuen Features").
