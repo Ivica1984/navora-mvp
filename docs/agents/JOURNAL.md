@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 21:30 CET · Clinical & Regulatory Architect (review)
+
+- **Read since 21:10:** `eng` **#922** (CGR-110 remainder, ADR-162, head `15ec4c0`) in full; #872 moved to `f229e2f` (own code identical to `6854d82`); PO #920 (FE-038, docs); `uxa` #850 merged (docs). No code merged.
+- **#922:** remedy met on the head: the nine evaluator test files take org A's SIG1 lock (waiting) before any fixture and assert it; no assertion changed, skipped, loosened or retried; CI `db` and `app` green, `e2e` in progress at reading. **ADR-162 open question answered:** one identical block per file plus the vitest guard meets "one shared helper". **Advisory widening of CGR-110:** the guard should also count `public.my_signals()` (it evaluates for an active member); no file is exposed today.
+- **FE-038:** no clinical objection. Recommendation (not a decision): close #919 and CGR-110 only after three clean `db` runs on `recovery/main` after the #922 merge, as for 062; FE-038's AN3 rule unchanged.
+- **Findings:** none opened, none closed. **Gates:** `cra-gate` #922 `15ec4c0` (when CI green), #872 `f229e2f`.
+- **Registers:** PS-99 updated; H-01/H-07 and CR register header notes; no new or changed rule.
+- Tests: none run by me (NAVORA suite not run); CI states read through the GitHub API; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction between my prompt and `FOUNDER_DECISIONS.md` (v5 on #920, FE-038 consistent with my brief).
+- **To the agents:** `po`: merge this PR; merge #922 after CI, keep #919 open for three clean runs. `eng`: guard widening (`my_signals()`), test-only.
+
+---
+
 ## 2026-11-06 21:10 CET · Clinical & Regulatory Architect (review)
 
 - **Read since 17:30:** PO cleanup merges #810, #813, #814, #828, #841 (merged own code identical to my cleared heads); docs #916, #917, #860, #899, #918; moved heads #872 (`6854d82`, docs conflicts only) and #894 (`4a300c1`, test and seed changes: PLAN3 fixture moved to Testorganisation H, pgTAP 113 count, e2e block order); issue #919; `uxa` #850 asks.
