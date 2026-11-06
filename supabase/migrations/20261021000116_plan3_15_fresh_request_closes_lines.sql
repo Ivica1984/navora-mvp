@@ -231,15 +231,18 @@ select private.plan3o_patch('public.open_suggestions(uuid)', array[
   || E'    and not private.plan3_line_closed(s.id)                                                    -- PLAN3-15\n',
   '1'], 'plan3_line_closed');
 
+-- FE-041 consolidation (#934): 0105 (AIG1-C4, merged after this file was written) inserted its expiry check right after
+-- the membership check, so the anchor is the membership check followed by 0105's comment. The PLAN3-15 check keeps its
+-- place: directly after the membership check, before every other check (as written for #897).
 select private.plan3o_patch('public.confirm_suggestion(uuid, text, jsonb, uuid)', array[
   E'    return jsonb_build_object(''result'', private.end_command(''rejected''));\n  end if;\n'
-  || E'  -- AIG1-4: a not_found proposal',
+  || E'  -- AIG1-C4 (1)/(2): an undecided proposal',
   E'    return jsonb_build_object(''result'', private.end_command(''rejected''));\n  end if;\n'
   || E'  -- PLAN3-15: a line closed by a fresh request is not decided, whatever the outcome (no confirmation row).\n'
   || E'  if private.plan3_line_closed(s.id) then\n'
   || E'    return jsonb_build_object(''result'', private.end_command(''refused''), ''reason'', ''replaced'');\n'
   || E'  end if;\n'
-  || E'  -- AIG1-4: a not_found proposal',
+  || E'  -- AIG1-C4 (1)/(2): an undecided proposal',
   '1'], 'plan3_line_closed');
 
 select private.plan3o_patch('public.confirm_suggestions(uuid[], uuid)', array[

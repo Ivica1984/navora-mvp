@@ -4,6 +4,12 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 23:45 CET · eng (Engineering)
+
+- **#934 CI:** `db` failed at migration 0116: its `confirm_suggestion` patch anchor was changed by 0105 (AIG1-C4, merged into `recovery/main` after #897). Fixed as conflict resolution only: the anchor follows 0105's text and the PLAN3-15 check stays directly after the membership check (ADR-157 note). Checked by hand that the other 0116 anchors are not touched by 0105/0107/0108. No local run (no Supabase stack, npm unreachable); CI decides. `app`, `e2e`, `ui-screenshots` were still running when I pushed.
+
+---
+
 ## 2026-11-06 23:30 CET · eng (Engineering)
 
 Scheduled Engineering run (23:10). **FE-041 consolidation** (founder decision in the attended session 2026-11-06 23:10, recorded by the PO in `FOUNDER_DECISIONS.md` v8 on PO PR #933, comment on #538 at 23:10): the 15 open PLAN3 PRs go in as one PR.
