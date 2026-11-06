@@ -11,8 +11,23 @@ Attended session: founder message 21:05, recorded as **FE-038** (`FOUNDER_DECISI
 - **#919 / AN3:** `cra` answers first; if pgTAP 080 is timing or test instability only, `eng` stabilises the test in isolation (no skip, no quarantine). **AN3 counts as accepted once a run is stably green** (founder rule; the PO records the acceptance then). Fact for `cra`: on `2d5e14d` (contains #841) the `db` job was green in both runs, so the failure on `f5f5e09` is intermittent. Resuming the paused Engineering task for #919 is the owner's step (the PO edits no scheduled task).
 - **Merges:** #850 (`uxa`) re-conflicted on `JOURNAL.md` after #917; the PO merged `recovery/main` in again (head `75d46bf`), CI 4/4 green, **merged 21:25** (`d9d3247`, record on #850). **#872** waits for a `cra-gate` line on `6854d82` (CI on that head is green 4/4). Then the PLAN3 stack bottom-up, one PR at a time. Resolved issues are closed with the PR reference.
 - **PDFs:** Blueprint and Founder Executive Report as PDF after the consolidation batch (FE-038 (5)).
-- **To the agents:** `cra`: #919 assessment and the #872 gate line on `6854d82` asked. `eng`: #919 only, after `cra`, when resumed.
+- **21:35 update:** `cra` answered (#921, merged by the PO as `2bf92f0`): pgTAP 080 **guards clinical gate conditions** (LEAVE1-C2 / CGR-64, SIG2 immediate step, LEAVE1-C4, DOOR1-12 to -14); likely cause the CGR-110 evaluator-lock race with the per-minute SIG1 cron job (hypothesis, UNKNOWN until reproduced); remedy: every evaluator test takes the SIG1 lock through one helper, no assertion skipped, loosened or retried; **no clinical hold on AN3**. Reading rule until fixed: only a failure with no signal or delivery rows at all may be read as the race; any other shape blocks signal-touching PRs. `eng` claimed #919 at 21:13 with exactly that plan. AN3 stays *not yet accepted* until the fixed suite runs stably green (FE-038 (1)).
+- **#872:** `cra-gate: #872 6854d82 clear` (in #921). The PO merged `recovery/main` in once more (head `f229e2f`, `JOURNAL.md` only; code paths identical to `6854d82`); merged when CI on that head is green.
+- **To the agents:** `eng`: #919 as claimed; then the PLAN3 stack heads as the PO reaches them. `cra`: thank you; gate lines for the next stack PRs (#876 …) on their new heads after each PO merge-in.
 - Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-06 21:10 CET · Clinical & Regulatory Architect (review)
+
+- **Read since 17:30:** PO cleanup merges #810, #813, #814, #828, #841 (merged own code identical to my cleared heads); docs #916, #917, #860, #899, #918; moved heads #872 (`6854d82`, docs conflicts only) and #894 (`4a300c1`, test and seed changes: PLAN3 fixture moved to Testorganisation H, pgTAP 113 count, e2e block order); issue #919; `uxa` #850 asks.
+- **#919 answered:** yes, pgTAP 080 is the evidence for clinical gate conditions (LEAVE1-C2 / CGR-64, the SIG2 immediate step, LEAVE1-C4, DOOR1-12 to -14). The failure shape (no delivery rows for the first signal) matches the CGR-110 race: `evaluate_signals` skips when the pg_cron evaluator holds the org lock, and 080 does not take the lock (062 does since #810). Cause UNKNOWN until `eng` reproduces. Reading rule for the PO: only the "no signal / no deliveries" shape may be read as this race; any other shape is a possible real defect and blocks signal-path PRs.
+- **Findings:** no blocking finding, no new ID. **CGR-137 corrected** (my own 17:30 error): on `/field` the after-take overlap line vanishes when the last open visit is taken (UXR-126); remedy and Playwright test in the section; does not hold #910. **Closed:** CGR-107, CGR-111, CGR-112 (merged with the cleared code, CI green on a merge commit). CGR-114 and CGR-115 placed as AN3-C3 and AIR1-C1.
+- **Gates:** `cra-gate` lines for #872 `6854d82` and #894 `4a300c1`; signal-path PRs need 080 and 064 green on head and merge commit until CGR-110's remainder lands.
+- **Answers to `uxa`:** UXR-125 wording confirmed with three conditions; UXR-128 display confirmed in substance (visible without a press, also on the primary nurse's `/field`).
+- **Registers:** PS-99 and PS-122 updated; H-01/H-07 header note; no new or changed rule (CR register header only).
+- Tests: none run by me (NAVORA suite not run); CI states read through the GitHub API; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction between my prompt and `FOUNDER_DECISIONS.md` found (unchanged since 17:30).
+- **To the agents:** `po`: merge this PR; place the CGR-137 display correction and CGR-144 with UXR-128; apply the #919 reading rule. `eng` (paused): #919 first, then the lock in every evaluator test file. `uxa`: answers in the section.
 
 ---
 
