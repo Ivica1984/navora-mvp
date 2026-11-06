@@ -30,6 +30,14 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - **To the agents:** `po`: merge this PR; follow-ups for `accept_cover` (CGR-137) and CGR-144; DOC-AI brief takes the level answer. `lca`: ADR-161 deviation 3; D-34 statement v2 for the narrowed DOC-AI. `eng`: nothing (paused).
 
 ---
+## 2026-11-06 16:10 CET · Legal & Compliance Agent (lca)
+
+- My PR #860 was still open (JOURNAL conflict after #913): `recovery/main` merged in, every entry kept, newest first; continued there, no second `lca` PR. Not merged by me (the PO merges).
+- **D-22 (BS/BL, nursing homes; PO re-analysis request 12:30):** BS department leaflet (16.12.2025, valid 1.1.2026) confirms for BS residual financing: order-free A/C flagged per invoice line, reassessment within 9 months, twice without the doctor's consent, report after 27 months; order and assessment "spätestens zusammen mit der Abrechnung" (a transmission rule, not a signature rule). Nursing homes: no order-free change; every care level needs a doctor's order (ARTISET 2024); KLV Art. 8b instrument; BS uses RAI levels, BL instrument UNKNOWN. Billing a1/b2/c2 still compliant under every plausible interpretation; the NH-A default (person-entered level with an order reference, never computed, shadow only) compliant; care b1 unresolved only on the cantonal health laws (adviser question 7); question 8 (order form and validity for a home's care level).
+- **D-18 (BS/BL tariffs and financing):** BS: 5-minute units, at least 10 minutes "pro Einsatz", client share 10 % max CHF 7.65/day, cap across providers, residual paid by the department (Basel, Riehen, Bettingen); BL: residual by the Wohngemeinde from Regierungsrat Normkosten, client share 1.95-7.65/day (2026 figures not confirmed). Homes: 12 levels × 20 min (CHF 9.60-115.20), resident max CHF 23/day in both; BS 2026 daily rates by RAI level; residence before entry decides the payer. Option C compliant; BILL1 on synthetic data with sourced, versioned rows compliant; shadow mode on real data unresolved (owner facts, adviser questions 9, 10); a NAVORA-computed care level for billing not compliant on the sources read. Answers `cra` CGR-142 (b) in part; staffing duties UNKNOWN.
+- **D-41 (approved AI path):** first `lca` section. Rule A compliant; B unresolved (adviser and owner) on D-35 conditions 1-8 plus (9) the AI provider bound to StGB 321 and § 26 GesG BS (BS secrecy guide 2023 covers all health professionals and their Hilfspersonen; no word on IT providers), (10) IDG if the partner is public-law; G (A7) has no compliant earlier entry; the prohibition of unapproved external tools (D) compliant; synthetic-only provider use in Phase A (O-4) compliant on four conditions. One concrete adviser question named (FE-026), needed only before Phase B.
+- **Not done this run (limit three packages):** D-42 (pilot agreement) `lca` section, D-25 BS/BL re-analysis, D-9, D-4, D-29 BS/BL re-check, D-36. Next `lca` run: D-42 and D-25 first (FE-026). No contradiction with `FOUNDER_DECISIONS.md` found in this prompt or the packages read.
+- Sources read this run (2026-11-06, text-extraction tool): BS Merkblatt elektronische Abrechnung Spitex 2026; BS Pflegeheim Tagestaxen 2026; BS Merkblatt ausserkantonaler Heimeintritt 2026; BS Leitfaden Schweigepflicht (März 2023); BL Merkblatt Pflegefinanzierung (Mai 2025); BL RRB 2025-1490 (consultation draft); BL Pflegeheimtarifvertrag 2007 (status UNKNOWN); KLV amendment 2.7.2019 (H+); ARTISET Merkblatt 2024. fedlex not readable (JavaScript page). No test run; live project not accessed.
 
 ## 2026-11-06 15:30 CET · po (Product Owner)
 
@@ -193,6 +201,13 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
   - `uxa`: wordings needed: PLAN3-7 (2) team line, PLAN3-9 (1) `not_found` text, PLAN3-16 notice; UXR-103 adopted as you proposed.
   - `aia`: AUT-51 and AUT-52 decided as your remedies; AUT-51's measure is in PLAN3-15.
   - `csa`: no milestone moved; M2 and M4 risk is now the merge path (15 green PRs waiting), not build progress.
+
+## 2026-11-06 04:50 CET · Legal & Compliance Agent (lca)
+
+- My PR #860 was open (CI green, conflict on `JOURNAL.md`): `recovery/main` merged in, every entry kept, newest first; continued here, no second `lca` PR. Not merged by me: the owner's 2026-11-05 decision recorded in `PO_MERGE_PROCESS.md` §0a ("the PO remains the only role authorized to merge pull requests") is newer than my task's merge step, so in doubt I leave the merge to the PO (§4, role docs PR: own files only). Tier 1: D-22, D-18 frozen, no trigger. Picked on explicit asks (condition (c)): **D-40** (`cra` CGR-134, `uxa` #850 sentence 5) and **D-35** (PO 14:50 and `cra` 17:00: PLAN3-14 `other_team_visits`). Only my sections edited; no status, row or decision changed.
+- **D-40 / CGR-134:** consent is not invalid for omitting the team's ending (an end reduces processing), but good faith leaves a residual risk; `uxa`'s clause "… Sie endet auch, wenn das Pflegeteam sie beendet …", with no reason, **compliant under every plausible interpretation** (recommended). Notifying the client of a particular team revocation: not built before the safeguarding procedure; **unresolved: Clinical Owner (after G-1) and legal adviser**, new adviser question 9 (notice and reason, DSG Art. 26). Real relatives overall still unresolved (question 1).
+- **D-35 / PLAN3-14:** `other_team_visits` (yes/no per member, computed at read, team members only) and the confirm-time `overlap` refusal, read on the #876 head (not merged): no new purpose (OR 328b, DSG Art. 6 Abs. 3), not behaviour monitoring; **compliant under every plausible interpretation** with no per-person list over time and the staff privacy notice naming team-wide planning visibility (D-12). CGR-137 hand-assignment yes/no: same, any shown-record per record only.
+- Sources read this run: DSG Art. 6 (justement.ch, Status 7.7.2025, unofficial), DSG Art. 19, 20, 26 (lawbrary.ch v2023.09, unofficial), OR 328b (droit-bilingue.ch, unofficial). fedlex not opened (fetch not permitted): marked UNKNOWN. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
@@ -476,6 +491,15 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
+## 2026-11-05 04:45 CET · Legal & Compliance Agent (lca)
+
+- My PR #860 was open (CI green, but in conflict with `recovery/main` on `JOURNAL.md`): `recovery/main` merged in, every entry kept, newest first; continued here, no second `lca` PR. Tier 1: D-22, D-18 unchanged, no trigger. Picked: **D-40** only, under condition (c): `uxa` asks `lca` explicitly on #850 for the FAM1 wordings (tier 2: CGR-130 to CGR-133 open). Only my section of D-40 edited; no status, row, brief or decision changed.
+- **D-40 / FAM1 wordings:** client information before consent confirmed in substance against *informed* (controller line not needed where D-9 intake information names it, DSG Art. 20 Abs. 1 lit. a); two optional additions ("solange Sie einverstanden sind"; the AUT-46 attestation also covers the information). CGR-132 refusal confirmed (ZGB Art. 18); **reverse pair (representative for a client with capacity) to be refused too** (ZGB Art. 19c Abs. 1; care mandate only after KESB validation). Resend sentence and access-end sentence: no objection. UXR-97 (a) one client per sign-in **compliant under every plausible interpretation**. Session length: no statutory figure, a DSV Art. 3 measure for `eng`/PO. Relative's own information (DSG Art. 19 Abs. 5) via a "Datenschutz" link on F-01/F-02. Overall verdict for real relatives unchanged: **unresolved: needs legal adviser** (question 1); no new adviser question.
+- Sources read this run: LAW.CH Lawinfo on DSG Art. 19/20 (12.12.2023, secondary), ZGB Art. 16-19c via lexaris.de (Stand 1.1.2022, unofficial), KESB Bern Merkblatt Vorsorgeauftrag (undated), HIN TOM V1.1 (02.2026). Consolidated fedlex texts not read: marked unverified. MOB1 texts named for `lca` not reviewed (other package). Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+
+---
+
 ## 2026-11-05 02:25 CET · AI & Automation Architect (aia)
 
 - Automation review 26 (`reports/AUTOMATION_REVIEW.md`, section 02:25) on `recovery/main` `a236c10`: `cra` #864 and #865, `uxa` #850 23:50 (open, read on their branches), issue #861.
@@ -532,6 +556,14 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - **New CGR-128** (advisory, S1 for real relatives, before FAM1 acceptance): "verschoben" has no defined source; a visit moved twice would name a stale date, one moved beyond today + 7 would vanish without a word. Remedy: current slot from `care_visits`, one card per visit, pgTAP cases.
 - **New CGR-129** (advisory, S1 before real relatives): a self-service code resend (UXR-95) or consent = invitation (AUT-44) must issue codes only to the contact of an active record, answer identically for every state, never re-open access after an end, and refuse without every FAM1-2 field; nomination at admission optional. AUT-44 supported with these conditions; AUT-45 no clinical objection; neutral-text share measure supported (team level).
 - Registers: H-30, H-31 updated; PS-115, PS-116 added; PS-112, PS-114 updated; no new rule (no code). **Not merged by me:** owner instruction on #666 (chain #582 … this PR). I ran no tests; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
+---
+
+## 2026-11-04 16:55 CET · Legal & Compliance Agent (lca)
+
+- No open `lca` PR at start. Tier 1: D-22, D-18 unchanged since my last sections, no trigger. Tier 2 picked: **D-40** (owner decision 2026-11-04: minimal read-only relative view; po requested consent, representation and staff name; CGR-125 to CGR-127 open on FAM1). D-39 (owner: A) needs no re-check. Only my section of D-40 edited; no status, row, brief or decision changed.
+- **D-40 / FAM1:** synthetic build **compliant under every plausible interpretation**. Real relatives, client with capacity: **unresolved: needs legal adviser**, narrowed to one confirmation question; the requirements found (express, specific, informed, free, documented, revocable at once; information to relative and staff) are listed and fit FAM1. Client without capacity: **unresolved** (ZGB 19c, which representative, self-nomination, consent surviving loss of capacity); "not offered in the pilot" is compliant. Staff display name: "Ihr Pflegeteam" compliant; name with staff information and a self-set switch unresolved (OR 328b). CGR-126 protective refusal and CGR-127 (1), (2), (4) supported. Adviser questions 1-2 rewritten, 6-8 new.
+- Sources read this run: EDÖB Merkblatt on patient forms (consent), DSG as adopted (BBl 2020 7639, copy on hslu.ch: Art. 6 Abs. 6-7, 19, 30, 31), KESB Bern PriMa guides 121 and 123 (2023), Pro Infirmis on capacity. The consolidated fedlex DSG could not be opened (robots refusal): marked unverified. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
 ---
 
