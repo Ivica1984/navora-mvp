@@ -16,6 +16,138 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-06 21:50 CET: founder request (attended session): qualification and activity matrix (skill and grade mix) **written as PROPOSED** (`QUALIFICATION_MATRIX.md` v0.1, CR-174 to CR-178); new **CGR-145** (advisory, **S1** before real data: the matrix loosens CR-007 for FaGe) and **CGR-146** (advisory, **S1** before Phase B: the licensed nursing-responsible role); founder principles on overlaps and PROVISIONAL thresholds recorded
+
+**Scope:** a founder message in an attended session (2026-11-06, about 21:40 CET), not a repository change. It sets two principles: self-organisation without a hierarchical Pflegeleitung, and competence limits per qualification (KLV Art. 7). It proposes three grades. It asks `cra`, with `lca`, to write the Swiss qualification and activity matrix for home care and nursing homes and to file it in the clinical register, so that the PO and Engineering can build it into PLAN3's assignment. It confirms two things for Phase A: the provisional thresholds stay (D-28), and the overlap rule stays a fact, never a block (CGR-137, CGR-144). No code was read for this section beyond the qualification model: CR-007, CR-009, CR-164; D-15; D-29; H-04; C-6.
+
+**What I did:** I read the sources listed in `QUALIFICATION_MATRIX.md` §5:
+- the KLV extract (Stand 1.1.2022);
+- the Gutachten Kellerhals Carrard 2025;
+- the Bildungspläne FaGe EFZ and AGS EBA (2010);
+- the CURAVIVA/INSOS delegation text;
+- the BS and BL nursing-home licensing pages;
+- the BS Spitex leaflet 2025;
+- the BFH summary on PH SRK.
+
+The current consolidated KLV was not readable (fedlex needs JavaScript); `lca` checks it (L-1). From these sources I wrote the matrix:
+- grades;
+- activity rows A1-A4, B1-B13, C1-C3 and N1, each cell E, D, – or ?, with its source;
+- a delegation control without hierarchy;
+- questions L-1 to L-6 for `lca` and K-1 to K-6 for the Clinical Owner.
+
+Every cell is **PROPOSED**. I approve nothing (D-27). I did not run tests and did not touch the live project. `lca` was not run in this session; its questions are on file.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-145 | **Qualification matrix and its use in PLAN3** (founder request; CR-174 to CR-177, PROPOSED) | **advisory, S1** (blocks real clients or residents, not Phase A) | (1) The request lets FaGe perform delegated Behandlungspflege and PLAN3 assign by profile. This **loosens** today's rule (category B and needs assessment only by a `registered_nurse`, CR-007, CR-164). (2) KLV assigns only A1, A3 and A4 to a Pflegefachperson; the grade limits for B activities come from the training plans and from delegation, so they cannot be derived from "KLV Art. 7". (3) A rule per KLV category is too coarse in both directions: vital signs are Bst. b, yet in the AGS plan; medication and injections are Bst. b, yet not in it. (4) A qualification filter alone does not secure the delegation conditions (selection, instruction, supervision). The control must not sit in the AI (D-40) | matrix §1 rows 1-3, 5; KLV Art. 7 Abs. 2 Bst. b Ziff. 1, Abs. 2bis, Art. 8a (extract 2022); Bildungsplan FaGe Bereich D; Bildungsplan AGS 1.6, 1.4, 2.4; Gutachten 2025; CURAVIVA/INSOS 2024 | **po / eng / clinical:** (a) brief with an activity catalogue (D-15 option C) carrying a matrix row per care-plan service; (b) the qualification values of CR-174 with D-29 evidence; (c) the delegation record CR-176; (d) one database check CR-177 on every assignment path. pgTAP: a `fage_efz` member is refused as responsible for a B3 visit without a delegation, accepted with a valid one, refused again the day after its end; an `ags_eba` member is accepted for C1 and B1-with-delegation, refused for B3 even with a delegation record (not in her scope); PLAN3 never proposes a refused member; hand assignment gives the same refusal. (e) Until the Clinical Owner approves the cells and D-29 is decided, the strict CR-007 stays in force for any non-synthetic organisation (a pgTAP or configuration check that the loosened rule is off outside synthetic test organisations) |
+| CGR-146 | **"No hierarchical Pflegeleitung" and cantonal licensing** (founder principle; CR-178, PROPOSED) | **advisory, S1** (blocks Phase B with a real pilot organisation) | BS requires a Pflegedienstleitung and deputy with an HF/FH degree and a practice licence for each nursing home; BL requires a pflegefachverantwortliche Person and deputy; the BS/BL Spitex rule was not read. The principle stays possible (nobody dictates rosters), but the licensed organisation must name this person, and NAVORA has no place for her duties. Without it, the self-organised model may not be licensable, and delegations have no accountable fallback | BS Pflegeheimbewilligung page; BL Pflegeheime page; BS Spitex Merkblatt March 2025; matrix §1 row 4 | **owner / `lca`:** L-2 answered for BS/BL Spitex and nursing homes. **po:** a brief line for the role as professional responsibility without line authority: approves the organisation's matrix version, reads and revokes delegations, is the qualification escalation, plans nobody. Test: only the named role can approve a matrix version; the role cannot assign a visit through any command |
+
+### Founder principles taken as given (no finding)
+
+- **Overlap stays a fact, never a block** (CGR-137, CGR-144): consistent with my remedies; no change.
+- **Provisional thresholds in Phase A** (D-28): consistent; they stay PROVISIONAL, and every one still needs the Clinical Owner before real data.
+- **Self-organisation:** consistent with the matrix. The team delegates within itself (§4); the one control that a hierarchy held is replaced by the delegation record, the database check and the licensed role (CGR-146).
+
+### Decisions requested
+
+- **po:**
+  - record the founder message as a founder decision (FE-…) in `FOUNDER_DECISIONS.md`. I do not edit that file;
+  - place CGR-145 (brief, after the PLAN3 stack and FE-037/FE-038 cleanup);
+  - ask `lca` for L-1 to L-6;
+  - place CGR-146 as a line in the NH-A briefs and in the Phase B readiness file.
+- **lca:** L-1 to L-6 in `QUALIFICATION_MATRIX.md` §6 (advisory).
+- **clinical** (Clinical Owner, after G-1): K-1 to K-6. Until then every **?** is treated as **–**, and no **D** or **E** cell beyond CR-007 is active for real data.
+- **owner:** G-1 (naming the Clinical Owner) is now on the path to Phase B for this matrix too. D-29 (verified qualification) as before.
+
+### Contradiction noted (README rule 10)
+
+The founder message asks to file the matrix "so that PO and Engineering build it directly into the AI planning's assignment logic". D-27 (owner, 2026-10-22) says that no clinical rule is `APPROVED` without the named Clinical Owner. The founder message is newer, but it does not name an approver or say that D-27 is lifted. I therefore read it as "write and file the matrix, build it on synthetic data", not as an approval. I filed it as PROPOSED. If the founder means otherwise, that needs an explicit founder decision on D-27.
+
+### New or changed hard-coded rules
+
+None in code. Proposed: CR-174 to CR-178 (section *Proposed rules (not in code)*).
+
+### Gate status
+
+Unchanged from my 21:30 section.
+
+---
+
+## 2026-11-06 21:30 CET: CGR-110 remainder (#922, ADR-162) read on its head: **no blocking finding; remedy met on the head `15ec4c0`** (nine files take and assert org A's SIG1 lock, vitest guard; no assertion changed, skipped, loosened or retried); `eng`'s open question answered (**the guard meets "one shared helper"**), with one advisory widening of the guard (`public.my_signals()`); #872 moved to `f229e2f` (own code identical to `6854d82`); FE-038 (PO #920) read: closure rule for #919; gate lines #872 `f229e2f`, #922 `15ec4c0`
+
+**Scope:** `recovery/main` @ `2bf92f0` (was `2d5e14d` at my 21:10 section; my PR #921 is merged as `2bf92f0`). Changes since 21:10:
+- **Code merged:** none. **Docs merged:** `uxa` #850 (`d9d3247`), `cra` #921.
+- **Open PRs, new:** `eng` **#922** (CGR-110 remainder, ADR-162; own commits `4cd6bf2`, `95dea6f`, base merge `15ec4c0`); PO **#920** (FE-038, Blueprint v2.8; docs only).
+- **Open PRs, moved:** **#872** `6854d82` → `f229e2f` (PO merge of `recovery/main`; `git diff 6854d82 f229e2f -- src supabase tests e2e scripts .github` is empty). Every other head as at 21:10.
+- **CI** (GitHub API, check runs): `15ec4c0` (#922) `app`, `db`, `ui-screenshots` **success**, `e2e` **in progress** at reading; `f229e2f` (#872) 4/4 success; `2bf92f0` (`recovery/main`) `app`, `db` (two runs), `e2e`, `ui-screenshots` success, a second `e2e` in progress at reading.
+- **Addressed to `cra`:** ADR-162 "deviation from the `cra` remedy wording" (OPEN for `cra`: does one identical block per file plus the guard meet "one shared helper"?); FE-038 (1)/(2) (gate for #872; #919 after my answer).
+- **Briefs:** none changed. **Decisions answered by a person:** owner **FE-038** (on #920, not yet merged). No `clinical` or `legal` answer.
+
+I read: the full diff `recovery/main..#922` (nine pgTAP files, `tests/unit/cgr110-sig1-lock-every-evaluator-file.test.ts` in full, ADR-162, the CGR-110 remediation addendum); for each of the ten files on the #922 head every call of `private.evaluate_signals(` / `private.evaluate_all_signals()` (all with org A's literal id `…0011`; 062 also org B `…0012`, already locked by #810), the position of the lock against the first non-comment call, and the absence of `commit`, `savepoint` or `rollback to`; every caller of `private.evaluate_signals` in `supabase/migrations` (only `evaluate_all_signals` (0060:330, 0064:178) and `public.my_signals()` (0060, 0062, 0063, 0068, 0071, 0078, 0080:163-178)); every pgTAP file that calls `public.my_signals()` (062, 064, 065, 067, 069, 074, 078, 080, 099); 064:425-480 (the `evaluate_all_signals` assertions read org A only); `FOUNDER_DECISIONS.md` v5 on #920 (FE-038). **I did not run the NAVORA test suite** and did not touch the live project. Statements about #922 are IMPLEMENTED **on the PR head**, not on `recovery/main`.
+
+### Findings
+
+No new finding ID. No blocking finding. One advisory widening of the open CGR-110 remedy:
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-110 (widening) | **The vitest guard sees direct evaluator calls only, not the page-poll evaluator `public.my_signals()`** (#922 head `15ec4c0`) | **advisory (S3)**; does not hold #922 | `public.my_signals()` calls `private.evaluate_signals(org, false)` for each of the caller's organisations unless her access has ended (0080:175-178), so a pgTAP file that raises a signal and reads it **through `my_signals()` as an active member** is exposed to the same skip. Today every such file also calls the evaluator directly and is locked (062, 064, 065, 067, 069, 078, 080, 099), and 074 calls it only for a member whose access has ended (returns before evaluating). So nothing is exposed now; a **new** file that uses only `my_signals()` would pass the guard without the lock. This matters in the safer-looking direction too: an absence assertion ("nothing delivered", "not escalated") passes vacuously while the evaluator skips (PS-99) | `cgr110-sig1-lock-every-evaluator-file.test.ts` regexes `private\.evaluate_signals\(` and `private\.evaluate_all_signals\(\)` only; 0080:163-178 | **eng (follow-up, no product change):** the guard also counts a call of `public.my_signals()` (outside quoted strings) as an evaluation of the organisations of the file's users and requires the org lock before it, **or** requires that every file calling `my_signals()` either holds a SIG1 lock or is on an explicit, commented allow-list of access-ended reads (today: 074). Vitest: a fixture file that calls only `my_signals()` without the lock fails the guard |
+
+### Answer to `eng` (ADR-162, OPEN for `cra`)
+
+**Clinical Architect 2026-11-06: yes, one identical block per file plus the vitest guard meets the remedy "one shared helper".** The point of the helper was that the lock cannot be forgotten in one file and cannot drift between files; the guard enforces both (waiting lock of every evaluated organisation before the first call, the named `pg_locks` assertion before the first call, no try-lock on `navora.sig1`, and the ten known files must be found so it is never vacuous). A test-only function in the product schema would be worse (it widens the product surface for a test). Agreed that the 0060 skip stays the production design. Conditions: (1) the guard runs in `app` CI on every PR (it does: `tests/unit/`); (2) the CGR-110 widening above.
+
+**Verification of the remedy on `15ec4c0`:**
+- each of 064, 065, 067, 068, 069, 078, 080, 090, 099 takes `pg_advisory_xact_lock(hashtext('navora.sig1'), hashtext(org A))` right after `plan(…)` and before any fixture, `pg_temp` helper or evaluator call, and asserts it in `pg_locks` (`objsubid = 2`, both keys masked to 32 bits): the test holds no row lock while it waits, so no deadlock with the scheduler (which only try-locks);
+- every evaluator call in these files is for org A; 064's `evaluate_all_signals()` re-enters org A's lock in the same session (advisory locks are re-entrant per session) and its assertions read org A only;
+- no file commits or uses savepoints, so the transaction lock holds to the final `rollback`;
+- the only `+`/`-` lines in the SQL are the comment block, the lock, the lock assertion and the `plan(n)` → `plan(n+1)`: **no assertion changed, skipped, loosened or retried** (FE-038 (1));
+- CI on `15ec4c0`: `db` success (all nine new assertions and every existing one), `app` success (the guard); `e2e` in progress at reading.
+
+CGR-110 therefore **closes on merge** of #922 with this code **and** the #919 evidence below; the widening above stays as an advisory follow-up under CGR-110's number, not a new ID.
+
+### FE-038 (PO #920): reading for #919 and AN3
+
+- **FE-038 (1)** lets `eng` stabilise 080 in isolation after my answer: #922 is exactly that. No clinical objection.
+- **"Sobald ein Durchlauf stabil grün ist, gilt AN3 als abgenommen":** AN3 has no clinical hold from me (21:10). For **#919 and CGR-110**, one green run cannot show that a nondeterministic test is now deterministic: the 080 failure was one of two runs on the same SHA. I recommend (not a decision) the rule already used for 062 (CGR-110 remedy 3, #399): **#919 is closed only after three `db` runs on `recovery/main` after the #922 merge with no failure in 062, 064 or 080, each named on #919**; any failure of another shape follows reading rule 2 of my 21:10 answer. This does not change FE-038's AN3 rule; it concerns only when the issue and CGR-110 close.
+- **FE-038 (2):** my gate on #872 was for `6854d82`; the head is now `f229e2f` with identical own code and CI 4/4 green, so the gate carries over (line below).
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-110** | open, advisory (S3); **remedy met on the #922 head `15ec4c0`** (above); closes when #922 is merged with this code and three clean `db` runs are named on #919; widening (guard sees `my_signals()`) added as advisory follow-up | #922 diff; vitest guard; 0080:163-178 |
+| **CGR-137**, **CGR-144** | unchanged (21:10) | – |
+| All other CGR findings | unchanged | as at 21:10 |
+
+Closed in this section: none.
+
+### New or changed hard-coded rules
+
+None. #922 is test-only (no migration, product function, text, grant or read scope); #920 is docs only.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#922** (CGR-110 remainder, head `15ec4c0`) | **clear to merge** when CI is complete and green (`e2e` in progress at reading); the guard widening is a follow-up, not a condition. After merge: signal-path PRs no longer need my extra "080 and 064 green on head and merge commit" rule once three clean `db` runs are named on #919 |
+| **#872** (PLAN3 part (a), head `f229e2f`) | **clear to merge**; own code identical to `6854d82`; CI 4/4 green |
+| **#894** (`4a300c1`), **#876** … **#910**, **#815** | as at 21:10 (heads unchanged) |
+| **#920** (PO, FE-038) | docs only; no clinical gate needed |
+
+cra-gate: #922 15ec4c0 clear
+cra-gate: #872 f229e2f clear
+
+### Decisions requested
+
+- **po:** merge #922 (after CI) before the PLAN3 stack items that touch signals, and keep #919 open until three clean `db` runs after the merge are named on it; place the CGR-110 guard widening as an `eng` follow-up; CGR-137 display correction and CGR-144 as at 21:10.
+- **eng:** CGR-110 guard widening (`my_signals()`), test-only.
+- **clinical** (Clinical Owner, after G-1): no new question; D-28 thresholds and the overlap question stay open, UNKNOWN.
+
+---
+
 ## 2026-11-06 21:10 CET: PO cleanup merges #810, #813, #814, #828, #841 read (**merged own code identical to the cleared heads**); **#919 answered: pgTAP 080 guards clinical gate conditions (LEAVE1-C2 / CGR-64, SIG2 immediate step, LEAVE1-C4); the failure pattern matches the CGR-110 evaluator-lock race** (cause UNKNOWN until `eng` reproduces); **CGR-137 corrected** (the `take_open_visit` after-take fact disappears in the common case, UXR-126); **CGR-107, CGR-111, CGR-112 closed**; gate lines #872 `6854d82`, #894 `4a300c1`; `uxa` UXR-125 and UXR-128 answered
 
 **Scope:** `recovery/main` @ `2d5e14d` (was `0e22370` at my 17:30 section; my PR #915 is merged as `1061c32`). Changes since 17:30:

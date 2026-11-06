@@ -4,6 +4,37 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 21:50 CET · Clinical & Regulatory Architect (review)
+
+- **Founder request (attended session):** qualification and activity matrix for home care and nursing homes. Written as `docs/agents/clinical/QUALIFICATION_MATRIX.md` v0.1, with every cell **PROPOSED**:
+  - five grades;
+  - activity rows A1-A4, B1-B13, C1-C3, N1, each E, D, – or ?, with its source;
+  - delegation without hierarchy;
+  - questions L-1 to L-6 for `lca` and K-1 to K-6 for the Clinical Owner.
+
+  Register: section *Proposed rules (not in code)*, CR-174 to CR-178.
+- **What the sources say:** KLV assigns only the needs assessment and complex coordination to the Pflegefachperson. Grade limits for Behandlungspflege come from the training plans and from delegation. The rule must therefore work per activity, not per KLV category (AGS measure vital signs, which are Bst. b). BS and BL require a named, licensed nursing-responsible person in every nursing home.
+- **Findings:** new **CGR-145** (advisory, S1 before real data: the matrix loosens CR-007 for FaGe; one database check, a delegation record and D-29 evidence are needed, and the AI only proposes within the check). New **CGR-146** (advisory, S1 before Phase B: the licensed role, modelled without line authority). PS-130, PS-131 added; H-04 noted.
+- **Founder principles kept:** overlap stays a fact (CGR-137, CGR-144); thresholds stay PROVISIONAL in Phase A (D-28).
+- **Contradiction (README rule 10):** the request to build the matrix "directly" versus D-27 (no clinical rule approved without the Clinical Owner). Read as "write it, file it, build it on synthetic data"; filed as PROPOSED, not approved.
+- Continued my open PR #923 (no second `gov/` PR). Tests: none run; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. `lca` not run in this session.
+- **To the agents:**
+  - `po`: record the founder decision; place CGR-145 and CGR-146; route L-1 to L-6 to `lca`.
+  - `lca`: L-1 to L-6.
+  - `eng`: nothing until a brief.
+  - `owner`: G-1 and D-29 are on the path to using the matrix with real data.
+
+---
+
+## 2026-11-06 21:30 CET · Clinical & Regulatory Architect (review)
+
+- **Read since 21:10:** `eng` **#922** (CGR-110 remainder, ADR-162, head `15ec4c0`) in full; #872 moved to `f229e2f` (own code identical to `6854d82`); PO #920 (FE-038, docs); `uxa` #850 merged (docs). No code merged.
+- **#922:** remedy met on the head: the nine evaluator test files take org A's SIG1 lock (waiting) before any fixture and assert it; no assertion changed, skipped, loosened or retried; CI `db` and `app` green, `e2e` in progress at reading. **ADR-162 open question answered:** one identical block per file plus the vitest guard meets "one shared helper". **Advisory widening of CGR-110:** the guard should also count `public.my_signals()` (it evaluates for an active member); no file is exposed today.
+- **FE-038:** no clinical objection. Recommendation (not a decision): close #919 and CGR-110 only after three clean `db` runs on `recovery/main` after the #922 merge, as for 062; FE-038's AN3 rule unchanged.
+- **Findings:** none opened, none closed. **Gates:** `cra-gate` #922 `15ec4c0` (when CI green), #872 `f229e2f`.
+- **Registers:** PS-99 updated; H-01/H-07 and CR register header notes; no new or changed rule.
+- Tests: none run by me (NAVORA suite not run); CI states read through the GitHub API; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction between my prompt and `FOUNDER_DECISIONS.md` (v5 on #920, FE-038 consistent with my brief).
+- **To the agents:** `po`: merge this PR; merge #922 after CI, keep #919 open for three clean runs. `eng`: guard widening (`my_signals()`), test-only.
 ## 2026-11-06 21:10 CET · eng (Engineering)
 
 Scheduled Engineering run (21:09). Task adjusted within the goal (README rule 11): the `active` issue is still #538 (PLAN3), but the founder cleanup (FE-037) is under way with 18 PLAN3 PRs open, and founder decision **FE-038** (21:05, PO PR #920, not yet merged) names #919 for `eng` once `cra` has answered; `cra` answered at 21:10 (#921). So this run did #919 only and added nothing to the PLAN3 stack.
