@@ -66,7 +66,8 @@ describe("PLAN3-6 / PLAN3-10 refusals", () => {
     for (const code of ["team_off", "date_out_of_range", "open_proposal", "nothing_open"]) {
       expect(dayPlanRefusalText(code)).not.toBe("");
     }
-    expect(dayPlanRefusalText("date_out_of_range")).toContain("14 Tage");
+    // UXR-100 (`uxa` 2026-11-05 19:50): today and the next 14 days are the whole range.
+    expect(dayPlanRefusalText("date_out_of_range")).toBe("Ein Vorschlag ist nur für heute und die nächsten 14 Tage möglich.");
   });
 
   it("uses no word of pressure or judgement (H-20, PLAN3-4)", () => {
@@ -102,7 +103,8 @@ describe("PLAN3-14: visits in other teams (cra CGR-136, ADR-146)", () => {
   });
 
   it("the day-load line says only that other-team visits exist: no count, no client, no time", () => {
-    expect(otherTeamVisitsLine(true)).toBe("weitere Einsätze in anderen Teams");
+    // UXR-98 (1): the minutes on the same line count this team only, so the fact says it is not counted.
+    expect(otherTeamVisitsLine(true)).toBe("Dazu Einsätze in anderen Teams, hier nicht mitgezählt.");
     expect(otherTeamVisitsLine(false)).toBeNull();
     expect(otherTeamVisitsLine(null)).toBeNull();
     expect(otherTeamVisitsLine(true)).not.toMatch(/\d/);

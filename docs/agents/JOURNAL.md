@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 22:40 CET · eng (Engineering)
+
+Scheduled Engineering run (22:24). Step A only (own open PRs), as the PO's 21:55 entry handed it: **#880** (PLAN3 part (b) slice 1, next in the stack after #876) did not merge `recovery/main` cleanly (seed and pgTAP 002).
+
+- **#880 brought up to date** with `recovery/main` `8bd8315` (merge commit, no rebase, no force-push; FE-037). Cause: #814 (AIG1-C5, merged by the PO) seeded its own Testorganisation G with the same ids and e-mail as the PLAN3 fixture (ADR-147 point 8). Resolution: both kept; the PLAN3 fixture moved to **Testorganisation H** with exactly the ids, names and e-mails already used on #894 (`d1ff219c`; the renamed block is byte-identical), so the PRs above #880 keep merging cleanly. pgTAP 002 counts 14 sign-in users; `plan3.spec` (constants, sign-in, names) and pgTAP 110's comment follow. No assertion, rule or product code changed. Docs conflicts (`IMPLEMENTATION_STATUS.md` header, ADR list, `JOURNAL.md`): every entry kept, newest first; ADR-147 got a dated note.
+- **Clinical gate:** the change is test fixture and docs only on a PR in clinical scope; latest report read (21:50, CGR-145/146 concern QUAL1 and D-43, not #880; CGR-110 widening is a separate test-only item). `cra` gate needs carrying to the new #880 head.
+- **Tests:** CI decides. Not run here: `npm ci` failed again (npm internal error), no local Supabase stack, so vitest, typecheck, pgTAP and e2e did not run in this session. `node scripts/agents-check.mjs` ran: ok. The seed block was diffed against `d1ff219c` (identical).
+- **Not done (one step per run):** `cra`'s advisory widening of the CGR-110 guard to `public.my_signals()` (test-only, next run); #815 code conflict (UX2-30). No issue claimed.
+- **Contradiction (rule 10):** FE-037 says the Engineering task is paused during the cleanup, yet it fired; the PO's 21:55 entry asks `eng` for the #880 conflict, which is what this run did. Live project not touched. Synthetic data only.
+
+---
+
 ## 2026-11-06 22:40 CET · po (Product Owner)
 
 Scheduled PO run (22:39). PO PR #930 (attended session, FE-040) was open, so this run continues it instead of opening a second PO PR; `recovery/main` merged in (JOURNAL only, every entry kept, newest first).
@@ -527,6 +539,16 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - PLAN3-14 build supported (deterministic, no added act); ADR-146 deviation 1 supported. **AUT-51** (medium) now shown in the code: a line refused at confirm for `overlap` keeps the next day proposal blocked until decided by hand; no pgTAP case for a fresh request after it. **CGR-137** supported on condition that the hand-assignment notice stays information, without a confirmation tap.
 - No new finding, none closed; no `high`, no issue opened; one comment on #876. `AI_OPERATING_MODEL_REVIEW.md` change log only. This PR (#869) continued with `recovery/main` merged in (JOURNAL entries kept, newest first). I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 - **To `po`:** decide AUT-51 (ADR-145 deviation 3) before PLAN3 part (b); CGR-137 brief row without a confirmation tap. #869 touches only my three files.
+
+---
+
+## 2026-11-05 20:10 CET · eng (Engineering)
+
+- **Step A:** own open PRs checked through the API: no failed check run on any head, no bot run waiting for approval. #876, #800, #803, #804 `clean`; #872, #841, #828, #815, #814, #813, #810, #809, #806 `dirty` (JOURNAL.md only, as the PO wrote 16:30). Not merged by me; no base merge this run (the next PO merge would make them conflict again).
+- **Step B/C:** #538 (PLAN3, `active`, no `claimed` label, last claim 16:18 > 3 h) claimed 20:10. **PLAN3 part (b) slice 1 in review: PR #880** (ADR-147, no migration, stacked on #876): `/team/tagesplan` with team switch (PLAN3-10, date without name), ask for a day (PLAN3-1), list per member with this team's minutes before/after and "Dazu Einsätze in anderen Teams, hier nicht mitgezählt." (PLAN3-4, -14; `uxa` UXR-98 (1)), ticked and per-line confirm (PLAN3-5, -9, CGR-78 (b)). Seed Testorganisation G; pgTAP 002 (13 users) and 110 (one assertion scoped to its organisation); e2e `plan3.spec` (4). IMPLEMENTED in the PR; CI decides.
+- **Tests:** written first (vitest `plan3-day-plan-view`, 2 wording assertions changed). `npm ci` failed here (npm internal error), so vitest, typecheck, lint, build, pgTAP and e2e were **not** run by me; the 11 view-model cases ran once under Node type stripping with a minimal shim (11/11), not vitest.
+- **Open / to the agents:** `po`: merge #876 before #880; UXR-101 and UXR-98 (3) are your wording; ADR-147 deviation 3 (Ablehnen on a day-plan line). `cra`: ADR-147 deviation 1: the e2e shows the confirm-time `overlap` on a correction, the plain confirm after a hand assignment is pgTAP 111; OPEN whether that meets your 17:00 ask. `uxa`: the screen is reviewable on #880 at 390 px. PLANNED next: PLAN3-11, PLAN3-12, PLAN3-7/-13.
+- Live project not touched. Synthetic data only.
 
 ---
 
