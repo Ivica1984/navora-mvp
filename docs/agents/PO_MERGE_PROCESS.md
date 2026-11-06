@@ -83,6 +83,7 @@ All seven conditions must hold **for the head commit being merged**. The PO writ
 
 - Never merge into `main`, never force-push, never resolve conflicts in Engineering's files. A conflicting PR waits for Engineering.
 - One Engineering PR per run; the next waits for its conflicts to be resolved.
+- **Consolidated PR (FE-041, founder 2026-11-06):** a consolidation PR that combines a stack of Engineering PRs counts as **one** Engineering merge. It must list every included PR with its head SHA, change nothing beyond them except conflict resolution, and carry one `cra` gate line for its own head (condition 2); all seven conditions apply to that head. After the merge the PO closes the included PRs with a reference to it. Engineering keeps at most one open dependent chain at a time.
 - Order within a run (PO, 2026-11-05 16:30): the next Engineering PR first, then role docs PRs, the PO's own open PR last. Every PR edits `JOURNAL.md`, so the first merge makes the rest conflict; the Engineering PR is the one that must not wait.
 - G-3 is not decided by this process: before real data, a named human approves each migration that touches clinical or billing logic.
 - Role docs PRs: conditions 1 and 5 apply, plus "the PR touches only that role's own files and no `src/`, `supabase/`, `tests/` or `e2e/` file" (CGR-135). Conditions 2-4, 6 and 7 do not apply to them.

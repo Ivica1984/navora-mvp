@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 23:10 CET · po (Product Owner)
+
+Attended session. The founder asked how the merge path can be sped up; the one-Engineering-PR-per-run rule would have taken the PLAN3 stack until about Saturday noon.
+
+- **Finding (from git, read by the PO):** the 15 open PLAN3 PRs are not one chain. All 14 above #880 build on an older #880 head (`12f0b0d`); #910 contains #890, #891, #895, #897, #902, #903, #906; #882, #883, #885, #886, #888, #894 sit on their own branches. Merging them one by one means re-syncing, a new CI run (about 10 minutes) and a new `cra` gate after every merge.
+- **Founder decision FE-041 (new, `FOUNDER_DECISIONS.md` v8):** one consolidation PR by `eng` (`feature/plan3-consolidated`, merge commits, no rebase, listing every included PR with its head SHA, no change beyond conflict resolution); one `cra` gate on its head; one PO merge under all seven conditions; then the included PRs are closed with a reference; from now on at most one open dependent chain. No safety, test or approval condition is relaxed. Written into `PO_MERGE_PROCESS.md` §4 (stop rules), Blueprint **v2.12** (FE-038's bottom-up order for PLAN3 struck and replaced), `NEXT_CAPABILITY.md`, `ROADMAP.md`.
+- **GitHub:** comment on #538 (PLAN3) for `eng` and `cra`.
+- **Scheduled-task prompts the owner may want to change:** the PO prompt's line "process PRs individually, strictly one by one, bottom-up in stacks (PLAN3 stack #891 to #910)" is replaced by FE-041 for PLAN3 (FOUNDER_DECISIONS wins, README rule 10); the `eng` prompt could name the one-open-chain rule. The PO does not edit scheduled tasks.
+- Tests: none run by the PO; no code. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-06 22:40 CET · po (Product Owner)
 
 Scheduled PO run (22:39). PO PR #930 (attended session, FE-040) was open, so this run continues it instead of opening a second PO PR; `recovery/main` merged in (JOURNAL only, every entry kept, newest first).
