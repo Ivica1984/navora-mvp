@@ -7,10 +7,12 @@
 -- …5c2 proposed to Bezug G, …5c4 "kein Vorschlag: overlap"), plan P2 at 11:00 with two lines (…5c3 proposed to Team G,
 -- …5c5 "kein Vorschlag: needs_rn"). P1's two proposed lines confirmed by teamg in one ticked list at 10:30; P2's line
 -- corrected by bezugg at 11:10. Later assistg confirms the "kein Vorschlag" of …5c4 (the third confirmer).
+-- CGR-140 (migration 0114, ADR-153): after the 0113 values, plan P3 at 12:00 proposes …5c1 again to Team G and bezugg
+-- rejects it at 12:05, so the rejected line is decided and in its own share.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(12);
+select plan(15);
 
 create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
@@ -90,7 +92,8 @@ end $$;
 select is(pg_temp.g('teamg') - 'team_id' - 'month' - 'enabled_since' - 'continuity_before_base' - 'continuity_after_base'
           - 'continuity_before_share' - 'continuity_after_share' - 'continuity_suppressed',
   jsonb_build_object('team_name', 'Testteam G', 'day_plans', 2, 'lines', 5, 'decided_lines', null,
-                     'confirmed_unchanged_share', null, 'corrected_share', null, 'confirm_actions_per_plan', null,
+                     'confirmed_unchanged_share', null, 'corrected_share', null, 'rejected_share', null,
+                     'confirm_actions_per_plan', null,
                      'minutes_to_last_decision_median', null, 'no_proposal', null, 'no_proposal_share', null,
                      'no_proposal_not_active', null, 'no_proposal_needs_rn', null, 'no_proposal_absent', null,
                      'no_proposal_overlap', null, 'proposal_suppressed', true),
@@ -118,6 +121,24 @@ select is(jsonb_build_object('n', (pg_temp.g('teamg') ->> 'no_proposal')::int,
                              'not_active', (pg_temp.g('teamg') ->> 'no_proposal_not_active')::int),
   jsonb_build_object('n', 2, 'share', 40.0, 'overlap', 1, 'needs_rn', 1, 'absent', 0, 'not_active', 0),
   'PLAN3-7 (AUT-25): 2 of 5 lines "kein Vorschlag" (40 %), one for overlap, one for needs_rn');
+
+-- CGR-140 (0114, ADR-153): a rejected line is decided and in its own share ------------------------------------------
+do $$
+begin
+  perform pg_temp.line(3, 'c1', 'teamg', 'free_capacity', null, '12:00');
+  perform pg_temp.decide('c1', 'rejected', null, false, 'bezugg', '12:05');
+end $$;
+select is((pg_temp.g('teamg') ->> 'decided_lines')::int, 4,
+  'CGR-140: a rejected line counts as decided (two confirmed, one corrected, one rejected)');
+select is(jsonb_build_array((pg_temp.g('teamg') ->> 'confirmed_unchanged_share')::numeric,
+                            (pg_temp.g('teamg') ->> 'corrected_share')::numeric,
+                            (pg_temp.g('teamg') ->> 'rejected_share')::numeric),
+  jsonb_build_array(50.0, 25.0, 25.0),
+  'CGR-140 option (a): 50 % confirmed unchanged, 25 % corrected, 25 % rejected ("Abgelehnt")');
+select ok(abs((pg_temp.g('teamg') ->> 'confirmed_unchanged_share')::numeric
+              + (pg_temp.g('teamg') ->> 'corrected_share')::numeric
+              + (pg_temp.g('teamg') ->> 'rejected_share')::numeric - 100) <= 0.1,
+  'CGR-140: the three shares add up to 100 % of the decided lines (±0.1)');
 
 -- Continuity: Testteam G has no completed visit with a performer this month (AN1: fewer than three performers) --------
 select is(pg_temp.g('teamg') -> 'continuity_suppressed', 'true'::jsonb,

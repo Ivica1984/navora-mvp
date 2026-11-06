@@ -319,6 +319,7 @@ export async function getPlanTeamMeasures(month: string): Promise<PlanTeamMeasur
     decided_lines: numOrNull(r.decided_lines),
     confirmed_unchanged_share: numOrNull(r.confirmed_unchanged_share),
     corrected_share: numOrNull(r.corrected_share),
+    rejected_share: numOrNull(r.rejected_share),
     confirm_actions_per_plan: numOrNull(r.confirm_actions_per_plan),
     minutes_to_last_decision_median: numOrNull(r.minutes_to_last_decision_median),
     no_proposal: numOrNull(r.no_proposal),

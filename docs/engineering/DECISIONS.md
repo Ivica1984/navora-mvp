@@ -2696,3 +2696,28 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** `npm ci` failed in this session again, so vitest, typecheck, lint, build and e2e were **not** run with the project's toolchain. The pure functions (`pickerMemberLabel`, `memberNumbers`, `groupDayPlan` with a roster) ran once under Node type stripping (passed). CI is the test runner.
 
 **Rollback:** revert the PR (no migration, no data).
+
+### ADR-153 — CGR-140: the PLAN3-7 measure counts a rejected line in its own share "Abgelehnt"
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Trigger:** `cra` CGR-140 (2026-11-06 01:30, advisory S3: "before the measures are used for P-39 / P-40 or for any decision on the day-plan assistant"; owner `eng` / `po`, `aia` for the measure), `aia` review 32 (2026-11-06 02:15: option (a) supported) · **Brief:** `docs/agents/briefs/PLAN3.md` PLAN3-7 (AUT-1 balancing measure) · **Migration:** 0114 · **Stacked on:** #888 (ADR-152; measure from #886, ADR-151) · **Proof:** vitest `cgr140-rejected-share` (written first) and `plan3-7-team-measures` (cells updated), pgTAP 114 (+3: a rejected line, 50 / 25 / 25, sum 100 ± 0.1)
+
+**Context (IMPLEMENTED before, 0113 on #886):** `decided_lines` counted a proposed line whose latest AIG1 outcome is `confirmed`, `corrected` or `rejected`, but `confirmed_unchanged_share` counted only `confirmed` and `corrected_share` ("Geändert (Gegenmass)") only `corrected`. A rejected line was in the base and in neither share: the shares did not add up to 100 %, and a team that turned proposals down looked as if it had accepted them. The 0113 header said "corrected_share … corrected or rejected", which the code did not do. pgTAP 114 had no rejected line.
+
+**Options:** (a) a third share "Abgelehnt" (rejected ÷ decided); (b) fold rejections into `corrected_share` (as AIG1-7 `agent_correction_rates` does) and rename it. `cra` named both and left the choice to `eng` / `po` with `aia`.
+
+**Decision (HOW, Engineering; `po` may overrule):**
+1. **Option (a).** `aia` review 32 supports it: a correction ("right visit, other member") and a rejection ("this proposal is not wanted") point at different causes (member rule vs. the proposal or visits the team plans differently); merged, they cannot be told apart. (a) is also additive: `corrected_share` keeps its meaning, no existing value changes.
+2. **Migration 0114** drops and recreates `public.plan3_team_measures(date)` with one new column `rejected_share numeric` after `corrected_share` (a return-type change cannot use `create or replace`). Same scope, LEAVE1-3, AIG1-7 / AN1 suppression, grants (`revoke … from public, anon`, `grant execute … to authenticated`) and comment, now naming the three shares. No table, so no RLS policy, column grant or audit trigger; nothing depends on the function (checked). Idempotent: `drop function if exists` then `create`. 0113 is not edited, so its reviewed head (#886, `cra` gate) stays as it was; 0114 carries the corrected header.
+3. **Screen:** `/operations/assistenten/tagesvorschlag` shows a cell "Abgelehnt" right after "Geändert (Gegenmass)"; hidden with the other shares for a small team; a missing value reads "–", never 0. `PlanTeamMeasure.rejected_share`, `getPlanTeamMeasures`, `database.types.ts` (by hand; the types bot regenerates it).
+4. **AIG1-7 unchanged:** `agent_correction_rates` (0097) still counts corrected and rejected together as its correction rate per agent and field (the AIG1 definition); the two pages answer different questions and say so in their labels.
+
+**Deviations / notes for the PO (and `aia`, `uxa`):**
+1. *Label* "Abgelehnt" is Engineering's (as ADR-151 deviation 7); OPEN for `uxa`.
+2. *Rounding:* each share is rounded to 0.1, so the three may sum to 99.9 or 100.1; pgTAP checks ± 0.1.
+3. *Placement:* its own PR on the PLAN3 stack, because the measure exists only on #886. If the PO prefers (b), this PR is closed and a (b) PR replaces it; nothing else depends on it.
+
+**Clinical gate:** `cra`: "not a clinical rule; a measure-integrity issue". No rule, threshold, target or stop criterion added. `lca` not needed (no new data; counts per team only, no person column, pinned by the pgTAP 114 catalogue check).
+
+**Checked by me (not CI):** `npm ci` failed in this session again, so vitest, typecheck, lint, build, pgTAP and e2e were **not** run with the project's toolchain. `planTeamMeasureCells` ran once under Node type stripping (order, "Abgelehnt", "–", suppression: as the vitest expects). 0113 then 0114 (twice, idempotent) were applied once to a throwaway PostgreSQL 16 with stub tables and the pgTAP 114 fixture: before the rejection 66.7 / 33.3 / 0.0, 1.5 actions, 20 min (the existing assertions unchanged); after it 4 decided, 50.0 / 25.0 / 25.0. Not the real schema. CI is the test runner.
+
+**Rollback:** revert the PR; 0113's function returns without `rejected_share` (a later migration would recreate it from 0113).

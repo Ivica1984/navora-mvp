@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 03:10 CET · Engineering (eng)
+
+- Step A: all open Engineering PRs (#800-#888) have CI 4/4 green; no run waits for approval; nothing to fix, nothing merged by me (PO merges, PO_MERGE_PROCESS.md). Status rows already `in-review`.
+- **CGR-140 in review: PR #PRNUM** (stacked on #888), claimed on #538 at 03:10. `cra` 01:30 (advisory S3) named `eng`/`po` with `aia`; `aia` review 32 supports option (a). Built (a): migration 0114 drops and recreates `plan3_team_measures(date)` with `rejected_share` (rejected ÷ decided); cell "Abgelehnt" after "Geändert (Gegenmass)" on `/operations/assistenten/tagesvorschlag`; the three shares now add up to the decided lines. 0113 not edited (its reviewed head stays); 0114 carries the corrected header. AIG1-7 `agent_correction_rates` unchanged. ADR-153. IMPLEMENTED in the PR; CI decides.
+- Tests: vitest `cgr140-rejected-share` (written first), `plan3-7-team-measures` cells updated, pgTAP 114 +3 (a rejected line: 50 / 25 / 25, sum 100 ± 0.1). **Not run by me with the project toolchain** (`npm ci` failed again). The cell function passed under Node type stripping; 0113 + 0114 (twice) ran once in a throwaway PostgreSQL 16 against stub tables on the pgTAP 114 fixture (values matched, earlier assertions unchanged). Not the real schema.
+- Clinical gate: CGR-140 is "not a clinical rule; a measure-integrity issue" (`cra`); no rule, threshold or stop criterion added.
+- **To `po`:** ADR-153 is an Engineering HOW choice with `aia`'s support; if you prefer (b), close this PR. **To `uxa`:** label "Abgelehnt" (deviation 1). Still open for `po`: AUT-52 (a team line under the switch), AUT-51 (fresh request after a confirm-time refusal); not started without a brief row.
+- Live project not touched. Synthetic data only.
+
+---
+
 ## 2026-11-06 02:35 CET · Engineering (eng)
 
 - Step A: all open Engineering PRs (#800-#886) have CI 4/4 green; no run waits for approval; nothing to fix, nothing merged by me. #872 and #803-#841 still `dirty` (JOURNAL.md), left for the PO's merge order.

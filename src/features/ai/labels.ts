@@ -294,7 +294,7 @@ export function stopMeasureCells(m: StopMeasure): { key: string; label: string; 
 }
 
 /**
- * PLAN3-7 (ADR-151): one team's day-plan measures for one Zurich month, as `plan3_team_measures` (migration 0113)
+ * PLAN3-7 (ADR-151): one team's day-plan measures for one Zurich month, as `plan3_team_measures` (migration 0113, 0114)
  * returns them. Shares in percent. No person, outcome or confirmer column; a suppressed value is null (AIG1-7, AN1).
  */
 export type PlanTeamMeasure = {
@@ -307,6 +307,8 @@ export type PlanTeamMeasure = {
   decided_lines: number | null;
   confirmed_unchanged_share: number | null;
   corrected_share: number | null;
+  /** CGR-140 (migration 0114, ADR-153): rejected ÷ decided; with the two shares above it adds up to 100 %. */
+  rejected_share: number | null;
   confirm_actions_per_plan: number | null;
   minutes_to_last_decision_median: number | null;
   no_proposal: number | null;
@@ -368,6 +370,7 @@ export function planTeamMeasureCells(m: PlanTeamMeasure): { key: string; label: 
       value: or(m.confirmed_unchanged_share === null ? "–" : `${formatShare(m.confirmed_unchanged_share)} · ${m.decided_lines ?? 0} entschieden`),
     },
     { key: "corrected", label: "Geändert (Gegenmass)", value: or(formatShare(m.corrected_share)) },
+    { key: "rejected", label: "Abgelehnt", value: or(formatShare(m.rejected_share)) }, // CGR-140 (ADR-153)
     {
       key: "actions",
       label: "Bestätigungen pro Tagesvorschlag",

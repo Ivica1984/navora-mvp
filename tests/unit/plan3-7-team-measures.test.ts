@@ -19,6 +19,7 @@ const row = {
   decided_lines: 16 as number | null,
   confirmed_unchanged_share: 75 as number | null,
   corrected_share: 18.8 as number | null,
+  rejected_share: 6.3 as number | null, // CGR-140 (ADR-153)
   confirm_actions_per_plan: 1.5 as number | null,
   minutes_to_last_decision_median: 12.5 as number | null,
   no_proposal: 3 as number | null,
@@ -41,6 +42,7 @@ describe("PLAN3-7 cells", () => {
       { key: "day_plans", label: "Tagesvorschläge", value: "4 · 20 Zeilen" },
       { key: "confirmed_unchanged", label: "Unverändert bestätigt", value: "75 % · 16 entschieden" },
       { key: "corrected", label: "Geändert (Gegenmass)", value: "18.8 %" },
+      { key: "rejected", label: "Abgelehnt", value: "6.3 %" },
       { key: "actions", label: "Bestätigungen pro Tagesvorschlag", value: "1.5" },
       { key: "minutes", label: "Minuten bis zur letzten Entscheidung (Median)", value: "12.5 Min." },
       { key: "no_proposal", label: "Kein Vorschlag", value: "15 % · 3 Zeilen (Nicht verfügbar 0 · Pflegefachperson nötig 1 · Abwesend 0 · Überschneidung 2)" },
@@ -55,6 +57,7 @@ describe("PLAN3-7 cells", () => {
       decided_lines: null,
       confirmed_unchanged_share: null,
       corrected_share: null,
+      rejected_share: null,
       confirm_actions_per_plan: null,
       minutes_to_last_decision_median: null,
       no_proposal: null,
@@ -65,7 +68,7 @@ describe("PLAN3-7 cells", () => {
       no_proposal_overlap: null,
     });
     expect(cells[0].value).toBe("4 · 20 Zeilen");
-    for (const c of cells.slice(1, 6)) expect(c.value).toBe("nicht ausgewiesen (weniger als 3 Personen)");
+    for (const c of cells.slice(1, 7)) expect(c.value).toBe("nicht ausgewiesen (weniger als 3 Personen)");
   });
 
   it("never shows a missing value as zero", () => {
