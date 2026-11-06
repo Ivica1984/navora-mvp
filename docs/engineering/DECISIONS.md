@@ -2866,3 +2866,27 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** the three pure modules under Node type stripping with a minimal vitest stand-in: `plan3-17-2-one-label` 9/9; the changed `memberLabel` and `lineReasonText` expectations checked directly. Real vitest, typecheck, lint, build and Playwright **not** run (npm registry unreachable): CI decides.
 
 **Rollback:** revert the PR (no migration, no data).
+
+### ADR-160 — PLAN3-9 (2): one place decides a day-plan line; `/team/vorschlaege` shows one row per open day plan
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Trigger:** `briefs/PLAN3.md` PLAN3-9 (2) (`uxa` UXR-103, adopted by the PO note 2026-11-06 06:30), *not gating* PLAN3 acceptance (brief line 113) · **Migration:** 0117 (`open_day_plan_lines`) · **Stacked on:** #903 · **Proof:** vitest `plan3-9-2-one-place` (13, written first), pgTAP 118 (11), e2e `plan3.spec` test 2 extended at 390 px
+
+**Context (IMPLEMENTED before, on the stack head `c2cc5c3`):** `/team/vorschlaege` listed every open proposal of `open_suggestions` one by one with "Bestätigen", "Ändern", "Ablehnen" and a tick box, the open lines of a PLAN3 day plan included. A day-plan line could therefore be decided on two screens, one of them without the member load, the minute category, "ändert bisherige Zuteilung" and the other-team fact.
+
+**Decision (HOW, Engineering):**
+1. **New reader `open_day_plan_lines(team)` → (suggestion_id, plan_date)** (migration 0117): built on `open_suggestions(team)` itself joined to `day_plan_lines`, PLAN3 agent only. It returns exactly the open lines the caller already reads (same membership, LEAVE1-3, no decided or PLAN3-15-closed line) plus the day of their day plan. No name, member, client or visit column. Stable security definer, `authenticated` only. The day comes from `day_plan_lines.plan_date`, not from the visit date, so a line whose visit was moved still opens the day plan it belongs to.
+2. **Pure split `splitDayPlanSuggestions`** (`features/ai/day-plan-rows.ts`): PLAN3 lines with a known day leave the per-line list and become one row per day ("Tagesvorschlag <Wochentag, Datum>: <n> offen", link `/team/tagesplan?team=…&datum=…`), ordered by date; proposals of other agents are unchanged. The ticked list and its button only cover the remaining per-line proposals.
+3. **Fail closed:** when the day read fails, or a PLAN3 line has no row, the line is **not** listed per line; the team sees "<n> Zeile(n) eines Tagesvorschlags konnte(n) nicht zugeordnet werden. Öffne den Tagesvorschlag." with a link to `/team/tagesplan`. The `/team` count "Vorschläge (<n>)" is unchanged (still every open proposal, PLAN3-12).
+4. `confirm_suggestion` / `confirm_suggestions` are **not** changed: `/team/tagesplan` decides its lines through them (AIG1 path, every J3 check at confirm time).
+
+**Deviations / notes for the PO (and `uxa`):**
+1. *A day plan of a day before today* stays listed per line on `/team/vorschlaege`, because `/team/tagesplan` opens today to 14 days ahead only (`isDayPlanDate`); otherwise such a line could be decided nowhere. OPEN for `po`/`uxa`: open past day plans read-only on the day page instead, or keep this.
+2. *One place is a screen rule, not a database rule:* the database still accepts a decision on a day-plan line through `confirm_suggestion` from any caller who may decide it. Refusing it in the database would also refuse `/team/tagesplan`, which uses the same command. Recorded, not changed.
+3. *Wording* "Tagesvorschlag Samstag, 07.11.2026: 5 offen" as in the brief; the unread notice is Engineering wording, OPEN for `uxa`.
+4. *One more RPC per team* on `/team/vorschlaege` (run in parallel with `open_suggestions`).
+
+**Clinical gate:** screen placement only; no clinical rule, threshold, figure or data. `lca`: no new processing purpose (the date is the one the team asked for; the lines are those it already reads).
+
+**Checked by me (not CI):** on a local PostgreSQL 16 with Supabase stubs and a minimal pgTAP stand-in (built in this run, not in the repo): migrations 0001-0117 and the seed apply; pgTAP 104, 110-118 green (118 11/11; 110 72/72, 116 32/32); 105 stops on a stand-in gap (`has_column`). vitest `plan3-9-2-one-place` 13/13 under Node type stripping with a vitest stand-in. Real pgTAP, vitest, typecheck, lint, build and Playwright **not** run (npm registry unreachable): CI decides.
+
+**Rollback:** revert the PR; `drop function if exists public.open_day_plan_lines(uuid)` (no table, no data).

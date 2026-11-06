@@ -2,6 +2,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import { getTeamSuggestions } from "@/features/ai/queries";
+import { todayInZurich } from "@/features/field/rules";
 import SuggestionsClient from "./suggestions-client";
 
 // AIG1 part (b) (ADR-129): the confirm screen of the team (AIG1-3, -4, -5; 390 px first). A named member confirms each
@@ -24,7 +25,7 @@ export default async function SuggestionsPage() {
         </p>
       </header>
       <main className="mx-auto grid max-w-xl gap-3 px-4 py-4">
-        <SuggestionsClient teams={teams} />
+        <SuggestionsClient teams={teams} today={todayInZurich()} />
       </main>
     </div>
   );

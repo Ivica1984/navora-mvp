@@ -30,6 +30,12 @@ function zurichIso(offsetDays = 0): string {
   return d.toISOString().slice(0, 10);
 }
 
+/** The German weekday of a yyyy-mm-dd date ("Samstag"). */
+function weekdayDe(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat("de-CH", { timeZone: "UTC", weekday: "long" }).format(new Date(Date.UTC(y, m - 1, d)));
+}
+
 function dotted(iso: string): string {
   const [y, m, d] = iso.split("-");
   return `${d}.${m}.${y}`;
@@ -70,6 +76,21 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
     await expect(page.getByTestId("suggestions-link")).toHaveText("Vorschläge (5)");
     await expect(page.getByTestId("suggestions-link")).toHaveAttribute("aria-label", "5 offene Vorschläge");
     await expect(page.getByTestId("suggestions-link")).not.toContainText("Pflegekraft");
+
+    // PLAN3-9 (2) (ADR-160, UXR-103): one place decides a day-plan line. With the five-line day plan open,
+    // /team/vorschlaege shows one day row and no day-plan line with its own "Bestätigen"; the row opens that day.
+    await page.goto("/team/vorschlaege");
+    const teamG = page.getByRole("region", { name: "Vorschläge Testteam G" });
+    await expect(teamG.getByTestId("day-plan-row")).toHaveCount(1);
+    await expect(teamG.getByTestId("day-plan-row")).toHaveText(`Tagesvorschlag ${weekdayDe(tomorrow)}, ${dotted(tomorrow)}: 5 offen`);
+    await expect(teamG.getByTestId("day-plan-row")).not.toContainText("Pflegekraft");
+    await expect(teamG.getByTestId("suggestion")).toHaveCount(0);
+    await expect(teamG.getByRole("button", { name: "Bestätigen" })).toHaveCount(0);
+    await expect(teamG.getByTestId("suggestion-tick")).toHaveCount(0);
+    await teamG.getByTestId("day-plan-row").click();
+    await page.waitForURL(new RegExp(`/team/tagesplan\\?.*datum=${tomorrow}`));
+    await expect(lines).toHaveCount(5);
+
     await page.goto(planUrl);
     await expect(lines).toHaveCount(5);
     const ticks = page.getByTestId("day-plan-tick");

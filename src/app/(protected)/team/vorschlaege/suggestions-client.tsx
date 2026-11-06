@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { pickerMemberLabel } from "@/features/team/member-label";
+import { dayPlanRowHref, dayPlanRowText, dayPlanUnreadText, splitDayPlanSuggestions } from "@/features/ai/day-plan-rows";
 import { confirmSuggestion, confirmSuggestions } from "@/features/ai/commands";
 import type { OpenSuggestion, TeamMemberOption, TeamSuggestions } from "@/features/ai/queries";
 import {
@@ -23,8 +24,10 @@ const button = "min-h-11 rounded-lg px-3 text-sm font-semibold disabled:opacity-
  * AIG1-3/-4/-5 (CGR-78 (b)): one line per proposed value. Every line is decided on its own (Bestätigen, Ändern,
  * Ablehnen; a "nicht gefunden" proposal only as "nicht gefunden"). Values the database marks bulk-eligible carry a
  * tick box that starts unticked; each box ticks only its own line; there is no "select all"; the button names its count.
+ * PLAN3-9 (2) (ADR-160, UXR-103): a PLAN3 day-plan line is decided only on `/team/tagesplan`; here each open day plan
+ * is one row with its count and a link to that day, without a per-line "Bestätigen".
  */
-export default function SuggestionsClient({ teams }: { teams: TeamSuggestions[] }) {
+export default function SuggestionsClient({ teams, today }: { teams: TeamSuggestions[]; today: string }) {
   const open = teams.filter((t) => t.suggestions.length > 0);
   if (open.length === 0) {
     return (
@@ -36,13 +39,13 @@ export default function SuggestionsClient({ teams }: { teams: TeamSuggestions[] 
   return (
     <>
       {open.map((t) => (
-        <TeamList key={t.team_id} team={t} />
+        <TeamList key={t.team_id} team={t} today={today} />
       ))}
     </>
   );
 }
 
-function TeamList({ team }: { team: TeamSuggestions }) {
+function TeamList({ team, today }: { team: TeamSuggestions; today: string }) {
   const router = useRouter();
   const [ticked, setTicked] = useState<string[]>([]);
   const [pending, setPending] = useState(false);
@@ -51,7 +54,8 @@ function TeamList({ team }: { team: TeamSuggestions }) {
   // AIG1-C3 (2) / UXR-66: the reason of each value refused in the last ticked confirm, shown on its own line.
   const [refusals, setRefusals] = useState<Record<string, string>>({});
   const [refusedCount, setRefusedCount] = useState(0);
-  const eligible = team.suggestions.filter((s) => s.bulk_allowed);
+  const split = splitDayPlanSuggestions(team.suggestions, team.dayPlanLines, today);
+  const eligible = split.perLine.filter((s) => s.bulk_allowed);
 
   function toggle(id: string, on: boolean) {
     setTicked((prev) => (on ? [...prev.filter((x) => x !== id), id] : prev.filter((x) => x !== id)));
@@ -81,21 +85,46 @@ function TeamList({ team }: { team: TeamSuggestions }) {
   return (
     <section aria-label={`Vorschläge ${team.team_name}`} className="grid gap-2 rounded-2xl bg-white p-3 shadow-sm">
       <h2 className="text-lg font-bold">{team.team_name}</h2>
-      <ul className="grid gap-2" aria-label="Offene Vorschläge">
-        {team.suggestions.map((s) => (
-          <li key={s.suggestion_id}>
-            <SuggestionLine
-              suggestion={s}
-              client={team.clients[s.entity_id] ?? null}
-              members={team.members}
-              tickable={s.bulk_allowed}
-              ticked={ticked.includes(s.suggestion_id)}
-              onTick={(on) => toggle(s.suggestion_id, on)}
-              refusal={refusals[s.suggestion_id] ?? null}
-            />
-          </li>
-        ))}
-      </ul>
+      {split.days.length > 0 && (
+        <ul className="grid gap-2" aria-label="Offene Tagesvorschläge">
+          {split.days.map((d) => (
+            <li key={d.plan_date}>
+              <Link
+                href={dayPlanRowHref(team.team_id, d.plan_date)}
+                data-testid="day-plan-row"
+                className="flex min-h-11 items-center rounded-xl border border-stone-200 p-3 text-sm font-semibold underline underline-offset-4"
+              >
+                {dayPlanRowText(d.plan_date, d.open)}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+      {split.unread > 0 && (
+        <p data-testid="day-plan-unread" className="rounded border border-amber-300 bg-white p-2 text-sm">
+          {dayPlanUnreadText(split.unread)}{" "}
+          <Link href={`/team/tagesplan?team=${encodeURIComponent(team.team_id)}`} className="font-semibold underline underline-offset-4">
+            Tagesvorschlag
+          </Link>
+        </p>
+      )}
+      {split.perLine.length > 0 && (
+        <ul className="grid gap-2" aria-label="Offene Vorschläge">
+          {split.perLine.map((s) => (
+            <li key={s.suggestion_id}>
+              <SuggestionLine
+                suggestion={s}
+                client={team.clients[s.entity_id] ?? null}
+                members={team.members}
+                tickable={s.bulk_allowed}
+                ticked={ticked.includes(s.suggestion_id)}
+                onTick={(on) => toggle(s.suggestion_id, on)}
+                refusal={refusals[s.suggestion_id] ?? null}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
       {eligible.length > 0 && (
         <div className="grid gap-1 border-t border-stone-200 pt-2">
           <p className="text-xs text-secondary">Angekreuzte Werte werden unverändert bestätigt, jeder einzeln mit deinem Namen.</p>

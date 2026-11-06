@@ -9,6 +9,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import { COORDINATOR_ROLES, PAGE_LABEL } from "@/lib/auth/nav";
 import { FIELD_PATH, homePathForRoles } from "@/lib/auth/paths";
 import { errorFields, logEvent } from "@/lib/log";
+import type { OpenDayPlanLine } from "./day-plan-rows";
 import { countOpenSuggestions, type PlanTeamMeasure, type Provenance, type StopMeasure, type TeamLookbackStop } from "./labels";
 
 type Fn = Database["public"]["Functions"];
@@ -26,6 +27,11 @@ export type TeamSuggestions = {
   /** visit id → client name, from the team's own case list (team_cases). */
   clients: Record<string, string>;
   suggestions: OpenSuggestion[];
+  /**
+   * PLAN3-9 (2) (ADR-160): the day of each open day-plan line (`open_day_plan_lines`, migration 0117); null when that
+   * read failed (the screen then lists no day-plan line per line, fail closed).
+   */
+  dayPlanLines: OpenDayPlanLine[] | null;
 };
 
 function arr(raw: unknown): Record<string, unknown>[] {
@@ -39,13 +45,24 @@ function arr(raw: unknown): Record<string, unknown>[] {
 export async function getTeamSuggestions(): Promise<TeamSuggestions[]> {
   const { supabase } = await requireUser();
   const out = await loadTeams();
-  const results = await Promise.all(out.map((t) => supabase.rpc("open_suggestions", { p_team_id: t.team_id })));
+  const [results, days] = await Promise.all([
+    Promise.all(out.map((t) => supabase.rpc("open_suggestions", { p_team_id: t.team_id }))),
+    Promise.all(out.map((t) => supabase.rpc("open_day_plan_lines", { p_team_id: t.team_id }))),
+  ]);
   results.forEach((r, i) => {
     if (r.error) {
       logEvent("error", "aig1.open_suggestions_failed", errorFields(r.error));
       throw new Error("Vorschläge konnten nicht geladen werden.");
     }
     out[i].suggestions = r.data ?? [];
+  });
+  days.forEach((r, i) => {
+    if (r.error) {
+      logEvent("warn", "plan3.open_day_plan_lines_failed", errorFields(r.error));
+      out[i].dayPlanLines = null;
+      return;
+    }
+    out[i].dayPlanLines = r.data ?? [];
   });
   return out;
 }
@@ -81,7 +98,7 @@ async function loadTeams(): Promise<TeamSuggestions[]> {
   for (const c of cases.data ?? []) {
     let t = teams.get(c.team_id);
     if (!t) {
-      t = { team_id: c.team_id, team_name: c.team_name, members: [], clients: {}, suggestions: [] };
+      t = { team_id: c.team_id, team_name: c.team_name, members: [], clients: {}, suggestions: [], dayPlanLines: [] };
       teams.set(c.team_id, t);
     }
     for (const m of arr(c.members)) {

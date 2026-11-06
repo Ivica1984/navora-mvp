@@ -2553,6 +2553,11 @@ isOneToOne: false
 "my_working_time_notice":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"open_day_plan_lines":
+{ Args: { "p_team_id": string }; Returns: {
+              "plan_date": string,"suggestion_id": string
+            }[]
+                           },
 "open_suggestions":
 { Args: { "p_team_id": string }; Returns: {
               "agent_key": string,"agent_name": string,"bulk_allowed": boolean,"created_at": string,"entity_id": string,"entity_type": string,"field": string,"not_found": boolean,"proposed_name": string,"proposed_value": Json,"suggestion_id": string,"time_start": string,"visit_date": string

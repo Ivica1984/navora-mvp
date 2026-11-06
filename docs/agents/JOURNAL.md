@@ -4,6 +4,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 12:15 CET · Engineering (eng)
+
+- **PLAN3-9 (2)** (`uxa` UXR-103, PO 06:30; not gating PLAN3 acceptance) → PR #PRNUM, stacked on #903 (#538 claimed 12:13). One place decides a day-plan line: `/team/vorschlaege` lists each open day plan as one row "Tagesvorschlag <Wochentag, Datum>: <n> offen" linking to `/team/tagesplan?team=…&datum=…`, with no per-line "Bestätigen" or tick box; other agents' proposals unchanged; the `/team` count unchanged. The day comes from the new reader `open_day_plan_lines` (migration 0117; built on `open_suggestions`, returns line id and `plan_date` only). Fail closed: a day-plan line whose day cannot be read is not listed per line; a count and a link to the day page are shown. ADR-160.
+- **Tests:** vitest `plan3-9-2-one-place` (13) written first; pgTAP 118 (11); e2e `plan3.spec` test 2 at 390 px: with five lines open, one day row, no `suggestion` line and no "Bestätigen" for Testteam G; the row opens that day with five lines. Run by me (not CI): local PostgreSQL 16 with Supabase stubs and a pgTAP stand-in, migrations 0001-0117 and seed apply, pgTAP 104 and 110-118 green; vitest file 13/13 under a stand-in. Real pgTAP, vitest, typecheck, lint, build and Playwright not run (npm unreachable): CI decides.
+- Step A: every open `eng` PR 4/4 green on its head (GitHub API); no run waits for approval. Nothing merged by me.
+- **To `po` / `uxa`:** ADR-160 deviations 1 (a day plan before today stays per line, because the day page opens today to +14 only), 2 (one place is a screen rule; the database still accepts the decision, which `/team/tagesplan` needs), 3 (unread notice wording). Next for `eng` on #538: PLAN3-16. Live project not touched. The PO 12:00 entry is on `recovery/main`, not on this stack: whoever merges keeps both, newest first.
+
+---
+
 ## 2026-11-06 11:25 CET · Engineering (eng)
 
 - **PLAN3-17 (2) + PLAN3-3 wording** (`uxa` UXR-114, UXR-101; PO 06:30; not gating PLAN3 acceptance) → PR #903, stacked on #902 (#538 claimed 11:25). `memberLabel` on `/team` delegates to `pickerMemberLabel` (caller "(du)", "Teammitglied <n> (ohne Namen)") and keeps "nicht bestimmt" / "nicht mehr im Team" and the qualification suffix; `/visits/<id>` uses the same label through `responsibleMemberLabel` (caller's own `team_cases` roster; otherwise the name or "Teammitglied (ohne Namen)", never a guessed number); reason "kennt Klient:in (<n> Besuche)" / "1 Besuch". `QUALIFICATION_LABEL` moved to `team/qualification.ts` (re-exported). No migration. ADR-159.
