@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { PAGE_LABEL } from "@/lib/auth/nav";
-import type { HypothesisRow, KpiRow } from "@/features/analytics/queries";
+import type { HypothesisRow, KpiRow, StepSpanRow } from "@/features/analytics/queries";
 import { KPI, KPI_ORDER, formatKpi } from "@/features/analytics/rules";
 import PilotHypotheses from "./pilot-hypotheses";
+import StepSpans from "./step-spans";
 
 function shiftMonth(month: string, by: number): string {
   const [y, m] = month.split("-").map(Number);
@@ -16,10 +17,15 @@ function monthLabel(month: string): string {
 
 /**
  * AN1: one table per scope (organisation, then each team). Every figure shows its definition and source.
- * AN2: the "Pilot-Hypothesen" section below. At phone width (the team page links here) the sidebar is hidden and the
+ * AN3: "Wo die Nicht-Pflegezeit hingeht" below the tables. AN2: the "Pilot-Hypothesen" section after it. At phone width (the team page links here) the sidebar is hidden and the
  * AN1 tables scroll inside their own box, so the page itself never scrolls sideways.
  */
-export default function AnalyticsClient({ rows, hypotheses, month }: { rows: KpiRow[]; hypotheses: HypothesisRow[]; month: string }) {
+export default function AnalyticsClient({ rows, hypotheses, spans, month }: {
+  rows: KpiRow[];
+  hypotheses: HypothesisRow[];
+  spans: StepSpanRow[];
+  month: string;
+}) {
   const scopes = new Map<string, { title: string; rows: KpiRow[] }>();
   for (const r of rows) {
     const key = r.team_id ?? `org:${r.organization_id}`;
@@ -82,6 +88,7 @@ export default function AnalyticsClient({ rows, hypotheses, month }: { rows: Kpi
             </div>
           </section>
         ))}
+        <StepSpans kpis={rows} hypotheses={hypotheses} spans={spans} periodLabel={monthLabel(month)} />
         <PilotHypotheses rows={hypotheses} periodLabel={monthLabel(month)} />
       </main>
     </div>
