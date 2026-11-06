@@ -54,7 +54,8 @@ test("referral → case → team takes it over → team plans a visit → it is 
 
   // The nurse's team sees the offer — without the client's name — and takes it.
   await signIn(page, NURSE, /\/field$/);
-  await page.getByRole("link", { name: "Dein Team", exact: true }).click();
+  // UX2-1 (ADR-131, selector only): "Dein Team" is now also a menu item, so the link is taken from the main menu.
+  await page.getByRole("navigation", { name: "Hauptmenü" }).getByRole("link", { name: "Dein Team", exact: true }).click();
   await expect(page).toHaveURL(/\/team$/);
   const offer = page.getByRole("article", { name: "Anfrage Teamsuche: Journey Übergangspflege" });
   await expect(offer).toContainText("für Testteam Nord");
