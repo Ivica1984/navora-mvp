@@ -42,6 +42,7 @@ function line(over: Partial<DayPlanLine>): DayPlanLine {
     not_continuity: false,
     decision: "open",
     bulk_allowed: true,
+    visit_has_responsible: false,
     ...over,
   };
 }
@@ -114,7 +115,7 @@ describe("PLAN3-9 line texts", () => {
     expect(lineDecisionText("confirmed")).toBe("bestätigt");
     expect(lineDecisionText("corrected")).toBe("geändert und bestätigt");
     expect(lineDecisionText("rejected")).toBe("abgelehnt");
-    expect(lineDecisionText("not_found")).toBe("als „kein Vorschlag“ bestätigt");
+    expect(lineDecisionText("not_found")).toBe("„kein Vorschlag“, entschieden"); // PLAN3-9 (1), ADR-156
     expect(lineDecisionText("unknown_code")).toBe("entschieden");
   });
 });

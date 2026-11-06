@@ -109,13 +109,26 @@ const DECISIONS: Readonly<Record<string, string>> = {
   confirmed: "bestätigt",
   corrected: "geändert und bestätigt",
   rejected: "abgelehnt",
-  not_found: "als „kein Vorschlag“ bestätigt",
+  // PLAN3-9 (1) (`cra` CGR-138 (3), ADR-156): a decided "kein Vorschlag" sets nobody, so its text must not end in
+  // "bestätigt". Engineering's text after `cra`'s example; the wording is OPEN for `uxa`.
+  not_found: "„kein Vorschlag“, entschieden",
 };
 
 /** The state of a decided line (never who decided it: `day_plan` returns no confirmer). Null while open. */
 export function lineDecisionText(decision: string): string | null {
   if (decision === "open") return null;
   return DECISIONS[decision] ?? "entschieden";
+}
+
+/**
+ * PLAN3-9 (1) (ADR-156, `cra` CGR-138): a decided line whose visit has no responsible member now says "Noch offen" (the
+ * wording of `/visits`), so a page of decided lines never reads as a covered day. The yes/no comes from `day_plan`
+ * (0115); a missing value counts as nobody. Null on an open line (its decision controls are shown) or once the visit
+ * has a responsible member.
+ */
+export function lineStillOpenText(l: Pick<DayPlanLine, "decision" | "visit_has_responsible">): string | null {
+  if (l.decision === "open") return null;
+  return l.visit_has_responsible === true ? null : "Noch offen";
 }
 
 /** PLAN3-4 / UXR-98: this team's planned minutes now and with the proposal; the scope is said, no judgement. */

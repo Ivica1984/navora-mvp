@@ -81,6 +81,8 @@ export const REFUSAL_TEXT: Record<string, string> = {
   not_open: "Nicht übernommen: Der Einsatz ist nicht mehr offen.",
   // PLAN3-14 (ADR-146): a day-plan line whose member has an overlapping visit by now, in any team.
   overlap: "Nicht übernommen: Diese Person hat zu dieser Zeit schon einen Einsatz.",
+  // PLAN3-15 (ADR-157, 0116): the line was closed by a fresh request for the same day (Engineering text, open for `uxa`).
+  replaced: "Nicht übernommen: Für diesen Tag wurde neu vorgeschlagen. Diese Zeile gilt nicht mehr.",
 };
 
 export function refusalText(reason: string | null | undefined): string {
@@ -326,6 +328,9 @@ export type PlanTeamMeasure = {
   continuity_after_share: number | null;
   continuity_after_base: number;
   continuity_suppressed: boolean;
+  /** PLAN3-15 (0116, ADR-157): requests that closed earlier undecided lines, and the lines closed. Not decisions. */
+  requests_closing?: number;
+  lines_closed?: number;
 };
 
 /** PLAN3-7: the text for a value hidden by the three-person rule (AIG1-7 confirmers, AN1 performers). */
@@ -361,6 +366,19 @@ export function continuityText(
   return `vorher ${formatShare(before)} (${beforeBase}) · seit Einschalten ${formatShare(after)} (${afterBase})`;
 }
 
+/**
+ * PLAN3-15 (ADR-157): requests that closed earlier undecided lines, apart from the three shares (a closed line is not a
+ * decision). A count of the team's requests, not of a confirmer, so the three-person rule does not hide it, as the
+ * day-plan count. Wording Engineering's, open for `uxa`. No cell for a row without the 0116 columns.
+ */
+function replacedCell(m: PlanTeamMeasure): { key: string; label: string; value: string }[] {
+  if (m.requests_closing === undefined || m.lines_closed === undefined) return [];
+  const r = m.requests_closing;
+  const l = m.lines_closed;
+  const value = r === 0 && l === 0 ? "keine" : `${r} ${r === 1 ? "Anfrage" : "Anfragen"} · ${l} ${l === 1 ? "Zeile" : "Zeilen"} ersetzt`;
+  return [{ key: "replaced", label: "Neu angefragt (frühere offene Zeilen ersetzt)", value }];
+}
+
 /** PLAN3-7: the cells of one team's month in a fixed order (labels are Engineering's, open for `uxa`). */
 export function planTeamMeasureCells(m: PlanTeamMeasure): { key: string; label: string; value: string }[] {
   const hidden = m.proposal_suppressed;
@@ -374,6 +392,7 @@ export function planTeamMeasureCells(m: PlanTeamMeasure): { key: string; label: 
     },
     { key: "corrected", label: "Geändert (Gegenmass)", value: or(formatShare(m.corrected_share)) },
     { key: "rejected", label: "Abgelehnt", value: or(formatShare(m.rejected_share)) }, // CGR-140 (ADR-153)
+    ...replacedCell(m),
     {
       key: "actions",
       label: "Bestätigungen pro Tagesvorschlag",

@@ -30,8 +30,10 @@ describe("PLAN3-3 reasons", () => {
   });
 
   it("names the number of visits for a member who knows the client", () => {
-    expect(lineReasonText("knows_client", 3)).toBe("kennt die Klientin (3 Besuche)");
-    expect(lineReasonText("knows_client", 1)).toBe("kennt die Klientin (1 Besuch)");
+    expect(lineReasonText("knows_client", 3)).toBe("kennt Klient:in (3 Besuche)"); // UXR-101, PO 2026-11-06 06:30
+    expect(lineReasonText("knows_client", 1)).toBe("kennt Klient:in (1 Besuch)");
+    // UXR-101: no gendered client noun on any reason.
+    for (const t of Object.values(DAY_PLAN_REASONS)) expect(t).not.toMatch(/Klientin|Klient\b(?!:)/);
   });
 
   it("never invents a reason for an unknown code", () => {
@@ -63,7 +65,8 @@ describe("PLAN3-6 / PLAN3-10 refusals", () => {
   });
 
   it("has a text for every refusal propose_day_plan returns", () => {
-    for (const code of ["team_off", "date_out_of_range", "open_proposal", "nothing_open"]) {
+    // PLAN3-15 (0116, ADR-157): propose_day_plan no longer returns open_proposal.
+    for (const code of ["team_off", "date_out_of_range", "nothing_open"]) {
       expect(dayPlanRefusalText(code)).not.toBe("");
     }
     // UXR-100 (`uxa` 2026-11-05 19:50): today and the next 14 days are the whole range.
@@ -74,7 +77,7 @@ describe("PLAN3-6 / PLAN3-10 refusals", () => {
     const all = [
       ...Object.values(DAY_PLAN_REASONS),
       ...Object.values(DAY_PLAN_NOT_FOUND),
-      ...["agent_off", "team_off", "date_out_of_range", "open_proposal", "nothing_open"].map(dayPlanRefusalText),
+      ...["agent_off", "team_off", "date_out_of_range", "nothing_open"].map(dayPlanRefusalText),
     ].join(" ");
     expect(all).not.toMatch(/sofort|dringend|überlastet|zu viel|Frist|Maximum/i);
   });

@@ -754,6 +754,26 @@ from (values ('00000000-0000-4000-a000-0000000005d1', '00000000-0000-4000-a000-0
              ('00000000-0000-4000-a000-0000000005d3', '00000000-0000-4000-a000-0000000002a8', '10:00'),
              ('00000000-0000-4000-a000-0000000005d4', '00000000-0000-4000-a000-0000000002a9', '08:15'),
              ('00000000-0000-4000-a000-0000000005d5', '00000000-0000-4000-a000-0000000002a9', '12:00')) v(id, case_id, t0);
+-- CGR-75 (5) (ADR-158; e2e plan3.spec, pgTAP 117): the day after tomorrow, a day of its own so tomorrow's counts stay.
+--   open: …5d6 09:00 and …5d7 11:00 (Testfall H1, primary nurse Bezug H first); …5d8 09:15-09:45 (Testfall H2, overlaps
+--   …5d6, so not proposed to Bezug H; changed to her and confirmed, it makes the ticked …5d6 line `overlap` at confirm);
+--   …5d9 14:00 (Testfall H2, category B minutes): "kein Vorschlag", reason `overlap` (the care assistant may not take B
+--   minutes, both registered nurses already hold a visit at 14:00).
+--   assigned (not proposed): …5da 14:00 to teamh, …5db 14:00 to bezugh (Testfall H1; two nurses at one client, synthetic).
+insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end,
+                                services_provided, billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id)
+select '00000000-0000-4000-b000-000000000018', v.id::uuid, private.now() - interval '2 days', v.case_id::uuid,
+       '00000000-0000-4000-a000-0000000001a8', (private.now() at time zone 'Europe/Zurich')::date + 2,
+       v.t0::time, v.t0::time + interval '30 minutes', array['Grundpflege'], false, 'planned',
+       case when v.b then 0 else 30 end, case when v.b then 30 else 0 end, v.who::uuid
+from (values ('00000000-0000-4000-a000-0000000005d6', '00000000-0000-4000-a000-0000000002a8', '09:00', false, null),
+             ('00000000-0000-4000-a000-0000000005d7', '00000000-0000-4000-a000-0000000002a8', '11:00', false, null),
+             ('00000000-0000-4000-a000-0000000005d8', '00000000-0000-4000-a000-0000000002a9', '09:15', false, null),
+             ('00000000-0000-4000-a000-0000000005d9', '00000000-0000-4000-a000-0000000002a9', '14:00', true, null),
+             ('00000000-0000-4000-a000-0000000005da', '00000000-0000-4000-a000-0000000002a8', '14:00', false,
+              '00000000-0000-4000-a000-0000000009d7'),
+             ('00000000-0000-4000-a000-0000000005db', '00000000-0000-4000-a000-0000000002a8', '14:00', false,
+              '00000000-0000-4000-a000-0000000009d8')) v(id, case_id, t0, b, who);
 insert into public.ai_agent_settings (organization_id, agent_key, state, stop_share, stop_min_proposals, stop_window_days,
                                       switched_on_by, switched_on_at, on_version, on_provider, on_region)
 select '00000000-0000-4000-b000-000000000018', d.key, 'on', 50, 10, 30, '00000000-0000-4000-a000-0000000009d7',

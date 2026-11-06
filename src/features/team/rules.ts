@@ -1,5 +1,8 @@
 // Team planning rules (J3) — pure TypeScript (ADR-002).
 
+import { memberNumbers, pickerMemberLabel } from "./member-label";
+import { QUALIFICATION_LABEL } from "./qualification";
+
 /** Flags returned by the database for a planned visit (migration 0014). */
 export const PLAN_FLAG_LABEL: Record<string, string> = {
   order_expired: "nach Ablauf der Verordnung",
@@ -27,10 +30,7 @@ export function formatMinutesByCategory(m: { a?: number | null; b?: number | nul
   return parts.length ? parts.join(" · ") : "keine Minuten erfasst";
 }
 
-export const QUALIFICATION_LABEL: Record<string, string> = {
-  registered_nurse: "Pflegefachperson",
-  care_assistant: "Pflegeassistenz",
-};
+export { QUALIFICATION_LABEL } from "./qualification";
 
 // J2 changes (PO brief): decline reasons v1 — mirror of the database check (migration 0017).
 export const DECLINE_REASONS = ["capacity", "qualification", "distance", "other"] as const;
@@ -72,18 +72,18 @@ export const ESCALATION_REASON_LABEL: Record<string, string> = {
   deadline_not_configured: "Keine Antwortfrist für diese Zuweisungsart",
 };
 
-// J6 (PO brief): continuity. Members have no names yet (no profiles, D-5): "Ich" or "Teammitglied n".
+// J6 (PO brief): continuity. PLAN3-17 (2) (`uxa` UXR-114, ADR-159): the name part is `pickerMemberLabel`, the one
+// label of every visit-assigning picker (CGR-139): the display name (ADM1, never guessed), "<Name> (du)" / "Ich (du)"
+// for the caller, otherwise "Teammitglied <n> (ohne Namen)" with <n> the member's /team position (`memberNumbers`).
+// Kept here: "nicht bestimmt" (nobody), "nicht mehr im Team" (not in the list) and the qualification suffix.
 export function memberLabel(
-  members: { user_id: string; me: boolean; qualification?: string | null; name?: string | null }[],
+  members: readonly { user_id: string; me: boolean; qualification?: string | null; name?: string | null }[],
   userId: string | null | undefined,
 ): string {
   if (!userId) return "nicht bestimmt";
-  const index = members.findIndex((m) => m.user_id === userId);
-  if (index < 0) return "nicht mehr im Team";
-  const m = members[index];
-  // ADM1: the member's display name when the administrator (or the member) has set one; never guessed.
-  const named = m.name?.trim();
-  const name = m.me ? (named ? `Ich (${named})` : "Ich") : named || `Teammitglied ${index + 1}`;
+  const m = members.find((x) => x.user_id === userId);
+  if (!m) return "nicht mehr im Team";
+  const name = pickerMemberLabel({ name: m.name, me: m.me, no: memberNumbers(members).get(userId) ?? null });
   return m.qualification ? `${name} – ${QUALIFICATION_LABEL[m.qualification] ?? m.qualification}` : name;
 }
 

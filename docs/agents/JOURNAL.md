@@ -127,6 +127,9 @@ Scheduled PO run (21:39). Continued the open PO PR #920 (attended session, FE-03
 - **Registers:** PS-99 updated; H-01/H-07 and CR register header notes; no new or changed rule.
 - Tests: none run by me (NAVORA suite not run); CI states read through the GitHub API; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction between my prompt and `FOUNDER_DECISIONS.md` (v5 on #920, FE-038 consistent with my brief).
 - **To the agents:** `po`: merge this PR; merge #922 after CI, keep #919 open for three clean runs. `eng`: guard widening (`my_signals()`), test-only.
+
+---
+
 ## 2026-11-06 21:10 CET · po (Product Owner)
 
 Attended session: founder message 21:05, recorded as **FE-038** (`FOUNDER_DECISIONS.md` v5; Blueprint v2.8).
@@ -138,6 +141,9 @@ Attended session: founder message 21:05, recorded as **FE-038** (`FOUNDER_DECISI
 - **#872:** `cra-gate: #872 6854d82 clear` (in #921). The PO merged `recovery/main` in once more (head `f229e2f`, `JOURNAL.md` only; code paths identical to `6854d82`); CI 4/4 green; **merged 21:50** (`a081c58`, seven-condition record on #872). PLAN3 (#538) stays open (stack continues). **22:10: #876** (PLAN3-14, migration 0110) merged (`8956041`, head `d28017a`; own change identical to the `cra`-cleared `b5ddc86`; record on #876). Next in order: **#880** (PLAN3 part (b) slice 1), same procedure; the scheduled PO runs continue the stack one PR at a time.
 - **To the agents:** `eng`: #919 as claimed; then the PLAN3 stack heads as the PO reaches them. `cra`: thank you; gate lines for the next stack PRs (#876 …) on their new heads after each PO merge-in.
 - Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-06 21:10 CET · eng (Engineering)
 
 Scheduled Engineering run (21:09). Task adjusted within the goal (README rule 11): the `active` issue is still #538 (PLAN3), but the founder cleanup (FE-037) is under way with 18 PLAN3 PRs open, and founder decision **FE-038** (21:05, PO PR #920, not yet merged) names #919 for `eng` once `cra` has answered; `cra` answered at 21:10 (#921). So this run did #919 only and added nothing to the PLAN3 stack.
@@ -340,6 +346,13 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
+## 2026-11-06 14:05 CET · Engineering (eng)
+
+- **#910** green on `3786a86` (app, db, e2e, ui-screenshots; the 13:45 fix to pgTAP 050), then `dirty` after the PO merged #800. Merged `recovery/main` into #910: docs conflicts kept both sides; `/visits/<id>` responsible line combines PLAN3-17 (2) (label of a set member) with UX2-29 (`responsibleEmptyText` when nobody is set); `plan3.spec` expects "noch niemand" (UX2-29) instead of "Noch offen" on `/visits/<id>`. ADR-161 note. CI decides on the new head.
+- **To `po`:** #903 and #906 (below #910 in the stack) will hit the same `/visits/<id>` conflict; same resolution. Merging #910 alone also brings #872-#906 in.
+
+---
+
 ## 2026-11-06 13:30 CET · Clinical & Regulatory Architect (review)
 
 - Review section 13:30 in `reports/CLINICAL_GOVERNANCE.md` on `recovery/main` `f8255ec` (docs only since 09:30: PO #904, #908). Read on their heads: `eng` #902 (CGR-75 (5), seed day, pgTAP 117, e2e), #903 (PLAN3-17 (2), "kennt Klient:in"), #906 (PLAN3-9 (2), migration 0117, pgTAP 118); #888 `31e9d6c` (revert of the second UXR-113 build: own code as cleared at 05:30). CI 4/4 green on every head named.
@@ -351,6 +364,15 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
+## 2026-11-06 13:15 CET · Engineering (eng)
+
+- **PLAN3-16** (`cra` CGR-137, advisory S3; `aia` 20:20; not gating PLAN3 acceptance, before M9) → PR #910, stacked on #906 (#538 claimed 13:14). The hand paths that give a visit a member (`plan_visit` with a member, `take_open_visit`, `reschedule_visit` / `move_visit_to_today`) compute the PLAN3-14 member-overlap fact after their write (any team, `private.member_visit_overlap`, the `plan3_busy` lock on member and day; `plan3_confirm_overlaps` now uses the same function), return it on `ok` as `member_overlap` (yes/no only) and record `member_overlap_shown` on their audit row (VIS2-4 pattern). Never a refusal. Form read `member_slot_overlap(case, visit, member, date, start, end)` (yes/no, LEAVE1-3 guarded). `/team` plan and move forms show the `uxa` 07:50 line under "Verantwortlich"; `/field` take records whether her existing overlap line was on screen and states the server's fact after the take when it was not. Migration 0118, ADR-161.
+- **Tests:** pgTAP 119 (40) and vitest `plan3-16-member-overlap` (6) written first; pgTAP 046, 052, 093, 098 follow the new signatures / result key. Run by me (not CI): local PostgreSQL 16 with Supabase stubs and a pgTAP stand-in: migrations 0001-0118 + seed apply, 0118 twice; 119 40/40; whole suite compared file by file with and without 0118, only 046/052/093/098 differ (updated). vitest file 6/6 under a stand-in. Real pgTAP, vitest, typecheck, lint, build and Playwright not run (npm unreachable): CI is the test runner. `database.types.ts` edited by hand; the types bot regenerates it.
+- Step A: every open `eng` PR green on its head (GitHub API); no run waits for approval. Nothing merged by me.
+- **To `po` / `lca` / `uxa`:** ADR-161 deviations 1 (COVER1 `accept_cover` not covered: follow-up?), 2 (the `/field` take uses the existing ABS1 line before the take), 3 (`lca`: per-slot reads can narrow down when a colleague is busy elsewhere; accept, or show only after the save), 4 (wording `uxa` PROPOSED, `cra`/`lca` to confirm), 5 (e2e PLANNED). With this PR every PLAN3 item is in review.
+
+---
+
 ## 2026-11-06 12:30 CET · po (Product Owner)
 
 - **Owner answers in the attended session:** Phase A simulates **home care and a simulated nursing-home ward** (O-1 option b; FE-031). The owner re-sent a revised version of the letter: point 5 adds the explicit goal of reducing avoidable Spitex administration and placement overhead, enabling self-organised teams and better earnings for nurses (FE-032; hypotheses H-1 to H-6 with their measurement in the confirmation §1.1); point 8 asks for the PO's own responsibility and confirms that team self-organisation is preserved; points 13 and 16 ask the PO to commission `lca`. The prompt-change question (FD-01) was **not answered**: no scheduled task changed.
@@ -358,6 +380,15 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - Updated: `FOUNDER_DECISIONS.md` v2, Blueprint V2.1 (O-1 decided, FD-21 removed, M3 30 %), Founder report (14 owner decisions), confirmation document.
 - Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 - **To the agents:** `lca`: the requests above are explicit re-analysis asks (your prompt's condition (c)). `eng`: nursing-home addendum to `IMPLEMENTATION_SEQUENCE.md` can start (FE-031); D-42 technical annex requested. `cra`: D-42 clinical-governance clauses requested.
+
+---
+
+## 2026-11-06 12:15 CET · Engineering (eng)
+
+- **PLAN3-9 (2)** (`uxa` UXR-103, PO 06:30; not gating PLAN3 acceptance) → PR #906, stacked on #903 (#538 claimed 12:13). One place decides a day-plan line: `/team/vorschlaege` lists each open day plan as one row "Tagesvorschlag <Wochentag, Datum>: <n> offen" linking to `/team/tagesplan?team=…&datum=…`, with no per-line "Bestätigen" or tick box; other agents' proposals unchanged; the `/team` count unchanged. The day comes from the new reader `open_day_plan_lines` (migration 0117; built on `open_suggestions`, returns line id and `plan_date` only). Fail closed: a day-plan line whose day cannot be read is not listed per line; a count and a link to the day page are shown. ADR-160.
+- **Tests:** vitest `plan3-9-2-one-place` (13) written first; pgTAP 118 (11); e2e `plan3.spec` test 2 at 390 px: with five lines open, one day row, no `suggestion` line and no "Bestätigen" for Testteam G; the row opens that day with five lines. Run by me (not CI): local PostgreSQL 16 with Supabase stubs and a pgTAP stand-in, migrations 0001-0117 and seed apply, pgTAP 104 and 110-118 green; vitest file 13/13 under a stand-in. Real pgTAP, vitest, typecheck, lint, build and Playwright not run (npm unreachable): CI decides.
+- Step A: every open `eng` PR 4/4 green on its head (GitHub API); no run waits for approval. Nothing merged by me.
+- **To `po` / `uxa`:** ADR-160 deviations 1 (a day plan before today stays per line, because the day page opens today to +14 only), 2 (one place is a screen rule; the database still accepts the decision, which `/team/tagesplan` needs), 3 (unread notice wording). Next for `eng` on #538: PLAN3-16. Live project not touched. The PO 12:00 entry is on `recovery/main`, not on this stack: whoever merges keeps both, newest first.
 
 ---
 
@@ -384,6 +415,25 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - UXR-114 and UXR-101 met on PR head #903 (close on merge). New: UXR-122 (medium: "Tag vorschlagen" does not say it replaces the day's undecided lines, PLAN3-15), UXR-123 (low: `replaced` refusal wording), UXR-124 (low: "Neu angefragt" cell wording). Answers to `cra` 09:30: CGR-141 (1) continuity line confirmed as worded; `not_found` per UXR-121.
 - `DESIGN_SYSTEM.md` v48: §2 one-label status; §4 two OPEN rules (replacing action says so; today's-assignment measure says so). No benchmark (made 03:50). I ran no test.
 - For `po`: UXR-122 inside PLAN3-15, gating is yours; three strings pinned in #902's e2e (UXR-106, -108, -121). #850 continued; yours to merge.
+
+---
+
+## 2026-11-06 11:25 CET · Engineering (eng)
+
+- **PLAN3-17 (2) + PLAN3-3 wording** (`uxa` UXR-114, UXR-101; PO 06:30; not gating PLAN3 acceptance) → PR #903, stacked on #902 (#538 claimed 11:25). `memberLabel` on `/team` delegates to `pickerMemberLabel` (caller "(du)", "Teammitglied <n> (ohne Namen)") and keeps "nicht bestimmt" / "nicht mehr im Team" and the qualification suffix; `/visits/<id>` uses the same label through `responsibleMemberLabel` (caller's own `team_cases` roster; otherwise the name or "Teammitglied (ohne Namen)", never a guessed number); reason "kennt Klient:in (<n> Besuche)" / "1 Besuch". `QUALIFICATION_LABEL` moved to `team/qualification.ts` (re-exported). No migration. ADR-159.
+- **Tests:** vitest `plan3-17-2-one-label` (9) written first; `team-rules`, `plan3-day-plan-labels` updated; e2e `journey.spec` and `aig1.spec` follow the "(du)" label. Run by me (not CI): the pure modules under Node type stripping with a vitest stand-in, 9/9. Real vitest, typecheck, lint, build and Playwright not run (npm unreachable): CI decides.
+- Step A: every open `eng` PR 4/4 green on its head (GitHub API); no run waits for approval. Nothing merged by me.
+- **To `uxa`:** ADR-159 note 3: the ABS1 "kennt die Klientin" and lifecycle "Ich" labels are unchanged, OPEN whether UXR-101/-114 reach them. **To `po`:** next for `eng` on #538: PLAN3-9 (2), PLAN3-16. Live project not touched.
+
+---
+
+## 2026-11-06 10:15 CET · Engineering (eng)
+
+- **CGR-75 (5)** (PLAN3 acceptance condition, `briefs/PLAN3.md` line 113; Blueprint V2 M4 acceptance (3)) → PR #902, stacked on #897 (#538 claimed 10:12). No migration, no UI change: a seed day of its own (the day after tomorrow, Testorganisation G) where the 14:00 category B visit has no valid member; pgTAP 117 (14) pins it; e2e `plan3.spec` +2 at 390 px shows the unstaffable visit under "Ohne Vorschlag" with its reason and no tick box, a ticked list with one line refused `overlap` at confirm (reason on that line, visit "Noch offen" and in "Offen im Team", the other line set), and the decided "kein Vorschlag" line ("„kein Vorschlag“, entschieden" + "Noch offen", "Einsatz öffnen" kept). ADR-158.
+- **Clinical gate:** CGR-75 (5) is `cra`'s own remedy; no clinical rule, threshold or figure; the fixture uses the existing J3 rules only.
+- **Tests:** written first (vitest `cgr75-5-unstaffable-and-refusal`). Run by me (not CI) on a local PostgreSQL 16 with Supabase stubs and a minimal pgTAP stand-in built this run: migrations + seed apply; pgTAP 110-117 green (117 14/14); 94/113 files green overall, the rest stop on stand-in gaps, none of them an org-G test. vitest file 7/7 under a stand-in. Real pgTAP, vitest, typecheck, lint, build and Playwright not run (npm unreachable): CI decides.
+- Step A: every open `eng` PR 4/4 green on its head (GitHub API); no run waits for approval. Nothing merged by me.
+- **To `po`:** with #902 merged after the stack, every PLAN3 acceptance condition in line 113 has a PR. Next for `eng` on #538: PLAN3-9 (2), PLAN3-17 (2), PLAN3-3 wording, PLAN3-16; M2.0 (merge mechanics) has no `agent:eng` issue yet. **To `cra`:** gate line on the #902 head. **To `uxa`:** wordings unchanged and OPEN. Live project not touched.
 
 ---
 
@@ -441,12 +491,31 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
+## 2026-11-06 08:15 CET · Engineering (eng)
+
+- **PLAN3-15** (`aia` AUT-51; PO note 06:30 on PO PR #893, not yet merged; decides ADR-145 deviation 3; a PLAN3 acceptance condition) → PR #897, stacked on #895 (#538 claimed 08:15). Migration 0116: a fresh request closes the earlier undecided lines of still-open visits in the new append-only, audited `day_plan_line_closures` and writes the new lines; `open_proposal` removed; closed lines leave `open_suggestions`, the PLAN3-12 count and the day plan (now one line per visit, decided lines stay); confirming a closed line is refused `replaced`; a visit still holding a confirmed line's member is not proposed again, also with "auch zugewiesene"; PLAN3-7 gains `requests_closing`, `lines_closed`, apart from the shares. ADR-157 answers the PO's question: a new outcome, not AIG1-C4 expiry and not an `ai_confirmations` row (reasons there).
+- **Clinical gate:** `cra` 2026-11-05 15:00 "Input on AUT-51", conditions (1)-(3): met as shown in ADR-157 (pgTAP 116). Latest section read: 05:30 on #892; no other finding on PLAN3-15. No remediation plan needed (no new risk; it removes a delay at the moment visits are most at risk, H-01).
+- **Tests:** written first (vitest `plan3-15-fresh-request`). Run by me (not CI) on a local PostgreSQL 16 with Supabase stubs and a pgTAP stand-in built this run: migrations 0001-0116 + seed apply (0116 twice); all 112 pgTAP files green, 116 32/32. vitest files under Node type stripping with a stand-in (green except 3 `toBeNull` stand-in gaps, same on the base). Real pgTAP, vitest, typecheck, lint, build, Playwright **not** run (npm unreachable): CI decides. Changed existing assertions: pgTAP 110 (second request now succeeds), 114 (two new counts), vitest labels list.
+- Step A: every open `eng` PR 4/4 green on its head (read through the GitHub API); no run waits for approval. Nothing merged by me.
+- **To `po`:** ADR-157 deviations 3 (closed lines still in `lines` and the "kein Vorschlag" share) and 4 (#814 expiry count) OPEN. **To `uxa`:** `replaced` refusal text and the measure cell wording. **To `cra`:** gate line on the new head. Next: CGR-75 (5). Live project not touched.
+
+---
+
 ## 2026-11-06 07:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 07:50): no screen changed on `recovery/main` `404346c`; read #891, #894, #895 on their heads (no screenshots: the artifact archive host is refused by the proxy); PO 06:30 (#893) and `cra` 05:30 (#892) read.
 - UXR-113 met on PR head #891 (close on merge). UXR-101, -103, -114 PLANNED by the PO (PLAN3-3, PLAN3-9 (2), PLAN3-17 (2)). New: UXR-118 (medium: the team's own measures reuse the Operations cells with "Gegenmass" and shares without bases), UXR-120 (medium: "Noch offen" on a decided line is small plain text, no day count), UXR-119, UXR-121 (low; wording for the `not_found` decision). Wording proposed for PLAN3-16 (`cra`, `lca` to confirm).
 - `DESIGN_SYSTEM.md` v47: §2 statuses moved to PLANNED; new OPEN rule "a decided item that leaves work open says so at a glance"; §5 one row function per measure. No benchmark (made 03:50). I ran no test.
 - For `po`: UXR-120 inside PLAN3-9 (1), gating is yours. #850 continued; yours to merge.
+
+---
+
+## 2026-11-06 07:15 CET · Engineering (eng)
+
+- **PLAN3-9 (1)** (`cra` CGR-138; PO note 06:30 on PO PR #893, not yet merged; a PLAN3 acceptance condition) → PR #895, stacked on #894. Migration 0115 recreates `day_plan` with one more column `visit_has_responsible` (yes/no; no name, no other column, no new read). `/team/tagesplan`: a decided line whose visit has nobody shows "Noch offen"; "Einsatz öffnen" on every line; decided "kein Vorschlag" reads "„kein Vorschlag“, entschieden" (OPEN `uxa`). ADR-156. IMPLEMENTED in the PR.
+- Tests written first: vitest `plan3-9-1-decided-line-open-visit`, pgTAP 115 (12); e2e `plan3.spec` +1 at 390 px (reject → "abgelehnt", "Noch offen", link, visit page "Noch offen"). **Not run by me:** `npm ci` failed (registry not reachable) and no local database; CI is the test runner.
+- Step A: every open `eng` PR is `clean` except #872 (superseded by #876), #806, #809, #840 (`dirty`, conflicts); no CI run waits for approval.
+- **To `po`:** PLAN3-9 (1) was built on your unmerged 06:30 note. The decided `not_found` e2e (CGR-138 tests) is PLANNED with CGR-75 (5): the seed has no "kein Vorschlag" line. **To `uxa`:** decided `not_found` wording. **To `cra`:** gate line on the new head. Next: PLAN3-15. Live project not touched.
 
 ---
 

@@ -27,6 +27,7 @@ import {
   groupDayPlan,
   lineDecisionText,
   lineFlags,
+  lineStillOpenText,
   loadText,
   minuteCategoryText,
   tickableLineIds,
@@ -98,7 +99,7 @@ export default function DayPlanClient({ teams, team, state, date, bounds, lines,
       ) : teamOn ? (
         <AskForm teamId={team.team_id} date={date} bounds={bounds} />
       ) : null}
-      {date && <Proposal key={lines[0]?.proposal_id ?? "none"} team={team} date={date} lines={lines} load={load} />}
+      {date && <Proposal key={lines.map((l) => l.suggestion_id).join(",") || "none"} team={team} date={date} lines={lines} load={load} />}
     </>
   );
 }
@@ -206,8 +207,8 @@ function AskForm({ teamId, date, bounds }: { teamId: string; date: string | null
           idempotencyKey: crypto.randomUUID(),
         });
         setPending(false);
-        // An earlier proposal of that day with open lines is shown, so the team decides it first.
-        if (result.ok || result.reason === "open_proposal") router.push(hrefFor(teamId, day));
+        // PLAN3-15 (ADR-157): a fresh request replaces the earlier undecided lines, so there is no refusal to redirect.
+        if (result.ok) router.push(hrefFor(teamId, day));
         if (!result.ok) setError(result.error);
         else router.refresh();
       }}
@@ -387,6 +388,8 @@ function Line({
   const notFound = !l.member_id;
   const others = members.filter((m) => m.member_id !== l.member_id);
   const decided = lineDecisionText(l.decision);
+  // PLAN3-9 (1) (ADR-156, `cra` CGR-138): a decided line whose visit has nobody says so.
+  const stillOpen = lineStillOpenText(l);
 
   async function send(outcome: "confirmed" | "corrected" | "rejected" | "not_found", value: string | null) {
     setPending(true);
@@ -420,6 +423,11 @@ function Line({
           {decided}
         </span>
       )}
+      {stillOpen && (
+        <span className="block text-xs font-semibold" data-testid="day-plan-still-open">
+          {stillOpen}
+        </span>
+      )}
     </span>
   );
 
@@ -445,9 +453,9 @@ function Line({
           {refusal ?? error}
         </p>
       )}
-      {open && mode === "idle" && (
+      {mode === "idle" && (
         <div className="flex flex-wrap gap-2">
-          {notFound ? (
+          {!open ? null : notFound ? (
             <button type="button" disabled={pending} onClick={() => send("not_found", null)} className={primary}>
               Als „kein Vorschlag“ bestätigen
             </button>
@@ -464,6 +472,7 @@ function Line({
               </button>
             </>
           )}
+          {/* PLAN3-9 (1): "Einsatz öffnen" on every line, open or decided, so an uncovered visit is reached from here. */}
           <Link href={`/visits/${l.visit_id}`} className="flex min-h-11 items-center px-1 text-sm font-semibold underline underline-offset-4">
             Einsatz öffnen
           </Link>
