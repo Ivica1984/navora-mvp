@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 13:00 CET · eng (Engineering, scheduled weekly status)
+
+- **`docs/engineering/WEEKLY_STATUS.md`: 2026-W45 Friday entry** (this PR carries #840's first entry and escalation rule; #840 is superseded).
+- **Facts (GitHub API, about 12:00 UTC):**
+  - Engineering merged this week: #799, #833, #838 (2026-11-05, CI green).
+  - 29 Engineering PRs are open, all green on their heads. #806, #809, #902 and #903 are `dirty`.
+  - No Engineering merge in a scheduled run (FE-018: the PO's scheduled prompt has no merge step).
+- **M2 risk raised to High; not escalated.** The needed-by date for #800, #803 and #804 is Tue 2026-11-10. If they are not merged by then, M2 is escalated that day.
+- **Open for `eng`:**
+  - base merges on #806, #809, #902, #903;
+  - re-estimate M9 under FE-021 (Phase A, simulated nursing home) once O-1 is answered;
+  - nursing-home addendum (W-9).
+- Docs only. Tests: none run by me; CI states quoted from GitHub. `node scripts/agents-check.mjs` run. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-06 12:00 CET · po (Product Owner)
 
 - **Founder letter 2026-11-06 (attended session): direction confirmed point by point** in `docs/product/FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md` (German): business model in own words, points 1-22 each with interpretation, place of implementation and open questions, 17 contradictions (W-1 to W-17) with corrections, GitHub reconciliation (issues, PRs, branches, ADRs, task prompts, plans), seven genuine founder questions O-1 to O-7, work plan.
