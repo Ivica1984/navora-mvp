@@ -411,6 +411,16 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 
 **First agent beyond the test agent built at database level (PLAN3 part (a), #872, not merged; `aia` 2026-11-05 14:20):** the day-plan rule agent carries every stage-0 control of §8 in the database (ledger, provenance, named confirmer without a per-person view, ticked-list bulk only for `schedule`, explicit `not_found`, stop, synthetic fixture, team switch, no record write). Added control: **a fresh request replaces stale lines without manual clean-up** (AUT-51, OPEN): when the situation changes (absence, sick call), a new proposal for the same team and day closes the earlier undecided lines with a recorded outcome instead of refusing until each is decided by hand; one list per visit stays (H-20) and every line is still re-checked at confirm.
 
+**Mandated rule lines (PLAN4, Blueprint SV-7, FE-028; `aia` 2026-11-06 14:40, review 34):**
+- **PLANNED (no brief; draft due 2026-12-04):** routine assignment applied by a team-set deterministic rule under an explicit, revocable team mandate. Not an AI agent; no AI service.
+- **Controls the brief must carry:** (1) the mandate is a recorded team act with the members who set it, revocable by any member; (2) only `schedule`-class fields (AIG1-5) can be applied, never a `record` field, a date, time, minutes or category; (3) every applied line is a ledger row with its own outcome and the rule version; (4) undo by any member in one act, counted with the other planning acts (M-11); (5) the PLAN3-2 limits and any unclear qualification, conflict or overlap leave the line as a proposal for a person; (6) the stop rule applies: an undo rate per team over the team's own threshold returns the mandate to proposals; (7) no per-person view of applied or undone lines. Gates: `cra`, `lca` (automated decision affecting staff).
+
+**Documentation drafts (DOC-AI, Blueprint §1, FE-028; AUT-54, high; `aia` 2026-11-06 14:40):**
+- **IMPLEMENTED:** the structured report is a deterministic server snapshot of the recorded facts (F6, F7, F6R, OBS1). It is a rule, needs no agent and no review step.
+- **Proposed scope (OPEN, `po`):** an agent only at the edge, turning the nurse's own unstructured note into proposed observations with their source span, confirmed value by value (A7 limits apply); a narrative report or handover text stays A9 in the separate clinical module (D-34 C). Level of DOC-AI: the Blueprint says G, §7 says A9 is H: UNKNOWN until `cra`.
+
+**Administration measures (Blueprint §10.2 M-11, M-15; AUT-55, AUT-56; `aia` 2026-11-06 14:40):** M-15 is computed from recorded administrative segments and acts, never as paid minus care time (that holds travel, meetings and training); in a ward no time tap per resident is introduced for measurement. M-11 counts undo and override of mandated lines.
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -447,3 +457,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-05 10:15 | `aia` | No control changed: `cra` option C conditions and CGR-135 are repository merge controls, not AI controls; AUT-50 proposes a deterministic gate-head check. AIG1 (#814) and AIR1 (#828) still unmerged (AUT-48). No agent added or removed |
 | 2026-11-05 08:20 | `aia` | No control changed: CGR-132 (both pairs), CGR-134 and the `lca` AUT-46 addition are wording and deterministic refusals covered by the 2026-11-04 controls; AUT-49 is a repository process finding. AIG1 (#814) and AIR1 (#828) still unmerged (AUT-48, owner option C). No agent added or removed |
 | 2026-11-05 02:25 | `aia` | No control changed: AUT-46 form and CGR-131 to CGR-133 are single-source wording, covered by the 2026-11-04 controls; AIG1 (#814) and AIR1 (#828) still unmerged (AUT-48, delivery hand-off). No agent added or removed |
+| 2026-11-06 14:40 | `aia` | §12: added the controls for mandated rule lines (PLAN4, seven conditions), the DOC-AI scope note (AUT-54: structured report stays the F7 rule; agent only for unstructured input; level UNKNOWN until `cra`) and the administration-measure rule (AUT-55, AUT-56). No agent added or removed |
