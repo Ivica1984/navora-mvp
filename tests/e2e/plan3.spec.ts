@@ -132,7 +132,7 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
     await expect(line0815.getByTestId("day-plan-refusal")).toHaveText("Nicht übernommen: Diese Person hat zu dieser Zeit schon einen Einsatz.");
     await expect(line0815.getByRole("button", { name: "Bestätigen", exact: true })).toBeVisible();
     await page.goto(`/visits/${VISIT_0815}`);
-    await expect(page.getByTestId("visit-responsible")).toHaveText("Noch offen");
+    await expect(page.getByTestId("visit-responsible")).toHaveText("noch niemand") /* UX2-29 (ADR-132): an open visit without a member */;
 
     // The 12:00 line (category B) is changed to the other registered nurse and confirmed: one `corrected` line.
     await page.goto(`/team/tagesplan?datum=${zurichIso(1)}`);
@@ -212,7 +212,7 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
 
     await link.click();
     await page.waitForURL(new RegExp(`/visits/${VISIT_0815}`));
-    await expect(page.getByTestId("visit-responsible")).toHaveText("Noch offen");
+    await expect(page.getByTestId("visit-responsible")).toHaveText("noch niemand") /* UX2-29 (ADR-132): an open visit without a member */;
   });
 
   // CGR-75 (5) (`cra`, PLAN3 acceptance condition; ADR-158, pgTAP 117 pins the fixture). The day after tomorrow is a
@@ -272,7 +272,7 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 
     await page.goto(`/visits/${VISIT_D2_0900}`);
-    await expect(page.getByTestId("visit-responsible")).toHaveText("Noch offen");
+    await expect(page.getByTestId("visit-responsible")).toHaveText("noch niemand") /* UX2-29 (ADR-132): an open visit without a member */;
     await page.goto(`/visits/${VISIT_D2_1100}`);
     await expect(page.getByTestId("visit-responsible")).toHaveText(BEZUG);
 
@@ -298,7 +298,7 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
 
     await link.click();
     await page.waitForURL(new RegExp(`/visits/${VISIT_D2_1400}`));
-    await expect(page.getByTestId("visit-responsible")).toHaveText("Noch offen");
+    await expect(page.getByTestId("visit-responsible")).toHaveText("noch niemand") /* UX2-29 (ADR-132): an open visit without a member */;
     await page.goto("/field");
     const open = page.getByTestId("open-in-team");
     await open.getByTestId("open-in-team-toggle").click();

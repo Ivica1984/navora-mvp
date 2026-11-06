@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { getHomeLink, getRecordLookback, getVisitRecord } from "@/features/ai/queries";
 import LookbackActions from "./lookback-actions";
-import { fieldLabel, formatDate, hhmm, provenanceLine, recordBackLink } from "@/features/ai/labels";
-import { getVisitStatusLabel } from "@/features/visits/types";
+import { formatDate, hhmm, provenanceLine, recordBackLink } from "@/features/ai/labels";
+import { getVisitStatusLabel, RESPONSIBLE_LABEL, responsibleEmptyText } from "@/features/visits/types";
 
 // AIG1 part (b) (ADR-129): one visit as a look-back line or a proposal opens it. The visit comes through its existing
 // read path (care_visits RLS: team, coordination; READ_PATHS); the AIG1-3 line "vorgeschlagen von <Agent> / bestätigt
@@ -43,10 +43,10 @@ export default async function VisitRecordPage({
           <dd>{record.team_name ?? "–"}</dd>
           <dt className="text-secondary">Status</dt>
           <dd>{getVisitStatusLabel(record.status)}</dd>
-          <dt className="text-secondary">{fieldLabel("responsible_user_id")}</dt>
+          <dt className="text-secondary">{RESPONSIBLE_LABEL}</dt>
           <dd data-testid="visit-responsible">
-            {/* PLAN3-17 (2) (ADR-159): the same label as every visit-assigning picker. */}
-            {record.responsible_set ? (record.responsible_label ?? "Teammitglied (ohne Namen)") : "Noch offen"}
+            {/* PLAN3-17 (2) (ADR-159): the same label as every visit-assigning picker; empty: UX2-29 (ADR-132). */}
+            {record.responsible_set ? (record.responsible_label ?? "Teammitglied (ohne Namen)") : responsibleEmptyText(record)}
           </dd>
         </dl>
         {record.provenance && (

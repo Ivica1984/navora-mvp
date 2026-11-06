@@ -17,6 +17,7 @@ import {
   hhmm,
   proposedByText,
 } from "@/features/ai/labels";
+import { RESPONSIBLE_PICK_TEXT } from "@/features/visits/types";
 
 const button = "min-h-11 rounded-lg px-3 text-sm font-semibold disabled:opacity-60";
 
@@ -268,9 +269,7 @@ function SuggestionLine({
           <label className="grid gap-1">
             <span className="text-xs font-semibold">{fieldLabel(s.field)}</span>
             <select name="member" required defaultValue="" className="min-h-11 rounded-lg border border-stone-300 bg-white px-2">
-              <option value="" disabled>
-                Person wählen
-              </option>
+              <option value="" disabled>{RESPONSIBLE_PICK_TEXT}</option>
               {others.map((m) => (
                 <option key={m.user_id} value={m.user_id}>
                   {pickerMemberLabel(m)}
