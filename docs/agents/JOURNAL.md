@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 19:45 CET · po (Product Owner)
+
+Scheduled PO run (19:39), founder cleanup FE-037 continued (README rule 11: the cleanup still takes precedence over new briefs and packages).
+
+- **Prepared, not merged (A):** **#841 AN3**: the PO merged `recovery/main` into the branch (head `802987f`; conflicts in `JOURNAL.md`, `IMPLEMENTATION_STATUS.md`, `DECISIONS.md` only, every entry kept), CI 4/4 green, own code identical to the `cra`-cleared head `09cdc85`; all seven conditions hold (record on #841). **The merge call was refused by this session's tool permission check** ("merge without review"), not by a gate condition. Role PRs **#850** (`uxa`, `1781b20`), **#860** (`lca`, `afbdbce`), **#899** (`csa`, `cc3f2b7`): `JOURNAL.md` conflicts resolved (every entry kept, newest first), CI green; not merged for the same reason. This PO PR is also left open.
+- **Reviewed and accepted (C; the PO did not run the tests):** **AIR1** (#828) on merged evidence, `briefs/AIR1.md` (acceptance record; the directive #824 is the criteria list). CI on `bdf42bd` was cancelled by concurrency; the docs-only successor `9a15f98` is green on all four jobs. No runtime trigger: accepted. J5 flag: a fixed rule on a nurse-signed report is "Apply rules", not an AI billing decision; no owner question, D-18 unchanged. CGR-115 → **AIR1-C1**.
+- **AN3 pre-merge decisions:** ADR-144 deviations 1-7 accepted; UXR-88/-89/-90 → **AN3-C1**, AUT-33 → **AN3-C2** (act counts per 100 visits per team and month, after PLAN3), CGR-114 → **AN3-C3** (`briefs/AN3.md`). AN3 acceptance follows the merge and CI on the merge commit.
+- **Decisions (F):** no package moved. The `lca` inputs for D-22, D-18 and D-41 sit on #860 and are taken in once it is merged.
+- **Challenge (E):** unchanged from 19:15 (status rows on branches cause every docs conflict; proposal in #861).
+- **Blueprint v2.6** (AIR1 accepted, M4.1 ACCEPTED, M4 completion 13 %, merge blocked); `ROADMAP.md`, `CLEANUP_2026-11-06.md` §3, `NEXT_CAPABILITY.md` updated. `node scripts/agents-check.mjs` run before publishing.
+- **Agents (§9):** `eng`: nothing new merged; when resumed, AIR1-C1 and AN3-C1/-C3 wait after #841, AN3-C2 after PLAN3; #815 still needs the code conflict resolved. `cra`: no new workflow on `recovery/main`; AN3 gate unchanged. `lca`: #860 ready, not merged. `uxa`: AN3-C1 carries UXR-88 to UXR-90. `aia`: AUT-33 placed as AN3-C2. `csa`: M2 cleanup stalled by the merge refusal; M4 13 %.
+- **For the owner (OPEN):** the scheduled PO session cannot merge right now (tool permission check). Either allow the merge action for the scheduled PO task, or merge #841 (head `802987f`) and then #850, #860, #899 yourself on the records. No scheduled-task prompt text needs a change; the block is a permission setting, not the prompt.
+- **Contradiction noted:** the prompt's FE-033 section names the PLAN3 stack as "#891 to #910"; the cleanup map (FE-037, newer) starts it at #872. Followed FE-037.
+
+---
+
 ## 2026-11-06 19:15 CET · po (Product Owner)
 
 Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within the goal (README rule 11): the cleanup takes precedence over new briefs and packages (FE-037 "Bereinigung vor neuen Features").

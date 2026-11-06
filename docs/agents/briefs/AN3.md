@@ -56,3 +56,21 @@ The team (sees its own figures on `/analytics`), the PO and the owner (decide wh
 ## Open questions for engineering
 - Which source column carries each start and end (AN3-1 (a)-(e)); where a step has no reliable start timestamp, say so in the ADR and leave that figure out rather than approximate it.
 - Whether AN3 fits into `pilot_kpis` or needs a separate read-only function with the same grants.
+
+## PO pre-merge decisions (2026-11-06 19:39 CET, scheduled PO run)
+
+Read on #841 head `802987f` (CI green, `cra-gate: #841 09cdc85 clear`, own code identical). **Acceptance waits for the merge and CI on the merge commit** (`PO_MERGE_PROCESS.md` §5); the merge call was refused in this run by the session's tool permission check. The PO did not run the tests.
+
+**ADR-144 deviations 1-7: all accepted.**
+1. (b) reuses the AN2 figure: one definition for one span (AUT-34).
+2. The travel share is a new figure from AN1's source and denominator: the brief assumed an existing row that does not exist; the source is the same.
+3. Beside (b), the AN1 share of visits with a time correction replaces "open time corrections": a correction has no open state (F3).
+4. (d) counts the `inform_gp` task only and leaves out a done task with no close time: no approximation (brief open question 1).
+5. (e) leaves out `not_found`: the assistant found no value; it is not a decision.
+6. Periods by end month, creation month or visit date: stated per figure in the definitions.
+7. CGR-112 applied before the PO placed it: findings take precedence (gate rule).
+
+**Conditions after merge (not holding #841), before G-19:**
+- **AN3-C1 (`uxa` UXR-88, UXR-89, UXR-90; `cra` 2026-11-03 21:30 (1)-(3)):** plain-word sources and labels, codes only in `data-ref` (vitest: no label, definition or source matches the code pattern); definition and source behind one "Wie gemessen" disclosure, the month once per block; "Unterschrift bis Gegenzeichnung", "Berichte mit Rückgabe" and "Einsätze mit Zeitkorrektur" in one card, "Vorschlag bis Entscheid" with its changed, rejected and expired counts in one card, values visible with every disclosure closed, "Kein Richtwert." visible outside the disclosure (Playwright at 390 px); teams sorted by name (`Intl.Collator("de-CH")`). Definitions keep their substance word for word.
+- **AN3-C2 (`aia` AUT-33):** per team and month, the number of acts per 100 completed visits for countersignatures, `inform_gp` tasks, hand-set responsible members and changed day-plan lines; same access and suppression as AN3-4, never per person, no target. Built after the PLAN3 stack is merged (it reads PLAN3 lines). Why: an elimination removes acts, not only time; without act counts the M4 hypothesis ("manual day planning disappears") cannot be measured.
+- **AN3-C3 (`cra` CGR-114):** `inform_gp_closed_with_case` per team and month under span (d), same suppression; pgTAP on the C5 fixture.

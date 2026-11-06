@@ -1,6 +1,6 @@
 # NAVORA Architecture Review and Implementation Blueprint V2
 
-**Owner of this file:** Product Owner (`po`) · **Written:** 2026-11-06 08:40 (Europe/Zurich), by the owner's *Program Quality Improvement Directive* (2026-11-06) · **Version:** 2.5, 2026-11-06 19:15 (see the version table below). Version 2.1 was written after the founder letter of 2026-11-06 (decisions FE-019 to FE-030 in [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md); answer in [`FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md`](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md)). Version 2 was 2026-11-06 08:40; version 1 is [`DELIVERY_PROGRAM.md`](DELIVERY_PROGRAM.md), 2026-11-03 · **Repository state read:** `recovery/main` @ `9c58939`, open PRs and role branches read through the GitHub API on 2026-11-06 08:20-08:40.
+**Owner of this file:** Product Owner (`po`) · **Written:** 2026-11-06 08:40 (Europe/Zurich), by the owner's *Program Quality Improvement Directive* (2026-11-06) · **Version:** 2.6, 2026-11-06 19:45 (see the version table below). Version 2.1 was written after the founder letter of 2026-11-06 (decisions FE-019 to FE-030 in [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md); answer in [`FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md`](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md)). Version 2 was 2026-11-06 08:40; version 1 is [`DELIVERY_PROGRAM.md`](DELIVERY_PROGRAM.md), 2026-11-03 · **Repository state read:** `recovery/main` @ `9c58939`, open PRs and role branches read through the GitHub API on 2026-11-06 08:20-08:40.
 
 
 **Status (FE-035, owner 2026-11-06):** this Blueprint is NAVORA's **official, leading working book** (Arbeitsbuch). It is a living document: every content change, new founder decision and milestone progress is recorded in the version table below; substantial changes stay traceable in the text (struck through or marked as replaced, never silently overwritten); with every update the PO synchronises the affected GitHub issues and PRs, and names any scheduled-task prompt that needs a change.
@@ -9,7 +9,8 @@
 
 | Date (Europe/Zurich) | Version | What changed | Why | Sections affected |
 |---|---|---|---|---|
-| 2026-11-06 19:15 | **v2.5** | M2 progress (cleanup FE-037): merged #803, #804, #806, #809 (UX2 parts 4-7), #810 (CGR-110), #813 (RLS4-C3), #814 (AIG1-C4/C5), #828 (AIR1), `cra` #911 and #915; RLS4-C3 and AIG1-C4/C5 accepted; #815 (ASM1-C6) blocked by a code conflict while Engineering is paused | scheduled PO run 2026-11-06 18:39; cleanup progress in `../agents/reports/CLEANUP_2026-11-06.md` §3 | version table only (no rule, milestone date or gate changed) |
+| 2026-11-06 19:45 | **v2.6** | AIR1 accepted (AIR1-C1 from CGR-115 open); AN3 (#841) ready to merge (CI green, seven conditions hold, ADR-144 deviations accepted, AN3-C1 to C3 placed) but **not merged**: the merge call was refused by the scheduled session's tool permission check; M4.1 marked ACCEPTED (AIG1-C4/C5 accepted 18:55), M4 completion 13 % | scheduled PO run 2026-11-06 19:39 | version table, §4 M4 |
+| 2026-11-06 19:15 | v2.5 | M2 progress (cleanup FE-037): merged #803, #804, #806, #809 (UX2 parts 4-7), #810 (CGR-110), #813 (RLS4-C3), #814 (AIG1-C4/C5), #828 (AIR1), `cra` #911 and #915; RLS4-C3 and AIG1-C4/C5 accepted; #815 (ASM1-C6) blocked by a code conflict while Engineering is paused | scheduled PO run 2026-11-06 18:39; cleanup progress in `../agents/reports/CLEANUP_2026-11-06.md` §3 | version table only (no rule, milestone date or gate changed) |
 | 2026-11-06 15:00 | v2.4 | DOC-AI scope narrowed (`aia` AUT-54 adopted by the PO): the structured report stays the deterministic F7 snapshot, DOC-AI works only on the nurse's own unstructured note; FD-22 restated; CGR-142 conditions (1)-(5) on every NH-A brief (M9.0a); CGR-143: M-21 "> 7 days" marked PROPOSED (owner `clinical`), M-21 indicator set and margin set by the Clinical Owner before the Phase B baseline, M-15/M-16 read only beside M-21 and the correction rate, hypotheses renamed HYP-1 to HYP-6; scheduled PO merge refused again at 14:45 (§3.1) | `aia` AUT-54 (#912), `cra` 13:30 (CGR-142, CGR-143), scheduled PO run 14:45 | §1 AI work flows, §3.1, §4 M8 and M9, §7 FD-22, §10.2 |
 | 2026-11-06 14:45 | v2.3 | Version table and living-document rule added; M9 re-framing **confirmed** by the owner (no longer PROVISIONAL); merge process test run on #800 recorded (passed); scheduled-task prompts of all eight agent tasks updated by the owner's approval (FD-01 closed); SR-26 decided by the owner (delete the foreign `orders` table), execution blocked because the old live project is paused; Decision Board and dashboard updated; M2 progress (#800 merged) | founder message 2026-11-06 (FE-033 to FE-036) | header, §3.1, §4 M2 and M9, §6, §7, §10.3 |
 | 2026-11-06 12:30 | v2.2 | Phase A = home care and a simulated nursing-home ward (O-1 decided); FD-21 removed; M3 30 %; nursing-home briefs no longer provisional; `lca` commissioned; D-42 opened | owner answer in the session (FE-031, FE-032) | §1.3, §4 M3, M9.0a, §6, §7 |
@@ -229,18 +230,18 @@ Rule for reuse: a sector difference is configuration or a sector module on the s
 - **Dependencies:** none; every package is complete.
 - **Acceptance criteria:** each row answered in `OPEN_DECISIONS.md` *Decided* with date; `decisions/INDEX.md` status `decided`; dependent packages unfrozen with an `Unfreeze:` reference.
 
-### M4 AI Foundation I · target Fri 2026-12-18 · **completion 0 %** (built 70 %)
+### M4 AI Foundation I · target Fri 2026-12-18 · **completion 13 %** (built 70 %) ~~completion 0 %~~ (v2.6)
 
 - **Responsible:** `eng`; accepts `po` with `cra`; review `aia`; `lca` on AN3 (D-23 term (b)).
 - **Sub-milestones:**
 
   | ID | Sub-milestone | Owner | Due | Weight | Status |
   |---|---|---|---|---|---|
-  | M4.1 | AIG1-C4/-C5: expired proposals apart; stop followed up by open lines (#814) | `eng` | 2026-11-20 | 2 | BUILT |
+  | M4.1 | AIG1-C4/-C5: expired proposals apart; stop followed up by open lines (#814) | `eng` | 2026-11-20 | 2 | ACCEPTED (2026-11-06 18:55; ~~BUILT~~ v2.6) |
   | M4.2 | PLAN3 part (a) + PLAN3-14 (#872 superseded by #876) | `eng` | 2026-11-20 | 3 | BUILT |
   | M4.3 | PLAN3 part (b) on `/team/tagesplan`, PLAN3-7, -9, -11, -12, -13, -17 (1) (#880 → #895) | `eng` | 2026-11-27 | 4 | BUILT |
   | M4.4 | PLAN3-15 (fresh request closes old lines), PLAN3-9 (2), PLAN3-17 (2), PLAN3-3 wording, CGR-75 (5) e2e | `eng` | 2026-12-04 | 3 | PLANNED |
-  | M4.5 | AN3 per-step spans per team and month (#841) | `eng` | 2026-12-11 | 2 | BUILT |
+  | M4.5 | AN3 per-step spans per team and month (#841) | `eng` | 2026-12-11 | 2 | BUILT, ready to merge (v2.6: seven conditions hold on `802987f`, merge call refused by the session's permission check) |
   | M4.6 | PLAN3-16 hand-assignment overlap fact (information only) | `eng` | before M9 | 1 | PLANNED (not gating M4) |
 
 - **Blockers:** RC-1, RC-2; M4.1 is a precondition of four PLAN3 points.
