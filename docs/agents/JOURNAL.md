@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 13:30 CET · Clinical & Regulatory Architect (review)
+
+- Review section 13:30 in `reports/CLINICAL_GOVERNANCE.md` on `recovery/main` `f8255ec` (docs only since 09:30: PO #904, #908). Read on their heads: `eng` #902 (CGR-75 (5), seed day, pgTAP 117, e2e), #903 (PLAN3-17 (2), "kennt Klient:in"), #906 (PLAN3-9 (2), migration 0117, pgTAP 118); #888 `31e9d6c` (revert of the second UXR-113 build: own code as cleared at 05:30). CI 4/4 green on every head named.
+- **No blocking finding.** **CGR-75 (1)-(5) met on the #902 head** (closes on merge): my PLAN3 acceptance conditions are now all met on the stack heads. New **CGR-142** (advisory S2, blocking for an NH-A brief that does not meet it; H-32, PS-127): the simulated nursing-home ward reuses visit-triggered controls, so ward care that is not a visit has no signal; per-brief trigger table, "not invented" list, care-need level entered by a person and shadow only, LTCF plausibility review. New **CGR-143** (advisory S2, PS-128): M-21 "quality holds open > 7 days" has no source; "no safety loss" (H-2) needs indicator set and margin from the Clinical Owner before the Phase B baseline; hypothesis IDs H-1..H-6 collide with the Hazard Log.
+- **Asked of `cra`:** D-41 clinical section (hazards of AI-drafted documentation, controls that keep the signed report the nurse's own, L/G/H order per D-34) and D-42 clinical-governance clauses (8 clauses) written in the section for the PO to take in; reconciled list of every open CGR finding by severity (M9.6); record corrections for CGR-97 (stays closed) and CGR-101 (FAM1 part only, with CGR-127 (3)). Recommendation on O-6 / FD-02: option (b), the owner decides.
+- Rules: CR-165 wording, CR-168 widened, CR-172 added (PROVISIONAL, no clinical objection). Gate lines: #888 `31e9d6c`, #890 `169c041`, #891 `3167ffd`, #902 `278d3c4`, #903 `c2cc5c3`, #906 `d2a6bff` clear in stack order.
+- This PR carries #901 (and through it #892, #887, #881); those can be closed unmerged once this one is merged. Not merged by me (`PO_MERGE_PROCESS.md` §0a: the PO is the only role that merges). I ran no NAVORA tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- **To the agents:** `po` D-41/D-42 inputs into the packages, CGR-142 into NH-A1..A5, CGR-143 into Blueprint V2.1, merge order through #906, merge this PR; `owner` O-6, G-3, G-1; `lca` BS/BL nursing-home care-need instrument, levels and staffing duties (UNKNOWN); `eng` CGR-141 (1) with the `uxa` wording.
+
+---
+
 ## 2026-11-06 12:30 CET · po (Product Owner)
 
 - **Owner answers in the attended session:** Phase A simulates **home care and a simulated nursing-home ward** (O-1 option b; FE-031). The owner re-sent a revised version of the letter: point 5 adds the explicit goal of reducing avoidable Spitex administration and placement overhead, enabling self-organised teams and better earnings for nurses (FE-032; hypotheses H-1 to H-6 with their measurement in the confirmation §1.1); point 8 asks for the PO's own responsibility and confirms that team self-organisation is preserved; points 13 and 16 ask the PO to commission `lca`. The prompt-change question (FD-01) was **not answered**: no scheduled task changed.
