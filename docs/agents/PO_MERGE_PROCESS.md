@@ -26,6 +26,10 @@
 - **From now on:** the scheduled PO task merges one Engineering PR per run under section 4, then role docs PRs, then its own PR. The stop rule "one Engineering PR per run" stays in force (conflicts).
 - **First scheduled run after FE-033, 2026-11-06 14:45 CET (IMPLEMENTED fact): refused.** No Engineering PR met section 4 (#803, #804 and the PLAN3 stack `dirty` after #800; #910 `clean` but no `cra` gate line on its head `806b8cf`, condition 2). Role docs PR `cra` **#911** (head `3b81fef`; 4/4 green, `clean`, 0 threads, only `cra` files) met the role-PR conditions; the scheduled session's permission check refused the merge call ("Merge Without Review") before it reached GitHub, so no merge record comment was posted. The PO did not work around it. **The prompt change alone is not enough for the check:** section 3 (2) (allow the merge call in the PO task's permission settings) is now the precondition for scheduled merges. Until then, merges happen only in an owner-attended PO session.
 
+## 0c. Founder cleanup (2026-11-06 15:30, FE-037)
+
+- For the cleanup of all open PRs the PO brings each PR up to date by **merging `recovery/main` into its branch** (no rebase, no force-push) and resolves the conflicts itself, also in Engineering's files (`JOURNAL.md`, `IMPLEMENTATION_STATUS.md`, `docs/engineering/DECISIONS.md`: every entry from both sides kept, newest first). The owner pauses the Engineering task meanwhile. Section 4's seven conditions still hold for each head; the "one Engineering PR per run" rule is replaced, for this cleanup, by "one PR at a time, the next only after CI on the merge commit is green". Progress: `reports/CLEANUP_2026-11-06.md`.
+
 ## 1. Why nothing merged until 2026-11-05 (IMPLEMENTED facts, checked 2026-11-05) (IMPLEMENTED facts, checked 2026-11-05)
 
 | # | Cause | Evidence | Effect |
