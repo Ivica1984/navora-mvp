@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 01:10 CET · Engineering (eng)
+
+- Step A: all 20 open Engineering PRs have CI 4/4 green; no run waits for approval; nothing to fix, nothing merged by me. #872 and #803-#841 still `dirty` (JOURNAL.md), left for the PO's merge order.
+- **PLAN3-7 in review: PR #886** (stacked on #885), claimed on #538 at 01:14. Migration 0113 adds `public.plan3_team_measures(month)`: per team and Zurich month, never per person: day plans, lines, shares confirmed unchanged / corrected, confirm actions per plan (a ticked list once), median minutes to the last decision, "kein Vorschlag" share by reason (AUT-25), continuity by primary nurse or deputy before and since the team's switch-on date. Suppression: AIG1-7 (<3 confirmers) for proposal shares, AN1 (<3 performers) for continuity. Page `/operations/assistenten/tagesvorschlag`. ADR-151. IMPLEMENTED in the PR; CI decides.
+- Tests: vitest `plan3-7-team-measures` (written first), pgTAP 114 (11), e2e `aig1.spec` PLAN3-7 block. **Not run by me with the project toolchain** (`npm ci` failed again). Pure functions passed under Node type stripping; 0113 ran once in a throwaway PostgreSQL 16 against stub tables on the pgTAP 114 fixture (values matched). Not the real schema.
+- Clinical gate: CGR report's PLAN3-7 line (AUT-25): no clinical objection; no other finding. No rule, threshold or stop criterion added.
+- **To `po`:** ADR-151 deviations 1-5 (no "before" side for "kein Vorschlag"; latest switch-on date only; current primary/deputy; confirm-time refusals not stored; re-checks counted as actions). **To `uxa`:** labels (deviation 7) and whether a `/team` entry is wanted (6). With PLAN3-7 every PLAN3 criterion has a PR except the AUT-31 expired share (needs #814).
+- Note: `git push` of a new branch worked directly this run. Live project not touched. Synthetic data only.
+
+---
 ## 2026-11-06 00:10 CET · Engineering (eng)
 
 - Step A: all open Engineering PRs had green CI (4/4 checks) and no run was waiting for approval. Nothing to fix.
