@@ -31,6 +31,54 @@
 
 ---
 
+## 2026-11-06 02:15 CET · aia review 32: PLAN3 stack read on its heads (`eng` #880 part (b) slice 1, #882 PLAN3-12, #883 PLAN3-11, #885 PLAN3-13, #886 PLAN3-7, #888 CGR-139; `cra` #881 21:30, #887 01:30; `uxa` #850 to 23:50); stage-0 controls met on the screen; AUT-25 remedy met on #886 (closes on merge); AUT-31 lead time met on #885, expired share waits for #814; CGR-140 option (a) supported; new AUT-52 (medium: the team cannot see the measures of its own switch)
+
+**Read:** `recovery/main` at `c315efc` (since review 31 only my #869 merged; no code merged). Open, read on their heads: `eng` **#880** (`12f0b0d`, ADR-147), **#882** (`c734eaf`, ADR-148), **#883** (`f05a5ef`, ADR-149, migration 0111), **#885** (`f37180d`, ADR-150, 0112), **#886** (`d5411ee`, ADR-151, 0113), **#888** (`ca35e1e`, ADR-152); `cra` **#881** and **#887** (CGR-138, CGR-139, CGR-140); `uxa` **#850** (UXR-102 to UXR-112). No new or changed brief, no PO cycle since #877; open `automation` issues: #793 (AUT-30) only. CI read from the GitHub API: #880, #882, #883, #885, #886 4/4 green; #888 in progress.
+
+**Nothing below is a measurement.** I ran no tests and read no database. Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-52 | Team decides whether to keep "Tagesvorschlag" on (PLAN3-10, `/team/tagesplan`): the team itself | **IMPLEMENTED on #886 (not merged):** `plan3_team_measures(month)` already answers an active member for her own teams (ADR-151 decision 3), but the only screen is `/operations/assistenten/tagesvorschlag` (desktop, coordinators); a `/team` entry is PLANNED only if the PO asks (ADR-151 deviation 6). The switch on `/team/tagesplan` shows only "eingeschaltet am <Datum>". **Effect:** the team owns the switch (PLAN3-10), but the numbers that say whether the assistant saves it work (unchanged share, "kein Vorschlag" share by reason, confirm actions per plan, continuity before/after) reach only the hierarchy. A team that cannot see that half its visits get "kein Vorschlag (keine Bezugsperson)" cannot fix the care-graph gap itself (AUT-25), and the decision to keep or drop the assistant moves to Operations. No new step for a nurse today; the gap is in team autonomy | **monitor, no new read, no new act:** one information line under the switch on `/team/tagesplan`, from the same reader and the same suppression: "Diesen Monat: <n> Tagesvorschläge · <x> % unverändert bestätigt · <y> % ohne Vorschlag", plus the largest "kein Vorschlag" reason when it is one the team can fix (no primary nurse set); a link to the month's cells. Suppressed values read as on Operations; no colour, no target, no comparison between teams | L | stage 0; `po` (scope, PLAN3-7 screen line), `uxa` (form); no `cra` (no clinical rule), no `lca` (same reader, team level) | share of teams with the assistant on that change a "kein Vorschlag" cause (primary nurse set) within the month; switch-offs explained by the team's own numbers. Never per person | medium | report only |
+
+### 2 Briefs, plans and packages reviewed
+
+- **#880 PLAN3 part (b) slice 1 (ADR-147):** one route per team and day, every line unticked, no "select all", the button names its count, refused lines keep their reason and stay "Noch offen". Meets §8 "no accept-all" and "named confirmer" on screen; no step or field added beyond the brief. Supported. ADR-147 deviation 3 ("Ablehnen" on a day-plan line): supported; it is one act the team needs when a proposal is wrong, and its result is recorded. **CGR-138** (`cra`: a decided line without a responsible member loses "Einsatz öffnen"): supported; keeping the link removes a search for the uncovered visit and adds no act.
+- **#882 PLAN3-12 (ADR-148):** count from the existing reader, no badge, no colour (H-20). Supported. Deviation 4 (the count includes proposals of past visits until AIG1-C4 #814 merges) inflates a number shown to the team every day; one more reason to merge #814 before PLAN3 is accepted, not a new finding.
+- **#883 PLAN3-11 (ADR-149):** the team finds its own look-back lines, keyed on the stop, not on the agent's state. **This is part (2) of AUT-30 (#793) for the team side** (the entry survives an agent switched off after its stop); the Operations side stays with AIG1-C5 (#814). Supported.
+- **#885 PLAN3-13 (ADR-150):** six counts per stop and team, no person column, no target. Supported. **AUT-31:** the median lead time from proposal to visit start is built; the expired share waits for #814 (ADR-150 deviation 2). Deviation 5 (no small-team suppression on counts of values): supported as built; these are counts of records, not of people.
+- **#886 PLAN3-7 (ADR-151):** **AUT-25 remedy met on the head:** the "kein Vorschlag" count and share per team and month, split by the four stored PLAN3-2 limits, suppression as AIG1-7. Closes on merge. Deviation 4 (confirm-time refusals are not stored, so not counted): this is the same gap as AUT-51; AUT-51's remedy (a fresh request closes the refused line with a recorded outcome) also makes the refusal countable without a new table. AUT-52 above.
+- **CGR-140 (`cra`, rejected lines in neither share):** I support **option (a)**, a third share "Abgelehnt". A correction ("right visit, other member") and a rejection ("this proposal is not wanted") tell the team and the PO different things: a high correction share points at the member rule, a high rejection share at the proposal itself or at visits the team plans differently. Merged into one balancing share the two cannot be told apart, and §8 asks for the rate per agent and field. Test as `cra` wrote it: one rejected line in pgTAP 114, the three shares sum to 100 % of `decided_lines` (±0.1).
+- **#888 CGR-139 (ADR-152):** one label function for every picker, no new read. Supported; it removes a wrong pick without adding an act.
+- **`uxa` UXR-102 to UXR-112:** wording and placement; UXR-110 (weekday with the date) lowers the chance of planning the wrong day at no cost. No finding.
+
+### 3 AI readiness of delivered items (§8)
+
+PLAN3 on the stack heads (#880 to #888, not merged): **suggestion ledger** and **provenance per value** unchanged from #876; **named confirmer** shown as the line's decision state only, never a per-person view (ADR-147 decision 4, pgTAP 114 catalogue check: no confirmer column in the measures); **no accept-all** on screen (unticked list, no "select all"); **correction rate per agent and field** built per team and month (PLAN3-7), rejected lines missing from both shares (CGR-140); **stop rule** with a team entry for its look-back (PLAN3-11) and its measure (PLAN3-13); **evaluation on synthetic data** (Testorganisation G, pgTAP 110 to 114). Missing, as before: the AUT-51 test (a fresh request after a line refused at confirm); the expired share (AUT-31, #814).
+
+### 4 Stage tracking (D-35)
+
+Stage 0 only. Stage-1 entry conditions unchanged since review 31: no AI provider decision (owner), no stage-1 package; the stage-0 governance layer (AIG1 #814, AIR1 #828) still unmerged. PLAN3 adds no stage-1 condition.
+
+### 5 Findings: state changes and closed
+
+- **AUT-25 (medium):** remedy met on #886 `d5411ee` (stored reasons); closes when #886 merges unchanged. The refusal part moves to AUT-51.
+- **AUT-31 (low):** lead time met on #885 `f37180d`; the expired share stays open until #814 merges.
+- **AUT-30 (high, #793):** team-side entry met on #883 (keyed on the stop); Operations side open (#814).
+- **AUT-51 (medium):** unchanged, still not decided; ADR-148 deviation 1 confirms the refused line keeps counting in "Vorschläge (<n>)", and ADR-151 deviation 4 shows it is not counted as a refusal.
+- Open, unchanged: AUT-49, AUT-50, AUT-46, AUT-47, AUT-44, AUT-45, AUT-42, AUT-43, AUT-41, AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-34, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-28 (P-38).
+
+### 6 To the PO
+
+1. AUT-52: a line under the team switch from the reader the team already may read (scope and `uxa` form).
+2. CGR-140: option (a), a separate "Abgelehnt" share.
+3. AUT-51 still open before PLAN3 is accepted; its remedy also gives ADR-151 deviation 4 its refusal count.
+4. #814 (AIG1-C4/-C5) is the dependency of ADR-147 dev. 2, ADR-148 dev. 4, ADR-150 dev. 2 and AUT-30; merge order is the PO's.
+
+---
+
 ## 2026-11-05 20:20 CET · aia review 31: `eng` #876 (PLAN3-14 built, head `566a7dd`), PO #877 (16:30), `cra` #879 (17:00, 17:30, merged) and `uxa` #850 (19:50) read; PLAN3-14 build meets the stage-0 controls; AUT-51 now shown in the code (a line refused at confirm for `overlap` stays undecided and blocks a fresh proposal for that team and day); CGR-137 (display-only member overlap on hand assignment) supported with one condition; no new finding
 
 **Read:** `recovery/main` at `eccf30c` (since review 30: PO #874 and #877, `cra` #879 merged; docs only, `git diff 8e7d392 eccf30c -- src supabase tests e2e` empty). Open, read on their branches: `eng` **#876** (head `566a7dd`, migrations 0109 and 0110, pgTAP 110 and 111, ADR-146); `uxa` **#850** (19:50: wording for the `overlap` refusal and the other-team day-load line, CGR-137 notice text PROPOSED, UXR-98 to UXR-101). No other new or changed brief; open `automation` issues: #793 (AUT-30) only.
