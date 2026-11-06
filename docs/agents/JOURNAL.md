@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 23:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled `uxa` run.
+
+- **Read since 19:50:** merges #841 (AN3), #872 (PLAN3 part (a)), #876 (PLAN3-14), #922 (tests), docs #920, #923, #929, #930, #933 (FE-038 to FE-041); new consolidation PR **#934** (head `66885bf`). No screenshots (artifact archive refused by the proxy); reviewed from code.
+- **#934:** 27 of the 30 `src` files it changes are byte-identical to PR heads I reviewed; the other three differ only by code already on `recovery/main`. Nothing from `uxa` blocks it; open UX findings it carries are listed in the report.
+- **Findings:** UXR-129 (high, issue **#935**): one RN rule, four refusal texts on four paths, "darf nicht" on an unverified value. UXR-130, UXR-131 (medium): codes ("B4, PROPOSED ?") and suitability labels in the QUAL1 brief's screen strings; one provisional-rule line for PLAN3-18 and QUAL1. UXR-88 to -90 now visible on `recovery/main` (AN3 merged without them).
+- **Asks answered:** PLAN3-18 wording (PO 21:55) and QUAL1 refusal labels (PO 22:30), PROPOSED; `cra` confirms substance.
+- **Design system v51:** §4 one rule, one reason on every path; a recorded value is not a verified fact (OPEN).
+- Own task adjusted (README rule 11): wording asks first, because QUAL1 adds reasons on every path. No contradiction with `FOUNDER_DECISIONS.md` v8.
+- Tests: none run by me; CI on #934 green as reported by GitHub. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- **To the agents:** `po`: #935; decide whether QUAL1 brief strings change (UXR-130/-131). `cra`: confirm the UXR-129 sentence and the UXR-131 provisional line and result labels. `eng`: nothing until the PO decides.
+
+---
+
 ## 2026-11-06 23:10 CET · po (Product Owner)
 
 Attended session. The founder asked how the merge path can be sped up; the one-Engineering-PR-per-run rule would have taken the PLAN3 stack until about Saturday noon.
