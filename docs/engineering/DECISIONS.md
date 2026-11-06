@@ -2622,3 +2622,26 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** `bash -n` on the script only. The local Supabase stack could not be started (container registries refused by the proxy), so neither pgTAP nor the script ran here. CI is the test runner.
 
 **Rollback:** revert the commit (one test file, one script, one CI line, docs).
+
+### ADR-138 — RLS4-C3: a failed open-report read in the access-end step offers "Erneut laden", and a missing count is never "keine"
+
+**Date:** 2026-11-03 11:15 Europe/Zurich · **Status:** IMPLEMENTED in the PR (CI decides) · **Brief:** `briefs/RLS4.md` PO review 2026-11-03 06:30, condition RLS4-C3 (`cra` CGR-111, advisory S3; `uxa` UXR-73, medium) · **Priority:** "with the next `/admin` PR, at the latest before G-19" (G-19 (l)).
+
+**Context.** RLS4-C2 (ADR-122 addendum) moved the leaver's open-report list into the access-end step on `/admin` (`readMemberOpenReports`, one member). When that read fails, the step said "Offene Berichte konnten nicht geladen werden." and named no next step; and after the end, `accessEndedNotice(null, …)` summed a missing count as zero and said "Keine offenen Berichte." (H-12: a count claimed an absence it did not know).
+
+**Decision.**
+1. RLS4-C3 (1): the open-report block of the access-end step is its own pure component `src/app/(protected)/admin/member-open-reports.tsx` (`MemberOpenReportsStep`, no hooks, so vitest renders and clicks it without a DOM library, as `asm1-assessment.test.ts` does). On a failed read (`open === null`) the alert line is followed in the same block by one button **"Erneut laden"** (`action-outline` style, `min-h-11` = 44 px, `type="button"` so it never submits the form). It calls `readOpen`, which sets "loading" and runs the same one-member `readMemberOpenReports` again, and nothing else (no second `prepare_member_access_end`, which is a recorded command). `openEnd` calls `readOpen` once; the source still holds exactly one `readMemberOpenReports(` call (RLS4-C2 test kept).
+2. Ending access stays possible without the list (PO product decision 06:30 with `cra` 05:30 and `lca` 06:05 on #500 (a)): the end button is held only while the list is loading, as before.
+3. RLS4-C3 (2): `accessEndedNotice(null, …)` returns "Zugang beendet.<Einsätze><Signale> Offene Berichte unbekannt: das Team sieht sie mit «Zugang beendet».<Tage>" (the PO's interim text, which `cra` confirmed at 09:30 as claiming no absence). A read count of zero still says "Keine offenen Berichte." The three texts are constants in `src/features/admin/rules.ts` (`OPEN_REPORTS_UNREAD_MESSAGE`, `OPEN_REPORTS_RETRY_LABEL`, `OPEN_REPORTS_UNKNOWN_SENTENCE`).
+4. RLS4-C3 (3): vitest `tests/unit/rls4-c3-admin-open-reports-retry.test.ts` (written first): with the read failed the alert and one "Erneut laden" button are rendered, 44 px, after the line; a click calls the retry each time; no retry while loading or once read; `/admin` wires the retry to `readOpen` (which holds the one-member read and not `prepareMemberAccessEnd`); the end button waits only for "loading"; `accessEndedNotice(null, …)` never contains "Keine offenen Berichte" and keeps the released, signal and unexported-day sentences. `rls4-c2-admin-open-reports.test.ts` follows the refactor (the read is in `readOpen`, called from `openEnd`).
+
+**Deviations from the brief (recorded, not decided by Engineering).**
+1. *Wording:* the brief gives the result-line wording to `uxa`, with Engineering's interim until `uxa` answers. `uxa` answered at 07:52 (PR #798, `UX_REVIEW.md`, not merged): "Offene Berichte: nicht bekannt, die Liste liess sich nicht laden. Falls es welche gibt, sieht das Team sie mit «Zugang beendet»." and asked the PO to agree to the swap and `cra` to confirm it. Neither has happened yet; `cra` 09:30 confirmed the **interim** text. So this PR ships the interim (confirmed, claims no absence) and does not ship an unconfirmed sentence. **OPEN** for `po` (agree) and `cra` (confirm): then `OPEN_REPORTS_UNKNOWN_SENTENCE` is the one constant to change, and the RLS4-C3 test with it.
+2. *Test level:* the click is tested on the pure component's element tree (vitest, node environment), and the wiring by a source assertion; no Playwright test forces a failing `member_open_reports` read, because the e2e stack has no seam to fail one RPC for one call without a test-only server path. The existing `leave.spec.ts` keeps covering the successful read and the end. **OPEN** whether a forced-failure e2e is wanted.
+3. *Scope:* `/team` (`contract-end-section.tsx`) shows the same failure line for the team's leaver list; RLS4-C3 names the administrator's pre-read, so `/team` is unchanged (PLANNED only if the PO widens the condition).
+
+**Not changed:** no migration, no rule, no command, no read scope, no audit path; `member_open_reports` (0075) and its readers are unchanged. The live project is not touched.
+
+**Checked by me (not CI):** nothing ran locally: this run's sandbox could not reach the npm registry (proxy refused `registry.npmjs.org`), so `npm ci`, vitest, lint, typecheck and build did not run here. CI decides.
+
+**Rollback:** revert the PR (display and tests only).
