@@ -12,6 +12,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 17:30 CET · Clinical & Regulatory Architect (review)
+
+- **Read since 13:30:** PO cleanup FE-037 merges #800, #803, #804, #806, #809 (merged own code identical to my cleared heads; CI green on the merge commits I checked), docs #913, #914, #896, my #911; new `eng` #910 (PLAN3-16, migration 0118); moved heads #894 (`da1dc1c`, one e2e expectation), #872, #810, #813, #814, #815, #828, #841 (base merges, own change identical).
+- **Findings:** no blocking finding. **New CGR-144** (advisory S3): the PLAN2 automatic series sets the primary nurse as responsible member without the member-overlap fact. **CGR-137** remedy met on #910 for the four hand paths; narrowed to COVER1 `accept_cover` (condition before cover is switched on). **Closed:** CGR-108, CGR-109 (#800 merged with the cleared code), CGR-143 (Blueprint v2.4 and confirmation, document level).
+- **Gates:** `cra-gate` lines for #872, #894, #910, #813, #814, #815, #828, #841; #810 clear on own code, merge only after its `e2e` run is green (in progress at reading). PLAN3 stack stays clear bottom-up through #910.
+- **Answers:** DOC-AI narrowed scope is level G in my reading (H as soon as a proposal interprets instead of restating a span); omission hazard and controls in the section; ADR-161 wording confirmed (no clinical objection).
+- **Registers:** CR-173 added (PROVISIONAL), CR-164 note; PS-122 narrowed, PS-128 closed, PS-129 added; H-01 updated.
+- Tests: none run by me (NAVORA suite not run); CI states read through the GitHub API; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction between my prompt and `FOUNDER_DECISIONS.md` v4 found (FE-037 pauses `eng`; my gates are unaffected).
+- **To the agents:** `po`: merge this PR; follow-ups for `accept_cover` (CGR-137) and CGR-144; DOC-AI brief takes the level answer. `lca`: ADR-161 deviation 3; D-34 statement v2 for the narrowed DOC-AI. `eng`: nothing (paused).
+
+---
+
 ## 2026-11-06 15:30 CET · po (Product Owner)
 
 - **Founder instruction (attended session): cleanup before new features (FE-037).** Asked back twice; answers: merge `recovery/main` into each branch instead of rebasing (no force-push), and the owner pauses the Engineering task during the cleanup.
@@ -861,6 +873,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Tests: none applicable (docs only). `node scripts/agents-check.mjs` run. CI decides. Live project not touched.
 
 ---
+## 2026-11-03 14:45 CET · eng (Lead Engineer)
+
+- Step A: all ten own open PRs (#799, #800, #803, #804, #806, #809, #810, #813, #814, #815) are green on their heads; no bot run waits for approval. Not merged by Engineering.
+- Step B: every *Active now* item (06:30) that does not wait on a PO merge is in a green PR; PLAN3 waits for #814. So this run took the owner directive **#824** (items 1 and 3 for the AIG1 register): **AIR1**, ADR-141, migration 0107: the field register refuses billing and safety-signal-priority targets for any class; pgTAP 108 (22) pins the refusal and two catalogue guards (no AIG1 ledger/confirm/apply function writes those tables; no agent of kind `ai` registered); vitest `ai-prohibited-targets`. Tests written before the migration.
+- Ran: the migration and the pg_proc regex on a scratch PostgreSQL 16 with stub tables, and the vitest file under a minimal local shim. pgTAP 108 and the real vitest did not run here; CI decides.
+- OPEN for `po`: whether J5's rule-derived billable fact counts as an "automatic billing decision" (ADR-141 flag); whether a runtime guard on `billable_facts`/`safety_signals` is wanted. D-39/D-40 untouched (frozen, on #822).
+- Migration numbers in flight: 0105 (#814), 0106 (#815), 0107 (this PR). ADR-131 to ADR-141 are on open PRs.
+
+---
+
 
 ## 2026-11-03 14:40 CET · AI & Automation Architect (aia)
 
@@ -960,9 +982,6 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Deviations for the PO (ADR-139): (1) confirm guard refusing `not_open` for expired proposals (all outcomes); (2) the stop id comes in `agent_health.stops`, not the `stop_id` column; (3) pgTAP 097 and 104 each had one assertion of the replaced rule, now asserting AIG1-C5; (4) Testorganisation G seeded because no admin switch screen exists; (5) AIG1-C5 (d) waits for PLAN3.
 - OPEN: `uxa` wording for the status and expired texts; `cra` re-check on the merge commit. UNKNOWN (Clinical Owner, D-17): whether expired proposals count toward a stop.
 - Tests: **none ran locally** (npm registry ENOTFOUND from this sandbox, no local database). CI on #814 decides. Live project not touched.
-
----
-
 
 ---
 
@@ -1096,8 +1115,6 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Not built (PLANNED):** the assessor prefill (the reader returns no assessor id; a name match could name the wrong nurse, who must confirm; needs a read-path migration, `lca` and `cra`), and the (7) landing e2e (needs a second-team seed fixture).
 - Tests written first: vitest `ux2-assessment-form.test.ts` (new), `asm1-conditions` updated; Playwright `asm1.spec` extended. **None ran locally** (npm registry unreachable from this sandbox): CI decides. Live project not touched.
 - Merge order: #799, #800, #803, #804 and this PR all touch `DECISIONS.md`, the UX2 row and this journal; later merges need a docs-only rebase (Engineering).
-
----
 
 ---
 

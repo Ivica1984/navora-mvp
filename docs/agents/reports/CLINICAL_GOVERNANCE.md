@@ -16,6 +16,90 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-06 17:30 CET: PO cleanup FE-037 merges read (#800, #803, #804, #806, #809: **merged own code identical to the cleared heads**); PLAN3-16 (#910, migration 0118) read on its head: **no blocking finding**, **CGR-137 remedy met for the four hand paths named in it** (narrowed to COVER1 `accept_cover`); new **CGR-144** (advisory S3: the PLAN2 automatic series sets the primary nurse as responsible member without the member-overlap fact); **CGR-143 closed** (Blueprint v2.4 and confirmation); #894 e2e wording change cleared; base merges of #810, #813, #814, #815, #828, #841, #872 checked (own change identical); DOC-AI level answer for the PO (AUT-54 criterion 6)
+
+**Scope:** `recovery/main` @ `0e22370` (was `f8255ec` at my 13:30 section; my PR #911 is merged as `7adacd8`). Changes since 13:30:
+- **Code merged** (PO, FE-037 cleanup, one PR at a time): **#800** UX2-27/-29 (`30de12f`), **#803** UX2-15/-16/-25 (`0747d24`), **#804** UX2-18 to UX2-21 (`5547eb3`), **#806** UX2-30 (`9d205b9`), **#809** UX2-26 (`0e22370`). No migration merged. **Docs merged:** PO **#913** (FE-033 to FE-036, Blueprint v2.3/v2.4 with CGR-142/-143, D-41/D-42 `cra` inputs taken in), **#914** (FE-037 cleanup, `CLEANUP_2026-11-06.md`, SR-26 decided by the owner), `aia` **#896**, `cra` **#911**.
+- **Open PRs, new:** `eng` **#910** (PLAN3-16, ADR-161, migration 0118, pgTAP 119; own commits `39d6382`, `3786a86`, `3c79f7a`, stacked on #906, base merge 14:05).
+- **Open PRs, moved:** **#894** `1a0799e` → `cb53cab` (`da1dc1c`: one e2e expectation after #800); **#872** → `4bd0855`, **#810** → `cfdcd21`, **#813** → `d92a2d5`, **#814** → `9ee1a34`, **#815** → `81d131b`, **#828** → `e90f2d1`, **#841** → `09cdc85` (base merges only). Every other head as at 13:30.
+- **CI** (GitHub API, check runs): `app`, `db`, `e2e`, `ui-screenshots` **success** on `806b8cf` (#910), `cb53cab` (#894), `4bd0855`, `d92a2d5`, `9ee1a34`, `81d131b`, `e90f2d1`, `09cdc85`; on `cfdcd21` (#810) `e2e` was **in progress** at reading, the other three success.
+- **Addressed to `cra`:** PO 15:00 (gate for #910 `806b8cf`; confirm CGR-143 "met at document level"; device level of the narrowed DOC-AI scope, AUT-54 criterion 6); PO 15:30 (gate lines for #894 `da1dc1c` and #910); ADR-161 deviations 1-5 (4: wording, `cra` to confirm).
+- **Briefs:** `UX2.md` acceptance rows (PO). No NH-A brief yet. **Decisions answered by a person:** owner: SR-26 (delete `orders`; FE-034), FE-033 to FE-037. No `clinical` or `legal` decision.
+
+I read: for each merge commit `git diff <first parent> <merge> -- src supabase tests e2e scripts .github` against the cleared head's own change from its merge base (identical `+`/`-` line sets: #800 vs `797029c`, #803 vs `f93fc81`, #804 vs `12d0923`, #806 vs `91e7bc9`, #809 vs `7f74e71`); migration 0118 in full; pgTAP 119 (assertion list); `MemberOverlapNote.tsx`, `member-overlap-rules.ts`, the `/field` take change in `absence-section.tsx`; ADR-161; `generate_case_plan` in 0030:120-195 (the responsible member of generated visits); `git show da1dc1c`; the same own-change comparison for #810, #813, #814, #815, #828, #841, #872, #894; Blueprint v2.4 rows M9.0a, M-15, M-16, M-21 and the confirmation HYP table and note. **I did not run the NAVORA test suite** and did not touch the live project. Statements about #910 are IMPLEMENTED **on the PR head**, not on `recovery/main`.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-144 | **PLAN2 automatic series: the primary nurse becomes the responsible member of generated visits** (`private.generate_case_plan`; not touched by PLAN3-16, ADR-161 deviation 1) | **advisory (S3)**; during the pilot | When a case plan is generated or regenerated, every generated visit gets the case's primary nurse as `responsible_user_id` (if she is a team member with the needed qualification), **without the member-overlap fact** that PLAN3 now refuses on and that #910 shows on every hand path. A primary nurse of several clients whose plans have visits in the same window is therefore booked twice by the system itself, with no notice to her or the team; it surfaces only when SIG1 `visit_overdue` fires after the window (H-01). Secondary: the generator does not take the `plan3_busy` lock, so a regeneration can race a PLAN3 confirm (narrow). As in CGR-137, a refusal is **not** asked for (a joint visit or one household can be intended; whether an overlap is allowed is not a rule NAVORA may set) | 0030:158-163 (`who := … c.primary_nurse_id`), :175-189 (update / insert with `responsible_user_id = who`); 0118 header "Not in this migration: … the automatic PLAN2 series"; ADR-161 deviation 1 | **po (brief; no clinical rule) / eng:** after a generation, each generated or changed visit whose responsible member has another non-cancelled visit at an overlapping time (`private.member_visit_overlap`, any team) is shown to the team as a yes/no fact on that visit (no other team's client, case or time), where the team already sees its plan (`/team`, the visit card); the generator takes the same lock per member and day. Never a refusal, never a re-assignment by NAVORA. pgTAP: a series generated for case KA whose primary nurse has a team-B visit in the same slot marks that generated visit with the fact true and a non-overlapping one false; the asking team's result has no column of the team-B visit |
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-137** | open, advisory (S3), **narrowed**: the remedy is **met on the #910 head `806b8cf` for `plan_visit` with a member, `take_open_visit`, `reschedule_visit` and `move_visit_to_today`**. One definition `private.member_visit_overlap` (the 0110 body moved unchanged; `plan3_confirm_overlaps` now returns it), any team, yes/no only; it takes the `plan3_busy` lock on member and day; the hand paths call it after their own write in read committed, so whichever of a hand path and a PLAN3 confirm commits second sees the other (no silent double booking from that race). `ok` carries `member_overlap`; `member_overlap_shown` recorded on the existing audit row (VIS2-4), code class. The form reads `member_slot_overlap` before saving (debounced, stale answers discarded) and shows one `info` line; a failed read shows nothing and the save then states the server's fact (fail-safe); never a refusal, no confirmation tap. pgTAP 119 (40) has exactly my named tests: 09:15 hand assignment against a team-B visit at 09:00 → `ok`, `member_overlap` true, recorded; without overlap false; no key or value of the team-B visit in the result. **Remaining:** COVER1 `accept_cover` (ADR-161 deviation 1), dormant while cover is off; it becomes a condition **before cover is switched on**, with CGR-21 and CGR-28. The e2e at 390 px (deviation 5) is not a clinical condition | 0118 §1 (`member_visit_overlap`), §2 (`member_slot_overlap`), §4 (four commands, guard block); pgTAP `119_plan3_16_hand_assignment_member_overlap.test.sql` lines 125-193; `member-overlap-rules.ts` `memberOverlapAfterSave`; `MemberOverlapNote.tsx` |
+| **CGR-143** | **closed** (document level, as the remedy said): Blueprint v2.4 M-21 marks "> 7 days" PROPOSED with owner `clinical` and states that the indicator set and the "worse" margin are set by the Clinical Owner before the Phase B baseline and that Phase A results are not evidence of "no safety loss"; M-15 and M-16 are "read only beside M-21 and the correction rate"; the confirmation renames the hypotheses HYP-1 to HYP-6 with a note. The clinical choices themselves stay open for the Clinical Owner (G-1) and are carried as decisions, not as this finding | Blueprint v2.4 lines 12, 568, 569, 574; `FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md` lines 38-45 |
+| **CGR-142** | open, advisory (S2); conditions (1)-(5) are in Blueprint M9.0a as conditions on every NH-A brief (v2.4). No NH-A brief exists yet; I check each brief when it is written | Blueprint v2.4 line 302 |
+| **CGR-75**, **CGR-136**, **CGR-138**, **CGR-139**, **CGR-140** | unchanged: remedies met on the PLAN3 stack heads; close when the stack is merged as read (FE-037 order: #872 → … → #910) | heads unchanged except #872, #894 (below) |
+| **CGR-108**, **CGR-109** | remedies were met on #800 `797029c` (my 2026-11-05 sections); **#800 is merged with that code** (`30de12f`, own change identical). **Closed in this section** | merge `30de12f`; own-change comparison above |
+| All other CGR findings | unchanged | as at 13:30 |
+
+Closed in this section: **CGR-108**, **CGR-109** (merged with the cleared code), **CGR-143** (document level).
+
+### Answer to the PO: level of the narrowed DOC-AI scope (AUT-54 (2), criterion 6)
+
+Advisory; the regulatory classification is `lca`'s (D-34 statement v2), not mine. **Clinical Architect 2026-11-06:** the narrowed DOC-AI (the nurse's own note turned into proposed observations, each with its source span, confirmed value by value) is, in my reading, **level G**, not L: it still changes what becomes structured care documentation, and structured entries are what SIG1, ORD0 and escalation read (my D-41 control 2). It crosses into **H** as soon as a proposal is an interpretation and not the nurse's own statement (for example a risk, a condition or a severity she did not write), so the brief needs a validator rule "a proposal restates a span; it never adds a finding". Two hazards change with the narrowed scope and must be in the brief: (1) **omission**: a fall, pain, wound or refusal in the note that is not proposed is easier to miss, because the nurse now confirms a list instead of reading a draft; the note itself must stay in the record next to the confirmed observations, and the spans that produced no proposal are shown to her before she finishes; (2) **wrong field or value**: a span confirmed into the wrong observation type. The D-41 controls stay as written; the structured report itself stays level L (F7, no AI), which I support.
+
+### Notes (no finding)
+
+- **ADR-161 deviation 4 (wording):** "<Label> hat zu dieser Zeit schon einen Einsatz, in diesem oder einem anderen Team." / "Du hast …": no clinical objection; it states the fact without another team's client or time and without implying that the overlap is forbidden. `lca` answers the privacy part (deviation 3).
+- **ADR-161 deviation 2 (`/field` take):** the line before the take is the ABS1 line (planned to paused); the server's fact counts every non-cancelled visit. Where they differ, the form showed nothing and the server's fact is stated after the take, so the nurse is told either way. Agreed.
+- **#894 `da1dc1c`:** the PLAN3-14 (2) e2e now expects "noch niemand" (UX2-29 wording, merged) for the refused visit; same assertion (the visit stays without a responsible member). Own change otherwise identical to `1a0799e`. #895 to #906 will need the same expectation when `recovery/main` is merged in (ADR-161 note); that change is wording only and keeps their gates if it is the only difference.
+- **FE-037 (PO resolves conflicts in Engineering files):** my gate applies to the own code I read. For every PO base merge I compare the own change before and after; a merge that changes code beyond a conflict in docs needs a new read before merge (the PO's cleanup rule says the same: "eigener Code gleich").
+- **SR-26 (owner, FE-034):** deleting the foreign `orders` table is not a clinical item; no objection. The open backup-retention question (UNKNOWN) belongs to `lca`/owner.
+
+### New or changed hard-coded rules
+
+- **CR-173** (new, PROVISIONAL, no clinical objection): PLAN3-16: on `plan_visit` with a member, `take_open_visit`, `reschedule_visit` and `move_visit_to_today` the server states whether the member has another non-cancelled visit that day, any team, with an overlapping planned interval (yes/no only; never a refusal); the form shows it before saving, the command records whether it was shown, the save states it when it was not (0118, #910).
+- **CR-164** (note): the member-overlap definition is now one function, `private.member_visit_overlap`, shared by PLAN3 confirm and the hand paths (body unchanged, #910).
+- No clinical, tariff, KLV, LTCF, interRAI, PAG or MQI logic in #910, `da1dc1c` or the merged UX2 parts.
+
+### Gate status
+
+| Item | Clinical gate |
+|---|---|
+| **#800**, **#803**, **#804**, **#806**, **#809** | merged; own code identical to the cleared heads |
+| **#872** (`4bd0855`), **#876** … **#891** | clear in stack order (own change identical; heads as at 13:30 except #872) |
+| **#894** (head `cb53cab`) | **clear to merge after #891**; CI 4/4 green |
+| **#895**, **#897**, **#902**, **#903**, **#906** | as at 13:30 (heads unchanged), in stack order |
+| **#910** (PLAN3-16, head `806b8cf`) | **clear to merge after #906**; CI 4/4 green; CGR-137 remainder (`accept_cover`) and CGR-144 do not gate it |
+| **#810** (`cfdcd21`) | clear on own code (identical); **merge only when `e2e` is green** (in progress at reading) |
+| **#813** (`d92a2d5`), **#814** (`9ee1a34`), **#815** (`81d131b`), **#828** (`e90f2d1`), **#841** (`09cdc85`) | clear to merge (own code identical; CI 4/4 green) |
+| **NH-A1 to NH-A5** (not written) | CGR-142 applies to each brief |
+
+```
+cra-gate: #872 4bd0855 clear
+cra-gate: #894 cb53cab clear
+cra-gate: #910 806b8cf clear
+cra-gate: #813 d92a2d5 clear
+cra-gate: #814 9ee1a34 clear
+cra-gate: #815 81d131b clear
+cra-gate: #828 e90f2d1 clear
+cra-gate: #841 09cdc85 clear
+cra-gate: #810 cfdcd21 clear (own code; merge after CI e2e is green)
+```
+
+### Decisions requested
+
+- **po:** a follow-up for COVER1 `accept_cover` before cover is switched on (CGR-137 remainder); a brief line for CGR-144 (PLAN2 series member-overlap fact); the DOC-AI brief takes the level answer above (validator "restates a span", note kept, unproposed spans shown); merge this PR. Unchanged: CGR-141 (2), ADR-155 deviation 2.
+- **lca:** ADR-161 deviation 3 (per-slot read); D-34 statement v2 for the narrowed DOC-AI (level G in my reading); unchanged CGR-142 (a), (b).
+- **owner:** unchanged G-1 (named Clinical Owner), O-6 / FD-02.
+- **clinical** (after G-1): unchanged: the M-21 indicator set and margin; the M-21 hold limit (PROPOSED); D-41 evaluation acceptance criteria.
+- **eng:** none now (task paused by the owner, FE-037).
+
+---
+
 ## 2026-11-06 13:30 CET: CGR-75 (5) (#902), PLAN3-17 (2) (#903) and PLAN3-9 (2) (#906, migration 0117) read on their heads: **no blocking finding**; **CGR-75 remedy complete on the #902 head** (closes on merge, so the last PLAN3 acceptance condition from me is met on the heads); #888 back to the cleared code (`31e9d6c`); PO #904 / #908 (founder direction, nursing-home ward in Phase A, D-41, D-42) read: new **CGR-142** (advisory S2: clinical requirements for the NH-A1 to NH-A5 nursing-home briefs) and **CGR-143** (advisory S2: Phase A/B hypothesis metrics M-15, M-16, M-21); clinical inputs for **D-41** and **D-42**; the reconciled open-CGR list promised at 09:30
 
 **Scope:** `recovery/main` @ `f8255ec` (was `e97e786` at my 09:30 section, PR #901, unmerged; this PR carries #901, which carries #892, #887 and #881). Changes since 09:30:
