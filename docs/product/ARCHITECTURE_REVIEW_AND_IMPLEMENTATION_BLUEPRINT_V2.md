@@ -62,7 +62,7 @@
 |---|---|---|---|
 | SV-1 | ~~Basel direction not recorded~~ **Resolved 2026-11-06:** D-11 decided by the owner (Basel-Stadt and Basel-Landschaft, FE-019). | – | `lca` Basel re-check of D-18, D-25, D-9, D-4, D-29. |
 | SV-2 | ~~Keep D-24 A~~ **Changed 2026-11-06:** nursing homes are in scope and the real pilot partner is to be a nursing home (FE-022). `csa` STR-21 (all-in-one, high: no patient-care benefit shown) is not withdrawn by this; IoT stays frozen (D-39 A). | Owner direction newer than STR-21 | The PO answers STR-21 with the Phase A design (§4 M9.0): one simulated nursing-home ward on the shared platform, measured on the same administrative-relief metrics; `csa` re-checks in its next run. |
-| SV-4 | **The built product is home-care shaped** (visits at a client's home, KLV A/B/C per visit, regions, cover between teams), while the real pilot partner is to be a nursing home (24-hour shifts, residents, ward, care-level based financing). | Owner direction 2026-11-06 | Shared platform kept; nursing-home workflows added as a sector layer (§1.3). Founder question O-1: does Phase A simulate home care **and** a nursing home, or a nursing home only? |
+| SV-4 | **The built product is home-care shaped** (visits at a client's home, KLV A/B/C per visit, regions, cover between teams), while the real pilot partner is to be a nursing home (24-hour shifts, residents, ward, care-level based financing). | Owner direction 2026-11-06 | Shared platform kept; nursing-home workflows added as a sector layer (§1.3). **Answered 2026-11-06 (FE-031): Phase A simulates home care and a nursing-home ward.** |
 | SV-5 | Goal "no medical device" (FE-025) vs. vision items that may cross into decision support: integrated assessment and care planning, AI documentation drafts (level G), the D-34 statement v2 naming home care only and excluding the interpretation of care notes | Statement v2 was written for home care | `lca` re-checks statement v2 for nursing homes and for DOC-AI; the clinical module (D-34 C) stays separate; nothing that scores, ranks or recommends care is built in the core. |
 | SV-6 | AI documentation on real data (FE-028) vs. the approved staged path (stage 1 after three pilot months; drafting is stage 2, level G) | Path written before the founder letter | Package D-41 (rule A stays, FE-024). |
 | SV-7 | Routine assignment under team mandate (FE-028) vs. PLAN3's rule "a proposal becomes an assignment only through a named member's confirmation" | PLAN3 designed as proposal-only | PLAN4 (draft): a team-set deterministic rule ("Regeln anwenden" step of the mandatory sequence), not AI; mandate recorded, revocable, per-line record, escalation; `cra` and `lca` (automated decision affecting staff, DSG) before approval. |
@@ -75,8 +75,8 @@
 | **Long-term vision** | self-organised teams run the provider | self-organised wards without unit hierarchy | transitions of care without intake coordinators | care and support bought directly (variants: question O-2) |
 | **Shared platform (one build)** | identity and roles, teams and membership, qualification profiles, AIG1 ledger and AI orchestrator, audit, safety signals, documentation core (observations, signed report, versions), handover, absence and cover, quality events and holds, billable-fact engine with versioned rules, working day, analytics never per person | same | same | same |
 | **Sector workflows (sector rules as data)** | visits at home, travel, KLV A/B/C per visit, medical orders, Spitex tariff rules (D-18) | wards, 24-hour shifts, residents, care-level based financing and assessment cycle (rules UNKNOWN, `lca`, `cra`; interRAI only after D-36) | referral and discharge hand-over (REF2, D-9) | self-pay contract and invoice; payer split (UNKNOWN) |
-| **Phase A (simulated, synthetic)** | IMPLEMENTED on synthetic data (47 accepted capabilities) | **to build:** simulated nursing home with one ward (question O-1) | not in Phase A | not in Phase A |
-| **Phase B (real)** | depends on O-1 | real pilot partner by current direction | later | later |
+| **Phase A (simulated, synthetic; FE-031)** | IMPLEMENTED on synthetic data (47 accepted capabilities), tested in the simulation | **to build:** simulated nursing home with one ward | not in Phase A | not in Phase A |
+| **Phase B (real)** | open (with or after the nursing home) | real pilot partner by current direction | later | later |
 
 Rule for reuse: a sector difference is configuration or a sector module on the shared records, never a fork of the record. A rule that differs by sector or canton is versioned data with its source (`ARCHITECTURE.md` rule engine).
 
@@ -188,7 +188,7 @@ Rule for reuse: a sector difference is configuration or a sector module on the s
 - **Dependencies:** M1.2; AUT-49 before the bulk of M2.1 to keep conflicts down.
 - **Acceptance criteria:** (1) UX2-1 to UX2-33 met on `recovery/main`, CI `app`, `db`, `e2e`, `ui-screenshots` green on the merge commit; (2) no `severe` UXR open on a UX2 screen; (3) `cra` UX2 gate line on the merged head; (4) pgTAP 062 passes in two runs at different pinned times (CGR-110); (5) a new journal entry or ADR in one PR does not conflict with another PR (shown on two parallel PRs); (6) `main` equals `recovery/main` after D-8.
 
-### M3 Pilot foundation decisions · target Fri 2026-12-11 · **completion 20 %** (2 of 10 decisions still asked are answered: D-1, D-11; partner and adviser left the list, FE-021, FE-026)
+### M3 Pilot foundation decisions · target Fri 2026-12-11 · **completion 30 %** (3 of 10 decisions still asked are answered: D-1, D-11, O-1; partner and adviser left the list, FE-021, FE-026)
 
 - **Responsible:** owner; prepares `po` (all packages exist); inputs `lca`, `cra`, `csa`.
 - **Sub-milestones (one per decision; equal weight):**
@@ -205,7 +205,7 @@ Rule for reuse: a sector difference is configuration or a sector module on the s
   | M3.8 | D-34 regulatory adviser named | 2026-12-11 | OPEN (direction 2026-11-03) |
   | M3.9 | D-14 fee basis | 2026-12-11 | OPEN |
   | M3.10 | External legal adviser | only for questions `lca` cannot settle | **not a precondition** (FE-026) |
-  | M3.11 | O-1 Phase A setting (home care and nursing home, or nursing home only) | 2026-11-13 | OPEN (founder) |
+  | M3.11 | O-1 Phase A setting | – | **decided 2026-11-06** (FE-031: home care and a simulated nursing-home ward) |
   | M3.12 | O-4 AI provider for synthetic data in Phase A | 2026-11-27 | OPEN (founder) |
 
 - **Blockers:** owner availability.
@@ -281,9 +281,9 @@ Rule for reuse: a sector difference is configuration or a sector module on the s
 
 ### M9 Pilot readiness · target Fri 2027-03-12 · **completion 8 %** (2 of 25 gates met)
 
-**Re-framed by the pilot phases (FE-021; PO proposal, founder question O-7):** M9 on 2027-03-12 = **Phase A passed** (M9.0: the simulated pilot, home care and/or a simulated nursing home per O-1, run end to end on synthetic data and measured on §10.2) **plus a complete Phase B readiness file** in which every gate that does not need the real partner is closed. The Phase B start date follows the partner and is UNKNOWN; partner-bound gates (licence holder, DPIA signature, watched hours, staffing, D-29 for real nurses) close in Phase B.
+**Re-framed by the pilot phases (FE-021; PO proposal, founder question O-7):** M9 on 2027-03-12 = **Phase A passed** (M9.0: the simulated pilot, home care and a simulated nursing-home ward (FE-031), run end to end on synthetic data and measured on §10.2) **plus a complete Phase B readiness file** in which every gate that does not need the real partner is closed. The Phase B start date follows the partner and is UNKNOWN; partner-bound gates (licence holder, DPIA signature, watched hours, staffing, D-29 for real nurses) close in Phase B.
 
-- **M9.0a Nursing-home sector layer, briefs (PO, PROVISIONAL under O-1 (b)):** NH-A1 ward and 24-hour shift model on the shared team records; NH-A2 resident record and care plan without interRAI content (D-36); NH-A3 shift handover reuse of HAND1; NH-A4 absence and cover across shifts (ABS1/COVER1 reuse); NH-A5 billing facts per resident-day as versioned rules marked UNKNOWN until `lca`/`cra` (no invented tariff). Owner `po`, due 2026-11-27; gates `cra`, `lca`, `uxa`.
+- **M9.0a Nursing-home sector layer, briefs (PO; O-1 answered, FE-031):** NH-A1 ward and 24-hour shift model on the shared team records; NH-A2 resident record and care plan without interRAI content (D-36); NH-A3 shift handover reuse of HAND1; NH-A4 absence and cover across shifts (ABS1/COVER1 reuse); NH-A5 billing facts per resident-day as versioned rules marked UNKNOWN until `lca`/`cra` (no invented tariff). Owner `po`, due 2026-11-27; gates `cra`, `lca`, `uxa`.
 - **M9.0b Nursing-home sector layer, build on synthetic data:** owner `eng`, due 2027-01-29.
 - **M9.0 Phase A simulated pilot:** simulated partner organisation (fictitious name, synthetic residents or clients and staff), one ward or team, four synthetic weeks with absences, cover, documentation drafts, billing preparation in shadow mode against an independent reference set, and the §10.2 measures. Owner `po` (scenario), `eng` (seed, environment), `cra` (clinical plausibility), `uxa` (training material). Due 2027-02-26.
 
@@ -404,7 +404,7 @@ Solid arrows are preconditions; dotted arrows are capabilities a pilot team swit
 
 ```text
 [owner] PO task merge step ─► M2.0/M2.1 merges ─► M2 ─► M6 core ─► M9.1 technical minimum (≈ 2027-01-29) ─┐
-[owner] O-1 setting ─► nursing-home sector layer + simulated ward (Phase A build) ─────────────────────────┤
+[po/eng] NH-A1..A5 briefs ─► nursing-home sector layer + simulated ward ─────────────────────────┤
 [owner] D-2 ─► T12 (8 wd) ─► restore test + runbooks ───────────────────────────────────────────────────┼─► M9 = Phase A passed 2027-03-12
 [owner] O-4 provider (synthetic) ─► DOC-AI and BILL1 checks tested in Phase A ─────────────────────────────┘
 Phase B (date UNKNOWN): partner found ─► G-1 approvals, DPIA by licence holder, D-29, D-41 ─► first real resident or client
@@ -414,7 +414,7 @@ Phase B (date UNKNOWN): partner found ─► G-1 approvals, DPIA by licence hold
 
 | # | Item | Owner | Slack today | Status |
 |---|---|---|---|---|
-| CP-0 | O-1 Phase A setting (nursing home simulated with or without home care) | owner | 1 week (the nursing-home sector layer is the largest new build) | OPEN |
+| CP-0 | Nursing-home sector layer for Phase A (FE-031) | `po` briefs, `eng` build | ≈ 4 weeks after the briefs (the largest new build) | PLANNED |
 | CP-1 | G-1 Clinical Owner named (gate for Phase B; recommended earlier for the simulated nursing home, O-6) | owner | ≈ 9 weeks for Phase A | OPEN |
 | CP-2 | ~~D-12 partner by 2026-12-11~~ moved to Phase B (FE-021) | owner | – | not needed now |
 | CP-3 | PO task merge step (FD-01) | owner | 0: every week without it adds conflict work | OPEN |
@@ -427,7 +427,7 @@ Derived backwards from M9 on 2027-03-12:
 
 | Decision | Latest date | Derivation |
 |---|---|---|
-| O-1 Phase A setting | 2026-11-13 | the simulated nursing home needs briefs, design and build before 2027-02-26 |
+| ~~O-1 Phase A setting~~ | decided 2026-11-06 (FE-031) | – |
 | O-4 AI provider for synthetic data | 2026-11-27 | DOC-AI and BILL1 checks need ≈ 8 weeks of build and evaluation before M9.0 |
 | G-1 Clinical Owner | 2027-01-15 for Phase A review; before Phase B for approvals | clinical plausibility of the simulated ward before M9.0 |
 | ~~D-1, D-11~~ | decided 2026-11-06 | – |
@@ -441,12 +441,11 @@ A decision after its latest date moves M9 by the delay, day for day.
 
 ## 7. Founder Decision Board
 
-Updated 2026-11-06 12:00 after the founder letter. Decided items (D-1, D-11, D-24, pilot phases) moved to [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md) and are not asked again. The owner-facing version with reasons and risks is [`FOUNDER_EXECUTIVE_REPORT.md`](FOUNDER_EXECUTIVE_REPORT.md) §3; the open questions with options are in [`FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md`](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md) §4.
+Updated 2026-11-06 12:00 after the founder letter. Decided items (D-1, D-11, D-24, pilot phases, Phase A setting FE-031) moved to [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md) and are not asked again. The owner-facing version with reasons and risks is [`FOUNDER_EXECUTIVE_REPORT.md`](FOUNDER_EXECUTIVE_REPORT.md) §3; the open questions with options are in [`FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md`](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md) §4.
 
 | FD | Priority | Decision | Ask (exact) | Latest date | Blocks | Default until answered |
 |---|---|---|---|---|---|---|
 | FD-01 | Critical | PO task merge step and prompt updates | Approve the prompt changes in the confirmation §5.3 (merge step, founder decisions, Blueprint, phases) for the scheduled tasks | now | merges; consistent agent work | merges only in attended sessions |
-| FD-21 | Critical | O-1 Phase A setting | Choose: (a) simulated nursing home only; (b) home care (built) **and** a simulated nursing-home ward (recommended); (c) home care in Phase A, nursing home only in Phase B | 2026-11-13 | M9.0 scope, nursing-home briefs | PO plans (b) as PROVISIONAL |
 | FD-22 | High | O-4 AI provider for synthetic data | Approve one contracted CH/EU provider for synthetic data only in Phase A (no real data; D-35 rule A unchanged), or decide that Phase A tests AI flows with rule-based stand-ins | 2026-11-27 | real test of DOC-AI and billing checks | rule-based stand-ins |
 | FD-23 | High | O-7 M9 re-framed | Confirm M9 = Phase A passed + Phase B readiness file (partner-bound gates in Phase B) | 2026-11-13 | milestone plan | PO uses the re-framing as PROVISIONAL |
 | FD-02 | High | G-1 / O-6 | Name a Clinical Owner (and deputy) for Phase B, and decide whether a clinical expert reviews the simulated nursing home in Phase A | 2027-01-15 | clinical plausibility of M9.0; Phase B | no clinical rule approved |
@@ -567,7 +566,7 @@ A work item passes these gates in order. A gate that is not met stops the item; 
 |---|---|---|---|---|---|
 | M1 | 2026-11-13 | 50 % | 90 % | ↑ | 🟡 |
 | M2 | 2026-11-27 | 20 % | 75 % | → | 🟡 |
-| M3 | 2026-12-11 | 20 % (after 2026-11-06) | – | ↑ | 🟡 |
+| M3 | 2026-12-11 | 30 % (after 2026-11-06) | – | ↑ | 🟡 |
 | M4 | 2026-12-18 | 0 % | 70 % | ↑ built, → merged | 🟡 |
 | M5 | 2027-01-15 | 15 % | – | → | 🟡 |
 | M6 | 2027-01-29 | 10 % | – | → | 🟡 |
@@ -597,6 +596,8 @@ A work item passes these gates in order. A gate that is not met stops the item; 
 ---
 
 ## Change log
+
+- 2026-11-06 12:30 (`po`): O-1 answered by the owner (FE-031: Phase A = home care and a simulated nursing-home ward); FD-21 removed; M3 30 %; NH briefs no longer provisional; `lca` re-analyses requested in D-22, D-18, D-9, D-4, D-29, D-36, D-34; D-42 opened (pilot agreement).
 
 - 2026-11-06 12:00 (`po`): **version 2.1** after the founder letter of 2026-11-06: vision and business model (FE-023), AI work flows as core (FE-028), care-context matrix §1.3 (FE-027), SV-1 and SV-2 resolved or changed, SV-4 to SV-7 added; M3 rows D-1, D-11, partner and adviser updated; M3.11, M3.12; M9 re-framed by the pilot phases (M9.0, question O-7); critical path and latest dates; Founder Decision Board rebuilt (FD-21 to FD-26); metrics M-15 to M-21 with hypotheses marked.
 

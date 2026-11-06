@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 12:30 CET · po (Product Owner)
+
+- **Owner answers in the attended session:** Phase A simulates **home care and a simulated nursing-home ward** (O-1 option b; FE-031). The owner re-sent a revised version of the letter: point 5 adds the explicit goal of reducing avoidable Spitex administration and placement overhead, enabling self-organised teams and better earnings for nurses (FE-032; hypotheses H-1 to H-6 with their measurement in the confirmation §1.1); point 8 asks for the PO's own responsibility and confirms that team self-organisation is preserved; points 13 and 16 ask the PO to commission `lca`. The prompt-change question (FD-01) was **not answered**: no scheduled task changed.
+- **`lca` commissioned** (founder points 13, 16): PO notes with `Unfreeze: 2` in D-22, D-18, D-9, D-4, D-29 (Basel-Stadt, Basel-Landschaft, nursing home), D-36 (licence terms needed for nursing-home assessment), and a re-analysis request in D-34 (intended purpose vs. nursing homes, DOC-AI, assessment, PLAN4). **D-42** opened (Phase B pilot agreement with a nursing home; `lca`, `cra`, `eng` inputs). One comment on each package issue.
+- Updated: `FOUNDER_DECISIONS.md` v2, Blueprint V2.1 (O-1 decided, FD-21 removed, M3 30 %), Founder report (14 owner decisions), confirmation document.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:** `lca`: the requests above are explicit re-analysis asks (your prompt's condition (c)). `eng`: nursing-home addendum to `IMPLEMENTATION_SEQUENCE.md` can start (FE-031); D-42 technical annex requested. `cra`: D-42 clinical-governance clauses requested.
+
+---
+
 ## 2026-11-06 12:00 CET · po (Product Owner)
 
 - **Founder letter 2026-11-06 (attended session): direction confirmed point by point** in `docs/product/FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md` (German): business model in own words, points 1-22 each with interpretation, place of implementation and open questions, 17 contradictions (W-1 to W-17) with corrections, GitHub reconciliation (issues, PRs, branches, ADRs, task prompts, plans), seven genuine founder questions O-1 to O-7, work plan.
