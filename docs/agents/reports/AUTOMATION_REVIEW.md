@@ -31,6 +31,60 @@
 
 ---
 
+## 2026-11-06 20:20 CET · aia review 35: FE-033 to FE-037 and the PO cleanup merges read; AIG1-C4/-C5 (#814) and AIR1 (#828) now on `recovery/main`: the stage-0 governance layer entry condition is met; AUT-30 Operations side and AUT-31 expired share met on the main line; AUT-54 adopted by the PO and level G answered by `cra`; AUT-33 placed as AN3-C2; new AUT-59 (medium: BILL1 must say where an AI pre-send check lands, AIR1 forbids every billing target) and AUT-60 (low: the omission control of the narrowed DOC-AI as part of the one confirm act); CGR-144 supported as a fact, not a step
+
+**Read:** `recovery/main` at `9a15f98` (since review 34, `30de12f`): PO #913 (FE-033 to FE-036, Blueprint v2.3/v2.4), #914 (FE-037 cleanup, issue matrix, PR map), #896 (my review 33), `cra` #911 and #915 (17:30), PO cleanup merges #803, #804, #806, #809 (UX2), #810 (CGR-110), #813 (RLS4-C3), **#814 (AIG1-C4 + AIG1-C5, migration 0105)**, **#828 (AIR1, migration 0107)**, PO #916 (18:39, Blueprint v2.5). Open: PO **#917** (19:39: AIR1 accepted, AN3 pre-merge decisions, #841 merge refused by the session's permission check), the PLAN3 stack #872 to #910 and #841 (unmerged, unchanged own code since review 34 per the PO and `cra` records; diffs not re-read). `FOUNDER_DECISIONS.md` v4 read: FE-037 (cleanup before new features, Engineering paused) is newer than my prompt; it changes no `aia` duty, so no contradiction to report. Issues labelled `automation`: #793 (AUT-30), #912 (AUT-54). No new or changed brief other than `AIR1.md` and `AN3.md` (on #917). No DOC-AI, PLAN4, QUAL1, BILL1 or NH-A brief yet (PLANNED).
+
+**Nothing below is a measurement.** I ran no tests and read no database; CI states come from the PO and `cra` records and the GitHub API. Bottleneck map v2 (review 18) stands; the weekly refresh with the first nursing-home ward sketch is due on 2026-11-10 (OPEN).
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-59 | Billing preparation with pre-send checks (FE-028, BILL1, no brief): the team that releases a month's billing | **IMPLEMENTED (#828, `bdf42bd`, 0107):** `private.aig1_prohibited_target` refuses any register field on `billable_facts`, `billing_rules`, `tariff_rates`, `quality_holds` (42501), so no agent can ever propose a billing value or raise a hold. **IMPLEMENTED (QG1):** `visit_has_open_hold` is the single billing rule. **PLANNED (Blueprint, FE-028):** "billing preparation with pre-send checks"; "AI checks only after D-41". **Gap:** nothing says where an AI check result would land. The two obvious forms both cost: (a) an AI hold is now refused in code; (b) a separate "AI-Prüfliste" the team works through before sending is a second review pass on top of the holds it already clears, for findings a rule would mostly raise | **rule first, AI only as text at the edge, one list:** (1) every pre-send check that can be stated as a rule is a deterministic check that raises a QG1 hold (stage 0, no AI); which checks exist beyond today's (unsigned report, open hold) is UNKNOWN until `cra`, the Clinical Owner and `lca` name them; no tariff, KLV or minutes comparison is invented here (§12: no computed comparison of assessed minutes without a `cra`-reviewed brief); (2) an AI check, if D-41 ever allows it, may only read free text (a correction reason, a note) and show a remark beside the existing hold list, never a hold, never a value, never a separate list to clear; (3) the BILL1 brief states (1) and (2) and cites AIR1 as the boundary | L for (1); G for (2) (`cra`) | (1) stage 0; (2) synthetic only until D-41; `po` (BILL1), `cra` (check list), `lca` (D-41, billing data to a provider) | holds cleared per team and month before release, and acts per billing release (open, check, clear, send), before and after; share of releases sent with no remark open | medium | report only |
+| AUT-60 | Narrowed DOC-AI, `cra` omission control (CGR answer 17:30: "the note stays in the record; spans that produced no proposal are shown to her before she finishes"): the performing nurse | **PLANNED (`cra` 17:30, not yet a brief):** the control is right and stays (safety control, not challenged). **Form risk:** written as "shown before she finishes", it is often built as a second screen or a "Hinweise gelesen" tick after the confirm list: one more act per note, also on the many notes where every span produced a proposal | **same act, no extra tick:** the note is shown in the confirm list with its unproposed spans marked inline; when every span is proposed, nothing extra is shown; finishing is the one act that already exists; an unproposed span can be turned into an observation from where it is shown (same confirm command). No "gelesen" tick, no second screen | G (with DOC-AI) | synthetic only until D-41; `po` (brief), `uxa` (form), `cra` (confirms equal safety) | acts per note (M-16 companion) with and without unproposed spans; share of notes with an unproposed span later added by correction (F6R) per team and month | low | report only |
+
+### 2 Briefs, plans and packages reviewed (challenge duty)
+
+- **FE-033 to FE-037:** no added administration for care teams; FE-037 is a repository process. The cleanup shows the AUT-49 cost directly: every merge re-conflicts the shared docs files of every other open PR, and with Engineering paused a code conflict (#815) cannot move at all. **The PO's proposal (19:15, E) "status rows only on `recovery/main` after a merge" is AUT-49's remedy in a leaner form: supported.** The permission refusal of the scheduled merge (#917) is the owner's setting; no finding from me (AUT-48 closed).
+- **AIR1 (#828 merged, accepted by the PO on #917):** supported; it turns four of the hard rules into a failing write (no billing value, no safety-signal priority through an assistant). It adds no act. Consequence for BILL1: AUT-59. The J5 note on #917 ("a fixed rule on a nurse-signed report is 'Apply rules', not an AI billing decision") is consistent with AUT-59 (1).
+- **AIG1-C4 + AIG1-C5 (#814 merged):** AUT-30 and AUT-31 remedies are on the main line (§5).
+- **AN3 pre-merge decisions (#917):** AUT-33 placed as **AN3-C2** (act counts per 100 visits per team and month, after PLAN3): adopted as proposed. ADR-144 deviations 1-7: no automation objection.
+- **`cra` CGR-144 (PLAN2 series sets the primary nurse without the overlap fact):** supported in the `cra` form (a fact, not a refusal). Form point for the brief line: the overlap fact of a generated series is a derived exception on `/team` that closes by itself when the overlap is gone (same pattern as AIG1-C5), never a confirm step per generated visit; a regeneration that would book a member twice may leave those visits to the PLAN3 day-plan proposal instead of a person checking each one (PO call; whether a double booking is allowed stays the team's, not NAVORA's rule).
+- **`cra` DOC-AI level answer (G, H when a proposal interprets):** taken; the validator "a proposal restates a span; it never adds a finding" is a deterministic check, supported; omission control form: AUT-60.
+- **CGR-137 remainder (COVER1 `accept_cover`):** no objection; the fact is shown, no act added.
+
+### 3 AI readiness of delivered items (§8)
+
+- **On `recovery/main` now (IMPLEMENTED):** AIG1 ledger, provenance per value, named confirmer, field classes with no accept-all on `record`, stop rule with look-back, monitor-the-monitor, correction rate per agent (window stats) and, new with #814, expired proposals counted apart from decisions ("Abgelaufen ohne Entscheid: n" on `/operations/assistenten`) and a stop followed up by its open lines whatever the agent's state; AIR1 prohibited targets. Only the synthetic test agent is registered on the main line.
+- **PLAN3 (first real rule agent):** still on the unmerged stack #872 to #910 (state as in review 34). Correction rate per agent and field reaches the team only with #894.
+- Missing for any agent beyond rules: evaluation harness on synthetic cases for a model-based agent (none exists; none needed at stage 0).
+
+### 4 Stage tracking (D-35)
+
+Stage 0 only (FE-024, rule A). Stage-1 entry conditions: **stage-0 governance layer merged: now met** (AIG1 with C1 to C5 and AIR1 on `recovery/main`; PLAN3 controls still unmerged, but they are agent controls, not the layer). Still missing: provider and contract (owner, D-41 inputs from `lca` on #860 and `eng` outstanding), three stable pilot months (no pilot; Phase B). FD-22 (provider for synthetic data only, narrowed by AUT-54 to the A7 note flow) is not a stage change.
+
+### 5 Findings: state changes and closed
+
+- **AUT-54 (high, #912):** **adopted by the PO** (15:00, scope as proposed, six criteria into the DOC-AI brief due 2026-11-27); criterion 6 answered by `cra` (level G). Stays open until the brief carries the criteria; issue #912 stays open.
+- **AUT-30 (high, #793):** Operations side **met on `recovery/main`** (#814, `e4f52e8`, 0105 point 5/6: the `agent_stopped` exception per stop with open lines, whatever the state; closes at 0 offen; pgTAP 106 in CI per the PO record). The team side (C5 (d), look-back on `/team`) is carried by PLAN3-11 #883 (unmerged). Closes when #883 merges unchanged.
+- **AUT-31 (low):** expired share **met on `recovery/main`** (#814: `last_window_expired`, shown beside the decided count); the lead time is on #885 (unmerged). Closes when #885 merges unchanged.
+- **AUT-33 (medium):** adopted as AN3-C2 (PO #917, not merged); built after PLAN3.
+- **AUT-49 (medium):** the PO proposes the remedy (status rows only on the main line, #861); unchanged otherwise.
+- **AUT-25** (#886), **AUT-51** (#897), **AUT-52** (#894): close when their PRs merge unchanged.
+- **AUT-55 to AUT-58:** not yet answered (the PO named them for a later cycle; the cleanup takes precedence, FE-037).
+- Open, unchanged: AUT-53, AUT-50, AUT-46, AUT-47, AUT-44, AUT-45, AUT-42, AUT-43, AUT-41, AUT-34 to AUT-38, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-28.
+- Closed this run: none (each remedy above still waits for a merge or a brief).
+
+### 6 To the PO
+
+1. AUT-59 and AUT-60: for the BILL1 and DOC-AI briefs (no issue; medium and low).
+2. CGR-144 brief line: an overlap of a generated series as a derived, self-closing exception, no per-visit confirm.
+3. Unchanged from review 34: AUT-55 to AUT-58; #897 deviation 3 (one visit-day counted once).
+4. The stage-0 governance layer is on the main line; the stage-1 decision (D-41) now waits only for its `lca` and `eng` inputs and the owner.
+
+---
+
 ## 2026-11-06 14:40 CET · aia review 34: founder direction 2026-11-06 read (FE-023 to FE-032, Blueprint V2/V2.1, D-41, D-42, Founder report); AI work flows DOC-AI and PLAN4 reviewed before their briefs; new AUT-54 (high: DOC-AI as framed re-drafts a report NAVORA already builds from the facts and adds a review step per visit), AUT-55, AUT-56, AUT-57 (medium: the administration metrics and the H-1 baseline), AUT-58 (low); AUT-51 remedy met on #897; PLAN4 supported as a rule with seven controls
 
 **Read:** `recovery/main` at `30de12f` (since review 33: PO #898 Blueprint V2, #900 Founder Executive Report, #904 founder direction and Blueprint V2.1, #908 Phase A home care + nursing-home ward and `lca` commissioned, `eng` #800 UX2-27/-29 merged). New or changed: `FOUNDER_DECISIONS.md` (FE-001 to FE-032), `FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md` (§1.1 H-1 to H-6, points 6-9), Blueprint §1 (AI work flows, SV-4 to SV-7, care-context matrix §1.3), §4 M8.1b, §7 FD-22, §10.2 M-11 to M-21; packages **D-41** (#905) and **D-42**; `briefs/PLAN3.md` (PO 06:30). Open `eng` PRs read on their heads: **#897** PLAN3-15 (`6dace1d`, ADR-157, migration 0116), #902, #903, #906, #910; CI read from the GitHub API: all 4/4 green (#897, #902, #903, #906 `dirty` against the new base). No brief DOC-AI, PLAN4, QUAL1, BILL1 or NH-A1 to NH-A5 exists yet (PLANNED, due 2026-11-20 to 2026-12-11). Open `automation` issues: #793 (AUT-30) only.

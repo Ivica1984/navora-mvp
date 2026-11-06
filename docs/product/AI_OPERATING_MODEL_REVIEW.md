@@ -421,6 +421,11 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 
 **Administration measures (Blueprint §10.2 M-11, M-15; AUT-55, AUT-56; `aia` 2026-11-06 14:40):** M-15 is computed from recorded administrative segments and acts, never as paid minus care time (that holds travel, meetings and training); in a ward no time tap per resident is introduced for measurement. M-11 counts undo and override of mandated lines.
 
+**State 2026-11-06 20:20 (`aia` review 35):**
+- **IMPLEMENTED on `recovery/main`:** the stage-0 governance layer of §8 for the register: AIG1 with C1 to C5 (#814, 0105: expired proposals counted apart from decisions, a stop followed up by its open lines whatever the agent's state) and AIR1 (#828, 0107: no register field on a billing or safety-signal target, refused in code). Only the synthetic test agent is registered on the main line; PLAN3 is on the unmerged stack. The D-35 stage-1 entry condition "governance layer merged" is met; provider, contract and pilot months are not.
+- **DOC-AI (AUT-54 adopted by the PO 15:00; `cra` 17:30):** level G; H as soon as a proposal interprets. Controls the brief must carry: a validator "a proposal restates a span; it never adds a finding"; the note stays in the record beside the confirmed observations; unproposed spans marked inline in the same confirm list, no extra "read" act (AUT-60, OPEN).
+- **Billing pre-send checks (BILL1, AUT-59, OPEN):** a check that can be stated as a rule raises a QG1 hold (stage 0); an AI check, if D-41 allows it, reads only free text and shows a remark beside the hold list; it can never raise a hold or propose a billing value (AIR1). Which checks exist: UNKNOWN (`cra`, Clinical Owner, `lca`).
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -458,3 +463,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-05 08:20 | `aia` | No control changed: CGR-132 (both pairs), CGR-134 and the `lca` AUT-46 addition are wording and deterministic refusals covered by the 2026-11-04 controls; AUT-49 is a repository process finding. AIG1 (#814) and AIR1 (#828) still unmerged (AUT-48, owner option C). No agent added or removed |
 | 2026-11-05 02:25 | `aia` | No control changed: AUT-46 form and CGR-131 to CGR-133 are single-source wording, covered by the 2026-11-04 controls; AIG1 (#814) and AIR1 (#828) still unmerged (AUT-48, delivery hand-off). No agent added or removed |
 | 2026-11-06 14:40 | `aia` | §12: added the controls for mandated rule lines (PLAN4, seven conditions), the DOC-AI scope note (AUT-54: structured report stays the F7 rule; agent only for unstructured input; level UNKNOWN until `cra`) and the administration-measure rule (AUT-55, AUT-56). No agent added or removed |
+| 2026-11-06 20:20 | `aia` | §12: governance-layer state (AIG1-C1 to C5 and AIR1 IMPLEMENTED on `recovery/main`; stage-1 entry condition "layer merged" met), DOC-AI level G with its validator and inline omission control (AUT-54, AUT-60), billing pre-send checks bounded by AIR1 (AUT-59). No agent added or removed |
