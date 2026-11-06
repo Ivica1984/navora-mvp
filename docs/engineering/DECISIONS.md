@@ -2674,3 +2674,31 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Trade-offs.** `derived_exceptions` and `agent_health` now evaluate `aig1_lookback` for every stop of the organisation instead of only the current one; at pilot scale (one synthetic agent, few stops) that is negligible; if stops accumulate, a stop can later be marked closed when its open count reaches 0 (not needed now, not built). Filtering expired proposals on read rather than writing an "expired" row keeps the ledger append-only and needs no job or clock-driven write.
 
 **Gates.** `cra` re-checks on the merge commit (CGR-95, H-20: nothing is lost); `lca` may read the PR (no new read); `uxa` wording for status versus exception and the expired count.
+
+### ADR-141 — Owner directive 2026-11-03 (#824): the AIG1 register refuses billing and safety-signal-priority targets; catalogue guards pin that no AIG1 path writes them
+**Status:** PROPOSED (PR, waits for the PO) · **Context:** owner directive 2026-11-03 14:00, relayed by `po` on #824 (full text on unmerged PR #822: `docs/product/AI_FIRST_ARCHITECTURE_UPDATE.md` §0, §6.1). Engineering enforces in code: no automatic billing decision, no automatic clinical recommendation to patients or relatives, no automatic clinical prioritisation of safety signals, no unrestricted general-purpose copilot on production data, no AI replacing an accountable human decision; testable guards get a test.
+
+**Before (IMPLEMENTED, read from 0097-0104):** an assistant's value reaches a record only through `private.aig1_apply`, which has one branch (`care_visits.responsible_user_id`) and refuses every other target with 0A000. The field register `ai_agent_fields` narrows only class `schedule`; a `record`-class field may name any table. So no billing or signal write exists, but nothing stops a later migration from registering one.
+
+**Decision (IMPLEMENTED in migration 0107):**
+1. `private.aig1_prohibited_target(table, column)`: `billing` for `billable_facts`, `billing_rules`, `tariff_rates`, `quality_holds` (the hold is the single billing rule `visit_has_open_hold`, QG1); `safety_signal` for `safety_signals`, every `signal_*` table, `exception_rules` and `exception_rule_overrides` (the rules that make a signal P1, SIG1/OPS1). It names tables, not rules: no billing, tariff or clinical rule is added or changed.
+2. A second `before insert or update` trigger on `ai_agent_fields` refuses such a target for any class (42501). 0097's class trigger is untouched (no shared hunk with open PRs #814, #815).
+3. The migration fails if a field already in the register points at such a target (none does: the register holds one field).
+4. pgTAP 108 (22): the classification; the refusal for `record` and `schedule`, on insert and on update; the register catalogue; **a pg_proc catalogue check** that no function in `public`/`private` that reads `ai_suggestions` or `ai_confirmations`, or is an `aig1_apply*` function, contains an insert, update, delete or truncate on those tables; no agent of kind `ai` is registered. The catalogue checks hold for every later migration, so a future agent path that writes billing or signals turns CI red.
+5. vitest `ai-prohibited-targets`: every billing, tariff or signal table any migration creates is covered by the classifier, and pgTAP 108's write check names the same tables.
+
+**Guards with tests before this ADR (existing, 097):** kind `ai` refused at switch-on (D-35 rule A); level G/H refused (D-34); a value becomes record content only through `confirm_suggestion(s)` with a named confirmer (AIG1-3); no app-role grant on the ledger or confirmations (AIG1-11). **New here:** items 1-5 above.
+
+**Not done, and why:**
+- No runtime trigger on `billable_facts` or `safety_signals` keyed on the AIG1 command context. Confirming a responsible member updates `care_visits`, and the SIG1 rule path may then legitimately write signal rows (e.g. end a `visit_uncovered` episode) in the same transaction (not verified per trigger: UNKNOWN); a context trigger could refuse a correct rule write. The register guard plus the catalogue check stop the path at its only entry without touching SIG1 or J5. UNKNOWN whether the owner wants a runtime guard as well; it can be added with its own tests if `po` asks.
+- "Automatic clinical recommendations to patients or relatives": no patient- or relative-facing surface exists (IMPLEMENTED fact: no route, no role for clients or relatives). Nothing to guard yet; D-40 (Family Layer) is frozen, no code.
+- "Unrestricted general-purpose copilots": no AI service is called anywhere; kind `ai` is refused at switch-on (097) and none is registered (108).
+- D-39 and D-40 *Engineering impact* sections: the package files are on unmerged #822 and frozen; not touched.
+
+**Review of existing paths against the five prohibitions (flag, not a change):** AIG1 agents are rule agents with a human confirmation per value: compliant. SIG1 priority comes from configured exception rules written by people (`set_exception_rule`, audited): a rule, not an assistant. **Flag for `po` (OPEN):** J5 (ADR-038) derives a billable fact automatically by a fixed rule from a report a nurse signed, with no open hold. That is "apply rules" in the owner's sequence, not an assistant's decision, and no invoice is sent; whether the owner counts it as an "automatic billing decision" is UNKNOWN and is the PO's question to put, not Engineering's to change.
+
+**Trade-offs:** the list is by table name; a new billing or signal table needs the classifier extended, which the vitest enforces for names starting `billable_`, `billing_`, `tariff_`, `safety_signal`, `signal_`, `exception_rule`. A billing table with another prefix would not be caught by the vitest; the pg_proc check still catches a write from an AIG1 function to the listed tables only.
+
+**Checked by me (not CI):** the migration body (classifier, trigger, re-run idempotency) and the pg_proc regex ran against a scratch PostgreSQL 16 with stub tables, not against the Supabase schema; the vitest file ran under a minimal local shim of `describe/it/expect` with Node 22 (no `node_modules`, npm registry unreachable). pgTAP 108 did not run locally. CI decides.
+
+**Rollback:** revert the PR; 0107 is forward-only, a follow-up migration would drop the trigger and the two functions.
