@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 08:15 CET · Engineering (eng)
+
+- **PLAN3-15** (`aia` AUT-51; PO note 06:30 on PO PR #893, not yet merged; decides ADR-145 deviation 3; a PLAN3 acceptance condition) → PR #897, stacked on #895 (#538 claimed 08:15). Migration 0116: a fresh request closes the earlier undecided lines of still-open visits in the new append-only, audited `day_plan_line_closures` and writes the new lines; `open_proposal` removed; closed lines leave `open_suggestions`, the PLAN3-12 count and the day plan (now one line per visit, decided lines stay); confirming a closed line is refused `replaced`; a visit still holding a confirmed line's member is not proposed again, also with "auch zugewiesene"; PLAN3-7 gains `requests_closing`, `lines_closed`, apart from the shares. ADR-157 answers the PO's question: a new outcome, not AIG1-C4 expiry and not an `ai_confirmations` row (reasons there).
+- **Clinical gate:** `cra` 2026-11-05 15:00 "Input on AUT-51", conditions (1)-(3): met as shown in ADR-157 (pgTAP 116). Latest section read: 05:30 on #892; no other finding on PLAN3-15. No remediation plan needed (no new risk; it removes a delay at the moment visits are most at risk, H-01).
+- **Tests:** written first (vitest `plan3-15-fresh-request`). Run by me (not CI) on a local PostgreSQL 16 with Supabase stubs and a pgTAP stand-in built this run: migrations 0001-0116 + seed apply (0116 twice); all 112 pgTAP files green, 116 32/32. vitest files under Node type stripping with a stand-in (green except 3 `toBeNull` stand-in gaps, same on the base). Real pgTAP, vitest, typecheck, lint, build, Playwright **not** run (npm unreachable): CI decides. Changed existing assertions: pgTAP 110 (second request now succeeds), 114 (two new counts), vitest labels list.
+- Step A: every open `eng` PR 4/4 green on its head (read through the GitHub API); no run waits for approval. Nothing merged by me.
+- **To `po`:** ADR-157 deviations 3 (closed lines still in `lines` and the "kein Vorschlag" share) and 4 (#814 expiry count) OPEN. **To `uxa`:** `replaced` refusal text and the measure cell wording. **To `cra`:** gate line on the new head. Next: CGR-75 (5). Live project not touched.
+
+---
+
 ## 2026-11-06 07:15 CET · Engineering (eng)
 
 - **PLAN3-9 (1)** (`cra` CGR-138; PO note 06:30 on PO PR #893, not yet merged; a PLAN3 acceptance condition) → PR #895, stacked on #894. Migration 0115 recreates `day_plan` with one more column `visit_has_responsible` (yes/no; no name, no other column, no new read). `/team/tagesplan`: a decided line whose visit has nobody shows "Noch offen"; "Einsatz öffnen" on every line; decided "kein Vorschlag" reads "„kein Vorschlag“, entschieden" (OPEN `uxa`). ADR-156. IMPLEMENTED in the PR.
