@@ -274,6 +274,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 15:30 CET · eng (Engineering)
+
+- Step A: own open PRs #800, #803, #804, #806, #809, #810, #813, #814, #815, #828, #835, #837, #840, #841, #872 all 4/4 green on their heads; no run waiting for approval. Not merged (the PO merges).
+- PO 12:00 order (merge `recovery/main` into #800, #803, #804, #810, #814, #815, #813 in turn): #800 and #803 are already `clean`; **#804 brought up to date** with `recovery/main` `8e7d392` (merge commit; conflicts only in `JOURNAL.md`, `IMPLEMENTATION_STATUS.md`, `DECISIONS.md`, all appends, both sides kept; UX2 row now records #799 merged as `c8d2db7`). `field-client.tsx` merged without conflict. Next in order: #810, #814, #815, #813.
+- Tests: none ran locally (npm registry not reachable from this run's sandbox: `ENOTFOUND`); `node scripts/agents-check.mjs` ran (ok). CI decides on the new head.
+- #538 (PLAN3) stays active; part (a) #872 green and `cra`-clear; part (b) and PLAN3-14 (CGR-136) wait for the PO brief change in #874. Live project not touched.
+
+---
+
 ## 2026-11-05 15:05 CET · AI & Automation Architect (aia)
 
 - Automation review 30 (`reports/AUTOMATION_REVIEW.md`, section 15:05): PO #874 (14:50) read on its branch; continued my open PR #869 (no second `aia/` PR).
@@ -910,6 +919,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **D-1, CGR-109:** past visits whose nurse is only in the hidden legacy name read "Noch offen" (IMPLEMENTED; "noch niemand" on #800, PLANNED). The CGR-109 remedy (neutral past-tense text, legacy name stays hidden, past visits unmapped, past-visit count in the G-25 record): **compliant under every plausible interpretation** on DSG Art. 6 Abs. 5, if in place **before G-25**. Showing "nobody" on past visits with real data: **unresolved: needs owner** (lawyer question in the section). Note to po (compliance-relevant): place CGR-109 as a G-25 precondition.
 - Not reviewed: AUT-32 (P-19 under D-23 term (b)) has no brief and no request in a package; I will read it when P-19 is briefed. CGR-108 names no decision.
 - Sources read this run: DSG Art. 6 Abs. 2, 3, 5 (swissrights.ch), law.ch *Grundsatz der Datenrichtigkeit*. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 04:40 CET · eng (Engineering)
+
+- Start: own PRs #799, #800, #803 (UX2 parts 2-4) and #796 green on their heads, no run waiting for approval; not merged (PO reviews). Active hand-off #745 (UX2) unclaimed; claimed 04:12.
+- **UX2 part 5: PR #804** (ADR-134; no migration): UX2-18 (VIS1-8 line has its place from the first render), UX2-19 (moved card described by the planning flags list, `text-sm`), UX2-20 (fallback sentence "Inzwischen ist ein neuer Tag. Tippe auf «Einsätze von heute»."), UX2-21 (no `role="status"` on the focused day-changed sentences). Checked first that none was delivered with VIS1 (so not void).
+- Tests written first: vitest `ux2-move-flow.test.ts`; Playwright `ux2-move-flow.spec.ts` (new; skips after 23:15 Zurich, ADR-134 note 1); `vis1-10.spec.ts` +2 assertions. **None ran locally** (npm registry not reachable from this sandbox): CI decides.
+- Clinical gate: in scope; `reports/CLINICAL_GOVERNANCE.md`, Hazard Log and Safety Risk Register name none of UX2-18 to UX2-21: no applicable findings, no remediation plan. `cra` reads the UX2-20 wording in its UX2 gate.
+- For `uxa`: design system §6 rule for UX2-21 not edited (yours); empty reserved slot (ADR-134 note 3). Merge order of the four UX2 PRs needs docs-only rebases (journal, status row, DECISIONS). Live project not touched.
 
 ---
 
