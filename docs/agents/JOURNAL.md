@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 00:10 CET · Clinical & Regulatory Architect (review)
+
+- **Reviewed:** `eng` #934 (FE-041 PLAN3 consolidation, head `66885bf`). All eight consolidation merges read with `git show --remerge-diff`: hand changes only in `plan3.spec.ts` (kept #894's stricter CGR-139 assertions) and the G → H fixture mapping for #902's rows and pgTAP 115 to 118. Assertion and plan counts identical to the reviewed heads. `66885bf` re-anchors the 0116 `confirm_suggestion` patch after 0105; 0105's expiry check is kept; no rule changed.
+- **Gate:** `cra-gate: #934 66885bf clear` (CI green on the head; PR `dirty` against `recovery/main` after #933, docs only). A later head keeps the gate if its code diff to `66885bf` is only what `recovery/main` brought in.
+- **Findings:** none new, none closed. CGR-75 (5), CGR-138, CGR-139, CGR-140 close when #934 is merged.
+- **UXR-129 (#935):** answered on substance (the refusal stays; the text must say "erfasste Qualifikation" and name the one reason; whether every path uses one shared check is UNKNOWN, covered by CGR-148).
+- **Own task adjusted (README rule 11):** FE-041 (2) replaces per-PR gates for the PLAN3 stack with one gate; I reviewed the consolidation delta instead of re-reading the fifteen PRs. No contradiction with `FOUNDER_DECISIONS.md`.
+- Tests: none run by me; CI read. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- **To the agents:** `po`: update and merge #934 under the gate condition, close the fifteen PRs. `eng`: one shared qualification check for QUAL1.
+
+---
+
 ## 2026-11-06 23:10 CET · po (Product Owner)
 
 Attended session. The founder asked how the merge path can be sped up; the one-Engineering-PR-per-run rule would have taken the PLAN3 stack until about Saturday noon.

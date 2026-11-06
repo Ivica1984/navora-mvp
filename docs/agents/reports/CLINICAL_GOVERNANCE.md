@@ -16,6 +16,62 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-07 00:10 CET: FE-041 PLAN3 consolidation PR **#934** read on its head `66885bf`: **no blocking finding; clinical gate clear** (one gate line for the stack, FE-041 (2)); the consolidation adds **no rule, assertion or product code** beyond the fifteen reviewed PRs except the 0116 re-anchor after 0105 (**no rule changed, 0105's expiry check kept**); `uxa` UXR-129 (#935) answered on substance; no new finding
+
+**Scope:** `recovery/main` @ `120a881` (PO #929, #930, #933 merged: my QAM v0.2, FE-040, QUAL1 brief, FE-041; docs only). **Trigger:** `eng` #934 (`feature/plan3-consolidated`, head `66885bf`, FE-041); `uxa` #936 (docs) and issue #935 (UXR-129). **No clinical, legal or owner decision answered** by a person since 22:35.
+
+I read, on #934 (`66885bf`, merge base `2057591`):
+- every one of the eight consolidation merges with `git show --remerge-diff` (the part of a merge that differs from git's own merge), restricted to code, migrations, seed and tests: **#880, #882, #883, #885, #886, #888 merges carry no hand change**; **#894's merge** resolves one `plan3.spec.ts` conflict by keeping #894's stricter CGR-139 assertions (distinct options, "(du)") over #880's plain label, and the "noch niemand" assertion stays (on both sides); **#910's merge** maps the CGR-75 (5) seed rows and pgTAP 115 to 118 / `plan3.spec` from Testorganisation G to H (ids, names, e-mails; `vis()` with `replace(s, 'c', 'd')` as pgTAP 114). Nothing else;
+- the counts against the reviewed heads: pgTAP 115 `plan(12)`, 116 `plan(32)`, 117 `plan(14)`, 118 `plan(11)` and the number of assertions in each file are identical to #910 `806b8cf`; `plan3.spec.ts` has 12 tests and 99 `expect(` on both `806b8cf` and `66885bf`; `git diff 806b8cf 66885bf -- tests/e2e/plan3.spec.ts` is the G → H mapping only;
+- #880's commits after my gate `12f0b0d`: `cd4c832` (base merge; the G block leaves the seed for H, the same move as `d1ff219` on #910 that I read), `f6450bf` (e2e wording "noch niemand", UX2-29), `75d0a19` and `59e1bc2` (docs and `ROADMAP.md` only). The H fixture keeps two `registered_nurse` and one `care_assistant` (synthetic);
+- `66885bf` (0116, the only new migration text): `confirm_suggestion` is patched at the anchor that 0105 (AIG1-C4) now leaves after the membership check. The replacement **ends with 0105's own comment line**, so 0105's `not_open` expiry check stays in the function; the PLAN3-15 `replaced` refusal stays directly after the membership check, as written for #897. `plan3o_patch` still raises when an anchor does not match exactly once (0116:57-59). A closed line whose record is no longer open is refused `replaced` before `not_open`: both are refusals without a confirmation row, so no decision is recorded either way;
+- CI on `66885bf`: app, db (migrations, seed, pgTAP), e2e, ui-screenshots and sync **green** (check runs read; I did not run them). The PR is `dirty` against `recovery/main` after #933 (docs only, PO comment 23:39).
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data.
+
+### Findings
+
+None new. No blocking finding on #934.
+
+### Answer to `uxa` (UXR-129, #935, substance)
+
+- **The refusal itself is right and must stay** (fail-safe, CR-007 / CR-009). The texts must not claim more than the data hold: the qualification is a **recorded** value, not a verified one (CGR-16, FE-039, CR-181 PROPOSED). "darf … nicht" states a verified authority judgement about a colleague; a wording on "erfasste Qualifikation" and the name of the reason (membership **or** qualification, not both at once) is the correct clinical content. Wording itself is `uxa`'s.
+- **Whether the four paths apply one predicate is UNKNOWN** from the texts. The planning and day-plan paths call `private.may_perform_visit` (0109:292, 0110:95); hand planning returns `rn_required` (0075:237) and take/confirm return `not_qualified` (0092, 0097:647, 0103, 0104). `eng` to show, when QUAL1 is built, that every path calls one shared check (CGR-148 asks the same for QUAL1). No new finding: CGR-148 covers it.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-75** (5), **CGR-138**, **CGR-139**, **CGR-140** | open, advisory; remedies met on the reviewed heads and **carried unchanged into #934 `66885bf`**; **close when #934 is merged at a head whose code equals `66885bf`** | remerge-diff above; pgTAP 114 to 118 and `plan3.spec` counts as on the heads |
+| **CGR-136**, **CGR-78** | as at 21:30 (carried unchanged into #934) | as above |
+| **CGR-137**, **CGR-144** | open, advisory (S3); unchanged (#910's PLAN3-16 part is in #934 unchanged; CGR-144 not placed) | as at 17:30 |
+| All other CGR findings | unchanged | as at 22:35 |
+
+Closed in this section: none (closures follow the merge).
+
+### New or changed hard-coded rules
+
+None. The 0116 re-anchor changes the place of a text patch, not a rule (CR register unchanged). The G → H change is synthetic fixture data. No clinical, tariff, KLV, LTCF, interRAI, PAG or MQI logic invented.
+
+### Gate status
+
+| PR | Gate |
+|---|---|
+| **#934** (FE-041 PLAN3 consolidation, head `66885bf`) | **clear to merge**; CI green on the head. The PO must bring it up to date with `recovery/main` first (`dirty`). **Condition for a later head:** `git diff 66885bf <new head> -- src supabase tests` shows only what `recovery/main` brought in since `2057591` (today: nothing outside `docs/` and `ROADMAP.md`), and CI is green on the new head. Then this gate holds without a new review. |
+| #880, #882, #883, #885, #886, #888, #890, #891, #894, #895, #897, #902, #903, #906, #910 | superseded by #934 (FE-041 (4)); their earlier gate lines no longer apply on their own |
+| #936 (`uxa`, docs) | not in clinical scope (UX report, design system); nothing from `cra` blocks it |
+
+cra-gate: #934 66885bf clear
+
+### Decisions requested
+
+- **po:** update #934 with `recovery/main`, check the condition above, merge it, close the fifteen PRs (FE-041 (4)); then the four findings above close.
+- **eng:** with QUAL1 (#931), show one shared qualification check on every path (UXR-129, CGR-148).
+- **lca (#924):** L-7 and L-2 first (as at 22:35).
+- **owner:** nothing now.
+
+---
+
 ## 2026-11-06 22:35 CET: founder letter (attended session): **Qualification and Activity Matrix v0.2** (four contexts, six functions, per-row fields, planning use, cover-simulation acceptance criteria and negative tests, pre-pilot list, K and L questions as options); **CR-179 to CR-184 PROPOSED**; new **CGR-147** (advisory S1 before Phase B: external team in a nursing home, legal form and delegation source unresolved) and **CGR-148** (advisory S1 before real data: the check must also run on swap, NH-EXT acceptance and at visit start); D-43 clinical input
 
 **Scope:** `recovery/main` @ `8bd8315` (PO #920 merged FE-038, FE-039; my #923 merged with QAM v0.1). **Trigger:** the founder's letter of 2026-11-06 (evening, attended session) asking to develop the matrix with `lca` for four contexts, keep six functions apart, complete the per-row fields, make it usable for AI planning on every path, give acceptance criteria and negative tests for a cover simulation, and prepare K-1 to K-6 and L-1 to L-6 as options. **Code changed:** none. **No clinical, legal or owner decision answered** by a person since 21:50.
