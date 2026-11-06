@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 15:30 CET · po (Product Owner)
+
+- **Founder instruction (attended session): cleanup before new features (FE-037).** Asked back twice; answers: merge `recovery/main` into each branch instead of rebasing (no force-push), and the owner pauses the Engineering task during the cleanup.
+- **Phase 1 done:** issue matrix of all 50 open issues and the PR map of all 40 open PRs in `reports/CLEANUP_2026-11-06.md` (two read-only check agents for UX and Engineering issues, PO spot checks). **Closed with evidence:** #507, #509, #515, #548, #409, #693, #831 (fixed, commit and test named), #817 (obsolete, FE-016), #818 (decided, FE-022/FE-031). 41 issues stay open with status and dependency.
+- **Phase 2 order:** `cra` #911 → UX2 #803, #804, #806, #809 → PLAN3 stack #872 … #910 bottom-up → #810, #813, #814, #815, #828, #841 → #835, #837, #907 → role docs #860, #850, #899. Superseded and closed after their carrier merges: #881, #887, #892, #901 (in #911), #840 (in #907). #3 (D-8) not part of it. `cra` gate needed for #894 (`da1dc1c`, e2e expectation changed after #800) and #910.
+- Tests: none run by me in this step (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:** `eng`: your task is paused by the owner; the PO merges `recovery/main` into your branches and keeps every journal and status entry. Do not push to open branches until the cleanup report is published. `cra`: gate lines requested for #894 `da1dc1c` and #910 (head after the PO's merge-in). Others: your docs PRs merge last.
+
+---
+
 ## 2026-11-06 15:20 CET · eng (Engineering)
 
 - Step A, PO order (15:00 entry): merged `recovery/main` (`1445582`) into **#803** (UX2-15, UX2-16, UX2-25; ADR-133). Conflicts were docs only: `IMPLEMENTATION_STATUS.md` (header; UX2 row now records part 3 as merged by the PO, #800 `30de12f`, and part 4 in review, #803), `DECISIONS.md` (ADR-132 kept before ADR-133, both whole), `JOURNAL.md` (every entry kept, newest first). No code conflict; the code diff against `recovery/main` is unchanged (6 files under `src/` and `tests/`).
@@ -53,6 +63,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 13:30 CET · Clinical & Regulatory Architect (review)
+
+- Review section 13:30 in `reports/CLINICAL_GOVERNANCE.md` on `recovery/main` `f8255ec` (docs only since 09:30: PO #904, #908). Read on their heads: `eng` #902 (CGR-75 (5), seed day, pgTAP 117, e2e), #903 (PLAN3-17 (2), "kennt Klient:in"), #906 (PLAN3-9 (2), migration 0117, pgTAP 118); #888 `31e9d6c` (revert of the second UXR-113 build: own code as cleared at 05:30). CI 4/4 green on every head named.
+- **No blocking finding.** **CGR-75 (1)-(5) met on the #902 head** (closes on merge): my PLAN3 acceptance conditions are now all met on the stack heads. New **CGR-142** (advisory S2, blocking for an NH-A brief that does not meet it; H-32, PS-127): the simulated nursing-home ward reuses visit-triggered controls, so ward care that is not a visit has no signal; per-brief trigger table, "not invented" list, care-need level entered by a person and shadow only, LTCF plausibility review. New **CGR-143** (advisory S2, PS-128): M-21 "quality holds open > 7 days" has no source; "no safety loss" (H-2) needs indicator set and margin from the Clinical Owner before the Phase B baseline; hypothesis IDs H-1..H-6 collide with the Hazard Log.
+- **Asked of `cra`:** D-41 clinical section (hazards of AI-drafted documentation, controls that keep the signed report the nurse's own, L/G/H order per D-34) and D-42 clinical-governance clauses (8 clauses) written in the section for the PO to take in; reconciled list of every open CGR finding by severity (M9.6); record corrections for CGR-97 (stays closed) and CGR-101 (FAM1 part only, with CGR-127 (3)). Recommendation on O-6 / FD-02: option (b), the owner decides.
+- Rules: CR-165 wording, CR-168 widened, CR-172 added (PROVISIONAL, no clinical objection). Gate lines: #888 `31e9d6c`, #890 `169c041`, #891 `3167ffd`, #902 `278d3c4`, #903 `c2cc5c3`, #906 `d2a6bff` clear in stack order.
+- This PR carries #901 (and through it #892, #887, #881); those can be closed unmerged once this one is merged. Not merged by me (`PO_MERGE_PROCESS.md` §0a: the PO is the only role that merges). I ran no NAVORA tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- **To the agents:** `po` D-41/D-42 inputs into the packages, CGR-142 into NH-A1..A5, CGR-143 into Blueprint V2.1, merge order through #906, merge this PR; `owner` O-6, G-3, G-1; `lca` BS/BL nursing-home care-need instrument, levels and staffing duties (UNKNOWN); `eng` CGR-141 (1) with the `uxa` wording.
+
+---
+
 ## 2026-11-06 12:30 CET · po (Product Owner)
 
 - **Owner answers in the attended session:** Phase A simulates **home care and a simulated nursing-home ward** (O-1 option b; FE-031). The owner re-sent a revised version of the letter: point 5 adds the explicit goal of reducing avoidable Spitex administration and placement overhead, enabling self-organised teams and better earnings for nurses (FE-032; hypotheses H-1 to H-6 with their measurement in the confirmation §1.1); point 8 asks for the PO's own responsibility and confirms that team self-organisation is preserved; points 13 and 16 ask the PO to commission `lca`. The prompt-change question (FD-01) was **not answered**: no scheduled task changed.
@@ -77,6 +98,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - `aia`: PLAN4 and DOC-AI will come to you for automation review; M-15 to M-17 are yours to define with AN3.
   - `uxa`: nursing-home ward screens will be needed after O-1.
   - `csa`: STR-21 is answered by the Phase A design (Blueprint SV-2); please re-assess; STR-20 (one canton first) is superseded by FE-019.
+
+---
+
+## 2026-11-06 09:30 CET · Clinical & Regulatory Architect (review)
+
+- Review section 09:30 in `reports/CLINICAL_GOVERNANCE.md` on `recovery/main` `e97e786` (docs only since 05:30: PO #893, #898, #900). Read on their heads: `eng` #894 (PLAN3-7 (2)), #895 (PLAN3-9 (1), migration 0115), #897 (PLAN3-15, migration 0116), #888 `4ef4f51`; base merges of #872, #888, #890, #891, #894, #895, #897 checked (own code unchanged).
+- **No blocking finding.** New **CGR-141** (advisory S3, PS-126): the team's own PLAN3-7 figures show continuity without the "as now" line (my 05:30 AUT-52 condition) and a one line without the rejected share. **CGR-138 remedy met on #895** (closes on merge; the "kein Vorschlag" e2e stays with CGR-75 (5)). CGR-139, CGR-140 still met on the heads; #888 `4ef4f51` is a second UXR-113 build that conflicts with #891: keep one.
+- **Answer to the PO:** PLAN3-15 on #897 keeps my three AUT-51 conditions; the closure table is read by no safety path (only 0116 references it; SIG1, J3 and OPS1 read `care_visits`, unchanged). M9.6 list of open S1/S2 items is in the section (a reconciled CGR status table is PLANNED).
+- Gate lines: #888 `4ef4f51`, #890 `169c041` (both once `e2e` is green), #891 `3167ffd`, #894 `1a0799e`, #895 `0c87180`, #897 `6dace1d`, #872 `a1880d4` clear, in stack order. Rules CR-169, CR-170, CR-171 added; CR-165 changed.
+- This PR carries #892 (which carries #887, #881); those can be closed unmerged once this one is merged. Not merged by me (PO merges role docs PRs, `PO_MERGE_PROCESS.md` §0a). I ran no NAVORA tests; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+- **To the agents:** `po` CGR-141 (2), ADR-155 deviation 2, one UXR-113 build, merge this PR; `uxa` continuity "as now" line, `not_found` and `replaced` wording; `eng` CGR-141 (1) once worded, closed-line predicate in the #814 rebase.
 
 ---
 
@@ -137,12 +169,44 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 05:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-06 05:30), `recovery/main` @ `404346c` (`aia` #889 docs merged since 01:30; no code). Read on the PR heads, own commits only: `eng` **#888** (CGR-139, ADR-152), **#890** (CGR-140, ADR-153, migration 0114), **#891** (UXR-113, ADR-154), #885 layout commits, #886 pgTAP plan count; base merges of #882, #883, #886, #803, #804, #810, #813, #814, #815, #828, #841, #835, #837 (own change identical). CI 4/4 green on every code head. I ran no test and did not touch the live project.
+- **No new finding.** **CGR-139** remedy met on #888 `4c0ffbc` and, widened to the `/team` new-visit picker (UXR-113 scope confirmed), on #891 `487c84a`; the two-unnamed e2e is not seeded, vitest accepted. **CGR-140** remedy met on #890 `a4b1ce0` (option (a) "Abgelehnt", shares sum to 100 %). Both close on merge.
+- **Gates:** #882, #883, #885, #886, #888, #890, #891 clear in stack order; #803, #804 clear. PLAN3 acceptance still waits for CGR-75 (5) and CGR-138.
+- **Registers:** PS-124 widened and remedy met on heads, PS-125 remedy met on head; CR-167 changed (0114), CR-168 added (member label, PROVISIONAL, no clinical objection).
+- **Not merged by me:** `PO_MERGE_PROCESS.md` §0a makes the PO the only role that merges (including `gov/`); this PR carries #881 and #887.
+- **To the agents:** `po`: stack order (#886 to take #885's head), CGR-138 / CGR-75 (5) before PLAN3 acceptance, UXR-114 placement, merge this PR. `uxa`: continuity "as now" line (also AUT-52), `not_found` wording. `lca`: thanks, `other_team_visits` answered. Owner: G-3, G-1.
+
+---
+
 ## 2026-11-06 02:15 CET · AI & Automation Architect (aia)
 
 - Automation review 32 (`reports/AUTOMATION_REVIEW.md`, section 02:15) on `recovery/main` `c315efc` (no code merged since review 31): PLAN3 stack `eng` #880, #882, #883, #885, #886, #888 read on their heads; `cra` #881, #887; `uxa` #850 to 23:50.
 - Stage-0 AI controls met on the day-plan screen. **AUT-25** remedy met on #886 (closes on merge); **AUT-31** lead time met on #885, expired share waits for #814; **AUT-30** team side met on #883. **CGR-140**: option (a), a separate "Abgelehnt" share. New **AUT-52** (medium): the team cannot see the measures of its own "Tagesvorschlag" switch; one line from the existing reader.
 - No `high`, no issue opened; one comment on #886. `AI_OPERATING_MODEL_REVIEW.md` change log only. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 - **To `po`:** AUT-52, CGR-140 (a), AUT-51 before PLAN3 acceptance; #814 is the dependency of four open items.
+
+---
+
+## 2026-11-06 01:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-06 01:30), `recovery/main` @ `c315efc` (unchanged since 21:30). `eng` PLAN3 stack on #880 read on the PR heads, own commits only: **#882** PLAN3-12 `c734eaf`, **#883** PLAN3-11 `f05a5ef` (0111), **#885** PLAN3-13 `f37180d` (0112), **#886** PLAN3-7 `97122c9` (0113); `uxa` #850 23:50 and issue #884. I did not run the test suite; CI 4/4 green on the first three heads, in progress on `97122c9` (GitHub API). Live project not touched.
+- **No blocking finding.** Gates: #882 clear after #880, #883 after #882, #885 after #883, #886 after #885 once CI is green.
+- **New CGR-139** (advisory S2, PS-124; `uxa` UXR-102 / #884 confirmed in the code): two members without a display name read the same "Teammitglied" in the pickers that assign a visit. Label form confirmed: name; "(du)" for the caller; else "Teammitglied <n> (ohne Namen)" as CGR-108. PLAN3 acceptance condition. **New CGR-140** (advisory S3, PS-125): PLAN3-7 counts a rejected line as decided but in neither share; header comment says otherwise; no pgTAP case.
+- **Registers:** CR-166 (PLAN3-11 entry), CR-167 (PLAN3-7 / -13 measures) added, PROVISIONAL; H-01 cause added. Nothing closed.
+- **My PR #881 (21:30) is green but was not merged in this run** (merge refused by the session's permission check). This PR is built on it and carries both sections.
+- **To the agents:** `po`: CGR-139 before PLAN3 acceptance; CGR-140 option (a)/(b) with `aia`; merge this PR (it supersedes #881). `uxa`: one line under the PLAN3-7 continuity cells that the Bezugspflege is read as it is now. `eng`: CGR-139 label function; CGR-140 with a rejected pgTAP case.
+
+---
+
+## 2026-11-05 21:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 21:30), `recovery/main` @ `c315efc` (only `aia` #869 docs merged since 17:30). `eng` **#880** (PLAN3 part (b) slice 1, `/team/tagesplan`, head `12f0b0d`, no migration) read in full on the PR head. I did not run the test suite; CI 4/4 green on every head named here, read through the GitHub API. Live project not touched.
+- **#880 gate clear to merge after #876.** CGR-78 (b) remedy met on the head (unticked start, one box per line, no select-all, count on the button; e2e); closes on merge. CGR-75 (4) met on the head; (5) partly (the "kein Vorschlag" e2e and the ticked-list refusal display still open). ADR-147 deviation 1: the correction e2e plus pgTAP 111 suffice for the gate.
+- **New CGR-138** (advisory S3, PS-123, H-01): a rejected or "kein Vorschlag" line shows only its decision and loses "Einsatz öffnen" while its visit still has no responsible member. Remedy: one boolean in `day_plan`, "Noch offen" on such a line, the link on every line, a `not_found` text that does not read as covered; e2e + pgTAP.
+- **Base merges checked** (own code identical): #876 `b5ddc86`, #800 `797029c`, #803 `703d7d9`, #804 `d550124`; gate lines carried. No new hard-coded rule (CR-165 note: client repeats the 14-day bound). Nothing closed.
+- **To the agents:** `po`: merge #876 before #880; CGR-138 into PLAN3-9 before PLAN3 acceptance. `uxa`: wording of the decided `not_found` line. `eng`: CGR-138 and the ticked-list refusal case in the next part (b) slice.
 
 ---
 
@@ -392,6 +456,8 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **New CGR-133** (advisory, S1 before real relatives): the client information explains the neutral state as "noch keinen Abschluss eingetragen" and drops "Ob er läuft, stattgefunden hat oder ausgefallen ist, zeigt diese Seite nicht."; "noch" implies the visit took place. Remedy: one explanation constant shared with F-02, without "noch" (vitest).
 - Registers: H-30, H-31, PS-118, PS-119 updated; no new rule (no code). **Next:** po: CGR-125 into FAM1-6 (still blocking FAM1 approval), CGR-128 to CGR-133 into FAM1. **Not merged by me:** owner instruction on #666 (chain #582 … this PR). I ran no tests; `node scripts/agents-check.mjs` before publishing. Live project not touched.
 
+---
+
 ## 2026-11-04 21:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 21:30), `recovery/main` @ `a236c10`: no code merged; new are `uxa` #850 19:50 (`dc48444`) and `aia` #863 (20:20). Every code PR head unchanged; no comment addressed to `cra`.
@@ -410,6 +476,8 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - New **AUT-46** (low): under the self-consent variant the question "Gibt <Name> diese Einwilligung selbst?" has one possible answer; state it and store it as a constant, keep the capacity question. New **AUT-47** (low): a later capacity re-check, if the Clinical Owner sets one, is an exception line on events already recorded, never a periodic re-confirmation of every consent.
 - `AI_OPERATING_MODEL_REVIEW.md` §12 and change log updated (CGR-130 (2) control). No `high` finding, no issue opened, no PR comment. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-11-04 17:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 17:30), `recovery/main` @ `39a4883` (unchanged): only `lca` #860 (D-40 / FAM1 re-check 16:55) is new; every code PR head unchanged; no comment addressed to `cra`.
@@ -418,6 +486,8 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **New CGR-130** (advisory, S1 before real relatives): the RN's capacity fact in FAM1-2 is a required explicit act, never defaulted or derived from assessment, diagnosis or AI data; FAM1-3 needs a recorded reason for a later loss of capacity that ends the view with the one access-end sentence; any re-check rule is the Clinical Owner's (UNKNOWN). PS-117 added; H-30, H-31, R-13 updated.
 - **Next:** po: CGR-125 into FAM1-6 (still blocking FAM1 approval), CGR-128 to CGR-130 into FAM1-2/-3/-6; owner: chain merge #582 … this PR.
 - **Not merged by me:** owner instruction on #666 (chain #582 … this PR). I ran no tests; `node scripts/agents-check.mjs` before publishing. Live project not touched.
+
+---
 
 ## 2026-11-04 16:45 CET · Clinical & Regulatory Architect (review)
 
@@ -738,6 +808,9 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Verdicts: STR-20 Basel medium (start in one canton; Zurich durations now UNKNOWN for BS/BL); STR-21 all-in-one now **high** (no patient-care benefit shown; build only with a self-organised design-partner ward after G-1, D-36); STR-22 IoT/AI spec medium (spec without migration until D-34/D-35); STR-23 "fully automated" target **high** (human confirmation and signed report are safety and legal controls; proposed target "automated preparation, one human confirmation"); STR-24 interRAI licence: three uses to name; STR-25 D-38 unchanged, T-terms with Zurich-only evidence to be marked by `lca`.
 - Not done, by role rule: contacting a Basel partner or interRAI (owner only). Written instead: an advisory weekly strategic alignment check for `po` (10 questions). Issue #820 to `po` with a combined owner ask proposal; one comment each on #817 and #818.
 - No code, package, queue or status touched. Ran `node scripts/agents-check.mjs` before publishing; no other test run.
+
+---
+
 ## 2026-11-03 13:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-03 13:30), `recovery/main` @ `adf80a3` (no code merged since 09:30; `uxa` #798 merged). Read on their heads: **#815** ASM1-C6 with C6 (8) (`f0a2752`, 0106, pgTAP 107; CI in progress at reading; test-only fix since `f8a31ef`), **#814** AIG1-C4 + AIG1-C5 (`dc1b2b4`, 0105, pgTAP 106; CI green), **#813** RLS4-C3 (`01dee6c`; CI green), **#800** amendments (`748ef3f`; CI green).
@@ -819,6 +892,9 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Answers to `uxa`:** UXR-73 (ending access stays possible when the open-report list fails, with CGR-111); UXR-79 (no safety objection to "Verantwortlich" in signal texts if only the word changes, string tests); interim text 1 and AIG1-C4 (3) wording confirmed with conditions. `lca` 04:45 supports CGR-109 as a G-25 precondition. AUT-32: countersign latency never a target.
 - Registers: CR-156 added (UX2-16 frame); PS-99, PS-100 added, PS-98 note; H-01, H-05, H-12 notes.
 - **Not merged by me:** owner instruction on #666 covers this PR, which contains #801 … #582. Waiting on: `eng` (CGR-110 on #399, CGR-111), `po` (place CGR-108, CGR-109 at G-25, CGR-111), `uxa` (wording), Clinical Owner (unchanged list), owner (chain merge, D-1 at G-25). Tests: none run by me; CI as read through the API. Live project not touched.
+
+---
+
 ## 2026-11-03 13:55 CET · Legal & Compliance Agent (lca)
 
 - Live request from the owner (session): legal check for a Basel-Stadt setup. **Owner answer to D-11: pilot canton Basel-Stadt** (given to `lca`; `po` records it, `lca` moves no row). D-2, D-4, D-9, D-29 re-checked (`Unfreeze: 2` D-11); only my sections edited. A "binding confirmation" was asked; `lca` gives none (advisory only).
@@ -864,6 +940,9 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Tests were written first: vitest `ux2-team`; Playwright `ux1-team` UX2-15 (with one changed UX1-24 assertion) and `contract-end`. **None ran locally**: the npm registry was not reachable from the sandbox. CI decides.
 - Open for `uxa`: amber shade, and the CGR-32 flag line colour inside an amber frame (ADR-133 notes 1-2). #799/#800/#803 all touch the docs files: whichever merges later needs a docs-only rebase (eng).
 - Next eng: when the PO has reviewed, rebase the later PRs; then AIG1-C4 with AIG1-C5 (*Active now* (2)) or the next UX2 part, as the PO orders. Live project not touched.
+
+---
+
 ## 2026-11-03 01:40 CET · Engineering (eng)
 
 - Step A: my PR #799 (UX2-1 shell, ADR-131) is green on head `a759429` (app, db, e2e, ui-screenshots). Not merged; it waits for the PO. Its row was already `in-review`.
@@ -1007,6 +1086,8 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Deviations for the PO (ADR-130): rejection guard (more protective); closed-visit first confirmation of a held value also `not_open`; team reaches the list by address until PLAN3-11; qualification removal seeded; P-6 measure extension PLANNED (OPEN for PO); texts open for `uxa`. Nothing decides D-17 (UNKNOWN).
 - Not run here: no local database (no Docker daemon); see PR #787 for what ran in the sandbox. CI decides. Live project not touched.
 
+---
+
 ## 2026-10-31 00:10 CET · po (Product Owner)
 
 - No open PO PR at start (#783 merged). `agent:po` issues: nothing new since 22:15 (#774 AUT-29 already answered; UX and strategy issues placed); no issue claimed. Read since 22:15: Engineering #781 (merged `7388674`), `lca` 23:40 (#784 merged; D-35 AIG1-C2 compliant, no new residual), `uxa` 23:55 (PR #785, read on its branch `60b7c7e`). Other agents' PRs are not merged by this routine.
@@ -1061,6 +1142,8 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - `lca` PR #777 (20:41) still open: its `db` job failed in pgTAP 080 (not this PR's files; see the PR comment). Continued on the same branch: `recovery/main` merged in (JOURNAL conflict, both entries kept, newest first); no second `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. Eligible: D-35 only (new evidence: #776 merged, AIG1 part (b) UI). D-13 unchanged since 20:41. Only my D-35 section edited.
 - **D-35:** AIG1 part (b) UI as merged (look-back list without person, health list per agent, no new reader, `not_open` text does not suggest a re-check): **compliant under every plausible interpretation on the sources read**, on synthetic data; AIG1-C1 as amended (label, separate count) is PLANNED and due before real data. Past-visit rectification still **unresolved: needs owner via Clinical Owner (D-17) and, after D-11, the legal adviser**.
 - No new source read. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
 
 ## 2026-10-30 21:40 CET · Clinical & Regulatory Architect (review)
 
@@ -1655,6 +1738,9 @@ ENGINEERING BRIEF (conditions on an approved capability; no new capability)
 - VIS2-C1 (2) count sentence given (singular/plural, only when ≥ 1); `cra` to confirm. RLS4 #715 `/visits` change read: no objection.
 - Benchmark: booking-conflict notices (Clinicminds, Timely help pages, read 2026-10-30).
 - `DESIGN_SYSTEM.md` version 21 (§2). Screenshot download refused again; code-only review. No tests run by me; live project not touched.
+
+---
+
 ## 2026-10-30 03:40 CET · eng (Engineering)
 
 - #715 was green on `5f79caa` but conflicted again: the PO's 03:10 cycle amended RLS4 (**RLS4-5** close `cover_events.nurse_id` and both `performer_id`; **RLS4-6** `team_member_name` leaves the read path, `/visits` from `responsible_user_id`; **RLS4-3 addendum** pgTAP for "übernommen von"). The brief let Engineering choose; landed **in #715 before merge** (one PR per item), so RLS4 is delivered once, complete.
@@ -2003,6 +2089,8 @@ ENGINEERING BRIEF (conditions on an approved capability; no new capability)
 - AI Operating Model Review §12 updated (AUT-22 control, OBS1 state, D-1 as stage-1 precondition). I ran no tests.
 - Next: bottleneck map refresh due 2026-11-03.
 
+---
+
 ## 2026-10-29 19:50 CET · UX/UI Design Architect (uxa)
 
 - OBS1 #673 merged (`1fa6f26`) with the UXR-47 marker wording; **UXR-47 closed in code**; UXR-48 PLANNED as UX2-27. Merged screens equal the 16:10 review apart from that constant. No new finding, no issue opened.
@@ -2121,6 +2209,9 @@ ENGINEERING BRIEF (conditions on an approved capability; no new capability)
 - `uxa` answers asked by the PO: UX2-22 "Offen im Team" becomes one `info` line without count or client names; UX2-23 confirming-step wording (one fact for `eng` to confirm: pending proposals rest while off); UX2-26 layout (radios, none checked, "Später").
 - Design system version 17 (§2 status moves, new PLANNED §4 rule "who wrote a record entry"). No benchmark (one today at 03:51).
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing.
+
+---
+
 ## 2026-10-29 16:05 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22, D-18 frozen, no trigger. No new `cra` finding since 13:40 (CGR-93 already taken at 13:57). **Explicit request:** PR #673 (OBS1, 0095, ADR-118; OBS1-6) asks `lca` whether OBS1-5 keeps G-18 and D-23 term (b) intact → **D-23** (po-decided, not frozen) re-checked on that question only. D-15 is frozen and was not edited.
@@ -2314,6 +2405,8 @@ ENGINEERING BRIEF
 - Supported without finding: ADM2 06:10 answers (team of one admits; 14-day lapse with deletion), ADM2-15 (c) (#659, link to the case card), PO scope rule 04:10, P-31, P-32 (bottleneck map refresh 2026-11-03).
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-29 08:15 CET · po (Product Owner)
 
 - No open PO PR (#651 merged). Claimed issues #656 (`uxa` UXR-42), #638 and #626; claims removed at the end; all three closed (#626: VIS1-3c met 05:15; #638: VIS1-10 merged in #655; #656: placed as ADM2-15 (c)).
@@ -2355,6 +2448,8 @@ ENGINEERING BRIEF
 - **For `cra`:** VIS1-7 gate on #655 (sentence, position, tone, focus). **For the next eng run:** merge #653 when e2e is green; merge #655 once CI is green and the `cra` gate is clear, set VIS1 `delivered`; then mark #647 ready (CGR-72 gate).
 - Tests: pgTAP run by me on local PostgreSQL 16 with auth stubs and a pgTAP stand-in (093 29/29; every other file as on `recovery/main`, 89/90); new rules and vitest cases in Node; vitest, lint, typecheck, build, Playwright **not run** (npm registry refused). CI decides. Live project not touched.
 
+---
+
 ## 2026-10-29 07:05 CET · eng (Lead Engineer)
 
 - Claimed hand-off #499 (ADM2, `active`) at 06:14. **ADM2 part (b) pushed to draft PR #647** (migration 0092, ADR-115): ADM2-11 `set_member_contract_end` (release after the end date by the LEAVE1-13 rule; planning, take, cover, PLAN2, ABS1 return and the backstop refuse her after it); ADM2-12 / ADM2-15 (a) handover list (14 Zurich days, her teams' RNs and administrators, case reference and role only); ADM2-13 read-time access end in `private.access_ended` at 00:00 Zurich after the end date, restore and moved dates, no access before the start date; ADM2-14 `/work` notice and the recorded 0087 entry on `/admin`; ADM2-15 (b) `/team` "Bezugspflege neu bestimmen" and one OPS1 `successor_needed` exception per case. PO 06:10 answer 3 (an admitted proposal without contract lapses after 14 days) is in 0092 too.
@@ -2363,6 +2458,8 @@ ENGINEERING BRIEF
 - Clinical gate: latest Clinical Governance Report (2026-10-29 05:30 and the ADM2 sections of 2026-10-27) read; **CGR-72** remedy built as planned (`clinical/remediation/CGR-72.md`, steps IMPLEMENTED); `cra` review of #647 before acceptance. No other finding on ADM2.
 - Changed tests: pgTAP 002 (7 seeded accounts), 019 and 061 (20 rules), 091 (catalogue entry; lapse case D proposed one day earlier). Seed: Testorganisation C for the e2e (day 14 and the day after without a clock). ADM1 (035-037) and LEAVE1 (074-078) suites unmodified.
 - Tests: run by me on local PostgreSQL 16 with auth stubs and a pgTAP stand-in: migrations 0001-0092 and the seed, 0092 applied twice, every pgTAP file (092 100/100, 091 83/83; otherwise identical to `recovery/main`, six stand-in gaps). Pure rules checked in Node. vitest, typecheck, lint, build and Playwright **not run** (no npm registry); CI decides. Live project not touched.
+
+---
 
 ## 2026-10-29 06:10 CET · po (Product Owner)
 
@@ -2373,11 +2470,15 @@ ENGINEERING BRIEF
 - Packages: **D-37** (not frozen) `lca` 05:42 re-check taken in: condition (4) (i)-(ii) for any import brief, no reassessment-due display; B, default and ask unchanged, Low, waits for D-36. No unfreeze trigger on any frozen package (CGR-91 names no decision); none decided by po.
 - Tests: none run by me (docs only; CI job logs, PR #647 and ADR-114 read through the API and git). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-29 05:42 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1 to 3: D-22, D-18 and every tier-2/3 package at `awaiting-approval` frozen, no trigger (`cra` CGR-89 to CGR-91 name no decision). **D-37** (`inputs-requested`, not frozen) changed since my 13:52 section (`cra` conditions (1)-(5) and its KLV Art. 8 question, Engineering drafted by po 20:15): re-checked, only package this run.
 - **D-37:** KLV Art. 8/8a (2019 wording, read today): reassessment after renewal or extension of the doctor's order (max nine months); no instrument interval in federal law. `cra` conditions (1)-(5): no legal objection; (4) compatible with DSG Art. 32 only if superseded facts are not shown as current and corrections go through the provider's master record. Verdicts: ASM1 compliant (unchanged); B unresolved, needs owner (D-36 terms) and adviser (unchanged); **new:** reassessment duty for services without an order since July 2024 **unresolved: needs legal adviser or tariff partner** (D-11, D-18). No billing or care effect may be coded from it.
 - Sources: KLV amendment 2019 (H+ copy of the official text) read; current consolidated text not checked. Nothing run; live project not accessed. `node scripts/agents-check.mjs` run before publishing.
+
+---
 
 ## 2026-10-29 05:34 CET · eng (Lead Engineer)
 
@@ -2410,12 +2511,16 @@ ENGINEERING BRIEF
 - Packages: no unfreeze trigger; none worked; none decided by po.
 - Tests: none run by me (docs only; migration 0090, pgTAP 090, vitest and Playwright files read; check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-29 04:35 CET · eng (Lead Engineer)
 
 - **#637 (issue #635, ADR-113) merged** (e5969a9) after `recovery/main` was merged in (journal conflict, both entries kept); CI green on f14116e (app, db, e2e, ui-screenshots).
 - **#633 (VIS1 follow-up, ADR-112) merged** (35b5a96) after two base merges (journal; DECISIONS keeps ADR-112 and ADR-113); CI green on d6239ed. Clinical gate: `cra` VIS1-7 clear on 1e3aa0a (01:30, #639; CGR-89 and CGR-90 met); the later commits (VIS1-3f/-3g, base merges) change no wording, position or tone. No new `cra` finding on VIS1 since 01:30.
 - **VIS1 → `delivered`** (#624, #633). OPEN for acceptance: VIS1-10 (required) and VIS1-11 (allowed) are not built; they come with the PO's next change request. UXR-36, UXR-37 not built (not in the VIS1 brief on recovery/main; PO PR #642 open).
 - Tests: none run by me this run; CI ran all four jobs on both heads. `node scripts/agents-check.mjs` run before pushing. Live project not touched.
+
+---
 
 ## 2026-10-29 04:10 CET · po (Product Owner)
 
@@ -2427,6 +2532,8 @@ ENGINEERING BRIEF
 - Packages: no unfreeze trigger; none worked; none decided by po.
 - Tests: none run by me (docs only; PR #633 comments and check runs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-29 03:51 CET · UX/UI Design Architect (uxa)
 
 - Continued my open PR #634 (23:50; e2e red twice across Zurich midnight, not this PR's) instead of opening a second; `recovery/main` merged in, journal keeps both entries. e2e is green on `recovery/main` `4765673`.
@@ -2435,6 +2542,8 @@ ENGINEERING BRIEF
 - New, all low: **UXR-37** (planning flags not in the moved card's description), **UXR-38** (VIS1-11 label: same command is "Übernehmen" on `/field`), **UXR-39** (VIS1-10 re-offer: focus and changed times). No issue opened; one comment on #633.
 - Design system v14: §6 notice rule OPEN → PLANNED; new OPEN rules §2 (confirmation offered again) and §4 (one command, one label). Benchmark: self-assignment (ServiceNow FSM, Temenos Workspaces).
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
 
 ## 2026-10-29 03:10 CET · po (Product Owner)
 
@@ -2447,6 +2556,8 @@ ENGINEERING BRIEF
 - Packages: no unfreeze trigger; none worked; none decided by po.
 - Tests: none run by me (docs only; migrations 0046 and 0089 read). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-29 02:45 CET · AI & Automation Architect (aia)
 
 - Review 8 in `docs/agents/reports/AUTOMATION_REVIEW.md`, on the open review-7 PR #627 (continued, not a second PR; `recovery/main` merged in, journal keeps both entries). Read #624 (merged), PO 22:15 to 02:15 (#632, open #640: VIS1-10), #633, #637.
@@ -2456,6 +2567,8 @@ ENGINEERING BRIEF
 - AI Operating Model Review §12: "now is the database's day; the stored value is the shown value" and take-over only through `take_open_visit`. No item proposes, drafts or ranks. No issue opened (no `high`).
 - Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-29 02:40 CET · eng (Lead Engineer)
 
 - **Step A:** #633 (VIS1 follow-up) and #637 (#635, e2e on one Zurich day, ADR-113) both green on their heads (app, db, e2e, ui-screenshots), mergeable. **Merging #637 was refused to this run** by its tool permission layer ("merge without review"); I did not retry through another route. Both PRs stay open; merge needs the owner or a later eng run whose merge is allowed.
@@ -2463,6 +2576,8 @@ ENGINEERING BRIEF
 - Clinical gate: `cra` 01:30 (PR #639) cleared #633 on 1e3aa0a; the new commit changes no text, position or tone of the notice. VIS1 brief says no new `cra` confirmation is needed beyond the VIS1-7 gate of the PR that ships it; `cra` may re-read. No clinical rule coded.
 - Tests: **none run by me** (no npm registry: vitest, typecheck, lint, Playwright not run). CI decides. Live project not touched.
 - Next for eng: CI on the new #633 head; merge #637 first, then #633 (bring `recovery/main` in), then VIS1 `delivered`.
+
+---
 
 ## 2026-10-29 02:15 CET · po (Product Owner)
 
@@ -2474,6 +2589,8 @@ ENGINEERING BRIEF
 - Packages: no unfreeze trigger; none worked; none decided by po.
 - Tests: none run by me (docs only; code facts taken from issue #638 and PR #633/#637 descriptions, read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-29 01:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 01:30): #624 VIS1 merged as reviewed (`5d85b8f`; the merged head adds only pgTAP 089_vis1_c2b). **CGR-87 closed**; PS-76 and BL-20 closed; H-25 S1 lifted to S2 for the residual causes.
@@ -2483,6 +2600,8 @@ ENGINEERING BRIEF
 - **This PR contains #628, #623, #614, #604, #589, #582**; my runs cannot merge their own PR, so `po` or the owner merges. Waiting: `po` (VIS1-3f/-3g, closing CGR-89/-90 at acceptance), `eng` (VIS1-3f/-3g, CGR-86), Clinical Owner (empty date after a move, night tolerance, late documentation, overdue exemption), owner (G-1, D-38).
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-29 01:25 CET · eng (Lead Engineer)
 
 - **#633 (VIS1 follow-up) not merged:** CI green on head `1e3aa0a` (app, db, e2e, ui-screenshots; run attempt 3), mergeable, but the `cra` **VIS1-7 gate** for 0090 and the new texts has not been given (latest `cra` section is 22:00, PR #628, which covers #624 only). Merge and `delivered` follow the gate. Active issue #636 (VIS1 changes-requested) is that PR; not claimed separately.
@@ -2490,6 +2609,7 @@ ENGINEERING BRIEF
 - **Product finding for `po` (PO ask 3):** `/field` fixes "today" at render; "Heute machen" used after midnight on a page opened before it moves the visit to yesterday (a past date `reschedule_visit` accepts). The database day rule (VIS1) holds. Issue opened for `po`; not built.
 - No `IMPLEMENTATION_STATUS.md` row: #635 is a CI fix, not a queue item. Tests run by me: the guard's cases through bash; vitest, lint, typecheck, Playwright **not run** (no npm registry); CI decides. Live project not touched.
 
+---
 
 ## 2026-10-29 00:15 CET · po (Product Owner)
 
@@ -2501,6 +2621,8 @@ ENGINEERING BRIEF
 - Packages: no unfreeze trigger; none worked (all `awaiting-approval` packages frozen); none decided by po.
 - Tests: none run by me (docs only; CI and job logs read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-28 23:50 CET · UX/UI Design Architect (uxa)
 
 - Reviewed (code-only; screenshot download refused again) VIS1 as merged (#624, `5d85b8f`) and the follow-up **PR #633** (`eng`, ADR-112, head `1e3aa0a`, CI pending). **UXR-29 closed.** UXR-30 to UXR-33 built in #633 as the PO placed them (VIS1-3c, -3d, -3e); #626 stays open until merge.
@@ -2509,6 +2631,8 @@ ENGINEERING BRIEF
 - For `cra`: confirm UXR-34 (no position or wording change) and the UXR-36 placeholder. For the PO: UXR-34 to -36 for VIS1 acceptance; the VIS1-3c line "no overdue on `/team` before the start tap" has no test in #633.
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched. No benchmark (made at 03:50).
 
+---
+
 ## 2026-10-28 23:40 CET · eng (Lead Engineer)
 
 - **VIS1 follow-up in PR #633 → VIS1 `in-review`** (one PR, as the PO ordered at 22:15): VIS1-9 (CGR-90: day rule in `enforce_visit_transition` for direct status updates; grant kept because the invoker commands use it), VIS1-8 (CGR-89: `visit_move_leaves_other_visit`, one yes/no, counts another team's visit without showing it; sentence in the confirmation), VIS1-3c (prefill next full 5 minutes + card duration, empty across midnight), VIS1-3d (release notice and flags on `/field`), VIS1-3e (focus, count-aware day line). Migration 0090, ADR-112, pgTAP 090 (34), remediation plans CGR-89 and CGR-90.
@@ -2516,6 +2640,7 @@ ENGINEERING BRIEF
 - **Clinical gate VIS1-7** before merge (`cra`): 0090, tests, the plural day line, the release notice position and tone, the VIS1-8 sentence. Not built (UNKNOWN or waiting): the optional "start at or before now" line (`cra` wording), overdue exemption for moved visits (P-27), replacement after a move (Clinical Owner).
 - Tests run by me: migrations 0001-0090 + seed on local PostgreSQL 16 with auth stubs; pgTAP under a minimal stand-in, 88/90 files green (007, 053 need stand-in functions I lack); 089, 089_vis1_c2b, 090 green; pure rules in Node. vitest, typecheck, lint, build, Playwright **not run** (no npm registry); CI decides. Live project not touched.
 
+---
 
 ## 2026-10-28 23:15 CET · po (Product Owner)
 
@@ -2527,6 +2652,7 @@ ENGINEERING BRIEF
 - Packages: no unfreeze trigger (CGR-90 names no decision); none worked; none decided by po.
 - Tests: none run by me (docs only; code and test files read, CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
 
 ## 2026-10-28 22:35 CET · eng (Lead Engineer)
 
@@ -2534,12 +2660,16 @@ ENGINEERING BRIEF
 - OPEN, not in #624: **VIS1-8** (CGR-89, placed by the PO in #625, not yet merged; PO accepts VIS1 only with it), **UXR-30** (#626, high, for `po`), **CGR-90** (advisory S2: day check also in `enforce_visit_transition`). Built only once placed in the brief or an issue.
 - Tests: none run by me this run; CI ran them on #624. Live project not touched.
 
+---
+
 ## 2026-10-28 22:15 CET · eng (Lead Engineer)
 
 - **#624 (VIS1):** CI green on `2db589d` (app, db, e2e, ui-screenshots). **Not merged:** the VIS1-7 gate (`cra` reads 0089 and the tests) is still open; `cra` 21:30 (PR #623) read the brief, not the PR.
 - **C-2 (b) answered in ADR-111 (6)**, as `cra` asked in CGR-89: PLAN2 does **not** re-create a generated visit moved off its date (the visit keeps its plan slot and is touched by the `moved` row), so after "Heute machen" the planned date has no visit for that slot. Pinned by a new pgTAP file `089_vis1_c2b_plan_slot_after_move` (8 assertions). **Not run by me** (no local Supabase stack this run); CI decides.
 - `cra` 21:30 answers taken in: the move reason stays empty and required (as built). **CGR-89 (1)** (date fact in the confirmation) is not built: it waits for the PO to place it (OPEN). No clinical rule coded.
 - Live project not touched. Next for eng: CI on the new head, then the `cra` VIS1-7 gate, then merge and `delivered`; CGR-89 if the PO places it.
+
+---
 
 ## 2026-10-28 22:15 CET · po (Product Owner)
 
@@ -2552,6 +2682,8 @@ ENGINEERING BRIEF
 - Packages: no unfreeze trigger; none worked; none decided by po.
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-28 22:00 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 22:00): #624 VIS1 (head `2db589d`, ADR-111, CI green) read for the **VIS1-7 gate: clear to merge** from the clinical side. Migration 0089 and pgTAP 089 meet CGR-87 (1)-(4): field actions refuse a visit dated after today (Zurich) with `not_today`, completion refuses a visit started before its date, one audit row, no tolerance, past days unchanged; move-then-start `ok`. CGR-87 (PS-76) and BL-20 close when #624 is merged unchanged.
@@ -2560,6 +2692,8 @@ ENGINEERING BRIEF
 - **This PR contains #623, #614, #604, #589, #582**; my runs cannot merge their own PR, `po` or the owner merges. Waiting: `po` (VIS1 acceptance with CGR-90, CGR-89 placement), `eng` (CGR-90, CGR-86, C-2 (b)), Clinical Owner (night-visit tolerance, late documentation, gap after a move), owner (G-1, D-38).
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-28 22:00 CET · AI & Automation Architect (aia)
 
 - Review 7 in `docs/agents/reports/AUTOMATION_REVIEW.md`. Read PO #620 (merged), VIS1 PR #624 (open, ADR-111) and `cra` #623 (VIS1-3b prefill not confirmed, CGR-89).
@@ -2567,6 +2701,8 @@ ENGINEERING BRIEF
 - CGR-89 (fact line about the date the visit leaves) supported: deterministic read, no added step. **AUT-17 (low):** a non-submitted placeholder asking *why today* on the reason field.
 - AI Operating Model Review §12 extended (CGR-89 fact line on every proposed move; reason never drafted).
 - No item delivered that proposes, drafts or ranks. No issue opened (no `high`). No PR comment (no finding on #624 above low). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
 
 ## 2026-10-28 22:00 CET · po (Product Owner)
 
@@ -2577,6 +2713,8 @@ ENGINEERING BRIEF
 - Packages: no unfreeze trigger (CGR-89 names no decision); none worked; none decided by po. Queue unchanged: VIS1, ADM2, AIG1, ASM1, UX2, PLAN3.
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-28 22:00 CET · UX/UI Design Architect (uxa)
 
 - Reviewed open PR #624 (VIS1, ADR-111) from code; screenshot artifact 12850751975 exists but the download is still refused to this role. Section in `docs/agents/reports/UX_REVIEW.md`.
@@ -2584,6 +2722,8 @@ ENGINEERING BRIEF
 - **UXR-30 (high, issue #626):** "Heute machen" prefills the card's planned start; a visit moved to today after that time is `visit_overdue` at once (threshold 0 h, provisional; job every minute) until "Einsatz starten". Proposal: prefill start = next 5 minutes after now, planned duration kept. For `po`; `cra` confirms.
 - UXR-31 (medium): the move's `released` notice and flags are dropped on `/field`. UXR-32 (low): focus on open, cancel and success. UXR-33 (low): singular day line on a day with several visits (ADR-111 deviation 2). One comment on #624.
 - Design system version 12: §2 VIS1-3a PLANNED; two OPEN rules (prefilled times never in the past; one command, one result display).
+
+---
 
 ## 2026-10-28 21:47 CET · eng (Lead Engineer)
 
@@ -2597,6 +2737,8 @@ ENGINEERING BRIEF
 - **Tests run by me:** local PG16 with auth stubs and a pgTAP **stand-in**: 88 of 88 files green, also with the database clock at 22:30, 23:05, 23:30, 23:58 and 00:20 Zurich; 0089 applies twice. vitest, typecheck, lint, build and Playwright were **not run** (npm registry unreachable); CI decides. The e2e changes have not run anywhere yet.
 - Live project not touched. Next for eng: CI on #624, then the `cra` gate, then merge and `delivered`.
 
+---
+
 ## 2026-10-28 21:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 21:30): VIS1 (approved 18:15, VIS1-3a/-3b 20:15) carries the CGR-87 remedy in full (VIS1-1 to VIS1-6); CGR-87 stays S1 before a pilot until VIS1 is merged (VIS1-7 gate). #612 COORD6 merged: tooling, no clinical scope.
@@ -2606,6 +2748,7 @@ ENGINEERING BRIEF
 - **This PR contains #614, #604, #589, #582**; my runs cannot merge their own PR (permission check), `po` or the owner merges. No new hard-coded rule. Waiting: `po` (CGR-89 placement), `eng` (VIS1, C-2 (b), CGR-86), Clinical Owner (gap after a move, late documentation, tolerance, T16 period), owner (G-1, D-38).
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
 
 ## 2026-10-28 20:19 CET · AI & Automation Architect (aia)
 
@@ -2615,6 +2758,8 @@ ENGINEERING BRIEF
 - AI Operating Model Review §12: control for early visits (a proposal to do a visit earlier is a confirmed move, never a start).
 - No item delivered that proposes, drafts or ranks. No issue opened (no `high`). Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-28 20:15 CET · po (Product Owner)
 
 - **COORD6 accepted** (queue rank 40): #612 merged `785278e` by `eng` (ADR-110; `freeze.mjs`, `agents-check.mjs`, unit tests, CI `fetch-depth: 0` and `AGENTS_BASE_REF`; no product code). COORD6-1 to COORD6-8 met; deviations (1) a row needs a *new* `Unfreeze:` reference and (2) an added journal entry is a heading the base lacks: both accepted. Noted: the guard runs on PRs only; a direct push is not checked (accepted; branch protection if it is ever bypassed). Evidence table in `briefs/COORD6.md`. CI green on the #612 head; on `785278e` `app` green, the other jobs re-checked before this PR merges.
@@ -2623,11 +2768,15 @@ ENGINEERING BRIEF
 - Packages: no unfreeze trigger; none worked (all `awaiting-approval` packages frozen; D-37 waits for D-36); none decided by po.
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-28 20:15 CET · eng (Lead Engineer)
 
 - **COORD6 `delivered`** (READY_FOR_REVIEW): #612 merged as 785278e with a merge commit; CI green on head 5665378 (app, db, e2e, ui-screenshots). IMPLEMENTED: freeze guard in `agents-check` per ADR-110. COORD6 touches no care, billing or clinical data, so no `cra` gate applies.
 - Next for eng: active `agent:eng` issue after the PO's review; VIS1 (#617) is *Next up* 2 once the PO activates it.
 - Tests: none run by me this run; CI ran them on #612. Live project not touched.
+
+---
 
 ## 2026-10-28 19:48 CET · UX/UI Design Architect (uxa)
 
@@ -2636,6 +2785,8 @@ ENGINEERING BRIEF
 - UXR-26, UXR-27, UXR-28 now PLANNED as UX2-14, UX2-15, UX2-16; all four 15:48 requests to `cra` answered (17:30, #614).
 - Design system version 11: §3 error component and list frame PLANNED, §6 attention state PLANNED, §2 new OPEN pattern "action not available yet".
 - No issue opened (no severe or high finding). No screenshots (download still refused); no tests run by me; live project not touched.
+
+---
 
 ## 2026-10-28 18:15 CET · po (Product Owner)
 
@@ -2659,6 +2810,8 @@ ENGINEERING BRIEF
 - **Dependencies:** none blocking; J3 `reschedule_visit` (0056), DAY-1. Clinical Owner later for any tolerance or late-documentation rule (not built).
 - **Priority:** *Next up* 2, after COORD6; patient-safety precondition, value 2 and 3.
 - **Implementation recommendation:** one migration adding the date guard inside the existing commands (or `private.transition_visit` with the date passed), `fieldActions` taking the visit date, one ADR; fix UX1-27 test data in the same PR so UX1-C1 closes with it.
+
+---
 
 ## 2026-10-28 17:41 CET · Legal & Compliance Agent (lca)
 
@@ -2689,12 +2842,16 @@ ENGINEERING BRIEF
 - **Challenge:** "Why does a nurse read two error languages on one screen?" Colour was decided per file, not per meaning; one component ends that review work for every future page.
 - Tests: none run by me (docs only; CI read through the API). `node scripts/agents-check.mjs` run before publishing.
 
+---
+
 ## 2026-10-28 15:48 CET · UX/UI Design Architect (uxa)
 
 - **UX1-G1 review** of part (g) (#602) and UX1-32/UX1-33 on `recovery/main` `72a2697`, code-only (screenshot download refused again, 403 at the storage host). **No `severe` or `high` finding.** Closed in code: UXR-4, UXR-5 (a), UXR-7, UXR-12, UXR-22, UXR-23, UXR-25.
 - **New:** UXR-26 (medium: error lines and the quality hold on `/field` still red outside `field-client.tsx`; one error component, fits UX2-3), UXR-27 (low: `/team` reach-gap sentence can be folded away, `summary` under 44 px), UXR-28 (low: red frame of "Einsätze mit Handlungsbedarf" when only pointers remain). Four requests to `cra` in the report. ADR-109 deviation 1: agree with UX2-13.
 - Design system version 10 (status moves from #598, #602; two new OPEN rules). No issue opened (no severe or high). No benchmark (made at 03:50).
 - Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
 
 ## 2026-10-28 15:15 CET · po (Product Owner)
 
@@ -3044,6 +3201,8 @@ ENGINEERING BRIEF
 - **New (low, report only):** UXR-20 ("Zurückgegeben" jump link differs from its section heading; UX1-27's rule for all links); UXR-21 (axe drops `incomplete` results and never sees working states: open dialog, "Mehr" menu, inline error). One short comment on #574. No issue opened (nothing severe or high).
 - **Design system v7:** §5 jump-link rule; §6 axe/`SECONDARY_TEXT` status, UXR-21 clause, dialog rules PLANNED (UX1-28, UX1-29). Benchmark: NHS task-list component.
 - **Screenshots and axe JSON still not downloadable** from this role's session (artifact storage host refused); review code-only. **For the PO:** place UXR-20 (part (d)?) and UXR-21 (part (g) or UX2-8).
+
+---
 
 ## 2026-10-28 02:20 CET · AI & Automation Architect (aia)
 
@@ -3931,6 +4090,9 @@ ENGINEERING BRIEF — UX2
 - No `clinical`, `legal` or `owner` decision answered. Waiting: po (CGR-72, CGR-73, COND2 acceptance), clinical (D-34 q7, D-16, D-10/D-25, after G-1), owner (G-1, D-1).
 - **Next agent:** (po) amend ADM2 for CGR-72 or record why not; decide CGR-73. (eng) CGR-73 in #502 if the PO agrees. (cra) re-read #502's merge commit; ADM2 when built.
 - Tests: none run by me (review only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-10-27 04:30 CET · eng (Engineering agent)
 
 - No own open PR at start; hand-off #498 (COND2, `active`) had no claim: claimed (comment, label `claimed`).
@@ -3999,6 +4161,8 @@ ENGINEERING BRIEF — UX2
 - **Priority:** *Next up* 2, after COND2.
 - **Implementation recommendation:** one migration and one ADR; a deletable `team_admission_candidates` table and an append-only, nameless decision table; contract facts on the membership or a small contract table; contract end evaluated in `private.access_ended` at read time if one index probe suffices (answer question 1), so no hosted job is needed; reuse the LEAVE1-13 release and LEAVE1-12 list; part (b) may ride a second PR.
 
+---
+
 ## 2026-10-27 02:55 CET · Engineering (eng)
 
 - Step A: no own open PR. Step B/C: claimed #491 (COND2) at 02:12 and built **COND2-1 to COND2-3 in PR #495** (migration 0087, ADR-101). Status row COND2 → `in-review`.
@@ -4010,6 +4174,9 @@ ENGINEERING BRIEF — UX2
 - Tests: migrations 0001-0087 and the seed on a local PG16 with auth stubs, 0087 twice; all pgTAP files under a minimal local stand-in (pass, except 001, 007, 053 not runnable by it). No real pgTAP, vitest, typecheck, lint or Playwright here (npm registry unreachable); CI decides. Live project not touched.
 - **COND2-4** (= IPA1-C2, CGR-71) was added to the brief by the PO at 02:10 while this PR was in progress: not in #495, PLANNED as a second PR under the same hand-off (the brief allows it); COND2 stays short of `delivered` until it is merged.
 - **Next agent:** (eng) CI on #495, merge; then COND2-4 in a second PR, then `delivered`. (cra) 0087 (COND2-2 is PS-59/CGR-70). (lca) COND2-1 at G-19 item 2. (po) COND2 review when delivered.
+
+---
+
 ## 2026-10-27 02:10 CET · po (Product Owner)
 
 - No open PO PR (open: only #3, the owner's M2 PR). One `agent:po` issue: **#489 IPA1**, claimed 02:12. New evidence: `cra` 01:27 (#492: clinical gate clear for IPA1, CGR-69 closed, CR-126 removed, **CGR-71** opened, advisory S3) and `lca` 01:45 (#493: D-34 re-check on IPA1 as built).
@@ -4034,6 +4201,8 @@ ENGINEERING BRIEF — UX2
 - **Priority:** part of *Next up* 1 COND2; before the first real client (G-13).
 - **Implementation recommendation:** one migration redefining `link_returning_referral`'s resume branch to write the three fields with a `change_log` diff (same pattern as the funding facts at 0034:360-371); the team's case view shows "Dringlichkeit: <Stufe> (<Quelle>)" and the date; may ride a second PR under #491 if COND2-1 to -3 are already in review.
 
+---
+
 ## 2026-10-27 01:45 CET · Legal & Compliance Agent (lca)
 
 - No `lca` PR was open. Tier 1: D-22 and D-18 unchanged, no new evidence (skipped). No package text changed since my 21:00 run. New evidence: IPA1 merged (#484, #487, 0086) and `cra` 01:27 (CGR-69 closed, CGR-71 opened). **One package this run.** I ran no NAVORA test, did not access the live project and called no Supabase or Render tool.
@@ -4041,6 +4210,8 @@ ENGINEERING BRIEF — UX2
 - Not reviewed: COND2-1 waits on G-19 item 2 (not reached; no request to `lca`).
 - **Next for `lca`:** D-23 at G-19 item 2 or D-2 (gap f), incl. whether display-only narrowing suffices (COND2-1); D-30 and D-34 q7 when the Clinical Owner answers; D-35 if a B/C package opens or the owner answers the D-1 connector step; D-22 and D-18 on new evidence only.
 - Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing.
+
+---
 
 ## 2026-10-27 01:40 CET · po (Product Owner)
 
@@ -4066,6 +4237,8 @@ ENGINEERING BRIEF — UX2
 - **Priority:** *Next up* 2, after IPA1.
 - **Implementation recommendation:** one migration and one ADR; COND2-2 reuses the `open` → `in_review` permission check and the 0085 log trigger; COND2-3 is a query and type removal with a payload-shape unit test.
 
+---
+
 ## 2026-10-27 01:27 CET · Clinical & Regulatory Architect (review)
 - Reviewed on their merge commits: **IPA1-1 to IPA1-6** (#484, `0db9992`, ADR-099) and **IPA1-7, IPA1-8** (#487, `8e7bb6f`, 0086, ADR-100, pgTAP 086). CI `app`, `db`, `e2e` green on `8e7bb6f` (read through the GitHub API); on `5f8efd1` `db` and `e2e` were still running (UNKNOWN).
 - **Closed:** **CGR-69**. No preset; level and source required in the form, zod and `record_partner_request` (0086:132, 138; old signature dropped); source carried to case and matching request and shown on `/team`; old rows `unknown`; G3 order unchanged (pgTAP 086, e2e `intake.spec.ts:72`). The criteria, and whether intake may assess urgency, stay UNKNOWN (`clinical`, D-34 question 7). CR-126 (client-side risk score and SLA rule) → DEPRECATED, removed.
@@ -4075,11 +4248,15 @@ ENGINEERING BRIEF — UX2
 - **Next agent:** (po) IPA1 acceptance; CGR-71 as a condition or a reason. (eng) COND2. (cra) COND2 when merged.
 - Tests: none run by me (review only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
+---
+
 ## 2026-10-27 00:35 CET · Engineering (eng)
 - Step A only (own PRs). **#484** (IPA1-1 to -6) had a merge conflict with `recovery/main` (JOURNAL.md, PO entry 22:10): merged `recovery/main` in (4215fce), CI green on that head (run 40417996961). **#487** (IPA1-7/-8): `recovery/main` + #484 merged in (this commit), CI re-runs.
 - **#487 db job red once at 00:06** (run 40417456728): pgTAP 079 test 44 (WORK1-5 catalogue, `have: admin,ops`). The previous head (only e2e files differ) passed the db job at 23:56, `feat/ipa1-texts` passed it at 00:11, and the one re-run of the same job on the same commit passed at 00:2x. Recorded as **UNKNOWN cause, nondeterministic**, not root-caused (candidate: an Operations read model in the fingerprint, `operations_exceptions()`, readable only by admin and ops); added to the pgTAP flake issue #399. No test changed or skipped.
 - **Not merged this run:** the merge of #484 was refused by this session's permission check (merge without review), so #484 stays open with green CI and #487 waits on it. IPA1 status row unchanged (`in-review`, #484, #487). Next run (or the owner): merge #484, then #487 once its CI is green, then set IPA1 `delivered`.
 - Clinical gate: unchanged since 23:25 (CGR-69 plan `clinical/remediation/CGR-69.md`). Tests: none run locally (no local database); CI is the runner.
+
+---
 
 ## 2026-10-26 23:25 CET · Engineering (eng)
 - **Step A:** own PR #484 (IPA1-1 to -6) is green (app, db, e2e on 7ad9d7c) and mergeable, but **not merged**: the session's permission guard refused the merge call ("merge without review"). The owner was notified. #484 needs a merge by the owner, or the guard needs to allow agent merges for this task.
@@ -4091,12 +4268,16 @@ ENGINEERING BRIEF — UX2
 - CI round 1 on #487 was red in `db`. pgTAP 074:217: the recreated `team_offers` had lost the LEAVE1-3 access guard, so a person whose access had ended could read offers again. pgTAP 068: the migration used native `AT TIME ZONE`. Fixed: `team_offers` is back in the plpgsql guard form, the migration uses `private.at_zurich`, and pgTAP 086 now asserts the guard. Every pgTAP file was then rerun locally, before and after the change; the only difference is 086.
 - Next: (owner) merge #484. (eng) when #484 is merged, retarget #487 to `recovery/main` if GitHub has not done so, fix CI, merge, then set IPA1 `delivered`. (cra) IPA1-7/-8 on #487. (po) deviation (5).
 
+---
+
 ## 2026-10-27 01:15 CET · Engineering (eng)
 - **#484 merged** (IPA1-1 to IPA1-6; merge commit 0db9992; CI green on 4215fce: app, db, e2e). **#487 merged** (IPA1-7, IPA1-8; merge commit 8e7bb6f; CI green on dfda449: app, db, e2e). #487 was stacked on #484; after #484 merged it was retargeted to `recovery/main` (clean, no new commit) and merged.
 - **IPA1 → `delivered`** (READY_FOR_REVIEW): IPA1-1 to IPA1-8; ADR-099, ADR-100, migration 0086, pgTAP 086. Deviations (1)-(8) in the status row; (5) (separate `referrer_requested_start`, nothing pre-filled) is for the PO.
 - Clinical gate: report sections 17:26 and 21:29 read; CGR-69 handled by IPA1-7/-8 per its remediation plan; no finding on IPA1-1 to -8. `cra` reviews 0086 on 8e7bb6f.
 - Tests: none run by this run (merge and docs only); CI ran the suites on the PR heads. CI on the `recovery/main` merge commit not yet read here (UNKNOWN). Live project not touched.
 - **Next agent:** (po) IPA1 review; (cra) #484 and #487 on their merge commits; (eng) COND1-C1 + COND1-C2 in one small PR before the first real client or employee.
+
+---
 
 ## 2026-10-26 22:10 CET · po (Product Owner)
 
@@ -4110,6 +4291,8 @@ ENGINEERING BRIEF — UX2
 - **Next agent:** (eng) IPA1 (#484, then IPA1-7/-8); COND1-C1 + COND1-C2 in one small PR before the first real client or employee. (cra) #484 and IPA1-7/-8 when merged; COND1-C2 when merged. (po) IPA1 review when delivered. (owner) G-1, D-1.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
 
+---
+
 ## 2026-10-26 21:40 CET · Engineering (eng)
 - No own PR was open. Claimed hand-off #456 (IPA1) at 21:11. **IPA1-1 to IPA1-6 in PR #484** (ADR-099, no migration); status row IPA1 → **`in-progress`** (IPA1-7/-8 still to come, so the hand-off stays open).
 - **IPA1-1/-2:** the legacy `/operations` panels "Top Risiko-Fälle" and "SLA Monitor", the KPI "SLA-Verletzungen" and the team risk score are removed with their client-side filter, sort and age rule (removal, not rename); teams are listed by name ("Pflegeteams", "Auslastung je Pflegeteam"); "Qualitätsrisiken" → "Schwere Qualitätsereignisse". Cases that need a decision stay in the OPS1 server list. **IPA1-3:** "besetzte Zeit(en)" everywhere, behaviour unchanged. **IPA1-4:** `/matching` demo and scorer deleted. **IPA1-5:** `tests/unit/ipa1-wording.test.ts` (allow-list empty). **IPA1-6:** e2e at 390 px.
@@ -4117,6 +4300,8 @@ ENGINEERING BRIEF — UX2
 - **Clinical gate:** report section 2026-10-26 17:26 read; CGR-69 (advisory, S2; H-19, PS-58) is IPA1-7/-8: remediation plan `clinical/remediation/CGR-69.md` written before building it. No finding on IPA1-1 to -6.
 - Tests: the new unit test under node with a minimal vitest shim (green on the branch; reports the old hits on unchanged `recovery/main`); TypeScript syntax check of the changed files. vitest, typecheck, lint, Playwright **not run here** (no npm registry access); CI decides. Live project not touched; no clinical, PAG, MQI, LTCF, tariff or legal rule invented.
 - Next (eng): merge #484 on green CI; then IPA1-7/-8 (migration, pgTAP, `/intake`, `/team`). (cra) IPA1-1 to -6 on the PR. (po) nothing to review until IPA1 is `delivered`.
+
+---
 
 ## 2026-10-26 21:29 CET · Clinical & Regulatory Architect (review)
 - Reviewed on their merge commits: **COND1-4a, -5a, -6, -9, -10** (#471, 0084) and **COND1-8, -5b** (#479, 0085). CI `app`, `db` and `e2e` were green on the heads `548f546` and `bfc4cb9` and on `recovery/main` `86b6a0b` (read through the GitHub API).
@@ -4135,6 +4320,8 @@ ENGINEERING BRIEF — UX2
   - (owner) G-1 and D-1.
   - (cra) #484 and IPA1-7/-8 when merged.
 
+---
+
 ## 2026-10-26 21:10 CET · po (Product Owner)
 
 - No open PO PR (only #3, the owner's M2 PR). One `agent:po` issue: **#482 COND1** `delivered`, claimed 21:10. New evidence: `lca` 21:00 (D-23 on `work1-notice-v3`, D-35 on term 11). No new `cra` section since 17:26.
@@ -4149,6 +4336,7 @@ ENGINEERING BRIEF — UX2
 - **Next agent:** (cra) review 0084 and 0085 (COND1-4a, -5a, -5b, -6, -8, -9, -10; CGR-66, -67, -68 remedies). (eng) IPA1 incl. IPA1-7/-8; COND1-C1 in a small PR before G-19 (no hand-off needed yet). (po) accept COND1 once `cra` finds no blocking finding, and mark the parent condition lines done. (lca) nothing new requested.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
 
+---
 
 ## 2026-10-26 21:00 CET · Legal & Compliance Agent (lca)
 
@@ -4157,12 +4345,16 @@ ENGINEERING BRIEF — UX2
 - **D-35** (changed: PO 20:25 adopted term 11). Rule 1 as adopted matches term 11. This session again lists Supabase and Render tools (not called). The Render connector belongs in the remedy, because logs and environment variables can reach real data. **A with term 11: compliant under every plausible interpretation**; whether it is shown waits on the owner's D-1 connector step and G-22.
 - **Next for `lca`:** D-23 at G-19 item 2 or D-2 (gap f); D-34 when IPA1-7 is built or the Clinical Owner answers; D-30 when the Clinical Owner answers; D-35 if a B/C package opens or the owner answers the D-1 connector step; D-22 and D-18 on new evidence only.
 
+---
+
 ## 2026-10-26 20:34 CET · Engineering (eng)
 - **#479 merged** (09228ef; merge commit). It had become conflicting after the PO's 20:25 cycle (JOURNAL.md only); merged `recovery/main` into the branch keeping both entries, newest first (bfc4cb9). Approved the types-bot CI run on 0bb37f8 (green). CI green on bfc4cb9: app, db (incl. pgTAP 085, 083), e2e (run 40387103640).
 - **COND1 → `delivered`** (READY_FOR_REVIEW): COND1-1 to -6, -4a, -5a, -5b and -8 to -10 merged (#446, #451, #457, #465, #471, #479). Clinical gate: report sections 13:39 and 17:26 read; CGR-66/-67/-68 applied as COND1-9/-8/-10; no blocking finding on COND1. Deviations 1-22 in the status row and ADR-093 to ADR-098.
 - Correction: the 20:40 entry below and the status header carry a planned time; that entry was written at about 20:16.
 - Tests: none run here beyond the entry below; CI ran app, db, e2e on bfc4cb9.
 - Next (eng): IPA1 incl. IPA1-7/-8 (#456) when it becomes active. (po) COND1-7 review. (cra) COND1-8 (0085) and COND1-5b on `recovery/main`. (lca) D-23: COND1-5b (v3) is merged.
+
+---
 
 ## 2026-10-26 20:40 CET · Engineering (eng)
 - No own PR was open. Claimed hand-off #476 (COND1) at 20:13. **COND1-8 (LEAVE1-C5, CGR-67) and COND1-5b in PR #479** (migration 0085, ADR-098); status row COND1 → **`in-review`**. With #479 every COND1 condition is in a PR: once it is merged with green CI, COND1 is `delivered` (COND1-7).
@@ -4171,6 +4363,8 @@ ENGINEERING BRIEF — UX2
 - **Clinical gate:** section 2026-10-26 13:39 read: CGR-67 (advisory) is the remedy built; no remediation plan needed. Section 17:26: no other finding on these items.
 - Tests: migration 0085 twice on a local PG16 with stub tables and the 0080 readers (end, restore, re-take); notice text assertions under node. pgTAP, vitest, lint, typecheck, Playwright **not run here**; CI decides. Live project not touched; no clinical, PAG, MQI, LTCF, tariff or legal rule invented.
 - Next (eng): merge #479 on green CI, set COND1 `delivered`; then IPA1 incl. IPA1-7/-8 (#456). (cra) COND1-8 when merged. (lca) D-23: COND1-5b (v3) is in #479, not yet merged.
+
+---
 
 ## 2026-10-26 20:25 CET · po (Product Owner)
 - No open PO PR (only #3, the owner's M2 PR). No `agent:po` issue open. Nothing delivered for review: COND1 `in-progress` (#471 merged; COND1-8 and COND1-5b still to come, so no COND1-7 review; the ADR-097 deviations 15-18 are decided at that review). **New evidence:** `lca` 19:42 on D-35 (term 11, condition 11, adviser question 8, notes 1-4).
@@ -4184,17 +4378,23 @@ ENGINEERING BRIEF — UX2
 - **Next agent:** (eng) COND1-8 and COND1-5b; then IPA1 incl. IPA1-7/-8. (lca) D-35 only if B/C opens; D-23 at COND1-5b's merge. (po) COND1-7 review once Engineering sets `delivered`; keep the G-22 statement current.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing. Supabase and Render connectors not called.
 
+---
+
 ## 2026-10-26 19:42 CET · Legal & Compliance Agent (lca)
 
 - No `lca` PR was open. Tier 1: D-22 and D-18 have not changed and there is no new evidence (skipped). No new `cra` finding since 17:26. D-12, D-23 and D-34 changed only by PO text that adopts my 17:55 notes with no ask, so they are not re-reviewed. The D-23 trigger (COND1-5b merge) and the D-34 trigger (IPA1-7 built) are not yet met. **One package this run.** I ran no NAVORA test and did not access the live project.
 - **D-35** (changed: PO 18:10 decided option A). New source [Z1]: Kanton Zürich Innovation Sandbox, "KI in der medizinischen Dokumentation", chapter 2 (30 Jan 2026; an FAQ, not a ruling). **A as decided: compliant under every plausible interpretation**, with **term 11**: rule 1's check also covers development and operations tooling. No AI agent session, coding assistant or AI connector may hold a credential to an environment with real data, because agent sessions are AI services too. As built this is UNKNOWN to me (not inspected). **B: unresolved, needs legal adviser and owner**, now on conditions 1-11. New condition 11 comes from [Z1]: *Hilfsperson* integration into the secret holder's hierarchy, and a technical measure against provider plaintext access. Consent applies to clinically relevant AI and not to purely administrative AI. Adviser question 8 is added. C looks legally cleaner for any clinical-content agent.
 - **Next for `lca`:** D-23 at COND1-5b's merge (text v3), at G-19 item 2 or D-2 (gap f); D-34 when IPA1-7 is built or the Clinical Owner answers; D-30 when the Clinical Owner answers; D-35 if the PO adopts term 11 or a B/C package opens; D-22 and D-18 on new evidence only.
 
+---
+
 ## 2026-10-26 19:19 CET · Engineering (eng)
 - **#471 merged** (25bacf3; merge commit). The PR had become conflicting after the PO's 18:10 cycle (JOURNAL.md only: both sides added a top entry); merged `recovery/main` into the branch keeping both entries, newest first (548f546). CI green on 548f546: app, db, e2e (run 40375637177). The diff against base was unchanged (22 files).
 - COND1 stays `in-progress` (IMPLEMENTED and merged: COND1-1 to -6, -4a, -5a, -9, -10; PLANNED: COND1-8 (LEAVE1-C5, CGR-67) and COND1-5b (`work1-notice-v3`)). No PO review yet (COND1-7).
 - Tests: none run here; CI ran app, db, e2e on 548f546. `node scripts/agents-check.mjs` run locally (ok).
 - Next (eng): COND1-8 and COND1-5b in the next COND1 PR (#468 hand-off); then IPA1 incl. IPA1-7/-8. (cra) COND1-4a, -6, -9, -10 are now on `recovery/main` for review.
+
+---
 
 ## 2026-10-26 18:10 CET · po (Product Owner)
 - No open PO PR; nothing delivered (COND1 `in-progress`; #471 open, COND1-8 still to come, so no COND1-7 review). `agent:po` #460 (D-35) claimed. **New evidence:** `cra` 17:26 (COND1-3 to -5 clinically clear; **CGR-69**; D-35 *Clinical impact*; D-34 question 7) and `lca` 17:55 (D-23 P-11 answer; D-34 question 7 (a)-(c); D-35 terms 9 and 10).
@@ -4221,6 +4421,8 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - **Priority:** with IPA1 (*Next up* 2), after COND1.
 - **Implementation recommendation:** one migration adding the source enum and the optional date to the request, case and matching-request tables, `record_partner_request` and the 0013 case path re-created with the new required argument; existing rows `unknown`; UI select without default.
 
+---
+
 ## 2026-10-26 17:55 CET · Engineering (eng)
 
 - No own PR was open. Claimed hand-off #468 (COND1) at 17:17. **COND1-4a, -5a, -6, -9, -10 in PR #471** (migration 0084, ADR-097); status row COND1 → **`in-review`**.
@@ -4230,6 +4432,8 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - Tests: migration 0084 twice on a local PG16 with stub tables (billing withheld inside the team, compliance shown, read record); DOOR1-16 functions and `agents-check` under node. pgTAP, vitest, lint, typecheck and Playwright **not run here** (no npm registry access); CI decides. Live project not touched; no clinical, PAG, MQI, LTCF, tariff or legal rule invented.
 - Next (eng): merge #471 on green CI; then COND1-8 (LEAVE1-C5, CGR-67) and COND1-5b (`work1-notice-v3`, PO 17:15, merged while #471 was open) in the next COND1 PR.
 
+---
+
 ## 2026-10-26 17:55 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). **Three packages this run**, all on new evidence or an explicit ask. I ran no NAVORA test and did not access the live project.
@@ -4237,6 +4441,8 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - **D-34 question 7** (new `cra` input, CGR-69): the fact question 7 asked for is the urgency's **source**, which the record cannot show today. CGR-69 remedies (no preset, recorded source) with P-10: **compliant under every plausible interpretation**. G3 for real clients stays **unresolved: needs regulatory adviser** (question 7 sharpened into (a)-(c)) **and `clinical`**.
 - **D-35** (new `cra` *Clinical impact*, PO-drafted Engineering): `cra` 2(a)-(e) are condition 6 made testable and support the partial-automation reading of DSG Art. 21. **New term 9:** per-value confirmer readable per value or for audit only, never aggregated per person. **New term 10:** dictation (A7) only of the nurse's own words outside the client's presence or with everyone's consent (StGB Art. 179bis/179ter, secondary source; adviser question 7 added). Verdicts unchanged: A compliant under every plausible interpretation; B **unresolved: needs legal adviser and owner**, now on conditions 1-10.
 - **Next for `lca`:** D-23 when COND1-5a/-5b are merged (text v3), at G-19 item 2 or D-2 (gap f); D-35 when `eng` confirms or corrects its section; D-34 when CGR-69 is built or the Clinical Owner answers; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
+
+---
 
 ## 2026-10-26 17:26 CET · Clinical & Regulatory Architect (review)
 - Reviewed on their merge commits: **COND1-3** (#451, 0081), **COND1-4** (#457, 0082) and **COND1-5** (#465, 0083). CI `app`, `db` and `e2e` were green on each head (read through the GitHub API).
@@ -4253,6 +4459,8 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - I ran no NAVORA test and did not touch the live project. No clinical, tariff, LTCF, PAG or MQI rule was invented.
 - **Next (cra):** COND1-4a, -6, -8 to -10 when merged; CGR-69 when decided.
 
+---
+
 ## 2026-10-26 17:15 CET · po (Product Owner)
 - No open PO PR; nothing delivered (COND1 `in-progress`, review at COND1-7). `agent:po` #460 (D-35) claimed. **New evidence:** `lca` 16:42 (D-23 re-check of 0083/ADR-096/text v2; D-12 sub-processor confirmation).
 - **Decided** (product authority; [COND1](briefs/COND1.md) *PO decisions 17:15*, [D-23](decisions/D-23.md) item 17): ADR-096 (1) recorded as confirmed by `lca` on its terms (D-4 names `working_day_exports`; no other read purpose without a fresh `lca` check); COND1-5a confirmed as the end-only variant (terms c1, c2 fall away). **COND1-5b added:** `work1-notice-v3` with the five `lca` refinements (who reads the log; "Ausserhalb einer solchen Prüfung sieht die Administration nur"; covering member sees corrections; coordination roles see corrected visit times; no export after the access end). Built now because nobody real has acknowledged yet. Gaps a (D-12) and f (D-2) stay with G-19 item 2.
@@ -4265,6 +4473,8 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - **Next agent:** (eng) COND1-5a with -5b, -4a, -6, -8 to -10; confirm or correct the drafted D-35 section, add option C and stop-rule cost. (cra) D-35 section; review 0082, 0083. (lca) D-23 when COND1-5a/-5b are merged (and the P-11 question); D-35 when `eng`/`cra` are in.
 - No clinical, PAG, MQI or LTCF rule invented. Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing.
 
+---
+
 ## 2026-10-26 16:42 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-35 waits for `eng` and `cra`; no new `cra` section since 13:39. **Two packages this run: D-23**, as items 15 and 16 (5) asked, **and a D-12 confirmation** the PO requested at 16:20: WORK1-C2 and -C3 are merged (#465, 0083, ADR-096). I ran no NAVORA test and did not access the live project.
@@ -4273,6 +4483,9 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - **WORK1-C3 count:** terms (a)-(d) of 07:45 are met. Deviation 3 (count in every `/admin` row): **compliant on the federal sources read**, on two terms: (c1) no sort, ranking, filter, export or history across members; (c2) the v2 purpose sentence is widened to the use as built. The end-flow-only variant is compliant without either term. The PO chose that variant at 16:20 (COND1-5a, seen on merge), so the two terms fall away once it is merged.
 - **D-12 sub-processor term** (PO 16:20 ask): **faithful in substance**. Add three clauses from my D-35 condition 2: deletion within a stated period; no onward transfer; the country and its DSV Annex 1 or SCC basis. With them it is **compliant under every plausible interpretation on the sources read**. The *Hilfsperson* question stays unresolved (legal adviser).
 - **Next for `lca`:** D-35 when `eng` and `cra` are in; D-23 again if `cra` reviews 0083 with a finding, at G-19 item 2, or at D-2 (gap f); D-34 if `cra` changes G3-G5; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
+
+---
+
 ## 2026-10-26 16:20 CET · po (Product Owner)
 - **PO PR #464 continued** (its e2e was still running at the run start): green on c665cfe, then conflicted with #465; merged `recovery/main` in (JOURNAL: eng 15:38 kept above po 15:16), this cycle's changes added on the same branch. `agent:po` #460 (D-35) claimed.
 - **New evidence:** `eng` 15:38, #465 merged 6002b4e (COND1-5 = WORK1-C2 + WORK1-C3, migration 0083, ADR-096; CI `app`, `db`, `e2e` green on 47403c1). COND1 is reviewed as a whole (COND1-7); no acceptance this run.
@@ -4287,12 +4500,16 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - **Next agent:** (eng) COND1-6, -8, with COND1-4a, -5a, -9, -10; D-35 section (incl. cost of option C); confirm the D-34 question 7 fact; G-20 facts (D-33). (cra) D-35 section; D-34 question 7 and G3-G5 classification; review 0082, 0083. (lca) confirm ADR-096 (1) and the D-12 sub-processor term in the next D-23 / D-35 run.
 - No clinical, PAG, MQI or LTCF rule invented. Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing.
 
+---
+
 ## 2026-10-26 16:19 CET · Engineering (eng)
 
 - **#465 merged** (6002b4e, merge commit; CI green on 47403c1: app, db, e2e): COND1-5 = WORK1-C2 (`work1-notice-v2`) + WORK1-C3 (unexported days), migration 0083, ADR-096, pgTAP 083 (26). IMPLEMENTED on `recovery/main`.
 - COND1 row back to `in-progress`: COND1-1 to COND1-5 merged (#446, #451, #457, #465). Still PLANNED: COND1-6 (AUD1-M1/-M2), COND1-4a (PO 15:16, #464), COND1-8 to -10. No PO review of COND1 until those are merged (COND1-7).
 - ADR-096 deviations 1 to 4 (export record instead of reading the audit log, admin count named in v2, count in every `/admin` row, "Sie") stay open for the PO; `lca` may confirm deviation 1 (advisory).
 - I ran no test this run; CI ran the three jobs on the merged head. Live project not touched.
+
+---
 
 ## 2026-10-26 15:43 CET · Legal & Compliance Agent (lca)
 
@@ -4302,6 +4519,8 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - **Note to po:** for G-20 ask `eng` once for Apple's web-push operator and location and the DPF status of Apple Inc. and Mozilla Corporation.
 - **Next for `lca`:** D-23 when #465 (WORK1-C2/-C3) is merged; D-35 when `eng` and `cra` are in; D-34 if `cra` changes the G3-G5 reading; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
 
+---
+
 ## 2026-10-26 15:38 CET · eng (Engineering)
 - No own PR was open. Claimed hand-off #463 (COND1) at 15:25. **COND1-5 = WORK1-C2 + WORK1-C3 in PR #465** (migration 0083, ADR-096, pgTAP 083 (26)); status row COND1 → **`in-review`**.
 - **WORK1-C2:** `work1-notice-v2`; a v1 acknowledgement does not carry over (`my_working_day` empty until v2; v1 refused). The text names covering members and the correction trail (b), the log of confirmations and exports read only for a stated audit purpose (c), and why the team ratio exists and its 3 people and 5 days threshold (d). Still a draft for the employer (G-19 item 2).
@@ -4310,6 +4529,8 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - Tests: run here only on a local PG16 with stub tables (migration twice, the brief's count scenario, privileges, guard, end-result patch) and the TS helpers under node. pgTAP, vitest, lint, typecheck, Playwright not run here; CI decides. Seed: assist.test gets a v1 acknowledgement (e2e v1 → v2).
 - COND1-4a (PO 15:16, PR #464 not yet merged) is not in #465; it rides the next COND1 PR. No clinical, labour-law, PAG, MQI, LTCF or tariff rule invented.
 - Next (eng): merge #465 on green CI (approve the types-bot run); then COND1-6 (AUD1-M1/-M2), COND1-8, with COND1-4a, -9, -10.
+
+---
 
 ## 2026-10-26 15:16 CET · po (Product Owner)
 - No PO PR was open (#459 merged). Open: `lca` PR #462 (D-34 re-check, D-35 first input), not yet on `recovery/main`, so not taken in this run. `agent:po` issue #460 (D-35) waits for inputs requested 14:47; not claimed.
@@ -4321,6 +4542,8 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - **Next agent:** (eng) COND1-5, then COND1-6, -8; COND1-4a, -9, -10 in any later COND1 PR. (cra) review 0082 on a6757d0. (lca) #462 merge. (po) take #462 into D-34 and D-35.
 - No clinical, PAG, MQI or LTCF rule invented. Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing.
 
+---
+
 ## 2026-10-26 15:04 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-23 waits for WORK1-C2/-C3 (only C-1 and C-4 are built, #451). **Two packages this run,** both requested by the PO: **D-34** re-check (the package changed: Intended Purpose Assessment, statement v2, G3-G5, questions 7-9) and **D-35** first input (AI services, opened 14:47). I ran no NAVORA test and did not access the live project.
@@ -4329,10 +4552,14 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - **Note to po** (both packages): the sub-processor approval belongs in the D-12 partnership terms; the suggestion ledger should hold no payload copy (retention to D-4); IPA1 should remove or prove unreachable the `/operations` client-side ranking and the `/matching` scorer, not only rename them (the objective-capability limb of C-427/24); D-34 question 8 and D-35 question 1 go to the same adviser pair.
 - **Next for `lca`:** D-35 again when `eng` and `cra` are in; D-34 again if `cra`'s G3-G5 classification changes the reading; D-23 when WORK1-C2/-C3 are built; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
 
+---
+
 ## 2026-10-26 14:59 CET · eng (Engineering)
 - **#457 merged** (merge commit a6757d0): CI green on head 4e0cd29 (`app`, `db`, `e2e`). COND1-4 (FUP1-C1 + FUP1-C2, migration 0082, ADR-095, pgTAP 082 (23)) is on `recovery/main` (IMPLEMENTED, CI-verified; clinical review OPEN). First CI run failed only because a bare fixture row `ok` broke the TAP stream (all 22 assertions passed); fixed by wrapping it in `ok()`.
 - Status row COND1 back to **`in-progress`** (COND1-7, amended 14:30: COND1-5, -6, -8, -9, -10 still open). The two ADR-095 deviations wait for the PO.
 - Next: COND1-5 (WORK1-C2/-C3).
+
+---
 
 ## 2026-10-26 14:47 CET · po (Product Owner)
 - **Owner work package: AI Operating Model Review** ([report](../product/AI_OPERATING_MODEL_REVIEW.md); strategic review, no build approved). Every role, meeting, validation, documentation activity and control answered on five questions: automate, monitor continuously, delegate to an agent, exists only through fragmentation, gone with a care graph.
@@ -4355,8 +4582,12 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - No clinical, PAG, MQI or LTCF rule invented. Tests: none run (docs only); `node scripts/agents-check.mjs` passed.
 - **Next agent:** (eng, cra, lca) D-35 inputs. (po) the next hourly run continues with COND1 and IPA1.
 
+---
+
 ## 2026-10-26 14:40 CET · po (Product Owner)
 - **Correction:** the entry headed "2026-10-26 15:00 CET" was written at about 14:20 CET, so its time label is wrong. The same "15:00" label appears in the *Last change* lines of `NEXT_CAPABILITY.md`, `OPEN_DECISIONS.md` and `decisions/INDEX.md`, in the D-34 package addendum and in the challenge rows P-1 to P-5; they all mean 14:20. Content unchanged. #453 merged as 77298ef (CI `app`, `db`, `e2e` green). The 14:30 po run worked on the same branch before the merge.
+
+---
 
 ## 2026-10-26 14:30 CET · po (Product Owner)
 - **PO PR #453 was open** (`po/cycle-2026-10-26-1500`, published 13:54 CET by another session; its entry is labelled 15:00, ahead of the clock). CI `app`, `db`, `e2e`, `sync` green on 2644d11. **My merge was refused by the tool's permission check**, so I did not open a second PO PR and continue on #453 (rule A). It still needs a merge (owner or next PO run). No `agent:po` issue open.
@@ -4367,6 +4598,8 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - No new brief: approved, unstarted work remains (COND1-4 to -10, IPA1).
 - **Next agent:** (owner or po) merge #453 (green). (eng) COND1-4, then COND1-8, COND1-5, COND1-6; COND1-9, -10 in any later COND1 PR; #399, #409. (cra) CGR-65 on #451's merge commit; COND1-8 to -10 when built. (lca) D-34 re-check as requested in #453; D-23 when WORK1-C2/-C3 are built.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` run before publishing.
+
+---
 
 ## 2026-10-26 15:00 CET · po (Product Owner)
 - **Owner work packages** (owner at the session, 2026-10-26), plus one owner decision. No PO PR was open; #450 was merged at 13:35.
@@ -4397,6 +4630,9 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
   - (lca) D-34 statement v2, G3-G5, questions 7-9.
   - (cra) D-34 report §6 classification and G3-G5; P-2 view.
 - **Tests:** none run by the PO (docs only). The PO read the code it cites: 0010:89-90, 0017:211-230 and 293-298, 0019:119-131, 0034:144-149 and 245-249, 0072:52-55, 0073:30-34, `operations-client.tsx`. `node scripts/agents-check.mjs` passed.
+
+---
+
 ## 2026-10-26 14:31 CET · eng (Engineering)
 - **COND1-4 (FUP1-C1 + FUP1-C2) in review: #457** (migration 0082, ADR-095, pgTAP 082 (23); 069 fixture adjusted). IMPLEMENTED; CI decides. Status row COND1 → `in-review`.
 - Before the step: the banner promises "Meldung an Operations folgt" only with a watched period at the due instant and one evaluator interval later, the channel on, and a `push_active` Operations recipient of the step. Made-step branch, step, thresholds and routing unchanged; reader field unchanged.
@@ -4404,10 +4640,14 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - Tested here only on a local PG16 with stub tables (logic, idempotency, privileges); pgTAP, vitest, e2e not run here.
 - Next: #457 green → merge, then COND1-5 (WORK1-C2/-C3).
 
+---
+
 ## 2026-10-26 14:10 CET · eng (Engineering)
 - **#451 merged** (merge commit b58e9fc): CI green on head 8b63dcd (`app`, `db`, `e2e`), after two base merges that only resolved journal conflicts (docs only). COND1-3 (WORK1-C1 + WORK1-C4) is on `recovery/main` (IMPLEMENTED, CI-verified; clinical review OPEN).
 - Status row COND1 back to **`in-progress`**: COND1-7 says delivered only when COND1-1 to -6 are merged. The ADR-094 deviation (link by event instant, not visit id) still waits for the PO.
 - Next: COND1-4 (FUP1-C1/-C2).
+
+---
 
 ## 2026-10-26 13:50 CET · eng (Engineering)
 - Claimed #448 (COND1) at 13:21. Built **COND1-3** (WORK1-C1 + WORK1-C4) in **#451** (`feat/cond1-3-work1-c1-c4`): migration **0081**, **ADR-094**, pgTAP **081** (21). Status row COND1 `in-review` (#451).
@@ -4416,12 +4656,16 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - **For `lca`:** WORK1-C4 is now built (D-23 re-check input). **Not run here:** pgTAP, vitest, typecheck, lint, e2e (npm registry unreachable); CI decides.
 - Next: merge #451 when CI is green; then COND1-4 (FUP1-C1/-C2).
 
+---
+
 ## 2026-10-26 13:39 CET · Clinical & Regulatory Architect (review)
 - Reviewed **COND1-1 and COND1-2** (0080, ADR-093, pgTAP 080 (58), pgTAP 078 restore block; #446 merged `cb5e317`; CI `app`, `db`, `e2e` green on `66e8d0a` and `a5d5cc7`). Read **COND1-3** (#451, open): WORK1-C4 matches the CGR-65 remedy (effective F3 times, hint to correct on the visit, no write-back; pgTAP 081). CGR-65 closes on the merge commit.
 - **No blocking finding. Closed:** CGR-64 (a delivery to a leaver no longer counts as reached), CGR-63 (a restore no longer revives a signal take), CGR-61 (a clinical category needs an APPROVED register row). PS-50, PS-51, PS-52, PS-54, PS-55 closed. Residual: the owner's G-11 count before the first import.
 - **Opened (all advisory):** CGR-66 (S3): the code guard also refuses phone numbers and postal codes, so a key holder's number may be dropped (po; D-17 part 3). CGR-67 (S3): a restore brings back a leaver's OPS1 take and quality claim with her name (po). CGR-68 (S2): the DOOR1-14 gate trusts a Status cell that any agent PR can change (owner, eng; G-1).
 - Registers: CR-117 and CR-118 (eng) reviewed; CR-119 to CR-122 added; PS-56, PS-57, G-8 added; H-03, H-07, H-14 updated. I ran no NAVORA test; I ran `node scripts/agents-check.mjs` before publishing.
 - **Next:** (po) decide CGR-66 and CGR-67. (eng) #451 conflict and CI; COND1-4 to -6. (owner) G-1, D-1, the G-11 count. (cra) close CGR-65 on #451's merge commit.
+
+---
 
 ## 2026-10-26 13:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). New evidence since 10:15: #446 merged (COND1-1, COND1-2; CI `app`, `db`, `e2e` green on 66e8d0a, re-read through the API), `eng` 12:20, `lca` 12:50 (D-17 re-check). No `cra` entry since 09:26.
@@ -4432,16 +4676,22 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - **Next agent:** (eng) COND1-3 (WORK1-C1 + WORK1-C4), then COND1-4 to -6; #399, #409. (cra) review 0080 (COND1-1, COND1-2; CR-117, CR-118). (lca) D-17 only if `cra` changes DOOR1-12; D-23 when WORK1-C2/-C3/-C4 are built.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-26 12:50 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-12 changed at 10:15 only by taking in my own wording (PO: no re-check needed); D-23 waits for WORK1-C2/-C3/-C4; D-30 waits for the Clinical Owner. **New evidence:** DOOR1-12 merged (#446, CI green on 66e8d0a). One package this run. I ran no NAVORA test.
 - **D-17 re-check:** term 4 (no key-safe code stored) now met in code for every write of `cases.access_notes` (0080 trigger); existing notes are covered only once the owner's G-11 count (runbook §5b) returns 0 on the real-data project. Residual: the guard is a heuristic (three digits, words, the language note), acceptable on DSG Art. 7/8 as appropriate measures if the provider also instructs staff never to record a code (D-12, UNKNOWN). DOOR1-13 and DOOR1-14 add no legal question. **Verdict:** B as built **compliant under every plausible interpretation on the federal sources read**, on those conditions; cantonal law UNKNOWN; emergency-contact information duty still **unresolved: needs legal adviser** (D-19 q6).
 - **Note to `po`:** add "staff never record a door or key-safe code in any note" to the D-12 policy conditions; backup retention of removed notes belongs to D-2.
 - **Next for `lca`:** D-17 again if `cra`'s 0080 review changes DOOR1-12; D-23 when WORK1-C2/-C3/-C4 are built; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
 
+---
+
 ## 2026-10-26 12:20 CET · eng (Engineering)
 - **#446 merged** (merge commit cb5e317): CI green on head 66e8d0a (`app`, `db`, `e2e`), no reviews or open threads. COND1-1 (LEAVE1-C2/-C3/-C4) and COND1-2 (DOOR1-12/-13/-14) are now on `recovery/main` (IMPLEMENTED, CI-verified).
 - Status row COND1 set to **`in-progress`**, not `delivered`: COND1-7 says COND1 is delivered only when COND1-1 to COND1-6 are merged. Same pattern as LEAVE1 part (a) (#400). This keeps hand-off #442 open for COND1-3 to -6 (PLANNED) and starts no PO review yet. `claimed` was already off #442.
 - Next: COND1-3 (WORK1-C1 + WORK1-C4) on the next run.
+
+---
 
 ## 2026-10-26 11:45 CET · eng (Engineering)
 - Claimed #442 (COND1) at 11:14. Built **COND1-1 and COND1-2** in one PR, **#446** (`feat/cond1-leave1-door1-conditions`), as the brief and `cra` 05:26 ask. Migration **0080**, **ADR-093**; status row COND1 `in-review`.
@@ -4449,6 +4699,8 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - DOOR1-12: code guard on every writer of `cases.access_notes` (trigger, 22023); G-11 count in `OWNER_RUNBOOK.md` §5b for the owner before the first import. DOOR1-13: one "Zugang" line with history (new reader `field_safety_alert_history`). DOOR1-14: clinical category needs `CR-nnn`; `agents-check` requires an APPROVED register row. Register rows CR-117, CR-118 added for the Architect's review.
 - Tests: local PostgreSQL 16 with role/auth shim and a pgTAP **stand-in** only: all files green except 001, 007, 053 (stand-in gaps, same on `recovery/main`); 080 58/58; 078 50/50; mutations turn 080 red; 0080 applies twice. vitest, typecheck, lint, e2e **not run** (npm registry unreachable). `database.types.ts` edited by hand. CI decides.
 - Next: CI on #446; merge when green and set COND1-1/-2 merged in the row. COND1 stays `in-review` until COND1-3 to -6 are merged (COND1-7). Then COND1-3 (WORK1-C1 + WORK1-C4).
+
+---
 
 ## 2026-10-26 10:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). New evidence since 09:15: `cra` 09:26 (#441, WORK1 reviewed, **CGR-65** advisory S2) and `lca` 09:55 (#443, D-23 items (4)-(5)). Engineering holds COND1 (#442, `active`); #435 (eng, WORK1 `delivered` row) still open.
@@ -4460,12 +4712,16 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - **Next agent:** (eng) COND1 in order, COND1-3 now with WORK1-C4; merge #435; #399, #409. (cra) WORK1-C4 when built. (lca) D-23 when WORK1-C2/-C3/-C4 are built; D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-26 09:55 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). D-17 waits for DOOR1-12 (not merged); D-30 waits for the Clinical Owner. D-23 item 15 took in my 07:45 section and asks for no re-check before WORK1-C2/-C3. **New evidence:** `cra` 09:26 **CGR-65** (PR #441, merged f8f4b6a during this run) names D-23 (CR-114). One package this run, narrow addendum only. I ran no NAVORA test.
 - **D-23 (4) CGR-65, two times for the same visit:** a visit time marked `time_wrong` only in the working day leaves the visit record (care documentation, billing basis) wrong for its purpose (DSG Art. 6 Abs. 5, BBl 2020 7642); remuneration paid on a wrong time may be reclaimed even without fault (KVG Art. 56 Abs. 2, secondary source). The `cra` remedy (effective time in the proposal, a hint pointing to F3, never a write-back) is **compliant under every plausible interpretation on the federal sources read**; a write-back is the less protective option. How the provider reconciles records that still differ: **UNKNOWN**, provider policy (D-12) and possibly the payer contract (D-18).
 - **D-23 (5) PO 07:15 hypothesis** (visit segments from corrected events): compliant on the federal sources read (ArGV 1 Art. 73 via SECO) on `cra` conditions (a), (b) and item 8 (a), (b); without (a) unresolved.
 - **Note to `po`:** CGR-65's remedy also as a G-19 item; a reconciliation statement among the D-12 policy conditions.
 - **Next for `lca`:** D-23 when WORK1-C2/-C3 are built or if CGR-65 changes; D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
+
+---
 
 ## 2026-10-26 09:26 CET · Clinical & Regulatory Architect (review)
 - Reviewed **WORK1** (0079, pgTAP 079 (68), #434 merged `a5c94a6`; CI `app`, `db`, `e2e` green on `a5c94a6` and `e715436`), as the PO asked at 07:15 and 08:15. Read COND1 (#440, open): consistent with CGR-61, -63, -64.
@@ -4474,6 +4730,8 @@ ENGINEERING BRIEF (additions to the approved IPA1, not a new capability)
 - Supported WORK1-C1 and the PO's 07:15 hypothesis (corrections on the visit, F3, as the single source) with two conditions; the team ratio is a process measure, to be read only beside the team's safety measures (LT-3, G-5).
 - Registers: CR-114 to CR-116 added, BL-19 added, H-14, LT-3, PS-54, PS-55 updated. I ran no NAVORA test; `node scripts/agents-check.mjs` run before publishing.
 - **Next:** (po) WORK1 acceptance; place CGR-65. (eng) COND1 in order; CGR-65 with WORK1-C1. (owner) G-1, D-1, G-5.
+
+---
 
 ## 2026-10-26 09:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). No new delivery, no new `cra` or `lca` section since 08:15; WORK1 stays reviewed, awaiting clinical review (rank 35). Engineering's #435 still open.
@@ -4497,6 +4755,8 @@ ENGINEERING BRIEF
 - **Priority:** *Next up* 1.
 - **Implementation recommendation:** one PR for COND1-1 + COND1-2, then one small PR for COND1-3; the rest may ride one PR; each PR names the conditions it closes.
 
+---
+
 ## 2026-10-26 08:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). New evidence since 07:15: `lca` 07:45 (#438 merged 2e8ba7a) on D-23 item 14. Open PR #435 is Engineering's (WORK1 `delivered` row); no `cra` section on 0079 yet, so WORK1 stays reviewed, awaiting clinical review (rank 35, `approved`).
 - **D-23 item 15** (product authority; status `po-decided` unchanged; no escalation: both variants and the count are compliant under every plausible interpretation on the federal sources read, reversible, synthetic data): (1) the confirmation and export log **is named in the information text**, not withheld: an employer or inspectorate may ask for the integrity trail of a record the employer is responsible for. ADR-092 deviation 6 **accepted**. Standing criterion for any later AUD1/WORK1 brief: no reader returns the row ids of `working_day_versions`/`working_day_exports` or lists their audit rows by person or table. (2) A leaver's confirmed but unexported days are **shown as one count to administrators only** (replaces "not shown", which `lca` found the less protective option for the record). No export on her behalf (B-like, legal adviser). (3) Text gaps b-d fixed now; a (employer, D-12), e (by WORK1-C3), f (D-4, D-2; Art. 19 Abs. 4 UNKNOWN) with the employer's final text under G-19 (2).
@@ -4507,12 +4767,16 @@ ENGINEERING BRIEF
 - **Next agent:** (eng) merge #435; conditions PR; WORK1-C1, -C2, -C3 (may ride one PR); #399, #409. (cra) 0079 on a5c94a6, as asked at 07:15. (lca) D-23 when WORK1-C2's text and WORK1-C3's label are built; D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-26 07:45 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). Tier 2: D-30 waits for the Clinical Owner; D-17 waits for DOOR1-12 (not merged). Eligible: **D-23** (PO 07:15 item 14 asks for a re-analysis on three points; new evidence: WORK1 merged, a5c94a6). One package this run. I ran no NAVORA test.
 - **D-23 (1) audit rows of a confirmation and an export (ADR-092 deviation 6):** one record, purpose-bound, logged, not a per-person aggregate; no app user can reach the record ids as built. **Compliant under every plausible interpretation on the federal sources read**, on two terms: no later reader exposes those ids or lists these rows by person; and **either** the information text names the log **or** `read_audit_record` withholds the two tables (product choice).
 - **D-23 (2) leaver's count:** after the access end she cannot export, so unexported confirmed days would sit only in NAVORA (C turns into B for them). The count for **administrators only** (not the team RNs), as one number, is **compliant under every plausible interpretation on the federal sources read** (OR Art. 328b; ArGV 1 Art. 73 via SECO), and is the more protective default. Note to `po`: add a G-19 item so the leaver can export before the access end. An export on her behalf after the end would be B-like and goes to a legal adviser.
 - **D-23 (3) information text `work1-notice-v1`:** meets term (c). It is not yet a complete DSG Art. 19 notice. Six gaps: controller identity, covering members and correction reasons, the audit log, the purpose of the ratio and the 5-day threshold, leaving, retention and hosting (Art. 19 Abs. 4 not read). **Unresolved: needs owner (D-12 employer)**, then a final `lca` look (G-19 item 2).
 - **Next for `lca`:** D-23 again when the final text or the leaver route is written; D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers; D-22 and D-18 on new evidence only.
+
+---
 
 ## 2026-10-26 07:15 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open (nothing claimed). New evidence: WORK1 merged (#434, a5c94a6; CI `app`, `db`, `e2e` green on a5c94a6); Engineering's `delivered` row is on open PR #435, not merged. Reviewed as `in-review` with a merged PR and green CI.
@@ -4524,11 +4788,15 @@ ENGINEERING BRIEF
 - No new brief: approved, unstarted work remains (the conditions PR DOOR1-12/-13/-14 + LEAVE1-C2/-C3/-C4, WORK1-C1, FUP1-C1/C2, AUD1-M1/-M2). Every remaining capability brief (REF2, ORD1, J5 invoicing) waits for D-9, D-3, D-22 or D-18.
 - **Next agent:** (eng) merge #435; conditions PR; WORK1-C1; #399, #409. (cra) 0079 on a5c94a6 (billing isolation, no per-person ranking, the WORK1-C1 measure point; and whether dropping the nightly segment check loses anything for care). (lca) D-23 item 14 (1)-(3); D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
+
+---
+
 ## 2026-10-26 07:05 CET · Engineering (eng)
 - #434 (WORK1): first CI run e2e red: the `/field` header link "Arbeitstag" widened /field by 23 px at 390 px (nine phone-width assertions in field, door, lifecycle, signals specs) and a label clash in `work.spec`. Fixed in 5e7c550 (link moved into the page, exact labels); merged `recovery/main` (journal conflict, both entries kept); types-bot regenerated `database.types.ts`.
 - CI green on f1fbd3e (app, db, e2e; pgTAP 079 ran in CI). **Merged #434 (a5c94a6). WORK1 `delivered`.** Seven deviations for the PO in ADR-092 and the status row.
 - **Next for `eng`:** DOOR1-12/-13/-14 with CGR-64, FUP1-C1/C2, AUD1-M1/-M2, LEAVE1 conditions as the PO places them; #399, #409.
 
+---
 
 ## 2026-10-26 06:40 CET · Engineering (eng)
 - Run start: no own open PR. Active hand-off #412 (WORK1) claimed 06:11.
@@ -4536,6 +4804,8 @@ ENGINEERING BRIEF
 - Seven deviations for the PO (ADR-092), the main one: paid minutes = day start → end minus breaks, not the sum of segments. Open question 1: no derived report segment. Open question 3: not built.
 - Tests: local PostgreSQL 16 with role/auth shim and a pgTAP stand-in: 77 of 79 files green (001, 007 need `fk_ok`/`col_default_is`, absent from the stand-in; same on `recovery/main`); 079 also at a December clock; red without 0079; 0079 applies twice; a leak mutation turns WORK1-5 red. vitest, typecheck, lint, build, e2e **not run** (npm registry unreachable). `database.types.ts` edited by hand. CI decides.
 - **Next for `eng`:** CI on #434 (approve a types-bot run if one waits), merge, `delivered`; #399, #409 (clock-dependent tests) remain open.
+
+---
 
 ## 2026-10-26 06:10 CET · po (Product Owner)
 - No PO PR open. Claimed #430 ([PO review] LEAVE1); claim removed at the end. New evidence: LEAVE1-14 delivered (eng 05:35, #425 merged 71147a5, #428 847d092); `cra` 05:26 merged (#431: CGR-62 closed, CGR-63 S3, CGR-64 S2, view on the D-30 (d) hypothesis); `lca` 05:41 merged (#432: D-12, D-14).
@@ -4545,17 +4815,23 @@ ENGINEERING BRIEF
 - **Next agent:** (eng) WORK1 (active); one PR with DOOR1-12/-13/-14 and LEAVE1-C2/-C3/-C4; FUP1-C1/C2, AUD1-M1/-M2; #399, #409. (cra) WORK1 on delivery (never feeds billing or a per-person ranking); the ABS1 take-lapse hypothesis row. (lca) D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers (c)/(d).
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-26 05:41 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22 and D-18 unchanged since my last sections, no new evidence (skipped). Tier 2: D-30 waits for the Clinical Owner; D-17 waits for DOOR1-12; CGR-63 and CGR-64 (`cra` #431, open, not merged) touch no package with a legal question. D-3 and D-4 changed at 05:10 only to take in my 04:50 section (skipped). D-23 item 13 asks for no re-check. Eligible (tier 3, packages changed since my last signed section, not re-checked since): **D-12** (PO 10:11 conditions 1-4; 2026-10-26 01:10 access-end term; 03:13 follow-up-process term) and **D-14** (constraint 7 guards; F3 count from 0074). I ran no NAVORA test.
 - **D-12:** conditions 1-3 as reworded: consistent with every source read. Access-end term: **compliant under every plausible interpretation on the sources read** (DSG Art. 8; DSV Art. 3 Abs. 1 lit. a, as reproduced in HIN's TOM V1.1, February 2026, read 2026-10-26; official text not read). Follow-up-process term: compliant for NAVORA's conduct; the provider's duty stays D-30 question 6. Recommendation B is still **unresolved: needs legal adviser (question 1) and owner (D-11, partner)**. Three wording notes to `po`.
 - **D-14:** the F3/F4 verdict is unchanged; F3 from the access-end record is consistent with every source read. Constraint 7 is compliant while nothing is computed. Using client data (hospital transfers, feedback) as pay guards is **unresolved: needs legal adviser** (new question 5: purpose, information, minimum aggregate size). Note to `po` for the S2-S4 brief.
 - **Next for `lca`:** D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers (c)/(d); D-3 when a gate (i)-(iii) item is built; D-22 and D-18 on new evidence only.
 
+---
+
 ## 2026-10-26 05:35 CET · Engineering (eng)
 - Run start: own PR #425 (LEAVE1-14) green but conflicted with `recovery/main` (journal only); merged the base in (both entries kept, newest first).
 - After that merge, `app` went red in `tests/unit/push-webpush.test.ts` (`invalid VAPID key pair`). Root cause: Node's `ECDH.getPrivateKey()` drops leading zero bytes, so about 1 generated test key in 256 is 31 bytes (22 of 5000 locally). Fix #428 (test helper pads to 32 bytes; production code unchanged), ported into #425. Not a LEAVE1 code failure.
 - CI green on both heads (app, db, e2e). **Merged #428 (847d092) and #425 (71147a5). LEAVE1 `delivered`** (LEAVE1-14, CGR-62). Clinical gate: `cra` 2026-10-26 01:26 CET section (PR #416) as before; CGR-62 applied in full; `cra` to look at 0078 on the merge commit. Inventory items OPEN for the PO as listed in ADR-091.
 - **Next for `eng`:** WORK1 when it becomes `active`; #399 and #409 (clock-dependent tests) remain open.
+
+---
 
 ## 2026-10-26 05:26 CET · Clinical & Regulatory Architect (review)
 - Reviewed **LEAVE1-14** (0078, pgTAP 078 (46), #425 merged `71147a5`; CI green on head `36921be` and merge commit `71147a5`) and **AUD1** (0077, #413 merged `7f23a3b`; CI green; no SQL change since `8eeb18e`). This PR carries my 01:26 section (#416, superseded) through a merge commit.
@@ -4565,6 +4841,8 @@ ENGINEERING BRIEF
 - Registers: CR-111 to CR-113 added, PS-53 closed, PS-54, PS-55 added, H-07 updated. I ran no NAVORA test; `node scripts/agents-check.mjs` run before publishing.
 - **Next:** (po) LEAVE1 no longer blocked by the clinical gate; place CGR-63/-64. (eng) CGR-64 with DOOR1-12/-13/-14. (owner) G-1, D-1.
 
+---
+
 ## 2026-10-26 05:10 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open; no new delivery since 04:10 (LEAVE1-14 #425 open, not delivered; `cra` #416 still open, not merged). New evidence: `lca` 04:50 on D-3 and D-4 (merged #426).
 - **Decisions** (INDEX order): D-22, D-18 no new evidence; tier 2 waits for G-1. **D-3** item 13: the DSV amendment of 29 October 2025 (in force 1 December 2025) concerns federal bodies; Abs. 1, 4, 5 unchanged in substance for a private provider on the sources read, so **gate (i) stays as written**; question 1 for the legal adviser on the text in force since 1 December 2025; public-body case under cantonal law (UNKNOWN until D-11, D-12). **D-4**: 04:10 (d) reworded as `lca` proposes; adviser **question 3** now asks the DSG Art. 6 Abs. 4 period for operational audit rows incl. `audit_read_log` (not a DSV Art. 4 log) and whether gate (i)'s read log alone carries the one-year floor. No status change, no new escalation.
@@ -4572,12 +4850,16 @@ ENGINEERING BRIEF
 - **Next agent:** (eng) LEAVE1-14 (#425, CGR-62); WORK1; DOOR1-12/-13/-14, FUP1-C1/C2, AUD1-M1/-M2; #399, #409. (cra) merge #416; 0077 on 7f23a3b; LEAVE1-14 on delivery. (lca) D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers (c)/(d).
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-26 04:50 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22, D-18 unchanged since my last sections, no new evidence (skipped). D-17 waits for DOOR1-12 (not merged); D-30 no new evidence (#421 merged earlier was the PO's own intake of my 02:46 section). Eligible on new evidence: **D-3** (PO item 12 leaves the amended DSV Art. 4 to `lca`) and **D-4** (PO 04:10 (d), question 3). I ran no NAVORA test.
 - **DSV Art. 4 as amended 29 October 2025 (in force 1 December 2025):** on the official FOJ media release of 29 October 2025 and a before/after comparison of two non-official texts, the change concerns **federal bodies** (Abs. 2, new Abs. 2bis). For a private provider Abs. 1 (trigger), Abs. 4 and Abs. 5 (one year, separate, restricted) are unchanged in substance. fedlex, the AS text and the official *Erläuterungen* were **not read** (fetch not permitted in this unattended run).
 - **D-3:** gate (i) unchanged: compliant under every plausible interpretation on the federal sources read; question 1 (does Abs. 1 apply) still **unresolved: needs legal adviser**. AUD1-M1: no objection. Correction: my 03:42 "new lead" [V2] is the same document as [L10] (2026-10-24 06:55).
 - **D-4:** verdict unchanged; question 3 sharpened (`audit_read_log` is not a DSV Art. 4 log, so its retention is a DSG Art. 6 Abs. 4 question). Final periods unresolved: legal adviser and owner (D-11, D-12, D-18).
 - **Next for `lca`:** D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers (c)/(d); D-3 when a gate (i)-(iii) item is built; D-22, D-18 on new evidence only.
+
+---
 
 ## 2026-10-26 04:45 CET · Engineering (eng)
 - Run start: no own open PR; active hand-off #418 (LEAVE1 `changes-requested`, LEAVE1-14, CGR-62 blocking S1) claimed 04:13. AUD1 was already delivered (#413), so LEAVE1-14 came next (PO build order).
@@ -4587,6 +4869,8 @@ ENGINEERING BRIEF
 - Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only: 76 of 77 files green (053 needs `trigger_is`, absent from the stand-in, same on unchanged `recovery/main`); 078 red without 0078; 0078 applies twice. vitest, typecheck, lint, e2e **not run** (npm registry unreachable). `database.types.ts` edited by hand in the generator's order. CI decides.
 - **Next for `eng`:** CI on #425 (approve a types-bot run if one waits), merge, set `delivered`; then WORK1.
 
+---
+
 ## 2026-10-26 04:10 CET · po (Product Owner)
 - No PO PR open. Claimed #422 ([PO review] AUD1); claim removed at the end. New evidence: AUD1 delivered (eng 03:20, #413 merged 7f23a3b); `lca` 03:42 on D-3 and D-4 (merged #423). `cra` #416 still open (its 01:26 section read on its branch, not merged).
 - **AUD1 `accepted`** (CI `app`, `db`, `e2e` green on 8eeb18e, 7f23a3b, `recovery/main` 88b9abc; evidence table in the brief). AUD1-1 to -7 met; the PO checked every audit trigger in 0004-0075 against the catalogue (no text column missing; return reasons are not audited). Deviations 1-7 accepted (names and regions as free text; no free text for team-less records; 0-row call with organisation null; no purpose to read the read record; reason enters the log once; pgTAP 076 clock pinned; a refused call records nothing). Clinical gate passed (no finding). Non-blocking: **AUD1-M1** (purpose `billing` returns codes only, also to an administrator in the team; before the first real client, with the DSFA) and **AUD1-M2** (`READ_PATHS.md` F-3 wording). Moved to queue rank 34; *Next up* is now WORK1 alone.
@@ -4595,6 +4879,7 @@ ENGINEERING BRIEF
 - **Next agent:** (eng) LEAVE1-14 (CGR-62); WORK1; DOOR1-12/-13/-14, FUP1-C1/C2, AUD1-M1/-M2; #399, #409. (cra) merge #416; 0077 on 7f23a3b (a finding reopens AUD1); the two open hypotheses. (lca) amended DSV Art. 4 on fedlex, then D-3 gate (i) and D-4 question 3; D-17 when DOOR1-12 is merged.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
 
 ## 2026-10-26 03:42 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22, D-18 unchanged since my last sections, no new evidence (skipped). Eligible on new evidence: **D-3** (gate iv, AUD1 delivered: #413 merged 7f23a3b, Engineering 03:20 request) and **D-4** (gate r3). Tier 2 D-30: the PO 03:13 changes are on open PR #421, not merged (not used). `cra` 17:26 section used; #416 not merged, not used. I ran no NAVORA test; CI conclusions read from check runs (app, db, e2e green on 8eeb18e, 7f23a3b, 91bc826).
@@ -4603,11 +4888,15 @@ ENGINEERING BRIEF
 - New lead, read 2026-10-26: datenrecht.ch, DSV amendment in force since 1 December 2025 (Art. 4 among the amended articles). The extract read keeps the trigger and the one-year separate-storage rule; what changed is UNKNOWN, and fedlex was not read. It bears on D-3 gate (i) and D-4 question 3.
 - **Next for `lca`:** read amended DSV Art. 4 on fedlex, then re-check D-3 gate (i) and D-4 question 3; D-17 when DOOR1-12 is merged; D-30 when #421 is merged or the Clinical Owner answers (c)/(d); D-22, D-18 on new evidence only.
 
+---
+
 ## 2026-10-26 03:20 CET · eng (Engineering)
 - **AUD1 delivered (READY_FOR_REVIEW):** #413 merged with a merge commit (7f23a3b) after CI was green on head 8eeb18e (app, db, e2e). Base changes since the branch's last merge were docs only (PO, `lca`); GitHub reported the PR clean. Status row set to `delivered`.
 - **Clinical gate:** latest merged Clinical Governance section (2026-10-25 17:26) holds a brief note on AUD1, no finding: a safety review of a quality hold by someone outside the team needs the Clinical Owner's task-bound read (G-1, D-16), not built (OPEN). `cra` 01:26 (open PR #416, read on its branch, not merged): "no clinical finding on the branch", review on the merge commit. No remediation plan needed. Deviations (1)-(5) in ADR-090 stay for the PO.
 - Tests: none run in this run; CI ran them on #413 (green). No live project touched.
 - **Next agent:** (po) review AUD1; (lca) D-3 gate (iv); (cra) 0077 on 7f23a3b. (eng) next run: LEAVE1-14 (CGR-62), then WORK1; DOOR1-12/-13/-14, FUP1-C1/C2; #399, #409.
+
+---
 
 ## 2026-10-26 03:13 CET · po (Product Owner)
 - No PO PR open; no `agent:po` issue open; no new delivery since 02:14 (AUD1 #413 open, not delivered; LEAVE1-14 #418 not delivered). `cra` #416 still open (not merged; its section was used at 02:14 as read on its branch). New evidence: `lca` 02:46 on D-30 (merged #419).
@@ -4616,11 +4905,15 @@ ENGINEERING BRIEF
 - **Next agent:** (eng) AUD1 (#413); LEAVE1-14 (#418); WORK1 (#412); DOOR1-12/-13/-14, FUP1-C1/C2; #399, #409. (cra) merge #416; judge the two hypotheses (ABS1 take lapse; return reason on the next visit); LEAVE1-14 on delivery. (lca) D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-26 02:46 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22, D-18 unchanged since my last sections except the PO 01:10 D-18 addendum taking in my own note (no re-check requested); no new evidence (skipped). D-3 waits for AUD1 (#413 open, not delivered); D-17 for DOOR1-12. Eligible: **D-30** (changed 01:10 and 02:14: requirements (1)-(5), point (d); `cra` 01:26 on open PR #416, read on its branch). CGR-62 (LEAVE1-14) touches no package with a legal question. I ran no NAVORA test.
 - **D-30:** requirement (4) (addendum names author and qualification, linked, never replaces) and (5) (held version not billable until completed): **compliant under every plausible interpretation** on the sources read. Point (d) default (NAVORA suggests no follow-up): compliant for NAVORA's own conduct; the provider's duty to act on a returned clinical error, and informing the treating doctor: **unresolved: needs `clinical` and legal adviser** (new question 6). Point (c) routes, recommendation 1-4 unchanged.
 - Sources read 2026-10-26: Solothurn health office guidance "Pflichten für Gesundheitsfachpersonen" v1.0 (GesBG Art. 16 duties as described, SO § 18 Abs. 1 GesG); OR Art. 328b (droit-bilingue.ch), OR Art. 398 (law.ch), both non-official. GesBG Art. 16 text and fedlex not read.
 - **Next for `lca`:** D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged; D-30 when the Clinical Owner answers (c)/(d); D-22, D-18 on new evidence only.
+
+---
 
 ## 2026-10-26 02:14 CET · po (Product Owner)
 - No PO PR open. Claimed #411 ([PO review] LEAVE1); claim removed at the end. New evidence: `cra` 01:26 (open PR #416, CI green, read on its branch, not merged).
@@ -4631,6 +4924,8 @@ ENGINEERING BRIEF
 - **Next agent:** (eng) AUD1 (#413); LEAVE1-14; WORK1; DOOR1-12/-13/-14, FUP1-C1/C2; #399, #409. (cra) merge #416; look at LEAVE1-14 on delivery; judge the ABS1 hypothesis. (lca) D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-26 01:26 CET · Clinical & Regulatory Architect (review)
 - Reviewed **LEAVE1** on its merge commits: 0074 (`e74fccc`, #400), 0075 and 0076 (`645e3af`, #406), pgTAP 074-076; CI `app`, `db`, `e2e` green on `e74fccc`, `645e3af`, `cb5f08f`, `d4eae0b`. My 21:28 section (#401, green, unmerged) is carried into this PR.
 - **CGR-49 and CGR-50 closed** (0075:114-406, 0076:112; pgTAP 075:132-261).
@@ -4638,6 +4933,8 @@ ENGINEERING BRIEF
 - AUD1 (#413, open, CI green) read on the branch: no clinical finding; review on merge. D-30 point (c): five testable properties in the report (not a decision; what an addendum may state, safety follow-up of a returned error and the time limit are UNKNOWN, Clinical Owner).
 - Registers: CR-106 to CR-110 added (eng added none for LEAVE1); notes on CR-048, CR-075; H-07 (CGR-62), H-12; PS-41, PS-42 closed; PS-53 added (S1); PS-15 note. I ran no NAVORA test.
 - **Next:** (eng) CGR-62 first, then AUD1, DOOR1-12/-13, FUP1-C1 with CGR-60, #399, #409; (po) hold LEAVE1, place CGR-61, take the D-30 (c) properties in; (cra) CGR-62 fix, AUD1 on merge, WORK1 on delivery.
+
+---
 
 ## 2026-10-26 01:10 CET · po (Product Owner)
 - No PO PR open; no new delivery since 00:20 (AUD1 #413 open, not delivered; LEAVE1 reviewed, still awaiting the `cra` section, #411 stays open, not claimed this run). `cra` #401 still open, not used as evidence.
@@ -4650,12 +4947,16 @@ ENGINEERING BRIEF
 - **Next agent:** (cra) review 0074-0076 (LEAVE1) so the PO can accept; D-30 point (c). (eng) AUD1 (#413); then WORK1; DOOR1-12/-13/-14, FUP1-C1/C2; #399, #409. (lca) D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-26 00:50 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tier 1: D-22, D-18 unchanged since my last sections, no new evidence (skipped). D-3 waits for AUD1 (#413 open, not delivered); D-17 for DOOR1-12. Eligible: **D-30** (PO request 00:20: question 4 against the built "no access after employment", point (c)) and **D-10** (new evidence for deviation (3) and question 4: LEAVE1 delivered). Migration headers 0074-0076 read; `cra` 17:26 section (CGR-49, CGR-50) used; #401 not used as evidence. I ran no NAVORA test.
 - **D-30:** question 4: the built default (no access after the access end) is **compliant under every plausible interpretation** on the sources read; my 00:50 (25th) "option E without time limit" finding is superseded once LEAVE1 is accepted. LEAVE1-11 hold as an interim: compliant under every plausible interpretation (synthetic data; not an answer to a client's rectification request, so the D floor G-12 stays). Point (c) routes (D addendum, RN corrector, restored author with visible late date): **unresolved: needs `clinical` and legal adviser** (new question 5). Recommendation 1-4 unchanged.
 - **D-10:** deviation (3) with real data compliant under every plausible interpretation once LEAVE1 is accepted; question 4 not needed while the default holds. Residual for D-12: access end only when an administrator records it (ADM2 would tie it to the contract end).
 - Sources re-read 2026-10-26 (non-official English texts): DSG Art. 32 (justement.ch), Art. 6, Art. 8 (lawbrary.ch). Cantonal texts cited from earlier sections, not re-read.
 - **Next for `lca`:** D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged; D-30 again when `cra` answers point (c); D-22, D-18 on new evidence only.
+
+---
 
 ## 2026-10-26 00:40 CET · Engineering (eng)
 - No open `eng` PR. Claimed #382 (AUD1, active) at 00:12. **#413 opened: AUD1** (migration 0077, ADR-090, pgTAP 077 (44)). AUD1 row `in-review` with #413.
@@ -4665,6 +4966,8 @@ ENGINEERING BRIEF
 - pgTAP 076 test 16 failed locally at 00:10 on unchanged `recovery/main`: "tomorrow 09:00" is more than 24 h away between 00:00 and 09:00 Zurich. Fixed in #413 by pinning the test clock to 10:00 Zurich (DST1 pattern). Same family as #409.
 - Tests: local PostgreSQL 16 with role/auth shim and a pgTAP **stand-in** only: 75 of 76 files green (001 needs `fk_ok`, not in the stand-in); 077 44/44; 0077 re-applied without change. vitest, typecheck, lint, e2e not run here. CI decides.
 - **Next agent (eng):** CI on #413 (types-bot run may wait for approval); merge when green, then AUD1 `delivered`; then DOOR1-12/-13/-14, #399, #409.
+
+---
 
 ## 2026-10-26 00:20 CET · po (Product Owner)
 - **PO PR #408 was open** with `e2e` red (field.spec ABS1-C6, CGR-32, CGR-34: the clock-change day, #409); Engineering fixed the spec in #406 (`zurichDay(-1)`). Continued #408, as the rule says: merged `recovery/main` in (JOURNAL.md conflict, both entries kept, newest first); this cycle rides on it.
@@ -4689,10 +4992,14 @@ ENGINEERING BRIEF
 - **Priority:** *Next up* 2, after AUD1.
 - **Implementation recommendation:** one append-only table of confirmed day versions, a read model `my_working_day(date)` for the nurse only, one confirm command through `private.begin_command`, a CSV export built in the app from her own rows, and one AN1 team aggregate reusing the existing suppression; extend the LEAVE1-3 and RLS3 catalogue assertions to the new objects; no limit checks of any kind.
 
+---
+
 ## 2026-10-25 23:45 CET · Engineering (eng)
 - **#406 (LEAVE1 part (b) + LEAVE1-13) merged** (merge commit 645e3af). CI on 351401a: `db` red, pgTAP 074 test 56: the reader list was expected in C order and the CI collation sorts `access_ended_at` first. Fixed with `collate "C"` in 074/075. `e2e` red: (1) `leave.spec` asserted no page overflow on `/admin`, whose desktop sidebar layout overflows at 390 px by design; it now checks the access block, as `push.spec` does. (2) `field.spec` ABS1-C6 (CGR-32, CGR-34 follow from it) took yesterday as now − 24 h, which is wrong on the 25-hour day of the clock change; it now uses `zurichDay(-1)`. Not this PR's code. CI then green on 1c54ba2 (app, db, e2e; CI ran them).
 - **LEAVE1 `delivered`** (#400 + #406): READY_FOR_REVIEW, the PO reviews (a)+(b). Clinical gate: report 2026-10-25 17:26 CET is still the latest; CGR-49 and CGR-50 are implemented as LEAVE1-11 and LEAVE1-12; no clinical rule was added; D-30 is unchanged.
 - **Next agent (eng):** AUD1; DOOR1-12/-13; #399 (062 clock); FUP1-C1/C2 before go-live.
+
+---
 
 ## 2026-10-25 23:20 CET · Engineering (eng)
 - Step A, own PR #406: **no CI had run** since 22:36: the branch conflicted with `recovery/main` (JOURNAL.md), so GitHub created no `pull_request` run. Merged `recovery/main` in (merge commit; both journal entries kept, newest first).
@@ -4702,6 +5009,8 @@ ENGINEERING BRIEF
 - Tests: local PostgreSQL 16 with a role/auth shim and a pgTAP stand-in: 036, 066, 074 (67), 075 (47), 076 (22) green; 076 fails without 0076 (checked); 0076 re-applied without change. vitest, typecheck, lint, e2e **not run** (npm registry blocked here). CI decides.
 - **Next agent (eng):** CI on #406; fix or merge, then LEAVE1 `delivered` (#400 + #406); then AUD1 (#382), DOOR1-12/-13/-14, #399.
 
+---
+
 ## 2026-10-25 22:55 CET · Engineering (eng)
 - No open `eng` PR. Claimed #404 (LEAVE1, active) at 22:12. **#406 opened: LEAVE1 part (b)** (LEAVE1-5, -6, -11, -12), migration 0075, ADR-088, pgTAP 075 (47). LEAVE1 row `in-review` with #400, #406.
 - How: `return_report` records a return also when the performer is unavailable (`performer_unavailable`, no draft; never countersigned or final, guard as defence in depth); one helper `private.open_reports_of` (unsigned, correction draft, returned) feeds `/admin`, the RN queue ("Zugang beendet", date only), HAND1 (every team member; kind and date), `team_open_reports` and the `end_member_access` result; the protected layout shows only the notice to a leaver; `/admin` end/restore buttons.
@@ -4709,6 +5018,8 @@ ENGINEERING BRIEF
 - Clinical gate: report 2026-10-25 17:26 CET read (latest on `recovery/main`); CGR-49, CGR-50 (advisory) implemented as LEAVE1-11, LEAVE1-12; no remediation plan needed; no clinical rule added; D-30 unchanged.
 - Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (075 47/47; 066, 067, 074 updated and green; full suite as on `recovery/main`). vitest, typecheck, lint, e2e not run here (npm registry unreachable). CI decides.
 - **Next agent (eng):** #406 CI; merge when green, then LEAVE1 `delivered` (#400 + #406); then AUD1, DOOR1-12/-13, #399 (062 clock).
+
+---
 
 ## 2026-10-25 23:11 CET · po (Product Owner)
 - No PO PR open; no open `agent:po` issue, nothing claimed. Open: #406 (LEAVE1 part (b), `eng`, not merged) and #401 (`cra`); no delivery to review, LEAVE1 is reviewed when (a)+(b) are merged.
@@ -4718,10 +5029,14 @@ ENGINEERING BRIEF
 - **Next agent:** (eng) LEAVE1 part (b) #406; DOOR1-12/-13/-14; AUD1. (lca) as in 22:40. (cra) LEAVE1-13 look in the LEAVE1 review.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-25 22:40 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence; D-3 waits for AUD1; D-4 for r1 as a brief or D-11/D-12. D-17 and D-19 changed at 22:10 only by taking in my 21:50 findings (skipped). Eligible: **D-9** (changed at 22:10: g4 per-contact consent, `recorded_consent` references it). `cra` 21:28 (open PR #401) read on its branch. I ran no NAVORA test; no new legal sources.
 - **D-9 g4 addition:** compliant under every plausible interpretation for the steps NAVORA controls on the federal sources read, provided (2) the refusal applies only to `recorded_consent` (an `emergency` or `other` disclosure stays recordable) and (3) consents are append-only and referenced as valid at the time. Scope and who consented belong in the record. Overall D-9 verdict unchanged: unresolved, needs legal adviser and owner (D-11, D-12, referrer's disclosure); D-19 question 6 (information to the contact) unchanged.
 - **Next for `lca`:** D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged; D-4 when r1 becomes a brief or D-11/D-12 are answered; D-22 and D-18 on new evidence only.
+
+---
 
 ## 2026-10-25 22:10 CET · po (Product Owner)
 - No PO PR open; no open `agent:po` issue, nothing claimed. #404 (LEAVE1) is `eng`'s, claimed and active.
@@ -4735,10 +5050,14 @@ ENGINEERING BRIEF
 - **Next agent:** (eng) LEAVE1 part (b) with LEAVE1-13; #399 if it blocks; DOOR1-12/-13/-14 in one PR; AUD1; FUP1-C1/C2. (cra) LEAVE1-13 reuses the ABS1 release rule: a look in the LEAVE1 review is enough. (lca) D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-25 21:50 CET · Engineering (eng)
 - **#400 (LEAVE1 part (a)) merged** (merge commit e74fccc). First CI: `db` red only because a pgTAP 074 fixture line printed a bare `ok` (the `start_visit` result), which prove counted as a test (66 assertions passed); fixed in cedf4a2. CI then green on cedf4a2 (app, db, e2e; CI ran them). Earlier the PR had a `JOURNAL.md` conflict with `recovery/main`, resolved by a merge commit (both entries kept).
 - LEAVE1 row `in-progress`, not `delivered`: part (b) (LEAVE1-5, -6, -11, -12, -9) is still open, so the PO reviews (a)+(b) together, as for DOOR1.
 - **Next agent (eng):** LEAVE1 part (b); open questions for `po` as in the 21:55 entry.
+
+---
 
 ## 2026-10-25 21:55 CET · Engineering (eng)
 - No open `eng` PR. Claimed #337 (LEAVE1, active) at 21:12. **#400 opened: LEAVE1 part (a)** (LEAVE1-1, -2, -3, -4, -7, -8, -10 for this part), migration 0074, ADR-087, pgTAP 074 (66). LEAVE1 row `in-review`.
@@ -4748,11 +5067,15 @@ ENGINEERING BRIEF
 - Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (074 66/66; full suite as on `recovery/main`, 067 and 071 adapted to count permissive policies). vitest, typecheck, lint, e2e not run here. CI decides.
 - **Next agent (eng):** #400 CI; merge when green; then LEAVE1 part (b) (LEAVE1-5, -6, -11, -12, -9), keep the row `in-review`/`in-progress` until (b) is merged.
 
+---
+
 ## 2026-10-25 21:50 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence; D-3 waits for AUD1; D-4 for r1 as a brief or D-11/D-12. Eligible: **D-17** and **D-19** (packages changed: DOOR1 accepted 21:10, parts implemented). `cra` 21:28 (open PR #401: CGR-61, PS-50, PS-51) read on its branch. I ran no NAVORA test; no new legal sources.
 - **D-17:** terms of the B verdict checked against 0072/0073: read scope met; no clinical category yet (CGR-61 supports the minimisation term); emergency contact not built; **no key-safe code: partly met**, the intake note `cases.access_notes` is unguarded and shown on team phones. B **compliant under every plausible interpretation on the federal sources read once DOOR1-12 is merged**; with real data and without DOOR1-12, not. Contact information duty still unresolved (adviser, D-19 question 6).
 - **D-19:** 22:50 note 1 met (disclosure basis recorded, 0072). A as built plus DOOR1 (a): compliant under every plausible interpretation for what NAVORA does. `recorded_consent` points to a consent NAVORA does not yet hold: link it to the D-9 g4 record when built. C unchanged: unresolved, needs legal adviser (questions 1, 3, 6).
 - **Next for `lca`:** D-3 when AUD1 is delivered; D-17 when DOOR1-12 is merged; D-4 when r1 becomes a brief or D-11/D-12 are answered; D-22 and D-18 on new evidence only.
+
+---
 
 ## 2026-10-25 21:28 CET · Clinical & Regulatory Architect (review)
 - Reviewed **DOOR1** on its merge commits: 0072 (`f9f44b5`, #391) and 0073 (`f069cc8`, #396), pgTAP 072/073, `src/features/door/*`; CI `app`, `db`, `e2e` green on `f9f44b5`, `f069cc8`, `38e7381`, `14b9320` (API). I ran no NAVORA test.
@@ -4761,6 +5084,8 @@ ENGINEERING BRIEF
 - **No blocking finding; the 21:10 acceptance is consistent.** DOOR1-12 supported as S1 (key-safe code on every team phone, PS-50), DOOR1-13 as S2 (PS-51). Covering member who cannot record: S2 on COVER1 switch-on, with CGR-21/28.
 - Registers: CR-100 to CR-105 added (eng added none for DOOR1); H-03 partly mitigated (access arrangement only); PS-43 closed; PS-50, PS-51, PS-52 added.
 - **Next:** (eng) DOOR1-12/-13 PR, #399 root cause, CGR-61 once placed; (po) place CGR-61; (cra) LEAVE1 and AUD1 on delivery, #399 fix.
+
+---
 
 ## 2026-10-25 21:10 CET · po (Product Owner)
 - **PO PR #395 was open** with `db` red (pgTAP 062 tests 47 and 50 on a docs-only PR; green on `recovery/main` since). Continued it, as the rule says: merged `recovery/main` in (JOURNAL.md conflict, both entries kept, newest first). The 062 failure looks clock-dependent → **issue #399 for `eng`** (root-cause; pin to the test clock as DST1 did; never skip).
@@ -4773,12 +5098,16 @@ ENGINEERING BRIEF
 - **Next up:** 1 LEAVE1 (#337, `eng`, active), 2 AUD1 (#382). No new brief: approved, unstarted items remain.
 - **Next agent (eng):** #399 (062) first if it blocks a PR; LEAVE1; then AUD1 and DOOR1-12/-13; FUP1-C1/C2 before go-live.
 
+---
+
 ## 2026-10-25 20:50 CET · Engineering (eng)
 - **#396 (DOOR1 part (b)) merged** (merge commit f069cc8). First CI on db9d162: app and db green, e2e red: `door.spec.ts` showed "unbekannt" after saving "ja". Root cause: React resets an uncontrolled form after a form action, so after the refused code attempt the chosen value and source fell back to their defaults. Fixed with `onSubmit` (37f6bad); CI then green on 37f6bad (app, db, e2e). No reviews or comments.
 - **DOOR1 `delivered`** (#391 + #396): READY_FOR_REVIEW, the PO reviews (a)+(b) together.
 - Clinical gate: no newer report than 2026-10-25 17:26 CET; no finding for part (b); only the organisational category added.
 - Open for `po` (unchanged from 20:35): intake records but does not read values back; covering member reads, does not record; stricter code guard; PLANNED proposal: same guard on `cases.access_notes`.
 - **Next agent (eng):** LEAVE1, AUD1; FUP1-C1/C2 in one PR before go-live.
+
+---
 
 ## 2026-10-25 20:35 CET · Engineering (eng)
 - No open `eng` PR. Claimed #393 (DOOR1, active) at 20:10. **#396 opened: DOOR1 part (b)** (DOOR1-2, -3, -4; -7 for the values; -8/-9/-10 for this part), migration 0073, ADR-086, pgTAP 073 (68). DOOR1 row `in-review` with #391 and #396.
@@ -4787,6 +5116,8 @@ ENGINEERING BRIEF
 - Clinical gate: report 2026-10-25 17:26 CET read (latest); no finding for part (b); no `cra` gate (no clinical category, per the 02:26 note).
 - Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (073 68/68, 072, 067, 033 green). vitest, typecheck, lint, e2e not run (npm registry unreachable here). CI decides.
 - **Next agent (eng):** #396 CI; merge when green, then DOOR1 `delivered`; then LEAVE1, AUD1.
+
+---
 
 ## 2026-10-25 20:10 CET · po (Product Owner)
 - No PO PR open; no open `agent:po` issue, nothing claimed. #393 (DOOR1) is `eng`'s, claimed and active.
@@ -4797,12 +5128,16 @@ ENGINEERING BRIEF
 - **Next agent:** (eng) DOOR1 part (b) on #393 with DOOR1-12, DOOR1-13 and the `READ_PATHS.md` F-1 header fix, then LEAVE1, AUD1; FUP1-C1/C2 in one PR before go-live. (cra) informed: DOOR1-12 narrows only; DOOR1 (a)+(b) for the clinical gate once delivered. (lca) D-3 when AUD1 is delivered.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-25 19:39 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence. D-4 waits for r1 as a brief or D-11/D-12 (no change since 17:39). Eligible: **D-3** (new evidence: DOOR1 part (a), #391, 0072, merged as f9f44b5; `eng` 19:15 asked for the re-check). I tested nothing and ran no NAVORA test.
 - **D-3 gate (iv), F-1:** `derived_exceptions` now builds the Operations no-show line from codes only (`no_show_ops_detail`) and the interruption line without the excerpt; the team keeps its note. CI `ci` and `agents-coordination` green on f9f44b5 and 6f17458. F-1 line **met**; **compliant under every plausible interpretation on the federal sources read** once gates (i)-(iii) are met; cantonal law UNKNOWN (D-11).
 - Gate (iv) still **not met**: F-3 (AUD1) open. Option B with real data: not yet compliant; after AUD1 and gates (i)-(iii), compliant on the federal sources read (unchanged). Whether "Notfall" alone justifies telling the emergency contact: not a gate (iv) point, belongs to D-9 and D-19.
 - Sources: none new.
 - **Next for `lca`:** D-3 when AUD1 is delivered; D-4 when r1 becomes a brief or D-11/D-12 are answered; D-22 and D-18 on new evidence only.
+
+---
 
 ## 2026-10-25 19:16 CET · Engineering (eng)
 - **#391 (DOOR1 part (a)) merged** (merge commit f9f44b5). It was `dirty` (JOURNAL.md conflict with po 18:12); merged `recovery/main` into the branch (7d15620, both entries kept), CI then ran app, db and e2e on 7d15620: all green. No reviews or comments on the PR.
@@ -4811,11 +5146,15 @@ ENGINEERING BRIEF
 - Clinical gate: no newer report than 2026-10-25 17:26 CET; nothing changes for DOOR1.
 - **Next agent (eng):** DOOR1 part (b) on #327 (claim it again), then LEAVE1, AUD1; FUP1-C1/C2 in one PR before go-live.
 
+---
+
 ## 2026-10-25 19:15 CET · Engineering (eng)
 - No open `eng` PR; claimed #327 (DOOR1) at 18:12. **#391 opened: DOOR1 part (a)** (DOOR1-1, -5, -6, -7, -11; -8/-9/-10 for these parts), migration 0072, ADR-085, pgTAP 072 (53). DOOR1 row `in-review`. Part (b) (DOOR1-2/-3/-4, category list and values) next, in its own PR.
 - **D-3 gate (iv), F-1:** the Operations excerpt is removed in #391 together with the door fact, outcome code, basis and time (DOOR1-11, CGR-51). F-1 closes on merge with green CI (`READ_PATHS.md`). For `lca`: re-check D-3 when #391 is merged.
 - Clinical gate: report 2026-10-25 17:26 CET read; CGR-51 applied, remediation plan `clinical/remediation/CGR-51.md`; no category added, so no `cra` gate per its 02:26 note. Deviation for `po`: the P1 no-show exception closes with the outcome (C1 unchanged), so Operations' open row always reads "Ergebnis offen".
 - Tests: local PostgreSQL 16 with role/auth shim and pgTAP stand-in only (072 53/53; other files as on `recovery/main`). vitest, typecheck, lint, e2e not run (npm install failed here). CI decides.
+
+---
 
 ## 2026-10-25 18:12 CET · po (Product Owner)
 - No PO PR open. Claimed #387 ([PO review] FUP1); claim removed at the end.
@@ -4826,11 +5165,15 @@ ENGINEERING BRIEF
 - **Next agent:** (eng) DOOR1 (#327), LEAVE1, AUD1; FUP1-C1 and FUP1-C2 in one PR before go-live, listed on the FUP1 row. (lca) D-4 when D-11/D-12 are answered or r1 becomes a brief. (cra) FUP1-C1/C2 PR when merged.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-25 17:39 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 unchanged since their last `lca` sections, no new evidence. D-3 item 10 only records my 16:41 finding (skipped). Eligible: **D-4** (changed: PO addendum 17:11 (c), r1 as a system-generated extract). Tested nothing; ran no NAVORA test.
 - **D-4 r1:** reworded ("no read beyond what the recorded weighing needs, via the purpose reader, recorded") and carrying the DSG Art. 25 Abs. 2 information, identity check, 30-day deadline, mask notice: **compliant under every plausible interpretation on the federal sources read** (PLANNED). As literally written ("no administrator reads its content"): **not shown compliant**, the Art. 26 weighing cannot be done blind. Representative requests and cantonal access right: **unresolved: needs legal adviser** (new questions 6, 7). Final periods unchanged (legal adviser and owner; D-11, D-12, D-18).
 - Sources this run: DSV (2022) Art. 16-18 via datenschutz.law and datenschutzpartner.ch (not official; fedlex still not read); Onlinekommentar DSG Art. 25.
 - **Next for `lca`:** D-4 when r1 becomes a brief or D-11/D-12 are answered; D-3 when DOOR1 or AUD1 is delivered; D-22 and D-18 on new evidence only.
+
+---
 
 ## 2026-10-25 17:26 CET · Clinical & Regulatory Architect (review)
 - Reviewed **RLS3** (0070, merged `3d6e125`, code identical to `cb79d77`) and **FUP1** (0071, merged `5fbda91`) on their merge commits; CI `app`, `db`, `e2e` green on `3d6e125`, `5fbda91`, `1eee5d6` (API). I ran no NAVORA test.
@@ -4839,6 +5182,8 @@ ENGINEERING BRIEF
 - **Gate:** FUP1 has no blocking finding; the PO may accept it with CGR-60 as a condition. AUD1 brief read: protective; a safety review outside the team cannot read a hold reason until the Clinical Owner is named (G-1, D-16).
 - Registers: CR-097 to CR-099; CR-093, CR-094 notes; H-01, H-05, H-14; C-13, PS-47, PS-48, BL-18 closed; PS-49 added.
 - **Waiting:** po (accept FUP1, CGR-60 with FUP1-C1); owner (G-1, D-1); clinical once named (D-28, D-30, D-19, D-17, D-10, D-16).
+
+---
 
 ## 2026-10-25 17:11 CET · po (Product Owner)
 - No PO PR open. No open `agent:po` issue; nothing claimed. #384 (Engineering's FUP1 status PR) is `eng`'s.
@@ -4849,9 +5194,13 @@ ENGINEERING BRIEF
 - **Next agent:** (cra) review 0071 on 5fbda91 for FUP1 acceptance. (eng) DOOR1 (#327), LEAVE1, AUD1 (with the AUD1-5 sentence); FUP1-C1 rides along. (lca) D-3 and D-4 when DOOR1 or AUD1 is delivered.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-25 16:45 CET · Engineering (eng)
 - **#383 merged** (5fbda91, merge commit): FUP1-1 to FUP1-5 (0071, ADR-084). CI `app`, `db`, `e2e` green on c93e82c and on 219cb50 (CI ran them; engineering ran only `node scripts/agents-check.mjs` and the local stand-in pgTAP). No review comments; no types-bot run waiting. FUP1 row now `delivered` (READY_FOR_REVIEW).
 - Clinical gate: report section 2026-10-25 13:26 CET; CGR-57, CGR-58, CGR-59 handled as in the 16:35 entry. **For cra:** review 0071 on 5fbda91. **For po:** FUP1 review; residual of FUP1-2 (ADR-084 *Open*).
+
+---
 
 ## 2026-10-25 16:41 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22 and D-18 are unchanged since their last `lca` sections, with no new evidence. D-23 changed (PO item 12), but the change only records my 15:41 finding and asks for no re-check, so it was skipped. Eligible: **D-3** (changed: item 9 routes F-3 to brief AUD1) and **D-4** (new evidence: AUD1 builds gate r3). I read AUD1 as written (PLANNED). I tested nothing and ran no NAVORA test.
@@ -4860,6 +5209,8 @@ ENGINEERING BRIEF
 - Sources this run: [L2] EDÖB DSV Art. 4 recommendation (15.09.2023), re-read 16:40. DSV on fedlex: still not read.
 - **Next for `lca`:** D-3 when DOOR1 or AUD1 is delivered; D-4 when AUD1 is delivered or D-11/D-12 are answered; D-23 when D-18 names the contract; D-22 and D-18 on new evidence only.
 
+---
+
 ## 2026-10-25 16:35 CET · Engineering (eng)
 - Claimed #376 (FUP1) at 16:11 CET. No own PR was open; no types-bot run waiting.
 - **FUP1 in review: #383** (migration 0071, ADR-084). FUP1-1 (CGR-57): the outside-watched-hours list takes a visit without an end from `private.visit_interval` (shared helper `private.visit_wall_range(care_visits)`). FUP1-2 (CGR-58): `my_signals.operations_outside_app` follows the Operations delivery, or the watched hours at the instant the step is due; the banner promises the message only on it. FUP1-3 (CGR-59, RLS3-4c): `visit_correction_history.in_billed_version`.
@@ -4867,6 +5218,8 @@ ENGINEERING BRIEF
 - **Tests:** pgTAP 069 +21, 071 +7, one unit test block. Local only, not CI: PostgreSQL 16 with a role/auth shim and a pgTAP stand-in: migrations from scratch (0071 twice), seed at the pinned clock, every pgTAP file (069 80/80, 071 88/88; 8 files need pgTAP functions the stand-in lacks, as on `recovery/main`). vitest, typecheck, lint, e2e **not run** (npm install failed here). **CI is the runner.** `database.types.ts` edited by hand.
 - **Next for eng:** CI on #383; merge when green, then FUP1 `delivered`. **For cra:** review 0071 on the merge commit. **For po:** residual of FUP1-2 (ADR-084 *Open*).
 - 16:40: #383 conflicted with `recovery/main` (`JOURNAL.md`, after #381); resolved by a merge commit, both entries kept. FUP1-5 (added by the PO 16:11) done in #383: `READ_PATHS.md` header and the `visit_correction_history` row.
+
+---
 
 ## 2026-10-25 16:11 CET · po (Product Owner)
 - No PO PR open. Claimed #379 (RLS3 review); claim removed at the end. #376 (FUP1) is `eng`'s, claimed and active.
@@ -4890,6 +5243,8 @@ ENGINEERING BRIEF
 - **Priority:** *Next up* 4.
 - **Implementation recommendation:** one additive migration: drop `org_admins_read_audit`; one SECURITY DEFINER reader keyed by entity type and id plus purpose code; mask the listed free-text keys in `changed` unless `private.is_team_member` of the record's team; an append-only read table with the same no-update/no-delete pattern as `audit_events`; about 25-35 pgTAP assertions; `READ_PATHS.md` update.
 
+---
+
 ## 2026-10-25 15:41 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged since their last `lca` sections, no new evidence. Eligible on new evidence (RLS3 #373 merged 15:16 CET, 3d6e125; CI `success` on the merge commit, read from the Actions run list): **D-3** (gate iv) and **D-23** (the 14:45 proviso). Read, not tested; I ran no NAVORA test.
 - **D-3:** gate (iv) lines F-2, F-5, inventory (RLS3-5) and item 8 (no correction reason or corrector outside the team and cover) are **met** on `recovery/main`. Gate (iv) is still **not met**: F-1 (DOOR1-11) and F-3 open. Option B with real data stays **not yet compliant under every plausible interpretation** until then; once F-1, F-3 and gates (i)-(iii) are done, **compliant under every plausible interpretation on the federal sources read** (unchanged). Note to po: F-3 has no brief yet.
@@ -4897,16 +5252,22 @@ ENGINEERING BRIEF
 - Sources: none new. Cantonal law UNKNOWN (D-11); controller UNKNOWN (D-12).
 - **Next for `lca`:** D-3 when DOOR1 is delivered or F-3 is addressed; D-23 when FUP1-3 is built or D-18 names the contract; D-22, D-18 on new evidence only.
 
+---
+
 ## 2026-10-25 15:20 CET · eng (Engineering)
 - **RLS3 delivered:** #373 conflicted again with `recovery/main` (`JOURNAL.md` only, after #375 and #377); resolved by merging `recovery/main` into the branch (eae85a9, both sides kept, no history rewrite). CI `app`, `db`, `e2e` green on eae85a9 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). Merged with a merge commit: 3d6e125. Status row set to `delivered`.
 - **Clinical gate:** report section 2026-10-25 13:26 CET: no blocking finding on RLS3; CGR-55 remedy present; CGR-59 (advisory) decided by the PO (Q15) into FUP1-3, not built in RLS3. `lca` 14:45: RLS3-4b as built is compliant if merged unchanged with CI green on the merge commit (IMPLEMENTED: merged unchanged; CI on the merge commit UNKNOWN until it runs on `recovery/main`).
 - **Next agent:** (po) review RLS3-1 to RLS3-6 (the watcher opens `po:RLS3`). (lca) D-3 gate (iv) now that RLS3 is merged. (eng) FUP1 when it becomes active.
+
+---
 
 ## 2026-10-25 14:45 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged since their last `lca` sections, no new evidence. Eligible: **D-23**, changed after my 12:46 section (PO 14:13, item 11 routes a question to "D-18, then `lca`"), with new evidence (RLS3 built on #373 at 451e02f, CI green; not merged). D-3 not re-checked: unchanged since 12:46, and its gate (iv) re-check waits for RLS3 to be merged. Read, not tested.
 - **D-23:** Q15 `in_billed_version` is a derived yes/no with no person or free text, so it is **compliant under every plausible interpretation on the federal sources read** (PLANNED). RLS3-4b as built on #373 matches item 10, or is narrower in two places (level b only for coordination roles; author or countersigner only while still a team or cover-team member). It is compliant if merged unchanged with CI green on the merge commit. Payer access to the corrector's identity or the reason is still **unresolved: needs D-18 (owner), then a legal adviser**. The question is sharpened with KVG Art. 42 Abs. 3-5 as read in [K3].
 - Sources this run: [K3] SAMW/FMH Rechtlicher Leitfaden 7.7 (updated 12.08.2026, secondary; read 14:41). KVG Art. 42 primary text still not read (the fedlex fetch was not permitted this run).
 - **Next for `lca`:** D-3 gate (iv) once RLS3 is merged; D-23 payer question when D-18 names the contract; D-22, D-18 on new evidence only.
+
+---
 
 ## 2026-10-25 14:13 CET · po (Product Owner)
 - No PO PR open. Claimed #370 (DST1 review), #367 (SIGC review); claims removed at the end. #373 (RLS3, eng) open, CI `app` green, `db` and `e2e` running at 14:12; not delivered, not reviewed.
@@ -4931,11 +5292,16 @@ ENGINEERING BRIEF
 - **Dependencies:** RLS3 (#373) merged first (FUP1-3 extends its reader); none on a person.
 - **Priority:** *Next up* 2 (after RLS3, before DOOR1).
 - **Implementation recommendation:** one additive migration; reuse `private.visit_interval` or a shared helper for the visit length; compute the banner flag at the episode's untaken-threshold instant; `in_billed_version` as a computed column in both reader levels; about 12-18 pgTAP assertions and one unit test on `takenText`.
+
+---
+
 ## 2026-10-25 13:35 CET · eng (Engineering)
 - **RLS3 claimed** (#355, 13:10) and **in review: #373** (migration 0070, ADR-083, pgTAP 071 with 81 assertions; READ_PATHS.md F-2, F-4, F-5 closed). RLS3-1: `visit_status_notes`, `cover_events`, `working_time_facts` team-scoped (cover for notes, own row for cover events), no coordination role through the table API. RLS3-4: `actor_id` of `visit_events` and `visit_time_corrections` revoked from `authenticated` by column grants. RLS3-4b: `visit_correction_history(visit)`, (a) full trail for team, cover, author, countersigner; (b) billing view for other coordination roles without reason and corrector.
 - **Tests:** local PostgreSQL 16 with a Supabase role/auth shim and a pgTAP stand-in (not upstream pgTAP, not CI): migrations from scratch, seed, every pgTAP file; 071 81/81, all others as on `recovery/main` (001, 007, 053 fail only on stand-in gaps there too). Lint, typecheck, vitest, e2e and db lint not run locally; CI decides. `database.types.ts` edited by hand.
 - **Deviations** (status row): `cover_events.team_id` not used (would widen); covering member gains the note read (brief-mandated); author/countersigner keep (a) only while in the visit's team or cover team; 009 test 14 and 067 tests 65, 70 adapted, nothing removed.
 - **Next agent:** (eng) CI on #373, approve a waiting types-bot run, merge when green, set RLS3 `delivered`. (cra) whether (b) serves CGR-55's billing purpose (PO 12:12). (po) review RLS3-1 to RLS3-6; accept or change the three identity readers (`field_reports`, `report_returns`, `visit_correction_history`).
+
+---
 
 ## 2026-10-25 13:26 CET · Clinical & Regulatory Architect (review)
 - Reviewed since 09:31 CET (open #358, merged into this PR's branch, JOURNAL both sides kept): **SIGC** on merge commit `2ad9860` (0068, pgTAP 069) and the **DST1 follow-up** on `363906a` (0069, pgTAP 070); CI `app`, `db`, `e2e` green on `430c231`, `363906a`, `1f3ff8a`, `78891aa` (checked through the API). **RLS3** (#373, open, 0070, pgTAP 071; CI not yet reported on head `cb79d77`) read on the PR branch. I did not run the NAVORA test suite.
@@ -4945,6 +5311,8 @@ ENGINEERING BRIEF
 - **D-23 (PO 12:12 question):** the billing view serves CGR-55's billing purpose once it shows `in_billed_version`; billing needs neither the corrector nor the reason; whether a payer may ask for the corrector is UNKNOWN (D-18 owner, then `lca`).
 - Registers: CR-092 to CR-096 added; CR-089, CR-090, CR-091 notes; PS-38, PS-39, PS-40, PS-45 closed; PS-47, PS-48, BL-18 new; C-13, PS-46, BL-17 updated; H-01, H-05, H-14, H-17 updated.
 - **Next agent:** (po) accept SIGC (CGR-57, CGR-58 as conditions) and DST1; decide CGR-59 for RLS3-4b. (eng) CGR-57, CGR-58 follow-up; CGR-59 as the PO decides. (owner) G-1, D-1; merge this PR if my merge is refused.
+
+---
 
 ## 2026-10-25 13:16 CET · po (Product Owner)
 - No PO PR open. Claimed #370 (DST1 review), #367 (SIGC review), #365 (Q14); claims removed at the end. #358 (`cra` 09:31) is not the PO's to merge.
@@ -4956,11 +5324,15 @@ ENGINEERING BRIEF
 - **Next agent:** (cra) review merge commits 2ad9860 (0068, SIGC; CGR-46, -47, -48) and 363906a (0069, DST1; CGR-53); (po) accept SIGC and DST1 once that section has no blocking finding. (eng) RLS3, then DOOR1, LEAVE1.
 - Tests: none run by the PO (docs only); `node scripts/agents-check.mjs` passed before publishing.
 
+---
+
 ## 2026-10-25 12:55 CET · eng (Engineering)
 - **#366 merged** (1e796d2): SIGC row `delivered`. **#362 merged** (363906a, merge commit): DST1-C1 to DST1-C3. Its head conflicted again after #366 (last-change line, SIGC row, journal); resolved by merging `recovery/main` into the branch (430c231; DST1 row from the branch, SIGC row from #366, both journal entries kept). CI `app`, `db`, `e2e` green on 430c231 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). DST1 row now `delivered` (READY_FOR_REVIEW).
 - **Correction to the 12:20 entry:** the eng merge call works in this run (MCP merge as the repository account); #361 was merged by this run at 12:17, not by the owner. Two eng sessions overlapped on #362 (12:20 and 12:30 runs); no work was lost.
 - OPEN (from the 12:20 entry, not in #362): `visits_outside_watched_hours` (0068) reads periods by the wall clock only; DST nights only, lists more, never fewer.
 - **Next agent:** (cra) review merge commits 2ad9860 (SIGC, 0068) and 363906a (DST1 follow-up, 0069). (po) review both after `cra`; Q14. (eng) next active issue: RLS3 (with RLS3-4b), then DOOR1, LEAVE1; DST1-C4, DST1-C5 by their deadlines.
+
+---
 
 ## 2026-10-25 12:46 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged since their last `lca` sections, no new evidence. Eligible because they changed after my 11:50 sections (PO 12:12, D-23 item 10, D-3 item 8): **D-23** and **D-3** re-checked. Read, not tested.
@@ -4970,6 +5342,8 @@ ENGINEERING BRIEF
 - **Next for `lca`:** D-3 gate (iv) when RLS3 or DOOR1 is delivered; D-23 point 2 when D-18 names the contract; D-22, D-18 on new evidence only.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
 
+---
+
 ## 2026-10-25 12:30 CET · eng (Engineering)
 - **#361 merged** (2ad9860, merge commit): SIGC. Its head conflicted with `recovery/main` in `JOURNAL.md` only; resolved by merging `recovery/main` into the branch (a2468b5, no history rewrite). CI `app`, `db`, `e2e` green on a2468b5 (CI ran them; engineering ran only `node scripts/agents-check.mjs` locally). No types-bot run was waiting. SIGC row now `delivered` (READY_FOR_REVIEW).
 - **#362** (DST1-C1..C3) was green on 90718dd but conflicts with `recovery/main`; it is updated by a merge commit after this PR and merged once CI is green again.
@@ -4977,12 +5351,16 @@ ENGINEERING BRIEF
 - No new item claimed this run (step A was substantial).
 - **Next agent:** (po) Q14; review SIGC after `cra`. (cra) 0068 on merge commit 2ad9860. (eng) finish #362, then RLS3 (with RLS3-4b), DOOR1, LEAVE1.
 
+---
+
 ## 2026-10-25 12:20 CET · eng (Engineering)
 - **#361 (SIGC) merged by the owner** at 12:17 (merge commit 2ad9860; CI green on its head a2468b5: `app`, `db`, `e2e`). SIGC row `delivered` (READY_FOR_REVIEW).
 - **#362 (DST1-C1 to DST1-C3):** CI was green on 90718dd; the eng merge call was refused by the permission policy (comment on #362). After #361 and #363 merged it conflicted in `JOURNAL.md`, `DECISIONS.md` (ADR-081 addendum vs ADR-082) and `IMPLEMENTATION_STATUS.md` (last-change line, SIGC row) only; resolved by merging `recovery/main` into the branch (both sides kept, no history rewrite).
 - **Tests:** local PostgreSQL 16 stand-in (not CI), fresh build with 0068 and 0069 in order: pre-seed clock check passes; pgTAP 068, 069, 070, 046-050, 062, 064 pass. CI decides.
 - **OPEN (follow-up, not in #362):** `visits_outside_watched_hours` (0068) reads periods by the wall clock only; after 0069 `watched_inside` also accepts the period instants. DST nights only; the list shows more, never fewer.
 - **Next agent:** (owner) merge #362 (merge commit) once CI is green on the merge head; (eng) then DST1 row `delivered`, then RLS3 (#355); (po) review SIGC; (cra) SIGC and the DST1 follow-up merge commits.
+
+---
 
 ## 2026-10-25 12:12 CET · po (Product Owner)
 - No PO PR open. Open: #362 (DST1-C1..C3, CI green, not merged), #361 (SIGC, CI running), #358 (`cra` 09:31, not merged by the PO), #3. No `agent:po` issue, no `[PO review]` issue, nothing `delivered`, `ready-for-review` or `in-review` since 10:12: **no review this run**. Nothing claimed.
@@ -4993,6 +5371,8 @@ ENGINEERING BRIEF
 - **Next for po:** review DST1 again once #362 is merged and Engineering marks it `delivered`; SIGC once #361 is delivered. **Next for eng:** RLS3 with RLS3-4b as sharpened (not started). **Next for `cra`:** the D-23 question above; #358 merge.
 - Tests: none run by the PO (docs only). `node scripts/agents-check.mjs` run before publishing.
 
+---
+
 ## 2026-10-25 11:50 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR. Tiers 1-3: D-22, D-18 unchanged, no new evidence. Eligible because they changed after my 07:50 sections (PO 08:10) and there is new evidence (RLS3-4b, PO 10:12 from `cra` CGR-55): **D-23** and **D-3** re-checked. Read, not tested.
 - **D-23:** C plus D with item 9 (per-visit identity for a named care task inside the team) **compliant under every plausible interpretation on the federal sources read**. RLS3-4b for the author and the countersigning RN: compliant. RLS3-4b for a "billing review" that is any coordination role (as `billing_preview` scopes it today, 0043/0015), with corrector identity and the free-text reason: **unresolved: needs the DSFA, else a legal adviser**. Protective variant, compliant: outside the visit's team, show correction, old and new values, time and signed version, but no reason and no corrector. Note to po: name who "the billing review" is, and add a pgTAP check.
@@ -5000,6 +5380,8 @@ ENGINEERING BRIEF
 - Sources this run: [O2] OR Art. 328b (droit-bilingue.ch, unofficial; read 11:35); [K1] KVV Art. 59 Abs. 1 (justement.ch, Stand 22.10.2026; read 11:37). KVG Art. 42 not read.
 - **Next for `lca`:** D-3 gate (iv) when RLS3 or DOOR1 is delivered; D-22, D-18 on new evidence only.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+---
 
 ## 2026-10-25 11:30 CET · eng (Engineering)
 - **Step A, #361 (SIGC):** CI green on 1c9122f (`app`, `db`, `e2e`), mergeable. The merge call was **refused again by this run's permission policy** (as at 09:30 on #361 and earlier on #331). Not worked around. The merge stays with the owner: **merge commit**, not squash; then the SIGC row can be set `delivered` (#361).
@@ -5015,6 +5397,8 @@ ENGINEERING BRIEF
   - **(cra):** review #362 on its merge commit (`cra` review before PO acceptance, PO 10:12); note the consequence in `CGR-53.md` *Needs a decision* (an absence typed to start in the repeated hour overlaps a visit ending in it).
   - **(owner):** merge #361 (merge commit); #358 (`cra`).
 
+---
+
 ## 2026-10-25 10:31 CET · eng (Engineering)
 - No own PR open at the start. **Claimed #345 (SIGC)** at 10:10; claim removed at the end of this run.
 - **PR #361** (`feat/sigc-signal-conditions`): migration 0068, ADR-082, pgTAP 069 (59), remediation plans `clinical/remediation/CGR-47.md`, `CGR-48.md`. Status row SIGC `in-review`.
@@ -5023,6 +5407,8 @@ ENGINEERING BRIEF
 - **Clinical gate:** report section 2026-10-24 22:26 (CGR-46, CGR-47, CGR-48) applied as the PO decided. The 09:31 section (open PR #358) has no new SIGC finding.
 - **Tests:** CI is the runner. Locally only pgTAP, on a plain PostgreSQL 16 stand-in with stubbed roles and minimal pgTAP functions: 059, 062, 064, 065, 067, 068 and 069 passed there. A mutation back to the first take fails five assertions of 069. **Not run locally:** vitest, typecheck, lint, build, e2e (no npm registry). `database.types.ts` was edited by hand; the types bot regenerates it.
 - **Next agent:** (eng) fix CI on #361 if red, approve the types-bot run, merge when green, then `delivered`. (po) Q14; review SIGC once delivered. (cra) 0068 when convenient.
+
+---
 
 ## 2026-10-25 10:12 CET · po (Product Owner)
 - No PO PR open. Open: #358 (`cra` 09:31, DST1 review; not merged by the PO), #3. Claimed **#357** ([PO review] DST1); claim removed at the end.
@@ -5043,6 +5429,8 @@ ENGINEERING BRIEF
   - **(lca):** no new request.
   - **(po):** review the DST1 follow-up when merged.
 
+---
+
 ## 2026-10-25 09:31 CET · Clinical & Regulatory Architect (review)
 - Reviewed since 05:30 CET (#348): **DST1 merged** (#349, `3c2da15`; 0067, ADR-081, pgTAP 068, fixtures, `time.ts`, CI pinned clock), **RLS2 merged** (#331, `c1703a0`), PO 06:10 and 08:10 (RLS3 approved, Q13), `lca` 07:50. CI green on `2702403`, `3c2da15`, `16e4e9c` (checked through the API). I did not run the NAVORA test suite; conversion and interval overlap checked on an empty local PostgreSQL 16.15 only.
 - **Closed:** CGR-52 (0067:35-71, 154-196; pgTAP 068:60-149); the RLS2 request of 22:26 (067:286-295, 329-330).
@@ -5052,12 +5440,16 @@ ENGINEERING BRIEF
 - Registers: CR-088 DEPRECATED, CR-089 to CR-091 added; PS-44 closed; PS-45, PS-46, BL-17, C-13 added; H-01, H-05, H-14 updated.
 - **Next agent:** (po) DST1 acceptance; CGR-54 choice; CGR-55 into RLS3-4. (eng) CGR-53, CGR-56. (owner) the merge-gate question, G-1, D-1.
 
+---
+
 ## 2026-10-25 09:30 CET · eng (Engineering)
 - **#352 merged** (42972ca): RLS2 status row `delivered` (CI green on 52fb70f).
 - **#349 merged** (3c2da15, merge commit): DST1. Its head conflicted with #352 in the `IMPLEMENTATION_STATUS.md` last-change line only; resolved by merging `recovery/main` into the branch (2702403, no history rewrite). CI `app`, `db`, `e2e` green on 2702403 (CI ran them; engineering ran only `npm run agents:check` locally). DST1 row now `delivered` (READY_FOR_REVIEW).
 - **Deviation:** the PO's 08:10 note asked to merge #349 after `cra` reviewed 0067. The eng operating model merges on green CI; COORDINATION.md sets no `cra` merge gate. `cra`'s review of 0067 (DST1-5) is therefore still OPEN and listed as the row's next step; any finding comes back as a follow-up PR.
 - No new item claimed this run (step A was substantial). Next run: #344 (DST1) can be closed by the watcher after PO review; next eng issue by *Next up*: SIGC (#345), RLS3 (#355).
 - **Next agent:** (po) review DST1 against `briefs/DST1.md`; (cra) 0067 as requested.
+
+---
 
 ## 2026-10-25 08:10 CET · po (Product Owner)
 - No PO PR open (#350 merged). Claimed **#351** (Q13); claim removed at the end. Open: #352 (`eng`, RLS2 status `delivered`, not merged by the PO), #349 (DST1, CI green on 8ba1d85, awaiting `cra` on 0067), #3.
@@ -5087,6 +5479,8 @@ ENGINEERING BRIEF
 - **Priority:** *Next up* 3 (after DST1 and SIGC, before DOOR1).
 - **Implementation recommendation:** one additive migration in the 0066 pattern (`private.reads_visit`, `private.reads_case`); a column revoke for `actor_id` with any own-event read moved into a definer read model; extend the fixed lists in pgTAP 067 rather than a new mechanism.
 
+---
+
 ## 2026-10-25 07:50 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR (#346 merged). Tiers 1-3: D-22, D-18 unchanged, no new evidence. New evidence: **RLS2 (#331) merged** at 07:11 CET (0066, `READ_PATHS.md`; ADR-080 asks for the `lca` re-check of D-3 gate iv). Re-checked two packages against the merged code (read, not tested):
 - **D-3 gate (iv):** the organisation-wide gap of 21:55 is **closed in code**. Gate (iv) is still **not met**: F-2 (every coordination role can read the whole `visit_status_notes.note` through the table API), F-1 (DOOR1-11), F-3 and the F-5 negative tests are open. Real data: **not yet compliant**; compliant under every plausible interpretation on the federal sources once those four are done with gates (i)-(iii). Task-bound coordination reads (intake, quality review, holds): DSFA. Note to po: name F-2 and F-5 in item 6.
@@ -5095,11 +5489,15 @@ ENGINEERING BRIEF
 - **Next for `lca`:** D-3 gate (iv) again when F-2, DOOR1 or LEAVE1 are delivered; D-22, D-18 on new evidence only.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
 
+---
+
 ## 2026-10-25 07:15 · eng (Lead Engineer)
 - **#331 merged** as c1703a0 with a merge commit, by the owner at 07:11. CI was green on head bb3ed48 (app, db, e2e).
   - Two earlier `db` runs on 241c49b were red during the repeated hour of the clock change (pgTAP 038, then 046, 062 and 064), not because of RLS2. Both are explained on the PR; the DST1 brief covers the fix.
 - **RLS2 is `delivered`** (READY_FOR_REVIEW): PO review of RLS2-1 to RLS2-7. Deviations (1)-(4) are in the status row; RLS3 and Q13 are open for `po`.
 - Clinical gate: `cra` 22:26 RLS2 note applied (pgTAP 067); no CGR finding names RLS2.
+
+---
 
 ## 2026-10-25 06:10 CET · po (Product Owner)
 - No PO PR open (#347 merged). No issue claimed (nothing new for `po`; DST1 #344 is claimed by `eng`).
@@ -5116,6 +5514,8 @@ ENGINEERING BRIEF
   - **(eng):** DST1-7 and DST1-8 on PR #349 (DST1-7 is implemented per the PR; DST1-8 (a) and (b) need assertions); the four-clock CI proof for DST1-4.
   - **(cra):** review 0067 (CSR1, SIG1), as #349 requests.
   - **(po):** review DST1 and RLS2 when merged.
+
+---
 
 ## 2026-10-25 05:55 CET · eng (Lead Engineer)
 - **A (own PRs):** RLS2 #331 is green and mergeable (clean) on bb3ed48. The merge was **refused again by this session's permission policy** (merge without review), as at 04:10. It stays open for the owner to merge (merge commit) and stays `in-review`.
@@ -5137,6 +5537,9 @@ ENGINEERING BRIEF
 - **Next (eng):** fix #349 if CI is red, and try a CI matrix at the four clocks (`sudo date`; runner support is UNKNOWN). `cra` review of 0067 is requested (production code changed, DST1-5). After DST1: RLS2 merge (owner), then SIGC (#345), DOOR1, LEAVE1.
 - **Note for every agent:** since 0067, function bodies use `private.now()` and `private.at_zurich(...)`. pgTAP 068 fails on a bare `now()` or a native `at time zone 'Europe/Zurich'`. **RLS2's 0066 was written before 0067:** it sorts earlier and is rewritten by 0067 on a fresh reset, so there is no conflict.
 - **PLANNED (eng), RLS2 × DST1:** RLS2's pgTAP 067 reads `now()` 25 times. Under the pinned CI clock its fixtures must read `private.now()`. Whichever of #331 and #349 merges second gets that conversion, done by the same mechanical replacement, before it merges.
+
+---
+
 ## 2026-10-25 05:30 CET · Clinical & Regulatory Architect (review)
 - **Reviewed** PO cycles 02:10 CEST to 04:10 CET, `lca` 02:48 to 03:43 CET, brief DST1, LEAVE1-11/-12, DOOR1-11, and #331 (RLS2) at `bb3ed48`. Section 2026-10-25 05:30 CET in `reports/CLINICAL_GOVERNANCE.md`. No code merged since 0065. I did not run the NAVORA tests.
 - **CGR-52 re-assessed (S3 → S2, advisory):** production code is affected. 0038, 0045 and 0062 convert planned starts with `at time zone 'Europe/Zurich'`, which resolves an ambiguous local time to the later instant (checked on an empty local PostgreSQL 16.15). A visit planned at 02:00-02:59 on the fall-back night raises its overdue signal and escalation up to one hour late. The fixtures also fail on wall-clock subtraction. DST1 covers both; proposed addition for the PO: watched-hours windows start at the earlier instant and end at the later one.
@@ -5144,6 +5547,8 @@ ENGINEERING BRIEF
 - **RLS2 (#331):** no blocking finding; CI green on `bb3ed48`; the owner merges.
 - **Registers:** CR-088 (implicit DST conversion, UNVALIDATED); CR-038 note; PS-41 to PS-44 and H-01, H-05, H-12 updated.
 - **Next:** owner merges this PR (it supersedes #341, #321, #306, #294, #278, #259) and #331; `eng` DST1 needs the clinical gate.
+
+---
 
 ## 2026-10-25 04:10 CET · po (Product Owner)
 - No PO PR open (#340 merged). Claimed **#65** (D-3) for this run; claim removed at the end (D-23 and D-32 have no open issue).
@@ -5161,6 +5566,8 @@ ENGINEERING BRIEF
   - **(lca):** no new request; D-3 gate (iii)/(iv) once RLS2 merges, as planned.
   - **(po):** review RLS2 and DST1 when merged.
 
+---
+
 ## 2026-10-25 03:43 CET · Legal & Compliance Agent (lca)
 - No open `lca` PR (#342 merged as fb93b53). Tiers 1-3: nothing newly eligible (D-22, D-18 unchanged, no new evidence). Two requests by the po taken up:
 - **D-23 (ArGV 2 Art. 17, requested 02:10 CEST):** Art. 17 is only a **permit exemption** for night and Sunday work of a Spitex organisation's care staff, where needed for its services ([W10], [W11], SECO Wegleitung). Every other night, Sunday, rest and recording rule stays. **C plus D unchanged: compliant on terms (a)-(e).** Two clarifications for item 1: the proposal carries start and end per segment, and the non-visit field takes on-call interventions without a visit plus call-out travel ([W14] ArGV 1 Art. 15). Art. 17a-17e (in force 1 December 2025) concern live-in carers of staffing agencies only. Plan-limit checks: **unresolved: needs legal adviser** (questions 6-8). Only the break and on-call limits are read, and only from secondary sources; no figure to be built. Question 7 (is Operations at night care staff under Art. 17?) also bears on D-32 and SIG2.
@@ -5168,6 +5575,8 @@ ENGINEERING BRIEF
 - Sources this run: SECO Wegleitung ArGV 2 Art. 4, 17, 17a; SECO page "Pikettdienst"; BS news of 20.11.2025 (all through a summarising fetch tool). Not read: ArGV 2, ArG Art. 15a-20 and ArGV 1 Art. 73 in the primary text (fedlex fetch refused).
 - **Next for `lca`:** D-3 gate (iii)/(iv) once RLS2 (#331) merges; LEAVE1 and DOOR1 when delivered; the ArGV 2 primary text if fedlex becomes readable; D-4 against [Z2] if the po asks.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+---
 
 ## 2026-10-25 03:10 CET · po (Product Owner)
 - **PO PR #340 still open**, CI red on 0e155e9 (01:24 UTC: `db` pgTAP 062 test 15, `app` failed; clock-dependent, `cra` CGR-52, brief DST1 *Next up* 1). Rule A: continued on the same branch; `recovery/main` (fb93b53, `lca` #342) merged in, JOURNAL conflict resolved keeping both sides newest first. The push re-runs CI with new content and a new base (not a re-run to kick CI). Claimed **#104, #61, #56, #70** (D-22, D-15, D-10, D-4); claims removed at the end.
@@ -5185,6 +5594,8 @@ ENGINEERING BRIEF
   - **(lca):** D-23 Art. 17 and the Q13 F-1 view as requested; no new request this run.
   - **(po):** merge #340 once CI is green; close the duplicate SIG hand-off issues (#329, #333, #334, #336, #339, #343) once the SIGC issue exists; review RLS2 and DST1 when merged.
 
+---
+
 ## 2026-10-25 02:42 CET · Legal & Compliance Agent (lca)
 - **Continued `lca` PR #342** (opened 02:48 CEST, before the clock change; this entry is later). Its `db` and `e2e` jobs failed in the repeated DST hour (comment on #342; `cra` CGR-52, po DST1). Still inside the repeated hour at the start of this run, so no re-run yet. Tiers 1-3: nothing eligible (D-22, D-18 unchanged, no new evidence).
 - **New evidence: ZH Spitex leaflet [Z2], September 2025** (supersedes [Z1], November 2023). Re-checked **D-10** and **D-15**:
@@ -5194,6 +5605,8 @@ ENGINEERING BRIEF
 - Sources this run: [Z2] zh.ch PDF, read 2026-10-25 (tool summary). GesG ZH, KLV and KVV not read.
 - **Next for `lca`:** re-run the failed #342 jobs once after 02:00 UTC and merge if green; the January 2026 home leaflet if readable; D-4 against the [Z2] retention recommendation if the po asks; D-3 gate (iv) once RLS2 merges; LEAVE1 when delivered.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+---
 
 ## 2026-10-25 02:10 CET · po (Product Owner)
 - **Time note:** the second 02:10 of the night (clocks went back at 03:00 CEST); the po entry below is 02:10 CEST, one hour earlier.
@@ -5225,6 +5638,8 @@ ENGINEERING BRIEF
 - **Priority:** *Next up* 1 (patient safety precondition; unblocks CI for every later item).
 - **Implementation recommendation:** a single `private.now()` (or a test-only clock setting) used by every time-dependent function and fixture; one conversion helper from Zurich local date and time to an instant with an explicit rule for ambiguous and missing times; a pgTAP file pinned at both transitions; a one-off CI run (or matrix) at the four clocks.
 
+---
+
 ## 2026-10-25 02:48 · Legal & Compliance Agent (lca)
 - **No `lca` PR was open.** New branch `lca/review-2026-10-25-0240`. Open at the start: #341 (`cra` 02:26), #340 (po 02:10), #331 (RLS2), #321 and older `cra` PRs, #3; none merged, none read as evidence. Tiers 1-3: nothing eligible (D-22, D-18 unchanged since 16:05, no new evidence). Changed since my signature: **D-25** (po 01:16), reviewed; nothing else eligible.
 - **D-25 new evidence: the ZH leaflet I cited at 18:47 ([L8], November 2023) is superseded.** Read [L9] (December 2024 with changes of 17 September 2025); the authority's page [L10] links a newer one dated 6 January 2026, **not readable** this run. On [L9]: mix ≥20 % tertiary nurses / ≥30 % diploma + EFZ / ≤50 % assistants (the ≥50/≥25 figures in the po 19:09 note and the D-24 Engineering draft must not be built); RN cover "on site within ~20 min", written on-call rules, 24 h medical on-call; added named roles: **site nursing lead and deputy per site**, a management member responsible for health-police rules (§ 36 GesG as reported); still **no ward leader**; delegation to a team needs a written document, not just a chart.
@@ -5234,6 +5649,8 @@ ENGINEERING BRIEF
 - **Next for `lca`:** D-10 and D-15 against the September 2025 Spitex leaflet; the January 2026 home leaflet if readable; D-3 gate (iv) once RLS2 merges; LEAVE1 when delivered.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
 
+---
+
 ## 2026-10-25 02:26 · Clinical & Regulatory Architect (review)
 - **Reviewed 0065 (F6R; pgTAP 066) in full**, 0066 (RLS2, #331 open, db CI red) and `READ_PATHS.md`, the briefs LEAVE1, DOOR1 and SIGC, PO cycles 23:10-02:10 and `lca` 22:50-01:41. Section 2026-10-25 02:26 in `reports/CLINICAL_GOVERNANCE.md`. Tests not run by me; CI green on `3766bde` (F6R); #331 db job failed on `241c49b`.
 - **F6R-G1 met:** no blocking finding on 0065; the F6R acceptance stands. My 22:26 RLS2 request is in pgTAP 067:277-294, not yet shown green.
@@ -5242,6 +5659,8 @@ ENGINEERING BRIEF
 - **Clinical impact:** po drafts confirmed for D-6 (not a clinical rule; no reopen) and D-20; D-13 point 3 corrected; D-14 guard measures corrected (a guard fed by the guarded team can be gamed); D-24 and D-25 three hazard areas added, stop rule needs leading signals (no MQI or LTCF content).
 - **Merge:** this PR carries and supersedes #321 (and through it #306, #294, #278, #259); `recovery/main` merged in, JOURNAL both sides kept.
 - **Next agent (po):** decide CGR-49 and CGR-50 into LEAVE1; CGR-51 with Q13; record the six Clinical impact blocks. **(eng):** CGR-52, then RLS2 db CI. **(owner/cra):** this PR is not merged: its db job is red for CGR-52, not for its content; re-run once the DST hour has passed, then merge; G-1; D-1. **(clinical, once named):** D-30 before the first real leaver.
+
+---
 
 ## 2026-10-25 02:10 · po (Product Owner)
 - **No PO PR was open.** Open: #331 (RLS2, `eng`, not merged: nothing to review), #321 and older `cra` PRs (not merged by the PO), #3 (M2). No `agent:po` issue open. Nothing `delivered`, `ready-for-review` or `in-review` with a merged PR.
@@ -5260,6 +5679,8 @@ ENGINEERING BRIEF
   - **(cra):** unchanged from 01:16.
   - **(po):** close #326, #329, #333, #334, #336, #339 as duplicates of the SIGC issue; review RLS2 when merged.
 
+---
+
 ## 2026-10-25 01:41 · Legal & Compliance Agent (lca)
 - **No `lca` PR was open.** New branch `lca/review-2026-10-25-0141`. Tiers 1-3: nothing eligible (D-22, D-18 unchanged since 16:05, no new evidence). Changed since my last signatures, in INDEX order: D-14, D-13, D-24 (reviewed); D-25 next run; D-6 has no legal question.
 - **D-14** (po 00:10 ask: F3 or F4): matches my 17:57 verdicts. F3 **compliant under every plausible interpretation on the federal sources read**; F4 the same **on condition** that the fee statement carries client counts only, no identifier (the fact of receiving home care plausibly health data and under StGB 321; my reading). Note to po: count only members whose access has not ended (LEAVE1).
@@ -5268,6 +5689,8 @@ ENGINEERING BRIEF
 - Sources this run: SECO, Wegleitung ArGV 2, Art. 16 (July 2023) and the SECO article index, read 2026-10-25. Consolidated ArGV 2 on fedlex not read. ArGV 2 Art. 17 (Spitex) not read: title only.
 - **Next for `lca`:** D-25 re-check (package changed 01:16); ArGV 2 Art. 17 if D-23 is reopened; D-3 gate (iv) once RLS2 merges; LEAVE1 when delivered.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+---
 
 ## 2026-10-25 01:16 · po (Product Owner)
 - **PO PR #330** (00:10) was open with green CI but conflicted in `JOURNAL.md`: merged `recovery/main` in (both entries kept, newest first; 6b786c7), CI green again (app, db, e2e), **merged** as c5ee62a. #328 (F6R review hand-off) closed. Open now: #331 (RLS2, `eng`, not merged: nothing to review), #321 and older `cra` PRs (not merged by the PO), #3 (M2). Claimed **#115, #116, #56** (D-24, D-25, D-10); claims removed at the end.
@@ -5298,6 +5721,8 @@ ENGINEERING BRIEF
 - **Priority:** *Next up* 4, after DOOR1 (no real data exists yet).
 - **Implementation recommendation:** one additive migration in the ADM1 command pattern; an access-ended fact read by every access helper; a pgTAP catalogue loop over every table and view readable by `authenticated`; one e2e for the leaver's screen.
 
+---
+
 ## 2026-10-25 00:50 · Legal & Compliance Agent (lca)
 - **No `lca` PR was open.** New branch `lca/review-2026-10-25-0050`. Open at the start: #331 (RLS2), #330 (po 00:10, not merged; not read as evidence), #321 and older `cra` PRs, #3.
 - **Re-checked D-10** (tier 3; new evidence: F6R delivered, 0065). R as delivered: **compliant under every plausible interpretation** on the sources read (pilot canton still to confirm). **New point from deviation (3):** `remove_team_member` refuses while a returned report is unsigned (0065 §8, extending 0037), and no other path in the migrations I read ends a person's access, so a **former employee keeps team read access** until she signs. With real data: **not compliant under every plausible interpretation; unresolved: needs legal adviser** (new question 4). Note to po: a real-data gate, an access-end path independent of team membership (audited), her reports stay open for the team.
@@ -5307,6 +5732,9 @@ ENGINEERING BRIEF
 - Sources this run: DSG (BBl 2020 7639, fedlex publication copy hosted by HSLU) Art. 5 lit. h, 6 Abs. 2 and 4, 8 Abs. 1-2; HIN, "Technische und organisatorische Massnahmen gemäss DSG/DSV", V1.1, February 2026 (secondary). DSV text not read (fedlex not reachable).
 - **Next for `lca`:** D-3 gate (iv) once RLS2 merges; D-10 R against the pilot canton once D-11 is answered; D-26 production question if the owner answers.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+---
+
 ## 2026-10-25 00:10 · po (Product Owner)
 - **No PO PR was open** at the start. Open PRs: #321, #306, #294, #278, #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#328** (F6R review), **#72, #60, #59** (D-6, D-14, D-13); claims removed at the end.
 - **F6R accepted** (#320 merged 868e3e0; migration 0065, pgTAP 066 (82), ADR-079; CI green on head 3766bde and `recovery/main` d293062; merge-commit runs cancelled by the next push). F6R-1 to F6R-9 met; deviations 1-6 accepted; evidence table in `briefs/F6R.md`. Clinical gate: no merged `cra` section covers 0065; `cra` 22:26 (#321) said no gate is needed unless the PR adds a rule; the PO found none. **Condition F6R-G1:** `cra` confirms on 0065; a `blocking` finding returns F6R to `changes-requested`. Moved into the queue (rank 26); *Next up* renumbered: 1 RLS2, 2 SIG1-C2 + SIG1-C3 + SIG2-C1, 3 DOOR1.
@@ -5322,6 +5750,8 @@ ENGINEERING BRIEF
   - **(cra):** F6R-G1 (0065); confirm or correct the po drafts in D-6 (is the assignment model a clinical rule?), D-13 (points 1-4), D-14 (hazards and guard measures); D-24, D-25 as planned.
   - **(lca):** nothing new requested; D-6 has no legal question, D-13 and D-14 rest on your 18:47 and 17:57 sections.
   - **(po):** D-24, D-25 next (two-run rule for E and C); write the D-13 B brief once the approved queue is clear.
+
+---
 
 ## 2026-10-25 00:35 · eng (Lead Engineer)
 - **No own PR was open.** I claimed #319 (RLS2, the active hand-off, unclaimed) at 00:11.
@@ -5353,11 +5783,15 @@ ENGINEERING BRIEF
   - **(po):** Q13.
   - **(lca):** D-3 gate (iv) against READ_PATHS.md once #331 is merged.
 
+---
+
 ## 2026-10-24 23:25 · eng (Lead Engineer)
 - **#320 merged** as 868e3e0 with a merge commit. CI was green on head 3766bde (app, db, e2e).
   - The first `db` run failed on types drift only; the types bot regenerated `database.types.ts` (dc9d34c).
   - The second `db` run failed pgTAP 066 test 64: two observations carry the same `recorded_at` inside the test transaction, so the uuid decided the order. The test now orders the superseding row last (3766bde). 066 passed 82/82 locally after the fix, then in CI.
 - **F6R is `delivered`** (READY_FOR_REVIEW): PO review of F6R-1 to F6R-9 against `briefs/F6R.md`, deviations (1)-(6) in the status row. Clinical gate: no `cra` section covers 0065 yet.
+
+---
 
 ## 2026-10-24 23:10 · po (Product Owner)
 - **No PO PR was open** at the start (#318 merged). Open PRs: #320 (F6R, `eng`, CI pending, not merged: nothing to review yet), #321 (`cra` 22:26, supersedes #306, #294, #278, #259; not merged by the PO), #3 (M2). Claimed **#81, #66, #89** (D-19, D-17, D-20); claims removed at the end.
@@ -5389,6 +5823,8 @@ ENGINEERING BRIEF
 - **Priority:** *Next up* 4, after F6R, RLS2 and the signal conditions.
 - **Implementation recommendation:** a team-scoped `security definer` read model for the card (membership plus `private.cover_team_for`); one additive migration with the category and value tables (append-only trigger as in F6R-2), two required parameters on `record_no_show` and `record_no_show_outcome`; about 35-45 pgTAP assertions, unit tests on the guard and labels, e2e at 390 px. May split into (a) DOOR1-1, -5, -6, -7 and (b) the category table.
 
+---
+
 ## 2026-10-24 22:50 · Legal & Compliance Agent (lca)
 - **No `lca` PR was open** (#310 merged). New branch `lca/review-2026-10-24-2250`.
 - **Re-checked D-19** (tier 2; package changed: Engineering drafted by po 22:10; new evidence: `cra` 22:26 block, branch `gov/review-2026-10-24-2226`). (1) Keeping the outcome "Notfallkontakt informiert" is documentation, not a disclosure by NAVORA; the record lacks the **basis** (recorded consent / emergency), so a structured "Grundlage" fact is the protective product shape. (2) Showing the contact by **re-granting the revoked `cases` columns would expose them to every coordination role organisation-wide** (0015:28-30; read, not tested): not compliant under every plausible interpretation; a team read model (0015 already foresees one) is. (3) Information duty to the contact person sharpened (DSG Art. 19 Abs. 5; Art. 20 Abs. 1 lit. c likely covers natural persons only, so not a provider that is a legal person). Verdicts: A (with SIG1-C1, SIG2) compliant under every plausible interpretation for what NAVORA does; C in the PO's shape compliant for read and display, **unresolved: needs legal adviser** on the information duty (new question 6) and 16:05 questions 1, 3; B unchanged.
@@ -5397,6 +5833,8 @@ ENGINEERING BRIEF
 - **Not re-reviewed:** D-22, D-18 (unchanged since 16:05; no new evidence); D-3, D-23, D-4 (22:10 changes only adopt my notes); D-3 gate (iv) waits on the RLS2 inventory.
 - **Next for `lca`:** D-10 R against the pilot canton once D-11 is answered; D-3 gate (iv) once RLS2 lists the read paths; D-26 production question if the owner answers.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+---
 
 ## 2026-10-24 22:45 · eng (Lead Engineer)
 - **No own PR was open.** Claimed #309 (F6R, the only active hand-off) at 22:12. The SIG2 follow-up is merged (#315), so F6R is next in the PO order.
@@ -5408,6 +5846,9 @@ ENGINEERING BRIEF
   - **Local run, not CI:** PostgreSQL 16 with a role/auth shim and a minimal pgTAP stand-in. 0065 applied twice without error; 066 passed 82/82; 059 passed with the new count; every other file matched its pre-0065 baseline.
   - **Not run:** lint, typecheck, vitest, e2e and db lint (no npm registry). `database.types.ts` was edited by hand; db-types-sync regenerates it. CI decides.
 - **Next agent (eng):** if #320 is green, merge it and set F6R to `delivered`; if the types bot's run waits for approval, approve it.
+
+---
+
 ## 2026-10-24 22:26 · Clinical & Regulatory Architect (review)
 - **Reviewed 0063 (ORD0-C2, SIG1-C1; pgTAP 065) and 0064 (SIG2-11 to SIG2-14; pgTAP 064)** in full, plus F6R, RLS2, PO cycles 19:09-22:10 and `lca` 18:47-21:55. Section 2026-10-24 22:26 in `reports/CLINICAL_GOVERNANCE.md`. Tests not run by me; CI green on `b574966`, `8a8dd27` and `bdb47a8`.
 - **Closed (code + test cited):** CGR-42 (pgTAP 064:137-168, 413-453), CGR-43 (065:179-239), CGR-44 (065:57-113), CGR-45 (064:357-380). **New, all advisory:** CGR-46 (S3: cover and Operations take paths untested); CGR-47 (S3: AN2 counts the first take, also a care assistant's that does not stop the step); CGR-48 (S2, S1 for switching the channel on: outside watched hours Operations is in-app only while the banner says "Meldung an Operations folgt"; SIG1-8 is a manual check that structured data could replace).
@@ -5416,6 +5857,8 @@ ENGINEERING BRIEF
 - **Clinical impact written for D-19 and D-17** (structure for the Clinical Owner; no protocol content, no list items). RLS2: the clinical needs of coordination roles named; one pgTAP asked (OPS1 and SIG1 still raise after the narrowing).
 - **Merge:** this PR carries and supersedes #306, #294, #278 and #259 (`recovery/main` merged in; JOURNAL both sides kept; rule register: `recovery/main`'s IDs stand).
 - **Next agent (po):** decide CGR-48 and CGR-47; copy the D-19 and D-17 blocks; D-19 "an der Tür: ja/nein". **(eng):** CGR-46 (pgTAP only); the RLS2 assertion above. **(owner):** merge this PR; G-1; D-1; pg_cron, pg_net and Vault in the pilot project.
+
+---
 
 ## 2026-10-24 22:10 · po (Product Owner)
 - **No PO PR was open** at the start (#311 merged). Open PRs: #306, #294, #278, #259 (`cra`), #3 (M2); not merged by the PO. Claimed **#317, #81** (SIG2 review, D-19); claims removed at the end.
@@ -5447,6 +5890,8 @@ ENGINEERING BRIEF
 - **Priority:** *Next up* 2, after F6R.
 - **Implementation recommendation:** follow the 0015 pattern (policies through the visit's or case's team, column revoke for the reasons); start with the inventory from the catalogue (`information_schema` plus `pg_proc` for `security definer` functions executable by `authenticated`), then narrow; one additive migration, about 30-40 pgTAP assertions.
 
+---
+
 ## 2026-10-24 21:55 · Legal & Compliance Agent (lca)
 - **Continued my open PR #310** (no second `lca` PR): merged `recovery/main` 8a8dd27 in (JOURNAL conflict resolved, all entries kept, newest first). Its `db` failure was SIG2-14 (wall-clock test 78); #312 fixed part (1) on `recovery/main`, so CI should now decide on this PR's own files.
 - **Re-checked D-23** (package changed: PO 21:10 decided C plus D; new evidence: organisation-wide `visit_events` read). Confirmed in 0007:46 (read, not tested); **`visit_time_corrections` (0008:43) has the same organisation-wide policy**, plus a free-text reason. **C plus D as decided: compliant under every plausible interpretation on the sources read**, on terms (a)-(e): both tables narrowed to team and covering member before real data; no per-person aggregation for others; the information text names both uses; no location data for C (wording gap); a D-4 retention criterion for confirmed days. B unchanged (legal adviser).
@@ -5456,12 +5901,16 @@ ENGINEERING BRIEF
 - **Next for `lca`:** D-10 R against the pilot canton once D-11 is answered; D-26 production question if the owner answers; D-3 gate (iv) once `eng` lists the read paths.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
 
+---
+
 ## 2026-10-24 21:42 · eng (Lead Engineer)
 - **#315 merged** as 8a8dd27 with a merge commit. CI was green on head 508ad33 (app, db, e2e).
   - The first `db` run failed pgTAP 064 test 31: in CI the real pg_cron job had already recorded a run. The fixture now deletes that row first (9d59d2d). I reproduced the failure locally before the fix.
   - I merged `recovery/main` (PO #311) into the branch; the journal conflict was resolved by keeping both entries.
 - **SIG2 is `delivered`**, which is READY_FOR_REVIEW. The PO review covers SIG2-11 to SIG2-14 against `briefs/SIG2.md`, plus deviations 12-14 in the 21:45 entry.
 - **Next (eng):** F6R (#309). The PO's 21:10 request to verify `visit_events` is not yet read in full.
+
+---
 
 ## 2026-10-24 21:45 · eng (Lead Engineer)
 - **No own PR was open** (#312 merged). Claimed #309 at 21:12, the only active hand-off. Built *Next up* 2 first, per the PO order: F6R is *Next up* 3.
@@ -5480,6 +5929,8 @@ ENGINEERING BRIEF
   - **Not run:** lint, typecheck, vitest, e2e and db lint (no npm registry). CI decides.
 - **Next agent (eng):** if #315 is green, merge it and set SIG2 to `delivered`. Then build F6R (#309).
 
+---
+
 ## 2026-10-24 21:10 · po (Product Owner)
 - **PO PR #311 (20:09) was still open**, `db` red on pgTAP 064 test 78 (SIG2-14, not the PR's). Continued it instead of opening a second one: merged `recovery/main` b55d7b1 in (journal conflict resolved, both entries kept, newest first), this cycle added on the same branch. Open PRs otherwise: #310 (`lca` 19:55 + 20:50), #306, #294, #278, #259 (`cra`), #3 (M2); not merged by the PO. Claimed **#314, #132, #111** (ORD0, D-26, D-23); claims removed at the end.
 - **ORD0 `accepted`** (#312, 0063, ADR-077; CI green on head 5aa2390, merge commit b574966, `recovery/main` b55d7b1; the PO did not run the tests): ORD0-C1 (a), (b) and the widened ORD0-C2 (a), (a′), (b)-(e) met, evidence table in `briefs/ORD0.md`. Deviation 2 (HAND1 lists the record, not the task) accepted. Moved from *Next up* into the queue (rank 24). Clinical gate: `cra` 14:27 passed; **`cra` asked to cover 0063** in its next section (a blocking finding returns ORD0 and SIG1 to `changes-requested`).
@@ -5497,6 +5948,8 @@ ENGINEERING BRIEF
   - **(lca):** D-26 production question only if the owner answers; D-10 R against the pilot canton once D-11 is answered.
   - **(po):** D-17 (Engineering two-run rule reached; C still open), D-6, D-19 next.
 
+---
+
 ## 2026-10-24 20:50 · Legal & Compliance Agent (lca)
 - **Continued my open PR #310** (no second `lca` PR); its `db` failure is SIG2-14 (pgTAP 064 test 78 by wall clock, not this PR's; PO 20:09 agrees); PR #312 touches that test file. Left open until `recovery/main` carries the fix.
 - **Re-checked D-1 and SR-26** on the PO's request (20:09, narrowed exposure, inferred from the C-1 records, not tested; read on PO PR #311). **D-1:** the narrowing removes `care_notes` from the disclosure scope but **not health data**: the readable `cases` table has fields named `diagnosis_tags`, `cognitive_status`, `mobility_status` (presence only, SCHEMA_DRIFT:40); alteration was possible (insert/update open; TRUNCATE not governed by RLS, PostgreSQL docs). Verdicts unchanged; rotation after SR-26 step 3 compliant if short and dated; adviser question 2 sharpened. **SR-26:** if verified, `orders` was not disclosed (deletion exposure only, count unchanged); Art. 24 Abs. 4 then no longer blocks deletion; conditions (i)-(iii) and the owner's facts still do. Ask: run the catalogue-only RLS check with SR-26 step 3.
@@ -5505,9 +5958,13 @@ ENGINEERING BRIEF
 - **Next for `lca`:** D-10 R against the pilot canton once D-11 is answered; D-26 production question if the owner answers. fedlex still unreadable from this environment; Swiss interRAI vendor list not readable (dynamic page).
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
 
+---
+
 ## 2026-10-24 20:50 · eng (Lead Engineer)
 - **#312 merged** as b574966 with a merge commit. CI was green on head 5aa2390 (app, db, e2e) after the types-bot commit; I approved its CI run. **ORD0 is `delivered`**, which is READY_FOR_REVIEW. The PO review covers ORD0-C1, ORD0-C2 and SIG1-C1 against `briefs/ORD0.md` and `briefs/SIG1.md`, plus the four deviations in the 20:45 entry.
 - **Next (eng):** SIG2-11, SIG2-12 and SIG2-13 in one PR, then F6R.
+
+---
 
 ## 2026-10-24 20:45 · eng (Lead Engineer)
 - **Queue order kept.** The watcher opened only #309 (F6R, *Next up* 3) as `active`, and claimed it at 20:12. The PO queue puts *Next up* 1 (ORD0-C1, ORD0-C2, SIG1-C1) and *Next up* 2 (SIG2-11/12/13) first, so this run built *Next up* 1. **Coordination gap (UNKNOWN cause):** the watcher opens no `agent:eng` hand-off for `changes-requested` conditions on ORD0 and SIG2, or for an accepted item's condition (SIG1-C1). It has done so since 15:10, and these conditions have waited since then.
@@ -5524,6 +5981,8 @@ ENGINEERING BRIEF
 - **F6R:** row added as `not-started`. It follows after the SIG2 follow-up, in the PO order.
 - **Next agent (eng):** if #312 is green, merge it and set ORD0 to `delivered`. Then build SIG2-11, SIG2-12 and SIG2-13 in one PR, then F6R. Drafts still to confirm: D-8, D-10, D-2, D-7, D-34.
 
+---
+
 ## 2026-10-24 20:09 · po (Product Owner)
 - **No PO PR was open** at the start (#308 merged 19:21). Open PRs: **#310 (new, `lca` 19:55: D-26, D-10, D-34; `db` red, see below)**, #306, #294, #278, #259 (`cra`), #3 (M2); `cra` and `lca` PRs are not merged by the PO. Claimed **#298, #69, #132** (SIG2, SR-26, D-26); claims removed at the end.
 - **Reviews: no delivery.** No `eng` merge since #295 (last `eng` journal entry 15:20). **SIG2: new SIG2-14** (product authority, same class as AN2-C1): `db` on the docs-only PR #310 failed at 20:00 Zurich on pgTAP 064 test 78 ("before: the 24 h window opens in 6 h, no exception yet", have 1, want 0; job 120944738020), while `recovery/main` c6fa6b1 was green at 19:21. PO reading of 064:305, 324-328 (not run): the fixture asserts "before" while the 07:00-20:00 watched hours are still set, so the result depends on the run hour (red about 20:00-01:00 Zurich; from 18:00 after SIG2-13). **Until fixed, a red `db` whose only failure is 064 test 78 in that window is not the PR's failure.** SIG2 stays `changes-requested` (SIG2-11 to SIG2-14). **Production condition recorded:** the SIG2 sender holds the service-role key on the Next.js host (`src/features/push/dispatch.ts`); D-26's production answer applies to it.
@@ -5539,6 +5998,8 @@ ENGINEERING BRIEF
   - **(lca):** re-check D-1 and SR-26 on the narrowed exposure (inferred, Engineering item 5 / item 2); D-24. PR #310's `db` failure is SIG2-14, not the PR's.
   - **(po):** D-26, D-23, D-17 reach the Engineering two-run rule after the next `eng` run; then D-26's staging design is the PO's.
 
+---
+
 ## 2026-10-24 19:55 · Legal & Compliance Agent (lca)
 - **Reviewed D-26** (first `lca` section; tier 3, blocks ADM1 invitations and D-20), **re-checked D-10** (R decided by po as F6R since my 11:55 section) and **D-34** (statement, inventory, `cra` 18:26 and the input-class control since my 16:45 section; new evidence). Only the `lca` sections changed. Advisory, not legal advice; no final determination.
 - **Not re-reviewed:** D-22, D-18 (only PO addenda adopting my 16:05 notes; no new evidence); D-28 (no `lca` requested); D-7, D-8, D-1, D-2, D-12 (only PO text adopting my verdicts).
@@ -5547,6 +6008,8 @@ ENGINEERING BRIEF
 - **D-34:** CJEU C-427/24 (2 July 2026; two secondary summaries, judgment not read): intended purpose from use-related manufacturer data **and** objective capability. Supports "wording alone does not decide". Verdict unchanged: **unresolved: needs owner and a regulatory adviser**. Notes: describe both care-context rules (hospital-discharge P1, nurse-chosen severity) in the statement; mark ranking/escalating rules of the middle input class "for the adviser"; question 1a added.
 - **Next for `lca`:** D-24 (never reviewed); D-10 R against the pilot canton once D-11 is answered. fedlex still unreadable from this environment.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+---
 
 ## 2026-10-24 19:09 · po (Product Owner)
 - **No PO PR was open** at the start (#305 merged). Open PRs: #306 (new, `cra` 18:26; supersedes #294, #278, #259), #3 (M2); `cra` PRs are not merged by the PO. Claimed **#56, #299, #59, #89, #116, #298** (D-10, D-34, D-13, D-20, D-25, SIG2); claims removed at the end.
@@ -5576,6 +6039,8 @@ ENGINEERING BRIEF
 - **Priority:** *Next up* 3, after the ORD0/SIG1 conditions and the SIG2 follow-up.
 - **Implementation recommendation:** one additive migration (`return_report`, an append-only return table, state `signed` → `draft` for the performer), RLS on the reason, reuse the existing sign and countersign paths; about 15 pgTAP assertions plus one e2e; no change to who must countersign.
 
+---
+
 ## 2026-10-24 18:47 · Legal & Compliance Agent (lca)
 - **Reviewed D-13, D-20, D-25** (tier 2: named by the open findings C-8/H-08/CR-002, R-11 and R-10/LT-1; also tier 3: billing, governance, licensing). First `lca` sections in all three. Only the `lca` sections changed. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-reviewed: D-22, D-18** (unchanged since my 16:05 sections; no new evidence).
@@ -5585,6 +6050,8 @@ ENGINEERING BRIEF
 - **Next for `lca`:** D-26, D-24 (never reviewed); D-2 and D-7 if asked. fedlex still unreadable (KLV Art. 8a Abs. 5 current wording, OR Art. 32 ff., 320 primary text open).
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
 
+---
+
 ## 2026-10-24 18:26 · Clinical & Regulatory Architect (review)
 - **Reviewed SIG2 (#295, 0062, pgTAP 064, push sender)** in full, plus PO cycles 14:40-18:12 and `lca` 14:45-17:57. Section 2026-10-24 18:26 in `reports/CLINICAL_GOVERNANCE.md`. Tests not run by me; CI green on `7a9d08d`.
 - **Closed:** CGR-41 for points 1 and 2 (nobody reachable outside the app → Operations at once; untaken step to Operations only). **New:** CGR-45 advisory (S2; S1 for SIG2 go-live): SIG2-6 raises a foreseeable P1 at the end instant of the watched hours, which the code itself treats as outside them. **Decided by the PO, PLANNED:** CGR-42 (SIG2-11), CGR-43 (SIG1-C1; it must also cover `outside_settle`), CGR-44 (ORD0-C2).
@@ -5592,6 +6059,8 @@ ENGINEERING BRIEF
 - **Clinical impact written for D-10** (R is safer than "countersign, then correct", under controls (a)-(d); in my reading a workflow the PO may decide) **and D-34** (SIG1 watches service delivery, not the client's condition; four PLANNED features belong in a qualified module; an "input class" column as the enforceable boundary). D-17, D-19 next, then D-14, D-13, D-24, D-25, D-6, D-20.
 - **Merge:** this PR carries and supersedes #294, #278 and #259 (`recovery/main` merged in; JOURNAL both sides kept; my unmerged CR-073 renumbered CR-078 because eng took CR-073 for SIG2).
 - **Next agent (po):** decide CGR-45 (SIG2-13); copy the D-10 and D-34 blocks; D-10 route for R. **(eng):** SIG2-11, SIG2-12 (and SIG2-13); SIG1-C1 including `outside_settle`. **(owner):** merge this PR (self-merge refused in earlier runs); G-1; D-1.
+
+---
 
 ## 2026-10-24 18:12 · po (Product Owner)
 - **No PO PR was open** at the start (#303 merged). Open PRs: #294, #278, #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#68, #56, #116** (D-8, D-10, D-25); claims removed at the end.
@@ -5609,6 +6078,8 @@ ENGINEERING BRIEF
   - **(lca):** D-25 (new), D-26, D-20, D-13, D-24.
   - **(po):** D-17 and D-23 reach the Engineering two-run rule after the next `eng` run; D-26 next.
 
+---
+
 ## 2026-10-24 17:57 · Legal & Compliance Agent (lca)
 - **Reviewed D-23, D-14, D-17** (tier 2: named by the open risks R-9, BL-12 and LT-2, H-03; D-14 also tier 3, billing and pay). First `lca` sections in all three. Only the `lca` sections changed. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-reviewed: D-22, D-18** (unchanged since my 16:05 sections; no new evidence). D-2 and D-7 (PO 17:10) left for a later run: the changes were the PO's route and design, not new legal facts.
@@ -5617,6 +6088,8 @@ ENGINEERING BRIEF
 - **D-17:** covered by D-9 and D-3; adds minimisation (precaution, not diagnosis), reuse of the D-15 emergency contact with the D-19 consent flag, no key-safe code. B on those terms: **compliant under every plausible interpretation on the federal sources read**. Information duty towards the contact person: **unresolved: needs legal adviser** (one question).
 - **Next for `lca`:** D-26, D-20, D-13, D-24 (never reviewed); D-2 and D-7 re-check if asked.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+---
 
 ## 2026-10-24 17:10 · po (Product Owner)
 - **No PO PR was open** at the start (#301 merged). Open PRs: #294, #278, #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#64, #67, #299** (D-2, D-7, D-34); claims removed at the end.
@@ -5635,6 +6108,8 @@ ENGINEERING BRIEF
   - **(lca):** D-2 and D-7 changed (re-check only if wanted); D-26, D-23 and its queue.
   - **(po):** next package D-25; D-8 and D-10 (Engineering two-run rule reached; D-10 also needs `cra`).
 
+---
+
 ## 2026-10-24 16:45 · Legal & Compliance Agent (lca)
 - **Reviewed D-16, D-3** (tier 2; both changed by the PO after my last sections; new evidence) and **D-34** (tier 3; first `lca` section). Only the `lca` sections changed. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-reviewed: D-22, D-18.** The PO's 16:20 addenda adopt my 16:05 notes as written (ORD0-C2 (b)+(c), question 6a, AÜP, dates and kind only). No new evidence, so there is nothing to add.
@@ -5643,6 +6118,8 @@ ENGINEERING BRIEF
 - **D-34:** MepV Art. 3-4, Swissmedic Merkblatt BW630_30_007 v3.0 (21 April 2026) and MDCG 2019-11 rev.1 (2025) read. Planning, documentation, billing and messaging match the non-device examples. Two points prevent certainty for the core: SIG1 ranks `visit_uncovered_hospital` P1 on a care fact, and the intended-purpose statement is not yet written. **A plus C: unresolved: needs owner with a regulatory adviser** (questions 1-5). C works only if the modules are qualified separately with documented boundaries; qualified "as a whole", the entire system falls under device law (BW630_30_007 section 5.3). PLANNED AI drafts, care-plan review proposals and NAVORA-computed interRAI outputs plausibly qualify as devices. D-13 B (reference only) stays outside.
 - **Next for `lca`:** D-26, D-23, then D-17, D-20, D-14, D-13, D-24 (never reviewed). fedlex is still unreadable; the MDR Art. 2 definition of intended purpose is unread.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+---
 
 ## 2026-10-24 16:20 · po (Product Owner)
 - **No PO PR was open** at the start (#291 merged). Open PRs: #294, #278, #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#60, #59, #115** (D-14, D-13, D-24); claims removed at the end, together with the stale `claimed` labels of the 15:10 run on #72, #81, #89.
@@ -5664,6 +6141,8 @@ ENGINEERING BRIEF
   - **(lca):** D-3, D-16, then D-14, D-13, D-24 and its queue.
   - **(po):** next package D-25; then the `inputs-requested` packages as inputs arrive (two-run rule).
 
+---
+
 ## 2026-10-24 16:05 · Legal & Compliance Agent (lca)
 - **Reviewed D-22, D-18** (tier 1; both changed by the PO at 15:10 after my 15:05 sections) and **D-19** (tier 2; named by the open finding CGR-43; no `lca` section before). Only the `lca` sections changed. Advisory, not legal advice; no decision, status or row changed.
 - **D-22 (Q12 (c), ORD0-C2):** (c) is safer than (a) and fits as the interim, but **unresolved: needs legal adviser and `clinical`**. The contract trigger ([S11] Art. 9 Abs. 1: a lasting change of needs) is wider than a new care-plan item. Gaps: more minutes within existing items; a new needs assessment without a new item; a new A/C item while an order is `present` (question 6a added). Note to po: consider (b)+(c). KLV Art. 8a Abs. 1bis still not read in a current primary text (lexfind has only 2008, lexaris gave no text, fedlex withdrawn).
@@ -5671,6 +6150,8 @@ ENGINEERING BRIEF
 - **D-19:** StGB Art. 321 (Stand 1 October 2026) names *Pflegefachpersonen* and their *Hilfspersonen*, so the whole team is bound. Option A plus SIG1-C1: **compliant under every plausible interpretation** for NAVORA's own processing. B's disclosure and entry steps and C's consent form: **unresolved: needs legal adviser** (questions 1-5). Recorded, express consent per contact is the only basis valid in all three cantons read (BE, BS, SO differ on tacit or presumed consent; SO reads it for deceased persons only). Do not store key-safe codes. Question 3 (after working time) is answered by D-32 and SIG2-12.
 - **Next for `lca`:** D-3 and D-16 (carried over from 15:05), then D-17, D-20, D-23, D-26 and D-34 (now on `recovery/main`, never reviewed).
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing.
+
+---
 
 ## 2026-10-24 15:35 · po (Product Owner)
 - Same PO run as 15:10, continued: `eng` merged `recovery/main` into #291 (3745c05, after #297), and **SIG2 was merged (#295, 7a9d08d) and set `delivered`** during the cycle, so the PO reviewed it before publishing.
@@ -5680,12 +6161,16 @@ ENGINEERING BRIEF
 - Issue #283 (SIG2) keeps `active` until acceptance. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
 - **Next agent (eng):** ORD0-C1, ORD0-C2 and SIG1-C1 in one PR, then SIG2-11 and SIG2-12. **(cra):** 0062 (SIG2), then the follow-ups.
 
+---
+
 ## 2026-10-24 15:20 · eng (Lead Engineer)
 - **SIG2 delivered:** #295 was green on a988e2e but conflicted with `recovery/main` (JOURNAL only, after #293/#296). Merged the base in (e87fa09, both entries kept, newest first), CI green on e87fa09 (app, db, e2e), merged #295 with a merge commit (7a9d08d). Row SIG2 → `delivered` (this PR). IMPLEMENTED.
 - No code change this run. Issue #283 keeps its `active` label until the PO's review; the watcher opens the review issue from the `delivered` row.
 - **Inputs for the PO's SIG2 review (OPEN, not built):** `lca` 15:05 D-32 note 1: Operations pushes (the "kein Empfänger" fallback and the untaken step) go to every opted-in Operations member at any hour; limiting them to the watched hours is a possible criterion or an accepted deviation (PO). `cra` CGR-42 (PR #294, not merged): evaluator liveness ("Signalprüfung läuft nicht"), S1 for SIG2 go-live, to be added to the SIG2 brief by the PO. Production sending still needs D-2 (owner); the DPF entries are still UNKNOWN, so the channel cannot be switched on.
 - Tests: none run locally; CI ran them on e87fa09.
 - **Next agent (eng):** the next `active` `agent:eng` issue; a SIG2 follow-up only if the PO adds CGR-42 or the Operations time limit.
+
+---
 
 ## 2026-10-24 15:10 · po (Product Owner)
 - **PO PR #291 was still open** (13:15 and 14:40 cycles; CI green on 4d70294), conflicted again in `JOURNAL.md` after #296. Merged `recovery/main` in (a1de528, both entries kept, newest first). This run's work is added to #291 (no second PO PR). Open PRs otherwise: #295 (SIG2, `eng`, CI running), #294 (`cra` 14:27, supersedes #278 and #259; not merged by the PO), #3 (M2). Claimed **#285, #292, #288** (reviews, Q12) and **#72, #81, #89** (D-6, D-19, D-20); claims removed at the end.
@@ -5712,6 +6197,8 @@ ENGINEERING BRIEF
   - **(lca):** D-19, D-20; D-3, D-16 (its own queue).
   - **(po):** next packages D-14, D-13, D-24.
 
+---
+
 ## 2026-10-24 15:05 · Legal & Compliance Agent (lca)
 - **Re-checked D-22 and D-18** (tier 1; new evidence: the tarifsuisse administrative contract, Nr. 42.500.2292Q, valid from 1 May 2023, was found and read) and **D-32** (tier 2; changed by the PO at 11:09; new evidence: SIG2 in open PR #295, `cra` CGR-42). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not reviewed this run (three-package limit):** D-3 (changed 07:10; it adopts my 06:55 notes) and D-16 (changed 08:18; new source found: HMG Art. 59 Abs. 3 via droit-bilingue.ch, "wer berufsmässig Heilmittel … an Menschen anwendet" must report serious adverse effects). Both are next. D-34: still only in open PR #291. fedlex is still unreadable.
@@ -5730,6 +6217,9 @@ ENGINEERING BRIEF
   - New source: INSOS/YOUVITA leaflet "Pikett oder Präsenzdienst" (2024). Telephone reachability of backup nurses after working time is Pikett.
 - Tests: none run (docs only).
 - **Next agent (po):** D-32 note 1 (one criterion or accepted deviation in SIG2 #295: Operations pushes only within watched hours) and note 2 (the provider confirms how watched hours are staffed). D-22 notes 1-3 (question 3 wording; two order dates; CGR-44 and question 6). D-18 note 1 (inpatient periods as an invoicing prerequisite). **(eng):** whether J5 can represent an inpatient period; SIG2 Operations time limit, if the PO adopts it. **(lca):** D-3, D-16; D-34 once #291 is merged.
+
+---
+
 ## 2026-10-24 14:39 · eng (Lead Engineer)
 - No own PR was open at the start. **Claimed #283** (SIG2, active) at 14:11. **SIG2 is migration 0062** (ADR-076); row → `in-review` (**#295**).
 - IMPLEMENTED in the branch, CI pending:
@@ -5748,6 +6238,8 @@ ENGINEERING BRIEF
 - Tests: CI is the runner. Locally I used only a stand-in: migrations and seed on PostgreSQL 16 with an auth stub, and a pgTAP stand-in. On it, 064 (82), 062 (54) and 059 (57) pass. Every other file the stand-in can run gives the same result as on the base; the only change is 059, whose count moves from 39 to 41 (updated). I also ran `bun test` on `push-webpush`, `push-rules`, `signals-rules` and `csp`. **Not run:** real pgTAP, vitest, typecheck, lint, build, e2e (npm registry unreachable).
 - **Next agent (eng):** on #295, approve the types-bot run (`database.types.ts` for the new functions and tables), fix CI, merge on green, then SIG2 → `delivered`. **(po):** the SIG2 deviations. **(owner):** D-2 items above; the DPF entries. **(cra):** 0062, CR-071 to CR-073.
 
+---
+
 ## 2026-10-24 14:40 · po (Product Owner)
 - **PO PR #291 was open** (13:15 cycle): CI green on fd2ebe2, then conflicted with `recovery/main` in `JOURNAL.md` (after #293). Merged `recovery/main` in (b83105c, both entries kept, newest first); CI green on b83105c (app, db, e2e). **Merging #291 was refused by this session's permission check**, so this run's work is added to #291 instead of a second PO PR. Open PRs otherwise: #278 and #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#132, #111, #66** (D-26, D-23, D-17); claims removed at the end.
 - **Reviews: no change.** SIG1 (#285) and ORD0 (#292) stay *every criterion met, awaiting clinical review*: no `cra` section covers 0060 or 0061 yet (#259, #278 predate both). Not accepted.
@@ -5765,6 +6257,8 @@ ENGINEERING BRIEF
 - **Waiting on people:** unchanged since 13:15. **owner: D-1 (urgent, one-line fact answer)**, D-22, D-18, D-29 (reworded ask), D-11, D-12, D-33, D-9, the D-4 final periods, G-1; Clinical Owner: D-28, D-31, D-3, D-30, D-16, D-15. **Owner, process:** #291 needs a merge by a person or a run allowed to merge.
 - **Next agent (eng):** SIG2; ORD0-C1. Inputs: D-2 (cost; Zurich on the plan; Vercel Swiss-U.S. DPF, function and log regions), D-26 (questions 1-6), D-23 (questions 1-5), D-17 (questions 1-6), plus the earlier D-1, SR-26, D-8, D-10, D-7, D-34. **(cra):** 0060, 0061; D-17 *Clinical impact*; D-10; D-34. **(lca):** D-26, D-23, D-17 (one point); D-34. **(po):** next packages D-6, D-19, D-20.
 
+---
+
 ## 2026-10-24 14:27 · Clinical & Regulatory Architect (review)
 - **Reviewed SIG1 (#279, 0060, pgTAP 062) and ORD0 (#284, 0061, pgTAP 063)** in full, plus PO cycles 11:09, 12:10 and open #291 (13:15, 14:40). Section 2026-10-24 14:27 in `reports/CLINICAL_GOVERNANCE.md`. Tests not run by me; CI green on `7a3fdb5` and `3928572`.
 - **Closed:** CGR-37 (in-app delivery), CGR-36, CGR-38, CGR-40. **Decided, PLANNED:** CGR-41 (SIG2). **New, all advisory S2:** CGR-42 (no one can see if the evaluator job is not running; S1 for SIG2 go-live), CGR-43 (any recipient's take, whatever her qualification, stops the step to Operations), CGR-44 (Q12 (a): a case never asks again after a later A/C change).
@@ -5772,6 +6266,8 @@ ENGINEERING BRIEF
 - **Register IDs reconciled:** eng's CR-066 to CR-070 on `recovery/main` stand. My unmerged CR-066 to CR-069 are now CR-073 to CR-076, and my 11:30 renumbering is reversed. CR-077 added. Hazard log (H-01, H-18) and risk register updated: PS-29, PS-30, PS-32 closed; BL-16 mitigated; PS-34 to PS-36 new.
 - This PR carries and supersedes #259 and #278.
 - **Next agent (po):** decide CGR-43 and CGR-44, add CGR-42 to SIG2, then accept SIG1/ORD0. **(owner):** D-1; name the Clinical Owner; merge this PR (self-merge refused earlier); confirm the pg_cron job in the pilot project. **(cra next run):** *Clinical impact* for D-34 and D-17 once #291 is merged.
+
+---
 
 ## 2026-10-24 13:50 · Legal & Compliance Agent (lca)
 - **Reviewed D-29 and D-30** (tier 2; both changed since my last section: PO 07:10 and 09:12) and **wrote the D-2 input** (first input; requested 12:10). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
@@ -5785,6 +6281,8 @@ ENGINEERING BRIEF
 - **D-30:** the 09:12 billing block for disputed time or category: **compliant under every plausible interpretation**. Residual: an invoicing deadline (a revenue risk, D-18). Other verdicts unchanged.
 - Tests: none run (docs only).
 - **Next agent (po):** D-2 notes 1-4 (conditions into the design; Zurich if same cost; ADR-011 note). D-29 notes 1-2. **(eng):** D-2: Vercel's DPF listing (Swiss-U.S.?), function and log regions. **(lca):** D-34 once #291 is merged; D-22 and D-18 once fedlex is readable.
+
+---
 
 ## 2026-10-24 13:15 · po (Product Owner)
 - **No PO PR was open** at the start. Open PRs: #289 (`eng`, ORD0 → `delivered`), #278 and #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#288** (Q12), **#63, #69, #68** (D-1, SR-26, D-8); claims removed at the end. #285 (SIG1) not claimed: no change (no `cra` section on 0060 yet).
@@ -5801,6 +6299,8 @@ ENGINEERING BRIEF
 - No new brief: SIG2 is approved and unstarted. ROADMAP: line 24.10. 13:15. Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
 - **Waiting on people:** **owner: D-1 (new, urgent, one-line fact answer)**; otherwise unchanged: owner D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1; Clinical Owner D-28, D-31, D-3, D-30, D-16, D-15.
 - **Next agent (eng):** merge #289; SIG2; ORD0-C1 in the next PR touching pgTAP 063. Inputs: D-1 (what still uses the anon key; rotation steps; read-only checks), SR-26, D-8 (deploys from `main`? O-C), D-10, D-7, D-2, D-34 (feature inventory). **(cra):** review 0060 (SIG1) and 0061 (ORD0, CR-069, CR-070); D-10; D-34. **(lca):** D-2; D-34; D-22 question 6 if useful; D-22 and D-18 once fedlex is readable. **(po):** next packages D-26, D-23, D-17.
+
+---
 
 ## 2026-10-24 12:55 · Legal & Compliance Agent (lca)
 - **Reviewed D-1, SR-26 and D-8** (first input for all three; requested by the PO at 12:10 and 11:09). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
@@ -5827,6 +6327,8 @@ ENGINEERING BRIEF
 - Tests: none run (docs only).
 - **Next agent (po):** D-1 note 1: ask the owner the fact question now, alone and in one line; "not sure" means B. D-1 note 3 (escalation wording). SR-26 notes 1-2. D-8 note 2 (medical-device row?). **(eng):** D-8 question 1; SR-26 RLS state of `orders` before C-1. **(lca):** D-2; D-22 and D-18 once fedlex is readable.
 
+---
+
 ## 2026-10-24 12:10 · po (Product Owner)
 - **No PO PR was open** at the start. Open PRs: #284 (ORD0, `eng`, not merged), #278 and #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#285** ([PO review] SIG1), **#63, #69, #64** (D-1, SR-26, D-2); claims removed at the end.
 - **SIG1 (#285): no change.** Reviewed at 11:09 (every criterion met); still **awaiting clinical review**: no `cra` section covers 0060 (#278 is from 10:26, before #279 merged). Not accepted; #285 stays open for the acceptance.
@@ -5842,12 +6344,17 @@ ENGINEERING BRIEF
 - No new brief: ORD0 (in review, #284) and SIG2 are approved. ROADMAP unchanged (no status change). Tests: none run (docs only); `node scripts/agents-check.mjs` ok.
 - **Waiting on people:** unchanged since 10:11 (no new escalation). owner: D-22, D-18, D-29, D-11, D-12, D-33, D-9, the D-4 final periods, G-1. Clinical Owner: D-28, D-31, D-3, D-30, D-16, D-15.
 - **Next agent (eng):** ORD0 (#284), then SIG2. Inputs for D-10, D-7, D-8 (requested 11:09) and D-1, SR-26, D-2 (requested now; questions in each package). **(cra):** review 0060 (SIG1); D-10 *Clinical impact*, including whether R is safer than "countersign, then correct"; D-15 added question. **(lca):** D-8; D-1, SR-26, D-2. **(po):** next packages D-26, D-23, D-17.
+
+---
+
 ## 2026-10-24 12:25 · eng (Lead Engineer)
 - **ORD0 delivered:** #284 was conflicted with `recovery/main` (JOURNAL only, after #286); merged the base in (4f938f6, both entries kept, newest first), CI green on 4f938f6 (app, db, e2e), merged #284 with a merge commit (2561463). Row ORD0 → `delivered` (this PR). IMPLEMENTED.
 - No code change this run; the base merge brought only docs (D-7, D-10, D-15, JOURNAL).
 - Issue #247 keeps its `active` label until the PO's review; the watcher opens the review issue from the `delivered` row.
 - Tests: none run locally; CI ran them on 4f938f6.
 - **Next agent (eng):** #283 (SIG2) once it is labelled `active`. **Q12** (ORD0 deviation: `inform_gp` not reopened once recorded) is open for `po`.
+
+---
 
 ## 2026-10-24 11:55 · Legal & Compliance Agent (lca)
 - **Reviewed D-10 and D-7 (first input) and re-checked D-15** (changed by the PO at 10:11; deferred from 10:47). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
@@ -5865,6 +6372,8 @@ ENGINEERING BRIEF
 - Tests: none run (docs only).
 - **Next agent (po):** D-10 notes 1-3 (A plus R; B needs the head of nursing of D-12; D-29 gate). D-7 notes 1-2 (D-1 link; wording of B). D-15 notes 1-2. **(owner, through po):** D-1 answers D-7's open question. **(lca):** D-8; D-22 and D-18 once fedlex is readable.
 
+---
+
 ## 2026-10-24 11:35 · eng (Lead Engineer)
 - **SIG1:** #279 had been merged at 10:54 by the previous run, which pushed `docs/sig1-delivered` (row → `delivered`) without opening a PR. This run opened **#281**, merged `recovery/main` into it (JOURNAL conflict, both entries kept); CI green on 7f198b2. Merging #281 was refused by this session's permission check; it was merged later as 82396ba (not by this run).
 - **Claimed #247** (ORD0, active) at 11:10. **ORD0 is migration 0061** (ADR-075); row → `in-review` (#284).
@@ -5875,10 +6384,14 @@ ENGINEERING BRIEF
 - Tests: CI is the runner. Locally a stand-in only: all migrations and the seed applied to a local PostgreSQL 16 with a Supabase auth stub; a minimal pgTAP stand-in ran 063 (53 pass) and every other file it can run (all pass; 11 files use pgTAP functions the stand-in lacks); `bun test` on `gp-rules`, `analytics-hypotheses`, `team-rules`, `handover`; `tsc` on the pure modules. **Not run:** real pgTAP, vitest, full typecheck, lint, build, e2e (npm registry unreachable).
 - **Next agent (eng):** fix CI on the ORD0 PR if red (types bot for the new table and command); merge the ORD0 PR on green; ORD0 → `delivered`. **(po):** Q12; the deviations above. **(cra):** CR-069, CR-070; 0061.
 
+---
+
 ## 2026-10-24 11:30 · Clinical & Regulatory Architect (review)
 - **#278 merge conflict resolved** (merge of `recovery/main` @ `afa6f40`; JOURNAL: all entries kept, newest first).
 - **Register ID collision:** eng (SIG1, #279) added CR-066 to CR-068 to `CLINICAL_RULE_REGISTER.md`; those IDs were already used in #259/#278 (CR-066 to CR-069). eng's rows are kept with content unchanged and renumbered **CR-070 to CR-072**; no code or test refers to them. **eng:** please take the next free ID from the register on the open governance PR, or ask.
 - SIG1 (#279, 0060) and the PO 11:09 cycle (CGR-41 decided in D-32, SIG2 approved) are not reviewed in this check-in; they go into the next report section.
+
+---
 
 ## 2026-10-24 11:09 · po (Product Owner)
 - **No PO PR was open** at the start. Open PRs: #278 and #259 (`cra`, not merged by the PO), #3 (M2). No `[PO review]` issue was open (SIG1's row still says `in-review`). Claimed **#56, #67, #68** (D-10, D-7, D-8); claims removed at the end.
@@ -5919,12 +6432,17 @@ ENGINEERING BRIEF
 - **Priority:** *Next up* 3, after ORD0.
 - **Implementation recommendation:** a test transport and a fixed clock in pgTAP; no real push call in CI; fail closed on an unknown endpoint host; SIG2-6 stricter only (ADM1-R direction).
 
+---
+
 ## 2026-10-24 10:54 · eng (Lead Engineer)
 - **#279 merged** (merge commit 7a3fdb5; SIG1). CI green on head dad4dbe (app, db, e2e), read through the API; no review comments.
 - Two fixes on the way: a `JOURNAL.md` merge conflict with `recovery/main` (both entries kept); the e2e failed on a163956 because `field.spec.ts` records assist.test absent before `signals.spec.ts` runs, and an absent member receives no delivery (by design). The e2e now uses the present nurse in two sessions; no assertion removed.
 - **SIG1 → `delivered`** (#279): READY_FOR_REVIEW. Clinical gate: CGR-37 applied (remediation plan `clinical/remediation/CGR-37.md`); CR-066 to CR-068 for `cra`.
 - Tests: CI ran the suite; nothing more run here.
 - **Next agent (po):** review SIG1; decide the two deviations (absent responsible member gets no delivery; `cover_without_access` not delivered). **(eng):** ORD0.
+
+---
+
 ## 2026-10-24 10:47 · Legal & Compliance Agent (lca)
 - **Re-checked D-32, D-9 and D-4.** D-32 because of new evidence: `cra` CGR-41 (open PR #278) on recipients outside working time. D-9 and D-4 because the PO changed them at 10:11. I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-checked:**
@@ -5942,6 +6460,8 @@ ENGINEERING BRIEF
 - Tests: none run (docs only).
 - **Next agent (po):** D-32 notes 1-3 into the SIG2 brief (on-call person, not the whole team; named watcher for look-ahead hours). D-9 note 1 (anonymisation wording). D-4 notes 1-2 (r1 wording; operational-rows criterion). **(cra):** D-9 note 2 (cover refused). **(lca):** D-15 re-check; D-22 and D-18 once fedlex is readable.
 
+---
+
 ## 2026-10-24 10:40 · eng (Lead Engineer)
 - No own PR was open. **Claimed #246** (SIG1, active) at 10:12. **SIG1 is migration 0060** (ADR-074); row → `in-review` (#279).
 - IMPLEMENTED in the branch: P1 visit safety signals become `safety_signals` episodes with one `signal_deliveries` row per recipient, written by `private.evaluate_signals` (pg_cron every minute, and every 30-s poll of `/field`, `/team`, OPS1, throttled 15 s). Banner at the top of the three pages; "Ich übernehme" (audited, idempotent); untaken after `signal_untaken` (15 min PROVISIONAL, stricter only) → Operations once; AN2 measure 10 gains two values.
@@ -5950,12 +6470,17 @@ ENGINEERING BRIEF
 - Clinical review gate: latest merged report 2026-10-24 02:26, CGR-37 (advisory S2) applied; remediation plan `clinical/remediation/CGR-37.md`; register rows CR-066 to CR-068 (eng).
 - Tests: CI is the runner. Locally a stand-in only: all migrations and the seed applied to a local PostgreSQL 16 with a Supabase auth stub; a minimal pgTAP stand-in ran 062 (54 pass) and every other file it can run (all pass; 11 files use pgTAP functions the stand-in lacks); `bun test` on `signals-rules`, `analytics-hypotheses`, `admin-rules`. **Not run:** real pgTAP, vitest, typecheck, lint, build, e2e (npm registry unreachable).
 - **Next agent (eng):** fix CI on the SIG1 PR if red (types bot for the two new tables); merge on green; SIG1 → `delivered`. Then ORD0. **(po):** the two deviations above (absent responsible member; `cover_without_access`).
+
+---
+
 ## 2026-10-24 10:26 · Clinical & Regulatory Architect (review)
 - **Reviewed** `recovery/main` @ `11202ef` since the 06:30 section: #263 (AN2 part 3: 0058, pgTAP 060), #268 (ADM1-R: 0059, pgTAP 061, pgTAP 035 rewrite; AN2-C1 pgTAP 045), #271 (COORD5, out of clinical scope), PO cycles 07:10-10:11, `lca` #260, #266, #276. I did not run the tests; CI green on `d386a1b`, `c1bd8cb`, `11202ef`.
 - **Closed:** **CGR-39** (0059 direction-aware range, reset with audit; pgTAP 061, 035:188-205; PS-31 closed). CGR-40 decided by the PO (ORD0-1), PLANNED.
 - **New:** **CGR-41 advisory (S2)** on D-32 (decided by the PO 09:12): outside delivery can leave a P1 with no outside recipient (uncovered visits have no responsible member; colleagues only inside their planned-visit span; Operations in-app); the SIG1-5 step to the whole team is undecided; SIG1-8 hours do not cover look-ahead P1s. Registers: CR-068, CR-069, CR-021 superseded; PS-31 closed, PS-32 PLANNED, PS-33 new; H-01 updated.
 - **#259 not merged:** my merge was refused by the session's permission control. This PR (`gov/review-2026-10-24-1026`) contains #259's commits and supersedes it.
 - **Next agent (po):** decide CGR-41 in the SIG2 brief and D-32. **(owner):** name the Clinical Owner (G-1); merge this governance PR or grant/name the merger. **(clinical, once named):** whether a P1 raised at night must be answered at once, and by whom.
+
+---
 
 ## 2026-10-24 10:11 · po (Product Owner)
 - **No PO PR was open** at the start. Open PRs: #259 (`cra`, not merged by the PO), #3 (M2). Claimed **#274** ([PO review] COORD5); claim removed at the end.
@@ -5982,6 +6507,8 @@ ENGINEERING BRIEF
   - Clinical Owner (once named): D-28, D-31, D-3 field list, D-30, D-16, **D-15**.
 - **Next agent (eng):** SIG1, then ORD0. Confirm or correct the Engineering impact drafted by po (now also D-15, D-9, D-4). COORD5-M1, AN2-M4a, ADM1-M1 at their next touch. **(cra):** ADM1-G1 (CGR-39 on 0059); merge or update #259; a look at D-15's option C wording. **(lca):** D-15, D-9 and D-4 recommendations changed (re-check is eligible); D-22 and D-15 once fedlex is readable. **(po):** D-10, D-7, D-8 packages.
 
+---
+
 ## 2026-10-24 09:53 · Legal & Compliance Agent (lca)
 - **Re-checked D-12, D-11 and D-33** (all three changed since my last section: PO 09:12). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **D-22, D-18 not re-checked** (priority 1, but not eligible: no change since the 06:10 take-up of my 05:45 notes, no new evidence). New fact only: the BAG list shows KLV amendments 2026/336 (in force 1 July 2026 and 1 January 2027) and 2026/337 (1 January 2027 and 1 January 2028); their text is still unread (fedlex not reachable).
@@ -5991,12 +6518,16 @@ ENGINEERING BRIEF
 - **Not readable this run:** fedlex (StGB Art. 321, AS 2026/337), the FMH processor guide, Apple's privacy page (primary). Tests: none run (docs only).
 - **Next agent (po):** D-12 notes 1-5 (reword conditions 1 and 3; add processor and confidentiality agreement and NAVORA's own data use to the partnership; hosting before real data). D-11 note (criterion 1 wording). **(eng):** Apple push-service operator for Swiss senders (D-33). **(lca):** D-22 and D-15 once fedlex is readable; the chosen canton's licence law once D-11 is answered.
 
+---
+
 ## 2026-10-24 09:25 · eng (Lead Engineer)
 - **#271 merged** (merge commit ccfc857; COORD5). CI green on head b3dace6 (app, db, e2e), read through the API; no review comments.
 - **COORD5 → `delivered`** (#271): READY_FOR_REVIEW. The watcher now re-labels the decision issues on its next run (8 assigned, 21 unassigned with the comment).
 - **Correction:** the 09:40 entry below carries a planned time; it was written at 09:15.
 - Tests: none run here beyond the bun stand-in; CI ran the suite.
 - **Next agent (eng):** Engineering impact for the packages (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32), SIG1, ORD0.
+
+---
 
 ## 2026-10-24 09:40 · eng (Lead Engineer)
 - No own PR was open. **Claimed #240** (COORD5, active) at 09:10. **COORD5 is PR #271** (ADR-073); row → `in-review`.
@@ -6007,6 +6538,8 @@ ENGINEERING BRIEF
 - Clinical review gate: not applicable (coordination only).
 - Tests: CI is the runner. Locally a stand-in only: `bun test` on both unit files (25 + 12 pass), `agents-check`, dry run. Not run: vitest, typecheck, lint, e2e (npm unreachable).
 - **Next agent (eng):** fix CI on #271 if red; merge on green; COORD5 → `delivered`. Then the Engineering impact for the packages (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32), SIG1, ORD0.
+
+---
 
 ## 2026-10-24 09:12 · po (Product Owner)
 - **No PO PR was open** at the start. `lca` #266 is merged (f35ab63); `cra` #259 is still open (not merged by the PO). Claimed **#270** ([PO review] ADM1); claim removed at the end. #248 (D-32) worked with a comment only.
@@ -6029,6 +6562,8 @@ ENGINEERING BRIEF
   - Clinical Owner (once named): D-28, D-31, D-3 field list, D-30, D-16.
 - **Next agent (eng):** COORD5, SIG1, ORD0 in order; confirm or correct the Engineering impact drafted by po (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32, **D-11, D-12**); AN2-M4a, ADM1-M1 at their next touch. **(cra):** ADM1-G1 (CGR-39 on 0059); merge or update #259. **(lca):** nothing new requested; D-15 once fedlex is readable. **(po):** D-15, D-9, D-4 packages (inputs in), D-10.
 
+---
+
 ## 2026-10-24 08:50 · eng (Lead Engineer)
 - **#268 merged** (merge commit c1bd8cb; ADM1-R1 to R6 for CGR-39, plus AN2-C1). CI was green on head d2e9b74 (run 40070559456: app, db, e2e).
 - **ADM1 → `delivered`** (#101, #135, #153, #268): READY_FOR_REVIEW.
@@ -6036,6 +6571,8 @@ ENGINEERING BRIEF
   - AN2-C1: the cause and the fix are in the #268 comment (pgTAP 045 test 14).
 - Tests: none run here beyond the stand-in noted at 08:40 and 08:45; CI ran the suite.
 - **Next agent (eng):** confirm or correct the Engineering impact drafted by po (D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-32); AN2-M4a with the next `pilot_hypotheses` change; COORD5, SIG1, ORD0.
+
+---
 
 ## 2026-10-24 08:47 · Legal & Compliance Agent (lca)
 - **Continued my open PR #266** (it was in conflict with `recovery/main` on JOURNAL; merged `recovery/main` in, kept both entries, newest first). Added two re-checks; I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
@@ -6045,6 +6582,8 @@ ENGINEERING BRIEF
 - Tests: none run (docs only).
 - **Next agent (po):** D-32 note 1 (escalate B with question 1, or choose the narrow variant) and the official-list check; D-30 note 1 (billing consequence into the invoicing prerequisites). **(lca):** D-15 once fedlex is readable; D-22 when the 1 August 2026 KLV text is readable.
 
+---
+
 ## 2026-10-24 08:45 · eng (Lead Engineer)
 - **AN2-C1 found and fixed in #268** (PO 08:18: "inside the ADM1-R PR"). The job log of run 40067901155 was readable through the API.
   - The failing file was **pgTAP 045, test 14** ("client_transferred: the detail names the case's next planned visit"), not 060: have 08:00, want 08:04.
@@ -6052,6 +6591,8 @@ ENGINEERING BRIEF
   - **Fix (test fixture only, the reader is unchanged):** 045 moves the case's other planned visits one week ahead. A new precondition assertion checks that no other planned visit starts before "next" (plan 46 → 47). No assertion was weakened.
   - **Proof (stand-in only):** with seed visit 501 placed 5 minutes after now, as at 07:55, test 14 fails exactly as in CI before the fix and passes after it.
 - #268 also merged `recovery/main` (`JOURNAL.md` conflict with #267; both entries kept). CI was green on 0d2f39a before the merge.
+
+---
 
 ## 2026-10-24 08:40 · eng (Lead Engineer)
 - **Claimed #262** (ADM1 changes, active) at 08:12. No own PR was open. **ADM1-R1 to R6 are PR #268** (migration 0059, ADR-072), following the remediation plan `clinical/remediation/CGR-39.md`:
@@ -6069,6 +6610,8 @@ ENGINEERING BRIEF
   - Not run locally: vitest, typecheck, lint, e2e (npm unreachable). `database.types.ts` edited by hand.
 - **Next agent (eng):** fix CI on #268 if red; merge on green; set ADM1 `delivered`. Then the Engineering impact for the decision packages, COORD5, SIG1, ORD0.
 
+---
+
 ## 2026-10-24 08:18 · po (Product Owner)
 - **No PO PR was open** at the start (#261 merged). Claimed **#265** ([PO review] AN2), claim removed at the end. #248 (D-32) worked without a claim change (comment only).
 - **AN2 → `accepted`** (#243, #255, #263; #263 merged as d386a1b, CI green on head 8058531, run 40067193832, and on the merge commit, runs 40067597514/40067600140, read through the API; **the PO did not run the tests**). Part 3 measures 1, 2, 4, 8 (AN2-M8a), 10 and AN2-M9a met (pgTAP 060, 48). Evidence table in `briefs/AN2.md` 08:18; five ADR-071 limits accepted. AN2 moved from *Next up* into the queue (rank 21); *Next up* is now COORD5, SIG1, ORD0.
@@ -6083,6 +6626,8 @@ ENGINEERING BRIEF
 - **Waiting on people:** owner: D-22, D-18 (after D-11, D-12), D-29, names the Clinical Owner (G-1); Clinical Owner (once named): D-28, D-31, D-3 field list, **D-30, D-16**.
 - **Next agent (eng):** AN2-C1 first if `db` goes red again, else inside the ADM1-R PR; ADM1-R1 to R6 (CGR-39); confirm or correct the Engineering impact drafted by po (D-22, D-18, D-28, D-31, D-3, D-29, **D-30, D-16, D-32**); AN2-M4a with the next `pilot_hypotheses` change; COORD5, SIG1, ORD0. **(lca):** D-32 DPF fact check. **(cra):** look at D-30 point 3 and D-16 delivery shape. **(po):** D-12, D-11 escalation, D-15, D-9, D-4 (once #266 is merged); review ADM1-R.
 
+---
+
 ## 2026-10-24 08:10 · Legal & Compliance Agent (lca)
 - **Wrote the D-9 and D-4 inputs** (INDEX order; both tie to R-4, S1, "complete before real data") and **re-checked D-31** (tier 2: `cra` 06:30 block and PO recommendation 07:10 are new). I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-checked:** D-22, D-18 (the 06:10 changes only take up my 05:45 notes; no new evidence).
@@ -6091,11 +6636,16 @@ ENGINEERING BRIEF
 - **D-31:** 1b with the `started_by_mistake` statement, 3a: compliant. 4b with the four `cra` limits: compliant **provided** a correction path (addendum or disputed mark, as D-30) exists after limit (ii).
 - **Not readable or not read this run:** fedlex (DSG, StGB Art. 321, KVG/KVV); GeBüV; ArGV 3 Art. 26; ZGB representation rules. Tests: none run (docs only).
 - **Next agent (po):** D-9 notes 1-4 (referral-stage data and unconverted referrals as real-data gates); D-4 note 1 (provisional default wording) and note 2 (client extract); D-31 note (correction gap after limit (ii)). **(lca):** D-12, D-16, D-32 re-checks only if changed; D-15 verbatim KLV Art. 7 Abs. 2 extraction once fedlex is readable.
+
+---
+
 ## 2026-10-24 07:47 · eng (Lead Engineer)
 - **#263 merged** (AN2 part 3; merge commit d386a1b). First CI run red in `db` (pgTAP 060 tests 39, 41: the reader moved the AN2-M8a capture start back to the earliest flagged move); fixed in 220dea2 (the reader uses only the start the migration stores). The PR then had a `JOURNAL.md` conflict with #261 (both entries kept). AN2-M9a (PO 07:10) also went into this PR: the measure-9 row names the threshold used. CI green on head 8058531 (run 40067193832: app, db, e2e).
 - **AN2 → `delivered`** (#243, #255, #263). READY_FOR_REVIEW. Clinical gate: no blocking finding for AN2 (report 02:26; `cra` 06:30 in #259).
 - Tests: none run in this session; CI ran them.
 - **Next agent (eng):** ADM1-R1 to R6 (CGR-39, S1), as the PO ordered; then Engineering impact for the decision packages, COORD5, SIG1, ORD0.
+
+---
 
 ## 2026-10-24 07:11 · eng (Lead Engineer)
 - **Claimed #205** (AN2) at 07:11; no own PR was open. **AN2 part 3 is PR #263** (migration 0058, ADR-071): measures 1, 2, 4, 8 with **AN2-M8a**, and 10 in `pilot_hypotheses`. The access, suppression and 0057 measures are unchanged. Sources per measure are in the PR and the migration header. A new internal marker `private.an2_capture_starts` (RLS on, no grants) holds the capture start for M8a.
@@ -6103,6 +6653,8 @@ ENGINEERING BRIEF
 - **Clinical gate:** reviewed the merged report section 02:26 and the open `cra` section 06:30 (#259). No blocking finding for AN2. Note (a) (today's thresholds) also applies to measures 1 and 10 and is stated in ADR-071. CGR-39 is out of AN2's scope. No remediation plan needed.
 - **Tests:** none run here. The npm registry was unreachable from this session and there is no local Supabase stack. CI runs pgTAP 060 (47), the changed 059, unit and e2e. **UNKNOWN** until CI reports.
 - **Next agent (eng):** fix CI on #263 if red; merge on green; set AN2 `delivered`. Then the *Engineering impact* items listed at 06:25, COORD5, SIG1 (with the CGR-39 correction of SIG1-9), ORD0.
+
+---
 
 ## 2026-10-24 07:10 · po (Product Owner)
 - **No PO PR was open** at the start (#258 merged). No `agent:po` issue worked except as noted; nothing claimed (#248 D-32 waits on `eng`).
@@ -6131,6 +6683,8 @@ ENGINEERING BRIEF (ADM1-R, re-opened item, not a new capability)
 - **Priority:** first, ahead of AN2 part 3 (patient safety precondition).
 - **Implementation recommendation:** one migration: a `direction` column (or a fixed map in `private.exception_rule_range`) checked by `set_exception_rule`; reset of offending overrides with audit rows; replace pgTAP 035:191-196; one behavioural pgTAP through the exception read model; `/admin` text and a unit or e2e test; `cra` reviews the PR.
 
+---
+
 ## 2026-10-24 06:55 · Legal & Compliance Agent (lca)
 - **Wrote the D-15 input** (INDEX 12) and **re-checked D-3 and D-29** (tier 2): D-3 changed (PO draft recommendation 06:10) and the `cra` field list is new; D-29 because `cra` 06:30 (open PR #259) asks `lca` whether a qualification or licence can lapse. I changed only the `lca` sections. Advisory, not legal advice; no decision, status or row changed.
 - **Not re-checked:** D-22 and D-18 (the 06:10 changes only take up my 05:45 notes; no new evidence); D-31 (PO draft adopts the 02:52 verdicts; the `cra` block in #259 supports them; re-check once it is copied in, if the PO asks).
@@ -6139,6 +6693,9 @@ ENGINEERING BRIEF (ADM1-R, re-opened item, not a new capability)
 - **D-29:** diploma: no lapse found; practice licence: can be restricted, withdrawn or not renewed (GesBG Art. 13, 14, 19, 27 by title; VS example), is valid per canton of work incl. home visits; licence needed when working without supervision by a nurse (BAG FAQ). Verdict unchanged (unresolved: owner D-11/D-12 and legal adviser); questions 1 narrowed, 6 and 7 added.
 - **Not readable this run:** lexfind KLV Stand 1 Jan 2026 page, GesBG article text, KVV Art. 49/51 primary text, fedlex. Tests: none run (docs only).
 - **Next agent (po):** D-3 note 1 (consent, not opt-out); D-15 note 1 (Abs. 2bis experience conditions, to `cra`/`eng`); D-29 notes. **(lca):** D-9, D-4; D-31 once the `cra` block is in the package.
+
+---
+
 ## 2026-10-24 06:30 · Clinical & Regulatory Architect (review)
 - **Reviewed** `recovery/main` @ `38b986d` since the 02:26 section: #243 (AN2 part 1: 0056 CGR-35, pgTAP 057, 058), #255 (AN2 part 2: 0057, pgTAP 059), briefs SIG1 and ORD0, the PO, eng and `lca` docs since 02:20, and open PR #258 (SIG1-9). I did not run the tests; CI green on `56c8756`, `c1c58b3`, `38b986d`.
 - **Closed:** CGR-35 (0056, pgTAP 057:45-126; PS-28 closed). DAY-1-R1-R3 endorsed (pgTAP 058).
@@ -6146,11 +6703,15 @@ ENGINEERING BRIEF (ADM1-R, re-opened item, not a new capability)
 - **Clinical impact written** (report section, for po to copy verbatim) for D-31, D-3, D-29, D-30, D-16, D-32, D-15. No decision taken; no rule approved; no catalogue invented (D-15: `lca` to extract KLV Art. 7 Abs. 2 verbatim).
 - **Next agent (po):** ADM1 `changes-requested` for CGR-39 and correct SIG1-9 (direction-aware); decide CGR-40; copy the seven blocks. **(eng):** CGR-39 with SIG1-9 (incl. pgTAP 035:191-196); D-32 phone push facts. **(lca):** D-15 KLV Art. 7 Abs. 2 enumeration; D-29 lapse of qualification. **(owner):** name the Clinical Owner (G-1); D-28 waits on that person.
 
+---
+
 ## 2026-10-24 06:25 · eng (Lead Engineer)
 - **#255 merged** (AN2 part 2; merge commit c1c58b3). The base had moved by docs only (#256); the journal conflict was resolved by keeping both entries (merge commit 88eeaeb), and CI ran green on that head (run 40061316499: app, db incl. pgTAP 059, e2e).
 - **AN2 stays `in-progress`** (IMPLEMENTED: parts 1 and 2; PLANNED: part 3, measures 1, 2, 4, 8 with AN2-M8a, 10). Status row updated; issue #205 stays active. Not set to `delivered`, because the brief is not complete.
 - Tests: none run in this session; CI ran the #255 tests.
 - **Next agent (eng):** merge this docs PR on green CI; AN2 part 3; *Engineering impact* in the open decision packages (D-22 and D-18 confirm or correct the PO draft; then D-28, D-31, D-3, D-29, D-30, D-16, D-32, D-12, D-11, D-15, D-9, D-4); COORD5; then SIG1, ORD0.
+
+---
 
 ## 2026-10-24 06:10 · po (Product Owner)
 - **No PO PR was open** at the start (#254 merged). **No delivery to review:** nothing newly `ready-for-review`, `delivered` or `in-review` since #243 (reviewed 04:10); #255 (AN2 part 2) was merged at 06:15 during this run (c1c58b3; head 88eeaeb green: app, db, e2e; merge-commit CI still running at publish time); the AN2 row stays `in-progress`. **Part 2 is reviewed in the next PO run** against `briefs/AN2.md` once the merge-commit CI is green. No `agent:po` issue worked except as noted; nothing claimed (D-32 #248 waits on `eng` and `cra`).
@@ -6164,6 +6725,8 @@ ENGINEERING BRIEF (ADM1-R, re-opened item, not a new capability)
 - **Waiting on people:** owner: D-22 (approve the default, name a legal adviser), D-18 (after D-11, D-12), names the Clinical Owner (G-1); Clinical Owner (once named): D-28.
 - **Next agent (po):** review AN2 part 2 (#255: measures 3, 5, 6, 7 with AN2-M7, 9, 11, 12; AN1 organisation condition; deviations in ADR-070); D-29, D-30, D-16 Engineering impact (two-run rule met for D-29; D-30 and D-16 after the next `eng` run) and recommendations; D-10 package; D-11 escalation; D-31 and D-3 once `cra` answers. **(eng):** confirm or correct the drafted Engineering impact in D-22, D-18, D-28, D-31, D-3; SIG1-9 with SIG1; AN2 measures; COORD5. **(cra):** Clinical impact in D-31, D-3, D-29, D-30, D-16, D-32, D-15; look at SIG1-9. **(lca):** D-15, D-9, D-4.
 
+---
+
 ## 2026-10-24 05:45 · Legal & Compliance Agent (lca)
 - **Re-checked D-22 and D-18** (tier 1): both changed since 03:53 (PO recommendations 05:15, Engineering drafted by po), and new evidence was found. **Wrote the D-11 input** (INDEX 11). I changed only the `lca` sections. This is advisory, not legal advice. I changed no decision, status or row.
 - **D-22:** the PO recommendation is consistent with the earlier verdicts; a1/b2/c2 and "A/C without Kenntnisnahme charged to nobody" are compliant under every plausible interpretation (tariff protection reaches the insured, BGer 9C_476/2017 E. 2.1; patient share capped at CHF 15.35/day, BAG 12 June 2026). The 2026 KLV amendments read do not touch Art. 7-8a (BAG commentary 24 June 2026); AS 2026/337 and 2026/348 not read. New adviser question 5 (KVG Art. 44 for an A/C service without Kenntnisnahme).
@@ -6171,6 +6734,8 @@ ENGINEERING BRIEF (ADM1-R, re-opened item, not a new capability)
 - **D-11:** comparison of ZH, BE, SO: residual financing by provider type (BE 100/85/80 % of reference costs), payer and mandates (ZH Pflegegesetz § 5, § 9, § 13), record rules already read, DSG for private providers (cantonal law for a municipal mandate UNKNOWN). Licence conditions unread for all three; that is the largest gap. Verdict: unresolved: needs owner (choice) and a legal adviser in the chosen canton (4 questions).
 - **Not readable or not read this run:** fedlex (KVG Art. 44, consolidated KLV); ZH, BE, SO licensing provisions and data-protection acts; current SO tariffs. Tests: none run (docs only).
 - **Next agent (po):** D-22 note 2 (question 5), D-18 note 1 (place-of-care key), D-11 note 1 (mandate criterion). **(lca):** D-15, D-9, D-4; D-32 once `eng` names the push vendors.
+
+---
 
 ## 2026-10-24 05:29 · eng (Lead Engineer)
 - **Claimed #205 (AN2)** at 05:12; no own PR was open; no claim within 3 h.
@@ -6185,6 +6750,8 @@ ENGINEERING BRIEF (ADM1-R, re-opened item, not a new capability)
 - **Not done this run:** *Engineering impact* for the open decision packages (PO asks for D-22 and D-18 first).
 - **Next agent (eng):** merge #255 on green CI; then part 3 (measures 1, 10 from `exception_events`; 2, 4, 8 with AN2-M8a); Engineering impact D-22, D-18. **(po):** AN2 part 2 is reviewable on #255 once merged, though the row stays `in-progress`. **(cra):** optional look at 0057 (read-only, quality and billing data).
 
+---
+
 ## 2026-10-24 05:15 · po (Product Owner)
 - **No PO PR was open** at the start (#252 merged). **No delivery to review:** no item newly `ready-for-review`, `delivered` or `in-review` since #243 (reviewed 04:10). Claimed #248 (D-32), claim removed at the end of the run.
 - **D-22 and D-18: Engineering impact drafted by po from the code** (two-run rule: requested 01:15, no answer in the `eng` runs 02:55 and 04:10), marked `drafted by po, not confirmed by eng`; files, migrations and pgTAP cited (0013, 0014, 0019, 0022, 0023, 0030, 0043, 0051; pgTAP 022, 043, 051, 053). Findings from the code: NAVORA stores no order issue date and no doctor GLN/ZSR (the one schema change every billing option needs); `billing_rules` already holds the minimum as validated reference data, so option A of D-18 is mostly an extension; both minimum and rates are keyed by the client's **live** residence canton, which is audited, so CGR-31 can reuse the 0051 reconstruction; no planning function reads `billing_rules` or `tariff_rates`.
@@ -6197,6 +6764,8 @@ ENGINEERING BRIEF (ADM1-R, re-opened item, not a new capability)
 - **Waiting on people:** owner: D-22 (approve the default, name a legal adviser), D-18 (after D-11, D-12); Clinical Owner named (G-1).
 - **Next agent (po):** D-10 package (INDEX 15); draft Engineering impact for D-28, D-31, D-3, D-29 unless `eng` answers first (requested 01:15 and 02:20; the two-run rule is met for all four) and write their recommendations; D-32 once `eng`/`cra` answer. **(eng):** confirm or correct the drafted Engineering impact in D-22 and D-18; inputs in D-28, D-31, D-3, D-29, D-30, D-16, D-32, D-12, D-11, D-15, D-9, D-4; AN2 measures; COORD5. **(lca):** D-11, D-15, then D-9, D-4. **(cra):** D-32, D-31, D-3, D-29, D-30, D-16, D-15.
 
+---
+
 ## 2026-10-24 04:50 · Legal & Compliance Agent (lca)
 - **Wrote the *Legal/compliance impact* for D-16, D-32 and D-12** (INDEX 8, 9, 10). D-22 and D-18 were not re-checked: since 03:53 only the PO's escalation text changed (it takes up my notes), and there is no new evidence. I changed only the `lca` sections. This is advisory, not legal advice. I changed no decision, status or row.
 - **D-16:** KVV Art. 58g (as quoted by BAG FAQ 2022 and a Thurgau licence form) requires an organisation-level internal reporting and learning system. The canton approves the nursing management. No source read says who lifts a billing hold. Reporting duties found: ZGB Art. 443 (KESB; professional secrecy reserved; cantons may add duties); HMG Art. 59 (adverse drug reactions; whether nurses are bound is UNKNOWN). The home-care quality contract (KVG Art. 58a) is not yet approved. Today's default (synthetic data) is compliant. B with a review by the licensed nursing management and a recorded "reporting duty checked" step: **unresolved: needs owner (D-11, D-12) and legal adviser** (3 questions).
@@ -6204,6 +6773,8 @@ ENGINEERING BRIEF (ADM1-R, re-opened item, not a new capability)
 - **D-12:** what each option requires, using cantonal examples from Thurgau (licence, approved nursing management, staffing thresholds, CHF 5 m insurance; independent nurses: two years' practice, "on own account"). Main open question for B, C and D: may a provider entrust client data to NAVORA as a processor under professional secrecy (DSG Art. 9 Abs. 1 lit. b, StGB Art. 321)? Staff hiring (AVG) applies if NAVORA employs the nurses and places them with others. **Unresolved: needs owner and legal adviser** (5 questions). The owner's choice stays in any case.
 - **Not readable this run:** fedlex (KVV Art. 49, 51, 58g; HMG Art. 59; StGB Art. 321; DSV); the DPF participant list.
 - **Next agent (po):** D-32 note 1 (the fixed text as a non-configurable SIG1 rule) and note 3 (DPF fact check); D-12 note 1 (ask the processor/secrecy question first). **(lca):** D-11, D-15; then D-9, D-4 once packaged; re-check D-22/D-18 when `eng` input or a PO recommendation lands.
+
+---
 
 ## 2026-10-24 04:10 · po (Product Owner)
 - **No PO PR was open** at the start (#245 merged). **Delivery reviewed: #243** (AN2 part 1, `eng`; merged as 56c8756 at 04:10 Zurich; CI green on head afd1d11, run 40049445817, and on the merge commit, run 40053036646: app, db, e2e; read through the API). **The PO did not run the tests.**
@@ -6217,12 +6788,17 @@ ENGINEERING BRIEF (ADM1-R, re-opened item, not a new capability)
 - No new brief: COORD5, SIG1, ORD0 are approved and unstarted. Nothing escalated. **Waiting on people (unchanged):** owner names the Clinical Owner (G-1).
 - Tests: none run (docs only); `node scripts/agents-check.mjs` run before publishing.
 - **Next agent (po):** draft *Engineering impact* for D-22 and D-18 (two-run rule met) and write their recommendations; packages D-9, D-4, D-10 (INDEX 13-15). **(eng):** AN2 measures (AN2-M7, AN2-M8a); COORD5; *Engineering impact* in the open packages, D-22 and D-18 first; then SIG1, ORD0. **(cra):** look at 0056; *Clinical impact* in D-31, D-3, D-29, D-30, D-16, D-32, D-15. **(lca):** D-16, D-12, then D-32, D-11, D-15.
+
+---
+
 ## 2026-10-24 04:10 · eng (Lead Engineer)
 - **#243 merged** (merge commit 56c8756) on green CI on its head afd1d11 (run 40049445817: app, db incl. pgTAP 057 and 058, e2e). Base had moved by docs only (#245, #249); merge was clean.
 - **ABS1 → `delivered`** (CGR-35 and ABS1-C7, IMPLEMENTED). PO checks CGR-35 (1)–(5) and ABS1-C7 against `briefs/ABS1.md` 23:15; `cra` reviews 0056.
 - **AN2 stays `in-progress`:** part 1 (DAY-1-R1–R3 preconditions) is merged; measures 1–12 and the "Pilot-Hypothesen" section are PLANNED for the next PRs (issue #205 stays active).
 - Tests: none run in this session (docs only); CI ran the #243 tests.
 - **Next agent (eng):** AN2 measures; Engineering impact in D-22, D-18, D-28, D-31, D-3, D-29, D-30, D-16, D-12 (requested by the PO 01:15, 02:20, 03:10); COORD5; then SIG1, ORD0.
+
+---
 
 ## 2026-10-24 03:53 · Legal & Compliance Agent (lca)
 - **Re-checked D-22 and D-18** because both packages changed (`cra` Clinical impact, PO draft 03:10). **Wrote the D-30 input.** I changed only the *Legal/compliance impact* sections. This is advisory, not legal advice. I changed no decision, status or row.
@@ -6231,6 +6807,8 @@ ENGINEERING BRIEF (ADM1-R, re-opened item, not a new capability)
 - **D-30:** the cantons read (ZH GesG § 13, BE PatV Art. 4, SO guidance) require visible authorship of each entry and an unchanged original; none limits corrections to the author. B or D (original kept, identified corrector, reason and basis, audited) is consistent with every text read. It stays unresolved for the pilot canton (D-11), and `clinical` must say which fields a non-performer may correct. A is risky with real data: it cannot meet a client's rectification request (DSG Art. 32). E: unresolved (access for a non-member). The variant "ask her for a statement, give no access" avoids that question.
 - **Not readable this run:** fedlex (KLV in its 1 August 2026 version, StGB Art. 321 and 251, GesBG, KVG Art. 44). DSG Art. 32 was read only in an unofficial English translation.
 - **Next agent (po):** D-22 note 1 (add question 4 and the issue-date condition to the escalation); D-30 note 1 (a rectification path before real clients). **(lca):** D-16 and D-12 next, then D-32 once it is packaged.
+
+---
 
 ## 2026-10-24 03:10 · po (Product Owner)
 - **No PO PR was open** at the start (last PO PR #242 merged). **No delivery to review:** no item `ready-for-review`, `delivered` or newly `in-review`; AN2 part 1 (#243, `eng`) is open, not merged, so not reviewed yet. No open `agent:po` issue, nothing claimed.
@@ -6268,6 +6846,8 @@ ENGINEERING BRIEF
 - **Priority:** Next up 4; may be built in parallel with SIG1 (small).
 - **Implementation recommendation:** a separate team command `record_gp_informed` (so `complete_case_task('inform_gp')` stays refused), a P3 rule in `derived_exceptions`, pgTAP with the `cra` case set, HAND1 entry.
 
+---
+
 ## 2026-10-24 02:55 · eng (Lead Engineer)
 - **Claimed #205 (AN2)** at 02:12. **AN2 part 1 = PR #243** (`feat/an2-part1-cgr35-day1r`), the preconditions the PO ordered first:
   - **CGR-35** (migration 0056, pgTAP 057, ADR-069): `reschedule_visit` stores `responsible_absent` on the `moved` row when the CGR-32 condition holds before the move; immutable, no parameter, audited by a new trigger for `moved` rows; HAND1 and `/team` show "nicht durchgeführt: zuständige Person abwesend gemeldet". IMPLEMENTED.
@@ -6277,6 +6857,8 @@ ENGINEERING BRIEF
 - **Tests:** CI is the runner. Locally only a stand-in: plain PostgreSQL 16 with all migrations and the seed, stubbed Supabase roles and a minimal stand-in for the pgTAP functions used. 057 and 058 passed, and so did all existing pgTAP files the stand-in can run. 058 fails when the old `current_date` code is put back. Unit, lint, typecheck, build and e2e not run locally (npm registry unreachable here).
 - **Status:** ABS1 `in-review` (#243); new AN2 row `in-progress` (measures not started, so the hand-off stays open).
 - **Next agent (eng):** merge #243 on green, set ABS1 `delivered`; then the AN2 measures (section "Pilot-Hypothesen"); COORD5; *Engineering impact* in D-22, D-18, D-28. **(po):** review CGR-35/ABS1-C7 and DAY-1-R once #243 is merged. **(cra):** a look at 0056.
+
+---
 
 ## 2026-10-24 02:52 · Legal & Compliance Agent (lca)
 - **PR #241 continued, not a second lca PR:** `recovery/main` merged in (JOURNAL conflict, both entries kept, newest first). This brings #239 into the branch. #241's `db` failure (runner port conflict, per po 02:20) re-runs on the new head.
@@ -6289,12 +6871,16 @@ ENGINEERING BRIEF
 - No tests run (docs only); `node scripts/agents-check.mjs` run before publishing.
 - **Next agent (po):** read the three sections. D-3 route: the condition "B compliant under every interpretation" holds only for the protective variant, and real data needs read logging and a DSFA. D-31 (4) can go to `po` if `cra` raises nothing. **(lca, next run):** D-22 and D-18 again (#244 merged); then D-30, D-16 (when packaged), D-12, D-11.
 
+---
+
 ## 2026-10-24 02:26 · Clinical & Regulatory Architect (review)
 - **Reviewed** #234 (ABS1-C6), #239 (DAY-1: 0055, pgTAP 056, ADR-068), #237 (zod), the PO cycles in #238, the packages D-22, D-18, D-28 and the `lca` input in open PR #241. CI green on `d31709f`, `2e79532`, `35e28a4`. I did not run the tests.
 - **No blocking finding.** ABS1-C6: no finding (CR-065). DAY-1: safety fix endorsed; by reading, no other day derivation exists in migrations or `src/` today; DAY-1-R1-R3 (PO) still needed (CR-064).
 - **New (advisory):** CGR-36 (S2): the `inform_gp` task can never be completed, so NAVORA cannot record that the doctor was informed of A/C care without an order. CGR-37 (S2; S1 if visits are planned when nobody watches): every visit safety signal is pull-only, with no delivery to anyone. CGR-38 (S2): an order `present` without an end date never raises an expiry signal while B visits keep being planned. New register rows: H-18, PS-29, PS-30, BL-16. CGR-35: decided by the PO, PLANNED in AN2. CGR-31: evidence widened by `lca` (residence canton may be the wrong key).
 - **Clinical impact for D-22, D-18, D-28** is written in the report section (my self-merged PR may touch only the report, registers and journal). **po:** copy it verbatim into the packages, signed as stated there. D-31, D-3, D-29 follow once #242 is merged.
 - **Next agent (po):** decide CGR-36, CGR-37, CGR-38; copy the Clinical impact blocks; pilot visit hours and who watches `/team`/OPS1 then. **(eng):** AN2 first PR (CGR-35, ABS1-C7, DAY-1-R1-R3); Engineering impact in the packages. **(owner):** G-1 Clinical Owner; optionally allow `cra` to write package sections directly.
+
+---
 
 ## 2026-10-24 02:20 · po (Product Owner)
 - **#238 merged** (35e28a4) at 01:1x; no PO PR was open at the start of this run. **No delivery to review:** no item `ready-for-review`, `delivered` or newly `in-review` since 01:15; no open `agent:po` issue.
@@ -6305,12 +6891,16 @@ ENGINEERING BRIEF
 - Nothing escalated. **Waiting on people (unchanged):** owner names the Clinical Owner (G-1).
 - **Next agent (po):** packages D-30, D-16, D-12 (INDEX 7-9); D-22/D-18 recommendation once `eng` and `cra` sections exist. **(eng):** AN2 first PR (DAY-1-R1-R3, CGR-35, ABS1-C7, AN2-M7 when measure 7 is built); COORD5; *Engineering impact* in D-22, D-18, D-28, D-31, D-3, D-29. **(cra):** *Clinical impact* in the same six. **(lca):** re-run #241's db job and merge; then D-31, D-3, D-29.
 
+---
+
 ## 2026-10-24 01:50 · Legal & Compliance Agent (lca)
 - **First lca run.** Sections *Legal/compliance impact* written in `decisions/D-22.md` and `decisions/D-18.md` (only those sections). Advisory, not legal advice; no decision taken, no status or row changed. Sources read today: KLV Stand 1.1.2026 (Art. 7, 7a, 8, 8a, via lexfind; fedlex 1.8.2026 version blocked, UNKNOWN), KVG Art. 25a Abs. 5 amendment 2017 (AS 2018 2989), OR 14 Abs. 2bis, BAG page on the nursing initiative, administrative contracts Spitex Schweiz/ASPS with HSK and CSS (both 1.4.2023).
 - **D-22 verdicts:** most protective (a1 signed order, b2 order or GP Kenntnisnahme also for A/C, c2 order issued before the visit): compliant under every plausible interpretation. Current default (b1, c1): **unresolved: needs legal adviser**. Federal law since 1.7.2024 allows A/C without an order (KLV Art. 7 Abs. 4, 8a Abs. 1bis: GP informed promptly; 27-month report); the 2023 contracts still require GP Kenntnisnahme and say "Rückwirkende Verordnungen sind nicht zulässig"; whether they were adapted is UNKNOWN. Electronic signature: QES equals handwritten (OR 14 Abs. 2bis) subject to contrary contract terms; contracts define no level: unresolved.
 - **D-18 verdicts:** option C as built, CR-031 and the CGR-31 strict default: compliant under every plausible interpretation while nothing is invoiced; every invoicing rule unresolved (legal adviser; D-11, D-12). **New evidence:** 5-minute units and "mindestens 10 Minuten" are federal (KLV Art. 7a Abs. 2), and the literal wording reads as a floor, not the "below → not billable" of CR-029. For home care the residual-financing rules are the provider location canton's, the residence canton pays (KVG Art. 25a Abs. 5): may widen CGR-31.
 - No tests run (docs only); `node scripts/agents-check.mjs` run before publishing.
 - **Next agent (po):** read both sections; D-22 and D-18 stay escalation candidates to `legal` (three exact questions each). **(cra/eng):** notes to po in both sections (order issue date vs recorded date; CR-029 reading; residence key). **(lca):** next run D-28 is not legal; D-31, D-3, D-29 once their packages exist.
+
+---
 
 ## 2026-10-24 01:15 · po (Product Owner)
 - **#238 continued, not a second PO PR:** `recovery/main` (with #239) merged in at 33b2532 (JOURNAL conflict resolved, both entries kept, newest first); CI re-runs at 01:1x Zurich, inside the split-day window. Merge on green.
@@ -6321,11 +6911,15 @@ ENGINEERING BRIEF
 - Nothing escalated. **Waiting on people (unchanged):** owner names the clinical owner (G-1); `clinical`, `legal` and `owner` rows now go through packages.
 - **Next agent (po):** merge #238 on green; packages D-31, D-3, D-29 (INDEX 4-6). **(eng):** AN2 first PR (DAY-1-R1-R3, CGR-35, ABS1-C7); COORD5; *Engineering impact* in D-22, D-18, D-28. **(cra):** *Clinical impact* in D-22, D-18, D-28; a look at 0055 (date logic of safety exceptions). **(lca):** D-22, D-18.
 
+---
+
 ## 2026-10-24 00:40 · eng (Lead Engineer)
 - **CI red between 00:00 and 02:00 Zurich (UTC vs Zurich "today").** The PO cycle PR #238 (docs only) failed db and e2e at 00:03: the seed, pgTAP and two e2e specs used `current_date` (UTC), seed visit 532 and the app use the Zurich date. Five product functions also used `current_date` (OPS1 order expiring and review overdue, `pause_case`, `apply_case_facts`, `add_care_plan_item`), so for one or two hours a night they judged dates against yesterday.
 - **Fix PR (fix/zurich-today):** migration 0055 replaces `current_date` with the Zurich date in every `public`/`private` function body (no rule changes), pgTAP 056 guards it, seed/pgTAP/e2e use the Zurich date, pgTAP 044 reads reports on the visit's own date. ADR-068. IMPLEMENTED; CI is the test runner, no local run (container registries are blocked here).
 - **CSR1 (#149):** nothing left to build; the hand-off closes when #238 merges. AN2 (#205) starts once it carries `active`.
 - **For the PO:** #238 needs a fresh CI run after this merges (or outside 00:00–02:00 Zurich).
+
+---
 
 ## 2026-10-24 00:15 · po (Product Owner, session with the owner)
 - **Owner instruction (2026-10-24, live session): decision packages.** No `human-decision` issue is put to the owner as an open question any more. Agents analyse it, gather Engineering, Clinical & Regulatory and (where needed) Legal & Compliance input, and write a package with a recommended default, a confidence and whether owner approval is actually required. The PO decides when no escalation criterion applies; escalation only for unresolved legal interpretation, the Clinical Owner, commercial/strategic/business, regulatory liability, funding, pricing or partnership (and, carried over, irreversible production changes). Process: `DECISION_PACKAGES.md`; template and order: `decisions/_TEMPLATE.md`, `decisions/INDEX.md`.
@@ -6335,6 +6929,8 @@ ENGINEERING BRIEF
 - **COORD5 approved** (Next up 2): the watcher assigns a decision issue to a person only when its package awaits approval; buildable right after DAY-1. Until then the INDEX is authoritative and the watcher still assigns every decision issue to the owner.
 - Tests: none run; `node scripts/agents-check.mjs` ok; watcher dry run: active AN2, COORD5 next.
 - **Next agent (po):** packages D-22, D-18, D-28 (inputs requested). **(lca):** D-22, D-18 once requested. **(eng):** DAY-1, then COORD5; *Engineering impact* in requested packages. **(cra):** *Clinical impact* in requested packages.
+
+---
 
 ## 2026-10-24 00:20 · po (Product Owner)
 - **#238 (PO cycle 23:15) not merged:** after the base merge (09e4416, `zod` fix #237) its CI went red in `db` and `e2e` (run 40030758280, started 22:00 UTC = 00:00 Zurich). `app` is green, so the `zod` audit is fixed. The PR is docs only; `recovery/main` was green at 21:23 UTC on the same code. The failure follows the clock, not the change. No second PO PR opened: this entry rides on #238.
@@ -6357,11 +6953,15 @@ ENGINEERING BRIEF
 - **Priority:** first, before CGR-35 and ABS1-C7 (Next up 1, AN2).
 - **Implementation recommendation:** one stable SQL helper for the Zurich day, used by functions and pgTAP fixtures; a test clock override for one CI pass at a split-day time; a pgTAP or script check over `pg_proc` source for bare `current_date`/`now()::date`; own small PR with an ADR.
 
+---
+
 ## 2026-10-23 23:20 · eng (Engineering)
 - **`recovery/main` is red** since 62609af: the app job's supply-chain audit (`npm audit --omit=dev --audit-level=high`) fails on a new advisory, **GHSA-mrhx-c7xc-m3w5** (zod < 4.6.6, high: memory exhaustion validating oversized constrained collections). Lint, typecheck, unit (24 files), build, db and e2e were green in the same run. Not caused by #234 or #236; every PR is red until it is fixed.
 - **Fix PR** (`fix/zod-audit-ghsa-mrhx-c7xc-m3w5`): `zod` `^4.1.0` → `^4.6.6` in `package.json`; `package-lock.json` resolved by lockfile-sync (ADR-012/014; no registry access here). Same major; no code change. IMPLEMENTED (awaiting CI); nothing run locally.
 - Active issue #149 (CSR1): no eng work open. Part 12 (ABS1-C6, #234) waits on the PO; CGR-35 waits on the PO. Not claimed.
 - **Next agent (eng):** CI on the fix PR; merge when green, then other PRs need `recovery/main` merged in. **(po):** ABS1-C6, CGR-35, then AN2 (#205).
+
+---
 
 ## 2026-10-23 23:15 · po (Product Owner)
 - **ABS1-C6 reviewed: met** (#234 head 351345c, CI run 40020564005 green; merged as d31709f, CI run 40022316185 green on the merge commit, checked through the API). The PO read the full diff, the unit tests, the e2e case and ADR-067. Evidence table in `briefs/ABS1.md` 23:15. **The PO did not run the tests.**
@@ -6387,11 +6987,15 @@ ENGINEERING BRIEF
 - **Priority:** first change of the active capability AN2 (Next up 1).
 - **Implementation recommendation:** same shape as 0054: column on `visit_plan_changes` with a check `not responsible_absent or change = 'moved'`, computed in `reschedule_visit` before the move from `private.visit_responsible_absent`; patch the function as 0052 does; own small PR or inside AN2's first PR.
 
+---
+
 ## 2026-10-23 22:50 · eng (Engineering)
 - **#234 merged** (merge commit d31709f), CI green on its head 351345c (run 40020564005: app, db incl. pgTAP, e2e). ABS1-C6 IMPLEMENTED. ABS1 `delivered`.
 - Two base merges were needed before merging (PO #231/#233, `cra` #235; journal conflicts only, both entries kept). The first CI run on 223362b was green too.
 - `cra` 22:30 opened **CGR-35** (advisory: a flagged past visit moved with `reschedule_visit` stores nothing about the absence). PO decides; not built.
 - `claimed` removed from #149. **Next agent (po):** ABS1-C6 against `briefs/ABS1.md` 21:17 (and the singular-wording question in ADR-067 *Open*); CGR-35; then AN2 (#205). **(eng):** the PO's next order.
+
+---
 
 ## 2026-10-23 22:30 · Clinical & Regulatory Architect (review)
 - **Reviewed** #228 (0053, pgTAP 054, CGR-32) and #230 (0054, pgTAP 055, CGR-34), the 046 fixture fix, the seed fixture, and the PO cycles #227, #231, #233. CI green on `87612aa` and `673ba50` (db job in the evening: the 046 fix holds). I did not run the tests.
@@ -6399,6 +7003,8 @@ ENGINEERING BRIEF
 - **New (advisory S3):** CGR-35 (PS-28): a flagged past visit moved with `reschedule_visit` loses the absence fact (stored only on cancellation). PO decides; could ride with ABS1-C6 in CSR1 part 12.
 - This PR also carries the unmerged 19:57 addendum (#226, CGR-34), which is closed as superseded.
 - **Next agent (po):** CGR-35; AN2 measure 8 should count moved flagged visits. **(eng):** CSR1 part 12 (ABS1-C6, and CGR-35 if ordered). **(owner):** G-1 clinical owner.
+
+---
 
 ## 2026-10-23 22:28 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 22:11** for the **CSR1 part 12 remainder = ABS1-C6** (PO decision 21:17 in PR #231, **not merged** at build time; built from its text). CGR-34, the other half of part 12, was delivered in #230.
@@ -6410,6 +7016,8 @@ ENGINEERING BRIEF
 - **Tests:** nothing run locally (no npm registry access, no local Supabase in this container); a pure-function spot check of the three helpers with node only. CI is the runner; nothing claimed as passed.
 - **Next agent (eng):** CI on #234; approve a waiting types-bot run; fix if red; merge; ABS1 `delivered`. **(po):** merge #231 after a base merge; check ABS1-C6 against `briefs/ABS1.md` 21:17; then AN2 (#205).
 
+---
+
 ## 2026-10-23 22:15 · po (Product Owner)
 - **#231 (PO cycle 21:17) merged** (merge commit 993b5df) after merging `recovery/main` into it (journal: kept both entries, newest first); CI green on its head 05408d4.
 - **CGR-34 reviewed: met** (#230 head 87612aa, CI run 40011124704 green; merged as 673ba50, CI green on the merge commit and on 0717c05, checked through the API). The PO read 0054 in full, pgTAP 055 (26), the unit tests and the e2e case. Evidence table in `briefs/ABS1.md` 22:15. **The PO did not run the tests.**
@@ -6419,11 +7027,15 @@ ENGINEERING BRIEF
 - No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 and others in `OPEN_DECISIONS.md`.
 - **Next agent (eng):** CSR1 part 12 = ABS1-C6 under issue #149; then AN2. **(cra):** 0053 (#228) and 0054 (#230); #226 needs `recovery/main` merged in (red only from the old 046).
 
+---
+
 ## 2026-10-23 21:30 · eng (Engineering)
 - **#230 merged** (merge commit 673ba50), CI green on its head 87612aa (run 40011124704: app, db incl. pgTAP `055_csr1_cgr34_cancel_keeps_absence` (26), e2e). CGR-34 IMPLEMENTED. ABS1 `delivered`.
 - First CI round red in db only (run 40010479455): pgTAP 047 test 5 asserted the exact column list of `field_visit_status_notes`; updated for the new `responsible_absent` column (87612aa). 055 was green in both rounds.
 - Correction: the entry below is stamped 21:35, ahead of the clock (written about 21:20).
 - `claimed` removed from #149. **Next agent (po):** CGR-34 against `briefs/ABS1.md` 20:15; then AN2 (#205). **(cra):** 0054. **(eng):** the PO's next order, or AN2.
+
+---
 
 ## 2026-10-23 21:35 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 21:12** for the **CSR1 part 11 remainder = CGR-34** (PO decision 20:15 in PR #227 and `cra` addendum 19:57 in PR #226, both **not merged** at build time; built from their text). CGR-32 and the pgTAP 046 time-of-day fix were already in #228.
@@ -6432,6 +7044,8 @@ ENGINEERING BRIEF
 - **Clinical gate:** latest merged report section 19:46 has no CGR-34; applied per the 19:57 addendum (#226) and the PO decision. No remediation plan (advisory, no clinical rule). D-28, D-31 untouched.
 - **Tests:** nothing run locally (no npm registry, no local Supabase in this container). CI is the runner; nothing claimed as passed.
 - **Next agent (eng):** CI on #230; approve a waiting types-bot run; fix if red; merge; ABS1 `delivered`. **(po):** merge #227 (and #226) after a base merge; check CGR-34 against `briefs/ABS1.md` 20:15. **(cra):** 0054.
+
+---
 
 ## 2026-10-23 21:17 · po (Product Owner)
 - **#227 (PO cycle 20:15) merged** (merge commit 7257feb) after merging `recovery/main` into it (journal kept both entries); CI green on its head d37a706. It was red only from pgTAP 046 (fixed in #228).
@@ -6444,10 +7058,14 @@ ENGINEERING BRIEF
 - No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 (incl. CGR-31), D-22; `owner`: D-3 before cover.
 - **Next agent (eng):** CSR1 part 12 under issue #149 (criteria in `briefs/ABS1.md` 20:15 and 21:17); then AN2. **(cra):** 0053 (#228); #226 needs `recovery/main` merged in (red only from the old 046).
 
+---
+
 ## 2026-10-23 20:48 · eng (Engineering)
 - **#228 merged** (merge commit 33112e3), CI green on its head c1b562a (run 40005346459: app, db incl. pgTAP `054_csr1_cgr32_past_visit_absence_flag` (34), e2e). CGR-32 IMPLEMENTED. ABS1 `delivered`.
 - First CI round red in e2e only (run 40003570491): auth.spec started "the first planned visit" on /visits, which became the new seed visit 532 (yesterday, sorts first), so 501 stayed open and 532 lost its alert. Fixed by selecting 501 by its time (c1b562a). The db job was green, including the 046 evening fix (docs-only PRs #226 and the PO cycle at 20:02/20:12 were red on 046 for that reason; they turn green once they merge `recovery/main`).
 - `claimed` removed from #149. **Next agent (po):** CGR-32 (ABS1 condition) against the brief; then AN2 (#205). **(cra):** 0053. **(eng):** the PO's next order, or AN2.
+
+---
 
 ## 2026-10-23 20:27 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 20:13** for **CSR1 part 11 = CGR-32** (ABS1 acceptance condition, PO 19:12). **PR #228** (`fix/csr1-part11-cgr32`): migration 0053, ADR-065, pgTAP `054_csr1_cgr32_past_visit_absence_flag` (34, incl. the `cra` 19:46 hand-closed-alert case), unit test (label), e2e at phone width. ABS1 row `in-review`.
@@ -6456,6 +7074,8 @@ ENGINEERING BRIEF
 - Engineering rebuilt a local PostgreSQL 16 with a Supabase/pgTAP shim and ran all 53 pgTAP files: pass. No npm registry access: lint, typecheck, unit, build and e2e only in CI.
 - OPEN for the PO: the `/field` absence form allows a start from today only, so a past start ("krank seit gestern") is recordable only via the command.
 - **Next agent (eng):** #228: approve a waiting types-bot run if any, fix CI if red, merge when green, set ABS1 `delivered`. **(po):** CGR-32 against `briefs/ABS1.md` once merged. **(cra):** 0053.
+
+---
 
 ## 2026-10-23 20:15 · po (Product Owner)
 - **Nothing new delivered** since 19:30 (no open engineering PR; CSR1 part 11 not started). No `agent:po` issue open.
@@ -6466,11 +7086,15 @@ ENGINEERING BRIEF
 - No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 (incl. CGR-31), D-22; `owner`: D-3 before cover.
 - **Next agent (eng):** pgTAP 046:66 fix; CSR1 part 11 under issue #149; then AN2 (#205). **(cra):** part 11 when its PR is open.
 
+---
+
 ## 2026-10-23 19:57 · Clinical & Regulatory Architect (review)
 - **Second review run** on the same changes as the 19:46 entry (#222, PO cycle #221); it agrees with the 19:46 section (CGR-33 closed, CGR-32 decision endorsed). Its own PR #225 duplicated #224 and is closed; this addendum carries only what is new. Tests not run by me.
 - **New (advisory S3):** CGR-34 (PS-27): a flagged past visit (CGR-32) can be closed only through `cancel_visit` with a planned-cancellation reason, and the flag is computed, so the record loses that care was missed because the responsible member was absent. Remedy rides with CSR1 part 11; PO decides.
 - **CI note (eng):** pgTAP 046 test 74 fails when run 20:00-24:00 Europe/Zurich (visit `later` at `now() + 4 h` crosses midnight; 046:66, 267). Code correct, test time-dependent; it made this docs-only PR's db job red at 20:00.
 - **Next agent (po):** CGR-34 into CSR1 part 11. **(eng):** part 11 with CGR-32, the 19:46 pgTAP case and, if the PO agrees, CGR-34; fix pgTAP 046:66 to a fixed time inside today.
+
+---
 
 ## 2026-10-23 19:46 · Clinical & Regulatory Architect (review)
 - **Reviewed** #222 (pgTAP `053_cgr33_order_audit_guard`, test only; CI green on 4661392, d67055b, 50ee5f5) and the PO cycle #221 (ABS1 accepted with CGR-32; CGR-32 remedy decided; AN2 measure 12; challenge row on late billing facts). I did not run the tests.
@@ -6479,6 +7103,8 @@ ENGINEERING BRIEF
 - **Gate:** no blocking finding on J5, ABS1 or any item. No decision answered.
 - **Waiting:** owner G-1 (clinical owner); `legal` D-22, D-18; `clinical` D-28, D-31, D-10, D-30, D-16, D-17; `owner` D-3 before cover.
 - **Next (cra):** CSR1 part 11 PR when open.
+
+---
 
 ## 2026-10-23 19:30 · po (Product Owner)
 - **CSR1 part 10 reviewed** (#216 head 9ea3cb3, CI run 39988490243 green; merged as 3d48a00, CI green on the merge commit (runs 39989101189, 39989106823) and on 279d026, checked through the API). The PO read 0052 in full, 0051's cut-off and reconstruction, and the pgTAP 051 and 052 assertions. **The PO did not run the tests.** Evidence in `briefs/CSR1.md` and `briefs/ABS1.md`.
@@ -6490,9 +7116,13 @@ ENGINEERING BRIEF
 - No `po` decision open; nothing new for the owner. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-17, D-28, D-30, D-31; `legal`: D-18 (incl. CGR-31), D-22; `owner`: D-3 before cover.
 - **Next agent (eng):** CSR1 part 11 under issue #149 (CGR-32 per `briefs/ABS1.md` 19:12); then AN2 (#205). **(cra):** 053 (CGR-33); part 11 when its PR is open.
 
+---
+
 ## 2026-10-23 19:50 · eng (Engineering)
 - **#222 merged** (merge commit d67055b), CI green on its head 4661392 (run 39993536097: app, db incl. pgTAP `053_cgr33_order_audit_guard` (21), e2e). CGR-33 IMPLEMENTED (regression guard, test only). J5 `delivered`.
 - `claimed` removed from #149. **Next agent (po):** J5 (J5-C2, CGR-33) and ABS1 (ABS1-C5; CGR-32 decision) against the briefs. **(cra):** 053. **(eng):** the PO's next order under #149, or AN2.
+
+---
 
 ## 2026-10-23 19:25 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 19:13** for **CGR-33** (`cra` 19:00, advisory S2, BL-15, owner eng). CSR1 part 10 was already delivered in #216; the PO's review of it is pending.
@@ -6500,6 +7130,8 @@ ENGINEERING BRIEF
 - J5 status row `in-review` (#222). Not touched: CGR-32 (PO decides how past visits in a newly recorded absence are shown), CGR-31 (D-18, `legal`).
 - **Tests:** CI is the runner; nothing run locally against a database. Nothing claimed as passed.
 - **Next agent (eng):** CI on #222; merge, J5 `delivered`; then whatever the PO orders next under #149, or AN2. **(po):** J5-C2, ABS1-C5, and CGR-33 as a J5 condition.
+
+---
 
 ## 2026-10-23 19:00 · Clinical & Regulatory Architect (review)
 - **Reviewed** #216 as merged (`3d48a00`): 0051 (J5-C2) and 0052 (ABS1-C5), pgTAP 051 and 052, the UI text and label. CI green on `9ea3cb3`, `3d48a00`, `279d026` (API). Tests not run by me.
@@ -6509,10 +7141,14 @@ ENGINEERING BRIEF
 - **Waiting on people:** owner G-1 (clinical owner); `legal` D-22, D-18; `clinical` D-28, D-31, D-10, D-30, D-16, D-17; `owner` D-3.
 - **Next agent (po):** accept ABS1 and J5 if agreed; record CGR-32 and CGR-33 as conditions; decide how CGR-32's past visits are shown. **(eng):** CGR-33 is a small pgTAP addition.
 
+---
+
 ## 2026-10-23 18:43 · eng (Engineering)
 - **#216 merged** (merge commit 3d48a00), CI green on its head 9ea3cb3 (run 39988490243: app, db incl. pgTAP `051_csr1_order_as_of_visit_date` (35) and `052_abs1_c5_no_past_move_into_absence` (12), e2e); earlier heads 86ff266 and ca215fa green too. Two base merges on the way (PO 18:15, `cra` 18:30): journal kept both entries; rule register kept the Architect's rows and added CR-058 and CR-061. Nothing is claimed beyond CI.
 - **J5 `delivered`** (CSR1 part 10: J5-C2 IMPLEMENTED) and **ABS1 `delivered`** (ABS1-C5 IMPLEMENTED). No `cra` section reviews 0052 yet (UNKNOWN); the 18:30 section read 0051 from the diff with no blocking finding.
 - **Next agent (po):** J5-C2 and ABS1-C5 against the briefs; CGR-31 as a J5 condition (`cra` 18:30). **(cra):** 0051 as merged, 0052. **(eng):** AN2 when it becomes active.
+
+---
 
 ## 2026-10-23 18:30 · Clinical & Regulatory Architect (review)
 - **Reviewed** 0048 (#206), 0049 (#210), 0050 (#212) as merged, and open PR #216 (0051, J5-C2) from its diff. CI green on `2401a11`, `378f811`, `1f64128`, `be22e2c` (API); #216: no CI run reported (UNKNOWN). **I did not run the tests.**
@@ -6523,6 +7159,8 @@ ENGINEERING BRIEF
 - **Waiting on people:** owner G-1 (clinical owner); `legal` D-22 (order before the visit? #216), D-18 (incl. CGR-31); `clinical` D-28, D-31, D-10, D-30, D-16, D-17; `owner` D-3.
 - **Next agent (po):** accept ABS1 after ABS1-C5 and CSR1 part 9 if agreed; CGR-31 as a J5 condition; where ABS1-C5 is built. **(eng):** CI on #216; ABS1-C5.
 
+---
+
 ## 2026-10-23 18:22 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 18:11** for **CSR1 part 10 (J5-C2)** per the PO's 16:55 order (ABS1 part 3 delivered in #212). PR **#216** (`fix/csr1-part10`): migration 0051, pgTAP `051_csr1_order_as_of_visit_date` (35), ADR-062, rule register CR-058 (PROVISIONAL, D-22), label `order_recorded_after_visit` with its unit test.
 - **IMPLEMENTED (CI pending):** a fact's order basis is the case's order as recorded at the end of the visit date (first instant of the next day, Europe/Zurich), reconstructed backwards from the live row through `audit_events`; one path for the first build, a correction version and CGR-29's build. CGR-07 rules unchanged; `order_recorded_after_visit` names a visit whose order is valid only now. Facts record `order_as_of` and `order_recorded`. Pre-0051 facts are re-derived (`basis_changed`) by the next generation or the last lift.
@@ -6531,6 +7169,8 @@ ENGINEERING BRIEF
 - **ABS1-C5 added to #216** after the PO's 18:15 cycle merged into the branch (journal conflict kept both entries): migration 0052, pgTAP `052_abs1_c5_no_past_move_into_absence` (12), ADR-063, move-specific refusal text on `/team`. IMPLEMENTED (CI pending): `reschedule_visit` refuses with `responsible_absent` and writes nothing when the visit would stay with a member absent at its interval (a move to yesterday inside her absence); a move into her absence ahead still releases. Locally (same shim): 052 12/12, 050 31/31, 046, 048, 051 green.
 - Status rows J5 and ABS1 set `in-review` (#216). The `claimed` label on #149 was removed at the end of the first part of this run.
 - **Next agent (eng):** CI on #216; fix, merge, set J5 and ABS1 `delivered`; then AN2. **(po):** J5-C2 and ABS1-C5 against the briefs; the CGR-29 no-prior-fact note. **(cra):** 0051, 0052.
+
+---
 
 ## 2026-10-23 18:15 · po (Product Owner)
 - **ABS1 part 3 reviewed** (#212 head 93a66f8, CI run 39978598901 green; merged as 1f64128, CI green on the merge commit (runs 39979449276, 39979442607) and on cfb4808 (runs 39981426191, 39981419043), checked through the API). The PO read 0050 in full and the pgTAP 050 assertions, and searched every migration for commands that set a responsible member or insert visits. **The PO did not run the tests.** Evidence in `briefs/ABS1.md`.
@@ -6541,10 +7181,14 @@ ENGINEERING BRIEF
 - No `po` decision open. **Waiting on people (unchanged):** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-16, D-28, D-30, D-31; `legal`: D-18, D-22; `owner`: D-3 before cover.
 - **Next agent (eng):** CSR1 part 10 (J5-C2) with ABS1-C5 riding along, under issue #149 (WATCH-1); then AN2. **(cra):** review 0048, 0049, 0050; merge #203.
 
+---
+
 ## 2026-10-23 17:40 · eng (Engineering)
 - **#212 merged** (merge commit 1f64128), CI green on its head 93a66f8 (run 39978598901: app, db incl. pgTAP `050_abs1_part3` (31) and the adjusted `048_abs1_part2`, e2e). The run on 72027bf was cancelled by the second push. Nothing is claimed beyond CI.
 - **ABS1 `delivered`** (parts 1-3: #195, #206, #212): ABS1-C4 and ABS1-N1 IMPLEMENTED. No `cra` section reviews 0048 or 0050 yet (UNKNOWN).
 - **Next agent (po):** ABS1-C4 and ABS1-N1 against the brief; the move-to-yesterday question (ADR-061). **(cra):** 0048, 0050. **(eng):** CSR1 part 10 (J5-C2), then AN2.
+
+---
 
 ## 2026-10-23 17:35 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 17:17** for **ABS1 part 3** per the PO's 16:55 order (no `eng:ABS1` hand-off, WATCH-1). PR **#212** (`fix/abs1-part3`): migration 0050, pgTAP `050_abs1_part3` (31), `048_abs1_part2` adjusted (one assertion: ABS1-N1), ADR-061, remediation plan `clinical/remediation/ABS1-C4.md`, `/team` text and notice.
@@ -6554,6 +7198,8 @@ ENGINEERING BRIEF
 - **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations and seed on plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim; 050 31/31 and every behavioural file the shim runs green (046, 048 included); local-only failures are `anon` privilege assertions (stub artefact) and structural files the shim lacks. vitest, typecheck, lint, e2e not run (npm registry unreachable).
 - Status row ABS1 set `in-review` (#212). The `claimed` label on #149 is removed at the end of this run.
 - **Next agent (eng):** CI on #212; fix, merge, set ABS1 `delivered`; then CSR1 part 10 (J5-C2), then AN2. **(po):** ABS1-C4 and N1 against the brief; the yesterday-move question. **(cra):** 0048 and 0050.
+
+---
 
 ## 2026-10-23 16:55 · po (Product Owner)
 - Run started 16:18; #210 (CSR1 part 9) merged during it, so this cycle reviews both. One PO PR: #209.
@@ -6569,11 +7215,15 @@ ENGINEERING BRIEF
 - **Order for engineering:** ABS1 part 3 (ABS1-C4, ABS1-N1) → CSR1 part 10 (J5-C2) → AN2. The watcher keeps no `eng:ABS1` hand-off while ABS1 stays `changes-requested` (WATCH-1): build ABS1 part 3 and part 10 under the active CSR1 issue #149.
 - **Next agent (eng):** set F6 and J5 `delivered` for #210 as planned; then ABS1 part 3, CSR1 part 10, AN2. **(cra):** review 2401a11 (0048) and 378f811 (0049); merge #203.
 
+---
+
 ## 2026-10-23 16:35 · eng (Engineering)
 - **#210 merged** (merge commit 378f811), CI green on its head 546207e (run 39969893133: app, db incl. pgTAP 049 and the adjusted 043, e2e incl. the withdraw step at 390 px). The first run on c6b944f was cancelled by the second push (its app job was green). Nothing is claimed beyond CI.
 - **F6 and J5 `delivered`** (CSR1 part 9): CGR-24-W, CGR-29, J5-C1 IMPLEMENTED. No `cra` section reviews 0049 yet (UNKNOWN). Open for the PO: whether D-22 also covers a fact built for a new report version (reads the case's order at build time).
 - Correction: the entry headed 16:50 below was written at about 16:27 (wrong time in its heading); the rule-register and status header lines from that PR carry the same wrong times (16:45, 16:50).
 - **Next agent (po):** CGR-24-W, CGR-29, J5-C1 against the brief. **(cra):** review 378f811 (0049). **(eng):** AN2 when it becomes active.
+
+---
 
 ## 2026-10-23 16:50 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 16:13** for **part 9** per the PO's 15:25 order (ABS1 part 2 delivered in #206). PR **#210** (`fix/csr1-part9`): migration 0049, pgTAP 049 (56), 043 adjusted, ADR-060, remediation plan `clinical/remediation/CGR-29.md`, rule register CR-056 (UNVALIDATED), CR-057 (PROVISIONAL, D-22). Report sections: 2026-10-23 14:30 (CGR-29) and 15:00 (CGR-24 residual; J5-C1 endorsed), both on PR #203.
@@ -6583,11 +7233,15 @@ ENGINEERING BRIEF
 - Status rows F6 and J5 set `in-review` (#210); F1-F4's deviation note updated. The `claimed` label on #149 is removed at the end of this run.
 - **Next agent (eng):** CI on #210; fix, then merge and set F6 and J5 `delivered`; then AN2. **(cra):** review 0049. **(po):** CGR-24-W, CGR-29, J5-C1 against the brief; the D-22 note above.
 
+---
+
 ## 2026-10-23 15:40 · eng (Engineering)
 - **#206 merged** (merge commit 2401a11), CI green on its head 9bcd151 (run 39962574922: app, db incl. pgTAP `048_abs1_part2` (45) and `048_abs1_an1_measures` (10), e2e). The first run's db failure (runner port in use at `supabase start`, before any test) did not recur. The types bot added `absence_group` to `database.types.ts` (39c9cbe). Nothing is claimed beyond CI.
 - **ABS1 `delivered`** (part 1 #195, part 2 #206): CGR-27 / ABS1-C1, ABS1-C2, ABS1-C3 and the AN1 measures IMPLEMENTED. No `cra` section reviews 0048 yet (UNKNOWN). CGR-28 stays PLANNED (D-3 condition, `briefs/COVER1.md`).
 - The `claimed` label on #199 is removed in this run.
 - **Next agent (po):** review ABS1 part 2 against the brief. **(cra):** review 2401a11 (0048) for CGR-27. **(eng):** next active issue (CSR1 part 9 per the PO 15:25 cycle).
+
+---
 
 ## 2026-10-23 15:30 · eng (Engineering)
 - **Active issue #199 (ABS1 changes) claimed 15:16.** PR **#206** (`feat/abs1-part2`): migration 0048, pgTAP `048_abs1_part2` (45) and `048_abs1_an1_measures` (10), ADR-059, remediation plan `clinical/remediation/CGR-27.md`. Report section: 2026-10-23 14:30 (CGR-27, blocking S1; unchanged in the 15:00 section on #203).
@@ -6599,6 +7253,9 @@ ENGINEERING BRIEF
 - **Tests:** CI is the runner; nothing claimed as passed. Locally only: all migrations and the seed on plain PostgreSQL 16 with stubbed Supabase roles and an own minimal pgTAP shim: 046 (93), 048 (45 + 10), and every other file the shim can run green (001, 007-009, 012, 013, 018, 025 not run: structural pgTAP functions); `open-visit-take.sh` green against it; `analytics-rules` under `bun test` (4 pass) as a smoke check. vitest, typecheck, lint and e2e not run (npm registry unreachable). No change to `database.types.ts` (signatures unchanged).
 - Status row ABS1 set `in-review` (#206). The `claimed` label on #199 is removed at the end of this run.
 - **Next agent (eng):** CI on #206; fix, then merge and set ABS1 `delivered`. **(cra):** review 0046 and 0048 for CGR-27 (and CGR-28 before D-3). **(po):** ABS1-C1 to C3 and the AN1 criterion against the brief.
+
+---
+
 ## 2026-10-23 15:25 · po (Product Owner)
 - **CSR1 part 8 reviewed** (#200 head 1e1d904, CI green; merged as 20a3566, CI green on the merge commit (one e2e run cancelled, the second green) and on 81f1a47, checked through the API). The PO read 0047 in full, pgTAP 047, the CGR-26 e2e and searched `src/` for the hold label. **The PO did not run the tests.** Evidence in `briefs/CSR1.md`.
 - **Clinical gate:** `cra` sections 14:30 and 15:00 in PR #203 (head 31a6a16, CI green, not yet merged; supersedes #201). No blocking finding for F6, J5, CSR1 part 8; **CGR-27 blocking (S1) for ABS1 part 1**.
@@ -6622,6 +7279,8 @@ ENGINEERING BRIEF
 - **Priority:** Next up 2 (after CSR1 part 9).
 - **Implementation recommendation:** derive in SQL from existing events (`exception_events`, report versions, `visit_status_notes`, absences, plan changes, J5 facts) next to `pilot_kpis`, one row shape (hypothesis, team, value, base, period); no new tables, no job.
 
+---
+
 ## 2026-10-23 15:00 · Clinical & Regulatory Architect (review)
 - **Report section 15:00** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `20a3566` (#200 merged: 0047 with the CGR-30 commit `1e1d904`). Read the final 0047, pgTAP 047 and the UI changes; **I did not run the tests** (CI green on `1e1d904` and `20a3566`, checked through the API).
 - **Closed:** CGR-24 (pgTAP 047:101-155, 174-195), CGR-30 (0047 §1b, 2b, 2c; pgTAP 047:26-27, 108-129), CGR-26 for the label (0047 §3, `visit-lifecycle.tsx:81`), CGR-13 for the wording (`HOLD_MEANING`). **No new findings.**
@@ -6631,11 +7290,15 @@ ENGINEERING BRIEF
 - **Waiting on people:** owner names the clinical owner (G-1); `clinical`: D-28, D-31, D-10, D-30, D-16, D-17; `legal`: D-18, D-22; `po`: whether a correction draft must be withdrawable.
 - **Next agent (po):** accept the CGR-24, CGR-26, CGR-13 conditions if you agree. **(eng):** ABS1 part 2 with CGR-27 first.
 
+---
+
 ## 2026-10-23 14:52 · eng (Engineering)
 - **#200 merged** (merge commit 20a3566), CI green on its head 1e1d904 (run 39955552438: app, db incl. pgTAP 047, e2e incl. the CGR-26 two-session test). The types bot made no change. Nothing is claimed beyond CI.
 - Before the merge: the PO's 14:16 cycle conflicted in the journal (merged, both entries kept, f9b38d6), and the `cra` section 14:30 on #200 found no blocking finding but advised **CGR-30**: `report_correction_open` could be silenced by one hand close. Fixed in 1e1d904: it closes only with its cause (`cause_persists`, `closable = false`, an earlier close hides nothing for team or Operations).
 - **CSR1 part 8 `delivered`**: F1-F4 (CGR-24, CGR-30), OPS1 (CGR-26), QG1 (CGR-13). No `cra` section reviews merged 0047 yet (UNKNOWN). J5-C1 still PLANNED (next PR touching billing generation).
 - **Next agent (po):** check CGR-24, CGR-26, CGR-13 against the brief; decide whether a correction draft must be withdrawable. **(cra):** review 20a3566 (0047). **(eng):** ABS1 part 2 per the PO's 14:16 order (ABS1-C1 first, then C2, C3, AN1 measures).
+
+---
 
 ## 2026-10-23 14:45 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 14:12** for **part 8** per the PO's 13:20 order (ABS1 part 1 is delivered in #195; ABS1 part 2, the AN1 measures, stays PLANNED). PR **#200** (`fix/csr1-part8`): migration 0047, pgTAP 047, ADR-058, remediation plans `clinical/remediation/CGR-24.md`, `CGR-26.md`, `CGR-13.md`, rule register CR-053 (PROVISIONAL, D-28), CR-054, CR-055 (UNVALIDATED). Report section: 2026-10-23 10:29 (CGR-24, CGR-26; CGR-13 from QG1).
@@ -6646,6 +7309,8 @@ ENGINEERING BRIEF
 - Status rows F1-F4 (CGR-24), OPS1 (CGR-26), QG1 (CGR-13) set `in-review` (#200). The `claimed` label on #149 is removed at the end of this run.
 - **Next agent (eng):** CI on #200; fix, then merge and set the three rows `delivered`; then ABS1 part 2 (ABS1-C1 first, then C2, C3, AN1 measures). **(cra):** review 0047. **(po):** check CGR-24, CGR-26, CGR-13 against the brief; decide whether a correction draft must be withdrawable.
 
+---
+
 ## 2026-10-23 14:30 · Clinical & Regulatory Architect (review)
 - **Report section 14:30** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `980cdd9` (896e943 / 0043, e215924 / 0044, 7e5013b / 0045, a626c30 / 0046) and open PR #200 (0047, head 023cc1e). Read 0043-0047 and pgTAP 043-047 in full; **I did not run the tests** (CI green on the four merge commits and on 980cdd9, checked through the API; #200: CI UNKNOWN, merge conflict).
 - **Closed:** CGR-03 (J5 part; 0043:66-92, 172-178; pgTAP 043:86-110, 224-247), CGR-07 (0043:198-213; pgTAP 043:113-162), CGR-08 (0043:33-49, 220-226, 418-426), CGR-19 (0044:59-64; pgTAP 044:143), CGR-22 (0044; pgTAP 044:71-80), CGR-25 (0045; pgTAP 045:71-107, 169), CGR-11 (0046:478-487; pgTAP 046:321-331), CGR-15 (pgTAP 046:251-262). BL-8, BL-9 mitigated-in-code. CGR-24, CGR-26, CGR-13: remedies in #200, close on merge with green CI.
@@ -6654,6 +7319,8 @@ ENGINEERING BRIEF
 - **Registers:** H-17 added; H-01, H-04, H-05, H-12, H-14, H-16 updated; PS-23 to PS-25 and BL-13 added; PS-3, PS-15, PS-18, PS-20 to PS-22, BL-3 to BL-5, BL-8, BL-9 updated; CR-045 to CR-052 checked.
 - **Waiting on people:** owner names the clinical owner (G-1); `clinical`: D-31, D-28, D-10, D-30, D-16, D-17; `legal`: D-18, D-22.
 - **Next agent (po):** accept J5 and F6 if you agree; add CGR-27 to ABS1 part 2; record CGR-28 against D-3 and CGR-29 against J5. **(eng):** ABS1 part 2 with CGR-27; CGR-30 on #200; resolve #200's merge conflict.
+
+---
 
 ## 2026-10-23 14:16 · po (Product Owner)
 - **ABS1 part 1 reviewed** (#195 head 16cdc0a, CI run 39948275720 green; merged as a626c30, CI run 39948793722 green on the merge commit and green on c8dab8d, checked through the API). The PO read 0046 in full, pgTAP 046, the two-session take check, the e2e test, the `/field` section, ADR-057, CR-051, CR-052. **The PO did not run the tests.** Evidence table in `briefs/ABS1.md`.
@@ -6671,11 +7338,15 @@ ENGINEERING BRIEF
 - **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-28, D-30, D-31; `legal`: D-18, D-22.
 - **Next agent (eng):** ABS1 part 2 (AN1 measures, ABS1-C1 to C3), then CSR1 part 8. **(cra):** one section on 896e943 (0043), e215924 (0044), 7e5013b (0045) and a626c30 (0046).
 
+---
+
 ## 2026-10-23 13:49 · eng (Engineering)
 - **#195 merged** (merge commit a626c30), CI green on its head 16cdc0a (run 39948275720: app, db incl. pgTAP 046 and the two-session take check, e2e). The types bot regenerated `database.types.ts` (ab5d931). Nothing is claimed beyond CI.
 - First CI run (936ef19) failed only the new ABS1 e2e: it relied on seed visit 508, which the F2 test completes earlier. Fixed by planning its own open visit (Testfall 08, three days ahead, 21:00, "Team (noch niemand)") and taking it with one tap.
 - **ABS1 `delivered` (part 1)**: CGR-11 and CGR-15 closed in code (IMPLEMENTED; CR-051, CR-052 UNVALIDATED). No `cra` section reviews 0046 yet (UNKNOWN). AN1 measures remain PLANNED (part 2).
 - **Next agent (po):** review ABS1 part 1 against the brief. **(cra):** review a626c30 (0046). **(eng):** ABS1 part 2, then CSR1 part 8.
+
+---
 
 ## 2026-10-23 13:34 · eng (Engineering)
 - **ABS1 (#134) claimed** (13:12) per the PO's 12:15 order: CSR1 part 7 is complete (#192), ABS1 comes before CSR1 part 8. The active issue #149 stays CSR1.
@@ -6686,6 +7357,8 @@ ENGINEERING BRIEF
 - **ABS1 `in-review`** (#195). The `claimed` label on #134 is removed at the end of this run.
 - **Next agent (eng):** CI on #195; fix, then merge and set `delivered`. **(cra):** review 0046 (pgTAP 046, CR-051, CR-052). **(po):** review ABS1 part 1 against the brief.
 
+---
+
 ## 2026-10-23 13:20 · po (Product Owner)
 - **OPS1 condition CGR-25 reviewed** (CSR1 part 7 completion, #192 head cf61529, CI run 39941539181 green; merged as 7e5013b, CI green on the merge commit and on 1540f84, checked through the API). The PO read 0045 in full, pgTAP 045, the changed pgTAP 019 count, the e2e test, ADR-056, CR-050. **The PO did not run the tests.** **CGR-25 met** (evidence in `briefs/OPS1.md`; CSR1 checkbox set). **CSR1 part 7 is complete.** Confirmation by the next `cra` section on 0045; OPS1 stays accepted, remaining condition CGR-26.
 - **OPEN items decided:** "Folgeeinsatz geplant" as an unchecked statement accepted as the strict default; Operations take-over auto-closed when the team decides, accepted. Who may decide (including a care assistant recording "nicht mehr nötig"), whether the decision must name a planned visit, and correction: added to **D-31** (`clinical`) as (c)–(e); not answered.
@@ -6694,10 +7367,14 @@ ENGINEERING BRIEF
 - **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-28, D-30, D-31; `legal`: D-18, D-22.
 - **Next agent (cra):** one section on 896e943 (0043), e215924 (0044) and 7e5013b (0045), so J5, F6 and OPS1's CGR-22 and CGR-25 can be confirmed. **(eng):** ABS1 (#134) with the 12:15 criterion, then CSR1 part 8 (CGR-24, CGR-26, CGR-13; J5-C1 rides along).
 
+---
+
 ## 2026-10-23 12:55 · eng (Engineering)
 - **#192 merged** (merge commit 7e5013b), CI green on its head cf61529 (run 39941539181: app, db, e2e). The head included `recovery/main` 80df71e with the PO's 12:15 cycle; the journal conflict was resolved by keeping both entries. The types bot made no change. Nothing is claimed beyond CI.
 - **OPS1 `delivered`** (#192): CGR-25 is closed in code as a strict provisional default (IMPLEMENTED; CR-050 PROVISIONAL, D-31). CSR1 part 7 (CGR-22, CGR-25) is complete. No `cra` section reviews 0045 yet (UNKNOWN).
 - **Next agent (cra):** review merge commit 7e5013b (migration 0045, pgTAP 045, CR-050). **(po):** check the OPS1 condition CGR-25. **(eng):** ABS1 (#134) with the PO's 12:15 criterion, then CSR1 part 8 (CGR-24, CGR-26, CGR-13; J5-C1 rides along).
+
+---
 
 ## 2026-10-23 12:35 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 12:14.** This run delivers **CGR-25**, which completes CSR1 part 7 with CGR-22 (#188). PR **#192** (`fix/csr1-cgr25`): migration 0045, pgTAP 045, ADR-056, remediation plan `clinical/remediation/CGR-25.md`, rule register CR-050 (PROVISIONAL, D-31). Report section: 2026-10-23 10:29 (CGR-25). No other finding applies.
@@ -6713,6 +7390,9 @@ ENGINEERING BRIEF
 - **Next agent (eng):** CI on #192; when green, merge and set OPS1 `delivered`. Then ABS1 (#134) per the PO's 11:25 order, then CSR1 part 8 (CGR-24, CGR-26, CGR-13; J5-C1 rides along).
 - **(cra):** review #192 (0045, pgTAP 045, CR-050).
 - **(po):** check the OPS1 condition CGR-25 after the merge.
+
+---
+
 ## 2026-10-23 12:15 · po (Product Owner)
 - **F6 reviewed** (CSR1 part 7, #188 head 678b12e, CI run 39933576271 green; merged as e215924, CI green on the merge commit and on 39b9994, checked through the API). The PO read 0044 in full, pgTAP 044, the changed pgTAP 039 assertion, the e2e and UI changes, ADR-055, CR-048 and CR-049. **The PO did not run the tests.** **CGR-19 met** (evidence in `briefs/F6.md`; CSR1 checkbox set). **Not accepted yet:** no `cra` section covers 0044; accepted without another PO round once one holds no blocking finding, with **CGR-24** as condition.
   - **D-10 is not an acceptance blocker for F6:** the safe default (countersign every care-assistant report) has been in force since #35; D-10 can only relax it. Sharpened in the D-10 row; not answered.
@@ -6725,11 +7405,15 @@ ENGINEERING BRIEF
 - **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-28, D-30, D-31; `legal`: D-18, D-22.
 - **Next agent (cra):** review merge commit e215924 (0044, pgTAP 044, CR-048, CR-049) and 896e943 (0043) so F6 and J5 can be accepted. **(eng):** CGR-25 (completes CSR1 part 7), then ABS1 with the 12:15 criterion, then part 8.
 
+---
+
 ## 2026-10-23 12:15 · eng (Engineering)
 - **#188 merged** (merge commit e215924) with CI green on its head 678b12e (run 39933576271: app, db, e2e; head included `recovery/main` 6ac265e with the PO's 11:25 cycle, journal conflict resolved by keeping both entries). No types change. Nothing claimed beyond CI.
 - **F6 and OPS1 `delivered`** (#188): CGR-19 and CGR-22 closed in code as interim defaults (IMPLEMENTED; CR-048, CR-049 PROVISIONAL, D-30, D-28). No `cra` section reviews 0044 yet (UNKNOWN). CGR-19 came earlier than the PO's 11:25 order (deviation recorded in the F6 row and #188).
 - The `claimed` label on #149 is removed with this run.
 - **Next agent (cra):** review merge commit e215924 (migration 0044, pgTAP 044, CR-048, CR-049). **(po):** OPS1 condition CGR-22 and F6 CGR-19. **(eng):** CGR-25 (completes CSR1 part 7), then ABS1, then part 8 (CGR-24, CGR-26, CGR-13, J5-C1).
+
+---
 
 ## 2026-10-23 11:45 · eng (Engineering)
 - **Active issue #149 (CSR1) claimed 11:12** (no `claimed` label was set). This run delivers **CSR1 part 7 (CGR-22) plus CGR-19**: PR **#188** (`fix/csr1-cgr19-cgr22`), migration 0044, pgTAP 044, ADR-055, remediation plans `clinical/remediation/CGR-19.md` and `CGR-22.md`, rule register CR-048, CR-049 (both PROVISIONAL). Report sections reviewed: 2026-10-23 02:28 (CGR-19), 06:30 (CGR-22), 10:29 (latest; both unchanged, CGR-22 an OPS1 condition). No other finding applies to these changes.
@@ -6739,6 +7423,8 @@ ENGINEERING BRIEF
 - **PO order changed while this was built (11:25, after the 11:12 claim):** part 7 = CGR-25 and CGR-22, then ABS1, then part 8 with CGR-19. This PR carries CGR-22 and also CGR-19, which was already built and tested under the 10:15 order ("J5, then CGR-19; CGR-22 in any part"). Recorded as a deviation; if the PO wants CGR-19 held until part 8, it is a single revertable section (0044 §1). **CGR-25 is not in this PR**: it completes part 7 in the next PR.
 - **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim (044: 34/34, 039: 38/38, every other file the shim can run green; 001, 007 not run). vitest, typecheck, lint, e2e not run (npm unreachable). No types change.
 - **F6 and OPS1 `in-review`** (#188). **Next agent (eng):** CI on #188; when green, merge, set F6 and OPS1 `delivered`; the `claimed` label on #149 is removed at the end of this run. Then **CGR-25** (completes part 7), then ABS1, then part 8 (CGR-24, CGR-26, CGR-13; J5-C1 rides along). **(cra):** review #188 (0044, pgTAP 044, CR-048, CR-049). **(po):** re-review F6 (CGR-19) and OPS1 (CGR-22) after merge.
+
+---
 
 ## 2026-10-23 11:25 · po (Product Owner)
 - **Clinical gate passed for F1-F4, F7 and OPS1** (`cra` section 10:29, merged with #184 as 8551ccb: "the PO may accept"). **All three accepted**; evidence tables in `briefs/F1-F4.md`, `briefs/F7.md`, `briefs/OPS1.md`. **The PO did not run the tests**; evidence is merged code and tests, CI green on bf37957, 479701c and a78fa7e (rechecked through the API) and the report.
@@ -6764,11 +7450,15 @@ ENGINEERING BRIEF (CSR1 additions, not a new capability)
 - **Priority:** CSR1 part 7, before ABS1.
 - **Implementation recommendation:** derive the exception like `visit_stuck` (0038) from `status = 'interrupted'` plus the absence of a closing decision, closed through an audited command with a reason list; reuse the OPS1 close path with `cause_persists` semantics for CGR-22.
 
+---
+
 ## 2026-10-23 11:15 · eng (Engineering)
 - **#183 merged** (merge commit 896e943) with CI green on its head e315bc7 (run 39926867483: app, db, e2e; head included `recovery/main` 845ae96 with the Architect's 10:29 section; register conflicts resolved, J5 rules renumbered CR-045 to CR-047 because 10:29 took CR-043 and CR-044). The types drift check passed with the hand-edited types. Nothing claimed beyond CI.
 - **J5 `delivered`** (#43, #75, #183): CGR-03 J5 part and CGR-07 closed in code; CGR-08, BL-8, BL-9 conditions met in code (IMPLEMENTED). No `cra` section reviews 0043 yet (UNKNOWN).
 - The `claimed` label on #148 is removed with this run.
 - **Next agent (cra):** review merge commit 896e943 (migration 0043, pgTAP 043, CR-045 to CR-047). **(po):** J5 re-acceptance against CSR1. **(eng):** CGR-19 (F6), CGR-22; the 10:29 advisories CGR-24 and CGR-25 wait for the PO's D-28 / D-31 additions.
+
+---
 
 ## 2026-10-23 10:45 · eng (Engineering)
 - **Active issue #148 (J5 changes-requested) claimed 10:16** (no `claimed` label was left from the 09:16 run). This run delivers **J5's CSR1 part** (CSR1 part 6), the PO's step 2 after CGR-20: PR **#183** (`fix/csr1-j5-signed-billing`), migration 0043 (rule J5-v3), pgTAP 043, ADR-054, remediation plans `clinical/remediation/CGR-03.md` and `CGR-07.md`, rule register CR-045 to CR-047 (CR-006 deprecated). Report sections reviewed: 2026-10-22 22:30 (CGR-03, CGR-07, CGR-08), 23:05 (BL-8, BL-9); 2026-10-23 06:30 and 10:29 list them unchanged and add no J5 finding (10:29: the CGR-24 billing side is covered by billing from the latest final snapshot).
@@ -6776,6 +7466,8 @@ ENGINEERING BRIEF (CSR1 additions, not a new capability)
 - **Not in this PR:** CGR-13 (QG1 label), CGR-19 (F6), CGR-22. OPEN: D-11, D-12, D-18, D-22.
 - **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim (043: 49/49, 022: 30/30, all other files the shim can run green; 001, 007-013, 018, 025 not run). vitest, typecheck, lint, e2e not run (npm unreachable). `database.types.ts` hand-edited.
 - **J5 `in-review`** (#183). **Next agent (eng):** CI on #183; when green, merge, set J5 `delivered`; the `claimed` label on #148 is removed at the end of this run. Then CGR-19 (F6), CGR-22. **(cra):** review #183 (0043, pgTAP 043, CR-045 to CR-047). **(po):** J5 re-acceptance after merge.
+
+---
 
 ## 2026-10-23 10:29 · Clinical & Regulatory Architect (review)
 - **Report section 10:29** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `50681da` (merge commits bf37957 / 0040, 479701c / 0041, a78fa7e / 0042). Read 0040-0042 and pgTAP 040-042 in full; **I did not run the tests** (CI green on the three merge commits, checked through the API).
@@ -6785,6 +7477,8 @@ ENGINEERING BRIEF (CSR1 additions, not a new capability)
 - **Registers:** CR-043 (0040) and CR-044 (0041) added, CR-012, CR-013, CR-042 updated; H-05, H-15 mitigated-in-code, H-16 added, H-14 updated; PS-16 mitigated-in-code, PS-20 to PS-22 added, BL-3 and C-7 updated.
 - **Waiting on people:** owner names the clinical owner (G-1); `po` adds the CGR-25 and CGR-26 questions to D-31 and the CGR-24 threshold to D-28; `clinical`: D-31, D-28, D-10, D-30, D-16, D-17; `legal`: D-18, D-22.
 - **Next agent (po):** accept F1-F4, F7 and OPS1 if you agree. **(eng):** J5's CSR1 part (CGR-03 J5 part: bill from the latest final snapshot, which also covers CGR-24's billing side; CGR-07); CGR-25 and CGR-24 provisional exceptions in any CSR1 part.
+
+---
 
 ## 2026-10-23 10:15 · po (Product Owner)
 - **OPS1 reviewed** (CSR1 part 5, #179 head 638bf5b, CI run 39918776217 green; merged as a78fa7e, CI green on the merge commit and on 6545bf5). The PO read 0042, pgTAP 042, the e2e test, the HAND1 label, ADR-053 and CR-042; **the PO did not run the tests**.
@@ -6796,11 +7490,15 @@ ENGINEERING BRIEF (CSR1 additions, not a new capability)
 - **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-28, D-30, D-31.
 - **Next agent (cra):** review merge commits bf37957 (0040), 479701c (0041) and a78fa7e (0042) for CGR-01, CGR-03, CGR-02, CGR-20. **(eng):** CSR1 J5 part under #148, then CGR-19; then ABS1.
 
+---
+
 ## 2026-10-23 09:45 · eng (Engineering)
 - **#179 merged** (merge commit a78fa7e) with CI green on its head 638bf5b (run 39918776217: app, db, e2e; head included `recovery/main` 7898834, journal conflict resolved by keeping both entries). Types bot found the hand-edited types in sync. Nothing claimed beyond CI.
 - **OPS1 `delivered`** (#39, #165, #179): CGR-20 closed in code (IMPLEMENTED, interim default until D-31, CR-042 PROVISIONAL). No `cra` section reviews 0042 yet (UNKNOWN).
 - **Next agent (cra):** review merge commit a78fa7e (migration 0042, pgTAP 042, CR-042) for CGR-20. **(po):** OPS1 re-acceptance against CGR-20.
 - **Next agent (eng):** J5's CSR1 part under #148 (CGR-03 J5 part, CGR-07, CGR-08, BL-8, BL-9), then CGR-19; CGR-22 in any CSR1 PR.
+
+---
 
 ## 2026-10-23 09:35 · eng (Engineering)
 - **Active issue #148 (J5) claimed 09:16.** Per the PO comment of 09:10 (CGR-20 first), this run delivers **CSR1 part 5** under #148: PR **#179** (`fix/csr1-cgr20-not-completed`), migration 0042, pgTAP 042, ADR-053, remediation plan `clinical/remediation/CGR-20.md`, rule register CR-042 (PROVISIONAL, D-31). Report section reviewed: 2026-10-23 06:30 (CGR-20). Closes **CGR-20** for OPS1 (and the ABS1 dependency).
@@ -6809,6 +7507,8 @@ ENGINEERING BRIEF (CSR1 additions, not a new capability)
 - **Not in this PR:** CGR-22, CGR-19, J5's CSR1 part (CGR-03 J5 part, CGR-07, CGR-08, BL-8, BL-9). OPEN in D-31: observations after the end (refused today).
 - **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles; pgTAP 042 (47) and every other file the minimal pgTAP shim can run green (001, 007-013, 018, 025 not run: structural functions). Pure TS changes exercised with Node type stripping. vitest, typecheck, lint, e2e not run (npm unreachable). `database.types.ts` hand-edited.
 - **OPS1 `in-review`** (#179). **Next agent (eng):** CI on #179; when green, merge, set OPS1 `delivered`; then J5's CSR1 part under #148 (still `active`; the `claimed` label is removed at the end of this run). **(cra):** review #179 (0042, pgTAP 042, CR-042) for CGR-20. **(po):** D-31 stays open (#170).
+
+---
 
 ## 2026-10-23 09:10 · po (Product Owner)
 - **F7 reviewed** (CSR1 part 4, #175 head c39fcde, CI run 39911949141 green; merged as 479701c, CI green on the merge commit, run 39913372513, and on 3831789). The PO read 0041, pgTAP 041, the e2e change, `report-commands.ts`, `report-section.tsx` and `update_report_draft` in 0016; **the PO did not run the tests**.
@@ -6822,11 +7522,15 @@ ENGINEERING BRIEF (CSR1 additions, not a new capability)
 - **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10, D-28, D-30, D-31.
 - **Next agent (cra):** review merge commits bf37957 (0040) and 479701c (0041) for CGR-01, CGR-03, CGR-02. **(eng):** CSR1 part CGR-20 first (under #149 or #148), then J5's part, then CGR-19; then ABS1; consider WATCH-1.
 
+---
+
 ## 2026-10-23 08:50 · eng (Engineering)
 - **#175 merged** (merge commit 479701c) with CI green on its head c39fcde (run 39911949141: app, db, e2e; head included `recovery/main` dee8388, journal conflict resolved by keeping both entries). The db job's types drift check passed with the hand-edited types. Nothing claimed beyond CI.
 - **F7 `delivered`** (#94, #122, #175): CGR-02 closed in code for F7 and F6 (IMPLEMENTED); the PO's 08:20 condition (corrected time reaches the signed correction version) is in pgTAP 041. No `cra` section reviews 0041 yet (UNKNOWN).
 - **Next agent (cra):** review merge commit 479701c (migration 0041, pgTAP 041; 016, 019, 022, 026, 037, 038, 040 changed to pass the shown hash) for CGR-02.
 - **Next agent (eng):** the next active item; CSR1 continues with CGR-20 (D-31 interim default), CGR-19 (F6), J5 (CGR-03 J5 part, CGR-07, CGR-08, BL-8, BL-9); CGR-22 in any CSR1 PR.
+
+---
 
 ## 2026-10-23 08:35 · eng (Engineering)
 - **Active issue #147 (F7 changes-requested) claimed 08:17.** F7's remedy is CSR1 CGR-02, so this is **CSR1 part 4**: PR **#175** (`fix/csr1-f7-sign-what-she-saw`), migration 0041, pgTAP 041, ADR-052, remediation plan `clinical/remediation/CGR-02.md`. Report sections reviewed: 2026-10-22 22:30 (CGR-02) and 2026-10-23 06:30 (latest; F6/F7 unchanged). Closes **CGR-02** for F7 and F6.
@@ -6835,6 +7539,9 @@ ENGINEERING BRIEF (CSR1 additions, not a new capability)
 - **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles; pgTAP 041 (30) and all other files green under a minimal pgTAP shim, except 001 (structural functions the shim lacks: not run). vitest, typecheck, lint, e2e not run (npm unreachable). `database.types.ts` hand-edited (`snapshot_hash`, `p_snapshot_hash`).
 - **PO condition (08:20) for the CGR-02 PR met in pgTAP 041:** a time corrected in a correction draft reaches the signed correction version ("the correction version carries the corrected time").
 - **F7 `in-review`** (#175); F6 row notes CGR-02 closed. **Next agent (eng):** CI on #175; when green, merge, set F7 `delivered`; the `claimed` label on #147 was removed at the end of this run. **(cra):** review #175 (0041, pgTAP 041) for CGR-02.
+
+---
+
 ## 2026-10-23 08:20 · po (Product Owner)
 - **F1-F4 reviewed** (CSR1 part 3, #171 head fafa6a1, CI run 39905325561 green; merged as bf37957, CI green on the merge commit and on e244aae). The PO read 0040, pgTAP 040, the e2e change, ADR-051 and `correct_report`/`sign_report` in 0016; **the PO did not run the tests**.
   - **CGR-01 and the F3/F4 part of CGR-03 met** (evidence table in `briefs/F1-F4.md`; CSR1 checkboxes updated).
@@ -6847,11 +7554,15 @@ ENGINEERING BRIEF (CSR1 additions, not a new capability)
 - **Waiting on people:** owner names the clinical owner (G-1), then D-29; `clinical`: D-10 (new sub-question), D-28, D-30, D-31.
 - **Next agent (cra):** review merge commit bf37957 (0040, pgTAP 040) for CGR-01, CGR-03. **(eng):** CSR1 part CGR-20 (blocks OPS1), then F6/F7 with the time-in-snapshot test, J5; then ABS1.
 
+---
+
 ## 2026-10-23 07:30 · eng (Engineering)
 - **#171 merged** (merge commit bf37957) with CI green on its head fafa6a1 (run 39905325561: app, db, e2e; head included `recovery/main` 81880d0, journal conflict resolved by keeping both entries). Nothing claimed beyond CI.
 - **F1-F4 `delivered`** (#19-#22, #171): CGR-01 and the F3/F4 part of CGR-03 closed in code (IMPLEMENTED). No `cra` section reviews 0040 yet (UNKNOWN).
 - **Next agent (cra):** review merge commit bf37957 (migration 0040, pgTAP 040) for CGR-01, CGR-03.
 - **Next agent (eng):** the next active item; CSR1 continues with CGR-20 (PO 07:10, D-31 interim default), then F6/F7 (CGR-02, CGR-19), J5 (CGR-03 J5 part, CGR-07, CGR-08, BL-8, BL-9); CGR-22 in any CSR1 PR.
+
+---
 
 ## 2026-10-23 07:40 · eng (Engineering)
 - **Active issue #145 (F1-F4 changes-requested) claimed 07:11.** F1-F4's remedy is CSR1, so this is **CSR1 part 3**: PR **#171** (`fix/csr1-f1f4-signed-facts`), migration 0040, pgTAP 040, ADR-051. Report section 2026-10-22 22:30; closes **CGR-01** and the **F3/F4 part of CGR-03**.
@@ -6861,6 +7572,9 @@ ENGINEERING BRIEF (CSR1 additions, not a new capability)
 - **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles; pgTAP 040 (32), 010, 011, 016 and all other files green under a minimal pgTAP shim, except five files that use structural pgTAP functions the shim lacks (001, 007, 009, 018, 025: not run). vitest, typecheck, lint, e2e not run (npm unreachable). No type change (signatures unchanged).
 - **F1-F4 `in-review`** (#171). **Next agent (eng):** CI on #171; when green, merge, set F1-F4 `delivered`; the `claimed` label on #145 is removed with this PR. Then CSR1 continues: F6/F7 (CGR-02, CGR-03 F6 part already covered here, CGR-19), J5 (CGR-03 J5 part, CGR-07, CGR-08, BL-8, BL-9).
 - **Next agent (cra):** review #171 at its head (CGR-01, CGR-03).
+
+---
+
 ## 2026-10-23 07:10 · po (Product Owner)
 - **Clinical gate passed for ADM1, C1 and J3** (`cra` section 06:30, merged with #167 as 6fc517a: CGR-18, CGR-12, CGR-04 closed, "the PO may accept"). **All three accepted**, no new condition; evidence tables in `briefs/ADM1.md`, `briefs/C1.md`, `briefs/J3.md`. **The PO did not run the tests**; evidence is merged code and tests, CI green (95ed737, 74940fb, c987e83) and the report.
 - **OPS1 reviewed** (CSR1 part 2, #165 head 74f3acf, CI run 39900134825 green; merged as c987e83). **CGR-05 and CGR-06 met** (PO read 0039 `exception_is_safety`, `handle_exception` → `cause_persists`). **Changes-requested for CGR-20** (blocking S1 for OPS1; PO confirmed 0038:38-45, 0024:353): a started or paused visit can only end as `completed`, so a broken-off visit ends as a permanent P1 or a false completion.
@@ -6885,6 +7599,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **Priority:** patient safety; next CSR1 part, blocks OPS1 and supports ABS1.
 - **Implementation recommendation:** a new terminal visit status reached only by a dedicated security-invoker command with a reason code, ending `visit_stuck` through the derived-exception cause; exclude it in J5 facts, F6 drafts, `report_not_final`, AN1 and J6 counts; one `PROVISIONAL` rule-register row.
 
+---
+
 ## 2026-10-23 06:40 · Clinical & Regulatory Architect (review)
 - **Report section 06:30** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `8ec3351` and #165 @ `74f3acf` (merged during this run as `c987e83`, same code). Read 0037, 0038, 0039 and pgTAP 037-039; **I did not run the tests** (CI green as reported, and checked on #165). This PR also carries the unmerged 02:28 section (#155).
 - **Closed:** CGR-18 (0037:57-75; pgTAP 037), CGR-12 (0038:52-58; pgTAP 038:76-109), CGR-04 (0038; pgTAP 038:127-203; thresholds PROVISIONAL, D-28). CGR-05 and CGR-06 (0039, pgTAP 039; merged as `c987e83`).
@@ -6894,11 +7610,15 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **Waiting on people:** owner names the clinical owner (G-1); `po` opens a decision for CGR-20 (`clinical`, with `legal`) and adds CGR-22 to D-28; `clinical`: D-28, D-30, D-16, D-17; `legal`: D-18, D-22.
 - **Next agent (eng):** CGR-20 as the next CSR1 part, before F1-F4. **(po):** accept ADM1, C1, J3 if you agree; set OPS1 `changes-requested` for CGR-20.
 
+---
+
 ## 2026-10-23 06:30 · eng (Engineering)
 - **#165 merged** (merge commit c987e83) with CI green on its head 74f3acf (run 39900134825: app, db, e2e; head included `recovery/main` 8ec3351, journal conflict resolved by keeping both entries). db-types-sync made no commit: the hand-edited `closable` matched. Nothing claimed beyond CI.
 - **OPS1 `delivered`** (#39, #165): CGR-05 and CGR-06 closed in code (IMPLEMENTED); CR-041 PROVISIONAL; D-28 OPEN. No `cra` section reviews 0039 yet (UNKNOWN).
 - **Next agent (cra):** review merge commit c987e83 (migration 0039, pgTAP 039; 019 and 038 changed on purpose) for CGR-05, CGR-06.
 - **Next agent (eng):** the next active item; CSR1 continues with F1-F4 (CGR-01), F6/F7 (CGR-02, CGR-03, CGR-19), J5 (CGR-07, CGR-08, BL-8, BL-9).
+
+---
 
 ## 2026-10-23 06:20 · eng (Engineering)
 - **Active issue #144 (OPS1 changes-requested) claimed 06:09.** OPS1's remedy is CSR1, so this is **CSR1 part 2**: PR **#165** (`fix/csr1-ops1-escalation`), migration 0039, pgTAP 039, ADR-050. Report section 2026-10-22 22:30; closes **CGR-05** and **CGR-06**.
@@ -6908,6 +7628,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on plain PostgreSQL 16 with stubbed Supabase roles; pgTAP 002–039 green under a minimal shim (real pgTAP not buildable here). vitest/typecheck/lint/e2e not run (npm unreachable). `database.types.ts` hand-edited (`closable`).
 - **OPS1 `in-review`** (#165). **Next agent (eng):** CI on #165; when green, merge and set OPS1 `delivered` (the `claimed` label on #144 was removed when the PR opened). Then CSR1 continues: F1-F4 (CGR-01), F6/F7 (CGR-02, CGR-03, CGR-19), J5 (CGR-07, CGR-08, BL-8, BL-9).
 - **Next agent (cra):** review #165 at its head (CGR-05, CGR-06, CR-041).
+
+---
 
 ## 2026-10-23 06:10 · po (Product Owner)
 - **CSR1 part 1 reviewed (#161)** (head 2924102, CI run 39894865111 green: app, db, e2e; merged as 74940fb, CI green on the merge commit and on cca4e45). The PO read migration 0038, pgTAP 038, the `/team` change and the rule register; **the PO did not run the tests**.
@@ -6919,11 +7641,15 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **Waiting on people:** the owner names the clinical owner (G-1), then D-29; `clinical` answers D-28 and D-30.
 - **Next agent (cra):** review 0037 (95ed737, CGR-18) and 0038 (74940fb, CGR-12, CGR-04, CR-038..040). **(eng):** CSR1 part 2 (OPS1: CGR-05, CGR-06), then F1-F4, F6/F7, J5; then ABS1 (#134). Correct the C1 deviation text about `/field`.
 
+---
+
 ## 2026-10-23 05:35 · eng (Engineering)
 - **#161 merged** (merge commit 74940fb) with CI green on its head 2924102 (run 39894865111: app, db, e2e). The generated-types drift check passed with the hand-edited `team_visit_alerts` entry. Nothing claimed beyond CI.
 - **C1 `delivered`** (#83, #120, #161): CGR-12 and CGR-04 closed in code (IMPLEMENTED); thresholds PROVISIONAL until D-28 (OPEN). No `cra` section reviews 0038 yet (UNKNOWN).
 - **Next agent (cra):** review merge commit 74940fb (migration 0038, pgTAP 038) for CGR-12 and CGR-04; CR-038..040.
 - **Next agent (eng):** the next active item; CSR1 continues with OPS1 (CGR-05, CGR-06), then F1-F4 (CGR-01), F6/F7 (CGR-02, CGR-03, CGR-19), J5 (CGR-07, CGR-08, BL-8, BL-9).
+
+---
 
 ## 2026-10-23 05:40 · eng (Engineering)
 - **Active issue #143 (C1 changes-requested) claimed 05:12.** C1's remedy is CSR1, so this is **CSR1 part 1**: PR **#161** (`fix/csr1-c1-visit-safety`), migration 0038, pgTAP 038, ADR-049. Report section 2026-10-22 22:30; closes **CGR-12** and **CGR-04** (with the CSR1 addition 00:10 and PS-2).
@@ -6932,6 +7658,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations + seed on a plain PostgreSQL 16 with stubbed Supabase roles, all pgTAP files green under a minimal pgTAP shim (real pgTAP and npm unreachable). pgTAP 019 rule count 13 → 15 (expected).
 - **C1 `in-review`** (#161). **Next agent (eng):** CI on #161; when green, merge, set C1 `delivered`, remove `claimed` from #143. Then the next CSR1 part for the next active item (OPS1: CGR-05, CGR-06).
 - **Next agent (cra):** review #161 at its head (CGR-12, CGR-04, provisional thresholds CR-038..040).
+
+---
 
 ## 2026-10-23 04:17 · po (Product Owner)
 - **ADM1 CGR-18 change reviewed (#153)** (head b979cd6, CI run 39884986430 green: app, db, e2e). **Met:** migration 0037 refuses removal while she performs a team visit in progress (`has_visit_in_progress`) or performed a completed visit with no `signed`/`final` report (`has_unsigned_reports`); pgTAP 037 covers the four cases through the real commands; `/admin` explains what clears it. The A-responsible case rests on the unchanged CGR-10 code and pgTAP 036. Evidence table and decided deviations in `briefs/ADM1.md`. The PO did not run the tests.
@@ -6950,6 +7678,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **Next agent (eng):** CSR1 (#149), then ABS1 (#134).
 - **Next agent (cra):** review merge commit 95ed737 (migration 0037) for CGR-18.
 
+---
+
 ## 2026-10-23 03:20 · eng (Engineering)
 - **ADM1 back to `in-review`, not `delivered`:** the Clinical Governance Report section 02:28 (#155) found **CGR-18 (blocking)** on the merged #135. #153 was green and mergeable but would have set `delivered` over a blocking finding, so it now carries the fix instead (one PR per item). Claimed #133 at 03:15.
 - **CGR-18 (IMPLEMENTED, migration 0037):** `remove_team_member` also refuses while she is the performer of a visit of the team on the way, started or paused (`has_visit_in_progress`), or of a completed visit with no `signed` or `final` report (`has_unsigned_reports`). `/admin` message and unit test. pgTAP 037 (24 assertions) runs the report's four cases through the real commands. ADR-046 amendment; remediation plan `clinical/remediation/CGR-18.md`.
@@ -6958,6 +7688,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **Not built:** CGR-19 (correction of a departed author's report) waits for a decision (`clinical` + `legal`); the CRA asked the PO to open it. Delegated takeover (PS-11) stays OPEN.
 - **Next agent (eng):** CI on #153; when green, merge, set ADM1 `delivered`, release the claim on #133. Then CSR1 (#149); ABS1 (#134) should reuse the CGR-18 performer check for absences.
 - **Next agent (cra):** review #153 at its head (CGR-18).
+
+---
 
 ## 2026-10-23 03:10 · po (Product Owner)
 - **ADM1 `changes-requested`** under the clinical gate. The Clinical Governance Report section 02:28 (#155, open) found **CGR-18** (blocking). The PO confirmed it in 0036 and 0016: removal checks the responsible person only, but only the performer may draft and sign the report. Removing a performer leaves care undocumentable and unbillable. One small PR: refuse removal while she performs a `started`/`paused` team visit or has a missing or `draft` report; `/admin` shows why; four pgTAP cases in `briefs/ADM1.md`. The PO did not run tests; CI on eceac83 and 0e90932 is green.
@@ -6969,6 +7701,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **Next agent (eng):** the CGR-18 change for ADM1 (issue #133), before or as the first commit of CSR1's first PR; then CSR1 (#149), then ABS1 (#134).
 - **Next agent (cra):** review the ADM1 CGR-18 PR while it is open.
 
+---
+
 ## 2026-10-23 02:28 · Clinical & Regulatory Architect (review)
 - **Report section 02:28** in `reports/CLINICAL_GOVERNANCE.md`, on `recovery/main` @ `0e90932` (ADM1 merged as `eceac83`; CI green on both). I did not run the tests; results come from CI.
 - **Closed:** CGR-09 (0036:55; pgTAP 036:121-153), CGR-10 for the responsible person (0036:105-111; pgTAP 036:89-116), CGR-17 (#140, D-27 interim rule).
@@ -6979,6 +7713,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **Next agent (po):** ADM1 stays not accepted (CGR-18); set `changes-requested` or route the fix as an ADM1 follow-up; open a decision for CGR-19.
 - **Next agent (eng):** the CGR-18 change in `remove_team_member` with its pgTAP cases; small, before or with CSR1's first PR.
 
+---
+
 ## 2026-10-23 01:10 · po (Product Owner)
 - **ADM1 reviewed on its merge commit** (#135 merged as eceac83 at 00:20; CI run 39864278704: app, db, e2e green; also green on b0bd82b). Evidence table in `briefs/ADM1.md`. The PO did not run the tests; results come from CI.
   - Condition 1 (merged, green on the merge commit) is met; the C1 pause e2e condition is met on eceac83.
@@ -6988,6 +7724,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **No new brief** (CSR1 and ABS1 are approved and unstarted). No decision answered; D-28 and D-29 still wait on their owners; the clinical owner is still unnamed.
 - **Next agent (eng):** set ADM1 `delivered` (#101, #135) so the PO review hand-off opens; then CSR1 (issue #149) in the brief's order, BL-8 and BL-9 last.
 - **Next agent (cra):** a report section on eceac83 for ADM1 (CGR-09, CGR-10); then the PO accepts.
+
+---
 
 ## 2026-10-23 00:10 · po (Product Owner)
 - **ADM1 changes pre-reviewed** (#135, head 85b1519, CI green on app, db, e2e). Evidence table in `briefs/ADM1.md`. The PO did not run the tests; results come from CI and from reading migration 0036 and pgTAP 036.
@@ -7000,6 +7738,9 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **No new brief:** CSR1 and ABS1 are approved and unstarted. No decision answered; D-28 and D-29 are still waiting on their owners.
 - **Next agent (eng):** merge `recovery/main` into #135 (journal only), merge it when green, set ADM1 `delivered`; then CSR1, with the added criterion.
 - **Next agent (cra):** a report section on #135 (CGR-09, CGR-10) so that ADM1 can be accepted.
+
+---
+
 ## 2026-10-22 23:25 · eng (Engineering)
 - **ADM1 changes** (issue #133, claimed 23:18), **PR #135** updated. State stays `in-review` until CI is green on the new head; nothing tested locally against a database (no local Supabase): CI is the test runner.
   - **PO privacy fix (22:15):** the `released` row in `visit_plan_changes` (team-readable) carries only "Mitglied aus dem Team entfernt"; the administrator's reason stays in `change_log` and audit. pgTAP: no plan change row contains the reason; `change_log` does.
@@ -7009,6 +7750,9 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **Gate trail (ADM1):** CGR-09, CGR-10 fixed; CGR-16 waits for D-29 (owner); cover by a removed nurse OPEN while COVER1 is off.
 - **Not done this run:** #138 (Clinical Architect role) has a merge conflict and must align with the single report path from #136; next run.
 - **Next agent (eng):** when #135 is green, merge and set ADM1 `delivered`; then #138; then CSR1.
+
+---
+
 ## 2026-10-22 23:10 · eng (Lead Engineer)
 - **#138 reconciled with #136 and #139** (PO comments on #138). README and COORDINATION keep #136's role and acceptance-gate wording (D-27, CGR-14). There is one report path, `reports/CLINICAL_GOVERNANCE.md`. The duplicate `cra` role and participant rows and the "no report yet" line are dropped.
 - **Added for Engineering** to the *Clinical review gate*:
@@ -7018,6 +7762,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
   - a remediation plan in `clinical/remediation/<finding ID>.md` before proceeding, when a finding creates a safety, billing or regulatory risk;
   - a trail in the PR and the journal.
 - ABS1 is next and is in scope. Engineering reads the 22:30 report section before implementing.
+
+---
 
 ## 2026-10-22 23:05 · Clinical & Regulatory Architect (review)
 - **Owner decided D-27 (22:59):**
@@ -7033,6 +7779,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **#136 merged (22:40) without the interim clause.** This PR adds the owner's 22:59 wording to the D-27 answer in `OPEN_DECISIONS.md`, attributed to the owner, and nothing else in that file. That closes CGR-17 once merged.
 - **Next agent (po):** keep D-6, D-10, D-15, D-16, D-17 and D-19 open. No clinical rule is marked approved anywhere.
 - **Next agent (eng):** where a remedy needs a clinical threshold (CGR-04, CGR-13), use a strict provisional default and say so in the deviations.
+
+---
 
 ## 2026-10-22 23:00 · po (Product Owner)
 - **PR #136 merged** (bf5ed02, CI green on 81524b1): the Architect is `cra`, D-27 is decided, the gate is live, and CGR-14 is resolved. #138 (Engineering) was asked to align with the single report path and these role definitions; the PO keeps its remediation-plan steps.
@@ -7084,6 +7832,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
   - pgTAP for every negative case;
   - list each provisional default in `clinical/CLINICAL_RULE_REGISTER.md`.
 
+---
+
 ## 2026-10-22 22:40 · po (Product Owner)
 - **Owner decided D-27** (moved to *Decided*):
   - The Clinical & Regulatory Architect is a permanent, **mandatory reviewer**. It identifies risks, controls, findings and recommendations.
@@ -7111,6 +7861,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **Merge:** PR #136 brought up to date with `recovery/main` twice (PO 22:15 #137, governance baseline #139). All journal entries and both PO notes kept, newest first.
 - **Next (po):** apply the report's gate findings in the next PO cycle, after this merge.
 
+---
+
 ## 2026-10-22 22:30 · Clinical & Regulatory Architect (review)
 - **First Clinical Governance Report published:** `reports/CLINICAL_GOVERNANCE.md`, baseline on `recovery/main` @ b546299. The gate in #136 can now run.
 - **Registers created** in `clinical/`: `HAZARD_LOG.md`, `CLINICAL_RULE_REGISTER.md` (0 of 34 rules approved), `SAFETY_RISK_REGISTER.md`.
@@ -7123,6 +7875,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **Next agent (po):** apply the gate to #135; rank CSR1; reconcile #136 and #138.
 - **Next agent (eng):** fix CGR-09 and CGR-10 in #135; do not start ABS1 before its brief is amended.
 
+---
+
 ## 2026-10-22 22:15 · po (Product Owner)
 - **ADM1 changes pre-reviewed** (#135, open, CI green on becb9c4). Evidence table in `briefs/ADM1.md`. Changes 1–4 are met; the C1 pause e2e is fixed in code and must pass on the merge commit.
 - **One blocking privacy fix before merge:** the release row in `visit_plan_changes` is readable by the whole team and carries the administrator's free-text removal reason. Store the fixed text "Mitglied aus dem Team entfernt" there; the reason stays in `change_log` and the audit. pgTAP: the reason never appears in `visit_plan_changes`. Comment posted on #135.
@@ -7130,6 +7884,9 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **Challenge:** an administrator's reason for a staffing change does not belong in the care record (new row).
 - **Status:** ADM1 stays `changes-requested` until #135 is merged with green CI; then accepted without another round on changes 2–4. No new brief: ABS1 is still the next approved, unstarted item.
 - **The PO did not run the tests**; results are taken from CI and from reading the code.
+
+---
+
 ## 2026-10-22 22:10 · po (Product Owner)
 - **New permanent role (owner instruction): Clinical & Regulatory Architect**, role `clinical`. It is the authoritative reviewer for patient safety, clinical workflows, care quality, billing integrity, regulatory compliance, LTCF, PAG and MQI. It reuses the existing `clinical` decision owner, so the validator and the coordination watcher need no change. Updated:
   - `README.md`: *Roles*, a new *Clinical review gate*, rule 6 and *Participants*;
@@ -7144,6 +7901,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **No delivery** to review this cycle. Queue unchanged: ADM1 changes, then ABS1.
 - **Next agent (clinical):** publish the first Clinical Governance Report. Cover first the items that are in review or due next (ADM1, ABS1), then the accepted items with clinical impact (F6, F7, J3, J5, QG1, C1, COVER1, PLAN2, HAND1, RET1).
 - **Next agent (eng):** unchanged.
+
+---
 
 ## 2026-10-22 21:35 · eng (Engineering)
 - **ADM1 changes** (issue #133, claimed 21:11), **PR #135**. The status row is `in-review`. ADR-046 amendment.
@@ -7161,6 +7920,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
   - whether HAND1 should list `released` entries is a PO question.
 - **Next agent (eng):** if #135 is green, merge it and set ADM1 `delivered`. Then ABS1, reusing the release function.
 
+---
+
 ## 2026-10-22 20:15 · po (Product Owner)
 - **PR #126 brought up to date** again: `recovery/main` (ADM1 #101) merged in, journal entries kept, newest first. No second PO PR opened; this cycle rides on #126.
 - **ADM1 changes-requested** (#101; CI green on head c736429; on merge bdb0d1d app and db green, e2e red only in the known C1 pause test). Evidence table in `briefs/ADM1.md`. Every brief criterion is met. Blocking: `remove_team_member` leaves the person as responsible member of future visits, so they look covered and never reach J3, OPS1 or COVER1. Changes:
@@ -7175,6 +7936,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 - **The PO did not run the tests**; results are taken from CI.
 - **Next agent (eng):** ADM1 changes first (small, patient safety), then ABS1, reusing the release function.
 
+---
+
 ## 2026-10-22 18:30 · eng (Engineering)
 - **ADM1 resumed** (issue #78 active; the earlier claim was older than 3 h). D-5 is the decided rule, so ADM1 is built under it; D-20 (owner) may later move member admission to the teams. That would be a follow-up, not a blocker. The row is `in-review` again with #101.
 - **#101 brought up to date** with `recovery/main` (merge commit, no rebase):
@@ -7184,6 +7947,8 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
   - ADM1's own invitation question was D-22, which collided with the legal D-22 on main, so it is now **D-26** (`owner`).
 - **Tests:** all 35 pgTAP files pass locally against plain PostgreSQL 16 with a Supabase shim (035: 67 assertions). Unit, typecheck and e2e were not run here (no npm registry access); CI runs them.
 - **Follow-up (PLANNED, not in this PR):** HAND1's "since your last visit" still shows "Teammitglied n". It can show the ADM1 display names once this is merged.
+
+---
 
 ## 2026-10-22 18:20 · po (Product Owner)
 - **PR #126 unblocked:** it conflicted with `recovery/main` on this journal (RET1 status entry). `recovery/main` merged in, both entries kept, newest first. This cycle rides on the same PR; no second PO PR opened.
@@ -7330,6 +8095,9 @@ ENGINEERING BRIEF (CSR1 addition, not a new capability)
 
   Performing a cover waits for D-3.
 - **ADM1 (#101)** is green and stays unmerged until the owner answers D-20, as the PO asked. Its invitation question becomes **D-24**, because the PO numbered the legal medical-order question D-22. Its migration will be renumbered after the fixes.
+
+---
+
 ## 2026-10-22 15:05 · po (Product Owner)
 - **Duplicate work, resolved.** Two PO sessions ran the same owner work package in parallel. The 14:50 report (#113) is the one that stands. A second version (#112) is closed unmerged, and only its non-overlapping parts are kept here:
   - review addenda with testable findings for **C1** (Operations closes and reopens in the app), **PLAN2** (the case says why B work stops; confirm the hosted daily job) and **COVER1** (the covering nurse sees nothing else of the case; needs-assessment and KPI tests). The 14:30 verdicts are unchanged;
@@ -7454,6 +8222,8 @@ ENGINEERING BRIEF
 - **Priority:** High, after PLAN2, F7 and AN1.
 - **Implementation recommendation:** reuse the J2 offer machinery at visit level. Keep the offer and acceptance independent of the D-3 access part, so it can ship first.
 
+---
+
 ## 2026-10-22 13:00 · po (Product Owner)
 - **J5 accepted** (#75, ADR-040, pgTAP 022, CI green): billable minutes never exceed measured care minutes. Q11 decided.
 - **Challenge review** ("would we design it this way today?"). Two inherited practices are removed:
@@ -7474,6 +8244,8 @@ ENGINEERING BRIEF
 - **Priority:** High, after C1 and ADM1.
 - **Implementation recommendation:** generate concrete visit rows through the existing J3 commands, so every rule and the change log apply. Keep one daily job idempotent.
 
+---
+
 ## 2026-10-22 12:15 · eng (Lead Engineer)
 - **Autonomous coordination** (owner request; ADR-039, `COORDINATION.md`): a GitHub Action turns the three files into hand-off issues.
   - `agent:eng` for implementing or addressing changes; the highest unblocked one is labelled `active`.
@@ -7481,6 +8253,8 @@ ENGINEERING BRIEF
   - `human-decision` for owner, clinical and legal questions, assigned to the owner.
   - Two hourly scheduled agents (PO, Engineering) pick their issues up. A claim label prevents double work.
 - Seen: PO PR #45 (accepts F0, J2, OPS1, QG1, J6; J5 changes-requested; C1, ADM1, AN1 next). Once it is merged, the watcher opens `eng:J5` (active) and `eng:C1`, `eng:ADM1`, `eng:AN1`.
+
+---
 
 ## 2026-10-22 12:00 · po (Product Owner)
 - **Accepted:** F0 (#38), J2 (#36), OPS1 (#39), QG1 (#41), J6 (#42). All are merged with green CI; the evidence tables are in the briefs. QG1 becomes operational once `clinical` answers D-16.
@@ -7495,6 +8269,8 @@ ENGINEERING BRIEF
   - Drop Q11 from the J5 row once built.
   - Clock check: your last entry is stamped 12:30, but it was merged by 11:17 Zurich.
 
+---
+
 ## 2026-10-22 12:30 · eng (Lead Engineer)
 - **J5 merged** (#43, CI green) and `delivered`. CI found a real bug on the way: text arrays in PL/pgSQL need `array_append`; fixed before merge.
 - **Every approved item is now delivered or accepted.** Waiting for PO acceptance: F0, J2, OPS1, QG1, J6, J5. J7 is a draft (D-14).
@@ -7502,6 +8278,8 @@ ENGINEERING BRIEF
 - **Open for clinical:** D-10, D-15, D-16, D-17.
 - **Open for the owner:** D-11 (pilot canton: cantonal rates).
 - **Engineering next:** watch `docs/agents` for PO reviews and new approvals. Until then, nothing in the queue is buildable.
+
+---
 
 ## 2026-10-22 11:40 · eng (Lead Engineer)
 - **Merged with green CI, all waiting for PO acceptance:** QG1 (#41) and J6 (#42).
@@ -7511,12 +8289,16 @@ ENGINEERING BRIEF
   - **Q11 opened for the PO:** which minutes count per category.
 - After J5, the queue has no approved item left that is not started. J7 is a draft and waits for D-14.
 
+---
+
 ## 2026-10-22 10:30 · eng (Lead Engineer)
 - **Merged with green CI, all waiting for PO acceptance:** J2 (#36), F0 remainder (#38), OPS1 (#39).
 - **F0:** reasons per the PO rule. Funding-fact changes on a ready case and qualification changes now need one; the others were already enforced. Commands not built yet (case pause/close/reopen, visit cancel/no-show, hold lift) are covered by a structural guard. D-5 qualification: admins only, audited, one shared rule for J2 and J3.
 - **OPS1 (ADR-035):** ten exception types derived in the database. Q9 defaults live in `exception_rules`. Take over, note, close with reason, auto-close with a note. **Deviation for the PO:** a serious quality event shows at once as P2 and becomes P1 after 4 h.
 - **Open for the PO:** Q10 (working-time definition for J2 deadlines).
 - **Next per the queue:** the highest approved item not yet started.
+
+---
 
 ## 2026-10-21 23:05 · po (Product Owner)
 - **F6 accepted** (#35); the evidence table is in `briefs/F6.md`. Deviation accepted: the countersignature rule is in code, not configuration. Adjust it by migration once `clinical` answers D-10.
@@ -7525,11 +8307,15 @@ ENGINEERING BRIEF
 - **CI note:** the push run of `ci` on 4343016 failed at "Install Playwright browser", while the pull-request run passed. Likely a flaky setup step; worth a retry or a cache.
 - **Standing PO rule from the owner:** every item that reaches `in-review` or `delivered` is reviewed automatically, and on acceptance the next capability is activated. No owner instruction needed.
 
+---
+
 ## 2026-10-21 23:05 · eng (Lead Engineer)
 - **Clock correction:** my entries dated "2026-10-22 00:30" and "01:10" were written at about 22:00 and 22:40 Europe/Zurich on 2026-10-21. Times from now on are Europe/Zurich.
 - Read the PO update (#31). **J2 (#36)** now ships the Q8 pilot defaults (hospital discharge 4 working hours, nursing home 1 working day, private 2 working days) as platform configuration. Admins override them per organisation, and type `other` has no default. **Q10** (opened for the PO): what counts as working time. Provisionally Mon–Fri 08:00–18:00 Zurich, no holidays.
 - Rows updated as asked: Q8 dropped from J2, Q9 from OPS1, D-10 from F6.
 - **Next (queue rank 1): F0 remainder.** Mandatory reasons per the PO list, plus the D-5 qualification rules (admins only, audited, one shared rule for J2 and J3). Then **COORD-3** (test fixture independent of ranks).
+
+---
 
 ## 2026-10-22 01:10 · eng (Lead Engineer)
 - **F6 merged** (#35, CI green) and `delivered`; it awaits PO acceptance. CI hardening on the way: the types bot now rebases before pushing, so a concurrent commit no longer fails the sync.
@@ -7537,10 +8323,14 @@ ENGINEERING BRIEF
 - **For the PO (Q8):** no response-time values ship. Until they are set, each open team search shows in Operations as "deadline not configured", so nothing waits silently. Values are set per referral type with `set_response_deadline` (admin); there is no admin screen yet.
 - **For clinical (D-15):** the required qualification is derived from the J3 rules (registered nurse while the needs assessment is open or when an order is present). Please confirm.
 
+---
+
 ## 2026-10-22 00:30 · eng (Lead Engineer)
 - **F6 signed visit report** in review as #35 (ADR-032). The report has its own versioned lifecycle (draft → signed → final); the visit stays `completed`. The draft is built by the server from the field data; only the performing nurse drafts and signs; signed versions are immutable even for database roles; corrections are new versions with a reason. Operations' "report missing" closes on a final report.
 - **Provisional rule pending D-10 (`clinical`):** countersignature whenever the performer is not a registered nurse. This is stricter than the D-10 recommendation; the brief's acceptance is otherwise independent of D-10.
 - **Open for the PO:** F0 criterion 5 (which commands require a reason). Next per the queue after CI: J2 changes (rank 5).
+
+---
 
 ## 2026-10-21 23:50 · eng (Lead Engineer)
 - Owner approved the operating model (PO decides what, engineering how; communication only via `docs/agents/`). Mapping: the model's `READY_FOR_REVIEW` = validated state `in-review` while CI runs, then `delivered` (waiting for PO acceptance).
@@ -7548,10 +8338,14 @@ ENGINEERING BRIEF
 - **PO question:** F0 criterion 5: which commands must require a reason?
 - Next per the queue while F0 waits: **F6** signed visit report (rank 4). The countersignature part waits for D-10.
 
+---
+
 ## 2026-10-21 23:20 · eng (Lead Engineer)
 - **J1 PO changes merged** (#30) and **J3 PO changes merged** (#32), CI green. Both are `delivered` and wait for PO acceptance against their briefs. Open clinical items: D-15 (checklist, care-plan fields, KLV mapping) and D-17 (safety-alert list).
 - CI found a real bug on the way: the audit log rejected a second audit row for the same case under one command key. Fixed by dropping that uniqueness; replay protection is unchanged.
 - **F0 report** published: `reports/F0.md`. Main gap: nurses can still read clinical fields of other teams' cases in the legacy tables (SR-22). Engineering starts on that next (F0 step 1). **PO question:** which commands need a mandatory reason (criterion 5)?
+
+---
 
 ## 2026-10-21 22:20 · po (Product Owner)
 - **Accepted: J1** (#30) and **J3** (#32), both on merged tests with green CI. The evidence tables are in the briefs. Deviations accepted: `unknown` insurance type counts as missing; the team chooses the KLV category until D-15; assignment is team plus responsible member (D-6). Safety alerts on the card still wait for D-17.
@@ -7568,15 +8362,21 @@ ENGINEERING BRIEF
   - J5 is not blocked by D-12. Residual-financing rates need D-11; D-12 only gates real invoicing, which J5 does not do.
   - In F6, D-10 no longer blocks. Only QG1 (D-16) and J7 (D-14) wait on others.
 
+---
+
 ## 2026-10-21 22:40 · eng (Lead Engineer)
 - **J3 changes** in review (ADR-030): care-plan summary with KLV category, planned minutes, frequency, review date and care goal; minutes per category on every visit; needs assessment first; B only with a present order; B and needs-assessment visits started only by a registered nurse (DB-enforced); inform-GP task; reassessment, order-expiry and uncovered flags; Operations exception; change log with reasons; care goals on the `/field` card.
 - Stacked on J1 (#30). Next per the PO queue: F0 per-criterion report, then F6.
+
+---
 
 ## 2026-10-21 22:10 · eng (Lead Engineer)
 - Read PR #28 (PO briefs, re-ranked queue, decisions). Status rows refreshed: draft items QG1, OPS1, J5, J6, J7 acknowledged as `not-started`; COORD-1, COORD-2 and Q4 no longer listed as blockers. PO: please move them to *Decided*.
 - **J1 changes** (residence, insurer, insurance type, medical order status, readiness gate, server-side matching only when ready, tasks, protected insurer data) are in review: ADR-029. Safety alerts wait for the D-17 list.
 - **J3 changes** (care-plan billing fields, planned minutes per KLV category, needs-assessment first, B only with an order and a registered nurse) in progress, stacked on J1.
 - **F0** per-criterion report follows after J3, because J3 adds member qualifications as data (an F0 criterion).
+
+---
 
 ## 2026-10-21 21:59 · po (Product Owner)
 - **Owner decided D-5:** NAVORA administrators manage organisations, memberships and qualifications. Pilot qualification model: `registered_nurse`, `care_assistant`. Recorded as Decided; F0 brief criteria updated.
@@ -7585,6 +8385,8 @@ ENGINEERING BRIEF
 - **After #30 merges** the PO will: set J1 `accepted`; queue QG1, OPS1, J5, J6, J7 (their rows exist in #30); move COORD-1, COORD-2 and Q4 to Decided.
 - **Merge note:** this PR and #30 both add a top journal entry; whichever merges second keeps both, newest first.
 
+---
+
 ## 2026-10-21 21:55 · po (Product Owner)
 - **F0 reviewed: changes-requested.** Per-criterion verdict in `briefs/F0.md`. Met: schema reproducible with drift report, organisations/roles/team memberships, anonymous and other-organisation negative tests, audit and idempotency, no client identity in offers, synthetic seeds. Missing: (1) member qualification as data, (2) team-scoped read of clinical data inside an organisation; the interim `org_members_read` lets every organisation member read all cases, visits, care notes and quality events.
 - Gap 2 waits for **D-3** (owner); PO supports option B and marked D-3 as blocking F0.
@@ -7592,10 +8394,14 @@ ENGINEERING BRIEF
 - **Next agent (eng):** your F0 row still lists COORD-1, but the briefs are merged. Update F0 with this review, build F0 gap 1 (qualification), then J1 changes. Please also add `not-started` rows for QG1, OPS1, J5, J6, J7, and drop COORD-1/COORD-2/Q4 where answered, so the PO can close them.
 - **Waiting for the owner:** D-3 (read scope), D-11 (pilot canton), D-12 (legal entity and OKP admission). **Waiting for clinical:** D-10, D-15, D-16, D-17.
 
+---
+
 ## 2026-10-21 19:20 · po (Product Owner)
 - **F1-F4 accepted** on the merged tests (e2e `field.spec.ts`, pgTAP 009–011); evidence per criterion in `briefs/F1-F4.md`. Only gap: care goals and safety alerts on the visit card, because that data does not exist yet. Routed into J1 (alerts, D-17 for `clinical`) and J3 (care goals). No new item.
 - Thanks for #29 (validator test independent of PO ranking); PR #28 needs it merged first.
 - **Next agent (eng):** unchanged from the 19:10 entry. F0 per-criterion report is the next PO input.
+
+---
 
 ## 2026-10-21 19:10 · po (Product Owner)
 - **COORD-1 done:** briefs for F0, J1, J2, J3 published, plus F1-F4 (adopted as the PO's Verified Visit) and F6 (signed visit report). Draft briefs for the next items: QG1, OPS1, J5, J6, J7.
@@ -7605,6 +8411,8 @@ ENGINEERING BRIEF
 - **Root `ROADMAP.md`** replaced with the 21 October product roadmap (business-model gates; ID map to this layer).
 - **Correction:** an earlier PO note (outside this repo) called the live tables empty and the schema unversioned. That came from row estimates and the live migration history; the repo has 12 migrations and TD-19 is the authority. PR #27 against `main` was closed for this reason.
 - **Next agent (eng):** read `briefs/F0.md` and report per criterion; add `not-started` rows for QG1, OPS1, J5, J6, J7 so the PO can queue them; drop COORD-1/COORD-2/Q4 from rows where answered.
+
+---
 
 ## 2026-10-21 18:40 · eng (Lead Engineer)
 - The owner approved the multi-agent coordination model. **Official layer:** `docs/agents/NEXT_CAPABILITY.md` (PO), `IMPLEMENTATION_STATUS.md` (eng), `OPEN_DECISIONS.md` (all). Protocol in `README.md`; CI validates the files (`npm run agents:check`).
