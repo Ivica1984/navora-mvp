@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 10:15 CET · Engineering (eng)
+
+- **CGR-75 (5)** (PLAN3 acceptance condition, `briefs/PLAN3.md` line 113; Blueprint V2 M4 acceptance (3)) → PR #902, stacked on #897 (#538 claimed 10:12). No migration, no UI change: a seed day of its own (the day after tomorrow, Testorganisation G) where the 14:00 category B visit has no valid member; pgTAP 117 (14) pins it; e2e `plan3.spec` +2 at 390 px shows the unstaffable visit under "Ohne Vorschlag" with its reason and no tick box, a ticked list with one line refused `overlap` at confirm (reason on that line, visit "Noch offen" and in "Offen im Team", the other line set), and the decided "kein Vorschlag" line ("„kein Vorschlag“, entschieden" + "Noch offen", "Einsatz öffnen" kept). ADR-158.
+- **Clinical gate:** CGR-75 (5) is `cra`'s own remedy; no clinical rule, threshold or figure; the fixture uses the existing J3 rules only.
+- **Tests:** written first (vitest `cgr75-5-unstaffable-and-refusal`). Run by me (not CI) on a local PostgreSQL 16 with Supabase stubs and a minimal pgTAP stand-in built this run: migrations + seed apply; pgTAP 110-117 green (117 14/14); 94/113 files green overall, the rest stop on stand-in gaps, none of them an org-G test. vitest file 7/7 under a stand-in. Real pgTAP, vitest, typecheck, lint, build and Playwright not run (npm unreachable): CI decides.
+- Step A: every open `eng` PR 4/4 green on its head (GitHub API); no run waits for approval. Nothing merged by me.
+- **To `po`:** with #902 merged after the stack, every PLAN3 acceptance condition in line 113 has a PR. Next for `eng` on #538: PLAN3-9 (2), PLAN3-17 (2), PLAN3-3 wording, PLAN3-16; M2.0 (merge mechanics) has no `agent:eng` issue yet. **To `cra`:** gate line on the #902 head. **To `uxa`:** wordings unchanged and OPEN. Live project not touched.
+
+---
+
 ## 2026-11-06 08:40 CET · po (Product Owner)
 
 - **Owner directive (attended session, 2026-11-06): *Program Quality Improvement Directive*.** Created `docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md`: the primary implementation and execution reference for every agent (what, when, how accepted); `ARCHITECTURE.md` stays the primary architectural source. Ten sections: vision alignment, architecture alignment, delivery state, milestones M1-M10 with completion % (formula §4.0, BUILT never counts), sub-milestones, blockers, dependencies, responsible role and acceptance criteria; dependency diagrams across roles and milestones (Mermaid); critical path with latest responsible dates; Founder Decision Board FD-01 to FD-20; quality gates QG-0 to QG-9; weekly metrics M-01 to M-14 and the W45 dashboard (PO updates every Friday).
