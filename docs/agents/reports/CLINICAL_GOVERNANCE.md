@@ -16,6 +16,65 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-06 21:50 CET: founder request (attended session): qualification and activity matrix (skill and grade mix) **written as PROPOSED** (`QUALIFICATION_MATRIX.md` v0.1, CR-174 to CR-178); new **CGR-145** (advisory, **S1** before real data: the matrix loosens CR-007 for FaGe) and **CGR-146** (advisory, **S1** before Phase B: the licensed nursing-responsible role); founder principles on overlaps and PROVISIONAL thresholds recorded
+
+**Scope:** a founder message in an attended session (2026-11-06, about 21:40 CET), not a repository change. It sets two principles: self-organisation without a hierarchical Pflegeleitung, and competence limits per qualification (KLV Art. 7). It proposes three grades. It asks `cra`, with `lca`, to write the Swiss qualification and activity matrix for home care and nursing homes and to file it in the clinical register, so that the PO and Engineering can build it into PLAN3's assignment. It confirms two things for Phase A: the provisional thresholds stay (D-28), and the overlap rule stays a fact, never a block (CGR-137, CGR-144). No code was read for this section beyond the qualification model: CR-007, CR-009, CR-164; D-15; D-29; H-04; C-6.
+
+**What I did:** I read the sources listed in `QUALIFICATION_MATRIX.md` §5:
+- the KLV extract (Stand 1.1.2022);
+- the Gutachten Kellerhals Carrard 2025;
+- the Bildungspläne FaGe EFZ and AGS EBA (2010);
+- the CURAVIVA/INSOS delegation text;
+- the BS and BL nursing-home licensing pages;
+- the BS Spitex leaflet 2025;
+- the BFH summary on PH SRK.
+
+The current consolidated KLV was not readable (fedlex needs JavaScript); `lca` checks it (L-1). From these sources I wrote the matrix:
+- grades;
+- activity rows A1-A4, B1-B13, C1-C3 and N1, each cell E, D, – or ?, with its source;
+- a delegation control without hierarchy;
+- questions L-1 to L-6 for `lca` and K-1 to K-6 for the Clinical Owner.
+
+Every cell is **PROPOSED**. I approve nothing (D-27). I did not run tests and did not touch the live project. `lca` was not run in this session; its questions are on file.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| CGR-145 | **Qualification matrix and its use in PLAN3** (founder request; CR-174 to CR-177, PROPOSED) | **advisory, S1** (blocks real clients or residents, not Phase A) | (1) The request lets FaGe perform delegated Behandlungspflege and PLAN3 assign by profile. This **loosens** today's rule (category B and needs assessment only by a `registered_nurse`, CR-007, CR-164). (2) KLV assigns only A1, A3 and A4 to a Pflegefachperson; the grade limits for B activities come from the training plans and from delegation, so they cannot be derived from "KLV Art. 7". (3) A rule per KLV category is too coarse in both directions: vital signs are Bst. b, yet in the AGS plan; medication and injections are Bst. b, yet not in it. (4) A qualification filter alone does not secure the delegation conditions (selection, instruction, supervision). The control must not sit in the AI (D-40) | matrix §1 rows 1-3, 5; KLV Art. 7 Abs. 2 Bst. b Ziff. 1, Abs. 2bis, Art. 8a (extract 2022); Bildungsplan FaGe Bereich D; Bildungsplan AGS 1.6, 1.4, 2.4; Gutachten 2025; CURAVIVA/INSOS 2024 | **po / eng / clinical:** (a) brief with an activity catalogue (D-15 option C) carrying a matrix row per care-plan service; (b) the qualification values of CR-174 with D-29 evidence; (c) the delegation record CR-176; (d) one database check CR-177 on every assignment path. pgTAP: a `fage_efz` member is refused as responsible for a B3 visit without a delegation, accepted with a valid one, refused again the day after its end; an `ags_eba` member is accepted for C1 and B1-with-delegation, refused for B3 even with a delegation record (not in her scope); PLAN3 never proposes a refused member; hand assignment gives the same refusal. (e) Until the Clinical Owner approves the cells and D-29 is decided, the strict CR-007 stays in force for any non-synthetic organisation (a pgTAP or configuration check that the loosened rule is off outside synthetic test organisations) |
+| CGR-146 | **"No hierarchical Pflegeleitung" and cantonal licensing** (founder principle; CR-178, PROPOSED) | **advisory, S1** (blocks Phase B with a real pilot organisation) | BS requires a Pflegedienstleitung and deputy with an HF/FH degree and a practice licence for each nursing home; BL requires a pflegefachverantwortliche Person and deputy; the BS/BL Spitex rule was not read. The principle stays possible (nobody dictates rosters), but the licensed organisation must name this person, and NAVORA has no place for her duties. Without it, the self-organised model may not be licensable, and delegations have no accountable fallback | BS Pflegeheimbewilligung page; BL Pflegeheime page; BS Spitex Merkblatt March 2025; matrix §1 row 4 | **owner / `lca`:** L-2 answered for BS/BL Spitex and nursing homes. **po:** a brief line for the role as professional responsibility without line authority: approves the organisation's matrix version, reads and revokes delegations, is the qualification escalation, plans nobody. Test: only the named role can approve a matrix version; the role cannot assign a visit through any command |
+
+### Founder principles taken as given (no finding)
+
+- **Overlap stays a fact, never a block** (CGR-137, CGR-144): consistent with my remedies; no change.
+- **Provisional thresholds in Phase A** (D-28): consistent; they stay PROVISIONAL, and every one still needs the Clinical Owner before real data.
+- **Self-organisation:** consistent with the matrix. The team delegates within itself (§4); the one control that a hierarchy held is replaced by the delegation record, the database check and the licensed role (CGR-146).
+
+### Decisions requested
+
+- **po:**
+  - record the founder message as a founder decision (FE-…) in `FOUNDER_DECISIONS.md`. I do not edit that file;
+  - place CGR-145 (brief, after the PLAN3 stack and FE-037/FE-038 cleanup);
+  - ask `lca` for L-1 to L-6;
+  - place CGR-146 as a line in the NH-A briefs and in the Phase B readiness file.
+- **lca:** L-1 to L-6 in `QUALIFICATION_MATRIX.md` §6 (advisory).
+- **clinical** (Clinical Owner, after G-1): K-1 to K-6. Until then every **?** is treated as **–**, and no **D** or **E** cell beyond CR-007 is active for real data.
+- **owner:** G-1 (naming the Clinical Owner) is now on the path to Phase B for this matrix too. D-29 (verified qualification) as before.
+
+### Contradiction noted (README rule 10)
+
+The founder message asks to file the matrix "so that PO and Engineering build it directly into the AI planning's assignment logic". D-27 (owner, 2026-10-22) says that no clinical rule is `APPROVED` without the named Clinical Owner. The founder message is newer, but it does not name an approver or say that D-27 is lifted. I therefore read it as "write and file the matrix, build it on synthetic data", not as an approval. I filed it as PROPOSED. If the founder means otherwise, that needs an explicit founder decision on D-27.
+
+### New or changed hard-coded rules
+
+None in code. Proposed: CR-174 to CR-178 (section *Proposed rules (not in code)*).
+
+### Gate status
+
+Unchanged from my 21:30 section.
+
+---
+
 ## 2026-11-06 21:30 CET: CGR-110 remainder (#922, ADR-162) read on its head: **no blocking finding; remedy met on the head `15ec4c0`** (nine files take and assert org A's SIG1 lock, vitest guard; no assertion changed, skipped, loosened or retried); `eng`'s open question answered (**the guard meets "one shared helper"**), with one advisory widening of the guard (`public.my_signals()`); #872 moved to `f229e2f` (own code identical to `6854d82`); FE-038 (PO #920) read: closure rule for #919; gate lines #872 `f229e2f`, #922 `15ec4c0`
 
 **Scope:** `recovery/main` @ `2bf92f0` (was `2d5e14d` at my 21:10 section; my PR #921 is merged as `2bf92f0`). Changes since 21:10:

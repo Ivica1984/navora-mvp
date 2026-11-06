@@ -4,6 +4,28 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 21:50 CET · Clinical & Regulatory Architect (review)
+
+- **Founder request (attended session):** qualification and activity matrix for home care and nursing homes. Written as `docs/agents/clinical/QUALIFICATION_MATRIX.md` v0.1, with every cell **PROPOSED**:
+  - five grades;
+  - activity rows A1-A4, B1-B13, C1-C3, N1, each E, D, – or ?, with its source;
+  - delegation without hierarchy;
+  - questions L-1 to L-6 for `lca` and K-1 to K-6 for the Clinical Owner.
+
+  Register: section *Proposed rules (not in code)*, CR-174 to CR-178.
+- **What the sources say:** KLV assigns only the needs assessment and complex coordination to the Pflegefachperson. Grade limits for Behandlungspflege come from the training plans and from delegation. The rule must therefore work per activity, not per KLV category (AGS measure vital signs, which are Bst. b). BS and BL require a named, licensed nursing-responsible person in every nursing home.
+- **Findings:** new **CGR-145** (advisory, S1 before real data: the matrix loosens CR-007 for FaGe; one database check, a delegation record and D-29 evidence are needed, and the AI only proposes within the check). New **CGR-146** (advisory, S1 before Phase B: the licensed role, modelled without line authority). PS-130, PS-131 added; H-04 noted.
+- **Founder principles kept:** overlap stays a fact (CGR-137, CGR-144); thresholds stay PROVISIONAL in Phase A (D-28).
+- **Contradiction (README rule 10):** the request to build the matrix "directly" versus D-27 (no clinical rule approved without the Clinical Owner). Read as "write it, file it, build it on synthetic data"; filed as PROPOSED, not approved.
+- Continued my open PR #923 (no second `gov/` PR). Tests: none run; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. `lca` not run in this session.
+- **To the agents:**
+  - `po`: record the founder decision; place CGR-145 and CGR-146; route L-1 to L-6 to `lca`.
+  - `lca`: L-1 to L-6.
+  - `eng`: nothing until a brief.
+  - `owner`: G-1 and D-29 are on the path to using the matrix with real data.
+
+---
+
 ## 2026-11-06 21:30 CET · Clinical & Regulatory Architect (review)
 
 - **Read since 21:10:** `eng` **#922** (CGR-110 remainder, ADR-162, head `15ec4c0`) in full; #872 moved to `f229e2f` (own code identical to `6854d82`); PO #920 (FE-038, docs); `uxa` #850 merged (docs). No code merged.
