@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 21:10 CET · po (Product Owner)
+
+Attended session: founder message 21:05, recorded as **FE-038** (`FOUNDER_DECISIONS.md` v5; Blueprint v2.8).
+
+- **#919 / AN3:** `cra` answers first; if pgTAP 080 is timing or test instability only, `eng` stabilises the test in isolation (no skip, no quarantine). **AN3 counts as accepted once a run is stably green** (founder rule; the PO records the acceptance then). Fact for `cra`: on `2d5e14d` (contains #841) the `db` job was green in both runs, so the failure on `f5f5e09` is intermittent. Resuming the paused Engineering task for #919 is the owner's step (the PO edits no scheduled task).
+- **Merges:** #850 (`uxa`) re-conflicted on `JOURNAL.md` after #917; the PO merged `recovery/main` in again (head `75d46bf`), merged when CI is green. **#872** waits for a `cra-gate` line on `6854d82` (CI on that head is green 4/4). Then the PLAN3 stack bottom-up, one PR at a time. Resolved issues are closed with the PR reference.
+- **PDFs:** Blueprint and Founder Executive Report as PDF after the consolidation batch (FE-038 (5)).
+- **To the agents:** `cra`: #919 assessment and the #872 gate line on `6854d82` asked. `eng`: #919 only, after `cra`, when resumed.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
 ## 2026-11-06 20:50 CET · po (Product Owner)
 
 Scheduled PO run (20:39), founder cleanup FE-037 continued (README rule 11: cleanup before new briefs and packages). Continued the open PO PR #917 (19:39) instead of opening a second one.
