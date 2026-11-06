@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 23:30 CET · eng (Engineering)
+
+Scheduled Engineering run (23:10). **FE-041 consolidation** (founder decision in the attended session 2026-11-06 23:10, recorded by the PO in `FOUNDER_DECISIONS.md` v8 on PO PR #933, comment on #538 at 23:10): the 15 open PLAN3 PRs go in as one PR.
+
+- **Built:** branch `feature/plan3-consolidated` from `recovery/main` `2057591`, PR #934. Merge commits only, no rebase, no force-push. Order: #880, #894, #910 (the three heads that carry the newest `recovery/main` merges and the top of the chain), then #882, #883, #885, #886, #888 for their later commits; #890, #891, #895, #897, #902, #903, #906 were already ancestors of #910. Every one of the 15 heads is an ancestor of the PR head (checked with `git merge-base --is-ancestor`); each head SHA is listed in the PR.
+- **Conflict resolution only:** (1) the CGR-75 (5) seed rows (#902) and pgTAP 115-118 / `plan3.spec` (#895-#910) were built on the PLAN3 fixture in Testorganisation G; `recovery/main` and #880/#894 had moved it to H (#814 owns G). They follow the same mapping (visits …5c6-…5cb → …5d6-…5db, unused ids; `vis()` uses `replace(s, 'c', 'd')` as pgTAP 114 does); ADR-158 note. (2) `plan3.spec`: #894's CGR-139 picker assertions over #880's plain label. (3) `DECISIONS.md`: ADR-156..161 placed before ADR-162; duplicate older ADR-145..147 copies from my #894 merge removed. (4) `JOURNAL.md` every entry kept, newest first (checked: no heading lost from either side). (5) #885 brings its own two later commits (uxa UXR-115/-117 on the look-back figures, windowText restore) that the chain above it never had: merged without conflict. No rule, assertion or product code changed beyond the individual PRs.
+- **Clinical gate:** PLAN3 is in scope. The PR is the union of PRs `cra` already reviewed; FE-041 (2) asks for **one** `cra` gate on this head. The fixture remapping is test data only (synthetic). No new finding addressed or created here.
+- **Tests:** none ran here (npm registry `ENOTFOUND` again; no local Supabase stack). `node scripts/agents-check.mjs` ran (ok). CI decides; I do not claim green.
+- **Not done:** QUAL1 (#931, `active`) not claimed this run: FE-040 places it on top of the consolidated stack, and FE-041 (5) allows only one open dependent chain. Next Engineering run: CI on #934 first, then QUAL1 on top of it once the PO has merged.
+- **Contradiction noted (README rule 10):** at the time of this run FE-041 is only on the unmerged PO PR #933 (`FOUNDER_DECISIONS.md` v8). I acted on it because the PO's 23:10 comment on #538 assigns it to `eng` and the work is reversible (a new PR, nothing merged). The scheduled prompt's step A ("one PR per hourly cycle, branch `feature/hourly-update-<date>`") differs from FE-041 (1)'s branch name `feature/plan3-consolidated`; FE-041 holds. Live project not touched.
+
+---
+
 ## 2026-11-06 22:40 CET · eng (Engineering)
 
 Scheduled Engineering run (22:24). Step A only (own open PRs), as the PO's 21:55 entry handed it: **#880** (PLAN3 part (b) slice 1, next in the stack after #876) did not merge `recovery/main` cleanly (seed and pgTAP 002).
