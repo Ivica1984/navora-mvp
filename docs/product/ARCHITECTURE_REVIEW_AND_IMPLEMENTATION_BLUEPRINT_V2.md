@@ -1,6 +1,23 @@
 # NAVORA Architecture Review and Implementation Blueprint V2
 
-**Owner of this file:** Product Owner (`po`) · **Written:** 2026-11-06 08:40 (Europe/Zurich), by the owner's *Program Quality Improvement Directive* (2026-11-06) · **Version:** 2 (version 1 is [`DELIVERY_PROGRAM.md`](DELIVERY_PROGRAM.md), 2026-11-03) · **Repository state read:** `recovery/main` @ `9c58939`, open PRs and role branches read through the GitHub API on 2026-11-06 08:20-08:40.
+**Owner of this file:** Product Owner (`po`) · **Written:** 2026-11-06 08:40 (Europe/Zurich), by the owner's *Program Quality Improvement Directive* (2026-11-06) · **Version:** 2.5, 2026-11-06 19:15 (see the version table below). Version 2.1 was written after the founder letter of 2026-11-06 (decisions FE-019 to FE-030 in [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md); answer in [`FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md`](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md)). Version 2 was 2026-11-06 08:40; version 1 is [`DELIVERY_PROGRAM.md`](DELIVERY_PROGRAM.md), 2026-11-03 · **Repository state read:** `recovery/main` @ `9c58939`, open PRs and role branches read through the GitHub API on 2026-11-06 08:20-08:40.
+
+
+**Status (FE-035, owner 2026-11-06):** this Blueprint is NAVORA's **official, leading working book** (Arbeitsbuch). It is a living document: every content change, new founder decision and milestone progress is recorded in the version table below; substantial changes stay traceable in the text (struck through or marked as replaced, never silently overwritten); with every update the PO synchronises the affected GitHub issues and PRs, and names any scheduled-task prompt that needs a change.
+
+### Version table
+
+| Date (Europe/Zurich) | Version | What changed | Why | Sections affected |
+|---|---|---|---|---|
+| 2026-11-06 19:15 | **v2.5** | M2 progress (cleanup FE-037): merged #803, #804, #806, #809 (UX2 parts 4-7), #810 (CGR-110), #813 (RLS4-C3), #814 (AIG1-C4/C5), #828 (AIR1), `cra` #911 and #915; RLS4-C3 and AIG1-C4/C5 accepted; #815 (ASM1-C6) blocked by a code conflict while Engineering is paused | scheduled PO run 2026-11-06 18:39; cleanup progress in `../agents/reports/CLEANUP_2026-11-06.md` §3 | version table only (no rule, milestone date or gate changed) |
+| 2026-11-06 15:00 | v2.4 | DOC-AI scope narrowed (`aia` AUT-54 adopted by the PO): the structured report stays the deterministic F7 snapshot, DOC-AI works only on the nurse's own unstructured note; FD-22 restated; CGR-142 conditions (1)-(5) on every NH-A brief (M9.0a); CGR-143: M-21 "> 7 days" marked PROPOSED (owner `clinical`), M-21 indicator set and margin set by the Clinical Owner before the Phase B baseline, M-15/M-16 read only beside M-21 and the correction rate, hypotheses renamed HYP-1 to HYP-6; scheduled PO merge refused again at 14:45 (§3.1) | `aia` AUT-54 (#912), `cra` 13:30 (CGR-142, CGR-143), scheduled PO run 14:45 | §1 AI work flows, §3.1, §4 M8 and M9, §7 FD-22, §10.2 |
+| 2026-11-06 14:45 | v2.3 | Version table and living-document rule added; M9 re-framing **confirmed** by the owner (no longer PROVISIONAL); merge process test run on #800 recorded (passed); scheduled-task prompts of all eight agent tasks updated by the owner's approval (FD-01 closed); SR-26 decided by the owner (delete the foreign `orders` table), execution blocked because the old live project is paused; Decision Board and dashboard updated; M2 progress (#800 merged) | founder message 2026-11-06 (FE-033 to FE-036) | header, §3.1, §4 M2 and M9, §6, §7, §10.3 |
+| 2026-11-06 12:30 | v2.2 | Phase A = home care and a simulated nursing-home ward (O-1 decided); FD-21 removed; M3 30 %; nursing-home briefs no longer provisional; `lca` commissioned; D-42 opened | owner answer in the session (FE-031, FE-032) | §1.3, §4 M3, M9.0a, §6, §7 |
+| 2026-11-06 12:00 | v2.1 | vision and business model, AI work flows as core, care-context matrix, SV-4 to SV-7, M3 rows, M8.1b, M9 re-framed (provisional), critical path, Decision Board FD-21 to FD-26, metrics M-15 to M-21 | founder letter 2026-11-06 (FE-019 to FE-030) | §1, §4, §6, §7, §10 |
+| 2026-11-06 08:40 | v2.0 | first version: measured completion, sub-milestones, dependency maps, critical path, Founder Decision Board, quality gates, weekly metrics | owner *Program Quality Improvement Directive* | all |
+| 2026-11-03 | v1 | `DELIVERY_PROGRAM.md` M1-M10 | owner *Executive Delivery Directive* | – |
+
+The *Change log* at the end of this file is kept for history; from v2.3 on, the version table is the record.
 
 **Purpose.** This blueprint turns the delivery program M1-M10 into an execution system you can measure. Every milestone has a completion percentage, sub-milestones, blockers, dependencies, a responsible agent and testable acceptance criteria. Weekly metrics show whether we are on course.
 
@@ -12,18 +29,30 @@
 | **How** is NAVORA structured (bounded contexts, data flow, AI pillar, principles)? | [`ARCHITECTURE.md`](../../ARCHITECTURE.md) (Architecture Handbook) | Stays the primary *architectural* source. This blueprint does not change an architecture rule; it reviews alignment (§2) and proposes changes. |
 | Priority queue, briefs, PO status | [`../agents/NEXT_CAPABILITY.md`](../agents/NEXT_CAPABILITY.md), `../agents/briefs/` | Must be consistent with this blueprint. A conflict is a defect: the PO fixes it in the next cycle. |
 | Engineering state per item | [`../agents/IMPLEMENTATION_STATUS.md`](../agents/IMPLEMENTATION_STATUS.md) | Engineering's file; this blueprint never overrides it. |
+| What the owner decided (newest overrides older, README rule 10) | [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md) | Versioned FE list. |
 | Decisions | [`../agents/OPEN_DECISIONS.md`](../agents/OPEN_DECISIONS.md), [`../agents/decisions/INDEX.md`](../agents/decisions/INDEX.md), [`OWNER_AGENDA.md`](../agents/decisions/OWNER_AGENDA.md) | Only the named owner decides. |
 | Detailed milestone text (objectives, v1 criteria) | [`DELIVERY_PROGRAM.md`](DELIVERY_PROGRAM.md) | Still valid as detail. Where it and this blueprint differ, this blueprint holds and the difference is listed in §3.4. |
 
 **Status labels** (CLAUDE.md): **IMPLEMENTED** (on `recovery/main`, synthetic data, CI green) · **BUILT** (in an open PR with green CI, not merged; counts for nothing in acceptance) · **PLANNED** · **OPEN** (needs a decision) · **UNKNOWN**. Percentages are PO estimates, computed as in §4.0. The PO ran no tests for this blueprint; CI states were read through the GitHub API.
 
-**Binding rules (unchanged):** synthetic data only until D-1 is clarified (owner, 2026-10-29); D-35 A (no client or staff data to any AI service); the mandatory sequence *Remove → Rules → Monitor → AI prepares → Human reviews → Human decides → Human signs*; the clinical review gate on everything that touches care; no invented medical, clinical, legal, tariff or regulatory rule; a clinical rule is approved only by the named Clinical Owner (D-27).
+**Binding rules:** synthetic data only in Phase A (FE-021); D-1 is answered (no real personal data in the old system, FE-020), and test data and environments are still protected to a strict, production-like standard; D-35 A (no client or staff data to any AI service); the mandatory sequence *Remove → Rules → Monitor → AI prepares → Human reviews → Human decides → Human signs*; the clinical review gate on everything that touches care; no invented medical, clinical, legal, tariff or regulatory rule; a clinical rule is approved only by the named Clinical Owner (D-27).
 
 ---
 
 ## 1. Strategic Vision Alignment
 
-**Vision (owner):** NAVORA is the operating system for self-organised care teams: home care now, then transitions of care with hospitals, then nursing homes, then integrated care networks. The care model is the product; technology is a tool.
+**Vision (owner, as confirmed 2026-11-06, FE-023, FE-027):** NAVORA is a digital operating system and AI-supported work platform for care and support, not a documentation app, scheduler or chatbot. It connects the work on site with team coordination, documentation, care planning and billing. Its first job is a **measurable reduction of administrative work** for care professionals (writing afterwards, manual planning, coordination calls, billing preparation, error correction), while supporting quality, continuity, safety and team autonomy. Care contexts: home care, nursing homes, hospitals and private persons; not built at the same time, never excluded by design. The care model is the product; technology is a tool.
+
+**Business model (FE-023, PO wording):** the buyer is the licensed care organisation (later also team-owned providers); the users are its teams; payers of care (insurers, cantons, clients) pay for care, not for NAVORA. NAVORA earns platform usage fees; no price is chosen (F3 per active member is one candidate basis; comparison in [`PRICING_MODEL_COMPARISON.md`](PRICING_MODEL_COMPARISON.md)).
+
+**AI work flows are the core (FE-028)**, each inside rules, rights and controls, AI never inventing a fact, a human confirming or signing:
+
+| Work flow | What AI does | What the human does | Control | Data stage |
+|---|---|---|---|---|
+| Documentation draft (DOC-AI) | ~~drafts a structured report from recorded times, services, observations, each statement with its source~~ (replaced v2.4, AUT-54: the structured report already comes from the recorded facts, F6/F7, with no AI and no added review). **Turns the nurse's own unstructured note (dictated or typed) into proposed observations, each with its source span** (catalogue A7); a narrative report or handover text (A9) only inside the clinical module (D-34 C) | confirms each proposed value in her flow (no accept-all); signs the F7 report as today | source span per value; refused if a time, service or observation that already has a record would be replaced or rewritten; AIG1 ledger `record` class; no new act for a visit without a note | Phase A synthetic; real data only after D-41; device level UNKNOWN until `cra` records it |
+| Planning and absence (PLAN3, PLAN4) | proposes who takes which visit or shift by the team's rules (availability, qualification, continuity, open gaps); handles routine cases **only under an explicit, revocable team mandate** | team sets rules and mandate, confirms or overrides; unclear qualification, conflict, risk or rule breach goes to a person | team switch; per-line record; override always possible; escalation list | rules only (no AI service needed) |
+| Qualification profile (QUAL1) | drafts a profile from pre-agreed requirements | the member checks and confirms her own profile; verification of evidence per D-29 | "not verified" shown until verified; no automatic exclusion | Phase A synthetic |
+| Billing preparation and checks (BILL1) | prepares invoices from confirmed facts, checks missing data, duplicates, contradictions | a person releases; unclear cases are held | versioned rules, confirmed source data, hold list; start synthetic, then shadow mode | rules first; AI checks only after D-41 |
 
 **North Star:** *direct care share*, care minutes ÷ nurse-confirmed paid minutes, per team and month, never per person ([`CARE_OPERATING_MODEL.md`](CARE_OPERATING_MODEL.md)). Benchmark Buurtzorg 60 %; NAVORA hypothesis 75 %. Today: computed in AN1 on synthetic data (IMPLEMENTED). A pilot value does not exist yet (UNKNOWN until M9 + one month).
 
@@ -48,9 +77,25 @@
 
 | ID | Deviation | Cause | Safe proposal |
 |---|---|---|---|
-| SV-1 | Owner direction 2026-11-03 sets the pilot market to **Basel-Stadt and Basel-Landschaft** (issue #816). `OWNER_AGENDA.md` and the D-11 package still ask "approve Zurich"; `OPEN_DECISIONS.md` does not record D-11 as decided. | The direction arrived as an issue while D-11 was frozen; no PO run recorded it. | The owner confirms in one line: "D-11: Basel; start canton BS (or BL); municipalities …". The PO then records D-11, unfreezes D-18, D-25, D-9, D-4, D-29 for the `lca` Basel re-check, and updates the agenda. Until then no agent treats Zurich or Basel as decided. |
-| SV-2 | All-in-one with nursing homes (#818) and IoT data model (#817) are owner directions, but `csa` rates STR-21 and STR-23 **high** risk and D-39 (A) froze sensors. | Directions came before the pilot gates. | Keep D-24 A (no nursing-home build) and D-39 A until M9 is passed; specification only. No milestone carries them. |
+| SV-1 | ~~Basel direction not recorded~~ **Resolved 2026-11-06:** D-11 decided by the owner (Basel-Stadt and Basel-Landschaft, FE-019). | – | `lca` Basel re-check of D-18, D-25, D-9, D-4, D-29. |
+| SV-2 | ~~Keep D-24 A~~ **Changed 2026-11-06:** nursing homes are in scope and the real pilot partner is to be a nursing home (FE-022). `csa` STR-21 (all-in-one, high: no patient-care benefit shown) is not withdrawn by this; IoT stays frozen (D-39 A). | Owner direction newer than STR-21 | The PO answers STR-21 with the Phase A design (§4 M9.0): one simulated nursing-home ward on the shared platform, measured on the same administrative-relief metrics; `csa` re-checks in its next run. |
+| SV-4 | **The built product is home-care shaped** (visits at a client's home, KLV A/B/C per visit, regions, cover between teams), while the real pilot partner is to be a nursing home (24-hour shifts, residents, ward, care-level based financing). | Owner direction 2026-11-06 | Shared platform kept; nursing-home workflows added as a sector layer (§1.3). **Answered 2026-11-06 (FE-031): Phase A simulates home care and a nursing-home ward.** |
+| SV-5 | Goal "no medical device" (FE-025) vs. vision items that may cross into decision support: integrated assessment and care planning, AI documentation drafts (level G), the D-34 statement v2 naming home care only and excluding the interpretation of care notes | Statement v2 was written for home care | `lca` re-checks statement v2 for nursing homes and for DOC-AI; the clinical module (D-34 C) stays separate; nothing that scores, ranks or recommends care is built in the core. |
+| SV-6 | AI documentation on real data (FE-028) vs. the approved staged path (stage 1 after three pilot months; drafting is stage 2, level G) | Path written before the founder letter | Package D-41 (rule A stays, FE-024). |
+| SV-7 | Routine assignment under team mandate (FE-028) vs. PLAN3's rule "a proposal becomes an assignment only through a named member's confirmation" | PLAN3 designed as proposal-only | PLAN4 (draft): a team-set deterministic rule ("Regeln anwenden" step of the mandatory sequence), not AI; mandate recorded, revocable, per-line record, escalation; `cra` and `lca` (automated decision affecting staff, DSG) before approval. |
 | SV-3 | Benchmark gap: Buurtzorg's limits (manual scheduling inside teams, coach capacity, regional coordination, thin data) are named, but no milestone yet measures that NAVORA removes them. | Measures exist per capability (AN2, AN3), not per milestone. | §10 adds two weekly measures (planning acts per visit, coordination acts outside teams), live from M4 on synthetic data. |
+
+### 1.3 Care contexts: vision, shared platform, sector workflows, test, pilot (FE-027)
+
+| Layer | Home care | Nursing home | Hospital | Private persons |
+|---|---|---|---|---|
+| **Long-term vision** | self-organised teams run the provider | self-organised wards without unit hierarchy | transitions of care without intake coordinators | care and support bought directly (variants: question O-2) |
+| **Shared platform (one build)** | identity and roles, teams and membership, qualification profiles, AIG1 ledger and AI orchestrator, audit, safety signals, documentation core (observations, signed report, versions), handover, absence and cover, quality events and holds, billable-fact engine with versioned rules, working day, analytics never per person | same | same | same |
+| **Sector workflows (sector rules as data)** | visits at home, travel, KLV A/B/C per visit, medical orders, Spitex tariff rules (D-18) | wards, 24-hour shifts, residents, care-level based financing and assessment cycle (rules UNKNOWN, `lca`, `cra`; interRAI only after D-36) | referral and discharge hand-over (REF2, D-9) | self-pay contract and invoice; payer split (UNKNOWN) |
+| **Phase A (simulated, synthetic; FE-031)** | IMPLEMENTED on synthetic data (47 accepted capabilities), tested in the simulation | **to build:** simulated nursing home with one ward | not in Phase A | not in Phase A |
+| **Phase B (real)** | open (with or after the nursing home) | real pilot partner by current direction | later | later |
+
+Rule for reuse: a sector difference is configuration or a sector module on the shared records, never a fork of the record. A rule that differs by sector or canton is versioned data with its source (`ARCHITECTURE.md` rule engine).
 
 ---
 
@@ -89,7 +134,7 @@
 | Area | Status | One-line reason |
 |---|---|---|
 | Overall | 🟡 At risk | Foundation strong (47 capabilities accepted on synthetic data), pilot gated by owner decisions. |
-| Delivery | 🔴 Blocked | 12 Engineering PRs green and `cra`-cleared, unmerged; the scheduled PO task's stored prompt authorises only the PO's own PR. |
+| Delivery | 🔴 Blocked | ~~12 Engineering PRs green and `cra`-cleared, unmerged; the scheduled PO task's stored prompt authorises only the PO's own PR.~~ (v2.4) #800 merged in the attended session (13:59). The stored prompt now has the merge step (FE-033), but the **scheduled run's permission check refused the merge again at 14:45** (`cra` #911, all conditions met). Of the Engineering PRs, #803, #804 and the PLAN3 stack conflict after #800; #910 (stack top) has no `cra` gate on its head yet. Unblock: allow the merge call in the PO task's permission settings (`PO_MERGE_PROCESS.md` §3 (2)). |
 | Roadmap | 🟡 At risk | Order unchanged; M3 (2026-12-11) moves M9/M10 day for day. |
 | Milestones | 🟡 At risk | M1 UX part met; M2 and M4 largely BUILT, not IMPLEMENTED; M3 ≈ 10 % decided. |
 
@@ -143,7 +188,7 @@
 - **Dependencies:** none outside the merge path.
 - **Acceptance criteria:** (1) every M2-M10 item has an estimate in person-days with confidence, predecessor and moving risk; (2) technical and pilot readiness stated as dates with assumptions; (3) every screen of the catalog has route, role, data read and components; (4) every component has its six states and token references; (5) no item needs real data or a frozen package; (6) this blueprint's §6 dates are re-computed from M1.3 and dated.
 
-### M2 Web application consolidated · target Fri 2026-11-27 · **completion 20 %** (built 75 %)
+### M2 Web application consolidated · target Fri 2026-11-27 · **completion 21 %** (built 75 %; v2.2: 20 %)
 
 - **Responsible:** `eng`; accepts `po`; gate `cra` (UX2 on `/field`, `/team`); review `uxa`.
 - **Sub-milestones:**
@@ -151,7 +196,7 @@
   | ID | Sub-milestone | Owner | Due | Weight | Status |
   |---|---|---|---|---|---|
   | M2.0 | Merge mechanics: AUT-49 (journal file per entry), one file per ADR, `po-merge-gate.mjs` with unit tests | `eng` | 2026-11-13 | 2 | PLANNED |
-  | M2.1 | Merge queue: #800, #803, #804, #806 (UX2), #813 (RLS4-C3), #810 (CGR-110) | `po` | 2026-11-13 | 2 | BUILT |
+  | M2.1 | Merge queue: ~~#800~~ (merged 2026-11-06, merge-process test run), #803, #804, #806 (UX2), #813 (RLS4-C3), #810 (CGR-110) | `po` | 2026-11-13 | 2 | 1 of 6 IMPLEMENTED, rest BUILT |
   | M2.2 | UX2 shell part (#799) | `eng` | done | 2 | IMPLEMENTED |
   | M2.3 | UX2 remainder (F-3…F-7, UX2-33 error pages in the shell) | `eng` | 2026-11-20 | 4 | PLANNED |
   | M2.4 | D-7 ruleset and D-8 merge of `recovery/main` into `main` | owner, then `eng` | 2026-11-27 | 1 | OPEN |
@@ -160,23 +205,25 @@
 - **Dependencies:** M1.2; AUT-49 before the bulk of M2.1 to keep conflicts down.
 - **Acceptance criteria:** (1) UX2-1 to UX2-33 met on `recovery/main`, CI `app`, `db`, `e2e`, `ui-screenshots` green on the merge commit; (2) no `severe` UXR open on a UX2 screen; (3) `cra` UX2 gate line on the merged head; (4) pgTAP 062 passes in two runs at different pinned times (CGR-110); (5) a new journal entry or ADR in one PR does not conflict with another PR (shown on two parallel PRs); (6) `main` equals `recovery/main` after D-8.
 
-### M3 Pilot foundation decisions · target Fri 2026-12-11 · **completion 10 %**
+### M3 Pilot foundation decisions · target Fri 2026-12-11 · **completion 30 %** (3 of 10 decisions still asked are answered: D-1, D-11, O-1; partner and adviser left the list, FE-021, FE-026)
 
 - **Responsible:** owner; prepares `po` (all packages exist); inputs `lca`, `cra`, `csa`.
 - **Sub-milestones (one per decision; equal weight):**
 
   | ID | Decision | Latest responsible date (§6.3) | Status |
   |---|---|---|---|
-  | M3.1 | D-1 live database facts, counsel, review date, key rotation | 2026-11-20 | OPEN |
-  | M3.2 | G-1 Clinical Owner and deputy | 2026-11-27 | OPEN |
-  | M3.3 | D-11 pilot canton (Basel direction, SV-1) and 2-5 municipalities | 2026-11-27 | OPEN (direction given) |
-  | M3.4 | D-12 partner named (model B decided 2026-10-27) | 2026-12-11 | partly decided |
+  | M3.1 | D-1 fact (no real personal data) | – | **decided 2026-11-06** (FE-020); key rotation and leaked-password protection remain owner actions |
+  | M3.2 | G-1 Clinical Owner and deputy (needed before Phase B; recommended earlier for the simulated nursing home, question O-6) | 2027-01-15 | OPEN |
+  | M3.3 | D-11 pilot regions | – | **decided 2026-11-06** (Basel-Stadt, Basel-Landschaft, FE-019); municipalities with the Phase B partner |
+  | M3.4 | D-12 real partner | Phase B | **not needed now** (FE-021) |
   | M3.5 | D-2 staging and production hosting | 2026-12-11 | OPEN |
   | M3.6 | D-29 qualification verification | 2026-12-11 | OPEN |
   | M3.7 | D-7 / D-8 | 2026-11-20 | OPEN |
   | M3.8 | D-34 regulatory adviser named | 2026-12-11 | OPEN (direction 2026-11-03) |
   | M3.9 | D-14 fee basis | 2026-12-11 | OPEN |
-  | M3.10 | Legal adviser in the pilot canton named | 2026-11-27 | OPEN |
+  | M3.10 | External legal adviser | only for questions `lca` cannot settle | **not a precondition** (FE-026) |
+  | M3.11 | O-1 Phase A setting | – | **decided 2026-11-06** (FE-031: home care and a simulated nursing-home ward) |
+  | M3.12 | O-4 AI provider for synthetic data in Phase A | 2026-11-27 | OPEN (founder) |
 
 - **Blockers:** owner availability.
 - **Dependencies:** none; every package is complete.
@@ -245,11 +292,17 @@
 ### M8 Operations Center v2 and AI Foundation II · target Fri 2027-02-19 · **completion 5 %**
 
 - **Responsible:** `eng`; accepts `po` with `cra`; review `aia`, `uxa`.
-- **Sub-milestones:** M8.1 briefs AIO1 (`po`, 2026-11-20), OPS2 and HAND2 (`po`, 2026-12-04) · M8.2 AIR1 guard (#828, BUILT) · M8.3 AIO1 orchestrator, agent contract, evaluation harness, no provider (`eng`) · M8.4 OPS2 control health and exception grouping · M8.5 HAND2 handover ordered by rule · M8.6 operations app functions at 390 px.
+- **Sub-milestones:** M8.1 briefs AIO1 (`po`, 2026-11-20), OPS2 and HAND2 (`po`, 2026-12-04); **M8.1b AI work-flow briefs (FE-028, drafts, gates `cra`, `lca`, `aia`): DOC-AI documentation draft with source per statement (2026-11-27; scope since v2.4: unstructured note → proposed observations; the brief carries the AUT-54 acceptance criteria and starts only after M-16 and acts per report are measured per team and month on the synthetic seed), PLAN4 team-mandated routine assignment as a deterministic rule (2026-12-04), QUAL1 qualification profile drafted and self-confirmed (2026-12-04), BILL1 billing preparation, pre-send checks and shadow mode (2026-12-11)** · M8.2 AIR1 guard (#828, BUILT) · M8.3 AIO1 orchestrator, agent contract, evaluation harness, no provider (`eng`) · M8.4 OPS2 control health and exception grouping · M8.5 HAND2 handover ordered by rule · M8.6 operations app functions at 390 px.
 - **Blockers:** M8.1; M4.
 - **Acceptance criteria:** as `DELIVERY_PROGRAM.md` M8; an `ai` agent cannot switch on (D-35 A, pgTAP); no AI path changes a signal priority or billable fact.
 
 ### M9 Pilot readiness · target Fri 2027-03-12 · **completion 8 %** (2 of 25 gates met)
+
+**Re-framed by the pilot phases (FE-021; ~~PO proposal, founder question O-7~~ **confirmed by the owner 2026-11-06, FE-036**):** M9 on 2027-03-12 = **Phase A passed** (M9.0: the simulated pilot, home care and a simulated nursing-home ward (FE-031), run end to end on synthetic data and measured on §10.2) **plus a complete Phase B readiness file** in which every gate that does not need the real partner is closed. The Phase B start date follows the partner and is UNKNOWN; partner-bound gates (licence holder, DPIA signature, watched hours, staffing, D-29 for real nurses) close in Phase B.
+
+- **M9.0a Nursing-home sector layer, briefs (PO; O-1 answered, FE-031):** NH-A1 ward and 24-hour shift model on the shared team records; NH-A2 resident record and care plan without interRAI content (D-36); NH-A3 shift handover reuse of HAND1; NH-A4 absence and cover across shifts (ABS1/COVER1 reuse); NH-A5 billing facts per resident-day as versioned rules marked UNKNOWN until `lca`/`cra` (no invented tariff). Owner `po`, due 2026-11-27; gates `cra`, `lca`, `uxa`. **Conditions on every NH-A brief (v2.4, `cra` CGR-142, S2; blocking for the acceptance of a brief that does not meet them):** (1) a table "reused control → does its trigger exist on the ward? yes / no / UNKNOWN"; every "no" or "UNKNOWN" is an open question for the Clinical Owner and is shown on the ward screen as *not monitored*, never filled by an invented ward rule; (2) a "not invented" list (staffing per shift, skill mix, care-need level, instrument, tariff: UNKNOWN, owners named); (3) NH-A5: the care-need level of a resident-day is entered by a person with source and date, versioned, shadow only, never computed; an upward change shows its author and a second person's review; (4) NH-A2: no score, level or alert derived from resident data; (5) synthetic ward data marked synthetic, and Phase A ward results are not evidence for Phase B until a person with long-term-care expertise has reviewed the NH-A briefs (O-6).
+- **M9.0b Nursing-home sector layer, build on synthetic data:** owner `eng`, due 2027-01-29.
+- **M9.0 Phase A simulated pilot:** simulated partner organisation (fictitious name, synthetic residents or clients and staff), one ward or team, four synthetic weeks with absences, cover, documentation drafts, billing preparation in shadow mode against an independent reference set, and the §10.2 measures. Owner `po` (scenario), `eng` (seed, environment), `cra` (clinical plausibility), `uxa` (training material). Due 2027-02-26.
 
 - **Responsible:** `po` (readiness file), `eng` (technical); go / no-go: owner. Clinical gates waived only by the Clinical Owner together with the owner (CGR-117).
 - **Sub-milestones:**
@@ -368,19 +421,21 @@ Solid arrows are preconditions; dotted arrows are capabilities a pilot team swit
 
 ```text
 [owner] PO task merge step ─► M2.0/M2.1 merges ─► M2 ─► M6 core ─► M9.1 technical minimum (≈ 2027-01-29) ─┐
-[owner] D-2 ─► T12 (8 wd) ─► restore test + runbooks ───────────────────────────────────────────────────┤
-[owner] G-1 ─► 9 clinical packages + clinical rules approved (≈ 10 weeks, UNKNOWN) ───────────────────────┼─► M9 2027-03-12
-[owner] D-11 + D-12 partner ─► legal adviser ─► DPIA signed by licence holder ──────────────────────────────┘
+[po/eng] NH-A1..A5 briefs ─► nursing-home sector layer + simulated ward ─────────────────────────┤
+[owner] D-2 ─► T12 (8 wd) ─► restore test + runbooks ───────────────────────────────────────────────────┼─► M9 = Phase A passed 2027-03-12
+[owner] O-4 provider (synthetic) ─► DOC-AI and BILL1 checks tested in Phase A ─────────────────────────────┘
+Phase B (date UNKNOWN): partner found ─► G-1 approvals, DPIA by licence holder, D-29, D-41 ─► first real resident or client
 ```
 
 ### 6.2 Critical-path items (in order of risk)
 
 | # | Item | Owner | Slack today | Status |
 |---|---|---|---|---|
-| CP-1 | G-1 Clinical Owner named | owner | ≈ 3 weeks | OPEN |
-| CP-2 | D-12 partner named, then DPIA | owner, partner | ≈ 6 weeks | OPEN |
+| CP-0 | Nursing-home sector layer for Phase A (FE-031) | `po` briefs, `eng` build | ≈ 4 weeks after the briefs (the largest new build) | PLANNED |
+| CP-1 | G-1 Clinical Owner named (gate for Phase B; recommended earlier for the simulated nursing home, O-6) | owner | ≈ 9 weeks for Phase A | OPEN |
+| CP-2 | ~~D-12 partner by 2026-12-11~~ moved to Phase B (FE-021) | owner | – | not needed now |
 | CP-3 | PO task merge step (FD-01) | owner | 0: every week without it adds conflict work | OPEN |
-| CP-4 | D-1 facts and review | owner | ≈ 2 weeks | OPEN since 2026-10-29 |
+| CP-4 | ~~D-1~~ answered 2026-11-06 (FE-020) | – | – | decided |
 | CP-5 | D-2 hosting | owner | ≈ 10 weeks to the technical latest date, 5 weeks to the M3 target | OPEN |
 
 ### 6.3 Latest responsible dates (PO estimate, Low confidence; recomputed when M1.3 merges)
@@ -389,10 +444,11 @@ Derived backwards from M9 on 2027-03-12:
 
 | Decision | Latest date | Derivation |
 |---|---|---|
-| G-1 Clinical Owner | 2026-11-27 | 9 packages + rule approvals + briefing ≈ 10-11 weeks (UNKNOWN; depends on the person) → approvals by 2027-02-12 |
-| D-1 | 2026-11-20 | review, rotation and SR-26 precede D-7, staging with real users and G-2 |
-| D-11 + legal adviser | 2026-11-27 | `lca` re-check of 5 packages for the canton, adviser answers before the DPIA |
-| D-12 partner | 2026-12-11 | DPIA by the licence holder by 2027-02-19 needs ≈ 8 weeks |
+| ~~O-1 Phase A setting~~ | decided 2026-11-06 (FE-031) | – |
+| O-4 AI provider for synthetic data | 2026-11-27 | DOC-AI and BILL1 checks need ≈ 8 weeks of build and evaluation before M9.0 |
+| G-1 Clinical Owner | 2027-01-15 for Phase A review; before Phase B for approvals | clinical plausibility of the simulated ward before M9.0 |
+| ~~D-1, D-11~~ | decided 2026-11-06 | – |
+| ~~D-12 partner~~ | Phase B | – |
 | D-2 | 2026-12-11 (M3); technical latest 2027-01-22 | T12 8 working days, restore test ≤ 30 days before go, runbooks |
 | D-7 / D-8 | 2026-11-20 | M2 acceptance criterion (6) |
 
@@ -402,30 +458,28 @@ A decision after its latest date moves M9 by the delay, day for day.
 
 ## 7. Founder Decision Board
 
-One line per ask; answer with one sentence ("FD-03: approved"). Each package holds the reasoning. Until answered, the package's safe default stays in force. Detail: [`OWNER_AGENDA.md`](../agents/decisions/OWNER_AGENDA.md).
+Updated 2026-11-06 12:00 after the founder letter. Decided items (D-1, D-11, D-24, pilot phases, Phase A setting FE-031) moved to [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md) and are not asked again. The owner-facing version with reasons and risks is [`FOUNDER_EXECUTIVE_REPORT.md`](FOUNDER_EXECUTIVE_REPORT.md) §3; the open questions with options are in [`FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md`](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md) §4.
 
 | FD | Priority | Decision | Ask (exact) | Latest date | Blocks | Default until answered |
 |---|---|---|---|---|---|---|
-| FD-01 | Critical | PO task merge step | Add the `PO_MERGE_PROCESS.md` §3 (1) paragraph to the scheduled PO task's prompt; if the permission check still refuses, allow the merge call for that task | now | M1, M2, M4 merges | merges only in an attended PO session |
-| FD-02 | Critical | G-1 | Name the Clinical Owner and a deputy (route B), or tell `po` to draft search profile and mandate | 2026-11-27 | 9 clinical packages, M9 | strict defaults; no clinical rule in use |
-| FD-03 | Critical | D-1 | Give the facts (yes / no / not sure), name counsel and the data-protection responsible, set a review date; approve rotation after SR-26 step 3; switch on leaked-password protection | 2026-11-20 | containment, SR-26, D-7, G-2 | treat as real; no real data |
-| FD-04 | Critical | D-11 (SV-1) | Confirm Basel, name the start canton (BS or BL) and 2-5 municipalities | 2026-11-27 | D-18, D-25, D-4, D-29 re-check | no canton decided |
-| FD-05 | High | Legal adviser | Name one adviser in the pilot canton | 2026-11-27 | D-22, D-18, D-9, D-4, D-38, FAM1 notice | legal questions unresolved |
-| FD-06 | High | D-12 partner | Name the licensed partner, or say none is in view | 2026-12-11 | DPIA, D-38, D-18, D-29 | route C prepared, no billing |
-| FD-07 | High | D-7 | Apply ruleset on `main` and `recovery/main`, secret scanning, private on a paid plan (B) | 2026-11-20 | D-8, M2 | no backstop |
-| FD-08 | High | D-8 | Approve B: two `preserve-*` tags, merge PR #3 after D-7 | after FD-07 | M2 | `main` stale |
+| ~~FD-01~~ | – | ~~PO task merge step and prompt updates~~ | **closed 2026-11-06 (FE-033):** approved; test run on #800 passed; all eight prompts updated; PO task hourly at :39 | – | – | – |
+| FD-27 | High | SR-26 execution path | The old live project is **paused** (INACTIVE), so the table cannot be dropped. Choose: (a) restore the project for one dated session, drop `orders`, pause again (backups keep copies until their retention ends, UNKNOWN); (b) delete the whole old project (no NAVORA use; removes the table and its backups; irreversible) | 2026-11-13 | your SR-26 instruction | table stays contained in the paused project |
+| FD-22 | High | O-4 AI provider for synthetic data | Approve one contracted CH/EU provider for synthetic data only in Phase A (no real data; D-35 rule A unchanged), or decide that Phase A tests AI flows without one. **Restated v2.4 (AUT-54):** for the structured report and the billing pre-send checks, deterministic rules are the target, not a stand-in. A provider would test only (a) the unstructured note → proposed observations (A7) and (b) any free-text input to BILL1 | 2026-11-27 | real test of the A7 note flow on synthetic notes | A7 not tested with a model in Phase A; F7 report and rule-based billing checks unaffected |
+| ~~FD-23~~ | – | ~~O-7 M9 re-framed~~ | **confirmed 2026-11-06 (FE-036)** | – | – | – |
+| FD-02 | High | G-1 / O-6 | Name a Clinical Owner (and deputy) for Phase B, and decide whether a clinical expert reviews the simulated nursing home in Phase A | 2027-01-15 | clinical plausibility of M9.0; Phase B | no clinical rule approved |
+| FD-07 | High | D-7 | Apply the ruleset and secret scanning; repository visibility is now your choice (D-1 answered) | 2026-11-20 | D-8, M2 | no backstop |
+| FD-08 | High | D-8 | Approve B (two `preserve-*` tags, merge PR #3 after D-7) | after FD-07 | M2 | `main` stale |
 | FD-09 | High | D-2 | Approve the two paid plans (EU/CH), create them, add staging secrets | 2026-12-11 | T12, M9 | no staging |
-| FD-10 | High | D-29 | Approve option B as the real-data gate | 2026-12-11 | real clients, G-6 | no real nurse active |
-| FD-11 | High | D-34 adviser | Name the regulatory adviser (MepV) | 2026-12-11 | G-5, AI level H | AI rules only (D-35 A) |
-| FD-12 | High | D-38 | Approve T1-T18 as minimum LOI content | before any LOI | C transfer | sign no LOI naming the sunset |
-| FD-13 | Medium | D-14 | Approve F3 (per active team member per month) or F4 | 2026-12-11 | J7 team economics | J7 stays draft |
+| FD-24 | Medium | O-2 "Privatpersonen" | Choose which meaning(s) the vision includes (variants in the confirmation §2, point 4) | 2026-12-11 | private-person sector layer | not built |
+| FD-25 | Medium | O-5 team-owned provider in a nursing home | Does the D-12 goal (team-owned provider after a sunset) apply to the nursing-home pilot, or does a nursing home keep its licence with self-organised wards? | before Phase B | D-38, partner contract | D-38 not asked |
+| ~~FD-26~~ | – | ~~O-3 Arbeitsbuch~~ | **decided 2026-11-06 (FE-035):** this Blueprint is the official working book | – | – | – |
 | FD-14 | Medium | Website | Domain, host, demo destination | 2026-12-11 | M5 | M5 build waits |
-| FD-15 | Medium | D-26 | No service-role key on the app host in production | before M9 | ADM1 invitations in production | Edge Functions path |
-| FD-16 | Medium | D-36 | Give `lca` the interRAI licence terms (a fact) | 2026-12-11 | D-37 | option A terms |
-| FD-17 | Medium | SR-26 | After D-1, approve A for the foreign `orders` table | after FD-03 | live DB hygiene | untouched |
-| FD-18 | Medium | Agent task prompts | Point every scheduled agent task's prompt to this blueprint (§8.3) | 2026-11-13 | consistent reading order | agents read it only via `NEXT_CAPABILITY.md` |
-| FD-19 | Low | D-22, D-18, D-9, D-4 | Pass the `lca` questions to the adviser | after FD-05 | invoicing, intake, retention | defaults in force |
-| FD-20 | Low | D-24 / D-25 / D-37 | D-24 A now; D-25 only past A; D-37 after D-36 | none for the pilot | Horizon 3 | no build |
+| FD-16 | Medium | D-36 | Give `lca` the interRAI licence terms (a fact) | 2026-12-11 | D-37, assessment content | no interRAI content |
+| FD-15 | Low | D-26 | No service-role key on the app host in production | before Phase B | invitations in production | Edge Functions path |
+| ~~FD-17~~ | – | ~~SR-26~~ | **decided 2026-11-06 (FE-034):** delete the foreign `orders` table entirely; your D-1 statement covers NAVORA care and client data only; execution: FD-27 | – | – | – |
+| – | – | Security actions (no decision) | Rotate the anon/JWT key; switch on leaked-password protection (moot if FD-27 (b) deletes the old project) | with FD-27 | – | – |
+
+Not asked now (FE-021, FE-023, FE-026): partner (D-12), legal adviser, D-14 price, D-29, D-38, D-22/D-18/D-9/D-4 to an adviser. They return in Phase B or after Phase A with a package.
 
 ---
 
@@ -450,7 +504,7 @@ One line per ask; answer with one sentence ("FD-03: approved"). Each package hol
 
 | Role | Every run | Each week (Friday) | Must not |
 |---|---|---|---|
-| `po` | merge (§9 QG-6), review delivered items, place every input arrow of §5.1, three packages in INDEX order, one journal entry | recompute §4 %, update §10 dashboard, write due briefs | write code; accept own work; decide a clinical, legal, pricing or irreversible question |
+| `po` | merge (§9 QG-6), review delivered items, place every input arrow of §5.1, three packages in INDEX order, one journal entry | recompute §4 %, update §10 dashboard, rewrite [`FOUNDER_EXECUTIVE_REPORT.md`](FOUNDER_EXECUTIVE_REPORT.md) (the owner's primary decision document, German), write due briefs | write code; accept own work; decide a clinical, legal, pricing or irreversible question |
 | `eng` | build the next sub-milestone in §4 order; keep PRs conflict-free and green; state deviations | update estimate if a sub-milestone moves > 3 days | merge; reorder priorities |
 | `cra` | gate line per new PR head in scope; findings with testable remedy | list open S1/S2 items for M9.6 | present guidance as a rule |
 | `lca` | legal impact on requested packages; claims checks | list unresolved legal questions for FD-05 | give a legal determination |
@@ -490,8 +544,9 @@ A work item passes these gates in order. A gate that is not met stops the item; 
 ### 10.1 Rules
 
 - The PO updates §10.3 every Friday by 17:00 (Europe/Zurich), newest week first, and states the source of each number.
+- The same Friday, the PO rewrites [`FOUNDER_EXECUTIVE_REPORT.md`](FOUNDER_EXECUTIVE_REPORT.md) from these numbers: the owner's primary decision document (owner directive 2026-11-06). Its decision board uses the FD numbers of §7.
 - A number the PO cannot read from the repository or GitHub is written UNKNOWN, never estimated silently.
-- Targets are the PO's; the owner may change them.
+- Targets are the PO's; the owner may change them. Every target without a measured baseline is marked **hypothesis** (founder point 18). All measures are per team or organisation, never per person.
 
 ### 10.2 Metric definitions
 
@@ -509,8 +564,15 @@ A work item passes these gates in order. A gate that is not met stops the item; 
 | M-10 | Open blocking findings | blocking CGR, S1/S2 H and PS items open; severe UXR open | `cra`, `uxa` reports | 0 blocking at each merge | safety |
 | M-11 | Planning acts per visit | human acts to assign a visit (PLAN3 confirm, hand assignment) ÷ visits planned, per team and week, synthetic | AN2/AN3, PLAN3-7 | falling after M4 | 1, 5 |
 | M-12 | Coordination outside teams | OPS1 takes and Operations-assigned visits ÷ visits, per org and week, synthetic | OPS1, AN1 | falling | 4, 5 |
-| M-13 | North Star | direct care share per team and month (AN1); pilot value only after M9 | AN1 | ≥ 60 %, hypothesis 75 % | 1 |
+| M-13 | North Star | direct care share per team and month (AN1); real value only in Phase B | AN1 | **hypothesis:** ≥ 60 % (Buurtzorg benchmark), 75 % NAVORA hypothesis | 1 |
 | M-14 | CI health | `recovery/main` head 4/4 green at Friday 12:00 | GitHub API | always | 8 |
+| M-15 | Administrative minutes per visit (per resident-day in a nursing home) | (confirmed paid minutes − care minutes) ÷ visits, per team and month (WORK1, AN1, AN3 spans) | AN1, AN3 | **hypothesis:** falling month on month; no target until a baseline exists. **Read only beside M-21 and the correction rate** (v2.4, CGR-143 (3)): handover, clinical coordination and travel are inside it | 1, 5 |
+| M-16 | Documentation and correction time | minutes from visit end to final report (median); corrections per 100 reports and their minutes (F3, F6, F6R) | AN1, AN3 | **hypothesis:** report final within 10 min for most visits (AN1 measure). **Read only beside M-21 and the correction rate** (v2.4, CGR-143 (3)): a fast signature alone can hide a less complete report | 5 |
+| M-17 | Planning and absence coordination | human acts per planned visit (M-11) and minutes from an absence to full cover (ABS1, COVER1) | PLAN3-7, AN2 | **hypothesis:** falling after PLAN3/PLAN4 | 1, 4, 5 |
+| M-18 | Billing errors and manual exceptions | invoices held ÷ prepared; corrections after release; share of facts not billable by reason (J5) | J5, BILL1 | **hypothesis:** shadow-mode difference to the reference set → 0 | 5, 9 |
+| M-19 | Continuity | distinct nurses per client and month; primary-nurse share (J6) | AN1 | rising primary share | 2 |
+| M-20 | Team autonomy | share of assignments and covers decided inside the team (not by Operations); OPS1 takes per 100 visits (M-12) | OPS1, AN1 | rising | 4 |
+| M-21 | Safety indicators | P1 signals untaken after their threshold; minutes to take (SIG1, AN2); overdue visits; quality holds open ~~> 7 days~~ past a limit **PROPOSED, owner `clinical`** (v2.4, CGR-143 (1): "7 days" has no source in the Clinical Rule Register). **The indicator set and the margin that counts as "worse" are set by the Clinical Owner before the Phase B baseline; Phase A simulated results are not evidence of "no safety loss" (HYP-2)** (CGR-143 (2)) | AN2, QG1 | 0 untaken past threshold | safety |
 
 ### 10.3 Weekly executive dashboard
 
@@ -522,7 +584,7 @@ A work item passes these gates in order. A gate that is not met stops the item; 
 |---|---|---|---|---|---|
 | M1 | 2026-11-13 | 50 % | 90 % | ↑ | 🟡 |
 | M2 | 2026-11-27 | 20 % | 75 % | → | 🟡 |
-| M3 | 2026-12-11 | 10 % | – | → | 🔴 |
+| M3 | 2026-12-11 | 30 % (after 2026-11-06) | – | ↑ | 🟡 |
 | M4 | 2026-12-18 | 0 % | 70 % | ↑ built, → merged | 🟡 |
 | M5 | 2027-01-15 | 15 % | – | → | 🟡 |
 | M6 | 2027-01-29 | 10 % | – | → | 🟡 |
@@ -552,5 +614,11 @@ A work item passes these gates in order. A gate that is not met stops the item; 
 ---
 
 ## Change log
+
+- 2026-11-06 12:30 (`po`): O-1 answered by the owner (FE-031: Phase A = home care and a simulated nursing-home ward); FD-21 removed; M3 30 %; NH briefs no longer provisional; `lca` re-analyses requested in D-22, D-18, D-9, D-4, D-29, D-36, D-34; D-42 opened (pilot agreement).
+
+- 2026-11-06 12:00 (`po`): **version 2.1** after the founder letter of 2026-11-06: vision and business model (FE-023), AI work flows as core (FE-028), care-context matrix §1.3 (FE-027), SV-1 and SV-2 resolved or changed, SV-4 to SV-7 added; M3 rows D-1, D-11, partner and adviser updated; M3.11, M3.12; M9 re-framed by the pilot phases (M9.0, question O-7); critical path and latest dates; Founder Decision Board rebuilt (FD-21 to FD-26); metrics M-15 to M-21 with hypotheses marked.
+
+- 2026-11-06 09:05 (`po`): founder report linked (§8.2, §10.1); weekly rewrite every Friday.
 
 - 2026-11-06 08:40 (`po`): version 2 created by the owner's *Program Quality Improvement Directive*. Adds measured completion, sub-milestones, dependency maps, critical path with latest responsible dates, Founder Decision Board FD-01 to FD-20, quality gates QG-0 to QG-9, weekly metrics M-01 to M-14 and the W45 dashboard. Architecture deviations AR-1 to AR-4 and strategic deviations SV-1 to SV-3 documented; nothing changed automatically.

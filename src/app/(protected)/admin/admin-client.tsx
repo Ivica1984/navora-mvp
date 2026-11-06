@@ -13,10 +13,10 @@ import type { MemberOpenReport } from "@/features/admin/commands";
 import {
   ROLES, ROLE_LABEL, QUALIFICATIONS, REFERRAL_TYPE_LABEL, UNIT_LABEL, DEADLINE_UNITS,
   allowedPriorities, changedLabel, checkRuleInput, isValidEmail, releasedNotice, RULES_INTRO, stricterHint,
-  ACCESS_END_REASONS, ACCESS_REASON_LABEL, ACCESS_RESTORE_REASONS, OPEN_REPORT_LABEL, accessEndedNotice, countOpenReports,
-  openReportsText, unexportedDaysText, unexportedEndPrompt,
+  ACCESS_END_REASONS, ACCESS_REASON_LABEL, ACCESS_RESTORE_REASONS, accessEndedNotice, unexportedDaysText, unexportedEndPrompt,
 } from "@/features/admin/rules";
 import { QUALIFICATION_LABEL } from "@/features/team/rules";
+import MemberOpenReportsStep from "./member-open-reports";
 import type { CommandResult } from "@/lib/commands/result";
 import type { AdminPush } from "@/features/push/queries";
 import OutsideDelivery from "./outside-section";
@@ -24,7 +24,7 @@ import AdmissionAdmin from "./admission-section";
 import { AdminHandover, ContractEndControl } from "./contract-end-section";
 import type { Contract, Leaver } from "@/features/contract-end/rules";
 import type { LeaverOpenReport } from "@/features/contract-end/queries";
-import type { AdminAdmissions } from "@/features/admission/rules";
+import { membersWithoutQualification, type AdminAdmissions } from "@/features/admission/rules";
 import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
 import type { EvaluatorHealth, OutsideWatchedVisit } from "@/features/signals/rules";
 import OutsideWatchedVisits from "@/components/signals/OutsideWatchedVisits";
@@ -92,7 +92,7 @@ export default function AdminClient({ data, push = null, evaluator = [], outside
           <>
             <AdminHandover leavers={leavers} openReports={leaverReports} />
             <Members data={data} contracts={contracts} today={today} admissionOn={admissions?.enabled === true} />
-            {admissions && <AdmissionAdmin organizationId={data.organizationId} admissions={admissions} />}
+            {admissions && <AdmissionAdmin organizationId={data.organizationId} admissions={admissions} missing={membersWithoutQualification(data.members)} />}
             <Invitations data={data} />
             <Teams data={data} />
             <Deadlines data={data} />
@@ -233,11 +233,15 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
   // COND1-5a (PO 16:20), COND2-1 (ADR-101): her unexported-days count is read when the end step opens, through the
   // recorded prepare_member_access_end command, never shown in the row itself.
   const [unexported, setUnexported] = useState<number | null>(null);
+  // RLS4-C2: one read for this member; RLS4-C3 (1): "Erneut laden" runs this same read again (and nothing else).
+  const readOpen = () => {
+    setOpen("loading");
+    readMemberOpenReports({ userId: member.user_id }).then(setOpen, () => setOpen(null));
+  };
   const openEnd = () => {
     setMode("end");
     setUnexported(null);
-    setOpen("loading");
-    readMemberOpenReports({ userId: member.user_id }).then(setOpen, () => setOpen(null));
+    readOpen();
     prepareMemberAccessEnd({ userId: member.user_id, idempotencyKey: crypto.randomUUID() }).then(setUnexported, () => setUnexported(null));
   };
   return (
@@ -275,21 +279,9 @@ function MemberAccess({ member, data }: { member: AdminMember; data: AdminData }
             </select>
           </label>
           {mode === "end" && (
-            // LEAVE1-12 (1), RLS4-C2: her open reports, shown in the end step before the end can be confirmed.
-            <div data-testid="open-reports" className="w-full">
-              {open === "loading"
-                ? <p className="text-stone-700">Offene Berichte werden geladen …</p>
-                : open === null
-                  ? <p role="alert" className="font-semibold text-rose-800">Offene Berichte konnten nicht geladen werden.</p>
-                  : <p className="text-stone-700">Offene Berichte: {openReportsText(countOpenReports(open))}</p>}
-              {Array.isArray(open) && open.length > 0 && (
-                <ul className="grid gap-0.5 pl-3 text-xs text-stone-700" aria-label="Offene Berichte">
-                  {open.map((r, i) => (
-                    <li key={`${r.visit_date}:${r.kind}:${i}`}>{day(r.visit_date)} · {r.team_name} · {OPEN_REPORT_LABEL[r.kind] ?? r.kind}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            // LEAVE1-12 (1), RLS4-C2, RLS4-C3: her open reports before the end; a failed read offers "Erneut laden",
+            // and ending stays possible without the list (only "loading" holds the button).
+            <MemberOpenReportsStep open={open} onRetry={readOpen} />
           )}
           <button type="submit" disabled={pending || (mode === "end" && open === "loading")} className={button}>{mode === "end" ? "Zugang beenden" : "Wiederherstellen"}</button>
           <button type="button" className={secondary} onClick={() => setMode("idle")}>Abbrechen</button>
