@@ -98,7 +98,8 @@ export const ASSESSMENT_REASONS: Record<string, string> = {
   instrument_not_valid: "Dieses Instrument ist am Datum der Bedarfsabklärung nicht gültig.",
   assessor_not_rn: "Als abklärende Person kannst du nur eine Pflegefachperson des Teams wählen.",
   reference_invalid:
-    "Die Referenz ist eine Kennung aus eurem Abklärungsinstrument: 3 bis 64 Zeichen, Buchstaben, Ziffern und _ : # -, mindestens eine Ziffer, ohne Leerzeichen, Punkt oder Schrägstrich (kein Dateiname, kein Titel).",
+    // UX2-30 (4) (uxa UXR-61): the refusal says what to change; the hint under the field says the rule short.
+    "Diese Referenz ist keine Kennung: 3 bis 64 Zeichen, nur Buchstaben, Ziffern und _ : # -, mindestens eine Ziffer.",
   reference_required: "Minuten werden nur mit der Referenz auf die vollständige Abklärung gespeichert.",
   period_required: "Zu jeder Minutenangabe gehört der Zeitraum, wie er in der Abklärung steht (und umgekehrt).",
   minutes_invalid: "Minuten: ganze Zahl von 0 bis 99999; Zeitraum höchstens 60 Zeichen.",
@@ -119,9 +120,12 @@ export const REVIEW_REASONS: Record<string, string> = {
   nothing_to_review: "Der Pflegeplan ist bereits gegen die aktuelle Bedarfsabklärung geschrieben.",
 };
 
-/** ASM1-C3 (UXR-54): the reference rule, shown as hint text under the field before any refusal. */
+/**
+ * ASM1-C3 (UXR-54): the reference rule, shown as hint text under the field before any refusal. UX2-30 (4) (UXR-61): one
+ * example, which is itself a valid reference, and not the refusal text word for word.
+ */
 export const REFERENCE_HINT =
-  "Kennung aus eurem Abklärungsinstrument: 3 bis 64 Zeichen, Buchstaben, Ziffern und _ : # -, mindestens eine Ziffer, ohne Leerzeichen, Punkt oder Schrägstrich (kein Dateiname, kein Titel).";
+  "Kennung aus eurem Abklärungsinstrument, z. B. BA-2026-0042: mindestens eine Ziffer, ohne Leerzeichen, Punkt oder Schrägstrich.";
 
 /** ASM1-C1 (UXR-59): the "Zu erledigen" link and the section it jumps to (§5: link name from one constant, plus count). */
 export const CONFIRM_TODO_LABEL = "Zu bestätigen: Bedarfsabklärung";
@@ -218,7 +222,34 @@ export const REVIEW_CONFIRM_ACTION = "Als geprüft bestätigen";
 export function planReviewText(review: PlanReview | null | undefined): string | null {
   if (!review) return null;
   const who = review.reviewer_name ?? "Pflegefachperson ohne erfassten Namen";
-  return `Pflegeplan geprüft gegen die Bedarfsabklärung vom ${formatDate(review.assessment_date)} am ${formatDate(review.reviewed_on)} von ${who} (Bedarfsabklärung damals ${STATE_LABEL[review.state_at_review]})`;
+  // UX2-30 (5) (uxa UXR-62): two sentences. `cra` (a): the record's state at the act stays visible, as its own sentence,
+  // whenever it was not "bestätigt".
+  const act = `Geprüft am ${formatDate(review.reviewed_on)} von ${who} gegen die Bedarfsabklärung vom ${formatDate(review.assessment_date)}.`;
+  return review.state_at_review === "confirmed" ? act : `${act} Diese war damals ${STATE_LABEL[review.state_at_review]}.`;
+}
+
+/** UX2-30 (2) (uxa UXR-57): the first line of the replace form names the record it replaces. */
+export function supersedeFirstLine(r: AssessmentRecord): string {
+  return `Ersetzt die Bedarfsabklärung vom ${formatDate(r.assessment_date)}`;
+}
+
+/**
+ * UX2-30 (2) (uxa UXR-57): the instrument of the replaced record, prefilled in the replace form when exactly one
+ * catalogue entry has its name, version and mark and is valid on the record's date (valid_from <= date <= valid_to,
+ * as the database checks it). No match or more than one: "" (she chooses, nothing is guessed). The select stays
+ * editable and the database still checks the instrument on save (ASM1, 0100).
+ */
+export function prefillInstrumentId(r: AssessmentRecord, instruments: Instrument[]): string {
+  const day = r.assessment_date;
+  const matches = instruments.filter(
+    (i) =>
+      i.name === r.instrument_name &&
+      i.version === r.instrument_version &&
+      i.third_party_mark === r.instrument_third_party_mark &&
+      i.valid_from <= day &&
+      (i.valid_to === null || day <= i.valid_to),
+  );
+  return matches.length === 1 ? matches[0].id : "";
 }
 
 /** ASM1-11 (4): "Neueres Ereignis seit der Bedarfsabklärung: <Art>, <Datum>". */

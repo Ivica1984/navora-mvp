@@ -1,14 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
 
-// PLAN3 part (b) (ADR-147, migrations 0109/0110). Synthetic local-only accounts from supabase/seed.sql, Testorganisation G
+// PLAN3 part (b) (ADR-147, migrations 0109/0110). Synthetic local-only accounts from supabase/seed.sql, Testorganisation H
 // (an organisation of its own; no org-A to org-F count changes). The administrator has switched `plan3_day_proposal` on;
-// Testteam G's own switch is off as by default. teamg.test (registered nurse of Testteam G) works at 390 px.
-// Tomorrow, nobody responsible: 08:00, 09:00, 10:00 (Testfall G1, primary nurse "Pflegekraft Bezug G"), 08:15-08:45
-// (Testfall G2, no primary nurse, overlaps 08:00), 12:00 (Testfall G2, category B minutes).
+// Testteam H's own switch is off as by default. teamh.test (registered nurse of Testteam H) works at 390 px.
+// Tomorrow, nobody responsible: 08:00, 09:00, 10:00 (Testfall H1, primary nurse "Pflegekraft Bezug H"), 08:15-08:45
+// (Testfall H2, no primary nurse, overlaps 08:00), 12:00 (Testfall H2, category B minutes).
 const PASSWORD = "navora-local-only";
-const BEZUG = "Pflegekraft Bezug G";
-const VISIT_0800 = "00000000-0000-4000-a000-0000000005c1";
-const VISIT_0815 = "00000000-0000-4000-a000-0000000005c4";
+const BEZUG = "Pflegekraft Bezug H";
+const VISIT_0800 = "00000000-0000-4000-a000-0000000005d1";
+const VISIT_0815 = "00000000-0000-4000-a000-0000000005d4";
 
 async function signIn(page: Page, email: string) {
   await page.goto("/login");
@@ -31,10 +31,10 @@ function dotted(iso: string): string {
   return `${d}.${m}.${y}`;
 }
 
-test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", () => {
+test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation H)", () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await signIn(page, "teamg.test@navora.test");
+    await signIn(page, "teamh.test@navora.test");
   });
 
   test("the team switches the proposal on for itself; the date is shown, no name (PLAN3-10)", async ({ page }) => {
@@ -101,7 +101,7 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
     const line1200 = page.getByTestId("day-plan-line").filter({ hasText: "12:00" });
     await line1200.getByRole("button", { name: "Ändern" }).click();
     const options = await line1200.getByRole("combobox").locator("option:not([disabled])").allTextContents();
-    const target = options.includes(BEZUG) ? BEZUG : "Pflegekraft Team G";
+    const target = options.includes(BEZUG) ? BEZUG : "Pflegekraft Team H";
     await line1200.getByRole("combobox").selectOption({ label: target });
     await line1200.getByRole("button", { name: "Geänderte Zuteilung bestätigen" }).click();
     await expect(line1200.getByTestId("day-plan-decision")).toHaveText("geändert und bestätigt");

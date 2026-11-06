@@ -139,3 +139,22 @@ Reviewed on merged evidence: #792 (merge commit `6fd9507`; head `1080608`), `OWN
 - (2) With `openReports === null` in the end result, the result line says the open reports are not known and that the team sees them with «Zugang beendet»; it never says "Keine offenen Berichte". Wording `uxa`'s; until `uxa` answers, Engineering's interim text is "Offene Berichte unbekannt: das Team sieht sie mit «Zugang beendet»."
 - (3) Tests (vitest): with the read rejected, the alert and an "Erneut laden" button are shown and a click makes a second call; `accessEndedNotice(null, …)` does not contain "Keine offenen Berichte".
 - Owner: `eng` (1)-(3), `uxa` (wording). Priority: with the next `/admin` PR, at the latest before G-19 (added there as (l)). No migration, no rule.
+
+## PO review of RLS4-C3 — 2026-11-06 18:55 CET: condition met; RLS4 stays `accepted`
+
+Reviewed on merged evidence: #813 (PO merge `3b44b14`, head `2cc0db3`; own code identical to the `cra`-cleared head `d92a2d5`, AUT-50 comparison), ADR-138, vitest `tests/unit/rls4-c3-admin-open-reports-retry.test.ts`. CI `app`, `db`, `e2e`, `ui-screenshots` green on the head and on the merge commit `3b44b14` (GitHub check runs). **The PO did not run the tests.**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| (1) failure line carries one "Erneut laden" that re-runs `readMemberOpenReports` for that member, at least 44 px | met | vitest "with the read failed (null), the alert and the 'Erneut laden' button are shown", "the action is at least 44 px high (min-h-11)…", "a click on 'Erneut laden' calls the read again", "the retry runs the same one-member read (readMemberOpenReports) and nothing else" |
+| (1) ending access stays possible without the list | met | vitest "the end button waits only while loading: a failed read does not block ending access (product decision)" |
+| (2) with `openReports === null` the result line names the unknown count and «Zugang beendet», never "Keine offenen Berichte" | met (interim wording) | vitest "accessEndedNotice(null, …) names the unknown count…" (`toBe("Offene Berichte unbekannt: das Team sieht sie mit «Zugang beendet».")`, `not.toContain("Keine offenen Berichte")`); a read count of zero still says "Keine offenen Berichte" |
+| (3) tests as specified | met with deviation 2 | the vitest file above; `leave.spec.ts` keeps the successful read and end |
+| no migration, rule, command or read scope | met | no `supabase/migrations/` file in #813; ADR-138 *Not changed* |
+
+**Deviations (ADR-138), decided:**
+1. Interim result-line text shipped, `uxa`'s wording (PR #798) not yet swapped: **accepted**. The interim is confirmed by `cra` (09:30) and claims no absence. `uxa`'s text ("Offene Berichte: nicht bekannt, die Liste liess sich nicht laden. Falls es welche gibt, sieht das Team sie mit «Zugang beendet».") is adopted by the PO as the target wording: Engineering swaps it with the next `/admin` change, `cra` confirms it there; before G-19 (l).
+2. Click tested on the pure component, no forced-failure e2e: **accepted**. A test-only server seam to fail one RPC would add attack surface for a display path; the unit test pins the behaviour, `leave.spec.ts` the wiring.
+3. `/team` leaver list unchanged: **accepted**, the condition is not widened. `/team` already says the list failed and the team's registered nurses are the list's readers.
+
+**Decision: RLS4-C3 met; RLS4 stays `accepted`.** *Care value:* an administrator ending a leaver's access is never told "no open reports" when the count is unknown, so no report is silently orphaned (H-12) and no one has to phone the team to check.

@@ -400,8 +400,11 @@ select pg_temp.at((pg_temp.t() + 1) + time '07:00');
 select is(pg_temp.res('admin', format('select public.set_agent_state(%L, %L, true, 50, 2, 7, %L)',
             '00000000-0000-4000-b000-000000000011', 'aig1_test_primary_nurse', pg_temp.k(72))), 'ok',
   'AIG1-8: restarting is a new audited switch-on');
-select is((select count(*)::int from private.derived_exceptions('00000000-0000-4000-b000-000000000011') where exception_type = 'agent_stopped'), 0,
-  'AIG1-8: the OPS1 exception closes with its cause');
+-- AIG1-C5 (0105, ADR-139) replaces "closes when it is switched on again": the stop's exception stays while it has open lines.
+select is(pg_temp.rows('ops', format('select detail from public.operations_exceptions() where exception_key = %L',
+                                     'agent_stopped:' || (select id from stop1))),
+  '[{"detail": "Testassistent Bezugspflege · Werte: 2 offen · 0 nicht mehr offen"}]'::jsonb,
+  'AIG1-8 / AIG1-C5 (a): after the restart the stop''s exception stays while it has open lines');
 select ok(pg_temp.propose('ca', 13, 73) is not null and pg_temp.propose('ca', 14, 74) is not null
           and pg_temp.propose('ca', 15, 75) is not null, 'fixture: three proposals in the new window');
 select is(pg_temp.err('ca', format('select public.confirm_suggestions(%L::uuid[], %L)', array[pg_temp.sug(13), pg_temp.sug(8)], pg_temp.k(81))),

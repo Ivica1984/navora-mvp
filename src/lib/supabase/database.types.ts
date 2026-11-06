@@ -2267,7 +2267,7 @@ isOneToOne: false
                            },
 "agent_health":
 { Args: { "p_organization_id": string }; Returns: {
-              "agent_key": string,"agent_name": string,"kind": string,"last_proposal_at": string,"last_window_decided": number,"last_window_min_reached": boolean,"last_window_share": number,"level": string,"state": string,"stop_id": string,"stop_min_proposals": number,"stop_reason": string,"stop_share": number,"stop_window_days": number,"stopped_at": string,"version": string
+              "agent_key": string,"agent_name": string,"kind": string,"last_proposal_at": string,"last_window_decided": number,"last_window_expired": number,"last_window_min_reached": boolean,"last_window_share": number,"level": string,"state": string,"stop_id": string,"stop_min_proposals": number,"stop_reason": string,"stop_share": number,"stop_window_days": number,"stopped_at": string,"stops": Json,"version": string
             }[]
                            },
 "agent_stop_lookback":
@@ -2550,6 +2550,11 @@ isOneToOne: false
 "pilot_kpis":
 { Args: { "p_month": string }; Returns: {
               "base": number,"kpi": string,"note": string,"organization_id": string,"team_id": string,"team_name": string,"too_few": boolean,"value": number
+            }[]
+                           },
+"pilot_step_spans":
+{ Args: { "p_month": string }; Returns: {
+              "base": number,"measure": string,"note": string,"organization_id": string,"suppressed": boolean,"team_id": string,"team_name": string,"too_few": boolean,"value": number
             }[]
                            },
 "plan_from_care_plan":

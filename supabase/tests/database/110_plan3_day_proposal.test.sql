@@ -153,7 +153,7 @@ select is((select class from public.ai_agent_fields where agent_key = 'plan3_day
   'schedule', 'PLAN3-5: its field is the visit''s responsible member, class schedule (CGR-78)');
 select is((select count(*)::int from private.aig1_eval_plan3_day_proposal() where expected is distinct from actual), 0,
   'PLAN3-3 / AIG1-9: every synthetic fixture case gives the expected member, reason or limit');
--- Scoped to the test organisation: the seed switches the agent on for Testorganisation G (PLAN3 part (b) e2e, ADR-147).
+-- Scoped to the test organisation: the seed switches the agent on for Testorganisation H (PLAN3 part (b) e2e, ADR-147).
 select is((select count(*)::int from public.ai_agent_settings where agent_key = 'plan3_day_proposal'
            and organization_id = pg_temp.org()), 0,
   'PLAN3-6: off by default (no settings row for an organisation that has not switched it on)');
