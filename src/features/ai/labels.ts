@@ -408,6 +408,22 @@ export function planTeamMeasureCells(m: PlanTeamMeasure): { key: string; label: 
   ];
 }
 
+/** PLAN3-7 (2) (ADR-155): a failed read of the team's own measures says so; it never reads as zero. */
+export const PLAN_TEAM_LINE_ERROR = "Die Zahlen dieses Monats konnten nicht geladen werden.";
+
+/**
+ * PLAN3-7 (2) (po 2026-11-06 06:30, `aia` AUT-52; ADR-155): the team's own line under its PLAN3-10 switch on
+ * `/team/tagesplan`, from the same row Operations reads. Wording of the brief; open for `uxa`. No target, no other
+ * team, no person. With fewer than three confirmers in the month (AIG1-7) the count stays and the shares are hidden.
+ * No row, or no day plan in the month: "noch kein Tagesvorschlag", never a 0 % share.
+ */
+export function planTeamOwnLine(m: PlanTeamMeasure | null | undefined): string {
+  if (!m || m.day_plans <= 0) return "Diesen Monat: noch kein Tagesvorschlag";
+  const plans = `${m.day_plans} ${m.day_plans === 1 ? "Tagesvorschlag" : "Tagesvorschläge"}`;
+  if (m.proposal_suppressed) return `Diesen Monat: ${plans} · Anteile ${SUPPRESSED_TEXT}`;
+  return `Diesen Monat: ${plans} · ${formatShare(m.confirmed_unchanged_share)} unverändert bestätigt · ${formatShare(m.no_proposal_share)} ohne Vorschlag`;
+}
+
 /** PLAN3-7: `?monat=YYYY-MM` as the first day of that month; otherwise the current Europe/Zurich month. */
 export function monthParam(raw: string | undefined, now: Date = new Date()): string {
   if (raw && /^\d{4}-(0[1-9]|1[0-2])$/.test(raw)) return `${raw}-01`;

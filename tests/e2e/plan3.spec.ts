@@ -128,6 +128,21 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
     await expect(page.getByTestId("suggestions-link")).toHaveAttribute("aria-label", "1 offene Vorschläge");
   });
 
+  // PLAN3-7 (2) (po 2026-11-06 06:30, `aia` AUT-52; ADR-155): the team sees its own numbers under its switch. Only
+  // teamg.test has decided lines this month, so the shares are hidden by AIG1-7's three-person rule; the count stays.
+  test("the team sees its own day-plan numbers under its switch, no person, no other team (PLAN3-7 (2))", async ({ page }) => {
+    await page.goto("/team/tagesplan");
+    const line = page.getByTestId("day-plan-measures");
+    await expect(line).toHaveText(/^Diesen Monat: \d+ Tagesvorschl(ag|äge) · /);
+    await expect(line).not.toContainText("Pflegekraft");
+    await page.getByText("Alle Zahlen dieses Monats").click();
+    const cells = page.getByTestId("day-plan-measures-cells");
+    await expect(cells).toContainText("Unverändert bestätigt");
+    await expect(cells).toContainText("Abgelehnt");
+    await expect(cells).not.toContainText("Pflegekraft");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  });
+
   test("switched off, the team sees no 'Tag vorschlagen' (PLAN3-10)", async ({ page }) => {
     await page.goto("/team/tagesplan");
     await page.getByRole("button", { name: "Tagesvorschlag ausschalten" }).click();
@@ -143,6 +158,17 @@ test.describe("PLAN3-12: a member of another team sees no count from Testteam G"
     await page.goto("/team");
     await expect(page.getByTestId("suggestions-link")).toHaveText("Vorschläge");
     await expect(page.getByTestId("suggestions-link")).not.toHaveAttribute("aria-label", /.+/);
+  });
+});
+
+test.describe("PLAN3-7 (2): a member of another team sees none of Testteam G's numbers", () => {
+  test("pflege.test (Testorganisation A) asks for Testteam G by its id and reads none of its numbers at 390 px", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signIn(page, "pflege.test@navora.test");
+    await page.goto("/team/tagesplan?team=00000000-0000-4000-a000-0000000001a1");
+    await expect(page.getByText("Testteam G")).toHaveCount(0);
+    const line = page.getByTestId("day-plan-measures");
+    if ((await line.count()) > 0) await expect(line).toHaveText("Diesen Monat: noch kein Tagesvorschlag");
   });
 });
 

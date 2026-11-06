@@ -2743,3 +2743,27 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** `npm ci` failed in this session again ("Exit handler never called"), so vitest, typecheck of the project, lint, build and e2e were **not** run with the project's toolchain. `teamPickerOptions` ran once under Node type stripping with the vitest roster (output equal to the expectations) and `member-label.ts` type-checked alone under `tsc --strict`. CI is the test runner.
 
 **Rollback:** revert the PR (no migration, no data).
+
+### ADR-155 — PLAN3-7 (2): the team sees its own day-plan numbers under its switch on /team/tagesplan
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Trigger:** PO note 2026-11-06 06:30 in `briefs/PLAN3.md` (PO PR #893, **not yet merged** when this was built), `aia` AUT-52 (review 32, medium): the team holds the PLAN3-10 switch but its numbers went only to Operations · **Migration:** none · **Stacked on:** #891 (reader from #886/#890, ADR-151/-153) · **Proof:** vitest `plan3-7-2-team-own-line` (written first), e2e `plan3.spec` (two tests at 390 px)
+
+**Context (IMPLEMENTED before, on the stack head `487c84a`):** `plan3_team_measures(month)` (0113, 0114) already answers a team member for her own teams (coordinators for every team), with AIG1-7 / AN1 suppression. Only `/operations/assistenten/tagesvorschlag` showed it.
+
+**Decision (HOW, Engineering):**
+1. **Same reader, no new read.** `/team/tagesplan` calls the existing `getPlanTeamMeasures` for the current Zurich month (`monthParam(undefined)`) in the same `Promise.all` and passes **only the selected team's row** to the client (a coordinator's read returns other teams; they never reach the page). The selected team is still one of the caller's own (`team_cases`); `?team=<other team>` falls back to the caller's first team as before.
+2. **One information line under the switch**, pure `planTeamOwnLine` in `src/features/ai/labels.ts`, the brief's wording: "Diesen Monat: <n> Tagesvorschläge · <x> % unverändert bestätigt · <y> % ohne Vorschlag" (singular "1 Tagesvorschlag"; a missing share "–", never 0). Suppressed month (fewer than three confirmers, AIG1-7): the count stays, the shares read "Anteile nicht ausgewiesen (weniger als 3 Personen)", as on Operations. No row or no day plan: "Diesen Monat: noch kein Tagesvorschlag". Failed read: "Die Zahlen dieses Monats konnten nicht geladen werden." Plain text, no colour above `info`, no target, no comparison, no person, no team name.
+3. **The month's cells in a disclosure** "Alle Zahlen dieses Monats" on the same page (`planTeamMeasureCells`, the Operations cells for this one row), shown when the month has a day plan.
+
+**Deviations / notes for the PO (and `uxa`, `aia`):**
+1. *Built on an unmerged PO note:* PLAN3-7 (2) is in PO PR #893, not on `recovery/main`. If the PO changes it before merge, this PR follows or is closed.
+2. *"plus the largest 'kein Vorschlag' reason when it is one the team can fix itself (no primary nurse set)" not built (OPEN `po`):* the reader's "kein Vorschlag" reasons are the four PLAN3-2 limits (`not_active`, `needs_rn`, `absent`, `overlap`, ADR-145); "no primary nurse set" is not one of them, because a visit without a primary nurse still gets a "freie Kapazität" line. Showing it needs a new count (visits proposed without a primary nurse) in the reader, i.e. a migration and a new figure. Engineering does not decide which reason the team "can fix itself". Proposed: the PO states which code(s) count, or adds the count as its own criterion.
+3. *"one link to the month's cells" built as an in-page disclosure:* the cells live on `/operations/assistenten/tagesvorschlag`, in the coordinator area (Operations navigation is coordinator-only). A disclosure shows the same cells for this team without sending a nurse into it. If the PO prefers the link, it is a one-line change.
+4. *Wording OPEN `uxa`* (the PO asked `uxa` for the PLAN3-7 (2) line): built as the brief quotes it; the suppressed, empty and failed texts are Engineering's.
+5. *e2e* asserts the line form, not exact shares: in the seed only teamg.test decides lines, so the shares are suppressed; the exact texts are pinned in vitest.
+
+**Clinical gate:** no clinical rule, threshold, stop criterion or new figure; same reader and suppression `cra` reviewed for ADR-151/-153. `lca`: no new processing purpose (PO 06:30: "PLAN3-7 (2) reuses a reader the team already has").
+
+**Checked by me (not CI):** `npm ci` and a scratch `npm i vitest` failed or timed out in this session, so vitest, typecheck, lint, build and e2e were **not** run with the project's toolchain. `planTeamOwnLine` ran under Node type stripping with the vitest cases (outputs equal to the expectations). CI is the test runner.
+
+**Rollback:** revert the PR (no migration, no data).

@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 06:15 CET · Engineering (eng)
+
+- **PLAN3-7 (2) in review: PR #PRNUM** (stacked on #891; #538 claimed 06:15, `claimed` removed at the end of the run). Built from the PO note 06:30 in PO PR #893 (**not yet merged**; ADR-155 deviation 1). `/team/tagesplan` shows under the team switch one line from the existing `plan3_team_measures` reader for the current Zurich month, only the selected team's row: "Diesen Monat: <n> Tagesvorschläge · <x> % unverändert bestätigt · <y> % ohne Vorschlag"; suppressed shares as on Operations; the month's cells in a disclosure. No migration, no new read. Tests written first: vitest `plan3-7-2-team-own-line`; e2e `plan3.spec` +2 at 390 px (the team sees its line; pflege.test asking for Testteam G by id sees none of its numbers).
+- **Step A:** my open PRs #800 to #891 green on their heads (#891 4/4 read through the GitHub API; the others unchanged since the 05:15 run); no bot run waits for approval. Not merged by me.
+- **Clinical gate:** latest `cra` section (05:30 on #892) read: no finding on PLAN3-7 (2); no clinical rule, threshold or new figure. No remediation plan needed.
+- **OPEN for `po`:** ADR-155 deviation 2, "the largest kein-Vorschlag reason the team can fix itself (no primary nurse set)": not one of the reader's four reasons; needs a new count (migration) and the PO's say on which code counts. Deviation 3: disclosure instead of a link into the coordinator area. **OPEN `uxa`:** wording of the line and its empty/suppressed/failed texts.
+- **Next (PLANNED):** PLAN3-15 (fresh request closes earlier undecided lines; ledger outcome vs AIG1-C4 #814 in an ADR), PLAN3-9 (1), CGR-75 (5).
+- Tests: `npm ci` failed again in this session, so I did **not** run vitest, lint, typecheck, build, pgTAP or e2e with the project toolchain; the pure function ran under Node type stripping. CI decides. Live project not touched.
+
+---
+
 ## 2026-11-06 05:15 CET · Engineering (eng)
 
 - **UXR-113 in review: PR #891** (stacked on #890; #538 claimed 05:15, `claimed` removed at the end of the run). The `/team` "Neuer Einsatz" → "Verantwortlich" picker now labels members with `pickerMemberLabel` (name; "<Name> (du)" / "Ich (du)"; "Teammitglied <n> (ohne Namen)") plus the qualification, via the new pure `teamPickerOptions` (ADR-154). No migration, no new read. Tests written first: vitest `uxr113-new-visit-picker`; e2e `plan3.spec` UXR-113 (390 px, read only).
