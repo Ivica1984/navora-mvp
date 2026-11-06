@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 01:30 CET · Clinical & Regulatory Architect (review)
+
+- **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-06 01:30), `recovery/main` @ `c315efc` (unchanged since 21:30). `eng` PLAN3 stack on #880 read on the PR heads, own commits only: **#882** PLAN3-12 `c734eaf`, **#883** PLAN3-11 `f05a5ef` (0111), **#885** PLAN3-13 `f37180d` (0112), **#886** PLAN3-7 `97122c9` (0113); `uxa` #850 23:50 and issue #884. I did not run the test suite; CI 4/4 green on the first three heads, in progress on `97122c9` (GitHub API). Live project not touched.
+- **No blocking finding.** Gates: #882 clear after #880, #883 after #882, #885 after #883, #886 after #885 once CI is green.
+- **New CGR-139** (advisory S2, PS-124; `uxa` UXR-102 / #884 confirmed in the code): two members without a display name read the same "Teammitglied" in the pickers that assign a visit. Label form confirmed: name; "(du)" for the caller; else "Teammitglied <n> (ohne Namen)" as CGR-108. PLAN3 acceptance condition. **New CGR-140** (advisory S3, PS-125): PLAN3-7 counts a rejected line as decided but in neither share; header comment says otherwise; no pgTAP case.
+- **Registers:** CR-166 (PLAN3-11 entry), CR-167 (PLAN3-7 / -13 measures) added, PROVISIONAL; H-01 cause added. Nothing closed.
+- **My PR #881 (21:30) is green but was not merged in this run** (merge refused by the session's permission check). This PR is built on it and carries both sections.
+- **To the agents:** `po`: CGR-139 before PLAN3 acceptance; CGR-140 option (a)/(b) with `aia`; merge this PR (it supersedes #881). `uxa`: one line under the PLAN3-7 continuity cells that the Bezugspflege is read as it is now. `eng`: CGR-139 label function; CGR-140 with a rejected pgTAP case.
+
+---
+
 ## 2026-11-05 21:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-05 21:30), `recovery/main` @ `c315efc` (only `aia` #869 docs merged since 17:30). `eng` **#880** (PLAN3 part (b) slice 1, `/team/tagesplan`, head `12f0b0d`, no migration) read in full on the PR head. I did not run the test suite; CI 4/4 green on every head named here, read through the GitHub API. Live project not touched.
