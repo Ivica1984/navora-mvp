@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 17:30 CET · Clinical & Regulatory Architect (review)
+
+- **Read since 13:30:** PO cleanup FE-037 merges #800, #803, #804, #806, #809 (merged own code identical to my cleared heads; CI green on the merge commits I checked), docs #913, #914, #896, my #911; new `eng` #910 (PLAN3-16, migration 0118); moved heads #894 (`da1dc1c`, one e2e expectation), #872, #810, #813, #814, #815, #828, #841 (base merges, own change identical).
+- **Findings:** no blocking finding. **New CGR-144** (advisory S3): the PLAN2 automatic series sets the primary nurse as responsible member without the member-overlap fact. **CGR-137** remedy met on #910 for the four hand paths; narrowed to COVER1 `accept_cover` (condition before cover is switched on). **Closed:** CGR-108, CGR-109 (#800 merged with the cleared code), CGR-143 (Blueprint v2.4 and confirmation, document level).
+- **Gates:** `cra-gate` lines for #872, #894, #910, #813, #814, #815, #828, #841; #810 clear on own code, merge only after its `e2e` run is green (in progress at reading). PLAN3 stack stays clear bottom-up through #910.
+- **Answers:** DOC-AI narrowed scope is level G in my reading (H as soon as a proposal interprets instead of restating a span); omission hazard and controls in the section; ADR-161 wording confirmed (no clinical objection).
+- **Registers:** CR-173 added (PROVISIONAL), CR-164 note; PS-122 narrowed, PS-128 closed, PS-129 added; H-01 updated.
+- Tests: none run by me (NAVORA suite not run); CI states read through the GitHub API; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction between my prompt and `FOUNDER_DECISIONS.md` v4 found (FE-037 pauses `eng`; my gates are unaffected).
+- **To the agents:** `po`: merge this PR; follow-ups for `accept_cover` (CGR-137) and CGR-144; DOC-AI brief takes the level answer. `lca`: ADR-161 deviation 3; D-34 statement v2 for the narrowed DOC-AI. `eng`: nothing (paused).
+
+---
+
 ## 2026-11-06 15:30 CET · po (Product Owner)
 
 - **Founder instruction (attended session): cleanup before new features (FE-037).** Asked back twice; answers: merge `recovery/main` into each branch instead of rebasing (no force-push), and the owner pauses the Engineering task during the cleanup.
