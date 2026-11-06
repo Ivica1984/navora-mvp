@@ -107,7 +107,8 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
     await expect(line0815.getByTestId("day-plan-refusal")).toHaveText("Nicht übernommen: Diese Person hat zu dieser Zeit schon einen Einsatz.");
     await expect(line0815.getByRole("button", { name: "Bestätigen", exact: true })).toBeVisible();
     await page.goto(`/visits/${VISIT_0815}`);
-    await expect(page.getByTestId("visit-responsible")).toHaveText("Noch offen");
+    // UX2-29 wording (#800, merged into recovery/main): an open visit with nobody responsible reads "noch niemand".
+    await expect(page.getByTestId("visit-responsible")).toHaveText("noch niemand");
 
     // The 12:00 line (category B) is changed to the other registered nurse and confirmed: one `corrected` line.
     await page.goto(`/team/tagesplan?datum=${zurichIso(1)}`);
