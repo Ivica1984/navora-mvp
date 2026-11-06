@@ -6,8 +6,10 @@ import {
   dayPlanRefusalText,
   lineReasonText,
   lineNotFoundText,
+  otherTeamVisitsLine,
   switchedOnLine,
 } from "@/features/planning/day-plan-labels";
+import { refusalText } from "@/features/ai/labels";
 
 /**
  * PLAN3 (ADR-145): the texts the day-plan proposal shows. The database returns codes only
@@ -90,5 +92,25 @@ describe("PLAN3-9 confirm button and PLAN3-10 switch line", () => {
   it("shows the switch date without a name", () => {
     expect(switchedOnLine("2026-11-05")).toBe("Tagesvorschlag eingeschaltet am 05.11.2026");
     expect(switchedOnLine(null)).toBeNull();
+  });
+});
+
+describe("PLAN3-14: visits in other teams (cra CGR-136, ADR-146)", () => {
+  it("a line refused at confirm for an overlap names the reason, the value stays open", () => {
+    expect(refusalText("overlap")).toContain("schon einen Einsatz");
+    expect(refusalText("overlap")).not.toBe(refusalText("unexpected"));
+  });
+
+  it("the day-load line says only that other-team visits exist: no count, no client, no time", () => {
+    expect(otherTeamVisitsLine(true)).toBe("weitere Einsätze in anderen Teams");
+    expect(otherTeamVisitsLine(false)).toBeNull();
+    expect(otherTeamVisitsLine(null)).toBeNull();
+    expect(otherTeamVisitsLine(true)).not.toMatch(/\d/);
+  });
+
+  it("uses no word of pressure or judgement (H-20)", () => {
+    expect(`${refusalText("overlap")} ${otherTeamVisitsLine(true)}`).not.toMatch(
+      /sofort|dringend|überlastet|zu viel|Frist|Maximum/i,
+    );
   });
 });

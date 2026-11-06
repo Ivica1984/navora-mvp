@@ -2765,3 +2765,30 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** migrations 0001-0109 and the seed applied to a plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim (structural pgTAP functions stubbed or absent); 0109 applied twice (idempotent); pgTAP 110 (72/72), 067, 071, 074, 097, 103, 104 and every other file the shim can run passed there. vitest, typecheck, lint, e2e not run. CI on the Supabase stack decides.
 
 **Rollback:** revert the PR; 0109 is forward-only like every migration: a follow-up would restore the 0097 body of `private.aig1_apply` and drop the PLAN3 functions and tables (no other object depends on them).
+
+### ADR-146 — PLAN3-14: a member is busy with every visit she is responsible for, in any team; overlap is checked again at confirm
+
+**Date:** 2026-11-05 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/PLAN3.md` PLAN3-14 (PO 2026-11-05 14:50 in #874, `cra` CGR-136 advisory S2; PO decision, product authority, no clinical rule, no threshold) · **Migration:** 0110 · **Proof:** pgTAP `111_plan3_14_overlap_across_teams` (14), `110` unchanged; vitest `plan3-day-plan-labels` (+3) · **Issue:** #538 · **Resolves:** ADR-145 deviation 1
+
+**Context (IMPLEMENTED before 0110, in 0109):** `private.plan3_lines` counted as busy only the visits of the asking team. A COVER1 cover keeps the visit's team and makes the covering nurse its responsible member (0028), and a member may belong to several teams (0003), so she could be proposed for two clients at the same time and her day looked free. Confirming a line re-ran the J3 checks (membership, qualification, contract, absence) but not the overlap.
+
+**Decision:**
+1. **Busy time across teams (PLAN3-14 (1)).** `private.plan3_other_team_busy(org, member, date, team)` returns the planned intervals (`private.visit_interval`, DST1) of every non-cancelled visit of the organisation that day whose responsible member is she, outside the asking team. `plan3_lines` adds them to each member's team-scoped busy time before the run. The asking team still receives only the reason `overlap` (or the next member); nothing of the other team's visit is written to `day_plan_lines` or returned. The planned load (`lod`, PLAN3-4 tie-break and `day_plan_load` minutes) keeps its team scope, as the brief says.
+2. **Overlap again at confirm (PLAN3-14 (2)).** `private.aig1_apply` checks, for a suggestion that has a `day_plan_lines` row, whether the chosen member has by now another non-cancelled visit of the organisation that day overlapping this one (`private.plan3_confirm_overlaps`; any team, hand assignment included; the visit itself excluded). If so it returns `overlap`: the value stays open, the visit stays unassigned (uncovered path), and in a ticked list the other lines are set (AIG1-5 refusal list, unchanged shape). Other AIG1 agents are untouched (no day-plan line → no extra check).
+3. **Concurrency.** The confirm-time check takes `pg_advisory_xact_lock` on (member, day), so two PLAN3 confirms for one member in parallel are serialised and the second sees the first one's assignment.
+4. **Day load flag.** `day_plan_load` gains `other_team_visits boolean` (the screen shows "weitere Einsätze in anderen Teams", wording proposed by the PO, `uxa` to confirm). Only whether such a visit exists: no count, client, case, visit or time (pgTAP pins the column list and that no other-team id or time appears). The return type changes, so the function is dropped and created again with the same grants; nothing depends on it (part (b) UI not built). `database.types.ts` updated by hand to match; the types bot regenerates it.
+5. **Texts.** `refusalText("overlap")` "Nicht übernommen: Diese Person hat zu dieser Zeit schon einen Einsatz." and `otherTeamVisitsLine(true)` (Engineering's wording, open for `uxa`).
+
+**Trade-offs:** reading other teams' visits only inside definer functions that return a reason or a yes/no keeps PLAN3-8 data minimisation (no new grant, no new reader column of another team). Checking before delegating to `aig1_apply_visit_responsible` keeps that generic J3 path unchanged for every agent, at the cost of a reason order of `overlap` before `not_qualified` / `outside_contract` / `absent` (a stale visit still gets `not_open` / `already_taken` only if no overlap exists).
+
+**Deviations / notes for the PO (and `cra` where marked):**
+1. *Corrections are checked too:* the brief says "confirming a PLAN3 line"; a correction to a member busy at that time is also refused `overlap` (same hazard, H-01/H-20). The team can still assign by hand through J3. If the PO wants corrections exempt, it is one condition.
+2. *Hand assignment (J3 `assign_visit`) does not check overlap and does not take the advisory lock* (unchanged, outside PLAN3). A hand assignment racing a PLAN3 confirm in the same instant can still produce an overlap. OPEN for po/`cra` whether J3 should refuse or warn on overlap; not built (no rule invented).
+3. *Reason order* at confirm: `overlap` is reported before the qualification, contract and absence reasons (see trade-offs).
+4. *AUT-51 / ADR-145 deviation 3* (`open_proposal`) is unchanged here; the PO decides.
+
+**Not set by this:** any labour-law limit, any clinical rule, travel time between visits (Q7). No AI service. The live project is not touched (D-1).
+
+**Checked by me (not CI):** nothing executed. npm install failed in this session (npm internal error) and no pgTAP was available locally, so vitest, typecheck, lint, pgTAP and e2e were not run by me. CI on the Supabase stack decides.
+
+**Rollback:** revert the PR; a follow-up migration would restore the 0109 bodies of `plan3_lines`, `aig1_apply` and `day_plan_load` and drop the two helper functions.
