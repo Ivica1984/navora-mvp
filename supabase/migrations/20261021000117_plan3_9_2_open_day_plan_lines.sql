@@ -12,6 +12,8 @@
 -- decided; no line closed by a fresh request, PLAN3-15) and adds one date per line. No name, no member, no client,
 -- no visit column: the date is the one the team itself asked for. No new read is granted to any role beyond what
 -- `open_suggestions` and `day_plan` already give the same caller.
+-- The LEAVE1-3 guard is repeated in this reader's own body (as every definer read model carries it; pgTAP 074 checks
+-- the catalogue), although `open_suggestions` already applies it.
 -- `confirm_suggestion` and `confirm_suggestions` are not changed: `/team/tagesplan` decides its lines through them.
 -- No table, so no RLS policy, column grant or audit trigger is added; the reader writes nothing.
 -- Idempotent: `create or replace`, grants repeated.
@@ -24,6 +26,7 @@ as $$
   from public.open_suggestions(p_team_id) o
   join public.day_plan_lines dl on dl.suggestion_id = o.suggestion_id
   where o.agent_key = 'plan3_day_proposal'
+    and not private.access_ended((select auth.uid()))                                          -- LEAVE1-3
   order by dl.plan_date, o.suggestion_id
 $$;
 revoke all on function public.open_day_plan_lines(uuid) from public, anon;

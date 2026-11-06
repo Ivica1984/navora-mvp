@@ -2889,4 +2889,6 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 
 **Checked by me (not CI):** on a local PostgreSQL 16 with Supabase stubs and a minimal pgTAP stand-in (built in this run, not in the repo): migrations 0001-0117 and the seed apply; pgTAP 104, 110-118 green (118 11/11; 110 72/72, 116 32/32); 105 stops on a stand-in gap (`has_column`). vitest `plan3-9-2-one-place` 13/13 under Node type stripping with a vitest stand-in. Real pgTAP, vitest, typecheck, lint, build and Playwright **not** run (npm registry unreachable): CI decides.
 
+**CI fix (12:35):** the first CI run failed pgTAP 074 test 26 (catalogue: every definer read model carries the LEAVE1-3 guard in its own body). The guard is now repeated in `open_day_plan_lines` (it was only inherited from `open_suggestions`); pgTAP 118 re-run locally 11/11.
+
 **Rollback:** revert the PR; `drop function if exists public.open_day_plan_lines(uuid)` (no table, no data).
