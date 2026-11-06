@@ -1,13 +1,13 @@
 -- PLAN3-7 (migration 0113, ADR-151): the day-plan assistant's measures per team and Zurich month, never per person.
 -- Brief `docs/agents/briefs/PLAN3.md` PLAN3-7 (amended 2026-10-30 03:10, AUT-25): "No per-person figure (pgTAP: no
--- person column; small-team suppression)". All data synthetic (seed.sql Testorganisation G, plus ledger rows written
+-- person column; small-team suppression)". All data synthetic (seed.sql Testorganisation H, plus ledger rows written
 -- here); no AI service is called.
--- Users: teamg …9e1, bezugg …9e2, assistg …9e3 (members of Testteam G …1a1); pflege …902 of Testorganisation A.
--- Fixture (day 11 of the current Zurich month, so the month never splits): plan P1 at 10:00 with three lines (…5c1 and
--- …5c2 proposed to Bezug G, …5c4 "kein Vorschlag: overlap"), plan P2 at 11:00 with two lines (…5c3 proposed to Team G,
--- …5c5 "kein Vorschlag: needs_rn"). P1's two proposed lines confirmed by teamg in one ticked list at 10:30; P2's line
--- corrected by bezugg at 11:10. Later assistg confirms the "kein Vorschlag" of …5c4 (the third confirmer).
--- CGR-140 (migration 0114, ADR-153): after the 0113 values, plan P3 at 12:00 proposes …5c1 again to Team G and bezugg
+-- Users: teamh …9d7, bezugh …9d8, assisth …9d9 (seed names teamg/bezugg/assistg kept as test aliases) (members of Testteam H …1a8); pflege …902 of Testorganisation A.
+-- Fixture (day 11 of the current Zurich month, so the month never splits): plan P1 at 10:00 with three lines (…5d1 and
+-- …5d2 proposed to Bezug H, …5d4 "kein Vorschlag: overlap"), plan P2 at 11:00 with two lines (…5d3 proposed to Team H,
+-- …5d5 "kein Vorschlag: needs_rn"). P1's two proposed lines confirmed by teamg in one ticked list at 10:30; P2's line
+-- corrected by bezugg at 11:10. Later assistg confirms the "kein Vorschlag" of …5d4 (the third confirmer).
+-- CGR-140 (migration 0114, ADR-153): after the 0113 values, plan P3 at 12:00 proposes …5d1 again to Team H and bezugg
 -- rejects it at 12:05, so the rejected line is decided and in its own share.
 begin;
 create extension if not exists pgtap with schema extensions;
@@ -19,12 +19,12 @@ create function pg_temp.act_as(uid text) returns void language sql as $$
   select set_config('request.jwt.claim.sub', uid, true);
 $$;
 create function pg_temp.u(n text) returns uuid language sql immutable as $$
-  select (case n when 'teamg' then '00000000-0000-4000-a000-0000000009e1' when 'bezugg' then '00000000-0000-4000-a000-0000000009e2'
-                 when 'assistg' then '00000000-0000-4000-a000-0000000009e3' when 'pa' then '00000000-0000-4000-a000-000000000902' end)::uuid
+  select (case n when 'teamg' then '00000000-0000-4000-a000-0000000009d7' when 'bezugg' then '00000000-0000-4000-a000-0000000009d8'
+                 when 'assistg' then '00000000-0000-4000-a000-0000000009d9' when 'pa' then '00000000-0000-4000-a000-000000000902' end)::uuid
 $$;
-create function pg_temp.team() returns uuid language sql immutable as $$ select '00000000-0000-4000-a000-0000000001a1'::uuid $$;
-create function pg_temp.org() returns uuid language sql immutable as $$ select '00000000-0000-4000-b000-000000000017'::uuid $$;
-create function pg_temp.vis(s text) returns uuid language sql immutable as $$ select ('00000000-0000-4000-a000-0000000005' || s)::uuid $$;
+create function pg_temp.team() returns uuid language sql immutable as $$ select '00000000-0000-4000-a000-0000000001a8'::uuid $$;
+create function pg_temp.org() returns uuid language sql immutable as $$ select '00000000-0000-4000-b000-000000000018'::uuid $$;
+create function pg_temp.vis(s text) returns uuid language sql immutable as $$ select ('00000000-0000-4000-a000-0000000005' || replace(s, 'c', 'd'))::uuid $$;
 create function pg_temp.pid(n int) returns uuid language sql immutable as $$
   select ('a1140000-0000-4000-8000-' || lpad(n::text, 12, '0'))::uuid $$;
 create temp table d0 as
@@ -91,7 +91,7 @@ end $$;
 -- Two confirmers: counts only (AIG1-7) ----------------------------------------------------------------------------------
 select is(pg_temp.g('teamg') - 'team_id' - 'month' - 'enabled_since' - 'continuity_before_base' - 'continuity_after_base'
           - 'continuity_before_share' - 'continuity_after_share' - 'continuity_suppressed',
-  jsonb_build_object('team_name', 'Testteam G', 'day_plans', 2, 'lines', 5, 'decided_lines', null,
+  jsonb_build_object('team_name', 'Testteam H', 'day_plans', 2, 'lines', 5, 'decided_lines', null,
                      'confirmed_unchanged_share', null, 'corrected_share', null, 'rejected_share', null,
                      'confirm_actions_per_plan', null,
                      'minutes_to_last_decision_median', null, 'no_proposal', null, 'no_proposal_share', null,
@@ -140,7 +140,7 @@ select ok(abs((pg_temp.g('teamg') ->> 'confirmed_unchanged_share')::numeric
               + (pg_temp.g('teamg') ->> 'rejected_share')::numeric - 100) <= 0.1,
   'CGR-140: the three shares add up to 100 % of the decided lines (±0.1)');
 
--- Continuity: Testteam G has no completed visit with a performer this month (AN1: fewer than three performers) --------
+-- Continuity: Testteam H has no completed visit with a performer this month (AN1: fewer than three performers) --------
 select is(pg_temp.g('teamg') -> 'continuity_suppressed', 'true'::jsonb,
   'PLAN3-7 (AN1): fewer than three performers in the month: the continuity shares are suppressed');
 select ok(pg_temp.g('teamg') -> 'continuity_before_share' = 'null'::jsonb
@@ -150,7 +150,7 @@ select ok(pg_temp.g('teamg') -> 'continuity_before_share' = 'null'::jsonb
 -- Scope ---------------------------------------------------------------------------------------------------------------
 select is(pg_temp.rows('pa', format('select team_id from public.plan3_team_measures(%L) where team_id = %L',
                                     (select m0 from d0), pg_temp.team())), '[]'::jsonb,
-  'PLAN3-7: a member of another organisation reads no row of Testteam G');
+  'PLAN3-7: a member of another organisation reads no row of Testteam H');
 
 -- AIG1-11 (4) / brief: no person column ---------------------------------------------------------------------------------
 select is((select count(*)::int from unnest((select proargnames from pg_proc

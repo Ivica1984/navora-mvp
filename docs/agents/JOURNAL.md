@@ -4,6 +4,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 18:50 CET · Engineering (eng)
+
+- **PR #894 base merge after #814 (AIG1-C4/-C5) merged:** real conflicts, not only docs. #814 seeded its own *Testorganisation G* with the ids and `bezugg.test` e-mail the PLAN3 stack fixture (ADR-147) also used. The PLAN3 fixture moved to **Testorganisation H** (new ids, names, e-mails; same shape); `plan3.spec.ts`, pgTAP 110, 114 and 002 (14 users) follow. `labels.ts`, `READ_PATHS.md`, `aig1.spec.ts`: both sides kept. `/operations/assistenten`: #814's structure and "Betroffene Werte ansehen" kept (OPEN `uxa`: one wording with the exception card's "prüfen"). ADR-155 note.
+- **To `po`:** every PR below #894 in the PLAN3 stack (#876 → #891) carries the old Testorganisation G fixture and now conflicts with `recovery/main` in `seed.sql`; merging #894 brings the whole stack with the fix, or each needs the same move.
+- Tests: none run with the project toolchain here (`npm ci` fails); `labels.ts` parsed and `planTeamOwnLine` checked under Node type stripping. CI decides. Live project not touched; synthetic data only.
+
+---
+
 ## 2026-11-06 15:30 CET · po (Product Owner)
 
 - **Founder instruction (attended session): cleanup before new features (FE-037).** Asked back twice; answers: merge `recovery/main` into each branch instead of rebasing (no force-push), and the owner pauses the Engineering task during the cleanup.
@@ -942,6 +950,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Answered `uxa` 11:50: RLS4-C3 (2) `uxa` sentence confirmed (PO chooses); AUT-35 label "Was hast du geprüft?" confirmed (CGR-16 stays open); UXR-83 member-number form preferred.
 - Registers: PS-92, -93, -95, -96, -97, -98, -100 notes (met on heads); PS-102 added; H-05, H-08, H-12, H-20 notes; CR-157 to CR-161 added; CR-146, CR-150 notes.
 - **Not merged by me:** owner instruction on #666 covers this PR, which contains #812 … #582. Waiting on: `eng` (merge #799 … #815 with CI green; CGR-113 with `uxa`), `po` (place CGR-113; CGR-112 into AN3-5; RLS4-C3 (2) and AUT-35 wording), Clinical Owner (unchanged list; void confirmation), legal adviser (D-4 item 7), owner (chain merge; CGR-16 before G-23). Tests: none run by me; CI as read through the API. Live project not touched.
+
+---
+
+## 2026-11-03 12:15 CET · eng (Engineering)
+
+- Start: my open PRs #799, #800, #803, #804, #806, #809, #810, #813 (and #796) all green on their heads (four jobs each), no bot run waiting for approval; none merged by me. #745 not claimed; claimed 12:15.
+- Per the PO order (06:30): (0) the cleared UX2 PRs wait for the PO, so no UX2 part opened ((2) held too); (1) CGR-110 in #810; RLS4-C3 in #813. This run: **(3) AIG1-C4 with AIG1-C5 in PR #814** (migration 0105, ADR-139, pgTAP 106 (28), vitest, `aig1.spec` +3/1 extended, seed org F …5b7 and Testorganisation G). AIG1 row `in-review`.
+- Deviations for the PO (ADR-139): (1) confirm guard refusing `not_open` for expired proposals (all outcomes); (2) the stop id comes in `agent_health.stops`, not the `stop_id` column; (3) pgTAP 097 and 104 each had one assertion of the replaced rule, now asserting AIG1-C5; (4) Testorganisation G seeded because no admin switch screen exists; (5) AIG1-C5 (d) waits for PLAN3.
+- OPEN: `uxa` wording for the status and expired texts; `cra` re-check on the merge commit. UNKNOWN (Clinical Owner, D-17): whether expired proposals count toward a stop.
+- Tests: **none ran locally** (npm registry ENOTFOUND from this sandbox, no local database). CI on #814 decides. Live project not touched.
+
+---
+
 
 ---
 

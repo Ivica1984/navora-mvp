@@ -435,3 +435,56 @@ export function monthParam(raw: string | undefined, now: Date = new Date()): str
   const mo = parts.find((p) => p.type === "month")?.value;
   return `${y}-${mo}-01`;
 }
+
+// --- AIG1-C4 / AIG1-C5 (ADR-139, migration 0105): expired proposals, stops followed up by their open lines -------------
+// Wording from the PO brief (`briefs/AIG1.md` 2026-10-31 02:25 and 02:55); `uxa` may replace it.
+
+/** AIG1-C4 (3): proposals of the last closed window whose visit passed undecided; null before the first closed window. */
+export function expiredText(count: number | null | undefined): string | null {
+  if (count === null || count === undefined) return null;
+  return `Abgelaufen ohne Entscheid: ${count}`;
+}
+
+/** AIG1-C5 (c): the agent's state as a status ("Gestoppt seit <Datum>", "Aus", "Ein"), never a to-do. */
+export function agentStatusText(state: string, stoppedAt: string | null | undefined): string {
+  if (state === "stopped") return stoppedAt ? `Gestoppt seit ${formatDate(stoppedAt)}` : "Gestoppt";
+  if (state === "off") return "Aus";
+  if (state === "on") return "Ein";
+  return state;
+}
+
+/** One element of `agent_health.stops` (0105): a stop of the agent with its look-back counts. No person. */
+export type AgentStop = { stop_id: string; reason: string; stopped_at: string; open: number; not_open: number };
+
+/** Reads `agent_health.stops`; anything that is not a complete stop row is dropped, never filled in. */
+export function parseAgentStops(raw: unknown): AgentStop[] {
+  if (!Array.isArray(raw)) return [];
+  const out: AgentStop[] = [];
+  for (const r of raw) {
+    if (
+      r && typeof r === "object" &&
+      typeof (r as AgentStop).stop_id === "string" && typeof (r as AgentStop).reason === "string" &&
+      typeof (r as AgentStop).stopped_at === "string" && typeof (r as AgentStop).open === "number" &&
+      typeof (r as AgentStop).not_open === "number"
+    ) {
+      const s = r as AgentStop;
+      out.push({ stop_id: s.stop_id, reason: s.reason, stopped_at: s.stopped_at, open: s.open, not_open: s.not_open });
+    }
+  }
+  return out;
+}
+
+/** AIG1-C5 (a)/(b): the stops still followed up are those with at least one open line, whatever the agent's state. */
+export function openStops(stops: AgentStop[]): AgentStop[] {
+  return stops.filter((s) => s.open > 0);
+}
+
+/** AIG1-C5 (b): a stop with open lines on the agent's row. */
+export function stopOpenText(s: AgentStop): string {
+  return `Gestoppt am ${formatDate(s.stopped_at)} · ${lookbackCountsText(s.open, s.not_open)}`;
+}
+
+/** AIG1-C5 (b): a stop at "0 offen", readable as history, not as an exception. */
+export function stopHistoryText(s: AgentStop): string {
+  return `gestoppt am ${formatDate(s.stopped_at)} · ${s.open} offen · ${s.not_open} nicht mehr offen`;
+}

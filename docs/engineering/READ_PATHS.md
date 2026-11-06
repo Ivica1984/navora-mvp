@@ -102,12 +102,12 @@ Commands (`correct_visit_time`, `complete_case_task`, `decide_matching_request`,
 
 | Function | Scope | Person returned | Proof |
 |---|---|---|---|
-| `open_suggestions(team)` | active members of the team | the proposed member's name (the proposal itself), never a confirmer | 097 |
+| `open_suggestions(team)` | active members of the team | the proposed member's name (the proposal itself), never a confirmer; AIG1-C4: only proposals whose record is still open (expired ones are not listed) | 097, 105 |
 | `day_plan(team, date)` (PLAN3, 0109, ADR-145) | active members of the team | the proposed member's name and id (the proposal itself), never a confirmer; the decision state only | 110 (another team, Operations: nothing) |
 | `day_plan_load(team, date)`, `team_day_proposal_state(team)` (PLAN3, 0109, 0110; no case, visit or client column) | active members of the team | each member's planned minutes of that team and day (PLAN3-4) and only whether she has visits that day in another team, no count, client or time (PLAN3-14, 0110); the switch date, never its actor (PLAN3-10) | 110, 111 |
 | `value_provenance(entity_type, entity_id, field)` | active members of the record's team | the confirmer of **one** value ("bestätigt von <Name> am <Datum>"), with that value's status; at most one row (AIG1-11 (2a)) | 097, 071 |
 | `agent_correction_rates(month)` | team: own rows; coordinators: all teams of the organisation | none; per agent, field, team and month; a cell with fewer than three distinct confirmers is suppressed (AIG1-7) | 097 |
-| `agent_health(org)` | coordinators of the organisation | none (AIG1-10; AIG1-16 adds the written threshold and a per-agent "minimum reached" flag, no person column) | 097, 103 |
+| `agent_health(org)` | coordinators of the organisation | none (AIG1-10; AIG1-16 adds the written threshold and a per-agent "minimum reached" flag; AIG1-C4/-C5 add the last window's expired count and every stop of the agent with its look-back counts, no person column) | 097, 103, 105 |
 | `agent_stop_lookback(stop)` | coordinators: every line; team members: lines of their teams' records | none; no outcome column (AIG1-12 (i)-(iv)); `superseded`, `superseded_at` per record (AIG1-13 (b)); `not_open` per record (AIG1-C1, 0104) | 097, 104 |
 | `record_lookback_lines(entity_type, entity_id)` | active members of the record's team only (those who may call `confirm_suggestion` for it); coordinators who are not team members: none | none; the listed suggestion id, field, agent name, stop and `record_open` of one record (AIG1-C2 (a)/(d), 0104, ADR-130) | 104 |
 

@@ -1,14 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
 
-// PLAN3 part (b) (ADR-147, migrations 0109/0110). Synthetic local-only accounts from supabase/seed.sql, Testorganisation G
+// PLAN3 part (b) (ADR-147, migrations 0109/0110). Synthetic local-only accounts from supabase/seed.sql, Testorganisation H
 // (an organisation of its own; no org-A to org-F count changes). The administrator has switched `plan3_day_proposal` on;
-// Testteam G's own switch is off as by default. teamg.test (registered nurse of Testteam G) works at 390 px.
-// Tomorrow, nobody responsible: 08:00, 09:00, 10:00 (Testfall G1, primary nurse "Pflegekraft Bezug G"), 08:15-08:45
-// (Testfall G2, no primary nurse, overlaps 08:00), 12:00 (Testfall G2, category B minutes).
+// Testteam H's own switch is off as by default. teamh.test (registered nurse of Testteam H) works at 390 px.
+// Tomorrow, nobody responsible: 08:00, 09:00, 10:00 (Testfall H1, primary nurse "Pflegekraft Bezug H"), 08:15-08:45
+// (Testfall H2, no primary nurse, overlaps 08:00), 12:00 (Testfall H2, category B minutes).
 const PASSWORD = "navora-local-only";
-const BEZUG = "Pflegekraft Bezug G";
-const VISIT_0800 = "00000000-0000-4000-a000-0000000005c1";
-const VISIT_0815 = "00000000-0000-4000-a000-0000000005c4";
+const BEZUG = "Pflegekraft Bezug H";
+const VISIT_0800 = "00000000-0000-4000-a000-0000000005d1";
+const VISIT_0815 = "00000000-0000-4000-a000-0000000005d4";
 
 async function signIn(page: Page, email: string) {
   await page.goto("/login");
@@ -31,10 +31,10 @@ function dotted(iso: string): string {
   return `${d}.${m}.${y}`;
 }
 
-test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", () => {
+test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation H)", () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await signIn(page, "teamg.test@navora.test");
+    await signIn(page, "teamh.test@navora.test");
   });
 
   test("the team switches the proposal on for itself; the date is shown, no name (PLAN3-10)", async ({ page }) => {
@@ -117,8 +117,8 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
     const options = await line1200.getByRole("combobox").locator("option:not([disabled])").allTextContents();
     // CGR-139 (ADR-152): every option of the picker reads differently, and the person planning is marked "(du)".
     expect(new Set(options).size).toBe(options.length);
-    const target = options.includes(BEZUG) ? BEZUG : "Pflegekraft Team G (du)";
-    if (target !== BEZUG) expect(options).toContain("Pflegekraft Team G (du)");
+    const target = options.includes(BEZUG) ? BEZUG : "Pflegekraft Team H (du)";
+    if (target !== BEZUG) expect(options).toContain("Pflegekraft Team H (du)");
     await line1200.getByRole("combobox").selectOption({ label: target });
     await line1200.getByRole("button", { name: "Geänderte Zuteilung bestätigen" }).click();
     await expect(line1200.getByTestId("day-plan-decision")).toHaveText("geändert und bestätigt");
@@ -130,7 +130,7 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
   });
 
   // PLAN3-7 (2) (po 2026-11-06 06:30, `aia` AUT-52; ADR-155): the team sees its own numbers under its switch. Only
-  // teamg.test has decided lines this month, so the shares are hidden by AIG1-7's three-person rule; the count stays.
+  // teamh.test has decided lines this month, so the shares are hidden by AIG1-7's three-person rule; the count stays.
   test("the team sees its own day-plan numbers under its switch, no person, no other team (PLAN3-7 (2))", async ({ page }) => {
     await page.goto("/team/tagesplan");
     const line = page.getByTestId("day-plan-measures");
@@ -152,7 +152,7 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
   });
 });
 
-test.describe("PLAN3-12: a member of another team sees no count from Testteam G", () => {
+test.describe("PLAN3-12: a member of another team sees no count from Testteam H", () => {
   test("pflege.test (Testorganisation A, no open proposal) reads plain 'Vorschläge' at 390 px", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await signIn(page, "pflege.test@navora.test");
@@ -162,12 +162,12 @@ test.describe("PLAN3-12: a member of another team sees no count from Testteam G"
   });
 });
 
-test.describe("PLAN3-7 (2): a member of another team sees none of Testteam G's numbers", () => {
-  test("pflege.test (Testorganisation A) asks for Testteam G by its id and reads none of its numbers at 390 px", async ({ page }) => {
+test.describe("PLAN3-7 (2): a member of another team sees none of Testteam H's numbers", () => {
+  test("pflege.test (Testorganisation A) asks for Testteam H by its id and reads none of its numbers at 390 px", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await signIn(page, "pflege.test@navora.test");
-    await page.goto("/team/tagesplan?team=00000000-0000-4000-a000-0000000001a1");
-    await expect(page.getByText("Testteam G")).toHaveCount(0);
+    await page.goto("/team/tagesplan?team=00000000-0000-4000-a000-0000000001a8");
+    await expect(page.getByText("Testteam H")).toHaveCount(0);
     const line = page.getByTestId("day-plan-measures");
     if ((await line.count()) > 0) await expect(line).toHaveText("Diesen Monat: noch kein Tagesvorschlag");
   });
@@ -175,19 +175,19 @@ test.describe("PLAN3-7 (2): a member of another team sees none of Testteam G's n
 
 // UXR-113 (`uxa` 2026-11-06 03:50, #884) within CGR-139 (ADR-154): the /team "Neuer Einsatz" → "Verantwortlich" picker
 // sets the responsible member of a new visit, so it names members like the other visit-assigning pickers. Read only:
-// the form is opened and closed without saving. Testteam G's three members are named in the seed.
-test.describe("UXR-113: the /team new-visit picker names every member (Testteam G, 390 px)", () => {
+// the form is opened and closed without saving. Testteam H's three members are named in the seed.
+test.describe("UXR-113: the /team new-visit picker names every member (Testteam H, 390 px)", () => {
   test("options carry the display names, the caller ends '(du)', all differ, no bare 'Ich' or 'Teammitglied <n>'", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await signIn(page, "teamg.test@navora.test");
+    await signIn(page, "teamh.test@navora.test");
     await page.goto("/team");
-    const card = page.getByRole("article", { name: /Fall Testfall G1/ });
+    const card = page.getByRole("article", { name: /Fall Testfall H1/ });
     await card.getByRole("button", { name: /^(Einsatz planen|Abklärungsbesuch planen)$/ }).click();
     const planForm = card.getByRole("form", { name: "Einsatz planen" });
     const options = (await planForm.getByLabel("Verantwortlich").locator("option").allTextContents()).map((o) => o.trim());
-    expect(options).toContain("Pflegekraft Team G (du) – Pflegefachperson");
+    expect(options).toContain("Pflegekraft Team H (du) – Pflegefachperson");
     expect(options).toContain(`${BEZUG} – Pflegefachperson`);
-    expect(options).toContain("Pflegekraft Assistenz G – Pflegeassistenz");
+    expect(options).toContain("Pflegekraft Assistenz H – Pflegeassistenz");
     expect(new Set(options).size).toBe(options.length);
     for (const o of options) {
       expect(o.startsWith("Ich –") || o === "Ich").toBe(false);
