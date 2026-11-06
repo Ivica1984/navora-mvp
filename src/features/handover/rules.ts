@@ -77,11 +77,17 @@ export function authorLabel(code: string): string {
 
 /**
  * OBS1-2 (ADR-118): an observation names its author by her ADM1 display name (the database adds it to `detail`); every
- * other entry keeps the member code. The caller's own entry stays "Ich".
+ * other entry keeps the member code. The caller's own entry stays "Ich". UX2-27 as amended po 2026-11-03 06:30
+ * (`cra` CGR-108, ADR-132 addendum): in the handover a colleague's observation without a name keeps her member number,
+ * "Teammitglied <n> (ohne Namen)", so two unnamed authors stay apart and match their other entries in the same
+ * handover. The visit card meta line keeps `AUTHOR_WITHOUT_NAME_TEXT` (`observationAuthor`).
  */
 export function entryAuthorLabel(entry: Pick<SinceLastEntry, "kind" | "author" | "detail">): string {
   const name = entry.detail?.author_name;
-  if (entry.kind === "observation" && entry.author !== "me" && typeof name === "string" && name.trim()) return name.trim();
+  if (entry.kind === "observation" && entry.author !== "me") {
+    if (typeof name === "string" && name.trim()) return name.trim();
+    if (entry.author.startsWith("member:")) return `${authorLabel(entry.author)} (ohne Namen)`;
+  }
   return authorLabel(entry.author);
 }
 

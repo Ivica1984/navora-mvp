@@ -1,6 +1,6 @@
 # NAVORA — Product Roadmap
 
-**Stand:** 28. Oktober 2026, Tabellen mit den Registern abgeglichen (erstellt 21. Oktober 2026; ersetzt die Übergabe-Roadmap vom 9. Oktober 2026). **Owner:** Product Owner (`po`). **Roadmap = PLANNED**, priorisiert nach Umsetzung des Geschäftsmodells: jede Phase schliesst eine Lücke zwischen Zuweisung und abrechenbarer, fachlich sicherer Pflege. Termine, Budget und Personen **OPEN**. Statuslegende: `MASTER_CONTEXT.md`.
+**Stand:** 6. November 2026 (Founder-Richtung Pilotphasen nachgeführt); zuvor 28. Oktober 2026, Tabellen mit den Registern abgeglichen (erstellt 21. Oktober 2026; ersetzt die Übergabe-Roadmap vom 9. Oktober 2026). **Owner:** Product Owner (`po`). **Roadmap = PLANNED**, priorisiert nach Umsetzung des Geschäftsmodells: jede Phase schliesst eine Lücke zwischen Zuweisung und abrechenbarer, fachlich sicherer Pflege. Termine, Budget und Personen **OPEN**. Statuslegende: `MASTER_CONTEXT.md`.
 
 **Verbindliche Reihenfolge und Briefs:** `docs/agents/NEXT_CAPABILITY.md` und `docs/agents/briefs/`. **Umsetzungsstand:** `docs/agents/IMPLEMENTATION_STATUS.md` (Engineering). **Offene Entscheide:** `docs/agents/OPEN_DECISIONS.md`. Technische Roadmap: `docs/engineering/ROADMAP.md`. Bei Widerspruch gilt `docs/agents/`.
 
@@ -12,6 +12,8 @@ Wertlogik (ambulante Pflege Schweiz): Erlös pro Stunde = OKP-Beitrag nach KLV A
 
 
 **KI als Kernsäule (Owner-Direktive 2026-11-03, DECIDED):** NAVORA ist eine AI-first-Plattform. Jede Phase und jede Fähigkeit wird darauf geprüft, welche Koordinations-, Verwaltungs-, Prüf-, Kommunikations- und Dokumentationsarbeit die KI-Schicht übernehmen oder vorbereiten kann. Klinische und verantwortliche Entscheide bleiben bei Menschen. Details: `docs/product/AI_FIRST_ARCHITECTURE_UPDATE.md`, `AI_OPPORTUNITY_MAP.md`, `AI_CAPABILITY_ROADMAP.md`.
+
+**Founder-Richtung 2026-11-06 (DECIDED, `docs/product/FOUNDER_DECISIONS.md` FE-019 bis FE-030):** Pilotregionen Basel-Stadt und Basel-Landschaft. **Phase A** (geplant bis 12.03.2027): Produktprüfung mit einem simulierten Partner (simuliertes Pflegeheim) und synthetischen Daten; kein echter Partner nötig. **Phase B** (Datum offen): Suche einer realen Pilotorganisation, nach aktueller Richtung ein Pflegeheim, sobald Produkt und Freigaben bereit sind. Pflegeheime gehören zum Umfang; interRAI-Inhalte nur nach Lizenzprüfung durch `lca`. D-35 Regel A bleibt in Kraft. Ausführung und Meilensteine: `docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md` (Version 2.1).
 
 ## Änderungen gegenüber 9. Oktober 2026
 
@@ -331,5 +333,6 @@ Reihenfolge der offenen Punkte (Stand 31.10. 02:25): Auflagen RLS4-C1 und RLS4-C
 ## Gate 8: Pilot und Skalierung
 
 - Geschützte Staging-Umgebung (T12, D-2), Security Review, Restore, Accessibility, mobile Tests.
-- Pilot mit wenigen Teams im Pilotkanton nach Zulassung.
-- KPIs: administrative Minuten pro Einsatz; abrechenbare Minuten pro bezahlter Stunde; Zuweisung bis erster Einsatz; Erstangebot-Annahmequote; Kontinuität pro Klient; Berichtfreigabe; Teamzufriedenheit; Entlöhnung pro Arbeitsstunde.
+- **Phase A (PLANNED):** simulierter Pilot mit synthetischen Daten (ambulantes Team und/oder simulierte Pflegeheim-Abteilung, Founder-Frage O-1), Abrechnung im Shadow Mode gegen eine unabhängige Referenz.
+- **Phase B (OPEN, Datum offen):** Pilot mit einer realen Pilotorganisation (nach aktueller Richtung ein Pflegeheim) in Basel-Stadt oder Basel-Landschaft nach Zulassung und Freigaben.
+- KPIs (Blueprint V2.1 §10.2, Zielwerte ohne Basismessung sind Hypothesen): administrative Minuten pro Einsatz bzw. pro Bewohnertag; Dokumentations- und Korrekturzeit; Planungs- und Ausfallkoordination; Abrechnungsfehler und manuelle Ausnahmequote; Teamautonomie; Sicherheitsindikatoren; abrechenbare Minuten pro bezahlter Stunde; Zuweisung bis erster Einsatz; Erstangebot-Annahmequote; Kontinuität pro Klient; Berichtfreigabe; Teamzufriedenheit; Entlöhnung pro Arbeitsstunde.
