@@ -17,11 +17,14 @@ export const AUTHOR_NOT_STORED_TEXT = "Wer dies geschrieben hat, ist in dieser F
 /** A member without an ADM1 display name. */
 export const AUTHOR_WITHOUT_NAME_TEXT = "Teammitglied ohne Namen";
 
-/** The author line of an observation on the visit card and in the handover. */
+/**
+ * The author line of an observation on the visit card. UX2-27 (ADR-132): a named colleague reads "von <Name>", as in the
+ * report facts (`report-section.tsx`); her own reads "von dir"; a colleague without a name keeps the constant.
+ */
 export function observationAuthor(note: { own: boolean; author_name?: string | null }): string {
   if (note.own) return "von dir";
   const name = note.author_name?.trim();
-  return name ? name : AUTHOR_WITHOUT_NAME_TEXT;
+  return name ? `von ${name}` : AUTHOR_WITHOUT_NAME_TEXT;
 }
 
 /** Whether the OBS1-1 marker is shown: only when the fact was recorded as missing. */
