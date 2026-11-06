@@ -1,6 +1,6 @@
 # Bestätigung der NAVORA-Richtung (Founder-Schreiben vom 6. November 2026)
 
-**Von:** Product Owner (`po`) · **An:** Founder · **Stand:** 2026-11-06 12:00 (Europe/Zurich), `recovery/main` @ `e97e786` · **Status:** Antwort auf das Schreiben „Bitte Verständnis der NAVORA-Richtung bestätigen“. Die bestätigten Punkte sind in [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md) als FE-019 bis FE-030 erfasst, der Blueprint ist auf Version 2.1 nachgeführt. Ich habe keine Tests ausgeführt; dies ist reine Dokumentationsarbeit.
+**Von:** Product Owner (`po`) · **An:** Founder · **Stand:** 2026-11-06 12:00 (Europe/Zurich), `recovery/main` @ `e97e786` · **Status:** Antwort auf das Schreiben „Bitte Verständnis der NAVORA-Richtung bestätigen“, nachgeführt 12:30 auf die überarbeitete Fassung (Punkte 5, 8, 13, 16) und Ihre Wahl für Phase A (FE-031, FE-032). Die bestätigten Punkte sind in [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md) als FE-019 bis FE-030 erfasst, der Blueprint ist auf Version 2.1 nachgeführt. Ich habe keine Tests ausgeführt; dies ist reine Dokumentationsarbeit.
 
 **Gelesen für diese Antwort:** die Agenten-Dateien in `docs/agents/` (README, Koordination, Entscheidungsliste, Index, Pakete D-1, D-11, D-12, D-14, D-24, D-25, D-34, D-35, D-36, D-37, SR-26), Blueprint V2, Founder-Bericht, `ARCHITECTURE.md`, `ROADMAP.md`, `CARE_OPERATING_MODEL.md`, `IMPLEMENTATION_SEQUENCE.md`; auf GitHub die offenen Issues und PRs, die Branch-Liste und die gespeicherten Prompts aller geplanten Agenten-Aufgaben.
 
@@ -23,7 +23,26 @@ NAVORA ist das digitale Betriebssystem, mit dem Pflege- und Betreuungsteams ihre
   - **Betreute Person:** Klient:in oder Bewohner:in.
 - **Versorgungskontexte:** ambulante Pflege, Pflegeheime, Spitäler, Privatpersonen. Sie werden nacheinander gebaut, aber die Plattform schliesst keinen davon aus.
 - **Erlösmechanismus:** Gebühren für die Nutzung der Plattform, bezahlt von der Organisation. NAVORA verdient nicht an Pflegemenge oder Einstufung. F3 (pro aktivem Teammitglied und Monat) ist eine mögliche Basis; der Vergleich mehrerer Modelle liegt in [`PRICING_MODEL_COMPARISON.md`](PRICING_MODEL_COMPARISON.md).
-- **Noch nicht entschieden:** Preis und Preismodell (D-14); was „Privatpersonen“ genau umfasst (O-2); der Umfang von Phase A (O-1); ob und wann reale Daten an einen KI-Dienst gehen dürfen (D-35 Regel A bleibt, Paket D-41); ob das Ziel „teameigener Anbieter“ auch im Pflegeheim gilt (O-5).
+- **Noch nicht entschieden:** Preis und Preismodell (D-14); was „Privatpersonen“ genau umfasst (O-2);  ob und wann reale Daten an einen KI-Dienst gehen dürfen (D-35 Regel A bleibt, Paket D-41); ob das Ziel „teameigener Anbieter“ auch im Pflegeheim gilt (O-5).
+
+### 1.1 Wirkungsziel: weniger Spitex-Overhead, selbstorganisierte Teams, besserer Verdienst (FE-032)
+
+So verstehe ich das Ziel: In einer klassischen Spitex-Organisation fliesst ein Teil des Ertrags in Arbeit, die keine Pflege ist und die auch die Pflegekräfte belastet. Dazu gehören Disposition und Einsatzplanung durch eine Zentrale, die Vermittlung neuer Klient:innen (Aufnahme, Matching, Zuteilung), Teamleitung als Koordinationsschicht, Telefonketten bei Ausfällen, Rapporte, nachgetragene Dokumentation, manuelle Abrechnungsaufbereitung und Korrekturschleifen.
+
+NAVORA soll den **vermeidbaren** Teil davon in Software und Teamregeln verlagern. Teams organisieren sich selbst: Aufnahme, Planung, Vertretung, Übergabe. Was an Overhead wegfällt, soll den Teams als besserer Verdienst oder als mehr Zeit für Pflege zugutekommen und nicht als zusätzliche Marge bei Dritten verschwinden. Die Selbstorganisation des Teams bleibt dabei erhalten: NAVORA ersetzt eine Hierarchie, setzt keine neue an ihre Stelle.
+
+Diese Wirkung ist **noch nicht nachgewiesen**. Die Annahmen dahinter und ihre Messung:
+
+| # | Annahme (Hypothese) | Wie wir sie prüfen | Wann |
+|---|---|---|---|
+| H-1 | Ein relevanter Anteil der bezahlten Pflegezeit geht heute an vermeidbare Administration und Koordination | Basismessung der administrativen Minuten pro Einsatz bzw. Bewohnertag (M-15) im simulierten Betrieb; in Phase B beim realen Partner **vor** und nach der Einführung | Phase A (Simulation), Phase B (real) |
+| H-2 | Disposition und Vermittlung lassen sich ohne Sicherheitsverlust durch Teamregeln und Software ersetzen | Anteil der Zuteilungen und Vertretungen im Team ohne Operations (M-20), Sicherheitsindikatoren unverändert oder besser (M-21) | Phase A, Phase B |
+| H-3 | Weniger Overhead senkt die Kosten pro Pflegestunde der Organisation | Kostenvergleich mit dem Partner in Phase B (Daten des Partners; UNKNOWN) | Phase B |
+| H-4 | Eingesparte Kosten können rechtlich und wirtschaftlich als höherer Verdienst an Pflegekräfte gehen | Teamüberschuss-Modelle S1 bis S4 (D-14), `lca` zur Zulässigkeit, Lohnvergleich pro Arbeitsstunde (Gate-8-Kennzahl) | nach Phase A (Modell), Phase B (Messung) |
+| H-5 | Die Plattformgebühr ist kleiner als der eingesparte Overhead | Preisvergleich (`PRICING_MODEL_COMPARISON.md`) gegen gemessene Einsparung | nach Phase A |
+| H-6 | Selbstorganisierte Teams bleiben stabil (keine neue informelle Hierarchie, keine Überlastung einzelner) | Kontinuität (M-19), Ausfallkoordination (M-17), Teamzufriedenheit (Gate 8) | Phase B |
+
+Keine dieser Annahmen wird im Produkt oder in Texten als Tatsache dargestellt, bevor sie gemessen ist. Insbesondere behauptet NAVORA gegenüber Partnern keine Einsparung und keinen Verdienstzuwachs ohne Messung.
 
 **Annahmen, die ich dafür treffe (bitte korrigieren, falls falsch):**
 1. Käufer ist die bewilligte Organisation, nicht das einzelne Teammitglied und nicht die betreute Person.
@@ -101,10 +120,11 @@ Format je Punkt: **verstanden** · Interpretation · Umsetzung (Datei, Abschnitt
   - **Teammitglied:** prüft und bestätigt das eigene Profil.
   - **Team:** nimmt Kolleg:innen auf (ADM2, IMPLEMENTED) und organisiert die Einsätze selbst; ohne Teammandat teilt NAVORA niemanden automatisch zu und schliesst niemanden wegen eines KI-Urteils aus.
   - **Organisation:** prüft die Nachweise (D-29, nur für reale Personen in Phase B). Ein nicht geprüfter Nachweis erscheint als „nicht verifiziert“, nie als verifiziert.
-  - **Product Owner:** Brief und Abnahme.
+  - **Product Owner (ich):** schreibt den Brief QUAL1 mit testbaren Abnahmekriterien, holt die Gates (`lca`, `cra`) ein, nimmt ab und achtet darauf, dass kein Ablauf die Selbstorganisation durch eine zentrale Zuteilung ersetzt. Ich entscheide nicht, wer qualifiziert ist und wer welchen Einsatz übernimmt.
   - **Legal & Compliance:** Datenschutz der Profildaten, Arbeitsrecht, automatisierte Einzelentscheidung.
   - **Clinical & Regulatory und Clinical Owner:** Welche Qualifikation für welche Aufgabe nötig ist, ist eine klinische Regel; nur der Clinical Owner gibt sie frei.
 - *Umsetzung:* Brief **QUAL1** (Entwurf bis 2026-12-04); bestehend: Qualifikation je Mitglied (ADM1, D-5), „Qualifikation erfasst“ bei Beobachtungen (OBS1).
+- *Selbstorganisation bleibt erhalten:* bestätigt. Das Team entscheidet über Aufnahme, Einsätze und Mandate; NAVORA schlägt vor, prüft und zeichnet auf.
 - *Klärungsbedarf:* keiner für Phase A.
 
 **9. Automatische Abrechnung und Fehlerprüfung** · verstanden: **ja**
@@ -133,7 +153,7 @@ Format je Punkt: **verstanden** · Interpretation · Umsetzung (Datei, Abschnitt
 **11. Versorgungskontexte und Produktreihenfolge** · verstanden: **ja**
 - *Interpretation:* Langfristige Vision, gemeinsame Plattform, sektorabhängige Abläufe, simulierter Test und realer Pilot werden getrennt. Wiederverwendung heisst: ein gemeinsamer Datensatz; sektorbezogene Regeln sind versionierte Daten oder ein Sektormodul, nie eine Kopie des Datensatzes.
 - *Umsetzung:* Blueprint §1.3; Pflegeheim-Briefs NH-A1 bis NH-A5 (M9.0a).
-- *Klärungsbedarf:* O-1, siehe §4.
+- *Klärungsbedarf:* erledigt; Phase A simuliert ambulante Pflege und eine Pflegeheim-Abteilung (FE-031).
 
 **12. Pflegeheim, Assessment und interRAI** · verstanden: **ja**
 - *Interpretation:*
@@ -151,7 +171,7 @@ Format je Punkt: **verstanden** · Interpretation · Umsetzung (Datei, Abschnitt
   - Die Zweckbestimmung v2 nennt nur die ambulante Pflege und schliesst „Pflegenotizen interpretieren“ aus. Ein KI-Dokumentationsentwurf fasst Beobachtungen zusammen; ob das „interpretieren“ ist, muss `lca` prüfen.
   - Ein integriertes Assessment mit Auswertungen (z. B. Pflegestufen, Hinweise) kann in die Entscheidungsunterstützung reichen.
   - Pflegeheim-Funktionen sind in v2 nicht beschrieben.
-  - Alles drei geht an `lca`. Ein Regulierungsberater wird nur vorgeschlagen, wenn `lca` eine Frage nicht sicher klären kann (Punkt 16); D-34 ist bereits so markiert.
+  - **`lca` ist beauftragt** (Prüfauftrag im Paket D-34, Notiz vom 2026-11-06 12:30): Zweckbestimmung v2 und reale Funktionen gegen Pflegeheim, DOC-AI, Assessment und PLAN4. Ein Regulierungsberater wird nur vorgeschlagen, wenn `lca` eine Frage nicht sicher klären kann (Punkt 16).
 
 **14. Daten- und Testvorgabe** · verstanden: **ja**
 - *Interpretation:* „Keine echten Daten vorhanden“ ist eine beantwortete Sachfrage und wird nicht mehr gestellt. „Hoher Schutzstandard für Testdaten“ ist eine davon getrennte, dauernde Pflicht:
@@ -187,7 +207,8 @@ Format je Punkt: **verstanden** · Interpretation · Umsetzung (Datei, Abschnitt
   - D-40 Fragen 1 und 9 (reale Angehörige, Hinweis an die Klientin bei Widerruf durch das Team);
   - D-33 (Push an Safari/Firefox vor realen Klient:innen).
   - Keine davon blockiert Phase A.
-- *Klärungsbedarf:* Der gespeicherte `lca`-Auftrag beschränkt sich auf Entscheidungspakete; Vertragsentwurf und Pflegeheim-Pilot laufen deshalb als Pakete (D-25, später ein Vertragspaket in Phase B). Die Prompt-Ergänzung liegt in §5.3.
+- **`lca` ist beauftragt** (2026-11-06 12:30), je mit Notiz im Paket und Kommentar im Issue: D-22, D-18, D-9, D-4, D-29 (Basel-Stadt und Basel-Landschaft, Pflegeheim), D-25 (Leitung im Pflegeheim), D-36 (welche interRAI-Lizenzbedingungen nötig sind), D-34 (Zweckbestimmung), D-41 (KI-Pfad) und **D-42 neu: Vertragsentwurf für den Phase-B-Pilot mit einem Pflegeheim**.
+- *Klärungsbedarf:* Der gespeicherte `lca`-Auftrag beschränkt sich auf Entscheidungspakete; deshalb laufen auch Vertragsentwurf und Pflegeheim-Pilot als Pakete. Die Prompt-Ergänzung liegt in §5.3.
 
 ### C. Blueprint, GitHub, Arbeitsbuch
 
@@ -254,7 +275,7 @@ Format je Punkt: **verstanden** · Interpretation · Umsetzung (Datei, Abschnitt
 | W-6 | Blueprint V2 M9 „first real client … 2027-03-12“ | realer Pilot erst in Phase B | **Vorschlag** M9-Neufassung (O-7), als PROVISIONAL eingetragen |
 | W-7 | Blueprint V2 FD-13; Owner-Agenda „Approve F3 or F4“ | F3 ist nur Kalkulationsbasis (FE-023) | **korrigiert**; D-14 nicht jetzt gefragt; Vergleich erstellt |
 | W-8 | `DELIVERY_PROGRAM.md` M3 Kriterien (D-11, D-12 Partner LOI, D-34 Berater) | wie W-2, W-4 | Verweis auf Blueprint V2.1 (dort gilt die neue Fassung) |
-| W-9 | `IMPLEMENTATION_SEQUENCE.md` §7 (Engineering) nur ambulant | Pflegeheim-Schicht fehlt | **an `eng`:** Nachtrag zur Sequenz nach O-1 (ich ändere Engineering-Dateien nicht) |
+| W-9 | `IMPLEMENTATION_SEQUENCE.md` §7 (Engineering) nur ambulant | Pflegeheim-Schicht fehlt | **an `eng`:** Nachtrag zur Sequenz (Pflegeheim-Abteilung, FE-031) (ich ändere Engineering-Dateien nicht) |
 | W-10 | `CARE_OPERATING_MODEL.md` G-3 „Legal entity … pilot canton named“ | Partner in Phase B | Gates erhalten im nächsten PO-Lauf eine Phase-Spalte (A oder B) |
 | W-11 | D-12 (27.10.): Zürcher Spitex-Partner, Sunset zum teameigenen Anbieter | Basel, Pflegeheim, Phase B | FE-008 als teilweise ersetzt markiert; Zielbild im Pflegeheim ist O-5 |
 | W-12 | D-34 Zweckbestimmung v2: nur ambulante Pflege; „interpretiert keine Pflegenotizen“ | Pflegeheim, KI-Dokumentation | an `lca` (SV-5) |
@@ -269,7 +290,7 @@ Format je Punkt: **verstanden** · Interpretation · Umsetzung (Datei, Abschnitt
 | Quelle | Aktueller Status | Widerspruch zur Founder-Richtung | Vorgeschlagene Anpassung | Zuständig | Abhängigkeit | Abnahmekriterium |
 |---|---|---|---|---|---|---|
 | Issue #816 (Basel, D-11) | offen | erledigt durch FE-019 | nach Merge dieses PRs schliessen, mit Verweis; Arbeitsposten 3 (Region als Konfiguration) als Brief | `po` | – | Issue geschlossen; Brief REG1 in *Next up* |
-| Issue #818 (All-in-one, Basler Pflegeheim-Regeln) | offen | jetzt Richtung (FE-022) | Kommentar mit Verweis auf NH-A1–A5 und D-25 | `po` | O-1 | Kommentar gesetzt |
+| Issue #818 (All-in-one, Basler Pflegeheim-Regeln) | offen | jetzt Richtung (FE-022) | Kommentar mit Verweis auf NH-A1–A5 und D-25 | `po` | – | Kommentar gesetzt |
 | Issue #817 (IoT-Datenmodell) | offen | keiner (D-39 A: nur Spezifikation) | unverändert | `po` | D-39 | – |
 | Issue #820 (STR-20 bis -25) | offen | STR-20 überholt, STR-21 durch Phase-A-Design beantwortet | Antwort im Issue; `csa` prüft neu | `po`, `csa` | – | `csa`-Abschnitt mit Neubewertung |
 | Issue #539 (STR-15 Übergabebedingungen C) | offen | Phase B; Zielbild offen (O-5) | als „Phase B“ kennzeichnen | `po` | O-5 | Label oder Kommentar |
@@ -282,7 +303,7 @@ Format je Punkt: **verstanden** · Interpretation · Umsetzung (Datei, Abschnitt
 | PRs #806, #809, #840 | Konflikte | keiner | `eng` löst Konflikte | `eng` | – | grün und konfliktfrei |
 | Branches | 672 entfernte Branches (u. a. 184 `po/`, 94 `docs/`, 91 `feat/`, 82 `gov/`, 89 `lca/`) | keiner | Aufräumen gemergter Branches vorschlagen (nicht gelöscht; Löschen braucht Ihre Freigabe) | `eng` Vorschlag | – | Liste gemergter Branches im Journal |
 | ADRs | ADR-001 bis ADR-131 auf `recovery/main`, ADR-132 bis ADR-156 in offenen PRs | ADR-145 ff. (PLAN3 nur Vorschlag) vs. Routine mit Teammandat | neuer ADR mit PLAN4 | `eng` | PLAN4 | ADR akzeptiert |
-| Pläne: `DELIVERY_PROGRAM.md`, `IMPLEMENTATION_SEQUENCE.md`, `ROADMAP.md`, `NURSING_HOME_TRANSFORMATION.md`, `CARE_OPERATING_MODEL.md`, `STRATEGY.md` | gemergt | W-8 bis W-11 | `ROADMAP.md` nachgeführt (dieser PR); `NURSING_HOME_TRANSFORMATION.md` (NH0–NH9) wird Eingang für NH-A1–A5; Sequenz-Nachtrag `eng`; `STRATEGY.md` `csa` | `po`, `eng`, `csa` | O-1 | jeder Plan verweist auf Blueprint V2.1 |
+| Pläne: `DELIVERY_PROGRAM.md`, `IMPLEMENTATION_SEQUENCE.md`, `ROADMAP.md`, `NURSING_HOME_TRANSFORMATION.md`, `CARE_OPERATING_MODEL.md`, `STRATEGY.md` | gemergt | W-8 bis W-11 | `ROADMAP.md` nachgeführt (dieser PR); `NURSING_HOME_TRANSFORMATION.md` (NH0–NH9) wird Eingang für NH-A1–A5; Sequenz-Nachtrag `eng`; `STRATEGY.md` `csa` | `po`, `eng`, `csa` | – | jeder Plan verweist auf Blueprint V2.1 |
 | Aufgaben-Prompts (7 geplante Aufgaben) | gelesen, nicht geändert | siehe §5.3 | Ergänzung je Aufgabe | owner (FD-01) | – | Prompts enthalten den Founder-Block |
 
 ---
@@ -291,7 +312,7 @@ Format je Punkt: **verstanden** · Interpretation · Umsetzung (Datei, Abschnitt
 
 | ID | Frage | Optionen | Auswirkungen | Empfehlung |
 |---|---|---|---|---|
-| **O-1** (FD-21) | Was wird in Phase A simuliert? | (a) nur ein simuliertes Pflegeheim; (b) ambulante Pflege (gebaut) **und** eine simulierte Pflegeheim-Abteilung; (c) ambulante Pflege in Phase A, Pflegeheim erst in Phase B | (a) lässt 47 gebaute Fähigkeiten ungeprüft und verlangt die ganze Pflegeheim-Schicht bis Februar; (b) prüft das Gebaute und baut eine Abteilung dazu, grösster Lernwert; (c) schnell, aber der reale Pflegeheim-Pilot startet ungetestet | **(b)**. Ich plane bis zu Ihrer Antwort damit (PROVISIONAL). |
+| ~~O-1~~ **entschieden** (FE-031: ambulant + Pflegeheim) | Was wird in Phase A simuliert? | (a) nur ein simuliertes Pflegeheim; (b) ambulante Pflege (gebaut) **und** eine simulierte Pflegeheim-Abteilung; (c) ambulante Pflege in Phase A, Pflegeheim erst in Phase B | (a) lässt 47 gebaute Fähigkeiten ungeprüft und verlangt die ganze Pflegeheim-Schicht bis Februar; (b) prüft das Gebaute und baut eine Abteilung dazu, grösster Lernwert; (c) schnell, aber der reale Pflegeheim-Pilot startet ungetestet | (b) gewählt am 2026-11-06 |
 | **O-2** (FD-24) | Was heisst „Privatpersonen“? | Varianten (a)–(e) in Punkt 4 | bestimmt, ob NAVORA Selbstzahler-Verträge, Haushalte als Arbeitgeber oder Angehörige als Nutzer abbilden muss | (a) Selbstzahlende und (b) Angehörige als Anfragende in die Vision; (c) Haushalte als Arbeitgeber erst nach eigener Rechtsprüfung; nichts davon in Phase A |
 | **O-3** (FD-26) | Wo liegt das NAVORA-Arbeitsbuch? | Pfad nennen; oder Blueprint V2.1 ist das Arbeitsbuch | ohne Antwort zwei mögliche Arbeitsstände | Blueprint V2.1 als Arbeitsbuch, falls kein anderes existiert |
 | **O-4** (FD-22) | Darf Phase A einen KI-Anbieter **nur mit synthetischen Daten** nutzen? | (a) nein, KI-Abläufe werden mit Regel-Ersatz getestet; (b) ein CH/EU-Anbieter mit Vertrag, nur synthetische Daten, über den NAVORA-Orchestrator; (c) selbst betriebenes Modell | (a) kein echter Test von Dokumentationsentwurf und KI-Prüfung, KI-Kosten bleiben unbekannt; (b) echter Test und Kostenmessung, Vertrag und Kosten nötig, D-35 Regel A unverändert; (c) Betriebsaufwand | **(b)**, mit `lca`-Prüfung des Vertrags vor dem ersten Aufruf |
@@ -315,20 +336,19 @@ Weitere Owner-Fragen (D-7, D-8, D-2, D-26, SR-26, D-36, Website) bleiben unverä
 | 3 | Gates G-1 bis G-25 nach Phase A/B kennzeichnen | `po` | – | jede Gate-Zeile mit Phase | 2026-11-13 |
 | 4 | Briefs WEB1, AIO1 | `po` | – | genehmigt, Abnahmekriterien testbar | 2026-11-20 |
 | 5 | Basel-Prüfung D-18, D-25, D-9, D-4, D-29 | `lca` | – | Abschnitte signiert | 2026-11-20 |
-| 6 | D-41 Inputs | `eng`, `cra`, `lca` | – | drei Abschnitte | 2026-11-27 |
-| 7 | Brief MOB1; Pflegeheim-Briefs NH-A1 bis NH-A5 (PROVISIONAL unter O-1 (b)); Brief DOC-AI | `po` | O-1 für NH | Entwürfe mit `cra`/`lca`-Anfrage | 2026-11-27 |
+| 6 | D-41 und D-42 Inputs; `lca`-Neuprüfungen D-22, D-18, D-9, D-4, D-29, D-34, D-36 | `eng`, `cra`, `lca` | – | Abschnitte signiert | 2026-11-27 |
+| 7 | Brief MOB1; Pflegeheim-Briefs NH-A1 bis NH-A5 (FE-031); Brief DOC-AI | `po` | – | Entwürfe mit `cra`/`lca`-Anfrage | 2026-11-27 |
 | 8 | Briefs OPS2, HAND2, PLAN4, QUAL1 | `po` | – | Entwürfe; PLAN4 mit Gate | 2026-12-04 |
 | 9 | D-41 an Sie (wenn Inputs da) | `po` | 6 | Paket `awaiting-approval: owner` | 2026-12-04 |
 | 10 | Brief BILL1 (synthetisch, dann Shadow Mode) | `po` | Basel-Prüfung | Entwurf | 2026-12-11 |
-| 11 | Pflegeheim-Schicht auf synthetischen Daten | `eng` | 7, O-1 | Briefs erfüllt, CI grün | 2027-01-29 |
+| 11 | Pflegeheim-Schicht auf synthetischen Daten | `eng` | 7 | Briefs erfüllt, CI grün | 2027-01-29 |
 | 12 | Phase A simulierter Pilot (M9.0) | `po`, `eng`, `cra`, `uxa` | 11, M2, M6-Kern | vier synthetische Wochen, Kennzahlen M-15 bis M-21 erhoben | 2027-02-26 |
 | 13 | M9 Phase A bestanden + Bereitschaftsakte Phase B | `po` | 12, O-7 | jedes partnerunabhängige Gate geschlossen | 2027-03-12 |
 
-Termine ab Punkt 7 sind PO-Schätzungen (Zuversicht gering). Sie hängen am Merge-Pfad (FD-01) und an O-1. Engineering liefert heute 1–2 PRs pro Stunde; der Engpass ist der Merge.
+Termine ab Punkt 7 sind PO-Schätzungen (Zuversicht gering). Sie hängen am Merge-Pfad (FD-01). Engineering liefert heute 1–2 PRs pro Stunde; der Engpass ist der Merge.
 
 ### 5.2 Was ich anhalte, bis eine Entscheidung oder ein Gate vorliegt
 
-- Pflegeheim-Bau (Punkt 11): Briefs schreibe ich unter O-1 (b) als Entwurf, gebaut wird erst nach Ihrer Antwort.
 - KI auf realen Daten: gesperrt (D-35 Regel A) bis D-41.
 - Echter KI-Test in Phase A: wartet auf O-4.
 - PLAN4-Routineautomatik: wartet auf `cra`- und `lca`-Gate.
