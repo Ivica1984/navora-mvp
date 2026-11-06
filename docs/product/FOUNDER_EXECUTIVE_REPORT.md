@@ -1,6 +1,6 @@
 # NAVORA Founder Executive Report
 
-**Für:** den Owner (Founder) · **Verfasst von:** Product Owner (`po`) · **Ausgabe:** KW 45, Stand Freitag, 6. November 2026, 09:05 (Europe/Zurich) · **Nächste Ausgabe:** Freitag, 13. November 2026 · **Rhythmus:** jeden Freitag bis 17:00 neu geschrieben (die Vorwoche bleibt in der Git-Historie).
+**Für:** den Owner (Founder) · **Verfasst von:** Product Owner (`po`) · **Ausgabe:** KW 45, Stand Freitag, 6. November 2026, 15:00 (Europe/Zurich), nachgeführt nach Ihren Freigaben vom 6. November (Prompts, Merge-Test, SR-26, Arbeitsbuch, M9) und dem ersten geplanten PO-Lauf danach (14:45) · **Nächste Ausgabe:** Freitag, 13. November 2026 · **Rhythmus:** jeden Freitag bis 17:00 neu geschrieben (die Vorwoche bleibt in der Git-Historie).
 
 **Dieses Dokument ist das primäre Entscheidungsdokument des Owners.** Es zeigt nur, was fertig ist, was gebaut wird und was Sie entscheiden müssen. Detailquellen: [Blueprint V2](ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md) (Meilensteine, Gates, Kennzahlen), [Owner-Agenda](../agents/decisions/OWNER_AGENDA.md) (jede Frage mit Paket). Der PO hat für diesen Bericht keine Tests ausgeführt; CI-Ergebnisse sind über die GitHub-API gelesen.
 
@@ -11,12 +11,12 @@
 | | |
 |---|---|
 | **Gesamtstatus** | 🟡 At Risk |
-| **Lieferung** | 🔴 Blocked: 12 fertige, grüne, klinisch freigegebene Engineering-PRs warten auf den Merge |
-| **Pilot M9 (12.03.2027) auf Kurs?** | **NEIN**: nicht wegen der Technik, sondern wegen offener Owner-Entscheide |
-| **Wichtigste Antwort diese Woche** | Merge-Schritt in den Prompt der geplanten PO-Aufgabe (FD-01), D-1 beantworten, Clinical Owner benennen |
-| **Wie viele Entscheide warten auf Sie?** | 20 (4 kritisch, 8 hoch, 5 mittel, 3 niedrig) |
+| **Lieferung** | 🔴 Blockiert in geplanten Läufen: Merge-Testlauf in Ihrer Sitzung bestanden (#800 gemergt, CI grün). **Im ersten geplanten Lauf (14:45) hat die Berechtigungsprüfung der Aufgabe den Merge erneut verweigert** ("Merge Without Review"), obwohl der Prompt den Merge-Schritt jetzt enthält. Rund 11 fertige PRs warten |
+| **Pilot M9 (12.03.2027) auf Kurs?** | **NEIN, aber deutlich näher:** M9 ist neu gefasst (Phase A bestanden + Bereitschaftsakte Phase B) und bestätigt; der Merge-Pfad läuft. Grösstes Risiko bleibt die neue Pflegeheim-Abteilung |
+| **Wichtigste Antwort diese Woche** | Weg für die Löschung der `orders`-Tabelle wählen (FD-27): das alte Live-Projekt ist pausiert |
+| **Wie viele Entscheide warten auf Sie?** | 11 (0 kritisch, 6 hoch, 4 mittel, 1 niedrig) |
 
-**In einem Satz:** Das fachliche Fundament steht und Engineering baut schneller als geplant. Der Pilot hängt jetzt an Ihren Entscheiden, vor allem am Clinical Owner, am Partner und an D-1.
+**In einem Satz:** Das fachliche Fundament steht, Engineering baut schneller als geplant, und Ihre Richtung vom 6.11. nimmt Partner, Rechtsberater und D-1 vom kritischen Pfad. Neu ist die grösste Bauaufgabe: das simulierte Pflegeheim für Phase A.
 
 ---
 
@@ -66,8 +66,8 @@ Gezählt wird nur Arbeit auf `recovery/main`. „Gebaut“ meint offene PRs mit 
 
 | Fähigkeit | Verantwortlich | Status | Geschätzter Abschluss |
 |---|---|---|---|
-| **Tagesvorschlag für Teams (PLAN3):** das Team bestätigt Zeile für Zeile, wer welchen Einsatz übernimmt, mit Kontinuität vor freier Kapazität | Engineering | gebaut in 11 PRs (#876 bis #895), grün, klinisch frei; nicht gemergt | Merge bis 27.11., Rest bis 04.12. (mit FD-01) |
-| **Eine App auf Telefon und Desktop (UX2)** | Engineering | 4 Teile gebaut und grün, 1 gemergt | 27.11.2026 (mit FD-01 und D-7/D-8) |
+| **Tagesvorschlag für Teams (PLAN3):** das Team bestätigt Zeile für Zeile, wer welchen Einsatz übernimmt, mit Kontinuität vor freier Kapazität | Engineering | gebaut in 11 PRs (#876 bis #895), grün, klinisch frei; nicht gemergt | Merge bis 27.11., Rest bis 04.12. (Merge läuft seit FE-033) |
+| **Eine App auf Telefon und Desktop (UX2)** | Engineering | 4 Teile gebaut und grün, 2 gemergt (#799, #800) | 27.11.2026 (Merge läuft; D-7/D-8 offen) |
 | KI-Sicherungen AIG1-C4/-C5 (abgelaufene Vorschläge, Stopp-Nachverfolgung) | Engineering | gebaut, grün | 20.11.2026 |
 | Auswertung „Wohin geht die Nicht-Pflegezeit?“ (AN3) | Engineering | gebaut, grün | 11.12.2026 |
 | Aufwandsschätzung und Lieferpläne Website/App (#835, #837) | Engineering | gebaut | 13.11.2026 |
@@ -77,73 +77,66 @@ Gezählt wird nur Arbeit auf `recovery/main`. „Gebaut“ meint offene PRs mit 
 | Briefs Operations v2 (OPS2) und Übergabe (HAND2) | Product Owner | geplant | 04.12.2026 |
 | Angehörigenansicht (FAM1) | Product Owner, dann Engineering | Brief-Entwurf; Legal- und Clinical-Inputs liegen vor | Brief-Freigabe nach Merge der Inputs (Nov.) |
 | Texte für Tagesvorschlag und Website-Seitendesign | UX/UI Design Architect | laufend | 04.12.2026 |
-| Basel-Prüfung der kantonalen Rechtsfragen | Legal & Compliance | wartet auf Ihre Bestätigung von D-11 | 2 Wochen nach D-11 |
+| Basel-Prüfung der kantonalen Rechtsfragen (D-18, D-25, D-9, D-4, D-29) | Legal & Compliance | angefragt am 6.11. (D-11 entschieden) | ca. 20.11.2026 |
+| Optionen für einen geprüften KI-Pfad mit realen Daten (D-41) | PO mit Legal, Clinical, Engineering | Inputs angefragt; D-35 Regel A bleibt | Paket bis 04.12.2026 |
+| Vergleich der Abrechnungsmodelle | Product Owner | erstellt (`PRICING_MODEL_COMPARISON.md`) | Preisentscheid nach Phase A |
 
 ---
 
 ## 3. Owner Decision Board
 
-Nur Entscheide, die **Sie** treffen müssen. Jede Zeile beantworten Sie mit einem Satz (z. B. „FD-07: genehmigt“). Bis zur Antwort gilt der sichere Default im Paket. Die Fristen sind die spätesten Daten, an denen M9 noch hält (PO-Schätzung).
+Nur Entscheide, die **Sie** treffen müssen. Entschieden am 6.11. und nicht mehr gefragt: D-1 (keine echten Personendaten), D-11 (Basel-Stadt und Basel-Landschaft), D-24 (Pflegeheim im Umfang), Pilotphasen A/B, Umfang Phase A (ambulant + Pflegeheim) ([Entscheidungsliste](FOUNDER_DECISIONS.md)). Nicht jetzt gefragt: Partner, Rechtsberater, Preis (D-14), D-29, D-38. Herleitung jeder Frage: [Bestätigung vom 6.11.](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md) §4.
 
 ### Critical
 
 | ID | Entscheid | Warum es zählt | Frist | Was es blockiert | Empfehlung | Risiko bei Verzug |
 |---|---|---|---|---|---|---|
-| FD-01 | **Merge-Schritt in der geplanten PO-Aufgabe** | Fertige Arbeit erreicht die Hauptlinie sonst nur in Sitzungen mit Ihnen | **sofort** | M1, M2, M4 | Absatz aus `PO_MERGE_PROCESS.md` §3 (1) in den Task-Prompt einfügen; Lauf stündlich zu Minute 39 | Rückstand und Konfliktarbeit wachsen täglich; M2 hält den 27.11. nicht |
-| FD-02 | **G-1 Clinical Owner** und Stellvertretung | Nur diese Person gibt klinische Regeln frei und entscheidet 9 klinische Pakete; ohne sie kein Pilot | 27.11.2026 | M9, Offline-Notfallnummer, 9 Pakete | Route B; oder PO mit Suchprofil und Mandat beauftragen | M9 verschiebt sich Woche für Woche |
-| FD-03 | **D-1 Live-Datenbank** | Mögliche reale Daten im alten System; Meldepflicht ungeklärt | 20.11.2026 | jede reale Datenverarbeitung, D-7, Bereinigung (SR-26) | Fakten liefern, Rechtsberatung und Datenschutzverantwortliche benennen, Review-Datum setzen, Schlüsselrotation genehmigen | rechtliches Restrisiko; kein Pilot |
-| FD-04 | **D-11 Pilotkanton** | Ihre Richtung Basel (3.11.) ist nicht erfasst; die Agenda fragt noch Zürich | 27.11.2026 | Tarif-, Aufbewahrungs- und Qualifikationsfragen, Partnersuche | Basel bestätigen, **mit einem Kanton zuerst** (BS oder BL), 2–5 Gemeinden nennen | doppelte Rechtsarbeit; M3 offen |
 
 ### High
 
 | ID | Entscheid | Warum es zählt | Frist | Was es blockiert | Empfehlung | Risiko bei Verzug |
 |---|---|---|---|---|---|---|
-| FD-05 | Rechtsberater im Pilotkanton | Mehrere Rechtsfragen bleiben ohne Berater ungelöst | 27.11.2026 | Abrechnung, Aufnahme, Aufbewahrung, Angehörige, Partner-LOI | einen Berater benennen | Datenschutz-Folgenabschätzung nicht möglich |
-| FD-06 | D-12 lizenzierter Partner | Lizenz und OKP-Zulassung für Abrechnung | 11.12.2026 | Abrechnung, Folgenabschätzung, D-38 | Partner im gewählten Kanton nennen | keine Abrechnung, kein Pilot |
-| FD-07 | D-7 Repository-Schutz | Technischer Schutz vor Fehl-Pushes; Bedingung für D-8 | 20.11.2026 | M2 | Option B: Ruleset, Secret Scanning, privat auf bezahltem Plan | M2 nicht abnahmefähig |
+| FD-27 | **Weg für die Löschung der Tabelle `orders` (SR-26)** | Sie haben die Löschung angeordnet; das alte Live-Projekt ist pausiert, SQL ist nicht möglich | 13.11.2026 | Ihre SR-26-Anweisung | (b) das ganze alte Projekt löschen: NAVORA nutzt es nicht, Tabelle **und** Backups verschwinden sicher; oder (a) Projekt für eine datierte Sitzung wiederherstellen, ich lösche die Tabelle, danach wieder pausieren (Kopien in Backups bis Ablauf der Aufbewahrung) | E-Mail-Adressen bleiben im pausierten Projekt liegen |
+| FD-22 | KI-Anbieter nur für synthetische Daten in Phase A | **Neu gefasst 6.11. 15:00 (AUT-54):** Der strukturierte Bericht und die Abrechnungsprüfung sollen regelbasiert sein, nicht KI-basiert; ein Anbieter testet nur noch, wie aus der eigenen Notiz der Pflegekraft Beobachtungsvorschläge werden (D-35 Regel A bleibt) | 27.11.2026 | DOC-AI, Abrechnungsprüfung | einen CH/EU-Anbieter mit Vertrag nur für synthetische Daten | Phase A testet nur Regel-Ersatz |
+| FD-02 | Clinical Owner (Phase B) und klinische Fachprüfung des simulierten Pflegeheims (Phase A) | Nur sie gibt klinische Regeln frei; ein Pflegeheim ohne Fachblick wird falsch modelliert | 15.01.2027 | Phase B; Plausibilität von M9.0 | jetzt eine Fachperson für die Simulation, Clinical Owner bis Phase B | Phase B startet ohne freigegebene Regeln |
+| FD-07 | D-7 Repository-Schutz | Schutz vor Fehl-Pushes; Sichtbarkeit ist nach D-1 Ihre freie Wahl | 20.11.2026 | D-8, M2 | Ruleset und Secret Scanning genehmigen | M2 nicht abnahmefähig |
 | FD-08 | D-8 Hauptlinie nach `main` | `main` ist veraltet | nach FD-07 | M2 | Option B | Projekt sieht alten Stand |
-| FD-09 | D-2 Hosting (Staging, Produktion, EU/CH) | Ohne Staging kein Restore-Test, keine Pilotumgebung | 11.12.2026 | M9 Technik | genehmigen (Grundlage #838) | M9 verschiebt sich |
-| FD-10 | D-29 Qualifikationsprüfung | Keine reale Pflegeperson ohne geprüfte Qualifikation | 11.12.2026 | reale Einsätze | Option B als Gate | kein Einsatz realer Personen |
-| FD-11 | Regulierungsberater (Medizinprodukt, D-34) | Zweckbestimmung muss geprüft sein | 11.12.2026 | Go-live-Gate G-5, KI auf hoher Stufe | Berater benennen | Gate G-5 bleibt offen |
-| FD-12 | D-38 Bedingungen der Partner-Absichtserklärung | Sichert den Übergang zum teameigenen Anbieter | vor jeder LOI | Partnervertrag | T1–T18 genehmigen | Teamautonomie nicht vertraglich gesichert |
+| FD-09 | D-2 Hosting | Staging, Restore-Test, Simulationsumgebung | 11.12.2026 | M9 Technik | genehmigen | M9 verschiebt sich |
 
 ### Medium
 
 | ID | Entscheid | Warum es zählt | Frist | Was es blockiert | Empfehlung | Risiko bei Verzug |
 |---|---|---|---|---|---|---|
-| FD-13 | D-14 Gebührenmodell | Faire Teamökonomie, höheres Pflegeeinkommen sichtbar | 11.12.2026 | J7 Teamökonomie | F3 (pro aktivem Teammitglied und Monat) | J7 bleibt Entwurf |
-| FD-14 | Website: Domain, Hosting, Empfänger der Demo-Anfragen | Website kann nicht live | 11.12.2026 | M5 | mit D-2 entscheiden | M5 rutscht |
-| FD-15 | D-26 kein Service-Key auf dem App-Server | Sicherheit in Produktion | vor M9 | Einladungen in Produktion | genehmigen | Einladungen nicht produktionsfähig |
-| FD-16 | D-36 interRAI-Lizenzbedingungen an Legal geben | Fakt, kein Entscheid | 11.12.2026 | D-37 | Bedingungen liefern | D-37 wartet |
-| FD-18 | Blueprint und diesen Bericht in die Prompts aller geplanten Agenten-Aufgaben aufnehmen | Agenten dürfen ihre eigenen Aufgaben nicht ändern | 13.11.2026 | einheitliche Arbeitsgrundlage | Link auf Blueprint V2 ergänzen | Agenten lesen ihn nur indirekt |
+| FD-24 | Was „Privatpersonen“ heisst | Mehrere Bedeutungen möglich | 11.12.2026 | Sektorschicht Privatpersonen | Selbstzahlende Klient:innen und Angehörige als Anfragende zuerst | keine (nicht in Phase A) |
+| FD-25 | Teameigener Anbieter auch im Pflegeheim? | D-12-Ziel war ein Spitex-Modell | vor Phase B | D-38, Partnervertrag | Pflegeheim behält Bewilligung, Abteilungen selbstorganisiert; teameigener Anbieter bleibt Ziel in der ambulanten Pflege | Vertragsentwurf ohne Zielbild |
+| FD-14 | Website: Domain, Hosting, Demo-Empfänger | M5 | 11.12.2026 | M5 | mit D-2 | M5 rutscht |
+| FD-16 | interRAI-Lizenzbedingungen an Legal geben (Fakt) | Legal kann sonst nicht prüfen, was aus interRAI verwendet werden darf | 11.12.2026 | Assessment-Inhalte, D-37 | Bedingungen liefern | kein interRAI-Inhalt |
 
 ### Low
 
 | ID | Entscheid | Warum es zählt | Frist | Was es blockiert | Empfehlung | Risiko bei Verzug |
 |---|---|---|---|---|---|---|
-| FD-17 | SR-26 fremde Tabelle in der Live-Datenbank | Datenbank-Hygiene | nach FD-03 | – | Option A | gering |
-| FD-19 | D-22, D-18, D-9, D-4 an den Berater geben | Rechtsfragen beantworten | nach FD-05 | Abrechnung, Aufnahme | gemäss Paketen | Defaults bleiben |
-| FD-20 | D-24, D-25, D-37 (Pflegeheime, interRAI) | Horizont 3 | keine im Pilot | – | D-24 A (jetzt kein Bau) | keine |
+| FD-15 | D-26 kein Service-Key auf dem App-Server | Sicherheit in Produktion | vor Phase B | Einladungen in Produktion | genehmigen | gering |
+
+**Sicherheitshandlungen (kein Entscheid, nur Sie können sie ausführen):** Schlüssel im Live-Projekt rotieren; Leaked-Password-Schutz einschalten (bis 20.11.2026).
 
 ---
 
 ## 4. Kritischer Pfad
 
-Die fünf Entscheide oder Handlungen mit der grössten Wirkung auf M9 und M10, nach Wirkung geordnet:
-
-| Rang | Entscheid oder Handlung | Wirkung auf M9 (Pilot) | Wirkung auf M10 (Produktion) | Spätestens |
+| Rang | Entscheid oder Handlung | Wirkung auf M9 (Phase A bestanden) | Wirkung auf M10 / Phase B | Spätestens |
 |---|---|---|---|---|
-| 1 | **Clinical Owner benennen (FD-02)** | Ohne sie kein Go-live: keine klinische Regel freigegeben, kein klinisches Gate geschlossen | Pilotauswertung und Freigabe weiterer Teams ohne klinische Verantwortung unmöglich | 27.11.2026 |
-| 2 | **Pilotkanton und Partner (FD-04, FD-06), mit Rechtsberater (FD-05)** | Lizenz, OKP-Zulassung, Folgenabschätzung durch den Lizenzinhaber | Ohne Partner keine drei stabilen Pilotmonate | Kanton 27.11.2026, Partner 11.12.2026 |
-| 3 | **D-1 Live-Datenbank klären (FD-03)** | Keine realen Daten erlaubt, solange offen (Ihre Regel vom 29.10.) | Rechtliches Restrisiko bleibt bis zur Produktion | 20.11.2026 |
-| 4 | **Hosting D-2 (FD-09)** | Staging, Restore-Test und Runbooks dauern zusammen etwa 4 Wochen nach Ihrer Antwort | Monitoring, Backups und externer Sicherheitstest bauen darauf auf | 11.12.2026 |
-| 5 | **Merge-Schritt (FD-01)** | Hält M2, M4 und M6 auf Kurs; Engineering hat sonst etwa 6 Wochen Puffer | Jede Woche Rückstand frisst Puffer für die drei Pilotmonate | sofort |
+| 1 | **Clinical Owner und Fachprüfung (FD-02)** | Plausibilität der simulierten Pflegeheim-Abteilung | ohne sie kein realer Pilot | Fachprüfung 15.01.2027 |
+| 2 | **Merge-Aufruf in den Einstellungen der PO-Aufgabe erlauben** (FE-033 genügt der Berechtigungsprüfung nicht) | ohne ihn mergt nur Ihre begleitete Sitzung; M2, M4 und M6 rutschen Tag für Tag | Puffer schrumpft | sofort |
+| 3 | **Pflegeheim-Abteilung bauen (NH-A1 bis NH-A5)** | grösste neue Bauaufgabe für Phase A | Grundlage für Phase B | Briefs 27.11.2026 |
+| 4 | **Hosting D-2 (FD-09)** | Simulationsumgebung, Restore-Test | Produktion, Monitoring, Sicherheitstest | 11.12.2026 |
+| 5 | **KI-Anbieter für synthetische Daten (FD-22, neu gefasst)** | echter Test der Notiz-zu-Beobachtung-Funktion (A7); Bericht und Abrechnungsprüfung laufen regelbasiert auch ohne Anbieter | Grundlage für D-41 (reale Daten) | 27.11.2026 |
 
 ---
 
 ## 5. Die nächsten 14 Tage (6.–20. November 2026)
 
-Alles unter der Annahme, dass FD-01 diese Woche umgesetzt ist. Ohne FD-01 wird nur in Sitzungen mit Ihnen gemergt.
+Der Merge-Schritt steht im Prompt (FE-033); der PO mergt höchstens ein Engineering-PR pro stündlichem Lauf, **sobald die Berechtigungsprüfung den Merge-Aufruf zulässt** (am 6.11. um 14:45 verweigert).
 
 | Art | Erwartet | Datum |
 |---|---|---|
@@ -157,7 +150,8 @@ Alles unter der Annahme, dass FD-01 diese Woche umgesetzt ist. Ohne FD-01 wird n
 | **Umsetzung** | Konfliktfreie Zusammenarbeit (ein Journal-Eintrag pro Datei, Merge-Gate-Skript) | 13.11.2026 |
 | **Umsetzung** | Tagesvorschlag: neue Anfrage schliesst alte Zeilen (PLAN3-15) | 20.11.2026 |
 | **Umsetzung** | Briefs WEB1 und AIO1 | 20.11.2026 |
-| **Ihre Fristen in diesem Zeitraum** | FD-01 sofort; FD-03 (D-1) und FD-07 (D-7) bis 20.11. | – |
+| **Umsetzung (neu)** | Pflegeheim-Briefs NH-A1 bis NH-A5 (Phase A ambulant + Pflegeheim) und KI-Arbeitsablauf-Briefs DOC-AI, PLAN4, QUAL1, BILL1 als Entwürfe | 20.–27.11.2026 |
+| **Ihre Fristen in diesem Zeitraum** | FD-27 bis 13.11.; FD-07 (D-7) bis 20.11. | – |
 
 ---
 
@@ -165,35 +159,34 @@ Alles unter der Annahme, dass FD-01 diese Woche umgesetzt ist. Ohne FD-01 wird n
 
 | Art | Risiko | Owner | Gegenmassnahme | Aktueller Status |
 |---|---|---|---|---|
-| Lieferung | Fertige Arbeit bleibt ungemergt; jeder Merge erzeugt Konflikte in allen anderen PRs | Owner (FD-01), dann Engineering | Merge-Schritt; ein Journal-Eintrag pro Datei | 🔴 12 PRs warten |
+| Lieferung | Fertige Arbeit bleibt ungemergt; jeder Merge erzeugt Konflikte in allen anderen PRs | PO (stündlich), Engineering, Owner (Berechtigung) | Merge-Schritt im Prompt (FE-033); Merge-Aufruf in den Aufgaben-Einstellungen erlauben; ein Journal-Eintrag pro Datei | 🔴 geplanter Merge am 6.11. 14:45 verweigert, rund 11 PRs warten |
 | Lieferung | Der 11-teilige Tagesvorschlag-Stapel wird beim Mergen inkonsistent | PO, Engineering | in Reihenfolge mergen; klinisches Gate je Kopf | 🟡 alle Köpfe grün und frei |
 | Lieferung | Briefs für Website, Pflege-App und Operations kommen zu spät | PO | feste Termine 20.11., 27.11., 4.12. | 🟢 im Plan |
-| Governance | Kein Clinical Owner | Owner | FD-02 | 🔴 offen seit 27.10. |
-| Governance | M3-Entscheide nach dem 11.12. verschieben M9 und M10 Tag für Tag | Owner | ein Entscheid-Termin für die Agenda-Gruppe 2 | 🔴 ca. 10 % entschieden |
+| Governance | Kein Clinical Owner; simuliertes Pflegeheim ohne Fachprüfung | Owner | FD-02 | 🟡 nicht mehr Vorbedingung für Phase A, aber Qualitätsrisiko |
+| Governance | M3-Entscheide nach dem 11.12. verschieben M9 und M10 Tag für Tag | Owner | ein Entscheid-Termin für die Agenda-Gruppe 2 | 🟡 30 % entschieden; Partner und Rechtsberater nicht mehr nötig für Phase A |
 | Governance | Strategie-Rolle seit 3.11. ohne Eintrag | Owner (prüft die geplante Aufgabe) | Aufgabe prüfen | 🟡 unbekannt |
-| Regulatorisch | D-1: möglicherweise reale Daten im alten System | Owner | FD-03 | 🔴 offen seit 29.10. |
+| Regulatorisch | Zielbild „kein Medizinprodukt“ vs. Assessment und KI-Dokumentation | `lca`, PO | Zweckbestimmung für Pflegeheime und DOC-AI prüfen; klinisches Modul getrennt | 🟡 neu |
 | Regulatorisch | Medizinprodukt-Einstufung offen, sobald KI Inhalte vorbereitet | Owner, Legal | Regulierungsberater; KI bleibt regelbasiert | 🟡 kein Risiko im Pilot, solange KI regelbasiert bleibt |
-| Regulatorisch | Zwei Kantone verdoppeln Rechts- und Tarifarbeit | Owner, Legal | ein Kanton zuerst | 🟡 Richtung Basel nicht erfasst |
+| Regulatorisch | Zwei Kantone (BS, BL) verdoppeln Rechts- und Tarifarbeit | Legal | Basel-Prüfung je Paket | 🟡 entschieden, Prüfung läuft |
 | Betrieb | Kein Staging, kein Restore-Test | Owner (D-2), Engineering | FD-09; Restore-Test vor M9 | 🔴 blockiert |
-| Betrieb | Kein lizenzierter Partner, keine Abrechnung | Owner | FD-06; teameigener Anbieter (Route C) vorbereitet | 🔴 offen |
+| Betrieb | Pflegeheim-Abrechnung (pro Tag und Pflegestufe) ist anders als Spitex; Regeln UNKNOWN | Legal, Clinical, PO | Regeln als versionierte Daten, erst synthetisch, dann Shadow Mode | 🟡 neu |
 
 ---
 
 ## 7. Founder Actions
 
-Nur Handlungen, die Ihre Beteiligung brauchen.
-
 **Diese Woche (bis 13.11.2026):**
 
-1. **Merge-Schritt aktivieren (FD-01):** den Absatz aus `docs/agents/PO_MERGE_PROCESS.md` §3 (1) in den Prompt der geplanten PO-Aufgabe einfügen. Am gleichen Ort den Link auf Blueprint V2 und diesen Bericht in die Prompts der übrigen Agenten aufnehmen (FD-18).
-2. **D-1 beantworten (FD-03):** Herkunft der Daten (ja / nein / unsicher), Rechtsberatung und Datenschutzverantwortliche nennen, Review-Datum setzen, Leaked-Password-Schutz einschalten.
-3. **Pilotkanton bestätigen (FD-04):** „D-11: Basel, Start in BS (oder BL), Gemeinden …“.
+1. **Merge-Aufruf für die geplante PO-Aufgabe erlauben** (Berechtigungseinstellungen der Aufgabe; `PO_MERGE_PROCESS.md` §3 (2)). Die genaue Einstellungsseite kenne ich nicht (UNKNOWN). Ohne diese Freigabe mergt nur eine von Ihnen begleitete Sitzung.
+2. **Weg für die Löschung von `orders` wählen (FD-27):** altes Projekt ganz löschen (empfohlen) oder für eine Sitzung wiederherstellen.
+3. **Repository-Schutz D-7 genehmigen (FD-07).**
+4. **Konnektoren prüfen:** Den Agenten-Aufgaben sind Supabase und Render noch angehängt. Ich kann das nicht ändern; Sie können sie in den Aufgaben-Einstellungen entfernen.
 
 **Diesen Monat (bis 30.11.2026):**
 
-1. **Clinical Owner und Stellvertretung benennen (FD-02)**, oder den PO beauftragen, Suchprofil und Mandat zu entwerfen.
-2. **Rechtsberater im Pilotkanton benennen (FD-05)** und **Repository-Schutz D-7 genehmigen (FD-07)**, danach D-8.
-3. **Einen Entscheid-Termin für Agenda-Gruppe 2 festlegen** (Partner, D-2, D-29, Regulierungsberater, D-14, D-38), damit M3 bis 11.12. abgeschlossen ist.
+1. **KI-Anbieter für synthetische Daten entscheiden (FD-22).**
+2. **D-8 genehmigen** (nach D-7) und **Hosting D-2 (FD-09)**.
+3. **Fachperson für das simulierte Pflegeheim benennen (FD-02)**.
 
 ---
 
