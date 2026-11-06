@@ -2557,6 +2557,11 @@ isOneToOne: false
               "base": number,"kpi": string,"note": string,"organization_id": string,"team_id": string,"team_name": string,"too_few": boolean,"value": number
             }[]
                            },
+"plan3_team_measures":
+{ Args: { "p_month": string }; Returns: {
+              "confirm_actions_per_plan": number,"confirmed_unchanged_share": number,"continuity_after_base": number,"continuity_after_share": number,"continuity_before_base": number,"continuity_before_share": number,"continuity_suppressed": boolean,"corrected_share": number,"day_plans": number,"decided_lines": number,"enabled_since": string,"lines": number,"minutes_to_last_decision_median": number,"month": string,"no_proposal": number,"no_proposal_absent": number,"no_proposal_needs_rn": number,"no_proposal_not_active": number,"no_proposal_overlap": number,"no_proposal_share": number,"proposal_suppressed": boolean,"team_id": string,"team_name": string
+            }[]
+                           },
 "plan_from_care_plan":
 { Args: { "p_case_id": string,"p_idempotency_key": string }; Returns: Json
                            },

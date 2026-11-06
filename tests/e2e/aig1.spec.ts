@@ -208,6 +208,34 @@ test.describe("AIG1 health and look-back lists at desktop width (Testorganisatio
   });
 });
 
+// PLAN3-7 (ADR-151): Operations opens the day-plan team measures from the health list. Testorganisation F has no
+// day-plan line (only the synthetic test agent), so the page shows its empty state or a row without any day plan; pgTAP
+// 114 owns every value. Never a person's name.
+test.describe("PLAN3-7: Tagesvorschlag in Zahlen at desktop width (Testorganisation F)", () => {
+  test("the page is reached from the health list, per team only, without a person", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await signIn(page, "opsf.test@navora.test");
+    await page.goto("/operations/assistenten");
+    await page.getByTestId("plan-team-measures-link").click();
+    await page.waitForURL(/\/operations\/assistenten\/tagesvorschlag$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Tagesvorschlag in Zahlen");
+    const section = page.getByTestId("plan-team-measures");
+    await expect(section).toBeVisible();
+    await expect(page.getByTestId("plan-team-measures-error")).toHaveCount(0);
+    const rows = page.getByTestId("plan-team-measure-row");
+    if ((await rows.count()) === 0) {
+      await expect(page.getByTestId("plan-team-measures-empty")).toBeVisible();
+    } else {
+      await expect(rows.first().getByTestId("plan-team-measure-day_plans")).toHaveText(/^0 · 0 Zeilen$/);
+    }
+    await expect(page.locator("main")).not.toContainText(CONFIRMER_F);
+    await expect(page.locator("main")).not.toContainText("bestätigt von");
+    // ?monat=YYYY-MM selects a month.
+    await page.goto("/operations/assistenten/tagesvorschlag?monat=2026-01");
+    await expect(page.getByRole("main")).toContainText("(2026-01)");
+  });
+});
+
 test.describe.serial("AIG1-C1 / AIG1-C2: the team re-checks look-back values on the record page at 390 px (Testorganisation F)", () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });

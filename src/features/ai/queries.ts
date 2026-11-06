@@ -8,7 +8,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import { COORDINATOR_ROLES, PAGE_LABEL } from "@/lib/auth/nav";
 import { FIELD_PATH, homePathForRoles } from "@/lib/auth/paths";
 import { errorFields, logEvent } from "@/lib/log";
-import { countOpenSuggestions, type Provenance, type StopMeasure, type TeamLookbackStop } from "./labels";
+import { countOpenSuggestions, type PlanTeamMeasure, type Provenance, type StopMeasure, type TeamLookbackStop } from "./labels";
 
 type Fn = Database["public"]["Functions"];
 export type OpenSuggestion = Fn["open_suggestions"]["Returns"][number];
@@ -292,4 +292,37 @@ export async function getHomeLink(): Promise<{ href: string; label: string }> {
   if (error) logEvent("warn", "aig1.memberships_failed", errorFields(error));
   const href = homePathForRoles((data ?? []).map((m) => m.role));
   return { href, label: href === FIELD_PATH ? PAGE_LABEL.field : PAGE_LABEL.operations };
+}
+
+const numOrNull = (v: unknown): number | null => (v === null || v === undefined ? null : Number(v));
+
+/**
+ * PLAN3-7 (ADR-151): the day-plan assistant's measures per team for one Zurich month (`plan3_team_measures`, migration
+ * 0113), as the signed-in person may read them (own teams; coordinators every team). Null when the read failed: the
+ * page then says so rather than showing zeros.
+ */
+export async function getPlanTeamMeasures(month: string): Promise<PlanTeamMeasure[] | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("plan3_team_measures", { p_month: month });
+  if (error) {
+    logEvent("warn", "plan3.team_measures_failed", errorFields(error));
+    return null;
+  }
+  return (data ?? []).map((r) => ({
+    ...r,
+    enabled_since: r.enabled_since ?? null,
+    decided_lines: numOrNull(r.decided_lines),
+    confirmed_unchanged_share: numOrNull(r.confirmed_unchanged_share),
+    corrected_share: numOrNull(r.corrected_share),
+    confirm_actions_per_plan: numOrNull(r.confirm_actions_per_plan),
+    minutes_to_last_decision_median: numOrNull(r.minutes_to_last_decision_median),
+    no_proposal: numOrNull(r.no_proposal),
+    no_proposal_share: numOrNull(r.no_proposal_share),
+    no_proposal_not_active: numOrNull(r.no_proposal_not_active),
+    no_proposal_needs_rn: numOrNull(r.no_proposal_needs_rn),
+    no_proposal_absent: numOrNull(r.no_proposal_absent),
+    no_proposal_overlap: numOrNull(r.no_proposal_overlap),
+    continuity_before_share: numOrNull(r.continuity_before_share),
+    continuity_after_share: numOrNull(r.continuity_after_share),
+  }));
 }

@@ -292,3 +292,124 @@ export function stopMeasureCells(m: StopMeasure): { key: string; label: string; 
     },
   ];
 }
+
+/**
+ * PLAN3-7 (ADR-151): one team's day-plan measures for one Zurich month, as `plan3_team_measures` (migration 0113)
+ * returns them. Shares in percent. No person, outcome or confirmer column; a suppressed value is null (AIG1-7, AN1).
+ */
+export type PlanTeamMeasure = {
+  team_id: string;
+  team_name: string;
+  month: string;
+  enabled_since: string | null;
+  day_plans: number;
+  lines: number;
+  decided_lines: number | null;
+  confirmed_unchanged_share: number | null;
+  corrected_share: number | null;
+  confirm_actions_per_plan: number | null;
+  minutes_to_last_decision_median: number | null;
+  no_proposal: number | null;
+  no_proposal_share: number | null;
+  no_proposal_not_active: number | null;
+  no_proposal_needs_rn: number | null;
+  no_proposal_absent: number | null;
+  no_proposal_overlap: number | null;
+  proposal_suppressed: boolean;
+  continuity_before_share: number | null;
+  continuity_before_base: number;
+  continuity_after_share: number | null;
+  continuity_after_base: number;
+  continuity_suppressed: boolean;
+};
+
+/** PLAN3-7: the text for a value hidden by the three-person rule (AIG1-7 confirmers, AN1 performers). */
+export const SUPPRESSED_TEXT = "nicht ausgewiesen (weniger als 3 Personen)";
+
+const num = (v: number): string => Number(v).toLocaleString("de-CH", { maximumFractionDigits: 1 });
+
+/** PLAN3-7 (AUT-25): "kein Vorschlag" share and count with the four PLAN3-2 limits; a missing value is "–". */
+export function noProposalText(
+  share: number | null,
+  count: number | null,
+  byReason: { not_active: number | null; needs_rn: number | null; absent: number | null; overlap: number | null } | null,
+): string {
+  if (share === null || count === null) return "–";
+  const r = byReason;
+  const split = r
+    ? ` (Nicht verfügbar ${r.not_active ?? 0} · Pflegefachperson nötig ${r.needs_rn ?? 0} · Abwesend ${r.absent ?? 0} · Überschneidung ${r.overlap ?? 0})`
+    : "";
+  return `${formatShare(share)} · ${count} ${count === 1 ? "Zeile" : "Zeilen"}${split}`;
+}
+
+/** PLAN3-7 (AN2 style): continuity before and since the team's switch-on date; missing shares are "–", never 0. */
+export function continuityText(
+  before: number | null,
+  beforeBase: number,
+  after: number | null,
+  afterBase: number,
+  suppressed: boolean,
+  enabledSince: string | null,
+): string {
+  if (suppressed) return SUPPRESSED_TEXT;
+  if (!enabledSince) return `nie eingeschaltet · ${formatShare(before)} (${beforeBase})`;
+  return `vorher ${formatShare(before)} (${beforeBase}) · seit Einschalten ${formatShare(after)} (${afterBase})`;
+}
+
+/** PLAN3-7: the cells of one team's month in a fixed order (labels are Engineering's, open for `uxa`). */
+export function planTeamMeasureCells(m: PlanTeamMeasure): { key: string; label: string; value: string }[] {
+  const hidden = m.proposal_suppressed;
+  const or = (v: string): string => (hidden ? SUPPRESSED_TEXT : v);
+  return [
+    { key: "day_plans", label: "Tagesvorschläge", value: `${m.day_plans} · ${m.lines} ${m.lines === 1 ? "Zeile" : "Zeilen"}` },
+    {
+      key: "confirmed_unchanged",
+      label: "Unverändert bestätigt",
+      value: or(m.confirmed_unchanged_share === null ? "–" : `${formatShare(m.confirmed_unchanged_share)} · ${m.decided_lines ?? 0} entschieden`),
+    },
+    { key: "corrected", label: "Geändert (Gegenmass)", value: or(formatShare(m.corrected_share)) },
+    {
+      key: "actions",
+      label: "Bestätigungen pro Tagesvorschlag",
+      value: or(m.confirm_actions_per_plan === null ? "–" : num(m.confirm_actions_per_plan)),
+    },
+    {
+      key: "minutes",
+      label: "Minuten bis zur letzten Entscheidung (Median)",
+      value: or(m.minutes_to_last_decision_median === null ? "–" : `${num(m.minutes_to_last_decision_median)} Min.`),
+    },
+    {
+      key: "no_proposal",
+      label: "Kein Vorschlag",
+      value: or(
+        noProposalText(m.no_proposal_share, m.no_proposal, {
+          not_active: m.no_proposal_not_active,
+          needs_rn: m.no_proposal_needs_rn,
+          absent: m.no_proposal_absent,
+          overlap: m.no_proposal_overlap,
+        }),
+      ),
+    },
+    {
+      key: "continuity",
+      label: "Einsätze durch Bezugs- oder Stellvertretungsperson",
+      value: continuityText(
+        m.continuity_before_share,
+        m.continuity_before_base,
+        m.continuity_after_share,
+        m.continuity_after_base,
+        m.continuity_suppressed,
+        m.enabled_since,
+      ),
+    },
+  ];
+}
+
+/** PLAN3-7: `?monat=YYYY-MM` as the first day of that month; otherwise the current Europe/Zurich month. */
+export function monthParam(raw: string | undefined, now: Date = new Date()): string {
+  if (raw && /^\d{4}-(0[1-9]|1[0-2])$/.test(raw)) return `${raw}-01`;
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Zurich", year: "numeric", month: "2-digit" }).formatToParts(now);
+  const y = parts.find((p) => p.type === "year")?.value;
+  const mo = parts.find((p) => p.type === "month")?.value;
+  return `${y}-${mo}-01`;
+}
