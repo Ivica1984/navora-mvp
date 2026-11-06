@@ -268,11 +268,11 @@ export type StopMeasure = {
   lead_time_median_hours: number | null;
 };
 
-/** PLAN3-13: "Tage bis 0 offen" only once nothing is open; while lines are open, how many. */
+/** PLAN3-13: "Bis nichts mehr offen" (uxa UXR-117) only once nothing is open; while lines are open, how many. */
 export function daysToZeroText(days: number | null, openNow: number): string {
   if (openNow > 0 || days === null) return `noch ${openNow} offen`;
   if (days === 0) return "am Tag des Stopps";
-  return days === 1 ? "1 Tag" : `${days} Tage`;
+  return days === 1 ? "nach 1 Tag" : `nach ${days} Tagen`;
 }
 
 /** PLAN3-13 (AUT-31): the median lead time from proposal to visit; a missing value is "–", never 0. */
@@ -289,7 +289,7 @@ export function stopMeasureCells(m: StopMeasure): { key: string; label: string; 
     { key: "superseded", label: "Überholt", value: String(m.superseded) },
     { key: "not_open_at_stop", label: "Beim Stopp nicht mehr offen", value: String(m.not_open_at_stop) },
     { key: "became_not_open", label: "Seither nicht mehr offen", value: String(m.became_not_open) },
-    { key: "days_to_zero_open", label: "Tage bis 0 offen", value: daysToZeroText(m.days_to_zero_open, m.open_now) },
+    { key: "days_to_zero_open", label: "Bis nichts mehr offen", value: daysToZeroText(m.days_to_zero_open, m.open_now) },
     {
       key: "lead_time",
       label: "Vorlauf Vorschlag bis Einsatz (Median)",

@@ -32,15 +32,15 @@ describe("PLAN3-13 cells", () => {
       { key: "superseded", label: "Überholt", value: "1" },
       { key: "not_open_at_stop", label: "Beim Stopp nicht mehr offen", value: "0" },
       { key: "became_not_open", label: "Seither nicht mehr offen", value: "1" },
-      { key: "days_to_zero_open", label: "Tage bis 0 offen", value: "noch 2 offen" },
+      { key: "days_to_zero_open", label: "Bis nichts mehr offen", value: "noch 2 offen" },
       { key: "lead_time", label: "Vorlauf Vorschlag bis Einsatz (Median)", value: "120.5 Std. · 6 Vorschläge" },
     ]);
   });
 
-  it("names days until 0 offen only once nothing is open", () => {
+  it("names the days until nothing is open only once nothing is open (uxa UXR-117)", () => {
     expect(daysToZeroText(0, 0)).toBe("am Tag des Stopps");
-    expect(daysToZeroText(1, 0)).toBe("1 Tag");
-    expect(daysToZeroText(3, 0)).toBe("3 Tage");
+    expect(daysToZeroText(1, 0)).toBe("nach 1 Tag");
+    expect(daysToZeroText(3, 0)).toBe("nach 3 Tagen");
     expect(daysToZeroText(null, 1)).toBe("noch 1 offen");
     expect(daysToZeroText(5, 2)).toBe("noch 2 offen");
   });
@@ -72,5 +72,16 @@ describe("PLAN3-13 migration and page", () => {
     const section = page.slice(page.indexOf('data-testid="stop-measures"'), page.indexOf("</section>"));
     expect(section).toContain("stopMeasureCells");
     expect(section).not.toMatch(/bestätigt von|confirmed_by|display_name|member_name/);
+  });
+
+  it("puts the lines first and the figures after them; one card per team below 640 px (uxa UXR-115)", () => {
+    expect(page.indexOf('data-testid="lookback-list"')).toBeGreaterThan(-1);
+    expect(page.indexOf('data-testid="stop-measures"')).toBeGreaterThan(page.indexOf('data-testid="lookback-list"'));
+    const section = page.slice(page.indexOf('data-testid="stop-measures"'), page.indexOf("</section>"));
+    expect(section).toContain('data-testid="stop-measure-card"');
+    expect(section).toMatch(/<dl[\s>]/);
+    expect(section).toMatch(/hidden[^"]*sm:block/);
+    expect(section).toMatch(/sm:hidden/);
+    expect(section).not.toMatch(/uppercase/);
   });
 });
