@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { connection } from "next/server";
-import { HeaderMenu } from "@/components/layout/Sidebar";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import { getTeamSuggestions } from "@/features/ai/queries";
 import SuggestionsClient from "./suggestions-client";
@@ -18,7 +17,6 @@ export default async function SuggestionsPage() {
           <Link href="/team" className="ml-auto flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
             {PAGE_LABEL.team}
           </Link>
-          <HeaderMenu active="team" />
         </div>
         <h1 className="mx-auto mt-1 max-w-xl text-xl font-bold">Vorschläge</h1>
         <p className="mx-auto max-w-xl text-sm text-emerald-100">
