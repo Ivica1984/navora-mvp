@@ -143,3 +143,25 @@ export function alertRepeatsSignal(alert: PointerAlert, openSignals: readonly Po
   if (alert.taken) return false;
   return openSignals.some((s) => s.visit_id === alert.visit_id && s.signal_kind === alert.exception_type);
 }
+
+/**
+ * UX2-16 (`uxa` UXR-28; `cra` 2026-10-28 17:30 answer 3; ADR-133): the "Einsätze mit Handlungsbedarf" frame follows what
+ * the list shows. Red while at least one P1 entry is shown in full; amber while the list has any entry otherwise
+ * (pointer lines to a red card above, P2 entries, or an unknown priority); never neutral while an entry is listed.
+ * `null` for an empty list (the section is not rendered, as before). P1/P2 stay PROVISIONAL (D-28); no rule changes.
+ */
+export type VisitAlertFrame = "red" | "amber";
+
+export function visitAlertFrame(
+  alerts: readonly (PointerAlert & { priority: string })[],
+  openSignals: readonly PointerSignal[],
+): VisitAlertFrame | null {
+  if (alerts.length === 0) return null;
+  return alerts.some((a) => a.priority === "P1" && !alertRepeatsSignal(a, openSignals)) ? "red" : "amber";
+}
+
+/** Frame classes per state: red keeps the P1 tokens it had; amber is the non-P1 attention colour (as UX1-24). */
+export const VISIT_ALERT_FRAME_CLASS: Record<VisitAlertFrame, string> = {
+  red: "border-rose-300 bg-rose-50",
+  amber: "border-amber-500 bg-amber-50",
+};
