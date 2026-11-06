@@ -241,11 +241,15 @@ export function dayChangedNote(day: string): string {
   return `Inzwischen ist ${weekday}, ${formatShortDate(day)}. Die Zeiten sind neu gesetzt. Prüfe sie und bestätige noch einmal.`;
 }
 
+/** VIS1-10 / UX2-20: the label of the link beside the fallback sentence (unchanged). */
+export const MOVE_TODAY_LINK_LABEL = "Einsätze von heute";
+
 /**
- * VIS1-10 fallback (brief wording, po 02:15): where the confirmation can no longer be shown, e.g. the visit is no longer
- * dated after the new today, so "Heute machen" does not apply to it any more.
+ * VIS1-10 fallback: where the confirmation can no longer be shown, e.g. the visit is no longer dated after the new
+ * today, so "Heute machen" does not apply to it any more. UX2-20 (`uxa` UXR-40; PO wording 2026-10-29 08:15; `cra`
+ * reads it in the UX2 gate): the sentence names the link it sits beside instead of asking for a manual reload.
  */
-export const DAY_CHANGED_RELOAD = "Inzwischen ist ein neuer Tag. Lade die Seite neu, dann siehst du die Einsätze von heute.";
+export const DAY_CHANGED_RELOAD = `Inzwischen ist ein neuer Tag. Tippe auf «${MOVE_TODAY_LINK_LABEL}».`;
 
 /**
  * VIS1-10: what the confirmation does after `day_changed`. `today` is the database's date from the refusal; the visit
@@ -260,6 +264,20 @@ export function afterDayChanged(today: unknown, visitDate: unknown): { kind: "co
 
 /** VIS1-3f (UXR-34): the id of the release notice, the moved card's accessible description. */
 export const MOVED_RELEASED_NOTICE_ID = "verschoben-offen-hinweis";
+
+/** UX2-19 (UXR-37): the id of the planning flags list shown after a move. */
+export const MOVED_FLAGS_LIST_ID = "verschoben-hinweise";
+
+/**
+ * UX2-19 (`uxa` UXR-37; ADR-134): the moved card, which receives focus (VIS1-3e), is described by the notices above it:
+ * the release notice (VIS1-3f) first, then the planning flags list. Nothing when there is neither.
+ */
+export function movedCardDescribedBy(moved: { released: boolean; flags: ReadonlyArray<string> }): string | undefined {
+  const ids = [moved.released ? MOVED_RELEASED_NOTICE_ID : null, moved.flags.length > 0 ? MOVED_FLAGS_LIST_ID : null].filter(
+    (id): id is string => id !== null,
+  );
+  return ids.length > 0 ? ids.join(" ") : undefined;
+}
 
 export const FIELD_ACTION_LABEL: Record<FieldAction, string> = {
   depart: "Losfahren",
