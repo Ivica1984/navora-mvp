@@ -12,6 +12,7 @@ import {
   RECORD_LOOKBACK_TEXT,
   fieldLabel,
 } from "@/features/ai/labels";
+import { RESPONSIBLE_PICK_TEXT } from "@/features/visits/types";
 
 const button = "min-h-11 rounded-lg px-3 text-sm font-semibold disabled:opacity-60";
 
@@ -138,9 +139,7 @@ function LookbackLine({
                   onChange={(e) => setChosen(e.target.value)}
                   className="min-h-11 rounded-lg border border-stone-300 bg-white px-2"
                 >
-                  <option value="" disabled>
-                    Person wählen
-                  </option>
+                  <option value="" disabled>{RESPONSIBLE_PICK_TEXT}</option>
                   {members.map((m) => (
                     <option key={m.user_id} value={m.user_id}>
                       {m.me ? `${m.name ?? "Ich"} (du)` : (m.name ?? "Teammitglied")}

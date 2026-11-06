@@ -2,11 +2,25 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { PageFrame } from "@/components/layout/PageFrame";
 import { getAgentHealth } from "@/features/ai/queries";
-import { formatDate, formatShare, minReachedText, stateLabel, stopReasonText, windowText } from "@/features/ai/labels";
+import {
+  agentStatusText,
+  expiredText,
+  formatDate,
+  formatShare,
+  minReachedText,
+  openStops,
+  parseAgentStops,
+  stopHistoryText,
+  stopOpenText,
+  stopReasonText,
+  windowText,
+} from "@/features/ai/labels";
 
 // AIG1-10 / AIG1-16 (ADR-129): one list of the organisation's assistants for Operations and administrators (desktop
 // first). agent_health (0103) answers coordinators only and runs the stop check first; it has no person column.
 // NAVORA shows the threshold written at switch-on and sets none.
+// AIG1-C4 / AIG1-C5 (ADR-139, 0105): the expired count sits next to the decided count; the state is a status only; every
+// stop with open lines keeps its look-back link whatever the state, and a stop at "0 offen" stays readable as history.
 export default async function AgentHealthPage() {
   await connection();
   const rows = await getAgentHealth();
@@ -39,11 +53,16 @@ export default async function AgentHealthPage() {
                   <th className="p-2">Schwelle</th>
                   <th className="p-2">Mindestzahl</th>
                   <th className="p-2">Fenster</th>
-                  <th className="p-2">Warum gestoppt</th>
+                  <th className="p-2">Stopps</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => (
+                {rows.map((r) => {
+                  const stops = parseAgentStops(r.stops);
+                  const followUp = openStops(stops);
+                  const history = stops.filter((s) => s.open === 0);
+                  const expired = expiredText(r.last_window_expired);
+                  return (
                   <tr key={r.agent_key} data-testid="agent-health-row" className="border-t border-stone-200 align-top">
                     <td className="p-2 font-semibold">
                       {r.agent_name}
@@ -51,12 +70,15 @@ export default async function AgentHealthPage() {
                         Stufe {r.level} · {r.kind === "rule" ? "Regel" : "KI"} · Version {r.version}
                       </span>
                     </td>
-                    <td className="p-2" data-testid="agent-state">{stateLabel(r.state)}</td>
+                    <td className="p-2" data-testid="agent-state">{agentStatusText(r.state, r.stopped_at)}</td>
                     <td className="p-2">{r.last_proposal_at ? formatDate(r.last_proposal_at) : "–"}</td>
                     <td className="p-2" data-testid="agent-last-share">
                       {formatShare(r.last_window_share)}
                       {r.last_window_decided !== null && r.last_window_decided !== undefined && (
                         <span className="block text-xs text-secondary">{r.last_window_decided} entschieden</span>
+                      )}
+                      {expired && (
+                        <span className="block text-xs text-secondary" data-testid="agent-expired">{expired}</span>
                       )}
                     </td>
                     <td className="p-2" data-testid="agent-stop-share">{formatShare(r.stop_share)}</td>
@@ -67,22 +89,33 @@ export default async function AgentHealthPage() {
                     </td>
                     <td className="p-2" data-testid="agent-stop-window">{windowText(r.stop_window_days)}</td>
                     <td className="p-2" data-testid="agent-stop-reason">
-                      {r.state === "stopped" ? (
-                        <>
-                          {stopReasonText(r.stop_reason)}
-                          {r.stopped_at && <span className="block text-xs text-secondary">seit {formatDate(r.stopped_at)}</span>}
-                          {r.stop_id && (
-                            <Link href={`/operations/assistenten/rueckblick/${r.stop_id}`} className="block font-semibold underline underline-offset-4">
-                              Betroffene Werte ansehen
-                            </Link>
-                          )}
-                        </>
-                      ) : (
+                      {stops.length === 0 ? (
                         "–"
+                      ) : (
+                        <ul aria-label={`Stopps von ${r.agent_name}`} className="grid gap-2">
+                          {followUp.map((s) => (
+                            <li key={s.stop_id} data-testid="agent-stop-open">
+                              <span className="block">{stopReasonText(s.reason)}</span>
+                              <span className="block text-xs" data-testid="agent-stop-counts">{stopOpenText(s)}</span>
+                              <Link
+                                href={`/operations/assistenten/rueckblick/${s.stop_id}`}
+                                className="block font-semibold underline underline-offset-4"
+                              >
+                                Betroffene Werte ansehen
+                              </Link>
+                            </li>
+                          ))}
+                          {history.map((s) => (
+                            <li key={s.stop_id} data-testid="agent-stop-history" className="text-xs text-secondary">
+                              {stopHistoryText(s)}
+                            </li>
+                          ))}
+                        </ul>
                       )}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
