@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { AppFrame } from "@/components/layout/Sidebar";
+import { PageFrame } from "@/components/layout/PageFrame";
 import { getStopLookback } from "@/features/ai/queries";
 import { LOOKBACK_EXPLANATION, NOT_OPEN_TEXT, fieldLabel, formatDate, lookbackCountsText, supersededText } from "@/features/ai/labels";
 
@@ -21,7 +21,7 @@ export default async function LookbackPage({ params }: { params: Promise<{ stopI
   const open = lines.filter((l) => !l.superseded && !l.not_open).length;
   const notOpen = lines.filter((l) => l.not_open).length;
   return (
-    <AppFrame active="operations" className="bg-stone-50 text-emerald-950">
+    <PageFrame className="bg-stone-50 text-emerald-950">
       <main className="grid min-w-0 gap-4 p-4 md:p-6">
         <Link href="/operations" className="text-sm font-semibold underline underline-offset-4">
           Zurück zu den Ausnahmen
@@ -70,6 +70,6 @@ export default async function LookbackPage({ params }: { params: Promise<{ stopI
           </ul>
         )}
       </main>
-    </AppFrame>
+    </PageFrame>
   );
 }

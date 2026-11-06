@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { formatDayLabel } from "@/features/field/rules";
-import { HeaderMenu } from "@/components/layout/Sidebar";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import { acknowledgeWorkingTimeNotice, confirmWorkingDay, exportWorkingMonth } from "@/features/work/commands";
 import { myContractEndText, type MyContractEnd } from "@/features/contract-end/rules";
@@ -46,8 +45,6 @@ function Header({ day, today, previousDay, nextDay }: Pick<Props, "day" | "today
         <Link href={`/field?datum=${day}`} className="ml-auto flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-emerald-100 underline underline-offset-4">
           {PAGE_LABEL.field}
         </Link>
-        {/* UX1-20: the role's menu (and "Meine Einstellungen") from the nurse's screens, inside the first viewport. */}
-        <HeaderMenu active="work" />
       </div>
       <div className="mx-auto mt-1 max-w-xl">
         <h1 className="text-xl font-bold leading-tight">{formatDayLabel(day)}</h1>

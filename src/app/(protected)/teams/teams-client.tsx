@@ -1,5 +1,4 @@
 "use client";
-import Sidebar from "@/components/layout/Sidebar";
 import CommandError from "@/components/feedback/CommandError";
 
 import { useMemo, useState } from "react";
@@ -139,15 +138,12 @@ setCoachInput("");
     <div
       style={{
         minHeight: "100vh",
-        display: "grid",
-        gridTemplateColumns: "280px 1fr",
         background: "#f4f7f4",
         fontFamily: "Inter, sans-serif",
         color: "#153328",
       }}
     >
-      <Sidebar active="teams" />
-
+      {/* UX2-1 (ADR-131): the navigation comes from the shell; this first-MVP page waits for its UX2-5 decision. */}
       <main style={{ padding: "32px" }}>
         <div style={{ marginBottom: "28px" }}>
           <div
