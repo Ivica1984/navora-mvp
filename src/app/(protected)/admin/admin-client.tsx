@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, type ReactNode } from "react";
-import { AppFrame } from "@/components/layout/Sidebar";
+import { PageFrame } from "@/components/layout/PageFrame";
 import { PAGE_LABEL } from "@/lib/auth/nav";
 import type { AdminData, AdminExceptionRule, AdminMember, AdminTeam } from "@/features/admin/queries";
 import {
@@ -78,7 +78,7 @@ export default function AdminClient({ data, push = null, evaluator = [], outside
   outsideWatched?: OutsideWatchedVisit[] | null;
 }) {
   return (
-    <AppFrame active="admin" style={{ background: "#f4f7f4", color: "#153328" }}>
+    <PageFrame style={{ background: "#f4f7f4", color: "#153328" }}>
       <main className="grid content-start gap-6 break-words p-4 md:p-8">
         <header>
           <h2 className="text-2xl font-bold">{PAGE_LABEL.admin}</h2>
@@ -103,7 +103,7 @@ export default function AdminClient({ data, push = null, evaluator = [], outside
           </>
         )}
       </main>
-    </AppFrame>
+    </PageFrame>
   );
 }
 
