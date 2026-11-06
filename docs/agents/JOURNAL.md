@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 00:20 CET · eng (Engineering)
+
+Scheduled Engineering run (00:10). Step A only (own open PRs).
+
+- **#934 (FE-041 consolidation):** CI was green on head `66885bf` (app, db, e2e, ui-screenshots, sync), but GitHub reported it as not mergeable: the PO's #933 (FE-041 docs, `FOUNDER_DECISIONS.md` v8, Blueprint v2.12) merged after it. Brought up to date with `recovery/main` `120a881` (merge commit, no rebase, no force-push). The only conflict was `JOURNAL.md`: every entry kept, newest first (eng 23:45, eng 23:30, po 23:10, eng 22:40, po 22:40). The other files from #933 (`FOUNDER_DECISIONS.md`, Blueprint, `NEXT_CAPABILITY.md`, `PO_MERGE_PROCESS.md`, `IMPLEMENTATION_STATUS.md`) merged without conflict. No code, migration, test or rule changed; the code diff of #934 against `recovery/main` is the same as on `66885bf`.
+- **Clinical gate:** no new finding; the `cra` gate (FE-041 (2)) is for the #934 head. This merge adds docs only, so `cra` can read the gate on the new head with the code diff unchanged.
+- **Tests:** none ran here. `node scripts/agents-check.mjs` ran: ok. CI decides on the new head; I do not claim green.
+- **Not done:** QUAL1 (#931, `active`) not claimed: FE-041 (5) allows one open dependent chain, and QUAL1 builds on PLAN3, so it waits for the PO merge of #934. Other open eng PRs (#815, #835, #837, #840, #907) untouched this run.
+- **Contradiction (rule 10):** the scheduled prompt asks for a new `feature/hourly-update-<date>` branch per cycle; FE-041 (1) names `feature/plan3-consolidated`, so this run pushed to it. FE-041 holds. Live project not touched. Synthetic data only.
+
+---
+
 ## 2026-11-06 23:45 CET · eng (Engineering)
 
 - **#934 CI:** `db` failed at migration 0116: its `confirm_suggestion` patch anchor was changed by 0105 (AIG1-C4, merged into `recovery/main` after #897). Fixed as conflict resolution only: the anchor follows 0105's text and the PLAN3-15 check stays directly after the membership check (ADR-157 note). Checked by hand that the other 0116 anchors are not touched by 0105/0107/0108. No local run (no Supabase stack, npm unreachable); CI decides. `app`, `e2e`, `ui-screenshots` were still running when I pushed.
@@ -20,6 +32,18 @@ Scheduled Engineering run (23:10). **FE-041 consolidation** (founder decision in
 - **Tests:** none ran here (npm registry `ENOTFOUND` again; no local Supabase stack). `node scripts/agents-check.mjs` ran (ok). CI decides; I do not claim green.
 - **Not done:** QUAL1 (#931, `active`) not claimed this run: FE-040 places it on top of the consolidated stack, and FE-041 (5) allows only one open dependent chain. Next Engineering run: CI on #934 first, then QUAL1 on top of it once the PO has merged.
 - **Contradiction noted (README rule 10):** at the time of this run FE-041 is only on the unmerged PO PR #933 (`FOUNDER_DECISIONS.md` v8). I acted on it because the PO's 23:10 comment on #538 assigns it to `eng` and the work is reversible (a new PR, nothing merged). The scheduled prompt's step A ("one PR per hourly cycle, branch `feature/hourly-update-<date>`") differs from FE-041 (1)'s branch name `feature/plan3-consolidated`; FE-041 holds. Live project not touched.
+
+---
+
+## 2026-11-06 23:10 CET · po (Product Owner)
+
+Attended session. The founder asked how the merge path can be sped up; the one-Engineering-PR-per-run rule would have taken the PLAN3 stack until about Saturday noon.
+
+- **Finding (from git, read by the PO):** the 15 open PLAN3 PRs are not one chain. All 14 above #880 build on an older #880 head (`12f0b0d`); #910 contains #890, #891, #895, #897, #902, #903, #906; #882, #883, #885, #886, #888, #894 sit on their own branches. Merging them one by one means re-syncing, a new CI run (about 10 minutes) and a new `cra` gate after every merge.
+- **Founder decision FE-041 (new, `FOUNDER_DECISIONS.md` v8):** one consolidation PR by `eng` (`feature/plan3-consolidated`, merge commits, no rebase, listing every included PR with its head SHA, no change beyond conflict resolution); one `cra` gate on its head; one PO merge under all seven conditions; then the included PRs are closed with a reference; from now on at most one open dependent chain. No safety, test or approval condition is relaxed. Written into `PO_MERGE_PROCESS.md` §4 (stop rules), Blueprint **v2.12** (FE-038's bottom-up order for PLAN3 struck and replaced), `NEXT_CAPABILITY.md`, `ROADMAP.md`.
+- **GitHub:** comment on #538 (PLAN3) for `eng` and `cra`.
+- **Scheduled-task prompts the owner may want to change:** the PO prompt's line "process PRs individually, strictly one by one, bottom-up in stacks (PLAN3 stack #891 to #910)" is replaced by FE-041 for PLAN3 (FOUNDER_DECISIONS wins, README rule 10); the `eng` prompt could name the one-open-chain rule. The PO does not edit scheduled tasks.
+- Tests: none run by the PO; no code. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
 
 ---
 
