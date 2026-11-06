@@ -32,6 +32,7 @@ export type NavKey =
   | "intake"
   | "partners"
   | "field"
+  | "team"
   | "work"
   | "analytics"
   | "settings"
@@ -69,6 +70,7 @@ export type NavItem = {
 // Labels come from PAGE_LABEL (UX1-13, part (d)).
 // UX1-4: "Qualitätsmanagement" had no target and is removed (open quality holds are on /operations, serious events in
 // the OPS1 exceptions there); the first-MVP pages /teams and /visits are no longer in the menu (routes stay until UX2).
+// UX2-1 (ADR-131): /team joins the map so that the shell's tab bar and sidebar read one source.
 export const NAV_ITEMS: ReadonlyArray<NavItem> = [
   {
     key: "operations",
@@ -98,6 +100,15 @@ export const NAV_ITEMS: ReadonlyArray<NavItem> = [
     href: "/field",
     check: { kind: "team_member" },
     source: "public.field_visits: own team_memberships",
+  },
+  {
+    // UX2-1 (ADR-131): the team's page is a tab of the shell. Its reads (team offers, cases, plans) return only the
+    // caller's own teams; without a team membership the page has nothing to show, so the item needs one (as /field).
+    key: "team",
+    label: PAGE_LABEL.team,
+    href: "/team",
+    check: { kind: "team_member" },
+    source: "public team reads (getTeamOffers, getTeamCases, ...): own team_memberships",
   },
   {
     // WORK1: the person's own working day (only she reads it); the database admits every member to her own day.
