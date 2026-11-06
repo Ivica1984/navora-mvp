@@ -31,6 +31,57 @@
 
 ---
 
+## 2026-11-06 08:25 CET · aia review 33: PO #893 (06:30) decisions read; AUT-51 → PLAN3-15 and AUT-52 → PLAN3-7 (2) adopted as proposed; `eng` #890 (CGR-140), #891 (UXR-113), #894 (PLAN3-7 (2)), #895 (PLAN3-9 (1)) and `cra` #892 (05:30) read on their heads; AUT-52 met on #894; correction of my own AUT-52 text (AUT-53, low: "keine Bezugsperson" is not a "kein Vorschlag" reason)
+
+**Read:** `recovery/main` at `9c58939` (PO #893 merged 07:16; no code merged). Open, read on their heads: `eng` **#890** (`a4b1ce0`, ADR-153, migration 0114), **#891** (`487c84a`, ADR-154), **#894** (`0984d3d`, ADR-155, no migration), **#895** (`a6b8e00`, ADR-156, migration 0115); `cra` **#892** (05:30). CI read from the GitHub API: #890, #891, #894, #895 4/4 green. Changed brief: `PLAN3.md` (PLAN3-3 wording, PLAN3-7 (1)-(2), PLAN3-9 (1)-(2), new PLAN3-15, PLAN3-16, PLAN3-17). Open `automation` issues: #793 (AUT-30) only.
+
+**Nothing below is a measurement.** I ran no tests and read no database. Bottleneck map v2 (review 18) stands; next refresh 2026-11-10.
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-53 | Team reads its own "kein Vorschlag" numbers under the switch (PLAN3-7 (2), `/team/tagesplan`): the team | **Correction of my own AUT-52 (review 32).** I wrote that visits get "kein Vorschlag (keine Bezugsperson)" and proposed showing the largest reason "the team can fix (no primary nurse set)". That premise is wrong: PLAN3-3 falls back to the member with the most free capacity when no primary nurse or deputy passes, so a missing primary nurse never produces "kein Vorschlag"; the stored reasons are the four PLAN3-2 limits `not_active`, `needs_rn`, `absent`, `overlap` (migration 0114, `no_proposal_*` columns). The PO wrote my clause into PLAN3-7 (2) and into a challenge row; `eng` correctly did not build it (ADR-155 deviation 2: it would need a new count and a code the brief does not name). **IMPLEMENTED on #894:** the line plus a disclosure "Alle Zahlen dieses Monats" that already shows the four stored reasons for the team's own row. No step for a nurse is missing | **eliminate the clause, build nothing:** drop "plus the largest 'kein Vorschlag' reason when it is one the team can fix itself (no primary nurse set)" from PLAN3-7 (2) and accept #894 as built (ADR-155 deviation 2); the four reasons one tap away answer the team's question with no migration. Accept deviation 3 (disclosure instead of a link) too: the Operations screen is coordinator-only, so a link would be a dead end for a team member. A missing primary nurse shows in the continuity share (AN2, same disclosure), not in "kein Vorschlag" | L | stage 0; `po` (brief wording); no `cra`, no `lca` | none new; PLAN3-7 (2) e2e as written | low | report only; one comment on #894 |
+
+### 2 Briefs, plans and packages reviewed
+
+- **PO #893, PLAN3 amendments (challenge review per step):**
+  - **PLAN3-15** (AUT-51): adopted as proposed, with `cra`'s three conditions; removes a clean-up at the busiest moment and adds no tap. The count of closing requests apart from the three decision shares is right: a closed line is not a decision. Supported.
+  - **PLAN3-7 (1)** "Abgelehnt" share and **(2)** team line: supported, except the clause corrected in AUT-53.
+  - **PLAN3-9 (1)** (CGR-138): one yes/no column, no act. Supported. **PLAN3-9 (2)** (UXR-103, decide only on `/team/tagesplan`): one place for one decision; supported.
+  - **PLAN3-16** (CGR-137): information only, no refusal, no confirmation tap, recording whether it was shown is a system fact with no nurse effort. Meets my 20:20 condition. Supported.
+  - **PLAN3-17** one label function: removes a wrong pick. Supported. PLAN3-3 wording: no finding.
+  - PO challenge row on AUT-52 ("pilot hypothesis on 'keine Bezugsperson' gaps"): rests on the same wrong premise (AUT-53); the hypothesis that fits the code is "teams with low continuity share set primary nurses once they see it".
+- **#890 CGR-140 (ADR-153):** three shares add to 100 % of decided lines (pgTAP 114: 50/25/25). Meets §8 "correction rate per agent and field" with the rejection visible. Supported.
+- **#891 UXR-113 (ADR-154):** the `/team` "Verantwortlich" picker takes the same label. Supported.
+- **#894 PLAN3-7 (2) (ADR-155):** **AUT-52 remedy met on the head:** the team's own row only, same reader and suppression, failed read never shown as 0, no colour above `info`, no target, no other team, e2e that a non-member sees none of the numbers. Deviations 1 (unmerged PO note, now merged as #893), 2 and 3 supported (AUT-53); 4 (`uxa` wording) for `uxa`.
+- **#895 PLAN3-9 (1) (ADR-156, migration 0115):** "Noch offen" and "Einsatz öffnen" on every line; yes/no only. Deviation 4 ("Noch offen" also on a confirmed line whose visit has nobody now) supported: the line shows the visit's state, which is what the team needs to act. Deviation 3 (decided `not_found` e2e waits for a seeded "kein Vorschlag" line, CGR-75 (5)) noted; same gap as before.
+- **`cra` #892 (05:30):** CGR-139 and CGR-140 met; gates clear in stack order. No finding.
+
+### 3 AI readiness of delivered items (§8)
+
+PLAN3 on the stack heads (#876 to #895, not merged): suggestion ledger, provenance per value, named confirmer (decision state only, no per-person view), no accept-all, stop rule with team look-back and its measure, evaluation on synthetic data (Testorganisation G, pgTAP 110 to 115): as in review 32. **Correction rate per agent and field:** now complete with "Abgelehnt" (#890) and shown to the team that holds the switch (#894). Missing: PLAN3-15 (AUT-51 test, not yet built; PO gating); the expired share (AUT-31, #814).
+
+### 4 Stage tracking (D-35)
+
+Stage 0 only. Stage-1 entry conditions unchanged: no AI provider decision (owner), no stage-1 package; the stage-0 governance layer (AIG1 #814, AIR1 #828) unmerged.
+
+### 5 Findings: state changes and closed
+
+- **AUT-51 (medium):** decided by the PO as PLAN3-15 (#893); remedy PLANNED, not built. Closes when PLAN3-15 merges with its pgTAP.
+- **AUT-52 (medium):** decided as PLAN3-7 (2); remedy met on #894 `0984d3d`; closes when #894 merges unchanged. Its "fixable reason" part is withdrawn (AUT-53).
+- **AUT-25 (medium):** closes on #886 merge (unchanged). **AUT-31 (low):** expired share waits for #814. **AUT-30 (high, #793):** Operations side waits for #814.
+- Open, unchanged: AUT-49, AUT-50, AUT-46, AUT-47, AUT-44, AUT-45, AUT-42, AUT-43, AUT-41, AUT-33, AUT-35, AUT-36, AUT-37, AUT-38, AUT-34, AUT-21, AUT-14, AUT-15, AUT-17, AUT-19, AUT-20, AUT-28 (P-38).
+- Closed this run: none.
+
+### 6 To the PO
+
+1. AUT-53: drop the "no primary nurse set" clause from PLAN3-7 (2) and accept #894 deviations 2 and 3 as built; correct the AUT-52 challenge row's hypothesis.
+2. PLAN3-15 is the one remaining `aia` acceptance item not built.
+3. #814 (AIG1-C4/-C5) still carries AUT-30, AUT-31 and PLAN3-15's possible closing outcome; merge order is the PO's.
+
+---
+
 ## 2026-11-06 02:15 CET · aia review 32: PLAN3 stack read on its heads (`eng` #880 part (b) slice 1, #882 PLAN3-12, #883 PLAN3-11, #885 PLAN3-13, #886 PLAN3-7, #888 CGR-139; `cra` #881 21:30, #887 01:30; `uxa` #850 to 23:50); stage-0 controls met on the screen; AUT-25 remedy met on #886 (closes on merge); AUT-31 lead time met on #885, expired share waits for #814; CGR-140 option (a) supported; new AUT-52 (medium: the team cannot see the measures of its own switch)
 
 **Read:** `recovery/main` at `c315efc` (since review 31 only my #869 merged; no code merged). Open, read on their heads: `eng` **#880** (`12f0b0d`, ADR-147), **#882** (`c734eaf`, ADR-148), **#883** (`f05a5ef`, ADR-149, migration 0111), **#885** (`f37180d`, ADR-150, 0112), **#886** (`d5411ee`, ADR-151, 0113), **#888** (`ca35e1e`, ADR-152); `cra` **#881** and **#887** (CGR-138, CGR-139, CGR-140); `uxa` **#850** (UXR-102 to UXR-112). No new or changed brief, no PO cycle since #877; open `automation` issues: #793 (AUT-30) only. CI read from the GitHub API: #880, #882, #883, #885, #886 4/4 green; #888 in progress.

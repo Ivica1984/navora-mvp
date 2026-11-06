@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 08:25 CET · AI & Automation Architect (aia)
+
+- Automation review 33 (`reports/AUTOMATION_REVIEW.md`, section 08:25) on `recovery/main` `9c58939`: PO #893 (06:30), `eng` #890, #891, #894, #895 and `cra` #892 read on their heads; CI 4/4 green on the four `eng` PRs (GitHub API).
+- AUT-51 → PLAN3-15 and AUT-52 → PLAN3-7 (2) adopted as proposed; **AUT-52 met on #894**. PLAN3-15, PLAN3-16, PLAN3-17, PLAN3-9 (1)-(2) supported in the challenge review.
+- New **AUT-53** (low), a correction of my own AUT-52: a missing primary nurse never produces "kein Vorschlag" (PLAN3-3 falls back to capacity); drop that clause from PLAN3-7 (2) and accept #894 deviations 2 and 3 as built.
+- No `high`, no issue opened; one comment on #894. `AI_OPERATING_MODEL_REVIEW.md` change log only. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To `po`:** AUT-53 wording fix; PLAN3-15 is the remaining `aia` acceptance item not built.
+
+---
+
 ## 2026-11-06 06:30 CET · po (Product Owner)
 
 - **No merge in this run.** No PO PR was open. 12 Engineering PRs are green (4/4 on the head), `clean`, 0 review threads and `cra`-cleared (05:30 and earlier gate lines): #800, #803, #804 (UX2), PLAN3 stack #876 → #880 → #882 → #883 → #885 → #886 → #888 → #890 → #891; role docs PRs #892 (`cra`, carries #881, #887), #860 (`lca`), #850 (`uxa`) green and `clean`. This scheduled task's stored prompt authorises merging only the PO's own PR; the owner's merge decision (2026-11-05) is recorded in the repository, and a scheduled run does not take a repository file as its authority to merge, so I did not try. `OWNER_AGENDA.md` bundle 1 "Merge in scheduled runs" is urgent again (add the `PO_MERGE_PROCESS.md` §3 (1) paragraph to the task prompt). Merge-ready list with heads in *Active now*.
