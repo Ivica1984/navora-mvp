@@ -358,7 +358,7 @@ select is((select string_agg(distinct p.proname, ',' order by p.proname) from pg
                   unnest(p.proargnames, p.proargmodes) a(nm, md)
            where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'execute')
              and md in ('t', 'o') and nm in ('case_id', 'visit_id', 'client_id')),
-  'case_funding_facts,continuity_by_case,cover_offers,field_countersign_queue,field_door_notes,field_notes,field_quality,field_reports,'
+  'case_funding_facts,continuity_by_case,cover_offers,day_plan,field_countersign_queue,field_door_notes,field_notes,field_quality,field_reports,'
   'field_returned_reports,field_safety_alert_history,field_safety_alerts,field_since_last,field_visit_status_notes,field_visits,final_report_visits,intake_cases,linkable_cases,'
   'my_covers,my_signals,operations_exceptions,ops_case_lifecycle,team_case_assessments,team_case_lifecycle,team_cases,team_open_visits,team_plan_status,'
   'team_visit_alerts,uncovered_visits,visits_outside_watched_hours',
