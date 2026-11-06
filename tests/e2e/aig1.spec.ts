@@ -164,7 +164,7 @@ test.describe("AIG1 health and look-back lists at desktop width (Testorganisatio
     const lines = list.getByTestId("lookback-line");
     await expect(lines).toHaveCount(4);
     await expect(page.getByTestId("lookback-open-count")).toHaveText("Werte: 2 offen · 1 nicht mehr offen");
-    // PLAN3-13 (ADR-150): the measure per team above the list, counts only (pgTAP 113 owns every count).
+    // PLAN3-13 (ADR-150): the measure per team after the list (uxa UXR-115), counts only (pgTAP 113 owns every count).
     const measure = page.getByTestId("stop-measure-row");
     await expect(measure).toHaveCount(1);
     await expect(measure.getByRole("rowheader")).toHaveText("Testteam F");
@@ -173,6 +173,18 @@ test.describe("AIG1 health and look-back lists at desktop width (Testorganisatio
     await expect(measure.getByTestId("stop-measure-not_open_at_stop")).toHaveText("0");
     await expect(measure.getByTestId("stop-measure-became_not_open")).toHaveText("1");
     await expect(measure.getByTestId("stop-measure-days_to_zero_open")).toHaveText(/^noch \d offen$/);
+    // UXR-115: the lines that need re-checking come first; at 390 px one card per team and no sideways scroll.
+    const firstLine = await lines.first().boundingBox();
+    const figures = await page.getByTestId("stop-measures").boundingBox();
+    expect(firstLine && figures && firstLine.y < figures.y).toBe(true);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(measure).toBeHidden();
+    const card = page.getByTestId("stop-measure-card");
+    await expect(card).toHaveCount(1);
+    await expect(card.getByTestId("stop-measure-card-lines_at_stop")).toHaveText("4");
+    await expect(card.getByTestId("stop-measure-card-days_to_zero_open")).toHaveText(/^noch \d offen$/);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+    await page.setViewportSize({ width: 1280, height: 900 });
     // AIG1-14: no confirmer's name, no "bestätigt von", no outcome, no person filter or sort.
     await expect(list).not.toContainText(CONFIRMER_F);
     await expect(list).not.toContainText("bestätigt von");
