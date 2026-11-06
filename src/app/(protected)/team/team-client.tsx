@@ -1,6 +1,7 @@
 "use client";
 
 import AdmissionSection from "./admission-section";
+import { ErrorText } from "./error-text";
 import { SuccessorItems, TeamHandover } from "./contract-end-section";
 import { caseRefLabel, caseReference, continuityAnchorId, type Leaver, type SuccessorItem } from "@/features/contract-end/rules";
 import type { LeaverOpenReport } from "@/features/contract-end/queries";
@@ -35,7 +36,9 @@ import {
   CLEARANCE_TEXT,
   PROVISIONAL_NOTE,
   SIGNAL_POINTER,
+  VISIT_ALERT_FRAME_CLASS,
   alertRepeatsSignal,
+  visitAlertFrame,
 } from "@/features/team/rules";
 import { splitSignals } from "@/features/signals/rules";
 import { SETTINGS_ITEM } from "@/lib/auth/nav";
@@ -231,10 +234,14 @@ export default function TeamClient({
 // CSR1 / CGR-04: a visit that did not happen, or is stuck, stays visible to the whole team until it moves on or a
 // person closes it. CSR1 / CGR-25: a visit ended as not completed stays until someone records the follow-up decision. CSR1 / CGR-24: a report correction not final after the report_not_final threshold stays until it is final. Thresholds are PROVISIONAL (D-28, clinical); no clinical instruction is given here.
 function VisitAlerts({ alerts, openSignals }: { alerts: TeamVisitAlert[]; openSignals: SignalRow[] }) {
-  if (alerts.length === 0) return null;
+  // UX2-16 (`cra` 17:30 answer 3; ADR-133): red while a P1 entry is shown in full, amber otherwise; empty list as before.
+  const frame = visitAlertFrame(alerts, openSignals);
+  if (frame === null) return null;
+  const muted = frame === "red" ? "text-rose-900/80" : "text-amber-900";
   return (
-    <section aria-label="Einsätze mit Handlungsbedarf" className="grid gap-2 rounded-2xl border border-rose-300 bg-rose-50 p-3">
-      <h2 className="text-lg font-bold text-rose-950">Einsätze mit Handlungsbedarf</h2>
+    <section aria-label="Einsätze mit Handlungsbedarf" data-testid="visit-alerts" data-frame={frame}
+      className={`grid gap-2 rounded-2xl border p-3 ${VISIT_ALERT_FRAME_CLASS[frame]}`}>
+      <h2 className={`text-lg font-bold ${frame === "red" ? "text-rose-950" : "text-amber-950"}`}>Einsätze mit Handlungsbedarf</h2>
       <ul className="grid gap-2">
         {sortVisitAlerts(alerts).map((a) =>
           // UX1-22 / `cra` C-1: an entry that only repeats an open signal card above shows one pointer line; an entry with
@@ -268,11 +275,11 @@ function VisitAlerts({ alerts, openSignals }: { alerts: TeamVisitAlert[]; openSi
         )}
       </ul>
       {/* UX1-22 / C-1: the clearance explanation behind one tap; its last sentence stays visible. */}
-      <details data-testid="visit-alert-clearance" className="text-xs text-rose-900/80">
+      <details data-testid="visit-alert-clearance" className={`text-xs ${muted}`}>
         <summary className="flex min-h-11 cursor-pointer items-center font-semibold">{CLEARANCE_SUMMARY}</summary>
         <p>{CLEARANCE_TEXT}</p>
       </details>
-      <p data-testid="visit-alert-provisional" className="text-xs text-rose-900/80">{PROVISIONAL_NOTE}</p>
+      <p data-testid="visit-alert-provisional" className={`text-xs ${muted}`}>{PROVISIONAL_NOTE}</p>
     </section>
   );
 }
@@ -493,15 +500,6 @@ function Flags({ flags }: { flags: string[] | null | undefined }) {
   );
 }
 
-function ErrorText({ message }: { message: string | null }) {
-  if (!message) return null;
-  return (
-    <p role="alert" data-testid="command-error" className="mt-2 rounded-lg border border-rose-300 bg-rose-50 p-2 text-sm font-semibold text-rose-800">
-      {message}
-    </p>
-  );
-}
-
 function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice, assessment = null, instruments = [] }: {
   teamCase: TeamCase; continuity: ContinuityRow | null; lifecycle: CaseLifecycle | null; planStatus: PlanStatus | null;
   gpNotice: GpNotice | null; assessment?: CaseAssessments | null; instruments?: Instrument[];
@@ -515,7 +513,7 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice, asses
   return (
     <article aria-label={`Fall ${teamCase.client_name ?? ""}`} className="rounded-2xl bg-white p-4 shadow-sm">
       <h3 className="font-bold">{teamCase.client_name ?? "Klient:in"}</h3>
-      <p className="text-xs text-secondary" data-testid="case-ref">{caseRefLabel(caseReference(teamCase.case_id))}</p>
+      <p className="text-sm text-secondary" data-testid="case-ref">{caseRefLabel(caseReference(teamCase.case_id))}</p>
       <p className="text-sm text-secondary">
         {teamCase.region} · {teamCase.team_name}
         {needs.length > 0 ? ` · ${needs.join(", ")}` : ""}
@@ -1159,37 +1157,41 @@ function OutsideDeliveryStatus({ rows }: { rows: TeamPushRow[] }) {
   // the app, the line is open, in amber (not the P1 colour), with the fixed text and a link to "Meine Einstellungen";
   // collapsed and neutral when all are on. No per-member detail beyond SIG2-2 (active / not active).
   const gap = !allReachable(rows);
+  // UX2-15 (`uxa` UXR-27; `cra` 17:30 answer 2; ADR-133): the gap sentence and the "Meine Einstellungen" link sit outside
+  // the `details`, so folding the member list never hides them; they stay in this status block, before any member list,
+  // in amber. The `summary` is at least 44 px high.
   return (
-    <details
-      open={gap}
+    <section
       className={gap ? "rounded-2xl border border-amber-800 bg-amber-50 p-4" : "rounded-2xl border border-emerald-900/10 bg-white p-4"}
       aria-label={OUTSIDE_LABEL}
       data-testid="push-team-status"
       data-reach={gap ? "gap" : "all"}
     >
-      <summary className="cursor-pointer text-sm font-bold">
-        {OUTSIDE_LABEL}: {rows.filter((r) => r.active).length} von {rows.length} aktiv
-      </summary>
       {gap && (
-        <p data-testid="push-team-gap" className="mt-2 text-sm font-semibold text-amber-900">
+        <p data-testid="push-team-gap" className="mb-1 text-sm font-semibold text-amber-900">
           {REACH_GAP_TEXT}{" "}
           <Link href={SETTINGS_ITEM.href} className="inline-flex min-h-11 items-center underline underline-offset-4">
             {SETTINGS_ITEM.label}
           </Link>
         </p>
       )}
-      <p className="mt-2 text-xs text-stone-600">{TEAM_STATUS_NOTE}</p>
-      {teams.map((teamId) => (
-        <ul key={teamId} className="mt-2 grid gap-1 text-sm" aria-label={rows.find((r) => r.team_id === teamId)?.team_name}>
-          {rows.filter((r) => r.team_id === teamId).map((r) => (
-            <li key={r.user_id} className="flex justify-between gap-2">
-              <span>{r.member_name}</span>
-              <span className={r.active ? "font-semibold text-emerald-800" : "text-stone-700"}>{statusText(r.active).replace(`${OUTSIDE_LABEL}: `, "")}</span>
-            </li>
-          ))}
-        </ul>
-      ))}
-    </details>
+      <details open={gap} data-testid="push-team-details">
+        <summary data-testid="push-team-summary" className="flex min-h-11 cursor-pointer items-center text-sm font-bold">
+          {OUTSIDE_LABEL}: {rows.filter((r) => r.active).length} von {rows.length} aktiv
+        </summary>
+        <p className="mt-2 text-xs text-stone-600">{TEAM_STATUS_NOTE}</p>
+        {teams.map((teamId) => (
+          <ul key={teamId} data-testid="push-team-members" className="mt-2 grid gap-1 text-sm" aria-label={rows.find((r) => r.team_id === teamId)?.team_name}>
+            {rows.filter((r) => r.team_id === teamId).map((r) => (
+              <li key={r.user_id} className="flex justify-between gap-2">
+                <span>{r.member_name}</span>
+                <span className={r.active ? "font-semibold text-emerald-800" : "text-stone-700"}>{statusText(r.active).replace(`${OUTSIDE_LABEL}: `, "")}</span>
+              </li>
+            ))}
+          </ul>
+        ))}
+      </details>
+    </section>
   );
 }
 

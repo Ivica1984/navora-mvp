@@ -14,6 +14,14 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 15:20 CET · eng (Engineering)
+
+- Step A, PO order (15:00 entry): merged `recovery/main` (`1445582`) into **#803** (UX2-15, UX2-16, UX2-25; ADR-133). Conflicts were docs only: `IMPLEMENTATION_STATUS.md` (header; UX2 row now records part 3 as merged by the PO, #800 `30de12f`, and part 4 in review, #803), `DECISIONS.md` (ADR-132 kept before ADR-133, both whole), `JOURNAL.md` (every entry kept, newest first). No code conflict; the code diff against `recovery/main` is unchanged (6 files under `src/` and `tests/`).
+- **Nothing ran locally** (no lint, typecheck, vitest or e2e here); `node scripts/agents-check.mjs` ok. CI decides on the new head. Not merged by Engineering; it waits for the PO (FE-018).
+- Next (`eng`): after the PO merges #803, merge `recovery/main` into #804, then the PLAN3 stack bottom-up (#872, #876 …), one per merge, as the PO asked. No issue claimed (step A did the run's work). Founder decisions read (v3); no contradiction with this prompt found. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-06 15:00 CET · po (Product Owner)
 
 - **Scheduled run (first after FE-033). Merge refused, not worked around.** Step A: no Engineering PR met `PO_MERGE_PROCESS.md` §4: #803, #804 and the PLAN3 stack #876 … #906 are `dirty` after #800; #910 (PLAN3-16, stack top, `clean`, 4/4 green) has no `cra` gate on head `806b8cf` (condition 2) and carries the whole stack (64 commits), so the stack is merged bottom-up, not through its top. Role docs PR `cra` #911 (head `3b81fef`; 4/4 green, `clean`, 0 threads, only `cra` files) met the role-PR conditions; the session's permission check refused the merge call ("Merge Without Review") before it reached GitHub, so no merge record comment was posted. Recorded in `PO_MERGE_PROCESS.md` §0b, `OWNER_AGENDA.md` bundle 1 (reopened: permission setting), Blueprint §3.1 and the Founder report. The owner was notified. Continued the open PO PR #913 (attended session 14:45) instead of opening a second.
@@ -370,6 +378,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-05 15:30 CET · eng (Engineering)
+
+- Step A: own open PRs #800, #803, #804, #806, #809, #810, #813, #814, #815, #828, #835, #837, #840, #841, #872 all 4/4 green on their heads; no run waiting for approval. Not merged (the PO merges).
+- PO 12:00 order (merge `recovery/main` into #800, #803, #804, #810, #814, #815, #813 in turn): #800 and #803 are already `clean`; **#804 brought up to date** with `recovery/main` `8e7d392` (merge commit; conflicts only in `JOURNAL.md`, `IMPLEMENTATION_STATUS.md`, `DECISIONS.md`, all appends, both sides kept; UX2 row now records #799 merged as `c8d2db7`). `field-client.tsx` merged without conflict. Next in order: #810, #814, #815, #813.
+- Tests: none ran locally (npm registry not reachable from this run's sandbox: `ENOTFOUND`); `node scripts/agents-check.mjs` ran (ok). CI decides on the new head.
+- #538 (PLAN3) stays active; part (a) #872 green and `cra`-clear; part (b) and PLAN3-14 (CGR-136) wait for the PO brief change in #874. Live project not touched.
+
+---
+
 ## 2026-11-05 15:05 CET · AI & Automation Architect (aia)
 
 - Automation review 30 (`reports/AUTOMATION_REVIEW.md`, section 15:05): PO #874 (14:50) read on its branch; continued my open PR #869 (no second `aia/` PR).
@@ -403,6 +420,15 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - `uxa`: one new wording needed for PLAN3-14: "weitere Einsätze in anderen Teams" (or yours) on the day-load line. #850 still conflicts.
   - `aia`: #869 merge-ready; the scheduled-merge refusal makes AUT-49/AUT-50 and the gate script more valuable, not less.
   - `csa`: no milestone moved; delivery risk now also includes merges depending on attended PO sessions (recorded in `OWNER_AGENDA.md`).
+
+---
+
+## 2026-11-05 14:30 CET · eng (Engineering)
+
+- Step A, PO order (12:00 entry: `recovery/main` into #800, then #803, #804, #810, #814, #815, #813). #800 was already conflict-free (head `7d286e8`, 4/4 green). #872 (PLAN3 (a)) is conflict-free with 4/4 green and the `cra` 13:30 gate clear (#873); both wait for the PO.
+- **#803 (UX2 part 4):** merged `recovery/main` `8e7d392` into `feature/hourly-update-2026-11-03-0215`. Conflicts were docs only: `IMPLEMENTATION_STATUS.md` (#803's UX2 row kept, the #799 merge noted), `DECISIONS.md` (ADR-131 from #799 kept, ADR-133 after it), `JOURNAL.md` (both sides kept, newest first). No code file conflicted; no code changed by me. UX2 row stays `in-review` (#803).
+- Tests: none ran locally; `node scripts/agents-check.mjs` ran on the merge result. CI on the new head decides. Not merged by me (PO merges). Live project not touched.
+- Next eng: #804, then #810, #814, #815, #813 in that order. Each later docs merge will conflict again after the PO merges one of them; AUT-49 (one journal file per entry) would end that.
 
 ---
 
@@ -1001,6 +1027,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 05:40 CET · Engineering (eng)
+
+- Step A: own PRs #799, #800, #803, #804 all green (app, db, e2e, ui-screenshots), left for the PO; not merged by Engineering. Step B/C: issue #745 (UX2) active and unclaimed; claimed 05:15.
+- **UX2 part 6 in review: PR #806** (ADR-135, no migration): UX2-30 (1) minutes rows one column below `sm`; (2) replace form "Ersetzt die Bedarfsabklärung vom <Datum>" and the instrument prefilled only when exactly one valid catalogue entry matches; (3) one `ErrorText` on `/team`; (4) hint "z. B. BA-2026-0042", new refusal text (`uxa` wording, PROVISIONAL); (5) review line in two sentences, the state at the act its own sentence when not "bestätigt" (`cra` (a) stays visible; `cra` confirms in the UX2 gate); (6) "Keine aktuelle Bedarfsabklärung." first.
+- **Not built (PLANNED):** the assessor prefill (the reader returns no assessor id; a name match could name the wrong nurse, who must confirm; needs a read-path migration, `lca` and `cra`), and the (7) landing e2e (needs a second-team seed fixture).
+- Tests written first: vitest `ux2-assessment-form.test.ts` (new), `asm1-conditions` updated; Playwright `asm1.spec` extended. **None ran locally** (npm registry unreachable from this sandbox): CI decides. Live project not touched.
+- Merge order: #799, #800, #803, #804 and this PR all touch `DECISIONS.md`, the UX2 row and this journal; later merges need a docs-only rebase (Engineering).
+
+---
+
 ## 2026-11-03 04:45 CET · Legal & Compliance Agent (lca)
 
 - No open `lca` PR at start (#797 merged). Tier 1: D-22, D-18 frozen, no trigger. No package file changed since my 03:50 (31.10) run. New evidence: `cra` 01:30 (PR #801, read on its branch) **CGR-109** names D-1 (tier 2). D-1 reviewed (`Unfreeze: 3 CGR-109`); only my section edited.
@@ -1010,12 +1046,43 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 04:40 CET · eng (Engineering)
+
+- Start: own PRs #799, #800, #803 (UX2 parts 2-4) and #796 green on their heads, no run waiting for approval; not merged (PO reviews). Active hand-off #745 (UX2) unclaimed; claimed 04:12.
+- **UX2 part 5: PR #804** (ADR-134; no migration): UX2-18 (VIS1-8 line has its place from the first render), UX2-19 (moved card described by the planning flags list, `text-sm`), UX2-20 (fallback sentence "Inzwischen ist ein neuer Tag. Tippe auf «Einsätze von heute»."), UX2-21 (no `role="status"` on the focused day-changed sentences). Checked first that none was delivered with VIS1 (so not void).
+- Tests written first: vitest `ux2-move-flow.test.ts`; Playwright `ux2-move-flow.spec.ts` (new; skips after 23:15 Zurich, ADR-134 note 1); `vis1-10.spec.ts` +2 assertions. **None ran locally** (npm registry not reachable from this sandbox): CI decides.
+- Clinical gate: in scope; `reports/CLINICAL_GOVERNANCE.md`, Hazard Log and Safety Risk Register name none of UX2-18 to UX2-21: no applicable findings, no remediation plan. `cra` reads the UX2-20 wording in its UX2 gate.
+- For `uxa`: design system §6 rule for UX2-21 not edited (yours); empty reserved slot (ADR-134 note 3). Merge order of the four UX2 PRs needs docs-only rebases (journal, status row, DECISIONS). Live project not touched.
+
+---
+
 ## 2026-11-03 03:52 CET · UX/UI Design Architect (uxa)
 
 - Continued my open PR #798 (CI was green, not merged): merged `recovery/main` in (JOURNAL: both entries kept, newest first) and added a new section. No screen code merged since 31.10.; read open PRs #799 (UX2-1 shell, `260dbf6`), #800 (UX2-27/-29, `1640cdc`), #803 (UX2-15/-16/-25, `dd32be6`) from code; CI success on all three heads per GitHub check runs (I ran no test). No screenshots (artifact download still refused by the proxy).
 - New: UXR-75 (medium: coordination roles' home "Ausnahmen" behind "Mehr" on the phone; PO, ADR-131 deviation 3), UXR-76 (medium: two names per destination; wording answered: "Heute", "Team", "Arbeitstag" everywhere), UXR-78 (medium: fixed tab bar can cover the focused control, WCAG 2.4.11; `scroll-padding`), UXR-77 and UXR-79 (low). No severe/high, so no issue; one comment each on #799 and #800.
 - Met on PR heads, closing on merge: UXR-27, -28, -46 (#803), UXR-48, -53 (#800, residual UXR-79), UXR-72 (#799). My 31.10. "Zuständige Person wählen" proposal withdrawn for "Verantwortliche Person wählen".
 - Benchmark: Material 3 navigation bar (SAP Fiori for Android): 2-5 core destinations, short one-line labels. Design system version 27.
+
+---
+
+## 2026-11-03 03:15 CET · eng (Engineering)
+
+- Step A: #799, #800 and #803 had green CI (app, db, e2e, ui-screenshots). #803 conflicted with `recovery/main` after #802 (aia journal entry): merged `recovery/main` into `feature/hourly-update-2026-11-03-0215`, resolved `JOURNAL.md` by keeping both entries; no code change. CI re-runs on the new head (not claimed green until it does). Not merged by me; all three wait for the PO.
+- Rows stay `in-review` (#799, #800, #803). #745 claim not renewed; nothing new started this run. Live project not touched.
+
+---
+
+## 2026-11-03 02:40 CET · eng (Engineering)
+
+- Start: #799 (UX2-1 shell) and #800 (UX2-27/-29) have green CI (app, db, e2e, ui-screenshots) and wait for the PO. Rows were already `in-review` on their branches. Not merged by me. `cra` #801: #799 gate clear; CGR-108/-109 on #800 wait for the PO to place them.
+- #745 claimed 02:15 for **UX2 part 4**, **PR #803** (ADR-133):
+  - UX2-15: the reach gap on `/team` stays visible when the list is folded; `summary` ≥ 44 px.
+  - UX2-16: the alert frame is red only while a P1 entry is shown in full, otherwise amber.
+  - UX2-25: `case-ref` 14 px; the manual line is dropped, so the item has one action.
+  - All three are presentation only and were confirmed by `cra`. No migration.
+- Tests were written first: vitest `ux2-team`; Playwright `ux1-team` UX2-15 (with one changed UX1-24 assertion) and `contract-end`. **None ran locally**: the npm registry was not reachable from the sandbox. CI decides.
+- Open for `uxa`: amber shade, and the CGR-32 flag line colour inside an amber frame (ADR-133 notes 1-2). #799/#800/#803 all touch the docs files: whichever merges later needs a docs-only rebase (eng).
+- Next eng: when the PO has reviewed, rebase the later PRs; then AIG1-C4 with AIG1-C5 (*Active now* (2)) or the next UX2 part, as the PO orders. Live project not touched.
 
 ---
 
