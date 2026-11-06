@@ -113,7 +113,7 @@ export function minReachedText(flag: boolean | null | undefined): string {
 
 export function windowText(days: number | null | undefined): string {
   if (!days) return "–";
-  return days === 1 ? "nach 1 Tag" : `nach ${days} Tagen`;
+  return days === 1 ? "1 Tag" : `${days} Tage`;
 }
 
 // --- AIG1-12 / -13 / -14: the look-back list (no person, no outcome) -------------------------------------------------
