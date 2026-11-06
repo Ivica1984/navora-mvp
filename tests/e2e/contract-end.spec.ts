@@ -64,6 +64,9 @@ test("the day after a contract end the team sees whose responsibility to give ag
     await expect(cards.nth(n).getByTestId("case-ref")).toHaveCount(1);
     await expect(cards.nth(n).getByTestId("case-ref")).toHaveText(/^Fall-Ref\. [0-9A-F]{6}$/);
     expect(await cards.nth(n).getByText(/Fall-Ref\./).count()).toBe(1);
+    // UX2-25 (ADR-133): the reference is readable, at least 14 px computed.
+    const px = await cards.nth(n).getByTestId("case-ref").evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    expect(px).toBeGreaterThanOrEqual(14);
   }
   const card = cards.filter({ has: page.getByTestId("case-ref").filter({ hasText: "Fall-Ref. 000261" }) });
   await expect(card).toHaveCount(1);
@@ -71,6 +74,9 @@ test("the day after a contract end the team sees whose responsibility to give ag
   // The item carries one action, "Fall öffnen" (at least 44 px), which lands on that card's "Kontinuität", focused and in view.
   const openCase = item.getByRole("link", { name: "Fall öffnen" });
   await expect(openCase).toHaveCount(1);
+  // UX2-25 (`cra` 13:40 confirmed; ADR-133): one way to act. The manual line is gone; the link is the item's only control.
+  await expect(item).not.toContainText("In der Fallkarte unter «Kontinuität» neu bestimmen.");
+  await expect(item.locator("a, button, input, select, textarea")).toHaveCount(1);
   const box = await openCase.boundingBox();
   expect(box && box.height >= 44 && box.width >= 44).toBeTruthy();
   await openCase.click();
