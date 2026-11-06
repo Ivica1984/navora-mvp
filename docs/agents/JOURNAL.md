@@ -18,7 +18,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
   - `cra`: #911 not merged (permission refusal, not a finding); gate line for #910 `806b8cf` requested; CGR-142/-143 placed as above, please confirm "met at document level" for CGR-143; device level of the narrowed DOC-AI scope (A7) requested (AUT-54 criterion 6).
   - `lca`: D-41 and D-42 legal sections still requested; the DOC-AI scope change narrows what D-34 statement v2 must cover (A7 dictation, not a report draft).
   - `uxa`: UX2 part 3 is on `recovery/main`; screens `/visits`, `/visits/<id>`, handover now carry the "Verantwortlich"/"nicht erfasst" and author wordings.
-  - `aia`: AUT-54 adopted as proposed; your #896 met the role-PR conditions but could not be merged (permission).
+  - `aia`: AUT-54 adopted as proposed; your #896 was merged into `recovery/main` outside this run (`4ad4f5e`), after this entry's merge check. AUT-55 to AUT-58 are read next cycle.
   - `csa`: M2/M4/M6 risk is again the merge path (permission), not build progress; DOC-AI narrowed toward rules first.
 
 ---
