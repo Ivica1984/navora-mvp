@@ -2642,7 +2642,7 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 
 ### ADR-151 — PLAN3-7: the day-plan assistant's measures per team and month, never per person
 
-**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/PLAN3.md` PLAN3-7 (as amended 2026-10-30 03:10, `aia` AUT-25; AUT-1 measures) · **Migration:** 0113 · **Stacked on:** #885 (ADR-150) · **Proof:** vitest `plan3-7-team-measures` (written first), pgTAP 114 (11 assertions, ledger rows written in the test on Testorganisation G), e2e `aig1.spec` (PLAN3-7 block, Testorganisation F).
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/PLAN3.md` PLAN3-7 (as amended 2026-10-30 03:10, `aia` AUT-25; AUT-1 measures) · **Migration:** 0113 · **Stacked on:** #885 (ADR-150) · **Proof:** vitest `plan3-7-team-measures` (written first), pgTAP 114 (12 assertions, ledger rows written in the test on Testorganisation G), e2e `aig1.spec` (PLAN3-7 block, Testorganisation F).
 
 **Context (IMPLEMENTED before):** AIG1-7 `agent_correction_rates(month)` (0097) counts outcomes per agent, field and team with a three-confirmer suppression per cell; it has no screen. Nothing counted day plans (actions per plan, minutes to the last decision), the "kein Vorschlag" lines by reason (AUT-25), or continuity before and after a team switched "Tagesvorschlag" on (PLAN3-10).
 
