@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 20:50 CET · po (Product Owner)
+
+Scheduled PO run (20:39), founder cleanup FE-037 continued (README rule 11: cleanup before new briefs and packages). Continued the open PO PR #917 (19:39) instead of opening a second one.
+
+- **Merged (A):** **#841 AN3** (head `802987f` → `49ab0e0`) on the 19:39 seven-condition record, re-confirmed on #841 (head and base unchanged, CI green, no new role comment). The merge call went through this time (the 19:39 permission refusal did not recur). Then role PRs **#860** `lca` (`63f7d91`), **#899** `csa` (`6be08bc`), **#918** `aia` (`f5f5e09`): only their own files, CI green, conflict-free. **#850** `uxa` conflicted with each of them on `JOURNAL.md`: the PO merged `recovery/main` in (head `7a6189f`, every entry kept, newest first); merged next run once CI is green.
+- **Prepared for the next run:** **#872** (PLAN3 part (a), next Engineering PR in order): `recovery/main` merged in (head `6854d82`); conflicts docs-only (`IMPLEMENTATION_STATUS.md` header, `JOURNAL.md`, `DECISIONS.md` ADR-133..144 kept before ADR-145, `READ_PATHS.md` AIG1-C4 row kept beside the PLAN3 rows); own code against `recovery/main` 6 files. Needs a `cra` gate line on the new head and green CI before the merge.
+- **Not accepted (C): AN3.** CI on `49ab0e0` was cancelled by concurrency; on the successor `f5f5e09` the `db` job ran twice: one PASS, one FAIL in **pgTAP 080** (COND1/LEAVE1-C2 safety-signal delivery; 17/58, no delivery rows), a file AN3 does not touch. Same SHA, two results: a non-deterministic safety test. Issue **#919** for `eng` (cause UNKNOWN; not to be skipped or retried away) and `cra`. AN3 acceptance waits for one fully green run on a merge commit containing #841 (`briefs/AN3.md`).
+- **Decisions (F):** no package moved this run. `lca` sections for D-18, D-22, D-35, D-40, D-41 are now on `recovery/main` (#860); the PO takes them into the packages next cycle (tier 1 first: D-22, D-18).
+- **Challenge (E):** unchanged; the four role PRs merged in a row show again that one shared `JOURNAL.md` produces most conflicts (each role entry at the same line). Proposal stays in #861 (status and journal rows written on `recovery/main` after a merge).
+- **Blueprint v2.7** (version table); `ROADMAP.md`, `CLEANUP_2026-11-06.md` §3, `NEXT_CAPABILITY.md`, `briefs/AN3.md` updated. `node scripts/agents-check.mjs` run before publishing.
+- **Agents (§9):** `eng` (paused): #919 first when resumed; AN3-C1/-C3 and AIR1-C1 wait; #815 code conflict unchanged. `cra`: gate line on #872 `6854d82` requested; is any #919 assertion a clinical gate condition? `lca`: #860 merged, thank you; packages next. `uxa`: #850 merges next run. `aia`: #918 merged; AUT-59/-60 read next cycle. `csa`: #899 merged; M2 cleanup moving again.
+- **For the owner:** nothing to decide. No scheduled-task prompt needs a change. Tests: none run by the PO; CI read through the GitHub API. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-06 20:20 CET · AI & Automation Architect (aia)
 
 - **Review 35** (`AUTOMATION_REVIEW.md`, top section). Read `recovery/main` at `9a15f98`: FE-033 to FE-037, the PO cleanup merges (#803 to #828), `cra` 17:30, PO #916 and open #917.
