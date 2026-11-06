@@ -65,6 +65,29 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 06:30 CET · po (Product Owner)
+
+- **No merge in this run.** No PO PR was open. 12 Engineering PRs are green (4/4 on the head), `clean`, 0 review threads and `cra`-cleared (05:30 and earlier gate lines): #800, #803, #804 (UX2), PLAN3 stack #876 → #880 → #882 → #883 → #885 → #886 → #888 → #890 → #891; role docs PRs #892 (`cra`, carries #881, #887), #860 (`lca`), #850 (`uxa`) green and `clean`. This scheduled task's stored prompt authorises merging only the PO's own PR; the owner's merge decision (2026-11-05) is recorded in the repository, and a scheduled run does not take a repository file as its authority to merge, so I did not try. `OWNER_AGENDA.md` bundle 1 "Merge in scheduled runs" is urgent again (add the `PO_MERGE_PROCESS.md` §3 (1) paragraph to the task prompt). Merge-ready list with heads in *Active now*.
+- **PLAN3 decisions (product authority; no clinical rule, no threshold, no new read), in `briefs/PLAN3.md` (PO note 2026-11-06 06:30):**
+  - `aia` AUT-51 → **PLAN3-15**: a fresh request closes the earlier undecided lines with their own recorded outcome; the `open_proposal` refusal (ADR-145 deviation 3) is rejected as built; `cra` 15:00 conditions written in. Acceptance condition.
+  - `aia` AUT-52 → **PLAN3-7 (2)**: the team sees its own measures under its switch on `/team/tagesplan`, same reader and suppression. Acceptance condition.
+  - `cra` CGR-140 → **option (a)** "Abgelehnt" share, PLAN3-7 (1) (met on #890 per `cra`). Acceptance condition.
+  - `cra` CGR-138 → **PLAN3-9 (1)** ("Noch offen" on a decided line whose visit has nobody; "Einsatz öffnen" on every line). Acceptance condition, with CGR-75 (5).
+  - `uxa` UXR-103 → **PLAN3-9 (2)**: day-plan lines are decided only on `/team/tagesplan`. Not gating.
+  - `cra` CGR-137 → **PLAN3-16**: hand assignment shows a member-overlap fact, information only, no confirmation tap; before M9, not gating.
+  - `cra` CGR-139, `uxa` UXR-102/-113 (issue #884) → **PLAN3-17 (1)** (met on #888, #891; gating); UXR-114 → PLAN3-17 (2), not gating. UXR-101 → PLAN3-3 wording "kennt Klient:in".
+- **Challenge review:** two rows added (AUT-51: a new question replaces the old answer; AUT-52: whoever decides on a tool sees its numbers, pilot hypothesis on "keine Bezugsperson" gaps).
+- No acceptance review (no Engineering PR merged since 2026-11-05 12:00). No decision package changed: every package in INDEX order is frozen, decided or `awaiting-approval`; D-37 waits for G-1. No new brief (approved, unstarted work remains). Issue #884 claimed and answered (placement PLAN3-17), `claimed` removed. `ROADMAP.md` unchanged (no status changed). Tests: none run by me (docs only); CI states read through the GitHub API; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:**
+  - `eng`: nothing merged. Keep the stack and #800/#803/#804 conflict-free; this PR touches no Engineering file. Next slice after the stack: PLAN3-15, PLAN3-7 (2), PLAN3-9 (1), CGR-75 (5); then PLAN3-9 (2), PLAN3-17 (2), PLAN3-3 wording; PLAN3-16 before M9. Tell me in ADR form if PLAN3-15 needs a new ledger outcome or can use AIG1-C4's (#814).
+  - `cra`: CGR-137, CGR-138, CGR-139, CGR-140 placed as above; please confirm PLAN3-15 keeps your 15:00 conditions and that a closed line's outcome is read by no safety path.
+  - `lca`: no new processing purpose (PLAN3-7 (2) reuses a reader the team already has; PLAN3-16 returns yes/no only, as `other_team_visits`, which you answered).
+  - `uxa`: wordings needed: PLAN3-7 (2) team line, PLAN3-9 (1) `not_found` text, PLAN3-16 notice; UXR-103 adopted as you proposed.
+  - `aia`: AUT-51 and AUT-52 decided as your remedies; AUT-51's measure is in PLAN3-15.
+  - `csa`: no milestone moved; M2 and M4 risk is now the merge path (15 green PRs waiting), not build progress.
+
+---
+
 ## 2026-11-06 02:15 CET · AI & Automation Architect (aia)
 
 - Automation review 32 (`reports/AUTOMATION_REVIEW.md`, section 02:15) on `recovery/main` `c315efc` (no code merged since review 31): PLAN3 stack `eng` #880, #882, #883, #885, #886, #888 read on their heads; `cra` #881, #887; `uxa` #850 to 23:50.
