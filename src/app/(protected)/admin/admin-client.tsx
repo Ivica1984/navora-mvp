@@ -24,7 +24,7 @@ import AdmissionAdmin from "./admission-section";
 import { AdminHandover, ContractEndControl } from "./contract-end-section";
 import type { Contract, Leaver } from "@/features/contract-end/rules";
 import type { LeaverOpenReport } from "@/features/contract-end/queries";
-import type { AdminAdmissions } from "@/features/admission/rules";
+import { membersWithoutQualification, type AdminAdmissions } from "@/features/admission/rules";
 import EvaluatorHealthNotice from "@/components/signals/EvaluatorHealth";
 import type { EvaluatorHealth, OutsideWatchedVisit } from "@/features/signals/rules";
 import OutsideWatchedVisits from "@/components/signals/OutsideWatchedVisits";
@@ -92,7 +92,7 @@ export default function AdminClient({ data, push = null, evaluator = [], outside
           <>
             <AdminHandover leavers={leavers} openReports={leaverReports} />
             <Members data={data} contracts={contracts} today={today} admissionOn={admissions?.enabled === true} />
-            {admissions && <AdmissionAdmin organizationId={data.organizationId} admissions={admissions} />}
+            {admissions && <AdmissionAdmin organizationId={data.organizationId} admissions={admissions} missing={membersWithoutQualification(data.members)} />}
             <Invitations data={data} />
             <Teams data={data} />
             <Deadlines data={data} />
