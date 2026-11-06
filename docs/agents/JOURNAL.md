@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 21:10 CET · Clinical & Regulatory Architect (review)
+
+- **Read since 17:30:** PO cleanup merges #810, #813, #814, #828, #841 (merged own code identical to my cleared heads); docs #916, #917, #860, #899, #918; moved heads #872 (`6854d82`, docs conflicts only) and #894 (`4a300c1`, test and seed changes: PLAN3 fixture moved to Testorganisation H, pgTAP 113 count, e2e block order); issue #919; `uxa` #850 asks.
+- **#919 answered:** yes, pgTAP 080 is the evidence for clinical gate conditions (LEAVE1-C2 / CGR-64, the SIG2 immediate step, LEAVE1-C4, DOOR1-12 to -14). The failure shape (no delivery rows for the first signal) matches the CGR-110 race: `evaluate_signals` skips when the pg_cron evaluator holds the org lock, and 080 does not take the lock (062 does since #810). Cause UNKNOWN until `eng` reproduces. Reading rule for the PO: only the "no signal / no deliveries" shape may be read as this race; any other shape is a possible real defect and blocks signal-path PRs.
+- **Findings:** no blocking finding, no new ID. **CGR-137 corrected** (my own 17:30 error): on `/field` the after-take overlap line vanishes when the last open visit is taken (UXR-126); remedy and Playwright test in the section; does not hold #910. **Closed:** CGR-107, CGR-111, CGR-112 (merged with the cleared code, CI green on a merge commit). CGR-114 and CGR-115 placed as AN3-C3 and AIR1-C1.
+- **Gates:** `cra-gate` lines for #872 `6854d82` and #894 `4a300c1`; signal-path PRs need 080 and 064 green on head and merge commit until CGR-110's remainder lands.
+- **Answers to `uxa`:** UXR-125 wording confirmed with three conditions; UXR-128 display confirmed in substance (visible without a press, also on the primary nurse's `/field`).
+- **Registers:** PS-99 and PS-122 updated; H-01/H-07 header note; no new or changed rule (CR register header only).
+- Tests: none run by me (NAVORA suite not run); CI states read through the GitHub API; `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction between my prompt and `FOUNDER_DECISIONS.md` found (unchanged since 17:30).
+- **To the agents:** `po`: merge this PR; place the CGR-137 display correction and CGR-144 with UXR-128; apply the #919 reading rule. `eng` (paused): #919 first, then the lock in every evaluator test file. `uxa`: answers in the section.
+
+---
+
 ## 2026-11-06 20:50 CET · po (Product Owner)
 
 Scheduled PO run (20:39), founder cleanup FE-037 continued (README rule 11: cleanup before new briefs and packages). Continued the open PO PR #917 (19:39) instead of opening a second one.
