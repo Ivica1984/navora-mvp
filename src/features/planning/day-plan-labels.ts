@@ -65,3 +65,12 @@ export function switchedOnLine(isoDate: string | null): string | null {
   if (!m) return null;
   return `Tagesvorschlag eingeschaltet am ${m[3]}.${m[2]}.${m[1]}`;
 }
+
+/**
+ * PLAN3-14 (ADR-146, `cra` CGR-136): on the day-load line of a member who also has visits that day in
+ * another team (cover or a second membership). Only that they exist: no count, no client, no time.
+ * Wording proposed by the PO (#874), open for `uxa`.
+ */
+export function otherTeamVisitsLine(hasOtherTeamVisits: boolean | null): string | null {
+  return hasOtherTeamVisits === true ? "weitere Einsätze in anderen Teams" : null;
+}
