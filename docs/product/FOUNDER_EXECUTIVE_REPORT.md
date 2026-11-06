@@ -1,6 +1,6 @@
 # NAVORA Founder Executive Report
 
-**Für:** den Owner (Founder) · **Verfasst von:** Product Owner (`po`) · **Ausgabe:** KW 45, Stand Freitag, 6. November 2026, 14:45 (Europe/Zurich), nachgeführt nach Ihren Freigaben vom 6. November (Prompts, Merge-Test, SR-26, Arbeitsbuch, M9) · **Nächste Ausgabe:** Freitag, 13. November 2026 · **Rhythmus:** jeden Freitag bis 17:00 neu geschrieben (die Vorwoche bleibt in der Git-Historie).
+**Für:** den Owner (Founder) · **Verfasst von:** Product Owner (`po`) · **Ausgabe:** KW 45, Stand Freitag, 6. November 2026, 15:00 (Europe/Zurich), nachgeführt nach Ihren Freigaben vom 6. November (Prompts, Merge-Test, SR-26, Arbeitsbuch, M9) und dem ersten geplanten PO-Lauf danach (14:45) · **Nächste Ausgabe:** Freitag, 13. November 2026 · **Rhythmus:** jeden Freitag bis 17:00 neu geschrieben (die Vorwoche bleibt in der Git-Historie).
 
 **Dieses Dokument ist das primäre Entscheidungsdokument des Owners.** Es zeigt nur, was fertig ist, was gebaut wird und was Sie entscheiden müssen. Detailquellen: [Blueprint V2](ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md) (Meilensteine, Gates, Kennzahlen), [Owner-Agenda](../agents/decisions/OWNER_AGENDA.md) (jede Frage mit Paket). Der PO hat für diesen Bericht keine Tests ausgeführt; CI-Ergebnisse sind über die GitHub-API gelesen.
 
@@ -11,7 +11,7 @@
 | | |
 |---|---|
 | **Gesamtstatus** | 🟡 At Risk |
-| **Lieferung** | 🟡 At Risk: Merge-Testlauf bestanden (#800 gemergt, CI grün); ab jetzt mergt der PO stündlich ein Engineering-PR. Rund 11 fertige PRs warten noch |
+| **Lieferung** | 🔴 Blockiert in geplanten Läufen: Merge-Testlauf in Ihrer Sitzung bestanden (#800 gemergt, CI grün). **Im ersten geplanten Lauf (14:45) hat die Berechtigungsprüfung der Aufgabe den Merge erneut verweigert** ("Merge Without Review"), obwohl der Prompt den Merge-Schritt jetzt enthält. Rund 11 fertige PRs warten |
 | **Pilot M9 (12.03.2027) auf Kurs?** | **NEIN, aber deutlich näher:** M9 ist neu gefasst (Phase A bestanden + Bereitschaftsakte Phase B) und bestätigt; der Merge-Pfad läuft. Grösstes Risiko bleibt die neue Pflegeheim-Abteilung |
 | **Wichtigste Antwort diese Woche** | Weg für die Löschung der `orders`-Tabelle wählen (FD-27): das alte Live-Projekt ist pausiert |
 | **Wie viele Entscheide warten auf Sie?** | 11 (0 kritisch, 6 hoch, 4 mittel, 1 niedrig) |
@@ -97,7 +97,7 @@ Nur Entscheide, die **Sie** treffen müssen. Entschieden am 6.11. und nicht mehr
 | ID | Entscheid | Warum es zählt | Frist | Was es blockiert | Empfehlung | Risiko bei Verzug |
 |---|---|---|---|---|---|---|
 | FD-27 | **Weg für die Löschung der Tabelle `orders` (SR-26)** | Sie haben die Löschung angeordnet; das alte Live-Projekt ist pausiert, SQL ist nicht möglich | 13.11.2026 | Ihre SR-26-Anweisung | (b) das ganze alte Projekt löschen: NAVORA nutzt es nicht, Tabelle **und** Backups verschwinden sicher; oder (a) Projekt für eine datierte Sitzung wiederherstellen, ich lösche die Tabelle, danach wieder pausieren (Kopien in Backups bis Ablauf der Aufbewahrung) | E-Mail-Adressen bleiben im pausierten Projekt liegen |
-| FD-22 | KI-Anbieter nur für synthetische Daten in Phase A | Ohne Anbieter lassen sich KI-Dokumentation und KI-Prüfungen nicht echt testen (D-35 Regel A bleibt) | 27.11.2026 | DOC-AI, Abrechnungsprüfung | einen CH/EU-Anbieter mit Vertrag nur für synthetische Daten | Phase A testet nur Regel-Ersatz |
+| FD-22 | KI-Anbieter nur für synthetische Daten in Phase A | **Neu gefasst 6.11. 15:00 (AUT-54):** Der strukturierte Bericht und die Abrechnungsprüfung sollen regelbasiert sein, nicht KI-basiert; ein Anbieter testet nur noch, wie aus der eigenen Notiz der Pflegekraft Beobachtungsvorschläge werden (D-35 Regel A bleibt) | 27.11.2026 | DOC-AI, Abrechnungsprüfung | einen CH/EU-Anbieter mit Vertrag nur für synthetische Daten | Phase A testet nur Regel-Ersatz |
 | FD-02 | Clinical Owner (Phase B) und klinische Fachprüfung des simulierten Pflegeheims (Phase A) | Nur sie gibt klinische Regeln frei; ein Pflegeheim ohne Fachblick wird falsch modelliert | 15.01.2027 | Phase B; Plausibilität von M9.0 | jetzt eine Fachperson für die Simulation, Clinical Owner bis Phase B | Phase B startet ohne freigegebene Regeln |
 | FD-07 | D-7 Repository-Schutz | Schutz vor Fehl-Pushes; Sichtbarkeit ist nach D-1 Ihre freie Wahl | 20.11.2026 | D-8, M2 | Ruleset und Secret Scanning genehmigen | M2 nicht abnahmefähig |
 | FD-08 | D-8 Hauptlinie nach `main` | `main` ist veraltet | nach FD-07 | M2 | Option B | Projekt sieht alten Stand |
@@ -127,16 +127,16 @@ Nur Entscheide, die **Sie** treffen müssen. Entschieden am 6.11. und nicht mehr
 | Rang | Entscheid oder Handlung | Wirkung auf M9 (Phase A bestanden) | Wirkung auf M10 / Phase B | Spätestens |
 |---|---|---|---|---|
 | 1 | **Clinical Owner und Fachprüfung (FD-02)** | Plausibilität der simulierten Pflegeheim-Abteilung | ohne sie kein realer Pilot | Fachprüfung 15.01.2027 |
-| 2 | **Merge-Pfad läuft (erledigt, FE-033)** | hält M2, M4 und M6 auf Kurs, wenn Engineering die Konflikte zügig löst | Puffer bleibt | – |
+| 2 | **Merge-Aufruf in den Einstellungen der PO-Aufgabe erlauben** (FE-033 genügt der Berechtigungsprüfung nicht) | ohne ihn mergt nur Ihre begleitete Sitzung; M2, M4 und M6 rutschen Tag für Tag | Puffer schrumpft | sofort |
 | 3 | **Pflegeheim-Abteilung bauen (NH-A1 bis NH-A5)** | grösste neue Bauaufgabe für Phase A | Grundlage für Phase B | Briefs 27.11.2026 |
 | 4 | **Hosting D-2 (FD-09)** | Simulationsumgebung, Restore-Test | Produktion, Monitoring, Sicherheitstest | 11.12.2026 |
-| 5 | **KI-Anbieter für synthetische Daten (FD-22)** | echter Test der KI-Dokumentation und Abrechnungsprüfung | Grundlage für D-41 (reale Daten) | 27.11.2026 |
+| 5 | **KI-Anbieter für synthetische Daten (FD-22, neu gefasst)** | echter Test der Notiz-zu-Beobachtung-Funktion (A7); Bericht und Abrechnungsprüfung laufen regelbasiert auch ohne Anbieter | Grundlage für D-41 (reale Daten) | 27.11.2026 |
 
 ---
 
 ## 5. Die nächsten 14 Tage (6.–20. November 2026)
 
-Der Merge-Schritt ist aktiv (FE-033): der PO mergt in jedem stündlichen Lauf höchstens ein Engineering-PR.
+Der Merge-Schritt steht im Prompt (FE-033); der PO mergt höchstens ein Engineering-PR pro stündlichem Lauf, **sobald die Berechtigungsprüfung den Merge-Aufruf zulässt** (am 6.11. um 14:45 verweigert).
 
 | Art | Erwartet | Datum |
 |---|---|---|
@@ -159,7 +159,7 @@ Der Merge-Schritt ist aktiv (FE-033): der PO mergt in jedem stündlichen Lauf h�
 
 | Art | Risiko | Owner | Gegenmassnahme | Aktueller Status |
 |---|---|---|---|---|
-| Lieferung | Fertige Arbeit bleibt ungemergt; jeder Merge erzeugt Konflikte in allen anderen PRs | PO (stündlich), Engineering | Merge-Schritt aktiv (FE-033); ein Journal-Eintrag pro Datei | 🟡 Test bestanden, rund 11 PRs warten |
+| Lieferung | Fertige Arbeit bleibt ungemergt; jeder Merge erzeugt Konflikte in allen anderen PRs | PO (stündlich), Engineering, Owner (Berechtigung) | Merge-Schritt im Prompt (FE-033); Merge-Aufruf in den Aufgaben-Einstellungen erlauben; ein Journal-Eintrag pro Datei | 🔴 geplanter Merge am 6.11. 14:45 verweigert, rund 11 PRs warten |
 | Lieferung | Der 11-teilige Tagesvorschlag-Stapel wird beim Mergen inkonsistent | PO, Engineering | in Reihenfolge mergen; klinisches Gate je Kopf | 🟡 alle Köpfe grün und frei |
 | Lieferung | Briefs für Website, Pflege-App und Operations kommen zu spät | PO | feste Termine 20.11., 27.11., 4.12. | 🟢 im Plan |
 | Governance | Kein Clinical Owner; simuliertes Pflegeheim ohne Fachprüfung | Owner | FD-02 | 🟡 nicht mehr Vorbedingung für Phase A, aber Qualitätsrisiko |
@@ -177,9 +177,10 @@ Der Merge-Schritt ist aktiv (FE-033): der PO mergt in jedem stündlichen Lauf h�
 
 **Diese Woche (bis 13.11.2026):**
 
-1. **Weg für die Löschung von `orders` wählen (FD-27):** altes Projekt ganz löschen (empfohlen) oder für eine Sitzung wiederherstellen.
-2. **Repository-Schutz D-7 genehmigen (FD-07).**
-3. **Konnektoren prüfen:** Den Agenten-Aufgaben sind Supabase und Render noch angehängt. Ich kann das nicht ändern; Sie können sie in den Aufgaben-Einstellungen entfernen.
+1. **Merge-Aufruf für die geplante PO-Aufgabe erlauben** (Berechtigungseinstellungen der Aufgabe; `PO_MERGE_PROCESS.md` §3 (2)). Die genaue Einstellungsseite kenne ich nicht (UNKNOWN). Ohne diese Freigabe mergt nur eine von Ihnen begleitete Sitzung.
+2. **Weg für die Löschung von `orders` wählen (FD-27):** altes Projekt ganz löschen (empfohlen) oder für eine Sitzung wiederherstellen.
+3. **Repository-Schutz D-7 genehmigen (FD-07).**
+4. **Konnektoren prüfen:** Den Agenten-Aufgaben sind Supabase und Render noch angehängt. Ich kann das nicht ändern; Sie können sie in den Aufgaben-Einstellungen entfernen.
 
 **Diesen Monat (bis 30.11.2026):**
 
