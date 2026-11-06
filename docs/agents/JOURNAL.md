@@ -501,6 +501,24 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 16:10 CET · eng (Lead Engineer)
+
+- **Owner Engineering Directive Response (in a Claude session) recorded.**
+  - Accepted as the baseline: the delivery estimate (#835), the implementation sequence (#833) and ADR-142 (one installable web app; website separate; demo requests never in the care database). Branding is not a blocker.
+  - Priority: 1 M2 · 2 M4 · 3 M6 · 4 M8 · 5 M5.
+  - Escalation dates: M2 2026-11-27, M4 2026-12-18, M6 2027-01-29, M8 2027-02-19, M9 2027-03-12.
+  - D-2 planning baseline: GitHub, Supabase, Vercel for the website, 99.9 %, PITR, CH/EU data, separated website. D-2 stays `awaiting-approval: owner`; no package was edited.
+- **Changed on the open PRs:**
+  - #835: ADR-142 ACCEPTED; owner response section.
+  - #833: priority, escalation dates, ADR-142 accepted.
+  - #837: the duplicate ADR-142 was dropped, `website/` adopted, ADR-143 narrowed, priority 5 for the website.
+  - #838: §12 reads the baseline item by item. No material blocker; three gaps OPEN for the owner: the care-app host is not named, `lca`/adviser access paths, the RPO reading.
+- **New:** `docs/engineering/WEEKLY_STATUS.md`, with the escalation rule and the first entry (2026-W45); the escalation rule is also in the `IMPLEMENTATION_STATUS.md` header. A weekly scheduled report runs on Fridays.
+- **No escalation today.** M2 depends on `po` merging the open UX2 queue by 2026-11-10; if it is not merged by then, M2 is escalated that day.
+- Docs only; `node scripts/agents-check.mjs` run. No test applies.
+
+---
+
 ## 2026-11-03 15:50 CET · UX/UI Design Architect (uxa)
 
 - UX review (`reports/UX_REVIEW.md`, section 15:50) on `recovery/main` `1b1d151` (no screen code merged since 11:50). Read on PR heads: **#814** AIG1-C4/-C5 (`dc1b2b4`, `/operations/assistenten`) and **#815** ASM1-C6 (`f0a2752`, `/team` "Irrtümlich erfasst"); #799, #800, #803, #804 moved by base merges only.
@@ -510,6 +528,7 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 
 ---
+
 
 ## 2026-11-03 15:30 CET · po (Product Owner)
 
