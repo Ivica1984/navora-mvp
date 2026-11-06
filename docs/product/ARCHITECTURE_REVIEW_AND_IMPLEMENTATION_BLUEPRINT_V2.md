@@ -1,6 +1,6 @@
 # NAVORA Architecture Review and Implementation Blueprint V2
 
-**Owner of this file:** Product Owner (`po`) · **Written:** 2026-11-06 08:40 (Europe/Zurich), by the owner's *Program Quality Improvement Directive* (2026-11-06) · **Version:** 2.9, 2026-11-06 21:55 (see the version table below). Version 2.1 was written after the founder letter of 2026-11-06 (decisions FE-019 to FE-030 in [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md); answer in [`FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md`](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md)). Version 2 was 2026-11-06 08:40; version 1 is [`DELIVERY_PROGRAM.md`](DELIVERY_PROGRAM.md), 2026-11-03 · **Repository state read:** `recovery/main` @ `9c58939`, open PRs and role branches read through the GitHub API on 2026-11-06 08:20-08:40.
+**Owner of this file:** Product Owner (`po`) · **Written:** 2026-11-06 08:40 (Europe/Zurich), by the owner's *Program Quality Improvement Directive* (2026-11-06) · **Version:** 2.10, 2026-11-06 22:30 (see the version table below). Version 2.1 was written after the founder letter of 2026-11-06 (decisions FE-019 to FE-030 in [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md); answer in [`FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md`](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md)). Version 2 was 2026-11-06 08:40; version 1 is [`DELIVERY_PROGRAM.md`](DELIVERY_PROGRAM.md), 2026-11-03 · **Repository state read:** `recovery/main` @ `9c58939`, open PRs and role branches read through the GitHub API on 2026-11-06 08:20-08:40.
 
 
 **Status (FE-035, owner 2026-11-06):** this Blueprint is NAVORA's **official, leading working book** (Arbeitsbuch). It is a living document: every content change, new founder decision and milestone progress is recorded in the version table below; substantial changes stay traceable in the text (struck through or marked as replaced, never silently overwritten); with every update the PO synchronises the affected GitHub issues and PRs, and names any scheduled-task prompt that needs a change.
@@ -9,7 +9,8 @@
 
 | Date (Europe/Zurich) | Version | What changed | Why | Sections affected |
 |---|---|---|---|---|
-| 2026-11-06 21:55 | **v2.9** | founder decision FE-039: new §1.4 (team organisation, professional authority and formal responsibility kept apart; terms not interchangeable; QAM by `cra` with `lca`; product flow with *KI schlägt vor* / *Team entscheidet* / *Voraussetzung nachgewiesen*; PLAN3 behaviour today and gaps; Phase A/B rule split proposal; assumptions); QUAL1 row in §1 corrected; package D-43 opened (§7); M2 cleanup: #922 brought up to date | founder message 2026-11-06 during the 21:39 PO run | §1, §1.4, §7 |
+| 2026-11-06 22:30 | **v2.10** | founder decision **FE-040**: two business models kept apart (GM-1 team business, GM-2 B2B software with KI-Planung core module and documentation add-on); five order and operating constellations KON-1 to KON-5 with roles, contracts, invoices and money flows (new `BUSINESS_MODELS_AND_CONSTELLATIONS.md`); five-level role model R1-R5; revenue separation U-T / U-N1 / U-N2; economics comparison with sourced figures and marked assumptions (new `ECONOMICS_COMPARISON.md`); how NAVORA uses the matrix values E/D/–/? on every assignment path, expired and contradictory evidence (new §1.6); brief **QUAL1** approved for synthetic data with the nursing-home cover simulation S1-S8 as acceptance criterion; package **D-44** (contract, legal form, billing path; L-7 to L-11); Phase B gate list (new §9.1); FD-28, FD-29 added | founder message 2026-11-06 22:10 (attended session) | §1 (business model line struck and replaced), §1.5, §1.6, §1.4 (Engineering line clarified), §7, §9.1 |
+| 2026-11-06 21:55 | v2.9 | founder decision FE-039: new §1.4 (team organisation, professional authority and formal responsibility kept apart; terms not interchangeable; QAM by `cra` with `lca`; product flow with *KI schlägt vor* / *Team entscheidet* / *Voraussetzung nachgewiesen*; PLAN3 behaviour today and gaps; Phase A/B rule split proposal; assumptions); QUAL1 row in §1 corrected; package D-43 opened (§7); M2 cleanup: #922 brought up to date | founder message 2026-11-06 during the 21:39 PO run | §1, §1.4, §7 |
 | 2026-11-06 21:10 | v2.8 | founder decision FE-038 recorded: #919 (pgTAP 080) stabilised in isolation by `eng` after the `cra` answer, AN3 accepted once a run is stably green; merge order #850 → #872 (after `cra` gate on `6854d82`) → PLAN3 stack bottom-up; resolved issues closed with the PR; Blueprint and Executive Report as PDF after the batch | founder message 2026-11-06 21:05 | §3.1, §4 M2, M4 |
 | 2026-11-06 20:50 | v2.7 | M2 cleanup: #841 AN3 merged (`49ab0e0`), role PRs #860, #899, #918 merged; #850 and #872 brought up to date by the PO; AN3 acceptance waits for green CI (pgTAP 080 non-deterministic on `f5f5e09`, #919); the 19:39 merge refusal did not recur | scheduled PO run 20:39 (FE-033, FE-037) | §3.1, §4 M2, M4 |
 | 2026-11-06 19:45 | v2.6 | AIR1 accepted (AIR1-C1 from CGR-115 open); AN3 (#841) ready to merge (CI green, seven conditions hold, ADR-144 deviations accepted, AN3-C1 to C3 placed) but **not merged**: the merge call was refused by the scheduled session's tool permission check; M4.1 marked ACCEPTED (AIG1-C4/C5 accepted 18:55), M4 completion 13 % | scheduled PO run 2026-11-06 19:39 | version table, §4 M4 |
@@ -47,7 +48,9 @@ The *Change log* at the end of this file is kept for history; from v2.3 on, the 
 
 **Vision (owner, as confirmed 2026-11-06, FE-023, FE-027):** NAVORA is a digital operating system and AI-supported work platform for care and support, not a documentation app, scheduler or chatbot. It connects the work on site with team coordination, documentation, care planning and billing. Its first job is a **measurable reduction of administrative work** for care professionals (writing afterwards, manual planning, coordination calls, billing preparation, error correction), while supporting quality, continuity, safety and team autonomy. Care contexts: home care, nursing homes, hospitals and private persons; not built at the same time, never excluded by design. The care model is the product; technology is a tool.
 
-**Business model (FE-023, PO wording):** the buyer is the licensed care organisation (later also team-owned providers); the users are its teams; payers of care (insurers, cantons, clients) pay for care, not for NAVORA. NAVORA earns platform usage fees; no price is chosen (F3 per active member is one candidate basis; comparison in [`PRICING_MODEL_COMPARISON.md`](PRICING_MODEL_COMPARISON.md)).
+~~Business model (FE-023, PO wording): the buyer is the licensed care organisation (later also team-owned providers); the users are its teams; payers of care (insurers, cantons, clients) pay for care, not for NAVORA. NAVORA earns platform usage fees; no price is chosen (F3 per active member is one candidate basis; comparison in [`PRICING_MODEL_COMPARISON.md`](PRICING_MODEL_COMPARISON.md)).~~ *(replaced v2.10, FE-040)*
+
+**Business models (FE-040, replaces the line above):** two separate models with separate revenue: **GM-1 team business** (a self-organised team takes orders directly from a home, hospital or private person, delivers and bills through the lawful structure; the care revenue belongs to the team; NAVORA earns a transparent platform fee from the team; KI-Planung and cover coordination are a core part) and **GM-2 B2B software** (a home or hospital licenses NAVORA for its own staff: KI-Planung and cover coordination as core module M-PLAN, AI dictation, minutes and report capture with human review and release as separate add-on M-DOK, or the whole operating platform). Constellations, roles and money flows: §1.5 and [`BUSINESS_MODELS_AND_CONSTELLATIONS.md`](BUSINESS_MODELS_AND_CONSTELLATIONS.md).
 
 **AI work flows are the core (FE-028)**, each inside rules, rights and controls, AI never inventing a fact, a human confirming or signing:
 
@@ -147,9 +150,36 @@ The AI never replaces a missing prerequisite with a persuasive recommendation: a
 
 **Phase A / Phase B rule split (PO proposal, to be confirmed in D-43):** in Phase A every QAM row and every gate may run as `provisional` on synthetic data, shown as such; before Phase B (real clients) every rule that gates who may perform an activity, every safety-signal threshold (D-28), the overlap rules (CR-164, CGR-137, CGR-144), the countersignature and quality-hold rules (D-10, D-16) and the KLV mapping (D-15) must be `APPROVED` by the D-43 function, and the formal functions the partner must hold (D-25) must be named.
 
-**Engineering:** no new binding assignment rule is handed to `eng` until its QAM row is `confirmed` and approved (FE-039). Existing gates stay as provisional safe defaults. The PLAN3 transparency follow-up (PLAN3-18, PLANNED, after the stack) shows provisional rule status and requirement states without adding any rule.
+**Engineering:** no new **binding** assignment rule is handed to `eng` until its QAM row is `confirmed` and approved (FE-039). *Clarified v2.10 (FE-040):* building the matrix rule as **provisional, on synthetic data only, in a simulation organisation**, is allowed and asked for (brief QUAL1); it is not binding and releases nothing for real use. Existing gates stay as provisional safe defaults. The PLAN3 transparency follow-up (PLAN3-18, PLANNED, after the stack) shows provisional rule status and requirement states without adding any rule.
 
 **Assumptions (not facts) in this section:** that Swiss law sets activity-level limits that differ by context and canton (to be researched by `cra`/`lca`); that a provider or nursing home in BS/BL must name formal responsible functions (D-25, UNKNOWN); that a review board can carry product-rule approval (D-43, UNKNOWN); that evidence states can be checked by a team member instead of an administrator (D-29, UNKNOWN).
+
+### 1.5 Business models and order constellations (FE-040, v2.10)
+
+Full text, in German: [`BUSINESS_MODELS_AND_CONSTELLATIONS.md`](BUSINESS_MODELS_AND_CONSTELLATIONS.md); figures: [`ECONOMICS_COMPARISON.md`](ECONOMICS_COMPARISON.md); legal and contract options: package [D-44](../agents/decisions/D-44.md).
+
+| ID | Constellation | Client | Performs care | Pays for care | NAVORA revenue | Team revenue | Status |
+|---|---|---|---|---|---|---|---|
+| KON-1 | home hires an external self-organised team for defined visits or shifts (e.g. cover) | home | external team | the home (no additional insurer billing assumed; L-8) | platform fee from the team (U-N1) | price paid by the home (U-T) | OPEN: lending vs service contract (L-7); simulated in QUAL1 |
+| KON-2 | home runs its whole care day on NAVORA with its own self-organised ward teams | home (software) | home's own staff | as today (OKP contribution by care level to the home, residual financing, resident) | licence for the operating platform (U-N2) | none (salaries by the home) | Phase A simulated ward (FE-031); price OPEN (FD-29) |
+| KON-3a / 3b | hospital hires a team for a defined stay-related task / for a transition home | hospital | external team / team as admitted home-care provider | hospital / OKP + residual financing + patient | U-N1 | price / tariff | OPEN (L-7, L-8, L-9, D-12, D-18, D-22) |
+| KON-4 | private person hires a team (client, recipient and payer kept apart) | person or authorised relative | team as admitted provider (KLV) or for non-KLV support | OKP + residual financing + patient share / privately | U-N1 | tariff / private price | OPEN (D-12, L-9, FD-24) |
+| KON-5 | home or hospital buys software only (M-PLAN, M-DOK) | institution | institution's staff | as today | licence per module (U-N2) | none | OPEN (D-41, D-34 for M-DOK, FD-29) |
+
+**Role model, five levels never merged:** R1 operational planning (team), R2 professional authority per activity (matrix rule, delegation by a qualified nurse, never by AI), R3 a required professionally responsible person or function (variants R3-a to R3-d), R4 formal responsibility of an institution, R5 contract role and invoicing party. **Revenue separation:** U-T care revenue (the team's), U-N1 platform fee (team → NAVORA), U-N2 B2B licence (institution → NAVORA); NAVORA takes no share of care revenue while L-10 is open.
+
+**Economics (scenarios, not forecasts):** a home pays 53 to 82 CHF/h for a temporary HF nurse against about 48 CHF/h for its own (sourced factors 1.1 to 1.7, marked assumptions); a direct team order leaves a nurse +16 % to +46 % hourly equivalent at 65 to 82 CHF/h **at full utilisation**, and nothing or less at 85 % or 70 % utilisation or at a low agency premium. HYP-3 (higher nurse income) stays unproven.
+
+### 1.6 How NAVORA uses the matrix values on every assignment path (FE-040, v2.10)
+
+| Matrix value | Meaning | NAVORA behaviour | Status |
+|---|---|---|---|
+| **E** | activity in the grade's own scope under a confirmed rule | plannable when the grade evidence is `verified` and valid at the visit time | PROPOSED cells; built provisionally in QUAL1 |
+| **D** | only with prerequisites met and a valid delegation | plannable only with `verified` grade **and** a valid delegation (activity, case, member, dates, supervising nurse; recorded by a qualified nurse) | PROPOSED; QUAL1-9 |
+| **–** | not for this grade | never proposed, refused on every path | PROPOSED |
+| **?** | rule unresolved | never proposed; refused on every path; **no release for a real visit**; the reason names the open rule | PROPOSED; K-1 to K-6, L-1 to L-6 |
+
+Evidence states: `missing`, `self_confirmed` (the member's own confirmation, **never** a verification), `verified` (D-29 decides the real process; Phase A reads `verified (synthetisch)`), `expired` (counts as missing from the expiry instant; planned visits released "Voraussetzung abgelaufen"), `contradictory` (treated as "?" until a person resolves it; notice to the professional role). An AI may draft a profile (synthetic data only, D-35); it never grants or extends a delegation, never upgrades an evidence state, never replaces a missing prerequisite by a recommendation. **Every path** (PLAN3 proposal and confirm, PLAN2 series, hand assignment, take, swap with both sides re-checked, cover, re-assignment after an absence) calls the same database check; there is no override; an overlap stays a fact (CGR-137, CGR-144). Acceptance: QUAL1 cover simulation S1-S8 with expected and observed results; a passed simulation is **not** a clinical release (CGR-145).
 
 ## 2. Architecture Alignment
 
@@ -525,6 +555,8 @@ Updated 2026-11-06 12:00 after the founder letter. Decided items (D-1, D-11, D-2
 | FD-24 | Medium | O-2 "Privatpersonen" | Choose which meaning(s) the vision includes (variants in the confirmation §2, point 4) | 2026-12-11 | private-person sector layer | not built |
 | FD-25 | Medium | O-5 team-owned provider in a nursing home | Does the D-12 goal (team-owned provider after a sunset) apply to the nursing-home pilot, or does a nursing home keep its licence with self-organised wards? | before Phase B | D-38, partner contract | D-38 not asked |
 | ~~FD-26~~ | – | ~~O-3 Arbeitsbuch~~ | **decided 2026-11-06 (FE-035):** this Blueprint is the official working book | – | – | – |
+| FD-28 | High | D-44 contract, legal form and billing path per constellation | Not asked yet: `lca` (L-7 to L-11), `cra` (R3 variants) and `eng` first; then "approve option <X> per constellation" | before Phase B | KON-1, KON-3, KON-4 real orders; D-42 | Phase A simulation only; no insurer invoice for home or hospital settings |
+| FD-29 | Medium | B2B module prices (M-PLAN, M-DOK, operating platform) | Not asked yet: price basis after a NAVORA cost basis and the QUAL1/AN3 measurements (`ECONOMICS_COMPARISON.md` §4) | before the first B2B offer | GM-2 offers | no price published |
 | FD-14 | Medium | Website | Domain, host, demo destination | 2026-12-11 | M5 | M5 build waits |
 | FD-16 | Medium | D-36 | Give `lca` the interRAI licence terms (a fact) | 2026-12-11 | D-37, assessment content | no interRAI content |
 | FD-15 | Low | D-26 | No service-role key on the app host in production | before Phase B | invitations in production | Edge Functions path |
@@ -588,6 +620,27 @@ A work item passes these gates in order. A gate that is not met stops the item; 
 | **QG-7 Acceptance** | after merge, CI green on the merge commit | evidence table in the brief (criterion | result | evidence), every deviation decided, "the PO did not run the tests" stated | brief | `po` |
 | **QG-8 Milestone** | at the milestone date | every acceptance criterion of §4 met on `recovery/main`; completion 100 %; `DELIVERY_PROGRAM.md` status line and `ROADMAP.md` updated | this blueprint §10 | `po`; owner for M3, M9, M10 |
 | **QG-9 Go-live** | before the first real client or employee (M9) | G-1 to G-25 each closed with evidence, or waived in writing by the person accountable; a clinical gate only by the Clinical Owner with the owner | readiness file | owner (go / no-go) |
+
+### 9.1 Gates before Phase B (real partner, real clients or residents; FE-040, v2.10)
+
+A gate is closed only with its evidence; a simulation result never closes a clinical or legal gate.
+
+| # | Gate | Needs | Owner | Depends on | Status |
+|---|---|---|---|---|---|
+| PB-1 | Mandate for clinical rule approval (person or board) | founder decision on package D-43 | owner | `cra`, `lca`, `eng` inputs (D-43) | OPEN, inputs requested |
+| PB-2 | Matrix cells approved for the activities the pilot uses (K-1 to K-6) | qualified clinical approval | approval function from PB-1 | PB-1; L-1 to L-6 | OPEN (all cells PROPOSED) |
+| PB-3 | Legal reading of the matrix (L-1 to L-6) | `lca` signed sections | `lca` | sources not yet read (matrix §5) | OPEN |
+| PB-4 | How qualification evidence is verified (D-29) | founder approval of the package | owner | PB-3 | awaiting approval: owner |
+| PB-5 | Required professionally responsible function per constellation (R3, CR-178, CGR-146) and nursing-home licensing (D-25) | `lca` answer, then founder choice of the R3 variant | `lca`, owner | L-2 | OPEN |
+| PB-6 | Contract, legal form and billing path per constellation (D-44; L-7 to L-11) | `lca` signed section, founder approval | owner | D-12 (partner path in BS/BL), D-18, D-22 | OPEN, inputs requested |
+| PB-7 | Platform fee (D-14) and B2B prices (FD-29) | founder decision | owner | NAVORA cost basis | awaiting approval / not asked |
+| PB-8 | AI on real data (D-41; D-35 rule A until then) and the MDR scope of M-DOK (D-34 module) | founder decision after `lca`, `cra`, `eng` | owner | D-41 inputs | OPEN |
+| PB-9 | Legal basis for client and resident data (D-9, D-3) | founder approval | owner | `lca` | awaiting approval |
+| PB-10 | Pilot agreement with the nursing home (D-42) and DPIA (M9.5) | founder decision, partner signature | owner, partner | PB-5, PB-6, PB-8, PB-9 | OPEN |
+| PB-11 | Technical: M2 consolidated, CI stably green (#919 closed), M9.1 to M9.3, QUAL1 simulation passed | `eng` delivery, PO acceptance | `eng`, `po` | FE-037 cleanup | in progress |
+| PB-12 | Go / no-go with the readiness file (G-1 to G-25, M9.6) | founder | owner | PB-1 to PB-11 | PLANNED |
+
+Not a gate any more: whether nursing homes belong to the vision (decided, FE-024, FE-031).
 
 ---
 

@@ -4,6 +4,36 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 22:30 CET · po (Product Owner)
+
+Attended session: founder message after FE-039, recorded as **FE-040** (`FOUNDER_DECISIONS.md` v7; Blueprint **v2.10**). Task adjusted within the goal (README rule 11): this package before further cleanup merges in this session; the scheduled runs continue the PLAN3 stack.
+
+- **Understood and written down (own words in `docs/product/BUSINESS_MODELS_AND_CONSTELLATIONS.md` §0):** two business models, GM-1 team business (a team takes orders directly; care revenue is the team's; NAVORA a transparent fee; KI-Planung core) and GM-2 B2B software (KI-Planung for an institution's own staff; documentation add-on separate); five constellations KON-1 to KON-5 with client, performer, recipient, payer, R1-R5 responsibilities, invoice path and team vs NAVORA revenue; revenue kept apart (U-T, U-N1, U-N2). **No insurer billing assumed** for work in a home or hospital (L-8).
+- **Economics:** `docs/product/ECONOMICS_COMPARISON.md`: sourced figures (BS Spitex tariffs 2026; temp factor 1.7 Domicil/SRF 2025; 10-30 % Nau 2023 and ZHAW 2018, the latter commissioned by a staffing provider; Lohnbuch HF/FaGe, Zurich-based) and marked assumptions (employer costs 20 %, team overhead 10 %, fee 4 % as comparison only, utilisation). Result: a nurse income gain is arithmetically possible at full utilisation and a high agency premium, and disappears at 85 % or 70 % utilisation or a low premium; HYP-3 stays unproven. B2B modules computed separately as customer value only (no price, FD-29).
+- **Qualification logic:** Blueprint §1.6 (E/D/–/? behaviour, evidence states incl. expired and contradictory, AI never grants a delegation or upgrades evidence, one check on every path, no override). §1.4's Engineering line clarified, not changed in substance: provisional build on synthetic data allowed, nothing binding.
+- **QUAL1 approved for synthetic data only** (*Next up* 4, starts after the PLAN3 stack): matrix rule active only in a simulation organisation; **cover simulation S1-S8** (suitable cover, missing evidence, missing/expired delegation, unresolved cell, overlap, no cover, bypass attempts, evidence expiring during the day) with expected results now and observed results from CI at delivery. **Observed results: OPEN** (not built, nothing run). A passed simulation is no clinical release.
+- **Decisions (F):** new package **D-44** (contract, legal form, billing path per constellation; options A-E; Low; E, C, L requested; owner approval later). INDEX tier 3. FD-28 (D-44) and FD-29 (B2B prices) on the Decision Board, not asked yet. **Phase B gates** PB-1 to PB-12 with owner and dependency in Blueprint §9.1.
+- **GitHub:** issues **#926** (`lca`: L-7 to L-11, L-1 to L-6, R3 variants), **#927** (`cra`: QUAL1 gate, evidence defaults, S1-S8, K-1 to K-6 tracking, R3), **#928** (`eng`: QUAL1); comments on #924 (QAM) and #538 (PLAN3: no change to open stack PRs). No safety gate removed: CR-007/CR-164 stay in force outside the simulation organisation; D-35 rule A unchanged.
+- **Challenge (E):** the temp agency is the layer that disappears in KON-1, but only if the team's utilisation risk is carried somewhere (framework contracts, mixing home-care and home orders, a partner). Without that, self-employment shifts risk onto nurses; that is a product and contract design question for D-44, not a software feature.
+- **Scheduled-task prompts:** none needs a change (packages, gates and briefs are covered). Optional for the owner: ask `csa` in its prompt to cross-check `ECONOMICS_COMPARISON.md` assumptions each week.
+- **Escalated now:** nothing to the founder; the blocked points are with `lca` (#926) and `cra` (#927) first.
+- Tests: none run by the PO; no code written. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+
+**ENGINEERING BRIEF**
+- **Capability:** QUAL1, qualification profile and activity rule on every assignment path, with the nursing-home cover simulation.
+- **Why:** a self-organised team must never get a suitability claim the evidence does not carry, and no path may bypass the rule (FE-039, FE-040).
+- **Business outcome:** the cover flow that replaces the temp-agency call (KON-1) and the B2B module M-PLAN (KON-5) becomes demonstrable on synthetic data.
+- **Care outcome:** every activity on every visit traceable to a grade or a named delegation; gaps visible and escalated instead of filled by whoever answers.
+- **Expected nurse outcome:** fewer calls for cover; clear limits of what she is asked to do; delegation in the team, not by an office.
+- **Expected team outcome:** the team decides cover itself with a reasoned proposal; no dispatcher.
+- **Expected patient outcome:** no activity by a person without the required qualification or delegation; continuity reason shown.
+- **Acceptance criteria:** QUAL1-1 to QUAL1-16 in `briefs/QUAL1.md`, with S1-S8 expected vs observed.
+- **Dependencies:** PLAN3 stack consolidated; matrix v0.1 (PROPOSED); `cra` gate (#927); D-35 rule A; no D-29/D-43 needed for the synthetic build, both needed before real use.
+- **Priority:** *Next up* 4, after the PLAN3 stack.
+- **Implementation recommendation:** matrix and evidence as versioned data; one security-definer decision function used by every write path; separate simulation fixture; refusal reasons as codes with German labels from `uxa`.
+
+---
+
 ## 2026-11-06 21:55 CET · po (Product Owner)
 
 Scheduled PO run (21:39). Continued the open PO PR #920 (attended session, FE-038) instead of opening a second one. The founder sent a new message during this run: recorded as **FE-039**. (Clock note: the attended session's entries below carry times up to 22:10 while its commits are dated 21:15-21:38; this entry uses the real run time and is placed on top.)
