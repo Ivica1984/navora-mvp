@@ -141,7 +141,8 @@ describe("ASM1-C4: one review act re-bases the plan (AUT-26)", () => {
   it("`cra` (a): the act is shown with the record's state at the act; every refusal has a German text", () => {
     expect(
       planReviewText({ record_id: "r-1", assessment_date: "2026-10-28", state_at_review: "unconfirmed", reviewed_on: "2026-10-30", reviewer_name: "Synthetisch RN Nord" }),
-    ).toBe("Pflegeplan geprüft gegen die Bedarfsabklärung vom 28.10.2026 am 30.10.2026 von Synthetisch RN Nord (Bedarfsabklärung damals nicht bestätigt)");
+      // UX2-30 (5) (UXR-62, ADR-135): two sentences, the state at the act its own sentence
+    ).toBe("Geprüft am 30.10.2026 von Synthetisch RN Nord gegen die Bedarfsabklärung vom 28.10.2026. Diese war damals nicht bestätigt.");
     for (const code of ["not_team_member", "not_rn", "not_current", "no_items", "nothing_to_review"]) expect(REVIEW_REASONS[code], code).toBeTruthy();
   });
 
