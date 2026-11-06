@@ -4,6 +4,33 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 12:30 CET · po (Product Owner)
+
+- **Owner answers in the attended session:** Phase A simulates **home care and a simulated nursing-home ward** (O-1 option b; FE-031). The owner re-sent a revised version of the letter: point 5 adds the explicit goal of reducing avoidable Spitex administration and placement overhead, enabling self-organised teams and better earnings for nurses (FE-032; hypotheses H-1 to H-6 with their measurement in the confirmation §1.1); point 8 asks for the PO's own responsibility and confirms that team self-organisation is preserved; points 13 and 16 ask the PO to commission `lca`. The prompt-change question (FD-01) was **not answered**: no scheduled task changed.
+- **`lca` commissioned** (founder points 13, 16): PO notes with `Unfreeze: 2` in D-22, D-18, D-9, D-4, D-29 (Basel-Stadt, Basel-Landschaft, nursing home), D-36 (licence terms needed for nursing-home assessment), and a re-analysis request in D-34 (intended purpose vs. nursing homes, DOC-AI, assessment, PLAN4). **D-42** opened (Phase B pilot agreement with a nursing home; `lca`, `cra`, `eng` inputs). One comment on each package issue.
+- Updated: `FOUNDER_DECISIONS.md` v2, Blueprint V2.1 (O-1 decided, FD-21 removed, M3 30 %), Founder report (14 owner decisions), confirmation document.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:** `lca`: the requests above are explicit re-analysis asks (your prompt's condition (c)). `eng`: nursing-home addendum to `IMPLEMENTATION_SEQUENCE.md` can start (FE-031); D-42 technical annex requested. `cra`: D-42 clinical-governance clauses requested.
+
+---
+
+## 2026-11-06 12:00 CET · po (Product Owner)
+
+- **Founder letter 2026-11-06 (attended session): direction confirmed point by point** in `docs/product/FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md` (German): business model in own words, points 1-22 each with interpretation, place of implementation and open questions, 17 contradictions (W-1 to W-17) with corrections, GitHub reconciliation (issues, PRs, branches, ADRs, task prompts, plans), seven genuine founder questions O-1 to O-7, work plan.
+- **Recorded as owner decisions:** **D-11** Basel-Stadt and Basel-Landschaft; **D-1** fact: no real personal data in the old system (key rotation and leaked-password protection stay owner security actions; SR-26 scope question open); **D-24** nursing homes in scope, real pilot partner a nursing home (Phase B), simulated nursing home in Phase A. Each package and row starts with `Unfreeze: 1 owner 2026-11-06`. **D-25** reopened for `lca` (BS/BL; Unfreeze 2). **D-41** opened (approved NAVORA AI path for real data; D-35 rule A stays in force; `eng`, `cra`, `lca` inputs requested).
+- **New files:** `docs/product/FOUNDER_DECISIONS.md` (versioned FE-001 to FE-030; newest founder decision overrides), `docs/product/PRICING_MODEL_COMPARISON.md` (F1-F7, no invented prices; D-14 not asked now). README rules 10 (founder decisions override) and 11 (autonomy inside the brief). Blueprint **V2.1** (vision, business model, AI work flows as core, care-context matrix, SV-4 to SV-7, M3, M8.1b, M9 re-framed by phases, critical path, decision board FD-21 to FD-26, metrics M-15 to M-21 with hypotheses marked). Founder report rewritten (15 owner decisions). `OWNER_AGENDA.md`, `ROADMAP.md` (Phase A/B, KPIs) updated.
+- **Not done, needs the owner:** scheduled-task prompts read (all eight), contradictions listed in the confirmation §5.3, **not changed** (agents never edit scheduled tasks). The Chief Strategy task's last run (2026-11-02) failed on a usage limit; next run 2026-11-09.
+- Tests: none run by me (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- **To the agents:** read `FOUNDER_DECISIONS.md` and Blueprint V2.1 after README (rule 10).
+  - `eng`: nothing in your queue changes; PLAN4 (team-mandated routine assignment) will need an ADR after `cra`/`lca`; please draft a nursing-home addendum to `IMPLEMENTATION_SEQUENCE.md` once O-1 is answered; D-41 Engineering section requested.
+  - `cra`: D-41 clinical section requested (AI documentation drafts); clinical plausibility of the simulated nursing home (M9.0a) will be asked with NH-A1 to NH-A5.
+  - `lca`: D-41 legal section; D-25 for BS/BL; Basel re-check of D-18, D-9, D-4, D-29; intended-purpose statement v2 against nursing homes and DOC-AI (SV-5); external adviser only for questions you cannot settle (FE-026).
+  - `aia`: PLAN4 and DOC-AI will come to you for automation review; M-15 to M-17 are yours to define with AN3.
+  - `uxa`: nursing-home ward screens will be needed after O-1.
+  - `csa`: STR-21 is answered by the Phase A design (Blueprint SV-2); please re-assess; STR-20 (one canton first) is superseded by FE-019.
+
+---
+
 ## 2026-11-06 09:30 CET · Clinical & Regulatory Architect (review)
 
 - Review section 09:30 in `reports/CLINICAL_GOVERNANCE.md` on `recovery/main` `e97e786` (docs only since 05:30: PO #893, #898, #900). Read on their heads: `eng` #894 (PLAN3-7 (2)), #895 (PLAN3-9 (1), migration 0115), #897 (PLAN3-15, migration 0116), #888 `4ef4f51`; base merges of #872, #888, #890, #891, #894, #895, #897 checked (own code unchanged).
