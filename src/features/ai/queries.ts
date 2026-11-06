@@ -3,19 +3,21 @@ import "server-only";
 // AIG1 part (b) (ADR-129): readers for the proposal screens. Every read goes through the AIG1 functions of migrations
 // 0097/0103 as the signed-in person (no app grant exists on the AIG1 tables, AIG1-11 (1)); nothing here widens a read.
 
+import { memberNumbers } from "@/features/team/member-label";
 import { requireUser } from "@/lib/auth/session";
 import type { Database } from "@/lib/supabase/database.types";
 import { COORDINATOR_ROLES, PAGE_LABEL } from "@/lib/auth/nav";
 import { FIELD_PATH, homePathForRoles } from "@/lib/auth/paths";
 import { errorFields, logEvent } from "@/lib/log";
-import type { Provenance } from "./labels";
+import { countOpenSuggestions, type PlanTeamMeasure, type Provenance, type StopMeasure, type TeamLookbackStop } from "./labels";
 
 type Fn = Database["public"]["Functions"];
 export type OpenSuggestion = Fn["open_suggestions"]["Returns"][number];
 export type AgentHealthRow = Fn["agent_health"]["Returns"][number];
 export type LookbackLine = Fn["agent_stop_lookback"]["Returns"][number];
 
-export type TeamMemberOption = { user_id: string; name: string | null; me: boolean };
+/** CGR-139: `no` is her position in the team ordered by user id (team_cases; as /team and the handover), null if unknown. */
+export type TeamMemberOption = { user_id: string; name: string | null; me: boolean; no: number | null };
 
 export type TeamSuggestions = {
   team_id: string;
@@ -48,6 +50,25 @@ export async function getTeamSuggestions(): Promise<TeamSuggestions[]> {
   return out;
 }
 
+/**
+ * PLAN3-12 (ADR-148): how many proposals wait for the caller's teams, for the "Vorschläge" link on `/team`. The same
+ * reader as the confirm screen (`open_suggestions`, per team the caller is a member of, as herself); no new read, no
+ * name and no row leaves this function. `null` when a read failed: the link then reads plain "Vorschläge".
+ */
+export async function getOpenSuggestionCount(teamIds: string[]): Promise<number | null> {
+  const { supabase } = await requireUser();
+  const ids = [...new Set(teamIds)];
+  const results = await Promise.all(ids.map((id) => supabase.rpc("open_suggestions", { p_team_id: id })));
+  const perTeam = results.map((r) => {
+    if (r.error) {
+      logEvent("warn", "plan3.suggestion_count_failed", errorFields(r.error));
+      return null;
+    }
+    return (r.data ?? []).length;
+  });
+  return countOpenSuggestions(perTeam);
+}
+
 /** The caller's teams with their members and clients (from `team_cases`), without proposals. */
 async function loadTeams(): Promise<TeamSuggestions[]> {
   const { supabase } = await requireUser();
@@ -66,9 +87,12 @@ async function loadTeams(): Promise<TeamSuggestions[]> {
     for (const m of arr(c.members)) {
       const id = typeof m.user_id === "string" ? m.user_id : null;
       if (id && !t.members.some((x) => x.user_id === id)) {
-        t.members.push({ user_id: id, name: typeof m.name === "string" ? m.name : null, me: m.me === true });
+        t.members.push({ user_id: id, name: typeof m.name === "string" ? m.name : null, me: m.me === true, no: null });
       }
     }
+    // CGR-139: team_cases lists every membership of the team ordered by user id; the position is the /team number.
+    const numbers = memberNumbers(t.members);
+    for (const m of t.members) m.no = numbers.get(m.user_id) ?? null;
     for (const v of arr(c.upcoming)) {
       if (typeof v.visit_id === "string") t.clients[v.visit_id] = c.client_name;
     }
@@ -121,6 +145,47 @@ export async function getStopLookback(stopId: string): Promise<LookbackLine[]> {
     throw new Error("Die Liste konnte nicht geladen werden.");
   }
   return data ?? [];
+}
+
+/**
+ * PLAN3-13 (ADR-150): the look-back measure of one stop per team (`agent_stop_measures`, migration 0112), in the scope
+ * of `agent_stop_lookback`. Null when the read failed: the page then says so rather than showing zeros.
+ */
+export async function getStopMeasures(stopId: string): Promise<StopMeasure[] | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("agent_stop_measures", { p_stop_id: stopId });
+  if (error) {
+    logEvent("warn", "plan3.stop_measures_failed", errorFields(error));
+    return null;
+  }
+  return (data ?? []).map((r) => ({ ...r, lead_time_median_hours: r.lead_time_median_hours === null ? null : Number(r.lead_time_median_hours) }));
+}
+
+export type TeamLookbackStopRow = Fn["team_lookback_stops"]["Returns"][number];
+
+/**
+ * PLAN3-11 (ADR-149): the stops with at least one open look-back line of the caller's own teams (`team_lookback_stops`,
+ * migration 0111). Null when the read failed: `/team` then shows no entry rather than a wrong "0 offen".
+ */
+export async function getTeamLookbackStops(): Promise<TeamLookbackStopRow[] | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("team_lookback_stops");
+  if (error) {
+    logEvent("warn", "plan3.team_lookback_failed", errorFields(error));
+    return null;
+  }
+  return data ?? [];
+}
+
+/** PLAN3-11: the entries for `/team`, one per stop and team (type kept narrow for the client component). */
+export function toTeamLookbackStops(rows: TeamLookbackStopRow[] | null): TeamLookbackStop[] {
+  return (rows ?? []).map((r) => ({
+    stop_id: r.stop_id,
+    agent_name: r.agent_name,
+    team_name: r.team_name,
+    open_count: r.open_count,
+    not_open_count: r.not_open_count,
+  }));
 }
 
 export type VisitRecord = {
@@ -232,4 +297,38 @@ export async function getHomeLink(): Promise<{ href: string; label: string }> {
   if (error) logEvent("warn", "aig1.memberships_failed", errorFields(error));
   const href = homePathForRoles((data ?? []).map((m) => m.role));
   return { href, label: href === FIELD_PATH ? PAGE_LABEL.field : PAGE_LABEL.operations };
+}
+
+const numOrNull = (v: unknown): number | null => (v === null || v === undefined ? null : Number(v));
+
+/**
+ * PLAN3-7 (ADR-151): the day-plan assistant's measures per team for one Zurich month (`plan3_team_measures`, migration
+ * 0113), as the signed-in person may read them (own teams; coordinators every team). Null when the read failed: the
+ * page then says so rather than showing zeros.
+ */
+export async function getPlanTeamMeasures(month: string): Promise<PlanTeamMeasure[] | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("plan3_team_measures", { p_month: month });
+  if (error) {
+    logEvent("warn", "plan3.team_measures_failed", errorFields(error));
+    return null;
+  }
+  return (data ?? []).map((r) => ({
+    ...r,
+    enabled_since: r.enabled_since ?? null,
+    decided_lines: numOrNull(r.decided_lines),
+    confirmed_unchanged_share: numOrNull(r.confirmed_unchanged_share),
+    corrected_share: numOrNull(r.corrected_share),
+    rejected_share: numOrNull(r.rejected_share),
+    confirm_actions_per_plan: numOrNull(r.confirm_actions_per_plan),
+    minutes_to_last_decision_median: numOrNull(r.minutes_to_last_decision_median),
+    no_proposal: numOrNull(r.no_proposal),
+    no_proposal_share: numOrNull(r.no_proposal_share),
+    no_proposal_not_active: numOrNull(r.no_proposal_not_active),
+    no_proposal_needs_rn: numOrNull(r.no_proposal_needs_rn),
+    no_proposal_absent: numOrNull(r.no_proposal_absent),
+    no_proposal_overlap: numOrNull(r.no_proposal_overlap),
+    continuity_before_share: numOrNull(r.continuity_before_share),
+    continuity_after_share: numOrNull(r.continuity_after_share),
+  }));
 }

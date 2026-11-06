@@ -4,6 +4,8 @@ import { PAGE_LABEL } from "@/lib/auth/nav";
 import { todayInZurich } from "@/features/field/rules";
 import { getDayPlan, getDayPlanState, getDayPlanTeams } from "@/features/planning/day-plan-queries";
 import { dayPlanDateBounds, isDayPlanDate } from "@/features/planning/day-plan-view";
+import { getPlanTeamMeasures } from "@/features/ai/queries";
+import { monthParam } from "@/features/ai/labels";
 import DayPlanClient from "./day-plan-client";
 
 // PLAN3 part (b) (ADR-147): the team's day-plan proposal (PLAN3-1, -3, -4, -9, -10, -14; 390 px first). The team asks
@@ -18,10 +20,14 @@ export default async function DayPlanPage({ searchParams }: PageProps<"/team/tag
   const teams = await getDayPlanTeams();
   const selected = teams.find((t) => t.team_id === team) ?? teams[0] ?? null;
   const date = typeof datum === "string" && isDayPlanDate(datum, today) ? datum : null;
-  const [state, plan] = await Promise.all([
+  const [state, plan, measures] = await Promise.all([
     selected ? getDayPlanState(selected.team_id) : Promise.resolve(null),
     selected && date ? getDayPlan(selected.team_id, date) : Promise.resolve(null),
+    // PLAN3-7 (2) (ADR-155): the same reader as Operations, current Zurich month; null when the read failed.
+    selected ? getPlanTeamMeasures(monthParam(undefined)) : Promise.resolve(null),
   ]);
+  // Only the selected team's row reaches the client (a coordinator's read also returns other teams).
+  const ownMeasure = selected && measures ? (measures.find((m) => m.team_id === selected.team_id) ?? null) : null;
   return (
     <div className="min-h-screen bg-stone-100 text-emerald-950">
       <header className="bg-emerald-950 px-4 pb-4 pt-3 text-white">
@@ -46,6 +52,8 @@ export default async function DayPlanPage({ searchParams }: PageProps<"/team/tag
             bounds={bounds}
             lines={plan?.lines ?? []}
             load={plan?.load ?? []}
+            measure={ownMeasure}
+            measureFailed={measures === null}
           />
         ) : (
           <p data-testid="day-plan-no-team" className="rounded-2xl border border-dashed border-emerald-900/20 bg-white/70 p-6 text-center">

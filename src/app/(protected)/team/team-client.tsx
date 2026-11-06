@@ -8,6 +8,8 @@ import type { LeaverOpenReport } from "@/features/contract-end/queries";
 import type { TeamAdmissionView } from "@/features/admission/queries";
 import Link from "next/link";
 import { PAGE_LABEL } from "@/lib/auth/nav";
+import { teamPickerOptions } from "@/features/team/member-label";
+import { suggestionsLink, teamLookbackEntry, type TeamLookbackStop } from "@/features/ai/labels";
 import SignalBanner from "@/components/signals/SignalBanner";
 import OverlapNote, { OverlapAfterSave, slotFromForm, useOverlapNote, type OverlapSlot } from "@/components/visits/OverlapNote";
 import { overlapAfterSave, overlapNote } from "@/features/visits/overlap-rules";
@@ -86,6 +88,8 @@ export default function TeamClient({
   successorItems = [],
   assessments = {},
   instruments = [],
+  openSuggestions = null,
+  lookbackStops = [],
 }: {
   offers: TeamOffer[];
   cases: TeamCase[];
@@ -114,7 +118,12 @@ export default function TeamClient({
   assessments?: Record<string, CaseAssessments>;
   /** ASM1-6: the organisation's instrument entries. */
   instruments?: Instrument[];
+  /** PLAN3-12 (ADR-148): open proposals of the caller's teams; null when unknown (the link then reads plain "Vorschläge"). */
+  openSuggestions?: number | null;
+  /** PLAN3-11 (ADR-149): stops with open look-back lines of the caller's own teams. */
+  lookbackStops?: TeamLookbackStop[];
 }) {
+  const suggestionsEntry = suggestionsLink(openSuggestions);
   const gpByCase = latestNoticeByCase(gpNotices);
   const open = offers.filter((o) => !o.my_team_declined);
   const declined = offers.filter((o) => o.my_team_declined);
@@ -131,9 +140,9 @@ export default function TeamClient({
           <Link href="/field" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
             {PAGE_LABEL.field}
           </Link>
-          {/* AIG1 part (b) (ADR-129): the team's open proposals, confirmed value by value. */}
-          <Link href="/team/vorschlaege" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
-            Vorschläge
+          {/* AIG1 part (b) (ADR-129): the team's open proposals, confirmed value by value. PLAN3-12 (ADR-148): with their count. */}
+          <Link href="/team/vorschlaege" aria-label={suggestionsEntry.ariaLabel} data-testid="suggestions-link" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
+            {suggestionsEntry.text}
           </Link>
           {/* PLAN3 part (b) (ADR-147): the team asks for a day plan and confirms it line by line. */}
           <Link href="/team/tagesplan" className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold underline underline-offset-4">
@@ -149,6 +158,7 @@ export default function TeamClient({
       <main className="mx-auto grid max-w-xl gap-3 px-4 py-4">
         <SignalBanner initial={signals} onRows={setLiveSignals} />
         <VisitAlerts alerts={visitAlerts} openSignals={splitSignals(liveSignals).open} />
+        <TeamLookback stops={lookbackStops} />
         <SuccessorItems items={successorItems} />
         <TeamHandover leavers={leavers} openReports={leaverReports} />
         <OutsideDeliveryStatus rows={pushStatus} />
@@ -998,11 +1008,9 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
         Verantwortlich
         <select name="responsible" defaultValue={members.find((m) => m.me)?.user_id ?? ""} className={field}>
           <option value="">Team (noch niemand)</option>
-          {members.map((m, i) => (
-            <option key={m.user_id} value={m.user_id}>
-              {m.me ? "Ich" : `Teammitglied ${i + 1}`}
-              {m.qualification ? ` – ${QUALIFICATION_LABEL[m.qualification] ?? m.qualification}` : ""}
-            </option>
+          {/* UXR-113 / CGR-139 (ADR-154): the same label as every other picker that assigns a visit. */}
+          {teamPickerOptions(members).map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </select>
       </label>
@@ -1183,6 +1191,37 @@ function OutsideDeliveryStatus({ rows }: { rows: TeamPushRow[] }) {
           </ul>
         ))}
       </details>
+    </section>
+  );
+}
+
+/**
+ * PLAN3-11 (ADR-149): after a stop, the team's own look-back lines where it plans. One entry per stop and team with at
+ * least one open line; the link opens the list narrowed to the member's own teams. Counts only: no person, no outcome,
+ * no colour above `info` (H-20). Nothing is shown when there is no such stop or the read failed.
+ */
+function TeamLookback({ stops }: { stops: TeamLookbackStop[] }) {
+  const entries = stops
+    .map((s) => ({ s, e: teamLookbackEntry(s) }))
+    .filter((x): x is { s: TeamLookbackStop; e: NonNullable<ReturnType<typeof teamLookbackEntry>> } => x.e !== null);
+  if (entries.length === 0) return null;
+  return (
+    <section aria-labelledby="team-lookback-title" className="grid gap-2 rounded-xl border border-stone-200 bg-white p-3">
+      <h2 id="team-lookback-title" className="text-base font-bold">
+        Rückblick nach einem Stopp
+      </h2>
+      <ul className="grid gap-2">
+        {entries.map(({ s, e }) => (
+          <li key={`${s.stop_id}:${s.team_name}`} data-testid="team-lookback-entry" className="grid gap-1 text-sm">
+            <span>
+              {e.text} · {s.team_name}
+            </span>
+            <Link href={e.href} className="flex min-h-11 items-center font-semibold underline underline-offset-4">
+              {e.linkText}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

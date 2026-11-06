@@ -158,6 +158,8 @@ Every other audited key is a code: a closed value set (CHECK or foreign key), a 
 | `private.handover_entries` (HAND1, `field_since_last`) | team handover: care-plan schedule change, primary-nurse change, medical-order status and validity | no (codes, dates, member codes; reasons from `change_log`) |
 | `private.last_primary_nurse` (RET1) | the last primary nurse of a closed case | no (id) |
 | `private.case_order_as_of` (CSR1, CGR-33) | the medical order as of the visit date | no (status code, date) |
+| `private.plan3_visit_open_at` (PLAN3-13, ADR-150) | was a visit open at a past instant (old `status` and `visit_date`) | no (status code, date) |
+| `private.plan3_stop_lines` (PLAN3-13, ADR-150) | when a look-back line's visit closed after a stop (time of a `status`/`visit_date` change) | no (time) |
 | `public.pilot_hypotheses` (AN2) | absence end moved (CGR-35) | no (time) |
 | `public.read_audit_record` (AUD1-3) | administrators: one record, for `compliance`, `billing` or `safety_review` | only inside the team (AUD1-4) |
 

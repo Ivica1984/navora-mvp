@@ -2275,6 +2275,11 @@ isOneToOne: false
               "case_ref": string,"entity_id": string,"entity_type": string,"field": string,"not_open": boolean,"proposed_at": string,"superseded": boolean,"superseded_at": string,"team_id": string,"team_name": string,"visit_date": string
             }[]
                            },
+"agent_stop_measures":
+{ Args: { "p_stop_id": string }; Returns: {
+              "became_not_open": number,"days_to_zero_open": number,"lead_time_median_hours": number,"left_by_recheck": number,"lines_at_stop": number,"not_open_at_stop": number,"open_now": number,"proposals_in_window": number,"superseded": number,"team_id": string,"team_name": string
+            }[]
+                           },
 "assign_team_coach":
 { Args: { "p_coach_name": string,"p_idempotency_key": string,"p_team_id": string }; Returns: string
                            },
@@ -2563,6 +2568,11 @@ isOneToOne: false
 "plan_visit":
 { Args: { "p_case_id": string,"p_idempotency_key": string,"p_minutes_a": number,"p_minutes_b": number,"p_minutes_c": number,"p_needs_assessment": boolean,"p_overlap_shown"?: boolean,"p_responsible_user_id": string,"p_time_end": string,"p_time_start": string,"p_visit_date": string }; Returns: Json
                            },
+"plan3_team_measures":
+{ Args: { "p_month": string }; Returns: {
+              "confirm_actions_per_plan": number,"confirmed_unchanged_share": number,"continuity_after_base": number,"continuity_after_share": number,"continuity_before_base": number,"continuity_before_share": number,"continuity_suppressed": boolean,"corrected_share": number,"day_plans": number,"decided_lines": number,"enabled_since": string,"lines": number,"minutes_to_last_decision_median": number,"month": string,"no_proposal": number,"no_proposal_absent": number,"no_proposal_needs_rn": number,"no_proposal_not_active": number,"no_proposal_overlap": number,"no_proposal_share": number,"proposal_suppressed": boolean,"rejected_share": number,"team_id": string,"team_name": string
+            }[]
+                           },
 "prepare_member_access_end":
 { Args: { "p_idempotency_key": string,"p_user_id": string }; Returns: Json
                            },
@@ -2776,6 +2786,11 @@ isOneToOne: false
 "team_day_proposal_state":
 { Args: { "p_team_id": string }; Returns: {
               "agent_state": string,"enabled_since": string,"team_enabled": boolean
+            }[]
+                           },
+"team_lookback_stops":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "agent_name": string,"not_open_count": number,"open_count": number,"stop_id": string,"stopped_at": string,"team_id": string,"team_name": string
             }[]
                            },
 "team_offers":

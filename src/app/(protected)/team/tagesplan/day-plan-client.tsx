@@ -3,8 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
+import { pickerMemberLabel } from "@/features/team/member-label";
 import { confirmSuggestion, confirmSuggestions } from "@/features/ai/commands";
-import { bulkResultText, hhmm } from "@/features/ai/labels";
+import {
+  bulkResultText,
+  hhmm,
+  PLAN_TEAM_LINE_ERROR,
+  planTeamMeasureCells,
+  planTeamOwnLine,
+  type PlanTeamMeasure,
+} from "@/features/ai/labels";
 import { proposeDayPlan, setTeamDayProposal } from "@/features/planning/day-plan-commands";
 import {
   confirmButtonLabel,
@@ -39,6 +47,9 @@ type Props = {
   bounds: { min: string; max: string };
   lines: DayPlanLine[];
   load: DayPlanLoadRow[];
+  /** PLAN3-7 (2): the selected team's row of `plan3_team_measures` this month, or null (no row). */
+  measure: PlanTeamMeasure | null;
+  measureFailed: boolean;
 };
 
 function addOneDay(iso: string): string {
@@ -57,7 +68,7 @@ function hrefFor(teamId: string, date: string | null): string {
  * PLAN3-9 (CGR-78 (b)): ask for a day, see the proposal per member with reasons and minutes, confirm per line or by a
  * list she ticked. Every line starts unticked; each box ticks its own line; no "select all"; the button names its count.
  */
-export default function DayPlanClient({ teams, team, state, date, bounds, lines, load }: Props) {
+export default function DayPlanClient({ teams, team, state, date, bounds, lines, load, measure, measureFailed }: Props) {
   const agentOn = state?.agent_state === "on";
   const teamOn = state?.team_enabled === true;
   return (
@@ -76,7 +87,9 @@ export default function DayPlanClient({ teams, team, state, date, bounds, lines,
           ))}
         </nav>
       )}
-      <TeamSwitch teamId={team.team_id} teamName={team.team_name} teamOn={teamOn} since={state?.enabled_since ?? null} />
+      <TeamSwitch teamId={team.team_id} teamName={team.team_name} teamOn={teamOn} since={state?.enabled_since ?? null}>
+        <TeamMeasures measure={measure} failed={measureFailed} />
+      </TeamSwitch>
       {!agentOn ? (
         // PLAN3-6: with the agent off or stopped every team plans by hand, whatever its own switch.
         <p data-testid="day-plan-unavailable" className="rounded-2xl border border-stone-300 bg-white p-4 text-sm font-semibold">
@@ -90,8 +103,57 @@ export default function DayPlanClient({ teams, team, state, date, bounds, lines,
   );
 }
 
+/**
+ * PLAN3-7 (2) (po 2026-11-06 06:30, `aia` AUT-52; ADR-155): whoever holds the switch sees its numbers. One information
+ * line from the reader Operations uses, the same three-person suppression, and the month's cells of this team only in a
+ * disclosure. Information only: no colour above `info`, no target, no other team, no person.
+ */
+function TeamMeasures({ measure, failed }: { measure: PlanTeamMeasure | null; failed: boolean }) {
+  if (failed) {
+    return (
+      <p data-testid="day-plan-measures" className="text-xs text-secondary">
+        {PLAN_TEAM_LINE_ERROR}
+      </p>
+    );
+  }
+  return (
+    <div className="grid gap-1 border-t border-stone-200 pt-2">
+      <p data-testid="day-plan-measures" className="text-xs">
+        {planTeamOwnLine(measure)}
+      </p>
+      {measure && measure.day_plans > 0 && (
+        <details className="text-xs">
+          <summary className="flex min-h-11 cursor-pointer items-center font-semibold underline underline-offset-4">
+            Alle Zahlen dieses Monats
+          </summary>
+          <dl data-testid="day-plan-measures-cells" className="grid gap-1 pb-1">
+            {planTeamMeasureCells(measure).map((c) => (
+              <div key={c.key}>
+                <dt className="font-semibold">{c.label}</dt>
+                <dd>{c.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </details>
+      )}
+    </div>
+  );
+}
+
 /** PLAN3-10: the team decides for itself; the line shows the date, never who switched it. */
-function TeamSwitch({ teamId, teamName, teamOn, since }: { teamId: string; teamName: string; teamOn: boolean; since: string | null }) {
+function TeamSwitch({
+  teamId,
+  teamName,
+  teamOn,
+  since,
+  children,
+}: {
+  teamId: string;
+  teamName: string;
+  teamOn: boolean;
+  since: string | null;
+  children?: ReactNode;
+}) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -113,6 +175,7 @@ function TeamSwitch({ teamId, teamName, teamOn, since }: { teamId: string; teamN
       <button type="button" data-testid="day-plan-switch" disabled={pending} onClick={toggle} className={teamOn ? secondary : primary}>
         {teamOn ? "Tagesvorschlag ausschalten" : "Tagesvorschlag einschalten"}
       </button>
+      {children}
       {error && (
         <p role="alert" data-testid="command-error" className="rounded border border-rose-300 bg-white p-2 font-semibold text-rose-800">
           {error}
@@ -190,7 +253,7 @@ function Proposal({ team, date, lines, load }: { team: DayPlanTeam; date: string
   // AIG1-C3 (2) / PLAN3-14 (2): the reason of each line refused at confirm stays on its line.
   const [refusals, setRefusals] = useState<Record<string, string>>({});
   const [refusedCount, setRefusedCount] = useState(0);
-  const groups = groupDayPlan(lines, load);
+  const groups = groupDayPlan(lines, load, team.roster);
   const tickable = new Set(tickableLineIds(lines));
 
   if (lines.length === 0) {
@@ -280,7 +343,7 @@ function Proposal({ team, date, lines, load }: { team: DayPlanTeam; date: string
 
 /** PLAN3-4 / PLAN3-14: the member's minutes of this team before and after, and only whether she has visits elsewhere. */
 function MemberBlock({ member, children }: { member: DayPlanMember; children: ReactNode }) {
-  const name = member.name ?? "Teammitglied";
+  const name = pickerMemberLabel(member);
   const load = loadText(member.minutesNow, member.minutesWith);
   const other = otherTeamVisitsLine(member.otherTeams);
   return (
@@ -423,7 +486,7 @@ function Line({
               </option>
               {others.map((m) => (
                 <option key={m.member_id} value={m.member_id}>
-                  {m.name ?? "Teammitglied"}
+                  {pickerMemberLabel(m)}
                 </option>
               ))}
             </select>

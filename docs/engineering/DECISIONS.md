@@ -2365,7 +2365,7 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 1. **Confirm screen `/team/vorschlaege` (390 px first; link "Vorschläge" in the `/team` header).** Per team of the caller (from `team_cases`), one line per value of `open_suggestions`: client and visit time, "Zuständig: <Name>" or "Zuständig: nicht gefunden", "vorgeschlagen von <Agent>". Actions per line: "Bestätigen", "Ändern" (a member of the team; stored as hers, `corrected`), "Ablehnen"; a `not_found` proposal offers only "Als „nicht gefunden“ bestätigen" (AIG1-4). Every call is `confirm_suggestion` for ONE value. Lines with `bulk_allowed` (the database's own AIG1-5 test) carry a tick box that starts unticked, ticks only its own line; no "select all"; the button reads "<n> angekreuzte Werte bestätigen" and calls `confirm_suggestions` with exactly the ticked ids (CGR-78 (b)). A value the consuming command refuses comes back with its reason text (AIG1-15 reasons) and stays open.
 2. **Record line `/visits/[visitId]`.** The visit through its existing read path (`care_visits` RLS: team, coordination; READ_PATHS row unchanged), the responsible member's display name (`member_profiles`), and the AIG1-3 line from `value_provenance` for this one value: "vorgeschlagen von <Agent> / bestätigt von <Name> am <Datum>" ("geändert und bestätigt", "abgelehnt von", "noch nicht bestätigt"). The look-back lines and the confirm screen open this page.
 3. **Health list `/operations/assistenten` (desktop; link "Assistenten" under the `/operations` heading).** One row per agent from `agent_health` for each organisation where the caller holds a coordination role: agent, level, kind, version, state, last proposal, last closed window's share and decided count, "Mindestzahl im letzten Fenster erreicht: ja/nein" (null → "noch kein abgeschlossenes Fenster", ADR-128 deviation 1), the written threshold (share, minimum, window) and why it stopped, with a link to its look-back list.
-4. **Look-back list `/operations/assistenten/rueckblick/[stopId]` (desktop).** Its own line layout (AIG1-14): case reference, visit date, field, team and, where it applies, "überholt am <Datum>"; no person, no "bestätigt von", no outcome, no filter, sort, tick or "erledigt". Each line is one link to its record. The OPS1 card of `agent_stopped` links to it ("Betroffene Werte ansehen"). It writes nothing.
+4. **Look-back list `/operations/assistenten/rueckblick/[stopId]` (desktop).** Its own line layout (AIG1-14): case reference, visit date, field, team and, where it applies, "überholt am <Datum>"; no person, no "bestätigt von", no outcome, no filter, sort, tick or "erledigt". Each line is one link to its record. The OPS1 card of `agent_stopped` links to it ("Betroffene Werte prüfen"). It writes nothing.
 5. **Seed:** two organisations of their own (E: agent on, seven open proposals; F: agent stopped by its threshold with four unchanged confirmations in the window, one later replaced), so no org-A to org-D count or fixture changes. Written as the table owner in the order the commands would write it; test thresholds only, not NAVORA defaults. pgTAP 002 counts eleven sign-in users (was nine); pgTAP 097 scopes three `ai_agent_settings` assertions to Testorganisation A (they counted every organisation's rows). No assertion is loosened: each still checks Testorganisation A exactly as before.
 
 **Trade-offs:** a section inside the 1,200-line `team-client.tsx` was rejected for a page of its own (UX2 will place it in the one shell); a person-scoped "my proposals" list was rejected (AIG1-11: no list of one confirmer's values). Coordinators see the record page without the AIG1-3 line: `value_provenance` answers only the record's team members (0097, AIG1-11 (2a)); widening it would be a new read for a role and needs the PO.
@@ -2569,7 +2569,317 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 
 **Not set by this:** any route, read scope, RLS, server check, the reference pattern, audit row or migration (UX2-7 negative: no migration).
 
+### ADR-145 — PLAN3 part (a): the day-plan proposal in the database (agent, team switch, rule, lines, readers)
+
+**Date:** 2026-11-05 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/PLAN3.md` (approved; PLAN3-1 to -6, -8, -10 in this part) · **Migration:** 0109 · **Proof:** pgTAP `110_plan3_day_proposal` (72), `067` function list (+`day_plan`) · **Issue:** #538
+
+**Context (IMPLEMENTED before 0109):** AIG1 (0097, 0103, 0104) gives a register, an append-only ledger, value-by-value confirmation with the J3 checks re-run (`private.aig1_apply_visit_responsible`), bulk confirm of `schedule` values of level-L rule agents, correction rates and the stop. Only the synthetic test agent proposes (one visit, the primary nurse). Visits carry a planned date, start and end time and minutes per category (A/B/C); `private.visit_interval` (DST1) turns them into an instant range. The performer of a completed visit is `private.visit_performer` (first `started` event, F6), the definition J6's continuity measure already uses.
+
+**Decision:**
+1. **Agent `plan3_day_proposal`** ("Tagesvorschlag", rule, L, version 1, fixture `aig1_eval_plan3_day_proposal`, bar 100), field `responsible_user_id` class `schedule` (CGR-78, as the brief requires). Off by default: no settings row; an administrator switches it on with a written threshold (`set_agent_state`, AIG1-1/-8, unchanged).
+2. **Team switch (PLAN3-10)** `team_day_proposal_settings` (team, enabled, last switch-on time; **no actor column**). Writer `set_team_day_proposal(team, on, key)`: an active member of that team only (`is_org_member` + `is_team_member`; Operations, coach and administrator are refused unless they are members of the team; access ended raises 42501 through `begin_command`). The audit trigger records actor, time, team and value; `read_audit_record` (administrators, purpose-bound, AUD1) is the only reader that returns the actor. Reader `team_day_proposal_state(team)`: enabled, the date of the switch-on (no name) and the organisation's agent state.
+3. **Rule, pure (PLAN3-3)** `private.plan3_choose(candidates, primary, deputy)`: among candidates that pass every limit, primary nurse → deputy → most completed visits to the client in the last 90 days → fewest planned minutes that day; **tie key: the member id as text, ascending** (stable, not random, not by name so a renamed member does not change a proposal). No eligible candidate → `not_found` with the limit the closest candidate failed, in the order overlap > absent > needs_rn > not_active.
+4. **Limits (PLAN3-2)**, all existing checks, evaluated per visit and member in `private.plan3_lines`: `not_active` = not `may_perform_visit(team, member, 0, false)` (membership, access open (LEAVE1-14), recorded qualification (ADM2-6)) or not `adm2_in_contract` on the visit's date; `needs_rn` = the J3 rule (`may_perform_visit` with the visit's B minutes and needs-assessment flag, 0014:244); `absent` = `member_absent_during` over the visit's interval (ABS1); `overlap` = the visit's interval meets a visit of **the same team and day** already assigned to her (not cancelled, not itself re-proposed) or proposed to her earlier in the same run. Visits are taken in time order (start, end, id).
+5. **Open visits (PLAN3-1):** the team's visits of that day that are `planned`, not suspended, not covered by another team, and unassigned (or every one with "auch zugewiesene neu vorschlagen"). Dates from today to today + 14 (Europe/Zurich).
+6. **Command `propose_day_plan(team, date, include_assigned, key)`**: active member of the team only (42501 otherwise, no ledger row); refused with a reason and no ledger row for `agent_off`, `agent_stopped` (after `aig1_check`), `team_off`, `date_out_of_range`, `open_proposal` (an earlier proposal of the team and day still has undecided lines of open visits; its id is returned). Writes one `ai_suggestions` row per line (one proposal id; input references: visit, case, team) and one `day_plan_lines` row (reason, visits known, the limit for "kein Vorschlag", the member the visit had). `nothing_open` when no visit is open. Never writes `care_visits` (pgTAP hashes the team's visit rows before and after).
+7. **Confirm (PLAN3-5)** through `confirm_suggestion` / `confirm_suggestions` unchanged. `private.aig1_apply` (0097 body kept) takes, for a suggestion without an applied confirmation, the member stored on its `day_plan_lines` row as the expected value, so a re-proposed assigned visit can be confirmed or corrected; a visit changed by hand since the proposal is refused `already_taken`. Every J3 check runs again at confirm time; a refused line keeps its reason and the visit stays in the uncovered path.
+8. **Readers:** `day_plan(team, date)` — the newest proposal's lines with time, minutes per category, needs-assessment flag, proposed member and name, reason, visits known, limit, "ändert bisherige Zuteilung", "nicht Bezugspflege/Stellvertretung", decision state (`open`/outcome), bulk-eligible; no confirmer. `day_plan_load(team, date)` — per member planned minutes of that team and day now and with the newest proposal's undecided lines (PLAN3-4; no maximum). Both for active members of the team only (LEAVE1-3 guard), nothing for anyone else; `day_plan` is in `READ_PATHS.md` and the 067 function list.
+
+**Answers to the brief's open questions:** (1) visits carry planned start and end times (and minutes); the overlap uses `private.visit_interval`, which falls back to start + minutes, or the whole day without a start time — no time is invented. (2) "Completed visits to the client in the last 90 days" is computed inside the definer function from `care_visits` of the team and `visit_performer`; only the count for the proposed member leaves it (as "kennt die Klientin (n Besuche)"). No new reader or grant.
+
+**Trade-offs:** computing the proposal in a pure-ranking function plus a reading loop keeps the fixture meaningful (AIG1-9 runs the ranking on synthetic candidates) while the limits stay the production checks, not a copy. Storing the reason in a side table rather than in `ai_suggestions` keeps the AIG1 ledger shape unchanged for every agent. A second proposal of the same day is refused while lines are undecided instead of superseding them, because `open_suggestions` (and the PLAN3-12 count) would otherwise list two proposals for one visit.
+
+**Deviations / notes for the PO (and `cra` where marked):**
+1. *Overlap only within the team (PLAN3-8 as worded):* a member of two teams, or a member covering another team's visit (COVER1), can be proposed into an overlap with a visit of the other team. Neither PLAN3 nor the J3 command checks that today. OPEN for po/`cra`: whether the overlap check may read the member's own visits of other teams (output would stay "überschneidet", no detail).
+2. *Visits known* count completed visits whose performer is the member (first start event), not the responsible member of record; a visit started by someone else counts for that person.
+3. *`open_proposal` refusal* (decision 6) is not in the brief; the team decides or rejects the open lines first. PLANNED alternative if the pilot shows it blocks re-planning after a new absence: supersede undecided lines (a new AIG1 outcome would be needed, so not now).
+4. *Not in part (a), PLANNED:* the `/team` screen ("Tag vorschlagen", list per member, ticked list, switch, unavailable state; PLAN3-9/-10 UI), PLAN3-11 (look-back count and link), PLAN3-12 (count on "Vorschläge"), the PLAN3-7 and PLAN3-13 measures, the e2e at 390 px, the seed for them. AIG1-C4/-C5 (#814, 0105) should merge before part (b) so expired day-plan lines leave `/team/vorschlaege`.
+5. *Agent stop look-back* for PLAN3 values works through the generic AIG1 readers unchanged (no new code).
+
+**Not set by this:** any labour-law limit (rest time, maximum hours; D-23, employer/`legal`), any clinical rule (the qualification rule is J3's), travel or location (Q7, Gate 5). No AI service. The live project is not touched (D-1).
+
+**Checked by me (not CI):** migrations 0001-0109 and the seed applied to a plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim (structural pgTAP functions stubbed or absent); 0109 applied twice (idempotent); pgTAP 110 (72/72), 067, 071, 074, 097, 103, 104 and every other file the shim can run passed there. vitest, typecheck, lint, e2e not run. CI on the Supabase stack decides.
+
+**Rollback:** revert the PR; 0109 is forward-only like every migration: a follow-up would restore the 0097 body of `private.aig1_apply` and drop the PLAN3 functions and tables (no other object depends on them).
+
+### ADR-146 — PLAN3-14: a member is busy with every visit she is responsible for, in any team; overlap is checked again at confirm
+
+**Date:** 2026-11-05 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/PLAN3.md` PLAN3-14 (PO 2026-11-05 14:50 in #874, `cra` CGR-136 advisory S2; PO decision, product authority, no clinical rule, no threshold) · **Migration:** 0110 · **Proof:** pgTAP `111_plan3_14_overlap_across_teams` (14), `110` unchanged; vitest `plan3-day-plan-labels` (+3) · **Issue:** #538 · **Resolves:** ADR-145 deviation 1
+
+**Context (IMPLEMENTED before 0110, in 0109):** `private.plan3_lines` counted as busy only the visits of the asking team. A COVER1 cover keeps the visit's team and makes the covering nurse its responsible member (0028), and a member may belong to several teams (0003), so she could be proposed for two clients at the same time and her day looked free. Confirming a line re-ran the J3 checks (membership, qualification, contract, absence) but not the overlap.
+
+**Decision:**
+1. **Busy time across teams (PLAN3-14 (1)).** `private.plan3_other_team_busy(org, member, date, team)` returns the planned intervals (`private.visit_interval`, DST1) of every non-cancelled visit of the organisation that day whose responsible member is she, outside the asking team. `plan3_lines` adds them to each member's team-scoped busy time before the run. The asking team still receives only the reason `overlap` (or the next member); nothing of the other team's visit is written to `day_plan_lines` or returned. The planned load (`lod`, PLAN3-4 tie-break and `day_plan_load` minutes) keeps its team scope, as the brief says.
+2. **Overlap again at confirm (PLAN3-14 (2)).** `private.aig1_apply` checks, for a suggestion that has a `day_plan_lines` row, whether the chosen member has by now another non-cancelled visit of the organisation that day overlapping this one (`private.plan3_confirm_overlaps`; any team, hand assignment included; the visit itself excluded). If so it returns `overlap`: the value stays open, the visit stays unassigned (uncovered path), and in a ticked list the other lines are set (AIG1-5 refusal list, unchanged shape). Other AIG1 agents are untouched (no day-plan line → no extra check).
+3. **Concurrency.** The confirm-time check takes `pg_advisory_xact_lock` on (member, day), so two PLAN3 confirms for one member in parallel are serialised and the second sees the first one's assignment.
+4. **Day load flag.** `day_plan_load` gains `other_team_visits boolean` (the screen shows "weitere Einsätze in anderen Teams", wording proposed by the PO, `uxa` to confirm). Only whether such a visit exists: no count, client, case, visit or time (pgTAP pins the column list and that no other-team id or time appears). The return type changes, so the function is dropped and created again with the same grants; nothing depends on it (part (b) UI not built). `database.types.ts` updated by hand to match; the types bot regenerates it.
+5. **Texts.** `refusalText("overlap")` "Nicht übernommen: Diese Person hat zu dieser Zeit schon einen Einsatz." and `otherTeamVisitsLine(true)` (Engineering's wording, open for `uxa`).
+
+**Trade-offs:** reading other teams' visits only inside definer functions that return a reason or a yes/no keeps PLAN3-8 data minimisation (no new grant, no new reader column of another team). Checking before delegating to `aig1_apply_visit_responsible` keeps that generic J3 path unchanged for every agent, at the cost of a reason order of `overlap` before `not_qualified` / `outside_contract` / `absent` (a stale visit still gets `not_open` / `already_taken` only if no overlap exists).
+
+**Deviations / notes for the PO (and `cra` where marked):**
+1. *Corrections are checked too:* the brief says "confirming a PLAN3 line"; a correction to a member busy at that time is also refused `overlap` (same hazard, H-01/H-20). The team can still assign by hand through J3. If the PO wants corrections exempt, it is one condition.
+2. *Hand assignment (J3 `assign_visit`) does not check overlap and does not take the advisory lock* (unchanged, outside PLAN3). A hand assignment racing a PLAN3 confirm in the same instant can still produce an overlap. OPEN for po/`cra` whether J3 should refuse or warn on overlap; not built (no rule invented).
+3. *Reason order* at confirm: `overlap` is reported before the qualification, contract and absence reasons (see trade-offs).
+4. *AUT-51 / ADR-145 deviation 3* (`open_proposal`) is unchanged here; the PO decides.
+
+**Not set by this:** any labour-law limit, any clinical rule, travel time between visits (Q7). No AI service. The live project is not touched (D-1).
+
+**Checked by me (not CI):** nothing executed. npm install failed in this session (npm internal error) and no pgTAP was available locally, so vitest, typecheck, lint, pgTAP and e2e were not run by me. CI on the Supabase stack decides.
+
+**Rollback:** revert the PR; a follow-up migration would restore the 0109 bodies of `plan3_lines`, `aig1_apply` and `day_plan_load` and drop the two helper functions.
+
+### ADR-147 — PLAN3 part (b), first slice: the day-plan screen `/team/tagesplan` (ask, list per member, ticked confirm, team switch)
+
+**Date:** 2026-11-05 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/PLAN3.md` PLAN3-1, -3, -4, -5, -6 (screen), -9, -10 (screen), -14 (screen); `uxa` UXR-98 (1), UXR-100 (2026-11-05 19:50, #850) · **Migration:** none · **Proof:** vitest `plan3-day-plan-view` (new), `plan3-day-plan-labels` (2 wordings); e2e `plan3.spec` (4, 390 px); pgTAP `002` (13 sign-in users), `110` (one assertion scoped to its organisation) · **Issue:** #538 · **Stacked on:** #876 (which contains #872)
+
+**Context (IMPLEMENTED before, in 0109/0110, PR #876):** `set_team_day_proposal`, `team_day_proposal_state`, `propose_day_plan`, `day_plan`, `day_plan_load` (with `other_team_visits`), confirm through `confirm_suggestion` / `confirm_suggestions` with the J3 checks and the overlap test re-run. No screen.
+
+**Decision:**
+1. **Own route `/team/tagesplan`**, linked from the `/team` header ("Tagesvorschlag", next to "Vorschläge"), not a section inside the 1 180-line `team-client.tsx`: one team and one day per URL (`?team=<id>&datum=<yyyy-mm-dd>`), so a confirm refreshes only this page and the link can be reopened. Team chips when the member belongs to several teams (from `team_cases`, her own teams only).
+2. **Team switch (PLAN3-10):** "Tagesvorschlag eingeschaltet am <Datum>" (never a name; `team_day_proposal_state` has no actor column) or "Der Tagesvorschlag ist für euer Team ausgeschaltet.", one button to switch. With the agent `off` or `stopped`, "Vorschlag zurzeit nicht verfügbar" and no ask form, whatever the team's setting (PLAN3-6). With the team off, no "Tag vorschlagen".
+3. **Ask (PLAN3-1):** a date input bounded to today … today + 14 (Europe/Zurich; the database checks again), "auch zugewiesene neu vorschlagen" unticked, "Tag vorschlagen". A refusal shows its PLAN3 text; on `open_proposal` the page opens that day's existing proposal so the team decides it first.
+4. **List per member (PLAN3-9, -4, -14):** one block per active member in `day_plan_load` order, also members without a proposed line; each shows this team's minutes "<now> → <with proposal> Minuten in eurem Team" (UXR-98: the scope is said; no maximum, no judgement) and, if she has visits that day in another team, "Dazu Einsätze in anderen Teams, hier nicht mitgezählt." (UXR-98 (1), yes/no only). Lines with "kein Vorschlag" are listed apart under "Ohne Vorschlag" with the limit text. Each line: time, client (from the member's own `team_cases`, by case id), minute categories ("A 30 min · B 15 min", "Bedarfsabklärung" where it is one), the PLAN3-3 reason, "ändert bisherige Zuteilung" / "nicht Bezugspflege/Stellvertretung" where they apply, and the decision state of a decided line (no confirmer).
+5. **Confirm (PLAN3-5, CGR-78 (b)):** per line "Bestätigen", "Ändern" (another member of the load list), "Ablehnen", or "Als „kein Vorschlag“ bestätigen"; a tick box only on open, bulk-eligible lines with a member; every line starts unticked, each box ticks its own line, no "select all", the button names its count ("3 Zuteilungen bestätigen"). The AIG1 commands are reused unchanged; a refused line keeps its reason on the line (`overlap` included, PLAN3-14 (2)), stays open and its visit stays unassigned ("Noch offen", the uncovered path).
+6. **Screen model in a pure module** `features/planning/day-plan-view.ts` (grouping, tickable ids, minute and load texts, decision text, date bounds); it computes no rule.
+7. **Wordings taken from `uxa` (#850, 19:50):** UXR-98 (1) for `otherTeamVisitsLine` (PLAN3-14 left the wording to `uxa`) and UXR-100 for `date_out_of_range` (an Engineering text). UXR-101 ("kennt die Klientin" → "kennt Klient:in") is the PO's brief wording and is **not** changed here (OPEN for `po`). UXR-98 (3) (the "freie Kapazität" reason) likewise stays with `po`.
+8. **Seed:** Testorganisation G (own organisation; `plan3_day_proposal` on as `set_agent_state` would write it, team switch off, five open visits tomorrow, no proposal seeded). pgTAP 002 counts 13 sign-in users; pgTAP 110's "off by default" check is scoped to its own organisation (it proves no settings row exists for an organisation that has not switched the agent on, which is what PLAN3-6 asks).
+
+**Trade-offs:** a separate route instead of the `/team` page keeps the large team page's queries and refreshes unchanged; the cost is one more link in its header. The client name comes from the case list the member already reads (`team_cases`), not from a new column in `day_plan` (PLAN3-8: no new read).
+
+**Deviations / notes for the PO (and `cra` where marked):**
+1. *Overlap at confirm in the e2e* is shown on a **correction** to a member who was assigned an overlapping visit a moment before (ADR-146 deviation 1), not on a plain confirm after a hand assignment: the e2e has no way to make a hand assignment between proposal and confirm without a J3 screen step for another visit at the same time. The plain-confirm case after a hand assignment is pgTAP 111. `cra` CGR-75 (5) / 17:00 ask: OPEN whether this suffices.
+2. *Not in this slice (PLANNED, next PRs):* PLAN3-11 (look-back count and link on `/team`), PLAN3-12 (count on "Vorschläge"), PLAN3-7 and PLAN3-13 measures, the e2e of "kein Vorschlag" with its reason, the PLAN3-10 pgTAP refusals stay in 110 (already IMPLEMENTED). AIG1-C4/-C5 (#814) still open: until it merges, a day-plan line of a visit that has passed stays on `/team/vorschlaege` (ADR-145 deviation 4).
+3. *Ablehnen* is offered on a line as on the AIG1 screen (AIG1-3 allows it); PLAN3-5 names only confirm and change. If the PO wants no reject on a day-plan line, it is one condition.
+4. *Visits page back link:* "Einsatz öffnen" leads to `/visits/<id>` without a `von` origin, so its back link goes to the role's home, not to the day plan (`recordBackLink` knows only `vorschlaege` and `rueckblick`). PLANNED if `uxa` asks.
+
+**Not set by this:** any labour-law limit, any clinical rule, travel time (Q7). No AI service. The live project is not touched (D-1).
+
+**Checked by me (not CI):** `npm ci` failed in this session (npm internal error "Exit handler never called", registry unreachable through the proxy), so vitest, typecheck, lint, build and e2e were not run with the project's toolchain. The 11 cases of `plan3-day-plan-view.test.ts` were run once against the module with Node's type stripping and a minimal `describe`/`it`/`expect` shim (11/11), and the two changed label texts were printed; that is not a vitest run. pgTAP and the seed were not run. CI decides.
+
+**Rollback:** revert the PR (no migration). The seed block of Testorganisation G and the two pgTAP edits go with it.
+
+### ADR-148 — PLAN3-12: the entry to the proposals on `/team` shows how many wait
+
+**Date:** 2026-11-05 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/PLAN3.md` PLAN3-12 (`uxa` UXR-68) · **Migration:** none · **Stacked on:** #880 (ADR-147) · **Proof:** vitest `plan3-12-proposal-count` (written first), e2e `plan3.spec` (+3 assertions blocks, +1 test).
+
+**Context (IMPLEMENTED before):** the `/team` header links to `/team/vorschlaege` with the plain text "Vorschläge" (ADR-129). The confirm screen lists each team's undecided proposals through `open_suggestions(p_team_id)` (0097: team members only, active access, nothing confirmed); day-plan lines are `ai_suggestions` rows of `plan3_day_proposal` (0109), so they are listed there too. Nothing on `/team` says that values wait.
+
+**Decision:**
+1. **Count from the same reader, no new read (PLAN3-12 "no new read"):** `getOpenSuggestionCount(teamIds)` in `features/ai/queries.ts` calls `open_suggestions` as the signed-in member for each team of her own case list (`team_cases`, already loaded by `/team`; the confirm screen derives its teams the same way) and keeps only the number of rows. No row, name or visit leaves the function. No migration, no new RPC, no grant.
+2. **Text (pure, `features/ai/labels.ts`):** `suggestionsLink(n)` gives "Vorschläge (<n>)" with `aria-label` "<n> offene Vorschläge" for n ≥ 1 and plain "Vorschläge" without `aria-label` at 0. Same link styling as before: no colour, no badge, no deadline word (H-20: a count must not push a bulk confirm).
+3. **Failed read:** `countOpenSuggestions` returns `null` as soon as one team's read failed (never a partial sum); the link then reads plain "Vorschläge" and a `warn` event `plan3.suggestion_count_failed` is logged. `/team` does not fail because of the count. A missing count is never shown as a number (as RLS4-C3, ADR-138).
+4. **Read in parallel** with `getLeaverOpenReports` after the existing `Promise.all`, because it needs the case list's team ids.
+
+**Trade-offs:** one `open_suggestions` call per team on every `/team` load (members are usually in one or two teams). A dedicated count function would be cheaper but is a new read surface, which the brief rules out.
+
+**Deviations / notes for the PO (and `uxa`):**
+1. *e2e steps:* the brief's "(5) → after one confirm (4)" is shown as "(5)" after the ask, "(2)" after the ticked confirm of three (the `cra`-evidenced CGR-78 (b) case is kept unchanged) and "(1)" after one more confirm (the 12:00 correction). The refused 08:15 line still counts (it stays open). "A member of another team" is `pflege.test` (Testorganisation A, no open proposal): plain "Vorschläge", no `aria-label`.
+2. *Wording:* the brief's `aria-label` "<n> offene Vorschläge" is built as written, also for n = 1 ("1 offene Vorschläge"; grammatical singular would be "1 offener Vorschlag"). OPEN for `uxa`/`po`; a one-line change in `suggestionsLink`.
+3. *"99+" cap* (`uxa` benchmark, UX_REVIEW line 345) is not in the brief and not built. PLANNED only if the PO adds it.
+4. *Expired proposals:* until AIG1-C4 (#814) is merged, `open_suggestions` still lists proposals of past visits, so the count includes them, exactly as the confirm screen lists them. The count follows the screen when #814 lands (no change here).
+5. Whether `/field` carries the count stays OPEN (UX2), as the brief says.
+
+**Clinical gate:** PLAN3 is in scope. Latest `cra` section read (2026-11-05 17:30) and the 2026-10-31 section that reviewed PLAN3-12 as worded: "no objection". No finding applies to this slice; H-20 control (no push towards a bulk confirm) kept by decision 2.
+
+**Not set by this:** any clinical rule, threshold or deadline. No AI service. The live project is not touched (D-1).
+
+**Checked by me (not CI):** `npm ci` failed again in this session (registry unreachable, npm "Exit handler never called"), so vitest, typecheck, lint, build and e2e were **not** run with the project's toolchain. The two pure functions were run once under Node type stripping with a minimal script (7 assertions, all passed) and the wiring checks of the vitest file were run as plain string checks (passed). CI is the test runner.
+
+**Rollback:** revert the PR (no migration, no seed change).
+
+
+### ADR-149 — PLAN3-11: after a stop, the team finds its own look-back lines on `/team`
+
+**Date:** 2026-11-05 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/PLAN3.md` PLAN3-11 (as amended 2026-10-30 22:15 and 2026-10-31 02:55, AIG1-C5 (d)) · **Migration:** 0111 · **Stacked on:** #882 (ADR-148) · **Proof:** vitest `plan3-11-team-lookback` (written first), pgTAP 112 (12 assertions), e2e `aig1.spec` (+1 test, 390 px).
+
+**Context (IMPLEMENTED before):** `agent_stop_lookback(stop)` (0097/0104) already returns to a team member only the lines of her own teams' records, coordinators every line. The record page offers the AIG1-C2 actions ("Erneut bestätigen", "Ändern") to the record's team (0104). But a member could not learn that a stop exists: `ai_agent_stops` has no app grant (AIG1-11) and a stop reaches the screen only as the OPS1 exception under `/operations`.
+
+**Decision:**
+1. **One read-only function, narrowed, no new read (0111):** `public.team_lookback_stops()` returns per stop and team, for the caller's own active teams only (`private.is_team_member(l.team_id)`, never a role), the agent's name, the stop time and the two AIG1-C1 counts over the same `private.aig1_lookback` lines `agent_stop_lookback` returns. Only stops with at least one open line (AIG1-C5 (d): no entry at "0 offen"). It enumerates stops, not the agent's setting, so an agent switched off after its stop keeps the team's entry while lines are open (AIG1-C5 (d)) without depending on #814. No person, outcome or confirmer column; writes nothing; no table, so no policy, grant on a table or audit trigger.
+2. **Entry on `/team`:** a section "Rückblick nach einem Stopp" under the visit alerts, one line per stop and team: "<Agent> gestoppt · Werte: <n> offen · <m> nicht mehr offen · <Team>" and one link "Werte prüfen" (`teamLookbackEntry`, pure). Nothing when there is no such stop; on a failed read nothing either (`warn` event `plan3.team_lookback_failed`), never a wrong "0 offen". No colour above `info` (H-20).
+3. **List `/team/rueckblick/<stop>`:** the Operations list's reader and line layout, narrowed in the page to the caller's teams on that stop (`linesOfTeams`), so a coordinator who is also a team member sees only her teams' lines here; Operations keeps the full list (OPS1). Each line opens its record with `von=team-rueckblick`, and the record's "Zurück zur Liste" leads back to this list (`recordBackLink`).
+
+**Trade-offs:** `team_lookback_stops` evaluates `aig1_lookback` for every stop of the caller's organisation on each `/team` load; stops are rare (threshold or version change), so acceptable for the pilot. An index or a stop-closed filter is PLANNED if stops accumulate.
+
+**Deviations / notes for the PO (and `uxa`):**
+1. *Every agent, not only `plan3_day_proposal`:* the brief's first sentence names the day-plan agent; the 02:55 amendment keys the entry on "every stop of its records with at least one open line". Built as amended: any agent's stop with an open line of the team's records shows. Today the seed's only stop is the synthetic test agent's (Testorganisation F), which the e2e uses; a real `plan3_day_proposal` stop shows the same way.
+2. *"Next to 'Vorschlag zurzeit nicht verfügbar'":* `/team` shows that text only inside `/team/tagesplan` (PLAN3-6 refusal); the entry is placed on `/team` itself under the alerts. Placement and the count-only line accepted by `uxa`; the heading "Rückblick nach einem Stopp" stays Engineering's, OPEN; the link reads "Werte prüfen" (`uxa` UXR-112, 2026-11-05 23:50, adopted in this PR).
+3. *A stop at "0 offen" with lines "nicht mehr offen":* no entry (AIG1-C5 (d)); the list opened by URL then shows "Keine offenen Werte eures Teams auf der Liste." because the narrowing takes the team ids from the same function.
+4. *e2e count:* the test runs after the AIG1-C2 block in the same file (one worker), so the open count reads 1; it accepts 1 or 2 so it also holds when run alone.
+
+**Clinical gate:** PLAN3 is in scope; PLAN3-11 adds no clinical rule. `cra` 2026-10-30 21:40 (CGR-105) asked that the link lead to lines a member can act on; the e2e opens a listed line and finds "Erneut bestätigen". `lca` not needed (no new read, no person data, PO note 21:25).
+
+**Not set by this:** whether, by whom and by when a look-back value is re-checked (D-17, UNKNOWN). No AI service. The live project is not touched (D-1).
+
+**Checked by me (not CI):** `npm ci` failed in this session (registry unreachable, npm "Exit handler never called"), so vitest, typecheck, lint, build, pgTAP and e2e were **not** run with the project's toolchain. The three pure functions were run once under Node type stripping with a minimal script (8 assertions, passed) and the wiring checks of the vitest file as plain string checks (passed). CI is the test runner.
+
+**Rollback:** revert the PR; `drop function if exists public.team_lookback_stops();` (no table, no data).
+
+
+### ADR-150 — PLAN3-13: the look-back measure per stop and team, never per person
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/PLAN3.md` note 2026-10-31 02:25 (PLAN3-13, ADR-130 deviation 5) and note 02:55 (AUT-31) · **Migration:** 0112 · **Stacked on:** #883 (ADR-149) · **Proof:** vitest `plan3-13-stop-measures` (written first), pgTAP 113 (14 assertions, on the seeded stop of Testorganisation F), e2e `aig1.spec` (assertions added to the look-back test).
+
+**Context (IMPLEMENTED before):** `agent_stop_lookback(stop)` (0097/0104) lists the lines still on a stop's list now, each marked superseded or no longer open; `team_lookback_stops()` (0111) counts open and no-longer-open lines per team. Lines that left by re-check drop out of `private.aig1_lookback`, so nobody could tell how many lines a stop listed at first or how long the team took to "0 offen" — the data P-39 and P-40 are decided on.
+
+**Decision:**
+1. **The open-visit condition at a past instant (`private.plan3_visit_open_at`):** the AIG1-C1 condition of 0104 (`planned`, not suspended, not covered, not dated before that day, Europe/Zurich) evaluated at an instant: `status` and `visit_date` read back from `audit_events` (every UPDATE of `care_visits` records the old value, 0014), suspension and cover from `suspended_at` / `covered_at`. No new table or column.
+2. **Every line of the stop as listed at the stop (`private.plan3_stop_lines`):** `aig1_lookback`'s join without its "not re-checked since" condition, with the time of the first re-check after the stop, superseded (as 0097), open now (`aig1_record_open`) and the first instant after the stop at which the visit was no longer open. No person, outcome or confirmer column. Not granted to app roles.
+3. **`public.agent_stop_measures(stop)`:** per team of the stop, the six counts of the brief: *lines at stop*; *left by correction or re-confirmation*; *überholt* (not re-checked, value replaced); *nicht mehr offen at the stop*; *became nicht mehr offen while still listed*; *days until "0 offen"* (Zurich calendar days from the stop to the moment the last line stopped counting as open — re-check, supersession or the visit closing, never before the stop; null while a line is open). Plus `open_now` (same rule as 0111) and, AUT-31, the agent's proposals of that team in the stop window with their **median lead time from proposal to visit start in hours** (`percentile_cont(0.5)`, one decimal). Access exactly as `agent_stop_lookback`: coordinators every team, a member her own teams; LEAVE1-3; other organisations nothing. Writes nothing.
+4. **Screen:** on the stop's look-back page under `/operations/assistenten` (reached from the health list and the OPS1 exception), a section "Rückblick in Zahlen": one row per team, seven cells (`stopMeasureCells`, pure). "Tage bis 0 offen" reads "noch <n> offen" while lines are open, "am Tag des Stopps" at 0; a missing lead time is "–", never 0. A failed read says "Die Zahlen konnten nicht geladen werden." instead of zeros (`warn` event `plan3.stop_measures_failed`). Desktop table with horizontal scroll at phone width, as the health list.
+
+**Audit readers (AUD1-1):** `plan3_visit_open_at` and `plan3_stop_lines` read `audit_events` (codes and times only, no free text, no actor); both are listed in `READ_PATHS.md` and in pgTAP 077's reader list.
+
+**Trade-offs:** the reconstruction scans the visit's audit rows per line; stops are rare and lines few, acceptable for the pilot. A materialised snapshot at the stop would be exact but adds a table and a write path at stop time (AIG1 core); not chosen without a need.
+
+**Deviations / notes for the PO (and `cra`, `aia`, `uxa`):**
+1. *Lifted suspension or cover:* when a suspension or cover was lifted again, `suspended_at` / `covered_at` no longer show it, so the visit counts as open for that span; the "not open at the stop" count can then be too low by those lines. UNKNOWN how often this happens; an exact answer needs those columns in the `care_visits` audit allowlist (PLANNED only if the PO asks).
+2. *AUT-31 expired share:* "the share of day-plan proposals that expired without a decision" needs AIG1-C4 (expiry), which is in #814 (migration 0105) and not on this stack. **PLANNED**: one more column once #814 is merged. The lead time is built.
+3. *"Per team and window" (AUT-31):* read as the stop's window (`window_from` … `window_to`, or up to the stop's ledger row for a version change), the same proposals the stop decided on. A calendar window is not built.
+4. *Lead time uses the visit's current date and start*, so a visit moved after the proposal counts with its new time. Documented, not corrected.
+5. *No small-team suppression:* the counts are of values on records, not of persons; AIG1-7's suppression applies to PLAN3-7's shares and is not added here. OPEN for `po` if wanted.
+6. *Labels are Engineering's* ("Rückblick in Zahlen", "Werte beim Stopp", "Erneut bestätigt oder geändert", "Überholt", "Beim Stopp nicht mehr offen", "Seither nicht mehr offen", "Tage bis 0 offen", "Vorlauf Vorschlag bis Einsatz (Median)"), OPEN for `uxa`.
+7. *The test clock:* `audit_events.occurred_at` takes `now()`, not `private.now()`, so in pgTAP a status change can sit on the other side of a pinned stop. pgTAP 113 therefore proves the closing by date (visit …5b1) and by re-check only; a status-change case is not asserted (UNKNOWN in CI, sound on the real clock).
+
+**Clinical gate:** PLAN3 is in scope (README *Clinical review gate*); the latest Clinical Governance Report has no finding on PLAN3-13. The measure adds no clinical rule, threshold or stop criterion; it never decides whether, by whom or by when a value is re-checked (D-17, UNKNOWN). `aia` supported PLAN3-13 with AUT-31 (review 2026-10-31). `lca` not needed (no new read, no person data).
+
+**Not set by this:** P-39, P-40 (the PO decides on these counts). No AI service. The live project is not touched (D-1).
+
+**Checked by me (not CI):** `npm ci` failed in this session (npm "Exit handler never called"), so vitest, typecheck, lint, build, pgTAP and e2e were **not** run with the project's toolchain. The three pure functions were run once under Node type stripping with a minimal script (11 assertions, passed) and the wiring checks of the vitest file as plain string checks (passed). The SQL was not executed locally. CI is the test runner.
+
+**Rollback:** revert the PR; `drop function if exists public.agent_stop_measures(uuid); drop function if exists private.plan3_stop_lines(uuid); drop function if exists private.plan3_visit_open_at(uuid, timestamptz);` (no table, no data).
+
+
+### ADR-151 — PLAN3-7: the day-plan assistant's measures per team and month, never per person
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Brief:** `docs/agents/briefs/PLAN3.md` PLAN3-7 (as amended 2026-10-30 03:10, `aia` AUT-25; AUT-1 measures) · **Migration:** 0113 · **Stacked on:** #885 (ADR-150) · **Proof:** vitest `plan3-7-team-measures` (written first), pgTAP 114 (12 assertions, ledger rows written in the test on Testorganisation G), e2e `aig1.spec` (PLAN3-7 block, Testorganisation F).
+
+**Context (IMPLEMENTED before):** AIG1-7 `agent_correction_rates(month)` (0097) counts outcomes per agent, field and team with a three-confirmer suppression per cell; it has no screen. Nothing counted day plans (actions per plan, minutes to the last decision), the "kein Vorschlag" lines by reason (AUT-25), or continuity before and after a team switched "Tagesvorschlag" on (PLAN3-10).
+
+**Decision:**
+1. **One reader `public.plan3_team_measures(p_month)`**, per team and Zurich month (proposals by their `created_at`, visits by `visit_date`): `day_plans` and `lines` (always shown); `decided_lines` (proposed lines with a latest outcome confirmed, corrected or rejected; "kein Vorschlag" lines excluded); `confirmed_unchanged_share`, `corrected_share` (AUT-1 balancing measure) in percent; `confirm_actions_per_plan` (every confirmation of the month's lines, a ticked list counted once: the rows of one `confirm_suggestions` call share `bulk`, confirmer and transaction time; divided by the plans with at least one confirmation); `minutes_to_last_decision_median` (per plan whose every proposed line is decided: proposal time to the first decision of its last decided line; median); `no_proposal`, `no_proposal_share` and the four PLAN3-2 limits stored in `day_plan_lines.not_found_reason`; continuity: completed visits of the month whose case names a primary nurse or deputy, the share performed (`private.visit_performer`, the first `started` event) by one of them, split at the Zurich date of `team_day_proposal_settings.switched_on_at` ("vorher" / "seit Einschalten"; never switched on: everything "vorher").
+2. **Small-team suppression, two rules, both AN1's three:** the proposal shares follow AIG1-7 (fewer than three distinct confirmers of the team's lines in the month → every value except `day_plans` and `lines` is null, `proposal_suppressed`); the continuity shares follow AN1 (fewer than three performers of the team's completed visits in the month, `private.pilot_team_people` → null, `continuity_suppressed`). Two rules because the "before" months have no confirmer at all; one confirmer rule would hide the baseline the brief asks for.
+3. **Access as AIG1-7:** an active member reads her own teams, coordinators (OPS1) every team of their organisation; LEAVE1-3; other organisations nothing. No person, outcome or confirmer column (pgTAP catalogue check). Writes nothing; no table, so no RLS policy, grant or audit trigger is added.
+4. **Screen:** `/operations/assistenten/tagesvorschlag` (desktop, linked "Tagesvorschlag in Zahlen" from the health list), month from `?monat=YYYY-MM` (default the current Zurich month); one row per team, seven cells (`planTeamMeasureCells`, pure). A suppressed value reads "nicht ausgewiesen (weniger als 3 Personen)", a missing one "–", never 0; a failed read says "Die Zahlen konnten nicht geladen werden." (`warn` event `plan3.team_measures_failed`).
+
+**Trade-offs:** one reader per month keeps the AIG1-7 shape and needs no snapshot table. `visit_performer` runs per completed visit; acceptable at pilot size (AN1 does the same).
+
+**Deviations / notes for the PO (and `cra`, `aia`, `uxa`):**
+1. *"Before and after" for the "kein Vorschlag" share:* no day plan exists before a team switches on, so the "before" side is empty by construction; the split is built for continuity only.
+2. *Switch-on date:* `team_day_proposal_settings` keeps only the latest switch-on. A team that switched off and on again is split at the latest date; earlier on/off spans are not separated (the audit rows hold them; PLANNED only if the PO asks).
+3. *Primary nurse and deputy are read as they are now*, not as they were on the visit day (AN2 has the same limit for history).
+4. *Confirm-time refusals* (PLAN3-14 `overlap` at confirm) are not stored, so they are not in the "kein Vorschlag" split; only the limits stored at proposal time are. OPEN for `po` whether a refusal count is wanted (it would need a stored refusal).
+5. *Confirm actions count every confirmation* of the month's lines, re-checks after a stop included.
+6. *Screen for the team:* the reader already answers a team member for her own teams; only the Operations page is built. A `/team` entry is PLANNED if the PO wants it (`uxa`).
+7. *Labels are Engineering's* ("Tagesvorschlag in Zahlen", "Unverändert bestätigt", "Geändert (Gegenmass)", "Bestätigungen pro Tagesvorschlag", "Minuten bis zur letzten Entscheidung (Median)", "Kein Vorschlag" with "Nicht verfügbar / Pflegefachperson nötig / Abwesend / Überschneidung", "Einsätze durch Bezugs- oder Stellvertretungsperson"), OPEN for `uxa`.
+8. *Continuity in pgTAP:* Testorganisation G has no completed visit, so pgTAP 114 proves the suppression (null, never 0); the split itself was run once against a stub schema (below), not in CI.
+
+**Clinical gate:** PLAN3 is in scope. The Clinical Governance Report's PLAN3-7 line (AUT-25 share: team level, small-team suppression, no stop criterion) has no clinical objection; no other finding names PLAN3-7. No clinical rule, threshold or stop criterion is added (ADR-120 deviation 4 unchanged). `lca` not needed (aggregates of existing reads, no person column, suppression kept).
+
+**Not set by this:** any target or threshold for these shares; no AI service. The live project is not touched (D-1).
+
+**Checked by me (not CI):** `npm ci` failed in this session (npm "Exit handler never called"), so vitest, typecheck, lint, build, pgTAP and e2e were **not** run with the project's toolchain. The pure label functions ran once under Node type stripping (7 assertions plus the cell lists, passed). Migration 0113 was created in a throwaway local PostgreSQL 16 against **stub** tables and helpers (not the real schema) and run on the pgTAP 114 fixture: the values matched the assertions (2 plans, 5 lines; suppressed with two confirmers; 66.7 / 33.3 %, 1.5 actions, 20.0 min, 2 lines "kein Vorschlag" = 40 %), and a continuity case gave 50 % before / 100 % since the switch date. CI is the test runner.
+
+**Rollback:** revert the PR; `drop function if exists public.plan3_team_measures(date);` (no table, no data).
+
+### ADR-152 — CGR-139: one member label for every picker that assigns a visit; two unnamed members never read the same
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Trigger:** `cra` CGR-139 (2026-11-06 01:30, advisory S2, PS-124, a condition of PLAN3 acceptance), `uxa` UXR-102 (#884) · **Brief:** `docs/agents/briefs/PLAN3.md` (CGR-78 (b) "proposed member shown") · **Migration:** none · **Stacked on:** #886 (ADR-151) · **Proof:** vitest `cgr139-member-picker-label` (written first), e2e `plan3.spec` (picker options distinct, caller "(du)")
+
+**Context (IMPLEMENTED before):** a member without an ADM1 display name read as plain "Teammitglied" in the `/team/tagesplan` member heading (and its `aria-label`) and "Ändern" picker, on `/team/vorschlaege` (picker and proposed value) and in the record look-back "Ändern" picker. Two such members read the same; on the day plan the person planning was not marked "(du)". `/team` (`memberLabel`) and the handover (`private.member_code`, 0033; CGR-108 form on #800) already number members by their position in the team ordered by user id.
+
+**Decision:**
+1. **One pure function `pickerMemberLabel` (`src/features/team/member-label.ts`)** with the form `cra` confirmed: the display name (trimmed); "<Name> (du)" for the caller, "Ich (du)" without a name; otherwise "Teammitglied <n> (ohne Namen)". When the position is not known it reads "Teammitglied (ohne Namen)"; a number is never guessed.
+2. **The number comes from the reader /team already uses:** `team_cases` lists every membership of the team ordered by user id (0021), the same order as `private.member_code`. `memberNumbers` turns that list into positions from 1. The confirm screen's members (`TeamMemberOption.no`, also used by the record look-back) and the day-plan team (`DayPlanTeam.roster`, ids and "me" only) carry it; `groupDayPlan` adds `no` and `me` to each member block. No new read, no grant, no migration; who may be picked is unchanged.
+3. **Applied to:** day-plan member heading and its `aria-label`s, day-plan "Ändern" options, `/team/vorschlaege` "Ändern" options and the proposed value, record look-back "Ändern" options.
+
+**Trade-offs:** numbering in the app from `team_cases` instead of a database column avoids changing three readers' return types; it relies on `team_cases` keeping its order (pinned by the vitest wiring check and the `member_code` comment).
+
+**Deviations / notes for the PO (and `cra`, `uxa`):**
+1. *e2e with two unnamed members:* the seed has no team with two unnamed members (Testorganisation G's three are named), and adding them would change the pgTAP 002 user counts. The two-unnamed case is proven in vitest (labels and `groupDayPlan`); e2e checks that every picker option on the day plan differs and that the caller's option ends "(du)". OPEN for `po` whether a seeded unnamed pair is wanted.
+2. *Visible change for named callers:* the caller's own option and heading on `/team/tagesplan` now end "(du)" (as `/team/vorschlaege` already did); the proposed value on `/team/vorschlaege` also ends "(du)" when the caller is the proposed member. `plan3.spec` updated accordingly.
+3. *Other "Teammitglied" fallbacks* (`/field`, `/team` responsible line, `/visits/[id]` responsible, contract-end, signals, lifecycle) are not pickers and are not changed here; the record page's responsible line keeps "Teammitglied" (OPEN `uxa`/`po` whether it should carry the number, it would need the record's team roster).
+4. *Placement:* `cra` left the placement to `po` (PLAN3 part (b) slice or UX2-27). Built as its own PR on the PLAN3 stack because the day-plan screen exists only there.
+
+**Clinical gate:** remedy of CGR-139 in the form `cra` confirmed; no clinical rule, threshold or stop criterion. `lca` not needed (no new personal data: ids already on these screens, display names as before).
+
+**Checked by me (not CI):** `npm ci` failed in this session again, so vitest, typecheck, lint, build and e2e were **not** run with the project's toolchain. The pure functions (`pickerMemberLabel`, `memberNumbers`, `groupDayPlan` with a roster) ran once under Node type stripping (passed). CI is the test runner.
+
 **Rollback:** revert the PR (no migration, no data).
+
+### ADR-153 — CGR-140: the PLAN3-7 measure counts a rejected line in its own share "Abgelehnt"
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Trigger:** `cra` CGR-140 (2026-11-06 01:30, advisory S3: "before the measures are used for P-39 / P-40 or for any decision on the day-plan assistant"; owner `eng` / `po`, `aia` for the measure), `aia` review 32 (2026-11-06 02:15: option (a) supported) · **Brief:** `docs/agents/briefs/PLAN3.md` PLAN3-7 (AUT-1 balancing measure) · **Migration:** 0114 · **Stacked on:** #888 (ADR-152; measure from #886, ADR-151) · **Proof:** vitest `cgr140-rejected-share` (written first) and `plan3-7-team-measures` (cells updated), pgTAP 114 (+3: a rejected line, 50 / 25 / 25, sum 100 ± 0.1)
+
+**Context (IMPLEMENTED before, 0113 on #886):** `decided_lines` counted a proposed line whose latest AIG1 outcome is `confirmed`, `corrected` or `rejected`, but `confirmed_unchanged_share` counted only `confirmed` and `corrected_share` ("Geändert (Gegenmass)") only `corrected`. A rejected line was in the base and in neither share: the shares did not add up to 100 %, and a team that turned proposals down looked as if it had accepted them. The 0113 header said "corrected_share … corrected or rejected", which the code did not do. pgTAP 114 had no rejected line.
+
+**Options:** (a) a third share "Abgelehnt" (rejected ÷ decided); (b) fold rejections into `corrected_share` (as AIG1-7 `agent_correction_rates` does) and rename it. `cra` named both and left the choice to `eng` / `po` with `aia`.
+
+**Decision (HOW, Engineering; `po` may overrule):**
+1. **Option (a).** `aia` review 32 supports it: a correction ("right visit, other member") and a rejection ("this proposal is not wanted") point at different causes (member rule vs. the proposal or visits the team plans differently); merged, they cannot be told apart. (a) is also additive: `corrected_share` keeps its meaning, no existing value changes.
+2. **Migration 0114** drops and recreates `public.plan3_team_measures(date)` with one new column `rejected_share numeric` after `corrected_share` (a return-type change cannot use `create or replace`). Same scope, LEAVE1-3, AIG1-7 / AN1 suppression, grants (`revoke … from public, anon`, `grant execute … to authenticated`) and comment, now naming the three shares. No table, so no RLS policy, column grant or audit trigger; nothing depends on the function (checked). Idempotent: `drop function if exists` then `create`. 0113 is not edited, so its reviewed head (#886, `cra` gate) stays as it was; 0114 carries the corrected header.
+3. **Screen:** `/operations/assistenten/tagesvorschlag` shows a cell "Abgelehnt" right after "Geändert (Gegenmass)"; hidden with the other shares for a small team; a missing value reads "–", never 0. `PlanTeamMeasure.rejected_share`, `getPlanTeamMeasures`, `database.types.ts` (by hand; the types bot regenerates it).
+4. **AIG1-7 unchanged:** `agent_correction_rates` (0097) still counts corrected and rejected together as its correction rate per agent and field (the AIG1 definition); the two pages answer different questions and say so in their labels.
+
+**Deviations / notes for the PO (and `aia`, `uxa`):**
+1. *Label* "Abgelehnt" is Engineering's (as ADR-151 deviation 7); OPEN for `uxa`.
+2. *Rounding:* each share is rounded to 0.1, so the three may sum to 99.9 or 100.1; pgTAP checks ± 0.1.
+3. *Placement:* its own PR on the PLAN3 stack, because the measure exists only on #886. If the PO prefers (b), this PR is closed and a (b) PR replaces it; nothing else depends on it.
+
+**Clinical gate:** `cra`: "not a clinical rule; a measure-integrity issue". No rule, threshold, target or stop criterion added. `lca` not needed (no new data; counts per team only, no person column, pinned by the pgTAP 114 catalogue check).
+
+**Checked by me (not CI):** `npm ci` failed in this session again, so vitest, typecheck, lint, build, pgTAP and e2e were **not** run with the project's toolchain. `planTeamMeasureCells` ran once under Node type stripping (order, "Abgelehnt", "–", suppression: as the vitest expects). 0113 then 0114 (twice, idempotent) were applied once to a throwaway PostgreSQL 16 with stub tables and the pgTAP 114 fixture: before the rejection 66.7 / 33.3 / 0.0, 1.5 actions, 20 min (the existing assertions unchanged); after it 4 decided, 50.0 / 25.0 / 25.0. Not the real schema. CI is the test runner.
+
+**Rollback:** revert the PR; 0113's function returns without `rejected_share` (a later migration would recreate it from 0113).
+
+### ADR-154 — UXR-113: the /team new-visit "Verantwortlich" picker takes the CGR-139 member label
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Trigger:** `uxa` UXR-113 (2026-11-06 03:50, high, added to #884): the `/team` "Neuer Einsatz" → "Verantwortlich" picker shows "Ich" and "Teammitglied <n>" even for named members · **Scope basis:** ADR-152 already reads "every picker that assigns a visit"; this picker sets `responsible_user_id` of a new visit and was missed by #888 · **Migration:** none · **Stacked on:** #890 (ADR-153; label from #888, ADR-152) · **Proof:** vitest `uxr113-new-visit-picker` (written first), e2e `plan3.spec` (UXR-113 test at 390 px, read only)
+
+**Context (IMPLEMENTED before, `recovery/main` `404346c`):** `team-client.tsx` `PlanForm` labelled each option `m.me ? "Ich" : \`Teammitglied ${i + 1}\`` plus the qualification, so a named colleague read as a number while the visit line on the same card names her (H-01, PS-124: a visit can go to a colleague who does not expect it).
+
+**Decision (HOW, Engineering):**
+1. **One more pure function `teamPickerOptions(roster)`** in `src/features/team/member-label.ts`: `pickerMemberLabel` with the member's /team position from `memberNumbers` (the `team_cases` order, the same `<n>` as `memberLabel` and the handover), then " – <Qualifikation>" when recorded (unknown code shown as given). A repeated id is listed once at its first place.
+2. **`PlanForm` uses it.** Values, default (the caller), "Team (noch niemand)" and who may be picked are unchanged; no new read, grant or migration.
+
+**Deviations / notes for the PO (and `cra`, `uxa`):**
+1. *Placement:* `uxa` left it to `po` ("fits #888 before PLAN3 acceptance"). Built as its own small PR on the PLAN3 stack because it completes ADR-152's stated scope; the PO may close it and place it elsewhere.
+2. *`cra` scope confirmation OPEN:* `uxa` asks `cra` to confirm the widening of CGR-139 / PS-124 to this picker. The label form is the one `cra` already confirmed for CGR-139; nothing else changes.
+3. *UXR-114 not built:* `memberLabel` on `/team` (continuity pickers and lines) keeps "Ich (<Name>)" / "Teammitglied <n>"; aligning it changes `/team` wording that `cra` fixed under CGR-108 and that `journey.spec` pins ("Ich – Pflegefachperson"). OPEN for `po`/`uxa`/`cra`.
+4. *Visible change:* the caller's option now reads "<Name> (du) – <Qualifikation>" (or "Ich (du) – …") instead of "Ich – …"; no e2e selects this picker by label (they select by value or "").
+
+**Clinical gate:** remedy form of CGR-139 as `cra` confirmed it; no clinical rule, threshold or stop criterion. `lca` not needed (display names already shown on the same card).
+
+**Checked by me (not CI):** `npm ci` failed in this session again ("Exit handler never called"), so vitest, typecheck of the project, lint, build and e2e were **not** run with the project's toolchain. `teamPickerOptions` ran once under Node type stripping with the vitest roster (output equal to the expectations) and `member-label.ts` type-checked alone under `tsc --strict`. CI is the test runner.
+
+**Rollback:** revert the PR (no migration, no data).
+
+### ADR-155 — PLAN3-7 (2): the team sees its own day-plan numbers under its switch on /team/tagesplan
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Trigger:** PO note 2026-11-06 06:30 in `briefs/PLAN3.md` (PO PR #893, **not yet merged** when this was built), `aia` AUT-52 (review 32, medium): the team holds the PLAN3-10 switch but its numbers went only to Operations · **Migration:** none · **Stacked on:** #891 (reader from #886/#890, ADR-151/-153) · **Proof:** vitest `plan3-7-2-team-own-line` (written first), e2e `plan3.spec` (two tests at 390 px)
+
+**Context (IMPLEMENTED before, on the stack head `487c84a`):** `plan3_team_measures(month)` (0113, 0114) already answers a team member for her own teams (coordinators for every team), with AIG1-7 / AN1 suppression. Only `/operations/assistenten/tagesvorschlag` showed it.
+
+**Decision (HOW, Engineering):**
+1. **Same reader, no new read.** `/team/tagesplan` calls the existing `getPlanTeamMeasures` for the current Zurich month (`monthParam(undefined)`) in the same `Promise.all` and passes **only the selected team's row** to the client (a coordinator's read returns other teams; they never reach the page). The selected team is still one of the caller's own (`team_cases`); `?team=<other team>` falls back to the caller's first team as before.
+2. **One information line under the switch**, pure `planTeamOwnLine` in `src/features/ai/labels.ts`, the brief's wording: "Diesen Monat: <n> Tagesvorschläge · <x> % unverändert bestätigt · <y> % ohne Vorschlag" (singular "1 Tagesvorschlag"; a missing share "–", never 0). Suppressed month (fewer than three confirmers, AIG1-7): the count stays, the shares read "Anteile nicht ausgewiesen (weniger als 3 Personen)", as on Operations. No row or no day plan: "Diesen Monat: noch kein Tagesvorschlag". Failed read: "Die Zahlen dieses Monats konnten nicht geladen werden." Plain text, no colour above `info`, no target, no comparison, no person, no team name.
+3. **The month's cells in a disclosure** "Alle Zahlen dieses Monats" on the same page (`planTeamMeasureCells`, the Operations cells for this one row), shown when the month has a day plan.
+
+**Deviations / notes for the PO (and `uxa`, `aia`):**
+1. *Built on an unmerged PO note:* PLAN3-7 (2) is in PO PR #893, not on `recovery/main`. If the PO changes it before merge, this PR follows or is closed.
+2. *"plus the largest 'kein Vorschlag' reason when it is one the team can fix itself (no primary nurse set)" not built (OPEN `po`):* the reader's "kein Vorschlag" reasons are the four PLAN3-2 limits (`not_active`, `needs_rn`, `absent`, `overlap`, ADR-145); "no primary nurse set" is not one of them, because a visit without a primary nurse still gets a "freie Kapazität" line. Showing it needs a new count (visits proposed without a primary nurse) in the reader, i.e. a migration and a new figure. Engineering does not decide which reason the team "can fix itself". Proposed: the PO states which code(s) count, or adds the count as its own criterion.
+3. *"one link to the month's cells" built as an in-page disclosure:* the cells live on `/operations/assistenten/tagesvorschlag`, in the coordinator area (Operations navigation is coordinator-only). A disclosure shows the same cells for this team without sending a nurse into it. If the PO prefers the link, it is a one-line change.
+4. *Wording OPEN `uxa`* (the PO asked `uxa` for the PLAN3-7 (2) line): built as the brief quotes it; the suppressed, empty and failed texts are Engineering's.
+5. *e2e* asserts the line form, not exact shares: in the seed only teamg.test decides lines, so the shares are suppressed; the exact texts are pinned in vitest.
+
+**Clinical gate:** no clinical rule, threshold, stop criterion or new figure; same reader and suppression `cra` reviewed for ADR-151/-153. `lca`: no new processing purpose (PO 06:30: "PLAN3-7 (2) reuses a reader the team already has").
+
+**Checked by me (not CI):** `npm ci` and a scratch `npm i vitest` failed or timed out in this session, so vitest, typecheck, lint, build and e2e were **not** run with the project's toolchain. `planTeamOwnLine` ran under Node type stripping with the vitest cases (outputs equal to the expectations). CI is the test runner.
+
+**Rollback:** revert the PR (no migration, no data).
+
+**Note 2026-11-06 18:50 (base merge after #814, AIG1-C4/-C5):** #814 seeded its own *Testorganisation G* with the same ids, names and e-mail (`bezugg.test`) as the PLAN3 part (b) fixture of this stack (ADR-147). Both cannot load. The PLAN3 fixture moved, unchanged in shape, to **Testorganisation H** (org …018, Testteam H …1a8, Testfall H1/H2 …2a8/…2a9, teamh/bezugh/assisth …9d7-…9d9, visits …5d1-…5d5) in `seed.sql`; `plan3.spec.ts`, pgTAP 110 and 114 follow; pgTAP 002 counts 14 test users. #814's Testorganisation G is untouched. The health-list link on `/operations/assistenten` keeps #814's "Betroffene Werte ansehen" (its e2e and unit tests pin it); the stack's UXR-112 "prüfen" stays on the exception card and on `/team`. OPEN `uxa`: one wording for both Operations links. No data, rule or read changed.
 
 ### ADR-136 — UX2-26: the qualification in the same sitting as the contract; the existing command on the same admission card, nothing preselected, "Später" sets nothing
 
