@@ -229,6 +229,15 @@ export function countOpenReports(rows: { kind: string }[]): OpenReportCounts {
   return counts;
 }
 
+/**
+ * RLS4-C3 (po 2026-11-03 06:30; `cra` CGR-111, `uxa` UXR-73; ADR-138). The access-end step's failure line, its one
+ * action, and the result-line sentence when her open-report count could not be read. The sentence is the PO's interim
+ * text, confirmed by `cra` 2026-11-03 09:30; `uxa`'s 07:52 proposal replaces it once the PO agrees (ADR-138 dev. 1).
+ */
+export const OPEN_REPORTS_UNREAD_MESSAGE = "Offene Berichte konnten nicht geladen werden.";
+export const OPEN_REPORTS_RETRY_LABEL = "Erneut laden";
+export const OPEN_REPORTS_UNKNOWN_SENTENCE = "Offene Berichte unbekannt: das Team sieht sie mit «Zugang beendet».";
+
 /** "2 nicht unterschrieben · 1 zurückgegeben, offen", or the empty text. */
 export function openReportsText(counts: OpenReportCounts | null): string {
   if (!counts) return "";
@@ -251,6 +260,8 @@ export function accessEndedNotice(counts: OpenReportCounts | null, released = 0,
   const open = counts ? OPEN_REPORT_KINDS.reduce((sum, k) => sum + counts[k], 0) : 0;
   // WORK1-C3 (a): only when there are some; the administrator alone receives this result.
   const days = unexportedDays && unexportedDays > 0 ? ` ${unexportedDaysText(unexportedDays)}.` : "";
+  // RLS4-C3 (2): a missing count is never "keine" (H-12); the sentence says it is unknown and where the team sees them.
+  if (counts === null) return `Zugang beendet.${visits}${signals} ${OPEN_REPORTS_UNKNOWN_SENTENCE}${days}`;
   if (open === 0) return `Zugang beendet.${visits}${signals} Keine offenen Berichte.${days}`;
   return `Zugang beendet.${visits}${signals} Offen bleiben: ${openReportsText(counts)}. Das Team sieht sie mit «Zugang beendet»; sie werden nicht verrechnet.${days}`;
 }

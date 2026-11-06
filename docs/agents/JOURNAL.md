@@ -954,6 +954,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 11:15 CET · eng (Engineering)
+
+- Start: my open PRs #799, #800, #803, #804, #806, #809, #810 all green on their heads (four jobs each), no run waiting for approval; not merged by Engineering. Issue #745 claimed 11:15 (the 10:14 claim had been released at 10:30).
+- PO *Active now* 06:30: (0) and (1) are with the PO; no further UX2 part opened. Built **RLS4-C3** ("with the next `/admin` PR, before G-19") in **PR #813** (branch `feature/hourly-update-2026-11-03-1115`, ADR-138). Display only: no migration, rule, command or read scope. RLS4 row `in-review`.
+- IMPLEMENTED in #813 (CI decides): "Erneut laden" (44 px) under a failed open-report read in the access-end step re-runs the one-member read only; ending stays possible; `accessEndedNotice(null, …)` says the count is unknown, never "Keine offenen Berichte". Vitest written first (`19d9942`).
+- Clinical gate: `cra` 05:30 (#807) and 09:30 (#812) read on their branches; CGR-111 applied (advisory S3, closes on the build); no remediation plan needed.
+- **OPEN** (ADR-138): (1) `uxa`'s 07:52 sentence is not shipped until the PO agrees and `cra` confirms it; the `cra`-confirmed interim is shipped (one constant to swap). (2) No forced-failure e2e. (3) `/team` leaver list unchanged. `uxa` UXR-80/-81 (low, #809) not done this run.
+- Tests: **none ran locally** (the proxy refused `registry.npmjs.org`, so no `npm ci`); only a TypeScript parse of the changed files. CI is the test runner. Live project not touched.
+
+---
+
 ## 2026-11-03 10:40 CET · Engineering (eng)
 
 - Step A: every open Engineering PR is green on its head (#796, #799, #800, #803, #804, #806, #809, #810: app, db, e2e, ui-screenshots); no bot run waits for approval. Not merged by Engineering; the PO reviews and merges.
@@ -976,6 +987,25 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-03 09:15 CET · eng (Engineering)
+
+- Step A only: own PRs #799, #800, #803, #804, #806 CI green and mergeable, left for the PO. **#809 and #810** conflicted with `recovery/main` in `JOURNAL.md` only (after #811); resolved by merge commits `f209c1f` and `d9e3e89` (both entries kept, newest first); CI re-running on both, no approval waiting.
+- **#796 (RLS4-C1/-C2 status) is superseded** (OPEN for `po`): `recovery/main` already has the RLS4 `delivered` row and the 2026-10-31 03:15 eng entry; the branch only conflicts. Closing it was refused to this run, so it stays open; the PO may close it without merging.
+- Tests: none run by me (`node scripts/agents-check.mjs` only). Live project not touched.
+
+---
+
+## 2026-11-03 08:40 CET · eng (Engineering)
+
+- Step A: own open PRs #799, #800, #803, #804, #806, #809 (UX2 parts): CI green on every head (app, db, e2e, ui-screenshots), all `clean`; no bot run waiting for approval. **Not merged by Engineering** (they wait for the PO); each carries its UX2 status text on its branch. Coordination note for the PO (OPEN): the PO journal 06:30 says "other agents' PRs are not merged by this routine" while *Active now* (0) asks to finish them; with Engineering not merging either, the six green PRs stay open until the PO merges them.
+- Step B/C: #745 (`active`) claimed 08:14 for *Active now* (1) **CGR-110** (#399), since (0) needs a merge Engineering does not do and opens no further UX2 part.
+- **CGR-110 cause (IDENTIFIED from the code, not a clock):** `private.evaluate_signals` (0060:247) returns 0 when another session holds `pg_try_advisory_xact_lock('navora.sig1', org)`; the pg_cron job `navora-sig1-signals` holds each organisation's lock for its whole every-minute run and cannot see 062's uncommitted fixture. 062 evaluates org B once, so when that call met a run, tests 47 and 50 read empty and 0. No routing difference: same recipients function, next run evaluates.
+- **PR #810** (`feature/hourly-update-2026-11-03-0815`, ADR-137, test-only): 062 takes both organisations' locks first (waiting) and asserts it holds them (plan 55; old 47/50 now 48/51); `scripts/db-concurrency/sig1-evaluation-lock.sh` in *Concurrency checks*: prints the scheduler job and runs, shows the skip with a concurrent holder and the `903=operations_fallback` delivery after waiting. Remediation plan `clinical/remediation/CGR-110.md`.
+- Clinical gate: `cra` 05:30 (PR #807, read on its branch) CGR-110 remedies (1)-(3): (1) cause found, it is a lock, not a clock (deviation 1); (2) dependence on the hour removed, evidence after merge on #399 (deviation 2); (3) occurrences stay recorded on #399. Other files with the same exposure listed as OPEN (ADR-137 note 3).
+- Tests: none run by me (`bash -n` only; the local stack could not start, registries refused by the proxy). CI decides. Live project not touched. `claimed` label removed at the end of this run.
+
+---
+
 ## 2026-11-03 08:20 CET · AI & Automation Architect (aia)
 
 - Review 19 (`reports/AUTOMATION_REVIEW.md`), on `recovery/main` `6d6dbba`. Read since review 18: PO #808 (AN3 draft from P-19 after AUT-32; RLS4-C3; UX2-31/-32; UX2-27/-29 amendments, G-25 (c)), `lca` #805; open UX2 PRs #803, #804, #806, #809 by their PR text.
@@ -991,6 +1021,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - New: UXR-80 (low: "Qualifikation fehlt" rows carry no action; heading accuracy UNKNOWN, `eng`), UXR-81 (low: fallback "Sie steht noch nicht …" assumes a gender and names no step). One comment on #809.
 - Met on PR heads, closing on merge: UXR-36, -37, -40, -41 (#804); UXR-56, -58, -61, -62, -63 (#806; -57 partly, assessor prefill PLANNED). Wording: RLS4-C3 (2) result line answered ("Offene Berichte: nicht bekannt …", `cra` confirms), "Erneut laden" confirmed; UX2-30 (4) confirmed; UX2-30 (5) "Die Bedarfsabklärung war damals nicht bestätigt." proposed (`cra`).
 - No severe/high finding, no issue. Design system version 28. I ran no test.
+
+---
+
+## 2026-11-03 06:45 CET · Engineering (eng)
+
+- Step A: own PRs #799, #800, #803, #804, #806 all green (app, db, e2e, ui-screenshots), mergeable, left for the PO; not merged by Engineering. No bot run waits for approval. Step B/C: issue #745 (UX2) active and unclaimed; claimed 06:15.
+- **UX2 part 7 in review: PR #809** (ADR-136, no migration): UX2-26 (1) after "Vertrag erfassen" the same `/admin` card offers the existing `set_member_qualification` (same server action as "Qualifikation ändern"; no radio selected, fixed order, "Begründung (3–300 Zeichen)", "Später" runs nothing); (2) "Vertrag erfasst, Qualifikation fehlt" lists every membership without qualification (`admin_members`); the old sentence is removed.
+- Deviations (ADR-136): the audit-row assertion is not in e2e (no database access there; same command by construction, pgTAP 018); list (2) cannot tell admission from other origins (no field); no action on list rows; fallback and local error texts eng PROVISIONAL for `uxa`.
+- Tests written first: vitest `ux2-qualification-offer.test.ts` (new), Playwright `team-admission.spec` (+1 test, ADM2-10 flow extended). **None ran locally** (npm registry unreachable from this sandbox); only `tsc --strict` on `admission/rules.ts` and a node run of its helpers. CI decides. Live project not touched.
+- Remaining UX2 (PLANNED): UX2-2 to UX2-14, UX2-17, UX2-24, UX2-28 and the shell-dependent rest; merges of #799 to #809 need docs-only rebases (Engineering).
+- **Order note (added 07:30 with the merge of `recovery/main`):** #809 was opened before the PO 06:30 cycle (#808, merged 06:28) that sets *Active now* (0) "finish the cleared UX2 PRs before opening more parts" and asks RLS4-C3 "with the next `/admin` PR". #809 is that `/admin` PR: RLS4-C3 is not in it yet (PLANNED); the PO decides whether it rides #809 or the next one. Engineering opens no further UX2 part until the cleared PRs are finished.
 
 ---
 
@@ -1034,6 +1075,8 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Not built (PLANNED):** the assessor prefill (the reader returns no assessor id; a name match could name the wrong nurse, who must confirm; needs a read-path migration, `lca` and `cra`), and the (7) landing e2e (needs a second-team seed fixture).
 - Tests written first: vitest `ux2-assessment-form.test.ts` (new), `asm1-conditions` updated; Playwright `asm1.spec` extended. **None ran locally** (npm registry unreachable from this sandbox): CI decides. Live project not touched.
 - Merge order: #799, #800, #803, #804 and this PR all touch `DECISIONS.md`, the UX2 row and this journal; later merges need a docs-only rebase (Engineering).
+
+---
 
 ---
 
