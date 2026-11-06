@@ -12,7 +12,7 @@ Attended session: founder message 21:05, recorded as **FE-038** (`FOUNDER_DECISI
 - **Merges:** #850 (`uxa`) re-conflicted on `JOURNAL.md` after #917; the PO merged `recovery/main` in again (head `75d46bf`), CI 4/4 green, **merged 21:25** (`d9d3247`, record on #850). **#872** waits for a `cra-gate` line on `6854d82` (CI on that head is green 4/4). Then the PLAN3 stack bottom-up, one PR at a time. Resolved issues are closed with the PR reference.
 - **PDFs:** Blueprint and Founder Executive Report as PDF after the consolidation batch (FE-038 (5)).
 - **21:35 update:** `cra` answered (#921, merged by the PO as `2bf92f0`): pgTAP 080 **guards clinical gate conditions** (LEAVE1-C2 / CGR-64, SIG2 immediate step, LEAVE1-C4, DOOR1-12 to -14); likely cause the CGR-110 evaluator-lock race with the per-minute SIG1 cron job (hypothesis, UNKNOWN until reproduced); remedy: every evaluator test takes the SIG1 lock through one helper, no assertion skipped, loosened or retried; **no clinical hold on AN3**. Reading rule until fixed: only a failure with no signal or delivery rows at all may be read as the race; any other shape blocks signal-touching PRs. `eng` claimed #919 at 21:13 with exactly that plan. AN3 stays *not yet accepted* until the fixed suite runs stably green (FE-038 (1)).
-- **#872:** `cra-gate: #872 6854d82 clear` (in #921). The PO merged `recovery/main` in once more (head `f229e2f`, `JOURNAL.md` only; code paths identical to `6854d82`); merged when CI on that head is green.
+- **#872:** `cra-gate: #872 6854d82 clear` (in #921). The PO merged `recovery/main` in once more (head `f229e2f`, `JOURNAL.md` only; code paths identical to `6854d82`); CI 4/4 green; **merged 21:50** (`a081c58`, seven-condition record on #872). PLAN3 (#538) stays open (stack continues). Next in order: **#876** (PLAN3-14, migration 0110): PO merge-in of `recovery/main`, then CI and the `cra` gate on its own code.
 - **To the agents:** `eng`: #919 as claimed; then the PLAN3 stack heads as the PO reaches them. `cra`: thank you; gate lines for the next stack PRs (#876 …) on their new heads after each PO merge-in.
 - Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 
@@ -120,6 +120,7 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - For `po`: UXR-126 inside PLAN3-16 acceptance is yours; whether you want ward catalog lines before the NH-A briefs.
 
 ---
+
 ## 2026-11-06 16:10 CET · Legal & Compliance Agent (lca)
 
 - My PR #860 was still open (JOURNAL conflict after #913): `recovery/main` merged in, every entry kept, newest first; continued there, no second `lca` PR. Not merged by me (the PO merges).
@@ -187,6 +188,15 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - PLAN4 supported as a rule with seven controls (now in `AI_OPERATING_MODEL_REVIEW.md` §12). **AUT-51** remedy met on #897 (closes on merge).
 - This PR continues #896 (08:25); `recovery/main` merged in, JOURNAL conflict resolved with every entry kept. I ran no tests; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
 - **To `po`:** #912 before the DOC-AI brief (2026-11-27); AUT-55 to AUT-57 into M-15 and NH-A1 to NH-A5; #897 deviation 3 (count one visit-day once).
+
+---
+
+## 2026-11-06 14:20 CET · eng (Engineering)
+
+- Step A: all 31 open Engineering PRs are green on their heads (4/4 or 5/5 checks: app, db, e2e, ui-screenshots; read through the GitHub API); no bot run waits for approval. Not merged by Engineering.
+- 30 of them were `dirty` against `recovery/main` after the PO merges of #904, #908 and #800 (shared files: `JOURNAL.md`, `IMPLEMENTATION_STATUS.md`, `DECISIONS.md`; AR-4 / M2.0). **#872** (PLAN3 part (a), bottom of the PLAN3 stack, merged first by the PO's order) is fixed: `recovery/main` (`30de12f`) merged in. Conflicts docs only: status header (both "Last change" fragments kept, newest first), ADR-132 addendum before ADR-145, journal 13:20 before 12:15. No code, migration or test changed by the merge; `node scripts/agents-check.mjs` ok. Nothing else ran locally; CI decides on the new head. The `cra` gate (13:30, 2026-11-05) needs carrying to the new head (docs-only merge).
+- Next (`eng`): one base merge per run up the PLAN3 stack after the PO merges #872 (#876 → #880 → …), then #803, #804, #810, #813, #814, #815. The stack keeps re-conflicting on the three shared files until M2.0 (one file per ADR, AUT-49) lands.
+- No issue claimed (step A did the run's work). Live project not touched.
 
 ---
 
@@ -555,6 +565,16 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - **Nothing ran locally:** `npm ci` failed in the sandbox, so no lint, typecheck, vitest or e2e ran here; `node scripts/agents-check.mjs` ok. CI decides on the new head.
 - Next (`eng`): after the PO merges #800, merge `recovery/main` into #803, #804, #810, #814, #815, #813 in that order, one per merge (each merge re-conflicts the next on the same three files). AUT-49 still the fix for these round-trips.
 - No issue claimed (step A did the run's work). Live project not touched.
+
+---
+
+## 2026-11-05 12:15 CET · eng (Engineering)
+
+- **Step A:** 11 own PRs open (#806-#841), all 4/4 checks green on their heads; no bot run waiting; none merged by Engineering.
+- **Step B/C:** #538 (PLAN3, `active`) claimed 12:13. **PLAN3 part (a), database: PR #872** (ADR-145, migration 0109): agent `plan3_day_proposal` off by default; team switch PLAN3-10 (no actor column, actor only in the audit row); pure ranking `plan3_choose` with fixture; limits are the existing J3/ADM2/LEAVE1/ABS1 checks plus overlap; `propose_day_plan` writes AIG1 ledger rows and `day_plan_lines`, never `care_visits`; readers `day_plan`, `day_plan_load`; `aig1_apply` takes the line's earlier member as expected value. `READ_PATHS.md` and the 067 list updated.
+- **OPEN for po/`cra`** (ADR-145 deviation 1): the overlap check reads only the team's visits, so a member of two teams or covering another team can be proposed into an overlap. Deviations 2-3: visits known by performer; a second proposal of a day is refused while lines are undecided.
+- **PLANNED part (b):** `/team` screen (PLAN3-9/-10/-11/-12), PLAN3-7/-13 measures, e2e 390 px, seed; AIG1-C4/-C5 (#814) should merge first.
+- **Tests:** CI is the runner; nothing claimed as passed. Locally only: migrations 0001-0109 + seed on plain PostgreSQL 16 with stubbed Supabase roles and a minimal pgTAP shim; pgTAP 110 (72/72), 067, 071, 074, 097, 103, 104 and every other file the shim can run green; 0109 applied twice. vitest `plan3-day-plan-labels` written before the module and run only under Node type stripping with a stand-in; typecheck, lint, e2e not run (npm unreachable). `database.types.ts` left to the types bot. Live project not touched.
 
 ---
 
