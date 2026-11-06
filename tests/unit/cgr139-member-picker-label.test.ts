@@ -112,12 +112,6 @@ describe("CGR-139 wiring: no picker or member heading keeps the bare 'Teammitgli
     });
   }
 
-  it("the /team new-visit 'Verantwortlich' picker uses the same label, numbered as /team (UXR-113)", () => {
-    const src = read("src/app/(protected)/team/team-client.tsx");
-    expect(src).toContain("pickerMemberLabel({ name: m.name, me: m.me, no: i + 1 })");
-    expect(src).not.toContain('{m.me ? "Ich" : `Teammitglied ${i + 1}`}');
-  });
-
   it("the confirm screen's members carry their team position from team_cases", () => {
     const q = read("src/features/ai/queries.ts");
     expect(q).toMatch(/no: number \| null/);

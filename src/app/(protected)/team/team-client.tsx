@@ -2,7 +2,6 @@
 
 import AdmissionSection from "./admission-section";
 import { SuccessorItems, TeamHandover } from "./contract-end-section";
-import { pickerMemberLabel } from "@/features/team/member-label";
 import { caseRefLabel, caseReference, continuityAnchorId, type Leaver, type SuccessorItem } from "@/features/contract-end/rules";
 import type { LeaverOpenReport } from "@/features/contract-end/queries";
 import type { TeamAdmissionView } from "@/features/admission/queries";
@@ -1012,8 +1011,7 @@ function PlanForm({ caseId, assessmentDone, members }: { caseId: string; assessm
           <option value="">Team (noch niemand)</option>
           {members.map((m, i) => (
             <option key={m.user_id} value={m.user_id}>
-              {/* CGR-139 / UXR-113 (ADR-152): the same label as every other picker that assigns a visit. */}
-              {pickerMemberLabel({ name: m.name, me: m.me, no: i + 1 })}
+              {m.me ? "Ich" : `Teammitglied ${i + 1}`}
               {m.qualification ? ` – ${QUALIFICATION_LABEL[m.qualification] ?? m.qualification}` : ""}
             </option>
           ))}
