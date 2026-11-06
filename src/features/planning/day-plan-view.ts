@@ -4,6 +4,7 @@
  * never computes a rule of its own. No maximum load (PLAN3-4, D-23).
  */
 import type { Database } from "@/lib/supabase/database.types";
+import { memberNumbers } from "@/features/team/member-label";
 
 type Fn = Database["public"]["Functions"];
 export type DayPlanLine = Fn["day_plan"]["Returns"][number];
@@ -12,6 +13,10 @@ export type DayPlanLoadRow = Fn["day_plan_load"]["Returns"][number];
 export type DayPlanMember = {
   member_id: string;
   name: string | null;
+  /** CGR-139: her position in the team ordered by user id (as /team and the handover); null when not known. */
+  no: number | null;
+  /** CGR-139: she is the person planning ("(du)"). */
+  me: boolean;
   /** Planned minutes of this team and day now / with the proposal's undecided lines; null when the load does not list her. */
   minutesNow: number | null;
   minutesWith: number | null;
@@ -22,11 +27,25 @@ export type DayPlanMember = {
 
 export type DayPlanGroups = { members: DayPlanMember[]; withoutProposal: DayPlanLine[] };
 
-/** PLAN3-9: one block per member (load order, every member of the load), then the lines with "kein Vorschlag". */
-export function groupDayPlan(lines: readonly DayPlanLine[], load: readonly DayPlanLoadRow[]): DayPlanGroups {
+/** The team's members as `team_cases` lists them (every membership ordered by user id) with the caller marked. */
+export type DayPlanRosterEntry = { user_id: string; me: boolean };
+
+/**
+ * PLAN3-9: one block per member (load order, every member of the load), then the lines with "kein Vorschlag".
+ * CGR-139: with the team's roster each member also carries her team position and whether she is the caller.
+ */
+export function groupDayPlan(
+  lines: readonly DayPlanLine[],
+  load: readonly DayPlanLoadRow[],
+  roster: readonly DayPlanRosterEntry[] = [],
+): DayPlanGroups {
+  const numbers = memberNumbers(roster);
+  const meId = roster.find((r) => r.me)?.user_id ?? null;
+  const ident = (id: string) => ({ no: numbers.get(id) ?? null, me: meId !== null && id === meId });
   const members: DayPlanMember[] = load.map((r) => ({
     member_id: r.member_id,
     name: r.member_name ?? null,
+    ...ident(r.member_id),
     minutesNow: r.minutes_now ?? null,
     minutesWith: r.minutes_with_proposal ?? null,
     otherTeams: r.other_team_visits === true,
@@ -41,7 +60,15 @@ export function groupDayPlan(lines: readonly DayPlanLine[], load: readonly DayPl
     }
     let m = byId.get(l.member_id);
     if (!m) {
-      m = { member_id: l.member_id, name: l.member_name ?? null, minutesNow: null, minutesWith: null, otherTeams: false, lines: [] };
+      m = {
+        member_id: l.member_id,
+        name: l.member_name ?? null,
+        ...ident(l.member_id),
+        minutesNow: null,
+        minutesWith: null,
+        otherTeams: false,
+        lines: [],
+      };
       byId.set(l.member_id, m);
       members.push(m);
     }

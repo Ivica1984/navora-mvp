@@ -114,7 +114,10 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
     const line1200 = page.getByTestId("day-plan-line").filter({ hasText: "12:00" });
     await line1200.getByRole("button", { name: "Ändern" }).click();
     const options = await line1200.getByRole("combobox").locator("option:not([disabled])").allTextContents();
-    const target = options.includes(BEZUG) ? BEZUG : "Pflegekraft Team G";
+    // CGR-139 (ADR-152): every option of the picker reads differently, and the person planning is marked "(du)".
+    expect(new Set(options).size).toBe(options.length);
+    const target = options.includes(BEZUG) ? BEZUG : "Pflegekraft Team G (du)";
+    if (target !== BEZUG) expect(options).toContain("Pflegekraft Team G (du)");
     await line1200.getByRole("combobox").selectOption({ label: target });
     await line1200.getByRole("button", { name: "Geänderte Zuteilung bestätigen" }).click();
     await expect(line1200.getByTestId("day-plan-decision")).toHaveText("geändert und bestätigt");

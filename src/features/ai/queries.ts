@@ -3,6 +3,7 @@ import "server-only";
 // AIG1 part (b) (ADR-129): readers for the proposal screens. Every read goes through the AIG1 functions of migrations
 // 0097/0103 as the signed-in person (no app grant exists on the AIG1 tables, AIG1-11 (1)); nothing here widens a read.
 
+import { memberNumbers } from "@/features/team/member-label";
 import { requireUser } from "@/lib/auth/session";
 import type { Database } from "@/lib/supabase/database.types";
 import { COORDINATOR_ROLES, PAGE_LABEL } from "@/lib/auth/nav";
@@ -15,7 +16,8 @@ export type OpenSuggestion = Fn["open_suggestions"]["Returns"][number];
 export type AgentHealthRow = Fn["agent_health"]["Returns"][number];
 export type LookbackLine = Fn["agent_stop_lookback"]["Returns"][number];
 
-export type TeamMemberOption = { user_id: string; name: string | null; me: boolean };
+/** CGR-139: `no` is her position in the team ordered by user id (team_cases; as /team and the handover), null if unknown. */
+export type TeamMemberOption = { user_id: string; name: string | null; me: boolean; no: number | null };
 
 export type TeamSuggestions = {
   team_id: string;
@@ -85,9 +87,12 @@ async function loadTeams(): Promise<TeamSuggestions[]> {
     for (const m of arr(c.members)) {
       const id = typeof m.user_id === "string" ? m.user_id : null;
       if (id && !t.members.some((x) => x.user_id === id)) {
-        t.members.push({ user_id: id, name: typeof m.name === "string" ? m.name : null, me: m.me === true });
+        t.members.push({ user_id: id, name: typeof m.name === "string" ? m.name : null, me: m.me === true, no: null });
       }
     }
+    // CGR-139: team_cases lists every membership of the team ordered by user id; the position is the /team number.
+    const numbers = memberNumbers(t.members);
+    for (const m of t.members) m.no = numbers.get(m.user_id) ?? null;
     for (const v of arr(c.upcoming)) {
       if (typeof v.visit_id === "string") t.clients[v.visit_id] = c.client_name;
     }

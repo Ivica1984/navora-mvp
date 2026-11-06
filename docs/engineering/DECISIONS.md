@@ -2671,3 +2671,28 @@ The `cra`/`lca`-fixed substance (SIG1-8 condition, billing-estimate limits, IPA1
 **Checked by me (not CI):** `npm ci` failed in this session (npm "Exit handler never called"), so vitest, typecheck, lint, build, pgTAP and e2e were **not** run with the project's toolchain. The pure label functions ran once under Node type stripping (7 assertions plus the cell lists, passed). Migration 0113 was created in a throwaway local PostgreSQL 16 against **stub** tables and helpers (not the real schema) and run on the pgTAP 114 fixture: the values matched the assertions (2 plans, 5 lines; suppressed with two confirmers; 66.7 / 33.3 %, 1.5 actions, 20.0 min, 2 lines "kein Vorschlag" = 40 %), and a continuity case gave 50 % before / 100 % since the switch date. CI is the test runner.
 
 **Rollback:** revert the PR; `drop function if exists public.plan3_team_measures(date);` (no table, no data).
+
+### ADR-152 — CGR-139: one member label for every picker that assigns a visit; two unnamed members never read the same
+
+**Date:** 2026-11-06 · **Status:** IMPLEMENTED in its PR (CI decides) · **Trigger:** `cra` CGR-139 (2026-11-06 01:30, advisory S2, PS-124, a condition of PLAN3 acceptance), `uxa` UXR-102 (#884) · **Brief:** `docs/agents/briefs/PLAN3.md` (CGR-78 (b) "proposed member shown") · **Migration:** none · **Stacked on:** #886 (ADR-151) · **Proof:** vitest `cgr139-member-picker-label` (written first), e2e `plan3.spec` (picker options distinct, caller "(du)")
+
+**Context (IMPLEMENTED before):** a member without an ADM1 display name read as plain "Teammitglied" in the `/team/tagesplan` member heading (and its `aria-label`) and "Ändern" picker, on `/team/vorschlaege` (picker and proposed value) and in the record look-back "Ändern" picker. Two such members read the same; on the day plan the person planning was not marked "(du)". `/team` (`memberLabel`) and the handover (`private.member_code`, 0033; CGR-108 form on #800) already number members by their position in the team ordered by user id.
+
+**Decision:**
+1. **One pure function `pickerMemberLabel` (`src/features/team/member-label.ts`)** with the form `cra` confirmed: the display name (trimmed); "<Name> (du)" for the caller, "Ich (du)" without a name; otherwise "Teammitglied <n> (ohne Namen)". When the position is not known it reads "Teammitglied (ohne Namen)"; a number is never guessed.
+2. **The number comes from the reader /team already uses:** `team_cases` lists every membership of the team ordered by user id (0021), the same order as `private.member_code`. `memberNumbers` turns that list into positions from 1. The confirm screen's members (`TeamMemberOption.no`, also used by the record look-back) and the day-plan team (`DayPlanTeam.roster`, ids and "me" only) carry it; `groupDayPlan` adds `no` and `me` to each member block. No new read, no grant, no migration; who may be picked is unchanged.
+3. **Applied to:** day-plan member heading and its `aria-label`s, day-plan "Ändern" options, `/team/vorschlaege` "Ändern" options and the proposed value, record look-back "Ändern" options.
+
+**Trade-offs:** numbering in the app from `team_cases` instead of a database column avoids changing three readers' return types; it relies on `team_cases` keeping its order (pinned by the vitest wiring check and the `member_code` comment).
+
+**Deviations / notes for the PO (and `cra`, `uxa`):**
+1. *e2e with two unnamed members:* the seed has no team with two unnamed members (Testorganisation G's three are named), and adding them would change the pgTAP 002 user counts. The two-unnamed case is proven in vitest (labels and `groupDayPlan`); e2e checks that every picker option on the day plan differs and that the caller's option ends "(du)". OPEN for `po` whether a seeded unnamed pair is wanted.
+2. *Visible change for named callers:* the caller's own option and heading on `/team/tagesplan` now end "(du)" (as `/team/vorschlaege` already did); the proposed value on `/team/vorschlaege` also ends "(du)" when the caller is the proposed member. `plan3.spec` updated accordingly.
+3. *Other "Teammitglied" fallbacks* (`/field`, `/team` responsible line, `/visits/[id]` responsible, contract-end, signals, lifecycle) are not pickers and are not changed here; the record page's responsible line keeps "Teammitglied" (OPEN `uxa`/`po` whether it should carry the number, it would need the record's team roster).
+4. *Placement:* `cra` left the placement to `po` (PLAN3 part (b) slice or UX2-27). Built as its own PR on the PLAN3 stack because the day-plan screen exists only there.
+
+**Clinical gate:** remedy of CGR-139 in the form `cra` confirmed; no clinical rule, threshold or stop criterion. `lca` not needed (no new personal data: ids already on these screens, display names as before).
+
+**Checked by me (not CI):** `npm ci` failed in this session again, so vitest, typecheck, lint, build and e2e were **not** run with the project's toolchain. The pure functions (`pickerMemberLabel`, `memberNumbers`, `groupDayPlan` with a roster) ran once under Node type stripping (passed). CI is the test runner.
+
+**Rollback:** revert the PR (no migration, no data).

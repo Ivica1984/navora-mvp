@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
+import { pickerMemberLabel } from "@/features/team/member-label";
 import { confirmSuggestion, confirmSuggestions } from "@/features/ai/commands";
 import { bulkResultText, hhmm } from "@/features/ai/labels";
 import { proposeDayPlan, setTeamDayProposal } from "@/features/planning/day-plan-commands";
@@ -190,7 +191,7 @@ function Proposal({ team, date, lines, load }: { team: DayPlanTeam; date: string
   // AIG1-C3 (2) / PLAN3-14 (2): the reason of each line refused at confirm stays on its line.
   const [refusals, setRefusals] = useState<Record<string, string>>({});
   const [refusedCount, setRefusedCount] = useState(0);
-  const groups = groupDayPlan(lines, load);
+  const groups = groupDayPlan(lines, load, team.roster);
   const tickable = new Set(tickableLineIds(lines));
 
   if (lines.length === 0) {
@@ -280,7 +281,7 @@ function Proposal({ team, date, lines, load }: { team: DayPlanTeam; date: string
 
 /** PLAN3-4 / PLAN3-14: the member's minutes of this team before and after, and only whether she has visits elsewhere. */
 function MemberBlock({ member, children }: { member: DayPlanMember; children: ReactNode }) {
-  const name = member.name ?? "Teammitglied";
+  const name = pickerMemberLabel(member);
   const load = loadText(member.minutesNow, member.minutesWith);
   const other = otherTeamVisitsLine(member.otherTeams);
   return (
@@ -423,7 +424,7 @@ function Line({
               </option>
               {others.map((m) => (
                 <option key={m.member_id} value={m.member_id}>
-                  {m.name ?? "Teammitglied"}
+                  {pickerMemberLabel(m)}
                 </option>
               ))}
             </select>

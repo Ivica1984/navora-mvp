@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { pickerMemberLabel } from "@/features/team/member-label";
 import { confirmSuggestion, confirmSuggestions } from "@/features/ai/commands";
 import type { OpenSuggestion, TeamMemberOption, TeamSuggestions } from "@/features/ai/queries";
 import {
@@ -147,8 +148,12 @@ function SuggestionLine({
   const [error, setError] = useState<string | null>(null);
   const when = [s.visit_date ? formatDate(s.visit_date) : null, s.time_start ? hhmm(s.time_start) : null].filter(Boolean).join(" ");
   const label = [client, when].filter(Boolean).join(" · ");
-  const proposedValue = s.not_found ? NOT_FOUND_TEXT : (s.proposed_name ?? "Teammitglied");
   const proposedId = typeof s.proposed_value === "string" ? s.proposed_value : null;
+  // CGR-139: the proposed member reads as in the picker (name, "(du)", or "Teammitglied <n> (ohne Namen)").
+  const proposedMember = members.find((m) => m.user_id === proposedId);
+  const proposedValue = s.not_found
+    ? NOT_FOUND_TEXT
+    : pickerMemberLabel({ name: s.proposed_name ?? proposedMember?.name ?? null, me: proposedMember?.me ?? false, no: proposedMember?.no ?? null });
   const others = members.filter((m) => m.user_id !== proposedId);
 
   async function send(outcome: "confirmed" | "corrected" | "rejected" | "not_found", value: string | null) {
@@ -239,7 +244,7 @@ function SuggestionLine({
               </option>
               {others.map((m) => (
                 <option key={m.user_id} value={m.user_id}>
-                  {m.me ? `${m.name ?? "Ich"} (du)` : (m.name ?? "Teammitglied")}
+                  {pickerMemberLabel(m)}
                 </option>
               ))}
             </select>
