@@ -9,6 +9,10 @@ const PASSWORD = "navora-local-only";
 const BEZUG = "Pflegekraft Bezug G";
 const VISIT_0800 = "00000000-0000-4000-a000-0000000005c1";
 const VISIT_0815 = "00000000-0000-4000-a000-0000000005c4";
+// CGR-75 (5): the day after tomorrow (seed, ADR-158).
+const VISIT_D2_0900 = "00000000-0000-4000-a000-0000000005c6";
+const VISIT_D2_1100 = "00000000-0000-4000-a000-0000000005c7";
+const VISIT_D2_1400 = "00000000-0000-4000-a000-0000000005c9";
 
 async function signIn(page: Page, email: string) {
   await page.goto("/login");
@@ -188,6 +192,96 @@ test.describe.serial("PLAN3 day-plan proposal at 390 px (Testorganisation G)", (
     await link.click();
     await page.waitForURL(new RegExp(`/visits/${VISIT_0815}`));
     await expect(page.getByTestId("visit-responsible")).toHaveText("Noch offen");
+  });
+
+  // CGR-75 (5) (`cra`, PLAN3 acceptance condition; ADR-158, pgTAP 117 pins the fixture). The day after tomorrow is a
+  // day of its own in the seed, so tomorrow's counts above stay: open 09:00 and 11:00 (Testfall G1, primary nurse Bezug
+  // G), 09:15-09:45 and 14:00 category B (Testfall G2); both registered nurses already hold a visit at 14:00, the care
+  // assistant may not take B minutes. (1) the 14:00 visit is shown as "kein Vorschlag" with its reason, not hidden and
+  // not tickable; (2) she ticks 09:00 and 11:00, then changes 09:15 to Bezug G and confirms it; the ticked list is
+  // refused for 09:00 with `overlap` on its own line, 11:00 is set, the 09:00 visit stays "Noch offen" and in
+  // "Offen im Team".
+  test("an unstaffable visit is shown; a ticked line refused 'overlap' at confirm keeps its reason and its visit stays open (CGR-75 (5))", async ({ page }) => {
+    const day = zurichIso(2);
+    await page.goto("/team/tagesplan");
+    await page.getByLabel("Tag", { exact: true }).fill(day);
+    await page.getByRole("button", { name: "Tag vorschlagen" }).click();
+    await page.waitForURL(new RegExp(`datum=${day}`));
+    const lines = page.getByTestId("day-plan-line");
+    await expect(lines).toHaveCount(4);
+
+    // (1) "kein Vorschlag" is a line of its own with the limit, under "Ohne Vorschlag"; no tick box.
+    const without = page.getByRole("region", { name: "Ohne Vorschlag" });
+    const line1400 = without.getByTestId("day-plan-line");
+    await expect(line1400).toHaveCount(1);
+    await expect(line1400).toContainText("14:00");
+    await expect(line1400.getByTestId("day-plan-reason")).toHaveText(
+      "kein Vorschlag: die passenden Mitglieder haben zu dieser Zeit schon einen Einsatz",
+    );
+    await expect(line1400.getByTestId("day-plan-tick")).toHaveCount(0);
+    await expect(line1400.getByRole("button", { name: "Als „kein Vorschlag“ bestätigen" })).toBeVisible();
+
+    // (2) tick 09:00 and 11:00 (Bezug G); the 09:15 line is not hers (it overlaps her 09:00).
+    const bezug = page.getByRole("region", { name: `Einsätze ${BEZUG}` });
+    const line0900 = page.getByTestId("day-plan-line").filter({ hasText: "09:00–" });
+    const line1100 = page.getByTestId("day-plan-line").filter({ hasText: "11:00–" });
+    await expect(bezug.getByTestId("day-plan-line").filter({ hasText: "09:00–" })).toHaveCount(1);
+    await expect(bezug.getByTestId("day-plan-line").filter({ hasText: "11:00–" })).toHaveCount(1);
+    await expect(bezug.getByTestId("day-plan-line").filter({ hasText: "09:15–" })).toHaveCount(0);
+    await line0900.getByTestId("day-plan-tick").check();
+    await line1100.getByTestId("day-plan-tick").check();
+
+    // Before she confirms the list, the 09:15 line is changed to Bezug G and confirmed: Bezug G now holds 09:15-09:45.
+    const line0915 = page.getByTestId("day-plan-line").filter({ hasText: "09:15–" });
+    await line0915.getByRole("button", { name: "Ändern" }).click();
+    await line0915.getByRole("combobox").selectOption({ label: BEZUG });
+    await line0915.getByRole("button", { name: "Geänderte Zuteilung bestätigen" }).click();
+    await expect(line0915.getByTestId("day-plan-decision")).toHaveText("geändert und bestätigt");
+    await expect(page.getByRole("button", { name: "2 Zuteilungen bestätigen" })).toBeVisible();
+
+    await page.getByRole("button", { name: "2 Zuteilungen bestätigen" }).click();
+    await expect(page.getByTestId("day-plan-result")).toHaveText("1 Wert bestätigt, 1 nicht übernommen.");
+    await expect(line0900.getByTestId("day-plan-refusal")).toHaveText(
+      "Nicht übernommen: Diese Person hat zu dieser Zeit schon einen Einsatz.",
+    );
+    await expect(line0900.getByTestId("day-plan-decision")).toHaveCount(0);
+    await expect(line0900.getByRole("button", { name: "Bestätigen", exact: true })).toBeVisible();
+    await expect(line1100.getByTestId("day-plan-decision")).toHaveText("bestätigt");
+    await expect(line1100.getByTestId("day-plan-refusal")).toHaveCount(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+
+    await page.goto(`/visits/${VISIT_D2_0900}`);
+    await expect(page.getByTestId("visit-responsible")).toHaveText("Noch offen");
+    await page.goto(`/visits/${VISIT_D2_1100}`);
+    await expect(page.getByTestId("visit-responsible")).toHaveText(BEZUG);
+
+    // The refused visit is in the team's uncovered path (ABS1 "Offen im Team"), with the unstaffable 14:00 visit.
+    await page.goto("/field");
+    const open = page.getByTestId("open-in-team");
+    await open.getByTestId("open-in-team-toggle").click();
+    await expect(open.getByTestId("open-visit").filter({ hasText: "09:00–09:30" })).toHaveCount(1);
+    await expect(open.getByTestId("open-visit").filter({ hasText: "14:00–14:30" })).toHaveCount(1);
+  });
+
+  // CGR-75 (5) with PLAN3-9 (1): the "kein Vorschlag" line decided as such sets nobody and never reads as covered.
+  test("a 'kein Vorschlag' line decided as such says so, keeps 'Einsatz öffnen' and its visit stays open (CGR-75 (5), PLAN3-9 (1))", async ({ page }) => {
+    await page.goto(`/team/tagesplan?datum=${zurichIso(2)}`);
+    const line1400 = page.getByRole("region", { name: "Ohne Vorschlag" }).getByTestId("day-plan-line");
+    await line1400.getByRole("button", { name: "Als „kein Vorschlag“ bestätigen" }).click();
+    await expect(line1400.getByTestId("day-plan-decision")).toHaveText("„kein Vorschlag“, entschieden");
+    await expect(line1400.getByTestId("day-plan-still-open")).toHaveText("Noch offen");
+    await expect(line1400.getByRole("button", { name: "Als „kein Vorschlag“ bestätigen" })).toHaveCount(0);
+    const link = line1400.getByRole("link", { name: "Einsatz öffnen" });
+    await expect(link).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+
+    await link.click();
+    await page.waitForURL(new RegExp(`/visits/${VISIT_D2_1400}`));
+    await expect(page.getByTestId("visit-responsible")).toHaveText("Noch offen");
+    await page.goto("/field");
+    const open = page.getByTestId("open-in-team");
+    await open.getByTestId("open-in-team-toggle").click();
+    await expect(open.getByTestId("open-visit").filter({ hasText: "14:00–14:30" })).toHaveCount(1);
   });
 
   // PLAN3-7 (2) (po 2026-11-06 06:30, `aia` AUT-52; ADR-155): the team sees its own numbers under its switch. Only
