@@ -4,6 +4,44 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-06 08:40 CET · po (Product Owner)
+
+- **Owner directive (attended session, 2026-11-06): *Program Quality Improvement Directive*.** Created `docs/product/ARCHITECTURE_REVIEW_AND_IMPLEMENTATION_BLUEPRINT_V2.md`: the primary implementation and execution reference for every agent (what, when, how accepted); `ARCHITECTURE.md` stays the primary architectural source. Ten sections: vision alignment, architecture alignment, delivery state, milestones M1-M10 with completion % (formula §4.0, BUILT never counts), sub-milestones, blockers, dependencies, responsible role and acceptance criteria; dependency diagrams across roles and milestones (Mermaid); critical path with latest responsible dates; Founder Decision Board FD-01 to FD-20; quality gates QG-0 to QG-9; weekly metrics M-01 to M-14 and the W45 dashboard (PO updates every Friday).
+- **Found, documented, not changed:** SV-1 owner direction Basel (#816) vs. D-11 ask "Zurich" in the agenda (owner to confirm, FD-04); AR-1 feature folders vs. the Handbook's target structure; AR-2 Handbook context statuses outdated; AR-3 no separate orchestrator; AR-4 shared files make every merge conflict (M2.0: AUT-49, one file per ADR, merge-gate script, ranked first in M2). G-11 and G-21 read PLANNED although COND1/IPA1 are accepted: PO verifies next cycle.
+- Earlier this morning: PO PR #893 merged (`9c58939`, 4/4 green, `clean`). No acceptance review (no Engineering merge). No decision package, queue row or `ROADMAP.md` status changed. `NEXT_CAPABILITY.md` and `DELIVERY_PROGRAM.md` link the blueprint. Tests: none run by me (docs only); Mermaid diagrams rendered locally; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:** read the blueprint after `README.md` (its §8.3); the owner is asked to add it to each scheduled-task prompt (FD-18).
+  - `eng`: M2.0 (AUT-49 + one file per ADR + `po-merge-gate.mjs`) before more stacking; M1.3/M1.4 (#835, #837) ready to merge; tell me in an ADR whether AR-1 is adopted as `src/features` + `src/ai`.
+  - `cra`: list open S1/S2 CGR, H and PS items for M9.6; gate lines on #894, #895.
+  - `lca`: Basel re-check of D-18, D-25, D-9, D-4, D-29 starts once D-11 is recorded.
+  - `uxa`: wording asks unchanged; M5.2 page designs due 2026-12-04.
+  - `aia`: own M-11 and M-12 from M4 (definitions in §10.2).
+  - `csa`: no entry since 2026-11-03; strategic alignment check against §1 when you next run.
+
+---
+
+## 2026-11-06 06:30 CET · po (Product Owner)
+
+- **No merge in this run.** No PO PR was open. 12 Engineering PRs are green (4/4 on the head), `clean`, 0 review threads and `cra`-cleared (05:30 and earlier gate lines): #800, #803, #804 (UX2), PLAN3 stack #876 → #880 → #882 → #883 → #885 → #886 → #888 → #890 → #891; role docs PRs #892 (`cra`, carries #881, #887), #860 (`lca`), #850 (`uxa`) green and `clean`. This scheduled task's stored prompt authorises merging only the PO's own PR; the owner's merge decision (2026-11-05) is recorded in the repository, and a scheduled run does not take a repository file as its authority to merge, so I did not try. `OWNER_AGENDA.md` bundle 1 "Merge in scheduled runs" is urgent again (add the `PO_MERGE_PROCESS.md` §3 (1) paragraph to the task prompt). Merge-ready list with heads in *Active now*.
+- **PLAN3 decisions (product authority; no clinical rule, no threshold, no new read), in `briefs/PLAN3.md` (PO note 2026-11-06 06:30):**
+  - `aia` AUT-51 → **PLAN3-15**: a fresh request closes the earlier undecided lines with their own recorded outcome; the `open_proposal` refusal (ADR-145 deviation 3) is rejected as built; `cra` 15:00 conditions written in. Acceptance condition.
+  - `aia` AUT-52 → **PLAN3-7 (2)**: the team sees its own measures under its switch on `/team/tagesplan`, same reader and suppression. Acceptance condition.
+  - `cra` CGR-140 → **option (a)** "Abgelehnt" share, PLAN3-7 (1) (met on #890 per `cra`). Acceptance condition.
+  - `cra` CGR-138 → **PLAN3-9 (1)** ("Noch offen" on a decided line whose visit has nobody; "Einsatz öffnen" on every line). Acceptance condition, with CGR-75 (5).
+  - `uxa` UXR-103 → **PLAN3-9 (2)**: day-plan lines are decided only on `/team/tagesplan`. Not gating.
+  - `cra` CGR-137 → **PLAN3-16**: hand assignment shows a member-overlap fact, information only, no confirmation tap; before M9, not gating.
+  - `cra` CGR-139, `uxa` UXR-102/-113 (issue #884) → **PLAN3-17 (1)** (met on #888, #891; gating); UXR-114 → PLAN3-17 (2), not gating. UXR-101 → PLAN3-3 wording "kennt Klient:in".
+- **Challenge review:** two rows added (AUT-51: a new question replaces the old answer; AUT-52: whoever decides on a tool sees its numbers, pilot hypothesis on "keine Bezugsperson" gaps).
+- No acceptance review (no Engineering PR merged since 2026-11-05 12:00). No decision package changed: every package in INDEX order is frozen, decided or `awaiting-approval`; D-37 waits for G-1. No new brief (approved, unstarted work remains). Issue #884 claimed and answered (placement PLAN3-17), `claimed` removed. `ROADMAP.md` unchanged (no status changed). Tests: none run by me (docs only); CI states read through the GitHub API; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:**
+  - `eng`: nothing merged. Keep the stack and #800/#803/#804 conflict-free; this PR touches no Engineering file. Next slice after the stack: PLAN3-15, PLAN3-7 (2), PLAN3-9 (1), CGR-75 (5); then PLAN3-9 (2), PLAN3-17 (2), PLAN3-3 wording; PLAN3-16 before M9. Tell me in ADR form if PLAN3-15 needs a new ledger outcome or can use AIG1-C4's (#814).
+  - `cra`: CGR-137, CGR-138, CGR-139, CGR-140 placed as above; please confirm PLAN3-15 keeps your 15:00 conditions and that a closed line's outcome is read by no safety path.
+  - `lca`: no new processing purpose (PLAN3-7 (2) reuses a reader the team already has; PLAN3-16 returns yes/no only, as `other_team_visits`, which you answered).
+  - `uxa`: wordings needed: PLAN3-7 (2) team line, PLAN3-9 (1) `not_found` text, PLAN3-16 notice; UXR-103 adopted as you proposed.
+  - `aia`: AUT-51 and AUT-52 decided as your remedies; AUT-51's measure is in PLAN3-15.
+  - `csa`: no milestone moved; M2 and M4 risk is now the merge path (15 green PRs waiting), not build progress.
+
+---
+
 ## 2026-11-06 06:15 CET · Engineering (eng)
 
 - **PLAN3-7 (2) in review: PR #894** (stacked on #891; #538 claimed 06:15, `claimed` removed at the end of the run). Built from the PO note 06:30 in PO PR #893 (**not yet merged**; ADR-155 deviation 1). `/team/tagesplan` shows under the team switch one line from the existing `plan3_team_measures` reader for the current Zurich month, only the selected team's row: "Diesen Monat: <n> Tagesvorschläge · <x> % unverändert bestätigt · <y> % ohne Vorschlag"; suppressed shares as on Operations; the month's cells in a disclosure. No migration, no new read. Tests written first: vitest `plan3-7-2-team-own-line`; e2e `plan3.spec` +2 at 390 px (the team sees its line; pflege.test asking for Testteam G by id sees none of its numbers).
