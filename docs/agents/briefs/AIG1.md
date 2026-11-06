@@ -334,3 +334,22 @@ The PO did not run any test; AIG1 is not built. This answer is recorded here bec
 **AUT-31 (low): adopted into PLAN3-13** (`briefs/PLAN3.md` 02:55): share of expired proposals and lead time from proposal to visit, per team, as a usefulness measure of the day-plan assistant, never a stop criterion.
 
 **AUT-29 closed** (`aia` 02:40: built as amended in 0104; met at 02:25); #774 closed.
+
+## PO review of AIG1-C4 and AIG1-C5 — 2026-11-06 18:55 CET: both conditions met, (C5 (d)) carried by PLAN3-11; AIG1 stays `accepted`
+
+Reviewed on merged evidence: #814 (PO merge `e4f52e8`, head `c31c5f9`; own code identical to the `cra`-cleared head `3fe219b`, AUT-50 comparison), migration 0105, ADR-139, pgTAP `106_aig1_c4_c5_expired_and_stop_followup` (30; 097 and 104 updated), vitest `aig1-c4-c5-labels`, Playwright `aig1.spec.ts`. CI `app`, `db`, `e2e`, `ui-screenshots` green on the head `c31c5f9`; on the merge commit `e4f52e8` `app`, `db`, `ui-screenshots` green and one `e2e` run green, a second `e2e` run still in progress at review time (GitHub check runs). **The PO did not run the tests.**
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| C4 (1) an undecided proposal on a visit no longer open is not listed on `/team/vorschlaege`, no action, no write | met | pgTAP 106 "AIG1-C4 (1): an undecided proposal whose visit is no longer open is not listed; one of an open visit is", "…rejecting… refused not_open", "…confirming… refused not_open", "…no confirmation row; the ledger row stays as it is"; e2e "an undecided proposal whose visit passed is not listed (AIG1-C4 (1))" |
+| C4 (2) never a correction or decided in the window share | met | pgTAP 106 "AIG1-C4 (2): the expired proposal is neither decided nor a correction in the window" |
+| C4 (3) "Abgelaufen ohne Entscheid: <n>" on `/operations/assistenten` per agent and window | met | pgTAP 106 "AIG1-C4 (3)…" (2 assertions); vitest `aig1-c4-c5-labels`; e2e `agent-expired` "Abgelaufen ohne Entscheid: 1" |
+| C4 (5) CGR-106 tests: `corrected` → ok, plan change, `corrected` row, line leaves; `not_qualified`; `already_taken` | met | pgTAP 106 four "CGR-106: …" assertions; e2e "'Ändern' to a qualified member: the record holds her and the line leaves the list (CGR-106)" |
+| C5 (a) one `agent_stopped` exception per stop with open lines, whatever the state; closes at "0 offen" | met | pgTAP 106 "AIG1-C5 (a): after the switch-off… '3 offen'", "…after a new switch-on…", "two stops with open lines are two exceptions…", "every line handled: no exception while the agent stays stopped" |
+| C5 (b)/(c) link whatever the state; stop at "0 offen" readable as history; state shown as status | met | pgTAP 106 "AIG1-C5 (b)/(c)…" (2 assertions); e2e "after the stopped agent was switched off, Operations still reaches the look-back list… (AIG1-C5 (a)-(c))" |
+| C5 (d) PLAN3-11 keys on open lines | carried | not in #814 (PLAN3 unbuilt); in PR #883 (PLAN3-11), reviewed with PLAN3 |
+| C5 (e) no new read, role or person column | met | pgTAP 106 "AIG1-C5 (e) / AIG1-11 (4): the health list has no person column"; migration 0105 adds and replaces functions only |
+
+**Deviations (ADR-139), decided:** (1) confirm guard `not_open` on an expired proposal: **accepted**, it is the server side of "offers no action" and more protective. (2) stop id returned inside `stops`, `stop_id` keeps "current stop": **accepted**, same data, clearer status. (3) pgTAP 097 and 104 changed to the stricter follow-up rule: **accepted**, neither loosened. (4) seeded organisation for the switched-off e2e: **accepted** (synthetic; pgTAP 106 runs the real `set_agent_state`). (5) PLAN3-11 and the AIG1-C5 measures not built here: **accepted**, they ride PLAN3-11 (#883) and PLAN3-13 (#885). `uxa` UXR-87 (two links named alike, history line capitalisation) rides the next AIG1/PLAN3 code push, as Engineering said on #814; no PO round.
+
+**Decision: AIG1-C4 and AIG1-C5 met (C5 (d) with PLAN3-11); AIG1 stays `accepted`.** *Care value:* a stopped assistant is judged only on values someone decided, and its open lines stay reachable whatever its switch says, so no team is pressed to restart an assistant to see what is left (H-20) and no nurse has to reject proposals that time already made moot.

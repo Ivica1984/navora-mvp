@@ -611,3 +611,85 @@ where id = '00000000-0000-4000-a000-0000000005b4';
 -- category B visit …5b3). No member is left without a qualification (pgTAP 018: null only on the ADM2 path).
 update public.team_memberships set qualification = 'care_assistant'
 where team_id = '00000000-0000-4000-a000-000000000191' and user_id = '00000000-0000-4000-a000-0000000009c6';
+-- AIG1-C4 (ADR-139, migration 0105): one more proposal of the stop window that nobody decided, for visit …5b7 of
+-- Testfall F1 dated two days ago: it has expired. It is not listed on /team/vorschlaege (teamf.test) and the health list
+-- shows "Abgelaufen ohne Entscheid: 1" for the last closed window. Written after the confirmations, so it has none.
+insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end,
+                                services_provided, billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id)
+values ('00000000-0000-4000-b000-000000000016', '00000000-0000-4000-a000-0000000005b7', private.now() - interval '9 days',
+        '00000000-0000-4000-a000-000000000291', '00000000-0000-4000-a000-000000000191',
+        (private.now() at time zone 'Europe/Zurich')::date - 2, time '11:00', time '11:30', array['Grundpflege'], false,
+        'planned', 30, 0, null);
+insert into public.ai_suggestions (proposal_id, organization_id, team_id, case_id, agent_key, agent_version, field,
+                                   entity_type, entity_id, input_refs, not_found, proposed_value, created_at)
+select gen_random_uuid(), v.organization_id, v.team_id, v.case_id, d.key, d.version, 'responsible_user_id',
+       'care_visits', v.id,
+       jsonb_build_array(jsonb_build_object('table', 'care_visits', 'id', v.id), jsonb_build_object('table', 'cases', 'id', v.case_id)),
+       false, to_jsonb(c.primary_nurse_id::text), private.now() - interval '9 days'
+from public.care_visits v join public.cases c on c.id = v.case_id cross join public.ai_agent_definitions d
+where v.id = '00000000-0000-4000-a000-0000000005b7' and d.key = 'aig1_test_primary_nurse';
+
+-- Testorganisation G (AIG1-C5, ADR-139, migration 0105): the agent stopped after a version change with one value
+-- confirmed unchanged on an open visit (…5c1), and was then switched off by an administrator (as set_agent_state writes
+-- it: state off, the last stop kept). The stop's OPS1 exception and its look-back link stay while that line is open.
+--   opsg.test (…9e1): operations of Testorganisation G who signs in (OPS1 exception, health list, look-back list).
+--   bezugg    (…9e2): registered nurse of Testteam G, primary nurse of Testfall G1, the proposed and confirmed value.
+--                     Never signs in.
+insert into public.organizations (id, name) values ('00000000-0000-4000-b000-000000000017', 'Testorganisation G');
+insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000001a1', private.now() - interval '200 days', 'Testteam G', 'Bern Ost', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test G', 'Keine Massnahme', false, null);
+insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000002a1', private.now() - interval '100 days', 'Testfall G1', 'Testfall', 'G1', 'Bern Ost', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam G', '00000000-0000-4000-a000-0000000001a1', private.now() - interval '99 days');
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009e1', 'authenticated', 'authenticated',
+   'opsg.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), private.now(),
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009e2', 'authenticated', 'authenticated',
+   'bezugg.test@navora.test', '', null,
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
+  ('00000000-0000-4000-a000-0000000009f1', '00000000-0000-4000-a000-0000000009e1', '00000000-0000-4000-a000-0000000009e1',
+   '{"sub":"00000000-0000-4000-a000-0000000009e1","email":"opsg.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now());
+insert into public.organization_memberships (organization_id, user_id, role) values
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000009e1', 'operations'),
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000009e2', 'nurse');
+insert into public.team_memberships (team_id, user_id, qualification) values
+  ('00000000-0000-4000-a000-0000000001a1', '00000000-0000-4000-a000-0000000009e2', 'registered_nurse');
+insert into public.member_profiles (organization_id, user_id, display_name, updated_by) values
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000009e1', 'Operations Test G', '00000000-0000-4000-a000-0000000009e1'),
+  ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000009e2', 'Pflegekraft Bezug G', '00000000-0000-4000-a000-0000000009e1');
+update public.cases set primary_nurse_id = '00000000-0000-4000-a000-0000000009e2'
+where id = '00000000-0000-4000-a000-0000000002a1';
+insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end,
+                                services_provided, billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id)
+values ('00000000-0000-4000-b000-000000000017', '00000000-0000-4000-a000-0000000005c1', private.now() - interval '9 days',
+        '00000000-0000-4000-a000-0000000002a1', '00000000-0000-4000-a000-0000000001a1',
+        (private.now() at time zone 'Europe/Zurich')::date + 2, time '09:00', time '09:30', array['Grundpflege'], false,
+        'planned', 30, 0, '00000000-0000-4000-a000-0000000009e2');
+insert into public.ai_suggestions (proposal_id, organization_id, team_id, case_id, agent_key, agent_version, field,
+                                   entity_type, entity_id, input_refs, not_found, proposed_value, created_at)
+select gen_random_uuid(), v.organization_id, v.team_id, v.case_id, d.key, d.version, 'responsible_user_id',
+       'care_visits', v.id,
+       jsonb_build_array(jsonb_build_object('table', 'care_visits', 'id', v.id), jsonb_build_object('table', 'cases', 'id', v.case_id)),
+       false, to_jsonb(c.primary_nurse_id::text), private.now() - interval '9 days'
+from public.care_visits v join public.cases c on c.id = v.case_id cross join public.ai_agent_definitions d
+where v.id = '00000000-0000-4000-a000-0000000005c1' and d.key = 'aig1_test_primary_nurse';
+insert into public.ai_confirmations (suggestion_id, organization_id, team_id, outcome, final_value, confirmed_by, confirmed_at)
+select s.id, s.organization_id, s.team_id, 'confirmed', s.proposed_value, '00000000-0000-4000-a000-0000000009e2',
+       private.now() - interval '9 days' + interval '1 hour'
+from public.ai_suggestions s where s.entity_id = '00000000-0000-4000-a000-0000000005c1';
+insert into public.ai_agent_stops (id, organization_id, agent_key, reason, window_from, window_to, decided, share,
+                                   suggestion_seq, confirmation_seq, created_at)
+values ('00000000-0000-4000-a000-0000000006f2', '00000000-0000-4000-b000-000000000017', 'aig1_test_primary_nurse',
+        'version_changed', private.now() - interval '10 days', private.now() - interval '3 days', null, null,
+        (select max(seq) from public.ai_suggestions), (select max(seq) from public.ai_confirmations),
+        private.now() - interval '3 days');
+insert into public.ai_agent_settings (organization_id, agent_key, state, stop_share, stop_min_proposals, stop_window_days,
+                                      switched_on_by, switched_on_at, on_version, on_provider, on_region, last_stop_id)
+select '00000000-0000-4000-b000-000000000017', d.key, 'off', 20, 5, 7, '00000000-0000-4000-a000-0000000009e1',
+       private.now() - interval '10 days', d.version, d.provider, d.region, '00000000-0000-4000-a000-0000000006f2'
+from public.ai_agent_definitions d where d.key = 'aig1_test_primary_nurse';
