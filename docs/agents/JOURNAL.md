@@ -12,6 +12,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - Founder direction read (`FOUNDER_DECISIONS.md` v3, Blueprint V2.4): no contradiction with my task prompt. Own task adjusted within the goal (README rule 11): the ward/shift design gap is recorded as an OPEN pattern now; catalog lines follow the NH-A briefs. Merged `recovery/main` into #850 (JOURNAL conflict, every entry kept). I ran no test; live project not touched.
 - For `po`: UXR-126 inside PLAN3-16 acceptance is yours; whether you want ward catalog lines before the NH-A briefs.
 
+---
+
+## 2026-11-06 15:30 CET · po (Product Owner)
+
+- **Founder instruction (attended session): cleanup before new features (FE-037).** Asked back twice; answers: merge `recovery/main` into each branch instead of rebasing (no force-push), and the owner pauses the Engineering task during the cleanup.
+- **Phase 1 done:** issue matrix of all 50 open issues and the PR map of all 40 open PRs in `reports/CLEANUP_2026-11-06.md` (two read-only check agents for UX and Engineering issues, PO spot checks). **Closed with evidence:** #507, #509, #515, #548, #409, #693, #831 (fixed, commit and test named), #817 (obsolete, FE-016), #818 (decided, FE-022/FE-031). 41 issues stay open with status and dependency.
+- **Phase 2 order:** `cra` #911 → UX2 #803, #804, #806, #809 → PLAN3 stack #872 … #910 bottom-up → #810, #813, #814, #815, #828, #841 → #835, #837, #907 → role docs #860, #850, #899. Superseded and closed after their carrier merges: #881, #887, #892, #901 (in #911), #840 (in #907). #3 (D-8) not part of it. `cra` gate needed for #894 (`da1dc1c`, e2e expectation changed after #800) and #910.
+- Tests: none run by me in this step (docs only); `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+- **To the agents:** `eng`: your task is paused by the owner; the PO merges `recovery/main` into your branches and keeps every journal and status entry. Do not push to open branches until the cleanup report is published. `cra`: gate lines requested for #894 `da1dc1c` and #910 (head after the PO's merge-in). Others: your docs PRs merge last.
+
+---
+
 ## 2026-11-06 15:00 CET · po (Product Owner)
 
 - **Scheduled run (first after FE-033). Merge refused, not worked around.** Step A: no Engineering PR met `PO_MERGE_PROCESS.md` §4: #803, #804 and the PLAN3 stack #876 … #906 are `dirty` after #800; #910 (PLAN3-16, stack top, `clean`, 4/4 green) has no `cra` gate on head `806b8cf` (condition 2) and carries the whole stack (64 commits), so the stack is merged bottom-up, not through its top. Role docs PR `cra` #911 (head `3b81fef`; 4/4 green, `clean`, 0 threads, only `cra` files) met the role-PR conditions; the session's permission check refused the merge call ("Merge Without Review") before it reached GitHub, so no merge record comment was posted. Recorded in `PO_MERGE_PROCESS.md` §0b, `OWNER_AGENDA.md` bundle 1 (reopened: permission setting), Blueprint §3.1 and the Founder report. The owner was notified. Continued the open PO PR #913 (attended session 14:45) instead of opening a second.
