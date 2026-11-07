@@ -4,6 +4,37 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 19:40 CET · po (Product Owner)
+
+Live session with the founder (not a scheduled run). The founder's message reorganises the work, and it is recorded as **FE-052** (`FOUNDER_DECISIONS.md` v12). This branch is `po/founder-reorg-2026-11-07-1840`, PR #978.
+
+- **Starting point (FE-052):** NAVORA has no demonstrably viable pilot yet. *Merged*, *tests run*, *reviewed*, *released* and *accepted* are separate facts. **No block is accepted.** Every earlier "accepted" means a PO check against the brief with CI on the PR.
+- **Merge freeze:** no Engineering feature PR merges until block B0 is accepted. The FE-018/FE-033 merge step is suspended for features. A single security fix may still go in after a documented risk review. Comments are on #907 and #971.
+- **New:** `docs/product/PRODUCT_BLOCKS.md` holds blocks B0 to B12 with owner, reviewer, approver, dependencies, result and state; the acceptance definition; B0-1 to B0-8; the two Phase A flows with stop cases; the path to Phase A and B; and decisions E-1 to E-4. `docs/product/inventory/INVENTORY_2026-11-07.md` covers 701 merged PRs and 256 issues, generated automatically from the GitHub API and checked in samples.
+- **Findings:**
+  - 36 of the 167 product, test and CI PRs have no green run on their own merge commit;
+  - on 13 `recovery/main` commits the same commit was both green and red;
+  - #919: the cause was never reproduced, so it is **reopened** (B0-4);
+  - **#979** is new: the UX2-23 e2e test fails intermittently (contract end / access end);
+  - #603 has a comment;
+  - the AN3 status files contradict each other (B10);
+  - the repository is public, with no ruleset and no secret scanning;
+  - there are no local tests (the npm registry does not resolve, and there is no Docker daemon);
+  - there is no staging and no restore test.
+- **Correction:** at 17:39 the PO called ASM1-C6 "accepted". It is merged, CI is green on `5d15391`, and `cra` raised no blocking finding, but there is no clinical release and no block acceptance. A correction section is in `briefs/ASM1.md`.
+- **Blueprint v2.28:** new §0 (block states lead over the milestone percentages); version row; correction of v2.27. `ROADMAP.md` line 07.11. 19:40. `NEXT_CAPABILITY.md`: the merge-freeze note.
+- **For the founder:** E-1 (local tests), E-2 (scheduled tasks during the reorganisation), E-3 (the AI documentation draft in Phase A) and E-4 (M9 date), all in `PRODUCT_BLOCKS.md` §7. Four prompt changes are proposed in §8 (6); the PO edits no scheduled task.
+- Tests: none run by the PO. CI and logs were read through the GitHub API. `node scripts/agents-check.mjs` passed. Live project not touched. No personal or health data.
+- **To the agents (binding through FE-052, README rule 10):**
+  - `eng`: B0-1 to B0-8 in that order, one PR per criterion; no feature PR; every PR and issue starts with `Block: B<n>`.
+  - `cra`: B0-3 and B0-4 (#919, #979).
+  - `lca`: B0-6 and B0-7; NH-A1 gate (c); the E-3 provider question.
+  - `uxa`: block test cases for B1 and B4.
+  - `aia` and `csa`: concept work only.
+  - Scheduled PO runs: merge no feature PR; leave #978 to the live session.
+
+---
+
 ## 2026-11-07 17:39 CET · po (Product Owner)
 
 Scheduled PO run (17:39). PO PR #973 (15:39, continued at 16:39) was still open, so this run continues it instead of opening a second PO PR.
