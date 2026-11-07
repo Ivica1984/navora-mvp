@@ -489,10 +489,10 @@ begin
   if p_instructed_on > p_valid_from then
     return jsonb_build_object('result', 'instruction_after_start');
   end if;
-  if p_instructed_on > (private.now() at time zone 'Europe/Zurich')::date then
+  if p_instructed_on > (private.at_zurich(private.now()))::date then
     return jsonb_build_object('result', 'instruction_in_future');
   end if;
-  if p_valid_from < (private.now() at time zone 'Europe/Zurich')::date then
+  if p_valid_from < (private.at_zurich(private.now()))::date then
     return jsonb_build_object('result', 'start_in_past');
   end if;
   if private.begin_command('record_delegation', p_idempotency_key) then
