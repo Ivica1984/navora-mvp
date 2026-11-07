@@ -134,7 +134,7 @@ describe("CI2 ci-scope.mjs (CLI)", () => {
   it("no GITHUB_OUTPUT: fails (otherwise every gated step would be skipped unchecked)", () => {
     const d = repo();
     prMerge(d, { "docs/x.md": "x" });
-    const env = { ...process.env, CI_EVENT: "pull_request" };
+    const env: NodeJS.ProcessEnv = { ...process.env, CI_EVENT: "pull_request" };
     delete env.GITHUB_OUTPUT;
     expect(() => execFileSync("node", [SCRIPT], { cwd: d, env, stdio: "pipe" })).toThrow();
   });
