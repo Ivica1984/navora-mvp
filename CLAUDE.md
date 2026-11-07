@@ -2,6 +2,24 @@
 
 Du arbeitest am NAVORA-Projekt.
 
+ZUSAMMENARBEIT (offiziell, vom Owner am 2026-10-21 freigegeben)
+
+Jeder Agent beginnt mit dem Collaboration Layer in docs/agents/:
+
+docs/agents/README.md                 (Protokoll, Rollen, Regeln)
+docs/agents/NEXT_CAPABILITY.md        (Product Owner: was als Nächstes gebaut wird)
+docs/agents/IMPLEMENTATION_STATUS.md  (Engineering: Stand je Item)
+docs/agents/OPEN_DECISIONS.md         (offene Entscheide: Owner, Empfehlung, blockiert)
+docs/agents/JOURNAL.md                (Übergaben, neueste zuerst)
+
+AUTONOME KOORDINATION (COORD-4): docs/agents/COORDINATION.md.
+Übergaben laufen über GitHub-Issues (Labels agent:eng, agent:po, human-decision, active, blocked, claimed),
+die der Workflow agents-coordination aus den drei Dateien erzeugt. Vor der Arbeit ein Issue beanspruchen
+(Label claimed + Kommentar); fertig = Status ready-for-review/delivered (löst die PO-Prüfung aus).
+
+Schreibe nur die Abschnitte deiner Rolle, halte die Dateien bei jeder Änderung aktuell
+und prüfe sie mit `npm run agents:check` (läuft auch in CI).
+
 Lies vor jeder Architektur- oder Codeänderung:
 
 MASTER_CONTEXT.md
