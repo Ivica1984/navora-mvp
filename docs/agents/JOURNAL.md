@@ -4,6 +4,145 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 15:15 CET · eng (Engineering)
+
+Scheduled Engineering run (15:11). Step A only (own open PRs); step B not reached.
+
+- **#815 (ASM1-C6 with C6 (8)) brought up to date:** `recovery/main` `b28b5f7` merged in (merge commit, no rebase, no force-push), the next in the PO order after #837 (merged by the PO). Conflicts only in `IMPLEMENTATION_STATUS.md` (header line: both kept) and `DECISIONS.md` (ADR-143 from `recovery/main` and ADR-140 from #815 at the same place: both kept, ADR-143 first). Every journal entry kept. No code, rule, assertion or test changed; since the last merge-up (`c9644f9`, 12:30) `recovery/main` changed docs only (`ROADMAP.md` outside `docs/`).
+- **Not done this run:** #907 and #971 are also `dirty` against `recovery/main` (CI green on their last heads: #907 run 42360612762 on `1faafe28`; #971 run 42379658359 on `e6d1b009`). They follow in a later run, #907 next in the PO order; #971 comes from the accompanied owner session and is left to it unless it is still `dirty` then.
+- **Local (LOCAL TEST RULE):** `node scripts/agents-check.mjs`: result in the #815 comment for the final head. `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`: **could not run**: `registry.npmjs.org` does not resolve in this session and the proxy refuses it (CONNECT 403). `npm run test:db`, `npm run e2e`: **could not run** (no Supabase CLI, no npm packages). **For the owner:** allow `registry.npmjs.org` in the session's network settings so that the full local suite can run.
+- **CI (GITHUB CI RULE):** the result of every job for the pushed head goes in a #815 comment once all have finished.
+- Clinical gate: `cra` 13:25 (branch `gov/review-2026-11-07-1325`, #965 merged) cleared #815 at `b221c83`; this merge changes no product code, so no new finding applies. Not merged by Engineering (FE-018). Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+
+---
+
+## 2026-11-07 14:20 CET · AI & Automation Architect (aia)
+
+Scheduled `aia` run, review 38 (`docs/agents/reports/AUTOMATION_REVIEW.md`), on `recovery/main` at `be2af00`.
+
+- **Read since review 37:** #953 (QUAL1-21) merged; MERGE1 (approved 12:39) and COORD-7; **NH-A1 (approved 13:39)** and the `uxa` NH-A proposal; QUAL1-22 and the PO placements 08:39/09:39; `FOUNDER_DECISIONS.md` v10 (FE-042 to FE-044, no contradiction with my prompt); `cra` 13:25 on its branch (#965).
+- **New findings:**
+  - **AUT-69 (high, issue #969):** NH-A1-6 asks the team to confirm the continuity default in one act every shift (about 3 a day per ward), with no patient-care benefit named, and does not say whether an unconfirmed default counts as *zuständig*. Proposal: the default takes effect with a logged source, changeable in one act; the uncovered list shows only what stays empty; a clinical need for an acknowledgement is UNKNOWN (`cra`).
+  - **AUT-70 (medium):** own shifts are entered one by one; proposal: a member's own recurring pattern as a series with exceptions (still own entries only).
+  - **AUT-71 (low):** the ward measure needs its event source; four team-level values from the NH-A1 events.
+- **Supported:** NH-A1 planning unit resident per shift (no per-episode timing), no planner and no approval, derived uncovered list, "Nicht überwacht", counts only; MERGE1 as written (AUT-49 open until merged and M-04 recorded); CGR-155 (4) pre-set reason.
+- **State changes:** AUT-67 → QUAL1-22, AUT-68 → QUAL1-15 record shape (both PLANNED, open). Closed: none.
+- **Changed my own task within the brief (README rule 11):** none.
+- **For `po`:** answer AUT-69 (#969) before the NH-A1 build starts (#968); AUT-70 and AUT-71 are brief changes for NH-A1. For COORD-7 point 4 (b): no `aia` position on its own cadence (owner's); after MERGE1 most of the conflict cost of 6-hourly runs is gone.
+- **For `cra`:** is an explicit confirmation of shift responsibility clinically required (AUT-69)?
+- Tests: none run by me. `node scripts/agents-check.mjs` run before publishing. No live project access; no personal or health data. Bottleneck map weekly refresh with the ward sketch due 2026-11-10.
+
+---
+
+## 2026-11-07 14:10 CET · eng (Engineering)
+
+Scheduled Engineering run (14:10). Step A only (own open PRs); step B not reached.
+
+- **#837 (M1.4 WEB1/APP1 plans), PO ask of 13:39 (UXR-94) done.** ADR-143 1c and point 6 now use the built labels: "Nicht angetroffen", "Ergebnis erfassen" (no-show outcome), "Nicht abgeschlossen beenden" (`visit-lifecycle.tsx:123-133`) and "Entscheid erfassen" (`InterruptionFollowupForm.tsx:12`). The recorded state keeps "Klient:in nicht angetroffen". Point 6 adds one sentence: the tests take button names from the same exported constants as the buttons; that constants module is PLANNED with M6-2 (IMPLEMENTED today: inline labels only). `grep "Klient nicht angetroffen" DECISIONS.md` now finds 0 hits. Docs only; no code change. UXR-94 status in `UX_REVIEW.md` is `uxa`'s to close.
+- **Branch brought up to date:** `recovery/main` `be2af00` merged into #837 (no rebase, no force-push). Only conflict: `JOURNAL.md`; every entry kept, newest first.
+- **Not done this run:** #815 and #907 are also `dirty` against `recovery/main` after the PO 13:39 merge (CI was green on their last heads: #815 run 42371649187 on `b221c83`, #907 run 42360612762 on `1faafe28`). They are merged up in a following run, in the PO order (#837 → #815 → #907 → MERGE1).
+- **Local (LOCAL TEST RULE):** `node scripts/agents-check.mjs`: see the PR comment for the result on the final head. `npm ci`, lint, typecheck, `npm test`, build: **could not run**: `registry.npmjs.org` does not resolve in this session and the proxy refuses it (CONNECT 403). `npm run test:db`, `npm run e2e`: **could not run** (no Supabase CLI, no npm). **For the owner:** allow `registry.npmjs.org` in the session's network settings so that the full local suite can run.
+- **CI (GITHUB CI RULE):** results for the pushed head go in a #837 comment once every job has finished.
+- Not merged by Engineering. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+
+---
+
+## 2026-11-07 13:39 CET · po (Product Owner)
+
+Scheduled PO run (13:39). There was no open PO PR; this is `po/cycle-2026-11-07-1339`.
+
+- **Merges (A):**
+  - **#837 (M1.4 WEB1/APP1 plans) not merged** on head `d71c895`. CI `app`, `db`, `e2e` and `ui-screenshots` are green, the PR is `clean`, and the plan content is unchanged since `7e5983b`. **Condition 5 fails:** the `uxa` finding UXR-94 (2026-11-04 10:51; `cra` supported it) is unanswered. ADR-143 1c and 6 still name "Klient nicht angetroffen"; the built button is "Nicht angetroffen". My 12:39 note ("merged next run if unchanged") missed this, and this run corrects it. One comment is on #837.
+  - **#961 merged** (MERGE1 status row, COORD-7 row) as `47265b0` on head `067c761`. Title: `PO merge #961: MERGE1 proposed, COORD-7 (head 067c761)`. All seven conditions are met: CI 4/4 green; `clean`; docs only; MERGE1 approved 12:39; 0 reviews and 0 threads. The record comment is on #961. It is the one Engineering merge of this run: #837, first in the COORD-7 order, failed a condition, so the next in order was checked.
+  - **Not merged:** #815 (`cra` 13:25 cleared it at `b221c83`, on branch `gov/review-2026-11-07-1325`, no PR yet; next after #837) and #907. No role docs PR is open.
+  - **Acceptance (§5):** #961 is a proposal and status row only, with nothing to accept. MERGE1 stays *Next up* 0.
+- **Issues (B):** #966 (auto-opened for COORD-7) and #960 handled. No `claimed` label was left on.
+- **Decisions (F):**
+  - **COORD-7** now has its INDEX row: order 43, tier 4, `inputs-requested`. The *Open* row starts with the package link, and records points 1-3 as decided and points 4 and 5 as going to the owner after `cra` (4a) and `lca` (4, 5). It stays in *Open* because two points remain. A comment on #966 names `cra` and `lca`. #960 is closed with a reference to the package and #966.
+  - **`cra` 13:25 read on its branch.** D-43 and D-22 clinical templates are written (FE-042). PO answers:
+    - the FE-042 order **D-18 → D-44 → D-42 is accepted**;
+    - **CGR-156** (no ceiling on an order's end date) and **CGR-157** (a renewal opens no new needs assessment) are placed as **ORD1-C1 and ORD1-C2**. They also bind BILL1 before any real invoice. The bound itself comes from `cra`/`lca` as a sourced, versioned rule, never from the PO or `eng`.
+    - The D-43 and D-22 packages are not rewritten until `cra`'s PR merges, and their `lca` sections are still owed.
+  - No other package moved.
+- **Prioritisation (D) and brief (G):** **NH-A1 approved** (`briefs/NH-A1.md`, *Next up* 4, synthetic only), the first M9.0a brief. PO decisions in it:
+  - N-01 sits inside `/field` (`uxa` question 1).
+  - The planning unit is the resident per shift (PROVISIONAL). `cra`'s condition is met: the uncovered list counts residents. The Clinical Owner confirms the unit before Phase B.
+  - "Zuständig in dieser Schicht" is team organisation, not professional authority (FE-039).
+  - Shift definitions are data. Each member enters her own shifts, with no planner role and no approval.
+  - A continuity default (a rule, no AI) proposes; the team confirms.
+  - `resident_uncovered` is derived, with no priority or SIG1 delivery until `cra` sets one.
+  - The CGR-142 (1) and (2) tables are in the brief. NH-A1-11 (shared devices) and NH-A1-12 (working time) go to `lca`.
+  - Build gate: `cra`, `uxa` and `lca` lines on the brief. Order: after the UX2 remainder (COORD-7).
+  - NH-A2 (resident record and care plan) is the next brief.
+- **Challenge (E):** *Why does a ward have a shift planner and a shift-start allocation round?* Because the roster is treated as a management product rather than the sum of each nurse's own commitments. Built from scratch, each member enters her shifts, continuity proposes who has which resident, and the whole team sees the gaps. A new challenge row records the M9.0 hypothesis, measured per ward and month from AN3 data, never per person. *If NAVORA was created from scratch, would the ward copy the home-care visit?* No. A per-episode start and stop would add a timing act to every care contact with no billing need (NH-A5 is per resident-day), so ward care uses the shift as its time unit. The price is that `visit_overdue` and `visit_stuck` have no ward trigger, and that is listed as *Nicht überwacht*, never hidden.
+- **Blueprint v2.24** (version row; header; §4 M1 blockers: #837 held; §4 M9.0a progress). `ROADMAP.md` line 07.11. 13:39. `NEXT_CAPABILITY.md`: *Active now*, *Next up* 4, a challenge row. `ORD1.md`: conditions C1 and C2. Synchronised: #837, #961 (merge record), #966, #960 (closed), #962 (after merge).
+- **For the owner:** no new scheduled-task prompt change. The three items of 12:39 still stand: the `uxa` file list with `docs/design/proposals/`, the journal location after MERGE1, and the blocked npm registry in Engineering sessions.
+- Tests: none run by the PO. `node scripts/agents-check.mjs` passed before publishing. CI was read through the GitHub API. Live project not touched. No personal or health data.
+- **To the agents:**
+  - `eng`: on #837, write UXR-94 into ADR-143 1c and 6 (the built labels; the tests take names from the button constants), or answer it, and #837 merges next. Then #815, then #907, then MERGE1. The NH-A1 open questions (ward as a setting or an entity, the night-shift date, the estimate) belong in estimate v2 before 2026-11-17.
+  - `cra`: please open the PR for `gov/review-2026-11-07-1325`; give the gate line on NH-A1 (the CGR-142 tables, the uncovered priority left UNKNOWN); COORD-7 point 4a.
+  - `uxa`: the N-01/N-02 line on NH-A1; you may add both to the screen catalog as PROPOSED.
+  - `lca`: NH-A1-11 and NH-A1-12; COORD-7 points 4 and 5; the D-43 and D-22 legal parts (FE-042).
+
+ENGINEERING BRIEF
+- **Capability:** NH-A1, ward and 24-hour shift model on the shared team records (simulated nursing-home ward, Blueprint M9.0a).
+- **Why:** M9.0 needs a simulated ward. NAVORA has no ward, no shift and no answer to "who is responsible for this resident now". In a home, a planner and a shift lead do this, which is the station-leadership layer the care model removes.
+- **Business outcome:** the nursing-home pilot (Phase B, by current direction a nursing home) gets a working team model to simulate in Phase A. It is the precondition for NH-A2 to NH-A5 and for billing per resident-day.
+- **Care outcome:** every resident has a named person in every shift. Continuity is proposed by default, and gaps are visible to the whole team before the shift starts.
+- **Expected nurse outcome:** she enters her own shifts and sees her residents for this shift on the same "Heute" screen as her visits. No allocation round, and no waiting for a roster.
+- **Expected team outcome:** no shift planner and no roster approval. Any member closes a gap. Counts are shown, with no judgement until a verified rule exists.
+- **Expected patient outcome:** the same person on the same shift more often, and no resident left without a named person.
+- **Acceptance criteria:** NH-A1-1 to NH-A1-14 in `briefs/NH-A1.md`:
+  - ward setting in a simulation organisation only; shift definitions as data, versioned;
+  - own shifts only, no planner;
+  - at most one *zuständig* per resident per shift, with RLS and negative cases;
+  - `resident_uncovered` derived, counting residents, with no priority or signal;
+  - continuity default proposing only;
+  - "Nicht überwacht" from one constant;
+  - N-01 in `/field` and N-02 at 390 px and 1024 px;
+  - picker refusal texts shared;
+  - shared devices and working time left to `lca`;
+  - synthetic only, no AI read;
+  - RLS, grants, audit and add-only migrations.
+- **Dependencies:** UX2 remainder first (COORD-7 order); `cra`, `uxa` and `lca` lines on the brief; NH-A2 for the resident record (NH-A1 can be built on a minimal resident case and wired once NH-A2 lands); no decision package blocks it.
+- **Priority:** *Next up* 4, M9.0b due 2027-01-29.
+- **Implementation recommendation:** reuse `teams`, `team_memberships`, `cases` and the OPS1 derived-exception pattern. Add a shift-definition table and a planned-shift table per member, plus one responsibility row per (resident, shift date, definition), with an ADR on ward-as-setting and the night-shift date. Slice 1: data, commands, pgTAP. Slice 2: N-02. Slice 3: N-01 in `/field`. Each slice is one PR, at most a day.
+
+---
+
+## 2026-11-07 13:25 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review run. My PR #937 was merged; no `gov/…` PR open, so this is `gov/review-2026-11-07-1325`.
+
+- **Merged code checked:** #953 on `recovery/main` equals the gated head `de4fd3f`. **#815** moved to `b221c83` (base merge: error-line component, test mock; no rule): **gate clear**, CI 4/4 green read, not run by me.
+- **FE-042 (owner):** decision templates for **D-43** and **D-22** written in their *Clinical impact* sections with sources (read or not accessible), options, reasoning, residual risks and the sentence to approve. Advisory only; nothing approved.
+- **New:** CGR-156 (S2, PS-140, CR-196 PROPOSED): no ceiling on an order's end date (KLV Art. 8 Abs. 2: nine months). CGR-157 (S2, PS-141, CR-197 PROPOSED): a renewal opens no new needs assessment (KLV Art. 8a Abs. 7). H-18 updated.
+- **`uxa` NH-A proposal:** no clinical objection; P1 items must reach the next shift as signals, not only in the handover; "Pflegebedarfsstufe" rather than "Pflegestufe".
+- **Task adjustment (rule 11):** FE-042's five packages are spread over runs: D-43, D-22 now; next D-18, then D-44, then D-42 (most clinical first). No contradiction with `FOUNDER_DECISIONS.md`.
+- **Next:** `po` merges this PR and places CGR-156/-157; `lca` checks the consolidated KLV text before CR-196/-197 are coded; `cra` D-18 template next run.
+
+---
+
+## 2026-11-07 13:10 CET · eng (Engineering)
+
+Scheduled Engineering run (13:09). Step A only (own open PRs); step B not reached.
+
+- **Found:** after the PO merged #835 (`58da1ba`) and `uxa` #959, three own PRs were `dirty` against `recovery/main` `1a78662`: #837 (`DECISIONS.md`), #961 (`JOURNAL.md`), #815 (`DECISIONS.md`, `JOURNAL.md`). #907 stays `clean`.
+- **Done (merge commits, no rebase, no force-push; every journal entry and ADR kept):**
+  - #837 (M1.4, PO's next merge): ADR-143 and ADR-142 (from #835) both kept. No content change.
+  - #961 (MERGE1 proposal, COORD-7): the eng 12:05 entry placed newest first between `uxa` 12:10 and 11:50.
+  - #815 (ASM1-C6, migration 0106): ADR-140 and ADR-142 kept; the eng 12:30 entry placed newest first. No code conflict this time; no migration 0107 to 0122 defines a function that 0106 defines (checked with grep). The `cra` gate on the #815 head is still the PO's condition.
+- **Local tests (LOCAL TEST RULE), on each of the three branches:** `node scripts/agents-check.mjs`: ran, passed. `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`: **could not run**, the npm registry is blocked by the session's network settings (`registry.npmjs.org`: DNS not resolvable directly, proxy CONNECT 403), so no `node_modules`. `npm run test:db`, `npm run e2e`: **could not run**, no Supabase CLI and no npm. Owner: allow `registry.npmjs.org` in the session's network settings (as reported at 12:05).
+- **CI (GITHUB CI RULE), all jobs finished, all green (app, db, e2e, ui-screenshots):**
+  - #837: run 42371645076 on head `3b0318d`.
+  - #961: run 42371645614 on head `067c761`.
+  - #815: run 42371649187 on head `b221c83`.
+  - All three are `clean`. Comments are on #961 and #815. The CI result for this journal commit on #837 goes in a #837 comment.
+- **Status:** the rows stay `in-review` with their PRs. Issue #964 (MERGE1) is `active` but not claimed: the PO order starts MERGE1 only after #837, #961, #815 and #907 are merged.
+- Not merged by Engineering. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` v10 found.
+
+---
+
 ## 2026-11-07 12:39 CET · po (Product Owner)
 
 Scheduled PO run (12:39). There was no open PO PR; this is `po/cycle-2026-11-07-1239`. The 11:39 run left no journal entry and no PO PR. Its only trace is the merge-check comment on #835: the merge call was refused by the permission check. This entry covers it.
@@ -86,6 +225,18 @@ Owner instruction in this session (2026-11-07, verbatim): "Dort wo nichts im blu
 - **Applied now:** first proactive proposal, `docs/design/proposals/NH-A_WARD_SHIFT_SCREENS.md` (PROPOSED). It covers the ward and shift screens for the simulated nursing-home ward (N-01 Meine Schicht in `/field`, N-02 Schichtplan, N-03 Schichtübergabe, N-04 Ausfall in der Schicht, N-05 Bewohnerin/Bewohner), six shared ward rules, the CGR-142 not-invented list with owners, and four questions for the PO. It is presentation only and invents no clinical, staffing, tariff or legal content. Gap: the Blueprint M9.0a names the NH-A briefs (due 2026-11-27, `uxa` gate), but no screen exists in the catalog.
 - **Design system v55:** the §5 ward rule links the proposal.
 - **How I will work from now on (README rule 11, own task adjusted):** each run, after the review, I look for one gap that neither the Blueprint nor a founder decision covers in my area (screens, flows, wording, design system). I write the solution as a PROPOSED file under `docs/design/proposals/` and hand it to the PO as an issue (`agents`, `agent:po`, `ux`). The UX PR therefore also touches `docs/design/proposals/`; this deviates from my task prompt's three-file list and rests on the owner's instruction. The PO may object. Founder decisions, briefs, priorities and other roles' items stay untouched: I propose only.
+
+---
+
+## 2026-11-07 12:05 CET · eng (Engineering)
+
+Attended session with the owner (not a scheduled run).
+
+- **Owner instructions recorded in the Engineering scheduled task** (owner asked; prompt changed by `eng` at the owner's request): LOCAL TEST RULE (full suite locally before every push, also for docs-only changes; per-step result or the exact reason it could not run) and GITHUB CI RULE (after every push wait for every CI job, record each job's result with run ID and head SHA, report done only when all are green). Effective from the 12:09 run.
+- **Local tests in this environment:** `npm ci` fails: the session's network settings block `registry.npmjs.org` (`connect_rejected`); no Supabase CLI, no running Docker. So lint, typecheck, vitest, build, pgTAP and e2e **could not run locally**; only `node scripts/agents-check.mjs` ran (ok). The owner can allow `registry.npmjs.org` in the claude.ai capability settings.
+- **Proposal to `po`, issue #960 (COORD-7):** five points to build efficiently toward M9 (M2.0 first, WIP limit of one open code PR, order along the M9 path, review cadence, weekly owner decision slot). New status row **MERGE1** (`eng-proposal`, not-started, = Blueprint M2.0). Nothing is built before `po` places it. The owner's word in the session: coordination lies with the Product Owner.
+- **#835, #837:** CI green on heads `f33a3f2` (run 42363037139: app, db, e2e, ui-screenshots) and `7e5983b` (run 42363014707). Merge order #835 first (ADR-143 builds on ADR-142).
+- Live project not touched. No personal or health data.
 
 ---
 
@@ -1670,6 +1821,19 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
+## 2026-11-04 11:15 CET · Engineering (eng)
+
+- Step A only, no claim: all 17 own PRs green on their heads and `clean`; no bot run waiting for approval. #745 (UX2) unclaimed, but the PO order (0) holds further UX2 parts while #799, #800, #803, #804, #806, #809 wait for the PO; PLAN3 still needs #814 merged.
+- **#837 continued (docs only, PLANNED, nothing built):** `cra` 09:30 (#855) written into ADR-143 and the APP1 plan:
+  - **1d condition:** any `/field` command whose function writes a visit status, a `visit_events` row, an exception-ending note or an assignment is never queued, whatever (ii) says; mapping gains fields (v), (vi); `record_interruption_followup` (0045:161) added as never queued.
+  - **CGR-124 (advisory):** facts now state that `visit_stuck` / `visit_overdue` are server-derived (0038, CR-039 PROVISIONAL D-28) and raised by pg_cron every minute or, without pg_cron, by any other open page's poll; never suppressed for an offline visit. pg_cron on the production host is UNKNOWN until D-2.
+  - **1c absence:** read-only offline dialog ("Schliessen", focus rules, no request), as `uxa` proposed and `cra` confirmed.
+  - **AUT-42 with `cra` conditions (a)-(d):** a device-clock refusal is resent once automatically without the claim; "Gerätezeit verworfen" shown as information; per-team count only; point 2 names it as the single automatic retry. The PO may keep the explicit act instead (new OPEN line for `po`).
+  - **UXR-93:** one line block per card, each button described by its own sentence.
+- Tests: none run (docs only); only `node scripts/agents-check.mjs`. CI decides; **no test result is claimed**. Not merged by Engineering. Live project not touched.
+
+---
+
 ## 2026-11-04 09:30 CET · Clinical & Regulatory Architect (review)
 
 - **Review** (`reports/CLINICAL_GOVERNANCE.md`, section 2026-11-04 09:30), `recovery/main` @ `d1f2771`: no code merged since 05:30; PO #853 and `aia` #854 read; open #837 (`8142bba`, head `c8cc314`) and `uxa` #850 07:50 read on their branches; code PR heads unchanged.
@@ -1697,6 +1861,18 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 
 ---
 
+## 2026-11-04 07:15 CET · Engineering (eng)
+
+- **Step A only, no claim.** All 17 own PRs green on their heads; no bot run waited for approval. #745 (UX2) stays unclaimed: *Active now* (2026-11-03 06:30) item (0) still holds (#799, #800, #803, #804 unmerged), so no new UX2 part is opened.
+- **#837 continued (docs only):** `cra` CGR-123 (05:30, PR #852, blocking for ADR-143 acceptance and the M6-2 build), placed in force by the PO 06:10 (`DELIVERY_PROGRAM.md` §0c (2)), written into ADR-143 and `APP1_IMPLEMENTATION_PLAN.md` (PLANNED, nothing built):
+  - 1c: `record_no_show`, `record_no_show_outcome`, `end_visit_not_completed`, `record_absence`, `change_absence` never queued; offline `aria-disabled` with a line to call the team now; **no phone number** until MOB1 names one (Clinical Owner, UNKNOWN until G-1).
+  - 1d: membership by a rule, not a list review: a `FIELD_COMMAND_EFFECTS` mapping per `/field` command; source of truth the migrations (`private.evaluate_signals` 0060:234 reads OPS1 exceptions through `private.signal_kind_of` 0060:167; neither redefined later, checked by grep); vitest on the mapping; a pgTAP pins the signal-kind exception types so a new kind fails CI.
+  - 5 reads "No pending entry is deleted without her having seen it" (CGR-123 (4)); 6 adds the vitest and one offline e2e per command of 1c (CGR-123 (5)).
+  - 9 (`cra` device-clock condition): a resend refused for a device claim later than the server time is kept and can be sent once by "Ohne Gerätezeit senden", server time only, with a stored discard marker; never in billed minutes.
+- Merged `recovery/main` into #837 first (only conflict `JOURNAL.md`, every entry kept). **OPEN:** `cra` confirms 1c, the 1d mapping when written, and 9; `uxa` wording for 1c and 9. Tests: none run (docs only); `node scripts/agents-check.mjs` run before pushing. Live project not touched.
+
+---
+
 ## 2026-11-04 06:10 CET · po (Product Owner)
 
 - No PO PR was open; no Engineering delivery since 2026-11-03 15:30 (`IMPLEMENTATION_STATUS.md` unchanged since 2026-10-31), so no acceptance review this cycle. Read: `lca` #851, `aia` #849 (merged); `cra` #848 and #852, `uxa` #850 (open, read on their branches).
@@ -1711,6 +1887,17 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
   - AUT-41 is the target (confirm the device time through the audited correction path instead of retyping), gated on the Clinical Owner's documented-time decision with `lca`; challenge row with a pilot hypothesis.
   - MOB1 must name the offline "telefonisch melden" number (Clinical Owner; UNKNOWN until G-1). UXR-92 placed in MOB1. M6 offline criterion extended.
 - `ROADMAP.md` updated. No queue change; no new brief approved. Tests: none run by me (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-04 06:10 CET · Engineering (eng)
+
+- **Step A only, no claim.** All 17 own PRs are green on their heads and `clean` against `recovery/main`; no bot run waited for approval. #745 (UX2) stays unclaimed: the PO's *Active now* item (0) still holds further UX2 parts while #799 to #815 wait for the PO.
+- **#837 continued (docs only):** `cra` CGR-122 (01:30, #848, blocking for ADR-143 and M6-2), `aia` AUT-41 (02:20, #849) and `uxa` UXR-92 (03:50, #850) written into ADR-143 and `APP1_IMPLEMENTATION_PLAN.md`:
+  - no "reaches another person" list; one line "Noch nicht beim Team." on every pending care entry; an allow-list and a never-queued list with a vitest that fails on an unlisted `/field` command;
+  - the visit timeline, `correct_visit_time`, `take_signal`, `take_open_visit`, `accept_cover`, `withdraw_cover` are never queued; offline their buttons are `aria-disabled` with a card line (safe default, CGR-122 (1));
+  - a device entry time is a labelled claim beside the server time, refused when later, never in the billed minutes (CGR-122 (2), (3); PLANNED, pgTAP named). Facts checked in the code: `visit_events.occurred_at default now()` (0007), `visit_care_minutes_exact` reads `coalesce(corrected_at, occurred_at)` (0023), `visit_observations.recorded_at default now()` (0009).
+- **OPEN:** `po` places CGR-122 and chooses 1a alone or the AUT-41 correction option (1b); the Clinical Owner and `lca` decide whether a device time may be the documented time (1b only); `cra` confirms the command split; `uxa` wording. ADR-143 stays PROPOSED. No test ran (docs only); `node scripts/agents-check.mjs` ok.
 
 ---
 
@@ -1769,6 +1956,18 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - **CGR-113:** sentence by count with "gilt/gelten nicht mehr" (n = 1, n ≥ 2). **UXR-89 amended** with `cra`'s card conditions ((b) and (e) cards complete, "Kein Richtwert." visible). **CGR-118 / CGR-121 (a), (b):** offline banner, pending-card lines, sign-out `alertdialog` and access-end line PROPOSED; `cra` confirms the facts (and the offline "Zurück" variant), `lca` the deletion and access-end sentences, `po` places them in MOB1.
 - New **UXR-91** (medium, my own catalog A-07 "Wird gesendet …" on a pending card while offline). No severe or high finding, no issue opened, no PR comment.
 - DESIGN_SYSTEM v33 (figure-list card rule; new OPEN offline rule). No screenshots needed; no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 23:15 CET · eng (Engineering)
+
+- Step A: all 17 own PRs green on their heads, none in conflict with `recovery/main` `50db89d`, no bot run waiting. Nothing merged by Engineering.
+- **PR #837 continued** (COORDINATION rule 2) with the two items the PO's 22:00 cycle and `cra` 21:30 (PR #845) left for `eng`:
+  - **CGR-121 (a)-(d) written into ADR-143** (PROPOSED): confirming sign-out step with pending entries (default "Zurück und senden"); an expired session keeps entries and never lets another user see or send them; a resend refused `access_ended` (0074, IMPLEMENTED) is kept and shown, to pass on by phone; no refused entry dropped or auto-retried; e2e and vitest named, written before the queue code. Clearing on a confirmed sign-out stays (privacy control).
+  - **AUT-40:** C-15 withdrawn, M6-4 dropped, its days to M6-2 (now 2027-01-08) and M6-3 (2027-01-22); M6 date 2027-01-29 unchanged. CGR-120 noted on C-04.
+- OPEN: `lca` (SC-2, the period after an expiry, content shown after an access end); `cra` (kinds that reach another person; CGR-118 banner); `uxa` (wording of the sign-out step, foreground fact, access-end card); `cra`/`po`: a late-sent entry runs at server time, so whether the device entry time must be shown is UNKNOWN, and Engineering adds no client time without that decision.
+- Not done this run: CGR-113 (#815), CGR-114 (#841), CGR-115 (#828) are advisory and due before real data; no new UX2 part (*Active now* 06:30 (0) still holds). `IMPLEMENTATION_SEQUENCE.md` (#833) still names B-8 for C-15; it is corrected in that PR when it is next touched.
+- Tests: none run (docs only); `node scripts/agents-check.mjs` run before pushing. Live project not touched.
 
 ---
 
@@ -1849,6 +2048,14 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
 - New: **UXR-84** (medium, #815: supersede sentence quotes «Ersetzen», button reads "Korrigieren (ersetzen)"; ADR-140 deviation 6 answered, `cra` confirms), **UXR-85** (medium, #815: "Anderer Grund" length not shown while submit stays disabled), **UXR-86** (low, #815: focus to body after a refused void), **UXR-87** (low, #814: two identical stop links; history line case). No severe or high finding, no issue opened; one comment each on #814 and #815.
 - **CGR-113 sentence proposed** for the void step ("Auch ihre <n> früheren Fassungen sieht das Team dann nicht mehr."); `cra` confirms, PO places. #814 labels confirmed as built.
 - DESIGN_SYSTEM v31: preset pattern names length bounds; help text quotes a command by its exact label. No screenshots (artifact blob host refused); no benchmark (done 03:52). I ran no test; `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+---
+
+## 2026-11-03 15:30 CET · eng (Lead Engineer)
+
+- Owner request: implementation plans on the `uxa` design set (#834). New `docs/engineering/WEB1_IMPLEMENTATION_PLAN.md` (W-01 to W-11, M5) and `docs/engineering/APP1_IMPLEMENTATION_PLAN.md` (A-, C-, O-, L- screens; M2, M4 screens, M6, M8): per screen the components, reads, commands and step; development order, critical path, blockers, estimated dates. ADR-143 (PROPOSED): pending-command store and routes for C-15/C-17, refining ADR-142 of #835 (accepted by the owner 2026-11-03; the duplicate ADR-142 first drafted here was dropped, and `site/` renamed `website/`).
+- Estimates (not commitments): M2 2026-11-27 if `po` clears the 11-PR queue by 2026-11-10; M5 2027-01-15 if the owner decides host, domain and demo destination by 2026-12-11; M6 2027-01-29; M8 2027-02-19.
+- No code, no migration; no new UX2 part opened (PO order 06:30, item (0)). Docs only; `node scripts/agents-check.mjs` run.
 
 ---
 
