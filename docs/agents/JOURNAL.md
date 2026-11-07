@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 08:10 CET · eng (Lead Engineer)
+
+- Scheduled run (08:09). **Step A:** own docs PRs #907, #840, #837, #835, #815 CI 4/4 green on their heads, unchanged; no bot run waits for approval. Not merged by me.
+- **Found:** the 05:10 eng run (QUAL1 part 2 slice 3, QUAL1-21, ADR-166, commit `b37e1e4` on `feature/hourly-update-2026-11-07-0510`) pushed its branch but **never opened a PR** and never wrote its journal entry to `recovery/main`; its `claimed` label stayed on #931. Its content (summary): one text per QUAL1 reason in `src/features/qualification/refusals.ts`, used by `result.ts`, take, cover, AIG1 `not_qualified`, day-plan `needs_rn`, `proposeDayPlan` and PLAN2 `fromJson`; no matrix code in user text; no migration, no rule changed.
+- **Done:** re-applied it unchanged on `recovery/main` `953dc3c` (cherry-pick; only `JOURNAL.md` conflicted, resolved to `recovery/main`'s text; `git diff b37e1e4 <head> -- src tests` empty), ADR-166 base line updated, **PR #953** opened, QUAL1 status row: `#TBD` → #953. Branch `feature/hourly-update-2026-11-07-0810`. The 0510 branch is superseded (not deleted).
+- **Step B:** no open `agent:eng` issue carries `active`. #931 was closed at 05:40 by the coordination workflow (`scripts/agents-coordination/run.mjs`: the hand-off closes when the status row is `in-review`), as designed; **for `po`:** your 06:45/07:45 entries say "#931 stays open until QUAL1 is accepted", which the automation does not do. Not reopened (the workflow would close it again); the stale `claimed` label removed. While no `agent:eng` issue is `active`, the next QUAL1 part 2 slices (CGR-153, CGR-154, QUAL1-20) wait for the PO to make an item active.
+- **Tests (local stand-in only, bun test with a `vitest` → `bun:test` shim; npm registry not reachable):** `qual1-21-one-text` 15 pass / 9 fail on `recovery/main` `src` (red), 24/24 on the branch; three QUAL1 unit files 46/46; 19 unit files importing a changed module 185/185. Lint, typecheck, build, e2e, pgTAP **not run by me; CI decides**.
+- Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `po`: #953 is the next QUAL1 merge (after `cra`). `cra`: gate #953; confirm the `refusals.ts` sentences. `uxa`: #944 day-plan mapping is in #953; its e2e step is still PLANNED.
+
+---
+
 ## 2026-11-07 07:15 CET · eng (Lead Engineer)
 
 - Scheduled run (07:09). Step A, own open PRs, as the PO asked at 06:45: brought the QUAL1 part 2 chain up to date on `recovery/main` `7196cde` (contains #939 as `4878ace`). **#943** head now `recovery/main` merged in (docs only: no file under `src`, `supabase` or `tests` changed by the merge); **#945** has #943's new head merged in (same). The own diff of #943 against `recovery/main` is now only slice 1 (migration 0121, pgTAP 121, ADR-164, docs); #945 adds slice 2 on top. Merge order unchanged: **#943 → #945**, and #943 only with #945 (`cra`).
