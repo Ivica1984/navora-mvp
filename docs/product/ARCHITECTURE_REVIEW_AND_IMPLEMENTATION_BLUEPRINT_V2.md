@@ -1,6 +1,6 @@
 # NAVORA Architecture Review and Implementation Blueprint V2
 
-**Owner of this file:** Product Owner (`po`) · **Written:** 2026-11-06 08:40 (Europe/Zurich), by the owner's *Program Quality Improvement Directive* (2026-11-06) · **Version:** 2.22, 2026-11-07 10:40 (~~2.21, 2026-11-07 09:39~~; see the version table below). Version 2.1 was written after the founder letter of 2026-11-06 (decisions FE-019 to FE-030 in [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md); answer in [`FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md`](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md)). Version 2 was 2026-11-06 08:40; version 1 is [`DELIVERY_PROGRAM.md`](DELIVERY_PROGRAM.md), 2026-11-03 · **Repository state read:** `recovery/main` @ `9c58939`, open PRs and role branches read through the GitHub API on 2026-11-06 08:20-08:40.
+**Owner of this file:** Product Owner (`po`) · **Written:** 2026-11-06 08:40 (Europe/Zurich), by the owner's *Program Quality Improvement Directive* (2026-11-06) · **Version:** 2.23, 2026-11-07 12:39 (~~2.22, 2026-11-07 10:40~~; ~~2.21, 2026-11-07 09:39~~; see the version table below). Version 2.1 was written after the founder letter of 2026-11-06 (decisions FE-019 to FE-030 in [`FOUNDER_DECISIONS.md`](FOUNDER_DECISIONS.md); answer in [`FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md`](FOUNDER_DIRECTION_CONFIRMATION_2026-11-06.md)). Version 2 was 2026-11-06 08:40; version 1 is [`DELIVERY_PROGRAM.md`](DELIVERY_PROGRAM.md), 2026-11-03 · **Repository state read:** `recovery/main` @ `9c58939`, open PRs and role branches read through the GitHub API on 2026-11-06 08:20-08:40.
 
 
 **Status (FE-035, owner 2026-11-06):** this Blueprint is NAVORA's **official, leading working book** (Arbeitsbuch). It is a living document: every content change, new founder decision and milestone progress is recorded in the version table below; substantial changes stay traceable in the text (struck through or marked as replaced, never silently overwritten); with every update the PO synchronises the affected GitHub issues and PRs, and names any scheduled-task prompt that needs a change.
@@ -9,6 +9,7 @@
 
 | Date (Europe/Zurich) | Version | What changed | Why | Sections affected |
 |---|---|---|---|---|
+| 2026-11-07 12:39 | v2.23 | **#835 merged** (M1.3 `DELIVERY_ESTIMATE.md` v1 with founder-decision check, `58da1ba`): M1.3 IMPLEMENTED, **M1 completion 50 % → 63 %**; M1.3 condition: estimate v2 against FE-021/FE-031/FE-036 with the NH-A effort before M1.5 (2026-11-17); PO answers to the estimate's §8 questions 1 and FE-036 row (P-5 outside alert stays before M9, R-2 and R-4 move to the Phase B readiness file, R-4 scope document before M9). **M2.0 = MERGE1** brief approved (`briefs/MERGE1.md`); **COORD-7** points 1-3 decided by po (one open Engineering code PR; order #837 → #961 → #815 → #907 → MERGE1 → QUAL1 part 2 → UX2 remainder → NH-A → BILL1), points 4-5 to the owner after `cra`/`lca`. FE-043, FE-044 recorded | Engineering proposal #960 (owner: coordination lies with the PO); merge and review under `PO_MERGE_PROCESS.md` §4-§5 | version table, header, §4 M1, §4 M2 (M2.0) |
 | 2026-11-07 10:40 | v2.22 | **FE-042** (owner, attended session): work milestone by milestone, issues and PRs first, then a status update compared with this Blueprint; D-43, D-42, D-44, D-22, D-18 reopened (Unfreeze 1) for a detailed `cra` research and decision template with reasons (legal parts `lca`). PR/issue clean-up: #840 closed (superseded by #907), #861, #935, #506, #919, #399 closed with evidence; #954 brought up to date | owner instruction 2026-11-07 | version table, header, §7 Founder Decision Board |
 | 2026-11-07 09:39 | v2.21 | **#953 merged** (QUAL1 part 2 slice 3, `ac6a303`): one text per QUAL1 reason on every path, no verdict on a person, no code in user text (QUAL1-21 (1)-(3) met for QUAL1; UXR-129 leftovers outside QUAL1 open). `cra` CGR-155 (resume after a lapse during the visit) placed with CGR-154 and UXR-134 in one slice; CR-194 interim text revised (state *pausiert* plus the two implemented steps; the earlier "no next step" line struck in `briefs/QUAL1.md`) | `cra` review 09:25 (#937), merge record on #953 | §1.4 product flow step 3 (refusal texts IMPLEMENTED), `briefs/QUAL1.md` |
 | 2026-11-07 08:39 | v2.20 | No Engineering merge (#953 QUAL1-21 waits for a `cra` gate on head `9f6340c`); `uxa` #951 merged. New QUAL1 findings placed: UXR-134 (one "lapsed" text on depart, start and resume) part 2 condition with CGR-154; CR-194 (resume after a lapse) stays a clinical question, no next step in text until answered; UXR-135/-136, AUT-68 folded into QUAL1-21, ADR-165 (3) and QUAL1-15; **QUAL1-22** added (AUT-67: show evidence and delegation ends at planning, release dependent future visits on revocation; part 3) | `uxa` review 07:50, `aia` review 37 (#954, open) | §1.4 product flow step 3 (requirement check: prevention before the start check PLANNED), `briefs/QUAL1.md` |
@@ -271,7 +272,7 @@ Evidence states: `missing`, `self_confirmed` (the member's own confirmation, **n
 
 `completion % = Σ (weight of sub-milestones IMPLEMENTED or accepted) ÷ Σ (all weights)`. A sub-milestone counts only when it is on `recovery/main` (or, for a decision, recorded as decided). BUILT work is shown separately as *built %* and never counts. Weights are the effort shares from `IMPLEMENTATION_SEQUENCE.md` §8 where available, otherwise equal. The PO recomputes every Friday (§10).
 
-### M1 Delivery baseline · target Fri 2026-11-13 · **completion 50 %** (built 90 %)
+### M1 Delivery baseline · target Fri 2026-11-13 · **completion 63 %** (built 90 %; ~~50 %~~ until 2026-11-07 12:39)
 
 - **Responsible:** `eng` + `uxa`; accepts `po`.
 - **Sub-milestones:**
@@ -280,11 +281,11 @@ Evidence states: `missing`, `self_confirmed` (the member's own confirmation, **n
   |---|---|---|---|---|---|
   | M1.1 | Design baseline: IA, screen catalog (57), design system V1 (#834) | `uxa` | 2026-11-20 | 2 | IMPLEMENTED (accepted 2026-11-03) |
   | M1.2 | Implementation sequence M2-M8 (#833) | `eng` | 2026-11-13 | 1 | IMPLEMENTED |
-  | M1.3 | Delivery estimate `DELIVERY_ESTIMATE.md` (#835) | `eng` | 2026-11-13 | 2 | BUILT |
+  | M1.3 | Delivery estimate `DELIVERY_ESTIMATE.md` (#835) | `eng` | 2026-11-13 | 2 | IMPLEMENTED (merged `58da1ba` 2026-11-07; ~~BUILT~~). Condition: v2 against FE-021, FE-031, FE-036 with the NH-A effort, before M1.5 |
   | M1.4 | WEB1/APP1 implementation plans, ADR-142/-143 (#837) | `eng` | 2026-11-13 | 1 | BUILT |
   | M1.5 | Delivery program v2 = this blueprint, dates re-baselined from M1.3 | `po` | 2026-11-17 | 2 | PLANNED (structure done; dates wait for M1.3) |
 
-- **Blockers:** M1.3, M1.4 unmerged (RC-1).
+- **Blockers:** ~~M1.3, M1.4 unmerged (RC-1)~~ M1.4 (#837, CI green, `clean`) is the next Engineering merge (COORD-7 order); M1.5 waits for the estimate v2 (NH-A effort). **PO answers to the estimate (2026-11-07):** §8 question 1: P-5 (outside alert for the P1 path) **stays before M9**: Phase A must show the alert works before Phase B; R-2 (on-call) and R-4 (external security test) move to the **Phase B readiness file**, the R-4 scope document stays before M9; §2.3: earliest technical M9 2027-01-15, planning value 2027-01-29, before the M9 date 2027-03-12 (no date moved).
 - **Dependencies:** none outside the merge path.
 - **Acceptance criteria:** (1) every M2-M10 item has an estimate in person-days with confidence, predecessor and moving risk; (2) technical and pilot readiness stated as dates with assumptions; (3) every screen of the catalog has route, role, data read and components; (4) every component has its six states and token references; (5) no item needs real data or a frozen package; (6) this blueprint's §6 dates are re-computed from M1.3 and dated.
 
@@ -295,7 +296,7 @@ Evidence states: `missing`, `self_confirmed` (the member's own confirmation, **n
 
   | ID | Sub-milestone | Owner | Due | Weight | Status |
   |---|---|---|---|---|---|
-  | M2.0 | Merge mechanics: AUT-49 (journal file per entry), one file per ADR, `po-merge-gate.mjs` with unit tests | `eng` | 2026-11-13 | 2 | PLANNED |
+  | M2.0 | Merge mechanics: AUT-49 (journal file per entry), one file per ADR, `po-merge-gate.mjs` with unit tests | `eng` | 2026-11-13 | 2 | PLANNED; **brief MERGE1 approved 2026-11-07** (`../agents/briefs/MERGE1.md`, COORD-7 point 1): built after #837, #961, #815, #907, before the next QUAL1 slice |
   | M2.1 | Merge queue: ~~#800~~ (merged 2026-11-06, merge-process test run), #803, #804, #806 (UX2), #813 (RLS4-C3), #810 (CGR-110) | `po` | 2026-11-13 | 2 | 1 of 6 IMPLEMENTED, rest BUILT |
   | M2.2 | UX2 shell part (#799) | `eng` | done | 2 | IMPLEMENTED |
   | M2.3 | UX2 remainder (F-3…F-7, UX2-33 error pages in the shell) | `eng` | 2026-11-20 | 4 | PLANNED |
