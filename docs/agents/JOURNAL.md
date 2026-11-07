@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 04:45 CET · po (Product Owner)
+
+Scheduled PO run (04:39). No PO PR was open; this is `po/cycle-2026-11-07-0439`.
+
+- **Merges (A):** **#939** (QUAL1 part 1, next Engineering PR) **not merged**: head `50e372a` unchanged, CI green, but still no `cra` gate line for it (condition 2; `cra` last ran 01:35). Already commented at 02:45; no new comment. **#943** and **#945** (QUAL1 part 2 slices 1-2) are stacked on #939 (one dependent chain, FE-041 (5)) and wait for it. **#936** (`uxa`) **merged** as `547bae4` on head `ce48e26` (CI 5/5 green, `clean`, 0 reviews/threads, own files only; record on #936). #937 (`cra`) still `dirty`; commented at 01:39, no new comment.
+- **Review (C):** nothing delivered for acceptance (no Engineering merge).
+- **UX findings taken in (#935 UXR-129, #944 UXR-132, UXR-130/-131/-133):** QUAL1 has no screen yet, so the PO amended the approved brief: **QUAL1-21**: one label function per QUAL1 reason, called on every path including visit start and the PLAN2 series; the two database refusal messages recognised before any generic 42501/`failed` branch (no "konnte nicht …", no wrong cause, no retry invitation); no verdict on a person ("geeignet", "darf nicht", "Diese Person") and no matrix or register code in user text while rules are PROPOSED; one provisional wording; the next step after a refused start shows only what is decided (release as open), the confirming role stays UNKNOWN until D-43. QUAL1-17's "four result labels shown" struck and replaced by "four result codes" (CR-183 itself unchanged). Words PROPOSED (`uxa`); **`cra` to confirm** the professional terms. `eng`'s #945 already maps the refusal codes, so this fixes the target before the screens are built. #935 and #944 claimed this run, stay open until delivered.
+- **Decisions (F):** no package moved. D-25, D-37, D-42, D-43, D-44 wait for `lca` (no run since 2026-11-06 16:10); the PO drafts no legal verdict. The rest are frozen awaiting the owner or `clinical`.
+- **Prioritisation (D):** unchanged: Billing is the largest Phase A gap (BILL1 with NH-A5 by 2026-11-27); QUAL1 part 1 is the next merge, gated only by `cra`.
+- **Challenge (E):** *Why would a nurse need to phone the office after a refused visit start?* Only because the screen does not say why. If the refusal names the missing prerequisite and releases the visit to the team, the team re-plans itself; no dispatcher is needed to translate an error. From scratch, a refusal text is part of the safety rule, not decoration. Buurtzorg comparison: its teams resolve such gaps by calling a colleague; NAVORA can make the reason visible to the whole team at once.
+- **Blueprint v2.16:** version row, header, §1.6 take-in paragraph. `NEXT_CAPABILITY.md` *Active now* updated. `ROADMAP.md` unchanged (no status changed). Saturday, so no Executive Report rewrite.
+- **Scheduled-task prompts:** the PO prompt's "PLAN3 stack #891 to #910" line remains spent (FE-041); no other change needed. The PO does not edit scheduled tasks.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `cra`: gate line for #939 on `50e372a`; confirm QUAL1-20 (3) and the QUAL1-21 terms; merge `recovery/main` into #937. `eng`: QUAL1-21 for part 2 (#945 is on the way). `uxa`: map texts to #945's codes in your next review. `lca`: D-42, D-43, D-44 (L-7 first), D-25.
+
+---
+
 ## 2026-11-07 04:10 CET · eng (Lead Engineer)
 
 Scheduled eng run (04:09). Branch `feature/hourly-update-2026-11-07-0410`, **stacked on #943** (slice 1, head `b457329`, itself on #939): still the one open chain FE-041 (5) allows; `recovery/main` `c7293f8` already contained.
