@@ -105,7 +105,7 @@ export async function takeOpenVisit(input: unknown): Promise<TakeResult> {
   if (error) {
     logEvent("warn", "command.failed", { op: "take_open_visit", ...errorFields(error) });
     // QUAL1-10 (0121): the take itself asks the check; the backstop answers a race (evidence changed meanwhile).
-    return { ok: false, error: qualificationRefusal(error) ?? TAKE_MESSAGES.failed };
+    return { ok: false, error: qualificationRefusal(error, { subject: { kind: "self" }, context: "take" }) ?? TAKE_MESSAGES.failed };
   }
   const r = resultOf(data);
   if (r === "ok" || r === "duplicate") {

@@ -6,6 +6,8 @@
  * texts, open for `uxa`.
  */
 
+import { QUAL_NO_PROPOSAL_TEXT } from "@/features/qualification/refusals";
+
 export const DAY_PLAN_REASONS: Readonly<Record<string, string>> = {
   primary_nurse: "Bezugspflegende",
   deputy: "Stellvertretung",
@@ -15,7 +17,7 @@ export const DAY_PLAN_REASONS: Readonly<Record<string, string>> = {
 
 export const DAY_PLAN_NOT_FOUND: Readonly<Record<string, string>> = {
   not_active: "kein Vorschlag: kein aktives Teammitglied verfügbar",
-  needs_rn: "kein Vorschlag: keine Pflegefachperson verfügbar",
+  needs_rn: QUAL_NO_PROPOSAL_TEXT.needs_rn, // QUAL1-21 (1): the RN rule has one text (ADR-166)
   absent: "kein Vorschlag: die passenden Mitglieder sind abwesend",
   overlap: "kein Vorschlag: die passenden Mitglieder haben zu dieser Zeit schon einen Einsatz",
 };

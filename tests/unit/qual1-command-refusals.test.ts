@@ -98,8 +98,8 @@ describe("every assignment and start command maps the QUAL1 refusal (UXR-132)", 
         const branch = whole.indexOf("if (error)");
         expect(branch, `${op} has no error branch`).toBeGreaterThanOrEqual(0);
         const b = whole.slice(branch);
-        const mapped = b.indexOf("qualificationRefusal(error)");
-        expect(mapped, `${op} does not call qualificationRefusal(error)`).toBeGreaterThanOrEqual(0);
+        const mapped = b.indexOf("qualificationRefusal(error"); // QUAL1-21: take and cover pass a subject (ADR-166)
+        expect(mapped, `${op} does not call qualificationRefusal(error…)`).toBeGreaterThanOrEqual(0);
         // Before any generic error answer in the error branch.
         const generic = b.search(/error\.code === "42501"|error\.code === "22023"|MESSAGES\.failed|messages\.failed|nicht gespeichert werden/);
         expect(generic, `${op} has no generic error branch`).toBeGreaterThanOrEqual(0);

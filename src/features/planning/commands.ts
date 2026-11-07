@@ -6,7 +6,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
-import type { CommandResult } from "@/lib/commands/result";
+import { qualificationRefusal, type CommandResult } from "@/lib/commands/result";
 import { errorFields, logEvent } from "@/lib/log";
 import { PLANNING_MESSAGES, REASON_LABEL } from "./rules";
 
@@ -15,9 +15,13 @@ const key = z.uuid();
 
 export type PlanningResult = { ok: true; notes: string[]; created?: number } | { ok: false; error: string };
 
-function fromJson(op: string, data: unknown, error: { code?: string } | null): PlanningResult {
+function fromJson(op: string, data: unknown, error: { code?: string; message?: string } | null): PlanningResult {
   if (error) {
     logEvent("warn", "command.failed", { op, ...errorFields(error) });
+    // QUAL1-21 (2), ADR-166: since 0122 the PLAN2 series leaves a visit open instead of raising; a race with the 0121
+    // backstop still reads as the QUAL1 refusal, never as "konnte nicht".
+    const qual = qualificationRefusal(error);
+    if (qual) return { ok: false, error: qual };
     return { ok: false, error: error.code === "22023" ? PLANNING_MESSAGES.invalid : PLANNING_MESSAGES.failed };
   }
   const r = (data ?? {}) as { result?: string; reasons?: string[]; created?: number };
