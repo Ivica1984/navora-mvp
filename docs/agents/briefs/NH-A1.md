@@ -10,6 +10,8 @@ updated: 2026-11-07
 
 **Approved 2026-11-07 13:39 CET (scheduled PO run), for synthetic data in a simulation organisation only (Phase A, FE-021, FE-031).** Blueprint M9.0a, first of five nursing-home briefs (NH-A1 to NH-A5, due 2026-11-27). Screen input: `uxa` proposal `docs/design/proposals/NH-A_WARD_SHIFT_SCREENS.md` (FE-043, #962), N-01, N-02 and §3. Clinical input: `cra` 13:25 (`CLINICAL_GOVERNANCE.md`, branch `gov/review-2026-11-07-1325`).
 
+**Amended 2026-11-07 14:39 CET (PO, `aia` review 38):** NH-A1-6 now has no confirm act (AUT-69, #969). NH-A1-15 adds an own recurring pattern (AUT-70). The measures section names its four sources (AUT-71). Whether shift responsibility needs an acknowledgement is UNKNOWN and sits with `cra`.
+
 **Build gate:** Engineering starts only when (a) this brief has a `cra` gate line, (b) a `uxa` line on N-01/N-02 (the screen-catalog entries), and (c) an `lca` line on NH-A1-11 (shared devices) and NH-A1-12 (working time). The COORD-7 order holds: NH-A1 comes after the UX2 remainder. Every rule in this brief is PROVISIONAL. A passed Phase A simulation is no clinical release (CGR-142 (5), O-6).
 
 ## Problem
@@ -53,12 +55,18 @@ A ward team works a 24-hour day without a shift planner and without a morning al
   - It is derived from the schedule facts (NH-A1-3, NH-A1-4) like OPS1 `visit_uncovered`, with a new exception kind `resident_uncovered`.
   - Its **priority and any escalation step are UNKNOWN** (`cra`, Clinical Owner). Until `cra` sets them it is shown to the ward team and Operations with no P1/P2 level and starts no SIG1 delivery. pgTAP: `signal_kind_of` maps no signal kind to `resident_uncovered`.
   - The exception ends by itself when a member is set (pgTAP).
-- [ ] **NH-A1-6 Continuity default (rule, no AI).** When a shift's responsibilities are first needed (at the latest when the shift becomes the *next* shift), each resident gets as default the member who was *zuständig* for that resident in the most recent shift of the same definition, if she has a planned shift in this one. Otherwise the field stays empty and NH-A1-5 shows the resident. The default:
-  - is a proposal only. It is shown as "Vorschlag (wie letzte <Schichtname>)", and the team confirms it in one act per shift for all residents, or changes single residents;
-  - never overwrites a value a person set;
-  - is logged with the reason "Kontinuität".
+- [ ] **NH-A1-6 Continuity default (rule, no AI).** ~~The default is a proposal only, shown as "Vorschlag (wie letzte <Schichtname>)"; the team confirms it in one act per shift for all residents, or changes single residents.~~ (Replaced 2026-11-07 14:39 by the PO decision on `aia` AUT-69, #969. Why: the per-shift confirm was about 3 accept-all acts a day per ward, it named no patient-care benefit, and the brief left open whether an unconfirmed default counts for NH-A1-5.)
 
-  pgTAP covers four cases: the same member on shift (proposed), a different member on shift (empty), a person's value kept, and the confirm act. Measure for M9.0: share of resident-shifts confirmed without a change, per ward and month, never per person.
+  When a shift becomes the *next* shift (at the latest), each resident gets as default the member who was *zuständig* for that resident in the most recent shift of the same definition, if she has a planned shift in this one. Otherwise the field stays empty and NH-A1-5 shows the resident. The default:
+  - **takes effect as *zuständig*.** It is a value with the source "Kontinuität", logged and audited like a person's value. N-01, N-02 and the resident card show it as "wie letzte <Schichtname>". **There is no team-wide confirm act and no "accept all" button.**
+  - can be changed by any ward member in one act (NH-A1-4), and every change is audited;
+  - never overwrites a value a person set;
+  - counts for NH-A1-5. Only a resident who has nobody after the default is listed as uncovered.
+  - The named member sees the resident on her own N-01 (NH-A1-8). That is how she knows, without a separate notice.
+
+  **Open with `cra` (UNKNOWN):** does the shift's responsibility need an explicit acknowledgement for a clinical reason? If `cra` or the Clinical Owner says yes, it becomes the named member's own "Gesehen" on her N-01, never a coordinator's tap for the team. It must be answered before Phase B. Until then the rule holds for synthetic data only.
+
+  pgTAP covers five cases: the same member on shift (set, source "Kontinuität"); a different member on shift (empty, listed in NH-A1-5); a person's value kept; a change by a member (audited, source "Person"); and NH-A1-5 not listing a resident covered by the default. Measure for M9.0, per ward and month and never per person: ~~share of resident-shifts confirmed without a change~~ changes from the default.
 - [ ] **NH-A1-7 "Nicht überwacht" list (CGR-142 (1)).** Every reused control in the table below whose answer is "no" or "UNKNOWN" is listed under "Nicht überwacht auf dem Wohnbereich (n)" on N-01 and N-02. Its text comes from one constant that the table's test also reads. It is never styled as success, and never hidden because the count is high. Vitest: the constant has one entry per "no"/"UNKNOWN" row. Playwright: the count is shown and `data-tone` ≠ `ok`.
 - [ ] **NH-A1-8 N-01 Meine Schicht (`/field`).** At 390 × 844 on the synthetic ward seed:
   - the shift line ("<Schichtname> · <von>–<bis> · <Wohnbereich>") is the first text after the h1 "Heute";
@@ -77,6 +85,11 @@ A ward team works a 24-hour day without a shift planner and without a morning al
 - [ ] **NH-A1-12 Working time across shifts (`lca`).** NAVORA checks no rest period or maximum working time across shifts, and shows no refusal or warning for one, until `lca` names the rule and its source. The N-02 help text says that rest periods are not checked. Shift entries feed `working_time` only as planned time, never as worked time (worked time stays the recorded facts, WORK1, D-23).
 - [ ] **NH-A1-13 Synthetic only.** Every ward, shift and resident row in the seed is marked synthetic. The ward commands refuse outside a simulation organisation (NH-A1-1). No ward data reaches an AI service (D-35 rule A; pgTAP: no `ai` agent read on the new tables).
 - [ ] **NH-A1-14 Security and audit.** RLS, column grants and the audit trigger on every new table; every write is an idempotent command with a reason where this brief says so, audited in the same transaction (ADR-003). Migrations only add. pgTAP per table: a member of another organisation reads nothing.
+- [ ] **NH-A1-15 Own recurring pattern (`aia` AUT-70, PO 2026-11-07 14:39).** A member may record her **own** recurring pattern once: shift definition, weekdays, from and to. Her planned shifts (NH-A1-3) are generated from it. Each single shift can then be changed or withdrawn as an exception. Changing the pattern changes only future shifts that have no exception (pgTAP). Rules:
+  - These are still her own entries only. No command takes another member's pattern or a roster (the NH-A1-3 negative case is unchanged).
+  - The pattern adds no rest-period or working-time rule (NH-A1-12 stays with `lca`).
+  - Engineering decides in the NH-A1 ADR whether it reuses the PLAN2 series mechanism.
+  - It may be built as its own slice after slices 1-3. NH-A1 is accepted only once it is in.
 
 ## Reused controls on the ward (CGR-142 (1))
 | Reused control (home care, IMPLEMENTED) | Does its trigger exist on the ward in NH-A1? | Shown as |
@@ -110,7 +123,7 @@ Each "no" or "UNKNOWN" is an open question for the Clinical Owner: does the ward
 | Rule | Input class | Note |
 |---|---|---|
 | `resident_uncovered` (NH-A1-5) | visit/schedule fact | displays only; priority and escalation UNKNOWN, so it does not rank, route or escalate |
-| Continuity default (NH-A1-6) | visit/schedule fact | proposes only; a person confirms |
+| Continuity default (NH-A1-6) | visit/schedule fact | sets the previous shift's member as *zuständig* (source "Kontinuität"); any member changes it; never overwrites a person's value (AUT-69, 14:39) |
 | Only members with a planned shift can be *zuständig* (NH-A1-4, NH-A1-10) | visit/schedule fact | team organisation, no professional rule |
 
 No rule of the class *clinical content*. No rule that ranks, routes or escalates on a *care-context fact recorded by a person*.
@@ -120,11 +133,19 @@ No rule of the class *clinical content*. No rule that ranks, routes or escalates
 2. **Rules:** the continuity default and the uncovered derivation (deterministic, above).
 3. **Monitor:** uncovered residents are derived continuously, for the current and the next shift, not checked at shift start.
 4. **AI prepares:** **none in NH-A1.** A deterministic rule covers the proposal. D-35 rule A forbids sending ward data to an AI service, and O-4 (AI provider for synthetic data) is open. A later AI step (for example a proposal for a gap) needs its own brief under the PLAN4 pattern.
-5. **Human reviews:** the team sees the proposal ("Vorschlag (wie letzte …)").
-6. **Human decides:** any ward member confirms or changes it.
+5. **Human reviews:** the named member sees her residents on N-01 ("wie letzte …"), and the team sees the uncovered list.
+6. **Human decides:** any ward member changes a default. No confirm act (AUT-69, 14:39).
 7. **Human signs:** none needed (no attesting act in NH-A1).
 
-Administrative step removed: shift allocation and roster upkeep. The baseline is UNKNOWN for a real home; in Phase A the measures are the AN3 spans per ward and month, plus NH-A1-6's confirmed-without-change share. Gate: D-35 stage 0, synthetic only. The AI must never set a responsibility, compute a staffing level or judge a shift.
+Administrative step removed: shift allocation and roster upkeep. The baseline is UNKNOWN for a real home.
+
+**Phase A measures (`aia` AUT-71, PO 2026-11-07 14:39).** They come from events NH-A1 already writes, with no new tap (AUT-55 rule). Each is counted per ward and month, at team level only and never per person:
+1. residents covered when the shift begins, per ward and shift definition;
+2. minutes from shift begin until every resident has a member;
+3. responsibility changes after shift begin, and changes from the continuity default;
+4. roster entry acts per planned shift (target well below 1 with NH-A1-15).
+
+~~AN3 spans per ward and month, plus NH-A1-6's confirmed-without-change share.~~ Gate: D-35 stage 0, synthetic only. The AI must never set a responsibility, compute a staffing level or judge a shift.
 
 ## Out of scope
 - Resident record, admission and care plan (NH-A2).
