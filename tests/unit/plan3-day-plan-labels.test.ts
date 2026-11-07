@@ -30,8 +30,10 @@ describe("PLAN3-3 reasons", () => {
   });
 
   it("names the number of visits for a member who knows the client", () => {
-    expect(lineReasonText("knows_client", 3)).toBe("kennt die Klientin (3 Besuche)");
-    expect(lineReasonText("knows_client", 1)).toBe("kennt die Klientin (1 Besuch)");
+    expect(lineReasonText("knows_client", 3)).toBe("kennt Klient:in (3 Besuche)"); // UXR-101, PO 2026-11-06 06:30
+    expect(lineReasonText("knows_client", 1)).toBe("kennt Klient:in (1 Besuch)");
+    // UXR-101: no gendered client noun on any reason.
+    for (const t of Object.values(DAY_PLAN_REASONS)) expect(t).not.toMatch(/Klientin|Klient\b(?!:)/);
   });
 
   it("never invents a reason for an unknown code", () => {
@@ -63,17 +65,19 @@ describe("PLAN3-6 / PLAN3-10 refusals", () => {
   });
 
   it("has a text for every refusal propose_day_plan returns", () => {
-    for (const code of ["team_off", "date_out_of_range", "open_proposal", "nothing_open"]) {
+    // PLAN3-15 (0116, ADR-157): propose_day_plan no longer returns open_proposal.
+    for (const code of ["team_off", "date_out_of_range", "nothing_open"]) {
       expect(dayPlanRefusalText(code)).not.toBe("");
     }
-    expect(dayPlanRefusalText("date_out_of_range")).toContain("14 Tage");
+    // UXR-100 (`uxa` 2026-11-05 19:50): today and the next 14 days are the whole range.
+    expect(dayPlanRefusalText("date_out_of_range")).toBe("Ein Vorschlag ist nur für heute und die nächsten 14 Tage möglich.");
   });
 
   it("uses no word of pressure or judgement (H-20, PLAN3-4)", () => {
     const all = [
       ...Object.values(DAY_PLAN_REASONS),
       ...Object.values(DAY_PLAN_NOT_FOUND),
-      ...["agent_off", "team_off", "date_out_of_range", "open_proposal", "nothing_open"].map(dayPlanRefusalText),
+      ...["agent_off", "team_off", "date_out_of_range", "nothing_open"].map(dayPlanRefusalText),
     ].join(" ");
     expect(all).not.toMatch(/sofort|dringend|überlastet|zu viel|Frist|Maximum/i);
   });
@@ -102,7 +106,8 @@ describe("PLAN3-14: visits in other teams (cra CGR-136, ADR-146)", () => {
   });
 
   it("the day-load line says only that other-team visits exist: no count, no client, no time", () => {
-    expect(otherTeamVisitsLine(true)).toBe("weitere Einsätze in anderen Teams");
+    // UXR-98 (1): the minutes on the same line count this team only, so the fact says it is not counted.
+    expect(otherTeamVisitsLine(true)).toBe("Dazu Einsätze in anderen Teams, hier nicht mitgezählt.");
     expect(otherTeamVisitsLine(false)).toBeNull();
     expect(otherTeamVisitsLine(null)).toBeNull();
     expect(otherTeamVisitsLine(true)).not.toMatch(/\d/);
