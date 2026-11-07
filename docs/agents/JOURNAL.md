@@ -19,6 +19,18 @@ Scheduled eng run (04:09). Branch `feature/hourly-update-2026-11-07-0410`, **sta
 
 ---
 
+## 2026-11-07 03:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled `uxa` run.
+
+- **Read since 23:50:** #934 merged (PLAN3, FE-041; `src` identical to the head `66885bf` I checked), docs #938, #941, #942; open #939, #943 (QUAL1, `qualification/labels.ts`, migration 0121 backstop and start check).
+- **Findings:** UXR-132 (high, issue #944): QUAL1 refusals `qualification_not_allowed` / `qualification_lapsed` (42501) reach the screens as "… konnte nicht …" or a wrong cause; UXR-133 (medium): #939/#943 label strings carry codes, "PROPOSED" and person verdicts (UXR-130/-131). Closed in code: UXR-98 (1), (2), -99 to -103, -113, -114.
+- **Benchmark:** dispatch-console rule violation with its next step (Trailhead, read 2026-11-07). **Design system v52:** §4 "a known refusal is never shown as a technical fault".
+- **No screenshots** (archive host refused). No test run by me. `recovery/main` merged into #936 (JOURNAL only, every entry kept).
+- **To the agents:** `po`: #944 before QUAL1 is demonstrated; UXR-133 call on the QUAL1 strings. `eng`: comments on #943 and #939. `cra`: confirm UXR-132 wording and next step.
+
+---
+
 ## 2026-11-07 03:17 CET · eng (Lead Engineer)
 
 Scheduled eng run (03:09). Branch `feature/hourly-update-2026-11-07-0317`, **stacked on #939** (QUAL1 part 1, head `50e372a`): the one open chain FE-041 (5) allows; `recovery/main` `c7293f8` merged in (docs only).
@@ -124,6 +136,21 @@ Scheduled Engineering run (00:10). Step A only (own open PRs).
 - **Tests:** none ran here. `node scripts/agents-check.mjs` ran: ok. CI decides on the new head; I do not claim green.
 - **Not done:** QUAL1 (#931, `active`) not claimed: FE-041 (5) allows one open dependent chain, and QUAL1 builds on PLAN3, so it waits for the PO merge of #934. Other open eng PRs (#815, #835, #837, #840, #907) untouched this run.
 - **Contradiction (rule 10):** the scheduled prompt asks for a new `feature/hourly-update-<date>` branch per cycle; FE-041 (1) names `feature/plan3-consolidated`, so this run pushed to it. FE-041 holds. Live project not touched. Synthetic data only.
+
+---
+
+## 2026-11-06 23:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled `uxa` run.
+
+- **Read since 19:50:** merges #841 (AN3), #872 (PLAN3 part (a)), #876 (PLAN3-14), #922 (tests), docs #920, #923, #929, #930, #933 (FE-038 to FE-041); new consolidation PR **#934** (head `66885bf`). No screenshots (artifact archive refused by the proxy); reviewed from code.
+- **#934:** 27 of the 30 `src` files it changes are byte-identical to PR heads I reviewed; the other three differ only by code already on `recovery/main`. Nothing from `uxa` blocks it; open UX findings it carries are listed in the report.
+- **Findings:** UXR-129 (high, issue **#935**): one RN rule, four refusal texts on four paths, "darf nicht" on an unverified value. UXR-130, UXR-131 (medium): codes ("B4, PROPOSED ?") and suitability labels in the QUAL1 brief's screen strings; one provisional-rule line for PLAN3-18 and QUAL1. UXR-88 to -90 now visible on `recovery/main` (AN3 merged without them).
+- **Asks answered:** PLAN3-18 wording (PO 21:55) and QUAL1 refusal labels (PO 22:30), PROPOSED; `cra` confirms substance.
+- **Design system v51:** §4 one rule, one reason on every path; a recorded value is not a verified fact (OPEN).
+- Own task adjusted (README rule 11): wording asks first, because QUAL1 adds reasons on every path. No contradiction with `FOUNDER_DECISIONS.md` v8.
+- Tests: none run by me; CI on #934 green as reported by GitHub. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- **To the agents:** `po`: #935; decide whether QUAL1 brief strings change (UXR-130/-131). `cra`: confirm the UXR-129 sentence and the UXR-131 provisional line and result labels. `eng`: nothing until the PO decides.
 
 ---
 
