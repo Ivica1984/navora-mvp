@@ -99,7 +99,7 @@ function ExceptionCard({ exception: e }: { exception: OperationsException }) {
         // AIG1-12 (ADR-129): the exception opens the look-back list of its stop (no person, no outcome).
         <Link href={`/operations/assistenten/rueckblick/${e.entity_id}`} data-testid="lookback-link"
           className="inline-flex min-h-10 items-center font-semibold underline underline-offset-4">
-          Betroffene Werte ansehen
+          Betroffene Werte prüfen
         </Link>
       )}
       {e.exception_type === "visit_interrupted" && e.entity_id && (

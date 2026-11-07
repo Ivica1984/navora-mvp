@@ -1,6 +1,8 @@
 // Shared result model for Server Action commands (T10).
 // Pure module — no "use server", so schemas and mappers can be unit-tested.
 
+import { qualRefusalText, type QualContext, type QualSubject } from "@/features/qualification/refusals";
+
 export type CommandResult = { ok: true } | { ok: false; error: string };
 
 /** Codes returned by the Postgres command functions (migration …0004; VIS1 adds the day outcomes, 0089). */
@@ -26,7 +28,36 @@ export const STARTED_BEFORE_DATE_MESSAGE =
 export const QUALIFICATION_MISSING_MESSAGE =
   "Deine Qualifikation ist noch nicht erfasst. Einsätze führst du durch, sobald die Administration sie eingetragen hat.";
 
-type DbError = { code?: string } | null;
+/**
+ * QUAL1-10 (migration 0121, ADR-164/-165): in a simulation organisation the database refuses a write that makes a member
+ * responsible for or covering a visit for which the qualification check does not confirm every activity (42501
+ * `qualification_not_allowed`). QUAL1-17: the check runs again at the start (42501 `qualification_lapsed`).
+ * QUAL1-21 (ADR-166): the texts come from the one function in `@/features/qualification/refusals`; wording PROPOSED
+ * (`uxa`), `cra` to confirm. They name no activity code, no rule state and no reason: the database detail may name the
+ * member's evidence (CGR-152) and is never shown.
+ */
+export const QUALIFICATION_NOT_ALLOWED_MESSAGE = qualRefusalText("qualification_not_allowed", { kind: "chosen" }, "save");
+export const QUALIFICATION_LAPSED_MESSAGE = qualRefusalText("qualification_lapsed", { kind: "self" }, "start");
+
+type DbError = { code?: string; message?: string } | null;
+
+/**
+ * The QUAL1 refusal text for a database error, or null when the error is something else. Only 42501 with the exact
+ * message counts (another 42501 is RLS, ADM2-6 or an AI prohibition). Commands call it before their generic branch.
+ * `subject`/`context` default to an assignment write for "the chosen person"; take and cover pass `self`/`take`.
+ * The lapsed refusal is always her own start.
+ */
+export function qualificationRefusal(
+  error: { code?: string; message?: string } | null | undefined,
+  opts: { subject?: QualSubject; context?: QualContext } = {},
+): string | null {
+  if (!error || error.code !== "42501") return null;
+  if (error.message === "qualification_not_allowed") {
+    return qualRefusalText("qualification_not_allowed", opts.subject ?? { kind: "chosen" }, opts.context ?? "save");
+  }
+  if (error.message === "qualification_lapsed") return QUALIFICATION_LAPSED_MESSAGE;
+  return null;
+}
 
 /**
  * Maps a command function's outcome to the UI result.
@@ -37,6 +68,7 @@ type DbError = { code?: string } | null;
  * - NV001          → registered nurse required to start (J3, migration 0014)
  * - not_today / started_before_date → the visit's day (VIS1, migration 0089)
  * - qualification_missing → no recorded qualification (ADM2-16, migration 0094)
+ * - 42501 qualification_not_allowed / qualification_lapsed → the QUAL1 check (migration 0121, simulation only)
  */
 export function toCommandResult(
   data: unknown,
@@ -44,6 +76,8 @@ export function toCommandResult(
   messages: { rejected: string; failed: string }
 ): CommandResult {
   if (error) {
+    const qual = qualificationRefusal(error);
+    if (qual) return { ok: false, error: qual };
     if (error.code === "23514") {
       return { ok: false, error: "Dieser Statuswechsel ist nicht erlaubt." };
     }

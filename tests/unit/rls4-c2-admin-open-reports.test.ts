@@ -102,7 +102,10 @@ describe("RLS4-C2 (1), (4): where the read happens and what the code says", () =
     expect(calls).toBe(1);
     const openEnd = client.slice(client.indexOf("const openEnd = () => {"), client.indexOf("};", client.indexOf("const openEnd = () => {")));
     expect(openEnd).toContain('setMode("end")');
-    expect(openEnd).toContain("readMemberOpenReports(");
+    // RLS4-C3 (ADR-138): the one-member read moved into readOpen, which the end step and "Erneut laden" both call.
+    expect(openEnd).toContain("readOpen()");
+    const readOpen = client.slice(client.indexOf("const readOpen = () => {"), client.indexOf("};", client.indexOf("const readOpen = () => {")));
+    expect(readOpen).toContain("readMemberOpenReports(");
   });
 
   it("the end step waits for the list before the end can be confirmed", () => {
