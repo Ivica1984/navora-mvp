@@ -434,6 +434,10 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 - **Expiry forecast before release (AUT-63, OPEN):** expiring evidence and delegations are shown as a self-closing fact on the affected planned visits and limit the day-plan proposal, so the release at the instant of expiry stays the backstop, not the normal path.
 - **M-DOK (FE-040 GM-2 add-on, AUT-65, OPEN):** within the DOC-AI scope (AUT-54); any recording of a conversation needs a recorded consent of everyone present before it starts; no real audio or text to any AI service before D-41.
 
+**State 2026-11-07 14:20 (`aia` review 38):**
+- **Ward planning (NH-A1, approved 13:39, PLANNED, synthetic only):** no agent. The continuity default ("wie letzte <Schicht>") is a deterministic rule on schedule facts, outside the AIG1 ledger; if it is ever registered as an agent it needs the full §8 set. Control added: **a rule default on schedule facts takes effect with a logged source and stays changeable in one act; it is not wrapped in a team-wide accept-all confirm, and an "uncovered" list counts only what is left empty after the default** (AUT-69, OPEN, #969; whether a clinical acknowledgement is needed: UNKNOWN, `cra`). Own recurring shift patterns as a series with exceptions (AUT-70, OPEN). Ward measures come from the responsibility and roster events, never from a time tap per resident (AUT-71, AUT-55 rule).
+- **QUAL1:** AUT-67 adopted as QUAL1-22 (PLANNED); AUT-68 adopted as the QUAL1-15 refusal record shape (PLANNED).
+
 ## Change log
 
 | Date (Europe/Zurich) | Who | Change |
@@ -474,3 +478,4 @@ The current state of each entry condition is in the newest section of [`AUTOMATI
 | 2026-11-06 20:20 | `aia` | §12: governance-layer state (AIG1-C1 to C5 and AIR1 IMPLEMENTED on `recovery/main`; stage-1 entry condition "layer merged" met), DOC-AI level G with its validator and inline omission control (AUT-54, AUT-60), billing pre-send checks bounded by AIR1 (AUT-59). No agent added or removed |
 | 2026-11-07 02:20 | `aia` | §12: PLAN3 recorded as the first rule agent on `recovery/main` (stage-1 entry condition met); added the controls "no agent drafts into a prohibited table; a profile draft lands in a separate `record`-class field" (AUT-64), the inherited activity list (AUT-61), the expiry forecast before release (AUT-63) and consent of everyone present for M-DOK recordings (AUT-65). No agent added or removed |
 | 2026-11-07 08:20 | `aia` | §12: QUAL1 state on `recovery/main` (prohibited class `qualification` IMPLEMENTED, PLAN3 rule before agent, AUT-61 adopted as QUAL1-20); added the controls "a foreseeable lapse is shown at planning" (AUT-67) and "a confirm-time lapse is not a correction" (AUT-68). No agent added or removed |
+| 2026-11-07 14:20 | `aia` | §12: NH-A1 recorded (no agent; continuity default is a rule); added the control "a rule default takes effect with a logged source, no team-wide accept-all confirm; uncovered counts what stays empty" (AUT-69), own shift patterns (AUT-70), ward measures from events (AUT-71); AUT-67/-68 adopted. No agent added or removed |
