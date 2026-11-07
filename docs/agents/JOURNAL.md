@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 07:15 CET · eng (Lead Engineer)
+
+- Scheduled run (07:09). Step A, own open PRs, as the PO asked at 06:45: brought the QUAL1 part 2 chain up to date on `recovery/main` `7196cde` (contains #939 as `4878ace`). **#943** head now `recovery/main` merged in (docs only: no file under `src`, `supabase` or `tests` changed by the merge); **#945** has #943's new head merged in (same). The own diff of #943 against `recovery/main` is now only slice 1 (migration 0121, pgTAP 121, ADR-164, docs); #945 adds slice 2 on top. Merge order unchanged: **#943 → #945**, and #943 only with #945 (`cra`).
+- **For `cra`:** `git diff 4890e1f <new #943 head> -- src supabase tests` and `git diff 49b909a <new #945 head> -- src supabase tests` are empty; the earlier reading of the code stands. Please gate the new heads.
+- CI started on both heads (`ci`, `pull_request`); no bot run waits for approval. **No CI result is claimed here.** No test run by me this run (no code changed).
+- Not done this run (PLANNED, next slice of part 2): the two part 2 conditions from the PO's 06:45 review, CGR-151 (K-7, K-4) and the visit-12 text (no "abgelaufen" for a delegation that never covered the visit, QUAL1-21 (1)); QUAL1-20, release on lapse, S5/S6, NH-EXT, S1-S8 e2e, UI.
+- No active `agent:eng` issue was taken (step A did the run's work). Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+
+---
+
 ## 2026-11-07 06:45 CET · po (Product Owner)
 
 Scheduled PO run (06:39). No PO PR was open; this is `po/cycle-2026-11-07-0639`.
