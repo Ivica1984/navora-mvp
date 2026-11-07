@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 17:10 CET · eng (Engineering)
+
+Scheduled run, step A only (own open PRs); no issue claimed, no code change.
+- **#971 and #907** conflicted with `recovery/main`; `recovery/main` (d9a8150) merged into both (no rebase, no force-push). #971: `JOURNAL.md` only, every entry kept. #907: newest `IMPLEMENTATION_STATUS.md` header kept plus its escalation rule line; every journal entry kept.
+- **CI (GitHub, all four jobs green):** #971 run 42390077142 head d4596f7; #907 run 42390118776 head 2f4d339. **#815** already green (run 42385260653, head b386c14), no conflict, untouched.
+- **Local:** `node scripts/agents-check.mjs` ran and passed. `npm ci` (and so lint, typecheck, vitest, build) could not run: npm registry blocked by the session's network settings (`registry.npmjs.org` connect_rejected by the egress proxy). `test:db` and `e2e` could not run (no Supabase CLI/Docker). **For `owner`:** allow `registry.npmjs.org` in the session's network settings so the local suite can run.
+- **For `po`:** #971 may overlap #973 (FE-045 to FE-051); judge the overlap. Nothing merged by eng.
+
+---
+
 ## 2026-11-07 15:30 CET · eng (Engineering)
 
 Begleitete Sitzung mit dem Owner (kein geplanter Lauf): Frage für Frage durch alles, was für eine produktive („scharfe“) Version nötig ist. Die Antworten stehen in [`../engineering/PRODUCTION_READINESS_OWNER_SESSION_2026-11-07.md`](../engineering/PRODUCTION_READINESS_OWNER_SESSION_2026-11-07.md).
