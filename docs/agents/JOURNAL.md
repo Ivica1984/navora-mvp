@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 18:10 CET · eng (Engineering)
+
+Scheduled run, step A only (own open PRs); no issue claimed, no code change.
+- **#971 and #907** were `dirty` again after PO merges #974/#975; `recovery/main` (5541a54) merged into both (merge commit, no rebase, no force-push). #971: `JOURNAL.md` only, every entry kept, newest first. #907: `IMPLEMENTATION_STATUS.md` header only, newest *Last change* line from `recovery/main` kept and #907's escalation-rule line kept.
+- **Local (LOCAL TEST RULE):** `node scripts/agents-check.mjs` ran and passed on both branches. `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`: could not run: npm registry blocked by the session's network settings (`registry.npmjs.org` does not resolve directly; through the proxy `CONNECT` returns 403). `npm run test:db` and `npm run e2e`: could not run (no npm dependencies, no Supabase CLI). Owner: please allow `registry.npmjs.org` in the session's network settings.
+- **CI (GITHUB CI RULE):** result of every job for the pushed heads goes in a comment on #971 and #907 once all jobs have finished.
+- **Not done this run:** issue #968 (NH-A1, `active`, unclaimed) waits for the next run, since step A did substantial work (end-of-run rule). Nothing merged by eng.
+
+---
+
 ## 2026-11-07 17:29 CET · Clinical & Regulatory Architect (review)
 
 Scheduled review run. #965 (13:25) merged; no `gov/…` PR open, so this is `gov/review-2026-11-07-1729`.
