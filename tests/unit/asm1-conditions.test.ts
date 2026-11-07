@@ -103,7 +103,9 @@ describe("ASM1-C2: the history waits (UXR-55)", () => {
     const source = readFileSync("src/app/(protected)/team/assessment-section.tsx", "utf8");
     expect(source).toMatch(/<details ref=\{historyRef\}[^>]*data-testid="assessment-history-details"/);
     expect(source).not.toMatch(/<details[^>]*\bopen\b/);
-    expect(source).toContain("Frühere Erfassungen ({earlier.length})");
+    // ASM1-C2 as amended by ASM1-C6 (3) (po 2026-10-30 10:15): a voided record is counted in "Frühere Erfassungen (<n>)".
+    expect(source).toContain("Frühere Erfassungen ({earlierCount})");
+    expect(source).toContain("const earlierCount = earlier.length + voided.length;");
     expect(source.indexOf("renderRecord(current, false)")).toBeLessThan(source.indexOf("<details"));
     // the minutes with "Kategorie" are shown once per card, in the care-plan block
     expect(source).not.toMatch(/Kategorie \{c\}/);

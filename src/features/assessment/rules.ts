@@ -46,12 +46,32 @@ export type CaseAssessments = {
   corrected_on: string | null;
   /** ASM1-C4 (0101): the case's latest review act, per case only. */
   plan_review: PlanReview | null;
+  /**
+   * ASM1-C6 (8) (0106, CGR-104): an active item's basis is read by identity. `voided`: its record was marked "irrtümlich
+   * erfasst"; `not_current`: it is not the current record and not older than it (a same-date parallel record). A newer
+   * current record keeps the "Neuere Bedarfsabklärung" marker. Optional only for older fixtures; the reader always sets it.
+   */
+  basis_fact?: "voided" | "not_current" | null;
+  /** ASM1-C6 (3) (0106): each voided record as the void only, never a field of the record (lca (a)). */
+  voided_records?: VoidedRecord[];
+};
+
+/** ASM1-C6 (3): what the team sees of a voided record: the void, not the record. */
+export type VoidedRecord = {
+  id: string;
+  voided_on: string;
+  voided_by_name: string | null;
+  reason: string;
+  /** ASM1-C6 (5): the named assessor sees the void on that record. */
+  assessor_is_me: boolean;
 };
 
 /** ASM1-C4: "Pflegeplan gegen Bedarfsabklärung vom <Datum> geprüft", as the reader returns the latest act. */
 export type PlanReview = {
   record_id: string;
-  assessment_date: string;
+  /** null when the record the act named was later voided (ASM1-C6 (8) (iii), 0106). */
+  assessment_date: string | null;
+  record_voided?: boolean;
   state_at_review: AssessmentRecord["state"];
   reviewed_on: string;
   reviewer_name: string | null;
@@ -109,6 +129,8 @@ export const ASSESSMENT_REASONS: Record<string, string> = {
   not_assessor: "Nur die genannte Pflegefachperson bestätigt diese Abklärung.",
   already_confirmed: "Diese Abklärung ist bereits bestätigt.",
   superseded: "Eine ersetzte Abklärung wird nicht mehr bestätigt.",
+  // ASM1-C6 (0106): a voided record is neither superseded nor confirmed.
+  voided: "Diese Abklärung ist als irrtümlich erfasst markiert. Sie wird weder ersetzt noch bestätigt.",
 };
 
 /** ASM1-C4 (0101): why the database refused the review act. */
@@ -178,14 +200,38 @@ export function assessmentLine(r: AssessmentRecord): string {
   return `Bedarfsabklärung vom ${formatDate(r.assessment_date)} · ${instrumentLabel(r.instrument_name, r.instrument_version, r.instrument_third_party_mark)} · ${who} · ${STATE_LABEL[r.state]}`;
 }
 
-/** ASM1-7: the marker text, or null when the plan rests on the current assessment. */
-export function newerAssessmentText(view: Pick<CaseAssessments, "newer_assessment_date"> | null | undefined): string | null {
+/**
+ * ASM1-7: the marker text, or null when the plan rests on the current assessment. ASM1-C6 (8) (`uxa` 15:50): the basis
+ * sentence replaces the marker whenever the reason is not (only) a later date, so "Neuere" never shows for a same-date
+ * record or a voided basis.
+ */
+export function newerAssessmentText(view: Pick<CaseAssessments, "newer_assessment_date" | "basis_fact"> | null | undefined): string | null {
+  if (view?.basis_fact) return null;
   return view?.newer_assessment_date ? `Neuere Bedarfsabklärung vom ${formatDate(view.newer_assessment_date)}` : null;
 }
 
+/**
+ * ASM1-C6 (8) (ii), `uxa` 15:50 wording: one sentence when the record the plan rests on is not the current one for a
+ * reason other than a later date, then the current record's date or that none is current. No field of a voided record.
+ */
+export function basisFactText(view: CaseAssessments | null | undefined): string | null {
+  if (!view?.basis_fact) return null;
+  const current = currentRecord(view);
+  const now = current ? `Aktuell ist die Bedarfsabklärung vom ${formatDate(current.assessment_date)}.` : "Es gibt keine aktuelle Bedarfsabklärung.";
+  const first =
+    view.basis_fact === "voided"
+      ? "Die Bedarfsabklärung, gegen die der Pflegeplan geschrieben ist, wurde als irrtümlich erfasst markiert."
+      : "Der Pflegeplan ist gegen eine Bedarfsabklärung geschrieben, die nicht mehr die aktuelle ist.";
+  return `${first} ${now}`;
+}
+
 /** ASM1-7: which assessment the care plan was written against. */
-export function planBasisText(view: Pick<CaseAssessments, "plan_basis_date" | "plan_without_basis"> | null | undefined): string | null {
+export function planBasisText(
+  view: Pick<CaseAssessments, "plan_basis_date" | "plan_without_basis" | "basis_fact"> | null | undefined,
+): string | null {
   if (!view) return null;
+  // ASM1-C6 (8) (iii), `uxa` 15:50: for a voided basis the basis line is not shown; the basis sentence carries the fact.
+  if (view.basis_fact === "voided") return null;
   if (view.plan_basis_date && !view.plan_without_basis) return `Geschrieben gegen die Bedarfsabklärung vom ${formatDate(view.plan_basis_date)}`;
   if (view.plan_basis_date && view.plan_without_basis)
     return `Teilweise geschrieben gegen die Bedarfsabklärung vom ${formatDate(view.plan_basis_date)}, teilweise vor jeder erfassten Bedarfsabklärung`;
@@ -202,7 +248,8 @@ export function correctedBasisText(view: Pick<CaseAssessments, "corrected_basis_
 /** ASM1-C4: the act is offered while the marker, "vor jeder erfassten Bedarfsabklärung" or the ASM1-C5 fact shows. */
 export function reviewOffered(view: CaseAssessments | null | undefined): boolean {
   if (!view?.current_id) return false;
-  return !!view.newer_assessment_date || view.plan_without_basis || !!view.corrected_basis_date;
+  // ASM1-C6 (8) (iv): also for a same-date parallel record and for a voided basis while a record is current.
+  return !!view.newer_assessment_date || view.plan_without_basis || !!view.corrected_basis_date || !!view.basis_fact;
 }
 
 /** ASM1-C4 (d) (UXR-60): the command's label starts with a verb of confirming and names the current record's date. */
@@ -220,7 +267,8 @@ export const REVIEW_CONFIRM_ACTION = "Als geprüft bestätigen";
 
 /** ASM1-C4 / `cra` (a): the latest act in words, with the record's state at the act. */
 export function planReviewText(review: PlanReview | null | undefined): string | null {
-  if (!review) return null;
+  // ASM1-C6 (8) (iii): an act against a record later voided names no date of that record; the basis sentence says it.
+  if (!review || review.record_voided || !review.assessment_date) return null;
   const who = review.reviewer_name ?? "Pflegefachperson ohne erfassten Namen";
   // UX2-30 (5) (uxa UXR-62): two sentences. `cra` (a): the record's state at the act stays visible, as its own sentence,
   // whenever it was not "bestätigt".
@@ -297,7 +345,56 @@ export function toCaseAssessments(rows: unknown): Record<string, CaseAssessments
       corrected_basis_date: (r.corrected_basis_date as string | null) ?? null,
       corrected_on: (r.corrected_on as string | null) ?? null,
       plan_review: r.plan_review && typeof r.plan_review === "object" ? (r.plan_review as PlanReview) : null,
+      basis_fact: r.basis_fact === "voided" || r.basis_fact === "not_current" ? r.basis_fact : null,
+      voided_records: Array.isArray(r.voided_records) ? (r.voided_records as VoidedRecord[]) : [],
     };
   }
   return out;
 }
+
+// ASM1-C6 "Irrtümlich erfasst" (migration 0106, ADR-140) --------------------------------------------------------------------
+
+/** P-37 (po 2026-10-30 18:25): the preset reason, stored as shown (lca (b)); the database holds the same text. */
+export const VOID_PRESET_REASON = "Falsche Klientin oder falscher Klient gewählt";
+/** P-37 (lca (c)): the preset covers the wrong-client case only. */
+export const VOID_PRESETS: readonly string[] = [VOID_PRESET_REASON];
+export type VoidChoice = "wrong_client" | "other";
+export const VOID_CHOICES: readonly { value: VoidChoice; label: string }[] = [
+  { value: "wrong_client", label: VOID_PRESET_REASON },
+  { value: "other", label: "Anderer Grund" },
+];
+/** ASM1-C6 (4), adopted po 13:28 (lca refinement): a hint, not enforced. */
+export const VOID_REASON_HINT =
+  "Beschreibe nur, was falsch erfasst wurde, z. B. falsche Klientin gewählt. Nenne keine andere Person und nichts, woran man sie erkennt.";
+/** `cra` 17:35 condition (po 18:25), default wording until `uxa` refines the words: shown before the two options. */
+export const VOID_SUPERSEDE_SENTENCE =
+  "Ist nur ein Wert falsch, nutze «Ersetzen». «Irrtümlich erfasst» ist nur für eine Erfassung, die nicht in diesen Fall gehört.";
+/** `uxa` 15:50: the command beside "Korrigieren (ersetzen)", the submit and the confirming step. */
+export const VOID_COMMAND_LABEL = "Irrtümlich erfasst";
+export const VOID_SUBMIT_LABEL = "Irrtümlich erfasst markieren";
+export const VOID_CONFIRM_SENTENCE =
+  "Danach gilt diese Bedarfsabklärung nicht mehr. Der Eintrag bleibt gespeichert; das Team sieht nur noch, dass er irrtümlich erfasst wurde.";
+
+/** P-37: submit only with a choice, and for "Anderer Grund" with 10 to 500 characters (the database decides again). */
+export function voidSubmitEnabled(choice: VoidChoice | null, text: string): boolean {
+  if (choice === "wrong_client") return true;
+  if (choice !== "other") return false;
+  const n = text.trim().length;
+  return n >= 10 && n <= 500;
+}
+
+/** ASM1-C6 (3), po 13:28 wording: "Irrtümlich erfasst am <Datum> von <Name>. Grund: <Grund>"; a label, not a strike. */
+export function voidedLine(v: VoidedRecord): string {
+  const who = v.voided_by_name ?? "Pflegefachperson ohne erfassten Namen";
+  return `Irrtümlich erfasst am ${formatDate(v.voided_on)} von ${who}. Grund: ${v.reason}`;
+}
+
+/** ASM1-C6 (0106): why the database refused the void. */
+export const VOID_REASONS: Record<string, string> = {
+  not_team_member: "Nur Mitglieder des zuständigen Teams markieren eine Bedarfsabklärung als irrtümlich erfasst.",
+  not_rn: "Als irrtümlich erfasst markiert eine Pflegefachperson des Teams.",
+  already_voided: "Diese Bedarfsabklärung ist bereits als irrtümlich erfasst markiert.",
+  superseded: "Eine ersetzte Fassung wird nicht markiert. Bitte die aktuelle Fassung markieren.",
+  reason_kind_invalid: "Bitte einen der beiden Gründe wählen.",
+  reason_required: "«Anderer Grund» braucht einen Text von 10 bis 500 Zeichen.",
+};

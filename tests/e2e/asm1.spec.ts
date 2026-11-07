@@ -1,6 +1,6 @@
 import { expect, test, type Browser, type Page } from "@playwright/test";
 
-// ASM1 (migration 0100, ADR-123) at phone width, ASM1-10 and ASM1-11 (1); ASM1-C1 to ASM1-C4 (migration 0101, ADR-125). Synthetic local-only accounts of
+// ASM1 (migration 0100, ADR-123) at phone width, ASM1-10 and ASM1-11 (1); ASM1-C1 to ASM1-C4 (migration 0101, ADR-125); ASM1-C6 (0106, ADR-140). Synthetic local-only accounts of
 // Testorganisation A (supabase/seed.sql): assist.test (care assistant, Testteam Nord) enters the assessment naming
 // pflege.test (registered nurse, Nord); pflege.test confirms it, writes two care-plan items against it, records a newer
 // assessment and corrects that one with a reason. Instrument "Testinstrument Bedarf 1.0" (…971) is a synthetic seed entry.
@@ -192,5 +192,37 @@ test("record, see 'nicht bestätigt', confirm as the named nurse, supersede with
   await expect(plan).toContainText("E2E ASM1 Morgenpflege");
   await expect(plan).toContainText("E2E ASM1 Duschen");
   await expect(basis.getByRole("button", { name: /^Als geprüft bestätigen/ })).toHaveCount(0);
+
+  // 7. ASM1-C6 with C6 (8) (migration 0106, ADR-140): the current record is marked "irrtümlich erfasst" with the preset
+  // reason. The record stays (pgTAP 107), the current record falls back to the first one, the team sees only the void,
+  // and the plan, re-based on the voided record in step 6, says so in one sentence without any field of that record.
+  const currentCard = section.getByTestId("assessment-current");
+  await currentCard.getByRole("button", { name: "Irrtümlich erfasst", exact: true }).click();
+  const voidForm = section.getByRole("form", { name: "Irrtümlich erfasst" });
+  // `cra` condition (po 18:25): the supersede sentence before the options; P-37: none preselected, submit disabled
+  await expect(voidForm.getByTestId("void-supersede-sentence")).toContainText("Ist nur ein Wert falsch");
+  await expect(voidForm.getByRole("radio", { checked: true })).toHaveCount(0);
+  await expect(voidForm.getByRole("button", { name: "Irrtümlich erfasst markieren" })).toBeDisabled();
+  await voidForm.getByLabel("Falsche Klientin oder falscher Klient gewählt").check();
+  await expect(voidForm.getByTestId("void-reason-hint")).toHaveCount(0);
+  await voidForm.getByRole("button", { name: "Irrtümlich erfasst markieren" }).click();
+  const voidStep = section.getByTestId("assessment-void-confirm");
+  await expect(voidStep.getByTestId("assessment-void-confirm-sentence")).toContainText("das Team sieht nur noch");
+  await voidStep.getByRole("button", { name: "Irrtümlich erfasst markieren" }).click();
+  await expect(section.getByTestId("assessment-current")).toContainText(`Bedarfsabklärung vom ${swiss(FIRST)}`);
+  // (the history was opened in step 5; the voided entry is read by its text, open or not)
+  const voidedItem = section.getByTestId("assessment-voided");
+  await expect(voidedItem).toHaveCount(1);
+  await expect(voidedItem).toHaveText(/^Irrtümlich erfasst am \d{2}\.\d{2}\.\d{4} von .+\. Grund: Falsche Klientin oder falscher Klient gewählt$/);
+  await expect(voidedItem).not.toContainText(/Referenz|min pro|Testinstrument/);
+  await expect(card.getByText(/Kategorie C/)).toHaveCount(1);
+  await expect(basis.getByTestId("plan-basis-fact")).toHaveText(
+    `Die Bedarfsabklärung, gegen die der Pflegeplan geschrieben ist, wurde als irrtümlich erfasst markiert. Aktuell ist die Bedarfsabklärung vom ${swiss(FIRST)}.`,
+  );
+  await expect(basis.getByTestId("plan-newer-assessment")).toHaveCount(0);
+  await expect(basis.getByTestId("plan-basis")).toHaveCount(0);
+  await expect(basis.getByTestId("plan-review")).toHaveCount(0);
+  // C6 (8) (iv): the act is offered against the record left
+  await expect(basis.getByRole("button", { name: `Als geprüft bestätigen: Pflegeplan gegen Bedarfsabklärung vom ${swiss(FIRST)}` })).toBeVisible();
   await nurse.context().close();
 });
