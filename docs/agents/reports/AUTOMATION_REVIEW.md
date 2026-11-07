@@ -31,6 +31,94 @@
 
 ---
 
+## 2026-11-07 14:20 CET · aia review 38: NH-A1 (ward and 24-hour shift model, approved 13:39) and MERGE1 (approved 12:39) reviewed; AUT-67 adopted as QUAL1-22 and AUT-68 adopted as the QUAL1-15 record shape (both PLANNED, open); new AUT-69 (high, #969: a per-shift confirm of the continuity default, and an undefined covered state), AUT-70 (medium: own shifts entered one by one), AUT-71 (low: the ward measure needs its event source)
+
+**Read:** `recovery/main` at `be2af00` (since review 37, `4a3ad57`): PO merges #954 (aia review 37), #951, #937 (`cra`), **#953 (QUAL1 part 2 slice 3, QUAL1-21, `ac6a303`)**, #955 to #958, #835 (M1.3), #959 (`uxa` 11:50 and NH-A proposal), #963, **#961 (MERGE1 proposed, COORD-7)**, #967. New: `briefs/MERGE1.md` (approved 12:39), **`briefs/NH-A1.md` (approved 13:39)**, `decisions/COORD-7.md`, `design/proposals/NH-A_WARD_SHIFT_SCREENS.md`, QUAL1-22 and the PO placements 08:39/09:39 in `briefs/QUAL1.md`. `FOUNDER_DECISIONS.md` v10 (FE-042 structured milestone work, FE-043 `uxa` proposals, FE-044 Engineering test and CI rule): no contradiction with my prompt. Open PRs: #965 (`cra` 13:25, read on its branch), #907, #837, #815. Open issues: #968 (NH-A1 build), #964 (MERGE1 build), #966; `automation`: #940, #912.
+
+**Nothing below is a measurement.** I ran no tests and read no database. Bottleneck map v2 stands; the weekly refresh with the nursing-home ward sketch is due 2026-11-10 (OPEN). NH-A1 now gives the ward column its first PLANNED design: the shift allocation round and roster upkeep (map v2, ward "Planning").
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-69 | Ward planning, shift start (NH-A1-6): the ward team, every shift | **PLANNED (NH-A1-6):** the continuity default is "a proposal only … the team confirms it in one act per shift for all residents". With the seed's three shifts that is about 3 acts a day, about 1 100 a year per ward (arithmetic on the brief, not a measurement), nearly all accept-all. The rule uses schedule facts only, and the proposed member already passed NH-A1-4 (planned in the shift, access valid) and sees the resident on her N-01. **No patient-care benefit is named** for the confirm (brief; `cra` 13:25 requires a named member per resident per shift and an uncovered list that counts residents, both met without it). **Gap:** the brief does not say whether an unconfirmed default counts as *zuständig* for NH-A1-5: if not, every resident is "ohne Zuständige" at each shift start until someone taps (the list stops meaning anything); if yes, the act has no effect | **eliminate the act, keep the rule:** the default takes effect when the shift becomes the next shift (source "Kontinuität", logged, shown "wie letzte …", changeable in one act by any member); NH-A1-5 lists only residents with nobody after the default; no team-wide accept-all. If the Clinical Owner asks for an acknowledgement, it is the named member's own "Gesehen" on her N-01, not a coordinator's tap. Whether an explicit confirmation of shift responsibility has a clinical reason: **UNKNOWN**, `cra` | L | stage 0, no AI; `po` (brief), `cra` (is a confirmation clinically required?), `uxa` (N-01/N-02 text) | changes from the default per ward and month (replaces "confirmed without a change"); residents uncovered at shift start per ward and month; never per person | **high** | #969 |
+| AUT-70 | Ward planning, roster (NH-A1-3): every ward member | **PLANNED (NH-A1-3):** each member "enters, changes and withdraws her own planned shifts", one by one. Removing the planner (PO decision 4) is right: **supported.** **Form cost:** most ward staff work a recurring pattern (fixed days, part-time rhythm); entering every single shift for weeks ahead moves the planner's typing to every member rather than removing it. The brief has no repeat entry | **simplify through the care graph:** a member may record her **own** recurring pattern (shift definition, weekdays, from–to) once; the planned shifts are generated from it like a PLAN2 series, each single shift then changeable or withdrawn as an exception; changing the pattern changes only future shifts that have no exception. Still own entries only: no command takes another member's pattern or a roster (NH-A1-3 negative case unchanged). No rest-period or working-time rule added (NH-A1-12 stays `lca`) | L | stage 0; `po` (brief), `eng` (shares the PLAN2 series mechanism?), `lca` (none new: planned time only, NH-A1-12) | entry acts per planned shift per ward and month (target well below 1); share of shifts entered as exceptions | medium | report only |
+| AUT-71 | Ward planning, measure (NH-A1 "AI leverage", M9.0): AN3 | **PLANNED:** "Administrative step removed: shift allocation and roster upkeep. The baseline is UNKNOWN for a real home; in Phase A the measures are the AN3 spans per ward and month, plus NH-A1-6's share." No AN3 span is named for a ward, and a ward has no visit start/stop to bound one (PO decision 2, rightly) | **measure from the events NH-A1 already writes**, no new tap (AUT-55 rule): (1) residents covered when the shift begins, per ward and shift definition; (2) minutes from shift begin until every resident has a member; (3) responsibility changes after shift begin; (4) roster entry acts per planned shift (AUT-70). Team level only, never per person | L | stage 0; `po` (brief), AN3 (`aia` with `po`) | the four values above per ward and month on the synthetic seed | low | report only |
+
+### 2 Briefs, plans and packages reviewed (challenge duty)
+
+- **NH-A1 (approved 13:39), PO decisions 1 to 5:**
+  - **Planning unit: the resident per shift, no per-episode start and stop (decision 2): strongly supported.** It eliminates a timing act on every care contact in the ward; it is the AUT-55/AUT-56 rule (no time tap per resident for measurement) built into the model.
+  - **No planner role, no roster approval (decision 4), team-visible gaps, derived uncovered list (NH-A1-5): supported.** This is the "eliminate through the care graph" step for the ward's allocation round. AUT-70 and AUT-69 are about the form only.
+  - **"Zuständig in dieser Schicht" kept apart from authority and formal responsibility (decision 3): supported**; it keeps QUAL1 the only place that decides "who may do this activity".
+  - **NH-A1-7 "Nicht überwacht" list, NH-A1-9 counts only (no staffing target), NH-A1-12 no working-time rule until `lca`: safety and honesty controls, not challenged.** Nothing invented.
+  - **"AI prepares: none in NH-A1": supported.** Rule before agent; ward data under D-35 rule A.
+- **MERGE1 (approved 12:39, from AUT-49 and COORD-7 point 1): supported as written.** It removes whole agent runs spent only on conflicts (the Engineering run of 2026-11-07 11:10). MERGE1-10 measures it (M-04). **AUT-49 stays open until MERGE1 is merged and M-04 is recorded.**
+- **COORD-7 point 4 (b) (`uxa`/`aia` daily, owner's choice):** no position on my own cadence; it is the owner's (scheduled tasks). One fact for the package: most of what a 6-hourly `aia` run costs other roles is the `JOURNAL.md` conflict, which MERGE1 removes; after MERGE1 the case for (b) rests on review load only.
+- **QUAL1-22 (from AUT-67) and the QUAL1-15 refusal record in the AUT-68 shape:** match the proposals. Both stay open until built.
+- **CGR-155 (4) with the PO challenge 09:39 (the "not completed" reason pre-set from the refusal, the nurse confirms instead of typing): supported**; a stop the system caused costs the nurse no free text.
+- **FE-042 to FE-044, `cra` 13:25 (#965: D-43 and D-22 templates, CGR-156, CGR-157 as ORD1-C1/-C2):** no care-team act added. No finding.
+
+### 3 AI readiness of delivered items (§8)
+
+- **#953 (QUAL1-21, merged):** label texts only; no agent proposal changed. The AIG1 `not_qualified` verdict on a person is gone from user text. No finding.
+- **No new agent delivered or planned.** NH-A1's continuity default is a deterministic rule outside the AIG1 ledger; if it is ever registered as an agent, it needs the full §8 set (ledger, provenance, named confirmer, stop, correction rate). With AUT-69's proposal it stays a rule with a logged source, not an agent.
+- Missing for any model-based agent: an evaluation harness on synthetic cases (none needed at stage 0).
+
+### 4 Stage tracking (D-35)
+
+Stage 0 only (FE-024, rule A). Stage-1 entry conditions unchanged since review 36: governance layer merged (met); first rule agent with its controls on the main line (met, PLAN3); provider and contract: D-41 escalated, not decided; three stable pilot months: none (Phase A). No real data to any AI service.
+
+### 5 Findings: state changes and closed
+
+- **AUT-67:** adopted as QUAL1-22 (PLANNED, part 3); open until built.
+- **AUT-68:** adopted as the QUAL1-15 record shape (part 2 condition); open until built.
+- **AUT-61 (#940), AUT-62 to AUT-66, AUT-54 (#912), AUT-59, AUT-49:** unchanged, open.
+- **Closed this review:** none.
+
+---
+
+## 2026-11-07 08:20 CET · aia review 37: QUAL1 part 1 (#939, `4878ace`) and part 2 slices 1+2 (#945 incl. #943, `f1bfe55`) merged and read; AUT-61 taken in as QUAL1-20 (PLANNED, stays open); open PR #953 (QUAL1-21) reviewed; new AUT-67 (medium: a lapse found at depart, start or resume is a mid-care stop; prevent it at planning), AUT-68 (low: QUAL1 refusals leave no record to measure)
+
+**Read:** `recovery/main` at `953dc3c` (since review 36, `f061797`): PO merges #941 (aia review 36), #942, #936 (`uxa`), #946, #947 (`lca`: D-42, D-43, D-44), #948, **#939 (QUAL1 part 1, migration 0120)**, #949, **#945 incl. #943 (QUAL1 part 2 slices 1+2, migrations 0121, 0122, ADR-164, ADR-165)**, #952. `briefs/QUAL1.md`: QUAL1-20 (from AUT-61), QUAL1-21 (UXR-129 to -133), PO reviews of part 1 and slices 1+2 with the deviations decided (ADR-164 (1) to (4), ADR-165 (1) to (4), CGR-153, CGR-154 as part 2 conditions). Open PRs read: **#953** (QUAL1-21, ADR-166, no migration), #951 (`uxa`, UXR-134 #950), #937 (`cra`). Issues: #940 (PO 02:45: taken in as QUAL1-20), #950, #944; open `automation` issues #940, #912. `FOUNDER_DECISIONS.md` unchanged since v8; no contradiction with my prompt.
+
+**Nothing below is a measurement.** I ran no tests and read no database; CI states are the PO's record (merge commits `4878ace`, `f1bfe55` green per the PO, not checked by me). Bottleneck map v2 stands; the weekly refresh with the nursing-home ward sketch is due 2026-11-10 (OPEN).
+
+### 1 Findings: new
+
+| AUT | Workflow step and role | Today's effort and evidence | Proposal | Device level | AI stage and gate | Measure | Severity | Issue |
+|---|---|---|---|---|---|---|---|---|
+| AUT-67 | Visit start (QUAL1-17): the member at **Losfahren**, **Einsatz starten** and **Fortsetzen**; in a ward the FaGe mid-round | **IMPLEMENTED (0121 `qual_guard_start`, `recovery/main`):** every transition into `on_the_way` or `started` in a simulation organisation re-runs the QUAL1 check, including a resume from `paused`; a lapse refuses with `qualification_lapsed` and the visit stays assigned (ADR-164 (3), release PLANNED with CGR-154). UXR-134 (#950): after a refused resume the visit has begun and the next step is UNKNOWN (CR-194, `cra`). The check itself is a safety control: **not challenged.** **Form cost:** every lapse found here is discovered by the nurse at the door or at the client's side, then a phone round to find a cover (the bottleneck QUAL1 removes), and mid-visit it interrupts care. Nearly every such lapse is foreseeable at planning: an end date of evidence or delegation is recorded data; only a revocation is not | **prevent at planning, keep the start check as backstop:** (1) the AUT-63 forecast, extended: a planned visit whose responsible member's evidence or delegation ends before the visit's planned end is marked from the lead time on and enters the PLAN3 day plan as a limit (no proposal the start check would refuse); (2) a revocation re-runs the check at once for every future planned visit of that delegation and releases them to the team as open (QUAL1-20 (2) pattern), so the start check only meets the residual case; (3) whether a visit begun under valid cover may be completed after a lapse, and what the nurse does then, is `cra`'s (CR-194): **UNKNOWN**, nothing invented here; no agent decides it | L (forecast and release); the continue-or-stop rule is G (`cra`) | stage 0, no AI; `po` (part 2 criterion with CGR-154), `cra` (CR-194), `uxa` (UXR-134 text) | refusals at depart, start and resume per 100 visits per team and month (target near 0; needs AUT-68); share of those caused by an end date known at planning (target 0) | medium | report only; comment on #953 |
+| AUT-68 | QUAL1 refusals on every path (QUAL1-15): the team and AN3 | **IMPLEMENTED with a deviation (ADR-164 (1), ADR-165 (4), accepted for the simulation):** a backstop refusal is a database error without its own audit row; the PO made a refusal record a QUAL1-15 acceptance condition. Without it no measure in QUAL1's own baseline (QUAL1 "Removed step and baseline", AUT-63, AUT-66, AUT-67) has an event source, and a refusal at an AIG1 confirm cannot be told apart from a wrong proposal in the correction rate (§8) | **supported; record shape for the measures:** (1) one event per refusal with path (assignment, take, swap, cover, PLAN2, PLAN3 confirm, start, resume), reason code, team, visit and time; (2) a refusal at an AIG1 confirm because evidence lapsed between proposal and confirm is counted apart from the agent's correction rate (cause: time, not the proposal); (3) shown and counted per team only, never per person (no per-person view) | L | stage 0; `po` (QUAL1-15 condition), `eng` (where) | refusals per path and reason per 100 visits per team and month | low | report only |
+
+### 2 Briefs, plans and packages reviewed (challenge duty)
+
+- **QUAL1-20 (PO 02:45, from AUT-61):** matches the proposal: list kept once on order line or series, per-visit change as the recorded exception, re-check of future planned visits with release, started visits keep their checked list, empty list strict (CGR-149). Removing an inherited activity for one visit waits for `cra`. **AUT-61 stays open until QUAL1-20 is built and tested** (pgTAP named in the criterion); #940 stays open.
+- **QUAL1 slices 1+2 (`f1bfe55`):** one decision function on every patched path, a trigger backstop below every command, no override: **safety controls, supported, not challenged.** This is the "eliminate through the care graph and rule" step for "who may do this visit": no person checks it by memory. ADR-165 (1) (deputy tried only after the primary) is stricter: no objection. ADR-165 (3) (the PLAN2 summary names the number of visits left open by QUAL1, without names, as a part 2 condition): supported; it is the team-level fact a team needs to re-plan, with no per-person view.
+- **ADR-164 (3) / PO challenge 07:45 (a refused visit stays with the person who may not do it):** supported; AUT-67 adds that most of these refusals should not reach the start at all.
+- **CGR-153 (per-case isolation in `generate_all_plans`):** supported; one refused visit must not stop the daily plan for every team. No finding.
+- **PR #953 (QUAL1-21, one text per reason):** no added act; the AIG1 `not_qualified` verdict on a person is gone. No objection. AUT-67 comment left (the resume text depends on CR-194).
+- **D-42, D-43, D-44 (`lca` sections 04:56, escalated):** no care-team act added. No finding.
+
+### 3 AI readiness of delivered items (§8)
+
+- **PLAN3 with QUAL1 (`f1bfe55`):** `private.plan3_lines` no longer proposes a member who fails the check, and `aig1_apply_visit_responsible` re-checks at confirm. That is the right order (rule before agent): the confirmer never has to reject an ineligible proposal, so the correction rate measures the proposal's quality, not the matrix. Open: AUT-68 (2), counting a confirm-time lapse apart.
+- **No new agent.** The prohibited class `qualification` is on `recovery/main` (0120). The profile draft (AUT-64) has no landing yet: unchanged, noted by the PO for the part 2 plan review.
+- Missing for any model-based agent: an evaluation harness on synthetic cases (none needed at stage 0).
+
+### 4 Stage tracking (D-35)
+
+Stage 0 only (FE-024, rule A). Stage-1 entry conditions unchanged since review 36: governance layer merged (met); first rule agent with its controls on the main line (met, PLAN3); provider and contract: D-41 escalated, not decided; three stable pilot months: none (Phase A). No real data to any AI service.
+
+### 5 Findings: state changes and closed
+
+- **AUT-61 (high, #940):** answered by the PO and taken in as QUAL1-20 (PLANNED); open until built.
+- **AUT-62, AUT-63, AUT-64, AUT-65, AUT-66:** noted by the PO for the QUAL1 part 2 plan review; open. AUT-63 gains AUT-67 as its strongest reason.
+- **AUT-54 (#912), AUT-59:** unchanged, open.
+- **Closed this review:** none.
+
+---
+
 ## 2026-11-07 02:20 CET · aia review 36: PLAN3 merged and accepted (#934, FE-041), FE-038 to FE-041, QUAL1 brief and QUAL1 part 1 (#939) read; AUT-25, AUT-30, AUT-31, AUT-51, AUT-52 closed on `48cdb0c`; new AUT-61 (high: QUAL1 activities are stored per visit, so a team would tag every visit of a series by hand), AUT-62, AUT-63, AUT-64, AUT-65 (medium), AUT-66 (low)
 
 **Read:** `recovery/main` at `f061797` (since review 35, `2997556`): PO merges #841 (AN3), #860 (`lca`), #899 (`csa`), #917, #850 (`uxa`), #872 and #876 (PLAN3 part (a), PLAN3-14), #921, #923, #922 (CGR-110), #920 (FE-038, FE-039), #929 (`cra` QAM v0.2), #930 (FE-040, QUAL1 approved, D-44), #933 (FE-041), **#934 (PLAN3 consolidation, `48cdb0c`)**, #938 (PLAN3 accepted, Blueprint v2.14). New or changed: `FOUNDER_DECISIONS.md` v8 (FE-038 to FE-041), `briefs/QUAL1.md`, `clinical/QUALIFICATION_MATRIX.md` v0.2, `BUSINESS_MODELS_AND_CONSTELLATIONS.md`, packages D-43, D-44, D-41 (escalated, option B asked), D-18/D-22 (BILL1 on synthetic data: option A). Open PR read on its head: **#939** QUAL1 part 1 (`bc6ef4e`, migration 0120, ADR-163; CI `db` red per the PO record, `cra` gate not clear). Issues: #931, #927, #928, #924, #935 (UXR-129) read; open `automation` issues #793, #912. No contradiction between my prompt and `FOUNDER_DECISIONS.md` v8: FE-040 (7) restates the AI work flows of FE-028 and adds the GM-2 add-on M-DOK; it changes no `aia` duty.
