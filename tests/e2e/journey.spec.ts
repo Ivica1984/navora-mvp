@@ -77,13 +77,13 @@ test("referral → case → team takes it over → team plans a visit → it is 
   await expect(teamCase).toContainText("Testteam Nord");
   await expect(teamCase).toContainText("Noch keine Einsätze geplant");
 
-  // J6 (PO brief): the team names the primary nurse; the measure is per client.
+  // J6 (PO brief): the team names the primary nurse; the measure is per client. PLAN3-17 (2): the caller reads "(du)".
   const continuity = teamCase.getByRole("region", { name: "Kontinuität" });
   await expect(continuity.getByTestId("primary-missing")).toBeVisible();
   await continuity.getByRole("button", { name: "Bezugspflege bestimmen" }).click();
-  await continuity.getByLabel("Bezugspflegende").selectOption({ label: "Ich – Pflegefachperson" });
+  await continuity.getByLabel("Bezugspflegende").selectOption({ label: "Ich (du) – Pflegefachperson" });
   await continuity.getByRole("button", { name: "Speichern" }).click();
-  await expect(continuity.getByTestId("primary-nurse")).toHaveText("Ich – Pflegefachperson");
+  await expect(continuity.getByTestId("primary-nurse")).toHaveText("Ich (du) – Pflegefachperson");
   await teamCase.getByRole("button", { name: "Abklärungsbesuch planen" }).click();
   const planForm = teamCase.getByRole("form", { name: "Einsatz planen" });
   await expect(planForm.getByLabel("B", { exact: true })).toBeDisabled();

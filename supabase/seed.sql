@@ -693,3 +693,89 @@ insert into public.ai_agent_settings (organization_id, agent_key, state, stop_sh
 select '00000000-0000-4000-b000-000000000017', d.key, 'off', 20, 5, 7, '00000000-0000-4000-a000-0000000009e1',
        private.now() - interval '10 days', d.version, d.provider, d.region, '00000000-0000-4000-a000-0000000006f2'
 from public.ai_agent_definitions d where d.key = 'aig1_test_primary_nurse';
+
+-- PLAN3 part (b) fixture moved from Testorganisation G to Testorganisation H on 2026-11-06 (eng, ADR-155 note): #814
+-- (AIG1-C5) seeded its own Testorganisation G with the same ids; the PLAN3 rows got new ids, names and e-mails.
+-- PLAN3 part (b) (e2e plan3.spec, ADR-147): the day-plan screen on synthetic data only, in an organisation of its own (no
+-- org-A to org-F fixture or count changes). The organisation's administrator has switched `plan3_day_proposal` on (as
+-- set_agent_state would write it; threshold written by the switch-on, a test value, not a NAVORA default). The team's
+-- own switch (PLAN3-10) is off, as by default: the e2e switches it on. No proposal is seeded; the e2e asks for one.
+--   teamh.test (…9d7): registered nurse of Testteam H who signs in at 390 px.
+--   bezugh     (…9d8): registered nurse of Testteam H, primary nurse of Testfall H1; never signs in.
+--   assisth    (…9d9): care assistant of Testteam H; never signs in.
+--   tomorrow, nobody responsible: …5d1 08:00, …5d2 09:00, …5d3 10:00 (Testfall H1, category A, primary nurse first);
+--   …5d4 08:15-08:45 (Testfall H2, no primary nurse; overlaps …5d1, so a correction to Bezug H after …5d1 is
+--   confirmed is refused `overlap`, PLAN3-14 (2)); …5d5 12:00 (Testfall H2, category B minutes: registered nurse only).
+insert into public.organizations (id, name) values ('00000000-0000-4000-b000-000000000018', 'Testorganisation H');
+insert into public.teams (organization_id, id, created_at, name, region, care_focus, status, open_slots, utilization, lead_name, next_step, priority, coach_name) values
+  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000001a8', private.now() - interval '200 days', 'Testteam H', 'Bern West', 'Ambulante Pflege', 'active', 2, 60, 'Leitung Test H', 'Keine Massnahme', false, null);
+insert into public.cases (organization_id, id, created_at, name, first_name, last_name, region, status, urgency, bedarf, care_needs, next_step, assigned_team, assigned_team_id, needs_assessment_done_at) values
+  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000002a8', private.now() - interval '100 days', 'Testfall H1', 'Testfall', 'H1', 'Bern West', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam H', '00000000-0000-4000-a000-0000000001a8', private.now() - interval '99 days'),
+  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000002a9', private.now() - interval '100 days', 'Testfall H2', 'Testfall', 'H2', 'Bern West', 'laufend', 'mittel', 'Grundpflege', array['Grundpflege'], 'Laufende Versorgung', 'Testteam H', '00000000-0000-4000-a000-0000000001a8', private.now() - interval '99 days');
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009d7', 'authenticated', 'authenticated',
+   'teamh.test@navora.test', extensions.crypt('navora-local-only', extensions.gen_salt('bf')), private.now(),
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009d8', 'authenticated', 'authenticated',
+   'bezugh.test@navora.test', '', null,
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-4000-a000-0000000009d9', 'authenticated', 'authenticated',
+   'assisth.test@navora.test', '', null,
+   '{"provider":"email","providers":["email"]}', '{}', private.now(), private.now(), '', '', '', '');
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at) values
+  ('00000000-0000-4000-a000-0000000009fa', '00000000-0000-4000-a000-0000000009d7', '00000000-0000-4000-a000-0000000009d7',
+   '{"sub":"00000000-0000-4000-a000-0000000009d7","email":"teamh.test@navora.test","email_verified":true}', 'email', private.now(), private.now(), private.now());
+insert into public.organization_memberships (organization_id, user_id, role) values
+  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000009d7', 'nurse'),
+  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000009d8', 'nurse'),
+  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000009d9', 'nurse');
+insert into public.team_memberships (team_id, user_id, qualification) values
+  ('00000000-0000-4000-a000-0000000001a8', '00000000-0000-4000-a000-0000000009d7', 'registered_nurse'),
+  ('00000000-0000-4000-a000-0000000001a8', '00000000-0000-4000-a000-0000000009d8', 'registered_nurse'),
+  ('00000000-0000-4000-a000-0000000001a8', '00000000-0000-4000-a000-0000000009d9', 'care_assistant');
+insert into public.member_profiles (organization_id, user_id, display_name, updated_by) values
+  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000009d7', 'Pflegekraft Team H', '00000000-0000-4000-a000-0000000009d7'),
+  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000009d8', 'Pflegekraft Bezug H', '00000000-0000-4000-a000-0000000009d7'),
+  ('00000000-0000-4000-b000-000000000018', '00000000-0000-4000-a000-0000000009d9', 'Pflegekraft Assistenz H', '00000000-0000-4000-a000-0000000009d7');
+update public.cases set primary_nurse_id = '00000000-0000-4000-a000-0000000009d8'
+where id = '00000000-0000-4000-a000-0000000002a8';
+insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end,
+                                services_provided, billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id)
+select '00000000-0000-4000-b000-000000000018', v.id::uuid, private.now() - interval '2 days', v.case_id::uuid,
+       '00000000-0000-4000-a000-0000000001a8', (private.now() at time zone 'Europe/Zurich')::date + 1,
+       v.t0::time, v.t0::time + interval '30 minutes', array['Grundpflege'], false, 'planned',
+       case when v.t0 = '12:00' then 0 else 30 end, case when v.t0 = '12:00' then 30 else 0 end, null
+from (values ('00000000-0000-4000-a000-0000000005d1', '00000000-0000-4000-a000-0000000002a8', '08:00'),
+             ('00000000-0000-4000-a000-0000000005d2', '00000000-0000-4000-a000-0000000002a8', '09:00'),
+             ('00000000-0000-4000-a000-0000000005d3', '00000000-0000-4000-a000-0000000002a8', '10:00'),
+             ('00000000-0000-4000-a000-0000000005d4', '00000000-0000-4000-a000-0000000002a9', '08:15'),
+             ('00000000-0000-4000-a000-0000000005d5', '00000000-0000-4000-a000-0000000002a9', '12:00')) v(id, case_id, t0);
+-- CGR-75 (5) (ADR-158; e2e plan3.spec, pgTAP 117): the day after tomorrow, a day of its own so tomorrow's counts stay.
+--   open: …5d6 09:00 and …5d7 11:00 (Testfall H1, primary nurse Bezug H first); …5d8 09:15-09:45 (Testfall H2, overlaps
+--   …5d6, so not proposed to Bezug H; changed to her and confirmed, it makes the ticked …5d6 line `overlap` at confirm);
+--   …5d9 14:00 (Testfall H2, category B minutes): "kein Vorschlag", reason `overlap` (the care assistant may not take B
+--   minutes, both registered nurses already hold a visit at 14:00).
+--   assigned (not proposed): …5da 14:00 to teamh, …5db 14:00 to bezugh (Testfall H1; two nurses at one client, synthetic).
+insert into public.care_visits (organization_id, id, created_at, case_id, team_id, visit_date, time_start, time_end,
+                                services_provided, billable, status, planned_minutes_a, planned_minutes_b, responsible_user_id)
+select '00000000-0000-4000-b000-000000000018', v.id::uuid, private.now() - interval '2 days', v.case_id::uuid,
+       '00000000-0000-4000-a000-0000000001a8', (private.now() at time zone 'Europe/Zurich')::date + 2,
+       v.t0::time, v.t0::time + interval '30 minutes', array['Grundpflege'], false, 'planned',
+       case when v.b then 0 else 30 end, case when v.b then 30 else 0 end, v.who::uuid
+from (values ('00000000-0000-4000-a000-0000000005d6', '00000000-0000-4000-a000-0000000002a8', '09:00', false, null),
+             ('00000000-0000-4000-a000-0000000005d7', '00000000-0000-4000-a000-0000000002a8', '11:00', false, null),
+             ('00000000-0000-4000-a000-0000000005d8', '00000000-0000-4000-a000-0000000002a9', '09:15', false, null),
+             ('00000000-0000-4000-a000-0000000005d9', '00000000-0000-4000-a000-0000000002a9', '14:00', true, null),
+             ('00000000-0000-4000-a000-0000000005da', '00000000-0000-4000-a000-0000000002a8', '14:00', false,
+              '00000000-0000-4000-a000-0000000009d7'),
+             ('00000000-0000-4000-a000-0000000005db', '00000000-0000-4000-a000-0000000002a8', '14:00', false,
+              '00000000-0000-4000-a000-0000000009d8')) v(id, case_id, t0, b, who);
+insert into public.ai_agent_settings (organization_id, agent_key, state, stop_share, stop_min_proposals, stop_window_days,
+                                      switched_on_by, switched_on_at, on_version, on_provider, on_region)
+select '00000000-0000-4000-b000-000000000018', d.key, 'on', 50, 10, 30, '00000000-0000-4000-a000-0000000009d7',
+       private.now() - interval '1 day', d.version, d.provider, d.region
+from public.ai_agent_definitions d where d.key = 'plan3_day_proposal';

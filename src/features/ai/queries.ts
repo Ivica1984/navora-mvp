@@ -3,19 +3,22 @@ import "server-only";
 // AIG1 part (b) (ADR-129): readers for the proposal screens. Every read goes through the AIG1 functions of migrations
 // 0097/0103 as the signed-in person (no app grant exists on the AIG1 tables, AIG1-11 (1)); nothing here widens a read.
 
+import { memberNumbers, responsibleMemberLabel } from "@/features/team/member-label";
 import { requireUser } from "@/lib/auth/session";
 import type { Database } from "@/lib/supabase/database.types";
 import { COORDINATOR_ROLES, PAGE_LABEL } from "@/lib/auth/nav";
 import { FIELD_PATH, homePathForRoles } from "@/lib/auth/paths";
 import { errorFields, logEvent } from "@/lib/log";
-import type { Provenance } from "./labels";
+import type { OpenDayPlanLine } from "./day-plan-rows";
+import { countOpenSuggestions, type PlanTeamMeasure, type Provenance, type StopMeasure, type TeamLookbackStop } from "./labels";
 
 type Fn = Database["public"]["Functions"];
 export type OpenSuggestion = Fn["open_suggestions"]["Returns"][number];
 export type AgentHealthRow = Fn["agent_health"]["Returns"][number];
 export type LookbackLine = Fn["agent_stop_lookback"]["Returns"][number];
 
-export type TeamMemberOption = { user_id: string; name: string | null; me: boolean };
+/** CGR-139: `no` is her position in the team ordered by user id (team_cases; as /team and the handover), null if unknown. */
+export type TeamMemberOption = { user_id: string; name: string | null; me: boolean; no: number | null };
 
 export type TeamSuggestions = {
   team_id: string;
@@ -24,6 +27,11 @@ export type TeamSuggestions = {
   /** visit id → client name, from the team's own case list (team_cases). */
   clients: Record<string, string>;
   suggestions: OpenSuggestion[];
+  /**
+   * PLAN3-9 (2) (ADR-160): the day of each open day-plan line (`open_day_plan_lines`, migration 0117); null when that
+   * read failed (the screen then lists no day-plan line per line, fail closed).
+   */
+  dayPlanLines: OpenDayPlanLine[] | null;
 };
 
 function arr(raw: unknown): Record<string, unknown>[] {
@@ -37,7 +45,10 @@ function arr(raw: unknown): Record<string, unknown>[] {
 export async function getTeamSuggestions(): Promise<TeamSuggestions[]> {
   const { supabase } = await requireUser();
   const out = await loadTeams();
-  const results = await Promise.all(out.map((t) => supabase.rpc("open_suggestions", { p_team_id: t.team_id })));
+  const [results, days] = await Promise.all([
+    Promise.all(out.map((t) => supabase.rpc("open_suggestions", { p_team_id: t.team_id }))),
+    Promise.all(out.map((t) => supabase.rpc("open_day_plan_lines", { p_team_id: t.team_id }))),
+  ]);
   results.forEach((r, i) => {
     if (r.error) {
       logEvent("error", "aig1.open_suggestions_failed", errorFields(r.error));
@@ -45,7 +56,34 @@ export async function getTeamSuggestions(): Promise<TeamSuggestions[]> {
     }
     out[i].suggestions = r.data ?? [];
   });
+  days.forEach((r, i) => {
+    if (r.error) {
+      logEvent("warn", "plan3.open_day_plan_lines_failed", errorFields(r.error));
+      out[i].dayPlanLines = null;
+      return;
+    }
+    out[i].dayPlanLines = r.data ?? [];
+  });
   return out;
+}
+
+/**
+ * PLAN3-12 (ADR-148): how many proposals wait for the caller's teams, for the "Vorschläge" link on `/team`. The same
+ * reader as the confirm screen (`open_suggestions`, per team the caller is a member of, as herself); no new read, no
+ * name and no row leaves this function. `null` when a read failed: the link then reads plain "Vorschläge".
+ */
+export async function getOpenSuggestionCount(teamIds: string[]): Promise<number | null> {
+  const { supabase } = await requireUser();
+  const ids = [...new Set(teamIds)];
+  const results = await Promise.all(ids.map((id) => supabase.rpc("open_suggestions", { p_team_id: id })));
+  const perTeam = results.map((r) => {
+    if (r.error) {
+      logEvent("warn", "plan3.suggestion_count_failed", errorFields(r.error));
+      return null;
+    }
+    return (r.data ?? []).length;
+  });
+  return countOpenSuggestions(perTeam);
 }
 
 /** The caller's teams with their members and clients (from `team_cases`), without proposals. */
@@ -60,15 +98,18 @@ async function loadTeams(): Promise<TeamSuggestions[]> {
   for (const c of cases.data ?? []) {
     let t = teams.get(c.team_id);
     if (!t) {
-      t = { team_id: c.team_id, team_name: c.team_name, members: [], clients: {}, suggestions: [] };
+      t = { team_id: c.team_id, team_name: c.team_name, members: [], clients: {}, suggestions: [], dayPlanLines: [] };
       teams.set(c.team_id, t);
     }
     for (const m of arr(c.members)) {
       const id = typeof m.user_id === "string" ? m.user_id : null;
       if (id && !t.members.some((x) => x.user_id === id)) {
-        t.members.push({ user_id: id, name: typeof m.name === "string" ? m.name : null, me: m.me === true });
+        t.members.push({ user_id: id, name: typeof m.name === "string" ? m.name : null, me: m.me === true, no: null });
       }
     }
+    // CGR-139: team_cases lists every membership of the team ordered by user id; the position is the /team number.
+    const numbers = memberNumbers(t.members);
+    for (const m of t.members) m.no = numbers.get(m.user_id) ?? null;
     for (const v of arr(c.upcoming)) {
       if (typeof v.visit_id === "string") t.clients[v.visit_id] = c.client_name;
     }
@@ -123,6 +164,47 @@ export async function getStopLookback(stopId: string): Promise<LookbackLine[]> {
   return data ?? [];
 }
 
+/**
+ * PLAN3-13 (ADR-150): the look-back measure of one stop per team (`agent_stop_measures`, migration 0112), in the scope
+ * of `agent_stop_lookback`. Null when the read failed: the page then says so rather than showing zeros.
+ */
+export async function getStopMeasures(stopId: string): Promise<StopMeasure[] | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("agent_stop_measures", { p_stop_id: stopId });
+  if (error) {
+    logEvent("warn", "plan3.stop_measures_failed", errorFields(error));
+    return null;
+  }
+  return (data ?? []).map((r) => ({ ...r, lead_time_median_hours: r.lead_time_median_hours === null ? null : Number(r.lead_time_median_hours) }));
+}
+
+export type TeamLookbackStopRow = Fn["team_lookback_stops"]["Returns"][number];
+
+/**
+ * PLAN3-11 (ADR-149): the stops with at least one open look-back line of the caller's own teams (`team_lookback_stops`,
+ * migration 0111). Null when the read failed: `/team` then shows no entry rather than a wrong "0 offen".
+ */
+export async function getTeamLookbackStops(): Promise<TeamLookbackStopRow[] | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("team_lookback_stops");
+  if (error) {
+    logEvent("warn", "plan3.team_lookback_failed", errorFields(error));
+    return null;
+  }
+  return data ?? [];
+}
+
+/** PLAN3-11: the entries for `/team`, one per stop and team (type kept narrow for the client component). */
+export function toTeamLookbackStops(rows: TeamLookbackStopRow[] | null): TeamLookbackStop[] {
+  return (rows ?? []).map((r) => ({
+    stop_id: r.stop_id,
+    agent_name: r.agent_name,
+    team_name: r.team_name,
+    open_count: r.open_count,
+    not_open_count: r.not_open_count,
+  }));
+}
+
 export type VisitRecord = {
   id: string;
   team_id: string | null;
@@ -133,6 +215,8 @@ export type VisitRecord = {
   status: string | null;
   team_name: string | null;
   responsible_name: string | null;
+  /** PLAN3-17 (2) (ADR-159): the picker label of the responsible member; null when nobody is responsible. */
+  responsible_label: string | null;
   responsible_set: boolean;
   provenance: Provenance | null;
 };
@@ -170,6 +254,16 @@ export async function getVisitRecord(visitId: string): Promise<VisitRecord | nul
   ]);
   if (prov.error) logEvent("warn", "aig1.provenance_failed", errorFields(prov.error));
   const p = prov.data?.[0] ?? null;
+  // PLAN3-17 (2) (ADR-159): the caller's own roster of the visit's team (`team_cases`, her own teams only) gives the
+  // "(du)" mark and the /team number; a failed read or no membership falls back to the name (never a guessed number).
+  let roster: TeamMemberOption[] | null = null;
+  if (v.team_id && v.responsible_user_id) {
+    try {
+      roster = (await loadTeams()).find((t) => t.team_id === v.team_id)?.members ?? null;
+    } catch {
+      roster = null;
+    }
+  }
   return {
     id: v.id,
     team_id: v.team_id,
@@ -180,6 +274,7 @@ export async function getVisitRecord(visitId: string): Promise<VisitRecord | nul
     status: v.status,
     team_name: team.data?.name ?? null,
     responsible_name: profile.data?.display_name ?? null,
+    responsible_label: responsibleMemberLabel(v.responsible_user_id, profile.data?.display_name ?? null, roster),
     responsible_set: Boolean(v.responsible_user_id),
     provenance: p
       ? {
@@ -232,4 +327,38 @@ export async function getHomeLink(): Promise<{ href: string; label: string }> {
   if (error) logEvent("warn", "aig1.memberships_failed", errorFields(error));
   const href = homePathForRoles((data ?? []).map((m) => m.role));
   return { href, label: href === FIELD_PATH ? PAGE_LABEL.field : PAGE_LABEL.operations };
+}
+
+const numOrNull = (v: unknown): number | null => (v === null || v === undefined ? null : Number(v));
+
+/**
+ * PLAN3-7 (ADR-151): the day-plan assistant's measures per team for one Zurich month (`plan3_team_measures`, migration
+ * 0113), as the signed-in person may read them (own teams; coordinators every team). Null when the read failed: the
+ * page then says so rather than showing zeros.
+ */
+export async function getPlanTeamMeasures(month: string): Promise<PlanTeamMeasure[] | null> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("plan3_team_measures", { p_month: month });
+  if (error) {
+    logEvent("warn", "plan3.team_measures_failed", errorFields(error));
+    return null;
+  }
+  return (data ?? []).map((r) => ({
+    ...r,
+    enabled_since: r.enabled_since ?? null,
+    decided_lines: numOrNull(r.decided_lines),
+    confirmed_unchanged_share: numOrNull(r.confirmed_unchanged_share),
+    corrected_share: numOrNull(r.corrected_share),
+    rejected_share: numOrNull(r.rejected_share),
+    confirm_actions_per_plan: numOrNull(r.confirm_actions_per_plan),
+    minutes_to_last_decision_median: numOrNull(r.minutes_to_last_decision_median),
+    no_proposal: numOrNull(r.no_proposal),
+    no_proposal_share: numOrNull(r.no_proposal_share),
+    no_proposal_not_active: numOrNull(r.no_proposal_not_active),
+    no_proposal_needs_rn: numOrNull(r.no_proposal_needs_rn),
+    no_proposal_absent: numOrNull(r.no_proposal_absent),
+    no_proposal_overlap: numOrNull(r.no_proposal_overlap),
+    continuity_before_share: numOrNull(r.continuity_before_share),
+    continuity_after_share: numOrNull(r.continuity_after_share),
+  }));
 }
