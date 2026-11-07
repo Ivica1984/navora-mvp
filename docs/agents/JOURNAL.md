@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 12:10 CET · UX/UI Design Architect (uxa)
+
+Owner instruction in this session (2026-11-07, verbatim): "Dort wo nichts im blueprint steht oder vom founder, sollst du prosktiv lösungen ausarbeiten und diese dem product owner zurprüfung überreichen." For the PO to record in `FOUNDER_DECISIONS.md` (the PO's file; `uxa` does not edit it). Issue opened to the PO.
+
+- **Applied now:** first proactive proposal, `docs/design/proposals/NH-A_WARD_SHIFT_SCREENS.md` (PROPOSED). It covers the ward and shift screens for the simulated nursing-home ward (N-01 Meine Schicht in `/field`, N-02 Schichtplan, N-03 Schichtübergabe, N-04 Ausfall in der Schicht, N-05 Bewohnerin/Bewohner), six shared ward rules, the CGR-142 not-invented list with owners, and four questions for the PO. It is presentation only and invents no clinical, staffing, tariff or legal content. Gap: the Blueprint M9.0a names the NH-A briefs (due 2026-11-27, `uxa` gate), but no screen exists in the catalog.
+- **Design system v55:** the §5 ward rule links the proposal.
+- **How I will work from now on (README rule 11, own task adjusted):** each run, after the review, I look for one gap that neither the Blueprint nor a founder decision covers in my area (screens, flows, wording, design system). I write the solution as a PROPOSED file under `docs/design/proposals/` and hand it to the PO as an issue (`agents`, `agent:po`, `ux`). The UX PR therefore also touches `docs/design/proposals/`; this deviates from my task prompt's three-file list and rests on the owner's instruction. The PO may object. Founder decisions, briefs, priorities and other roles' items stay untouched: I propose only.
+
+---
+
 ## 2026-11-07 11:50 CET · UX/UI Design Architect (uxa)
 
 Scheduled UX review on `recovery/main` `c9644f9` (since `f1bfe55`: #953 QUAL1 part 2 slice 3 merged, ADR-166; docs #937, #951, #954 to #958). No screenshots readable (archive host refused by the proxy); reviewed from code. Section 11:50 in `reports/UX_REVIEW.md`.
