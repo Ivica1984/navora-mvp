@@ -16,6 +16,81 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-07 01:35 CET: QUAL1 part 1 **#939** (migration 0120, ADR-163) read on its head `8cee6b2`: **no blocking clinical finding for part 1** (the function is wired into no path); **gate not clear: CI `db` red** (three repository guards: RLS2-1, ADR-081, AUD1-1; pgTAP 120 itself passed); new **CGR-149** (advisory S1, **blocking for QUAL1 part 2**: the activity fallback lets any verified grade carry KLV-A minutes or an unlisted visit), **CGR-150** (advisory S1: a delegation can be recorded after the fact and cover a visit already done), **CGR-151** (advisory S2: two matrix strict defaults, K-7 and K-4, not carried), **CGR-152** (advisory S2: colleagues' evidence reasons readable by the whole team); ADR-163 strict defaults (a), (b), (c), (e) confirmed, (d) not; #934 moved to `f9e189d` (merge-in of docs only): **gate holds**; CR-004 source question (D-22) answered
+
+**Scope:** `recovery/main` @ `120a881` (unchanged since my 00:10 section). **Trigger:** `eng` #939 (`feature/hourly-update-2026-11-07-0115`, head `8cee6b2`, QUAL1 part 1, issue #931); #934 new head `f9e189d`; PO #938 (docs: D-18, D-22, D-41, Blueprint v2.13). **No clinical, legal or owner decision answered** by a person since 22:35.
+
+I read on #939 (`git diff recovery/main...8cee6b2`): migration `20261021000120_qual1_1_matrix_evidence_check.sql` in full (754 lines), pgTAP `supabase/tests/database/120_qual1_1_matrix_evidence_check.test.sql` (51 assertions), `src/features/qualification/labels.ts`, `tests/unit/qual1-labels.test.ts`, ADR-163, `clinical/remediation/CGR-145.md`; against `QUALIFICATION_MATRIX.md` v0.2 §4.2, §5, §9.1, the QUAL1 brief, `private.may_perform_visit` (0091:756-763) and the `organizations` grants (0003:194-196). CI on `8cee6b2` (check runs and the `db` job log read; I did not run them): app **green**, ui-screenshots **green**, **db red**, e2e cancelled. In the `db` log pgTAP 120 is `ok`; the failures are 067 test 127 (RLS2-1: at least `qual_delegations` has a case column and is readable by `authenticated` but is not in `READ_PATHS.md`), 068 test 45 (ADR-081: one column default reads `now()`; `qual_matrix_versions.created_at` at 0120 is `default now()`), 077 test 10 (AUD1-1: the audited columns of the new tables, from `member_qualification_evidence` on, are not in the value catalogue).
+
+On #934 (`f9e189d`): `git diff 66885bf f9e189d -- src supabase tests` is **empty**; `f9e189d` merges `recovery/main` `120a881` (docs only). CI green on `f9e189d` (app, db, e2e, ui-screenshots; read). The condition of my 00:10 gate is met.
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data.
+
+### What #939 does, checked (IMPLEMENTED on the head, CI red on unrelated guards)
+
+- **Matrix copy:** the 23 activity rows × 5 grades (115 cells) equal v0.2 §4.2 cell by cell, including A2 FaGe ?, B1 AGS D / PH ?, B8 HF/FH with K-3, B11 AGS D with PH and trained-other ?, B12/B13 FaGe ?, C2 trained-other –. Every cell `PROPOSED`; rows immutable (update, delete, truncate refused; pgTAP 120:152). **B3H / B4I split confirmed** as a faithful model of v0.2's "high-risk drugs ? (K-2)" and "insulin ?" inside B3 and B4; which drug is "high-risk" stays **UNKNOWN** (K-2, no list invented), so the split protects only when the activity is entered as B3H (part 2).
+- **Simulation scope (CGR-145 (e)):** `qual_may_perform` returns `may_perform_visit` unchanged outside an organisation with `simulation = true` (0120 `qual_may_perform`; pgTAP 120:250-258). `simulation` cannot be set by an app user: `authenticated` has no update on `organizations` (0003:195-196). **CGR-145 (e) remedy met on the head.**
+- **Evidence (CR-181):** `self_confirmed` never counts (pgTAP 120:168-170); `verified` refused for a request user, a running command, the API roles and outside a simulation (trigger `qual_guard_evidence`; pgTAP 120:227-243); expired from the instant (120:195-197); two grade values → contradictory, never the higher grade (120:175).
+- **Delegation (CR-176, CR-176a):** only a verified `nurse_hf_fh` with a verified licence, active in the team, for a D cell without open question of the delegate's verified grade (120:201-212); counts only for its case, activity, member and dates, unrevoked, while delegator and supervisor still pass (120:177, 187, 224); never an AIG1 target (120:247).
+- **Labels (CR-183):** only `allowed_own` / `allowed_delegated` allow responsibility; every unknown result reads "ungeklärt" (`labels.ts` `qualLabel`, `allowsResponsibility`; vitest).
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-149** | **Activity fallback (ADR-163 (d), QUAL1-6)** | **advisory, S1** (blocks real data); **blocking for QUAL1 part 2** (the wiring must not use it as is) | `private.qual_visit_activities` derives A1 only from `is_needs_assessment` and B13 only from KLV-B minutes. (1) A visit with **KLV-A minutes** (`planned_minutes_a > 0`, advice or coordination) and no activity row derives **no** A row. (2) A visit with no activity row and no B minutes returns one row `no_activity_listed` → `allowed_own` for **any verified grade**, including `trained_other` without the instruction record that C1 requires for that grade. The matrix (PROPOSED) makes A1 to A4 E only for HF/FH (A2 FaGe ?) and C1 for trained-other conditional. So the fallback is looser than the matrix it implements. (Outside the simulation CR-007 has the same gap for KLV-A minutes; whether CR-007 should cover them is **UNKNOWN**, D-15, `clinical`) | 0120 `qual_visit_activities` (the three `union` branches) and `qual_check` (`elsif a is null then r_res := 'allowed_own'`); 0014:39-41 (`planned_minutes_a`, `_c`); matrix v0.2 §4.2 rows A1-A4, C1 | **eng:** KLV-A minutes without an A row derive an A row that is E only for HF/FH with licence (the same strictness as the A1 fallback), and a visit with C minutes or no activity at all derives C1 (so the trained-other condition applies); `no_activity_listed` never returns `allowed_own`. pgTAP: simulation visit with `planned_minutes_a = 20`, no row: verified `fage_efz` and `ags_eba` not allowed, HF/FH with licence allowed; visit with only C minutes: verified `trained_other` without instruction record `evidence_missing`, with it `allowed_own` |
+| **CGR-150** | **Delegation instants (CR-176)** | **advisory, S1** (blocks real data) | (1) `instructed_on` is free: it may lie after `valid_from`, after the visit and in the future; `qual_check` never reads it. A delegation counts on days before the instruction it rests on ("selected, instructed, supervised"). (2) `valid_from` may lie in the past: a delegation recorded after a visit makes that visit read `allowed_delegated` afterwards; documentation and audit then show a retroactive authorisation (the record's `created_at` is the only trace). (3) Evidence is tested at `coalesce(time_end, time_start, 23:59)`: a visit without an end time is tested at its start only, not over the visit | 0120 `record_delegation` (checks only `valid_until >= valid_from`); `qual_check` delegation query (`v.visit_date between d.valid_from and d.valid_until`, no `instructed_on`); `inst := greatest(at_zurich(visit_date + coalesce(time_end, time_start, '23:59')), now())` | **eng:** `record_delegation` refuses `instructed_on > valid_from`, `instructed_on` after today (Zurich) and `valid_from` before today (no retroactive delegation; a correction is a new record); `qual_check` counts a delegation only when `instructed_on <= visit_date` and `created_at` is before the visit's start; a visit without `time_end` is tested at the end of its day. pgTAP: each refusal with its result code; a delegation recorded after a past visit leaves that visit `delegation_missing` |
+| **CGR-151** | **Two matrix strict defaults not carried (K-7, K-4)** | **advisory, S2** | v0.2 §9.1 names a strict default for each open question. K-7 (C1 by FaGe, AGS, PH): "(a), with the care plan required"; 0120 makes C1 E for these grades with no condition. K-4 (delegation period): "none valid beyond the next reassessment (proposal; not a rule)"; 0120 allows any fixed end date. Neither loosens CR-007 today (C was never RN-only), but both are the matrix's own controls | matrix v0.2 §9.1 K-4, K-7; 0120 cells `C1` (`requires` empty for fage/ags/ph) and `record_delegation` | **eng / po:** C1 for `fage_efz`, `ags_eba`, `pflegehelfer_srk` needs a current care plan of the case (a `requires` value checked against the case's care plan items); a delegation's `valid_until` is refused beyond the case's next reassessment date where one is stored, else recorded as K-4 OPEN in the result. pgTAP for both. Until then, record both as deviations in ADR-163 |
+| **CGR-152** | **Evidence reasons visible to the whole team** | **advisory, S2** (privacy, staff data) | `member_qualification_evidence` is readable only by the member and an administrator (policy `qual_evidence_self_or_admin_read`), but `public.visit_qualification_check` returns for any colleague of the team the reason code, e.g. `practice_licence:expired`, `grade:contradictory`. The derived reader thus discloses what the table's own policy keeps private. The team needs the label to self-organise; it does not need the colleague's evidence detail | 0120 policy `qual_evidence_self_or_admin_read`; `visit_qualification_check` (`select … c.reason …` for `is_team_member` or `is_coordinator`) | **eng:** for a caller other than the checked member, a coordinator or an administrator, return `label` and `result` with `reason` null for `evidence_*` results (activity reasons such as `cell:?:K-2` may stay). pgTAP: a team colleague sees `ungeklaert` and no reason; the member herself and a coordinator see the reason |
+
+### ADR-163 strict defaults (`eng` asked)
+
+- **(a)** an open question makes the cell ?, HF/FH B8 included: **confirmed** (matrix §4.2 B8 "specialist training ?", K-3).
+- **(b)** licence always for HF/FH A1-A4, delegator and supervisor while the canton is not modelled: **confirmed** (the stricter reading; L-1/L-9 with `lca`).
+- **(c)** trained-other C1 needs an instruction record: **confirmed** (matrix §4.2 C1 "with selection, instruction and supervision"); but see CGR-149 (2): today it is bypassed by an unlisted visit.
+- **(d)** a visit without any activity needs a verified grade only: **not confirmed** (CGR-149).
+- **(e)** evidence ending exactly at the visit's end does not cover it: **confirmed** (pgTAP 120:195-197); see CGR-150 (3) for visits without an end time.
+- Also noted (OPEN, part 2, no finding): contradictory grade evidence has no resolution record yet; because the table is append-only, a member whose grade changes (an old verified FaGe record, a new verified HF/FH record) stays `contradictory` until QUAL1-5 and D-29 give a resolution by a verifier. Fail-safe, but it must be built before real data.
+
+### Answer to the PO (D-22, issue #104: CR-004 source line)
+
+Yes. CR-004's source line now also cites D-22 [S12] (Gesundheitsdepartement BS leaflet, 16 Dec 2025, as read by `lca`, BS only): order-free A/C flagged per invoice line, reassessment at the latest after 9 months, renewable twice without the doctor's consent, report after 27 months. Status stays **UNVALIDATED**; nothing of the 9/27-month rule is in code (PLANNED candidate for ORD1, `clinical` and `po`), and BL is **UNKNOWN**. CGR-36 (the `inform_gp` task) is unchanged.
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-145** | open, advisory S1; **remedy (e) met on #939 `8cee6b2`** (matrix only in a simulation organisation, CR-007 unchanged elsewhere); (a)-(d) partly built (data, evidence, delegation, one function), wiring PLANNED (part 2) | pgTAP 120:250-258; 0003:195-196 |
+| **CGR-148** | open, advisory S1; one function exists (`private.qual_may_perform`, no override parameter); no path calls it yet | 0120 `qual_may_perform` |
+| **CGR-75** (5), **CGR-138**, **CGR-139**, **CGR-140** | open, advisory; carried unchanged into #934 `f9e189d`; close when #934 is merged at a head whose code equals `66885bf` | `git diff 66885bf f9e189d -- src supabase tests` empty |
+| All other CGR findings | unchanged | as at 00:10 |
+
+Closed in this section: none.
+
+### New or changed hard-coded rules
+
+New register rows **CR-185 to CR-190** (0120, simulation only, matrix PROPOSED, not wired): simulation scope; matrix as versioned data with ? never allowed; evidence states and instant; delegation record conditions; activity fallback (CGR-149); ADR-163 strict defaults. CR-004 source line extended. No clinical, tariff, KLV, LTCF, interRAI, PAG or MQI logic invented by me; the cells are copied from matrix v0.2 (PROPOSED, not approved, D-27).
+
+### Gate status
+
+| PR | Gate |
+|---|---|
+| **#934** (FE-041 PLAN3 consolidation, head `f9e189d`) | **clear to merge**; code identical to `66885bf`, CI green on the head (my 00:10 condition met) |
+| **#939** (QUAL1 part 1, head `8cee6b2`) | **not clear: CI `db` red** (RLS2-1, ADR-081, AUD1-1). **No blocking clinical finding for part 1.** Re-gate on a green head; for that head CGR-149 to CGR-152 may stay open as advisory **only because no path calls the function**. **QUAL1 part 2 is not clear unless CGR-149 and CGR-150 are met** (the wiring would otherwise make the fallback and retroactive delegation live in the simulation) |
+| #938 (`po`, docs) | not code; the D-18 and D-22 addenda keep every billing figure as `lca`-read reference data with `validated = false` and the nursing-home level as a person-entered value with an order reference, never computed (consistent with CGR-08, CGR-31, CGR-142); nothing from `cra` blocks it |
+
+cra-gate: #934 f9e189d clear
+
+### Decisions requested
+
+- **eng:** make #939 green (READ_PATHS.md entry and a case-scoped read for `qual_delegations` as RLS2 requires; `private.now()` for `qual_matrix_versions.created_at`; AUD1 catalogue rows); meet CGR-149 and CGR-150 in part 1 or as the first step of part 2; CGR-151, CGR-152 with part 2.
+- **po:** merge #934 at `f9e189d`; place CGR-149 to CGR-152 in QUAL1 (brief amendment) and record CGR-149/-150 as the condition for part 2.
+- **clinical (D-15, D-43, when named):** whether KLV-A minutes require a registered nurse outside the simulation as well (CR-007 gap, CGR-149) — UNKNOWN; K-4 and K-7 (CGR-151).
+- **lca (#924):** L-7 and L-2 first; L-1/L-9 (canton dependence of the licence; ADR-163 (b)).
+- **owner:** nothing now.
+
+---
+
 ## 2026-11-07 00:10 CET: FE-041 PLAN3 consolidation PR **#934** read on its head `66885bf`: **no blocking finding; clinical gate clear** (one gate line for the stack, FE-041 (2)); the consolidation adds **no rule, assertion or product code** beyond the fifteen reviewed PRs except the 0116 re-anchor after 0105 (**no rule changed, 0105's expiry check kept**); `uxa` UXR-129 (#935) answered on substance; no new finding
 
 **Scope:** `recovery/main` @ `120a881` (PO #929, #930, #933 merged: my QAM v0.2, FE-040, QUAL1 brief, FE-041; docs only). **Trigger:** `eng` #934 (`feature/plan3-consolidated`, head `66885bf`, FE-041); `uxa` #936 (docs) and issue #935 (UXR-129). **No clinical, legal or owner decision answered** by a person since 22:35.

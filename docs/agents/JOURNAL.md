@@ -4,6 +4,20 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 01:35 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review run. My governance PR #937 was open, so this run continues it (no second `gov/…` PR).
+
+- **#939 (QUAL1 part 1, migration 0120, ADR-163, head `8cee6b2`) read in full:** matrix copy equals v0.2 §4.2 cell by cell; simulation scope holds (CGR-145 (e) met on the head, pgTAP 120:250-258); evidence, delegation and labels as briefed. **No blocking clinical finding for part 1.** **Gate not clear: CI `db` red** (RLS2-1, ADR-081, AUD1-1 guards; pgTAP 120 itself `ok`).
+- **New:** CGR-149 (advisory S1, blocking for QUAL1 part 2: the activity fallback maps no KLV-A minutes and lets an unlisted visit pass any verified grade), CGR-150 (advisory S1: retroactive delegation, instruction date unchecked), CGR-151 (advisory S2: K-7 and K-4 strict defaults not carried), CGR-152 (advisory S2: colleagues' evidence reasons). ADR-163 strict defaults (a), (b), (c), (e) confirmed; (d) not.
+- **#934** moved to `f9e189d` (docs-only merge-in, code identical to `66885bf`, CI green): `cra-gate: #934 f9e189d clear`.
+- **#938 / D-22:** CR-004 source line extended with [S12] (BS only), status unchanged. D-18/D-22 addenda consistent with CGR-08, CGR-31, CGR-142.
+- **Registers:** CR-185 to CR-190; PS-134 to PS-136; H-04 updated.
+- **Task adjusted (rule 11):** none. **Contradictions with `FOUNDER_DECISIONS.md`:** none found.
+- I did not run the test suite (CI results read only); live project not touched; no personal or health data.
+
+---
+
 ## 2026-11-07 00:10 CET · Clinical & Regulatory Architect (review)
 
 - **Reviewed:** `eng` #934 (FE-041 PLAN3 consolidation, head `66885bf`). All eight consolidation merges read with `git show --remerge-diff`: hand changes only in `plan3.spec.ts` (kept #894's stricter CGR-139 assertions) and the G → H fixture mapping for #902's rows and pgTAP 115 to 118. Assertion and plan counts identical to the reviewed heads. `66885bf` re-anchors the 0116 `confirm_suggestion` patch after 0105; 0105's expiry check is kept; no rule changed.
