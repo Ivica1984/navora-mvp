@@ -186,6 +186,21 @@ Together with M2-M8 (`IMPLEMENTATION_SEQUENCE.md` §8: 85-131 pd without T12) th
 - **D-2 planning baseline (owner, for planning only; D-2 stays `awaiting-approval: owner`):** GitHub; Supabase; website on Vercel; 99.9 % availability; PITR required; health and care data in Switzerland or the EU; website and care platform separated. Engineering reading and the open points: `D2_PRODUCTION_HOSTING_ASSESSMENT.md` (#838) *Owner planning baseline*.
 - **Weekly reporting:** `docs/engineering/WEEKLY_STATUS.md`, every Friday.
 
+## Founder-decision check 2026-11-07 (README rule 10)
+
+Version 1 was written on 2026-11-03, before the founder decisions of 2026-11-06. Where they differ, `docs/product/FOUNDER_DECISIONS.md` (v9) holds. The figures above are **not** re-estimated in this update; the differences are named so that nobody plans on the stale reading:
+
+| Topic in v1 | Founder decision now | Effect on this estimate | State |
+|---|---|---|---|
+| M9 read as "pilot readiness" with a pilot team on staging (P-8) and a real first client after it (§2, §3) | **FE-036:** M9 (2027-03-12) = Phase A passed plus a Phase B readiness file; **FE-021:** Phase A uses a simulated partner and synthetic data only; no real partner is needed now | P-8 (synthetic pilot day) stays valid as a Phase A step. Items that only matter with real clients (P-5 outside alert, R-2 on-call, R-4 security test) move from "before M9" to "Phase B readiness file" unless the PO decides otherwise. M10 "pilot start plus three months" now counts from Phase B, whose date is UNKNOWN | OPEN (`po` to confirm in the next estimate) |
+| Home care only | **FE-031:** Phase A also simulates a nursing-home ward on the shared records (briefs NH-A1 to NH-A5) | NH-A effort is not in §4. It needs its own estimate once the briefs are approved | OPEN |
+| Pilot region not fixed | **FE-019:** Basel-Stadt and Basel-Landschaft; region as configuration (#816) | no change to the technical items | IMPLEMENTED as direction; configuration PLANNED |
+| D-1 precaution: live data treated as real | **FE-020:** no real personal data in the old system; test data still protected to a production-like standard | no change to P-1 to P-3; the live project `jwmfxrmougneeceldhsa` stays untouched by Engineering | in force |
+| D-35 rule A | **FE-024:** rule A stays in force | no AI service receives client or staff data in any item of §4 | in force |
+
+The next estimate update (v2) re-states §2-§4 against FE-021, FE-031 and FE-036. Until then this table is the reading to use.
+
 ## Change log
+- 2026-11-07 11:20 eng: founder-decision check added (FE-019, FE-020, FE-021, FE-024, FE-031, FE-036); figures not re-estimated; `recovery/main` merged in (PO 10:50).
 - 2026-11-03 15:14 eng: version 1 (items 3-6 of #830; items 1-2 by reference to `IMPLEMENTATION_SEQUENCE.md`, PR #833).
 - 2026-11-03 eng: owner response recorded; ADR-142 accepted; owner priority and escalation dates.
