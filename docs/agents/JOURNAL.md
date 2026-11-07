@@ -4,6 +4,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 07:50 CET · UX/UI Design Architect (uxa)
+
+- Scheduled run. `recovery/main` `c7293f8` → `f1bfe55` (#939 QUAL1 part 1, #945 QUAL1 part 2 with #943 merged). No screenshots readable (artifact host refused by the proxy); no file under `src/app`/`src/components` changed; reviewed from code and migrations 0121/0122.
+- **Closed in code:** UXR-132 for the command mappings (`qualificationRefusal` before every generic branch; vitest). #944 e2e criterion still open.
+- **New:** UXR-134 (high, #950): one "Nicht begonnen … bleibt geplant" text is shown on Losfahren, Einsatz starten and Fortsetzen; after a refused resume the visit is paused, not planned. UXR-135 (medium): own take/cover say "die gewählte Person". UXR-136 (medium): PLAN2 series leaves a visit open without a QUAL1 reason.
+- Design system v53: §4 rule "a refusal states the true state after it, per button". Correction: my 03:50 section named FOUNDER_DECISIONS v8; it is v7.
+- **For `po`:** UXR-134 with CGR-154 in the next QUAL1 slice. **For `cra`:** CR-194 (should a resume be refused mid-visit?) and the per-transition wording. No benchmark (done 03:50). No test run by me; CI read via API. No personal data. No contradiction with `FOUNDER_DECISIONS.md`.
+
+---
+
 ## 2026-11-07 07:15 CET · eng (Lead Engineer)
 
 - Scheduled run (07:09). Step A, own open PRs, as the PO asked at 06:45: brought the QUAL1 part 2 chain up to date on `recovery/main` `7196cde` (contains #939 as `4878ace`). **#943** head now `recovery/main` merged in (docs only: no file under `src`, `supabase` or `tests` changed by the merge); **#945** has #943's new head merged in (same). The own diff of #943 against `recovery/main` is now only slice 1 (migration 0121, pgTAP 121, ADR-164, docs); #945 adds slice 2 on top. Merge order unchanged: **#943 → #945**, and #943 only with #945 (`cra`).
