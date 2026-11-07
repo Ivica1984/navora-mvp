@@ -4,40 +4,6 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
-## 2026-11-07 12:10 CET · UX/UI Design Architect (uxa)
-
-Owner instruction in this session (2026-11-07, verbatim): "Dort wo nichts im blueprint steht oder vom founder, sollst du prosktiv lösungen ausarbeiten und diese dem product owner zurprüfung überreichen." For the PO to record in `FOUNDER_DECISIONS.md` (the PO's file; `uxa` does not edit it). Issue opened to the PO.
-
-- **Applied now:** first proactive proposal, `docs/design/proposals/NH-A_WARD_SHIFT_SCREENS.md` (PROPOSED). It covers the ward and shift screens for the simulated nursing-home ward (N-01 Meine Schicht in `/field`, N-02 Schichtplan, N-03 Schichtübergabe, N-04 Ausfall in der Schicht, N-05 Bewohnerin/Bewohner), six shared ward rules, the CGR-142 not-invented list with owners, and four questions for the PO. It is presentation only and invents no clinical, staffing, tariff or legal content. Gap: the Blueprint M9.0a names the NH-A briefs (due 2026-11-27, `uxa` gate), but no screen exists in the catalog.
-- **Design system v55:** the §5 ward rule links the proposal.
-- **How I will work from now on (README rule 11, own task adjusted):** each run, after the review, I look for one gap that neither the Blueprint nor a founder decision covers in my area (screens, flows, wording, design system). I write the solution as a PROPOSED file under `docs/design/proposals/` and hand it to the PO as an issue (`agents`, `agent:po`, `ux`). The UX PR therefore also touches `docs/design/proposals/`; this deviates from my task prompt's three-file list and rests on the owner's instruction. The PO may object. Founder decisions, briefs, priorities and other roles' items stay untouched: I propose only.
-
----
-
-## 2026-11-07 11:50 CET · UX/UI Design Architect (uxa)
-
-Scheduled UX review on `recovery/main` `c9644f9` (since `f1bfe55`: #953 QUAL1 part 2 slice 3 merged, ADR-166; docs #937, #951, #954 to #958). No screenshots readable (archive host refused by the proxy); reviewed from code. Section 11:50 in `reports/UX_REVIEW.md`.
-
-- **Closed in code:** UXR-135 (take and cover say «für dich», `refusals.ts`); UXR-133 for every string that can reach a screen (`qualLabel` verdict strings stay internal, no screen imports them).
-- **New:** UXR-138 (medium): a refused move (`/team` move form, `/field` «Einsatz auf heute verschieben») shows the assignment text "Für die gewählte Person … Bitte eine andere Person wählen" because `planResult` passes no context, while the 0121 backstop also fires on date and time changes. UXR-137 (low): double "für" in two QUAL1 sentences. No high finding, no new issue.
-- **For the PO:** depart, start and resume texts for UXR-134 / CGR-155 (2) proposed in the section, as `briefs/QUAL1.md:174` asks ("in `uxa`'s words"); `cra` to confirm. UXR-129 leftovers outside QUAL1 (non-simulation RN texts) noted as an observation after #935 was closed.
-- **Design system v54:** §4 per-transition refusal rule extended to moves, marked PARTLY IMPLEMENTED.
-- **Founder direction:** `FOUNDER_DECISIONS.md` v9 (FE-042) and Blueprint v2.22 read; no contradiction with my prompt. Task adjusted (rule 11): wrote the resume wording now so the CGR-154/CGR-155 slice does not wait on it. No benchmark (done 03:50).
-
----
-
-## 2026-11-07 11:25 CET · eng (Engineering)
-
-Scheduled Engineering run (11:10). Step A only (own open PRs); no `agent:eng` issue carries `active`, so nothing is claimed (step B).
-
-- **#835 (M1.3, `DELIVERY_ESTIMATE.md` v1, ADR-142):** `recovery/main` `c9644f9` merged in (merge, no rebase, no force-push). Only conflict `DECISIONS.md`: ADR-142 and every `recovery/main` ADR kept. New section *Founder-decision check 2026-11-07*: v1 predates FE-019 to FE-036; the table names where it differs (M9 now = Phase A passed plus Phase B readiness file, FE-036; simulated partner and synthetic data, FE-021; nursing-home ward in Phase A, FE-031, not in the §4 effort). **Figures not re-estimated** (OPEN, v2). P-5, R-2, R-4 read as Phase B items unless the PO decides otherwise (OPEN, `po`).
-- **#837 (M1.4, WEB1 and APP1 plans, ADR-143):** `recovery/main` `c9644f9` merged in. `JOURNAL.md`: `recovery/main` taken whole (the branch had lost a few separator lines in an older merge) and this PR's five `eng` entries re-inserted at their place; `DECISIONS.md`: ADR-143 and every `recovery/main` ADR kept. ADR-143 builds on ADR-142, so #835 should merge first.
-- **Contradiction with `FOUNDER_DECISIONS.md` (rule 10), not changed by me:** `WEB1_IMPLEMENTATION_PLAN.md` W-04 shows the website tag "In Vorbereitung; Designpartner gesucht" for nursing homes. FE-021 says no real partner is needed now; a public "partner wanted" line may read as a search. For `po` (and `uxa` for the wording).
-- **Still open:** #815 (ASM1-C6, also conflicts in `team/assessment-section.tsx`) and #907 (weekly status) were not brought up to date this run (one step per run); next run.
-- Tests: none run (docs only); `node scripts/agents-check.mjs` run on both branches (ok). CI decides; **no test result is claimed**. Not merged by Engineering. Live project not touched. No personal or health data.
-
----
-
 ## 2026-11-07 12:39 CET · po (Product Owner)
 
 Scheduled PO run (12:39). There was no open PO PR; this is `po/cycle-2026-11-07-1239`. The 11:39 run left no journal entry and no PO PR. Its only trace is the merge-check comment on #835: the merge call was refused by the permission check. This entry covers it.
@@ -96,6 +62,40 @@ ENGINEERING BRIEF
 - **Dependencies:** #837, #961, #815 and #907 merged first; no decision package.
 - **Priority:** *Next up* order 0, before the next QUAL1 part 2 slice.
 - **Implementation recommendation:** freeze `JOURNAL.md` as an archive with a header, rather than splitting it. New entries go in `docs/agents/journal/<YYYY-MM-DD-HHMM>-<role>.md`. ADRs go in `docs/engineering/decisions/`. Status rows change only on `recovery/main` after a merge, unless per-item files keep condition 4 simpler. One PR, at most a day.
+
+---
+
+## 2026-11-07 12:10 CET · UX/UI Design Architect (uxa)
+
+Owner instruction in this session (2026-11-07, verbatim): "Dort wo nichts im blueprint steht oder vom founder, sollst du prosktiv lösungen ausarbeiten und diese dem product owner zurprüfung überreichen." For the PO to record in `FOUNDER_DECISIONS.md` (the PO's file; `uxa` does not edit it). Issue opened to the PO.
+
+- **Applied now:** first proactive proposal, `docs/design/proposals/NH-A_WARD_SHIFT_SCREENS.md` (PROPOSED). It covers the ward and shift screens for the simulated nursing-home ward (N-01 Meine Schicht in `/field`, N-02 Schichtplan, N-03 Schichtübergabe, N-04 Ausfall in der Schicht, N-05 Bewohnerin/Bewohner), six shared ward rules, the CGR-142 not-invented list with owners, and four questions for the PO. It is presentation only and invents no clinical, staffing, tariff or legal content. Gap: the Blueprint M9.0a names the NH-A briefs (due 2026-11-27, `uxa` gate), but no screen exists in the catalog.
+- **Design system v55:** the §5 ward rule links the proposal.
+- **How I will work from now on (README rule 11, own task adjusted):** each run, after the review, I look for one gap that neither the Blueprint nor a founder decision covers in my area (screens, flows, wording, design system). I write the solution as a PROPOSED file under `docs/design/proposals/` and hand it to the PO as an issue (`agents`, `agent:po`, `ux`). The UX PR therefore also touches `docs/design/proposals/`; this deviates from my task prompt's three-file list and rests on the owner's instruction. The PO may object. Founder decisions, briefs, priorities and other roles' items stay untouched: I propose only.
+
+---
+
+## 2026-11-07 11:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled UX review on `recovery/main` `c9644f9` (since `f1bfe55`: #953 QUAL1 part 2 slice 3 merged, ADR-166; docs #937, #951, #954 to #958). No screenshots readable (archive host refused by the proxy); reviewed from code. Section 11:50 in `reports/UX_REVIEW.md`.
+
+- **Closed in code:** UXR-135 (take and cover say «für dich», `refusals.ts`); UXR-133 for every string that can reach a screen (`qualLabel` verdict strings stay internal, no screen imports them).
+- **New:** UXR-138 (medium): a refused move (`/team` move form, `/field` «Einsatz auf heute verschieben») shows the assignment text "Für die gewählte Person … Bitte eine andere Person wählen" because `planResult` passes no context, while the 0121 backstop also fires on date and time changes. UXR-137 (low): double "für" in two QUAL1 sentences. No high finding, no new issue.
+- **For the PO:** depart, start and resume texts for UXR-134 / CGR-155 (2) proposed in the section, as `briefs/QUAL1.md:174` asks ("in `uxa`'s words"); `cra` to confirm. UXR-129 leftovers outside QUAL1 (non-simulation RN texts) noted as an observation after #935 was closed.
+- **Design system v54:** §4 per-transition refusal rule extended to moves, marked PARTLY IMPLEMENTED.
+- **Founder direction:** `FOUNDER_DECISIONS.md` v9 (FE-042) and Blueprint v2.22 read; no contradiction with my prompt. Task adjusted (rule 11): wrote the resume wording now so the CGR-154/CGR-155 slice does not wait on it. No benchmark (done 03:50).
+
+---
+
+## 2026-11-07 11:25 CET · eng (Engineering)
+
+Scheduled Engineering run (11:10). Step A only (own open PRs); no `agent:eng` issue carries `active`, so nothing is claimed (step B).
+
+- **#835 (M1.3, `DELIVERY_ESTIMATE.md` v1, ADR-142):** `recovery/main` `c9644f9` merged in (merge, no rebase, no force-push). Only conflict `DECISIONS.md`: ADR-142 and every `recovery/main` ADR kept. New section *Founder-decision check 2026-11-07*: v1 predates FE-019 to FE-036; the table names where it differs (M9 now = Phase A passed plus Phase B readiness file, FE-036; simulated partner and synthetic data, FE-021; nursing-home ward in Phase A, FE-031, not in the §4 effort). **Figures not re-estimated** (OPEN, v2). P-5, R-2, R-4 read as Phase B items unless the PO decides otherwise (OPEN, `po`).
+- **#837 (M1.4, WEB1 and APP1 plans, ADR-143):** `recovery/main` `c9644f9` merged in. `JOURNAL.md`: `recovery/main` taken whole (the branch had lost a few separator lines in an older merge) and this PR's five `eng` entries re-inserted at their place; `DECISIONS.md`: ADR-143 and every `recovery/main` ADR kept. ADR-143 builds on ADR-142, so #835 should merge first.
+- **Contradiction with `FOUNDER_DECISIONS.md` (rule 10), not changed by me:** `WEB1_IMPLEMENTATION_PLAN.md` W-04 shows the website tag "In Vorbereitung; Designpartner gesucht" for nursing homes. FE-021 says no real partner is needed now; a public "partner wanted" line may read as a search. For `po` (and `uxa` for the wording).
+- **Still open:** #815 (ASM1-C6, also conflicts in `team/assessment-section.tsx`) and #907 (weekly status) were not brought up to date this run (one step per run); next run.
+- Tests: none run (docs only); `node scripts/agents-check.mjs` run on both branches (ok). CI decides; **no test result is claimed**. Not merged by Engineering. Live project not touched. No personal or health data.
 
 ---
 
