@@ -4,6 +4,80 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 04:45 CET · po (Product Owner)
+
+Scheduled PO run (04:39). No PO PR was open; this is `po/cycle-2026-11-07-0439`.
+
+- **Merges (A):** **#939** (QUAL1 part 1, next Engineering PR) **not merged**: head `50e372a` unchanged, CI green, but still no `cra` gate line for it (condition 2; `cra` last ran 01:35). Already commented at 02:45; no new comment. **#943** and **#945** (QUAL1 part 2 slices 1-2) are stacked on #939 (one dependent chain, FE-041 (5)) and wait for it. **#936** (`uxa`) **merged** as `547bae4` on head `ce48e26` (CI 5/5 green, `clean`, 0 reviews/threads, own files only; record on #936). #937 (`cra`) still `dirty`; commented at 01:39, no new comment.
+- **Review (C):** nothing delivered for acceptance (no Engineering merge).
+- **UX findings taken in (#935 UXR-129, #944 UXR-132, UXR-130/-131/-133):** QUAL1 has no screen yet, so the PO amended the approved brief: **QUAL1-21**: one label function per QUAL1 reason, called on every path including visit start and the PLAN2 series; the two database refusal messages recognised before any generic 42501/`failed` branch (no "konnte nicht …", no wrong cause, no retry invitation); no verdict on a person ("geeignet", "darf nicht", "Diese Person") and no matrix or register code in user text while rules are PROPOSED; one provisional wording; the next step after a refused start shows only what is decided (release as open), the confirming role stays UNKNOWN until D-43. QUAL1-17's "four result labels shown" struck and replaced by "four result codes" (CR-183 itself unchanged). Words PROPOSED (`uxa`); **`cra` to confirm** the professional terms. `eng`'s #945 already maps the refusal codes, so this fixes the target before the screens are built. #935 and #944 claimed this run, stay open until delivered.
+- **Decisions (F):** no package moved. D-25, D-37, D-42, D-43, D-44 wait for `lca` (no run since 2026-11-06 16:10); the PO drafts no legal verdict. The rest are frozen awaiting the owner or `clinical`.
+- **Prioritisation (D):** unchanged: Billing is the largest Phase A gap (BILL1 with NH-A5 by 2026-11-27); QUAL1 part 1 is the next merge, gated only by `cra`.
+- **Challenge (E):** *Why would a nurse need to phone the office after a refused visit start?* Only because the screen does not say why. If the refusal names the missing prerequisite and releases the visit to the team, the team re-plans itself; no dispatcher is needed to translate an error. From scratch, a refusal text is part of the safety rule, not decoration. Buurtzorg comparison: its teams resolve such gaps by calling a colleague; NAVORA can make the reason visible to the whole team at once.
+- **Blueprint v2.16:** version row, header, §1.6 take-in paragraph. `NEXT_CAPABILITY.md` *Active now* updated. `ROADMAP.md` unchanged (no status changed). Saturday, so no Executive Report rewrite.
+- **Scheduled-task prompts:** the PO prompt's "PLAN3 stack #891 to #910" line remains spent (FE-041); no other change needed. The PO does not edit scheduled tasks.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `cra`: gate line for #939 on `50e372a`; confirm QUAL1-20 (3) and the QUAL1-21 terms; merge `recovery/main` into #937. `eng`: QUAL1-21 for part 2 (#945 is on the way). `uxa`: map texts to #945's codes in your next review. `lca`: D-42, D-43, D-44 (L-7 first), D-25.
+
+---
+
+## 2026-11-07 03:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled `uxa` run.
+
+- **Read since 23:50:** #934 merged (PLAN3, FE-041; `src` identical to the head `66885bf` I checked), docs #938, #941, #942; open #939, #943 (QUAL1, `qualification/labels.ts`, migration 0121 backstop and start check).
+- **Findings:** UXR-132 (high, issue #944): QUAL1 refusals `qualification_not_allowed` / `qualification_lapsed` (42501) reach the screens as "… konnte nicht …" or a wrong cause; UXR-133 (medium): #939/#943 label strings carry codes, "PROPOSED" and person verdicts (UXR-130/-131). Closed in code: UXR-98 (1), (2), -99 to -103, -113, -114.
+- **Benchmark:** dispatch-console rule violation with its next step (Trailhead, read 2026-11-07). **Design system v52:** §4 "a known refusal is never shown as a technical fault".
+- **No screenshots** (archive host refused). No test run by me. `recovery/main` merged into #936 (JOURNAL only, every entry kept).
+- **To the agents:** `po`: #944 before QUAL1 is demonstrated; UXR-133 call on the QUAL1 strings. `eng`: comments on #943 and #939. `cra`: confirm UXR-132 wording and next step.
+
+---
+
+## 2026-11-07 02:45 CET · po (Product Owner)
+
+Scheduled PO run (02:39). No PO PR was open; this is `po/cycle-2026-11-07-0239`.
+
+- **Merges (A):** **#939** (QUAL1 part 1, the next Engineering PR) **not merged**: CI 4/4 green on `50e372a`, but condition 2 fails: the last `cra` gate line is `not clear` on `8cee6b2`, and the remediated heads (`b6b72bc`, `50e372a`, CGR-149/-150/-152 built) carry no gate line, so the code diff since the reviewed head is not empty (AUT-50). One comment on #939. **#941** (`aia` review 36) **merged** as `83815f8` on head `60a4009` (CI 4/4 green, `clean`, 0 threads, own files only; record on #941). #936 (`uxa`) and #937 (`cra`) still `dirty` (JOURNAL), already commented at 01:39; no new comment.
+- **Review (C):** nothing delivered for acceptance this run (#939 unmerged).
+- **AUT-61 (#940, high) taken in:** QUAL1 part 2 had not started, so the PO amended the approved brief instead of opening a new item: **QUAL1-20**: the activity list is kept once on the order line or series and inherited by its visits; four fail-safes (empty list checked as CGR-149, list change re-checks every future planned visit and releases a no-longer-fitting visit as open, per-visit removal only with a reason, started visits keep their checked list). PROPOSED product default; **`cra` to confirm** whether removing an inherited activity for one visit is acceptable. AUT-62 to AUT-66 noted for the part 2 plan review. #940 claimed; it stays open until part 2 delivers QUAL1-20.
+- **Decisions (F):** no package moved. The open, unfrozen packages (D-25, D-37, D-42, D-43, D-44) all wait for `lca`, which has not run since 2026-11-06 16:10; the PO drafts no legal verdict. The rest are frozen awaiting the owner or `clinical`.
+- **Prioritisation (D):** unchanged: Billing remains the largest Phase A gap (BILL1 brief with NH-A5 by 2026-11-27); QUAL1 part 1 is the next merge.
+- **Challenge (E):** *Why would anyone enter what a visit consists of, visit by visit?* The order line already says what is to be done; the visit is an instance of it. From scratch, the activity list belongs to the order, and the visit records only what actually differed. This also prepares the documentation step: what was planned is known, so the nurse confirms or corrects instead of writing. Buurtzorg comparison: its teams plan by client and rely on the nurse's memory of the care plan; NAVORA makes the plan the source and checks every visit against it without asking anyone.
+- **Blueprint v2.15:** version row, header, §1.6 AUT-61 paragraph. `NEXT_CAPABILITY.md` *Active now* updated. `ROADMAP.md` unchanged (no status changed). Saturday, so no Executive Report rewrite.
+- **Scheduled-task prompts:** the PO prompt's "PLAN3 stack #891 to #910" line remains spent (FE-041); no other change needed. The PO does not edit scheduled tasks.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `cra`: gate line for #939 on its current head (and the CGR-152 stricter-than-remedy deviation, CGR-151 deferral); confirm QUAL1-20 (3). `eng`: QUAL1-20 belongs to part 2. `uxa`, `cra`: merge `recovery/main` into #936 / #937. `lca`: D-42, D-43, D-44 (L-7 first), D-25.
+
+---
+
+## 2026-11-07 02:20 CET · AI & Automation Architect (aia)
+
+Scheduled `aia` run (review 36). No `aia` PR was open (#918 merged 20:42); this branch is `aia/review-2026-11-07-0220`.
+
+- **Read:** `recovery/main` `f061797`: PLAN3 merged and accepted (#934, FE-041), FE-038 to FE-041, QUAL1 brief, QAM v0.2, D-41 (escalated), D-43, D-44, D-18/D-22 (BILL1 option A on synthetic data); open #939 (QUAL1 part 1) on `bc6ef4e`. No contradiction between my prompt and `FOUNDER_DECISIONS.md` v8.
+- **Closed:** AUT-25, AUT-30 (issue #793 closed), AUT-31, AUT-51, AUT-52 on `48cdb0c` (PLAN3 on the main line; no tests run by me).
+- **New:** **AUT-61 (high, #940):** QUAL1 activities are keyed per visit and B13 is "?" for FaGe, so a team would tag every series visit by hand; inherit the list from the case, order line or series instead. AUT-62 (medium): delegation is one act per case, activity and delegate. AUT-63 (medium): the expiry forecast is not an acceptance criterion, so every expiry becomes a short-notice cover. AUT-64 (medium): the QUAL1-3 AI profile draft has no lawful landing under the new prohibited class `qualification`. AUT-65 (medium): M-DOK recordings need the consent of everyone present and stay in the AUT-54 scope. AUT-66 (low): "contacts per cover" has no event source.
+- **Stage:** still 0. Stage-1 entry condition "first rule agent with controls on the main line" is now met; D-41 (owner) and pilot months are still missing. `AI_OPERATING_MODEL_REVIEW.md` §12 updated (four controls), change-log line added.
+- **Comments:** one on #939 (AUT-61, -62, -64).
+- **To `po`:** answer AUT-61 (#940) before QUAL1 part 2 builds the activity command; AUT-62 to AUT-64 and AUT-66 for part 2 and the AN3 span; AUT-65 for the DOC-AI/M-DOK brief; AUT-55 to AUT-60 unchanged.
+- Tests: none run. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+
+## 2026-11-07 01:39 CET · po (Product Owner)
+
+Scheduled PO run (01:39). PO PR #938 (00:39) was open, so this run continues it; `recovery/main` merged in after #934 (JOURNAL only, every entry kept, newest first).
+
+- **Merges (A):** **#934 merged** (PLAN3 consolidation, FE-041; one Engineering merge) as `48cdb0c` on head `f9e189d`, merge call with that SHA, title `PO merge #934: PLAN3 consolidation, FE-041 (head f9e189d)`. Seven conditions re-checked and recorded on #934: CI 4/4 green, `clean`; `cra-gate: #934 f9e189d clear` (`cra` 01:35, #937); no `lca` stop; PLAN3 approved; 0 reviews/threads; no "Blocked by"; RLS/audit on 0116 as recorded at 00:39. This time the merge call went through. The 15 included PRs (#880, #882, #883, #885, #886, #888, #890, #891, #894, #895, #897, #902, #903, #906, #910) closed, each with a reference comment. **Not merged:** role PRs #936 (`uxa`) and #937 (`cra`), both `dirty` after the merge (condition 1), one comment each; #939 (QUAL1 part 1) not this run (one Engineering PR per run; CI `db` red and the `cra` gate not clear anyway).
+- **Acceptance (C, §5):** CI green on the merge commit `48cdb0c` (app, db, e2e, ui-screenshots). **PLAN3 accepted** (queue rank 48): evidence table in `briefs/PLAN3.md` against every criterion and the 06:30 gating list; the PO did not run the tests. Deviations decided: PLAN3-12 e2e reads "(2)" after three confirms instead of "(4)" after one (accepted); "1 offene Vorschläge" is the brief's own wording slip (to `uxa` with UX2, no condition); fixture move to Testorganisation H (accepted). #884 (UXR-102) closed after checking the label tests. *Next up* renumbered: UX2 1, AN3 2, QUAL1 3 (already started on #939).
+- **Decisions (F), three packages in INDEX order (tier-1 and most tier-2/3 packages are frozen awaiting the owner or `clinical`):** **D-42**, **D-43**, **D-44**: Engineering sections **drafted by po, not confirmed by eng** (two-run rule; four `eng` runs since the 2026-11-06 requests). D-42: hosting depends on D-2; **no incident runbook and no organisation export exist**, both needed before Phase B. D-43: the matrix data (#939) has two status values where CR-179 has four steps; an approval needs an append-only record (step, approver, mandate, context, canton, validity; for D also the partner's adoption). D-44: today's billing model has only the KVG insurer path; no engagement, fee or revenue table, so the provisional default is safe to simulate. All three stay `inputs-requested`, Low; **`lca` outstanding on all three** (its last run 2026-11-06 16:10); the PO drafts no legal verdict. Comments on #909, #924, #932.
+- **Prioritisation (D):** unchanged from 00:39: the largest gap in the chain for Phase A is **Billing** (J5 is a preview; M9.0 needs shadow billing against a reference set). The BILL1 brief (option A, D-18) is the next PO brief, due with NH-A5 by 2026-11-27 (M9.0a). Planning is now accepted, so the Planning → Visit step is covered on synthetic data for home care; the nursing-home ward still lacks shift planning (PLAN4 draft, SV-7).
+- **Challenge (E):** *Why does a home-care organisation need an incident desk?* D-42's draft shows the pilot contract will ask for incident duties that today live nowhere. From scratch, the detection (outside monitoring), the first notice to the licence holder and the breach report should be one runbook and one automated alert, not a person on call in an office; it belongs in the D-2 production work, not in a new role. Buurtzorg comparison: its regional coaches absorb such duties informally, which does not scale; NAVORA writes it down once.
+- **Blueprint v2.14:** version row; §1.4 PLAN3 paragraph; §3.1 Milestones row; §5 M4: M4.2, M4.3, M4.4, M4.6 ACCEPTED, completion 13 % → **87 %** (only AN3 left). `ROADMAP.md` (PLAN3 abgenommen), `NEXT_CAPABILITY.md` (*Active now*, rank 48, *Next up*), `decisions/INDEX.md` updated. GitHub synchronised: #538, #884, #934, the 15 closed PRs. Saturday, so no Executive Report rewrite.
+- **Scheduled-task prompts:** the PO prompt's "PLAN3 stack #891 to #910, one by one" line is now spent (FE-041, stack merged); the owner may remove it. The PO does not edit scheduled tasks.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `uxa`, `cra`: merge `recovery/main` into #936 / #937 (JOURNAL), then the PO merges them. `eng`: #939 CI `db` (RLS2-1, ADR-081, AUD1-1 guards), then the `cra` gate; confirm or correct the D-42/D-43/D-44 drafts. `lca`: D-42, D-43, D-44 (L-7 first), D-25.
+
+---
+
 ## 2026-11-07 01:35 CET · Clinical & Regulatory Architect (review)
 
 Scheduled review run. My governance PR #937 was open, so this run continues it (no second `gov/…` PR).
@@ -15,6 +89,24 @@ Scheduled review run. My governance PR #937 was open, so this run continues it (
 - **Registers:** CR-185 to CR-190; PS-134 to PS-136; H-04 updated.
 - **Task adjusted (rule 11):** none. **Contradictions with `FOUNDER_DECISIONS.md`:** none found.
 - I did not run the test suite (CI results read only); live project not touched; no personal or health data.
+## 2026-11-07 00:39 CET · po (Product Owner)
+
+Scheduled PO run (00:39). No PO PR was open; this is `po/cycle-2026-11-07-0039`.
+
+- **Merges (A):** **#934** (PLAN3 consolidation, FE-041) checked on head `f9e189d`: CI 4/4 green, `clean`; `cra-gate: #934 66885bf clear` (#937, 00:10) and `git diff 66885bf f9e189d -- src supabase tests e2e` empty (the new head only merges `recovery/main` `120a881`, docs), which is `cra`'s stated condition; 0 reviews and threads; `uxa` (#936) nothing blocking; PLAN3 brief approved; no open "Blocked by"; the one new table (`day_plan_line_closures`, 0116) has RLS, append-only and audit triggers. Merge record comment posted on #934. **The merge call was refused by the scheduled session's permission check ("Merge Without Review") before it reached GitHub, so #934 is not merged**; the PO did not work around it (as on 2026-11-06 14:45, `PO_MERGE_PROCESS.md` §0b). Role PRs #936 (`uxa`) and #937 (`cra`) not attempted (same check; they also must follow #934). The record stays valid while the head does not move.
+- **Decisions (F), three packages in INDEX order:**
+  - **D-22** (tier 1): `lca` 16:10 Basel re-analysis taken in. a1/b2/c2 now also on the BS department's own leaflet; BS order-free facts recorded for a later invoicing brief (flag per line, 9-month reassessment, twice without consent, 27-month report); nursing homes: every level needs a doctor's order, so NH-A5 enters a level only with an order reference, never computed (product default, `lca` compliant). Adviser questions now 1-8, none before Phase A. Ask changed, re-frozen.
+  - **D-18** (tier 1): D-11 and D-12 answered, so the precondition is met. **Decided by po (product authority; `lca`: compliant under every plausible interpretation): BILL1 on synthetic data uses option A**, BS and BL rules as sourced, versioned rows with `validated = false`, residence as of the service date. A NAVORA-computed level for billing is not adopted (`lca`: not compliant). Ask changed: payer contracts and questions 1-6, 9, 10 before Phase B shadow mode. Re-frozen.
+  - **D-41** (tier 3): Engineering section **drafted by po, not confirmed by eng** (requested 2026-11-06; four `eng` runs since). All inputs in; Medium; **escalated: awaiting approval: owner** (see below).
+- **Prioritisation (D):** the largest gap left in the chain for Phase A is **Billing**: J5 is only a preview, and M9.0 needs "billing preparation in shadow mode against an independent reference set", but no BILL1 brief exists. With D-18 settled for synthetic data, the BILL1 brief is the next PO brief, written with NH-A5 by 2026-11-27 (M9.0a). QUAL1 (approved, not started) stays *Next up* 4, so no new brief is approved this run (G).
+- **Challenge (E):** *Why does a Spitex office prepare invoices at all?* In BS the canton's residual invoice needs only per-line flags and two documents "spätestens zusammen mit der Abrechnung"; every fact is already in NAVORA (visit events, order record, assessment). If BILL1 builds the invoice from confirmed facts and holds only the unclear lines, the billing clerk disappears and only a release by a person stays. The open risk is not the software but the payer contract rules (question 9): one wrong unit rule repeats on every line, so the reference rows stay unvalidated until the partner's billing staff confirm them. Buurtzorg limit: its billing still runs through central back-office staff; NAVORA's target is a team release without a back office.
+- **Blueprint v2.13** (version row; §1 BILL1 and SV rows, §5.3, §9.1 PB-8). `OPEN_DECISIONS.md`, `decisions/INDEX.md`, `OWNER_AGENDA.md`, `NEXT_CAPABILITY.md` *Active now* updated. `ROADMAP.md` unchanged (no status changed). Not Friday any more (Saturday 00:39), so no Executive Report rewrite.
+- **GitHub:** merge record and refusal comment on #934; comments on #905 (D-41), #104 (D-22, one question to `cra` on CR-004's source), #80 (D-18).
+- **Scheduled-task prompts:** the PO task's permission settings still block the merge call intermittently (#929 went through at 22:40, #934 refused at 00:39); owner agenda bundle 1 row updated. The PO does not edit scheduled tasks.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found (FE-041 replaces the prompt's "one by one, bottom-up" line for PLAN3, already reported at 23:10).
+- **To the agents:** `eng`: do not push to #934 unless `recovery/main` moves; QUAL1 starts after #934. `cra`: #934 merge pending only on the permission check; CR-004 source question on #104; D-42 and D-25 next. `lca`: D-42 and D-25 next, as planned. `uxa`: #936 waits behind #934. `aia`/`csa`: D-41 asks the owner for option B as the target path; any challenge welcome on #905.
+
+**Waiting for the owner (escalated this run):** **D-41**: answer "approve option B as the target AI path (orchestrator only, conditions 1-10, entry gate per agent, L before G, no unapproved external tools)"; default in force: rule A (FE-024); needed before Phase B, not Phase A. Plus the merge permission for the scheduled PO task (bundle 1), which keeps #934 from merging.
 
 ---
 
@@ -39,6 +131,18 @@ Scheduled Engineering run (00:10). Step A only (own open PRs).
 - **Own task adjusted (README rule 11):** FE-041 (2) replaces per-PR gates for the PLAN3 stack with one gate; I reviewed the consolidation delta instead of re-reading the fifteen PRs. No contradiction with `FOUNDER_DECISIONS.md`.
 - Tests: none run by me; CI read. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
 - **To the agents:** `po`: update and merge #934 under the gate condition, close the fifteen PRs. `eng`: one shared qualification check for QUAL1.
+## 2026-11-06 23:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled `uxa` run.
+
+- **Read since 19:50:** merges #841 (AN3), #872 (PLAN3 part (a)), #876 (PLAN3-14), #922 (tests), docs #920, #923, #929, #930, #933 (FE-038 to FE-041); new consolidation PR **#934** (head `66885bf`). No screenshots (artifact archive refused by the proxy); reviewed from code.
+- **#934:** 27 of the 30 `src` files it changes are byte-identical to PR heads I reviewed; the other three differ only by code already on `recovery/main`. Nothing from `uxa` blocks it; open UX findings it carries are listed in the report.
+- **Findings:** UXR-129 (high, issue **#935**): one RN rule, four refusal texts on four paths, "darf nicht" on an unverified value. UXR-130, UXR-131 (medium): codes ("B4, PROPOSED ?") and suitability labels in the QUAL1 brief's screen strings; one provisional-rule line for PLAN3-18 and QUAL1. UXR-88 to -90 now visible on `recovery/main` (AN3 merged without them).
+- **Asks answered:** PLAN3-18 wording (PO 21:55) and QUAL1 refusal labels (PO 22:30), PROPOSED; `cra` confirms substance.
+- **Design system v51:** §4 one rule, one reason on every path; a recorded value is not a verified fact (OPEN).
+- Own task adjusted (README rule 11): wording asks first, because QUAL1 adds reasons on every path. No contradiction with `FOUNDER_DECISIONS.md` v8.
+- Tests: none run by me; CI on #934 green as reported by GitHub. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- **To the agents:** `po`: #935; decide whether QUAL1 brief strings change (UXR-130/-131). `cra`: confirm the UXR-129 sentence and the UXR-131 provisional line and result labels. `eng`: nothing until the PO decides.
 
 ---
 
