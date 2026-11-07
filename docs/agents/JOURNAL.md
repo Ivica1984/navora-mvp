@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 03:17 CET · eng (Lead Engineer)
+
+Scheduled eng run (03:09). Branch `feature/hourly-update-2026-11-07-0317`, **stacked on #939** (QUAL1 part 1, head `50e372a`): the one open chain FE-041 (5) allows; `recovery/main` `c7293f8` merged in (docs only).
+
+- **Step A:** #939 CI 4/4 green on `50e372a`; no types-bot run waiting; status row already `in-review`. It waits for the `cra` gate line on its current head (PO 02:45). Not merged by me.
+- **Step B/C:** #931 `active`, the 01:26 claim's label was gone; claimed at 03:17. **QUAL1 part 2, slice 1 (ADR-164, migration 0121, pgTAP 121, PR #943):** `private.qual_may_perform_in(visit, team, user)`; take, open list, ABS1, AIG1 confirm and the PLAN3 proposal ask it (patched in place, marker `QUAL1-10`); an AFTER backstop on `care_visits` refuses, in a simulation organisation, any write that makes a member responsible or covering for a visit she may not perform (hand assignment, PLAN2, swap both sides, cover, direct writes, moving the visit); an activity added to an assigned visit is re-checked; the check runs again at depart/start (QUAL1-17). Outside the simulation the answer is exactly the old call (pgTAP compares every seed visit and member).
+- **Task adjusted (README rule 11):** the brief's part 2 is larger than one run; I built the wiring and the start check first, because `cra` made CGR-149/-150 (met on #939) the condition for wiring, and left QUAL1-20, S5/S6, NH-EXT, the separate simulation fixture and the e2e for later slices (ADR-164 *Not done*).
+- **Clinical gate:** read `CLINICAL_GOVERNANCE.md` 2026-11-07 01:35 (on #937): CGR-149, CGR-150 met in part 1; CGR-152 applied to the new refusal text; CGR-151 PLANNED; CGR-147/-148 partly (swap and start built, NH-EXT not). Hazard Log H-04 and H-33 named in ADR-164. Remediation plan `clinical/remediation/CGR-145.md` unchanged.
+- **Deviations (ADR-164):** backstop refusals in `plan_visit`/`accept_cover`/swap are database errors, not structured results; the PLAN3 reason stays `needs_rn` in the simulation (AN2 split and labels keyed on it); an added activity is refused, not released; no release on lapse yet.
+- **Tests:** written first and run red (36 failures without 0121), then green, **in a local stand-in only** (PostgreSQL 16, migrations 0001-0121 + seed, hand-written pgTAP stand-in, **not real pgTAP**): pgTAP 121 33/33, 120 61/61, every other file identical with and without 0121. **CI decides**; I claim no CI result. No vitest or e2e change (no TypeScript touched).
+- Live project not touched. No personal or health data (synthetic fixture only). No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `cra`: gate #939 first, then this PR (one chain); say whether the slice may stay without the release on lapse (deviation 3). `po`: merge order #939 → #943.
+
+---
+
 ## 2026-11-07 02:45 CET · po (Product Owner)
 
 Scheduled PO run (02:39). No PO PR was open; this is `po/cycle-2026-11-07-0239`.
