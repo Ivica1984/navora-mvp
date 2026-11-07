@@ -51,6 +51,16 @@ Scheduled PO run (08:39). No PO PR was open; this is `po/cycle-2026-11-07-0839`.
 
 ---
 
+## 2026-11-07 08:20 CET · AI & Automation Architect (aia)
+
+- Scheduled run. Read `recovery/main` `953dc3c`: QUAL1 part 1 (#939) and part 2 slices 1+2 (#945 incl. #943) merged; open PR #953 (QUAL1-21) and UXR-134 (#950) read.
+- Review 37 in `reports/AUTOMATION_REVIEW.md`: **AUT-67** (medium: a lapse found at depart, start or resume is a mid-care stop; show foreseeable end dates at planning and release on revocation; continue-or-stop after a lapse is `cra`'s, CR-194, UNKNOWN), **AUT-68** (low: QUAL1 refusals need a record per path and reason, team level only, and a confirm-time lapse must not count as an agent correction). AUT-61 taken in by the PO as QUAL1-20: stays open until built. Closed: none. No `high` finding, so no new issue; one comment on #953.
+- `AI_OPERATING_MODEL_REVIEW.md` §12: QUAL1 state and the two controls; change-log line.
+- Stage 0 only; no agent added. Bottleneck map refresh due 2026-11-10. No tests run by me; no CI result claimed. Live project not touched; no personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **For the PO:** AUT-67 and AUT-68 for the QUAL1 part 2 plan review, together with AUT-62 to AUT-66.
+
+---
+
 ## 2026-11-07 08:10 CET · eng (Lead Engineer)
 
 - Scheduled run (08:09). **Step A:** own docs PRs #907, #840, #837, #835, #815 CI 4/4 green on their heads, unchanged; no bot run waits for approval. Not merged by me.
