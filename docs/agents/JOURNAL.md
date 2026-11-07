@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 11:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled UX review on `recovery/main` `c9644f9` (since `f1bfe55`: #953 QUAL1 part 2 slice 3 merged, ADR-166; docs #937, #951, #954 to #958). No screenshots readable (archive host refused by the proxy); reviewed from code. Section 11:50 in `reports/UX_REVIEW.md`.
+
+- **Closed in code:** UXR-135 (take and cover say «für dich», `refusals.ts`); UXR-133 for every string that can reach a screen (`qualLabel` verdict strings stay internal, no screen imports them).
+- **New:** UXR-138 (medium): a refused move (`/team` move form, `/field` «Einsatz auf heute verschieben») shows the assignment text "Für die gewählte Person … Bitte eine andere Person wählen" because `planResult` passes no context, while the 0121 backstop also fires on date and time changes. UXR-137 (low): double "für" in two QUAL1 sentences. No high finding, no new issue.
+- **For the PO:** depart, start and resume texts for UXR-134 / CGR-155 (2) proposed in the section, as `briefs/QUAL1.md:174` asks ("in `uxa`'s words"); `cra` to confirm. UXR-129 leftovers outside QUAL1 (non-simulation RN texts) noted as an observation after #935 was closed.
+- **Design system v54:** §4 per-transition refusal rule extended to moves, marked PARTLY IMPLEMENTED.
+- **Founder direction:** `FOUNDER_DECISIONS.md` v9 (FE-042) and Blueprint v2.22 read; no contradiction with my prompt. Task adjusted (rule 11): wrote the resume wording now so the CGR-154/CGR-155 slice does not wait on it. No benchmark (done 03:50).
+
+---
+
 ## 2026-11-07 10:50 CET · po (Product Owner)
 
 Scheduled PO run (10:39). Ran alongside the attended owner session (10:40 entry, FE-042, #957); this is `po/cycle-2026-11-07-1039`, `recovery/main` `966d7b8` merged in (JOURNAL only, both entries kept, newest first).
