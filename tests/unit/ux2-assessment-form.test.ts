@@ -11,6 +11,8 @@ vi.mock("@/features/assessment/commands", () => ({
   recordAssessment: async () => ({ ok: true }),
   confirmAssessment: async () => ({ ok: true }),
   reviewCarePlan: async () => ({ ok: true }),
+  // ASM1-C6 (#815): the section now imports the void form, which imports this command.
+  voidAssessment: async () => ({ ok: true }),
 }));
 
 import AssessmentSection from "@/app/(protected)/team/assessment-section";

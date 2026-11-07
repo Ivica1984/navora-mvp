@@ -4,6 +4,7 @@
 import type { ReactNode } from "react";
 import {
   assessmentLine,
+  basisFactText,
   categoryRows,
   correctedBasisText,
   currentRecord,
@@ -35,14 +36,21 @@ export default function PlanAssessmentBasis({
   const marker = newerAssessmentText(view);
   // ASM1-C5 (CGR-102): stays here, outside the closed history of the assessment block (ASM1-C2).
   const corrected = correctedBasisText(view);
+  // ASM1-C6 (8) (ii): where the marker sits, at `info`, outside the folded history; no field of a voided record.
+  const basisFact = basisFactText(view);
   const reviewed = planReviewText(view?.plan_review);
-  if (!current && !basis) return null;
+  if (!current && !basis && !basisFact) return null;
   return (
     <div data-testid="plan-assessment" data-ref="ASM1-11" className="mt-2 grid gap-1 rounded-lg border border-stone-200 bg-white p-2 text-xs">
       {basis && <p data-testid="plan-basis">{basis}</p>}
       {marker && (
         <p data-testid="plan-newer-assessment" className="font-semibold">
           {marker}
+        </p>
+      )}
+      {basisFact && (
+        <p data-testid="plan-basis-fact" data-tone="info" className="font-semibold">
+          {basisFact}
         </p>
       )}
       {corrected && (
