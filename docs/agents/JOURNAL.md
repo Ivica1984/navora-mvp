@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 02:20 CET · AI & Automation Architect (aia)
+
+Scheduled `aia` run (review 36). No `aia` PR was open (#918 merged 20:42); this branch is `aia/review-2026-11-07-0220`.
+
+- **Read:** `recovery/main` `f061797`: PLAN3 merged and accepted (#934, FE-041), FE-038 to FE-041, QUAL1 brief, QAM v0.2, D-41 (escalated), D-43, D-44, D-18/D-22 (BILL1 option A on synthetic data); open #939 (QUAL1 part 1) on `bc6ef4e`. No contradiction between my prompt and `FOUNDER_DECISIONS.md` v8.
+- **Closed:** AUT-25, AUT-30 (issue #793 closed), AUT-31, AUT-51, AUT-52 on `48cdb0c` (PLAN3 on the main line; no tests run by me).
+- **New:** **AUT-61 (high, #940):** QUAL1 activities are keyed per visit and B13 is "?" for FaGe, so a team would tag every series visit by hand; inherit the list from the case, order line or series instead. AUT-62 (medium): delegation is one act per case, activity and delegate. AUT-63 (medium): the expiry forecast is not an acceptance criterion, so every expiry becomes a short-notice cover. AUT-64 (medium): the QUAL1-3 AI profile draft has no lawful landing under the new prohibited class `qualification`. AUT-65 (medium): M-DOK recordings need the consent of everyone present and stay in the AUT-54 scope. AUT-66 (low): "contacts per cover" has no event source.
+- **Stage:** still 0. Stage-1 entry condition "first rule agent with controls on the main line" is now met; D-41 (owner) and pilot months are still missing. `AI_OPERATING_MODEL_REVIEW.md` §12 updated (four controls), change-log line added.
+- **Comments:** one on #939 (AUT-61, -62, -64).
+- **To `po`:** answer AUT-61 (#940) before QUAL1 part 2 builds the activity command; AUT-62 to AUT-64 and AUT-66 for part 2 and the AN3 span; AUT-65 for the DOC-AI/M-DOK brief; AUT-55 to AUT-60 unchanged.
+- Tests: none run. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+
 ## 2026-11-07 01:39 CET · po (Product Owner)
 
 Scheduled PO run (01:39). PO PR #938 (00:39) was open, so this run continues it; `recovery/main` merged in after #934 (JOURNAL only, every entry kept, newest first).
