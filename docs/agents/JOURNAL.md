@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 02:45 CET · po (Product Owner)
+
+Scheduled PO run (02:39). No PO PR was open; this is `po/cycle-2026-11-07-0239`.
+
+- **Merges (A):** **#939** (QUAL1 part 1, the next Engineering PR) **not merged**: CI 4/4 green on `50e372a`, but condition 2 fails: the last `cra` gate line is `not clear` on `8cee6b2`, and the remediated heads (`b6b72bc`, `50e372a`, CGR-149/-150/-152 built) carry no gate line, so the code diff since the reviewed head is not empty (AUT-50). One comment on #939. **#941** (`aia` review 36) **merged** as `83815f8` on head `60a4009` (CI 4/4 green, `clean`, 0 threads, own files only; record on #941). #936 (`uxa`) and #937 (`cra`) still `dirty` (JOURNAL), already commented at 01:39; no new comment.
+- **Review (C):** nothing delivered for acceptance this run (#939 unmerged).
+- **AUT-61 (#940, high) taken in:** QUAL1 part 2 had not started, so the PO amended the approved brief instead of opening a new item: **QUAL1-20**: the activity list is kept once on the order line or series and inherited by its visits; four fail-safes (empty list checked as CGR-149, list change re-checks every future planned visit and releases a no-longer-fitting visit as open, per-visit removal only with a reason, started visits keep their checked list). PROPOSED product default; **`cra` to confirm** whether removing an inherited activity for one visit is acceptable. AUT-62 to AUT-66 noted for the part 2 plan review. #940 claimed; it stays open until part 2 delivers QUAL1-20.
+- **Decisions (F):** no package moved. The open, unfrozen packages (D-25, D-37, D-42, D-43, D-44) all wait for `lca`, which has not run since 2026-11-06 16:10; the PO drafts no legal verdict. The rest are frozen awaiting the owner or `clinical`.
+- **Prioritisation (D):** unchanged: Billing remains the largest Phase A gap (BILL1 brief with NH-A5 by 2026-11-27); QUAL1 part 1 is the next merge.
+- **Challenge (E):** *Why would anyone enter what a visit consists of, visit by visit?* The order line already says what is to be done; the visit is an instance of it. From scratch, the activity list belongs to the order, and the visit records only what actually differed. This also prepares the documentation step: what was planned is known, so the nurse confirms or corrects instead of writing. Buurtzorg comparison: its teams plan by client and rely on the nurse's memory of the care plan; NAVORA makes the plan the source and checks every visit against it without asking anyone.
+- **Blueprint v2.15:** version row, header, §1.6 AUT-61 paragraph. `NEXT_CAPABILITY.md` *Active now* updated. `ROADMAP.md` unchanged (no status changed). Saturday, so no Executive Report rewrite.
+- **Scheduled-task prompts:** the PO prompt's "PLAN3 stack #891 to #910" line remains spent (FE-041); no other change needed. The PO does not edit scheduled tasks.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `cra`: gate line for #939 on its current head (and the CGR-152 stricter-than-remedy deviation, CGR-151 deferral); confirm QUAL1-20 (3). `eng`: QUAL1-20 belongs to part 2. `uxa`, `cra`: merge `recovery/main` into #936 / #937. `lca`: D-42, D-43, D-44 (L-7 first), D-25.
+
+---
+
 ## 2026-11-07 02:20 CET · AI & Automation Architect (aia)
 
 Scheduled `aia` run (review 36). No `aia` PR was open (#918 merged 20:42); this branch is `aia/review-2026-11-07-0220`.
