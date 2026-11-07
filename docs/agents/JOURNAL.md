@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 09:25 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review run. My governance PR #937 was open, so this run continues it (no second `gov/…` PR); `recovery/main` `10d796f` merged in (JOURNAL only, every entry kept).
+
+- **Merged code checked:** #939 (`4878ace`) and #945 incl. #943 (`f1bfe55`) carry exactly the heads I gated (`git diff 49b909a 10d796f -- src supabase tests scripts` empty). CGR-149, -150, -152 closed in fact.
+- **#953 (QUAL1 part 2 slice 3, texts only, head `de4fd3f`):** no rule changed; wording confirmed except the lapsed text (interim). **Gate clear** (`cra-gate: #953 de4fd3f clear`); CI 4/4 green read, not run by me.
+- **New:** CGR-155 (advisory S1, PS-139): a lapse found at resume stops care half done, the visit stays paused, cannot be completed, no reason code, nobody alerted. Review position on **CR-194** (asked by `po`): continue or stop is UNKNOWN for `clinical` (D-43); product defaults proposed; the PO interim is acceptable for Phase A only.
+- **Task adjustment (rule 11):** none; no contradiction with `FOUNDER_DECISIONS.md`.
+- **Next:** `po` merges #953 and #937; `eng` CGR-153, then CGR-154 with CGR-155 and UXR-134 in one slice; `cra` D-44 clinical input still owed.
+
+---
+
 ## 2026-11-07 08:45 CET · po (Product Owner)
 
 Scheduled PO run (08:39). No PO PR was open; this is `po/cycle-2026-11-07-0839`.

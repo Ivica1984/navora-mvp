@@ -16,6 +16,73 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-07 09:25 CET: QUAL1 part 2 slices 1+2 **merged on the gated heads** (#945 incl. #943, `f1bfe55`; code equals `49b909a`); QUAL1 part 2 slice 3 **#953** (texts only, ADR-166) read on head `de4fd3f`: **no blocking clinical finding; gate clear**; review position on **CR-194** (`po` asked: may a begun visit be resumed after a lapse) and new **CGR-155** (advisory **S1** before real data: a lapse found at resume stops care half done; nobody alerted; no reason code for the interruption)
+
+**Scope:** `recovery/main` @ `10d796f`. **Trigger:** PO merges #939 (`4878ace`), #945 (`f1bfe55`, contains #943), docs #947, #948, #949, #951, #952, #955; `eng` #953 (`feature/hourly-update-2026-11-07-0810`, head `de4fd3f`; the PO's comment asks for a `cra` gate line); `aia` #954 (AUT-67, AUT-68; AUT-67 hands continue-or-stop after a lapse to `cra`); QUAL1 brief rows UXR-134, CR-194, QUAL1-22 (PO 08:45). **No clinical, legal or owner decision answered** by a person since 05:45 (D-42, D-43, D-44 escalated to the owner by the PO at 05:39, still open). `FOUNDER_DECISIONS.md` unchanged since my last section; no contradiction found.
+
+I read: `git diff 49b909a 3a7a0c5 -- src supabase tests scripts` and `git diff 49b909a 10d796f -- src supabase tests scripts` (both **empty**: the merged code is the code I gated); `git diff recovery/main...de4fd3f` (16 files, no migration, no pgTAP): `src/features/qualification/refusals.ts` in full, `labels.ts`, `result.ts`, the absence, cover, AI, planning and day-plan command and label changes; `git diff 9f6340c de4fd3f -- src supabase tests` (empty); 0121 §5 `qual_guard_start`; the visit state machine (0007:156-165) and CSR1 `interrupted` (0042:46-52, 0042:142); the observation guard (0009:100). CI on `de4fd3f` (check runs read; I did not run them): app, db, e2e, ui-screenshots **green**.
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data.
+
+### What #953 does, checked (IMPLEMENTED on the head, not merged)
+
+- One module `qualification/refusals.ts`: one sentence per QUAL1 reason (`qualification_not_allowed`, `qualification_lapsed`, `needs_rn`, `evidence_missing`, `rule_unresolved`, `delegation_missing`, `not_member`, `not_qualified`); only the subject changes (`dich`, a name, "die gewählte Person"); an unknown reason fails closed to a sentence that claims nothing. Prefix by context (save, start, take, confirm) and only the decided next step.
+- Take and cover now say `dich` (UXR-135 met in text); AIG1 `not_qualified` drops "Diese Person darf … nicht"; PLAN2 `fromJson` and `proposeDayPlan` map the QUAL1 refusal before the generic branch.
+- `labels.ts`: no matrix code in user text (the activity in words, `label_de`), "vorläufige Regel noch offen" instead of "PROPOSED ?"; the reason detail is still read only from `row.reason`, which the database gives only to the member and administrators (CGR-152 unchanged).
+- **No rule, matrix cell, check result or migration changed.** No clinical, tariff, KLV, LTCF, interRAI, PAG or MQI logic added.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-155** | **A lapse found at resume (CR-194): care half done is stopped, nobody alerted** | **advisory, S1** (blocks real data); not blocking #953, which changes no behaviour | `qual_guard_start` runs on every transition into `started`, so a **resume** after a pause is refused when an evidence, delegation or delegator access lapsed **during** the visit (the start check already tests evidence at the visit end, so a resume refusal comes only from an event during the visit: a revocation, a status change, a delegator leaving). The visit stays `paused` with care partly given; `complete_visit` requires `started` (0007:165), so it cannot be completed; the only exit is CSR1 `interrupted`, whose reason list has no code for this (it must be `other` with a note, so it cannot be counted, AUT-68). Nobody else is told; the text says "Nicht begonnen … bleibt geplant", which is false (UXR-134). Whether the nurse should **finish or stop** the care already begun is a clinical question (**UNKNOWN**, D-43); the product must not decide it silently either way | 0121 §5 (`new.status not in ('on_the_way','started')`); 0007:156-165; 0042:46-52, 0042:142; 0009:100 (observations allowed while `paused`); #953 `refusals.ts` `NEXT_STEP.start` | Until D-43 decides, product defaults (PROPOSED, simulation only): (1) **keep** the resume refusal (no silent continuation of an activity no longer covered); (2) the resume text states the visit's real state ("Einsatz pausiert") and names only the two **implemented** steps: document what was done (observations stay open on a paused visit) and record the visit as not completed (CSR1); no clinical instruction; (3) on a refused resume, an alert to the team at once and the remaining care of the visit released as open with a coverage fact (CGR-154 pattern, same slice); (4) a CSR1 reason code for a qualification lapse (product code, not a clinical rule), so the case is countable (AUT-68); (5) revoking a delegation or evidence that an **in-progress** visit relies on tells the revoking person that the visit is running (QUAL1-22 (2) pattern). Tests: pgTAP: a delegation revoked while the visit is `paused` → resume refused, alert row and coverage fact written, `record_visit_not_completed` with the new code succeeds; Vitest: `resumeVisit` returns its own text without "Nicht begonnen" or "geplant" (UXR-134 test) |
+
+### Review position on CR-194 (`po`, QUAL1 brief row; not an approval, D-27)
+
+May a visit already begun be resumed or completed after a lapse? **UNKNOWN** for the Clinical Owner (D-43). Both directions carry harm: stopping can leave care half done (a dressing open, a medication prepared but not given, a client not yet repositioned); continuing lets a person perform an activity whose evidence or delegation no longer covers her. The choice depends on the activity and the client's state, which NAVORA must not judge. Until a named person decides, I recommend the CGR-155 defaults above: refusal stays, documentation and "nicht abgeschlossen" stay reachable, the team is alerted at once and the remainder released. The PO's interim (resume refused, visit stays paused, simulation only, no next step in the text) is **acceptable for Phase A only**, and only if (2) is met: naming the two implemented steps is not an invented clinical instruction.
+
+### Answers on #953 wording (asked on the PR; review positions, `uxa` decides wording)
+
+- "**Pflegefachperson**" in `needs_rn` and `QUAL_NO_PROPOSAL_TEXT`: **confirmed** (as at 05:45). Condition for any screen where FaGe also appears: "Pflegefachperson HF/FH".
+- The QUAL1-21 sentences: **confirmed** for `qualification_not_allowed`, `needs_rn`, `evidence_missing`, `rule_unresolved`, `delegation_missing`, `not_member`, `not_qualified` and the fail-closed fallback: no verdict on a person, no evidence detail, the provisional rule named, only decided next steps. `qualification_lapsed` with `start`: **interim only** (CGR-154, CGR-155; UXR-134).
+- Nit, carried from 05:45 (no finding; condition for the first QUAL1 screen): a delegation recorded after the visit started (pgTAP 120 visit 12) still reads "Delegation abgelaufen am …" via `delegation_expired`; for a delegation that never covered the visit the text must not say "abgelaufen".
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| **CGR-149, CGR-150, CGR-152** | **closed in fact**: #939 merged as `4878ace` on head `50e372a`, the head I cleared | `git log`: `PO merge #939: QUAL1 part 1 (head 50e372a)`; QUAL1 brief merge record (CI on `4878ace` green, as read by the PO) |
+| **CGR-153** | open, advisory S2; placed by the PO as a part 2 acceptance condition (first in the order) | QUAL1 brief, part 2 conditions |
+| **CGR-154** | open, advisory S1; placed as a part 2 acceptance condition with UXR-134; widened by CGR-155 (resume); QUAL1-22 (PLANNED, part 3) takes in the "re-check future visits on lapse or revocation" half of the remedy | QUAL1 brief rows UXR-134, QUAL1-22 |
+| **CGR-151** | open, advisory S2; part 2 condition | QUAL1 brief |
+| **CGR-148** | open, advisory S1; unchanged (NH-EXT acceptance open) | — |
+| All other CGR findings | unchanged | as at 05:45 |
+
+Closed in this section: none newly (CGR-149, -150, -152 already counted as closed at 05:45; now merged).
+
+### New or changed hard-coded rules
+
+None: #953 changes words only. Register: **CR-194** note updated with the review position above; CR-191 to CR-195 now IMPLEMENTED on `recovery/main` (`f1bfe55`), status stays UNVALIDATED (simulation only). Safety Risk Register: **PS-139** (CGR-155).
+
+### Gate status
+
+| PR | Gate |
+|---|---|
+| **#953** (QUAL1 part 2 slice 3, head `de4fd3f`) | **clear to merge**: texts only, no rule changed, CI 4/4 green; UXR-134 / CGR-154 / CGR-155 stay part 2 conditions |
+| #954 (`aia`, docs) | not code; consistent with CGR-154 and CGR-155; nothing from `cra` blocks it |
+
+cra-gate: #953 de4fd3f clear
+
+### Decisions requested
+
+- **po:** merge #953; place CGR-155 with CGR-154 and UXR-134 in the same part 2 slice (one text change, one release mechanism); record the CR-194 interim as Phase A only.
+- **eng:** CGR-155 (2) to (5) in the CGR-154 slice.
+- **uxa:** the resume text under CGR-155 (2).
+- **clinical (D-43, when named):** CR-194, continue or stop care already begun after a lapse (UNKNOWN).
+- **owner:** D-43 (so that a named person can answer CR-194 and K-1 to K-8); D-42, D-44 as escalated by the PO. **lca:** nothing new.
+
+---
+
 ## 2026-11-07 05:45 CET: QUAL1 part 1 **#939** re-read on its head `50e372a`: **CGR-149, CGR-150, CGR-152 met; gate clear**; QUAL1 part 2 slice 1 **#943** (migration 0121, ADR-164) and slice 2 **#945** (0122, ADR-165) read on their heads: **no blocking clinical finding; #945 clear, #943 clear only together with #945** (alone it breaks the daily plan run and leaves a minutes change unchecked); new **CGR-153** (advisory S2: one failing case stops the whole daily plan run) and **CGR-154** (advisory **S1** before real data: a refused start leaves the visit assigned and nobody is alerted); answers to `po` on QUAL1-20 (3), QUAL1-21 terms and the UXR-132 wording
 
 **Scope:** `recovery/main` @ `962a38b`. **Trigger:** #939 new head `50e372a` (CGR-149/-150/-152 remedies, `b6b72bc`; ADR-081 fix `50e372a`); `eng` #943 (`feature/hourly-update-2026-11-07-0317`, head `4890e1f`) and #945 (`feature/hourly-update-2026-11-07-0410`, head `49b909a`, contains #943); PO #942, #946 (QUAL1-20, QUAL1-21 brief amendments, asks to `cra`); `uxa` #936 (UXR-132), `aia` #941 (AUT-61); `lca` #947 (D-42, D-43, D-44 sections, open). **No clinical, legal or owner decision answered** by a person since 22:35.
