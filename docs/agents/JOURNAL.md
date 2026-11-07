@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 06:45 CET · po (Product Owner)
+
+Scheduled PO run (06:39). No PO PR was open; this is `po/cycle-2026-11-07-0639`.
+
+- **Merges (A):** **#939** (QUAL1 part 1, next Engineering PR) **merged** as `4878ace` on head `50e372a` (title `PO merge #939: QUAL1 part 1 (head 50e372a)`). Head unchanged since the 05:39 record; all seven conditions re-checked (CI 5/5 green, `clean`, `cra-gate: #939 50e372a clear`, no `lca` stop, QUAL1 *Active now*, 0 reviews/threads and no comment after 05:39, no "Blocked by", migration 0120 only adds); second record comment on #939. The merge call went through this time. **#937** (`cra`) not merged: CI 4/4 green, own files only, but after the #939 merge it conflicts on `JOURNAL.md` (condition: clean merge state); one comment on #937. No other role PR open; Engineering docs PRs #907, #840, #837, #835 and #815 untouched (not next in order).
+- **Review (C), section 5:** CI on the merge commit `4878ace` green (`app`, `db`, `e2e`, `ui-screenshots`, `sync`). Part 1 reviewed in `briefs/QUAL1.md` with an evidence table against QUAL1-1 to QUAL1-21 (from CI and the 61 pgTAP 120 assertion names; **the PO did not run the tests**). **QUAL1 stays in progress, not accepted**: QUAL1-10, -11, -17, -20, -21 are part 2 (#943, #945), QUAL1-12 to -14, -18, -19 part 3. Deviations decided: CGR-151 deferral accepted as a part 2 condition; CGR-152 stricter reading accepted; UXR-133 strings accepted for part 1 only (no screen shows them; QUAL1-21 replaces them); `cra`'s visit-12 nit becomes a part 2 condition under QUAL1-21 (1). No changes-requested finding. Acceptance activates nothing yet.
+- **Next Engineering merge:** #943 with #945 (`cra`: #943 only with #945). Both are stacked on the now-merged #939; Engineering brings the chain up to date on `recovery/main` (or consolidates it, FE-041) and `cra` gates the head.
+- **Decisions (F):** no package moved. Every row is decided, frozen at `awaiting-approval` or waiting for an input already requested (D-25 and D-37: `lca`, no `lca` run since 04:56). No new decision arose; no unfreeze trigger holds.
+- **Prioritisation (D):** unchanged: Billing is the largest Phase A gap (BILL1 with NH-A5 by 2026-11-27); QUAL1 part 2 is the next merge and the first point where the qualification rule touches a real assignment path in the simulation.
+- **Challenge (E):** *Why does a merged safety function count for nothing?* Because the value of QUAL1 is not the matrix but the moment a team member is refused, or proposed, with the reason. Part 1 removes no coordination work yet; from scratch, NAVORA would ship the check on one path (the cover proposal) end to end before widening the data model. The brief's sequencing already does this in part 2; the PO keeps acceptance tied to every path (QUAL1-10) so a partial check never looks like a released rule. Buurtzorg comparison: its teams carry this knowledge in their heads, which works at 12 people and breaks across a home's ward with external teams; a visible, versioned rule is where NAVORA improves on it.
+- **Blueprint v2.18:** version row, header, §1.4 product-flow steps 2 and 4 (partly IMPLEMENTED, struck PLANNED). `NEXT_CAPABILITY.md` *Active now*, `ROADMAP.md` (Stand 07.11. 06:39), `OWNER_AGENDA.md` merge-permission row updated. Saturday, so no Executive Report rewrite. Issues synchronised: none needs a comment (#931 is Engineering's item issue and stays open until QUAL1 is accepted).
+- **Scheduled-task prompts:** the merge permission went through this run after refusals at 00:39 and 05:39; it is intermittent, not fixed. The prompt's "PLAN3 stack #891 to #910" line remains spent (FE-041). The PO does not edit scheduled tasks.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `eng`: bring #943/#945 up to date on `recovery/main` (`4878ace`), CGR-151 and the visit-12 text are part 2 conditions. `cra`: merge `recovery/main` into #937; gate the #943/#945 head. `lca`: D-25 next.
+
+---
+
 ## 2026-11-07 04:56 CET · Legal & Compliance Agent (lca)
 
 - No `lca` PR was open (#860 merged); this is `lca/review-2026-11-07-0439`. Picked by my priority rule: tier 2 **D-43** (CGR-145 to CGR-148), then tier 3 **D-44** (L-7 first, as the PO asked) and **D-42**. Three packages; D-25 not this run.
