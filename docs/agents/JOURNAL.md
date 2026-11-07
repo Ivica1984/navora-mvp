@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 11:25 CET · eng (Engineering)
+
+Scheduled Engineering run (11:10). Step A only (own open PRs); no `agent:eng` issue carries `active`, so nothing is claimed (step B).
+
+- **#835 (M1.3, `DELIVERY_ESTIMATE.md` v1, ADR-142):** `recovery/main` `c9644f9` merged in (merge, no rebase, no force-push). Only conflict `DECISIONS.md`: ADR-142 and every `recovery/main` ADR kept. New section *Founder-decision check 2026-11-07*: v1 predates FE-019 to FE-036; the table names where it differs (M9 now = Phase A passed plus Phase B readiness file, FE-036; simulated partner and synthetic data, FE-021; nursing-home ward in Phase A, FE-031, not in the §4 effort). **Figures not re-estimated** (OPEN, v2). P-5, R-2, R-4 read as Phase B items unless the PO decides otherwise (OPEN, `po`).
+- **#837 (M1.4, WEB1 and APP1 plans, ADR-143):** `recovery/main` `c9644f9` merged in. `JOURNAL.md`: `recovery/main` taken whole (the branch had lost a few separator lines in an older merge) and this PR's five `eng` entries re-inserted at their place; `DECISIONS.md`: ADR-143 and every `recovery/main` ADR kept. ADR-143 builds on ADR-142, so #835 should merge first.
+- **Contradiction with `FOUNDER_DECISIONS.md` (rule 10), not changed by me:** `WEB1_IMPLEMENTATION_PLAN.md` W-04 shows the website tag "In Vorbereitung; Designpartner gesucht" for nursing homes. FE-021 says no real partner is needed now; a public "partner wanted" line may read as a search. For `po` (and `uxa` for the wording).
+- **Still open:** #815 (ASM1-C6, also conflicts in `team/assessment-section.tsx`) and #907 (weekly status) were not brought up to date this run (one step per run); next run.
+- Tests: none run (docs only); `node scripts/agents-check.mjs` run on both branches (ok). CI decides; **no test result is claimed**. Not merged by Engineering. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-07 10:50 CET · po (Product Owner)
 
 Scheduled PO run (10:39). Ran alongside the attended owner session (10:40 entry, FE-042, #957); this is `po/cycle-2026-11-07-1039`, `recovery/main` `966d7b8` merged in (JOURNAL only, both entries kept, newest first).
@@ -1764,6 +1776,15 @@ Scheduled PO run (18:39), founder cleanup FE-037 continued. Task adjusted within
   - SC-8 (maps link; checked, not built) not built before `lca`.
 - **For `cra`:** DS1-2, SC-2, SC-5. **For `lca`:** SC-2, SC-6, SC-8, DS1-6. **For `eng`:** DS1-1, DS1-3 with UX2-3; D-IA-4 in the M1 estimate; UX2-33.
 - Tests: none run (docs only). `node scripts/agents-check.mjs` run before publishing. Live project not touched.
+
+## 2026-11-03 15:14 CET · Engineering (eng)
+
+- **#830 (M1 delivery baseline), claimed 15:14.** Why not #745: every *Active now* (06:30) item that does not wait on a PO merge is in an open, green PR (#799, #800, #803, #804, #806, #809, #810, #813, #814, #815); (2) is held by (0); PLAN3 needs #814 merged. #824 is in #828 (green). Step A: all open Engineering PRs green on their heads; the one waiting `ci` run (41635678419) is for a superseded types-bot commit on #815's branch, not approved (head `f0a2752` is green).
+- **New:** `docs/engineering/DELIVERY_ESTIMATE.md` v1 (items 3-6 of #830; items 1-2 by reference to `IMPLEMENTATION_SEQUENCE.md`, PR #833) and **ADR-142** (PROPOSED: installable web app on the one NAVORA app with a same-key command queue; native only on a named requirement; family app not built; website a separate static site and origin, demo requests never in the care database).
+- **Estimates (Low confidence):** technical M9 earliest 2027-01-15, planning value 2027-01-29, assuming D-2 (staging and production) by 2026-12-11; M10 technical criteria about 2027-03-31 (security tester lead time UNKNOWN); program M10 2027-06-30 feasible for Engineering. M9-M10 Engineering effort 37-58 pd.
+- **Deviation found, not changed (PO-owned):** the go-live gate index in `CARE_OPERATING_MODEL.md` shows G-11, G-13 and the FUP1 part of G-15 as PLANNED while COND1 is delivered (`IMPLEMENTATION_STATUS.md`).
+- **OPEN for `po`:** move the outside alert for the P1 signal path into M9; website directory or repository. **OPEN for owner:** production hosting with D-2; RTO/RPO/SLA values; security tester; on-call staffing.
+- Tests: none applicable (docs only; no core logic changed, so no unit test first). No local run beyond `node scripts/agents-check.mjs`. CI decides. Live project not touched.
 
 ---
 
