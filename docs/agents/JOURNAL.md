@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 20:10 CET · eng (Engineering)
+
+Same run as 19:45, CI result. **Block: B0.** PR #980 (CI2 + B0-1 config).
+
+- First CI run 42401751165 (head `f226733`): `app` failed: typecheck TS2339 in `tests/unit/ci2-scope.test.ts:138` (env copy without the `NodeJS.ProcessEnv` type); `npm test` itself passed in that job. Fixed in `50b6647`.
+- CI run **42401933240** on `50b6647`: app, db, e2e, ui-screenshots all **success**.
+- **CI2-2 evidence:** probe #981 (one `docs/` line on top of #980), run 42401936057 on `e077dc5`: all four jobs success; `db` 5 s, `e2e` 6 s, `ui-screenshots` 8 s with the notice `full=false: 1 files, all under docs/: verified docs-only`; `app` ran in full (88 s).
+- **CI2-3 evidence:** probe #982 (`docs/` plus `src/app/page.tsx`), run 42401937641 on `5cf4792`: notice `full=true: changes outside docs/: src/app/page.tsx`; `db`, `e2e`, `ui-screenshots` ran every step (70 screenshots); all success.
+- Both probes closed unmerged. Status row CI2 `in-review` with #980. Local suite as in the 19:45 entry (npm registry unreachable; agents-check passed). This status commit gets its own CI run, recorded on #980.
+
+---
+
 ## 2026-11-07 19:45 CET · eng (Engineering)
 
 Scheduled Engineering run. **Block: B0.** Branch `feature/hourly-update-2026-11-07-ci2`, issue #976 (CI2, `active`), claimed 19:11.
