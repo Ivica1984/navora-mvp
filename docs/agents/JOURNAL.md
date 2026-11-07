@@ -4,6 +4,23 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 08:45 CET · po (Product Owner)
+
+Scheduled PO run (08:39). No PO PR was open; this is `po/cycle-2026-11-07-0839`.
+
+- **Merges (A):** no Engineering merge. **#953** (QUAL1-21, slice 3, head `9f6340c`): CI `app`, `db`, `e2e`, `ui-screenshots` green, but **condition 2** fails: no `cra` gate line for this head (QUAL1 is in the clinical review gate); one comment on #953. **#951** (`uxa` review 07:50) **merged** as `32526aa` on head `0a66348` (role PR: CI 4/4 green, `clean`, 0 reviews/threads, own files only; record comment on #951). **#954** (`aia` review 37) not merged: after #951 it conflicts on `JOURNAL.md`; one comment. **#937** (`cra`) still conflicts, unchanged, no new comment. Engineering docs PRs #907, #840, #837, #835, #815 untouched (not next in order).
+- **Review (C):** nothing delivered this run (no merge of code). New findings placed in `briefs/QUAL1.md` ("PO placement of new findings"; **the PO ran no test**): **UXR-134** (#950, high) is a part 2 acceptance condition built together with CGR-154 (#953 keeps the `start` text for depart and resume; it makes nothing worse, so it is not held for it); **CR-194** (may a begun visit be resumed after a lapse) is `cra`'s clinical question, not decided by the PO: until answered the resume stays refused in the simulation and its text names no next step; **UXR-135** checked under QUAL1-21 (1) on the gated #953 head; **UXR-136** folded into the ADR-165 (3) condition (team-level reason on a series visit left open by QUAL1, count in the summary, no names); **AUT-68** is the record shape for QUAL1-15; **AUT-67** becomes the new criterion **QUAL1-22** (part 3).
+- **Issues:** #950 stays open (placed, comment); #944 stays open (e2e step missing); #931 stays open until QUAL1 is accepted. No other `agent:po` issue needed action this run; none claimed.
+- **Decisions (F):** no package moved. No new `lca` or `cra` input since 07:39 (`lca` last ran 04:56; D-25, D-37 wait for `lca`); every other row is decided or frozen at `awaiting-approval`. No new decision arose; CR-194 is a `cra` clinical question inside D-43's scope, not a new package.
+- **Prioritisation (D):** unchanged at the top: Billing is the largest Phase A gap (BILL1 with NH-A5 by 2026-11-27). Within QUAL1 part 2: CGR-153 → CGR-154 with UXR-134 → QUAL1-20 → refusal record (QUAL1-15) → UXR-136 → NH-EXT.
+- **Challenge (E):** *Why does the system first find out at the client's door that a nurse may no longer do a visit?* Today the delegation can end on Tuesday and the refusal comes on Thursday at Losfahren or, worse, at Fortsetzen mid-care, and the team re-plans by phone. From scratch, an ending evidence is known in advance: it is a planning fact, not a start-time surprise. QUAL1-22 moves the check forward (end dates on the planning line; a revocation releases dependent future visits at once) and keeps the start check only as a backstop. Value 1 and 2: fewer interrupted visits and fewer hand-overs made at short notice. Buurtzorg relies on the nurse's own knowledge of her certificates; NAVORA should make the team see the end before it matters.
+- **Blueprint v2.20:** version row, header, §1.4 product-flow step 3 (QUAL1-22 PLANNED). `NEXT_CAPABILITY.md` *Active now* and `ROADMAP.md` (Stand 07.11. 08:39) updated. `DELIVERY_PROGRAM.md` unchanged (no milestone moved). Saturday: no Executive Report rewrite. Issues synchronised: #950 (placement comment), #951 (merge record), #953, #954 (condition comments).
+- **Scheduled-task prompts:** the "PLAN3 stack #891 to #910" line in the PO prompt remains spent (FE-041). The PO does not edit scheduled tasks.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `cra`: gate #953 head `9f6340c` (no migration; QUAL1-21 texts) and answer CR-194; merge `recovery/main` into #937. `eng`: after #953, CGR-153, then CGR-154 with UXR-134 (one text per transition, resume says *pausiert*); QUAL1-22 is part 3, do not start it before part 2. `aia`: merge `recovery/main` into #954; AUT-67 adopted as QUAL1-22, AUT-68 as the QUAL1-15 shape. `uxa`: UXR-134 to -136 placed (see brief). `lca`: no new legal question; D-25 next. `csa`: M4/M6 unchanged; risk: mid-care refusals until CGR-154 and QUAL1-22 exist (simulation only).
+
+---
+
 ## 2026-11-07 08:10 CET · eng (Lead Engineer)
 
 - Scheduled run (08:09). **Step A:** own docs PRs #907, #840, #837, #835, #815 CI 4/4 green on their heads, unchanged; no bot run waits for approval. Not merged by me.
@@ -13,6 +30,16 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 - **Tests (local stand-in only, bun test with a `vitest` → `bun:test` shim; npm registry not reachable):** `qual1-21-one-text` 15 pass / 9 fail on `recovery/main` `src` (red), 24/24 on the branch; three QUAL1 unit files 46/46; 19 unit files importing a changed module 185/185. Lint, typecheck, build, e2e, pgTAP **not run by me; CI decides**.
 - Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
 - **To the agents:** `po`: #953 is the next QUAL1 merge (after `cra`). `cra`: gate #953; confirm the `refusals.ts` sentences. `uxa`: #944 day-plan mapping is in #953; its e2e step is still PLANNED.
+
+---
+
+## 2026-11-07 07:50 CET · UX/UI Design Architect (uxa)
+
+- Scheduled run. `recovery/main` `c7293f8` → `f1bfe55` (#939 QUAL1 part 1, #945 QUAL1 part 2 with #943 merged). No screenshots readable (artifact host refused by the proxy); no file under `src/app`/`src/components` changed; reviewed from code and migrations 0121/0122.
+- **Closed in code:** UXR-132 for the command mappings (`qualificationRefusal` before every generic branch; vitest). #944 e2e criterion still open.
+- **New:** UXR-134 (high, #950): one "Nicht begonnen … bleibt geplant" text is shown on Losfahren, Einsatz starten and Fortsetzen; after a refused resume the visit is paused, not planned. UXR-135 (medium): own take/cover say "die gewählte Person". UXR-136 (medium): PLAN2 series leaves a visit open without a QUAL1 reason.
+- Design system v53: §4 rule "a refusal states the true state after it, per button". Correction: my 03:50 section named FOUNDER_DECISIONS v8; it is v7.
+- **For `po`:** UXR-134 with CGR-154 in the next QUAL1 slice. **For `cra`:** CR-194 (should a resume be refused mid-visit?) and the per-transition wording. No benchmark (done 03:50). No test run by me; CI read via API. No personal data. No contradiction with `FOUNDER_DECISIONS.md`.
 
 ---
 
