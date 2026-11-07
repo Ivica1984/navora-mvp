@@ -3437,7 +3437,7 @@ Full plan: `docs/engineering/APP1_IMPLEMENTATION_PLAN.md`.
 
 ### ADR-167 — CI2: a verified docs-only fast path for `db`, `e2e` and `ui-screenshots`, same check names, everything else full (D-7 stage 3)
 
-**Date:** 2026-11-07 19:40 Europe/Zurich · **Status:** IMPLEMENTED in the PR (CI decides) · **Issue:** #976 (CI2, approved `po` 2026-11-07 15:39 on FE-045 stage 3) · **Base:** `recovery/main` `f350085` · **Block:** B0 (`PRODUCT_BLOCKS.md`); not a feature under the FE-052 merge freeze.
+**Date:** 2026-11-07 19:30 Europe/Zurich · **Status:** IMPLEMENTED in the PR (CI decides) · **Issue:** #976 (CI2, approved `po` 2026-11-07 15:39 on FE-045 stage 3) · **Base:** `recovery/main` `f350085` · **Block:** B0 (`PRODUCT_BLOCKS.md`); not a feature under the FE-052 merge freeze.
 
 **Context (measured, CI2-1).** Source: GitHub Actions REST API (`/actions/workflows/ci.yml/runs?created=<day>`, `/actions/runs/<id>/jobs`), read 2026-11-07 19:15-19:35. Billed minutes are estimated per job as `ceil(completed_at - started_at)` in minutes (GitHub bills hosted runners per job, rounded up to the minute); docs-only is decided per run from local git (merge base of the run's head with `recovery/main` as it was at the run's creation, `git diff --no-renames`).
 
