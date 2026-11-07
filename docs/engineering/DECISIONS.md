@@ -3471,3 +3471,23 @@ Full plan: `docs/engineering/APP1_IMPLEMENTATION_PLAN.md`.
 **Clinical review gate:** out of scope (no care, documentation, billing, quality or assessment behaviour; repository CI only); no CGR finding applies. **No data:** no personal or health data; the live project is not touched.
 
 **Rollback:** revert the commit; no migration, no data.
+
+### ADR-168 — B0-2: a repeat check that runs `db` and `e2e` N times on one commit, generated from `ci.yml`
+
+**Date:** 2026-11-07 20:15 Europe/Zurich · **Status:** IMPLEMENTED in the PR (CI decides) · **Base:** `recovery/main` `75ff53a` · **Block:** B0, criterion B0-2 (`docs/product/PRODUCT_BLOCKS.md` §4; FE-052 order B0-1 to B0-8, one PR per criterion). Not a feature under the FE-052 merge freeze.
+
+**Context.** B0-2 asks for a repeat check for `db` and `e2e` (`workflow_dispatch`, N runs on one commit) and 10 of 10 green on the B0 candidate; every failed attempt is named with file and test. **`workflow_dispatch` cannot be used today:** GitHub dispatches a workflow only when its file is on the default branch, and the default branch `main` has no workflows yet (`git ls-tree origin/main .github/workflows` is empty; PR #3, D-8, FE-047). Re-running a run ("Re-run all jobs") runs again sequentially and keeps only the latest attempt per job in the check view, so it is no 10-of-10 record.
+
+**Decision.**
+1. **`.github/workflows/ci-repeat.yml`**, triggered only by a **push to a branch `repeat/**`**. Push a branch `repeat/<label>` at the commit to test: `db` and `e2e` each run as a matrix of **10 attempts**; `repeat/2/<label>` runs **2** (a cheap probe of the mechanism). `fail-fast: false`, so every attempt runs to the end; `concurrency` per commit and ref with `cancel-in-progress: false`. Never on a pull request, never on `main` or `recovery/main`.
+2. **Generated, not copied by hand:** `scripts/ci-repeat.mjs` renders the file from `ci.yml` by a deterministic text transform (the `db` and `e2e` jobs, with only three changes: job name `db repeat <n> (…)` / `e2e repeat <n> (…)`, the `strategy` block, the artifact name `playwright-report-<n>` because `upload-artifact@v4` refuses duplicate names). The CLI `--check` fails on a stale copy, `--write` re-renders. Fail-closed: a missing job, an unexpected name line or an existing `strategy`/job-level `if` throws.
+3. **Separate check names:** the repeat jobs never use the four required check names (`app`, `db`, `e2e`, `ui-screenshots`), so a repeat run can never stand in for a required check. `ci.yml` itself is unchanged (CI2 wiring tests keep holding).
+4. **Steps identical:** on a push the CI2 scope step returns `full=true`, so every step of `db` (migrations from scratch, clock pin, seed, pgTAP, concurrency scripts, types, db lint) and `e2e` (run-day guard, seed, REST probes, Playwright) runs as in a merge-commit run.
+
+**Tests (`tests/unit/b0-2-ci-repeat.test.ts`).** The committed file equals a fresh render; `--check` passes; a changed `ci.yml` step makes the copy stale; the `db` and `e2e` steps are byte-identical to `ci.yml` apart from the artifact name; triggers (push `repeat/**` only); no required check name reused; `fail-fast: false` and no cancelling; 10 attempts by default, 2 on `repeat/2/`; unique artifact names; only `db` and `e2e`; permissions and env as in `ci.yml`; `ci.yml` untouched; three fail-closed cases.
+
+**How B0-2 is evidenced (after the merge).** `po` (or `eng` on request) pushes `repeat/b0-candidate-<sha7>` at the B0 candidate commit on `recovery/main`; the result is the list of 20 jobs (`db repeat 1..10`, `e2e repeat 1..10`) with the run ID and head SHA. Every failed attempt is a named open test failure (B0-3). The branch is deleted afterwards. Cost: about 10 × (4 + 10) = 140 job-minutes per 10-attempt run (job times of run 42403923562), so it runs on demand, not on every merge.
+
+**Trade-offs.** A second workflow file instead of a matrix inside `ci.yml`: a matrix there would change the required check names or need job-level conditions, which CI2 deliberately avoids. The generator keeps the copy from drifting. When `main` gets the workflows (PR #3), a `workflow_dispatch` trigger can be added in one line.
+
+**Clinical review gate:** out of scope (CI only; no clinical assertion changed: the repeated steps are the existing ones). **No data:** synthetic seed only; the live project is not touched. **Rollback:** delete the two files and the test; no migration.
