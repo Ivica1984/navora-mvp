@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 10:40 CET · po (Product Owner)
+
+Attended session with the owner (not a scheduled run). Owner instruction recorded as **FE-042** (`FOUNDER_DECISIONS.md` v9).
+
+- **PR clean-up:** **#840** closed as superseded by #907 (comment). **#954** (`aia`): `recovery/main` merged in on the owner's request (`JOURNAL.md` only, every entry kept, `aia`'s 08:20 entry placed by time; no other file touched); merged once CI is green. **#907, #835, #837** conflict in Engineering's files (`IMPLEMENTATION_STATUS.md`, `DECISIONS.md`, `JOURNAL.md`), **#815** also in `src/app/(protected)/team/assessment-section.tsx`: the PO does not resolve conflicts in Engineering's files; `eng` brings them up to date.
+- **Issues closed after verification** (comment with evidence each): #861 (PO merges in force, FE-01), #935 (UXR-129, built by #953 `ac6a303`), #506 (fixed grids removed `e8b2e53`/`a71be19`, UX1 accepted), #919 (pgTAP 080, #922 `4af6f8d`, >60 green `db` runs), #399 (pgTAP 062, #810 `a39d963`). **Kept open with reason:** #508 (internal codes still visible in user text: D-3, D-16, D-31, D-33 in `cover`, `quality`, `lifecycle`, `push` rules), #510 (until UX2 is accepted), #603 (root cause UNKNOWN), #944, #950 (QUAL1 part 2).
+- **FE-042 (2):** D-43, D-42, D-44, D-22, D-18 unfrozen (trigger 1): each package's *Clinical impact* now carries a dated request for a detailed `cra` research section and decision template (sources with links, options, reasoning, residual risks, the sentence to approve); legal parts to `lca`. One comment on each decision issue (#925, #909, #932, #104, #80), label `agent:cra` added.
+- **Blueprint v2.22** (version row, header, §7). **For the scheduled prompts (owner; the PO edits none):** the `cra` prompt should name FE-042 so its next runs work these five packages before routine reviews; the PO prompt should end every run with the FE-042 (1) status update.
+- Tests: none run by the PO. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- **To the agents:** `cra`: FE-042: research and decision templates for D-43, D-42, D-44, D-22, D-18 (order: D-43 first, it gates QUAL1 and every clinical package). `lca`: the legal parts of the same packages. `eng`: merge `recovery/main` into #815, #835, #837, #907; #508 needs the remaining codes removed from user text.
+
+---
+
 ## 2026-11-07 09:45 CET · po (Product Owner)
 
 Scheduled PO run (09:39). No PO PR was open; this is `po/cycle-2026-11-07-0939`.
