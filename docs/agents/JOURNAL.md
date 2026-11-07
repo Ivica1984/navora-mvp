@@ -4,6 +4,32 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 19:46 CET · eng (Engineering)
+
+Same run as the entry below, CI result. **Block: B0.** PR #980 (CI2 + B0-1 config).
+
+- First CI run 42401751165 (head `f226733`): `app` failed: typecheck TS2339 in `tests/unit/ci2-scope.test.ts:138` (env copy without the `NodeJS.ProcessEnv` type); `npm test` itself passed in that job. Fixed in `50b6647`.
+- CI run **42401933240** on `50b6647`: app, db, e2e, ui-screenshots all **success**.
+- **CI2-2 evidence:** probe #981 (one `docs/` line on top of #980), run 42401936057 on `e077dc5`: all four jobs success; `db` 5 s, `e2e` 6 s, `ui-screenshots` 8 s with the notice `full=false: 1 files, all under docs/: verified docs-only`; `app` ran in full (88 s).
+- **CI2-3 evidence:** probe #982 (`docs/` plus `src/app/page.tsx`), run 42401937641 on `5cf4792`: notice `full=true: changes outside docs/: src/app/page.tsx`; `db`, `e2e`, `ui-screenshots` ran every step (70 screenshots); all success.
+- Both probes closed unmerged. Status row CI2 `in-review` with #980. Local suite as in the 19:30 entry (npm registry unreachable; agents-check passed). This status commit gets its own CI run, recorded on #980.
+
+---
+
+## 2026-11-07 19:30 CET · eng (Engineering)
+
+Scheduled Engineering run. **Block: B0.** Branch `feature/hourly-update-2026-11-07-ci2`, issue #976 (CI2, `active`), claimed 19:11.
+
+- **Step A (own PRs):** #907 and #971 are green; #971 conflicts with `recovery/main` on `JOURNAL.md` again. **Task adjusted (README rule 11):** not merged up this run. Both PRs are docs-only and frozen by FE-052 (po comment 18:45); each merge-up costs a full CI run (about 19 min) and is undone by the next PO merge, the very cost CI2 is about. Merge-ups resume when the PO lifts the freeze or asks for one.
+- **CI2 (ADR-167), IMPLEMENTED on the branch, CI decides:** `scripts/ci-scope.mjs` (deterministic, fail-closed) plus step gates in `db`, `e2e`, `ui-screenshots`: a PR whose merge commit changes only `docs/` keeps the four check names and passes only after verifying the diff; every other path, every push, an empty diff, a non-merge HEAD or a missing `GITHUB_OUTPUT` runs in full or fails. `app` unchanged (agents-check stays, CI2-4). Tests first: `tests/unit/ci2-scope.test.ts` (rule, CLI on real git merge commits, workflow wiring, concurrency).
+- **B0-1 configuration included:** pushes to `main`/`recovery/main` get a `concurrency` group per commit, so a merge commit's run is neither cancelled nor replaced (needed for CI2-5). Deviation recorded in the status row; B0-1 evidence is for after the merge.
+- **Measured (CI2-1), Actions API, 2026-11-06 UTC:** 212 runs, 4 015 billed job-minutes; docs-only PR runs 47 (762 min); PR #3 re-runs every `recovery/main` push (36 runs, 717 min); cancelled 484 min. Saving about 527 min a day (13 %). **The ≤ 3 000 min a month target is not met by CI2 alone** (about 35 000 a month projected at the 7-day average); overage price UNKNOWN (owner). Further levers listed in ADR-167 for `po` (PR #3 duplicates, MERGE1, fewer pushes per role run).
+- **For `po`:** brief CI2 says "after MERGE1"; built first because MERGE1 is blocked and the watcher activated CI2. FE-052 orders B0-1 to B0-8 one PR per criterion; this PR carries CI2 and the B0-1 config together because CI2-5 depends on it. No contradiction with `FOUNDER_DECISIONS.md` found otherwise.
+- **Local (LOCAL TEST RULE):** `npm ci` could not run: `registry.npmjs.org` does not resolve (getaddrinfo ENOTFOUND; via the proxy no response), `--offline` fails (ENOTCACHED); so `npm run lint`, `typecheck`, `npm test`, `npm run build` could not run. `node scripts/agents-check.mjs` ran and passed. `test:db`, `e2e`: could not run (no Supabase CLI, no Docker, no node_modules). Extra, **not** a substitute for `npm test`: the new test file ran under Node 22 type stripping with a minimal vitest shim, 32/32 passed, and a mutation (gate removed from the Playwright step) made the wiring test fail. Owner: E-1 / FE-046 (registry) still not effective in this session.
+- **CI:** recorded on the PR once every job has finished. Clinical gate: out of scope (CI only). No personal or health data. Live project not touched.
+
+---
+
 ## 2026-11-07 19:40 CET · po (Product Owner)
 
 Live session with the founder (not a scheduled run). The founder's message reorganises the work, and it is recorded as **FE-052** (`FOUNDER_DECISIONS.md` v12). This branch is `po/founder-reorg-2026-11-07-1840`, PR #978.
