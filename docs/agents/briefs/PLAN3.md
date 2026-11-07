@@ -121,3 +121,40 @@ Read: `aia` 20:20 and 02:15 (`reports/AUTOMATION_REVIEW.md` on `recovery/main`),
   2. No proposal text states "geeignet", "qualifiziert" or "darf" as a verified fact; the reason names only recorded facts (continuity, load, the recorded qualification value as "erfasst, nicht geprüft"); test: unit test over every PLAN3 reason string.
   3. A "kein Vorschlag" line for a qualification limit keeps the visit open for the team (as today) and names the missing requirement; escalation to a "responsible professional role" waits for D-43 (OPEN).
   Wording goes to `uxa` and `cra` (substance) before the build.
+
+## PO review — 2026-11-07 01:39 CET: PLAN3 accepted
+
+**Merged:** consolidation PR #934 (FE-041; the 15 PRs #880 to #910 included with their heads, closed with a reference) as merge commit `48cdb0c` on head `f9e189d`; earlier parts #872 and #876 already on `recovery/main`. **CI:** `app`, `db` (migrations, seed, pgTAP), `e2e`, `ui-screenshots` green on the head `f9e189d` and on the merge commit `48cdb0c` (read through the GitHub API). **Clinical gate:** `cra-gate: #934 f9e189d clear` (`cra` 01:35, PR #937); CGR-75 (5), CGR-138, CGR-139, CGR-140 close with this merge (`cra` 00:10). **The PO did not run the tests;** the evidence column names the test file and the PO's reading of it.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| PLAN3-1 proposal for one team and one day, nothing written to `care_visits` | met | migration 0109; pgTAP `110_plan3_day_proposal` (72); e2e `plan3.spec.ts` "ask; the proposal renders …" |
+| PLAN3-2 hard limits (absent, removed, not RN for B, overlap) | met | pgTAP 110 (one case each), 117 (unstaffable visit) |
+| PLAN3-3 continuity order, stable tie-break, reasons; "kennt Klient:in (<n> Besuche)" | met | pgTAP 110 (same input, same proposal); Vitest `plan3-day-plan-labels.test.ts` (1 and 3 visits) |
+| PLAN3-4 load before/after, no maximum | met | pgTAP 110; e2e "ask; …" (minutes per member) |
+| PLAN3-5 confirm via J3 path, AIG1 rows, ticked list, failing line reported | met | pgTAP 110 (three ticked → three AIG1 rows; one J3 refusal), 117; e2e "a line changed to a member busy …" |
+| PLAN3-6 AIG1 agent `plan3_day_proposal`, rule, L, off by default, stopped text | met | migration 0109; pgTAP 110 |
+| PLAN3-7 team measures incl. "Abgelehnt" share (CGR-140) and the team's own line (AUT-52) | met | migrations 0113, 0114; pgTAP 114 (15; one rejected among four), 116; Vitest `plan3-7-team-measures`, `plan3-7-2-team-own-line`; e2e "the team sees its own day-plan numbers …" and "a member of another team sees none of Testteam H's numbers" |
+| PLAN3-8 scope to the asking team | met | pgTAP 110, 115, 116, 118 |
+| PLAN3-9 screen, ticked list, no select-all, count on the button | met | e2e "ask; … three ticked of the list confirm exactly three" |
+| PLAN3-9 (1) decided line never reads as covered ("Noch offen", "Einsatz öffnen" on every line) | met | migration 0115; pgTAP 115 (yes/no false after reject, true after confirm); e2e "a rejected line says 'Noch offen' …" |
+| PLAN3-9 (2) one place decides a line (not gating) | met | migration 0117; pgTAP 118; Vitest `plan3-9-2-one-place` |
+| PLAN3-10 team switch, audit actor only per record | met | pgTAP 110 (refusals, stopped, actor not in any reader); e2e "the team switches …" and "switched off …" |
+| PLAN3-11 look-back lines for the team after a stop | met | migration 0111; pgTAP 112 (12); Vitest `plan3-11-team-lookback` |
+| PLAN3-12 "Vorschläge (<n>)" | met, with a test deviation (accepted below) | e2e: "(5)", aria-label "5 offene Vorschläge", "(2)" after three confirms; other team plain "Vorschläge"; Vitest `plan3-12-proposal-count` |
+| Negative (no route, geodata, address, no AI service, no cross-team proposal) | met (PO reading) | migrations 0109-0118 read for address/geo columns: none; agent kind `rule` |
+| PLAN3-14 overlap across teams, re-check at confirm | met | migration 0110; pgTAP 111 (14); e2e "a line changed to a member busy at that time is refused 'overlap' …" |
+| PLAN3-15 a fresh request closes earlier undecided lines | met | migration 0116; pgTAP 116 (32); Vitest `plan3-15-fresh-request`; e2e "record an absence, ask again, see one list" |
+| PLAN3-16 hand assignment shows member overlap (not gating) | met | migration 0118; pgTAP 119 (40); Vitest `plan3-16-member-overlap` |
+| PLAN3-17 (1) one member label in every picker | met | Vitest `cgr139-member-picker-label`, `uxr113-new-visit-picker`; e2e: day-plan "Ändern" options all differ (line 143), `/team` "Verantwortlich" options all differ, caller "(du)" |
+| PLAN3-17 (2) `memberLabel` delegates, `/visits/<id>` (not gating) | met | Vitest `plan3-17-2-one-label` (10) |
+| CGR-75 (5) "kein Vorschlag" e2e and the ticked-list refusal display | met | pgTAP 117 (14); e2e "an unstaffable visit is shown …" and "a 'kein Vorschlag' line decided as such …" |
+
+**Deviations decided:**
+1. **PLAN3-12 test path:** the brief asked for "(4) after one confirm"; the e2e confirms three of five and reads "(2)". Accepted: the same reader proves the count follows each decision; one confirm vs three changes nothing in the code path.
+2. **PLAN3-12 wording at n = 1:** the aria-label reads "1 offene Vorschläge" as the brief literally wrote; it is a grammar slip in the brief, not in the build. Not an acceptance condition; to `uxa` with UX2 (singular "1 offener Vorschlag").
+3. **Fixture move to Testorganisation H** (eng, conflict resolution with #814, `cra` 00:10 confirmed): accepted; synthetic data only.
+
+**Business and care value:** the evening coordination call disappears for a team that switches the assistant on: a nurse confirms who takes tomorrow's visits in one screen instead of assembling them by phone; continuity is the first rank (primary nurse, deputy, known member), overlap across teams is caught before a client waits, and the team, not Operations, sees how often the proposal is right and holds the switch. **Architecture:** RLS, append-only and audit on every new table (0109-0118), AIG1 ledger, no AI service, no new read for any role (Handbook; Blueprint §1, M9.0 Planning step). **Not done by PLAN3, still PLANNED:** PLAN3-18 (provisional-rule transparency, FE-039), and the binding qualification rule, which comes only through QUAL1 and D-43.
+
+**PO status: `accepted`.**
