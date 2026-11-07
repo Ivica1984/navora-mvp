@@ -15,14 +15,16 @@ describe("team planning rules (J3)", () => {
 
 describe("continuity (J6)", () => {
   // Imported lazily to keep this file's existing imports untouched.
+  // PLAN3-17 (2) (UXR-114, ADR-159): `memberLabel` delegates to `pickerMemberLabel`, so /team names a person as every
+  // visit-assigning picker does ("(du)" for the caller, "Teammitglied <n> (ohne Namen)" otherwise).
   it("labels members without names and never guesses", async () => {
     const { memberLabel } = await import("@/features/team/rules");
     const members = [
       { user_id: "a", me: true, qualification: "registered_nurse" },
       { user_id: "b", me: false, qualification: "care_assistant" },
     ];
-    expect(memberLabel(members, "a")).toBe("Ich – Pflegefachperson");
-    expect(memberLabel(members, "b")).toBe("Teammitglied 2 – Pflegeassistenz");
+    expect(memberLabel(members, "a")).toBe("Ich (du) – Pflegefachperson");
+    expect(memberLabel(members, "b")).toBe("Teammitglied 2 (ohne Namen) – Pflegeassistenz");
     expect(memberLabel(members, null)).toBe("nicht bestimmt");
     expect(memberLabel(members, "x")).toBe("nicht mehr im Team");
   });
@@ -34,9 +36,9 @@ describe("continuity (J6)", () => {
       { user_id: "b", me: false, qualification: "care_assistant", name: "Ben Beispiel" },
       { user_id: "c", me: false, qualification: null, name: "  " },
     ];
-    expect(memberLabel(members, "a")).toBe("Ich (Anna Muster) – Pflegefachperson");
+    expect(memberLabel(members, "a")).toBe("Anna Muster (du) – Pflegefachperson");
     expect(memberLabel(members, "b")).toBe("Ben Beispiel – Pflegeassistenz");
-    expect(memberLabel(members, "c")).toBe("Teammitglied 3");
+    expect(memberLabel(members, "c")).toBe("Teammitglied 3 (ohne Namen)");
   });
 
   it("formats the monthly measure per client, never per person", async () => {

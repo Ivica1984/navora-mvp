@@ -122,6 +122,8 @@ Commands (`set_agent_state`, `propose_visit_responsible`, `confirm_suggestion`, 
 
 **VIS2-1/-2 (0098, ADR-121):** `client_visit_overlap(case, visit, date, start, end)` returns `{overlap, time_start, time_end}` or null: to a team member of the visit (visit given, the visit excluded) or a member of the case's assigned team (case given, `reads_case`), null for anyone else. `overlap` counts every other visit of the case on that date, any team, not cancelled, whose planned interval meets the half-open slot; `time_start`/`time_end` are only those of the earliest overlapping visit the caller can read (`reads_visit`), so another team's visit shows no time, team, member, service or count. No new read permission; `private.client_overlap_visits` is not executable by app roles. The three commands' `ok` result carries the same object (VIS2-5). Care task: the planning, /team move and "Heute machen" confirmations (VIS2-1).
 
+**PLAN3-16 (0118, ADR-161):** `member_slot_overlap(case, visit, member, date, start, end)` returns true, false or null: whether that member of the team already has a non-cancelled visit (any team of the organisation) at an overlapping time. The team as for `client_visit_overlap`: the visit's team for a team member of it (visit given, the visit excluded), else the case's assigned team for a member of it; only about a member of that team; LEAVE1-3 guarded; null for anyone else or an incomplete slot. yes/no only: no other team's client, case, visit, team or time. The four hand-assignment commands return the same yes/no as `member_overlap` on `ok`. Residual (OPEN for `lca`, ADR-161 deviation 3): repeated reads over slots of one day can narrow down when a colleague is busy elsewhere (an interval, never what or for whom).
+
 ## Findings (RLS2-5)
 
 No further **organisation-wide** client-linked path remains (catalogue and sweep). The findings below are coordination-role paths; narrowing them would change a screen or needs a product answer, so they were proposals (eng-proposal **RLS3**, decision **Q13** decided by `po` 2026-10-25 08:10). State after RLS3 (0070): F-2, F-4, F-5 closed. F-1 closed by DOOR1-11 (0072); F-3 closed by AUD1 (0077):
@@ -162,6 +164,8 @@ Every other audited key is a code: a closed value set (CHECK or foreign key), a 
 | `private.handover_entries` (HAND1, `field_since_last`) | team handover: care-plan schedule change, primary-nurse change, medical-order status and validity | no (codes, dates, member codes; reasons from `change_log`) |
 | `private.last_primary_nurse` (RET1) | the last primary nurse of a closed case | no (id) |
 | `private.case_order_as_of` (CSR1, CGR-33) | the medical order as of the visit date | no (status code, date) |
+| `private.plan3_visit_open_at` (PLAN3-13, ADR-150) | was a visit open at a past instant (old `status` and `visit_date`) | no (status code, date) |
+| `private.plan3_stop_lines` (PLAN3-13, ADR-150) | when a look-back line's visit closed after a stop (time of a `status`/`visit_date` change) | no (time) |
 | `public.pilot_hypotheses` (AN2) | absence end moved (CGR-35) | no (time) |
 | `public.read_audit_record` (AUD1-3) | administrators: one record, for `compliance`, `billing` or `safety_review` | only inside the team (AUD1-4) |
 

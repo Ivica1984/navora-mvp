@@ -7,6 +7,7 @@ import { changeAbsence, recordAbsence, takeOpenVisit } from "@/features/absence/
 import type { OpenVisit, TeamAbsence, TeamColleague } from "@/features/absence/queries";
 import { ABSENCE_MESSAGES, absenceMemberLabel, earliestAbsenceStart, formatAbsencePeriod, knownByLabel, pastPlannedNotice } from "@/features/absence/rules";
 import { offerMinutes } from "@/features/cover/rules";
+import { MEMBER_OVERLAP_SELF_TEXT, memberOverlapAfterSave } from "@/features/visits/member-overlap-rules";
 import { earliestTakeableToday, formatDayLabel, formatTime } from "@/features/field/rules";
 import { OPEN_VISITS_UNQUALIFIED_TEXT, splitOpenVisits } from "@/features/field/qualification";
 
@@ -226,6 +227,7 @@ export function OpenVisitsSection({ open: all, today, unqualifiedTeams = [] }: {
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const [takenOverlap, setTakenOverlap] = useState(false);
   // UX2-22 (uxa 16:10, po 16:24; ADR-124): visits of a team where her qualification is missing are not offered; when
   // nothing else is open, the section keeps its heading without a count, in `info`, and one line only.
   const { shown: open, withheld } = splitOpenVisits(all, unqualifiedTeams);
@@ -241,12 +243,16 @@ export function OpenVisitsSection({ open: all, today, unqualifiedTeams = [] }: {
   // UX1-6a: while collapsed, the earliest visit of today she may take stays one tap away in the header.
   const first = expanded ? null : earliestTakeableToday(open, today);
 
-  async function take(visitId: string) {
+  // PLAN3-16 (ADR-161): `shown` is whether her overlap line ("überschneidet sich mit deinem Einsatz …") was on screen
+  // at the take; the server's fact (any team) is stated after the take when it was not. Never a refusal.
+  async function take(visitId: string, shown: boolean) {
     setPending(visitId);
     setError(null);
-    const result = await takeOpenVisit({ visitId, idempotencyKey: crypto.randomUUID() });
+    setTakenOverlap(false);
+    const result = await takeOpenVisit({ visitId, idempotencyKey: crypto.randomUUID(), memberOverlapShown: shown });
     setPending(null);
     if (!result.ok) setError(result.error);
+    else setTakenOverlap(memberOverlapAfterSave(shown, result.memberOverlap));
     router.refresh();
   }
 
@@ -260,12 +266,17 @@ export function OpenVisitsSection({ open: all, today, unqualifiedTeams = [] }: {
         </button>
       </div>
       {error && <p role="alert" data-testid="command-error" className="rounded-lg border border-rose-300 bg-rose-50 p-2 font-semibold text-rose-800">{error}</p>}
+      {takenOverlap && (
+        <p role="status" data-testid="member-overlap-after-save" data-tone="info" className="rounded-lg border border-stone-300 bg-white p-2 text-stone-700">
+          {MEMBER_OVERLAP_SELF_TEXT}
+        </p>
+      )}
       {first && (
         <div data-testid="open-visit-next" className="flex items-center justify-between gap-2 rounded-xl bg-white p-2">
           <p className="font-semibold">
             Heute · {formatTime(first.time_start) ?? "Zeit offen"}{first.time_end ? `–${formatTime(first.time_end)}` : ""} · {first.client_name ?? "Klient:in"}
           </p>
-          <button type="button" disabled={pending !== null} onClick={() => take(first.visit_id)}
+          <button type="button" disabled={pending !== null} onClick={() => take(first.visit_id, false)}
             className="min-h-11 shrink-0 rounded-lg bg-orange-700 px-3 font-bold text-white disabled:opacity-60">
             {pending === first.visit_id ? "Wird gespeichert …" : "Übernehmen"}
           </button>
@@ -286,7 +297,7 @@ export function OpenVisitsSection({ open: all, today, unqualifiedTeams = [] }: {
                 <p className="text-xs font-semibold text-amber-800">überschneidet sich mit deinem Einsatz {formatTime(o.overlaps_my_visit)}</p>
               )}
               {o.may_take ? (
-                <button type="button" disabled={pending !== null} onClick={() => take(o.visit_id)}
+                <button type="button" disabled={pending !== null} onClick={() => take(o.visit_id, Boolean(o.overlaps_my_visit))}
                   className="min-h-11 rounded-lg bg-orange-700 font-bold text-white disabled:opacity-60">
                   {pending === o.visit_id ? "Wird gespeichert …" : "Übernehmen"}
                 </button>
