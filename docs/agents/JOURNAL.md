@@ -4,6 +4,52 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 20:00 CET · po (Product Owner)
+
+Scheduled PO run (started 19:39, written 20:00), the first one under **FE-052**. PR #978 (live session) was already merged as `f350085`, so this run uses `po/cycle-2026-11-07-1939`. This prompt still says "merge one Engineering PR per run". `FOUNDER_DECISIONS.md` v12 (FE-052) suspends that for feature PRs, so this run follows FE-052 (README rule 10). The contradiction is listed under prompt changes below.
+
+- **Merges (A):**
+  - **#980 merged** (Block B0: CI2 with the B0-1 configuration, issue #976, ADR-167) as `75ff53a`, on head `9433c23`, with the title `PO merge #980: CI2 with B0-1 configuration (head 9433c23)`.
+  - **Why it could merge:** this is B0 work, not a feature PR, so `PRODUCT_BLOCKS.md` §8 (1) applies.
+  - **Conditions:** all seven held on that head:
+    - CI run 42403021994 was 4/4 green, `clean`;
+    - 0 reviews and 0 threads;
+    - the PO read the `.github/` diff and found nothing weakened.
+
+    The PO waited for the e2e job of `eng`'s last docs commit before merging. The record comment is on #980.
+  - **Not merged:** #907 and #971 (`dirty`, they wait for `eng`), and the probes #981 and #982 (never merge; `eng` closes them).
+- **Review (C):**
+  - Under FE-052 per-PR "accepted" is no longer used. The CI2 evidence table is in `briefs/CI2.md`:
+    - **shown:** CI2-1 to -4 and -6, from probe #981 (fast path, `full=false` verified in the log) and #982 (docs plus `src/app`, full jobs);
+    - **open:** CI2-5 and CI2-7.
+  - **CI2 is in review, not accepted.** Three deviations were decided.
+  - B0-1 stays *open* in `PRODUCT_BLOCKS.md`: the configuration is merged, but the test case (three quick merges, each green) is not shown yet.
+  - The push run on `75ff53a` was still running when this entry was written. The next PO run reads it for CI2-5.
+  - **No block is accepted.** The PO ran no test.
+- **Issues (B):** no new `agent:po` issue since the 19:40 live session. No `claimed` label was set.
+- **Decisions (F):**
+  - No new input on D-22, D-18, D-41, D-43 or D-44 since 17:39, so no package was advanced, decided or escalated.
+  - E-1 to E-4 are with the founder (`PRODUCT_BLOCKS.md` §7).
+  - The PO does not repeat them.
+- **Prioritisation (D, G):** this run approved no new brief. While the freeze holds, the order is B0-1 evidence, then B0-2 to B0-8. A feature brief now would only lengthen a queue that cannot merge.
+- **Challenge (E):**
+  - *Why does PR #3 exist as an open PR today?* It re-runs all four jobs on every push to `recovery/main`, on commits the push run already tests: about 717 of 4 015 minutes a day (18 %, ADR-167). Merging into `main` is blocked by D-7 and D-8 anyway.
+  - **Proposal under D-8 (#68), for the owner:** close #3 until D-8 is due, and reopen a fresh `recovery/main` → `main` PR then. This is reversible and loses no history, and it removes the largest duplicate. If D-8 needs the PR open, the alternative is the ruleset (B0-6) plus one run per merge commit.
+  - Even with both, CI2-1 projects about 28 000 min/month, against 3 000 on Pro. **Going private (FE-045 stage 4) still needs an owner budget decision**, and the price is UNKNOWN.
+  - *If NAVORA were built from scratch today, would every role push several times per run?* No. One push per run is a prompt change for the owner (ADR-167 lever 3).
+- **Blueprint v2.29** (version row; header). `PRODUCT_BLOCKS.md` B0-1 line and §9. `ROADMAP.md` line 07.11. 19:39. `NEXT_CAPABILITY.md` *Active now*. Synchronised: #980 (merge record), #976 and #68 (comments).
+- **Scheduled-task prompt changes for the owner** (the PO edits none). FE-052 / `PRODUCT_BLOCKS.md` §8 (6) (a) and (d) still apply to the PO prompt:
+  - step A still says "merge (merge commit) the next Engineering PR … at most one Engineering PR per run";
+  - the FE-033 block still names the "PLAN3 stack #891 to #910".
+
+  New: (e) all role prompts: one push per run, for CI minutes.
+- Tests: none run by the PO. CI and logs were read through the GitHub API. `node scripts/agents-check.mjs` passed before publishing. Live project not touched. No personal or health data.
+- **To the agents:**
+  - `eng`: close #981 and #982. Next is B0-1 evidence (three merge commits, each with a complete green push run, read through the API), then B0-2. One PR per criterion, each starting with `Block: B0`. Merge `recovery/main` into #907 and #971 when you can.
+  - `cra`, `lca`, `uxa`, `aia`, `csa`: no change from the 19:40 tasks. CI2 means a docs-only role PR now gets fast db, e2e and ui-screenshots checks, with the same names.
+
+---
+
 ## 2026-11-07 19:46 CET · eng (Engineering)
 
 Same run as the entry below, CI result. **Block: B0.** PR #980 (CI2 + B0-1 config).
