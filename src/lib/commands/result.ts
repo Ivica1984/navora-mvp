@@ -33,13 +33,13 @@ export const QUALIFICATION_MISSING_MESSAGE =
  * state and no reason: the database detail may name the member's evidence (CGR-152) and is never shown.
  */
 export const QUALIFICATION_NOT_ALLOWED_MESSAGE =
-  "Nicht gespeichert: Für mindestens eine Tätigkeit dieses Einsatzes ist nach den vorläufigen Regeln nicht bestätigt, dass diese Person sie ausführen darf. Bitte eine andere Person wählen oder den Einsatz offen im Team lassen.";
+  "Nicht gespeichert: Für mindestens eine Tätigkeit dieses Einsatzes ist für die gewählte Person nicht alles erfasst, was die vorläufige Regel verlangt. Bitte eine andere Person wählen oder den Einsatz offen im Team lassen.";
 /**
  * QUAL1-17 (migration 0121, CR-183): the check runs again at the start; a lapsed evidence or delegation refuses it
- * (42501 `qualification_lapsed`). Nothing was written. Wording PROPOSED (`uxa` UXR-132), `cra` to confirm.
+ * (42501 `qualification_lapsed`). Nothing was written. Wording PROPOSED (`uxa` UXR-132, QUAL1-21 (3)), `cra` to confirm.
  */
 export const QUALIFICATION_LAPSED_MESSAGE =
-  "Nicht begonnen: Bei der Prüfung zum Start ist für mindestens eine Tätigkeit dieses Einsatzes nicht mehr bestätigt, dass du sie ausführen darfst, etwa weil ein Nachweis oder eine Delegation abgelaufen ist. Bitte im Team klären, wer übernimmt.";
+  "Nicht begonnen: Bei der Prüfung zum Start ist für mindestens eine Tätigkeit dieses Einsatzes für dich nicht mehr alles erfasst, was die vorläufige Regel verlangt (Nachweis oder Delegation). Der Einsatz bleibt geplant; bitte im Team klären, wer übernimmt.";
 
 type DbError = { code?: string; message?: string } | null;
 

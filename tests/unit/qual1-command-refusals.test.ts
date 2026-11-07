@@ -40,6 +40,9 @@ describe("qualificationRefusal (QUAL1-10, QUAL1-17)", () => {
     for (const text of [QUALIFICATION_NOT_ALLOWED_MESSAGE, QUALIFICATION_LAPSED_MESSAGE]) {
       expect(text).not.toMatch(/\b[ABCN]\d{1,2}[HI]?\b|PROPOSED|QUAL1|CR-\d|geeignet|ungeklärt|42501|\?\)/);
       expect(text).not.toMatch(/evidence|delegation_|membership/);
+      // QUAL1-21 (3), brief 2026-11-07 04:45: no verdict on a person, no retry wording, one provisional wording.
+      expect(text).not.toMatch(/darf|[Dd]iese Person|konnte nicht|erneut|nochmals/);
+      expect(text).toContain("vorläufige Regel");
       expect(text.length).toBeLessThanOrEqual(260);
     }
     // The database detail (which may name the member's evidence) never reaches the text.
