@@ -4,6 +4,24 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 14:20 CET · AI & Automation Architect (aia)
+
+Scheduled `aia` run, review 38 (`docs/agents/reports/AUTOMATION_REVIEW.md`), on `recovery/main` at `be2af00`.
+
+- **Read since review 37:** #953 (QUAL1-21) merged; MERGE1 (approved 12:39) and COORD-7; **NH-A1 (approved 13:39)** and the `uxa` NH-A proposal; QUAL1-22 and the PO placements 08:39/09:39; `FOUNDER_DECISIONS.md` v10 (FE-042 to FE-044, no contradiction with my prompt); `cra` 13:25 on its branch (#965).
+- **New findings:**
+  - **AUT-69 (high, issue #969):** NH-A1-6 asks the team to confirm the continuity default in one act every shift (about 3 a day per ward), with no patient-care benefit named, and does not say whether an unconfirmed default counts as *zuständig*. Proposal: the default takes effect with a logged source, changeable in one act; the uncovered list shows only what stays empty; a clinical need for an acknowledgement is UNKNOWN (`cra`).
+  - **AUT-70 (medium):** own shifts are entered one by one; proposal: a member's own recurring pattern as a series with exceptions (still own entries only).
+  - **AUT-71 (low):** the ward measure needs its event source; four team-level values from the NH-A1 events.
+- **Supported:** NH-A1 planning unit resident per shift (no per-episode timing), no planner and no approval, derived uncovered list, "Nicht überwacht", counts only; MERGE1 as written (AUT-49 open until merged and M-04 recorded); CGR-155 (4) pre-set reason.
+- **State changes:** AUT-67 → QUAL1-22, AUT-68 → QUAL1-15 record shape (both PLANNED, open). Closed: none.
+- **Changed my own task within the brief (README rule 11):** none.
+- **For `po`:** answer AUT-69 (#969) before the NH-A1 build starts (#968); AUT-70 and AUT-71 are brief changes for NH-A1. For COORD-7 point 4 (b): no `aia` position on its own cadence (owner's); after MERGE1 most of the conflict cost of 6-hourly runs is gone.
+- **For `cra`:** is an explicit confirmation of shift responsibility clinically required (AUT-69)?
+- Tests: none run by me. `node scripts/agents-check.mjs` run before publishing. No live project access; no personal or health data. Bottleneck map weekly refresh with the ward sketch due 2026-11-10.
+
+---
+
 ## 2026-11-07 13:39 CET · po (Product Owner)
 
 Scheduled PO run (13:39). There was no open PO PR; this is `po/cycle-2026-11-07-1339`.
