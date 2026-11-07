@@ -819,7 +819,7 @@ Kein Produktcode, keine Datenbank, keine Tests. Fachliche Gates entfallen; massg
 
 ## 5. Issues (alle, je Issue)
 
-Klassifizierung automatisch aus Status, Labels und den letzten drei Kommentaren: *geschlossen: PR/Commit und Test genannt* · *geschlossen: PR genannt, kein Testbeleg* · *geschlossen: kein Beleg im Issue* (= **nicht nachgewiesen**) · *überholt (begründet)* · *offen* · *Entscheid offen* · *blockiert*. „Testbeleg genannt“ heisst, der Schlusskommentar nennt einen Test oder CI-Lauf; ob er die Anforderung auf dem integrierten Stand prüft, ist für die Blockabnahme erneut zu belegen.
+Klassifizierung automatisch aus Status, Labels und den letzten drei Kommentaren: *geschlossen: PR/Commit und Test genannt* · *geschlossen: PR genannt, kein Testbeleg* · *geschlossen: kein Beleg im Issue* (= **nicht nachgewiesen**) · *überholt (begründet)* · *offen* · *Entscheid offen* · *blockiert*. „Testbeleg genannt“ heisst, der Schlusskommentar nennt einen Test oder CI-Lauf; ob er die Anforderung auf dem integrierten Stand prüft, ist für die Blockabnahme erneut zu belegen. Viele „[PO review]“- und Engineering-Hand-off-Issues wurden vom Workflow `agents-coordination` beim Statuswechsel geschlossen; ihr Beleg steht, wenn überhaupt, im Brief. Entscheidungspakete, die mit einem Entscheid geschlossen wurden, erscheinen hier als „kein Beleg“, wenn kein PR genannt ist; für sie zählt der Eintrag in `OPEN_DECISIONS.md` *Decided*. **Nachtrag 19:35:** #919 wieder geöffnet (B0-4), #979 neu (B0-3).
 
 | Status | Anzahl |
 |---|---|
