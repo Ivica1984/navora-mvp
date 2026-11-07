@@ -16,6 +16,65 @@ The newest dated section is the latest report. Earlier sections are never edited
 
 ---
 
+## 2026-11-07 13:25 CET: FE-042 research, first two of five packages: **D-43** (who approves clinical rules) and **D-22** (medical order) decision templates written with sources; new **CGR-156** (advisory S2: no ceiling on a medical order's end date, KLV Art. 8 Abs. 2) and **CGR-157** (advisory S2: a renewal opens no new needs assessment, KLV Art. 8a Abs. 7); #953 merged on the gated head; **#815** re-cleared at `b221c83`; `uxa` NH-A proposal read (no clinical objection; answers on the `cra` points)
+
+**Scope:** `recovery/main` @ `1a78662`. **Trigger:** founder decision **FE-042** (owner, 2026-11-07, attended session; `FOUNDER_DECISIONS.md` v9/v10): `cra` researches D-43, D-42, D-44, D-22 and D-18 and writes a decision template per package; PO merges #953 (`ac6a303`), #937 (my previous PR), #954, #957, #958, #835, #959, #963; open PRs #815 (moved), #837, #907, #961 (docs); `uxa` proposal `docs/design/proposals/NH-A_WARD_SHIFT_SCREENS.md` (FE-043). **No clinical, legal or owner decision answered** by a person since 09:25. FE-043 and FE-044 do not touch my brief; no contradiction between my prompt and `FOUNDER_DECISIONS.md` (FE-042 widens my task, rule 10).
+
+I read: `git diff de4fd3f 1a78662 -- src supabase tests scripts` (**empty**: the merged code is the head I gated); #815 own change against its merge base on `81d131b` and `b221c83` (the difference is the recovery/main error-line component `ErrorText`, two comments and a test mock; **no migration, rule or assertion changed**); CI on `b221c83` (check runs read, not run by me): app, db, e2e, ui-screenshots **green**; `D-43.md`, `D-22.md` in full; migrations 0013:41-82, 0061 §1-6 and 0043 §4 for the order model; the NH-A proposal in full; the QUAL1 brief PO review of slice 3. Web sources: the tables in the two package sections (read 12:55-13:20 CET through a summarising fetch tool).
+
+**I did not run the NAVORA test suite**, did not touch the live project, and used no personal data.
+
+### Task adjustment (README rule 11)
+
+FE-042 asks for five templates. Each needs primary-source research; one run cannot do five with sources checked. **This run: D-43 and D-22** (the two that are mostly clinical). **Next runs, in this order:** D-18 (clinical side of the tariff time rules), D-44 (clinical consequences per order constellation), D-42 (clinical clauses of a nursing-home pilot agreement). The order follows how much of each package is clinical rather than legal; the PO may reorder it. No founder decision, scope or other role's item changes.
+
+### Findings
+
+| ID | Item | Severity | Finding | Evidence | Testable remedy |
+|---|---|---|---|---|---|
+| **CGR-156** | Medical order end date (J1, J3, CR-046) | **advisory, S2** (before go-live and before real invoicing) | Any end date is accepted. An order recorded with an end date years ahead keeps B care plannable (CR-003) and B facts `with_order` (CR-046 checks only "expired on the visit date") with no renewal and no medical review. KLV Art. 8 Abs. 2 lit. a (2020 text) allows at most **nine months**; Abs. 3 makes an order indefinite only for a person with a medium or severe helplessness allowance, for the condition causing it. NAVORA stores neither the issue date nor that basis, so it can check neither | 0013:41-42 (two columns only); 0043 §4; `grep` for a nine-month / 270-day bound in `supabase/migrations` and `src`: none; source D-22 `cra` 13:25 [O1] (KLV amendment 2 July 2019 via H+); consolidated text **UNKNOWN** (fedlex not reachable) | With D-22 item 4 (issue and effective date stored): an end date later than effective date + nine months is refused unless an indefinite basis (allowance, condition, source) is recorded; a revision of that allowance prompts a renewal. The bound is register row CR-196 and is checked against fedlex by a person first. pgTAP: end date at + 9 months accepted, + 9 months + 1 day refused without basis, accepted with basis; billing fact for a visit past the bound not `with_order` |
+| **CGR-157** | Order renewal (J1, J3, ORD0) | **advisory, S2** | A renewal or extension (a new end date, an order re-recorded) opens **no new needs assessment**; the care plan and its B services run on the old assessment. KLV Art. 8a Abs. 7 (2020 text): "Nach einer Verlängerung oder einer Erneuerung … bedarf es einer neuen Bedarfsermittlung." The renewal is exactly when the doctor and the nurse re-check the need; skipping it carries an outdated plan forward | 0013:41-42; 0061 §3 (when the team is asked again is left to Q12); 0063 reopens `inform_gp` only for A/C without an order; D-22 `cra` 13:25 [O1] | One reassessment task per renewal (ORD0 pattern: never two open, closed only by a completed needs-assessment visit, shown in `/team`); register row CR-197; how soon after renewal is **UNKNOWN** (Clinical Owner). pgTAP: moving `medical_order_valid_until` later on a case with an active B item opens one task; a second change while it is open opens none; completing a needs-assessment visit closes it |
+
+### Decision templates written (FE-042; advisory, D-27)
+
+- **D-43** (`decisions/D-43.md`, *Clinical impact*, section 13:25): sources (BS Spitex leaflets 2025 and 2026, BS quality page 2025, BL Spitex form 2023, KLV Art. 8a, BAG GesBG page; fedlex, qualivista manuals and the AR Basisqualität **not accessible**). Settled: the BS/BL care lead is a diploma nurse HF/FH with a practice licence and two years' full-time practice; the canton supervises with qualivista. **Not settled by any source: who approves an organisation's internal rules and how often they are reviewed** (UNKNOWN). Recommendation kept: **B + D**, with five form requirements (approver floor per rule family, evidence per approval, event-driven review plus an owner-set interval, append-only record, fail-safe suspension by any approver or the partner's care lead). Sentence for the owner in the package.
+- **D-22** (`decisions/D-22.md`, *Clinical impact*, section 13:25): sources (KLV Art. 8, 8a in the 2020 text; ARTISET 2024 on stage 1 of the Pflegeinitiative; Kantonsgericht BL 23 Apr 2026; BS medication leaflet for disability homes, analogous only; no Swiss source on oral orders found). Content of a safe order (items a-g, two marked *practice*, UNKNOWN). Options R1 (as built) to R4; recommendation **R2** (structured order record, nine-month check, consent for lit. b, reassessment on renewal, a visible "Verordnung abgelaufen" instead of a silent drop), R3 (oral orders) only after the Clinical Owner sets limits, R4 after the adviser. Sentences for the Clinical Owner (care) and the owner (form) in the package.
+- **Owed (next runs):** D-18, D-44, D-42.
+
+### `uxa` NH-A proposal (FE-043; PROPOSED, not a brief): review position
+
+No clinical objection: it invents no staffing level, skill mix, care level or instrument, keeps "Nicht überwacht" visible (CGR-142 (1)), shows counts and no "unterbesetzt" judgement, and never computes a care level (CGR-142 (4)). On the points addressed to `cra`:
+- **Handover confirmation (N-03):** whether a shift handover must be confirmed, by whom, and whether a verbal handover is recorded is **UNKNOWN** (Clinical Owner, D-43). I agree with no confirm button until then. Condition: a new **P1 safety item** (allergy, infection precaution, fall, D-17 family) must reach the incoming shift as a `SignalCard` in *Jetzt*, never only as a handover entry, so a missed handover cannot hide it.
+- **Planning unit (task or resident, NH-A1):** a clinical as well as a product choice; either works only if every resident has a named responsible member per shift (the proposal's "ohne Zuständige" list is the control, and it must count residents, not only tasks). Choice: `po` with the Clinical Owner.
+- **Words:** "Bewohnende / Bewohnerin / Bewohner" confirmed. For the care level, write the term the canton's instrument uses ("Pflegebedarfsstufe" in KLV Art. 7a terms; BS uses RAI levels, D-22 [S15]); "Pflegestufe" is colloquial. N-05's recorded-fact line with author, source, date and "Zweite Prüfung offen" is confirmed.
+- **Shared ward devices:** `lca`/`eng`; clinically, no resident name on an idle or lock screen is the right default.
+
+### Gate status
+
+| Item | Status |
+|---|---|
+| **#953** (merged as `ac6a303`) | merged code identical to the gated head `de4fd3f` |
+| **#815** ASM1-C6 (`b221c83`) | **clear** (own change identical except the recovery/main error-line component and a test mock; CI 4/4 green); CGR-103, CGR-104, CGR-113 close on merge as before |
+| #837, #907, #961 | docs only, no clinical rule |
+
+cra-gate: #815 b221c83 clear
+
+### Decisions requested
+
+- **Owner:** D-43 sentence (13:25 template); the fixed review interval and the board's members.
+- **Clinical Owner (once named, D-43):** D-22 care sentence (continuation on an expired order, prompt lead time, oral orders); NH-A handover confirmation.
+- **`lca` / adviser:** current consolidated KLV Art. 8 Abs. 2-3 and 8a Abs. 7 (fedlex) before CR-196 or CR-197 is coded.
+- **`po`:** place CGR-156 and CGR-157 (advisory S2) with the invoicing brief or ORD1; accept or reorder the FE-042 sequence (D-18, D-44, D-42).
+
+### Status of earlier findings
+
+| ID | Status | Evidence |
+|---|---|---|
+| CGR-153, CGR-154, CGR-155, CGR-151 | open; placed by the PO as QUAL1 part 2 conditions (order CGR-153 → CGR-154 + UXR-134 + CGR-155) | QUAL1 brief, PO review of slice 3 (09:39) |
+| All other CGR findings | unchanged | as at 09:25 |
+
+---
+
 ## 2026-11-07 09:25 CET: QUAL1 part 2 slices 1+2 **merged on the gated heads** (#945 incl. #943, `f1bfe55`; code equals `49b909a`); QUAL1 part 2 slice 3 **#953** (texts only, ADR-166) read on head `de4fd3f`: **no blocking clinical finding; gate clear**; review position on **CR-194** (`po` asked: may a begun visit be resumed after a lapse) and new **CGR-155** (advisory **S1** before real data: a lapse found at resume stops care half done; nobody alerted; no reason code for the interruption)
 
 **Scope:** `recovery/main` @ `10d796f`. **Trigger:** PO merges #939 (`4878ace`), #945 (`f1bfe55`, contains #943), docs #947, #948, #949, #951, #952, #955; `eng` #953 (`feature/hourly-update-2026-11-07-0810`, head `de4fd3f`; the PO's comment asks for a `cra` gate line); `aia` #954 (AUT-67, AUT-68; AUT-67 hands continue-or-stop after a lapse to `cra`); QUAL1 brief rows UXR-134, CR-194, QUAL1-22 (PO 08:45). **No clinical, legal or owner decision answered** by a person since 05:45 (D-42, D-43, D-44 escalated to the owner by the PO at 05:39, still open). `FOUNDER_DECISIONS.md` unchanged since my last section; no contradiction found.

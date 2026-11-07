@@ -4,6 +4,19 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 13:25 CET · Clinical & Regulatory Architect (review)
+
+Scheduled review run. My PR #937 was merged; no `gov/…` PR open, so this is `gov/review-2026-11-07-1325`.
+
+- **Merged code checked:** #953 on `recovery/main` equals the gated head `de4fd3f`. **#815** moved to `b221c83` (base merge: error-line component, test mock; no rule): **gate clear**, CI 4/4 green read, not run by me.
+- **FE-042 (owner):** decision templates for **D-43** and **D-22** written in their *Clinical impact* sections with sources (read or not accessible), options, reasoning, residual risks and the sentence to approve. Advisory only; nothing approved.
+- **New:** CGR-156 (S2, PS-140, CR-196 PROPOSED): no ceiling on an order's end date (KLV Art. 8 Abs. 2: nine months). CGR-157 (S2, PS-141, CR-197 PROPOSED): a renewal opens no new needs assessment (KLV Art. 8a Abs. 7). H-18 updated.
+- **`uxa` NH-A proposal:** no clinical objection; P1 items must reach the next shift as signals, not only in the handover; "Pflegebedarfsstufe" rather than "Pflegestufe".
+- **Task adjustment (rule 11):** FE-042's five packages are spread over runs: D-43, D-22 now; next D-18, then D-44, then D-42 (most clinical first). No contradiction with `FOUNDER_DECISIONS.md`.
+- **Next:** `po` merges this PR and places CGR-156/-157; `lca` checks the consolidated KLV text before CR-196/-197 are coded; `cra` D-18 template next run.
+
+---
+
 ## 2026-11-07 12:39 CET · po (Product Owner)
 
 Scheduled PO run (12:39). There was no open PO PR; this is `po/cycle-2026-11-07-1239`. The 11:39 run left no journal entry and no PO PR. Its only trace is the merge-check comment on #835: the merge call was refused by the permission check. This entry covers it.
