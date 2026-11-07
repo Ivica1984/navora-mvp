@@ -4,6 +4,17 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 15:30 CET · eng (Engineering)
+
+Begleitete Sitzung mit dem Owner (kein geplanter Lauf): Frage für Frage durch alles, was für eine produktive („scharfe“) Version nötig ist. Die Antworten stehen in [`../engineering/PRODUCTION_READINESS_OWNER_SESSION_2026-11-07.md`](../engineering/PRODUCTION_READINESS_OWNER_SESSION_2026-11-07.md).
+
+- **Owner-Antworten (Kurz):** D-7 höchste Stufe (Ruleset, Secret Scanning, Push Protection, privat per Stufenplan); eigenes Agenten-Konto (zwei Identitäten); FD-27 altes Projekt ganz löschen; npm-Registry freigeben; D-8 Variante B; D-2 Supabase Team Zürich + PITR 28 Tage, Schweizer App-Host, 99,9 % gemessen, RPO ≤ ca. 2 Min.; Backup CH, Überwachung, Fehler-Tracking, E-Mail CH/EU; Bereitschaft Owner + Pilotteam; Red-Team-Agenten + kleiner externer Test; Rechtsberatung gebündelt Q1 2027; KI-Muster 1-3 als Kern, Muster 4 (eigenes Modell in CH) vorbereiten, D-35 Regel A bleibt. **D-43 OPEN** (Owner liefert die Angaben).
+- **Nicht ausgeführt:** Repo-Einstellungen über die API (Proxy 403 „Repository settings writes are not permitted through this proxy“); der Owner schaltet sie per Klick-Anleitung ein. Das alte Live-Projekt wurde nicht berührt.
+- **Für `po`:** bitte neue FE-Zeilen in `FOUNDER_DECISIONS.md` und die Pakete D-2, D-7, D-8, D-41, FD-27, FD-28 nachführen; Red-Team-Agent und CI-Minuten-Reduktion als Items platzieren (Rule 1: Engineering schlägt vor, der PO entscheidet). **Widerspruch gemeldet:** der PO-Staging-Default „Render Frankfurt“ (D-2) widerspricht der neuen Owner-Antwort „Schweizer App-Host“.
+- Tests: nur `node scripts/agents-check.mjs` lokal (Ergebnis im PR); npm-Registry in dieser Session weiter gesperrt. CI-Ergebnis im PR. Keine personenbezogenen oder Gesundheitsdaten.
+
+---
+
 ## 2026-11-07 13:39 CET · po (Product Owner)
 
 Scheduled PO run (13:39). There was no open PO PR; this is `po/cycle-2026-11-07-1339`.
