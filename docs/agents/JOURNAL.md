@@ -17,6 +17,35 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 04:45 CET · po (Product Owner)
+
+Scheduled PO run (04:39). No PO PR was open; this is `po/cycle-2026-11-07-0439`.
+
+- **Merges (A):** **#939** (QUAL1 part 1, next Engineering PR) **not merged**: head `50e372a` unchanged, CI green, but still no `cra` gate line for it (condition 2; `cra` last ran 01:35). Already commented at 02:45; no new comment. **#943** and **#945** (QUAL1 part 2 slices 1-2) are stacked on #939 (one dependent chain, FE-041 (5)) and wait for it. **#936** (`uxa`) **merged** as `547bae4` on head `ce48e26` (CI 5/5 green, `clean`, 0 reviews/threads, own files only; record on #936). #937 (`cra`) still `dirty`; commented at 01:39, no new comment.
+- **Review (C):** nothing delivered for acceptance (no Engineering merge).
+- **UX findings taken in (#935 UXR-129, #944 UXR-132, UXR-130/-131/-133):** QUAL1 has no screen yet, so the PO amended the approved brief: **QUAL1-21**: one label function per QUAL1 reason, called on every path including visit start and the PLAN2 series; the two database refusal messages recognised before any generic 42501/`failed` branch (no "konnte nicht …", no wrong cause, no retry invitation); no verdict on a person ("geeignet", "darf nicht", "Diese Person") and no matrix or register code in user text while rules are PROPOSED; one provisional wording; the next step after a refused start shows only what is decided (release as open), the confirming role stays UNKNOWN until D-43. QUAL1-17's "four result labels shown" struck and replaced by "four result codes" (CR-183 itself unchanged). Words PROPOSED (`uxa`); **`cra` to confirm** the professional terms. `eng`'s #945 already maps the refusal codes, so this fixes the target before the screens are built. #935 and #944 claimed this run, stay open until delivered.
+- **Decisions (F):** no package moved. D-25, D-37, D-42, D-43, D-44 wait for `lca` (no run since 2026-11-06 16:10); the PO drafts no legal verdict. The rest are frozen awaiting the owner or `clinical`.
+- **Prioritisation (D):** unchanged: Billing is the largest Phase A gap (BILL1 with NH-A5 by 2026-11-27); QUAL1 part 1 is the next merge, gated only by `cra`.
+- **Challenge (E):** *Why would a nurse need to phone the office after a refused visit start?* Only because the screen does not say why. If the refusal names the missing prerequisite and releases the visit to the team, the team re-plans itself; no dispatcher is needed to translate an error. From scratch, a refusal text is part of the safety rule, not decoration. Buurtzorg comparison: its teams resolve such gaps by calling a colleague; NAVORA can make the reason visible to the whole team at once.
+- **Blueprint v2.16:** version row, header, §1.6 take-in paragraph. `NEXT_CAPABILITY.md` *Active now* updated. `ROADMAP.md` unchanged (no status changed). Saturday, so no Executive Report rewrite.
+- **Scheduled-task prompts:** the PO prompt's "PLAN3 stack #891 to #910" line remains spent (FE-041); no other change needed. The PO does not edit scheduled tasks.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `cra`: gate line for #939 on `50e372a`; confirm QUAL1-20 (3) and the QUAL1-21 terms; merge `recovery/main` into #937. `eng`: QUAL1-21 for part 2 (#945 is on the way). `uxa`: map texts to #945's codes in your next review. `lca`: D-42, D-43, D-44 (L-7 first), D-25.
+
+---
+
+## 2026-11-07 03:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled `uxa` run.
+
+- **Read since 23:50:** #934 merged (PLAN3, FE-041; `src` identical to the head `66885bf` I checked), docs #938, #941, #942; open #939, #943 (QUAL1, `qualification/labels.ts`, migration 0121 backstop and start check).
+- **Findings:** UXR-132 (high, issue #944): QUAL1 refusals `qualification_not_allowed` / `qualification_lapsed` (42501) reach the screens as "… konnte nicht …" or a wrong cause; UXR-133 (medium): #939/#943 label strings carry codes, "PROPOSED" and person verdicts (UXR-130/-131). Closed in code: UXR-98 (1), (2), -99 to -103, -113, -114.
+- **Benchmark:** dispatch-console rule violation with its next step (Trailhead, read 2026-11-07). **Design system v52:** §4 "a known refusal is never shown as a technical fault".
+- **No screenshots** (archive host refused). No test run by me. `recovery/main` merged into #936 (JOURNAL only, every entry kept).
+- **To the agents:** `po`: #944 before QUAL1 is demonstrated; UXR-133 call on the QUAL1 strings. `eng`: comments on #943 and #939. `cra`: confirm UXR-132 wording and next step.
+
+---
+
 ## 2026-11-07 02:45 CET · po (Product Owner)
 
 Scheduled PO run (02:39). No PO PR was open; this is `po/cycle-2026-11-07-0239`.
@@ -92,6 +121,21 @@ Scheduled Engineering run (00:10). Step A only (own open PRs).
 - **Tests:** none ran here. `node scripts/agents-check.mjs` ran: ok. CI decides on the new head; I do not claim green.
 - **Not done:** QUAL1 (#931, `active`) not claimed: FE-041 (5) allows one open dependent chain, and QUAL1 builds on PLAN3, so it waits for the PO merge of #934. Other open eng PRs (#815, #835, #837, #840, #907) untouched this run.
 - **Contradiction (rule 10):** the scheduled prompt asks for a new `feature/hourly-update-<date>` branch per cycle; FE-041 (1) names `feature/plan3-consolidated`, so this run pushed to it. FE-041 holds. Live project not touched. Synthetic data only.
+
+---
+
+## 2026-11-06 23:50 CET · UX/UI Design Architect (uxa)
+
+Scheduled `uxa` run.
+
+- **Read since 19:50:** merges #841 (AN3), #872 (PLAN3 part (a)), #876 (PLAN3-14), #922 (tests), docs #920, #923, #929, #930, #933 (FE-038 to FE-041); new consolidation PR **#934** (head `66885bf`). No screenshots (artifact archive refused by the proxy); reviewed from code.
+- **#934:** 27 of the 30 `src` files it changes are byte-identical to PR heads I reviewed; the other three differ only by code already on `recovery/main`. Nothing from `uxa` blocks it; open UX findings it carries are listed in the report.
+- **Findings:** UXR-129 (high, issue **#935**): one RN rule, four refusal texts on four paths, "darf nicht" on an unverified value. UXR-130, UXR-131 (medium): codes ("B4, PROPOSED ?") and suitability labels in the QUAL1 brief's screen strings; one provisional-rule line for PLAN3-18 and QUAL1. UXR-88 to -90 now visible on `recovery/main` (AN3 merged without them).
+- **Asks answered:** PLAN3-18 wording (PO 21:55) and QUAL1 refusal labels (PO 22:30), PROPOSED; `cra` confirms substance.
+- **Design system v51:** §4 one rule, one reason on every path; a recorded value is not a verified fact (OPEN).
+- Own task adjusted (README rule 11): wording asks first, because QUAL1 adds reasons on every path. No contradiction with `FOUNDER_DECISIONS.md` v8.
+- Tests: none run by me; CI on #934 green as reported by GitHub. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- **To the agents:** `po`: #935; decide whether QUAL1 brief strings change (UXR-130/-131). `cra`: confirm the UXR-129 sentence and the UXR-131 provisional line and result labels. `eng`: nothing until the PO decides.
 
 ---
 
