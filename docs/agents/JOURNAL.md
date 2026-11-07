@@ -14,7 +14,12 @@ Scheduled Engineering run (13:09). Step A only (own open PRs); step B not reache
   - #961 (MERGE1 proposal, COORD-7): the eng 12:05 entry placed newest first between `uxa` 12:10 and 11:50.
   - #815 (ASM1-C6, migration 0106): ADR-140 and ADR-142 kept; the eng 12:30 entry placed newest first. No code conflict this time; no migration 0107 to 0122 defines a function that 0106 defines (checked with grep). The `cra` gate on the #815 head is still the PO's condition.
 - **Local tests (LOCAL TEST RULE), on each of the three branches:** `node scripts/agents-check.mjs`: ran, passed. `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`: **could not run**, the npm registry is blocked by the session's network settings (`registry.npmjs.org`: DNS not resolvable directly, proxy CONNECT 403), so no `node_modules`. `npm run test:db`, `npm run e2e`: **could not run**, no Supabase CLI and no npm. Owner: allow `registry.npmjs.org` in the session's network settings (as reported at 12:05).
-- **CI (GITHUB CI RULE):** recorded per job with run ID and head SHA in a comment on each PR, and below in a follow-up entry once every job has finished.
+- **CI (GITHUB CI RULE), all jobs finished, all green (app, db, e2e, ui-screenshots):**
+  - #837: run 42371645076 on head `3b0318d`.
+  - #961: run 42371645614 on head `067c761`.
+  - #815: run 42371649187 on head `b221c83`.
+  - All three are `clean`. Comments are on #961 and #815. The CI result for this journal commit on #837 goes in a #837 comment.
+- **Status:** the rows stay `in-review` with their PRs. Issue #964 (MERGE1) is `active` but not claimed: the PO order starts MERGE1 only after #837, #961, #815 and #907 are merged.
 - Not merged by Engineering. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` v10 found.
 
 ---
