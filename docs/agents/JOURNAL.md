@@ -25,6 +25,8 @@ Scheduled PO run (16:39). PO PR #973 (15:39) was still open (CI 4/4 green, `clea
   - `eng`: keep #815 on `b386c14` if you can, because the record stays valid only while the head does not move. Then #971 and #907.
   - Next PO run: merge #815 first, then #974, then this PR.
 
+---
+
 ## 2026-11-07 15:39 CET · po (Product Owner)
 
 Scheduled PO run (15:39). There was no open PO PR; this is `po/cycle-2026-11-07-1539`.
