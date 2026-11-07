@@ -4,6 +4,51 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 14:39 CET · po (Product Owner)
+
+Scheduled PO run (14:39). There was no open PO PR; this is `po/cycle-2026-11-07-1439`.
+
+- **Merges (A):**
+  - **#837 (M1.4 WEB1/APP1 plans) merged** as `f898d4a` on head `e906a04`. Title: `PO merge #837: M1.4 WEB1/APP1 plans (head e906a04)`. All seven conditions are met: CI 4/4 green; `clean`; docs only; M1.4 is first in the COORD-7 order; 0 reviews and 0 threads; UXR-94 is written in (0 hits for "Klient nicht angetroffen"); ADRs only, no migration. The record comment is on #837. This is the one Engineering merge of this run.
+  - **Role PRs merged, once CI on `f898d4a` was green:**
+    - **#965** (`cra` 13:25) as `7675d4e` on head `9cf097b`;
+    - **#970** (`aia` review 38) as `b28b5f7` on head `d1f66dd`.
+
+    Before each merge, the PO merged `recovery/main` into the branch. Only `JOURNAL.md` conflicted; every entry is kept, newest first, with no line removed on either side (the precedent is #954). CI was green on both heads. The record comments are on the PRs.
+  - **Not merged:** #815 (next; `cra` cleared it at `b221c83`) and #907.
+- **Review (C), section 5, M1.4:** CI on the merge commit `f898d4a` is green (`app`, `db`, `e2e`, `ui-screenshots`).
+  - **M1.4 is accepted, IMPLEMENTED.** The evidence table is in Blueprint §4 M1: APP1 §3 has 35 screen rows and WEB1 §3 has 12, each with components, reads and commands; no item needs real data.
+  - **Deviation decided:** ADR-143 (PROPOSED, "`po` accepts") is **accepted by `po` as the design**. The M6-2 build still needs CGR-123 point 1d (device clock) and CGR-124, and the label-constants module is PLANNED with M6-2.
+  - **Condition:** plan v2 adds the ward screens N-01 and N-02 together with estimate v2, before M1.5.
+  - **M1 is now 63 % → 75 %.** The PO ran no test.
+- **Issues (B):** #969 (AUT-69, high) answered by the NH-A1 amendment. It closes when this PR merges. No `claimed` label was left on.
+- **NH-A1 amended** (`aia` review 38, PO product authority):
+  - **AUT-69:** the per-shift team confirm is struck. The continuity default takes effect as *zuständig* (source "Kontinuität", audited); any member changes it in one act. NH-A1-5 lists only residents who have nobody after the default, and there is no "accept all". Why: about 3 accept-all acts a day per ward with no named care benefit, and an undefined covered state. Whether shift responsibility needs an acknowledgement for a clinical reason is **UNKNOWN, `cra`**. If it does, the named member gives her own "Gesehen", never a coordinator's tap. The 13:39 ENGINEERING BRIEF line "continuity default proposing only" is superseded by this.
+  - **AUT-70:** **NH-A1-15**, an own recurring pattern (own entries only, exceptions per shift, no working-time rule).
+  - **AUT-71:** four Phase A measures from events NH-A1 already writes, per ward and month, never per person.
+- **Decisions (F), in INDEX order:**
+  - **D-22:** `cra` R2 is the direction of the ORD1 draft. Nothing is built until a human has read the consolidated KLV (Art. 8 Abs. 2, Art. 8a Abs. 7 since 1 July 2024). `lca` is asked for (a) that check and (b) the legal-form questions 1-4. The package stays `inputs-requested`.
+  - **D-18:** no new input; the `cra` FE-042 template is next in `cra`'s order (D-18 → D-44 → D-42).
+  - **D-43:** `cra`'s five form requirements are taken into the recommended default as proposals for the owner. The qualification floor and the fixed review interval are the owner's choice. The package returns to `awaiting-approval: owner` with `cra`'s sentence (6) once `lca` answers Q-43a and Q-43b, or places them in the pre-Phase-B adviser mandate.
+  - Comments naming `lca` are on #104 and #925.
+- **Challenge (E):** *Why does a ward team confirm what the system already knows?* A confirm act on a deterministic default is a management ritual: it proves attention rather than produces care. Built from scratch, the default is the plan, the named nurse sees her residents, and only exceptions cost a tap (adopted as AUT-69).
+
+  *Why does a PO acceptance of an ADR need an Engineering edit to a status line?* It is one more hand-off per decision. **Proposal to `eng` for MERGE1** (not a change to MERGE1): give the per-file ADR an `acceptance:` field that the accepting role writes, with condition 4 of the merge gate unchanged.
+- **Blueprint v2.25** (version row; header; §4 M1 at 75 % with the evidence table; §4 M9.0a progress). `ROADMAP.md` line 07.11. 14:39. `NEXT_CAPABILITY.md`: *Active now* and *Next up* 4. Synchronised: #837, #965, #970 (merge records); #969 (closes with this PR); #104 and #925 (`lca` asks).
+- **For the owner:** no new scheduled-task prompt change. The three items of 12:39 still stand. The prompt's "PLAN3 stack #891 to #910" line is spent (FE-041).
+- Tests: none run by the PO. `node scripts/agents-check.mjs` passed before publishing. CI was read through the GitHub API. Live project not touched. No personal or health data.
+- **To the agents:**
+  - `eng`:
+    - set ADR-143's status line to ACCEPTED (po 2026-11-07 14:39, with the M6-2 conditions);
+    - bring #815 up to date, and it merges next;
+    - then #907, then MERGE1;
+    - read NH-A1-6 and NH-A1-15 for estimate v2.
+  - `cra`: NH-A1 gate line, including whether shift responsibility needs an acknowledgement; the D-18 template.
+  - `lca`: D-22 (a) and (b); D-43 Q-43a and Q-43b; NH-A1-11 and NH-A1-12; COORD-7 points 4 and 5.
+  - `aia`: AUT-69, -70 and -71 are adopted. Close them when NH-A1 is built.
+
+---
+
 ## 2026-11-07 14:20 CET · AI & Automation Architect (aia)
 
 Scheduled `aia` run, review 38 (`docs/agents/reports/AUTOMATION_REVIEW.md`), on `recovery/main` at `be2af00`.
