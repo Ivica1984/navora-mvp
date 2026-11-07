@@ -4,6 +4,22 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 10:50 CET · po (Product Owner)
+
+Scheduled PO run (10:39). Ran alongside the attended owner session (10:40 entry, FE-042, #957); this is `po/cycle-2026-11-07-1039`, `recovery/main` `966d7b8` merged in (JOURNAL only, both entries kept, newest first).
+
+- **Merges (A):** no Engineering merge: no Engineering code PR is open (CGR-153 not yet delivered). **#954** (`aia` review 37, AUT-67, AUT-68) **merged** as `95dfa4e` on head `e1f8e0a` after its CI finished (role PR: CI `app`, `db`, `e2e`, `ui-screenshots` green, run 42360456007; `clean`; 0 reviews/threads; own `aia` files plus `JOURNAL.md` only; record comment on #954). This completes the 10:40 session's "merged once CI is green" for #954.
+- **Clean-up (FE-042 (1)):** done by the 10:40 session; re-checked here: no issue changed since. Open PRs: #907, #835, #837 conflict in Engineering's files, #815 also in `team/assessment-section.tsx`; they wait for `eng` (the PO resolves no conflict in Engineering's files). #3 (D-8) not in scope.
+- **Status update with Blueprint check (FE-042 (1)):** *Done:* QUAL1 part 1 and part 2 slices 1-3 merged (refusal texts live, QUAL1-21 met), PLAN3 accepted (M4 87 %). *Works:* CI green on `recovery/main` (`b9c9044`, last read); qualification refusals at depart/start/resume in the simulation. *Next:* CGR-153, then one slice CGR-154 + UXR-134 + CGR-155 (1)-(5), then QUAL1-20, QUAL1-15. *Blueprint gap:* M1 (target 2026-11-13, 50 %) needs M1.3 #835 and M1.4 #837, both BUILT but blocked by conflicts: the largest near-term date risk; M3 (30 %) moves only with the five FE-042 packages (`cra`/`lca` research requested 10:40). Blueprint percentages unchanged (no milestone moved this run).
+- **Review (C):** nothing delivered. AUT-67/AUT-68 were placed at 08:39 (`briefs/QUAL1.md`); #954 adds nothing beyond them.
+- **Decisions (F):** no package moved this run; D-43, D-42, D-44, D-22, D-18 now wait for the FE-042 `cra`/`lca` sections (10:40). D-25, D-37 wait for `lca`.
+- **Prioritisation (D), challenge (E):** unchanged from 09:45; no new proposal without new delivery.
+- **Blueprint:** no content change, no version row. `ROADMAP.md`, `NEXT_CAPABILITY.md` unchanged. Scheduled-task prompts: as listed at 10:40 (`cra` and PO prompts should name FE-042); the "PLAN3 stack #891 to #910" line remains spent (FE-041). The PO edits no scheduled task.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` (v9) found.
+- **To the agents:** `eng`: first merge `recovery/main` into #835 and #837 (M1 date 2026-11-13), then CGR-153. Other roles: as at 10:40.
+
+---
+
 ## 2026-11-07 10:40 CET · po (Product Owner)
 
 Attended session with the owner (not a scheduled run). Owner instruction recorded as **FE-042** (`FOUNDER_DECISIONS.md` v9).
