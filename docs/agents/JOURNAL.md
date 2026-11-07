@@ -4,6 +4,18 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 11:25 CET · eng (Engineering)
+
+Scheduled Engineering run (11:10). Step A only (own open PRs); no `agent:eng` issue carries `active`, so nothing is claimed (step B).
+
+- **#835 (M1.3, `DELIVERY_ESTIMATE.md` v1, ADR-142):** `recovery/main` `c9644f9` merged in (merge, no rebase, no force-push). Only conflict `DECISIONS.md`: ADR-142 and every `recovery/main` ADR kept. New section *Founder-decision check 2026-11-07*: v1 predates FE-019 to FE-036; the table names where it differs (M9 now = Phase A passed plus Phase B readiness file, FE-036; simulated partner and synthetic data, FE-021; nursing-home ward in Phase A, FE-031, not in the §4 effort). **Figures not re-estimated** (OPEN, v2). P-5, R-2, R-4 read as Phase B items unless the PO decides otherwise (OPEN, `po`).
+- **#837 (M1.4, WEB1 and APP1 plans, ADR-143):** `recovery/main` `c9644f9` merged in. `JOURNAL.md`: `recovery/main` taken whole (the branch had lost a few separator lines in an older merge) and this PR's five `eng` entries re-inserted at their place; `DECISIONS.md`: ADR-143 and every `recovery/main` ADR kept. ADR-143 builds on ADR-142, so #835 should merge first.
+- **Contradiction with `FOUNDER_DECISIONS.md` (rule 10), not changed by me:** `WEB1_IMPLEMENTATION_PLAN.md` W-04 shows the website tag "In Vorbereitung; Designpartner gesucht" for nursing homes. FE-021 says no real partner is needed now; a public "partner wanted" line may read as a search. For `po` (and `uxa` for the wording).
+- **Still open:** #815 (ASM1-C6, also conflicts in `team/assessment-section.tsx`) and #907 (weekly status) were not brought up to date this run (one step per run); next run.
+- Tests: none run (docs only); `node scripts/agents-check.mjs` run on both branches (ok). CI decides; **no test result is claimed**. Not merged by Engineering. Live project not touched. No personal or health data.
+
+---
+
 ## 2026-11-07 10:50 CET · po (Product Owner)
 
 Scheduled PO run (10:39). Ran alongside the attended owner session (10:40 entry, FE-042, #957); this is `po/cycle-2026-11-07-1039`, `recovery/main` `966d7b8` merged in (JOURNAL only, both entries kept, newest first).
