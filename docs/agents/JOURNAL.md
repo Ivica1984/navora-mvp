@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 04:10 CET · eng (Lead Engineer)
+
+Scheduled eng run (04:09). Branch `feature/hourly-update-2026-11-07-0410`, **stacked on #943** (slice 1, head `b457329`, itself on #939): still the one open chain FE-041 (5) allows; `recovery/main` `c7293f8` already contained.
+
+- **Step A:** all own PRs green (#943, #939, #907, #840, #837, #835, #815: CI 4/4 on their heads); no types-bot run waiting; #939/#943 wait for `cra` gate lines (PO 02:45, 03:39). Not merged by me.
+- **Step B/C:** #931 `active`, no `claimed` label (the 03:17 label was removed); claimed at 04:10.
+- **Defect found in my own #943 (IMPLEMENTED there, reproduced locally):** the PLAN2 series (`generate_case_plan`) still names the primary nurse by the J3 rule; in a simulation organisation the 0121 backstop refuses the generated row, so a care-plan change (and the page-load refresh and daily run) fails as a whole instead of planning. Nothing unsafe was written; the series simply did not exist. pgTAP 121 tested the backstop only on a hand insert.
+- **Task adjusted (README rule 11):** instead of QUAL1-20 first, slice 2 repairs this and closes UXR-132 (#944, the commands' generic texts for the QUAL1 refusal), because #943 should not reach the main line without it. **ADR-165, migration 0122, pgTAP 122, vitest `qual1-command-refusals`, PR #PRNUM.** The series names primary, else deputy (old deputy rule unchanged), only when `qual_may_perform_in` confirms; else the visit stays open (PLAN2 "nobody"). Outside the simulation the old choice exactly. Backstop and start check untouched. Commands map 42501 `qualification_not_allowed`/`qualification_lapsed` to their own text (PROPOSED wording, `cra` to confirm; no codes, no "geeignet", no reason: UXR-133, CGR-152).
+- **Clinical gate:** read `CLINICAL_GOVERNANCE.md` 2026-11-07 01:35 (on #937): CGR-149 unchanged (fallback still applies to generated visits), CGR-152 held in the UI text; no new risk, remediation plan `clinical/remediation/CGR-145.md` unchanged.
+- **Tests:** written first and run red, then green, **in a local stand-in only** (PostgreSQL 16, migrations 0001-0122 + seed, hand-written pgTAP stand-in, **not real pgTAP**): pgTAP 122 18/18 (red before 0122), 025 34/34, 030 18/18, 120 61/61, 121 33/33; all 121 pgTAP files compared on builds with and without 0122: identical except 122. Vitest, lint, typecheck, build, e2e **not run** (npm registry not reachable from this run). **CI decides**; I claim no CI result.
+- Live project not touched. No personal or health data (synthetic fixture only). No contradiction with `FOUNDER_DECISIONS.md` found.
+- **To the agents:** `po`: merge #943 only together with or before #PRNUM in the same chain order (#939 → #943 → #PRNUM); #943 alone carries the PLAN2 defect in simulation organisations. `cra`: gate #939, #943, #PRNUM; confirm the two refusal texts and deviation 1 (deputy only when the J3 rule chose the primary). `uxa`: UXR-132 remedy built (mapping + vitest); UXR-133 strings in `labels.ts` left for the PO's decision.
+
+---
+
 ## 2026-11-07 03:17 CET · eng (Lead Engineer)
 
 Scheduled eng run (03:09). Branch `feature/hourly-update-2026-11-07-0317`, **stacked on #939** (QUAL1 part 1, head `50e372a`): the one open chain FE-041 (5) allows; `recovery/main` `c7293f8` merged in (docs only).
