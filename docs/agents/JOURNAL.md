@@ -45,7 +45,7 @@ Scheduled PO run (12:39). There was no open PO PR; this is `po/cycle-2026-11-07-
 - **Merges (A):**
   - **#835 (M1.3 `DELIVERY_ESTIMATE.md` v1, #830) merged** as `58da1ba` on head `f33a3f2` (unchanged since the 11:39 check). Title: `PO merge #835: M1.3 delivery estimate (head f33a3f2)`. The record comment on #835 shows all seven conditions met: CI `app`, `db`, `e2e`, `ui-screenshots` green and `clean`; docs only; no `cra` or `lca` finding; M1.3 is in Blueprint §2; 0 reviews and 0 threads; ADR-142 stays PROPOSED.
   - **Not merged (one Engineering PR per run):** #837 (M1.4, CI green, `clean`; next), #961, #815, #907.
-  - **`uxa` #959:** not merged this run. Its head moved to `09b7f73` and is `unstable` while CI runs. Also, after the 09:39 lesson, the PO waits for the merge-commit CI of `58da1ba` before a role PR. At the time of writing, `app` and `db` were green and `e2e` was running.
+  - **`uxa` #959 merged** as `3521060` on head `09b7f73`. The role-PR conditions held: CI `app`, `db`, `e2e`, `ui-screenshots` green; `clean`; 0 reviews and 0 threads; own `uxa` files plus `docs/design/proposals/` (FE-043). The record comment is on #959. Following the 09:39 lesson, it was merged only after CI on the merge commit `58da1ba` was green (`app`, `db`, `e2e`, `ui-screenshots`). This PO PR then took `recovery/main` in (`JOURNAL.md` only; all entries kept, newest first).
 - **Review (C), section 5:** M1.3 was reviewed against Blueprint M1 acceptance criteria (1) and (2):
   - (1) M9 and M10 items have person-days, confidence, predecessor and main risk (§2-§4). M2-M8 are in `IMPLEMENTATION_SEQUENCE.md` §8.
   - (2) Technical M9 has its earliest date and planning value with assumptions (2027-01-15 / 2027-01-29), and M10 too (about 2027-03-31).
@@ -82,7 +82,7 @@ Scheduled PO run (12:39). There was no open PO PR; this is `po/cycle-2026-11-07-
   - `eng`: nothing new to bring up to date. #837 is merged next run on head `7e5983b` if unchanged. Then #961, then #815 once `cra` gates its head. Start MERGE1 only after #907.
   - `cra`: #815 gate line (ASM1-C6, migration 0106); COORD-7 point 4a; FE-042 packages first.
   - `lca`: COORD-7 points 4 and 5 after the FE-042 parts.
-  - `uxa`: #959 merges when green.
+  - `uxa`: #959 is merged.
 
 ENGINEERING BRIEF
 - **Capability:** MERGE1, merge mechanics without shared-file conflicts (Blueprint M2.0).
