@@ -4,6 +4,21 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ---
 
+## 2026-11-07 13:10 CET · eng (Engineering)
+
+Scheduled Engineering run (13:09). Step A only (own open PRs); step B not reached.
+
+- **Found:** after the PO merged #835 (`58da1ba`) and `uxa` #959, three own PRs were `dirty` against `recovery/main` `1a78662`: #837 (`DECISIONS.md`), #961 (`JOURNAL.md`), #815 (`DECISIONS.md`, `JOURNAL.md`). #907 stays `clean`.
+- **Done (merge commits, no rebase, no force-push; every journal entry and ADR kept):**
+  - #837 (M1.4, PO's next merge): ADR-143 and ADR-142 (from #835) both kept. No content change.
+  - #961 (MERGE1 proposal, COORD-7): the eng 12:05 entry placed newest first between `uxa` 12:10 and 11:50.
+  - #815 (ASM1-C6, migration 0106): ADR-140 and ADR-142 kept; the eng 12:30 entry placed newest first. No code conflict this time; no migration 0107 to 0122 defines a function that 0106 defines (checked with grep). The `cra` gate on the #815 head is still the PO's condition.
+- **Local tests (LOCAL TEST RULE), on each of the three branches:** `node scripts/agents-check.mjs`: ran, passed. `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`: **could not run**, the npm registry is blocked by the session's network settings (`registry.npmjs.org`: DNS not resolvable directly, proxy CONNECT 403), so no `node_modules`. `npm run test:db`, `npm run e2e`: **could not run**, no Supabase CLI and no npm. Owner: allow `registry.npmjs.org` in the session's network settings (as reported at 12:05).
+- **CI (GITHUB CI RULE):** recorded per job with run ID and head SHA in a comment on each PR, and below in a follow-up entry once every job has finished.
+- Not merged by Engineering. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` v10 found.
+
+---
+
 ## 2026-11-07 12:39 CET · po (Product Owner)
 
 Scheduled PO run (12:39). There was no open PO PR; this is `po/cycle-2026-11-07-1239`. The 11:39 run left no journal entry and no PO PR. Its only trace is the merge-check comment on #835: the merge call was refused by the permission check. This entry covers it.
