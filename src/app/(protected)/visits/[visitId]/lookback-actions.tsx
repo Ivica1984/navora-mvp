@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { pickerMemberLabel } from "@/features/team/member-label";
 import { confirmSuggestion } from "@/features/ai/commands";
 import type { RecordLookbackLine, TeamMemberOption } from "@/features/ai/queries";
 import {
@@ -142,7 +143,7 @@ function LookbackLine({
                   <option value="" disabled>{RESPONSIBLE_PICK_TEXT}</option>
                   {members.map((m) => (
                     <option key={m.user_id} value={m.user_id}>
-                      {m.me ? `${m.name ?? "Ich"} (du)` : (m.name ?? "Teammitglied")}
+                      {pickerMemberLabel(m)}
                     </option>
                   ))}
                 </select>

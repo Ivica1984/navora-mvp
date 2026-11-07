@@ -9,7 +9,7 @@
 export const DAY_PLAN_REASONS: Readonly<Record<string, string>> = {
   primary_nurse: "Bezugspflegende",
   deputy: "Stellvertretung",
-  knows_client: "kennt die Klientin",
+  knows_client: "kennt Klient:in", // UXR-101 (PO 2026-11-06 06:30): no gendered client noun
   free_capacity: "freie Kapazität",
 };
 
@@ -26,10 +26,15 @@ const REFUSALS: Readonly<Record<string, string>> = {
   agent_off: UNAVAILABLE,
   agent_stopped: UNAVAILABLE,
   team_off: "Der Tagesvorschlag ist für euer Team ausgeschaltet.",
-  date_out_of_range: "Ein Vorschlag ist für heute bis in 14 Tage möglich.",
-  open_proposal: "Für diesen Tag liegt schon ein Vorschlag vor. Entscheidet zuerst seine offenen Zeilen.",
+  date_out_of_range: "Ein Vorschlag ist nur für heute und die nächsten 14 Tage möglich.", // UXR-100
   nothing_open: "An diesem Tag ist kein Einsatz offen.",
 };
+
+/**
+ * The refusal codes `propose_day_plan` returns (0109). PLAN3-15 (0116, ADR-157): `open_proposal` is gone; a fresh
+ * request closes the earlier undecided lines instead.
+ */
+export const DAY_PLAN_REFUSAL_CODES: readonly string[] = Object.keys(REFUSALS);
 
 /** The stated reason of a proposed line, or null for a code the database does not return. */
 export function lineReasonText(reason: string, knownVisits: number | null): string | null {
@@ -69,8 +74,9 @@ export function switchedOnLine(isoDate: string | null): string | null {
 /**
  * PLAN3-14 (ADR-146, `cra` CGR-136): on the day-load line of a member who also has visits that day in
  * another team (cover or a second membership). Only that they exist: no count, no client, no time.
- * Wording proposed by the PO (#874), open for `uxa`.
+ * Wording `uxa` UXR-98 (1) (2026-11-05 19:50): the minutes on the same line count this team only, so the fact says
+ * that it is not counted there.
  */
 export function otherTeamVisitsLine(hasOtherTeamVisits: boolean | null): string | null {
-  return hasOtherTeamVisits === true ? "weitere Einsätze in anderen Teams" : null;
+  return hasOtherTeamVisits === true ? "Dazu Einsätze in anderen Teams, hier nicht mitgezählt." : null;
 }

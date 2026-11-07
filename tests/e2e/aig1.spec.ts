@@ -72,7 +72,8 @@ test.describe.serial("AIG1 confirm screen at 390 px (Testorganisation E)", () =>
 
     // The record shows the value and "vorgeschlagen von <Agent> / … bestätigt von <Name> am <Datum>" for this one value.
     await page.goto(`/visits/${VISIT_E_1300}`);
-    await expect(page.getByTestId("visit-responsible")).toHaveText("Pflegekraft Team E");
+    // PLAN3-17 (2) (ADR-159): the responsible line uses the picker label, so the caller's own name ends "(du)".
+    await expect(page.getByTestId("visit-responsible")).toHaveText("Pflegekraft Team E (du)");
     await expect(page.getByTestId("value-provenance")).toHaveText(
       `vorgeschlagen von ${AGENT} / geändert und bestätigt von Pflegekraft Team E am ${zurichToday()}`,
     );
@@ -180,6 +181,27 @@ test.describe("AIG1 health and look-back lists at desktop width (Testorganisatio
     const lines = list.getByTestId("lookback-line");
     await expect(lines).toHaveCount(4);
     await expect(page.getByTestId("lookback-open-count")).toHaveText("Werte: 2 offen · 1 nicht mehr offen");
+    // PLAN3-13 (ADR-150): the measure per team after the list (uxa UXR-115), counts only (pgTAP 113 owns every count).
+    const measure = page.getByTestId("stop-measure-row");
+    await expect(measure).toHaveCount(1);
+    await expect(measure.getByRole("rowheader")).toHaveText("Testteam F");
+    await expect(measure.getByTestId("stop-measure-lines_at_stop")).toHaveText("4");
+    await expect(measure.getByTestId("stop-measure-superseded")).toHaveText("1");
+    await expect(measure.getByTestId("stop-measure-not_open_at_stop")).toHaveText("0");
+    await expect(measure.getByTestId("stop-measure-became_not_open")).toHaveText("1");
+    await expect(measure.getByTestId("stop-measure-days_to_zero_open")).toHaveText(/^noch \d offen$/);
+    // UXR-115: the lines that need re-checking come first; at 390 px one card per team and no sideways scroll.
+    const firstLine = await lines.first().boundingBox();
+    const figures = await page.getByTestId("stop-measures").boundingBox();
+    expect(firstLine && figures && firstLine.y < figures.y).toBe(true);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(measure).toBeHidden();
+    const card = page.getByTestId("stop-measure-card");
+    await expect(card).toHaveCount(1);
+    await expect(card.getByTestId("stop-measure-card-lines_at_stop")).toHaveText("4");
+    await expect(card.getByTestId("stop-measure-card-days_to_zero_open")).toHaveText(/^noch \d offen$/);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+    await page.setViewportSize({ width: 1280, height: 900 });
     // AIG1-14: no confirmer's name, no "bestätigt von", no outcome, no person filter or sort.
     await expect(list).not.toContainText(CONFIRMER_F);
     await expect(list).not.toContainText("bestätigt von");
@@ -212,6 +234,70 @@ test.describe("AIG1 health and look-back lists at desktop width (Testorganisatio
     await expect(page.getByTestId("record-back")).toHaveText("Zurück zur Liste");
     await page.getByTestId("record-back").click();
     await page.waitForURL(new RegExp(`/operations/assistenten/rueckblick/${STOP_F}$`));
+  });
+});
+
+// PLAN3-7 (ADR-151): Operations opens the day-plan team measures from the health list. Testorganisation F has no
+// day-plan line (only the synthetic test agent), so the page shows its empty state or a row without any day plan; pgTAP
+// 114 owns every value. Never a person's name.
+test.describe("PLAN3-7: Tagesvorschlag in Zahlen at desktop width (Testorganisation F)", () => {
+  test("the page is reached from the health list, per team only, without a person", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await signIn(page, "opsf.test@navora.test");
+    await page.goto("/operations/assistenten");
+    await page.getByTestId("plan-team-measures-link").click();
+    await page.waitForURL(/\/operations\/assistenten\/tagesvorschlag$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Tagesvorschlag in Zahlen");
+    const section = page.getByTestId("plan-team-measures");
+    await expect(section).toBeVisible();
+    await expect(page.getByTestId("plan-team-measures-error")).toHaveCount(0);
+    const rows = page.getByTestId("plan-team-measure-row");
+    if ((await rows.count()) === 0) {
+      await expect(page.getByTestId("plan-team-measures-empty")).toBeVisible();
+    } else {
+      await expect(rows.first().getByTestId("plan-team-measure-day_plans")).toHaveText(/^0 · 0 Zeilen$/);
+    }
+    await expect(page.locator("main")).not.toContainText(CONFIRMER_F);
+    await expect(page.locator("main")).not.toContainText("bestätigt von");
+    // ?monat=YYYY-MM selects a month.
+    await page.goto("/operations/assistenten/tagesvorschlag?monat=2026-01");
+    await expect(page.getByRole("main")).toContainText("(2026-01)");
+  });
+});
+
+// PLAN3-11 (ADR-149, migration 0111): after a stop, the team finds its own look-back lines on `/team`. Runs before the
+// AIG1-C1 / AIG1-C2 block below (one worker, file order): that block, with #814's CGR-106 "Ändern" test, decides every
+// open line of stop F, and at "0 offen" `/team` shows no entry (AIG1-C5 (d)). Here the seeded count reads 2 (1 if the
+// health and look-back tests above ever decide a line). This block only reads.
+test.describe.serial("PLAN3-11: the team finds its own look-back lines on /team at 390 px (Testorganisation F)", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signIn(page, "teamf.test@navora.test");
+  });
+
+  test("/team shows the stop with both counts and one link; the list names no person and a line opens its record with 'Erneut bestätigen'", async ({ page }) => {
+    await page.goto("/team");
+    const entry = page.getByTestId("team-lookback-entry");
+    await expect(entry).toHaveCount(1);
+    await expect(entry).toContainText(new RegExp(`${AGENT} gestoppt · Werte: [12] offen · 1 nicht mehr offen`));
+    await entry.getByRole("link", { name: "Werte prüfen" }).click();
+    await page.waitForURL(new RegExp(`/team/rueckblick/${STOP_F}$`));
+
+    const list = page.getByRole("list", { name: "Betroffene Werte" });
+    await expect(list.getByTestId("lookback-line").first()).toBeVisible();
+    // AIG1-14: no confirmer's name, no "bestätigt von" on the list.
+    await expect(page.getByText(CONFIRMER_F)).toHaveCount(0);
+    await expect(page.getByText(/bestätigt von/)).toHaveCount(0);
+    // No horizontal scroll at 390 px.
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+
+    // AIG1-C2: the line opens its record, which offers the team's action and links back to this list.
+    await page.locator(`a[href^="/visits/${VISIT_F_UNQUALIFIED}?von=team-rueckblick"]`).click();
+    await page.waitForURL(new RegExp(`/visits/${VISIT_F_UNQUALIFIED}\\?`));
+    await expect(page.getByTestId("record-lookback").getByRole("button", { name: "Erneut bestätigen" })).toBeVisible();
+    await expect(page.getByTestId("record-back")).toHaveText("Zurück zur Liste");
+    await page.getByTestId("record-back").click();
+    await page.waitForURL(new RegExp(`/team/rueckblick/${STOP_F}$`));
   });
 });
 
