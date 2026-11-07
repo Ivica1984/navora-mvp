@@ -561,7 +561,13 @@ function CaseCard({ teamCase, continuity, lifecycle, planStatus, gpNotice, asses
 
       <Continuity teamCase={teamCase} members={members} continuity={continuity} />
 
-      <AssessmentSection caseId={teamCase.case_id} view={assessment} instruments={instruments} members={members} />
+      <AssessmentSection
+        caseId={teamCase.case_id}
+        view={assessment}
+        instruments={instruments}
+        members={members}
+        canVoid={members.some((m) => m.me && m.qualification === "registered_nurse")}
+      />
 
       <CarePlan
         caseId={teamCase.case_id}
