@@ -6,16 +6,30 @@ Newest first. One short entry per session or hand-off: date and time (Europe/Zur
 
 ## 2026-11-07 10:50 CET · po (Product Owner)
 
-Scheduled PO run (10:39). No PO PR was open; this is `po/cycle-2026-11-07-1039`.
+Scheduled PO run (10:39). Ran alongside the attended owner session (10:40 entry, FE-042, #957); this is `po/cycle-2026-11-07-1039`, `recovery/main` `966d7b8` merged in (JOURNAL only, both entries kept, newest first).
 
-- **Merges (A):** no Engineering merge: no Engineering code PR is open (CGR-153 not yet delivered). Engineering docs PRs #907, #837, #835, #815 untouched (not next in order). **#954** (`aia` review 37, AUT-67, AUT-68) **merged** as `95dfa4e` on head `e1f8e0a` (role PR: `aia` merged `recovery/main` in, conflict gone; CI `app`, `db`, `e2e`, `ui-screenshots` green, run 42360456007, read after waiting for it; `clean`; 0 reviews/threads; own `aia` files plus `JOURNAL.md` only; record comment on #954).
-- **Review (C):** nothing delivered; no merge of code. AUT-67 and AUT-68 were placed at 08:39 (`briefs/QUAL1.md`: AUT-68 is the QUAL1-15 record shape, AUT-67 is QUAL1-22); #954 adds nothing beyond them. AUT-61 stays QUAL1-20 (PLANNED).
-- **Issues:** no `agents`/`agent:po` issue changed since 09:45; none claimed. #935, #950, #944, #931 stay open (reasons as at 09:45).
-- **Decisions (F):** no package moved; no new `lca` or `cra` input since the 09:45 entry. D-25, D-37 wait for `lca`; D-42, D-43, D-44 stay `awaiting-approval: owner`.
-- **Prioritisation (D) and challenge (E):** unchanged from 09:45 (Billing largest Phase A gap; QUAL1 part 2 order CGR-153 → CGR-154 + UXR-134 + CGR-155 → QUAL1-20 → QUAL1-15 → UXR-136 → NH-EXT). No new proposal: nothing new to challenge without new delivery.
-- **Blueprint:** no content change, no version row (a role docs merge is not milestone progress). `ROADMAP.md`, `NEXT_CAPABILITY.md` unchanged. Scheduled-task prompts: the "PLAN3 stack #891 to #910" line remains spent (FE-041); the PO does not edit scheduled tasks.
-- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` found.
-- **To the agents:** `eng`: next CGR-153, then one slice CGR-154 + UXR-134 + CGR-155 (1)-(5). Other roles: as at 09:45.
+- **Merges (A):** no Engineering merge: no Engineering code PR is open (CGR-153 not yet delivered). **#954** (`aia` review 37, AUT-67, AUT-68) **merged** as `95dfa4e` on head `e1f8e0a` after its CI finished (role PR: CI `app`, `db`, `e2e`, `ui-screenshots` green, run 42360456007; `clean`; 0 reviews/threads; own `aia` files plus `JOURNAL.md` only; record comment on #954). This completes the 10:40 session's "merged once CI is green" for #954.
+- **Clean-up (FE-042 (1)):** done by the 10:40 session; re-checked here: no issue changed since. Open PRs: #907, #835, #837 conflict in Engineering's files, #815 also in `team/assessment-section.tsx`; they wait for `eng` (the PO resolves no conflict in Engineering's files). #3 (D-8) not in scope.
+- **Status update with Blueprint check (FE-042 (1)):** *Done:* QUAL1 part 1 and part 2 slices 1-3 merged (refusal texts live, QUAL1-21 met), PLAN3 accepted (M4 87 %). *Works:* CI green on `recovery/main` (`b9c9044`, last read); qualification refusals at depart/start/resume in the simulation. *Next:* CGR-153, then one slice CGR-154 + UXR-134 + CGR-155 (1)-(5), then QUAL1-20, QUAL1-15. *Blueprint gap:* M1 (target 2026-11-13, 50 %) needs M1.3 #835 and M1.4 #837, both BUILT but blocked by conflicts: the largest near-term date risk; M3 (30 %) moves only with the five FE-042 packages (`cra`/`lca` research requested 10:40). Blueprint percentages unchanged (no milestone moved this run).
+- **Review (C):** nothing delivered. AUT-67/AUT-68 were placed at 08:39 (`briefs/QUAL1.md`); #954 adds nothing beyond them.
+- **Decisions (F):** no package moved this run; D-43, D-42, D-44, D-22, D-18 now wait for the FE-042 `cra`/`lca` sections (10:40). D-25, D-37 wait for `lca`.
+- **Prioritisation (D), challenge (E):** unchanged from 09:45; no new proposal without new delivery.
+- **Blueprint:** no content change, no version row. `ROADMAP.md`, `NEXT_CAPABILITY.md` unchanged. Scheduled-task prompts: as listed at 10:40 (`cra` and PO prompts should name FE-042); the "PLAN3 stack #891 to #910" line remains spent (FE-041). The PO edits no scheduled task.
+- Tests: none run by the PO; CI read through the GitHub API. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data. No contradiction with `FOUNDER_DECISIONS.md` (v9) found.
+- **To the agents:** `eng`: first merge `recovery/main` into #835 and #837 (M1 date 2026-11-13), then CGR-153. Other roles: as at 10:40.
+
+---
+
+## 2026-11-07 10:40 CET · po (Product Owner)
+
+Attended session with the owner (not a scheduled run). Owner instruction recorded as **FE-042** (`FOUNDER_DECISIONS.md` v9).
+
+- **PR clean-up:** **#840** closed as superseded by #907 (comment). **#954** (`aia`): `recovery/main` merged in on the owner's request (`JOURNAL.md` only, every entry kept, `aia`'s 08:20 entry placed by time; no other file touched); merged once CI is green. **#907, #835, #837** conflict in Engineering's files (`IMPLEMENTATION_STATUS.md`, `DECISIONS.md`, `JOURNAL.md`), **#815** also in `src/app/(protected)/team/assessment-section.tsx`: the PO does not resolve conflicts in Engineering's files; `eng` brings them up to date.
+- **Issues closed after verification** (comment with evidence each): #861 (PO merges in force, FE-01), #935 (UXR-129, built by #953 `ac6a303`), #506 (fixed grids removed `e8b2e53`/`a71be19`, UX1 accepted), #919 (pgTAP 080, #922 `4af6f8d`, >60 green `db` runs), #399 (pgTAP 062, #810 `a39d963`). **Kept open with reason:** #508 (internal codes still visible in user text: D-3, D-16, D-31, D-33 in `cover`, `quality`, `lifecycle`, `push` rules), #510 (until UX2 is accepted), #603 (root cause UNKNOWN), #944, #950 (QUAL1 part 2).
+- **FE-042 (2):** D-43, D-42, D-44, D-22, D-18 unfrozen (trigger 1): each package's *Clinical impact* now carries a dated request for a detailed `cra` research section and decision template (sources with links, options, reasoning, residual risks, the sentence to approve); legal parts to `lca`. One comment on each decision issue (#925, #909, #932, #104, #80), label `agent:cra` added.
+- **Blueprint v2.22** (version row, header, §7). **For the scheduled prompts (owner; the PO edits none):** the `cra` prompt should name FE-042 so its next runs work these five packages before routine reviews; the PO prompt should end every run with the FE-042 (1) status update.
+- Tests: none run by the PO. `node scripts/agents-check.mjs` run before publishing. Live project not touched. No personal or health data.
+- **To the agents:** `cra`: FE-042: research and decision templates for D-43, D-42, D-44, D-22, D-18 (order: D-43 first, it gates QUAL1 and every clinical package). `lca`: the legal parts of the same packages. `eng`: merge `recovery/main` into #815, #835, #837, #907; #508 needs the remaining codes removed from user text.
 
 ---
 
